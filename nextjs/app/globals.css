@@ -372,9 +372,7 @@ html[data-theme='dark'] body {
   background-color: var(--collage-paper);
   background-image: none;
 }
-html[data-active-page='home'],
 html[data-active-page='start'],
-html[data-active-page='home'] body,
 html[data-active-page='start'] body {
   --food-ink: #15120e;
   --food-paper: #fff;
@@ -414,9 +412,7 @@ html[data-active-page='start'] body {
   background-image: none;
   color-scheme: light;
 }
-html[data-theme='dark'][data-active-page='home'],
 html[data-theme='dark'][data-active-page='start'],
-html[data-theme='dark'][data-active-page='home'] body,
 html[data-theme='dark'][data-active-page='start'] body {
   --food-ink: #15120e;
   --food-paper: #fff;
@@ -468,19 +464,14 @@ html[data-theme='dark'] [data-hub] {
 }
 /* Home uses a light cassette-table surface; black is reserved for rails,
    outlines, and media frames rather than the page background. */
-html[data-active-page='home'] [data-hub],
 html[data-active-page='start'] [data-hub] {
   background: var(--food-paper);
 }
-html[data-active-page='home'],
 html[data-active-page='start'],
-html[data-active-page='home'] body,
 html[data-active-page='start'] body {
   background-color: var(--food-paper);
 }
-html[data-theme='dark'][data-active-page='home'],
 html[data-theme='dark'][data-active-page='start'],
-html[data-theme='dark'][data-active-page='home'] body,
 html[data-theme='dark'][data-active-page='start'] body {
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
@@ -488,7 +479,6 @@ html[data-theme='dark'][data-active-page='start'] body {
   color: var(--food-ink);
   color-scheme: light;
 }
-html[data-theme='dark'][data-active-page='home'] [data-hub],
 html[data-theme='dark'][data-active-page='start'] [data-hub] {
   background: var(--food-paper);
 }

@@ -9,8 +9,11 @@
 .body {
   position: relative;
   display: grid;
+  grid-template-areas:
+    "ask"
+    "avatar";
   grid-template-columns: 1fr;
-  gap: clamp(16px, 3vw, 32px);
+  gap: clamp(10px, 2vw, 18px);
   align-items: start;
   overflow: hidden;
   padding: clamp(20px, 4vw, 44px);
@@ -19,29 +22,37 @@
   border-radius: var(--home-radius-btn);
 }
 
+.ask {
+  grid-area: ask;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .panelHead:global(.hv-head) {
-  grid-column: 1 / -1;
   margin-bottom: 0;
 }
 
 .panelHead :global(.hv-title) {
-  max-width: 720px;
+  max-width: 760px;
 }
 
 /* ── Remy stage — freigestellt, no background sun ── */
 .avatarWrap {
-  order: 2;
+  grid-area: avatar;
   position: relative;
   justify-self: center;
   width: 100%;
-  max-width: clamp(190px, 54vw, 290px);
+  max-width: clamp(280px, 82vw, 430px);
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-top: clamp(10px, 2.4vw, 22px);
-  margin-top: clamp(-18px, -3vw, -8px);
-  margin-bottom: clamp(-52px, -8vw, -28px);
+  padding-top: 0;
+  margin-top: clamp(-42px, -7vw, -26px);
+  margin-bottom: clamp(-92px, -13vw, -56px);
 }
 
 .avatar {
@@ -103,16 +114,14 @@
 
 /* ── copy column ── */
 .copy {
-  order: 1;
-  position: relative;
-  z-index: 2;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  margin-top: clamp(10px, 1.4vw, 16px);
 }
 
 .lead {
-  margin: 0 0 clamp(12px, 1.8vw, 18px);
+  margin: 0 0 clamp(8px, 1.2vw, 12px);
   font-family: var(--font-providence);
   font-size: clamp(16px, 1.5vw, 21px);
   font-weight: 700;
@@ -200,20 +209,27 @@
 /* ── desktop: copy left, big Remy right ── */
 @media (min-width: 720px) {
   .body {
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
-    padding: clamp(34px, 4.8vw, 58px);
-    /* Center the short copy against the tall Remy so it doesn't float at the
-       top-left with a large void beside the illustration. */
+    grid-template-areas:
+      "ask avatar";
+    grid-template-columns: minmax(360px, 0.96fr) minmax(360px, 0.72fr);
+    min-height: clamp(360px, 31vw, 430px);
+    padding: clamp(30px, 3.4vw, 48px) clamp(34px, 4.4vw, 64px);
     align-items: center;
-    gap: clamp(24px, 3vw, 40px) clamp(32px, 5vw, 64px);
+    gap: clamp(32px, 5vw, 78px);
+  }
+
+  .ask {
+    align-self: center;
+    max-width: 650px;
+    transform: translateY(clamp(-18px, -1.8vw, -8px));
   }
 
   .avatarWrap {
-    align-self: start;
+    align-self: end;
     justify-self: end;
-    max-width: clamp(320px, 34vw, 440px);
-    margin-top: clamp(-42px, -4vw, -24px);
-    margin-bottom: clamp(-60px, -5vw, -34px);
+    max-width: clamp(410px, 38vw, 530px);
+    margin-top: clamp(-44px, -3vw, -24px);
+    margin-bottom: clamp(-112px, -7vw, -70px);
   }
 
   .avatar {

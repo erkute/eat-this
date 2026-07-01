@@ -52,7 +52,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;
-  if(p==='/')slug='home';
+  if(p==='/')slug='start';
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);

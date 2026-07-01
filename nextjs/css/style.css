@@ -199,22 +199,13 @@ body {
   justify-content: space-between;
   min-height: 74px;
   padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
-  background-color: var(--et-red);
+  background-color: var(--home-ink);
   background-image: none;
   border-bottom: 0;
   border-top: 0;
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-}
-[data-active-page="home"] .navbar,
-[data-active-page="start"] .navbar {
-  background-color: #fff;
-  border-bottom: 0;
-}
-[data-theme="dark"][data-active-page="home"] .navbar,
-[data-theme="dark"][data-active-page="start"] .navbar {
-  background-color: #fff;
 }
 .navbar::before,
 .navbar::after {
@@ -231,7 +222,7 @@ body {
   display: none;
 }
 [data-theme="dark"] .navbar {
-  background-color: var(--et-red);
+  background-color: var(--home-ink);
   background-image: none;
   border-color: transparent;
 }
@@ -3586,7 +3577,7 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .navbar {
   min-height: 78px;
   padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(18px, 3vw, 38px) 13px;
-  background-color: var(--et-red);
+  background-color: var(--home-ink);
   background-image: none;
   background-size: auto;
   border-top: 0;
@@ -3627,7 +3618,7 @@ body:has(.burger-drawer.active) .burger-btn {
   box-shadow: none;
 }
 [data-theme="dark"] .navbar {
-  background-color: var(--et-red);
+  background-color: var(--home-ink);
   color: var(--et-black);
 }
 [data-theme="dark"] .navbar-icon-btn,
@@ -3647,7 +3638,7 @@ body:has(.burger-drawer.active) .burger-btn {
   border-bottom: 0;
 }
 [data-theme="dark"] .navbar {
-  background-color: var(--et-red);
+  background-color: var(--home-ink);
   background-image: none;
   border-bottom-color: transparent;
   color: var(--et-black);
@@ -3700,42 +3691,6 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .navbar-icon-btn.active::before {
   background: currentColor;
 }
-/* 2026-06 cassette drawer: paper tracklist panel, cold paper rows, black rail. */
-/* Final override against older dark-drawer rules emitted by legacy chunks. */
-html[data-active-page="home"] .navbar,
-html[data-active-page="start"] .navbar,
-html[data-theme="dark"][data-active-page="home"] .navbar,
-html[data-theme="dark"][data-active-page="start"] .navbar,
-html[data-active-page="home"] .navbar.scrolled,
-html[data-active-page="start"] .navbar.scrolled,
-html[data-theme="dark"][data-active-page="home"] .navbar.scrolled,
-html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
-  background-color: #d9382a !important;
-  color: #fff !important;
-  border-bottom: 0 !important;
-}
-html[data-active-page="home"] .navbar-icon-btn,
-html[data-active-page="home"] .burger-btn,
-html[data-active-page="home"] .navbar-icon-btn.active,
-html[data-active-page="home"] .navbar-icon-btn:hover,
-html[data-active-page="home"] .burger-btn:hover,
-html[data-active-page="start"] .navbar-icon-btn,
-html[data-active-page="start"] .burger-btn,
-html[data-active-page="start"] .navbar-icon-btn.active,
-html[data-active-page="start"] .navbar-icon-btn:hover,
-html[data-active-page="start"] .burger-btn:hover,
-html[data-theme="dark"][data-active-page="home"] .navbar-icon-btn,
-html[data-theme="dark"][data-active-page="home"] .burger-btn,
-html[data-theme="dark"][data-active-page="home"] .navbar-icon-btn.active,
-html[data-theme="dark"][data-active-page="home"] .navbar-icon-btn:hover,
-html[data-theme="dark"][data-active-page="home"] .burger-btn:hover,
-html[data-theme="dark"][data-active-page="start"] .navbar-icon-btn,
-html[data-theme="dark"][data-active-page="start"] .burger-btn,
-html[data-theme="dark"][data-active-page="start"] .navbar-icon-btn.active,
-html[data-theme="dark"][data-active-page="start"] .navbar-icon-btn:hover,
-html[data-theme="dark"][data-active-page="start"] .burger-btn:hover {
-  color: #fff !important;
-}
 /* Burger menu layout repair: keep nav and legal links in normal document flow.
    Older overrides stretched the nav items to consume remaining height, which
    made them collide with Impressum/Datenschutz/AGB on shorter viewports. */
@@ -3752,7 +3707,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
   padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
   display: flex !important;
   align-items: center !important;
-  background: #d9382a !important;
+  background: var(--home-ink) !important;
   color: #fff !important;
   border-bottom: 0 !important;
   box-shadow: none !important;
@@ -3840,26 +3795,22 @@ html .navbar-icon-btn.active::before {
 /* Burger menu viewport fit: no bottom micro-wordmark, no internal scroll. */
 /* Burger menu spacing pass: remove rule-lines and list-counter strip. */
 /* Burger menu mobile fit: use the full viewport without leaving a dead band. */
-/* Final header color contract: red bar, white text, no bottom rule. Kept last
+/* Final header color contract: ink bar, white text, no bottom rule. Kept last
    because this file still contains older navbar repair blocks. */
 html .navbar,
 html .navbar.scrolled,
-html[data-active-page="home"] .navbar,
 html[data-active-page="start"] .navbar,
 html[data-theme="dark"] .navbar,
 html[data-theme="dark"] .navbar.scrolled,
-html[data-theme="dark"][data-active-page="home"] .navbar,
 html[data-theme="dark"][data-active-page="start"] .navbar {
-  background: #d9382a !important;
-  background-color: #d9382a !important;
+  background: var(--home-ink) !important;
+  background-color: var(--home-ink) !important;
   color: #fff !important;
   border-bottom: 0 !important;
   box-shadow: none !important;
 }
 html .navbar-icon-btn,
 html .burger-btn,
-html[data-active-page="home"] .navbar-icon-btn,
-html[data-active-page="home"] .burger-btn,
 html[data-active-page="start"] .navbar-icon-btn,
 html[data-active-page="start"] .burger-btn,
 html[data-theme="dark"] .navbar-icon-btn,
@@ -4169,7 +4120,7 @@ html[data-theme="dark"] .burger-btn {
    ============================================ */
 .homeV2{background:var(--home-paper);color:var(--home-ink);font-family:var(--font-providence)}
 .homeV2 .hv-wrap{max-width:1360px;margin:0 auto;padding:0 clamp(24px,4vw,56px)}
-.homeV2 .hv-section{margin-top:clamp(56px,7vw,112px)}
+.homeV2 .hv-section{margin-top:clamp(72px,8vw,128px)}
 .homeV2 .hv-kicker{font-family:'Silkscreen';font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--home-ink)}
 .homeV2 .hv-mk{display:inline-block;width:9px;height:9px;background:var(--home-accent);margin-right:8px;vertical-align:1px}
 .homeV2 .hv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(16px,2vw,28px)}
@@ -4188,5 +4139,5 @@ html[data-theme="dark"] .burger-btn {
 .homeV2 .hv-chip{font-family:var(--font-providence);font-weight:700;font-size:12px;padding:9px 15px;border-radius:7px;background:var(--home-quiet);color:var(--home-ink);border:none;cursor:pointer}
 @media (max-width:760px){
   .homeV2 .hv-wrap{padding:0 16px}
-  .homeV2 .hv-section{margin-top:40px}
+  .homeV2 .hv-section{margin-top:64px}
 }

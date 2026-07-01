@@ -1,32 +1,24 @@
-/* ============================================================
-   SEO Hub pages — shared module for /bezirk, /bezirk/[slug],
-   /kategorie, /kategorie/[slug].
-   Mockup direction: SCREEN 6 — LANDING (SEO).
-   Cream-on-ink with Brand-Yellow CTA accents. Anton display,
-   DM Sans body. Scoped tokens — diese Pages ignorieren das
-   globale [data-theme="dark"] bewusst, Marketing-Surface
-   bleibt brand-cream.
-============================================================ */
+
 
 .page {
-  /* Scoped tokens — pixel-genaue Mockup-Werte */
-  --ink: #000;
-  --cream: #fbf8ee;
-  --cream-deep: #f1ecdd;
-  --yellow: #ffd84a;
-  --muted: #6b5a44;
-  --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
+  /* Scoped tokens — aligned to the Home paper/ink/accent contract. */
+  --ink: var(--et-home-ink);
+  --cream: var(--et-home-paper);
+  --cream-deep: var(--et-home-quiet);
+  --yellow: var(--et-home-accent);
+  --muted: var(--et-home-muted);
+  --f-display: var(--et-font-display);
   --f-body: var(--font);
 
   /* Bridge semantic tokens so shared components (Breadcrumbs,
-     HubMapCTA, MustEatTeaserSection, DetailPageOutro) rendern
-     in der cream-Palette statt im Dark-Mode-Lookup. */
+     HubMapCTA, MustEatTeaserSection, DetailPageOutro) render in the
+     Home paper palette. */
   --text-primary: var(--ink);
-  --text-secondary: #2a2218;
+  --text-secondary: var(--et-home-muted);
   --text-muted: var(--muted);
   --surface-bg: var(--cream);
   --surface-card: var(--cream);
-  --border-subtle: rgba(0, 0, 0, 0.18);
+  --border-subtle: var(--et-home-line);
   --border-strong: var(--ink);
   --accent: var(--yellow);
 
@@ -50,8 +42,9 @@
 .hero {
   margin: 8px 0 28px;
   padding: clamp(24px, 5vw, 52px);
-  background: var(--et-cream);
-  box-shadow: 0 18px 34px rgba(43, 33, 28, .12);
+  background: var(--et-home-paper);
+  border-radius: var(--et-radius-photo);
+  box-shadow: var(--et-shadow-none);
   text-align: left;
   transform: rotate(-.2deg);
 }
@@ -70,7 +63,7 @@
   line-height: 1.0;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--collage-red);
+  color: var(--et-home-red);
   /* Chewy is far wider/rounder than the old Anton — smaller max + a touch
      more top margin so long names (FRIEDRICHSHAIN) don't overflow and the
      umlaut dots (SÜSSES, KÖPENICK) clear the kicker line above. */
@@ -608,102 +601,125 @@
   color: var(--ink);
 }
 
-/* ============================================================
-   DARK MODE — everything goes dark, yellow accents → red.
-   The page leans on scoped tokens (--ink/--cream/--yellow/--muted)
-   so re-pointing those flips most surfaces; hard-coded values and
-   yellow-fill special cases are handled below.
-============================================================ */
-html[data-theme="dark"] .page {
-  --ink: #f0e8d0;
-  --cream: #111110;
-  --cream-deep: #1d1c19;
-  --yellow: var(--c-coral);
-  --muted: rgba(240, 232, 208, 0.72);
-
-  --text-primary: #f0e8d0;
-  --text-secondary: rgba(240, 232, 208, 0.82);
-  --text-muted: rgba(240, 232, 208, 0.72);
-  --surface-bg: #111110;
-  --surface-card: #1d1c19;
-  --border-subtle: rgba(240, 232, 208, 0.3);
-  --border-strong: #f0e8d0;
-  --accent: var(--c-coral);
-}
-
-html[data-theme="dark"] .hero,
-html[data-theme="dark"] .bezirkCard {
-  background: #181112;
-  box-shadow: 0 18px 34px rgba(0, 0, 0, .32);
-}
-
-/* Cards on now-dark surface — raised tone + cream hairline */
-html[data-theme="dark"] .card {
-  background: var(--cream-deep);
-  border-color: var(--cream-deep);
-}
-html[data-theme="dark"] .card:hover {
-  border-bottom-color: #f0e8d0;
-}
-html[data-theme="dark"] .cardPhoto {
-  background: #111110;
-}
-
-/* Yellow cuisine chip → coral fill with cream label */
-html[data-theme="dark"] .chipYellow {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-
-/* FAQ row hairlines */
-html[data-theme="dark"] .faqRow {
-  border-bottom-color: rgba(240, 232, 208, 0.2);
-}
-
-/* Final CTA is already an ink panel — keep bg/text, only flip the
-   yellow kicker accent to bright coral. NB: color explizit pinnen —
-   var(--cream) ist im Dark auf #111110 umgebogen, .finalCta/h2 nutzen
-   es aber als TEXTfarbe. */
-html[data-theme="dark"] .finalCta {
-  background: #1d1c19;
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .finalCta h2 { color: #f0e8d0; }
-html[data-theme="dark"] .fcKicker {
-  color: var(--c-coral-bright);
-}
-
-/* Bezirk index card — yellow hover → coral with cream name */
-html[data-theme="dark"] .bezirkCard:hover {
-  background: var(--c-coral);
-}
-html[data-theme="dark"] .bezirkCard:hover .bezirkName {
-  color: #fbf8ee;
-}
-
-/* Kategorie poster — empty placeholder yellow fill → coral, and the
-   drop-shadow on poster art deepens for the dark canvas. */
-html[data-theme="dark"] .posterFrameEmpty {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-html[data-theme="dark"] .posterFrame img {
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
-}
-
-/* DetailPageOutro bridge → dark surface */
-html[data-theme="dark"] .detailOutroWrap :global([data-detail-outro]) {
-  background: #111110;
-  color: #f0e8d0;
-}
-
 /* iOS Safari alpha-image fallback: prevent the category poster artwork shadow
    from being rasterized as a rectangular tile on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
   @media (pointer: coarse) {
-    .posterFrame img,
-    html[data-theme="dark"] .posterFrame img {
+    .posterFrame img {
       filter: none;
     }
   }
+}
+
+/* Final Home consolidation for district/category index and detail grids. */
+.page {
+  --ink: var(--et-home-ink);
+  --cream: var(--et-home-paper);
+  --cream-deep: var(--et-home-quiet);
+  --yellow: var(--et-home-accent);
+  --muted: var(--et-home-muted);
+  --f-display: var(--et-font-condensed);
+  --f-body: var(--font);
+  background: var(--et-home-paper);
+}
+
+.hero,
+.card,
+.posterCard,
+.bezirkCard,
+.finalCta {
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.hero {
+  padding-inline: 0;
+  border-bottom: 3px solid var(--ink);
+}
+
+.kicker,
+.crossLinksHead,
+.chipYellow,
+.chipOutline,
+.price {
+  font-family: var(--et-font-mono);
+  font-weight: 900;
+}
+
+.kicker {
+  color: var(--et-home-red);
+}
+
+.h1,
+.tagline,
+.sectionHead h2,
+.cardName,
+.bezirkName,
+.posterName,
+.finalCta h2 {
+  font-family: var(--et-font-condensed);
+  letter-spacing: 0;
+}
+
+.h1,
+.sectionHead h2,
+.cardName {
+  color: var(--ink);
+}
+
+.sub,
+.sectionHead p,
+.cardTip {
+  color: var(--muted);
+}
+
+.card,
+.posterCard,
+.bezirkCard {
+  border: 0;
+  border-bottom: 3px solid var(--ink);
+  background: transparent;
+}
+
+.card:hover,
+.posterCard:hover,
+.bezirkCard:hover {
+  transform: translateY(-3px);
+}
+
+.card:nth-child(odd),
+.card:nth-child(even) {
+  transform: none;
+}
+
+.cardPhoto,
+.posterFrame,
+.bezirkPhoto {
+  border-radius: var(--et-radius-photo);
+  background: var(--et-home-red);
+}
+
+.cardBody {
+  padding-inline: 0;
+}
+
+.chipYellow {
+  background: var(--et-home-red);
+  color: var(--et-home-paper);
+}
+
+.chipOutline,
+.crossLink {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.crossLink:hover {
+  background: var(--ink);
+  color: var(--cream);
+}
+
+.posterFrame img {
+  filter: none;
 }

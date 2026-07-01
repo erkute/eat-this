@@ -122,7 +122,7 @@ export default function MapFilterPickerSheet({
               className={`${styles.pickerItem} ${selectedValue === null ? styles.pickerItemActive : ''}`}
               onClick={() => { onSelect(null); onClose() }}
             >
-              <span>{allLabel}</span>
+              <span className={styles.pickerItemLabel}>{allLabel}</span>
             </button>
           )}
           {items.map(item => {

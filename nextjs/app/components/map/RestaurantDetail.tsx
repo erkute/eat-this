@@ -1,4 +1,5 @@
 'use client'
+import type { CSSProperties } from 'react'
 import { useMemo, useRef, useState } from 'react'
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
@@ -26,6 +27,62 @@ import { normalizeName } from '@/lib/normalizeName'
 import { useSwipePager } from './useSwipePager'
 import RestaurantGallery from './RestaurantGallery'
 import { trackEvent } from '@/lib/analytics'
+
+const DAY_ALIASES: Record<string, number> = {
+  su: 0,
+  sun: 0,
+  sunday: 0,
+  so: 0,
+  mo: 1,
+  mon: 1,
+  monday: 1,
+  tu: 2,
+  tue: 2,
+  tuesday: 2,
+  di: 2,
+  we: 3,
+  wed: 3,
+  wednesday: 3,
+  mi: 3,
+  th: 4,
+  thu: 4,
+  thursday: 4,
+  do: 4,
+  fr: 5,
+  fri: 5,
+  friday: 5,
+  sa: 6,
+  sat: 6,
+  saturday: 6,
+}
+
+const DAY_LABELS = {
+  de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+} as const
+
+function localizeOpeningDays(days: string, locale: string) {
+  const lang = locale === 'en' ? 'en' : 'de'
+  const labels = DAY_LABELS[lang]
+  return days
+    .split(',')
+    .map((group) => {
+      const parts = group.trim().split(/[–-]/).map((part) => part.trim())
+      const localized = parts.map((part) => {
+        const idx = DAY_ALIASES[part.toLowerCase()]
+        return idx === undefined ? part : labels[idx]
+      })
+      return localized.join('–')
+    })
+    .join(', ')
+}
+
+function localizeOpeningHours(hours: string, locale: string) {
+  if (/closed|ruhetag|geschlossen/i.test(hours)) {
+    return locale === 'en' ? 'closed' : 'geschlossen'
+  }
+  return hours
+}
 
 function MustEatMiniCard({
   mustEat,
@@ -122,7 +179,7 @@ export default function RestaurantDetail({
   const hasHours = !!(r.openingHours && r.openingHours.length > 0)
   const closeTime = status.isOpen ? (statusSub.match(/(\d{1,2}:\d{2})/)?.[1] ?? null) : null
   const openTag = status.isOpen
-    ? (closeTime ? `${t('map.open')} bis ${closeTime}` : t('map.open'))
+    ? (closeTime ? `${t('map.open')} ${locale === 'en' ? 'till' : 'bis'} ${closeTime}` : t('map.open'))
     : t('map.closed')
 
   // Scale the hero name down for long single words so they fit on one line
@@ -230,6 +287,13 @@ export default function RestaurantDetail({
     return images
   }, [detail?.gallery, displayName, r.photo, r.photoCredit, r.photoCreditUrl])
 
+  const heroStyle = r.photo
+    ? ({
+        '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
+        backgroundImage: `url(${r.photo})`,
+      } as CSSProperties)
+    : undefined
+
   return (
     <div className={styles.detailV13} role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
@@ -238,7 +302,7 @@ export default function RestaurantDetail({
         <header
           className={styles.rdHero}
           data-detail-hero
-          style={r.photo ? { backgroundImage: `url(${r.photo})` } : undefined}
+          style={heroStyle}
         >
           <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
             <CloseIcon />
@@ -376,8 +440,8 @@ export default function RestaurantDetail({
               <div className={`${styles.rdV} ${styles.rdHours}`}>
                 {r.openingHours!.map((slot, i) => (
                   <div key={i} style={{ display: 'contents' }}>
-                    <span className={styles.rdHoursD}>{slot.days}</span>
-                    <span className={styles.rdHoursT}>{slot.hours}</span>
+                    <span className={styles.rdHoursD}>{localizeOpeningDays(slot.days, locale)}</span>
+                    <span className={styles.rdHoursT}>{localizeOpeningHours(slot.hours, locale)}</span>
                   </div>
                 ))}
               </div>

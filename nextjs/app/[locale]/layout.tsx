@@ -41,14 +41,12 @@ export function generateStaticParams() {
 }
 
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
-// Runs synchronously in <head>: sets data-theme, data-active-page (read by CSS
-// selectors like [data-active-page="map"] .navbar), locks
-// portrait orientation on mobile, and applies the _authHint pre-hydration
+// Runs synchronously in <head>: sets data-active-page (read by CSS selectors
+// like [data-active-page="map"] .navbar), locks portrait orientation on mobile,
+// and applies the _authHint pre-hydration
 // login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
 // blocks can hide before paint.
 const CRITICAL_BOOTSTRAP = `(function(){
-  try{localStorage.removeItem('theme');}catch(_){}
-  document.documentElement.setAttribute('data-theme','light');
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;
@@ -108,7 +106,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    // suppressHydrationWarning: critical script mutates data-theme before hydration
+    // suppressHydrationWarning: critical script mutates data-active-page before hydration
     <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />

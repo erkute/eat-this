@@ -1,9 +1,9 @@
 .page,
 .frame {
-  --login-red: #d9382a;
-  --login-ink: #15120e;
-  --login-paper: #fff;
-  --login-muted: rgba(21, 18, 14, 0.64);
+  --login-red: var(--et-home-red);
+  --login-ink: var(--et-home-ink);
+  --login-paper: var(--et-home-paper);
+  --login-muted: var(--et-home-muted);
   --login-control: min(100%, 420px);
   color: var(--login-ink);
 }
@@ -55,8 +55,8 @@
   color: var(--login-ink);
   background: var(--login-paper);
   border: 2px solid var(--login-ink);
-  border-radius: 0;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-mono);
   font-size: 22px;
   font-weight: 900;
   line-height: 1;
@@ -98,7 +98,7 @@
   padding-right: 52px;
   padding-bottom: 10px;
   border-bottom: 4px solid var(--login-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-family: var(--et-font-condensed);
   font-size: clamp(58px, 6vw, 84px);
   font-weight: 400;
   letter-spacing: 0;
@@ -106,23 +106,15 @@
   text-transform: uppercase;
 }
 
-.modalTitle,
 .kicker,
 .menuTop span:last-child {
   color: var(--login-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-mono);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.14em;
   line-height: 1.1;
   text-transform: uppercase;
-}
-
-.modalTitle {
-  position: absolute;
-  top: clamp(102px, 9vw, 118px);
-  left: clamp(26px, 3vw, 38px);
-  margin: 0;
 }
 
 .modalPackHero,
@@ -496,12 +488,6 @@
     font-size: clamp(38px, 11vw, 48px);
   }
 
-  .modalTitle {
-    top: 72px;
-    left: 14px;
-    font-size: 10px;
-  }
-
   .modalPackHero,
   .packHero {
     padding-top: 28px;
@@ -538,11 +524,6 @@
     max-height: min(calc(100% - 8px), clamp(150px, 24svh, 180px));
   }
 
-  .modalTitle {
-    top: 64px;
-    font-size: 9px;
-  }
-
   .input,
   .ctaPrimary,
   .ctaGoogle,
@@ -567,29 +548,39 @@
   }
 }
 
-/* 2026 Starter Pack hero modal: pack as reward, auth as fast action. */
+/* 2026 Starter Pack modal: minimal home-like auth surface. */
 .frameModal {
-  width: min(980px, calc(100vw - 22px));
+  --login-paper: #fff;
+  --login-ink: #15120e;
+  --login-red: #15120e;
+  --login-muted: rgba(21, 18, 14, .66);
+  --login-panel: var(--login-paper);
+  --login-line: rgba(21, 18, 14, .18);
+  --login-soft: rgba(21, 18, 14, .06);
+
+  width: min(820px, calc(100vw - 22px));
   height: auto;
   max-height: calc(100svh - 22px);
   overflow: visible;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--et-radius-control);
   background: transparent;
 }
 
 .frameModal .close {
-  top: 20px;
-  right: 20px;
-  width: 42px;
-  height: 42px;
-  padding: 0 0 4px;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  padding: 0 0 3px;
   color: var(--login-ink);
   background: var(--login-paper);
-  border: 0;
-  border-radius: 4px;
+  border: 2px solid var(--login-ink);
+  border-radius: 0;
   box-shadow: none;
-  font-size: 38px;
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-size: 30px;
+  font-weight: 700;
   transform: none;
 }
 
@@ -603,147 +594,154 @@
 }
 
 .modalSimple {
-  height: min(640px, calc(100svh - 22px));
-  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
-  gap: 0;
-  padding: 0;
+  grid-template-columns: minmax(260px, .82fr) minmax(360px, 1fr);
+  height: auto;
+  min-height: 0;
+  max-height: calc(100svh - 22px);
   overflow: hidden;
-  background: var(--login-paper);
-  border: 2px solid var(--login-red);
-  border-radius: 10px;
   color: var(--login-ink);
-}
-
-.modalPack {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto auto auto;
-  gap: 10px;
-  min-height: 0;
-  padding: clamp(24px, 3vw, 34px) clamp(24px, 3.5vw, 42px) clamp(22px, 2.4vw, 26px);
-  overflow: hidden;
-  background: var(--login-red);
-}
-
-.modalBrand {
-  width: fit-content;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  color: var(--login-paper);
-  font-size: clamp(48px, 5.8vw, 82px);
-  line-height: 0.8;
-  transform: none;
-}
-
-.modalTitle {
-  position: relative;
-  top: auto;
-  left: auto;
-  width: min(100%, 15ch);
-  margin: -6px 0 0;
-  padding: 0;
-  color: var(--login-paper);
-  background: transparent;
-  border: 0;
+  background: var(--login-panel);
+  border: 2px solid var(--login-ink);
   border-radius: 0;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(32px, 4vw, 46px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.86;
-  text-transform: uppercase;
-  transform: none;
 }
 
-.modalPitch {
-  margin: 0;
-  color: var(--login-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(13px, 1.4vw, 17px);
-  font-weight: 900;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.modalBadge {
-  width: fit-content;
-  max-width: 100%;
-  margin: 0;
-  padding: 6px 9px 5px;
+.modalBenefits {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  align-content: center;
+  gap: clamp(16px, 2vw, 24px);
+  min-height: 0;
+  padding: clamp(34px, 4vw, 52px) clamp(28px, 4vw, 44px);
+  overflow: hidden;
   color: var(--login-paper);
   background: var(--login-ink);
-  border-radius: 4px;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(9px, 0.9vw, 10px);
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
+}
+
+.modalBenefitHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(94px, 11vw, 132px);
+  align-items: end;
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.modalBenefitIntro {
+  margin: 0;
+  color: var(--login-paper);
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-size: clamp(20px, 2.15vw, 28px);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+.modalPackArt {
+  justify-self: end;
+  width: 100%;
+  transform: rotate(-4deg);
+}
+
+.modalPackArt img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.modalBenefitList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(255, 255, 255, .24);
+}
+
+.modalBenefitList li {
+  display: grid;
+  gap: 5px;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .24);
+}
+
+.modalBenefitList span {
+  color: rgba(255, 255, 255, .62);
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
-.modalPackHero {
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  max-height: min(334px, 46svh);
-  padding: 8px 0 0;
-}
-
-.modalPackHero img {
-  max-width: min(96%, 390px);
-  max-height: min(326px, 45svh);
-  filter: none;
-  transform: rotate(-7deg) translateX(-8px);
+.modalBenefitList strong {
+  color: #fff;
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-size: clamp(16px, 1.5vw, 19px);
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.16;
 }
 
 .modalLogin {
+  box-sizing: border-box;
   display: grid;
   align-content: center;
-  gap: clamp(18px, 2.4vw, 26px);
+  gap: clamp(16px, 2vw, 22px);
   width: 100%;
   min-width: 0;
+  min-height: 0;
   margin: 0;
-  padding: clamp(48px, 6vw, 76px) clamp(34px, 5vw, 56px);
-  background: var(--login-paper);
+  padding: clamp(44px, 5vw, 64px) clamp(32px, 4.5vw, 54px);
+  background: var(--login-panel);
   border: 0;
   border-radius: 0;
   transform: none;
 }
 
 .modalLoginHead {
-  display: grid;
-  gap: 12px;
+  display: block;
+}
+
+.modalLoginHead,
+.modalForm,
+.frameModal .or,
+.frameModal .ctaGoogle,
+.frameModal .legal {
+  width: min(360px, calc(100vw - 54px));
+  max-width: none;
+  justify-self: start;
 }
 
 .modalEyebrow,
-.fieldLabel,
-.formHint {
+.fieldLabel {
   margin: 0;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-mono);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
 .modalEyebrow {
-  color: var(--login-ink);
-  font-size: 12px;
+  width: min(360px, calc(100vw - 54px));
+  max-width: none;
+  justify-self: start;
+  color: var(--login-red);
+  font-size: 11px;
 }
 
 .modalFormTitle {
+  width: min(360px, calc(100vw - 54px));
+  max-width: none;
+  justify-self: start;
   margin: 0;
-  max-width: 10ch;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(58px, 6vw, 88px);
-  font-weight: 400;
+  font-family: var(--et-font-display);
+  font-size: clamp(42px, 5.2vw, 66px);
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.82;
-  text-transform: uppercase;
+  line-height: .94;
+  text-transform: none;
 }
 
 .modalForm {
@@ -752,65 +750,83 @@
 }
 
 .fieldLabel {
-  font-size: 12px;
+  font-size: 11px;
 }
 
-.formHint {
-  color: rgba(21, 18, 14, 0.58);
-  font-size: 10px;
-  letter-spacing: 0.08em;
+.fieldLabelSr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .frameModal .input {
-  min-height: 58px;
+  min-height: 52px;
   padding: 0 16px;
-  background: #fff;
+  color: var(--login-ink);
+  background: var(--login-paper);
   border: 2px solid var(--login-ink);
-  border-radius: 4px;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(15px, 1.75vw, 18px);
+  border-radius: 0;
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-size: clamp(15px, 1.45vw, 17px);
   font-weight: 900;
+}
+
+.frameModal .input::placeholder {
+  color: color-mix(in srgb, var(--login-ink) 46%, transparent);
+}
+
+.frameModal .input:focus {
+  border-color: var(--login-ink);
+  box-shadow: 0 0 0 2px rgba(21, 18, 14, .18);
 }
 
 .frameModal .ctaPrimary,
 .frameModal .ctaGoogle {
-  min-height: 58px;
-  padding: 10px 18px;
+  min-height: 52px;
+  padding: 12px 18px 10px;
   border: 2px solid var(--login-ink);
-  border-radius: 4px;
-  font-size: clamp(23px, 2.6vw, 30px);
+  border-radius: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(16px, 1.5vw, 19px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.12;
+  overflow: hidden;
 }
 
 .frameModal .ctaPrimary span,
 .frameModal .ctaGoogle span {
+  min-width: 0;
   white-space: nowrap;
+  line-height: 1.12;
 }
 
 .frameModal .ctaPrimary {
   color: var(--login-paper);
-  background: var(--login-red);
-  border-color: var(--login-red);
+  background: var(--login-ink);
+  border-color: var(--login-ink);
 }
 
 .frameModal .ctaGoogle {
   justify-content: center;
-  background: #fff;
   color: var(--login-ink);
-  transform: rotate(-0.6deg);
+  background: var(--login-paper);
+  transform: none;
 }
 
 .frameModal .ctaPrimary:hover,
-.frameModal .ctaPrimary:focus-visible {
-  color: var(--login-paper);
-  background: var(--login-ink);
-  border-color: var(--login-ink);
-  outline: 0;
-}
-
+.frameModal .ctaPrimary:focus-visible,
 .frameModal .ctaGoogle:hover,
 .frameModal .ctaGoogle:focus-visible {
   color: var(--login-paper);
   background: var(--login-ink);
+  border-color: var(--login-ink);
   outline: 0;
 }
 
@@ -820,23 +836,23 @@
   gap: 14px;
   align-items: center;
   width: 100%;
-  margin: -4px 0;
+  margin: -2px 0;
+  color: var(--login-muted);
   text-align: center;
-  color: rgba(21, 18, 14, 0.62);
   font-size: 11px;
 }
 
 .frameModal .or::before,
 .frameModal .or::after {
   content: '';
-  border-top: 1px solid rgba(21, 18, 14, 0.3);
+  border-top: 1px solid var(--login-line);
 }
 
 .frameModal .legal {
   width: 100%;
-  margin: -4px 0 0;
-  color: rgba(21, 18, 14, 0.64);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  margin: -2px 0 0;
+  color: var(--login-muted);
+  font-family: var(--et-font-mono);
   font-size: 11px;
   font-weight: 900;
   line-height: 1.28;
@@ -848,6 +864,14 @@
   text-underline-offset: 3px;
 }
 
+:global(html[data-theme='dark']) .frameModal {
+  --login-paper: #fff;
+  --login-panel: #fff;
+  --login-ink: #15120e;
+  --login-muted: rgba(21, 18, 14, 0.68);
+  --login-line: rgba(21, 18, 14, 0.22);
+}
+
 @media (max-width: 820px) {
   .frameModal {
     width: min(440px, calc(100vw - 18px));
@@ -855,46 +879,37 @@
   }
 
   .modalSimple {
-    height: auto;
+    grid-template-columns: 1fr;
     min-height: 0;
     max-height: calc(100svh - 18px);
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, auto);
-    gap: 0;
-    padding: 0;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .modalPack {
-    grid-template-rows: auto minmax(0, 1fr) auto auto;
-    gap: 8px;
-    padding: 18px;
+  .modalBenefits {
+    gap: 14px;
+    padding: 48px 18px 18px;
   }
 
-  .modalBrand {
-    padding-right: 46px;
-    font-size: clamp(38px, 13vw, 54px);
+  .modalBenefitHead {
+    grid-template-columns: minmax(0, 1fr) clamp(82px, 24vw, 118px);
+    gap: 14px;
   }
 
-  .modalTitle {
-    width: min(100%, 13ch);
-    font-size: clamp(31px, 10vw, 42px);
+  .modalBenefitIntro {
+    max-width: 26ch;
+    font-size: clamp(20px, 7vw, 28px);
   }
 
-  .modalPackHero {
-    min-height: 210px;
-    justify-content: center;
-  }
-
-  .modalPackHero img {
-    max-height: min(270px, 34svh);
-    transform: rotate(-6deg);
+  .modalBenefitList li {
+    padding: 12px 0;
   }
 
   .modalLogin {
     width: 100%;
     margin: 0;
-    padding: 20px 18px 18px;
+    padding: 22px 18px 18px;
+    overflow: auto;
   }
 
   .modalLoginHead {
@@ -906,44 +921,35 @@
     font-size: 42px;
   }
 
-  .modalPitch {
-    font-size: 12px;
-  }
-
   .frameModal .close {
     top: 14px;
     right: 14px;
     width: 38px;
     height: 38px;
-    font-size: 33px;
+    font-size: 30px;
   }
 }
 
 @media (max-width: 420px) and (max-height: 740px) {
-  .modalSimple {
-    gap: 0;
-    padding: 0;
+  .modalBenefits {
+    padding: 46px 14px 14px;
   }
 
-  .modalBrand {
-    font-size: clamp(34px, 12vw, 46px);
+  .modalBenefitHead {
+    grid-template-columns: minmax(0, 1fr) 76px;
+    gap: 10px;
   }
 
-  .modalTitle {
-    font-size: clamp(27px, 9vw, 35px);
+  .modalBenefitIntro {
+    font-size: 20px;
   }
 
-  .modalPitch {
-    font-size: 10px;
-    line-height: 1.25;
+  .modalBenefitList li {
+    padding: 9px 0;
   }
 
-  .modalPackHero {
-    min-height: 132px;
-  }
-
-  .modalPackHero img {
-    max-height: 170px;
+  .modalBenefitList strong {
+    font-size: 15px;
   }
 
   .modalLogin {
@@ -958,12 +964,14 @@
   .frameModal .input,
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
-    min-height: 42px;
+    min-height: 48px;
   }
 
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
-    font-size: 21px;
+    padding-top: 10px;
+    padding-bottom: 9px;
+    font-size: 19px;
   }
 
   .frameModal .legal {

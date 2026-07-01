@@ -126,21 +126,3 @@
     max-width: 320px;
   }
 }
-
-/* ── Dark mode: cream booster panel → dark card, ink text → cream, yellow CTA
-   → red. Poster art (freigestellt) untouched. ── */
-html[data-theme="dark"] .boost {
-  background: var(--dk-card);
-  border-color: var(--dk-ink);
-}
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .title,
-html[data-theme="dark"] .desc,
-html[data-theme="dark"] .price { color: var(--dk-ink); }
-/* Spectrum accent (dark red on cream) → bright red for legibility on dark */
-html[data-theme="dark"] .spectrum { color: var(--c-coral-bright); }
-/* CTA: yellow fill + ink → red fill + cream label */
-html[data-theme="dark"] .cta {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}

@@ -1,14 +1,14 @@
 .page {
-  --conversion-surface: var(--color-surface-elevated, var(--collage-yellow, #ffd84a));
-  --conversion-ink: var(--color-text, #0a0a0a);
-  --conversion-action: var(--color-action, var(--collage-red, #e43d18));
-  --conversion-action-strong: var(--et-red-deep, #c61f28);
-  --conversion-action-text: var(--et-cream, #fbf8ee);
-  --conversion-border: rgba(10, 10, 10, .18);
-  --conversion-radius: var(--radius-md, 8px);
-  --conversion-pill: var(--radius-pill, 999px);
-  --conversion-shadow: var(--shadow-soft, var(--collage-shadow));
-  --conversion-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
+  --conversion-surface: var(--et-home-paper);
+  --conversion-ink: var(--et-home-ink);
+  --conversion-action: var(--et-home-red);
+  --conversion-action-strong: var(--et-home-ink);
+  --conversion-action-text: var(--et-home-inverse-text);
+  --conversion-border: var(--et-home-line);
+  --conversion-radius: var(--et-radius-photo);
+  --conversion-pill: var(--et-radius-pill);
+  --conversion-shadow: var(--et-shadow-none);
+  --conversion-motion: var(--et-motion-base);
   min-height: 100svh;
   display: flex;
   align-items: center;
@@ -29,12 +29,13 @@
   padding: 42px 32px;
   background: var(--conversion-surface);
   border-radius: var(--conversion-radius);
+  border: 1px solid var(--conversion-border);
   box-shadow: var(--conversion-shadow);
   transform: rotate(-1deg);
 }
 
 .eyebrow {
-  font-family: var(--font-label, var(--font-display));
+  font-family: var(--et-font-label);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.22em;
@@ -49,14 +50,14 @@
   letter-spacing: -0.035em;
   line-height: 1.05;
   color: var(--conversion-action);
-  font-family: var(--font-label, var(--font-display));
+  font-family: var(--et-font-display);
 }
 
 .packTag {
   display: inline-block;
   padding: 6px 14px;
   border: 1px solid var(--conversion-border);
-  background: rgba(242, 96, 77, 0.06);
+  background: var(--et-home-quiet);
   border-radius: var(--conversion-pill);
   font-size: 12px;
   font-weight: 700;
@@ -92,22 +93,15 @@
   border-radius: var(--conversion-pill);
   background: var(--conversion-action);
   color: var(--conversion-action-text);
-  font-family: var(--font-label, var(--font-display));
+  font-family: var(--et-font-display);
   font-weight: 800;
   font-size: 14px;
   letter-spacing: -0.005em;
   text-decoration: none;
-  box-shadow: 0 14px 30px -10px rgba(242, 96, 77, 0.55);
+  box-shadow: var(--et-shadow-none);
   transition: background-color var(--conversion-motion), transform var(--conversion-motion);
 }
 .cta:hover {
   background: var(--conversion-action-strong);
   transform: translateY(-1px);
 }
-
-@media (prefers-color-scheme: dark) {
-  .body { color: rgba(255, 255, 255, 0.78); }
-  .check { color: rgba(255, 255, 255, 0.5); }
-}
-[data-theme="dark"] .body { color: rgba(255, 255, 255, 0.78); }
-[data-theme="dark"] .check { color: rgba(255, 255, 255, 0.5); }

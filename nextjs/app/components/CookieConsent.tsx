@@ -83,17 +83,8 @@ function clearGaCookies() {
   }
 }
 
-// Recompute navbar.scrolled state after the banner slides out — it can drift
+// Recompute navbar.scrolled state after the banner slides out; it can drift
 // while the banner is overlaying.
-//
-// We deliberately do NOT poke the theme-color meta here anymore. The old
-// flip-to-black-then-back trick re-blended the start-page notch, but on iOS
-// `theme-color` drives BOTH the notch and the bottom URL bar: the poke made
-// Safari paint the translucent bottom bar as a solid color, and the effect
-// persisted across soft-navigation (accept on the landing page → bottom bar
-// stayed opaque all the way onto the map until a reload). The map's
-// blur-through bar matters more than re-blending the post-banner notch, so
-// the poke is gone entirely — the bottom bar keeps its default translucency.
 function flushPostBannerChrome() {
   const activePage = document.documentElement.getAttribute('data-active-page');
   const navbar = document.querySelector('.navbar');
@@ -147,10 +138,9 @@ export default function CookieConsent() {
   const [show, setShow] = useState(false);
   const [expanded, setExpanded] = useState(false);
   // After the dismiss slide-out finishes we UNMOUNT the banner (collapsed=true).
-  // The banner is position:fixed; on iOS Safari the GPU layer the slide
-  // animation promotes lingers in the bottom-URL-bar zone and paints the bar
-  // solid (black in dark mode) until a reload. Dropping it from the DOM clears
-  // that layer so the bar recovers immediately. Reset when the banner reopens.
+  // The banner is position:fixed; on iOS Safari the promoted GPU layer can
+  // linger in the bottom-URL-bar zone until a reload. Dropping it from the DOM
+  // clears that layer immediately. Reset when the banner reopens.
   const [collapsed, setCollapsed] = useState(false);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
 

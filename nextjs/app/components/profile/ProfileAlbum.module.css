@@ -124,21 +124,3 @@
   font-size: 14px;
   line-height: 1.45;
 }
-
-:global(html[data-theme='dark']) .panel {
-  background: #15120e;
-  color: #f7f7f3;
-}
-
-:global(html[data-theme='dark']) .title {
-  color: #f7f7f3;
-}
-
-:global(html[data-theme='dark']) .count {
-  color: #15120e;
-  background: #f7f7f3;
-}
-
-:global(html[data-theme='dark']) .emptyText {
-  color: rgba(247, 247, 243, 0.72);
-}

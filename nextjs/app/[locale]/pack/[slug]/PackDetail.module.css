@@ -4,18 +4,18 @@
    font → var(--font-ranchers) (= Chewy). Cream/black/yellow only. */
 
 .page {
-  --pack-surface: var(--color-surface, var(--et-cream, #fbf8ee));
-  --pack-ink: var(--color-text, #0a0a0a);
-  --pack-action: var(--color-action, var(--collage-red, #ef3108));
-  --pack-action-text: var(--et-cream, #fbf8ee);
-  --pack-accent: var(--color-accent, var(--brand-yellow, #ffd84a));
-  --pack-border: var(--color-border-strong, #0a0a0a);
-  --pack-muted: rgba(10, 10, 10, .58);
-  --pack-radius: var(--radius-md, 8px);
-  --pack-pill: var(--radius-pill, 999px);
-  --pack-shadow-hard: 4px 4px 0 var(--pack-border);
-  --pack-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
-  background: var(--et-yellow);
+  --pack-surface: var(--et-home-paper);
+  --pack-ink: var(--et-home-ink);
+  --pack-action: var(--et-home-red);
+  --pack-action-text: var(--et-home-inverse-text);
+  --pack-accent: var(--et-home-accent);
+  --pack-border: var(--et-home-ink);
+  --pack-muted: var(--et-home-muted);
+  --pack-radius: var(--et-radius-photo);
+  --pack-pill: var(--et-radius-pill);
+  --pack-shadow-hard: var(--et-shadow-none);
+  --pack-motion: var(--et-motion-base);
+  background: var(--et-home-paper);
   color: var(--pack-ink);
   display: flow-root; /* contain margins over the dark footer */
   /* Clear the fixed 64px SiteNav — this route has its own layout, not the
@@ -30,7 +30,7 @@
   padding: 28px 28px 42px;
   background: var(--pack-surface);
   border-radius: var(--pack-radius);
-  box-shadow: 0 18px 34px rgba(43, 33, 28, .13);
+  box-shadow: var(--et-shadow-none);
   transform: rotate(-.2deg);
 }
 
@@ -50,7 +50,7 @@
   transform: rotate(-2deg);
   /* Soft single shadow — matches HubPacks; a hard double shadow read as a
      boxy rectangle on the cut-out pack art. */
-  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .18));
+  filter: drop-shadow(0 10px 16px rgba(21, 18, 14, .14));
 }
 
 .kicker {
@@ -58,7 +58,7 @@
   font-size: 12px;
   letter-spacing: .22em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--pack-ink);
   opacity: .55;
   margin-bottom: 6px;
 }
@@ -67,7 +67,7 @@
   font-size: 56px;
   line-height: .95;
   text-transform: uppercase;
-  color: var(--collage-red);
+  color: var(--pack-action);
   margin: 0 0 14px;
   letter-spacing: -.005em;
 }
@@ -75,7 +75,7 @@
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
-  color: #0a0a0a;
+  color: var(--pack-ink);
   margin: 0 0 18px;
 }
 
@@ -84,14 +84,14 @@
   align-items: center;
   gap: 12px;
   padding: 14px 0;
-  border-top: 1.5px solid rgba(10, 10, 10, .18);
-  border-bottom: 1.5px solid rgba(10, 10, 10, .18);
+  border-top: 1.5px solid var(--et-home-line);
+  border-bottom: 1.5px solid var(--et-home-line);
   margin: 0 0 20px;
 }
 .price {
   font-family: var(--font-label, var(--font-ranchers));
   font-size: 36px;
-  color: #0a0a0a;
+  color: var(--pack-ink);
   line-height: 1;
 }
 .updates {
@@ -111,7 +111,7 @@
   font-size: 12px;
   letter-spacing: .22em;
   text-transform: uppercase;
-  color: rgba(10, 10, 10, .5);
+  color: var(--pack-muted);
   margin: 0 0 10px;
 }
 .list {
@@ -124,7 +124,7 @@
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(10, 10, 10, .12);
+  border-bottom: 1px solid var(--et-home-line);
 }
 .row:last-child {
   border-bottom: 0;
@@ -414,139 +414,6 @@
   }
 }
 
-/* ══════════════════════════════════════════════
-   DARK MODE — cream world flips dark, yellow → red.
-   Append-only; layout (padding-top/--staging-banner-h) untouched.
-   ══════════════════════════════════════════════ */
-html[data-theme="dark"] .page {
-  background: #111110;
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .inner {
-  background: #181112;
-  box-shadow: 0 18px 34px rgba(0, 0, 0, .35);
-}
-
-/* Pack art is freigestellt cut-out → never filter; soft shadow stays. */
-
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .name,
-html[data-theme="dark"] .sub {
-  color: #f0e8d0;
-}
-
-/* ── Facts row ── */
-html[data-theme="dark"] .facts {
-  border-top-color: rgba(240, 232, 208, 0.3);
-  border-bottom-color: rgba(240, 232, 208, 0.3);
-}
-html[data-theme="dark"] .price {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .updates {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-
-/* ── Inside list ── */
-html[data-theme="dark"] .insideLabel {
-  color: rgba(240, 232, 208, 0.55);
-}
-html[data-theme="dark"] .row {
-  border-bottom-color: rgba(240, 232, 208, 0.18);
-}
-html[data-theme="dark"] .thumb {
-  background: #f0e8d0;
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"] .rn {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .mn {
-  color: rgba(240, 232, 208, 0.55);
-}
-html[data-theme="dark"] .rowLocked .thumb {
-  background: rgba(240, 232, 208, 0.18);
-  color: #0a0a0a;
-}
-html[data-theme="dark"] .rowLocked .rn {
-  color: rgba(240, 232, 208, 0.5);
-}
-
-/* ── CTA — yellow sticker → red sticker, ink chrome → cream chrome ── */
-html[data-theme="dark"] .cta {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: #f0e8d0;
-  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
-}
-html[data-theme="dark"] .cta:hover {
-  box-shadow: 5px 5px 0 rgba(240, 232, 208, 0.25);
-}
-html[data-theme="dark"] .cta:active {
-  box-shadow: 1px 1px 0 rgba(240, 232, 208, 0.25);
-}
-html[data-theme="dark"] .cta:disabled {
-  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
-}
-html[data-theme="dark"] .ctaError {
-  color: var(--c-coral-bright);
-}
-
-/* ── Trust row ── */
-html[data-theme="dark"] .trust {
-  color: rgba(240, 232, 208, 0.55);
-}
-html[data-theme="dark"] .trust strong {
-  color: #f0e8d0;
-}
-
-html[data-theme="dark"] .upsell a {
-  color: #f0e8d0;
-  background: #181112;
-  border-color: rgba(240, 232, 208, .72);
-  box-shadow: 4px 4px 0 rgba(240, 232, 208, .22);
-}
-html[data-theme="dark"] .upsell a:hover {
-  box-shadow: 5px 5px 0 rgba(240, 232, 208, .22);
-}
-html[data-theme="dark"] .upsell a:active {
-  box-shadow: 1px 1px 0 rgba(240, 232, 208, .22);
-}
-html[data-theme="dark"] .upsellKicker {
-  color: rgba(240, 232, 208, .62);
-}
-html[data-theme="dark"] .upsellMain {
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"] .upsellMain strong {
-  background: #f0e8d0;
-  color: #0a0a0a;
-}
-
-/* ── All Berlin variant ── (stack art = freigestellt cut-outs: leave) ── */
-html[data-theme="dark"] .allName .y {
-  background: #f0e8d0;
-  color: #0a0a0a;
-}
-html[data-theme="dark"] .allPack {
-  background: #1d1c19;
-  border-color: rgba(240, 232, 208, 0.3);
-}
-html[data-theme="dark"] .allPack .cat {
-  color: #f0e8d0;
-}
-
-/* ── Bonus banner — yellow fill → red fill ── */
-html[data-theme="dark"] .bonus {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-html[data-theme="dark"] .bonusIcon {
-  background: #0a0a0a;
-  color: var(--c-coral-bright);
-}
-
 /* Touch WebKit fallback for transparent pack cut-outs. iOS Safari can turn
    filter: drop-shadow() into a boxy raster shadow during transforms. */
 @supports (-webkit-touch-callout: none) {
@@ -556,5 +423,123 @@ html[data-theme="dark"] .bonusIcon {
     .allPack img {
       filter: none;
     }
+  }
+}
+
+/* Final Home consolidation: pack pages use the same paper/ink/red rhythm as
+   the Home surface, with flat cards, shared type and restrained image chrome. */
+.page {
+  --pack-surface: var(--et-home-paper);
+  --pack-ink: var(--et-home-ink);
+  --pack-action: var(--et-home-red);
+  --pack-accent: var(--et-home-accent);
+  --pack-muted: var(--et-home-muted);
+  --pack-border: var(--et-home-ink);
+  --pack-radius: var(--et-radius-photo);
+  background: var(--et-home-paper);
+  color: var(--pack-ink);
+}
+
+.inner {
+  max-width: 760px;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.kicker,
+.insideLabel,
+.updates,
+.mn,
+.upsellKicker,
+.trust {
+  font-family: var(--et-font-mono);
+  font-weight: 900;
+}
+
+.name,
+.price,
+.rn,
+.upsellMain,
+.allPack .cat,
+.bonusIcon,
+.bonusText strong {
+  font-family: var(--et-font-condensed);
+  letter-spacing: 0;
+}
+
+.name {
+  color: var(--pack-ink);
+  font-size: clamp(58px, 12vw, 118px);
+  line-height: .78;
+}
+
+.sub {
+  max-width: 46ch;
+  color: var(--pack-muted);
+}
+
+.facts,
+.row,
+.upsell a,
+.allPack,
+.bonus {
+  border-color: var(--pack-border);
+  border-radius: var(--et-radius-control);
+  box-shadow: none;
+}
+
+.facts {
+  border-top-width: 3px;
+  border-bottom-width: 3px;
+}
+
+.updates,
+.bonus {
+  background: var(--pack-accent);
+}
+
+.thumb,
+.bonusIcon,
+.cta,
+.upsellMain strong {
+  background: var(--pack-ink);
+  color: var(--pack-surface);
+  border-radius: var(--et-radius-control);
+}
+
+.cta,
+.upsell a {
+  border-width: 2px;
+}
+
+.cta:hover,
+.upsell a:hover {
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+
+.packArt,
+.allStack img,
+.allPack img {
+  filter: none;
+}
+
+@media (min-width: 920px) {
+  .page {
+    padding-inline: var(--et-wrap-pad);
+  }
+
+  .stage {
+    padding-top: clamp(44px, 6vw, 82px);
+  }
+
+  .inner {
+    max-width: 1180px;
+    padding-inline: 0;
+  }
+
+  .name {
+    max-width: 8ch;
   }
 }

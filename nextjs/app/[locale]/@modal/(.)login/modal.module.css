@@ -17,3 +17,7 @@
     padding: 10px;
   }
 }
+
+:global(html[data-theme='dark']) .overlay {
+  background: var(--et-home-ink, #15120e);
+}

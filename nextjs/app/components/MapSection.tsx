@@ -58,7 +58,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     refetch: refetchMapData,
     mergeMustEat,
   } = useMapData({ uid, authLoading, initialMapData })
-  const { location, loading: locating, request: requestLocation } = useUserLocation()
+  const { location, loading: locating, error: locationError, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)
   // Free-and-open map: anon visitors see exactly the server-revealed set
   // face-up — 10 curated cards (one per spot) + the daily spot-of-day gift.
@@ -558,18 +558,11 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true
-    const { location: loc, error } = await requestLocation()
+    const { location: loc } = await requestLocation()
     if (loc) {
       mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
-    } else if (error) {
-      // Icon-only FAB has no room for an inline hint — toast instead. Only on
-      // explicit click; the silent auto-locate on mount must NOT toast.
-      window.showNotification?.(
-        error === 'denied' ? t('hub.nearby.errDenied') : t('hub.nearby.errRetry'),
-        4000,
-      )
     }
-  }, [requestLocation, getFlyPadding, t])
+  }, [requestLocation, getFlyPadding])
 
   /* Default camera = the user's position. Request it once on mount and, as
      soon as it resolves, centre the map there — unless the user already
@@ -724,6 +717,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       revealedMustEatIds={revealedMustEatIds}
       favoriteIds={favoriteIds}
       location={location}
+      locationError={locationError}
       uid={uid}
       userTier={userTier}
       categories={categories}

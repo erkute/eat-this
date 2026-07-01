@@ -11,6 +11,7 @@ import type {
   UserLocation,
   UserTier,
 } from '@/lib/map'
+import type { UserLocationError } from '@/lib/map/useUserLocation'
 
 import dynamic from 'next/dynamic'
 import RestaurantList from './RestaurantList'
@@ -59,6 +60,7 @@ interface MapBodyState {
   revealedMustEatIds: Set<string>
   favoriteIds: Set<string>
   location: UserLocation | null
+  locationError: UserLocationError | null
   uid: string | null
   userTier: UserTier
 }
@@ -127,7 +129,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     displayedRestaurants, displayedLockedRestaurants, restaurantMustEats,
     pagerPrev, pagerNext, onPageRestaurant,
     selectedRestaurant, selectedMustEat,
-    primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
+    primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, locationError, uid, userTier,
     categories, category, setCategory, search, bezirk, bezirkNames,
     cuisine, setCuisine, cuisineNames,
     openOnly, setOpenOnly,
@@ -155,6 +157,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     document.getElementById('burgerBtn')?.click()
   }, [])
+  const locationStatusCopy = locateLoading
+    ? (locale === 'en' ? 'Finding you' : 'Standort wird gesucht')
+    : locationError
+      ? (locationError === 'denied'
+          ? (locale === 'en' ? 'Location blocked' : 'Standort blockiert')
+          : (locale === 'en' ? 'Location not found' : 'Standort nicht gefunden'))
+      : location
+        ? (locale === 'en' ? 'Location active' : 'Standort aktiv')
+        : null
 
   return (
     <div
@@ -347,6 +358,28 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               </>
             )}
           </aside>
+
+          {locationStatusCopy && (
+            <div
+              className={`${styles.mapStatusLayer} ${locationError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
+              role={locationError ? 'alert' : 'status'}
+            >
+              <span className={styles.mapStatusKicker}>
+                {locale === 'en' ? 'Location' : 'Standort'}
+              </span>
+              <span className={styles.mapStatusText}>{locationStatusCopy}</span>
+              {locationError && (
+                <button
+                  type="button"
+                  className={styles.mapStatusAction}
+                  onClick={onLocateMe}
+                  disabled={locateLoading}
+                >
+                  {locale === 'en' ? 'Retry' : 'Nochmal'}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Desktop-only toggle to slide the side panel off to the right
               (Google-Maps-style). Mobile gets the chevron-collapse button

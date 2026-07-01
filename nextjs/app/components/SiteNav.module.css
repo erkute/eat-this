@@ -21,7 +21,7 @@
 
 .logoImg {
   display: block;
-  height: clamp(30px, 4.2vw, 44px);
+  height: clamp(40px, 5vw, 56px);
   width: auto;
 }
 
@@ -103,12 +103,6 @@
   transform: none !important;
 }
 
-:global(html[data-theme='dark']) :global(.navbar-icon-btn).mapSticker,
-:global(html[data-theme='dark']) :global(.burger-btn).menuSticker {
-  background: transparent !important;
-  color: #fff !important;
-}
-
 .mapWord,
 .menuWord {
   display: inline-block;
@@ -134,7 +128,7 @@
 @media (min-width: 1024px) {
   .logo {
     width: auto;
-    height: 68px;
+    height: 74px;
   }
 
   .logoWord {
@@ -182,5 +176,9 @@
   .menuWord,
   .logoWord {
     font-size: 24px;
+  }
+
+  .logoImg {
+    height: clamp(36px, 11vw, 46px);
   }
 }

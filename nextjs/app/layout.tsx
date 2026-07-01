@@ -5,10 +5,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  /* Warm yellow matches the light-mode canvas so iOS Safari's
-     URL bar + status bar tint blends with the page surface instead of
-     showing as a default white/grey stripe. Per-route overrides can
-     replace this in their own layout. */
+  /* Warm yellow matches the page canvas so iOS Safari's URL bar + status bar
+     tint blends with the surface instead of showing a default white/grey stripe. */
   themeColor: '#e8b626',
 }
 

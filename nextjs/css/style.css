@@ -86,15 +86,84 @@ ul,ol{list-style:none}
   --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-label: var(--font-poster, var(--font-display));
   --font-providence: "ff-providence-sans-web-pro-1","ff-providence-sans-web-pro-2",sans-serif;
-  --home-paper: #FFFFFF;
-  --home-ink: #15120E;
-  --home-accent: #FFC600;
-  --home-photo-rest: #ECEAE6;
-  --home-quiet: #F2F1EF;
-  --home-rule: #E4E1DC;
-  --home-muted: #8A857D;
-  --home-radius-photo: 10px;
-  --home-radius-btn: 7px;
+  --et-home-paper: #fff;
+  --et-home-ink: #15120e;
+  --et-home-accent: #ffc600;
+  --et-home-red: #d9382a;
+  --et-home-photo-rest: #eceae6;
+  --et-home-quiet: #f2f1ef;
+  --et-home-rule: #e4e1dc;
+  --et-home-muted: rgba(21, 18, 14, .64);
+  --et-home-muted-soft: rgba(21, 18, 14, .55);
+  --et-home-line: rgba(21, 18, 14, .2);
+  --et-home-panel-warm: #fff4cc;
+  --et-home-inverse-bg: var(--et-home-ink);
+  --et-home-inverse-text: #fff;
+  --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, .6), transparent);
+  --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, .5);
+  --et-font-display: var(--font-providence);
+  --et-font-label: 'Silkscreen';
+  --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
+  --et-type-hero: clamp(44px, 6.5vw, 80px);
+  --et-type-hero-compact: clamp(42px, 6vw, 68px);
+  --et-type-section-title: clamp(24px, 3.4vw, 42px);
+  --et-type-editorial-title: clamp(34px, 4.8vw, 72px);
+  --et-type-card-title: clamp(21px, 2.2vw, 32px);
+  --et-type-kicker: 10px;
+  --et-type-body: clamp(12px, 1.1vw, 14px);
+  --et-type-lead: clamp(16px, 1.5vw, 21px);
+  --et-type-caption: 11px;
+  --et-type-chip: 12px;
+  --et-type-button: 13px;
+  --et-leading-hero: .9;
+  --et-leading-title: .92;
+  --et-leading-tight: .95;
+  --et-leading-copy: 1.5;
+  --et-tracking-none: 0;
+  --et-tracking-title: -.02em;
+  --et-tracking-label: .16em;
+  --et-tracking-meta: .1em;
+  --et-page-top: clamp(40px, 5vw, 72px);
+  --et-wrap-max: 1360px;
+  --et-wrap-pad: clamp(24px, 4vw, 56px);
+  --et-wrap-pad-mobile: 16px;
+  --et-section-gap: clamp(72px, 8vw, 128px);
+  --et-section-gap-mobile: 64px;
+  --et-head-gap: clamp(16px, 2vw, 28px);
+  --et-grid-gap: clamp(24px, 4vw, 56px);
+  --et-rail-gap: 14px;
+  --et-control-gap: 8px;
+  --et-card-gap: clamp(20px, 2.4vw, 32px);
+  --et-radius-photo: 10px;
+  --et-radius-control: 7px;
+  --et-radius-none: 0;
+  --et-radius-pill: 999px;
+  --et-shadow-none: none;
+  --et-shadow-text-photo: var(--et-home-photo-text-shadow);
+  --et-motion-fast: 140ms ease;
+  --et-motion-base: 160ms ease;
+  --et-motion-card: 180ms ease;
+  --et-hover-lift-sm: translateY(-2px);
+  --et-hover-lift-md: translateY(-3px);
+  --et-hover-lift-card: translateY(-4px);
+  --et-img-photo-fit: cover;
+  --et-img-art-fit: contain;
+  --et-img-restaurant-ratio: 4 / 3;
+  --et-img-wide-ratio: 16 / 10;
+  --et-img-pack-ratio: 2 / 3;
+  --et-img-card-ratio: 5 / 7;
+  --et-img-square-ratio: 1 / 1;
+  --home-paper: var(--et-home-paper);
+  --home-ink: var(--et-home-ink);
+  --home-accent: var(--et-home-accent);
+  --home-photo-rest: var(--et-home-photo-rest);
+  --home-quiet: var(--et-home-quiet);
+  --home-rule: var(--et-home-rule);
+  --home-muted: var(--et-home-muted);
+  --home-line: var(--et-home-line);
+  --home-radius-photo: var(--et-radius-photo);
+  --home-radius-btn: var(--et-radius-control);
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-standard: cubic-bezier(.2, .8, .2, 1);
@@ -221,16 +290,6 @@ body {
 [data-active-page="map"] .navbar::after {
   display: none;
 }
-[data-theme="dark"] .navbar {
-  background-color: var(--home-ink);
-  background-image: none;
-  border-color: transparent;
-}
-/* Header sits on poster red; nav marks stay black like the program reference. */
-[data-theme="dark"] .navbar-icon-btn img,
-[data-theme="dark"] .burger-btn img {
-  filter: none;
-}
 /* Legacy brand-plate slots — kept hidden so old markup paths stay quiet. */
 .navbar-brand,
 .navbar-brand-plate,
@@ -274,7 +333,6 @@ body {
   transition: color 140ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-[data-theme="dark"] .navbar-icon-btn { color: var(--et-black); }
 .navbar-icon-btn:hover,
 .navbar-icon-btn:active,
 .navbar-icon-btn.active { color: var(--et-black); }
@@ -388,28 +446,6 @@ body {
     border-radius: 999px !important;
     color: #1a1a1a !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
-  }
-  html[data-theme="dark"][data-active-page="map"] .navbar .burger-btn {
-    background: rgba(32, 30, 28, 0.96) !important;
-    color: var(--c-cream, #f3ead4) !important;
-  }
-  /* Black-ink burger raster on the dark glass chip would vanish — flip it to
-     light. (Light theme keeps the white chip + black burger.) */
-  html[data-theme="dark"][data-active-page="map"] .navbar .burger-btn img {
-    filter: invert(1);
-  }
-  html[data-theme="dark"][data-active-page="map"] .navbar .navbar-icon-btn {
-    background: rgba(32, 30, 28, 0.96) !important;
-    color: var(--c-cream, #f3ead4) !important;
-    box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.5),
-      inset 0 0 0 1px rgba(243, 234, 212, 0.18) !important;
-  }
-  html[data-theme="dark"][data-active-page="map"] .navbar .navbar-icon-btn:hover,
-  html[data-theme="dark"][data-active-page="map"] .navbar .navbar-icon-btn:active,
-  html[data-theme="dark"][data-active-page="map"] .navbar .navbar-icon-btn.active {
-    background: rgba(32, 30, 28, 1) !important;
-    color: var(--c-cream, #f3ead4) !important;
   }
   /* When the list sheet is full OR a detail is open, slide the chips out. */
   body:has(.app-page[data-page="map"] [class*="bodyListAtFull"]) .navbar .navbar-actions,
@@ -729,37 +765,6 @@ body {
     min-height: 46px;
     padding-inline: 10px;
   }
-}
-[data-theme="dark"] .cookie-consent {
-  color: var(--et-cream);
-  background: var(--et-dark-card);
-  border-color: rgba(242, 223, 184, .14);
-  box-shadow: 0 18px 46px rgba(0, 0, 0, .34);
-}
-[data-theme="dark"] .cookie-text {
-  color: rgba(242, 223, 184, .82);
-}
-[data-theme="dark"] .cookie-info-trigger {
-  color: var(--et-cream);
-}
-[data-theme="dark"] .cookie-info-trigger:hover {
-  color: var(--et-red-hot);
-}
-[data-theme="dark"] .cookie-btn-accept {
-  color: var(--et-black);
-  background: var(--et-red-hot);
-  box-shadow: 0 10px 22px rgba(240, 54, 8, .24);
-}
-[data-theme="dark"] .cookie-btn-accept:hover {
-  box-shadow: 0 14px 26px rgba(240, 54, 8, .3);
-}
-[data-theme="dark"] .cookie-btn-decline {
-  color: rgba(242, 223, 184, .76);
-  background: rgba(242, 223, 184, .1);
-}
-[data-theme="dark"] .cookie-btn-decline:hover {
-  color: var(--et-cream);
-  background: rgba(242, 223, 184, .16);
 }
 /* ============================================
    NEWS ARTICLE MODAL
@@ -1192,10 +1197,6 @@ body {
   body:has(.app-page[data-page="map"].active) {
     background: #ffffff;
   }
-  html[data-theme="dark"]:has(.app-page[data-page="map"].active),
-  [data-theme="dark"] body:has(.app-page[data-page="map"].active) {
-    background: #1c1c1c;
-  }
   .app-page[data-page="start"] {
     background: var(--white);
   }
@@ -1428,352 +1429,15 @@ body {
     overflow: visible;
   }
 }
-/* ============================================
-   DARK MODE — [data-theme="dark"] overrides
-   ============================================ */
-/* Body */
-[data-theme="dark"] body {
-  background: #000000;
-  color: #ffffff;
-}
-[data-theme="dark"] html {
-  background: #000000;
-}
-[data-theme="dark"][data-active-page="start"],
-[data-theme="dark"][data-active-page="start"] body {
-  background: var(--et-black);
-  color: var(--et-cream);
-}
-/* Start section — dark mode */
-[data-theme="dark"] .start-scroll-content {
-  background: #0F0A0D;
-}
-[data-theme="dark"] .start-section--alt {
-  background: #FDEAEF;
-}
-[data-theme="dark"] .start-section-title {
-  color: #ffffff;
-}
-[data-theme="dark"] .start-section-body {
-  color: rgba(255, 255, 255, 0.55);
-}
-[data-theme="dark"] .start-section-label {
-  color: #D4547A;
-}
-[data-theme="dark"] .start-section-label::before {
-  background: #D4547A;
-}
-[data-theme="dark"] .start-section--alt .start-section-title {
-  color: #1A0812;
-}
-[data-theme="dark"] .start-section--alt .start-section-body {
-  color: rgba(0, 0, 0, 0.6);
-}
-[data-theme="dark"] .start-section--alt .start-section-label {
-  color: #C8375A;
-}
-[data-theme="dark"] .start-section--alt .start-section-label::before {
-  background: #C8375A;
-}
-[data-theme="dark"] .start-join-section .start-section-title {
-  color: #ffffff;
-}
-[data-theme="dark"] .start-join-section .start-section-body {
-  color: rgba(255, 255, 255, 0.6);
-}
-/* Navbar dark-mode rules moved to the top navbar block; legacy entries removed. */
-/* Language switcher */
-[data-theme="dark"] .lang-switcher,
-[data-theme="dark"] .burger-lang-row .lang-switcher {
-  background: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .lang-btn {
-  color: rgba(255, 255, 255, 0.6);
-}
-[data-theme="dark"] .lang-btn.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
-[data-theme="dark"] .lang-btn:hover:not(.active) {
-  color: rgba(255, 255, 255, 0.8);
-}
-/* News section */
-[data-theme="dark"] .news-card-headline {
-  color: #ffffff;
-}
-[data-theme="dark"] .news-card-excerpt {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .news-card-date {
-  color: rgba(255, 255, 255, 0.35);
-}
-[data-theme="dark"] .news-title {
-  color: #ffffff;
-}
-[data-theme="dark"] .news-article-more {
-  background: #111111;
-  border-top-color: rgba(255, 255, 255, 0.1);
-}
-[data-theme="dark"] .news-article-more-label {
-  color: rgba(255, 255, 255, 0.5);
-}
-/* Article body */
-[data-theme="dark"] .news-article-content {
-  color: rgba(255, 255, 255, 0.85);
-}
-[data-theme="dark"] .news-article-content h2,
-[data-theme="dark"] .news-article-content h3,
-[data-theme="dark"] .news-article-content h4 {
-  color: #ffffff;
-}
-[data-theme="dark"] .news-article-content blockquote {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .news-modal-content {
-  color: rgba(255, 255, 255, 0.85);
-}
-[data-theme="dark"] .news-modal-content h2,
-[data-theme="dark"] .news-modal-content h3 {
-  color: #ffffff;
-}
-[data-theme="dark"] .news-article-hero-no-img {
-  background: #111111;
-}
-[data-theme="dark"] .news-modal-title {
-  color: #ffffff;
-}
-[data-theme="dark"] .news-modal-share {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .news-article-share {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .news-share-btn {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
-}
-[data-theme="dark"] .news-share-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-[data-theme="dark"] .share-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.7);
-}
-/* Profile page */
-[data-theme="dark"] .profile-header {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .profile-name {
-  color: #ffffff;
-}
-[data-theme="dark"] .profile-email {
-  color: rgba(255, 255, 255, 0.45);
-}
-[data-theme="dark"] .profile-tabs {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .profile-tab {
-  color: rgba(255, 255, 255, 0.4);
-}
-[data-theme="dark"] .profile-tab.active {
-  color: var(--orange);
-}
-[data-theme="dark"] .profile-pack-title,
-[data-theme="dark"] .profile-pack-count,
-[data-theme="dark"] .profile-booster-section-title {
-  color: rgba(255, 255, 255, 0.45);
-}
-[data-theme="dark"] .profile-booster-section {
-  border-top-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .profile-booster-pack {
-  background: #1a1a1a;
-  border-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .profile-booster-pack-cover {
-  background: #2a2a2a;
-}
-[data-theme="dark"] .profile-booster-pack-name {
-  color: #ffffff;
-}
-[data-theme="dark"] .profile-booster-pack-price {
-  color: rgba(255, 255, 255, 0.45);
-}
-[data-theme="dark"] .profile-fav-card {
-  background: #2a2a2a;
-}
-/* Static pages (About, Contact, Press, Impressum) */
-[data-theme="dark"] .static-page {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .static-page-back {
-  color: rgba(255, 255, 255, 0.55);
-}
-[data-theme="dark"] .static-page-back:hover {
-  color: #ffffff;
-}
-[data-theme="dark"] .static-page-title {
-  color: #ffffff;
-}
-[data-theme="dark"] .static-page-body {
-  color: rgba(255, 255, 255, 0.75);
-}
-[data-theme="dark"] .static-page-body h2,
-[data-theme="dark"] .static-page-body h3,
-[data-theme="dark"] .static-page-body h4 {
-  color: #ffffff;
-}
-[data-theme="dark"] .static-page-body p,
-[data-theme="dark"] .static-page-body ul,
-[data-theme="dark"] .static-page-body ol,
-[data-theme="dark"] .static-page-body li {
-  color: rgba(255, 255, 255, 0.65);
-}
-[data-theme="dark"] .static-page-body strong {
-  color: #ffffff;
-}
-/* Dark-mode navbar — handled in the top navbar block. Only burger color
-   needs to live here because its base color cascades from .burger-btn. */
-[data-theme="dark"] .burger-btn {
-  color: var(--et-yellow);
-}
-/* Profile settings dark mode */
-[data-theme="dark"] .profile-settings-section-title {
-  color: rgba(255, 255, 255, 0.35);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .profile-settings-section--danger .profile-settings-section-title {
-  color: rgba(192, 57, 43, 0.75);
-  border-bottom-color: rgba(192, 57, 43, 0.15);
-}
-[data-theme="dark"] .profile-settings-label {
-  color: rgba(255, 255, 255, 0.55);
-}
-[data-theme="dark"] .profile-settings-value {
-  color: rgba(255, 255, 255, 0.4);
-}
-[data-theme="dark"] .profile-settings-input {
-  background: #2a2a2a;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
-[data-theme="dark"] .profile-settings-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-[data-theme="dark"] .profile-settings-input:focus {
-  border-color: var(--orange);
-}
-[data-theme="dark"] .profile-settings-save-btn {
-  background: #ffffff;
-  color: #000000;
-}
-[data-theme="dark"] .profile-settings-save-btn:hover {
-  background: rgba(255, 255, 255, 0.85);
-}
-[data-theme="dark"] .profile-settings-feedback {
-  color: rgba(255, 255, 255, 0.4);
-}
-[data-theme="dark"] .profile-settings-action-btn {
-  color: rgba(255, 255, 255, 0.75);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-[data-theme="dark"] .profile-settings-action-btn:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .profile-settings-signout-btn {
-  color: rgba(255, 255, 255, 0.75);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-[data-theme="dark"] .profile-settings-signout-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-/* App page backgrounds — override all media-query white backgrounds */
-[data-theme="dark"] .app-page {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .app-page[data-page="start"] {
-  background: var(--et-black);
-}
-[data-theme="dark"] .app-page .news-header {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .app-page .map-header {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .app-page[data-page="news"] .news-header {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .app-page[data-page="news"] .news-section {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .app-page[data-page="map"] .map-header {
-  background: #0d0d0d;
-}
-[data-theme="dark"] .news-subtitle {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .news-title {
-  color: #ffffff;
-}
-/* High-specificity overrides — beat app-page media-query rules (0,3,0) */
-[data-theme="dark"] .app-page[data-page="news"] .news-title {
-  color: #ffffff;
-}
 /* BERLIN label always orange, both themes — matches Eat This section */
 .app-page[data-page="news"] .section-label {
   color: var(--orange) !important;
   text-align: center;
 }
-[data-theme="dark"] .news-grid {
-  color: rgba(255, 255, 255, 0.85);
-}
-/* Map spot detail overlay — dark mode */
-[data-theme="dark"] .map-spot-card {
-  background: #1a1a1a;
-}
-[data-theme="dark"] .map-spot-name {
-  color: #ffffff;
-}
-[data-theme="dark"] .map-spot-address {
-  color: rgba(255, 255, 255, 0.45);
-}
-[data-theme="dark"] .map-spot-type-badge {
-  background: #2a2a2a;
-  color: rgba(255, 255, 255, 0.6);
-}
-[data-theme="dark"] .map-spot-price-badge {
-  background: #2a2a2a;
-  color: rgba(255, 255, 255, 0.85);
-}
-[data-theme="dark"] .map-spot-status-badge--open {
-  color: #4cd97b;
-  background: rgba(76, 217, 123, 0.15);
-}
-[data-theme="dark"] .map-spot-status-badge--closed {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.15);
-}
-[data-theme="dark"] .map-spot-btn--secondary {
-  background: #2a2a2a;
-  color: #ffffff;
-}
-[data-theme="dark"] .map-spot-btn--secondary:hover {
-  background: #333333;
-}
-[data-theme="dark"] .news-article-more-grid {
-  background: #111111;
-}
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
 @media (min-width: 768px) {
-  /* Body bg is theme-aware: line 48 sets #fff for light, line ~2461
-     [data-theme="dark"] body sets #000 for dark. The old letterbox frame
-     forced #000 on desktop, which leaked black rubber-band on light desktop. */
   .navbar {
     left: 0; right: 0; transform: none;
     width: 100%; max-width: none;
@@ -2136,28 +1800,6 @@ body {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-[data-theme="dark"] .cookie-expand {
-  border-top-color: rgba(242, 223, 184, .16);
-}
-[data-theme="dark"] .cookie-expand .cookie-info-body > div {
-  border-top-color: rgba(242, 223, 184, .12);
-}
-[data-theme="dark"] .cookie-expand .cookie-info-body h3 {
-  color: var(--et-red-hot);
-}
-[data-theme="dark"] .cookie-expand .cookie-info-body strong {
-  color: var(--et-cream);
-}
-[data-theme="dark"] .cookie-expand .cookie-info-body p,
-[data-theme="dark"] .cookie-expand .cookie-info-body ul li {
-  color: rgba(242, 223, 184, .72);
-}
-[data-theme="dark"] .cookie-expand .cookie-info-body ul li::before {
-  background: var(--et-red-hot);
-}
-[data-theme="dark"] .cookie-expand .cookie-info-body a {
-  color: var(--et-red-hot);
-}
 /* ── BURGER MENU ─────────────────────────────────── */
 .burger-btn {
   display: inline-flex;
@@ -2198,8 +1840,7 @@ body {
 .burger-btn:active {
   transform: scale(0.94);
 }
-/* Light mode: burger bleibt schwarz auch wenn offen — keine Color-Pops.
-   Dark mode kann separat per [data-theme="dark"]-Scoped-Rule. */
+
 body:has(.burger-drawer.active) .burger-btn {
   color: var(--accent-ink);
 }
@@ -2826,12 +2467,6 @@ body:has(.burger-drawer.active) .burger-btn {
   transition: border-color 0.15s;
 }
 .ob-name-input:focus { border-color: #b91c1c; }
-[data-theme="dark"] .ob-name-input {
-  background: #2a2a2a;
-  color: #f0f0f0;
-  border-color: #444;
-}
-[data-theme="dark"] .ob-name-input:focus { border-color: #e05252; }
 .ob-step-num {
   font-size: 9px;
   font-weight: 700;
@@ -3323,22 +2958,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-family: inherit;
   padding: 0;
 }
-/* ── Dark mode ── */
-[data-theme="dark"] .wm-form-panel { background: #111; }
-[data-theme="dark"] .wm-form-title { color: #fff; }
-[data-theme="dark"] .wm-booster-hint { color: rgba(255,255,255,0.42); }
-[data-theme="dark"] .wm-field input { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.1); color: #fff; }
-[data-theme="dark"] .wm-field input::placeholder { color: rgba(255,255,255,0.28); }
-[data-theme="dark"] .wm-forgot button { color: rgba(255,255,255,0.38); }
-[data-theme="dark"] .wm-submit { background: #fff; color: #111; }
-[data-theme="dark"] .wm-back { color: rgba(255,255,255,0.4); }
-[data-theme="dark"] .wm-back:hover { color: rgba(255,255,255,0.8); }
-[data-theme="dark"] .wm-mode-toggle { color: rgba(255,255,255,0.45); }
-[data-theme="dark"] .wm-mode-link { color: #fff; font-weight: 700; }
-[data-theme="dark"] .wm-terms { color: rgba(255,255,255,0.28); }
-[data-theme="dark"] .wm-terms-link { color: rgba(255,255,255,0.5); }
-[data-theme="dark"] .wm-error { color: #ff6b6b; }
-[data-theme="dark"] .wm-success { color: #4cde80; }
 /* ── Desktop: centred card ── */
 @media (min-width: 521px) {
   .wm-overlay { align-items: center; justify-content: center; }
@@ -3399,10 +3018,6 @@ body:has(.burger-drawer.active) .burger-btn {
   transform: rotate(-2.5deg);
   transform-origin: center;
 }
-[data-theme="dark"] .landing-final-cta-tagline { color: #ffffff; }
-[data-theme="dark"] .landing-final-cta {
-  background: #1c1c1c;
-}
 .landing-final-cta-btn {
   position: relative;
   display: inline-flex;
@@ -3454,32 +3069,6 @@ body:has(.burger-drawer.active) .burger-btn {
     0 2px 5px rgba(0, 0, 0, 0.35),
     0 6px 12px rgba(0, 0, 0, 0.22);
 }
-[data-theme="dark"] .landing-final-cta-btn {
-  background: #ffffff;
-  color: #1c1c1c;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
-    0 10px 0 0 #050505,
-    0 18px 24px -2px rgba(0, 0, 0, 0.6),
-    0 32px 56px -8px rgba(0, 0, 0, 0.5);
-}
-[data-theme="dark"] .landing-final-cta-btn:hover {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
-    0 13px 0 0 #050505,
-    0 22px 32px -4px rgba(0, 0, 0, 0.65),
-    0 40px 68px -10px rgba(0, 0, 0, 0.55);
-}
-[data-theme="dark"] .landing-final-cta-btn:active {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
-    0 4px 0 0 #050505,
-    0 8px 14px -2px rgba(0, 0, 0, 0.6),
-    0 16px 30px -8px rgba(0, 0, 0, 0.5);
-}
 /* ── A11y: keyboard focus ring (WCAG 2.4.7) ──────────────────────────────
    Placed last so it wins source-order ties against the scattered
    `outline:none` resets above. :focus-visible fires only for keyboard /
@@ -3528,13 +3117,6 @@ body:has(.burger-drawer.active) .burger-btn {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 var(--brand-ink);
 }
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border-color: var(--brand-ink);
-  box-shadow: 3px 3px 0 var(--brand-ink);
-}
 /* Header controls: typographic paper stickers instead of bitmap icons. */
 .navbar-icon-btn,
 .burger-btn {
@@ -3572,9 +3154,7 @@ body:has(.burger-drawer.active) .burger-btn {
 @keyframes bdScrapIn {
   from { transform: translateX(120%) rotate(8deg); }
 }
-/* Header CI: poster red field, black marks, paper surfaces below. */
-.navbar,
-[data-theme="dark"] .navbar {
+.navbar {
   min-height: 78px;
   padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(18px, 3vw, 38px) 13px;
   background-color: var(--home-ink);
@@ -3593,9 +3173,7 @@ body:has(.burger-drawer.active) .burger-btn {
   gap: clamp(16px, 3vw, 38px);
 }
 .navbar-icon-btn,
-.burger-btn,
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn {
+.burger-btn {
   min-height: 38px;
   background: transparent;
   border: 0;
@@ -3607,102 +3185,28 @@ body:has(.burger-drawer.active) .burger-btn {
 .navbar-icon-btn:hover,
 .navbar-icon-btn:active,
 .burger-btn:hover,
-.burger-btn:active,
-[data-theme="dark"] .navbar-icon-btn.active,
-[data-theme="dark"] .navbar-icon-btn:hover,
-[data-theme="dark"] .navbar-icon-btn:active,
-[data-theme="dark"] .burger-btn:hover,
-[data-theme="dark"] .burger-btn:active {
+.burger-btn:active {
   background: transparent;
   color: var(--et-black);
   box-shadow: none;
 }
-[data-theme="dark"] .navbar {
-  background-color: var(--home-ink);
-  color: var(--et-black);
-}
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn {
-  color: var(--et-black);
-}
-[data-theme="dark"] .navbar-icon-btn.active,
-[data-theme="dark"] .navbar-icon-btn:hover,
-[data-theme="dark"] .navbar-icon-btn:active,
-[data-theme="dark"] .burger-btn:hover,
-[data-theme="dark"] .burger-btn:active {
-  color: var(--et-black);
-}
-/* No hairline/raster treatment on the refreshed header/drawer. */
-.navbar,
-[data-theme="dark"] .navbar {
+.navbar {
   border-bottom: 0;
 }
-[data-theme="dark"] .navbar {
-  background-color: var(--home-ink);
-  background-image: none;
-  border-bottom-color: transparent;
-  color: var(--et-black);
-  box-shadow: none;
-}
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn {
-  color: var(--et-black);
-}
-[data-theme="dark"] .navbar-icon-btn.active,
-[data-theme="dark"] .navbar-icon-btn:hover,
-[data-theme="dark"] .navbar-icon-btn:active,
-[data-theme="dark"] .burger-btn:hover,
-[data-theme="dark"] .burger-btn:active {
-  color: var(--et-black);
-}
-/* Keep the full burger menu inside the visible viewport on desktop and mobile.
-   The drawer intentionally avoids internal scrolling for normal viewports, so
-   the logo/nav/footer compress by viewport height instead of clipping. */
-.app-page[data-page="map"] .map-location-btn-fixed,
-[data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed {
+.app-page[data-page="map"] .map-location-btn-fixed {
   background: var(--et-cream);
   color: var(--et-red);
   border: 0;
   border-radius: 999px;
   box-shadow: 0 10px 24px rgba(201, 67, 50, .2);
 }
-.app-page[data-page="map"] .map-location-btn-fixed svg,
-[data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed svg {
+.app-page[data-page="map"] .map-location-btn-fixed svg {
   stroke: var(--et-red);
 }
-/* Flat controls: the print palette uses line, fill and position. Icon buttons
-   and menu buttons should not carry hard or soft shadows. */
-/* Light drawer: keep the theme switch quiet on cream; the thumb is the accent. */
-/* Dark header mirrors the SiteFooter endpoint palette. */
-[data-theme="dark"] .navbar,
-[data-theme="dark"] .navbar.scrolled {
-  background-color: #5A120F;
-  color: var(--brand-paper, var(--et-cream));
-}
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn,
-[data-theme="dark"] .navbar-icon-btn.active,
-[data-theme="dark"] .navbar-icon-btn:hover,
-[data-theme="dark"] .navbar-icon-btn:active,
-[data-theme="dark"] .burger-btn:hover,
-[data-theme="dark"] .burger-btn:active {
-  color: var(--brand-paper, var(--et-cream));
-}
-[data-theme="dark"] .navbar-icon-btn.active::before {
-  background: currentColor;
-}
-/* Burger menu layout repair: keep nav and legal links in normal document flow.
-   Older overrides stretched the nav items to consume remaining height, which
-   made them collide with Impressum/Datenschutz/AGB on shorter viewports. */
-/* 2026-06 home/header reset: one navigation bar, one drawer language. */
 html .navbar,
 html .navbar.scrolled,
-html[data-theme="dark"] .navbar,
-html[data-theme="dark"] .navbar.scrolled,
 html[data-active-page="start"] .navbar,
-html[data-active-page="start"] .navbar.scrolled,
-html[data-theme="dark"][data-active-page="start"] .navbar,
-html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
+html[data-active-page="start"] .navbar.scrolled {
   height: calc(72px + env(safe-area-inset-top, 0px)) !important;
   padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
   display: flex !important;
@@ -3715,9 +3219,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
   -webkit-backdrop-filter: none !important;
 }
 html .navbar::before,
-html .navbar::after,
-html[data-theme="dark"] .navbar::before,
-html[data-theme="dark"] .navbar::after {
+html .navbar::after {
   content: none !important;
 }
 html .navbar-actions {
@@ -3725,9 +3227,7 @@ html .navbar-actions {
   gap: 8px !important;
 }
 html .navbar-icon-btn,
-html .burger-btn,
-html[data-theme="dark"] .navbar-icon-btn,
-html[data-theme="dark"] .burger-btn {
+html .burger-btn {
   min-width: 82px !important;
   height: 42px !important;
   display: inline-flex !important;
@@ -3753,12 +3253,7 @@ html .navbar-icon-btn.active,
 html .navbar-icon-btn:hover,
 html .navbar-icon-btn:active,
 html .burger-btn:hover,
-html .burger-btn:active,
-html[data-theme="dark"] .navbar-icon-btn.active,
-html[data-theme="dark"] .navbar-icon-btn:hover,
-html[data-theme="dark"] .navbar-icon-btn:active,
-html[data-theme="dark"] .burger-btn:hover,
-html[data-theme="dark"] .burger-btn:active {
+html .burger-btn:active {
   background: transparent !important;
   color: #fff !important;
   box-shadow: none !important;
@@ -3769,16 +3264,12 @@ html .navbar-icon-btn.active::before {
 }
 @media (max-width: 520px) {
   html .navbar,
-  html .navbar.scrolled,
-  html[data-theme="dark"] .navbar,
-  html[data-theme="dark"] .navbar.scrolled {
+html .navbar.scrolled {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
   }
   html .navbar-icon-btn,
-  html .burger-btn,
-  html[data-theme="dark"] .navbar-icon-btn,
-  html[data-theme="dark"] .burger-btn {
+html .burger-btn {
     min-width: 48px !important;
     width: 48px !important;
     padding: 0 !important;
@@ -3791,18 +3282,9 @@ html .navbar-icon-btn.active::before {
     transform: translateX(46px) rotate(2.5deg);
   }
 }
-/* Burger menu cleanup: no arrows, no collisions around the close button. */
-/* Burger menu viewport fit: no bottom micro-wordmark, no internal scroll. */
-/* Burger menu spacing pass: remove rule-lines and list-counter strip. */
-/* Burger menu mobile fit: use the full viewport without leaving a dead band. */
-/* Final header color contract: ink bar, white text, no bottom rule. Kept last
-   because this file still contains older navbar repair blocks. */
 html .navbar,
 html .navbar.scrolled,
-html[data-active-page="start"] .navbar,
-html[data-theme="dark"] .navbar,
-html[data-theme="dark"] .navbar.scrolled,
-html[data-theme="dark"][data-active-page="start"] .navbar {
+html[data-active-page="start"] .navbar {
   background: var(--home-ink) !important;
   background-color: var(--home-ink) !important;
   color: #fff !important;
@@ -3812,9 +3294,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar {
 html .navbar-icon-btn,
 html .burger-btn,
 html[data-active-page="start"] .navbar-icon-btn,
-html[data-active-page="start"] .burger-btn,
-html[data-theme="dark"] .navbar-icon-btn,
-html[data-theme="dark"] .burger-btn {
+html[data-active-page="start"] .burger-btn {
   color: #fff !important;
   border-color: transparent !important;
   background: transparent !important;
@@ -4118,26 +3598,26 @@ html[data-theme="dark"] .burger-btn {
 /* ============================================
    HOME V2 — element vocabulary (scoped to .homeV2)
    ============================================ */
-.homeV2{background:var(--home-paper);color:var(--home-ink);font-family:var(--font-providence)}
-.homeV2 .hv-wrap{max-width:1360px;margin:0 auto;padding:0 clamp(24px,4vw,56px)}
-.homeV2 .hv-section{margin-top:clamp(72px,8vw,128px)}
-.homeV2 .hv-kicker{font-family:'Silkscreen';font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--home-ink)}
-.homeV2 .hv-mk{display:inline-block;width:9px;height:9px;background:var(--home-accent);margin-right:8px;vertical-align:1px}
-.homeV2 .hv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(16px,2vw,28px)}
-.homeV2 .hv-title{font-family:var(--font-providence);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(24px,3.4vw,42px)}
-.homeV2 .hv-link{font-family:'Silkscreen';font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--home-ink)}
-.homeV2 .hv-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.homeV2{background:var(--et-home-paper);color:var(--et-home-ink);font-family:var(--et-font-display)}
+.homeV2 .hv-wrap{max-width:var(--et-wrap-max);margin:0 auto;padding:0 var(--et-wrap-pad)}
+.homeV2 .hv-section{margin-top:var(--et-section-gap)}
+.homeV2 .hv-kicker{font-family:var(--et-font-label);font-weight:700;font-size:var(--et-type-kicker);letter-spacing:var(--et-tracking-label);text-transform:uppercase;color:var(--et-home-ink)}
+.homeV2 .hv-mk{display:inline-block;width:9px;height:9px;background:var(--et-home-accent);margin-right:var(--et-control-gap);vertical-align:1px}
+.homeV2 .hv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--et-head-gap)}
+.homeV2 .hv-title{font-family:var(--et-font-display);font-weight:700;text-transform:uppercase;letter-spacing:var(--et-tracking-title);line-height:var(--et-leading-title);font-size:var(--et-type-section-title)}
+.homeV2 .hv-link{font-family:var(--et-font-label);font-weight:700;font-size:9px;letter-spacing:var(--et-tracking-label);text-transform:uppercase;color:var(--et-home-ink)}
+.homeV2 .hv-rail{display:flex;gap:var(--et-rail-gap);overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 .homeV2 .hv-rail::-webkit-scrollbar{display:none}
 .homeV2 .hv-rail>*{scroll-snap-align:start;flex-grow:0;flex-shrink:0}
-.homeV2 .hv-photo{background:var(--home-photo-rest);border-radius:var(--home-radius-photo);overflow:hidden;position:relative;display:block}
-.homeV2 .hv-photo img{object-fit:cover}
-.homeV2 .hv-cap{font-family:var(--font-providence);font-weight:700;font-size:clamp(14px,1.1vw,16px);margin-top:8px;color:var(--home-ink)}
-.homeV2 .hv-sub{font-family:var(--font-providence);font-weight:400;font-size:11px;color:var(--home-muted)}
-.homeV2 .hv-btn{font-family:var(--font-providence);font-weight:700;font-size:13px;padding:11px 18px;border-radius:var(--home-radius-btn);display:inline-block;background:var(--home-ink);color:#fff;border:none;cursor:pointer}
-.homeV2 .hv-btn--accent{background:var(--home-accent);color:var(--home-ink)}
-.homeV2 .hv-link-underline{font-weight:700;font-size:13px;color:var(--home-ink);border-bottom:2px solid var(--home-accent);padding-bottom:2px}
-.homeV2 .hv-chip{font-family:var(--font-providence);font-weight:700;font-size:12px;padding:9px 15px;border-radius:7px;background:var(--home-quiet);color:var(--home-ink);border:none;cursor:pointer}
+.homeV2 .hv-photo{background:var(--et-home-photo-rest);border-radius:var(--et-radius-photo);overflow:hidden;position:relative;display:block}
+.homeV2 .hv-photo img{object-fit:var(--et-img-photo-fit)}
+.homeV2 .hv-cap{font-family:var(--et-font-display);font-weight:700;font-size:clamp(14px,1.1vw,16px);margin-top:var(--et-control-gap);color:var(--et-home-ink)}
+.homeV2 .hv-sub{font-family:var(--et-font-display);font-weight:400;font-size:var(--et-type-caption);color:var(--et-home-muted)}
+.homeV2 .hv-btn{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-button);padding:11px 18px;border-radius:var(--et-radius-control);display:inline-block;background:var(--et-home-ink);color:var(--et-home-inverse-text);border:none;cursor:pointer}
+.homeV2 .hv-btn--accent{background:var(--et-home-accent);color:var(--et-home-ink)}
+.homeV2 .hv-link-underline{font-weight:700;font-size:var(--et-type-button);color:var(--et-home-ink);border-bottom:2px solid var(--et-home-accent);padding-bottom:2px}
+.homeV2 .hv-chip{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-chip);padding:9px 15px;border-radius:var(--et-radius-control);background:var(--et-home-quiet);color:var(--et-home-ink);border:none;cursor:pointer}
 @media (max-width:760px){
-  .homeV2 .hv-wrap{padding:0 16px}
-  .homeV2 .hv-section{margin-top:64px}
+  .homeV2 .hv-wrap{padding:0 var(--et-wrap-pad-mobile)}
+  .homeV2 .hv-section{margin-top:var(--et-section-gap-mobile)}
 }

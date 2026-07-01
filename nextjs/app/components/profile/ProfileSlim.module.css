@@ -1,17 +1,17 @@
 /* Profile: full-width cassette/menu sheet on a light table surface. */
 
 .page {
-  --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --menu-mono: var(--et-font-mono);
   /* Adobe Fonts "Chauncy Pro" (in the kgb1lmh Typekit kit); Anton is the
      fallback until it loads. */
-  --font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton, Impact), sans-serif;
-  --profile-ink: #15120e;
-  --profile-canvas: #f1f1ec;
-  --profile-paper: #f7f7f3;
-  --profile-paper2: #ececea;
-  --profile-action: var(--et-red, #ef3528);
-  --profile-radius: 6px;
-  --profile-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
+  --font-condensed: var(--et-font-condensed);
+  --profile-ink: var(--et-home-ink);
+  --profile-canvas: var(--et-home-paper);
+  --profile-paper: var(--et-home-paper);
+  --profile-paper2: var(--et-home-quiet);
+  --profile-action: var(--et-home-red);
+  --profile-radius: var(--et-radius-control);
+  --profile-motion: var(--et-motion-base);
   min-height: 100vh;
   padding-top: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
   padding-bottom: 0;
@@ -21,7 +21,7 @@
 
 .shell {
   display: grid;
-  gap: clamp(18px, 2.4vw, 30px);
+  gap: var(--et-card-gap);
   width: 100%;
   margin: 0;
 }
@@ -36,7 +36,7 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(21, 18, 14, 0.16);
+  border: 3px solid var(--et-home-line);
   border-top-color: var(--profile-action);
   border-radius: 50%;
   animation: profileSpin 0.7s linear infinite;
@@ -53,7 +53,7 @@
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(20px, 4vw, 54px);
+  gap: var(--et-grid-gap);
   align-items: end;
   padding: clamp(34px, 5vw, 64px) clamp(28px, 5vw, 64px);
   color: var(--profile-ink);
@@ -75,9 +75,9 @@
   white-space: nowrap;
   padding: 6px 13px;
   color: var(--profile-ink);
-  background: rgba(247, 247, 243, 0.72);
-  border: 1px solid rgba(21, 18, 14, 0.36);
-  border-radius: 4px;
+  background: color-mix(in srgb, var(--et-home-paper) 72%, transparent);
+  border: 1px solid var(--et-home-line);
+  border-radius: var(--profile-radius);
   backdrop-filter: blur(6px);
   cursor: pointer;
   font-family: var(--menu-mono);
@@ -535,76 +535,86 @@
   }
 }
 
-:global(html[data-theme='dark']) .page {
-  --profile-ink: #f7f7f3;
-  --profile-canvas: #0f0d0a;
-  --profile-paper: #15120e;
-  --profile-paper2: #24201a;
-  color: var(--profile-ink);
+/* Final Home consolidation for profile: paper surface, red as accent only,
+   flat panels and the same condensed/mono rhythm as Home. */
+.page {
+  --profile-ink: var(--et-home-ink);
+  --profile-canvas: var(--et-home-paper);
+  --profile-paper: var(--et-home-paper);
+  --profile-paper2: var(--et-home-quiet);
+  --profile-action: var(--et-home-red);
   background: var(--profile-canvas);
 }
 
-:global(html[data-theme='dark']) .hero {
-  --profile-ink: #15120e;
-  --profile-paper: #f7f7f3;
-  color: #15120e;
+.hero {
+  color: var(--profile-ink);
+  background: var(--profile-paper);
+  border-bottom: 3px solid var(--profile-ink);
 }
 
-:global(html[data-theme='dark']) .heroLink,
-:global(html[data-theme='dark']) .logout {
-  color: #15120e;
-  background: #f7f7f3;
+.heroName {
+  color: var(--profile-ink);
 }
 
-:global(html[data-theme='dark']) .heroLink:hover,
-:global(html[data-theme='dark']) .heroLink:focus-visible,
-:global(html[data-theme='dark']) .logout:hover,
-:global(html[data-theme='dark']) .logout:focus-visible {
-  color: #15120e;
+.heroAvatar,
+.leader,
+.menu,
+.pack,
+.empty {
+  border-radius: var(--et-radius-control);
+  box-shadow: none;
+}
+
+.heroAvatar,
+.leader,
+.pack,
+.empty {
+  border: 2px solid var(--profile-ink);
+  background: var(--profile-paper);
+}
+
+.leader b,
+.secHead h3,
+.packName,
+.spotName {
+  font-family: var(--et-font-condensed);
+  letter-spacing: 0;
+}
+
+.heroEdit,
+.leader,
+.packMeta,
+.spotMeta,
+.emptyLine,
+.emptyCta,
+.logout {
+  font-family: var(--et-font-mono);
+  font-weight: 900;
+}
+
+.heroLink,
+.emptyCta,
+.logout {
+  border-radius: var(--et-radius-control);
+  background: var(--profile-ink);
+  color: var(--profile-paper);
+}
+
+.heroLink:hover,
+.heroLink:focus-visible,
+.emptyCta:hover,
+.emptyCta:focus-visible,
+.logout:hover,
+.logout:focus-visible {
   background: var(--profile-action);
+  color: var(--profile-paper);
 }
 
-:global(html[data-theme='dark']) .heroEdit {
-  color: #f7f7f3;
-  background: rgba(21, 18, 14, 0.72);
-  border-color: rgba(247, 247, 243, 0.34);
+.spotCard {
+  border-radius: var(--et-radius-photo);
+  box-shadow: none;
 }
 
-:global(html[data-theme='dark']) .leader {
-  color: #15120e;
-  background: rgba(247, 247, 243, 0.56);
-}
-
-:global(html[data-theme='dark']) .pack {
-  color: #f7f7f3;
-  background: #24201a;
-}
-
-:global(html[data-theme='dark']) .packBuy {
-  color: #15120e;
-  background: #f7f7f3;
-}
-
-:global(html[data-theme='dark']) .pack:hover,
-:global(html[data-theme='dark']) .pack:focus-visible {
-  color: #15120e;
-  background: #f7f7f3;
-}
-
-:global(html[data-theme='dark']) .packBuy:hover,
-:global(html[data-theme='dark']) .packBuy:focus-visible {
-  background: var(--profile-action);
-}
-
-:global(html[data-theme='dark']) .empty {
-  background: #24201a;
-}
-
-:global(html[data-theme='dark']) .emptyLine {
-  color: rgba(247, 247, 243, 0.72);
-}
-
-:global(html[data-theme='dark']) .emptyCta {
-  color: #15120e;
-  background: #f7f7f3;
+.spotCard::after {
+  background: var(--et-home-photo-overlay);
 }

@@ -16,40 +16,54 @@ const COPY = {
   de: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Einige Restaurants haben ein Must Eat — unsere klare Empfehlung: das Gericht, das du dort essen solltest. Ein paar Karten liegen offen, den Rest deckst du vor Ort selbst auf.',
+    sub: 'Unsere klare Empfehlung pro Spot: das Gericht, das du dort bestellen solltest. Einige Karten liegen offen, den Rest deckst du vor Ort selbst auf.',
     closeKicker: 'Noch verdeckt',
     closeTitle: ['Mehr', 'aufdecken.'],
     closeBody:
       'Booster Packs bringen dir neue Spots — viele mit einem oder mehreren Must Eats. Aufgedeckt wird vor Ort: geh hin und dreh die Karte mit einem Tap um.',
-    closeCta: 'Packs ansehen →',
+    closeCta: 'Packs ansehen',
   },
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Some restaurants have a Must Eat — our clear recommendation: the dish to order there. A few cards are face-up; you reveal the rest yourself, on site.',
+    sub: 'Our clear pick for each spot: the dish you should order there. A few cards are face-up; you reveal the rest yourself, on site.',
     closeKicker: 'Still face-down',
     closeTitle: ['Reveal', 'more.'],
     closeBody:
       'Booster Packs bring you new spots — many with one or more Must Eats. Revealing happens on site: go there and tap the card to flip it.',
-    closeCta: 'View packs →',
+    closeCta: 'View packs',
   },
 } as const
+
+const CARD_BACK = '/pics/card-back.webp?v=6'
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale]
   const packsHref = locale === 'en' ? '/en#hub-packs' : '/#hub-packs'
+  const heroCards = initialMapData.mustEats.slice(0, 3)
 
   return (
-    <div className="page" style={{ display: 'flow-root' }} data-must-eats="">
+    <div className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
       <div className={styles.head}>
-        <p className={styles.kicker}>{c.kicker}</p>
-        <h1 className={styles.title}>
-          {c.title[0]}
-          <br />
-          {c.title[1]}
-        </h1>
-        <p className={styles.sub}>{c.sub}</p>
-        <MustEatsOnboarding initialMapData={initialMapData} />
+        <div className={styles.headCopy}>
+          <p className={styles.kicker}>{c.kicker}</p>
+          <h1 className={styles.title}>
+            {c.title[0]}
+            <br />
+            {c.title[1]}
+          </h1>
+          <p className={styles.sub}>{c.sub}</p>
+          <MustEatsOnboarding initialMapData={initialMapData} />
+        </div>
+
+        <div className={styles.heroDeck} aria-hidden="true">
+          {heroCards.map((m, index) => (
+            <div key={m._id} className={`${styles.heroCard} ${styles[`heroCard${index + 1}`]}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={m.image ?? CARD_BACK} alt="" loading={index === 0 ? 'eager' : 'lazy'} />
+            </div>
+          ))}
+        </div>
       </div>
 
       <MustEatsGallery initialMapData={initialMapData} />

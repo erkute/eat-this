@@ -1,37 +1,66 @@
-/* HubFragRemy — homeV2 restyled: white section, yellow kept only as Remy's
-   avatar accent (circle background + chip hover). No full yellow band. */
+/* HubFragRemy — homeV2 restyled into one compact Remy stage. */
 
 .section {
   /* Anchor target (#hub-fragremy): clear the fixed navbar. */
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
-/* ── body: copy left, BIG Remy right ── */
+/* ── body: one compact Remy stage ── */
 .body {
+  position: relative;
   display: grid;
+  grid-template-areas:
+    "ask"
+    "avatar";
   grid-template-columns: 1fr;
-  gap: clamp(24px, 4vw, 40px);
+  gap: clamp(10px, 2vw, 18px);
   align-items: start;
+  overflow: hidden;
+  padding: clamp(20px, 4vw, 44px);
+  background: #fff4cc;
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: var(--home-radius-btn);
 }
 
-/* ── Remy stage — big freigestellt Remy standing on a yellow circle ── */
+.ask {
+  grid-area: ask;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.panelHead:global(.hv-head) {
+  margin-bottom: 0;
+}
+
+.panelHead :global(.hv-title) {
+  max-width: 760px;
+}
+
+/* ── Remy stage — freigestellt, no background sun ── */
 .avatarWrap {
-  order: 2;
+  grid-area: avatar;
   position: relative;
   justify-self: center;
   width: 100%;
-  max-width: clamp(220px, 30vw, 340px);
+  max-width: clamp(280px, 82vw, 430px);
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding-top: 0;
+  margin-top: clamp(-42px, -7vw, -26px);
+  margin-bottom: clamp(-92px, -13vw, -56px);
 }
 
 .avatar {
   position: relative;
+  top: clamp(-16px, -3vw, -8px);
   z-index: 1;
   width: 94%;
-  height: 122%;
+  height: 112%;
   transform-origin: 50% 100%;
   animation: remyBob 3.8s ease-in-out infinite;
 }
@@ -85,26 +114,27 @@
 
 /* ── copy column ── */
 .copy {
-  order: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  margin-top: clamp(10px, 1.4vw, 16px);
 }
 
 .lead {
-  margin: 0 0 clamp(14px, 2vw, 20px);
+  margin: 0 0 clamp(8px, 1.2vw, 12px);
   font-family: var(--font-providence);
-  font-size: clamp(14px, 1.3vw, 17px);
-  font-weight: 400;
-  line-height: 1.4;
-  color: var(--home-muted);
+  font-size: clamp(16px, 1.5vw, 21px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--home-ink);
 }
 
 /* ── actions: quick answers + chat input ── */
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  max-width: 620px;
 }
 
 .chips {
@@ -116,8 +146,14 @@
 /* Chip hover: accent yellow tint (state change, not motion — allowed) */
 .chip:global(.hv-chip):hover,
 .chip:global(.hv-chip):focus-visible {
-  background: var(--home-accent);
+  background: var(--home-ink);
+  color: #fff;
+}
+
+.chip:global(.hv-chip) {
+  background: rgba(255, 255, 255, 0.72);
   color: var(--home-ink);
+  border: 1px solid rgba(21, 18, 14, 0.12);
 }
 
 .chip:focus-visible {
@@ -130,6 +166,10 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(21, 18, 14, 0.12);
+  border-radius: var(--home-radius-btn);
 }
 
 .input {
@@ -142,7 +182,7 @@
   font-size: 13px;
   font-weight: 400;
   color: var(--home-ink);
-  background: var(--home-quiet);
+  background: transparent;
 }
 
 .input::placeholder {
@@ -157,6 +197,8 @@
 /* Send button — reuses global hv-btn (ink bg, white text); no overrides needed */
 .send {
   flex: 0 0 auto;
+  min-width: 94px;
+  text-align: center;
 }
 
 .send:focus-visible {
@@ -167,17 +209,68 @@
 /* ── desktop: copy left, big Remy right ── */
 @media (min-width: 720px) {
   .body {
-    grid-template-columns: 1.1fr 0.9fr;
-    /* Center the short copy against the tall Remy so it doesn't float at the
-       top-left with a large void beside the illustration. */
+    grid-template-areas:
+      "ask avatar";
+    grid-template-columns: minmax(360px, 0.96fr) minmax(360px, 0.72fr);
+    min-height: clamp(360px, 31vw, 430px);
+    padding: clamp(30px, 3.4vw, 48px) clamp(34px, 4.4vw, 64px);
     align-items: center;
-    gap: clamp(32px, 5vw, 64px);
+    gap: clamp(32px, 5vw, 78px);
+  }
+
+  .ask {
+    align-self: center;
+    max-width: 650px;
+    transform: translateY(clamp(-18px, -1.8vw, -8px));
   }
 
   .avatarWrap {
+    align-self: end;
     justify-self: end;
-    max-width: clamp(340px, 40vw, 480px);
+    max-width: clamp(410px, 38vw, 530px);
+    margin-top: clamp(-44px, -3vw, -24px);
+    margin-bottom: clamp(-112px, -7vw, -70px);
   }
+
+  .avatar {
+    top: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .chatin {
+    align-items: stretch;
+  }
+
+  .send {
+    min-width: 82px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
+
+:global(html[data-theme="dark"]) .body {
+  background: #211d16;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+:global(html[data-theme="dark"]) .lead {
+  color: #fff;
+}
+
+:global(html[data-theme="dark"]) .chip:global(.hv-chip),
+:global(html[data-theme="dark"]) .chatin {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+:global(html[data-theme="dark"]) .chip:global(.hv-chip),
+:global(html[data-theme="dark"]) .input {
+  color: #fff;
+}
+
+:global(html[data-theme="dark"]) .input::placeholder {
+  color: rgba(255, 255, 255, 0.58);
 }
 
 /* ── reduced motion ── */

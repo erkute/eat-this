@@ -14,10 +14,10 @@ export default function MagazineGrid({ articles, locale }: Props) {
   const list = rest.slice(0, 5);
   return (
     <section
-      className="homeV2 hv-section hv-wrap"
+      className={`homeV2 hv-section hv-wrap ${styles.section}`}
       aria-label={locale === 'en' ? 'Magazine' : 'Magazin'}
     >
-      <div className="hv-head">
+      <div className={`hv-head ${styles.head}`}>
         <h2 className="hv-title">
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'On the plate' : 'Auf den Teller'}
@@ -46,7 +46,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
               <li key={a.slug}>
                 <Link href={`/news/${a.slug}`} className={styles.row}>
                   <span className={`hv-photo ${styles.rowThumb}`}>
-                    {a.image && <Image src={a.image} alt="" fill sizes="120px" />}
+                    {a.image && <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 220px" />}
                   </span>
                   <span className={styles.rowText}>
                     {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}

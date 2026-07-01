@@ -65,6 +65,17 @@
   color: #9b4400;
 }
 
+/* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */
+/* Compound :global(.hv-rail).rail (0,3,0 with .homeV2) beats .homeV2 .hv-rail
+   (0,2,0), so overflow can go visible — nothing overflows once it wraps. */
+@media (min-width: 761px) {
+  :global(.homeV2) :global(.hv-rail).rail {
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: clamp(20px, 2.4vw, 32px);
+  }
+}
+
 /* ── Auth-mode (2-up compact inside HubDeineWelt) ──────────────────────────── */
 .rail[data-auth-rail] .card {
   flex-basis: 160px;

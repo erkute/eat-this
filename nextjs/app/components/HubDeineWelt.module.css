@@ -75,12 +75,19 @@
   text-decoration: none;
 }
 
-/* ── Rails column ─────────────────────────────────────────────── */
+/* ── Rails column (right of the copy — now Saved only) ────────── */
 
 .rails {
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 24px);
+}
+
+/* Must Eats sits as a full-width row below the hero grid, so it fills the
+   width instead of stacking under Saved and towering the right column over
+   the copy (which left a big whitespace under the headline). */
+.mustEatsRow {
+  margin-top: clamp(20px, 3vw, 36px);
 }
 
 .railBlock {
@@ -184,6 +191,20 @@
 }
 
 /* ── Responsive ───────────────────────────────────────────────── */
+
+/* Desktop: rails wrap into rows instead of horizontal swipe (swiping on a wide
+   screen makes no sense). The compound :global(.hv-rail).rail (0,3,0 with
+   .homeV2) beats .homeV2 .hv-rail (0,2,0), so we can also drop its
+   overflow-x:auto — otherwise overflow-y computes to auto too and the card
+   hover-lift/rotate is clipped at the rail's top edge. Nothing overflows
+   horizontally once it wraps, so overflow:visible is safe. */
+@media (min-width: 761px) {
+  :global(.homeV2) :global(.hv-rail).rail {
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: clamp(12px, 1.4vw, 18px);
+  }
+}
 
 @media (max-width: 760px) {
   .heroInner {

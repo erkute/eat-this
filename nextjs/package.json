@@ -6,6 +6,7 @@
     "dev": "npm run build:css && next dev",
     "build:css": "esbuild css/style.css --bundle=false --minify --outfile=public/css/style.min.css",
     "build": "npm run build:css && next build && cp -r public/. .next/standalone/public/",
+    "build:isolated": "npm run build:css && NEXT_DIST_DIR=.next-verify next build && cp -r public/. .next-verify/standalone/public/",
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",
     "embed:restaurants": "tsx scripts/embed-restaurants.ts",

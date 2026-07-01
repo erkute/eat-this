@@ -73,17 +73,64 @@ export default function HubFragRemy() {
       id="hub-fragremy"
       data-hub-fragremy=""
     >
-      {/* Section header — homeV2 pattern */}
-      <div className="hv-head">
-        <h2 className="hv-title">
-          <span className="hv-mk" aria-hidden="true" />
-          {locale === 'de' ? 'Keine Idee? Frag Remy.' : 'No idea? Ask Remy.'}
-        </h2>
-      </div>
-
-      {/* Body: Remy avatar (yellow) left, copy + actions right */}
+      {/* Body: Remy avatar, headline, copy + actions as one stage */}
       <div className={styles.body}>
-        {/* Yellow avatar — Remy's signature colour lives here */}
+        <div className={styles.ask}>
+          <div className={`hv-head ${styles.panelHead}`}>
+            <h2 className="hv-title">
+              <span className="hv-mk" aria-hidden="true" />
+              {locale === 'de' ? 'Keine Idee? Frag Remy.' : 'No idea? Ask Remy.'}
+            </h2>
+          </div>
+
+          {/* Copy + interactions */}
+          <div className={styles.copy}>
+            <p className={styles.lead} data-fragremy-lead="">
+              {lead}
+            </p>
+
+            <div className={styles.actions}>
+              <div className={styles.chips} data-fragremy-chips="">
+                {answers.map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    className={`hv-chip ${styles.chip}`}
+                    onClick={() => dispatchBuddyAsk({ question: a })}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+              <form
+                className={styles.chatin}
+                data-fragremy-form=""
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitDraft();
+                }}
+              >
+                <input
+                  className={styles.input}
+                  data-fragremy-input=""
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={t('inputPlaceholder')}
+                  aria-label={t('inputPlaceholder')}
+                />
+                <button
+                  className={`hv-btn ${styles.send}`}
+                  type="submit"
+                  aria-label={t('sendAria')}
+                >
+                  <span aria-hidden="true">{t('sendAria')}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {/* Remy avatar */}
         <div className={styles.avatarWrap} ref={stageRef} data-fragremy-avatar="">
           <div className={styles.avatar} data-talking={talking ? '' : undefined}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -103,48 +150,6 @@ export default function HubFragRemy() {
               height={200}
               aria-hidden="true"
             />
-          </div>
-        </div>
-
-        {/* Copy + interactions */}
-        <div className={styles.copy}>
-          <p className={styles.lead} data-fragremy-lead="">
-            {lead}
-          </p>
-
-          <div className={styles.actions}>
-            <div className={styles.chips} data-fragremy-chips="">
-              {answers.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  className={`hv-chip ${styles.chip}`}
-                  onClick={() => dispatchBuddyAsk({ question: a })}
-                >
-                  {a}
-                </button>
-              ))}
-            </div>
-            <form
-              className={styles.chatin}
-              data-fragremy-form=""
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitDraft();
-              }}
-            >
-              <input
-                className={styles.input}
-                data-fragremy-input=""
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={t('inputPlaceholder')}
-                aria-label={t('inputPlaceholder')}
-              />
-              <button className={`hv-btn ${styles.send}`} type="submit" aria-label={t('sendAria')}>
-                <span aria-hidden="true">{t('sendAria')}</span>
-              </button>
-            </form>
           </div>
         </div>
       </div>

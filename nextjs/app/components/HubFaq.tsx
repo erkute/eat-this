@@ -9,7 +9,7 @@ export default function HubFaq({ locale }: Props) {
   const faqs = getLandingFaqs(locale);
   if (faqs.length === 0) return null;
   return (
-    <section className="homeV2 hv-section hv-wrap" data-hub-faq="">
+    <section className={`homeV2 hv-section hv-wrap ${styles.section}`} data-hub-faq="">
       <div className="hv-head">
         <h2 className="hv-title">
           <span className="hv-mk" aria-hidden="true" />

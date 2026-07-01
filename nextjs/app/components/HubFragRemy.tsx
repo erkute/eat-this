@@ -73,17 +73,16 @@ export default function HubFragRemy() {
       id="hub-fragremy"
       data-hub-fragremy=""
     >
-      {/* Section header — homeV2 pattern */}
-      <div className="hv-head">
-        <h2 className="hv-title">
-          <span className="hv-mk" aria-hidden="true" />
-          {locale === 'de' ? 'Keine Idee? Frag Remy.' : 'No idea? Ask Remy.'}
-        </h2>
-      </div>
-
-      {/* Body: Remy avatar (yellow) left, copy + actions right */}
+      {/* Body: Remy avatar, headline, copy + actions as one stage */}
       <div className={styles.body}>
-        {/* Yellow avatar — Remy's signature colour lives here */}
+        <div className={`hv-head ${styles.panelHead}`}>
+          <h2 className="hv-title">
+            <span className="hv-mk" aria-hidden="true" />
+            {locale === 'de' ? 'Keine Idee? Frag Remy.' : 'No idea? Ask Remy.'}
+          </h2>
+        </div>
+
+        {/* Remy avatar */}
         <div className={styles.avatarWrap} ref={stageRef} data-fragremy-avatar="">
           <div className={styles.avatar} data-talking={talking ? '' : undefined}>
             {/* eslint-disable-next-line @next/next/no-img-element */}

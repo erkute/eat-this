@@ -45,7 +45,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <section className={`hv-wrap ${styles.hero}`} aria-label={t.spotDay}>
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
-            <span className="hv-kicker">
+            <span className={`hv-kicker ${styles.heroKicker}`}>
               {locale === 'en' ? 'Berlin — what to eat' : 'Berlin — was du essen sollst'}
             </span>
             <h1 className={styles.heroHeadline}>

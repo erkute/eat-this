@@ -21,7 +21,6 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
         </h2>
-        <span className="hv-link">{locale === 'en' ? 'Categories' : 'Kategorien'} →</span>
       </div>
       <div className={styles.grid}>
         {entries.map(([slug, name]) => {

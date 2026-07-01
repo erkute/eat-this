@@ -21,6 +21,18 @@
   border: 0;
 }
 
+/* Desktop: wrap into rows, no horizontal swipe. The compound
+   :global(.hv-rail).rail (0,3,0 with .homeV2) beats .homeV2 .hv-rail (0,2,0)
+   so we can also drop overflow-x:auto — otherwise overflow-y computes to auto
+   and the card hover-lift is clipped at the rail's top edge. */
+@media (min-width: 761px) {
+  :global(.homeV2) :global(.hv-rail).rail {
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: clamp(20px, 2.4vw, 32px);
+  }
+}
+
 /* ── Card shell ────────────────────────────────────────────────────────────── */
 .item {
   min-width: 0;

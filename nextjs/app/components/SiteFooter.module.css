@@ -47,7 +47,7 @@
   display: block;
   width: min(40vw, 170px);
   height: auto;
-  margin-top: 2px;
+  margin-top: -2px;
   margin-inline: auto;
   filter: none;
 }
@@ -170,7 +170,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: clamp(12px, 2vw, 28px);
+  gap: 0 clamp(10px, 1.5vw, 18px);
   border: 0;
 }
 
@@ -190,6 +190,13 @@
   line-height: 1.1;
   text-transform: uppercase;
   text-align: center;
+}
+
+.legalLink:not(:last-child)::after {
+  content: '·';
+  display: inline-block;
+  margin-left: clamp(10px, 1.5vw, 18px);
+  color: var(--footer-paper);
 }
 
 .legalLink:hover {
@@ -227,6 +234,13 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-top: 2px;
+  font-family: var(--menu-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
 
 .langBtn {
@@ -266,7 +280,7 @@
 
   .tagImg {
     width: min(19vw, 210px);
-    margin-top: 8px;
+    margin-top: 2px;
   }
 
   .remyLink {

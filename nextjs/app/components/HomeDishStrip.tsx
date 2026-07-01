@@ -75,7 +75,6 @@ export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'This is what to eat' : 'Das willst du essen'}
         </h2>
-        <span className="hv-link">{locale === 'en' ? 'On the map' : 'Auf der Map'} →</span>
       </div>
       <div className={styles.grid}>
         {dishes.map((d) => (

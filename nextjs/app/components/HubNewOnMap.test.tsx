@@ -1,9 +1,29 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import type { AnchorHTMLAttributes } from 'react'
 import { translations } from '@/lib/i18n/translations'
 import HubNewOnMap from '@/app/components/HubNewOnMap'
 import type { NewOnMapCard } from '@/lib/home/getHomeData'
+
+type MockLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  href: string
+  prefetch?: unknown
+}
+
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ href, children, ...props }: MockLinkProps) => {
+    delete props.prefetch
+    return (
+      <a href={href} {...props}>
+        {children}
+      </a>
+    )
+  },
+  useRouter: () => ({
+    prefetch: () => {},
+  }),
+}))
 
 const card = (o: Partial<NewOnMapCard> = {}): NewOnMapCard => ({
   _id: 'r1', name: 'Bar Basta', slug: 'bar-basta', image: 'https://cdn.sanity.io/i.png',

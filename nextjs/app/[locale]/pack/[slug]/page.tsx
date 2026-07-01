@@ -99,60 +99,68 @@ export default async function PackDetailPage({ params }: PageProps) {
     return (
       <main className={styles.page}>
         <div className={styles.inner}>
-          <div className={styles.allStage} aria-hidden="true">
-            <div className={styles.allStack}>
-              {ALL_BERLIN_GRID.map((rowSlugs, i) => (
-                <div
-                  key={i}
-                  className={`${styles.allRow} ${i === 0 ? styles.allRowTop : i === 1 ? styles.allRowMid : styles.allRowBottom}`}
-                >
-                  {rowSlugs.map(s => {
-                    const art = categoryArt(s)
-                    // eslint-disable-next-line @next/next/no-img-element
-                    return art ? <img key={s} src={art} alt="" loading="lazy" /> : null
-                  })}
-                </div>
-              ))}
+          <section className={`${styles.hero} ${styles.heroAll}`}>
+            <div className={styles.copy}>
+              <div className={`${styles.kicker} ${styles.allKicker}`}>
+                {de ? 'Alles auf einmal · alle Packs' : 'Everything at once · every pack'}
+              </div>
+              <h1 className={`${styles.name} ${styles.allName}`}>
+                All<br /><span className={styles.y}>Berlin</span>
+              </h1>
+              <p className={styles.sub}>{pack.description[loc]}</p>
+
+              <div className={styles.facts}>
+                <span className={`${styles.price} ${styles.bigPrice}`}>{priceLabel}</span>
+                <span className={styles.updates}>{de ? '+ Auto-Sync' : '+ Auto-sync'}</span>
+              </div>
+
+              <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
+              {trust}
             </div>
-          </div>
 
-          <div className={`${styles.kicker} ${styles.allKicker}`}>
-            {de ? 'Alles auf einmal · alle Packs' : 'Everything at once · every pack'}
-          </div>
-          <h1 className={`${styles.name} ${styles.allName}`}>
-            All<br /><span className={styles.y}>Berlin</span>
-          </h1>
-          <p className={styles.sub}>{pack.description[loc]}</p>
-
-          <div className={styles.facts}>
-            <span className={`${styles.price} ${styles.bigPrice}`}>{priceLabel}</span>
-            <span className={styles.updates}>{de ? '+ Auto-Sync' : '+ Auto-sync'}</span>
-          </div>
-
-          <div className={styles.insideLabel}>{de ? 'Was drin ist · alle Packs' : 'What you get · every pack'}</div>
-          <div className={styles.allPacks}>
-            {ALL_BERLIN_TILES.map(s => {
-              const art = categoryArt(s)
-              return (
-                <div key={s} className={styles.allPack}>
-                  {art && <Image src={art} alt={nameOf(s)} width={68} height={106} />}
-                  <span className={styles.cat}>{nameOf(s)}</span>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className={styles.bonus}>
-            <div className={styles.bonusIcon}>+</div>
-            <div className={styles.bonusText}>
-              {de
-                ? <><strong>Auto-Sync</strong> · Jeder neue Spot landet automatisch auf deiner Map.</>
-                : <><strong>Auto-sync</strong> · Every new spot lands on your map automatically.</>}
+            <div className={styles.allStage} aria-hidden="true">
+              <div className={styles.allStack}>
+                {ALL_BERLIN_GRID.map((rowSlugs, i) => (
+                  <div
+                    key={i}
+                    className={`${styles.allRow} ${i === 0 ? styles.allRowTop : i === 1 ? styles.allRowMid : styles.allRowBottom}`}
+                  >
+                    {rowSlugs.map(s => {
+                      const art = categoryArt(s)
+                      // eslint-disable-next-line @next/next/no-img-element
+                      return art ? <img key={s} src={art} alt="" loading="lazy" /> : null
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </section>
 
-          <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
-          {trust}
+          <section className={styles.contentGrid}>
+            <div className={styles.panel}>
+              <div className={styles.insideLabel}>{de ? 'Was drin ist · alle Packs' : 'What you get · every pack'}</div>
+              <div className={styles.allPacks}>
+                {ALL_BERLIN_TILES.map(s => {
+                  const art = categoryArt(s)
+                  return (
+                    <div key={s} className={styles.allPack}>
+                      {art && <Image src={art} alt={nameOf(s)} width={68} height={106} />}
+                      <span className={styles.cat}>{nameOf(s)}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className={`${styles.bonus} ${styles.panel}`}>
+              <div className={styles.bonusIcon}>+</div>
+              <div className={styles.bonusText}>
+                {de
+                  ? <><strong>Auto-Sync</strong> · Jeder neue Spot landet automatisch auf deiner Map.</>
+                  : <><strong>Auto-sync</strong> · Every new spot lands on your map automatically.</>}
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     )
@@ -167,63 +175,70 @@ export default async function PackDetailPage({ params }: PageProps) {
 
   return (
     <main className={styles.page}>
-      {art && (
-        <div className={styles.stage}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={art} alt={`${heroName} Pack`} className={styles.packArt} />
-        </div>
-      )}
       <div className={styles.inner}>
-        <div className={styles.kicker}>Booster Pack</div>
-        <h1 className={styles.name}>{heroName}<br />Pack</h1>
-        <p className={styles.sub}>{pack.description[loc]}</p>
+        <section className={styles.hero}>
+          <div className={styles.copy}>
+            <div className={styles.kicker}>Booster Pack</div>
+            <h1 className={styles.name}>{heroName}<br />Pack</h1>
+            <p className={styles.sub}>{pack.description[loc]}</p>
 
-        <div className={styles.facts}>
-          <span className={styles.price}>{priceLabel}</span>
-          <span className={styles.updates}>{de ? '+ Updates' : '+ Updates'}</span>
-        </div>
+            <div className={styles.facts}>
+              <span className={styles.price}>{priceLabel}</span>
+              <span className={styles.updates}>{de ? '+ Updates' : '+ Updates'}</span>
+            </div>
 
-        {teaser.revealed.length > 0 && (
-          <>
-            <div className={styles.insideLabel}>{de ? 'Drin im Pack' : 'Inside the pack'}</div>
-            <div className={styles.list}>
-              {teaser.revealed.map((r, i) => (
-                <div key={`r${i}`} className={styles.row}>
-                  <div className={styles.thumb}>{String(i + 1).padStart(2, '0')}</div>
-                  <span className={styles.rn}>{r.name}</span>
-                  {r.district && <span className={styles.mn}>{r.district}</span>}
+            <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
+            {trust}
+          </div>
+
+          {art && (
+            <div className={styles.stage}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={art} alt={`${heroName} Pack`} className={styles.packArt} />
+            </div>
+          )}
+        </section>
+
+        <section className={styles.contentGrid}>
+          {teaser.revealed.length > 0 && (
+            <div className={styles.panel}>
+              <div className={styles.insideLabel}>{de ? 'Drin im Pack' : 'Inside the pack'}</div>
+              <div className={styles.list}>
+                {teaser.revealed.map((r, i) => (
+                  <div key={`r${i}`} className={styles.row}>
+                    <div className={styles.thumb}>{String(i + 1).padStart(2, '0')}</div>
+                    <span className={styles.rn}>{r.name}</span>
+                    {r.district && <span className={styles.mn}>{r.district}</span>}
+                  </div>
+                ))}
+                {teaser.locked.map((l, i) => (
+                  <div key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
+                    <div className={styles.thumb}>{String(teaser.revealed.length + i + 1).padStart(2, '0')}</div>
+                    <span className={styles.rn}>{de ? 'Verdeckt' : 'Covered'}</span>
+                    {l.district && <span className={styles.mn}>{l.district}</span>}
+                  </div>
+                ))}
+                <div className={`${styles.row} ${styles.rowLocked}`}>
+                  <div className={styles.thumb}>+</div>
+                  <span className={styles.rn}>{de ? 'Und mehr' : 'And more'}</span>
+                  <span className={styles.mn}>{de ? 'Live-Map' : 'Live map'}</span>
                 </div>
-              ))}
-              {teaser.locked.map((l, i) => (
-                <div key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
-                  <div className={styles.thumb}>{String(teaser.revealed.length + i + 1).padStart(2, '0')}</div>
-                  <span className={styles.rn}>{de ? 'Verdeckt' : 'Covered'}</span>
-                  {l.district && <span className={styles.mn}>{l.district}</span>}
-                </div>
-              ))}
-              <div className={`${styles.row} ${styles.rowLocked}`}>
-                <div className={styles.thumb}>+</div>
-                <span className={styles.rn}>{de ? 'Und mehr' : 'And more'}</span>
-                <span className={styles.mn}>{de ? 'Live-Map' : 'Live map'}</span>
               </div>
             </div>
-          </>
-        )}
+          )}
 
-        <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
-        {trust}
-
-        <div className={styles.upsell}>
-          <Link href={allBerlinHref}>
-            <span className={styles.upsellKicker}>
-              {de ? 'Lieber alles auf einmal' : 'Rather everything at once'}
-            </span>
-            <span className={styles.upsellMain}>
-              <span>All Berlin</span>
-              <strong>{de ? '20 €' : '€20'}</strong>
-            </span>
-          </Link>
-        </div>
+          <div className={styles.upsell}>
+            <Link href={allBerlinHref}>
+              <span className={styles.upsellKicker}>
+                {de ? 'Lieber alles auf einmal' : 'Rather everything at once'}
+              </span>
+              <span className={styles.upsellMain}>
+                <span>All Berlin</span>
+                <strong>{de ? '20 €' : '€20'}</strong>
+              </span>
+            </Link>
+          </div>
+        </section>
       </div>
     </main>
   )

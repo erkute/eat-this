@@ -27,6 +27,7 @@ import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
+import loginPanelStyles from '@/app/[locale]/login/login.module.css';
 
 const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
 
@@ -81,6 +82,7 @@ export default function BridgeAuth() {
   return loginOpen ? createPortal(
     <div
       className={modalStyles.overlay}
+      data-login-panel-style={loginPanelStyles.frame}
       onClick={(e) => { if (e.target === e.currentTarget) closeLogin(); }}
     >
       {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}

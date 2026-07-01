@@ -6,7 +6,6 @@
   font-style: normal;
   font-weight: 400;
 }
-
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
   --black: #171a17;
@@ -252,7 +251,6 @@
   --accent-coral: var(--brand-action);
   --accent-ink: var(--brand-ink);
 }
-
 /* The Ranchers/Bungee/Knewave/Slackey/Archivo Black font files are no longer
    loaded via next/font — these definitions are what keeps components that
    reference the variable names directly (e.g. the Hub headlines use
@@ -266,7 +264,6 @@ html:root {
   --font-slackey: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-archivo-black: var(--font-chewy, 'moonblossom'), sans-serif;
 }
-
 html[data-theme='dark'] {
   --c-row-rule: rgba(240, 232, 208, 0.14);
 
@@ -297,7 +294,6 @@ html[data-theme='dark'] {
   --surface-deep: var(--et-print-black);
   --surface-deep-2: var(--et-print-black);
 }
-
 /* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
    ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
    Rezept: Print Black als Raum, Program Paper als Lesefläche, Poster Red als
@@ -310,7 +306,6 @@ html[data-theme='dark'] {
   --dk-sub: rgba(242, 223, 184, 0.72);
   --dk-rule: rgba(242, 223, 184, 0.28);
 }
-
 *,
 *::before,
 *::after {
@@ -318,7 +313,6 @@ html[data-theme='dark'] {
   padding: 0;
   box-sizing: border-box;
 }
-
 /* A11y: honour the OS "reduce motion" setting site-wide (WCAG 2.3.3). Lives in
    the inline-critical sheet with `!important` so it neutralises every CSS/JS
    transition+animation regardless of which stylesheet declared them, on first
@@ -334,7 +328,6 @@ html[data-theme='dark'] {
     scroll-behavior: auto !important;
   }
 }
-
 /* A11y: a visible keyboard focus ring everywhere (WCAG 2.4.7). :focus-visible
    only fires for keyboard / non-pointer focus, so mouse clicks stay ring-free.
    Profile/login don't load style.css, so this generic rule must live here too;
@@ -344,7 +337,6 @@ html[data-theme='dark'] {
   outline: 2px solid var(--c-coral, #ef3528);
   outline-offset: 2px;
 }
-
 html {
   /* Native form controls, scrollbars and autofill follow the active theme
      instead of defaulting to the browser's light UI in dark mode. */
@@ -364,7 +356,6 @@ html[data-theme='dark'] {
   color-scheme: dark;
   background-color: var(--et-black);
 }
-
 body {
   font-family: var(--font);
   background-color: var(--collage-paper);
@@ -381,7 +372,6 @@ html[data-theme='dark'] body {
   background-color: var(--collage-paper);
   background-image: none;
 }
-
 html[data-active-page='home'],
 html[data-active-page='start'],
 html[data-active-page='home'] body,
@@ -424,7 +414,6 @@ html[data-active-page='start'] body {
   background-image: none;
   color-scheme: light;
 }
-
 html[data-theme='dark'][data-active-page='home'],
 html[data-theme='dark'][data-active-page='start'],
 html[data-theme='dark'][data-active-page='home'] body,
@@ -467,7 +456,6 @@ html[data-theme='dark'][data-active-page='start'] body {
   background-image: none;
   color-scheme: light;
 }
-
 /* Hub wrapper surface. The section stack has intentional gaps between some
    sections; without a wrapper background those gaps expose the body, which
    style.css paints with --surface-canvas (#fff) — producing a cream→white seam
@@ -504,7 +492,6 @@ html[data-theme='dark'][data-active-page='home'] [data-hub],
 html[data-theme='dark'][data-active-page='start'] [data-hub] {
   background: var(--food-paper);
 }
-
 /* Sitewide Providence collage language. The map remains a purpose-built
    full-screen tool; every content page gets the paper/print treatment. */
 html:not([data-active-page='map']) .app-pages,
@@ -512,13 +499,11 @@ html:not([data-active-page='map']) main,
 html:not([data-active-page='map']) .app-page {
   background-color: transparent;
 }
-
 html:not([data-active-page='map']) main,
 html:not([data-active-page='map']) .app-page:not([data-page='start']) {
   position: relative;
   isolation: isolate;
 }
-
 /* Legacy brand heading-red. Menu-design surfaces opt out via [data-menu] on
    their <main> so their own ink/Chauncy headings win. */
 html:not([data-active-page='map']) main:not([data-menu]) h1,
@@ -528,7 +513,6 @@ html:not([data-active-page='map']) .app-page:not([data-page='start']):not([data-
   color: var(--collage-red);
   letter-spacing: -0.025em;
 }
-
 html:not([data-active-page='map']) main blockquote,
 html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote {
   position: relative;
@@ -538,7 +522,6 @@ html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote
   box-shadow: var(--collage-shadow);
   transform: rotate(-1deg);
 }
-
 html:not([data-active-page='map']) main blockquote::before,
 html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote::before {
   content: '';
@@ -551,19 +534,16 @@ html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote
   box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
   transform: translateX(-50%) rotate(3deg);
 }
-
 html:not([data-active-page='map']) main article img,
 html:not([data-active-page='map']) .app-page:not([data-page='start']) article img {
   box-shadow: var(--collage-shadow);
 }
-
 html:not([data-active-page='map']) main button:not([aria-label]),
 html:not([data-active-page='map']) main a[role='button'],
 html:not([data-active-page='map']) .app-page:not([data-page='start']) button:not([aria-label]),
 html:not([data-active-page='map']) .app-page:not([data-page='start']) a[role='button'] {
   border-radius: 0;
 }
-
 @media (min-width: 720px) {
   html:not([data-active-page='map']) main::before,
   html:not([data-active-page='map']) .app-page:not([data-page='start'])::before {
@@ -571,18 +551,15 @@ html:not([data-active-page='map']) .app-page:not([data-page='start']) a[role='bu
     font-size: 13px;
   }
 }
-
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
-
 a {
   text-decoration: none;
   color: inherit;
 }
-
 /* Prevent FOUC flash of overlays that only become visible via a toggled class.
    Lives here (inlined by Next.js) instead of style.min.css so the rule is
    applied before the external stylesheet loads on first paint. */
@@ -591,7 +568,6 @@ a {
 .burger-drawer:not(.active) {
   display: none;
 }
-
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
    because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
    data-auth="1" pre-paint from localStorage._authHint, so signed-in visitors
@@ -599,24 +575,20 @@ a {
 html[data-auth='1'] [data-signup-gift] {
   display: none;
 }
-
 /* The inverse: signed-in-only blocks (e.g. the Deine-Welt hub section) are
    SSR'd as a static shell so they don't pop in / shift the page once client
    auth resolves. Anyone without the pre-paint flag never sees the shell. */
 html:not([data-auth='1']) [data-auth-only] {
   display: none;
 }
-
 /* Logged-out-only Home blocks are SSR'd for everyone for the same reason:
    the server cannot know auth state. Hide them pre-paint for signed-in
    visitors once the bootstrap has an auth hint. */
 html[data-auth='1'] [data-guest-only] {
   display: none;
 }
-
 /* 2026 EDITORIAL FRAME removed — the dark border-mat read as heavy chrome
    over the editorial-v13 redesign. Navbar + app-pages now go flush. */
-
 /* Map page is position:fixed and owns the full viewport below the top nav.
    Override the generic .app-page padding-bottom (reserved for fixed tab bars)
    so the bottom sheet reaches the bottom of the screen without a gap.
@@ -631,7 +603,6 @@ html[data-auth='1'] [data-guest-only] {
      canvas claims the full viewport. */
   height: 100dvh !important;
 }
-
 /* Mobile: the navbar goes transparent over the map (see style.css
    [data-active-page="map"] block). Map canvas now claims the full
    viewport including the top 60px the navbar used to reserve. */
@@ -658,7 +629,6 @@ html[data-auth='1'] [data-guest-only] {
     height: calc(100lvh + 80px) !important;
   }
 }
-
 /* Map redesign: no solid header — a single floating burger (in MapSectionBody)
    sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
    stays mounted so #burgerBtn's open handler keeps working when triggered
@@ -667,7 +637,6 @@ html[data-auth='1'] [data-guest-only] {
 [data-active-page='map'] header[role='banner'] {
   display: none !important;
 }
-
 /* No footer below the map page — it would extend the document past the
    page's 100lvh and let the window scroll the whole map UI away; its black
    top edge also peeks into Safari's bottom-bar zone. (style.css has a
@@ -675,13 +644,6 @@ html[data-auth='1'] [data-guest-only] {
 [data-active-page='map'] .site-footer {
   display: none !important;
 }
-
-/* Burger drawer over the map: Safari composites only IN-FLOW content into
-   the bottom-URL-bar backdrop — the position:fixed drawer can't paint
-   there, so with the drawer open the bar would keep blurring the sheet
-   rows behind it. Mirror the drawer surface in the page's behind-bar zone
-   (the lvh+80px apron) while it's open; fades with the drawer's own
-   0.25s opacity transition (state change, not motion). */
 @media (max-width: 1023.98px) {
   .app-page[data-page='map']::after {
     content: '';
@@ -703,19 +665,16 @@ html[data-auth='1'] [data-guest-only] {
     background: #d9382a;
   }
 }
-
 /* Login modal behind the iOS bottom URL bar: handled by
    app/components/LoginModalBarLock.tsx (inline-style scroll-lock + canvas
    recolor on modal mount) — a stylesheet :has() variant computed correctly
    but did not recolor the bar on device. */
-
 @media (min-width: 1024px) {
   [data-active-page='map'] .app-pages {
     margin-top: 0 !important;
     height: 100dvh !important;
   }
 }
-
 /* User-location marker is purely informational. The avatar must visually
    sit ABOVE every restaurant + must-eat marker (so the figure is never
    hidden behind a card), yet clicks must fall through to whichever
@@ -730,7 +689,6 @@ html[data-auth='1'] [data-guest-only] {
 .user-loc-marker * {
   pointer-events: none !important;
 }
-
 /* ── Notification toast (window.showNotification) ──────────────────────
    Mounted globally in app/[locale]/layout.tsx (NotificationToast.tsx).
    Styled here instead of style.css because /profile and /login don't load
@@ -909,7 +867,6 @@ html[data-theme='dark'] .notification-detail {
     transition-duration: 1ms;
   }
 }
-
 /* 2026 map/info-layer refresh: clean system toast, no cream paper/sticker frame. */
 .notification {
   --toast-surface: #fff;
@@ -933,19 +890,15 @@ html[data-theme='dark'] .notification-detail {
   transform: translate(-50%, calc(100% + 112px));
   transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
-
 .notification.show {
   transform: translate(-50%, 0);
 }
-
 .notification[data-tone='success'] {
   --toast-accent: #d9382a;
 }
-
 .notification[data-tone='warning'] {
   --toast-accent: #15120e;
 }
-
 .notification[data-tone='error'] {
   --toast-surface: #15120e;
   --toast-ink: #fff;
@@ -953,11 +906,9 @@ html[data-theme='dark'] .notification-detail {
   --toast-line: rgba(255, 255, 255, 0.12);
   --toast-accent: #d9382a;
 }
-
 .notification[data-tone='info'] {
   --toast-accent: #15120e;
 }
-
 .notification-mark {
   width: 34px;
   height: 34px;
@@ -967,31 +918,26 @@ html[data-theme='dark'] .notification-detail {
   color: #fff;
   box-shadow: none;
 }
-
 .notification[data-tone='info'] .notification-mark,
 .notification[data-tone='warning'] .notification-mark {
   background: #15120e;
   color: #fff;
 }
-
 .notification[data-tone='error'] .notification-mark {
   border: 0;
   background: #d9382a;
   color: #fff;
   box-shadow: none;
 }
-
 .notification-mark svg {
   width: 18px;
   height: 18px;
   stroke-width: 2.25;
 }
-
 .notification-copy {
   gap: 3px;
   align-self: center;
 }
-
 .notification-eyebrow {
   font-family: var(--font-body);
   font-size: 9px;
@@ -1000,11 +946,9 @@ html[data-theme='dark'] .notification-detail {
   line-height: 1;
   color: var(--toast-accent);
 }
-
 .notification[data-tone='error'] .notification-eyebrow {
   color: #fff;
 }
-
 .notification-title {
   font-family: var(--font-body);
   font-size: 15px;
@@ -1014,7 +958,6 @@ html[data-theme='dark'] .notification-detail {
   text-transform: none;
   overflow-wrap: normal;
 }
-
 .notification-detail {
   max-width: 38ch;
   font-family: var(--font-body);
@@ -1023,11 +966,9 @@ html[data-theme='dark'] .notification-detail {
   line-height: 1.3;
   color: var(--toast-muted);
 }
-
 .notification[data-tone='error'] .notification-detail {
   color: var(--toast-muted);
 }
-
 html[data-theme='dark'] .notification {
   --toast-surface: #15120e;
   --toast-ink: #fff;
@@ -1037,28 +978,23 @@ html[data-theme='dark'] .notification {
     0 18px 46px rgba(0, 0, 0, 0.36),
     inset 0 0 0 1px var(--toast-line);
 }
-
 html[data-theme='dark'] .notification[data-tone='info'],
 html[data-theme='dark'] .notification[data-tone='warning'] {
   --toast-accent: #fff;
 }
-
 html[data-theme='dark'] .notification[data-tone='info'] .notification-mark,
 html[data-theme='dark'] .notification[data-tone='warning'] .notification-mark {
   background: #fff;
   color: #15120e;
 }
-
 html[data-theme='dark'] .notification-detail {
   color: var(--toast-muted);
 }
-
 @media (min-width: 768px) {
   .notification {
     bottom: calc(26px + env(safe-area-inset-bottom, 0px));
   }
 }
-
 @media (max-width: 420px) {
   .notification {
     grid-template-columns: 32px minmax(0, 1fr);
@@ -1069,27 +1005,22 @@ html[data-theme='dark'] .notification-detail {
     border: 0;
     border-radius: 15px;
   }
-
   .notification-mark {
     width: 32px;
     height: 32px;
   }
-
   .notification-mark svg {
     width: 17px;
     height: 17px;
   }
-
   .notification-title {
     font-size: 14px;
   }
-
   .notification-detail {
     max-width: 28ch;
     font-size: 11.5px;
   }
 }
-
 /* Compact home actions. Mirrors the final burger-drawer button language, but
    sized down for section CTAs, chips, pack prices and local controls. */
 .homeCta {
@@ -1122,7 +1053,6 @@ html[data-theme='dark'] .notification-detail {
     color 0.14s ease,
     box-shadow 0.14s ease;
 }
-
 .homeCta:hover,
 .homeCta:focus-visible {
   background: var(--et-black);
@@ -1130,67 +1060,56 @@ html[data-theme='dark'] .notification-detail {
   color: var(--et-cream);
   transform: translateX(-5px);
 }
-
 .homeCta:active {
   transform: translateX(-2px);
 }
-
 .homeCta:disabled,
 .homeCta[aria-disabled='true'] {
   cursor: progress;
   opacity: 0.7;
   transform: none;
 }
-
 .homeCtaPrimary {
   background: var(--et-red);
   border-color: var(--et-red);
   color: var(--et-cream);
 }
-
 .homeCtaPrimary:hover,
 .homeCtaPrimary:focus-visible {
   background: var(--et-black);
   border-color: var(--et-black);
   color: var(--et-cream);
 }
-
 .homeCtaSmall {
   min-height: 38px;
   padding: 8px 13px 9px;
   font-size: clamp(17px, 1.7vw, 22px);
 }
-
 .homeCtaFull {
   width: 100%;
 }
-
 html[data-theme='dark'] .homeCta {
   background: rgba(255, 255, 255, 0.62);
   border-color: rgba(37, 23, 15, 0.14);
   color: var(--et-black);
 }
-
 html[data-theme='dark'] .homeCta:hover,
 html[data-theme='dark'] .homeCta:focus-visible {
   background: var(--et-black);
   border-color: var(--et-black);
   color: var(--et-cream);
 }
-
 html[data-theme='dark'] .homeCtaPrimary {
   background: var(--et-red-hot);
   border-color: var(--et-red-hot);
   color: var(--et-black);
 }
-
 html[data-theme='dark'] .homeCtaPrimary:hover,
 html[data-theme='dark'] .homeCtaPrimary:focus-visible {
   background: var(--et-black);
   border-color: var(--et-black);
   color: var(--et-cream);
 }
-
 /* Header reset for the cassette home system. Keep global navbar overrides out
    of CSS Modules so Next's pure selector rules do not reject them. */
 .navbar,
@@ -1212,7 +1131,6 @@ html[data-theme='dark'][data-active-page='start'] .navbar.scrolled {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-
 /* HOME V2 — black masthead on the home (/, data-active-page="start"):
    black/white/yellow, with the footer's bubble logo (white on black).
    Uses the #navbar id (specificity 1,1,1) so it wins over the red
@@ -1225,27 +1143,23 @@ html[data-active-page='start'] #navbar.scrolled {
   color: #fff !important;
   border-bottom: 0 !important;
 }
-
 html[data-active-page='start'] #navbar .navbar-home a,
 html[data-active-page='start'] #navbar .navbar-icon-btn,
 html[data-active-page='start'] #navbar .burger-btn {
   color: #fff !important;
 }
-
 html[data-active-page='start'] #navbar .navbar-icon-btn:hover,
 html[data-active-page='start'] #navbar .navbar-icon-btn:focus-visible,
 html[data-active-page='start'] #navbar .burger-btn:hover,
 html[data-active-page='start'] #navbar .burger-btn:focus-visible {
   color: #ffc600 !important;
 }
-
 .navbar::before,
 .navbar::after,
 html[data-theme='dark'] .navbar::before,
 html[data-theme='dark'] .navbar::after {
   content: none !important;
 }
-
 @media (max-width: 520px) {
   .navbar,
   .navbar.scrolled,
@@ -1253,298 +1167,5 @@ html[data-theme='dark'] .navbar::after {
   html[data-theme='dark'] .navbar.scrolled {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
-  }
-}
-
-.bd-foot,
-html[data-theme='dark'] .bd-foot {
-  padding-top: 8px !important;
-  gap: 6px !important;
-}
-
-.bd-foot-link,
-html[data-theme='dark'] .bd-foot-link {
-  min-height: 32px !important;
-  padding: 6px 8px !important;
-  font-size: 10px !important;
-}
-
-/* Burger drawer legal dock: this lives here as the final Next CSS override so
-   the app bundle and the legacy SPA stylesheet agree in dev and production. */
-.bd-foot,
-html[data-theme='dark'] .bd-foot {
-  width: min(100%, 560px) !important;
-  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
-  padding: 7px !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  background: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, 0.18) !important;
-}
-
-.bd-foot-link,
-.bd-foot-link:nth-child(2),
-.bd-foot-link:nth-child(4),
-html[data-theme='dark'] .bd-foot-link,
-html[data-theme='dark'] .bd-foot-link:nth-child(2),
-html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-  min-height: clamp(34px, 4.6dvh, 42px) !important;
-  padding: 8px 7px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
-  font-weight: 950 !important;
-  letter-spacing: 0.08em !important;
-  line-height: 1.05 !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  text-transform: uppercase !important;
-  overflow-wrap: anywhere !important;
-  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-  transition:
-    background-color 150ms ease,
-    color 150ms ease,
-    transform 150ms ease !important;
-}
-
-.bd-foot-link:nth-child(2),
-html[data-theme='dark'] .bd-foot-link:nth-child(2) {
-  --bd-foot-y: 2px;
-  --bd-foot-tilt: -0.7deg;
-}
-
-.bd-foot-link:nth-child(3),
-html[data-theme='dark'] .bd-foot-link:nth-child(3) {
-  --bd-foot-tilt: 0.7deg;
-}
-
-.bd-foot-link:nth-child(4),
-html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-  --bd-foot-y: 1px;
-  --bd-foot-tilt: -0.5deg;
-}
-
-.bd-foot-link:hover,
-.bd-foot-link:focus-visible,
-html[data-theme='dark'] .bd-foot-link:hover,
-html[data-theme='dark'] .bd-foot-link:focus-visible {
-  background: #15120e !important;
-  color: #fff !important;
-  outline: 2px solid #fff !important;
-  outline-offset: -5px !important;
-  text-decoration: none !important;
-  transform: translateY(-3px) rotate(calc(var(--bd-foot-tilt, 0deg) * -1)) !important;
-}
-
-@media (max-width: 560px) {
-  .bd-foot,
-  html[data-theme='dark'] .bd-foot {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: min(100%, 390px) !important;
-    gap: 5px !important;
-  }
-
-  .bd-foot-link,
-  .bd-foot-link:nth-child(2),
-  .bd-foot-link:nth-child(4),
-  html[data-theme='dark'] .bd-foot-link,
-  html[data-theme='dark'] .bd-foot-link:nth-child(2),
-  html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-    min-height: clamp(30px, 4.2dvh, 36px) !important;
-    padding: 7px 8px !important;
-    font-size: clamp(9px, 2.7vw, 11px) !important;
-    letter-spacing: 0.07em !important;
-  }
-}
-
-@media (max-height: 700px) {
-  .bd-foot,
-  html[data-theme='dark'] .bd-foot {
-    margin-top: 6px !important;
-    padding: 5px !important;
-    gap: 4px !important;
-  }
-
-  .bd-foot-link,
-  .bd-foot-link:nth-child(2),
-  .bd-foot-link:nth-child(4),
-  html[data-theme='dark'] .bd-foot-link,
-  html[data-theme='dark'] .bd-foot-link:nth-child(2),
-  html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-    min-height: 28px !important;
-    padding: 6px 7px !important;
-    font-size: 9px !important;
-  }
-}
-
-html .bd-foot,
-html[data-theme='dark'] .bd-foot {
-  width: min(100%, 560px) !important;
-  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
-  padding: 7px !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  background: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, 0.18) !important;
-}
-
-html .bd-foot-link,
-html .bd-foot-link:nth-child(2),
-html .bd-foot-link:nth-child(4),
-html[data-theme='dark'] .bd-foot-link,
-html[data-theme='dark'] .bd-foot-link:nth-child(2),
-html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-  min-height: clamp(34px, 4.6dvh, 42px) !important;
-  padding: 8px 7px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
-  font-weight: 950 !important;
-  letter-spacing: 0.08em !important;
-  line-height: 1.05 !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  text-transform: uppercase !important;
-  overflow-wrap: anywhere !important;
-  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-  transition:
-    background-color 150ms ease,
-    color 150ms ease,
-    transform 150ms ease !important;
-}
-
-html .bd-foot-link:nth-child(2),
-html[data-theme='dark'] .bd-foot-link:nth-child(2) {
-  --bd-foot-y: 2px;
-  --bd-foot-tilt: -0.7deg;
-}
-
-html .bd-foot-link:nth-child(3),
-html[data-theme='dark'] .bd-foot-link:nth-child(3) {
-  --bd-foot-tilt: 0.7deg;
-}
-
-html .bd-foot-link:nth-child(4),
-html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-  --bd-foot-y: 1px;
-  --bd-foot-tilt: -0.5deg;
-}
-
-html .bd-foot-link:hover,
-html .bd-foot-link:focus-visible,
-html[data-theme='dark'] .bd-foot-link:hover,
-html[data-theme='dark'] .bd-foot-link:focus-visible {
-  background: #15120e !important;
-  color: #fff !important;
-  outline: 2px solid #fff !important;
-  outline-offset: -5px !important;
-  text-decoration: none !important;
-  transform: translateY(-3px) rotate(calc(var(--bd-foot-tilt, 0deg) * -1)) !important;
-}
-
-@media (max-width: 560px) {
-  html .bd-foot,
-  html[data-theme='dark'] .bd-foot {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: min(100%, 390px) !important;
-    gap: 5px !important;
-  }
-
-  html .bd-foot-link,
-  html .bd-foot-link:nth-child(2),
-  html .bd-foot-link:nth-child(4),
-  html[data-theme='dark'] .bd-foot-link,
-  html[data-theme='dark'] .bd-foot-link:nth-child(2),
-  html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-    min-height: clamp(30px, 4.2dvh, 36px) !important;
-    padding: 7px 8px !important;
-    font-size: clamp(9px, 2.7vw, 11px) !important;
-    letter-spacing: 0.07em !important;
-  }
-}
-
-@media (max-height: 700px) {
-  html .bd-foot,
-  html[data-theme='dark'] .bd-foot {
-    margin-top: 6px !important;
-    padding: 5px !important;
-    gap: 4px !important;
-  }
-
-  html .bd-foot-link,
-  html .bd-foot-link:nth-child(2),
-  html .bd-foot-link:nth-child(4),
-  html[data-theme='dark'] .bd-foot-link,
-  html[data-theme='dark'] .bd-foot-link:nth-child(2),
-  html[data-theme='dark'] .bd-foot-link:nth-child(4) {
-    min-height: 28px !important;
-    padding: 6px 7px !important;
-    font-size: 9px !important;
-  }
-}
-
-html .bd-foot.bd-legal-dock,
-html[data-theme='dark'] .bd-foot.bd-legal-dock {
-  width: min(100%, 560px) !important;
-  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
-  padding: 7px !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  background: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, 0.18) !important;
-}
-
-html .bd-legal-dock .bd-foot-link,
-html .bd-legal-dock .bd-foot-link:nth-child(2),
-html .bd-legal-dock .bd-foot-link:nth-child(4),
-html[data-theme='dark'] .bd-legal-dock .bd-foot-link,
-html[data-theme='dark'] .bd-legal-dock .bd-foot-link:nth-child(2),
-html[data-theme='dark'] .bd-legal-dock .bd-foot-link:nth-child(4) {
-  min-height: clamp(34px, 4.6dvh, 42px) !important;
-  padding: 8px 7px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
-  font-weight: 950 !important;
-  letter-spacing: 0.08em !important;
-  line-height: 1.05 !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  overflow-wrap: anywhere !important;
-  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-}
-
-@media (max-width: 560px) {
-  html .bd-foot.bd-legal-dock,
-  html[data-theme='dark'] .bd-foot.bd-legal-dock {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: min(100%, 390px) !important;
-    gap: 5px !important;
   }
 }

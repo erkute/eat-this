@@ -2,7 +2,6 @@
    EAT THIS — Berlin Food Blog
    Design System & Styles
    ============================================ */
-
 /* Self-hosted display font (latin + latin-ext) */
 @font-face {
   font-family: 'Silkscreen';
@@ -20,11 +19,9 @@
   src: url('../fonts/silkscreen-700-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-
 /* A11Y: skip-to-content — hidden off-screen until keyboard focus */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:10000;background:#000;color:#fff;padding:12px 18px;font-weight:700;text-decoration:none;border-radius:0 0 8px 0}
 .skip-link:focus{left:0;outline:3px solid #ff0;outline-offset:2px}
-
 /* RESET */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 /* overflow-x:hidden + position:relative on <html> caused Chrome desktop to drop wheel-scroll on /profile (Safari and mobile worked fine). Both are redundant — body already has overflow-x:hidden and overscroll-behavior:none. Don't move them back. */
@@ -36,7 +33,6 @@ a{text-decoration:none;color:inherit}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
 a,button,input,select,textarea,label{touch-action:manipulation}
 ul,ol{list-style:none}
-
 /* DESIGN TOKENS */
 :root {
   --black: #15120E;
@@ -177,7 +173,6 @@ ul,ol{list-style:none}
   --input-focus-ring: var(--color-action);
   --input-error: var(--color-danger);
 }
-
 body {
   font-family: var(--font);
   background: var(--surface-canvas);
@@ -187,11 +182,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-
 /* ============================================
    SCROLL ANIMATIONS
    ============================================ */
-
 /* ============================================
    NAVBAR — boxed brand rail with center logo tab
    ============================================ */
@@ -214,13 +207,11 @@ body {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-
 [data-active-page="home"] .navbar,
 [data-active-page="start"] .navbar {
   background-color: #fff;
   border-bottom: 0;
 }
-
 [data-theme="dark"][data-active-page="home"] .navbar,
 [data-theme="dark"][data-active-page="start"] .navbar {
   background-color: #fff;
@@ -255,13 +246,11 @@ body {
 .navbar-brand-spacer,
 .brand-logo,
 .brand-avatar { display: none; }
-
 /* Left side: lone home icon. */
 .navbar-home {
   display: inline-flex;
   align-items: center;
 }
-
 /* Right side: news / map / profile / burger with breathing room. */
 .navbar-actions {
   display: flex;
@@ -273,7 +262,6 @@ body {
 @media (min-width: 1024px) {
   .navbar-actions { gap: 40px; }
 }
-
 /* Minimal icon button — kein Chip, kein Border, kein Shadow, kein Kreis. */
 .navbar-icon-btn {
   position: relative;
@@ -312,7 +300,6 @@ body {
   transform: translateX(-50%);
   border-radius: 2px;
 }
-
 /* ============================================
    LANGUAGE SWITCHER
    ============================================ */
@@ -345,11 +332,9 @@ body {
 .lang-btn:hover:not(.active) {
   color: var(--black);
 }
-
 /* ============================================
    HERO — rules moved to HeroSection.module.css
    ============================================ */
-
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
    the full viewport (see .app-page[data-page="map"] top:0 rule); navbar
@@ -444,8 +429,6 @@ body {
     pointer-events: none;
   }
 }
-
-
 /* ============================================
    SHARED LABELS
    ============================================ */
@@ -457,8 +440,6 @@ body {
   color: var(--orange);
   margin-bottom: 8px;
 }
-
-
 /* ============================================
    NEWS SECTION
    ============================================ */
@@ -494,7 +475,6 @@ body {
 .news-all-link:hover {
   color: var(--black);
 }
-
 /* News Ticker */
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
@@ -522,7 +502,6 @@ body {
   padding: 0 28px;
 }
 .news-ticker-track span::before { content: "— "; }
-
 /* News Grid */
 .news-grid {
   font-size: 13px;
@@ -530,7 +509,6 @@ body {
   color: var(--black);
   letter-spacing: 0.02em;
 }
-
 /* News Grid */
 .news-grid {
   max-width: 1200px;
@@ -600,7 +578,6 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 @media (min-width: 768px) {
   .news-section { padding: 180px 0 140px; }
   .news-header { padding: 0 48px 64px; }
@@ -614,16 +591,12 @@ body {
 @media (min-width: 1024px) {
   .news-grid { gap: 32px; padding: 0 48px; max-width: 1400px; }
 }
-
-
 /* ============================================
    FOOTER
    ============================================ */
 .footer {
   display: none;
 }
-
-
 /* Cookie Consent — compact brand sticker.
    It should feel like Eat This UI, not a browser/system banner. Entry remains
    pure translate — no opacity fade (brand motion rule). */
@@ -766,7 +739,6 @@ body {
     padding-inline: 10px;
   }
 }
-
 [data-theme="dark"] .cookie-consent {
   color: var(--et-cream);
   background: var(--et-dark-card);
@@ -798,23 +770,18 @@ body {
   color: var(--et-cream);
   background: rgba(242, 223, 184, .16);
 }
-
-
 /* ============================================
    NEWS ARTICLE MODAL
    ============================================ */
 /* ── FULL-PAGE ARTICLE ───────────────────────── */
-
 /* Article layout */
 .news-article {
   min-height: 100vh;
 }
-
 /* Prevent browser scroll-anchoring from holding position when content swaps */
 .app-page[data-page="news-article"] {
   overflow-anchor: none;
 }
-
 @keyframes newsArticleFadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -912,7 +879,6 @@ body {
 .share-btn:hover { background: var(--black); border-color: var(--black); color: var(--white); }
 .share-whatsapp:hover { background: #25D366; border-color: #25D366; }
 .share-native:hover { background: var(--orange); border-color: var(--orange); }
-
 /* Standalone article share buttons */
 .news-article-share {
   display: flex;
@@ -945,7 +911,6 @@ body {
   background: var(--black);
   color: var(--white);
 }
-
 /* Standalone article body content */
 .news-article-content {
   font-size: 17px;
@@ -976,7 +941,6 @@ body {
   line-height: 1.65;
 }
 .news-article-content strong { font-weight: 800; }
-
 .news-modal-content {
   font-size: 17px;
   line-height: 1.85;
@@ -1008,7 +972,6 @@ body {
   line-height: 1.65;
 }
 .news-modal-content strong { font-weight: 800; }
-
 /* Recommendations */
 .news-article-more {
   border-top: 2px solid var(--black);
@@ -1085,7 +1048,6 @@ body {
   color: #fff;
   text-transform: uppercase;
 }
-
 /* ============================================
    UTILITY
    ============================================ */
@@ -1097,12 +1059,10 @@ body {
 @media (min-width: 768px) {
   .container { padding: 0 48px; }
 }
-
 /* Safe area for notch — add inset on top of the existing 8px padding. */
 @supports (padding-top: env(safe-area-inset-top)) {
   .navbar { padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
 }
-
 /* ============================================
    APP PAGES CONTAINER
    ============================================ */
@@ -1110,7 +1070,6 @@ body {
   display: block;
   height: 100%;
 }
-
 .app-page {
   display: none !important;
   width: 100%;
@@ -1119,34 +1078,24 @@ body {
   overflow-x: hidden;
 /*  padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));*/
 }
-
 .app-page.active {
   display: block !important;
 }
-
 .app-page .map-section {
   min-height: 100%;
 }
-
-
 .app-page[data-page="start"] {
   min-height: calc(100vh - 64px);
 }
-
 /* ============================================
    APP FOOTER NAVIGATION (Mobile)
    ============================================ */
-
-
 .app-footer-item.active {
   color: var(--orange);
 }
-
 .app-footer-item.active svg {
   stroke: var(--orange);
 }
-
-
 @media (max-width: 767px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for
      Safari to use window scroll and auto-hide the URL bar on scroll. */
@@ -1155,12 +1104,10 @@ body {
     position: static;
     overscroll-behavior: contain;
   }
-
   body {
     overflow-x: unset;
     overscroll-behavior: contain;
   }
-
   /* Natural window scroll so Safari URL bar auto-hides on scroll.
      Use !important — the global rule has overflow-y:auto which the browser
      keeps even when we set overflow-x:clip (clip not reliably supported). */
@@ -1170,7 +1117,6 @@ body {
     height: auto !important;
     overflow: visible !important;
   }
-
   /* Strip on mobile — 64 px + safe-area, white in light, black in dark. */
   .navbar,
   .navbar.scrolled {
@@ -1198,9 +1144,6 @@ body {
   .app-page[data-page="news"] .news-section {
     background: var(--surface-canvas);
   }
-
-
-  
   .app-page {
     position: relative;
     height: auto !important;
@@ -1212,7 +1155,6 @@ body {
     background: var(--white);
     overscroll-behavior: none;
   }
-
   /* Pages ending with the site footer: let the footer own the bottom
      clearance. Remove app-page padding-bottom here — otherwise 80px of
      page bg show as a dead band UNDER the footer. The footer is the
@@ -1220,11 +1162,9 @@ body {
   .app-page:has(footer[class*="SiteFooter_footer"]) {
     padding-bottom: 0;
   }
-
   .app-page.active {
     z-index: auto;
   }
-
   /* Map page: in-flow + 100lvh tall, so the bottom sheet's last
      (lvh − dvh) px sit behind iOS Safari's translucent bottom URL bar and
      the list rows blur through it while scrolling — same effect as the
@@ -1248,11 +1188,9 @@ body {
     z-index: 9990;
     overflow: hidden !important;
   }
-
   .app-page[data-page="map"].active {
     z-index: 9995;
   }
-
   /* Safari paints the body bg behind the URL bar wherever the sheet's lvh
      overhang doesn't cover it — keep it matched to the sheet surface. The
      html bg (theme cream) shows through the translucent bar at the very
@@ -1267,11 +1205,9 @@ body {
   [data-theme="dark"] body:has(.app-page[data-page="map"].active) {
     background: #1c1c1c;
   }
-  
   .app-page[data-page="start"] {
     background: var(--white);
   }
-
   /* Common header styles for all app pages */
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
@@ -1281,7 +1217,6 @@ body {
     margin: 0;
     display: block;
   }
-
   .app-page[data-page="map"] .map-header {
     padding: 18px 16px 14px;
     background: var(--white);
@@ -1301,7 +1236,6 @@ body {
     text-align: left;
     margin-bottom: 2px;
   }
-
   .app-page[data-page="map"] .map-title,
   .app-page[data-page="news"] .news-title {
     font-size: 1.8rem;
@@ -1312,17 +1246,14 @@ body {
     display: block;
     text-transform: uppercase;
   }
-
   .app-page[data-page="map"] .map-subtitle,
   .app-page[data-page="news"] .news-subtitle {
     display: none;
   }
-
   /* Map page mobile */
   .app-page[data-page="map"] {
     overflow: hidden;
   }
-
   .app-page[data-page="map"] .map-section {
     position: absolute;
     inset: 0;
@@ -1331,11 +1262,9 @@ body {
     display: flex;
     flex-direction: column;
   }
-
   .app-page[data-page="map"] .map-filters {
     flex-shrink: 0;
   }
-
   .app-page[data-page="map"] .map-container {
     flex: 1;
     min-height: 0;
@@ -1344,19 +1273,15 @@ body {
     align-items: center;
     justify-content: center;
   }
-
-
   .app-page[data-page="map"] #foodMap {
     height: 100% !important;
     width: 100% !important;
     min-height: 0 !important;
   }
-
   .app-page[data-page="map"] .leaflet-container {
     height: 100% !important;
     width: 100%;
   }
-  
   .app-page[data-page="map"] .map-location-btn-fixed {
     top: 10px;
     left: 10px;
@@ -1364,7 +1289,6 @@ body {
     background: rgba(0,0,0,0.5);
     border: 1px solid rgba(255,255,255,0.18);
   }
-
   /* Hide search/nearby panel until globe intro finishes, to avoid a brief
      flash of the empty search bar before Leaflet is ready. map-init.min.js
      adds .map-ready to .app-page[data-page="map"] when the globe fades out. */
@@ -1385,7 +1309,6 @@ body {
     opacity: 1;
     pointer-events: auto;
   }
-
   /* Fade-out overlay — .map-nearby is already position:absolute so ::after works directly */
   .app-page[data-page="map"] .map-nearby::after {
     content: '';
@@ -1403,22 +1326,18 @@ body {
   .app-page[data-page="map"] .map-nearby-grid {
     padding-bottom: max(120px, calc(72px + env(safe-area-inset-bottom, 0px)));
   }
-
   .app-page[data-page="map"] .map-location-btn-fixed svg {
     stroke: rgba(255,255,255,0.9);
   }
-  
   /* ── News page — Mobile Magazine ── */
   .app-page[data-page="news"] .news-section {
     padding: 0;
     min-height: 0;
     background: var(--white);
   }
-
   .app-page[data-page="news"] .news-ticker {
     display: block;
   }
-
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
     background: var(--white);
@@ -1427,11 +1346,9 @@ body {
     margin: 0;
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-header-top {
     margin-bottom: 0;
   }
-
   .app-page[data-page="news"] .section-label {
     font-size: 10px;
     font-weight: 800;
@@ -1443,9 +1360,7 @@ body {
     display: block;
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-subtitle { display: none; }
-
   .app-page[data-page="news"] .news-title {
     font-size: clamp(2.2rem, 10vw, 3.5rem);
     font-weight: 400;
@@ -1457,7 +1372,6 @@ body {
     font-family: var(--font-marker);
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-grid {
     display: flex;
     flex-direction: column;
@@ -1465,7 +1379,6 @@ body {
     background: #000;
     padding: 0;
   }
-
   /* All mobile cards: image fills card, headline overlaid */
   .app-page[data-page="news"] .news-card {
     background: #000;
@@ -1482,7 +1395,6 @@ body {
   .app-page[data-page="news"] .news-card-date { display: none; }
   .app-page[data-page="news"] .news-card-excerpt { display: none; }
   .app-page[data-page="news"] .news-card-top { margin-bottom: 4px; }
-
   .app-page[data-page="news"] .news-card .news-card-img {
     display: block;
     width: 100%;
@@ -1524,13 +1436,10 @@ body {
     -webkit-line-clamp: unset;
     overflow: visible;
   }
-
 }
-
 /* ============================================
    DARK MODE — [data-theme="dark"] overrides
    ============================================ */
-
 /* Body */
 [data-theme="dark"] body {
   background: #000000;
@@ -1539,13 +1448,11 @@ body {
 [data-theme="dark"] html {
   background: #000000;
 }
-
 [data-theme="dark"][data-active-page="start"],
 [data-theme="dark"][data-active-page="start"] body {
   background: var(--et-black);
   color: var(--et-cream);
 }
-
 /* Start section — dark mode */
 [data-theme="dark"] .start-scroll-content {
   background: #0F0A0D;
@@ -1583,9 +1490,7 @@ body {
 [data-theme="dark"] .start-join-section .start-section-body {
   color: rgba(255, 255, 255, 0.6);
 }
-
 /* Navbar dark-mode rules moved to the top navbar block; legacy entries removed. */
-
 /* Language switcher */
 [data-theme="dark"] .lang-switcher,
 [data-theme="dark"] .burger-lang-row .lang-switcher {
@@ -1601,7 +1506,6 @@ body {
 [data-theme="dark"] .lang-btn:hover:not(.active) {
   color: rgba(255, 255, 255, 0.8);
 }
-
 /* News section */
 [data-theme="dark"] .news-card-headline {
   color: #ffffff;
@@ -1622,7 +1526,6 @@ body {
 [data-theme="dark"] .news-article-more-label {
   color: rgba(255, 255, 255, 0.5);
 }
-
 /* Article body */
 [data-theme="dark"] .news-article-content {
   color: rgba(255, 255, 255, 0.85);
@@ -1668,7 +1571,6 @@ body {
   border-color: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.7);
 }
-
 /* Profile page */
 [data-theme="dark"] .profile-header {
   border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -1712,7 +1614,6 @@ body {
 [data-theme="dark"] .profile-fav-card {
   background: #2a2a2a;
 }
-
 /* Static pages (About, Contact, Press, Impressum) */
 [data-theme="dark"] .static-page {
   background: #0d0d0d;
@@ -1743,13 +1644,11 @@ body {
 [data-theme="dark"] .static-page-body strong {
   color: #ffffff;
 }
-
 /* Dark-mode navbar — handled in the top navbar block. Only burger color
    needs to live here because its base color cascades from .burger-btn. */
 [data-theme="dark"] .burger-btn {
   color: var(--et-yellow);
 }
-
 /* Profile settings dark mode */
 [data-theme="dark"] .profile-settings-section-title {
   color: rgba(255, 255, 255, 0.35);
@@ -1801,7 +1700,6 @@ body {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.4);
 }
-
 /* App page backgrounds — override all media-query white backgrounds */
 [data-theme="dark"] .app-page {
   background: #0d0d0d;
@@ -1830,7 +1728,6 @@ body {
 [data-theme="dark"] .news-title {
   color: #ffffff;
 }
-
 /* High-specificity overrides — beat app-page media-query rules (0,3,0) */
 [data-theme="dark"] .app-page[data-page="news"] .news-title {
   color: #ffffff;
@@ -1843,7 +1740,6 @@ body {
 [data-theme="dark"] .news-grid {
   color: rgba(255, 255, 255, 0.85);
 }
-
 /* Map spot detail overlay — dark mode */
 [data-theme="dark"] .map-spot-card {
   background: #1a1a1a;
@@ -1877,12 +1773,9 @@ body {
 [data-theme="dark"] .map-spot-btn--secondary:hover {
   background: #333333;
 }
-
 [data-theme="dark"] .news-article-more-grid {
   background: #111111;
 }
-
-
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
@@ -1890,21 +1783,18 @@ body {
   /* Body bg is theme-aware: line 48 sets #fff for light, line ~2461
      [data-theme="dark"] body sets #000 for dark. The old letterbox frame
      forced #000 on desktop, which leaked black rubber-band on light desktop. */
-
   .navbar {
     left: 0; right: 0; transform: none;
     width: 100%; max-width: none;
     height: 68px; padding: 0 32px;
     display: flex; align-items: center; justify-content: space-between;
   }
-
   .app-pages {
     max-width: none; margin: 74px 0 0; box-shadow: none;
     height: calc(100dvh - 74px);
     overflow-y: auto;
     overflow-x: hidden;
   }
-
   /* SPA scroll-chain lock: on routes that mount .app-pages (the SPA group:
      start/news/map/static), .app-pages is the page scroll container. Lock
      html+body to the viewport so wheel/keyboard scroll past .app-pages's
@@ -1917,7 +1807,6 @@ body {
     height: 100vh;
     overflow: hidden;
   }
-
   /* App pages: natural height so footer follows content */
   .app-page {
     height: auto;
@@ -1927,23 +1816,19 @@ body {
     overflow-y: visible;
     overflow-x: hidden;
   }
-
   /* Map page fills viewport exactly — no external scroll, no footer */
   .app-page[data-page="map"] {
     height: calc(100dvh - 48px);
     min-height: 0;
     overflow: hidden;
   }
-
   .app-page[data-page="start"] {
     background: var(--white);
   }
-
   /* ---- Compact section headers (no large padding) ---- */
   .app-page .news-section {
     padding: 0;
   }
-
   .app-page .map-header {
     padding: 16px 16px 24px;
     background: var(--white);
@@ -1951,7 +1836,6 @@ body {
     margin: 0;
     border: none;
   }
-
   .app-page .news-header {
     padding: 14px 16px 12px;
     background: var(--white);
@@ -1959,7 +1843,6 @@ body {
     margin: 0 auto;
     border-bottom: none;
   }
-
   .app-page .news-title {
     font-size: 1.5rem;
     font-weight: 900;
@@ -1969,7 +1852,6 @@ body {
     display: block;
     text-transform: uppercase;
   }
-
   .app-page:not([data-page="news"]) .section-label {
     font-size: 10px;
     color: var(--orange);
@@ -1978,28 +1860,23 @@ body {
     display: block;
     text-align: left;
   }
-
   .app-page[data-page="map"] .section-label {
     text-align: left;
     margin-bottom: 4px;
   }
-
   .app-page[data-page="news"] .section-label {
     text-align: center;
     margin-bottom: 4px;
   }
-
   .app-page .news-subtitle,
   .app-page .map-subtitle {
     display: none;
   }
-
   /* ---- Map: fill available space, no scroll ---- */
   .app-page[data-page="map"] {
     overflow: hidden;
     position: relative;
   }
-
   .app-page[data-page="map"] .map-section {
     position: absolute;
     inset: 0;
@@ -2009,22 +1886,18 @@ body {
     display: flex;
     flex-direction: column;
   }
-
   .app-page[data-page="map"] .map-header {
     padding: 10px 24px 16px;
     text-align: left;
   }
-
   .app-page[data-page="map"] .section-label {
     margin-top: 0;
     margin-bottom: 2px;
     text-align: left;
   }
-
   .app-page[data-page="map"] .map-subtitle {
     display: none;
   }
-
   .app-page[data-page="map"] .map-title {
     font-size: 1.5rem;
     font-weight: 900;
@@ -2034,31 +1907,24 @@ body {
     display: block;
     text-transform: uppercase;
   }
-
   .app-page[data-page="map"] .map-filters {
     flex-shrink: 0;
     padding-top: 6px;
     padding-bottom: 6px;
   }
-
   .app-page[data-page="map"] .map-container {
     flex: 1;
     min-height: 0;
     margin-top: 0;
   }
-
-
-
   /* ── News: Editorial Magazine Desktop ── */
   .app-page[data-page="news"] .news-section {
     padding: 0;
     background: var(--white);
   }
-
   .app-page[data-page="news"] .news-ticker {
     display: block;
   }
-
   .app-page[data-page="news"] .news-header {
     padding: 16px 24px 24px;
     margin-bottom: 0;
@@ -2066,7 +1932,6 @@ body {
     display: block;
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-title {
     font-size: clamp(1.8rem, 3vw, 2.8rem);
     font-weight: 400;
@@ -2078,7 +1943,6 @@ body {
     font-family: var(--font-marker);
     text-align: center;
   }
-
   .app-page[data-page="news"] .section-label {
     font-size: 8px;
     font-weight: 800;
@@ -2090,7 +1954,6 @@ body {
     text-align: center;
     display: block;
   }
-
   /* Magazine grid: 4 equal columns, 2 rows */
   .app-page[data-page="news"] .news-grid {
     display: grid;
@@ -2102,12 +1965,10 @@ body {
     max-width: none;
     margin: 0;
   }
-
   /* Magazine grid: fixed row heights so images fill cells */
   .app-page[data-page="news"] .news-grid {
     grid-template-rows: 460px 300px;
   }
-
   /* All cards: overlay style — image fills, body sits on top */
   .app-page[data-page="news"] .news-card {
     background: #000;
@@ -2173,7 +2034,6 @@ body {
     overflow: visible;
     text-transform: uppercase;
   }
-
   /* Row 1: Hero spans 2 cols */
   .app-page[data-page="news"] .news-card:nth-child(1) {
     grid-column: 1 / 3;
@@ -2189,13 +2049,11 @@ body {
   }
   .app-page[data-page="news"] .news-card:nth-child(2) { grid-column: 3; grid-row: 1; }
   .app-page[data-page="news"] .news-card:nth-child(3) { grid-column: 4; grid-row: 1; }
-
   /* Row 2: 4 equal cards */
   .app-page[data-page="news"] .news-card:nth-child(4) { grid-column: 1; grid-row: 2; }
   .app-page[data-page="news"] .news-card:nth-child(5) { grid-column: 2; grid-row: 2; }
   .app-page[data-page="news"] .news-card:nth-child(6) { grid-column: 3; grid-row: 2; }
   .app-page[data-page="news"] .news-card:nth-child(7) { grid-column: 4; grid-row: 2; }
-
   /* Cards 8+ overflow: full-width image rows */
   .app-page[data-page="news"] .news-card:nth-child(n+8) {
     grid-column: 1 / -1;
@@ -2206,7 +2064,6 @@ body {
     letter-spacing: -0.03em;
   }
 }
-
 /* Cookie banner inline expand — ink-on-cream content panel that drops
    below the main cookie-content row when the user clicks "Mehr erfahren". */
 .cookie-info-chevron {
@@ -2310,7 +2167,6 @@ body {
 [data-theme="dark"] .cookie-expand .cookie-info-body a {
   color: var(--et-red-hot);
 }
-
 /* ── BURGER MENU ─────────────────────────────────── */
 .burger-btn {
   display: inline-flex;
@@ -2356,63 +2212,11 @@ body {
 body:has(.burger-drawer.active) .burger-btn {
   color: var(--accent-ink);
 }
-
 /* Drawer. NOTE: position:fixed layers do NOT composite into iOS Safari's
    bottom-URL-bar backdrop (verified on device — only in-flow document
    content shows up there). Don't try to extend the drawer below the
    viewport; the behind-bar zone is mirrored in-flow instead (see the
    [data-active-page="map"] ::after strip in globals.css). */
-.burger-drawer {
-  position: fixed;
-  inset: 0;
-  z-index: 10002;
-  display: flex;
-  justify-content: flex-end;
-  align-items: stretch;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.burger-drawer.active {
-  opacity: 1;
-  pointer-events: all;
-}
-.burger-drawer-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-}
-.burger-drawer-panel {
-  position: relative;
-  width: 320px;
-  max-width: 88vw;
-  /* Full height — safe area handled via padding inside */
-  height: 100%;
-  background: var(--white);
-  display: flex;
-  flex-direction: column;
-  padding: max(24px, env(safe-area-inset-top, 0px)) 0 0;
-  overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-.burger-drawer.active .burger-drawer-panel {
-  transform: translateX(0);
-}
-.burger-drawer-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: var(--black);
-}
-/* Burger content styles live in the Chewy menu block further down. */
-
 /* Profil-Avatar (Initialen-Kreis) */
 .profile-avatar {
   width: 72px;
@@ -2428,7 +2232,6 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0 auto 16px;
   letter-spacing: -0.02em;
 }
-
 /* Profil-Header (kompakt, horizontal) */
 .profile-header {
   display: flex;
@@ -2436,7 +2239,6 @@ body:has(.burger-drawer.active) .burger-btn {
   gap: 14px;
   margin-bottom: 20px;
 }
-
 .profile-header .profile-avatar {
   width: 52px;
   height: 52px;
@@ -2444,11 +2246,9 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0;
   flex-shrink: 0;
 }
-
 .profile-info {
   min-width: 0;
 }
-
 .profile-name {
   font-size: 1rem;
   font-weight: 800;
@@ -2458,7 +2258,6 @@ body:has(.burger-drawer.active) .burger-btn {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .profile-email {
   font-size: 0.78rem;
   color: var(--gray-400);
@@ -2467,23 +2266,18 @@ body:has(.burger-drawer.active) .burger-btn {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 /* Gespeicherte Orte — styles live in the desktop block below */
-
 /* Footer-Button eingeloggter Zustand */
 .app-footer-item.logged-in span {
   color: var(--orange);
   font-weight: 700;
 }
-
 .app-footer-item.logged-in svg {
   stroke: var(--orange);
 }
-
 /* ============================================
    START PAGE – SCROLL SECTIONS
    ============================================ */
-
 /* Scroll hint */
 .start-scroll-hint {
   display: none;
@@ -2506,17 +2300,14 @@ body:has(.burger-drawer.active) .burger-btn {
 @media (min-width: 768px) {
   .start-scroll-hint { display: none; }
 }
-
 /* Section wrapper */
 .start-scroll-content { background: #FFFBFC; padding-top: 56px; padding-bottom: 0; }
 @media (min-width: 768px) {
   .start-scroll-content { padding-top: 100px; }
 }
-
 .start-section { padding: 52px 24px; }
 .start-section:has(.start-editorial-row) { padding: 0; }
 .start-section--alt { background: #FDE8EF; }
-
 @media (min-width: 768px) {
   .start-section {
     padding: 72px 48px;
@@ -2524,7 +2315,6 @@ body:has(.burger-drawer.active) .burger-btn {
     margin: 0 auto;
   }
 }
-
 /* Section label */
 .start-section-label {
   display: inline-flex;
@@ -2555,7 +2345,6 @@ body:has(.burger-drawer.active) .burger-btn {
 .start-join-section .start-section-label::before {
   display: none;
 }
-
 /* Heading — editorial scale */
 .start-section-title {
   font-size: clamp(2rem, 4.5vw, 4.8rem);
@@ -2564,7 +2353,6 @@ body:has(.burger-drawer.active) .burger-btn {
   line-height: 1.0;
   margin-bottom: 20px;
 }
-
 /* Body text */
 .start-section-body {
   font-size: 1rem;
@@ -2574,7 +2362,6 @@ body:has(.burger-drawer.active) .burger-btn {
 .start-section-body p + p {
   margin-top: 1em;
 }
-
 .start-join-section .start-section-title {
   margin-top: 4px;
   color: var(--black);
@@ -2584,7 +2371,6 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0 auto 32px;
   color: var(--gray-600);
 }
-
 /* Editorial row – mobile: stacked, desktop: side-by-side */
 .start-editorial-row {
   display: flex;
@@ -2598,7 +2384,6 @@ body:has(.burger-drawer.active) .burger-btn {
   flex-direction: column;
   justify-content: center;
 }
-
 @media (min-width: 768px) {
   .start-editorial-row {
     flex-direction: row;
@@ -2614,26 +2399,22 @@ body:has(.burger-drawer.active) .burger-btn {
     justify-content: center;
   }
 }
-
 /* Images */
 .start-img-wrap {
   overflow: hidden;
   border-radius: 0;
   position: relative;
 }
-
 /* Mobile: fixed heights — tall enough to show the full subject */
 .start-img-wrap.tall   { height: 480px; }
 .start-img-wrap.medium { height: 320px; }
 .start-img-wrap.wide   { height: 360px; }
-
 /* Desktop default heights (outside editorial rows) */
 @media (min-width: 768px) {
   .start-img-wrap.tall   { height: 600px; }
   .start-img-wrap.medium { height: 420px; }
   .start-img-wrap.wide   { height: 500px; }
 }
-
 /* Desktop inside editorial row: fixed height, contain = full image visible */
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
@@ -2654,7 +2435,6 @@ body:has(.burger-drawer.active) .burger-btn {
     will-change: auto;
   }
 }
-
 .start-img {
   width: 100%;
   object-fit: cover;
@@ -2671,18 +2451,15 @@ body:has(.burger-drawer.active) .burger-btn {
   object-position: center center;
   will-change: transform;
 }
-
 /* Fallback heights for images without a wrap */
 .start-img.tall   { height: 380px; }
 .start-img.medium { height: 280px; }
 .start-img.wide   { height: 320px; }
-
 @media (min-width: 768px) {
   .start-img.tall   { height: 520px; }
   .start-img.medium { height: 380px; }
   .start-img.wide   { height: 460px; }
 }
-
 /* Philosophie numbered list */
 .start-philo-list {
   display: flex;
@@ -2727,24 +2504,18 @@ body:has(.burger-drawer.active) .burger-btn {
 /* Mobile: 3×2 grid so all six links sit in equal-width cells. The longest
    word (DATENSCHUTZ) sets the column width, every label centers within its
    cell — both rows have identical total width regardless of word length. */
-
 @media (min-width: 768px) {
   /* Static pages: let app-pages container scroll, no internal scroll */
   .static-page {
     height: auto;
     overflow-y: visible;
   }
-
 }
-
 /* ══════════════════════════════════════════════
    PROFILE PAGE
    ══════════════════════════════════════════════ */
-
-
 /* Profile content (logged-in state) */
 .profile-content { min-height: calc(100dvh - 180px); }
-
 /* Profile header */
 .profile-header {
   display: flex; align-items: center; gap: 16px;
@@ -2758,7 +2529,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
 .profile-email { font-size: 13px; color: var(--gray-600); }
-
 /* Tab navigation */
 .profile-tabs {
   display: flex; border-bottom: 1px solid var(--gray-100);
@@ -2774,11 +2544,9 @@ body:has(.burger-drawer.active) .burger-btn {
   transition: color 0.15s, border-color 0.15s; white-space: nowrap;
 }
 .profile-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
-
 /* Tab panels */
 .profile-tab-panel { padding: 24px 20px; }
 .profile-tab-panel[hidden] { display: none; }
-
 /* ── Profile Deck: Pack Sections ───────────────────────────────────────── */
 #profilePackList {
   display: flex; flex-direction: column; gap: 32px;
@@ -2817,7 +2585,6 @@ body:has(.burger-drawer.active) .burger-btn {
 @media (min-width: 768px) {
   .profile-pack-row { grid-template-columns: repeat(8, 1fr); gap: 5px; }
 }
-
 /* ── Booster Packs Section ──────────────────────────────────────────────── */
 .profile-booster-section {
   margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--gray-100);
@@ -2855,7 +2622,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   cursor: not-allowed; opacity: 0.35; font-family: inherit;
 }
-
 /* Saved/Favs tab — photo card layout */
 /* Gespeicherte Orte */
 .profile-favs-grid {
@@ -2914,7 +2680,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-size: 14px; color: var(--gray-400);
   text-align: center; padding: 48px 0; line-height: 1.6;
 }
-
 /* Settings tab */
 .profile-settings { display: flex; flex-direction: column; gap: 32px; max-width: 480px; }
 .profile-settings-section { display: flex; flex-direction: column; gap: 14px; }
@@ -2963,7 +2728,6 @@ body:has(.burger-drawer.active) .burger-btn {
 .profile-settings-signout-btn:hover { background: var(--gray-50); border-color: var(--black); }
 .profile-settings-delete-btn { color: #c0392b; border-color: rgba(192,57,43,0.3); }
 .profile-settings-delete-btn:hover { background: rgba(192,57,43,0.06); border-color: #c0392b; }
-
 @media (min-width: 768px) {
   /* ── Hero: constrain start-page content sections to readable width ── */
   .app-page[data-page="start"] .start-section {
@@ -2988,17 +2752,14 @@ body:has(.burger-drawer.active) .burger-btn {
     padding-bottom: 100px;
   }
 }
-
 /* ═══════════════════════════════════════════
    STATIC PAGES (About, Contact, Press, etc.)
    ═══════════════════════════════════════════ */
 .static-page { overflow-y: auto; height: calc(100dvh - 48px); background: var(--white); }
 .static-page-inner { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
-
 @media (min-width: 768px) {
   .static-page-inner { padding: 48px 32px 80px; }
 }
-
 .static-page-back {
   display: inline-flex; align-items: center; gap: 6px;
   background: none; border: none; padding: 0; margin-bottom: 28px;
@@ -3006,13 +2767,13 @@ body:has(.burger-drawer.active) .burger-btn {
   cursor: pointer; font-family: inherit; transition: color 0.15s;
 }
 .static-page-back:hover { color: var(--black); }
-
 .static-page-title {
   font-size: 28px; font-weight: 900; letter-spacing: -0.03em;
   line-height: 1.1; margin-bottom: 32px; text-transform: uppercase;
 }
-@media (min-width: 768px) { .static-page-title { font-size: 40px; } }
-
+@media (min-width: 768px) {
+  .static-page-title { font-size: 40px; }
+}
 .static-page-body { font-size: 15px; line-height: 1.8; color: var(--black); }
 .static-page-body h2 { font-size: 20px; font-weight: 800; margin: 32px 0 12px; letter-spacing: -0.02em; }
 .static-page-body h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; }
@@ -3022,27 +2783,20 @@ body:has(.burger-drawer.active) .burger-btn {
 .static-page-body a  { color: var(--orange); text-decoration: underline; }
 .static-page-body strong { color: var(--black); font-weight: 700; }
 .static-page-loading { color: var(--gray-400); font-size: 14px; padding: 20px 0; display: block; }
-
 /* ============================================
    STANDALONE ARTICLE PAGE
    ============================================ */
-
 /* ── Desktop overrides — article hero typography ── */
 @media (min-width: 768px) {
-
   .news-article-hero-no-img {
     padding: 40px 48px 28px;
   }
-
   .news-modal-title {
     font-size: clamp(1.4rem, 3.2vw, 2.6rem);
   }
 }
-
 /* ── Notification toast: styled in app/globals.css (mounted in the root
    locale layout, also on routes that don't load this stylesheet). ── */
-
-
 /* ============================================
    ONBOARDING OVERLAY
    ============================================ */
@@ -3057,7 +2811,6 @@ body:has(.burger-drawer.active) .burger-btn {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .ob-overlay[hidden] { display: none; }
-
 .ob-panel {
   background: #fff;
   width: 100%;
@@ -3066,10 +2819,8 @@ body:has(.burger-drawer.active) .burger-btn {
   padding-bottom: 24px;
   overflow: hidden;
 }
-
 .ob-step { padding: 28px 24px 0; text-align: center; }
 .ob-step[hidden] { display: none; }
-
 .ob-name-input {
   width: 100%;
   padding: 12px 16px;
@@ -3090,7 +2841,6 @@ body:has(.burger-drawer.active) .burger-btn {
   border-color: #444;
 }
 [data-theme="dark"] .ob-name-input:focus { border-color: #e05252; }
-
 .ob-step-num {
   font-size: 9px;
   font-weight: 700;
@@ -3111,7 +2861,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .ob-icon svg { width: 28px; height: 28px; stroke: var(--orange); }
 .ob-icon--star { background: color-mix(in srgb, var(--orange) 10%, transparent); }
-
 .ob-title {
   font-size: 20px;
   font-weight: 800;
@@ -3125,7 +2874,6 @@ body:has(.burger-drawer.active) .burger-btn {
   line-height: 1.6;
   margin-bottom: 4px;
 }
-
 .ob-dots {
   display: flex;
   justify-content: center;
@@ -3144,7 +2892,6 @@ body:has(.burger-drawer.active) .burger-btn {
   width: 16px;
   border-radius: 2px;
 }
-
 .ob-footer {
   padding: 0 24px;
   display: flex;
@@ -3174,7 +2921,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-family: var(--font);
   padding: 4px;
 }
-
 /* Booster pack visual */
 .ob-pack-wrap {
   display: flex;
@@ -3291,7 +3037,6 @@ body:has(.burger-drawer.active) .burger-btn {
   color: #aaa;
   font-weight: 600;
 }
-
 /* ============================================
    WELCOME MODAL — Neukundenakquise (v3)
    ============================================ */
@@ -3323,7 +3068,6 @@ body:has(.burger-drawer.active) .burger-btn {
   overflow: hidden;
   animation: wm-enter 0.32s cubic-bezier(0.22,1,0.36,1) both;
 }
-
 /* ── Full-screen background image ── */
 .wm-hero-img {
   position: absolute;
@@ -3337,7 +3081,6 @@ body:has(.burger-drawer.active) .burger-btn {
   display: block;
   z-index: 0;
 }
-
 /* ── Gradient scrim over photo for legibility ── */
 .wm-dialog::after {
   content: '';
@@ -3354,7 +3097,6 @@ body:has(.burger-drawer.active) .burger-btn {
   );
   pointer-events: none;
 }
-
 /* ── Close button ── */
 .wm-close {
   position: absolute;
@@ -3377,7 +3119,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .wm-close:hover { background: rgba(0,0,0,0.55); }
 .wm-close svg { stroke: #fff; }
-
 /* ── Logo centred top ── */
 .wm-hero-logo-wrap {
   position: absolute;
@@ -3391,7 +3132,6 @@ body:has(.burger-drawer.active) .burger-btn {
   height: auto;
   display: block;
 }
-
 /* ── Landing: headline + 3 CTAs overlaid on photo ── */
 .wm-landing[hidden] { display: none !important; }
 .wm-landing {
@@ -3467,7 +3207,6 @@ body:has(.burger-drawer.active) .burger-btn {
   transition: color 0.18s;
 }
 .wm-cta-text:hover { color: #fff; }
-
 /* ── Form panel (slides in over the photo) ── */
 .wm-form-panel {
   position: absolute;
@@ -3593,7 +3332,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-family: inherit;
   padding: 0;
 }
-
 /* ── Dark mode ── */
 [data-theme="dark"] .wm-form-panel { background: #111; }
 [data-theme="dark"] .wm-form-title { color: #fff; }
@@ -3610,7 +3348,6 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .wm-terms-link { color: rgba(255,255,255,0.5); }
 [data-theme="dark"] .wm-error { color: #ff6b6b; }
 [data-theme="dark"] .wm-success { color: #4cde80; }
-
 /* ── Desktop: centred card ── */
 @media (min-width: 521px) {
   .wm-overlay { align-items: center; justify-content: center; }
@@ -3626,276 +3363,19 @@ body:has(.burger-drawer.active) .burger-btn {
     height: 110%;
   }
 }
-
-/* ══════════════════════════════════════════════
-   BURGER DRAWER — Chewy menu (mockup-chewy.html "menu" screen)
-   Cream sheet, ink hairlines, big Chewy uppercase nav, DE/EN top-left,
-   yellow Anmelden sticker with hard 4px offset shadow. No dark variant.
-   ══════════════════════════════════════════════ */
-.burger-drawer-backdrop {
-  background: rgba(10, 10, 10, 0.5);
-  backdrop-filter: blur(8px) saturate(1.1);
-  -webkit-backdrop-filter: blur(8px) saturate(1.1);
-}
-.burger-drawer-panel {
-  width: 360px;
-  max-width: 92vw;
-  background: var(--et-red);
-  border-left: 0;
-  box-shadow: none;
-  padding: 0;
-  overflow: hidden;
-}
 /* Language toggle — first row of the scroller, Chewy caps. In-flow
    (2026-06-04): scrolls with the menu — the old absolute top-left pin
    collided with the logo as soon as the drawer content scrolled. */
 /* Top bar — language toggle (left) + dark-mode toggle (right) on one row. */
-.bd-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  /* Right clearance for the absolutely-positioned close × (42px @ right:16px),
-     so the dark-mode toggle keeps a comfortable gap from it. */
-  padding-right: 68px;
-  margin: 0 0 12px;
-}
-.bd-lang {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  font-family: var(--font-poster);
-  font-size: 16px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-}
 /* Dark-mode toggle — mirrors the SiteFooter switch (track + thumb), Chewy
    caps label. Lives in the burger top bar opposite the language toggle. */
-.bd-theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: 0;
-  padding: 4px 2px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.bd-theme-label {
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--et-cream);
-  opacity: 0.72;
-  transition: opacity 0.15s ease;
-}
-.bd-theme-toggle:hover .bd-theme-label { opacity: 1; }
-.bd-theme-track {
-  position: relative;
-  width: 44px;
-  height: 22px;
-  background: rgba(240, 232, 212, .18);
-  border: 1.5px solid var(--et-cream);
-  border-radius: 999px;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
-}
-.bd-theme-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 15px;
-  height: 15px;
-  background: var(--et-cream);
-  border-radius: 50%;
-  transition: left 0.2s ease;
-}
-.bd-theme-toggle.on .bd-theme-track { background: rgba(240, 232, 212, 0.34); }
-.bd-theme-toggle.on .bd-theme-thumb { left: 24px; }
-.bd-lang-btn {
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  color: var(--et-cream);
-  opacity: 0.56;
-  cursor: pointer;
-}
-.bd-lang-btn.on {
-  opacity: 1;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-  text-decoration-color: var(--et-cream);
-}
-.bd-lang-sep { opacity: 0.56; color: var(--et-cream); }
 /* Close — square ink-bordered × glyph */
-.burger-drawer-close {
-  top: 16px;
-  right: 16px;
-  z-index: 60;
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 0;
-  background: var(--et-cream);
-  color: var(--et-red);
-  font-family: var(--font-poster);
-  font-size: 26px;
-  line-height: 1;
-  padding: 0 0 4px;
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
-}
-.burger-drawer-close:hover {
-  background: var(--et-yellow-bright);
-  color: var(--et-red);
-  transform: rotate(90deg);
-}
-
 /* Scroller — fills the panel, owns the scroll */
-.bd-scroller {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  overflow-y: auto;
-  /* Top: clear the notch/status bar (drawer spans the full viewport) — the
-     lang row sits in-flow up here. Spacing is compressed so the full menu
-     (lang/logo/nav/CTA/legal) fits the viewport WITHOUT scrolling on common
-     phones; overflow-y:auto stays as a fallback for very short screens. */
-  padding: max(16px, env(safe-area-inset-top, 0px)) 22px calc(20px + env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-}
-.bd-logo {
-  margin-bottom: 18px;
-}
-.bd-logo img {
-  width: 150px;
-  height: auto;
-  display: block;
-}
 /* Primary nav — big Chewy uppercase block list with ink rules */
-.bd-nav {
-  display: flex;
-  flex-direction: column;
-  border-top: 0;
-  /* Floor for the gap to .bd-foot when its margin-top:auto collapses to 0
-     (drawer content exactly fills the viewport). */
-  margin-bottom: 18px;
-}
-.bd-nav-item {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  /* Viewport-height-scaled: short phones (SE, 667px) stay at the compact
-     28px/11px so the drawer never scrolls; tall screens grow into the
-     leftover space above .bd-foot instead of leaving a dead cream band. */
-  padding: 11px 0;
-  padding: clamp(11px, 1.9dvh, 16px) 0;
-  border: 0;
-  border-bottom: 0;
-  background: transparent;
-  font-family: var(--font-poster);
-  font-size: 28px;
-  font-size: clamp(28px, 4.3dvh, 36px);
-  line-height: 1;
-  letter-spacing: -0.005em;
-  text-transform: uppercase;
-  color: var(--et-cream);
-  text-decoration: none;
-  text-align: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.bd-nav-item:hover { background: rgba(240, 232, 212, .14); }
 /* Anmelden CTA — yellow sticker with hard offset shadow */
-.bd-nav-item.bd-cta {
-  margin: 12px 4px 4px 0;
-  padding: 14px 16px 16px;
-  background: var(--brand-yellow);
-  color: var(--et-red);
-  border-bottom: 0;
-  box-shadow: none;
-  transition: transform 140ms ease, box-shadow 140ms ease;
-}
-.bd-nav-item.bd-cta:hover {
-  background: var(--et-yellow-bright);
-  transform: translate(-1px, -1px);
-  box-shadow: none;
-}
 /* Legal foot — 2-col grid, DM Sans caps. margin-top:auto docks it to the
    drawer bottom: leftover height collects ABOVE it instead of leaving a
    dead cream band under the links. */
-.bd-foot {
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 18px;
-  font-family: var(--font);
-  font-size: 13px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-}
-.bd-foot-link {
-  color: var(--et-cream);
-  opacity: 0.72;
-  text-decoration: none;
-}
-.bd-foot-link:hover { opacity: 1; }
-
-/* ── Burger drawer dark mode (2026-06-03): dunkles Panel, Cream-Ink,
-   Akzent rot statt gelb. Bubble-Logo (cream+ink) liest auf dunkel as-is. ── */
-[data-theme="dark"] .burger-drawer-panel {
-  background: var(--et-red);
-  border-left-color: transparent;
-  /* No offset band — the faint 10px cream shadow read as a second stripe
-     next to the border (User 2026-06-04). The cream border alone is the
-     edge. */
-  box-shadow: none;
-}
-[data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep { color: var(--brand-paper); }
-[data-theme="dark"] .bd-lang-btn.on { text-decoration-color: var(--c-coral-bright); }
-[data-theme="dark"] .bd-theme-label { color: var(--brand-paper); }
-[data-theme="dark"] .bd-theme-track { border-color: var(--brand-paper); }
-[data-theme="dark"] .bd-theme-thumb { background: var(--brand-paper); }
-[data-theme="dark"] .bd-theme-toggle.on .bd-theme-track { background: rgba(240, 232, 208, 0.25); }
-[data-theme="dark"] .burger-drawer-close {
-  background: var(--et-cream);
-  border-color: transparent;
-  color: var(--et-red);
-}
-[data-theme="dark"] .burger-drawer-close:hover {
-  background: var(--et-yellow-bright);
-  color: var(--et-red);
-}
-[data-theme="dark"] .bd-nav { border-top-color: transparent; }
-[data-theme="dark"] .bd-nav-item {
-  border-bottom-color: transparent;
-  color: var(--brand-paper);
-}
-[data-theme="dark"] .bd-nav-item:hover { background: rgba(240, 232, 212, .14); color: var(--et-yellow); }
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  background: var(--et-cream);
-  color: var(--et-red);
-  box-shadow: none;
-}
-[data-theme="dark"] .bd-nav-item.bd-cta:hover {
-  background: var(--et-yellow-bright);
-  box-shadow: none;
-}
-[data-theme="dark"] .bd-foot { border-top-color: transparent; }
-[data-theme="dark"] .bd-foot-link { color: var(--brand-paper); }
-
 /* ══════════════════════════════════════════════
    SITE FOOTER — editorial restyle (2026)
    Cream surface in light, ink in dark. Heavy top rule mirrors the navbar
@@ -4009,7 +3489,6 @@ body:has(.burger-drawer.active) .burger-btn {
     0 8px 14px -2px rgba(0, 0, 0, 0.6),
     0 16px 30px -8px rgba(0, 0, 0, 0.5);
 }
-
 /* ── A11y: keyboard focus ring (WCAG 2.4.7) ──────────────────────────────
    Placed last so it wins source-order ties against the scattered
    `outline:none` resets above. :focus-visible fires only for keyboard /
@@ -4026,7 +3505,6 @@ body:has(.burger-drawer.active) .burger-btn {
   outline: 2px solid var(--c-coral, #d9382a);
   outline-offset: 1px;
 }
-
 /* Providence collage icon system */
 .navbar-icon-btn,
 .burger-btn {
@@ -4059,26 +3537,6 @@ body:has(.burger-drawer.active) .burger-btn {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 var(--brand-ink);
 }
-.burger-drawer-close {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border: 2px solid var(--brand-ink);
-  box-shadow: 4px 4px 0 var(--brand-ink);
-}
-.burger-drawer-close:hover {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  box-shadow: 4px 4px 0 var(--brand-ink);
-}
-.bd-theme-track {
-  border-radius: 0;
-  background: var(--brand-paper);
-  box-shadow: 2px 2px 0 var(--brand-ink);
-}
-.bd-theme-thumb {
-  border-radius: 0;
-  background: var(--brand-action);
-}
 [data-theme="dark"] .navbar-icon-btn,
 [data-theme="dark"] .burger-btn {
   background: var(--brand-paper);
@@ -4086,13 +3544,6 @@ body:has(.burger-drawer.active) .burger-btn {
   border-color: var(--brand-ink);
   box-shadow: 3px 3px 0 var(--brand-ink);
 }
-[data-theme="dark"] .burger-drawer-close {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border-color: var(--brand-paper);
-  box-shadow: 4px 4px 0 var(--brand-paper);
-}
-
 /* Header controls: typographic paper stickers instead of bitmap icons. */
 .navbar-icon-btn,
 .burger-btn {
@@ -4126,236 +3577,10 @@ body:has(.burger-drawer.active) .burger-btn {
   transform: translateY(1px);
   box-shadow: none;
 }
-.burger-drawer-close {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border: 0;
-  box-shadow: none;
-  clip-path: polygon(8% 0, 100% 9%, 90% 100%, 0 88%);
-  transform: rotate(4deg);
-  filter: drop-shadow(0 6px 5px rgba(43, 33, 28, .24));
-}
-.burger-drawer-close:hover {
-  box-shadow: none;
-  transform: rotate(-5deg) scale(1.06);
-}
-.bd-theme-track {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  clip-path: polygon(3% 14%, 96% 0, 100% 86%, 0 100%);
-  filter: drop-shadow(0 3px 3px rgba(43, 33, 28, .2));
-}
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn,
-[data-theme="dark"] .burger-drawer-close {
-  background: transparent;
-  color: var(--brand-ink);
-  border-color: var(--brand-ink);
-  box-shadow: none;
-}
-
 /* EAT THIS zine drawer: oversized brand page with numbered paper scraps. */
-.burger-drawer-panel,
-[data-theme="dark"] .burger-drawer-panel {
-  width: min(480px, 100vw);
-  max-width: 100vw;
-  border-left: 0;
-  background-color: var(--brand-paper);
-  background-image: none;
-  color: var(--brand-ink);
-  box-shadow: -14px 0 0 rgba(20, 16, 12, .92);
-}
-.burger-drawer-backdrop {
-  background: rgba(20, 16, 12, .68);
-  backdrop-filter: blur(5px) saturate(.7);
-  -webkit-backdrop-filter: blur(5px) saturate(.7);
-}
-.bd-scroller {
-  overflow: hidden;
-  padding: max(18px, env(safe-area-inset-top, 0px)) 26px calc(20px + env(safe-area-inset-bottom));
-}
-.bd-topbar {
-  position: relative;
-  z-index: 3;
-  margin-bottom: 4px;
-  padding-right: 62px;
-}
-.bd-lang,
-.bd-theme-label,
-.bd-lang-btn,
-.bd-lang-sep,
-[data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep,
-[data-theme="dark"] .bd-theme-label {
-  color: var(--brand-ink);
-}
-.bd-lang-btn.on,
-[data-theme="dark"] .bd-lang-btn.on {
-  text-decoration-color: var(--brand-action);
-}
-.bd-theme-track,
-[data-theme="dark"] .bd-theme-track {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  filter: drop-shadow(3px 3px 0 var(--brand-ink));
-}
-.bd-theme-thumb,
-[data-theme="dark"] .bd-theme-thumb {
-  background: var(--brand-action);
-}
-.burger-drawer-close,
-[data-theme="dark"] .burger-drawer-close {
-  top: 14px;
-  right: 16px;
-  width: 46px;
-  height: 44px;
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  font-size: 31px;
-  clip-path: polygon(7% 4%, 100% 0, 92% 100%, 0 87%);
-  filter: drop-shadow(5px 5px 0 var(--brand-ink));
-}
-.burger-drawer-close:hover,
-[data-theme="dark"] .burger-drawer-close:hover {
-  background: var(--brand-paper);
-  color: var(--brand-action);
-  filter: drop-shadow(7px 7px 0 var(--brand-ink));
-}
-.bd-logo {
-  position: relative;
-  z-index: 2;
-  width: min(76%, 320px);
-  margin: 8px auto 16px;
-  transform: rotate(-2deg);
-  filter: drop-shadow(0 8px 6px rgba(20, 16, 12, .22));
-}
-.bd-logo img {
-  width: 100%;
-}
-.bd-nav,
-[data-theme="dark"] .bd-nav {
-  gap: 6px;
-  margin: 0 0 14px;
-  border: 0;
-}
-.bd-nav-item,
-[data-theme="dark"] .bd-nav-item {
-  position: relative;
-  min-height: 47px;
-  padding: 9px 20px 10px;
-  border: 0;
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  clip-path: polygon(1% 8%, 98% 0, 100% 89%, 2% 100%);
-  filter: drop-shadow(4px 4px 0 rgba(20, 16, 12, .92));
-  font-family: var(--font-poster);
-  font-size: clamp(27px, 4.7dvh, 39px);
-  line-height: .9;
-  letter-spacing: .01em;
-  text-transform: uppercase;
-  transform: translateX(0) rotate(-.7deg);
-  transition: transform 150ms ease, color 150ms ease, background-color 150ms ease;
-}
-.bd-nav-item:nth-child(even) {
-  clip-path: polygon(2% 0, 100% 8%, 97% 100%, 0 90%);
-  transform: translateX(5px) rotate(.8deg);
-}
-.bd-nav-item::before,
-.bd-nav-item::after {
-  content: none;
-}
-@media (hover: hover) {
-  .bd-nav-item:hover,
-  [data-theme="dark"] .bd-nav-item:hover {
-    background: var(--brand-ink);
-    color: var(--brand-paper);
-    transform: translateX(-7px) rotate(-1.7deg) scale(1.02);
-  }
-  .bd-nav-item:nth-child(even):hover,
-  [data-theme="dark"] .bd-nav-item:nth-child(even):hover {
-    transform: translateX(10px) rotate(1.8deg) scale(1.02);
-  }
-}
-.bd-nav-item.bd-cta,
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  order: -1;
-  margin: 0 0 4px;
-  padding: 14px 20px 15px;
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  clip-path: polygon(0 8%, 98% 0, 100% 88%, 3% 100%);
-  filter: drop-shadow(6px 6px 0 var(--brand-ink));
-  box-shadow: none;
-  transform: rotate(-1.6deg);
-}
-.bd-nav-item.bd-cta::before,
-.bd-nav-item.bd-cta::after {
-  content: none;
-}
-.bd-nav-item.bd-cta:hover,
-[data-theme="dark"] .bd-nav-item.bd-cta:hover {
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-  box-shadow: none;
-  transform: translateY(-3px) rotate(1deg);
-}
-.bd-foot,
-[data-theme="dark"] .bd-foot {
-  margin-top: auto;
-  padding: 12px 14px 13px;
-  border: 0;
-  background: var(--brand-ink);
-  clip-path: polygon(1% 4%, 100% 0, 98% 94%, 0 100%);
-  color: var(--brand-paper);
-}
-.bd-foot-link,
-[data-theme="dark"] .bd-foot-link {
-  color: var(--brand-paper);
-  opacity: .72;
-}
-.bd-foot-link:hover,
-[data-theme="dark"] .bd-foot-link:hover {
-  color: var(--brand-action);
-  opacity: 1;
-}
-.burger-drawer.active .bd-nav-item {
-  animation: bdScrapIn 360ms cubic-bezier(.18, .9, .28, 1.12) both;
-}
-.burger-drawer.active .bd-nav-item:nth-child(2) { animation-delay: 30ms; }
-.burger-drawer.active .bd-nav-item:nth-child(3) { animation-delay: 60ms; }
-.burger-drawer.active .bd-nav-item:nth-child(4) { animation-delay: 90ms; }
-.burger-drawer.active .bd-nav-item:nth-child(5) { animation-delay: 120ms; }
-.burger-drawer.active .bd-nav-item:nth-child(6) { animation-delay: 150ms; }
-.burger-drawer.active .bd-nav-item:nth-child(7) { animation-delay: 180ms; }
-.burger-drawer.active .bd-nav-item:nth-child(8) { animation-delay: 210ms; }
 @keyframes bdScrapIn {
   from { transform: translateX(120%) rotate(8deg); }
 }
-@media (max-width: 520px) {
-  .burger-drawer-panel,
-  [data-theme="dark"] .burger-drawer-panel {
-    width: 100vw;
-    box-shadow: none;
-  }
-  .bd-scroller {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-  .bd-logo {
-    width: 72%;
-    margin-top: 4px;
-    margin-bottom: 14px;
-  }
-  .bd-nav-item,
-  [data-theme="dark"] .bd-nav-item {
-    min-height: 44px;
-    padding-top: 8px;
-    padding-bottom: 9px;
-    font-size: clamp(24px, 3.8dvh, 32px);
-  }
-}
-
 /* Header CI: poster red field, black marks, paper surfaces below. */
 .navbar,
 [data-theme="dark"] .navbar {
@@ -4416,97 +3641,11 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .burger-btn:active {
   color: var(--et-black);
 }
-.burger-drawer-panel,
-[data-theme="dark"] .burger-drawer-panel {
-  background-color: var(--et-cream);
-  background-image: none;
-  background-size: auto;
-  color: var(--et-black);
-  box-shadow: -10px 0 0 rgba(255, 211, 90, .75);
-}
-[data-theme="dark"] .burger-drawer-panel {
-  background-color: var(--et-cream);
-  color: var(--et-black);
-  box-shadow: -10px 0 0 rgba(255, 211, 90, .75);
-}
-.burger-drawer-backdrop {
-  background: rgba(37, 23, 15, .32);
-  backdrop-filter: blur(9px) saturate(1.05);
-  -webkit-backdrop-filter: blur(9px) saturate(1.05);
-}
-.burger-drawer-close,
-[data-theme="dark"] .burger-drawer-close {
-  background: var(--et-red);
-  color: var(--et-cream);
-  border: 0;
-  clip-path: none;
-  transform: none;
-  filter: none;
-}
-.bd-logo {
-  filter: none;
-}
-.bd-lang,
-.bd-theme-label,
-.bd-lang-btn,
-.bd-lang-sep,
-[data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep,
-[data-theme="dark"] .bd-theme-label {
-  color: var(--et-black);
-}
-.bd-theme-track {
-  background: var(--et-yellow);
-  border-color: var(--et-black);
-}
-.bd-theme-thumb {
-  background: var(--et-red);
-}
-.bd-nav-item,
-[data-theme="dark"] .bd-nav-item {
-  background: rgba(255, 255, 255, .62);
-  color: var(--et-black);
-  border: 1px solid rgba(37, 23, 15, .14);
-  border-radius: 8px;
-  clip-path: none;
-  filter: none;
-  box-shadow: 0 9px 20px rgba(92, 50, 19, .08);
-}
-.bd-nav-item.bd-cta,
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  background: var(--et-red);
-  color: var(--et-cream);
-  clip-path: none;
-  filter: none;
-}
-.bd-foot,
-[data-theme="dark"] .bd-foot {
-  background: transparent;
-  color: var(--et-black);
-  clip-path: none;
-  border-radius: 0;
-}
-.bd-foot-link,
-[data-theme="dark"] .bd-foot-link {
-  color: var(--et-black);
-}
-
 /* No hairline/raster treatment on the refreshed header/drawer. */
 .navbar,
 [data-theme="dark"] .navbar {
   border-bottom: 0;
 }
-.burger-drawer-panel,
-[data-theme="dark"] .burger-drawer-panel {
-  box-shadow: -10px 0 0 rgba(255, 211, 90, .75);
-}
-.burger-drawer-close,
-[data-theme="dark"] .burger-drawer-close,
-.bd-nav-item,
-[data-theme="dark"] .bd-nav-item {
-  border: 0;
-}
-
 [data-theme="dark"] .navbar {
   background-color: var(--et-red);
   background-image: none;
@@ -4514,12 +3653,10 @@ body:has(.burger-drawer.active) .burger-btn {
   color: var(--et-black);
   box-shadow: none;
 }
-
 [data-theme="dark"] .navbar-icon-btn,
 [data-theme="dark"] .burger-btn {
   color: var(--et-black);
 }
-
 [data-theme="dark"] .navbar-icon-btn.active,
 [data-theme="dark"] .navbar-icon-btn:hover,
 [data-theme="dark"] .navbar-icon-btn:active,
@@ -4527,236 +3664,9 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .burger-btn:active {
   color: var(--et-black);
 }
-
-[data-theme="dark"] .burger-drawer-panel {
-  background-color: #130f0d;
-  background-image: none;
-  color: var(--et-cream);
-  box-shadow: -10px 0 0 rgba(255, 90, 48, .74);
-}
-
-[data-theme="dark"] .burger-drawer-backdrop {
-  background: rgba(0, 0, 0, .58);
-}
-
-[data-theme="dark"] .burger-drawer-close {
-  background: var(--et-red);
-  color: var(--et-cream);
-}
-
-[data-theme="dark"] .bd-lang,
-[data-theme="dark"] .bd-theme-label,
-[data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep {
-  color: var(--et-cream);
-}
-
-[data-theme="dark"] .bd-theme-track {
-  background: rgba(255, 248, 234, .14);
-  border-color: rgba(255, 248, 234, .72);
-}
-
-[data-theme="dark"] .bd-theme-thumb {
-  background: var(--et-red-hot);
-}
-
-[data-theme="dark"] .bd-nav-item {
-  background: rgba(255, 248, 234, .08);
-  color: var(--et-cream);
-  box-shadow: 0 9px 20px rgba(0, 0, 0, .18);
-}
-
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  background: var(--et-red);
-  color: var(--et-cream);
-}
-
-[data-theme="dark"] .bd-foot {
-  background: transparent;
-  color: var(--et-cream);
-}
-
-[data-theme="dark"] .bd-foot-link {
-  color: var(--et-cream);
-}
-
-.bd-foot,
-[data-theme="dark"] .bd-foot {
-  margin-top: auto;
-  padding: 16px 0 0;
-  border: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px 10px;
-  background: transparent;
-}
-
-.bd-foot-link,
-[data-theme="dark"] .bd-foot-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 9px 10px 10px;
-  color: var(--et-black);
-  background: rgba(255, 255, 255, .62);
-  border: 0;
-  border-radius: 8px;
-  box-shadow: 0 9px 20px rgba(92, 50, 19, .08);
-  font-family: var(--font-poster);
-  font-size: clamp(17px, 2.4dvh, 22px);
-  font-weight: 400;
-  letter-spacing: .02em;
-  line-height: .86;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  opacity: 1;
-  transform: rotate(-.8deg);
-  transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
-}
-
-.bd-foot-link:nth-child(2),
-.bd-foot-link:nth-child(4) {
-  transform: rotate(.8deg);
-}
-
-.bd-foot-link:hover,
-[data-theme="dark"] .bd-foot-link:hover {
-  color: var(--et-red);
-  background: var(--et-cream);
-  opacity: 1;
-  transform: translateY(-2px) rotate(-.8deg);
-}
-
-.bd-foot-link:nth-child(2):hover,
-.bd-foot-link:nth-child(4):hover {
-  transform: translateY(-2px) rotate(.8deg);
-}
-
-[data-theme="dark"] .bd-foot-link {
-  color: var(--et-cream);
-  background: rgba(255, 248, 234, .08);
-  box-shadow: 0 9px 20px rgba(0, 0, 0, .18);
-}
-
-[data-theme="dark"] .bd-foot-link:hover {
-  color: var(--et-black);
-  background: var(--et-cream);
-}
-
 /* Keep the full burger menu inside the visible viewport on desktop and mobile.
    The drawer intentionally avoids internal scrolling for normal viewports, so
    the logo/nav/footer compress by viewport height instead of clipping. */
-.burger-drawer-panel,
-[data-theme="dark"] .burger-drawer-panel {
-  height: 100dvh;
-  max-height: 100dvh;
-}
-
-.bd-scroller {
-  box-sizing: border-box;
-  height: 100%;
-  max-height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
-  padding: max(14px, env(safe-area-inset-top, 0px)) clamp(16px, 5vw, 26px) calc(14px + env(safe-area-inset-bottom));
-}
-
-.bd-topbar {
-  flex: 0 0 auto;
-  margin-bottom: clamp(2px, .7dvh, 6px);
-}
-
-.bd-logo {
-  flex: 0 0 auto;
-  width: min(64%, clamp(132px, 30dvh, 280px));
-  margin: clamp(2px, .9dvh, 8px) auto clamp(6px, 1.5dvh, 14px);
-}
-
-.bd-nav,
-[data-theme="dark"] .bd-nav {
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: clamp(3px, .7dvh, 6px);
-  margin-bottom: clamp(6px, 1.5dvh, 14px);
-}
-
-.bd-nav-item,
-[data-theme="dark"] .bd-nav-item {
-  flex: 1 1 0;
-  min-height: clamp(34px, 6.2dvh, 47px);
-  padding: clamp(5px, 1.1dvh, 9px) clamp(14px, 4.5vw, 20px) clamp(6px, 1.2dvh, 10px);
-  font-size: clamp(22px, 4.2dvh, 39px);
-}
-
-.bd-nav-item.bd-cta,
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  flex-grow: 1.08;
-  margin-bottom: clamp(2px, .7dvh, 4px);
-  padding-top: clamp(7px, 1.4dvh, 14px);
-  padding-bottom: clamp(8px, 1.5dvh, 15px);
-}
-
-.bd-foot,
-[data-theme="dark"] .bd-foot {
-  flex: 0 0 auto;
-  padding-top: clamp(6px, 1.5dvh, 16px);
-  gap: clamp(5px, 1.2dvh, 9px) 10px;
-}
-
-.bd-foot-link,
-[data-theme="dark"] .bd-foot-link {
-  min-height: clamp(30px, 5.3dvh, 40px);
-  padding: clamp(6px, 1.2dvh, 9px) 8px clamp(7px, 1.3dvh, 10px);
-  font-size: clamp(14px, 2.35dvh, 22px);
-}
-
-@media (max-height: 560px) {
-  .bd-scroller {
-    padding-top: max(10px, env(safe-area-inset-top, 0px));
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-  }
-
-  .bd-theme-label {
-    display: none;
-  }
-
-  .bd-logo {
-    width: clamp(92px, 24dvh, 132px);
-    margin-top: 0;
-    margin-bottom: 4px;
-  }
-
-  .bd-nav,
-  [data-theme="dark"] .bd-nav {
-    gap: 2px;
-    margin-bottom: 4px;
-  }
-
-  .bd-nav-item,
-  [data-theme="dark"] .bd-nav-item {
-    min-height: 25px;
-    padding-top: 3px;
-    padding-bottom: 4px;
-    font-size: clamp(18px, 5dvh, 22px);
-  }
-
-  .bd-foot,
-  [data-theme="dark"] .bd-foot {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    padding-top: 4px;
-    gap: 4px;
-  }
-
-  .bd-foot-link,
-  [data-theme="dark"] .bd-foot-link {
-    min-height: 24px;
-    padding: 4px 5px 5px;
-    font-size: clamp(11px, 3dvh, 13px);
-  }
-}
-
 .app-page[data-page="map"] .map-location-btn-fixed,
 [data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed {
   background: var(--et-cream);
@@ -4765,124 +3675,19 @@ body:has(.burger-drawer.active) .burger-btn {
   border-radius: 999px;
   box-shadow: 0 10px 24px rgba(201, 67, 50, .2);
 }
-
 .app-page[data-page="map"] .map-location-btn-fixed svg,
 [data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed svg {
   stroke: var(--et-red);
 }
-
 /* Flat controls: the print palette uses line, fill and position. Icon buttons
    and menu buttons should not carry hard or soft shadows. */
-.navbar-icon-btn,
-.burger-btn,
-.burger-drawer-close,
-.bd-theme-track,
-.bd-nav-item,
-.bd-nav-item.bd-cta,
-.bd-foot-link,
-.app-page[data-page="map"] .map-location-btn-fixed,
-[data-theme="dark"] .navbar-icon-btn,
-[data-theme="dark"] .burger-btn,
-[data-theme="dark"] .burger-drawer-close,
-[data-theme="dark"] .bd-theme-track,
-[data-theme="dark"] .bd-nav-item,
-[data-theme="dark"] .bd-nav-item.bd-cta,
-[data-theme="dark"] .bd-foot-link,
-[data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed {
-  box-shadow: none !important;
-  filter: none !important;
-  text-shadow: none !important;
-}
-
-@media (hover: hover) {
-  .navbar-icon-btn:hover,
-  .burger-btn:hover,
-  .burger-drawer-close:hover,
-  .bd-nav-item:hover,
-  .bd-nav-item.bd-cta:hover,
-  .bd-foot-link:hover,
-  [data-theme="dark"] .navbar-icon-btn:hover,
-  [data-theme="dark"] .burger-btn:hover,
-  [data-theme="dark"] .burger-drawer-close:hover,
-  [data-theme="dark"] .bd-nav-item:hover,
-  [data-theme="dark"] .bd-nav-item.bd-cta:hover,
-  [data-theme="dark"] .bd-foot-link:hover {
-    box-shadow: none !important;
-    filter: none !important;
-    text-shadow: none !important;
-  }
-}
-
-/* Burger drawer close: plain ×, no framed button surface. */
-.burger-drawer-close,
-[data-theme="dark"] .burger-drawer-close {
-  background: transparent;
-  border: 0;
-  color: var(--et-red);
-}
-
-@media (hover: hover) {
-  .burger-drawer-close:hover,
-  [data-theme="dark"] .burger-drawer-close:hover {
-    background: transparent;
-    color: var(--et-black);
-  }
-}
-
-[data-theme="dark"] .burger-drawer-close {
-  color: var(--et-cream);
-}
-
-@media (hover: hover) {
-  [data-theme="dark"] .burger-drawer-close:hover {
-    color: var(--et-yellow);
-  }
-}
-
 /* Light drawer: keep the theme switch quiet on cream; the thumb is the accent. */
-html:not([data-theme="dark"]) .bd-theme-label {
-  color: var(--et-black);
-  opacity: .74;
-}
-
-html:not([data-theme="dark"]) .bd-theme-track {
-  background: rgba(37, 23, 15, .08);
-  border: 0;
-}
-
-html:not([data-theme="dark"]) .bd-theme-thumb {
-  background: var(--et-red);
-}
-
-.bd-theme-toggle:focus-visible {
-  outline: none;
-}
-
-.bd-theme-toggle:focus-visible .bd-theme-track {
-  box-shadow:
-    0 0 0 2px var(--et-cream),
-    0 0 0 4px rgba(37, 23, 15, .5);
-}
-
-[data-theme="dark"] .bd-theme-toggle:focus-visible .bd-theme-track {
-  box-shadow:
-    0 0 0 2px #130f0d,
-    0 0 0 4px rgba(255, 248, 234, .68);
-}
-
-@media (hover: hover) {
-  html:not([data-theme="dark"]) .bd-theme-toggle:hover .bd-theme-track {
-    background: rgba(37, 23, 15, .14);
-  }
-}
-
 /* Dark header mirrors the SiteFooter endpoint palette. */
 [data-theme="dark"] .navbar,
 [data-theme="dark"] .navbar.scrolled {
   background-color: #5A120F;
   color: var(--brand-paper, var(--et-cream));
 }
-
 [data-theme="dark"] .navbar-icon-btn,
 [data-theme="dark"] .burger-btn,
 [data-theme="dark"] .navbar-icon-btn.active,
@@ -4892,192 +3697,11 @@ html:not([data-theme="dark"]) .bd-theme-thumb {
 [data-theme="dark"] .burger-btn:active {
   color: var(--brand-paper, var(--et-cream));
 }
-
 [data-theme="dark"] .navbar-icon-btn.active::before {
   background: currentColor;
 }
-
 /* 2026-06 cassette drawer: paper tracklist panel, cold paper rows, black rail. */
-.burger-drawer-panel,
-[data-theme="dark"] .burger-drawer-panel {
-  width: min(520px, 100vw);
-  background: #fff;
-  color: #15120e;
-  box-shadow: -18px 0 0 #070707;
-}
-
-.burger-drawer-panel::before,
-[data-theme="dark"] .burger-drawer-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: clamp(22px, 5vw, 34px);
-  background: #070707;
-  pointer-events: none;
-}
-
-.bd-scroller {
-  position: relative;
-  z-index: 1;
-  padding: max(18px, env(safe-area-inset-top, 0px)) clamp(22px, 6vw, 38px) calc(22px + env(safe-area-inset-bottom));
-  padding-left: clamp(46px, 10vw, 68px);
-}
-
-.bd-topbar {
-  margin-bottom: clamp(8px, 2dvh, 18px);
-  padding: 0 56px 14px 0;
-  border-bottom: 2px solid #15120e;
-}
-
-.bd-logo {
-  width: min(72%, 300px);
-  margin: clamp(8px, 1.8dvh, 18px) auto clamp(16px, 3dvh, 26px);
-  transform: rotate(-2deg);
-  filter: none;
-}
-
-.bd-lang,
-.bd-theme-label,
-.bd-lang-btn,
-.bd-lang-sep,
-[data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep,
-[data-theme="dark"] .bd-theme-label {
-  color: #15120e;
-}
-
-.bd-theme-track,
-[data-theme="dark"] .bd-theme-track,
-html:not([data-theme="dark"]) .bd-theme-track {
-  background: #fff;
-  border: 1px solid #15120e;
-  filter: none;
-}
-
-.bd-theme-thumb,
-[data-theme="dark"] .bd-theme-thumb,
-html:not([data-theme="dark"]) .bd-theme-thumb {
-  background: #15120e;
-}
-
-.burger-drawer-close,
-[data-theme="dark"] .burger-drawer-close {
-  top: 12px;
-  right: 14px;
-  width: 44px;
-  height: 44px;
-  color: #15120e;
-  background: #fff;
-  border: 1px solid #15120e;
-  border-radius: 0;
-  clip-path: none;
-  filter: none;
-}
-
-@media (hover: hover) {
-  .burger-drawer-close:hover,
-  [data-theme="dark"] .burger-drawer-close:hover {
-    color: #fff;
-    background: #15120e;
-  }
-}
-
-.bd-nav,
-[data-theme="dark"] .bd-nav {
-  gap: 8px;
-  margin: 0 0 clamp(14px, 2.6dvh, 24px);
-}
-
-.bd-nav-item,
-[data-theme="dark"] .bd-nav-item {
-  min-height: clamp(46px, 7dvh, 62px);
-  padding: 10px 18px 11px;
-  background: #fff;
-  color: #15120e;
-  border: 1px solid #15120e;
-  border-radius: 0;
-  clip-path: none;
-  filter: none;
-  font-family: var(--menu-condensed, var(--font-poster));
-  font-size: clamp(25px, 4.4dvh, 40px);
-  letter-spacing: 0.005em;
-  line-height: 0.9;
-  transform: none;
-}
-
-.bd-nav-item::before,
-.bd-nav-item::after {
-  content: none;
-}
-
-.bd-nav-item:nth-child(even) {
-  transform: none;
-}
-
-.bd-nav-item.bd-cta,
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  order: -1;
-  background: #15120e;
-  color: #fff;
-  border-color: #15120e;
-  clip-path: none;
-  filter: none;
-  transform: none;
-}
-
-@media (hover: hover) {
-  .bd-nav-item:hover,
-  .bd-nav-item:nth-child(even):hover,
-  [data-theme="dark"] .bd-nav-item:hover,
-  [data-theme="dark"] .bd-nav-item:nth-child(even):hover {
-    color: #fff;
-    background: #15120e;
-    transform: translateX(-6px);
-  }
-
-  .bd-nav-item.bd-cta:hover,
-  [data-theme="dark"] .bd-nav-item.bd-cta:hover {
-    color: #15120e;
-    background: #fff;
-    transform: translateX(-6px);
-  }
-}
-
-.bd-foot,
-[data-theme="dark"] .bd-foot {
-  padding: 12px 0 0;
-  background: transparent;
-  border-top: 2px dotted rgba(21, 18, 14, .52);
-  clip-path: none;
-  color: #15120e;
-}
-
-.bd-foot-link,
-[data-theme="dark"] .bd-foot-link {
-  color: #15120e;
-  opacity: 1;
-}
-
-@media (max-height: 560px) {
-  .bd-scroller {
-    padding-left: clamp(42px, 9vw, 58px);
-  }
-
-  .bd-logo {
-    width: clamp(112px, 27dvh, 150px);
-  }
-}
-
 /* Final override against older dark-drawer rules emitted by legacy chunks. */
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  width: min(520px, 100vw) !important;
-  background: #fff !important;
-  background-color: #fff !important;
-  color: #15120e !important;
-  box-shadow: -18px 0 0 #070707 !important;
-}
-
 html[data-active-page="home"] .navbar,
 html[data-active-page="start"] .navbar,
 html[data-theme="dark"][data-active-page="home"] .navbar,
@@ -5090,7 +3714,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
   color: #fff !important;
   border-bottom: 0 !important;
 }
-
 html[data-active-page="home"] .navbar-icon-btn,
 html[data-active-page="home"] .burger-btn,
 html[data-active-page="home"] .navbar-icon-btn.active,
@@ -5113,124 +3736,9 @@ html[data-theme="dark"][data-active-page="start"] .navbar-icon-btn:hover,
 html[data-theme="dark"][data-active-page="start"] .burger-btn:hover {
   color: #fff !important;
 }
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  background: #fff !important;
-  background-color: #fff !important;
-  color: #15120e !important;
-  border: 1px solid #15120e !important;
-  border-radius: 0 !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  background: #15120e !important;
-  background-color: #15120e !important;
-  color: #fff !important;
-  border-color: #15120e !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  background: transparent !important;
-  color: #15120e !important;
-  border-top: 2px dotted rgba(21, 18, 14, .52) !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link,
-html .bd-lang,
-html .bd-theme-label,
-html .bd-lang-btn,
-html .bd-lang-sep,
-html[data-theme="dark"] .bd-foot-link,
-html[data-theme="dark"] .bd-lang,
-html[data-theme="dark"] .bd-theme-label,
-html[data-theme="dark"] .bd-lang-btn,
-html[data-theme="dark"] .bd-lang-sep {
-  color: #15120e !important;
-}
-
 /* Burger menu layout repair: keep nav and legal links in normal document flow.
    Older overrides stretched the nav items to consume remaining height, which
    made them collide with Impressum/Datenschutz/AGB on shorter viewports. */
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: clamp(8px, 1.4dvh, 14px) !important;
-  padding-top: max(14px, env(safe-area-inset-top, 0px)) !important;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  flex: 0 0 auto !important;
-  width: clamp(128px, 38vw, 210px) !important;
-  margin: 0 auto clamp(2px, .8dvh, 8px) !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  flex: 0 0 auto !important;
-  min-height: 0 !important;
-  gap: 7px !important;
-  margin: 0 0 clamp(8px, 1.6dvh, 14px) !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  flex: 0 0 auto !important;
-  min-height: 46px !important;
-  padding: 9px 15px 10px !important;
-  font-size: clamp(25px, 4.05dvh, 36px) !important;
-  line-height: .92 !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  margin: 2px 0 0 !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  flex: 0 0 auto !important;
-  margin-top: auto !important;
-  padding-top: 12px !important;
-  gap: 8px !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  min-height: 0 !important;
-  padding: 8px 9px !important;
-  font-size: clamp(13px, 1.9dvh, 16px) !important;
-  line-height: 1.05 !important;
-}
-
-@media (max-height: 640px) {
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    gap: 5px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: 36px !important;
-    padding-top: 6px !important;
-    padding-bottom: 7px !important;
-    font-size: clamp(20px, 4.1dvh, 26px) !important;
-  }
-
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
 /* 2026-06 home/header reset: one navigation bar, one drawer language. */
 html .navbar,
 html .navbar.scrolled,
@@ -5251,19 +3759,16 @@ html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-
 html .navbar::before,
 html .navbar::after,
 html[data-theme="dark"] .navbar::before,
 html[data-theme="dark"] .navbar::after {
   content: none !important;
 }
-
 html .navbar-actions {
   align-items: center !important;
   gap: 8px !important;
 }
-
 html .navbar-icon-btn,
 html .burger-btn,
 html[data-theme="dark"] .navbar-icon-btn,
@@ -5289,7 +3794,6 @@ html[data-theme="dark"] .burger-btn {
   clip-path: none !important;
   filter: none !important;
 }
-
 html .navbar-icon-btn.active,
 html .navbar-icon-btn:hover,
 html .navbar-icon-btn:active,
@@ -5305,226 +3809,9 @@ html[data-theme="dark"] .burger-btn:active {
   box-shadow: none !important;
   transform: none !important;
 }
-
 html .navbar-icon-btn.active::before {
   content: none !important;
 }
-
-html .burger-drawer-backdrop,
-html[data-theme="dark"] .burger-drawer-backdrop {
-  background: rgba(21, 18, 14, .56) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  width: min(560px, 100vw) !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border-left: 12px solid #d9382a !important;
-  box-shadow: none !important;
-  transform: translateX(100%) !important;
-}
-
-html .burger-drawer.active .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer.active .burger-drawer-panel {
-  transform: translateX(0) !important;
-}
-
-html .burger-drawer-panel::before,
-html[data-theme="dark"] .burger-drawer-panel::before {
-  content: none !important;
-}
-
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  min-height: 100dvh !important;
-  padding: max(18px, env(safe-area-inset-top, 0px)) clamp(18px, 5vw, 38px) calc(18px + env(safe-area-inset-bottom, 0px)) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: clamp(10px, 1.6dvh, 18px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  margin: 0 !important;
-  padding: 0 56px 14px 0 !important;
-  border-bottom: 2px solid #15120e !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  width: clamp(150px, 42vw, 260px) !important;
-  margin: clamp(2px, 1vh, 10px) auto !important;
-  transform: none !important;
-  filter: none !important;
-}
-
-html .bd-logo img,
-html[data-theme="dark"] .bd-logo img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-}
-
-html .bd-lang,
-html .bd-lang-btn,
-html .bd-lang-sep,
-html .bd-theme-label,
-html[data-theme="dark"] .bd-lang,
-html[data-theme="dark"] .bd-lang-btn,
-html[data-theme="dark"] .bd-lang-sep,
-html[data-theme="dark"] .bd-theme-label {
-  color: #15120e !important;
-}
-
-html .bd-lang-btn.on,
-html[data-theme="dark"] .bd-lang-btn.on {
-  color: #d9382a !important;
-  text-decoration: none !important;
-}
-
-html .bd-theme-track,
-html[data-theme="dark"] .bd-theme-track,
-html:not([data-theme="dark"]) .bd-theme-track {
-  width: 44px !important;
-  height: 24px !important;
-  border: 2px solid #15120e !important;
-  background: #fff !important;
-  border-radius: 0 !important;
-}
-
-html .bd-theme-thumb,
-html[data-theme="dark"] .bd-theme-thumb,
-html:not([data-theme="dark"]) .bd-theme-thumb {
-  top: 3px !important;
-  left: 3px !important;
-  width: 14px !important;
-  height: 14px !important;
-  background: #15120e !important;
-  border-radius: 0 !important;
-}
-
-html .bd-theme-toggle.on .bd-theme-thumb {
-  left: 23px !important;
-  background: #d9382a !important;
-}
-
-html .burger-drawer-close,
-html[data-theme="dark"] .burger-drawer-close {
-  top: 14px !important;
-  right: 16px !important;
-  width: 42px !important;
-  height: 42px !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  background: #fff !important;
-  color: #15120e !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-}
-
-html .burger-drawer-close:hover,
-html[data-theme="dark"] .burger-drawer-close:hover {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  display: grid !important;
-  gap: 8px !important;
-  margin: 0 !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  min-height: clamp(42px, 6.6dvh, 58px) !important;
-  padding: 8px 16px 10px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  font-family: var(--menu-condensed, var(--font-poster)) !important;
-  font-size: clamp(24px, 4.3dvh, 40px) !important;
-  line-height: .86 !important;
-  letter-spacing: 0 !important;
-  text-transform: uppercase !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  animation: none !important;
-}
-
-html .bd-nav-item::before,
-html .bd-nav-item::after,
-html[data-theme="dark"] .bd-nav-item::before,
-html[data-theme="dark"] .bd-nav-item::after {
-  content: none !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  order: -1 !important;
-  background: #d9382a !important;
-  color: #fff !important;
-  border-color: #d9382a !important;
-}
-
-html .bd-nav-item:hover,
-html[data-theme="dark"] .bd-nav-item:hover {
-  background: #15120e !important;
-  color: #fff !important;
-  transform: translateX(-4px) !important;
-}
-
-html .bd-nav-item.bd-cta:hover,
-html[data-theme="dark"] .bd-nav-item.bd-cta:hover {
-  background: #15120e !important;
-  border-color: #15120e !important;
-  color: #fff !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  margin-top: auto !important;
-  padding-top: 12px !important;
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-  border-top: 2px solid #15120e !important;
-  color: #15120e !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  min-height: 36px !important;
-  padding: 8px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border: 2px solid #15120e !important;
-  color: #15120e !important;
-  font-family: var(--menu-mono) !important;
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  letter-spacing: .12em !important;
-  line-height: 1.1 !important;
-  text-transform: uppercase !important;
-  text-align: center !important;
-}
-
-html .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:hover {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
 @media (max-width: 520px) {
   html .navbar,
   html .navbar.scrolled,
@@ -5533,7 +3820,6 @@ html[data-theme="dark"] .bd-foot-link:hover {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
   }
-
   html .navbar-icon-btn,
   html .burger-btn,
   html[data-theme="dark"] .navbar-icon-btn,
@@ -5543,1207 +3829,17 @@ html[data-theme="dark"] .bd-foot-link:hover {
     padding: 0 !important;
   }
 }
-
-@media (max-height: 680px) {
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(122px, 28dvh, 168px) !important;
-  }
-
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    gap: 6px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: 36px !important;
-    padding-top: 6px !important;
-    padding-bottom: 7px !important;
-    font-size: clamp(20px, 4.1dvh, 28px) !important;
-  }
-}
-
 /* Drawer footer final fit: keep legal links inside the viewport on desktop. */
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  padding-top: 8px !important;
-  gap: 6px !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  min-height: 32px !important;
-  padding: 6px 8px !important;
-  font-size: 10px !important;
-}
-
-/* Home redesign: burger drawer as loud red food-guide menu, not a default drawer. */
-html .burger-drawer-backdrop,
-html[data-theme="dark"] .burger-drawer-backdrop {
-  background: rgba(21, 18, 14, .72) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  width: min(620px, 100vw) !important;
-  background: #d9382a !important;
-  color: #15120e !important;
-  border-left: 0 !important;
-  border-top: 0 !important;
-  box-shadow: -16px 0 0 #15120e !important;
-  overflow: hidden !important;
-}
-
-html .burger-drawer-panel::before,
-html[data-theme="dark"] .burger-drawer-panel::before {
-  content: "EAT THIS MENU" !important;
-  position: absolute !important;
-  left: 18px !important;
-  top: 50% !important;
-  z-index: 0 !important;
-  color: rgba(21, 18, 14, .14) !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-  letter-spacing: .18em !important;
-  line-height: 1 !important;
-  text-transform: uppercase !important;
-  writing-mode: vertical-rl !important;
-  transform: translateY(-50%) rotate(180deg) !important;
-  pointer-events: none !important;
-}
-
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  position: relative !important;
-  z-index: 1 !important;
-  min-height: 100dvh !important;
-  padding: max(22px, env(safe-area-inset-top, 0px)) clamp(20px, 6vw, 46px) calc(22px + env(safe-area-inset-bottom, 0px)) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: clamp(12px, 1.9dvh, 22px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  min-height: 42px !important;
-  margin: 0 !important;
-  padding: 0 58px 10px 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  border-bottom: 2px solid #15120e !important;
-}
-
-html .bd-lang,
-html .bd-lang-btn,
-html .bd-lang-sep,
-html[data-theme="dark"] .bd-lang,
-html[data-theme="dark"] .bd-lang-btn,
-html[data-theme="dark"] .bd-lang-sep {
-  color: #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  letter-spacing: .12em !important;
-  text-transform: uppercase !important;
-}
-
-html .bd-lang-btn.on,
-html[data-theme="dark"] .bd-lang-btn.on {
-  color: #fff !important;
-  text-shadow: 2px 0 0 #15120e !important;
-}
-
-html .burger-drawer-close,
-html[data-theme="dark"] .burger-drawer-close {
-  top: max(18px, env(safe-area-inset-top, 0px)) !important;
-  right: clamp(16px, 4vw, 30px) !important;
-  width: 48px !important;
-  height: 48px !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 0 !important;
-  border-radius: 50% !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: 42px !important;
-  line-height: .8 !important;
-}
-
-html .burger-drawer-close:hover,
-html[data-theme="dark"] .burger-drawer-close:hover {
-  background: #fff !important;
-  color: #15120e !important;
-  transform: rotate(-8deg) scale(1.04) !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  width: min(74vw, 390px) !important;
-  margin: clamp(10px, 2dvh, 24px) auto clamp(8px, 1.4dvh, 16px) !important;
-  padding: 0 !important;
-  transform: rotate(-1deg) !important;
-  filter: drop-shadow(8px 12px 0 #15120e) !important;
-}
-
-html .bd-logo img,
-html[data-theme="dark"] .bd-logo img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  counter-reset: menu-row !important;
-  display: grid !important;
-  gap: 0 !important;
-  margin: 0 !important;
-  border-top: 3px solid #15120e !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  counter-increment: menu-row !important;
-  position: relative !important;
-  min-height: clamp(58px, 8.2dvh, 82px) !important;
-  padding: 10px clamp(44px, 8vw, 72px) 11px clamp(48px, 8vw, 78px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  background: transparent !important;
-  color: #15120e !important;
-  border: 0 !important;
-  border-bottom: 3px solid #15120e !important;
-  border-radius: 0 !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: clamp(44px, 8.2dvh, 72px) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-  line-height: .78 !important;
-  text-align: left !important;
-  text-transform: uppercase !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  filter: none !important;
-  transform: none !important;
-}
-
-html .bd-nav-item::before,
-html[data-theme="dark"] .bd-nav-item::before {
-  content: counter(menu-row, decimal-leading-zero) !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  color: #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: .1em !important;
-  line-height: 1 !important;
-  transform: translateY(-50%) !important;
-}
-
-html .bd-nav-item::after,
-html[data-theme="dark"] .bd-nav-item::after {
-  content: "→" !important;
-  position: absolute !important;
-  right: 2px !important;
-  top: 50% !important;
-  color: #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 28px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  transform: translateY(-50%) rotate(-6deg) !important;
-}
-
-html .bd-nav-item:nth-child(even),
-html[data-theme="dark"] .bd-nav-item:nth-child(even) {
-  transform: translateX(clamp(8px, 2vw, 18px)) rotate(.4deg) !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  order: -1 !important;
-  margin: 0 0 clamp(10px, 1.4dvh, 18px) !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 3px solid #15120e !important;
-  transform: rotate(-1deg) !important;
-}
-
-html .bd-nav-item.bd-cta::before,
-html[data-theme="dark"] .bd-nav-item.bd-cta::before {
-  color: #d9382a !important;
-  left: 14px !important;
-}
-
-html .bd-nav-item.bd-cta::after,
-html[data-theme="dark"] .bd-nav-item.bd-cta::after {
-  color: #fff !important;
-  right: 14px !important;
-}
-
-html .bd-nav-item:hover,
-html .bd-nav-item:nth-child(even):hover,
-html[data-theme="dark"] .bd-nav-item:hover,
-html[data-theme="dark"] .bd-nav-item:nth-child(even):hover {
-  color: #fff !important;
-  background: #15120e !important;
-  text-shadow: 2px 0 0 #d9382a !important;
-  transform: translateX(-8px) rotate(-1deg) !important;
-}
-
-html .bd-nav-item:hover::before,
-html .bd-nav-item:hover::after,
-html[data-theme="dark"] .bd-nav-item:hover::before,
-html[data-theme="dark"] .bd-nav-item:hover::after {
-  color: #d9382a !important;
-}
-
-html .bd-nav-item.bd-cta:hover,
-html[data-theme="dark"] .bd-nav-item.bd-cta:hover {
-  color: #15120e !important;
-  background: #fff !important;
-  border-color: #15120e !important;
-  text-shadow: none !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  margin-top: auto !important;
-  padding-top: clamp(14px, 2.2dvh, 24px) !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: center !important;
-  gap: 8px 12px !important;
-  border-top: 0 !important;
-  color: #15120e !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  min-height: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  color: #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: .12em !important;
-  line-height: 1.1 !important;
-  text-transform: uppercase !important;
-  text-decoration: underline !important;
-  text-underline-offset: 4px !important;
-}
-
-html .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:hover {
-  color: #fff !important;
-  background: transparent !important;
-}
-
-@media (max-width: 520px) {
-  html .burger-drawer-panel,
-  html[data-theme="dark"] .burger-drawer-panel {
-    width: 100vw !important;
-    box-shadow: none !important;
-  }
-
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-inline: 18px !important;
-    gap: 12px !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: min(72vw, 320px) !important;
-    margin-top: 8px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: clamp(52px, 7.4dvh, 70px) !important;
-    padding-left: 38px !important;
-    padding-right: 42px !important;
-    font-size: clamp(38px, 7.5dvh, 58px) !important;
-  }
-
-  html .bd-nav-item:nth-child(even),
-  html[data-theme="dark"] .bd-nav-item:nth-child(even) {
-    transform: translateX(6px) rotate(.4deg) !important;
-  }
-}
-
-@media (max-height: 680px) {
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(150px, 30dvh, 230px) !important;
-    margin-block: 4px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: 40px !important;
-    padding-top: 5px !important;
-    padding-bottom: 6px !important;
-    font-size: clamp(28px, 4.8dvh, 42px) !important;
-  }
-}
-
 /* Final burger-menu direction: loud red poster, big edible rows, no default drawer chrome. */
-html .burger-drawer,
-html[data-theme="dark"] .burger-drawer {
-  opacity: 1 !important;
-  visibility: hidden !important;
-  transition: visibility 0s linear .34s !important;
-}
-
-html .burger-drawer.active,
-html[data-theme="dark"] .burger-drawer.active {
-  visibility: visible !important;
-  transition: none !important;
-}
-
-html .burger-drawer-backdrop,
-html[data-theme="dark"] .burger-drawer-backdrop {
-  background: rgba(21, 18, 14, .64) !important;
-  border: 0 !important;
-  padding: 0 !important;
-  cursor: pointer !important;
-}
-
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  width: min(690px, 100vw) !important;
-  max-width: 100vw !important;
-  padding: 0 !important;
-  background: #d9382a !important;
-  color: #15120e !important;
-  border: 0 !important;
-  box-shadow: -18px 0 0 #15120e !important;
-  overflow: hidden !important;
-  isolation: isolate !important;
-  transform: translateX(112%) rotate(.45deg) !important;
-  transition: transform 340ms cubic-bezier(.18, .86, .26, 1) !important;
-}
-
-html .burger-drawer.active .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer.active .burger-drawer-panel {
-  transform: translateX(0) rotate(0deg) !important;
-}
-
-html .burger-drawer-panel::before,
-html[data-theme="dark"] .burger-drawer-panel::before {
-  content: "MENÜ" !important;
-  position: absolute !important;
-  right: -16px !important;
-  bottom: 14dvh !important;
-  z-index: 0 !important;
-  color: rgba(21, 18, 14, .13) !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: clamp(132px, 24vw, 220px) !important;
-  line-height: .75 !important;
-  letter-spacing: 0 !important;
-  writing-mode: vertical-rl !important;
-  transform: rotate(180deg) !important;
-  pointer-events: none !important;
-}
-
-html .burger-drawer-panel::after,
-html[data-theme="dark"] .burger-drawer-panel::after {
-  content: "EAT THIS" !important;
-  position: absolute !important;
-  left: 20px !important;
-  bottom: 14px !important;
-  z-index: 0 !important;
-  color: rgba(255, 255, 255, .34) !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-  letter-spacing: .28em !important;
-  pointer-events: none !important;
-}
-
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  position: relative !important;
-  z-index: 1 !important;
-  min-height: 100dvh !important;
-  padding: max(22px, env(safe-area-inset-top, 0px)) clamp(18px, 4.6vw, 42px) calc(22px + env(safe-area-inset-bottom, 0px)) !important;
-  gap: clamp(14px, 2dvh, 24px) !important;
-}
-
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  min-height: 46px !important;
-  padding: 0 62px 12px 0 !important;
-  border-bottom: 3px solid #15120e !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  width: min(58vw, 360px) !important;
-  margin: clamp(6px, 1.2dvh, 16px) auto clamp(4px, .8dvh, 10px) !important;
-  transform: rotate(-2deg) !important;
-  filter: drop-shadow(9px 12px 0 #15120e) !important;
-}
-
-html .burger-drawer-close,
-html[data-theme="dark"] .burger-drawer-close {
-  top: max(17px, env(safe-area-inset-top, 0px)) !important;
-  right: clamp(15px, 3vw, 28px) !important;
-  width: 50px !important;
-  height: 50px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 0 !important;
-  border-radius: 50% !important;
-  font-size: 46px !important;
-  transform: rotate(7deg) !important;
-  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease !important;
-}
-
-html .burger-drawer-close:hover,
-html .burger-drawer-close:focus-visible,
-html[data-theme="dark"] .burger-drawer-close:hover,
-html[data-theme="dark"] .burger-drawer-close:focus-visible {
-  background: #fff !important;
-  color: #15120e !important;
-  outline: 3px solid #15120e !important;
-  outline-offset: 3px !important;
-  transform: rotate(-8deg) scale(1.06) !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  counter-reset: menu-row !important;
-  gap: 0 !important;
-  border-top: 4px solid #15120e !important;
-  background: transparent !important;
-}
-
-html .burger-drawer.active .bd-nav-item,
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item {
-  animation: bdMenuPunch 280ms cubic-bezier(.18, .86, .26, 1) both !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  counter-increment: menu-row !important;
-  position: relative !important;
-  min-height: clamp(58px, 7.6dvh, 82px) !important;
-  padding: 9px clamp(58px, 9vw, 86px) 11px clamp(58px, 8vw, 78px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  background: transparent !important;
-  color: #15120e !important;
-  border: 0 !important;
-  border-bottom: 4px solid #15120e !important;
-  border-radius: 0 !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: clamp(44px, 7.8dvh, 76px) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-  line-height: .76 !important;
-  text-align: left !important;
-  text-transform: uppercase !important;
-  text-wrap: balance !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  transform: rotate(var(--menu-tilt, 0deg)) translateX(var(--menu-push, 0)) !important;
-  transition: transform 150ms ease, background-color 150ms ease, color 150ms ease !important;
-}
-
-html .bd-nav-item:nth-child(2n),
-html[data-theme="dark"] .bd-nav-item:nth-child(2n) {
-  --menu-tilt: .45deg;
-  --menu-push: 10px;
-}
-
-html .bd-nav-item:nth-child(3n),
-html[data-theme="dark"] .bd-nav-item:nth-child(3n) {
-  --menu-tilt: -.35deg;
-  --menu-push: -3px;
-}
-
-html .bd-nav-item::before,
-html[data-theme="dark"] .bd-nav-item::before {
-  content: counter(menu-row, decimal-leading-zero) !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  color: #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: .12em !important;
-  transform: translateY(-50%) !important;
-}
-
-html .bd-nav-item::after,
-html[data-theme="dark"] .bd-nav-item::after {
-  content: "↗" !important;
-  position: absolute !important;
-  right: 8px !important;
-  top: 50% !important;
-  width: 42px !important;
-  height: 42px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 3px solid #15120e !important;
-  border-radius: 50% !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 20px !important;
-  font-weight: 900 !important;
-  transform: translateY(-50%) rotate(-10deg) !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  order: -1 !important;
-  margin-bottom: clamp(10px, 1.5dvh, 18px) !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 4px solid #15120e !important;
-  transform: rotate(-1.1deg) translateX(0) !important;
-}
-
-html .bd-nav-item.bd-cta::before,
-html[data-theme="dark"] .bd-nav-item.bd-cta::before {
-  left: 14px !important;
-  color: #d9382a !important;
-}
-
-html .bd-nav-item.bd-cta::after,
-html[data-theme="dark"] .bd-nav-item.bd-cta::after {
-  background: #d9382a !important;
-  color: #15120e !important;
-}
-
-html .bd-nav-item:hover,
-html .bd-nav-item:focus-visible,
-html[data-theme="dark"] .bd-nav-item:hover,
-html[data-theme="dark"] .bd-nav-item:focus-visible {
-  color: #fff !important;
-  background: #15120e !important;
-  outline: 0 !important;
-  text-shadow: 2px 0 0 #d9382a, -2px 0 0 #d9382a !important;
-  transform: translateX(-10px) rotate(-1.2deg) !important;
-}
-
-html .bd-nav-item:hover::before,
-html .bd-nav-item:focus-visible::before,
-html[data-theme="dark"] .bd-nav-item:hover::before,
-html[data-theme="dark"] .bd-nav-item:focus-visible::before {
-  color: #d9382a !important;
-}
-
-html .bd-nav-item:hover::after,
-html .bd-nav-item:focus-visible::after,
-html[data-theme="dark"] .bd-nav-item:hover::after,
-html[data-theme="dark"] .bd-nav-item:focus-visible::after {
-  background: #d9382a !important;
-  color: #15120e !important;
-  transform: translateY(-50%) rotate(8deg) scale(1.06) !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  margin-top: auto !important;
-  padding-top: clamp(14px, 2dvh, 22px) !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: center !important;
-  gap: 9px 14px !important;
-  border-top: 0 !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  min-height: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  color: #15120e !important;
-  font-size: 11px !important;
-  text-decoration: underline !important;
-  text-decoration-thickness: 2px !important;
-  text-underline-offset: 4px !important;
-}
-
-html .bd-foot-link:hover,
-html .bd-foot-link:focus-visible,
-html[data-theme="dark"] .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:focus-visible {
-  color: #fff !important;
-  background: transparent !important;
-  outline: 0 !important;
-}
-
 @keyframes bdMenuPunch {
   from {
     transform: translateX(46px) rotate(2.5deg);
   }
 }
-
-@media (max-width: 520px) {
-  html .burger-drawer-panel,
-  html[data-theme="dark"] .burger-drawer-panel {
-    width: 100vw !important;
-    box-shadow: none !important;
-  }
-
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-inline: 18px !important;
-    gap: 13px !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: min(68vw, 300px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: clamp(52px, 7.1dvh, 68px) !important;
-    padding-left: 38px !important;
-    padding-right: 54px !important;
-    font-size: clamp(35px, 7.2dvh, 58px) !important;
-  }
-
-  html .bd-nav-item::after,
-  html[data-theme="dark"] .bd-nav-item::after {
-    right: 0 !important;
-    width: 36px !important;
-    height: 36px !important;
-    font-size: 17px !important;
-  }
-
-  html .burger-drawer-panel::before,
-  html[data-theme="dark"] .burger-drawer-panel::before {
-    right: -28px !important;
-    bottom: 18dvh !important;
-    font-size: 132px !important;
-  }
-}
-
-@media (max-height: 680px) {
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(150px, 28dvh, 220px) !important;
-    margin-block: 2px !important;
-  }
-
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    gap: 8px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: 40px !important;
-    padding-top: 5px !important;
-    padding-bottom: 6px !important;
-    font-size: clamp(27px, 4.8dvh, 42px) !important;
-  }
-}
-
 /* Burger menu cleanup: no arrows, no collisions around the close button. */
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  padding-top: max(82px, calc(env(safe-area-inset-top, 0px) + 82px)) !important;
-}
-
-html .burger-drawer-close,
-html[data-theme="dark"] .burger-drawer-close {
-  z-index: 20 !important;
-  top: max(18px, env(safe-area-inset-top, 0px)) !important;
-  right: clamp(18px, 4vw, 32px) !important;
-  width: 44px !important;
-  height: 44px !important;
-  font-size: 38px !important;
-  line-height: .8 !important;
-}
-
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  min-height: 34px !important;
-  padding-right: 0 !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  padding-right: clamp(18px, 4vw, 34px) !important;
-  padding-left: clamp(48px, 7vw, 72px) !important;
-}
-
-html .bd-nav-item::after,
-html .bd-nav-item.bd-cta::after,
-html .bd-nav-item:hover::after,
-html .bd-nav-item:focus-visible::after,
-html[data-theme="dark"] .bd-nav-item::after,
-html[data-theme="dark"] .bd-nav-item.bd-cta::after,
-html[data-theme="dark"] .bd-nav-item:hover::after,
-html[data-theme="dark"] .bd-nav-item:focus-visible::after {
-  content: none !important;
-  display: none !important;
-}
-
-html .bd-nav-item:nth-child(2n),
-html .bd-nav-item:nth-child(3n),
-html[data-theme="dark"] .bd-nav-item:nth-child(2n),
-html[data-theme="dark"] .bd-nav-item:nth-child(3n) {
-  --menu-push: 0px;
-}
-
-@media (max-width: 520px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-top: max(78px, calc(env(safe-area-inset-top, 0px) + 78px)) !important;
-  }
-
-  html .burger-drawer-close,
-  html[data-theme="dark"] .burger-drawer-close {
-    right: 18px !important;
-    width: 42px !important;
-    height: 42px !important;
-    font-size: 36px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    padding-right: 18px !important;
-    padding-left: 38px !important;
-  }
-}
-
 /* Burger menu viewport fit: no bottom micro-wordmark, no internal scroll. */
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  height: 100dvh !important;
-}
-
-html .burger-drawer-panel::after,
-html[data-theme="dark"] .burger-drawer-panel::after {
-  content: none !important;
-  display: none !important;
-}
-
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  height: 100dvh !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
-  gap: clamp(8px, 1.15dvh, 14px) !important;
-  padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)) !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  width: min(46vw, 280px) !important;
-  margin-block: 0 !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  min-height: clamp(42px, 6.15dvh, 62px) !important;
-  padding-top: 5px !important;
-  padding-bottom: 6px !important;
-  font-size: clamp(30px, 6.1dvh, 56px) !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  padding-top: 4px !important;
-  gap: 6px 10px !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  font-size: 10px !important;
-}
-
-@media (max-width: 520px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-top: max(62px, calc(env(safe-area-inset-top, 0px) + 62px)) !important;
-    padding-inline: 16px !important;
-    gap: 8px !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: min(54vw, 240px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: clamp(38px, 5.75dvh, 52px) !important;
-    padding-top: 4px !important;
-    padding-bottom: 5px !important;
-    font-size: clamp(28px, 5.9dvh, 44px) !important;
-  }
-}
-
-@media (max-height: 720px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-top: max(52px, calc(env(safe-area-inset-top, 0px) + 52px)) !important;
-    gap: 6px !important;
-  }
-
-  html .bd-topbar,
-  html[data-theme="dark"] .bd-topbar {
-    min-height: 24px !important;
-    padding-bottom: 6px !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(130px, 24dvh, 190px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: clamp(34px, 5.4dvh, 44px) !important;
-    font-size: clamp(24px, 5.1dvh, 36px) !important;
-  }
-
-  html .bd-foot-link,
-  html[data-theme="dark"] .bd-foot-link {
-    font-size: 9px !important;
-  }
-}
-
-/* Burger drawer polish: no left shadow slab, no ghost title, stronger legal strip. */
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  box-shadow: none !important;
-}
-
-html .burger-drawer-panel::before,
-html[data-theme="dark"] .burger-drawer-panel::before {
-  content: none !important;
-  display: none !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  width: min(100%, 540px) !important;
-  margin: auto auto 0 !important;
-  padding: clamp(8px, 1.4dvh, 14px) 0 0 !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: clamp(6px, 1.1vw, 10px) !important;
-  border-top: 3px solid #15120e !important;
-}
-
-html .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link {
-  min-height: clamp(30px, 4.8dvh, 40px) !important;
-  padding: 7px 8px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 2px solid #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: clamp(9px, 1.35vw, 12px) !important;
-  font-weight: 900 !important;
-  letter-spacing: .12em !important;
-  line-height: 1 !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  text-transform: uppercase !important;
-  transform: rotate(var(--bd-foot-tilt, 0deg)) !important;
-  transition: transform 150ms ease, background-color 150ms ease, color 150ms ease !important;
-}
-
-html .bd-foot-link:nth-child(2),
-html[data-theme="dark"] .bd-foot-link:nth-child(2) {
-  --bd-foot-tilt: -.9deg;
-  background: #fff !important;
-  color: #15120e !important;
-}
-
-html .bd-foot-link:nth-child(3),
-html[data-theme="dark"] .bd-foot-link:nth-child(3) {
-  --bd-foot-tilt: .8deg;
-}
-
-html .bd-foot-link:nth-child(4),
-html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-  --bd-foot-tilt: -1.1deg;
-  background: #fff !important;
-  color: #15120e !important;
-}
-
-html .bd-foot-link:hover,
-html .bd-foot-link:focus-visible,
-html[data-theme="dark"] .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:focus-visible {
-  background: #fff !important;
-  color: #15120e !important;
-  outline: 0 !important;
-  transform: translateY(-3px) rotate(calc(var(--bd-foot-tilt, 0deg) * -1)) !important;
-}
-
-@media (max-width: 520px) {
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: min(100%, 420px) !important;
-  }
-}
-
 /* Burger menu spacing pass: remove rule-lines and list-counter strip. */
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  border-bottom: 0 !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  gap: clamp(10px, 1.65dvh, 22px) !important;
-  border-top: 0 !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  min-height: auto !important;
-  padding: clamp(3px, .65dvh, 8px) clamp(20px, 4vw, 42px) !important;
-  border: 0 !important;
-  border-bottom: 0 !important;
-  background: transparent !important;
-  width: fit-content !important;
-  max-width: 100% !important;
-}
-
-html .bd-nav-item::before,
-html .bd-nav-item:hover::before,
-html .bd-nav-item:focus-visible::before,
-html[data-theme="dark"] .bd-nav-item::before,
-html[data-theme="dark"] .bd-nav-item:hover::before,
-html[data-theme="dark"] .bd-nav-item:focus-visible::before {
-  content: none !important;
-  display: none !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  margin-bottom: clamp(8px, 1.4dvh, 18px) !important;
-  padding-inline: clamp(28px, 5vw, 54px) !important;
-  border: 0 !important;
-}
-
-html .bd-nav-item:hover,
-html .bd-nav-item:focus-visible,
-html[data-theme="dark"] .bd-nav-item:hover,
-html[data-theme="dark"] .bd-nav-item:focus-visible {
-  background: #15120e !important;
-  color: #fff !important;
-  border-radius: 0 !important;
-}
-
-@media (max-width: 520px) {
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    gap: clamp(9px, 1.35dvh, 15px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    padding: clamp(2px, .45dvh, 6px) 18px !important;
-  }
-}
-
 /* Burger menu mobile fit: use the full viewport without leaving a dead band. */
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  height: 100dvh !important;
-  min-height: 0 !important;
-  display: grid !important;
-  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
-  align-content: stretch !important;
-  row-gap: clamp(8px, 1.25dvh, 16px) !important;
-  padding: max(64px, calc(env(safe-area-inset-top, 0px) + 64px)) clamp(18px, 4.8vw, 38px) max(14px, env(safe-area-inset-bottom, 0px)) !important;
-  overflow: hidden !important;
-}
-
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  min-height: 26px !important;
-  padding: 0 62px 4px 0 !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  width: clamp(178px, min(58vw, 29dvh), 300px) !important;
-  margin: 0 auto !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  min-height: 0 !important;
-  margin: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  gap: clamp(9px, 1.45dvh, 18px) !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  width: max-content !important;
-  max-width: 100% !important;
-  padding: clamp(3px, .55dvh, 8px) clamp(20px, 4vw, 44px) clamp(5px, .75dvh, 10px) !important;
-  font-size: clamp(36px, min(6.1dvh, 9vw), 62px) !important;
-  line-height: .78 !important;
-}
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  margin-bottom: clamp(6px, 1dvh, 14px) !important;
-  padding-inline: clamp(28px, 5.2vw, 56px) !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  width: min(100%, 520px) !important;
-  margin: 0 auto !important;
-  padding: 7px !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 2px !important;
-  background: #15120e !important;
-  border: 0 !important;
-}
-
-html .bd-foot-link,
-html .bd-foot-link:nth-child(2),
-html .bd-foot-link:nth-child(4),
-html[data-theme="dark"] .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link:nth-child(2),
-html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-  min-height: clamp(31px, 4dvh, 38px) !important;
-  padding: 7px 6px !important;
-  background: transparent !important;
-  color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, .34) !important;
-  font-size: clamp(9px, min(1.7vw, 1.35dvh), 11px) !important;
-  letter-spacing: .08em !important;
-  transform: none !important;
-}
-
-html .bd-foot-link:hover,
-html .bd-foot-link:focus-visible,
-html[data-theme="dark"] .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:focus-visible {
-  background: #fff !important;
-  color: #15120e !important;
-  transform: translateY(-2px) !important;
-}
-
-@media (max-width: 767px) {
-  html .burger-drawer-panel,
-  html[data-theme="dark"] .burger-drawer-panel {
-    width: 100vw !important;
-  }
-
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding: max(58px, calc(env(safe-area-inset-top, 0px) + 58px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
-    row-gap: clamp(7px, 1.05dvh, 13px) !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(170px, min(62vw, 28dvh), 260px) !important;
-  }
-
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    justify-content: space-evenly !important;
-    gap: clamp(7px, 1.1dvh, 14px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    padding: clamp(2px, .42dvh, 6px) 18px clamp(4px, .62dvh, 8px) !important;
-    font-size: clamp(37px, min(6.25dvh, 12.6vw), 58px) !important;
-  }
-
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    padding: 6px !important;
-  }
-}
-
-@media (max-height: 680px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-top: max(50px, calc(env(safe-area-inset-top, 0px) + 50px)) !important;
-    row-gap: 6px !important;
-  }
-
-  html .bd-topbar,
-  html[data-theme="dark"] .bd-topbar {
-    min-height: 22px !important;
-    padding-bottom: 2px !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(130px, min(48vw, 23dvh), 190px) !important;
-  }
-
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    gap: clamp(5px, .8dvh, 9px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    padding-block: 2px 4px !important;
-    font-size: clamp(29px, min(5.35dvh, 10.6vw), 42px) !important;
-  }
-
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    padding: 5px !important;
-  }
-
-  html .bd-foot-link,
-  html .bd-foot-link:nth-child(2),
-  html .bd-foot-link:nth-child(4),
-  html[data-theme="dark"] .bd-foot-link,
-  html[data-theme="dark"] .bd-foot-link:nth-child(2),
-  html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-    min-height: 28px !important;
-    padding: 5px !important;
-    font-size: 8.5px !important;
-  }
-}
-
 /* Final header color contract: red bar, white text, no bottom rule. Kept last
    because this file still contains older navbar repair blocks. */
 html .navbar,
@@ -6760,7 +3856,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar {
   border-bottom: 0 !important;
   box-shadow: none !important;
 }
-
 html .navbar-icon-btn,
 html .burger-btn,
 html[data-active-page="home"] .navbar-icon-btn,
@@ -6774,667 +3869,298 @@ html[data-theme="dark"] .burger-btn {
   background: transparent !important;
   box-shadow: none !important;
 }
-
-/* Burger drawer rebuild: compact desktop menu board with quiet legal links. */
-html .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer-panel {
-  width: clamp(360px, 34vw, 460px) !important;
-  max-width: calc(100vw - 28px) !important;
-  height: 100dvh !important;
-  background: #d9382a !important;
-  color: #15120e !important;
-  border-left: 4px solid #15120e !important;
-  box-shadow: none !important;
-  overflow: hidden !important;
-  transform: translateX(108%) !important;
-  transition: transform 320ms cubic-bezier(.18, .86, .26, 1) !important;
+/* Language toggle — quiet Silkscreen micro-label, white on ink, no chip */
+/* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
+/* Logo — cream wordmark sits straight on the ink sheet (drop poster tilt) */
+/* Nav — big white Providence caps as bare words on ink; hover lifts a faint
+   pill + the existing translate. Borderless, modest radius. */
+/* Anmelden / Profil — THE accent button: yellow fill, ink text, borderless */
+/* ══════════════════════════════════════════════════════════════════════
+   BURGER DRAWER  —  single source of truth
+   Full-screen slide-in menu. Ink sheet · white type · ONE yellow accent ·
+   Providence display caps · borderless · modest radius. Mirrors the home
+   masthead (globals.css #navbar) and the ink home footer so header, menu
+   and footer read as one system.
+   Motion: panel + items TRANSLATE in (never opacity — brand rule); the
+   container's opacity only tints the backdrop.
+   ══════════════════════════════════════════════════════════════════════ */
+.burger-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.burger-drawer.active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-html .burger-drawer.active .burger-drawer-panel,
-html[data-theme="dark"] .burger-drawer.active .burger-drawer-panel {
-  transform: translateX(0) !important;
+.burger-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px) saturate(1.1);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  border: 0;
 }
 
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  height: 100dvh !important;
-  min-height: 0 !important;
-  display: grid !important;
-  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
-  row-gap: clamp(14px, 2.1dvh, 22px) !important;
-  padding: max(28px, calc(env(safe-area-inset-top, 0px) + 24px)) clamp(22px, 3vw, 34px) max(18px, env(safe-area-inset-bottom, 0px)) !important;
-  overflow: hidden !important;
+.burger-drawer-panel {
+  position: relative;
+  width: min(100vw, 460px);
+  height: 100dvh;
+  background: var(--home-ink, #15120e);
+  color: #fff;
+  box-shadow: -26px 0 64px rgba(0, 0, 0, 0.32);
+  transform: translateX(100%);
+  transition: transform 0.34s cubic-bezier(0.18, 0.86, 0.26, 1);
+}
+.burger-drawer.active .burger-drawer-panel {
+  transform: translateX(0);
 }
 
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  min-height: 42px !important;
-  padding: 0 58px 0 0 !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  border: 0 !important;
+.bd-scroller {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  row-gap: clamp(12px, 2dvh, 22px);
+  padding: max(20px, calc(env(safe-area-inset-top, 0px) + 16px))
+    clamp(22px, 3vw, 34px) max(18px, env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
 }
 
-html .bd-lang,
-html[data-theme="dark"] .bd-lang {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 7px !important;
-  padding: 7px 10px !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 2px solid #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: .1em !important;
-  line-height: 1 !important;
+/* Top bar — language toggle (left); close sits absolutely top-right */
+.bd-topbar {
+  display: flex;
+  align-items: flex-start;
+  min-height: 30px;
+  padding-right: 52px;
+}
+.bd-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: "Silkscreen", var(--menu-mono, ui-monospace, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.bd-lang-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+}
+.bd-lang-btn.on,
+.bd-lang-btn:hover,
+.bd-lang-btn:focus-visible {
+  color: var(--home-accent, #ffc600);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.bd-lang-sep {
+  color: rgba(255, 255, 255, 0.3);
 }
 
-html .bd-lang-btn,
-html[data-theme="dark"] .bd-lang-btn {
-  color: rgba(255, 255, 255, .58) !important;
+/* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
+.burger-drawer-close {
+  position: absolute;
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
+  right: clamp(18px, 2.4vw, 26px);
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 3px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 0;
+  border-radius: 50%;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.burger-drawer-close:hover,
+.burger-drawer-close:focus-visible {
+  background: var(--home-accent, #ffc600);
+  color: var(--home-ink, #15120e);
+  outline: 0;
 }
 
-html .bd-lang-btn.on,
-html .bd-lang-btn:hover,
-html .bd-lang-btn:focus-visible,
-html[data-theme="dark"] .bd-lang-btn.on,
-html[data-theme="dark"] .bd-lang-btn:hover,
-html[data-theme="dark"] .bd-lang-btn:focus-visible {
-  color: #fff !important;
+/* Logo — cream wordmark, centered on the ink sheet */
+.bd-logo {
+  width: clamp(150px, 46vw, 220px);
+  margin: 0 auto;
+  justify-self: center;
+  transform: translateY(-4px);
+}
+.bd-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-html .bd-lang-sep,
-html[data-theme="dark"] .bd-lang-sep {
-  color: rgba(255, 255, 255, .38) !important;
+/* Nav — big white Providence caps as bare words; hover = yellow + slide */
+.bd-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(2px, 0.7dvh, 8px);
+}
+.bd-nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: clamp(40px, 5.3dvh, 54px);
+  padding: 7px 12px 8px;
+  background: transparent;
+  color: #fff;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence);
+  font-size: clamp(28px, min(4.6dvh, 8vw), 40px);
+  font-weight: 700;
+  line-height: 0.82;
+  text-align: left;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+.bd-nav-item:hover,
+.bd-nav-item:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--home-accent, #ffc600);
+  outline: 0;
+  transform: translateX(-6px);
+}
+/* Anmelden / Profil — THE single accent button, pinned above the nav */
+.bd-nav-item.bd-cta {
+  order: -1;
+  margin-bottom: clamp(14px, 2dvh, 22px);
+  background: var(--home-accent, #ffc600);
+  color: var(--home-ink, #15120e);
+}
+.bd-nav-item.bd-cta:hover,
+.bd-nav-item.bd-cta:focus-visible {
+  background: #fff;
+  color: var(--home-ink, #15120e);
+  transform: translateX(-6px);
 }
 
-html .burger-drawer-close,
-html[data-theme="dark"] .burger-drawer-close {
-  top: max(24px, calc(env(safe-area-inset-top, 0px) + 20px)) !important;
-  right: clamp(20px, 2.5vw, 30px) !important;
-  width: 40px !important;
-  height: 40px !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: 38px !important;
-  font-weight: 400 !important;
-  line-height: .72 !important;
-  transform: none !important;
-  transition: transform 150ms ease, background-color 150ms ease, color 150ms ease !important;
+/* Legal dock — quiet centered text links, yellow underline on hover */
+.bd-foot {
+  width: min(100%, 560px);
+  margin: clamp(8px, 1.6dvh, 18px) auto 0;
+  padding-top: clamp(12px, 1.8dvh, 18px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.bd-foot-link {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: "Silkscreen", var(--menu-mono, ui-monospace, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.bd-foot-link:hover,
+.bd-foot-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: var(--home-accent, #ffc600);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
-html .burger-drawer-close:hover,
-html .burger-drawer-close:focus-visible,
-html[data-theme="dark"] .burger-drawer-close:hover,
-html[data-theme="dark"] .burger-drawer-close:focus-visible {
-  background: #fff !important;
-  color: #15120e !important;
-  outline: 2px solid #15120e !important;
-  outline-offset: 3px !important;
-  transform: translateX(-2px) !important;
+/* Entrance stagger — items translate in (no opacity fades, per brand rule) */
+.burger-drawer.active .bd-nav-item {
+  animation: bdItemIn 0.32s cubic-bezier(0.18, 0.86, 0.26, 1) both;
 }
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  width: clamp(150px, 18vw, 220px) !important;
-  margin: 0 auto !important;
-  justify-self: center !important;
-  filter: none !important;
-  transform: rotate(-2deg) !important;
+.burger-drawer.active .bd-nav-item:nth-child(2) {
+  animation-delay: 0.03s;
 }
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  min-height: 0 !important;
-  margin: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  gap: clamp(7px, 1dvh, 11px) !important;
-  counter-reset: none !important;
-  border: 0 !important;
+.burger-drawer.active .bd-nav-item:nth-child(3) {
+  animation-delay: 0.06s;
 }
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-height: clamp(42px, 5.6dvh, 58px) !important;
-  padding: 8px 12px 10px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: clamp(32px, min(4.9dvh, 4.2vw), 50px) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-  line-height: .82 !important;
-  text-align: left !important;
-  text-transform: uppercase !important;
-  text-shadow: none !important;
-  transform: none !important;
-  transition: transform 150ms ease, background-color 150ms ease, color 150ms ease !important;
+.burger-drawer.active .bd-nav-item:nth-child(4) {
+  animation-delay: 0.09s;
 }
-
-html .bd-nav-item::before,
-html .bd-nav-item::after,
-html[data-theme="dark"] .bd-nav-item::before,
-html[data-theme="dark"] .bd-nav-item::after {
-  content: none !important;
-  display: none !important;
+.burger-drawer.active .bd-nav-item:nth-child(5) {
+  animation-delay: 0.12s;
 }
-
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  order: -1 !important;
-  width: 100% !important;
-  min-height: clamp(42px, 5.6dvh, 58px) !important;
-  margin: 0 0 clamp(17px, 2.3dvh, 24px) !important;
-  padding: 8px 12px 10px !important;
-  justify-content: flex-start !important;
-  align-self: stretch !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 2px solid #15120e !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
-  font-size: clamp(32px, min(4.9dvh, 4.2vw), 50px) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-  line-height: .82 !important;
-  text-align: left !important;
-  transform: none !important;
+.burger-drawer.active .bd-nav-item:nth-child(6) {
+  animation-delay: 0.15s;
 }
-
-html .bd-nav-item:hover,
-html .bd-nav-item:focus-visible,
-html[data-theme="dark"] .bd-nav-item:hover,
-html[data-theme="dark"] .bd-nav-item:focus-visible {
-  background: #15120e !important;
-  color: #fff !important;
-  outline: 0 !important;
-  text-shadow: none !important;
-  transform: translateX(-6px) !important;
+.burger-drawer.active .bd-nav-item:nth-child(7) {
+  animation-delay: 0.18s;
 }
-
-html .bd-nav-item.bd-cta:hover,
-html .bd-nav-item.bd-cta:focus-visible,
-html[data-theme="dark"] .bd-nav-item.bd-cta:hover,
-html[data-theme="dark"] .bd-nav-item.bd-cta:focus-visible {
-  background: #fff !important;
-  color: #15120e !important;
-  transform: translateX(-6px) !important;
+.burger-drawer.active .bd-nav-item:nth-child(8) {
+  animation-delay: 0.21s;
 }
-
-html .burger-drawer.active .bd-nav-item,
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item {
-  animation: bdMenuSlideIn 260ms cubic-bezier(.18, .86, .26, 1) both !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(2),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(2) {
-  animation-delay: 24ms !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(3),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(3) {
-  animation-delay: 48ms !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(4),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(4) {
-  animation-delay: 72ms !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(5),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(5) {
-  animation-delay: 96ms !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(6),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(6) {
-  animation-delay: 120ms !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(7),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(7) {
-  animation-delay: 144ms !important;
-}
-
-html .burger-drawer.active .bd-nav-item:nth-child(8),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(8) {
-  animation-delay: 168ms !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 12px 0 0 !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: center !important;
-  gap: 8px 14px !important;
-  background: transparent !important;
-  border-top: 2px solid #15120e !important;
-}
-
-html .bd-foot-link,
-html .bd-foot-link:nth-child(2),
-html .bd-foot-link:nth-child(4),
-html[data-theme="dark"] .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link:nth-child(2),
-html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-  min-height: 0 !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  background: transparent !important;
-  color: #15120e !important;
-  border: 0 !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 10px !important;
-  font-weight: 900 !important;
-  letter-spacing: .08em !important;
-  line-height: 1.25 !important;
-  text-align: left !important;
-  text-decoration: none !important;
-  text-transform: uppercase !important;
-  transform: none !important;
-}
-
-html .bd-foot-link:hover,
-html .bd-foot-link:focus-visible,
-html[data-theme="dark"] .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:focus-visible {
-  background: transparent !important;
-  color: #fff !important;
-  outline: 0 !important;
-  text-decoration: underline !important;
-  text-decoration-thickness: 2px !important;
-  text-underline-offset: 4px !important;
-  transform: none !important;
-}
-
-@keyframes bdMenuSlideIn {
+@keyframes bdItemIn {
   from {
-    transform: translateX(30px);
+    transform: translateX(26px);
   }
 }
 
 @media (max-width: 767px) {
-  html .burger-drawer-panel,
-  html[data-theme="dark"] .burger-drawer-panel {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    border-left: 0 !important;
+  .burger-drawer-panel {
+    width: 100vw;
   }
-
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    row-gap: clamp(9px, 1.2dvh, 14px) !important;
-    padding: max(58px, calc(env(safe-area-inset-top, 0px) + 58px)) 16px max(14px, env(safe-area-inset-bottom, 0px)) !important;
+  .bd-scroller {
+    padding: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) 16px
+      max(14px, env(safe-area-inset-bottom, 0px));
+    row-gap: clamp(8px, 1.2dvh, 14px);
   }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(156px, min(56vw, 25dvh), 232px) !important;
+  .bd-logo {
+    width: clamp(156px, 56vw, 232px);
   }
-
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    gap: clamp(6px, .9dvh, 10px) !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: clamp(38px, 5.45dvh, 50px) !important;
-    padding: 7px 10px 8px !important;
-    font-size: clamp(30px, min(5.7dvh, 10.8vw), 43px) !important;
-  }
-
-  html .bd-nav-item.bd-cta,
-  html[data-theme="dark"] .bd-nav-item.bd-cta {
-    min-height: clamp(38px, 5.45dvh, 50px) !important;
-    padding: 7px 10px 8px !important;
-    font-size: clamp(30px, min(5.7dvh, 10.8vw), 43px) !important;
-  }
-
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    gap: 7px 12px !important;
+  .bd-nav-item,
+  .bd-nav-item.bd-cta {
+    min-height: clamp(38px, 5.2dvh, 50px);
+    font-size: clamp(24px, min(5.2dvh, 8.4vw), 37px);
+    white-space: nowrap;
   }
 }
-
 @media (max-height: 700px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    row-gap: 8px !important;
-    padding-top: max(50px, calc(env(safe-area-inset-top, 0px) + 50px)) !important;
+  .bd-scroller {
+    row-gap: 8px;
   }
-
-  html .bd-topbar,
-  html[data-theme="dark"] .bd-topbar {
-    min-height: 34px !important;
+  .bd-logo {
+    width: clamp(120px, 20dvh, 160px);
   }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(126px, 20dvh, 170px) !important;
-  }
-
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    gap: 5px !important;
-  }
-
-  html .bd-nav-item,
-  html[data-theme="dark"] .bd-nav-item {
-    min-height: 34px !important;
-    padding-block: 5px 6px !important;
-    font-size: clamp(24px, 4.7dvh, 34px) !important;
-  }
-
-  html .bd-foot {
-    padding-top: 8px !important;
-  }
-
-  html .bd-foot-link,
-  html[data-theme="dark"] .bd-foot-link {
-    font-size: 9px !important;
-  }
-}
-
-/* Final row alignment lock for the rebuilt drawer. Keep this as the last
-   burger rule so older nth-child poster transforms cannot resurface. */
-html .bd-nav-item:nth-child(n),
-html[data-theme="dark"] .bd-nav-item:nth-child(n),
-html .burger-drawer.active .bd-nav-item:nth-child(n),
-html[data-theme="dark"] .burger-drawer.active .bd-nav-item:nth-child(n) {
-  animation: none !important;
-  transform: none !important;
-}
-
-html .bd-nav-item:nth-child(n):hover,
-html .bd-nav-item:nth-child(n):focus-visible,
-html[data-theme="dark"] .bd-nav-item:nth-child(n):hover,
-html[data-theme="dark"] .bd-nav-item:nth-child(n):focus-visible {
-  transform: translateX(-6px) !important;
-}
-
-html .bd-nav-item.bd-cta:nth-child(n):hover,
-html .bd-nav-item.bd-cta:nth-child(n):focus-visible,
-html[data-theme="dark"] .bd-nav-item.bd-cta:nth-child(n):hover,
-html[data-theme="dark"] .bd-nav-item.bd-cta:nth-child(n):focus-visible {
-  transform: translateX(-6px) !important;
-}
-
-/* Burger drawer vertical tune: language and close control sit higher, while
-   the menu rows start earlier in the available panel space. */
-html .bd-scroller,
-html[data-theme="dark"] .bd-scroller {
-  row-gap: clamp(10px, 1.55dvh, 18px) !important;
-  padding-top: max(20px, calc(env(safe-area-inset-top, 0px) + 16px)) !important;
-}
-
-html .bd-topbar,
-html[data-theme="dark"] .bd-topbar {
-  min-height: 30px !important;
-  padding: 0 52px 0 0 !important;
-}
-
-html .bd-lang,
-html[data-theme="dark"] .bd-lang {
-  padding: 6px 9px !important;
-  transform: translateY(-5px) !important;
-}
-
-html .burger-drawer-close,
-html[data-theme="dark"] .burger-drawer-close {
-  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)) !important;
-  right: clamp(18px, 2.4vw, 26px) !important;
-  width: 38px !important;
-  height: 38px !important;
-  font-size: 35px !important;
-  line-height: .76 !important;
-}
-
-html .bd-logo,
-html[data-theme="dark"] .bd-logo {
-  transform: translateY(-4px) rotate(-2deg) !important;
-}
-
-html .bd-nav,
-html[data-theme="dark"] .bd-nav {
-  justify-content: flex-start !important;
-  gap: clamp(6px, .85dvh, 10px) !important;
-}
-
-html .bd-nav-item,
-html[data-theme="dark"] .bd-nav-item,
-html .bd-nav-item.bd-cta,
-html[data-theme="dark"] .bd-nav-item.bd-cta {
-  min-height: clamp(40px, 5.3dvh, 54px) !important;
-  padding-top: 7px !important;
-  padding-bottom: 8px !important;
-}
-
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  padding-top: 8px !important;
-}
-
-@media (max-width: 767px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-top: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) !important;
-    row-gap: clamp(8px, 1dvh, 12px) !important;
-  }
-
-  html .burger-drawer-close,
-  html[data-theme="dark"] .burger-drawer-close {
-    top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)) !important;
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 34px !important;
-  }
-
-  html .bd-topbar,
-  html[data-theme="dark"] .bd-topbar {
-    min-height: 28px !important;
-  }
-
-  html .burger-drawer .bd-lang,
-  html[data-theme="dark"] .burger-drawer .bd-lang {
-    transform: translateY(-32px) !important;
-  }
-
-  html .bd-nav,
-  html[data-theme="dark"] .bd-nav {
-    justify-content: flex-start !important;
-  }
-}
-
-@media (max-height: 700px) {
-  html .bd-scroller,
-  html[data-theme="dark"] .bd-scroller {
-    padding-top: max(40px, calc(env(safe-area-inset-top, 0px) + 36px)) !important;
-  }
-
-  html .bd-logo,
-  html[data-theme="dark"] .bd-logo {
-    width: clamp(118px, 18dvh, 158px) !important;
-  }
-}
-
-/* Burger drawer legal dock: give Impressum/Datenschutz/AGB/Kontakt their own
-   intentional surface instead of a thin afterthought line. */
-html .bd-foot,
-html[data-theme="dark"] .bd-foot {
-  width: min(100%, 560px) !important;
-  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
-  padding: 7px !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  background: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
-}
-
-html .bd-foot-link,
-html .bd-foot-link:nth-child(2),
-html .bd-foot-link:nth-child(4),
-html[data-theme="dark"] .bd-foot-link,
-html[data-theme="dark"] .bd-foot-link:nth-child(2),
-html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-  min-height: clamp(34px, 4.6dvh, 42px) !important;
-  padding: 8px 7px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-  line-height: 1.05 !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  text-transform: uppercase !important;
-  overflow-wrap: anywhere !important;
-  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease !important;
-}
-
-html .bd-foot-link:nth-child(2),
-html[data-theme="dark"] .bd-foot-link:nth-child(2) {
-  --bd-foot-y: 2px;
-  --bd-foot-tilt: -.7deg;
-}
-
-html .bd-foot-link:nth-child(3),
-html[data-theme="dark"] .bd-foot-link:nth-child(3) {
-  --bd-foot-tilt: .7deg;
-}
-
-html .bd-foot-link:nth-child(4),
-html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-  --bd-foot-y: 1px;
-  --bd-foot-tilt: -.5deg;
-}
-
-html .bd-foot-link:hover,
-html .bd-foot-link:focus-visible,
-html[data-theme="dark"] .bd-foot-link:hover,
-html[data-theme="dark"] .bd-foot-link:focus-visible {
-  background: #15120e !important;
-  color: #fff !important;
-  outline: 2px solid #fff !important;
-  outline-offset: -5px !important;
-  text-decoration: none !important;
-  transform: translateY(-3px) rotate(calc(var(--bd-foot-tilt, 0deg) * -1)) !important;
-}
-
-@media (max-width: 560px) {
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: min(100%, 390px) !important;
-    gap: 5px !important;
-  }
-
-  html .bd-foot-link,
-  html .bd-foot-link:nth-child(2),
-  html .bd-foot-link:nth-child(4),
-  html[data-theme="dark"] .bd-foot-link,
-  html[data-theme="dark"] .bd-foot-link:nth-child(2),
-  html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-    min-height: clamp(30px, 4.2dvh, 36px) !important;
-    padding: 7px 8px !important;
-    font-size: clamp(9px, 2.7vw, 11px) !important;
-    letter-spacing: .07em !important;
-  }
-}
-
-@media (max-height: 700px) {
-  html .bd-foot,
-  html[data-theme="dark"] .bd-foot {
-    margin-top: 6px !important;
-    padding: 5px !important;
-    gap: 4px !important;
-  }
-
-  html .bd-foot-link,
-  html .bd-foot-link:nth-child(2),
-  html .bd-foot-link:nth-child(4),
-  html[data-theme="dark"] .bd-foot-link,
-  html[data-theme="dark"] .bd-foot-link:nth-child(2),
-  html[data-theme="dark"] .bd-foot-link:nth-child(4) {
-    min-height: 28px !important;
-    padding: 6px 7px !important;
-    font-size: 9px !important;
-  }
-}
-
-html .bd-foot.bd-legal-dock,
-html[data-theme="dark"] .bd-foot.bd-legal-dock {
-  width: min(100%, 560px) !important;
-  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
-  padding: 7px !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  background: #15120e !important;
-  border: 2px solid #15120e !important;
-  border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
-}
-
-html .bd-legal-dock .bd-foot-link,
-html .bd-legal-dock .bd-foot-link:nth-child(2),
-html .bd-legal-dock .bd-foot-link:nth-child(4),
-html[data-theme="dark"] .bd-legal-dock .bd-foot-link,
-html[data-theme="dark"] .bd-legal-dock .bd-foot-link:nth-child(2),
-html[data-theme="dark"] .bd-legal-dock .bd-foot-link:nth-child(4) {
-  min-height: clamp(34px, 4.6dvh, 42px) !important;
-  padding: 8px 7px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  background: #fff !important;
-  color: #15120e !important;
-  border: 2px solid #15120e !important;
-  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-  line-height: 1.05 !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  overflow-wrap: anywhere !important;
-  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-}
-
-@media (max-width: 560px) {
-  html .bd-foot.bd-legal-dock,
-  html[data-theme="dark"] .bd-foot.bd-legal-dock {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: min(100%, 390px) !important;
-    gap: 5px !important;
+  .bd-nav-item,
+  .bd-nav-item.bd-cta {
+    min-height: 36px;
+    font-size: clamp(24px, 4.6dvh, 34px);
   }
 }
 

@@ -31,7 +31,7 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 
 ## Pre-push hook (DO NOT bypass)
 
-`.git/hooks/pre-push` runs the **full** `npm run build` (~30–60 s) before any push that touches `nextjs/`. Mirrors Firebase App Hosting's build step exactly. If it exits non-zero, the push is aborted.
+`.git/hooks/pre-push` runs the **full** build (`npm run build:isolated`, ~30–60 s) before any push that touches `nextjs/`. Same `next build` Firebase App Hosting runs — same config, same errors caught — but it writes to `.next-verify/` instead of `.next/`, so it's safe to push while a local `next dev` is running. If it exits non-zero, the push is aborted.
 
 - **Never** run `git push --no-verify` without an explicit user request, even if the hook complains.
 - If the hook reports a build failure, fix the underlying code. The full log is at `/tmp/eat-this-prepush-build.log`.
@@ -57,7 +57,7 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 This repo has a `staging` long-running branch that auto-deploys to a second
 App Hosting backend (`eat-this-staging`). Feature work flows:
 
-  feature branch  →  PR into `staging`  →  smoke on staging URL  →  PR into `main`
+feature branch → PR into `staging` → smoke on staging URL → PR into `main`
 
 - Never push directly to `main` — branch protection now blocks it
 - `staging` allows direct push for solo-dev speed
@@ -80,7 +80,7 @@ For the migration breakdown, see
 - Reveals: clip-path, mask, or absolute repositioning
 - If a motion feels "too strong", slow the translate or soften the easing — don't reach for opacity
 
-**Exception:** State changes that aren't motion (button hover lightening, modal backdrop tint, etc.) are fine to drive with opacity. The rule is about *movement* animations.
+**Exception:** State changes that aren't motion (button hover lightening, modal backdrop tint, etc.) are fine to drive with opacity. The rule is about _movement_ animations.
 
 ## Image assets — PNG → WebP before commit
 
@@ -92,6 +92,7 @@ Any image that ships to the browser (lands under `nextjs/public/`) **must be Web
 - Sanity uploads stay raw; the CDN serves WebP via `lib/sanityImageLoader.ts` (`?auto=format`)
 
 **Keep as PNG (platform requires it):**
+
 - `favicon.ico`, `apple-touch-icon.png`, PWA manifest icons
 - OG / Twitter share images (some social previewers still don't decode WebP)
 
@@ -126,6 +127,6 @@ Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.ts
 
 4. **`StaticPages.tsx` renders only the active page.** It used to render all six (about/contact/press/impressum/datenschutz/agb) on every route, which made the SSR'd HTML almost identical across URLs and Google refused to index them. If you bring it back to "render all", you'll re-introduce the duplicate-content trap.
 
-5. **Don't run `npm run build` while `npm run dev` is alive.** The build overwrites `.next/` chunks and the dev server then 500s on missing module IDs. Stop dev first, or only run `npm run build:css` (safe) during a dev session.
+5. **Building while `npm run dev` is alive → use `npm run build:isolated`.** Plain `npm run build` writes to `.next/`, which the dev server is also using — it would overwrite the dev chunks and the server then 500s on missing module IDs. `npm run build:isolated` runs the identical `next build` into `.next-verify/` (via `NEXT_DIST_DIR`, see `next.config.ts`), so it can run concurrently with dev. Use it whenever you need to validate a build without stopping dev (the pre-push hook already does). Plain `npm run build` stays reserved for Firebase App Hosting and clean local builds. `npm run build:css` remains safe during a dev session.
 
 6. **`app/favicon.ico` and `public/favicon.ico` collide.** If both exist, the dev server 500s on `/favicon.ico`. Keep only `public/favicon.ico`.

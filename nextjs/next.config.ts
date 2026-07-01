@@ -1,19 +1,23 @@
-import type { NextConfig } from "next";
-import path from "path";
-import createNextIntlPlugin from "next-intl/plugin";
-import { withSentryConfig } from "@sentry/nextjs";
+import type { NextConfig } from 'next';
+import path from 'path';
+import createNextIntlPlugin from 'next-intl/plugin';
+import { withSentryConfig } from '@sentry/nextjs';
 
-const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: 'standalone',
+  // Build output dir. Defaults to `.next` (dev + Firebase App Hosting). A
+  // validation/pre-push build sets NEXT_DIST_DIR=.next-verify so it can run
+  // alongside a live `next dev` without clobbering the dev server's `.next`.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   outputFileTracingRoot: path.resolve(__dirname),
   // Satori fonts for the composed email spot-card image — read via
   // fs.readFile at runtime, so the tracer can't see them on its own.
   outputFileTracingIncludes: {
-    "/api/email/spot-card": ["./assets/fonts/**/*"],
-    "/api/og/restaurant": ["./assets/fonts/**/*"],
-    "/api/og/badge": ["./assets/fonts/**/*"],
+    '/api/email/spot-card': ['./assets/fonts/**/*'],
+    '/api/og/restaurant': ['./assets/fonts/**/*'],
+    '/api/og/badge': ['./assets/fonts/**/*'],
   },
 
   images: {
@@ -22,11 +26,9 @@ const nextConfig: NextConfig = {
     // default /_next/image proxy is skipped. Wired globally via loaderFile
     // because per-<Image> `loader` props can't cross the Server → Client
     // component boundary in App Router.
-    loader: "custom",
-    loaderFile: "./lib/sanityImageLoader.ts",
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.sanity.io" },
-    ],
+    loader: 'custom',
+    loaderFile: './lib/sanityImageLoader.ts',
+    remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
 
   async headers() {
@@ -50,38 +52,38 @@ const nextConfig: NextConfig = {
       "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
-    ].join("; ");
+    ].join('; ');
     const immutableAssetHeaders = [
-      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+      { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
     ];
 
     return [
       {
-        source: "/css/:path*",
+        source: '/css/:path*',
         headers: immutableAssetHeaders,
       },
       {
-        source: "/pics/:path*",
+        source: '/pics/:path*',
         headers: immutableAssetHeaders,
       },
       {
-        source: "/buddy/:path*",
+        source: '/buddy/:path*',
         headers: immutableAssetHeaders,
       },
       {
-        source: "/fonts/:path*",
+        source: '/fonts/:path*',
         headers: immutableAssetHeaders,
       },
       {
-        source: "/:path*",
+        source: '/:path*',
         headers: [
           // Required for Firebase signInWithPopup to poll popup.closed without console warnings.
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
-          { key: "Content-Security-Policy-Report-Only", value: csp },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+          { key: 'Content-Security-Policy-Report-Only', value: csp },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
         ],
       },
     ];
@@ -96,8 +98,8 @@ const nextConfig: NextConfig = {
     // fetched by the helper, hence the broad /__/ prefix.
     return [
       {
-        source: "/__/:path*",
-        destination: "https://eat-this-8a13b.firebaseapp.com/__/:path*",
+        source: '/__/:path*',
+        destination: 'https://eat-this-8a13b.firebaseapp.com/__/:path*',
       },
     ];
   },
@@ -107,8 +109,16 @@ const nextConfig: NextConfig = {
       // Engelbecken — Sanity-Slug hatte historisch "engelsbecken" (Typo);
       // offiziell schreibt sich das Restaurant Engelbecken (eigene Domain
       // engelbecken.de). Slug umgezogen, alte URL 308 → neue.
-      { source: "/restaurant/engelsbecken", destination: "/restaurant/engelbecken", permanent: true },
-      { source: "/en/restaurant/engelsbecken", destination: "/en/restaurant/engelbecken", permanent: true },
+      {
+        source: '/restaurant/engelsbecken',
+        destination: '/restaurant/engelbecken',
+        permanent: true,
+      },
+      {
+        source: '/en/restaurant/engelsbecken',
+        destination: '/en/restaurant/engelbecken',
+        permanent: true,
+      },
     ];
   },
 };

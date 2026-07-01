@@ -7,6 +7,16 @@ import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT, type BuddyAskDetail } from '@/lib/buddy/homeStage';
 import HubFragRemy from './HubFragRemy';
 
+const messages = {
+  hub: {
+    fragRemy: {
+      sub: 'Frag Remy direkt.',
+      inputPlaceholder: '...oder frag Remy direkt',
+      sendAria: 'Senden',
+    },
+  },
+};
+
 // jsdom has no IntersectionObserver — capture the callback so tests can drive
 // stage visibility by hand.
 type IoCallback = (entries: Array<Partial<IntersectionObserverEntry>>) => void;
@@ -35,7 +45,7 @@ afterEach(() => {
 
 function renderSection() {
   return render(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={messages}>
       <HubFragRemy />
     </NextIntlClientProvider>
   );

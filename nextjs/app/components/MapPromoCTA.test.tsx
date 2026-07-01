@@ -1,7 +1,27 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import type { AnchorHTMLAttributes } from 'react'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
+
+type MockLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  href: string
+  prefetch?: unknown
+}
+
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ href, children, ...props }: MockLinkProps) => {
+    delete props.prefetch
+    return (
+      <a href={href} {...props}>
+        {children}
+      </a>
+    )
+  },
+  useRouter: () => ({
+    prefetch: () => {},
+  }),
+}))
 
 type Args = Parameters<typeof MapPromoCTA>[0]
 

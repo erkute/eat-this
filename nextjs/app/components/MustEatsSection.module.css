@@ -640,8 +640,22 @@
     width: clamp(104px, 33vw, 148px);
   }
 
+  .heroCard1 {
+    right: 15%;
+    bottom: 0;
+    transform: rotate(3deg);
+  }
+
+  .heroCard2 {
+    right: 34%;
+    bottom: 6%;
+    transform: rotate(-8deg);
+  }
+
   .heroCard3 {
-    bottom: 8%;
+    right: 3%;
+    bottom: 16%;
+    transform: rotate(9deg);
   }
 
   .sub {
@@ -827,11 +841,11 @@ html[data-theme='dark'] .locked .ph {
    action, not a plain legal-ish text outro. */
 .close {
   position: relative;
-  grid-template-columns: minmax(0, .86fr) minmax(260px, .64fr);
+  grid-template-columns: minmax(0, .9fr) minmax(220px, .52fr);
   align-items: center;
-  gap: clamp(20px, 4vw, 54px);
+  gap: clamp(16px, 3vw, 38px);
   overflow: hidden;
-  padding: clamp(26px, 4vw, 48px);
+  padding: clamp(20px, 3vw, 34px);
   border: 0;
   border-radius: 0;
   background: var(--et-home-quiet, #f2f1ef);
@@ -845,31 +859,37 @@ html[data-theme='dark'] .locked .ph {
 
 .closeTitle {
   max-width: 8.5ch;
-  font-size: clamp(48px, 7vw, 104px);
+  font-size: clamp(42px, 5.6vw, 76px);
+  line-height: .88;
 }
 
 .closeBody {
-  max-width: 34ch;
-  margin-top: 14px;
+  max-width: 38ch;
+  margin-top: 10px;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.32;
 }
 
 .closeCta {
-  min-height: 46px;
-  margin-top: clamp(18px, 3vw, 28px);
-  padding: 0 18px;
+  min-height: 42px;
+  margin-top: clamp(14px, 2vw, 20px);
+  padding: 0 16px;
 }
 
 .packStack {
   position: relative;
-  min-height: clamp(240px, 30vw, 390px);
+  justify-self: center;
+  width: min(100%, 420px);
+  min-height: clamp(188px, 22vw, 286px);
   isolation: isolate;
 }
 
 .packCard {
   position: absolute;
-  width: clamp(118px, 15vw, 190px);
+  width: clamp(104px, 12vw, 154px);
   aspect-ratio: 1 / 1;
   filter: drop-shadow(0 18px 24px rgba(21, 18, 14, .18));
+  transform-origin: 50% 72%;
 }
 
 .packCard img {
@@ -880,31 +900,31 @@ html[data-theme='dark'] .locked .ph {
 }
 
 .packCard1 {
-  right: 22%;
-  bottom: 7%;
-  z-index: 4;
-  transform: rotate(-5deg);
+  left: 10%;
+  bottom: 11%;
+  z-index: 2;
+  transform: translateY(10px) rotate(-14deg);
 }
 
 .packCard2 {
-  right: 2%;
-  bottom: 29%;
-  z-index: 3;
-  transform: rotate(7deg);
+  left: 54%;
+  bottom: 12%;
+  z-index: 1;
+  transform: translateY(14px) rotate(13deg);
 }
 
 .packCard3 {
-  right: 43%;
-  bottom: 31%;
-  z-index: 2;
-  transform: rotate(-11deg);
+  left: 36%;
+  bottom: 1%;
+  z-index: 4;
+  transform: rotate(-2deg);
 }
 
 .packCard4 {
-  right: 18%;
-  bottom: 54%;
-  z-index: 1;
-  transform: rotate(10deg);
+  left: 32%;
+  bottom: 38%;
+  z-index: 3;
+  transform: translateY(-4px) rotate(7deg);
 }
 
 html[data-theme='dark'] .close {
@@ -929,40 +949,45 @@ html[data-theme='dark'] .closeCta {
 
   .close {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 22px 0 0;
+    gap: 10px;
+    padding: 18px 0 0;
     background: var(--must-paper);
     border-top: 2px solid var(--et-home-line, rgba(21, 18, 14, .2));
   }
 
   .packStack {
     order: -1;
-    min-height: 190px;
-    margin-bottom: 6px;
+    width: min(100%, 320px);
+    min-height: 178px;
+    margin-bottom: 2px;
   }
 
   .packCard {
-    width: clamp(104px, 34vw, 138px);
+    width: clamp(96px, 31vw, 126px);
   }
 
   .packCard1 {
-    right: 28%;
-    bottom: 0;
+    left: 9%;
+    bottom: 24%;
+    transform: translateY(8px) rotate(-13deg);
   }
 
   .packCard2 {
-    right: 3%;
-    bottom: 18%;
+    left: 54%;
+    bottom: 20%;
+    transform: translateY(8px) rotate(12deg);
   }
 
   .packCard3 {
-    right: 52%;
-    bottom: 18%;
+    left: 35%;
+    bottom: 1%;
+    transform: rotate(-2deg);
   }
 
   .packCard4 {
-    right: 29%;
+    left: 31%;
     bottom: 34%;
+    transform: translateY(-2px) rotate(7deg);
   }
 
   .closeCopy {
@@ -971,18 +996,20 @@ html[data-theme='dark'] .closeCta {
 
   .closeTitle {
     max-width: 7.5ch;
-    font-size: clamp(42px, 14vw, 64px);
+    font-size: clamp(36px, 11.5vw, 52px);
   }
 
   .closeBody {
-    max-width: 31ch;
-    margin-top: 12px;
+    max-width: 34ch;
+    margin-top: 8px;
+    font-size: clamp(16px, 5vw, 19px);
+    line-height: 1.3;
   }
 
   .closeCta {
     align-self: start;
     width: auto;
-    min-height: 44px;
-    margin-top: 18px;
+    min-height: 42px;
+    margin-top: 14px;
   }
 }

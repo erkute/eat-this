@@ -256,7 +256,7 @@ export default function RestaurantDetail({
   const showBooster = userTier !== 'allBerlin'
   const isAnon = !uid
   const boosterHref = uid
-    ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
+    ? (locale === routing.defaultLocale ? '/packs' : `/${locale}/packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {

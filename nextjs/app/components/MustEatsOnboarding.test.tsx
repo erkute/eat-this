@@ -67,6 +67,7 @@ describe('MustEatsOnboarding', () => {
     fireEvent.click(screen.getByText('mustEats.onbNext'))
     expect(screen.getByText('mustEats.onb3Title')).toBeTruthy()
     expect(screen.getByText('mustEats.onb3Body')).toBeTruthy()
+    expect(screen.getByText('mustEats.onbPacksCta').getAttribute('href')).toBe('/packs')
     fireEvent.click(screen.getByText('mustEats.onbStart'))
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1')

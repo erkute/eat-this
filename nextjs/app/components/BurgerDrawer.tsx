@@ -100,7 +100,7 @@ export default function BurgerDrawer() {
                 his "Frag Remy" section via HubHashScroll. */}
             <Link href="/#hub-fragremy" className="bd-nav-item">{t('burger.fragRemy')}</Link>
             <Link href="/news" className="bd-nav-item">{t('burger.aufDemTeller')}</Link>
-            <Link href="/#hub-allberlin" className="bd-nav-item">{t('burger.boosterPacks')}</Link>
+            <Link href="/packs" className="bd-nav-item">{t('burger.boosterPacks')}</Link>
             <Link href="/about" className="bd-nav-item">{t('burger.about')}</Link>
           </nav>
 

@@ -17,21 +17,21 @@ const COPY = {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
     sub: 'Unsere klare Empfehlung pro Spot: das Gericht, das du dort bestellen solltest. Einige Karten liegen offen, den Rest deckst du vor Ort selbst auf.',
-    closeKicker: 'Noch verdeckt',
-    closeTitle: ['Mehr', 'aufdecken.'],
+    closeKicker: 'Booster Packs',
+    closeTitle: ['Mehr', 'Spots holen.'],
     closeBody:
-      'Booster Packs bringen dir neue Spots — viele mit einem oder mehreren Must Eats. Aufgedeckt wird vor Ort: geh hin und dreh die Karte mit einem Tap um.',
-    closeCta: 'Packs ansehen',
+      'Kauf ein Booster Pack und schalte neue kuratierte Spots für deine Map frei — inklusive weiterer Must Eats, die du vor Ort aufdecken kannst.',
+    closeCta: 'Packs kaufen',
   },
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
     sub: 'Our clear pick for each spot: the dish you should order there. A few cards are face-up; you reveal the rest yourself, on site.',
-    closeKicker: 'Still face-down',
-    closeTitle: ['Reveal', 'more.'],
+    closeKicker: 'Booster Packs',
+    closeTitle: ['Get', 'more spots.'],
     closeBody:
-      'Booster Packs bring you new spots — many with one or more Must Eats. Revealing happens on site: go there and tap the card to flip it.',
-    closeCta: 'View packs',
+      'Buy a Booster Pack to unlock new curated spots for your map — including more Must Eats you can reveal on site.',
+    closeCta: 'Buy packs',
   },
 } as const
 
@@ -45,7 +45,7 @@ const PACK_ART = [
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale]
-  const packsHref = locale === 'en' ? '/en#hub-packs' : '/#hub-packs'
+  const packsHref = locale === 'en' ? '/en/packs' : '/packs'
   const heroCards = initialMapData.mustEats.slice(0, 3)
 
   return (

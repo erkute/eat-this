@@ -95,7 +95,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             <div className={styles.heroCopy}>
               <p className={styles.heroKicker}>{t('heroKicker')}</p>
               <h1 className={styles.heroName}>{firstName}</h1>
-              <p className={styles.heroLead}>{t('heroTitle')}</p>
               <div className={styles.heroActions} aria-label={t('quickActions')}>
                 <Link href="/map" rel="nofollow" className={styles.heroLink}>
                   {toMapLabel}

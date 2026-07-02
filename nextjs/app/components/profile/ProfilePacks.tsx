@@ -11,13 +11,9 @@ import styles from './ProfileSlim.module.css';
 const WELCOME_ART = '/pics/booster/booster_free.webp';
 const ALL_BERLIN_ART = '/pics/booster/booster.webp';
 
-function euro(amountCents: number): string {
-  return `${(amountCents / 100).toFixed(2).replace('.', ',')} €`;
-}
-
 // Booster packs as an editorial menu list: the Welcome Pack (always owned) plus
 // every catalog pack. Owned rows read full-strength with a "dabei/owned" status;
-// not-yet-owned rows are dimmed and show their price as a dotted-leader entry.
+// not-yet-owned rows are dimmed and link into the pack's buy page.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
@@ -48,9 +44,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
               <img src={art} alt="" />
               <span className={styles.packName}>{p.displayName}</span>
               <span className={styles.dots} />
-              <span className={styles.packStatus}>
-                {isOwned ? t('packStatusOwned') : euro(p.amountCents)}
-              </span>
+              {isOwned && <span className={styles.packStatus}>{t('packStatusOwned')}</span>}
             </>
           );
           // Owned → static row; not-yet-owned → link into the pack's buy page.

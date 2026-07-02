@@ -12,6 +12,7 @@ import type {
   UserTier,
 } from '@/lib/map'
 import type { UserLocationError } from '@/lib/map/useUserLocation'
+import { getLocationStatus } from '@/lib/map/locationStatus'
 
 import dynamic from 'next/dynamic'
 import RestaurantList from './RestaurantList'
@@ -157,15 +158,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     document.getElementById('burgerBtn')?.click()
   }, [])
-  const locationStatusCopy = locateLoading
-    ? (locale === 'en' ? 'Finding you' : 'Standort wird gesucht')
-    : locationError
-      ? (locationError === 'denied'
-          ? (locale === 'en' ? 'Location blocked' : 'Standort blockiert')
-          : (locale === 'en' ? 'Location not found' : 'Standort nicht gefunden'))
-      : location
-        ? (locale === 'en' ? 'Location active' : 'Standort aktiv')
-        : null
+  const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading })
 
   return (
     <div
@@ -359,16 +352,16 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             )}
           </aside>
 
-          {locationStatusCopy && (
+          {locationStatus.copy && (
             <div
-              className={`${styles.mapStatusLayer} ${locationError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
-              role={locationError ? 'alert' : 'status'}
+              className={`${styles.mapStatusLayer} ${locationStatus.isError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
+              role={locationStatus.isError ? 'alert' : 'status'}
             >
               <span className={styles.mapStatusKicker}>
                 {locale === 'en' ? 'Location' : 'Standort'}
               </span>
-              <span className={styles.mapStatusText}>{locationStatusCopy}</span>
-              {locationError && (
+              <span className={styles.mapStatusText}>{locationStatus.copy}</span>
+              {locationStatus.isError && (
                 <button
                   type="button"
                   className={styles.mapStatusAction}

@@ -142,15 +142,9 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
       ) : modal ? (
         <div className={styles.modalSimple}>
           <section className={styles.modalBenefits} aria-label={t('modals.login.heroSub')}>
-            <div className={styles.modalBenefitHead}>
-              <p className={styles.modalBenefitKicker}>{t('modals.login.heroH1')}</p>
-              <h2 className={styles.modalBenefitIntro}>
-                {t('modals.login.modalTagline')}
-              </h2>
-              <div className={styles.modalPackArt} aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/pics/booster/booster_free.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
-              </div>
+            <div className={styles.modalPackArt} aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/pics/booster/booster.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
             </div>
             <p className={styles.modalBenefitNote}>
               {t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}
@@ -158,9 +152,6 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
           </section>
 
           <section className={styles.modalLogin} aria-label={t('modals.login.heroHeadline')}>
-            <div className={styles.modalLoginHead}>
-              <h1 id="login-panel-title" className={styles.modalFormTitle}>{t('modals.login.heroHeadline')}</h1>
-            </div>
             <form
               className={styles.modalForm}
               noValidate

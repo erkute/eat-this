@@ -1,8 +1,26 @@
 @font-face {
+  font-family: 'ff-providence-sans-web-pro-1';
+  src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
+    format('woff2');
+  font-display: block;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'ff-providence-sans-web-pro-1';
+  src: url('https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3')
+    format('woff2');
+  font-display: block;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
   font-family: 'Providence Sans Pro Regular';
   src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
     format('woff2');
-  font-display: swap;
+  font-display: block;
   font-style: normal;
   font-weight: 400;
 }
@@ -107,6 +125,7 @@
   --collage-shadow: none;
 
   --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-providence: 'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', sans-serif;
   --font-chewy:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed

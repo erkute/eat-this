@@ -36,6 +36,12 @@ const COPY = {
 } as const
 
 const CARD_BACK = '/pics/card-back.webp?v=6'
+const PACK_ART = [
+  '/pics/booster/booster.webp',
+  '/pics/booster/booster_breakfast.webp',
+  '/pics/booster/booster_dinner.webp',
+  '/pics/booster/booster_pizza.webp',
+] as const
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale]
@@ -69,16 +75,27 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
       <MustEatsGallery initialMapData={initialMapData} />
 
       <div className={styles.close}>
-        <div className={styles.closeK}>{c.closeKicker}</div>
-        <h2 className={styles.closeTitle}>
-          {c.closeTitle[0]}
-          <br />
-          {c.closeTitle[1]}
-        </h2>
-        <p className={styles.closeBody}>{c.closeBody}</p>
-        <a href={packsHref} className={styles.closeCta}>
-          {c.closeCta}
-        </a>
+        <div className={styles.closeCopy}>
+          <div className={styles.closeK}>{c.closeKicker}</div>
+          <h2 className={styles.closeTitle}>
+            {c.closeTitle[0]}
+            <br />
+            {c.closeTitle[1]}
+          </h2>
+          <p className={styles.closeBody}>{c.closeBody}</p>
+          <a href={packsHref} className={styles.closeCta}>
+            {c.closeCta}
+          </a>
+        </div>
+
+        <div className={styles.packStack} aria-hidden="true">
+          {PACK_ART.map((src, index) => (
+            <div key={src} className={`${styles.packCard} ${styles[`packCard${index + 1}`]}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" loading="lazy" />
+            </div>
+          ))}
+        </div>
       </div>
 
       <SiteFooter />

@@ -614,6 +614,10 @@
   line-height: 1;
 }
 
+.allKicker {
+  margin-bottom: clamp(18px, 2.4vw, 28px);
+}
+
 .kicker::before {
   content: "";
   width: clamp(9px, 1.4vw, 14px);

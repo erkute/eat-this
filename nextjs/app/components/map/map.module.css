@@ -11649,7 +11649,7 @@ html .detailV13MustEat .fdCardStack {
 
 html .detailV13MustEat .fdStackCard {
   display: block !important;
-  opacity: .18 !important;
+  opacity: 1 !important;
   filter: none !important;
 }
 
@@ -11674,7 +11674,6 @@ html .detailV13MustEat .fdProximity {
   padding: 14px 0 !important;
   background: #fff !important;
   border: 0 !important;
-  border-top: 1px solid rgba(21, 18, 14, .16) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }

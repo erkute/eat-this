@@ -36,6 +36,11 @@ const anton = Anton({
   variable: '--font-anton',
 });
 
+const PROVIDENCE_REGULAR_WOFF2 =
+  'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
+const PROVIDENCE_BOLD_WOFF2 =
+  'https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3';
+
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }));
 }
@@ -110,6 +115,8 @@ export default async function LocaleLayout({
     <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href={PROVIDENCE_BOLD_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />

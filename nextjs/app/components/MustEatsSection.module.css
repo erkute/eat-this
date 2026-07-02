@@ -632,11 +632,16 @@
   }
 
   .heroDeck {
+    margin-top: 28px;
     min-height: 196px;
   }
 
   .heroCard {
     width: clamp(104px, 33vw, 148px);
+  }
+
+  .heroCard3 {
+    bottom: 8%;
   }
 
   .sub {
@@ -654,11 +659,12 @@
   }
 
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 10px;
   }
 
   .ph {
-    aspect-ratio: 4 / 4.8;
+    aspect-ratio: 4 / 4.85;
   }
 }
 
@@ -817,8 +823,166 @@ html[data-theme='dark'] .locked .ph {
   border-radius: var(--et-radius-control, 7px);
 }
 
+/* Pack-led closing CTA: the section should feel like the next collectible
+   action, not a plain legal-ish text outro. */
+.close {
+  position: relative;
+  grid-template-columns: minmax(0, .86fr) minmax(260px, .64fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 54px);
+  overflow: hidden;
+  padding: clamp(26px, 4vw, 48px);
+  border: 0;
+  border-radius: 0;
+  background: var(--et-home-quiet, #f2f1ef);
+}
+
+.closeCopy {
+  position: relative;
+  z-index: 2;
+  max-width: 560px;
+}
+
+.closeTitle {
+  max-width: 8.5ch;
+  font-size: clamp(48px, 7vw, 104px);
+}
+
+.closeBody {
+  max-width: 34ch;
+  margin-top: 14px;
+}
+
+.closeCta {
+  min-height: 46px;
+  margin-top: clamp(18px, 3vw, 28px);
+  padding: 0 18px;
+}
+
+.packStack {
+  position: relative;
+  min-height: clamp(240px, 30vw, 390px);
+  isolation: isolate;
+}
+
+.packCard {
+  position: absolute;
+  width: clamp(118px, 15vw, 190px);
+  aspect-ratio: 1 / 1;
+  filter: drop-shadow(0 18px 24px rgba(21, 18, 14, .18));
+}
+
+.packCard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.packCard1 {
+  right: 22%;
+  bottom: 7%;
+  z-index: 4;
+  transform: rotate(-5deg);
+}
+
+.packCard2 {
+  right: 2%;
+  bottom: 29%;
+  z-index: 3;
+  transform: rotate(7deg);
+}
+
+.packCard3 {
+  right: 43%;
+  bottom: 31%;
+  z-index: 2;
+  transform: rotate(-11deg);
+}
+
+.packCard4 {
+  right: 18%;
+  bottom: 54%;
+  z-index: 1;
+  transform: rotate(10deg);
+}
+
+html[data-theme='dark'] .close {
+  background: #15120e;
+  color: #fff;
+  border-top-color: rgba(255, 255, 255, .2);
+}
+
+html[data-theme='dark'] .closeBody {
+  color: rgba(255, 255, 255, .68);
+}
+
+html[data-theme='dark'] .closeCta {
+  background: #fff;
+  color: #15120e;
+}
+
 @media (max-width: 780px) {
   .title {
     font-size: var(--et-type-hero-compact, clamp(42px, 6vw, 68px));
+  }
+
+  .close {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 22px 0 0;
+    background: var(--must-paper);
+    border-top: 2px solid var(--et-home-line, rgba(21, 18, 14, .2));
+  }
+
+  .packStack {
+    order: -1;
+    min-height: 190px;
+    margin-bottom: 6px;
+  }
+
+  .packCard {
+    width: clamp(104px, 34vw, 138px);
+  }
+
+  .packCard1 {
+    right: 28%;
+    bottom: 0;
+  }
+
+  .packCard2 {
+    right: 3%;
+    bottom: 18%;
+  }
+
+  .packCard3 {
+    right: 52%;
+    bottom: 18%;
+  }
+
+  .packCard4 {
+    right: 29%;
+    bottom: 34%;
+  }
+
+  .closeCopy {
+    max-width: none;
+  }
+
+  .closeTitle {
+    max-width: 7.5ch;
+    font-size: clamp(42px, 14vw, 64px);
+  }
+
+  .closeBody {
+    max-width: 31ch;
+    margin-top: 12px;
+  }
+
+  .closeCta {
+    align-self: start;
+    width: auto;
+    min-height: 44px;
+    margin-top: 18px;
   }
 }

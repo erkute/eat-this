@@ -558,11 +558,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true
+    if (location) {
+      mapRef.current?.flyTo({ center: [location.lng, location.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
+      return
+    }
     const { location: loc } = await requestLocation()
     if (loc) {
       mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
     }
-  }, [requestLocation, getFlyPadding])
+  }, [location, requestLocation, getFlyPadding])
 
   /* Default camera = the user's position. Request it once on mount and, as
      soon as it resolves, centre the map there — unless the user already

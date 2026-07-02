@@ -1326,9 +1326,6 @@
    tappable Google Maps deep-link with the matching travel mode preset. */
 
 
-/* Dark-mode travel-link hover: orange clashes on dark. Brighten the icon
-   to text-primary so the affordance stays visible. */
-
 /* ── Magazine body — generous rhythm, prose-style description, restrained
    action links at the bottom (mirrors the restaurant detail page). */
 
@@ -10092,29 +10089,6 @@ html .rcardBlurBadge {
   }
 }
 
-html[data-theme='dark'] .list,
-html[data-theme='dark'] .filterChipRow {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .filterChip,
-html[data-theme='dark'] .filterChipReset,
-html[data-theme='dark'] .mapSearchBtn,
-html[data-theme='dark'] .fab,
-html[data-theme='dark'] .panelToggle {
-  background: #fff !important;
-  color: #15120e !important;
-  border-color: #fff !important;
-}
-
-html[data-theme='dark'] .filterChipActive,
-html[data-theme='dark'] .filterChipOpenActive {
-  background: #ffc600 !important;
-  color: #15120e !important;
-  border-color: #ffc600 !important;
-}
-
 /* Feedback pass: not monochrome, no rounded corners. Keep the home poster
    energy, but use color photos + sharp red/yellow controls. */
 html .filterChip,
@@ -10226,29 +10200,6 @@ html .rcardBlur .rcardImg img {
   filter: blur(7px) brightness(.58) saturate(1.1) !important;
 }
 
-html[data-theme='dark'] .filterChip,
-html[data-theme='dark'] .filterChipReset {
-  background: #ffc600 !important;
-  color: #15120e !important;
-  border-color: #ffc600 !important;
-}
-
-html[data-theme='dark'] .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html[data-theme='dark'] .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
-  background: #ffc600 !important;
-  color: #15120e !important;
-  border-color: #ffc600 !important;
-}
-
-html[data-theme='dark'] .mapSearchBtn,
-html[data-theme='dark'] .mapSearchToolbar,
-html[data-theme='dark'] .fab,
-html[data-theme='dark'] .panelToggle {
-  background: #d9382a !important;
-  color: #fff !important;
-  border-color: #d9382a !important;
-}
-
 html .mustPeek {
   top: 4px !important;
   right: -8px !important;
@@ -10344,22 +10295,6 @@ html .mapWrap :global(.maplibregl-ctrl-group button + button) {
   }
 }
 
-html[data-theme='dark'] .mapSearchBtn,
-html[data-theme='dark'] .mapBurger,
-html[data-theme='dark'] .fab,
-html[data-theme='dark'] .panelToggle,
-html[data-theme='dark'] .mapSearchClear,
-html[data-theme='dark'] .mapWrap :global(.maplibregl-ctrl-group button) {
-  background: transparent !important;
-  color: #fff !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-html[data-theme='dark'] .mapBurger img {
-  filter: brightness(0) invert(1) !important;
-}
-
 /* Map overlays/layers: flat poster language, no old glass cards. */
 html .mapStatusLayer {
   position: absolute;
@@ -10367,7 +10302,7 @@ html .mapStatusLayer {
   left: 14px;
   z-index: 55;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
   width: min(330px, calc(100vw - 28px));
@@ -10429,6 +10364,26 @@ html .mapStatusAction {
   border-radius: 0;
   box-shadow: none;
   cursor: pointer;
+}
+
+html .mapStatusDismiss {
+  appearance: none;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0 0 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: currentColor;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 html .bodyListAtFull .mapStatusLayer,
@@ -10566,34 +10521,6 @@ html .rcardBlurBadge {
   box-shadow: none !important;
 }
 
-html[data-theme='dark'] .mapStatusLayer,
-html[data-theme='dark'] .pickerSheet,
-html[data-theme='dark'] .esBlock,
-html[data-theme='dark'] .bezirkLocked {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .mapStatusLayerError {
-  background: #d9382a !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .mapStatusLayerOk {
-  background: #1f8f4d !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .pickerHeader {
-  background: #fff !important;
-  color: #15120e !important;
-}
-
-html[data-theme='dark'] .pickerTitle,
-html[data-theme='dark'] .pickerCloseBtn {
-  color: #15120e !important;
-}
-
 /* Match the home "Zur Map" CTA on map filters + restaurant photo labels. */
 html .filterChip,
 html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
@@ -10674,17 +10601,6 @@ html .rcardMetaChip > span:last-child {
   color: inherit !important;
 }
 
-html[data-theme='dark'] .filterChip,
-html[data-theme='dark'] .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html[data-theme='dark'] .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html[data-theme='dark'] .filterChipReset,
-html[data-theme='dark'] .rcardMetaChip,
-html[data-theme='dark'] .rcardMetaCategory {
-  background: var(--et-red, #d9382a) !important;
-  border-color: var(--et-red, #d9382a) !important;
-  color: var(--et-cream, #fbf8ee) !important;
-}
-
 /* Correct Home CTA match: the rendered "Zur Map" button is ink/white,
    Providence display, no red. */
 html .filterChip,
@@ -10719,7 +10635,7 @@ html .filterChipOpenActive {
   flex: 0 0 auto !important;
   min-height: 38px !important;
   padding: 11px 18px !important;
-  font-size: var(--et-type-button, 13px) !important;
+  font-size: 11px !important;
   line-height: 1.6 !important;
   transform: none !important;
   white-space: nowrap !important;
@@ -10813,7 +10729,7 @@ html .rcardMetaChip,
 html .rcardMetaCategory {
   min-height: 28px !important;
   padding: 7px 11px !important;
-  font-size: var(--et-type-button, 13px) !important;
+  font-size: 11px !important;
   line-height: 1.1 !important;
 }
 
@@ -10832,7 +10748,7 @@ html .mapStatusText {
 }
 
 html .mapStatusKicker {
-  font-size: 11px !important;
+  font-size: 10px !important;
   opacity: .72;
 }
 
@@ -10854,20 +10770,15 @@ html .mapStatusAction {
   text-transform: none !important;
 }
 
-html[data-theme='dark'] .filterChip,
-html[data-theme='dark'] .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html[data-theme='dark'] .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html[data-theme='dark'] .filterChipReset,
-html[data-theme='dark'] .filterChipActive,
-html[data-theme='dark'] .filterChipOpenActive,
-html[data-theme='dark'] .rcardMetaChip,
-html[data-theme='dark'] .rcardMetaCategory,
-html[data-theme='dark'] .mapStatusLayer,
-html[data-theme='dark'] .mapStatusLayerError,
-html[data-theme='dark'] .mapStatusLayerOk {
-  background: #fff !important;
-  color: var(--et-home-ink, #15120e) !important;
+html .mapStatusDismiss {
+  background: transparent !important;
+  color: currentColor !important;
   border: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
 }
 
 html .rcard:not(.rcardBlur) {
@@ -10974,11 +10885,6 @@ html .mapSearchClear:focus-visible {
   }
 }
 
-html[data-theme='dark'] .mapSearchToolbar {
-  background: #fff !important;
-  color: var(--et-home-ink, #15120e) !important;
-}
-
 /* Collapsed map search: frame-free, but visually related to the compact
    black search field through scale, weight, and the same ink colour. */
 html .mapSearchBtn {
@@ -11021,10 +10927,6 @@ html .mapSearchBtn:focus-visible {
 
 html .mapSearchBtn:active .mapSearchIcon {
   transform: rotate(-7deg) scale(.92) !important;
-}
-
-html[data-theme='dark'] .mapSearchBtn {
-  color: #fff !important;
 }
 
 /* Map warning/status notices sit low and centered, just above the sheet. */
@@ -11269,22 +11171,22 @@ html .pickerList {
 html .pickerItem {
   position: relative !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-columns: minmax(0, 1fr) !important;
   align-items: center !important;
   gap: 10px !important;
   min-height: 44px !important;
-  padding: 0 38px 0 14px !important;
+  padding: 0 14px !important;
   background: #fff !important;
   color: #15120e !important;
   border: 0 !important;
   border-bottom: 1px solid rgba(21, 18, 14, .14) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif !important;
-  font-size: 14px !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: var(--et-type-button, 13px) !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
-  line-height: 1.15 !important;
+  line-height: 1.1 !important;
   text-align: left !important;
   text-transform: none !important;
 }
@@ -11307,14 +11209,7 @@ html .pickerItemActive:focus-visible {
 }
 
 html .pickerItemActive::after {
-  content: "" !important;
-  position: absolute !important;
-  right: 15px !important;
-  top: 50% !important;
-  width: 8px !important;
-  height: 8px !important;
-  background: currentColor !important;
-  transform: translateY(-50%) !important;
+  content: none !important;
 }
 
 html .pickerItemLabel {
@@ -11322,13 +11217,19 @@ html .pickerItemLabel {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
+  font: inherit !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.1 !important;
 }
 
 html .pickerItemSub {
   color: currentColor !important;
-  font: inherit !important;
-  font-size: 12px !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 10px !important;
   font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.1 !important;
   opacity: .58 !important;
 }
 
@@ -11338,36 +11239,6 @@ html .pickerItemSub {
     max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px) !important;
     padding-bottom: 0 !important;
   }
-}
-
-html[data-theme='dark'] .pickerSheet {
-  background: #15120e !important;
-  color: #fff !important;
-  border-color: rgba(255, 255, 255, .18) !important;
-}
-
-html[data-theme='dark'] .pickerHeader,
-html[data-theme='dark'] .pickerItemActive,
-html[data-theme='dark'] .pickerItemActive:hover,
-html[data-theme='dark'] .pickerItemActive:focus-visible {
-  background: #fff !important;
-  color: #15120e !important;
-}
-
-html[data-theme='dark'] .pickerList,
-html[data-theme='dark'] .pickerItem {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .pickerItem {
-  border-bottom-color: rgba(255, 255, 255, .16) !important;
-}
-
-html[data-theme='dark'] .pickerItem:hover,
-html[data-theme='dark'] .pickerItem:focus-visible {
-  background: #242018 !important;
-  color: #fff !important;
 }
 
 /* Restaurant card status badge: use the Home CTA font, not the mono utility
@@ -11476,8 +11347,8 @@ html .detailV13MustEat .fdClose {
   display: inline-flex !important;
   justify-content: center !important;
   align-items: center !important;
-  background: rgba(255, 255, 255, .92) !important;
-  color: var(--et-home-ink, #15120e) !important;
+  background: transparent !important;
+  color: #fff !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -11502,6 +11373,16 @@ html .detailV13MustEat .fdClose svg {
   height: 18px !important;
   color: currentColor !important;
   stroke: currentColor !important;
+}
+
+html .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle svg,
+html .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass svg {
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .55)) !important;
+}
+
+html .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggleOn svg {
+  color: var(--brand-action, #d9382a) !important;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .55)) !important;
 }
 
 html .detailV13:not(.detailV13MustEat) .rdHeartToggleCount {
@@ -11832,92 +11713,6 @@ html .detailV13MustEat .fdPagerLabel {
   }
 }
 
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat),
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .detailV13Scroll,
-html[data-theme='dark'] .detailV13MustEat .detailV13Scroll {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdPager,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdFacts,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdMustSection,
-html[data-theme='dark'] .detailV13MustEat .fdMid,
-html[data-theme='dark'] .detailV13MustEat .fdRest,
-html[data-theme='dark'] .detailV13MustEat .fdProximity {
-  background: #15120e !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdTag,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdTagAlt,
-html[data-theme='dark'] .detailV13MustEat .fdPagerPrev,
-html[data-theme='dark'] .detailV13MustEat .fdPagerNext {
-  background: #242018 !important;
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdTagOpen,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdPagerBtn,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdActBtn,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .btnPackPromo,
-html[data-theme='dark'] .detailV13MustEat .ctaPill,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass,
-html[data-theme='dark'] .detailV13MustEat .fdClose {
-  background: #fff !important;
-  color: #15120e !important;
-}
-
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdBody,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdDropCap,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdSecH,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdK,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdV,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdV a,
-html[data-theme='dark'] .detailV13MustEat .fdName,
-html[data-theme='dark'] .detailV13MustEat .fdNameText,
-html[data-theme='dark'] .detailV13MustEat .fdK,
-html[data-theme='dark'] .detailV13MustEat .fdV,
-html[data-theme='dark'] .detailV13MustEat .fdText,
-html[data-theme='dark'] .detailV13MustEat .fdProximityHead,
-html[data-theme='dark'] .detailV13MustEat .fdProximitySub {
-  color: #fff !important;
-}
-
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdFacts,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdRow,
-html[data-theme='dark'] .detailV13:not(.detailV13MustEat) .rdRowHours,
-html[data-theme='dark'] .detailV13MustEat .fdMid,
-html[data-theme='dark'] .detailV13MustEat .fdRest,
-html[data-theme='dark'] .detailV13MustEat .fdPagerPrev,
-html[data-theme='dark'] .detailV13MustEat .fdPagerNext,
-html[data-theme='dark'] .detailV13MustEat .fdProximity {
-  border-color: rgba(255, 255, 255, .18) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdActBtn,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdPagerBtn,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .btnPackPromo,
-html[data-theme='dark'] body .detailV13MustEat .ctaPill {
-  background: #fff !important;
-  color: #15120e !important;
-}
-
-html body .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle,
-html body .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass {
-  background: transparent !important;
-  border: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  color: #fff !important;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .48) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
 html body .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,
 html body .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass:hover {
   background: transparent !important;
@@ -11940,7 +11735,7 @@ html body .detailV13:not(.detailV13MustEat) .btnPackPromoIcon {
 
 html body .detailV13:not(.detailV13MustEat) .packPromo {
   display: grid !important;
-  grid-template-columns: 106px minmax(0, 1fr) !important;
+  grid-template-columns: 128px minmax(0, 1fr) !important;
   align-items: center !important;
   gap: 20px !important;
   margin: 22px 14px 32px !important;
@@ -11962,15 +11757,15 @@ html body .detailV13:not(.detailV13MustEat) .packPromo::after {
 
 html body .detailV13:not(.detailV13MustEat) .packPromoCardWrap {
   min-height: 0 !important;
-  width: 106px !important;
-  height: 146px !important;
+  width: 128px !important;
+  height: 168px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
 html body .detailV13:not(.detailV13MustEat) .packPromoSingleCard {
-  width: 96px !important;
+  width: 116px !important;
   height: auto !important;
   display: block !important;
   transform: rotate(-3deg) !important;
@@ -12058,18 +11853,18 @@ html body .detailV13:not(.detailV13MustEat) .linkPromo::after {
 
 @media (max-width: 380px) {
   html body .detailV13:not(.detailV13MustEat) .packPromo {
-    grid-template-columns: 82px minmax(0, 1fr) !important;
-    gap: 12px !important;
+    grid-template-columns: 106px minmax(0, 1fr) !important;
+    gap: 14px !important;
     padding: 18px 12px !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .packPromoCardWrap {
-    width: 82px !important;
-    height: 116px !important;
+    width: 106px !important;
+    height: 148px !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .packPromoSingleCard {
-    width: 76px !important;
+    width: 98px !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .packPromoTitle {
@@ -12079,26 +11874,6 @@ html body .detailV13:not(.detailV13MustEat) .linkPromo::after {
   html body .detailV13:not(.detailV13MustEat) .packPromoBody {
     font-size: 13px !important;
   }
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .packPromo {
-  background: #15120e !important;
-  color: #fff !important;
-  border-color: rgba(255, 255, 255, .18) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .packPromoTitle,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .linkPromo {
-  color: #fff !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .packPromoBody {
-  color: rgba(255, 255, 255, .72) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .btnPackPromo {
-  background: #fff !important;
-  color: #15120e !important;
 }
 
 html body .detailV13:not(.detailV13MustEat) .rdFacts {
@@ -12223,37 +11998,6 @@ html body .detailV13:not(.detailV13MustEat) .rdHoursT {
   }
 }
 
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdFacts {
-  background: #15120e !important;
-  color: #fff !important;
-  border-color: rgba(255, 255, 255, .18) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdRow,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdRowHours {
-  color: #fff !important;
-  border-bottom-color: rgba(255, 255, 255, .16) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdK,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdV,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdV a,
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdHoursT {
-  color: #fff !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdK {
-  color: rgba(255, 255, 255, .62) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdVMeta {
-  color: rgba(255, 255, 255, .62) !important;
-}
-
-html[data-theme='dark'] body .detailV13:not(.detailV13MustEat) .rdContactPlainLink {
-  border-bottom-color: rgba(255, 255, 255, .4) !important;
-}
-
 html body .detailV13:not(.detailV13MustEat) .rdPagerName {
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
   font-size: clamp(13px, 2.8vw, 14px) !important;
@@ -12337,10 +12081,10 @@ html body .listEndKicker {
   margin: 0 !important;
   color: var(--list-end-ink) !important;
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 10px !important;
+  font-size: 13px !important;
   font-weight: 950 !important;
-  letter-spacing: .14em !important;
-  line-height: 1 !important;
+  letter-spacing: .12em !important;
+  line-height: 1.05 !important;
   text-transform: uppercase !important;
 }
 
@@ -12434,12 +12178,6 @@ html body .listEndSecondary {
   text-decoration-thickness: 2px !important;
   text-underline-offset: 3px !important;
   text-transform: none !important;
-}
-
-html[data-theme='dark'] body .listEnd {
-  --list-end-bg: #ffc600;
-  --list-end-ink: #15120e;
-  --list-end-muted: rgba(21, 18, 14, .72);
 }
 
 /* Map list empty state: Home-derived editorial note, not a system UI panel. */
@@ -12565,38 +12303,6 @@ html body .esBtnPrimary:focus-visible {
   }
 }
 
-html[data-theme='dark'] body .esBlock {
-  background: var(--et-home-ink, #15120e) !important;
-  color: var(--et-home-inverse-text, #fff) !important;
-  border-color: rgba(255, 255, 255, .72) !important;
-}
-
-html[data-theme='dark'] body .esBlock::before {
-  background: var(--et-home-accent, #ffc600) !important;
-}
-
-html[data-theme='dark'] body .esKicker {
-  color: var(--et-home-inverse-text, #fff) !important;
-}
-
-html[data-theme='dark'] body .esHeading {
-  color: var(--et-home-inverse-text, #fff) !important;
-}
-
-html[data-theme='dark'] body .esSub {
-  color: rgba(255, 255, 255, .78) !important;
-}
-
-html[data-theme='dark'] body .esBtnPrimary {
-  color: var(--et-home-ink, #15120e) !important;
-  background: var(--et-home-inverse-text, #fff) !important;
-}
-
-html[data-theme='dark'] body .esBtnPrimary:hover,
-html[data-theme='dark'] body .esBtnPrimary:focus-visible {
-  background: var(--et-home-accent, #ffc600) !important;
-}
-
 /* Filter chips: active long labels such as "Charlottenburg" need more room
    than the default four equal columns, but the rail must still stay inside
    the side panel. */
@@ -12708,4 +12414,526 @@ html body .filterChipRow.filterChipRow > button.filterChip.filterChip {
   html body .filterChipOpenActive .filterChipLabelLong {
     font-size: clamp(7.5px, 2.35vw, 9px) !important;
   }
+}
+
+/* Must-Eat detail redesign: one equal-size tactile deck at the top, with the
+   current card sitting above identical back cards. Kept late in the file to
+   own the many historic Must-Eat overrides above. */
+html body .detailV13MustEat .detailV13Scroll {
+  --me-ink: #15120e;
+  --me-paper: #fff;
+  --me-soft: #f4f4f2;
+  --me-muted: rgba(21, 18, 14, .62);
+  --me-line: rgba(21, 18, 14, .14);
+  --me-accent: #c8ff2f;
+  --me-action: #f0441e;
+  --me-card-w: min(66vw, 286px);
+  --me-card-ratio: 1539 / 2115;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: clamp(8px, 1.35dvh, 14px) !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  padding: clamp(38px, 5.2dvh, 46px) 16px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  background:
+    linear-gradient(180deg, #fff 0%, #fff 54%, #f6f6f0 100%) !important;
+  color: var(--me-ink) !important;
+}
+
+html body .detailV13MustEat .fdClose {
+  top: 12px !important;
+  right: 12px !important;
+  width: 38px !important;
+  height: 38px !important;
+  color: var(--me-ink) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+html body .detailV13MustEat .fdClose:hover,
+html body .detailV13MustEat .fdClose:focus-visible {
+  color: var(--me-ink) !important;
+  background: transparent !important;
+  transform: translateY(-1px) !important;
+}
+
+html body .detailV13MustEat .fdHeroWrap {
+  position: relative !important;
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: clamp(4px, 1.1dvh, 9px) 0 clamp(20px, 3.4dvh, 32px) !important;
+  perspective: 1200px !important;
+}
+
+html body .detailV13MustEat .fdHeroWrap::before {
+  content: none !important;
+}
+
+html body .detailV13MustEat .fdCardStack {
+  position: relative !important;
+  z-index: 1 !important;
+  width: var(--me-card-w) !important;
+  max-width: var(--me-card-w) !important;
+  height: auto !important;
+  aspect-ratio: var(--me-card-ratio) !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+}
+
+html body .detailV13MustEat .fdStackCard,
+html body .detailV13MustEat .fdTopCard,
+html body .detailV13MustEat .fdHero,
+html body .detailV13MustEat .fdHero img {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: var(--me-card-ratio) !important;
+  border-radius: 12px !important;
+}
+
+html body .detailV13MustEat .fdStackCard,
+html body .detailV13MustEat .fdTopCard {
+  position: absolute !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  transform-origin: 50% 58% !important;
+}
+
+html body .detailV13MustEat .fdStackCard {
+  display: block !important;
+  object-fit: contain !important;
+  filter: none !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+
+html body .detailV13MustEat .fdStackCardOne {
+  z-index: 0 !important;
+  transform: translate(30px, 30px) rotate(4deg) !important;
+}
+
+html body .detailV13MustEat .fdStackCardTwo {
+  z-index: 1 !important;
+  transform: translate(18px, 19px) rotate(1.4deg) !important;
+}
+
+html body .detailV13MustEat .fdStackCardThree {
+  z-index: 2 !important;
+  transform: translate(7px, 9px) rotate(-1.8deg) !important;
+}
+
+html body .detailV13MustEat .fdTopCard {
+  z-index: 4 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+html body .detailV13MustEat .fdHero {
+  appearance: none !important;
+  display: block !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: zoom-in !important;
+  transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg) !important;
+  box-shadow: none !important;
+}
+
+html body .detailV13MustEat .fdHeroLocked {
+  cursor: pointer !important;
+}
+
+html body .detailV13MustEat .fdHero img {
+  display: block !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+html body .detailV13MustEat .fdMid {
+  position: relative !important;
+  z-index: 2 !important;
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 6px 0 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .detailV13MustEat .fdMidLocked {
+  margin-top: clamp(8px, 1.5dvh, 14px) !important;
+}
+
+html body .detailV13MustEat .fdName,
+html body .detailV13MustEat .fdNameText,
+html body .detailV13MustEat .fdProximityHead {
+  color: var(--me-ink) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+html body .detailV13MustEat .fdName {
+  display: flex !important;
+  align-items: flex-end !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: clamp(38px, 10.2vw, 64px) !important;
+  line-height: .88 !important;
+}
+
+html body .detailV13MustEat .fdNameText {
+  display: block !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  overflow-wrap: normal !important;
+  text-overflow: clip !important;
+  text-wrap: balance !important;
+  white-space: normal !important;
+  -webkit-box-orient: initial !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+}
+
+html body .detailV13MustEat .fdNameLong {
+  font-size: clamp(34px, 8.8vw, 56px) !important;
+  line-height: .9 !important;
+}
+
+html body .detailV13MustEat .fdNameCompact {
+  font-size: clamp(28px, 7.3vw, 46px) !important;
+  line-height: .92 !important;
+}
+
+html body .detailV13MustEat .fdText {
+  display: block !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 12px 0 0 !important;
+  overflow: visible !important;
+  color: var(--me-muted) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: clamp(16px, 4.2vw, 19px) !important;
+  font-weight: 450 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.34 !important;
+}
+
+html body .detailV13MustEat .fdProximity {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: clamp(6px, 1.1dvh, 10px) 0 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .detailV13MustEat .fdProximityHead {
+  margin: 0 !important;
+  font-size: clamp(30px, 7.4vw, 46px) !important;
+  line-height: .88 !important;
+}
+
+html body .detailV13MustEat .fdProximityReady .fdProximityHead {
+  color: var(--me-action) !important;
+}
+
+html body .detailV13MustEat .fdProximitySub {
+  margin: clamp(5px, .8dvh, 7px) 0 0 !important;
+  color: var(--me-muted) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: clamp(14px, 3.5vw, 17px) !important;
+  font-weight: 450 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.24 !important;
+}
+
+html body .detailV13MustEat .fdRest {
+  position: relative !important;
+  z-index: 2 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: clamp(8px, 1.3dvh, 11px) 0 0 !important;
+  color: var(--me-ink) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-top: 1.5px solid var(--me-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html body .detailV13MustEat .fdK,
+html body .detailV13MustEat .fdPagerLabel {
+  color: var(--me-muted) !important;
+  font-family: var(--et-font-mono, var(--menu-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace) !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: .13em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+html body .detailV13MustEat .fdV {
+  color: var(--me-ink) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: clamp(22px, 5.2vw, 30px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: .92 !important;
+}
+
+html body .detailV13MustEat .ctaPill {
+  min-width: 104px !important;
+  width: auto !important;
+  max-width: 44vw !important;
+  height: 42px !important;
+  padding: 11px 18px !important;
+  color: var(--et-home-inverse-text, #fff) !important;
+  background: var(--et-home-ink, #15120e) !important;
+  border: 0 !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  box-shadow: none !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: var(--et-type-button, 13px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  transform: none !important;
+}
+
+html body .detailV13MustEat .ctaPill:hover,
+html body .detailV13MustEat .ctaPill:focus-visible {
+  color: var(--et-home-ink, #15120e) !important;
+  background: var(--et-home-accent, #ffc600) !important;
+  transform: translateX(2px) !important;
+  box-shadow: none !important;
+}
+
+html body .detailV13MustEat .fdPager {
+  position: relative !important;
+  z-index: 3 !important;
+  bottom: auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 8px !important;
+  flex: 0 0 auto !important;
+  margin: auto 0 0 !important;
+  padding-top: clamp(5px, .9dvh, 7px) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 18px, #fff 100%) !important;
+  border: 0 !important;
+}
+
+html body .detailV13MustEat .fdPagerPrev,
+html body .detailV13MustEat .fdPagerNext {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  min-height: 52px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  color: var(--me-ink) !important;
+  background: var(--me-soft) !important;
+  border: 1px solid var(--me-line) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html body .detailV13MustEat .fdPagerNext {
+  justify-content: flex-end !important;
+  text-align: right !important;
+  background: var(--me-ink) !important;
+  color: #fff !important;
+}
+
+html body .detailV13MustEat .fdPagerArrow {
+  width: 22px !important;
+  height: 22px !important;
+  color: currentColor !important;
+}
+
+html body .detailV13MustEat .fdPagerName {
+  color: currentColor !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05 !important;
+  text-transform: uppercase !important;
+}
+
+html body .detailV13MustEat .fdPagerPrev:disabled,
+html body .detailV13MustEat .fdPagerNext:disabled {
+  visibility: hidden !important;
+}
+
+@media (max-width: 380px), (max-height: 740px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(50vw, 202px);
+    gap: 7px !important;
+    padding-top: 34px !important;
+  }
+
+  html body .detailV13MustEat .fdHeroWrap {
+    padding-bottom: clamp(14px, 2.4dvh, 22px) !important;
+  }
+
+  html body .detailV13MustEat .fdName {
+    font-size: clamp(31px, 8.8vw, 44px) !important;
+  }
+
+  html body .detailV13MustEat .fdNameLong {
+    font-size: clamp(29px, 8vw, 40px) !important;
+  }
+
+  html body .detailV13MustEat .fdNameCompact {
+    font-size: clamp(25px, 6.8vw, 34px) !important;
+  }
+
+  html body .detailV13MustEat .fdText {
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+  }
+
+  html body .detailV13MustEat .fdPagerPrev,
+  html body .detailV13MustEat .fdPagerNext {
+    min-height: 44px !important;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(55vw, 224px);
+    height: calc(100dvh - 76px) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(44vw, 318px);
+    padding-inline: 22px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(55%, 248px);
+    gap: 10px !important;
+    padding: 42px 24px 14px !important;
+  }
+
+  html body .detailV13MustEat .fdHeroWrap {
+    padding-top: 4px !important;
+    padding-bottom: 22px !important;
+  }
+
+  html body .detailV13MustEat .fdName {
+    font-size: clamp(40px, 3.9vw, 58px) !important;
+    line-height: .9 !important;
+  }
+
+  html body .detailV13MustEat .fdNameLong {
+    font-size: clamp(36px, 3.2vw, 46px) !important;
+    line-height: .9 !important;
+  }
+
+  html body .detailV13MustEat .fdNameCompact {
+    font-size: clamp(30px, 2.7vw, 38px) !important;
+    line-height: .92 !important;
+  }
+
+  html body .detailV13MustEat .fdText {
+    font-size: 16px !important;
+    line-height: 1.26 !important;
+    padding-top: 8px !important;
+  }
+
+  html body .detailV13MustEat .fdProximityHead {
+    font-size: clamp(34px, 3.4vw, 44px) !important;
+  }
+
+  html body .detailV13MustEat .fdProximitySub {
+    font-size: 16px !important;
+    line-height: 1.22 !important;
+  }
+
+  html body .detailV13MustEat .fdV {
+    font-size: clamp(22px, 2.6vw, 28px) !important;
+    line-height: .9 !important;
+  }
+
+  html body .detailV13MustEat .fdPagerPrev,
+  html body .detailV13MustEat .fdPagerNext {
+    min-height: 48px !important;
+  }
+}
+
+html body .pickerSheet .pickerItem,
+html body .pickerSheet .pickerItemLabel {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.1 !important;
+  text-transform: none !important;
+}
+
+html body .pickerSheet .pickerItemSub {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.1 !important;
+  text-transform: none !important;
+}
+
+html body .pickerSheet .pickerItemMark {
+  display: none !important;
+}
+
+@media (max-width: 1023.98px) {
+  html body .listScroll {
+    max-height: calc(100dvh - var(--sheet-y, 40px) - 92px) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  html body .listEnd {
+    margin-bottom: 0 !important;
+  }
+}
+
+html body .filterChipRow > .filterChipOpenActive,
+html body .filterChipRow > .filterChip[aria-pressed="true"] {
+  background: #a8ff2f !important;
+  color: #15120e !important;
+  border-color: #15120e !important;
+  box-shadow: inset 0 0 0 2px #15120e !important;
+}
+
+html body .filterChipRow > .filterChipOpenActive .filterChipLabel,
+html body .filterChipRow > .filterChip[aria-pressed="true"] .filterChipLabel {
+  color: #15120e !important;
 }

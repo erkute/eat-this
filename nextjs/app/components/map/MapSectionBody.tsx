@@ -1,5 +1,5 @@
 'use client'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useLocale } from 'next-intl'
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
@@ -159,6 +159,18 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     document.getElementById('burgerBtn')?.click()
   }, [])
   const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading })
+  const locationStatusKey = locationStatus.copy
+    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locateLoading ? 'loading' : 'idle'}`
+    : null
+  const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null)
+  const showLocationStatus = Boolean(locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey)
+  const handleLocationRetry = useCallback(() => {
+    setDismissedLocationStatusKey(null)
+    onLocateMe()
+  }, [onLocateMe])
+  const handleDismissLocationStatus = useCallback(() => {
+    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey)
+  }, [locationStatusKey])
 
   return (
     <div
@@ -352,7 +364,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             )}
           </aside>
 
-          {locationStatus.copy && (
+          {showLocationStatus && (
             <div
               className={`${styles.mapStatusLayer} ${locationStatus.isError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
               role={locationStatus.isError ? 'alert' : 'status'}
@@ -365,12 +377,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <button
                   type="button"
                   className={styles.mapStatusAction}
-                  onClick={onLocateMe}
+                  onClick={handleLocationRetry}
                   disabled={locateLoading}
                 >
                   {locale === 'en' ? 'Retry' : 'Nochmal'}
                 </button>
               )}
+              <button
+                type="button"
+                className={styles.mapStatusDismiss}
+                onClick={handleDismissLocationStatus}
+                aria-label={locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'}
+              >
+                ×
+              </button>
             </div>
           )}
 

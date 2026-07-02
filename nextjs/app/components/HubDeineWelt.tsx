@@ -12,6 +12,10 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import MapIntentLink from './MapIntentLink';
 import styles from './HubDeineWelt.module.css';
 
+const CARD_BACK = '/pics/card-back.webp?v=6';
+const PROFILE_SPOTS_HREF = '/profile#profile-panel-spots';
+const PROFILE_MUST_EATS_HREF = '/profile#profile-panel-must-eats';
+
 interface Props {
   initialMapData: InitialMapData;
 }
@@ -78,19 +82,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     revealedMustEatIds: liveRevealed,
     publicFaceUpIds,
   });
-  const mustEatPick =
-    dataMustEats.find((m) => faceUp.has(m._id) && m.image) ??
-    dataMustEats.find((m) => !faceUp.has(m._id)) ??
-    dataMustEats[0] ??
-    null;
-  const mustEatOpen = Boolean(mustEatPick && faceUp.has(mustEatPick._id) && mustEatPick.image);
-  const mustEatHref = mustEatPick
-    ? mustEatOpen
-      ? `/map?me=${mustEatPick._id}`
-      : `/map?r=${mustEatPick.restaurant.slug}`
-    : '/map';
   const savedCount = favorites.length;
-  const faceUpCount = faceUp.size;
   const savedPreviewPool = favorites.map((f) => ({
     _id: f.restaurantId,
     name: f.name,
@@ -98,16 +90,19 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     photo: f.photo ?? '',
     district: f.district ?? '',
   }));
-  const spotPreviewPool = savedCount > 0 ? savedPreviewPool : dataRestaurants;
-  const spotPreviews = spotPreviewPool
+  const spotPreviews = savedPreviewPool
     .filter(
       (r, index, all) => r.photo && r.slug && all.findIndex((x) => x.slug === r.slug) === index
     )
-    .slice(0, savedCount > 0 ? Math.min(savedCount, 6) : 6);
-  const mustEatCards = [
-    ...(mustEatOpen && mustEatPick?.image ? [mustEatPick] : []),
-    ...dataMustEats.filter((m) => m._id !== mustEatPick?._id && faceUp.has(m._id) && m.image),
-  ].slice(0, Math.min(Math.max(faceUpCount, 1), 8));
+    .slice(0, Math.min(savedCount, 6));
+  const ownedRestaurantIds = new Set(dataRestaurants.map((r) => r._id));
+  const collectionMustEats = ownedRestaurantIds.size > 0
+    ? dataMustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id))
+    : dataMustEats;
+  const openMustEatCards = collectionMustEats.filter((m) => faceUp.has(m._id) && m.image);
+  const coveredMustEatCards = collectionMustEats.filter((m) => !faceUp.has(m._id) || !m.image);
+  const mustEatCards = [...openMustEatCards.slice(0, 3), ...coveredMustEatCards.slice(0, 5)]
+    .slice(0, 8);
 
   return (
     <section
@@ -119,7 +114,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
       <div className={`hv-wrap ${styles.heroInner}`}>
         {/* ── Left: copy + actions ─────────────────────────────── */}
         <div className={styles.copy}>
-          <p className={`hv-kicker ${styles.kicker}`}>{greeting}</p>
+          <p className={styles.kicker}>{greeting}</p>
           <h2 className={styles.headline}>{de ? 'Deine Map wartet.' : 'Your map is ready.'}</h2>
           <p className={styles.sub}>
             {de
@@ -134,6 +129,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             <Link
               href="/profile"
               rel="nofollow"
+              prefetch={false}
               className={`hv-link-underline ${styles.profileBtn}`}
             >
               <span>{t('profileAction')}</span>
@@ -145,38 +141,33 @@ export default function HubDeineWelt({ initialMapData }: Props) {
         <div className={styles.rails} aria-label={de ? 'Deine Sammlung' : 'Your collection'}>
           {/* Saved spots rail */}
           <div className={styles.railBlock}>
-            <span className={`hv-kicker ${styles.railLabel}`}>{de ? 'Gespeichert' : 'Saved'}</span>
+            <span className={styles.railLabel}>{de ? 'Gespeichert' : 'Saved'}</span>
             <div className={`hv-rail ${styles.rail}`}>
               {spotPreviews.length > 0 ? (
                 spotPreviews.map((spot) => (
-                  <MapIntentLink
-                    href={`/map?r=${spot.slug}`}
+                  <Link
+                    href={PROFILE_SPOTS_HREF}
                     rel="nofollow"
+                    prefetch={false}
                     className={`hv-photo ${styles.railPhoto}`}
                     key={spot._id}
-                    aria-label={`${normalizeName(spot.name)} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
+                    aria-label={`${normalizeName(spot.name)} ${de ? 'in deinen gespeicherten Spots öffnen' : 'open in your saved spots'}`}
                   >
                     <Image src={spot.photo ?? ''} alt="" fill sizes="110px" />
                     <span className={styles.railPhotoName}>{normalizeName(spot.name)}</span>
-                  </MapIntentLink>
+                  </Link>
                 ))
               ) : (
-                <MapIntentLink
-                  href="/map"
+                <Link
+                  href={PROFILE_SPOTS_HREF}
                   rel="nofollow"
+                  prefetch={false}
                   className={`hv-photo ${styles.railPhoto} ${styles.railPhotoEmpty}`}
                 >
                   <span className={styles.railEmptyMark} />
-                </MapIntentLink>
+                </Link>
               )}
             </div>
-            <span className={`hv-sub ${styles.railSub}`}>
-              {savedCount > 0
-                ? `${savedCount} ${de ? 'Spots' : 'Spots'}`
-                : de
-                  ? 'Noch keine'
-                  : 'None yet'}
-            </span>
           </div>
         </div>
       </div>
@@ -187,47 +178,48 @@ export default function HubDeineWelt({ initialMapData }: Props) {
         aria-label={de ? 'Deine Must Eats' : 'Your Must Eats'}
       >
         <div className={styles.railBlock}>
-          <span className={`hv-kicker ${styles.railLabel}`}>Must Eats</span>
+          <span className={styles.railLabel}>Must Eats</span>
           <div className={`hv-rail ${styles.rail}`}>
             {mustEatCards.length > 0 ? (
-              mustEatCards.map((m) => (
-                <MapIntentLink
-                  href={`/map?me=${m._id}`}
-                  rel="nofollow"
-                  className={`hv-photo ${styles.railPhoto} ${styles.mustPhoto}`}
-                  key={m._id}
-                  data-open="true"
-                  aria-label={`${m.dish ? normalizeName(m.dish) : 'Must Eat'} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
-                >
-                  {m.image && (
-                    <Image
-                      src={m.image}
-                      alt=""
-                      fill
-                      sizes="110px"
-                      style={{ objectFit: 'contain' }}
-                    />
-                  )}
-                </MapIntentLink>
-              ))
+              mustEatCards.map((m) => {
+                const open = faceUp.has(m._id) && Boolean(m.image);
+                return (
+                  <Link
+                    href={PROFILE_MUST_EATS_HREF}
+                    rel="nofollow"
+                    prefetch={false}
+                    className={`hv-photo ${styles.railPhoto} ${styles.mustPhoto}`}
+                    key={m._id}
+                    data-open={open ? 'true' : 'false'}
+                    aria-label={`${open && m.dish ? normalizeName(m.dish) : de ? 'Verdecktes Must Eat' : 'Face-down Must Eat'} ${de ? 'in deinen Must Eats öffnen' : 'open in your Must Eats'}`}
+                  >
+                    {open && m.image ? (
+                      <Image
+                        src={m.image}
+                        alt=""
+                        fill
+                        sizes="110px"
+                        className={styles.mustImg}
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className={styles.mustBack} src={CARD_BACK} alt="" loading="lazy" />
+                    )}
+                  </Link>
+                );
+              })
             ) : (
-              <MapIntentLink
-                href={mustEatHref}
+              <Link
+                href={PROFILE_MUST_EATS_HREF}
                 rel="nofollow"
+                prefetch={false}
                 className={`hv-photo ${styles.railPhoto} ${styles.mustPhoto} ${styles.railPhotoEmpty}`}
                 data-open="false"
               >
                 <span className={styles.railEmptyMark} />
-              </MapIntentLink>
+              </Link>
             )}
           </div>
-          <span className={`hv-sub ${styles.railSub}`}>
-            {faceUpCount > 0
-              ? `${faceUpCount} ${de ? 'offen' : 'open'}`
-              : de
-                ? 'Entdecken'
-                : 'Discover'}
-          </span>
         </div>
       </div>
     </section>

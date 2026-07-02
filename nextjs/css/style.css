@@ -388,8 +388,7 @@ body {
    in the top-right next to the floating search toolbar. Map canvas claims
    the full viewport (see .app-page[data-page="map"] top:0 rule); navbar
    chrome goes transparent and clicks fall through to the map underneath,
-   except on the icon chips themselves.
-   !important needed to beat the later dark-mode .navbar bg rules. */
+   except on the icon chips themselves. */
 @media (max-width: 1023.98px) {
   /* Map on mobile: no header strip — just Start + Profile floating as
      glass chips on the right edge, FAB-aligned. Map claims the full
@@ -1113,7 +1112,7 @@ body {
     height: auto !important;
     overflow: visible !important;
   }
-  /* Strip on mobile — 64 px + safe-area, white in light, black in dark. */
+  /* Strip on mobile — 64 px + safe-area. */
   .navbar,
   .navbar.scrolled {
     -webkit-backdrop-filter: none;
@@ -1189,10 +1188,9 @@ body {
   }
   /* Safari paints the body bg behind the URL bar wherever the sheet's lvh
      overhang doesn't cover it — keep it matched to the sheet surface. The
-     html bg (theme cream) shows through the translucent bar at the very
+     html bg shows through the translucent bar at the very
      bottom past the body's paint, reading as a light fade in light mode
-     (invisible in dark, where html is near-black) — pin it to the sheet
-     surface too so there's no cream band behind the bar. */
+     — pin it to the sheet surface too so there's no cream band behind the bar. */
   html:has(.app-page[data-page="map"].active),
   body:has(.app-page[data-page="map"].active) {
     background: #ffffff;
@@ -1429,7 +1427,7 @@ body {
     overflow: visible;
   }
 }
-/* BERLIN label always orange, both themes — matches Eat This section */
+/* BERLIN label always orange — matches Eat This section */
 .app-page[data-page="news"] .section-label {
   color: var(--orange) !important;
   text-align: center;
@@ -2976,9 +2974,7 @@ body:has(.burger-drawer.active) .burger-btn {
 /* Language toggle — first row of the scroller, Chewy caps. In-flow
    (2026-06-04): scrolls with the menu — the old absolute top-left pin
    collided with the logo as soon as the drawer content scrolled. */
-/* Top bar — language toggle (left) + dark-mode toggle (right) on one row. */
-/* Dark-mode toggle — mirrors the SiteFooter switch (track + thumb), Chewy
-   caps label. Lives in the burger top bar opposite the language toggle. */
+/* Top bar — language toggle row. */
 /* Close — square ink-bordered × glyph */
 /* Scroller — fills the panel, owns the scroll */
 /* Primary nav — big Chewy uppercase block list with ink rules */
@@ -2988,8 +2984,8 @@ body:has(.burger-drawer.active) .burger-btn {
    dead cream band under the links. */
 /* ══════════════════════════════════════════════
    SITE FOOTER — editorial restyle (2026)
-   Cream surface in light, ink in dark. Heavy top rule mirrors the navbar
-   bottom rule, big EAT THIS plate sits centred, brand-red link accents.
+   Cream surface. Heavy top rule mirrors the navbar bottom rule, big
+   EAT THIS plate sits centred, brand-red link accents.
    ══════════════════════════════════════════════ */
 /* Final CTA section — sitzt zwischen FeaturedSpots und Footer.
    Tagline (Newspaper-Display-Headline) über dem Button. */

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, type RefObject } from 'react'
+import { flushSync } from 'react-dom'
 
 interface SwipePagerOptions {
   onPrev?: () => void
@@ -12,8 +13,10 @@ interface SwipePagerOptions {
   transformRef?: RefObject<HTMLElement | null>
   /** Called after the current pane/card has left, right before data swaps. */
   onPageOut?: (dir: 'prev' | 'next') => void
-  /** Defaults to true. Must-eat cards opt out so the old face never re-enters. */
+  /** Defaults to true. Set false for surfaces that should only slide out. */
   animateIn?: boolean
+  /** Force the page state swap before the entry transform is applied. */
+  flushPage?: boolean
 }
 
 /* Horizontal swipe paging for the detail sheets (restaurant + must-eat).
@@ -30,6 +33,12 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     const el = ref.current
     if (!el) return
     const animatedEl = () => optsRef.current.transformRef?.current ?? el
+    const setTransform = (target: HTMLElement, value: string) => target.style.setProperty('transform', value, 'important')
+    const setTransition = (target: HTMLElement, value: string) => target.style.setProperty('transition', value, 'important')
+    const clearMotion = (target: HTMLElement) => {
+      target.style.removeProperty('transition')
+      target.style.removeProperty('transform')
+    }
     let startX = 0, startY = 0, axis: 'h' | 'v' | null = null, active = false
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse') return
@@ -51,7 +60,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         e.preventDefault()
         // Keep the composition calm: drag previews the top card, not the
         // whole sheet, and with enough resistance that text/content stays put.
-        animatedEl().style.transform = `translateX(${dx * 0.24}px)`
+        setTransform(animatedEl(), `translateX(${dx * 0.24}px)`)
       }
     }
     /* preventDefault on pointermove does NOT stop native scrolling — once a
@@ -64,9 +73,9 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     }
     const settle = () => {
       const target = animatedEl()
-      target.style.transition = 'transform .2s ease-out'
-      target.style.transform = 'translateX(0)'
-      window.setTimeout(() => { target.style.transition = ''; target.style.transform = '' }, 220)
+      setTransition(target, 'transform .2s ease-out')
+      setTransform(target, 'translateX(0)')
+      window.setTimeout(() => { clearMotion(target) }, 220)
     }
     const end = (e: PointerEvent) => {
       if (!active) return
@@ -82,26 +91,30 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         const target = animatedEl()
         const w = el.clientWidth
         const outX = dir === 'next' ? -w : w
-        target.style.transition = 'transform .17s ease-out'
-        target.style.transform = `translateX(${outX}px)`
+        setTransition(target, 'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)')
+        setTransform(target, `translateX(${outX}px)`)
         window.setTimeout(() => {
           optsRef.current.onPageOut?.(dir)
-          if (dir === 'next') optsRef.current.onNext?.()
-          else optsRef.current.onPrev?.()
+          const page = () => {
+            if (dir === 'next') optsRef.current.onNext?.()
+            else optsRef.current.onPrev?.()
+          }
+          if (optsRef.current.flushPage) flushSync(page)
+          else page()
           if (optsRef.current.animateIn === false) {
-            target.style.transition = 'none'
-            target.style.transform = ''
+            target.style.setProperty('transition', 'none', 'important')
+            target.style.removeProperty('transform')
             return
           }
           // Place the freshly-swapped content on the opposite edge, then in.
           const nextTarget = animatedEl()
-          nextTarget.style.transition = 'none'
-          nextTarget.style.transform = `translateX(${-outX}px)`
+          nextTarget.style.setProperty('transition', 'none', 'important')
+          setTransform(nextTarget, `translateX(${-outX}px)`)
           void nextTarget.offsetWidth // force reflow so the next transition animates
-          nextTarget.style.transition = 'transform .2s ease-out'
-          nextTarget.style.transform = 'translateX(0)'
-          window.setTimeout(() => { nextTarget.style.transition = ''; nextTarget.style.transform = '' }, 220)
-        }, 170)
+          setTransition(nextTarget, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)')
+          setTransform(nextTarget, 'translateX(0)')
+          window.setTimeout(() => { clearMotion(nextTarget) }, 320)
+        }, 220)
       } else {
         settle()
       }

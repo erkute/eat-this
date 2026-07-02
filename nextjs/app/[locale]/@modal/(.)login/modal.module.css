@@ -19,7 +19,3 @@
     padding: 10px;
   }
 }
-
-:global(html[data-theme='dark']) .overlay {
-  background: rgba(21, 18, 14, 0.62);
-}

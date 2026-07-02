@@ -282,23 +282,6 @@
   -webkit-line-clamp: 3;
 }
 
-html[data-theme='dark'] .page {
-  --guide-paper: #15120e;
-  --guide-soft: rgba(255, 255, 255, .08);
-  --guide-ink: #fff;
-  --guide-muted: rgba(255, 255, 255, .68);
-}
-
-html[data-theme='dark'] .hero_yellow,
-html[data-theme='dark'] .hero_paper {
-  color: #15120e;
-}
-
-html[data-theme='dark'] .index {
-  color: #15120e;
-  background: #fff;
-}
-
 @media (max-width: 900px) {
   .hero,
   .listHead {

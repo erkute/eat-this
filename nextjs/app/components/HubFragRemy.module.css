@@ -7,6 +7,12 @@
 
 /* ── body: one compact Remy stage ── */
 .body {
+  --remy-stage-ink: #15120e;
+  --remy-stage-red: #d9382a;
+  --remy-stage-yellow: #ffd84d;
+  --remy-stage-cream: #fff4cc;
+  --remy-stage-paper: #fffdf8;
+  --remy-stage-line: rgba(21, 18, 14, 0.16);
   position: relative;
   display: grid;
   grid-template-areas:
@@ -17,9 +23,11 @@
   align-items: start;
   overflow: hidden;
   padding: clamp(20px, 4vw, 44px);
-  background: #fff4cc;
-  border: 1px solid rgba(21, 18, 14, 0.16);
+  color: var(--remy-stage-ink);
+  background: var(--remy-stage-cream);
+  border: 2px solid var(--remy-stage-ink);
   border-radius: var(--home-radius-btn);
+  box-shadow: 10px 10px 0 var(--remy-stage-ink);
 }
 
 .ask {
@@ -37,6 +45,8 @@
 
 .panelHead :global(.hv-title) {
   max-width: 760px;
+  font-size: clamp(46px, 8.6vw, 104px);
+  line-height: 0.86;
 }
 
 /* ── Remy stage — freigestellt, no background sun ── */
@@ -117,23 +127,24 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  margin-top: clamp(10px, 1.4vw, 16px);
+  margin-top: clamp(14px, 1.8vw, 22px);
 }
 
 .lead {
-  margin: 0 0 clamp(8px, 1.2vw, 12px);
+  max-width: 620px;
+  margin: 0 0 clamp(12px, 1.6vw, 18px);
   font-family: var(--font-providence);
-  font-size: clamp(16px, 1.5vw, 21px);
+  font-size: clamp(18px, 1.75vw, 24px);
   font-weight: 700;
-  line-height: 1.2;
-  color: var(--home-ink);
+  line-height: 1.16;
+  color: var(--remy-stage-ink);
 }
 
 /* ── actions: quick answers + chat input ── */
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   max-width: 620px;
 }
 
@@ -146,30 +157,33 @@
 /* Chip hover: accent yellow tint (state change, not motion — allowed) */
 .chip:global(.hv-chip):hover,
 .chip:global(.hv-chip):focus-visible {
-  background: var(--home-ink);
+  background: var(--remy-stage-red);
+  border-color: var(--remy-stage-red);
   color: #fff;
 }
 
 .chip:global(.hv-chip) {
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--home-ink);
-  border: 1px solid rgba(21, 18, 14, 0.12);
+  background: var(--remy-stage-paper);
+  color: var(--remy-stage-ink);
+  border: 2px solid var(--remy-stage-ink);
+  box-shadow: 3px 3px 0 rgba(21, 18, 14, 0.18);
 }
 
 .chip:focus-visible {
-  outline: 2px solid var(--home-ink);
+  outline: 2px solid var(--remy-stage-ink);
   outline-offset: 2px;
 }
 
 /* ── free-text input row ── */
 .chatin {
   display: flex;
-  gap: 8px;
+  gap: 9px;
   align-items: center;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(21, 18, 14, 0.12);
+  padding: 6px;
+  background: var(--remy-stage-paper);
+  border: 2px solid var(--remy-stage-ink);
   border-radius: var(--home-radius-btn);
+  box-shadow: 5px 5px 0 rgba(21, 18, 14, 0.2);
 }
 
 .input {
@@ -177,32 +191,46 @@
   min-width: 0;
   border: none;
   border-radius: var(--home-radius-btn);
-  padding: 11px 14px;
+  padding: 13px 14px;
   font-family: var(--font-providence);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--home-ink);
+  font-size: clamp(14px, 1.1vw, 16px);
+  font-weight: 700;
+  color: var(--remy-stage-ink);
   background: transparent;
 }
 
 .input::placeholder {
-  color: var(--home-muted);
+  color: rgba(21, 18, 14, 0.58);
 }
 
 .input:focus-visible {
-  outline: 2px solid var(--home-ink);
+  outline: 2px solid var(--remy-stage-ink);
   outline-offset: 2px;
 }
 
-/* Send button — reuses global hv-btn (ink bg, white text); no overrides needed */
-.send {
+.send:global(.hv-btn) {
+  display: inline-grid;
+  place-items: center;
   flex: 0 0 auto;
-  min-width: 94px;
+  min-width: 52px;
+  width: auto;
+  min-height: 48px;
+  padding: 0 18px;
+  color: #fff;
+  background: var(--remy-stage-red);
+  border: 2px solid var(--remy-stage-red);
+  border-radius: var(--home-radius-btn);
   text-align: center;
 }
 
-.send:focus-visible {
-  outline: 2px solid var(--home-ink);
+.send:global(.hv-btn):hover {
+  color: #fff;
+  background: var(--remy-stage-ink);
+  border-color: var(--remy-stage-ink);
+}
+
+.send:global(.hv-btn):focus-visible {
+  outline: 2px solid var(--remy-stage-ink);
   outline-offset: 2px;
 }
 
@@ -238,15 +266,43 @@
 }
 
 @media (max-width: 520px) {
+  .body {
+    box-shadow: 6px 6px 0 var(--remy-stage-ink);
+  }
+
   .chatin {
     align-items: stretch;
   }
 
-  .send {
-    min-width: 82px;
-    padding-right: 12px;
-    padding-left: 12px;
+  .send:global(.hv-btn) {
+    min-width: 78px;
   }
+}
+
+:global(html[data-theme='dark']) .body {
+  --remy-stage-ink: #fff8e8;
+  --remy-stage-paper: #211c17;
+  --remy-stage-cream: #332817;
+  --remy-stage-line: rgba(255, 248, 232, 0.2);
+  color: var(--remy-stage-ink);
+  background: var(--remy-stage-cream);
+  border-color: rgba(255, 248, 232, 0.92);
+  box-shadow: 10px 10px 0 #070707;
+}
+
+:global(html[data-theme='dark']) .chip:global(.hv-chip),
+:global(html[data-theme='dark']) .chatin {
+  box-shadow: none;
+}
+
+:global(html[data-theme='dark']) .send:global(.hv-btn):hover {
+  color: #15120e;
+  background: #fff8e8;
+  border-color: #fff8e8;
+}
+
+:global(html[data-theme='dark']) .input::placeholder {
+  color: rgba(255, 248, 232, 0.62);
 }
 
 /* ── reduced motion ── */

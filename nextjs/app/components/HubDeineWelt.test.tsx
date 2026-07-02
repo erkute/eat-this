@@ -9,12 +9,13 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 // shell must render so globals.css can show it pre-paint for returning
 // signed-in visitors (html[data-auth="1"]); resolved-anon renders nothing.
 const authState = { user: null as { uid: string } | null, loading: true };
+const faceUpState = { ids: new Set<string>() };
 vi.mock('@/lib/auth', () => ({ useAuth: () => authState }));
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({ useOwnedEntitlements: () => null }));
 vi.mock('@/lib/map', () => ({
   useMapData: () => ({ restaurants: [], mustEats: [], revealedMustEatIds: new Set<string>() }),
   useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
-  resolveUnlockedMustEatIds: () => new Set<string>(),
+  resolveUnlockedMustEatIds: () => faceUpState.ids,
 }));
 vi.mock('@/lib/map/useFavorites', () => ({ useFavorites: () => ({ favorites: [] }) }));
 vi.mock('@/app/components/MapIntentLink', () => ({
@@ -43,10 +44,51 @@ const initialMapData = {
   revealedMustEatIds: [],
 } as unknown as InitialMapData;
 
-function render() {
+const collectionMapData = {
+  restaurants: [
+    {
+      _id: 'r1',
+      _createdAt: '2026-01-01',
+      name: 'Test Spot',
+      slug: 'test-spot',
+      isClosed: false,
+      lat: 52.5,
+      lng: 13.4,
+      photo: '/pics/restaurant/test.webp',
+      mustEatCount: 2,
+    },
+  ],
+  mustEats: [
+    {
+      _id: 'me-open',
+      dish: 'Open Dish',
+      image: '/pics/musteat/open.webp',
+      restaurant: {
+        _id: 'r1',
+        name: 'Test Spot',
+        slug: 'test-spot',
+        lat: 52.5,
+        lng: 13.4,
+      },
+    },
+    {
+      _id: 'me-covered',
+      restaurant: {
+        _id: 'r1',
+        name: 'Test Spot',
+        slug: 'test-spot',
+        lat: 52.5,
+        lng: 13.4,
+      },
+    },
+  ],
+  revealedMustEatIds: [],
+} as unknown as InitialMapData;
+
+function render(data: InitialMapData = initialMapData) {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-      <HubDeineWelt initialMapData={initialMapData} />
+      <HubDeineWelt initialMapData={data} />
     </NextIntlClientProvider>
   );
 }
@@ -55,6 +97,7 @@ describe('HubDeineWelt', () => {
   beforeEach(() => {
     authState.user = null;
     authState.loading = true;
+    faceUpState.ids = new Set<string>();
   });
 
   it('SSRs the launcher shell with the data-auth-only hook while auth is loading', () => {
@@ -73,6 +116,9 @@ describe('HubDeineWelt', () => {
     // Both visual rail sections still render (labels are always present).
     expect(html).toContain('Gespeichert');
     expect(html).toContain('Must Eats');
+    // Counts/subtext are not shown on the home collection rails.
+    expect(html).not.toContain('Noch keine');
+    expect(html).not.toContain('offen');
     // Deep links into the noindex map/profile routes must carry nofollow —
     // this markup now ships in the indexed SSR HTML of "/".
     expect(html).toContain('rel="nofollow"');
@@ -91,5 +137,15 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Hey Ersan');
     // Hero headline is always present for signed-in users.
     expect(html).toContain('Deine Map wartet');
+  });
+
+  it('links collection cards to their profile sections and includes covered Must Eats', () => {
+    faceUpState.ids = new Set(['me-open']);
+    const html = render(collectionMapData);
+
+    expect(html).toContain('href="/profile#profile-panel-spots"');
+    expect(html).toContain('href="/profile#profile-panel-must-eats"');
+    expect(html).toContain('/pics/musteat/open.webp');
+    expect(html).toContain('/pics/card-back.webp');
   });
 });

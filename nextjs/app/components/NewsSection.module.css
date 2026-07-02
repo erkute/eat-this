@@ -417,28 +417,6 @@
   margin-top: 28px;
 }
 
-html[data-theme='dark'] .page {
-  --news-paper: #15120e;
-  --news-soft: rgba(255, 255, 255, .08);
-  --news-ink: #fff;
-  --news-muted: rgba(255, 255, 255, .68);
-  --news-line: rgba(255, 255, 255, .2);
-}
-
-html[data-theme='dark'] .guideMini_paper,
-html[data-theme='dark'] .guideCard_paper {
-  background: rgba(255, 255, 255, .08);
-  color: #fff;
-  border-color: rgba(255, 255, 255, .32);
-}
-
-html[data-theme='dark'] .primaryCta,
-html[data-theme='dark'] .mapLink {
-  background: #fff;
-  color: #15120e;
-  border-color: #fff;
-}
-
 @media (max-width: 980px) {
   .hero,
   .leadCard {

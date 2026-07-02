@@ -62,8 +62,8 @@
   margin: 28px 0 8px;
   padding: 28px;
   border-radius: 0;
-  /* Warm cream tile in both themes so the red badge always reads on it —
-     mirrors the home hero's #fbf8ee surface. */
+  /* Warm cream tile so the red badge always reads on it — mirrors the home
+     hero's #fbf8ee surface. */
   background: #fbf8ee;
   border: 1px solid rgba(20, 16, 12, 0.12);
 }

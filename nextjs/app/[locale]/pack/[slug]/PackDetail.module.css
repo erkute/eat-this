@@ -1083,24 +1083,6 @@
   }
 }
 
-html[data-theme='dark'] .page {
-  --pack-surface: var(--et-home-ink);
-  --pack-ink: var(--et-home-paper);
-  --pack-action: var(--et-home-paper);
-  --pack-action-text: var(--et-home-ink);
-  --pack-muted: rgba(255, 255, 255, .7);
-  --pack-line: rgba(255, 255, 255, .22);
-  --pack-quiet: rgba(255, 255, 255, .08);
-}
-
-html[data-theme='dark'] .allName .y,
-html[data-theme='dark'] .cta,
-html[data-theme='dark'] .thumb,
-html[data-theme='dark'] .bonusIcon {
-  background: var(--pack-action);
-  color: var(--pack-action-text);
-}
-
 /* Specificity lock: older pack-detail rules are still present above while this
    screen is being iterated. Keep the final Home/Map palette authoritative. */
 html body .page {
@@ -1133,31 +1115,4 @@ html body .page .allName .y {
   background: var(--et-home-paper) !important;
   color: var(--et-home-ink) !important;
   border-color: var(--et-home-ink) !important;
-}
-
-html[data-theme='dark'] body .page {
-  background-color: var(--et-home-ink) !important;
-  color: var(--et-home-paper) !important;
-}
-
-html[data-theme='dark'] body .page .name,
-html[data-theme='dark'] body .page .rn,
-html[data-theme='dark'] body .page .upsellMain,
-html[data-theme='dark'] body .page .allPack .cat {
-  color: var(--et-home-paper) !important;
-}
-
-html[data-theme='dark'] body .page .cta,
-html[data-theme='dark'] body .page .thumb,
-html[data-theme='dark'] body .page .bonusIcon {
-  background: #15120e !important;
-  color: #fff !important;
-  border: 2px solid #fff !important;
-}
-
-html[data-theme='dark'] body .page .updates,
-html[data-theme='dark'] body .page .allName .y {
-  background: var(--et-home-ink) !important;
-  color: var(--et-home-paper) !important;
-  border-color: var(--et-home-paper) !important;
 }

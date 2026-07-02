@@ -1,61 +1,120 @@
 /* Collection — one open field of Must-Eat cards, no category dividers. */
 
 .panel {
-  --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton, Impact), sans-serif;
-  background: #f7f7f3;
-  color: #15120e;
-  border-radius: 0;
-  padding: clamp(28px, 3.6vw, 42px) clamp(28px, 5vw, 64px) clamp(34px, 4vw, 52px);
+  --album-paper: var(--profile-paper, var(--et-home-paper, #fff));
+  --album-ink: var(--profile-ink, var(--et-home-ink, #15120e));
+  --album-muted: var(--profile-muted, rgba(21, 18, 14, 0.64));
+  --album-line: var(--profile-line, rgba(21, 18, 14, 0.2));
+  --album-quiet: var(--profile-quiet, var(--et-home-quiet, #f2f1ef));
+  --album-red: var(--profile-red, var(--et-home-red, #d9382a));
+  --album-display: var(--profile-display, var(--et-font-display), sans-serif);
+  --album-label: var(--profile-label, var(--et-font-label), monospace);
+  display: grid;
+  gap: clamp(20px, 3vw, 34px);
+  color: var(--album-ink);
+  background: var(--album-paper);
 }
 
 .head {
   display: flex;
-  align-items: flex-end;
+  align-items: end;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: clamp(20px, 3.2vw, 34px);
+  padding-bottom: clamp(12px, 1.6vw, 18px);
+  border-bottom: 2px solid var(--album-ink);
 }
 
 .title {
   margin: 0;
-  font-family: var(--font-condensed);
-  font-size: clamp(54px, 8vw, 92px);
-  font-weight: 400;
-  line-height: 0.8;
+  color: var(--album-ink);
+  font-family: var(--album-display);
+  font-size: clamp(42px, 7vw, 92px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.9;
   text-transform: uppercase;
-  color: #15120e;
 }
 
 .count {
   flex: 0 0 auto;
-  padding: 8px 11px 7px;
-  font-family: var(--menu-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: #f7f7f3;
-  background: #15120e;
-  border-radius: 4px;
+  min-height: 34px;
+  padding: 9px 12px 0;
+  color: var(--profile-inverse, #fff);
+  background: var(--album-ink);
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--album-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: clamp(12px, 2vw, 22px);
   align-items: start;
 }
 
+.slot {
+  position: relative;
+  aspect-ratio: 1539 / 2115;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 180ms ease;
+}
+
+.slot:hover,
+.slot:focus-visible {
+  transform: translateY(-6px) rotate(-1deg);
+  outline: 0;
+}
+
+.slot:focus-visible {
+  filter: drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-red) 42%, transparent));
+}
+
+.empty .backImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.filled {
+  border: 0;
+  cursor: pointer;
+}
+
+.filled .img {
+  object-fit: contain;
+}
+
+.emptyText {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--album-muted);
+  font-family: var(--album-display);
+  font-size: var(--et-type-body, clamp(12px, 1.1vw, 14px));
+  font-weight: 400;
+  line-height: var(--et-leading-copy, 1.5);
+}
+
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 
 @media (max-width: 520px) {
-  .panel {
-    padding: 24px 20px 32px;
-  }
-
   .head {
     align-items: start;
     flex-direction: column;
@@ -71,56 +130,4 @@
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
-
-.slot {
-  position: relative;
-  aspect-ratio: 1539 / 2115;
-  border-radius: 7px;
-  overflow: hidden;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  transition:
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 180ms ease;
-}
-
-.slot:hover,
-.slot:focus-visible {
-  transform: translateY(-6px) rotate(-1deg);
-  outline: 0;
-}
-
-.slot:focus-visible {
-  filter: drop-shadow(0 0 0 3px rgba(239, 53, 40, 0.42));
-}
-
-/* Uncollected → the face-down card back fills the slot. */
-.empty .backImg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-.filled {
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-
-.filled .img {
-  object-fit: contain;
-}
-
-.emptyText {
-  max-width: 42rem;
-  margin: 0;
-  color: rgba(21, 18, 14, 0.68);
-  font-family: var(--menu-mono);
-  font-size: 14px;
-  line-height: 1.45;
 }

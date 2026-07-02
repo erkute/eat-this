@@ -35,9 +35,8 @@
 .eyebrow {
   font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
   font-size: 13px;
-  /* Inherit the parent page's ink token — restaurant detail bridges its
-     own --text-primary even when the global theme is dark, so the
-     teaser stays readable on the cream surface. */
+  /* Inherit the parent page's ink token so the teaser stays readable on
+     the cream surface. */
   color: var(--text-primary, #000);
   /* Tracking eased from .22em — Chewy is wide/round, matches the SEO
      kicker treatment (.14em) rather than the old tight Anton caps. */

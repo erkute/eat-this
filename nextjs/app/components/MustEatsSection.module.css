@@ -682,35 +682,10 @@
   }
 }
 
-html[data-theme='dark'] .page {
-  --must-paper: #15120e;
-  --must-ink: #fff;
-  --must-muted: rgba(255, 255, 255, .68);
-  --must-line: rgba(255, 255, 255, .18);
-  background: #15120e;
-  color: #fff;
-}
-
-html[data-theme='dark'] .ph {
-  background: #242018;
-}
-
-html[data-theme='dark'] .locked .ph {
-  background: #0f0d0b;
-}
-
 /* Cards are complete artworks. Show them freestanding, without captions,
    badges, veils, frames, or background panels. */
 .medish {
   overflow: visible;
-}
-
-.ph,
-.locked .ph,
-html[data-theme='dark'] .ph,
-html[data-theme='dark'] .locked .ph {
-  overflow: visible;
-  background: transparent;
 }
 
 .ph::after {
@@ -925,21 +900,6 @@ html[data-theme='dark'] .locked .ph {
   bottom: 38%;
   z-index: 3;
   transform: translateY(-4px) rotate(7deg);
-}
-
-html[data-theme='dark'] .close {
-  background: #15120e;
-  color: #fff;
-  border-top-color: rgba(255, 255, 255, .2);
-}
-
-html[data-theme='dark'] .closeBody {
-  color: rgba(255, 255, 255, .68);
-}
-
-html[data-theme='dark'] .closeCta {
-  background: #fff;
-  color: #15120e;
 }
 
 @media (max-width: 780px) {

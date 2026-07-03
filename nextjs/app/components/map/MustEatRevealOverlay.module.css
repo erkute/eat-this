@@ -136,22 +136,7 @@
 
 /* Floating tap hint — appears under the card after the fly-in settles
    so the user knows the next gesture without it shouting on entry. */
-.hint {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, calc(50vh * 0.42 + 22px));
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.72);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  pointer-events: none;
-  animation: hintFadeIn 0.3s ease-out both;
-}
+
 @keyframes hintFadeIn {
   from { opacity: 0; transform: translate(-50%, calc(50vh * 0.42 + 30px)); }
   to   { opacity: 1; transform: translate(-50%, calc(50vh * 0.42 + 22px)); }
@@ -159,5 +144,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dancerIdle { animation: none; }
-  .hint { animation: none; }
+
 }

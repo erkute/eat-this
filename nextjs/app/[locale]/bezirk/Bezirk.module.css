@@ -331,38 +331,7 @@
 /* ============================================================
    FINAL CTA — full-bleed black surface
 ============================================================ */
-.finalCta {
-  background: var(--ink);
-  color: var(--cream);
-  /* Negative-margin trick um Page-Padding zu canceln */
-  margin: 48px -22px 0;
-  padding: 40px 22px 44px;
-  text-align: left;
-}
-.fcKicker {
-  font-family: var(--f-display);
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  color: var(--yellow);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.finalCta h2 {
-  font-family: var(--f-display);
-  font-size: clamp(36px, 9vw, 56px);
-  line-height: 1.0;
-  text-transform: uppercase;
-  margin: 0 0 14px;
-  color: var(--cream);
-}
-.fcSub {
-  font-family: var(--f-body);
-  font-size: 14.5px;
-  line-height: 1.5;
-  margin: 0 0 22px;
-  opacity: 0.86;
-  max-width: 36ch;
-}
+
 
 /* ============================================================
    INDEX-PAGE CARDS (used by /bezirk and /kategorie index pages,
@@ -485,10 +454,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 22px;
   }
-  .finalCta {
-    margin: 56px -32px 0;
-    padding: 56px 32px;
-  }
+
 }
 @media (min-width: 960px) {
   .page {
@@ -583,23 +549,14 @@
   .posterName {
     font-size: clamp(28px, 2.4vw, 38px);
   }
-  .finalCta {
-    margin: 80px -80px 0;
-    padding: 72px 80px;
-  }
+
 }
 
 /* ============================================================
    Components rendered inside .page that need cream surface
    bridges (DetailPageOutro etc).
 ============================================================ */
-.detailOutroWrap {
-  margin-top: 0;
-}
-.detailOutroWrap :global([data-detail-outro]) {
-  background: var(--cream);
-  color: var(--ink);
-}
+
 
 /* iOS Safari alpha-image fallback: prevent the category poster artwork shadow
    from being rasterized as a rectangular tile on touch WebKit. */
@@ -626,8 +583,7 @@
 .hero,
 .card,
 .posterCard,
-.bezirkCard,
-.finalCta {
+.bezirkCard {
   border-radius: 0;
   box-shadow: none;
   transform: none;
@@ -656,8 +612,7 @@
 .sectionHead h2,
 .cardName,
 .bezirkName,
-.posterName,
-.finalCta h2 {
+.posterName {
   font-family: var(--et-font-condensed);
   letter-spacing: 0;
 }
@@ -694,8 +649,7 @@
 }
 
 .cardPhoto,
-.posterFrame,
-.bezirkPhoto {
+.posterFrame {
   border-radius: var(--et-radius-photo);
   background: var(--et-home-red);
 }

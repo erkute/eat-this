@@ -68,7 +68,7 @@ const foldTerm = (s: string) =>
     .replace(/[^a-z0-9]/g, '')
 
 /** The pack category the user's cuisine term names, or null for dish terms. */
-export function packSlugForIntent(intent?: string): string | null {
+function packSlugForIntent(intent?: string): string | null {
   if (!intent) return null
   // Whole term first so "fine dining"/"natural wine" hit their joined keys,
   // then per-token so "wein" inside "natural wein bar" still resolves.

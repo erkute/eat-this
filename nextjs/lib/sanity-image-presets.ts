@@ -13,7 +13,7 @@ interface Preset {
   fit?: 'crop'
 }
 
-export const IMAGE_PRESETS = {
+const IMAGE_PRESETS = {
   // Restaurant + article hero (detail pages)
   detailHero: { w: 1200, q: 85 },
   // Bezirk hero (wider crop)

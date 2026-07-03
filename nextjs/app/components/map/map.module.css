@@ -38,22 +38,7 @@
 }
 
 /* Category chips */
-.chip {
-  appearance: none;
-  flex: 0 0 auto;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 6px 10px;
-  border-radius: var(--map-control-radius);
-  cursor: pointer;
-  transition: background-color var(--map-motion), color var(--map-motion), border-color var(--map-motion), transform var(--map-motion);
-  scroll-snap-align: start;
-}
-.chip:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
 
 /* -------------------- Map body -------------------- */
 
@@ -609,12 +594,6 @@
   }
 }
 
-.empty {
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 13px;
-}
 
 /* Empty state — Chewy mockup "es-block" look with filter-reset action. */
 .esBlock { text-align: center; padding: 36px 18px 16px; }
@@ -648,38 +627,7 @@
 }
 
 /* Restaurant row */
-.row {
-  display: grid;
-  grid-template-columns: 80px 1fr auto;
-  gap: 14px;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: 0;
-  cursor: pointer;
-  transition: background 0.15s;
-  text-align: left;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-subtle);
-  width: 100%;
-  appearance: none;
-  color: inherit;
-  font: inherit;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-@media (max-width: 1023.98px) {
-  .row {
-    grid-template-columns: 84px 1fr auto;
-    gap: 12px;
-    padding: 12px 14px;
-  }
-}
-@media (hover: hover) {
-  .row:hover { background: var(--surface-bg); }
-}
+
 
 /* Wraps the thumbnail so the must-eat card overlay can be absolute-positioned
    in the corner without breaking the row's grid sizing. */
@@ -794,19 +742,9 @@
   text-transform: uppercase;
   color: var(--map-accent);
 }
-.rcardTime {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin: 3px 0 0;
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.85);
-}
-.rcardNow { color: var(--map-accent); font-weight: 700; } /* same photo-legibility red as .rcardMeta */
-.rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
+
+ /* same photo-legibility red as .rcardMeta */
+
 
 /* Locked preview cards — blurred photo + signup badge. Peek is forced to the
    card-back in RestaurantList; click routes to the upgrade flow. */
@@ -1190,43 +1128,7 @@
 /* ========== Bezirk dropdown (styled native select) ========== */
 
 /* ========== Open-now toggle chip ========== */
-.openChip {
-  appearance: none;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 11px;
-  border-radius: var(--map-pill-radius);
-  border: 1px solid var(--map-border-soft);
-  background: var(--map-surface-muted);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--map-motion), color var(--map-motion), border-color var(--map-motion), transform var(--map-motion);
-  white-space: nowrap;
-}
-.openChip:hover { color: var(--text-primary); border-color: var(--text-muted); }
-.openChipActive {
-  background: #1f7a1f;
-  color: #fff;
-  border-color: #1f7a1f;
-}
-.openChipActive:hover { color: #fff; }
-.openDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.6;
-}
-.openChipActive .openDot {
-  background: #fff;
-  opacity: 1;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
-}
+
 
 /* (Old standalone-pill styles for .toolbarMobile .openChip / .select removed —
    both now live inside the unified glass pill at the top of the file.) */
@@ -1312,11 +1214,7 @@
 /* At the peek snap on mobile, only the handle + peek-header are visible —
    the meta line, status line and everything below the name + icons get
    hidden so the user sees a clean "name + actions" header strip. */
-@media (max-width: 1023.98px) {
-  .list[data-view="detail"][data-snap="peek"] .detailInSheetScroll {
-    visibility: hidden;
-  }
-}
+
 /* Meta line: Bezirk · Kategorie1 · Kategorie2 · Preis. Flat magazine-dotted
    text — same vocabulary as the row's `.rowMetaText`, scaled up. */
 /* Price reads as part of the magazine meta line — same neutral color as
@@ -1352,11 +1250,7 @@
 /* At mid-snap on mobile, compress the hero so the meta line + travel-row
    fit inside the visible body slice as the default — user sees Bezirk and
    Walk/ÖPNV/Auto times without having to scroll. */
-@media (max-width: 1023.98px) {
-  .list[data-view="detail"][data-snap="mid"] .mustEatHero {
-    height: 200px;
-  }
-}
+
 /* Freigestellte card: white cream asset margin cropped via background-size > 100%.
    Single subtle shadow — not a layered stack — so it reads as ONE card. */
 .mustEatCardCanUnlock {
@@ -1365,7 +1259,6 @@
 /* Compound selector damit der Tap-Shake auch gewinnt wenn `.musteatStripCard`
    weiter unten im File seine eigene `animation`-Shorthand setzt (gleiche
    Specificity → Source-Order entscheidet, deshalb hier doppelt geklassel). */
-.musteatStripCard.mustEatCardTapping,
 .mustEatCard.mustEatCardTapping {
   /* Tap-Feedback bekommt eine eigene starke Keyframe-Animation — die
      proximity-Vibration (mustEatVibrate) skaliert nur den Idle-Wackler.
@@ -1417,129 +1310,28 @@
    instructions. Small surface-bg pill, distinct from the more prominent
    .detailTipBlock used for editorial insider tips. */
 
-.boosterOffer {
-  position: relative;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 10px;
-  padding: 10px 12px 10px 8px;
-  /* Brushed-silver foil — the booster pack metaphor extended to the
-     banner itself. Reads as "limited edition / premium product" rather
-     than "ad block". Same metallic surface works in light and dark
-     contexts (silver is silver). Inset highlight at the top edge + inset
-     shadow at the bottom give it a real-metal lip. */
-  background: linear-gradient(135deg,
-    #aab0b5 0%,
-    #d6dade 25%,
-    #f1f3f5 50%,
-    #cad0d4 75%,
-    #a4aaaf 100%
-  );
-  color: #0a0a0a;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
-    0 10px 24px -12px rgba(0, 0, 0, 0.28);
-}
+
 /* Holographic iridescence — faint pink/cyan tint shift across the silver,
    the way a foil wrapper picks up nearby colour. Mix-blend-overlay keeps
    it subtle: the silver still reads as silver, just slightly alive. */
-.boosterOffer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg,
-    rgba(255, 195, 220, 0) 22%,
-    rgba(255, 195, 220, 0.30) 42%,
-    rgba(190, 220, 255, 0.30) 58%,
-    rgba(195, 255, 220, 0) 78%
-  );
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
+
 /* Moving shine band — the bling. Sweeps across the entire banner every
    ~5s like light catching foil at the right angle. White at high opacity
    so it actually reads as a flash on the metallic surface. */
-.boosterOffer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg,
-    transparent 35%,
-    rgba(255, 255, 255, 0.7) 50%,
-    transparent 65%
-  );
-  pointer-events: none;
-  animation: boosterBling 5.5s ease-in-out infinite;
-  animation-delay: 0.8s;
-  transform: translateX(-100%);
-}
+
 @keyframes boosterBling {
   0%, 18%   { transform: translateX(-100%); opacity: 0; }
   22%       { opacity: 1; }
   48%       { transform: translateX(100%); opacity: 0; }
   100%      { transform: translateX(100%); opacity: 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .boosterOffer::after { animation: none; opacity: 0; }
-}
-.boosterInfo {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  /* Sits above ::before iridescence and ::after shine so the text isn't
-     washed out by the moving highlight. */
-  z-index: 2;
-}
 
-.boosterTitle {
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-bottom: 3px;
-  color: #0a0a0a;
-}
-.boosterDesc {
-  font-size: 11.5px;
-  color: rgba(10, 10, 10, 0.65);
-  line-height: 1.4;
-  margin-bottom: 8px;
-}
 
 /* CTA: solari-yellow pill with black text — same colour pair as the
    landing's Best-Value ribbon (#F5C518 on #0a0a0a) and the Must-Eat card
    back. Yellow on silver pops without competing with the iridescence,
    and the black text stays sharp through the moving shine. */
-.boosterCta {
-  appearance: none;
-  border: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--c-mustard);
-  color: #0a0a0a;
-  font-size: 11.5px;
-  font-weight: 900;
-  padding: 7px 12px 7px 13px;
-  border-radius: 999px;
-  cursor: pointer;
-  letter-spacing: -0.005em;
-  border: 1.5px solid #0a0a0a;
-  transition: background 0.18s, transform 0.1s;
-}
-.boosterCta:hover {
-  background: var(--c-mustard-deep);
-  transform: translate(-1px, -1px);
-}
-.boosterCta:active { transform: scale(0.97); }
-.boosterCtaChevron {
-  transition: transform 0.2s;
-}
-.boosterCta:hover .boosterCtaChevron { transform: translateX(2px); }
+
 
 /* ── Booster fan: 3-card stacked composition. On hover all three packs
    react — side packs lift slightly and rotate a touch more outward, the
@@ -1547,54 +1339,7 @@
    (no horizontal spread) so the outer packs don't clip against the
    banner's overflow:hidden edge. A slow diagonal shine sweeps across the
    artwork to suggest premium product without being noisy. */
-.boosterFan {
-  position: relative;
-  width: 88px;
-  height: 84px;
-  flex-shrink: 0;
-  /* z=1 keeps the packs above the iridescent ::before tint but lets the
-     ::after shine band sweep across them — the packs catch the foil
-     glint just like the silver does. */
-  z-index: 1;
-}
-.boosterFanPack {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 40px;
-  height: 60px;
-  object-fit: contain;
-  border-radius: 5px;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
-  transform: translate(-50%, -50%);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.boosterFanPackLeft {
-  transform: translate(-50%, -50%) translate(-15px, 3px) rotate(-12deg);
-  z-index: 1;
-}
-.boosterFanPackRight {
-  transform: translate(-50%, -50%) translate(15px, 3px) rotate(12deg);
-  z-index: 2;
-}
-.boosterFanPackFront {
-  z-index: 3;
-}
-.boosterOffer:hover .boosterFanPackLeft,
-.boosterOfferList:hover .boosterFanPackLeft {
-  transform: translate(-50%, -50%) translate(-14px, -1px) rotate(-14deg);
-}
-.boosterOffer:hover .boosterFanPackRight,
-.boosterOfferList:hover .boosterFanPackRight {
-  transform: translate(-50%, -50%) translate(14px, -1px) rotate(14deg);
-}
-.boosterOffer:hover .boosterFanPackFront,
-.boosterOfferList:hover .boosterFanPackFront {
-  transform: translate(-50%, -50%) translate(0, -5px) rotate(2deg);
-}
-@media (prefers-reduced-motion: reduce) {
-  .boosterFanPack { transition: none; }
-}
+
 
 /* Compact action row at the bottom of the must-eat detail body — same
    visual language as .detailTravelRow (icon + text, no chrome) so the
@@ -1610,180 +1355,28 @@
 }
 
 /* ── List-variant booster — flat editorial panel, centered copy + CTA. */
-.boosterOfferList {
-  margin: 22px 14px 8px;
-  padding: 18px 16px 20px;
-  background: #fbf8ee;
-  color: #14100c;
-  border: 1.5px solid rgba(20, 16, 12, .18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .56);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
+
 
 /* Image fan is hidden in the dir-divider layout */
-.boosterStage { display: none; }
-.boosterStageCard { display: none; }
-.boosterStageCardLeft { display: none; }
-.boosterStageCardCenter { display: none; }
-.boosterStageCardRight { display: none; }
-.boosterStageSolo { display: none; }
 
-.boosterPromoCopy {
-  width: 100%;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
 
 /* Big Chewy heading */
-.boosterPromoTitle {
-  margin: 0 0 6px;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 400;
-  font-size: 32px;
-  line-height: .96;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--c-black);
-  order: 2;
-}
+
 
 /* Kicker — small uppercase Chewy above the heading via order */
-.boosterPromoSub {
-  margin: 0 0 4px;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 400;
-  font-size: 11px;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--c-black);
-  line-height: 1.1;
-  order: 1;
-}
+
 
 /* Inline arrow inside the CTA label (anon variant has no price-tag) */
-.btnPromoArr {
-  width: 11px;
-  height: 8px;
-  margin-left: 7px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 200ms ease;
-}
-.btnPromo:hover .btnPromoArr { transform: translateX(2px); }
 
-.boosterPromoActions {
-  margin: 10px 0 0;
-  align-self: center;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  order: 3;
-}
 
 /* Flat editorial CTA */
-.btnPromo {
-  display: inline-flex;
-  align-items: stretch;
-  background: var(--c-mustard);
-  color: #1a1610;
-  text-decoration: none;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 160ms ease;
-  font: inherit;
-  appearance: none;
-  white-space: nowrap;
-}
-.btnPromo:hover {
-  transform: translate(-1px, -1px);
-}
-.btnPromoLbl {
-  padding: 7px 14px 7px 16px;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-  color: #1a1610;
-  display: inline-flex;
-  align-items: center;
-}
-.btnPromoPriceTag {
-  padding: 7px 14px 7px 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border-left: 1.2px solid rgba(26, 22, 16, 0.34);
-  font-weight: 700;
-  font-size: 11px;
-  color: #1a1610;
-}
-.btnPromoPriceTag svg {
-  width: 11px;
-  height: 8px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 200ms ease;
-}
-.btnPromo:hover .btnPromoPriceTag svg { transform: translateX(2px); }
 
-@media (prefers-reduced-motion: reduce) {
-  .btnPromo, .btnPromoPriceTag svg { transition: none; }
-}
 
 /* Actions float above the hours/tip/must-eats block */
 /* Modern pill-shaped action buttons — solid surface, subtle elevation, smooth lift on hover.
    Replaces the heavy frosted glass with a cleaner card-button look (Google Maps-ish). */
-.detailInSheet .detailActions .btn {
-  border-radius: 999px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  padding: 10px 18px;
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 1px 2px rgba(17, 24, 39, 0.06),
-    0 4px 12px rgba(17, 24, 39, 0.05);
-  color: var(--text-primary);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-}
-.detailInSheet .detailActions .btn:hover {
-  background: var(--surface-card);
-  border-color: var(--text-muted);
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 4px 8px rgba(17, 24, 39, 0.08),
-    0 8px 20px rgba(17, 24, 39, 0.08);
-}
-.detailInSheet .detailActions .btn:active {
-  transform: translateY(0);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 1px 2px rgba(17, 24, 39, 0.08);
-}
+
+
 /* In-sheet scroll area — no dividers anywhere. Sections separated by bolder
    labels and breathing room. Inspired by modern map detail panels: visual
    hierarchy via type weight + space, not lines. */
@@ -1795,14 +1388,7 @@
 /* Restaurant name in detail header — truncate, centered. */
 
 /* ========== Restaurant detail: opening hours + categories + must-eats ========== */
-.sectionLabel {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin: 2px 0 4px;
-}
+
 
 @keyframes cardWiggle {
   0%   { transform: rotate(var(--fan-rotation, 0deg)); }
@@ -2037,27 +1623,7 @@
   overflow: visible;
   line-height: 1.15;
 }
-.filterChipCaret {
-  flex-shrink: 0;
-  width: 9px;
-  height: 9px;
-  opacity: .6;
-}
-.filterChipReset {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  border: 0;
-  border-left: 1.5px solid var(--map-ink);
-  background: var(--map-accent);
-  color: var(--map-ink);
-  cursor: pointer;
-  padding: 0;
-  margin-left: -1px;
-  border-radius: 0;
-  transition: background-color var(--map-motion), color var(--map-motion);
-}
-.filterChipReset:hover { background: var(--c-cream); }
+
 
 /* -------------------- Picker sheet (mobile) / popover (desktop) -------------------- */
 
@@ -2097,56 +1663,6 @@
   to   { transform: translateY(0); }
 }
 
-.pickerHandle {
-  width: 44px;
-  height: 4px;
-  background: var(--c-green);
-  opacity: 0.32;
-  border-radius: 999px;
-  margin: 10px auto 4px;
-  flex-shrink: 0;
-}
-
-.pickerHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 18px 8px;
-  border-bottom: 1px solid var(--c-row-rule);
-  flex-shrink: 0;
-}
-.pickerTitle {
-  /* Chewy: matches the overall app font; Chewy ships full Latin-Extended
-     (incl. German umlauts like KÜCHE) so Saira is no longer needed here. */
-  font-family: var(--font-chewy), 'Chewy', cursive;
-  font-weight: 900;
-  font-size: 20px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--c-black);
-  /* line-height 1.15 statt 1 — sonst clippt der Header-Border die Punkte
-     über Ü/Ö in „KÜCHE". */
-  line-height: 1.15;
-  padding-top: 2px;
-}
-.pickerCloseBtn {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  background: var(--c-mustard);
-  color: var(--c-black);
-  cursor: pointer;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
-  transition: transform 140ms ease, box-shadow 140ms ease;
-}
-.pickerCloseBtn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: none;
-}
 
 .pickerList {
   flex: 1 1 auto;
@@ -2249,7 +1765,7 @@
     from { transform: translateY(-6px); }
     to   { transform: translateY(0); }
   }
-  .pickerHandle { display: none; }
+
 }
 
 /* -------------------- Anon unlock prompt (full-bleed soft modal) -------------------- */
@@ -2328,26 +1844,9 @@
 @media (min-width: 1024px) {
   /* Reserve room on the right of the name so long titles don't slide
      under the icon cluster. */
-  .heroYellow .heroName { padding-right: 110px; }
+
 }
-.heroName {
-  margin: 0;
-  font-family: var(--font-chewy), 'Chewy', 'Arial Black', sans-serif;
-  font-weight: 400;
-  font-size: clamp(30px, 8.4vw, 36px);
-  line-height: 1;
-  letter-spacing: 0.005em;
-  color: var(--d-hero-text);
-  /* Word-break: break only at word boundaries (no mid-word breaks). Saira
-     Condensed is already narrow enough that long single-word names like
-     "Hugos im Hotel InterContinental" fit two lines without orphan
-     letters; if a single word still overflows, hyphens fall back to
-     none so we don't get spurious dashes. */
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
-  text-wrap: balance;
-}
+
 
 /* 3. Photo strip */
 
@@ -2404,9 +1903,7 @@
   padding: clamp(16px, 3dvh, 28px) 8px clamp(10px, 1.6dvh, 16px);
   perspective: 1000px;
 }
-.fdHalo {
-  display: none;
-}
+
 .fdCardStack {
   position: relative;
   height: var(--fd-card-h);
@@ -2922,13 +2419,7 @@
 /* Compact variant — used on the must-eat detail where the footer CTA
    doesn't need to dominate the same way as the restaurant detail's
    Reservieren block. */
-.btnPrimarySm .btnPrimaryLbl { font-size: 24px; }
-.btnPrimarySm .btnPrimaryArr {
-  width: 22px;
-  height: 14px;
-  stroke-width: 2.4;
-  margin-bottom: 3px;
-}
+
 
 .ctaFoot {
   display: flex;
@@ -3103,7 +2594,7 @@
 
 /* Desktop sized-ups (rail variant) */
 @media (min-width: 1024px) {
-  .heroName { font-size: 40px; line-height: 0.94; }
+
 
   /* Desktop has no iOS URL bar, so the --map-bar-overhang apron (80px) would
      just be dead white space below the last block (e.g. the booster banner).
@@ -3178,48 +2669,7 @@
 
 /* Locked-bezirk block — one calm All-Berlin pitch when a filtered district has
    only locked spots. Replaces the divider + per-card badges + end-cap. */
-.bezirkLocked {
-  text-align: center;
-  padding: 24px 18px 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.bezirkLockedTitle {
-  font-family: var(--font-chewy);
-  font-size: 24px;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--c-black);
-  margin: 0;
-  max-width: 18ch;
-}
-.bezirkLockedBody {
-  font-family: var(--font);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--text-secondary, #6a665a);
-  margin: 0;
-  max-width: 34ch;
-}
-.bezirkLockedCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 4px;
-  padding: 12px 20px 13px;
-  background: var(--c-mustard);
-  color: var(--c-black);
-  border: 2px solid var(--c-black);
-  border-radius: 0;
-  font-family: var(--font-chewy);
-  font-size: 15px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
-}
+
 
 .listEnd {
   --list-end-bg: #14100c;
@@ -3753,8 +3203,6 @@
 .rdMustGrid li:nth-child(even) .medishPh img { transform: rotate(2.5deg); }
 .medish:active .medishPh img { transform: rotate(0deg) scale(.98); }
 
-.medishLbl { text-align: center; color: #0a0a0a; display: grid; gap: 2px; padding: 0 4px; }
-.medishNm { font-family: var(--font-chewy); font-size: 16px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: 0; }
 
 /* ============================================================
    Providence collage map — print controls laid over the live map.
@@ -3845,10 +3293,7 @@
   background: #34a85a;
   color: #fff;
 }
-.filterChipReset {
-  background: var(--map-collage-yellow);
-  border-left: 2px solid var(--map-collage-ink);
-}
+
 
 .rcardSlot:nth-child(odd) .rcard { transform: rotate(-.8deg); }
 .rcardSlot:nth-child(even) .rcard { transform: rotate(.8deg); }
@@ -3870,7 +3315,7 @@
 }
 .rcardName { color: #fff; }
 .rcardMeta { color: var(--map-collage-yellow); }
-.rcardNow { color: #34a85a; }
+
 .openPill:not(.openPillClosed) {
   background: #34a85a;
   color: #fff;
@@ -4014,26 +3459,8 @@
   -webkit-user-drag: none;
   pointer-events: none;
 }
-.galleryLbClose {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 2;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  cursor: pointer;
-}
-.galleryLbClose svg {
-  width: 22px;
-  height: 22px;
-}
+
+
 .galleryLbCounter {
   position: absolute;
   top: 20px;
@@ -4119,28 +3546,13 @@ html .mapBurger img { filter: none; }
    as a clickable sticker so users can always jump back to the start page. The
    logo image carries its own fill, so this only adds the ink frame + hard
    shadow (not the cream/red fill). */
-html .mapHome {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 3;
-  display: block;
-  width: 46px;
-  height: 46px;
-  border: 2px solid #14100c;
-  border-radius: 12px;
-  box-shadow: none;
-  /* Background image so the theme can swap it: yellow mark (light) → red mark
-     (dark) to match the red buttons. */
-  background: url('/pics/logo.webp') center / cover no-repeat;
-  overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform .12s ease, box-shadow .12s ease;
-}
+
 
 /* Hover: a small sticker "peel" lift, no colour flash (hover-capable only). */
 @media (hover: hover) {
-  html .mapBurger:hover, html .mapSearchBtn:hover, html .fab:hover, html .mapHome:hover {
+  html .mapBurger:hover,
+html .mapSearchBtn:hover,
+html .fab:hover {
     transform: translate(-1px, -1px);
     box-shadow: none;
   }
@@ -4224,28 +3636,13 @@ html .mapBurger img { filter: none; }
    as a clickable sticker so users can always jump back to the start page. The
    logo image carries its own fill, so this only adds the ink frame
    (not the cream/red fill). */
-html .mapHome {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 3;
-  display: block;
-  width: 46px;
-  height: 46px;
-  border: 2px solid #14100c;
-  border-radius: 12px;
-  box-shadow: none;
-  /* Background image so the theme can swap it: yellow mark (light) → red mark
-     (dark) to match the red buttons. */
-  background: url('/pics/logo.webp') center / cover no-repeat;
-  overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform .12s ease, box-shadow .12s ease;
-}
+
 
 /* Hover: a small sticker "peel" lift, no colour flash (hover-capable only). */
 @media (hover: hover) {
-  html .mapBurger:hover, html .mapSearchBtn:hover, html .fab:hover, html .mapHome:hover {
+  html .mapBurger:hover,
+html .mapSearchBtn:hover,
+html .fab:hover {
     transform: translate(-1px, -1px);
     box-shadow: none;
   }
@@ -4311,15 +3708,13 @@ html .fab { right: 14px; }
 html .mapBurger,
 html .mapSearchBtn,
 html .mapSearchToolbar,
-html .fab,
-html .mapHome {
+html .fab {
   border: 2px solid #14100c;
   border-radius: 0;
   box-shadow: none;
 }
 html .mapBurger,
-html .fab,
-html .mapHome {
+html .fab {
   background-color: #ef3108;
   color: #fff;
 }
@@ -4333,13 +3728,9 @@ html .mapSearchInput,
 html .mapSearchClear { color: #14100c; }
 html .mapSearchInput::placeholder { color: #14100c; opacity: .58; }
 html .mapBurger img { filter: brightness(0) invert(1); }
-html .mapHome {
-  background-image: url('/pics/logo-red.webp');
-  background-size: cover;
-}
+
 .rdHeartToggle,
 .rdCloseGlass,
-.galleryLbClose,
 .galleryLbArrow {
   border-radius: 0;
   background: #ef3108;
@@ -4351,20 +3742,11 @@ html .mapHome {
 }
 .rdHeartToggle:active,
 .rdCloseGlass:active,
-.galleryLbClose:active,
 .galleryLbArrow:active {
   transform: translate(2px, 2px);
   box-shadow: none;
 }
-.filterChipCaret {
-  width: 14px;
-  height: 14px;
-  padding: 2px;
-  background: #ffd079;
-  border: 1px solid #14100c;
-  box-shadow: none;
-  opacity: 1;
-}
+
 .panelToggle {
   border-radius: 0;
   background: #ffd079;
@@ -4472,10 +3854,8 @@ html .mapHome {
 html .mapSearchBtn,
 html .mapBurger,
 html .fab,
-html .mapHome,
 .rdHeartToggle,
 .rdCloseGlass,
-.galleryLbClose,
 .galleryLbArrow,
 .panelToggle {
   border: 0;
@@ -4502,17 +3882,8 @@ html .fab {
   clip-path: polygon(3% 8%, 92% 0, 100% 91%, 9% 100%);
   transform: rotate(-3deg);
 }
-html .mapHome {
-  clip-path: polygon(4% 0, 100% 8%, 91% 100%, 0 92%);
-  transform: rotate(3deg);
-}
-.mapHomeLogo {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-}
+
+
 .mapSearchToolbar {
   border: 0;
   border-radius: 0;
@@ -4539,21 +3910,13 @@ html .mapHome {
   transform: rotate(-4deg);
 }
 .rdCloseGlass,
-.galleryLbClose,
 .galleryLbArrowNext {
   background: #fff;
   color: #14100c;
   clip-path: polygon(8% 0, 100% 10%, 90% 100%, 0 88%);
   transform: rotate(4deg);
 }
-.filterChipCaret {
-  background: #fff;
-  border: 0;
-  box-shadow: none;
-  clip-path: polygon(4% 8%, 94% 0, 100% 90%, 9% 100%);
-  transform: rotate(5deg);
-  filter: drop-shadow(0 2px 2px rgba(43, 33, 28, .25));
-}
+
 .panelToggle {
   background: #fff;
   color: #14100c;
@@ -4562,9 +3925,8 @@ html .mapHome {
 }
 @media (hover: hover) {
   html .mapSearchBtn:hover,
-  html .mapBurger:hover,
-  html .fab:hover,
-  html .mapHome:hover {
+html .mapBurger:hover,
+html .fab:hover {
     box-shadow: none;
     transform: rotate(0) translateY(-4px) scale(1.05);
   }
@@ -4634,31 +3996,6 @@ html .mapHome {
   text-shadow: none;
 }
 
-html .mapHome {
-  width: 56px;
-  height: 58px;
-  top: 12px;
-  left: 12px;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background-color: transparent;
-  background-image: url('/pics/eat-this-square.webp');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  box-shadow: none;
-  clip-path: none;
-  filter: none;
-  transform: rotate(-4deg);
-}
-@media (hover: hover) {
-  html .mapHome:hover {
-    box-shadow: none;
-    filter: none;
-    transform: rotate(2deg) translateY(-4px) scale(1.07);
-  }
-}
 
 /* Desktop filter panel: show every control in one compact row without a
    horizontal swipe rail. */
@@ -4690,11 +4027,7 @@ html .mapHome {
     font-size: 9px;
     letter-spacing: .01em;
   }
-  .filterChipRow .filterChipCaret {
-    width: 10px;
-    height: 10px;
-    padding: 1px;
-  }
+
 }
 
 .pinLogo {
@@ -5047,8 +4380,7 @@ html .fab:active {
   box-shadow: none;
 }
 
-.filterChip,
-.openChip {
+.filterChip {
   background: var(--brand-paper);
   color: var(--brand-ink);
   border: 1.5px solid var(--brand-ink);
@@ -5057,17 +4389,12 @@ html .fab:active {
 }
 
 .filterChipActive,
-.filterChipOpenActive,
-.openChipActive {
+.filterChipOpenActive {
   background: var(--brand-action);
   color: var(--brand-paper);
   border-color: var(--brand-ink);
 }
 
-.filterChipReset {
-  color: var(--brand-action);
-  border-left-color: var(--brand-rule);
-}
 
 .pickerSheet {
   background: var(--brand-paper);
@@ -5075,11 +4402,7 @@ html .fab:active {
   border-top: 2px solid var(--brand-ink);
 }
 
-.pickerHandle {
-  background: var(--brand-rule);
-}
 
-.pickerTitle,
 .pickerItem {
   color: currentColor;
 }
@@ -5098,12 +4421,6 @@ html .fab:active {
   color: var(--brand-paper);
 }
 
-.pickerCloseBtn {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border: 1.5px solid var(--brand-ink);
-  box-shadow: none;
-}
 
 .detailV13,
 .detailV13Scroll {
@@ -5120,7 +4437,6 @@ html .fab:active {
   color: var(--brand-ink);
 }
 
-.detailInSheet .detailActions .btn,
 .btn,
 .btnPrimary,
 .btnPackPromo {
@@ -5133,7 +4449,6 @@ html .fab:active {
   backdrop-filter: none;
 }
 
-.detailInSheet .detailActions .btn:hover,
 .btn:hover,
 .btnPrimary:hover,
 .btnPackPromo:hover {
@@ -5144,64 +4459,12 @@ html .fab:active {
   box-shadow: none;
 }
 
-.boosterOffer,
-.boosterOfferList {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border: 2px solid var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
-}
-
-.boosterOffer::before,
-.boosterOffer::after {
-  content: none;
-}
-
-.boosterTitle,
-.boosterDesc,
-.boosterPromoTitle,
-.boosterPromoSub {
-  color: var(--brand-paper);
-}
-
-.boosterDesc,
-.boosterPromoSub {
-  opacity: .82;
-}
-
-.boosterCta,
-.btnPromo {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border: 1.5px solid var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-  box-shadow: none;
-}
-
-.boosterCta:hover,
-.btnPromo:hover {
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-}
-
-.btnPromoLbl,
-.btnPromoPriceTag {
-  color: currentColor;
-}
-
-.btnPromoPriceTag {
-  border-left-color: var(--brand-rule);
-}
 
 .detailV13MustEat .detailV13Scroll {
   color: var(--brand-ink);
   background: var(--brand-paper);
 }
 
-.fdHalo {
-  display: none;
-}
 
 .fdMid {
   background: transparent;
@@ -5271,21 +4534,13 @@ html .mapSearchBtn,
 html .mapSearchToolbar,
 html .fab,
 .mapBurger,
-.mapHome,
 .rdCloseGlass,
-.galleryLbClose,
 .rdActBtn,
 .rdPagerBtn,
 .btn,
-.detailInSheet .detailActions .btn,
 .btnPrimary,
 .btnPackPromo,
-.boosterCta,
-.btnPromo,
 .filterChip,
-.filterChipReset,
-.openChip,
-.pickerCloseBtn,
 .pickerItemActive,
 .ctaPill,
 .fdClose {
@@ -5296,26 +4551,18 @@ html .fab,
 
 @media (hover: hover) {
   html .mapSearchBtn:hover,
-  html .fab:hover,
-  html .mapBurger:hover,
-  html .mapHome:hover,
-  .rdCloseGlass:hover,
-  .galleryLbClose:hover,
-  .rdActBtn:hover,
-  .rdPagerBtn:hover,
-  .btn:hover,
-  .detailInSheet .detailActions .btn:hover,
-  .btnPrimary:hover,
-  .btnPackPromo:hover,
-  .boosterCta:hover,
-  .btnPromo:hover,
-  .filterChip:hover,
-  .filterChipReset:hover,
-  .openChip:hover,
-  .pickerCloseBtn:hover,
-  .pickerItemActive:hover,
-  .ctaPill:hover,
-  .fdClose:hover {
+html .fab:hover,
+html .mapBurger:hover,
+.rdCloseGlass:hover,
+.rdActBtn:hover,
+.rdPagerBtn:hover,
+.btn:hover,
+.btnPrimary:hover,
+.btnPackPromo:hover,
+.filterChip:hover,
+.pickerItemActive:hover,
+.ctaPill:hover,
+.fdClose:hover {
     box-shadow: none !important;
     filter: none !important;
     text-shadow: none !important;
@@ -5538,7 +4785,6 @@ html .linkPromo:hover {
 html .mapSearchBtn,
 html .mapSearchToolbar,
 html .fab,
-html .mapHome,
 html .mapBurger {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .34)),
@@ -5552,9 +4798,8 @@ html .mapBurger {
 
 @media (hover: hover) {
   html .mapSearchBtn:hover,
-  html .fab:hover,
-  html .mapHome:hover,
-  html .mapBurger:hover {
+html .fab:hover,
+html .mapBurger:hover {
     background:
       linear-gradient(180deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .46)),
       rgba(255, 255, 255, .46) !important;
@@ -5595,34 +4840,12 @@ html .filterChipOpenActive {
   box-shadow: 3px 3px 0 rgba(23, 26, 23, .26) !important;
 }
 
-html .filterChipCaret {
-  display: none !important;
-}
 
 html .filterChip[aria-expanded="true"] {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 rgba(23, 26, 23, .24) !important;
 }
 
-html .filterChipReset {
-  width: 22px;
-  margin-left: 0;
-  background: var(--brand-ink) !important;
-  color: var(--brand-paper) !important;
-  border: 1.5px solid var(--brand-ink) !important;
-  box-shadow: none !important;
-  filter: none !important;
-  border-radius: 0 !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-html .filterChipReset span {
-  display: block;
-  transform: translateY(-1px);
-}
 
 @media (max-width: 1023px) {
   html .filterChipRow {
@@ -5659,9 +4882,7 @@ html .filterChipReset span {
     text-overflow: ellipsis;
   }
 
-  html .filterChipRow .filterChipCaret {
-    display: none !important;
-  }
+
 }
 
 @media (min-width: 1024px) {
@@ -5674,11 +4895,7 @@ html .filterChipReset span {
     padding: 8px 7px 9px;
   }
 
-  html .filterChipRow .filterChipCaret {
-    width: 12px;
-    height: 12px;
-    padding: 0 !important;
-  }
+
 }
 
 /* Simple mobile sheet handle: quiet top edge, small neutral drag affordance. */
@@ -5961,45 +5178,6 @@ html .filterChipOpenActive {
   }
 }
 
-html .filterChipWrap:has(.filterChipReset) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 20px;
-  align-items: stretch;
-  column-gap: 0;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: 3px 3px 0 rgba(23, 26, 23, .26);
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChip {
-  width: 100%;
-  min-width: 0;
-  padding-left: 6px;
-  padding-right: 4px;
-  letter-spacing: 0;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipLabel {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-  width: 20px;
-  min-width: 20px;
-  margin-left: 0;
-  color: var(--brand-paper) !important;
-  border-left: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
 
 @media (max-width: 1023px) {
   html .filterChipRow {
@@ -6106,7 +5284,6 @@ html .fab:hover {
   @media (pointer: coarse) {
     .lightboxImg,
 .medishPh img,
-.boosterFanPack,
 .pinLogoHasMust::after,
 .pinLogoShape,
 html .mapBurger {
@@ -6253,18 +5430,6 @@ html .rcardMetaCategory {
   border-color: rgba(255, 255, 255, .34);
 }
 
-html .rcardTime {
-  margin: 7px 0 0;
-  color: rgba(255, 255, 255, .86);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .08em;
-}
-
-html .rcardNow {
-  color: #218446;
-}
 
 html .rcardActive {
   outline: 3px solid var(--brand-action);
@@ -6445,12 +5610,6 @@ html .medish {
   background: #fff;
 }
 
-html .medishNm {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .12em;
-}
 
 html .rdFacts {
   margin: 12px 16px 26px;
@@ -6817,38 +5976,6 @@ html .rdGalleryBlock {
   padding: 18px 0 6px;
 }
 
-html .rdGalleryHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin: 0 16px 10px;
-  padding-top: 14px;
-  border-top: 2px solid currentColor;
-}
-
-html .rdGalleryTitle {
-  margin: 0;
-  color: currentColor;
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
-  font-size: 34px;
-  font-weight: 400;
-  letter-spacing: .01em;
-  line-height: .82;
-  text-transform: uppercase;
-}
-
-html .rdGalleryCount {
-  display: inline-grid;
-  place-items: center;
-  min-width: 30px;
-  height: 30px;
-  padding: 0 8px;
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 950;
-}
 
 html .rdGallery {
   gap: 13px;
@@ -6930,18 +6057,6 @@ html .rdMustHead .rdSecH {
   color: currentColor;
 }
 
-html .rdMustSub {
-  max-width: 15ch;
-  margin: 0;
-  color: rgba(255, 255, 255, .72);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .06em;
-  line-height: 1.2;
-  text-align: right;
-  text-transform: uppercase;
-}
 
 html .rdMustGrid {
   gap: 0;
@@ -6979,43 +6094,6 @@ html .medishPh img {
   max-height: 148px;
 }
 
-html .medishLbl {
-  min-height: 58px;
-  padding: 8px 2px 0;
-  color: var(--brand-ink);
-  text-align: left;
-}
-
-html .medishKicker,
-html .medishPrice {
-  display: block;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 8.5px;
-  font-weight: 950;
-  letter-spacing: .08em;
-  line-height: 1.1;
-  text-transform: uppercase;
-}
-
-html .medishKicker {
-  color: var(--brand-action);
-}
-
-html .medishNm {
-  margin: 4px 0 0;
-  color: var(--brand-ink);
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: .01em;
-  line-height: .86;
-  opacity: 1;
-}
-
-html .medishPrice {
-  margin-top: 6px;
-  color: rgba(21, 18, 14, .62);
-}
 
 html .rdFacts {
   margin: 18px 14px 24px;
@@ -7183,10 +6261,6 @@ html .linkPromo {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  html .rdMustSub {
-    max-width: 100%;
-    text-align: left;
-  }
 
   html .rdRow,
   html .rdRowHours {
@@ -7376,16 +6450,6 @@ html .rdPagerBtnRight .rdPagerCopy {
   justify-items: end;
 }
 
-html .rdPagerLabel {
-  display: block;
-  font-family: var(--font, system-ui, sans-serif);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .08em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--brand-ink) 58%, transparent);
-}
 
 html .rdPagerName {
   font-family: var(--font-saira-condensed, var(--font-label), sans-serif) !important;
@@ -7408,11 +6472,6 @@ html .rdGalleryBlock {
   padding: 18px 0 4px !important;
 }
 
-html .rdGalleryHead,
-html .rdGalleryTitle,
-html .rdGalleryCount {
-  display: none !important;
-}
 
 html .rdGallery {
   gap: 10px !important;
@@ -7603,9 +6662,6 @@ html .rdMustHead .rdSecH {
   line-height: .9 !important;
 }
 
-html .rdMustSub {
-  display: none !important;
-}
 
 html .rdMustGrid {
   display: grid;
@@ -7644,27 +6700,6 @@ html .medishPh img {
   max-height: none !important;
 }
 
-html .medishLbl {
-  min-height: 0 !important;
-  padding: 4px 4px 0 !important;
-  text-align: center !important;
-}
-
-html .medishKicker {
-  display: none !important;
-}
-
-html .medishNm {
-  margin: 0 !important;
-  color: var(--brand-ink) !important;
-  font-size: 18px !important;
-  line-height: .92 !important;
-}
-
-html .medishPrice {
-  margin-top: 4px !important;
-  color: color-mix(in srgb, var(--brand-ink) 58%, transparent) !important;
-}
 
 html .packPromo {
   margin: 8px 14px 28px !important;
@@ -7722,7 +6757,6 @@ html .galleryLbBg {
     rgba(28, 23, 18, .82) !important;
 }
 
-html .galleryLbClose,
 html .galleryLbArrow {
   border: 0 !important;
   border-radius: 999px !important;
@@ -7932,15 +6966,6 @@ html .filterChipLabel {
   text-overflow: ellipsis;
 }
 
-html .filterChipCue {
-  display: inline-block;
-  margin-left: 5px;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 950;
-  line-height: 1;
-  transform: translateY(-1px);
-}
 
 html .filterChip[aria-expanded="true"] {
   transform: translate(2px, 2px);
@@ -7959,42 +6984,6 @@ html .filterChipOpenActive {
   border-color: var(--brand-ink) !important;
 }
 
-html .filterChipWrap:has(.filterChipReset) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 18px;
-  align-items: stretch;
-  overflow: hidden;
-  border: 2px solid var(--brand-ink);
-  border-radius: 0 !important;
-  background: var(--brand-action);
-  color: #fff;
-  box-shadow: 3px 3px 0 rgba(21, 18, 14, .24) !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChip {
-  min-height: 38px !important;
-  padding-left: 8px !important;
-  padding-right: 2px !important;
-  background: transparent !important;
-  color: currentColor !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-  width: 18px !important;
-  min-width: 18px !important;
-  padding: 0 !important;
-  background: transparent !important;
-  color: currentColor !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset span {
-  transform: translateY(-1px);
-}
 
 html .pickerSheet {
   background: #fff !important;
@@ -8005,39 +6994,6 @@ html .pickerSheet {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px) !important;
 }
 
-html .pickerHandle {
-  display: none !important;
-}
-
-html .pickerHeader {
-  padding: 14px 16px 11px !important;
-  border-bottom: 2px solid var(--brand-ink) !important;
-}
-
-html .pickerTitle {
-  color: var(--brand-ink) !important;
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif) !important;
-  font-size: 30px !important;
-  font-weight: 400 !important;
-  letter-spacing: .01em !important;
-  line-height: .82 !important;
-}
-
-html .pickerCloseBtn {
-  width: auto !important;
-  height: auto !important;
-  padding: 0 0 2px !important;
-  background: transparent !important;
-  color: var(--brand-ink) !important;
-  border: 0 !important;
-  border-bottom: 2px solid currentColor !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 10px !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-}
 
 html .pickerList {
   padding: 0 !important;
@@ -8069,15 +7025,6 @@ html .pickerItemActive:hover {
   color: #fff !important;
 }
 
-html .pickerItemMark {
-  flex: 0 0 auto;
-  margin-left: 10px;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: .08em;
-  line-height: 1;
-}
 
 @media (min-width: 1024px) {
   html .pickerSheet {
@@ -8270,9 +7217,6 @@ html .rdPagerCopy {
   overflow: hidden;
 }
 
-html .rdPagerLabel {
-  display: none !important;
-}
 
 html .rdPagerName {
   display: block;
@@ -8412,11 +7356,6 @@ html .medish {
   border-radius: 0 !important;
 }
 
-html .medishLbl,
-html .medishNm,
-html .medishPrice {
-  display: none !important;
-}
 
 html .medishPh {
   aspect-ratio: 1539 / 2115;
@@ -8456,7 +7395,6 @@ html .galleryLbImg {
   border-radius: 3px !important;
 }
 
-html .galleryLbClose,
 html .galleryLbArrow {
   clip-path: none !important;
   border: 0 !important;
@@ -8466,7 +7404,6 @@ html .galleryLbArrow {
   box-shadow: none !important;
 }
 
-html .galleryLbClose:hover,
 html .galleryLbArrow:hover {
   background: #d9382a !important;
   color: #fff !important;
@@ -8530,29 +7467,6 @@ html .filterChip {
   backdrop-filter: none !important;
 }
 
-html .filterChipCue {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 5px;
-  padding-left: 6px;
-  min-height: 14px;
-  border-left: 1px solid currentColor;
-  color: currentColor;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 7px !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-  line-height: 1;
-}
-
-html .filterChip[aria-expanded="true"] .filterChipCue::after {
-  content: "";
-  width: 5px;
-  height: 5px;
-  margin-left: 4px;
-  background: currentColor;
-}
 
 html .filterChipActive {
   background: #d9382a !important;
@@ -8564,49 +7478,6 @@ html .filterChipOpenActive {
   color: #fff !important;
 }
 
-html .filterChipWrap:has(.filterChipReset) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
-  min-width: 0;
-  overflow: hidden;
-  background: #d9382a;
-  color: #fff;
-  border: 2px solid #15120e;
-  border-radius: 0 !important;
-  box-shadow: 3px 3px 0 rgba(21, 18, 14, .24) !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChip {
-  min-height: 38px !important;
-  padding-left: 8px !important;
-  padding-right: 4px !important;
-  background: transparent !important;
-  color: currentColor !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-  width: auto !important;
-  min-width: 0 !important;
-  padding: 0 7px 0 2px !important;
-  margin: 0 !important;
-  background: transparent !important;
-  color: currentColor !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 7px !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-  line-height: 1;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset span {
-  transform: none !important;
-}
 
 html .pickerSheet {
   background: #fff !important;
@@ -8616,39 +7487,6 @@ html .pickerSheet {
   box-shadow: 6px 8px 0 rgba(21, 18, 14, .24) !important;
 }
 
-html .pickerHandle {
-  display: none !important;
-}
-
-html .pickerHeader {
-  padding: 14px 16px 11px !important;
-  border-bottom: 2px solid #15120e !important;
-}
-
-html .pickerTitle {
-  color: #15120e !important;
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif) !important;
-  font-size: 30px !important;
-  font-weight: 400 !important;
-  letter-spacing: .01em !important;
-  line-height: .82 !important;
-}
-
-html .pickerCloseBtn {
-  width: auto !important;
-  height: auto !important;
-  padding: 0 0 2px !important;
-  background: transparent !important;
-  color: #15120e !important;
-  border: 0 !important;
-  border-bottom: 2px solid currentColor !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 10px !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-}
 
 html .pickerList {
   padding: 0 !important;
@@ -8676,13 +7514,6 @@ html .pickerItemActive:hover {
   color: #fff !important;
 }
 
-html .pickerItemMark {
-  margin-left: 10px;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
-  font-size: 9px !important;
-  font-weight: 950 !important;
-  letter-spacing: .08em !important;
-}
 
 html .rcard {
   --polaroid-bottom: 40px;
@@ -8857,16 +7688,6 @@ html .rdActBtn:active {
     letter-spacing: .05em !important;
   }
 
-  html .filterChipCue {
-    margin-left: 4px;
-    padding-left: 4px;
-    font-size: 6px !important;
-  }
-
-  html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-    padding-right: 5px !important;
-    font-size: 6px !important;
-  }
 
   html .rdActBtn {
     min-height: 52px !important;
@@ -9041,17 +7862,6 @@ html .filterChipLabel {
   overflow-wrap: anywhere;
 }
 
-html .filterChipCue {
-  display: none !important;
-}
-
-html .filterChip[aria-expanded="true"] .filterChipCue {
-  display: none !important;
-}
-
-html .filterChip[aria-expanded="true"] .filterChipCue::after {
-  content: none !important;
-}
 
 html .filterChipActive {
   background: #d9382a !important;
@@ -9067,55 +7877,6 @@ html .filterChipOpenActive {
   box-shadow: 3px 3px 0 #15120e !important;
 }
 
-html .filterChipWrap:has(.filterChipReset) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 24px;
-  align-items: stretch;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  background: #d9382a;
-  color: #fff;
-  border: 1px solid rgba(217, 56, 42, .78) !important;
-  border-radius: 999px !important;
-  box-shadow:
-    0 10px 24px rgba(217, 56, 42, .20),
-    inset 0 1px 0 rgba(255, 255, 255, .22) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.35) !important;
-  backdrop-filter: blur(18px) saturate(1.35) !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChip {
-  min-height: 46px !important;
-  padding: 7px 4px 8px 8px !important;
-  background: transparent !important;
-  color: currentColor !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px !important;
-  min-width: 24px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  color: currentColor !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--font, system-ui, sans-serif) !important;
-  font-size: 20px !important;
-  font-weight: 550 !important;
-  line-height: 1 !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChipReset span {
-  transform: translateY(-1px) !important;
-}
 
 html .pickerSheet {
   overflow: hidden;
@@ -9127,12 +7888,6 @@ html .pickerSheet {
   padding: 6px !important;
 }
 
-html .pickerHandle,
-html .pickerHeader,
-html .pickerTitle,
-html .pickerCloseBtn {
-  display: none !important;
-}
 
 html .pickerList {
   display: grid;
@@ -9169,9 +7924,6 @@ html .pickerItemActive:hover {
   color: #fff !important;
 }
 
-html .pickerItemMark {
-  display: none !important;
-}
 
 html .rcard {
   display: block !important;
@@ -9334,23 +8086,7 @@ html .detailV13Scroll {
     letter-spacing: .01em !important;
   }
 
-  html .filterChipCue {
-    width: 10px;
-    height: 8px;
-    margin-left: 5px;
-    border: 0;
-  }
 
-  html .filterChipWrap:has(.filterChipReset) .filterChip {
-    padding-left: 6px !important;
-    padding-right: 2px !important;
-  }
-
-  html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-    width: 22px !important;
-    min-width: 22px !important;
-    font-size: 18px !important;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -9371,12 +8107,7 @@ html .detailV13Scroll {
     letter-spacing: .01em !important;
   }
 
-  html .filterChipCue {
-    width: 10px;
-    height: 8px;
-    margin-left: 4px;
-    border: 0;
-  }
+
 }
 
 html .detailV13MustEat .fdClose {
@@ -9476,15 +8207,6 @@ html .mapSearchBtn:focus-visible {
   transform: translateY(-1px) !important;
 }
 
-.mapSearchWord {
-  display: inline-block;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-}
 
 html .mapSearchBtn .mapSearchIcon {
   width: 27px !important;
@@ -9502,11 +8224,6 @@ html .mapSearchBtn:focus-visible {
   outline-offset: 3px !important;
 }
 
-@media (hover: hover) {
-  html .mapSearchBtn:hover .mapSearchWord {
-    animation: mapControlShiver 220ms steps(2, end);
-  }
-}
 
 @media (max-width: 360px) {
   html .mapSearchBtn {
@@ -9636,7 +8353,6 @@ html .detailV13Scroll {
 }
 
 html .filterChip,
-html .filterChipReset,
 html .pickerItem,
 html .rdActBtn,
 html .btnPackPromo,
@@ -9653,7 +8369,6 @@ html .fdClose {
 }
 
 html .filterChip,
-html .filterChipReset,
 html .pickerItem,
 html .fdPagerPrev,
 html .fdPagerNext,
@@ -9702,8 +8417,7 @@ html .rcardBody {
 html .rcardName,
 html .rdName,
 html .fdName,
-html .fdNameText,
-html .pickerTitle {
+html .fdNameText {
   color: var(--et-home-ink) !important;
   font-family: var(--et-font-condensed) !important;
   letter-spacing: 0 !important;
@@ -9717,15 +8431,12 @@ html .rdV,
 html .fdK,
 html .fdV,
 html .fdText,
-html .fdProximitySub,
-html .rcardTime {
+html .fdProximitySub {
   color: var(--et-home-muted) !important;
 }
 
-html .rcardNow,
 html .rcardMetaCategory,
-html .fdProximityReady .fdProximityHead,
-html .filterChipCue {
+html .fdProximityReady .fdProximityHead {
   color: var(--et-home-red) !important;
 }
 
@@ -9808,13 +8519,10 @@ html .filterChipRow {
 }
 
 html .filterChip,
-html .filterChipReset,
 html .mapSearchBtn,
 html .fab,
 html .panelToggle,
-html .listEndCta,
-html .bezirkLockedCta,
-html .btnPromo {
+html .listEndCta {
   border: 2px solid #15120e !important;
   border-radius: 6px !important;
   background: #fff !important;
@@ -9825,10 +8533,7 @@ html .btnPromo {
 }
 
 html .filterChip,
-html .filterChipReset,
-html .listEndCta,
-html .bezirkLockedCta,
-html .btnPromo {
+html .listEndCta {
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
   font-size: 10px !important;
   font-weight: 900 !important;
@@ -10092,15 +8797,12 @@ html .rcardBlurBadge {
 /* Feedback pass: not monochrome, no rounded corners. Keep the home poster
    energy, but use color photos + sharp red/yellow controls. */
 html .filterChip,
-html .filterChipReset,
 html .mapSearchBtn,
 html .mapSearchToolbar,
 html .mapSearchClear,
 html .fab,
 html .panelToggle,
 html .listEndCta,
-html .bezirkLockedCta,
-html .btnPromo,
 html .pickerSheet,
 html .pickerItem,
 html .openPill,
@@ -10110,8 +8812,7 @@ html .rcardBlurBadge {
   border-radius: 0 !important;
 }
 
-html .filterChip,
-html .filterChipReset {
+html .filterChip {
   background: #ffc600 !important;
   color: #15120e !important;
   border-color: #15120e !important;
@@ -10401,33 +9102,6 @@ html .pickerSheet {
   padding: 0 0 max(env(safe-area-inset-bottom, 0px), 8px) !important;
 }
 
-html .pickerHeader {
-  display: flex !important;
-  padding: 14px 14px 12px !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 0 !important;
-}
-
-html .pickerTitle {
-  color: #fff !important;
-  font-family: var(--et-font-condensed, var(--font-label), Impact, sans-serif) !important;
-  font-size: 30px !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-  line-height: .86 !important;
-}
-
-html .pickerCloseBtn {
-  display: grid !important;
-  width: 28px !important;
-  height: 28px !important;
-  background: transparent !important;
-  color: #fff !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
 
 html .pickerList {
   padding: 6px 0 0 !important;
@@ -10456,14 +9130,8 @@ html .pickerItemActive:hover {
   color: #15120e !important;
 }
 
-html .pickerItemMark {
-  display: inline-flex !important;
-  margin-left: 8px !important;
-  color: currentColor !important;
-}
 
-html .esBlock,
-html .bezirkLocked {
+html .esBlock {
   margin: 10px 0 16px !important;
   padding: 22px 16px !important;
   background: #ffc600 !important;
@@ -10476,14 +9144,12 @@ html .bezirkLocked {
 }
 
 html .esKicker,
-html .esSub,
-html .bezirkLockedBody {
+html .esSub {
   color: #15120e !important;
   opacity: 1 !important;
 }
 
-html .esHeading,
-html .bezirkLockedTitle {
+html .esHeading {
   max-width: none !important;
   color: #15120e !important;
   font-family: var(--et-font-condensed, var(--font-label), Impact, sans-serif) !important;
@@ -10497,8 +9163,7 @@ html .esActions {
   align-items: stretch !important;
 }
 
-html .esBtnPrimary,
-html .bezirkLockedCta {
+html .esBtnPrimary {
   width: 100% !important;
   min-height: 44px !important;
   justify-content: center !important;
@@ -10525,7 +9190,6 @@ html .rcardBlurBadge {
 html .filterChip,
 html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
 html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html .filterChipReset,
 html .rcardMetaChip,
 html .rcardMetaCategory {
   min-height: 38px !important;
@@ -10566,23 +9230,6 @@ html .filterChipLabel {
   line-height: inherit !important;
 }
 
-html .filterChipWrap:has(.filterChipReset) {
-  background: var(--et-red, #d9382a) !important;
-  color: var(--et-cream, #fbf8ee) !important;
-  border: 1px solid var(--et-red, #d9382a) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 9px 20px rgba(92, 50, 19, .08) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-html .filterChipWrap:has(.filterChipReset) .filterChip,
-html .filterChipWrap:has(.filterChipReset) .filterChipReset {
-  border: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  color: currentColor !important;
-}
 
 html .rcardMeta {
   gap: 7px !important;
@@ -10606,7 +9253,6 @@ html .rcardMetaChip > span:last-child {
 html .filterChip,
 html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
 html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html .filterChipReset,
 html .filterChipActive,
 html .filterChipOpenActive,
 html .rcardMetaChip,
@@ -10628,7 +9274,6 @@ html .mapStatusLayerOk {
 html .filterChip,
 html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
 html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html .filterChipReset,
 html .filterChipActive,
 html .filterChipOpenActive {
   width: auto !important;
@@ -10662,14 +9307,6 @@ html .filterChipLabel {
   text-transform: inherit !important;
 }
 
-html .filterChipWrap:has(.filterChipReset) {
-  flex: 0 0 auto !important;
-  background: var(--et-home-ink, #15120e) !important;
-  color: var(--et-home-inverse-text, #fff) !important;
-  border: 0 !important;
-  border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: none !important;
-}
 
 html .filterChipWrap {
   flex: 0 0 auto !important;
@@ -10690,11 +9327,10 @@ html .filterChipRow > .filterChip {
 
 @media (max-width: 430px) {
   html .filterChip,
-  html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipReset,
-  html .filterChipActive,
-  html .filterChipOpenActive {
+html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipActive,
+html .filterChipOpenActive {
     min-height: 36px !important;
     padding: 9px 12px !important;
     font-size: 12px !important;
@@ -10709,11 +9345,10 @@ html .filterChipRow > .filterChip {
 
 @media (max-width: 360px) {
   html .filterChip,
-  html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipReset,
-  html .filterChipActive,
-  html .filterChipOpenActive {
+html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipActive,
+html .filterChipOpenActive {
     min-height: 34px !important;
     padding: 8px 10px !important;
     font-size: 11px !important;
@@ -10986,11 +9621,10 @@ html .bodyDetailOpen .mapStatusLayer {
   }
 
   html .filterChip,
-  html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipReset,
-  html .filterChipActive,
-  html .filterChipOpenActive {
+html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipActive,
+html .filterChipOpenActive {
     min-width: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -11020,11 +9654,10 @@ html .bodyDetailOpen .mapStatusLayer {
   }
 
   html .filterChip,
-  html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipReset,
-  html .filterChipActive,
-  html .filterChipOpenActive {
+html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipActive,
+html .filterChipOpenActive {
     min-height: 34px !important;
     padding: 8px 6px !important;
     font-size: 10.5px !important;
@@ -11062,7 +9695,6 @@ html .filterChipRow > .filterChip {
 html .filterChip,
 html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
 html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html .filterChipReset,
 html .filterChipActive,
 html .filterChipOpenActive {
   min-width: 0 !important;
@@ -11090,11 +9722,10 @@ html .filterChipLabelLong {
   }
 
   html .filterChip,
-  html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html .filterChipReset,
-  html .filterChipActive,
-  html .filterChipOpenActive {
+html .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html .filterChipActive,
+html .filterChipOpenActive {
     font-size: 10px !important;
     padding-inline: 5px !important;
   }
@@ -11111,52 +9742,6 @@ html .pickerSheet {
   padding: 0 0 max(env(safe-area-inset-bottom, 0px), 8px) !important;
 }
 
-html .pickerHeader {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 12px !important;
-  padding: 13px 14px 12px !important;
-  background: #15120e !important;
-  color: #fff !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, .2) !important;
-}
-
-html .pickerTitle {
-  min-width: 0 !important;
-  display: block !important;
-  color: inherit !important;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: 22px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  line-height: 1 !important;
-  text-transform: none !important;
-}
-
-html .pickerCloseBtn {
-  display: grid !important;
-  place-items: center !important;
-  width: 30px !important;
-  height: 30px !important;
-  flex: 0 0 30px !important;
-  padding: 0 !important;
-  background: transparent !important;
-  color: inherit !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-html .pickerCloseBtn svg {
-  width: 20px !important;
-  height: 20px !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-width: 2.3 !important;
-  stroke-linecap: round !important;
-}
 
 html .pickerList {
   display: grid !important;
@@ -12333,7 +10918,6 @@ html body .filterChipWrap:has(.filterChipOpenActive) {
 html body .filterChip,
 html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
 html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-html body .filterChipReset,
 html body .filterChipActive,
 html body .filterChipOpenActive {
   width: 100% !important;
@@ -12401,11 +10985,10 @@ html body .filterChipRow.filterChipRow > button.filterChip.filterChip {
   }
 
   html body .filterChip,
-  html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html body .filterChipReset,
-  html body .filterChipActive,
-  html body .filterChipOpenActive {
+html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipActive,
+html body .filterChipOpenActive {
     padding-inline: 5px !important;
     font-size: clamp(9px, 2.7vw, 11px) !important;
   }
@@ -12910,9 +11493,6 @@ html body .pickerSheet .pickerItemSub {
   text-transform: none !important;
 }
 
-html body .pickerSheet .pickerItemMark {
-  display: none !important;
-}
 
 @media (max-width: 1023.98px) {
   html body .listScroll {

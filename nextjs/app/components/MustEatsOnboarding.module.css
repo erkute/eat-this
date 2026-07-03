@@ -1,19 +1,21 @@
 .how {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center;
+  gap: 10px;
   margin: clamp(22px, 3vw, 34px) 0 0;
-  padding: 9px 16px 10px 10px;
-  background: #fff;
-  border: 2px solid #15120e;
+  min-height: 46px;
+  padding: 0 16px;
+  background: #15120e;
+  border: 0;
   border-radius: 0;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0;
   line-height: 1;
-  text-transform: uppercase;
-  color: #15120e;
+  text-transform: none;
+  color: #fff;
   cursor: pointer;
   transition:
     transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
@@ -21,8 +23,10 @@
     color 0.16s ease;
 }
 .how:hover {
-  background: #15120e;
-  color: #fff;
+  background: #fff;
+  color: #15120e;
+  outline: 2px solid #15120e;
+  outline-offset: -2px;
   transform: translateY(-2px);
 }
 .how:active {
@@ -32,16 +36,16 @@
 .howBadge {
   display: inline-grid;
   place-items: center;
-  width: 21px;
-  height: 21px;
-  border-radius: 999px;
-  background: #d9382a;
-  color: #15120e;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 14px;
-  font-weight: 900;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 850;
   line-height: 1;
-  padding-top: 1px;
 }
 
 .backdrop {
@@ -62,6 +66,7 @@
   border: 2px solid #15120e;
   border-radius: 0;
   padding: 40px 24px 24px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
   text-align: center;
   animation: onbRise 0.46s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -129,30 +134,32 @@
 
 /* Slide copy — section-head hierarchy: kicker, display headline, short body */
 .kicker {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  font-family: var(--et-font-label, var(--et-font-mono), monospace);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: #15120e;
-  margin: 0 0 2px;
+  margin: 0 0 8px;
 }
 .title {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: 40px;
-  font-weight: 400;
-  line-height: 0.86;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(34px, 9vw, 44px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: .92;
   text-transform: uppercase;
   color: #15120e;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 .text {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 15px;
-  font-weight: 750;
-  line-height: 1.34;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(16px, 4.3vw, 18px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.42;
   color: #15120e;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   min-height: 4.4em;
 }
 
@@ -172,18 +179,57 @@
   background: #15120e;
 }
 
+.finalActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 .next {
   background: #15120e;
   color: #fff;
   border: 2px solid #15120e;
   border-radius: 0;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: 24px;
-  font-weight: 400;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
   letter-spacing: 0;
-  text-transform: uppercase;
-  padding: 10px 22px 11px;
+  text-transform: none;
+  padding: 13px 24px 14px;
   cursor: pointer;
+}
+
+.packLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 13px 18px 14px;
+  background: #fff;
+  border: 2px solid #15120e;
+  border-radius: 0;
+  color: #15120e;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.next:hover,
+.next:focus-visible,
+.packLink:hover,
+.packLink:focus-visible {
+  outline: 2px solid #15120e;
+  outline-offset: 2px;
+}
+
+.packLink:active,
+.next:active {
+  transform: translateY(1px);
 }
 
 @media (prefers-reduced-motion: reduce) {

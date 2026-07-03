@@ -6,26 +6,26 @@
 ============================================================ */
 
 .page {
-  --ink: #000;
-  --cream: #fbf8ee;
-  --cream-deep: #f1ecdd;
-  --yellow: #ffd84a;
-  --muted: #6b5a44;
-  --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
+  --ink: var(--et-home-ink);
+  --cream: var(--et-home-paper);
+  --cream-deep: var(--et-home-quiet);
+  --yellow: var(--et-home-accent);
+  --muted: var(--et-home-muted);
+  --f-display: var(--et-font-display);
   --f-body: var(--font);
 
   /* Bridge semantic tokens so shared components (MustEatTeaserSection,
      Breadcrumbs, RestaurantFAQ) render in cream palette. */
   --text-primary: var(--ink);
-  --text-secondary: #2a2218;
+  --text-secondary: var(--et-home-muted);
   --text-muted: var(--muted);
   --surface-bg: var(--cream);
   --surface-card: var(--cream);
-  --border-subtle: rgba(0, 0, 0, 0.18);
+  --border-subtle: var(--et-home-line);
   --border-strong: var(--ink);
   --accent: var(--yellow);
 
-  background: var(--et-yellow);
+  background: var(--et-home-paper);
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -48,11 +48,12 @@
 .hero {
   position: relative;
   margin: 18px 24px 0;
-  aspect-ratio: 4 / 5;
-  background-color: #14100c;
+  aspect-ratio: var(--et-img-card-ratio);
+  background-color: var(--et-home-ink);
   overflow: hidden;
-  border: 11px solid #fff;
-  box-shadow: 0 18px 34px rgba(43, 33, 28, .18);
+  border: 10px solid var(--et-home-paper);
+  border-radius: var(--et-radius-photo);
+  box-shadow: var(--et-shadow-none);
   transform: rotate(-1deg);
 }
 .heroImg {
@@ -60,7 +61,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: var(--et-img-photo-fit);
 }
 /* Public heart-count badge — frosted chip in the top-left of the hero photo. */
 .heroHeartBadge {
@@ -82,43 +83,8 @@
   );
   pointer-events: none;
 }
-.heroTopcap {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  display: flex;
-  justify-content: flex-start;
-  z-index: 2;
-}
-.openPill {
-  background: var(--yellow);
-  color: var(--ink);
-  font-family: var(--f-display);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 5px 9px 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.openPill::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--ink);
-  border-radius: 999px;
-}
-.openPill.closed {
-  background: var(--cream-deep);
-  color: var(--ink);
-  opacity: 0.85;
-}
-.openPill.closed::before {
-  background: var(--ink);
-  opacity: 0.45;
-}
+
+
 .heroOverlay {
   position: absolute;
   inset: auto 18px 18px;
@@ -202,29 +168,7 @@
   word-break: break-word;
   hyphens: auto;
 }
-.tags {
-  margin: 8px 16px 16px;
-  font-family: var(--f-display);
-  font-size: 14px;
-  line-height: 1.15;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.tags .chip {
-  background: var(--yellow);
-  color: var(--ink);
-  padding: 5px 10px 5px;
-}
-.tags .chipAlt {
-  background: transparent;
-  border: 1.5px solid var(--ink);
-  color: var(--ink);
-  padding: 4px 10px 4px;
-}
+
 
 /* ============================================================
    INSIDER TIPP — yellow surface with offset ink shadow
@@ -539,7 +483,7 @@
   }
   .hero { margin: 8px 22px 0; }
   .name { margin: 20px 22px 0; }
-  .tags { margin: 10px 22px 18px; }
+
   .tipp { margin: 8px 22px 28px; }
   .story { padding: 0 22px 8px; }
   .facts { margin: 18px 22px 28px; }
@@ -731,95 +675,6 @@
 }
 
 /* ============================================================
-   DARK MODE — dark surfaces, red accents replace yellow.
-   Token re-point flips most of the page; the yellow Insider-Tipp,
-   the ink action button, and the hero gradient/photo overlays get
-   explicit handling. Photos and text-over-photo stay untouched.
-============================================================ */
-html[data-theme="dark"] .page {
-  --ink: #f0e8d0;
-  --cream: #111110;
-  --cream-deep: #1d1c19;
-  --yellow: var(--c-coral);
-  --muted: rgba(240, 232, 208, 0.72);
-
-  --text-primary: #f0e8d0;
-  --text-secondary: rgba(240, 232, 208, 0.82);
-  --text-muted: rgba(240, 232, 208, 0.72);
-  --surface-bg: #111110;
-  --surface-card: #1d1c19;
-  --border-subtle: rgba(240, 232, 208, 0.3);
-  --border-strong: #f0e8d0;
-  --accent: var(--c-coral);
-}
-
-html[data-theme="dark"] .order {
-  background: #181112;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, .28);
-}
-
-/* Hero pill + chips sit on the photo (already dark) — flip the yellow
-   fill to coral with cream label, leave the white-glass alt chip. */
-html[data-theme="dark"] .openPill {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-html[data-theme="dark"] .openPill::before {
-  background: #fbf8ee;
-}
-html[data-theme="dark"] .openPill.closed {
-  background: rgba(240, 232, 208, 0.16);
-  color: var(--cream);
-}
-html[data-theme="dark"] .openPill.closed::before {
-  background: var(--cream);
-}
-html[data-theme="dark"] .heroTags .chip,
-html[data-theme="dark"] .tags .chip {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-
-/* Insider-Tipp — was yellow fill + ink border + ink offset shadow.
-   In dark it becomes a coral sticker with cream label and a cream
-   offset shadow so it still reads as a raised callout. */
-html[data-theme="dark"] .tipp {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: #f0e8d0;
-  box-shadow: 6px 6px 0 0 rgba(240, 232, 208, 0.25);
-}
-html[data-theme="dark"] .tippLabel,
-html[data-theme="dark"] .tippText {
-  color: #fbf8ee;
-}
-
-/* Primary action button — was ink bg / cream label. On a now-dark page
-   that inverts so the CTA stays the high-contrast block. */
-html[data-theme="dark"] .actPrimary {
-  background: #f0e8d0;
-  color: #0a0a0a;
-}
-
-@media (min-width: 1024px) {
-  /* Tipp offset shadow grows on desktop — keep it cream in dark. */
-  html[data-theme="dark"] .tipp {
-    box-shadow: 8px 8px 0 0 rgba(240, 232, 208, 0.25);
-  }
-}
-
-/* On-photo text: --cream is in dark auf #111110 umgebogen (Seitenflächen),
-   aber Hero-Name/Overlay/Chips nutzen --cream als TEXT über dem Foto —
-   die müssen hell bleiben. Explizit auf literal cream pinnen. */
-html[data-theme="dark"] .heroOverlay { color: #fbf8ee; }
-html[data-theme="dark"] .heroName { color: #fbf8ee; }
-html[data-theme="dark"] .heroTags .chipAlt { color: #fbf8ee; }
-html[data-theme="dark"] .heroTags .chipOpen::before,
-html[data-theme="dark"] .heroTags .chipClosed::before { background: #fbf8ee; }
-html[data-theme="dark"] .openPill.closed { color: #fbf8ee; }
-html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }
-
-/* ============================================================
    Print palette pass — restaurant detail surfaces.
    ============================================================ */
 
@@ -846,19 +701,15 @@ html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }
   border-color: var(--brand-paper);
 }
 
-.openPill,
 .heroTags .chip,
-.heroTags .chipAlt,
-.tags .chip,
-.tags .chipAlt {
+.heroTags .chipAlt {
   background: var(--brand-paper);
   color: var(--brand-ink);
   border-color: var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
 }
 
-.heroTags .chipOpen,
-.openPill {
+.heroTags .chipOpen {
   background: var(--brand-action);
   color: var(--brand-paper);
   border-color: var(--brand-paper);
@@ -930,74 +781,10 @@ html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }
   box-shadow: 4px 4px 0 var(--brand-action);
 }
 
-html[data-theme="dark"] .page {
-  --ink: var(--brand-paper);
-  --cream: var(--brand-ink);
-  --cream-deep: var(--brand-ink);
-  --yellow: var(--brand-action);
-  --muted: color-mix(in srgb, var(--brand-paper) 72%, transparent);
-  --text-primary: var(--brand-paper);
-  --text-secondary: color-mix(in srgb, var(--brand-paper) 82%, transparent);
-  --text-muted: color-mix(in srgb, var(--brand-paper) 72%, transparent);
-  --surface-bg: var(--brand-ink);
-  --surface-card: var(--brand-ink);
-  --border-subtle: color-mix(in srgb, var(--brand-rule) 42%, transparent);
-  --border-strong: var(--brand-paper);
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-}
-
-html[data-theme="dark"] .story,
-html[data-theme="dark"] .lede::first-letter,
-html[data-theme="dark"] .pullQuote,
-html[data-theme="dark"] .orderHead,
-html[data-theme="dark"] .orderDish,
-html[data-theme="dark"] .orderPrice,
-html[data-theme="dark"] .orderNote {
-  color: var(--brand-paper);
-}
-
-html[data-theme="dark"] .heroTags .chipAlt {
-  background: rgba(20, 16, 12, 0.58);
-  color: #fbf8ee;
-  border-color: rgba(251, 248, 238, 0.74);
-}
-
-html[data-theme="dark"] .order,
-html[data-theme="dark"] .act {
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-  border-color: var(--brand-paper);
-  box-shadow: 4px 4px 0 var(--brand-action);
-}
-
-html[data-theme="dark"] .tipp {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border-color: var(--brand-paper);
-  box-shadow: 6px 6px 0 var(--brand-paper);
-}
-
-html[data-theme="dark"] .factsKey {
-  color: var(--brand-action);
-}
-html[data-theme="dark"] .factsVal,
-html[data-theme="dark"] .factsVal a,
-html[data-theme="dark"] .hoursTime {
-  color: var(--brand-paper);
-}
-html[data-theme="dark"] .hoursDay {
-  color: color-mix(in srgb, var(--brand-paper) 66%, transparent);
-  opacity: 1;
-}
-
-/* Flat controls: buttons and icon controls use line + fill, no shadows. */
 .act,
 .actPrimary,
 .act:hover,
-.actPrimary:hover,
-html[data-theme="dark"] .act,
-html[data-theme="dark"] .actPrimary {
+.actPrimary:hover {
   box-shadow: none;
   text-shadow: none;
 }
@@ -1036,7 +823,6 @@ html[data-theme="dark"] .actPrimary {
 }
 
 .heroName,
-.title,
 .orderHead,
 .orderDish,
 .factsKey,
@@ -1047,28 +833,22 @@ html[data-theme="dark"] .actPrimary {
   letter-spacing: 0;
 }
 
-.openPill,
 .heroTags .chip,
 .heroTags .chipOpen,
 .heroTags .chipClosed,
-.heroTags .chipAlt,
-.tags .chip,
-.tags .chipAlt {
+.heroTags .chipAlt {
   border-radius: 0;
   box-shadow: none;
 }
 
-.openPill,
 .heroTags .chip,
-.heroTags .chipOpen,
-.tags .chip {
+.heroTags .chipOpen {
   background: #d9382a;
   color: #fff;
   border-color: #15120e;
 }
 
-.heroTags .chipAlt,
-.tags .chipAlt {
+.heroTags .chipAlt {
   background: #fff;
   color: #15120e;
   border-color: #15120e;
@@ -1195,8 +975,7 @@ html[data-theme="dark"] .actPrimary {
   color: var(--detail-ink);
 }
 
-.heroTags,
-.tags {
+.heroTags {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -1206,10 +985,7 @@ html[data-theme="dark"] .actPrimary {
 .heroTags .chip,
 .heroTags .chipAlt,
 .heroTags .chipOpen,
-.heroTags .chipClosed,
-.tags .chip,
-.tags .chipAlt,
-.openPill {
+.heroTags .chipClosed {
   min-height: 34px;
   padding: 8px 14px;
   border: 2px solid var(--detail-ink);
@@ -1225,15 +1001,12 @@ html[data-theme="dark"] .actPrimary {
 }
 
 .heroTags .chip,
-.tags .chip,
-.heroTags .chipOpen,
-.openPill {
+.heroTags .chipOpen {
   background: var(--detail-red);
   color: #fff;
 }
 
-.heroTags .chipClosed,
-.openPill.closed {
+.heroTags .chipClosed {
   background: var(--detail-ink);
   color: #fff;
 }
@@ -1535,12 +1308,9 @@ html[data-theme="dark"] .actPrimary {
   }
 
   .heroTags .chip,
-  .heroTags .chipAlt,
-  .heroTags .chipOpen,
-  .heroTags .chipClosed,
-  .tags .chip,
-  .tags .chipAlt,
-  .openPill {
+.heroTags .chipAlt,
+.heroTags .chipOpen,
+.heroTags .chipClosed {
     min-height: 30px;
     padding: 7px 10px;
     font-size: 10px;
@@ -1622,44 +1392,131 @@ html[data-theme="dark"] .actPrimary {
   color: rgba(255, 255, 255, .62);
 }
 
-html[data-theme="dark"] .page {
-  --detail-ink: #f4efe4;
-  --detail-paper: #15120e;
-  --detail-red: #f05243;
-  --detail-muted: rgba(244, 239, 228, .66);
-  --text-primary: var(--detail-ink);
-  --text-secondary: var(--detail-ink);
-  --text-muted: var(--detail-muted);
-  --surface-bg: var(--detail-paper);
-  --surface-card: var(--detail-paper);
-  --border-strong: var(--detail-ink);
-  --accent: var(--detail-red);
-  --brand-ink: var(--detail-ink);
-  --brand-paper: var(--detail-paper);
-  --brand-action: var(--detail-red);
+/* Final Home consolidation: restaurant detail mirrors Home's paper/ink/red
+   grammar with flat media, strong rules and no dark content slabs. */
+.page {
+  --detail-ink: var(--et-home-ink);
+  --detail-paper: var(--et-home-paper);
+  --detail-red: var(--et-home-red);
+  --detail-muted: var(--et-home-muted);
+  --detail-rule: var(--et-home-line);
+  --ink: var(--detail-ink);
+  --cream: var(--detail-paper);
+  --yellow: var(--detail-red);
+  --muted: var(--detail-muted);
   background: var(--detail-paper);
   color: var(--detail-ink);
 }
 
-html[data-theme="dark"] .facts {
-  background: #f3ead8;
-  color: #15120e;
+.hero,
+.sibPhoto {
+  border: 0;
+  border-radius: var(--et-radius-photo);
+  box-shadow: none;
+  transform: none;
 }
 
-html[data-theme="dark"] .factsRow {
-  border-bottom-color: rgba(21, 18, 14, .14);
+.hero {
+  background: var(--detail-red);
 }
 
-html[data-theme="dark"] .factsKey {
-  color: #d9382a;
+.heroGradient {
+  background: var(--et-home-photo-overlay);
 }
 
-html[data-theme="dark"] .factsVal,
-html[data-theme="dark"] .factsVal a,
-html[data-theme="dark"] .hours {
-  color: #15120e;
+.heroName,
+.name,
+.siblings h2,
+.sibRowHead,
+.sibName,
+.orderHead,
+.orderDish,
+.pullQuote {
+  font-family: var(--et-font-condensed);
+  letter-spacing: 0;
 }
 
-html[data-theme="dark"] .hoursDay {
-  color: rgba(21, 18, 14, .62);
+.tipp,
+.order,
+.facts,
+.act,
+.actPrimary,
+.siblings {
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.tipp {
+  background: var(--detail-red);
+  color: var(--detail-paper);
+  border: 0;
+}
+
+.tippLabel,
+.tippText {
+  color: var(--detail-paper);
+}
+
+.order,
+.facts {
+  background: var(--detail-paper);
+  color: var(--detail-ink);
+  border: 0;
+}
+
+.order {
+  padding: clamp(18px, 4vw, 30px) 0 0;
+  border-top: 3px solid var(--detail-ink);
+}
+
+.facts {
+  overflow: visible;
+  padding: 0;
+  border-top: 3px solid var(--detail-ink);
+}
+
+.facts::before {
+  display: none;
+}
+
+.factsRow {
+  padding: 18px 0;
+  border-bottom: 2px solid var(--detail-ink);
+}
+
+.factsKey {
+  color: var(--detail-red);
+}
+
+.factsVal,
+.factsVal a,
+.hours,
+.hoursDay,
+.orderHead,
+.orderDish,
+.orderPrice,
+.orderNote {
+  color: var(--detail-ink);
+}
+
+.orderPrice,
+.orderNote,
+.factsVal,
+.hours {
+  color: var(--detail-muted);
+}
+
+.act,
+.actPrimary {
+  border-radius: var(--et-radius-control);
+}
+
+.sibPhoto {
+  border: 0;
+  background: var(--detail-red);
+}
+
+.sibCard {
+  border-bottom: 3px solid var(--detail-ink);
 }

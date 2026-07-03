@@ -1,18 +1,18 @@
 .faq {
   margin: 32px 16px 24px;
-  border-top: 2px solid var(--ink, #000);
+  border-top: 2px solid var(--ink, var(--et-home-ink));
   padding-top: 18px;
 }
 .heading {
-  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--f-display, var(--et-font-display));
   font-size: clamp(28px, 7vw, 40px);
   line-height: 1;
   text-transform: uppercase;
-  color: var(--ink, #000);
+  color: var(--ink, var(--et-home-ink));
   margin: 0 0 14px;
 }
 .row {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--et-home-line);
 }
 .row summary {
   list-style: none;
@@ -25,11 +25,11 @@
 }
 .row summary::-webkit-details-marker { display: none; }
 .q {
-  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--f-display, var(--et-font-display));
   font-size: 20px;
   font-weight: 400;
   letter-spacing: -0.005em;
-  color: var(--ink, #000);
+  color: var(--ink, var(--et-home-ink));
   flex: 1;
   line-height: 1.35;
 }
@@ -37,8 +37,8 @@
   flex-shrink: 0;
   width: 26px;
   height: 26px;
-  border: 2px solid var(--ink, #000);
-  color: var(--ink, #000);
+  border: 2px solid var(--ink, var(--et-home-ink));
+  color: var(--ink, var(--et-home-ink));
   position: relative;
 }
 /* "+" drawn as two CSS strokes — font-independent so Anton's quirky
@@ -70,17 +70,11 @@
   font-family: var(--font);
   font-size: 14.5px;
   line-height: 1.55;
-  color: var(--ink, #000);
+  color: var(--ink, var(--et-home-ink));
   margin: 0 0 18px;
   opacity: 0.88;
 }
 
 @media (min-width: 720px) {
   .faq { margin: 40px 22px 28px; }
-}
-
-/* ── Dark mode: text/borders/plus-icon ride the parent page's flipped
-   --ink token; only the hard-coded row hairline needs flipping. ── */
-html[data-theme="dark"] .row {
-  border-bottom-color: rgba(240, 232, 208, 0.2);
 }

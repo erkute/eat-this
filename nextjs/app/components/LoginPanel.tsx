@@ -141,28 +141,31 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
         </>
       ) : modal ? (
         <div className={styles.modalSimple}>
-          <section className={styles.modalPack} aria-labelledby="login-panel-title">
-            <p className={styles.modalBrand}>EAT THIS</p>
-            <div className={styles.modalPackHero} aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/pics/booster/booster_free.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
+          <section className={styles.modalBenefits} aria-label={t('modals.login.heroSub')}>
+            <div className={styles.modalBenefitHead}>
+              <h2 className={styles.modalBenefitIntro}>{t('modals.login.heroH1')}</h2>
+              <div className={styles.modalPackArt} aria-hidden="true">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/pics/booster/booster_free.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
+              </div>
             </div>
-            <h1 id="login-panel-title" className={styles.modalTitle}>{t('modals.login.modalTagline')}</h1>
-            <p className={styles.modalBadge}>{t('modals.login.modalBadge')}</p>
+            {mustEatGate && (
+              <p className={styles.modalBenefitNote}>{t('modals.login.mustEatGateSub')}</p>
+            )}
           </section>
 
           <section className={styles.modalLogin} aria-label={t('modals.login.heroHeadline')}>
             <div className={styles.modalLoginHead}>
-              <p className={styles.modalEyebrow}>{t('modals.login.heroH1')}</p>
-              <h2 className={styles.modalFormTitle}>{t('modals.login.heroHeadline')}</h2>
-              <p className={styles.modalPitch}>{t('modals.login.heroSub')}</p>
+              <p className={styles.modalEyebrow}>{t('modals.login.heroHeadline')}</p>
+              <h2 className={styles.modalFormTitle}>{t('modals.login.modalTagline')}</h2>
             </div>
+
             <form
               className={styles.modalForm}
               noValidate
               onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
             >
-              <label className={styles.fieldLabel} htmlFor={emailInputId}>{t('modals.login.emailLabel')}</label>
+              <label className={`${styles.fieldLabel} ${styles.fieldLabelSr}`} htmlFor={emailInputId}>{t('modals.login.emailLabel')}</label>
               <input
                 id={emailInputId}
                 className={styles.input}
@@ -185,7 +188,6 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
               </button>
-              <p className={styles.formHint}>{t('modals.login.magicLinkHint')}</p>
             </form>
 
             <div className={styles.or}><span>{t('modals.login.dividerOr')}</span></div>

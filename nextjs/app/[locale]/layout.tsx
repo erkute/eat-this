@@ -36,19 +36,22 @@ const anton = Anton({
   variable: '--font-anton',
 });
 
+const PROVIDENCE_REGULAR_WOFF2 =
+  'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
+const PROVIDENCE_BOLD_WOFF2 =
+  'https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3';
+
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }));
 }
 
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
-// Runs synchronously in <head>: sets data-theme, data-active-page (read by CSS
-// selectors like [data-active-page="map"] .navbar), locks
-// portrait orientation on mobile, and applies the _authHint pre-hydration
+// Runs synchronously in <head>: sets data-active-page (read by CSS selectors
+// like [data-active-page="map"] .navbar), locks portrait orientation on mobile,
+// and applies the _authHint pre-hydration
 // login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
 // blocks can hide before paint.
 const CRITICAL_BOOTSTRAP = `(function(){
-  try{localStorage.removeItem('theme');}catch(_){}
-  document.documentElement.setAttribute('data-theme','light');
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;
@@ -108,10 +111,12 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    // suppressHydrationWarning: critical script mutates data-theme before hydration
+    // suppressHydrationWarning: critical script mutates data-active-page before hydration
     <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href={PROVIDENCE_BOLD_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />

@@ -12,15 +12,15 @@
   padding: 0 0 10px;
   list-style: none;
   border: 0;
-  border-bottom: 2px solid var(--brand-ink, var(--text-primary, #15120e));
+  border-bottom: 2px solid var(--et-home-ink);
   background: transparent;
   box-shadow: none;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-mono);
   font-size: 11px;
   font-weight: 900;
   line-height: 1.2;
   letter-spacing: .1em;
-  color: var(--brand-ink, var(--text-primary, #15120e));
+  color: var(--et-home-ink);
   text-transform: uppercase;
 }
 
@@ -57,26 +57,26 @@
 
 .link:hover,
 .link:focus-visible {
-  color: var(--brand-action, var(--accent, #d9382a));
+  color: var(--et-home-red);
   text-decoration-line: underline;
   transform: translateY(-1px);
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--brand-action, var(--accent, #d9382a));
+  outline: 2px solid var(--et-home-red);
   outline-offset: 4px;
 }
 
 .current {
   max-width: min(100%, 42ch);
   overflow: hidden;
-  color: var(--brand-action, var(--accent, #d9382a));
+  color: var(--et-home-red);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .sep {
-  color: var(--brand-action, var(--accent, #d9382a));
+  color: var(--et-home-red);
   font-size: 12px;
   line-height: 1;
 }

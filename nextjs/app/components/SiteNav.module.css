@@ -21,25 +21,10 @@
 
 .logoImg {
   display: block;
-  height: clamp(30px, 4.2vw, 44px);
+  height: clamp(40px, 5vw, 56px);
   width: auto;
 }
 
-.logoWord {
-  display: block;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(32px, 4.4vw, 52px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.82;
-  text-transform: uppercase;
-  white-space: nowrap;
-  -webkit-text-stroke: 0.45px currentColor;
-  text-shadow:
-    0.7px 0 0 currentColor,
-    -0.4px 0 0 currentColor,
-    0 0.7px 0 currentColor;
-}
 
 .mapSticker,
 .menuSticker {
@@ -89,7 +74,6 @@
   transform: none !important;
 }
 
-:global(.navbar-icon-btn).mapSticker.active,
 :global(.navbar-icon-btn).mapSticker:hover,
 :global(.navbar-icon-btn).mapSticker:active,
 :global(.navbar-icon-btn).mapSticker:focus-visible,
@@ -101,12 +85,6 @@
   box-shadow: none !important;
   outline: 0 !important;
   transform: none !important;
-}
-
-:global(html[data-theme='dark']) :global(.navbar-icon-btn).mapSticker,
-:global(html[data-theme='dark']) :global(.burger-btn).menuSticker {
-  background: transparent !important;
-  color: #fff !important;
 }
 
 .mapWord,
@@ -134,13 +112,9 @@
 @media (min-width: 1024px) {
   .logo {
     width: auto;
-    height: 68px;
+    height: 74px;
   }
 
-  .logoWord {
-    font-size: 56px;
-    -webkit-text-stroke-width: 0.55px;
-  }
 
   .mapWord,
   .menuWord {
@@ -157,9 +131,6 @@
     padding: 0 4px;
   }
 
-  :global(html[data-active-page='map']) .logoWord {
-    font-size: 26px;
-  }
 
   :global(html[data-active-page='map']) .menuSticker {
     min-width: auto;
@@ -179,8 +150,11 @@
   }
 
   .mapWord,
-  .menuWord,
-  .logoWord {
+.menuWord {
     font-size: 24px;
+  }
+
+  .logoImg {
+    height: clamp(36px, 11vw, 46px);
   }
 }

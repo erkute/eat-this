@@ -1,0 +1,136 @@
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import { setRequestLocale } from 'next-intl/server'
+import SiteFooter from '@/app/components/SiteFooter'
+import { NEWS_GUIDES, getNewsGuide } from '@/lib/news-guides'
+import { getRestaurantsByCategory } from '@/lib/sanity.server'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { pickLocale } from '@/lib/i18n/pickLocale'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { routing } from '@/i18n/routing'
+import styles from './GuidePage.module.css'
+
+interface PageProps {
+  params: Promise<{ locale: string; slug: string }>
+}
+
+export const revalidate = 3600
+
+export function generateStaticParams() {
+  return routing.locales.flatMap((locale) =>
+    NEWS_GUIDES.map((guide) => ({ locale, slug: guide.slug })),
+  )
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug } = await params
+  const guide = getNewsGuide(slug)
+  if (!guide) return {}
+  const loc = locale === 'en' ? 'en' : 'de'
+  const title = guide.title[loc]
+  const description = guide.intro[loc]
+  const alternates = buildHreflangAlternates(`/guides/${slug}`, loc)
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: {
+      title,
+      description,
+      url: alternates.canonical,
+      type: 'website',
+      locale: toOgLocale(loc),
+    },
+  }
+}
+
+export default async function GuidePage({ params }: PageProps) {
+  const { locale, slug } = await params
+  setRequestLocale(locale)
+  const guide = getNewsGuide(slug)
+  if (!guide) notFound()
+
+  const loc = locale === 'en' ? 'en' : 'de'
+  const de = loc === 'de'
+  const restaurants = await getRestaurantsByCategory(guide.categorySlug)
+  const categoryHref = de ? `/kategorie/${guide.categorySlug}` : `/${loc}/kategorie/${guide.categorySlug}`
+  const mapHref = de ? `/map?cat=${guide.mapQuery}` : `/${loc}/map?cat=${guide.mapQuery}`
+  const newsHref = de ? '/news' : `/${loc}/news`
+  const restaurantHref = (rSlug: string) => de ? `/restaurant/${rSlug}` : `/${loc}/restaurant/${rSlug}`
+
+  return (
+    <div className={`app-page active ${styles.page}`} data-page="guides">
+      <main className={styles.shell}>
+        <nav className={styles.breadcrumb} aria-label={de ? 'Navigation' : 'Navigation'}>
+          <Link href={newsHref}>{de ? 'Auf dem Teller' : 'Food News'}</Link>
+          <span aria-hidden="true">/</span>
+          <span>{guide.shortTitle[loc]}</span>
+        </nav>
+
+        <header className={`${styles.hero} ${styles[`hero_${guide.accent}`]}`}>
+          <div className={styles.heroCopy}>
+            <h1>{guide.title[loc]}</h1>
+            <p>{guide.intro[loc]}</p>
+            <div className={styles.heroActions}>
+              <Link href={mapHref} className={styles.primary}>
+                {de ? 'Auf der Map öffnen' : 'Open on the map'}
+              </Link>
+              <Link href={categoryHref} className={styles.secondary}>
+                {de ? 'Alle Spots der Kategorie' : 'All spots in this category'}
+              </Link>
+            </div>
+          </div>
+          <div className={styles.heroPack} aria-hidden="true">
+            <Image src={guide.art} alt="" width={420} height={560} priority />
+          </div>
+        </header>
+
+        <section className={styles.listHead}>
+          <h2>{de ? 'Unsere aktuelle Auswahl' : 'Our current picks'}</h2>
+          <p>{guide.promise[loc]}</p>
+        </section>
+
+        {restaurants.length > 0 ? (
+          <section className={styles.grid}>
+            {restaurants.slice(0, 12).map((r, index) => {
+              const line = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+                || pickLocale(r.tip, r.tipEn, loc)
+              const priceLabel = formatPriceLabel(r)
+              return (
+                <Link key={r._id} href={restaurantHref(r.slug)} className={styles.card}>
+                  <span className={styles.index}>{String(index + 1).padStart(2, '0')}</span>
+                  {r.photo && (
+                    <div className={styles.photo}>
+                      <Image
+                        src={r.photo}
+                        alt={r.name}
+                        fill
+                        sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 360px"
+                      />
+                    </div>
+                  )}
+                  <div className={styles.cardBody}>
+                    <h3>{r.name}</h3>
+                    <p className={styles.meta}>
+                      {[r.district, r.cuisineType, priceLabel].filter(Boolean).join(' · ')}
+                    </p>
+                    {line && <p className={styles.line}>{line}</p>}
+                  </div>
+                </Link>
+              )
+            })}
+          </section>
+        ) : (
+          <p className={styles.empty}>
+            {de
+              ? 'Diese Liste wird gerade befüllt. Auf der Map findest du schon passende Spots.'
+              : 'This list is being filled. The map already has matching spots.'}
+          </p>
+        )}
+      </main>
+      <SiteFooter />
+    </div>
+  )
+}

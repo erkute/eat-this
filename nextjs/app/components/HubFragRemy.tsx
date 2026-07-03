@@ -78,7 +78,6 @@ export default function HubFragRemy() {
         <div className={styles.ask}>
           <div className={`hv-head ${styles.panelHead}`}>
             <h2 className="hv-title">
-              <span className="hv-mk" aria-hidden="true" />
               {locale === 'de' ? 'Keine Idee? Frag Remy.' : 'No idea? Ask Remy.'}
             </h2>
           </div>

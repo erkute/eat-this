@@ -41,8 +41,3 @@
   .wrap[data-mood='idle'] .face { animation: none; }
   .wrap[data-mood='happy'] .face { animation: none; }
 }
-/* dark mode: the comic avatar keeps its brand-yellow backdrop (doesn't theme) */
-html[data-theme="dark"] .wrap {
-  background: transparent;
-  box-shadow: none;
-}

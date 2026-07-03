@@ -156,7 +156,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           onClick={onClick}
           aria-expanded={expanded}
         >
-          <span className={styles.filterChipLabel}>{label}</span>
+          <span className={`${styles.filterChipLabel} ${label.length > 10 ? styles.filterChipLabelLong : ''}`}>{label}</span>
         </button>
       </span>
     )

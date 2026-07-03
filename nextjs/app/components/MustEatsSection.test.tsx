@@ -42,31 +42,31 @@ describe('MustEatsSection', () => {
     expect(html).toMatch(/<h1[^>]*>Must<br\/?>Eats<\/h1>/)
   })
 
-  it('points the closing CTA at the packs hub anchor', () => {
+  it('points the closing CTA at the booster packs overview', () => {
     const html = render()
-    expect(html).toMatch(/href="\/#hub-packs"/)
+    expect(html).toMatch(/href="\/packs"/)
   })
 
   it('locale-prefixes the packs CTA for en', () => {
     const html = render('en')
-    expect(html).toMatch(/href="\/en#hub-packs"/)
+    expect(html).toMatch(/href="\/en\/packs"/)
   })
 
   it('renders the explanatory sub copy (de)', () => {
     const html = render()
-    expect(html).toContain('unsere klare Empfehlung')
+    expect(html).toContain('Unsere klare Empfehlung pro Spot')
     expect(html).toContain('den Rest deckst du vor Ort selbst auf.')
   })
 
   it('renders the explanatory sub copy (en)', () => {
     const html = render('en')
-    expect(html).toContain('our clear recommendation')
+    expect(html).toContain('Our clear pick for each spot')
     expect(html).toContain('you reveal the rest yourself, on site.')
   })
 
-  it('closing block describes the tap-to-reveal mechanic (de)', () => {
+  it('closing block sells booster packs (de)', () => {
     const html = render()
-    expect(html).toContain('einem oder mehreren Must Eats')
-    expect(html).toContain('dreh die Karte mit einem Tap um.')
+    expect(html).toContain('Kauf ein Booster Pack')
+    expect(html).toContain('Packs kaufen')
   })
 })

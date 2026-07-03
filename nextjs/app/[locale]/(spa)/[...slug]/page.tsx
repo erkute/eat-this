@@ -102,9 +102,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export async function generateViewport({ params }: PageProps): Promise<Viewport> {
-  const { slug } = await params
+  await params
   return {
-    themeColor: slug?.[0] === 'map' ? '#171A17' : '#e8b626',
+    themeColor: '#e8b626',
   }
 }
 

@@ -2,10 +2,10 @@
    It deliberately does not inherit --ink/--cream from parent pages; restaurant
    and article shells flip those tokens for their own surfaces. */
 .promo {
-  --promo-bg: var(--brand-paper, #f1f1ec);
-  --promo-fg: var(--brand-ink, #171a17);
-  --promo-accent: var(--brand-action, #ef3528);
-  --promo-accent-fg: var(--brand-paper, #f1f1ec);
+  --promo-bg: var(--et-home-paper);
+  --promo-fg: var(--et-home-ink);
+  --promo-accent: var(--et-home-red);
+  --promo-accent-fg: var(--et-home-inverse-text);
 
   position: relative;
   overflow: hidden;
@@ -19,7 +19,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 14px;
+  gap: var(--et-rail-gap);
 }
 .promo::before {
   content: "";
@@ -29,7 +29,7 @@
   background: var(--promo-accent);
 }
 .title {
-  font-family: var(--f-display);
+  font-family: var(--et-font-display);
   font-size: clamp(30px, 8vw, 46px);
   line-height: 1.1;
   text-transform: uppercase;
@@ -46,7 +46,7 @@
   white-space: nowrap;
 }
 .sub {
-  font-family: var(--f-body);
+  font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
   margin: 0;
@@ -61,16 +61,16 @@
   background: var(--promo-accent);
   color: var(--promo-accent-fg);
   border: 1.5px solid var(--promo-fg);
-  font-family: var(--f-display);
+  font-family: var(--et-font-display);
   font-size: 20px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 1;
   padding: 15px 24px 16px;
   text-decoration: none;
-  transition: transform 0.15s ease;
+  transition: transform var(--et-motion-fast);
 }
-.cta:hover { transform: translateY(-1px); }
+.cta:hover { transform: var(--et-hover-lift-sm); }
 .cta svg { flex-shrink: 0; }
 
 @media (min-width: 720px) {
@@ -87,50 +87,32 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--brand-action, #ef3528);
-  color: var(--brand-paper, #f1f1ec);
-  font-family: var(--f-display);
+  background: var(--et-home-red);
+  color: var(--et-home-inverse-text);
+  font-family: var(--et-font-display);
   font-size: 15px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1.1;
   padding: 9px 16px 10px;
   text-decoration: none;
-  transition: transform 0.15s ease;
+  transition: transform var(--et-motion-fast);
 }
-.chip:hover { transform: translateY(-1px); }
+.chip:hover { transform: var(--et-hover-lift-sm); }
 .chip svg { flex-shrink: 0; width: 22px; height: auto; }
-
-html[data-theme="dark"] .promo {
-  --promo-bg: var(--brand-ink, #171a17);
-  --promo-fg: var(--brand-paper, #f1f1ec);
-  --promo-accent: var(--brand-action, #ef3528);
-  --promo-accent-fg: var(--brand-paper, #f1f1ec);
-}
-html[data-theme="dark"] .chip {
-  background: var(--brand-action, #ef3528);
-  color: var(--brand-paper, #f1f1ec);
-}
 
 /* Poster CTA: no white banner with a black frame. */
 .promo {
-  --promo-bg: var(--brand-ink, #15120e);
-  --promo-fg: #fff;
-  --promo-accent: var(--brand-action, #d9382a);
-  --promo-accent-fg: var(--brand-ink, #15120e);
+  --promo-bg: var(--et-home-ink);
+  --promo-fg: var(--et-home-paper);
+  --promo-accent: var(--et-home-red);
+  --promo-accent-fg: var(--et-home-ink);
 
   border: 0;
 }
 
 .cta {
-  background: #fff;
+  background: var(--et-home-paper);
   color: var(--promo-accent-fg);
   border: 0;
-}
-
-html[data-theme="dark"] .promo {
-  --promo-bg: #f3ead8;
-  --promo-fg: #15120e;
-  --promo-accent: var(--brand-action, #d9382a);
-  --promo-accent-fg: #15120e;
 }

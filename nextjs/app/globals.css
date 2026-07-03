@@ -1,8 +1,26 @@
 @font-face {
+  font-family: 'ff-providence-sans-web-pro-1';
+  src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
+    format('woff2');
+  font-display: block;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'ff-providence-sans-web-pro-1';
+  src: url('https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3')
+    format('woff2');
+  font-display: block;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
   font-family: 'Providence Sans Pro Regular';
   src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
     format('woff2');
-  font-display: swap;
+  font-display: block;
   font-style: normal;
   font-weight: 400;
 }
@@ -107,6 +125,7 @@
   --collage-shadow: none;
 
   --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-providence: 'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', sans-serif;
   --font-chewy:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
@@ -128,6 +147,84 @@
   --font-quote: 'Impact', 'Arial Narrow', sans-serif;
   --font-body: var(--font);
   --font-label: var(--font-poster);
+
+  /* Home-derived design contract. Home remains the visual source of truth:
+     white paper, almost-black ink, yellow accent, flat surfaces, Providence
+     display type, and restrained image treatment. */
+  --et-home-paper: #fff;
+  --et-home-ink: #15120e;
+  --et-home-accent: #ffc600;
+  --et-home-red: #d9382a;
+  --et-home-photo-rest: #eceae6;
+  --et-home-quiet: #f2f1ef;
+  --et-home-rule: #e4e1dc;
+  --et-home-muted: rgba(21, 18, 14, 0.64);
+  --et-home-muted-soft: rgba(21, 18, 14, 0.55);
+  --et-home-line: rgba(21, 18, 14, 0.2);
+  --et-home-panel-warm: #fff4cc;
+  --et-home-inverse-bg: var(--et-home-ink);
+  --et-home-inverse-text: #fff;
+  --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+
+  --et-font-display: var(--font-providence, var(--font-display));
+  --et-font-label: 'Silkscreen';
+  --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
+
+  --et-type-hero: clamp(44px, 6.5vw, 80px);
+  --et-type-hero-compact: clamp(42px, 6vw, 68px);
+  --et-type-section-title: clamp(24px, 3.4vw, 42px);
+  --et-type-editorial-title: clamp(34px, 4.8vw, 72px);
+  --et-type-card-title: clamp(21px, 2.2vw, 32px);
+  --et-type-kicker: 10px;
+  --et-type-body: clamp(12px, 1.1vw, 14px);
+  --et-type-lead: clamp(16px, 1.5vw, 21px);
+  --et-type-caption: 11px;
+  --et-type-chip: 12px;
+  --et-type-button: 13px;
+
+  --et-leading-hero: 0.9;
+  --et-leading-title: 0.92;
+  --et-leading-tight: 0.95;
+  --et-leading-copy: 1.5;
+  --et-tracking-none: 0;
+  --et-tracking-title: -0.02em;
+  --et-tracking-label: 0.16em;
+  --et-tracking-meta: 0.1em;
+
+  --et-page-top: clamp(40px, 5vw, 72px);
+  --et-wrap-max: 1360px;
+  --et-wrap-pad: clamp(24px, 4vw, 56px);
+  --et-wrap-pad-mobile: 16px;
+  --et-section-gap: clamp(72px, 8vw, 128px);
+  --et-section-gap-mobile: 64px;
+  --et-head-gap: clamp(16px, 2vw, 28px);
+  --et-grid-gap: clamp(24px, 4vw, 56px);
+  --et-rail-gap: 14px;
+  --et-control-gap: 8px;
+  --et-card-gap: clamp(20px, 2.4vw, 32px);
+
+  --et-radius-photo: 10px;
+  --et-radius-control: 7px;
+  --et-radius-none: 0;
+  --et-radius-pill: 999px;
+  --et-shadow-none: none;
+  --et-shadow-text-photo: var(--et-home-photo-text-shadow);
+  --et-motion-fast: 140ms ease;
+  --et-motion-base: 160ms ease;
+  --et-motion-card: 180ms ease;
+  --et-hover-lift-sm: translateY(-2px);
+  --et-hover-lift-md: translateY(-3px);
+  --et-hover-lift-card: translateY(-4px);
+
+  --et-img-photo-fit: cover;
+  --et-img-art-fit: contain;
+  --et-img-restaurant-ratio: 4 / 3;
+  --et-img-wide-ratio: 16 / 10;
+  --et-img-pack-ratio: 2 / 3;
+  --et-img-card-ratio: 5 / 7;
+  --et-img-square-ratio: 1 / 1;
 
   /* ── Editorial "menu" design system (home + login) ──
      Bold orange + cool-white panels on a near-black page, condensed Chauncy
@@ -168,8 +265,7 @@
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-snap: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  /* Semantic surface/text tokens — used by the map UI and newer React components.
-     Kept theme-agnostic here via [data-theme] overrides below. */
+  /* Semantic surface/text tokens — used by the map UI and newer React components. */
   --surface-bg: var(--et-yellow);
   --surface-card: var(--white);
   --surface-raised: var(--white);
@@ -264,48 +360,6 @@ html:root {
   --font-slackey: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-archivo-black: var(--font-chewy, 'moonblossom'), sans-serif;
 }
-html[data-theme='dark'] {
-  --c-row-rule: rgba(240, 232, 208, 0.14);
-
-  --surface-bg: var(--et-black);
-  --surface-card: var(--et-dark-card);
-  --surface-raised: var(--et-print-black);
-  --surface-overlay: rgba(16, 13, 15, 0.95);
-  --border-subtle: color-mix(in srgb, var(--brand-rule) 36%, var(--brand-ink));
-  --border-strong: color-mix(in srgb, var(--brand-rule) 54%, var(--brand-ink));
-  --text-primary: var(--et-cream);
-  --text-secondary: rgba(242, 223, 184, 0.74);
-  --text-muted: rgba(242, 223, 184, 0.52);
-  --accent-soft: rgba(240, 54, 8, 0.22);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
-  --color-surface-inverse: var(--et-cream);
-  --color-action-hover: var(--et-red-hot);
-  --color-action-text: var(--et-black);
-  --color-success: #34a85a;
-  --button-disabled-bg: rgba(242, 223, 184, 0.14);
-  --button-disabled-text: rgba(242, 223, 184, 0.5);
-
-  /* Landing surfaces — dark-mode versions stay close-to-black with subtle
-     elevation steps so card hierarchy remains readable. */
-  --surface-canvas: var(--et-black);
-  --surface-paper: var(--et-print-black);
-  --surface-deep: var(--et-print-black);
-  --surface-deep-2: var(--et-print-black);
-}
-/* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
-   ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
-   Rezept: Print Black als Raum, Program Paper als Lesefläche, Poster Red als
-   Handlung und Ticket Grey als Ordnungslinie. Die Umsetzung liegt in den
-   jeweiligen CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
-html[data-theme='dark'] {
-  --dk-page: var(--et-black);
-  --dk-card: var(--et-dark-card);
-  --dk-ink: var(--et-cream);
-  --dk-sub: rgba(242, 223, 184, 0.72);
-  --dk-rule: rgba(242, 223, 184, 0.28);
-}
 *,
 *::before,
 *::after {
@@ -338,8 +392,6 @@ html[data-theme='dark'] {
   outline-offset: 2px;
 }
 html {
-  /* Native form controls, scrollbars and autofill follow the active theme
-     instead of defaulting to the browser's light UI in dark mode. */
   color-scheme: light;
   font-synthesis-weight: none;
   scroll-behavior: smooth;
@@ -350,12 +402,6 @@ html {
      iOS rubber-band overscroll also picks up cream. */
   background-color: var(--et-yellow);
 }
-html[data-theme='dark'] {
-  /* Dark-Mode-Rollout 2026-06-03: Seiten folgen jetzt wirklich dem Theme —
-     Rubber-Band/Side-Strips müssen dunkel sein, nicht cream. */
-  color-scheme: dark;
-  background-color: var(--et-black);
-}
 body {
   font-family: var(--font);
   background-color: var(--collage-paper);
@@ -365,12 +411,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
-}
-html[data-theme='dark'] body {
-  --collage-paper: #17130f;
-  --collage-ink: #f8f1e5;
-  background-color: var(--collage-paper);
-  background-image: none;
 }
 html[data-active-page='start'],
 html[data-active-page='start'] body {
@@ -412,55 +452,12 @@ html[data-active-page='start'] body {
   background-image: none;
   color-scheme: light;
 }
-html[data-theme='dark'][data-active-page='start'],
-html[data-theme='dark'][data-active-page='start'] body {
-  --food-ink: #15120e;
-  --food-paper: #fff;
-  --food-cream: #fff;
-  --food-butter: #d9382a;
-  --food-tomato: var(--et-poster-red);
-  --food-tomato-dark: #15120e;
-  --food-basil: #15120e;
-  --food-olive: #15120e;
-
-  --et-red: var(--food-tomato);
-  --et-red-hot: var(--et-poster-red);
-  --et-red-deep: var(--food-tomato-dark);
-  --et-yellow: var(--food-cream);
-  --et-yellow-bright: var(--food-butter);
-  --et-cream: var(--food-paper);
-  --et-black: var(--food-ink);
-  --et-dark-card: var(--food-ink);
-  --surface-bg: var(--food-paper);
-  --surface-canvas: var(--food-paper);
-  --surface-paper: var(--food-cream);
-  --accent-coral: var(--food-tomato);
-  --accent-mustard: var(--food-butter);
-  --accent-warm: var(--food-tomato);
-  --c-coral: var(--food-tomato);
-  --c-coral-bright: var(--et-poster-red);
-  --c-mustard: var(--food-butter);
-  --brand-yellow: var(--food-butter);
-  --brand-red: var(--food-tomato);
-  --collage-orange: var(--food-tomato);
-  --collage-yellow: var(--food-butter);
-  --collage-paper: var(--food-paper);
-  --collage-ink: var(--food-ink);
-  --collage-shadow: none;
-
-  background-color: var(--food-paper);
-  background-image: none;
-  color-scheme: light;
-}
 /* Hub wrapper surface. The section stack has intentional gaps between some
    sections; without a wrapper background those gaps expose the body, which
    style.css paints with --surface-canvas (#fff) — producing a cream→white seam
    between sections. Fill the hub so the gaps read as the cream page surface. */
 [data-hub] {
   background: var(--et-yellow);
-}
-html[data-theme='dark'] [data-hub] {
-  background: var(--dk-page, var(--et-black));
 }
 /* Home uses a light cassette-table surface; black is reserved for rails,
    outlines, and media frames rather than the page background. */
@@ -470,17 +467,6 @@ html[data-active-page='start'] [data-hub] {
 html[data-active-page='start'],
 html[data-active-page='start'] body {
   background-color: var(--food-paper);
-}
-html[data-theme='dark'][data-active-page='start'],
-html[data-theme='dark'][data-active-page='start'] body {
-  --collage-paper: var(--food-paper);
-  --collage-ink: var(--food-ink);
-  background-color: var(--food-paper);
-  color: var(--food-ink);
-  color-scheme: light;
-}
-html[data-theme='dark'][data-active-page='start'] [data-hub] {
-  background: var(--food-paper);
 }
 /* Sitewide Providence collage language. The map remains a purpose-built
    full-screen tool; every content page gets the paper/print treatment. */
@@ -619,6 +605,20 @@ html[data-auth='1'] [data-guest-only] {
     height: calc(100lvh + 80px) !important;
   }
 }
+/* Phones: the map list is a window-scrolled in-flow document (in-flow map
+   rebuild — see the ≤767.98px block in map.module.css). The fixed-height box
+   above is tablet-only; here the page must grow with the list so the window
+   scrolls it and the rows frost through iOS Safari's bottom URL bar. */
+@media (max-width: 767.98px) {
+  [data-active-page='map'] .app-pages {
+    height: auto !important;
+    min-height: calc(100lvh + 80px) !important;
+  }
+  .app-page[data-page='map'] {
+    height: auto !important;
+    min-height: calc(100lvh + 80px) !important;
+  }
+}
 /* Map redesign: no solid header — a single floating burger (in MapSectionBody)
    sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
    stays mounted so #burgerBtn's open handler keeps working when triggered
@@ -650,9 +650,6 @@ html[data-auth='1'] [data-guest-only] {
   }
   body:has(.burger-drawer.active) .app-page[data-page='map']::after {
     opacity: 1;
-  }
-  html[data-theme='dark'] .app-page[data-page='map']::after {
-    background: #d9382a;
   }
 }
 /* Login modal behind the iOS bottom URL bar: handled by
@@ -808,25 +805,6 @@ html[data-auth='1'] [data-guest-only] {
 .notification[data-tone='error'] .notification-detail {
   color: rgba(241, 241, 236, 0.86);
 }
-html[data-theme='dark'] .notification {
-  --toast-paper: var(--brand-ink);
-  --toast-ink: var(--brand-paper);
-  --toast-shadow: rgba(0, 0, 0, 0.48);
-  box-shadow:
-    0 20px 42px -18px var(--toast-shadow),
-    0 8px 20px -14px rgba(0, 0, 0, 0.44);
-}
-html[data-theme='dark'] .notification[data-tone='error'] {
-  --toast-paper: var(--brand-action);
-  --toast-ink: var(--brand-paper);
-  --toast-shadow: rgba(0, 0, 0, 0.5);
-}
-html[data-theme='dark'] .notification[data-tone='info'] {
-  --toast-accent: var(--brand-action);
-}
-html[data-theme='dark'] .notification-detail {
-  color: rgba(241, 241, 236, 0.78);
-}
 @media (min-width: 768px) {
   .notification {
     bottom: calc(28px + env(safe-area-inset-bottom, 0px));
@@ -959,27 +937,6 @@ html[data-theme='dark'] .notification-detail {
 .notification[data-tone='error'] .notification-detail {
   color: var(--toast-muted);
 }
-html[data-theme='dark'] .notification {
-  --toast-surface: #15120e;
-  --toast-ink: #fff;
-  --toast-muted: rgba(255, 255, 255, 0.72);
-  --toast-line: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 18px 46px rgba(0, 0, 0, 0.36),
-    inset 0 0 0 1px var(--toast-line);
-}
-html[data-theme='dark'] .notification[data-tone='info'],
-html[data-theme='dark'] .notification[data-tone='warning'] {
-  --toast-accent: #fff;
-}
-html[data-theme='dark'] .notification[data-tone='info'] .notification-mark,
-html[data-theme='dark'] .notification[data-tone='warning'] .notification-mark {
-  background: #fff;
-  color: #15120e;
-}
-html[data-theme='dark'] .notification-detail {
-  color: var(--toast-muted);
-}
 @media (min-width: 768px) {
   .notification {
     bottom: calc(26px + env(safe-area-inset-bottom, 0px));
@@ -1078,38 +1035,10 @@ html[data-theme='dark'] .notification-detail {
 .homeCtaFull {
   width: 100%;
 }
-html[data-theme='dark'] .homeCta {
-  background: rgba(255, 255, 255, 0.62);
-  border-color: rgba(37, 23, 15, 0.14);
-  color: var(--et-black);
-}
-html[data-theme='dark'] .homeCta:hover,
-html[data-theme='dark'] .homeCta:focus-visible {
-  background: var(--et-black);
-  border-color: var(--et-black);
-  color: var(--et-cream);
-}
-html[data-theme='dark'] .homeCtaPrimary {
-  background: var(--et-red-hot);
-  border-color: var(--et-red-hot);
-  color: var(--et-black);
-}
-html[data-theme='dark'] .homeCtaPrimary:hover,
-html[data-theme='dark'] .homeCtaPrimary:focus-visible {
-  background: var(--et-black);
-  border-color: var(--et-black);
-  color: var(--et-cream);
-}
-/* Header reset for the cassette home system. Keep global navbar overrides out
-   of CSS Modules so Next's pure selector rules do not reject them. */
 .navbar,
 .navbar.scrolled,
-html[data-theme='dark'] .navbar,
-html[data-theme='dark'] .navbar.scrolled,
 html[data-active-page='start'] .navbar,
-html[data-active-page='start'] .navbar.scrolled,
-html[data-theme='dark'][data-active-page='start'] .navbar,
-html[data-theme='dark'][data-active-page='start'] .navbar.scrolled {
+html[data-active-page='start'] .navbar.scrolled {
   height: calc(72px + env(safe-area-inset-top, 0px)) !important;
   padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
   display: flex !important;
@@ -1145,16 +1074,12 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
   color: #ffc600 !important;
 }
 .navbar::before,
-.navbar::after,
-html[data-theme='dark'] .navbar::before,
-html[data-theme='dark'] .navbar::after {
+.navbar::after {
   content: none !important;
 }
 @media (max-width: 520px) {
   .navbar,
-  .navbar.scrolled,
-  html[data-theme='dark'] .navbar,
-  html[data-theme='dark'] .navbar.scrolled {
+  .navbar.scrolled {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
   }

@@ -1,16 +1,16 @@
 .page {
-  --home-ink: #15120e;
-  --home-paper: #fff;
-  --home-muted: rgba(21, 18, 14, 0.64);
-  --home-line: rgba(21, 18, 14, 0.2);
-  --home-gutter: clamp(14px, 3vw, 44px);
+  --home-ink: var(--et-home-ink);
+  --home-paper: var(--et-home-paper);
+  --home-muted: var(--et-home-muted);
+  --home-line: var(--et-home-line);
+  --home-gutter: var(--et-wrap-pad);
   width: 100%;
   min-height: 100svh;
-  padding-top: clamp(40px, 5vw, 72px);
+  padding-top: var(--et-page-top);
   color: var(--home-ink);
   background: var(--home-paper);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  letter-spacing: 0;
+  font-family: var(--et-font-mono);
+  letter-spacing: var(--et-tracking-none);
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
@@ -21,7 +21,7 @@
 .heroGrid {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
-  gap: clamp(24px, 4vw, 56px);
+  gap: var(--et-grid-gap);
   align-items: stretch;
 }
 
@@ -37,7 +37,7 @@
   font-family: var(--font-providence);
   font-size: clamp(17px, 2.2vw, 24px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: var(--et-tracking-none);
   line-height: 1;
   text-transform: none;
 }
@@ -46,15 +46,15 @@
   font-family: var(--font-providence);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  font-size: clamp(44px, 6.5vw, 80px);
+  letter-spacing: var(--et-tracking-title);
+  line-height: var(--et-leading-hero);
+  font-size: var(--et-type-hero);
   margin: 12px 0 0;
 }
 
 .heroActions {
   display: flex;
-  gap: 14px;
+  gap: var(--et-rail-gap);
   align-items: center;
   margin-top: 24px;
 }
@@ -68,7 +68,7 @@
   position: absolute;
   inset: auto 0 0 0;
   height: 45%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  background: var(--et-home-photo-overlay);
   pointer-events: none;
 }
 
@@ -80,14 +80,18 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #fff;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  color: var(--et-home-inverse-text);
+  text-shadow: var(--et-shadow-text-photo);
 }
 
 .heroPhotoTag :global(.hv-kicker) {
-  color: #fff;
-  font-size: clamp(11px, 1.05vw, 14px);
-  letter-spacing: 0.18em;
+  color: var(--et-home-inverse-text);
+  font-family: var(--font-providence);
+  font-size: clamp(15px, 1.5vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.95;
+  text-transform: none;
 }
 
 .heroPhotoTag strong {

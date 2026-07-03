@@ -7,7 +7,7 @@
 
 .page {
   background: transparent;
-  color: #0a0a0a;
+  color: var(--et-home-ink);
   display: flow-root;
   min-height: 100%;
 }
@@ -15,8 +15,8 @@
 .article {
   margin: 0 auto;
   max-width: 720px;
-  background: rgba(255, 255, 255, .92);
-  box-shadow: var(--collage-shadow);
+  background: var(--et-home-paper);
+  box-shadow: var(--et-shadow-none);
 }
 
 /* ── Hero photo ── */
@@ -26,14 +26,15 @@
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  background-color: #14100c;
-  border: 12px solid #fff;
-  box-shadow: var(--collage-shadow);
+  aspect-ratio: var(--et-img-restaurant-ratio);
+  background-color: var(--et-home-ink);
+  border: 10px solid var(--et-home-paper);
+  border-radius: var(--et-radius-photo);
+  box-shadow: var(--et-shadow-none);
   transform: rotate(-.8deg);
 }
 .hero {
-  object-fit: cover;
+  object-fit: var(--et-img-photo-fit);
 }
 
 /* ── Byline + title + lede ── */
@@ -42,32 +43,32 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 18px 4px;
-  font-family: var(--font-poster);
+  font-family: var(--et-font-label);
   font-size: 12px;
-  letter-spacing: 0.2em;
+  letter-spacing: var(--et-tracking-label);
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--et-home-ink);
   opacity: 0.65;
 }
 .title {
-  font-family: var(--font-poster);
+  font-family: var(--et-font-display);
   font-size: clamp(38px, 11vw, 54px);
   line-height: 1;
-  letter-spacing: -0.005em;
+  letter-spacing: var(--et-tracking-title);
   text-transform: uppercase;
-  color: var(--collage-red);
+  color: var(--et-home-red);
   margin: 14px 16px 14px;
 }
 .lede {
-  font-family: var(--font-poster);
+  font-family: var(--et-font-display);
   font-size: clamp(19px, 5.5vw, 22px);
   line-height: 1.25;
-  letter-spacing: 0.005em;
-  color: #0a0a0a;
+  letter-spacing: var(--et-tracking-none);
+  color: var(--et-home-ink);
   opacity: 0.9;
   margin: 0 16px 18px;
   padding: 0 0 14px;
-  border-bottom: 1px solid rgba(160, 40, 20, 0.28);
+  border-bottom: 1px solid var(--et-home-line);
 }
 
 .breadcrumbWrap {
@@ -81,13 +82,13 @@
   padding: 12px 18px 6px;
   font-size: 15px;
   line-height: 1.6;
-  color: #0a0a0a;
+  color: var(--et-home-ink);
 }
 .content > p:first-of-type::first-letter {
-  font-family: var(--font-poster);
+  font-family: var(--et-font-display);
   font-size: 72px;
   line-height: 0.82;
-  color: #0a0a0a;
+  color: var(--et-home-ink);
   float: left;
   padding: 8px 10px 0 0;
   text-transform: uppercase;
@@ -97,13 +98,13 @@
 }
 .content h2,
 .content h3 {
-  font-family: var(--font-poster);
+  font-family: var(--et-font-display);
   font-size: clamp(26px, 8vw, 30px);
   font-weight: 400;
   line-height: 1.02;
   text-transform: uppercase;
-  letter-spacing: -0.005em;
-  color: #0a0a0a;
+  letter-spacing: var(--et-tracking-title);
+  color: var(--et-home-ink);
   margin: 26px 0 10px;
   scroll-margin-top: 80px;
 }
@@ -134,16 +135,8 @@
 .content a:not(.inlineSpot):not(.mustEat):hover {
   background-color: rgba(160, 40, 20, 0.07);
 }
-html[data-theme="dark"] .content a:not(.inlineSpot):not(.mustEat) {
-  color: var(--c-coral-bright);
-}
 
-/* ── Inline Must Eat banner (mustEatCard block) ──
-   Dark ink poster block in the article column — same sticker language as the
-   MapPromoCTA at the bottom of the SEO pages. The `image` is the full
-   collectible trading card (own background + rounded corners baked in); it
-   floats freigestellt with a tilt, no frame around it. Yellow sticker CTA
-   (brand-red in dark mode). */
+
 .mustEat {
   position: relative;
   margin: 40px 0 36px;
@@ -343,71 +336,11 @@ a.mustEat:hover .mustEatCta svg {
 }
 
 /* ── Spots im Artikel — horizontal restaurant cards ── */
-.spots {
-  margin: 0;
-}
-.spotsHeading {
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  margin: 0;
-  padding: 18px 18px 4px;
-}
-.spotsRow {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 8px 18px 22px;
-}
-.spotsRow::-webkit-scrollbar {
-  display: none;
-}
-.spotCard {
-  flex: 0 0 188px;
-  position: relative;
-  aspect-ratio: 4 / 5;
-  background-size: cover;
-  background-position: center;
-  background-color: #14100c;
-  color: #fbf8ee;
-  text-decoration: none;
-}
-.spotCard::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.78) 100%);
-}
+
+
 /* Bottom-anchored stack so meta sits above the name and they never overlap,
    even when a long (normalized) restaurant name wraps to two lines. */
-.spotCardFoot {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.spotMeta {
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--brand-yellow);
-  font-weight: 600;
-}
-.spotName {
-  font-family: var(--font-poster);
-  font-size: 22px;
-  line-height: 1.02;
-  letter-spacing: 0.015em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
-}
+
 
 /* ── Inline spot card (spotCard block) — wide image card in the article flow.
    Same sticker language as the .spotCard strip + home tiles: cover photo,
@@ -591,258 +524,10 @@ a.inlineSpot:focus-visible .inlineSpotCta svg {
    the footer below it. Sibling of .article inside .page (so there's flow space
    below it to float over). Degrades to a static end-bar if an overflow ancestor
    prevents stickiness. ── */
-.spotrail {
-  position: sticky;
-  bottom: 0;
-  z-index: 40;
-  max-width: 720px;
-  margin: 0 auto;
-  background: #fbf8ee;
-  border-top: 2px solid #0a0a0a;
-  box-shadow: 0 -8px 24px rgba(17, 13, 9, 0.22);
-  padding: 12px 14px 14px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: center;
-}
+
 /* When the spotrail is present, pad the article so its last content isn't
    hidden behind the floating bar. */
-.hasSpotrail {
-  padding-bottom: 76px;
-}
-.spotrailPics {
-  display: flex;
-}
-.spotrailPic {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid #fbf8ee;
-  background: #f2eddf center / cover no-repeat;
-  margin-left: -10px;
-  box-shadow: 0 2px 4px rgba(17, 13, 9, 0.3);
-  outline: 1.5px solid #0a0a0a;
-}
-.spotrailPic:first-child {
-  margin-left: 0;
-}
-.spotrailMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-  overflow: hidden;
-}
-.spotrailKicker {
-  font-family: var(--font-poster);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-size: 10px;
-  color: #0a0a0a;
-  opacity: 0.7;
-  line-height: 1.2;
-}
-.spotrailNames {
-  font-family: var(--font-poster);
-  font-size: 15px;
-  line-height: 1.05;
-  color: #0a0a0a;
-  text-transform: uppercase;
-  letter-spacing: 0.005em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.spotrailCta {
-  font-family: var(--font-poster);
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  border: 2px solid #0a0a0a;
-  padding: 9px 12px 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 12px;
-  box-shadow: 3px 3px 0 #0a0a0a;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: transform 0.12s, box-shadow 0.12s;
-}
-.spotrailCta:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #0a0a0a;
-}
 
-/* ════════════════════════════════════════════════════════════
-   DARK MODE — everything goes dark, yellow accents flip to red.
-   ════════════════════════════════════════════════════════════ */
-html[data-theme="dark"] .page {
-  background: #111110;
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .article {
-  --text-primary: #f0e8d0;
-  --text-muted: rgba(240, 232, 208, 0.72);
-  background: #171a17;
-  color: #f0e8d0;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.58);
-}
-html[data-theme="dark"] .heroWrap {
-  border-color: #f0e8d0;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.62);
-}
-
-/* ── Byline + title + lede ── */
-html[data-theme="dark"] .byline {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .title {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .lede {
-  color: #f0e8d0;
-  border-bottom-color: rgba(240, 232, 208, 0.3);
-}
-
-/* ── Body ── */
-html[data-theme="dark"] .content {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .content > p:first-of-type::first-letter {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .content h2,
-html[data-theme="dark"] .content h3 {
-  color: #f0e8d0;
-}
-
-/* ── Inline Must Eat banner — stays a dark panel, raised card surface on the
-   dark page; yellow accents flip to brand-red. ── */
-html[data-theme="dark"] .mustEat {
-  background:
-    radial-gradient(115% 90% at 24% 32%, rgba(214, 58, 42, 0.18), transparent 56%),
-    #1d1c19;
-  color: #f0e8d0;
-}
-@media (min-width: 720px) {
-  html[data-theme="dark"] .mustEat {
-    background:
-      radial-gradient(90% 120% at 18% 50%, rgba(214, 58, 42, 0.20), transparent 54%),
-      #1d1c19;
-  }
-}
-/* Dark mode swaps the yellow accents for brand-red (documented brand decision
-   "Akzent ROT statt GELB"). Stamp + button go coral; shadows go ink-black. */
-html[data-theme="dark"] .mustEatKicker {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-html[data-theme="dark"] .mustEat .mustEatName {
-  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
-}
-html[data-theme="dark"] .mustEatCta {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  box-shadow: 4px 4px 0 #0a0a0a;
-}
-html[data-theme="dark"] a.mustEat:hover .mustEatCta {
-  box-shadow: 2px 2px 0 #0a0a0a;
-}
-
-/* ── Pull-quote (blockquote in body) ── */
-html[data-theme="dark"] .content blockquote {
-  border-top-color: #f0e8d0;
-  border-bottom-color: #f0e8d0;
-  color: #f0e8d0;
-}
-
-/* ── Spots im Artikel ── */
-html[data-theme="dark"] .spotsHeading {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .spotMeta {
-  color: var(--c-coral-bright);
-}
-
-/* ── Share — ink button on now-dark surface → invert to cream button ── */
-html[data-theme="dark"] .shareBtn {
-  border-color: #f0e8d0;
-  background: #f0e8d0;
-  color: #0a0a0a;
-}
-html[data-theme="dark"] .shareBtn:hover {
-  box-shadow: 3px 3px 0 #0a0a0a;
-}
-
-/* ── Related — already dark cards, flip yellow accents to red ── */
-html[data-theme="dark"] .related {
-  border-top-color: #f0e8d0;
-}
-html[data-theme="dark"] .relatedHeading {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .relatedCard {
-  background: #1d1c19;
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .relatedCategory {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-html[data-theme="dark"] .relatedHeadline {
-  color: #f0e8d0;
-}
-
-/* ── Sticky spotrail — cream bar → dark bar, yellow CTA → red ── */
-html[data-theme="dark"] .spotrail {
-  background: #111110;
-  border-top-color: #f0e8d0;
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.55);
-}
-html[data-theme="dark"] .spotrailPic {
-  border-color: #111110;
-  background-color: #1d1c19;
-  outline-color: #f0e8d0;
-}
-html[data-theme="dark"] .spotrailKicker {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .spotrailNames {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .spotrailCta {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: #f0e8d0;
-  box-shadow: 3px 3px 0 rgba(240, 232, 208, 0.25);
-}
-html[data-theme="dark"] .spotrailCta:hover {
-  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
-}
-
-/* Beat the broad collage h1/h2 + blockquote styling from globals.css. The
-   article shell owns these surfaces, and in dark mode they must stay readable
-   against the dark editorial sheet. */
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .title,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content h2,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content h3,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .spotsHeading,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .relatedHeading,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .relatedHeadline,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .mustEat .mustEatName {
-  color: #f0e8d0;
-}
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content blockquote {
-  background: transparent;
-  color: #f0e8d0;
-  border-top: 2px solid #f0e8d0;
-  border-bottom: 2px solid #f0e8d0;
-  box-shadow: none;
-  transform: none;
-}
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content blockquote::before {
-  content: none;
-}
 
 /* Home-system pass: article detail. */
 .page[data-page="news-article"] {
@@ -868,16 +553,14 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
 }
 
 .page[data-page="news-article"] .byline,
-.page[data-page="news-article"] .relatedCategory,
-.page[data-page="news-article"] .spotrailKicker {
+.page[data-page="news-article"] .relatedCategory {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   color: var(--article-red);
 }
 
 .page[data-page="news-article"] .title,
 .page[data-page="news-article"] .relatedHeading,
-.page[data-page="news-article"] .relatedHeadline,
-.page[data-page="news-article"] .spotsHeading {
+.page[data-page="news-article"] .relatedHeadline {
   font-family: var(--menu-condensed, Impact, sans-serif);
   color: var(--article-ink);
   letter-spacing: 0;
@@ -925,13 +608,7 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   background: radial-gradient(circle, rgba(217, 56, 42, .28), transparent 68%);
 }
 
-.page[data-page="news-article"] .spotrail {
-  background: var(--article-paper);
-  border-top: 2px solid var(--article-ink);
-  box-shadow: none;
-}
 
-.page[data-page="news-article"] .spotrailCta,
 .page[data-page="news-article"] .shareBtn {
   background: var(--article-ink);
   color: var(--article-paper);
@@ -1001,7 +678,6 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
 .page[data-page="news-article"] .lede,
 .page[data-page="news-article"] .content,
 .page[data-page="news-article"] .shareRow,
-.page[data-page="news-article"] .spots,
 .page[data-page="news-article"] .related {
   width: min(100%, 1040px);
   margin-right: auto;
@@ -1098,14 +774,12 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   transform: none;
 }
 
-.page[data-page="news-article"] .spots,
 .page[data-page="news-article"] .related {
   margin-top: clamp(54px, 8vw, 96px);
   padding-top: clamp(24px, 4vw, 42px);
   border-top: 3px solid var(--article-ink);
 }
 
-.page[data-page="news-article"] .spotsHeading,
 .page[data-page="news-article"] .relatedHeading {
   margin: 0 0 clamp(20px, 3vw, 34px);
   color: var(--article-ink);
@@ -1117,14 +791,12 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   text-transform: uppercase;
 }
 
-.page[data-page="news-article"] .spotsRow,
 .page[data-page="news-article"] .relatedGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
-.page[data-page="news-article"] .spotCard,
 .page[data-page="news-article"] .relatedCard {
   min-height: 320px;
   overflow: hidden;
@@ -1137,9 +809,7 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   transform: none;
 }
 
-.page[data-page="news-article"] .spotCard:hover,
 .page[data-page="news-article"] .relatedCard:hover,
-.page[data-page="news-article"] .spotCard:focus-visible,
 .page[data-page="news-article"] .relatedCard:focus-visible {
   transform: translateY(-4px) rotate(-.5deg);
 }
@@ -1160,8 +830,7 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   color: var(--article-ink);
 }
 
-.page[data-page="news-article"] .relatedCategory,
-.page[data-page="news-article"] .spotMeta {
+.page[data-page="news-article"] .relatedCategory {
   color: var(--article-red);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
@@ -1170,8 +839,7 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   text-transform: uppercase;
 }
 
-.page[data-page="news-article"] .relatedHeadline,
-.page[data-page="news-article"] .spotName {
+.page[data-page="news-article"] .relatedHeadline {
   color: inherit;
   font-family: var(--menu-condensed, Impact, sans-serif);
   font-size: clamp(34px, 5vw, 58px);
@@ -1185,8 +853,7 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   margin-top: clamp(34px, 5vw, 64px);
 }
 
-.page[data-page="news-article"] .shareBtn,
-.page[data-page="news-article"] .spotrailCta {
+.page[data-page="news-article"] .shareBtn {
   border: 2px solid var(--article-ink);
   border-radius: 0;
   background: var(--article-ink);
@@ -1199,27 +866,6 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   text-transform: uppercase;
 }
 
-.page[data-page="news-article"] .spotrail {
-  width: min(100%, 1040px);
-  margin: clamp(48px, 7vw, 88px) auto 0;
-  padding: clamp(22px, 4vw, 36px) 0 0;
-  border: 0;
-  border-top: 3px solid var(--article-ink);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.page[data-page="news-article"] .spotrailKicker {
-  color: var(--article-red);
-}
-
-.page[data-page="news-article"] .spotrailNames {
-  color: var(--article-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(34px, 5vw, 60px);
-  line-height: .9;
-}
 
 @media (max-width: 760px) {
   .page[data-page="news-article"] {
@@ -1240,12 +886,10 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
     font-size: clamp(48px, 15vw, 82px);
   }
 
-  .page[data-page="news-article"] .spotsRow,
   .page[data-page="news-article"] .relatedGrid {
     grid-template-columns: 1fr;
   }
 
-  .page[data-page="news-article"] .spotCard,
   .page[data-page="news-article"] .relatedCard {
     min-height: 0;
   }
@@ -1436,34 +1080,6 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   line-height: .96;
 }
 
-html[data-theme="dark"] .page[data-page="news-article"] {
-  --article-ink: #f0e8d0;
-  --article-red: #f05a45;
-  --article-paper: #111110;
-  --article-muted: rgba(240, 232, 208, .68);
-  background: var(--article-paper);
-  color: var(--article-ink);
-}
-
-html[data-theme="dark"] .page[data-page="news-article"] .heroWrap {
-  background: #1d1c19;
-}
-
-html[data-theme="dark"] .page[data-page="news-article"] .breadcrumbWrap :global(ol) {
-  background: var(--article-ink);
-  color: var(--article-paper);
-}
-
-html[data-theme="dark"] .page[data-page="news-article"] .heroTitle {
-  color: #fff;
-}
-
-html[data-theme="dark"] .page[data-page="news-article"] .relatedCard {
-  background: transparent;
-  color: var(--article-ink);
-  border-bottom-color: var(--article-ink);
-}
-
 @media (max-width: 760px) {
   .page[data-page="news-article"] {
     padding-inline: 14px;
@@ -1523,14 +1139,230 @@ html[data-theme="dark"] .page[data-page="news-article"] .relatedCard {
   color: #fff;
 }
 
-html[data-theme="dark"] .page[data-page="news-article"] .heroWrap .heroTitle {
-  color: #fff;
-}
-
 html:not([data-active-page="map"]) .page[data-page="news-article"] .heroWrap .heroTitle {
   color: #fff;
 }
 
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .heroWrap .heroTitle {
-  color: #fff;
+/* Final Home consolidation: article blocks use paper/ink/red, flat images,
+   and line-based cards instead of legacy dark poster slabs. */
+.page[data-page="news-article"] {
+  --article-ink: var(--et-home-ink);
+  --article-red: var(--et-home-red);
+  --article-paper: var(--et-home-paper);
+  --article-muted: var(--et-home-muted);
+  --article-rule: var(--et-home-line);
+}
+
+.page[data-page="news-article"] .heroWrap,
+.page[data-page="news-article"] .relatedImage,
+.page[data-page="news-article"] .inlineSpot {
+  border-radius: var(--et-radius-photo);
+}
+
+.page[data-page="news-article"] .mustEat {
+  grid-template-columns: minmax(112px, auto) minmax(0, 1fr);
+  justify-items: start;
+  text-align: left;
+  gap: clamp(18px, 4vw, 34px);
+  margin: clamp(34px, 6vw, 62px) 0;
+  padding: clamp(18px, 4vw, 34px);
+  color: var(--article-ink);
+  background: var(--article-paper);
+  border: 3px solid var(--article-ink);
+  border-radius: var(--et-radius-photo);
+}
+
+.page[data-page="news-article"] .mustEatPh {
+  margin: 0;
+}
+
+.page[data-page="news-article"] .mustEatPh::before {
+  display: none;
+}
+
+.page[data-page="news-article"] .mustEatPh img {
+  width: clamp(108px, 17vw, 176px);
+  border-radius: var(--et-radius-photo);
+  filter: none;
+}
+
+.page[data-page="news-article"] .mustEatBody {
+  justify-items: start;
+  align-self: center;
+}
+
+.page[data-page="news-article"] .mustEatKicker {
+  justify-self: start;
+  margin: 0 0 4px;
+  padding: 0;
+  color: var(--article-red);
+  background: transparent;
+  border-radius: 0;
+  transform: none;
+  font-family: var(--et-font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.page[data-page="news-article"] .mustEat .mustEatName {
+  max-width: 13ch;
+  color: var(--article-ink);
+  font-family: var(--et-font-condensed);
+  font-size: clamp(34px, 5.2vw, 68px);
+  line-height: .84;
+  text-shadow: none;
+}
+
+.page[data-page="news-article"] .mustEat .mustEatDesc,
+.page[data-page="news-article"] .mustEatRest {
+  color: var(--article-muted);
+}
+
+.page[data-page="news-article"] .mustEatCta {
+  margin-top: 8px;
+  color: var(--article-paper);
+  background: var(--article-ink);
+  border: 2px solid var(--article-ink);
+  border-radius: var(--et-radius-control);
+  box-shadow: none;
+  font-family: var(--et-font-mono);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.page[data-page="news-article"] .inlineSpot {
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.page[data-page="news-article"] .inlineSpot::after,
+.page[data-page="news-article"] .heroWrap::after {
+  background: var(--et-home-photo-overlay);
+}
+
+.page[data-page="news-article"] .relatedCard {
+  border-bottom: 3px solid var(--article-ink);
+  background: transparent;
+  color: var(--article-ink);
+}
+
+.page[data-page="news-article"] .inlineSpotMeta {
+  color: var(--article-red);
+}
+
+.page[data-page="news-article"] .relatedHeadline {
+  color: var(--article-ink);
+}
+
+.page[data-page="news-article"] .shareBtn {
+  border-radius: var(--et-radius-control);
+  box-shadow: none;
+  background: var(--article-ink);
+  color: var(--article-paper);
+}
+
+@media (max-width: 620px) {
+  .page[data-page="news-article"] .mustEat {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .page[data-page="news-article"] .mustEatBody,
+  .page[data-page="news-article"] .mustEatKicker {
+    justify-items: center;
+    justify-self: center;
+  }
+}
+
+/* Article route also renders with CSS Modules only, so the final article skin
+   must not depend on the SPA stylesheet being present. */
+.page {
+  --article-ink: var(--et-home-ink);
+  --article-red: var(--et-home-red);
+  --article-paper: var(--et-home-paper);
+  --article-muted: var(--et-home-muted);
+  --article-rule: var(--et-home-line);
+  background: var(--article-paper);
+  color: var(--article-ink);
+  padding: calc(72px + env(safe-area-inset-top, 0px)) clamp(14px, 4vw, 54px) clamp(58px, 8vw, 110px);
+}
+
+.article {
+  max-width: min(100%, 1180px);
+  background: var(--article-paper);
+}
+
+.breadcrumbWrap,
+.byline,
+.lede,
+.content,
+.shareRow,
+.related {
+  width: min(100%, 880px);
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+.heroWrap {
+  max-width: 1180px;
+  margin: 0 auto clamp(20px, 4vw, 44px);
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--et-radius-photo);
+  box-shadow: none;
+  transform: none;
+}
+
+.title,
+.heroTitle,
+.content h2,
+.content h3,
+.relatedHeading,
+.relatedHeadline,
+.inlineSpotName {
+  font-family: var(--et-font-condensed);
+  letter-spacing: 0;
+}
+
+.title {
+  width: min(100%, 880px);
+  margin: clamp(20px, 4vw, 44px) auto 18px;
+  color: var(--article-ink);
+  font-size: clamp(46px, 6.4vw, 86px);
+  line-height: .88;
+}
+
+.byline,
+.relatedCategory,
+.mustEatKicker,
+.inlineSpotMeta {
+  font-family: var(--et-font-mono);
+  color: var(--article-red);
+  font-weight: 900;
+}
+
+.lede {
+  color: var(--article-muted);
+  border-bottom: 2px solid var(--article-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+}
+
+.content {
+  color: var(--article-ink);
+  font-size: clamp(16px, 1.28vw, 18px);
+}
+
+.content > p:first-of-type::first-letter {
+  font-family: var(--et-font-condensed);
+  color: var(--article-red);
+}
+
+.content blockquote {
+  border-color: var(--article-ink);
+  color: var(--article-ink);
+  font-family: var(--et-font-condensed);
+  letter-spacing: 0;
 }

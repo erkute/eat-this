@@ -1,8 +1,7 @@
 'use client'
-import { memo, useCallback, useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
-import { Link } from '@/i18n/navigation'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
 import { abbreviateBezirk, getOpenStatus, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -10,7 +9,6 @@ import { localizedCategoryName } from '@/lib/categories'
 import { normalizeName } from '@/lib/normalizeName'
 import sanityImageLoader from '@/lib/sanityImageLoader'
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
-import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
 
@@ -124,7 +122,7 @@ const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadg
       {peek.kind !== 'none' && !locked && (
         <span className={styles.mustPeek}>
           <img
-            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 160 }) : '/pics/card-back-sm.webp?v=6'}
+            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 180 }) : '/pics/card-back-sm.webp?v=6'}
             alt=""
             aria-hidden="true"
             loading="lazy"
@@ -161,8 +159,8 @@ const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadg
 
 interface RestaurantListProps {
   restaurants: MapRestaurant[]
-  /** Locked-preview rows rendered after the booster banner. Empty for
-   *  All-Berlin owners (nothing to upsell). */
+  /** Locked restaurants exist only as a count/upsell signal now. The list no
+   *  longer renders blurred locked rows. */
   lockedRestaurants?: MapRestaurant[]
   userLocation: UserLocation | null
   selectedId: string | null
@@ -173,9 +171,8 @@ interface RestaurantListProps {
   unlockedIds: Set<string>
   revealedMustEatIds: Set<string>
   onResetFilters?: () => void
-  /** Active bezirk filter name, if any. When a district has ONLY locked spots
-   *  we swap the triple upsell (divider + per-card badges + end-cap) for a
-   *  single calm block that pitches All Berlin. */
+  /** Active bezirk filter name, if any. Used for the All-Berlin banner copy
+   *  when a district has only locked spots. */
   activeBezirk?: string | null
 }
 
@@ -186,34 +183,13 @@ export default function RestaurantList({
   const locale = useLocale()
   const { t } = useTranslation()
 
-  // Locked-row click routes to the same upgrade target the booster banner
-  // CTA uses — anon → /login, signed-in → /#hub-packs. Keeps the
-  // conversion path consistent regardless of which surface the user clicks.
-  const upgradeHref = uid
-    ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
-    : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
-
-  const handleLockedClick = useCallback(() => {
-    window.location.assign(upgradeHref)
-  }, [upgradeHref])
-
-  const onUpgradeClick = useCallback(() => {
-    window.location.assign(upgradeHref)
-  }, [upgradeHref])
-
   if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />
 
-  // Booster CTA sits between unlocked and locked groups — communicates
-  // „these are yours / these unlock with signup". Hidden only for the
-  // All-Berlin tier (nothing left to upsell). When the unlocked list is
-  // empty (filter mismatched the trial set) the banner sits at the very
-  // top so the user still sees the upsell.
-  const showBooster = userTier !== 'allBerlin'
-
-  // A district the user can't browse yet (filter active, every spot locked).
-  // Show one calm All-Berlin block instead of divider + badges + end-cap.
-  const bezirkLockedOnly = !!activeBezirk && showBooster && restaurants.length === 0 && lockedRestaurants.length > 0
+  // One calm upsell only: no blurred locked rows and no separate signup
+  // banner. Guests get sign-in as a secondary text link inside this block.
+  const showAllBerlinBanner = userTier !== 'allBerlin' && (lockedRestaurants.length > 0 || restaurants.length > 0)
   const allBerlinHref = locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`
+  const loginHref = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
 
   return (
     <>
@@ -230,34 +206,9 @@ export default function RestaurantList({
           />
         </div>
       ))}
-      {bezirkLockedOnly ? (
-        <section className={styles.bezirkLocked} data-sheet-scroll-native>
-          <h3 className={styles.bezirkLockedTitle}>{activeBezirk} {t('map.bezirkLockedTitleSuffix')}</h3>
-          <p className={styles.bezirkLockedBody}>{t('map.bezirkLockedBodyPre')}{activeBezirk}{t('map.bezirkLockedBodyPost')}</p>
-          <a href={allBerlinHref} className={styles.bezirkLockedCta}>
-            <span>{t('map.bezirkLockedCta')}</span>
-            <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </a>
-        </section>
-      ) : (
-        showBooster && (lockedRestaurants.length > 0 || restaurants.length === 0) && (
-          <BoosterOfferInline uid={uid} variant="list" />
-        )
-      )}
-      {lockedRestaurants.map((r) => (
-        <div key={`locked-${r._id}`} className={styles.rcardSlot} data-sheet-scroll-native={bezirkLockedOnly ? true : undefined}>
-          <Item
-            restaurant={r}
-            isSelected={false}
-            peek={{ kind: 'covered' }}
-            locked
-            hideBadge={bezirkLockedOnly}
-            onClick={handleLockedClick}
-          />
-        </div>
-      ))}
-      {showBooster && !bezirkLockedOnly && (
+      {showAllBerlinBanner && (
         <div className={styles.listEnd}>
+          <p className={styles.listEndKicker}>{t('map.listEndKicker')}</p>
           <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
           <div className={styles.listEndFan} aria-hidden="true">
             <span className={`${styles.listEndPack} ${styles.listEndPackOne}`} />
@@ -267,13 +218,17 @@ export default function RestaurantList({
             <span className={`${styles.listEndPack} ${styles.listEndPackFive}`} />
             <span className={`${styles.listEndPack} ${styles.listEndPackSix}`} />
           </div>
-          <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
-          <button type="button" className={styles.listEndCta} onClick={() => onUpgradeClick()}>
-            <span>{t(uid ? 'map.boosterCta' : 'map.starterCta')}</span>
+          <p className={styles.listEndSub}>
+            {activeBezirk && restaurants.length === 0
+              ? `${t('map.bezirkLockedBodyPre')}${activeBezirk}${t('map.bezirkLockedBodyPost')}`
+              : t('map.listEndSub')}
+          </p>
+          <a href={allBerlinHref} className={styles.listEndCta}>
+            <span>{t('map.listEndCta')}</span>
             <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </button>
-          {uid && (
-            <Link href="/#hub-packs" className={styles.listEndSecondary}>{t('map.boosterSecondary')}</Link>
+          </a>
+          {!uid && (
+            <a href={loginHref} className={styles.listEndSecondary}>{t('map.starterPromoLogin')}</a>
           )}
         </div>
       )}

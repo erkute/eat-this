@@ -39,16 +39,6 @@
   color: var(--collage-red, #ef3108);
   background: transparent;
 }
-html[data-theme="dark"] .btnActive {
-  color: var(--collage-red, #ef3108);
-}
-html[data-theme="dark"] .btn {
-  background: transparent;
-  color: var(--brand-paper, #f1f1ec);
-}
-html[data-theme="dark"] .btnActive {
-  color: var(--brand-action, #ef3528);
-}
 
 .label {
   font-family: var(--f-display);
@@ -56,4 +46,4 @@ html[data-theme="dark"] .btnActive {
   letter-spacing: 0.04em;
   color: var(--ink);
 }
-.labelMuted { opacity: .6; }
+

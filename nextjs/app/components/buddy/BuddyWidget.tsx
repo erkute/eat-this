@@ -66,10 +66,8 @@ function FormattedText({ text }: { text: string }) {
 
 function TypingDots({ label }: { label: string }) {
   return (
-    <span className={styles.typing} role="status" aria-label={label}>
-      <span className={styles.dot} />
-      <span className={styles.dot} />
-      <span className={styles.dot} />
+    <span className={styles.typing} role="status">
+      {label}
     </span>
   )
 }
@@ -104,7 +102,7 @@ function SpotCard({
           </span>
         )}
         {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
-        <span className={styles.spotCta}>{cta} →</span>
+        <span className={styles.spotCta}>{cta}</span>
       </span>
       {onSave && (
         <button
@@ -123,9 +121,9 @@ function SpotCard({
             onSave()
           }}
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z" />
-          </svg>
+          {isSaved
+            ? locale === 'en' ? 'Saved' : 'Drin'
+            : locale === 'en' ? 'Save' : 'Merken'}
         </button>
       )}
     </Link>
@@ -140,7 +138,7 @@ function ArticleCard({ article, locale, onSelect }: { article: ArticleResult; lo
         <span className={styles.articleKicker}>{locale === 'en' ? 'From the magazine' : 'Aus dem Magazin'}</span>
         <span className={styles.spotName}>{article.title}</span>
         {article.excerpt && <span className={styles.spotDesc}>{article.excerpt}</span>}
-        <span className={styles.spotCta}>{cta} →</span>
+        <span className={styles.spotCta}>{cta}</span>
       </span>
     </Link>
   )
@@ -193,7 +191,7 @@ function PackCard({
         <span className={styles.articleKicker}>Booster Pack · {pack.name}</span>
         <span className={styles.spotName}>{pack.spectrum}</span>
         <span className={styles.packDesc}>{pack.description}</span>
-        <span className={styles.spotCta}>{locale === 'en' ? 'View' : 'Ansehen'} →</span>
+        <span className={styles.spotCta}>{locale === 'en' ? 'View' : 'Ansehen'}</span>
       </span>
     </Link>
   )
@@ -505,104 +503,94 @@ export default function BuddyWidget() {
   return (
     <>
       {open && (
-        <div
-          ref={panelRef}
-          id="buddy-panel"
-          className={styles.panel}
-          data-buddy-panel="open"
-          role="dialog"
-          aria-modal="true"
-          aria-label={title}
-          tabIndex={-1}
-        >
-          <div className={styles.header}>
-            <span className={styles.avatarFrame}>
-              <BuddyAvatar mood={panelMood} size={54} />
-            </span>
-            <span className={styles.headerTitle}>
-              <strong>{title}</strong>
-              <span>{locale === 'en' ? 'Food insider' : 'Food-Insider'}</span>
-            </span>
-            <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
-              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
-            </button>
-          </div>
-          <div className={styles.log} aria-live="polite">
-            {messages.length === 0 &&
-              (() => {
-                // Time-of-day opener + starter chips (computed client-side; the
-                // intro only renders after the user opens the panel).
-                const intro = greetingFor(new Date().getHours(), locale)
-                return (
-                  <div className={styles.intro}>
-                    <div className={styles.msgBot}>
-                      <FormattedText text={intro.greeting} />
-                    </div>
-                    <div className={styles.chips}>
-                      <button type="button" className={styles.chipNear} onClick={askNearby} disabled={locating} aria-busy={locating}>
-                        {locating ? (
-                          <span className={styles.nearSpinner} aria-hidden="true" />
-                        ) : (
-                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
-                        )}
-                        {locating
-                          ? locale === 'en' ? 'Locating…' : 'Standort…'
-                          : locale === 'en' ? 'Near me' : 'In meiner Nähe'}
-                      </button>
-                      {intro.suggestions.map((s) => (
-                        <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>
-                          {s}
+        <>
+          <div className={styles.scrim} aria-hidden="true" />
+          <div
+            ref={panelRef}
+            id="buddy-panel"
+            className={styles.panel}
+            data-buddy-panel="open"
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            tabIndex={-1}
+          >
+            <div className={styles.header}>
+              <span className={styles.avatarFrame}>
+                <BuddyAvatar mood={panelMood} size={58} />
+              </span>
+              <span className={styles.headerTitle}>
+                <strong>{title}</strong>
+                <span>{locale === 'en' ? 'Berlin food radar' : 'Berlin Food Radar'}</span>
+              </span>
+              <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
+                <span aria-hidden="true">{locale === 'en' ? 'Close' : 'Zu'}</span>
+              </button>
+            </div>
+            <div className={styles.log} aria-live="polite">
+              {messages.length === 0 &&
+                (() => {
+                  // Time-of-day opener + starter chips (computed client-side; the
+                  // intro only renders after the user opens the panel).
+                  const intro = greetingFor(new Date().getHours(), locale)
+                  return (
+                    <div className={styles.intro}>
+                      <div className={styles.msgBot}>
+                        <FormattedText text={intro.greeting} />
+                      </div>
+                      <div className={styles.chips}>
+                        <button type="button" className={styles.chipNear} onClick={askNearby} disabled={locating} aria-busy={locating}>
+                          {locating
+                            ? locale === 'en' ? 'Locating…' : 'Standort…'
+                            : locale === 'en' ? 'Near me' : 'In meiner Nähe'}
                         </button>
-                      ))}
+                        {intro.suggestions.map((s) => (
+                          <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>
+                            {s}
+                          </button>
+                        ))}
+                      </div>
                     </div>
+                  )
+                })()}
+              {messages.map((m, i) =>
+                m.role === 'user' ? (
+                  <div key={i} className={styles.msgUser}>
+                    {m.content}
                   </div>
-                )
-              })()}
-            {messages.map((m, i) =>
-              m.role === 'user' ? (
-                <div key={i} className={styles.msgUser}>
-                  {m.content}
-                </div>
-              ) : (
-                <div key={i} className={styles.msgBot}>
-                  <BotMessage
-                    m={m}
-                    locale={locale}
-                    streaming={isStreaming && i === messages.length - 1}
-                    isLast={i === messages.length - 1}
-                    onSpotSelect={() => setOpen(false)}
-                    onFollowup={ask}
-                    savedIds={favoriteIds}
-                    onSaveSpot={onSaveSpot}
-                    thinkingLabel={t.thinking}
-                    pack={i === firstPackIdx ? m.pack : undefined}
-                  />
-                </div>
-              ),
-            )}
+                ) : (
+                  <div key={i} className={styles.msgBot}>
+                    <BotMessage
+                      m={m}
+                      locale={locale}
+                      streaming={isStreaming && i === messages.length - 1}
+                      isLast={i === messages.length - 1}
+                      onSpotSelect={() => setOpen(false)}
+                      onFollowup={ask}
+                      savedIds={favoriteIds}
+                      onSaveSpot={onSaveSpot}
+                      thinkingLabel={t.thinking}
+                      pack={i === firstPackIdx ? m.pack : undefined}
+                    />
+                  </div>
+                ),
+              )}
+            </div>
+            <form className={styles.form} onSubmit={onSubmit}>
+              <input
+                className={styles.input}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder={t.placeholder}
+                disabled={isStreaming}
+                aria-label={t.placeholder}
+              />
+              <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label={t.send}>
+                <span aria-hidden="true">{t.send}</span>
+              </button>
+            </form>
           </div>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder={t.placeholder}
-              disabled={isStreaming}
-              aria-label={t.placeholder}
-            />
-            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label={t.send}>
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 12h13" />
-                <path d="m13 6 6 6-6 6" />
-              </svg>
-            </button>
-          </form>
-        </div>
+        </>
       )}
     </>
   )

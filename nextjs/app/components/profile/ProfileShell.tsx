@@ -92,9 +92,10 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
       <main className={styles.page}>
         <div className={styles.shell}>
           <header className={styles.hero}>
-            <div className={styles.heroMain}>
-              <div className={styles.heroName}>{firstName}</div>
-              <div className={styles.heroActions}>
+            <div className={styles.heroCopy}>
+              <p className={styles.heroKicker}>{t('heroKicker')}</p>
+              <h1 className={styles.heroName}>{firstName}</h1>
+              <div className={styles.heroActions} aria-label={t('quickActions')}>
                 <Link href="/map" rel="nofollow" className={styles.heroLink}>
                   {toMapLabel}
                 </Link>
@@ -103,28 +104,37 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                 </a>
               </div>
             </div>
-            <div className={styles.heroAvatar}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className={styles.heroAvatarImg}
-                src={`/pics/avatar/${avatarIdx}.webp?v=3`}
-                alt=""
-              />
-              <button type="button" className={styles.heroEdit} onClick={() => setPickerOpen(true)}>
-                {t('changeAvatar')}
-              </button>
+
+            <div className={styles.heroProfileCard}>
+              <div className={styles.heroAvatar}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.heroAvatarImg}
+                  src={`/pics/avatar/${avatarIdx}.webp?v=3`}
+                  alt=""
+                />
+              </div>
+              <div className={styles.heroProfileMeta}>
+                <span>{t('avatarKicker')}</span>
+                <button
+                  type="button"
+                  className={styles.heroEdit}
+                  onClick={() => setPickerOpen(true)}
+                >
+                  {t('changeAvatar')}
+                </button>
+              </div>
             </div>
-            <div className={styles.leaders}>
-              <div className={styles.leader}>
+
+            <div className={styles.stats}>
+              <div className={styles.stat}>
                 <span>{t('revealedLabel')}</span>
-                <span className={styles.dots} />
                 <b>
                   {collected} / {total}
                 </b>
               </div>
-              <div className={styles.leader}>
+              <div className={styles.stat}>
                 <span>{t('statMap')}</span>
-                <span className={styles.dots} />
                 <b>{ownedRestaurants.length}</b>
               </div>
             </div>

@@ -97,6 +97,17 @@ Chrome extension/browser-control path for frontend verification, and use DOM,
 computed-style, accessibility, layout, and interaction checks instead of taking
 screenshots. Only capture screenshots if the user explicitly asks for them.
 
+## Local dev server persistence
+
+During normal UI iteration, keep `npm run dev` / `localhost:3000` running once
+started. Do not stop the dev server at the end of a turn just because QA is
+done; the user expects localhost to stay available across browser-comment
+rounds and Codex sessions.
+
+Stop the dev server only when a full build, commit, push, or other workflow
+needs it down (see the `npm run build` gotcha below), or when the user
+explicitly asks to stop it.
+
 ## Image assets — PNG → WebP before commit
 
 Any image that ships to the browser (lands under `nextjs/public/`) **must be WebP before it's committed and pushed**. PNG bloats payload ~10× and decode-blocks the main thread on mobile — we've already paid that cost once on the FanCards (1-2 MB raw PNGs from Sanity CDN → ~60 KB WebP via `?auto=format`); don't re-introduce it from the asset side.

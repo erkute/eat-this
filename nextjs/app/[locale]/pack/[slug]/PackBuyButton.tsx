@@ -14,6 +14,8 @@ interface Props {
   ownedLabel: string
   ownedHref: string
   errorLabel: string
+  className?: string
+  errorClassName?: string
 }
 
 // Kicks off Stripe Hosted Checkout for a single pack. Signed-in users send
@@ -30,6 +32,8 @@ export default function PackBuyButton({
   ownedLabel,
   ownedHref,
   errorLabel,
+  className,
+  errorClassName,
 }: Props) {
   const { user } = useAuth()
   const [state, setState] = useState<'idle' | 'pending' | 'owned' | 'error'>('idle')
@@ -87,7 +91,7 @@ export default function PackBuyButton({
 
   if (state === 'owned') {
     return (
-      <a className={styles.cta} href={ownedHref}>
+      <a className={className ? `${styles.cta} ${className}` : styles.cta} href={ownedHref}>
         {ownedLabel}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
           <path d="M5 12h14M13 5l7 7-7 7" />
@@ -98,7 +102,12 @@ export default function PackBuyButton({
 
   return (
     <>
-      <button type="button" className={styles.cta} onClick={onBuy} disabled={state === 'pending'}>
+      <button
+        type="button"
+        className={className ? `${styles.cta} ${className}` : styles.cta}
+        onClick={onBuy}
+        disabled={state === 'pending'}
+      >
         {state === 'pending' ? pendingLabel : label}
         {state !== 'pending' && (
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
@@ -106,7 +115,7 @@ export default function PackBuyButton({
           </svg>
         )}
       </button>
-      {state === 'error' && <p className={styles.ctaError}>{errorLabel}</p>}
+      {state === 'error' && <p className={errorClassName ? `${styles.ctaError} ${errorClassName}` : styles.ctaError}>{errorLabel}</p>}
     </>
   )
 }

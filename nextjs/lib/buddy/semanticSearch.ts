@@ -24,7 +24,7 @@ export interface SemanticScore {
 }
 
 /** True when an embeddings index is present (build-time asset was generated). */
-export function hasSemanticIndex(): boolean {
+function hasSemanticIndex(): boolean {
   return !!INDEX?.vectors && Object.keys(INDEX.vectors).length > 0
 }
 

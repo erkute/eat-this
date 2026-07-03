@@ -1,9 +1,10 @@
 .footer {
-  --footer-ink: #15120e;
+  --footer-ink: #fff;
   --footer-paper: #fff;
   --footer-red: #d9382a;
   --footer-instagram: #c13584;
-  background: var(--footer-red);
+  --footer-bg: #15120e;
+  background: var(--footer-bg);
   color: var(--footer-ink);
   padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -15,7 +16,7 @@
 .top {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(22px, 3.2vw, 40px);
+  gap: clamp(18px, 2.8vw, 34px);
   align-items: center;
   justify-items: center;
   max-width: 1180px;
@@ -47,9 +48,9 @@
   display: block;
   width: min(40vw, 170px);
   height: auto;
-  margin-top: -2px;
+  margin-top: -9px;
   margin-inline: auto;
-  filter: none;
+  filter: brightness(0) invert(1);
 }
 
 .remyLink {
@@ -111,7 +112,7 @@
   display: grid;
   align-items: center;
   justify-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .linksKicker {
@@ -137,7 +138,7 @@
   text-transform: uppercase;
   color: var(--footer-paper);
   text-decoration: none;
-  text-shadow: 1.5px 1.5px 0 var(--footer-ink);
+  text-shadow: 1.5px 1.5px 0 var(--footer-red);
   transform: rotate(1deg);
 }
 
@@ -158,7 +159,7 @@
 
 .remyLink:hover,
 .remyLink:focus-visible {
-  color: var(--footer-paper);
+  color: var(--footer-red);
   background: transparent;
   box-shadow: none;
   outline: 0;
@@ -170,7 +171,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 clamp(10px, 1.5vw, 18px);
+  gap: 10px clamp(10px, 1.5vw, 18px);
   border: 0;
 }
 
@@ -196,12 +197,12 @@
   content: '·';
   display: inline-block;
   margin-left: clamp(10px, 1.5vw, 18px);
-  color: var(--footer-paper);
+  color: rgba(255, 255, 255, .55);
 }
 
 .legalLink:hover {
   background: transparent;
-  color: var(--footer-paper);
+  color: var(--footer-red);
 }
 
 .legalBtn {
@@ -233,21 +234,29 @@
 .lang {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 2px;
+  gap: 7px;
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   font-family: var(--menu-mono);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   line-height: 1.25;
   text-transform: uppercase;
+}
+
+.lang::before {
+  content: none;
 }
 
 .langBtn {
   border: 0;
   background: transparent;
-  padding: 5px 0;
-  color: var(--footer-ink);
+  padding: 0;
+  color: rgba(255, 255, 255, .68);
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
@@ -255,11 +264,11 @@
 }
 
 .langBtnActive {
-  color: var(--footer-paper);
+  color: var(--footer-ink);
 }
 
 .langSep {
-  color: var(--footer-paper);
+  color: rgba(255, 255, 255, .32);
 }
 
 @media (min-width: 740px) {
@@ -308,26 +317,21 @@
   }
 }
 
-html[data-theme='dark'] .footer {
-  background: var(--footer-red);
-  color: var(--footer-ink);
-}
-
-/* HOME V2 — ink footer on the home (data-active-page="start") to match the
-   white/ink/yellow home. Other pages keep the red footer. Remaps the footer
-   palette vars; the black slogan image is inverted to white; yellow accent. */
 :global(html[data-active-page='start']) .footer,
-:global(html[data-theme='dark'][data-active-page='start']) .footer {
+:global(html[data-active-page='must-eats']) .footer {
   --footer-red: #15120e;
   --footer-ink: #fff;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-:global(html[data-active-page='start']) .tagImg {
+:global(html[data-active-page='start']) .tagImg,
+:global(html[data-active-page='must-eats']) .tagImg {
   filter: invert(1);
 }
 
 :global(html[data-active-page='start']) .linksKicker,
-:global(html[data-active-page='start']) .langBtnActive {
+:global(html[data-active-page='start']) .langBtnActive,
+:global(html[data-active-page='must-eats']) .linksKicker,
+:global(html[data-active-page='must-eats']) .langBtnActive {
   color: #ffc600;
 }

@@ -59,19 +59,48 @@ export default function MustEatDetailMobile({
   const { name: restaurantName } = mustEat.restaurant
   const open = isUnlocked && !revealOrigin
   const nameRevealed = open && !nameBurning
+  const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')
+  const dishNameWeight = dishName.replace(/\s+/g, '').length
+  const dishNameSizeClass = dishNameWeight > 22
+    ? styles.fdNameCompact
+    : dishNameWeight > 12
+      ? styles.fdNameLong
+      : ''
 
   // Swipe anywhere on the sheet (hero, name, pager band) pages to the
   // neighbouring must-eat — same gesture as the restaurant detail.
   const rootRef = useRef<HTMLDivElement>(null)
   const topCardRef = useRef<HTMLDivElement>(null)
+  const cardEnterDirRef = useRef<'prev' | 'next' | null>(null)
   const [cardHiddenForPage, setCardHiddenForPage] = useState(false)
   useLayoutEffect(() => {
     const target = topCardRef.current
-    if (target) {
-      target.style.transition = ''
-      target.style.transform = ''
-    }
+    const enterDir = cardEnterDirRef.current
+    cardEnterDirRef.current = null
     setCardHiddenForPage(false)
+    if (!target) return
+
+    target.style.removeProperty('transition')
+    target.style.removeProperty('transform')
+
+    if (enterDir) {
+      const root = rootRef.current
+      const startX = enterDir === 'next'
+        ? (root?.clientWidth ?? window.innerWidth)
+        : -(root?.clientWidth ?? window.innerWidth)
+
+      target.style.setProperty('transition', 'none', 'important')
+      target.style.setProperty('transform', `translateX(${startX}px)`, 'important')
+      void target.offsetWidth
+      window.requestAnimationFrame(() => {
+        target.style.setProperty('transition', 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)', 'important')
+        target.style.setProperty('transform', 'translateX(0)', 'important')
+        window.setTimeout(() => {
+          target.style.removeProperty('transition')
+          target.style.removeProperty('transform')
+        }, 320)
+      })
+    }
   }, [mustEat._id])
   useSwipePager(rootRef, {
     onPrev: onPagePrev,
@@ -79,8 +108,8 @@ export default function MustEatDetailMobile({
     hasPrev: !!prevMustEat,
     hasNext: !!nextMustEat,
     transformRef: topCardRef,
-    onPageOut: () => flushSync(() => setCardHiddenForPage(true)),
-    animateIn: false,
+    animateIn: true,
+    flushPage: true,
   })
 
   const pageWithCard = (dir: 'prev' | 'next') => {
@@ -92,14 +121,12 @@ export default function MustEatDetailMobile({
       return
     }
     const outX = dir === 'next' ? -root.clientWidth : root.clientWidth
-    target.style.transition = 'transform .17s ease-out'
-    target.style.transform = `translateX(${outX}px)`
+    target.style.setProperty('transition', 'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)', 'important')
+    target.style.setProperty('transform', `translateX(${outX}px)`, 'important')
     window.setTimeout(() => {
-      flushSync(() => setCardHiddenForPage(true))
-      page()
-      target.style.transition = 'none'
-      target.style.transform = ''
-    }, 170)
+      cardEnterDirRef.current = dir
+      flushSync(() => page())
+    }, 220)
   }
 
   return (
@@ -131,6 +158,7 @@ export default function MustEatDetailMobile({
           <div className={styles.fdCardStack}>
             <img className={`${styles.fdStackCard} ${styles.fdStackCardOne}`} src={CARD_BACK} alt="" aria-hidden="true" />
             <img className={`${styles.fdStackCard} ${styles.fdStackCardTwo}`} src={CARD_BACK} alt="" aria-hidden="true" />
+            <img className={`${styles.fdStackCard} ${styles.fdStackCardThree}`} src={CARD_BACK} alt="" aria-hidden="true" />
             <div className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}`} ref={topCardRef}>
               {open ? (
                 <button
@@ -165,16 +193,20 @@ export default function MustEatDetailMobile({
         {/* Clip-sicherer Mittelteil: Gericht-Name + Beschreibung (open) bzw.
             Näherungs-Hinweis (locked) hängen direkt unter der Karte; läuft der
             Text über, klemmt fdMid statt den fixen Footer zu verdrängen. */}
-        <div className={styles.fdMid}>
+        <div className={`${styles.fdMid}${!open ? ` ${styles.fdMidLocked}` : ''}`}>
           {/* Gericht-Name — unten im 2-Zeilen-Feld verankert, sitzt direkt über
               der Beschreibung; eine 2. Zeile füllt nach oben → nichts darunter
               springt. Locked: stark verschwommen (kein Stempel). */}
-          <h1 className={styles.fdName} data-detail-hero aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
+          <h1
+            className={`${styles.fdName}${dishNameSizeClass ? ` ${dishNameSizeClass}` : ''}`}
+            data-detail-hero
+            aria-label={nameRevealed ? undefined : t('mustEats.covered')}
+          >
             <span
               className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
               aria-hidden={nameRevealed ? undefined : true}
             >
-              {mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')}
+              {dishName}
             </span>
           </h1>
 

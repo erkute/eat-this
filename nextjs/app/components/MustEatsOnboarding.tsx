@@ -36,7 +36,7 @@ interface Props {
 // this component renders inline. SSR renders only the trigger — `open` flips
 // in an effect, so there is no hydration mismatch and no portal on the server.
 export default function MustEatsOnboarding({ initialMapData }: Props) {
-  const { t } = useTranslation()
+  const { lang, t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(0)
 
@@ -128,6 +128,7 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
 
   const last = step === SLIDES.length - 1
   const slide = SLIDES[step]
+  const packsHref = lang === 'en' ? '/en/packs' : '/packs'
 
   return (
     <>
@@ -177,9 +178,14 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
               </div>
 
               {last ? (
-                <button type="button" className={styles.next} onClick={close}>
-                  {t('mustEats.onbStart')}
-                </button>
+                <div className={styles.finalActions}>
+                  <button type="button" className={styles.next} onClick={close}>
+                    {t('mustEats.onbStart')}
+                  </button>
+                  <a className={styles.packLink} href={packsHref} onClick={close}>
+                    {t('mustEats.onbPacksCta')}
+                  </a>
+                </div>
               ) : (
                 <button type="button" className={styles.next} onClick={() => setStep(step + 1)}>
                   {t('mustEats.onbNext')}

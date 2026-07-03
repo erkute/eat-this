@@ -1,645 +1,68 @@
-/* ════════════════════════════════════════════════════════════
-   "Auf dem Teller" — magazine index (mockup-chewy screen 7).
-   Cream sheet, centered Chewy cover headline, vertical feature blocks
-   (ink-bordered image · italic tag + byline · Chewy headline · drop-cap
-   lede · "Weiterlesen →"). Lives in the SPA, gets the Chewy header + footer.
-   ════════════════════════════════════════════════════════════ */
-
 .page {
-  background: transparent;
-  color: #0a0a0a;
-  /* flow-root so the dark footer below never gets a child margin collapsed
-     out onto the body bg (the grey-strip trap). */
+  --news-ink: var(--et-home-ink, #15120e);
+  --news-paper: #fff;
+  --news-soft: var(--et-home-quiet, #f2f1ef);
+  --news-red: var(--et-home-red, #d9382a);
+  --news-yellow: var(--et-home-accent, #ffc600);
+  --news-muted: var(--et-home-muted, rgba(21, 18, 14, .64));
+  --news-line: var(--et-home-line, rgba(21, 18, 14, .18));
   display: flow-root;
   min-height: 100%;
-}
-
-/* ── Cover headline ── */
-.cover {
-  padding: 28px 18px 6px;
-  text-align: center;
-}
-.coverRule {
-  width: 56px;
-  height: 1.5px;
-  background: #0a0a0a;
-  margin: 0 auto 14px;
-}
-.coverEyebrow {
-  font-family: var(--font-poster);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #6b5a44;
-  margin: 0 0 8px;
-}
-.coverH {
-  font-family: var(--font-poster);
-  font-size: clamp(52px, 16vw, 84px);
-  line-height: 0.92;
-  text-transform: uppercase;
-  color: var(--collage-red);
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-.coverSub {
-  font-family: var(--font-display);
-  font-size: 19px;
-  line-height: 1.35;
-  color: #0a0a0a;
-  opacity: 0.85;
-  margin: 14px auto 0;
-  max-width: 30ch;
-}
-
-/* ── Feature blocks ── */
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.feat {
-  display: block;
-  margin: 24px 14px 28px;
-  text-decoration: none;
-  color: #0a0a0a;
-}
-.featImg {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  background-size: cover;
-  background-position: center;
-  background-color: #14100c;
-  border: 10px solid #fff;
-  box-shadow: var(--collage-shadow);
-  transform: rotate(-1deg);
-}
-.featMeta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 18px 0 16px;
-}
-.featTag {
-  font-style: italic;
-  font-size: 13px;
-  color: #0a0a0a;
-}
-.featRule {
-  flex: 1;
-  height: 1px;
-  background: #0a0a0a;
-}
-.featByline {
-  font-family: var(--font-poster);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #6b5a44;
-  white-space: nowrap;
-}
-.featH {
-  font-family: var(--font-poster);
-  font-size: clamp(32px, 9vw, 40px);
-  line-height: 0.94;
-  text-transform: uppercase;
-  color: var(--collage-red);
-  margin: 0 0 12px;
-  letter-spacing: -0.005em;
-}
-.featLede {
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: #0a0a0a;
-  margin: 0 0 14px;
-}
-.featLede::first-letter {
-  font-family: var(--font-poster);
-  font-size: 66px;
-  float: left;
-  line-height: 0.85;
-  padding: 5px 10px 0 0;
-  color: #0a0a0a;
-}
-.featCta {
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  border-bottom: 1.5px solid #0a0a0a;
-  padding-bottom: 1px;
-}
-
-/* ── Pull-quote — brand-voice anchor pulled from the article ── */
-.pullquote {
-  position: relative;
-  background: #0a0a0a;
-  color: #fbf8ee;
-  padding: 36px 22px 26px;
-  margin: 8px 14px 28px;
-}
-.pullquote::before {
-  content: "“";
-  position: absolute;
-  top: -8px;
-  left: 16px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 100px;
-  line-height: 1;
-  color: var(--brand-yellow);
-}
-.pqText {
-  font-family: var(--font-poster);
-  font-size: 22px;
-  line-height: 1.15;
-  text-transform: uppercase;
-  margin: 0 0 14px;
-  letter-spacing: -0.005em;
-  color: #fbf8ee;
-}
-.pqAttr {
-  font-style: italic;
-  font-size: 12px;
-  color: var(--brand-yellow);
-}
-
-/* ── "Bald auf dem Teller" — curated coming-soon list ── */
-.comingLabel {
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  padding: 0 18px;
-  margin: 8px 0 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.comingLabel::before,
-.comingLabel::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: #0a0a0a;
-  opacity: 0.4;
-}
-.coming {
-  margin: 0 18px 32px;
-  border-top: 1.5px solid #0a0a0a;
-  border-bottom: 1.5px solid #0a0a0a;
-}
-.comingRow {
-  display: grid;
-  grid-template-columns: 1fr 70px;
-  gap: 12px;
-  align-items: baseline;
-  padding: 14px 0;
-  border-top: 1px solid rgba(17, 13, 9, 0.18);
-}
-.comingRow:first-child {
-  border-top: 0;
-}
-.comingH {
-  font-family: var(--font-poster);
-  font-size: 17px;
-  text-transform: uppercase;
-  line-height: 1.1;
-  color: #0a0a0a;
-  margin: 0;
-}
-.comingH em {
-  font-style: italic;
-  font-weight: 500;
-  text-transform: none;
-  font-size: 13px;
-  letter-spacing: 0;
-  color: #6b5a44;
-  display: block;
-  margin-top: 2px;
-}
-.comingStamp {
-  font-family: var(--font-poster);
-  font-size: 10px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  text-align: right;
-}
-
-.empty {
-  margin: 32px 18px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: #0a0a0a;
-  opacity: 0.8;
-  text-align: center;
-}
-
-/* ── Desktop — centered column, larger cover ── */
-@media (min-width: 768px) {
-  .cover {
-    padding: 48px 24px 8px;
-  }
-  .list {
-    max-width: 760px;
-    margin: 0 auto;
-  }
-  .feat {
-    margin: 36px 24px 44px;
-  }
-  .comingLabel,
-  .coming {
-    max-width: 760px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-/* ════════════════════════════════════════════════════════════
-   DARK MODE — everything goes dark, yellow accents flip to red.
-   ════════════════════════════════════════════════════════════ */
-html[data-theme="dark"] .page {
-  background: #111110;
-  color: #f0e8d0;
-}
-
-/* ── Cover headline ── */
-html[data-theme="dark"] .coverRule {
-  background: rgba(240, 232, 208, 0.3);
-}
-html[data-theme="dark"] .coverEyebrow {
-  color: rgba(240, 232, 208, 0.72);
-}
-html[data-theme="dark"] .coverH {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .coverSub {
-  color: #f0e8d0;
-}
-
-/* ── Feature blocks ── */
-html[data-theme="dark"] .feat {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .featImg {
-  border-color: #f0e8d0;
-}
-html[data-theme="dark"] .featTag {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .featRule {
-  background: rgba(240, 232, 208, 0.3);
-}
-html[data-theme="dark"] .featByline {
-  color: rgba(240, 232, 208, 0.72);
-}
-html[data-theme="dark"] .featH {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .featLede {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .featLede::first-letter {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .featCta {
-  color: #f0e8d0;
-  border-bottom-color: #f0e8d0;
-}
-
-/* ── Pull-quote — already dark panel, only flip yellow accents to red ── */
-html[data-theme="dark"] .page .pullquote {
-  background: #1d1c19;
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .page .pullquote::before {
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"] .page .pqText {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .page .pqAttr {
-  color: rgba(240, 232, 208, 0.78);
-}
-
-/* ── "Bald auf dem Teller" ── */
-html[data-theme="dark"] .comingLabel {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .comingLabel::before,
-html[data-theme="dark"] .comingLabel::after {
-  background: rgba(240, 232, 208, 0.3);
-}
-html[data-theme="dark"] .coming {
-  border-top-color: rgba(240, 232, 208, 0.3);
-  border-bottom-color: rgba(240, 232, 208, 0.3);
-}
-html[data-theme="dark"] .comingRow {
-  border-top-color: rgba(240, 232, 208, 0.18);
-}
-html[data-theme="dark"] .comingH {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .comingH em {
-  color: rgba(240, 232, 208, 0.72);
-}
-html[data-theme="dark"] .comingStamp {
-  color: #f0e8d0;
-}
-
-html[data-theme="dark"] .empty {
-  color: #f0e8d0;
-}
-
-/* Beat the sitewide collage h1/h2 + blockquote rules from globals.css on the
-   magazine index. Those rules are intentionally broad; this page needs its own
-   dark editorial contrast. */
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .coverH,
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .featH {
-  color: #f0e8d0;
-}
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .pullquote {
-  background: #1d1c19;
-  color: #f0e8d0;
-  border: 0;
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.42);
-}
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .pullquote::before {
-  content: "“";
-  top: -8px;
-  left: 16px;
-  width: auto;
-  height: auto;
-  background: transparent;
-  box-shadow: none;
-  transform: none;
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .pqText {
-  color: #f0e8d0;
-}
-html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .pqAttr {
-  color: rgba(240, 232, 208, 0.78);
-}
-
-/* Home-system pass: white / ink / red, no collage sheet. */
-.page[data-page="news"] {
-  --news-ink: #15120e;
-  --news-red: #d9382a;
-  --news-paper: #fff;
   background: var(--news-paper);
   color: var(--news-ink);
-  padding-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
-.page[data-page="news"] .cover {
+.shell {
   width: min(100%, 1320px);
   margin: 0 auto;
-  padding: clamp(34px, 7vw, 86px) clamp(14px, 3vw, 44px) clamp(18px, 3vw, 34px);
-  text-align: left;
-  border-bottom: 2px solid var(--news-ink);
+  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(24px, 4vw, 52px)) clamp(14px, 3vw, 44px) clamp(56px, 8vw, 112px);
 }
 
-.page[data-page="news"] .coverRule {
-  width: min(100%, 540px);
-  height: 2px;
-  margin: 0 0 18px;
-  background: var(--news-ink);
-}
-
-.page[data-page="news"] .coverEyebrow,
-.page[data-page="news"] .featByline,
-.page[data-page="news"] .comingLabel,
-.page[data-page="news"] .comingStamp,
-.page[data-page="news"] .featCta {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  color: var(--news-red);
-}
-
-.page[data-page="news"] .coverH,
-.page[data-page="news"] .featH,
-.page[data-page="news"] .comingH {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  color: var(--news-ink);
-  letter-spacing: 0;
-}
-
-.page[data-page="news"] .coverH {
-  max-width: 7ch;
-  font-size: clamp(72px, 13vw, 154px);
-  line-height: .78;
-}
-
-.page[data-page="news"] .coverSub {
-  max-width: 38ch;
-  margin: 18px 0 0;
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  color: rgba(21, 18, 14, .68);
-}
-
-.page[data-page="news"] .list {
-  width: min(100%, 1320px);
-  max-width: none;
-  margin: 0 auto;
-  padding: 0 clamp(14px, 3vw, 44px);
-}
-
-.page[data-page="news"] .feat {
+.hero {
   display: grid;
-  grid-template-columns: minmax(260px, .82fr) minmax(0, 1fr);
-  gap: clamp(18px, 4vw, 58px);
+  grid-template-columns: minmax(0, .95fr) minmax(300px, .78fr);
+  gap: clamp(22px, 5vw, 74px);
   align-items: end;
-  margin: 0;
-  padding: clamp(28px, 5vw, 68px) 0;
-  border-bottom: 2px solid var(--news-ink);
-}
-
-.page[data-page="news"] .featImg {
-  border: 0;
-  box-shadow: none;
-  transform: none;
-}
-
-.page[data-page="news"] .featMeta {
-  margin-top: 0;
-}
-
-.page[data-page="news"] .featTag,
-.page[data-page="news"] .featLede,
-.page[data-page="news"] .comingH em,
-.page[data-page="news"] .empty {
-  color: rgba(21, 18, 14, .68);
-}
-
-.page[data-page="news"] .featH {
-  font-size: clamp(46px, 7vw, 104px);
-  line-height: .84;
-}
-
-.page[data-page="news"] .featLede::first-letter {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  color: var(--news-red);
-}
-
-.page[data-page="news"] .pullquote {
-  width: min(100% - 28px, 1220px);
-  margin: clamp(28px, 5vw, 60px) auto;
-  background: var(--news-ink);
-  color: var(--news-paper);
-}
-
-.page[data-page="news"] .pullquote::before,
-.page[data-page="news"] .pqAttr {
-  color: var(--news-red);
-}
-
-.page[data-page="news"] .coming,
-.page[data-page="news"] .comingLabel {
-  width: min(100% - 28px, 1220px);
-  max-width: none;
-}
-
-.page[data-page="news"] .coming {
-  border-top: 2px solid var(--news-ink);
-  border-bottom: 2px solid var(--news-ink);
-}
-
-@media (max-width: 760px) {
-  .page[data-page="news"] .feat {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Current home-aligned news index: compact cards, no sticky/teaser baggage. */
-.page[data-page="news"] {
-  --news-ink: #15120e;
-  --news-red: #d9382a;
-  --news-paper: #fff;
-  --news-muted: rgba(21, 18, 14, .64);
-  background: var(--news-paper);
-  color: var(--news-ink);
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(22px, 4vw, 52px)) clamp(14px, 3vw, 44px) clamp(64px, 9vw, 120px);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-}
-
-.page[data-page="news"] .cover {
-  display: grid;
-  grid-template-columns: minmax(0, .72fr) minmax(240px, .36fr);
-  gap: clamp(18px, 4vw, 64px);
-  align-items: end;
-  width: min(100%, 1280px);
-  margin: 0 auto clamp(26px, 5vw, 60px);
-  padding: 0 0 clamp(20px, 3vw, 34px);
+  padding-bottom: clamp(24px, 4vw, 42px);
   border-bottom: 3px solid var(--news-ink);
-  text-align: left;
 }
 
-.page[data-page="news"] .coverRule {
-  display: none;
-}
-
-.page[data-page="news"] .coverEyebrow {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: var(--news-red);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .14em;
-  line-height: 1.1;
-}
-
-.page[data-page="news"] .coverH {
+.heroTitle {
   max-width: 8ch;
-  color: var(--news-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(66px, 12vw, 150px);
-  font-weight: 400;
-  line-height: .78;
-  letter-spacing: 0;
-}
-
-.page[data-page="news"] .coverSub {
-  max-width: 29ch;
   margin: 0;
+  color: var(--news-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(70px, 10.5vw, 142px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: .78;
+  text-transform: uppercase;
+}
+
+.heroSub {
+  max-width: 42ch;
+  margin: clamp(18px, 3vw, 28px) 0 0;
   color: var(--news-muted);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(16px, 1.5vw, 21px);
-  font-weight: 850;
-  line-height: 1.25;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(19px, 2vw, 30px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.18;
 }
 
-.page[data-page="news"] .list {
+.heroGuides {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(18px, 2.4vw, 34px);
-  width: min(100%, 1280px);
-  max-width: none;
-  margin: 0 auto;
-  padding: 0;
-}
-
-.page[data-page="news"] .list > li {
+  gap: 12px;
   min-width: 0;
 }
 
-.page[data-page="news"] .feat {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  height: 100%;
-  margin: 0;
-  padding: 0 0 16px;
-  border-bottom: 3px solid var(--news-ink);
-  color: var(--news-ink);
-  text-decoration: none;
-  transition: transform 180ms cubic-bezier(.16, .92, .18, 1);
-}
-
-.page[data-page="news"] .feat:hover,
-.page[data-page="news"] .feat:focus-visible {
-  transform: translateY(-5px) rotate(-.4deg);
-}
-
-.page[data-page="news"] .featImgFrame {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background-color: var(--news-red);
-}
-
-.page[data-page="news"] .featImg {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background-color: var(--news-red);
-  background-size: cover;
-  background-position: center;
-  box-shadow: none;
-  transform: scale(1);
-  transition: transform 280ms cubic-bezier(.16, .92, .18, 1);
-}
-
-.page[data-page="news"] .feat:hover .featImg,
-.page[data-page="news"] .feat:focus-visible .featImg {
-  transform: scale(1.075);
-}
-
-.page[data-page="news"] .featMeta {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 22px;
-  margin: 4px 0 0;
-}
-
-.page[data-page="news"] .featTag,
-.page[data-page="news"] .featByline,
-.page[data-page="news"] .featCta {
-  color: var(--news-red);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+.blockLabel,
+.metaLine,
+.guideNo,
+.guideCta,
+.primaryCta,
+.mapLink {
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: .12em;
@@ -647,120 +70,484 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news"] .p
   text-transform: uppercase;
 }
 
-.page[data-page="news"] .featTag {
-  max-width: 50%;
+.blockLabel {
+  margin: 0;
+  color: var(--news-red);
+}
+
+.guideRail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.guideMini {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 78px;
+  padding: 9px 10px;
+  border: 2px solid var(--news-ink);
+  color: var(--news-ink);
+  text-decoration: none;
+  transition: transform 160ms cubic-bezier(.16, .92, .18, 1);
+}
+
+.guideMini:hover,
+.guideMini:focus-visible {
+  outline: 0;
+  transform: translateY(-3px) rotate(-.6deg);
+}
+
+.guideMini img {
+  display: block;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  transform: rotate(-6deg);
+  filter: drop-shadow(0 6px 8px rgba(21, 18, 14, .16));
+}
+
+.guideMini span {
+  min-width: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(18px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: .92;
   overflow: hidden;
-  font-style: normal;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.guideMini_red,
+.guideCard_red {
+  background: var(--news-red);
+  color: #fff;
+}
+
+.guideMini_yellow,
+.guideCard_yellow {
+  background: var(--news-yellow);
+}
+
+.guideMini_ink,
+.guideCard_ink {
+  background: var(--news-ink);
+  color: #fff;
+}
+
+.guideMini_paper,
+.guideCard_paper {
+  background: var(--news-paper);
+}
+
+.leadSection,
+.guideSection,
+.latestSection {
+  margin-top: clamp(28px, 5vw, 68px);
+}
+
+.leadCard {
+  display: grid;
+  grid-template-columns: minmax(0, .62fr) minmax(340px, .38fr);
+  gap: clamp(18px, 3vw, 40px);
+  align-items: stretch;
+  color: var(--news-ink);
+  text-decoration: none;
+  border-bottom: 3px solid var(--news-ink);
+  padding-bottom: clamp(24px, 4vw, 44px);
+}
+
+.leadImage,
+.storyImage {
+  position: relative;
+  overflow: hidden;
+  background: var(--news-soft);
+}
+
+.leadImage {
+  order: 2;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+  justify-self: end;
+}
+
+.imageFill {
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: cover;
+  transition: transform 260ms cubic-bezier(.16, .92, .18, 1);
+}
+
+.leadCard:hover .imageFill,
+.leadCard:focus-visible .imageFill,
+.storyRow:hover .imageFill,
+.storyRow:focus-visible .imageFill {
+  transform: scale(1.055);
+}
+
+.leadCopy {
+  order: 1;
+  display: grid;
+  align-content: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.leadCopy > * {
+  min-width: 0;
+}
+
+.metaLine {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  gap: 0;
+  color: var(--news-red);
+}
+
+.metaLine span {
+  min-width: 0;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.page[data-page="news"] .featRule {
-  flex: 1;
-  min-width: 22px;
-  height: 2px;
-  background: var(--news-ink);
+.metaLine::after {
+  content: none;
 }
 
-.page[data-page="news"] .featH {
+.metaLine time {
+  display: none;
+}
+
+.leadCopy h2,
+.sectionHead h2,
+.storyCopy h3,
+.guideCard h3 {
   margin: 0;
-  color: var(--news-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(31px, 3.4vw, 46px);
-  font-weight: 400;
-  line-height: .94;
+  color: inherit;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
-.page[data-page="news"] .featLede {
-  display: -webkit-box;
+.leadCopy h2 {
+  max-width: 100%;
+  font-size: clamp(38px, 4.5vw, 64px);
+  line-height: .9;
+  overflow-wrap: break-word;
+}
+
+.leadCopy p,
+.guideCard p,
+.storyCopy p,
+.empty {
   margin: 0;
-  overflow: hidden;
   color: var(--news-muted);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 14px;
-  font-weight: 750;
-  line-height: 1.32;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.5vw, 22px);
+  font-weight: 400;
+  line-height: 1.22;
 }
 
-.page[data-page="news"] .featLede::first-letter {
-  float: none;
-  padding: 0;
-  color: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.page[data-page="news"] .featCta {
-  justify-self: start;
+.primaryCta,
+.mapLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: max-content;
-  margin-top: 2px;
-  padding: 8px 10px 9px;
+  min-height: 42px;
+  padding: 0 14px;
+  color: #fff;
+  background: var(--news-ink);
   border: 2px solid var(--news-ink);
-  background: var(--news-ink);
-  color: var(--news-paper);
+  text-decoration: none;
 }
 
-.page[data-page="news"] .feat:hover .featCta,
-.page[data-page="news"] .feat:focus-visible .featCta {
-  background: var(--news-ink);
-  color: var(--news-paper);
+.primaryCta::after,
+.mapLink::after,
+.guideCta::after {
+  content: '→';
+  margin-left: 8px;
 }
 
-.page[data-page="news"] .empty {
-  width: min(100%, 1280px);
-  margin: 0 auto;
-  color: var(--news-muted);
-  text-align: left;
+.sectionHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-html[data-theme="dark"] .page[data-page="news"] {
-  --news-ink: #f0e8d0;
-  --news-red: #f05a45;
-  --news-paper: #111110;
-  --news-muted: rgba(240, 232, 208, .68);
-  background: var(--news-paper);
+.sectionHead h2 {
+  max-width: 12ch;
+  font-size: clamp(42px, 6vw, 90px);
+  line-height: .82;
+}
+
+.guideGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guideCard {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  min-height: 360px;
+  padding: 16px;
+  border: 2px solid var(--news-ink);
   color: var(--news-ink);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 160ms cubic-bezier(.16, .92, .18, 1);
 }
 
-html[data-theme="dark"] .page[data-page="news"] .featCta {
-  background: var(--news-ink);
-  color: var(--news-paper);
+.guideCard:hover,
+.guideCard:focus-visible {
+  outline: 0;
+  transform: translateY(-5px) rotate(-.5deg);
 }
 
-@media (max-width: 900px) {
-  .page[data-page="news"] .cover {
+.guideCard_ink,
+.guideCard_red {
+  color: #fff;
+}
+
+.guideNo {
+  position: relative;
+  z-index: 2;
+}
+
+.guideArt {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 152px;
+}
+
+.guideArt img {
+  width: min(72%, 170px);
+  height: auto;
+  object-fit: contain;
+  transform: rotate(-7deg);
+  filter: drop-shadow(0 10px 16px rgba(21, 18, 14, .24));
+}
+
+.guideCard:nth-child(even) .guideArt img {
+  transform: rotate(7deg);
+}
+
+.guideCard h3 {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(30px, 3vw, 48px);
+  line-height: .88;
+}
+
+.guideCard p {
+  position: relative;
+  z-index: 2;
+  color: currentColor;
+  font-size: 16px;
+}
+
+.guideCta {
+  position: relative;
+  z-index: 2;
+  width: max-content;
+  margin-top: 14px;
+  color: currentColor;
+}
+
+.latestList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--news-ink);
+}
+
+.storyRow {
+  display: grid;
+  grid-template-columns: minmax(150px, 280px) minmax(0, 1fr);
+  gap: clamp(14px, 3vw, 32px);
+  align-items: center;
+  padding: 18px 0;
+  color: var(--news-ink);
+  border-bottom: 2px solid var(--news-ink);
+  text-decoration: none;
+}
+
+.storyImage {
+  aspect-ratio: 4 / 3;
+}
+
+.storyCopy {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.storyCopy h3 {
+  font-size: clamp(31px, 4.2vw, 58px);
+  line-height: .88;
+}
+
+.storyCopy p {
+  display: -webkit-box;
+  max-width: 54ch;
+  overflow: hidden;
+  font-size: 17px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.empty {
+  margin-top: 28px;
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .leadCard {
     grid-template-columns: 1fr;
   }
 
-  .page[data-page="news"] .list {
+  .guideGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .leadImage {
+    min-height: 0;
   }
 }
 
 @media (max-width: 620px) {
-  .page[data-page="news"] {
+  .shell {
     padding-inline: 14px;
   }
 
-  .page[data-page="news"] .cover {
-    margin-bottom: 28px;
+  .heroTitle {
+    font-size: clamp(58px, 17vw, 86px);
   }
 
-  .page[data-page="news"] .coverH {
-    font-size: clamp(54px, 17vw, 82px);
+  .heroSub {
+    max-width: 31ch;
+    font-size: 20px;
   }
 
-  .page[data-page="news"] .list {
+  .guideRail {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .guideMini {
+    grid-template-columns: 44px minmax(0, 1fr);
+    min-height: 66px;
+    padding: 8px;
+  }
+
+  .guideMini img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .guideMini span {
+    font-size: clamp(15px, 4.3vw, 18px);
+  }
+
+  .leadCard {
+    gap: 14px;
+  }
+
+  .leadImage {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    justify-self: stretch;
+  }
+
+  .leadCopy h2 {
+    max-width: 100%;
+    font-size: clamp(34px, 10.5vw, 48px);
+  }
+
+  .sectionHead {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .sectionHead h2 {
+    max-width: 100%;
+    font-size: clamp(36px, 11vw, 54px);
+    overflow-wrap: break-word;
+  }
+
+  .guideGrid {
     grid-template-columns: 1fr;
-    gap: 28px;
   }
 
-  .page[data-page="news"] .featH {
-    font-size: clamp(36px, 10vw, 52px);
+  .guideCard {
+    grid-template-columns: minmax(0, 1fr) 108px;
+    min-height: 0;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .guideNo,
+  .guideCard h3,
+  .guideCard p,
+  .guideCta {
+    grid-column: 1;
+  }
+
+  .guideArt {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    min-height: 128px;
+  }
+
+  .guideArt img {
+    width: 118px;
+  }
+
+  .storyRow {
+    grid-template-columns: minmax(138px, 42vw) minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px 0;
+    align-items: start;
+  }
+
+  .storyImage {
+    aspect-ratio: 1 / 1;
+    margin-top: 4px;
+  }
+
+  .storyCopy {
+    gap: 7px;
+  }
+
+  .storyCopy .metaLine {
+    gap: 7px;
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .storyCopy h3 {
+    font-size: clamp(21px, 6.6vw, 30px);
+    line-height: .94;
+  }
+
+  .storyCopy p {
+    display: none;
   }
 }

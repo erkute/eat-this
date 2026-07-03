@@ -749,28 +749,28 @@ body {
   .app-page.active {
     z-index: auto;
   }
-  /* Map page: in-flow + 100lvh tall, so the bottom sheet's last
-     (lvh − dvh) px sit behind iOS Safari's translucent bottom URL bar and
-     the list rows blur through it while scrolling — same effect as the
-     window-scroll start page. Verified on-device via a probe page: Safari
-     composites only IN-FLOW content of a scrollable document into the bar
-     backdrop; position:fixed layers / overflow-hidden bodies show the body
-     bg (the "cream behind the bar") instead.
-     Historic: this used to be position:fixed + body overflow:hidden ("map
-     pan moves the list") — obsolete since the MapLibre canvas is
-     touch-action:none and the sheet drags preventDefault; no gesture
-     reaches the window. The window CAN scroll by the bar height (~40px);
-     if it ever does, the bar minimizes and the sheet snap math re-anchors
-     on resize (useBottomSheet). */
+  /* Map page: window-scrolled in-flow document (the in-flow map rebuild —
+     see the ≤767.98px block at the end of map.module.css). The page grows
+     with its in-flow list content and the WINDOW scrolls it — the only way
+     iOS Safari composites the list rows into its bottom-URL-bar backdrop
+     (real frosted glass, like the start page; verified on-device via a probe
+     page in spike #127: Safari composites only IN-FLOW content of a
+     scrollable document into the bar backdrop; position:fixed layers /
+     overflow-hidden boxes show the body bg instead). min-height keeps the
+     +80px apron so the last rows can sit behind the bar and no void shows
+     below the URL capsule. The detail view is a position:fixed overlay on
+     top of this scrolled document (map.module.css .list[data-view=detail]).
+     Tablets (768–1023.98px) keep the fixed-height box + drag sheet via the
+     globals.css [data-active-page="map"] rules. */
   .app-page[data-page="map"] {
     position: relative !important;
-    height: 100dvh !important; /* fallback: browsers without lvh */
+    min-height: 100dvh !important; /* fallback: browsers without lvh */
     /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
        document end; must match --map-bar-overhang in map.module.css. */
-    height: calc(100lvh + 80px) !important;
-    min-height: 0;
+    min-height: calc(100lvh + 80px) !important;
+    height: auto !important;
     z-index: 9990;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   .app-page[data-page="map"].active {
     z-index: 9995;

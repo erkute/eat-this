@@ -605,6 +605,20 @@ html[data-auth='1'] [data-guest-only] {
     height: calc(100lvh + 80px) !important;
   }
 }
+/* Phones: the map list is a window-scrolled in-flow document (in-flow map
+   rebuild — see the ≤767.98px block in map.module.css). The fixed-height box
+   above is tablet-only; here the page must grow with the list so the window
+   scrolls it and the rows frost through iOS Safari's bottom URL bar. */
+@media (max-width: 767.98px) {
+  [data-active-page='map'] .app-pages {
+    height: auto !important;
+    min-height: calc(100lvh + 80px) !important;
+  }
+  .app-page[data-page='map'] {
+    height: auto !important;
+    min-height: calc(100lvh + 80px) !important;
+  }
+}
 /* Map redesign: no solid header — a single floating burger (in MapSectionBody)
    sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
    stays mounted so #burgerBtn's open handler keeps working when triggered
@@ -1065,7 +1079,7 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
 }
 @media (max-width: 520px) {
   .navbar,
-.navbar.scrolled {
+  .navbar.scrolled {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
   }

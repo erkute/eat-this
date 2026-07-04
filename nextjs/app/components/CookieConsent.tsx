@@ -233,7 +233,7 @@ export default function CookieConsent() {
       className={`cookie-consent${show ? ' show' : ''}${expanded ? ' expanded' : ''}`}
       id="cookieConsent"
       role="dialog"
-      aria-label={t('cookie.text')}
+      aria-label={t('cookie.title')}
       onTransitionEnd={(e) => {
         // When the dismiss slide-out (the banner's own transform) finishes,
         // drop the banner from the DOM so its fixed compositing layer can't
@@ -245,8 +245,14 @@ export default function CookieConsent() {
       }}
     >
       <div className="cookie-content">
-        <div className="cookie-text">
-          <span>{t('cookie.text')}</span>
+        <div className="cookie-copy">
+          <div className="cookie-kicker">Cookies</div>
+          <h2 className="cookie-title">{t('cookie.title')}</h2>
+          <p className="cookie-text">{t('cookie.text')}</p>
+          <div className="cookie-consent-types" role="list" aria-label={t('cookie.summary')}>
+            <span role="listitem">{t('cookie.necessary')}</span>
+            <span role="listitem">{t('cookie.optional')}</span>
+          </div>
           <button
             type="button"
             className="cookie-info-trigger"

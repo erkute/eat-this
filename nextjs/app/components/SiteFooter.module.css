@@ -236,7 +236,7 @@
   width: max-content;
   align-items: center;
   gap: 7px;
-  margin: clamp(18px, 2.8vw, 30px) auto 0;
+  margin: clamp(14px, 2.2vw, 24px) auto 0;
   padding: 0;
   border: 0;
   border-radius: 0;

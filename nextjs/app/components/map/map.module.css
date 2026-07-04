@@ -12160,6 +12160,12 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     top: env(safe-area-inset-top, 0px);
     z-index: 3;
     background: #ffffff;
+    /* Own compositing layer: without it the sticky header re-rasterizes per
+       scroll step and the right-edge tile can paint stale/clipped text — the
+       last chip ("Geöffnet") showed mangled glyphs while scrolling (User
+       2026-07-04). One small promoted layer, no scroll-perf cost. */
+    will-change: transform;
+    transform: translateZ(0);
   }
   /* 0-height stuck-detection sentinel right above the header (see the
      IntersectionObserver in MapSectionBody). */
@@ -12167,9 +12173,14 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     height: 0;
   }
   /* While the header is pinned: fixed white cap over the status-bar zone.
-     Lives on the header's ::before so it shares the header's stacking level
-     (above the scrolling rows). Height 0 on devices without safe-area. */
-  .listHeaderStuck .listHeader::before {
+     Lives on the ASIDE's ::before (not the header's): the header is layer-
+     promoted via will-change/translateZ above, which makes it a containing
+     block for fixed descendants — a fixed cap inside it would anchor to the
+     header instead of the viewport. The aside itself stays transform-free in
+     the list view, so fixed here is truly viewport-anchored. z-index 5 sits
+     above the rows (auto) and the header (3); the two never overlap (cap
+     ends where the header sticks). Height 0 without safe-area. */
+  .listHeaderStuck::before {
     content: '';
     position: fixed;
     top: 0;
@@ -12177,6 +12188,7 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     right: 0;
     height: env(safe-area-inset-top, 0px);
     background: #ffffff;
+    z-index: 5;
   }
   /* Rail keeps native horizontal scroll, but vertical swipes must fall
      through to the window scroll now that no JS header-drag owns them. */

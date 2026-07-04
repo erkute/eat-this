@@ -614,8 +614,12 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     setSheetView('list');
     // If the user pushed the detail down to peek before tapping X, snap the
     // list back to 'mid' so the result set is actually readable. 'full' and
-    // 'mid' are preserved as deliberate user positions.
-    const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap;
+    // 'mid' are preserved as deliberate user positions. PHONES: the snap
+    // state is meaningless in the window-scrolled list — reset it to 'mid'
+    // so a stale 'full' from the detail can't leave bodyListAtFull active
+    // (it slides the burger/search off and pins the status toast to the
+    // viewport bottom over the rows).
+    const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
     if (r && mapRef.current) {
       mapRef.current.flyTo({
@@ -651,8 +655,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     // Closing a must-eat detail (reached from a restaurant detail or deep
     // link) puts the user back on the restaurants list.
     setSheetView('list');
-    // Same nudge as handleRestaurantClose: peek → mid so the list is usable.
-    const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap;
+    // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
+    // phones always reset (stale 'full' would keep bodyListAtFull active).
+    const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
     if (m && mapRef.current) {
       mapRef.current.flyTo({

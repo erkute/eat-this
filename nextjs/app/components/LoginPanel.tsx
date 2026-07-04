@@ -233,7 +233,14 @@ export default function LoginPanel({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              {magicState === 'error' && <p className={styles.error}>{magicError}</p>}
+              <p
+                className={styles.error}
+                role={magicState === 'error' ? 'alert' : undefined}
+                aria-live="polite"
+                aria-hidden={magicState !== 'error'}
+              >
+                {magicState === 'error' ? magicError : ''}
+              </p>
               <button
                 type="submit"
                 className={styles.ctaPrimary}

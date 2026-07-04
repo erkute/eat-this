@@ -220,7 +220,7 @@ Needed contract:
 - Mobile map exception
 - Hit target minimums
 - Focus state
-- Dark-mode behavior
+- Light-only behavior
 
 ### CTA
 

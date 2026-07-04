@@ -12207,27 +12207,30 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
-  /* DETAIL view: in-flow full-screen takeover — like the list, the detail
+  /* DETAIL view: in-flow near-full-screen takeover — like the list, the detail
      is window-scrolled in-flow content so its blocks frost through the iOS
      bottom URL bar (the fixed drag-sheet could not — fixed layers aren't
-     composited into the bar backdrop). margin -100dvh pulls it up over the
-     whole sticky map; MapSection resets the window to the top on open/pager
-     swap. Drag/snap are off on phones (SheetConfig.inflow both views) —
-     closing = back pill / X. Tablets keep the fixed drag-sheet. */
+     composited into the bar backdrop). The small top peek keeps the map
+     present behind the detail page; MapSection resets the window to the top
+     on open/pager swap. Drag/snap are off on phones (SheetConfig.inflow both
+     views) — closing = back pill / X. Tablets keep the fixed drag-sheet. */
   .list[data-view='detail'] {
+    --detail-map-peek: clamp(96px, 14dvh, 122px);
+
     position: relative;
     top: auto;
     left: auto;
     right: auto;
     bottom: auto;
     height: auto;
-    margin-top: -100dvh;
-    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
+    margin-top: calc(-100dvh + var(--detail-map-peek));
+    min-height: calc(100dvh - var(--detail-map-peek) + var(--map-bar-overhang, 0px));
     transform: none;
     transition: none;
     will-change: auto;
     z-index: 6;
     border-radius: 0;
+    border-top: 1px solid rgba(21, 18, 14, 0.16);
     overflow: visible;
   }
   .list[data-view='detail'] .handle {
@@ -12253,19 +12256,29 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     overflow-y: visible !important;
   }
   html body .detailV13Scroll {
-    /* No bottom apron: the last content block (pack promo / facts) must bleed
-       to the document bottom so it — not a flat white strip — sits behind the
-       iOS URL bar and frosts through it. The drag-sheet's 20px + safe-area +
-       bar-overhang padding, kept in-flow, left a white band there ("da ist
-       noch ein weißer Balken hinter der URL", User 2026-07-04). The list
-       frosts its yellow listEnd the same way. Must-eat detail keeps its own
-       higher-specificity padding (it never scrolls). */
+    /* Keep the scroll-port itself free of a blank apron; the last real block
+       below is extended instead so Safari's translucent URL bar samples
+       content, not the page background. */
     padding-bottom: 0 !important;
   }
-  /* Kill the last block's own bottom margin too — otherwise its 32px gap
-     re-opens the white band behind the bar. */
+  /* Extend the final restaurant-detail block into the iOS bottom URL-bar
+     sampling zone. A scroll-port padding would be a flat white strip; padding
+     the last real surface keeps the detail behaving like the restaurant list,
+     where actual content continues behind the translucent bar. */
   html body .detailV13:not(.detailV13MustEat) .detailV13Scroll > :last-child {
     margin-bottom: 0 !important;
+    padding-bottom: calc(18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  /* Must-Eat detail needs the same iOS URL-bar treatment. Its mobile layout
+     has its own fixed-ish card stack and pager, so extend whichever real
+     block ends the detail instead of reintroducing scroll-port padding. */
+  html body .detailV13MustEat .detailV13Scroll {
+    height: auto !important;
+    min-height: calc(100dvh - var(--detail-map-peek) + var(--map-bar-overhang, 0px)) !important;
+  }
+  html body .detailV13MustEat .detailV13Scroll > :last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: calc(18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Locate-FAB: --sheet-visible-px is not written in the in-flow list view —
@@ -12273,6 +12286,13 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
      over it (same Google-Maps park behavior as the 420px clamp before). */
   .fab {
     bottom: calc(44dvh + 14px);
+  }
+  /* In mobile detail the map is only a background peek. Translating the locate
+     FAB off-canvas still made it count toward document width, so the whole
+     restaurant detail could be panned sideways. Remove it from layout here;
+     desktop restores the control in its own >=1024px rules. */
+  .bodyDetailOpen .fab {
+    display: none !important;
   }
   /* MapLibre attribution: same static lift (the hook no longer offsets the
      control containers on phones). */
@@ -12313,6 +12333,17 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
    empty button next to its siblings (User 2026-07-04). All four chips now
    share the row equally; only the label swaps. Desktop grid unaffected. */
 @media (max-width: 1023.98px) {
+  html body .mapBurger {
+    z-index: 3 !important;
+  }
+
+  .body:has(.listHeaderStuck) .mapSearchToolbar,
+  .body:has(.listHeaderStuck) .mapSearchBtn,
+  .body:has(.listHeaderStuck) .mapBurger {
+    transform: translateY(calc(-100% - 80px)) !important;
+    pointer-events: none !important;
+  }
+
   html body .filterChipWrap:has(.filterChipActive),
   html body .filterChipWrap:has(.filterChipOpenActive),
   html body .filterChipRow > .filterChipActive,
@@ -12335,15 +12366,95 @@ html body .detailV13:not(.detailV13MustEat) .rdMustSection {
   margin-top: 26px !important;
 }
 
-/* Facts-Block (Adresse/Kategorie/Öffnungszeiten/…) als Chip/Sticker-Karte —
-   gleiche Vokabel wie die Filter-Chips (Papier, Ink-Rahmen, Offset-Schatten,
-   eckig), damit der Block als EIN Element lesbar ist statt als lose Zeilen
-   zwischen Hairlines. */
+/* Facts-Block (Adresse/Kategorie/Öffnungszeiten/…) als ruhige Info-Tabelle:
+   gleicher Paper/Ink-Duktus wie Insider-Tipp und Actions, ohne Sticker-Kante. */
 html body .detailV13:not(.detailV13MustEat) .rdFacts {
-  margin: 24px 14px !important;
-  padding: 4px 14px !important;
-  background: #f7f4eb !important;
-  border: 1.5px solid #15120e !important;
+  margin: 28px 22px 26px !important;
+  padding: 0 !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-top: 2px solid #15120e !important;
+  border-bottom: 2px solid #15120e !important;
   border-radius: 0 !important;
-  box-shadow: 3px 3px 0 rgba(23, 26, 23, 0.18) !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 767.98px) {
+  html body .detailV13:not(.detailV13MustEat) .rdFacts {
+    margin: 30px 22px 26px !important;
+    padding: 0 !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-top: 2px solid #15120e !important;
+    border-bottom: 2px solid #15120e !important;
+    box-shadow: none !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdFacts::before {
+    content: none !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdFacts::after {
+    content: none !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdRow,
+  html body .detailV13:not(.detailV13MustEat) .rdRowHours {
+    grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding: 18px 0 !important;
+    border-bottom: 1px solid rgba(21, 18, 14, 0.18) !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdRowHours {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdRowHours > .rdK {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdRowHours > .rdHours {
+    width: 100% !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdHours {
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    column-gap: 24px !important;
+    row-gap: 10px !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdK,
+  html body .detailV13:not(.detailV13MustEat) .rdHoursD {
+    color: rgba(21, 18, 14, 0.58) !important;
+    font-family: var(--font-dm-sans, system-ui, sans-serif) !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    letter-spacing: 0.08em !important;
+    line-height: 1.15 !important;
+    text-transform: uppercase !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdV,
+  html body .detailV13:not(.detailV13MustEat) .rdV a,
+  html body .detailV13:not(.detailV13MustEat) .rdHoursT {
+    color: #15120e !important;
+    font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    line-height: 1.28 !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdVMeta {
+    color: rgba(21, 18, 14, 0.58) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+
+  html body .detailV13:not(.detailV13MustEat) .rdContactPlainLink {
+    border-bottom: 0 !important;
+    text-decoration: none !important;
+  }
 }

@@ -83,25 +83,26 @@
   text-decoration: none;
 }
 
-/* ── Rails column (right of the copy — now Saved only) ────────── */
+/* ── Rails column (right of the copy — recommended spots) ─────── */
 
 .rails {
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 24px);
+  padding-top: clamp(10px, 1.6vw, 22px);
 }
 
 /* Must Eats sits as a full-width row below the hero grid, so it fills the
    width instead of stacking under Saved and towering the right column over
    the copy (which left a big whitespace under the headline). */
 .mustEatsRow {
-  margin-top: clamp(14px, 2.2vw, 28px);
+  margin-top: clamp(30px, 4.2vw, 58px);
 }
 
 .railBlock {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(12px, 1.4vw, 18px);
 }
 
 .railLabel {

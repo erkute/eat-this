@@ -279,32 +279,6 @@
   }
 }
 
-:global(html[data-theme='dark']) .body {
-  --remy-stage-ink: #fff8e8;
-  --remy-stage-paper: #211c17;
-  --remy-stage-cream: #332817;
-  --remy-stage-line: rgba(255, 248, 232, 0.2);
-  color: var(--remy-stage-ink);
-  background: var(--remy-stage-cream);
-  border-color: rgba(255, 248, 232, 0.92);
-  box-shadow: 10px 10px 0 #070707;
-}
-
-:global(html[data-theme='dark']) .chip:global(.hv-chip),
-:global(html[data-theme='dark']) .chatin {
-  box-shadow: none;
-}
-
-:global(html[data-theme='dark']) .send:global(.hv-btn):hover {
-  color: #15120e;
-  background: #fff8e8;
-  border-color: #fff8e8;
-}
-
-:global(html[data-theme='dark']) .input::placeholder {
-  color: rgba(255, 248, 232, 0.62);
-}
-
 /* ── reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .avatar {

@@ -687,7 +687,7 @@ Checks auf `http://localhost:3000/must-eats` (bzw. der SPA-Route der Must-Eats-S
 6. **X / Backdrop / Escape** schließen jeweils.
 7. **EN** (`/en/...`): Texte auf Englisch.
 8. Sub-Text-Umbruch ok (sonst Task 4 Step 5 nachziehen).
-9. Dark Mode: Panel lesbar (cream/ink ist theme-unabhängig hart codiert wie die Section selbst — nur sicherstellen, dass nichts vom Theme überschrieben wird).
+9. Light-only contrast: Panel lesbar (cream/ink ist hart codiert wie die Section selbst).
 
 - [ ] **Step 4: Abschluss-Commit (falls Smoke-Fixes nötig waren)**
 

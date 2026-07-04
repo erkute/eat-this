@@ -93,7 +93,6 @@
    CROSS-LINKS (Bezirk ↔ Kategorie Querverweise direkt unter dem Hero)
    Lenkt internen Link-Saft zwischen den Hub-Typen und gibt Google +
    Nutzern einen On-Page-Pfad zur "beste {Kategorie} in {Bezirk}"-Intent.
-   Tokens erben aus .page → flippen im Dark-Theme automatisch mit.
 ============================================================ */
 .crossLinks {
   display: flex;

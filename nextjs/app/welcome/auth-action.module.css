@@ -5,7 +5,7 @@
    yellow sticker CTA, yellow-ringed avatar tiles, red error accents.
    /welcome has its own root layout, so colors are literal (no globals
    tokens) and Schoolbell comes via --font-chewy loaded in
-   welcome/layout.tsx (same alias the app layout uses). No dark variant.
+   welcome/layout.tsx (same alias the app layout uses).
    ════════════════════════════════════════════════════════════ */
 
 .page {

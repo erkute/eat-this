@@ -607,9 +607,6 @@ After the `.slotIdleShake` block, add:
   color: rgba(10, 10, 10, 0.55);
 }
 
-:global(html[data-theme="dark"]) .revealHint {
-  color: rgba(245, 245, 245, 0.5);
-}
 ```
 
 - [ ] **Step 3: Verify no other reference to the removed `slotShake` class remains**

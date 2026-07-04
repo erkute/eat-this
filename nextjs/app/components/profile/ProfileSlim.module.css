@@ -25,18 +25,6 @@
   font-family: var(--profile-display);
 }
 
-:global(html[data-theme='dark']) .page {
-  --profile-paper: #15120e;
-  --profile-ink: #fff;
-  --profile-muted: rgba(255, 255, 255, 0.68);
-  --profile-line: rgba(255, 255, 255, 0.22);
-  --profile-quiet: #211d18;
-  --profile-accent: #ffc600;
-  --profile-accent-ink: #15120e;
-  --profile-red: #ff5a48;
-  --profile-inverse: #15120e;
-}
-
 .shell {
   display: grid;
   gap: clamp(28px, 5vw, 72px);

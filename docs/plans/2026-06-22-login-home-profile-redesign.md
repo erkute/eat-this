@@ -676,7 +676,7 @@ export default function ProfileAlbum({ mustEats, faceUpIds }: Props) {
 
 - [ ] **Step 2: Styles — port the validated mockup**
 
-`ProfileAlbum.module.css`: reproduce the validated Panini look (mockup `redesign-album`): `.album` cream ruled-paper card with inset top highlight + center binding pseudo-spine; `.grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px 18px }` (mobile `@media (max-width:520px) { repeat(3,1fr) }`); `.slot { aspect-ratio:5/7; border-radius:9px }`; `.empty` recessed dashed pocket (`inset box-shadow`, dashed border, faint `.no` top-left + big faint `.q`); `.filled` card via `<Image fill>` `object-fit:cover` + red `.no` badge + four `.corner` photo-mounts (tl/tr/bl/br). Dark-mode variants: keep the album cream in both themes (it's a "paper" surface) OR add `html[data-theme="dark"]` darker-paper variant — match `ProfileSlim` section background. Use `var(--font-display)` for headings.
+`ProfileAlbum.module.css`: reproduce the validated Panini look (mockup `redesign-album`): `.album` cream ruled-paper card with inset top highlight + center binding pseudo-spine; `.grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px 18px }` (mobile `@media (max-width:520px) { repeat(3,1fr) }`); `.slot { aspect-ratio:5/7; border-radius:9px }`; `.empty` recessed dashed pocket (`inset box-shadow`, dashed border, faint `.no` top-left + big faint `.q`); `.filled` card via `<Image fill>` `object-fit:cover` + red `.no` badge + four `.corner` photo-mounts (tl/tr/bl/br). Keep it light-only and use `var(--font-display)` for headings.
 
 - [ ] **Step 3: Verify visually**
 

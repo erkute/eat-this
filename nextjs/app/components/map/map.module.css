@@ -12149,15 +12149,33 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     -ms-touch-action: auto;
   }
 
-  /* Filter header sticks to the viewport top while the rows scroll beneath,
-     so search + filters stay reachable (the navbar is hidden on the map
-     page). NOTE: content scrolls visibly through the notch/status-bar zone
-     above it — acceptable v1, revisit with env(safe-area-inset-top) after
-     device testing. */
+  /* Filter header sticks below the iOS status-bar/notch zone while the rows
+     scroll beneath, so search + filters stay reachable (the navbar is hidden
+     on the map page). The zone ABOVE the stuck header is covered by the
+     fixed white cap below (.listHeaderStuck), so rows never scroll visibly
+     through the notch area. On devices without safe-area (Android/desktop)
+     env() is 0 and this behaves like a plain top:0 sticky. */
   .listHeader {
     position: sticky;
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     z-index: 3;
+    background: #ffffff;
+  }
+  /* 0-height stuck-detection sentinel right above the header (see the
+     IntersectionObserver in MapSectionBody). */
+  .stuckSentinel {
+    height: 0;
+  }
+  /* While the header is pinned: fixed white cap over the status-bar zone.
+     Lives on the header's ::before so it shares the header's stacking level
+     (above the scrolling rows). Height 0 on devices without safe-area. */
+  .listHeaderStuck .listHeader::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
     background: #ffffff;
   }
   /* Rail keeps native horizontal scroll, but vertical swipes must fall

@@ -1,26 +1,21 @@
-'use client'
-import { useCallback, useState } from 'react'
-import { useLocale } from 'next-intl'
-import type { Ref, RefObject } from 'react'
-import type { MapRef } from 'react-map-gl/maplibre'
-import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
-import type { CategoryDef } from '@/lib/categories'
-import type {
-  SheetView,
-  SheetSnap,
-  UserLocation,
-  UserTier,
-} from '@/lib/map'
-import type { UserLocationError } from '@/lib/map/useUserLocation'
-import { getLocationStatus } from '@/lib/map/locationStatus'
+'use client';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocale } from 'next-intl';
+import type { Ref, RefObject } from 'react';
+import type { MapRef } from 'react-map-gl/maplibre';
+import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
+import type { CategoryDef } from '@/lib/categories';
+import type { SheetView, SheetSnap, UserLocation, UserTier } from '@/lib/map';
+import type { UserLocationError } from '@/lib/map/useUserLocation';
+import { getLocationStatus } from '@/lib/map/locationStatus';
 
-import dynamic from 'next/dynamic'
-import RestaurantList from './RestaurantList'
-import MapSheetDetail from './MapSheetDetail'
-import MapListHeader from './MapListHeader'
+import dynamic from 'next/dynamic';
+import RestaurantList from './RestaurantList';
+import MapSheetDetail from './MapSheetDetail';
+import MapListHeader from './MapListHeader';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
-import styles from './map.module.css'
+import styles from './map.module.css';
 
 /* The map canvas pulls in react-map-gl + maplibre-gl (~800 KB) and only runs
    in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
@@ -29,160 +24,229 @@ import styles from './map.module.css'
 const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
   ssr: false,
   loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
-})
+});
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
-  mapRef: RefObject<MapRef | null>
-  handleRef: Ref<HTMLDivElement | null>
-  setHeaderRef: (el: HTMLDivElement | null) => void
-  setContentRef: (el: HTMLDivElement | null) => void
-  setSheetRef: (el: HTMLDivElement | null) => void
+  mapRef: RefObject<MapRef | null>;
+  handleRef: Ref<HTMLDivElement | null>;
+  setHeaderRef: (el: HTMLDivElement | null) => void;
+  setContentRef: (el: HTMLDivElement | null) => void;
+  setSheetRef: (el: HTMLDivElement | null) => void;
 }
 
 /* What the body renders: pure UI flags (sheet view, snap, drag) plus the
    data lists / selections / user context that drive markers and the sheet. */
 interface MapBodyState {
-  isActive: boolean
-  sheetView: SheetView
-  snap: SheetSnap
-  dragging: boolean
-  desktopPanelHidden: boolean
-  displayedRestaurants: MapRestaurant[]
+  isActive: boolean;
+  sheetView: SheetView;
+  snap: SheetSnap;
+  dragging: boolean;
+  desktopPanelHidden: boolean;
+  displayedRestaurants: MapRestaurant[];
   /** Locked preview rows — same filter pipeline as displayedRestaurants,
    *  rendered as blurred entries below the booster banner in the list. */
-  displayedLockedRestaurants: MapRestaurant[]
-  restaurantMustEats: MapMustEat[]
-  selectedRestaurant: MapRestaurant | null
-  selectedMustEat: MapMustEat | null
-  primaryMustEats: Map<string, MapMustEat>
-  unlockedIds: Set<string>
+  displayedLockedRestaurants: MapRestaurant[];
+  restaurantMustEats: MapMustEat[];
+  selectedRestaurant: MapRestaurant | null;
+  selectedMustEat: MapMustEat | null;
+  primaryMustEats: Map<string, MapMustEat>;
+  unlockedIds: Set<string>;
   /** Must-eat IDs pre-revealed for anon visitors. Empty for signed-in users. */
-  revealedMustEatIds: Set<string>
-  favoriteIds: Set<string>
-  location: UserLocation | null
-  locationError: UserLocationError | null
-  uid: string | null
-  userTier: UserTier
+  revealedMustEatIds: Set<string>;
+  favoriteIds: Set<string>;
+  location: UserLocation | null;
+  locationError: UserLocationError | null;
+  uid: string | null;
+  userTier: UserTier;
 }
 
 /* Filter values + their setters / change handlers. Bundled together because
    each value travels with its setter in the same render. */
 interface MapBodyFilterState {
-  categories: CategoryDef[]
-  category: MapCategory
-  setCategory: (c: MapCategory) => void
-  search: string
-  onSearchChange: (v: string) => void
-  searchOpen: boolean
-  setSearchOpen: (open: boolean) => void
-  bezirk: string | null
-  bezirkNames: string[]
-  onBezirkChange: (name: string | null) => void
-  cuisine: string | null
-  setCuisine: (c: string | null) => void
-  cuisineNames: string[]
-  openOnly: boolean
-  setOpenOnly: (v: boolean) => void
+  categories: CategoryDef[];
+  category: MapCategory;
+  setCategory: (c: MapCategory) => void;
+  search: string;
+  onSearchChange: (v: string) => void;
+  searchOpen: boolean;
+  setSearchOpen: (open: boolean) => void;
+  bezirk: string | null;
+  bezirkNames: string[];
+  onBezirkChange: (name: string | null) => void;
+  cuisine: string | null;
+  setCuisine: (c: string | null) => void;
+  cuisineNames: string[];
+  openOnly: boolean;
+  setOpenOnly: (v: boolean) => void;
 }
 
 /* Map / sheet event handlers (everything not filter-related). */
 interface MapBodyHandlers {
-  onMapClick: () => void
-  onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void
-  onMustEatClick: (m: MapMustEat) => void
-  pagerPrev: MapRestaurant | null
-  pagerNext: MapRestaurant | null
-  onPageRestaurant: (dir: 'prev' | 'next') => void
-  onLocateMe: () => void
-  locateLoading: boolean
-  onRestaurantClose: () => void
-  onMustEatClose: () => void
-  mustEatPagerPrev: MapMustEat | null
-  mustEatPagerNext: MapMustEat | null
-  onPageMustEat: (dir: 'prev' | 'next') => void
-  onViewRestaurantFromMustEat: () => void
-  onUnlock: () => Promise<void>
-  onToggleFavorite: () => void
-  onToggleDesktopPanel: () => void
+  onMapClick: () => void;
+  onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void;
+  onMustEatClick: (m: MapMustEat) => void;
+  pagerPrev: MapRestaurant | null;
+  pagerNext: MapRestaurant | null;
+  onPageRestaurant: (dir: 'prev' | 'next') => void;
+  onLocateMe: () => void;
+  locateLoading: boolean;
+  onRestaurantClose: () => void;
+  onMustEatClose: () => void;
+  mustEatPagerPrev: MapMustEat | null;
+  mustEatPagerNext: MapMustEat | null;
+  onPageMustEat: (dir: 'prev' | 'next') => void;
+  onViewRestaurantFromMustEat: () => void;
+  onUnlock: () => Promise<void>;
+  onToggleFavorite: () => void;
+  onToggleDesktopPanel: () => void;
 }
 
 /* Host-locale-aware aria copy passed in from the server-rendered shell. */
 interface MapBodyAria {
-  myLocationAriaLabel: string
-  restaurantsListAriaLabel: string
+  myLocationAriaLabel: string;
+  restaurantsListAriaLabel: string;
 }
 
-export type MapSectionBodyProps =
-  & MapBodyRefs
-  & MapBodyState
-  & MapBodyFilterState
-  & MapBodyHandlers
-  & MapBodyAria
+export type MapSectionBodyProps = MapBodyRefs &
+  MapBodyState &
+  MapBodyFilterState &
+  MapBodyHandlers &
+  MapBodyAria;
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
-  const locale = useLocale()
-  const searchLabel = locale === 'en' ? 'Search' : 'Suche'
+  const locale = useLocale();
+  const searchLabel = locale === 'en' ? 'Search' : 'Suche';
   const {
     isActive,
-    mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
-    sheetView, snap, dragging,
-    displayedRestaurants, displayedLockedRestaurants, restaurantMustEats,
-    pagerPrev, pagerNext, onPageRestaurant,
-    selectedRestaurant, selectedMustEat,
-    primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, locationError, uid, userTier,
-    categories, category, setCategory, search, bezirk, bezirkNames,
-    cuisine, setCuisine, cuisineNames,
-    openOnly, setOpenOnly,
-    searchOpen, setSearchOpen,
-    onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
-    onRestaurantClose, onMustEatClose,
-    mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
-    onViewRestaurantFromMustEat, onUnlock,
-    onSearchChange, onBezirkChange, onToggleFavorite,
-    desktopPanelHidden, onToggleDesktopPanel,
-    myLocationAriaLabel, restaurantsListAriaLabel,
-  } = props
+    mapRef,
+    handleRef,
+    setHeaderRef,
+    setContentRef,
+    setSheetRef,
+    sheetView,
+    snap,
+    dragging,
+    displayedRestaurants,
+    displayedLockedRestaurants,
+    restaurantMustEats,
+    pagerPrev,
+    pagerNext,
+    onPageRestaurant,
+    selectedRestaurant,
+    selectedMustEat,
+    primaryMustEats,
+    unlockedIds,
+    revealedMustEatIds,
+    favoriteIds,
+    location,
+    locationError,
+    uid,
+    userTier,
+    categories,
+    category,
+    setCategory,
+    search,
+    bezirk,
+    bezirkNames,
+    cuisine,
+    setCuisine,
+    cuisineNames,
+    openOnly,
+    setOpenOnly,
+    searchOpen,
+    setSearchOpen,
+    onMapClick,
+    onRestaurantClick,
+    onMustEatClick,
+    onLocateMe,
+    locateLoading,
+    onRestaurantClose,
+    onMustEatClose,
+    mustEatPagerPrev,
+    mustEatPagerNext,
+    onPageMustEat,
+    onViewRestaurantFromMustEat,
+    onUnlock,
+    onSearchChange,
+    onBezirkChange,
+    onToggleFavorite,
+    desktopPanelHidden,
+    onToggleDesktopPanel,
+    myLocationAriaLabel,
+    restaurantsListAriaLabel,
+  } = props;
 
   const handleResetFilters = () => {
-    setCategory('All')
-    onBezirkChange(null)
-    setCuisine(null)
-    setOpenOnly(false)
-    onSearchChange('')
-  }
+    setCategory('All');
+    onBezirkChange(null);
+    setCuisine(null);
+    setOpenOnly(false);
+    onSearchChange('');
+  };
   const handleMapRestaurantClick = useCallback(
     (r: MapRestaurant) => onRestaurantClick(r, 'map'),
-    [onRestaurantClick],
-  )
+    [onRestaurantClick]
+  );
   const openBurgerMenu = useCallback(() => {
-    document.getElementById('burgerBtn')?.click()
-  }, [])
-  const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading })
+    document.getElementById('burgerBtn')?.click();
+  }, []);
+  const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locateLoading ? 'loading' : 'idle'}`
-    : null
-  const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null)
-  const showLocationStatus = Boolean(locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey)
+    : null;
+  const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
+  const showLocationStatus = Boolean(
+    locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
+  );
   const handleLocationRetry = useCallback(() => {
-    setDismissedLocationStatusKey(null)
-    onLocateMe()
-  }, [onLocateMe])
+    setDismissedLocationStatusKey(null);
+    onLocateMe();
+  }, [onLocateMe]);
   const handleDismissLocationStatus = useCallback(() => {
-    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey)
-  }, [locationStatusKey])
+    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
+  }, [locationStatusKey]);
+
+  /* In-flow phone list: the sticky header rests below the iOS status-bar/
+     notch zone (top: env(safe-area-inset-top), see map.module.css). While it
+     is STUCK, a fixed white cap (.listHeaderStuck .listHeader::before) covers
+     that zone so rows don't scroll visibly through the notch area. Stuck is
+     detected via a 0-height sentinel right above the header: once it leaves
+     the (viewport top + safe-area) line, the header is pinned. */
+  const stuckSentinelRef = useRef<HTMLDivElement | null>(null);
+  const [headerStuck, setHeaderStuck] = useState(false);
+  useEffect(() => {
+    if (sheetView !== 'list') {
+      setHeaderStuck(false);
+      return;
+    }
+    if (!window.matchMedia('(max-width: 767.98px)').matches) return;
+    const sentinel = stuckSentinelRef.current;
+    if (!sentinel) return;
+    /* px value of env(safe-area-inset-top) — IO rootMargin can't use env(). */
+    const probe = document.createElement('div');
+    probe.style.cssText =
+      'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;' +
+      'padding-top:env(safe-area-inset-top,0px);';
+    document.body.appendChild(probe);
+    const safeTop = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+    document.body.removeChild(probe);
+    const io = new IntersectionObserver(([entry]) => setHeaderStuck(!entry.isIntersecting), {
+      rootMargin: `-${Math.ceil(safeTop) + 1}px 0px 0px 0px`,
+    });
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, [sheetView]);
 
   return (
-    <div
-      className={`app-page${isActive ? ' active' : ''}`}
-      data-page="map"
-    >
+    <div className={`app-page${isActive ? ' active' : ''}`} data-page="map">
       <div className={styles.shell}>
-
         {/* bodyListAtFull / bodyDetailOpen slide the floating search toolbar +
             burger chip up off-screen (see map.module.css) — Google-Maps
             behavior. */}
-        <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}>
+        <div
+          className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}
+        >
           <div className={styles.mapWrap}>
             <MapCanvasLayer
               mapRef={mapRef}
@@ -200,15 +264,30 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             {searchOpen || search ? (
               <div className={styles.mapSearchToolbar}>
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />
-                  <path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                  <circle
+                    cx="10.8"
+                    cy="10.8"
+                    r="5.9"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.1"
+                  />
+                  <path
+                    d="M15.2 15.2 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 <input
                   type="search"
                   name="map-search"
                   value={search}
-                  onChange={e => onSearchChange(e.target.value)}
-                  onBlur={() => { if (!search) setSearchOpen(false) }}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  onBlur={() => {
+                    if (!search) setSearchOpen(false);
+                  }}
                   placeholder="Spot, Kiez, Gericht"
                   className={styles.mapSearchInput}
                   aria-label={searchLabel}
@@ -218,11 +297,23 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <button
                   type="button"
                   className={styles.mapSearchClear}
-                  onClick={() => { onSearchChange(''); setSearchOpen(false) }}
+                  onClick={() => {
+                    onSearchChange('');
+                    setSearchOpen(false);
+                  }}
                   aria-label="Clear"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
                     <line x1="6" y1="6" x2="18" y2="18" />
                     <line x1="18" y1="6" x2="6" y2="18" />
                   </svg>
@@ -236,8 +327,21 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 aria-label={searchLabel}
               >
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />
-                  <path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                  <circle
+                    cx="10.8"
+                    cy="10.8"
+                    r="5.9"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.1"
+                  />
+                  <path
+                    d="M15.2 15.2 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </button>
             )}
@@ -252,7 +356,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="6.8" fill="none" stroke="currentColor" strokeWidth="2" />
                 <circle cx="12" cy="12" r="2" fill="currentColor" />
-                <path d="M12 3.8v2.2M12 18v2.2M3.8 12h2.2M18 12h2.2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M12 3.8v2.2M12 18v2.2M3.8 12h2.2M18 12h2.2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
 
@@ -276,12 +386,17 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           <aside
             ref={setSheetRef}
-            className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
+            className={`${styles.list} ${dragging ? styles.listDragging : ''}${headerStuck && sheetView === 'list' ? ` ${styles.listHeaderStuck}` : ''}`}
             data-snap={snap}
             data-view={sheetView}
             aria-label={restaurantsListAriaLabel}
           >
-            <div ref={handleRef} className={styles.handle} data-sheet-handle="" aria-hidden="true" />
+            <div
+              ref={handleRef}
+              className={styles.handle}
+              data-sheet-handle=""
+              aria-hidden="true"
+            />
 
             {/* Restaurant detail's chrome now lives on the photo hero (back
                 pill + save bookmark, per the Chewy mockup) — no handle-bar
@@ -330,6 +445,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               />
             ) : (
               <>
+                {/* Stuck-detection sentinel for the sticky header (phones). */}
+                <div ref={stuckSentinelRef} className={styles.stuckSentinel} aria-hidden="true" />
                 <MapListHeader
                   headerRef={setHeaderRef}
                   categories={categories}
@@ -387,7 +504,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 type="button"
                 className={styles.mapStatusDismiss}
                 onClick={handleDismissLocationStatus}
-                aria-label={locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'}
+                aria-label={
+                  locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'
+                }
               >
                 ×
               </button>
@@ -406,12 +525,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-pressed={desktopPanelHidden}
             onClick={onToggleDesktopPanel}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
             </svg>
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

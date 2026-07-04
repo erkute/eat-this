@@ -12261,3 +12261,17 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     transform: translate(-50%, calc(-100% - 12px)) !important;
   }
 }
+
+/* Filter chips: full-width rail stays (edge-to-edge, equal flex shares),
+   but the ACTIVE chip no longer gets the 1.72–1.9× growth bonus from the
+   stretch pass above — a short active label like "Mitte" read as a bloated
+   empty button next to its siblings (User 2026-07-04). All four chips now
+   share the row equally; only the label swaps. Desktop grid unaffected. */
+@media (max-width: 1023.98px) {
+  html body .filterChipWrap:has(.filterChipActive),
+  html body .filterChipWrap:has(.filterChipOpenActive),
+  html body .filterChipRow > .filterChipActive,
+  html body .filterChipRow > .filterChipOpenActive {
+    flex-grow: 1 !important;
+  }
+}

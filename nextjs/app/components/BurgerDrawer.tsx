@@ -16,6 +16,10 @@ export default function BurgerDrawer() {
   const locale = useLocale();
   const pathname = usePathname();
 
+  const drawerRef = useCallback((node: HTMLDivElement | null) => {
+    if (node && !node.classList.contains('active')) node.setAttribute('inert', '');
+  }, []);
+
   const closeBurger = useCallback((restoreScroll: boolean = true) => {
     closeBurgerDrawer(restoreScroll);
   }, []);
@@ -52,7 +56,7 @@ export default function BurgerDrawer() {
   }, [closeBurger]);
 
   return (
-    <div className="burger-drawer" id="burgerDrawer" aria-hidden="true">
+    <div ref={drawerRef} className="burger-drawer" id="burgerDrawer" aria-hidden="true">
       <button className="burger-drawer-backdrop" id="burgerBackdrop" type="button" tabIndex={-1} aria-label="Close menu" onClick={() => closeBurger(true)}></button>
       <div className="burger-drawer-panel" onClick={onPanelClick}>
         <button className="burger-drawer-close" id="burgerClose" aria-label="Close" onClick={() => closeBurger(true)}>×</button>

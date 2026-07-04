@@ -36,16 +36,33 @@ function unlockBody(restoreScroll: boolean) {
   delete document.body.dataset.burgerPrevOverflow;
 }
 
+function preloadMapAfterDrawerOpen() {
+  window.setTimeout(() => {
+    const run = () => void preloadMapSurface();
+    const ric = window.requestIdleCallback as
+      | ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number)
+      | undefined;
+
+    if (ric) {
+      ric(run, { timeout: 1200 });
+      return;
+    }
+
+    run();
+  }, 420);
+}
+
 export function openBurgerDrawer() {
   const drawer = document.getElementById('burgerDrawer');
   const openBtn = document.getElementById('burgerBtn');
   if (!drawer || drawer.classList.contains('active')) return;
 
-  void preloadMapSurface();
-  drawer.classList.add('active');
+  lockBody();
+  drawer.removeAttribute('inert');
   drawer.removeAttribute('aria-hidden');
   openBtn?.setAttribute('aria-expanded', 'true');
-  lockBody();
+  drawer.classList.add('active');
+  preloadMapAfterDrawerOpen();
 }
 
 export function closeBurgerDrawer(restoreScroll = true) {
@@ -55,6 +72,7 @@ export function closeBurgerDrawer(restoreScroll = true) {
   const openBtn = document.getElementById('burgerBtn');
   drawer.classList.remove('active');
   drawer.setAttribute('aria-hidden', 'true');
+  drawer.setAttribute('inert', '');
   openBtn?.setAttribute('aria-expanded', 'false');
   unlockBody(restoreScroll);
 }

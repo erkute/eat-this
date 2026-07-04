@@ -470,96 +470,141 @@ body {
 .footer {
   display: none;
 }
-/* Cookie Consent — compact brand sticker.
-   It should feel like Eat This UI, not a browser/system banner. Entry remains
-   pure translate — no opacity fade (brand motion rule). */
+/* Cookie Consent — compact brand ticket.
+   Entry remains pure translate — no opacity fade (brand motion rule). */
 .cookie-consent {
   position: fixed;
-  left: max(16px, env(safe-area-inset-left, 0px));
+  left: max(18px, env(safe-area-inset-left, 0px));
   right: auto;
-  bottom: max(16px, env(safe-area-inset-bottom, 0px));
-  width: min(560px, calc(100vw - 32px));
+  bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  width: min(680px, calc(100vw - 36px));
   margin: 0;
-  padding: 13px 14px 14px;
+  padding: 16px;
   color: var(--et-black);
   background: var(--et-cream);
-  border: 1px solid rgba(16, 13, 15, .14);
+  border: 2px solid var(--et-black);
   border-radius: 8px;
-  box-shadow: 0 18px 46px rgba(16, 13, 15, .22);
+  box-shadow: 8px 8px 0 var(--et-black), 0 24px 54px rgba(16, 13, 15, .18);
   z-index: 10002;
   transform: translateY(calc(100% + 32px));
   transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-consent::before {
-  content: "Cookies";
-  display: inline-flex;
-  width: max-content;
-  margin: 0 0 8px;
-  padding: 5px 9px 7px;
-  color: var(--et-cream);
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: 16px;
+  width: min(118px, 24vw);
+  height: 8px;
   background: var(--et-red);
-  border-radius: 6px;
-  font-family: var(--font-poster, var(--font));
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: .06em;
-  line-height: .82;
-  text-transform: uppercase;
+  border: 2px solid var(--et-black);
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+  pointer-events: none;
 }
 .cookie-consent.show {
   transform: translateY(0);
 }
 .cookie-content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  align-items: stretch;
+  gap: 16px;
+}
+.cookie-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.cookie-kicker {
+  display: inline-flex;
+  margin-bottom: 9px;
+  padding: 5px 8px 6px;
+  color: var(--et-cream);
+  background: var(--et-black);
+  border-radius: 5px;
+  font-family: var(--et-font-label, var(--font));
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.cookie-title {
+  margin: 0;
+  color: var(--et-black);
+  font-family: var(--font-poster, var(--font));
+  font-size: clamp(26px, 4.6vw, 36px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .9;
 }
 .cookie-text {
+  max-width: 46rem;
+  margin: 8px 0 0;
+  color: rgba(16, 13, 15, .72);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+.cookie-consent-types {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 7px 10px;
-  margin: 0;
-  color: rgba(16, 13, 15, .78);
-  font-family: var(--font-poster, var(--font));
-  font-size: clamp(19px, 5vw, 24px);
-  font-weight: 400;
-  letter-spacing: .01em;
-  line-height: .98;
+  gap: 6px;
+  margin-top: 11px;
+}
+.cookie-consent-types span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 5px 8px;
+  color: rgba(16, 13, 15, .76);
+  background: #fff4cc;
+  border: 1px solid rgba(16, 13, 15, .2);
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
 }
 .cookie-info-trigger {
-  background: none;
-  border: none;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 11px;
+  padding: 0 0 2px;
   cursor: pointer;
-  font: inherit;
-  font-size: .95em;
-  font-weight: 400;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1.2;
   color: var(--et-black);
   text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--et-red);
 }
 .cookie-info-trigger:hover {
   color: var(--et-red);
 }
 .cookie-buttons {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 8px;
-  align-items: center;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  align-items: stretch;
 }
 .cookie-btn {
-  min-height: 42px;
-  padding: 10px 16px 11px;
-  border: 0;
+  min-height: 48px;
+  padding: 11px 14px 12px;
+  border: 2px solid var(--et-black);
   border-radius: 8px;
   font-family: var(--font-poster, var(--font));
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
-  letter-spacing: .01em;
-  line-height: .9;
+  letter-spacing: 0;
+  line-height: .82;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
@@ -568,23 +613,25 @@ body {
 .cookie-btn-accept {
   color: var(--et-black);
   background: var(--et-red);
-  box-shadow: 0 9px 18px rgba(228, 61, 24, .26);
+  box-shadow: 4px 4px 0 var(--et-black);
 }
 .cookie-btn-accept:hover {
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
   background: var(--et-red-hot);
-  box-shadow: 0 13px 22px rgba(228, 61, 24, .3);
+  box-shadow: 6px 6px 0 var(--et-black);
 }
 .cookie-btn-accept:active {
   transform: translateY(0);
+  box-shadow: 2px 2px 0 var(--et-black);
 }
 .cookie-btn-decline {
-  color: rgba(16, 13, 15, .72);
-  background: rgba(16, 13, 15, .08);
+  color: rgba(16, 13, 15, .78);
+  background: var(--et-cream);
+  box-shadow: inset 0 0 0 1px rgba(16, 13, 15, .08);
 }
 .cookie-btn-decline:hover {
   color: var(--et-black);
-  background: rgba(16, 13, 15, .12);
+  background: #fff4cc;
 }
 .cookie-btn-decline:active {
   transform: translateY(1px);
@@ -595,21 +642,30 @@ body {
     right: 12px;
     bottom: max(12px, env(safe-area-inset-bottom, 0px));
     width: auto;
-    padding: 12px;
+    padding: 14px;
+    box-shadow: 5px 5px 0 var(--et-black), 0 18px 44px rgba(16, 13, 15, .18);
   }
   .cookie-content {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
+  }
+  .cookie-title {
+    font-size: clamp(26px, 9vw, 34px);
+  }
+  .cookie-text {
+    font-size: 13px;
   }
   .cookie-buttons {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
     gap: 8px;
   }
   .cookie-btn {
     min-height: 46px;
-    padding-inline: 10px;
+    padding-inline: 8px;
+    font-size: clamp(15px, 4.7vw, 18px);
   }
 }
 /* ============================================
@@ -1040,33 +1096,41 @@ body {
 /* Cookie banner inline expand — ink-on-cream content panel that drops
    below the main cookie-content row when the user clicks "Mehr erfahren". */
 .cookie-info-chevron {
-  margin-left: 4px;
   transition: transform 0.22s var(--ease);
 }
 .cookie-consent.expanded .cookie-info-chevron {
   transform: rotate(180deg);
 }
 .cookie-expand {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(16, 13, 15, .14);
-  max-height: min(54dvh, 380px);
+  margin-top: 16px;
+  padding: 14px;
+  background: #fff4cc;
+  border: 2px solid var(--et-black);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(16, 13, 15, .06);
+  max-height: min(52dvh, 390px);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 /* Each section sits in its own div inside .cookie-info-body — give them
    strong vertical separation so heading↔text grouping is obvious. */
-.cookie-expand .cookie-info-body > div {
-  padding: 12px 0;
-  border-top: 1px solid rgba(16, 13, 15, .1);
+.cookie-expand .cookie-info-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
 }
-.cookie-expand .cookie-info-body > div:first-child {
-  padding-top: 0;
-  border-top: none;
+.cookie-expand .cookie-info-body > div {
+  padding: 0 0 14px;
+  border-top: 0;
+  border-bottom: 1px solid rgba(16, 13, 15, .18);
+  margin-bottom: 14px;
 }
 .cookie-expand .cookie-info-body > div:last-child {
-  padding-bottom: 4px;
+  grid-column: 1 / -1;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: 0;
 }
 /* Section headings in DM Sans caps — same voice as the drawer legal foot. */
 .cookie-expand .cookie-info-body h3 {
@@ -1117,6 +1181,25 @@ body {
   color: var(--et-red);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .cookie-expand {
+    padding: 12px;
+    max-height: min(48dvh, 360px);
+  }
+  .cookie-expand .cookie-info-body {
+    grid-template-columns: 1fr;
+  }
+  .cookie-expand .cookie-info-body > div {
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(16, 13, 15, .18);
+  }
+  .cookie-expand .cookie-info-body > div:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
 }
 /* ── BURGER MENU ─────────────────────────────────── */
 .burger-btn {

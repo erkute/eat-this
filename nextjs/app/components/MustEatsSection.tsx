@@ -35,12 +35,19 @@ const COPY = {
   },
 } as const
 
-const CARD_BACK = '/pics/card-back-gallery.webp?v=2'
+const CARD_BACK = '/pics/card-back.webp?v=6'
 const PACK_ART = [
   '/pics/booster/booster.webp',
+  '/pics/booster/booster_free.webp',
   '/pics/booster/booster_breakfast.webp',
+  '/pics/booster/booster_coffee.webp',
   '/pics/booster/booster_dinner.webp',
+  '/pics/booster/booster_drinks.webp',
+  '/pics/booster/booster_fastfood.webp',
+  '/pics/booster/booster_finedining.webp',
+  '/pics/booster/booster_lunch.webp',
   '/pics/booster/booster_pizza.webp',
+  '/pics/booster/booster_sweets.webp',
 ] as const
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {

@@ -10885,7 +10885,7 @@ html body .detailV13:not(.detailV13MustEat) .packPromo {
 }
 
 html body .detailV13:not(.detailV13MustEat) .detailV13Scroll > .packPromo:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 28px !important;
 }
 
 html body .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {

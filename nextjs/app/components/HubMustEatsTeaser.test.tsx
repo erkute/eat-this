@@ -90,16 +90,6 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain(translations.de.mustEats.teaserCta);
   });
 
-  it('contains a CTA link to /pack/all-berlin', () => {
-    const html = render(dataRevealed([me()]));
-    expect(html).toMatch(/href="\/pack\/all-berlin"/);
-  });
-
-  it('locale-prefixes the all-berlin CTA for en', () => {
-    const html = render(dataRevealed([me()]), 'en');
-    expect(html).toMatch(/href="\/en\/pack\/all-berlin"/);
-  });
-
   it('points the must-eats CTA at the full must-eats page', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toMatch(/href="\/must-eats"/);

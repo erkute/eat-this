@@ -12253,11 +12253,19 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     overflow-y: visible !important;
   }
   html body .detailV13Scroll {
-    /* Was 20px + safe-area + bar-overhang for the drag-sheet's inner port —
-       in-flow that painted as a dead white block under the pack promo
-       (User 2026-07-04). Modest outro; the content itself now reaches the
-       bar zone. Must-eat detail keeps its own higher-specificity padding. */
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    /* No bottom apron: the last content block (pack promo / facts) must bleed
+       to the document bottom so it — not a flat white strip — sits behind the
+       iOS URL bar and frosts through it. The drag-sheet's 20px + safe-area +
+       bar-overhang padding, kept in-flow, left a white band there ("da ist
+       noch ein weißer Balken hinter der URL", User 2026-07-04). The list
+       frosts its yellow listEnd the same way. Must-eat detail keeps its own
+       higher-specificity padding (it never scrolls). */
+    padding-bottom: 0 !important;
+  }
+  /* Kill the last block's own bottom margin too — otherwise its 32px gap
+     re-opens the white band behind the bar. */
+  html body .detailV13:not(.detailV13MustEat) .detailV13Scroll > :last-child {
+    margin-bottom: 0 !important;
   }
 
   /* Locate-FAB: --sheet-visible-px is not written in the in-flow list view —

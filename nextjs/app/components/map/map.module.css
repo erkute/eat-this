@@ -1753,8 +1753,8 @@
 .filterChipWrap {
   display: inline-flex;
   align-items: stretch;
-  /* Hug the chip's natural width — see .filterChip. */
-  flex: 0 0 auto;
+  /* Grow with the row so the chip rail runs flush edge-to-edge. */
+  flex: 1 0 auto;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -1762,12 +1762,11 @@
 }
 
 .filterChip {
-  /* Chips hug their label (mobile): stretched flex-grow chips read bloated
-     once an active filter swaps in a short label like "Mitte" (User
-     2026-07-04). The rail is a native pan-x scroller, so overflow on
-     narrow phones just scrolls — no ragged clipping. Desktop (≥1024px)
-     keeps its own equal-quarter grid further down. */
-  flex: 0 0 auto;
+  /* All four chips — Kategorie / Bezirk / Küche / Jetzt geöffnet — fit a
+     360px viewport on one line; flex-grow distributes the leftover width
+     on wider phones so the rail is flush left AND right (no half-off-screen
+     scroll start, no ragged right edge). */
+  flex: 1 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -12260,43 +12259,5 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     bottom: auto !important;
     left: 50% !important;
     transform: translate(-50%, calc(-100% - 12px)) !important;
-  }
-}
-
-/* Filter chips hug their label (mobile + tablet rail). The stretch pass
-   above (equal flex shares + 1.72–1.9× grow for the active chip) made a
-   short active label like "Mitte" read as a bloated empty button (User
-   2026-07-04). Chips now size to their text; the rail is a native pan-x
-   scroller, so overflow on narrow phones scrolls instead of clipping.
-   Desktop keeps its ≥1024px equal-quarter grid. Selectors mirror the
-   heaviest ones from the stretch pass so the later position wins the
-   !important tie. */
-@media (max-width: 1023.98px) {
-  html body .filterChipRow {
-    justify-content: flex-start !important;
-  }
-  html body .filterChipWrap,
-  html body .filterChipWrap:has(.filterChipActive),
-  html body .filterChipWrap:has(.filterChipOpenActive),
-  html body .filterChipRow > .filterChip,
-  html body .filterChipRow > .filterChipActive,
-  html body .filterChipRow > .filterChipOpenActive,
-  html body .filterChipRow.filterChipRow > button.filterChip.filterChip {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-  html body .filterChip,
-  html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  html body .filterChipActive,
-  html body .filterChipOpenActive {
-    width: auto !important;
-    padding-inline: 12px !important;
-  }
-  html body .filterChipLabel,
-  html body .filterChipLabelLong {
-    width: auto !important;
   }
 }

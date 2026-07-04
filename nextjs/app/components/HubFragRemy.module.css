@@ -10,24 +10,26 @@
   --remy-stage-ink: #15120e;
   --remy-stage-red: #d9382a;
   --remy-stage-yellow: #ffd84d;
-  --remy-stage-cream: #fff4cc;
-  --remy-stage-paper: #fffdf8;
-  --remy-stage-line: rgba(21, 18, 14, 0.16);
+  --remy-stage-paper: #fff;
+  --remy-stage-soft: #eaf2ed;
   position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-areas:
     "ask"
     "avatar";
   grid-template-columns: 1fr;
-  gap: clamp(10px, 2vw, 18px);
+  gap: clamp(12px, 2.4vw, 24px);
   align-items: start;
   overflow: hidden;
-  padding: clamp(20px, 4vw, 44px);
+  padding: clamp(22px, 4vw, 46px);
   color: var(--remy-stage-ink);
-  background: var(--remy-stage-cream);
-  border: 2px solid var(--remy-stage-ink);
+  background: var(--remy-stage-soft);
+  border: none;
   border-radius: var(--home-radius-btn);
-  box-shadow: 10px 10px 0 var(--remy-stage-ink);
+  box-shadow:
+    0 24px 70px rgba(21, 18, 14, 0.14),
+    0 8px 24px rgba(21, 18, 14, 0.08);
 }
 
 .ask {
@@ -44,33 +46,34 @@
 }
 
 .panelHead :global(.hv-title) {
-  max-width: 760px;
-  font-size: clamp(46px, 8.6vw, 104px);
-  line-height: 0.86;
+  max-width: 790px;
+  font-size: clamp(44px, 8vw, 96px);
+  line-height: 0.88;
 }
 
 /* ── Remy stage — freigestellt, no background sun ── */
 .avatarWrap {
   grid-area: avatar;
   position: relative;
+  z-index: 1;
   justify-self: center;
   width: 100%;
-  max-width: clamp(280px, 82vw, 430px);
+  max-width: clamp(340px, 92vw, 560px);
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-top: 0;
-  margin-top: clamp(-42px, -7vw, -26px);
-  margin-bottom: clamp(-92px, -13vw, -56px);
+  margin-top: clamp(-42px, -7vw, -24px);
+  margin-bottom: clamp(-132px, -17vw, -82px);
 }
 
 .avatar {
   position: relative;
   top: clamp(-16px, -3vw, -8px);
   z-index: 1;
-  width: 94%;
-  height: 112%;
+  width: 104%;
+  height: 120%;
   transform-origin: 50% 100%;
   animation: remyBob 3.8s ease-in-out infinite;
 }
@@ -127,14 +130,14 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  margin-top: clamp(14px, 1.8vw, 22px);
+  margin-top: clamp(14px, 1.8vw, 24px);
 }
 
 .lead {
-  max-width: 620px;
-  margin: 0 0 clamp(12px, 1.6vw, 18px);
+  max-width: 660px;
+  margin: 0 0 clamp(14px, 1.8vw, 22px);
   font-family: var(--font-providence);
-  font-size: clamp(18px, 1.75vw, 24px);
+  font-size: clamp(19px, 1.85vw, 27px);
   font-weight: 700;
   line-height: 1.16;
   color: var(--remy-stage-ink);
@@ -144,8 +147,8 @@
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 620px;
+  gap: 12px;
+  max-width: 680px;
 }
 
 .chips {
@@ -158,32 +161,31 @@
 .chip:global(.hv-chip):hover,
 .chip:global(.hv-chip):focus-visible {
   background: var(--remy-stage-red);
-  border-color: var(--remy-stage-red);
   color: #fff;
 }
 
 .chip:global(.hv-chip) {
   background: var(--remy-stage-paper);
   color: var(--remy-stage-ink);
-  border: 2px solid var(--remy-stage-ink);
-  box-shadow: 3px 3px 0 rgba(21, 18, 14, 0.18);
+  border: none;
+  box-shadow: 0 8px 18px rgba(21, 18, 14, 0.1);
 }
 
 .chip:focus-visible {
-  outline: 2px solid var(--remy-stage-ink);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.56);
 }
 
 /* ── free-text input row ── */
 .chatin {
   display: flex;
-  gap: 9px;
+  gap: 10px;
   align-items: center;
-  padding: 6px;
+  padding: 7px;
   background: var(--remy-stage-paper);
-  border: 2px solid var(--remy-stage-ink);
+  border: none;
   border-radius: var(--home-radius-btn);
-  box-shadow: 5px 5px 0 rgba(21, 18, 14, 0.2);
+  box-shadow: 0 14px 32px rgba(21, 18, 14, 0.12);
 }
 
 .input {
@@ -204,46 +206,46 @@
 }
 
 .input:focus-visible {
-  outline: 2px solid var(--remy-stage-ink);
-  outline-offset: 2px;
+  outline: none;
+  background: rgba(255, 216, 77, 0.14);
 }
 
 .send:global(.hv-btn) {
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
-  min-width: 52px;
+  min-width: 62px;
   width: auto;
   min-height: 48px;
   padding: 0 18px;
   color: #fff;
   background: var(--remy-stage-red);
-  border: 2px solid var(--remy-stage-red);
+  border: none;
   border-radius: var(--home-radius-btn);
   text-align: center;
+  box-shadow: 0 10px 20px rgba(217, 56, 42, 0.22);
 }
 
 .send:global(.hv-btn):hover {
   color: #fff;
   background: var(--remy-stage-ink);
-  border-color: var(--remy-stage-ink);
 }
 
 .send:global(.hv-btn):focus-visible {
-  outline: 2px solid var(--remy-stage-ink);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.56);
 }
 
 /* ── desktop: copy left, big Remy right ── */
-@media (min-width: 720px) {
+@media (min-width: 900px) {
   .body {
     grid-template-areas:
       "ask avatar";
-    grid-template-columns: minmax(360px, 0.96fr) minmax(360px, 0.72fr);
-    min-height: clamp(360px, 31vw, 430px);
-    padding: clamp(30px, 3.4vw, 48px) clamp(34px, 4.4vw, 64px);
+    grid-template-columns: minmax(420px, 0.86fr) minmax(430px, 0.78fr);
+    min-height: clamp(460px, 39vw, 560px);
+    padding: clamp(34px, 3.5vw, 52px) clamp(38px, 4.5vw, 70px);
     align-items: center;
-    gap: clamp(32px, 5vw, 78px);
+    gap: clamp(30px, 4.4vw, 72px);
   }
 
   .ask {
@@ -255,9 +257,9 @@
   .avatarWrap {
     align-self: end;
     justify-self: end;
-    max-width: clamp(410px, 38vw, 530px);
-    margin-top: clamp(-44px, -3vw, -24px);
-    margin-bottom: clamp(-112px, -7vw, -70px);
+    max-width: clamp(500px, 45vw, 700px);
+    margin-top: clamp(-42px, -3vw, -24px);
+    margin-bottom: clamp(-154px, -9vw, -96px);
   }
 
   .avatar {
@@ -267,7 +269,7 @@
 
 @media (max-width: 520px) {
   .body {
-    box-shadow: 6px 6px 0 var(--remy-stage-ink);
+    box-shadow: 0 18px 46px rgba(21, 18, 14, 0.14);
   }
 
   .chatin {

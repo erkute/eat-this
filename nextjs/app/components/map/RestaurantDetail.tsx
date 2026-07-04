@@ -1,7 +1,7 @@
 'use client';
 import type { CSSProperties } from 'react';
 import { useMemo, useRef, useState } from 'react';
-import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
+import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import {
   abbreviateBezirk,
@@ -279,34 +279,6 @@ export default function RestaurantDetail({
       ? '/login'
       : `/${locale}/login`;
 
-  const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {
-    const images: RestaurantGalleryImage[] = [];
-    const seen = new Set<string>();
-
-    const add = (img: RestaurantGalleryImage) => {
-      if (!img.thumb || !img.full) return;
-      const key = img.full || img.thumb;
-      if (seen.has(key)) return;
-      seen.add(key);
-      images.push(img);
-    };
-
-    if (r.photo) {
-      add({
-        _key: 'hero-photo',
-        thumb: r.photo,
-        full: r.photo,
-        alt: displayName,
-        credit: r.photoCredit,
-        creditUrl: r.photoCreditUrl,
-      });
-    }
-
-    for (const img of detail?.gallery ?? []) add(img);
-
-    return images;
-  }, [detail?.gallery, displayName, r.photo, r.photoCredit, r.photoCreditUrl]);
-
   const heroStyle = r.photo
     ? ({
         '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
@@ -435,11 +407,6 @@ export default function RestaurantDetail({
           </nav>
         )}
 
-        {/* GALLERY — curated Places photos, lazy via the same detail fetch */}
-        {!!galleryImages.length && (
-          <RestaurantGallery images={galleryImages} restaurantName={displayName} />
-        )}
-
         {/* BODY — story prose with drop cap. While the on-demand detail fetch
             is still in flight, hold the space with skeleton lines so the
             sections below don't jump up and the text doesn't pop in. */}
@@ -464,6 +431,11 @@ export default function RestaurantDetail({
             <span />
           </div>
         ) : null}
+
+        {/* GALLERY — curated Places photos, after the description and before the insider tip. */}
+        {!!detail?.gallery?.length && (
+          <RestaurantGallery images={detail.gallery} restaurantName={displayName} />
+        )}
 
         {/* INSIDER TIPP */}
         {hasTipp && (

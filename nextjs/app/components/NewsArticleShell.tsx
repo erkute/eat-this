@@ -80,14 +80,6 @@ export default function NewsArticleShell({
           {whereLine && <span className={styles.mustEatRest}>{whereLine}</span>}
           <span className={styles.mustEatCta}>
             <span>{ctaLabel}</span>
-            <svg
-              width="26" height="17" viewBox="0 0 32 20" fill="none"
-              stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-              strokeLinejoin="round" aria-hidden="true"
-            >
-              <path d="M3 10 L24 10" />
-              <path d="M18 3 L27 10 L18 17" />
-            </svg>
           </span>
         </div>
       </>
@@ -125,14 +117,6 @@ export default function NewsArticleShell({
           <span className={styles.inlineSpotName}>{restName}</span>
           <span className={styles.inlineSpotCta}>
             <span>{cta}</span>
-            <svg
-              width="24" height="16" viewBox="0 0 32 20" fill="none"
-              stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-              strokeLinejoin="round" aria-hidden="true"
-            >
-              <path d="M3 10 L24 10" />
-              <path d="M18 3 L27 10 L18 17" />
-            </svg>
           </span>
         </span>
       </Link>
@@ -151,6 +135,11 @@ export default function NewsArticleShell({
     .filter((a) => a.slug !== article.slug)
     .slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
+  const readLabel = de ? 'Lesen' : 'Read';
+  const shareTitle = de ? 'Guide weitergeben' : 'Share this guide';
+  const shareHint = de
+    ? 'Schick den Artikel an jemanden, der auch gutes Brot braucht.'
+    : 'Send this article to someone who needs good bread.';
 
   return (
     <div
@@ -159,51 +148,59 @@ export default function NewsArticleShell({
       id="newsModal"
     >
       <article className={styles.article}>
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
-
-        {article.imageUrl && (
-          // Hero = LCP element. fill + the Sanity loader serve a width-matched
-          // srcset (mobile no longer downloads the w=1200 desktop file).
-          <div className={styles.heroWrap}>
-            <Image
-              src={article.imageUrl}
-              alt={title}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 720px"
-              className={styles.hero}
+        <header className={styles.header}>
+          <div className={styles.breadcrumbWrap}>
+            <Breadcrumbs
+              items={breadcrumbItems}
+              ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
             />
-            <div className={styles.heroCopy}>
-              <h1 className={styles.heroTitle}>{title}</h1>
-            </div>
           </div>
-        )}
 
-        <div className={styles.byline}>
-          <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-          {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-        </div>
+          <div className={article.imageUrl ? styles.heroGrid : styles.heroGridPlain}>
+            <div className={styles.introCopy}>
+              <div className={styles.byline}>
+                <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+              </div>
+              <h1 className={styles.heroTitle}>{title}</h1>
+              {excerpt && <p className={styles.lede}>{excerpt}</p>}
+            </div>
 
-        {!article.imageUrl && <h1 className={styles.title}>{title}</h1>}
-
-        {excerpt && <p className={styles.lede}>{excerpt}</p>}
+            {article.imageUrl && (
+              // Hero = LCP element. fill + the Sanity loader serve a width-matched
+              // srcset (mobile no longer downloads the w=1200 desktop file).
+              <figure className={styles.heroWrap}>
+                <Image
+                  src={article.imageUrl}
+                  alt={title}
+                  fill
+                  priority
+                  sizes="(max-width: 760px) 100vw, 54vw"
+                  className={styles.hero}
+                />
+              </figure>
+            )}
+          </div>
+        </header>
 
         <div className={styles.content}>
           <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} renderSpotCard={renderSpotCard} />
         </div>
 
         <div className={styles.shareRow}>
-          <NewsArticleShare
-            title={title}
-            excerpt={excerpt}
-            label={de ? 'Teilen' : 'Share'}
-            className={styles.shareBtn}
-          />
+          <div className={styles.shareText}>
+            <span className={styles.shareTitle}>{shareTitle}</span>
+            <span className={styles.shareHint}>{shareHint}</span>
+          </div>
+          <div className={styles.shareAction}>
+            <NewsArticleShare
+              title={title}
+              excerpt={excerpt}
+              label={de ? 'Link teilen' : 'Share link'}
+              copiedLabel={de ? 'Link kopiert' : 'Link copied'}
+              className={styles.shareBtn}
+            />
+          </div>
         </div>
 
         {recommendations.length > 0 && (
@@ -226,6 +223,7 @@ export default function NewsArticleShell({
                       <div className={styles.relatedBody}>
                         {recCategory && <span className={styles.relatedCategory}>{recCategory}</span>}
                         <h3 className={styles.relatedHeadline}>{recTitle}</h3>
+                        <span className={styles.relatedRead}>{readLabel}</span>
                       </div>
                     </Link>
                   </li>

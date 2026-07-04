@@ -1,1319 +1,97 @@
-/* ════════════════════════════════════════════════════════════
-   Article detail — Chewy (mockup-chewy screen 8).
-   Cream column: full-bleed hero photo, byline, big Chewy title, Chewy lede,
-   ink TOC (numbered anchors), drop-cap body with Chewy section headings,
-   ink share button, dark related cards. Lives in the SPA (gets the header).
-   ════════════════════════════════════════════════════════════ */
-
 .page {
-  background: transparent;
-  color: var(--et-home-ink);
-  display: flow-root;
+  --article-ink: var(--et-home-ink, #15120e);
+  --article-red: var(--et-home-red, #d9382a);
+  --article-paper: var(--et-home-paper, #fff);
+  --article-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
+  --article-line: var(--et-home-line, rgba(21, 18, 14, 0.16));
   min-height: 100%;
+  padding: calc(34px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
+  background: var(--article-paper);
+  color: var(--article-ink);
 }
 
 .article {
+  width: min(100%, 1180px);
   margin: 0 auto;
-  max-width: 720px;
-  background: var(--et-home-paper);
-  box-shadow: var(--et-shadow-none);
 }
 
-/* ── Hero photo ── */
-/* Positioned box for the fill-mode hero <Image>; keeps the 4:3 frame the
-   raw <img> used to define on itself. */
-.heroWrap {
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: var(--et-img-restaurant-ratio);
-  background-color: var(--et-home-ink);
-  border: 10px solid var(--et-home-paper);
-  border-radius: var(--et-radius-photo);
-  box-shadow: var(--et-shadow-none);
-  transform: rotate(-.8deg);
-}
-.hero {
-  object-fit: var(--et-img-photo-fit);
-}
-
-/* ── Byline + title + lede ── */
-.byline {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 18px 4px;
-  font-family: var(--et-font-label);
-  font-size: 12px;
-  letter-spacing: var(--et-tracking-label);
-  text-transform: uppercase;
-  color: var(--et-home-ink);
-  opacity: 0.65;
-}
-.title {
-  font-family: var(--et-font-display);
-  font-size: clamp(38px, 11vw, 54px);
-  line-height: 1;
-  letter-spacing: var(--et-tracking-title);
-  text-transform: uppercase;
-  color: var(--et-home-red);
-  margin: 14px 16px 14px;
-}
-.lede {
-  font-family: var(--et-font-display);
-  font-size: clamp(19px, 5.5vw, 22px);
-  line-height: 1.25;
-  letter-spacing: var(--et-tracking-none);
-  color: var(--et-home-ink);
-  opacity: 0.9;
-  margin: 0 16px 18px;
-  padding: 0 0 14px;
-  border-bottom: 1px solid var(--et-home-line);
+.header {
+  display: grid;
+  gap: clamp(18px, 3vw, 34px);
+  margin-bottom: clamp(34px, 6vw, 76px);
 }
 
 .breadcrumbWrap {
-  padding: 0 18px;
-  margin: 0 0 6px;
-  font-size: 12px;
+  min-width: 0;
 }
 
-/* ── Body ── */
-.content {
-  padding: 12px 18px 6px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--et-home-ink);
-}
-.content > p:first-of-type::first-letter {
-  font-family: var(--et-font-display);
-  font-size: 72px;
-  line-height: 0.82;
-  color: var(--et-home-ink);
-  float: left;
-  padding: 8px 10px 0 0;
-  text-transform: uppercase;
-}
-.content p {
-  margin: 0 0 14px;
-}
-.content h2,
-.content h3 {
-  font-family: var(--et-font-display);
-  font-size: clamp(26px, 8vw, 30px);
-  font-weight: 400;
-  line-height: 1.02;
-  text-transform: uppercase;
-  letter-spacing: var(--et-tracking-title);
-  color: var(--et-home-ink);
-  margin: 26px 0 10px;
-  scroll-margin-top: 80px;
-}
-.content ul,
-.content ol {
-  margin: 0 0 14px;
-  padding-left: 22px;
-}
-.content li {
-  margin: 0 0 6px;
-}
-.content strong {
-  font-weight: 700;
-}
-/* Prose links only — NOT the .inlineSpot photo cards or the .mustEat poster
-   banner (both are full <a> blocks inside .content with their own styling).
-   Ohne das `:not(.mustEat)` würde diese Regel (Spezifität 0,2,1) den ganzen
-   Must-Eat-Block rot einfärben + unterstreichen.
-   Wichtig: das `background`-Shorthand im :hover würde sonst background-size der
-   Karte von cover → auto resetten = ungewollter „Zoom"-Effekt. */
-.content a:not(.inlineSpot):not(.mustEat) {
-  color: var(--c-coral);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 2px;
-  font-weight: 600;
-}
-.content a:not(.inlineSpot):not(.mustEat):hover {
-  background-color: rgba(160, 40, 20, 0.07);
+.breadcrumbWrap :global(nav) {
+  width: 100%;
 }
 
-
-.mustEat {
-  position: relative;
-  margin: 40px 0 36px;
-  padding: 32px 22px 36px;
-  /* Warm spotlight from the card side fades into the ink — gives the flat
-     poster depth, like the card sits under a display light. */
-  background:
-    radial-gradient(115% 90% at 24% 32%, rgba(214, 58, 42, 0.22), transparent 58%),
-    #0a0a0a;
-  color: #fbf8ee;
-  display: grid;
-  justify-items: center;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 18px;
-  box-shadow: 0 22px 46px -24px rgba(0, 0, 0, 0.75);
-  overflow: hidden;
-  isolation: isolate;
-}
-.mustEatPh {
-  position: relative;
-  display: block;
-  margin-bottom: 22px;
-  z-index: 1;
-}
-/* Glow disc behind the freigestellt card — follows the card in both layouts. */
-.mustEatPh::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 250px;
-  height: 250px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255, 184, 64, 0.30), rgba(214, 58, 42, 0.12) 46%, transparent 70%);
-  z-index: -1;
-  pointer-events: none;
-  transition: transform 0.28s ease;
-}
-.mustEatPh img {
-  display: block;
-  width: 184px;
-  height: auto;
-  /* The asset has white (non-transparent) corners — round to the card's own
-     corner radius so no white triangles show on the ink surface. */
-  border-radius: 14px;
-  transform: rotate(-4deg);
-  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
-  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.5));
-}
-a.mustEat:hover .mustEatPh img {
-  transform: rotate(-2deg) translateY(-7px) scale(1.04);
-}
-a.mustEat:hover .mustEatPh::before {
-  transform: translate(-50%, -50%) scale(1.14);
-}
-.mustEatBody {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  justify-items: center;
-  gap: 9px;
-}
-/* Kicker is a tilted yellow sticker-stamp instead of plain tracked text. */
-.mustEatKicker {
-  justify-self: center;
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-indent: 0.22em; /* recenter — tracking adds trailing space */
-  text-transform: uppercase;
-  color: #0a0a0a;
-  background: #ffd84a;
-  padding: 5px 13px 6px;
-  border-radius: 999px;
-  transform: rotate(-2.5deg);
-  margin-bottom: 9px; /* lift the stamp off the dish name */
-}
-/* `.mustEat` prefix beats `.content h3` (which forces ink-black and would
-   render the headline invisible on the dark banner). Hard coral offset shadow
-   gives it screen-printed poster punch. */
-.mustEat .mustEatName {
-  font-family: var(--font-poster);
-  font-size: clamp(30px, 7.5vw, 44px);
-  line-height: 1;
-  text-transform: uppercase;
-  color: #fbf8ee;
-  margin: 2px 0 0;
-  max-width: 18ch;
-  text-shadow: 3px 3px 0 rgba(0, 0, 0, .62);
-}
-/* Appetite line from the Sanity description — sentence case, reads like a
-   recommendation, not metadata. `.mustEat` prefix beats `.content p` margins. */
-.mustEat .mustEatDesc {
-  font-size: 15px;
-  line-height: 1.55;
-  max-width: 42ch;
-  margin: 4px 0 0;
-  color: rgba(251, 248, 238, 0.9);
-}
-.mustEatRest {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(251, 248, 238, 0.62);
-  margin-top: 4px;
-}
-.mustEatRest::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--c-coral-bright);
-  margin-right: 9px;
-}
-/* Tactile sticker button — hard coral shadow that "presses in" on hover. */
-.mustEatCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  background: #ffd84a;
-  color: #0a0a0a;
-  font-family: var(--font-poster);
-  font-size: 18px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1;
-  padding: 13px 22px 14px;
-  border-radius: 10px;
-  box-shadow: 4px 4px 0 #0a0a0a;
-  transition: transform 0.14s ease, box-shadow 0.14s ease;
-}
-a.mustEat:hover .mustEatCta {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 #0a0a0a;
-}
-.mustEatCta svg {
-  flex-shrink: 0;
-  transition: transform 0.18s ease;
-}
-a.mustEat:hover .mustEatCta svg {
-  transform: translateX(4px);
-}
-
-/* Desktop: card left, text right — the banner reads as one wide poster. */
-@media (min-width: 720px) {
-  .mustEat {
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: 36px;
-    justify-items: start;
-    text-align: left;
-    padding: 36px 40px;
-    background:
-      radial-gradient(90% 120% at 18% 50%, rgba(214, 58, 42, 0.24), transparent 56%),
-      #0a0a0a;
-  }
-  .mustEatPh {
-    margin-bottom: 0;
-  }
-  .mustEatPh img {
-    width: 216px;
-  }
-  .mustEatBody {
-    justify-items: start;
-  }
-  .mustEatKicker {
-    justify-self: start;
-    text-indent: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mustEatPh img,
-  .mustEatPh::before,
-  .mustEatCta,
-  .mustEatCta svg {
-    transition: none;
-  }
-}
-
-/* ── Pull-quote (blockquote in body) ── */
-.content blockquote {
-  margin: 18px 0 22px;
-  padding: 18px 0 4px;
-  border-top: 2px solid #0a0a0a;
-  border-bottom: 2px solid #0a0a0a;
-  font-family: var(--font-poster);
-  font-size: clamp(24px, 7vw, 28px);
-  line-height: 1.05;
-  letter-spacing: -0.005em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-}
-
-/* ── Spots im Artikel — horizontal restaurant cards ── */
-
-
-/* Bottom-anchored stack so meta sits above the name and they never overlap,
-   even when a long (normalized) restaurant name wraps to two lines. */
-
-
-/* ── Inline spot card (spotCard block) — wide image card in the article flow.
-   Same sticker language as the .spotCard strip + home tiles: cover photo,
-   dark gradient, Bezirk·Küche kicker, poster name, map CTA. No rounded
-   corners (square/sticker brand). ── */
-.inlineSpot {
-  position: relative;
-  display: block;
-  margin: 26px 0 28px;
-  min-height: 240px;
-  /* 4:3 (statt 3:2) zeigt mehr vom Foto — quadratische/hochkant Spot-Bilder
-     wurden vorher hart beschnitten und wirkten reingezoomt. */
-  aspect-ratio: 4 / 3;
-  background-color: #14100c;
-  background-size: cover;
-  background-position: center;
-  color: #fbf8ee;
-  text-decoration: none;
-  box-shadow: 0 2px 0 rgba(10, 10, 10, 0.9);
-}
-.inlineSpot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  /* Kinoreifer, tief verankerter Scrim: oben bleibt das Bild frei, unten
-     trägt ein satter warm-schwarzer Sockel die Schrift. */
-  background: linear-gradient(
-    to top,
-    rgba(11, 8, 6, 0.95) 0%,
-    rgba(11, 8, 6, 0.66) 20%,
-    rgba(11, 8, 6, 0.2) 42%,
-    transparent 64%
-  );
-}
-.inlineSpotFoot {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 16px;
-  z-index: 1;
+.breadcrumbWrap :global(ol) {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.inlineSpotMeta {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent-warm);
-  font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-}
-.inlineSpotName {
-  font-family: var(--font-poster);
-  font-size: clamp(26px, 7vw, 34px);
-  line-height: 1.0;
-  letter-spacing: 0.015em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-.inlineSpotCta {
-  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
   align-items: center;
-  gap: 7px;
-  margin-top: 2px;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #fbf8ee;
-}
-.inlineSpotCta svg {
-  flex-shrink: 0;
-  transition: transform 160ms cubic-bezier(.16, .92, .18, 1);
-}
-
-a.inlineSpot:focus-visible {
-  outline: 3px solid var(--brand-yellow);
-  outline-offset: 4px;
-}
-
-a.inlineSpot:hover .inlineSpotCta svg,
-a.inlineSpot:focus-visible .inlineSpotCta svg {
-  transform: translateX(4px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .inlineSpotCta svg {
-    transition: none;
-  }
-}
-
-/* ── Share — single full-width ink button (mockup .art-share) ── */
-.shareRow {
-  display: flex;
-  padding: 6px 18px 28px;
-}
-.shareBtn {
-  flex: 1;
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 14px 18px 15px;
-  border: 1.5px solid #0a0a0a;
-  background: var(--collage-red);
-  color: #fff;
-  box-shadow: 4px 4px 0 #0a0a0a;
-  cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.12s;
-}
-.shareBtn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--brand-yellow);
-}
-
-/* ── Related — dark horizontal cards ── */
-.related {
-  border-top: 2px solid #0a0a0a;
-  margin: 0 18px;
-  padding: 22px 0 26px;
-}
-.relatedHeading {
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  margin: 0 0 14px;
-}
-.relatedGrid {
-  list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 14px;
+  border: 0;
+  color: var(--article-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
-.relatedCard {
-  display: grid;
-  grid-template-columns: 132px 1fr;
-  background: #0a0a0a;
-  color: #fbf8ee;
+
+.breadcrumbWrap :global(a),
+.breadcrumbWrap :global(span) {
+  color: inherit;
   text-decoration: none;
-  overflow: hidden;
-}
-.relatedImage {
-  background-size: cover;
-  background-position: center;
-  background-color: #14100c;
-  min-height: 100%;
-}
-.relatedBody {
-  padding: 14px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 152px;
-}
-.relatedCategory {
-  display: inline-flex;
-  align-self: flex-start;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-family: var(--font-poster);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  padding: 4px 8px 5px;
-}
-.relatedHeadline {
-  font-family: var(--font-poster);
-  font-size: 22px;
-  line-height: 1.02;
-  text-transform: uppercase;
-  letter-spacing: 0.015em;
-  color: #fbf8ee;
-  margin: 12px 0 0;
 }
 
-/* ── Sticky spotrail — floats at the viewport bottom while reading, yields to
-   the footer below it. Sibling of .article inside .page (so there's flow space
-   below it to float over). Degrades to a static end-bar if an overflow ancestor
-   prevents stickiness. ── */
-
-/* When the spotrail is present, pad the article so its last content isn't
-   hidden behind the floating bar. */
-
-
-/* Home-system pass: article detail. */
-.page[data-page="news-article"] {
-  --article-ink: #15120e;
-  --article-red: #d9382a;
-  --article-paper: #fff;
-  background: var(--article-paper);
-  color: var(--article-ink);
-  padding-top: calc(72px + env(safe-area-inset-top, 0px));
-}
-
-.page[data-page="news-article"] .article {
-  max-width: min(100%, 980px);
-  background: var(--article-paper);
-  box-shadow: none;
-}
-
-.page[data-page="news-article"] .heroWrap {
-  border: 0;
-  box-shadow: none;
-  transform: none;
-  background: var(--article-red);
-}
-
-.page[data-page="news-article"] .byline,
-.page[data-page="news-article"] .relatedCategory {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+.breadcrumbWrap :global(a:hover),
+.breadcrumbWrap :global(a:focus-visible),
+.breadcrumbWrap :global([aria-current="page"]) {
   color: var(--article-red);
+  text-decoration: none;
 }
 
-.page[data-page="news-article"] .title,
-.page[data-page="news-article"] .relatedHeading,
-.page[data-page="news-article"] .relatedHeadline {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  color: var(--article-ink);
-  letter-spacing: 0;
+.heroGrid,
+.heroGridPlain {
+  display: grid;
+  align-items: end;
+  gap: clamp(22px, 4vw, 58px);
 }
 
-.page[data-page="news-article"] .title {
-  font-size: clamp(62px, 10vw, 132px);
-  line-height: .8;
-  margin: clamp(20px, 4vw, 44px) clamp(16px, 4vw, 52px) 18px;
+.heroGrid {
+  grid-template-columns: minmax(0, 0.88fr) minmax(360px, 1.12fr);
 }
 
-.page[data-page="news-article"] .lede {
-  margin-inline: clamp(16px, 4vw, 52px);
-  border-bottom: 2px solid var(--article-ink);
-  color: rgba(21, 18, 14, .76);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+.heroGridPlain {
+  max-width: 900px;
 }
 
-.page[data-page="news-article"] .breadcrumbWrap,
-.page[data-page="news-article"] .byline,
-.page[data-page="news-article"] .content {
-  padding-inline: clamp(16px, 4vw, 52px);
+.introCopy {
+  min-width: 0;
+  display: grid;
+  gap: clamp(14px, 2.2vw, 24px);
+  padding-bottom: clamp(2px, 1vw, 12px);
 }
 
-.page[data-page="news-article"] .content {
-  color: var(--article-ink);
-}
-
-.page[data-page="news-article"] .content > p:first-of-type::first-letter {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  color: var(--article-red);
-}
-
-.page[data-page="news-article"] .content a:not(.inlineSpot):not(.mustEat) {
-  color: var(--article-red);
-}
-
-.page[data-page="news-article"] .mustEat {
-  background: var(--article-ink);
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.page[data-page="news-article"] .mustEatPh::before {
-  background: radial-gradient(circle, rgba(217, 56, 42, .28), transparent 68%);
-}
-
-
-.page[data-page="news-article"] .shareBtn {
-  background: var(--article-ink);
-  color: var(--article-paper);
-  border-color: var(--article-ink);
-  box-shadow: none;
-}
-
-.page[data-page="news-article"] .related {
-  border-top: 2px solid var(--article-ink);
-}
-
-.page[data-page="news-article"] .relatedCard {
-  background: var(--article-ink);
-  color: var(--article-paper);
-  border-radius: 0;
-}
-
-/* Home-system article redesign: flat newspaper, bigger media, clear click affordance. */
-.page[data-page="news-article"] {
-  --article-ink: #15120e;
-  --article-red: #d9382a;
-  --article-paper: #fff;
-  --article-muted: rgba(21, 18, 14, .64);
-  --brand-ink: var(--article-ink);
-  --brand-paper: var(--article-paper);
-  --brand-action: var(--article-red);
-  --text-primary: var(--article-ink);
-  --text-secondary: var(--article-ink);
-  --text-muted: var(--article-muted);
-  --surface-bg: var(--article-paper);
-  --surface-card: var(--article-paper);
-  background: var(--article-paper);
-  color: var(--article-ink);
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(22px, 4vw, 44px)) clamp(16px, 4vw, 42px) clamp(70px, 10vw, 130px);
-}
-
-.page[data-page="news-article"] .article {
-  display: block;
-  width: min(100%, 1280px);
-  max-width: none;
-  margin: 0 auto;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.page[data-page="news-article"] .heroWrap {
-  width: min(100%, 1180px);
-  margin: 0 auto clamp(34px, 5vw, 64px);
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: var(--article-ink);
-  box-shadow: none;
-  transform: none;
-}
-
-.page[data-page="news-article"] .hero {
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  filter: saturate(1.03) contrast(1.02);
-}
-
-.page[data-page="news-article"] .byline,
-.page[data-page="news-article"] .breadcrumbWrap,
-.page[data-page="news-article"] .lede,
-.page[data-page="news-article"] .content,
-.page[data-page="news-article"] .shareRow,
-.page[data-page="news-article"] .related {
-  width: min(100%, 1040px);
-  margin-right: auto;
-  margin-left: auto;
-  padding-inline: 0;
-}
-
-.page[data-page="news-article"] .byline {
+.byline {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 14px;
-  margin-bottom: 16px;
   color: var(--article-red);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(12px, 1.1vw, 14px);
   font-weight: 900;
-  letter-spacing: .14em;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
   text-transform: uppercase;
-}
-
-.page[data-page="news-article"] .title {
-  width: min(100%, 1040px);
-  margin: 0 auto clamp(22px, 3vw, 36px);
-  color: var(--article-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(58px, 9vw, 132px);
-  font-weight: 400;
-  line-height: .8;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.page[data-page="news-article"] .lede {
-  margin-bottom: clamp(18px, 3vw, 30px);
-  padding: 0 0 clamp(18px, 3vw, 30px);
-  border: 0;
-  border-bottom: 3px solid var(--article-ink);
-  color: var(--article-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(18px, 2vw, 25px);
-  font-weight: 900;
-  line-height: 1.25;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap {
-  margin-bottom: clamp(34px, 5vw, 64px);
-}
-
-.page[data-page="news-article"] .content {
-  color: var(--article-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(17px, 1.7vw, 21px);
-  line-height: 1.45;
-}
-
-.page[data-page="news-article"] .content h2,
-.page[data-page="news-article"] .content h3 {
-  margin: clamp(44px, 7vw, 82px) 0 18px;
-  color: var(--article-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(44px, 7vw, 86px);
-  font-weight: 400;
-  line-height: .86;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.page[data-page="news-article"] .content p {
-  max-width: 72ch;
-}
-
-.page[data-page="news-article"] .content > p:first-of-type::first-letter {
-  float: left;
-  margin: .02em .12em 0 0;
-  color: var(--article-red);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: 4.7em;
-  line-height: .72;
-}
-
-.page[data-page="news-article"] .content blockquote {
-  max-width: 15ch;
-  margin: clamp(36px, 6vw, 70px) 0;
-  padding: 18px 0;
-  border-top: 3px solid var(--article-ink);
-  border-bottom: 3px solid var(--article-ink);
-  background: transparent;
-  color: var(--article-red);
-  box-shadow: none;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(44px, 7vw, 90px);
-  font-weight: 400;
-  line-height: .86;
-  transform: none;
-}
-
-.page[data-page="news-article"] .related {
-  margin-top: clamp(54px, 8vw, 96px);
-  padding-top: clamp(24px, 4vw, 42px);
-  border-top: 3px solid var(--article-ink);
-}
-
-.page[data-page="news-article"] .relatedHeading {
-  margin: 0 0 clamp(20px, 3vw, 34px);
-  color: var(--article-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(52px, 8vw, 98px);
-  font-weight: 400;
-  line-height: .84;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.page[data-page="news-article"] .relatedGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.page[data-page="news-article"] .relatedCard {
-  min-height: 320px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: var(--article-ink);
-  color: #fff;
-  box-shadow: none;
-  text-decoration: none;
-  transform: none;
-}
-
-.page[data-page="news-article"] .relatedCard:hover,
-.page[data-page="news-article"] .relatedCard:focus-visible {
-  transform: translateY(-4px) rotate(-.5deg);
-}
-
-.page[data-page="news-article"] .relatedImage {
-  aspect-ratio: 4 / 3;
-  height: auto;
-  object-fit: cover;
-}
-
-.page[data-page="news-article"] .relatedBody {
-  padding: 16px 0 0;
-}
-
-.page[data-page="news-article"] .relatedCard {
-  border-bottom: 3px solid var(--article-ink);
-  background: transparent;
-  color: var(--article-ink);
-}
-
-.page[data-page="news-article"] .relatedCategory {
-  color: var(--article-red);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-
-.page[data-page="news-article"] .relatedHeadline {
-  color: inherit;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(34px, 5vw, 58px);
-  font-weight: 400;
-  line-height: .9;
-  letter-spacing: 0;
-}
-
-.page[data-page="news-article"] .shareRow {
-  justify-content: flex-start;
-  margin-top: clamp(34px, 5vw, 64px);
-}
-
-.page[data-page="news-article"] .shareBtn {
-  border: 2px solid var(--article-ink);
-  border-radius: 0;
-  background: var(--article-ink);
-  color: #fff;
-  box-shadow: none;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-
-@media (max-width: 760px) {
-  .page[data-page="news-article"] {
-    padding-inline: 16px;
-    padding-top: calc(72px + env(safe-area-inset-top, 0px) + 22px);
-  }
-
-  .page[data-page="news-article"] .heroWrap {
-    width: 100%;
-    margin-bottom: 28px;
-  }
-
-  .page[data-page="news-article"] .hero {
-    aspect-ratio: 4 / 3.2;
-  }
-
-  .page[data-page="news-article"] .title {
-    font-size: clamp(48px, 15vw, 82px);
-  }
-
-  .page[data-page="news-article"] .relatedGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .page[data-page="news-article"] .relatedCard {
-    min-height: 0;
-  }
-}
-
-/* Final article pass: restrained desktop scale, no bottom spotrail surface. */
-.page[data-page="news-article"] {
-  padding-top: calc(env(safe-area-inset-top, 0px) + clamp(24px, 2vw, 32px));
-}
-
-.page[data-page="news-article"] .article {
-  width: min(100%, 1160px);
-}
-
-.page[data-page="news-article"] .heroWrap {
-  width: min(100%, 800px);
-  aspect-ratio: 16 / 9;
-  margin-bottom: clamp(18px, 2.4vw, 28px);
-}
-
-.page[data-page="news-article"] .breadcrumbWrap {
-  width: min(100%, 800px);
-  margin: 0 auto 10px;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global(nav) {
-  width: 100%;
-  margin: 0;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global(ol) {
-  display: inline-flex;
-  max-width: 100%;
-  gap: 8px;
-  align-items: center;
-  padding: 7px 10px 8px;
-  overflow: hidden;
-  border: 0;
-  background: var(--article-ink);
-  color: var(--article-paper);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  line-height: 1;
-  text-transform: uppercase;
-  transform: rotate(-.45deg);
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global(li) {
-  min-width: 0;
-  gap: 8px;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global(a),
-.page[data-page="news-article"] .breadcrumbWrap :global(span) {
-  min-width: 0;
-  color: inherit;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global(a:hover),
-.page[data-page="news-article"] .breadcrumbWrap :global(a:focus-visible) {
-  color: #fff;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global([aria-current="page"]) {
-  max-width: min(46vw, 42ch);
-  overflow: hidden;
-  color: var(--article-red);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.page[data-page="news-article"] .breadcrumbWrap :global([aria-hidden="true"]) {
-  color: var(--article-red);
-}
-
-.page[data-page="news-article"] .heroWrap::after {
-  content: "";
-  position: absolute;
-  inset: 28% 0 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(to top, rgba(12, 9, 7, .9), rgba(12, 9, 7, .52) 48%, rgba(12, 9, 7, 0));
-}
-
-.page[data-page="news-article"] .byline,
-.page[data-page="news-article"] .lede,
-.page[data-page="news-article"] .content,
-.page[data-page="news-article"] .shareRow,
-.page[data-page="news-article"] .related {
-  width: min(100%, 880px);
-}
-
-.page[data-page="news-article"] .title {
-  width: min(100%, 880px);
-  font-size: clamp(46px, 6.4vw, 86px);
-  line-height: .88;
-}
-
-.page[data-page="news-article"] .heroCopy {
-  position: absolute;
-  right: clamp(16px, 4vw, 42px);
-  bottom: clamp(16px, 3.5vw, 38px);
-  left: clamp(16px, 4vw, 42px);
-  z-index: 2;
-}
-
-.page[data-page="news-article"] .heroTitle {
-  width: min(100%, 14ch);
-  margin: 0;
-  color: #fff;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(44px, 7.2vw, 102px);
-  font-weight: 400;
-  line-height: .82;
-  letter-spacing: 0;
-  text-shadow: 0 3px 14px rgba(0, 0, 0, .5);
-  text-transform: uppercase;
-}
-
-.page[data-page="news-article"] .lede {
-  font-size: clamp(17px, 1.6vw, 21px);
-}
-
-.page[data-page="news-article"] .content {
-  font-size: clamp(16px, 1.28vw, 18px);
-  line-height: 1.55;
-}
-
-.page[data-page="news-article"] .content h2,
-.page[data-page="news-article"] .content h3 {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(38px, 5.8vw, 66px);
-  font-weight: 400;
-  line-height: .9;
-}
-
-.page[data-page="news-article"] .content blockquote {
-  max-width: 18ch;
-  font-size: clamp(36px, 5.6vw, 68px);
-}
-
-.page[data-page="news-article"] .related {
-  margin-top: clamp(46px, 7vw, 78px);
-  padding-top: clamp(18px, 3vw, 30px);
-}
-
-.page[data-page="news-article"] .relatedHeading {
-  margin-bottom: clamp(16px, 2.4vw, 24px);
-  font-size: clamp(38px, 5.4vw, 66px);
-  line-height: .9;
-}
-
-.page[data-page="news-article"] .relatedGrid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(14px, 1.8vw, 22px);
-}
-
-.page[data-page="news-article"] .relatedCard {
-  display: block;
-  min-height: 0;
-  border-bottom: 2px solid var(--article-ink);
-  transition: transform 180ms cubic-bezier(.16, .92, .18, 1);
-}
-
-.page[data-page="news-article"] .relatedImage {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  min-height: 0;
-}
-
-.page[data-page="news-article"] .relatedBody {
-  min-height: 0;
-  padding: 12px 0 14px;
-}
-
-.page[data-page="news-article"] .relatedCategory {
-  margin-bottom: 8px;
-  background: transparent;
-  padding: 0;
-}
-
-.page[data-page="news-article"] .relatedHeadline {
-  margin: 0;
-  font-size: clamp(24px, 2.6vw, 32px);
-  line-height: .96;
-}
-
-@media (max-width: 760px) {
-  .page[data-page="news-article"] {
-    padding-inline: 14px;
-  }
-
-  .page[data-page="news-article"] .heroWrap {
-    aspect-ratio: 4 / 3;
-    margin-bottom: 24px;
-  }
-
-  .page[data-page="news-article"] .breadcrumbWrap {
-    margin-bottom: 8px;
-  }
-
-  .page[data-page="news-article"] .breadcrumbWrap :global(ol) {
-    width: 100%;
-    padding: 7px 9px 8px;
-    font-size: 9px;
-    letter-spacing: .09em;
-    transform: rotate(-.35deg);
-  }
-
-  .page[data-page="news-article"] .breadcrumbWrap :global([aria-current="page"]) {
-    max-width: 20ch;
-  }
-
-  .page[data-page="news-article"] .heroWrap::after {
-    inset: 18% 0 0;
-  }
-
-  .page[data-page="news-article"] .title {
-    font-size: clamp(42px, 12.5vw, 66px);
-  }
-
-  .page[data-page="news-article"] .heroCopy {
-    right: 14px;
-    bottom: 14px;
-    left: 14px;
-  }
-
-  .page[data-page="news-article"] .heroTitle {
-    max-width: 15ch;
-    font-size: clamp(34px, 11vw, 56px);
-  }
-
-  .page[data-page="news-article"] .relatedGrid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .page[data-page="news-article"] .relatedHeadline {
-    font-size: clamp(30px, 8.5vw, 44px);
-  }
-}
-
-.page[data-page="news-article"] .heroWrap .heroTitle {
-  color: #fff;
-}
-
-html:not([data-active-page="map"]) .page[data-page="news-article"] .heroWrap .heroTitle {
-  color: #fff;
-}
-
-/* Final Home consolidation: article blocks use paper/ink/red, flat images,
-   and line-based cards instead of legacy dark poster slabs. */
-.page[data-page="news-article"] {
-  --article-ink: var(--et-home-ink);
-  --article-red: var(--et-home-red);
-  --article-paper: var(--et-home-paper);
-  --article-muted: var(--et-home-muted);
-  --article-rule: var(--et-home-line);
-}
-
-.page[data-page="news-article"] .heroWrap,
-.page[data-page="news-article"] .relatedImage,
-.page[data-page="news-article"] .inlineSpot {
-  border-radius: var(--et-radius-photo);
-}
-
-.page[data-page="news-article"] .mustEat {
-  grid-template-columns: minmax(112px, auto) minmax(0, 1fr);
-  justify-items: start;
-  text-align: left;
-  gap: clamp(18px, 4vw, 34px);
-  margin: clamp(34px, 6vw, 62px) 0;
-  padding: clamp(18px, 4vw, 34px);
-  color: var(--article-ink);
-  background: var(--article-paper);
-  border: 3px solid var(--article-ink);
-  border-radius: var(--et-radius-photo);
-}
-
-.page[data-page="news-article"] .mustEatPh {
-  margin: 0;
-}
-
-.page[data-page="news-article"] .mustEatPh::before {
-  display: none;
-}
-
-.page[data-page="news-article"] .mustEatPh img {
-  width: clamp(108px, 17vw, 176px);
-  border-radius: var(--et-radius-photo);
-  filter: none;
-}
-
-.page[data-page="news-article"] .mustEatBody {
-  justify-items: start;
-  align-self: center;
-}
-
-.page[data-page="news-article"] .mustEatKicker {
-  justify-self: start;
-  margin: 0 0 4px;
-  padding: 0;
-  color: var(--article-red);
-  background: transparent;
-  border-radius: 0;
-  transform: none;
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .14em;
-}
-
-.page[data-page="news-article"] .mustEat .mustEatName {
-  max-width: 13ch;
-  color: var(--article-ink);
-  font-family: var(--et-font-condensed);
-  font-size: clamp(34px, 5.2vw, 68px);
-  line-height: .84;
-  text-shadow: none;
-}
-
-.page[data-page="news-article"] .mustEat .mustEatDesc,
-.page[data-page="news-article"] .mustEatRest {
-  color: var(--article-muted);
-}
-
-.page[data-page="news-article"] .mustEatCta {
-  margin-top: 8px;
-  color: var(--article-paper);
-  background: var(--article-ink);
-  border: 2px solid var(--article-ink);
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-mono);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .12em;
-}
-
-.page[data-page="news-article"] .inlineSpot {
-  overflow: hidden;
-  box-shadow: none;
-}
-
-.page[data-page="news-article"] .inlineSpot::after,
-.page[data-page="news-article"] .heroWrap::after {
-  background: var(--et-home-photo-overlay);
-}
-
-.page[data-page="news-article"] .relatedCard {
-  border-bottom: 3px solid var(--article-ink);
-  background: transparent;
-  color: var(--article-ink);
-}
-
-.page[data-page="news-article"] .inlineSpotMeta {
-  color: var(--article-red);
-}
-
-.page[data-page="news-article"] .relatedHeadline {
-  color: var(--article-ink);
-}
-
-.page[data-page="news-article"] .shareBtn {
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  background: var(--article-ink);
-  color: var(--article-paper);
-}
-
-@media (max-width: 620px) {
-  .page[data-page="news-article"] .mustEat {
-    grid-template-columns: 1fr;
-    text-align: center;
-    justify-items: center;
-  }
-
-  .page[data-page="news-article"] .mustEatBody,
-  .page[data-page="news-article"] .mustEatKicker {
-    justify-items: center;
-    justify-self: center;
-  }
-}
-
-/* Article route also renders with CSS Modules only, so the final article skin
-   must not depend on the SPA stylesheet being present. */
-.page {
-  --article-ink: var(--et-home-ink);
-  --article-red: var(--et-home-red);
-  --article-paper: var(--et-home-paper);
-  --article-muted: var(--et-home-muted);
-  --article-rule: var(--et-home-line);
-  background: var(--article-paper);
-  color: var(--article-ink);
-  padding: calc(72px + env(safe-area-inset-top, 0px)) clamp(14px, 4vw, 54px) clamp(58px, 8vw, 110px);
-}
-
-.article {
-  max-width: min(100%, 1180px);
-  background: var(--article-paper);
-}
-
-.breadcrumbWrap,
-.byline,
-.lede,
-.content,
-.shareRow,
-.related {
-  width: min(100%, 880px);
-  margin-inline: auto;
-  padding-inline: 0;
-}
-
-.heroWrap {
-  max-width: 1180px;
-  margin: 0 auto clamp(20px, 4vw, 44px);
-  aspect-ratio: 16 / 9;
-  border: 0;
-  border-radius: var(--et-radius-photo);
-  box-shadow: none;
-  transform: none;
 }
 
 .title,
@@ -1322,47 +100,550 @@ html:not([data-active-page="map"]) .page[data-page="news-article"] .heroWrap .he
 .content h3,
 .relatedHeading,
 .relatedHeadline,
-.inlineSpotName {
-  font-family: var(--et-font-condensed);
+.inlineSpotName,
+.mustEatName {
+  font-family: var(--et-font-condensed, Impact, sans-serif);
+  font-weight: 400;
   letter-spacing: 0;
+  text-transform: uppercase;
 }
 
-.title {
-  width: min(100%, 880px);
-  margin: clamp(20px, 4vw, 44px) auto 18px;
+.title,
+.heroTitle {
+  max-width: 10ch;
+  margin: 0;
   color: var(--article-ink);
-  font-size: clamp(46px, 6.4vw, 86px);
-  line-height: .88;
+  font-size: clamp(50px, 8vw, 116px);
+  line-height: 0.82;
 }
 
-.byline,
-.relatedCategory,
-.mustEatKicker,
-.inlineSpotMeta {
-  font-family: var(--et-font-mono);
-  color: var(--article-red);
-  font-weight: 900;
+.heroTitle {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title, 0);
+  line-height: var(--et-leading-title, 0.86);
 }
 
 .lede {
-  color: var(--article-muted);
-  border-bottom: 2px solid var(--article-ink);
+  max-width: 34ch;
+  margin: 0;
+  color: var(--article-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(18px, 1.7vw, 23px);
+  font-weight: 750;
+  line-height: 1.32;
+}
+
+.heroWrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+  overflow: hidden;
+  background: var(--article-ink);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.hero {
+  object-fit: cover;
+  filter: saturate(1.04) contrast(1.03);
+}
+
+.content,
+.shareRow,
+.related {
+  width: min(100%, 900px);
+  margin-inline: auto;
 }
 
 .content {
   color: var(--article-ink);
-  font-size: clamp(16px, 1.28vw, 18px);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(17px, 1.35vw, 19px);
+  line-height: 1.65;
+}
+
+.content p {
+  margin: 0 0 1.2em;
 }
 
 .content > p:first-of-type::first-letter {
-  font-family: var(--et-font-condensed);
+  float: left;
+  margin: 0.06em 0.12em 0 0;
   color: var(--article-red);
+  font-family: var(--et-font-condensed, Impact, sans-serif);
+  font-size: 4.5em;
+  line-height: 0.68;
+}
+
+.content h2,
+.content h3 {
+  max-width: 16ch;
+  margin: clamp(46px, 7vw, 82px) 0 18px;
+  color: var(--article-ink);
+  font-size: clamp(38px, 5.8vw, 72px);
+  line-height: 0.88;
+  scroll-margin-top: 96px;
+}
+
+.content ul,
+.content ol {
+  margin: 0 0 1.35em;
+  padding-left: 1.25em;
+}
+
+.content li {
+  margin: 0 0 0.45em;
+}
+
+.content strong {
+  font-weight: 800;
+}
+
+.content a:not(.inlineSpot):not(.mustEat) {
+  color: var(--article-red);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 .content blockquote {
-  border-color: var(--article-ink);
-  color: var(--article-ink);
-  font-family: var(--et-font-condensed);
+  max-width: 16ch;
+  margin: clamp(38px, 7vw, 78px) 0;
+  padding: 18px 0;
+  border-top: 3px solid var(--article-ink);
+  border-bottom: 3px solid var(--article-ink);
+  color: var(--article-red);
+  font-family: var(--et-font-condensed, Impact, sans-serif);
+  font-size: clamp(38px, 6vw, 74px);
+  font-weight: 400;
   letter-spacing: 0;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.mustEat {
+  display: grid;
+  grid-template-columns: minmax(108px, 0.36fr) minmax(0, 1fr);
+  gap: clamp(18px, 4vw, 34px);
+  align-items: center;
+  margin: clamp(36px, 6vw, 68px) 0;
+  padding: clamp(18px, 4vw, 34px);
+  background: var(--article-paper);
+  color: var(--article-ink);
+  border: 3px solid var(--article-ink);
+  border-radius: 0;
+  text-align: left;
+  text-decoration: none;
+}
+
+.mustEatPh {
+  position: relative;
+  display: block;
+  margin: 0;
+}
+
+.mustEatPh::before {
+  content: none;
+}
+
+.mustEatPh img {
+  display: block;
+  width: min(100%, 174px);
+  height: auto;
+  border-radius: 0;
+  filter: none;
+  transform: rotate(-2deg);
+  transition: transform 180ms ease;
+}
+
+a.mustEat:hover .mustEatPh img,
+a.mustEat:focus-visible .mustEatPh img {
+  transform: rotate(0deg) translateY(-3px);
+}
+
+.mustEatBody {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.mustEatKicker,
+.inlineSpotMeta,
+.relatedCategory {
+  color: var(--article-red);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.mustEatKicker {
+  margin: 0;
+}
+
+.mustEat .mustEatName {
+  max-width: 12ch;
+  margin: 0;
+  color: var(--article-ink);
+  font-size: clamp(34px, 5vw, 64px);
+  line-height: 0.86;
+  text-shadow: none;
+}
+
+.mustEat .mustEatDesc {
+  max-width: 38ch;
+  margin: 2px 0 0;
+  color: var(--article-muted);
+  font-size: clamp(15px, 1.3vw, 17px);
+  line-height: 1.45;
+}
+
+.mustEatRest {
+  color: var(--article-muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.mustEatRest::before {
+  content: none;
+}
+
+.mustEatCta,
+.inlineSpotCta,
+.relatedRead,
+.shareBtn {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--et-radius-control, 0);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.mustEatCta {
+  margin-top: 8px;
+  padding: 12px 16px 13px;
+  background: var(--article-ink);
+  color: var(--article-paper);
+  font-size: 12px;
+}
+
+.inlineSpot {
+  position: relative;
+  display: block;
+  min-height: 300px;
+  margin: clamp(34px, 6vw, 68px) 0;
+  overflow: hidden;
+  background-color: var(--article-ink);
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+  text-decoration: none;
+}
+
+.inlineSpot::after {
+  content: "";
+  position: absolute;
+  inset: 30% 0 0;
+  background: linear-gradient(to top, rgba(12, 9, 7, 0.88), rgba(12, 9, 7, 0));
+}
+
+.inlineSpotFoot {
+  position: absolute;
+  right: clamp(16px, 3vw, 28px);
+  bottom: clamp(16px, 3vw, 28px);
+  left: clamp(16px, 3vw, 28px);
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+}
+
+.inlineSpotName {
+  max-width: 12ch;
+  color: #fff;
+  font-size: clamp(34px, 6vw, 72px);
+  line-height: 0.86;
+}
+
+.inlineSpotCta {
+  padding: 11px 14px 12px;
+  background: #fff;
+  color: var(--article-ink);
+  font-size: 11px;
+}
+
+.shareRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: clamp(42px, 7vw, 86px);
+  padding: clamp(18px, 3vw, 28px);
+  background: rgba(21, 18, 14, 0.045);
+}
+
+.shareText {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.shareTitle {
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(28px, 4vw, 46px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title, 0);
+  line-height: var(--et-leading-title, 0.9);
+  text-transform: uppercase;
+}
+
+.shareHint {
+  max-width: 38ch;
+  color: var(--article-muted);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(15px, 1.2vw, 17px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.shareAction {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.shareBtn {
+  min-height: 46px;
+  gap: 10px;
+  padding: 14px 18px 15px;
+  border: 0;
+  background: var(--article-red);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.shareBtn::before {
+  content: "+";
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  background: #fff;
+  color: var(--article-red);
+  font-size: 17px;
+  line-height: 1;
+}
+
+.related {
+  margin-top: clamp(56px, 9vw, 110px);
+  margin-bottom: clamp(54px, 8vw, 96px);
+  padding-top: clamp(24px, 4vw, 42px);
+  border-top: 3px solid var(--article-ink);
+}
+
+.relatedHeading {
+  max-width: 11ch;
+  margin: 0 0 clamp(22px, 4vw, 40px);
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(26px, 3.2vw, 40px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title, 0);
+  line-height: var(--et-leading-title, 0.88);
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relatedCard {
+  display: grid;
+  gap: 12px;
+  color: var(--article-ink);
+  text-decoration: none;
+}
+
+.relatedImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--article-line);
+  background-position: center;
+  background-size: cover;
+}
+
+.relatedBody {
+  display: grid;
+  gap: 11px;
+  align-content: start;
+}
+
+.relatedHeadline {
+  margin: 0;
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(22px, 2.35vw, 31px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title, 0);
+  line-height: var(--et-leading-title, 0.9);
+}
+
+.relatedRead {
+  min-height: 38px;
+  margin-top: 2px;
+  padding: 11px 16px 12px;
+  background: var(--article-ink);
+  color: var(--article-paper);
+  font-size: 12px;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.mustEat:focus-visible,
+.inlineSpot:focus-visible,
+.relatedCard:focus-visible,
+.shareBtn:focus-visible {
+  outline: 2px solid var(--article-red);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .relatedCard:hover .relatedHeadline,
+  .relatedCard:focus-visible .relatedHeadline {
+    color: var(--article-red);
+  }
+
+  .relatedCard:hover .relatedRead,
+  .relatedCard:focus-visible .relatedRead {
+    background: var(--article-red);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .shareBtn:hover,
+  .shareBtn:focus-visible {
+    background: var(--article-ink);
+    color: var(--article-paper);
+    transform: translateY(-2px);
+  }
+
+  .shareBtn:hover::before,
+  .shareBtn:focus-visible::before {
+    color: var(--article-ink);
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+  }
+
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroWrap {
+    aspect-ratio: 16 / 10;
+  }
+
+  .title,
+  .heroTitle,
+  .lede {
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding-inline: 16px;
+  }
+
+  .header {
+    gap: 16px;
+    margin-bottom: 34px;
+  }
+
+  .breadcrumbWrap :global(ol) {
+    font-size: 10px;
+  }
+
+  .title,
+  .heroTitle {
+    font-size: clamp(40px, 12vw, 60px);
+    line-height: 0.86;
+  }
+
+  .lede {
+    font-size: clamp(16px, 4.8vw, 20px);
+  }
+
+  .heroWrap {
+    aspect-ratio: 4 / 3;
+    margin-inline: -16px;
+    width: calc(100% + 32px);
+  }
+
+  .content {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .content > p:first-of-type::first-letter {
+    font-size: 3.8em;
+  }
+
+  .content h2,
+  .content h3 {
+    font-size: clamp(32px, 10vw, 48px);
+  }
+
+  .mustEat {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .mustEatBody {
+    justify-items: center;
+  }
+
+  .inlineSpot {
+    min-height: 240px;
+    margin-inline: -16px;
+  }
+
+  .shareRow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+
+  .relatedGrid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .relatedHeadline {
+    font-size: clamp(24px, 6.7vw, 34px);
+  }
+
+  .relatedHeading {
+    font-size: clamp(24px, 6.7vw, 34px);
+  }
 }

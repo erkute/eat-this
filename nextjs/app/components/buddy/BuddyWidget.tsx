@@ -521,10 +521,9 @@ export default function BuddyWidget() {
               </span>
               <span className={styles.headerTitle}>
                 <strong>{title}</strong>
-                <span>{locale === 'en' ? 'Berlin food radar' : 'Berlin Food Radar'}</span>
               </span>
               <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
-                <span aria-hidden="true">{locale === 'en' ? 'Close' : 'Zu'}</span>
+                <span aria-hidden="true">X</span>
               </button>
             </div>
             <div className={styles.log} aria-live="polite">

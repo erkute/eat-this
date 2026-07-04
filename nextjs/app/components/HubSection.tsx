@@ -61,7 +61,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               >
                 {t.heroCta}
               </MapIntentLink>
-              <MapIntentLink href="/map" rel="nofollow" className="hv-link-underline">
+              <MapIntentLink href="/map" rel="nofollow" className={`hv-link-underline ${styles.heroNearbyLink}`}>
                 {locale === 'en' ? "What's near me" : 'Was ist um mich'}
               </MapIntentLink>
             </div>

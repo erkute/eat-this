@@ -55,25 +55,6 @@ export default function SiteFooter() {
         >
           Instagram
         </a>
-        <div className={styles.lang} role="group" aria-label="Language / Sprache">
-          <button
-            type="button"
-            className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
-            onClick={() => setLang('de')}
-            aria-label="Deutsch"
-          >
-            DE
-          </button>
-          <span className={styles.langSep}>·</span>
-          <button
-            type="button"
-            className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
-            onClick={() => setLang('en')}
-            aria-label="English"
-          >
-            EN
-          </button>
-        </div>
       </div>
 
       <nav className={styles.legal} aria-label="Footer legal">
@@ -88,6 +69,26 @@ export default function SiteFooter() {
           {t('footer.cookieSettings')}
         </button>
       </nav>
+
+      <div className={styles.lang} role="group" aria-label="Language / Sprache">
+        <button
+          type="button"
+          className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
+          onClick={() => setLang('de')}
+          aria-label="Deutsch"
+        >
+          DE
+        </button>
+        <span className={styles.langSep}>·</span>
+        <button
+          type="button"
+          className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
+          onClick={() => setLang('en')}
+          aria-label="English"
+        >
+          EN
+        </button>
+      </div>
 
       <div className={styles.meta}>
         <span className={styles.copy}>{t('footer.copyright')}</span>

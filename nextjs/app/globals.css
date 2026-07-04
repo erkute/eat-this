@@ -545,18 +545,14 @@ a {
 }
 
 /* Keep the burger drawer in the render tree while closed so the panel can
-   transition from its off-screen transform instead of popping in from
-   display:none. Still hidden pre-paint while style.min.css is loading. */
+   transition from its off-screen transform. Opacity hides it pre-paint while
+   style.min.css is loading; inert/aria-hidden keep it non-interactive. */
 .burger-drawer:not(.active) {
   position: fixed;
   inset: 0;
   z-index: 10002;
-  visibility: hidden;
+  opacity: 0;
   pointer-events: none;
-}
-
-.burger-drawer.active {
-  visibility: visible;
 }
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
    because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
@@ -660,7 +656,6 @@ html[data-auth='1'] [data-guest-only] {
     z-index: 50; /* above the bottom sheet (z 4) */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s;
   }
   body:has(.burger-drawer.active) .app-page[data-page='map']::after {
     opacity: 1;

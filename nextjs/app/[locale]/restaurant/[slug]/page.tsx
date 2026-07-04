@@ -215,6 +215,14 @@ export default async function RestaurantPage({ params }: PageProps) {
               <div className={styles.heroGradient} />
               {/* Public heart count — badge in the photo corner (≥ 1 only) */}
               <HeartCount restaurantId={r._id} className={styles.heroHeartBadge} />
+              <HeartButton
+                restaurantId={r._id}
+                name={r.name}
+                slug={slug}
+                photo={r.photo ?? undefined}
+                district={r.bezirk?.name ?? undefined}
+                locale={loc}
+              />
             </figure>
           )}
 
@@ -311,17 +319,6 @@ export default async function RestaurantPage({ params }: PageProps) {
             </div>
           )}
         </dl>
-
-        {/* HEARTS — toggle + public "geherzt von N Leuten" count. Client island
-            on this otherwise-static page (auth + Firestore are client-side). */}
-        <HeartButton
-          restaurantId={r._id}
-          name={r.name}
-          slug={slug}
-          photo={r.photo ?? undefined}
-          district={r.bezirk?.name ?? undefined}
-          locale={loc}
-        />
 
         {/* Map entry lives in the big MapPromoCTA banner below — no second
             "Map öffnen" button up here. */}

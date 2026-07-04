@@ -12325,7 +12325,9 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
   }
   html body .detailV13MustEat .detailV13Scroll > :last-child {
     margin-bottom: 0 !important;
-    padding-bottom: calc(18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(
+      18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px)
+    ) !important;
   }
 
   html body .detailV13MustEat .detailV13Scroll {
@@ -12569,19 +12571,37 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .list[data-view='detail'] .detailMount {
-    min-height: calc(100dvh - var(--detail-map-peek, 112px) + var(--map-bar-overhang, 0px)) !important;
+    min-height: calc(
+      100dvh - var(--detail-map-peek, 112px) + var(--map-bar-overhang, 0px)
+    ) !important;
   }
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px)) !important;
+    /* No flat overhang apron here: a uniform #f4efe4 strip behind the iOS URL
+       bar frosts as a flat colour (reads as "kein Frosting", User 2026-07-05).
+       Instead the last real block (pack promo w/ pack image, or facts) bleeds
+       to the document bottom below, so VARIED content sits behind the bar and
+       shows through it — the way the list frosts its yellow listEnd + rows.
+       Keep only the home-indicator safe-area. */
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
     overscroll-behavior: auto !important;
   }
 
-  html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll > :last-child {
+  html
+    body
+    .list[data-view='detail']
+    .detailV13:not(.detailV13MustEat)
+    .detailV13Scroll
+    > :last-child {
     margin-bottom: 0 !important;
   }
 
-  html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll > .packPromo:last-child {
+  html
+    body
+    .list[data-view='detail']
+    .detailV13:not(.detailV13MustEat)
+    .detailV13Scroll
+    > .packPromo:last-child {
     background: #fff !important;
     border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
   }

@@ -6,10 +6,14 @@ type Locale = 'de' | 'en'
 
 interface NotFoundContentProps {
   locale?: Locale
-  /** Locale prefix for the home link. "/" routes back to the DE home hub;
-   *  pass "/en" if you can resolve the user's locale upstream. */
-  homeHref?: string
 }
+
+const CARD_BACK = '/pics/card-back.webp?v=6'
+const REVEALED_CARDS = [
+  '/pics/not-found-cards/main-1.webp',
+  '/pics/not-found-cards/main-10.webp',
+  '/pics/not-found-cards/main-12.webp',
+] as const
 
 const COPY = {
   de: {
@@ -68,44 +72,31 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
         <div className={styles.cardStage} aria-hidden="true">
           <div className={`${styles.card} ${styles.cardBack}`}>
             <Image
-              src="/pics/card-back.webp"
+              src={CARD_BACK}
               alt=""
               width={760}
               height={1076}
-              sizes="(max-width: 720px) 150px, 230px"
+              sizes="(max-width: 390px) 102px, (max-width: 720px) 116px, 182px"
               priority
             />
           </div>
-          <div className={`${styles.card} ${styles.cardFrontOne}`}>
-            <Image
-              src="/pics/card-back.webp"
-              alt=""
-              width={760}
-              height={1076}
-              sizes="(max-width: 720px) 150px, 230px"
-            />
-            <span>Must Eat</span>
-          </div>
-          <div className={`${styles.card} ${styles.cardFrontTwo}`}>
-            <Image
-              src="/pics/card-back.webp"
-              alt=""
-              width={760}
-              height={1076}
-              sizes="(max-width: 720px) 150px, 230px"
-            />
-            <span>Must Eat</span>
-          </div>
-          <div className={`${styles.card} ${styles.cardFrontThree}`}>
-            <Image
-              src="/pics/card-back.webp"
-              alt=""
-              width={760}
-              height={1076}
-              sizes="(max-width: 720px) 150px, 230px"
-            />
-            <span>Must Eat</span>
-          </div>
+          {REVEALED_CARDS.map((src, index) => (
+            <div
+              className={`${styles.card} ${
+                index === 0 ? styles.cardFrontOne : index === 1 ? styles.cardFrontTwo : styles.cardFrontThree
+              }`}
+              key={src}
+            >
+              <Image
+                src={src}
+                alt=""
+                width={1539}
+                height={2115}
+                sizes="(max-width: 390px) 102px, (max-width: 720px) 116px, 182px"
+                priority={index === 0}
+              />
+            </div>
+          ))}
         </div>
       </section>
     </main>

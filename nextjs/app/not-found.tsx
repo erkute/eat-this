@@ -18,7 +18,7 @@ export default function NotFound() {
       <body style={{ margin: 0, padding: 0, backgroundColor: '#fff' }}>
         <ClientIntlProvider locale="de" messages={translations.de}>
           <NotFoundAppFrame>
-            <NotFoundContent locale="de" homeHref="/" />
+            <NotFoundContent locale="de" />
           </NotFoundAppFrame>
         </ClientIntlProvider>
       </body>

@@ -18,8 +18,8 @@ export default function NotFoundAppFrame({ children }: { children: React.ReactNo
             <BurgerDrawer />
             <div className="app-pages" id="appPages">
               {children}
+              <SiteFooter />
             </div>
-            <SiteFooter />
           </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>

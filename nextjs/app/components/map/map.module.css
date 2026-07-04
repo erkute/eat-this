@@ -12207,32 +12207,48 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
-  /* DETAIL view: fixed full-viewport drag-sheet — unchanged UX (snap
-     full/peek, swipe-down dismiss, pager). 100lvh so its surface also paints
-     into the bar zone; the in-flow map/list behind provides the frosted
-     backdrop. Overrides the in-flow list rules above (higher specificity). */
+  /* DETAIL view: in-flow full-screen takeover — like the list, the detail
+     is window-scrolled in-flow content so its blocks frost through the iOS
+     bottom URL bar (the fixed drag-sheet could not — fixed layers aren't
+     composited into the bar backdrop). margin -100dvh pulls it up over the
+     whole sticky map; MapSection resets the window to the top on open/pager
+     swap. Drag/snap are off on phones (SheetConfig.inflow both views) —
+     closing = back pill / X. Tablets keep the fixed drag-sheet. */
   .list[data-view='detail'] {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
     bottom: auto;
-    height: 100lvh;
-    margin-top: 0;
-    min-height: 0;
-    transform: translateY(var(--sheet-y, 40px));
-    transition:
-      transform 0.26s cubic-bezier(0.4, 0, 0.2, 1),
-      border-radius 0.22s ease;
-    will-change: transform;
+    height: auto;
+    margin-top: -100dvh;
+    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
+    transform: none;
+    transition: none;
+    will-change: auto;
     z-index: 6;
-    border-top-left-radius: min(16px, calc(var(--sheet-y, 16px) * 4));
-    border-top-right-radius: min(16px, calc(var(--sheet-y, 16px) * 4));
+    border-radius: 0;
+    overflow: visible;
   }
   .list[data-view='detail'] .handle {
-    cursor: grab;
-    touch-action: none;
-    -ms-touch-action: none;
+    cursor: default;
+    touch-action: auto;
+    -ms-touch-action: auto;
+  }
+  /* Open the inner detail ports — the WINDOW scrolls the content now (an
+     inner overflow:auto would re-break the frosting). html body + !important
+     to beat the ≤1023.98px --sheet-y-keyed caps. */
+  html body .detailMount,
+  html body .detailV13Scroll {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  html body .detailV13Scroll {
+    /* Was 20px + safe-area + bar-overhang for the drag-sheet's inner port —
+       in-flow that painted as a dead white block under the pack promo
+       (User 2026-07-04). Modest outro; the content itself now reaches the
+       bar zone. Must-eat detail keeps its own higher-specificity padding. */
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Locate-FAB: --sheet-visible-px is not written in the in-flow list view —
@@ -12286,4 +12302,31 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
   html body .filterChipRow > .filterChipOpenActive {
     flex-grow: 1 !important;
   }
+}
+
+/* ── Detail-Polish (User 2026-07-04, lokales Testing) ───────────────────── */
+
+/* Must-Eat-Karten-Peek in der Restaurant-Liste minimal höher — ragt jetzt
+   ein Stück über die Kartenoberkante hinaus statt bündig zu sitzen. */
+html .mustPeek {
+  top: -2px !important;
+}
+
+/* Etwas Luft über der "Must Eats"-Sektion im Restaurant-Detail — sie klebte
+   direkt am Insider-Tipp-Banner. */
+html body .detailV13:not(.detailV13MustEat) .rdMustSection {
+  margin-top: 26px !important;
+}
+
+/* Facts-Block (Adresse/Kategorie/Öffnungszeiten/…) als Chip/Sticker-Karte —
+   gleiche Vokabel wie die Filter-Chips (Papier, Ink-Rahmen, Offset-Schatten,
+   eckig), damit der Block als EIN Element lesbar ist statt als lose Zeilen
+   zwischen Hairlines. */
+html body .detailV13:not(.detailV13MustEat) .rdFacts {
+  margin: 24px 14px !important;
+  padding: 4px 14px !important;
+  background: #f7f4eb !important;
+  border: 1.5px solid #15120e !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 rgba(23, 26, 23, 0.18) !important;
 }

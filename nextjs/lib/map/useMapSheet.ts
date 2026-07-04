@@ -87,14 +87,17 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     // explicitly so configure()'s merge clears the other view's value when
     // switching.
     return {
-      // Detail keeps the fixed drag-sheet on every viewport (inflow: false).
+      // Detail is ALSO window-scrolled in-flow on phones (like the list) so
+      // its blocks frost through the iOS bottom URL bar — the hook goes inert
+      // there and closing happens via the back pill / X instead of drag.
+      // Tablets keep the fixed drag-sheet with snaps + swipe-down dismiss.
       detail: {
         maxSnap: null,
         snaps: detailSnaps,
         dragMode: 'all' as const,
         peekVisiblePx: detailPeek,
         onDismiss: onDetailDismiss,
-        inflow: false,
+        inflow: true,
       },
       // List view is window-scrolled in-flow on phones (≤767.98px) so the rows
       // frost through iOS Safari's bottom URL bar — useBottomSheet goes fully

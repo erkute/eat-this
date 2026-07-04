@@ -242,6 +242,14 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     if (sheetView !== 'detail') return;
     if (typeof window === 'undefined') return;
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
+    if (isPhoneViewport()) {
+      /* In-flow detail takeover: every fresh selection (open + pager swap)
+         starts at the top of the window-scrolled document. Snap state is
+         meaningless here — the hook is inert (SheetConfig.inflow). */
+      pendingDetailSnapRef.current = null;
+      window.scrollTo(0, 0);
+      return;
+    }
     const requested = pendingDetailSnapRef.current;
     pendingDetailSnapRef.current = null;
     /* No explicit request = pager-driven selection swap → keep the user's

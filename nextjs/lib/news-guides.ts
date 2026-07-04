@@ -1,5 +1,5 @@
 export type NewsGuideSlug =
-  | 'beste-doener-berlin'
+  | 'beste-fast-food-berlin'
   | 'beste-pizza-berlin'
   | 'beste-cafes-berlin'
   | 'beste-baeckereien-berlin'
@@ -18,15 +18,15 @@ export interface NewsGuideDef {
 
 export const NEWS_GUIDES: NewsGuideDef[] = [
   {
-    slug: 'beste-doener-berlin',
+    slug: 'beste-fast-food-berlin',
     categorySlug: 'fast-food',
     art: '/pics/booster/booster_fastfood.webp',
     accent: 'red',
-    title: { de: 'Die besten Döner in Berlin', en: 'The best döner in Berlin' },
-    shortTitle: { de: 'Döner', en: 'Döner' },
+    title: { de: 'Das beste Fast Food in Berlin', en: 'The best fast food in Berlin' },
+    shortTitle: { de: 'Fast Food', en: 'Fast Food' },
     intro: {
-      de: 'Unsere laufende Shortlist für schnelle Legenden, saftige Spieße und Läden, für die man gern Umwege läuft.',
-      en: 'Our living shortlist for fast legends, juicy grills and shops worth crossing town for.',
+      de: 'Unsere laufende Shortlist für schnelle Legenden, starke Burger, gute Döner und Läden, für die man gern Umwege läuft.',
+      en: 'Our living shortlist for fast legends, great burgers, proper döner and shops worth crossing town for.',
     },
     promise: { de: 'Schnell. Laut. Sehr ernst gemeint.', en: 'Fast, loud, deeply serious.' },
     mapQuery: 'fast-food',

@@ -9,16 +9,6 @@ interface NewsSectionProps {
   locale: 'de' | 'en';
 }
 
-function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-US', {
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const de = locale === 'de';
   const [lead, ...latest] = articles;
@@ -30,6 +20,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const latestTitle = de ? 'Neueste Stories' : 'Latest stories';
   const guideTitle = de ? 'Direkt zu den Empfehlungen' : 'Jump into guides';
   const readMore = de ? 'Story lesen' : 'Read story';
+  const rowCta = de ? 'Lesen' : 'Read';
   const guideCta = de ? 'Guide öffnen' : 'Open guide';
   const mapCta = de ? 'Auf der Map suchen' : 'Search the map';
   const emptyMsg = de
@@ -48,23 +39,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           <div className={styles.heroCopy}>
             <h1 className={styles.heroTitle}>{coverTitle}</h1>
             <p className={styles.heroSub}>{coverSub}</p>
-          </div>
-
-          <div className={styles.heroGuides} aria-label={guideTitle}>
-            <p className={styles.blockLabel}>{guideTitle}</p>
-            <div className={styles.guideRail}>
-              {NEWS_GUIDES.map((guide) => (
-                <Link
-                  key={guide.slug}
-                  href={`/guides/${guide.slug}`}
-                  className={`${styles.guideMini} ${styles[`guideMini_${guide.accent}`]}`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={guide.art} alt="" loading="lazy" />
-                  <span>{guide.shortTitle[locale]}</span>
-                </Link>
-              ))}
-            </div>
           </div>
         </header>
 
@@ -131,7 +105,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
               {latest.map((a) => {
                 const title = articleTitle(a);
                 const excerpt = articleExcerpt(a);
-                const categoryLabel = articleCategory(a);
 
                 return (
                   <li key={a.slug}>
@@ -148,12 +121,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       )}
                       <div className={styles.storyCopy}>
                         <h3>{title}</h3>
-                        {categoryLabel && (
-                          <div className={styles.metaLine}>
-                            <span>{categoryLabel}</span>
-                          </div>
-                        )}
                         {excerpt && <p>{excerpt}</p>}
+                        <span className={styles.storyCta}>{rowCta}</span>
                       </div>
                     </Link>
                   </li>

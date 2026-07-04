@@ -50,13 +50,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-// Ordered 3×3 grid for the All-Berlin fan + tile list (mockup screen 18).
+// Ordered 3×3 grid for the All-Berlin fan.
 const ALL_BERLIN_GRID: string[][] = [
   ['breakfast', 'fine-dining', 'pizza'],
   ['coffee', 'drinks', 'lunch'],
   ['dinner', 'sweets', 'fast-food'],
 ]
-const ALL_BERLIN_TILES = ['breakfast', 'coffee', 'lunch', 'pizza', 'drinks', 'dinner', 'fine-dining', 'sweets', 'fast-food']
+const ALL_BERLIN_UPSELL = ALL_BERLIN_GRID.flat()
+
+const PAYMENT_METHODS = [
+  { src: '/payment/apple-pay.webp', alt: { de: 'Apple Pay', en: 'Apple Pay' } },
+  { src: '/payment/paypal.webp', alt: { de: 'PayPal', en: 'PayPal' } },
+  { src: '/payment/klarna.webp', alt: { de: 'Klarna', en: 'Klarna' } },
+  { src: '/payment/credit-card.webp', alt: { de: 'Kreditkarte', en: 'Credit card' } },
+]
 
 export default async function PackDetailPage({ params }: PageProps) {
   const { locale, slug } = await params
@@ -76,21 +83,25 @@ export default async function PackDetailPage({ params }: PageProps) {
   const mapHref = de ? '/map' : `/${locale}/map`
   const priceLabel = formatPackPrice(pack.amountCents)
   const buyLabels = {
-    label: `${de ? 'Kaufen' : 'Buy'} · ${priceLabel}`,
+    label: `${de ? 'Jetzt freischalten' : 'Unlock now'} · ${priceLabel}`,
     pendingLabel: de ? 'Weiter zu Stripe …' : 'Going to Stripe …',
-    ownedLabel: de ? 'Auf die Map →' : 'On the map →',
+    ownedLabel: de ? 'Zur Map' : 'Open map',
     ownedHref: mapHref,
     errorLabel: de
       ? 'Da ging was schief. Versuch es nochmal.'
       : 'Something went wrong. Please try again.',
   }
-  const trust = (
-    <div className={styles.trust}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="1" />
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-      </svg>
-      {de ? <>Bezahlung über <strong>Stripe</strong> · Apple Pay verfügbar</> : <>Payment via <strong>Stripe</strong> · Apple Pay available</>}
+  const paymentLogos = (
+    <div className={styles.paymentLogos} aria-label={de ? 'Zahlungsarten' : 'Payment methods'}>
+      {PAYMENT_METHODS.map(method => (
+        <Image
+          key={method.src}
+          src={method.src}
+          alt={method.alt[loc]}
+          width={70}
+          height={48}
+        />
+      ))}
     </div>
   )
 
@@ -109,13 +120,8 @@ export default async function PackDetailPage({ params }: PageProps) {
               </h1>
               <p className={styles.sub}>{pack.description[loc]}</p>
 
-              <div className={styles.facts}>
-                <span className={`${styles.price} ${styles.bigPrice}`}>{priceLabel}</span>
-                <span className={styles.updates}>{de ? '+ Auto-Sync' : '+ Auto-sync'}</span>
-              </div>
-
               <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
-              {trust}
+              {paymentLogos}
             </div>
 
             <div className={styles.allStage} aria-hidden="true">
@@ -136,31 +142,6 @@ export default async function PackDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className={styles.contentGrid}>
-            <div className={styles.panel}>
-              <div className={styles.insideLabel}>{de ? 'Was drin ist · alle Packs' : 'What you get · every pack'}</div>
-              <div className={styles.allPacks}>
-                {ALL_BERLIN_TILES.map(s => {
-                  const art = categoryArt(s)
-                  return (
-                    <div key={s} className={styles.allPack}>
-                      {art && <Image src={art} alt={nameOf(s)} width={68} height={106} />}
-                      <span className={styles.cat}>{nameOf(s)}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className={`${styles.bonus} ${styles.panel}`}>
-              <div className={styles.bonusIcon}>+</div>
-              <div className={styles.bonusText}>
-                {de
-                  ? <><strong>Auto-Sync</strong> · Jeder neue Spot landet automatisch auf deiner Map.</>
-                  : <><strong>Auto-sync</strong> · Every new spot lands on your map automatically.</>}
-              </div>
-            </div>
-          </section>
         </div>
       </main>
     )
@@ -182,13 +163,8 @@ export default async function PackDetailPage({ params }: PageProps) {
             <h1 className={styles.name}>{heroName}<br />Pack</h1>
             <p className={styles.sub}>{pack.description[loc]}</p>
 
-            <div className={styles.facts}>
-              <span className={styles.price}>{priceLabel}</span>
-              <span className={styles.updates}>{de ? '+ Updates' : '+ Updates'}</span>
-            </div>
-
             <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
-            {trust}
+            {paymentLogos}
           </div>
 
           {art && (
@@ -229,12 +205,29 @@ export default async function PackDetailPage({ params }: PageProps) {
 
           <div className={styles.upsell}>
             <Link href={allBerlinHref}>
-              <span className={styles.upsellKicker}>
-                {de ? 'Lieber alles auf einmal' : 'Rather everything at once'}
+              <span className={styles.upsellArt} aria-hidden="true">
+                {ALL_BERLIN_UPSELL.map(s => {
+                  const boosterArt = categoryArt(s)
+                  return boosterArt ? (
+                    <Image
+                      key={s}
+                      src={boosterArt}
+                      alt=""
+                      width={70}
+                      height={108}
+                      className={styles.upsellPack}
+                    />
+                  ) : null
+                })}
               </span>
-              <span className={styles.upsellMain}>
-                <span>All Berlin</span>
-                <strong>{de ? '20 €' : '€20'}</strong>
+              <span className={styles.upsellCopy}>
+                <span className={styles.upsellKicker}>
+                  {de ? 'Lieber alles auf einmal' : 'Rather everything at once'}
+                </span>
+                <span className={styles.upsellMain}>All Berlin</span>
+                <span className={styles.upsellCta}>
+                  {de ? 'Alle Packs freischalten · 20 €' : 'Unlock every pack · €20'}
+                </span>
               </span>
             </Link>
           </div>

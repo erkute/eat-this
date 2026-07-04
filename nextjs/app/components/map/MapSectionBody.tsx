@@ -241,7 +241,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
   return (
     <div className={`app-page${isActive ? ' active' : ''}`} data-page="map">
-      <div className={styles.shell}>
+      <div
+        className={`${styles.shell}${sheetView === 'detail' ? ` ${styles.shellDetailOpen}` : ''}`}
+      >
         {/* bodyListAtFull / bodyDetailOpen slide the floating search toolbar +
             burger chip up off-screen (see map.module.css) — Google-Maps
             behavior. */}

@@ -12,7 +12,6 @@ import BurgerDrawer from '@/app/components/BurgerDrawer';
 import SearchOverlay from '@/app/components/SearchOverlayLazy';
 import CookieConsent from '@/app/components/CookieConsent';
 import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy';
-import FloatingRemy from '@/app/components/buddy/FloatingRemy';
 import BridgeAuth from './BridgeAuth';
 
 const SITE_URL = 'https://www.eatthisdot.com';
@@ -86,7 +85,6 @@ export default async function SPALayout({
             <SearchOverlay />
             <CookieConsent />
             <BuddyWidget />
-            <FloatingRemy />
           </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>

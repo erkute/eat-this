@@ -784,6 +784,12 @@ body {
   body:has(.app-page[data-page="map"].active) {
     background: #ffffff;
   }
+  html:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]),
+  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]),
+  html:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .app-page[data-page="map"],
+  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .app-page[data-page="map"] {
+    background: #f4efe4 !important;
+  }
   .app-page[data-page="start"] {
     background: var(--white);
   }

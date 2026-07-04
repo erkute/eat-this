@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
+import ClientIntlProvider from './[locale]/ClientIntlProvider';
+import NotFoundAppFrame from './components/NotFoundAppFrame';
 import NotFoundContent from './components/NotFoundContent';
+import { translations } from '@/lib/i18n/translations';
 
 export const metadata: Metadata = {
-  title:  'Nicht gefunden — Eat This',
+  title: '404 — Eat This',
   robots: { index: false, follow: false },
 };
 
@@ -12,8 +15,12 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <html lang="de">
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#fbf8ee' }}>
-        <NotFoundContent homeHref="/" />
+      <body style={{ margin: 0, padding: 0, backgroundColor: '#fff' }}>
+        <ClientIntlProvider locale="de" messages={translations.de}>
+          <NotFoundAppFrame>
+            <NotFoundContent locale="de" />
+          </NotFoundAppFrame>
+        </ClientIntlProvider>
       </body>
     </html>
   );

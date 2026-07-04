@@ -40,11 +40,6 @@ export default function HeartButton({ restaurantId, name, slug, photo, district,
       >
         <HeartIcon filled={hearted} />
       </button>
-      <span className={styles.label}>
-        {hearted
-          ? (de ? 'Geherzt' : 'Hearted')
-          : (de ? 'Spot herzen' : 'Heart this spot')}
-      </span>
     </div>
   )
 }

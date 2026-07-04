@@ -232,7 +232,8 @@
 }
 
 .lang {
-  display: inline-flex;
+  display: flex;
+  width: max-content;
   align-items: center;
   gap: 7px;
   margin: clamp(14px, 2.2vw, 24px) auto 0;

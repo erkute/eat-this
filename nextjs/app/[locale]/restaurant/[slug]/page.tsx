@@ -201,47 +201,44 @@ export default async function RestaurantPage({ params }: PageProps) {
       <main className={styles.page}>
         <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
 
-        {r.photo ? (
-          <div className={styles.hero}>
-            <Image
-              src={r.photo}
-              alt={r.name}
-              fill
-              priority
-              sizes="(max-width: 720px) 100vw, 760px"
-              className={styles.heroImg}
-            />
-            <div className={styles.heroGradient} />
-            {/* Public heart count — frosted badge in the photo corner (≥ 1 only) */}
-            <HeartCount restaurantId={r._id} className={styles.heroHeartBadge} />
-            <div className={styles.heroOverlay}>
-              <h1 className={styles.heroName}>
-                {(() => {
-                  const parts = displayName.trim().split(/\s+/)
-                  if (parts.length <= 1) return displayName
-                  return (
-                    <>
-                      {parts[0]}
-                      <br />
-                      {parts.slice(1).join(' ')}
-                    </>
-                  )
-                })()}
-              </h1>
-              <div className={styles.heroTags}>
-                {r.bezirk?.name && <span className={styles.chip}>{r.bezirk.name}</span>}
-                {r.cuisineType && <span className={styles.chipAlt}>{r.cuisineType}</span>}
-                {openStatus && (
-                  <span className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}>
-                    {openStatus.label}
-                  </span>
-                )}
-              </div>
+        <header className={r.photo ? styles.hero : styles.heroNoPhoto}>
+          {r.photo && (
+            <figure className={styles.heroPhoto}>
+              <Image
+                src={r.photo}
+                alt={r.name}
+                fill
+                priority
+                sizes="(max-width: 760px) 100vw, 1180px"
+                className={styles.heroImg}
+              />
+              <div className={styles.heroGradient} />
+              {/* Public heart count — badge in the photo corner (≥ 1 only) */}
+              <HeartCount restaurantId={r._id} className={styles.heroHeartBadge} />
+              <HeartButton
+                restaurantId={r._id}
+                name={r.name}
+                slug={slug}
+                photo={r.photo ?? undefined}
+                district={r.bezirk?.name ?? undefined}
+                locale={loc}
+              />
+            </figure>
+          )}
+
+          <div className={styles.heroOverlay}>
+            <h1 className={r.photo ? styles.heroName : styles.name}>{displayName}</h1>
+            <div className={styles.heroTags}>
+              {r.bezirk?.name && <span className={styles.chip}>{r.bezirk.name}</span>}
+              {r.cuisineType && <span className={styles.chipAlt}>{r.cuisineType}</span>}
+              {openStatus && (
+                <span className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}>
+                  {openStatus.label}
+                </span>
+              )}
             </div>
           </div>
-        ) : (
-          <h1 className={styles.name}>{displayName}</h1>
-        )}
+        </header>
 
         {description && (
           <article className={styles.story}>
@@ -323,17 +320,6 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
-        {/* HEARTS — toggle + public "geherzt von N Leuten" count. Client island
-            on this otherwise-static page (auth + Firestore are client-side). */}
-        <HeartButton
-          restaurantId={r._id}
-          name={r.name}
-          slug={slug}
-          photo={r.photo ?? undefined}
-          district={r.bezirk?.name ?? undefined}
-          locale={loc}
-        />
-
         {/* Map entry lives in the big MapPromoCTA banner below — no second
             "Map öffnen" button up here. */}
         {(websiteUrl || r.menuUrl) && (
@@ -361,12 +347,11 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {(siblingsBezirk.length > 0 || siblingsCategory.length > 0) && (
           <section className={styles.siblings}>
-            <h2>{de ? 'Mehr in Berlin' : 'More in Berlin'}</h2>
             {siblingsBezirk.length > 0 && r.bezirk?.name && (
               <div className={styles.sibRow}>
-                <h3 className={styles.sibRowHead}>
+                <h2 className={styles.sibRowHead}>
                   {de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
-                </h3>
+                </h2>
                 <div className={styles.sibCards}>
                   {siblingsBezirk.map(s => (
                     <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
@@ -375,8 +360,10 @@ export default async function RestaurantPage({ params }: PageProps) {
                           <Image src={s.photo} alt={s.name} fill sizes="33vw" />
                         </div>
                       )}
-                      <span className={styles.sibName}>{normalizeName(s.name)}</span>
-                      {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
+                      <span className={styles.sibOverlay}>
+                        <span className={styles.sibName}>{normalizeName(s.name)}</span>
+                        {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
+                      </span>
                     </IntlLink>
                   ))}
                 </div>
@@ -384,9 +371,9 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
             {siblingsCategory.length > 0 && categoryDef && (
               <div className={styles.sibRow}>
-                <h3 className={styles.sibRowHead}>
+                <h2 className={styles.sibRowHead}>
                   {de ? `Mehr ${categoryDef.name}` : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`}
-                </h3>
+                </h2>
                 <div className={styles.sibCards}>
                   {siblingsCategory.map(s => (
                     <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
@@ -395,8 +382,10 @@ export default async function RestaurantPage({ params }: PageProps) {
                           <Image src={s.photo} alt={s.name} fill sizes="33vw" />
                         </div>
                       )}
-                      <span className={styles.sibName}>{normalizeName(s.name)}</span>
-                      {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
+                      <span className={styles.sibOverlay}>
+                        <span className={styles.sibName}>{normalizeName(s.name)}</span>
+                        {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
+                      </span>
                     </IntlLink>
                   ))}
                 </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { useAuth } from '@/lib/auth';
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
@@ -136,9 +135,6 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
         <MapIntentLink href="/must-eats" className="hv-btn">
           {t('mustEats.teaserCta')}
         </MapIntentLink>
-        <Link href="/pack/all-berlin" rel="nofollow" className="hv-btn hv-btn--accent">
-          {lang === 'en' ? 'Unlock all Berlin →' : 'All Berlin freischalten →'}
-        </Link>
       </div>
     </section>
   );

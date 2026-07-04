@@ -12,6 +12,10 @@ export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
   const [lead, ...rest] = articles;
   const list = rest.slice(0, 5);
+  const labels = {
+    all: locale === 'en' ? 'All articles' : 'Alle Artikel',
+    read: locale === 'en' ? 'Read' : 'Lesen',
+  };
   return (
     <section
       className={`homeV2 hv-section hv-wrap ${styles.section}`}
@@ -23,7 +27,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
           {locale === 'en' ? 'On the plate' : 'Auf den Teller'}
         </h2>
         <Link href="/news" className="hv-link">
-          {locale === 'en' ? 'Magazine' : 'Magazin'} →
+          {labels.all}
         </Link>
       </div>
 
@@ -37,6 +41,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
           </span>
           {lead.kicker && <span className={styles.kicker}>{lead.kicker}</span>}
           <span className={styles.leadTitle}>{lead.title}</span>
+          <span className={styles.readButton}>{labels.read}</span>
         </Link>
 
         {/* Headline list */}
@@ -51,6 +56,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
                   <span className={styles.rowText}>
                     {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
                     <span className={styles.rowTitle}>{a.title}</span>
+                    <span className={styles.readButton}>{labels.read}</span>
                   </span>
                 </Link>
               </li>

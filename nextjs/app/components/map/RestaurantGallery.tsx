@@ -11,8 +11,7 @@ interface Props {
 
 // Horizontal swipe strip of curated Places photos under the detail hero.
 // Tapping a thumb opens the flat, swipeable gallery viewer at that index.
-// Photo attribution stays out of the compact detail strip and appears with
-// the full-size image in the viewer.
+// Photo attribution is shown in the full-size viewer only.
 export default function RestaurantGallery({ images, restaurantName }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   // Defensive: a broken asset ref yields null thumb/full from GROQ despite

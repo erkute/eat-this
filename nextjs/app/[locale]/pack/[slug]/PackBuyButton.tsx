@@ -93,9 +93,6 @@ export default function PackBuyButton({
     return (
       <a className={className ? `${styles.cta} ${className}` : styles.cta} href={ownedHref}>
         {ownedLabel}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
-          <path d="M5 12h14M13 5l7 7-7 7" />
-        </svg>
       </a>
     )
   }
@@ -109,11 +106,6 @@ export default function PackBuyButton({
         disabled={state === 'pending'}
       >
         {state === 'pending' ? pendingLabel : label}
-        {state !== 'pending' && (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
-            <path d="M5 12h14M13 5l7 7-7 7" />
-          </svg>
-        )}
       </button>
       {state === 'error' && <p className={errorClassName ? `${styles.ctaError} ${errorClassName}` : styles.ctaError}>{errorLabel}</p>}
     </>

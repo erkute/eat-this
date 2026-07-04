@@ -631,6 +631,13 @@
   overflow: visible;
 }
 
+.ph,
+.locked .ph {
+  aspect-ratio: 1539 / 2115;
+  background: transparent;
+  overflow: visible;
+}
+
 .ph::after {
   content: none;
 }

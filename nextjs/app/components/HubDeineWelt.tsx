@@ -1,20 +1,38 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
-import { useFavorites } from '@/lib/map/useFavorites';
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
+import { useUserLocationContext } from '@/lib/map/UserLocationContext';
+import { haversineDistance } from '@/lib/map/distance';
 import { normalizeName } from '@/lib/normalizeName';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
+import type { MapRestaurant } from '@/lib/types';
 import MapIntentLink from './MapIntentLink';
 import styles from './HubDeineWelt.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=6';
-const PROFILE_SPOTS_HREF = '/profile#profile-panel-spots';
 const PROFILE_MUST_EATS_HREF = '/profile#profile-panel-must-eats';
+const RECOMMENDED_SPOT_LIMIT = 6;
+const NEARBY_RANDOM_POOL = 18;
+
+function hashString(value: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededPick(restaurants: MapRestaurant[], seed: string, limit: number): MapRestaurant[] {
+  return [...restaurants]
+    .sort((a, b) => hashString(`${seed}:${a._id}`) - hashString(`${seed}:${b._id}`))
+    .slice(0, limit);
+}
 
 interface Props {
   initialMapData: InitialMapData;
@@ -26,7 +44,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const de = locale === 'de';
   const { user, loading } = useAuth();
   const uid = user?.uid ?? null;
-  const { favorites } = useFavorites(uid);
+  const { location } = useUserLocationContext();
   const { restaurants, mustEats, revealedMustEatIds } = useMapData({
     uid,
     authLoading: loading,
@@ -52,20 +70,12 @@ export default function HubDeineWelt({ initialMapData }: Props) {
 
   const dataMustEats = mounted ? mustEats : initialMapData.mustEats;
   const dataRestaurants = mounted ? restaurants : initialMapData.restaurants;
+  const activeLocation = mounted ? location : null;
 
   const firstName = user
     ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
     : authHintName;
   const greeting = firstName ? `Hey ${firstName}` : 'Hey';
-
-  // Resolved logged-out → render nothing (the hero stays the first block).
-  // While auth is still loading (SSR + pre-hydration) the static shell is
-  // rendered for everyone, and globals.css hides it unless the pre-paint
-  // data-auth flag (CRITICAL_BOOTSTRAP ← _authHint) marks a signed-in visitor.
-  // That way returning users see the section from the first frame instead of
-  // it popping in (and shifting the hub) once Firebase auth resolves — only
-  // the first name swaps into the kicker, which doesn't move the layout.
-  if (!loading && !user) return null;
 
   // Face-up set for the Must-Eat pick = the SAME face-up set the map/teaser show:
   // the user's stored unlocks + live proximity/server reveals + the public curated
@@ -82,19 +92,24 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     revealedMustEatIds: liveRevealed,
     publicFaceUpIds,
   });
-  const savedCount = favorites.length;
-  const savedPreviewPool = favorites.map((f) => ({
-    _id: f.restaurantId,
-    name: f.name,
-    slug: f.slug ?? '',
-    photo: f.photo ?? '',
-    district: f.district ?? '',
-  }));
-  const spotPreviews = savedPreviewPool
-    .filter(
-      (r, index, all) => r.photo && r.slug && all.findIndex((x) => x.slug === r.slug) === index
-    )
-    .slice(0, Math.min(savedCount, 6));
+  const recommendationSeed = `${uid ?? 'anon'}:${new Date().toISOString().slice(0, 10)}`;
+  const spotPreviews = useMemo(() => {
+    const uniqueImageSpots = dataRestaurants.filter(
+      (r, index, all) =>
+        r.photo && r.slug && !r.isClosed && all.findIndex((x) => x.slug === r.slug) === index
+    );
+    const pool = activeLocation
+      ? [...uniqueImageSpots]
+          .sort(
+            (a, b) =>
+              haversineDistance(activeLocation.lat, activeLocation.lng, a.lat, a.lng) -
+              haversineDistance(activeLocation.lat, activeLocation.lng, b.lat, b.lng)
+          )
+          .slice(0, NEARBY_RANDOM_POOL)
+      : uniqueImageSpots;
+
+    return seededPick(pool, recommendationSeed, RECOMMENDED_SPOT_LIMIT);
+  }, [activeLocation, dataRestaurants, recommendationSeed]);
   const ownedRestaurantIds = new Set(dataRestaurants.map((r) => r._id));
   const collectionMustEats = ownedRestaurantIds.size > 0
     ? dataMustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id))
@@ -103,6 +118,15 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const coveredMustEatCards = collectionMustEats.filter((m) => !faceUp.has(m._id) || !m.image);
   const mustEatCards = [...openMustEatCards.slice(0, 3), ...coveredMustEatCards.slice(0, 5)]
     .slice(0, 8);
+
+  // Resolved logged-out → render nothing (the hero stays the first block).
+  // While auth is still loading (SSR + pre-hydration) the static shell is
+  // rendered for everyone, and globals.css hides it unless the pre-paint
+  // data-auth flag (CRITICAL_BOOTSTRAP ← _authHint) marks a signed-in visitor.
+  // That way returning users see the section from the first frame instead of
+  // it popping in (and shifting the hub) once Firebase auth resolves — only
+  // the first name swaps into the kicker, which doesn't move the layout.
+  if (!loading && !user) return null;
 
   return (
     <section
@@ -118,8 +142,8 @@ export default function HubDeineWelt({ initialMapData }: Props) {
           <h2 className={styles.headline}>{de ? 'Deine Map wartet.' : 'Your map is ready.'}</h2>
           <p className={styles.sub}>
             {de
-              ? 'Direkt zu deinen gespeicherten Orten und offenen Must Eats.'
-              : 'Jump into your saved spots and open Must Eats.'}
+              ? 'Direkt zu empfohlenen Spots um dich herum und offenen Must Eats.'
+              : 'Jump into recommended spots around you and open Must Eats.'}
           </p>
 
           <div className={styles.actions} aria-label={t('actionsLabel')}>
@@ -138,34 +162,32 @@ export default function HubDeineWelt({ initialMapData }: Props) {
         </div>
 
         {/* ── Right: photo rails ───────────────────────────────── */}
-        <div className={styles.rails} aria-label={de ? 'Deine Sammlung' : 'Your collection'}>
-          {/* Saved spots rail */}
+        <div className={styles.rails} aria-label={de ? 'Empfohlene Spots' : 'Recommended spots'}>
+          {/* Recommended spots rail */}
           <div className={styles.railBlock}>
-            <span className={styles.railLabel}>{de ? 'Gespeichert' : 'Saved'}</span>
+            <span className={styles.railLabel}>{de ? 'Empfohlene Spots' : 'Recommended Spots'}</span>
             <div className={`hv-rail ${styles.rail}`}>
               {spotPreviews.length > 0 ? (
                 spotPreviews.map((spot) => (
-                  <Link
-                    href={PROFILE_SPOTS_HREF}
+                  <MapIntentLink
+                    href={`/map?r=${spot.slug}`}
                     rel="nofollow"
-                    prefetch={false}
                     className={`hv-photo ${styles.railPhoto}`}
                     key={spot._id}
-                    aria-label={`${normalizeName(spot.name)} ${de ? 'in deinen gespeicherten Spots öffnen' : 'open in your saved spots'}`}
+                    aria-label={`${normalizeName(spot.name)} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
                   >
                     <Image src={spot.photo ?? ''} alt="" fill sizes="110px" />
                     <span className={styles.railPhotoName}>{normalizeName(spot.name)}</span>
-                  </Link>
+                  </MapIntentLink>
                 ))
               ) : (
-                <Link
-                  href={PROFILE_SPOTS_HREF}
+                <MapIntentLink
+                  href="/map"
                   rel="nofollow"
-                  prefetch={false}
                   className={`hv-photo ${styles.railPhoto} ${styles.railPhotoEmpty}`}
                 >
                   <span className={styles.railEmptyMark} />
-                </Link>
+                </MapIntentLink>
               )}
             </div>
           </div>

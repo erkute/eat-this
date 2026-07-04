@@ -17,7 +17,9 @@ vi.mock('@/lib/map', () => ({
   useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
   resolveUnlockedMustEatIds: () => faceUpState.ids,
 }));
-vi.mock('@/lib/map/useFavorites', () => ({ useFavorites: () => ({ favorites: [] }) }));
+vi.mock('@/lib/map/UserLocationContext', () => ({
+  useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
+}));
 vi.mock('@/app/components/MapIntentLink', () => ({
   default: ({
     href,
@@ -114,7 +116,7 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Profil');
     expect(html).toContain('Map öffnen');
     // Both visual rail sections still render (labels are always present).
-    expect(html).toContain('Gespeichert');
+    expect(html).toContain('Empfohlene Spots');
     expect(html).toContain('Must Eats');
     // Counts/subtext are not shown on the home collection rails.
     expect(html).not.toContain('Noch keine');
@@ -139,11 +141,11 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Deine Map wartet');
   });
 
-  it('links collection cards to their profile sections and includes covered Must Eats', () => {
+  it('links recommended spots to the map and includes covered Must Eats', () => {
     faceUpState.ids = new Set(['me-open']);
     const html = render(collectionMapData);
 
-    expect(html).toContain('href="/profile#profile-panel-spots"');
+    expect(html).toContain('href="/map?r=test-spot"');
     expect(html).toContain('href="/profile#profile-panel-must-eats"');
     expect(html).toContain('%2Fpics%2Fmusteat%2Fopen.webp');
     expect(html).toContain('/pics/card-back.webp');

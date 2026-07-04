@@ -106,7 +106,6 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 - `i18n/navigation.ts` exports the locale-aware `Link`, `useRouter`, `usePathname`, `redirect`, `getPathname` from `createNavigation(routing)`. **Use the intl `Link` for all internal nav** — it handles the `/en` prefix automatically.
 - `middleware.ts`: handles apex→www 308 redirect and `?lang=de/?lang=en` legacy redirects (sets `NEXT_LOCALE` cookie + strips param). Matcher excludes `/api`, `/_next`, static assets, `/welcome`, `/reset-password`.
 - `app/[locale]/layout.tsx` owns the `<html>`/`<body>` and the `CRITICAL_BOOTSTRAP` inline script that runs synchronously in `<head>` before hydration. The bootstrap sets:
-  - `data-theme` on `<html>` (light/dark, from localStorage / prefers-color-scheme)
   - `data-active-page` on `<html>` (start/news/map/profile/news-article/about/...) — read by CSS selectors like `[data-active-page="start"] .navbar:not(.scrolled)`
   - `screen.orientation.lock('portrait')` on mobile
   - Pre-hydration login button state from `localStorage._authHint`

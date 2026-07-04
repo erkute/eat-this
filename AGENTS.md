@@ -82,13 +82,11 @@ For the migration breakdown, see
 
 **Exception:** State changes that aren't motion (button hover lightening, modal backdrop tint, etc.) are fine to drive with opacity. The rule is about *movement* animations.
 
-## Dark mode contrast is mandatory
+## Light-only UI
 
-When changing UI, CSS, cards, buttons, chips, pills, overlays, or detail sheets, verify the same surface in dark mode before calling it done. Pay special attention to inverse panels and nested text classes: global dark-mode rules can easily turn text light on a light button/panel or dark on a dark surface.
-
-- Check both background and foreground for every interactive element.
-- For scoped components, add scoped dark-mode overrides instead of relying on broad `.fdV`, `.btn`, `.chip`, or generic text rules.
-- If you touch a map/detail UI, capture or visually inspect at least one dark-mode mobile viewport and one desktop viewport when practical.
+The app is light-only. Do not add theme toggles, alternate color-scheme
+branches, or system-scheme media variants. Keep contrast readable in the
+single light design.
 
 ## Browser QA preference
 
@@ -131,7 +129,6 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 - `i18n/navigation.ts` exports the locale-aware `Link`, `useRouter`, `usePathname`, `redirect`, `getPathname` from `createNavigation(routing)`. **Use the intl `Link` for all internal nav** — it handles the `/en` prefix automatically.
 - `middleware.ts`: handles apex→www 308 redirect and `?lang=de/?lang=en` legacy redirects (sets `NEXT_LOCALE` cookie + strips param). Matcher excludes `/api`, `/_next`, static assets, `/welcome`, `/reset-password`.
 - `app/[locale]/layout.tsx` owns the `<html>`/`<body>` and the `CRITICAL_BOOTSTRAP` inline script that runs synchronously in `<head>` before hydration. The bootstrap sets:
-  - `data-theme` on `<html>` (light/dark, from localStorage / prefers-color-scheme)
   - `data-active-page` on `<html>` (start/news/map/profile/news-article/about/...) — read by CSS selectors like `[data-active-page="start"] .navbar:not(.scrolled)`
   - `screen.orientation.lock('portrait')` on mobile
   - Pre-hydration login button state from `localStorage._authHint`

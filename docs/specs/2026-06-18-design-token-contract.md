@@ -81,7 +81,7 @@ and usability instead of decoration.
 --brand-action-deep;  /* pressed red: pressed states and depth */
 --brand-paper;        /* program paper: warm readable surface */
 --brand-ink;          /* print black: structure, contrast, trust */
---brand-night;        /* print black: dark-mode surface */
+--brand-night;        /* print black: inverse surface */
 --brand-rule;         /* ticket grey: dividers and table rules */
 --brand-muted;        /* offset grey: meta text and quieter hierarchy */
 ```
@@ -371,15 +371,7 @@ Move restaurant list cards, pack cards, Must Eat cards, and sheets onto
 component tokens.
 
 Goal:
-- Preserve intentional mode differences while making shared behavior obvious.
-
-### Phase 4: Dark-mode pass
-
-After tokens/components are aligned, audit dark-mode overrides and remove
-duplicate local theme logic where possible.
-
-Goal:
-- Dark mode feels like the same product, not a second design system.
+- Preserve intentional surface differences while making shared behavior obvious.
 
 ## First Implementation Slice
 

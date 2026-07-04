@@ -334,18 +334,6 @@ Every migration should check:
 Screenshot audits are not enough for accessibility signoff; keyboard and
 screen-reader behavior need interactive QA.
 
-## Dark Mode Contract
-
-Dark mode should override semantic tokens, not duplicate whole component
-systems.
-
-Rules:
-- Component structure stays the same
-- Contrast stays readable
-- Red remains action/brand energy
-- Cream/ink remain text/surface anchors
-- Do not create separate dark-only variants unless a surface truly needs it
-
 ## First Implementation Order
 
 ### 1. CTA And Form Slice
@@ -384,7 +372,7 @@ Scope:
 - Chip/tag variants are defined
 - Sheet/modal behavior is defined
 - Form states are defined
-- Accessibility and dark-mode expectations are included
+- Accessibility expectations are included
 - First implementation order is named
 
 This document satisfies the contract step. The next practical ticket should be

@@ -3848,21 +3848,6 @@
   object-fit: cover;
   display: block;
 }
-.rdGalleryCredit {
-  position: absolute;
-  left: 7px;
-  right: 7px;
-  bottom: 5px;
-  overflow: hidden;
-  color: #fff;
-  font-size: 9px;
-  line-height: 1.2;
-  text-align: left;
-  text-overflow: ellipsis;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
-  white-space: nowrap;
-  pointer-events: none;
-}
 /* ---- Restaurant gallery lightbox (flat, swipeable photo viewer) ----
    Distinct from .lightbox* (the 3D-tilt must-eat "playing card"): no tilt,
    no sheen — just a full image you page through. */
@@ -7818,18 +7803,6 @@ html .rdGalleryThumb img {
   border-radius: 3px !important;
 }
 
-html .rdGalleryCredit {
-  left: 7px !important;
-  right: 7px !important;
-  bottom: 7px !important;
-  color: #15120e !important;
-  font-size: 9px !important;
-  font-weight: 650 !important;
-  letter-spacing: 0 !important;
-  line-height: 1.15 !important;
-  text-shadow: none !important;
-}
-
 html .rdFacts,
 html .rdMustSection,
 html .fdRest,
@@ -10158,6 +10131,15 @@ html .bodyDetailOpen .mapStatusLayer {
   z-index: 120 !important;
 }
 
+@media (min-width: 1024px) {
+  html .bodyDetailOpen .mapStatusLayer,
+  html .bodyDetailOpen .mapStatusLayerError,
+  html .bodyDetailOpen .mapStatusLayerOk {
+    left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2) !important;
+    width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px)) !important;
+  }
+}
+
 /* Mobile filter rail: use the full device width without clipped/offscreen chips. */
 @media (max-width: 767.98px) {
   html .filterChipRow {
@@ -10900,6 +10882,14 @@ html body .detailV13:not(.detailV13MustEat) .packPromo {
   border-radius: 0 !important;
   box-shadow: none !important;
   overflow: visible !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .detailV13Scroll > .packPromo:last-child {
+  margin-bottom: 0 !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
+  padding-bottom: 0 !important;
 }
 
 html body .detailV13:not(.detailV13MustEat) .packPromo::before,
@@ -12541,6 +12531,11 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
    the translucent bottom URL bar. Keep Must-Eat detail out of this: it owns a
    fixed card/pager composition above. */
 @media (max-width: 767.98px) {
+  .shell.shellDetailOpen,
+  .shell.shellDetailOpen .bodyDetailOpen {
+    background: #f4efe4 !important;
+  }
+
   html:has(.bodyDetailOpen),
   body:has(.bodyDetailOpen),
   html:has(.bodyDetailOpen) :global(.app-page[data-page='map']),
@@ -12578,7 +12573,7 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    padding-bottom: 0 !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px)) !important;
     overscroll-behavior: auto !important;
   }
 
@@ -12587,22 +12582,22 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll > .packPromo:last-child {
-    margin-bottom: 0 !important;
-    padding-bottom: max(18px, env(safe-area-inset-bottom, 0px)) !important;
-    background: #f4efe4 !important;
-    border-bottom: 0 !important;
+    background: #fff !important;
+    border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
   }
 
-  /* Mobile Safari only composites real in-flow descendants into the bottom
-     URL-bar backdrop reliably. Flatten the restaurant-detail wrappers so the
-     visible blocks behave like the restaurant list rows instead of a nested
-     scroll/sheet layer. Must-Eat detail keeps its fixed card composition. */
+  /* Keep restaurant detail as one real, document-flow surface. It must not be
+     a nested overflow scroller, but it also must not be display:contents:
+     iOS Safari then samples gaps/parents instead of the continuous article
+     surface behind the bottom URL bar. Must-Eat detail keeps its fixed card
+     composition. */
   html body .list[data-view='detail'] .detailMount:not(.detailMountMustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    display: contents !important;
+    display: block !important;
+    width: 100% !important;
     overflow: visible !important;
-    background: transparent !important;
+    background: #f4efe4 !important;
   }
 }
 

@@ -13,8 +13,6 @@ interface NotFoundContentProps {
 
 const COPY = {
   de: {
-    brandLabel: 'Eat This Startseite',
-    eyebrow: '404',
     headline: 'Nicht auf der Karte.',
     sub: 'Der Link ist falsch abgebogen. Zurück zur Map, da liegt das gute Zeug.',
     navMap: 'Map',
@@ -23,8 +21,6 @@ const COPY = {
     actionsLabel: 'Weiter',
   },
   en: {
-    brandLabel: 'Eat This home',
-    eyebrow: '404',
     headline: 'Not on the map.',
     sub: 'This link took a wrong turn. Head back to the map, that is where the good stuff lives.',
     navMap: 'Map',
@@ -39,9 +35,8 @@ function localeHref(locale: Locale, path: `/${string}`): string {
   return locale === 'en' ? `/en${path}` : path
 }
 
-export default function NotFoundContent({ locale = 'de', homeHref }: NotFoundContentProps) {
+export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps) {
   const copy = COPY[locale]
-  const resolvedHomeHref = homeHref ?? localeHref(locale, '/')
   const mapHref = localeHref(locale, '/map')
   const mustEatsHref = localeHref(locale, '/must-eats')
 
@@ -49,7 +44,9 @@ export default function NotFoundContent({ locale = 'de', homeHref }: NotFoundCon
     <main className={styles.page} data-page="not-found" data-menu="" aria-labelledby="not-found-title">
       <section className={styles.hero} aria-labelledby="not-found-title">
         <div className={styles.copy}>
-          <p className={styles.eyebrow}>{copy.eyebrow}</p>
+          <div className={styles.codeBlock} aria-hidden="true">
+            <span>404</span>
+          </div>
           <h1 className={styles.title} id="not-found-title">
             {copy.headline}
           </h1>
@@ -65,16 +62,10 @@ export default function NotFoundContent({ locale = 'de', homeHref }: NotFoundCon
             <Link href={mustEatsHref} className={styles.secondaryCta}>
               {copy.secondary}
             </Link>
-            <Link href={resolvedHomeHref} className={styles.secondaryCta} aria-label={copy.brandLabel}>
-              Start
-            </Link>
           </div>
         </div>
 
         <div className={styles.cardStage} aria-hidden="true">
-          <div className={styles.codeBlock}>
-            <span>404</span>
-          </div>
           <div className={`${styles.card} ${styles.cardBack}`}>
             <Image
               src="/pics/card-back.webp"
@@ -85,14 +76,35 @@ export default function NotFoundContent({ locale = 'de', homeHref }: NotFoundCon
               priority
             />
           </div>
-          <div className={`${styles.card} ${styles.cardDish}`}>
+          <div className={`${styles.card} ${styles.cardFrontOne}`}>
             <Image
-              src="/pics/home-dishes/gazzo-aubergine-print.webp"
+              src="/pics/card-back.webp"
               alt=""
-              width={928}
-              height={1152}
+              width={760}
+              height={1076}
               sizes="(max-width: 720px) 150px, 230px"
             />
+            <span>Must Eat</span>
+          </div>
+          <div className={`${styles.card} ${styles.cardFrontTwo}`}>
+            <Image
+              src="/pics/card-back.webp"
+              alt=""
+              width={760}
+              height={1076}
+              sizes="(max-width: 720px) 150px, 230px"
+            />
+            <span>Must Eat</span>
+          </div>
+          <div className={`${styles.card} ${styles.cardFrontThree}`}>
+            <Image
+              src="/pics/card-back.webp"
+              alt=""
+              width={760}
+              height={1076}
+              sizes="(max-width: 720px) 150px, 230px"
+            />
+            <span>Must Eat</span>
           </div>
         </div>
       </section>

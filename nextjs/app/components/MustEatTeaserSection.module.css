@@ -33,27 +33,22 @@
 }
 
 .eyebrow {
-  font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 13px;
-  /* Inherit the parent page's ink token so the teaser stays readable on
-     the cream surface. */
   color: var(--text-primary, #000);
-  /* Tracking eased from .22em — Chewy is wide/round, matches the SEO
-     kicker treatment (.14em) rather than the old tight Anton caps. */
-  letter-spacing: 0.14em;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0 0 8px;
   line-height: 1;
 }
 
 .heading {
-  font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
-  font-weight: 400;
-  /* Chewy carries more weight per px than Anton — pulled back from 56 to
-     sit as a calm second-tier line under the page H1. */
-  font-size: clamp(28px, 5.5vw, 44px);
-  line-height: 1.04;
-  letter-spacing: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: clamp(26px, 5.6vw, 38px);
+  line-height: var(--et-leading-title, 0.9);
+  letter-spacing: var(--et-tracking-title, 0);
   text-transform: uppercase;
   color: var(--text-primary, #000);
   margin: 0 0 12px;
@@ -61,10 +56,10 @@
 }
 
 .body {
-  font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--font-body, var(--font), system-ui, sans-serif);
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.35;
+  font-weight: 700;
   color: var(--text-secondary, #2a2218);
   margin: 0;
   max-width: 36ch;
@@ -75,7 +70,7 @@
     font-size: 14px;
   }
   .heading {
-    font-size: clamp(34px, 3.6vw, 52px);
+    font-size: clamp(30px, 3.2vw, 44px);
   }
   .body {
     font-size: 16px;

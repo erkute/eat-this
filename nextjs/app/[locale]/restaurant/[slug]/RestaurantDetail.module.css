@@ -1,1014 +1,152 @@
-/* ============================================================
-   Restaurant Detail — SCREEN 3 (Bar Basta) translation.
-   Cream/ink/yellow palette identisch zu Bezirk-Hub. Anton display,
-   DM Sans body. Drop-cap auf description, yellow Insider-Tipp mit
-   6px ink box-shadow, editorial facts list.
-============================================================ */
-
 .page {
-  --ink: var(--et-home-ink);
-  --cream: var(--et-home-paper);
-  --cream-deep: var(--et-home-quiet);
-  --yellow: var(--et-home-accent);
-  --muted: var(--et-home-muted);
-  --f-display: var(--et-font-display);
-  --f-body: var(--font);
-
-  /* Bridge semantic tokens so shared components (MustEatTeaserSection,
-     Breadcrumbs, RestaurantFAQ) render in cream palette. */
-  --text-primary: var(--ink);
-  --text-secondary: var(--et-home-muted);
-  --text-muted: var(--muted);
-  --surface-bg: var(--cream);
-  --surface-card: var(--cream);
-  --border-subtle: var(--et-home-line);
-  --border-strong: var(--ink);
-  --accent: var(--yellow);
-
-  background: var(--et-home-paper);
-  color: var(--ink);
-  font-family: var(--f-body);
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 16px) 0 0;
-  display: flow-root;
-  position: relative;
-  overflow-x: clip;
-}
-
-/* Breadcrumbs container should respect horizontal page padding */
-.page > nav[aria-label] {
-  padding: 0 16px;
-  margin-bottom: 4px;
-}
-
-/* ============================================================
-   HERO PHOTO (4/5) with bottom gradient + tags overlay
-============================================================ */
-.hero {
-  position: relative;
-  margin: 18px 24px 0;
-  aspect-ratio: var(--et-img-card-ratio);
-  background-color: var(--et-home-ink);
-  overflow: hidden;
-  border: 10px solid var(--et-home-paper);
-  border-radius: var(--et-radius-photo);
-  box-shadow: var(--et-shadow-none);
-  transform: rotate(-1deg);
-}
-.heroImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: var(--et-img-photo-fit);
-}
-/* Public heart-count badge — frosted chip in the top-left of the hero photo. */
-.heroHeartBadge {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 3;
-}
-.heroGradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0) 22%,
-    rgba(0, 0, 0, 0) 45%,
-    rgba(0, 0, 0, 0.55) 75%,
-    rgba(0, 0, 0, 0.92) 100%
-  );
-  pointer-events: none;
-}
-
-
-.heroOverlay {
-  position: absolute;
-  inset: auto 18px 18px;
-  z-index: 2;
-  color: var(--cream);
-}
-.heroName {
-  font-family: var(--f-display);
-  font-size: clamp(38px, 11vw, 64px);
-  /* Chewy is wider/rounder than the old Anton — smaller max so long names
-     fit; 1.05 keeps Ä/Ö/Ü dots clear from line 1 when the name wraps. */
-  line-height: 1.05;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--cream);
-  margin: 0 0 10px;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
-  word-break: break-word;
-}
-.heroTags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  font-family: var(--f-display);
-  font-size: 13px;
-  line-height: 1.15;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.heroTags .chip {
-  background: var(--yellow);
-  color: var(--ink);
-  padding: 5px 10px 5px;
-}
-.heroTags .chipAlt {
-  background: rgba(255, 255, 255, 0.16);
-  color: var(--cream);
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
-  padding: 4px 10px 4px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.heroTags .chipOpen,
-.heroTags .chipClosed {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.heroTags .chipOpen {
-  background: #34a85a;
-  color: #fff;
-  border-color: #fff;
-}
-.heroTags .chipOpen::before,
-.heroTags .chipClosed::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--cream);
-}
-.heroTags .chipClosed {
-  opacity: 0.72;
-}
-.heroTags .chipClosed::before {
-  opacity: 0.55;
-}
-
-/* ============================================================
-   NAME (h1 unter Hero)
-============================================================ */
-.name {
-  font-family: var(--f-display);
-  font-size: clamp(38px, 10vw, 60px);
-  /* See .heroName note — same umlaut-clearance fix when names wrap. */
-  line-height: 1.05;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--collage-red);
-  margin: 16px 14px 0;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-
-/* ============================================================
-   INSIDER TIPP — yellow surface with offset ink shadow
-============================================================ */
-.tipp {
-  margin: 24px 16px 28px;
-  background: var(--et-yellow-bright);
-  color: var(--ink);
-  padding: 18px 20px 20px;
-  position: relative;
-  display: grid;
-  gap: 8px;
-  border: 2px solid var(--ink);
-  box-shadow: 6px 6px 0 0 var(--ink);
-}
-.tippLabel {
-  font-family: var(--f-display);
-  font-size: 14px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.tippLabel::before {
-  content: "\2726";
-  font-size: 18px;
-  line-height: 1;
-}
-.tippText {
-  font-family: var(--f-body);
-  font-size: 14.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin: 0;
-}
-
-/* ============================================================
-   WAS BESTELLEN? — editorial order recommendations
-============================================================ */
-.order {
-  margin: 28px 16px 28px;
-  padding: 18px 18px 20px;
-  background: var(--et-cream);
-  box-shadow: 0 14px 28px rgba(43, 33, 28, .1);
-}
-.orderHead {
-  font-family: var(--f-display);
-  font-size: clamp(22px, 6vw, 26px);
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 12px;
-}
-.orderList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0;
-  border-top: 1.5px solid var(--ink);
-}
-.orderItem {
-  padding: 13px 2px 14px;
-  border-bottom: 1.5px solid var(--ink);
-  display: grid;
-  gap: 5px;
-}
-.orderTop {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-}
-.orderDish {
-  font-family: var(--f-display);
-  font-size: 16px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-  line-height: 1.2;
-}
-.orderPrice {
-  font-family: var(--f-body);
-  font-size: 14.5px;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-  white-space: nowrap;
-}
-.orderNote {
-  font-family: var(--f-body);
-  font-size: 14.5px;
-  line-height: 1.5;
-  color: var(--ink);
-  margin: 0;
-}
-/* ============================================================
-   STORY (description with drop-cap)
-============================================================ */
-.story {
-  margin: 32px 0 8px;
-  padding: 0 18px;
-  font-family: var(--f-body);
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-.story p {
-  margin: 0 0 14px;
-}
-.lede::first-letter {
-  font-family: var(--f-display);
-  font-size: 60px;
-  line-height: 0.9;
-  color: var(--ink);
-  float: left;
-  padding: 8px 10px 0 0;
-  text-transform: uppercase;
-}
-.pullQuote {
-  font-family: var(--f-display);
-  font-size: clamp(22px, 6vw, 26px);
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 22px 0 22px;
-  padding: 0;
-  border: 0;
-}
-
-/* ============================================================
-   FACTS — editorial key/value list
-============================================================ */
-.facts {
-  margin: 18px 16px 26px;
-  display: grid;
-  gap: 0;
-  border-top: 1.5px solid var(--ink);
-}
-.factsRow {
-  display: grid;
-  grid-template-columns: 112px 1fr;
-  gap: 14px;
-  padding: 13px 2px;
-  border-bottom: 1.5px solid var(--ink);
-  align-items: baseline;
-}
-.factsKey {
-  font-family: var(--f-display);
-  font-size: 15px;
-  letter-spacing: 0.12em;
-  color: var(--ink);
-  text-transform: uppercase;
-  line-height: 1.15;
-}
-.factsVal {
-  font-family: var(--f-body);
-  color: var(--ink);
-  font-size: 14.5px;
-  line-height: 1.5;
-  font-weight: 400;
-}
-.factsVal a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-}
-.hours {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 12px;
-  row-gap: 4px;
-  font-variant-numeric: tabular-nums;
-  align-items: baseline;
-}
-.hoursDay {
-  font-family: var(--f-display);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.75;
-  /* Hyphen-minus in "Mo-Fr" is a soft-break point in CSS — without
-     nowrap, the day token can split across two lines on narrow mobile
-     columns. */
-  white-space: nowrap;
-}
-.hoursTime {
-  font-family: var(--f-body);
-  font-size: 14.5px;
-  line-height: 1.4;
-  /* Same reason as .hoursDay — keep "12:00-22:00" on a single visual
-     line so the row reads as one tidy day/time pair. */
-  white-space: nowrap;
-}
-
-/* ============================================================
-   ACTIONS — primary ink, alt outline
-============================================================ */
-.acts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 6px 14px 26px;
-}
-.acts:has(> .act:only-child) {
-  grid-template-columns: 1fr;
-}
-.act {
-  font-family: var(--f-display);
-  font-size: 14px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 13px 16px 14px;
-  cursor: pointer;
-  border: 1.5px solid var(--ink);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  line-height: 1;
-  text-decoration: none;
-}
-.actPrimary {
-  background: var(--ink);
-  color: var(--cream);
-}
-/* ============================================================
-   SIBLING CROSS-LINKS
-============================================================ */
-.siblings {
-  padding: 24px 16px 8px;
-  border-top: 2px solid rgba(20, 16, 12, .22);
-  margin-top: 16px;
-}
-.siblings h2 {
-  font-family: var(--f-display);
-  font-size: clamp(30px, 7vw, 46px);
-  line-height: 1.0;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 20px;
-}
-.sibRow {
-  margin-bottom: 28px;
-}
-.sibRowHead {
-  /* Mobile lifts from 12px caps low-opacity label into a proper Anton
-     subhead — matches the desktop treatment so the hierarchy reads on
-     both viewports instead of shrinking to a quiet label on phone. */
-  font-family: var(--f-display);
-  font-size: 22px;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 14px;
-}
-.sibCards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px 12px;
-}
-.sibCard {
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: var(--ink);
-  transition: transform 0.15s ease;
-}
-.sibCard:hover {
-  transform: translateY(-2px);
-}
-.sibPhoto {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  background: var(--cream-deep);
-  overflow: hidden;
-  margin-bottom: 12px;
-  border: 8px solid #fff;
-  box-shadow: 0 12px 20px rgba(43, 33, 28, .14);
-}
-.sibName {
-  font-family: var(--f-display);
-  font-size: 20px;
-  line-height: 1.05;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 5px;
-}
-.sibMeta {
-  font-family: var(--f-body);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.65;
-  font-weight: 600;
-}
-
-/* ============================================================
-   Responsive
-============================================================ */
-@media (min-width: 720px) {
-  .page {
-    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 0 0;
-    max-width: 760px;
-    margin: 0 auto;
-  }
-  .hero { margin: 8px 22px 0; }
-  .name { margin: 20px 22px 0; }
-
-  .tipp { margin: 8px 22px 28px; }
-  .story { padding: 0 22px 8px; }
-  .facts { margin: 18px 22px 28px; }
-  .acts { padding: 6px 22px 28px; }
-  .siblings { padding: 28px 22px 8px; }
-  .sibCards {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  /* Full-viewport envelope to match the Bezirk/Kategorie hub pages
-     (same 80px gutters, no max-width cap). Reset the 760px tablet cap
-     from the 720px block — without this the cascade keeps the page
-     narrower than the Bezirk hub on desktop. Story/tipp self-cap at
-     680px so the reading rhythm survives the wider canvas. */
-  .page {
-    /* Centred content column, matching the Bezirk/Kategorie hub measure so
-       all SEO surfaces share one rhythm (was full-bleed 1280, too wide). */
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 88px 64px 0;
-  }
-
-  /* HERO — Cover-style letterbox spanning the full content column. A wide
-     2.2/1 ratio keeps the height calm (~480px in the 1180 column) WITHOUT a
-     max-height cap — aspect-ratio + max-height made Chrome derive the width
-     from the capped height (→ 818px, left-aligned with a void). Full width
-     now, edge to edge of the centred column. */
-  .hero {
-    margin: 12px 0 0;
-    width: 100%;
-    aspect-ratio: 2 / 1;
-  }
-  .heroOverlay {
-    inset: auto 40px 36px;
-  }
-  .heroName {
-    /* Shared scale with the Bezirk/Kategorie H1 (confident middle, not the
-       Anton-era 104). */
-    font-size: clamp(48px, 5.6vw, 84px);
-    margin: 0 0 14px;
-  }
-  .heroTags {
-    font-size: 15px;
-  }
-  .heroTags .chip,
-  .heroTags .chipAlt {
-    padding: 5px 12px 6px;
-  }
-
-  /* H1 (when no photo) — same scale as the overlay variant. */
-  .name {
-    font-size: clamp(48px, 5.6vw, 84px);
-    margin: 28px 0 0;
-  }
-
-  /* STORY — narrow reading column, centered with auto margins. Stays
-     legible while page itself is wider. */
-  .story {
-    font-size: 18px;
-    line-height: 1.65;
-    padding: 0;
-    margin: 48px auto 12px;
-    max-width: 700px;
-  }
-  .lede::first-letter {
-    font-size: 80px;
-    padding: 12px 14px 0 0;
-  }
-  .pullQuote {
-    font-size: clamp(28px, 3vw, 36px);
-    line-height: 1.05;
-    margin: 32px 0;
-  }
-
-  /* TIPP — sits with the story column for narrative tie-in. */
-  .tipp {
-    margin: 32px auto 40px;
-    max-width: 680px;
-    padding: 26px 28px 28px;
-    box-shadow: 8px 8px 0 0 var(--ink);
-  }
-  .order {
-    max-width: 700px;
-    margin: 36px auto 40px;
-    padding: 24px 26px 26px;
-  }
-  .tippLabel {
-    font-size: 16px;
-  }
-  .tippText {
-    font-size: 17px;
-    line-height: 1.55;
-  }
-
-  /* FACTS — horizontal 3-col strip spanning full content width. Much
-     more impactful than the mobile vertical list when the eye has room. */
-  .facts {
-    margin: 16px 0 32px;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    display: grid;
-    border-top: 2px solid var(--ink);
-    border-bottom: 2px solid var(--ink);
-    column-gap: 0;
-  }
-  .factsRow {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    grid-template-columns: none;
-    padding: 22px 24px 24px;
-    border-bottom: 0;
-    border-right: 1.5px solid var(--ink);
-    gap: 10px;
-  }
-  .factsRow:last-child {
-    border-right: 0;
-  }
-  .factsKey {
-    font-size: 13px;
-    letter-spacing: 0.14em;
-  }
-  .factsVal {
-    font-size: 17px;
-    line-height: 1.5;
-  }
-  .hours {
-    column-gap: 16px;
-    row-gap: 5px;
-  }
-
-  /* ACTS — centred row of buttons under the facts strip. Start-aligned in
-     the wide column left them hugging the left edge, looking lost. */
-  .acts {
-    grid-template-columns: auto auto;
-    justify-content: center;
-    gap: 12px;
-    padding: 0 0 40px;
-  }
-  .act {
-    font-size: 15px;
-    padding: 16px 28px 17px;
-    min-width: 220px;
-  }
-
-  /* SIBLINGS — way bigger typography. The "Mehr in Berlin" lockup carries
-     the bottom of the page; cards get more room to land. */
-  .siblings {
-    padding: 56px 0 16px;
-    margin-top: 24px;
-    border-top: 3px solid var(--ink);
-  }
-  .siblings h2 {
-    font-size: clamp(40px, 4.4vw, 68px);
-    line-height: 1.0;
-    margin: 0 0 36px;
-  }
-  .sibRow {
-    margin-bottom: 56px;
-  }
-  .sibRowHead {
-    font-family: var(--f-display);
-    font-size: clamp(22px, 2.2vw, 32px);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: 0;
-    opacity: 1;
-    text-transform: uppercase;
-    margin: 0 0 24px;
-  }
-  .sibCards {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px 28px;
-  }
-  .sibPhoto {
-    aspect-ratio: 4 / 3;
-    margin-bottom: 16px;
-  }
-  .sibName {
-    font-size: clamp(22px, 1.8vw, 30px);
-    line-height: 1.04;
-    margin-bottom: 6px;
-  }
-  .sibMeta {
-    font-size: 12px;
-  }
-}
-
-/* ============================================================
-   Print palette pass — restaurant detail surfaces.
-   ============================================================ */
-
-.page {
-  --ink: var(--brand-ink);
-  --cream: var(--brand-paper);
-  --cream-deep: color-mix(in srgb, var(--brand-paper) 86%, var(--brand-rule));
-  --yellow: var(--brand-action);
-  --muted: var(--brand-muted);
-  --text-primary: var(--brand-ink);
-  --text-secondary: var(--brand-ink);
-  --text-muted: var(--brand-muted);
-  --surface-bg: var(--brand-paper);
-  --surface-card: var(--brand-paper);
-  --border-subtle: var(--brand-rule);
-  --border-strong: var(--brand-ink);
-  --accent: var(--brand-action);
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-}
-
-.hero {
-  background-color: var(--brand-ink);
-  border-color: var(--brand-paper);
-}
-
-.heroTags .chip,
-.heroTags .chipAlt {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border-color: var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-}
-
-.heroTags .chipOpen {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border-color: var(--brand-paper);
-}
-
-.tipp {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border-color: var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-  box-shadow: 6px 6px 0 var(--brand-ink);
-}
-
-.tippLabel,
-.tippText {
-  color: var(--brand-paper);
-}
-
-.order {
-  background: var(--brand-paper);
-  border: 1.5px solid var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-  box-shadow: 4px 4px 0 var(--brand-ink);
-}
-
-.orderHead,
-.orderDish,
-.orderPrice,
-.orderNote,
-.story,
-.lede::first-letter,
-.pullQuote {
-  color: var(--brand-ink);
-}
-
-.orderList,
-.orderItem,
-.facts,
-.factsRow {
-  border-color: var(--brand-ink);
-}
-
-.factsKey {
-  color: var(--brand-action);
-}
-
-.factsVal,
-.factsVal a {
-  color: var(--brand-ink);
-}
-
-.act {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border: 1.5px solid var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-  box-shadow: 3px 3px 0 var(--brand-ink);
-}
-
-.actPrimary {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-}
-
-.act:hover {
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--brand-action);
-}
-
-.act,
-.actPrimary,
-.act:hover,
-.actPrimary:hover {
-  box-shadow: none;
-  text-shadow: none;
-}
-
-/* Home-system pass: restaurant pages use only white / ink / red. */
-.page {
-  --ink: #15120e;
-  --cream: #fff;
-  --cream-deep: #fff;
-  --yellow: #d9382a;
-  --muted: rgba(21, 18, 14, .66);
-  --text-primary: #15120e;
-  --text-secondary: #15120e;
-  --text-muted: rgba(21, 18, 14, .66);
-  --surface-bg: #fff;
-  --surface-card: #fff;
-  --border-subtle: rgba(21, 18, 14, .22);
-  --border-strong: #15120e;
-  --accent: #d9382a;
-  --brand-ink: #15120e;
-  --brand-paper: #fff;
-  --brand-action: #d9382a;
-  --brand-muted: rgba(21, 18, 14, .66);
-  --brand-rule: rgba(21, 18, 14, .22);
-  --f-display: var(--menu-condensed, Impact, sans-serif);
-  background: #fff;
-  color: #15120e;
-  padding-top: calc(72px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 16px);
-}
-
-.hero {
-  border: 0;
-  box-shadow: none;
-  transform: none;
-  background-color: #d9382a;
-}
-
-.heroName,
-.orderHead,
-.orderDish,
-.factsKey,
-.pullQuote,
-.story h2,
-.story h3 {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  letter-spacing: 0;
-}
-
-.heroTags .chip,
-.heroTags .chipOpen,
-.heroTags .chipClosed,
-.heroTags .chipAlt {
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.heroTags .chip,
-.heroTags .chipOpen {
-  background: #d9382a;
-  color: #fff;
-  border-color: #15120e;
-}
-
-.heroTags .chipAlt {
-  background: #fff;
-  color: #15120e;
-  border-color: #15120e;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.tipp,
-.order,
-.facts,
-.act,
-.actPrimary {
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.tipp,
-.actPrimary {
-  background: #15120e;
-  color: #fff;
-  border-color: #15120e;
-}
-
-.tippLabel,
-.tippText {
-  color: #fff;
-}
-
-.order,
-.act {
-  background: #fff;
-  color: #15120e;
-  border-color: #15120e;
-}
-
-.factsKey {
-  color: #d9382a;
-}
-
-.act:hover {
-  background: #d9382a;
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-/* Home-system detail redesign: editorial, flat, red/black/white. */
-.page {
-  --detail-ink: #15120e;
-  --detail-paper: #fff;
-  --detail-red: #d9382a;
-  --detail-muted: rgba(21, 18, 14, .62);
+  --detail-ink: var(--et-home-ink, #15120e);
+  --detail-paper: var(--et-home-paper, #fff);
+  --detail-red: var(--et-home-red, #d9382a);
+  --detail-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
+  --detail-line: var(--et-home-line, rgba(21, 18, 14, 0.14));
+  --ink: var(--detail-ink);
+  --cream: var(--detail-paper);
+  --yellow: var(--detail-red);
+  --muted: var(--detail-muted);
+  --f-display: var(--et-font-display, var(--font-providence), sans-serif);
+  --f-body: var(--font-body, var(--font), system-ui, sans-serif);
   --text-primary: var(--detail-ink);
   --text-secondary: var(--detail-ink);
   --text-muted: var(--detail-muted);
   --surface-bg: var(--detail-paper);
   --surface-card: var(--detail-paper);
+  --border-subtle: var(--detail-line);
   --border-strong: var(--detail-ink);
   --accent: var(--detail-red);
   --brand-ink: var(--detail-ink);
   --brand-paper: var(--detail-paper);
   --brand-action: var(--detail-red);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(88px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px)) clamp(16px, 4vw, 54px) 0;
+  overflow-x: clip;
   background: var(--detail-paper);
   color: var(--detail-ink);
-  padding: calc(72px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + clamp(22px, 4vw, 44px)) clamp(16px, 4vw, 42px) 0;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--f-body);
 }
 
 .page > nav[aria-label] {
-  width: min(100%, 1280px);
-  max-width: none;
-  margin: 0 auto clamp(22px, 3vw, 38px);
+  width: min(100%, 1180px);
+  margin: 0 auto clamp(18px, 3vw, 32px);
   padding: 0;
 }
 
-.hero {
-  width: min(100%, 1280px);
-  max-width: none;
-  aspect-ratio: 16 / 10;
-  margin: 0 auto clamp(46px, 7vw, 88px);
-  overflow: hidden;
+.page > nav[aria-label] ol {
+  padding: 0;
   border: 0;
-  border-radius: 0;
-  background: var(--detail-ink);
-  box-shadow: none;
-  transform: none;
 }
 
-.heroImg {
-  filter: saturate(1.04) contrast(1.02);
+.hero,
+.heroNoPhoto {
+  width: min(100%, 1180px);
+  margin: 0 auto clamp(38px, 6vw, 78px);
+  display: grid;
+  gap: clamp(18px, 3vw, 34px);
 }
 
-.heroGradient {
-  background:
-    linear-gradient(180deg, rgba(21, 18, 14, .06) 18%, rgba(21, 18, 14, .9) 100%),
-    linear-gradient(90deg, rgba(21, 18, 14, .78), rgba(21, 18, 14, .12) 62%);
+.hero {
+  grid-template-columns: 1fr;
 }
 
-.heroHeartBadge {
-  top: clamp(14px, 2vw, 24px);
-  right: clamp(14px, 2vw, 24px);
+.heroNoPhoto {
+  max-width: 900px;
 }
 
 .heroOverlay {
-  inset: auto 0 0;
-  padding: clamp(22px, 5vw, 70px);
+  min-width: 0;
+  display: grid;
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.heroName,
+.name,
+.orderHead,
+.orderDish,
+.sibName,
+.sibRowHead,
+.pullQuote {
+  font-family: var(--f-display);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title, 0);
+  text-transform: uppercase;
 }
 
 .heroName,
 .name {
-  max-width: 10ch;
+  max-width: 12ch;
   margin: 0;
-  color: #fff;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(58px, 10vw, 138px);
-  font-weight: 400;
-  line-height: .78;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.name {
-  width: min(100%, 1280px);
-  margin: 0 auto clamp(34px, 5vw, 64px);
   color: var(--detail-ink);
+  font-size: clamp(54px, 9vw, 126px);
+  line-height: var(--et-leading-title, 0.86);
 }
 
 .heroTags {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: clamp(18px, 2vw, 28px);
 }
 
-.heroTags .chip,
-.heroTags .chipAlt,
-.heroTags .chipOpen,
-.heroTags .chipClosed {
+.chip,
+.chipAlt,
+.chipOpen,
+.chipClosed {
   min-height: 34px;
-  padding: 8px 14px;
-  border: 2px solid var(--detail-ink);
-  border-radius: 0;
-  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px 9px;
+  background: rgba(21, 18, 14, 0.06);
   color: var(--detail-ink);
-  box-shadow: none;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: 0.11em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
-.heroTags .chip,
-.heroTags .chipOpen {
+.chip {
   background: var(--detail-red);
   color: #fff;
 }
 
-.heroTags .chipClosed {
+.chipOpen {
   background: var(--detail-ink);
   color: #fff;
+}
+
+.chipClosed {
+  color: var(--detail-muted);
+}
+
+.heroPhoto {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  overflow: hidden;
+  background: var(--detail-red);
+}
+
+.heroImg {
+  object-fit: cover;
+  filter: saturate(1.04) contrast(1.03);
+}
+
+.heroGradient {
+  display: none;
+}
+
+.heroHeartBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
 }
 
 .story,
@@ -1017,168 +155,153 @@
 .facts,
 .acts,
 .siblings {
-  width: min(100%, 1040px);
-  max-width: none;
-  margin-right: auto;
-  margin-left: auto;
+  width: min(100%, 900px);
+  margin-inline: auto;
 }
 
 .story {
-  margin-top: 0;
-  margin-bottom: clamp(42px, 6vw, 82px);
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
+  margin-bottom: clamp(34px, 6vw, 72px);
   color: var(--detail-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(17px, 1.9vw, 24px);
-  line-height: 1.34;
+  font-size: clamp(17px, 1.35vw, 19px);
+  line-height: 1.65;
 }
 
 .story p {
-  max-width: 70ch;
-  margin: 0 0 1.15em;
+  max-width: 72ch;
+  margin: 0 0 1.2em;
+}
+
+.lede {
+  color: var(--detail-ink);
+  font-size: clamp(19px, 1.7vw, 24px);
+  font-weight: 750;
+  line-height: 1.32;
 }
 
 .lede::first-letter {
   float: left;
-  margin: .02em .12em 0 0;
+  margin: 0.06em 0.12em 0 0;
   color: var(--detail-red);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: 4.5em;
-  line-height: .72;
+  font-family: var(--f-display);
+  font-size: 4.1em;
+  line-height: 0.68;
 }
 
 .pullQuote {
   max-width: 15ch;
-  margin: clamp(30px, 5vw, 56px) 0;
-  padding: 18px 0;
-  border-top: 3px solid var(--detail-ink);
-  border-bottom: 3px solid var(--detail-ink);
-  background: transparent;
+  margin: clamp(34px, 6vw, 70px) 0;
   color: var(--detail-red);
-  box-shadow: none;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(42px, 7vw, 92px);
-  line-height: .86;
-  text-align: left;
-  transform: none;
+  font-size: clamp(34px, 5.3vw, 70px);
+  line-height: var(--et-leading-title, 0.88);
 }
 
 .tipp {
-  margin-bottom: clamp(38px, 6vw, 74px);
-  padding: clamp(24px, 4vw, 44px);
-  border: 0;
-  border-radius: 0;
-  background: var(--detail-red);
-  box-shadow: none;
+  margin-bottom: clamp(32px, 5vw, 62px);
+  padding: clamp(18px, 4vw, 34px);
+  background: rgba(217, 56, 42, 0.08);
   color: var(--detail-ink);
 }
 
 .tippLabel {
-  margin: 0 0 12px;
-  color: var(--detail-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  margin-bottom: 10px;
+  color: var(--detail-red);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
   font-weight: 900;
-  letter-spacing: .14em;
+  letter-spacing: 0.12em;
+  line-height: 1;
   text-transform: uppercase;
-}
-
-.tippLabel::before {
-  content: none;
 }
 
 .tippText {
   max-width: 58ch;
   margin: 0;
   color: var(--detail-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(18px, 2vw, 24px);
-  font-weight: 900;
-  line-height: 1.25;
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 750;
+  line-height: 1.35;
 }
 
 .order {
-  margin-bottom: clamp(34px, 5vw, 70px);
-  padding: clamp(24px, 4vw, 42px) 0;
-  border-top: 3px solid var(--detail-ink);
-  border-bottom: 3px solid var(--detail-ink);
-  background: transparent;
-  box-shadow: none;
+  margin-bottom: clamp(30px, 5vw, 60px);
+  padding: clamp(20px, 4vw, 36px) 0 0;
 }
 
 .orderHead,
-.siblings h2,
 .sibRowHead {
+  max-width: 12ch;
   margin: 0 0 clamp(18px, 3vw, 30px);
   color: var(--detail-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(52px, 8vw, 96px);
-  font-weight: 400;
-  line-height: .85;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-size: clamp(28px, 4vw, 50px);
+  line-height: var(--et-leading-title, 0.9);
 }
 
 .orderList {
   display: grid;
-  gap: 0;
+  gap: 12px;
   margin: 0;
-  border-top: 2px solid var(--detail-ink);
+  padding: 0;
+  list-style: none;
 }
 
 .orderItem {
-  padding: 18px 0;
-  border-bottom: 2px solid var(--detail-ink);
+  padding: 16px 0;
 }
 
 .orderTop {
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
 }
 
 .orderDish {
   color: var(--detail-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(30px, 4vw, 52px);
-  font-weight: 400;
-  line-height: .9;
-  letter-spacing: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: var(--et-leading-title, 0.92);
 }
 
 .orderPrice,
 .orderNote {
   color: var(--detail-muted);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
   font-weight: 900;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
   text-transform: uppercase;
+}
+
+.orderNote {
+  max-width: 58ch;
+  margin: 8px 0 0;
 }
 
 .facts {
   display: grid;
-  margin-bottom: clamp(24px, 5vw, 54px);
-  padding: 0;
-  border-top: 3px solid var(--detail-ink);
-  background: transparent;
-  box-shadow: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: clamp(28px, 5vw, 58px);
+  padding: clamp(18px, 3vw, 28px);
+  background: rgba(21, 18, 14, 0.045);
 }
 
 .factsRow {
   display: grid;
-  grid-template-columns: minmax(150px, .35fr) 1fr;
-  gap: 18px;
-  padding: 18px 0;
-  border-bottom: 2px solid var(--detail-ink);
+  align-content: start;
+  gap: 10px;
+  min-height: 126px;
+  padding: clamp(14px, 2vw, 20px);
+  background: var(--detail-paper);
 }
 
 .factsKey {
   color: var(--detail-red);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
   font-weight: 900;
-  letter-spacing: .14em;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
   text-transform: uppercase;
 }
 
@@ -1186,46 +309,59 @@
 .factsVal a,
 .hours {
   color: var(--detail-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1.35;
+  font-size: clamp(17px, 1.35vw, 20px);
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.hours {
+  display: grid;
+  grid-template-columns: minmax(78px, 0.35fr) minmax(0, 1fr);
+  gap: 6px 14px;
+}
+
+.hoursDay {
+  color: var(--detail-muted);
+}
+
+.hoursTime {
+  color: var(--detail-ink);
 }
 
 .acts {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
   gap: 12px;
-  margin-bottom: clamp(48px, 7vw, 92px);
+  margin-bottom: clamp(38px, 7vw, 86px);
 }
 
 .act,
 .actPrimary {
-  min-height: 48px;
-  padding: 12px 18px;
-  border: 2px solid var(--detail-ink);
-  border-radius: 0;
-  background: #fff;
-  color: var(--detail-ink);
-  box-shadow: none;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 18px 14px;
+  background: var(--detail-ink);
+  color: var(--detail-paper);
+  border-radius: var(--et-radius-control, 0);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-decoration: none;
   text-transform: uppercase;
+  transition: background-color 140ms ease, transform 140ms ease;
 }
 
-.actPrimary,
-.act:hover,
-.actPrimary:hover {
-  background: var(--detail-ink);
-  color: #fff;
-  transform: translateY(-2px) rotate(-.6deg);
+.actPrimary {
+  background: var(--detail-red);
 }
 
 .siblings {
-  margin-bottom: clamp(70px, 9vw, 120px);
+  margin-top: clamp(50px, 8vw, 96px);
+  margin-bottom: clamp(68px, 10vw, 126px);
 }
 
 .sibRow {
@@ -1235,94 +371,157 @@
 .sibCards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: clamp(16px, 2vw, 24px);
 }
 
 .sibCard {
-  display: grid;
-  gap: 10px;
-  padding: 0 0 14px;
-  border: 0;
-  border-bottom: 2px solid var(--detail-ink);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  position: relative;
+  display: block;
+  min-height: 280px;
+  overflow: hidden;
+  background: var(--detail-ink);
   color: var(--detail-ink);
   text-decoration: none;
 }
 
-.sibCard:hover {
-  color: var(--detail-red);
-  transform: translateY(-2px) rotate(-.4deg);
+.sibPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  overflow: hidden;
+  background: rgba(21, 18, 14, 0.06);
 }
 
-.sibPhoto {
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border-radius: 0;
-  background: var(--detail-red);
+.sibPhoto img {
+  object-fit: cover;
+}
+
+.sibCard::after {
+  content: "";
+  position: absolute;
+  inset: 28% 0 0;
+  background: linear-gradient(to top, rgba(12, 9, 7, 0.88), rgba(12, 9, 7, 0.48) 48%, rgba(12, 9, 7, 0));
+  pointer-events: none;
+}
+
+.sibOverlay {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1;
+  display: grid;
+  gap: 7px;
 }
 
 .sibName {
-  color: inherit;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 400;
-  line-height: .9;
-  letter-spacing: 0;
+  color: #fff;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: var(--et-leading-title, 0.94);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
 }
 
 .sibMeta {
-  color: var(--detail-muted);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: #ff5a4e;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
-@media (max-width: 760px) {
-  .page {
-    padding-inline: 16px;
-    padding-top: calc(72px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 22px);
+@media (hover: hover) {
+  .act:hover,
+  .actPrimary:hover {
+    background: var(--detail-red);
+    transform: translateY(-2px);
   }
 
-  .hero {
-    aspect-ratio: 4 / 5.4;
-    margin-bottom: 42px;
+  .sibCard:hover .sibName,
+  .sibCard:focus-visible .sibName {
+    color: #fff;
   }
+}
 
-  .heroGradient {
-    background:
-      linear-gradient(180deg, rgba(21, 18, 14, .04) 12%, rgba(21, 18, 14, .92) 100%),
-      linear-gradient(90deg, rgba(21, 18, 14, .58), rgba(21, 18, 14, .1) 72%);
-  }
+.act:focus-visible,
+.actPrimary:focus-visible,
+.sibCard:focus-visible {
+  outline: 2px solid var(--detail-red);
+  outline-offset: 4px;
+}
 
-  .heroOverlay {
-    padding: 20px;
+@media (max-width: 900px) {
+  .heroPhoto {
+    aspect-ratio: 16 / 10;
   }
 
   .heroName,
   .name {
-    font-size: clamp(48px, 16vw, 86px);
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: calc(88px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px)) 16px 0;
   }
 
-  .heroTags .chip,
-.heroTags .chipAlt,
-.heroTags .chipOpen,
-.heroTags .chipClosed {
+  .page > nav[aria-label] {
+    margin-bottom: 16px;
+  }
+
+  .hero,
+  .heroNoPhoto {
+    gap: 18px;
+    margin-bottom: 34px;
+  }
+
+  .heroName,
+  .name {
+    font-size: clamp(42px, 12.4vw, 62px);
+  }
+
+  .heroPhoto {
+    width: calc(100% + 32px);
+    margin-inline: -16px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .chip,
+  .chipAlt,
+  .chipOpen,
+  .chipClosed {
     min-height: 30px;
-    padding: 7px 10px;
+    padding: 7px 10px 8px;
     font-size: 10px;
   }
 
   .story {
-    font-size: 16px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .lede {
+    font-size: clamp(18px, 5vw, 21px);
+  }
+
+  .factsRow,
+  .hours {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+    margin-inline: -16px;
+    padding-inline: 16px;
   }
 
   .factsRow {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    min-height: 0;
   }
 
   .acts,
@@ -1333,190 +532,10 @@
 
   .sibCards {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
-}
 
-/* Detail surface pass: poster slabs instead of white boxes with black frames. */
-.tipp {
-  background: var(--detail-red);
-  color: #fff;
-  border: 0;
-  transform: rotate(-.35deg);
-}
-
-.tippLabel {
-  color: rgba(255, 255, 255, .78);
-}
-
-.tippText {
-  color: #fff;
-}
-
-.facts {
-  position: relative;
-  overflow: hidden;
-  padding: 6px 0;
-  border: 0;
-  background: var(--detail-ink);
-  color: #fff;
-}
-
-.facts::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 8px;
-  background: var(--detail-red);
-}
-
-.factsRow {
-  padding: 18px 22px 18px 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, .16);
-}
-
-.factsRow:last-child {
-  border-bottom: 0;
-}
-
-.factsKey {
-  color: #ff5a4e;
-}
-
-.factsVal,
-.factsVal a,
-.hours {
-  color: #fff;
-}
-
-.hoursDay {
-  color: rgba(255, 255, 255, .62);
-}
-
-/* Final Home consolidation: restaurant detail mirrors Home's paper/ink/red
-   grammar with flat media, strong rules and no dark content slabs. */
-.page {
-  --detail-ink: var(--et-home-ink);
-  --detail-paper: var(--et-home-paper);
-  --detail-red: var(--et-home-red);
-  --detail-muted: var(--et-home-muted);
-  --detail-rule: var(--et-home-line);
-  --ink: var(--detail-ink);
-  --cream: var(--detail-paper);
-  --yellow: var(--detail-red);
-  --muted: var(--detail-muted);
-  background: var(--detail-paper);
-  color: var(--detail-ink);
-}
-
-.hero,
-.sibPhoto {
-  border: 0;
-  border-radius: var(--et-radius-photo);
-  box-shadow: none;
-  transform: none;
-}
-
-.hero {
-  background: var(--detail-red);
-}
-
-.heroGradient {
-  background: var(--et-home-photo-overlay);
-}
-
-.heroName,
-.name,
-.siblings h2,
-.sibRowHead,
-.sibName,
-.orderHead,
-.orderDish,
-.pullQuote {
-  font-family: var(--et-font-condensed);
-  letter-spacing: 0;
-}
-
-.tipp,
-.order,
-.facts,
-.act,
-.actPrimary,
-.siblings {
-  border-radius: 0;
-  box-shadow: none;
-  transform: none;
-}
-
-.tipp {
-  background: var(--detail-red);
-  color: var(--detail-paper);
-  border: 0;
-}
-
-.tippLabel,
-.tippText {
-  color: var(--detail-paper);
-}
-
-.order,
-.facts {
-  background: var(--detail-paper);
-  color: var(--detail-ink);
-  border: 0;
-}
-
-.order {
-  padding: clamp(18px, 4vw, 30px) 0 0;
-  border-top: 3px solid var(--detail-ink);
-}
-
-.facts {
-  overflow: visible;
-  padding: 0;
-  border-top: 3px solid var(--detail-ink);
-}
-
-.facts::before {
-  display: none;
-}
-
-.factsRow {
-  padding: 18px 0;
-  border-bottom: 2px solid var(--detail-ink);
-}
-
-.factsKey {
-  color: var(--detail-red);
-}
-
-.factsVal,
-.factsVal a,
-.hours,
-.hoursDay,
-.orderHead,
-.orderDish,
-.orderPrice,
-.orderNote {
-  color: var(--detail-ink);
-}
-
-.orderPrice,
-.orderNote,
-.factsVal,
-.hours {
-  color: var(--detail-muted);
-}
-
-.act,
-.actPrimary {
-  border-radius: var(--et-radius-control);
-}
-
-.sibPhoto {
-  border: 0;
-  background: var(--detail-red);
-}
-
-.sibCard {
-  border-bottom: 3px solid var(--detail-ink);
+  .sibName {
+    font-size: clamp(28px, 7.6vw, 40px);
+  }
 }

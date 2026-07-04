@@ -85,9 +85,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </div>
       </section>
 
+      <HubNearby initialMapData={initialMapData} locale={locale} />
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HomeDishStrip locale={locale} />
-      <HubNearby initialMapData={initialMapData} locale={locale} />
       <HubMustEatsTeaser initialMapData={initialMapData} />
       <HubFragRemy />
       <DistrictsList districts={initialData.districts} locale={locale} />

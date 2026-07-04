@@ -8,6 +8,7 @@ import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import { getLocationStatus } from '@/lib/map/locationStatus';
+import { openBurgerDrawer } from '../burgerDrawerState';
 
 import dynamic from 'next/dynamic';
 import RestaurantList from './RestaurantList';
@@ -189,7 +190,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     [onRestaurantClick]
   );
   const openBurgerMenu = useCallback(() => {
-    document.getElementById('burgerBtn')?.click();
+    openBurgerDrawer();
   }, []);
   const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
   const locationStatusKey = locationStatus.copy

@@ -1579,7 +1579,7 @@ html[data-active-page="start"] .burger-btn {
   justify-content: flex-end;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.25s;
+  transition: none;
 }
 .burger-drawer.active {
   opacity: 1;
@@ -1602,11 +1602,14 @@ html[data-active-page="start"] .burger-btn {
   background: var(--home-ink, #15120e);
   color: #fff;
   box-shadow: -26px 0 64px rgba(0, 0, 0, 0.32);
-  transform: translateX(100%);
+  backface-visibility: hidden;
+  contain: layout paint style;
+  transform: translate3d(100%, 0, 0);
   transition: transform 0.34s cubic-bezier(0.18, 0.86, 0.26, 1);
+  will-change: transform;
 }
 .burger-drawer.active .burger-drawer-panel {
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0);
 }
 
 .bd-scroller {
@@ -1819,8 +1822,16 @@ html[data-active-page="start"] .burger-btn {
 }
 
 @media (max-width: 767px) {
+  .burger-drawer-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
   .burger-drawer-panel {
     width: 100vw;
+    box-shadow: none;
+  }
+  .burger-drawer.active .bd-nav-item {
+    animation: none;
   }
   .bd-scroller {
     padding: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) 16px

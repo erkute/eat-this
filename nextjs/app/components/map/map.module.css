@@ -12577,13 +12577,10 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    /* No flat overhang apron here: a uniform #f4efe4 strip behind the iOS URL
-       bar frosts as a flat colour (reads as "kein Frosting", User 2026-07-05).
-       Instead the last real block (pack promo w/ pack image, or facts) bleeds
-       to the document bottom below, so VARIED content sits behind the bar and
-       shows through it — the way the list frosts its yellow listEnd + rows.
-       Keep only the home-indicator safe-area. */
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    /* No inner scroll-port and no blank padding apron; the last real detail
+       block paints a non-layout overhang below, so Safari has an in-flow
+       surface to sample behind the translucent bottom URL field. */
+    padding-bottom: 0 !important;
     overscroll-behavior: auto !important;
   }
 
@@ -12593,7 +12590,25 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     .detailV13:not(.detailV13MustEat)
     .detailV13Scroll
     > :last-child {
+    --detail-url-overhang: var(--map-bar-overhang, 0px);
+    position: relative !important;
     margin-bottom: 0 !important;
+  }
+
+  html
+    body
+    .list[data-view='detail']
+    .detailV13:not(.detailV13MustEat)
+    .detailV13Scroll
+    > :last-child::after {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(var(--detail-url-overhang) * -1) !important;
+    height: var(--detail-url-overhang) !important;
+    background: #f4efe4 !important;
+    pointer-events: none !important;
   }
 
   html
@@ -12606,18 +12621,28 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
   }
 
-  /* Keep restaurant detail as one real, document-flow surface. It must not be
-     a nested overflow scroller, but it also must not be display:contents:
-     iOS Safari then samples gaps/parents instead of the continuous article
-     surface behind the bottom URL bar. Must-Eat detail keeps its fixed card
+  html
+    body
+    .list[data-view='detail']
+    .detailV13:not(.detailV13MustEat)
+    .detailV13Scroll
+    > .packPromo:last-child::after {
+    background: #fff !important;
+    border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
+  }
+
+  /* Flatten the restaurant detail wrappers on phones. The list works because
+     its visible rows are direct in-flow surfaces inside the sheet; keeping the
+     restaurant article behind wrapper boxes makes iOS Safari sample the parent
+     surface behind the bottom URL field. Must-Eat detail keeps its fixed card
      composition. */
   html body .list[data-view='detail'] .detailMount:not(.detailMountMustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    display: block !important;
-    width: 100% !important;
+    display: contents !important;
+    width: auto !important;
     overflow: visible !important;
-    background: #f4efe4 !important;
+    background: transparent !important;
   }
 }
 

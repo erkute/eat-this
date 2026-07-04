@@ -12242,8 +12242,22 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
   .mapBurger {
     position: fixed;
   }
-  /* Location status toast: same viewport pinning as the burger. */
-  html .mapStatusLayer {
-    position: fixed;
+  /* Location status toast: the drag-sheet design anchored it above the
+     sheet via --sheet-visible-px — that var is never written on phones
+     (hook inert), so the fallback parked the toast fixed over the list
+     rows (z-index 120, blocking taps). In-flow analogue: absolute in the
+     document with its bottom edge glued 12px above the list's top edge
+     (list top sits at 100dvh − 44dvh = 56dvh in document coords). It
+     scrolls away together with the list, so it can never float over the
+     rows; at rest it shows over the map, exactly like before. Detail view
+     keeps the higher-specificity bodyDetailOpen bottom-pill override. */
+  html .mapStatusLayer,
+  html .mapStatusLayerError,
+  html .mapStatusLayerOk {
+    position: absolute !important;
+    top: 56dvh !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translate(-50%, calc(-100% - 12px)) !important;
   }
 }

@@ -83,43 +83,8 @@
   );
   pointer-events: none;
 }
-.heroTopcap {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  display: flex;
-  justify-content: flex-start;
-  z-index: 2;
-}
-.openPill {
-  background: var(--yellow);
-  color: var(--ink);
-  font-family: var(--f-display);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 5px 9px 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.openPill::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--ink);
-  border-radius: 999px;
-}
-.openPill.closed {
-  background: var(--cream-deep);
-  color: var(--ink);
-  opacity: 0.85;
-}
-.openPill.closed::before {
-  background: var(--ink);
-  opacity: 0.45;
-}
+
+
 .heroOverlay {
   position: absolute;
   inset: auto 18px 18px;
@@ -203,29 +168,7 @@
   word-break: break-word;
   hyphens: auto;
 }
-.tags {
-  margin: 8px 16px 16px;
-  font-family: var(--f-display);
-  font-size: 14px;
-  line-height: 1.15;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.tags .chip {
-  background: var(--yellow);
-  color: var(--ink);
-  padding: 5px 10px 5px;
-}
-.tags .chipAlt {
-  background: transparent;
-  border: 1.5px solid var(--ink);
-  color: var(--ink);
-  padding: 4px 10px 4px;
-}
+
 
 /* ============================================================
    INSIDER TIPP — yellow surface with offset ink shadow
@@ -540,7 +483,7 @@
   }
   .hero { margin: 8px 22px 0; }
   .name { margin: 20px 22px 0; }
-  .tags { margin: 10px 22px 18px; }
+
   .tipp { margin: 8px 22px 28px; }
   .story { padding: 0 22px 8px; }
   .facts { margin: 18px 22px 28px; }
@@ -758,19 +701,15 @@
   border-color: var(--brand-paper);
 }
 
-.openPill,
 .heroTags .chip,
-.heroTags .chipAlt,
-.tags .chip,
-.tags .chipAlt {
+.heroTags .chipAlt {
   background: var(--brand-paper);
   color: var(--brand-ink);
   border-color: var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
 }
 
-.heroTags .chipOpen,
-.openPill {
+.heroTags .chipOpen {
   background: var(--brand-action);
   color: var(--brand-paper);
   border-color: var(--brand-paper);
@@ -884,7 +823,6 @@
 }
 
 .heroName,
-.title,
 .orderHead,
 .orderDish,
 .factsKey,
@@ -895,28 +833,22 @@
   letter-spacing: 0;
 }
 
-.openPill,
 .heroTags .chip,
 .heroTags .chipOpen,
 .heroTags .chipClosed,
-.heroTags .chipAlt,
-.tags .chip,
-.tags .chipAlt {
+.heroTags .chipAlt {
   border-radius: 0;
   box-shadow: none;
 }
 
-.openPill,
 .heroTags .chip,
-.heroTags .chipOpen,
-.tags .chip {
+.heroTags .chipOpen {
   background: #d9382a;
   color: #fff;
   border-color: #15120e;
 }
 
-.heroTags .chipAlt,
-.tags .chipAlt {
+.heroTags .chipAlt {
   background: #fff;
   color: #15120e;
   border-color: #15120e;
@@ -1043,8 +975,7 @@
   color: var(--detail-ink);
 }
 
-.heroTags,
-.tags {
+.heroTags {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -1054,10 +985,7 @@
 .heroTags .chip,
 .heroTags .chipAlt,
 .heroTags .chipOpen,
-.heroTags .chipClosed,
-.tags .chip,
-.tags .chipAlt,
-.openPill {
+.heroTags .chipClosed {
   min-height: 34px;
   padding: 8px 14px;
   border: 2px solid var(--detail-ink);
@@ -1073,15 +1001,12 @@
 }
 
 .heroTags .chip,
-.tags .chip,
-.heroTags .chipOpen,
-.openPill {
+.heroTags .chipOpen {
   background: var(--detail-red);
   color: #fff;
 }
 
-.heroTags .chipClosed,
-.openPill.closed {
+.heroTags .chipClosed {
   background: var(--detail-ink);
   color: #fff;
 }
@@ -1383,12 +1308,9 @@
   }
 
   .heroTags .chip,
-  .heroTags .chipAlt,
-  .heroTags .chipOpen,
-  .heroTags .chipClosed,
-  .tags .chip,
-  .tags .chipAlt,
-  .openPill {
+.heroTags .chipAlt,
+.heroTags .chipOpen,
+.heroTags .chipClosed {
     min-height: 30px;
     padding: 7px 10px;
     font-size: 10px;

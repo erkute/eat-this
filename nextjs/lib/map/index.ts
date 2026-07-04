@@ -8,7 +8,7 @@
 // with "Hook only works in a Client Component".
 
 // Pure helpers
-export { buildPrimaryMustEatMap, buildPeekMustEatMap, resolvePeek } from './mustEatPeek'
+export { buildPeekMustEatMap, resolvePeek } from './mustEatPeek'
 export type { Peek } from './mustEatPeek'
 export { resolveUnlockedMustEatIds } from './unlockedMustEats'
 export { haversineDistance, formatDistance, formatWalkingTime } from './distance'

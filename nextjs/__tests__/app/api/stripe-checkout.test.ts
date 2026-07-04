@@ -115,7 +115,7 @@ describe('/api/stripe/checkout', () => {
     const { getPack } = await import('../../../lib/stripe-catalog')
     expect(args.line_items[0].price).toBe(getPack('category-pizza')!.stripePriceId)
     expect(args.success_url).toContain('/checkout/success')
-    expect(args.cancel_url).toContain('/#hub-packs')
+    expect(args.cancel_url).toContain('/packs')
     expect(args.success_url).toMatch(/^https:\/\/trusted\.example\//)
   })
 })

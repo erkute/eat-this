@@ -540,9 +540,23 @@ a {
    Lives here (inlined by Next.js) instead of style.min.css so the rule is
    applied before the external stylesheet loads on first paint. */
 .map-spot-overlay:not(.active),
-.search-overlay:not(.active),
-.burger-drawer:not(.active) {
+.search-overlay:not(.active) {
   display: none;
+}
+
+/* Keep the burger drawer in the render tree while closed so the panel can
+   transition from its off-screen transform instead of popping in from
+   display:none. Still hidden pre-paint while style.min.css is loading. */
+.burger-drawer:not(.active) {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.burger-drawer.active {
+  visibility: visible;
 }
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
    because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
@@ -603,6 +617,20 @@ html[data-auth='1'] [data-guest-only] {
   .app-page[data-page='map'] {
     height: 100dvh !important;
     height: calc(100lvh + 80px) !important;
+  }
+}
+/* Phones: the map list is a window-scrolled in-flow document (in-flow map
+   rebuild — see the ≤767.98px block in map.module.css). The fixed-height box
+   above is tablet-only; here the page must grow with the list so the window
+   scrolls it and the rows frost through iOS Safari's bottom URL bar. */
+@media (max-width: 767.98px) {
+  [data-active-page='map'] .app-pages {
+    height: auto !important;
+    min-height: calc(100lvh + 80px) !important;
+  }
+  .app-page[data-page='map'] {
+    height: auto !important;
+    min-height: calc(100lvh + 80px) !important;
   }
 }
 /* Map redesign: no solid header — a single floating burger (in MapSectionBody)
@@ -1065,7 +1093,7 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
 }
 @media (max-width: 520px) {
   .navbar,
-.navbar.scrolled {
+  .navbar.scrolled {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
   }

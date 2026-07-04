@@ -18,7 +18,7 @@ export interface LegacyRestaurant {
 // Irregular, curated old→new restaurant slug map (locale-agnostic).
 // Splits point at the flagship/original branch; renames + dropped-suffix
 // variants point at the surviving spot.
-export const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
+const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
   // single → branch splits (flagship branch)
   'five-elephant': 'five-elephant-kreuzberg',
   'the-barn-cafe': 'the-barn-cafe-mitte',

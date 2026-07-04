@@ -118,7 +118,7 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Must Eats');
     // Counts/subtext are not shown on the home collection rails.
     expect(html).not.toContain('Noch keine');
-    expect(html).not.toContain('offen');
+    expect(html).not.toContain('Schon offen');
     // Deep links into the noindex map/profile routes must carry nofollow —
     // this markup now ships in the indexed SSR HTML of "/".
     expect(html).toContain('rel="nofollow"');
@@ -145,7 +145,7 @@ describe('HubDeineWelt', () => {
 
     expect(html).toContain('href="/profile#profile-panel-spots"');
     expect(html).toContain('href="/profile#profile-panel-must-eats"');
-    expect(html).toContain('/pics/musteat/open.webp');
+    expect(html).toContain('%2Fpics%2Fmusteat%2Fopen.webp');
     expect(html).toContain('/pics/card-back.webp');
   });
 });

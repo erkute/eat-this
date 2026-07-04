@@ -12237,11 +12237,20 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
   }
   /* Open the inner detail ports — the WINDOW scrolls the content now (an
      inner overflow:auto would re-break the frosting). html body + !important
-     to beat the ≤1023.98px --sheet-y-keyed caps. */
+     to beat the ≤1023.98px --sheet-y-keyed caps.
+     overflow-x: clip (NOT visible) contains the pager's translateX preview:
+     the fixed drag-sheet's overflow:hidden used to clip it, but in-flow the
+     whole hero shifted sideways past the viewport edge and the document
+     went horizontally scrollable ("das Bild lässt sich nach links/rechts
+     bewegen", User 2026-07-04). clip + overflow-y:visible is a valid pair
+     that clips horizontally while the vertical content still flows into the
+     window scroll (frosting intact). The gallery keeps its own overflow-x
+     auto for internal scrolling. */
   html body .detailMount,
   html body .detailV13Scroll {
     max-height: none !important;
-    overflow: visible !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
   }
   html body .detailV13Scroll {
     /* Was 20px + safe-area + bar-overhang for the drag-sheet's inner port —

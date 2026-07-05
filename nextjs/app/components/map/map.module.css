@@ -12586,6 +12586,7 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     > .packPromo:last-child {
     background: #fff !important;
     border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
+    margin-bottom: 0 !important;
   }
 
   html body .list[data-view='detail'] .detailMount:not(.detailMountMustEat),
@@ -12604,9 +12605,19 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
       > .packPromo:last-child {
       --detail-url-tail: max(112px, var(--map-bar-overhang, 0px));
       min-height: calc(253px + var(--detail-url-tail)) !important;
-      margin-bottom: calc((var(--detail-url-tail) * -1) + 28px) !important;
+      margin-bottom: 0 !important;
       align-content: end !important;
     }
+  }
+
+  html body .bodyDetailOpen .mapStatusLayer,
+  html body .bodyDetailOpen .mapStatusLayerError,
+  html body .bodyDetailOpen .mapStatusLayerOk {
+    display: none !important;
+  }
+
+  html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
+    padding-bottom: 28px !important;
   }
 }
 

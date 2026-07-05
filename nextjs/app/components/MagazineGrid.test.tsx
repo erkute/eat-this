@@ -20,6 +20,8 @@ describe('MagazineGrid', () => {
     const html = renderToStaticMarkup(<MagazineGrid articles={articles} locale="de" />);
     expect(html).toContain('/news/beste-pizza');
     expect(html).toContain('Beste Pizza 2026');
+    expect(html).not.toContain('Alle Artikel');
+    expect(html).not.toContain('href="/news" class="hv-link"');
   });
   it('renders nothing when empty', () => {
     expect(renderToStaticMarkup(<MagazineGrid articles={[]} locale="de" />)).toBe('');

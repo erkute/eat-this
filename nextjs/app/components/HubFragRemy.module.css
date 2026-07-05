@@ -255,7 +255,7 @@
   }
 
   .avatarWrap {
-    align-self: end;
+    align-self: flex-end;
     justify-self: end;
     max-width: clamp(500px, 45vw, 700px);
     margin-top: clamp(-42px, -3vw, -24px);

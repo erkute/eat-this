@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog'
@@ -136,11 +137,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     aria-label={logo.label}
                     title={logo.label}
                   >
-                    <img
+                    <Image
                       src={logo.src}
                       alt=""
-                      width="70"
-                      height="48"
+                      width={70}
+                      height={48}
                       loading="lazy"
                       decoding="async"
                       className={styles.payLogoImg}
@@ -154,7 +155,14 @@ export default async function PacksOverviewPage({ params }: PageProps) {
 
         <div className={styles.heroStage} aria-hidden="true">
           {heroArt.map((src, index) => (
-            <img key={src} src={src} alt="" className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`} />
+            <Image
+              key={src}
+              src={src}
+              alt=""
+              width={420}
+              height={560}
+              className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`}
+            />
           ))}
         </div>
       </section>
@@ -173,7 +181,15 @@ export default async function PacksOverviewPage({ params }: PageProps) {
             return (
               <article key={pack.packId} className={styles.packTile}>
                 <Link href={href} className={styles.packArtLink} aria-label={`${pack.displayName} ${t.details}`}>
-                  {art && <img src={art} alt="" loading="lazy" className={styles.packArt} />}
+                  {art && (
+                    <Image
+                      src={art}
+                      alt=""
+                      width={420}
+                      height={560}
+                      className={styles.packArt}
+                    />
+                  )}
                 </Link>
 
                 <div className={styles.packInfo}>

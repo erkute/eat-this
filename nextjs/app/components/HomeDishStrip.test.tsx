@@ -8,7 +8,7 @@ vi.mock('./MapIntentLink', () => ({
     </a>
   ),
 }));
-vi.mock('next/image', () => ({ default: () => <img alt="" /> }));
+vi.mock('next/image', () => ({ default: () => null }));
 
 import HomeDishStrip from './HomeDishStrip';
 

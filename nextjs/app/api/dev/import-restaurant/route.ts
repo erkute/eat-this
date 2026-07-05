@@ -21,30 +21,13 @@
  *
  * Cost per call: ~$0.05 (Places + 3× LLM). Latency: ~25–45 s.
  */
-import { createClient } from '@sanity/client'
 import { NextRequest, NextResponse } from 'next/server'
-import { runImport, ImportError } from '@/scripts/import-from-url'
-import {
-  fetchPlaceContext,
-  generateRestaurant,
-  type PlaceContext,
-} from '@/scripts/generate-de-descriptions'
-import { translateRestaurant } from '@/scripts/bootstrap-en-translations'
-import { generateRestaurantSeo } from '@/scripts/generate-seo-fields'
 
 // Allow long-running enrichment (Places + photo + 3× LLM ≈ 25–45 s).
 export const maxDuration = 120
 
 /** Hard kill-switch: this route must never function outside local dev. */
 const IS_DEV = process.env.NODE_ENV === 'development'
-
-const sanity = createClient({
-  projectId: 'ehwjnjr2',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
-  token: process.env.SANITY_API_WRITE_TOKEN,
-  useCdn: false,
-})
 
 /** Dev studio binds to localhost on assorted ports — allow any of them. */
 function corsHeaders(origin: string | null): Record<string, string> {
@@ -84,6 +67,28 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const [
+      { createClient },
+      { runImport },
+      { fetchPlaceContext, generateRestaurant },
+      { translateRestaurant },
+      { generateRestaurantSeo },
+    ] = await Promise.all([
+      import('@sanity/client'),
+      import('@/scripts/import-from-url'),
+      import('@/scripts/generate-de-descriptions'),
+      import('@/scripts/bootstrap-en-translations'),
+      import('@/scripts/generate-seo-fields'),
+    ])
+
+    const sanity = createClient({
+      projectId: 'ehwjnjr2',
+      dataset: 'production',
+      apiVersion: '2024-01-01',
+      token: process.env.SANITY_API_WRITE_TOKEN,
+      useCdn: false,
+    })
+
     // Step 1 — Places lookup + photo asset upload + base doc shape
     const result = await runImport(url)
 
@@ -108,7 +113,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2 — DE description (+ tip + refined shortDescription).
-    let placeContext: PlaceContext | null = null
+    let placeContext: Awaited<ReturnType<typeof fetchPlaceContext>> | null = null
     try {
       placeContext = await fetchPlaceContext(generatorSource as unknown as Parameters<typeof fetchPlaceContext>[0])
     } catch (err) {
@@ -165,9 +170,10 @@ export async function POST(request: NextRequest) {
       { headers: cors },
     )
   } catch (err) {
-    if (err instanceof ImportError) {
+    if (err instanceof Error && err.name === 'ImportError') {
+      const importErr = err as Error & { hint?: string }
       return NextResponse.json(
-        { error: err.message, hint: err.hint },
+        { error: importErr.message, hint: importErr.hint },
         { status: 400, headers: cors },
       )
     }

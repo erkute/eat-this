@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { Link } from '@/i18n/navigation'
-import { getRestaurantsByCategory, getAllCategories } from '@/lib/sanity.server'
+import { getRestaurantsByCategory, getAllCategories, getCategoryBySlug } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { categoryArt } from '@/lib/categoryArt'
 import { hreflangAlternates } from '@/lib/seo/metadata'
@@ -35,9 +35,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pack = resolvePackByUrlSlug(slug)
   if (!pack) return {}
   const de = locale === 'de'
+  const category = pack.type === 'category' && pack.slug
+    ? await getCategoryBySlug(pack.slug)
+    : null
+  const packTitleName = category
+    ? localizedCategoryName(category, de ? 'de' : 'en')
+    : pack.displayName
   const title = pack.type === 'all-berlin'
     ? (de ? 'All Berlin — alle Packs · Eat This' : 'All Berlin — every pack · Eat This')
-    : `${pack.displayName} Pack — Eat This`
+    : `${packTitleName} Pack — Eat This`
   return {
     title,
     description: pack.description[de ? 'de' : 'en'],
@@ -160,7 +166,10 @@ export default async function PackDetailPage({ params }: PageProps) {
         <section className={styles.hero}>
           <div className={styles.copy}>
             <div className={styles.kicker}>Booster Pack</div>
-            <h1 className={styles.name}>{heroName}<br />Pack</h1>
+            <h1 className={styles.name}>
+              <span>{heroName}</span>{' '}
+              <span className={styles.nameLine}>Pack</span>
+            </h1>
             <p className={styles.sub}>{pack.description[loc]}</p>
 
             <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />

@@ -101,7 +101,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
 
   const toggle = useCallback(async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
     if (!uid || !auth.currentUser) {
-      window.location.assign('/login')
+      window.location.assign(locale === 'en' ? '/en/login' : '/login')
       return
     }
     // The heart write goes through /api/heart (Admin SDK), which is the single

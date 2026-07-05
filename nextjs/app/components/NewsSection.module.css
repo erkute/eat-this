@@ -22,7 +22,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(22px, 5vw, 74px);
-  align-items: end;
+  align-items: flex-end;
   padding-bottom: clamp(8px, 2vw, 18px);
 }
 

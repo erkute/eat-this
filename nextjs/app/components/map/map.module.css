@@ -6585,7 +6585,7 @@ html .rdMustHead {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
-  align-items: end;
+  align-items: flex-end;
   padding: 15px 14px 12px;
   border-bottom: 2px solid currentColor;
 }

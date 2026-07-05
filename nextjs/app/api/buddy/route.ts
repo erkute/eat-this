@@ -56,7 +56,13 @@ function clientIpHash(request: Request): string | null {
     request.headers.get('x-real-ip'),
   )
   if (!ip) return null
-  const salt = process.env.BUDDY_IP_SALT ?? 'eat-this-buddy'
+  const salt = process.env.BUDDY_IP_SALT
+  if (!salt) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('BUDDY_IP_SALT is required in production')
+    }
+    return createHash('sha256').update(`${ip}:eat-this-buddy-dev`).digest('hex').slice(0, 40)
+  }
   return createHash('sha256').update(ip + salt).digest('hex').slice(0, 40)
 }
 

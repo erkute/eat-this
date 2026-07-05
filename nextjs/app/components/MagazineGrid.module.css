@@ -10,7 +10,7 @@
 }
 
 .head:global(.hv-head) {
-  align-items: end;
+  align-items: flex-end;
   gap: 18px;
   margin-bottom: clamp(20px, 3.2vw, 42px);
   padding-bottom: 0;

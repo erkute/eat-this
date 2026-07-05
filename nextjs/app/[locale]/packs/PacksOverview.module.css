@@ -261,7 +261,7 @@
   display: grid;
   grid-template-columns: minmax(0, .8fr) minmax(280px, .62fr);
   gap: clamp(20px, 5vw, 64px);
-  align-items: end;
+  align-items: flex-end;
   margin-bottom: clamp(22px, 4vw, 42px);
 }
 

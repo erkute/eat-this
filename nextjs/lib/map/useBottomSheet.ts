@@ -14,13 +14,12 @@ const MID_VISIBLE_PX = 420;
 // so the user never loses the "I'm still on the map" anchor.
 const FULL_TOP_PX = 40;
 const MOBILE_MAX = 1023.98;
-/* Phones (≤767.98px) render the LIST view as a window-scrolled in-flow
-   document so its rows frost through iOS Safari's bottom URL bar (see the
-   in-flow block in map.module.css). The sheet hook must be fully inert
-   there: no --sheet-y writes, no maplibre-control offsets, no drag bindings
-   (their touchmove preventDefault would swallow the window scroll — the
-   Stage-0 spike learning). The DETAIL view stays a fixed drag-sheet on
-   phones, and tablets (768–1023.98) keep the drag-sheet for both views. */
+/* Phones (≤767.98px) render the LIST and DETAIL views as window-scrolled
+   in-flow documents so their content frosts through iOS Safari's bottom URL
+   bar (see the in-flow block in map.module.css). The sheet hook must be
+   fully inert there: no --sheet-y writes, no maplibre-control offsets, no
+   drag bindings (their touchmove preventDefault would swallow window scroll).
+   Tablets (768–1023.98) keep the drag-sheet for both views. */
 const PHONE_MAX = 767.98;
 
 function snapToPx(snap: SheetSnap, sheetH: number, peekPx: number): number {

@@ -88,6 +88,21 @@ The app is light-only. Do not add theme toggles, alternate color-scheme
 branches, or system-scheme media variants. Keep contrast readable in the
 single light design.
 
+## Brand surfaces — no decorative lines
+
+Do not use decorative lines on brand/editorial surfaces, especially inline
+Must-Eat cards and article inserts. Avoid border rules, divider lines, framed
+image boxes, grid-paper lines, red strip lines, and underline-like bars as a
+visual device. Use spacing, typography, image scale, contrast, and solid
+surfaces instead.
+
+## Buttons — no Moonblossom/Poster font
+
+Do not use the Moonblossom/Poster/marker display font for buttons or CTAs.
+Buttons should follow the current Home button typography: Providence display
+font, compact size, strong weight, no exaggerated letter spacing, and no forced
+uppercase unless a specific component already proves otherwise.
+
 ## Browser QA preference
 
 The user does not want screenshot-based QA during normal iteration. Prefer the

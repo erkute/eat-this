@@ -89,7 +89,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         // Instagram-style page: current pane slides out, the new one slides
         // in from the opposite edge (translate only — no opacity fade).
         const target = animatedEl()
-        const w = el.clientWidth
+        const w = el.clientWidth || window.innerWidth
         const outX = dir === 'next' ? -w : w
         setTransition(target, 'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)')
         setTransform(target, `translateX(${outX}px)`)

@@ -13,7 +13,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
   const [lead, ...rest] = articles;
   const list = rest.slice(0, 5);
   const labels = {
-    all: locale === 'en' ? 'All articles' : 'Alle Artikel',
     read: locale === 'en' ? 'Read' : 'Lesen',
   };
   return (
@@ -26,9 +25,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'On the plate' : 'Auf den Teller'}
         </h2>
-        <Link href="/news" className="hv-link">
-          {labels.all}
-        </Link>
       </div>
 
       <div className={styles.grid}>

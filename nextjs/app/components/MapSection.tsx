@@ -238,6 +238,42 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   if (safeAreaBottomRef.current === null) {
     safeAreaBottomRef.current = typeof document !== 'undefined' ? readSafeAreaBottom() : 0;
   }
+
+  useEffect(() => {
+    if (!isActive) return;
+    if (!isPhoneViewport()) return;
+
+    const root = document.documentElement;
+    const apply = () => {
+      const visualViewport = window.visualViewport;
+      const visualHeight = visualViewport?.height ?? window.innerHeight;
+      const layoutHeight = Math.max(
+        window.innerHeight,
+        document.documentElement.clientHeight,
+        visualHeight
+      );
+      const visualOffsetTop = visualViewport?.offsetTop ?? 0;
+      const toolbarHeight = Math.max(0, layoutHeight - visualHeight - visualOffsetTop);
+
+      root.style.setProperty(
+        '--map-runtime-bar-overhang',
+        `${Math.round(Math.max(96, toolbarHeight + 96))}px`
+      );
+    };
+
+    apply();
+    window.addEventListener('resize', apply, { passive: true });
+    window.visualViewport?.addEventListener('resize', apply, { passive: true });
+    window.visualViewport?.addEventListener('scroll', apply, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.visualViewport?.removeEventListener('resize', apply);
+      window.visualViewport?.removeEventListener('scroll', apply);
+      root.style.removeProperty('--map-runtime-bar-overhang');
+    };
+  }, [isActive]);
+
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return;
     if (typeof window === 'undefined') return;

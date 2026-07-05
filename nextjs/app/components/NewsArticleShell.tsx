@@ -136,10 +136,6 @@ export default function NewsArticleShell({
     .slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const readLabel = de ? 'Lesen' : 'Read';
-  const shareTitle = de ? 'Guide weitergeben' : 'Share this guide';
-  const shareHint = de
-    ? 'Schick den Artikel an jemanden, der auch gutes Brot braucht.'
-    : 'Send this article to someone who needs good bread.';
 
   return (
     <div
@@ -188,19 +184,13 @@ export default function NewsArticleShell({
         </div>
 
         <div className={styles.shareRow}>
-          <div className={styles.shareText}>
-            <span className={styles.shareTitle}>{shareTitle}</span>
-            <span className={styles.shareHint}>{shareHint}</span>
-          </div>
-          <div className={styles.shareAction}>
-            <NewsArticleShare
-              title={title}
-              excerpt={excerpt}
-              label={de ? 'Link teilen' : 'Share link'}
-              copiedLabel={de ? 'Link kopiert' : 'Link copied'}
-              className={styles.shareBtn}
-            />
-          </div>
+          <NewsArticleShare
+            title={title}
+            excerpt={excerpt}
+            label={de ? 'Teilen' : 'Share'}
+            copiedLabel={de ? 'Kopiert' : 'Copied'}
+            className={styles.shareBtn}
+          />
         </div>
 
         {recommendations.length > 0 && (

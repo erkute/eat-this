@@ -593,26 +593,22 @@ html[data-auth='1'] [data-guest-only] {
    [data-active-page="map"] block). Map canvas now claims the full
    viewport including the top 60px the navbar used to reserve. */
 @media (max-width: 1023.98px) {
-  /* 100lvh (large viewport, URL bar collapsed) instead of 100dvh: the page
-     extends in-flow behind iOS Safari's translucent bottom URL bar, so the
-     bottom sheet's last --map-bar-overhang px blur through it while the
-     list scrolls — same effect as the window-scroll start page. Safari only
-     paints IN-FLOW document content into the bar backdrop (a position:fixed
-     overhang doesn't show up there). The window gains a bar-height scroll
-     range, but every map gesture is captured (canvas touch-action none,
-     sheet drag preventDefault, list overscroll-behavior contain) so it
-     stays at scroll 0 in practice. Sheet snap math anchors to
-     window.innerHeight — see useBottomSheet.ts. */
+  /* The map needs document height below the visual viewport so mobile
+     browser chrome can sample real in-flow content. Phones overwrite
+     --map-runtime-bar-overhang from visualViewport in MapSection; fallback
+     preserves the old lvh/dvh estimate. */
   [data-active-page='map'] .app-pages {
     margin-top: 0 !important;
     height: 100dvh !important; /* fallback: browsers without lvh */
-    /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
-       document end; must match --map-bar-overhang in map.module.css. */
-    height: calc(100lvh + 80px) !important;
+    height: calc(
+      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
+    ) !important;
   }
   .app-page[data-page='map'] {
     height: 100dvh !important;
-    height: calc(100lvh + 80px) !important;
+    height: calc(
+      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
+    ) !important;
   }
 }
 /* Phones: the map list is a window-scrolled in-flow document (in-flow map
@@ -622,11 +618,15 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 767.98px) {
   [data-active-page='map'] .app-pages {
     height: auto !important;
-    min-height: calc(100lvh + 80px) !important;
+    min-height: calc(
+      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
+    ) !important;
   }
   .app-page[data-page='map'] {
     height: auto !important;
-    min-height: calc(100lvh + 80px) !important;
+    min-height: calc(
+      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
+    ) !important;
   }
 }
 /* Map redesign: no solid header — a single floating burger (in MapSectionBody)

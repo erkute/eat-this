@@ -20,15 +20,10 @@
   background: var(--surface-bg);
   color: var(--text-primary);
   overflow: hidden;
-  /* How far the page extends below the visual viewport: iOS Safari's
-     bottom-URL-bar zone (100lvh − 100dvh) plus an 80px apron past the lvh
-     line. Safari's bar backdrop samples deeper than the document — without
-     the apron a black void shows below the URL capsule (the document used
-     to end exactly at lvh). Sheet + scroll-ports extend by this amount so
-     rows blur through the translucent bar like on window-scroll pages.
-     Must match the +80px in the [data-active-page="map"] height rules
-     (globals.css + style.css). Desktop: 80px, harmlessly off-screen. */
-  --map-bar-overhang: calc(100lvh - 100dvh + 80px);
+  /* How far the page extends below the visual viewport. Phones set
+     --map-runtime-bar-overhang from visualViewport because iOS Safari's
+     toolbar math is not reliably represented by lvh/dvh alone. */
+  --map-bar-overhang: var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px));
   /* Block page-level pinch-zoom on the map page — only vertical pan/scroll
      is allowed on UI surfaces. The MapLibre canvas overrides this with
      touch-action: none so the actual map still pinches & rotates. */
@@ -10885,7 +10880,7 @@ html body .detailV13:not(.detailV13MustEat) .packPromo {
 }
 
 html body .detailV13:not(.detailV13MustEat) .detailV13Scroll > .packPromo:last-child {
-  margin-bottom: 0 !important;
+  margin-bottom: 28px !important;
 }
 
 html body .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
@@ -12489,8 +12484,8 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .detailV13:not(.detailV13MustEat) .rdHours {
-    grid-template-columns: 92px minmax(0, 1fr) !important;
-    column-gap: 24px !important;
+    grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr) !important;
+    column-gap: 16px !important;
     row-gap: 10px !important;
   }
 
@@ -12577,23 +12572,10 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    /* No flat overhang apron here: a uniform #f4efe4 strip behind the iOS URL
-       bar frosts as a flat colour (reads as "kein Frosting", User 2026-07-05).
-       Instead the last real block (pack promo w/ pack image, or facts) bleeds
-       to the document bottom below, so VARIED content sits behind the bar and
-       shows through it — the way the list frosts its yellow listEnd + rows.
-       Keep only the home-indicator safe-area. */
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    /* No inner scroll-port and no blank padding apron; Safari's toolbar
+       treatment is handled on the final real detail block below. */
+    padding-bottom: 0 !important;
     overscroll-behavior: auto !important;
-  }
-
-  html
-    body
-    .list[data-view='detail']
-    .detailV13:not(.detailV13MustEat)
-    .detailV13Scroll
-    > :last-child {
-    margin-bottom: 0 !important;
   }
 
   html
@@ -12604,20 +12586,38 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     > .packPromo:last-child {
     background: #fff !important;
     border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
+    margin-bottom: 0 !important;
   }
 
-  /* Keep restaurant detail as one real, document-flow surface. It must not be
-     a nested overflow scroller, but it also must not be display:contents:
-     iOS Safari then samples gaps/parents instead of the continuous article
-     surface behind the bottom URL bar. Must-Eat detail keeps its fixed card
-     composition. */
   html body .list[data-view='detail'] .detailMount:not(.detailMountMustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    display: block !important;
-    width: 100% !important;
+    width: auto !important;
     overflow: visible !important;
-    background: #f4efe4 !important;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    html
+      body
+      .list[data-view='detail']
+      .detailV13:not(.detailV13MustEat)
+      .detailV13Scroll
+      > .packPromo:last-child {
+      --detail-url-tail: max(112px, var(--map-bar-overhang, 0px));
+      min-height: calc(253px + var(--detail-url-tail)) !important;
+      margin-bottom: 0 !important;
+      align-content: end !important;
+    }
+  }
+
+  html body .bodyDetailOpen .mapStatusLayer,
+  html body .bodyDetailOpen .mapStatusLayerError,
+  html body .bodyDetailOpen .mapStatusLayerOk {
+    display: none !important;
+  }
+
+  html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
+    padding-bottom: 28px !important;
   }
 }
 

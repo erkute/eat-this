@@ -28,10 +28,10 @@ const EMPTY: InitialMapData = {
   revealedMustEatIds: [],
 }
 
-function render(locale: 'de' | 'en' = 'de') {
+function render(locale: 'de' | 'en' = 'de', data: InitialMapData = EMPTY) {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale={locale} messages={{}}>
-      <MustEatsSection initialMapData={EMPTY} locale={locale} />
+      <MustEatsSection initialMapData={data} locale={locale} />
     </NextIntlClientProvider>,
   )
 }
@@ -64,9 +64,51 @@ describe('MustEatsSection', () => {
     expect(html).toContain('you reveal the rest yourself, on site.')
   })
 
+  it('uses the shared card-back asset for hero cards without an image', () => {
+    const html = render('de', {
+      ...EMPTY,
+      mustEats: [
+        {
+          _id: 'hero-covered',
+          dish: 'Covered Dish',
+          restaurant: {
+            _id: 'r1',
+            name: 'Test Spot',
+            slug: 'test-spot',
+            lat: 52.5,
+            lng: 13.4,
+          },
+        },
+      ],
+    } as InitialMapData)
+
+    expect(html).toContain('/pics/card-back.webp?v=6')
+    expect(html).not.toContain('card-back-gallery')
+  })
+
   it('closing block sells booster packs (de)', () => {
     const html = render()
     expect(html).toContain('Kauf ein Booster Pack')
     expect(html).toContain('Packs kaufen')
+  })
+
+  it('renders every booster pack artwork in the closing block', () => {
+    const html = render()
+
+    for (const src of [
+      '/pics/booster/booster.webp',
+      '/pics/booster/booster_free.webp',
+      '/pics/booster/booster_breakfast.webp',
+      '/pics/booster/booster_coffee.webp',
+      '/pics/booster/booster_dinner.webp',
+      '/pics/booster/booster_drinks.webp',
+      '/pics/booster/booster_fastfood.webp',
+      '/pics/booster/booster_finedining.webp',
+      '/pics/booster/booster_lunch.webp',
+      '/pics/booster/booster_pizza.webp',
+      '/pics/booster/booster_sweets.webp',
+    ]) {
+      expect(html).toContain(src)
+    }
   })
 })

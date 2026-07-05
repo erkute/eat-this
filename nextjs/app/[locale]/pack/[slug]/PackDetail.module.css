@@ -93,6 +93,10 @@
   line-height: .88;
 }
 
+.nameLine {
+  display: block;
+}
+
 .sub {
   max-width: 39ch;
   margin: 0 0 clamp(20px, 3vw, 30px);
@@ -303,7 +307,7 @@
 .upsell a {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  align-items: end;
+  align-items: flex-end;
   gap: clamp(28px, 4vw, 44px);
   padding: clamp(10px, 2vw, 18px) 0 clamp(2px, 1vw, 8px);
   color: var(--pack-ink);

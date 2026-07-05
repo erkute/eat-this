@@ -69,7 +69,7 @@
 .heroGrid,
 .heroGridPlain {
   display: grid;
-  align-items: end;
+  align-items: flex-end;
   gap: clamp(22px, 4vw, 58px);
 }
 

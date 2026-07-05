@@ -1,13 +1,13 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, it, expect, vi } from 'vitest';
 vi.mock('./MapIntentLink', () => ({
-  default: ({ href, children, className, ...rest }: any) => (
+  default: ({ href, children, className }: any) => (
     <a href={href} className={className}>
       {children}
     </a>
   ),
 }));
-vi.mock('next/image', () => ({ default: (props: any) => <img alt="" /> }));
+vi.mock('next/image', () => ({ default: () => null }));
 import CategoriesRail from './CategoriesRail';
 
 describe('CategoriesRail', () => {

@@ -303,7 +303,7 @@
 .head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, .78fr);
-  align-items: end;
+  align-items: flex-end;
   gap: clamp(34px, 7vw, 104px);
   margin: clamp(34px, 6vw, 82px) auto clamp(22px, 3vw, 36px);
   padding: 0 0 clamp(34px, 5vw, 70px);
@@ -501,7 +501,7 @@
 .close {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
+  align-items: flex-end;
   gap: clamp(24px, 5vw, 72px);
   margin-bottom: clamp(48px, 7vw, 96px);
   padding: clamp(34px, 5vw, 72px) 0 0;

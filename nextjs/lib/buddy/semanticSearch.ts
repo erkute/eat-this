@@ -7,7 +7,6 @@
 // failure (no key, 429, missing index) it returns null and the caller falls back
 // to keyword order unchanged.
 import { embed, cosine } from './voyage'
-import embeddings from './restaurant-embeddings.json'
 
 interface EmbeddingsFile {
   model: string
@@ -16,7 +15,7 @@ interface EmbeddingsFile {
   vectors: Record<string, number[]>
 }
 
-const INDEX = embeddings as EmbeddingsFile
+let indexPromise: Promise<EmbeddingsFile | null> | null = null
 
 export interface SemanticScore {
   slug: string
@@ -24,8 +23,14 @@ export interface SemanticScore {
 }
 
 /** True when an embeddings index is present (build-time asset was generated). */
-function hasSemanticIndex(): boolean {
-  return !!INDEX?.vectors && Object.keys(INDEX.vectors).length > 0
+async function getSemanticIndex(): Promise<EmbeddingsFile | null> {
+  indexPromise ??= import('./restaurant-embeddings.json')
+    .then((mod) => {
+      const index = mod.default as EmbeddingsFile
+      return index?.vectors && Object.keys(index.vectors).length > 0 ? index : null
+    })
+    .catch(() => null)
+  return indexPromise
 }
 
 /**
@@ -35,7 +40,9 @@ function hasSemanticIndex(): boolean {
  */
 export async function semanticRank(query: string): Promise<SemanticScore[] | null> {
   const q = query.trim()
-  if (q.length < 3 || !hasSemanticIndex() || !process.env.VOYAGE_API_KEY) return null
+  if (q.length < 3 || !process.env.VOYAGE_API_KEY) return null
+  const index = await getSemanticIndex()
+  if (!index) return null
   let qvec: number[]
   try {
     ;[qvec] = await embed([q], 'query')
@@ -43,7 +50,7 @@ export async function semanticRank(query: string): Promise<SemanticScore[] | nul
     return null // 429 / network / key issue → caller falls back to keyword order
   }
   if (!qvec) return null
-  const scores = Object.entries(INDEX.vectors).map(([slug, vec]) => ({
+  const scores = Object.entries(index.vectors).map(([slug, vec]) => ({
     slug,
     score: cosine(qvec, vec),
   }))

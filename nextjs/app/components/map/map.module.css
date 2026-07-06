@@ -12572,8 +12572,7 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    /* No inner scroll-port and no blank padding apron; Safari's toolbar
-       treatment is handled on the final real detail block below. */
+    /* No inner scroll-port and no blank padding apron. */
     padding-bottom: 0 !important;
     overscroll-behavior: auto !important;
   }
@@ -12594,20 +12593,6 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
     width: auto !important;
     overflow: visible !important;
-  }
-
-  @supports (-webkit-touch-callout: none) {
-    html
-      body
-      .list[data-view='detail']
-      .detailV13:not(.detailV13MustEat)
-      .detailV13Scroll
-      > .packPromo:last-child {
-      --detail-url-tail: max(112px, var(--map-bar-overhang, 0px));
-      min-height: calc(253px + var(--detail-url-tail)) !important;
-      margin-bottom: 0 !important;
-      align-content: end !important;
-    }
   }
 
   html body .bodyDetailOpen .mapStatusLayer,

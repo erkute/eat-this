@@ -637,23 +637,6 @@ html[data-auth='1'] [data-guest-only] {
 [data-active-page='map'] .site-footer {
   display: none !important;
 }
-@media (max-width: 1023.98px) {
-  .app-page[data-page='map']::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: calc(100lvh + 80px - 100dvh);
-    background: #d9382a; /* matches the red drawer panel */
-    z-index: 50; /* above the bottom sheet (z 4) */
-    opacity: 0;
-    pointer-events: none;
-  }
-  body:has(.burger-drawer.active) .app-page[data-page='map']::after {
-    opacity: 1;
-  }
-}
 /* Login modal behind the iOS bottom URL bar: handled by
    app/components/LoginModalBarLock.tsx (inline-style scroll-lock + canvas
    recolor on modal mount) — a stylesheet :has() variant computed correctly

@@ -4,7 +4,6 @@ import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
-import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
 
 export const revalidate = 3600
 
@@ -16,8 +15,6 @@ interface PageProps {
 // silently dropping the user on the home view. /profile is dispatched by the
 // dedicated /[locale]/profile/page.tsx route — it never reaches this catch-all.
 const VALID_SLUGS = new Set([
-  'map',
-  'must-eats',
   'news',
   'about',
   'contact',
@@ -35,16 +32,6 @@ type SlugMeta = {
 }
 
 const PAGE_META: Record<string, SlugMeta> = {
-  map: {
-    de: { title: 'Karte', description: 'Interaktive Karte aller Eat-This-Restaurants und Must Eats in Berlin.' },
-    en: { title: 'Map', description: 'Interactive map of every Eat This restaurant and Must Eat in Berlin.' },
-    noIndex: true,
-  },
-  'must-eats': {
-    de: { title: 'Must Eats', description: 'Die Must Eats von Eat This — die Gerichte, die du in Berlin nicht verpassen darfst.' },
-    en: { title: 'Must Eats', description: "Eat This Must Eats — the dishes you can't miss in Berlin." },
-    noIndex: true,
-  },
   news: {
     de: { title: 'News', description: 'Aktuelle Restaurant-News, Empfehlungen und Storys aus Berlins Food-Szene.' },
     en: { title: 'News', description: "Latest restaurant news, recommendations and stories from Berlin's food scene." },
@@ -125,23 +112,6 @@ export default async function SPACatchAllPage({ params }: PageProps) {
     ])
     return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />
   }
-  if (top === 'map') {
-    // SSR the anon-tier set so spots are in the HTML from byte 0; signed-in
-    // users refetch /api/map-data on mount for their +20 + entitlement union.
-    const [{ default: MapSection }, initialMapData] = await Promise.all([
-      import('@/app/components/MapSection'),
-      getInitialAnonMapData(),
-    ])
-    return <MapSection isActive initialMapData={initialMapData} />
-  }
-  if (top === 'must-eats') {
-    const [{ default: MustEatsSection }, initialMapData] = await Promise.all([
-      import('@/app/components/MustEatsSection'),
-      getInitialAnonMapData(),
-    ])
-    return <MustEatsSection initialMapData={initialMapData} locale={locale as 'de' | 'en'} />
-  }
-
   if (STATIC_SLUGS.has(top)) {
     const [{ default: StaticPages }, pages] = await Promise.all([
       import('@/app/components/StaticPages'),

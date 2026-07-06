@@ -158,7 +158,7 @@ export default async function PackDetailPage({ params }: PageProps) {
   const teaser = buildPackTeaser(restaurants)
   const art = categoryArt(pack.slug as string)
   const heroName = nameOf(pack.slug as string)
-  const allBerlinHref = de ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`
+  const allBerlinHref = '/pack/all-berlin'
 
   return (
     <main className={styles.page}>

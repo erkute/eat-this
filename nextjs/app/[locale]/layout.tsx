@@ -52,6 +52,10 @@ export function generateStaticParams() {
 // login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
 // blocks can hide before paint.
 const CRITICAL_BOOTSTRAP = `(function(){
+  var extensionAttrs=['bis_skin_checked'];
+  function cleanExtensionAttrs(root){try{if(!root||root.nodeType!==1)return;for(var i=0;i<extensionAttrs.length;i++)root.removeAttribute(extensionAttrs[i]);var nodes=root.querySelectorAll?root.querySelectorAll('[bis_skin_checked]'):[];for(var j=0;j<nodes.length;j++){for(var k=0;k<extensionAttrs.length;k++)nodes[j].removeAttribute(extensionAttrs[k]);}}catch(_){}}
+  cleanExtensionAttrs(document.documentElement);
+  try{var observer=new MutationObserver(function(mutations){for(var i=0;i<mutations.length;i++){var m=mutations[i];if(m.type==='attributes')cleanExtensionAttrs(m.target);for(var j=0;j<m.addedNodes.length;j++)cleanExtensionAttrs(m.addedNodes[j]);}});observer.observe(document.documentElement,{attributes:true,attributeFilter:extensionAttrs,childList:true,subtree:true});window.addEventListener('load',function(){setTimeout(function(){observer.disconnect();cleanExtensionAttrs(document.documentElement);},3000);},{once:true});}catch(_){}
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;
@@ -113,20 +117,20 @@ export default async function LocaleLayout({
   return (
     // suppressHydrationWarning: critical script mutates data-active-page before hydration
     <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
-      <head>
+      <head suppressHydrationWarning>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href={PROVIDENCE_BOLD_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
+      </head>
+      <body suppressHydrationWarning>
         <script
           id="schema-org"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: ORG_JSON_LD }}
         />
-      </head>
-      <body>
         <ClientIntlProvider locale={locale} messages={messages}>
           <ReferralToastListener />
           {/* Global toast (window.showNotification) — mounted here, not in the

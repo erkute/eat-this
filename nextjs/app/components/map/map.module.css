@@ -12601,6 +12601,34 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     display: none !important;
   }
 
+  /* ══ FROST-TEST EXPERIMENT 4 — TEMPORARY, REMOVE BEFORE COMMIT ══
+     Safari: bar collapses but backdrop stays page-background (content layer
+     not sampled); Chrome samples fine → WebKit-only compositing of the
+     detail subtree. This run removes the four biggest Safari-only suspects
+     at once (bisect down if it frosts): the always-composited WebGL map
+     canvas, z-index 6, the forced root backgrounds, the aside border-top.
+     Stripes + 300dvh stay as the readout. */
+  html body .list[data-view='detail'] .detailMount:not(.detailMountMustEat) {
+    min-height: 300dvh !important;
+  }
+  html body .list[data-view='detail'] .detailMount:not(.detailMountMustEat),
+  html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll > * {
+    background: repeating-linear-gradient(
+      45deg, #ff2d78, #ff2d78 24px, #1c74ff 24px, #1c74ff 48px
+    ) !important;
+  }
+  /* (a) RESTORED for exp 5 — canvas back, testing whether (b)+(d) alone fix it */
+  /* (b)+(d) list-like z-index, no border */
+  html body .list[data-view='detail'] {
+    z-index: 4 !important;
+    border-top: 0 !important;
+  }
+  /* (c) neutralize the forced root backgrounds (fall back to theme white) */
+  html:root:has(.bodyDetailOpen),
+  html:root:has(.bodyDetailOpen) body {
+    background: #ffffff !important;
+  }
+
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
     padding-bottom: 28px !important;
   }

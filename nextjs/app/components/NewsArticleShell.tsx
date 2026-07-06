@@ -126,7 +126,7 @@ export default function NewsArticleShell({
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/' },
+    { name: homeLabel, href: '/', logo: 'eat-this' },
     { name: newsLabel, href: '/news' },
     { name: title },
   ];
@@ -153,24 +153,28 @@ export default function NewsArticleShell({
           </div>
 
           {article.imageUrl ? (
-            <figure className={styles.heroWrap}>
-              <Image
-                src={article.imageUrl}
-                alt={article.alt || title}
-                fill
-                priority
-                sizes="(max-width: 760px) 100vw, 1180px"
-                className={styles.hero}
-              />
-              <figcaption className={styles.introCopy}>
+            <>
+              <figure className={styles.heroWrap}>
+                <Image
+                  src={article.imageUrl}
+                  alt={article.alt || title}
+                  fill
+                  priority
+                  sizes="(max-width: 760px) 100vw, 1180px"
+                  className={styles.hero}
+                />
+                <figcaption className={styles.introCopy}>
+                  <h1 className={styles.heroTitle}>{title}</h1>
+                </figcaption>
+              </figure>
+              <div className={styles.heroBelow}>
                 <div className={styles.byline}>
                   <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
                   {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
                 </div>
-                <h1 className={styles.heroTitle}>{title}</h1>
                 {excerpt && <p className={styles.lede}>{excerpt}</p>}
-              </figcaption>
-            </figure>
+              </div>
+            </>
           ) : (
             <div className={styles.heroGridPlain}>
               <div className={styles.introCopy}>

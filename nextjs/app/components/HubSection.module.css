@@ -33,7 +33,7 @@
   justify-content: center;
 }
 
-.heroKicker:global(.hv-kicker) {
+.page .heroKicker:global(.hv-kicker) {
   font-family: var(--font-providence);
   font-size: clamp(17px, 2.2vw, 24px);
   font-weight: 700;
@@ -59,7 +59,7 @@
   margin-top: 24px;
 }
 
-.heroNearbyLink:global(.hv-link-underline) {
+.page .heroNearbyLink:global(.hv-link-underline) {
   font-family: var(--font-providence);
   font-size: clamp(19px, 2.2vw, 24px);
   font-weight: 700;
@@ -92,7 +92,7 @@
   text-shadow: var(--et-shadow-text-photo);
 }
 
-.heroPhotoTag :global(.hv-kicker) {
+.page .heroPhotoTag :global(.hv-kicker) {
   color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
   font-size: clamp(15px, 1.5vw, 20px);

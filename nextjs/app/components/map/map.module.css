@@ -12616,6 +12616,12 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     display: none !important;
   }
 
+  /* iOS URL-bar frosting for the phone detail: the always-composited
+     MapLibre GL layer under the detail suppresses WebKit's bar-backdrop
+     sampling of the detail content (bisected on-device 2026-07-06).
+     MapSection.tsx hides the fully-occluded mapWrap via an inline
+     visibility toggle once the sheet's top edge reaches the viewport top
+     — no rule needed here; this note is the breadcrumb. */
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
     padding-bottom: 28px !important;
   }

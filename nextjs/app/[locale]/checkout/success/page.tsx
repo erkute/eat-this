@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { getStripe } from '@/lib/stripe'
 import { getPack } from '@/lib/stripe-catalog'
+import { maskEmail } from '@/lib/maskEmail'
 import CheckoutSuccessAnalytics from './CheckoutSuccessAnalytics'
 import styles from './success.module.css'
 
@@ -30,13 +31,20 @@ export default async function CheckoutSuccessPage({
   // Server-side fetch the Stripe session so we can show the buyer their
   // own email and the pack they bought. Failure mode: just show the
   // generic copy without the email/pack name.
+  //
+  // The session is addressed purely by the URL param, so this page must not
+  // echo the raw address (unauthenticated PII from an attacker-controlled
+  // parameter). Only paid sessions show it, and only masked — enough for the
+  // buyer to recognise their own inbox, useless to anyone else with the link.
   let email: string | null = null
   let packLabel: string | null = null
   let amountCents: number | null = null
   if (session_id) {
     try {
       const session = await getStripe().checkout.sessions.retrieve(session_id)
-      email = session.customer_details?.email ?? null
+      if (session.payment_status === 'paid' && session.customer_details?.email) {
+        email = maskEmail(session.customer_details.email)
+      }
     } catch {
       /* ignore — generic copy is fine */
     }

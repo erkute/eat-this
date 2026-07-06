@@ -63,17 +63,15 @@ const homeWeekCategoriesQuery = `*[_type == "homeWeek" && weekStart <= $today] |
   line
 }`
 
+// No spot tiles here — the district switcher renders name/count/tagline only.
+// The old sticker-wall's per-district `spots` sub-projection (4 spots incl.
+// images, ordered by a nested must-eat count) was dead payload in the home RSC
+// stream and by far the most expensive part of this query; removed 2026-07.
 const districtsQuery = `*[_type == "bezirk" && defined(slug.current)]{
   "name": name,
   "slug": slug.current,
   "tagline": select($locale == "en" => coalesce(descriptionEn, description), description),
-  "count": count(*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**")) && references(^._id)]),
-  "spots": *[_type == "restaurant" && isOpen == true && defined(image) && !(_id in path("drafts.**")) && references(^._id)] | order(featured desc, count(*[_type == "mustEat" && references(^._id)]) desc)[0...4]{
-    "name": name,
-    "slug": slug.current,
-    "image": image.asset->url,
-    "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
-  }
+  "count": count(*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**")) && references(^._id)])
 }[count >= 5] | order(count desc)`
 
 const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{

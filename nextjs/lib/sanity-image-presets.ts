@@ -51,3 +51,20 @@ export function presetQuery(preset: ImagePresetName): string {
 export function groqImageUrl(path: string, preset: ImagePresetName): string {
   return `${path}.asset->url + "${presetQuery(preset)}"`
 }
+
+/** Responsive `srcSet` for a raw `<img>` holding a Sanity CDN URL (projections
+ *  bake a single preset width — fine for the fallback `src`, but without a
+ *  srcset every viewport downloads that one size). Strips the baked query and
+ *  re-derives one candidate per width, mirroring lib/sanityImageLoader.ts.
+ *  Returns undefined for null/non-Sanity URLs so callers can pass it straight
+ *  to the attribute. Pair it with an accurate `sizes` — a too-large `sizes`
+ *  makes 2x screens pick a BIGGER candidate than the old fixed src. */
+export function sanitySrcSet(
+  url: string | null | undefined,
+  widths: number[],
+  q = 80,
+): string | undefined {
+  if (!url || !url.includes('cdn.sanity.io')) return undefined
+  const base = url.split('?')[0]
+  return widths.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ')
+}

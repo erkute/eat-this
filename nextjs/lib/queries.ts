@@ -1,10 +1,9 @@
 import { groqImageUrl } from './sanity-image-presets'
-// Category projection — only resolves reference entries; legacy string entries
-// (left over from before the migration) are dropped. GROQ's object projection
-// `{...}` returns null for primitive array elements, so a unified dual-shape
-// projection isn't representable. The migration script converts strings →
-// refs in one pass; until it has run on a given dataset, restaurants whose
-// categories are still strings will render with no category chips.
+// Category projection. The string→ref migration finished in 2026-06 (verified
+// 2026-07: 0 of 343 restaurants carry legacy string entries), so all entries
+// are references. The `defined(@->_id)` filter stays as a guard against
+// dangling refs (category doc deleted while restaurants still point at it) —
+// without it those would surface as null rows in the projected array.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,
   name,
@@ -142,13 +141,11 @@ export const restaurantsByBezirkQuery = `
   }
 `
 
-// Restaurants filtered by category slug.
-// Dual-shape match: reference docs use slug.current, legacy strings match by lowercased value.
+// Restaurants filtered by category slug (reference match — the legacy
+// string dual-shape was removed after the 2026-06 migration completed).
 export const restaurantsByCategoryQuery = `
   *[_type == "restaurant" && isOpen != false
-    && count(categories[defined(@)
-      && coalesce(@->slug.current, lower(@)) == $categorySlug
-    ]) > 0
+    && $categorySlug in categories[]->slug.current
   ] | order(name asc) {
     _id,
     name,

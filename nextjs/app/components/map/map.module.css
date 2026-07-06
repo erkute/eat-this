@@ -10111,6 +10111,8 @@ html .mapStatusLayerOk {
   html .mapStatusLayerError,
   html .mapStatusLayerOk {
     bottom: 24px !important;
+    left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2) !important;
+    width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px)) !important;
   }
 }
 
@@ -10127,11 +10129,21 @@ html .bodyDetailOpen .mapStatusLayer {
 }
 
 @media (min-width: 1024px) {
+  html .bodyListAtFull .mapStatusLayer,
+  html .bodyListAtFull .mapStatusLayerError,
+  html .bodyListAtFull .mapStatusLayerOk,
   html .bodyDetailOpen .mapStatusLayer,
   html .bodyDetailOpen .mapStatusLayerError,
   html .bodyDetailOpen .mapStatusLayerOk {
     left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2) !important;
     width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px)) !important;
+  }
+
+  html .bodyPanelHidden .mapStatusLayer,
+  html .bodyPanelHidden .mapStatusLayerError,
+  html .bodyPanelHidden .mapStatusLayerOk {
+    left: 50% !important;
+    width: min(360px, calc(100vw - 32px)) !important;
   }
 }
 
@@ -12115,15 +12127,24 @@ html body .pickerSheet .pickerItemSub {
 
 html body .filterChipRow > .filterChipOpenActive,
 html body .filterChipRow > .filterChip[aria-pressed='true'] {
-  background: #a8ff2f !important;
+  background: var(--et-home-accent, #ffc600) !important;
   color: #15120e !important;
-  border-color: #15120e !important;
-  box-shadow: inset 0 0 0 2px #15120e !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 html body .filterChipRow > .filterChipOpenActive .filterChipLabel,
 html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
   color: #15120e !important;
+}
+
+html body .filterChipWrap:has(.filterChipActive),
+html body .filterChipWrap:has(.filterChipOpenActive),
+html body .filterChipRow > .filterChipActive,
+html body .filterChipRow > .filterChipOpenActive {
+  flex: 0 0 auto !important;
+  flex-grow: 0 !important;
+  width: auto !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -12414,7 +12435,9 @@ html body .filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
   html body .filterChipWrap:has(.filterChipOpenActive),
   html body .filterChipRow > .filterChipActive,
   html body .filterChipRow > .filterChipOpenActive {
-    flex-grow: 1 !important;
+    flex-grow: 0 !important;
+    flex-basis: auto !important;
+    width: auto !important;
   }
 }
 

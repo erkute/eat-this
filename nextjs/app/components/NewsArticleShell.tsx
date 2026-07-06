@@ -6,6 +6,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
+import MapIntentLink from './MapIntentLink';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -85,14 +86,14 @@ export default function NewsArticleShell({
       </>
     );
     return block.mustEatId ? (
-      <Link
+      <MapIntentLink
         href={`/map?me=${block.mustEatId}`}
         rel="nofollow"
         className={styles.mustEat}
         aria-label={`${block.dish || 'Must Eat'}${restName ? ` — ${restName}` : ''}`}
       >
         {inner}
-      </Link>
+      </MapIntentLink>
     ) : (
       <div className={styles.mustEat}>{inner}</div>
     );
@@ -105,7 +106,7 @@ export default function NewsArticleShell({
     const cta = de ? 'Auf der Map öffnen' : 'Open on the map';
 
     return (
-      <Link
+      <MapIntentLink
         href={`/map?r=${block.restaurantSlug}`}
         rel="nofollow"
         className={styles.inlineSpot}
@@ -119,7 +120,7 @@ export default function NewsArticleShell({
             <span>{cta}</span>
           </span>
         </span>
-      </Link>
+      </MapIntentLink>
     );
   };
 

@@ -12441,6 +12441,59 @@ html body .filterChipRow > .filterChipOpenActive {
   }
 }
 
+/* Filter chips scroll sideways when selected labels outgrow the map panel.
+   This intentionally overrides the older equal-column squeeze pass above. */
+html body .filterChipRow {
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-x: contain !important;
+  touch-action: pan-x pan-y !important;
+  scrollbar-width: none !important;
+}
+
+html body .filterChipRow::-webkit-scrollbar {
+  display: none !important;
+}
+
+html body .filterChipWrap,
+html body .filterChipRow > .filterChip,
+html body .filterChipWrap:has(.filterChipActive),
+html body .filterChipWrap:has(.filterChipOpenActive),
+html body .filterChipRow > .filterChipActive,
+html body .filterChipRow > .filterChipOpenActive,
+html body .filterChipRow.filterChipRow > button.filterChip.filterChip {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+}
+
+html body .filterChip,
+html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipActive,
+html body .filterChipOpenActive {
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+}
+
+html body .filterChipLabel,
+html body .filterChipLabelLong {
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html body .filterChipActive .filterChipLabelLong,
+html body .filterChipOpenActive .filterChipLabelLong {
+  font-size: 11px !important;
+}
+
 /* ── Detail-Polish (User 2026-07-04, lokales Testing) ───────────────────── */
 
 /* Must-Eat-Karten-Peek in der Restaurant-Liste minimal höher — ragt jetzt

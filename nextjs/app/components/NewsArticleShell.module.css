@@ -26,6 +26,8 @@
 }
 
 .breadcrumbWrap {
+  width: min(100%, 900px);
+  margin-inline: auto;
   min-width: 0;
 }
 
@@ -199,7 +201,7 @@
   position: relative;
   display: grid;
   align-items: end;
-  width: min(calc(100% - clamp(40px, 6vw, 72px)), 1100px);
+  width: min(100%, 900px);
   min-height: clamp(520px, 68vw, 720px);
   margin: 0 auto;
   overflow: hidden;
@@ -256,9 +258,9 @@
   color: var(--article-ink) !important;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
-  font-size: clamp(38px, 5.8vw, 72px);
+  font-size: clamp(32px, 4.8vw, 58px);
   letter-spacing: var(--et-tracking-title, 0);
-  line-height: var(--et-leading-title, 0.88);
+  line-height: 0.94;
   text-transform: none;
   scroll-margin-top: 96px;
 }
@@ -472,14 +474,14 @@ a.mustEat:focus-visible .mustEatPh img {
 }
 
 .inlineSpotName {
-  max-width: 12ch;
+  max-width: 14ch;
   margin-bottom: 2px;
   color: #fff;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(38px, 7vw, 78px);
+  font-size: clamp(30px, 5.6vw, 58px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title, 0);
-  line-height: 0.94;
+  line-height: 0.96;
   text-shadow: 0 2px 14px rgba(0, 0, 0, .38);
   text-transform: none;
 }
@@ -774,8 +776,8 @@ a.mustEat:focus-visible .mustEatPh img {
 
   .content h2,
   .content h3 {
-    font-size: clamp(28px, 8.2vw, 38px);
-    line-height: 0.94;
+    font-size: clamp(26px, 7.2vw, 34px);
+    line-height: 0.96;
   }
 
   .content blockquote {

@@ -6,6 +6,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
+import MapIntentLink from './MapIntentLink';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -85,14 +86,14 @@ export default function NewsArticleShell({
       </>
     );
     return block.mustEatId ? (
-      <Link
+      <MapIntentLink
         href={`/map?me=${block.mustEatId}`}
         rel="nofollow"
         className={styles.mustEat}
         aria-label={`${block.dish || 'Must Eat'}${restName ? ` — ${restName}` : ''}`}
       >
         {inner}
-      </Link>
+      </MapIntentLink>
     ) : (
       <div className={styles.mustEat}>{inner}</div>
     );
@@ -105,7 +106,7 @@ export default function NewsArticleShell({
     const cta = de ? 'Auf der Map öffnen' : 'Open on the map';
 
     return (
-      <Link
+      <MapIntentLink
         href={`/map?r=${block.restaurantSlug}`}
         rel="nofollow"
         className={styles.inlineSpot}
@@ -119,14 +120,14 @@ export default function NewsArticleShell({
             <span>{cta}</span>
           </span>
         </span>
-      </Link>
+      </MapIntentLink>
     );
   };
 
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/' },
+    { name: homeLabel, href: '/', logo: 'eat-this' },
     { name: newsLabel, href: '/news' },
     { name: title },
   ];
@@ -152,31 +153,41 @@ export default function NewsArticleShell({
             />
           </div>
 
-          <div className={article.imageUrl ? styles.heroGrid : styles.heroGridPlain}>
-            <div className={styles.introCopy}>
-              <div className={styles.byline}>
-                <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-                {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-              </div>
-              <h1 className={styles.heroTitle}>{title}</h1>
-              {excerpt && <p className={styles.lede}>{excerpt}</p>}
-            </div>
-
-            {article.imageUrl && (
-              // Hero = LCP element. fill + the Sanity loader serve a width-matched
-              // srcset (mobile no longer downloads the w=1200 desktop file).
+          {article.imageUrl ? (
+            <>
               <figure className={styles.heroWrap}>
                 <Image
                   src={article.imageUrl}
-                  alt={title}
+                  alt={article.alt || title}
                   fill
                   priority
-                  sizes="(max-width: 760px) 100vw, 54vw"
+                  sizes="(max-width: 760px) 100vw, 1180px"
                   className={styles.hero}
                 />
+                <figcaption className={styles.introCopy}>
+                  <h1 className={styles.heroTitle}>{title}</h1>
+                </figcaption>
               </figure>
-            )}
-          </div>
+              <div className={styles.heroBelow}>
+                <div className={styles.byline}>
+                  <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                  {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+                </div>
+                {excerpt && <p className={styles.lede}>{excerpt}</p>}
+              </div>
+            </>
+          ) : (
+            <div className={styles.heroGridPlain}>
+              <div className={styles.introCopy}>
+                <div className={styles.byline}>
+                  <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                  {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+                </div>
+                <h1 className={styles.heroTitle}>{title}</h1>
+                {excerpt && <p className={styles.lede}>{excerpt}</p>}
+              </div>
+            </div>
+          )}
         </header>
 
         <div className={styles.content}>

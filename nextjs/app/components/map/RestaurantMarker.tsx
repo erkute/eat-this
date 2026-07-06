@@ -32,6 +32,9 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
         aria-label={restaurant.name}
         className={className}
         style={{ position: 'relative' }}
+        // Lets the detail-peek snapshot (MapSection) find and clone the
+        // selected pin — DOM markers aren't part of the GL canvas frame.
+        {...(isSelected ? { 'data-selected-pin': '' } : {})}
       >
         <span className={styles.pinLogoShape} aria-hidden="true">
           <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />

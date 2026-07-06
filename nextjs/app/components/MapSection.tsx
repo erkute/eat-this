@@ -305,35 +305,97 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
      background instead of the detail content (bisected on-device
      2026-07-06: canvas hidden → frosts, canvas visible → doesn't;
      z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
-     The sticky mapWrap is fully covered once the sheet's top edge reaches
-     the viewport top, so from there we can hide the GL layer with zero
-     visual difference — and while the map peek IS visible (at scroll top)
-     Safari's bar is expanded anyway, so no frosting is lost. `visibility`
-     (not `display`) so MapLibre keeps its size and repaints instantly on
-     the way back up. */
+
+     The list frosts even at scroll 0 (rows sit in the sampling strip and
+     the bar keeps its compact state across SPA navigation), so the detail
+     must too. That means the live GL layer can't be on screen AT ALL while
+     the detail is open: once the camera settles we freeze the current view
+     into a static <img> (visibility:visible child inside the hidden
+     mapWrap — the peek looks identical, just non-interactive) and hide the
+     GL layer for the whole detail lifetime. Until the snapshot is ready
+     (flyTo still moving) a scroll-start fallback hides the canvas anyway.
+     `visibility` (not `display`) so MapLibre keeps its size and repaints
+     instantly when the detail closes. */
   useEffect(() => {
     if (!isActive || sheetView !== 'detail') return;
     if (typeof window === 'undefined' || !isPhoneViewport()) return;
-    const sheet = sheetElRef.current;
     const mapWrap = mapWrapRef.current;
-    if (!sheet || !mapWrap) return;
+    if (!mapWrap) return;
 
-    /* Deliberately no rAF gate: scroll events already fire at frame rate,
-       one getBoundingClientRect on one element is cheap, and a pending-rAF
-       gate can leave the map hidden at scroll top when rAF is throttled
-       (background tab). */
+    let cancelled = false;
+    let snapshotReady = false;
+    let snapEl: HTMLImageElement | null = null;
+    let waitTimer: ReturnType<typeof setTimeout> | null = null;
+
+    /* No rAF gate: scroll events already fire at frame rate, and a
+       pending-rAF gate can leave the map hidden at scroll top when rAF is
+       throttled (background tab). */
     const apply = () => {
-      const occluded = sheet.getBoundingClientRect().top <= 0;
-      mapWrap.style.visibility = occluded ? 'hidden' : '';
+      mapWrap.style.visibility = snapshotReady || window.scrollY > 4 ? 'hidden' : '';
     };
+
+    /* toDataURL on a WebGL canvas only yields pixels during the render
+       event (preserveDrawingBuffer is off) — the documented MapLibre
+       snapshot pattern: once('render') + triggerRepaint. Reused for the
+       idle-refresh: same <img>, just a fresher frame. */
+    const takeSnapshot = (map: ReturnType<MapRef['getMap']>) => {
+      if (cancelled) return;
+      map.once('render', () => {
+        if (cancelled) return;
+        try {
+          const url = map.getCanvas().toDataURL('image/jpeg', 0.75);
+          if (!snapEl) {
+            snapEl = document.createElement('img');
+            snapEl.alt = '';
+            snapEl.setAttribute('aria-hidden', 'true');
+            snapEl.style.cssText =
+              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible;pointer-events:none;';
+            mapWrap.appendChild(snapEl);
+          }
+          snapEl.src = url;
+          snapshotReady = true;
+          apply();
+        } catch {
+          /* Snapshot failed (tainted canvas or similar) — the scroll-start
+             fallback in apply() still hides the GL layer while scrolling. */
+        }
+      });
+      map.triggerRepaint();
+    };
+
+    /* The GL layer mounts late (dynamic import, deep links open the detail
+       before MapCanvasLayer exists) — poll until the map instance is there. */
+    const waitForMap = () => {
+      if (cancelled) return;
+      const map = mapRef.current?.getMap();
+      if (map) {
+        /* Freeze the CURRENT frame immediately — coming from the list the
+           tiles are warm, and waiting for the open-flyTo to settle kept the
+           GL layer (and thus the beige, sample-less bar) alive for the
+           first 1–2 s of the detail. The peek briefly shows the pre-flight
+           view; the idle refresh below swaps in the settled frame (camera
+           on the restaurant, all tiles loaded). Cold deep-links may freeze
+           a half-loaded frame first — same refresh fixes that too. */
+        takeSnapshot(map);
+        if (!map.loaded() || map.isMoving()) {
+          map.once('idle', () => takeSnapshot(map));
+        }
+        return;
+      }
+      waitTimer = setTimeout(waitForMap, 150);
+    };
+    waitForMap();
 
     apply();
     window.addEventListener('scroll', apply, { passive: true });
     return () => {
+      cancelled = true;
+      if (waitTimer) clearTimeout(waitTimer);
       window.removeEventListener('scroll', apply);
+      snapEl?.remove();
       mapWrap.style.visibility = '';
     };
-  }, [isActive, sheetView, sheetElRef]);
+  }, [isActive, sheetView, selectedRestaurant?._id, selectedMustEat?._id]);
 
   /* Scroll-restore for back-nav (list → detail → list):
      - listScrollRef captures the list's scrollTop just before a detail opens

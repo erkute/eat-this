@@ -17,6 +17,7 @@
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import Anthropic from '@anthropic-ai/sdk'
+import { extractJsonObjectTextFromBlocks } from './lib/extract-json'
 
 loadEnv({ path: '.env.local' })
 
@@ -388,20 +389,7 @@ interface BezirkGen {
 }
 
 function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
-  // With the web_search server tool the model narrates between searches, so the
-  // response holds several text blocks. The JSON answer is the LAST one. Without
-  // tools there's a single text block, so last === first.
-  const textBlocks = content.filter(b => b.type === 'text')
-  const textBlock = textBlocks[textBlocks.length - 1]
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error(`No text block in response for ${docId}`)
-  }
-  // Models sometimes wrap JSON in ```json ... ``` despite explicit instructions; strip defensively.
-  return textBlock.text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/, '')
-    .trim()
+  return extractJsonObjectTextFromBlocks(content, docId)
 }
 
 // Curated, editorial Berlin food sources the model may research for grounding

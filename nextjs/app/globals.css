@@ -164,7 +164,7 @@
   --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 
   --et-font-display: var(--font-providence, var(--font-display));
-  --et-font-label: 'Silkscreen';
+  --et-font-label: var(--font-providence, var(--font-display));
   --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
 

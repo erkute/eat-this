@@ -18,6 +18,7 @@
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import Anthropic from '@anthropic-ai/sdk'
+import { extractJsonObjectTextFromBlocks } from './lib/extract-json'
 
 loadEnv({ path: '.env.local' })
 
@@ -236,16 +237,7 @@ export interface SeoGen {
 }
 
 function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
-  const textBlock = content.find(b => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error(`No text block in response for ${docId}`)
-  }
-  // Models sometimes wrap JSON in ```json ... ``` despite explicit instructions; strip defensively.
-  return textBlock.text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/, '')
-    .trim()
+  return extractJsonObjectTextFromBlocks(content, docId)
 }
 
 const LENGTH_LIMITS: Array<[keyof SeoGen, number]> = [

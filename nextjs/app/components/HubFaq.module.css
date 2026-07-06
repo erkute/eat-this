@@ -54,7 +54,7 @@
   margin: 0;
   padding: clamp(4px, 0.45vw, 6px) 10vw 20px 0;
   color: var(--home-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--font-body, var(--font), system-ui, sans-serif);
   font-size: clamp(14px, 1.2vw, 16px);
   font-weight: 500;
   line-height: 1.5;

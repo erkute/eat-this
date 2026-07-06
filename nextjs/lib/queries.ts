@@ -1,4 +1,4 @@
-import { groqImageUrl } from './sanity-image-presets'
+import { groqImageUrl, presetQuery } from './sanity-image-presets'
 // Category projection. The string→ref migration finished in 2026-06 (verified
 // 2026-07: 0 of 343 restaurants carry legacy string entries), so all entries
 // are references. The `defined(@->_id)` filter stays as a guard against
@@ -43,6 +43,14 @@ export const restaurantBySlugQuery = `
     "photo": ${groqImageUrl('image', 'detailHero')},
     "photoCredit": image.credit,
     "photoCreditUrl": image.creditUrl,
+    "gallery": gallery[]{
+      _key,
+      "thumb": asset->url + "${presetQuery('galleryThumb')}",
+      "full": asset->url + "${presetQuery('detailHero')}",
+      alt,
+      credit,
+      creditUrl
+    },
     seo {
       metaTitle,
       metaTitleEn,
@@ -313,5 +321,4 @@ export const allStaticPagesQuery = `
     bodyDe
   }
 `
-
 

@@ -98,7 +98,7 @@ ul,ol{list-style:none}
   --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, .6), transparent);
   --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, .5);
   --et-font-display: var(--font-providence);
-  --et-font-label: 'Silkscreen';
+  --et-font-label: var(--font-providence);
   --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
   --et-type-hero: clamp(44px, 6.5vw, 80px);
@@ -1517,7 +1517,7 @@ html[data-active-page="start"] .burger-btn {
 .homeV2 .hv-mk{display:inline-block;width:9px;height:9px;background:var(--et-home-accent);margin-right:var(--et-control-gap);vertical-align:1px}
 .homeV2 .hv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--et-head-gap)}
 .homeV2 .hv-title{font-family:var(--et-font-display);font-weight:700;text-transform:uppercase;letter-spacing:var(--et-tracking-title);line-height:var(--et-leading-title);font-size:var(--et-type-section-title)}
-.homeV2 .hv-link{font-family:var(--et-font-label);font-weight:700;font-size:9px;letter-spacing:var(--et-tracking-label);text-transform:uppercase;color:var(--et-home-ink)}
+.homeV2 .hv-link{font-family:var(--et-font-display);font-weight:700;font-size:13px;letter-spacing:0;text-transform:uppercase;color:var(--et-home-ink)}
 .homeV2 .hv-rail{display:flex;gap:var(--et-rail-gap);overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 .homeV2 .hv-rail::-webkit-scrollbar{display:none}
 .homeV2 .hv-rail>*{scroll-snap-align:start;flex-grow:0;flex-shrink:0}

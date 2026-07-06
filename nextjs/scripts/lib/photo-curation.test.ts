@@ -11,8 +11,8 @@ const owners = (ownerIdx: number[], n: number) =>
 describe('selectGalleryPhotos', () => {
   it('puts product (food + drink) before interior, then by score', () => {
     const judgments = [j(0, 8, 'food'), j(1, 9, 'interior'), j(2, 7, 'food'), j(3, 7, 'drink')]
-    // all owners; products first by score: food0(8), food2(7), drink3(7); then interior1
-    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 4), 4)).toEqual([0, 2, 3, 1])
+    // all owners; products first by score: food0(8), food2(7), drink3(7)
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 4), 4)).toEqual([0, 2, 3])
   })
 
   it('uses only original (owner) photos, never guests', () => {
@@ -35,10 +35,10 @@ describe('selectGalleryPhotos', () => {
     expect(selectGalleryPhotos([j(0, 9, 'interior'), j(1, 8, 'interior')], owners([0, 1], 2), 2)).toEqual([])
   })
 
-  it('fills up to 4 from originals, product-first', () => {
+  it('fills up to 3 from originals, product-first', () => {
     const judgments = [j(0, 8, 'food'), j(1, 7, 'interior'), j(2, 9, 'food'), j(3, 7, 'drink'), j(4, 9, 'food')]
-    // 0-3 are owners (guest 4 excluded): products food2(9), food0(8), drink3(7), then interior1
-    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 5), 5)).toEqual([2, 0, 3, 1])
+    // 0-3 are owners (guest 4 excluded): products food2(9), food0(8), drink3(7)
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 5), 5)).toEqual([2, 0, 3])
   })
 
   it('falls back to original photos in candidate order when judgments are null', () => {

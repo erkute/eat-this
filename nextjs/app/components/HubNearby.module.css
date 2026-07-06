@@ -1,24 +1,73 @@
-/* HubNearby — homeV2 vocabulary. Global hv-rail/hv-photo/hv-cap/hv-sub handle
-   layout; this file only covers the card flex-basis, photo height, the locate
-   button, error sub-line, and the auth-mode (2-up compact) variant. */
+/* HubNearby — homeV2 vocabulary. */
 
 /* ── Rail card sizing ──────────────────────────────────────────────────────── */
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 0 0 clamp(240px, 24vw, 300px);
+  overflow: hidden;
+  border-radius: var(--et-radius-photo);
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-photo-rest);
 }
 
-/* Name + meta are inline-by-default spans; the flex column above stacks them.
-   Nudge the meta tight under the name so the walk-time/district reads as a
-   caption, not a run-on of the name. */
-.card :global(.hv-sub) {
-  margin-top: 2px;
+:global(.homeV2) .card:hover .photo img,
+:global(.homeV2) .card:focus-visible .photo img {
+  transform: scale(1.035);
+}
+
+:global(.homeV2) .card:focus-visible {
+  outline: 3px solid var(--et-home-accent);
+  outline-offset: 3px;
+}
+
+:global(.homeV2) .card :global(.hv-cap),
+:global(.homeV2) .card :global(.hv-sub) {
+  position: absolute;
+  left: clamp(14px, 1.8vw, 20px);
+  right: clamp(14px, 1.8vw, 20px);
+  z-index: 1;
+  color: var(--et-home-inverse-text);
+  text-shadow: var(--et-shadow-text-photo);
+}
+
+:global(.homeV2) .card :global(.hv-cap) {
+  bottom: clamp(30px, 3.4vw, 38px);
+  margin: 0;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 0.95;
+}
+
+:global(.homeV2) .card :global(.hv-sub) {
+  bottom: clamp(13px, 1.8vw, 18px);
+  margin: 0;
+  font-family: var(--font-providence);
+  font-size: clamp(13px, 1.15vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  opacity: 0.86;
 }
 
 .photo {
+  position: relative;
   aspect-ratio: 4 / 3;
   height: auto;
+  border-radius: 0;
+}
+
+.photo::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 62%;
+  background: linear-gradient(to top, rgba(21, 18, 14, 0.82), rgba(21, 18, 14, 0));
+  pointer-events: none;
+}
+
+.photo img {
+  transition: transform 180ms ease;
 }
 
 /* ── Locate button (sits in hv-head as hv-link equivalent) ─────────────────── */
@@ -29,10 +78,10 @@
   padding: 0;
   background: none;
   border: none;
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: inherit;
   cursor: pointer;
@@ -61,8 +110,85 @@
   text-transform: uppercase;
   color: rgba(21, 18, 14, 0.55);
 }
-.subError {
-  color: #9b4400;
+
+/* ── Global location layer (same interaction pattern as the map notice) ───── */
+.locationLayer {
+  position: fixed;
+  right: 16px;
+  bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 24px));
+  left: 16px;
+  z-index: 120;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  min-height: 38px;
+  margin-inline: auto;
+  padding: 8px 10px;
+  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  pointer-events: auto;
+}
+
+.locationLayerError {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.locationAction {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.locationText {
+  min-width: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+.locationAction,
+.locationDismiss {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.locationAction {
+  min-height: 24px;
+  padding-inline: 6px;
+}
+
+.locationDismiss {
+  width: 24px;
+  height: 24px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.locationAction:hover,
+.locationAction:focus-visible,
+.locationDismiss:hover,
+.locationDismiss:focus-visible {
+  color: var(--et-home-accent, #ffc600);
+  outline: 0;
 }
 
 /* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */

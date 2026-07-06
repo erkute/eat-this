@@ -13,11 +13,12 @@ vi.mock('next/image', () => ({ default: () => null }));
 import HomeDishStrip from './HomeDishStrip';
 
 describe('HomeDishStrip', () => {
-  it('renders cutout dishes linking to the map', () => {
+  it('renders cutout dishes linking to restaurants on the map', () => {
     const html = renderToStaticMarkup(<HomeDishStrip locale="de" />);
     expect(html).toContain('Das willst du essen');
-    expect(html).toContain('/map?cat=pizza');
+    expect(html).toContain('/map?r=gazzo');
     expect(html).toContain('/map?r=all-in');
+    expect(html).not.toContain('/map?cat=pizza');
     expect(html).toContain('Burger');
   });
 });

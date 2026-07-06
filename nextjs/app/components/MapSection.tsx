@@ -861,11 +861,13 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return;
-    const restaurant = restaurants.find((r) => r._id === selectedMustEat.restaurant._id);
+    const restaurant =
+      restaurants.find((r) => r._id === selectedMustEat.restaurant._id) ??
+      lockedRestaurants.find((r) => r._id === selectedMustEat.restaurant._id);
     if (!restaurant) return;
     setSelectedMustEat(null);
     handleRestaurantClick(restaurant);
-  }, [selectedMustEat, restaurants, handleRestaurantClick]);
+  }, [selectedMustEat, restaurants, lockedRestaurants, handleRestaurantClick]);
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat;

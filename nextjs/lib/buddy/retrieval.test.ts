@@ -1,6 +1,6 @@
 // nextjs/lib/buddy/retrieval.test.ts
 import { describe, it, expect } from 'vitest'
-import { buildSpotsQuery, buildSpotsParams, priceBand } from './retrieval'
+import { buildSpotsQuery, buildSpotsParams, priceBand, shouldUseSemanticRank, MIN_SEMANTIC_CANDIDATES } from './retrieval'
 import { searchSpots, searchArticles, foldName, resolveNameToSlug, vibeTokens, __resetNameIndexCache } from './retrieval'
 import type { ArticleResult } from './types'
 
@@ -93,6 +93,35 @@ describe('priceBand', () => {
     expect(priceBand('')).toBeNull()
     expect(priceBand(undefined)).toBeNull()
     expect(priceBand('billig')).toBeNull()
+  })
+})
+
+describe('shouldUseSemanticRank', () => {
+  it('only uses the embeddings index for broad searches where reranking can help', () => {
+    expect(shouldUseSemanticRank({
+      candidateCount: MIN_SEMANTIC_CANDIDATES - 1,
+      hasUserGeo: false,
+      hasResolvedSlug: false,
+      semanticQuery: 'date night',
+    })).toBe(false)
+    expect(shouldUseSemanticRank({
+      candidateCount: MIN_SEMANTIC_CANDIDATES,
+      hasUserGeo: false,
+      hasResolvedSlug: false,
+      semanticQuery: 'date night',
+    })).toBe(true)
+    expect(shouldUseSemanticRank({
+      candidateCount: MIN_SEMANTIC_CANDIDATES,
+      hasUserGeo: true,
+      hasResolvedSlug: false,
+      semanticQuery: 'date night',
+    })).toBe(false)
+    expect(shouldUseSemanticRank({
+      candidateCount: MIN_SEMANTIC_CANDIDATES,
+      hasUserGeo: false,
+      hasResolvedSlug: true,
+      semanticQuery: 'date night',
+    })).toBe(false)
   })
 })
 

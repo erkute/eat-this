@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     })
   } catch (err) {
     Sentry.captureException(err, { extra: { uid, packId: pack.packId, mode } })
-    return NextResponse.json({ error: 'stripe_error', message: (err as Error).message }, { status: 500 })
+    return NextResponse.json({ error: 'stripe_error' }, { status: 500 })
   }
 
   return NextResponse.json({ url: session.url }, { status: 200 })

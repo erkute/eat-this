@@ -1,17 +1,6 @@
 // nextjs/lib/buddy/tools.ts
 import type Anthropic from '@anthropic-ai/sdk'
 
-export interface SearchSpotsInput {
-  cuisine?: string
-  bezirk?: string
-  price_range?: string
-  name?: string
-  vibe_query: string
-}
-export interface SearchArticlesInput {
-  query: string
-}
-
 export const BUDDY_TOOLS: Anthropic.Tool[] = [
   {
     name: 'search_spots',

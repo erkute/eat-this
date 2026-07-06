@@ -32,7 +32,7 @@ interface PriceRange {
 }
 
 /** Editorial "Was bestellen?" recommendation (2–4 per restaurant). */
-export interface WhatToOrderItem {
+interface WhatToOrderItem {
   dish: string
   note?: string
   noteEn?: string
@@ -120,7 +120,7 @@ export interface ArticleSpot {
   photo?: string
 }
 
-export interface NewsArticleAuthor {
+interface NewsArticleAuthor {
   name: string
   slug?: string
   photo?: string

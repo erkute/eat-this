@@ -44,7 +44,6 @@ ul,ol{list-style:none}
   --gray-400: #15120E;
   --gray-600: #15120E;
   --orange: var(--et-black);        /* mono pivot — was coral */
-  --darkred: #15120E;
   --et-poster-red: #D9382A;
   --et-print-black: #15120E;
   --et-program-paper: #FFF;
@@ -58,7 +57,6 @@ ul,ol{list-style:none}
   --et-yellow-bright: var(--et-ticket-grey);
   --et-cream: var(--et-program-paper);
   --et-black: var(--et-print-black);
-  --et-dark-card: var(--et-print-black);
   --et-raw-red: var(--et-red);
   --et-raw-red-hot: var(--et-red-hot);
   --et-raw-red-deep: var(--et-red-deep);
@@ -66,7 +64,6 @@ ul,ol{list-style:none}
   --et-raw-yellow-bright: var(--et-yellow-bright);
   --et-raw-cream: var(--et-cream);
   --et-raw-ink: var(--et-black);
-  --et-raw-dark-card: var(--et-dark-card);
   /* Brand color roles mirror app/globals.css. Raw colors describe the Eat This
      palette; roles describe the UX job each color is allowed to do. */
   --brand-stage: var(--et-raw-cream);
@@ -76,7 +73,6 @@ ul,ol{list-style:none}
   --brand-action-deep: var(--et-raw-red-deep);
   --brand-paper: var(--et-raw-cream);
   --brand-ink: var(--et-raw-ink);
-  --brand-night: var(--et-raw-dark-card);
   --brand-rule: var(--et-ticket-grey);
   --brand-muted: var(--et-offset-grey);
   --surface-canvas: var(--brand-stage);
@@ -252,9 +248,6 @@ body {
   line-height: 1.6;
 }
 /* ============================================
-   SCROLL ANIMATIONS
-   ============================================ */
-/* ============================================
    NAVBAR — boxed brand rail with center logo tab
    ============================================ */
 .navbar {
@@ -290,8 +283,6 @@ body {
 [data-active-page="map"] .navbar::after {
   display: none;
 }
-/* Legacy brand-plate slots — kept hidden so old markup paths stay quiet. */
-
 /* Left side: lone home icon. */
 .navbar-home {
   display: inline-flex;
@@ -345,34 +336,6 @@ body {
   transform: translateX(-50%);
   border-radius: 2px;
 }
-/* ============================================
-   LANGUAGE SWITCHER
-   ============================================ */
-
-.lang-btn {
-  cursor: pointer;
-  border: none;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
-  border-radius: 100px;
-  color: var(--gray-400);
-  background: transparent;
-  transition: background 0.18s, color 0.18s;
-  line-height: 1;
-}
-.lang-btn.active {
-  background: var(--black);
-  color: var(--white);
-}
-.lang-btn:hover:not(.active) {
-  color: var(--black);
-}
-/* ============================================
-   HERO — rules moved to HeroSection.module.css
-   ============================================ */
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
    the full viewport (see .app-page[data-page="map"] top:0 rule); navbar
@@ -398,8 +361,7 @@ body {
   }
   /* Map mobile: hide everything except the burger menu. */
   [data-active-page="map"] .navbar .navbar-home,
-[data-active-page="map"] .navbar #navNewsBtn,
-[data-active-page="map"] .navbar #navMapBtn {
+  [data-active-page="map"] .navbar #navMapBtn {
     display: none;
   }
   [data-active-page="map"] .navbar .navbar-actions {
@@ -442,33 +404,6 @@ body {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
   }
-}
-/* ============================================
-   SHARED LABELS
-   ============================================ */
-
-/* ============================================
-   NEWS SECTION
-   ============================================ */
-
-
-/* News Ticker */
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-
-/* News Grid */
-
-/* News Grid */
-
-
-/* ============================================
-   FOOTER
-   ============================================ */
-.footer {
-  display: none;
 }
 /* Cookie Consent — compact brand ticket.
    Entry remains pure translate — no opacity fade (brand motion rule). */
@@ -728,9 +663,6 @@ body {
 .app-page.active {
   display: block !important;
 }
-.app-page .map-section {
-  min-height: 100%;
-}
 .app-page[data-page="start"] {
   min-height: calc(100vh - 64px);
 }
@@ -771,11 +703,6 @@ body {
     padding-top: calc(10px + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
   }
-  /* Mobile header: News hidden so the right cluster (Map + Burger) and the
-     centered wordmark never collide on narrow screens. Map page keeps its own
-     burger-only floating-chip treatment via higher-specificity
-     [data-active-page="map"] rules, so scope this out of the map page. */
-  html:not([data-active-page="map"]) #navNewsBtn { display: none; }
   /* Start page also cream in light mode */
   .app-page[data-page="start"] {
     background: var(--surface-canvas);
@@ -849,127 +776,11 @@ body {
   .app-page[data-page="start"] {
     background: var(--white);
   }
-  /* Common header styles for all app pages */
-
-  .app-page[data-page="map"] .map-header {
-    padding: 18px 16px 14px;
-    background: var(--white);
-    text-align: left;
-    border: none;
-    margin: 0;
-    display: block;
-  }
-  .app-page[data-page="map"] .map-title {
-    font-size: clamp(1.2rem, 5.5vw, 1.7rem);
-    letter-spacing: -0.05em;
-    line-height: 0.88;
-    text-align: left;
-    margin-top: 2px;
-  }
-
-  .app-page[data-page="map"] .map-title {
-    font-size: 1.8rem;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin: 0;
-    display: block;
-    text-transform: uppercase;
-  }
-  .app-page[data-page="map"] .map-subtitle,
-  .app-page[data-page="news"] .news-subtitle {
-    display: none;
-  }
   /* Map page mobile */
   .app-page[data-page="map"] {
     overflow: hidden;
   }
-  .app-page[data-page="map"] .map-section {
-    position: absolute;
-    inset: 0;
-    padding: 0;
-    border: none;
-    display: flex;
-    flex-direction: column;
-  }
-  .app-page[data-page="map"] .map-filters {
-    flex-shrink: 0;
-  }
-  .app-page[data-page="map"] .map-container {
-    flex: 1;
-    min-height: 0;
-    margin-top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .app-page[data-page="map"] #foodMap {
-    height: 100% !important;
-    width: 100% !important;
-    min-height: 0 !important;
-  }
-  .app-page[data-page="map"] .leaflet-container {
-    height: 100% !important;
-    width: 100%;
-  }
-  .app-page[data-page="map"] .map-location-btn-fixed {
-    top: 10px;
-    left: 10px;
-    right: auto;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.18);
-  }
-  /* Hide search/nearby panel until globe intro finishes, to avoid a brief
-     flash of the empty search bar before Leaflet is ready. map-init.min.js
-     adds .map-ready to .app-page[data-page="map"] when the globe fades out. */
-  .app-page[data-page="map"] .map-nearby,
-  .app-page[data-page="map"] .map-search-wrap,
-  .app-page[data-page="map"] .map-nearby-toolbar,
-  .app-page[data-page="map"] .map-zoom-btns,
-  .app-page[data-page="map"] .map-location-btn-fixed {
-    opacity: 0;
-    transition: opacity 0.35s ease-out;
-    pointer-events: none;
-  }
-  .app-page[data-page="map"].map-ready .map-nearby,
-  .app-page[data-page="map"].map-ready .map-search-wrap,
-  .app-page[data-page="map"].map-ready .map-nearby-toolbar,
-  .app-page[data-page="map"].map-ready .map-zoom-btns,
-  .app-page[data-page="map"].map-ready .map-location-btn-fixed {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  /* Fade-out overlay — .map-nearby is already position:absolute so ::after works directly */
-  .app-page[data-page="map"] .map-nearby::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 72px;
-    background: linear-gradient(to bottom, transparent, #f8f8f8);
-    pointer-events: none;
-    z-index: 3;
-  }
-  /* Bottom padding = fade height + Safari URL bar (~50px) + safe area
-     so the last item can fully scroll above both the fade and the URL bar */
-  .app-page[data-page="map"] .map-nearby-grid {
-    padding-bottom: max(120px, calc(72px + env(safe-area-inset-bottom, 0px)));
-  }
-  .app-page[data-page="map"] .map-location-btn-fixed svg {
-    stroke: rgba(255,255,255,0.9);
-  }
-  /* ── News page — Mobile Magazine ── */
-
-
-  .app-page[data-page="news"] .news-subtitle { display: none; }
-
-
-  /* All mobile cards: image fills card, headline overlaid */
-
-
 }
-/* BERLIN label always orange — matches Eat This section */
 
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
@@ -1017,81 +828,11 @@ body {
   .app-page[data-page="start"] {
     background: var(--white);
   }
-  /* ---- Compact section headers (no large padding) ---- */
-
-  .app-page .map-header {
-    padding: 16px 16px 24px;
-    background: var(--white);
-    text-align: left;
-    margin: 0;
-    border: none;
-  }
-
-
-  .app-page .news-subtitle,
-  .app-page .map-subtitle {
-    display: none;
-  }
   /* ---- Map: fill available space, no scroll ---- */
   .app-page[data-page="map"] {
     overflow: hidden;
     position: relative;
   }
-  .app-page[data-page="map"] .map-section {
-    position: absolute;
-    inset: 0;
-    min-height: 0;
-    padding: 0;
-    border: none;
-    display: flex;
-    flex-direction: column;
-  }
-  .app-page[data-page="map"] .map-header {
-    padding: 10px 24px 16px;
-    text-align: left;
-  }
-
-  .app-page[data-page="map"] .map-subtitle {
-    display: none;
-  }
-  .app-page[data-page="map"] .map-title {
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin: 0;
-    display: block;
-    text-transform: uppercase;
-  }
-  .app-page[data-page="map"] .map-filters {
-    flex-shrink: 0;
-    padding-top: 6px;
-    padding-bottom: 6px;
-  }
-  .app-page[data-page="map"] .map-container {
-    flex: 1;
-    min-height: 0;
-    margin-top: 0;
-  }
-  /* ── News: Editorial Magazine Desktop ── */
-
-
-  /* Magazine grid: 4 equal columns, 2 rows */
-
-  /* Magazine grid: fixed row heights so images fill cells */
-
-  /* All cards: overlay style — image fills, body sits on top */
-
-
-  /* Row 1: Hero spans 2 cols */
-
-
-  /* Row 2: 4 equal cards */
-
-
-  /* Cards 8+ overflow: full-width image rows */
-
-
 }
 /* Cookie banner inline expand — ink-on-cream content panel that drops
    below the main cookie-content row when the user clicks "Mehr erfahren". */
@@ -1250,175 +991,8 @@ body:has(.burger-drawer.active) .burger-btn {
    content shows up there). Don't try to extend the drawer below the
    viewport; the behind-bar zone is mirrored in-flow instead (see the
    [data-active-page="map"] ::after strip in globals.css). */
-/* Profil-Avatar (Initialen-Kreis) */
-
-/* Profil-Header (kompakt, horizontal) */
-
-
-/* Gespeicherte Orte — styles live in the desktop block below */
-/* Footer-Button eingeloggter Zustand */
-
-
-/* ============================================
-   START PAGE – SCROLL SECTIONS
-   ============================================ */
-/* Scroll hint */
-
-
-/* Section wrapper */
-
-
-/* Section label */
-
-
-/* Join section keeps its own label style */
-
-
-/* Heading — editorial scale */
-
-/* Body text */
-
-
-/* Editorial row – mobile: stacked, desktop: side-by-side */
-
-
-/* Images */
-
-/* Mobile: fixed heights — tall enough to show the full subject */
-
-
-/* Desktop default heights (outside editorial rows) */
-
-/* Desktop inside editorial row: fixed height, contain = full image visible */
-@media (min-width: 768px) {
-
-  /* Show the full image without any cropping */
-
-}
-
-/* Inside a parallax wrap: 5% overflow each side for subtle parallax */
-
-/* Fallback heights for images without a wrap */
-
-
-/* Philosophie numbered list */
-
-
-/* Mobile: 3×2 grid so all six links sit in equal-width cells. The longest
-   word (DATENSCHUTZ) sets the column width, every label centers within its
-   cell — both rows have identical total width regardless of word length. */
-@media (min-width: 768px) {
-  /* Static pages: let app-pages container scroll, no internal scroll */
-
-}
-/* ══════════════════════════════════════════════
-   PROFILE PAGE
-   ══════════════════════════════════════════════ */
-/* Profile content (logged-in state) */
-
-/* Profile header */
-
-
-/* Tab navigation */
-
-
-/* Tab panels */
-
-
-/* ── Profile Deck: Pack Sections ───────────────────────────────────────── */
-#profilePackList {
-  display: flex; flex-direction: column; gap: 32px;
-}
-
-
-/* ── Booster Packs Section ──────────────────────────────────────────────── */
-
-
-/* Saved/Favs tab — photo card layout */
-/* Gespeicherte Orte */
-
-
-/* Settings tab */
-
-
-@media (min-width: 768px) {
-  /* ── Hero: constrain start-page content sections to readable width ── */
-
-  /* Editorial sections: edge-to-edge image, but vertical breathing room */
-
-  /* Philo section: tighter bottom so gap to section 5 isn't so large */
-
-  /* Section 6 (What's next): more bottom space at the end */
-
-}
-/* ═══════════════════════════════════════════
-   STATIC PAGES (About, Contact, Press, etc.)
-   ═══════════════════════════════════════════ */
-
-
-/* ============================================
-   STANDALONE ARTICLE PAGE
-   ============================================ */
-/* ── Desktop overrides — article hero typography ── */
-
 /* ── Notification toast: styled in app/globals.css (mounted in the root
    locale layout, also on routes that don't load this stylesheet). ── */
-/* ============================================
-   ONBOARDING OVERLAY
-   ============================================ */
-
-
-/* Booster pack visual */
-
-
-/* ============================================
-   WELCOME MODAL — Neukundenakquise (v3)
-   ============================================ */
-
-
-@keyframes wm-enter {
-  from { opacity: 0; transform: scale(1.04); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-/* ── Full-screen background image ── */
-
-/* ── Gradient scrim over photo for legibility ── */
-
-/* ── Close button ── */
-
-
-/* ── Logo centred top ── */
-
-
-/* ── Landing: headline + 3 CTAs overlaid on photo ── */
-
-
-/* ── Form panel (slides in over the photo) ── */
-
-
-/* ── Desktop: centred card ── */
-
-/* Language toggle — first row of the scroller, Chewy caps. In-flow
-   (2026-06-04): scrolls with the menu — the old absolute top-left pin
-   collided with the logo as soon as the drawer content scrolled. */
-/* Top bar — language toggle row. */
-/* Close — square ink-bordered × glyph */
-/* Scroller — fills the panel, owns the scroll */
-/* Primary nav — big Chewy uppercase block list with ink rules */
-/* Anmelden CTA — yellow sticker with hard offset shadow */
-/* Legal foot — 2-col grid, DM Sans caps. margin-top:auto docks it to the
-   drawer bottom: leftover height collects ABOVE it instead of leaving a
-   dead cream band under the links. */
-/* ══════════════════════════════════════════════
-   SITE FOOTER — editorial restyle (2026)
-   Cream surface. Heavy top rule mirrors the navbar bottom rule, big
-   EAT THIS plate sits centred, brand-red link accents.
-   ══════════════════════════════════════════════ */
-/* Final CTA section — sitzt zwischen FeaturedSpots und Footer.
-   Tagline (Newspaper-Display-Headline) über dem Button. */
-
-
 /* ── A11y: keyboard focus ring (WCAG 2.4.7) ──────────────────────────────
    Placed last so it wins source-order ties against the scattered
    `outline:none` resets above. :focus-visible fires only for keyboard /
@@ -1537,16 +1111,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .navbar {
   border-bottom: 0;
-}
-.app-page[data-page="map"] .map-location-btn-fixed {
-  background: var(--et-cream);
-  color: var(--et-red);
-  border: 0;
-  border-radius: 999px;
-  box-shadow: 0 10px 24px rgba(201, 67, 50, .2);
-}
-.app-page[data-page="map"] .map-location-btn-fixed svg {
-  stroke: var(--et-red);
 }
 html .navbar,
 html .navbar.scrolled,

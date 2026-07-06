@@ -4,9 +4,9 @@ import { getFreeSurfaceData } from '@/lib/map/free-surface'
 import { categoryArt } from '@/lib/categoryArt'
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay'
 import { assembleDistricts, pickWeeklyFeatureSlug, type DistrictRow } from './assembleDistricts'
-export type { HubDistrict, HubDistrictSpot } from './assembleDistricts'
+export type { HubDistrict } from './assembleDistricts'
 
-export interface HomeSpot extends SpotCandidate {
+interface HomeSpot extends SpotCandidate {
   name: string
   slug: string
   image: string | null
@@ -23,7 +23,7 @@ export interface NewOnMapCard {
   category: string | null
 }
 
-export interface HubCategory {
+interface HubCategory {
   name: string
   slug: string
   line: string | null

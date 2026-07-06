@@ -14,7 +14,7 @@ export type AlbumMustEat = MapMustEat & {
   restaurant: MapMustEat['restaurant'] & { categories?: CategoryRef[] };
 };
 
-export interface AlbumSlot {
+interface AlbumSlot {
   no: number;
   id: string;
   collected: boolean;

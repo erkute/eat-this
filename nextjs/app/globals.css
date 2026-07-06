@@ -40,7 +40,6 @@
      --orange/--accent (only style.css does, where it always wins as var(--et-black)),
      so this only removes the pre-stylesheet red flash — no live colour change. */
   --orange: var(--et-black);
-  --darkred: #15120e;
 
   /* Eat This print palette: 6 colors from the theater-program reference. */
   --et-poster-red: #d9382a;
@@ -59,7 +58,6 @@
   --et-yellow-bright: var(--et-ticket-grey);
   --et-cream: var(--et-program-paper);
   --et-black: var(--et-print-black);
-  --et-dark-card: var(--et-print-black);
 
   /* Foundation token aliases (EAT-15) — new component work should use the
      semantic/component names below. Existing --et/--surface/--font tokens stay
@@ -71,7 +69,6 @@
   --et-raw-yellow-bright: var(--et-yellow-bright);
   --et-raw-cream: var(--et-cream);
   --et-raw-ink: var(--et-black);
-  --et-raw-dark-card: var(--et-dark-card);
 
   /* Brand color roles:
      Red = brand impact and action.
@@ -85,7 +82,6 @@
   --brand-action-deep: var(--et-raw-red-deep);
   --brand-paper: var(--et-raw-cream);
   --brand-ink: var(--et-raw-ink);
-  --brand-night: var(--et-raw-dark-card);
   --brand-rule: var(--et-ticket-grey);
   --brand-muted: var(--et-offset-grey);
 
@@ -339,7 +335,6 @@
   --surface-canvas: var(--brand-stage);
   --surface-paper: var(--brand-paper);
   --surface-deep: var(--brand-ink);
-  --surface-deep-2: var(--brand-night);
 
   /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
   --frame-ink: var(--et-black);
@@ -419,18 +414,16 @@ html[data-active-page='start'] body {
   --food-cream: #fff;
   --food-butter: #d9382a;
   --food-tomato: var(--et-poster-red);
-  --food-tomato-dark: #15120e;
   --food-basil: #15120e;
   --food-olive: #15120e;
 
   --et-red: var(--food-tomato);
   --et-red-hot: var(--food-tomato);
-  --et-red-deep: var(--food-tomato-dark);
+  --et-red-deep: var(--food-ink);
   --et-yellow: var(--food-cream);
   --et-yellow-bright: var(--food-butter);
   --et-cream: var(--food-paper);
   --et-black: var(--food-ink);
-  --et-dark-card: var(--food-ink);
   --surface-bg: var(--food-paper);
   --surface-canvas: var(--food-paper);
   --surface-paper: var(--food-cream);
@@ -976,73 +969,6 @@ html[data-auth='1'] [data-guest-only] {
     max-width: 28ch;
     font-size: 11.5px;
   }
-}
-/* Compact home actions. Mirrors the final burger-drawer button language, but
-   sized down for section CTAs, chips, pack prices and local controls. */
-.homeCta {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  min-width: 0;
-  padding: 9px 16px 10px;
-  border: 1px solid rgba(37, 23, 15, 0.14);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.62);
-  color: var(--et-black);
-  box-shadow: 0 9px 20px rgba(92, 50, 19, 0.08);
-  font-family: var(--font-poster);
-  font-size: clamp(19px, 2vw, 25px);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  line-height: 0.86;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  cursor: pointer;
-  transform: translateX(0);
-  transition:
-    transform 0.14s ease,
-    background-color 0.14s ease,
-    border-color 0.14s ease,
-    color 0.14s ease,
-    box-shadow 0.14s ease;
-}
-.homeCta:hover,
-.homeCta:focus-visible {
-  background: var(--et-black);
-  border-color: var(--et-black);
-  color: var(--et-cream);
-  transform: translateX(-5px);
-}
-.homeCta:active {
-  transform: translateX(-2px);
-}
-.homeCta:disabled,
-.homeCta[aria-disabled='true'] {
-  cursor: progress;
-  opacity: 0.7;
-  transform: none;
-}
-.homeCtaPrimary {
-  background: var(--et-red);
-  border-color: var(--et-red);
-  color: var(--et-cream);
-}
-.homeCtaPrimary:hover,
-.homeCtaPrimary:focus-visible {
-  background: var(--et-black);
-  border-color: var(--et-black);
-  color: var(--et-cream);
-}
-.homeCtaSmall {
-  min-height: 38px;
-  padding: 8px 13px 9px;
-  font-size: clamp(17px, 1.7vw, 22px);
-}
-.homeCtaFull {
-  width: 100%;
 }
 .navbar,
 .navbar.scrolled,

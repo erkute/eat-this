@@ -5,6 +5,9 @@
   "description": "EAT THIS — Berlin Food Guide (Next.js app and Sanity Studio)",
   "author": "EAT THIS",
   "type": "module",
+  "engines": {
+    "node": ">=20.19 <21"
+  },
   "scripts": {
     "dev": "npm run dev --prefix nextjs",
     "build": "npm run build --prefix nextjs",

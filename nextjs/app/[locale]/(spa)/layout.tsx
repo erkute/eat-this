@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';

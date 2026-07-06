@@ -152,31 +152,37 @@ export default function NewsArticleShell({
             />
           </div>
 
-          <div className={article.imageUrl ? styles.heroGrid : styles.heroGridPlain}>
-            <div className={styles.introCopy}>
-              <div className={styles.byline}>
-                <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-                {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+          {article.imageUrl ? (
+            <figure className={styles.heroWrap}>
+              <Image
+                src={article.imageUrl}
+                alt={article.alt || title}
+                fill
+                priority
+                sizes="(max-width: 760px) 100vw, 1180px"
+                className={styles.hero}
+              />
+              <figcaption className={styles.introCopy}>
+                <div className={styles.byline}>
+                  <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                  {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+                </div>
+                <h1 className={styles.heroTitle}>{title}</h1>
+                {excerpt && <p className={styles.lede}>{excerpt}</p>}
+              </figcaption>
+            </figure>
+          ) : (
+            <div className={styles.heroGridPlain}>
+              <div className={styles.introCopy}>
+                <div className={styles.byline}>
+                  <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                  {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+                </div>
+                <h1 className={styles.heroTitle}>{title}</h1>
+                {excerpt && <p className={styles.lede}>{excerpt}</p>}
               </div>
-              <h1 className={styles.heroTitle}>{title}</h1>
-              {excerpt && <p className={styles.lede}>{excerpt}</p>}
             </div>
-
-            {article.imageUrl && (
-              // Hero = LCP element. fill + the Sanity loader serve a width-matched
-              // srcset (mobile no longer downloads the w=1200 desktop file).
-              <figure className={styles.heroWrap}>
-                <Image
-                  src={article.imageUrl}
-                  alt={title}
-                  fill
-                  priority
-                  sizes="(max-width: 760px) 100vw, 54vw"
-                  className={styles.hero}
-                />
-              </figure>
-            )}
-          </div>
+          )}
         </header>
 
         <div className={styles.content}>

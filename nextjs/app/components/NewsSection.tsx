@@ -109,16 +109,18 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                 return (
                   <li key={a.slug}>
                     <Link href={`/news/${a.slug}`} className={styles.storyRow}>
-                      {a.imageUrl && (
-                        <div className={styles.storyImage}>
+                      <div className={styles.storyImage}>
+                        {a.imageUrl ? (
                           <div
                             className={styles.imageFill}
                             style={{ backgroundImage: `url(${a.imageUrl})` }}
                             role="img"
                             aria-label={a.alt || title}
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <div className={styles.storyImageFallback} aria-hidden="true" />
+                        )}
+                      </div>
                       <div className={styles.storyCopy}>
                         <h3>{title}</h3>
                         {excerpt && <p>{excerpt}</p>}

@@ -307,7 +307,8 @@
 
 .latestList {
   display: grid;
-  gap: clamp(28px, 4vw, 48px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.4vw, 28px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -315,42 +316,48 @@
 
 .storyRow {
   display: grid;
-  grid-template-columns: minmax(150px, 280px) minmax(0, 1fr);
-  gap: clamp(14px, 3vw, 32px);
-  align-items: stretch;
-  padding: 18px 0;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  gap: clamp(13px, 1.8vw, 18px);
   color: var(--news-ink);
   text-decoration: none;
 }
 
 .storyImage {
+  width: 100%;
   aspect-ratio: 4 / 3;
 }
 
+.storyImageFallback {
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 24% 28%, rgba(217, 56, 42, .22) 0 18%, transparent 19%),
+    linear-gradient(135deg, rgba(255, 198, 0, .34), rgba(242, 241, 239, 1) 58%);
+}
+
 .storyCopy {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
   min-width: 0;
 }
 
 .storyCopy h3 {
-  font-size: clamp(30px, 3.5vw, 50px);
-  line-height: .9;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: .92;
 }
 
 .storyCopy p {
   display: -webkit-box;
-  max-width: 54ch;
   overflow: hidden;
   font-size: 17px;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
 }
 
 .storyCta {
   width: max-content;
-  margin-top: auto;
   color: var(--news-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(21px, 2.2vw, 30px);
@@ -369,6 +376,7 @@
     grid-template-columns: 1fr;
   }
 
+  .latestList,
   .guideGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -457,25 +465,26 @@
     width: 118px;
   }
 
+  .latestList {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
   .storyRow {
-    grid-template-columns: minmax(112px, 34vw) minmax(0, 1fr);
-    gap: 12px;
-    padding: 0;
-    align-items: stretch;
+    gap: 10px;
   }
 
   .storyImage {
-    aspect-ratio: 1 / 1;
-    margin-top: 0;
+    aspect-ratio: 16 / 10;
   }
 
   .storyCopy {
-    gap: 6px;
+    gap: 7px;
   }
 
   .storyCopy h3 {
-    font-size: clamp(18px, 5.1vw, 23px);
-    line-height: .98;
+    font-size: clamp(29px, 8.8vw, 44px);
+    line-height: .92;
   }
 
   .storyCopy p {

@@ -46,7 +46,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
             <span className={`hv-kicker ${styles.heroKicker}`}>
-              {locale === 'en' ? 'Berlin — what to eat' : 'Berlin — was du essen sollst'}
+              {locale === 'en' ? 'What you should eat.' : 'Was du essen solltest.'}
             </span>
             <h1 className={styles.heroHeadline}>
               We tell you

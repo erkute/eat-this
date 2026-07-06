@@ -66,6 +66,7 @@ export default function MustEatDetailMobile({
     : dishNameWeight > 12
       ? styles.fdNameLong
       : ''
+  const closeAction = onViewRestaurant ?? onClose
 
   // Swipe anywhere on the sheet (hero, name, pager band) pages to the
   // neighbouring must-eat — same gesture as the restaurant detail.
@@ -145,8 +146,8 @@ export default function MustEatDetailMobile({
         <button
           type="button"
           className={styles.fdClose}
-          aria-label={t('map.searchClose')}
-          onClick={onClose}
+          aria-label={onViewRestaurant ? t('map.toSpot') : t('map.searchClose')}
+          onClick={closeAction}
         >
           <CloseIcon />
         </button>

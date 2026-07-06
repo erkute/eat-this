@@ -12368,6 +12368,48 @@ html body .filterChipRow > .filterChipOpenActive {
     padding-bottom: 0 !important;
   }
 
+  html body .list[data-view='detail']:has(.detailMountMustEat) {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+  }
+
+  html body .list[data-view='detail']:has(.detailMountMustEat) .handle {
+    display: none !important;
+  }
+
+  html body .list[data-view='detail'] .detailMountMustEat,
+  html body .list[data-view='detail'] .detailMountMustEat .detailV13MustEat,
+  html body .list[data-view='detail'] .detailMountMustEat .detailV13Scroll {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  html body .list[data-view='detail'] .detailMountMustEat .detailV13Scroll {
+    padding-top: clamp(44px, 6dvh, 58px) !important;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html:has(.detailMountMustEat),
+  body:has(.detailMountMustEat),
+  html body .shell:has(.detailMountMustEat),
+  html body .body:has(.detailMountMustEat) {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
   /* Locate-FAB: --sheet-visible-px is not written in the in-flow list view —
      park it just above the list's resting overlap; the rising list slides
      over it (same Google-Maps park behavior as the 420px clamp before). */

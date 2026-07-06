@@ -19,6 +19,7 @@ import HeartButton from '@/app/components/HeartButton'
 import HeartCount from '@/app/components/HeartCount'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
+import MapIntentLink from '@/app/components/MapIntentLink'
 import RestaurantFAQ from '@/app/components/RestaurantFAQ'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
@@ -150,6 +151,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const magazine = splitDescriptionForMagazine(description)
   const faqEntries = buildFAQEntries(r, loc)
   const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
+  const galleryImages = (r.gallery ?? []).filter(img => img?.thumb && img?.full)
 
   const openStatus =
     r.openingHours && r.openingHours.length > 0
@@ -165,14 +167,12 @@ export default async function RestaurantPage({ params }: PageProps) {
   const websiteInfo = classifyWebsite(r.website)
   const websiteUrl = websiteInfo?.url ?? null
   const address = r.address
-  // Map CTAs land on the spot's district list (breadth over re-opening the
-  // detail the user just read), falling back to the full map.
-  const mapHref = r.bezirk?.slug ? `/map?bezirk=${r.bezirk.slug}` : '/map'
+  const mapHref = `/map?r=${slug}`
 
   const homeLabel = de ? 'Start' : 'Home'
   const districtsLabel = de ? 'Bezirke' : 'Districts'
   const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/' },
+    { name: homeLabel, href: '/', logo: 'eat-this' },
     ...(r.bezirk?.slug && r.bezirk?.name
       ? [
           { name: districtsLabel, href: '/bezirk' },
@@ -199,7 +199,9 @@ export default async function RestaurantPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
+        <div className={styles.breadcrumbWrap}>
+          <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
+        </div>
 
         <header className={r.photo ? styles.hero : styles.heroNoPhoto}>
           {r.photo && (
@@ -223,11 +225,14 @@ export default async function RestaurantPage({ params }: PageProps) {
                 district={r.bezirk?.name ?? undefined}
                 locale={loc}
               />
+              <figcaption className={styles.heroCaption}>
+                <h1 className={styles.heroName}>{displayName}</h1>
+              </figcaption>
             </figure>
           )}
 
           <div className={styles.heroOverlay}>
-            <h1 className={r.photo ? styles.heroName : styles.name}>{displayName}</h1>
+            {!r.photo && <h1 className={styles.name}>{displayName}</h1>}
             <div className={styles.heroTags}>
               {r.bezirk?.name && <span className={styles.chip}>{r.bezirk.name}</span>}
               {r.cuisineType && <span className={styles.chipAlt}>{r.cuisineType}</span>}
@@ -236,6 +241,9 @@ export default async function RestaurantPage({ params }: PageProps) {
                   {openStatus.label}
                 </span>
               )}
+              <MapIntentLink href={mapHref} rel="nofollow" className={styles.mapChip}>
+                {de ? 'Auf die Map' : 'To the map'}
+              </MapIntentLink>
             </div>
           </div>
         </header>
@@ -255,31 +263,51 @@ export default async function RestaurantPage({ params }: PageProps) {
           </article>
         )}
 
-        {tipText && (
-          <aside className={styles.tipp}>
-            <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
-            <p className={styles.tippText}>{tipText}</p>
-          </aside>
+        {galleryImages.length > 0 && (
+          <section className={styles.gallery} aria-label={de ? 'Galerie' : 'Gallery'}>
+            {galleryImages.map((img, i) => (
+              <figure key={img._key} className={styles.galleryItem}>
+                <Image
+                  src={img.thumb ?? img.full ?? ''}
+                  alt={img.alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 1}`}
+                  fill
+                  sizes={i === 0 ? '(max-width: 700px) 82vw, 560px' : '(max-width: 700px) 68vw, 280px'}
+                  className={styles.galleryImg}
+                />
+              </figure>
+            ))}
+          </section>
         )}
 
-        {orderItems.length > 0 && (
-          <section className={styles.order} aria-label={de ? 'Was bestellen?' : 'What to order?'}>
-            <h2 className={styles.orderHead}>{de ? 'Was bestellen?' : 'What to order?'}</h2>
-            <ul className={styles.orderList}>
-              {orderItems.map(item => {
-                const note = pickLocale(item.note, item.noteEn, loc)
-                return (
-                  <li key={item.dish} className={styles.orderItem}>
-                    <div className={styles.orderTop}>
-                      <span className={styles.orderDish}>{item.dish}</span>
-                      {item.price && <span className={styles.orderPrice}>{item.price}</span>}
-                    </div>
-                    {note && <p className={styles.orderNote}>{note}</p>}
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
+        {(tipText || orderItems.length > 0) && (
+          <div className={styles.editorialGrid}>
+            {tipText && (
+              <aside className={styles.tipp}>
+                <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
+                <p className={styles.tippText}>{tipText}</p>
+              </aside>
+            )}
+
+            {orderItems.length > 0 && (
+              <section className={styles.order} aria-label={de ? 'Was bestellen?' : 'What to order?'}>
+                <h2 className={styles.orderHead}>{de ? 'Was bestellen?' : 'What to order?'}</h2>
+                <ul className={styles.orderList}>
+                  {orderItems.map(item => {
+                    const note = pickLocale(item.note, item.noteEn, loc)
+                    return (
+                      <li key={item.dish} className={styles.orderItem}>
+                        <div className={styles.orderTop}>
+                          <span className={styles.orderDish}>{item.dish}</span>
+                          {item.price && <span className={styles.orderPrice}>{item.price}</span>}
+                        </div>
+                        {note && <p className={styles.orderNote}>{note}</p>}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            )}
+          </div>
         )}
 
         <dl className={styles.facts}>
@@ -320,8 +348,6 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
-        {/* Map entry lives in the big MapPromoCTA banner below — no second
-            "Map öffnen" button up here. */}
         {(websiteUrl || r.menuUrl) && (
           <div className={styles.acts}>
             {websiteUrl && (

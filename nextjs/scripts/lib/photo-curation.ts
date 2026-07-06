@@ -21,7 +21,7 @@ export interface PhotoJudgment {
   score: number
 }
 
-const MAX_GALLERY = 5
+const MAX_GALLERY = 3
 // "Product" = the thing you consume: a plated dish/pastry (food) or a finished
 // drink. Interior (atmosphere) is supporting only. Exterior, menu, unusable
 // (machines, bare shops, equipment, …) are dropped entirely.
@@ -92,7 +92,7 @@ export function isOwnerPhoto(displayName: string | null | undefined, restaurantN
   return rn.length >= 3 && dn === rn
 }
 
-/** Picks up to 4 gallery candidate indexes. Rules:
+/** Picks up to 3 gallery candidate indexes. Rules:
  *   1. ONLY original (owner-uploaded) photos — never guest photos. Owner photos
  *      carry the business name as attribution; they are the restaurant's own
  *      professional brand shots. A spot with no usable originals gets nothing.

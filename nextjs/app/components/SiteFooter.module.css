@@ -202,7 +202,7 @@
 
 .legalLink:hover {
   background: transparent;
-  color: var(--footer-red);
+  color: var(--home-accent, #ffc600);
 }
 
 .legalBtn {

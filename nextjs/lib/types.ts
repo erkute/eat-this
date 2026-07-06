@@ -39,6 +39,15 @@ interface WhatToOrderItem {
   price?: string
 }
 
+interface RestaurantGalleryImage {
+  _key: string
+  thumb?: string
+  full?: string
+  alt?: string
+  credit?: string
+  creditUrl?: string
+}
+
 export interface Restaurant {
   _id: string
   name: string
@@ -66,6 +75,7 @@ export interface Restaurant {
   photo?: string
   photoCredit?: string
   photoCreditUrl?: string
+  gallery?: RestaurantGalleryImage[]
   seo?: RestaurantSeo
   bezirk?: { _id: string; name: string; slug?: string }
 }

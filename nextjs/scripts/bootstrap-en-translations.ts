@@ -15,6 +15,7 @@
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import Anthropic from '@anthropic-ai/sdk'
+import { extractJsonObjectTextFromBlocks } from './lib/extract-json'
 
 // Next.js convention: secrets live in .env.local, not .env. Load explicitly.
 loadEnv({ path: '.env.local' })
@@ -173,18 +174,7 @@ interface BezirkTranslation {
 }
 
 function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
-  const textBlock = content.find(b => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error(`No text block in response for ${docId}`)
-  }
-  // Strip ```json … ``` fences defensively — the model occasionally wraps
-  // JSON despite the explicit "no markdown fence" instruction, especially on
-  // longer prompts. Mirrors the same defense in generate-de-descriptions.ts.
-  return textBlock.text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/, '')
-    .trim()
+  return extractJsonObjectTextFromBlocks(content, docId)
 }
 
 export async function translateRestaurant(r: RestaurantSource): Promise<RestaurantTranslation> {

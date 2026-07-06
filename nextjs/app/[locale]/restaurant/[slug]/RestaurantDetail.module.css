@@ -149,6 +149,28 @@
   padding: clamp(24px, 5vw, 58px);
 }
 
+.heroCredit {
+  position: absolute;
+  top: 58px;
+  right: 14px;
+  z-index: 3;
+  max-width: min(34ch, calc(100% - 28px));
+  padding: 4px 7px 5px;
+  background: rgba(13, 10, 7, 0.52);
+  color: #fff;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.heroCredit a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .heroOverlay {
   width: min(100%, 900px);
   min-width: 0;
@@ -197,8 +219,7 @@
 .chip,
 .chipAlt,
 .chipOpen,
-.chipClosed,
-.mapChip {
+.chipClosed {
   min-height: 32px;
   display: inline-flex;
   align-items: center;
@@ -212,13 +233,6 @@
   letter-spacing: 0;
   line-height: 1.04;
   text-transform: uppercase;
-}
-
-.mapChip {
-  background: var(--detail-ink);
-  color: var(--detail-paper);
-  text-decoration: none;
-  transition: background-color 140ms ease, transform 140ms ease;
 }
 
 .chip {
@@ -315,6 +329,31 @@
 .galleryImg {
   object-fit: cover;
   filter: saturate(1.03) contrast(1.02);
+}
+
+.galleryCredit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  z-index: 1;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  margin: 0;
+  padding: 4px 7px 5px;
+  background: rgba(13, 10, 7, 0.52);
+  color: #fff;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.galleryCredit a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .editorialGrid {
@@ -568,8 +607,7 @@
 
 @media (hover: hover) {
   .act:hover,
-  .actPrimary:hover,
-  .mapChip:hover {
+  .actPrimary:hover {
     background: var(--detail-red);
     transform: translateY(-2px);
   }
@@ -582,7 +620,6 @@
 
 .act:focus-visible,
 .actPrimary:focus-visible,
-.mapChip:focus-visible,
 .sibCard:focus-visible {
   outline: 2px solid var(--detail-red);
   outline-offset: 4px;
@@ -663,6 +700,12 @@
     padding: 24px 16px;
   }
 
+  .heroCredit {
+    top: 58px;
+    right: 12px;
+    max-width: min(30ch, calc(100% - 88px));
+  }
+
   .heroName,
   .name {
     font-size: clamp(42px, 12.4vw, 62px);
@@ -671,8 +714,7 @@
   .chip,
   .chipAlt,
   .chipOpen,
-  .chipClosed,
-  .mapChip {
+  .chipClosed {
     min-height: 30px;
     padding: 7px 10px 8px;
     font-size: 15px;

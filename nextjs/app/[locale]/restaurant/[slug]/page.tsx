@@ -29,6 +29,16 @@ interface PageProps {
   params: Promise<{ locale: string; slug: string }>
 }
 
+function safeCreditUrl(url: string | undefined): string | null {
+  if (!url) return null
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? url : null
+  } catch {
+    return null
+  }
+}
+
 export async function generateStaticParams() {
   const slugs = await getAllRestaurantSlugs()
   return routing.locales.flatMap(locale =>
@@ -152,6 +162,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const faqEntries = buildFAQEntries(r, loc)
   const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
   const galleryImages = (r.gallery ?? []).filter(img => img?.thumb && img?.full)
+  const heroCreditHref = safeCreditUrl(r.photoCreditUrl)
 
   const openStatus =
     r.openingHours && r.openingHours.length > 0
@@ -228,6 +239,17 @@ export default async function RestaurantPage({ params }: PageProps) {
               <figcaption className={styles.heroCaption}>
                 <h1 className={styles.heroName}>{displayName}</h1>
               </figcaption>
+              {r.photoCredit && (
+                <span className={styles.heroCredit}>
+                  {heroCreditHref ? (
+                    <a href={heroCreditHref} target="_blank" rel="noopener noreferrer">
+                      {r.photoCredit}
+                    </a>
+                  ) : (
+                    r.photoCredit
+                  )}
+                </span>
+              )}
             </figure>
           )}
 
@@ -241,9 +263,6 @@ export default async function RestaurantPage({ params }: PageProps) {
                   {openStatus.label}
                 </span>
               )}
-              <MapIntentLink href={mapHref} rel="nofollow" className={styles.mapChip}>
-                {de ? 'Auf die Map' : 'To the map'}
-              </MapIntentLink>
             </div>
           </div>
         </header>
@@ -265,17 +284,31 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {galleryImages.length > 0 && (
           <section className={styles.gallery} aria-label={de ? 'Galerie' : 'Gallery'}>
-            {galleryImages.map((img, i) => (
-              <figure key={img._key} className={styles.galleryItem}>
-                <Image
-                  src={img.thumb ?? img.full ?? ''}
-                  alt={img.alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 1}`}
-                  fill
-                  sizes={i === 0 ? '(max-width: 700px) 82vw, 560px' : '(max-width: 700px) 68vw, 280px'}
-                  className={styles.galleryImg}
-                />
-              </figure>
-            ))}
+            {galleryImages.map((img, i) => {
+              const creditHref = safeCreditUrl(img.creditUrl)
+              return (
+                <figure key={img._key} className={styles.galleryItem}>
+                  <Image
+                    src={img.thumb ?? img.full ?? ''}
+                    alt={img.alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 1}`}
+                    fill
+                    sizes={i === 0 ? '(max-width: 700px) 82vw, 560px' : '(max-width: 700px) 68vw, 280px'}
+                    className={styles.galleryImg}
+                  />
+                  {img.credit && (
+                    <figcaption className={styles.galleryCredit}>
+                      {creditHref ? (
+                        <a href={creditHref} target="_blank" rel="noopener noreferrer">
+                          {img.credit}
+                        </a>
+                      ) : (
+                        img.credit
+                      )}
+                    </figcaption>
+                  )}
+                </figure>
+              )
+            })}
           </section>
         )}
 
@@ -348,20 +381,21 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
-        {(websiteUrl || r.menuUrl) && (
-          <div className={styles.acts}>
-            {websiteUrl && (
-              <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
-                Website
-              </a>
-            )}
-            {r.menuUrl && (
-              <a className={styles.act} href={r.menuUrl} target="_blank" rel="noopener nofollow noreferrer">
-                {de ? 'Speisekarte' : 'Menu'}
-              </a>
-            )}
-          </div>
-        )}
+        <div className={styles.acts}>
+          <MapIntentLink href={mapHref} rel="nofollow" className={`${styles.act} ${styles.actPrimary}`}>
+            {de ? 'Auf der Map öffnen' : 'Open on the map'}
+          </MapIntentLink>
+          {websiteUrl && (
+            <a className={styles.act} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
+              Website
+            </a>
+          )}
+          {r.menuUrl && (
+            <a className={styles.act} href={r.menuUrl} target="_blank" rel="noopener nofollow noreferrer">
+              {de ? 'Speisekarte' : 'Menu'}
+            </a>
+          )}
+        </div>
 
         {mustEats.length > 0 && (
           <MustEatTeaserSection mustEats={mustEats} locale={loc} />

@@ -12536,6 +12536,48 @@ html body .filterChipOpenActive .filterChipLabelLong {
   font-size: 11px !important;
 }
 
+/* Filter bar should first read as a full-width control row, not a short
+   left-aligned cluster. Long active labels can still be clipped inside their
+   segment, but the default Category/Bezirk/Kueche/Open state fills the sheet. */
+html body .filterChipRow {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: stretch !important;
+  overflow-x: hidden !important;
+}
+
+html body .filterChipWrap,
+html body .filterChipRow > .filterChip,
+html body .filterChipWrap:has(.filterChipActive),
+html body .filterChipWrap:has(.filterChipOpenActive),
+html body .filterChipRow > .filterChipActive,
+html body .filterChipRow > .filterChipOpenActive,
+html body .filterChipRow.filterChipRow > button.filterChip.filterChip {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+html body .filterChipWrap .filterChip,
+html body .filterChip,
+html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipActive,
+html body .filterChipOpenActive {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+html body .filterChipLabel,
+html body .filterChipLabelLong {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
 /* ── Detail-Polish (User 2026-07-04, lokales Testing) ───────────────────── */
 
 /* Must-Eat-Karten-Peek in der Restaurant-Liste minimal höher — ragt jetzt

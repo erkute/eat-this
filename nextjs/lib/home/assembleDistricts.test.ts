@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { assembleDistricts, pickWeeklyFeatureSlug, type DistrictRow, type HubDistrictSpot } from './assembleDistricts'
-
-const spot = (slug: string): HubDistrictSpot => ({ name: slug, slug, image: `https://cdn/${slug}.jpg`, category: 'Lunch' })
+import { assembleDistricts, pickWeeklyFeatureSlug, type DistrictRow } from './assembleDistricts'
 
 const row = (slug: string, count: number): DistrictRow => ({
-  name: slug, slug, tagline: `tag-${slug}`, count, spots: [spot(`${slug}-1`), spot(`${slug}-2`)],
+  name: slug, slug, tagline: `tag-${slug}`, count,
 })
 
 const plusDays = (iso: string, days: number) =>
@@ -20,10 +18,9 @@ describe('assembleDistricts', () => {
     expect(out.filter(d => d.slug !== 'neukoelln').every(d => d.isFeature === false)).toBe(true)
   })
 
-  it('takes tagline and spots straight from the district row', () => {
+  it('takes the tagline straight from the district row', () => {
     const out = assembleDistricts('neukoelln', [row('neukoelln', 30)])
     expect(out[0].tagline).toBe('tag-neukoelln')
-    expect(out[0].spots.map(s => s.slug)).toEqual(['neukoelln-1', 'neukoelln-2'])
   })
 
   it('returns favorites first with no marker when the feature slug is null or unknown', () => {

@@ -7,6 +7,7 @@ import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/li
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { filterMustEats } from '@/lib/home/mustEatsGallery';
+import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import styles from './HubMustEatsTeaser.module.css';
 
@@ -105,6 +106,11 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
                   <img
                     className={styles.card}
                     src={m.image}
+                    // The tile renders at clamp(112px, 14vw, 144px) — the
+                    // baked mapCard src (w=600) is ~4× oversized even at 2x
+                    // DPR. The srcset lets the browser drop to 300/450.
+                    srcSet={sanitySrcSet(m.image, [150, 300, 450])}
+                    sizes="(max-width: 760px) 112px, 144px"
                     alt={normalizeName(m.dish ?? '')}
                     loading="lazy"
                   />

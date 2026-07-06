@@ -40,6 +40,7 @@ function isPhoneViewport(): boolean {
 
 export default function MapSection({ isActive = false, initialMapData }: Props) {
   const mapRef = useRef<MapRef>(null);
+  const mapWrapRef = useRef<HTMLDivElement | null>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
@@ -297,6 +298,157 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
 
+  /* iOS URL-bar frosting for the in-flow phone detail. The MapLibre GL
+     canvas is an always-composited layer; while it sits under the detail,
+     WebKit promotes the whole detail subtree, which drops it from the
+     bottom URL bar's backdrop — the bar then samples only the page
+     background instead of the detail content (bisected on-device
+     2026-07-06: canvas hidden → frosts, canvas visible → doesn't;
+     z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
+
+     The peek must stay LIVE and pannable while the user is at the top of
+     the detail (it's a real little map, like the list view), so the GL
+     layer is only removed WHILE the window is scrolled: crossing scrollY>4
+     freezes the current frame into an <img> overlay (plus a clone of the
+     selected pin at its projected position — DOM markers aren't part of
+     the GL frame), hides the wrap, and Safari starts sampling the detail.
+     Back at the top the live map returns. Nothing is lost at rest: at
+     scroll top Safari's bar is expanded anyway. `visibility` (not
+     `display`) so MapLibre keeps its size and repaints instantly. */
+  useEffect(() => {
+    if (!isActive || sheetView !== 'detail') return;
+    if (typeof window === 'undefined' || !isPhoneViewport()) return;
+    const mapWrap = mapWrapRef.current;
+    if (!mapWrap) return;
+
+    let cancelled = false;
+    let frozen = false;
+    let capturing = false;
+    let snapEl: HTMLImageElement | null = null;
+    let pinEl: HTMLElement | null = null;
+
+    const target = selectedRestaurant ?? selectedMustEat?.restaurant ?? null;
+
+    const showFrozen = () => {
+      mapWrap.style.visibility = 'hidden';
+      if (snapEl) snapEl.style.visibility = 'visible';
+      if (pinEl) pinEl.style.visibility = 'visible';
+    };
+    const showLive = () => {
+      mapWrap.style.visibility = '';
+      if (snapEl) snapEl.style.visibility = 'hidden';
+      if (pinEl) pinEl.style.visibility = 'hidden';
+    };
+
+    /* toDataURL on a WebGL canvas only yields pixels during the render
+       event (preserveDrawingBuffer is off) — the documented MapLibre
+       snapshot pattern: once('render') + triggerRepaint. The wrap is
+       hidden only after the frame is captured, so the peek swaps live→
+       frozen without a blank flash (one frame of GL during scroll start
+       is invisible in practice). */
+    const freeze = () => {
+      const map = mapRef.current?.getMap();
+      if (!map) {
+        /* No canvas mounted yet (deep link) — nothing composited to blame,
+           but hide the wrap anyway so the frosting can start. */
+        showFrozen();
+        return;
+      }
+      if (capturing) return;
+      capturing = true;
+      map.once('render', () => {
+        capturing = false;
+        if (cancelled) return;
+        try {
+          const url = map.getCanvas().toDataURL('image/jpeg', 0.75);
+          if (!snapEl) {
+            snapEl = document.createElement('img');
+            snapEl.alt = '';
+            snapEl.setAttribute('aria-hidden', 'true');
+            snapEl.style.cssText =
+              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:hidden;pointer-events:none;';
+            mapWrap.appendChild(snapEl);
+          }
+          snapEl.src = url;
+
+          /* Clone the selected pin at its CURRENT projected position — the
+             open-flyTo already centers the spot inside the peek strip (see
+             phoneDetailFlyPadding), and any user panning is captured 1:1,
+             so the frozen peek is pixel-faithful to the live one. */
+          if (target && typeof target.lat === 'number' && typeof target.lng === 'number') {
+            const pt = map.project([target.lng, target.lat]);
+            if (!pinEl) {
+              const livePin = mapWrap.querySelector<HTMLElement>('[data-selected-pin]');
+              if (livePin) {
+                pinEl = livePin.cloneNode(true) as HTMLElement;
+                pinEl.removeAttribute('role');
+                pinEl.removeAttribute('data-selected-pin');
+                pinEl.setAttribute('aria-hidden', 'true');
+                mapWrap.appendChild(pinEl);
+              }
+            }
+            if (pinEl) {
+              pinEl.style.cssText = `position:absolute;left:${Math.round(pt.x)}px;top:${Math.round(pt.y)}px;transform:translate(-50%,-100%);visibility:hidden;pointer-events:none;z-index:2;`;
+            }
+          }
+        } catch {
+          /* Capture failed (tainted canvas or similar) — freeze without a
+             backdrop; the peek is covered within ~110px of scroll anyway. */
+        }
+        if (frozen && !cancelled) showFrozen();
+      });
+      map.triggerRepaint();
+    };
+
+    /* No rAF gate: scroll events already fire at frame rate, and a
+       pending-rAF gate can leave the map hidden at scroll top when rAF is
+       throttled (background tab). */
+    const apply = () => {
+      const shouldFreeze = window.scrollY > 4;
+      if (shouldFreeze === frozen) return;
+      frozen = shouldFreeze;
+      if (frozen) freeze();
+      else showLive();
+    };
+
+    apply();
+    window.addEventListener('scroll', apply, { passive: true });
+    return () => {
+      cancelled = true;
+      window.removeEventListener('scroll', apply);
+      snapEl?.remove();
+      pinEl?.remove();
+      mapWrap.style.visibility = '';
+    };
+  }, [isActive, sheetView, selectedRestaurant?._id, selectedMustEat?._id]);
+
+  /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
+     restores it via the existing deep-link path instead of dropping the user
+     back to the list — and open details become shareable for free. The
+     deep-link consumer (useMapDeepLinks) no longer strips the params; its
+     consumed-guards prevent same-session re-triggers. replaceState (never
+     push): no history spam, back still leaves the map like before. */
+  useEffect(() => {
+    if (!isActive || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const hasPendingDetailParam = params.has('r') || params.has('me');
+    if (sheetView !== 'detail' && hasPendingDetailParam && !selectedRestaurant?.slug && !selectedMustEat?._id) {
+      return;
+    }
+    params.delete('r');
+    params.delete('me');
+    if (sheetView === 'detail') {
+      if (selectedMustEat?._id) params.set('me', selectedMustEat._id);
+      else if (selectedRestaurant?.slug) params.set('r', selectedRestaurant.slug);
+    }
+    const qs = params.toString();
+    const next = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
+    const current = window.location.pathname + window.location.search + window.location.hash;
+    if (next !== current) {
+      window.history.replaceState(window.history.state, '', next);
+    }
+  }, [isActive, sheetView, selectedRestaurant?.slug, selectedMustEat?._id]);
+
   /* Scroll-restore for back-nav (list → detail → list):
      - listScrollRef captures the list's scrollTop just before a detail opens
        (in handleRestaurantClick / handleMustEatClick).
@@ -364,6 +516,23 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   /* ---------- Handlers ---------- */
   // Padding the map should respect when centering on a point, so spots don't
   // land behind the bottom sheet (mobile) or side panel (desktop).
+  /* Camera padding for the in-flow phone detail: the visible map is only the
+     top peek strip, so the target must center vertically inside it. Shared by
+     getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
+     open-click handlers (whose closures still see sheetView 'list'). */
+  const phoneDetailFlyPadding = useCallback(() => {
+    /* Mirrors --detail-map-peek: clamp(96px, 14dvh, 122px). */
+    const peek = Math.min(Math.max(96, 0.14 * window.innerHeight), 122);
+    const canvasH = mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
+    const overhang = Math.max(0, canvasH - window.innerHeight);
+    return {
+      top: 8,
+      bottom: Math.round(window.innerHeight - peek + overhang) + 8,
+      left: 20,
+      right: 20,
+    };
+  }, []);
+
   // We derive the mobile bottom from the snap STATE rather than the DOM
   // CSS variable so flyTo always uses the up-to-date target — reading from
   // the DOM races the sheet's transform/animation tick.
@@ -388,6 +557,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
          (≈44dvh, see map.module.css) — not the drag-sheet's 28px pip strip. */
       const phoneListPeek = Math.round(window.innerHeight * 0.44);
       const phoneInflowList = isPhoneViewport() && sheetView === 'list';
+      /* In-flow phone DETAIL: the only visible map is the top peek strip
+         (--detail-map-peek ≈ 96–122px) — center the spot inside that strip,
+         not in the drag-sheet-era "upper 42%" band. Applies to pager swaps
+         and any flyTo while the detail is open; the open-click itself uses
+         phoneDetailFlyPadding() because sheetView is still 'list' in its
+         closure at that moment. */
+      if (isPhoneViewport() && sheetView === 'detail') {
+        return phoneDetailFlyPadding();
+      }
       let visible: number;
       if (visiblePxOverride != null) {
         visible = visiblePxOverride;
@@ -432,7 +610,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       // map area between the controls and the sheet top.
       return { top: 70, bottom: Math.round(visible + overhang) + 20, left: 20, right: 20 };
     },
-    [snap, sheetView, sheetElRef]
+    [snap, sheetView, sheetElRef, phoneDetailFlyPadding]
   );
 
   const handleRestaurantClick = useCallback(
@@ -477,20 +655,26 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
         center: [r.lng, r.lat],
         zoom: 15,
         duration: 500,
-        padding: openAtPeek
-          ? getFlyPadding(
-              'peek',
-              estimateDetailMidVisiblePx(
-                window.innerWidth,
-                displayedRestaurants.length > 1,
-                safeAreaBottomRef.current ?? 0
+        // In-flow phone detail: only the top peek strip shows map — center
+        // the pin there (sheetView in getFlyPadding's closure is still
+        // 'list' at this point, so the branch there can't catch this call).
+        padding: isPhoneViewport()
+          ? phoneDetailFlyPadding()
+          : openAtPeek
+            ? getFlyPadding(
+                'peek',
+                estimateDetailMidVisiblePx(
+                  window.innerWidth,
+                  displayedRestaurants.length > 1,
+                  safeAreaBottomRef.current ?? 0
+                )
               )
-            )
-          : getFlyPadding(isMobile ? 'full' : undefined),
+            : getFlyPadding(isMobile ? 'full' : undefined),
       });
     },
     [
       getFlyPadding,
+      phoneDetailFlyPadding,
       setSearch,
       setSheetView,
       setSnap,
@@ -973,6 +1157,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     <MapSectionBody
       isActive={isActive}
       mapRef={mapRef}
+      mapWrapRef={mapWrapRef}
       handleRef={handleRef}
       setHeaderRef={setHeaderRef}
       setContentRef={setContentRef}

@@ -415,27 +415,17 @@ body {
   width: min(680px, calc(100vw - 36px));
   margin: 0;
   padding: 16px;
-  color: var(--et-black);
-  background: var(--et-cream);
-  border: 2px solid var(--et-black);
-  border-radius: 8px;
-  box-shadow: 8px 8px 0 var(--et-black), 0 24px 54px rgba(16, 13, 15, .18);
+  color: #fff;
+  background: var(--home-ink, #15120e);
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .32);
   z-index: 10002;
   transform: translateY(calc(100% + 32px));
   transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-consent::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  right: 16px;
-  width: min(118px, 24vw);
-  height: 8px;
-  background: var(--et-red);
-  border: 2px solid var(--et-black);
-  border-top: 0;
-  border-radius: 0 0 5px 5px;
-  pointer-events: none;
+  content: none;
 }
 .cookie-consent.show {
   transform: translateY(0);
@@ -455,33 +445,34 @@ body {
 .cookie-kicker {
   display: inline-flex;
   margin-bottom: 9px;
-  padding: 5px 8px 6px;
-  color: var(--et-cream);
-  background: var(--et-black);
-  border-radius: 5px;
-  font-family: var(--et-font-label, var(--font));
-  font-size: 10px;
+  padding: 0;
+  color: var(--home-accent, #ffc600);
+  background: transparent;
+  border-radius: 0;
+  font-family: var(--font-providence);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .05em;
   line-height: 1;
   text-transform: uppercase;
 }
 .cookie-title {
   margin: 0;
-  color: var(--et-black);
-  font-family: var(--font-poster, var(--font));
-  font-size: clamp(26px, 4.6vw, 36px);
-  font-weight: 400;
+  color: #fff;
+  font-family: var(--font-providence);
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: .9;
+  line-height: .82;
+  text-transform: uppercase;
 }
 .cookie-text {
   max-width: 46rem;
   margin: 8px 0 0;
-  color: rgba(16, 13, 15, .72);
-  font-family: var(--font);
+  color: rgba(255, 255, 255, .72);
+  font-family: var(--font-providence);
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.35;
 }
 .cookie-consent-types {
@@ -495,14 +486,15 @@ body {
   align-items: center;
   min-height: 26px;
   padding: 5px 8px;
-  color: rgba(16, 13, 15, .76);
-  background: #fff4cc;
-  border: 1px solid rgba(16, 13, 15, .2);
-  border-radius: 6px;
-  font-family: var(--font);
+  color: rgba(255, 255, 255, .72);
+  background: rgba(255, 255, 255, .08);
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.1;
+  text-transform: uppercase;
 }
 .cookie-info-trigger {
   display: inline-flex;
@@ -511,18 +503,19 @@ body {
   margin-top: 11px;
   padding: 0 0 2px;
   cursor: pointer;
-  font-family: var(--font);
+  font-family: var(--font-providence);
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 700;
   line-height: 1.2;
-  color: var(--et-black);
+  color: rgba(255, 255, 255, .72);
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
-  text-decoration-color: var(--et-red);
+  text-decoration-color: var(--home-accent, #ffc600);
+  text-transform: uppercase;
 }
 .cookie-info-trigger:hover {
-  color: var(--et-red);
+  color: #fff;
 }
 .cookie-buttons {
   display: grid;
@@ -533,40 +526,36 @@ body {
 .cookie-btn {
   min-height: 48px;
   padding: 11px 14px 12px;
-  border: 2px solid var(--et-black);
-  border-radius: 8px;
-  font-family: var(--font-poster, var(--font));
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence);
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: .82;
+  line-height: .9;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease;
+  transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
 }
 .cookie-btn-accept {
-  color: var(--et-black);
-  background: var(--et-red);
-  box-shadow: 4px 4px 0 var(--et-black);
+  color: var(--home-ink, #15120e);
+  background: var(--home-accent, #ffc600);
 }
 .cookie-btn-accept:hover {
-  transform: translate(-2px, -2px);
-  background: var(--et-red-hot);
-  box-shadow: 6px 6px 0 var(--et-black);
+  transform: translateX(-4px);
+  background: #fff;
 }
 .cookie-btn-accept:active {
   transform: translateY(0);
-  box-shadow: 2px 2px 0 var(--et-black);
 }
 .cookie-btn-decline {
-  color: rgba(16, 13, 15, .78);
-  background: var(--et-cream);
-  box-shadow: inset 0 0 0 1px rgba(16, 13, 15, .08);
+  color: rgba(255, 255, 255, .72);
+  background: rgba(255, 255, 255, .08);
 }
 .cookie-btn-decline:hover {
-  color: var(--et-black);
-  background: #fff4cc;
+  color: #fff;
+  background: rgba(255, 255, 255, .14);
 }
 .cookie-btn-decline:active {
   transform: translateY(1px);
@@ -578,7 +567,7 @@ body {
     bottom: max(12px, env(safe-area-inset-bottom, 0px));
     width: auto;
     padding: 14px;
-    box-shadow: 5px 5px 0 var(--et-black), 0 18px 44px rgba(16, 13, 15, .18);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .32);
   }
   .cookie-content {
     grid-template-columns: 1fr;
@@ -845,10 +834,10 @@ body {
 .cookie-expand {
   margin-top: 16px;
   padding: 14px;
-  background: #fff4cc;
-  border: 2px solid var(--et-black);
-  border-radius: 8px;
-  box-shadow: inset 0 0 0 1px rgba(16, 13, 15, .06);
+  background: rgba(255, 255, 255, .08);
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  box-shadow: none;
   max-height: min(52dvh, 390px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -864,7 +853,7 @@ body {
 .cookie-expand .cookie-info-body > div {
   padding: 0 0 14px;
   border-top: 0;
-  border-bottom: 1px solid rgba(16, 13, 15, .18);
+  border-bottom: 1px solid rgba(255, 255, 255, .14);
   margin-bottom: 14px;
 }
 .cookie-expand .cookie-info-body > div:last-child {
@@ -876,19 +865,21 @@ body {
 /* Section headings in DM Sans caps — same voice as the drawer legal foot. */
 .cookie-expand .cookie-info-body h3 {
   font-size: 11px;
-  font-weight: 950;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--et-red);
+  color: var(--home-accent, #ffc600);
   margin: 0 0 6px;
   line-height: 1.3;
+  font-family: var(--font-providence);
 }
 .cookie-expand .cookie-info-body p {
   font-size: 12.5px;
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.5;
-  color: rgba(16, 13, 15, .7);
+  color: rgba(255, 255, 255, .7);
   margin: 0;
+  font-family: var(--font-providence);
 }
 .cookie-expand .cookie-info-body ul {
   margin: 8px 0 0;
@@ -899,10 +890,11 @@ body {
   position: relative;
   padding-left: 14px;
   font-size: 12.5px;
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.5;
-  color: rgba(16, 13, 15, .7);
+  color: rgba(255, 255, 255, .7);
   margin-bottom: 4px;
+  font-family: var(--font-providence);
 }
 /* Square bullet — brand is square/sticker, no circles. */
 .cookie-expand .cookie-info-body ul li::before {
@@ -912,14 +904,14 @@ body {
   top: 8px;
   width: 4px;
   height: 4px;
-  background: var(--et-red);
+  background: var(--home-accent, #ffc600);
 }
 .cookie-expand .cookie-info-body strong {
-  color: var(--et-black);
-  font-weight: 900;
+  color: #fff;
+  font-weight: 700;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--et-red);
+  color: var(--home-accent, #ffc600);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -934,7 +926,7 @@ body {
   .cookie-expand .cookie-info-body > div {
     padding: 0 0 12px;
     margin-bottom: 12px;
-    border-bottom: 1px solid rgba(16, 13, 15, .18);
+    border-bottom: 1px solid rgba(255, 255, 255, .14);
   }
   .cookie-expand .cookie-info-body > div:last-child {
     padding-bottom: 0;

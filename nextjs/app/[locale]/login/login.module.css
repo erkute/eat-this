@@ -2185,3 +2185,275 @@
     font-size: 10px;
   }
 }
+
+/* Burger-menu aligned modal: one ink sheet, one product image, one yellow action. */
+.frameModal {
+  --login-paper: var(--home-ink, #15120e);
+  --login-ink: #fff;
+  --login-accent: var(--home-accent, #ffc600);
+  --login-soft: rgba(255, 255, 255, 0.1);
+  --login-warm: transparent;
+  --login-muted: rgba(255, 255, 255, 0.7);
+  --login-line: rgba(255, 255, 255, 0.18);
+  --login-control: min(100%, 350px);
+
+  width: min(780px, calc(100vw - 28px));
+  max-height: calc(100svh - 28px);
+  color: var(--login-ink);
+  background: var(--login-paper);
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+}
+
+.frameModal .close {
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  padding: 0 0 3px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  border-radius: 50%;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.frameModal .close:hover,
+.frameModal .close:focus-visible {
+  color: var(--home-ink, #15120e);
+  background: var(--login-accent);
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+.modalSimple {
+  grid-template-columns: minmax(250px, 0.88fr) minmax(330px, 1fr);
+  min-height: min(520px, calc(100svh - 28px));
+  color: #fff;
+  background: var(--home-ink, #15120e);
+}
+
+.modalBenefits {
+  align-content: center;
+  gap: 0;
+  padding: clamp(34px, 4vw, 54px) clamp(24px, 3.6vw, 40px);
+  color: #fff;
+  background: transparent;
+  border: 0;
+}
+
+.modalBenefitHead {
+  gap: clamp(12px, 2vw, 22px);
+}
+
+.modalBenefitIntro {
+  max-width: 8ch;
+  color: #fff;
+  font-size: clamp(40px, 4.8vw, 64px);
+  line-height: 0.86;
+}
+
+.modalPackArt {
+  height: clamp(210px, 39vh, 320px);
+  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.28));
+  transform: rotate(-4deg);
+}
+
+.modalPackArt img {
+  max-height: 320px;
+}
+
+.modalBenefitLead {
+  max-width: 24ch;
+  margin-top: clamp(12px, 1.8vh, 20px);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.08;
+}
+
+.modalBenefitNote {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.modalLogin {
+  align-content: center;
+  gap: 14px;
+  padding: clamp(48px, 5vw, 66px) clamp(30px, 4vw, 52px);
+  background: transparent;
+}
+
+.modalFormTitle {
+  max-width: 10ch;
+  color: #fff;
+  font-size: clamp(42px, 4.7vw, 60px);
+  line-height: 0.88;
+}
+
+.frameModal .input {
+  min-height: 50px;
+  color: var(--home-ink, #15120e);
+  background: #fff;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+}
+
+.frameModal .input:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--login-accent) 64%, transparent);
+}
+
+.frameModal .ctaPrimary,
+.frameModal .ctaGoogle {
+  min-height: 50px;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(17px, 1.45vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.frameModal .ctaPrimary {
+  color: var(--home-ink, #15120e);
+  background: var(--login-accent);
+}
+
+.frameModal .ctaGoogle {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.frameModal .ctaPrimary:hover,
+.frameModal .ctaPrimary:focus-visible {
+  color: var(--home-ink, #15120e);
+  background: #fff;
+}
+
+.frameModal .ctaGoogle:hover,
+.frameModal .ctaGoogle:focus-visible {
+  color: var(--home-ink, #15120e);
+  background: var(--login-accent);
+}
+
+.frameModal .or {
+  display: block;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.frameModal .or::before,
+.frameModal .or::after {
+  content: none;
+}
+
+.frameModal .legal {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.frameModal .legalLink {
+  color: #fff;
+  text-decoration-color: var(--login-accent);
+}
+
+@media (max-width: 820px) {
+  .frameModal {
+    width: min(430px, calc(100vw - 18px));
+    max-height: calc(100svh - 18px);
+  }
+
+  .modalSimple {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    max-height: calc(100svh - 18px);
+    overflow-y: auto;
+  }
+
+  .modalBenefits {
+    padding: 48px 18px 12px;
+  }
+
+  .modalBenefitHead {
+    gap: 6px;
+  }
+
+  .modalBenefitIntro {
+    font-size: clamp(31px, 8vw, 40px);
+  }
+
+  .modalPackArt {
+    height: min(25vh, 168px);
+  }
+
+  .modalPackArt img {
+    max-height: 168px;
+  }
+
+  .modalBenefitLead {
+    max-width: 29ch;
+    margin-top: 8px;
+    font-size: clamp(14px, 3.6vw, 17px);
+    line-height: 1.08;
+  }
+
+  .modalLogin {
+    gap: 10px;
+    padding: 12px 18px 18px;
+  }
+
+  .modalFormTitle {
+    max-width: 12ch;
+    font-size: clamp(30px, 7.8vw, 38px);
+  }
+
+  .frameModal .input,
+  .frameModal .ctaPrimary,
+  .frameModal .ctaGoogle {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 380px), (max-height: 680px) {
+  .frameModal {
+    width: calc(100vw - 14px);
+    max-height: calc(100svh - 14px);
+  }
+
+  .modalSimple {
+    max-height: calc(100svh - 14px);
+  }
+
+  .modalBenefits {
+    padding: 42px 14px 8px;
+  }
+
+  .modalBenefitIntro {
+    font-size: clamp(26px, 7.4vw, 32px);
+  }
+
+  .modalPackArt {
+    height: min(21vh, 128px);
+  }
+
+  .modalPackArt img {
+    max-height: 128px;
+  }
+
+  .modalBenefitLead {
+    font-size: clamp(12px, 3.25vw, 14px);
+  }
+
+  .modalLogin {
+    padding: 10px 14px 14px;
+  }
+
+  .modalFormTitle {
+    font-size: clamp(27px, 7vw, 32px);
+  }
+
+  .frameModal .input,
+  .frameModal .ctaPrimary,
+  .frameModal .ctaGoogle {
+    min-height: 44px;
+  }
+}

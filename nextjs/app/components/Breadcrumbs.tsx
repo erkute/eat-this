@@ -5,6 +5,7 @@ export interface BreadcrumbItem {
   name: string
   /** Locale-relative href (omit on the last item — it renders as current). */
   href?: string
+  logo?: 'eat-this'
 }
 
 interface Props {
@@ -25,11 +26,21 @@ export default function Breadcrumbs({ items, ariaLabel }: Props) {
             <li key={i} className={styles.item}>
               {item.href && !isLast ? (
                 <Link href={item.href} className={styles.link}>
-                  {item.name}
+                  {item.logo === 'eat-this' ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/pics/eat-this-logo.webp?v=6" alt={item.name} className={styles.logo} />
+                  ) : (
+                    item.name
+                  )}
                 </Link>
               ) : (
                 <span className={styles.current} aria-current={isLast ? 'page' : undefined}>
-                  {item.name}
+                  {item.logo === 'eat-this' ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/pics/eat-this-logo.webp?v=6" alt={item.name} className={styles.logo} />
+                  ) : (
+                    item.name
+                  )}
                 </span>
               )}
               {!isLast && (

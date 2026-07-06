@@ -1,17 +1,9 @@
-export interface HubDistrictSpot {
-  name: string;
-  slug: string;
-  image: string | null;
-  category: string | null;
-}
-
 export interface HubDistrict {
   name: string;
   slug: string;
   tagline: string | null;
   isFeature: boolean;
   count: number;
-  spots: HubDistrictSpot[];
 }
 
 /** A browsable district row from the districts GROQ query (already ≥5 spots, ordered by count desc). */
@@ -20,7 +12,6 @@ export interface DistrictRow {
   slug: string;
   tagline: string | null;
   count: number;
-  spots: HubDistrictSpot[];
 }
 
 const FAVORITE_DISTRICT_SLUGS = [
@@ -70,6 +61,5 @@ export function assembleDistricts(
     tagline: r.tagline,
     isFeature: r.slug === featureSlug,
     count: r.count,
-    spots: r.spots,
   }));
 }

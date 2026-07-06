@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { presetQuery, groqImageUrl } from './sanity-image-presets'
+import { presetQuery, groqImageUrl, sanitySrcSet } from './sanity-image-presets'
 
 // These assertions pin the EXACT query strings the hand-written GROQ
 // projections used before the refactor. If any byte changes, a projection's
@@ -26,6 +26,23 @@ describe('presetQuery — frozen against the pre-refactor strings', () => {
   })
   it('buddyThumb → w=120 h=120 crop q=80 (param order preserved)', () => {
     expect(presetQuery('buddyThumb')).toBe('?w=120&h=120&fit=crop&auto=format&q=80')
+  })
+})
+
+describe('sanitySrcSet', () => {
+  const url = 'https://cdn.sanity.io/images/x/production/abc-1539x2115.png?w=600&auto=format&q=80'
+
+  it('strips the baked preset query and emits one candidate per width', () => {
+    expect(sanitySrcSet(url, [150, 300])).toBe(
+      'https://cdn.sanity.io/images/x/production/abc-1539x2115.png?w=150&auto=format&q=80 150w, ' +
+        'https://cdn.sanity.io/images/x/production/abc-1539x2115.png?w=300&auto=format&q=80 300w',
+    )
+  })
+
+  it('returns undefined for null and non-Sanity URLs', () => {
+    expect(sanitySrcSet(null, [150])).toBeUndefined()
+    expect(sanitySrcSet(undefined, [150])).toBeUndefined()
+    expect(sanitySrcSet('/pics/card-back.webp?v=6', [150])).toBeUndefined()
   })
 })
 

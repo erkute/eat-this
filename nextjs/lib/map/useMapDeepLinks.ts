@@ -81,10 +81,10 @@ export function useMapDeepLinks({
     const target = restaurants.find(r => r.slug === slug) ?? lockedRestaurants.find(r => r.slug === slug)
     if (!target) return
     restaurantConsumed.current = true
-    // Strip the param from the URL so back/refresh doesn't re-trigger.
-    params.delete('r')
-    const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
-    window.history.replaceState(null, '', next)
+    // The param deliberately STAYS in the URL: the detail-URL-sync effect in
+    // MapSection keeps it in step with the open detail, so pull-to-refresh
+    // reopens the spot instead of dropping to the list. Same-session
+    // re-trigger is prevented by the consumed guard above.
     // Open the detail IMMEDIATELY from the SSR'd data — it only sets state and
     // the sheet/sidebar is already in the SSR shell, so it must NOT wait for the
     // ~800 KB MapLibre canvas chunk to download (that was the "spot takes long
@@ -130,9 +130,8 @@ export function useMapDeepLinks({
     const target = mustEats.find(m => m._id === id)
     if (!target) return
     mustEatConsumed.current = true
-    params.delete('me')
-    const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
-    window.history.replaceState(null, '', next)
+    // Param stays in the URL — see the ?r= effect above (URL sync lives in
+    // MapSection; refresh should reopen the card, guard prevents re-trigger).
     // No cancel-on-cleanup: once consumed we always finish the open, even if a
     // re-render re-runs the effect (the guard above makes re-runs no-ops).
     const tryOpen = () => {

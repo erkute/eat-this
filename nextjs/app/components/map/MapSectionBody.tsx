@@ -30,6 +30,10 @@ const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>;
+  /* The sticky GL-canvas wrapper — MapSection hides it while the in-flow
+     detail fully occludes it (iOS URL-bar frosting, see the occlusion
+     effect in MapSection.tsx). */
+  mapWrapRef: RefObject<HTMLDivElement | null>;
   handleRef: Ref<HTMLDivElement | null>;
   setHeaderRef: (el: HTMLDivElement | null) => void;
   setContentRef: (el: HTMLDivElement | null) => void;
@@ -121,6 +125,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const {
     isActive,
     mapRef,
+    mapWrapRef,
     handleRef,
     setHeaderRef,
     setContentRef,
@@ -250,7 +255,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
         <div
           className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}
         >
-          <div className={styles.mapWrap}>
+          <div className={styles.mapWrap} ref={mapWrapRef}>
             <MapCanvasLayer
               mapRef={mapRef}
               onMapClick={onMapClick}

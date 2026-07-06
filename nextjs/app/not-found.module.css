@@ -88,6 +88,15 @@
   outline: 0;
 }
 
+/* The error boundary renders its retry CTA as a <button> — strip the UA
+   button chrome so it reads exactly like the anchor CTAs next to it. */
+.ctaButton {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
 .cardStage {
   display: flex;
   align-self: center;

@@ -12813,3 +12813,61 @@ html body .galleryLbStage {
   height: 100dvh !important;
   min-height: 100lvh !important;
 }
+
+/* Final layer polish: map status is a compact action layer, not a two-title
+   toast. Text + action + dismiss, no duplicate "Standort" kicker. */
+html body .mapStatusLayer,
+html body .mapStatusLayerError,
+html body .mapStatusLayerOk {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 48px !important;
+  padding: 10px 12px 10px 14px !important;
+  background: var(--et-home-ink, #15120e) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
+  border: 0 !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  box-shadow: 0 12px 32px rgba(21, 18, 14, 0.18) !important;
+}
+
+html body .mapStatusText {
+  min-width: 0 !important;
+  color: inherit !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: clamp(18px, 4.7vw, 22px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+
+html body .mapStatusAction {
+  min-height: 30px !important;
+  padding: 6px 13px 7px !important;
+  background: #fff !important;
+  color: var(--et-home-ink, #15120e) !important;
+  border: 0 !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+}
+
+html body .mapStatusDismiss {
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 0 2px !important;
+  color: currentColor !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}

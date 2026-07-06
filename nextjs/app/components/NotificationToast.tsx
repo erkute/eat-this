@@ -35,14 +35,14 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
         ? {
             tone: 'warning',
             eyebrow: 'Location',
-            title: 'Location is blocked',
+            title: 'Blocked',
             detail: 'Allow it in your browser, then tap again.',
             icon: 'pin',
           }
         : {
             tone: 'warning',
             eyebrow: 'Standort',
-            title: 'Standort ist blockiert',
+            title: 'Blockiert',
             detail: 'Im Browser erlauben, dann nochmal tippen.',
             icon: 'pin',
           };
@@ -51,14 +51,14 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
       ? {
           tone: 'warning',
           eyebrow: 'Location',
-          title: "Couldn't find you",
+          title: 'Not found',
           detail: 'Try once more or choose a district manually.',
           icon: 'pin',
         }
       : {
           tone: 'warning',
           eyebrow: 'Standort',
-          title: 'Standort hakt gerade',
+          title: 'Nicht gefunden',
           detail: 'Nochmal versuchen oder Bezirk manuell wählen.',
           icon: 'pin',
         };

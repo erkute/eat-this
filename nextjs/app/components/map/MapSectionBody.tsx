@@ -494,9 +494,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               className={`${styles.mapStatusLayer} ${locationStatus.isError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
               role={locationStatus.isError ? 'alert' : 'status'}
             >
-              <span className={styles.mapStatusKicker}>
-                {locale === 'en' ? 'Location' : 'Standort'}
-              </span>
               <span className={styles.mapStatusText}>{locationStatus.copy}</span>
               {locationStatus.isError && (
                 <button

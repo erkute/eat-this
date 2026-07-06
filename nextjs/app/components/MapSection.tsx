@@ -40,6 +40,7 @@ function isPhoneViewport(): boolean {
 
 export default function MapSection({ isActive = false, initialMapData }: Props) {
   const mapRef = useRef<MapRef>(null);
+  const mapWrapRef = useRef<HTMLDivElement | null>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
@@ -296,6 +297,43 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     setSnap(target);
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
+
+  /* iOS URL-bar frosting for the in-flow phone detail. The MapLibre GL
+     canvas is an always-composited layer; while it sits under the detail,
+     WebKit promotes the whole detail subtree, which drops it from the
+     bottom URL bar's backdrop — the bar then samples only the page
+     background instead of the detail content (bisected on-device
+     2026-07-06: canvas hidden → frosts, canvas visible → doesn't;
+     z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
+     The sticky mapWrap is fully covered once the sheet's top edge reaches
+     the viewport top, so from there we can hide the GL layer with zero
+     visual difference — and while the map peek IS visible (at scroll top)
+     Safari's bar is expanded anyway, so no frosting is lost. `visibility`
+     (not `display`) so MapLibre keeps its size and repaints instantly on
+     the way back up. */
+  useEffect(() => {
+    if (!isActive || sheetView !== 'detail') return;
+    if (typeof window === 'undefined' || !isPhoneViewport()) return;
+    const sheet = sheetElRef.current;
+    const mapWrap = mapWrapRef.current;
+    if (!sheet || !mapWrap) return;
+
+    /* Deliberately no rAF gate: scroll events already fire at frame rate,
+       one getBoundingClientRect on one element is cheap, and a pending-rAF
+       gate can leave the map hidden at scroll top when rAF is throttled
+       (background tab). */
+    const apply = () => {
+      const occluded = sheet.getBoundingClientRect().top <= 0;
+      mapWrap.style.visibility = occluded ? 'hidden' : '';
+    };
+
+    apply();
+    window.addEventListener('scroll', apply, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', apply);
+      mapWrap.style.visibility = '';
+    };
+  }, [isActive, sheetView, sheetElRef]);
 
   /* Scroll-restore for back-nav (list → detail → list):
      - listScrollRef captures the list's scrollTop just before a detail opens
@@ -973,6 +1011,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     <MapSectionBody
       isActive={isActive}
       mapRef={mapRef}
+      mapWrapRef={mapWrapRef}
       handleRef={handleRef}
       setHeaderRef={setHeaderRef}
       setContentRef={setContentRef}

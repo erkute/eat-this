@@ -37,6 +37,7 @@ export default function SearchOverlay({ openRequestId = 0 }: SearchOverlayProps)
   // Keyed by uid so a sign-in/-out invalidates the cached result set and the
   // next open re-fetches with the new entitlement scope.
   const fetchedForUidRef = useRef<string | null | undefined>(undefined);
+  const latestFetchRef = useRef(0);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -80,7 +81,8 @@ export default function SearchOverlay({ openRequestId = 0 }: SearchOverlayProps)
 
     const currentUid = user?.uid ?? null;
     if (fetchedForUidRef.current !== currentUid) {
-      fetchedForUidRef.current = currentUid;
+      const reqId = ++latestFetchRef.current;
+      const controller = new AbortController();
       setDataLoaded(false);
       setDataLoading(true);
       (async () => {
@@ -88,20 +90,31 @@ export default function SearchOverlay({ openRequestId = 0 }: SearchOverlayProps)
           const headers: HeadersInit = {};
           if (currentUid && auth.currentUser) {
             const token = await auth.currentUser.getIdToken();
+            if (controller.signal.aborted || latestFetchRef.current !== reqId) return;
             headers['Authorization'] = `Bearer ${token}`;
           }
-          const r = await fetch('/api/search-data', { headers });
+          const r = await fetch('/api/search-data', { headers, signal: controller.signal });
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           const { news, restaurants }: { news: NewsArticle[]; restaurants: MapRestaurant[] } = await r.json();
+          if (controller.signal.aborted || latestFetchRef.current !== reqId) return;
           setNews(news || []);
           setRestaurants(restaurants || []);
           setDataLoaded(true);
+          fetchedForUidRef.current = currentUid;
         } catch {
+          if (controller.signal.aborted || latestFetchRef.current !== reqId) return;
           setDataLoaded(true);
         } finally {
-          setDataLoading(false);
+          if (latestFetchRef.current === reqId) setDataLoading(false);
         }
       })();
+
+      return () => {
+        controller.abort();
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+        clearTimeout(focusTimer);
+      };
     }
 
     return () => {

@@ -92,6 +92,9 @@ export async function POST(request: Request) {
 
   const llm = createAnthropicLlmClient()
   const encoder = new TextEncoder()
+  const abortController = new AbortController()
+  const abort = () => abortController.abort()
+  request.signal.addEventListener('abort', abort, { once: true })
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -99,16 +102,25 @@ export async function POST(request: Request) {
         for await (const event of runBuddyTurn(
           { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo },
           { llm, searchSpots, searchArticles },
+          { signal: abortController.signal },
         )) {
+          if (abortController.signal.aborted) return
           controller.enqueue(encoder.encode(encodeBuddyEvent(event)))
         }
       } catch {
-        controller.enqueue(
-          encoder.encode(encodeBuddyEvent({ type: 'error', value: 'buddy_failed' })),
-        )
+        if (!abortController.signal.aborted) {
+          controller.enqueue(
+            encoder.encode(encodeBuddyEvent({ type: 'error', value: 'buddy_failed' })),
+          )
+        }
       } finally {
-        controller.close()
+        request.signal.removeEventListener('abort', abort)
+        if (!abortController.signal.aborted) controller.close()
       }
+    },
+    cancel() {
+      abortController.abort()
+      request.signal.removeEventListener('abort', abort)
     },
   })
 

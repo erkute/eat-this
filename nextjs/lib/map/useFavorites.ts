@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useLocale } from 'next-intl'
 import { auth, getDb } from '@/lib/firebase/config'
-import { client as sanityClient } from '@/lib/sanity'
 
 interface FavoriteEntry {
   restaurantId: string
@@ -47,11 +46,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       }
     } catch { /* ignore bad cache */ }
 
-    // 2) Live read — show as soon as it lands; don't block on the slug back-fill.
+    // 2) Live read — show as soon as it lands.
     //    Firestore SDK is code-split (see getDb) so it stays out of first-load.
     let active = true
     void (async () => {
-      const [{ collection, doc, getDocs, updateDoc }, db] = await Promise.all([
+      const [{ collection, getDocs }, db] = await Promise.all([
         import('firebase/firestore'),
         getDb(),
       ])
@@ -68,30 +67,6 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         setFavorites(entries)
         setLoading(false)
         try { window.localStorage.setItem(key, JSON.stringify(entries)) } catch { /* quota */ }
-
-        // 3) Back-fill slugs for legacy entries in the background, then patch.
-        const missing = entries.filter(e => !e.slug)
-        if (missing.length > 0) {
-          try {
-            const ids = missing.map(e => e.restaurantId)
-            const found = await sanityClient.fetch<Array<{ _id: string; slug: string }>>(
-              `*[_type == "restaurant" && _id in $ids]{ _id, "slug": slug.current }`,
-              { ids },
-            )
-            if (!active) return
-            const bySlug = new Map(found.filter(r => r.slug).map(r => [r._id, r.slug]))
-            if (bySlug.size > 0) {
-              setFavorites(prev => {
-                const patched = prev.map(e => bySlug.has(e.restaurantId) ? { ...e, slug: bySlug.get(e.restaurantId) } : e)
-                try { window.localStorage.setItem(key, JSON.stringify(patched)) } catch { /* quota */ }
-                return patched
-              })
-              for (const [id, slug] of bySlug) {
-                updateDoc(doc(db, 'users', uid, 'favorites', id), { slug }).catch(() => {})
-              }
-            }
-          } catch { /* ignore — slug stays empty, link falls back to /map */ }
-        }
       } catch {
         if (active) setLoading(false)
       }
@@ -121,7 +96,6 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         body: JSON.stringify({
           restaurantId: r._id,
           action: adding ? 'add' : 'remove',
-          name: r.name, slug: r.slug ?? '', photo: r.photo ?? '', district: r.district ?? '',
         }),
       })
       if (!res.ok) throw new Error(`heart ${res.status}`)

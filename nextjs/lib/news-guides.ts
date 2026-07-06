@@ -1,4 +1,4 @@
-export type NewsGuideSlug =
+type NewsGuideSlug =
   | 'beste-fast-food-berlin'
   | 'beste-pizza-berlin'
   | 'beste-cafes-berlin'

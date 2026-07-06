@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { checkRateLimit } from '@/lib/buddy/rateLimit'
+import { getCachedMapData } from '@/lib/map/cached-sanity'
 
 export const dynamic    = 'force-dynamic'
 export const revalidate = 0
@@ -11,15 +12,9 @@ const num = (v: string | undefined, d: number) => {
   return Number.isFinite(n) && n > 0 ? n : d
 }
 
-const str = (v: unknown): string => (typeof v === 'string' ? v : '')
-
 interface HeartBody {
   restaurantId?: unknown
   action?: unknown
-  name?: unknown
-  slug?: unknown
-  photo?: unknown
-  district?: unknown
 }
 
 // Heart toggle — the single writer of both the per-user heart
@@ -66,6 +61,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'restaurantId and action required' }, { status: 400 })
   }
 
+  const { restaurants } = await getCachedMapData()
+  const restaurant = restaurants.find((r) => r._id === restaurantId)
+  if (!restaurant) {
+    return NextResponse.json({ error: 'unknown_restaurant' }, { status: 404 })
+  }
+
   const db       = getAdminFirestore()
   const favRef   = db.doc(`users/${uid}/favorites/${restaurantId}`)
   const countRef = db.doc(`restaurants/${restaurantId}`)
@@ -75,10 +76,10 @@ export async function POST(req: Request) {
     if (action === 'add') {
       if (exists) return true // idempotent — already hearted, count untouched
       tx.set(favRef, {
-        name:     str(body?.name),
-        slug:     str(body?.slug),
-        photo:    str(body?.photo),
-        district: str(body?.district),
+        name:     restaurant.name,
+        slug:     restaurant.slug,
+        photo:    restaurant.photo ?? '',
+        district: restaurant.bezirk?.name ?? restaurant.district ?? '',
         savedAt:  FieldValue.serverTimestamp(),
       })
       tx.set(countRef, {

@@ -7,6 +7,11 @@ import crypto from 'node:crypto'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+const num = (v: string | undefined, d: number) => {
+  const n = Number(v)
+  return Number.isFinite(n) && n > 0 ? n : d
+}
+
 // Sanity signs every webhook with header "sanity-webhook-signature"
 // in the form "t=<unix-seconds>,v1=<hex-hmac>". The HMAC is computed over
 // `${t}.${rawBody}` using the shared secret.
@@ -24,6 +29,12 @@ function isValidSanitySignature(
   const t = parts.t
   const v1 = parts.v1
   if (!t || !v1) return false
+
+  const timestamp = Number(t)
+  if (!Number.isInteger(timestamp)) return false
+  const toleranceSeconds = num(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300)
+  const nowSeconds = Math.floor(Date.now() / 1000)
+  if (Math.abs(nowSeconds - timestamp) > toleranceSeconds) return false
 
   const expected = crypto
     .createHmac('sha256', secret)

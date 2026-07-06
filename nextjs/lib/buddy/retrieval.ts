@@ -242,6 +242,7 @@ interface RetrievalDeps {
 }
 
 const SPOTS_LIMIT = 30
+export const MIN_SEMANTIC_CANDIDATES = 8
 
 // The raw row before priceRange/openingHours/coords are collapsed to display values.
 type RawSpotRow = Omit<SpotCandidate, 'priceRange' | 'openNow' | 'openLabel' | 'distanceLabel'> & {
@@ -249,6 +250,20 @@ type RawSpotRow = Omit<SpotCandidate, 'priceRange' | 'openNow' | 'openLabel' | '
   openingHours?: OpeningHourSlot[] | null
   lat?: number | null
   lng?: number | null
+}
+
+export function shouldUseSemanticRank(args: {
+  candidateCount: number
+  hasUserGeo: boolean
+  hasResolvedSlug: boolean
+  semanticQuery: string
+}): boolean {
+  return (
+    args.candidateCount >= MIN_SEMANTIC_CANDIDATES &&
+    !args.hasUserGeo &&
+    !args.hasResolvedSlug &&
+    args.semanticQuery.trim().length >= 3
+  )
 }
 
 export async function searchSpots(
@@ -307,12 +322,15 @@ export async function searchSpots(
   // if the embeddings index or Voyage key is absent (see semanticRank). The
   // GROQ filter stays the hard gate; this only changes order.
   let ordered = mapped
-  if (!userGeo && !resolvedSlug && mapped.length > 1) {
-    const semanticQuery = [filters.cuisine, filters.vibeQuery].filter((s) => s && s.trim()).join(', ')
-    if (semanticQuery.trim().length >= 3) {
-      const semantic = await semanticRank(semanticQuery)
-      ordered = applySemanticOrder(mapped, semantic)
-    }
+  const semanticQuery = [filters.cuisine, filters.vibeQuery].filter((s) => s && s.trim()).join(', ')
+  if (shouldUseSemanticRank({
+    candidateCount: mapped.length,
+    hasUserGeo: Boolean(userGeo),
+    hasResolvedSlug: Boolean(resolvedSlug),
+    semanticQuery,
+  })) {
+    const semantic = await semanticRank(semanticQuery)
+    ordered = applySemanticOrder(mapped, semantic)
   }
 
   return ordered.map(({ _km, ...spot }) => {

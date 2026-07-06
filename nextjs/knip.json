@@ -1,5 +1,12 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["scripts/*.ts", "lib/sanityImageLoader.ts"],
+  "entry": [
+    "app/**/*.{ts,tsx}",
+    "i18n/**/*.{ts,tsx}",
+    "middleware.ts",
+    "next.config.ts",
+    "scripts/*.ts",
+    "lib/sanityImageLoader.ts"
+  ],
   "ignoreDependencies": ["eslint-config-next"]
 }

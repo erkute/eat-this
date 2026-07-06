@@ -31,6 +31,7 @@ vi.mock('../../../lib/stripe', () => ({
 }))
 
 import { POST } from '../../../app/api/stripe/checkout/route'
+import * as Sentry from '@sentry/nextjs'
 
 function makeReq(body: any, token: string | null) {
   return new Request('http://x/api/stripe/checkout', {
@@ -117,5 +118,18 @@ describe('/api/stripe/checkout', () => {
     expect(args.success_url).toContain('/checkout/success')
     expect(args.cancel_url).toContain('/packs')
     expect(args.success_url).toMatch(/^https:\/\/trusted\.example\//)
+  })
+
+  it('returns a generic error when Stripe session creation fails', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    mocks.sessionsCreate.mockRejectedValueOnce(new Error('secret Stripe detail'))
+
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
+    expect(res.status).toBe(500)
+    expect(await res.json()).toEqual({ error: 'stripe_error' })
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ extra: expect.objectContaining({ uid: 'u1', packId: 'category-pizza', mode: 'auth' }) }),
+    )
   })
 })

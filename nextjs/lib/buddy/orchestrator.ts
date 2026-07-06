@@ -7,7 +7,7 @@ import { pickPackForSpots, buildPackTeaser } from './packTeaser'
 import { isNearbyIntent } from './nearbyIntent'
 import type { SpotFilters, ArticleQuery } from './retrieval'
 
-export interface LlmToolUse {
+interface LlmToolUse {
   id: string
   name: string
   input: Record<string, unknown>
@@ -22,6 +22,7 @@ export interface LlmClient {
     system: Anthropic.TextBlockParam[]
     tools: Anthropic.Tool[]
     messages: Anthropic.MessageParam[]
+    signal?: AbortSignal
   }) => LlmTurn
 }
 
@@ -35,9 +36,14 @@ const MAX_TOOL_ROUNDS = 4
 const MAX_TOKENS = 2048
 const MODEL = process.env.BUDDY_MODEL ?? 'claude-haiku-4-5'
 
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) throw new DOMException('Buddy request aborted', 'AbortError')
+}
+
 export async function* runBuddyTurn(
   input: { messages: ChatMessage[]; locale: Locale; geo?: { lat: number; lng: number } },
   deps: OrchestratorDeps,
+  options: { signal?: AbortSignal } = {},
 ): AsyncGenerator<BuddyStreamEvent> {
   const system: Anthropic.TextBlockParam[] = [
     { type: 'text', text: buildSystemPrompt(input.locale, { hasGeo: !!input.geo }), cache_control: { type: 'ephemeral' } },
@@ -54,12 +60,15 @@ export async function* runBuddyTurn(
   const forceGeoSearch = !!input.geo && isNearbyIntent(latestUserText)
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const turn = deps.llm.runTurn({ system, tools: BUDDY_TOOLS, messages })
+    throwIfAborted(options.signal)
+    const turn = deps.llm.runTurn({ system, tools: BUDDY_TOOLS, messages, signal: options.signal })
 
     for await (const chunk of turn.text()) {
+      throwIfAborted(options.signal)
       yield { type: 'text', value: chunk }
     }
 
+    throwIfAborted(options.signal)
     const final = await turn.final()
     messages.push({ role: 'assistant', content: final.assistantContent as Anthropic.ContentBlockParam[] })
 
@@ -67,6 +76,7 @@ export async function* runBuddyTurn(
 
     const toolResults: Anthropic.ToolResultBlockParam[] = []
     for (const tu of final.toolUses) {
+      throwIfAborted(options.signal)
       if (tu.name === 'search_spots') {
         const rawSpots = await deps.searchSpots(
           {
@@ -79,6 +89,7 @@ export async function* runBuddyTurn(
           },
           input.locale,
         )
+        throwIfAborted(options.signal)
         // categorySlugs only feed the pack vote — strip them before the spots
         // reach the client or go back to the LLM as tool result.
         const spots = rawSpots.map((s) => {
@@ -107,6 +118,7 @@ export async function* runBuddyTurn(
           { query: String(tu.input.query ?? '') },
           input.locale,
         )
+        throwIfAborted(options.signal)
         yield { type: 'articles', value: articles }
         toolResults.push({ type: 'tool_result', tool_use_id: tu.id, content: JSON.stringify(articles) })
       } else {
@@ -127,14 +139,17 @@ export async function* runBuddyTurn(
 // Real LlmClient backed by the Anthropic SDK (not exercised in unit tests).
 export function createAnthropicLlmClient(client: Anthropic = new Anthropic()): LlmClient {
   return {
-    runTurn({ system, tools, messages }) {
-      const stream = client.messages.stream({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system,
-        tools,
-        messages,
-      })
+    runTurn({ system, tools, messages, signal }) {
+      const stream = client.messages.stream(
+        {
+          model: MODEL,
+          max_tokens: MAX_TOKENS,
+          system,
+          tools,
+          messages,
+        },
+        { signal },
+      )
       return {
         async *text() {
           for await (const event of stream) {

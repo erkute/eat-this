@@ -7,6 +7,59 @@ Fresh repo since 2026-06 (legacy vanilla-JS SPA and one-off migration scripts we
 - `nextjs/` — the live app (Next.js App Router, deployed via Firebase App Hosting)
 - `studio/` — Sanity Studio (deployed manually via `sanity deploy`)
 
+## Behavioral guidelines for coding agents
+
+These guidelines reduce common LLM coding mistakes. They bias toward caution
+over speed; for trivial tasks, use judgment.
+
+### Think before coding
+
+Do not assume or hide confusion. Surface assumptions and tradeoffs before
+implementation:
+
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them rather than silently picking.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop, name what is confusing, and ask.
+
+### Simplicity first
+
+Write the minimum code that solves the problem. Do not add speculative features,
+single-use abstractions, unrequested configurability, or error handling for
+impossible scenarios. If a solution is much larger than it needs to be, simplify
+it before continuing.
+
+Ask: would a senior engineer call this overcomplicated? If yes, rewrite it
+smaller.
+
+### Surgical changes
+
+Touch only what the task requires, and clean up only your own mess:
+
+- Do not improve adjacent code, comments, or formatting.
+- Do not refactor things that are not broken.
+- Match existing style, even if you would choose differently.
+- If you notice unrelated dead code, mention it instead of deleting it.
+- Remove imports, variables, functions, and files that your own changes made
+  unused.
+
+Every changed line should trace directly to the user's request. The project
+cleanup rule below is the exception: when the requested work touches clearly
+legacy or dead code inside the same module boundary, remove it fully rather
+than preserving compatibility shims.
+
+### Goal-driven execution
+
+Turn tasks into verifiable goals and loop until they are checked:
+
+- "Add validation" → write tests for invalid inputs, then make them pass.
+- "Fix the bug" → write or identify a reproduction, then make it pass.
+- "Refactor X" → verify behavior before and after.
+
+For multi-step tasks, state a brief plan with a verification check for each
+step. Strong success criteria allow independent progress; vague criteria such
+as "make it work" require clarification.
+
 ## Aggressive cleanup is OK (very early stage)
 
 The project has essentially no live users yet — Stripe is in live mode but only for internal testing. When you touch legacy or dead code, **rip it out entirely**: no compatibility shims, no "in case someone migrates" preservation, no deprecation paths. Backwards compatibility for a userbase that doesn't exist is just clutter.

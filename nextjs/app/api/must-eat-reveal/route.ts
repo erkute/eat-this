@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getAdminAuth } from '@/lib/firebase/admin'
+import { resolveEntitlements } from '@/lib/firebase/entitlements'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
+import { getFreeSurfaceData } from '@/lib/map/free-surface'
+import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server'
 import { unlockMustEat } from '@/lib/firebase/unlockedMustEats.server'
 import { checkRateLimit } from '@/lib/buddy/rateLimit'
 
@@ -19,8 +22,8 @@ export const revalidate = 0
 // The 50 m proximity can't be verified server-side (there is no trustworthy
 // location signal), so — exactly like the direct client-side Firestore write
 // this replaces — the gate is "signed-in user claims to stand at the spot".
-// The win is that the content can no longer be bulk-read from the anonymous
-// map payload; pulling it now requires an account and one call per card.
+// The win is that the content can no longer be bulk-read from the anonymous map
+// payload, and guessed IDs for locked restaurants are rejected server-side.
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
@@ -29,8 +32,15 @@ export async function POST(req: Request) {
   }
 
   let uid: string
+  let identity: Parameters<typeof resolveEntitlements>[1] = {}
   try {
-    uid = (await getAdminAuth().verifyIdToken(token)).uid
+    const decoded = await getAdminAuth().verifyIdToken(token)
+    uid = decoded.uid
+    identity = {
+      email:         decoded.email ?? null,
+      emailVerified: decoded.email_verified === true,
+      admin:         decoded.admin === true,
+    }
   } catch {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 })
   }
@@ -53,10 +63,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'mustEatId required' }, { status: 400 })
   }
 
-  const { mustEats } = await getCachedMapData()
-  const mustEat = mustEats.find((m) => m._id === mustEatId)
+  const [{ restaurants: all, mustEats: allMustEats }, ent, freeSurface] = await Promise.all([
+    getCachedMapData(),
+    resolveEntitlements(uid, identity),
+    getFreeSurfaceData(),
+  ])
+
+  const mustEat = allMustEats.find((m) => m._id === mustEatId)
   if (!mustEat) {
     return NextResponse.json({ error: 'unknown must-eat' }, { status: 404 })
+  }
+
+  if (!ent.isAdmin && !ent.hasAllBerlin) {
+    const visible = await composeVisibleRestaurants({
+      all,
+      allMustEats,
+      ent,
+      uid,
+      freeRestaurantIds: freeSurface.restaurantIds,
+    })
+    const visibleRestaurantIds = new Set(visible.restaurants.map((r) => r._id))
+    if (!visibleRestaurantIds.has(mustEat.restaurant._id)) {
+      return NextResponse.json({ error: 'must-eat not available' }, { status: 403 })
+    }
   }
 
   await unlockMustEat(uid, mustEat)

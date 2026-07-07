@@ -42,8 +42,8 @@ export function getLocationStatus({
     copy:
       locationError === 'denied'
         ? isEnglish
-          ? 'Location blocked. Allow access in browser settings.'
-          : 'Standort blockiert. Im Browser Standortzugriff erlauben.'
+          ? 'Blocked. Allow in browser settings.'
+          : 'Blockiert. Im Browser erlauben.'
         : isEnglish ? 'Location not found' : 'Standort nicht gefunden',
     isError: true,
     canRetry: locationError !== 'denied',

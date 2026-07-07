@@ -12705,6 +12705,28 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   overflow: visible !important;
 }
 
+html body .detailV13:not(.detailV13MustEat) .rdK,
+html body .detailV13:not(.detailV13MustEat) .rdHoursD {
+  color: rgba(21, 18, 14, 0.5) !important;
+  font-family: var(--font-dm-sans, system-ui, sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdV,
+html body .detailV13:not(.detailV13MustEat) .rdV a,
+html body .detailV13:not(.detailV13MustEat) .rdHoursT {
+  color: #15120e !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  line-height: 1.18 !important;
+  overflow-wrap: anywhere !important;
+}
+
 @media (max-width: 767.98px) {
   html body .detailV13:not(.detailV13MustEat) .rdFacts {
     margin: 32px 22px 34px !important;
@@ -12925,27 +12947,33 @@ html body .mapStatusLayer,
 html body .mapStatusLayerError,
 html body .mapStatusLayerOk {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto auto !important;
-  align-items: start !important;
-  gap: 8px !important;
-  width: min(300px, calc(100vw - 28px)) !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: fit-content !important;
+  max-width: min(250px, calc(100vw - 28px)) !important;
   min-height: 0 !important;
-  padding: 8px 9px 8px 10px !important;
+  padding: 7px 7px 7px 10px !important;
   background: var(--et-home-ink, #15120e) !important;
   color: var(--et-home-inverse-text, #fff) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: 0 8px 24px rgba(21, 18, 14, 0.16) !important;
+  box-shadow: 0 6px 18px rgba(21, 18, 14, 0.16) !important;
+}
+
+html body .mapStatusLayerError {
+  background: #d9382a !important;
+  color: #fff !important;
 }
 
 html body .mapStatusText {
   min-width: 0 !important;
   color: inherit !important;
   font-family: var(--font-body, var(--font), system-ui, sans-serif) !important;
-  font-size: 12px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
-  line-height: 1.25 !important;
+  line-height: 1.15 !important;
   overflow: visible !important;
   text-overflow: clip !important;
   text-transform: none !important;

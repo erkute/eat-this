@@ -23,7 +23,7 @@ describe('getLocationStatus', () => {
         locateLoading: false,
       }),
     ).toEqual({
-      copy: 'Standort blockiert. Im Browser Standortzugriff erlauben.',
+      copy: 'Blockiert. Im Browser erlauben.',
       isError: true,
       canRetry: false,
     })

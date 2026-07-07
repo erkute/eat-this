@@ -17,6 +17,7 @@ interface ToastCopy {
   title: string;
   detail?: string;
   icon: 'heart' | 'pin' | 'alert' | 'check' | 'spark';
+  variant?: 'signed-out';
 }
 
 // sessionStorage handoff: a message stored under this key (e.g. by the
@@ -122,17 +123,19 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
     return english
       ? {
           tone: 'info',
-          eyebrow: 'Account',
+          eyebrow: 'Session ended',
           title: "You're signed out",
-          detail: 'See you for the next round.',
+          detail: 'Your map is safe for next time.',
           icon: 'check',
+          variant: 'signed-out',
         }
       : {
           tone: 'info',
-          eyebrow: 'Account',
+          eyebrow: 'Session beendet',
           title: 'Du bist abgemeldet',
-          detail: 'Bis zur nächsten Runde.',
+          detail: 'Deine Map wartet beim nächsten Mal.',
           icon: 'check',
+          variant: 'signed-out',
         };
   }
 
@@ -238,7 +241,13 @@ export default function NotificationToast() {
   const copy = buildToastCopy(text, lang);
 
   return (
-    <div className={`notification${visible ? ' show' : ''}`} data-tone={copy.tone} aria-live="polite" aria-atomic="true">
+    <div
+      className={`notification${visible ? ' show' : ''}`}
+      data-tone={copy.tone}
+      data-variant={copy.variant}
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <span className="notification-mark">
         <ToastIcon icon={copy.icon} />
       </span>

@@ -447,6 +447,7 @@ const en = {
     login: {
       emailPlaceholder: 'your@email.com',
       googleBtn: 'Sign in with Google',
+      googleSigningIn: 'Signing you in',
       termsLink: 'Terms',
       privacyLink: 'Privacy Policy',
       sendLinkBtn: 'Sign in',
@@ -460,6 +461,7 @@ const en = {
       heroH1: 'Starter Pack',
       heroSub: 'More spots, more Must Eats: on your map right after sign-in.',
       modalBenefitLead: 'More spots and more Must Eats are waiting on your map.',
+      signinBoosterLead: 'Save your Must Eats and new packs straight to your map.',
       modalTagline: 'Sign in',
       modalExpectation: 'Straight to your map.',
       emailLabel: 'Email',
@@ -948,6 +950,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     login: {
       emailPlaceholder: 'deine@email.com',
       googleBtn: 'Mit Google anmelden',
+      googleSigningIn: 'Du wirst angemeldet',
       termsLink: 'AGB',
       privacyLink: 'Datenschutzerkl\u00e4rung',
       sendLinkBtn: 'Anmelden',
@@ -961,6 +964,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       heroH1: 'Starter Pack',
       heroSub: 'Mehr Spots, mehr Must Eats: direkt nach der Anmeldung auf deiner Map.',
       modalBenefitLead: 'Dich erwarten mehr Spots und mehr Must Eats auf deiner Map.',
+      signinBoosterLead: 'Speicher deine Must Eats und neuen Packs direkt auf deiner Map.',
       modalTagline: 'Anmelden',
       modalExpectation: 'Direkt rein auf deine Map.',
       emailLabel: 'E-Mail',

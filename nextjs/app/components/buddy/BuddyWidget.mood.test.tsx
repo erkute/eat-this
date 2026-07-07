@@ -78,4 +78,40 @@ describe('BuddyWidget expression policy', () => {
     renderOpenWidget()
     expect(panelMood()).toBe('idle')
   })
+
+  it('renders spot cards with map wording and a heart save label', () => {
+    chat.messages = [
+      { role: 'user', content: 'Bars, die offen haben' },
+      {
+        role: 'assistant',
+        content: 'Nimm den hier:\n[[spot:beast-berlin]]',
+        spots: [
+          {
+            _id: 'restaurant-beast',
+            name: 'Beast Berlin',
+            slug: 'beast-berlin',
+            cuisineType: 'Bar',
+            bezirk: 'Mitte',
+            shortDescription: 'Steakhauskultur im Pressecafé.',
+            tip: null,
+            priceRange: '30-80 €',
+            mapsUrl: null,
+            image: '/pics/test/beast.webp',
+            openNow: true,
+            openLabel: 'Offen · bis 01:00',
+            distanceLabel: null,
+          },
+        ],
+      },
+    ]
+    chat.isStreaming = false
+    renderOpenWidget()
+
+    expect(document.body.textContent).toContain('Auf der Map ansehen')
+    expect(document.body.textContent).not.toContain('Auf der Karte ansehen')
+    const save = document.querySelector('button[aria-label="Spot herzen"]')
+    expect(save).not.toBeNull()
+    expect(save?.textContent).toContain('Merken')
+    expect(save?.querySelector('svg')).not.toBeNull()
+  })
 })

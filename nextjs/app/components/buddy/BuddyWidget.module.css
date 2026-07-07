@@ -15,8 +15,8 @@
   --buddy-muted: #55635d;
   --buddy-red: #d9382a;
   --buddy-yellow: #ffd84d;
-  --buddy-display: var(--font-label, var(--font-chewy));
-  --buddy-copy: var(--font-providence, var(--font-display));
+  --buddy-display: var(--font-providence);
+  --buddy-copy: var(--font-providence);
   position: fixed;
   right: 28px;
   bottom: 28px;
@@ -323,19 +323,28 @@
   top: 7px;
   right: 7px;
   z-index: 3;
-  display: inline-grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   min-height: 26px;
-  padding: 0 8px;
-  color: #8c8277;
+  padding: 0 9px 0 7px;
+  color: var(--buddy-ink);
   background: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-family: var(--buddy-display);
-  font-size: .68em;
-  font-weight: 900;
+  font-size: .74em;
+  font-weight: 700;
+  letter-spacing: 0;
   line-height: 1;
+}
+
+.spotSave svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  color: currentColor;
 }
 
 .spotSave:hover {
@@ -367,7 +376,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  filter: grayscale(1) contrast(1.06) brightness(.84);
+  filter: saturate(1.04) contrast(1.02) brightness(.9);
   border-radius: 0;
   transform: scale(1.01);
 }
@@ -424,10 +433,10 @@
 
 .spotMeta {
   color: var(--buddy-muted);
-  font-family: var(--menu-mono, ui-monospace, monospace);
+  font-family: var(--buddy-copy);
   font-size: .72em;
   font-weight: 900;
-  letter-spacing: .08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -524,10 +533,10 @@
 
 .articleKicker {
   color: var(--buddy-red);
-  font-family: var(--menu-mono, ui-monospace, monospace);
+  font-family: var(--buddy-copy);
   font-size: .68em;
   font-weight: 900;
-  letter-spacing: .06em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 

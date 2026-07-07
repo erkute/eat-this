@@ -173,6 +173,10 @@
     line-height: 0.84;
   }
 
+  .eyebrow {
+    margin-bottom: 8px;
+  }
+
   .allLink {
     width: max-content;
   }

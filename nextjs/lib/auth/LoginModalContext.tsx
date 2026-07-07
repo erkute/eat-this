@@ -2,9 +2,12 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
+export type LoginModalMode = 'starter' | 'signin';
+
 interface LoginModalValue {
   isOpen: boolean;
-  open: () => void;
+  mode: LoginModalMode;
+  open: (mode?: LoginModalMode) => void;
   close: () => void;
 }
 
@@ -12,9 +15,13 @@ const LoginModalContext = createContext<LoginModalValue | null>(null);
 
 export function LoginModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const open = useCallback(() => setIsOpen(true), []);
+  const [mode, setMode] = useState<LoginModalMode>('starter');
+  const open = useCallback((nextMode: LoginModalMode = 'starter') => {
+    setMode(nextMode);
+    setIsOpen(true);
+  }, []);
   const close = useCallback(() => setIsOpen(false), []);
-  const value = useMemo(() => ({ isOpen, open, close }), [isOpen, open, close]);
+  const value = useMemo(() => ({ isOpen, mode, open, close }), [isOpen, mode, open, close]);
   return <LoginModalContext.Provider value={value}>{children}</LoginModalContext.Provider>;
 }
 

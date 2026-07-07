@@ -11,7 +11,7 @@ describe('getLocationStatus', () => {
         locationError: 'denied',
         locateLoading: false,
       }),
-    ).toEqual({ copy: null, isError: false })
+    ).toEqual({ copy: null, isError: false, canRetry: false })
   })
 
   it('shows denied as an error when no location is present', () => {
@@ -22,6 +22,21 @@ describe('getLocationStatus', () => {
         locationError: 'denied',
         locateLoading: false,
       }),
-    ).toEqual({ copy: 'Standort blockiert', isError: true })
+    ).toEqual({
+      copy: 'Standort blockiert. Im Browser Standortzugriff erlauben.',
+      isError: true,
+      canRetry: false,
+    })
+  })
+
+  it('allows retry for transient location errors', () => {
+    expect(
+      getLocationStatus({
+        locale: 'de',
+        location: null,
+        locationError: 'timeout',
+        locateLoading: false,
+      }),
+    ).toEqual({ copy: 'Standort nicht gefunden', isError: true, canRetry: true })
   })
 })

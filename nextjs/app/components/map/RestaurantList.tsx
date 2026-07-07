@@ -9,6 +9,7 @@ import { localizedCategoryName } from '@/lib/categories'
 import { normalizeName } from '@/lib/normalizeName'
 import sanityImageLoader from '@/lib/sanityImageLoader'
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
+import { useLoginModal } from '@/lib/auth'
 import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
 
@@ -182,6 +183,8 @@ export default function RestaurantList({
 }: RestaurantListProps) {
   const locale = useLocale()
   const { t } = useTranslation()
+  const { open: openLoginModal } = useLoginModal()
+  const openSigninLogin = () => openLoginModal('signin')
 
   if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />
 
@@ -189,7 +192,6 @@ export default function RestaurantList({
   // banner. Guests get sign-in as a secondary text link inside this block.
   const showAllBerlinBanner = userTier !== 'allBerlin' && (lockedRestaurants.length > 0 || restaurants.length > 0)
   const allBerlinHref = locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`
-  const loginHref = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
 
   return (
     <>
@@ -228,7 +230,9 @@ export default function RestaurantList({
             <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </a>
           {!uid && (
-            <a href={loginHref} className={styles.listEndSecondary}>{t('map.starterPromoLogin')}</a>
+            <button type="button" className={styles.listEndSecondary} onClick={openSigninLogin}>
+              {t('map.starterPromoLogin')}
+            </button>
           )}
         </div>
       )}

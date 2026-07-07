@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useLocale } from 'next-intl'
 import { auth, getDb } from '@/lib/firebase/config'
+import { useLoginModal } from '@/lib/auth'
 
 interface FavoriteEntry {
   restaurantId: string
@@ -22,6 +23,7 @@ interface UseFavoritesResult {
 
 export function useFavorites(uid: string | null): UseFavoritesResult {
   const locale = useLocale()
+  const { open: openLoginModal } = useLoginModal()
   // Per-uid localStorage cache so a returning user sees their saved spots
   // instantly on first paint instead of waiting on auth-resolve + the Firestore
   // read. The live getDocs reconciles + refreshes the cache right after.
@@ -76,7 +78,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
 
   const toggle = useCallback(async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
     if (!uid || !auth.currentUser) {
-      window.location.assign(locale === 'en' ? '/en/login' : '/login')
+      openLoginModal('signin')
       return
     }
     // The heart write goes through /api/heart (Admin SDK), which is the single
@@ -112,7 +114,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       setFavorites(prev => { const next = prev.filter(f => f.restaurantId !== r._id); writeCache(next); return next })
       window.showNotification?.(locale === 'en' ? 'Heart removed' : 'Herz entfernt')
     }
-  }, [uid, favoriteIds, locale])
+  }, [uid, favoriteIds, locale, openLoginModal])
 
   const updateNote = useCallback(async (restaurantId: string, note: string) => {
     if (!uid) return

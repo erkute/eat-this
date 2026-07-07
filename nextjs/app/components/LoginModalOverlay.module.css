@@ -14,8 +14,11 @@
   top: var(--staging-banner-h, 0px);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023.98px) {
   .overlay {
     padding: 10px;
+    background: rgba(21, 18, 14, 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(0.9) brightness(0.55);
+    backdrop-filter: blur(14px) saturate(0.9) brightness(0.55);
   }
 }

@@ -453,17 +453,17 @@
 
 .facts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin-bottom: clamp(28px, 5vw, 58px);
 }
 
 .factsRow {
   display: grid;
   align-content: start;
-  gap: 10px;
-  min-height: 136px;
-  padding: clamp(18px, 3vw, 26px);
+  gap: 6px;
+  min-height: 0;
+  padding: 18px;
   background: var(--detail-quiet);
 }
 
@@ -481,15 +481,15 @@
 .factsVal a,
 .hours {
   color: var(--detail-ink);
-  font-size: clamp(17px, 1.35vw, 20px);
-  font-weight: 750;
+  font-size: 17px;
+  font-weight: 700;
   line-height: 1.45;
 }
 
 .hours {
   display: grid;
-  grid-template-columns: minmax(78px, 0.35fr) minmax(0, 1fr);
-  gap: 6px 14px;
+  grid-template-columns: 1fr;
+  gap: 6px;
 }
 
 .hoursDay {

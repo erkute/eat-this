@@ -11,6 +11,7 @@ interface LocationStatusInput {
 interface LocationStatus {
   copy: string | null
   isError: boolean
+  canRetry: boolean
 }
 
 export function getLocationStatus({
@@ -22,22 +23,29 @@ export function getLocationStatus({
   const isEnglish = locale === 'en'
 
   if (location) {
-    return { copy: null, isError: false }
+    return { copy: null, isError: false, canRetry: false }
   }
 
   if (locateLoading) {
-    return { copy: isEnglish ? 'Finding you' : 'Standort wird gesucht', isError: false }
+    return {
+      copy: isEnglish ? 'Finding you' : 'Standort wird gesucht',
+      isError: false,
+      canRetry: false,
+    }
   }
 
   if (!locationError) {
-    return { copy: null, isError: false }
+    return { copy: null, isError: false, canRetry: false }
   }
 
   return {
     copy:
       locationError === 'denied'
-        ? isEnglish ? 'Location blocked' : 'Standort blockiert'
+        ? isEnglish
+          ? 'Location blocked. Allow access in browser settings.'
+          : 'Standort blockiert. Im Browser Standortzugriff erlauben.'
         : isEnglish ? 'Location not found' : 'Standort nicht gefunden',
     isError: true,
+    canRetry: locationError !== 'denied',
   }
 }

@@ -10,9 +10,16 @@ import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import styles from '@/app/[locale]/login/login.module.css';
 
+const SIGNIN_BOOSTER_PACKS = [
+  '/pics/booster/booster_pizza.webp',
+  '/pics/booster/booster_lunch.webp',
+  '/pics/booster/booster_sweets.webp',
+];
+
 interface LoginPanelProps {
   onBack: () => void;
   modal?: boolean;
+  mode?: 'starter' | 'signin';
   /** Guest revealed a must-eat on site (50 m) — swap the sub line to explain
    *  why login is needed: the card lands in the deck only with an account. */
   mustEatGate?: boolean;
@@ -21,6 +28,7 @@ interface LoginPanelProps {
 export default function LoginPanel({
   onBack,
   modal = false,
+  mode = 'starter',
   mustEatGate = false,
 }: LoginPanelProps) {
   const { t } = useTranslation();
@@ -79,6 +87,7 @@ export default function LoginPanel({
   const dsHref = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
   const sent = magicState === 'sent';
   const sloganLines = t('modals.login.kicker').split('|');
+  const signinMode = mode === 'signin';
   const frameClassName = [
     styles.frame,
     modal ? styles.frameModal : '',
@@ -103,105 +112,135 @@ export default function LoginPanel({
 
       {sent ? (
         <>
-          <div className={styles.plane} aria-hidden="true">
-            <svg viewBox="0 0 100 78" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M92 6 L8 36 L40 44 L58 72 L92 6 Z"
-                fill="#ffd84a"
-                stroke="#0a0a0a"
-                strokeWidth="2.5"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-              <path d="M92 6 L40 44" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" />
-              <path d="M40 44 L46 60" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" />
-              <path
-                d="M4 50 L18 48"
-                stroke="#0a0a0a"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                opacity=".55"
-              />
-              <path
-                d="M2 62 L14 60"
-                stroke="#0a0a0a"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                opacity=".4"
-              />
-              <path
-                d="M6 72 L16 72"
-                stroke="#0a0a0a"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                opacity=".3"
-              />
-            </svg>
-          </div>
-          <div className={styles.kicker}>{t('modals.login.sentKicker')}</div>
-          <h1 className={styles.h1}>{t('modals.login.sentH1')}</h1>
+          <div className={`${styles.modalSimple} ${styles.modalSimpleSignin} ${styles.sentSimple}`}>
+            <section className={styles.modalSigninBoosters} aria-hidden="true">
+              <div className={styles.modalSigninBoosterFan}>
+                {SIGNIN_BOOSTER_PACKS.map((src) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={src}
+                    className={styles.modalSigninBoosterCard}
+                    src={src}
+                    alt=""
+                    loading="eager"
+                    decoding="sync"
+                  />
+                ))}
+              </div>
+            </section>
 
-          {email && (
-            <div className={styles.toBlock}>
-              <span className={styles.toLabel}>{t('modals.login.sentToLabel')}</span>
-              <span className={styles.toValue}>{email}</span>
-            </div>
-          )}
+            <section className={`${styles.modalLogin} ${styles.sentPanel}`} aria-live="polite">
+              <div className={styles.sentMark} aria-hidden="true">
+                <svg viewBox="0 0 100 78" width={58} height={46} fill="none">
+                  <path
+                    d="M92 6 L8 36 L40 44 L58 72 L92 6 Z"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M92 6 L40 44"
+                    stroke="var(--login-paper)"
+                    strokeWidth="2.3"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M40 44 L46 60"
+                    stroke="var(--login-paper)"
+                    strokeWidth="2.3"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+              <div className={styles.modalLoginHead}>
+                <p className={styles.modalEyebrow}>{t('modals.login.sentKicker')}</p>
+                <h2 className={styles.modalFormTitle}>{t('modals.login.sentH1')}</h2>
+              </div>
 
-          <p className={styles.sub}>{t('modals.login.sentSub')}</p>
+              {email && (
+                <div className={styles.toBlock}>
+                  <span className={styles.toLabel}>{t('modals.login.sentToLabel')}</span>
+                  <span className={styles.toValue}>{email}</span>
+                </div>
+              )}
 
-          <div className={styles.spam}>
-            <div className={styles.spamIcon}>!</div>
-            <div className={styles.spamText}>{t('modals.login.spamHint')}</div>
-          </div>
+              <p className={styles.sub}>{t('modals.login.sentSub')}</p>
 
-          <div className={styles.actions}>
-            <button type="button" className={styles.ctaPrimary} onClick={() => sendLink(email)}>
-              <span>{t('modals.login.resendBtn')}</span>
-              <svg
-                viewBox="0 0 24 24"
-                width={16}
-                height={16}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.6}
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className={styles.textlink}
-              onClick={() => {
-                magicReset();
-                setEmail('');
-              }}
-            >
-              {t('modals.login.otherEmail')}
-            </button>
+              <div className={styles.spam}>
+                <div className={styles.spamIcon}>!</div>
+                <div className={styles.spamText}>{t('modals.login.spamHint')}</div>
+              </div>
+
+              <div className={styles.actions}>
+                <button type="button" className={styles.ctaPrimary} onClick={() => sendLink(email)}>
+                  <span>{t('modals.login.resendBtn')}</span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    width={16}
+                    height={16}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.6}
+                  >
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  className={styles.textlink}
+                  onClick={() => {
+                    magicReset();
+                    setEmail('');
+                  }}
+                >
+                  {t('modals.login.otherEmail')}
+                </button>
+              </div>
+            </section>
           </div>
         </>
       ) : modal ? (
-        <div className={styles.modalSimple}>
-          <section className={styles.modalBenefits} aria-label={t('modals.login.heroSub')}>
-            <div className={styles.modalBenefitHead}>
-              <h2 className={styles.modalBenefitIntro}>{t('modals.login.heroH1')}</h2>
-              <div className={styles.modalPackArt} aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/pics/booster/booster_free.webp"
-                  alt=""
-                  loading="eager"
-                  decoding="sync"
-                  fetchPriority="high"
-                />
+        <div className={`${styles.modalSimple} ${signinMode ? styles.modalSimpleSignin : ''}`}>
+          {!signinMode && (
+            <section className={styles.modalBenefits} aria-label={t('modals.login.heroSub')}>
+              <div className={styles.modalBenefitHead}>
+                <h2 className={styles.modalBenefitIntro}>{t('modals.login.heroH1')}</h2>
+                <div className={styles.modalPackArt} aria-hidden="true">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/pics/booster/booster_free.webp"
+                    alt=""
+                    loading="eager"
+                    decoding="sync"
+                    fetchPriority="high"
+                  />
+                </div>
               </div>
-            </div>
-            <p className={styles.modalBenefitLead}>{t('modals.login.modalBenefitLead')}</p>
-            {mustEatGate && (
-              <p className={styles.modalBenefitNote}>{t('modals.login.mustEatGateSub')}</p>
-            )}
-          </section>
+              <p className={styles.modalBenefitLead}>{t('modals.login.modalBenefitLead')}</p>
+              {mustEatGate && (
+                <p className={styles.modalBenefitNote}>{t('modals.login.mustEatGateSub')}</p>
+              )}
+            </section>
+          )}
+          {signinMode && (
+            <section className={styles.modalSigninBoosters} aria-hidden="true">
+              <div className={styles.modalSigninBoosterFan}>
+                {SIGNIN_BOOSTER_PACKS.map((src) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={src}
+                    className={styles.modalSigninBoosterCard}
+                    src={src}
+                    alt=""
+                    loading="eager"
+                    decoding="sync"
+                  />
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className={styles.modalLogin} aria-label={t('modals.login.heroHeadline')}>
             <div className={styles.modalLoginHead}>

@@ -26,7 +26,7 @@ import { useUserProfile } from '@/lib/firebase/useUserProfile';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
-import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
+import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 import loginPanelStyles from '@/app/[locale]/login/login.module.css';
 
 const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
@@ -34,7 +34,7 @@ const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: f
 export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
-  const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
+  const { isOpen: loginOpen, mode: loginMode, close: closeLogin } = useLoginModal();
   const { profile } = useUserProfile(user?.uid ?? null);
   const router = useRouter();
   const locale = useLocale();
@@ -87,7 +87,7 @@ export default function BridgeAuth() {
     >
       {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}
       <LoginModalBarLock />
-      <LoginPanel onBack={closeLogin} modal />
+      <LoginPanel onBack={closeLogin} modal mode={loginMode} />
     </div>,
     document.body,
   ) : null;

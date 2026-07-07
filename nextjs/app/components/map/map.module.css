@@ -131,6 +131,72 @@
      detail panels. */
   isolation: isolate;
 }
+.liveMapLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.staticDetailMapPeek {
+  display: none;
+}
+.staticDetailMapTile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  user-select: none;
+}
+.staticDetailPin {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  position: absolute;
+  z-index: 2;
+  width: 38px;
+  height: 42px;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-50%, -100%) rotate(-4deg) scale(0.84);
+  transform-origin: center bottom;
+  -webkit-tap-highlight-color: transparent;
+}
+.staticDetailPinActive {
+  z-index: 4;
+  cursor: default;
+  transform: translate(-50%, -100%) rotate(-4deg) scale(1.1);
+}
+.staticDetailPinHasMust::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -9px;
+  width: 15px;
+  height: 21px;
+  z-index: 1;
+  background: transparent url('/pics/card-back-sm.webp?v=6') center/contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  transform: rotate(10deg);
+}
+.staticDetailPinActive.staticDetailPinHasMust::after {
+  top: -9px;
+  right: -10px;
+  width: 18px;
+  height: 25px;
+}
+.staticDetailAttribution {
+  position: absolute;
+  left: 8px;
+  top: calc(var(--detail-map-peek, 150px) - 18px);
+  z-index: 2;
+  padding: 2px 5px;
+  background: rgba(255, 255, 255, 0.74);
+  color: rgba(21, 18, 14, 0.62);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
 /* Placeholder shown while the lazy maplibre chunk loads (next/dynamic in
    MapSectionBody). Fills the canvas slot with a neutral tile-grey so there's
    no flash before the real map paints — theme-aware via --surface-paper. */
@@ -8231,7 +8297,7 @@ html .rdActBtn:active {
 /* Detail surface pass: kill white-on-white framed modules. */
 html .detailV13,
 html .detailV13Scroll {
-  background: #f4efe4 !important;
+  background: var(--et-home-paper, #fff) !important;
   color: #15120e !important;
 }
 
@@ -8653,7 +8719,7 @@ html .detailV13MustEat .ctaPill {
 /* Final restaurant detail surface guard. Keep these after broad map polishes. */
 html .detailV13:not(.detailV13MustEat),
 html .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-  background: #f4efe4 !important;
+  background: var(--et-home-paper, #fff) !important;
   color: #15120e !important;
 }
 
@@ -9501,6 +9567,12 @@ html .panelToggle svg {
 
 html .mapBurger img {
   filter: brightness(0) saturate(100%) !important;
+}
+
+@media (min-width: 1024px) {
+  html .fab {
+    right: 72px !important;
+  }
 }
 
 html .mapWrap :global(.maplibregl-ctrl-group) {
@@ -11326,9 +11398,17 @@ html body .listEndCta:focus-visible {
 }
 
 html body .listEndSecondary {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   width: fit-content !important;
   margin: 0 auto !important;
+  padding: 3px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
   color: var(--list-end-ink) !important;
+  cursor: pointer !important;
   font-family: var(--font-dm-sans, system-ui, sans-serif) !important;
   font-size: 12px !important;
   font-weight: 900 !important;
@@ -12182,6 +12262,21 @@ html body .filterChipRow > .filterChipOpenActive {
     height: 100dvh;
     z-index: 0;
   }
+  .bodyDetailOpen .mapWrap {
+    visibility: hidden;
+  }
+  .list[data-view='detail'] > .staticDetailMapPeek {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(-1 * var(--detail-map-peek, 150px));
+    height: var(--detail-map-peek, 150px);
+    z-index: 0;
+    display: block;
+    overflow: hidden;
+    background: #e9ece7;
+    pointer-events: none;
+  }
 
   /* List overlays the map but stays IN-FLOW so its rows frost through the
      bar. The negative margin pulls it up over the map's lower ~44%; the
@@ -12205,6 +12300,9 @@ html body .filterChipRow > .filterChipOpenActive {
     overflow: visible;
     /* Edge styling (10px radius, hairline top, no shadow) comes from the
        html .list design-pass rules — unchanged from the drag-sheet look. */
+  }
+  .list[data-view='list'] {
+    background: var(--et-home-paper, #fff) !important;
   }
   /* Detail overlay keeps its own clipping (restores the base behavior the
      list-view rule above just relaxed). */
@@ -12230,7 +12328,7 @@ html body .filterChipRow > .filterChipOpenActive {
     position: sticky;
     top: env(safe-area-inset-top, 0px);
     z-index: 3;
-    background: #ffffff;
+    background: var(--et-home-paper, #fff);
     /* Own compositing layer: without it the sticky header re-rasterizes per
        scroll step and the right-edge tile can paint stale/clipped text — the
        last chip ("Geöffnet") showed mangled glyphs while scrolling (User
@@ -12258,7 +12356,7 @@ html body .filterChipRow > .filterChipOpenActive {
     left: 0;
     right: 0;
     height: env(safe-area-inset-top, 0px);
-    background: #ffffff;
+    background: var(--et-home-paper, #fff);
     z-index: 5;
   }
   /* Rail keeps native horizontal scroll, but vertical swipes must fall
@@ -12593,24 +12691,25 @@ html body .detailV13:not(.detailV13MustEat) .rdMustSection {
   background: transparent !important;
 }
 
-/* Facts-Block (Adresse/Kategorie/Öffnungszeiten/…) als ruhige Info-Tabelle:
-   gleicher Paper/Ink-Duktus wie Insider-Tipp und Actions, ohne Sticker-Kante. */
+/* Facts block: menu-card rhythm, stacked like short menu entries. */
 html body .detailV13:not(.detailV13MustEat) .rdFacts {
-  margin: 28px 22px 26px !important;
-  padding: 8px 14px !important;
-  background: rgba(255, 255, 255, 0.48) !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0 !important;
+  margin: 30px 22px 32px !important;
+  padding: 18px 18px 20px !important;
+  background: transparent !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  overflow: visible !important;
 }
 
 @media (max-width: 767.98px) {
   html body .detailV13:not(.detailV13MustEat) .rdFacts {
-    margin: 30px 22px 26px !important;
-    padding: 6px 12px !important;
-    background: rgba(255, 255, 255, 0.48) !important;
-    border: 0 !important;
-    box-shadow: none !important;
+    margin: 32px 22px 34px !important;
+    padding: 16px 2px 18px !important;
+    grid-template-columns: 1fr !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .rdFacts::before {
@@ -12623,15 +12722,21 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
 
   html body .detailV13:not(.detailV13MustEat) .rdRow,
   html body .detailV13:not(.detailV13MustEat) .rdRowHours {
-    grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr) !important;
-    gap: 16px !important;
-    padding: 18px 0 !important;
-    border-bottom: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    gap: 7px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 0 22px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 
-  html body .detailV13:not(.detailV13MustEat) .rdRowHours {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
+  html body .detailV13:not(.detailV13MustEat) .rdFacts > :last-child {
+    padding-bottom: 0 !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .rdRowHours > .rdK {
@@ -12644,19 +12749,19 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   }
 
   html body .detailV13:not(.detailV13MustEat) .rdHours {
-    grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr) !important;
+    grid-template-columns: minmax(76px, max-content) minmax(0, 1fr) !important;
     column-gap: 16px !important;
-    row-gap: 10px !important;
+    row-gap: 8px !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .rdK,
   html body .detailV13:not(.detailV13MustEat) .rdHoursD {
-    color: rgba(21, 18, 14, 0.58) !important;
+    color: rgba(21, 18, 14, 0.5) !important;
     font-family: var(--font-dm-sans, system-ui, sans-serif) !important;
     font-size: 11px !important;
     font-weight: 850 !important;
-    letter-spacing: 0.08em !important;
-    line-height: 1.15 !important;
+    letter-spacing: 0.1em !important;
+    line-height: 1 !important;
     text-transform: uppercase !important;
   }
 
@@ -12665,14 +12770,15 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   html body .detailV13:not(.detailV13MustEat) .rdHoursT {
     color: #15120e !important;
     font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-    font-size: 17px !important;
+    font-size: 19px !important;
     font-weight: 700 !important;
-    line-height: 1.28 !important;
+    line-height: 1.18 !important;
+    overflow-wrap: anywhere !important;
   }
 
   html body .detailV13:not(.detailV13MustEat) .rdVMeta {
-    color: rgba(21, 18, 14, 0.58) !important;
-    font-size: 12px !important;
+    color: rgba(21, 18, 14, 0.52) !important;
+    font-size: 11.5px !important;
     font-weight: 700 !important;
   }
 
@@ -12690,18 +12796,18 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
 @media (max-width: 767.98px) {
   .shell.shellDetailOpen,
   .shell.shellDetailOpen .bodyDetailOpen {
-    background: #f4efe4 !important;
+    background: var(--et-home-paper, #fff) !important;
   }
 
   html:has(.bodyDetailOpen),
   body:has(.bodyDetailOpen),
   html:has(.bodyDetailOpen) :global(.app-page[data-page='map']),
   body:has(.bodyDetailOpen) :global(.app-page[data-page='map']) {
-    background: #f4efe4 !important;
+    background: var(--et-home-paper, #fff) !important;
   }
 
   html body .list[data-view='detail'] {
-    background: #f4efe4 !important;
+    background: var(--et-home-paper, #fff) !important;
     display: block !important;
     padding-bottom: 0 !important;
   }
@@ -12722,7 +12828,7 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   html body .list[data-view='detail'] .detailMount,
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat),
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    background: #f4efe4 !important;
+    background: var(--et-home-paper, #fff) !important;
   }
 
   html body .list[data-view='detail'] .detailMount {
@@ -12743,7 +12849,7 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
     .detailV13:not(.detailV13MustEat)
     .detailV13Scroll
     > .packPromo:last-child {
-    background: #fff !important;
+    background: var(--et-home-paper, #fff) !important;
     border-bottom: 1px solid rgba(21, 18, 14, 0.16) !important;
     margin-bottom: 0 !important;
   }
@@ -12764,9 +12870,8 @@ html body .detailV13:not(.detailV13MustEat) .rdFacts {
   /* iOS URL-bar frosting for the phone detail: the always-composited
      MapLibre GL layer under the detail suppresses WebKit's bar-backdrop
      sampling of the detail content (bisected on-device 2026-07-06).
-     MapSection.tsx hides the fully-occluded mapWrap via an inline
-     visibility toggle once the sheet's top edge reaches the viewport top
-     — no rule needed here; this note is the breadcrumb. */
+     The live GL layer stays hidden for the whole phone-detail lifetime; the
+     visible peek is a plain raster-tile layer, which Safari can frost. */
 
   html body .list[data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
     padding-bottom: 28px !important;
@@ -12821,53 +12926,54 @@ html body .mapStatusLayerError,
 html body .mapStatusLayerOk {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto auto !important;
-  align-items: center !important;
-  gap: 10px !important;
-  min-height: 48px !important;
-  padding: 10px 12px 10px 14px !important;
+  align-items: start !important;
+  gap: 8px !important;
+  width: min(300px, calc(100vw - 28px)) !important;
+  min-height: 0 !important;
+  padding: 8px 9px 8px 10px !important;
   background: var(--et-home-ink, #15120e) !important;
   color: var(--et-home-inverse-text, #fff) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: 0 12px 32px rgba(21, 18, 14, 0.18) !important;
+  box-shadow: 0 8px 24px rgba(21, 18, 14, 0.16) !important;
 }
 
 html body .mapStatusText {
   min-width: 0 !important;
   color: inherit !important;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: clamp(18px, 4.7vw, 22px) !important;
+  font-family: var(--font-body, var(--font), system-ui, sans-serif) !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
-  line-height: 1 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  line-height: 1.25 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
   text-transform: none !important;
-  white-space: nowrap !important;
+  white-space: normal !important;
 }
 
 html body .mapStatusAction {
-  min-height: 30px !important;
-  padding: 6px 13px 7px !important;
+  min-height: 24px !important;
+  padding: 4px 9px 5px !important;
   background: #fff !important;
   color: var(--et-home-ink, #15120e) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: 17px !important;
+  font-family: var(--font-body, var(--font), system-ui, sans-serif) !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
-  line-height: 1 !important;
+  line-height: 1.1 !important;
   text-transform: none !important;
 }
 
 html body .mapStatusDismiss {
-  min-width: 30px !important;
-  min-height: 30px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
   padding: 0 0 2px !important;
   color: currentColor !important;
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: 28px !important;
+  font-size: 21px !important;
   font-weight: 700 !important;
   line-height: 1 !important;
 }

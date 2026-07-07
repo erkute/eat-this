@@ -49,11 +49,11 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
         return
       }
       setLoading(true)
-      setError(null)
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
           setLocation(loc)
+          setError(null)
           setLoading(false)
           resolve(loc)
         },

@@ -2,8 +2,33 @@
 
 import { preloadMapSurface } from './map/preloadMapSurface';
 
+const BURGER_CANVAS_COLOR = '#15120e';
+
+function tintMobileCanvasForDrawer() {
+  if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
+
+  document.documentElement.dataset.burgerPrevBg = document.documentElement.style.backgroundColor;
+  document.body.dataset.burgerPrevBg = document.body.style.backgroundColor;
+  document.documentElement.style.backgroundColor = BURGER_CANVAS_COLOR;
+  document.body.style.backgroundColor = BURGER_CANVAS_COLOR;
+}
+
+function restoreMobileCanvasTint() {
+  if ('burgerPrevBg' in document.documentElement.dataset) {
+    document.documentElement.style.backgroundColor =
+      document.documentElement.dataset.burgerPrevBg || '';
+    delete document.documentElement.dataset.burgerPrevBg;
+  }
+  if ('burgerPrevBg' in document.body.dataset) {
+    document.body.style.backgroundColor = document.body.dataset.burgerPrevBg || '';
+    delete document.body.dataset.burgerPrevBg;
+  }
+}
+
 function lockBody() {
   if (document.body.dataset.burgerLockMode) return;
+
+  tintMobileCanvasForDrawer();
 
   if (window.innerWidth < 768) {
     document.body.dataset.burgerLockMode = 'fixed';
@@ -34,6 +59,7 @@ function unlockBody(restoreScroll: boolean) {
   delete document.body.dataset.burgerLockMode;
   delete document.body.dataset.burgerLockY;
   delete document.body.dataset.burgerPrevOverflow;
+  restoreMobileCanvasTint();
 }
 
 function preloadMapAfterDrawerOpen() {

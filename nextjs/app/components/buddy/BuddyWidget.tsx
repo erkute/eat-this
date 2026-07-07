@@ -308,8 +308,8 @@ export default function BuddyWidget() {
   const { location, loading: locating, request: requestLocation } = useUserLocationContext()
   const panelRef = useRef<HTMLDivElement>(null)
 
-  // Save a spot to the user's map (Firestore favourites). Anonymous users are
-  // sent to /login by toggle() — same behaviour as the map's save button.
+  // Save a spot to the user's map (Firestore favourites). Anonymous users get
+  // the shared login modal from toggle() — same behaviour as the map's save button.
   const { user } = useAuth()
   const { favoriteIds, toggle: toggleFav } = useFavorites(user?.uid ?? null)
 

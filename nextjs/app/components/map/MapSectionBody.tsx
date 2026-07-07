@@ -27,12 +27,116 @@ const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
   loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
 });
 
+const STATIC_PEEK_ZOOM = 15;
+const TILE_SIZE = 256;
+
+function projectTilePoint(lng: number, lat: number, zoom: number) {
+  const scale = TILE_SIZE * 2 ** zoom;
+  const sinLat = Math.sin((Math.max(-85.05112878, Math.min(85.05112878, lat)) * Math.PI) / 180);
+  return {
+    x: ((lng + 180) / 360) * scale,
+    y: (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * scale,
+  };
+}
+
+function StaticDetailMapPeek({
+  restaurant,
+  restaurants,
+  onRestaurantClick,
+}: {
+  restaurant: MapRestaurant | null;
+  restaurants: MapRestaurant[];
+  onRestaurantClick: (restaurant: MapRestaurant) => void;
+}) {
+  if (!restaurant || typeof restaurant.lat !== 'number' || typeof restaurant.lng !== 'number') {
+    return null;
+  }
+  const point = projectTilePoint(restaurant.lng, restaurant.lat, STATIC_PEEK_ZOOM);
+  const tileCount = 2 ** STATIC_PEEK_ZOOM;
+  const centerX = Math.floor(point.x / TILE_SIZE);
+  const centerY = Math.floor(point.y / TILE_SIZE);
+  const offsetX = point.x - centerX * TILE_SIZE;
+  const offsetY = point.y - centerY * TILE_SIZE;
+  const tiles = [-1, 0, 1].flatMap((dy) =>
+    [-1, 0, 1].map((dx) => {
+      const x = (centerX + dx + tileCount) % tileCount;
+      const y = Math.max(0, Math.min(tileCount - 1, centerY + dy));
+      const subdomain = ['a', 'b', 'c'][Math.abs(x + y) % 3];
+      return {
+        key: `${x}-${y}`,
+        src: `https://${subdomain}.basemaps.cartocdn.com/light_all/${STATIC_PEEK_ZOOM}/${x}/${y}.png`,
+        left: `calc(50% + ${Math.round(dx * TILE_SIZE - offsetX)}px)`,
+        top: `calc(var(--detail-map-peek, 150px) * 0.6 + ${Math.round(dy * TILE_SIZE - offsetY)}px)`,
+      };
+    })
+  );
+  const markerRestaurants = restaurants.some((r) => r._id === restaurant._id)
+    ? restaurants
+    : [...restaurants, restaurant];
+  const markers = markerRestaurants
+    .map((r) => {
+      const markerPoint = projectTilePoint(r.lng, r.lat, STATIC_PEEK_ZOOM);
+      const x = markerPoint.x - point.x;
+      const y = markerPoint.y - point.y;
+      return {
+        id: r._id,
+        restaurant: r,
+        isSelected: r._id === restaurant._id,
+        hasMustEat: r.mustEatCount > 0,
+        x,
+        y,
+        left: `calc(50% + ${Math.round(x)}px)`,
+        top: `calc(var(--detail-map-peek, 150px) * 0.6 + ${Math.round(y)}px)`,
+      };
+    })
+    .filter((marker) => marker.isSelected || (Math.abs(marker.x) < 360 && Math.abs(marker.y) < 240));
+
+  return (
+    <div className={styles.staticDetailMapPeek} aria-hidden="true">
+      {tiles.map((tile) => (
+        <img
+          key={tile.key}
+          src={tile.src}
+          alt=""
+          className={styles.staticDetailMapTile}
+          style={{ left: tile.left, top: tile.top }}
+          draggable={false}
+        />
+      ))}
+      {markers.map((marker) => (
+        <button
+          key={marker.id}
+          type="button"
+          className={[
+            styles.staticDetailPin,
+            marker.isSelected && styles.staticDetailPinActive,
+            marker.hasMustEat && styles.staticDetailPinHasMust,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          style={{ left: marker.left, top: marker.top }}
+          onClick={() => {
+            if (!marker.isSelected) onRestaurantClick(marker.restaurant);
+          }}
+          aria-label={marker.restaurant.name}
+          aria-current={marker.isSelected ? 'true' : undefined}
+        >
+          <span className={styles.pinLogoShape}>
+            <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
+          </span>
+        </button>
+      ))}
+      <div className={styles.staticDetailAttribution}>© CARTO © OpenStreetMap</div>
+    </div>
+  );
+}
+
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>;
-  /* The sticky GL-canvas wrapper — MapSection hides it while the in-flow
-     detail fully occludes it (iOS URL-bar frosting, see the occlusion
-     effect in MapSection.tsx). */
+  /* The sticky map wrapper. MapSection hides its live GL child while the
+     phone detail is open (iOS URL-bar frosting, see MapSection.tsx), leaving
+     the static raster peek visible. */
   mapWrapRef: RefObject<HTMLDivElement | null>;
   handleRef: Ref<HTMLDivElement | null>;
   setHeaderRef: (el: HTMLDivElement | null) => void;
@@ -198,12 +302,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     openBurgerDrawer();
   }, []);
   const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
-  const locationStatusKey = locationStatus.copy
-    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locateLoading ? 'loading' : 'idle'}`
+  const visibleLocationStatus =
+    locateLoading && !locationError
+      ? { copy: null, isError: false, canRetry: false }
+      : locateLoading && locationError
+        ? getLocationStatus({ locale, location, locationError, locateLoading: false })
+        : locationStatus;
+  const locationStatusKey = visibleLocationStatus.copy
+    ? `${visibleLocationStatus.copy}:${visibleLocationStatus.isError ? 'error' : 'ok'}`
     : null;
   const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
   const showLocationStatus = Boolean(
-    locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
+    sheetView !== 'detail' &&
+      visibleLocationStatus.copy &&
+      locationStatusKey !== dismissedLocationStatusKey
   );
   const handleLocationRetry = useCallback(() => {
     setDismissedLocationStatusKey(null);
@@ -256,14 +368,16 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}
         >
           <div className={styles.mapWrap} ref={mapWrapRef}>
-            <MapCanvasLayer
-              mapRef={mapRef}
-              onMapClick={onMapClick}
-              displayedRestaurants={displayedRestaurants}
-              selectedRestaurant={selectedRestaurant}
-              onRestaurantClick={handleMapRestaurantClick}
-              location={location}
-            />
+            <div className={styles.liveMapLayer} data-live-map-layer="">
+              <MapCanvasLayer
+                mapRef={mapRef}
+                onMapClick={onMapClick}
+                displayedRestaurants={displayedRestaurants}
+                selectedRestaurant={selectedRestaurant}
+                onRestaurantClick={handleMapRestaurantClick}
+                location={location}
+              />
+            </div>
 
             {/* Floating search — collapsed to a square icon button by
                 default (2026-06-04: the always-on toolbar read too loud over
@@ -414,6 +528,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 dismissed by dragging it down; "Zum Spot" + the pager are the
                 in-sheet actions. */}
 
+            {sheetView === 'detail' && selectedRestaurant ? (
+              <StaticDetailMapPeek
+                restaurant={selectedRestaurant}
+                restaurants={displayedRestaurants}
+                onRestaurantClick={handleMapRestaurantClick}
+              />
+            ) : null}
+
             {sheetView === 'detail' && selectedMustEat ? (
               <MapSheetDetail
                 kind="mustEat"
@@ -491,11 +613,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           {showLocationStatus && (
             <div
-              className={`${styles.mapStatusLayer} ${locationStatus.isError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
-              role={locationStatus.isError ? 'alert' : 'status'}
+              className={`${styles.mapStatusLayer} ${visibleLocationStatus.isError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
+              role={visibleLocationStatus.isError ? 'alert' : 'status'}
             >
-              <span className={styles.mapStatusText}>{locationStatus.copy}</span>
-              {locationStatus.isError && (
+              <span className={styles.mapStatusText}>{visibleLocationStatus.copy}</span>
+              {visibleLocationStatus.isError && visibleLocationStatus.canRetry && (
                 <button
                   type="button"
                   className={styles.mapStatusAction}

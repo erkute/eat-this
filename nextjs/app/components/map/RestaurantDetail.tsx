@@ -20,6 +20,7 @@ import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
 import { classifyWebsite, formatPriceLabel, splitStatusLabel } from './restaurantDetail.helpers';
 import { normalizeName } from '@/lib/normalizeName';
+import { useLoginModal } from '@/lib/auth';
 import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
@@ -151,6 +152,7 @@ export default function RestaurantDetail({
 }: RestaurantDetailProps) {
   const { t } = useTranslation();
   const locale = useLocale();
+  const { open: openLoginModal } = useLoginModal();
   const { count: heartCount } = useHeartCount(restaurant._id);
   const [shareDone, setShareDone] = useState(false);
   const scrollWrapRef = useRef<HTMLDivElement>(null);
@@ -271,13 +273,15 @@ export default function RestaurantDetail({
 
   const showBooster = userTier !== 'allBerlin';
   const isAnon = !uid;
-  const boosterHref = uid
-    ? locale === routing.defaultLocale
-      ? '/packs'
-      : `/${locale}/packs`
-    : locale === routing.defaultLocale
-      ? '/login'
-      : `/${locale}/login`;
+  const boosterHref = locale === routing.defaultLocale ? '/packs' : `/${locale}/packs`;
+  const openStarterLogin = () => {
+    trackEvent('login_start', { method: 'starter_pack_banner' });
+    openLoginModal('starter');
+  };
+  const openSigninLogin = () => {
+    trackEvent('login_start', { method: 'starter_pack_existing_user' });
+    openLoginModal('signin');
+  };
 
   const heroStyle = r.photo
     ? ({
@@ -715,19 +719,27 @@ export default function RestaurantDetail({
                 {isAnon ? t('map.starterPromoBody') : t('map.boosterDesc')}
               </p>
               <div className={styles.packPromoActions}>
-                <a href={boosterHref} className={styles.btnPackPromo}>
-                  <span className={styles.btnPackPromoLbl}>
-                    {isAnon ? t('map.starterCta') : t('map.boosterCta')}
-                  </span>
-                  <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
-                    <line x1="2" y1="9" x2="20" y2="9" />
-                    <polyline points="14 3 20 9 14 15" />
-                  </svg>
-                </a>
-                {isAnon && (
-                  <a href={boosterHref} className={styles.linkPromo}>
-                    {t('map.starterPromoLogin')}
+                {isAnon ? (
+                  <button type="button" className={styles.btnPackPromo} onClick={openStarterLogin}>
+                    <span className={styles.btnPackPromoLbl}>{t('map.starterCta')}</span>
+                    <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
+                      <line x1="2" y1="9" x2="20" y2="9" />
+                      <polyline points="14 3 20 9 14 15" />
+                    </svg>
+                  </button>
+                ) : (
+                  <a href={boosterHref} className={styles.btnPackPromo}>
+                    <span className={styles.btnPackPromoLbl}>{t('map.boosterCta')}</span>
+                    <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
+                      <line x1="2" y1="9" x2="20" y2="9" />
+                      <polyline points="14 3 20 9 14 15" />
+                    </svg>
                   </a>
+                )}
+                {isAnon && (
+                  <button type="button" className={styles.linkPromo} onClick={openSigninLogin}>
+                    {t('map.starterPromoLogin')}
+                  </button>
                 )}
               </div>
             </div>

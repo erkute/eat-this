@@ -2197,7 +2197,7 @@
   --login-line: rgba(255, 255, 255, 0.18);
   --login-control: min(100%, 380px);
 
-  width: min(920px, calc(100vw - 28px));
+  width: min(1080px, calc(100vw - 28px));
   max-height: calc(100svh - 28px);
   color: var(--login-ink);
   background: var(--login-paper);
@@ -2230,7 +2230,7 @@
 }
 
 .modalSimple {
-  grid-template-columns: minmax(260px, 0.82fr) minmax(410px, 1.08fr);
+  grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr);
   min-height: min(520px, calc(100svh - 28px));
   color: #fff;
   background: var(--home-ink, #15120e);
@@ -2243,6 +2243,7 @@
   color: #fff;
   background: transparent;
   border: 0;
+  overflow: visible;
 }
 
 .modalBenefitHead {
@@ -2250,20 +2251,21 @@
 }
 
 .modalBenefitIntro {
-  max-width: 8ch;
+  max-width: none;
   color: #fff;
   font-size: clamp(40px, 4.8vw, 64px);
   line-height: 0.86;
+  white-space: nowrap;
 }
 
 .modalPackArt {
-  height: clamp(210px, 39vh, 320px);
+  height: clamp(240px, 43vh, 360px);
   filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.28));
   transform: rotate(-4deg);
 }
 
 .modalPackArt img {
-  max-height: 320px;
+  max-height: 360px;
 }
 
 .modalBenefitLead {
@@ -2387,15 +2389,17 @@
   }
 
   .modalBenefitIntro {
+    max-width: none;
     font-size: clamp(31px, 8vw, 40px);
+    white-space: nowrap;
   }
 
   .modalPackArt {
-    height: min(25vh, 168px);
+    height: min(32vh, 260px);
   }
 
   .modalPackArt img {
-    max-height: 168px;
+    max-height: 260px;
   }
 
   .modalBenefitLead {
@@ -2437,15 +2441,17 @@
   }
 
   .modalBenefitIntro {
+    max-width: none;
     font-size: clamp(26px, 7.4vw, 32px);
+    white-space: nowrap;
   }
 
   .modalPackArt {
-    height: min(21vh, 128px);
+    height: min(29vh, 198px);
   }
 
   .modalPackArt img {
-    max-height: 128px;
+    max-height: 198px;
   }
 
   .modalBenefitLead {
@@ -2464,5 +2470,274 @@
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
     min-height: 44px;
+  }
+}
+
+.frameModal .modalSimpleSignin {
+  grid-template-columns: minmax(220px, 0.82fr) minmax(320px, 1fr);
+  align-items: stretch;
+}
+
+.frameModal .modalSimpleSignin .modalLogin {
+  width: min(100%, 460px);
+  justify-self: center;
+}
+
+.frameModal .close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.frameModal .close span {
+  display: block;
+  line-height: 1;
+  transform: none;
+}
+
+.modalSigninBoosters {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+  padding: clamp(30px, 3vw, 44px);
+  background: transparent;
+}
+
+.modalSigninBoosterFan {
+  position: relative;
+  width: min(100%, 390px);
+  height: min(100%, 410px);
+  min-height: 300px;
+  transform: translateX(clamp(20px, 3.2vw, 40px));
+}
+
+.modalSigninBoosterCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: clamp(150px, 14vw, 190px);
+  height: auto;
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28));
+  transform-origin: 50% 78%;
+}
+
+.modalSigninBoosterCard:nth-child(1) {
+  z-index: 1;
+  transform: translate(-86%, -48%) rotate(-15deg);
+}
+
+.modalSigninBoosterCard:nth-child(2) {
+  z-index: 3;
+  transform: translate(-50%, -55%) rotate(2deg);
+}
+
+.modalSigninBoosterCard:nth-child(3) {
+  z-index: 2;
+  transform: translate(-15%, -48%) rotate(15deg);
+}
+
+@media (max-width: 767.98px) {
+  .frameModal .modalSimpleSignin {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .modalSigninBoosters {
+    min-height: 296px;
+    overflow: hidden;
+    padding: 44px 18px 4px;
+  }
+
+  .modalSigninBoosterFan {
+    width: min(100%, 330px);
+    min-height: 228px;
+    height: 228px;
+    transform: none;
+  }
+
+  .modalSigninBoosterCard {
+    width: clamp(112px, 33vw, 136px);
+  }
+
+  .frameModal .modalSimpleSignin .modalLogin {
+    min-height: 0;
+    padding-top: 12px;
+  }
+}
+
+.frameSent {
+  width: min(1080px, calc(100vw - 28px));
+  max-height: calc(100svh - 28px);
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  background: var(--home-ink, #15120e);
+  border: 0;
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+  text-align: left;
+}
+
+.sentSimple {
+  min-height: min(520px, calc(100svh - 28px));
+}
+
+.sentPanel {
+  width: min(100%, 460px);
+  justify-self: center;
+  justify-items: start;
+  gap: 14px;
+  text-align: left;
+}
+
+.sentMark {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 58px;
+  color: var(--login-accent);
+  transform: rotate(-7deg);
+}
+
+.sentMark svg {
+  display: block;
+  width: 58px;
+  height: auto;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.24));
+}
+
+.frameSent .modalLoginHead,
+.frameSent .toBlock,
+.frameSent .spam,
+.frameSent .actions,
+.frameSent .sub {
+  width: var(--login-control);
+  justify-self: start;
+}
+
+.frameSent .modalFormTitle {
+  max-width: 12ch;
+  color: #fff;
+}
+
+.frameSent .toBlock {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 12px 14px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+}
+
+.frameSent .toLabel {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.frameSent .toValue {
+  color: #fff;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.18;
+  word-break: break-word;
+}
+
+.frameSent .sub {
+  max-width: 32ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: clamp(14px, 1.25vw, 16px);
+  line-height: 1.32;
+}
+
+.frameSent .spam {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.64);
+  background: transparent;
+  border: 0;
+}
+
+.frameSent .spamIcon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  color: var(--home-ink, #15120e);
+  background: var(--login-accent);
+  border-radius: 50%;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.frameSent .spamText {
+  color: rgba(255, 255, 255, 0.64);
+}
+
+.frameSent .actions {
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.frameSent .textlink {
+  justify-content: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.frameSent .textlink:hover,
+.frameSent .textlink:focus-visible {
+  color: var(--home-ink, #15120e);
+  background: var(--login-accent);
+  outline: 0;
+}
+
+@media (max-width: 767.98px) {
+  .frameSent {
+    width: min(430px, calc(100vw - 18px));
+    max-height: calc(100svh - 18px);
+    overflow-y: auto;
+  }
+
+  .sentSimple {
+    min-height: 0;
+  }
+
+  .sentPanel {
+    width: 100%;
+    padding-top: 14px;
+  }
+
+  .sentMark {
+    width: 60px;
+    height: 46px;
+  }
+
+  .sentMark svg {
+    width: 50px;
+  }
+
+  .frameSent .modalFormTitle {
+    font-size: clamp(31px, 8vw, 40px);
   }
 }

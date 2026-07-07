@@ -18,8 +18,9 @@ interface HeartButtonProps {
 // useFavorites, so the same toggle drives the map detail too, and hearting here
 // bumps the public count shown as a badge on the hero photo (see HeartCount).
 // The public count is deliberately kept separate from this personal control
-// (Airbnb-style: wishlist heart ≠ social-proof badge). Anon tap → /login
-// (handled inside useFavorites). See docs/specs/2026-06-09-hearts-design.md.
+// (Airbnb-style: wishlist heart ≠ social-proof badge). Anon tap opens the
+// shared login modal (handled inside useFavorites).
+// See docs/specs/2026-06-09-hearts-design.md.
 export default function HeartButton({ restaurantId, name, slug, photo, district, locale }: HeartButtonProps) {
   const de = locale !== 'en'
   const { favoriteIds, toggle } = useFavorites(useAuth().user?.uid ?? null)

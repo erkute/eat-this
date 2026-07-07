@@ -407,6 +407,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
+@media (max-width: 1023.98px) {
+  html[data-login-modal-open],
+  html[data-login-modal-open] body {
+    background: #15120e !important;
+    background-color: #15120e !important;
+  }
+}
 html[data-active-page='start'],
 html[data-active-page='start'] body {
   --food-ink: #15120e;

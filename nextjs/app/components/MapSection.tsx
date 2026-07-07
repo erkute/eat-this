@@ -41,12 +41,6 @@ function isPhoneViewport(): boolean {
 export default function MapSection({ isActive = false, initialMapData }: Props) {
   const mapRef = useRef<MapRef>(null);
   const mapWrapRef = useRef<HTMLDivElement | null>(null);
-  /* The detail selection id shown in the previous run of the frosting effect.
-     Lets it tell a fresh open (bar expanded by the navigation → peek may start
-     live) from a pager swap to a different spot (bar may be compact → peek
-     must prove the bar is expanded before going live) — robust to effect
-     re-runs for the SAME spot. Reset to null when the detail closes. */
-  const prevDetailIdRef = useRef<string | null>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
@@ -304,167 +298,24 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
 
-  // Reset the tracked selection id when the detail closes, so the next open
-  // counts as a fresh open (bar expanded) rather than a pager swap.
-  useEffect(() => {
-    if (sheetView !== 'detail') prevDetailIdRef.current = null;
-  }, [sheetView]);
+  /* iOS URL-bar frosting for the in-flow phone detail.
 
-  /* iOS URL-bar frosting for the in-flow phone detail — HYBRID (live peek
-     at the top, frosted snapshot when scrolled).
-
-     The MapLibre GL canvas is an always-composited layer; while it's visible
-     under the detail, WebKit promotes the whole detail subtree and the bottom
-     URL bar samples the page background instead of the content (bisected
-     on-device 2026-07-06: canvas hidden → frosts, visible → doesn't;
-     z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
-
-     So the peek is LIVE + pannable (real map, all real spots) only while it's
-     safe: at the very top WITH the URL bar EXPANDED — then the bar isn't the
-     translucent compact overlay, so no frosting is lost. The moment the user
-     scrolls (bar collapses to its compact state), we hide the GL layer and
-     show a static snapshot (<img> + cloned pin), so the detail content frosts.
-
-     The subtle case is a pager swap: it programmatically scrolls to the top,
-     but iOS does NOT re-expand the bar on a programmatic scroll — so you're at
-     scrollY 0 with a still-compact bar. Keying "go live" on scrollY alone
-     re-exposed the GL layer there → the grey/beige strip. We instead gate
-     "live" on the bar being provably expanded, detected via visualViewport
-     (its height grows when the bar collapses; we track the tallest seen). A
-     fresh open starts live (the navigation expanded the bar); a pager swap
-     starts frozen and only goes live once a real gesture expands the bar. */
+     On iOS Safari, letting the MapLibre WebGL layer overlap the detail even
+     briefly can poison the page's bottom URL-bar backdrop until reload: after
+     closing the detail, the restaurant list no longer frosts. The tested safe
+     shape is blunt but stable: hide the sticky map wrapper for the whole
+     phone-detail lifetime. The visible map peek is rendered as part of the
+     detail sheet itself, not as a separate layer behind it. */
   useEffect(() => {
     if (!isActive || sheetView !== 'detail') return;
     if (typeof window === 'undefined' || !isPhoneViewport()) return;
     const mapWrap = mapWrapRef.current;
     if (!mapWrap) return;
-
-    const curId = selectedRestaurant?._id ?? selectedMustEat?._id ?? null;
-    // A pager swap = the detail was already open on a DIFFERENT spot. A re-run
-    // for the same spot (e.g. deep-link data settling) is not a swap.
-    const isPagerSwap = prevDetailIdRef.current !== null && prevDetailIdRef.current !== curId;
-    prevDetailIdRef.current = curId;
-
-    let cancelled = false;
-    let live = false;
-    let snapEl: HTMLImageElement | null = null;
-    let pinEl: HTMLElement | null = null;
-    const vv = window.visualViewport;
-    // Tallest visual-viewport height seen = bar most collapsed. Self-calibrates
-    // so we never hardcode an iOS toolbar pixel height.
-    let maxVVH = vv ? vv.height : window.innerHeight;
-    // A fresh open happens with the bar expanded; a pager swap must observe the
-    // bar expand (a real gesture) before it may go live.
-    let barKnownExpanded = !isPagerSwap;
-
-    const target = selectedRestaurant ?? selectedMustEat?.restaurant ?? null;
-
-    const showLive = () => {
-      live = true;
-      mapWrap.style.visibility = '';
-      if (snapEl) snapEl.style.visibility = 'hidden';
-      if (pinEl) pinEl.style.visibility = 'hidden';
-    };
-    const showFrozen = () => {
-      live = false;
-      mapWrap.style.visibility = 'hidden';
-      if (snapEl) snapEl.style.visibility = 'visible';
-      if (pinEl) pinEl.style.visibility = 'visible';
-    };
-
-    /* Refresh the snapshot from the live canvas. toDataURL only yields pixels
-       during a render event (preserveDrawingBuffer is off) — the documented
-       MapLibre pattern: once('render') + triggerRepaint. Works while the
-       canvas is CSS-hidden. Kept ready so freezing is instant. */
-    const paint = () => {
-      const map = mapRef.current?.getMap();
-      if (!map || cancelled) return;
-      map.once('render', () => {
-        if (cancelled) return;
-        try {
-          const url = map.getCanvas().toDataURL('image/jpeg', 0.78);
-          if (!snapEl) {
-            snapEl = document.createElement('img');
-            snapEl.alt = '';
-            snapEl.setAttribute('aria-hidden', 'true');
-            // visibility:visible overrides the hidden it would inherit from the
-            // wrap; showLive/showFrozen toggle it. The GL canvas stays hidden
-            // while frozen (not sampled by the bar), but this plain raster
-            // image is in-flow content that DOES frost, like the list's rows.
-            snapEl.style.cssText =
-              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:1;';
-            mapWrap.appendChild(snapEl);
-          }
-          snapEl.src = url;
-          if (target && typeof target.lat === 'number' && typeof target.lng === 'number') {
-            const pt = map.project([target.lng, target.lat]);
-            if (!pinEl) {
-              const livePin = mapWrap.querySelector<HTMLElement>('[data-selected-pin]');
-              if (livePin) {
-                pinEl = livePin.cloneNode(true) as HTMLElement;
-                pinEl.removeAttribute('role');
-                pinEl.removeAttribute('data-selected-pin');
-                pinEl.setAttribute('aria-hidden', 'true');
-                mapWrap.appendChild(pinEl);
-              }
-            }
-            if (pinEl) {
-              pinEl.style.cssText = `position:absolute;left:${Math.round(pt.x)}px;top:${Math.round(pt.y)}px;transform:translate(-50%,-100%);pointer-events:none;z-index:2;`;
-            }
-          }
-          // Re-apply visibility for the current state now the nodes exist.
-          if (live) showLive(); else showFrozen();
-        } catch {
-          /* Capture failed (tainted canvas etc.) — leave whatever is showing. */
-        }
-      });
-      map.triggerRepaint();
-    };
-
-    const evaluate = () => {
-      if (vv) {
-        if (vv.height > maxVVH + 1) maxVVH = vv.height;
-        if (maxVVH - vv.height > 24) barKnownExpanded = true;
-      }
-      const wantLive = window.scrollY <= 4 && barKnownExpanded;
-      if (wantLive === live) return;
-      if (wantLive) showLive();
-      else showFrozen();
-    };
-
-    // Seed the initial state directly (no transition flash): a fresh open at
-    // the top is live; a pager swap (or any scrolled state) starts frozen.
-    if (!isPagerSwap && window.scrollY <= 4) showLive();
-    else showFrozen();
-
-    let waitTimer: ReturnType<typeof setTimeout> | null = null;
-    const waitForMap = () => {
-      if (cancelled) return;
-      const map = mapRef.current?.getMap();
-      if (!map) {
-        waitTimer = setTimeout(waitForMap, 120);
-        return;
-      }
-      paint();
-      map.once('moveend', () => { paint(); evaluate(); });
-      map.once('idle', () => { paint(); evaluate(); });
-      evaluate();
-      return;
-    };
-    waitForMap();
-
-    window.addEventListener('scroll', evaluate, { passive: true });
-    vv?.addEventListener('resize', evaluate, { passive: true });
+    mapWrap.style.visibility = 'hidden';
     return () => {
-      cancelled = true;
-      if (waitTimer) clearTimeout(waitTimer);
-      window.removeEventListener('scroll', evaluate);
-      vv?.removeEventListener('resize', evaluate);
-      snapEl?.remove();
-      pinEl?.remove();
       mapWrap.style.visibility = '';
     };
-  }, [isActive, sheetView, selectedRestaurant?._id, selectedMustEat?._id]);
+  }, [isActive, sheetView]);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user

@@ -29,10 +29,10 @@ vi.mock('@/app/components/MapIntentLink', () => ({
 
 import HubDeineWelt from '@/app/components/HubDeineWelt';
 
-function render() {
+function render(spotOfDay?: React.ComponentProps<typeof HubDeineWelt>['spotOfDay']) {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-      <HubDeineWelt />
+      <HubDeineWelt spotOfDay={spotOfDay} />
     </NextIntlClientProvider>
   );
 }
@@ -51,7 +51,7 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Direkt zu empfohlenen Spots um dich herum und empfohlenen Must Eats.');
     expect(html).toContain('Profil');
     expect(html).toContain('Map öffnen');
-    expect(html).toContain('/pics/avatar/1.webp?v=3');
+    expect(html).not.toContain('/pics/avatar/');
     expect(html).not.toContain('Empfohlene Spots');
     expect(html).not.toContain('Must Eats</span>');
     expect(html).not.toContain('href="/profile#profile-panel-must-eats"');
@@ -71,5 +71,17 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Hey Ersan');
     // Hero headline is always present for signed-in users.
     expect(html).toContain('Deine Map wartet');
+  });
+
+  it('renders the spot of day as the desktop media target when provided', () => {
+    authState.loading = false;
+    authState.user = { uid: 'u1', displayName: 'Ersan Tester' } as never;
+    const html = render({ name: 'Gazzo', slug: 'gazzo', image: 'https://cdn.sanity.io/gazzo.webp' });
+    expect(html).toContain('Spot des Tages');
+    expect(html).toContain('Gazzo');
+    expect(html).toContain('/map?r=gazzo');
+    expect(html).toContain('https://cdn.sanity.io/gazzo.webp');
+    expect(html).not.toContain('/pics/avatar/');
+    expect(html).not.toContain('home-logged-in-cat.mp4');
   });
 });

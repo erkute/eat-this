@@ -43,6 +43,7 @@ export interface HomeData {
   districts: import('./assembleDistricts').HubDistrict[]
   magazine: HubArticle[]
   categoryNames: Record<string, string>
+  categoryImages: Record<string, string>
 }
 
 const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
@@ -76,7 +77,12 @@ const districtsQuery = `*[_type == "bezirk" && defined(slug.current)]{
 
 const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{
   "slug": slug.current,
-  "name": select($locale == "en" => nameEn, name)
+  "name": select($locale == "en" => nameEn, name),
+  "homeImage": select(
+    defined(homeImage.asset) => homeImage.asset->url + "?w=560&h=720&fit=crop&auto=format&q=80",
+    defined(homeImages[0].asset) => homeImages[0].asset->url + "?w=560&h=720&fit=crop&auto=format&q=80",
+    defined(icon.asset) => icon.asset->url + "?w=560&h=720&fit=crop&auto=format&q=80"
+  )
 }`
 
 /** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
@@ -93,7 +99,7 @@ export async function getHomeData(
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<DistrictRow[]>(districtsQuery, { locale }, { next: { revalidate: 3600, tags: ['bezirk', 'restaurant', 'mustEat'] } }),
     getAllNewsArticles(),
-    client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
+    client.fetch<{ slug: string; name: string; homeImage?: string | null }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
   ])
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;
   // a.titleDe is the German override. So de → titleDe||title, en → title.
@@ -106,6 +112,11 @@ export async function getHomeData(
     kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
   }))
   const categoryNames: Record<string, string> = Object.fromEntries((catNameRows ?? []).map((r) => [r.slug, r.name]))
+  const categoryImages: Record<string, string> = Object.fromEntries(
+    (catNameRows ?? [])
+      .filter((r) => r.homeImage)
+      .map((r) => [r.slug, r.homeImage as string])
+  )
   // "Berlin nach Kategorien" renders a 2×2 grid on desktop → always show exactly
   // 4 so it fills both rows. The editorial homeWeek picks come first; if it has
   // fewer than 4, top up with other art-backed catalog categories (no tagline),
@@ -134,5 +145,5 @@ export async function getHomeData(
   // week — no homeWeek doc needed. Capped at 10 tabs.
   const featureSlug = pickWeeklyFeatureSlug(districtRows ?? [], today)
   const districts = assembleDistricts(featureSlug, districtRows ?? [])
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: homeCategories, districts, magazine, categoryNames }
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: homeCategories, districts, magazine, categoryNames, categoryImages }
 }

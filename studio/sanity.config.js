@@ -52,6 +52,9 @@ export default defineConfig({
 
             // ── Editorial / Home ─────────────────────────────────────────
             S.documentTypeListItem('homeWeek').title(label('🏠', 'Home der Woche', counts.homeWeek)),
+            S.listItem()
+              .title('🍱  Home Food-Bilder')
+              .child(S.documentTypeList('category').title('Home Food-Bilder')),
 
             S.divider(),
 

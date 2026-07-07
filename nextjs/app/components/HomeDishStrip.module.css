@@ -34,12 +34,26 @@
   object-fit: contain;
 }
 
+.dishName {
+  display: block;
+  margin-top: 10px;
+  color: var(--et-home-ink);
+  font-family: var(--font-providence);
+  font-size: clamp(19px, 1.9vw, 28px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
 .rest {
   display: block;
+  margin-top: 5px;
   font-family: var(--font-providence);
-  font-weight: 400;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: clamp(15px, 1.25vw, 19px);
+  line-height: 1;
   color: var(--home-muted);
+  text-decoration: none;
 }
 
 @media (min-width: 761px) {
@@ -58,10 +72,27 @@
 }
 
 @media (max-width: 760px) {
+  .grid {
+    --rail-mobile-safe: var(--et-wrap-pad-mobile);
+    margin-left: calc(var(--et-wrap-pad-mobile) * -1);
+    margin-right: calc(var(--et-wrap-pad-mobile) * -1);
+    padding-left: var(--rail-mobile-safe);
+    padding-right: var(--rail-mobile-safe);
+    scroll-padding-inline: var(--rail-mobile-safe);
+  }
+
   .item {
     width: 150px;
   }
   .dishImg {
     height: 140px;
+  }
+
+  .dishName {
+    font-size: clamp(17px, 5.8vw, 23px);
+  }
+
+  .rest {
+    font-size: clamp(14px, 4.7vw, 17px);
   }
 }

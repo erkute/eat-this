@@ -87,8 +87,8 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
 
       <p className={styles.lead}>
         {lang === 'en'
-          ? 'The exclusive dishes — unlock face-down, straight onto your map.'
-          : 'Die exklusiven Gerichte — face-down freischalten, direkt auf deiner Map.'}
+          ? 'Every Must Eat is a card — discover it on the map, reveal it on site.'
+          : 'Jedes Must Eat ist eine Karte — auf der Map entdecken, vor Ort aufdecken.'}
       </p>
 
       <ul className={`hv-rail ${styles.rail}`} role="list">

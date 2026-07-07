@@ -36,7 +36,7 @@ interface Props {
  */
 export default function MapFilterPickerSheet({
   title, items, selectedValue, onSelect, onClose,
-  anchorEl, footer, allLabel,
+  anchorEl, footer, allLabel, closeAriaLabel,
 }: Props) {
   // Callback-ref into state so position + touchmove effects re-run the moment
   // the sheet element actually attaches. The previous useState('mounted') +
@@ -93,6 +93,7 @@ export default function MapFilterPickerSheet({
       const left = Math.max(margin, Math.min(rect.left, window.innerWidth - sheetW - margin))
       sheetEl.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`)
       sheetEl.style.setProperty('--picker-anchor-left', `${left}px`)
+      sheetEl.style.setProperty('--picker-caret-left', `${Math.max(22, Math.min(rect.left + rect.width / 2 - left, sheetW - 22))}px`)
     }
     apply()
     window.addEventListener('resize', apply)
@@ -115,6 +116,12 @@ export default function MapFilterPickerSheet({
         aria-modal="true"
         aria-label={title}
       >
+        <div className={styles.pickerHead}>
+          <span className={styles.pickerTitle}>{title}</span>
+          <button type="button" className={styles.pickerClose} onClick={onClose} aria-label={closeAriaLabel}>
+            ×
+          </button>
+        </div>
         <div className={styles.pickerList}>
           {allLabel !== undefined && (
             <button

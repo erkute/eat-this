@@ -51,6 +51,11 @@
   line-height: 0.88;
 }
 
+.titleLine {
+  display: block;
+  white-space: nowrap;
+}
+
 /* ── Remy stage — freigestellt, no background sun ── */
 .avatarWrap {
   grid-area: avatar;
@@ -251,7 +256,7 @@
   .ask {
     align-self: center;
     max-width: 650px;
-    transform: translateY(clamp(-18px, -1.8vw, -8px));
+    transform: translateY(clamp(-42px, -3.2vw, -24px));
   }
 
   .avatarWrap {
@@ -260,6 +265,7 @@
     max-width: clamp(500px, 45vw, 700px);
     margin-top: clamp(-42px, -3vw, -24px);
     margin-bottom: clamp(-154px, -9vw, -96px);
+    transform: translateY(clamp(-24px, -1.8vw, -12px));
   }
 
   .avatar {

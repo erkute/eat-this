@@ -3,23 +3,24 @@
 .hero {
   width: 100%;
   padding-top: calc(52px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  padding-bottom: clamp(44px, 6vw, 82px);
+  padding-bottom: clamp(20px, 2.8vw, 38px);
   background: var(--home-paper);
   color: var(--home-ink);
 }
 
 .heroInner {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.95fr);
   align-items: center;
-  justify-content: space-between;
-  gap: clamp(24px, 5vw, 72px);
+  gap: clamp(24px, 4vw, 48px);
+  max-width: 1180px;
 }
 
 .copy {
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.4vw, 16px);
-  max-width: 680px;
+  gap: clamp(7px, 1vw, 12px);
+  max-width: 760px;
 }
 
 .kicker {
@@ -27,7 +28,7 @@
   max-width: 12ch;
   color: var(--home-ink);
   font-family: var(--menu-condensed, var(--et-font-condensed), Impact, sans-serif);
-  font-size: clamp(52px, 9vw, 104px);
+  font-size: clamp(64px, 9.8vw, 124px);
   font-weight: 400;
   letter-spacing: 0.01em;
   line-height: 0.78;
@@ -39,7 +40,7 @@
   margin: 0;
   color: var(--home-ink);
   font-family: var(--font-providence);
-  font-size: clamp(42px, 6vw, 68px);
+  font-size: clamp(50px, 6.8vw, 82px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.9;
@@ -47,12 +48,13 @@
 }
 
 .sub {
-  max-width: 38ch;
+  max-width: 27ch;
   margin: 0;
   color: var(--home-muted);
   font-family: var(--font-providence);
-  font-size: clamp(12px, 1.1vw, 14px);
+  font-size: clamp(14px, 1.25vw, 17px);
   font-weight: 400;
+  line-height: 1.24;
 }
 
 .actions {
@@ -60,62 +62,136 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  margin-top: clamp(4px, 0.8vw, 8px);
+  margin-top: clamp(10px, 1.2vw, 16px);
 }
 
 .mapBtn {
   color: var(--home-ink) !important;
   background: var(--home-accent) !important;
+  font-family: var(--font-providence) !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
 }
 
 .profileBtn {
   text-decoration: none;
+  font-family: var(--font-providence) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.95 !important;
 }
 
-.avatarLink {
+.spotLink {
   position: relative;
   display: block;
-  flex: 0 0 auto;
-  width: clamp(92px, 16vw, 162px);
-  aspect-ratio: 1;
-  border-radius: 999px;
-  background: var(--home-accent);
+  min-height: clamp(270px, 29vw, 400px);
   overflow: hidden;
+  color: var(--et-home-inverse-text);
+  background: #15120e;
+  border-radius: var(--et-radius-photo, 10px);
+  text-decoration: none;
 }
 
-.avatarLink:focus-visible {
-  outline: 3px solid var(--home-ink);
-  outline-offset: 4px;
+.spotLink::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 48%;
+  background: var(--et-home-photo-overlay);
+  pointer-events: none;
 }
 
-.avatarImg {
+.spotImg {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  transform: scale(1.08) translateY(3%);
-  user-select: none;
+  min-height: inherit;
+  object-fit: cover;
+}
+
+.spotTag {
+  position: absolute;
+  right: clamp(16px, 2vw, 24px);
+  bottom: clamp(14px, 2vw, 22px);
+  left: clamp(16px, 2vw, 24px);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--et-home-inverse-text);
+  text-shadow: var(--et-shadow-text-photo);
+}
+
+.spotTag span {
+  font-family: var(--font-providence);
+  font-size: clamp(15px, 1.5vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.95;
+}
+
+.spotTag strong {
+  font-family: var(--font-providence);
+  font-size: clamp(22px, 2.3vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
 @media (max-width: 640px) {
   .heroInner {
-    align-items: flex-start;
-    gap: 18px;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 20px;
   }
 
   .copy {
     min-width: 0;
   }
 
-  .avatarLink {
-    width: clamp(72px, 23vw, 104px);
+  .kicker {
+    max-width: 100%;
+    font-size: clamp(50px, 17vw, 82px);
+  }
+
+  .headline {
+    font-size: clamp(40px, 12.5vw, 60px);
+  }
+
+  .sub {
+    max-width: 25ch;
+  }
+
+  .actions {
+    gap: 12px;
+  }
+
+  .spotLink {
+    min-height: 220px;
+  }
+}
+
+@media (min-width: 641px) {
+  .sub {
+    font-size: clamp(18px, 1.65vw, 23px);
+    line-height: 1.22;
+  }
+
+  .mapBtn:global(.hv-btn) {
+    min-height: 52px;
+    padding: 15px 24px;
+    font-size: clamp(15px, 1.25vw, 18px) !important;
+  }
+
+  .profileBtn:global(.hv-link-underline) {
+    font-size: clamp(23px, 2.4vw, 30px) !important;
   }
 }
 
 @media (max-width: 480px) {
   .hero {
     padding-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-    padding-bottom: 48px;
+    padding-bottom: 18px;
   }
 }

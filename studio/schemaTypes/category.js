@@ -47,8 +47,34 @@ export default defineType({
       type: 'image',
       options: {hotspot: true, accept: 'image/*'},
     }),
+    defineField({
+      name: 'homeImage',
+      title: 'Home Kategorie-Bild',
+      type: 'image',
+      description: 'Primäres Food-Bild für den Kategorien-Block auf der Startseite.',
+      options: {hotspot: true, accept: 'image/*'},
+    }),
+    defineField({
+      name: 'homeImages',
+      title: 'Weitere Home Food-Bilder',
+      type: 'array',
+      description: 'Zusätzliche Food-Bilder für spätere Varianten der Kategorie-Rail.',
+      of: [
+        {
+          type: 'image',
+          options: {hotspot: true, accept: 'image/*'},
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+            }),
+          ],
+        },
+      ],
+    }),
   ],
   preview: {
-    select: {title: 'name', media: 'icon'},
+    select: {title: 'name', media: 'homeImage'},
   },
 })

@@ -11241,7 +11241,7 @@ html body .galleryLbPrint {
   max-height: calc(100dvh - 190px) !important;
 }
 
-html body .galleryLbImg {
+  html body .galleryLbImg {
   max-height: calc(100dvh - 250px) !important;
 }
 
@@ -13153,7 +13153,7 @@ html body .galleryLbPrint {
   transform: rotate(-0.5deg) !important;
 }
 
-html body .galleryLbImg {
+  html body .galleryLbImg {
   display: block !important;
   width: auto !important;
   height: auto !important;
@@ -13203,8 +13203,269 @@ html body .galleryLbCredit a {
     padding-bottom: 34px !important;
   }
 
-  html body .galleryLbImg {
+html body .galleryLbImg {
     max-width: calc(100vw - 52px) !important;
     max-height: calc(100dvh - 252px) !important;
   }
+}
+
+/* Map filter rail: keep the four equal mobile controls, but make them read as
+   buttons again instead of labels floating on the white sheet. */
+html body .filterChipRow .filterChip,
+html body .filterChipRow .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipRow .filterChipActive {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 44px !important;
+  padding: 10px 8px !important;
+  background: var(--et-home-ink, #15120e) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
+  border: 1px solid var(--et-home-ink, #15120e) !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  box-shadow: none !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-transform: none !important;
+}
+
+html body .filterChipRow .filterChip:hover,
+html body .filterChipRow .filterChip:focus-visible,
+html body .filterChipRow .filterChip[aria-expanded='true'],
+html body .filterChipRow .filterChipActive {
+  background: var(--et-home-ink, #15120e) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
+}
+
+html body .filterChipRow .filterChipOpenActive,
+html body .filterChipRow > .filterChipOpenActive {
+  background: #1f8f4d !important;
+  color: #fff !important;
+  border-color: #15120e !important;
+}
+
+/* Map filter picker: editorial popover instead of a plain system list. */
+html body .pickerBackdrop {
+  background: rgba(21, 18, 14, 0.1) !important;
+}
+
+html body .pickerSheet {
+  overflow: visible !important;
+  width: min(360px, calc(100vw - 24px)) !important;
+  padding: 8px !important;
+  background: var(--et-home-ink, #15120e) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
+  border: 0 !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  box-shadow: 0 18px 42px rgba(21, 18, 14, 0.26) !important;
+}
+
+html body .pickerSheet::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -6px !important;
+  left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px)) !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: var(--et-home-ink, #15120e) !important;
+  transform: rotate(45deg) !important;
+}
+
+html body .pickerHead {
+  position: relative !important;
+  z-index: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 36px !important;
+  padding: 0 4px 8px 8px !important;
+  color: inherit !important;
+}
+
+html body .pickerTitle {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+html body .pickerClose {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+}
+
+html body .pickerClose:hover,
+html body .pickerClose:focus-visible {
+  background: rgba(255, 255, 255, 0.12) !important;
+  outline: 0 !important;
+}
+
+html body .pickerList {
+  display: grid !important;
+  gap: 7px !important;
+  max-height: min(58vh, 470px) !important;
+  padding: 0 !important;
+  overflow-y: auto !important;
+  background: transparent !important;
+}
+
+html body .pickerItem {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  min-height: 42px !important;
+  padding: 10px 12px !important;
+  background: #fff !important;
+  color: var(--et-home-ink, #15120e) !important;
+  border: 0 !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  box-shadow: none !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05 !important;
+  text-align: left !important;
+  text-transform: none !important;
+}
+
+html body .pickerItem:hover,
+html body .pickerItem:focus-visible {
+  background: var(--et-home-accent, #ffc600) !important;
+  color: var(--et-home-ink, #15120e) !important;
+  outline: 0 !important;
+  transform: translateX(3px) !important;
+}
+
+html body .pickerItemActive,
+html body .pickerItemActive:hover,
+html body .pickerItemActive:focus-visible {
+  background: var(--et-home-accent, #ffc600) !important;
+  color: var(--et-home-ink, #15120e) !important;
+  transform: rotate(-0.8deg) !important;
+}
+
+html body .pickerItemActive::after {
+  content: '✓' !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin-left: 10px !important;
+  border-radius: 50% !important;
+  background: var(--et-home-ink, #15120e) !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+html body .pickerItemLabel,
+html body .pickerItemSub {
+  color: inherit !important;
+  font-family: inherit !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05 !important;
+}
+
+html body .pickerItemLabel {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+
+html body .pickerItemSub {
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  opacity: 0.62 !important;
+}
+
+@media (max-width: 1023.98px) {
+  html body .pickerSheet {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: max(14px, env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    max-height: min(66dvh, 560px) !important;
+  }
+
+  html body .pickerSheet::before {
+    content: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  html body .pickerSheet {
+    width: min(520px, calc(100vw - 24px)) !important;
+    max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px) !important;
+  }
+
+  html body .pickerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+html body .filterChipRow .filterChipOpenActive,
+html body .filterChipRow > .filterChipOpenActive,
+html body .filterChipRow .filterChip[aria-pressed='true'] {
+  background: #1f8f4d !important;
+  color: #fff !important;
+  border-color: #15120e !important;
+}
+
+html body .filterChipRow .filterChipOpenActive .filterChipLabel,
+html body .filterChipRow > .filterChipOpenActive .filterChipLabel,
+html body .filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel {
+  color: #fff !important;
+}
+
+html body .filterChipRow .filterChipOpenActive:hover,
+html body .filterChipRow .filterChipOpenActive:focus-visible,
+html body .filterChipRow > .filterChipOpenActive:hover,
+html body .filterChipRow > .filterChipOpenActive:focus-visible,
+html body .filterChipRow .filterChip[aria-pressed='true']:hover,
+html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible {
+  background: #176f3c !important;
+  color: #fff !important;
+  border-color: #15120e !important;
+}
+
+html body .filterChipRow .filterChipOpenActive:hover .filterChipLabel,
+html body .filterChipRow .filterChipOpenActive:focus-visible .filterChipLabel,
+html body .filterChipRow > .filterChipOpenActive:hover .filterChipLabel,
+html body .filterChipRow > .filterChipOpenActive:focus-visible .filterChipLabel,
+html body .filterChipRow .filterChip[aria-pressed='true']:hover .filterChipLabel,
+html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterChipLabel {
+  color: #fff !important;
 }

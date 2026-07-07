@@ -4,31 +4,29 @@ import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
-import {
-  defaultAvatarFromUid,
-  useUserProfile,
-  type AvatarChoice,
-} from '@/lib/firebase/useUserProfile';
+import { normalizeName } from '@/lib/normalizeName';
 import MapIntentLink from './MapIntentLink';
 import styles from './HubDeineWelt.module.css';
 
-function isAvatarChoice(value: unknown): value is AvatarChoice {
-  return value === 1 || value === 2 || value === 3;
+interface Props {
+  spotOfDay?: {
+    image?: string | null;
+    name: string;
+    slug: string;
+  } | null;
 }
 
-export default function HubDeineWelt() {
+export default function HubDeineWelt({ spotOfDay }: Props) {
   const locale = useLocale();
   const de = locale === 'de';
   const { user, loading } = useAuth();
-  const { profile } = useUserProfile(user?.uid ?? null);
-  const [authHint, setAuthHint] = useState<{ n?: string; a?: AvatarChoice } | null>(null);
+  const [authHint, setAuthHint] = useState<{ n?: string } | null>(null);
   useEffect(() => {
     try {
       const hint = JSON.parse(window.localStorage.getItem('_authHint') || 'null') as {
         n?: string;
-        a?: unknown;
       } | null;
-      if (hint?.n) setAuthHint({ n: hint.n, ...(isAvatarChoice(hint.a) ? { a: hint.a } : {}) });
+      if (hint?.n) setAuthHint({ n: hint.n });
     } catch {}
   }, []);
 
@@ -36,9 +34,6 @@ export default function HubDeineWelt() {
     ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
     : authHint?.n ?? null;
   const greeting = firstName ? `Hey ${firstName}` : 'Hey';
-  const avatarIndex =
-    profile.avatar ??
-    (user?.uid ? defaultAvatarFromUid(user.uid) : authHint?.a ?? 1);
 
   // Resolved logged-out → render nothing (the hero stays the first block).
   // While auth is still loading (SSR + pre-hydration) the static shell is
@@ -81,21 +76,23 @@ export default function HubDeineWelt() {
           </div>
         </div>
 
-        <Link
-          href="/profile"
-          rel="nofollow"
-          prefetch={false}
-          className={styles.avatarLink}
-          aria-label={de ? 'Profil mit Avatar öffnen' : 'Open profile with avatar'}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className={styles.avatarImg}
-            src={`/pics/avatar/${avatarIndex}.webp?v=3`}
-            alt=""
-            draggable={false}
-          />
-        </Link>
+        {spotOfDay && (
+          <MapIntentLink
+            href={`/map?r=${spotOfDay.slug}`}
+            rel="nofollow"
+            className={styles.spotLink}
+            aria-label={`${normalizeName(spotOfDay.name)} — ${de ? 'Spot des Tages' : 'Spot of the day'}`}
+          >
+            {spotOfDay.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.spotImg} src={spotOfDay.image} alt="" draggable={false} />
+            )}
+            <span className={styles.spotTag}>
+              <span>{de ? 'Spot des Tages' : 'Spot of the day'}</span>
+              <strong>{normalizeName(spotOfDay.name)}</strong>
+            </span>
+          </MapIntentLink>
+        )}
       </div>
     </section>
   );

@@ -12286,7 +12286,7 @@ html body .filterChipRow > .filterChipOpenActive {
      on open/pager swap. Drag/snap are off on phones (SheetConfig.inflow both
      views) — closing = back pill / X. Tablets keep the fixed drag-sheet. */
   .list[data-view='detail'] {
-    --detail-map-peek: clamp(96px, 14dvh, 122px);
+    --detail-map-peek: clamp(150px, 21dvh, 200px);
 
     position: relative;
     top: auto;

@@ -306,75 +306,62 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
      2026-07-06: canvas hidden → frosts, canvas visible → doesn't;
      z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
 
-     The peek must stay LIVE and pannable while the user is at the top of
-     the detail (it's a real little map, like the list view), so the GL
-     layer is only removed WHILE the window is scrolled: crossing scrollY>4
-     freezes the current frame into an <img> overlay (plus a clone of the
-     selected pin at its projected position — DOM markers aren't part of
-     the GL frame), hides the wrap, and Safari starts sampling the detail.
-     Back at the top the live map returns. Nothing is lost at rest: at
-     scroll top Safari's bar is expanded anyway. `visibility` (not
-     `display`) so MapLibre keeps its size and repaints instantly. */
+     The GL layer is hidden for the WHOLE detail (every open, every pager
+     swap, every scroll position) and the peek shows a static snapshot of
+     the map instead — a centered <img> plus a clone of the selected pin
+     (DOM markers aren't part of the GL frame). Why not keep it live at the
+     top: a scrollY>0 toggle re-exposed the GL layer after a pager swap,
+     because the swap's programmatic scrollTo(0) does NOT re-expand Safari's
+     compact URL bar — so you'd be at scroll top with a compact (translucent)
+     bar over a live composited layer, which shows the un-frosted background
+     strip. A frozen snapshot has no such state, so the frosting is solid in
+     every case. `visibility` (not `display`) so MapLibre keeps rendering
+     (needed for the snapshot) and repaints instantly when the detail
+     closes. */
   useEffect(() => {
     if (!isActive || sheetView !== 'detail') return;
     if (typeof window === 'undefined' || !isPhoneViewport()) return;
     const mapWrap = mapWrapRef.current;
     if (!mapWrap) return;
 
+    // Hide the live GL layer for the entire detail lifetime.
+    mapWrap.style.visibility = 'hidden';
+
     let cancelled = false;
-    let frozen = false;
-    let capturing = false;
     let snapEl: HTMLImageElement | null = null;
     let pinEl: HTMLElement | null = null;
 
     const target = selectedRestaurant ?? selectedMustEat?.restaurant ?? null;
 
-    const showFrozen = () => {
-      mapWrap.style.visibility = 'hidden';
-      if (snapEl) snapEl.style.visibility = 'visible';
-      if (pinEl) pinEl.style.visibility = 'visible';
-    };
-    const showLive = () => {
-      mapWrap.style.visibility = '';
-      if (snapEl) snapEl.style.visibility = 'hidden';
-      if (pinEl) pinEl.style.visibility = 'hidden';
-    };
-
-    /* toDataURL on a WebGL canvas only yields pixels during the render
-       event (preserveDrawingBuffer is off) — the documented MapLibre
-       snapshot pattern: once('render') + triggerRepaint. The wrap is
-       hidden only after the frame is captured, so the peek swaps live→
-       frozen without a blank flash (one frame of GL during scroll start
-       is invisible in practice). */
-    const freeze = () => {
+    /* toDataURL on a WebGL canvas only yields pixels during a render event
+       (preserveDrawingBuffer is off) — the documented MapLibre snapshot
+       pattern: once('render') + triggerRepaint. Works while the canvas is
+       CSS-hidden; MapLibre keeps its own render loop. */
+    const paint = () => {
       const map = mapRef.current?.getMap();
-      if (!map) {
-        /* No canvas mounted yet (deep link) — nothing composited to blame,
-           but hide the wrap anyway so the frosting can start. */
-        showFrozen();
-        return;
-      }
-      if (capturing) return;
-      capturing = true;
+      if (!map || cancelled) return;
       map.once('render', () => {
-        capturing = false;
         if (cancelled) return;
         try {
-          const url = map.getCanvas().toDataURL('image/jpeg', 0.75);
+          const url = map.getCanvas().toDataURL('image/jpeg', 0.78);
           if (!snapEl) {
             snapEl = document.createElement('img');
             snapEl.alt = '';
             snapEl.setAttribute('aria-hidden', 'true');
+            /* visibility:visible overrides the hidden it would inherit from
+               the wrap — the GL canvas stays hidden (not sampled by the bar),
+               but this plain raster image is in-flow content that DOES frost,
+               exactly like the list's photo rows. */
             snapEl.style.cssText =
-              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:hidden;pointer-events:none;';
+              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;visibility:visible;z-index:1;';
             mapWrap.appendChild(snapEl);
           }
           snapEl.src = url;
 
-          /* Clone the selected pin at its CURRENT projected position — the
-             open-flyTo already centers the spot inside the peek strip (see
-             phoneDetailFlyPadding), and any user panning is captured 1:1,
-             so the frozen peek is pixel-faithful to the live one. */
+          /* Clone the selected pin at its projected position — the open /
+             pager flyTo centers the spot in the peek (phoneDetailFlyPadding),
+             so re-projecting after the frame settles keeps the pin on the
+             spot. */
           if (target && typeof target.lat === 'number' && typeof target.lng === 'number') {
             const pt = map.project([target.lng, target.lat]);
             if (!pinEl) {
@@ -388,34 +375,39 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
               }
             }
             if (pinEl) {
-              pinEl.style.cssText = `position:absolute;left:${Math.round(pt.x)}px;top:${Math.round(pt.y)}px;transform:translate(-50%,-100%);visibility:hidden;pointer-events:none;z-index:2;`;
+              pinEl.style.cssText = `position:absolute;left:${Math.round(pt.x)}px;top:${Math.round(pt.y)}px;transform:translate(-50%,-100%);pointer-events:none;visibility:visible;z-index:2;`;
             }
           }
         } catch {
-          /* Capture failed (tainted canvas or similar) — freeze without a
-             backdrop; the peek is covered within ~110px of scroll anyway. */
+          /* Capture failed (tainted canvas etc.) — the wrap stays hidden, so
+             the frosting still works; the peek just shows no map backdrop. */
         }
-        if (frozen && !cancelled) showFrozen();
       });
       map.triggerRepaint();
     };
 
-    /* No rAF gate: scroll events already fire at frame rate, and a
-       pending-rAF gate can leave the map hidden at scroll top when rAF is
-       throttled (background tab). */
-    const apply = () => {
-      const shouldFreeze = window.scrollY > 4;
-      if (shouldFreeze === frozen) return;
-      frozen = shouldFreeze;
-      if (frozen) freeze();
-      else showLive();
+    /* Snapshot as soon as the canvas exists (it may mount late on a deep
+       link) — an immediate frame avoids a blank peek — then repaint once the
+       open/pager flyTo settles on the centered restaurant. moveend catches
+       the flyTo; if the camera is already still, the immediate paint stands. */
+    let waitTimer: ReturnType<typeof setTimeout> | null = null;
+    const waitForMap = () => {
+      if (cancelled) return;
+      const map = mapRef.current?.getMap();
+      if (!map) {
+        waitTimer = setTimeout(waitForMap, 120);
+        return;
+      }
+      paint();
+      map.once('moveend', paint);
+      map.once('idle', paint);
+      return;
     };
+    waitForMap();
 
-    apply();
-    window.addEventListener('scroll', apply, { passive: true });
     return () => {
       cancelled = true;
-      window.removeEventListener('scroll', apply);
+      if (waitTimer) clearTimeout(waitTimer);
       snapEl?.remove();
       pinEl?.remove();
       mapWrap.style.visibility = '';
@@ -521,13 +513,20 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
      getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
      open-click handlers (whose closures still see sheetView 'list'). */
   const phoneDetailFlyPadding = useCallback(() => {
-    /* Mirrors --detail-map-peek: clamp(96px, 14dvh, 122px). */
-    const peek = Math.min(Math.max(96, 0.14 * window.innerHeight), 122);
+    /* Mirrors --detail-map-peek: clamp(150px, 21dvh, 200px). */
+    const peek = Math.min(Math.max(150, 0.21 * window.innerHeight), 200);
     const canvasH = mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
     const overhang = Math.max(0, canvasH - window.innerHeight);
+    /* Where the spot's geographic point sits within the peek strip (0=top,
+       1=bottom). The pin's anchor is its bottom tip with the body extending
+       UP, so a point slightly below the strip's mid-line lands the pin body
+       visually centered. flyTo centers the map at canvas-y
+       (top + canvasH − bottom)/2, so bottom = innerHeight + overhang −
+       2·frac·peek + top puts that center at frac·peek. */
+    const frac = 0.6;
     return {
       top: 8,
-      bottom: Math.round(window.innerHeight - peek + overhang) + 8,
+      bottom: Math.round(window.innerHeight + overhang - 2 * frac * peek) + 8,
       left: 20,
       right: 20,
     };

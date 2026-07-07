@@ -1985,7 +1985,7 @@
 .frameModal .error {
   min-height: 16px;
   margin: -1px 0 0;
-  color: #b1261b;
+  color: #fff;
   font-family: var(--font-body, system-ui, sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -2550,6 +2550,22 @@
   letter-spacing: 0;
   line-height: 1.1;
   text-align: center;
+  transform: translateX(clamp(20px, 3.2vw, 40px));
+}
+
+.modalSigninBoosterHeadline {
+  max-width: 11ch;
+  margin: 0 0 -22px;
+  color: #fff;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(34px, 3.8vw, 50px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.88;
+  text-align: center;
+  text-transform: none;
+  transform: translateX(clamp(20px, 3.2vw, 40px)) rotate(-2deg);
+  z-index: 4;
 }
 
 .modalSigninBoosterCard {
@@ -2587,7 +2603,7 @@
   .modalSigninBoosters {
     min-height: 296px;
     overflow: hidden;
-    gap: 8px;
+    gap: 24px;
     padding: 44px 18px 12px;
   }
 
@@ -2604,6 +2620,14 @@
   .modalSigninBoosterLead {
     max-width: 28ch;
     font-size: clamp(14px, 3.6vw, 17px);
+    transform: none;
+  }
+
+  .modalSigninBoosterHeadline {
+    max-width: 11ch;
+    margin-bottom: 0;
+    font-size: clamp(28px, 7.6vw, 36px);
+    transform: rotate(-2deg);
   }
 
   .frameModal .modalSimpleSignin .modalLogin {

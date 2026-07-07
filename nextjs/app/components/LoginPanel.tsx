@@ -226,6 +226,9 @@ export default function LoginPanel({
           )}
           {signinMode && (
             <section className={styles.modalSigninBoosters}>
+              <p className={styles.modalSigninBoosterHeadline}>
+                {t('modals.login.signinBoosterHeadline')}
+              </p>
               <div className={styles.modalSigninBoosterFan} aria-hidden="true">
                 {SIGNIN_BOOSTER_PACKS.map((src) => (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -239,9 +242,6 @@ export default function LoginPanel({
                   />
                 ))}
               </div>
-              <p className={styles.modalSigninBoosterHeadline}>
-                {t('modals.login.signinBoosterHeadline')}
-              </p>
               <p className={styles.modalSigninBoosterLead}>
                 {t('modals.login.signinBoosterLead')}
               </p>

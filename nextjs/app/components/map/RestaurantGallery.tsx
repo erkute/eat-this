@@ -17,24 +17,21 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
   // Defensive: a broken asset ref yields null thumb/full from GROQ despite
   // the required-string type — drop those instead of rendering empty slots.
   const usable = images.filter((img) => img.thumb && img.full)
+  const preview = usable[0]
   if (!usable.length) return null
   return (
     <>
-      {/* data-h-scroll: tells useSwipePager to leave horizontal gestures that
-          start here to the carousel's native scroll instead of paging. */}
       <section className={styles.rdGalleryBlock} aria-label="Fotos">
-        <div className={styles.rdGallery} role="list" data-h-scroll>
-          {usable.map((img, i) => (
-            <button
-              key={img._key}
-              type="button"
-              role="listitem"
-              className={styles.rdGalleryThumb}
-              onClick={() => setOpenIndex(i)}
-            >
-              <img src={img.thumb} alt={img.alt ?? restaurantName} loading="lazy" decoding="async" />
-            </button>
-          ))}
+        <div className={styles.rdGallery} role="list">
+          <button
+            key={preview._key}
+            type="button"
+            role="listitem"
+            className={styles.rdGalleryThumb}
+            onClick={() => setOpenIndex(0)}
+          >
+            <img src={preview.thumb} alt={preview.alt ?? restaurantName} loading="lazy" decoding="async" />
+          </button>
         </div>
       </section>
       <RestaurantGalleryLightbox

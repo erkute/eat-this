@@ -3,23 +3,12 @@ import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { translations } from '@/lib/i18n/translations';
-import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 
 // Auth state is swapped per test: while loading (= the SSR pass) the static
 // shell must render so globals.css can show it pre-paint for returning
 // signed-in visitors (html[data-auth="1"]); resolved-anon renders nothing.
 const authState = { user: null as { uid: string } | null, loading: true };
-const faceUpState = { ids: new Set<string>() };
 vi.mock('@/lib/auth', () => ({ useAuth: () => authState }));
-vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({ useOwnedEntitlements: () => null }));
-vi.mock('@/lib/map', () => ({
-  useMapData: () => ({ restaurants: [], mustEats: [], revealedMustEatIds: new Set<string>() }),
-  useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
-  resolveUnlockedMustEatIds: () => faceUpState.ids,
-}));
-vi.mock('@/lib/map/UserLocationContext', () => ({
-  useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
-}));
 vi.mock('@/app/components/MapIntentLink', () => ({
   default: ({
     href,
@@ -40,57 +29,10 @@ vi.mock('@/app/components/MapIntentLink', () => ({
 
 import HubDeineWelt from '@/app/components/HubDeineWelt';
 
-const initialMapData = {
-  restaurants: [],
-  mustEats: [],
-  revealedMustEatIds: [],
-} as unknown as InitialMapData;
-
-const collectionMapData = {
-  restaurants: [
-    {
-      _id: 'r1',
-      _createdAt: '2026-01-01',
-      name: 'Test Spot',
-      slug: 'test-spot',
-      isClosed: false,
-      lat: 52.5,
-      lng: 13.4,
-      photo: '/pics/restaurant/test.webp',
-      mustEatCount: 2,
-    },
-  ],
-  mustEats: [
-    {
-      _id: 'me-open',
-      dish: 'Open Dish',
-      image: '/pics/musteat/open.webp',
-      restaurant: {
-        _id: 'r1',
-        name: 'Test Spot',
-        slug: 'test-spot',
-        lat: 52.5,
-        lng: 13.4,
-      },
-    },
-    {
-      _id: 'me-covered',
-      restaurant: {
-        _id: 'r1',
-        name: 'Test Spot',
-        slug: 'test-spot',
-        lat: 52.5,
-        lng: 13.4,
-      },
-    },
-  ],
-  revealedMustEatIds: [],
-} as unknown as InitialMapData;
-
-function render(data: InitialMapData = initialMapData) {
+function render() {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-      <HubDeineWelt initialMapData={data} />
+      <HubDeineWelt />
     </NextIntlClientProvider>
   );
 }
@@ -99,30 +41,20 @@ describe('HubDeineWelt', () => {
   beforeEach(() => {
     authState.user = null;
     authState.loading = true;
-    faceUpState.ids = new Set<string>();
   });
 
-  it('SSRs the launcher shell with the data-auth-only hook while auth is loading', () => {
+  it('SSRs only the signed-in intro shell with the data-auth-only hook while auth is loading', () => {
     const html = render();
     expect(html).toContain('data-auth-only');
-    // Greeting kicker and hero headline are the homeV2 logged-in hero's copy.
     expect(html).toContain('Hey');
     expect(html).toContain('Deine Map wartet');
-    // The collection-progress line and the district picker are gone.
-    expect(html).not.toContain('auf deiner Map');
-    expect(html).not.toContain('Bezirk wählen');
-    expect(html).not.toContain('Standort aktivieren');
-    // The two quick actions live in the hero.
+    expect(html).toContain('Direkt zu empfohlenen Spots um dich herum und empfohlenen Must Eats.');
     expect(html).toContain('Profil');
     expect(html).toContain('Map öffnen');
-    // Both visual rail sections still render (labels are always present).
-    expect(html).toContain('Empfohlene Spots');
-    expect(html).toContain('Must Eats');
-    // Counts/subtext are not shown on the home collection rails.
-    expect(html).not.toContain('Noch keine');
-    expect(html).not.toContain('Schon offen');
-    // Deep links into the noindex map/profile routes must carry nofollow —
-    // this markup now ships in the indexed SSR HTML of "/".
+    expect(html).toContain('/pics/avatar/1.webp?v=3');
+    expect(html).not.toContain('Empfohlene Spots');
+    expect(html).not.toContain('Must Eats</span>');
+    expect(html).not.toContain('href="/profile#profile-panel-must-eats"');
     expect(html).toContain('rel="nofollow"');
   });
 
@@ -139,15 +71,5 @@ describe('HubDeineWelt', () => {
     expect(html).toContain('Hey Ersan');
     // Hero headline is always present for signed-in users.
     expect(html).toContain('Deine Map wartet');
-  });
-
-  it('links recommended spots to the map and includes covered Must Eats', () => {
-    faceUpState.ids = new Set(['me-open']);
-    const html = render(collectionMapData);
-
-    expect(html).toContain('href="/map?r=test-spot"');
-    expect(html).toContain('href="/profile#profile-panel-must-eats"');
-    expect(html).toContain('%2Fpics%2Fmusteat%2Fopen.webp');
-    expect(html).toContain('/pics/card-back.webp');
   });
 });

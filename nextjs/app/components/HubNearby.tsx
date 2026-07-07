@@ -47,7 +47,6 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
   const loc = activeLocation ?? MITTE;
 
   const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4);
-  if (!authMode && mounted && user) return null;
   if (cards.length === 0) return null;
 
   const title = locale === 'en' ? 'Around you' : 'Um dich herum';
@@ -70,7 +69,6 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
         data-hub-nearby=""
         data-auth-nearby={authMode ? '' : undefined}
         data-auth-only={authMode ? '' : undefined}
-        data-guest-only={authMode ? undefined : ''}
       >
         <div className="hv-head">
           <h2 className="hv-title">

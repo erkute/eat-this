@@ -40,7 +40,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
   return (
     <div className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
       <HubHashScroll />
-      <HubDeineWelt initialMapData={initialMapData} />
+      <HubDeineWelt />
 
       <section className={`hv-wrap ${styles.hero}`} aria-label={t.spotDay}>
         <div className={styles.heroGrid}>

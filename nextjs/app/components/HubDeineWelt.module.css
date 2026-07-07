@@ -1,264 +1,121 @@
-/* ── HubDeineWelt — logged-in hero (homeV2 vocabulary) ───────── */
-
-/*
-  The section carries class="homeV2 …" so all .homeV2 .hv-* globals
-  (hv-kicker, hv-btn, hv-link-underline, hv-photo, hv-rail, hv-cap,
-  hv-sub, hv-wrap) apply automatically from css/style.css.
-  This module only adds layout and sizing that the global vocabulary
-  doesn't cover.
-*/
+/* HubDeineWelt — signed-in intro only. */
 
 .hero {
   width: 100%;
   padding-top: calc(52px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  padding-bottom: clamp(22px, 3.6vw, 42px);
+  padding-bottom: clamp(44px, 6vw, 82px);
   background: var(--home-paper);
   color: var(--home-ink);
 }
 
 .heroInner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: clamp(24px, 4vw, 56px);
-  align-items: start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 5vw, 72px);
 }
-
-/* ── Copy column ──────────────────────────────────────────────── */
 
 .copy {
   display: flex;
   flex-direction: column;
   gap: clamp(10px, 1.4vw, 16px);
+  max-width: 680px;
 }
 
 .kicker {
   margin: 0;
+  max-width: 12ch;
+  color: var(--home-ink);
   font-family: var(--menu-condensed, var(--et-font-condensed), Impact, sans-serif);
   font-size: clamp(52px, 9vw, 104px);
   font-weight: 400;
-  line-height: 0.78;
   letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--home-ink);
-  max-width: 8ch;
+  line-height: 0.78;
   overflow-wrap: anywhere;
+  text-transform: uppercase;
 }
 
 .headline {
-  font-family: var(--font-providence);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  font-size: clamp(42px, 6vw, 68px);
   margin: 0;
   color: var(--home-ink);
+  font-family: var(--font-providence);
+  font-size: clamp(42px, 6vw, 68px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 
 .sub {
-  font-family: var(--font-providence);
-  font-weight: 400;
-  font-size: clamp(12px, 1.1vw, 14px);
-  color: var(--home-muted);
-  margin: 0;
   max-width: 38ch;
+  margin: 0;
+  color: var(--home-muted);
+  font-family: var(--font-providence);
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 400;
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   margin-top: clamp(4px, 0.8vw, 8px);
-  flex-wrap: wrap;
 }
 
-/* Map button — accent fill (yellow) */
 .mapBtn {
-  background: var(--home-accent) !important;
   color: var(--home-ink) !important;
+  background: var(--home-accent) !important;
 }
 
-/* Profile link — plain underline */
 .profileBtn {
   text-decoration: none;
 }
 
-/* ── Rails column (right of the copy — recommended spots) ─────── */
-
-.rails {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(16px, 2vw, 24px);
-  padding-top: clamp(10px, 1.6vw, 22px);
+.avatarLink {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: clamp(92px, 16vw, 162px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: var(--home-accent);
+  overflow: hidden;
 }
 
-/* Must Eats sits as a full-width row below the hero grid, so it fills the
-   width instead of stacking under Saved and towering the right column over
-   the copy (which left a big whitespace under the headline). */
-.mustEatsRow {
-  margin-top: clamp(30px, 4.2vw, 58px);
+.avatarLink:focus-visible {
+  outline: 3px solid var(--home-ink);
+  outline-offset: 4px;
 }
 
-.railBlock {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 1.4vw, 18px);
-}
-
-.railLabel {
-  margin: 0;
-  font-family: var(--menu-condensed, var(--et-font-condensed), Impact, sans-serif);
-  font-size: clamp(32px, 5vw, 56px);
-  font-weight: 400;
-  line-height: 0.82;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--home-ink);
-}
-
-.rail {
-  /* hv-rail is flex + horizontal scroll; we fix thumb sizing here */
-}
-
-.railPhoto {
-  /* hv-photo provides bg, border-radius, overflow, position:relative */
-  width: clamp(150px, 15vw, 190px);
-  aspect-ratio: 4 / 3;
-  flex-shrink: 0;
-  transition: transform 140ms ease;
-}
-
-.railPhoto:hover,
-.railPhoto:focus-visible {
-  transform: translateY(-3px) rotate(-0.6deg);
-}
-
-/* Must-Eat cards are portrait */
-.mustPhoto {
-  aspect-ratio: 5 / 7;
-  width: clamp(116px, 12vw, 140px);
-}
-
-.mustImg,
-.mustBack {
-  object-fit: contain;
-}
-
-.mustBack {
+.avatarImg {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: scale(1.08) translateY(3%);
+  user-select: none;
 }
 
-.railPhotoName {
-  position: absolute;
-  inset: auto 6px 6px;
-  z-index: 2;
-  color: #fff;
-  font-family: var(--font-providence);
-  font-weight: 700;
-  font-size: clamp(10px, 0.9vw, 12px);
-  line-height: 1.1;
-  text-transform: uppercase;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-}
-
-/* Bottom gradient over photo */
-.railPhoto::after {
-  content: '';
-  position: absolute;
-  inset: 50% 0 0;
-  background: linear-gradient(to top, rgba(21, 18, 14, 0.6), transparent);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.railPhotoEmpty {
-  border: 2px dashed var(--home-line, rgba(21, 18, 14, 0.2));
-  background: var(--home-quiet) !important;
-}
-
-/* No gradient overlay on empty placeholders */
-.railPhotoEmpty::after {
-  display: none;
-}
-
-.railEmptyMark {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.railEmptyMark::before,
-.railEmptyMark::after {
-  content: '';
-  position: absolute;
-  width: 24px;
-  height: 2px;
-  background: var(--home-muted, rgba(21, 18, 14, 0.4));
-}
-
-.railEmptyMark::before {
-  transform: rotate(45deg);
-}
-
-.railEmptyMark::after {
-  transform: rotate(-45deg);
-}
-
-/* ── Responsive ───────────────────────────────────────────────── */
-
-/* Desktop: rails wrap into rows instead of horizontal swipe (swiping on a wide
-   screen makes no sense). The compound :global(.hv-rail).rail (0,3,0 with
-   .homeV2) beats .homeV2 .hv-rail (0,2,0), so we can also drop its
-   overflow-x:auto — otherwise overflow-y computes to auto too and the card
-   hover-lift/rotate is clipped at the rail's top edge. Nothing overflows
-   horizontally once it wraps, so overflow:visible is safe. */
-@media (min-width: 761px) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    flex-wrap: wrap;
-    overflow: visible;
-    row-gap: clamp(12px, 1.4vw, 18px);
-  }
-}
-
-@media (max-width: 760px) {
+@media (max-width: 640px) {
   .heroInner {
-    grid-template-columns: 1fr;
-    gap: clamp(20px, 4vw, 32px);
+    align-items: flex-start;
+    gap: 18px;
   }
 
-  .headline {
-    font-size: clamp(38px, 12vw, 56px);
-  }
-
-  .rails {
-    flex-direction: row;
-    gap: clamp(16px, 4vw, 28px);
-    overflow-x: auto;
-  }
-
-  .railBlock {
-    flex: 0 0 auto;
+  .copy {
     min-width: 0;
+  }
+
+  .avatarLink {
+    width: clamp(72px, 23vw, 104px);
   }
 }
 
 @media (max-width: 480px) {
   .hero {
     padding-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  }
-
-  .rails {
-    flex-direction: column;
-  }
-
-  .railBlock {
-    flex: unset;
+    padding-bottom: 48px;
   }
 }

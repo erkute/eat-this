@@ -1,7 +1,7 @@
 'use client';
 import type { CSSProperties } from 'react';
 import { useMemo, useRef, useState } from 'react';
-import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import {
   abbreviateBezirk,
@@ -24,6 +24,7 @@ import { useLoginModal } from '@/lib/auth';
 import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
+import { safeHttpUrl } from './MustEatImageLightbox';
 
 const DAY_ALIASES: Record<string, number> = {
   su: 0,
@@ -113,6 +114,14 @@ function MustEatMiniCard({
       </button>
     </li>
   );
+}
+
+function galleryAssetKey(url: string) {
+  return url.split('?')[0];
+}
+
+function hasLinkedCredit(img: Pick<RestaurantGalleryImage, 'credit' | 'creditUrl'>) {
+  return !!img.credit?.trim() && !!safeHttpUrl(img.creditUrl);
 }
 
 interface RestaurantDetailProps {
@@ -209,6 +218,35 @@ export default function RestaurantDetail({
   const displayName = normalizeName(r.name);
   const longestWord = displayName.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0);
   const nameMaxPx = Math.max(26, Math.min(56, Math.round(311 / (Math.max(longestWord, 1) * 0.62))));
+  const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {
+    if (!detail) return [];
+
+    const images: RestaurantGalleryImage[] = [];
+    const seen = new Set<string>();
+    const add = (img: RestaurantGalleryImage | null) => {
+      if (!img?.thumb || !img.full) return;
+      if (!hasLinkedCredit(img)) return;
+      const key = galleryAssetKey(img.full);
+      if (seen.has(key)) return;
+      seen.add(key);
+      images.push(img);
+    };
+
+    add(
+      r.photo
+        ? {
+            _key: `${r._id}-hero`,
+            thumb: restaurant.photo ?? r.photo,
+            full: r.photo,
+            alt: displayName,
+            credit: r.photoCredit,
+            creditUrl: r.photoCreditUrl,
+          }
+        : null,
+    );
+    detail.gallery?.forEach(add);
+    return images;
+  }, [detail, displayName, r._id, r.photo, r.photoCredit, r.photoCreditUrl, restaurant.photo]);
 
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
 
@@ -283,7 +321,8 @@ export default function RestaurantDetail({
     openLoginModal('signin');
   };
 
-  const heroStyle = r.photo
+  const heroCredit = r.photo ? r.photoCredit?.trim() : undefined;
+  const heroStyle = r.photo && heroCredit
     ? ({
         '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
         backgroundImage: `url(${r.photo})`,
@@ -437,8 +476,8 @@ export default function RestaurantDetail({
         ) : null}
 
         {/* GALLERY — curated Places photos, after the description and before the insider tip. */}
-        {!!detail?.gallery?.length && (
-          <RestaurantGallery images={detail.gallery} restaurantName={displayName} />
+        {galleryImages.length > 0 && (
+          <RestaurantGallery images={galleryImages} restaurantName={displayName} />
         )}
 
         {/* INSIDER TIPP */}

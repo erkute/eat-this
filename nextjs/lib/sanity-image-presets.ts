@@ -52,6 +52,35 @@ export function groqImageUrl(path: string, preset: ImagePresetName): string {
   return `${path}.asset->url + "${presetQuery(preset)}"`
 }
 
+export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta'] as const
+
+function groqStringList(values: readonly string[]): string {
+  return `[${values.map((value) => JSON.stringify(value)).join(', ')}]`
+}
+
+export function publishableRestaurantImageCondition(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
+  return `(defined(${path}.credit) && defined(${path}.creditUrl)) || ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} || defined(${instagramPath})`
+}
+
+export function publishableRestaurantImageUrl(path: string, preset: ImagePresetName, slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
+  return `select(${publishableRestaurantImageCondition(path, slugPath, instagramPath)} => ${groqImageUrl(path, preset)})`
+}
+
+export function restaurantPhotoCredit(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
+  return `select(defined(${path}.credit) => ${path}.credit, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "Foto: Eat This", defined(${instagramPath}) => "Foto: @" + ${instagramPath})`
+}
+
+export function restaurantPhotoCreditUrl(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
+  return `select(defined(${path}.creditUrl) => ${path}.creditUrl, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "https://eat-this.de", defined(${instagramPath}) => "https://www.instagram.com/" + ${instagramPath})`
+}
+
+/** External photos are only publishable when the CMS stores both a visible
+ * credit and a credit URL. Returning null from GROQ lets all existing UI
+ * fallbacks hide unsafe photos instead of accidentally publishing them. */
+export function creditedGroqImageUrl(path: string, preset: ImagePresetName): string {
+  return `select(defined(${path}.credit) && defined(${path}.creditUrl) => ${groqImageUrl(path, preset)})`
+}
+
 /** Responsive `srcSet` for a raw `<img>` holding a Sanity CDN URL (projections
  *  bake a single preset width — fine for the fallback `src`, but without a
  *  srcset every viewport downloads that one size). Strips the baked query and

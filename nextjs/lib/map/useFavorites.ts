@@ -124,7 +124,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     ])
     const ref = doc(db, 'users', uid, 'favorites', restaurantId)
     await updateDoc(ref, { note })
-    setFavorites(prev => prev.map(f => f.restaurantId === restaurantId ? { ...f, note } : f))
+    setFavorites(prev => {
+      const next = prev.map(f => f.restaurantId === restaurantId ? { ...f, note } : f)
+      try { window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next)) } catch { /* quota */ }
+      return next
+    })
   }, [uid])
 
   return { favoriteIds, favorites, toggle, updateNote, loading }

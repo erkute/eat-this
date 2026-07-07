@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useFavorites } from '@/lib/map/useFavorites';
@@ -11,7 +12,7 @@ import styles from './ProfileSlim.module.css';
 // only via the heart toggle on the map / restaurant page).
 export default function ProfileSpots({ uid }: { uid: string }) {
   const t = useTranslations('profile');
-  const { favorites, loading, toggle } = useFavorites(uid);
+  const { favorites, loading, toggle, updateNote } = useFavorites(uid);
 
   if (loading) return null;
 
@@ -49,16 +50,72 @@ export default function ProfileSpots({ uid }: { uid: string }) {
             aria-label={t('removeSaved', { name: normalizeName(f.name) })}
             onClick={() => void toggle({ _id: f.restaurantId, name: f.name, slug: f.slug, photo: f.photo, district: f.district })}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 6h18" />
-              <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <line x1="10" y1="11" x2="10" y2="17" />
-              <line x1="14" y1="11" x2="14" y2="17" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12" />
+              <path d="M18 6L6 18" />
             </svg>
           </button>
+          <SpotNote
+            initialNote={f.note ?? ''}
+            label={t('spotNoteLabel')}
+            placeholder={t('spotNotePlaceholder')}
+            saveError={t('spotNoteError')}
+            onSave={(note) => updateNote(f.restaurantId, note)}
+          />
         </div>
       ))}
     </div>
+  );
+}
+
+function SpotNote({
+  initialNote,
+  label,
+  placeholder,
+  saveError,
+  onSave,
+}: {
+  initialNote: string;
+  label: string;
+  placeholder: string;
+  saveError: string;
+  onSave: (note: string) => Promise<void>;
+}) {
+  const [value, setValue] = useState(initialNote);
+  const [lastSaved, setLastSaved] = useState(initialNote);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setValue(initialNote);
+    setLastSaved(initialNote);
+  }, [initialNote]);
+
+  async function save() {
+    const next = value.trim();
+    if (next === lastSaved || saving) return;
+    setSaving(true);
+    try {
+      await onSave(next);
+      setValue(next);
+      setLastSaved(next);
+    } catch {
+      window.showNotification?.(saveError);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <label className={styles.spotNote}>
+      <span>{label}</span>
+      <textarea
+        value={value}
+        rows={2}
+        maxLength={180}
+        placeholder={placeholder}
+        onChange={(e) => setValue(e.currentTarget.value)}
+        onBlur={() => void save()}
+      />
+    </label>
   );
 }

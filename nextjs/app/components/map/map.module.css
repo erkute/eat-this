@@ -1702,6 +1702,7 @@
   mix-blend-mode: overlay;
   transform: translateZ(2px);
 } /* we still want full visibility */
+
 @keyframes cardVibrate {
   0%,
   100% {
@@ -5727,7 +5728,7 @@ html .filterChipOpenActive {
    the restaurant list still has room for labels and detail content. */
 @media (min-width: 1024px) {
   html .shell {
-    --map-desktop-panel-width: clamp(360px, 24vw, 400px);
+    --map-desktop-panel-width: clamp(380px, 25vw, 420px);
   }
 
   html .body {
@@ -8234,7 +8235,7 @@ html .btnPackPromo {
   font-weight: 950 !important;
   letter-spacing: 0.055em !important;
   line-height: 1.05 !important;
-  text-transform: uppercase !important;
+  text-transform: none !important;
   position: relative !important;
   overflow: visible !important;
 }
@@ -9571,7 +9572,7 @@ html .mapBurger img {
 
 @media (min-width: 1024px) {
   html .fab {
-    right: 72px !important;
+    right: 14px !important;
   }
 }
 
@@ -9859,8 +9860,8 @@ html .rcardMetaCategory,
 html .mapStatusLayer,
 html .mapStatusLayerError,
 html .mapStatusLayerOk {
-  background: var(--et-home-ink, #15120e) !important;
-  color: var(--et-home-inverse-text, #fff) !important;
+  background: #fff !important;
+  color: var(--et-home-ink, #15120e) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
   box-shadow: none !important;
@@ -9888,8 +9889,8 @@ html .filterChipOpenActive {
 html .filterChip:hover,
 html .filterChip:focus-visible,
 html .filterChip[aria-expanded='true'] {
-  background: var(--et-home-ink, #15120e) !important;
-  color: var(--et-home-inverse-text, #fff) !important;
+  background: #fff !important;
+  color: var(--et-home-ink, #15120e) !important;
   transform: none !important;
 }
 
@@ -10040,8 +10041,8 @@ html .mapSearchToolbar {
   height: 40px !important;
   gap: 8px !important;
   padding: 0 8px 0 13px !important;
-  background: var(--et-home-ink, #15120e) !important;
-  color: var(--et-home-inverse-text, #fff) !important;
+  background: #fff !important;
+  color: var(--et-home-ink, #15120e) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
   box-shadow: none !important;
@@ -10081,7 +10082,7 @@ html .mapSearchInput {
 
 html .mapSearchInput::placeholder {
   color: currentColor !important;
-  opacity: 0.66 !important;
+  opacity: 0.55 !important;
   font: inherit !important;
 }
 
@@ -11059,12 +11060,12 @@ html body .detailV13:not(.detailV13MustEat) .btnPackPromoLbl {
 
 html body .detailV13:not(.detailV13MustEat) .linkPromo {
   color: #15120e !important;
-  font-family: var(--font-dm-sans, system-ui, sans-serif) !important;
-  font-size: 12.5px !important;
-  font-weight: 700 !important;
+  font-family: var(--font-body, var(--font-dm-sans, system-ui, sans-serif)) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
   letter-spacing: 0 !important;
-  text-decoration: underline !important;
-  text-underline-offset: 3px !important;
+  line-height: 1.25 !important;
+  text-decoration: none !important;
   text-transform: none !important;
 }
 
@@ -12687,7 +12688,7 @@ html .mustPeek {
 /* Etwas Luft über der "Must Eats"-Sektion im Restaurant-Detail — sie klebte
    direkt am Insider-Tipp-Banner. */
 html body .detailV13:not(.detailV13MustEat) .rdMustSection {
-  margin-top: 26px !important;
+  margin-top: 46px !important;
   background: transparent !important;
 }
 
@@ -12931,14 +12932,19 @@ html body .galleryLbBg {
 html body .galleryLbStage,
 html body .galleryLbCounter,
 html body .galleryLbArrow {
-  position: relative !important;
+  position: fixed !important;
   z-index: 1 !important;
 }
 
 html body .galleryLbStage {
+  position: fixed !important;
+  inset: 0 !important;
   width: 100vw !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
   height: 100dvh !important;
   min-height: 100lvh !important;
+  max-height: 100lvh !important;
 }
 
 /* Final layer polish: map status is a compact action layer, not a two-title
@@ -12949,31 +12955,30 @@ html body .mapStatusLayerOk {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   align-items: center !important;
-  gap: 6px !important;
-  width: fit-content !important;
-  max-width: min(250px, calc(100vw - 28px)) !important;
-  min-height: 0 !important;
-  padding: 7px 7px 7px 10px !important;
+  gap: 8px !important;
+  width: min(360px, calc(100vw - 32px)) !important;
+  min-height: 38px !important;
+  margin-inline: auto !important;
+  padding: 8px 10px !important;
   background: var(--et-home-ink, #15120e) !important;
   color: var(--et-home-inverse-text, #fff) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: 0 6px 18px rgba(21, 18, 14, 0.16) !important;
+  box-shadow: none !important;
 }
 
 html body .mapStatusLayerError {
-  background: #d9382a !important;
-  color: #fff !important;
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
 }
 
 html body .mapStatusText {
   min-width: 0 !important;
   color: inherit !important;
-  font-family: var(--font-body, var(--font), system-ui, sans-serif) !important;
-  font-size: 11px !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 13px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
-  line-height: 1.15 !important;
+  line-height: 1.08 !important;
   overflow: visible !important;
   text-overflow: clip !important;
   text-transform: none !important;
@@ -12982,26 +12987,224 @@ html body .mapStatusText {
 
 html body .mapStatusAction {
   min-height: 24px !important;
-  padding: 4px 9px 5px !important;
-  background: #fff !important;
-  color: var(--et-home-ink, #15120e) !important;
+  padding: 0 6px !important;
+  background: transparent !important;
+  color: inherit !important;
   border: 0 !important;
-  border-radius: var(--et-radius-control, 7px) !important;
-  font-family: var(--font-body, var(--font), system-ui, sans-serif) !important;
-  font-size: 12px !important;
+  border-radius: 0 !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 13px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
-  line-height: 1.1 !important;
+  line-height: 1 !important;
   text-transform: none !important;
 }
 
 html body .mapStatusDismiss {
-  min-width: 22px !important;
-  min-height: 22px !important;
-  padding: 0 0 2px !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  padding: 0 !important;
   color: currentColor !important;
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: 21px !important;
+  font-size: 18px !important;
   font-weight: 700 !important;
   line-height: 1 !important;
+}
+
+html body .mapStatusAction:hover,
+html body .mapStatusAction:focus-visible,
+html body .mapStatusDismiss:hover,
+html body .mapStatusDismiss:focus-visible {
+  color: var(--et-home-accent, #ffc600) !important;
+  outline: 0 !important;
+}
+
+/* Open-state labels: green in the filter chip and restaurant list. */
+html body .filterChipOpenActive,
+html body .filterChipRow > .filterChipOpenActive {
+  background: #1f8f4d !important;
+  color: #fff !important;
+  border-color: #15120e !important;
+}
+
+html body .filterChipOpenActive .filterChipLabel {
+  color: inherit !important;
+}
+
+html body .openPill:not(.openPillClosed) {
+  background: #1f8f4d !important;
+  color: #fff !important;
+}
+
+html body .openPill:not(.openPillClosed)::before {
+  background: #fff !important;
+}
+
+/* Map gallery: hero photo as the first Polaroid preview; zoom stays centered. */
+html body .detailV13:not(.detailV13MustEat) .rdGalleryBlock {
+  display: flex !important;
+  justify-content: flex-start !important;
+  padding: 18px 0 12px !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdGallery {
+  width: max-content !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 6px 18px 22px !important;
+  gap: 16px !important;
+  justify-content: flex-start !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdGalleryThumb,
+html body .detailV13:not(.detailV13MustEat) .rdGalleryThumb:first-child {
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: clamp(174px, 58vw, 226px) !important;
+  height: auto !important;
+  padding: 8px 8px 34px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: #fff !important;
+  box-shadow: 0 14px 24px rgba(21, 18, 14, 0.18) !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdGalleryThumb:nth-child(3n + 1) {
+  transform: rotate(-1.6deg) !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdGalleryThumb:nth-child(3n + 2) {
+  transform: rotate(1.2deg) !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdGalleryThumb:nth-child(3n) {
+  transform: rotate(-0.4deg) !important;
+}
+
+html body .detailV13:not(.detailV13MustEat) .rdGalleryThumb img {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 3 !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+}
+
+html body .galleryLbCounter {
+  display: none !important;
+}
+
+html body .galleryLbArrow {
+  top: 50dvh !important;
+  width: 38px !important;
+  height: 38px !important;
+  transform: translateY(-50%) !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: var(--et-home-ink, #15120e) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+html body .galleryLbArrowPrev {
+  left: clamp(18px, 4vw, 56px) !important;
+}
+
+html body .galleryLbArrowNext {
+  right: clamp(18px, 4vw, 56px) !important;
+}
+
+html body .galleryLbSlide {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100vw !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100lvh !important;
+  max-height: 100lvh !important;
+  box-sizing: border-box !important;
+  padding: 34px 72px 34px !important;
+}
+
+html body .galleryLbPrint {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  width: fit-content !important;
+  max-width: min(90vw, 1040px) !important;
+  max-height: min(86dvh, 780px) !important;
+  padding: clamp(10px, 1.8vw, 18px) !important;
+  padding-bottom: clamp(38px, 5vw, 58px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42) !important;
+  overflow: visible !important;
+  transform: rotate(-0.5deg) !important;
+}
+
+html body .galleryLbImg {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: calc(90vw - 36px) !important;
+  max-height: calc(min(86dvh, 780px) - 92px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+}
+
+html body .galleryLbCredit {
+  position: absolute !important;
+  right: clamp(10px, 1.8vw, 18px) !important;
+  bottom: clamp(10px, 1.8vw, 16px) !important;
+  display: block !important;
+  max-width: calc(100% - 28px) !important;
+  margin-top: 0 !important;
+  overflow: visible !important;
+  color: rgba(21, 18, 14, 0.72) !important;
+  font-size: 10px !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+  text-align: right !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+html body .galleryLbCredit a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+@media (max-width: 600px) {
+  html body .galleryLbArrow {
+    display: none !important;
+  }
+
+  html body .galleryLbSlide {
+    padding: 56px 18px !important;
+  }
+
+  html body .galleryLbPrint {
+    max-width: calc(100vw - 34px) !important;
+    max-height: calc(100dvh - 188px) !important;
+    padding: 9px !important;
+    padding-bottom: 34px !important;
+  }
+
+  html body .galleryLbImg {
+    max-width: calc(100vw - 52px) !important;
+    max-height: calc(100dvh - 252px) !important;
+  }
 }

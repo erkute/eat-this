@@ -249,11 +249,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 26px;
-  padding: 24px;
+  gap: 20px;
+  width: min(360px, calc(100vw - 36px));
+  padding: 28px 24px;
+  border: 2px solid #0a0a0a;
+  background: #fffdf7;
+  box-shadow: 5px 5px 0 #0a0a0a;
 }
 .splashLogo {
-  width: min(74vw, 300px);
+  width: min(64vw, 250px);
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
@@ -283,10 +287,24 @@
 .splashTitle {
   margin: 0;
   font-family: var(--font-chewy), cursive;
-  font-size: clamp(26px, 8vw, 36px);
+  font-size: clamp(25px, 7vw, 34px);
+  line-height: 0.95;
   text-transform: uppercase;
   letter-spacing: -0.005em;
   color: #0a0a0a;
+  text-align: center;
+}
+.splashCopy {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+.splashCopy p {
+  max-width: 28ch;
+  margin: 0;
+  color: rgba(10, 10, 10, 0.72);
+  font-size: 14px;
+  line-height: 1.4;
   text-align: center;
 }
 

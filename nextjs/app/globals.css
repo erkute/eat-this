@@ -960,6 +960,62 @@ html[data-auth='1'] [data-guest-only] {
     font-size: 11.5px;
   }
 }
+.notification[data-variant='signed-out'] {
+  --toast-surface: #15120e;
+  --toast-ink: #fffdf7;
+  --toast-muted: rgba(255, 253, 247, 0.72);
+  --toast-line: rgba(255, 253, 247, 0.1);
+  --toast-accent: #d9382a;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 14px;
+  width: min(430px, calc(100vw - 24px));
+  min-height: 86px;
+  padding: 15px 18px 16px 14px;
+  border-radius: 8px;
+  background: var(--toast-surface);
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px var(--toast-line);
+}
+.notification[data-variant='signed-out'] .notification-mark {
+  width: 46px;
+  height: 46px;
+  background: var(--toast-accent);
+  color: #fff;
+}
+.notification[data-variant='signed-out'] .notification-mark svg {
+  width: 23px;
+  height: 23px;
+}
+.notification[data-variant='signed-out'] .notification-copy {
+  gap: 4px;
+}
+.notification[data-variant='signed-out'] .notification-eyebrow {
+  color: var(--toast-accent);
+  font-size: 10px;
+}
+.notification[data-variant='signed-out'] .notification-title {
+  color: var(--toast-ink);
+  font-size: clamp(20px, 5vw, 24px);
+  line-height: 1;
+}
+.notification[data-variant='signed-out'] .notification-detail {
+  max-width: 32ch;
+  color: var(--toast-muted);
+  font-size: 13px;
+  line-height: 1.28;
+}
+@media (max-width: 420px) {
+  .notification[data-variant='signed-out'] {
+    grid-template-columns: 42px minmax(0, 1fr);
+    min-height: 80px;
+    padding: 13px 14px 14px 12px;
+  }
+  .notification[data-variant='signed-out'] .notification-mark {
+    width: 42px;
+    height: 42px;
+  }
+}
 .navbar,
 .navbar.scrolled,
 html[data-active-page='start'] .navbar,

@@ -12,13 +12,14 @@ import type { Firestore } from 'firebase/firestore';
 // screen shows "Weiter zu eatthisdot.com" instead of the firebaseapp.com
 // project domain. (An earlier auth.eatthisdot.com subdomain attempt failed
 // because the credential return was still cross-origin; same-origin avoids
-// that entirely.) Everywhere else (localhost, staging) we keep the default
-// domain — only the production handler URL is registered as an OAuth
-// redirect URI in Google Cloud Console.
+// that entirely.) Localhost uses the same proxy path so storage-partitioned
+// browser shells can complete popup sign-in during dev too.
 const PROD_HOST = 'www.eatthisdot.com';
+const LOCAL_AUTH_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 const authDomain =
-  typeof window !== 'undefined' && window.location.hostname === PROD_HOST
-    ? PROD_HOST
+  typeof window !== 'undefined' &&
+  (window.location.hostname === PROD_HOST || LOCAL_AUTH_HOSTS.has(window.location.hostname))
+    ? window.location.host
     : 'eat-this-8a13b.firebaseapp.com';
 
 const firebaseConfig = {

@@ -141,11 +141,14 @@ function AuthActionInner() {
   if (state.kind === 'processing') {
     return (
       <main className={styles.splashPage}>
-        <div className={styles.splash}>
+        <div className={styles.splash} role="status" aria-live="polite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.splashLogo} />
           <div className={styles.bar} aria-hidden />
-          <h1 className={styles.splashTitle}>Gleich bist du drin.</h1>
+          <div className={styles.splashCopy}>
+            <h1 className={styles.splashTitle}>Dein Login-Link wird geprüft.</h1>
+            <p>Wir melden dich über deine Mail an.</p>
+          </div>
         </div>
       </main>
     );

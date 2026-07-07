@@ -439,6 +439,28 @@
   background: rgba(255, 255, 255, 0.86);
 }
 
+.loadingPanel {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  min-width: min(280px, calc(100% - 36px));
+  padding: 22px 24px;
+  color: var(--login-ink);
+  background: var(--login-paper);
+  border: 3px solid var(--login-ink);
+}
+
+.loadingPanel p {
+  margin: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.95;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .spinner {
   width: 34px;
   height: 34px;
@@ -1963,7 +1985,7 @@
 .frameModal .error {
   min-height: 16px;
   margin: -1px 0 0;
-  color: #b1261b;
+  color: #fff;
   font-family: var(--font-body, system-ui, sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -2500,7 +2522,9 @@
 .modalSigninBoosters {
   position: relative;
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
   min-width: 0;
   min-height: 0;
   overflow: visible;
@@ -2511,9 +2535,37 @@
 .modalSigninBoosterFan {
   position: relative;
   width: min(100%, 390px);
-  height: min(100%, 410px);
-  min-height: 300px;
+  height: clamp(270px, 32vw, 330px);
+  min-height: 0;
   transform: translateX(clamp(20px, 3.2vw, 40px));
+}
+
+.modalSigninBoosterLead {
+  max-width: 26ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(16px, 1.55vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-align: center;
+  transform: translateX(clamp(20px, 3.2vw, 40px));
+}
+
+.modalSigninBoosterHeadline {
+  max-width: 11ch;
+  margin: 0 0 -22px;
+  color: #fff;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(34px, 3.8vw, 50px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.88;
+  text-align: center;
+  text-transform: none;
+  transform: translateX(clamp(20px, 3.2vw, 40px)) rotate(-2deg);
+  z-index: 4;
 }
 
 .modalSigninBoosterCard {
@@ -2551,18 +2603,31 @@
   .modalSigninBoosters {
     min-height: 296px;
     overflow: hidden;
-    padding: 44px 18px 4px;
+    gap: 24px;
+    padding: 44px 18px 12px;
   }
 
   .modalSigninBoosterFan {
     width: min(100%, 330px);
-    min-height: 228px;
-    height: 228px;
+    height: 210px;
     transform: none;
   }
 
   .modalSigninBoosterCard {
     width: clamp(112px, 33vw, 136px);
+  }
+
+  .modalSigninBoosterLead {
+    max-width: 28ch;
+    font-size: clamp(14px, 3.6vw, 17px);
+    transform: none;
+  }
+
+  .modalSigninBoosterHeadline {
+    max-width: 11ch;
+    margin-bottom: 0;
+    font-size: clamp(28px, 7.6vw, 36px);
+    transform: rotate(-2deg);
   }
 
   .frameModal .modalSimpleSignin .modalLogin {

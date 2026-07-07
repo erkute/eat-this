@@ -225,8 +225,11 @@ export default function LoginPanel({
             </section>
           )}
           {signinMode && (
-            <section className={styles.modalSigninBoosters} aria-hidden="true">
-              <div className={styles.modalSigninBoosterFan}>
+            <section className={styles.modalSigninBoosters}>
+              <p className={styles.modalSigninBoosterHeadline}>
+                {t('modals.login.signinBoosterHeadline')}
+              </p>
+              <div className={styles.modalSigninBoosterFan} aria-hidden="true">
                 {SIGNIN_BOOSTER_PACKS.map((src) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -239,6 +242,9 @@ export default function LoginPanel({
                   />
                 ))}
               </div>
+              <p className={styles.modalSigninBoosterLead}>
+                {t('modals.login.signinBoosterLead')}
+              </p>
             </section>
           )}
 
@@ -479,8 +485,11 @@ export default function LoginPanel({
       )}
 
       {(googleBusy || (!loading && user)) && (
-        <div className={styles.loadingOverlay} aria-hidden="true">
-          <div className={styles.spinner} />
+        <div className={styles.loadingOverlay} role="status" aria-live="polite">
+          <div className={styles.loadingPanel}>
+            <div className={styles.spinner} aria-hidden="true" />
+            <p>{t('modals.login.googleSigningIn')}</p>
+          </div>
         </div>
       )}
     </div>

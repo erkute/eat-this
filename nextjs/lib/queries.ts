@@ -218,15 +218,26 @@ export const emailSpotCardQuery = `
   }
 `
 
-// Bezirke for the /bezirk index — includes count and image
+// Bezirke for the /bezirk index — includes count and a few example restaurants.
 export const allBezirkeWithStatsQuery = `
   *[_type == "bezirk"] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
     description,
+    descriptionEn,
     "imageUrl": ${groqImageUrl('image', 'card')},
-    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false])
+    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]),
+    "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
+      | order(coalesce(featured, false) desc, name asc)[0...3] {
+        _id,
+        name,
+        "slug": slug.current,
+        cuisineType,
+        shortDescription,
+        shortDescriptionEn,
+        "photo": ${publishableRestaurantImageUrl('image', 'card')}
+      }
   }
 `
 

@@ -108,6 +108,12 @@
   cursor: default;
 }
 
+.emailButton:hover:not(:disabled),
+.emailButton:focus-visible:not(:disabled) {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-red);
+}
+
 .emailError {
   display: block;
   margin-top: 7px;

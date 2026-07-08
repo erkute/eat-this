@@ -34,6 +34,7 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locating ? 'loading' : 'idle'}`
     : null;
   const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
+  const [locationSuccessKey, setLocationSuccessKey] = useState(0);
   // The first client render must match SSR (anon initialMapData + Mitte). Only
   // after mount switch to live data (which may be the cached signed-in payload)
   // + the resolved geolocation — otherwise the nearby list/distances mismatch
@@ -42,6 +43,11 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
   useEffect(() => {
     setMounted(true);
   }, []);
+  useEffect(() => {
+    if (!locationSuccessKey) return;
+    const timeout = window.setTimeout(() => setLocationSuccessKey(0), 3600);
+    return () => window.clearTimeout(timeout);
+  }, [locationSuccessKey]);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
   const loc = activeLocation ?? MITTE;
@@ -54,9 +60,16 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
   const showLocationStatus = Boolean(
     mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
   );
-  const handleLocate = () => {
+  const showLocationSuccess = Boolean(mounted && locationSuccessKey && !showLocationStatus);
+  const locationSuccessCopy =
+    locale === 'en'
+      ? 'Location locked. Berlin is sorting around you.'
+      : 'Standort sitzt. Berlin sortiert sich um dich herum.';
+  const handleLocate = async () => {
     setDismissedLocationStatusKey(null);
-    void request();
+    setLocationSuccessKey(0);
+    const nextLocation = await request();
+    if (nextLocation) setLocationSuccessKey(Date.now());
   };
   const handleDismissLocationStatus = () => {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
@@ -71,7 +84,7 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
         data-auth-only={authMode ? '' : undefined}
       >
         <div className="hv-head">
-          <h2 className="hv-title">
+          <h2 className={`hv-title ${styles.title}`}>
             <span className="hv-mk" aria-hidden="true" />
             {title}
           </h2>
@@ -127,12 +140,14 @@ export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de
         </div>
       </section>
 
-      {showLocationStatus && (
+      {(showLocationStatus || showLocationSuccess) && (
         <div
-          className={`${styles.locationLayer} ${locationStatus.isError ? styles.locationLayerError : ''}`}
+          className={`${styles.locationLayer} ${locationStatus.isError ? styles.locationLayerError : ''} ${showLocationSuccess ? styles.locationLayerSuccess : ''}`}
           role={locationStatus.isError ? 'alert' : 'status'}
         >
-          <span className={styles.locationText}>{locationStatus.copy}</span>
+          <span className={styles.locationText}>
+            {showLocationSuccess ? locationSuccessCopy : locationStatus.copy}
+          </span>
           {locationStatus.isError && (
             <button
               type="button"

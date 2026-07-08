@@ -32,6 +32,12 @@
 
 .dishImg :global(img) {
   object-fit: contain;
+  transition: transform 180ms ease;
+}
+
+.dishLink:hover .dishImg :global(img),
+.dishLink:focus-visible .dishImg :global(img) {
+  transform: translateY(-4px);
 }
 
 .dishName {
@@ -54,6 +60,11 @@
   line-height: 1;
   color: var(--home-muted);
   text-decoration: none;
+}
+
+.rest:hover,
+.rest:focus-visible {
+  color: var(--et-home-red);
 }
 
 @media (min-width: 761px) {

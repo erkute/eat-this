@@ -8,6 +8,7 @@ import { useAuth, useMagicLink } from '@/lib/auth';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
+import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
 import styles from '@/app/[locale]/login/login.module.css';
 
 const SIGNIN_BOOSTER_PACKS = [
@@ -68,6 +69,14 @@ export default function LoginPanel({
   // skip it here to avoid a double-navigation.
   useEffect(() => {
     if (loading || !user || modal) return;
+    try {
+      sessionStorage.setItem(
+        TOAST_HANDOFF_KEY,
+        locale === 'de' ? 'Du bist angemeldet' : "You're signed in"
+      );
+    } catch {
+      /* private mode */
+    }
     void postLoginRedirect(user.uid, router, locale);
   }, [user, loading, modal, router, locale]);
 

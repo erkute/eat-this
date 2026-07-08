@@ -1010,6 +1010,7 @@
   padding: 0 12px;
   box-sizing: border-box;
   pointer-events: auto;
+  touch-action: manipulation;
 }
 /* Collapsed search — square glass button mirroring the burger, top-left. */
 .mapSearchBtn {
@@ -1029,6 +1030,7 @@
   border-radius: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   appearance: none;
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -1063,6 +1065,7 @@
   place-items: center;
   cursor: pointer;
   color: var(--c-black);
+  touch-action: manipulation;
   flex: 0 0 auto;
 }
 .mapSearchClear:hover {
@@ -10069,7 +10072,13 @@ html .mapSearchToolbar .mapSearchIcon {
 
 html .mapSearchInput {
   min-width: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
   height: 100% !important;
+  outline: 0 !important;
   color: currentColor !important;
   caret-color: currentColor !important;
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
@@ -10084,6 +10093,15 @@ html .mapSearchInput::placeholder {
   color: currentColor !important;
   opacity: 0.55 !important;
   font: inherit !important;
+}
+
+html .mapSearchInput::-webkit-search-decoration,
+html .mapSearchInput::-webkit-search-cancel-button,
+html .mapSearchInput::-webkit-search-results-button,
+html .mapSearchInput::-webkit-search-results-decoration {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  display: none !important;
 }
 
 html .mapSearchClear {
@@ -10102,8 +10120,7 @@ html .mapSearchClear:hover,
 html .mapSearchClear:focus-visible {
   background: transparent !important;
   color: currentColor !important;
-  outline: 2px solid currentColor !important;
-  outline-offset: 2px !important;
+  outline: 0 !important;
 }
 
 @media (max-width: 520px) {
@@ -10115,15 +10132,15 @@ html .mapSearchClear:focus-visible {
   }
 
   html .mapSearchInput {
-    font-size: 15px !important;
+    font-size: 16px !important;
   }
 }
 
 /* Collapsed map search: frame-free, but visually related to the compact
    black search field through scale, weight, and the same ink colour. */
 html .mapSearchBtn {
-  top: 18px !important;
-  left: 18px !important;
+  top: 14px !important;
+  left: 14px !important;
   right: auto !important;
   width: 42px !important;
   min-width: 42px !important;
@@ -10538,7 +10555,12 @@ html .detailV13:not(.detailV13MustEat) .rdTagAlt {
 }
 
 html .detailV13:not(.detailV13MustEat) .rdTagOpen {
-  background: var(--et-home-ink, #15120e) !important;
+  background: #1f8f4d !important;
+  color: #fff !important;
+}
+
+html .detailV13:not(.detailV13MustEat) .rdTagClosed {
+  background: #d9382a !important;
   color: #fff !important;
 }
 
@@ -12179,7 +12201,7 @@ html body .detailV13MustEat .fdPagerNext:disabled {
 html body .pickerSheet .pickerItem,
 html body .pickerSheet .pickerItemLabel {
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: 11px !important;
+  font-size: 15px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: 1.1 !important;
@@ -12188,7 +12210,7 @@ html body .pickerSheet .pickerItemLabel {
 
 html body .pickerSheet .pickerItemSub {
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: 1.1 !important;
@@ -13026,7 +13048,7 @@ html body .filterChipOpenActive,
 html body .filterChipRow > .filterChipOpenActive {
   background: #1f8f4d !important;
   color: #fff !important;
-  border-color: #15120e !important;
+  border: 0 !important;
 }
 
 html body .filterChipOpenActive .filterChipLabel {
@@ -13246,23 +13268,23 @@ html body .filterChipRow .filterChipOpenActive,
 html body .filterChipRow > .filterChipOpenActive {
   background: #1f8f4d !important;
   color: #fff !important;
-  border-color: #15120e !important;
+  border: 0 !important;
 }
 
 /* Map filter picker: editorial popover instead of a plain system list. */
 html body .pickerBackdrop {
-  background: rgba(21, 18, 14, 0.1) !important;
+  background: rgba(21, 18, 14, 0.08) !important;
 }
 
 html body .pickerSheet {
   overflow: visible !important;
   width: min(360px, calc(100vw - 24px)) !important;
   padding: 8px !important;
-  background: var(--et-home-ink, #15120e) !important;
-  color: var(--et-home-inverse-text, #fff) !important;
-  border: 0 !important;
+  background: var(--et-home-paper, #fff) !important;
+  color: var(--et-home-ink, #15120e) !important;
+  border: 1px solid rgba(21, 18, 14, 0.14) !important;
   border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: 0 18px 42px rgba(21, 18, 14, 0.26) !important;
+  box-shadow: 0 18px 38px rgba(21, 18, 14, 0.16) !important;
 }
 
 html body .pickerSheet::before {
@@ -13272,7 +13294,9 @@ html body .pickerSheet::before {
   left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px)) !important;
   width: 14px !important;
   height: 14px !important;
-  background: var(--et-home-ink, #15120e) !important;
+  background: var(--et-home-paper, #fff) !important;
+  border-left: 1px solid rgba(21, 18, 14, 0.14) !important;
+  border-top: 1px solid rgba(21, 18, 14, 0.14) !important;
   transform: rotate(45deg) !important;
 }
 
@@ -13321,7 +13345,8 @@ html body .pickerClose {
 
 html body .pickerClose:hover,
 html body .pickerClose:focus-visible {
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(21, 18, 14, 0.08) !important;
+  color: var(--et-home-ink, #15120e) !important;
   outline: 0 !important;
 }
 
@@ -13329,9 +13354,10 @@ html body .pickerList {
   display: grid !important;
   gap: 7px !important;
   max-height: min(58vh, 470px) !important;
-  padding: 0 !important;
+  padding: 0 0 14px !important;
   overflow-y: auto !important;
   background: transparent !important;
+  scroll-padding-bottom: 14px !important;
 }
 
 html body .pickerItem {
@@ -13341,8 +13367,8 @@ html body .pickerItem {
   align-items: center !important;
   min-height: 42px !important;
   padding: 10px 12px !important;
-  background: #fff !important;
-  color: var(--et-home-ink, #15120e) !important;
+  background: var(--et-home-ink, #15120e) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
   border: 0 !important;
   border-radius: var(--et-radius-control, 7px) !important;
   box-shadow: none !important;
@@ -13357,33 +13383,23 @@ html body .pickerItem {
 
 html body .pickerItem:hover,
 html body .pickerItem:focus-visible {
-  background: var(--et-home-accent, #ffc600) !important;
-  color: var(--et-home-ink, #15120e) !important;
+  background: rgba(21, 18, 14, 0.86) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
   outline: 0 !important;
-  transform: translateX(3px) !important;
+  transform: none !important;
 }
 
 html body .pickerItemActive,
 html body .pickerItemActive:hover,
 html body .pickerItemActive:focus-visible {
-  background: var(--et-home-accent, #ffc600) !important;
-  color: var(--et-home-ink, #15120e) !important;
-  transform: rotate(-0.8deg) !important;
+  background: var(--et-home-ink, #15120e) !important;
+  color: var(--et-home-inverse-text, #fff) !important;
+  transform: none !important;
 }
 
 html body .pickerItemActive::after {
-  content: '✓' !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 20px !important;
-  height: 20px !important;
-  margin-left: 10px !important;
-  border-radius: 50% !important;
-  background: var(--et-home-ink, #15120e) !important;
-  color: #fff !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
+  content: none !important;
+  display: none !important;
 }
 
 html body .pickerItemLabel,
@@ -13404,7 +13420,7 @@ html body .pickerItemLabel {
 }
 
 html body .pickerItemSub {
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 750 !important;
   opacity: 0.62 !important;
 }
@@ -13441,7 +13457,7 @@ html body .filterChipRow > .filterChipOpenActive,
 html body .filterChipRow .filterChip[aria-pressed='true'] {
   background: #1f8f4d !important;
   color: #fff !important;
-  border-color: #15120e !important;
+  border: 0 !important;
 }
 
 html body .filterChipRow .filterChipOpenActive .filterChipLabel,
@@ -13458,7 +13474,7 @@ html body .filterChipRow .filterChip[aria-pressed='true']:hover,
 html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible {
   background: #176f3c !important;
   color: #fff !important;
-  border-color: #15120e !important;
+  border: 0 !important;
 }
 
 html body .filterChipRow .filterChipOpenActive:hover .filterChipLabel,

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
@@ -39,11 +40,22 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
-  const bezirkUrl = (slug: string) =>
-    locale === 'de' ? `/bezirk/${slug}` : `/${locale}/bezirk/${slug}`
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
   const bezirke = (await getAllBezirkeWithStats()).filter(b => (b.restaurantCount ?? 0) > 0)
+  const featured = bezirke.find(b => (b.exampleRestaurants?.length ?? 0) > 0) ?? bezirke[0]
+  const featuredExamples = featured?.exampleRestaurants ?? []
+  const spotLabel = (count?: number) =>
+    count === 1
+      ? (de ? '1 Spot' : '1 spot')
+      : (de ? `${count ?? 0} Spots` : `${count ?? 0} spots`)
+  const restaurantDescription = (restaurant: (typeof featuredExamples)[number]) =>
+    de
+      ? restaurant.shortDescription
+      : restaurant.shortDescriptionEn ?? restaurant.shortDescription
+  const featuredDescription = featured
+    ? (de ? featured.description : featured.descriptionEn ?? featured.description)
+    : null
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -75,24 +87,87 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={styles.hero}>
-          <div className={styles.kicker}>{de ? 'Bezirke' : 'Districts'}</div>
+        <header className={`${styles.hero} ${styles.indexHero}`}>
           <h1 className={styles.h1}>
-            {de ? 'Restaurants nach Bezirk' : 'Restaurants by district'}
+            {de ? 'Berlin nach Bezirk' : 'Berlin by district'}
           </h1>
           <p className={styles.sub}>
             {de
-              ? 'Wähle einen Bezirk, um die kuratierte Restaurant-Auswahl zu sehen.'
-              : 'Pick a district to see the curated restaurant selection.'}
+              ? 'Mitte ist nicht Neukölln, Charlottenburg nicht Wedding. Such dir den Bezirk aus - wir zeigen dir die Läden, für die wir wirklich nochmal hinfahren würden.'
+              : "Mitte is not Neukölln, Charlottenburg is not Wedding. Pick a district - we'll show you the places we'd cross town for again."}
           </p>
         </header>
 
-        <section className={styles.bezirkGrid}>
-          {bezirke.map(b => (
-            <Link key={b._id} href={bezirkUrl(b.slug)} className={styles.bezirkCard}>
-              <span className={styles.bezirkName}>{b.name}</span>
-            </Link>
-          ))}
+        {featured && (
+          <section className={styles.featuredDistrict} aria-label={de ? 'Erster Bezirk' : 'Featured district'}>
+            <div className={styles.featuredCopy}>
+              <span className={styles.featuredLabel}>{de ? 'Direkt rein' : 'Start here'}</span>
+              <h2 className={styles.featuredName}>{featured.name}</h2>
+              <p className={styles.featuredText}>
+                {featuredDescription || (de
+                  ? `Unsere kuratierte Auswahl für ${featured.name}, sortiert für den schnellen Einstieg.`
+                  : `Our curated selection for ${featured.name}, arranged for a quick start.`)}
+              </p>
+              <div className={styles.featuredActions}>
+                <Link href={`/bezirk/${featured.slug}`} className={styles.featuredPrimary}>
+                  {de ? `${featured.name} öffnen` : `Open ${featured.name}`}
+                </Link>
+                <Link href={`/map?bezirk=${featured.slug}`} className={styles.featuredSecondary} rel="nofollow">
+                  {de ? 'Auf der Map' : 'On the map'}
+                </Link>
+              </div>
+            </div>
+            {featuredExamples.length > 0 && (
+              <div className={styles.featuredExamples} aria-label={de ? `Beispiel-Restaurants in ${featured.name}` : `Example restaurants in ${featured.name}`}>
+                {featuredExamples.map(restaurant => (
+                  <Link key={restaurant._id} href={`/restaurant/${restaurant.slug}`} className={styles.featuredExample}>
+                    {restaurant.photo && (
+                      <span className={styles.featuredExamplePhoto}>
+                        <Image
+                          src={restaurant.photo}
+                          alt=""
+                          fill
+                          sizes="84px"
+                        />
+                      </span>
+                    )}
+                    <span className={styles.featuredExampleCopy}>
+                      {restaurant.cuisineType && (
+                        <span className={styles.featuredExampleMeta}>{restaurant.cuisineType}</span>
+                      )}
+                      <span className={styles.featuredExampleName}>{restaurant.name}</span>
+                      {restaurantDescription(restaurant) && (
+                        <span className={styles.featuredExampleText}>{restaurantDescription(restaurant)}</span>
+                      )}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        <section className={styles.districtsBlock} aria-label={de ? 'Alle Bezirke' : 'All districts'}>
+          <div className={styles.districtsIntro}>
+            <h2>{de ? 'Alle Bezirke' : 'All districts'}</h2>
+          </div>
+          <div className={styles.bezirkGrid}>
+            {bezirke.map(b => (
+              <Link key={b._id} href={`/bezirk/${b.slug}`} className={styles.bezirkCard}>
+                <span className={styles.bezirkName}>{b.name}</span>
+                <span className={styles.bezirkMeta}>{spotLabel(b.restaurantCount)}</span>
+                {(b.exampleRestaurants?.length ?? 0) > 0 && (
+                  <span className={styles.bezirkExamples}>
+                    {b.exampleRestaurants?.slice(0, 3).map(restaurant => (
+                      <span key={restaurant._id} className={styles.bezirkExample}>
+                        {restaurant.name}
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
         </section>
 
       </main>

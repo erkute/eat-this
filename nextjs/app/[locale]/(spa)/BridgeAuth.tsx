@@ -26,6 +26,7 @@ import { useUserProfile } from '@/lib/firebase/useUserProfile';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
+import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
 import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 import loginPanelStyles from '@/app/[locale]/login/login.module.css';
 
@@ -45,6 +46,14 @@ export default function BridgeAuth() {
   // redirect rather than relying on the soon-to-unmount LoginPanel's effect.
   useEffect(() => {
     if (loading || !user || !loginOpen) return;
+    try {
+      sessionStorage.setItem(
+        TOAST_HANDOFF_KEY,
+        locale === 'de' ? 'Du bist angemeldet' : "You're signed in"
+      );
+    } catch {
+      /* private mode */
+    }
     void postLoginRedirect(user.uid, router, locale);
   }, [user, loading, loginOpen, router, locale]);
 

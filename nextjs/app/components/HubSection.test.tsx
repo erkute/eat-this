@@ -76,6 +76,7 @@ describe('HubSection home', () => {
   it('hero links to the map', () => {
     const html = renderHome();
     expect(html).toContain('Map öffnen');
+    expect(html).toContain('Was ist um mich?');
     expect(html).toContain('href="/map"');
   });
 

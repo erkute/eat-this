@@ -1339,10 +1339,18 @@ html[data-active-page="start"] .burger-btn {
 
 /* Logo — cream wordmark, centered on the ink sheet */
 .bd-logo {
+  display: block;
   width: clamp(150px, 46vw, 220px);
   margin: 0 auto;
   justify-self: center;
+  text-decoration: none;
   transform: translateY(-4px);
+  transition: transform 0.15s ease;
+}
+.bd-logo:hover,
+.bd-logo:focus-visible {
+  outline: 0;
+  transform: translateY(-7px);
 }
 .bd-logo img {
   display: block;

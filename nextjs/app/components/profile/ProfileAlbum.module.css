@@ -6,13 +6,16 @@
   --album-muted: var(--profile-muted, rgba(21, 18, 14, 0.64));
   --album-line: var(--profile-line, rgba(21, 18, 14, 0.2));
   --album-quiet: var(--profile-quiet, var(--et-home-quiet, #f2f1ef));
+  --album-warm: var(--profile-warm, var(--et-home-panel-warm, #fff4cc));
   --album-red: var(--profile-red, var(--et-home-red, #d9382a));
   --album-display: var(--profile-display, var(--et-font-display), sans-serif);
   --album-label: var(--profile-label, var(--et-font-label), monospace);
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: clamp(20px, 3vw, 34px);
+  gap: clamp(18px, 3vw, 30px);
   color: var(--album-ink);
-  background: var(--album-paper);
+  background: transparent;
 }
 
 .head {
@@ -24,22 +27,22 @@
 
 .title {
   margin: 0;
-  color: var(--album-ink);
+  color: #15120e;
   font-family: var(--album-display);
-  font-size: clamp(28px, 3.2vw, 44px);
+  font-size: clamp(34px, 5vw, 68px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.9;
+  line-height: 0.82;
   text-transform: uppercase;
 }
 
 .count {
   flex: 0 0 auto;
-  min-height: 34px;
-  padding: 9px 12px 0;
-  color: var(--profile-inverse, #fff);
-  background: var(--album-ink);
-  border-radius: var(--et-radius-control, 7px);
+  min-height: 0;
+  padding: 0;
+  color: var(--album-ink);
+  background: transparent;
+  border-radius: 0;
   font-family: var(--album-label);
   font-size: 10px;
   font-weight: 700;
@@ -51,7 +54,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: clamp(12px, 2vw, 22px);
+  gap: clamp(12px, 2vw, 20px);
   align-items: start;
 }
 
@@ -65,6 +68,7 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
+  filter: drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1));
   transition:
     transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 180ms ease;
@@ -77,7 +81,9 @@
 }
 
 .slot:focus-visible {
-  filter: drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-red) 42%, transparent));
+  filter:
+    drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1))
+    drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-red) 42%, transparent));
 }
 
 .empty .backImg {

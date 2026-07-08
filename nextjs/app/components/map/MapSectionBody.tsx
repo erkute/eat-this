@@ -378,7 +378,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 the tiles). Tapping expands the full input; it stays open
                 while a query is active so the filter is never invisible. */}
             {searchOpen || search ? (
-              <div className={styles.mapSearchToolbar}>
+              <div
+                className={styles.mapSearchToolbar}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
                   <circle
                     cx="10.8"
@@ -439,7 +443,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <button
                 type="button"
                 className={styles.mapSearchBtn}
-                onClick={() => setSearchOpen(true)}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchOpen(true);
+                }}
                 aria-label={searchLabel}
               >
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">

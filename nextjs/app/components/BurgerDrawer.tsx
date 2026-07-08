@@ -85,10 +85,10 @@ export default function BurgerDrawer() {
 
           </div>
 
-          <div className="bd-logo">
+          <Link href="/" className="bd-logo" aria-label="Eat This — Home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" width="660" height="265" />
-          </div>
+          </Link>
 
           <nav className="bd-nav" aria-label="Primary">
             <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>

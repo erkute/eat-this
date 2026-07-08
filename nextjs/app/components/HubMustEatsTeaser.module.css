@@ -99,6 +99,11 @@
   transform: translateY(-4px);
 }
 
+.cardLink:hover .card,
+.cardLink:focus-visible .card {
+  transform: translateY(-4px);
+}
+
 /* ── Card meta (dish + restaurant) ────────────────────────────────────────── */
 .meta {
   display: grid;
@@ -139,6 +144,11 @@
   text-transform: none;
 }
 
+.restaurantLink:hover :global(.hv-sub),
+.restaurantLink:focus-visible :global(.hv-sub) {
+  color: var(--et-home-red);
+}
+
 /* ── Footer row: must-eats CTA + accent commerce CTA ──────────────────────── */
 .foot {
   display: flex;
@@ -146,6 +156,12 @@
   align-items: center;
   gap: clamp(10px, 2vw, 18px);
   margin-top: clamp(8px, 1.5vw, 16px);
+}
+
+.foot :global(.hv-btn):hover,
+.foot :global(.hv-btn):focus-visible {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-red);
 }
 
 /* ── Mobile ────────────────────────────────────────────────────────────────── */

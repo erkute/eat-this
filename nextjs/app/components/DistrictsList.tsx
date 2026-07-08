@@ -1,4 +1,5 @@
 import { normalizeName } from '@/lib/normalizeName';
+import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import type { HubDistrict } from '@/lib/home/getHomeData';
 import styles from './DistrictsList.module.css';
@@ -16,11 +17,13 @@ export default function DistrictsList({ districts, locale }: Props) {
       aria-label={locale === 'en' ? 'By district' : 'Nach Bezirk'}
     >
       <div className="hv-head">
-        <h2 className="hv-title">
+        <h2 className={`hv-title ${styles.title}`}>
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'By district' : 'Nach Bezirk'}
         </h2>
-        <span className="hv-link">{locale === 'en' ? 'All' : 'Alle'} →</span>
+        <Link href="/bezirk" className={`hv-link ${styles.allLink}`}>
+          {locale === 'en' ? 'All' : 'Alle'} →
+        </Link>
       </div>
       <div className={styles.rows}>
         {districts.map((d) => (

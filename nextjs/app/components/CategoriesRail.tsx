@@ -17,7 +17,9 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
   const entries = Object.entries(categoryNames);
   const { sendLink, state: magicState, errorMessage: magicError, reset: resetMagicLink } = useMagicLink();
   const emailId = useId();
+  const emailErrorId = `${emailId}-error`;
   const [email, setEmail] = useState('');
+  const [validationError, setValidationError] = useState('');
   if (!entries.length) return null;
 
   const copy =
@@ -29,6 +31,8 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
           sent: 'Check your mail',
           packCta: 'Open',
           submit: 'Sign in',
+          emptyEmail: 'Add your email first.',
+          invalidEmail: 'That does not look like an email yet.',
         }
       : {
           emailAria: 'E-Mail Adresse',
@@ -37,11 +41,24 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
           sent: 'Check deine Mail',
           packCta: 'Öffnen',
           submit: 'Anmelden',
+          emptyEmail: 'Bitte gib deine E-Mail ein.',
+          invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
         };
+  const emailFeedback = validationError || magicError;
   const handleStarterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email.trim() || magicState === 'sending') return;
-    void sendLink(email.trim());
+    if (magicState === 'sending') return;
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setValidationError(copy.emptyEmail);
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setValidationError(copy.invalidEmail);
+      return;
+    }
+    setValidationError('');
+    void sendLink(trimmedEmail);
   };
 
   return (
@@ -56,7 +73,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
         </h2>
       </div>
       <div className={styles.grid}>
-        <form className={`${styles.card} ${styles.starterCard}`} onSubmit={handleStarterSubmit}>
+        <form className={`${styles.card} ${styles.starterCard}`} onSubmit={handleStarterSubmit} noValidate>
           <span className={`hv-cap ${styles.starterTitle}`}>Starter Pack</span>
           <span className={`${styles.photo} ${styles.starterPhoto}`}>
             <Image src="/pics/booster/booster_free.webp" alt="" fill sizes="(max-width:760px) 58vw, 220px" />
@@ -74,18 +91,25 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             value={email}
             onChange={(event) => {
               setEmail(event.target.value);
+              setValidationError('');
               if (magicState !== 'idle') resetMagicLink();
             }}
+            aria-invalid={Boolean(emailFeedback)}
+            aria-describedby={emailFeedback ? emailErrorId : undefined}
             required
           />
           <button
             className={styles.emailButton}
             type="submit"
-            disabled={magicState === 'sending' || !email.trim()}
+            disabled={magicState === 'sending'}
           >
             {magicState === 'sent' ? copy.sent : magicState === 'sending' ? copy.sending : copy.submit}
           </button>
-          {magicError && <span className={styles.emailError}>{magicError}</span>}
+          {emailFeedback && (
+            <span id={emailErrorId} className={styles.emailError} role="alert">
+              {emailFeedback}
+            </span>
+          )}
         </form>
         {entries.map(([slug, name]) => {
           const art = categoryArt(slug);

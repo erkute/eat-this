@@ -687,7 +687,7 @@
   border-bottom: 0;
 }
 
-.indexHero .h1 {
+.page .indexHero .h1 {
   font-family: var(--et-font-display);
   max-width: 9ch;
   font-size: clamp(60px, 14vw, 138px);
@@ -700,19 +700,6 @@
 .indexHero .sub {
   max-width: 44ch;
   margin: 0;
-}
-
-.indexHeroCount {
-  width: fit-content;
-  max-width: 100%;
-  background: var(--yellow);
-  color: var(--ink);
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-mono);
-  font-size: clamp(12px, 1.6vw, 15px);
-  font-weight: 900;
-  line-height: 1.1;
-  padding: 9px 12px 10px;
 }
 
 .featuredDistrict {
@@ -747,16 +734,17 @@
   margin-bottom: 14px;
 }
 
-.featuredName {
+.page .featuredDistrict .featuredName {
   font-family: var(--et-font-display);
-  font-size: clamp(42px, 7vw, 74px);
+  font-size: clamp(22px, 7.2vw, 30px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.9;
   text-transform: uppercase;
   color: var(--cream);
   margin: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  white-space: nowrap;
 }
 
 .featuredText {
@@ -802,26 +790,71 @@
   border-bottom: 2px solid var(--yellow);
 }
 
-.featuredMedia {
-  position: relative;
-  display: block;
+.featuredExamples {
+  display: grid;
   align-self: center;
-  aspect-ratio: 4 / 3;
+  gap: 10px;
   width: calc(100% - clamp(32px, 6vw, 72px));
-  min-height: 0;
   margin: clamp(16px, 3vw, 36px);
-  border-radius: var(--et-radius-photo);
-  overflow: hidden;
-  background: var(--cream);
-  color: inherit;
 }
 
-.featuredMedia img {
-  object-fit: contain;
+.featuredExample {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--et-radius-control);
+  background: var(--cream);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.featuredExample:hover {
+  background: var(--yellow);
+  transform: translateY(-2px);
+}
+
+.featuredExampleMeta {
+  font-family: var(--et-font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.featuredExampleName {
+  font-family: var(--et-font-display);
+  font-size: clamp(22px, 4.8vw, 31px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.95;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.featuredExampleText {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
 }
 
 .districtsBlock {
   margin-bottom: 32px;
+}
+
+@media (max-width: 560px) {
+  .page .featuredDistrict .featuredName {
+    font-size: clamp(21px, 5.9vw, 28px);
+    max-width: 100%;
+  }
 }
 
 .districtsIntro {
@@ -831,7 +864,7 @@
   margin-bottom: 18px;
 }
 
-.districtsIntro h2 {
+.page .districtsBlock .districtsIntro h2 {
   font-family: var(--et-font-display);
   font-size: clamp(38px, 8vw, 72px);
   font-weight: 700;
@@ -854,7 +887,7 @@
 }
 
 .bezirkCard {
-  min-height: 148px;
+  min-height: 172px;
   padding: 18px;
   background: #fff;
   border-bottom: 0;
@@ -862,15 +895,16 @@
   transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
 }
 
-.bezirkCard:hover {
-  background: var(--et-home-red);
-  color: var(--cream);
+.page .districtsBlock .bezirkCard:hover {
+  background: var(--et-home-panel-warm);
+  color: var(--ink);
   transform: translateY(-3px);
 }
 
-.bezirkCard:hover .bezirkName,
-.bezirkCard:hover .bezirkMeta {
-  color: var(--cream);
+.page .districtsBlock .bezirkCard:hover .bezirkName,
+.page .districtsBlock .bezirkCard:hover .bezirkMeta,
+.page .districtsBlock .bezirkCard:hover .bezirkExamples {
+  color: var(--ink);
 }
 
 .bezirkName {
@@ -895,21 +929,45 @@
   line-height: 1;
 }
 
+.bezirkExamples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.bezirkExample {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bezirkExample:not(:last-child)::after {
+  content: "/";
+  color: var(--yellow);
+  margin-left: 10px;
+}
+
 @media (min-width: 720px) {
   .indexHero {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 0.48fr);
     align-items: flex-end;
   }
 
-  .indexHeroCount {
-    justify-self: start;
-  }
-
   .featuredDistrict {
     grid-template-columns: minmax(0, 1fr) minmax(300px, 0.82fr);
   }
 
-  .featuredMedia {
+  .page .featuredDistrict .featuredName {
+    font-size: clamp(26px, 3.5vw, 28px);
+  }
+
+  .featuredExamples {
     width: calc(100% - clamp(32px, 5vw, 64px));
   }
 
@@ -930,8 +988,12 @@
     margin-top: 32px;
   }
 
-  .indexHero .h1 {
+  .page .indexHero .h1 {
     font-size: clamp(82px, 8.4vw, 116px);
+  }
+
+  .page .featuredDistrict .featuredName {
+    font-size: clamp(36px, 3.3vw, 47px);
   }
 
   .bezirkGrid {
@@ -939,6 +1001,6 @@
   }
 
   .bezirkName {
-    font-size: clamp(28px, 2.35vw, 32px);
+    font-size: clamp(24px, 2.35vw, 32px);
   }
 }

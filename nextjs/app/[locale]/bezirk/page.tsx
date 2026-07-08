@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getAllBezirkeWithStats } from '@/lib/sanity.server'
@@ -43,12 +42,16 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
   const bezirke = (await getAllBezirkeWithStats()).filter(b => (b.restaurantCount ?? 0) > 0)
-  const featured = bezirke.find(b => b.imageUrl) ?? bezirke[0]
-  const featuredImage = featured?.imageUrl ?? '/pics/home-dishes/gazzo-aubergine.webp'
+  const featured = bezirke.find(b => (b.exampleRestaurants?.length ?? 0) > 0) ?? bezirke[0]
+  const featuredExamples = featured?.exampleRestaurants ?? []
   const spotLabel = (count?: number) =>
     count === 1
       ? (de ? '1 Spot' : '1 spot')
       : (de ? `${count ?? 0} Spots` : `${count ?? 0} spots`)
+  const restaurantDescription = (restaurant: (typeof featuredExamples)[number]) =>
+    de
+      ? restaurant.shortDescription
+      : restaurant.shortDescriptionEn ?? restaurant.shortDescription
   const featuredDescription = featured
     ? (de ? featured.description : featured.descriptionEn ?? featured.description)
     : null
@@ -92,9 +95,6 @@ export default async function BezirkIndexPage({ params }: PageProps) {
               ? 'Mitte ist nicht Neukölln, Charlottenburg nicht Wedding. Such dir den Bezirk aus - wir zeigen dir die Läden, für die wir wirklich nochmal hinfahren würden.'
               : "Mitte is not Neukölln, Charlottenburg is not Wedding. Pick a district - we'll show you the places we'd cross town for again."}
           </p>
-          <div className={styles.indexHeroCount}>
-            {de ? `${bezirke.length} Bezirke mit kuratierten Spots` : `${bezirke.length} districts with curated spots`}
-          </div>
         </header>
 
         {featured && (
@@ -116,16 +116,20 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                 </Link>
               </div>
             </div>
-            {featuredImage && (
-              <Link href={`/bezirk/${featured.slug}`} className={styles.featuredMedia} aria-label={featured.name}>
-                <Image
-                  src={featuredImage}
-                  alt=""
-                  fill
-                  sizes="(max-width: 760px) 100vw, 460px"
-                  priority
-                />
-              </Link>
+            {featuredExamples.length > 0 && (
+              <div className={styles.featuredExamples} aria-label={de ? `Beispiel-Restaurants in ${featured.name}` : `Example restaurants in ${featured.name}`}>
+                {featuredExamples.map(restaurant => (
+                  <Link key={restaurant._id} href={`/restaurant/${restaurant.slug}`} className={styles.featuredExample}>
+                    {restaurant.cuisineType && (
+                      <span className={styles.featuredExampleMeta}>{restaurant.cuisineType}</span>
+                    )}
+                    <span className={styles.featuredExampleName}>{restaurant.name}</span>
+                    {restaurantDescription(restaurant) && (
+                      <span className={styles.featuredExampleText}>{restaurantDescription(restaurant)}</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
             )}
           </section>
         )}
@@ -139,6 +143,15 @@ export default async function BezirkIndexPage({ params }: PageProps) {
               <Link key={b._id} href={`/bezirk/${b.slug}`} className={styles.bezirkCard}>
                 <span className={styles.bezirkName}>{b.name}</span>
                 <span className={styles.bezirkMeta}>{spotLabel(b.restaurantCount)}</span>
+                {(b.exampleRestaurants?.length ?? 0) > 0 && (
+                  <span className={styles.bezirkExamples}>
+                    {b.exampleRestaurants?.slice(0, 3).map(restaurant => (
+                      <span key={restaurant._id} className={styles.bezirkExample}>
+                        {restaurant.name}
+                      </span>
+                    ))}
+                  </span>
+                )}
               </Link>
             ))}
           </div>

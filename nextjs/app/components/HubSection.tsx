@@ -24,7 +24,7 @@ interface Props {
 
 const copy = {
   de: {
-    heroCta: 'Zur Map',
+    heroCta: 'Map öffnen',
     spotDay: 'Spot des Tages',
   },
   en: {
@@ -40,9 +40,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
   return (
     <div className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
       <HubHashScroll />
-      <HubDeineWelt initialMapData={initialMapData} />
+      <HubDeineWelt spotOfDay={spot} />
 
-      <section className={`hv-wrap ${styles.hero}`} aria-label={t.spotDay}>
+      <section className={`hv-wrap ${styles.hero}`} data-guest-only="" aria-label={t.spotDay}>
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
             <span className={`hv-kicker ${styles.heroKicker}`}>
@@ -55,7 +55,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             </h1>
             <div className={styles.heroActions}>
               <MapIntentLink
-                href={spot ? `/map?r=${spot.slug}` : '/map'}
+                href="/map"
                 rel="nofollow"
                 className="hv-btn"
               >
@@ -74,7 +74,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
             >
               {spot.image && (
-                <Image src={spot.image} alt="" fill priority sizes="(max-width:760px) 92vw, 46vw" />
+                <Image src={spot.image} alt="" fill priority sizes="(max-width:760px) 92vw, 440px" />
               )}
               <span className={styles.heroPhotoTag}>
                 <span className="hv-kicker">{t.spotDay}</span>
@@ -86,7 +86,11 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
 
       <HubNearby initialMapData={initialMapData} locale={locale} />
-      <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
+      <CategoriesRail
+        categoryNames={initialData.categoryNames}
+        categoryImages={initialData.categoryImages}
+        locale={locale}
+      />
       <HomeDishStrip locale={locale} />
       <HubMustEatsTeaser initialMapData={initialMapData} />
       <HubFragRemy />

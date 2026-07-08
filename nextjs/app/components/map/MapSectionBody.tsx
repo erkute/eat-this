@@ -302,19 +302,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     openBurgerDrawer();
   }, []);
   const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
-  const visibleLocationStatus =
-    locateLoading && !locationError
-      ? { copy: null, isError: false, canRetry: false }
-      : locateLoading && locationError
-        ? getLocationStatus({ locale, location, locationError, locateLoading: false })
-        : locationStatus;
-  const locationStatusKey = visibleLocationStatus.copy
-    ? `${visibleLocationStatus.copy}:${visibleLocationStatus.isError ? 'error' : 'ok'}`
+  const locationStatusKey = locationStatus.copy
+    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locateLoading ? 'loading' : 'idle'}`
     : null;
   const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
   const showLocationStatus = Boolean(
     sheetView !== 'detail' &&
-      visibleLocationStatus.copy &&
+      locationStatus.copy &&
       locationStatusKey !== dismissedLocationStatusKey
   );
   const handleLocationRetry = useCallback(() => {
@@ -613,11 +607,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           {showLocationStatus && (
             <div
-              className={`${styles.mapStatusLayer} ${visibleLocationStatus.isError ? styles.mapStatusLayerError : ''} ${location ? styles.mapStatusLayerOk : ''}`}
-              role={visibleLocationStatus.isError ? 'alert' : 'status'}
+              className={`${styles.mapStatusLayer} ${locationStatus.isError ? styles.mapStatusLayerError : ''}`}
+              role={locationStatus.isError ? 'alert' : 'status'}
             >
-              <span className={styles.mapStatusText}>{visibleLocationStatus.copy}</span>
-              {visibleLocationStatus.isError && visibleLocationStatus.canRetry && (
+              <span className={styles.mapStatusText}>{locationStatus.copy}</span>
+              {locationStatus.isError && locationStatus.canRetry && (
                 <button
                   type="button"
                   className={styles.mapStatusAction}

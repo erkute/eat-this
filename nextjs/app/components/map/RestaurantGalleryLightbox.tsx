@@ -81,6 +81,7 @@ function Viewer({
 
   const img = images[page]
   const href = safeHttpUrl(img.creditUrl)
+  const credit = img.credit?.trim()
 
   return (
     <motion.div
@@ -123,16 +124,16 @@ function Viewer({
               else if (info.offset.x > SWIPE_THRESHOLD) go(-1)
             }}
           >
-            <div className={styles.galleryLbPrint}>
+            <div className={styles.galleryLbPrint} onClick={(e) => e.stopPropagation()}>
               <img src={img.full} alt={img.alt ?? restaurantName} className={styles.galleryLbImg} draggable={false} />
-              {img.credit && (
+              {credit && (
                 <span className={styles.galleryLbCredit}>
                   {href ? (
                     <a href={href} target="_blank" rel="noopener noreferrer">
-                      {img.credit}
+                      {credit}
                     </a>
                   ) : (
-                    img.credit
+                    credit
                   )}
                 </span>
               )}

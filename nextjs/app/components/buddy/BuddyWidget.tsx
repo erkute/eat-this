@@ -15,6 +15,7 @@ import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
 import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
+import { HeartIcon } from '@/app/components/map/icons'
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
@@ -86,7 +87,10 @@ function SpotCard({
   onSave?: () => void
 }) {
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange, spot.distanceLabel].filter(Boolean).join(' · ')
-  const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
+  const cta = locale === 'en' ? 'Show on map' : 'Auf der Map ansehen'
+  const saveLabel = isSaved
+    ? locale === 'en' ? 'Saved' : 'Drin'
+    : locale === 'en' ? 'Save' : 'Merken'
   return (
     <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} prefetch onClick={onSelect}>
       {spot.image && (
@@ -121,9 +125,8 @@ function SpotCard({
             onSave()
           }}
         >
-          {isSaved
-            ? locale === 'en' ? 'Saved' : 'Drin'
-            : locale === 'en' ? 'Save' : 'Merken'}
+          <HeartIcon filled={!!isSaved} />
+          <span>{saveLabel}</span>
         </button>
       )}
     </Link>

@@ -53,6 +53,7 @@ const data: HomeData = {
   districts: [],
   magazine: [],
   categoryNames: { pizza: 'Pizza' },
+  categoryImages: {},
 };
 const map = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown as InitialMapData;
 
@@ -69,13 +70,13 @@ describe('HubSection home', () => {
     const html = renderHome();
     expect(html.toLowerCase()).toContain('we tell you');
     expect(html.toLowerCase()).toContain('what to eat');
+    expect(html).toContain('data-guest-only');
   });
 
   it('hero links to the map', () => {
     const html = renderHome();
-    // The CTA label for DE is "Zur Map"
-    expect(html).toContain('Zur Map');
-    expect(html).toContain('/map');
+    expect(html).toContain('Map öffnen');
+    expect(html).toContain('href="/map"');
   });
 
   it('wraps the page in the homeV2 class', () => {

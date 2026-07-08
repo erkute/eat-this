@@ -20,17 +20,15 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
   if (!usable.length) return null
   return (
     <>
-      {/* data-h-scroll: tells useSwipePager to leave horizontal gestures that
-          start here to the carousel's native scroll instead of paging. */}
       <section className={styles.rdGalleryBlock} aria-label="Fotos">
-        <div className={styles.rdGallery} role="list" data-h-scroll>
-          {usable.map((img, i) => (
+        <div className={styles.rdGallery} role="list">
+          {usable.map((img, index) => (
             <button
               key={img._key}
               type="button"
               role="listitem"
               className={styles.rdGalleryThumb}
-              onClick={() => setOpenIndex(i)}
+              onClick={() => setOpenIndex(index)}
             >
               <img src={img.thumb} alt={img.alt ?? restaurantName} loading="lazy" decoding="async" />
             </button>

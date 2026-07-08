@@ -1,4 +1,11 @@
-import { groqImageUrl, presetQuery } from './sanity-image-presets'
+import {
+  groqImageUrl,
+  presetQuery,
+  publishableRestaurantImageCondition,
+  publishableRestaurantImageUrl,
+  restaurantPhotoCredit,
+  restaurantPhotoCreditUrl,
+} from './sanity-image-presets'
 // Category projection. The string→ref migration finished in 2026-06 (verified
 // 2026-07: 0 of 343 restaurants carry legacy string entries), so all entries
 // are references. The `defined(@->_id)` filter stays as a guard against
@@ -40,9 +47,9 @@ export const restaurantBySlugQuery = `
     whatToOrder[] { dish, note, noteEn, price },
     description,
     descriptionEn,
-    "photo": ${groqImageUrl('image', 'detailHero')},
-    "photoCredit": image.credit,
-    "photoCreditUrl": image.creditUrl,
+    "photo": ${publishableRestaurantImageUrl('image', 'detailHero')},
+    "photoCredit": ${restaurantPhotoCredit('image')},
+    "photoCreditUrl": ${restaurantPhotoCreditUrl('image')},
     "gallery": gallery[]{
       _key,
       "thumb": asset->url + "${presetQuery('galleryThumb')}",
@@ -86,7 +93,7 @@ const articleContentProjection = `{
       "restaurantSlug": mustEatRef->restaurantRef->slug.current,
       "district": coalesce(mustEatRef->restaurantRef->district, mustEatRef->restaurantRef->bezirkRef->name, mustEatRef->district),
       "cuisineType": mustEatRef->restaurantRef->cuisineType,
-      "restaurantPhoto": ${groqImageUrl('mustEatRef->restaurantRef->image', 'articleDishRestaurant')}
+      "restaurantPhoto": ${publishableRestaurantImageUrl('mustEatRef->restaurantRef->image', 'articleDishRestaurant', 'mustEatRef->restaurantRef->slug.current', 'mustEatRef->restaurantRef->instagramHandle')}
     },
     _type == "spotCard" => {
       _type,
@@ -95,7 +102,7 @@ const articleContentProjection = `{
       "restaurantSlug": restaurantRef->slug.current,
       "district": coalesce(restaurantRef->district, restaurantRef->bezirkRef->name),
       "cuisineType": restaurantRef->cuisineType,
-      "restaurantPhoto": ${groqImageUrl('restaurantRef->image', 'card')}
+      "restaurantPhoto": ${publishableRestaurantImageUrl('restaurantRef->image', 'card', 'restaurantRef->slug.current', 'restaurantRef->instagramHandle')}
     }
   }`
 
@@ -145,7 +152,7 @@ export const restaurantsByBezirkQuery = `
     lng,
     tip,
     tipEn,
-    "photo": ${groqImageUrl('image', 'card')}
+    "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
 `
 
@@ -169,7 +176,7 @@ export const restaurantsByCategoryQuery = `
     lng,
     tip,
     tipEn,
-    "photo": ${groqImageUrl('image', 'card')}
+    "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
 `
 
@@ -178,7 +185,7 @@ export const restaurantsByCategoryQuery = `
 // exactly what the email renders — restaurant photo + a single Must-Eat card.
 export const emailSpotsQuery = `
   *[_type == "restaurant" && isOpen != false
-    && defined(slug.current) && defined(image.asset)
+    && defined(slug.current) && defined(image.asset) && (${publishableRestaurantImageCondition('image')})
     && count(*[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]) > 0]
     | order(coalesce(featured, false) desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
     [0...$limit] {
@@ -186,7 +193,7 @@ export const emailSpotsQuery = `
     "slug": slug.current,
     "area": coalesce(bezirkRef->name, district),
     "cuisine": cuisineType,
-    "photo": image.asset->url,
+    "photo": ${publishableRestaurantImageUrl('image', 'card')},
     "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]
       | order(order asc)[0...1] {
       dish,
@@ -198,11 +205,11 @@ export const emailSpotsQuery = `
 // One spot for the composed email card image (/api/email/spot-card) — same
 // shape as emailSpotsQuery, addressed by slug.
 export const emailSpotCardQuery = `
-  *[_type == "restaurant" && slug.current == $slug && defined(image.asset)][0] {
+  *[_type == "restaurant" && slug.current == $slug && defined(image.asset) && (${publishableRestaurantImageCondition('image')})][0] {
     name,
     "area": coalesce(bezirkRef->name, district),
     "cuisine": cuisineType,
-    "photo": image.asset->url,
+    "photo": ${publishableRestaurantImageUrl('image', 'card')},
     "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]
       | order(order asc)[0...1] {
       dish,
@@ -321,4 +328,3 @@ export const allStaticPagesQuery = `
     bodyDe
   }
 `
-

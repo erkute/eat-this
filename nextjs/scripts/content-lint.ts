@@ -13,6 +13,7 @@
  */
 import { createClient } from '@sanity/client'
 import { buildOpeningHoursSpec } from '../lib/map/openingHours'
+import { FIRST_PARTY_RESTAURANT_PHOTO_SLUGS } from '../lib/sanity-image-presets'
 
 const client = createClient({
   projectId: 'ehwjnjr2',
@@ -37,6 +38,9 @@ interface LintRestaurant {
   menuUrl?: string
   instagramHandle?: string
   reservationUrl?: string
+  hasHeroPhoto?: boolean
+  photoCredit?: string
+  photoCreditUrl?: string
   categoryCount: number
   gallery?: {
     assetRef?: string
@@ -60,6 +64,9 @@ const QUERY = `*[_type == "restaurant" && isOpen == true && isClosed != true] | 
   menuUrl,
   instagramHandle,
   reservationUrl,
+  "hasHeroPhoto": defined(image.asset),
+  "photoCredit": image.credit,
+  "photoCreditUrl": image.creditUrl,
   "categoryCount": coalesce(count(categories), 0),
   "gallery": gallery[] {
     "assetRef": asset._ref,
@@ -77,6 +84,16 @@ interface Finding {
 }
 
 type LinkResult = 'ok' | 'dead' | 'bot-blocked' | 'unreachable'
+
+function isHttpUrl(url: string | undefined) {
+  if (!url) return false
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
 
 async function checkLink(url: string): Promise<LinkResult> {
   try {
@@ -108,6 +125,7 @@ async function main() {
 
   const restaurants = await client.fetch<LintRestaurant[]>(QUERY)
   const findings: Finding[] = []
+  const firstPartyPhotoSlugs = new Set<string>(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)
 
   for (const r of restaurants) {
     if (!r.openingHours || r.openingHours.length === 0) {
@@ -137,6 +155,15 @@ async function main() {
     if (r.categoryCount === 0) {
       findings.push({ check: 'categories-missing', severity: 'hoch', slug: r.slug, detail: 'keine Kategorie → fehlt auf allen Kategorie-Hubs und in Category-Entitlements' })
     }
+    const hasAttributionFallback = firstPartyPhotoSlugs.has(r.slug) || !!r.instagramHandle
+    if (r.hasHeroPhoto && !hasAttributionFallback && (!r.photoCredit || !isHttpUrl(r.photoCreditUrl))) {
+      findings.push({
+        check: 'hero-attribution-missing',
+        severity: 'hoch',
+        slug: r.slug,
+        detail: `${!r.photoCredit ? 'photoCredit fehlt' : ''}${!r.photoCredit && !isHttpUrl(r.photoCreditUrl) ? ', ' : ''}${!isHttpUrl(r.photoCreditUrl) ? 'photoCreditUrl fehlt/ungueltig' : ''}`,
+      })
+    }
     if (r.gallery?.length) {
       const seen = new Set<string>()
       const duplicateRefs = new Set<string>()
@@ -148,7 +175,7 @@ async function main() {
         if (image.assetRef) seen.add(image.assetRef)
         if (!image.alt) missingAlt++
         if (!image.credit) missingCredit++
-        if (!image.creditUrl) missingCreditUrl++
+        if (!isHttpUrl(image.creditUrl)) missingCreditUrl++
       }
       if (duplicateRefs.size) {
         findings.push({

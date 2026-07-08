@@ -105,16 +105,12 @@ describe('HubNearby', () => {
     expect(html).toContain('data-hub-nearby');
   });
 
-  // The guest-mode auth-hide guard (`if (!authMode && mounted && user) return null`)
-  // only fires after mount (useEffect), so the SSR snapshot always renders the
-  // section shell. This is intentional — the shell is hidden client-side via JS
-  // after hydration. We verify the data-guest-only hook is present for CSS to
-  // act on instead.
-  it('guest mode: SSR shell carries data-guest-only so CSS can gate visibility', () => {
+  it('guest mode: SSR shell stays visible for signed-in users too', () => {
     authState.loading = false;
     authState.user = { uid: 'u1' } as never;
     const html = render(mapData([restaurant()]), 'guest');
-    expect(html).toContain('data-guest-only');
+    expect(html).toContain('data-hub-nearby');
+    expect(html).not.toContain('data-guest-only');
     // reset
     authState.loading = true;
     authState.user = null;

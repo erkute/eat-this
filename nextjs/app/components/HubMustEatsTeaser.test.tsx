@@ -86,7 +86,7 @@ describe('HubMustEatsTeaser', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain(translations.de.mustEats.teaserTitle);
     // Lead line is hardcoded design copy (not a translation key)
-    expect(html).toContain('face-down freischalten');
+    expect(html).toContain('Jedes Must Eat ist eine Karte');
     expect(html).toContain(translations.de.mustEats.teaserCta);
   });
 

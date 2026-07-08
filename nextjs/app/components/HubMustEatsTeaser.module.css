@@ -5,14 +5,15 @@
 
 /* ── Lead line ─────────────────────────────────────────────────────────────── */
 .lead {
-  margin: 0 0 clamp(16px, 2vw, 24px);
-  font-family: var(--font-body, var(--font), system-ui, sans-serif);
-  font-size: clamp(14px, 1.1vw, 16px);
+  max-width: 44ch;
+  margin: 0 0 clamp(18px, 2.2vw, 28px);
+  font-family: var(--font-providence);
+  font-size: clamp(20px, 2vw, 30px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.35;
+  line-height: 0.98;
   text-transform: none;
-  color: rgba(21, 18, 14, 0.55);
+  color: rgba(21, 18, 14, 0.78);
 }
 
 /* ── Rail override: grid instead of flex scroll on wide screens ────────────── */
@@ -28,9 +29,28 @@
    and the card hover-lift is clipped at the rail's top edge. */
 @media (min-width: 761px) {
   :global(.homeV2) :global(.hv-rail).rail {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(10px, 1.2vw, 16px);
     overflow: visible;
-    row-gap: clamp(20px, 2.4vw, 32px);
+  }
+
+  .item {
+    min-width: 0;
+    flex: none;
+  }
+
+  .photo {
+    min-height: clamp(104px, 10vw, 132px);
+    padding: clamp(3px, 0.5vw, 6px);
+  }
+
+  .dish {
+    font-size: clamp(15px, 1.32vw, 19px);
+  }
+
+  .restaurantLink :global(.hv-sub) {
+    font-size: clamp(12px, 1vw, 14px);
   }
 }
 
@@ -129,6 +149,17 @@
 }
 
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .rail {
+    --rail-mobile-safe: var(--et-wrap-pad-mobile);
+    margin-left: calc(var(--et-wrap-pad-mobile) * -1);
+    margin-right: calc(var(--et-wrap-pad-mobile) * -1);
+    padding-left: var(--rail-mobile-safe);
+    padding-right: var(--rail-mobile-safe);
+    scroll-padding-inline: var(--rail-mobile-safe);
+  }
+}
+
 @media (max-width: 560px) {
   .item {
     flex-basis: min(46vw, 150px);

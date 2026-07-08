@@ -10,10 +10,11 @@ interface Props {
 
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
-  const [lead, ...rest] = articles;
-  const list = rest.slice(0, 5);
+  const list = articles.slice(0, 6);
   const labels = {
     read: locale === 'en' ? 'Read' : 'Lesen',
+    all: locale === 'en' ? 'All stories' : 'Alle Stories',
+    kicker: locale === 'en' ? 'Magazine' : 'Magazin',
   };
   return (
     <section
@@ -21,45 +22,29 @@ export default function MagazineGrid({ articles, locale }: Props) {
       aria-label={locale === 'en' ? 'Magazine' : 'Magazin'}
     >
       <div className={`hv-head ${styles.head}`}>
-        <h2 className="hv-title">
-          <span className="hv-mk" aria-hidden="true" />
-          {locale === 'en' ? 'On the plate' : 'Auf den Teller'}
-        </h2>
-      </div>
-
-      <div className={styles.grid}>
-        {/* Lead story */}
-        <Link href={`/news/${lead.slug}`} className={styles.lead}>
-          <span className={`hv-photo ${styles.leadPhoto}`}>
-            {lead.image && (
-              <Image src={lead.image} alt="" fill sizes="(max-width:760px) 92vw, 56vw" />
-            )}
-          </span>
-          {lead.kicker && <span className={styles.kicker}>{lead.kicker}</span>}
-          <span className={styles.leadTitle}>{lead.title}</span>
-          <span className={styles.readButton}>{labels.read}</span>
+        <span className={styles.eyebrow}>{labels.kicker}</span>
+        <h2 className="hv-title">{locale === 'en' ? 'On the plate' : 'Auf den Teller'}</h2>
+        <Link href="/news" className={styles.allLink}>
+          {labels.all}
         </Link>
-
-        {/* Headline list */}
-        {list.length > 0 && (
-          <ul className={styles.list}>
-            {list.map((a) => (
-              <li key={a.slug}>
-                <Link href={`/news/${a.slug}`} className={styles.row}>
-                  <span className={`hv-photo ${styles.rowThumb}`}>
-                    {a.image && <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 220px" />}
-                  </span>
-                  <span className={styles.rowText}>
-                    {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
-                    <span className={styles.rowTitle}>{a.title}</span>
-                    <span className={styles.readButton}>{labels.read}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
+
+      <ul className={styles.grid} role="list">
+        {list.map((a) => (
+          <li key={a.slug}>
+            <Link href={`/news/${a.slug}`} className={styles.card}>
+              <span className={`hv-photo ${styles.photo}`}>
+                {a.image && <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 33vw" />}
+              </span>
+              <span className={styles.text}>
+                {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
+                <span className={styles.title}>{a.title}</span>
+                <span className={styles.readButton}>{labels.read}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

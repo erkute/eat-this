@@ -114,6 +114,21 @@ export async function POST(req: NextRequest) {
         revalidated.push(`tag:bezirk:${slug}`, `path:/bezirk/${slug}`)
       }
       break
+    case 'category':
+      revalidateTag('category')
+      revalidateTag('category-list')
+      revalidatePath('/')
+      revalidatePath('/en')
+      revalidatePath('/kategorie')
+      revalidatePath('/en/kategorie')
+      revalidated.push('tag:category', 'tag:category-list', 'path:/', 'path:/kategorie')
+      if (slug) {
+        revalidateTag(`category:${slug}`)
+        revalidatePath(`/kategorie/${slug}`)
+        revalidatePath(`/en/kategorie/${slug}`)
+        revalidated.push(`tag:category:${slug}`, `path:/kategorie/${slug}`)
+      }
+      break
     case 'mustEat':
       revalidateTag('mustEat')
       revalidated.push('tag:mustEat')

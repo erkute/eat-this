@@ -80,7 +80,7 @@ export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
                 <Image src={d.src} alt="" fill sizes="180px" />
               </span>
             </MapIntentLink>
-            <span className="hv-cap">{d.dish}</span>
+            <span className={styles.dishName}>{d.dish}</span>
             <MapIntentLink href={d.href} rel="nofollow" className={styles.rest}>
               {d.restaurant}
             </MapIntentLink>

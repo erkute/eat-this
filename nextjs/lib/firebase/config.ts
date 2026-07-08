@@ -12,13 +12,14 @@ import type { Firestore } from 'firebase/firestore';
 // screen shows "Weiter zu eatthisdot.com" instead of the firebaseapp.com
 // project domain. (An earlier auth.eatthisdot.com subdomain attempt failed
 // because the credential return was still cross-origin; same-origin avoids
-// that entirely.) Localhost uses the same proxy path so storage-partitioned
-// browser shells can complete popup sign-in during dev too.
+// that entirely.)
+//
+// Keep local dev on the Firebase domain: the Firebase Auth SDK builds helper
+// iframe URLs as https://{authDomain}/__/auth/iframe, so authDomain
+// "localhost:3000" points at https://localhost:3000 while next dev serves HTTP.
 const PROD_HOST = 'www.eatthisdot.com';
-const LOCAL_AUTH_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 const authDomain =
-  typeof window !== 'undefined' &&
-  (window.location.hostname === PROD_HOST || LOCAL_AUTH_HOSTS.has(window.location.hostname))
+  typeof window !== 'undefined' && window.location.hostname === PROD_HOST
     ? window.location.host
     : 'eat-this-8a13b.firebaseapp.com';
 

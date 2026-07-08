@@ -23,6 +23,7 @@ export interface RestaurantMapDetail {
   tip?: string
   description?: string
   shortDescription?: string
+  photo?: string
   photoCredit?: string
   photoCreditUrl?: string
   gallery?: RestaurantGalleryImage[]

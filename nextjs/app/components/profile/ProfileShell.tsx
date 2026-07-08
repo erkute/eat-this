@@ -92,37 +92,41 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
       <main className={styles.page}>
         <div className={styles.shell}>
           <header className={styles.hero}>
-            <div className={styles.heroCopy}>
-              <p className={styles.heroKicker}>{t('heroKicker')}</p>
-              <h1 className={styles.heroName}>{firstName}</h1>
-              <div className={styles.heroActions} aria-label={t('quickActions')}>
-                <Link href="/map" rel="nofollow" className={styles.heroLink}>
-                  {toMapLabel}
-                </Link>
-                <a href="#profile-panel-packs" className={styles.heroLink}>
-                  {packsLabel}
-                </a>
-              </div>
-            </div>
-
-            <div className={styles.heroProfileCard}>
-              <div className={styles.heroAvatar}>
+            <div className={styles.heroIdentity}>
+              <button
+                type="button"
+                className={styles.heroAvatar}
+                onClick={() => setPickerOpen(true)}
+                aria-label={t('changeAvatar')}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={styles.heroAvatarImg}
                   src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                   alt=""
                 />
-              </div>
-              <div className={styles.heroProfileMeta}>
-                <span>{t('avatarKicker')}</span>
-                <button
-                  type="button"
-                  className={styles.heroEdit}
-                  onClick={() => setPickerOpen(true)}
-                >
-                  {t('changeAvatar')}
-                </button>
+              </button>
+
+              <div className={styles.heroCopy}>
+                <p className={styles.heroKicker}>{t('heroKicker')}</p>
+                <div className={styles.heroNameRow}>
+                  <h1 className={styles.heroName}>{firstName}</h1>
+                  <button
+                    type="button"
+                    className={styles.heroEdit}
+                    onClick={() => setPickerOpen(true)}
+                  >
+                    {t('changeAvatar')}
+                  </button>
+                </div>
+                <div className={styles.heroActions} aria-label={t('quickActions')}>
+                  <Link href="/map" rel="nofollow" className={styles.heroLink}>
+                    {toMapLabel}
+                  </Link>
+                  <a href="#profile-panel-packs" className={styles.heroLink}>
+                    {packsLabel}
+                  </a>
+                </div>
               </div>
             </div>
 

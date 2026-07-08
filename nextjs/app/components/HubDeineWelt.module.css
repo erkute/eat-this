@@ -1,264 +1,197 @@
-/* ── HubDeineWelt — logged-in hero (homeV2 vocabulary) ───────── */
-
-/*
-  The section carries class="homeV2 …" so all .homeV2 .hv-* globals
-  (hv-kicker, hv-btn, hv-link-underline, hv-photo, hv-rail, hv-cap,
-  hv-sub, hv-wrap) apply automatically from css/style.css.
-  This module only adds layout and sizing that the global vocabulary
-  doesn't cover.
-*/
+/* HubDeineWelt — signed-in intro only. */
 
 .hero {
   width: 100%;
   padding-top: calc(52px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  padding-bottom: clamp(22px, 3.6vw, 42px);
+  padding-bottom: clamp(20px, 2.8vw, 38px);
   background: var(--home-paper);
   color: var(--home-ink);
 }
 
 .heroInner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: clamp(24px, 4vw, 56px);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.95fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 48px);
+  max-width: 1180px;
 }
-
-/* ── Copy column ──────────────────────────────────────────────── */
 
 .copy {
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.4vw, 16px);
+  gap: clamp(7px, 1vw, 12px);
+  max-width: 760px;
 }
 
 .kicker {
   margin: 0;
-  font-family: var(--menu-condensed, var(--et-font-condensed), Impact, sans-serif);
-  font-size: clamp(52px, 9vw, 104px);
-  font-weight: 400;
-  line-height: 0.78;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  max-width: 12ch;
   color: var(--home-ink);
-  max-width: 8ch;
+  font-family: var(--menu-condensed, var(--et-font-condensed), Impact, sans-serif);
+  font-size: clamp(64px, 9.8vw, 124px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.78;
   overflow-wrap: anywhere;
+  text-transform: uppercase;
 }
 
 .headline {
-  font-family: var(--font-providence);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  font-size: clamp(42px, 6vw, 68px);
   margin: 0;
   color: var(--home-ink);
+  font-family: var(--font-providence);
+  font-size: clamp(50px, 6.8vw, 82px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 
 .sub {
-  font-family: var(--font-providence);
-  font-weight: 400;
-  font-size: clamp(12px, 1.1vw, 14px);
-  color: var(--home-muted);
+  max-width: 27ch;
   margin: 0;
-  max-width: 38ch;
+  color: var(--home-muted);
+  font-family: var(--font-providence);
+  font-size: clamp(14px, 1.25vw, 17px);
+  font-weight: 400;
+  line-height: 1.24;
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  margin-top: clamp(4px, 0.8vw, 8px);
-  flex-wrap: wrap;
+  margin-top: clamp(10px, 1.2vw, 16px);
 }
 
-/* Map button — accent fill (yellow) */
 .mapBtn {
-  background: var(--home-accent) !important;
   color: var(--home-ink) !important;
+  background: var(--home-accent) !important;
+  font-family: var(--font-providence) !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
 }
 
-/* Profile link — plain underline */
 .profileBtn {
+  text-decoration: none;
+  font-family: var(--font-providence) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.95 !important;
+}
+
+.spotLink {
+  position: relative;
+  display: block;
+  min-height: clamp(270px, 29vw, 400px);
+  overflow: hidden;
+  color: var(--et-home-inverse-text);
+  background: #15120e;
+  border-radius: var(--et-radius-photo, 10px);
   text-decoration: none;
 }
 
-/* ── Rails column (right of the copy — recommended spots) ─────── */
-
-.rails {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(16px, 2vw, 24px);
-  padding-top: clamp(10px, 1.6vw, 22px);
+.spotLink::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 48%;
+  background: var(--et-home-photo-overlay);
+  pointer-events: none;
 }
 
-/* Must Eats sits as a full-width row below the hero grid, so it fills the
-   width instead of stacking under Saved and towering the right column over
-   the copy (which left a big whitespace under the headline). */
-.mustEatsRow {
-  margin-top: clamp(30px, 4.2vw, 58px);
-}
-
-.railBlock {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 1.4vw, 18px);
-}
-
-.railLabel {
-  margin: 0;
-  font-family: var(--menu-condensed, var(--et-font-condensed), Impact, sans-serif);
-  font-size: clamp(32px, 5vw, 56px);
-  font-weight: 400;
-  line-height: 0.82;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--home-ink);
-}
-
-.rail {
-  /* hv-rail is flex + horizontal scroll; we fix thumb sizing here */
-}
-
-.railPhoto {
-  /* hv-photo provides bg, border-radius, overflow, position:relative */
-  width: clamp(150px, 15vw, 190px);
-  aspect-ratio: 4 / 3;
-  flex-shrink: 0;
-  transition: transform 140ms ease;
-}
-
-.railPhoto:hover,
-.railPhoto:focus-visible {
-  transform: translateY(-3px) rotate(-0.6deg);
-}
-
-/* Must-Eat cards are portrait */
-.mustPhoto {
-  aspect-ratio: 5 / 7;
-  width: clamp(116px, 12vw, 140px);
-}
-
-.mustImg,
-.mustBack {
-  object-fit: contain;
-}
-
-.mustBack {
+.spotImg {
   display: block;
   width: 100%;
   height: 100%;
+  min-height: inherit;
+  object-fit: cover;
 }
 
-.railPhotoName {
+.spotTag {
   position: absolute;
-  inset: auto 6px 6px;
-  z-index: 2;
-  color: #fff;
-  font-family: var(--font-providence);
-  font-weight: 700;
-  font-size: clamp(10px, 0.9vw, 12px);
-  line-height: 1.1;
-  text-transform: uppercase;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-}
-
-/* Bottom gradient over photo */
-.railPhoto::after {
-  content: '';
-  position: absolute;
-  inset: 50% 0 0;
-  background: linear-gradient(to top, rgba(21, 18, 14, 0.6), transparent);
-  pointer-events: none;
+  right: clamp(16px, 2vw, 24px);
+  bottom: clamp(14px, 2vw, 22px);
+  left: clamp(16px, 2vw, 24px);
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--et-home-inverse-text);
+  text-shadow: var(--et-shadow-text-photo);
 }
 
-.railPhotoEmpty {
-  border: 2px dashed var(--home-line, rgba(21, 18, 14, 0.2));
-  background: var(--home-quiet) !important;
+.spotTag span {
+  font-family: var(--font-providence);
+  font-size: clamp(15px, 1.5vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.95;
 }
 
-/* No gradient overlay on empty placeholders */
-.railPhotoEmpty::after {
-  display: none;
+.spotTag strong {
+  font-family: var(--font-providence);
+  font-size: clamp(22px, 2.3vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
-.railEmptyMark {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.railEmptyMark::before,
-.railEmptyMark::after {
-  content: '';
-  position: absolute;
-  width: 24px;
-  height: 2px;
-  background: var(--home-muted, rgba(21, 18, 14, 0.4));
-}
-
-.railEmptyMark::before {
-  transform: rotate(45deg);
-}
-
-.railEmptyMark::after {
-  transform: rotate(-45deg);
-}
-
-/* ── Responsive ───────────────────────────────────────────────── */
-
-/* Desktop: rails wrap into rows instead of horizontal swipe (swiping on a wide
-   screen makes no sense). The compound :global(.hv-rail).rail (0,3,0 with
-   .homeV2) beats .homeV2 .hv-rail (0,2,0), so we can also drop its
-   overflow-x:auto — otherwise overflow-y computes to auto too and the card
-   hover-lift/rotate is clipped at the rail's top edge. Nothing overflows
-   horizontally once it wraps, so overflow:visible is safe. */
-@media (min-width: 761px) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    flex-wrap: wrap;
-    overflow: visible;
-    row-gap: clamp(12px, 1.4vw, 18px);
-  }
-}
-
-@media (max-width: 760px) {
+@media (max-width: 640px) {
   .heroInner {
     grid-template-columns: 1fr;
-    gap: clamp(20px, 4vw, 32px);
+    align-items: start;
+    gap: 20px;
+  }
+
+  .copy {
+    min-width: 0;
+  }
+
+  .kicker {
+    max-width: 100%;
+    font-size: clamp(50px, 17vw, 82px);
   }
 
   .headline {
-    font-size: clamp(38px, 12vw, 56px);
+    font-size: clamp(40px, 12.5vw, 60px);
   }
 
-  .rails {
-    flex-direction: row;
-    gap: clamp(16px, 4vw, 28px);
-    overflow-x: auto;
+  .sub {
+    max-width: 25ch;
   }
 
-  .railBlock {
-    flex: 0 0 auto;
-    min-width: 0;
+  .actions {
+    gap: 12px;
+  }
+
+  .spotLink {
+    min-height: 220px;
+  }
+}
+
+@media (min-width: 641px) {
+  .sub {
+    font-size: clamp(18px, 1.65vw, 23px);
+    line-height: 1.22;
+  }
+
+  .mapBtn:global(.hv-btn) {
+    min-height: 52px;
+    padding: 15px 24px;
+    font-size: clamp(15px, 1.25vw, 18px) !important;
+  }
+
+  .profileBtn:global(.hv-link-underline) {
+    font-size: clamp(23px, 2.4vw, 30px) !important;
   }
 }
 
 @media (max-width: 480px) {
   .hero {
     padding-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  }
-
-  .rails {
-    flex-direction: column;
-  }
-
-  .railBlock {
-    flex: unset;
+    padding-bottom: 18px;
   }
 }

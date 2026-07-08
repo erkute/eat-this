@@ -65,8 +65,10 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
         <button type="button" className={styles.x} aria-label="Close" onClick={onClose}>
           ×
         </button>
-        <h2 className={styles.title}>{t('avatarModalTitle')}</h2>
-        <p className={styles.sub}>{t('avatarModalSub')}</p>
+        <div className={styles.head}>
+          <h2 className={styles.title}>{t('avatarModalTitle')}</h2>
+          <p className={styles.sub}>{t('avatarModalSub')}</p>
+        </div>
         <div className={styles.chars} role="radiogroup" aria-label={t('avatarModalTitle')}>
           {CHOICES.map((c) => (
             <button
@@ -79,6 +81,7 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/pics/avatar/${c}.webp?v=3`} alt={t('avatarChoice', { n: c })} />
+              <span>{t('avatarChoice', { n: c })}</span>
             </button>
           ))}
         </div>

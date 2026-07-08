@@ -1016,6 +1016,106 @@ html[data-auth='1'] [data-guest-only] {
     height: 42px;
   }
 }
+/* Final notification layer: match the compact locked/location map status. */
+.notification,
+.notification[data-tone='success'],
+.notification[data-tone='warning'],
+.notification[data-tone='error'],
+.notification[data-tone='info'] {
+  --toast-surface: var(--et-home-ink, #15120e);
+  --toast-ink: var(--et-home-inverse-text, #fff);
+  --toast-muted: rgba(255, 255, 255, 0.72);
+  --toast-accent: var(--et-home-accent, #ffc600);
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  width: min(360px, calc(100vw - 32px));
+  min-height: 38px;
+  padding: 8px 10px;
+  color: var(--toast-ink);
+  background: var(--toast-surface);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  transform: translate(-50%, calc(100% + 112px));
+}
+.notification.show {
+  transform: translate(-50%, 0);
+}
+.notification-mark,
+.notification[data-tone='info'] .notification-mark,
+.notification[data-tone='warning'] .notification-mark,
+.notification[data-tone='error'] .notification-mark {
+  width: 24px;
+  height: 24px;
+  color: var(--toast-accent);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.notification-mark svg {
+  width: 18px;
+  height: 18px;
+}
+.notification-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.notification-eyebrow,
+.notification[data-tone='error'] .notification-eyebrow {
+  color: var(--toast-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.08;
+  text-transform: none;
+}
+.notification-title {
+  color: var(--toast-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.08;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+.notification-detail {
+  display: none;
+}
+@media (min-width: 768px) {
+  .notification {
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (max-width: 420px) {
+  .notification,
+  .notification[data-tone='success'],
+  .notification[data-tone='warning'],
+  .notification[data-tone='error'],
+  .notification[data-tone='info'] {
+    grid-template-columns: 22px minmax(0, 1fr);
+    width: min(342px, calc(100vw - 20px));
+    min-height: 38px;
+    padding: 8px 10px;
+    border-radius: var(--et-radius-control, 7px);
+  }
+  .notification-mark {
+    width: 22px;
+    height: 22px;
+  }
+  .notification-mark svg {
+    width: 17px;
+    height: 17px;
+  }
+  .notification-eyebrow,
+  .notification-title {
+    font-size: 13px;
+  }
+}
 .navbar,
 .navbar.scrolled,
 html[data-active-page='start'] .navbar,

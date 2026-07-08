@@ -16,8 +16,8 @@ const ALL_BERLIN_GRID = [
   ['dinner', 'sweets', 'fast-food'],
 ] as const;
 
-// Booster packs as an editorial menu list: All Berlin gets its own fan card,
-// then the Welcome Pack and category packs follow below.
+// Opened packs stay grouped above unopened packs; locked cards keep only the
+// button clickable so the card still reads as a collected-object slot.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
@@ -28,7 +28,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
     .map((id) => CATALOG[id])
     .filter((p): p is NonNullable<typeof p> => !!p && p.type === 'category');
 
-  const allBerlinInner = (
+  const allBerlinInner = (locked: boolean) => (
     <>
       <span className={styles.allBerlinArt} aria-hidden="true">
         <span className={styles.allBerlinStack}>
@@ -56,68 +56,75 @@ export default function ProfilePacks({ uid }: { uid: string }) {
       </span>
       <span className={styles.allBerlinCopy}>
         <span className={styles.packName}>{allBerlin.displayName}</span>
-        <span className={styles.packStatus}>
-          {allBerlinOwned ? t('packStatusOwned') : t('packStatusLocked')}
-        </span>
+        {locked ? (
+          <Link href={`/pack/${packUrlSlug(allBerlin)}`} className={styles.packButton}>
+            {t('packStatusLocked')}
+          </Link>
+        ) : (
+          <span className={styles.packStatus}>{t('packStatusOwned')}</span>
+        )}
       </span>
     </>
   );
+
+  const openedBoosters = boosters.filter((p) => allBerlinOwned || ownedSet.has(p.packId));
+  const lockedBoosters = boosters.filter((p) => !allBerlinOwned && !ownedSet.has(p.packId));
 
   return (
     <>
       <div className={styles.secHead}>
         <h3>{t('packsHeading')}</h3>
       </div>
-      {allBerlinOwned ? (
-        <div className={`${styles.pack} ${styles.allBerlinPack}`}>
-          {allBerlinInner}
-        </div>
-      ) : (
-        <Link
-          href={`/pack/${packUrlSlug(allBerlin)}`}
-          className={`${styles.pack} ${styles.packBuy} ${styles.allBerlinPack}`}
-        >
-          {allBerlinInner}
-        </Link>
-      )}
       <div className={styles.packs}>
-        <div className={styles.pack}>
+        <div className={`${styles.pack} ${styles.packOwned}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={WELCOME_ART} alt="" />
           <span className={styles.packName}>Welcome Pack</span>
           <span className={styles.dots} />
           <span className={styles.packStatus}>{t('packStatusOwned')}</span>
         </div>
-        {boosters.map((p) => {
-          const isOwned = allBerlinOwned || ownedSet.has(p.packId);
+        {openedBoosters.map((p) => {
           const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
-          const inner = (
-            <>
+          return (
+            <div key={p.packId} className={`${styles.pack} ${styles.packOwned}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={art} alt="" />
               <span className={styles.packName}>{p.displayName}</span>
               <span className={styles.dots} />
-              <span className={styles.packStatus}>
-                {isOwned ? t('packStatusOwned') : t('packStatusLocked')}
-              </span>
-            </>
-          );
-          // Owned → static row; not-yet-owned → link into the pack's buy page.
-          return isOwned ? (
-            <div key={p.packId} className={styles.pack}>
-              {inner}
+              <span className={styles.packStatus}>{t('packStatusOwned')}</span>
             </div>
-          ) : (
-            <Link
-              key={p.packId}
-              href={`/pack/${packUrlSlug(p)}`}
-              className={`${styles.pack} ${styles.packBuy}`}
-            >
-              {inner}
-            </Link>
           );
         })}
       </div>
+      {allBerlinOwned && (
+        <div className={`${styles.packs} ${styles.allBerlinPacks}`}>
+          <div className={`${styles.pack} ${styles.packOwned} ${styles.allBerlinPack}`}>
+            {allBerlinInner(false)}
+          </div>
+        </div>
+      )}
+      {(!allBerlinOwned || lockedBoosters.length > 0) && (
+        <div className={`${styles.packs} ${styles.lockedPacks}`}>
+          {!allBerlinOwned && (
+            <div className={`${styles.pack} ${styles.packLocked} ${styles.allBerlinPack}`}>
+              {allBerlinInner(true)}
+            </div>
+          )}
+          {lockedBoosters.map((p) => {
+            const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
+            return (
+              <div key={p.packId} className={`${styles.pack} ${styles.packLocked}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={art} alt="" />
+                <span className={styles.packName}>{p.displayName}</span>
+                <Link href={`/pack/${packUrlSlug(p)}`} className={styles.packButton}>
+                  {t('packStatusLocked')}
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }

@@ -676,3 +676,249 @@
 .posterFrame img {
   filter: none;
 }
+
+/* Bezirk index redesign. Kept separate from detail/category surfaces so their
+   SEO content grids do not inherit the hub treatment. */
+.indexHero {
+  display: grid;
+  gap: 18px;
+  margin: 8px 0 clamp(28px, 5vw, 56px);
+  padding: clamp(18px, 5vw, 52px) 0 0;
+  border-bottom: 0;
+}
+
+.indexHero .h1 {
+  max-width: 9ch;
+  font-size: clamp(60px, 14vw, 138px);
+  line-height: 0.86;
+  margin: 0;
+}
+
+.indexHero .sub {
+  max-width: 44ch;
+  margin: 0;
+}
+
+.indexHeroCount {
+  width: fit-content;
+  max-width: 100%;
+  background: var(--et-home-red);
+  color: var(--et-home-paper);
+  font-family: var(--et-font-mono);
+  font-size: clamp(12px, 1.6vw, 15px);
+  font-weight: 900;
+  line-height: 1.1;
+  padding: 9px 12px 10px;
+}
+
+.featuredDistrict {
+  display: grid;
+  gap: clamp(22px, 4vw, 48px);
+  align-items: stretch;
+  margin: 0 0 clamp(42px, 7vw, 86px);
+  background: var(--ink);
+  color: var(--cream);
+  overflow: hidden;
+}
+
+.featuredCopy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(28px, 5vw, 58px);
+}
+
+.featuredLabel,
+.bezirkMeta {
+  font-family: var(--et-font-mono);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.featuredLabel {
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+
+.featuredName {
+  font-family: var(--et-font-condensed);
+  font-size: clamp(48px, 11vw, 96px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.88;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.featuredText {
+  color: color-mix(in srgb, var(--cream) 76%, transparent);
+  font-size: clamp(15px, 1.8vw, 18px);
+  line-height: 1.45;
+  max-width: 38ch;
+  margin: 18px 0 0;
+}
+
+.featuredActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.featuredPrimary,
+.featuredSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 17px 13px;
+  font-family: var(--font-providence);
+  font-size: clamp(15px, 1.8vw, 18px);
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.featuredPrimary {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.featuredSecondary {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.featuredMedia {
+  position: relative;
+  display: block;
+  min-height: clamp(260px, 52vw, 520px);
+  background: var(--et-home-red);
+  color: inherit;
+}
+
+.featuredMedia img {
+  object-fit: cover;
+}
+
+.districtsBlock {
+  margin-bottom: 32px;
+}
+
+.districtsIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.districtsIntro h2 {
+  font-family: var(--et-font-condensed);
+  font-size: clamp(38px, 8vw, 72px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.districtsIntro p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.bezirkGrid {
+  gap: 12px;
+}
+
+.bezirkCard {
+  min-height: 148px;
+  padding: 18px;
+  background: #fff;
+  border-bottom: 0;
+  color: var(--ink);
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.bezirkCard:hover {
+  background: var(--et-home-red);
+  color: var(--cream);
+  transform: translateY(-3px);
+}
+
+.bezirkCard:hover .bezirkName,
+.bezirkCard:hover .bezirkMeta {
+  color: var(--cream);
+}
+
+.bezirkName {
+  overflow-wrap: anywhere;
+}
+
+.bezirkMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: auto;
+  color: var(--muted);
+}
+
+.bezirkArrow {
+  font-family: var(--et-font-condensed);
+  font-size: 28px;
+  line-height: 0.8;
+}
+
+@media (min-width: 720px) {
+  .indexHero {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 0.48fr);
+    align-items: flex-end;
+  }
+
+  .indexHeroCount {
+    justify-self: start;
+  }
+
+  .featuredDistrict {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.82fr);
+  }
+
+  .featuredMedia {
+    min-height: 100%;
+  }
+
+  .districtsIntro {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .districtsIntro p {
+    max-width: 28ch;
+    text-align: right;
+  }
+}
+
+@media (min-width: 960px) {
+  .indexHero {
+    margin-top: 32px;
+  }
+
+  .indexHero .h1 {
+    font-size: clamp(96px, 10vw, 138px);
+  }
+
+  .bezirkGrid {
+    gap: 16px;
+  }
+
+  .bezirkName {
+    font-size: clamp(32px, 3.4vw, 48px);
+  }
+}

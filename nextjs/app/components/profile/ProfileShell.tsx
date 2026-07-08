@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
 import {
@@ -75,12 +74,9 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   }
 
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
-  const total = ownedMustEats.length;
-  const collected = ownedMustEats.filter((m) => unlockedIds.has(m._id)).length;
   const firstName =
     (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || t('heroTitle');
-  const toMapLabel = t('toMap').replace(/\s*→$/, '');
-  const packsLabel = t('packsCta').replace(/\s*→$/, '');
+  const accountLabel = user.email ?? t('heroLine');
 
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx) return;
@@ -92,61 +88,73 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
       <main className={styles.page}>
         <div className={styles.shell}>
           <header className={styles.hero}>
-            <div className={styles.heroIdentity}>
-              <button
-                type="button"
-                className={styles.heroAvatar}
-                onClick={() => setPickerOpen(true)}
-                aria-label={t('changeAvatar')}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.heroAvatarImg}
-                  src={`/pics/avatar/${avatarIdx}.webp?v=3`}
-                  alt=""
-                />
-              </button>
-
-              <div className={styles.heroCopy}>
-                <p className={styles.heroKicker}>{t('heroKicker')}</p>
-                <div className={styles.heroNameRow}>
-                  <h1 className={styles.heroName}>{firstName}</h1>
-                  <button
-                    type="button"
-                    className={styles.heroEdit}
-                    onClick={() => setPickerOpen(true)}
-                  >
-                    {t('changeAvatar')}
-                  </button>
-                </div>
-                <div className={styles.heroActions} aria-label={t('quickActions')}>
-                  <Link href="/map" rel="nofollow" className={styles.heroLink}>
-                    {toMapLabel}
-                  </Link>
-                  <a href="#profile-panel-packs" className={styles.heroLink}>
-                    {packsLabel}
-                  </a>
+            <div className={styles.paper}>
+              <div className={styles.paperTop}>
+                <div className={styles.brandStamp} aria-label="Eat This">
+                  <span>EAT THIS</span>
+                  <strong>{t('profileTitle')}</strong>
                 </div>
               </div>
-            </div>
 
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <span>{t('revealedLabel')}</span>
-                <b>
-                  {collected} / {total}
-                </b>
-              </div>
-              <div className={styles.stat}>
-                <span>{t('statMap')}</span>
-                <b>{ownedRestaurants.length}</b>
+              <div className={styles.heroLayout}>
+                <div className={styles.heroCopy}>
+                  <p className={styles.heroKicker}>{t('heroKicker')}</p>
+                  <h1 className={styles.heroCounts}>
+                    <span className={styles.heroCount}>
+                      <b>{ownedRestaurants.length}</b>
+                      <span>{t('tabSpots')}</span>
+                    </span>
+                    <span className={styles.heroCount}>
+                      <b>{ownedMustEats.length}</b>
+                      <span>{t('tabMustEats')}</span>
+                    </span>
+                  </h1>
+
+                  <dl className={styles.formRows}>
+                    <div className={styles.formRow}>
+                      <dt>{t('fieldName')}</dt>
+                      <dd>{firstName}</dd>
+                    </div>
+                    <div className={styles.formRow}>
+                      <dt>{t('fieldAccount')}</dt>
+                      <dd>{accountLabel}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className={styles.photoDock}>
+                  <div className={styles.polaroid}>
+                    <span className={styles.photoClip} aria-hidden="true" />
+                    <button
+                      type="button"
+                      className={styles.heroAvatar}
+                      onClick={() => setPickerOpen(true)}
+                      aria-label={t('changeAvatar')}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={styles.heroAvatarImg}
+                        src={`/pics/avatar/${avatarIdx}.webp?v=3`}
+                        alt=""
+                      />
+                    </button>
+                    <span className={styles.photoCaption}>{t('avatarKicker')}</span>
+                    <button
+                      type="button"
+                      className={styles.heroEdit}
+                      onClick={() => setPickerOpen(true)}
+                    >
+                      {t('changeAvatar')}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </header>
 
           <section
             id="profile-panel-spots"
-            className={styles.menu}
+            className={`${styles.menu} ${styles.dossierSection}`}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
             <div className={styles.secHead} id="gespeicherte-spots">
@@ -157,6 +165,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
           <section
             id="profile-panel-must-eats"
+            className={styles.dossierSection}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
             <ProfileAlbum
@@ -168,7 +177,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
           <section
             id="profile-panel-packs"
-            className={styles.menu}
+            className={`${styles.menu} ${styles.packsSection}`}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
             <ProfilePacks uid={user.uid} />

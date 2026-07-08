@@ -225,6 +225,7 @@ export const allBezirkeWithStatsQuery = `
     name,
     "slug": slug.current,
     description,
+    descriptionEn,
     "imageUrl": ${groqImageUrl('image', 'card')},
     "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false])
   }

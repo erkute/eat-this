@@ -17,7 +17,6 @@ interface ToastCopy {
   title: string;
   detail?: string;
   icon: 'heart' | 'pin' | 'alert' | 'check' | 'spark';
-  variant?: 'signed-out';
 }
 
 // sessionStorage handoff: a message stored under this key (e.g. by the
@@ -65,38 +64,34 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
         };
   }
 
-  if (lower.includes('geherzt') || lower.includes('hearted')) {
+  if (lower.includes('gespeichert') || lower.includes('saved') || lower.includes('geherzt') || lower.includes('hearted')) {
     return english
       ? {
           tone: 'success',
-          eyebrow: 'Saved',
-          title: 'Spot is on your list',
-          detail: 'Ready for the next hunger.',
+          eyebrow: 'Spot',
+          title: 'Saved',
           icon: 'heart',
         }
       : {
           tone: 'success',
-          eyebrow: 'Gespeichert',
-          title: 'Spot ist auf deiner Liste',
-          detail: 'Bereit für den nächsten Hunger.',
+          eyebrow: 'Spot',
+          title: 'Gespeichert',
           icon: 'heart',
         };
   }
 
-  if (lower.includes('herz entfernt') || lower.includes('heart removed')) {
+  if (lower.includes('spot entfernt') || lower.includes('spot removed') || lower.includes('herz entfernt') || lower.includes('heart removed')) {
     return english
       ? {
           tone: 'info',
-          eyebrow: 'Updated',
-          title: 'Heart removed',
-          detail: 'The spot is out of your saved list.',
+          eyebrow: 'Spot',
+          title: 'Removed',
           icon: 'heart',
         }
       : {
           tone: 'info',
-          eyebrow: 'Aktualisiert',
-          title: 'Herz entfernt',
-          detail: 'Der Spot ist raus aus deiner Liste.',
+          eyebrow: 'Spot',
+          title: 'Entfernt',
           icon: 'heart',
         };
   }
@@ -123,19 +118,31 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
     return english
       ? {
           tone: 'info',
-          eyebrow: 'Session ended',
-          title: "You're signed out",
-          detail: 'Your map is safe for next time.',
+          eyebrow: 'Login',
+          title: "Signed out",
           icon: 'check',
-          variant: 'signed-out',
         }
       : {
           tone: 'info',
-          eyebrow: 'Session beendet',
-          title: 'Du bist abgemeldet',
-          detail: 'Deine Map wartet beim nächsten Mal.',
+          eyebrow: 'Login',
+          title: 'Abgemeldet',
           icon: 'check',
-          variant: 'signed-out',
+        };
+  }
+
+  if (lower.includes('angemeldet') || lower.includes('signed in')) {
+    return english
+      ? {
+          tone: 'success',
+          eyebrow: 'Login',
+          title: 'Signed in',
+          icon: 'check',
+        }
+      : {
+          tone: 'success',
+          eyebrow: 'Login',
+          title: 'Angemeldet',
+          icon: 'check',
         };
   }
 
@@ -244,7 +251,6 @@ export default function NotificationToast() {
     <div
       className={`notification${visible ? ' show' : ''}`}
       data-tone={copy.tone}
-      data-variant={copy.variant}
       aria-live="polite"
       aria-atomic="true"
     >

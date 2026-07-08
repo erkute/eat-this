@@ -108,11 +108,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     if (adding) {
       setFavoriteIds(prev => new Set([...prev, r._id]))
       setFavorites(prev => { const next = [...prev, { restaurantId: r._id, name: r.name, slug: r.slug, photo: r.photo, district: r.district }]; writeCache(next); return next })
-      window.showNotification?.(locale === 'en' ? 'Spot hearted' : 'Spot geherzt')
+      window.showNotification?.(locale === 'en' ? 'Spot saved' : 'Spot gespeichert')
     } else {
       setFavoriteIds(prev => { const s = new Set(prev); s.delete(r._id); return s })
       setFavorites(prev => { const next = prev.filter(f => f.restaurantId !== r._id); writeCache(next); return next })
-      window.showNotification?.(locale === 'en' ? 'Heart removed' : 'Herz entfernt')
+      window.showNotification?.(locale === 'en' ? 'Spot removed' : 'Spot entfernt')
     }
   }, [uid, favoriteIds, locale, openLoginModal])
 

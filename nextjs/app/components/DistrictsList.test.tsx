@@ -27,7 +27,7 @@ describe('DistrictsList', () => {
   });
   it('links the section all action to the district index', () => {
     const html = renderToStaticMarkup(<DistrictsList districts={districts} locale="de" />);
-    expect(html).toContain('href="/bezirk" class="hv-link"');
+    expect(html).toContain('href="/bezirk" class="hv-link ');
     expect(html).toContain('Alle');
   });
   it('renders nothing when empty', () => {

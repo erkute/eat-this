@@ -1,5 +1,15 @@
 /* HubNearby — homeV2 vocabulary. */
 
+.title {
+  display: inline-flex;
+  align-items: center;
+}
+
+.title :global(.hv-mk) {
+  flex: 0 0 auto;
+  vertical-align: 0;
+}
+
 /* ── Rail card sizing ──────────────────────────────────────────────────────── */
 .card {
   position: relative;
@@ -90,6 +100,13 @@
 .locBtn:disabled {
   cursor: wait;
 }
+
+.locBtn:hover:not(:disabled),
+.locBtn:focus-visible:not(:disabled) {
+  color: var(--et-home-red);
+  outline: 0;
+}
+
 .locIcon {
   width: 11px;
   height: 11px;
@@ -137,6 +154,11 @@
 
 .locationLayerError {
   grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.locationLayerSuccess {
+  color: var(--et-home-ink, #15120e);
+  background: var(--et-home-accent, #ffc600);
 }
 
 .locationAction {

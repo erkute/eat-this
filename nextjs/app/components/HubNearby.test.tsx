@@ -1,6 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+// @vitest-environment jsdom
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { cleanup, fireEvent, render as renderClient, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { translations } from '@/lib/i18n/translations';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
@@ -22,7 +24,7 @@ const locationState = {
   location: null as { lat: number; lng: number } | null,
   loading: false,
   error: null as string | null,
-  request: () => Promise.resolve(null),
+  request: vi.fn(() => Promise.resolve(null as { lat: number; lng: number } | null)),
 };
 vi.mock('@/lib/map/UserLocationContext', () => ({
   useUserLocationContext: () => locationState,
@@ -81,6 +83,19 @@ function render(initialMapData: InitialMapData = mapData(), mode?: 'guest' | 'au
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 describe('HubNearby', () => {
+  beforeEach(() => {
+    authState.loading = true;
+    authState.user = null;
+    locationState.location = null;
+    locationState.loading = false;
+    locationState.error = null;
+    locationState.request = vi.fn(() => Promise.resolve(null));
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
   it('renders nothing when there are no nearby restaurants', () => {
     expect(render(mapData([]))).toBe('');
   });
@@ -111,8 +126,21 @@ describe('HubNearby', () => {
     const html = render(mapData([restaurant()]), 'guest');
     expect(html).toContain('data-hub-nearby');
     expect(html).not.toContain('data-guest-only');
-    // reset
-    authState.loading = true;
-    authState.user = null;
+  });
+
+  it('shows a success layer after locating succeeds', async () => {
+    locationState.request = vi.fn(() => Promise.resolve({ lat: 52.5, lng: 13.4 }));
+
+    renderClient(
+      <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
+        <HubNearby initialMapData={mapData([restaurant()])} />
+      </NextIntlClientProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mein Standort verwenden' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Standort sitzt. Berlin sortiert sich um dich herum.')).toBeTruthy();
+    });
   });
 });

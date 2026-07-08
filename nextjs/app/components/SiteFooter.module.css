@@ -2,6 +2,7 @@
   --footer-ink: #fff;
   --footer-paper: #fff;
   --footer-red: #d9382a;
+  --footer-hover: var(--footer-red);
   --footer-instagram: #c13584;
   --footer-bg: #15120e;
   background: var(--footer-bg);
@@ -159,7 +160,7 @@
 
 .remyLink:hover,
 .remyLink:focus-visible {
-  color: var(--footer-red);
+  color: var(--footer-hover);
   background: transparent;
   box-shadow: none;
   outline: 0;
@@ -268,6 +269,12 @@
   color: var(--footer-ink);
 }
 
+.langBtn:hover,
+.langBtn:focus-visible {
+  color: var(--home-accent, #ffc600);
+  outline: 0;
+}
+
 .langSep {
   color: rgba(255, 255, 255, .32);
 }
@@ -290,7 +297,7 @@
 
   .tagImg {
     width: min(19vw, 210px);
-    margin-top: 2px;
+    margin-top: -14px;
   }
 
   .remyLink {
@@ -321,6 +328,7 @@
 :global(html[data-active-page='start']) .footer,
 :global(html[data-active-page='must-eats']) .footer {
   --footer-red: #15120e;
+  --footer-hover: #ffc600;
   --footer-ink: #fff;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }

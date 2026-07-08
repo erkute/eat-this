@@ -66,6 +66,12 @@
   font-size: clamp(15px, 1.25vw, 18px);
 }
 
+.heroActions :global(.hv-btn):hover,
+.heroActions :global(.hv-btn):focus-visible {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-red);
+}
+
 .page .heroNearbyLink:global(.hv-link-underline) {
   font-family: var(--font-providence);
   font-size: clamp(23px, 2.4vw, 30px);
@@ -74,10 +80,24 @@
   line-height: 0.95;
 }
 
+.page .heroNearbyLink:global(.hv-link-underline):hover,
+.page .heroNearbyLink:global(.hv-link-underline):focus-visible {
+  color: var(--et-home-red);
+}
+
 .heroPhoto {
   justify-self: end;
   width: min(100%, 440px);
   min-height: clamp(390px, 42vw, 560px);
+}
+
+.heroPhoto :global(img) {
+  transition: transform 220ms ease;
+}
+
+.heroPhoto:hover :global(img),
+.heroPhoto:focus-visible :global(img) {
+  transform: scale(1.03);
 }
 
 .heroPhoto::after {

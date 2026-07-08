@@ -17,11 +17,11 @@ export default function DistrictsList({ districts, locale }: Props) {
       aria-label={locale === 'en' ? 'By district' : 'Nach Bezirk'}
     >
       <div className="hv-head">
-        <h2 className="hv-title">
+        <h2 className={`hv-title ${styles.title}`}>
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'By district' : 'Nach Bezirk'}
         </h2>
-        <Link href="/bezirk" className="hv-link">
+        <Link href="/bezirk" className={`hv-link ${styles.allLink}`}>
           {locale === 'en' ? 'All' : 'Alle'} →
         </Link>
       </div>

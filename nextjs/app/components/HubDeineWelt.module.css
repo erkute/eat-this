@@ -66,11 +66,20 @@
 }
 
 .mapBtn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
   color: var(--home-ink) !important;
   background: var(--home-accent) !important;
   font-family: var(--font-providence) !important;
   font-weight: 700 !important;
   line-height: 1 !important;
+}
+
+.mapBtn:hover,
+.mapBtn:focus-visible {
+  color: var(--et-home-inverse-text) !important;
+  background: var(--et-home-red) !important;
 }
 
 .profileBtn {
@@ -79,6 +88,11 @@
   font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: 0.95 !important;
+}
+
+.profileBtn:hover,
+.profileBtn:focus-visible {
+  color: var(--et-home-red);
 }
 
 .spotLink {
@@ -107,6 +121,12 @@
   height: 100%;
   min-height: inherit;
   object-fit: cover;
+  transition: transform 220ms ease;
+}
+
+.spotLink:hover .spotImg,
+.spotLink:focus-visible .spotImg {
+  transform: scale(1.03);
 }
 
 .spotTag {
@@ -180,7 +200,7 @@
 
   .mapBtn:global(.hv-btn) {
     min-height: 52px;
-    padding: 15px 24px;
+    padding: 0 24px;
     font-size: clamp(15px, 1.25vw, 18px) !important;
   }
 

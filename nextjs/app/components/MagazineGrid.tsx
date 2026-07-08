@@ -23,7 +23,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
     >
       <div className={`hv-head ${styles.head}`}>
         <span className={styles.eyebrow}>{labels.kicker}</span>
-        <h2 className="hv-title">{locale === 'en' ? 'On the plate' : 'Auf den Teller'}</h2>
+        <h2 className="hv-title">{locale === 'en' ? 'On the plate' : 'Auf dem Teller'}</h2>
         <Link href="/news" className={styles.allLink}>
           {labels.all}
         </Link>

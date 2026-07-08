@@ -10095,6 +10095,15 @@ html .mapSearchInput::placeholder {
   font: inherit !important;
 }
 
+html .mapSearchInput::-webkit-search-decoration,
+html .mapSearchInput::-webkit-search-cancel-button,
+html .mapSearchInput::-webkit-search-results-button,
+html .mapSearchInput::-webkit-search-results-decoration {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  display: none !important;
+}
+
 html .mapSearchClear {
   width: 28px !important;
   min-width: 28px !important;

@@ -800,9 +800,11 @@
 
 .featuredExample {
   display: grid;
-  gap: 7px;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
   min-width: 0;
-  padding: 16px;
+  padding: 10px;
   border-radius: var(--et-radius-control);
   background: var(--cream);
   color: var(--ink);
@@ -813,6 +815,26 @@
 .featuredExample:hover {
   background: var(--yellow);
   transform: translateY(-2px);
+}
+
+.featuredExamplePhoto {
+  position: relative;
+  display: block;
+  width: 84px;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--et-radius-control);
+  overflow: hidden;
+  background: var(--cream-deep);
+}
+
+.featuredExamplePhoto img {
+  object-fit: cover;
+}
+
+.featuredExampleCopy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
 }
 
 .featuredExampleMeta {
@@ -844,6 +866,16 @@
   color: var(--muted);
   font-size: 14px;
   line-height: 1.35;
+}
+
+@media (max-width: 380px) {
+  .featuredExample {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .featuredExamplePhoto {
+    width: 72px;
+  }
 }
 
 .districtsBlock {

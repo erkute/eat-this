@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getAllBezirkeWithStats } from '@/lib/sanity.server'
@@ -120,13 +121,25 @@ export default async function BezirkIndexPage({ params }: PageProps) {
               <div className={styles.featuredExamples} aria-label={de ? `Beispiel-Restaurants in ${featured.name}` : `Example restaurants in ${featured.name}`}>
                 {featuredExamples.map(restaurant => (
                   <Link key={restaurant._id} href={`/restaurant/${restaurant.slug}`} className={styles.featuredExample}>
-                    {restaurant.cuisineType && (
-                      <span className={styles.featuredExampleMeta}>{restaurant.cuisineType}</span>
+                    {restaurant.photo && (
+                      <span className={styles.featuredExamplePhoto}>
+                        <Image
+                          src={restaurant.photo}
+                          alt=""
+                          fill
+                          sizes="84px"
+                        />
+                      </span>
                     )}
-                    <span className={styles.featuredExampleName}>{restaurant.name}</span>
-                    {restaurantDescription(restaurant) && (
-                      <span className={styles.featuredExampleText}>{restaurantDescription(restaurant)}</span>
-                    )}
+                    <span className={styles.featuredExampleCopy}>
+                      {restaurant.cuisineType && (
+                        <span className={styles.featuredExampleMeta}>{restaurant.cuisineType}</span>
+                      )}
+                      <span className={styles.featuredExampleName}>{restaurant.name}</span>
+                      {restaurantDescription(restaurant) && (
+                        <span className={styles.featuredExampleText}>{restaurantDescription(restaurant)}</span>
+                      )}
+                    </span>
                   </Link>
                 ))}
               </div>

@@ -182,7 +182,7 @@ export interface BezirkDoc {
   seo?: BezirkSeo
   // Optional: only projected by allBezirkeWithStatsQuery; bezirkBySlugQuery does NOT include it.
   restaurantCount?: number
-  exampleRestaurants?: Pick<RestaurantCard, '_id' | 'name' | 'slug' | 'cuisineType' | 'shortDescription' | 'shortDescriptionEn'>[]
+  exampleRestaurants?: Pick<RestaurantCard, '_id' | 'name' | 'slug' | 'cuisineType' | 'shortDescription' | 'shortDescriptionEn' | 'photo'>[]
 }
 
 export interface RestaurantCard {

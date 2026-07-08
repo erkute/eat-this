@@ -384,7 +384,7 @@ export default function RestaurantDetail({
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
               {hasHours && (
-                <span className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : ''}`}>
+                <span className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}>
                   {openTag}
                 </span>
               )}

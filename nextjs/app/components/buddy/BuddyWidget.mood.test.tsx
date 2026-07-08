@@ -114,4 +114,36 @@ describe('BuddyWidget expression policy', () => {
     expect(save?.textContent).toContain('Merken')
     expect(save?.querySelector('svg')).not.toBeNull()
   })
+
+  it('offers sharper Sanity image candidates for spot cards', () => {
+    chat.messages = [
+      {
+        role: 'assistant',
+        content: 'Der passt:\n[[spot:test-spot]]',
+        spots: [
+          {
+            _id: 'restaurant-test',
+            name: 'Test Spot',
+            slug: 'test-spot',
+            cuisineType: 'Café',
+            bezirk: 'Neukölln',
+            shortDescription: null,
+            tip: null,
+            priceRange: null,
+            mapsUrl: null,
+            image: 'https://cdn.sanity.io/images/project/dataset/test.jpg?w=120&h=120&fit=crop&auto=format&q=80',
+            openNow: null,
+            openLabel: null,
+            distanceLabel: null,
+          },
+        ],
+      },
+    ]
+    chat.isStreaming = false
+    renderOpenWidget()
+
+    const img = document.querySelector('img[src*="cdn.sanity.io"]')
+    expect(img?.getAttribute('srcset')).toContain('w=800')
+    expect(img?.getAttribute('sizes')).toContain('360px')
+  })
 })

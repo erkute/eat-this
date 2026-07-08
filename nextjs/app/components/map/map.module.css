@@ -10546,7 +10546,12 @@ html .detailV13:not(.detailV13MustEat) .rdTagAlt {
 }
 
 html .detailV13:not(.detailV13MustEat) .rdTagOpen {
-  background: var(--et-home-ink, #15120e) !important;
+  background: #1f8f4d !important;
+  color: #fff !important;
+}
+
+html .detailV13:not(.detailV13MustEat) .rdTagClosed {
+  background: #d9382a !important;
   color: #fff !important;
 }
 

@@ -288,13 +288,13 @@
 }
 
 .spotCard {
-  display: block;
-  min-height: 206px;
-  aspect-ratio: 16 / 10.8;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
   padding: 0;
   overflow: hidden;
-  color: #fff;
-  background: var(--buddy-ink);
+  color: var(--buddy-ink);
+  background: #fff;
 }
 
 .articleCard {
@@ -315,7 +315,7 @@
 }
 
 .spotCard:hover {
-  background: var(--buddy-ink);
+  background: #fff;
 }
 
 .spotSave {
@@ -372,27 +372,17 @@
 }
 
 .spotCard .spotImg {
-  position: absolute;
-  inset: 0;
+  display: block;
+  position: relative;
   width: 100%;
-  height: 100%;
-  filter: saturate(1.04) contrast(1.02) brightness(.9);
-  border-radius: 0;
-  transform: scale(1.01);
+  height: clamp(144px, 36vw, 172px);
+  filter: none;
+  border-radius: 8px 8px 0 0;
+  transform: none;
 }
 
 .spotCard::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, .08) 0%,
-    rgba(0, 0, 0, .2) 42%,
-    rgba(0, 0, 0, .84) 100%
-  );
+  content: none;
 }
 
 .spotBody {
@@ -403,13 +393,11 @@
 }
 
 .spotCard .spotBody {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
-  left: 14px;
-  z-index: 2;
-  gap: 6px;
-  color: #fff;
+  position: relative;
+  z-index: 1;
+  gap: 5px;
+  padding: 10px 12px 12px;
+  color: var(--buddy-ink);
 }
 
 .spotName {
@@ -423,12 +411,12 @@
 
 .spotCard .spotName {
   max-width: 92%;
-  color: #fff;
-  font-family: var(--buddy-copy);
-  font-size: clamp(1.75rem, 6vw, 2.35rem);
+  color: var(--buddy-ink);
+  font-family: var(--buddy-display);
+  font-size: 1.12rem;
   font-weight: 700;
-  line-height: .9;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, .58);
+  line-height: 1.02;
+  text-shadow: none;
 }
 
 .spotMeta {
@@ -445,10 +433,10 @@
   flex-wrap: wrap;
   gap: 5px;
   max-width: 100%;
-  color: #fff;
+  color: #6f665d;
   font-size: .67rem;
   line-height: 1.15;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .52);
+  text-shadow: none;
 }
 
 .spotDesc,
@@ -467,7 +455,7 @@
 
 .spotCard .spotDesc {
   max-width: 92%;
-  color: rgba(255, 255, 255, .86);
+  color: #49443e;
   font-size: .88em;
   line-height: 1.28;
 }
@@ -484,7 +472,7 @@
 }
 
 .spotCard .spotCta {
-  color: var(--buddy-yellow);
+  color: var(--buddy-red);
 }
 
 .spotStatus {
@@ -505,7 +493,11 @@
 
 .spotCard .spotStatus[data-open='true'],
 .spotCard .spotStatus[data-open='false'] {
-  color: #fff;
+  color: #7a7066;
+}
+
+.spotCard .spotStatus[data-open='true'] {
+  color: #137b3f;
 }
 
 .packBlock {

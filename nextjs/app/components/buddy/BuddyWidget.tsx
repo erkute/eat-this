@@ -17,6 +17,7 @@ import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
 import { HeartIcon } from '@/app/components/map/icons'
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types'
+import { sanitySrcSet } from '@/lib/sanity-image-presets'
 import styles from './BuddyWidget.module.css'
 
 // Minimal inline markdown: **bold** only (Claude's main inline marker).
@@ -95,7 +96,16 @@ function SpotCard({
     <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} prefetch onClick={onSelect}>
       {spot.image && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className={styles.spotImg} src={spot.image} alt="" width={56} height={56} loading="lazy" />
+        <img
+          className={styles.spotImg}
+          src={spot.image}
+          srcSet={sanitySrcSet(spot.image, [320, 480, 640, 800], 82)}
+          sizes="(max-width: 480px) calc(94vw - 48px), 360px"
+          alt=""
+          width={640}
+          height={400}
+          loading="lazy"
+        />
       )}
       <span className={styles.spotBody}>
         <span className={styles.spotName}>{spot.name}</span>

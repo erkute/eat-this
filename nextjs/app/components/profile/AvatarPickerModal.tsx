@@ -70,20 +70,23 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
           <p className={styles.sub}>{t('avatarModalSub')}</p>
         </div>
         <div className={styles.chars} role="radiogroup" aria-label={t('avatarModalTitle')}>
-          {CHOICES.map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="radio"
-              aria-checked={selected === c}
-              className={`${styles.char} ${selected === c ? styles.charOn : ''}`}
-              onClick={() => setSelected(c)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/pics/avatar/${c}.webp?v=3`} alt={t('avatarChoice', { n: c })} />
-              <span>{t('avatarChoice', { n: c })}</span>
-            </button>
-          ))}
+          {CHOICES.map((c) => {
+            const label = t(`avatarChoice${c}`);
+            return (
+              <button
+                key={c}
+                type="button"
+                role="radio"
+                aria-checked={selected === c}
+                className={`${styles.char} ${selected === c ? styles.charOn : ''}`}
+                onClick={() => setSelected(c)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/pics/avatar/${c}.webp?v=3`} alt={label} />
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </div>
         <button
           type="button"

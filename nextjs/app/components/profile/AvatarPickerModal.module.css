@@ -160,12 +160,13 @@
 
 .char span {
   color: color-mix(in srgb, var(--avatar-ink) 72%, transparent);
-  font-family: var(--avatar-mono);
-  font-size: 10px;
+  font-family: var(--avatar-display);
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.1;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+  text-wrap: balance;
 }
 
 .charOn {
@@ -250,8 +251,8 @@
   }
 
   .char span {
-    font-size: 8.5px;
-    letter-spacing: 0.04em;
+    font-size: 11px;
+    letter-spacing: 0;
     overflow-wrap: anywhere;
   }
 }

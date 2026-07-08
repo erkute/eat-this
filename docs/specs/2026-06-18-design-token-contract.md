@@ -13,6 +13,83 @@ This document is intentionally a contract, not an implementation patch. The
 next code change should be small: introduce/align tokens first, then migrate
 components in visible slices.
 
+## Design System v0
+
+This is the practical source of truth for current Eat This UI work. It reflects
+the live Home/Profile direction and should guide small redesign tasks before a
+larger component-library pass exists.
+
+### Colors
+
+Use the light-only print palette from `nextjs/app/globals.css`.
+
+| Role | Token | Value | Use |
+| --- | --- | --- | --- |
+| Paper | `--et-home-paper` | `#fff` | Main surfaces, profile paper, modal paper |
+| Ink | `--et-home-ink` | `#15120e` | Primary text, black buttons, strong structure |
+| Accent | `--et-home-accent` | `#ffc600` | Selected states, secondary/positive CTAs, small punch |
+| Red | `--et-home-red` | `#d9382a` | Destructive actions, hover heat, important warnings |
+| Quiet | `--et-home-quiet` | `#f2f1ef` | Soft controls, inactive cards, subtle panels |
+| Photo Rest | `--et-home-photo-rest` | `#eceae6` | Empty image beds and quiet media backgrounds |
+| Muted Text | `--et-home-muted` | `rgba(21, 18, 14, 0.64)` | Helper copy, captions, secondary metadata |
+| Line | `--et-home-line` | `rgba(21, 18, 14, 0.2)` | Functional borders only, not decorative lines |
+| Warm Panel | `--et-home-panel-warm` | `#fff4cc` | Empty states and gentle explanatory panels |
+| Inverse Text | `--et-home-inverse-text` | `#fff` | Text on ink/red buttons |
+
+Rules:
+
+- Keep the app light-only.
+- Use color for state and hierarchy, not background decoration.
+- Avoid decorative divider lines on brand/editorial surfaces; use spacing,
+  type scale, image scale, and solid surfaces instead.
+- Do not introduce one-off colors when an existing token covers the job.
+
+### Fonts
+
+Use a small set of roles instead of choosing fonts per component.
+
+| Role | Token | Use |
+| --- | --- | --- |
+| Display | `--et-font-display` | Headlines, section titles, card titles, named objects |
+| Label | `--et-font-label` | Kicker labels and short UI labels when display rhythm is wanted |
+| Mono | `--et-font-mono` | Technical metadata only: IDs, compact stats, timestamps, tiny map/profile labels |
+| Condensed | `--et-font-condensed` | Special editorial/impact moments only |
+
+Rules:
+
+- Buttons and CTAs use `--et-font-display`, compact size, strong weight, no
+  exaggerated letter spacing, and no forced uppercase unless the local component
+  already proves it needs that poster treatment.
+- Character names, pack names, restaurant names, and other user-facing object
+  names should use display type, not mono.
+- Mono is for metadata, never for warm user-facing names like `Spot Scout`,
+  `Spice Diva`, or `Chef Slice`.
+- Body/legal/editorial paragraphs use the body stack when available; do not make
+  long text carry the display voice.
+
+### Buttons
+
+Buttons should feel like Home buttons: compact, direct, and tactile.
+
+| Variant | Background | Text | Typical use |
+| --- | --- | --- | --- |
+| Primary | `--et-home-ink` | `--et-home-inverse-text` | Apply, save, continue, sign out |
+| Accent | `--et-home-accent` | `--et-home-ink` | Open, selected-friendly actions, positive CTAs |
+| Danger/Hover | `--et-home-red` | `--et-home-inverse-text` | Remove, destructive hover, urgent action |
+| Quiet | `--et-home-quiet` | `--et-home-ink` | Close, inactive, low-priority controls |
+| Disabled Status | `--et-home-quiet` | muted ink | Non-clickable labels like `opened` |
+
+Button rules:
+
+- Use `border-radius: var(--et-radius-control, 7px)`.
+- Use `font-family: var(--et-font-display)` and `font-size: var(--et-type-button, 13px)`.
+- Keep `letter-spacing: 0`; do not use Mono, Moonblossom/Poster, or wide
+  uppercase for buttons.
+- Hover/press may translate upward slightly and change color; do not animate
+  opacity for entry/exit motion.
+- Icon-only controls should be compact symbols with accessible labels, not text
+  pills pretending to be icons.
+
 ## Canonical Token Source
 
 ### Decision

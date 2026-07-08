@@ -46,9 +46,9 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const featured = bezirke.find(b => b.imageUrl) ?? bezirke[0]
   const featuredImage = featured?.imageUrl ?? '/pics/home-dishes/gazzo-aubergine.webp'
   const spotLabel = (count?: number) =>
-    de
-      ? `${count ?? 0} Spots`
-      : `${count ?? 0} spots`
+    count === 1
+      ? (de ? '1 Spot' : '1 spot')
+      : (de ? `${count ?? 0} Spots` : `${count ?? 0} spots`)
   const featuredDescription = featured
     ? (de ? featured.description : featured.descriptionEn ?? featured.description)
     : null
@@ -89,8 +89,8 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           </h1>
           <p className={styles.sub}>
             {de
-              ? 'Spring direkt in den Kiez, in dem du essen willst. Jede Bezirksseite sammelt unsere kuratierten Spots und führt dich zur passenden Map.'
-              : 'Jump straight into the neighborhood you want to eat in. Each district page collects our curated spots and links you to the matching map.'}
+              ? 'Mitte ist nicht Neukölln, Charlottenburg nicht Wedding. Such dir den Bezirk aus - wir zeigen dir die Läden, für die wir wirklich nochmal hinfahren würden.'
+              : "Mitte is not Neukölln, Charlottenburg is not Wedding. Pick a district - we'll show you the places we'd cross town for again."}
           </p>
           <div className={styles.indexHeroCount}>
             {de ? `${bezirke.length} Bezirke mit kuratierten Spots` : `${bezirke.length} districts with curated spots`}
@@ -133,20 +133,12 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         <section className={styles.districtsBlock} aria-label={de ? 'Alle Bezirke' : 'All districts'}>
           <div className={styles.districtsIntro}>
             <h2>{de ? 'Alle Bezirke' : 'All districts'}</h2>
-            <p>
-              {de
-                ? 'Kurz scannen, Bezirk wählen, Spots öffnen.'
-                : 'Scan quickly, choose a district, open the spots.'}
-            </p>
           </div>
           <div className={styles.bezirkGrid}>
             {bezirke.map(b => (
               <Link key={b._id} href={`/bezirk/${b.slug}`} className={styles.bezirkCard}>
                 <span className={styles.bezirkName}>{b.name}</span>
-                <span className={styles.bezirkMeta}>
-                  {spotLabel(b.restaurantCount)}
-                  <span className={styles.bezirkArrow} aria-hidden="true">→</span>
-                </span>
+                <span className={styles.bezirkMeta}>{spotLabel(b.restaurantCount)}</span>
               </Link>
             ))}
           </div>

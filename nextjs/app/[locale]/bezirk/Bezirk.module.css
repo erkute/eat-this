@@ -688,9 +688,12 @@
 }
 
 .indexHero .h1 {
+  font-family: var(--et-font-display);
   max-width: 9ch;
   font-size: clamp(60px, 14vw, 138px);
+  letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
+  color: var(--ink);
   margin: 0;
 }
 
@@ -702,8 +705,9 @@
 .indexHeroCount {
   width: fit-content;
   max-width: 100%;
-  background: var(--et-home-red);
-  color: var(--et-home-paper);
+  background: var(--yellow);
+  color: var(--ink);
+  border-radius: var(--et-radius-control);
   font-family: var(--et-font-mono);
   font-size: clamp(12px, 1.6vw, 15px);
   font-weight: 900;
@@ -744,12 +748,13 @@
 }
 
 .featuredName {
-  font-family: var(--et-font-condensed);
-  font-size: clamp(48px, 9vw, 84px);
+  font-family: var(--et-font-display);
+  font-size: clamp(42px, 7vw, 74px);
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.88;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.9;
   text-transform: uppercase;
+  color: var(--cream);
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -786,7 +791,7 @@
 .featuredPrimary {
   padding: 11px 18px;
   border-radius: var(--et-radius-control);
-  background: var(--cream);
+  background: var(--yellow);
   color: var(--ink);
 }
 
@@ -827,12 +832,13 @@
 }
 
 .districtsIntro h2 {
-  font-family: var(--et-font-condensed);
+  font-family: var(--et-font-display);
   font-size: clamp(38px, 8vw, 72px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: var(--et-tracking-title);
   line-height: 0.9;
   text-transform: uppercase;
+  color: var(--ink);
   margin: 0;
 }
 
@@ -868,25 +874,25 @@
 }
 
 .bezirkName {
+  font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: clamp(26px, 8.1vw, 44px);
+  font-size: clamp(20px, 5.2vw, 30px);
+  letter-spacing: var(--et-tracking-title);
   overflow-wrap: normal;
   white-space: nowrap;
 }
 
 .bezirkMeta {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-end;
-  margin-top: auto;
-  color: var(--muted);
-}
-
-.bezirkArrow {
-  font-family: var(--et-font-condensed);
-  font-size: 28px;
-  line-height: 0.8;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  margin-top: 10px;
+  padding: 6px 9px 7px;
+  background: var(--yellow);
+  color: var(--ink);
+  border-radius: var(--et-radius-control);
+  line-height: 1;
 }
 
 @media (min-width: 720px) {
@@ -925,7 +931,7 @@
   }
 
   .indexHero .h1 {
-    font-size: clamp(96px, 10vw, 138px);
+    font-size: clamp(82px, 8.4vw, 116px);
   }
 
   .bezirkGrid {
@@ -933,6 +939,6 @@
   }
 
   .bezirkName {
-    font-size: clamp(32px, 3.35vw, 44px);
+    font-size: clamp(28px, 2.35vw, 32px);
   }
 }

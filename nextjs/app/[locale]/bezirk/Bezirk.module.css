@@ -745,12 +745,13 @@
 
 .featuredName {
   font-family: var(--et-font-condensed);
-  font-size: clamp(48px, 11vw, 96px);
+  font-size: clamp(48px, 9vw, 84px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.88;
   text-transform: uppercase;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .featuredText {
@@ -773,35 +774,45 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
-  padding: 12px 17px 13px;
+  min-height: 42px;
   font-family: var(--font-providence);
-  font-size: clamp(15px, 1.8vw, 18px);
+  font-size: var(--et-type-button);
   font-weight: 700;
+  letter-spacing: 0;
   line-height: 1;
   text-decoration: none;
 }
 
 .featuredPrimary {
-  background: var(--yellow);
+  padding: 11px 18px;
+  border-radius: var(--et-radius-control);
+  background: var(--cream);
   color: var(--ink);
 }
 
 .featuredSecondary {
-  background: var(--cream);
-  color: var(--ink);
+  min-height: 0;
+  padding: 0 0 2px;
+  color: var(--cream);
+  border-bottom: 2px solid var(--yellow);
 }
 
 .featuredMedia {
   position: relative;
   display: block;
-  min-height: clamp(260px, 52vw, 520px);
-  background: var(--et-home-red);
+  align-self: center;
+  aspect-ratio: 4 / 3;
+  width: calc(100% - clamp(32px, 6vw, 72px));
+  min-height: 0;
+  margin: clamp(16px, 3vw, 36px);
+  border-radius: var(--et-radius-photo);
+  overflow: hidden;
+  background: var(--cream);
   color: inherit;
 }
 
 .featuredMedia img {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .districtsBlock {
@@ -857,7 +868,10 @@
 }
 
 .bezirkName {
-  overflow-wrap: anywhere;
+  font-weight: 700;
+  font-size: clamp(26px, 8.1vw, 44px);
+  overflow-wrap: normal;
+  white-space: nowrap;
 }
 
 .bezirkMeta {
@@ -890,7 +904,7 @@
   }
 
   .featuredMedia {
-    min-height: 100%;
+    width: calc(100% - clamp(32px, 5vw, 64px));
   }
 
   .districtsIntro {
@@ -919,6 +933,6 @@
   }
 
   .bezirkName {
-    font-size: clamp(32px, 3.4vw, 48px);
+    font-size: clamp(32px, 3.35vw, 44px);
   }
 }

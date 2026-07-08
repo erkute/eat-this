@@ -1,6 +1,7 @@
 # Eat This Design Token Contract
 
 Date: 2026-06-18
+Last updated: 2026-07-08
 Linear: EAT-15
 Depends on: EAT-14
 
@@ -16,21 +17,41 @@ components in visible slices.
 ## Design System v0
 
 This is the practical source of truth for current Eat This UI work. It reflects
-the live Home/Profile direction and should guide small redesign tasks before a
-larger component-library pass exists.
+the local site at `http://localhost:3000/` as of 2026-07-08 and should guide
+small redesign tasks before a larger component-library pass exists.
+
+### Visual North Star
+
+Eat This is a light, print-like food product: white paper, almost-black ink,
+yellow action accents, red heat, real food/pack imagery, and Providence type.
+The UI should feel like an editorial city-food dossier that happens to be
+interactive, not like a generic SaaS dashboard.
+
+Current live signals:
+
+- Home is the main visual source of truth.
+- Navigation is ink-black with white sticker-like words.
+- Cards are mostly flat; imagery and typography carry the character.
+- Desktop pack/category grids use five columns.
+- Mobile pack/category sections become swipe rails or tight two-column grids.
+- Profile uses a paper dossier layer on top of the same Home tokens.
+- Map is the dense utility mode and may be more compact, but it still inherits
+  the same ink/paper/yellow/red vocabulary.
 
 ### Colors
 
-Use the light-only print palette from `nextjs/app/globals.css`.
+Use the light-only print palette from `nextjs/app/globals.css`. The live palette
+is intentionally narrow.
 
 | Role | Token | Value | Use |
 | --- | --- | --- | --- |
-| Paper | `--et-home-paper` | `#fff` | Main surfaces, profile paper, modal paper |
-| Ink | `--et-home-ink` | `#15120e` | Primary text, black buttons, strong structure |
-| Accent | `--et-home-accent` | `#ffc600` | Selected states, secondary/positive CTAs, small punch |
-| Red | `--et-home-red` | `#d9382a` | Destructive actions, hover heat, important warnings |
-| Quiet | `--et-home-quiet` | `#f2f1ef` | Soft controls, inactive cards, subtle panels |
-| Photo Rest | `--et-home-photo-rest` | `#eceae6` | Empty image beds and quiet media backgrounds |
+| Paper | `--et-home-paper` | `#fff` | Main page canvas, modals, profile paper, content surfaces |
+| Ink | `--et-home-ink` | `#15120e` | Text, nav background, primary Home CTAs, strong structure |
+| Yellow | `--et-home-accent` | `#ffc600` | Login/auth CTA, selected states, small status punch |
+| Red | `--et-home-red` | `#d9382a` | Pack purchase CTA, destructive/hover heat, warnings |
+| Quiet | `--et-home-quiet` | `#f2f1ef` | Soft controls, inactive cards, profile page background |
+| Photo Rest | `--et-home-photo-rest` | `#eceae6` | Image placeholders and restaurant-card beds |
+| Rule | `--et-home-rule` | `#e4e1dc` | Rare functional rules on utility surfaces only |
 | Muted Text | `--et-home-muted` | `rgba(21, 18, 14, 0.64)` | Helper copy, captions, secondary metadata |
 | Line | `--et-home-line` | `rgba(21, 18, 14, 0.2)` | Functional borders only, not decorative lines |
 | Warm Panel | `--et-home-panel-warm` | `#fff4cc` | Empty states and gentle explanatory panels |
@@ -39,21 +60,28 @@ Use the light-only print palette from `nextjs/app/globals.css`.
 Rules:
 
 - Keep the app light-only.
+- Default to paper and ink. Yellow and red should feel earned.
+- Use yellow for selected, friendly, login, and positive action moments.
+- Use red for pack purchase, destructive action, warnings, and hover heat.
 - Use color for state and hierarchy, not background decoration.
 - Avoid decorative divider lines on brand/editorial surfaces; use spacing,
   type scale, image scale, and solid surfaces instead.
 - Do not introduce one-off colors when an existing token covers the job.
+- Avoid beige/cream drift. The current site is white paper, not a tan paper
+  system.
 
 ### Fonts
 
-Use a small set of roles instead of choosing fonts per component.
+Use a small set of roles instead of choosing fonts per component. The local site
+currently reads as Providence-led.
 
 | Role | Token | Use |
 | --- | --- | --- |
-| Display | `--et-font-display` | Headlines, section titles, card titles, named objects |
+| Body | `--font-body` / `--font` | Long paragraphs, legal copy, utility descriptions |
+| Display | `--et-font-display` | Hero headlines, section titles, card titles, named objects |
 | Label | `--et-font-label` | Kicker labels and short UI labels when display rhythm is wanted |
 | Mono | `--et-font-mono` | Technical metadata only: IDs, compact stats, timestamps, tiny map/profile labels |
-| Condensed | `--et-font-condensed` | Special editorial/impact moments only |
+| Condensed | `--et-font-condensed` | Nav stickers, map/menu words, special impact moments only |
 
 Rules:
 
@@ -66,16 +94,20 @@ Rules:
   `Spice Diva`, or `Chef Slice`.
 - Body/legal/editorial paragraphs use the body stack when available; do not make
   long text carry the display voice.
+- Big brand headings can be uppercase with tight line-height and slight negative
+  tracking. Compact UI controls should keep `letter-spacing: 0`.
+- Condensed type is a spice, not the meal: use it for nav stickers and strong
+  menu words, not for ordinary buttons or cards.
 
 ### Buttons
 
-Buttons should feel like Home buttons: compact, direct, and tactile.
+Buttons should feel like Home buttons: compact, direct, tactile, and flat.
 
 | Variant | Background | Text | Typical use |
 | --- | --- | --- | --- |
-| Primary | `--et-home-ink` | `--et-home-inverse-text` | Apply, save, continue, sign out |
-| Accent | `--et-home-accent` | `--et-home-ink` | Open, selected-friendly actions, positive CTAs |
-| Danger/Hover | `--et-home-red` | `--et-home-inverse-text` | Remove, destructive hover, urgent action |
+| Primary | `--et-home-ink` | `--et-home-inverse-text` | Home/map CTAs, apply, save, continue |
+| Accent | `--et-home-accent` | `--et-home-ink` | Login/auth, selected-friendly actions, positive CTAs |
+| Commerce/Hot | `--et-home-red` | `--et-home-inverse-text` | Pack purchase, destructive hover, urgent action |
 | Quiet | `--et-home-quiet` | `--et-home-ink` | Close, inactive, low-priority controls |
 | Disabled Status | `--et-home-quiet` | muted ink | Non-clickable labels like `opened` |
 
@@ -89,6 +121,81 @@ Button rules:
   opacity for entry/exit motion.
 - Icon-only controls should be compact symbols with accessible labels, not text
   pills pretending to be icons.
+- Buttons are borderless by default. Use inset/outline only for inputs, selected
+  cards, or accessibility focus.
+- Primary Home buttons may be larger in hero contexts (`min-height` around
+  52-62px), but ordinary controls should stay compact.
+
+### Shape, Depth, And Surfaces
+
+| Token | Live value | Use |
+| --- | --- | --- |
+| `--et-radius-control` | `7px` | Buttons, chips, inputs, compact controls |
+| `--et-radius-photo` | `10px` | Restaurant photos, saved spots, media cards |
+| `--radius-xs` / local `2px` | `2px` | Paper/dossier sheets and physical-print edges |
+| `--et-shadow-none` | `none` | Default Home/card depth |
+| Physical shadows | local drop-shadows | Cut-out pack art, avatars, physical cards |
+
+Rules:
+
+- Do not put cards inside cards.
+- Brand/editorial pages should be mostly flat. Shadows are for physical objects
+  like pack art, Polaroids, cut-outs, or dossier paper.
+- Avoid gray framed boxes around repeated objects. Let image scale, spacing, and
+  type do the work.
+- Real media should be visible and inspectable; do not hide product/food/pack
+  imagery behind decorative treatments.
+
+### Layout Rules
+
+- Page max width: use `--et-wrap-max` and `--et-wrap-pad`.
+- Home desktop sections use wide grids and rails; mobile uses swipe rails or
+  dense two-column grids depending on the object.
+- Category and pack grids: desktop five columns; mobile swipe rail or two
+  columns when the user is comparing owned objects.
+- Saved spots: mobile two columns, desktop four columns.
+- Profile packs: desktop five columns, mobile two columns.
+- Fixed-format elements need stable dimensions through aspect-ratio, explicit
+  grid rows, or fixed control sizes so labels and hover states do not shift
+  layout.
+
+### Component Rules
+
+Navigation:
+
+- Site nav is ink-black with white wordmarks/stickers.
+- `MAP` and `MENÜ` may use condensed impact type.
+- Drawer items use Providence, large uppercase, and yellow for the login CTA.
+
+Cards:
+
+- Restaurant/media cards use real images, `--et-radius-photo`, and white text
+  over image overlays when needed.
+- Pack cards are freestanding art objects. Do not put pack artwork on a
+  rectangular backing unless a specific screen intentionally does that.
+- Profile dossier cards may use paper texture/noise, but not decorative border
+  rules.
+
+Toasts:
+
+- Toasts should match the compact locked-location style: small, black, direct,
+  and not visually louder than the action that triggered them.
+
+Profile:
+
+- Profile is an editorial dossier mode grounded in Home tokens.
+- Avatar/character selection uses display type for names.
+- User-facing names should not be clipped with ellipses unless space is truly
+  impossible.
+- `All Berlin` is not shown in the profile pack grid; ownership still unlocks
+  category packs logically.
+
+Map:
+
+- Map is the utility mode. It can be denser, use panels/sheets, and keep compact
+  controls, but it should still inherit paper/ink/yellow/red.
+- Map-only colors or shadows must point back to a named map token, not hard-code
+  a parallel brand system.
 
 ## Canonical Token Source
 
@@ -126,22 +233,31 @@ stable semantic handles.
 
 Raw brand tokens describe the Eat This world. They should be few and stable.
 
-Canonical six-color palette:
+Canonical live palette:
 
 ```css
---et-poster-red: #EF3528;
---et-print-black: #171A17;
---et-program-paper: #F1F1EC;
---et-ticket-grey: #B9BBB4;
---et-offset-grey: #6E716A;
---et-pressed-red: #B92820;
+--et-poster-red: #d9382a;
+--et-print-black: #15120e;
+--et-program-paper: #fff;
+--et-ticket-grey: #15120e;
+--et-offset-grey: #15120e;
+--et-pressed-red: #15120e;
+
+--et-home-paper: #fff;
+--et-home-ink: #15120e;
+--et-home-accent: #ffc600;
+--et-home-red: #d9382a;
+--et-home-quiet: #f2f1ef;
+--et-home-photo-rest: #eceae6;
 ```
 
 Compatibility:
 
 - Keep existing `--et-red`, `--et-yellow`, `--et-cream`, `--et-black`, etc. as
-  aliases during migration. The old yellow/cream names now point into the
-  red-black-program-paper print system.
+  aliases during migration.
+- Historical `program-paper`, `ticket-grey`, and `offset-grey` names now resolve
+  into the current white/ink system. Do not revive the old grey/beige palette
+  unless there is a deliberate redesign.
 - New component work should prefer semantic tokens, not raw colors.
 
 ### 1a. Brand Color Roles
@@ -151,27 +267,27 @@ jobs so every screen can use the brand palette for orientation, recognition,
 and usability instead of decoration.
 
 ```css
---brand-stage;        /* program paper: readable UI canvas */
---brand-stage-bright; /* poster red: selected/active emphasis */
---brand-action;       /* poster red: primary action and brand punch */
---brand-action-hot;   /* poster red: hover heat without adding a 7th color */
---brand-action-deep;  /* pressed red: pressed states and depth */
---brand-paper;        /* program paper: warm readable surface */
+--brand-stage;        /* white paper: readable UI canvas */
+--brand-stage-bright; /* red/yellow emphasis by local mode */
+--brand-action;       /* red for commerce/heat, ink for primary Home buttons */
+--brand-action-hot;   /* red hover heat without adding another brand color */
+--brand-action-deep;  /* ink/pressed states and depth */
+--brand-paper;        /* white paper surface */
 --brand-ink;          /* print black: structure, contrast, trust */
 --brand-night;        /* print black: inverse surface */
---brand-rule;         /* ticket grey: dividers and table rules */
---brand-muted;        /* offset grey: meta text and quieter hierarchy */
+--brand-rule;         /* functional rules, usually ink with low opacity */
+--brand-muted;        /* muted ink for captions and secondary hierarchy */
 ```
 
 Usage:
 
-- Use poster red when the interface asks for intent: buy, open, save,
-  continue, or look here.
-- Use program paper for reading comfort, list surfaces, forms, and editorial
-  calm.
+- Use ink for default primary Home/profile actions.
+- Use yellow for selected, login, positive, and friendly action states.
+- Use red when the interface asks for heat: buy, remove, warn, or hover into a
+  stronger state.
+- Use white paper for reading comfort, list surfaces, forms, and editorial calm.
 - Use print black for structure, borders, text, and confidence.
-- Use ticket grey for rules and layout structure; use offset grey for metadata,
-  timestamps, secondary labels, and less urgent helper text.
+- Use low-opacity ink for rules and muted metadata; avoid full grey systems.
 - Do not introduce new one-off brand colors unless they map to a named role or
   solve a documented accessibility problem.
 
@@ -325,20 +441,25 @@ Usage:
 
 #### Type
 
-Existing role split is directionally right:
+Existing role split should resolve to the live Providence-led system:
 
 ```css
 --font-body: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
---font-display: var(--font-chewy, 'moonblossom'), sans-serif;
---font-label: var(--font-poster, var(--font-display));
+--font-providence: 'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', sans-serif;
+--et-font-display: var(--font-providence, var(--font-display));
+--et-font-label: var(--font-providence, var(--font-display));
+--et-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+--et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton), sans-serif;
 ```
 
 Rules:
 
-- Body copy, meta copy, legal copy, and long-form content use body.
-- Brand headlines and expressive section heads use display.
+- Body copy, legal copy, and long-form content use body.
+- Brand headlines, section heads, pack names, restaurant names, and character
+  names use display.
 - Labels, badges, and CTA text use label/display only when the text is short.
 - Long button labels should not use oversized display type if it hurts fit.
+- Mono is only for technical/meta labeling, never for warm object names.
 
 #### Motion
 
@@ -377,11 +498,13 @@ Allowed:
 - Larger display type
 - Physical/rotated cards
 - More expressive CTAs
-- Strong red/yellow/cream contrast
+- Strong ink/white/yellow/red contrast
+- Real restaurant and pack imagery
 
 Not allowed:
 - Broad `!important` catch-all rules as the long-term system
 - CTA variants that do not map back to primary/secondary/text contracts
+- Beige/cream drift away from the current white-paper page
 
 ### Map Mode
 

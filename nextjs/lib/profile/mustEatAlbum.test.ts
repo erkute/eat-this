@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { buildAlbum } from './mustEatAlbum';
 
-const me = (id: string, cat: string, dish: string) =>
+const me = (id: string, cat: string, dish: string, withImage = false) =>
   ({
     _id: id,
     dish,
-    image: `${id}.jpg`,
+    ...(withImage ? { image: `${id}.jpg` } : {}),
     restaurant: { name: 'R', slug: 'r', district: 'X', categories: [{ name: cat }] },
   }) as any;
 
@@ -35,6 +35,11 @@ describe('buildAlbum', () => {
     expect(doener.mustEat?.dish).toBe('Döner');
     expect(burger.collected).toBe(false);
     expect(burger.mustEat).toBeNull();
+  });
+  it('treats cards with delivered image data as collected', () => {
+    const pages = buildAlbum([me('paid', 'Fast Food', 'Burger', true)], new Set());
+    expect(pages[0].slots[0].collected).toBe(true);
+    expect(pages[0].slots[0].mustEat?.dish).toBe('Burger');
   });
   it('numbers are stable regardless of which are collected', () => {
     const a = buildAlbum(all, new Set());

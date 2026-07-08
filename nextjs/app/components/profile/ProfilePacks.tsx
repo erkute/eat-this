@@ -11,8 +11,8 @@ import styles from './ProfileSlim.module.css';
 const WELCOME_ART = '/pics/booster/booster_free.webp';
 const ALL_BERLIN_ART = '/pics/booster/booster.webp';
 
-// Opened packs stay grouped above unopened packs; locked cards keep only the
-// button clickable so the card still reads as a collected-object slot.
+// Opened packs stay grouped above unopened packs; locked cards link as a whole
+// so the pack art is tappable too.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
@@ -56,14 +56,18 @@ export default function ProfilePacks({ uid }: { uid: string }) {
           {lockedBoosters.map((p) => {
             const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
             return (
-              <div key={p.packId} className={`${styles.pack} ${styles.packLocked}`}>
+              <Link
+                key={p.packId}
+                href={`/pack/${packUrlSlug(p)}`}
+                className={`${styles.pack} ${styles.packLocked}`}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={art} alt="" />
                 <span className={styles.packName}>{p.displayName}</span>
-                <Link href={`/pack/${packUrlSlug(p)}`} className={styles.packButton}>
+                <span className={styles.packButton}>
                   {t('packStatusLocked')}
-                </Link>
-              </div>
+                </span>
+              </Link>
             );
           })}
         </div>

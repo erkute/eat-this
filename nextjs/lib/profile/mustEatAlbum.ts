@@ -28,6 +28,13 @@ export interface AlbumPage {
 const defaultCategoryOf = (m: AlbumMustEat): string =>
   m.restaurant?.categories?.[0]?.name ?? 'Sonstige';
 
+export function isAlbumMustEatCollected(
+  mustEat: AlbumMustEat,
+  faceUpIds: ReadonlySet<string>
+): boolean {
+  return faceUpIds.has(mustEat._id) || Boolean(mustEat.image);
+}
+
 export function buildAlbum(
   all: AlbumMustEat[],
   faceUpIds: Set<string>,
@@ -40,7 +47,7 @@ export function buildAlbum(
   const pages: AlbumPage[] = [];
   sorted.forEach((m, i) => {
     const cat = categoryOf(m);
-    const collected = faceUpIds.has(m._id);
+    const collected = isAlbumMustEatCollected(m, faceUpIds);
     const slot: AlbumSlot = {
       no: i + 1,
       id: m._id,

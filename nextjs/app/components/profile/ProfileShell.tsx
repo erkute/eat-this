@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
+import { isAlbumMustEatCollected, type AlbumMustEat } from '@/lib/profile/mustEatAlbum';
 import {
   defaultAvatarFromUid,
   useUserProfile,
@@ -56,6 +57,11 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)),
     [mustEats, ownedRestaurantIds]
   );
+  const collectedMustEatCount = useMemo(
+    () =>
+      ownedMustEats.filter((m) => isAlbumMustEatCollected(m as AlbumMustEat, unlockedIds)).length,
+    [ownedMustEats, unlockedIds]
+  );
   // MapMustEat.restaurant has no categories, so join through the owned
   // restaurants (which carry categories) to give the album its page groups.
   const catByRest = useMemo(
@@ -105,7 +111,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                       <span>{t('tabSpots')}</span>
                     </span>
                     <span className={styles.heroCount}>
-                      <b>{ownedMustEats.length}</b>
+                      <b>{collectedMustEatCount}</b>
                       <span>{t('tabMustEats')}</span>
                     </span>
                   </h1>

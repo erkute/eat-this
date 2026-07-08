@@ -228,7 +228,7 @@ export const allBezirkeWithStatsQuery = `
     descriptionEn,
     "imageUrl": ${groqImageUrl('image', 'card')},
     "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]),
-    "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]
+    "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
       | order(coalesce(featured, false) desc, name asc)[0...3] {
         _id,
         name,

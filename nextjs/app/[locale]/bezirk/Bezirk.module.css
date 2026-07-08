@@ -919,6 +919,9 @@
 }
 
 .bezirkCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   min-height: 172px;
   padding: 18px;
   background: #fff;
@@ -962,21 +965,20 @@
 }
 
 .bezirkExamples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
+  display: block;
   margin-top: 16px;
+  min-height: 18px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.25;
 }
 
 .bezirkExample {
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: inline;
 }
 
 .bezirkExample:not(:last-child)::after {

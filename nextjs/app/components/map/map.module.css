@@ -1010,6 +1010,7 @@
   padding: 0 12px;
   box-sizing: border-box;
   pointer-events: auto;
+  touch-action: manipulation;
 }
 /* Collapsed search — square glass button mirroring the burger, top-left. */
 .mapSearchBtn {
@@ -1029,6 +1030,7 @@
   border-radius: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   appearance: none;
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -1063,6 +1065,7 @@
   place-items: center;
   cursor: pointer;
   color: var(--c-black);
+  touch-action: manipulation;
   flex: 0 0 auto;
 }
 .mapSearchClear:hover {
@@ -10115,7 +10118,7 @@ html .mapSearchClear:focus-visible {
   }
 
   html .mapSearchInput {
-    font-size: 15px !important;
+    font-size: 16px !important;
   }
 }
 

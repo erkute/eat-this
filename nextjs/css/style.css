@@ -1201,6 +1201,17 @@ html[data-active-page="start"] .burger-btn {
   background: transparent !important;
   box-shadow: none !important;
 }
+@media (max-width: 767px) {
+  html[data-active-page="start"] #navbar,
+  html[data-active-page="news-article"] #navbar {
+    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
+    will-change: transform;
+  }
+  html.navbar-hidden[data-active-page="start"] #navbar,
+  html.navbar-hidden[data-active-page="news-article"] #navbar {
+    transform: translate3d(0, calc(-100% - 2px), 0) !important;
+  }
+}
 /* Language toggle — quiet Silkscreen micro-label, white on ink, no chip */
 /* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
 /* Logo — cream wordmark sits straight on the ink sheet (drop poster tilt) */

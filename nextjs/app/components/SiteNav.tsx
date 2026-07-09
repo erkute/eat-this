@@ -22,6 +22,8 @@ function pageSlugFromPath(path: string): string {
   return p.replace(/^\//, '').split('/')[0];
 }
 
+const MOBILE_AUTO_HIDE_PAGES = new Set(['start', 'news-article']);
+
 export default function SiteNav() {
   const { t, lang } = useTranslation();
   const pathname = usePathname();
@@ -36,6 +38,53 @@ export default function SiteNav() {
   // html element on every route change.
   useEffect(() => {
     document.documentElement.setAttribute('data-active-page', activePage);
+  }, [activePage]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('navbar-hidden');
+    if (!MOBILE_AUTO_HIDE_PAGES.has(activePage)) return;
+
+    const media = window.matchMedia('(max-width: 767px)');
+    let lastY = window.scrollY || window.pageYOffset || 0;
+    let ticking = false;
+
+    const show = () => root.classList.remove('navbar-hidden');
+    const apply = () => {
+      ticking = false;
+      const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
+      const delta = y - lastY;
+
+      if (!media.matches || y < 36) {
+        show();
+      } else if (delta > 6) {
+        root.classList.add('navbar-hidden');
+      } else if (delta < -6) {
+        show();
+      }
+
+      lastY = y;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(apply);
+    };
+
+    const onMediaChange = () => {
+      show();
+      lastY = window.scrollY || window.pageYOffset || 0;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    media.addEventListener('change', onMediaChange);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      media.removeEventListener('change', onMediaChange);
+      show();
+    };
   }, [activePage]);
 
   useEffect(() => {

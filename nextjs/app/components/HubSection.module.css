@@ -60,14 +60,18 @@
   margin-top: clamp(26px, 3vw, 38px);
 }
 
-.heroActions :global(.hv-btn) {
+.page .heroActions :global(.hv-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 52px;
-  padding: 15px 24px;
+  padding: 0 24px;
   font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1;
 }
 
-.heroActions :global(.hv-btn):hover,
-.heroActions :global(.hv-btn):focus-visible {
+.page .heroActions :global(.hv-btn):hover,
+.page .heroActions :global(.hv-btn):focus-visible {
   color: var(--et-home-inverse-text);
   background: var(--et-home-red);
 }

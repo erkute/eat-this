@@ -13,7 +13,7 @@
   vertical-align: 0;
 }
 
-.allLink:global(.hv-link) {
+.allLink.allLink:global(.hv-link) {
   display: inline-flex;
   font-size: clamp(16px, 1.6vw, 22px);
   line-height: 0.95;
@@ -22,8 +22,8 @@
     transform 160ms ease;
 }
 
-.allLink:global(.hv-link):hover,
-.allLink:global(.hv-link):focus-visible {
+.allLink.allLink:global(.hv-link):hover,
+.allLink.allLink:global(.hv-link):focus-visible {
   color: var(--et-home-red);
   transform: translateX(4px);
 }
@@ -55,7 +55,7 @@
   color: var(--home-ink);
 }
 
-.row :global(.hv-sub) {
+.rows .row :global(.hv-sub) {
   margin-left: 18px;
   font-size: clamp(16px, 1.6vw, 22px);
   line-height: 0.95;
@@ -64,7 +64,7 @@
     transform 160ms ease;
 }
 
-.row:hover :global(.hv-sub),
-.row:focus-visible :global(.hv-sub) {
+.rows .row:hover :global(.hv-sub),
+.rows .row:focus-visible :global(.hv-sub) {
   transform: translateX(4px);
 }

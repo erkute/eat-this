@@ -84,6 +84,7 @@
 }
 
 .page .heroNearbyLink:global(.hv-link-underline) {
+  border-bottom: 0;
   font-family: var(--font-providence);
   font-size: clamp(23px, 2.4vw, 30px);
   font-weight: 700;

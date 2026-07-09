@@ -10,7 +10,7 @@
   padding-bottom: clamp(58px, 8vw, 112px);
 }
 
-.head:global(.hv-head) {
+.section .head:global(.hv-head) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
@@ -19,7 +19,7 @@
   text-align: left;
 }
 
-.head :global(.hv-title) {
+.section .head :global(.hv-title) {
   max-width: none;
   font-size: clamp(42px, 6vw, 88px);
   line-height: 0.82;
@@ -179,14 +179,14 @@
     padding-bottom: 54px;
   }
 
-  .head:global(.hv-head) {
+  .section .head:global(.hv-head) {
     grid-template-columns: 1fr;
     align-items: start;
     gap: 12px;
     margin-bottom: 30px;
   }
 
-  .head :global(.hv-title) {
+  .section .head :global(.hv-title) {
     font-size: clamp(38px, 12vw, 54px);
     line-height: 0.84;
   }

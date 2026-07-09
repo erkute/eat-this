@@ -13,21 +13,11 @@
  * Required env (nextjs/.env.local):
  *   SANITY_API_WRITE_TOKEN, GOOGLE_API_KEY
  * Existing galleries are preserved; newly fetched owner photos are appended.
- *
- * Optional env:
- *   ANTHROPIC_API_KEY (scores categories/quality; otherwise owner photos keep Places order)
  */
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import { randomUUID } from 'node:crypto'
-import {
-  CATEGORY_LABEL_DE,
-  HaikuUnavailableError,
-  isOwnerPhoto,
-  judgePhotos,
-  type JudgeInput,
-  type PhotoJudgment,
-} from './lib/photo-curation'
+import { isOwnerPhoto } from './lib/photo-curation'
 import { filterBySlugs } from './lib/content-backlog'
 
 loadEnv({ path: '.env.local' })
@@ -47,7 +37,6 @@ const sanity = createClient({
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!
 const FIRST_PARTY_PHOTO_SLUGS = ['bar-basta']
-const MAX_OWNER_CANDIDATES = 10
 const MAX_GALLERY = 3
 
 interface Target {
@@ -69,16 +58,10 @@ interface PlacePhotosResponse {
   googleMapsUri?: string
 }
 
-interface Preview {
-  photo: PlacesPhoto
-  input: JudgeInput
-}
-
 interface UploadedPhoto {
   _id: string
   credit: string
   creditUrl: string
-  category: PhotoJudgment['category']
 }
 
 function photoAttribution(photo: PlacesPhoto, place: Pick<PlacePhotosResponse, 'googleMapsUri'>) {
@@ -88,34 +71,6 @@ function photoAttribution(photo: PlacesPhoto, place: Pick<PlacePhotosResponse, '
     credit: displayName ? `Foto: ${displayName}` : 'Foto: Google Maps',
     creditUrl: author?.uri ?? place.googleMapsUri ?? '',
   }
-}
-
-function categoryRank(category: PhotoJudgment['category']): number {
-  if (category === 'food') return 0
-  if (category === 'drink') return 1
-  if (category === 'interior') return 2
-  return 3
-}
-
-function fallbackJudgments(count: number): PhotoJudgment[] {
-  return Array.from({ length: count }, (_, index) => ({
-    index,
-    category: 'food' as const,
-    score: 5,
-  }))
-}
-
-function selectPhotos(judgments: PhotoJudgment[] | null, count: number): number[] {
-  const ranked = (judgments ?? fallbackJudgments(count))
-    .filter((jd) => jd.index >= 0 && jd.index < count)
-    .filter((jd) => jd.category === 'food' || jd.category === 'drink' || jd.category === 'interior')
-    .sort((a, b) => {
-      const cat = categoryRank(a.category) - categoryRank(b.category)
-      return cat || b.score - a.score || a.index - b.index
-    })
-    .map((jd) => jd.index)
-
-  return Array.from(new Set(ranked)).slice(0, 1 + MAX_GALLERY)
 }
 
 async function fetchPlacePhotos(placeId: string): Promise<PlacePhotosResponse | null> {
@@ -132,27 +87,11 @@ async function fetchPlacePhotos(placeId: string): Promise<PlacePhotosResponse | 
   return res.json()
 }
 
-async function downloadPreview(photo: PlacesPhoto): Promise<Preview | null> {
-  try {
-    const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=400&key=${GOOGLE_API_KEY}`
-    const res = await fetch(url, { redirect: 'follow' })
-    if (!res.ok) return null
-    const buffer = Buffer.from(await res.arrayBuffer())
-    const ct = res.headers.get('content-type') ?? 'image/jpeg'
-    const mediaType = (['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const)
-      .find((m) => ct.includes(m.split('/')[1])) ?? 'image/jpeg'
-    return { photo, input: { data: buffer.toString('base64'), mediaType } }
-  } catch {
-    return null
-  }
-}
-
 async function uploadPhoto(
   photo: PlacesPhoto,
   place: PlacePhotosResponse,
   slug: string,
   suffix: string,
-  category: PhotoJudgment['category'],
 ): Promise<UploadedPhoto | null> {
   const { credit, creditUrl } = photoAttribution(photo, place)
   if (!credit || !creditUrl) return null
@@ -171,7 +110,7 @@ async function uploadPhoto(
       filename: `${slug}-${suffix}.${ext}`,
       contentType,
     })
-    return { _id: asset._id, credit, creditUrl, category }
+    return { _id: asset._id, credit, creditUrl }
   } catch (err) {
     console.warn(`  photo upload failed: ${(err as Error).message} — skipping ${suffix}`)
     return null
@@ -223,59 +162,29 @@ async function main() {
       continue
     }
 
-    const ownerPhotos = place.photos
+    const pickedPhotos = place.photos
       .filter((photo) => photo.name && isOwnerPhoto(photo.authorAttributions?.[0]?.displayName, target.name))
-      .slice(0, MAX_OWNER_CANDIDATES)
-    if (!ownerPhotos.length) {
+      .slice(0, 1 + MAX_GALLERY)
+    if (!pickedPhotos.length) {
       skippedNoOwner++
       console.log(`  owner photos: 0 / ${place.photos.length} — skipped`)
       continue
     }
 
-    const previews = (await Promise.all(ownerPhotos.map(downloadPreview))).filter((p): p is Preview => !!p)
-    if (!previews.length) {
-      console.log(`  owner photos: ${ownerPhotos.length}, previews failed — skipped`)
-      continue
-    }
-
-    let judgments: PhotoJudgment[] | null = null
-    try {
-      judgments = await judgePhotos(previews.map((p) => p.input), target.name)
-    } catch (err) {
-      if (err instanceof HaikuUnavailableError) throw err
-      console.warn(`  photo judging failed: ${(err as Error).message} — using Places owner order`)
-    }
-
-    const picked = selectPhotos(judgments, previews.length)
-    if (!picked.length) {
-      console.log(`  owner photos: ${ownerPhotos.length}, no food/drink/interior picks — skipped`)
-      continue
-    }
-
-    const pickedSummary = picked
-      .map((i) => {
-        const jd = judgments?.find((j) => j.index === i)
-        return jd ? `${i}:${jd.category}/${jd.score}` : `${i}:owner`
-      })
-      .join(', ')
-    console.log(`  owner photos: ${ownerPhotos.length} / ${place.photos.length}; picks: ${pickedSummary}`)
+    console.log(`  owner photos: ${pickedPhotos.length} / ${place.photos.length}; taking first ${pickedPhotos.length}`)
 
     if (dryRun) continue
 
-    const heroIdx = picked[0]
-    const heroCategory = judgments?.find((jd) => jd.index === heroIdx)?.category ?? 'food'
-    const hero = await uploadPhoto(previews[heroIdx].photo, place, target.slug, 'hero', heroCategory)
+    const hero = await uploadPhoto(pickedPhotos[0], place, target.slug, 'hero')
     if (!hero) continue
 
     const galleryUploads: UploadedPhoto[] = []
-    for (const galleryIdx of picked.slice(1)) {
-      const category = judgments?.find((jd) => jd.index === galleryIdx)?.category ?? 'food'
+    for (const galleryPhoto of pickedPhotos.slice(1)) {
       const uploaded = await uploadPhoto(
-        previews[galleryIdx].photo,
+        galleryPhoto,
         place,
         target.slug,
         `gallery-${galleryUploads.length + 1}`,
-        category,
       )
       if (uploaded) galleryUploads.push(uploaded)
     }
@@ -284,7 +193,7 @@ async function main() {
       _key: randomUUID(),
       _type: 'image' as const,
       asset: { _type: 'reference' as const, _ref: photo._id },
-      alt: `${target.name} – ${CATEGORY_LABEL_DE[photo.category]}`,
+      alt: `${target.name} – Foto`,
       credit: photo.credit,
       creditUrl: photo.creditUrl,
     }))

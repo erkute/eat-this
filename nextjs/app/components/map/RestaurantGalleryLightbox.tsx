@@ -15,6 +15,15 @@ interface Props {
 }
 
 const SWIPE_THRESHOLD = 60
+const preloadedImages = new Set<string>()
+
+function preloadImage(src: string | undefined) {
+  if (!src || preloadedImages.has(src)) return
+  preloadedImages.add(src)
+  const image = new Image()
+  image.src = src
+  void image.decode?.().catch(() => {})
+}
 
 // Slide between photos with a horizontal translate (project rule: motion is
 // translate, never an opacity fade). `dir` is +1 paging forward, -1 back.
@@ -83,6 +92,12 @@ function Viewer({
   const href = safeHttpUrl(img.creditUrl)
   const credit = img.credit?.trim()
 
+  useEffect(() => {
+    preloadImage(images[page - 1]?.full)
+    preloadImage(images[page]?.full)
+    preloadImage(images[page + 1]?.full)
+  }, [images, page])
+
   return (
     <motion.div
       className={styles.galleryLb}
@@ -125,7 +140,15 @@ function Viewer({
             }}
           >
             <div className={styles.galleryLbPrint} onClick={(e) => e.stopPropagation()}>
-              <img src={img.full} alt={img.alt ?? restaurantName} className={styles.galleryLbImg} draggable={false} />
+              <img
+                src={img.full}
+                alt={img.alt ?? restaurantName}
+                className={styles.galleryLbImg}
+                draggable={false}
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+              />
               {credit && (
                 <span className={styles.galleryLbCredit}>
                   {href ? (

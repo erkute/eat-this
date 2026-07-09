@@ -21,7 +21,7 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
   return (
     <>
       <section className={styles.rdGalleryBlock} aria-label="Fotos">
-        <div className={styles.rdGallery} role="list">
+        <div className={styles.rdGallery} role="list" data-h-scroll>
           {usable.map((img, index) => (
             <button
               key={img._key}

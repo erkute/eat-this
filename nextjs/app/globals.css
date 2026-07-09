@@ -1165,3 +1165,14 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
     padding-inline: 10px !important;
   }
 }
+@media (max-width: 767px) {
+  html[data-active-page='start'] #navbar,
+  html[data-active-page='news-article'] #navbar {
+    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
+    will-change: transform;
+  }
+  html.navbar-hidden[data-active-page='start'] #navbar,
+  html.navbar-hidden[data-active-page='news-article'] #navbar {
+    transform: translate3d(0, calc(-100% - 2px), 0) !important;
+  }
+}

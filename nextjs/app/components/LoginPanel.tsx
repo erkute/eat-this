@@ -97,6 +97,11 @@ export default function LoginPanel({
   const sent = magicState === 'sent';
   const sloganLines = t('modals.login.kicker').split('|');
   const signinMode = mode === 'signin';
+  const headlineKey = signinMode ? 'modals.login.signinHeroHeadline' : 'modals.login.heroHeadline';
+  const taglineKey = signinMode ? 'modals.login.signinModalTagline' : 'modals.login.modalTagline';
+  const sendLinkKey = signinMode ? 'modals.login.signinSendLinkBtn' : 'modals.login.sendLinkBtn';
+  const googleKey = signinMode ? 'modals.login.signinGoogleBtn' : 'modals.login.googleBtn';
+  const legalLeadKey = signinMode ? 'modals.login.signinLegalLead' : 'modals.login.legalLead';
   const frameClassName = [
     styles.frame,
     modal ? styles.frameModal : '',
@@ -117,7 +122,7 @@ export default function LoginPanel({
       </button>
 
       {/* SEO/SR headline — the single visible h1 is the Chewy one below. */}
-      <span className={styles.headlineSr}>{t('modals.login.heroHeadline')}</span>
+      <span className={styles.headlineSr}>{t(headlineKey)}</span>
 
       {sent ? (
         <>
@@ -257,10 +262,10 @@ export default function LoginPanel({
             </section>
           )}
 
-          <section className={styles.modalLogin} aria-label={t('modals.login.heroHeadline')}>
+          <section className={styles.modalLogin} aria-label={t(headlineKey)}>
             <div className={styles.modalLoginHead}>
-              <p className={styles.modalEyebrow}>{t('modals.login.heroHeadline')}</p>
-              <h2 className={styles.modalFormTitle}>{t('modals.login.modalTagline')}</h2>
+              <p className={styles.modalEyebrow}>{t(headlineKey)}</p>
+              <h2 className={styles.modalFormTitle}>{t(taglineKey)}</h2>
             </div>
 
             <form
@@ -300,7 +305,7 @@ export default function LoginPanel({
                 className={styles.ctaPrimary}
                 disabled={magicState === 'sending'}
               >
-                <span>{t('modals.login.sendLinkBtn')}</span>
+                <span>{t(sendLinkKey)}</span>
                 <svg
                   viewBox="0 0 24 24"
                   width={18}
@@ -343,11 +348,11 @@ export default function LoginPanel({
                   d="M12 5.38c1.62 0 3.07.56 4.21 1.64l3.16-3.16C17.45 2.1 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.67 2.84C6.71 7.31 9.14 5.38 12 5.38Z"
                 />
               </svg>
-              <span>{t('modals.login.googleBtn')}</span>
+              <span>{t(googleKey)}</span>
             </button>
 
             <p className={styles.legal}>
-              {t('modals.login.legalLead')}{' '}
+              {t(legalLeadKey)}{' '}
               <a className={styles.legalLink} href={agbHref}>
                 {t('modals.login.termsLink')}
               </a>{' '}

@@ -41,11 +41,11 @@
   width: 100%;
 }
 
-.panelHead:global(.hv-head) {
+.body .panelHead:global(.hv-head) {
   margin-bottom: 0;
 }
 
-.panelHead :global(.hv-title) {
+.body .panelHead :global(.hv-title) {
   max-width: 790px;
   font-size: clamp(44px, 8vw, 96px);
   line-height: 0.88;
@@ -163,13 +163,13 @@
 }
 
 /* Chip hover: accent yellow tint (state change, not motion — allowed) */
-.chip:global(.hv-chip):hover,
-.chip:global(.hv-chip):focus-visible {
+.body .chip:global(.hv-chip):hover,
+.body .chip:global(.hv-chip):focus-visible {
   background: var(--remy-stage-red);
   color: #fff;
 }
 
-.chip:global(.hv-chip) {
+.body .chip:global(.hv-chip) {
   background: var(--remy-stage-paper);
   color: var(--remy-stage-ink);
   border: none;
@@ -215,7 +215,7 @@
   background: rgba(255, 216, 77, 0.14);
 }
 
-.send:global(.hv-btn) {
+.body .send:global(.hv-btn) {
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
@@ -231,12 +231,12 @@
   box-shadow: 0 10px 20px rgba(217, 56, 42, 0.22);
 }
 
-.send:global(.hv-btn):hover {
+.body .send:global(.hv-btn):hover {
   color: #fff;
   background: var(--remy-stage-ink);
 }
 
-.send:global(.hv-btn):focus-visible {
+.body .send:global(.hv-btn):focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.56);
 }
@@ -282,7 +282,7 @@
     align-items: stretch;
   }
 
-  .send:global(.hv-btn) {
+  .body .send:global(.hv-btn) {
     min-width: 78px;
   }
 }

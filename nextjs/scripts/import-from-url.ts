@@ -417,6 +417,7 @@ interface PhotoAsset {
   _id: string
   credit: string | null
   creditUrl: string | null
+  sourcePhotoName: string
 }
 
 /** Credit/creditUrl from a photo's authorAttributions, with the Places
@@ -434,14 +435,69 @@ function photoAttribution(
   }
 }
 
-/** Downloads the first Places photo (≤1600px wide) and uploads it to Sanity
- *  as an image asset; also returns the photographer attribution from Places.
- *  Skips silently on any failure so a single bad photo doesn't kill the
- *  whole import. Google Places ToS require attribution — credit is captured
- *  here and applied as image.credit / image.creditUrl in buildDoc. */
-async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoAsset | null> {
-  const photo = place.photos?.[0]
-  if (!photo?.name) return null
+function selectHeroPhoto(
+  photos: NonNullable<Place['photos']>,
+  judgments: PhotoJudgment[] | null,
+): number | null {
+  const eligible = (judgments ?? photos.map((_, index): PhotoJudgment => ({
+    index,
+    category: 'food',
+    score: 5,
+  })))
+    .filter((jd) => jd.index >= 0 && jd.index < photos.length)
+    .filter((jd) => jd.category === 'food' || jd.category === 'drink' || jd.category === 'interior')
+
+  if (!eligible.length) return null
+
+  const categoryRank = (category: PhotoJudgment['category']) =>
+    category === 'food' ? 0 : category === 'drink' ? 1 : category === 'interior' ? 2 : 3
+
+  eligible.sort((a, b) => {
+    const category = categoryRank(a.category) - categoryRank(b.category)
+    return category || b.score - a.score || a.index - b.index
+  })
+  return eligible[0].index
+}
+
+/** Downloads the best owner-uploaded Places photo (≤1600px wide) and uploads
+ *  it to Sanity as the hero image. Guest/community photos are skipped entirely:
+ *  owner-uploaded Places photos carry the business name as attribution.
+ *  Google Places ToS require attribution, so credit/creditUrl are captured
+ *  and applied as image.credit / image.creditUrl in buildDoc. */
+async function importPhoto(place: Place, restaurantSlug: string, restaurantName: string): Promise<PhotoAsset | null> {
+  const ownerPhotos = (place.photos ?? [])
+    .filter((p) => p?.name && isOwnerPhoto(p.authorAttributions?.[0]?.displayName, restaurantName))
+    .slice(0, GALLERY_MAX_CANDIDATES + 1)
+  if (!ownerPhotos.length) {
+    if (place.photos?.length) console.warn('  photo:    no owner-uploaded Places photos — skipping image')
+    return null
+  }
+
+  const previews: { photo: (typeof ownerPhotos)[number]; input: JudgeInput }[] = []
+  for (const photo of ownerPhotos) {
+    try {
+      const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=400&key=${GOOGLE_API_KEY}`
+      const res = await fetch(url, { redirect: 'follow' })
+      if (!res.ok) continue
+      const buffer = Buffer.from(await res.arrayBuffer())
+      const ct = res.headers.get('content-type') ?? 'image/jpeg'
+      const mediaType = (['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const)
+        .find((m) => ct.includes(m.split('/')[1])) ?? 'image/jpeg'
+      previews.push({ photo, input: { data: buffer.toString('base64'), mediaType } })
+    } catch {
+      // drop this candidate
+    }
+  }
+  if (!previews.length) return null
+
+  const judgments = await judgePhotos(previews.map((p) => p.input), restaurantName)
+  const picked = selectHeroPhoto(previews.map((p) => p.photo), judgments)
+  if (picked == null) {
+    console.warn('  photo:    no usable owner food/drink/interior photo — skipping image')
+    return null
+  }
+
+  const photo = previews[picked].photo
   try {
     const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1600&key=${GOOGLE_API_KEY}`
     const res = await fetch(url, { redirect: 'follow' })
@@ -457,7 +513,7 @@ async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoA
       contentType,
     })
     const { credit, creditUrl } = photoAttribution(photo, place)
-    return { _id: asset._id, credit, creditUrl }
+    return { _id: asset._id, credit, creditUrl, sourcePhotoName: photo.name }
   } catch (err) {
     console.warn(`  photo upload failed: ${(err as Error).message} — skipping image`)
     return null
@@ -473,17 +529,21 @@ export interface GalleryAsset {
 
 const GALLERY_MAX_CANDIDATES = 9
 
-/** Downloads small previews of photos[1..9], has Haiku score them, then
- *  uploads only the winners in full size. photos[0] stays hero-only so the
- *  gallery never duplicates the hero. Every failure path degrades softly:
+/** Downloads small previews of owner-uploaded Places photos, has Haiku score
+ *  them, then uploads only the winners in full size. The chosen hero photo is
+ *  excluded so the gallery never duplicates it. Every failure path degrades softly:
  *  a failed preview drops that candidate, a failed judging falls back to
  *  "first 3 unscored", a failed full-size upload skips that one photo. */
 export async function importGalleryPhotos(
   place: Pick<Place, 'photos' | 'googleMapsUri'>,
   restaurantSlug: string,
   restaurantName: string,
+  excludePhotoName?: string,
 ): Promise<GalleryAsset[]> {
-  const candidates = (place.photos ?? []).slice(1, 1 + GALLERY_MAX_CANDIDATES).filter((p) => p?.name)
+  const candidates = (place.photos ?? [])
+    .filter((p) => p?.name && p.name !== excludePhotoName)
+    .filter((p) => isOwnerPhoto(p.authorAttributions?.[0]?.displayName, restaurantName))
+    .slice(0, GALLERY_MAX_CANDIDATES)
   if (!candidates.length) return []
 
   // 1) Small previews for judging (cheap: 400px media calls)
@@ -504,10 +564,10 @@ export async function importGalleryPhotos(
   }
   if (!previews.length) return []
 
-  // 2) Judge + select (indexes refer to the previews array). Owner photos
-  //    (attribution = the business name) are preferred over guest photos.
+  // 2) Judge + select (indexes refer to the previews array). Candidates are
+  //    already owner-only: Google guest/community photos never reach this step.
   const judgments = await judgePhotos(previews.map((p) => p.input), restaurantName)
-  const owners = previews.map((p) => isOwnerPhoto(p.photo.authorAttributions?.[0]?.displayName, restaurantName))
+  const owners = previews.map(() => true)
   const pickedIdx = selectGalleryPhotos(judgments, owners, previews.length)
   if (!pickedIdx.length) {
     console.log('  gallery:  no usable food/interior photos')
@@ -733,8 +793,10 @@ export async function runImportFromParsed(
   const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil) : null
 
   const slug = await uniqueSlug(slugify(matchedName), ortsteil)
-  const photoAsset = uploadPhoto ? await importPhoto(place, slug) : null
-  const galleryAssets = uploadPhoto ? await importGalleryPhotos(place, slug, matchedName) : []
+  const photoAsset = uploadPhoto ? await importPhoto(place, slug, matchedName) : null
+  const galleryAssets = uploadPhoto
+    ? await importGalleryPhotos(place, slug, matchedName, photoAsset?.sourcePhotoName)
+    : []
 
   const categoryNames = inferCategories(place.types)
   const categoryRefs = await lookupCategoryRefs(categoryNames)
@@ -791,7 +853,7 @@ async function main() {
     console.log(`  ortsteil: ${result.ortsteil}${result.bezirkRefId ? ` → ref ${result.bezirkRefId}` : ' (no bezirk doc)'}`)
   }
   if (result.photoAsset) console.log(`  photo:    uploaded ${result.photoAsset._id}`)
-  else if (result.place.photos?.length) console.log(`  photo:    ${dryRun ? 'skipped (--dry-run)' : 'failed'}`)
+  else if (result.place.photos?.length) console.log(`  photo:    ${dryRun ? 'skipped (--dry-run)' : 'no usable owner photo'}`)
   else console.log(`  photo:    none on Places`)
   const galleryCount = Array.isArray(result.doc.gallery) ? result.doc.gallery.length : 0
   if (galleryCount) console.log(`  gallery:  ${galleryCount} photos uploaded`)

@@ -29,7 +29,6 @@
 .eyebrow {
   grid-column: 1 / -1;
   width: max-content;
-  transform: translateY(-14px);
   padding: 7px 10px 8px;
   color: var(--et-home-ink);
   background: var(--et-home-accent);
@@ -193,7 +192,6 @@
 
   .eyebrow {
     margin-bottom: 8px;
-    transform: translateY(-8px);
   }
 
   .allLink {

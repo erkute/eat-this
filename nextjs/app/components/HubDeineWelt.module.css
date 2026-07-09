@@ -198,13 +198,13 @@
     line-height: 1.22;
   }
 
-  .mapBtn:global(.hv-btn) {
+  .hero .mapBtn:global(.hv-btn) {
     min-height: 52px;
     padding: 0 24px;
     font-size: clamp(15px, 1.25vw, 18px) !important;
   }
 
-  .profileBtn:global(.hv-link-underline) {
+  .hero .profileBtn:global(.hv-link-underline) {
     font-size: clamp(23px, 2.4vw, 30px) !important;
   }
 }

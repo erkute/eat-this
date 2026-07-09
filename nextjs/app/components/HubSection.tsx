@@ -48,10 +48,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             <span className={`hv-kicker ${styles.heroKicker}`}>
               {locale === 'en' ? 'What you should eat.' : 'Was du essen solltest.'}
             </span>
-            <h1 className={styles.heroHeadline}>
-              We tell you
-              <br />
-              what to eat
+            <h1 className={styles.heroHeadline} aria-label="We tell you what to eat">
+              <span>We tell you</span>
+              <span>what to eat</span>
             </h1>
             <div className={styles.heroActions}>
               <MapIntentLink

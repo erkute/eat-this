@@ -60,7 +60,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
-  gap: clamp(34px, 4.8vw, 72px) clamp(24px, 3.4vw, 48px);
+  gap: clamp(56px, 6vw, 96px) clamp(30px, 3.8vw, 58px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -77,13 +77,13 @@
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: clamp(14px, 1.8vw, 24px);
+  gap: clamp(12px, 1.4vw, 18px);
   color: var(--et-home-ink);
   text-decoration: none;
 }
 
 .section .photo:global(.hv-photo) {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 6 / 5;
   border: 0;
   border-radius: var(--et-radius-photo);
   background: var(--et-home-photo-rest);
@@ -102,7 +102,7 @@
 
 .text {
   min-width: 0;
-  min-height: clamp(150px, 13vw, 190px);
+  min-height: clamp(118px, 10vw, 150px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -139,14 +139,19 @@
   justify-content: center;
   margin-top: auto;
   padding: 10px 18px 11px;
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
   border-radius: var(--et-radius-control);
   font-family: var(--font-providence);
   font-size: clamp(17px, 1.5vw, 21px);
   font-weight: 700;
   line-height: 1;
   text-align: center;
+  transform: translateY(0) rotate(0);
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
 }
 
 .card:hover .title,
@@ -155,9 +160,11 @@
 }
 
 .card:hover .readButton,
-.card:focus-visible .readButton {
+.card:focus-visible .readButton,
+.card:active .readButton {
   color: var(--et-home-inverse-text);
   background: var(--et-home-red);
+  transform: translateY(-2px) rotate(-0.6deg);
 }
 
 .card:focus-visible,
@@ -200,7 +207,7 @@
 
   .grid {
     grid-template-columns: 1fr;
-    gap: 34px;
+    gap: 56px;
   }
 
   .title {

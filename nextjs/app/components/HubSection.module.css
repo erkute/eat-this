@@ -18,6 +18,14 @@
   margin-top: 0;
 }
 
+.page :global(.hv-section) {
+  margin-top: clamp(88px, 9vw, 148px);
+}
+
+.page :global(.hv-section.hv-wrap[data-hub-faq]) {
+  margin-top: clamp(72px, 8vw, 112px);
+}
+
 .heroGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
@@ -151,6 +159,14 @@
 }
 
 @media (max-width: 920px) {
+  .page :global(.hv-section) {
+    margin-top: 82px;
+  }
+
+  .page :global(.hv-section.hv-wrap[data-hub-faq]) {
+    margin-top: 72px;
+  }
+
   .heroGrid {
     grid-template-columns: 1fr;
     gap: clamp(34px, 7vw, 48px);

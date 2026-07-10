@@ -2806,3 +2806,32 @@
     font-size: clamp(31px, 8vw, 40px);
   }
 }
+
+/* Keep the actual sign-in controls and legal copy in the initial viewport when
+   Chrome's mobile browser chrome leaves a very short visual viewport. */
+@media (max-width: 767.98px) and (max-height: 680px) {
+  .modalBenefits {
+    padding: 18px 14px 4px;
+  }
+
+  .modalPackArt {
+    height: min(20dvh, 128px);
+  }
+
+  .modalLogin {
+    gap: 8px;
+    padding: 10px 14px 12px;
+  }
+
+  .frameModal .modalSimpleSignin {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .modalSimpleSignin .modalSigninBoosters {
+    display: none;
+  }
+
+  .frameModal .modalSimpleSignin .modalLogin {
+    width: 100%;
+  }
+}

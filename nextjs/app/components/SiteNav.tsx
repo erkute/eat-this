@@ -40,31 +40,34 @@ export default function SiteNav() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const navbar = document.getElementById('navbar');
-    root.classList.remove('navbar-detached', 'navbar-hidden');
-    root.style.removeProperty('--mobile-navbar-scroll-top');
-    navbar?.style.removeProperty('--mobile-navbar-scroll-top');
+    root.classList.remove('navbar-hidden');
     if (activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
     let lastY = window.scrollY || window.pageYOffset || 0;
+    let ticking = false;
 
-    const show = () => {
-      root.classList.remove('navbar-hidden');
-    };
+    const show = () => root.classList.remove('navbar-hidden');
     const apply = () => {
+      ticking = false;
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
       const delta = y - lastY;
 
-      if (!media.matches || y <= 2) {
+      if (!media.matches || y < 36) {
         show();
-      } else if (delta > 2) {
+      } else if (delta > 6) {
         root.classList.add('navbar-hidden');
-      } else if (delta < -2) {
+      } else if (delta < -6) {
         show();
       }
 
       lastY = y;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(apply);
     };
 
     const onMediaChange = () => {
@@ -72,11 +75,11 @@ export default function SiteNav() {
       lastY = window.scrollY || window.pageYOffset || 0;
     };
 
-    window.addEventListener('scroll', apply, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     media.addEventListener('change', onMediaChange);
 
     return () => {
-      window.removeEventListener('scroll', apply);
+      window.removeEventListener('scroll', onScroll);
       media.removeEventListener('change', onMediaChange);
       show();
     };

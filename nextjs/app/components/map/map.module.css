@@ -12966,9 +12966,9 @@ html body .galleryLbBg {
   height: 100dvh !important;
   min-height: 100lvh !important;
   z-index: 0 !important;
-  background: rgba(20, 19, 17, 0.64) !important;
-  -webkit-backdrop-filter: blur(22px) saturate(0.9) !important;
-  backdrop-filter: blur(22px) saturate(0.9) !important;
+  background: rgba(20, 19, 17, 0.44) !important;
+  -webkit-backdrop-filter: blur(1px) saturate(1) !important;
+  backdrop-filter: blur(1px) saturate(1) !important;
 }
 
 html body .galleryLbStage,
@@ -13241,6 +13241,15 @@ html body .galleryLbCredit {
 }
 
 @media (max-width: 600px) {
+  html body .galleryLb,
+  html body .galleryLbBg,
+  html body .galleryLbStage,
+  html body .galleryLbSlide {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+
   html body .galleryLbArrow {
     display: none !important;
   }
@@ -13518,13 +13527,61 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
 }
 
 @media (min-width: 1024px) {
+  html body .detailV13MustEat {
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(68%, 272px, 28dvh);
+    --me-card-air: clamp(38px, 5.2dvh, 54px);
+    --me-hero-slot: calc((var(--me-card-w) * 2115 / 1539) + var(--me-card-air));
+    --me-mid-slot: clamp(126px, 18dvh, 178px);
+    --me-rest-slot: clamp(72px, 9dvh, 80px);
+    --me-pager-slot: clamp(50px, 6.8dvh, 56px);
+    display: grid !important;
+    grid-template-rows:
+      var(--me-hero-slot)
+      var(--me-mid-slot)
+      var(--me-rest-slot)
+      minmax(0, 1fr)
+      var(--me-pager-slot) !important;
+    align-content: stretch !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .fdHeroWrap {
+    grid-row: 1 !important;
+    height: var(--me-hero-slot) !important;
+    min-height: var(--me-hero-slot) !important;
+    max-height: var(--me-hero-slot) !important;
+    padding-bottom: var(--me-card-air) !important;
+    overflow: visible !important;
+  }
+
+  html body .detailV13MustEat .fdCardStack {
+    width: var(--me-card-w) !important;
+    max-width: var(--me-card-w) !important;
+  }
+
   html body .detailV13MustEat .fdMid {
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-rows: clamp(62px, 8.5dvh, 86px) minmax(0, 1fr) !important;
+    height: var(--me-mid-slot) !important;
+    min-height: var(--me-mid-slot) !important;
+    max-height: var(--me-mid-slot) !important;
+    margin: 0 !important;
+    padding: 0 !important;
     overflow: visible !important;
   }
 
   html body .detailV13MustEat .fdName {
     display: block !important;
-    min-height: 1.5em !important;
+    height: clamp(62px, 8.5dvh, 86px) !important;
+    min-height: clamp(62px, 8.5dvh, 86px) !important;
+    max-height: clamp(62px, 8.5dvh, 86px) !important;
     padding-top: 0.08em !important;
     overflow: visible !important;
     font-size: clamp(29px, 2.65vw, 38px) !important;
@@ -13538,24 +13595,230 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
     line-height: inherit !important;
   }
 
+  html body .detailV13MustEat .fdText,
+  html body .detailV13MustEat .fdProximity {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .fdText {
+    -webkit-line-clamp: 4 !important;
+    line-clamp: 4 !important;
+  }
+
+  html body .detailV13MustEat .fdRestInline {
+    grid-row: 3 !important;
+    height: var(--me-rest-slot) !important;
+    min-height: var(--me-rest-slot) !important;
+    max-height: var(--me-rest-slot) !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  html body .detailV13MustEat .fdRestInline .fdRestName {
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
   html body .detailV13MustEat .fdRest .fdV {
     display: -webkit-box !important;
+    min-height: 2em !important;
+    height: 2em !important;
     overflow: hidden !important;
     max-height: 2em !important;
     -webkit-box-orient: vertical !important;
     -webkit-line-clamp: 2 !important;
     line-clamp: 2 !important;
   }
+
+  html body .detailV13MustEat .fdPager {
+    grid-row: 5 !important;
+    align-self: end !important;
+    height: var(--me-pager-slot) !important;
+    min-height: var(--me-pager-slot) !important;
+    max-height: var(--me-pager-slot) !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  html body .detailV13MustEat .fdPagerPrev,
+  html body .detailV13MustEat .fdPagerNext {
+    height: var(--me-pager-slot) !important;
+    min-height: var(--me-pager-slot) !important;
+    max-height: var(--me-pager-slot) !important;
+  }
+}
+
+html body .detailV13MustEat .fdRestDock {
+  display: none !important;
 }
 
 @media (max-width: 1023.98px) {
-  html body .detailV13MustEat .detailV13Scroll > .fdRest {
-    position: fixed !important;
+  html body .detailV13MustEat {
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(52vw, 216px);
+    --me-card-air: clamp(62px, 8dvh, 76px);
+    --me-hero-slot: calc((var(--me-card-w) * 2115 / 1539) + var(--me-card-air));
+    --me-mid-slot: clamp(148px, 19.5dvh, 168px);
+    display: grid !important;
+    grid-template-rows: var(--me-hero-slot) var(--me-mid-slot) minmax(0, 1fr) !important;
+    align-content: start !important;
+    gap: 0 !important;
+    padding-top: clamp(74px, 9.4dvh, 92px) !important;
+  }
+
+  html body .detailV13MustEat .fdHeroWrap {
+    grid-row: 1 !important;
+    height: var(--me-hero-slot) !important;
+    min-height: var(--me-hero-slot) !important;
+    max-height: var(--me-hero-slot) !important;
+    padding-bottom: var(--me-card-air) !important;
+    overflow: visible !important;
+  }
+
+  html body .detailV13MustEat .fdCardStack {
+    width: var(--me-card-w) !important;
+    max-width: var(--me-card-w) !important;
+  }
+
+  html body .detailV13MustEat .fdMid {
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-rows: clamp(72px, 9.6dvh, 86px) minmax(0, 1fr) !important;
+    height: var(--me-mid-slot) !important;
+    min-height: var(--me-mid-slot) !important;
+    max-height: var(--me-mid-slot) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .fdName {
+    height: clamp(72px, 9.6dvh, 86px) !important;
+    min-height: clamp(72px, 9.6dvh, 86px) !important;
+    max-height: clamp(72px, 9.6dvh, 86px) !important;
+    overflow: visible !important;
+  }
+
+  html body .detailV13MustEat .fdText,
+  html body .detailV13MustEat .fdProximity {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdPager {
+    position: absolute !important;
+    right: 16px !important;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 16px !important;
+    z-index: 20 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline {
+    display: none !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock {
+    position: absolute !important;
+    display: block !important;
     right: 16px !important;
     bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
     left: 16px !important;
     z-index: 19 !important;
     width: auto !important;
+    height: 86px !important;
+    min-height: 86px !important;
+    max-height: 86px !important;
     margin: 0 !important;
+    padding: 12px !important;
+    display: block !important;
+    overflow: hidden !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock .fdRestName {
+    position: absolute !important;
+    top: 12px !important;
+    right: 128px !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    display: grid !important;
+    grid-template-rows: 10px 44px !important;
+    align-content: start !important;
+    align-self: start !important;
+    gap: 5px !important;
+    min-height: 0 !important;
+    height: 59px !important;
+    max-height: 59px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock .fdK {
+    height: 10px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    line-height: 1 !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock .fdV {
+    display: -webkit-box !important;
+    min-height: 0 !important;
+    height: 44px !important;
+    max-height: 44px !important;
+    overflow: hidden !important;
+    font-size: 22px !important;
+    line-height: 22px !important;
+    text-align: left !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock .ctaPill {
+    position: absolute !important;
+    top: 50% !important;
+    right: 12px !important;
+    width: 104px !important;
+    min-width: 104px !important;
+    max-width: 104px !important;
+    height: 42px !important;
+    align-self: center !important;
+    justify-self: end !important;
+    transform: translateY(-50%) !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 380px), (max-height: 740px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-card-w: min(46vw, 174px) !important;
+    --me-card-air: clamp(48px, 7dvh, 56px) !important;
+    --me-mid-slot: clamp(122px, 18.5dvh, 136px) !important;
+    padding-top: clamp(64px, 9dvh, 72px) !important;
+  }
+
+  html body .detailV13MustEat .fdMid {
+    grid-template-rows: clamp(60px, 9dvh, 70px) minmax(0, 1fr) !important;
+  }
+
+  html body .detailV13MustEat .fdName {
+    height: clamp(60px, 9dvh, 70px) !important;
+    min-height: clamp(60px, 9dvh, 70px) !important;
+    max-height: clamp(60px, 9dvh, 70px) !important;
   }
 }

@@ -234,7 +234,7 @@ export default function MustEatDetailMobile({
         </div>
 
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
-        <div className={styles.fdRest}>
+        <div className={`${styles.fdRest} ${styles.fdRestInline}`}>
           <div className={styles.fdRestName}>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
             <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
@@ -273,6 +273,22 @@ export default function MustEatDetailMobile({
           </div>
         )}
 
+      </div>
+
+      <div className={`${styles.fdRest} ${styles.fdRestDock}`} aria-hidden={false}>
+        <div className={styles.fdRestName}>
+          <div className={styles.fdK}>{t('map.inRestaurant')}</div>
+          <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
+        </div>
+        {onViewRestaurant ? (
+          <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
+            {t('map.toSpot')}
+          </button>
+        ) : (
+          <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.ctaPill}>
+            {t('map.toSpot')}
+          </Link>
+        )}
       </div>
     </div>
   )

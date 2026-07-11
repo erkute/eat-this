@@ -72,6 +72,9 @@
   color: var(--home-ink) !important;
   background: var(--home-accent) !important;
   font-family: var(--font-providence) !important;
+  min-height: 52px;
+  padding: 0 24px;
+  font-size: clamp(15px, 1.25vw, 18px) !important;
   font-weight: 700 !important;
   line-height: 1 !important;
 }
@@ -83,8 +86,10 @@
 }
 
 .profileBtn {
+  border-bottom: 0;
   text-decoration: none;
   font-family: var(--font-providence) !important;
+  font-size: clamp(23px, 2.4vw, 30px) !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: 0.95 !important;
@@ -196,16 +201,6 @@
   .sub {
     font-size: clamp(18px, 1.65vw, 23px);
     line-height: 1.22;
-  }
-
-  .hero .mapBtn:global(.hv-btn) {
-    min-height: 52px;
-    padding: 0 24px;
-    font-size: clamp(15px, 1.25vw, 18px) !important;
-  }
-
-  .hero .profileBtn:global(.hv-link-underline) {
-    font-size: clamp(23px, 2.4vw, 30px) !important;
   }
 }
 

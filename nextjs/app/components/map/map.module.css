@@ -13241,15 +13241,6 @@ html body .galleryLbCredit {
 }
 
 @media (max-width: 600px) {
-  html body .galleryLb,
-  html body .galleryLbBg,
-  html body .galleryLbStage,
-  html body .galleryLbSlide {
-    height: 100dvh !important;
-    min-height: 100dvh !important;
-    max-height: 100dvh !important;
-  }
-
   html body .galleryLbArrow {
     display: none !important;
   }

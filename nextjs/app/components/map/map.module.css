@@ -13529,13 +13529,15 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
     --me-hero-slot: calc((var(--me-card-w) * 2115 / 1539) + var(--me-card-air));
     --me-mid-slot: clamp(126px, 18dvh, 178px);
     --me-rest-slot: clamp(72px, 9dvh, 80px);
+    --me-footer-gap: 10px;
     --me-pager-slot: clamp(50px, 6.8dvh, 56px);
     display: grid !important;
     grid-template-rows:
       var(--me-hero-slot)
       var(--me-mid-slot)
-      var(--me-rest-slot)
       minmax(0, 1fr)
+      var(--me-rest-slot)
+      var(--me-footer-gap)
       var(--me-pager-slot) !important;
     align-content: stretch !important;
     gap: 0 !important;
@@ -13600,7 +13602,7 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
   }
 
   html body .detailV13MustEat .fdRestInline {
-    grid-row: 3 !important;
+    grid-row: 4 !important;
     height: var(--me-rest-slot) !important;
     min-height: var(--me-rest-slot) !important;
     max-height: var(--me-rest-slot) !important;
@@ -13627,7 +13629,7 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
   }
 
   html body .detailV13MustEat .fdPager {
-    grid-row: 5 !important;
+    grid-row: 6 !important;
     align-self: end !important;
     height: var(--me-pager-slot) !important;
     min-height: var(--me-pager-slot) !important;

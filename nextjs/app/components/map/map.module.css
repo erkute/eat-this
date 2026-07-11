@@ -14269,6 +14269,22 @@ html body .detailV13MustEat .fdNameText {
   overflow: hidden !important;
 }
 
+html body .detailV13MustEat .fdNameText.fdNameBlur {
+  box-sizing: border-box !important;
+  width: calc(100% + 80px) !important;
+  margin: -18px -40px !important;
+  padding: 18px 40px !important;
+  max-width: calc(100% + 80px) !important;
+  max-height: calc(100% + 36px) !important;
+  overflow: visible !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%) !important;
+  mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%) !important;
+}
+
+html body .detailV13MustEat .fdName:has(.fdNameBlur) {
+  overflow: visible !important;
+}
+
 html body .detailV13MustEat .fdText,
 html body .detailV13MustEat .fdProximity {
   height: 100% !important;

@@ -228,7 +228,9 @@ export default function MustEatDetailMobile({
               <p className={styles.fdProximitySub}>
                 {canUnlock
                   ? tMap('proximityTapReveal')
-                  : tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
+                  : lang === 'en'
+                    ? <>Get within <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of the spot, then you can reveal the Must Eat.</>
+                    : <>Komm auf <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an den Spot heran, dann kannst du das Must Eat aufdecken.</>}
               </p>
             </div>
           )}

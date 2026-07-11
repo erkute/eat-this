@@ -44,14 +44,13 @@ export default function SiteNav() {
     root.classList.remove('navbar-detached', 'navbar-hidden');
     root.style.removeProperty('--mobile-navbar-scroll-top');
     navbar?.style.removeProperty('--mobile-navbar-scroll-top');
-    if (!navbar || activePage === 'map') return;
+    if (activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
     let lastY = window.scrollY || window.pageYOffset || 0;
 
     const show = () => {
-      root.classList.remove('navbar-detached', 'navbar-hidden');
-      navbar.style.removeProperty('--mobile-navbar-scroll-top');
+      root.classList.remove('navbar-hidden');
     };
     const apply = () => {
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
@@ -60,8 +59,7 @@ export default function SiteNav() {
       if (!media.matches || y <= 2) {
         show();
       } else if (delta > 2) {
-        navbar.style.setProperty('--mobile-navbar-scroll-top', `${y}px`);
-        root.classList.add('navbar-detached', 'navbar-hidden');
+        root.classList.add('navbar-hidden');
       } else if (delta < -2) {
         show();
       }

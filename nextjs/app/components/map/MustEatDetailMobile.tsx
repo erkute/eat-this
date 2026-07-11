@@ -57,6 +57,7 @@ export default function MustEatDetailMobile({
   const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang)
   const { distance, canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
   const { name: restaurantName } = mustEat.restaurant
+  const restaurantPhoto = mustEat.restaurant.photo
   const open = isUnlocked && !revealOrigin
   const nameRevealed = open && !nameBurning
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')
@@ -235,6 +236,9 @@ export default function MustEatDetailMobile({
 
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
         <div className={`${styles.fdRest} ${styles.fdRestInline}`}>
+          {restaurantPhoto && (
+            <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
+          )}
           <div className={styles.fdRestName}>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
             <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
@@ -276,6 +280,9 @@ export default function MustEatDetailMobile({
       </div>
 
       <div className={`${styles.fdRest} ${styles.fdRestDock}`} aria-hidden={false}>
+        {restaurantPhoto && (
+          <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
+        )}
         <div className={styles.fdRestName}>
           <div className={styles.fdK}>{t('map.inRestaurant')}</div>
           <div className={styles.fdV}>{normalizeName(restaurantName)}</div>

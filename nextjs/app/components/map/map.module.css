@@ -13524,18 +13524,16 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
   }
 
   html body .detailV13MustEat .detailV13Scroll {
-    --me-card-w: min(68%, 272px, 28dvh);
-    --me-card-air: clamp(38px, 5.2dvh, 54px);
-    --me-hero-slot: calc((var(--me-card-w) * 2115 / 1539) + var(--me-card-air));
+    --me-card-air: clamp(24px, 3.4dvh, 38px);
+    --me-card-h: min(calc(100% - var(--me-card-air)), 316px);
     --me-mid-slot: clamp(126px, 18dvh, 178px);
-    --me-rest-slot: clamp(72px, 9dvh, 80px);
-    --me-footer-gap: 10px;
+    --me-rest-slot: clamp(108px, 13dvh, 116px);
+    --me-footer-gap: 18px;
     --me-pager-slot: clamp(50px, 6.8dvh, 56px);
     display: grid !important;
     grid-template-rows:
-      var(--me-hero-slot)
-      var(--me-mid-slot)
       minmax(0, 1fr)
+      var(--me-mid-slot)
       var(--me-rest-slot)
       var(--me-footer-gap)
       var(--me-pager-slot) !important;
@@ -13546,20 +13544,23 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
 
   html body .detailV13MustEat .fdHeroWrap {
     grid-row: 1 !important;
-    height: var(--me-hero-slot) !important;
-    min-height: var(--me-hero-slot) !important;
-    max-height: var(--me-hero-slot) !important;
+    align-items: center !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
     padding-bottom: var(--me-card-air) !important;
     overflow: visible !important;
   }
 
   html body .detailV13MustEat .fdCardStack {
-    width: var(--me-card-w) !important;
-    max-width: var(--me-card-w) !important;
+    width: min(calc(var(--me-card-h) * 1539 / 2115), 68%) !important;
+    max-width: min(calc(var(--me-card-h) * 1539 / 2115), 68%) !important;
+    height: var(--me-card-h) !important;
+    max-height: var(--me-card-h) !important;
   }
 
   html body .detailV13MustEat .fdMid {
-    grid-row: 2 !important;
+    grid-row: 3 !important;
     display: grid !important;
     grid-template-rows: clamp(62px, 8.5dvh, 86px) minmax(0, 1fr) !important;
     height: var(--me-mid-slot) !important;
@@ -13581,6 +13582,11 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
     line-height: 1.24 !important;
   }
 
+  html body .detailV13MustEat .fdNameLong {
+    font-size: clamp(34px, 3.15vw, 43px) !important;
+    line-height: 1.14 !important;
+  }
+
   html body .detailV13MustEat .fdNameText {
     display: block !important;
     min-height: 1.24em !important;
@@ -13597,8 +13603,19 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
   }
 
   html body .detailV13MustEat .fdText {
+    font-size: 15px !important;
+    font-weight: 620 !important;
+    line-height: 1.28 !important;
     -webkit-line-clamp: 4 !important;
     line-clamp: 4 !important;
+  }
+
+  html body .detailV13MustEat .fdMidLocked {
+    overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .fdMidLocked .fdProximity {
+    overflow: hidden !important;
   }
 
   html body .detailV13MustEat .fdRestInline {
@@ -13607,6 +13624,7 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
     min-height: var(--me-rest-slot) !important;
     max-height: var(--me-rest-slot) !important;
     margin: 0 !important;
+    padding: 16px 14px 14px 20px !important;
     overflow: hidden !important;
     transform: none !important;
     transition: none !important;
@@ -13615,6 +13633,15 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
   html body .detailV13MustEat .fdRestInline .fdRestName {
     min-height: 0 !important;
     overflow: hidden !important;
+  }
+
+  html body .detailV13MustEat .fdRestInline:has(.fdRestPhoto) {
+    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+  }
+
+  html body .detailV13MustEat .fdRestInline .fdRestPhoto {
+    width: 58px !important;
+    height: 58px !important;
   }
 
   html body .detailV13MustEat .fdRest .fdV {
@@ -13626,6 +13653,11 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
     -webkit-box-orient: vertical !important;
     -webkit-line-clamp: 2 !important;
     line-clamp: 2 !important;
+  }
+
+  html body .detailV13MustEat .fdRestInline .fdV {
+    font-size: clamp(21px, 2.05vw, 25px) !important;
+    line-height: 1 !important;
   }
 
   html body .detailV13MustEat .fdPager {
@@ -13648,6 +13680,16 @@ html body .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterC
 
 html body .detailV13MustEat .fdRestDock {
   display: none !important;
+}
+
+html body .detailV13MustEat .fdRestPhoto {
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: 54px !important;
+  height: 54px !important;
+  overflow: hidden !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  object-fit: cover !important;
 }
 
 @media (max-width: 1023.98px) {
@@ -13726,9 +13768,9 @@ html body .detailV13MustEat .fdRestDock {
   html body .detailV13MustEat > .fdRestDock {
     position: absolute !important;
     display: block !important;
-    right: 16px !important;
+    right: 0 !important;
     bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
-    left: 16px !important;
+    left: 0 !important;
     z-index: 19 !important;
     width: auto !important;
     height: 86px !important;
@@ -13741,6 +13783,18 @@ html body .detailV13MustEat .fdRestDock {
     transform: none !important;
     transition: none !important;
     animation: none !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock:has(.fdRestPhoto) .fdRestName {
+    left: 80px !important;
+  }
+
+  html body .detailV13MustEat > .fdRestDock .fdRestPhoto {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    width: 56px !important;
+    height: 62px !important;
   }
 
   html body .detailV13MustEat > .fdRestDock .fdRestName {

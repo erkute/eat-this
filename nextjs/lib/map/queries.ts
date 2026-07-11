@@ -86,7 +86,8 @@ export const mapMustEatsQuery = `
       lat,
       lng,
       district,
-      address
+      address,
+      "photo": ${publishableRestaurantImageUrl('image', 'mapCard')}
     }
   }
 `

@@ -14271,18 +14271,39 @@ html body .detailV13MustEat .fdNameText {
 
 html body .detailV13MustEat .fdNameText.fdNameBlur {
   box-sizing: border-box !important;
-  width: calc(100% + 80px) !important;
-  margin: -18px -40px !important;
-  padding: 18px 40px !important;
-  max-width: calc(100% + 80px) !important;
-  max-height: calc(100% + 36px) !important;
-  overflow: visible !important;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%) !important;
-  mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%) !important;
+  position: relative !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  color: transparent !important;
+  filter: none !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
 }
 
 html body .detailV13MustEat .fdName:has(.fdNameBlur) {
-  overflow: visible !important;
+  overflow: hidden !important;
+}
+
+html body .detailV13MustEat .fdNameText.fdNameBlur::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0.12em 0 0.08em !important;
+  display: block !important;
+  background:
+    radial-gradient(ellipse at 18% 32%, rgba(28, 37, 32, 0.22) 0 24%, transparent 47%),
+    radial-gradient(ellipse at 48% 34%, rgba(28, 37, 32, 0.18) 0 23%, transparent 48%),
+    radial-gradient(ellipse at 82% 34%, rgba(28, 37, 32, 0.18) 0 26%, transparent 51%),
+    radial-gradient(ellipse at 24% 78%, rgba(28, 37, 32, 0.16) 0 24%, transparent 50%),
+    radial-gradient(ellipse at 58% 78%, rgba(28, 37, 32, 0.14) 0 24%, transparent 50%) !important;
+  filter: blur(10px) !important;
+  transform: translateZ(0) !important;
+  pointer-events: none !important;
 }
 
 html body .detailV13MustEat .fdText,
@@ -14355,5 +14376,40 @@ html body .detailV13MustEat .fdHeroLocked.mustEatCardCanUnlock {
 @media (prefers-reduced-motion: reduce) {
   html body .detailV13MustEat .fdHeroLocked.mustEatCardCanUnlock {
     animation: none !important;
+  }
+}
+
+html body .detailV13MustEat .fdRestInline .fdV,
+html body .detailV13MustEat > .fdRestDock .fdV {
+  display: block !important;
+  -webkit-box-orient: initial !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  overflow: hidden !important;
+  padding-bottom: 0.18em !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
+  grid-template-rows: 10px minmax(0, 1fr) !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  line-height: 1.08 !important;
+}
+
+@media (max-width: 1023.98px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-content-gap: clamp(22px, 2.8dvh, 28px) !important;
+  }
+}
+
+@media (max-width: 380px), (max-height: 740px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-content-gap: 18px !important;
   }
 }

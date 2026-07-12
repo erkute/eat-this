@@ -452,6 +452,7 @@ html[data-active-page='start'] body {
   background-image: none;
   color-scheme: light;
 }
+
 /* Hub wrapper surface. The section stack has intentional gaps between some
    sections; without a wrapper background those gaps expose the body, which
    style.css paints with --surface-canvas (#fff) — producing a cream→white seam
@@ -468,6 +469,7 @@ html[data-active-page='start'],
 html[data-active-page='start'] body {
   background-color: var(--food-paper);
 }
+
 /* Sitewide Providence collage language. The map remains a purpose-built
    full-screen tool; every content page gets the paper/print treatment. */
 html:not([data-active-page='map']) .app-pages,
@@ -475,6 +477,20 @@ html:not([data-active-page='map']) main,
 html:not([data-active-page='map']) .app-page {
   background-color: transparent;
 }
+
+@media (min-width: 768px) {
+  /* Anchor the desktop Home scroller to both viewport edges. This avoids the
+     thin canvas gap produced by margin + calculated viewport height. */
+  html[data-active-page='start'] .app-pages {
+    position: fixed;
+    inset: 74px 0 0;
+    height: auto;
+    margin: 0;
+    background-color: var(--food-paper);
+    overscroll-behavior-y: none;
+  }
+}
+
 html:not([data-active-page='map']) main,
 html:not([data-active-page='map']) .app-page:not([data-page='start']) {
   position: relative;
@@ -1166,13 +1182,12 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
   }
 }
 @media (max-width: 767px) {
-  html[data-active-page='start'] #navbar,
-  html[data-active-page='news-article'] #navbar {
+  html:not([data-active-page='map']) #navbar {
     transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
     will-change: transform;
   }
-  html.navbar-hidden[data-active-page='start'] #navbar,
-  html.navbar-hidden[data-active-page='news-article'] #navbar {
+  html.navbar-hidden:not([data-active-page='map']) #navbar {
     transform: translate3d(0, calc(-100% - 2px), 0) !important;
+    visibility: hidden !important;
   }
 }

@@ -110,7 +110,7 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
   return (
     <div className="cookie-info-body">
       {sections.map((s, i) => (
-        <div key={i}>
+        <section className="cookie-info-card" key={i}>
           <h3>{s.h}</h3>
           <Paragraph text={s.p} />
           {s.list && (
@@ -123,16 +123,16 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
               ))}
             </ul>
           )}
-        </div>
+        </section>
       ))}
     </div>
   );
 }
 
 // Cookie consent banner with inline expandable cookie-info section. No modal:
-// "Mehr erfahren" expands the banner downward, COOKIE_SECTIONS content renders
-// directly inside the dark glass card so colors stay cohesive. AGB/Datenschutz
-// modals are gone — LoginPanel uses plain <a href> to /agb and /datenschutz.
+// "Mehr erfahren" expands a compact, scrollable info area inside the bottom
+// tray. AGB/Datenschutz modals are gone — LoginPanel uses plain <a href> to
+// /agb and /datenschutz.
 export default function CookieConsent() {
   const { t, lang } = useTranslation();
   const [show, setShow] = useState(false);
@@ -246,35 +246,33 @@ export default function CookieConsent() {
     >
       <div className="cookie-content">
         <div className="cookie-copy">
-          <div className="cookie-kicker">Cookies</div>
-          <h2 className="cookie-title">{t('cookie.title')}</h2>
-          <p className="cookie-text">{t('cookie.text')}</p>
-          <div className="cookie-consent-types" role="list" aria-label={t('cookie.summary')}>
-            <span role="listitem">{t('cookie.necessary')}</span>
-            <span role="listitem">{t('cookie.optional')}</span>
-          </div>
-          <button
-            type="button"
-            className="cookie-info-trigger"
-            id="cookieInfoTrigger"
-            aria-expanded={expanded}
-            aria-controls="cookieInfoPanel"
-            onClick={() => setExpanded((e) => !e)}
-          >
-            {t('cookie.moreInfo')}
-            <svg
-              className="cookie-info-chevron"
-              width={10}
-              height={10}
-              viewBox="0 0 10 10"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.6}
-              aria-hidden="true"
+          <span className="cookie-mark" aria-hidden="true" />
+          <div className="cookie-copy-main">
+            <h2 className="cookie-title">{t('cookie.title')}</h2>
+            <p className="cookie-text">{t('cookie.text')}</p>
+            <button
+              type="button"
+              className="cookie-info-trigger"
+              id="cookieInfoTrigger"
+              aria-expanded={expanded}
+              aria-controls="cookieInfoPanel"
+              onClick={() => setExpanded((e) => !e)}
             >
-              <path d="M2 3.5L5 6.5L8 3.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+              {t('cookie.moreInfo')}
+              <svg
+                className="cookie-info-chevron"
+                width={10}
+                height={10}
+                viewBox="0 0 10 10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                aria-hidden="true"
+              >
+                <path d="M2 3.5L5 6.5L8 3.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="cookie-buttons">
           <button

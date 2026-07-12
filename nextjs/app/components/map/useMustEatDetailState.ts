@@ -6,6 +6,11 @@ import { trackEvent } from '@/lib/analytics'
 
 export const UNLOCK_RADIUS_METERS = 50
 
+function vibrateRevealReady() {
+  if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
+  navigator.vibrate([22, 18, 28])
+}
+
 interface Args {
   mustEat: MapMustEat
   userLocation: UserLocation | null
@@ -51,10 +56,12 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   const handleCardClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     // Demo: play the animation only, no unlock/persist side effects.
     if (demo) {
+      vibrateRevealReady()
       setRevealOrigin(e.currentTarget.getBoundingClientRect())
       return
     }
     if (canUnlock && isAuthed) {
+      vibrateRevealReady()
       trackEvent('must_eat_reveal_attempt', {
         must_eat_id: mustEat._id,
         restaurant_id: mustEat.restaurant._id,

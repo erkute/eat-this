@@ -156,6 +156,13 @@ Buttons should follow the current Home button typography: Providence display
 font, compact size, strong weight, no exaggerated letter spacing, and no forced
 uppercase unless a specific component already proves otherwise.
 
+## Buttons — no strong hover shadows
+
+Do not add strong cast shadows, offset block shadows, sticker shadows, or
+"pop-out" shadow effects to button hover/active states. The user finds these
+too heavy on buttons. Prefer restrained color, text, translate, or scale
+feedback without pronounced shadows.
+
 ## Browser QA preference
 
 The user does not want screenshot-based QA during normal iteration. Prefer the

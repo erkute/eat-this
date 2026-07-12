@@ -253,6 +253,7 @@ export interface MapMustEat {
     lng: number
     district?: string
     address?: string
+    photo?: string
   }
   revealedForAnon?: boolean
 }

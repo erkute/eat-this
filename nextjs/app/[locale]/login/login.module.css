@@ -2597,7 +2597,7 @@
 @media (max-width: 767.98px) {
   .frameModal .modalSimpleSignin {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
   }
 
   .modalSigninBoosters {
@@ -2633,6 +2633,36 @@
   .frameModal .modalSimpleSignin .modalLogin {
     min-height: 0;
     padding-top: 12px;
+  }
+}
+
+@media (max-width: 767.98px) and (max-height: 680px) {
+  .frameModal .modalSimpleSignin {
+    overflow-y: hidden;
+  }
+
+  .modalSigninBoosters {
+    min-height: 250px;
+    height: 250px;
+    gap: 6px;
+    padding: 12px 18px 4px;
+  }
+
+  .modalSigninBoosterHeadline {
+    font-size: clamp(24px, 6.8vw, 28px);
+  }
+
+  .modalSigninBoosterFan {
+    height: 145px;
+  }
+
+  .modalSigninBoosterCard {
+    width: clamp(78px, 23vw, 90px);
+  }
+
+  .modalSigninBoosterLead {
+    font-size: 13px;
+    line-height: 1.05;
   }
 }
 

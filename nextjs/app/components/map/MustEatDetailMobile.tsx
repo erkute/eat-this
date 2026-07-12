@@ -57,6 +57,7 @@ export default function MustEatDetailMobile({
   const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang)
   const { distance, canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
   const { name: restaurantName } = mustEat.restaurant
+  const restaurantPhoto = mustEat.restaurant.photo
   const open = isUnlocked && !revealOrigin
   const nameRevealed = open && !nameBurning
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')
@@ -227,14 +228,19 @@ export default function MustEatDetailMobile({
               <p className={styles.fdProximitySub}>
                 {canUnlock
                   ? tMap('proximityTapReveal')
-                  : tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
+                  : lang === 'en'
+                    ? <>Get within <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of the spot, then you can reveal the Must Eat.</>
+                    : <>Komm auf <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an den Spot heran, dann kannst du das Must Eat aufdecken.</>}
               </p>
             </div>
           )}
         </div>
 
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
-        <div className={styles.fdRest}>
+        <div className={`${styles.fdRest} ${styles.fdRestInline}`}>
+          {restaurantPhoto && (
+            <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
+          )}
           <div className={styles.fdRestName}>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
             <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
@@ -273,6 +279,25 @@ export default function MustEatDetailMobile({
           </div>
         )}
 
+      </div>
+
+      <div className={`${styles.fdRest} ${styles.fdRestDock}`} aria-hidden={false}>
+        {restaurantPhoto && (
+          <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
+        )}
+        <div className={styles.fdRestName}>
+          <div className={styles.fdK}>{t('map.inRestaurant')}</div>
+          <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
+        </div>
+        {onViewRestaurant ? (
+          <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
+            {t('map.toSpot')}
+          </button>
+        ) : (
+          <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.ctaPill}>
+            {t('map.toSpot')}
+          </Link>
+        )}
       </div>
     </div>
   )

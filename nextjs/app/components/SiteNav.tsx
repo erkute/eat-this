@@ -22,8 +22,6 @@ function pageSlugFromPath(path: string): string {
   return p.replace(/^\//, '').split('/')[0];
 }
 
-const MOBILE_AUTO_HIDE_PAGES = new Set(['start', 'news-article']);
-
 export default function SiteNav() {
   const { t, lang } = useTranslation();
   const pathname = usePathname();
@@ -43,7 +41,7 @@ export default function SiteNav() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove('navbar-hidden');
-    if (!MOBILE_AUTO_HIDE_PAGES.has(activePage)) return;
+    if (activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
     let lastY = window.scrollY || window.pageYOffset || 0;

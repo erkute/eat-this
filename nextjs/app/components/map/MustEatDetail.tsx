@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
@@ -66,17 +66,46 @@ export default function MustEatDetail({
   // In demo the card stays face-down until the reveal animation finishes, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.
   const [demoRevealed, setDemoRevealed] = useState(false)
+  const [demoMustEat, setDemoMustEat] = useState<MapMustEat | null>(null)
   // Once the card has flown back onto its slot, the "VERDECKT" stamp burns
   // away to expose the dish name underneath.
   const [stampBurning, setStampBurning] = useState(false)
   const effectiveUnlocked = demo ? demoRevealed : isUnlocked
+  const visibleMustEat = demoMustEat?._id === mustEat._id ? demoMustEat : mustEat
+
+  useEffect(() => {
+    if (!demo) return
+    setDemoRevealed(false)
+    setStampBurning(false)
+    setDemoMustEat(null)
+  }, [demo, mustEat._id])
+
+  useEffect(() => {
+    if (!demo || mustEat.image || demoMustEat?._id === mustEat._id) return
+    const ctrl = new AbortController()
+    void (async () => {
+      try {
+        const r = await fetch(`/api/must-eat-demo?mustEatId=${encodeURIComponent(mustEat._id)}`, {
+          signal: ctrl.signal,
+        })
+        if (!r.ok) return
+        const { mustEat: full } = (await r.json()) as { mustEat?: MapMustEat }
+        if (full?._id === mustEat._id) setDemoMustEat(full)
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.warn('Must Eat demo preview failed', err)
+        }
+      }
+    })()
+    return () => ctrl.abort()
+  }, [demo, demoMustEat?._id, mustEat._id, mustEat.image])
 
   const r = state.revealOrigin
 
   return (
     <>
       <MustEatDetailMobile
-        mustEat={mustEat}
+        mustEat={visibleMustEat}
         isUnlocked={effectiveUnlocked}
         nameBurning={stampBurning}
         onClose={onClose}
@@ -94,8 +123,8 @@ export default function MustEatDetail({
           // Covered cards arrive stripped; the reveal response merges the real
           // image in well before the ~800 ms flip exposes the card face. Until
           // then the overlay shows the card-back it animates anyway.
-          imageUrl={mustEat.image ?? '/pics/card-back.webp?v=6'}
-          alt={mustEat.dish ?? ''}
+          imageUrl={visibleMustEat.image ?? '/pics/card-back.webp?v=6'}
+          alt={visibleMustEat.dish ?? ''}
           originRect={r}
           // Fly back onto the card's own slot and land face-up there (instead
           // of shrinking off toward the header) — the detail reveals in place.
@@ -112,8 +141,8 @@ export default function MustEatDetail({
         />
       )}
       <MustEatImageLightbox
-        imageUrl={mustEat.image ?? ''}
-        alt={mustEat.dish ?? ''}
+        imageUrl={visibleMustEat.image ?? ''}
+        alt={visibleMustEat.dish ?? ''}
         originRect={state.zoomRect}
         onClose={state.handleZoomClose}
         // Origin-Karte erst wieder einblenden, wenn der Fly-Back-Klon

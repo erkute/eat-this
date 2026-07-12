@@ -151,6 +151,7 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, on
       onClick={handleClose}
       role="dialog"
     >
+      <div className={styles.lightboxBg} aria-hidden="true" />
       <motion.div
         ref={cardRef}
         className={styles.lightboxCard}

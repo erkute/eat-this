@@ -20,7 +20,7 @@
 
 .head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
 }
@@ -29,26 +29,36 @@
   margin: 0;
   color: #15120e;
   font-family: var(--album-display);
-  font-size: clamp(34px, 5vw, 68px);
+  font-size: clamp(32px, 3.6vw, 52px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.82;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
 .count {
   flex: 0 0 auto;
-  min-height: 0;
-  padding: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 38px;
+  padding: 7px 10px;
   color: var(--album-ink);
-  background: transparent;
-  border-radius: 0;
+  background: var(--profile-accent, #ffc600);
+  border-radius: var(--profile-radius, 7px);
   font-family: var(--album-label);
-  font-size: 10px;
+  font-size: clamp(10px, 0.9vw, 12px);
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.06em;
   line-height: 1.1;
   text-transform: uppercase;
+}
+
+.count strong {
+  font-family: var(--album-display);
+  font-size: clamp(24px, 2.2vw, 32px);
+  letter-spacing: 0;
+  line-height: 0.75;
 }
 
 .grid {
@@ -120,8 +130,14 @@
 
 @media (max-width: 520px) {
   .head {
-    align-items: start;
+    align-items: flex-start;
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .count {
+    min-height: 34px;
+    padding: 6px 9px;
   }
 
   .grid {

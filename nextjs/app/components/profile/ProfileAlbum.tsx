@@ -49,7 +49,8 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
         <h2 className={styles.title}>{t('albumHeading')}</h2>
         {slots.length > 0 && (
           <span className={styles.count}>
-            {collected} / {slots.length}
+            <strong>{collected}</strong>
+            <span>{t('albumCount', { total: slots.length })}</span>
           </span>
         )}
       </div>

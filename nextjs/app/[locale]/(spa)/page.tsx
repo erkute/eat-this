@@ -8,6 +8,7 @@ import { buildHreflangAlternates } from '@/lib/seo/metadata'
 import HubSection from '@/app/components/HubSection'
 import { getHomeData } from '@/lib/home/getHomeData'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
+import { selectHomeInitialMapData } from '@/lib/map/initial-surface-data'
 import { buildHomeJsonLd } from '@/lib/json-ld'
 import { getLandingFaqs } from '@/lib/landing/faqs'
 
@@ -60,10 +61,11 @@ export default async function HomePage({ params }: PageProps) {
 
   // The hub's client islands (HubNearby) reuse the map's anon dataset, so SSR
   // both in parallel and hand initialMapData down through HubSection.
-  const [initialData, initialMapData] = await Promise.all([
+  const [initialData, fullInitialMapData] = await Promise.all([
     getHomeData(locale as 'de' | 'en'),
     getInitialAnonMapData(),
   ])
+  const initialMapData = selectHomeInitialMapData(fullInitialMapData)
 
   // WebPage (representative image) + FAQPage graph — the FAQ entries mirror what
   // the hub renders (HubFaq uses the same getLandingFaqs source). Organization/

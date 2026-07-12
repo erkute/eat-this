@@ -1,10 +1,18 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 import type { Metadata, Viewport } from 'next'
+import { Saira_Condensed } from 'next/font/google'
 import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
+
+const sairaCondensed = Saira_Condensed({
+  weight: ['700', '800', '900'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-saira-condensed',
+})
 
 export const revalidate = 3600
 
@@ -39,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateViewport({ params }: PageProps): Promise<Viewport> {
   await params
   return {
-    themeColor: '#e8b626',
+    themeColor: '#15120e',
   }
 }
 
@@ -52,5 +60,11 @@ export default async function MapPage({ params }: PageProps) {
     getInitialAnonMapData(),
   ])
 
-  return <MapSection isActive initialMapData={initialMapData} />
+  return (
+    <MapSection
+      isActive
+      initialMapData={initialMapData}
+      fontClassName={sairaCondensed.variable}
+    />
+  )
 }

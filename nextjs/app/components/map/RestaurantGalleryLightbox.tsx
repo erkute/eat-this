@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
-import { safeHttpUrl } from './MustEatImageLightbox'
+import { safeHttpUrl } from '@/lib/safeHttpUrl'
 import styles from './map.module.css'
 
 interface Props {

@@ -4,7 +4,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, fireEvent, cleanup } from '@testing-library/react'
 import { NextIntlClientProvider } from 'next-intl'
-import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage'
+import {
+  BUDDY_ASK_EVENT,
+  consumePendingBuddyAsk,
+  dispatchBuddyAsk,
+} from '@/lib/buddy/homeStage'
 
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null }) }))
 vi.mock('@/lib/map/useFavorites', () => ({
@@ -34,7 +38,6 @@ vi.mock('@/lib/map/UserLocationContext', () => ({
   }),
 }))
 vi.mock('@/i18n/navigation', () => ({
-  usePathname: () => '/',
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }))
 
@@ -47,6 +50,7 @@ afterEach(() => {
   locationState.location = null
   locationState.loading = false
   locationState.request = vi.fn()
+  consumePendingBuddyAsk()
 })
 
 function renderWidget() {
@@ -71,6 +75,15 @@ describe('BuddyWidget home ask protocol', () => {
       window,
       new CustomEvent(BUDDY_ASK_EVENT, { detail: { question: 'Wo gibt’s gute Pizza?' } }),
     )
+    expect(document.querySelector('[data-buddy-panel="open"]')).not.toBeNull()
+    expect(send).toHaveBeenCalledWith('Wo gibt’s gute Pizza?')
+  })
+
+  it('replays an ask dispatched before the lazy widget finishes mounting', () => {
+    dispatchBuddyAsk({ question: 'Wo gibt’s gute Pizza?' })
+
+    renderWidget()
+
     expect(document.querySelector('[data-buddy-panel="open"]')).not.toBeNull()
     expect(send).toHaveBeenCalledWith('Wo gibt’s gute Pizza?')
   })

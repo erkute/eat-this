@@ -50,6 +50,7 @@ vi.mock('@/app/components/MapIntentLink', () => ({
 }));
 
 import HubNearby from '@/app/components/HubNearby';
+import { HomeMapDataProvider } from '@/app/components/HomeMapDataContext';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 const restaurant = (o: Partial<MapRestaurant> = {}): MapRestaurant => ({
@@ -76,7 +77,9 @@ const mapData = (restaurants: MapRestaurant[] = []): InitialMapData =>
 function render(initialMapData: InitialMapData = mapData(), mode?: 'guest' | 'auth') {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-      <HubNearby initialMapData={initialMapData} mode={mode} />
+      <HomeMapDataProvider initialMapData={initialMapData}>
+        <HubNearby mode={mode} />
+      </HomeMapDataProvider>
     </NextIntlClientProvider>
   );
 }
@@ -133,7 +136,9 @@ describe('HubNearby', () => {
 
     renderClient(
       <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-        <HubNearby initialMapData={mapData([restaurant()])} />
+        <HomeMapDataProvider initialMapData={mapData([restaurant()])}>
+          <HubNearby />
+        </HomeMapDataProvider>
       </NextIntlClientProvider>
     );
 

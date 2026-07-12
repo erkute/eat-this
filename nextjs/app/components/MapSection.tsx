@@ -15,19 +15,20 @@ import {
   resolveUnlockedMustEatIds,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
+import { useAuth } from '@/lib/auth';
 import MapSectionBody from './map/MapSectionBody';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import { resolveAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { auth, getDb } from '@/lib/firebase/config';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
 
 interface Props {
   isActive?: boolean;
   initialMapData?: InitialMapData;
+  fontClassName?: string;
 }
 
 /* Phones (≤767.98px) render the map list as a window-scrolled in-flow
@@ -38,7 +39,7 @@ function isPhoneViewport(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(max-width: 767.98px)').matches;
 }
 
-export default function MapSection({ isActive = false, initialMapData }: Props) {
+export default function MapSection({ isActive = false, initialMapData, fontClassName }: Props) {
   const mapRef = useRef<MapRef>(null);
   const mapWrapRef = useRef<HTMLDivElement | null>(null);
   // Set true synchronously in any click handler that flies the camera so
@@ -47,17 +48,8 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   const mapTrackedRef = useRef(false);
   const { t } = useTranslation();
 
-  const [uid, setUid] = useState<string | null>(() => auth.currentUser?.uid ?? null);
-  const [authLoading, setAuthLoading] = useState<boolean>(() => auth.currentUser === null);
-
-  useEffect(
-    () =>
-      onAuthStateChanged(auth, (u) => {
-        setUid(u?.uid ?? null);
-        setAuthLoading(false);
-      }),
-    []
-  );
+  const { user, loading: authLoading } = useAuth();
+  const uid = user?.uid ?? null;
 
   // Map is open access — non-authed visitors can browse all 20 trial
   // restaurants and their must-eats. No login wall on entry.
@@ -1060,6 +1052,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   return (
     <MapSectionBody
       isActive={isActive}
+      fontClassName={fontClassName}
       mapRef={mapRef}
       mapWrapRef={mapWrapRef}
       handleRef={handleRef}

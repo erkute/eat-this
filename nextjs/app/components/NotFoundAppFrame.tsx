@@ -17,6 +17,7 @@ export default function NotFoundAppFrame({ children }: { children: React.ReactNo
             <SiteNav />
             <BurgerDrawer />
             <div className="app-pages" id="appPages">
+              <span id="main-content" tabIndex={-1} />
               {children}
               <SiteFooter />
             </div>

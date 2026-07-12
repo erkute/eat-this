@@ -12,6 +12,7 @@ import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
+import { sanitySrcSet } from '@/lib/sanity-image-presets'
 import styles from '../Bezirk.module.css'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -180,11 +181,14 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                 <Link key={r._id} href={`/restaurant/${r.slug}`} className={styles.card}>
                   {r.photo && (
                     <div className={styles.cardPhoto}>
-                      <Image
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={r.photo}
                         alt={r.name}
-                        fill
+                        srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
                         sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </div>
                   )}

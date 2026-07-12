@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server'
@@ -15,6 +14,7 @@ import { localeUrl } from '@/lib/locale-url'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
+import { sanitySrcSet } from '@/lib/sanity-image-presets'
 import sharedStyles from '../../bezirk/Bezirk.module.css'
 import styles from '../Kategorie.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -46,12 +46,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
-  const c = await getCategoryBySlug(slug)
+  const [c, restaurants] = await Promise.all([
+    getCategoryBySlug(slug),
+    getRestaurantsByCategory(slug),
+  ])
   if (!c) return {}
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
   const label = localizedCategoryName(c, loc)
-  const restaurants = await getRestaurantsByCategory(c.slug)
   // Brandlos — das Layout-Template hängt „| Eat This Berlin" an.
   // Suchsprache statt Katalog-Label: „Die beste Pizza in Berlin".
   const title = buildCategoryTitle(slug, label, loc)
@@ -91,10 +93,11 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const c = await getCategoryBySlug(slug)
+  const [c, restaurants] = await Promise.all([
+    getCategoryBySlug(slug),
+    getRestaurantsByCategory(slug),
+  ])
   if (!c) notFound()
-
-  const restaurants = await getRestaurantsByCategory(c.slug)
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
   const quickFacts = buildKategorieQuickFacts({ label, restaurants, locale: loc })
@@ -217,11 +220,17 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                 <Link key={r._id} href={restaurantUrl(r.slug)} className={sharedStyles.card}>
                   {r.photo && (
                     <div className={sharedStyles.cardPhoto}>
-                      <Image
+                      {/* Sanity already serves transformed WebP/AVIF. A compact
+                          three-width srcset avoids Next serialising its large
+                          global candidate list for every card on long pages. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={r.photo}
                         alt={r.name}
-                        fill
+                        srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
                         sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </div>
                   )}

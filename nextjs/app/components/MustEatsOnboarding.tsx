@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { useTranslation } from '@/lib/i18n'
 import { resolveUnlockedMustEatIds } from '@/lib/map'
 import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery'
-import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data'
 import styles from './MustEatsOnboarding.module.css'
 
 const CARD_BACK = '/pics/card-back.webp?v=6'
@@ -27,7 +27,7 @@ const SLIDES = [
 ] as const
 
 interface Props {
-  initialMapData: InitialMapData
+  initialMapData: InitialMustEatsData
 }
 
 // First-visit onboarding for the Must-Eats page: 3 steps around a demo card

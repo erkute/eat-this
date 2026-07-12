@@ -10,6 +10,7 @@ import {
   getAllRestaurantSlugs,
   getArticleBySlug,
   getAllArticleSlugs,
+  getStaticPage,
 } from '../sanity.server'
 
 const mockFetch = vi.mocked(client.fetch)
@@ -65,5 +66,31 @@ describe('getAllArticleSlugs', () => {
   it('returns flat array of strings', async () => {
     mockFetch.mockResolvedValue([{ slug: 'article-1' }] as never)
     expect(await getAllArticleSlugs()).toEqual(['article-1'])
+  })
+})
+
+describe('getStaticPage', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('requests only the selected slug and locale', async () => {
+    const mock = { slug: 'about', title: 'Über uns', body: [] }
+    mockFetch.mockResolvedValue(mock as never)
+
+    expect(await getStaticPage('about', 'de')).toEqual(mock)
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('$locale == "de"'),
+      { slug: 'about', locale: 'de' },
+      {
+        next: {
+          revalidate: 3600,
+          tags: ['staticPage:about', 'staticPage'],
+        },
+      }
+    )
+  })
+
+  it('returns null when the page does not exist', async () => {
+    mockFetch.mockResolvedValue(null as never)
+    expect(await getStaticPage('missing', 'en')).toBeNull()
   })
 })

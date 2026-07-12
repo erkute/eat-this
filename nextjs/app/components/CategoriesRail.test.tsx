@@ -33,6 +33,7 @@ vi.mock('@/i18n/navigation', () => ({
   ),
 }));
 vi.mock('next/image', () => ({
+  // eslint-disable-next-line @next/next/no-img-element
   default: ({ src }: { src: string }) => <img src={src} alt="" />,
 }));
 import CategoriesRail from './CategoriesRail';
@@ -95,17 +96,6 @@ describe('CategoriesRail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
 
     expect(magicLinkState.sendLink).toHaveBeenCalledWith('test@example.com');
-  });
-  it('keeps the category rail on booster pack art even when Sanity home images exist', () => {
-    const html = renderToStaticMarkup(
-      <CategoriesRail
-        categoryNames={{ pizza: 'Pizza' }}
-        categoryImages={{ pizza: 'https://cdn.sanity.io/images/pizza.webp' }}
-        locale="de"
-      />
-    );
-    expect(html).toContain('/pics/booster/booster_pizza.webp');
-    expect(html).not.toContain('https://cdn.sanity.io/images/pizza.webp');
   });
   it('renders nothing when empty', () => {
     const html = renderToStaticMarkup(<CategoriesRail categoryNames={{}} locale="de" />);

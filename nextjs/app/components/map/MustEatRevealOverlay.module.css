@@ -137,11 +137,6 @@
 /* Floating tap hint — appears under the card after the fly-in settles
    so the user knows the next gesture without it shouting on entry. */
 
-@keyframes hintFadeIn {
-  from { opacity: 0; transform: translate(-50%, calc(50vh * 0.42 + 30px)); }
-  to   { opacity: 1; transform: translate(-50%, calc(50vh * 0.42 + 22px)); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .dancerIdle { animation: none; }
 

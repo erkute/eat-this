@@ -21,13 +21,9 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    // Sanity already serves WebP via ?auto=format. The custom loader hits
-    // cdn.sanity.io directly with width-modulated query params, so the
-    // default /_next/image proxy is skipped. Wired globally via loaderFile
-    // because per-<Image> `loader` props can't cross the Server → Client
-    // component boundary in App Router.
-    loader: 'custom',
-    loaderFile: './lib/sanityImageLoader.ts',
+    // Keep Next's default optimizer so local assets receive real responsive
+    // variants. Sanity URLs are valid remote sources and are cached by the
+    // same optimizer; raw <img> call sites use sanityImageLoader directly.
     remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
 
@@ -45,9 +41,9 @@ const nextConfig: NextConfig = {
       "object-src 'none'",
       "frame-ancestors 'self'",
       "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://apis.google.com",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://use.typekit.net",
       "img-src 'self' data: blob: https://cdn.sanity.io https://*.cartocdn.com https://*.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com",
-      "font-src 'self' data:",
+      "font-src 'self' data: https://use.typekit.net",
       "connect-src 'self' https://cdn.sanity.io https://*.cartocdn.com https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com https://www.google-analytics.com https://*.analytics.google.com",
       "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
       "worker-src 'self' blob:",

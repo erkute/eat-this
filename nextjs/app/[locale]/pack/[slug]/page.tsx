@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { Link } from '@/i18n/navigation'
-import { getRestaurantsByCategory, getAllCategories, getCategoryBySlug } from '@/lib/sanity.server'
+import { getRestaurantsByCategory, getCategoryBySlug } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { categoryArt } from '@/lib/categoryArt'
 import { hreflangAlternates } from '@/lib/seo/metadata'
@@ -80,12 +80,6 @@ export default async function PackDetailPage({ params }: PageProps) {
   const pack = resolvePackByUrlSlug(slug)
   if (!pack) notFound()
 
-  const cats = await getAllCategories()
-  const nameOf = (catSlug: string): string => {
-    const c = cats.find(x => x.slug === catSlug)
-    return c ? localizedCategoryName(c, loc) : catSlug
-  }
-
   const mapHref = de ? '/map' : `/${locale}/map`
   const priceLabel = formatPackPrice(pack.amountCents)
   const buyLabels = {
@@ -154,10 +148,14 @@ export default async function PackDetailPage({ params }: PageProps) {
   }
 
   // ── Category pack variant ───────────────────────────────────────────
-  const restaurants = await getRestaurantsByCategory(pack.slug as string)
+  const categorySlug = pack.slug as string
+  const [category, restaurants] = await Promise.all([
+    getCategoryBySlug(categorySlug),
+    getRestaurantsByCategory(categorySlug),
+  ])
   const teaser = buildPackTeaser(restaurants)
-  const art = categoryArt(pack.slug as string)
-  const heroName = nameOf(pack.slug as string)
+  const art = categoryArt(categorySlug)
+  const heroName = category ? localizedCategoryName(category, loc) : pack.displayName
   const allBerlinHref = '/pack/all-berlin'
 
   return (

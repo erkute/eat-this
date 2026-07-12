@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
+import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox';
 import type { MapMustEat } from '@/lib/types';
 import { buildAlbum, type AlbumMustEat } from '@/lib/profile/mustEatAlbum';
 import styles from './ProfileAlbum.module.css';
@@ -39,6 +39,10 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
   const [hiddenId, setHiddenId] = useState<string | null>(null);
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
+  const handleOpenReady = useCallback(() => {
+    const current = expandedRef.current;
+    if (current) setHiddenId(current.id);
+  }, []);
   const handleExitComplete = () => {
     if (!expandedRef.current) setHiddenId(null);
   };
@@ -59,7 +63,7 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
         <p className={styles.emptyText}>{t('emptyMustEats')}</p>
       ) : (
         <div className={styles.grid}>
-          {slots.map((slot) => {
+          {slots.map((slot, index) => {
             const open = slot.collected && !!slot.mustEat?.image;
             const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
             const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
@@ -67,10 +71,10 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
               <button
                 key={slot.id}
                 type="button"
+                aria-label={open ? alt : `${t('lockedSubhead')} ${index + 1}`}
                 className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
                 style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
                 onClick={(e) => {
-                  setHiddenId(slot.id);
                   setExpanded({
                     imageUrl,
                     alt,
@@ -97,11 +101,13 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
         </div>
       )}
 
-      <MustEatImageLightbox
+      <LazyMustEatImageLightbox
+        active={Boolean(expanded || hiddenId)}
         imageUrl={expanded?.imageUrl ?? ''}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={() => setExpanded(null)}
+        onOpenReady={handleOpenReady}
         onExitComplete={handleExitComplete}
       />
     </div>

@@ -63,3 +63,30 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(onUnlock).not.toHaveBeenCalled()
   })
 })
+
+describe('useMustEatDetailState — lazy zoom lifecycle', () => {
+  it('keeps the origin visible until the lightbox is ready and through fly-back', () => {
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: mkMustEat(),
+        userLocation: null,
+        onUnlock: vi.fn(),
+        isAuthed: true,
+      }),
+    )
+
+    act(() => { result.current.handleCardZoom(mkEvent()) })
+    expect(result.current.zoomRect).toBe(fakeRect)
+    expect(result.current.zoomActive).toBe(false)
+
+    act(() => { result.current.handleZoomReady() })
+    expect(result.current.zoomActive).toBe(true)
+
+    act(() => { result.current.handleZoomClose() })
+    expect(result.current.zoomRect).toBeNull()
+    expect(result.current.zoomActive).toBe(true)
+
+    act(() => { result.current.handleZoomExitComplete() })
+    expect(result.current.zoomActive).toBe(false)
+  })
+})

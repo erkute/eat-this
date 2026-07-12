@@ -5,7 +5,6 @@
 // docs/superpowers/specs/2026-06-05-free-surface-home-map-design.md).
 // Single Source of Truth für BEIDE Konsumenten:
 //   - /api/map-data + getInitialAnonMapData (Sichtbarkeits-Union)
-//   - getHomeData („Neu auf der Map"-Karten, brand-deduped)
 // → Home und Free-Map können per Konstruktion nicht driften.
 
 import { normalizeName } from '@/lib/normalizeName'

@@ -119,8 +119,7 @@
 }
 .input::placeholder { color: rgba(17, 13, 9, 0.4); }
 
-/* CTA — yellow sticker (brand CTA: yellow surface, ink border, hard
-   4px offset shadow; press = translate into the shadow, no opacity) */
+/* CTA — shared brand button typography and restrained press feedback. */
 .cta {
   display: flex;
   align-items: center;
@@ -132,19 +131,19 @@
   color: var(--conversion-action-text);
   border: 2px solid var(--conversion-ink);
   border-radius: var(--conversion-pill);
-  box-shadow: var(--conversion-hard-shadow);
-  font-family: var(--font-label, var(--font-chewy)), cursive;
+  box-shadow: none;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 15px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
   text-decoration: none;
   box-sizing: border-box;
-  transition: transform var(--conversion-motion), box-shadow var(--conversion-motion), background-color var(--conversion-motion);
+  transition: transform var(--conversion-motion), background-color var(--conversion-motion);
 }
 .cta:active:not(:disabled) {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 var(--conversion-ink);
+  transform: translateY(1px);
 }
 .cta:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 

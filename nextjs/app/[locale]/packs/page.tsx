@@ -164,6 +164,8 @@ export default async function PacksOverviewPage({ params }: PageProps) {
               alt=""
               width={420}
               height={560}
+              sizes="(max-width: 760px) 34vw, 190px"
+              priority={index === 0}
               className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`}
             />
           ))}

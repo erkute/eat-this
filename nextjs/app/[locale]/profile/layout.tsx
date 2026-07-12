@@ -9,7 +9,6 @@ import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
-import SearchOverlay from '@/app/components/SearchOverlayLazy';
 
 export const metadata: Metadata = {
   title: 'Profil — EAT THIS',
@@ -39,8 +38,8 @@ export default async function ProfileLayout({
             <SiteNav />
             <BridgeAuth />
             <BurgerDrawer />
+            <span id="main-content" tabIndex={-1} />
             {children}
-            <SearchOverlay />
           </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>

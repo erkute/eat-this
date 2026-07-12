@@ -1,17 +1,17 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { filterMustEats, type MustEatFilter } from '@/lib/home/mustEatsGallery'
-import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox'
-import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox'
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data'
 import styles from './MustEatsSection.module.css'
 
 const CARD_BACK = '/pics/card-back.webp?v=6'
 
 interface Props {
-  initialMapData: InitialMapData
+  initialMapData: InitialMustEatsData
 }
 
 const FILTERS: MustEatFilter[] = ['all', 'open', 'locked']
@@ -51,6 +51,10 @@ export default function MustEatsGallery({ initialMapData }: Props) {
   const [hiddenId, setHiddenId] = useState<string | null>(null)
   const expandedRef = useRef(expanded)
   expandedRef.current = expanded
+  const handleOpenReady = useCallback(() => {
+    const current = expandedRef.current
+    if (current) setHiddenId(current.id)
+  }, [])
   const closeExpanded = () => setExpanded(null)
   const handleExitComplete = () => {
     // If another card was opened mid fly-back, its origin must stay hidden.
@@ -85,7 +89,6 @@ export default function MustEatsGallery({ initialMapData }: Props) {
               className={open ? styles.medish : `${styles.medish} ${styles.locked}`}
               style={{ visibility: hiddenId === m._id ? 'hidden' : undefined }}
               onClick={(e) => {
-                setHiddenId(m._id)
                 setExpanded({ imageUrl, alt, rect: e.currentTarget.getBoundingClientRect(), id: m._id })
               }}
             >
@@ -98,11 +101,13 @@ export default function MustEatsGallery({ initialMapData }: Props) {
         })}
       </div>
 
-      <MustEatImageLightbox
+      <LazyMustEatImageLightbox
+        active={Boolean(expanded || hiddenId)}
         imageUrl={expanded?.imageUrl ?? ''}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={closeExpanded}
+        onOpenReady={handleOpenReady}
         onExitComplete={handleExitComplete}
       />
     </>

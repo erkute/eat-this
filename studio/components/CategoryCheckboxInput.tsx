@@ -59,7 +59,7 @@ export function CategoryCheckboxInput(props: ArrayOfObjectsInputProps) {
     }
   }, [client])
 
-  const items = (value as ReferenceItem[] | undefined) ?? []
+  const items = useMemo(() => (value as ReferenceItem[] | undefined) ?? [], [value])
   const checkedIds = useMemo(() => new Set(items.map((v) => v._ref)), [items])
 
   const toggle = useCallback(

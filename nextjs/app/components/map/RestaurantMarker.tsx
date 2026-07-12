@@ -29,9 +29,16 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
     >
       <div
         role="button"
+        tabIndex={0}
         aria-label={restaurant.name}
         className={className}
         style={{ position: 'relative' }}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return
+          event.preventDefault()
+          event.stopPropagation()
+          onClick(restaurant)
+        }}
         // Lets the detail-peek snapshot (MapSection) find and clone the
         // selected pin — DOM markers aren't part of the GL canvas frame.
         {...(isSelected ? { 'data-selected-pin': '' } : {})}

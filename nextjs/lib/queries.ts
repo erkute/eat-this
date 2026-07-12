@@ -329,13 +329,18 @@ export const mustEatsByRestaurantQuery = `
   }
 `
 
-// All static pages (about, contact, press, impressum, datenschutz, agb)
-export const allStaticPagesQuery = `
-  *[_type == "staticPage" && defined(slug.current)] {
+// One localized static page. Selecting the active language in GROQ keeps the
+// other page documents and translation fields out of the RSC payload.
+export const staticPageBySlugQuery = `
+  *[_type == "staticPage" && slug.current == $slug][0] {
     "slug": slug.current,
-    title,
-    titleDe,
-    body,
-    bodyDe
+    "title": select(
+      $locale == "de" => coalesce(titleDe, title),
+      coalesce(title, titleDe)
+    ),
+    "body": select(
+      $locale == "de" => coalesce(bodyDe, body),
+      coalesce(body, bodyDe)
+    )
   }
 `

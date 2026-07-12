@@ -2,7 +2,7 @@
   font-family: 'ff-providence-sans-web-pro-1';
   src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
     format('woff2');
-  font-display: block;
+  font-display: swap;
   font-style: normal;
   font-weight: 400;
 }
@@ -11,7 +11,7 @@
   font-family: 'ff-providence-sans-web-pro-1';
   src: url('https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3')
     format('woff2');
-  font-display: block;
+  font-display: swap;
   font-style: normal;
   font-weight: 700;
 }
@@ -20,13 +20,13 @@
   font-family: 'Providence Sans Pro Regular';
   src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
     format('woff2');
-  font-display: block;
+  font-display: swap;
   font-style: normal;
   font-weight: 400;
 }
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
-  --black: #171a17;
+  --black: #15120e;
   --white: #fff;
   --off-white: #fff;
   --gray-50: #fff;
@@ -128,7 +128,7 @@
      onto Moonblossom sitewide as the brand display family. Section
      heads read as a continuation of the brand wordmark, not as a separate
      display type. Moonblossom and FF Providence Sans Pro are served through the Adobe Fonts web
-     project; Saira Condensed and Anton are loaded via next/font. The legacy
+     project; Saira Condensed is loaded via next/font for the map. The legacy
      display families (Bungee/Ranchers/Knewave/Slackey/
      Archivo Black) were removed — their var names resolve via the html:root
      remap below. DM Sans stays the body + eyebrow workhorse. */
@@ -142,7 +142,7 @@
   --font-slackey: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-quote: 'Impact', 'Arial Narrow', sans-serif;
   --font-body: var(--font);
-  --font-label: var(--font-poster);
+  --font-label: var(--font-poster, var(--font-display));
 
   /* Home-derived design contract. Home remains the visual source of truth:
      white paper, almost-black ink, yellow accent, flat surfaces, Providence
@@ -163,8 +163,8 @@
   --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 
-  --et-font-display: var(--font-providence, var(--font-display));
-  --et-font-label: var(--font-providence, var(--font-display));
+  --et-font-display: var(--font-providence);
+  --et-font-label: var(--font-providence);
   --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
 
@@ -232,7 +232,7 @@
   --menu-cream-2: #fff;
   --menu-ink: #15120e;
   --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --menu-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton), sans-serif;
+  --menu-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
   --menu-brush: var(--font-display);
 
   --radius: 2px;
@@ -277,16 +277,16 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
-  --color-page: var(--surface-bg);
-  --color-surface: var(--surface-card);
-  --color-surface-raised: var(--surface-raised);
-  --color-surface-overlay: var(--surface-overlay);
-  --color-surface-inverse: var(--et-black);
-  --color-text: var(--text-primary);
-  --color-text-muted: var(--text-secondary);
-  --color-text-subtle: var(--text-muted);
-  --color-border: var(--border-subtle);
-  --color-border-strong: var(--border-strong);
+  --color-page: var(--surface-canvas);
+  --color-surface: var(--brand-paper);
+  --color-surface-raised: var(--brand-paper);
+  --color-surface-overlay: rgba(241, 241, 236, 0.95);
+  --color-surface-inverse: var(--brand-ink);
+  --color-text: var(--brand-ink);
+  --color-text-muted: rgba(16, 13, 15, 0.72);
+  --color-text-subtle: rgba(16, 13, 15, 0.52);
+  --color-border: rgba(16, 13, 15, 0.14);
+  --color-border-strong: rgba(16, 13, 15, 0.32);
   --color-action: var(--brand-action);
   --color-action-hover: var(--brand-action-hot);
   --color-action-text: var(--brand-paper);
@@ -447,8 +447,6 @@ html[data-active-page='start'] body {
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
   --collage-shadow: none;
-
-  background-color: var(--food-paper);
   background-image: none;
   color-scheme: light;
 }
@@ -552,14 +550,6 @@ a {
   text-decoration: none;
   color: inherit;
 }
-/* Prevent FOUC flash of overlays that only become visible via a toggled class.
-   Lives here (inlined by Next.js) instead of style.min.css so the rule is
-   applied before the external stylesheet loads on first paint. */
-.map-spot-overlay:not(.active),
-.search-overlay:not(.active) {
-  display: none;
-}
-
 /* Keep the burger drawer in the render tree while closed so the panel can
    transition from its off-screen transform. Opacity hides it pre-paint while
    style.min.css is loading; inert/aria-hidden keep it non-interactive. */
@@ -691,84 +681,34 @@ html[data-auth='1'] [data-guest-only] {
    (transform only — no opacity fade), like a small printed receipt sticker. */
 .notification {
   --toast-paper: var(--brand-paper);
-  --toast-ink: var(--brand-ink);
-  --toast-accent: var(--brand-action);
   --toast-shadow: rgba(16, 13, 15, 0.16);
   position: fixed;
-  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  gap: 12px;
   align-items: center;
-  width: min(428px, calc(100vw - 28px));
-  min-height: 76px;
-  padding: 12px 16px 13px 12px;
-  border: 2px solid var(--toast-ink);
   border-left-width: 8px;
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--toast-accent) 18%, transparent) 0 18px,
-      transparent 18px
-    ),
-    var(--toast-paper);
-  color: var(--toast-ink);
-  box-shadow:
-    0 18px 38px -18px var(--toast-shadow),
-    0 8px 18px -14px rgba(16, 13, 15, 0.14);
   text-align: left;
-  transform: translate(-50%, calc(100% + 128px)) rotate(1.1deg);
   z-index: 10000; /* above the legacy navbar (9999) */
   pointer-events: none;
-  transition: transform 0.42s var(--ease-snap);
-}
-.notification.show {
-  transform: translate(-50%, 0) rotate(-0.7deg);
-}
-.notification[data-tone='success'] {
-  --toast-accent: var(--brand-action);
-}
-.notification[data-tone='warning'] {
-  --toast-accent: var(--brand-rule);
 }
 .notification[data-tone='error'] {
   --toast-paper: var(--brand-action);
-  --toast-ink: var(--brand-paper);
-  --toast-accent: var(--brand-ink);
   --toast-shadow: rgba(239, 53, 40, 0.32);
-}
-.notification[data-tone='info'] {
-  --toast-accent: var(--brand-ink);
 }
 .notification-mark {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 2px solid var(--toast-ink);
-  border-radius: 50%;
-  background: var(--toast-accent);
-  color: var(--toast-paper);
-  box-shadow: 0 7px 14px -10px rgba(16, 13, 15, 0.38);
 }
 .notification[data-tone='warning'] .notification-mark {
   color: var(--brand-ink);
 }
 .notification[data-tone='error'] .notification-mark {
   border-color: var(--brand-paper);
-  background: var(--brand-paper);
-  color: var(--brand-action);
-  box-shadow: 0 7px 14px -10px rgba(16, 13, 15, 0.42);
 }
 .notification-mark svg {
-  width: 22px;
-  height: 22px;
   display: block;
   fill: currentColor;
   stroke: currentColor;
-  stroke-width: 2.1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -778,64 +718,13 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-copy {
   min-width: 0;
-  display: grid;
-  gap: 2px;
 }
 .notification-eyebrow {
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--toast-accent);
-}
-.notification[data-tone='error'] .notification-eyebrow {
-  color: var(--brand-paper);
-}
-.notification-title {
-  font-family: var(--font-poster);
-  font-size: clamp(22px, 6vw, 28px);
-  font-weight: 400;
-  line-height: 0.9;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-.notification-detail {
-  max-width: 34ch;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.24;
-  color: color-mix(in srgb, var(--toast-ink) 78%, transparent);
-}
-.notification[data-tone='error'] .notification-detail {
-  color: rgba(241, 241, 236, 0.86);
-}
-@media (min-width: 768px) {
-  .notification {
-    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-  }
 }
 @media (max-width: 420px) {
   .notification {
-    grid-template-columns: 38px minmax(0, 1fr);
-    gap: 10px;
-    min-height: 72px;
-    padding: 11px 12px 12px 10px;
     border-left-width: 7px;
-  }
-  .notification-mark {
-    width: 38px;
-    height: 38px;
-  }
-  .notification-mark svg {
-    width: 20px;
-    height: 20px;
-  }
-  .notification-detail {
-    max-width: 28ch;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -865,9 +754,6 @@ html[data-auth='1'] [data-guest-only] {
     inset 0 0 0 1px var(--toast-line);
   transform: translate(-50%, calc(100% + 112px));
   transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.notification.show {
-  transform: translate(-50%, 0);
 }
 .notification[data-tone='success'] {
   --toast-accent: #d9382a;
@@ -906,12 +792,9 @@ html[data-auth='1'] [data-guest-only] {
   box-shadow: none;
 }
 .notification-mark svg {
-  width: 18px;
-  height: 18px;
   stroke-width: 2.25;
 }
 .notification-copy {
-  gap: 3px;
   align-self: center;
 }
 .notification-eyebrow {
@@ -926,13 +809,7 @@ html[data-auth='1'] [data-guest-only] {
   color: #fff;
 }
 .notification-title {
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 900;
-  line-height: 1.12;
   letter-spacing: 0;
-  text-transform: none;
-  overflow-wrap: normal;
 }
 .notification-detail {
   max-width: 38ch;
@@ -945,11 +822,6 @@ html[data-auth='1'] [data-guest-only] {
 .notification[data-tone='error'] .notification-detail {
   color: var(--toast-muted);
 }
-@media (min-width: 768px) {
-  .notification {
-    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
-  }
-}
 @media (max-width: 420px) {
   .notification {
     grid-template-columns: 32px minmax(0, 1fr);
@@ -959,14 +831,6 @@ html[data-auth='1'] [data-guest-only] {
     padding: 10px 12px 11px 10px;
     border: 0;
     border-radius: 15px;
-  }
-  .notification-mark {
-    width: 32px;
-    height: 32px;
-  }
-  .notification-mark svg {
-    width: 17px;
-    height: 17px;
   }
   .notification-title {
     font-size: 14px;

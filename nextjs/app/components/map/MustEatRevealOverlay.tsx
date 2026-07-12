@@ -205,7 +205,6 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
   let cy = centerY
   let w = cardW
   let h = cardH
-  let opacity = 1
 
   if (phase === 'flyOut') {
     const t = target ?? flyOutTarget ?? locateProfileTarget()
@@ -214,17 +213,15 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
     if (landOpaque) {
       // Return to the origin slot: the flipper holds its 1.4 dwell-zoom, so
       // size the wrap to t.size / 1.4 → the VISIBLE card lands at the slot's
-      // exact size. Stay fully opaque; the caller reveals an identical card
+      // exact size. The caller reveals an identical card
       // underneath in the same frame, so removing the overlay is seamless.
       w = t.size / 1.4
       h = w * CARD_ASPECT
-      opacity = 1
     } else {
       // Shrink toward the icon while staying large enough to read until the
       // last frame so the user can track where the card lands.
       w = Math.max(28, t.size * 0.9)
       h = w * CARD_ASPECT
-      opacity = 0
     }
   }
 
@@ -256,14 +253,12 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
           top: originCY - originRect.height / 2,
           width: originRect.width,
           height: originRect.height,
-          opacity: 1,
         }}
         animate={{
           left: cx - w / 2,
           top: cy - h / 2,
           width: w,
           height: h,
-          opacity,
         }}
         transition={
           phase === 'flyIn'
@@ -272,7 +267,6 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
               ? {
                   duration: FLY_OUT_MS / 1000,
                   ease: [0.45, 0, 0.2, 1],
-                  opacity: { delay: (FLY_OUT_MS - 200) / 1000, duration: 0.2 },
                 }
               : { duration: 0 }
         }

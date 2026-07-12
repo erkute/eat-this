@@ -148,6 +148,7 @@ interface MapBodyRefs {
    data lists / selections / user context that drive markers and the sheet. */
 interface MapBodyState {
   isActive: boolean;
+  fontClassName?: string;
   sheetView: SheetView;
   snap: SheetSnap;
   dragging: boolean;
@@ -228,6 +229,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const searchLabel = locale === 'en' ? 'Search' : 'Suche';
   const {
     isActive,
+    fontClassName,
     mapRef,
     mapWrapRef,
     handleRef,
@@ -351,7 +353,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   }, [sheetView]);
 
   return (
-    <div className={`app-page${isActive ? ' active' : ''}`} data-page="map">
+    <main
+      className={`app-page${isActive ? ' active' : ''}${fontClassName ? ` ${fontClassName}` : ''}`}
+      data-page="map"
+    >
+      <h1 className={styles.srOnly}>{locale === 'en' ? 'Eat This map' : 'Eat This Karte'}</h1>
       <div
         className={`${styles.shell}${sheetView === 'detail' ? ` ${styles.shellDetailOpen}` : ''}`}
       >
@@ -668,6 +674,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

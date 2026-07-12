@@ -24,7 +24,7 @@ import { useLoginModal } from '@/lib/auth';
 import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
-import { safeHttpUrl } from './MustEatImageLightbox';
+import { safeHttpUrl } from '@/lib/safeHttpUrl';
 
 const DAY_ALIASES: Record<string, number> = {
   su: 0,

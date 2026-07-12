@@ -200,7 +200,7 @@
   border-radius: var(--home-radius-btn);
   padding: 13px 14px;
   font-family: var(--font-providence);
-  font-size: clamp(14px, 1.1vw, 16px);
+  font-size: 16px;
   font-weight: 700;
   color: var(--remy-stage-ink);
   background: transparent;

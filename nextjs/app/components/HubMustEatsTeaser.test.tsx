@@ -27,6 +27,7 @@ vi.mock('@/lib/map', async () => {
 });
 
 import HubMustEatsTeaser from '@/app/components/HubMustEatsTeaser';
+import { HomeMapDataProvider } from '@/app/components/HomeMapDataContext';
 
 const me = (o: Partial<MapMustEat> = {}): MapMustEat => ({
   _id: 'm1',
@@ -70,7 +71,9 @@ function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
         messages={translations[locale]}
         timeZone="Europe/Berlin"
       >
-        <HubMustEatsTeaser initialMapData={initialMapData} />
+        <HomeMapDataProvider initialMapData={initialMapData}>
+          <HubMustEatsTeaser />
+        </HomeMapDataProvider>
       </NextIntlClientProvider>
     </AppRouterContext.Provider>
   );

@@ -8,9 +8,8 @@
 // and lets next/image build a real responsive `srcset` against the same
 // CDN that other images already hit.
 //
-// Wired up via `images.loaderFile` in `next.config.ts` so every <Image>
-// goes through this; passing `loader` per-component would fail because
-// functions can't cross the Server → Client component boundary.
+// Use this only for raw Sanity <img> call sites. next/image keeps its default
+// optimizer so local browser assets receive real responsive variants too.
 
 const DEFAULT_QUALITY = 80
 

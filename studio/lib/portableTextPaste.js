@@ -6,7 +6,7 @@ const key = () => Math.random().toString(36).slice(2, 14)
 // HTML -> Portable Text
 // Handles h1-h4, p, blockquote, li, strong/b, em/i, u, a[href].
 function htmlToBlocks(html) {
-  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const doc = new globalThis.DOMParser().parseFromString(html, 'text/html')
   const blocks = []
   const nodes = doc.body.querySelectorAll('h1, h2, h3, h4, p, blockquote, li')
 

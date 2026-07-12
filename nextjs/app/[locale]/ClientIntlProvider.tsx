@@ -19,6 +19,7 @@ export default function ClientIntlProvider({
   return (
     <NextIntlClientProvider
       locale={locale}
+      timeZone="Europe/Berlin"
       messages={messages}
       onError={() => {}}
       getMessageFallback={({ key, namespace }) =>

@@ -6,6 +6,7 @@
   --packs-quiet: var(--et-home-quiet, #f2f1ef);
   --packs-accent: var(--et-home-accent, #ffc600);
   min-height: 100%;
+  overflow-x: clip;
   padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(24px, 4vw, 52px)) 0 clamp(64px, 8vw, 120px);
   background: var(--packs-paper);
   color: var(--packs-ink);

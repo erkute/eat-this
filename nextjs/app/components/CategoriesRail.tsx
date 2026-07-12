@@ -9,7 +9,6 @@ import styles from './CategoriesRail.module.css';
 
 interface Props {
   categoryNames: Record<string, string>;
-  categoryImages?: Record<string, string>;
   locale: 'de' | 'en';
 }
 
@@ -75,7 +74,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
       <div className={styles.grid}>
         <form className={`${styles.card} ${styles.starterCard}`} onSubmit={handleStarterSubmit} noValidate>
           <span className={`hv-cap ${styles.starterTitle}`}>Starter Pack</span>
-          <span className={`${styles.photo} ${styles.starterPhoto}`}>
+          <span className={styles.photo}>
             <Image src="/pics/booster/booster_free.webp" alt="" fill sizes="(max-width:760px) 58vw, 220px" />
           </span>
           <label className={styles.emailLabel} htmlFor={emailId}>
@@ -111,7 +110,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             </span>
           )}
         </form>
-        {entries.map(([slug, name]) => {
+        {entries.map(([slug, name], index) => {
           const art = categoryArt(slug);
           return (
             <article
@@ -120,7 +119,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             >
               <span className={`hv-cap ${styles.packTitle}`}>{name}</span>
               <span className={styles.photo}>
-                {art && <Image src={art} alt="" fill sizes="132px" />}
+                {art && <Image src={art} alt="" fill priority={index === 0} sizes="132px" />}
               </span>
               <Link href={`/pack/${slug}`} className={styles.packButton}>
                 {copy.packCta}

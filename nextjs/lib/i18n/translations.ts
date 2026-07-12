@@ -358,17 +358,6 @@ const en = {
     location: 'Location',
     signIn: 'Sign in',
   },
-  search: {
-    placeholder: 'Search spots or dishes',
-    hint: 'Start typing to search...',
-    searching: 'Searching …',
-    empty: 'Nothing found.',
-    noResults: 'No results for',
-    noResultsSub: 'Try a different search term',
-    mustEats: 'Must Eats',
-    news: 'News',
-    restaurants: 'Restaurants',
-  },
   profile: {
     heroKicker: 'Your collection',
     profileTitle: 'Profile',
@@ -888,14 +877,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     moreInfo: 'Mehr erfahren',
     accept: 'Akzeptieren',
     decline: 'Ablehnen',
-  },
-  search: {
-    placeholder: 'Spots oder Gerichte suchen',
-    hint: 'Tippen zum Suchen\u2026',
-    searching: 'Suche l\u00e4uft \u2026',
-    empty: 'Nichts gefunden.',
-    noResults: 'Keine Ergebnisse f\u00fcr',
-    noResultsSub: 'Versuche einen anderen Suchbegriff',
   },
   profile: {
     heroKicker: 'Deine Sammlung',

@@ -1,11 +1,11 @@
-import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data'
 import MustEatsGallery from './MustEatsGallery'
 import MustEatsOnboarding from './MustEatsOnboarding'
 import SiteFooter from './SiteFooter'
 import styles from './MustEatsSection.module.css'
 
 interface Props {
-  initialMapData: InitialMapData
+  initialMapData: InitialMustEatsData
   locale: 'de' | 'en'
 }
 
@@ -54,7 +54,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
   const heroCards = initialMapData.mustEats.slice(0, 3)
 
   return (
-    <div className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
+    <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
       <div className={styles.head}>
         <div className={styles.headCopy}>
           <p className={styles.kicker}>{c.kicker}</p>
@@ -104,6 +104,6 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
       </div>
 
       <SiteFooter />
-    </div>
+    </main>
   )
 }

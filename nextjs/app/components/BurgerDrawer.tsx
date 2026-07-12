@@ -30,7 +30,26 @@ export default function BurgerDrawer() {
   // Escape is global; visible controls below use React handlers.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeBurger(true);
+      if (event.key === 'Escape') {
+        closeBurger(true);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const drawer = document.getElementById('burgerDrawer');
+      if (!drawer?.classList.contains('active')) return;
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled]):not([tabindex="-1"])')
+      ).filter((element) => element.offsetParent !== null);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {

@@ -3,10 +3,9 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
-import { preloadMapSurface } from './map/preloadMapSurface';
 import styles from './SiteNav.module.css';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
@@ -25,7 +24,6 @@ function pageSlugFromPath(path: string): string {
 export default function SiteNav() {
   const { t, lang } = useTranslation();
   const pathname = usePathname();
-  const router = useRouter();
   const activePage = pageSlugFromPath(pathname);
 
   // Keep the html[data-active-page] attribute in sync with the current
@@ -128,38 +126,9 @@ export default function SiteNav() {
     };
   }, [activePage]);
 
-  useEffect(() => {
-    if (activePage === 'map') return;
-    const connection = (
-      navigator as Navigator & {
-        connection?: { saveData?: boolean; effectiveType?: string };
-      }
-    ).connection;
-    if (
-      connection?.saveData ||
-      connection?.effectiveType === 'slow-2g' ||
-      connection?.effectiveType === '2g'
-    )
-      return;
-
-    const warmMap = () => {
-      (router.prefetch as (href: string) => void)('/map');
-      void preloadMapSurface();
-    };
-    const ric = window.requestIdleCallback as
-      | ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number)
-      | undefined;
-    if (ric) {
-      const id = ric(warmMap, { timeout: 3500 });
-      return () => window.cancelIdleCallback?.(id);
-    }
-    const id = window.setTimeout(warmMap, 2200);
-    return () => window.clearTimeout(id);
-  }, [activePage, router]);
-
   return (
     <>
-      <a href="#appPages" className="skip-link">
+      <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
       <nav className="navbar" id="navbar">

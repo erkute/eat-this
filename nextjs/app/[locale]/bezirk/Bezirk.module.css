@@ -2,13 +2,6 @@
 
 .page {
   /* Scoped tokens — aligned to the Home paper/ink/accent contract. */
-  --ink: var(--et-home-ink);
-  --cream: var(--et-home-paper);
-  --cream-deep: var(--et-home-quiet);
-  --yellow: var(--et-home-accent);
-  --muted: var(--et-home-muted);
-  --f-display: var(--et-font-display);
-  --f-body: var(--font);
 
   /* Bridge semantic tokens so shared components (Breadcrumbs,
      HubMapCTA, MustEatTeaserSection, DetailPageOutro) render in the
@@ -21,8 +14,6 @@
   --border-subtle: var(--et-home-line);
   --border-strong: var(--ink);
   --accent: var(--yellow);
-
-  background: transparent;
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -52,7 +43,6 @@
   font-family: var(--f-display);
   font-size: 14px;
   letter-spacing: 0.14em;
-  color: var(--ink);
   text-transform: uppercase;
   margin: 14px 0 0;
   white-space: nowrap;
@@ -70,15 +60,6 @@
   margin: 18px 0 14px;
   overflow-wrap: break-word;
   hyphens: manual;
-}
-.tagline {
-  font-family: var(--f-display);
-  font-size: clamp(19px, 5vw, 27px);
-  line-height: 1.05;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 12px;
 }
 .sub {
   font-family: var(--f-body);
@@ -113,7 +94,6 @@
 .crossLink {
   display: inline-block;
   background: transparent;
-  color: var(--ink);
   border: 1.5px solid var(--ink);
   font-family: var(--f-display);
   font-size: 12px;
@@ -125,8 +105,6 @@
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .crossLink:hover {
-  background: var(--yellow);
-  color: var(--ink);
   transform: translateY(-1px);
 }
 
@@ -179,7 +157,6 @@
   position: relative;
   aspect-ratio: 4 / 3;
   width: 100%;
-  background: var(--cream-deep);
   overflow: hidden;
 }
 .cardPhoto img {
@@ -211,8 +188,6 @@
   margin-bottom: 10px;
 }
 .chipYellow {
-  background: var(--yellow);
-  color: var(--ink);
   font-family: var(--f-display);
   font-size: 12px;
   letter-spacing: 0.14em;
@@ -220,17 +195,6 @@
   /* Chewy is round/tall — a touch more vertical room so caps and umlaut
      cuisines (TÜRKISCH, SÜSSES) sit centred like the hero pills (1.15). */
   padding: 5px 10px 6px;
-  line-height: 1.16;
-}
-.chipOutline {
-  background: transparent;
-  color: var(--ink);
-  border: 1.5px solid var(--ink);
-  font-family: var(--f-display);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 4px 10px 5px;
   line-height: 1.16;
 }
 .price {
@@ -255,14 +219,6 @@
 .faq {
   border-top: 2px solid var(--ink);
   margin-top: 24px;
-}
-.faqKicker {
-  font-family: var(--f-display);
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  color: var(--ink);
-  text-transform: uppercase;
-  padding: 16px 0 8px;
 }
 .faqRow {
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -338,108 +294,24 @@
 ============================================================ */
 .bezirkGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  margin-bottom: 32px;
 }
 .bezirkCard {
-  display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 28px 22px;
-  min-height: 130px;
-  background: var(--et-cream);
   border: 0;
   box-shadow: 0 16px 28px rgba(43, 33, 28, .12);
   text-decoration: none;
-  color: var(--ink);
-  transition: background 0.15s ease;
 }
 .bezirkCard:hover {
   background: var(--et-cream);
   transform: rotate(0) translateY(-4px);
 }
 .bezirkName {
-  font-family: var(--f-display);
-  font-size: 32px;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
   color: var(--ink);
 }
 
 /* ============================================================
    Kategorie-Index Poster-Grid (booster-pack treatment)
 ============================================================ */
-.posterGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 22px 14px;
-  margin-bottom: 32px;
-}
-.posterCard {
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: var(--ink);
-  transition: transform 0.18s ease;
-}
-.posterCard:hover {
-  transform: translateY(-3px);
-}
-.posterFrame {
-  position: relative;
-  aspect-ratio: 3 / 4;
-  background: transparent;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.posterFrame img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.18));
-}
-.posterFrameEmpty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--yellow);
-  color: var(--ink);
-  font-family: var(--f-display);
-  font-size: clamp(28px, 8vw, 44px);
-  letter-spacing: 0;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 16px;
-}
-.posterName {
-  font-family: var(--f-display);
-  font-size: clamp(22px, 6vw, 30px);
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 4px;
-}
-
-@media (min-width: 720px) {
-  .posterGrid {
-    /* 9 categories → 3×3 grid on all desktop sizes so the last row
-       isn't orphaned (4-col left one card alone on the bottom row). */
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px 20px;
-  }
-}
-@media (min-width: 960px) {
-  .posterGrid {
-    gap: 40px 32px;
-  }
-}
 
 /* ============================================================
    Responsive — tablet 720, desktop 960
@@ -492,9 +364,6 @@
     line-height: 1.0;
     margin: 20px 0 16px;
   }
-  .tagline {
-    font-size: clamp(24px, 2.8vw, 38px);
-  }
   .sub {
     max-width: 52ch;
     font-size: 18px;
@@ -528,8 +397,7 @@
     margin-bottom: 14px;
     gap: 8px;
   }
-  .chipYellow,
-  .chipOutline {
+  .chipYellow {
     font-size: 13px;
     letter-spacing: 0.14em;
     padding: 5px 11px 6px;
@@ -541,13 +409,7 @@
      plain on desktop. Clamp is calibrated so the longest name
      (FRIEDRICHSHAIN, ~6.8px text width per font px) fits a 3-col track at
      every viewport from 960 up. */
-  .bezirkName {
-    font-size: clamp(30px, 3.2vw, 40px);
-  }
   /* Kategorie index poster name — was 30 max. Bump for wider posters. */
-  .posterName {
-    font-size: clamp(28px, 2.4vw, 38px);
-  }
 
 }
 
@@ -560,11 +422,6 @@
 /* iOS Safari alpha-image fallback: prevent the category poster artwork shadow
    from being rasterized as a rectangular tile on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
-  @media (pointer: coarse) {
-    .posterFrame img {
-      filter: none;
-    }
-  }
 }
 
 /* Final Home consolidation for district/category index and detail grids. */
@@ -581,7 +438,6 @@
 
 .hero,
 .card,
-.posterCard,
 .bezirkCard {
   border-radius: 0;
   box-shadow: none;
@@ -596,7 +452,6 @@
 .kicker,
 .crossLinksHead,
 .chipYellow,
-.chipOutline,
 .price {
   font-family: var(--et-font-mono);
   font-weight: 900;
@@ -607,11 +462,9 @@
 }
 
 .h1,
-.tagline,
 .sectionHead h2,
 .cardName,
-.bezirkName,
-.posterName {
+.bezirkName {
   font-family: var(--et-font-condensed);
   letter-spacing: 0;
 }
@@ -629,7 +482,6 @@
 }
 
 .card,
-.posterCard,
 .bezirkCard {
   border: 0;
   border-bottom: 3px solid var(--ink);
@@ -637,7 +489,6 @@
 }
 
 .card:hover,
-.posterCard:hover,
 .bezirkCard:hover {
   transform: translateY(-3px);
 }
@@ -647,8 +498,7 @@
   transform: none;
 }
 
-.cardPhoto,
-.posterFrame {
+.cardPhoto {
   border-radius: var(--et-radius-photo);
   background: var(--et-home-red);
 }
@@ -662,7 +512,6 @@
   color: var(--et-home-paper);
 }
 
-.chipOutline,
 .crossLink {
   border-color: var(--ink);
   color: var(--ink);
@@ -671,10 +520,6 @@
 .crossLink:hover {
   background: var(--ink);
   color: var(--cream);
-}
-
-.posterFrame img {
-  filter: none;
 }
 
 /* ============================================================

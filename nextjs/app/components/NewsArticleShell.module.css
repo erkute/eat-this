@@ -147,7 +147,6 @@
   text-transform: uppercase;
 }
 
-.title,
 .heroTitle,
 .content h2,
 .content h3,
@@ -159,13 +158,11 @@
   text-transform: uppercase;
 }
 
-.title,
 .heroTitle {
   max-width: 10ch;
   margin: 0;
   color: var(--article-ink);
   font-size: clamp(50px, 8vw, 116px);
-  line-height: 0.82;
 }
 
 .heroTitle {
@@ -173,10 +170,6 @@
   font-weight: 700;
   letter-spacing: var(--et-tracking-title, 0);
   line-height: var(--et-leading-title, 0.86);
-}
-
-.heroWrap .heroTitle {
-  color: #fff;
 }
 
 .heroWrap .heroTitle {
@@ -692,9 +685,8 @@ a.mustEat:focus-visible .mustEatPh img {
     min-height: clamp(470px, 78vw, 620px);
   }
 
-  .title,
   .heroTitle,
-  .lede {
+.lede {
     max-width: none;
   }
 
@@ -740,7 +732,6 @@ a.mustEat:focus-visible .mustEatPh img {
     padding-block: 10px 0;
   }
 
-  .title,
   .heroTitle {
     font-size: clamp(40px, 12vw, 60px);
     line-height: 0.86;

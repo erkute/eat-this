@@ -6,7 +6,7 @@ import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import type { UserLocation } from '@/lib/map'
 import MustEatRevealOverlay from './MustEatRevealOverlay'
-import MustEatImageLightbox from './MustEatImageLightbox'
+import LazyMustEatImageLightbox from './LazyMustEatImageLightbox'
 import MustEatDetailMobile from './MustEatDetailMobile'
 import { useMustEatDetailState } from './useMustEatDetailState'
 
@@ -140,11 +140,13 @@ export default function MustEatDetail({
           }}
         />
       )}
-      <MustEatImageLightbox
+      <LazyMustEatImageLightbox
+        active={Boolean(state.zoomRect || state.zoomActive)}
         imageUrl={visibleMustEat.image ?? ''}
         alt={visibleMustEat.dish ?? ''}
         originRect={state.zoomRect}
         onClose={state.handleZoomClose}
+        onOpenReady={state.handleZoomReady}
         // Origin-Karte erst wieder einblenden, wenn der Fly-Back-Klon
         // unmountet — sonst sieht man sie doppelt während des Zooms.
         onExitComplete={state.handleZoomExitComplete}

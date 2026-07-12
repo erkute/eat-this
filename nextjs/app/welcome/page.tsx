@@ -229,7 +229,7 @@ function IdentityForm({ user }: { user: User }) {
       await setDoc(doc(db, 'users', user.uid), { avatar: avatarPick }, { merge: true });
       try {
         localStorage.setItem(`eatthis_avatar_${user.uid}`, String(avatarPick));
-        localStorage.setItem('_authHint', JSON.stringify({ n: name.trim().split(' ')[0] || name.trim(), a: avatarPick }));
+        localStorage.setItem('_authHint', JSON.stringify({ n: name.trim().split(' ')[0] || name.trim(), a: avatarPick, u: user.uid }));
       } catch {}
       hardRedirectToHome();
     } catch {

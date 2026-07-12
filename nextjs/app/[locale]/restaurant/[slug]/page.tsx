@@ -39,6 +39,10 @@ function safeCreditUrl(url: string | undefined): string | null {
   }
 }
 
+function imageAssetKey(url: string | undefined): string {
+  return url?.split('?')[0] ?? ''
+}
+
 export async function generateStaticParams() {
   const slugs = await getAllRestaurantSlugs()
   return routing.locales.flatMap(locale =>
@@ -161,8 +165,22 @@ export default async function RestaurantPage({ params }: PageProps) {
   const magazine = splitDescriptionForMagazine(description)
   const faqEntries = buildFAQEntries(r, loc)
   const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
-  const galleryImages = (r.gallery ?? []).filter(img => img?.thumb && img?.full)
-  const heroCreditHref = safeCreditUrl(r.photoCreditUrl)
+  const heroAssetKey = imageAssetKey(r.photo)
+  const galleryImages = [
+    ...(r.photo
+      ? [{
+          _key: `${r._id}-hero`,
+          thumb: r.photo,
+          full: r.photo,
+          alt: r.name,
+          credit: r.photoCredit,
+          creditUrl: r.photoCreditUrl,
+        }]
+      : []),
+    ...(r.gallery ?? [])
+      .filter(img => img?.thumb && img?.full)
+      .filter(img => imageAssetKey(img.full) !== heroAssetKey),
+  ]
 
   const openStatus =
     r.openingHours && r.openingHours.length > 0
@@ -239,17 +257,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               <figcaption className={styles.heroCaption}>
                 <h1 className={styles.heroName}>{displayName}</h1>
               </figcaption>
-              {r.photoCredit && (
-                <span className={styles.heroCredit}>
-                  {heroCreditHref ? (
-                    <a href={heroCreditHref} target="_blank" rel="noopener noreferrer">
-                      {r.photoCredit}
-                    </a>
-                  ) : (
-                    r.photoCredit
-                  )}
-                </span>
-              )}
             </figure>
           )}
 

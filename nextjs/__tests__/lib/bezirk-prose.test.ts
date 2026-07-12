@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { BezirkDoc, RestaurantCard } from '@/lib/types'
-import { buildBezirkQuickFacts, buildBezirkFAQEntries } from '@/lib/bezirk-prose'
+import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 
 const cafe = { slug: 'coffee', name: 'Café', nameEn: 'Coffee' }
 const dinner = { slug: 'dinner', name: 'Abendessen', nameEn: 'Dinner' }
@@ -18,34 +18,6 @@ function r(name: string, opts: Partial<RestaurantCard> = {}): RestaurantCard {
 }
 
 const mitte: Pick<BezirkDoc, 'name'> = { name: 'Mitte' }
-
-describe('buildBezirkQuickFacts', () => {
-  it('summarises count, categories and price span in DE', () => {
-    const restaurants = [
-      r('A', { categories: [cafe] }),
-      r('B', { categories: [cafe] }),
-      r('C', { categories: [dinner], priceRange: { min: 40, max: 100, currency: 'EUR' } }),
-      r('D', { categories: [bar], priceRange: { min: 10, max: 60, currency: 'EUR' } }),
-    ]
-    const text = buildBezirkQuickFacts({ bezirk: mitte, restaurants, locale: 'de' })
-    expect(text).toContain('4 von Eat This kuratierte Restaurants')
-    expect(text).toContain('2 Café')
-    expect(text).toContain('Preisspanne 1–100 €')
-  })
-
-  it('returns null when no restaurants are loaded', () => {
-    expect(buildBezirkQuickFacts({ bezirk: mitte, restaurants: [], locale: 'de' })).toBeNull()
-  })
-
-  it('omits categories segment when none are tagged', () => {
-    const text = buildBezirkQuickFacts({
-      bezirk: mitte,
-      restaurants: [r('A', { categories: [] })],
-      locale: 'de',
-    })
-    expect(text).not.toContain('Schwerpunkte')
-  })
-})
 
 describe('buildBezirkFAQEntries', () => {
   const restaurants = [

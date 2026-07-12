@@ -85,13 +85,16 @@ export default function BurgerDrawer() {
 
           </div>
 
-          <Link href="/" className="bd-logo" aria-label="Eat This — Home">
+          <Link
+            href="/"
+            className="bd-logo"
+            aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" width="660" height="265" />
           </Link>
 
           <nav className="bd-nav" aria-label="Primary">
-            <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>
             <MapIntentLink href="/map" className="bd-nav-item">{t('burger.map')}</MapIntentLink>
             {/* Profile/login is a primary action, not footer furniture. Keep it
                 high in the stack so signed-in users can reach their deck fast. */}

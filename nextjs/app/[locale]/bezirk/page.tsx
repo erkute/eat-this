@@ -117,7 +117,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                                 src={restaurant.photo}
                                 alt=""
                                 fill
-                                sizes="(max-width: 719px) 76px, 88px"
+                                sizes="(max-width: 719px) 76px, 72px"
                               />
                             </span>
                           )}
@@ -131,6 +131,10 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                       ))}
                     </div>
                   )}
+                  <Link href={`/bezirk/${b.slug}`} className={styles.bezirkMore}>
+                    {de ? 'Mehr' : 'More'}
+                    <span aria-hidden="true">→</span>
+                  </Link>
                 </article>
               )
             })}

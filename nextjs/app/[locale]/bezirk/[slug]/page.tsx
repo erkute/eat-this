@@ -10,8 +10,7 @@ import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
-import { buildBezirkQuickFacts, buildBezirkFAQEntries } from '@/lib/bezirk-prose'
-import { districtCategoryLinks } from '@/lib/seo/crossLinks'
+import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -91,8 +90,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   if (!b || restaurants.length === 0) notFound()
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
-  const quickFacts = buildBezirkQuickFacts({ bezirk: b, restaurants, locale: loc })
-  const categoryLinks = districtCategoryLinks(restaurants, loc)
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })
   const heroRestaurant = restaurants.find(restaurant => restaurant.photo)
   const heroImage = b.imageUrl ?? heroRestaurant?.photo
@@ -136,7 +133,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                 ? `Die besten Restaurants in ${b.name}`
                 : `The best restaurants in ${b.name}`)}
             </p>
-            {quickFacts && <p className={styles.detailHeroFacts}>{quickFacts}</p>}
             <div className={styles.detailHeroActions}>
               <MapPromoCTA variant="chip" kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
               <a href="#restaurants" className={styles.detailHeroJump}>
@@ -149,34 +145,23 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           </div>
           {heroImage && (
             <figure className={styles.detailHeroMedia}>
-              <Image
-                src={heroImage}
-                alt={heroImageAlt}
-                fill
-                priority
-                sizes="(max-width: 839px) 100vw, 48vw"
-              />
+              <div className={styles.detailHeroImage}>
+                <Image
+                  src={heroImage}
+                  alt={heroImageAlt}
+                  fill
+                  priority
+                  sizes="(max-width: 839px) 100vw, 48vw"
+                />
+              </div>
               {heroCaption && <figcaption>{heroCaption}</figcaption>}
             </figure>
           )}
         </header>
 
-        {categoryLinks.length > 0 && (
-          <nav className={styles.crossLinks} aria-label={de ? `Kategorien in ${b.name}` : `Categories in ${b.name}`}>
-            <span className={styles.crossLinksHead}>
-              {de ? `Beliebt in ${b.name}:` : `Popular in ${b.name}:`}
-            </span>
-            {categoryLinks.map(c => (
-              <Link key={c.slug} href={`/kategorie/${c.slug}`} className={styles.crossLink}>
-                {c.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-
         <section id="restaurants" className={styles.restaurantSection}>
           <div className={styles.sectionHead}>
-            <h2>{de ? 'Was du hier essen solltest' : 'What to eat here'}</h2>
+            <h2>{de ? 'Wo du essen solltest' : 'Where to eat'}</h2>
             <p>{de
               ? 'Kuratiert vom Eat-This-Team.'
               : 'Curated by the Eat This team.'}</p>

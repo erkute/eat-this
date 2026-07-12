@@ -677,12 +677,433 @@
   filter: none;
 }
 
+/* ============================================================
+   BEZIRK DETAIL — scoped brand surface
+   The category pages share this stylesheet, so every rule stays below
+   .bezirkDetail and cannot leak into their index/detail templates.
+============================================================ */
+.bezirkDetail > nav:first-child ul {
+  border-bottom: 0;
+}
+
+.bezirkDetail .detailHero {
+  display: grid;
+  gap: 0;
+  margin: 0 0 clamp(26px, 4vw, 46px);
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--et-radius-photo);
+  background: var(--et-home-ink);
+  color: var(--et-home-paper);
+  transform: none;
+}
+
+.detailHeroCopy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: clamp(26px, 6vw, 68px);
+}
+
+.bezirkDetail .detailHero .kicker {
+  margin: 0 0 18px;
+  color: var(--et-home-accent);
+  font-family: var(--et-font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.bezirkDetail .detailHero .h1 {
+  margin: 0;
+  color: var(--et-home-paper);
+  font-family: var(--et-font-display);
+  font-size: clamp(48px, 13vw, 88px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.86;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.detailHeroDescription {
+  max-width: 48ch;
+  margin: clamp(20px, 3vw, 30px) 0 0;
+  color: var(--et-home-paper);
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: clamp(16px, 1.7vw, 20px);
+  line-height: 1.48;
+}
+
+.detailHeroFacts {
+  max-width: 58ch;
+  margin: 14px 0 0;
+  color: var(--et-home-paper);
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.detailHeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(24px, 4vw, 36px);
+}
+
+.detailHeroActions > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 11px 17px 12px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: var(--et-type-button);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+  transition: background var(--et-motion-fast), color var(--et-motion-fast), transform var(--et-motion-fast);
+}
+
+.detailHeroActions > a:first-child {
+  background: var(--et-home-red);
+  color: var(--et-home-paper);
+}
+
+.detailHeroActions > a:hover {
+  transform: translateY(-2px);
+}
+
+.detailHeroJump {
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+  text-decoration: none;
+}
+
+.detailHeroJump svg {
+  flex: 0 0 auto;
+}
+
+.detailHeroMedia {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--et-home-photo-rest);
+}
+
+.detailHeroMedia img {
+  object-fit: cover;
+}
+
+.detailHeroMedia figcaption {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  max-width: calc(100% - 24px);
+  padding: 7px 10px 8px;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-paper);
+  color: var(--et-home-ink);
+  font-family: var(--et-font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.bezirkDetail .crossLinks {
+  gap: 9px;
+  margin-bottom: clamp(54px, 7vw, 92px);
+  padding: 0;
+}
+
+.bezirkDetail .crossLinksHead {
+  flex-basis: 100%;
+  margin: 0 0 2px;
+  color: var(--et-home-muted);
+  font-family: var(--et-font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: var(--et-tracking-meta);
+  text-transform: uppercase;
+}
+
+.bezirkDetail .crossLink {
+  padding: 9px 13px 10px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-quiet);
+  color: var(--et-home-ink);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+  transition: background var(--et-motion-fast), color var(--et-motion-fast), transform var(--et-motion-fast);
+}
+
+.bezirkDetail .crossLink:hover {
+  background: var(--et-home-red);
+  color: var(--et-home-paper);
+  transform: translateY(-2px);
+}
+
+.restaurantSection {
+  scroll-margin-top: 88px;
+}
+
+.bezirkDetail .sectionHead {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 clamp(24px, 4vw, 40px);
+}
+
+.bezirkDetail .sectionHead h2 {
+  max-width: 14ch;
+  margin: 0;
+  color: var(--et-home-ink);
+  font-family: var(--et-font-display);
+  font-size: clamp(42px, 7vw, 76px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.bezirkDetail .sectionHead p {
+  max-width: 32ch;
+  margin: 0;
+  color: var(--et-home-muted);
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.bezirkDetail .grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(34px, 5vw, 58px) clamp(20px, 3vw, 34px);
+  margin-bottom: 0;
+}
+
+.bezirkDetail .card {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--et-home-ink);
+  transform: none;
+  transition: transform var(--et-motion-card);
+}
+
+.bezirkDetail .card:hover {
+  transform: translateY(-4px);
+}
+
+.bezirkDetail .cardPhoto {
+  aspect-ratio: var(--et-img-restaurant-ratio);
+  border-radius: var(--et-radius-photo);
+  background: var(--et-home-photo-rest);
+}
+
+.bezirkDetail .cardPhoto img {
+  transition: transform var(--et-motion-card);
+}
+
+.bezirkDetail .card:hover .cardPhoto img {
+  transform: scale(1.025);
+}
+
+.bezirkDetail .cardBody {
+  padding: 16px 0 0;
+}
+
+.bezirkDetail .cardName {
+  margin: 0 0 10px;
+  color: var(--et-home-ink);
+  font-family: var(--et-font-display);
+  font-size: clamp(25px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.98;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+.bezirkDetail .cardMeta {
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+.bezirkDetail .chipYellow {
+  padding: 6px 9px 7px;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-red);
+  color: var(--et-home-paper);
+  font-family: var(--et-font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.bezirkDetail .price {
+  color: var(--et-home-muted);
+  font-family: var(--et-font-mono);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.bezirkDetail .cardTip {
+  margin: 0;
+  color: var(--et-home-muted);
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.detailMapCta {
+  margin-top: clamp(64px, 9vw, 118px);
+}
+
+.detailMapCta > section {
+  margin: 0;
+  border-radius: var(--et-radius-photo);
+}
+
+.detailMapCta > section::before {
+  display: none;
+}
+
+.detailMapCta > section a {
+  border-radius: var(--et-radius-control);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.bezirkDetail .faq {
+  display: grid;
+  gap: clamp(24px, 4vw, 44px);
+  margin: clamp(64px, 9vw, 118px) 0 0;
+  padding: clamp(24px, 5vw, 56px);
+  border: 0;
+  border-radius: var(--et-radius-photo);
+  background: var(--et-home-quiet);
+}
+
+.faqTitle {
+  max-width: 10ch;
+  margin: 0;
+  color: var(--et-home-ink);
+  font-family: var(--et-font-display);
+  font-size: clamp(38px, 6vw, 66px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.faqList {
+  display: grid;
+  gap: 10px;
+}
+
+.bezirkDetail .faqRow {
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-paper);
+}
+
+.bezirkDetail .faqRow summary {
+  align-items: center;
+  padding: 16px 0;
+}
+
+.bezirkDetail .faqQ {
+  color: var(--et-home-ink);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.bezirkDetail .faqPlus {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-red);
+  color: var(--et-home-paper);
+}
+
+.bezirkDetail .faqA {
+  margin: 0 0 18px;
+  color: var(--et-home-muted);
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@media (min-width: 720px) {
+  .bezirkDetail .sectionHead {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.34fr);
+    align-items: end;
+  }
+
+  .bezirkDetail .sectionHead p {
+    padding-bottom: 5px;
+  }
+
+  .bezirkDetail .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bezirkDetail .faq {
+    grid-template-columns: minmax(190px, 0.58fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+@media (min-width: 840px) {
+  .bezirkDetail .detailHero {
+    grid-template-columns: minmax(0, 1.08fr) minmax(330px, 0.92fr);
+  }
+
+  .detailHeroMedia {
+    min-height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@media (min-width: 960px) {
+  .bezirkDetail .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bezirkDetail .grid.gridCompact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 760px;
+  }
+}
+
 /* Bezirk index redesign. Kept separate from detail/category surfaces so their
    SEO content grids do not inherit the hub treatment. */
 .indexHero {
   display: grid;
   gap: 18px;
-  margin: 8px 0 clamp(28px, 5vw, 56px);
+  margin: 8px 0 clamp(38px, 6vw, 72px);
   padding: clamp(18px, 5vw, 52px) 0 0;
   border-bottom: 0;
 }
@@ -702,203 +1123,17 @@
   margin: 0;
 }
 
-.featuredDistrict {
-  display: grid;
-  gap: clamp(22px, 4vw, 48px);
-  align-items: stretch;
-  margin: 0 0 clamp(42px, 7vw, 86px);
-  background: var(--ink);
-  color: var(--cream);
-  overflow: hidden;
-}
-
-.featuredCopy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(28px, 5vw, 58px);
-}
-
-.featuredLabel,
-.bezirkMeta {
-  font-family: var(--et-font-mono);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-
-.featuredLabel {
-  color: var(--yellow);
-  margin-bottom: 14px;
-}
-
-.page .featuredDistrict .featuredName {
-  font-family: var(--et-font-display);
-  font-size: clamp(22px, 7.2vw, 30px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.9;
-  text-transform: uppercase;
-  color: var(--cream);
-  margin: 0;
-  overflow-wrap: normal;
-  white-space: nowrap;
-}
-
-.featuredText {
-  color: color-mix(in srgb, var(--cream) 76%, transparent);
-  font-size: clamp(15px, 1.8vw, 18px);
-  line-height: 1.45;
-  max-width: 38ch;
-  margin: 18px 0 0;
-}
-
-.featuredActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.featuredPrimary,
-.featuredSecondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  font-family: var(--font-providence);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-decoration: none;
-}
-
-.featuredPrimary {
-  padding: 11px 18px;
-  border-radius: var(--et-radius-control);
-  background: var(--yellow);
-  color: var(--ink);
-}
-
-.featuredSecondary {
-  min-height: 0;
-  padding: 0 0 2px;
-  color: var(--cream);
-  border-bottom: 2px solid var(--yellow);
-}
-
-.featuredExamples {
-  display: grid;
-  align-self: center;
-  gap: 10px;
-  width: calc(100% - clamp(32px, 6vw, 72px));
-  margin: clamp(16px, 3vw, 36px);
-}
-
-.featuredExample {
-  display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
-  padding: 10px;
-  border-radius: var(--et-radius-control);
-  background: var(--cream);
-  color: var(--ink);
-  text-decoration: none;
-  transition: transform 0.16s ease, background 0.16s ease;
-}
-
-.featuredExample:hover {
-  background: var(--yellow);
-  transform: translateY(-2px);
-}
-
-.featuredExamplePhoto {
-  position: relative;
-  display: block;
-  width: 84px;
-  aspect-ratio: 1 / 1;
-  border-radius: var(--et-radius-control);
-  overflow: hidden;
-  background: var(--cream-deep);
-}
-
-.featuredExamplePhoto img {
-  object-fit: cover;
-}
-
-.featuredExampleCopy {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.featuredExampleMeta {
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.featuredExampleName {
-  font-family: var(--et-font-display);
-  font-size: clamp(22px, 4.8vw, 31px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.95;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.featuredExampleText {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-@media (max-width: 380px) {
-  .featuredExample {
-    grid-template-columns: 72px minmax(0, 1fr);
-  }
-
-  .featuredExamplePhoto {
-    width: 72px;
-  }
-}
-
 .districtsBlock {
-  margin-bottom: 32px;
-}
-
-@media (max-width: 560px) {
-  .page .featuredDistrict .featuredName {
-    font-size: clamp(21px, 5.9vw, 28px);
-    max-width: 100%;
-  }
+  margin-bottom: clamp(40px, 6vw, 72px);
 }
 
 .districtsIntro {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: clamp(20px, 3vw, 32px);
 }
 
 .page .districtsBlock .districtsIntro h2 {
   font-family: var(--et-font-display);
-  font-size: clamp(38px, 8vw, 72px);
+  font-size: clamp(42px, 10vw, 78px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.9;
@@ -907,84 +1142,116 @@
   margin: 0;
 }
 
-.districtsIntro p {
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.45;
-  margin: 0;
-}
-
 .bezirkGrid {
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 28px);
+  min-width: 0;
 }
 
 .bezirkCard {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  min-height: 172px;
-  padding: 18px;
+  display: grid;
+  align-content: start;
+  gap: clamp(18px, 3vw, 28px);
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(18px, 3vw, 30px);
   background: #fff;
   border-bottom: 0;
   color: var(--ink);
-  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+  transition: background 0.16s ease, transform 0.16s ease;
 }
 
 .page .districtsBlock .bezirkCard:hover {
   background: var(--et-home-panel-warm);
   color: var(--ink);
-  transform: translateY(-3px);
-}
-
-.page .districtsBlock .bezirkCard:hover .bezirkName,
-.page .districtsBlock .bezirkCard:hover .bezirkMeta,
-.page .districtsBlock .bezirkCard:hover .bezirkExamples {
-  color: var(--ink);
+  transform: translateY(-2px);
 }
 
 .bezirkName {
   font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: clamp(20px, 5.2vw, 30px);
+  font-size: clamp(32px, 8vw, 48px);
   letter-spacing: var(--et-tracking-title);
-  overflow-wrap: normal;
-  white-space: nowrap;
+  line-height: 0.92;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  margin: 0;
 }
 
-.bezirkMeta {
-  display: inline-flex;
-  width: fit-content;
-  max-width: 100%;
-  align-items: center;
-  margin-top: 10px;
-  padding: 6px 9px 7px;
-  background: var(--yellow);
+.bezirkLink {
   color: var(--ink);
-  border-radius: var(--et-radius-control);
-  line-height: 1;
+  text-decoration: none;
 }
 
 .bezirkExamples {
-  display: block;
-  margin-top: 16px;
-  min-height: 18px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.25;
 }
 
 .bezirkExample {
-  display: inline;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  min-width: 0;
+  padding: 6px;
+  margin: -6px;
+  border-radius: var(--et-radius-control);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.16s ease, transform 0.16s ease;
 }
 
-.bezirkExample:not(:last-child)::after {
-  content: "/";
-  color: var(--yellow);
-  margin-left: 10px;
+.bezirkExample:hover {
+  background: var(--et-home-paper);
+  transform: translateX(3px);
+}
+
+.bezirkExamplePhoto {
+  position: relative;
+  display: block;
+  width: 76px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--et-radius-photo);
+  background: var(--cream-deep);
+}
+
+.bezirkExamplePhoto img {
+  object-fit: cover;
+}
+
+.bezirkExampleCopy {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.bezirkExampleName {
+  font-family: var(--et-font-display);
+  font-size: clamp(21px, 5.5vw, 27px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.bezirkExampleCategory {
+  font-family: var(--et-font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--et-home-red);
+  overflow-wrap: anywhere;
+}
+
+.bezirkLink:focus-visible,
+.bezirkExample:focus-visible {
+  outline: 3px solid var(--et-home-red);
+  outline-offset: 4px;
 }
 
 @media (min-width: 720px) {
@@ -993,27 +1260,20 @@
     align-items: flex-end;
   }
 
-  .featuredDistrict {
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.82fr);
+  .bezirkGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .page .featuredDistrict .featuredName {
-    font-size: clamp(26px, 3.5vw, 28px);
+  .bezirkExample {
+    grid-template-columns: 88px minmax(0, 1fr);
   }
 
-  .featuredExamples {
-    width: calc(100% - clamp(32px, 5vw, 64px));
+  .bezirkExamplePhoto {
+    width: 88px;
   }
 
-  .districtsIntro {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-
-  .districtsIntro p {
-    max-width: 28ch;
-    text-align: right;
+  .bezirkExampleName {
+    font-size: clamp(22px, 2.6vw, 29px);
   }
 }
 
@@ -1026,15 +1286,16 @@
     font-size: clamp(82px, 8.4vw, 116px);
   }
 
-  .page .featuredDistrict .featuredName {
-    font-size: clamp(36px, 3.3vw, 47px);
-  }
-
   .bezirkGrid {
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
   }
 
   .bezirkName {
-    font-size: clamp(24px, 2.35vw, 32px);
+    font-size: clamp(38px, 3.8vw, 52px);
+  }
+
+  .bezirkExampleName {
+    font-size: clamp(24px, 2.2vw, 31px);
   }
 }

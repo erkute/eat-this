@@ -1175,19 +1175,54 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
   content: none !important;
 }
 @media (max-width: 520px) {
-  .navbar,
-  .navbar.scrolled {
+  html:not([data-active-page='map']) #navbar {
     height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+    min-height: calc(64px + env(safe-area-inset-top, 0px)) !important;
     padding-inline: 10px !important;
   }
 }
 @media (max-width: 767px) {
-  html:not([data-active-page='map']) #navbar {
-    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
-    will-change: transform;
+  /* Device-verified on iPhone 16 Safari: an off-screen navbar still leaves the
+     status bar black unless its rendered layer ends at display:none. Keep that
+     confirmed end state; animate only a clipped visual surface on the way out. */
+  html:not([data-active-page='map']) #navbar.navbar {
+    background: transparent !important;
+    background-color: transparent !important;
+    transform: none !important;
+    transition: none !important;
   }
-  html.navbar-hidden:not([data-active-page='map']) #navbar {
-    transform: translate3d(0, calc(-100% - 2px), 0) !important;
+  html:not([data-active-page='map']) #navbar::before {
+    content: '' !important;
+    display: block !important;
+    position: absolute !important;
+    inset: 0;
+    z-index: 0;
+    background: #15120e;
     pointer-events: none;
+    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
+  }
+  html:not([data-active-page='map']) #navbar > * {
+    position: relative;
+    z-index: 1;
+    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
+  }
+  html.navbar-hidden:not([data-active-page='map']) #navbar.navbar {
+    -webkit-clip-path: inset(calc(env(safe-area-inset-top, 0px) + 2px) 0 0 0);
+    clip-path: inset(calc(env(safe-area-inset-top, 0px) + 2px) 0 0 0);
+    pointer-events: none;
+  }
+  html.navbar-hidden:not([data-active-page='map']) #navbar::before {
+    transform: translate3d(0, calc(-100% - 2px), 0) !important;
+  }
+  html.navbar-hidden:not([data-active-page='map']) #navbar > * {
+    transform: translate3d(0, calc(-72px - env(safe-area-inset-top, 0px) - 2px), 0) !important;
+  }
+  html.navbar-collapsed:not([data-active-page='map']) #navbar.navbar {
+    display: none !important;
+  }
+}
+@media (max-width: 520px) {
+  html.navbar-hidden:not([data-active-page='map']) #navbar > * {
+    transform: translate3d(0, calc(-64px - env(safe-area-inset-top, 0px) - 2px), 0) !important;
   }
 }

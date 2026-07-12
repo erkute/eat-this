@@ -40,14 +40,55 @@ export default function SiteNav() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('navbar-hidden');
-    if (activePage === 'map') return;
+    const navbar = document.getElementById('navbar');
+    root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
+    if (!navbar || activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
     let lastY = window.scrollY || window.pageYOffset || 0;
     let ticking = false;
+    let collapseTimer: number | undefined;
+    let showFrame: number | undefined;
 
-    const show = () => root.classList.remove('navbar-hidden');
+    const show = () => {
+      if (collapseTimer !== undefined) {
+        window.clearTimeout(collapseTimer);
+        collapseTimer = undefined;
+      }
+      if (showFrame !== undefined) return;
+
+      const wasCollapsed = root.classList.contains('navbar-collapsed');
+      root.classList.remove('navbar-collapsed');
+      if (!wasCollapsed) {
+        root.classList.remove('navbar-hidden');
+        return;
+      }
+
+      // Restore the fully translated state for one frame before revealing it,
+      // otherwise display:none -> visible skips the return transition.
+      void navbar.offsetHeight;
+      showFrame = window.requestAnimationFrame(() => {
+        showFrame = undefined;
+        root.classList.remove('navbar-hidden');
+      });
+    };
+    const hide = () => {
+      if (showFrame !== undefined) {
+        window.cancelAnimationFrame(showFrame);
+        showFrame = undefined;
+      }
+      if (!root.classList.contains('navbar-hidden')) {
+        root.classList.add('navbar-hidden');
+      }
+      if (collapseTimer !== undefined || root.classList.contains('navbar-collapsed')) return;
+
+      collapseTimer = window.setTimeout(() => {
+        collapseTimer = undefined;
+        if (root.classList.contains('navbar-hidden')) {
+          root.classList.add('navbar-collapsed');
+        }
+      }, 280);
+    };
     const apply = () => {
       ticking = false;
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
@@ -56,7 +97,7 @@ export default function SiteNav() {
       if (!media.matches || y < 36) {
         show();
       } else if (delta > 6) {
-        root.classList.add('navbar-hidden');
+        hide();
       } else if (delta < -6) {
         show();
       }
@@ -81,7 +122,9 @@ export default function SiteNav() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       media.removeEventListener('change', onMediaChange);
-      show();
+      if (collapseTimer !== undefined) window.clearTimeout(collapseTimer);
+      if (showFrame !== undefined) window.cancelAnimationFrame(showFrame);
+      root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
     };
   }, [activePage]);
 

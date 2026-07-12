@@ -2320,26 +2320,17 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-/* Covered: der Name ist da, aber stark verschwommen — unlesbar, kein Stempel. */
+/* Covered: der Name bleibt im DOM, wird aber visuell ersetzt. */
 .fdNameBlur {
-  filter: blur(11px);
-  opacity: 0.85;
+  color: transparent;
+  filter: none;
   -webkit-user-select: none;
   user-select: none;
 }
-/* Reveal: readability wins over the old slow unblur flourish. The locked state
-   still hides the name via .fdNameBlur; once opened, the title is sharp. */
+/* Reveal: clip/mask motion instead of a direct text pop. */
 .fdNameUnblurring {
   filter: none;
-  animation: none;
-}
-@keyframes fdNameUnblur {
-  from {
-    filter: blur(11px);
-  }
-  to {
-    filter: blur(0);
-  }
+  animation: fdNameMagicReveal 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
 }
 /* Beschreibung — kompakt geklemmt, damit die Detailkarte nicht scrollen muss. */
 .fdText {
@@ -14277,6 +14268,8 @@ html body .detailV13MustEat .fdNameText.fdNameBlur {
   padding: 0 !important;
   max-width: 100% !important;
   max-height: 100% !important;
+  height: 40px !important;
+  align-self: flex-end !important;
   overflow: hidden !important;
   color: transparent !important;
   filter: none !important;
@@ -14291,19 +14284,109 @@ html body .detailV13MustEat .fdName:has(.fdNameBlur) {
 }
 
 html body .detailV13MustEat .fdNameText.fdNameBlur::before {
-  content: '' !important;
+  content: 'VERDECKT' !important;
   position: absolute !important;
-  inset: 0.12em 0 0.08em !important;
-  display: block !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: fit-content !important;
+  height: 32px !important;
+  padding: 0 11px !important;
   background:
-    radial-gradient(ellipse at 18% 32%, rgba(28, 37, 32, 0.22) 0 24%, transparent 47%),
-    radial-gradient(ellipse at 48% 34%, rgba(28, 37, 32, 0.18) 0 23%, transparent 48%),
-    radial-gradient(ellipse at 82% 34%, rgba(28, 37, 32, 0.18) 0 26%, transparent 51%),
-    radial-gradient(ellipse at 24% 78%, rgba(28, 37, 32, 0.16) 0 24%, transparent 50%),
-    radial-gradient(ellipse at 58% 78%, rgba(28, 37, 32, 0.14) 0 24%, transparent 50%) !important;
-  filter: blur(10px) !important;
+    linear-gradient(110deg, rgba(246, 196, 0, 0.22), rgba(246, 196, 0, 0.08) 42%, rgba(28, 37, 32, 0.08)),
+    color-mix(in srgb, var(--me-soft) 82%, #fff 18%) !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  color: color-mix(in srgb, var(--me-ink) 72%, transparent) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: clamp(15px, 1.5vw, 18px) !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  box-shadow: inset 0 0 0 1px rgba(28, 37, 32, 0.06) !important;
+  filter: none !important;
   transform: translateZ(0) !important;
   pointer-events: none !important;
+}
+
+html body .detailV13MustEat .fdNameText.fdNameBlur::after {
+  display: none !important;
+}
+
+html body .detailV13MustEat .fdNameText.fdNameUnblurring {
+  position: relative !important;
+  color: var(--me-ink) !important;
+  filter: none !important;
+  transform-origin: 0 100% !important;
+  animation: fdNameMagicReveal 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both !important;
+}
+
+html body .detailV13MustEat .fdNameText.fdNameUnblurring::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 -8px 0 0 !important;
+  background: linear-gradient(100deg, transparent 0 34%, rgba(246, 196, 0, 0.58) 48%, rgba(255, 255, 255, 0.82) 54%, transparent 68%) !important;
+  mix-blend-mode: screen !important;
+  pointer-events: none !important;
+  animation: fdNameMagicSweep 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both !important;
+}
+
+@keyframes fdNameMagicReveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    transform: translateY(12px) rotate(-0.6deg);
+  }
+  42% {
+    clip-path: inset(0 24% 0 0);
+    transform: translateY(4px) rotate(-0.18deg);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@keyframes fdNameMagicSweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(110%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body .detailV13MustEat .fdNameText.fdNameUnblurring,
+  html body .detailV13MustEat .fdNameText.fdNameUnblurring::after {
+    animation: none !important;
+  }
+}
+
+html body .detailV13MustEat .fdProximityReady .fdProximityHead {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 5px 9px 6px !important;
+  color: var(--me-ink) !important;
+  background: color-mix(in srgb, var(--me-accent) 76%, #fff 24%) !important;
+  border-radius: var(--et-radius-control, 7px) !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: clamp(12px, 1.05vw, 14px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+html body .detailV13MustEat .fdProximityReady .fdProximitySub {
+  margin-top: 8px !important;
 }
 
 html body .detailV13MustEat .fdText,
@@ -14341,6 +14424,12 @@ html body .detailV13MustEat .fdProximity {
   html body .detailV13MustEat .fdMid {
     --me-name-copy-gap: 7px;
     --me-name-slot: clamp(74px, 13dvh, 84px);
+  }
+}
+
+@media (max-width: 380px) and (min-height: 741px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-mid-slot: 158px !important;
   }
 }
 
@@ -14411,5 +14500,171 @@ html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
 @media (max-width: 380px), (max-height: 740px) {
   html body .detailV13MustEat .detailV13Scroll {
     --me-content-gap: 18px !important;
+  }
+}
+
+html body .detailV13MustEat .fdNameText.fdNameUnblurring {
+  animation-duration: 1.8s !important;
+  animation-timing-function: cubic-bezier(0.16, 0.82, 0.18, 1) !important;
+}
+
+html body .detailV13MustEat .fdNameText.fdNameUnblurring::after {
+  animation-duration: 1.8s !important;
+  animation-timing-function: cubic-bezier(0.16, 0.82, 0.18, 1) !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll {
+  --me-rest-slot: clamp(124px, 15dvh, 136px) !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline {
+  display: grid !important;
+  grid-template-columns: 86px minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) 38px !important;
+  column-gap: 12px !important;
+  row-gap: 10px !important;
+  align-items: stretch !important;
+  padding: 14px !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
+  grid-template-columns: 86px minmax(0, 1fr) !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
+  grid-column: 1 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+  justify-self: stretch !important;
+  width: 86px !important;
+  height: 86px !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  align-content: start !important;
+  justify-content: start !important;
+  justify-items: stretch !important;
+  gap: 5px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  justify-self: stretch !important;
+  place-self: stretch !important;
+  inline-size: 100% !important;
+  min-inline-size: 100% !important;
+  text-align: left !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-align: left !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
+  display: block !important;
+  width: 100% !important;
+  inline-size: 100% !important;
+  min-inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  justify-self: stretch !important;
+  place-self: stretch !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  padding-bottom: 0.16em !important;
+  font-size: clamp(16px, 1.45vw, 19px) !important;
+  font-weight: 650 !important;
+  line-height: 1.08 !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  text-align: left !important;
+}
+
+html body .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 10px 14px !important;
+}
+
+@media (max-width: 1023.98px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-rest-slot: 116px !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline,
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
+    grid-template-columns: 80px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) 36px !important;
+    column-gap: 11px !important;
+    row-gap: 9px !important;
+    padding: 12px !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
+    font-size: clamp(16px, 4.2vw, 18px) !important;
+    line-height: 1.08 !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+}
+
+@media (max-width: 380px), (max-height: 740px) {
+  html body .detailV13MustEat .detailV13Scroll {
+    --me-rest-slot: 104px !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline,
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
+    grid-template-columns: 66px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) 34px !important;
+    column-gap: 10px !important;
+    row-gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
+    width: 66px !important;
+    height: 66px !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
+    font-size: clamp(15px, 4vw, 17px) !important;
+  }
+
+  html body .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
+    height: 34px !important;
+    min-height: 34px !important;
   }
 }

@@ -1,25 +1,17 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import { setRequestLocale } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { getAllCategories } from '@/lib/sanity.server'
-import { localizedCategoryName } from '@/lib/categories'
+import { localizedCategoryBlurb, localizedCategoryName } from '@/lib/categories'
+import { categoryArt } from '@/lib/categoryArt'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
-import styles from '../bezirk/Bezirk.module.css'
+import sharedStyles from '../bezirk/Bezirk.module.css'
+import styles from './Kategorie.module.css'
 
-const POSTER_MAP: Record<string, string> = {
-  breakfast: '/pics/booster/booster_breakfast.webp',
-  coffee: '/pics/booster/booster_coffee.webp',
-  dinner: '/pics/booster/booster_dinner.webp',
-  drinks: '/pics/booster/booster_drinks.webp',
-  'fast-food': '/pics/booster/booster_fastfood.webp',
-  'fine-dining': '/pics/booster/booster_finedining.webp',
-  lunch: '/pics/booster/booster_lunch.webp',
-  pizza: '/pics/booster/booster_pizza.webp',
-  sweets: '/pics/booster/booster_sweets.webp',
-}
+const HERO_PACK_SLUGS = ['breakfast', 'pizza', 'drinks'] as const
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -53,8 +45,6 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
-  const kategorieUrl = (slug: string) =>
-    locale === 'de' ? `/kategorie/${slug}` : `/${locale}/kategorie/${slug}`
   const loc = de ? 'de' : 'en'
   const categories = await getAllCategories()
 
@@ -87,44 +77,89 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={styles.page}>
-        <header className={styles.hero}>
-          <div className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</div>
-          <h1 className={styles.h1}>
-            {de ? 'Restaurants nach Kategorie' : 'Restaurants by category'}
-          </h1>
-          <p className={styles.sub}>
-            {de
-              ? 'Wähle, wonach Dir gerade ist — von Frühstück bis Pizza.'
-              : 'Pick by occasion — from breakfast to pizza.'}
-          </p>
+      <main className={`${sharedStyles.page} ${styles.indexPage}`}>
+        <header className={styles.indexHero}>
+          <div className={styles.heroCopy}>
+            <div className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</div>
+            <h1 className={styles.heroTitle}>
+              {de ? 'Wonach ist dir?' : 'What are you craving?'}
+            </h1>
+            <p className={styles.heroLead}>
+              {de
+                ? 'Wähle eine Richtung und entdecke unsere handverlesenen Berliner Spots.'
+                : 'Pick a direction and discover our hand-picked Berlin spots.'}
+            </p>
+          </div>
+
+          <div className={styles.heroPacks} aria-hidden="true">
+            {HERO_PACK_SLUGS.map((slug, index) => {
+              const art = categoryArt(slug)
+              return art ? (
+                <Image
+                  key={slug}
+                  src={art}
+                  alt=""
+                  width={420}
+                  height={630}
+                  priority
+                  className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`}
+                />
+              ) : null
+            })}
+          </div>
         </header>
 
-        <section className={styles.posterGrid}>
-          {categories.map(c => {
-            const label = localizedCategoryName(c, loc)
-            const poster = POSTER_MAP[c.slug]
-            return (
-              <Link key={c.slug} href={kategorieUrl(c.slug)} className={styles.posterCard}>
-                {poster ? (
-                  <div className={styles.posterFrame}>
-                    <Image
-                      src={poster}
-                      alt={`${label} Pack`}
-                      width={420}
-                      height={560}
-                      sizes="(max-width: 720px) 50vw, (max-width: 960px) 33vw, 280px"
-                    />
-                  </div>
-                ) : (
-                  <div className={`${styles.posterFrame} ${styles.posterFrameEmpty}`}>{label}</div>
-                )}
-                <span className={styles.posterName}>{label}</span>
-              </Link>
-            )
-          })}
-        </section>
+        <section className={styles.catalog} aria-labelledby="category-catalog-title">
+          <div className={styles.catalogHead}>
+            <h2 id="category-catalog-title">{de ? 'Alle Kategorien' : 'All categories'}</h2>
+            <p>
+              {de
+                ? 'Jede Kategorie bringt ihren eigenen Booster Pack mit — mit neuen Spots und passenden Must Eats für deine Map.'
+                : 'Every category comes with its own Booster Pack — new spots and matching Must Eats for your map.'}
+            </p>
+          </div>
 
+          <div className={styles.categoryGrid}>
+            {categories.map(c => {
+              const label = localizedCategoryName(c, loc)
+              const blurb = localizedCategoryBlurb(c, loc)
+              const art = categoryArt(c.slug)
+              return (
+                <Link
+                  key={c.slug}
+                  href={`/kategorie/${c.slug}`}
+                  className={styles.categoryCard}
+                  aria-label={de ? `${label} entdecken` : `Discover ${label}`}
+                >
+                  <span className={styles.artStage}>
+                    {art ? (
+                      <Image
+                        src={art}
+                        alt={`${label} Pack`}
+                        width={420}
+                        height={630}
+                        sizes="(max-width: 639px) 68vw, (max-width: 959px) 34vw, 240px"
+                        className={styles.packArt}
+                      />
+                    ) : (
+                      <span className={styles.artFallback}>{label}</span>
+                    )}
+                  </span>
+                  <span className={styles.cardCopy}>
+                    <span className={styles.categoryName}>{label}</span>
+                    {blurb && <span className={styles.categoryBlurb}>{blurb}</span>}
+                    <span className={styles.categoryCta}>
+                      {de ? 'Kategorie entdecken' : 'Discover category'}
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M4 10h11M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
       </main>
     </>
   )

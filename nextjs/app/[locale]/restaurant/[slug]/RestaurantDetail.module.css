@@ -388,6 +388,12 @@
   line-height: var(--et-leading-title, 0.9);
 }
 
+.sibRowHead {
+  max-width: none;
+  font-size: clamp(18px, 5.5vw, 36px);
+  white-space: nowrap;
+}
+
 .orderList {
   display: grid;
   gap: 14px;

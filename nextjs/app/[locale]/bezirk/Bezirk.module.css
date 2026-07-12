@@ -700,6 +700,7 @@
 }
 
 .detailHeroCopy {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -722,12 +723,14 @@
   margin: 0;
   color: var(--et-home-paper);
   font-family: var(--et-font-display);
-  font-size: clamp(48px, 13vw, 88px);
+  font-size: clamp(24px, var(--district-title-size, 10cqi), 88px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: normal;
 }
 
 .detailHeroDescription {

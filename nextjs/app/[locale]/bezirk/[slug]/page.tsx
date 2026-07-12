@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import type { CSSProperties } from 'react'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
@@ -99,6 +100,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const heroCaption = b.imageUrl
     ? b.name
     : [heroRestaurant?.name, heroRestaurant?.cuisineType].filter(Boolean).join(' · ')
+  const districtTitleStyle = {
+    '--district-title-size': `${Math.min(19, 150 / Math.max(b.name.length, 1))}cqi`,
+  } as CSSProperties
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
@@ -127,7 +131,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         <header className={`${styles.hero} ${styles.detailHero}`}>
           <div className={styles.detailHeroCopy}>
             <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
-            <h1 className={styles.h1}>{b.name}</h1>
+            <h1 className={styles.h1} style={districtTitleStyle}>{b.name}</h1>
             <p className={styles.detailHeroDescription}>
               {bezirkDescription || (de
                 ? `Die besten Restaurants in ${b.name}`

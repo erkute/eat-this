@@ -1188,6 +1188,6 @@ html[data-active-page='start'] #navbar .burger-btn:focus-visible {
   }
   html.navbar-hidden:not([data-active-page='map']) #navbar {
     transform: translate3d(0, calc(-100% - 2px), 0) !important;
-    visibility: hidden !important;
+    pointer-events: none;
   }
 }

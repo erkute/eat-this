@@ -18,7 +18,7 @@ const COPY = {
     title: ['Must', 'Eats'],
     sub: 'Unsere klare Empfehlung pro Spot: das Gericht, das du dort bestellen solltest. Einige Karten liegen offen, den Rest deckst du vor Ort selbst auf.',
     closeKicker: 'Booster Packs',
-    closeTitle: ['Mehr', 'Spots holen.'],
+    closeTitle: ['Mehr Must\u00a0Eats', 'und Spots.'],
     closeBody:
       'Kauf ein Booster Pack und schalte neue kuratierte Spots für deine Map frei — inklusive weiterer Must Eats, die du vor Ort aufdecken kannst.',
     closeCta: 'Packs kaufen',
@@ -28,7 +28,7 @@ const COPY = {
     title: ['Must', 'Eats'],
     sub: 'Our clear pick for each spot: the dish you should order there. A few cards are face-up; you reveal the rest yourself, on site.',
     closeKicker: 'Booster Packs',
-    closeTitle: ['Get', 'more spots.'],
+    closeTitle: ['More Must\u00a0Eats', 'and spots.'],
     closeBody:
       'Buy a Booster Pack to unlock new curated spots for your map — including more Must Eats you can reveal on site.',
     closeCta: 'Buy packs',
@@ -37,8 +37,6 @@ const COPY = {
 
 const CARD_BACK = '/pics/card-back.webp?v=6'
 const PACK_ART = [
-  '/pics/booster/booster.webp',
-  '/pics/booster/booster_free.webp',
   '/pics/booster/booster_breakfast.webp',
   '/pics/booster/booster_coffee.webp',
   '/pics/booster/booster_dinner.webp',
@@ -85,8 +83,8 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         <div className={styles.closeCopy}>
           <div className={styles.closeK}>{c.closeKicker}</div>
           <h2 className={styles.closeTitle}>
-            {c.closeTitle[0]}
-            <br />
+            {c.closeTitle[0]}{' '}
+            <br className={styles.closeTitleBreak} />
             {c.closeTitle[1]}
           </h2>
           <p className={styles.closeBody}>{c.closeBody}</p>

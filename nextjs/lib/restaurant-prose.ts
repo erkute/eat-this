@@ -94,7 +94,7 @@ export function buildWhatToOrderAnswer(r: Restaurant, locale: Loc): string | nul
  *
  * No editorial Sanity field is involved: this is pure presentation.
  */
-export interface MagazineDescription {
+interface MagazineDescription {
   lede:             string
   paragraphsBefore: string[]
   midQuote:         string | null

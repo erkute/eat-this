@@ -12,7 +12,7 @@ export interface RestaurantGalleryImage {
   creditUrl?: string
 }
 
-export interface RestaurantMapDetail {
+interface RestaurantMapDetail {
   address?: string
   phone?: string
   mapsUrl?: string

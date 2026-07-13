@@ -20,7 +20,7 @@ interface AlbumSlot {
   collected: boolean;
   mustEat: AlbumMustEat | null;
 }
-export interface AlbumPage {
+interface AlbumPage {
   category: string;
   slots: AlbumSlot[];
 }

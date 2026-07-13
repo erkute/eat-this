@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import styles from '../not-found.module.css'
 
 type Locale = 'de' | 'en'
@@ -34,15 +34,8 @@ const COPY = {
   },
 } satisfies Record<Locale, Record<string, string>>
 
-function localeHref(locale: Locale, path: `/${string}`): string {
-  if (path === '/') return locale === 'en' ? '/en' : '/'
-  return locale === 'en' ? `/en${path}` : path
-}
-
 export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps) {
   const copy = COPY[locale]
-  const mapHref = localeHref(locale, '/map')
-  const mustEatsHref = localeHref(locale, '/must-eats')
 
   return (
     <main className={styles.page} data-page="not-found" data-menu="" aria-labelledby="not-found-title">
@@ -60,10 +53,10 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
           </p>
 
           <div className={styles.actions} aria-label={copy.actionsLabel}>
-            <Link href={mapHref} className={styles.primaryCta}>
+            <Link href="/map" className={styles.primaryCta}>
               {copy.primary}
             </Link>
-            <Link href={mustEatsHref} className={styles.secondaryCta}>
+            <Link href="/must-eats" className={styles.secondaryCta}>
               {copy.secondary}
             </Link>
           </div>

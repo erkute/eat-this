@@ -33,7 +33,7 @@ const IMAGE_PRESETS = {
   galleryThumb: { w: 400, h: 300, fit: 'crop', q: 80 },
 } as const satisfies Record<string, Preset>
 
-export type ImagePresetName = keyof typeof IMAGE_PRESETS
+type ImagePresetName = keyof typeof IMAGE_PRESETS
 
 /** The `?w=…&auto=format&q=…` query string for a preset (param order matches
  *  the hand-written projections this replaced — keep it stable). */
@@ -73,13 +73,6 @@ export function restaurantPhotoCredit(path = 'image', slugPath = 'slug.current',
 
 export function restaurantPhotoCreditUrl(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
   return `select(defined(${path}.creditUrl) => ${path}.creditUrl, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "https://eat-this.de", defined(${instagramPath}) => "https://www.instagram.com/" + ${instagramPath})`
-}
-
-/** External photos are only publishable when the CMS stores both a visible
- * credit and a credit URL. Returning null from GROQ lets all existing UI
- * fallbacks hide unsafe photos instead of accidentally publishing them. */
-export function creditedGroqImageUrl(path: string, preset: ImagePresetName): string {
-  return `select(defined(${path}.credit) && defined(${path}.creditUrl) => ${groqImageUrl(path, preset)})`
 }
 
 /** Responsive `srcSet` for a raw `<img>` holding a Sanity CDN URL (projections

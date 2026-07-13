@@ -1,15 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
-import { routing } from '@/i18n/routing';
+import { useRouter } from '@/i18n/navigation';
 import LoginPanel from '@/app/components/LoginPanel';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
-  const locale = useLocale();
   // ?ctx=musteat — arrived from an in-range must-eat reveal as a guest. Read
   // after mount (not useSearchParams) so SSG markup stays identical and the
   // sub line swaps in on hydration.
@@ -23,9 +20,8 @@ export default function LoginPage() {
       router.back();
       return;
     }
-    const home = locale === routing.defaultLocale ? '/' : `/${locale}`;
-    router.replace(home);
-  }, [router, locale]);
+    router.replace('/');
+  }, [router]);
 
   return (
     <main className={styles.page} data-menu>

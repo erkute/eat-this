@@ -5,7 +5,7 @@ import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage'
 
 const route = vi.hoisted(() => ({ pathname: '/' }))
 
-vi.mock('next/navigation', () => ({
+vi.mock('@/i18n/navigation', () => ({
   usePathname: () => route.pathname,
 }))
 
@@ -36,9 +36,8 @@ describe('BuddyWidgetLazy', () => {
     expect(queryByTestId('buddy-widget')).toBeNull()
   })
 
-  it.each(['/', '/en'])('keeps the widget hooks unmounted while idle on %s', (pathname) => {
+  it('keeps the widget hooks unmounted while idle on home', () => {
     vi.useFakeTimers()
-    route.pathname = pathname
     const { queryByTestId } = render(<BuddyWidgetLazy />)
 
     act(() => vi.advanceTimersByTime(5000))

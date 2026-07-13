@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-export type LoginModalMode = 'starter' | 'signin';
+type LoginModalMode = 'starter' | 'signin';
 
 interface LoginModalValue {
   isOpen: boolean;

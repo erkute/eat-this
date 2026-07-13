@@ -1,24 +1,16 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
 
-// Strip the optional /en prefix to get the route the SPA cares about.
-function stripLocale(path: string): string {
-  if (path === '/en' || path.startsWith('/en/')) return path.slice(3) || '/';
-  return path;
-}
-
 function pageSlugFromPath(path: string): string {
-  const p = stripLocale(path);
-  if (p === '/') return 'start';
-  if (p.startsWith('/news/') && p.length > 6) return 'news-article';
-  return p.replace(/^\//, '').split('/')[0];
+  if (path === '/') return 'start';
+  if (path.startsWith('/news/') && path.length > 6) return 'news-article';
+  return path.replace(/^\//, '').split('/')[0];
 }
 
 export default function SiteNav() {
@@ -165,6 +157,7 @@ export default function SiteNav() {
         {/* Right: menu text (News lives in the drawer) */}
         <div className={`${styles.actions} ${styles.actionsEnd}`}>
           <button
+            type="button"
             className={styles.control}
             id="burgerBtn"
             aria-label={lang === 'de' ? 'Menü' : 'Menu'}

@@ -33,7 +33,7 @@ export interface EmailSpot {
   mustEats: EmailMustEat[];
 }
 
-export interface MagicLinkEmailProps {
+interface MagicLinkEmailProps {
   /** The Firebase sign-in link the user clicks to authenticate. */
   magicLink: string;
   /** Absolute base URL for image assets (https://www.eatthisdot.com or http://localhost:3000). */

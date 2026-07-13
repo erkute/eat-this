@@ -18,11 +18,10 @@
 
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { useAuth, useLoginModal } from '@/lib/auth';
-import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
@@ -51,7 +50,7 @@ export default function BridgeAuth() {
     } catch {
       /* private mode */
     }
-    void postLoginRedirect(user.uid, router, locale);
+    router.replace('/');
   }, [user, loading, loginOpen, router, locale]);
 
   // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the

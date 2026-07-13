@@ -4,7 +4,7 @@ import type { Locale } from './types';
 // Remy's opener + starter chips adapt to the time of day so the empty chat
 // feels alive and relevant instead of one fixed line. Kept in his voice:
 // short, opinionated, no filler.
-export type Daypart = 'morning' | 'midday' | 'afternoon' | 'evening' | 'late';
+type Daypart = 'morning' | 'midday' | 'afternoon' | 'evening' | 'late';
 
 export function daypartFor(hour: number): Daypart {
   if (hour >= 5 && hour < 11) return 'morning';

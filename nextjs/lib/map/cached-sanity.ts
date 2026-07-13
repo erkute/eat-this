@@ -4,7 +4,7 @@ import { allCategoriesQuery } from '@/lib/queries'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
 
-export interface CachedMapData {
+interface CachedMapData {
   restaurants: MapRestaurant[]
   mustEats:    MapMustEat[]
   categories:  CategoryDef[]

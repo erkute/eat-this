@@ -153,7 +153,7 @@ export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[
   )
 }
 
-export type EmailSpot = {
+type EmailSpot = {
   name: string
   slug: string
   area: string
@@ -181,4 +181,3 @@ export async function getEmailSpotCard(
     { next: { revalidate: 3600, tags: ['restaurant'] } }
   )
 }
-

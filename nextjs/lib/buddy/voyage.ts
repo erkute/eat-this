@@ -13,7 +13,7 @@ export const VOYAGE_DIM = 512
 // the pause can go back up.
 const MAX_BATCH = 50
 
-export type VoyageInputType = 'document' | 'query'
+type VoyageInputType = 'document' | 'query'
 
 interface VoyageResponse {
   data: { embedding: number[]; index: number }[]

@@ -1,5 +1,3 @@
-'use client'
-
 // Custom next/image loader for Sanity CDN URLs.
 //
 // Sanity's CDN already does WebP conversion (`?auto=format`) and resizing

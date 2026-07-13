@@ -17,7 +17,7 @@ interface EmbeddingsFile {
 
 let indexPromise: Promise<EmbeddingsFile | null> | null = null
 
-export interface SemanticScore {
+interface SemanticScore {
   slug: string
   score: number
 }

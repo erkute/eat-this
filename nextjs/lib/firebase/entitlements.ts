@@ -13,7 +13,7 @@ export interface Entitlement {
   source: 'signup' | 'ensure-on-demand' | 'stripe' | 'manual'
 }
 
-export interface ResolvedEntitlements {
+interface ResolvedEntitlements {
   isAdmin:       boolean
   hasAllBerlin:  boolean
   categorySlugs: Set<string>
@@ -63,7 +63,7 @@ export function isAdminEmail(email: string | null): boolean {
 
 // Identity attributes derived from a verified Firebase ID token (or, for
 // server-side lookups, from a UserRecord). These drive the admin decision.
-export interface TokenIdentity {
+interface TokenIdentity {
   email?:         string | null
   // From the ID token's `email_verified` claim / UserRecord.emailVerified.
   emailVerified?: boolean
@@ -119,4 +119,3 @@ export function isRestaurantVisible(
   if (ent.restaurantIds.has(r._id)) return true
   return r.categories?.some((c) => ent.categorySlugs.has(c.slug)) ?? false
 }
-

@@ -21,7 +21,7 @@ export interface FreeSurfaceCard {
   categoryEn: string | null
 }
 
-export interface FreeSurfaceData {
+interface FreeSurfaceData {
   /** Union aller Restaurant-IDs aus den drei Quellen. */
   restaurantIds: Set<string>
   /** Brand-dedupte „Neu auf der Map"-Karten (max NEW_ON_MAP_COUNT). */
@@ -50,7 +50,7 @@ export function dedupeByBrand<T extends { name: string }>(cards: T[]): T[] {
   return out
 }
 
-export interface NewsSpotRow {
+interface NewsSpotRow {
   de: string[] | null
   en: string[] | null
 }

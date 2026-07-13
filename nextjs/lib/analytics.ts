@@ -1,6 +1,6 @@
 'use client'
 
-export type AnalyticsParams = Record<string, string | number | boolean | undefined>
+type AnalyticsParams = Record<string, string | number | boolean | undefined>
 
 interface AnalyticsWindow extends Window {
   __gaLoaded?: boolean

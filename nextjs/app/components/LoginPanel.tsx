@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useId, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useMagicLink } from '@/lib/auth';
-import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
@@ -77,7 +76,7 @@ export default function LoginPanel({
     } catch {
       /* private mode */
     }
-    void postLoginRedirect(user.uid, router, locale);
+    router.replace('/');
   }, [user, loading, modal, router, locale]);
 
   const handleGoogle = useCallback(async () => {

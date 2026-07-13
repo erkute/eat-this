@@ -26,7 +26,7 @@ export interface LlmClient {
   }) => LlmTurn
 }
 
-export interface OrchestratorDeps {
+interface OrchestratorDeps {
   llm: LlmClient
   searchSpots: (filters: SpotFilters, locale: Locale) => Promise<SpotCandidate[]>
   searchArticles: (input: ArticleQuery, locale: Locale) => Promise<ArticleResult[]>

@@ -42,12 +42,6 @@ export default defineType({
       description: 'Short blurb for SEO + hub page. 1–2 sentences.',
     }),
     defineField({
-      name: 'icon',
-      title: 'Icon / Bild',
-      type: 'image',
-      options: {hotspot: true, accept: 'image/*'},
-    }),
-    defineField({
       name: 'homeImage',
       title: 'Home Kategorie-Bild',
       type: 'image',

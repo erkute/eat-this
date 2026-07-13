@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Restaurant } from '@/lib/types'
-import { buildQuickFacts, buildFAQEntries, buildWhatToOrderAnswer, summarizeHours } from '@/lib/restaurant-prose'
+import { buildFAQEntries, buildWhatToOrderAnswer, summarizeHours } from '@/lib/restaurant-prose'
 
 function makeRestaurant(overrides: Partial<Restaurant> = {}): Restaurant {
   return {
@@ -19,35 +19,6 @@ function makeRestaurant(overrides: Partial<Restaurant> = {}): Restaurant {
     ...overrides,
   }
 }
-
-describe('buildQuickFacts', () => {
-  it('renders the full DE sentence with cuisine, bezirk, price, hours', () => {
-    expect(buildQuickFacts(makeRestaurant(), 'de')).toBe(
-      '893 Ryōtei ist ein Japanese-Restaurant in Charlottenburg, Preissegment 40–100 €. Geöffnet Tue-Sat 18:00-23:00.',
-    )
-  })
-
-  it('renders an EN equivalent', () => {
-    expect(buildQuickFacts(makeRestaurant(), 'en')).toBe(
-      '893 Ryōtei is a Japanese restaurant in Charlottenburg, priced 40–100 €. Open Tue-Sat 18:00-23:00.',
-    )
-  })
-
-  it('drops missing segments rather than emitting filler', () => {
-    const r = makeRestaurant({ cuisineType: undefined, categories: undefined, priceRange: undefined, openingHours: undefined })
-    expect(buildQuickFacts(r, 'de')).toBe('893 Ryōtei liegt in Charlottenburg.')
-  })
-
-  it('falls back to the first category when no cuisineType is set', () => {
-    const r = makeRestaurant({ cuisineType: undefined })
-    expect(buildQuickFacts(r, 'de')).toContain('Abendessen-Restaurant in Charlottenburg')
-  })
-
-  it('returns null when neither cuisine nor bezirk are known', () => {
-    const r = makeRestaurant({ cuisineType: undefined, categories: undefined, bezirk: undefined, district: undefined })
-    expect(buildQuickFacts(r, 'de')).toBeNull()
-  })
-})
 
 describe('summarizeHours', () => {
   it('joins multiple slots with a comma', () => {

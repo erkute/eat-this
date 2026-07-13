@@ -14,35 +14,6 @@ type Loc = 'de' | 'en'
  * Every helper degrades gracefully when source fields are missing.
  */
 
-/** One-line factual summary between header and description. */
-export function buildQuickFacts(r: Restaurant, locale: Loc): string | null {
-  const de = locale === 'de'
-  const cuisine = r.cuisineType?.trim() || (r.categories?.[0] ? localizedCategoryName(r.categories[0], locale) : null)
-  const bezirk = r.bezirk?.name || r.district
-  if (!cuisine && !bezirk) return null
-
-  const priceLabel = formatPriceLabel(r)
-  const hoursSummary = summarizeHours(r.openingHours)
-
-  const segments: string[] = []
-  if (de) {
-    if (cuisine && bezirk) segments.push(`${r.name} ist ein ${cuisine}-Restaurant in ${bezirk}`)
-    else if (cuisine) segments.push(`${r.name} ist ein ${cuisine}-Restaurant`)
-    else if (bezirk) segments.push(`${r.name} liegt in ${bezirk}`)
-    if (priceLabel) segments.push(`Preissegment ${priceLabel}`)
-    let s = segments.join(', ')
-    if (hoursSummary) s += `. Geöffnet ${hoursSummary}`
-    return s + '.'
-  }
-  if (cuisine && bezirk) segments.push(`${r.name} is a ${cuisine} restaurant in ${bezirk}`)
-  else if (cuisine) segments.push(`${r.name} is a ${cuisine} restaurant`)
-  else if (bezirk) segments.push(`${r.name} is located in ${bezirk}`)
-  if (priceLabel) segments.push(`priced ${priceLabel}`)
-  let s = segments.join(', ')
-  if (hoursSummary) s += `. Open ${hoursSummary}`
-  return s + '.'
-}
-
 /** Concise multi-slot opening-hours summary, comma-separated. Null when empty. */
 export function summarizeHours(slots: OpeningHourSlot[] | undefined): string | null {
   if (!slots || slots.length === 0) return null

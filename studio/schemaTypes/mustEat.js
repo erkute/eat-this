@@ -17,12 +17,6 @@ export default {
       validation: Rule => Rule.required(),
     },
     {
-      name: 'restaurant',
-      title: 'Restaurant (alt)',
-      type: 'string',
-      hidden: true,
-    },
-    {
       name: 'district',
       title: 'Bezirk',
       type: 'string',

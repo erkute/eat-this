@@ -9,7 +9,7 @@ import { translations } from '@/lib/i18n/translations';
 
 // The island pulls in Firebase/auth + browser-only map context. Stub the hooks
 // so the component renders in its pre-mount state (initialMapData, all
-// face-down) — the data partitioning is covered by the splitMustEats helper
+// face-down) — the data partitioning is covered by the gallery helper tests
 // tests, this test targets the section shell (title + CTA href).
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, loading: false }),

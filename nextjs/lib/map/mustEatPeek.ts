@@ -1,23 +1,5 @@
 import type { MapMustEat } from '@/lib/types'
 
-/** Primary must-eat per restaurant = lowest `order` (stable: first wins on ties
- *  and when order is undefined). Keyed by restaurant._id. */
-export function buildPrimaryMustEatMap(mustEats: MapMustEat[]): Map<string, MapMustEat> {
-  const map = new Map<string, MapMustEat>()
-  for (const m of mustEats) {
-    const restId = m.restaurant._id
-    const current = map.get(restId)
-    if (!current) {
-      map.set(restId, m)
-      continue
-    }
-    const a = m.order ?? Number.POSITIVE_INFINITY
-    const b = current.order ?? Number.POSITIVE_INFINITY
-    if (a < b) map.set(restId, m)
-  }
-  return map
-}
-
 /** Restaurant-list badge card. Prefer a face-up must-eat for the viewer; if
  *  none exists, fall back to the restaurant's primary covered card.
  */

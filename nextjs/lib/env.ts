@@ -4,4 +4,3 @@
 const RAW = process.env.NEXT_PUBLIC_ENV ?? 'production'
 
 export const isStaging    = RAW === 'staging'
-export const isProduction = !isStaging

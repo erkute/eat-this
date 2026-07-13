@@ -25,6 +25,9 @@ export default defineConfig({
       // next-intl (ESM) imports 'next/server' without .js extension; point it
       // at the CJS entrypoint so vitest's Node resolver can find it.
       'next/server': resolve(__dirname, 'node_modules/next/server.js'),
+      // Next resolves this package to empty.js under the react-server
+      // condition. Vitest has no RSC condition, so mirror that server import.
+      'server-only': resolve(__dirname, 'node_modules/server-only/empty.js'),
     },
   },
 })

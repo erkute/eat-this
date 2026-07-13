@@ -17,6 +17,7 @@
     "lint": "eslint",
     "lint:content": "tsx scripts/content-lint.ts",
     "test": "vitest run",
+    "test:rules": "firebase emulators:exec --only firestore --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts\"",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -36,6 +37,7 @@
     "react-dom": "19.1.0",
     "react-map-gl": "^8.1.1",
     "resend": "^6.12.4",
+    "server-only": "0.0.1",
     "sharp": "^0.34.5",
     "stripe": "^17.7.0"
   },
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.19.42",
     "@types/react": "^19.2.17",

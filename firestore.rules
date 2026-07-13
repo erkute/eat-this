@@ -20,9 +20,18 @@ service cloud.firestore {
             || request.resource.data.onboardedAt is timestamp);
     }
 
-    // Current paths used by the React app
-    match /users/{uid}/favorites/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    // Favorites are created/deleted only by /api/heart via the Admin SDK so
+    // the per-user document and public aggregate always move together. The
+    // owner may edit only the optional profile note; all canonical restaurant
+    // metadata remains server-owned.
+    match /users/{uid}/favorites/{restaurantId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, delete: if false;
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['note'])
+        && request.resource.data.note is string
+        && request.resource.data.note.size() <= 180;
     }
 
     // On-site must-eat reveals — owner-readable so the client can seed its
@@ -41,6 +50,12 @@ service cloud.firestore {
     match /users/{uid}/referralBonuses/{document=**} {
       allow read:  if request.auth != null && request.auth.uid == uid;
       allow write: if false;
+    }
+
+    // Shared inviter counters serialize concurrent referral awards. They are
+    // internal bookkeeping and never exposed to the client.
+    match /users/{uid}/referralStats/{document=**} {
+      allow read, write: if false;
     }
 
     // Entitlements (Sub-Project 1 of monetisation) — owner-readable so the

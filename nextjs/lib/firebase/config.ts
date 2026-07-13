@@ -47,7 +47,14 @@ export const auth        = getAuth(app);
 let _dbPromise: Promise<Firestore> | null = null;
 export function getDb(): Promise<Firestore> {
   if (!_dbPromise) {
-    _dbPromise = import('firebase/firestore').then(({ getFirestore }) => getFirestore(app));
+    _dbPromise = import('firebase/firestore')
+      .then(({ getFirestore }) => getFirestore(app))
+      .catch((error: unknown) => {
+        // A transient chunk/init failure must not poison every Firestore flow
+        // until the next full page load. The next caller gets a fresh attempt.
+        _dbPromise = null;
+        throw error;
+      });
   }
   return _dbPromise;
 }

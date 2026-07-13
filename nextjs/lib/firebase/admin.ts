@@ -22,6 +22,7 @@ function getAdminApp(): App {
   }
 
   const projectId   = process.env.FIREBASE_ADMIN_PROJECT_ID;
+  const expectedProjectId = process.env.FIREBASE_EXPECTED_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
   const privateKey  = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
@@ -41,12 +42,17 @@ function getAdminApp(): App {
       projectId,
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET ?? `${projectId}.firebasestorage.app`,
     })
-  } else if (projectId || process.env.FIREBASE_STORAGE_BUCKET) {
+  } else if (projectId || expectedProjectId || process.env.FIREBASE_STORAGE_BUCKET) {
+    const applicationProjectId = projectId ?? expectedProjectId
     adminApp = initializeApp({
       credential: applicationDefault(),
-      ...(projectId ? { projectId } : {}),
-      ...(process.env.FIREBASE_STORAGE_BUCKET
-        ? { storageBucket: process.env.FIREBASE_STORAGE_BUCKET }
+      ...(applicationProjectId ? { projectId: applicationProjectId } : {}),
+      ...(process.env.FIREBASE_STORAGE_BUCKET || applicationProjectId
+        ? {
+            storageBucket:
+              process.env.FIREBASE_STORAGE_BUCKET ??
+              `${applicationProjectId}.firebasestorage.app`,
+          }
         : {}),
     })
   } else {

@@ -197,10 +197,10 @@ body {
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
   }
   /* When the list sheet is full OR a detail is open, slide the chips out. */
-  body:has(.app-page[data-page="map"] [class*="bodyListAtFull"]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"] [class*="bodyListAtFull"]) .navbar .navbar-home,
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .navbar .navbar-home {
+  body:has(.app-page[data-page="map"][data-map-view="list"][data-map-snap="full"]) .navbar .navbar-actions,
+  body:has(.app-page[data-page="map"][data-map-view="list"][data-map-snap="full"]) .navbar .navbar-home,
+  body:has(.app-page[data-page="map"][data-map-view="detail"]) .navbar .navbar-actions,
+  body:has(.app-page[data-page="map"][data-map-view="detail"]) .navbar .navbar-home {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
   }
@@ -561,10 +561,10 @@ body {
   body:has(.app-page[data-page="map"].active) {
     background: #ffffff;
   }
-  html:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]),
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]),
-  html:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .app-page[data-page="map"],
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .app-page[data-page="map"] {
+  html:has(.app-page[data-page="map"][data-map-view="detail"]),
+  body:has(.app-page[data-page="map"][data-map-view="detail"]),
+  html:has(.app-page[data-page="map"][data-map-view="detail"]) .app-page[data-page="map"],
+  body:has(.app-page[data-page="map"][data-map-view="detail"]) .app-page[data-page="map"] {
     background: var(--et-home-paper, #fff) !important;
   }
   .app-page[data-page="start"] {

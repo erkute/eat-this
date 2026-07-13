@@ -1,0 +1,249 @@
+/* Map page geometry, canvas host and MapLibre attribution. */
+
+.shell {
+  --map-pill-radius: var(--et-radius-pill);
+  --map-motion: var(--et-motion-base);
+  --map-collage-red: #ef3108;
+  --map-collage-paper: #f8f6f1;
+  --map-collage-ink: #2b211c;
+  --map-surface: var(--et-home-paper);
+  --map-action: var(--et-home-red);
+  --map-control-shadow: none;
+  background: var(--et-home-paper);
+  color: var(--et-home-ink);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  /* How far the page extends below the visual viewport. Phones set
+     --map-runtime-bar-overhang from visualViewport because iOS Safari's
+     toolbar math is not reliably represented by lvh/dvh alone. */
+  --map-bar-overhang: var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px));
+  /* Block page-level pinch-zoom on the map page — only vertical pan/scroll
+     is allowed on UI surfaces. The MapLibre canvas overrides this with
+     touch-action: none so the actual map still pinches & rotates. */
+  touch-action: pan-y;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr); /* mobile: single row, sheet floats on top */
+  grid-template-columns: 1fr;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    --map-desktop-panel-width: clamp(380px, 25vw, 420px);
+  }
+
+  .body {
+    grid-template-columns: minmax(0, 1fr) var(--map-desktop-panel-width);
+    transition: grid-template-columns 0.3s ease;
+  }
+  .body[data-panel-hidden='true'] {
+    grid-template-columns: minmax(0, 1fr) 0px;
+  }
+}
+
+.mapWrap :global(.maplibregl-canvas-container),
+.mapWrap :global(.maplibregl-canvas) {
+  touch-action: none;
+}
+
+.mapWrap {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  /* Isolate the map's stacking context so the user-location marker's
+     z-index 1000 (needed to beat fanned must-eat markers, max ~100)
+     stays contained inside the map. Without this the marker escapes
+     and renders over the bottom-sheet (.list, z-index 4) and the
+     detail panels. */
+  isolation: isolate;
+}
+
+.liveMapLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.mapLoading {
+  position: absolute;
+  inset: 0;
+  background-color: var(--map-collage-paper);
+  background-image: none;
+}
+
+.mapWrap :global(.maplibregl-ctrl-attrib) {
+  font-size: 10px;
+  background: var(--surface-overlay);
+  color: var(--text-muted);
+}
+
+.mapWrap :global(.maplibregl-ctrl-attrib a) {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1023.98px) {
+  .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+    left: 10px;
+  }
+}
+
+.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)) {
+  background: rgba(255, 255, 255, 0.2);
+  border: 0;
+  box-shadow: none;
+  border-radius: 999px;
+  min-height: 12px;
+  min-width: 12px;
+  height: 12px;
+  width: 12px;
+  padding: 0;
+  opacity: 0.35;
+}
+
+.mapWrap
+  :global(
+    .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)
+      .maplibregl-ctrl-attrib-button
+  ) {
+  width: 12px;
+  height: 12px;
+  background-size: 7px 7px;
+  background-position: center;
+}
+
+.mapWrap
+  :global(
+    .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)
+      .maplibregl-ctrl-attrib-inner
+  ) {
+  display: none;
+}
+
+.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show) {
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  /* Same height as collapsed pill (20px), wider for text. */
+  padding: 0 10px 0 24px;
+  min-height: 20px;
+  min-width: 0;
+  height: 20px;
+  width: auto;
+  box-shadow: 0 4px 10px rgba(17, 24, 39, 0.14);
+  font-size: 10px;
+  line-height: 20px;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+}
+
+.mapWrap
+  :global(
+    .maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show
+      .maplibregl-ctrl-attrib-button
+  ) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: none;
+  width: 20px;
+  height: 20px;
+  background-size: 10px 10px;
+  background-position: center;
+}
+
+.mapWrap
+  :global(
+    .maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show .maplibregl-ctrl-attrib-inner
+  ) {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media (max-width: 1023.98px) {
+  .body[data-map-view='detail'] .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+    display: none;
+  }
+}
+
+.mapWrap :global(.maplibregl-ctrl-attrib-button) {
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+}
+
+.mapWrap :global(.maplibregl-ctrl-attrib-button:focus-visible) {
+  outline: 2px solid var(--map-action, #d9382a);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767.98px) {
+  .shell {
+    height: auto;
+    overflow: visible;
+  }
+  .body {
+    display: block;
+    height: auto;
+    overflow: visible;
+    position: relative;
+  }
+  .mapWrap {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    z-index: 0;
+  }
+  .body[data-map-view='detail'] .mapWrap {
+    visibility: hidden;
+  }
+
+  html:has(.shell [data-map-sheet][data-detail-kind='must-eat']),
+body:has(.shell [data-map-sheet][data-detail-kind='must-eat']),
+.shell:has([data-map-sheet][data-detail-kind='must-eat']),
+.body:has([data-map-sheet][data-detail-kind='must-eat']) {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+  .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+    bottom: calc(44dvh + 10px);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .shell[data-map-view='detail'],
+.shell[data-map-view='detail'] .body[data-map-view='detail'] {
+    background: var(--et-home-paper, #fff);
+  }
+
+  html:has(.body[data-map-view='detail']),
+body:has(.body[data-map-view='detail']),
+html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
+body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
+    background: var(--et-home-paper, #fff);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { useTranslation } from '@/lib/i18n'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import { normalizeName } from '@/lib/normalizeName'
-import styles from './map.module.css'
+import styles from './MapDetails.module.css'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
 import { useSwipePager } from './useSwipePager'
 import { CloseIcon, PagerArrowIcon } from './icons'
@@ -135,6 +135,7 @@ export default function MustEatDetailMobile({
     <div
       ref={rootRef}
       className={`${styles.detailV13} ${styles.detailV13MustEat}`}
+      data-detail-root="must-eat"
       role="dialog"
       aria-label={tMap('mustEatAtAria', { name: restaurantName })}
     >
@@ -156,7 +157,7 @@ export default function MustEatDetailMobile({
         {/* HERO — freigestellte Karte mit Glow-Halo. Open: dish card (3D-Tilt
             via CSS, tap-to-zoom). Locked: card-back (flach + Wackeln, tap to
             reveal in range — flach bleibt wichtig für die Reveal-Fly-Origin). */}
-        <div className={styles.fdHeroWrap}>
+        <div className={styles.fdHeroWrap} data-detail-hero>
           <div className={styles.fdCardStack}>
             <img className={`${styles.fdStackCard} ${styles.fdStackCardOne}`} src={CARD_BACK} alt="" aria-hidden="true" />
             <img className={`${styles.fdStackCard} ${styles.fdStackCardTwo}`} src={CARD_BACK} alt="" aria-hidden="true" />
@@ -201,7 +202,6 @@ export default function MustEatDetailMobile({
               springt. Locked: stark verschwommen (kein Stempel). */}
           <h1
             className={`${styles.fdName}${dishNameSizeClass ? ` ${dishNameSizeClass}` : ''}`}
-            data-detail-hero
             aria-label={nameRevealed ? undefined : t('mustEats.covered')}
           >
             <span

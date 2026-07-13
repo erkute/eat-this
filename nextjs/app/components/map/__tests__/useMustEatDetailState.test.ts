@@ -62,6 +62,31 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(result.current.revealOrigin).toBeNull()
     expect(onUnlock).not.toHaveBeenCalled()
   })
+
+  it('outside the unlock radius clears the tapping state after the shake', () => {
+    vi.useFakeTimers()
+    try {
+      const { result } = renderHook(() =>
+        useMustEatDetailState({
+          mustEat: mkMustEat(),
+          userLocation: null,
+          onUnlock: vi.fn(),
+          isAuthed: true,
+        }),
+      )
+
+      act(() => { result.current.handleCardClick(mkEvent()) })
+      expect(result.current.tapping).toBe(true)
+
+      act(() => { vi.advanceTimersByTime(599) })
+      expect(result.current.tapping).toBe(true)
+
+      act(() => { vi.advanceTimersByTime(1) })
+      expect(result.current.tapping).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })
 
 describe('useMustEatDetailState — lazy zoom lifecycle', () => {

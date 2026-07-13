@@ -33,7 +33,7 @@ interface Props {
 
 /* Phones (≤767.98px) render the map list as a window-scrolled in-flow
    document so its rows frost through iOS Safari's bottom URL bar (see the
-   in-flow block in map.module.css). Tablets/desktop keep the drag sheet /
+   in-flow block in MapSheet.module.css). Tablets/desktop keep the drag sheet /
    side panel — must match PHONE_MAX in useBottomSheet.ts. */
 function isPhoneViewport(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(max-width: 767.98px)').matches;
@@ -217,6 +217,14 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
   const [desktopPanelHidden, setDesktopPanelHidden] = useState(false);
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const restorePanelBelowDesktop = (event: MediaQueryListEvent) => {
+      if (!event.matches) setDesktopPanelHidden(false);
+    };
+    desktopQuery.addEventListener('change', restorePanelBelowDesktop);
+    return () => desktopQuery.removeEventListener('change', restorePanelBelowDesktop);
+  }, []);
 
   // Snap the sheet when entering detail view (or switching selections).
   const snapRef = useRef(snap);
@@ -234,10 +242,14 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
 
   useEffect(() => {
     if (!isActive) return;
-    if (!isPhoneViewport()) return;
 
     const root = document.documentElement;
     const apply = () => {
+      if (!isPhoneViewport()) {
+        root.style.removeProperty('--map-runtime-bar-overhang');
+        return;
+      }
+
       const visualViewport = window.visualViewport;
       const visualHeight = visualViewport?.height ?? window.innerHeight;
       const layoutHeight = Math.max(
@@ -448,7 +460,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       // sets — the only source of truth that handles drag in-progress AND the
       // content-fit detail snap.
       /* In-flow phone list: 'peek' rests with the list's CSS overlap visible
-         (≈44dvh, see map.module.css) — not the drag-sheet's 28px pip strip. */
+         (≈44dvh, see MapSheet.module.css) — not the drag-sheet's 28px pip strip. */
       const phoneListPeek = Math.round(window.innerHeight * 0.44);
       const phoneInflowList = isPhoneViewport() && sheetView === 'list';
       /* In-flow phone DETAIL: the only visible map is the top peek strip
@@ -493,7 +505,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
                 : Math.round(window.innerHeight * 0.58);
       }
       // The mobile canvas extends (100lvh − 100dvh) + 80px past the visual
-      // viewport (iOS-bar apron, see --map-bar-overhang in map.module.css).
+      // viewport (iOS-bar apron, see --map-bar-overhang in MapLayout.module.css).
       // flyTo padding is in CANVAS coordinates, so without this correction the
       // centre lands ~overhang/2 too low on screen. Measure the real container
       // height so lvh/dvh bar states are handled for free.
@@ -510,6 +522,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
       userInteractedRef.current = true;
+      setDesktopPanelHidden(false);
       trackEvent('restaurant_opened', {
         restaurant_id: r._id,
         restaurant_slug: r.slug,
@@ -664,6 +677,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
   const handleMustEatClick = useCallback(
     (m: MapMustEat) => {
       userInteractedRef.current = true;
+      setDesktopPanelHidden(false);
       trackEvent('must_eat_opened', {
         must_eat_id: m._id,
         restaurant_id: m.restaurant._id,
@@ -738,7 +752,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     // list back to 'mid' so the result set is actually readable. 'full' and
     // 'mid' are preserved as deliberate user positions. PHONES: the snap
     // state is meaningless in the window-scrolled list — reset it to 'mid'
-    // so a stale 'full' from the detail can't leave bodyListAtFull active
+    // so a stale 'full' from the detail can't leave the full-snap UI state active
     // (it slides the burger/search off and pins the status toast to the
     // viewport bottom over the rows).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
@@ -780,7 +794,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     // link) puts the user back on the restaurants list.
     setSheetView('list');
     // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
-    // phones always reset (stale 'full' would keep bodyListAtFull active).
+    // phones always reset (stale 'full' would keep the full-snap UI state active).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
     if (m && mapRef.current) {
@@ -829,6 +843,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     (v: string) => {
       setSearch(v);
       if (!v || sheetView !== 'list') return;
+      setDesktopPanelHidden(false);
       if (isPhoneViewport()) {
         // Surface enough of the in-flow list to show results — but only
         // scroll UP; never yank a user who is already deep in the rows.

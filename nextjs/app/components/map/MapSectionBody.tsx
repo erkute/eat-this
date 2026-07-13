@@ -16,7 +16,10 @@ import MapSheetDetail from './MapSheetDetail';
 import MapListHeader from './MapListHeader';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
-import styles from './map.module.css';
+import styles from './MapLayout.module.css';
+import controlStyles from './MapControls.module.css';
+import sheetStyles from './MapSheet.module.css';
+import markerStyles from './MapMarkers.module.css';
 
 /* The map canvas pulls in react-map-gl + maplibre-gl (~800 KB) and only runs
    in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
@@ -92,41 +95,54 @@ function StaticDetailMapPeek({
     .filter((marker) => marker.isSelected || (Math.abs(marker.x) < 360 && Math.abs(marker.y) < 240));
 
   return (
-    <div className={styles.staticDetailMapPeek} aria-hidden="true">
+    <div className={markerStyles.staticDetailMapPeek}>
       {tiles.map((tile) => (
         <img
           key={tile.key}
           src={tile.src}
           alt=""
-          className={styles.staticDetailMapTile}
+          className={markerStyles.staticDetailMapTile}
           style={{ left: tile.left, top: tile.top }}
           draggable={false}
         />
       ))}
-      {markers.map((marker) => (
-        <button
-          key={marker.id}
-          type="button"
-          className={[
-            styles.staticDetailPin,
-            marker.isSelected && styles.staticDetailPinActive,
-            marker.hasMustEat && styles.staticDetailPinHasMust,
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          style={{ left: marker.left, top: marker.top }}
-          onClick={() => {
-            if (!marker.isSelected) onRestaurantClick(marker.restaurant);
-          }}
-          aria-label={marker.restaurant.name}
-          aria-current={marker.isSelected ? 'true' : undefined}
-        >
-          <span className={styles.pinLogoShape}>
+      {markers.map((marker) => {
+        const className = [
+          markerStyles.staticDetailPin,
+          marker.isSelected && markerStyles.staticDetailPinActive,
+          marker.hasMustEat && markerStyles.staticDetailPinHasMust,
+        ]
+          .filter(Boolean)
+          .join(' ');
+        const logo = (
+          <span className={markerStyles.pinLogoShape}>
             <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
           </span>
-        </button>
-      ))}
-      <div className={styles.staticDetailAttribution}>© CARTO © OpenStreetMap</div>
+        );
+
+        return marker.isSelected ? (
+          <span
+            key={marker.id}
+            className={className}
+            style={{ left: marker.left, top: marker.top }}
+            aria-hidden="true"
+          >
+            {logo}
+          </span>
+        ) : (
+          <button
+            key={marker.id}
+            type="button"
+            className={className}
+            style={{ left: marker.left, top: marker.top }}
+            onClick={() => onRestaurantClick(marker.restaurant)}
+            aria-label={marker.restaurant.name}
+          >
+            {logo}
+          </button>
+        );
+      })}
+      <div className={markerStyles.staticDetailAttribution}>© CARTO © OpenStreetMap</div>
     </div>
   );
 }
@@ -322,8 +338,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   }, [locationStatusKey]);
 
   /* In-flow phone list: the sticky header rests below the iOS status-bar/
-     notch zone (top: env(safe-area-inset-top), see map.module.css). While it
-     is STUCK, a fixed white cap (.listHeaderStuck .listHeader::before) covers
+     notch zone (top: env(safe-area-inset-top), see MapSheet.module.css). While it
+     is STUCK, a fixed white cap on the sheet covers
      that zone so rows don't scroll visibly through the notch area. Stuck is
      detected via a 0-height sentinel right above the header: once it leaves
      the (viewport top + safe-area) line, the header is pinned. */
@@ -356,18 +372,27 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     <main
       className={`app-page${isActive ? ' active' : ''}${fontClassName ? ` ${fontClassName}` : ''}`}
       data-page="map"
+      data-map-view={sheetView}
+      data-map-snap={snap}
+      data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
     >
       <h1 className={styles.srOnly}>{locale === 'en' ? 'Eat This map' : 'Eat This Karte'}</h1>
       <div
-        className={`${styles.shell}${sheetView === 'detail' ? ` ${styles.shellDetailOpen}` : ''}`}
+        className={styles.shell}
+        data-map-shell=""
+        data-map-view={sheetView}
       >
-        {/* bodyListAtFull / bodyDetailOpen slide the floating search toolbar +
-            burger chip up off-screen (see map.module.css) — Google-Maps
-            behavior. */}
+        {/* The body data attributes slide the floating search toolbar + burger
+            chip off-screen at full/detail states (see MapControls.module.css). */}
         <div
-          className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}
+          className={styles.body}
+          data-map-body=""
+          data-map-view={sheetView}
+          data-map-snap={snap}
+          data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
+          data-header-stuck={headerStuck && sheetView === 'list' ? 'true' : undefined}
         >
-          <div className={styles.mapWrap} ref={mapWrapRef}>
+          <div className={styles.mapWrap} ref={mapWrapRef} data-map-canvas="">
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer
                 mapRef={mapRef}
@@ -385,11 +410,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 while a query is active so the filter is never invisible. */}
             {searchOpen || search ? (
               <div
-                className={styles.mapSearchToolbar}
+                className={controlStyles.mapSearchToolbar}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
               >
-                <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <svg className={controlStyles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
                   <circle
                     cx="10.8"
                     cy="10.8"
@@ -415,14 +440,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     if (!search) setSearchOpen(false);
                   }}
                   placeholder="Spot, Kiez, Gericht"
-                  className={styles.mapSearchInput}
+                  className={controlStyles.mapSearchInput}
                   aria-label={searchLabel}
                   autoComplete="off"
                   autoFocus
                 />
                 <button
                   type="button"
-                  className={styles.mapSearchClear}
+                  className={controlStyles.mapSearchClear}
                   onClick={() => {
                     onSearchChange('');
                     setSearchOpen(false);
@@ -448,7 +473,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             ) : (
               <button
                 type="button"
-                className={styles.mapSearchBtn}
+                className={controlStyles.mapSearchBtn}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -456,7 +481,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 }}
                 aria-label={searchLabel}
               >
-                <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <svg className={controlStyles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
                   <circle
                     cx="10.8"
                     cy="10.8"
@@ -481,9 +506,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               onClick={onLocateMe}
               disabled={locateLoading}
               aria-label={myLocationAriaLabel}
-              className={styles.fab}
+              className={controlStyles.fab}
             >
-              <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
+              <svg className={controlStyles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="6.8" fill="none" stroke="currentColor" strokeWidth="2" />
                 <circle cx="12" cy="12" r="2" fill="currentColor" />
                 <path
@@ -503,27 +528,73 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           <button
             type="button"
-            className={styles.mapBurger}
+            className={controlStyles.mapBurger}
             onClick={openBurgerMenu}
             aria-label="Menu"
           >
-            <span className={styles.mapBurgerLines} aria-hidden="true">
+            <span className={controlStyles.mapBurgerLines} aria-hidden="true">
               <span />
               <span />
               <span />
             </span>
           </button>
 
+          {/* Desktop disclosure sits before its controlled panel in the DOM so
+              the next Tab enters newly revealed panel content. */}
+          <button
+            type="button"
+            className={controlStyles.panelToggle}
+            aria-label={
+              locale === 'en'
+                ? desktopPanelHidden
+                  ? 'Show results panel'
+                  : 'Hide results panel'
+                : desktopPanelHidden
+                  ? 'Ergebnisliste einblenden'
+                  : 'Ergebnisliste ausblenden'
+            }
+            aria-controls="map-results-panel"
+            aria-expanded={!desktopPanelHidden}
+            onClick={onToggleDesktopPanel}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
+            </svg>
+          </button>
+
           <aside
+            id="map-results-panel"
             ref={setSheetRef}
-            className={`${styles.list} ${dragging ? styles.listDragging : ''}${headerStuck && sheetView === 'list' ? ` ${styles.listHeaderStuck}` : ''}`}
+            className={sheetStyles.list}
+            data-map-sheet=""
             data-snap={snap}
             data-view={sheetView}
+            data-dragging={dragging ? 'true' : undefined}
+            data-header-stuck={headerStuck && sheetView === 'list' ? 'true' : undefined}
+            data-detail-kind={
+              sheetView === 'detail'
+                ? selectedMustEat
+                  ? 'must-eat'
+                  : selectedRestaurant
+                    ? 'restaurant'
+                    : undefined
+                : undefined
+            }
             aria-label={restaurantsListAriaLabel}
+            aria-hidden={desktopPanelHidden || undefined}
+            inert={desktopPanelHidden || undefined}
           >
             <div
               ref={handleRef}
-              className={styles.handle}
+              className={sheetStyles.handle}
               data-sheet-handle=""
               aria-hidden="true"
             />
@@ -584,7 +655,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             ) : (
               <>
                 {/* Stuck-detection sentinel for the sticky header (phones). */}
-                <div ref={stuckSentinelRef} className={styles.stuckSentinel} aria-hidden="true" />
+                <div ref={stuckSentinelRef} className={sheetStyles.stuckSentinel} aria-hidden="true" />
                 <MapListHeader
                   headerRef={setHeaderRef}
                   categories={categories}
@@ -599,7 +670,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   cuisine={cuisine}
                   onCuisine={setCuisine}
                 />
-                <div ref={setContentRef} className={styles.listScroll}>
+                <div ref={setContentRef} className={sheetStyles.listScroll}>
                   <RestaurantList
                     restaurants={displayedRestaurants}
                     lockedRestaurants={displayedLockedRestaurants}
@@ -621,14 +692,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           {showLocationStatus && (
             <div
-              className={`${styles.mapStatusLayer} ${locationStatus.isError ? styles.mapStatusLayerError : ''}`}
+              className={`${controlStyles.mapStatusLayer} ${locationStatus.isError ? controlStyles.mapStatusLayerError : ''}`}
               role={locationStatus.isError ? 'alert' : 'status'}
             >
-              <span className={styles.mapStatusText}>{locationStatus.copy}</span>
+              <span className={controlStyles.mapStatusText}>{locationStatus.copy}</span>
               {locationStatus.isError && locationStatus.canRetry && (
                 <button
                   type="button"
-                  className={styles.mapStatusAction}
+                  className={controlStyles.mapStatusAction}
                   onClick={handleLocationRetry}
                   disabled={locateLoading}
                 >
@@ -637,7 +708,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               )}
               <button
                 type="button"
-                className={styles.mapStatusDismiss}
+                className={controlStyles.mapStatusDismiss}
                 onClick={handleDismissLocationStatus}
                 aria-label={
                   locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'
@@ -648,30 +719,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             </div>
           )}
 
-          {/* Desktop-only toggle to slide the side panel off to the right
-              (Google-Maps-style). Mobile gets the chevron-collapse button
-              inside the sheet handle area instead. Icon flips based on
-              current state — points right when shown (= "hide"), left
-              when hidden (= "show"). */}
-          <button
-            type="button"
-            className={styles.panelToggle}
-            aria-label={desktopPanelHidden ? 'Show panel' : 'Hide panel'}
-            aria-pressed={desktopPanelHidden}
-            onClick={onToggleDesktopPanel}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
-            </svg>
-          </button>
         </div>
       </div>
     </main>

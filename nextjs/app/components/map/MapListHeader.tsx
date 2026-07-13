@@ -4,7 +4,7 @@ import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
 import type { MapCategory } from '@/lib/types'
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet'
-import styles from './map.module.css'
+import styles from './MapFilters.module.css'
 
 interface Props {
   headerRef: Ref<HTMLDivElement | null>

@@ -12,6 +12,7 @@ import {
   bezirkBySlugQuery,
   restaurantsByBezirkQuery,
   restaurantsByCategoryQuery,
+  restaurantSiblingCandidatesQuery,
   allCategoriesQuery,
   categoryBySlugQuery,
   emailSpotsQuery,
@@ -129,6 +130,61 @@ export async function getRestaurantsByCategory(categorySlug: string): Promise<Re
   )
 }
 
+interface RestaurantSiblingCandidates {
+  bezirk: RestaurantCard[]
+  category: RestaurantCard[]
+}
+
+interface RestaurantSiblingRows {
+  bezirkAfter: RestaurantCard[]
+  bezirkWrap: RestaurantCard[]
+  categoryAfter: RestaurantCard[]
+  categoryWrap: RestaurantCard[]
+}
+
+export async function getRestaurantSiblingCandidates({
+  selfSlug,
+  selfName,
+  bezirkSlug,
+  categorySlug,
+  bezirkLimit = 3,
+  categoryLimit = 6,
+}: {
+  selfSlug: string
+  selfName: string
+  bezirkSlug?: string
+  categorySlug?: string
+  bezirkLimit?: number
+  categoryLimit?: number
+}): Promise<RestaurantSiblingCandidates> {
+  const rows = await client.fetch<RestaurantSiblingRows>(
+    restaurantSiblingCandidatesQuery,
+    {
+      selfSlug,
+      selfName,
+      bezirkSlug: bezirkSlug ?? '',
+      categorySlug: categorySlug ?? '',
+      bezirkLimit,
+      categoryLimit,
+    },
+    {
+      next: {
+        revalidate: 3600,
+        tags: [
+          'restaurant-siblings',
+          ...(bezirkSlug ? [`bezirk:${bezirkSlug}`] : []),
+          ...(categorySlug ? [`category:${categorySlug}`] : []),
+        ],
+      },
+    },
+  )
+
+  return {
+    bezirk: [...(rows.bezirkAfter ?? []), ...(rows.bezirkWrap ?? [])].slice(0, bezirkLimit),
+    category: [...(rows.categoryAfter ?? []), ...(rows.categoryWrap ?? [])].slice(0, categoryLimit),
+  }
+}
+
 export async function getAllCategories(): Promise<CategoryDef[]> {
   return client.fetch<CategoryDef[]>(
     allCategoriesQuery,
@@ -159,10 +215,9 @@ type EmailSpot = {
   area: string
   cuisine?: string
   photo: string
-  mustEats: { dish: string; cardPhoto: string }[]
 }
 
-// Curated spots for the magic-link email — restaurant photo + one Must-Eat card.
+// Curated spots for the magic-link email — public restaurant data only.
 export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
   return client.fetch<EmailSpot[]>(
     emailSpotsQuery,

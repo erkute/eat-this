@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import RestaurantList from './RestaurantList';
 import MapSheetDetail from './MapSheetDetail';
 import MapListHeader from './MapListHeader';
+import MapDataNotice from './MapDataNotice';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -185,6 +186,9 @@ interface MapBodyState {
   locationError: UserLocationError | null;
   uid: string | null;
   userTier: UserTier;
+  mapDataLoading: boolean;
+  mapDataError: string | null;
+  mapDataHasContent: boolean;
 }
 
 /* Filter values + their setters / change handlers. Bundled together because
@@ -223,9 +227,10 @@ interface MapBodyHandlers {
   mustEatPagerNext: MapMustEat | null;
   onPageMustEat: (dir: 'prev' | 'next') => void;
   onViewRestaurantFromMustEat: () => void;
-  onUnlock: () => Promise<void>;
+  onUnlock: () => Promise<boolean>;
   onToggleFavorite: () => void;
   onToggleDesktopPanel: () => void;
+  onRetryMapData: () => void;
 }
 
 /* Host-locale-aware aria copy passed in from the server-rendered shell. */
@@ -271,6 +276,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     locationError,
     uid,
     userTier,
+    mapDataLoading,
+    mapDataError,
+    mapDataHasContent,
     categories,
     category,
     setCategory,
@@ -301,6 +309,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onToggleFavorite,
     desktopPanelHidden,
     onToggleDesktopPanel,
+    onRetryMapData,
     myLocationAriaLabel,
     restaurantsListAriaLabel,
   } = props;
@@ -690,7 +699,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             )}
           </aside>
 
-          {showLocationStatus && (
+          <MapDataNotice
+            loading={mapDataLoading}
+            error={mapDataError}
+            hasData={mapDataHasContent}
+            onRetry={onRetryMapData}
+          />
+
+          {!mapDataLoading && !mapDataError && showLocationStatus && (
             <div
               className={`${controlStyles.mapStatusLayer} ${locationStatus.isError ? controlStyles.mapStatusLayerError : ''}`}
               role={locationStatus.isError ? 'alert' : 'status'}

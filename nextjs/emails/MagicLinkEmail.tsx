@@ -10,14 +10,6 @@ import {
   Text,
 } from '@react-email/components';
 
-/** One Must-Eat collectible card belonging to a spot. */
-interface EmailMustEat {
-  /** Dish name, e.g. "Breakfast Plate". */
-  dish: string;
-  /** Card artwork — raw Sanity CDN URL (query string optional). */
-  cardPhoto: string;
-}
-
 /** One curated restaurant teased in the email. */
 export interface EmailSpot {
   name: string;
@@ -29,8 +21,6 @@ export interface EmailSpot {
   cuisine?: string;
   /** Restaurant photo — raw Sanity CDN URL (query string optional). */
   photo: string;
-  /** Matching Must-Eat cards (1–3 shown). */
-  mustEats: EmailMustEat[];
 }
 
 interface MagicLinkEmailProps {
@@ -207,16 +197,15 @@ export default function MagicLinkEmail({
           </Section>
 
           {/* SPOTS — each one a single server-composed PNG (photo + scrim +
-              name + tilted Must-Eat badge, see /api/email/spot-card) wrapped
+              name, see /api/email/spot-card) wrapped
               in a /map?r= deep-link. One flat image is the only composition
               email clients can't break: Gmail strips position/transform/
               filter/box-shadow and never loads webfonts. */}
           {spots.length > 0 && (
             <Section style={{ padding: '0 0 8px', textAlign: 'center' }}>
               {spots.map((s, i) => {
-                const mustEat = s.mustEats[0];
                 const meta = [s.area, s.cuisine].filter(Boolean).join(' · ');
-                const alt = `${s.name} — ${meta}${mustEat ? `: ${mustEat.dish}` : ''}`;
+                const alt = `${s.name} — ${meta}`;
                 return (
                   <Link
                     key={`${s.slug}-${i}`}

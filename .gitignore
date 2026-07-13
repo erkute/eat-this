@@ -10,10 +10,12 @@ node_modules/
 .claude/
 .codex/
 .mcp.json
+.playwright-mcp/
 .worktrees/
 .superpowers/
 test-results/
 .qa-tmp/
+.private/
 studio/.sanity/
 
 # Workflow screenshots from browser sessions — stay local

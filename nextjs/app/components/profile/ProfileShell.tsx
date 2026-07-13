@@ -27,7 +27,7 @@ interface Props {
 // Slim profile (mockup-chewy screens 15/16): one cream scroll — head, saved
 // spots, collected must-eats, packs, logout, footer. No tabs/settings/referral.
 export default function ProfileShell({ publicFaceUpIds }: Props) {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const locale = useLocale();
   const t = useTranslations('profile');
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -35,19 +35,31 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
   // is open in the collection too, even right after first signup.
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
-  const unlockedIds = useMemo(
-    () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds]),
-    [storedUnlockedIds, publicFaceUpIds]
-  );
   const { profile, setAvatar } = useUserProfile(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
   // The same per-user payload also feeds the deck itself — covered cards come
   // back stripped (no dish/image), unlocked ones carry the full card data.
-  const { restaurants: ownedRestaurants, mustEats } = useMapData({
+  const {
+    restaurants: ownedRestaurants,
+    mustEats,
+    revealedMustEatIds,
+    loading: mapDataLoading,
+    error: mapDataError,
+    refetch: refetchMapData,
+  } = useMapData({
     uid: user?.uid ?? null,
-    authLoading: loading,
+    authLoading,
   });
+  const unlockedIds = useMemo(
+    () => new Set<string>([
+      ...storedUnlockedIds,
+      ...publicFaceUpIds,
+      ...revealedMustEatIds,
+    ]),
+    [storedUnlockedIds, publicFaceUpIds, revealedMustEatIds]
+  );
+  const hasMapData = ownedRestaurants.length > 0 || mustEats.length > 0;
   const ownedRestaurantIds = useMemo(
     () => new Set(ownedRestaurants.map((r) => r._id)),
     [ownedRestaurants]
@@ -73,13 +85,31 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     [ownedRestaurants]
   );
 
-  if (loading || !user) {
+  if (authLoading || !user || (mapDataLoading && !hasMapData)) {
     return (
       <main className={styles.page} data-menu>
-        <div className={styles.loading}>
+        <div className={styles.loading} role="status" aria-label={t('dataLoading')}>
           <div className={styles.spinner} aria-hidden="true" />
         </div>
       </main>
+    );
+  }
+
+  if (mapDataError && !hasMapData) {
+    return (
+      <>
+        <main className={styles.page} data-menu>
+          <div className={styles.shell}>
+            <div className={`${styles.dataNotice} ${styles.dataNoticeError}`} role="alert">
+              <p>{t('dataError')}</p>
+              <button type="button" className={styles.dataNoticeAction} onClick={refetchMapData}>
+                {t('dataRetry')}
+              </button>
+            </div>
+          </div>
+        </main>
+        <SiteFooter />
+      </>
     );
   }
 
@@ -97,6 +127,24 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     <>
       <main className={styles.page} data-menu>
         <div className={styles.shell}>
+          {(mapDataLoading || mapDataError) && (
+            <div
+              className={`${styles.dataNotice}${mapDataError ? ` ${styles.dataNoticeError}` : ''}`}
+              role={mapDataError ? 'alert' : 'status'}
+              aria-live="polite"
+            >
+              <p>{mapDataError ? t('dataStale') : t('dataRefreshing')}</p>
+              {mapDataError && (
+                <button
+                  type="button"
+                  className={styles.dataNoticeAction}
+                  onClick={refetchMapData}
+                >
+                  {t('dataRetry')}
+                </button>
+              )}
+            </div>
+          )}
           <header className={styles.hero}>
             <div className={styles.paper}>
               <div className={styles.paperTop}>

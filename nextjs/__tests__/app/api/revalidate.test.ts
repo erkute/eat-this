@@ -5,21 +5,11 @@ import type { NextRequest } from 'next/server'
 const mocks = vi.hoisted(() => ({
   revalidateTag: vi.fn(),
   revalidatePath: vi.fn(),
-  invalidateMapDataCache: vi.fn(),
-  invalidateFreeSurfaceCache: vi.fn(),
 }))
 
 vi.mock('next/cache', () => ({
   revalidateTag: mocks.revalidateTag,
   revalidatePath: mocks.revalidatePath,
-}))
-
-vi.mock('@/lib/map/cached-sanity', () => ({
-  invalidateMapDataCache: mocks.invalidateMapDataCache,
-}))
-
-vi.mock('@/lib/map/free-surface', () => ({
-  invalidateFreeSurfaceCache: mocks.invalidateFreeSurfaceCache,
 }))
 
 import { POST } from '@/app/api/revalidate/route'
@@ -62,9 +52,14 @@ describe('/api/revalidate', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(expect.objectContaining({ ok: true, type: 'restaurant', slug: 'test-spot' }))
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/test-spot')
-    expect(mocks.invalidateMapDataCache).toHaveBeenCalledOnce()
-    expect(mocks.invalidateFreeSurfaceCache).toHaveBeenCalledOnce()
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
   })
 
   it('rejects a correctly signed but stale webhook timestamp', async () => {
@@ -76,7 +71,6 @@ describe('/api/revalidate', () => {
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({ error: 'invalid_signature' })
     expect(mocks.revalidateTag).not.toHaveBeenCalled()
-    expect(mocks.invalidateMapDataCache).not.toHaveBeenCalled()
   })
 
   it('rejects a bad signature', async () => {
@@ -98,5 +92,49 @@ describe('/api/revalidate', () => {
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: 'invalid_json' })
     expect(mocks.revalidateTag).not.toHaveBeenCalled()
+  })
+
+  it('revalidates both localized map and must-eat pages for must-eat changes', async () => {
+    const raw = JSON.stringify({ _type: 'mustEat' })
+    const ts = Math.floor(Date.now() / 1000)
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
+  })
+
+  it('invalidates the free-surface cache and map pages for home-week changes', async () => {
+    const raw = JSON.stringify({ _type: 'homeWeek' })
+    const ts = Math.floor(Date.now() / 1000)
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
+  })
+
+  it('revalidates must-eat pages when news changes the free surface', async () => {
+    const raw = JSON.stringify({
+      _type: 'newsArticle',
+      slug: { current: 'new-guide' },
+    })
+    const ts = Math.floor(Date.now() / 1000)
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
   })
 })

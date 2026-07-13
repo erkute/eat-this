@@ -4,6 +4,15 @@ vi.mock('@/lib/map/cached-sanity', () => ({
   getCachedMapData: vi.fn(),
 }))
 
+vi.mock('@/lib/must-eat/private-store', () => ({
+  hydrateAuthorizedMustEats: vi.fn(async (mustEats: unknown[]) => mustEats),
+}))
+
+vi.mock('@/lib/must-eat/premium-access', () => ({
+  setPremiumAccessCookie: vi.fn(),
+  clearPremiumAccessCookie: vi.fn(),
+}))
+
 vi.mock('@/lib/map/free-surface', () => ({
   getFreeSurfaceData: vi.fn().mockResolvedValue({ restaurantIds: new Set(), newOnMap: [] }),
   applyFreeSurface: (visible: unknown[]) => visible,
@@ -262,13 +271,16 @@ describe('/api/map-data — tier composition', () => {
     const meIds = json.mustEats.map((m: any) => m._id)
     expect(meIds).toContain('me-bonus-a')
     expect(meIds).toContain('me-bonus-b')
+    expect(json.revealedMustEatIds).toEqual(
+      expect.arrayContaining(['me-bonus-a', 'me-bonus-b']),
+    )
   })
 
-  it('all-berlin: returns full catalog, no locked preview, no revealed signal', async () => {
+  it('all-berlin: returns the full catalog with every Must-Eat face-up', async () => {
     const restaurants = [mkRestaurant('a1'), mkRestaurant('b1'), mkRestaurant('c1')]
     vi.mocked(getCachedMapData).mockResolvedValue({
       restaurants: restaurants as any,
-      mustEats: [],
+      mustEats: [mkMustEat('m1', 'a1'), mkMustEat('m2', 'b1')] as any,
       categories: [],
     })
     vi.mocked(resolveEntitlements).mockResolvedValue({
@@ -283,7 +295,7 @@ describe('/api/map-data — tier composition', () => {
     const json = await res.json()
     expect(json.restaurants.length).toBe(3)
     expect(json.lockedRestaurants).toEqual([])
-    expect(json.revealedMustEatIds).toEqual([])
+    expect(json.revealedMustEatIds).toEqual(expect.arrayContaining(['m1', 'm2']))
   })
 
   it('admin email: identical behavior to all-berlin', async () => {
@@ -383,6 +395,9 @@ describe('/api/map-data — covered must-eats are stripped (paywall)', () => {
     expect((byId.get('m1b') as any).dish).toBe('Dish m1b')  // on-site unlock
     expect((byId.get('m2b') as any).dish).toBe('Dish m2b')  // purchased grant
     expect((byId.get('m3b') as any).dish).toBeUndefined()   // still covered
+    expect(json.revealedMustEatIds).toEqual(
+      expect.arrayContaining(['m1b', 'm2b']),
+    )
   })
 
   it('anonymous: never reads the unlock collection', async () => {

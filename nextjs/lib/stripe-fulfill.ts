@@ -1,7 +1,6 @@
-// Shared fulfillment logic — called by both /api/stripe/webhook (primary)
-// and /api/stripe/fulfill (fallback when the success page polls and the
-// webhook hasn't arrived yet). Idempotent: both paths converge on the
-// same getDoc-then-set pattern, first-writer-wins.
+// Shared fulfillment logic for the Stripe webhook. Idempotent: repeated
+// deliveries converge on one transaction and expose whether a different
+// paid session needs to be refunded.
 
 import { getAdminAuth, getAdminFirestore } from './firebase/admin'
 import { client as sanity }  from './sanity'
@@ -34,14 +33,21 @@ interface Args {
   stripeSessionId: string
 }
 
-type Result = 'created' | 'exists'
+export type FulfillmentResult =
+  | { status: 'created' }
+  | {
+      status: 'exists'
+      existingPackId: string
+      existingStripeSessionId: string | null
+      guestMagicLinkSent: boolean
+    }
 
 // For category entitlements, restaurantIds are derived from the mustEatIds'
 // parent restaurants. We query both in one Sanity round-trip to avoid two
 // cold fetches.
 async function categoryEntitlementPayload(slug: string): Promise<{ mustEatIds: string[]; restaurantIds: string[] }> {
   const rows = await sanity.fetch<{ _id: string; rid: string | null }[]>(
-    `*[_type == "mustEat" && defined(image.asset) && defined(restaurantRef._ref) && restaurantRef->isOpen != false && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
+    `*[_type == "mustEat" && defined(restaurantRef._ref) && restaurantRef->isOpen != false && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
     { slug },
   )
   const mustEatIds = rows.map((r) => r._id)
@@ -49,7 +55,7 @@ async function categoryEntitlementPayload(slug: string): Promise<{ mustEatIds: s
   return { mustEatIds, restaurantIds }
 }
 
-export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId }: Args): Promise<Result> {
+export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId }: Args): Promise<FulfillmentResult> {
   const pack = getPack(packId)
   if (!pack) throw new Error(`unknown pack: ${packId}`)
 
@@ -80,14 +86,66 @@ export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId
     source:          'stripe',
   }
 
-  // Race-safe first-writer-wins: webhook and the success-page poll can both
-  // reach here concurrently. A plain get()-then-set() leaves a window where
+  // Race-safe first-writer-wins: Stripe may deliver multiple events or two
+  // paid sessions concurrently. A plain get()-then-set() leaves a window where
   // both read "not exists" and both write. The transaction makes the
-  // exists-check and the write atomic — exactly one path creates the doc.
+  // coverage check and write atomic — exactly one session creates the doc.
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref)
-    if (snap.exists) return 'exists'
+    if (snap.exists) {
+      const existing = snap.data()
+      return {
+        status: 'exists' as const,
+        existingPackId: packId,
+        existingStripeSessionId: typeof existing?.stripeSessionId === 'string'
+          ? existing.stripeSessionId
+          : null,
+        guestMagicLinkSent: Boolean(existing?.guestMagicLinkSentAt),
+      }
+    }
+
+    // All Berlin already covers every category. This check must also happen
+    // during fulfillment because guest Checkout cannot know the buyer's uid
+    // until Stripe has collected their email.
+    if (pack.type === 'category') {
+      const allBerlinSnap = await tx.get(
+        db.collection('users').doc(uid).collection('entitlements').doc('all-berlin'),
+      )
+      if (allBerlinSnap.exists) {
+        const existing = allBerlinSnap.data()
+        return {
+          status: 'exists' as const,
+          existingPackId: 'all-berlin',
+          existingStripeSessionId: typeof existing?.stripeSessionId === 'string'
+            ? existing.stripeSessionId
+            : null,
+          guestMagicLinkSent: Boolean(existing?.guestMagicLinkSentAt),
+        }
+      }
+    }
+
     tx.set(ref, doc)
-    return 'created'
+    return { status: 'created' as const }
+  })
+}
+
+export async function markGuestMagicLinkSent({
+  uid,
+  packId,
+  stripeSessionId,
+}: Args): Promise<void> {
+  const db = getAdminFirestore()
+  const ref = db
+    .collection('users').doc(uid)
+    .collection('entitlements').doc(packId)
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref)
+    const data = snap.exists ? snap.data() : null
+    if (!data || data.stripeSessionId !== stripeSessionId) {
+      throw new Error(`cannot mark guest email for unmatched entitlement: ${stripeSessionId}`)
+    }
+    if (data.guestMagicLinkSentAt) return
+    tx.update(ref, { guestMagicLinkSentAt: FieldValue.serverTimestamp() })
   })
 }

@@ -49,9 +49,63 @@
   animation: profileSpin 0.7s linear infinite;
 }
 
+.dataNotice {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 12px 16px;
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
+  border-radius: var(--profile-radius);
+}
+
+.dataNotice p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.dataNoticeError {
+  background: var(--profile-red);
+}
+
+.dataNoticeAction {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 7px 11px;
+  color: inherit;
+  background: transparent;
+  border: 2px solid currentColor;
+  border-radius: var(--profile-radius);
+  font-family: var(--profile-display);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dataNoticeAction:hover {
+  transform: translateY(-1px);
+}
+
+.dataNoticeAction:focus-visible {
+  outline: 3px solid var(--profile-accent);
+  outline-offset: 3px;
+}
+
 @keyframes profileSpin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
   }
 }
 

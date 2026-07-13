@@ -11,6 +11,7 @@ import {
   getArticleBySlug,
   getAllArticleSlugs,
   getStaticPage,
+  getRestaurantSiblingCandidates,
 } from '../sanity.server'
 
 const mockFetch = vi.mocked(client.fetch)
@@ -92,5 +93,57 @@ describe('getStaticPage', () => {
   it('returns null when the page does not exist', async () => {
     mockFetch.mockResolvedValue(null as never)
     expect(await getStaticPage('missing', 'en')).toBeNull()
+  })
+})
+
+describe('getRestaurantSiblingCandidates', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns bounded tail + wrap windows from one card-only query', async () => {
+    mockFetch.mockResolvedValue({
+      bezirkAfter: [{ _id: 'b1', name: 'B1', slug: 'b1' }],
+      bezirkWrap: [
+        { _id: 'b2', name: 'B2', slug: 'b2' },
+        { _id: 'b3', name: 'B3', slug: 'b3' },
+        { _id: 'b4', name: 'B4', slug: 'b4' },
+      ],
+      categoryAfter: [
+        { _id: 'c1', name: 'C1', slug: 'c1' },
+        { _id: 'c2', name: 'C2', slug: 'c2' },
+      ],
+      categoryWrap: [{ _id: 'c3', name: 'C3', slug: 'c3' }],
+    } as never)
+
+    const result = await getRestaurantSiblingCandidates({
+      selfSlug: 'self',
+      selfName: 'Self',
+      bezirkSlug: 'mitte',
+      categorySlug: 'dinner',
+      bezirkLimit: 3,
+      categoryLimit: 6,
+    })
+
+    expect(result.bezirk.map((row) => row.slug)).toEqual(['b1', 'b2', 'b3'])
+    expect(result.category.map((row) => row.slug)).toEqual(['c1', 'c2', 'c3'])
+    expect(mockFetch).toHaveBeenCalledOnce()
+
+    const [query, params, options] = mockFetch.mock.calls[0]
+    expect(query).toContain('[0...$bezirkLimit]')
+    expect(query).toContain('[0...$categoryLimit]')
+    expect(query).not.toContain('shortDescription')
+    expect(params).toEqual({
+      selfSlug: 'self',
+      selfName: 'Self',
+      bezirkSlug: 'mitte',
+      categorySlug: 'dinner',
+      bezirkLimit: 3,
+      categoryLimit: 6,
+    })
+    expect(options).toMatchObject({
+      next: {
+        revalidate: 3600,
+        tags: ['restaurant-siblings', 'bezirk:mitte', 'category:dinner'],
+      },
+    })
   })
 })

@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { loadAnalytics, trackEvent } from '@/lib/analytics'
+import { getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics'
 
 function PageViewInner() {
   const pathname = usePathname()
@@ -11,9 +11,10 @@ function PageViewInner() {
 
   useEffect(() => {
     loadAnalytics()
+    const { pageLocation, pagePath } = getAnalyticsPageLocation(window.location.href)
     trackEvent('page_view', {
-      page_location: window.location.href,
-      page_path: query ? `${pathname}?${query}` : pathname,
+      page_location: pageLocation,
+      page_path: pagePath,
       page_title: document.title,
     })
   }, [pathname, query])

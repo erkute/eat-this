@@ -4,6 +4,12 @@ import createNextIntlPlugin from 'next-intl/plugin';
 import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+const firebaseAuthProjectId =
+  process.env.NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID || 'eat-this-8a13b';
+
+if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(firebaseAuthProjectId)) {
+  throw new Error('Invalid NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID');
+}
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -24,9 +30,13 @@ const nextConfig: NextConfig = {
     // Keep Next's default optimizer so local assets receive real responsive
     // variants. Sanity URLs are valid remote sources and are cached by the
     // same optimizer; raw <img> call sites use sanityImageLoader directly.
-    // Local next/image assets all live below /pics. Omitting `search` keeps
-    // cache-bust queries such as card-back.webp?v=6 valid.
-    localPatterns: [{ pathname: '/pics/**' }],
+    // Local next/image assets live below /pics plus the checkout logo set.
+    // Omitting `search` keeps cache-bust queries such as card-back.webp?v=6
+    // valid.
+    localPatterns: [
+      { pathname: '/pics/**' },
+      { pathname: '/payment/**' },
+    ],
     remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
 
@@ -82,6 +92,7 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
         ],
       },
@@ -98,7 +109,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/__/:path*',
-        destination: 'https://eat-this-8a13b.firebaseapp.com/__/:path*',
+        destination: `https://${firebaseAuthProjectId}.firebaseapp.com/__/:path*`,
       },
     ];
   },

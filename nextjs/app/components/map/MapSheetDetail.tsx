@@ -17,7 +17,7 @@ type CommonProps = {
 type MustEatProps = CommonProps & {
   kind: 'mustEat'
   mustEat: MapMustEat
-  onUnlock: () => void
+  onUnlock: () => Promise<boolean>
   onClose: () => void
   onViewRestaurant: () => void
   prevMustEat: MapMustEat | null

@@ -70,17 +70,15 @@ export async function POST(req: NextRequest) {
   const db = getAdminFirestore()
 
   try {
-    // Anti-farming: count the referrals this inviter has already been rewarded
-    // for ('invited' bonus docs; the inviter's own 'invited-by' doc is excluded
-    // by the source filter). Past the cap the friend still gets their welcome
-    // bonus below — only the inviter-side reward is withheld. Approximate under
-    // concurrency (count reads before the award transaction), which is fine for
-    // an abuse ceiling. Single-field equality → served by the automatic index,
-    // no composite index needed.
+    // Seed for the shared inviter counter introduced after the first referral
+    // implementation. The cap decision itself happens inside the transaction
+    // below; this aggregate is used only if the counter does not exist yet.
+    // Concurrent first writes all contend on the same counter document, so a
+    // retry observes the value installed by the winning transaction.
     const inviterBonuses = db
       .collection('users').doc(inviterUid).collection('referralBonuses')
     const awarded = await inviterBonuses.where('source', '==', 'invited').count().get()
-    const inviterAtCap = awarded.data().count >= MAX_REFERRALS_PER_INVITER
+    const legacyAwardedCount = awarded.data().count
 
     const { restaurants: all, mustEats: allMustEats } = await getCachedMapData()
     const allIds = all.map((r) => r._id)
@@ -117,26 +115,48 @@ export async function POST(req: NextRequest) {
       .collection('users').doc(friendUid).collection('referralBonuses').doc('invited-by')
     const inviterDocRef = db
       .collection('users').doc(inviterUid).collection('referralBonuses').doc(`invited-${friendUid}`)
+    const inviterCounterRef = db.doc(`users/${inviterUid}/referralStats/inviter`)
 
     // The deterministic friend document is the idempotency lock. Reading and
     // creating it inside one transaction prevents parallel confirm requests
-    // from awarding the same signup more than once.
+    // from awarding the same signup more than once. Every inviter-side award
+    // also reads and updates one shared counter document, which serializes
+    // different friends racing for the final available slots.
     await db.runTransaction(async (tx) => {
-      const existing = await tx.get(friendDocRef)
+      const [existing, counter] = await Promise.all([
+        tx.get(friendDocRef),
+        tx.get(inviterCounterRef),
+      ])
       if (existing.exists) return
+
+      const storedCount = counter.exists ? counter.data()?.awardedCount : undefined
+      const awardedCount = typeof storedCount === 'number'
+        && Number.isInteger(storedCount)
+        && storedCount >= 0
+        ? storedCount
+        : legacyAwardedCount
+      const awardInviter = inviterPicks.length > 0
+        && awardedCount < MAX_REFERRALS_PER_INVITER
+
       tx.set(friendDocRef, {
         restaurantIds: friendPicks,
         source: 'invited-by',
         partnerUid: inviterUid,
         createdAt: FieldValue.serverTimestamp(),
       })
-      if (inviterPicks.length > 0 && !inviterAtCap) {
+      if (awardInviter) {
         tx.set(inviterDocRef, {
           restaurantIds: inviterPicks,
           source: 'invited',
           partnerUid: friendUid,
           createdAt: FieldValue.serverTimestamp(),
         })
+      }
+      if (inviterPicks.length > 0 && (!counter.exists || awardInviter)) {
+        tx.set(inviterCounterRef, {
+          awardedCount: awardedCount + (awardInviter ? 1 : 0),
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true })
       }
     })
 

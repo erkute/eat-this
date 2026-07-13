@@ -8,10 +8,12 @@ const mockTransactionGet    = vi.fn()
 const mockTransactionSet    = vi.fn()
 const mockRunTransaction    = vi.fn()
 const mockCount             = vi.fn()
+const mockDoc               = vi.fn((path: string) => ({ path }))
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({ verifyIdToken: mockVerifyIdToken, getUser: mockGetUser }),
   getAdminFirestore: () => ({
+    doc: mockDoc,
     collection: () => ({
       doc: () => ({
         collection: () => ({
@@ -108,7 +110,7 @@ describe('/api/referral/confirm', () => {
     primeHappyPath()
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(3)
     expect(mockRunTransaction).toHaveBeenCalledTimes(1)
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
@@ -190,7 +192,7 @@ describe('/api/referral/confirm', () => {
 
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(3)
 
     // First transaction.set call is always the friend doc (source: 'invited-by')
     const friendDoc = mockTransactionSet.mock.calls[0][1] as { restaurantIds: string[]; source: string }
@@ -225,14 +227,16 @@ describe('/api/referral/confirm', () => {
 
   it('inviter at farming cap → friend doc still written, inviter doc withheld', async () => {
     primeHappyPath()
-    // 25 awarded referrals already → at the cap (MAX_REFERRALS_PER_INVITER).
+    // 25 legacy awards seed the shared counter at the cap.
     mockCount.mockResolvedValue({ data: () => ({ count: 25 }) })
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    // Only the friend's welcome bonus is written; the inviter-side reward stops.
-    expect(mockTransactionSet).toHaveBeenCalledTimes(1)
+    // The friend's welcome bonus and initial counter are written; no
+    // inviter-side reward is created.
+    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
     const friendDoc = mockTransactionSet.mock.calls[0][1] as { source: string }
     expect(friendDoc.source).toBe('invited-by')
+    expect(mockTransactionSet.mock.calls[1][1]).toMatchObject({ awardedCount: 25 })
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
@@ -241,6 +245,27 @@ describe('/api/referral/confirm', () => {
     mockCount.mockResolvedValue({ data: () => ({ count: 24 }) })
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(3)
+    expect(mockTransactionSet.mock.calls[2][0]).toEqual({
+      path: `users/${INVITER}/referralStats/inviter`,
+    })
+    expect(mockTransactionSet.mock.calls[2][1]).toMatchObject({ awardedCount: 25 })
+  })
+
+  it('uses the shared transactional counter for the cap decision', async () => {
+    primeHappyPath()
+    // The legacy aggregate is stale/below cap. The transaction sees the
+    // serialized counter at 25 and must withhold the inviter award.
+    mockCount.mockResolvedValue({ data: () => ({ count: 0 }) })
+    mockTransactionGet.mockImplementation(async (ref: { path?: string }) =>
+      ref.path?.endsWith('/referralStats/inviter')
+        ? { exists: true, data: () => ({ awardedCount: 25 }) }
+        : { exists: false },
+    )
+
+    const res = await POST(mkReq(INVITER))
+    expect(res.status).toBe(200)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(1)
+    expect(mockTransactionSet.mock.calls[0][1]).toMatchObject({ source: 'invited-by' })
   })
 })

@@ -30,8 +30,10 @@ export async function sendMagicLinkEmail(params: {
   continueUrl: string;
   /** Public base URL for email artwork. */
   appUrl: string;
+  /** Stable logical-send key for retry-safe trusted callers. */
+  idempotencyKey?: string;
 }): Promise<SendMagicLinkResult> {
-  const { email, continueUrl, appUrl } = params;
+  const { email, continueUrl, appUrl, idempotencyKey } = params;
 
   // The continue URL doubles as the cross-browser email carrier: /welcome
   // reads `e` to complete the sign-in when the link opens in a browser that
@@ -78,12 +80,27 @@ export async function sendMagicLinkEmail(params: {
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
   const fromName  = process.env.RESEND_FROM_NAME  || 'Eat This';
+  const stagingRecipient = process.env.STAGING_EMAIL_RECIPIENT;
+  if (process.env.NEXT_PUBLIC_ENV === 'staging' && !stagingRecipient) {
+    console.error('[sendMagicLink] STAGING_EMAIL_RECIPIENT missing');
+    return { ok: false, error: 'email-misconfigured' };
+  }
+  // Staging may generate links for arbitrary guest test identities, but the
+  // message itself is delivered only to the explicitly configured sink/test
+  // inbox. This prevents a staging smoke test from mailing real customers.
+  const recipient = process.env.NEXT_PUBLIC_ENV === 'staging'
+    ? stagingRecipient!
+    : email;
 
-  // Curated spots are a nice-to-have — never block the login email on Sanity.
-  const restaurants = await getEmailSpots(4).catch((err) => {
-    console.error('[sendMagicLink] getEmailSpots failed:', err);
-    return [];
-  });
+  // Staging's dynamic card renderer remains behind Basic Auth, so external
+  // mail clients cannot fetch it. Keep staging messages self-contained and
+  // avoid a read dependency on the production image endpoint.
+  const restaurants = process.env.NEXT_PUBLIC_ENV === 'staging'
+    ? []
+    : await getEmailSpots(4).catch((err) => {
+        console.error('[sendMagicLink] getEmailSpots failed:', err);
+        return [];
+      });
 
   const html = await render(
     MagicLinkEmail({ magicLink, appUrl, restaurants, returning })
@@ -92,16 +109,26 @@ export async function sendMagicLinkEmail(params: {
 
   try {
     const resend = new Resend(resendKey);
-    const result = await resend.emails.send({
-      from:    `${fromName} <${fromEmail}>`,
-      to:      email,
-      subject: 'Dein Login-Link für Eat This',
-      html,
-      text,
-      replyTo: fromEmail,
-    });
+    const result = await resend.emails.send(
+      {
+        from:    `${fromName} <${fromEmail}>`,
+        to:      recipient,
+        subject: 'Dein Login-Link für Eat This',
+        html,
+        text,
+        replyTo: fromEmail,
+      },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
 
     if (result.error) {
+      // A retry regenerates the Firebase action link, so Resend sees a
+      // different payload for the same logical key. This response proves the
+      // original request was already accepted; treat it as delivered and let
+      // the caller persist its outbox marker.
+      if (idempotencyKey && result.error.name === 'invalid_idempotent_request') {
+        return { ok: true };
+      }
       console.error('[sendMagicLink] resend error:', result.error);
       return { ok: false, error: 'send-failed' };
     }

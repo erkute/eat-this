@@ -2,7 +2,17 @@ import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
-import { assembleAndWriteEntitlement, findOrCreateUserByEmail } from '@/lib/stripe-fulfill'
+import {
+  assembleAndWriteEntitlement,
+  findOrCreateUserByEmail,
+  markGuestMagicLinkSent,
+  type FulfillmentResult,
+} from '@/lib/stripe-fulfill'
+import {
+  CheckoutSessionIntegrityError,
+  paymentIntentId,
+  retrieveVerifiedCheckoutSession,
+} from '@/lib/stripe-session'
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink'
 import { getAppUrl } from '@/lib/constants'
 
@@ -13,20 +23,49 @@ export const dynamic = 'force-dynamic'
 // can sign in and access their freshly-attached entitlement. We call the
 // shared sender DIRECTLY (not the public /api/auth/send-magic-link route) so
 // this trusted, Stripe-signature-verified path isn't subject to the route's
-// shared-IP rate limit. Delivery errors are caught here so they don't make
-// Stripe retry an otherwise fulfilled purchase.
-async function triggerGuestMagicLink(email: string, locale: 'de' | 'en') {
+// shared-IP rate limit. Delivery failures throw so Stripe retries until the
+// session-scoped email outbox marker has been persisted.
+async function triggerGuestMagicLink(
+  email: string,
+  locale: 'de' | 'en',
+  stripeSessionId: string,
+) {
   const origin = getAppUrl()
   const continueUrl = locale === 'en' ? `${origin}/en/profile` : `${origin}/profile`
 
-  try {
-    const result = await sendMagicLinkEmail({ email, continueUrl, appUrl: origin })
-    if (!result.ok) {
-      Sentry.captureMessage(`webhook magic-link send failed: ${result.error}`, 'error')
-    }
-  } catch (err) {
-    Sentry.captureException(err, { extra: { email, source: 'webhook-magic-link' } })
+  const result = await sendMagicLinkEmail({
+    email,
+    continueUrl,
+    appUrl: origin,
+    idempotencyKey: `stripe-guest-magic-link/${stripeSessionId}`,
+  })
+  if (!result.ok) {
+    throw new Error(`webhook magic-link send failed: ${result.error}`)
   }
+}
+
+async function refundDuplicateSession(
+  session: Stripe.Checkout.Session,
+  result: Extract<FulfillmentResult, { status: 'exists' }>,
+) {
+  const paymentIntent = paymentIntentId(session)
+  if (!paymentIntent) {
+    throw new Error(`duplicate paid session has no payment intent: ${session.id}`)
+  }
+
+  await getStripe().refunds.create(
+    {
+      payment_intent: paymentIntent,
+      reason: 'duplicate',
+      metadata: {
+        reason: 'duplicate_entitlement',
+        checkoutSessionId: session.id,
+        existingPackId: result.existingPackId,
+      },
+    },
+    { idempotencyKey: `duplicate-entitlement-refund:${session.id}` },
+  )
+  Sentry.captureMessage(`Duplicate Stripe purchase refunded: ${session.id}`, 'warning')
 }
 
 export async function POST(req: Request) {
@@ -55,23 +94,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true, ignored: event.type }, { status: 200 })
   }
 
-  const session = event.data.object as Stripe.Checkout.Session
-  const meta    = (session.metadata ?? {}) as {
-    uid?: string
-    packId?: string
-    mode?: 'auth' | 'guest'
-    locale?: 'de' | 'en'
+  const eventSession = event.data.object as Stripe.Checkout.Session
+  let verified
+  try {
+    verified = await retrieveVerifiedCheckoutSession(eventSession.id)
+  } catch (err) {
+    if (err instanceof CheckoutSessionIntegrityError) {
+      Sentry.captureMessage(
+        `Rejected Stripe Checkout session ${eventSession.id}: ${err.reason}`,
+        'error',
+      )
+      return NextResponse.json(
+        { received: true, rejected: 'session_integrity' },
+        { status: 200 },
+      )
+    }
+    Sentry.captureException(err, { extra: { event: event.id, sessionId: eventSession.id } })
+    return NextResponse.json({ error: 'session_retrieval_failed' }, { status: 500 })
   }
-  if (!meta.packId) {
-    Sentry.captureMessage(`webhook missing packId: ${event.id}`, 'error')
-    return NextResponse.json({ error: 'missing_packId' }, { status: 400 })
-  }
+  const { session, pack, mode, locale } = verified
 
   // Async methods (Klarna, SEPA) fire checkout.session.completed while the
   // money hasn't cleared yet (payment_status: 'unpaid'). Fulfilling here
   // would hand out the entitlement for a payment that can still fail —
-  // wait for checkout.session.async_payment_succeeded instead (the polling
-  // fallback in /api/stripe/fulfill applies the same gate).
+  // wait for checkout.session.async_payment_succeeded instead.
   if (session.payment_status !== 'paid') {
     return NextResponse.json(
       { received: true, pending: session.payment_status },
@@ -82,7 +128,7 @@ export async function POST(req: Request) {
   // Resolve uid. Authed flow: metadata.uid is set at session creation.
   // Guest flow: pull the email Stripe collected and find-or-create the
   // Firebase Auth shell account.
-  let uid = meta.uid && meta.uid.length > 0 ? meta.uid : null
+  let uid = verified.uid
   const guestEmail = session.customer_details?.email ?? null
   if (!uid) {
     if (!guestEmail) {
@@ -100,19 +146,45 @@ export async function POST(req: Request) {
   try {
     const result = await assembleAndWriteEntitlement({
       uid,
-      packId:          meta.packId,
+      packId:          pack.packId,
       stripeSessionId: session.id,
     })
 
-    // Mail the magic-link only for guest purchases — authed users already
-    // have a session and will see the entitlement next page-load.
-    if (meta.mode === 'guest' && guestEmail) {
-      await triggerGuestMagicLink(guestEmail, meta.locale === 'en' ? 'en' : 'de')
+    // Same-session retries are a normal Stripe delivery pattern. A different
+    // paid session for an already-covered entitlement is a real duplicate
+    // charge, so refund it in full with a session-scoped idempotency key.
+    if (
+      result.status === 'exists' &&
+      result.existingStripeSessionId !== session.id
+    ) {
+      await refundDuplicateSession(session, result)
+      return NextResponse.json(
+        { received: true, result: 'duplicate_refunded' },
+        { status: 200 },
+      )
     }
 
-    return NextResponse.json({ received: true, result }, { status: 200 })
+    // Retry a guest email until both Resend and the entitlement outbox marker
+    // succeed. Resend's session-scoped idempotency key prevents duplicates;
+    // the persisted marker also suppresses Stripe retries after its 24h key
+    // retention window.
+    const guestMailPending = result.status === 'created' || (
+      result.existingStripeSessionId === session.id && !result.guestMagicLinkSent
+    )
+    if (guestMailPending && mode === 'guest' && guestEmail) {
+      await triggerGuestMagicLink(guestEmail, locale, session.id)
+      await markGuestMagicLinkSent({
+        uid,
+        packId: pack.packId,
+        stripeSessionId: session.id,
+      })
+    }
+
+    return NextResponse.json({ received: true, result: result.status }, { status: 200 })
   } catch (err) {
-    Sentry.captureException(err, { extra: { event: event.id, meta } })
+    Sentry.captureException(err, {
+      extra: { event: event.id, packId: pack.packId, sessionId: session.id, mode },
+    })
     return NextResponse.json({ error: 'fulfill_failed', message: (err as Error).message }, { status: 500 })
   }
 }

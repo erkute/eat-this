@@ -11,6 +11,19 @@ interface AnalyticsWindow extends Window {
 
 const GA_ID = 'G-8EWFYGPNTT'
 const HANDOFF_KEY = 'eatthis_analytics_handoff'
+const SENSITIVE_QUERY_PARAMS = ['session_id']
+
+export function getAnalyticsPageLocation(href: string): {
+  pageLocation: string
+  pagePath: string
+} {
+  const url = new URL(href)
+  for (const name of SENSITIVE_QUERY_PARAMS) url.searchParams.delete(name)
+  return {
+    pageLocation: url.toString(),
+    pagePath: `${url.pathname}${url.search}`,
+  }
+}
 
 function analyticsWindow(): AnalyticsWindow | null {
   return typeof window === 'undefined' ? null : (window as AnalyticsWindow)

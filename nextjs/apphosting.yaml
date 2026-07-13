@@ -12,6 +12,30 @@ env:
       - BUILD
       - RUNTIME
 
+  # Public editorial Sanity source. Premium Must-Eat fields are not stored in
+  # this dataset; they live in project-local Firestore/Cloud Storage.
+  - variable: SANITY_PROJECT_ID
+    value: ehwjnjr2
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SANITY_DATASET
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Fail-closed guard for App Hosting's injected Admin + browser SDK config.
+  - variable: FIREBASE_EXPECTED_PROJECT_ID
+    value: eat-this-8a13b
+    availability:
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID
+    value: eat-this-8a13b
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: SANITY_REVALIDATE_SECRET
     secret: SANITY_REVALIDATE_SECRET
     availability:
@@ -30,17 +54,12 @@ env:
     value: Eat This
     availability:
       - RUNTIME
-  # Firebase Admin SDK (server-side magic link generation)
-  - variable: FIREBASE_ADMIN_PROJECT_ID
-    value: eat-this-8a13b
-    availability:
-      - RUNTIME
-  - variable: FIREBASE_ADMIN_CLIENT_EMAIL
-    secret: FIREBASE_ADMIN_CLIENT_EMAIL
-    availability:
-      - RUNTIME
-  - variable: FIREBASE_ADMIN_PRIVATE_KEY
-    secret: FIREBASE_ADMIN_PRIVATE_KEY
+  # Firebase Admin uses App Hosting's project-local service account through
+  # Application Default Credentials. Do not add reusable private keys here.
+
+  # HMAC key for the short-lived HttpOnly premium-image capability cookie.
+  - variable: PREMIUM_ACCESS_SIGNING_KEY
+    secret: PREMIUM_ACCESS_SIGNING_KEY
     availability:
       - RUNTIME
 

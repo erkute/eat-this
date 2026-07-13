@@ -7,6 +7,7 @@ import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
+import { getLocalizedNewsMetadata } from '@/lib/news-metadata'
 import NewsArticleShell from '@/app/components/NewsArticleShell'
 
 interface PageProps {
@@ -28,11 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!a) return {}
 
   const de = locale === 'de'
-  const title = a.seo?.metaTitle || (de ? a.titleDe || a.title : a.title)
-  const description =
-    a.seo?.metaDescription ||
-    (de ? a.excerptDe || a.excerpt : a.excerpt) ||
-    ''
+  const { title, description } = getLocalizedNewsMetadata(a, locale)
   const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0]
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
@@ -96,9 +93,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
         image: a.imageUrl,
         datePublished: a.date,
         dateModified: a.date,
-        author: a.author?.name
-          ? { '@type': 'Person', name: a.author.name }
-          : { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
+        author: { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
         publisher: {
           '@type': 'Organization',
           name: 'Eat This Berlin',

@@ -14,7 +14,8 @@ function vibrateRevealReady() {
 interface Args {
   mustEat: MapMustEat
   userLocation: UserLocation | null
-  onUnlock: () => void
+  /** Persist the unlock and report whether the server returned the full card. */
+  onUnlock: () => Promise<boolean>
   // Anon visitors must not enter the reveal-overlay path — the overlay
   // doesn't (and shouldn't) advance phases without a signed-in user. An
   // in-range guest tap routes to login instead (see onRequireLogin).
@@ -47,13 +48,20 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
       : Math.max(0.18, Math.min(1, 1 - distance / 500))
 
   const [tapping, setTapping] = useState(false)
+  const [unlockingId, setUnlockingId] = useState<string | null>(null)
+  const [unlockErrorId, setUnlockErrorId] = useState<string | null>(null)
+  const unlockingRef = useRef(false)
+  const currentMustEatIdRef = useRef(mustEat._id)
+  currentMustEatIdRef.current = mustEat._id
+  const unlocking = unlockingId === mustEat._id
+  const unlockError = unlockErrorId === mustEat._id
 
   // While `revealOrigin` is set, the body-portaled overlay takes over the
   // unlock moment — the inline locked card is hidden so it visually morphs
   // into the overlay instead of duplicating it.
   const [revealOrigin, setRevealOrigin] = useState<DOMRect | null>(null)
 
-  const handleCardClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCardClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     // Demo: play the animation only, no unlock/persist side effects.
     if (demo) {
       vibrateRevealReady()
@@ -61,16 +69,39 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
       return
     }
     if (canUnlock && isAuthed) {
-      vibrateRevealReady()
-      trackEvent('must_eat_reveal_attempt', {
-        must_eat_id: mustEat._id,
-        restaurant_id: mustEat.restaurant._id,
-        result: 'unlocked',
-        distance_meters: distance === null ? -1 : Math.round(distance),
-      })
+      if (unlockingRef.current) return
+      unlockingRef.current = true
+      const mustEatId = mustEat._id
+      setUnlockingId(mustEatId)
+      setUnlockErrorId(null)
       const rect = e.currentTarget.getBoundingClientRect()
-      setRevealOrigin(rect)
-      onUnlock()
+      try {
+        const persisted = await onUnlock()
+        // Paging can replace the selected card while the request is in flight.
+        // Never animate the old card's origin onto a new detail.
+        if (currentMustEatIdRef.current !== mustEatId) return
+        if (!persisted) throw new Error('Must Eat unlock was not persisted')
+        vibrateRevealReady()
+        trackEvent('must_eat_reveal_attempt', {
+          must_eat_id: mustEatId,
+          restaurant_id: mustEat.restaurant._id,
+          result: 'unlocked',
+          distance_meters: distance === null ? -1 : Math.round(distance),
+        })
+        setRevealOrigin(rect)
+      } catch {
+        if (currentMustEatIdRef.current !== mustEatId) return
+        trackEvent('must_eat_reveal_attempt', {
+          must_eat_id: mustEatId,
+          restaurant_id: mustEat.restaurant._id,
+          result: 'failed',
+          distance_meters: distance === null ? -1 : Math.round(distance),
+        })
+        setUnlockErrorId(mustEatId)
+      } finally {
+        unlockingRef.current = false
+        setUnlockingId((activeId) => (activeId === mustEatId ? null : activeId))
+      }
       return
     }
     // In range but not signed in: the reveal is earned — route to login so it
@@ -123,6 +154,8 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
     canUnlock,
     vibrateIntensity,
     tapping,
+    unlocking,
+    unlockError,
     revealOrigin,
     zoomRect,
     zoomActive,

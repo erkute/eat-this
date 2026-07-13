@@ -82,24 +82,22 @@ export interface Restaurant {
 
 interface NewsArticleSeo {
   metaTitle?: string
+  metaTitleEn?: string
   metaDescription?: string
+  metaDescriptionEn?: string
   ogImageUrl?: string
   noIndex?: boolean
 }
 
 export type PortableTextBlock = { _type: string; _key?: string } & Record<string, unknown>
 
-// Inline "Must Eat" block embedded in article Portable Text (resolved in
-// articleBySlugQuery). Carries the dish + its restaurant for the inline card
-// and the derived "Spots im Artikel" grid / spotrail.
+// Inline Must-Eat teaser embedded in article Portable Text. Public article
+// queries resolve only safe restaurant metadata; premium dish fields stay in
+// the private store.
 export interface MustEatCardBlock {
   _type: 'mustEatCard'
   _key?: string
   mustEatId?: string
-  dish?: string
-  dishDescription?: string
-  dishDescriptionEn?: string
-  dishImage?: string
   restaurantName?: string
   restaurantSlug?: string
   district?: string
@@ -120,26 +118,11 @@ export interface SpotCardBlock {
   restaurantPhoto?: string
 }
 
-// A unique restaurant referenced by an article (derived from its mustEatCard
-// and spotCard blocks) — feeds the "Spots im Artikel" grid + spotrail.
-export interface ArticleSpot {
-  name: string
-  slug?: string
-  district?: string
-  cuisineType?: string
-  photo?: string
-}
-
-interface NewsArticleAuthor {
-  name: string
-  slug?: string
-  photo?: string
-}
-
 export interface NewsArticle {
   _id: string
   slug: string
   title: string
+  titleEn?: string
   titleDe?: string
   category?: string
   categoryLabel?: string
@@ -151,7 +134,6 @@ export interface NewsArticle {
   excerptDe?: string
   content?: PortableTextBlock[]
   contentDe?: PortableTextBlock[]
-  author?: NewsArticleAuthor
   seo?: NewsArticleSeo
 }
 

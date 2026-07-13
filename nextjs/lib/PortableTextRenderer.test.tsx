@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { PortableTextRenderer, extractArticleSpots } from './PortableTextRenderer'
+import { PortableTextRenderer } from './PortableTextRenderer'
 import type { PortableTextBlock, SpotCardBlock } from './types'
 
 function render(blocks: PortableTextBlock[]): string {
@@ -98,24 +98,7 @@ describe('PortableTextRenderer links', () => {
   })
 })
 
-describe('extractArticleSpots with spotCard', () => {
-  it('reads a spotCard block as an article spot', () => {
-    const spots = extractArticleSpots([spotCard()])
-    expect(spots).toHaveLength(1)
-    expect(spots[0]).toMatchObject({ name: 'SOFI', slug: 'sofi', district: 'Mitte', cuisineType: 'Bakery', photo: 'https://cdn/sofi.jpg' })
-  })
-
-  it('dedupes spotCard + mustEatCard by slug, first occurrence wins', () => {
-    const mustEat = { _type: 'mustEatCard', _key: 'me1', restaurantName: 'SOFI', restaurantSlug: 'sofi', district: 'Mitte' } as unknown as PortableTextBlock
-    const spots = extractArticleSpots([mustEat, spotCard(), spotCard({ restaurantSlug: 'albatross-baeckerei', restaurantName: 'Albatross' })])
-    expect(spots.map((s) => s.slug)).toEqual(['sofi', 'albatross-baeckerei'])
-  })
-
-  it('skips spotCard without a restaurantName', () => {
-    const spots = extractArticleSpots([spotCard({ restaurantName: undefined })])
-    expect(spots).toHaveLength(0)
-  })
-
+describe('PortableTextRenderer spotCard blocks', () => {
   it('renders a spotCard inline as a map link when renderSpotCard is provided', () => {
     const html = renderToStaticMarkup(
       <PortableTextRenderer blocks={[spotCard()]} renderSpotCard={(b) => <a href={`/map?r=${b.restaurantSlug}`} rel="nofollow">{b.restaurantName}</a>} />,

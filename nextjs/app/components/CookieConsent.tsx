@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
-import { loadAnalytics, trackEvent } from '@/lib/analytics';
+import { getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
 // stays close to what's actually loaded by the site, and DE is properly
@@ -158,11 +158,12 @@ export default function CookieConsent() {
     setExpanded(false);
     setTimeout(() => {
       loadAnalytics();
+      const { pageLocation, pagePath } = getAnalyticsPageLocation(window.location.href);
       // The route-level page-view effect ran before consent and correctly
       // dropped that event. Count the page where consent was granted now.
       trackEvent('page_view', {
-        page_location: window.location.href,
-        page_path: `${window.location.pathname}${window.location.search}`,
+        page_location: pageLocation,
+        page_path: pagePath,
         page_title: document.title,
       });
     }, 600);

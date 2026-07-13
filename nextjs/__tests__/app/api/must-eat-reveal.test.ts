@@ -10,7 +10,21 @@ vi.mock('@/lib/firebase/admin', () => ({
 }))
 
 vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
+  getUnlockedMustEatIds: vi.fn().mockResolvedValue(new Set<string>()),
   unlockMustEat: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('@/lib/must-eat/private-store', () => ({
+  hydrateAuthorizedMustEats: vi.fn(async (mustEats: Record<string, unknown>[]) =>
+    mustEats.map((mustEat) => ({
+      ...mustEat,
+      dish: 'Dish m1',
+      image: '/api/must-eat-image/m1',
+    }))),
+}))
+
+vi.mock('@/lib/must-eat/premium-access', () => ({
+  setPremiumAccessCookie: vi.fn(),
 }))
 
 vi.mock('@/lib/firebase/entitlements', () => ({
@@ -39,8 +53,6 @@ import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server'
 
 const MUST_EAT = {
   _id: 'm1',
-  dish: 'Dish m1',
-  image: 'https://cdn.example/m1.jpg',
   restaurant: { _id: 'r1', name: 'R1', slug: 'r1' },
 }
 
@@ -127,7 +139,7 @@ describe('/api/must-eat-reveal', () => {
     expect(unlockMustEat).toHaveBeenCalledWith('test-uid', MUST_EAT)
     const json = await res.json()
     expect(json.mustEat.dish).toBe('Dish m1')
-    expect(json.mustEat.image).toBe('https://cdn.example/m1.jpg')
+    expect(json.mustEat.image).toBe('/api/must-eat-image/m1')
     expect(res.headers.get('Cache-Control')).toBe('private, no-store')
   })
 

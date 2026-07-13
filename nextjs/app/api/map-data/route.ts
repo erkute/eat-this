@@ -9,6 +9,11 @@ import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server'
 import { stripCoveredMustEats } from '@/lib/map/stripCoveredMustEats'
 import { stripLockedRestaurants } from '@/lib/map/stripLockedRestaurant'
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server'
+import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store'
+import {
+  clearPremiumAccessCookie,
+  setPremiumAccessCookie,
+} from '@/lib/must-eat/premium-access'
 
 // Per-user response. Disable framework-level caching; the expensive Sanity
 // fetch is shared via the module-level cache in cached-sanity.ts.
@@ -46,15 +51,21 @@ export async function GET(req: Request) {
   // Admin / all-berlin: full catalog, no filter, no reveal signal (signed
   // & paid users get individual reveals via Firestore unlockedMustEats).
   if (ent.isAdmin || ent.hasAllBerlin) {
+    if (!uid) {
+      return NextResponse.json({ error: 'auth required' }, { status: 401 })
+    }
+    const allIds = new Set(allMustEats.map((mustEat) => mustEat._id))
+    const hydratedMustEats = await hydrateAuthorizedMustEats(allMustEats, allIds)
     const res = NextResponse.json({
       restaurants: all,
-      mustEats: allMustEats,
+      mustEats: hydratedMustEats,
       categories,
       totalCount: all.length,
       lockedRestaurants: [],
-      revealedMustEatIds: [],
+      revealedMustEatIds: Array.from(allIds),
     })
     res.headers.set('Cache-Control', 'private, no-store')
+    setPremiumAccessCookie(res, allIds, uid)
     return res
   }
 
@@ -74,15 +85,24 @@ export async function GET(req: Request) {
     ...unlockedIds,
     ...ent.mustEatIds,
   ])
+  const hydratedMustEats = await hydrateAuthorizedMustEats(visible.mustEats, faceUpIds)
 
   const res = NextResponse.json({
     restaurants: visible.restaurants,
-    mustEats: stripCoveredMustEats(visible.mustEats, faceUpIds),
+    mustEats: stripCoveredMustEats(hydratedMustEats, faceUpIds),
     categories,
     totalCount: all.length,
     lockedRestaurants: stripLockedRestaurants(visible.lockedRestaurants),
-    revealedMustEatIds: Array.from(visible.revealedMustEatIds),
+    // Client face-up state must be identical to the IDs hydrated above.
+    // Otherwise purchased content reaches the browser but still renders as a
+    // covered card because entitlements are not duplicated into reveal docs.
+    revealedMustEatIds: Array.from(faceUpIds),
   })
   res.headers.set('Cache-Control', 'private, no-store')
+  if (uid) {
+    setPremiumAccessCookie(res, faceUpIds, uid)
+  } else {
+    clearPremiumAccessCookie(res)
+  }
   return res
 }

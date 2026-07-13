@@ -1,19 +1,17 @@
 'use client';
 
 /**
- * Renders the login modal portal and runs the pre-hydration auth-button sync.
+ * Renders the login modal portal and synchronizes the resolved auth state.
  * Modal open/close state lives in LoginModalContext; this component only
  * consumes it. Triggers come from SiteNav (header profile icon), BurgerDrawer
  * (login button), and MustEatTeaserSection (locked card click) via
  * useLoginModal().
  *
  * - localStorage._authHint: read by the inline CRITICAL_BOOTSTRAP in
- *   [locale]/layout.tsx to set the loginBtn text/state synchronously,
- *   before React hydrates, so the user never sees "Sign in" flash to
- *   "Hi <name>".
- * - #loginBtn DOM sync: the burger drawer's login button text and class
- *   need to update on auth state change. The button id is referenced by
- *   the bootstrap script too, hence the imperative DOM update here.
+ *   [locale]/layout.tsx only to set html[data-auth] before paint. The
+ *   bootstrap never changes React-owned text, because the hint may be stale.
+ * - #loginBtn DOM sync: after hydration, the burger drawer's login button
+ *   text and class update with the verified Firebase auth state.
  */
 
 import { useEffect } from 'react';

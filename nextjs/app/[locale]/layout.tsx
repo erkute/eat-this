@@ -28,9 +28,10 @@ export function generateStaticParams() {
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
 // like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
-// and applies the _authHint pre-hydration
-// login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
-// blocks can hide before paint.
+// and applies the _authHint pre-hydration data-auth flag on <html> so
+// signed-in-only/anon-only blocks can hide before paint. It deliberately does
+// not mutate React-owned text: a stale hint must never create a hydration
+// mismatch before Firebase resolves the real identity.
 const CRITICAL_BOOTSTRAP = `(function(){
   var extensionAttrs=['bis_skin_checked'];
   function cleanExtensionAttrs(root){try{if(!root||root.nodeType!==1)return;for(var i=0;i<extensionAttrs.length;i++)root.removeAttribute(extensionAttrs[i]);var nodes=root.querySelectorAll?root.querySelectorAll('[bis_skin_checked]'):[];for(var j=0;j<nodes.length;j++){for(var k=0;k<extensionAttrs.length;k++)nodes[j].removeAttribute(extensionAttrs[k]);}}catch(_){}}
@@ -44,7 +45,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
-  try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.documentElement.setAttribute('data-auth','1');document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=(location.pathname==='/en'||location.pathname.indexOf('/en/')===0)?'Profile':'Profil';});}}catch(_){}
+  try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}
 }());`;
 
 // Sitewide Organization + WebSite schema. The Organization.logo is the

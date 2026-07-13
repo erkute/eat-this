@@ -121,6 +121,36 @@ Sie gehen nur an den Test-Sink, enthalten keine dynamischen Spot-Karten und
 laden ihre statischen Mail-Assets vom Staging-Host; es gibt keinen Fallback
 auf den Production-Host.
 
+## Ausgeführte Staging-Isolation
+
+Am 13.07.2026 wurden die folgenden getrennten Ressourcen angelegt und
+verifiziert. In diesem Protokoll stehen bewusst nur öffentliche IDs und
+Metadaten, niemals Secret-Werte:
+
+- Firebase-Projekt `eat-this-staging-8a13b` mit eigener Web-App, eigenem
+  App-Hosting-Backend `eat-this-staging`, eigenem Compute-Service-Account,
+  Firestore `(default)`, Storage und Firebase Auth
+- Staging-URL
+  `https://eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app`
+- Sanity-Projekt `tqgkp8uc` mit privatem Dataset `staging` und eigenem
+  read-only Runtime-Token
+- separates Stripe-Test-Webhook, ausschließlich für die Staging-URL, und zehn
+  aktive Test-Prices mit den vom Code erwarteten Lookup-Keys
+- separater Resend-Key mit reiner Sendeberechtigung, auf die verifizierte
+  Absenderdomain beschränkt; alle Staging-E-Mails werden zusätzlich auf einen
+  einzigen Test-Sink umgeleitet
+- separater Anthropic-Key `Eat This Isolated Staging`, 30 Tage gültig
+- separates Voyage-Projekt `Eat This Isolated Staging` mit eigenem Runtime-Key
+- separates Sentry-Projekt `javascript-staging` mit eigener DSN und einem auf
+  `org:ci` beschränkten Source-Map-/Release-Token
+
+Alle in `apphosting.staging.yaml` referenzierten Staging-Secrets existieren im
+neuen Firebase-Projekt und haben eigene Secret-Versionen. Production-Secrets
+wurden weder in den Staging-Build übernommen noch als Ersatz für fehlende
+Staging-Zugänge verwendet. Die Ausnahme ist der Stripe-Testmodus: Der bereits
+vorhandene Test-Key wurde in ein neues Secret-Objekt des neuen Firebase-
+Projekts übertragen; ein Live-Key wurde nicht verwendet.
+
 ## Migration und Backfill
 
 Der lokale Befehl `npm run premium:migrate -- ...` hat vier Modi. Alle Befehle
@@ -182,40 +212,69 @@ gelöscht werden; dieser irreversible externe Schritt darf nicht stillschweigend
 
 ### Staging
 
-1. Eigenes Firebase-Projekt und Backend mit Branch `staging` anlegen und
-   Billing/App Hosting aktivieren.
-2. Eigenes Sanity-Staging-Projekt und Dataset vorbereiten. Damit Premium-Felder
-   und -Assets dort zu keinem Zeitpunkt landen, den Sanity-Export auf die
-   öffentlichen Dokumenttypen begrenzen:
+1. Eigenes Firebase-Projekt und Backend anlegen und Billing/App Hosting
+   aktivieren. Für die erste Verifikation wird das Backend mit dem Feature-
+   Branch verbunden; erst nach grünen Gates wird nach `staging` integriert.
+2. Eigenes Sanity-Staging-Projekt und privates Dataset vorbereiten. Zuerst die
+   Must-Eat-Metadaten importieren, danach die öffentlichen Dokumente und deren
+   Assets. Diese Reihenfolge erlaubt Sanity, Restaurant-Referenzen beim Import
+   zu stärken.
+
+   Wichtig: Sanity CLI 5.30 schrieb beim typgefilterten Export zwar 785
+   Asset-Marker, nahm die Binärdateien aber nicht ins Archiv auf. Ein direkter
+   Import dieses Archivs bricht deshalb nach teilweisem Dokumentimport ab. Der
+   ausgeführte sichere Clone verwendete folgende Grenzen:
 
    ```bash
-   cd studio
-   SANITY_STUDIO_ENV=production \
-   SANITY_STUDIO_PROJECT_ID=ehwjnjr2 \
-   SANITY_STUDIO_DATASET=production \
-   npx sanity datasets export production ../.private/sanity-public.tar.gz \
-     -p ehwjnjr2 --overwrite \
-     --types newsArticle,restaurant,staticPage,bezirk,category,homeWeek
-   SANITY_STUDIO_ENV=staging \
-   SANITY_STUDIO_PROJECT_ID=<STAGING_SANITY_PROJECT_ID> \
-   SANITY_STUDIO_DATASET=staging \
-   npx sanity datasets import ../.private/sanity-public.tar.gz staging \
-     -p <STAGING_SANITY_PROJECT_ID> --replace
-
-   cd ../nextjs
+   cd nextjs
    npm run premium:migrate -- export-metadata \
      --source-project ehwjnjr2 --source-dataset production \
      --output ../.private/must-eat-metadata.ndjson
-   cd ../studio
+
+   cd studio
    SANITY_STUDIO_ENV=staging \
    SANITY_STUDIO_PROJECT_ID=<STAGING_SANITY_PROJECT_ID> \
    SANITY_STUDIO_DATASET=staging \
    npx sanity datasets import ../.private/must-eat-metadata.ndjson staging \
      -p <STAGING_SANITY_PROJECT_ID> --replace
+
+   SANITY_STUDIO_ENV=production \
+   SANITY_STUDIO_PROJECT_ID=ehwjnjr2 \
+   SANITY_STUDIO_DATASET=production \
+   npx sanity datasets export production ../.private/sanity-public-docs.tar.gz \
+     -p ehwjnjr2 --overwrite \
+     --types newsArticle,restaurant,staticPage,bezirk,category,homeWeek
+
+   # Nur lokales Arbeitsartefakt, niemals importieren oder committen:
+   npx sanity datasets export production ../.private/sanity-full-working.tar.gz \
+     -p ehwjnjr2 --overwrite
    ```
 
-   Das zweite Artefakt enthält nur IDs, Restaurant-Referenz, Reihenfolge und
-   Demo-Flag. Es enthält weder Dish/Text/Preis noch Asset-Referenzen.
+   Aus dem vollständigen Arbeitsarchiv wurden ausschließlich die 785 in den
+   erlaubten Dokumenttypen referenzierten Asset-Dateien in das typgefilterte
+   Archiv übernommen. Vor dem Import wurden drei Invarianten geprüft:
+
+   - 785 erwartete öffentliche Assets, 785 enthalten, 0 fehlend
+   - 0 Überschneidungen mit den 23 Premium-Must-Eat-Asset-Dateinamen aus dem
+     privaten Migrationsmanifest
+   - kein Must-Eat-Premiumfeld und keine Must-Eat-Asset-Referenz in
+     `data.ndjson`
+
+   Das vollständige 1,4-GB-Arbeitsarchiv wurde danach und vor jedem Import
+   gelöscht. Nur das bereinigte Archiv wurde importiert:
+
+   ```bash
+   SANITY_STUDIO_ENV=staging \
+   SANITY_STUDIO_PROJECT_ID=<STAGING_SANITY_PROJECT_ID> \
+   SANITY_STUDIO_DATASET=staging \
+   npx sanity datasets import ../.private/sanity-public-with-assets.tar.gz staging \
+     -p <STAGING_SANITY_PROJECT_ID> --replace
+   ```
+
+   Das Metadatenartefakt enthält nur IDs, Restaurant-Referenz, Reihenfolge und
+   Demo-Flag. Es enthält weder Dish/Text/Preis noch Asset-Referenzen. Der finale
+   Clone enthält 386 öffentliche Dokumente, 785 öffentliche Assets und 23
+   Must-Eat-Metadatendokumente.
 3. Separate Provider-Testkeys/Webhooks/Secrets setzen und ausschließlich dem
    neuen Backend Zugriff geben.
 4. Private Must-Eats in das neue Firebase-Projekt backfillen.
@@ -271,10 +330,45 @@ offenes Production-Gate, kein grüner Staging-Befund.
   bestanden; die aktuelle Firebase CLI benötigt dafür JDK 21
 - Premium-Migration `backfill --dry-run`: 23 veröffentlichte Dokumente ohne
   Ausgabe von Premium- oder Secret-Werten vollständig validiert
+- Premium-Migration `backfill --apply`: 23 private Firestore-Dokumente und 23
+  normalisierte private WebP-Objekte im neuen Staging-Projekt geschrieben
+- Premium-Migration `verify`: Status `passed`, 23 Dokumente; Datensatz- und
+  Byte-Hashes korrekt, direkte GCS-/Firebase-Storage-URLs anonym nicht lesbar
+- Sanity-Staging: 23 Must-Eat-Metadatendokumente, 0 Dokumente mit
+  Premiumfeldern, 0 Premium-Asset-Referenzen; anonyme Query liefert ein leeres
+  Ergebnis. Keiner der 23 bekannten alten Premium-Asset-Pfade ist im neuen
+  Sanity-Projekt erreichbar.
+- Firestore- und Storage-Rules wurden im neuen Staging-Projekt kompiliert und
+  veröffentlicht.
+- Voyage-Staging-Key: offizieller Embedding-Endpunkt HTTP 200, ein Vektor mit
+  512 Dimensionen für das vom Runtime-Code verwendete Modell
+- Anthropic-Staging-Key: offizieller Models-Endpunkt HTTP 200 und zehn Modelle
+  sichtbar. Das Konto hat derzeit jedoch kein API-Guthaben; ein echter Buddy-
+  Modellaufruf ist deshalb noch kein grüner Staging-Gate.
+- Sentry-Staging-Token: `org:ci`-Scope vorhanden; ein Project-Read wurde wie
+  beabsichtigt mit HTTP 403 abgewiesen. Der Build-/Source-Map-Upload wird erst
+  im tatsächlichen App-Hosting-Build als positiver Gate gewertet.
 
 Externe Stripe-, Resend-, Sanity- und Firebase-Aktionen werden im Testprotokoll
 mit Testkonto/Testmodus, Zeitpunkt und Ergebnis markiert. Es werden keine Live-
 Zahlungen, Production-Mails oder Production-Provider-Secrets benutzt.
+
+## Offene Staging-Gates und Risiken
+
+- Das neue App-Hosting-Backend ist angelegt, aber noch nicht mit dem GitHub-
+  Feature-Branch verbunden und hat noch keinen App-Rollout. Ein Backend allein
+  ist ausdrücklich kein Deployment-Nachweis.
+- Die App-Hosting-Domain konnte vor dem ersten Rollout noch nicht als Firebase-
+  Auth-Domain registriert werden. Das wird nach dem ersten erfolgreichen
+  Rollout erneut geprüft; Magic Links/Auth bleiben bis dahin rot.
+- Der Anthropic-Key läuft nach 30 Tagen ab und das getrennte Konto hat aktuell
+  0 API-Guthaben. Für den Buddy-Positivtest ist eine kleine, bewusst manuelle
+  Staging-Aufladung nötig; der getrennte Production-Key darf nicht als Fallback
+  verwendet werden.
+- Die 23 alten Production-Sanity-Asset-URLs bleiben bis zur nachgelagerten
+  Production-Migration absichtlich erreichbar. Sie sind kein grüner Staging-
+  Befund und werden erst nach Production-Backfill, Live-Smoke-Test und Purge
+  mit `--require-legacy-unreachable` zum harten Gate.
 
 ## Rollback
 

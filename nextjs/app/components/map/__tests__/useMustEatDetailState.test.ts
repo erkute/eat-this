@@ -1,8 +1,11 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
+vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }))
+
 import { useMustEatDetailState } from '../useMustEatDetailState'
+import { trackEvent } from '@/lib/analytics'
 import type { MapMustEat } from '@/lib/types'
 
 const mkMustEat = (): MapMustEat => ({
@@ -23,8 +26,15 @@ const mkEvent = () =>
   ({ currentTarget: { getBoundingClientRect: () => fakeRect } }) as unknown as React.MouseEvent<HTMLButtonElement>
 
 describe('useMustEatDetailState — handleCardClick auth gate', () => {
-  it('within unlock radius + isAuthed: sets revealOrigin and calls onUnlock', () => {
-    const onUnlock = vi.fn()
+  beforeEach(() => {
+    vi.mocked(trackEvent).mockClear()
+  })
+
+  it('waits for a persisted unlock before showing or tracking success', async () => {
+    let resolveUnlock!: (persisted: boolean) => void
+    const onUnlock = vi.fn(() => new Promise<boolean>((resolve) => {
+      resolveUnlock = resolve
+    }))
     const { result } = renderHook(() =>
       useMustEatDetailState({
         mustEat: mkMustEat(),
@@ -37,14 +47,80 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(result.current.canUnlock).toBe(true)
     expect(result.current.revealOrigin).toBeNull()
 
-    act(() => { result.current.handleCardClick(mkEvent()) })
+    let click!: Promise<void>
+    act(() => { click = result.current.handleCardClick(mkEvent()) })
 
-    expect(result.current.revealOrigin).not.toBeNull()
+    expect(result.current.unlocking).toBe(true)
+    expect(result.current.revealOrigin).toBeNull()
     expect(onUnlock).toHaveBeenCalledOnce()
+    expect(trackEvent).not.toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'unlocked' }),
+    )
+
+    await act(async () => {
+      resolveUnlock(true)
+      await click
+    })
+
+    expect(result.current.unlocking).toBe(false)
+    expect(result.current.unlockError).toBe(false)
+    expect(result.current.revealOrigin).toBe(fakeRect)
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'unlocked' }),
+    )
+  })
+
+  it('keeps the card covered and exposes a retry state when persistence fails', async () => {
+    const onUnlock = vi.fn().mockResolvedValue(false)
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: mkMustEat(),
+        userLocation: { lat: 52.52, lng: 13.405 },
+        onUnlock,
+        isAuthed: true,
+      }),
+    )
+
+    await act(async () => {
+      await result.current.handleCardClick(mkEvent())
+    })
+
+    expect(result.current.unlocking).toBe(false)
+    expect(result.current.unlockError).toBe(true)
+    expect(result.current.revealOrigin).toBeNull()
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'failed' }),
+    )
+    expect(trackEvent).not.toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'unlocked' }),
+    )
+  })
+
+  it('handles a rejected unlock request without starting the reveal', async () => {
+    const onUnlock = vi.fn().mockRejectedValue(new Error('network down'))
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: mkMustEat(),
+        userLocation: { lat: 52.52, lng: 13.405 },
+        onUnlock,
+        isAuthed: true,
+      }),
+    )
+
+    await act(async () => {
+      await expect(result.current.handleCardClick(mkEvent())).resolves.toBeUndefined()
+    })
+
+    expect(result.current.unlockError).toBe(true)
+    expect(result.current.revealOrigin).toBeNull()
   })
 
   it('within unlock radius but NOT authed: does NOT set revealOrigin or call onUnlock', () => {
-    const onUnlock = vi.fn()
+    const onUnlock = vi.fn().mockResolvedValue(true)
     const { result } = renderHook(() =>
       useMustEatDetailState({
         mustEat: mkMustEat(),
@@ -70,7 +146,7 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
         useMustEatDetailState({
           mustEat: mkMustEat(),
           userLocation: null,
-          onUnlock: vi.fn(),
+          onUnlock: vi.fn().mockResolvedValue(true),
           isAuthed: true,
         }),
       )
@@ -95,7 +171,7 @@ describe('useMustEatDetailState — lazy zoom lifecycle', () => {
       useMustEatDetailState({
         mustEat: mkMustEat(),
         userLocation: null,
-        onUnlock: vi.fn(),
+        onUnlock: vi.fn().mockResolvedValue(true),
         isAuthed: true,
       }),
     )

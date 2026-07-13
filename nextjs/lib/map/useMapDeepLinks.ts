@@ -1,6 +1,7 @@
-import { useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
+import { pollUntilMapReady } from './pollUntilMapReady'
 
 interface Bbox { west: number; south: number; east: number; north: number }
 
@@ -68,6 +69,7 @@ export function useMapDeepLinks({
   const onRestaurantSlugMatchRef = useRef(onRestaurantSlugMatch)
   onRestaurantSlugMatchRef.current = onRestaurantSlugMatch
   const restaurantConsumed = useRef(false)
+  const [restaurantPollTarget, setRestaurantPollTarget] = useState<MapRestaurant | null>(null)
   useEffect(() => {
     if (restaurantConsumed.current) return
     if (!isActive) return
@@ -92,22 +94,23 @@ export function useMapDeepLinks({
     // chaining, so it simply no-ops while mapRef is null.
     userInteractedRef.current = true
     onRestaurantSlugMatchRef.current(target)
-    // …then re-run once the canvas has mounted so the camera flies to the spot.
-    // No cancel-on-cleanup: once consumed we always finish, even if a re-render
-    // (e.g. the /api/map-data fetch landing, or restaurants updating) re-runs the
-    // effect — the consumed guard makes re-runs no-ops. The repeat call is
-    // idempotent (same state) and only adds the flyTo. Cancelling here killed the
-    // poll before the canvas mounted on client-side nav from the hub, so the
-    // camera never moved.
-    const tryFly = () => {
-      if (mapRef.current) {
-        onRestaurantSlugMatchRef.current(target)
-      } else {
-        setTimeout(tryFly, 120)
-      }
-    }
-    tryFly()
-  }, [isActive, restaurants, lockedRestaurants, mapRef, userInteractedRef])
+    // Re-run once the canvas mounts so the camera flies to the spot. Keeping
+    // this target in state lets the bounded poll survive unrelated data
+    // updates while still being cancelled on deactivation/unmount.
+    setRestaurantPollTarget(target)
+  }, [isActive, restaurants, lockedRestaurants, userInteractedRef])
+
+  useEffect(() => {
+    if (!isActive || !restaurantPollTarget) return
+    return pollUntilMapReady({
+      mapRef,
+      onReady: () => {
+        onRestaurantSlugMatchRef.current(restaurantPollTarget)
+        setRestaurantPollTarget(null)
+      },
+      onTimeout: () => setRestaurantPollTarget(null),
+    })
+  }, [isActive, mapRef, restaurantPollTarget])
 
   // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the
   // inline must-eat cards in news articles. Reuses the in-app tap handler so
@@ -120,6 +123,7 @@ export function useMapDeepLinks({
   const onMustEatIdMatchRef = useRef(onMustEatIdMatch)
   onMustEatIdMatchRef.current = onMustEatIdMatch
   const mustEatConsumed = useRef(false)
+  const [mustEatPollTarget, setMustEatPollTarget] = useState<MapMustEat | null>(null)
   useEffect(() => {
     if (mustEatConsumed.current) return
     if (!isActive) return
@@ -132,24 +136,31 @@ export function useMapDeepLinks({
     mustEatConsumed.current = true
     // Param stays in the URL — see the ?r= effect above (URL sync lives in
     // MapSection; refresh should reopen the card, guard prevents re-trigger).
-    // No cancel-on-cleanup: once consumed we always finish the open, even if a
-    // re-render re-runs the effect (the guard above makes re-runs no-ops).
-    const tryOpen = () => {
-      if (mapRef.current) {
-        userInteractedRef.current = true
-        onMustEatIdMatchRef.current(target)
-      } else {
-        setTimeout(tryOpen, 120)
-      }
+    setMustEatPollTarget(target)
+  }, [isActive, mustEats])
+
+  useEffect(() => {
+    if (!isActive || !mustEatPollTarget) return
+    const openTarget = () => {
+      userInteractedRef.current = true
+      onMustEatIdMatchRef.current(mustEatPollTarget)
+      setMustEatPollTarget(null)
     }
-    tryOpen()
-  }, [isActive, mustEats, mapRef, userInteractedRef])
+    return pollUntilMapReady({
+      mapRef,
+      onReady: openTarget,
+      // The detail handler already tolerates a null mapRef. If the MapLibre
+      // chunk never mounts, open the requested card once and stop polling.
+      onTimeout: openTarget,
+    })
+  }, [isActive, mapRef, mustEatPollTarget, userInteractedRef])
 
   // ?bezirk=<slug> pre-selects a bezirk filter and fits the camera to show all
   // restaurants in that district. Mirrors the ?r= polling pattern above. Note
   // we intentionally keep the param in the URL so the filtered view stays
   // bookmark/share-friendly — reset is via the pill ✕.
   const bezirkConsumed = useRef(false)
+  const [bezirkBboxTarget, setBezirkBboxTarget] = useState<Bbox | null>(null)
   useEffect(() => {
     if (bezirkConsumed.current) return
     if (!isActive) return
@@ -178,21 +189,26 @@ export function useMapDeepLinks({
     const filtered = all.filter(r => districtOf(r) === bezirkName)
     const bbox = computeBezirkBbox(filtered)
     if (!bbox) return
-    let cancelled = false
-    const tryFit = () => {
-      if (cancelled) return
-      if (mapRef.current) {
-        mapRef.current.fitBounds(
-          [[bbox.west, bbox.south], [bbox.east, bbox.north]],
+    setBezirkBboxTarget(bbox)
+  }, [isActive, restaurants, lockedRestaurants, sheetView, setSnap, setBezirk, userInteractedRef])
+
+  useEffect(() => {
+    if (!isActive || !bezirkBboxTarget) return
+    return pollUntilMapReady({
+      mapRef,
+      onReady: (map) => {
+        map.fitBounds(
+          [
+            [bezirkBboxTarget.west, bezirkBboxTarget.south],
+            [bezirkBboxTarget.east, bezirkBboxTarget.north],
+          ],
           { padding: 60, duration: 800 },
         )
-      } else {
-        setTimeout(tryFit, 120)
-      }
-    }
-    tryFit()
-    return () => { cancelled = true }
-  }, [isActive, restaurants, lockedRestaurants, sheetView, setSnap, setBezirk, mapRef, userInteractedRef])
+        setBezirkBboxTarget(null)
+      },
+      onTimeout: () => setBezirkBboxTarget(null),
+    })
+  }, [bezirkBboxTarget, isActive, mapRef])
 
   // ?cat=<slug> pre-selects a category filter so a hub "Pizza"/"Frühstück"/
   // "Drinks" card (and the Deine-Welt pack CTA) lands on the map with that

@@ -4554,6 +4554,21 @@
 .detailV13MustEat .fdProximityReady .fdProximitySub {
   margin-top: 8px;
 }
+.detailV13MustEat .fdProximityError .fdProximityHead {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 5px 9px 6px;
+  color: #fff;
+  background: var(--et-home-red, #d9382a);
+  border-radius: var(--et-radius-control, 7px);
+  font-weight: 700;
+  line-height: 1;
+}
+.detailV13MustEat .fdProximityError .fdProximitySub {
+  margin-top: 8px;
+}
 .detailV13MustEat .fdText,
 .detailV13MustEat .fdProximity {
   height: 100%;

@@ -24,6 +24,7 @@ import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
+import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 
 interface Props {
   isActive?: boolean;
@@ -60,6 +61,8 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     mustEats,
     categories,
     revealedMustEatIds,
+    loading: mapDataLoading,
+    error: mapDataError,
     refetch: refetchMapData,
     mergeMustEat,
   } = useMapData({ uid, authLoading, initialMapData });
@@ -897,17 +900,19 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
   );
 
   const handleUnlock = useCallback(async () => {
-    if (!selectedMustEat) return;
+    if (!selectedMustEat) return false;
     // Anon taps never reach this handler — useMustEatDetailState routes
     // in-range guests to the login gate instead.
-    if (!uid) return;
+    if (!uid) return false;
     // The reveal response carries the full card data (covered cards ship
     // stripped) — merge it so the open detail and the list peek flip face-up.
     const full = await unlock(selectedMustEat._id);
     if (full) {
       mergeMustEat(full);
       setSelectedMustEat(full);
+      return true;
     }
+    return false;
   }, [selectedMustEat, uid, unlock, mergeMustEat]);
 
   const handleLocateMe = useCallback(async () => {
@@ -944,30 +949,53 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
   getFlyPaddingRef.current = getFlyPadding;
   const autoLocatedRef = useRef(false);
   useEffect(() => {
+    if (!isActive) return;
     if (autoLocatedRef.current) return;
     autoLocatedRef.current = true;
+    let cancelled = false;
+    let completed = false;
+    let cancelPoll = () => {};
     const params = new URLSearchParams(window.location.search);
     const hasDeepLink = ['r', 'me', 'bezirk', 'cat'].some((p) => params.has(p));
     void requestLocation().then(({ location: loc }) => {
-      if (!loc || hasDeepLink) return;
+      if (cancelled) return;
+      if (!loc || hasDeepLink) {
+        completed = true;
+        return;
+      }
       const inBerlin = loc.lat > 52.3 && loc.lat < 52.7 && loc.lng > 12.9 && loc.lng < 13.8;
-      if (!inBerlin) return;
-      const tryFly = () => {
-        if (userInteractedRef.current) return;
-        if (mapRef.current) {
-          mapRef.current.flyTo({
+      if (!inBerlin) {
+        completed = true;
+        return;
+      }
+      cancelPoll = pollUntilMapReady({
+        mapRef,
+        shouldStop: () => userInteractedRef.current,
+        onStopped: () => {
+          completed = true;
+        },
+        onTimeout: () => {
+          completed = true;
+        },
+        onReady: (map) => {
+          completed = true;
+          map.flyTo({
             center: [loc.lng, loc.lat],
             zoom: 14,
             duration: 600,
             padding: getFlyPaddingRef.current(),
           });
-        } else {
-          setTimeout(tryFly, 120);
-        }
-      };
-      tryFly();
+        },
+      });
     });
-  }, [requestLocation]);
+    return () => {
+      cancelled = true;
+      cancelPoll();
+      // Deactivation/unmount before a terminal outcome should not consume the
+      // one-shot attempt. A later activation may safely request/centre again.
+      if (!completed) autoLocatedRef.current = false;
+    };
+  }, [isActive, requestLocation]);
 
   /* Refit the map whenever a structured filter narrows or widens the visible
      set. Without this the user picks "Pizza" → 3 spots in the list but the
@@ -1093,6 +1121,11 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       locationError={locationError}
       uid={uid}
       userTier={userTier}
+      mapDataLoading={mapDataLoading}
+      mapDataError={mapDataError}
+      mapDataHasContent={
+        restaurants.length > 0 || lockedRestaurants.length > 0 || mustEats.length > 0
+      }
       categories={categories}
       category={category}
       setCategory={setCategory}
@@ -1125,6 +1158,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       }}
       desktopPanelHidden={desktopPanelHidden}
       onToggleDesktopPanel={() => setDesktopPanelHidden((v) => !v)}
+      onRetryMapData={refetchMapData}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
       restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}
     />

@@ -55,7 +55,17 @@ export default function MustEatDetailMobile({
   // Legacy t() can't interpolate ICU values — parametrized keys go through next-intl directly.
   const tMap = useTranslations('map')
   const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang)
-  const { distance, canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
+  const {
+    distance,
+    canUnlock,
+    vibrateIntensity,
+    tapping,
+    unlocking,
+    unlockError,
+    revealOrigin,
+    handleCardClick,
+    handleCardZoom,
+  } = state
   const { name: restaurantName } = mustEat.restaurant
   const restaurantPhoto = mustEat.restaurant.photo
   const open = isUnlocked && !revealOrigin
@@ -178,9 +188,17 @@ export default function MustEatDetailMobile({
               ) : (
                 <button
                   type="button"
-                  className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
+                  className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock && !unlocking ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
                   onClick={handleCardClick}
-                  aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
+                  disabled={unlocking}
+                  aria-busy={unlocking || undefined}
+                  aria-label={
+                    unlocking
+                      ? t('map.revealSaving')
+                      : canUnlock
+                        ? t('map.revealHere')
+                        : t('map.tooFarToReveal')
+                  }
                   style={{
                     ...(revealOrigin ? { visibility: 'hidden' } : {}),
                     ['--vibrate-intensity' as string]: tapping ? '2.4' : vibrateIntensity.toFixed(3),
@@ -217,16 +235,28 @@ export default function MustEatDetailMobile({
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. */}
           {!open && (
-            <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}>
+            <div
+              className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
+              role={unlockError ? 'alert' : 'status'}
+              aria-live="polite"
+            >
               <p className={styles.fdProximityHead}>
-                {canUnlock
+                {unlocking
+                  ? t('map.revealSaving')
+                  : unlockError
+                    ? t('map.revealError')
+                    : canUnlock
                   ? tMap('proximityHere')
                   : distance !== null
                     ? tMap('proximityAway', { distance: formatDistance(distance) })
                     : tMap('proximityCloser')}
               </p>
               <p className={styles.fdProximitySub}>
-                {canUnlock
+                {unlocking
+                  ? t('map.revealSavingHint')
+                  : unlockError
+                    ? t('map.revealRetry')
+                    : canUnlock
                   ? tMap('proximityTapReveal')
                   : lang === 'en'
                     ? <>Get within <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of the spot, then you can reveal the Must Eat.</>

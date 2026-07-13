@@ -12,7 +12,7 @@ interface MustEatDetailProps {
   mustEat: MapMustEat
   userLocation: UserLocation | null
   isUnlocked: boolean
-  onUnlock: () => void
+  onUnlock: () => Promise<boolean>
   onClose: () => void
   onViewRestaurant?: () => void
   /** Global must-eat pager — adjacent cards + page handlers. */

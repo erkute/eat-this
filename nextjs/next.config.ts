@@ -24,9 +24,13 @@ const nextConfig: NextConfig = {
     // Keep Next's default optimizer so local assets receive real responsive
     // variants. Sanity URLs are valid remote sources and are cached by the
     // same optimizer; raw <img> call sites use sanityImageLoader directly.
-    // Local next/image assets all live below /pics. Omitting `search` keeps
-    // cache-bust queries such as card-back.webp?v=6 valid.
-    localPatterns: [{ pathname: '/pics/**' }],
+    // Local next/image assets live below /pics plus the checkout logo set.
+    // Omitting `search` keeps cache-bust queries such as card-back.webp?v=6
+    // valid.
+    localPatterns: [
+      { pathname: '/pics/**' },
+      { pathname: '/payment/**' },
+    ],
     remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
 

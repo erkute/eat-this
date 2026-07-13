@@ -25,9 +25,11 @@
   background: var(--promo-accent);
 }
 .title {
+  color: var(--et-home-red);
   font-family: var(--et-font-display);
   font-size: clamp(30px, 8vw, 46px);
   line-height: 1.1;
+  letter-spacing: -.025em;
   text-transform: uppercase;
   margin: 0;
   max-width: 16ch;

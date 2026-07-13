@@ -8,7 +8,8 @@
   font-size: clamp(28px, 7vw, 40px);
   line-height: 1;
   text-transform: uppercase;
-  color: var(--ink, var(--et-home-ink));
+  color: var(--et-home-red);
+  letter-spacing: -.025em;
   margin: 0 0 14px;
 }
 .row {

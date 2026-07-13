@@ -161,20 +161,20 @@
 .heroTitle {
   max-width: 10ch;
   margin: 0;
-  color: var(--article-ink);
   font-size: clamp(50px, 8vw, 116px);
 }
 
 .heroTitle {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title, 0);
+  color: var(--article-red);
+  letter-spacing: -.025em;
   line-height: var(--et-leading-title, 0.86);
 }
 
 .heroWrap .heroTitle {
   max-width: 18ch;
-  color: #fff !important;
+  color: #fff;
   font-size: clamp(36px, 5.4vw, 70px);
   line-height: .88;
   text-wrap: balance;
@@ -248,7 +248,7 @@
 .content h3 {
   max-width: 28ch;
   margin: clamp(46px, 7vw, 82px) 0 18px;
-  color: var(--article-ink) !important;
+  color: var(--article-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
   font-size: clamp(32px, 4.8vw, 58px);
@@ -256,6 +256,10 @@
   line-height: 0.94;
   text-transform: none;
   scroll-margin-top: 96px;
+}
+
+.content h2 {
+  letter-spacing: -.025em;
 }
 
 .content ul,
@@ -281,17 +285,34 @@
 }
 
 .content blockquote {
+  position: relative;
   width: min(100%, 18ch);
   max-width: none;
   margin: clamp(38px, 7vw, 78px) 0;
   padding: clamp(22px, 3.2vw, 34px) clamp(24px, 4vw, 40px);
-  color: var(--article-red);
+  color: var(--article-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(30px, 4.4vw, 52px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.92;
   text-transform: none;
+  background: var(--article-red);
+  border: 0;
+  box-shadow: none;
+  transform: rotate(-1deg);
+}
+
+.content blockquote::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 82px;
+  height: 20px;
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, .12);
+  transform: translateX(-50%) rotate(3deg);
 }
 
 .mustEat {
@@ -515,7 +536,7 @@ a.mustEat:focus-visible .mustEatPh img {
   min-height: 30px;
   padding: 4px 7px;
   border: 0;
-  border-radius: var(--home-radius-btn, 8px);
+  border-radius: 0;
   background: transparent;
   color: var(--article-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
@@ -552,11 +573,11 @@ a.mustEat:focus-visible .mustEatPh img {
 .relatedHeading {
   max-width: 14ch;
   margin: 0 0 clamp(24px, 4vw, 42px);
-  color: #fff !important;
+  color: #fff;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(34px, 5vw, 58px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: 0.82;
   text-transform: uppercase;
 }

@@ -49,6 +49,11 @@
   text-transform: uppercase;
 }
 
+.errorTitle {
+  color: var(--collage-red);
+  letter-spacing: -0.025em;
+}
+
 .sub {
   max-width: 32ch;
   margin: 16px 0 0;

@@ -174,15 +174,22 @@
 .name {
   max-width: 12ch;
   margin: 0;
-  color: var(--detail-ink);
+  color: var(--detail-red);
   font-size: clamp(54px, 9vw, 126px);
   line-height: var(--et-leading-title, 0.86);
   overflow-wrap: break-word;
 }
 
+.heroName,
+.name,
+.orderHead,
+.sibRowHead {
+  letter-spacing: -.025em;
+}
+
 .heroName {
   max-width: 18ch;
-  color: #fff !important;
+  color: #fff;
   font-size: clamp(42px, 7.1vw, 86px);
   line-height: 0.88;
   text-shadow: 0 3px 24px rgba(0, 0, 0, 0.34);
@@ -266,13 +273,30 @@
 }
 
 .pullQuote {
+  position: relative;
   width: min(100%, 18ch);
   margin: clamp(38px, 7vw, 78px) 0;
   padding: clamp(22px, 3.2vw, 34px) clamp(24px, 4vw, 40px);
-  color: var(--detail-red);
+  color: var(--detail-ink);
   font-size: clamp(30px, 4.4vw, 52px);
   line-height: 0.92;
   text-transform: none;
+  background: var(--detail-red);
+  border: 0;
+  box-shadow: none;
+  transform: rotate(-1deg);
+}
+
+.pullQuote::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 82px;
+  height: 20px;
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, .12);
+  transform: translateX(-50%) rotate(3deg);
 }
 
 .gallery {
@@ -383,7 +407,7 @@
 .sibRowHead {
   max-width: 12ch;
   margin: 0 0 clamp(18px, 3vw, 30px);
-  color: var(--detail-ink);
+  color: var(--detail-red);
   font-size: clamp(30px, 4.5vw, 56px);
   line-height: var(--et-leading-title, 0.9);
 }

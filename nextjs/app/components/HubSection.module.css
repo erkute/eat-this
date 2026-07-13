@@ -56,8 +56,9 @@
   align-items: flex-start;
   font-family: var(--font-providence);
   font-weight: 700;
+  color: var(--et-home-red);
   text-transform: uppercase;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: var(--et-leading-hero);
   font-size: clamp(60px, 6.7vw, 90px);
   margin: 12px 0 0;

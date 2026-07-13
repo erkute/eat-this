@@ -173,6 +173,7 @@
   background: var(--remy-stage-paper);
   color: var(--remy-stage-ink);
   border: none;
+  border-radius: 0;
   box-shadow: 0 8px 18px rgba(21, 18, 14, 0.1);
 }
 

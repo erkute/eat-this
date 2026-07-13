@@ -38,11 +38,11 @@
 
 .headline {
   margin: 0;
-  color: var(--home-ink);
+  color: var(--et-home-red);
   font-family: var(--font-providence);
   font-size: clamp(50px, 6.8vw, 82px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -66,33 +66,44 @@
 }
 
 .mapBtn {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--home-ink) !important;
-  background: var(--home-accent) !important;
-  font-family: var(--font-providence) !important;
   min-height: 52px;
-  padding: 0 24px;
-  font-size: clamp(15px, 1.25vw, 18px) !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
+  padding: 11px 18px;
+  color: var(--home-ink);
+  font-family: var(--font-providence);
+  font-size: clamp(15px, 1.25vw, 18px);
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  background: var(--home-accent);
+  border: 0;
+  border-radius: var(--et-radius-control);
+  box-shadow: none;
+  cursor: pointer;
 }
 
 .mapBtn:hover,
 .mapBtn:focus-visible {
-  color: var(--et-home-inverse-text) !important;
-  background: var(--et-home-red) !important;
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-red);
 }
 
 .profileBtn {
-  border-bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  color: var(--home-ink);
+  font-family: var(--font-providence);
+  font-size: clamp(23px, 2.4vw, 30px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.95;
   text-decoration: none;
-  font-family: var(--font-providence) !important;
-  font-size: clamp(23px, 2.4vw, 30px) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  line-height: 0.95 !important;
+  background: transparent;
+  border: 0;
+  border-bottom: 0;
 }
 
 .profileBtn:hover,

@@ -83,16 +83,6 @@ function clearGaCookies() {
   }
 }
 
-// Recompute navbar.scrolled state after the banner slides out; it can drift
-// while the banner is overlaying.
-function flushPostBannerChrome() {
-  const activePage = document.documentElement.getAttribute('data-active-page');
-  const navbar = document.querySelector('.navbar');
-  if (navbar && activePage === 'start') {
-    navbar.classList.toggle('scrolled', window.scrollY > 60);
-  }
-}
-
 // Renders a paragraph string, substituting {mail} with a mailto anchor.
 function Paragraph({ text }: { text: string }) {
   if (!text.includes('{mail}')) return <p>{text}</p>;
@@ -162,7 +152,6 @@ export default function CookieConsent() {
     localStorage.setItem('cookieConsent', 'accepted');
     setShow(false);
     setExpanded(false);
-    setTimeout(flushPostBannerChrome, 350);
     setTimeout(() => {
       loadAnalytics();
       // The route-level page-view effect ran before consent and correctly
@@ -180,7 +169,6 @@ export default function CookieConsent() {
     localStorage.setItem('cookieConsent', 'declined');
     setShow(false);
     setExpanded(false);
-    setTimeout(flushPostBannerChrome, 350);
     // Consent withdrawn while GA was already running this session (reopened via
     // the footer "Cookies verwalten" link): drop the GA cookies and reload so
     // the script stops — on reload, 'declined' prevents re-injection.

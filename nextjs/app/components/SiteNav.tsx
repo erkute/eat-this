@@ -37,9 +37,8 @@ export default function SiteNav() {
   }, [activePage]);
 
   useEffect(() => {
-    const root = document.documentElement;
     const navbar = document.getElementById('navbar');
-    root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
+    if (navbar) navbar.dataset.visibility = 'visible';
     if (!navbar || activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
@@ -55,19 +54,19 @@ export default function SiteNav() {
       }
       if (showFrame !== undefined) return;
 
-      const wasCollapsed = root.classList.contains('navbar-collapsed');
-      root.classList.remove('navbar-collapsed');
+      const wasCollapsed = navbar.dataset.visibility === 'collapsed';
       if (!wasCollapsed) {
-        root.classList.remove('navbar-hidden');
+        navbar.dataset.visibility = 'visible';
         return;
       }
 
       // Restore the fully translated state for one frame before revealing it,
       // otherwise display:none -> visible skips the return transition.
+      navbar.dataset.visibility = 'hidden';
       void navbar.offsetHeight;
       showFrame = window.requestAnimationFrame(() => {
         showFrame = undefined;
-        root.classList.remove('navbar-hidden');
+        navbar.dataset.visibility = 'visible';
       });
     };
     const hide = () => {
@@ -75,15 +74,16 @@ export default function SiteNav() {
         window.cancelAnimationFrame(showFrame);
         showFrame = undefined;
       }
-      if (!root.classList.contains('navbar-hidden')) {
-        root.classList.add('navbar-hidden');
+      if (navbar.dataset.visibility === 'collapsed') return;
+      if (navbar.dataset.visibility !== 'hidden') {
+        navbar.dataset.visibility = 'hidden';
       }
-      if (collapseTimer !== undefined || root.classList.contains('navbar-collapsed')) return;
+      if (collapseTimer !== undefined) return;
 
       collapseTimer = window.setTimeout(() => {
         collapseTimer = undefined;
-        if (root.classList.contains('navbar-hidden')) {
-          root.classList.add('navbar-collapsed');
+        if (navbar.dataset.visibility === 'hidden') {
+          navbar.dataset.visibility = 'collapsed';
         }
       }, 280);
     };
@@ -122,7 +122,7 @@ export default function SiteNav() {
       media.removeEventListener('change', onMediaChange);
       if (collapseTimer !== undefined) window.clearTimeout(collapseTimer);
       if (showFrame !== undefined) window.cancelAnimationFrame(showFrame);
-      root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
+      navbar.dataset.visibility = 'visible';
     };
   }, [activePage]);
 
@@ -131,12 +131,17 @@ export default function SiteNav() {
       <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
-      <nav className="navbar" id="navbar">
+      <nav
+        className={styles.nav}
+        id="navbar"
+        data-nav-page={activePage}
+        data-visibility="visible"
+      >
         {/* Left: map text */}
-        <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
+        <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink
             href="/map"
-            className={`navbar-icon-btn ${styles.mapSticker}${activePage === 'map' ? ' active' : ''}`}
+            className={styles.control}
             id="navMapBtn"
             aria-label="Map"
           >
@@ -144,7 +149,7 @@ export default function SiteNav() {
           </MapIntentLink>
         </div>
         {/* Center: Logo */}
-        <div className="navbar-home">
+        <div className={styles.home}>
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -158,9 +163,9 @@ export default function SiteNav() {
           </Link>
         </div>
         {/* Right: menu text (News lives in the drawer) */}
-        <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <div className={`${styles.actions} ${styles.actionsEnd}`}>
           <button
-            className={`burger-btn ${styles.menuSticker}`}
+            className={styles.control}
             id="burgerBtn"
             aria-label={lang === 'de' ? 'Menü' : 'Menu'}
             aria-controls="burgerDrawer"

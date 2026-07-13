@@ -47,7 +47,7 @@
   margin: 0;
   font-size: clamp(32px, 6vw, 48px);
   font-weight: 900;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.025em;
   line-height: 1.05;
   color: var(--conversion-action);
   font-family: var(--et-font-display);

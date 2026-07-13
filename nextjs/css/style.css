@@ -59,152 +59,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-/* ============================================
-   NAVBAR — boxed brand rail with center logo tab
-   ============================================ */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-.navbar::before {
-  background: none;
-}
-.navbar::after {
-  background: none;
-}
-[data-active-page="map"] .navbar::before,
-[data-active-page="map"] .navbar::after {
-  display: none;
-}
-/* Left side: lone home icon. */
-.navbar-home {
-  display: inline-flex;
-  align-items: center;
-}
-/* Right side: news / map / profile / burger with breathing room. */
-.navbar-actions {
-  display: flex;
-  align-items: center;
-}
-/* Desktop: navbar hat reichlich Platz — die Icons dürfen atmen statt sich
-   eng wie ein Mobile-Tabbar zu drängen. */
-@media (min-width: 1024px) {
-  .navbar-actions { gap: 40px; }
-}
-/* Minimal icon button — kein Chip, kein Border, kein Shadow, kein Kreis. */
-.navbar-icon-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  color: var(--et-black);
-  padding: 0;
-  box-shadow: none;
-  transition: color 140ms ease;
-  -webkit-tap-highlight-color: transparent;
-}
-.navbar-icon-btn:hover,
-.navbar-icon-btn:active,
-.navbar-icon-btn.active { color: var(--et-black); }
-.navbar-icon-btn::after { content: none; }
-/* Active page indicator: hairline coral underline below the icon. */
-.navbar-icon-btn.active::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -6px;
-  width: 14px;
-  height: 2px;
-  background: var(--brand-ink);
-  transform: translateX(-50%);
-  border-radius: 2px;
-}
-/* Map page on mobile: header is almost gone — Start + Profile chip float
-   in the top-right next to the floating search toolbar. Map canvas claims
-   the full viewport (see .app-page[data-page="map"] top:0 rule); navbar
-   chrome goes transparent and clicks fall through to the map underneath,
-   except on the icon chips themselves. */
-@media (max-width: 1023.98px) {
-  /* Map on mobile: no header strip — just Start + Profile floating as
-     glass chips on the right edge, FAB-aligned. Map claims the full
-     viewport; the in-map search toolbar owns nav. */
-  [data-active-page="map"] .navbar,
-  [data-active-page="map"] .navbar.scrolled {
-    background: transparent !important;
-    border-bottom-color: transparent !important;
-    box-shadow: none !important;
-    pointer-events: none;
-    padding-right: 12px !important;
-    /* Stack Home + Profile chips together on the right edge. */
-    justify-content: flex-end !important;
-    gap: 10px;
-  }
-  [data-active-page="map"] .navbar > * {
-    pointer-events: auto;
-  }
-  /* Map mobile: hide everything except the burger menu. */
-  [data-active-page="map"] .navbar .navbar-home,
-  [data-active-page="map"] .navbar #navMapBtn {
-    display: none;
-  }
-  [data-active-page="map"] .navbar .navbar-actions {
-    transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
-  }
-  /* Glass-chip styling for the two visible icons — matches search toolbar. */
-  [data-active-page="map"] .navbar .navbar-icon-btn {
-    background: rgba(255, 255, 255, 0.96) !important;
-    border: 0 !important;
-    border-radius: 999px !important;
-    color: #1a1a1a !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
-  }
-  [data-active-page="map"] .navbar .navbar-icon-btn:hover,
-  [data-active-page="map"] .navbar .navbar-icon-btn:active,
-  [data-active-page="map"] .navbar .navbar-icon-btn.active {
-    background: rgba(255, 255, 255, 1) !important;
-    color: #1a1a1a !important;
-    transform: none !important;
-  }
-  /* Active underline conflicts with glass chip — suppress on map. */
-  [data-active-page="map"] .navbar .navbar-icon-btn.active::before {
-    display: none;
-  }
-  /* Map mobile: the lone burger sits as a glass chip (matches search toolbar). */
-  [data-active-page="map"] .navbar .burger-btn {
-    display: inline-flex !important;
-    width: 40px !important;
-    height: 40px !important;
-    background: rgba(255, 255, 255, 0.96) !important;
-    border-radius: 999px !important;
-    color: #1a1a1a !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
-  }
-  /* When the list sheet is full OR a detail is open, slide the chips out. */
-  body:has(.app-page[data-page="map"][data-map-view="list"][data-map-snap="full"]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"][data-map-view="list"][data-map-snap="full"]) .navbar .navbar-home,
-  body:has(.app-page[data-page="map"][data-map-view="detail"]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"][data-map-view="detail"]) .navbar .navbar-home {
-    transform: translateY(calc(-100% - 80px));
-    pointer-events: none;
-  }
-}
 /* Cookie Consent — system bottom sheet.
    Entry remains pure translate — no opacity fade (brand motion rule). */
 .cookie-consent {
@@ -409,41 +263,9 @@ body {
     font-size: 14px;
   }
 }
-/* ============================================
-   NEWS ARTICLE MODAL
-   ============================================ */
-/* ── FULL-PAGE ARTICLE ───────────────────────── */
-/* Article layout */
-.news-article {
-  min-height: 100vh;
-}
 /* Prevent browser scroll-anchoring from holding position when content swaps */
 .app-page[data-page="news-article"] {
   overflow-anchor: none;
-}
-/* Standalone article share buttons */
-
-
-/* Standalone article body content */
-
-
-/* Recommendations */
-
-
-/* ============================================
-   UTILITY
-   ============================================ */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-@media (min-width: 768px) {
-  .container { padding: 0 48px; }
-}
-/* Safe area for notch — add inset on top of the existing 8px padding. */
-@supports (padding-top: env(safe-area-inset-top)) {
-  .navbar { padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
 }
 /* ============================================
    APP PAGES CONTAINER
@@ -453,15 +275,10 @@ body {
   height: 100%;
 }
 .app-page {
-  display: none !important;
   width: 100%;
   height: calc(100vh - 64px);
   overflow-y: auto;
   overflow-x: hidden;
-/*  padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));*/
-}
-.app-page.active {
-  display: block !important;
 }
 .app-page[data-page="start"] {
   min-height: calc(100vh - 64px);
@@ -483,89 +300,29 @@ body {
     overflow-x: unset;
     overscroll-behavior: contain;
   }
-  /* Natural window scroll so Safari URL bar auto-hides on scroll.
-     Use !important — the global rule has overflow-y:auto which the browser
-     keeps even when we set overflow-x:clip (clip not reliably supported). */
+  /* Natural window scroll so Safari URL bar auto-hides on scroll. */
   .app-pages {
     /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
     margin-top: calc(64px + env(safe-area-inset-top, 0px));
-    height: auto !important;
-    overflow: visible !important;
-  }
-  /* Strip on mobile — 64 px + safe-area. */
-  .navbar,
-  .navbar.scrolled {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    height: calc(64px + env(safe-area-inset-top, 0px));
-    min-height: calc(64px + env(safe-area-inset-top, 0px));
-    padding: 10px 16px;
-    padding-top: calc(10px + env(safe-area-inset-top, 0px));
-    box-sizing: border-box;
+    height: auto;
+    overflow: visible;
   }
   /* Start page also cream in light mode */
 
   .app-page {
     position: relative;
-    height: auto !important;
+    height: auto;
     /* Fill viewport at minimum so short pages don't show body bg below */
     min-height: calc(100dvh - 48px);
     /* Pad for fixed app-footer + safe-area-inset-bottom so last content is reachable */
     padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
-    overflow: visible !important;
+    overflow: visible;
     background: var(--white);
     overscroll-behavior: none;
   }
-  /* Pages ending with the site footer: let the footer own the bottom
-     clearance. Remove app-page padding-bottom here — otherwise 80px of
-     page bg show as a dead band UNDER the footer. The footer is the
-     CSS-module <SiteFooter/> (hashed class, matched via attribute). */
-  .app-page:has(footer[class*="SiteFooter_footer"]) {
+  /* Pages ending with the site footer let the footer own bottom clearance. */
+  .app-page:has([data-site-footer]) {
     padding-bottom: 0;
-  }
-  .app-page.active {
-    z-index: auto;
-  }
-  /* Map page: window-scrolled in-flow document (the in-flow map rebuild —
-     see the ≤767.98px block at the end of map.module.css). The page grows
-     with its in-flow list content and the WINDOW scrolls it — the only way
-     iOS Safari composites the list rows into its bottom-URL-bar backdrop
-     (real frosted glass, like the start page; verified on-device via a probe
-     page in spike #127: Safari composites only IN-FLOW content of a
-     scrollable document into the bar backdrop; position:fixed layers /
-     overflow-hidden boxes show the body bg instead). min-height keeps the
-     +80px apron so the last rows can sit behind the bar and no void shows
-     below the URL capsule. The detail view is a position:fixed overlay on
-     top of this scrolled document (map.module.css .list[data-view=detail]).
-     Tablets (768–1023.98px) keep the fixed-height box + drag sheet via the
-     globals.css [data-active-page="map"] rules. */
-  .app-page[data-page="map"] {
-    position: relative !important;
-    min-height: 100dvh !important; /* fallback: browsers without lvh */
-    /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
-       document end; must match --map-bar-overhang in map.module.css. */
-    min-height: calc(100lvh + 80px) !important;
-    height: auto !important;
-    z-index: 9990;
-    overflow: visible !important;
-  }
-  .app-page[data-page="map"].active {
-    z-index: 9995;
-  }
-  /* Safari paints the body bg behind the URL bar wherever the sheet's lvh
-     overhang doesn't cover it — keep it matched to the sheet surface. The
-     html bg shows through the translucent bar at the very
-     bottom past the body's paint, reading as a light fade in light mode
-     — pin it to the sheet surface too so there's no cream band behind the bar. */
-  html:has(.app-page[data-page="map"].active),
-  body:has(.app-page[data-page="map"].active) {
-    background: #ffffff;
-  }
-  html:has(.app-page[data-page="map"][data-map-view="detail"]),
-  body:has(.app-page[data-page="map"][data-map-view="detail"]),
-  html:has(.app-page[data-page="map"][data-map-view="detail"]) .app-page[data-page="map"],
-  body:has(.app-page[data-page="map"][data-map-view="detail"]) .app-page[data-page="map"] {
-    background: var(--et-home-paper, #fff) !important;
   }
   .app-page[data-page="start"] {
     background: var(--white);
@@ -576,12 +333,6 @@ body {
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
 @media (min-width: 768px) {
-  .navbar {
-    left: 0; right: 0; transform: none;
-    width: 100%; max-width: none;
-    height: 68px; padding: 0 32px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
   .app-pages {
     max-width: none; margin: 74px 0 0; box-shadow: none;
     height: calc(100dvh - 74px);
@@ -609,18 +360,8 @@ body {
     overflow-y: visible;
     overflow-x: hidden;
   }
-  /* Map page fills viewport exactly — no external scroll, no footer */
-  .app-page[data-page="map"] {
-    height: calc(100dvh - 48px);
-    min-height: 0;
-  }
   .app-page[data-page="start"] {
     background: var(--white);
-  }
-  /* ---- Map: fill available space, no scroll ---- */
-  .app-page[data-page="map"] {
-    overflow: hidden;
-    position: relative;
   }
 }
 /* Cookie banner inline expand. */
@@ -738,52 +479,6 @@ body {
     line-height: 1.35;
   }
 }
-/* ── BURGER MENU ─────────────────────────────────── */
-.burger-btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  padding: 0;
-  color: var(--et-yellow);
-  box-shadow: none;
-  transition: color 0.18s ease, transform 0.18s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-.burger-btn:hover {
-  color: var(--accent-coral);
-  transform: translateY(-1px);
-}
-.burger-btn:focus,
-.burger-btn:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-@media (hover: hover) {
-  .burger-btn:hover {
-    transform: scale(1.18) translateY(-2px);
-  }
-}
-.burger-btn:active {
-  transform: scale(0.94);
-}
-
-body:has(.burger-drawer.active) .burger-btn {
-  color: var(--accent-ink);
-}
-/* Drawer. NOTE: position:fixed layers do NOT composite into iOS Safari's
-   bottom-URL-bar backdrop (verified on device — only in-flow document
-   content shows up there). Don't try to extend the drawer below the
-   viewport; the behind-bar zone is mirrored in-flow instead (see the
-   [data-active-page="map"] ::after strip in globals.css). */
 /* ── Notification toast: styled in app/globals.css (mounted in the root
    locale layout, also on routes that don't load this stylesheet). ── */
 /* ── A11y: keyboard focus ring (WCAG 2.4.7) ──────────────────────────────
@@ -797,198 +492,11 @@ body:has(.burger-drawer.active) .burger-btn {
   outline-offset: 2px;
 }
 
-/* Providence collage icon system */
-.navbar-icon-btn,
-.burger-btn {
-  transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease;
-}
-.navbar-icon-btn img,
-.burger-btn img {
-  filter: none !important;
-  height: 24px !important;
-}
-.navbar-icon-btn.active::before { display: none; }
-/* Header controls: typographic paper stickers instead of bitmap icons. */
-.navbar-icon-btn,
-.burger-btn {
-  width: auto;
-  height: 40px;
-  min-width: 42px;
-  clip-path: none;
-  filter: none;
-  transform: none;
-}
-.navbar-icon-btn.active {
-  background: transparent;
-  color: var(--brand-ink);
-}
-@media (hover: hover) {
-  .navbar-icon-btn:hover,
-  .burger-btn:hover {
-    background: transparent;
-    color: var(--brand-ink);
-    transform: translateY(-2px);
-    box-shadow: none;
-  }
-}
-.navbar-icon-btn:active,
-.burger-btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-/* EAT THIS zine drawer: oversized brand page with numbered paper scraps. */
-.navbar {
-  min-height: 78px;
-  padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(18px, 3vw, 38px) 13px;
-  background-color: var(--home-ink);
-  background-image: none;
-  background-size: auto;
-  border-top: 0;
-  color: var(--et-black);
-  box-shadow: none;
-}
-.navbar::before,
-.navbar::after {
-  content: none;
-}
-.navbar-actions {
-  gap: clamp(16px, 3vw, 38px);
-}
-.navbar-icon-btn,
-.burger-btn {
-  min-height: 38px;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  color: var(--et-black);
-}
-.navbar-icon-btn.active,
-.navbar-icon-btn:hover,
-.navbar-icon-btn:active,
-.burger-btn:hover,
-.burger-btn:active {
-  background: transparent;
-  color: var(--et-black);
-  box-shadow: none;
-}
-.navbar {
-  border-bottom: 0;
-}
-html .navbar,
-html .navbar.scrolled,
-html[data-active-page="start"] .navbar,
-html[data-active-page="start"] .navbar.scrolled {
-  height: calc(72px + env(safe-area-inset-top, 0px)) !important;
-  padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
-  display: flex !important;
-  align-items: center !important;
-  background: var(--home-ink) !important;
-  color: #fff !important;
-  border-bottom: 0 !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-html .navbar::before,
-html .navbar::after {
-  content: none !important;
-}
-html .navbar-actions {
-  align-items: center !important;
-  gap: 8px !important;
-}
-html .navbar-icon-btn,
-html .burger-btn {
-  min-width: 82px !important;
-  height: 44px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  padding: 0 12px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #fff !important;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif) !important;
-  font-size: clamp(18px, 2vw, 22px) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  line-height: .9 !important;
-  text-transform: uppercase !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  filter: none !important;
-}
-html .navbar-icon-btn.active,
-html .navbar-icon-btn:hover,
-html .navbar-icon-btn:active,
-html .burger-btn:hover,
-html .burger-btn:active {
-  background: transparent !important;
-  color: #fff !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-html .navbar-icon-btn.active::before {
-  content: none !important;
-}
-@media (max-width: 520px) {
-  html .navbar,
-html .navbar.scrolled {
-    height: calc(64px + env(safe-area-inset-top, 0px)) !important;
-    padding-inline: 10px !important;
-  }
-  html .navbar-icon-btn,
-html .burger-btn {
-    min-width: 48px !important;
-    width: 48px !important;
-    padding: 0 !important;
-  }
-}
-/* Drawer footer final fit: keep legal links inside the viewport on desktop. */
-/* Final burger-menu direction: loud red poster, big edible rows, no default drawer chrome. */
-html .navbar,
-html .navbar.scrolled,
-html[data-active-page="start"] .navbar {
-  background: var(--home-ink) !important;
-  background-color: var(--home-ink) !important;
-  color: #fff !important;
-  border-bottom: 0 !important;
-  box-shadow: none !important;
-}
-html .navbar-icon-btn,
-html .burger-btn,
-html[data-active-page="start"] .navbar-icon-btn,
-html[data-active-page="start"] .burger-btn {
-  color: #fff !important;
-  border-color: transparent !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-@media (max-width: 767px) {
-  html[data-active-page="start"] #navbar,
-  html[data-active-page="news-article"] #navbar {
-    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
-    will-change: transform;
-  }
-  html.navbar-hidden[data-active-page="start"] #navbar,
-  html.navbar-hidden[data-active-page="news-article"] #navbar {
-    transform: translate3d(0, calc(-100% - 2px), 0) !important;
-  }
-}
-/* Language toggle — quiet Silkscreen micro-label, white on ink, no chip */
-/* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
-/* Logo — cream wordmark sits straight on the ink sheet (drop poster tilt) */
-/* Nav — big white Providence caps as bare words on ink; hover lifts a faint
-   pill + the existing translate. Borderless, modest radius. */
-/* Anmelden / Profil — THE accent button: yellow fill, ink text, borderless */
 /* ══════════════════════════════════════════════════════════════════════
    BURGER DRAWER  —  single source of truth
    Full-screen slide-in menu. Ink sheet · white type · ONE yellow accent ·
    Providence display caps · borderless · modest radius. Mirrors the home
-   masthead (globals.css #navbar) and the ink home footer so header, menu
+   masthead (SiteNav.module.css) and the ink home footer so header, menu
    and footer read as one system.
    Motion: panel + items TRANSLATE in (never opacity — brand rule); the
    container's opacity only tints the backdrop.
@@ -1305,7 +813,7 @@ html[data-active-page="start"] .burger-btn {
 .homeV2 .hv-kicker{font-family:var(--et-font-label);font-weight:700;font-size:var(--et-type-kicker);letter-spacing:var(--et-tracking-label);text-transform:uppercase;color:var(--et-home-ink)}
 .homeV2 .hv-mk{display:inline-block;width:9px;height:9px;background:var(--et-home-accent);margin-right:var(--et-control-gap);vertical-align:1px}
 .homeV2 .hv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--et-head-gap)}
-.homeV2 .hv-title{font-family:var(--et-font-display);font-weight:700;text-transform:uppercase;letter-spacing:var(--et-tracking-title);line-height:var(--et-leading-title);font-size:var(--et-type-section-title)}
+.homeV2 .hv-title{font-family:var(--et-font-display);font-weight:700;color:var(--et-home-red);text-transform:uppercase;letter-spacing:-.025em;line-height:var(--et-leading-title);font-size:var(--et-type-section-title)}
 .homeV2 .hv-link{font-family:var(--et-font-display);font-weight:700;font-size:13px;letter-spacing:0;text-transform:uppercase;color:var(--et-home-ink)}
 .homeV2 .hv-rail{display:flex;gap:var(--et-rail-gap);overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 .homeV2 .hv-rail::-webkit-scrollbar{display:none}
@@ -1315,7 +823,6 @@ html[data-active-page="start"] .burger-btn {
 .homeV2 .hv-cap{font-family:var(--et-font-display);font-weight:700;font-size:clamp(14px,1.1vw,16px);margin-top:var(--et-control-gap);color:var(--et-home-ink)}
 .homeV2 .hv-sub{font-family:var(--et-font-display);font-weight:400;font-size:var(--et-type-caption);color:var(--et-home-muted)}
 .homeV2 .hv-btn{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-button);padding:11px 18px;border-radius:var(--et-radius-control);display:inline-block;background:var(--et-home-ink);color:var(--et-home-inverse-text);border:none;cursor:pointer}
-.homeV2 .hv-btn--accent{background:var(--et-home-accent);color:var(--et-home-ink)}
 .homeV2 .hv-link-underline{font-weight:700;font-size:var(--et-type-button);color:var(--et-home-ink);border-bottom:2px solid var(--et-home-accent);padding-bottom:2px}
 .homeV2 .hv-chip{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-chip);padding:9px 15px;border-radius:var(--et-radius-control);background:var(--et-home-quiet);color:var(--et-home-ink);border:none;cursor:pointer}
 @media (max-width:760px){

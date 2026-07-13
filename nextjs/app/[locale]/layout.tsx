@@ -27,7 +27,7 @@ export function generateStaticParams() {
 
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
-// like [data-active-page="map"] .navbar), locks portrait orientation on mobile,
+// like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
 // and applies the _authHint pre-hydration
 // login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
 // blocks can hide before paint.

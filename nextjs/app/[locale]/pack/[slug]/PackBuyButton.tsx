@@ -91,7 +91,7 @@ export default function PackBuyButton({
 
   if (state === 'owned') {
     return (
-      <a className={className ? `${styles.cta} ${className}` : styles.cta} href={ownedHref}>
+      <a className={className ?? styles.cta} href={ownedHref}>
         {ownedLabel}
       </a>
     )
@@ -101,13 +101,13 @@ export default function PackBuyButton({
     <>
       <button
         type="button"
-        className={className ? `${styles.cta} ${className}` : styles.cta}
+        className={className ?? styles.cta}
         onClick={onBuy}
         disabled={state === 'pending'}
       >
         {state === 'pending' ? pendingLabel : label}
       </button>
-      {state === 'error' && <p className={errorClassName ? `${styles.ctaError} ${errorClassName}` : styles.ctaError}>{errorLabel}</p>}
+      {state === 'error' && <p className={errorClassName ?? styles.ctaError}>{errorLabel}</p>}
     </>
   )
 }

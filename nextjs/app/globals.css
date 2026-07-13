@@ -407,13 +407,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-@media (max-width: 1023.98px) {
-  html[data-login-modal-open],
-  html[data-login-modal-open] body {
-    background: #15120e !important;
-    background-color: #15120e !important;
-  }
-}
 html[data-active-page='start'],
 html[data-active-page='start'] body {
   --food-ink: #15120e;
@@ -448,6 +441,7 @@ html[data-active-page='start'] body {
   --collage-ink: var(--food-ink);
   --collage-shadow: none;
   background-image: none;
+  background-color: var(--food-paper);
   color-scheme: light;
 }
 
@@ -463,11 +457,6 @@ html[data-active-page='start'] body {
 html[data-active-page='start'] [data-hub] {
   background: var(--food-paper);
 }
-html[data-active-page='start'],
-html[data-active-page='start'] body {
-  background-color: var(--food-paper);
-}
-
 /* Sitewide Providence collage language. The map remains a purpose-built
    full-screen tool; every content page gets the paper/print treatment. */
 html:not([data-active-page='map']) .app-pages,
@@ -489,58 +478,6 @@ html:not([data-active-page='map']) .app-page {
   }
 }
 
-html:not([data-active-page='map']) main,
-html:not([data-active-page='map']) .app-page:not([data-page='start']) {
-  position: relative;
-  isolation: isolate;
-}
-/* Legacy brand heading-red. Menu-design surfaces opt out via [data-menu] on
-   their <main> so their own ink/Chauncy headings win. */
-html:not([data-active-page='map']) main:not([data-menu]) h1,
-html:not([data-active-page='map']) main:not([data-menu]) h2,
-html:not([data-active-page='map']) .app-page:not([data-page='start']):not([data-menu]) h1,
-html:not([data-active-page='map']) .app-page:not([data-page='start']):not([data-menu]) h2 {
-  color: var(--collage-red);
-  letter-spacing: -0.025em;
-}
-html:not([data-active-page='map']) main blockquote,
-html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote {
-  position: relative;
-  background: var(--collage-yellow);
-  color: var(--collage-ink);
-  border: 0;
-  box-shadow: var(--collage-shadow);
-  transform: rotate(-1deg);
-}
-html:not([data-active-page='map']) main blockquote::before,
-html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 82px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.62);
-  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
-  transform: translateX(-50%) rotate(3deg);
-}
-html:not([data-active-page='map']) main article img,
-html:not([data-active-page='map']) .app-page:not([data-page='start']) article img {
-  box-shadow: var(--collage-shadow);
-}
-html:not([data-active-page='map']) main button:not([aria-label]),
-html:not([data-active-page='map']) main a[role='button'],
-html:not([data-active-page='map']) .app-page:not([data-page='start']) button:not([aria-label]),
-html:not([data-active-page='map']) .app-page:not([data-page='start']) a[role='button'] {
-  border-radius: 0;
-}
-@media (min-width: 720px) {
-  html:not([data-active-page='map']) main::before,
-  html:not([data-active-page='map']) .app-page:not([data-page='start'])::before {
-    right: 28px;
-    font-size: 13px;
-  }
-}
 img {
   max-width: 100%;
   height: auto;
@@ -549,6 +486,12 @@ img {
 a {
   text-decoration: none;
   color: inherit;
+}
+/* Inline-critical FOUC guards: these legacy overlay hooks may be mounted by
+   deferred SPA code before the external stylesheet is available. */
+.map-spot-overlay:not(.active),
+.search-overlay:not(.active) {
+  display: none;
 }
 /* Keep the burger drawer in the render tree while closed so the panel can
    transition from its off-screen transform. Opacity hides it pre-paint while
@@ -579,134 +522,131 @@ html:not([data-auth='1']) [data-auth-only] {
 html[data-auth='1'] [data-guest-only] {
   display: none;
 }
-/* 2026 EDITORIAL FRAME removed — the dark border-mat read as heavy chrome
-   over the editorial-v13 redesign. Navbar + app-pages now go flush. */
-/* Map page is position:fixed and owns the full viewport below the top nav.
-   Override the generic .app-page padding-bottom (reserved for fixed tab bars)
-   so the bottom sheet reaches the bottom of the screen without a gap.
-   Use 100dvh (dynamic viewport) instead of the base rule's 100vh — on iOS
-   Safari, 100vh is the LARGE viewport (URL bar hidden) which makes the
-   page overflow when the URL bar is shown, leaving a strip of whitespace
-   below the sheet. dvh adjusts as the URL bar shows/hides.
-   (See memory feedback_ios_overlay_pattern.md.) */
+/* The map owns the full dynamic viewport. Phones grow into an in-flow
+   document so iOS browser chrome can sample real page content behind its bar. */
 .app-page[data-page='map'] {
-  padding-bottom: 0 !important;
-  /* Map has no navbar (hidden via [data-active-page="map"] .navbar) — the
-     canvas claims the full viewport. */
-  height: 100dvh !important;
+  position: relative;
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: 0;
+  overflow: hidden;
 }
-/* Mobile: the navbar goes transparent over the map (see style.css
-   [data-active-page="map"] block). Map canvas now claims the full
-   viewport including the top 60px the navbar used to reserve. */
+
 @media (max-width: 1023.98px) {
-  /* The map needs document height below the visual viewport so mobile
-     browser chrome can sample real in-flow content. Phones overwrite
-     --map-runtime-bar-overhang from visualViewport in MapSection; fallback
-     preserves the old lvh/dvh estimate. */
   [data-active-page='map'] .app-pages {
-    margin-top: 0 !important;
-    height: 100dvh !important; /* fallback: browsers without lvh */
+    margin-top: 0;
     height: calc(
       100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    ) !important;
+    );
   }
+
   .app-page[data-page='map'] {
-    height: 100dvh !important;
     height: calc(
       100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    ) !important;
+    );
   }
 }
-/* Phones: the map list is a window-scrolled in-flow document (in-flow map
-   rebuild — see the ≤767.98px block in map.module.css). The fixed-height box
-   above is tablet-only; here the page must grow with the list so the window
-   scrolls it and the rows frost through iOS Safari's bottom URL bar. */
+
 @media (max-width: 767.98px) {
   [data-active-page='map'] .app-pages {
-    height: auto !important;
+    height: auto;
     min-height: calc(
       100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    ) !important;
+    );
   }
+
   .app-page[data-page='map'] {
-    height: auto !important;
+    height: auto;
     min-height: calc(
       100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    ) !important;
+    );
+    z-index: 9990;
+    overflow: visible;
+  }
+
+  .app-page[data-page='map'].active {
+    z-index: 9995;
+  }
+
+  html:has(.app-page[data-page='map'].active),
+  body:has(.app-page[data-page='map'].active) {
+    background: #fff;
+  }
+
+  html:has(.app-page[data-page='map'][data-map-view='detail']),
+  body:has(.app-page[data-page='map'][data-map-view='detail']),
+  html:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'],
+  body:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'] {
+    background: var(--et-home-paper, #fff);
   }
 }
-/* Map redesign: no solid header — a single floating burger (in MapSectionBody)
-   sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
-   stays mounted so #burgerBtn's open handler keeps working when triggered
-   programmatically by the floating burger. */
-[data-active-page='map'] .navbar,
-[data-active-page='map'] header[role='banner'] {
-  display: none !important;
-}
-/* No footer below the map page — it would extend the document past the
-   page's 100lvh and let the window scroll the whole map UI away; its black
-   top edge also peeks into Safari's bottom-bar zone. (style.css has a
-   :has()-based copy of this, but only inside the ≥768px block.) */
-[data-active-page='map'] .site-footer {
-  display: none !important;
-}
+
 /* Login modal behind the iOS bottom URL bar: handled by
    app/components/LoginModalBarLock.tsx (inline-style scroll-lock + canvas
    recolor on modal mount) — a stylesheet :has() variant computed correctly
    but did not recolor the bar on device. */
 @media (min-width: 1024px) {
   [data-active-page='map'] .app-pages {
-    margin-top: 0 !important;
-    height: 100dvh !important;
+    margin-top: 0;
+    height: 100dvh;
   }
 }
 /* User-location marker is purely informational. The avatar must visually
    sit ABOVE every restaurant + must-eat marker (so the figure is never
    hidden behind a card), yet clicks must fall through to whichever
    marker sits beneath it. z-index 1000 beats the per-card fan z-indexes
-   (which max at ~100 when a card is selected); pointer-events:none
-   sends the click to the marker behind. The class is added via
+   (which max at ~100 when a card is selected). Pointer passthrough is owned
+   by UserLocationMarker and its local .userLoc rule; this class is added via
    react-map-gl Marker's className prop on the maplibre wrapper. */
 .user-loc-marker {
-  z-index: 1000 !important;
-}
-.user-loc-marker,
-.user-loc-marker * {
-  pointer-events: none !important;
+  z-index: 1000;
 }
 /* ── Notification toast (window.showNotification) ──────────────────────
    Mounted globally in app/[locale]/layout.tsx (NotificationToast.tsx).
    Styled here instead of style.css because /profile and /login don't load
    the SPA stylesheet. Brand motion: slide up from below the viewport edge
-   (transform only — no opacity fade), like a small printed receipt sticker. */
+   (transform only — no opacity fade). */
 .notification {
-  --toast-paper: var(--brand-paper);
-  --toast-shadow: rgba(16, 13, 15, 0.16);
+  --toast-surface: var(--et-home-ink, #15120e);
+  --toast-ink: var(--et-home-inverse-text, #fff);
+  --toast-muted: rgba(255, 255, 255, 0.72);
+  --toast-accent: var(--et-home-accent, #ffc600);
   position: fixed;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
   left: 50%;
+  z-index: 10000;
   display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;
-  border-left-width: 8px;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  min-height: 38px;
+  padding: 8px 10px;
+  color: var(--toast-ink);
   text-align: left;
-  z-index: 10000; /* above the legacy navbar (9999) */
+  background: var(--toast-surface);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
   pointer-events: none;
+  transform: translate(-50%, calc(100% + 112px));
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.notification[data-tone='error'] {
-  --toast-paper: var(--brand-action);
-  --toast-shadow: rgba(239, 53, 40, 0.32);
+.notification.show {
+  transform: translate(-50%, 0);
 }
 .notification-mark {
   display: grid;
   place-items: center;
-}
-.notification[data-tone='warning'] .notification-mark {
-  color: var(--brand-ink);
-}
-.notification[data-tone='error'] .notification-mark {
-  border-color: var(--brand-paper);
+  width: 24px;
+  height: 24px;
+  color: var(--toast-accent);
+  background: transparent;
 }
 .notification-mark svg {
   display: block;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
   stroke: currentColor;
   stroke-linecap: round;
@@ -717,236 +657,13 @@ html[data-auth='1'] [data-guest-only] {
   fill: none;
 }
 .notification-copy {
-  min-width: 0;
-}
-.notification-eyebrow {
-  text-transform: uppercase;
-}
-@media (max-width: 420px) {
-  .notification {
-    border-left-width: 7px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .notification {
-    transition-duration: 1ms;
-  }
-}
-/* 2026 map/info-layer refresh: clean system toast, no cream paper/sticker frame. */
-.notification {
-  --toast-surface: #fff;
-  --toast-ink: #15120e;
-  --toast-muted: rgba(21, 18, 14, 0.62);
-  --toast-line: rgba(21, 18, 14, 0.11);
-  --toast-accent: #d9382a;
-  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 11px;
-  width: min(390px, calc(100vw - 28px));
-  min-height: 64px;
-  padding: 11px 14px 12px 12px;
-  border: 0;
-  border-radius: 16px;
-  background: var(--toast-surface);
-  color: var(--toast-ink);
-  box-shadow:
-    0 16px 44px rgba(0, 0, 0, 0.16),
-    inset 0 0 0 1px var(--toast-line);
-  transform: translate(-50%, calc(100% + 112px));
-  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.notification[data-tone='success'] {
-  --toast-accent: #d9382a;
-}
-.notification[data-tone='warning'] {
-  --toast-accent: #15120e;
-}
-.notification[data-tone='error'] {
-  --toast-surface: #15120e;
-  --toast-ink: #fff;
-  --toast-muted: rgba(255, 255, 255, 0.72);
-  --toast-line: rgba(255, 255, 255, 0.12);
-  --toast-accent: #d9382a;
-}
-.notification[data-tone='info'] {
-  --toast-accent: #15120e;
-}
-.notification-mark {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--toast-accent);
-  color: #fff;
-  box-shadow: none;
-}
-.notification[data-tone='info'] .notification-mark,
-.notification[data-tone='warning'] .notification-mark {
-  background: #15120e;
-  color: #fff;
-}
-.notification[data-tone='error'] .notification-mark {
-  border: 0;
-  background: #d9382a;
-  color: #fff;
-  box-shadow: none;
-}
-.notification-mark svg {
-  stroke-width: 2.25;
-}
-.notification-copy {
-  align-self: center;
-}
-.notification-eyebrow {
-  font-family: var(--font-body);
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  color: var(--toast-accent);
-}
-.notification[data-tone='error'] .notification-eyebrow {
-  color: #fff;
-}
-.notification-title {
-  letter-spacing: 0;
-}
-.notification-detail {
-  max-width: 38ch;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--toast-muted);
-}
-.notification[data-tone='error'] .notification-detail {
-  color: var(--toast-muted);
-}
-@media (max-width: 420px) {
-  .notification {
-    grid-template-columns: 32px minmax(0, 1fr);
-    gap: 10px;
-    width: min(362px, calc(100vw - 20px));
-    min-height: 62px;
-    padding: 10px 12px 11px 10px;
-    border: 0;
-    border-radius: 15px;
-  }
-  .notification-title {
-    font-size: 14px;
-  }
-  .notification-detail {
-    max-width: 28ch;
-    font-size: 11.5px;
-  }
-}
-.notification[data-variant='signed-out'] {
-  --toast-surface: #15120e;
-  --toast-ink: #fffdf7;
-  --toast-muted: rgba(255, 253, 247, 0.72);
-  --toast-line: rgba(255, 253, 247, 0.1);
-  --toast-accent: #d9382a;
-  grid-template-columns: 46px minmax(0, 1fr);
-  gap: 14px;
-  width: min(430px, calc(100vw - 24px));
-  min-height: 86px;
-  padding: 15px 18px 16px 14px;
-  border-radius: 8px;
-  background: var(--toast-surface);
-  box-shadow:
-    0 22px 52px rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px var(--toast-line);
-}
-.notification[data-variant='signed-out'] .notification-mark {
-  width: 46px;
-  height: 46px;
-  background: var(--toast-accent);
-  color: #fff;
-}
-.notification[data-variant='signed-out'] .notification-mark svg {
-  width: 23px;
-  height: 23px;
-}
-.notification[data-variant='signed-out'] .notification-copy {
-  gap: 4px;
-}
-.notification[data-variant='signed-out'] .notification-eyebrow {
-  color: var(--toast-accent);
-  font-size: 10px;
-}
-.notification[data-variant='signed-out'] .notification-title {
-  color: var(--toast-ink);
-  font-size: clamp(20px, 5vw, 24px);
-  line-height: 1;
-}
-.notification[data-variant='signed-out'] .notification-detail {
-  max-width: 32ch;
-  color: var(--toast-muted);
-  font-size: 13px;
-  line-height: 1.28;
-}
-@media (max-width: 420px) {
-  .notification[data-variant='signed-out'] {
-    grid-template-columns: 42px minmax(0, 1fr);
-    min-height: 80px;
-    padding: 13px 14px 14px 12px;
-  }
-  .notification[data-variant='signed-out'] .notification-mark {
-    width: 42px;
-    height: 42px;
-  }
-}
-/* Final notification layer: match the compact locked/location map status. */
-.notification,
-.notification[data-tone='success'],
-.notification[data-tone='warning'],
-.notification[data-tone='error'],
-.notification[data-tone='info'] {
-  --toast-surface: var(--et-home-ink, #15120e);
-  --toast-ink: var(--et-home-inverse-text, #fff);
-  --toast-muted: rgba(255, 255, 255, 0.72);
-  --toast-accent: var(--et-home-accent, #ffc600);
-  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  width: min(360px, calc(100vw - 32px));
-  min-height: 38px;
-  padding: 8px 10px;
-  color: var(--toast-ink);
-  background: var(--toast-surface);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  transform: translate(-50%, calc(100% + 112px));
-}
-.notification.show {
-  transform: translate(-50%, 0);
-}
-.notification-mark,
-.notification[data-tone='info'] .notification-mark,
-.notification[data-tone='warning'] .notification-mark,
-.notification[data-tone='error'] .notification-mark {
-  width: 24px;
-  height: 24px;
-  color: var(--toast-accent);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-.notification-mark svg {
-  width: 18px;
-  height: 18px;
-}
-.notification-copy {
   display: flex;
   align-items: baseline;
   gap: 6px;
+  min-width: 0;
 }
 .notification-eyebrow,
-.notification[data-tone='error'] .notification-eyebrow {
-  color: var(--toast-muted);
+.notification-title {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -954,13 +671,11 @@ html[data-auth='1'] [data-guest-only] {
   line-height: 1.08;
   text-transform: none;
 }
+.notification-eyebrow {
+  color: var(--toast-muted);
+}
 .notification-title {
   color: var(--toast-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.08;
-  text-transform: none;
   overflow-wrap: anywhere;
 }
 .notification-detail {
@@ -972,16 +687,9 @@ html[data-auth='1'] [data-guest-only] {
   }
 }
 @media (max-width: 420px) {
-  .notification,
-  .notification[data-tone='success'],
-  .notification[data-tone='warning'],
-  .notification[data-tone='error'],
-  .notification[data-tone='info'] {
+  .notification {
     grid-template-columns: 22px minmax(0, 1fr);
     width: min(342px, calc(100vw - 20px));
-    min-height: 38px;
-    padding: 8px 10px;
-    border-radius: var(--et-radius-control, 7px);
   }
   .notification-mark {
     width: 22px;
@@ -990,103 +698,5 @@ html[data-auth='1'] [data-guest-only] {
   .notification-mark svg {
     width: 17px;
     height: 17px;
-  }
-  .notification-eyebrow,
-  .notification-title {
-    font-size: 13px;
-  }
-}
-.navbar,
-.navbar.scrolled,
-html[data-active-page='start'] .navbar,
-html[data-active-page='start'] .navbar.scrolled {
-  height: calc(72px + env(safe-area-inset-top, 0px)) !important;
-  padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
-  display: flex !important;
-  align-items: center !important;
-  background: #d9382a !important;
-  color: #fff !important;
-  border-bottom: 0 !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-/* HOME V2 — black masthead on the home (/, data-active-page="start"):
-   black/white/yellow, with the footer's bubble logo (white on black).
-   Uses the #navbar id (specificity 1,1,1) so it wins over the red
-   html[data-active-page] .navbar !important rules in the SPA stylesheet,
-   regardless of stylesheet load order. Home only; other pages keep red. */
-html[data-active-page='start'] #navbar,
-html[data-active-page='start'] #navbar.scrolled {
-  background: #15120e !important;
-  background-color: #15120e !important;
-  color: #fff !important;
-  border-bottom: 0 !important;
-}
-html[data-active-page='start'] #navbar .navbar-home a,
-html[data-active-page='start'] #navbar .navbar-icon-btn,
-html[data-active-page='start'] #navbar .burger-btn {
-  color: #fff !important;
-}
-html[data-active-page='start'] #navbar .navbar-icon-btn:hover,
-html[data-active-page='start'] #navbar .navbar-icon-btn:focus-visible,
-html[data-active-page='start'] #navbar .burger-btn:hover,
-html[data-active-page='start'] #navbar .burger-btn:focus-visible {
-  color: #ffc600 !important;
-}
-.navbar::before,
-.navbar::after {
-  content: none !important;
-}
-@media (max-width: 520px) {
-  html:not([data-active-page='map']) #navbar {
-    height: calc(64px + env(safe-area-inset-top, 0px)) !important;
-    min-height: calc(64px + env(safe-area-inset-top, 0px)) !important;
-    padding-inline: 10px !important;
-  }
-}
-@media (max-width: 767px) {
-  /* Device-verified on iPhone 16 Safari: an off-screen navbar still leaves the
-     status bar black unless its rendered layer ends at display:none. Keep that
-     confirmed end state; animate only a clipped visual surface on the way out. */
-  html:not([data-active-page='map']) #navbar.navbar {
-    background: transparent !important;
-    background-color: transparent !important;
-    transform: none !important;
-    transition: none !important;
-  }
-  html:not([data-active-page='map']) #navbar::before {
-    content: '' !important;
-    display: block !important;
-    position: absolute !important;
-    inset: 0;
-    z-index: 0;
-    background: #15120e;
-    pointer-events: none;
-    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
-  }
-  html:not([data-active-page='map']) #navbar > * {
-    position: relative;
-    z-index: 1;
-    transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
-  }
-  html.navbar-hidden:not([data-active-page='map']) #navbar.navbar {
-    -webkit-clip-path: inset(calc(env(safe-area-inset-top, 0px) + 2px) 0 0 0);
-    clip-path: inset(calc(env(safe-area-inset-top, 0px) + 2px) 0 0 0);
-    pointer-events: none;
-  }
-  html.navbar-hidden:not([data-active-page='map']) #navbar::before {
-    transform: translate3d(0, calc(-100% - 2px), 0) !important;
-  }
-  html.navbar-hidden:not([data-active-page='map']) #navbar > * {
-    transform: translate3d(0, calc(-72px - env(safe-area-inset-top, 0px) - 2px), 0) !important;
-  }
-  html.navbar-collapsed:not([data-active-page='map']) #navbar.navbar {
-    display: none !important;
-  }
-}
-@media (max-width: 520px) {
-  html.navbar-hidden:not([data-active-page='map']) #navbar > * {
-    transform: translate3d(0, calc(-64px - env(safe-area-inset-top, 0px) - 2px), 0) !important;
   }
 }

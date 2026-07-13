@@ -76,11 +76,11 @@
 .hero h1 {
   max-width: 10ch;
   margin: 0;
-  color: inherit;
+  color: var(--guide-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(56px, 9.5vw, 142px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: .78;
   text-transform: uppercase;
 }
@@ -167,11 +167,11 @@
 .listHead h2 {
   max-width: 10ch;
   margin: 0;
-  color: var(--guide-ink);
+  color: var(--guide-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(42px, 7vw, 96px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: .82;
   text-transform: uppercase;
 }

@@ -11,7 +11,7 @@ export default function SiteFooter() {
   const askRemy = de ? 'Frag Remy' : 'Ask Remy'
 
   return (
-    <footer className={styles.footer} role="contentinfo" aria-label="Site footer">
+    <footer className={styles.footer} data-site-footer role="contentinfo" aria-label="Site footer">
       <div className={styles.top}>
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">

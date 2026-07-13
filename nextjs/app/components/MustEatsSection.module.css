@@ -181,7 +181,7 @@
 
 .title,
 .closeTitle {
-  color: var(--must-ink);
+  color: var(--et-home-red);
 }
 
 .title {
@@ -496,7 +496,7 @@
 .closeTitle {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: var(--et-leading-hero, .9);
   text-transform: uppercase;
 }
@@ -539,7 +539,7 @@
   background: var(--et-home-quiet, #f2f1ef);
   color: var(--must-ink);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: 0;
 }
 
 .fchipOn,

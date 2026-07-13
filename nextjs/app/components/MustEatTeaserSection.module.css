@@ -48,9 +48,9 @@
   font-weight: 700;
   font-size: clamp(26px, 5.6vw, 38px);
   line-height: var(--et-leading-title, 0.9);
-  letter-spacing: var(--et-tracking-title, 0);
+  letter-spacing: -.025em;
   text-transform: uppercase;
-  color: var(--text-primary, #000);
+  color: var(--et-home-red);
   margin: 0 0 12px;
   text-wrap: balance;
 }

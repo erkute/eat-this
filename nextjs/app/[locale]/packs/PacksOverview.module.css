@@ -5,6 +5,7 @@
   --packs-line: var(--et-home-line, rgba(21, 18, 14, .18));
   --packs-quiet: var(--et-home-quiet, #f2f1ef);
   --packs-accent: var(--et-home-accent, #ffc600);
+  --packs-red: var(--et-home-red, #d9382a);
   min-height: 100%;
   overflow-x: clip;
   padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(24px, 4vw, 52px)) 0 clamp(64px, 8vw, 120px);
@@ -34,11 +35,11 @@
 .heroTitle {
   max-width: 8ch;
   margin: 0;
-  color: var(--packs-ink);
+  color: var(--packs-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(58px, 7.5vw, 100px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: .84;
   text-transform: uppercase;
 }
@@ -84,19 +85,28 @@
 }
 
 .buyButton {
-  min-height: 48px !important;
-  padding: 0 18px !important;
-  background: var(--packs-ink) !important;
-  color: var(--packs-paper) !important;
-  border: 0 !important;
-  border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: none !important;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: var(--et-type-button, 13px) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  line-height: 1 !important;
-  text-transform: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 520px);
+  min-height: 48px;
+  margin: 14px 0 12px;
+  padding: 0 18px;
+  color: var(--packs-paper);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  background: var(--packs-ink);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  cursor: pointer;
+  transition: transform var(--et-motion-fast, 140ms ease), background-color var(--et-motion-fast, 140ms ease);
 }
 
 .buyButton:hover,
@@ -104,32 +114,18 @@
   transform: translateY(-2px);
 }
 
+.buyButton:active {
+  transform: translateY(0);
+}
+
 .heroBuyButton {
-  width: min(100%, 430px) !important;
-  min-height: 54px !important;
-  padding: 0 18px 0 22px !important;
-  background: var(--packs-accent) !important;
-  color: var(--packs-ink) !important;
-  border: 0 !important;
-  border-radius: var(--et-radius-control, 7px) !important;
-  box-shadow: none !important;
-  font-size: clamp(16px, 1.4vw, 19px) !important;
-  line-height: .95 !important;
-}
-
-.heroBuyButton:hover,
-.heroBuyButton:focus-visible {
-  transform: translateY(-2px) !important;
-  box-shadow: none !important;
-}
-
-.heroBuyButton:active {
-  transform: translateY(0) !important;
-  box-shadow: none !important;
-}
-
-.heroBuyButton svg {
-  display: none !important;
+  width: min(100%, 430px);
+  min-height: 54px;
+  padding: 0 18px 0 22px;
+  color: var(--packs-ink);
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: .95;
+  background: var(--packs-accent);
 }
 
 .buyButton:disabled {
@@ -139,10 +135,13 @@
 
 .buyError {
   flex-basis: 100%;
+  width: min(100%, 520px);
   margin: 0;
   color: var(--et-home-red, #d9382a);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: 13px;
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .payTrust {
@@ -284,11 +283,11 @@
 
 .catalogHead h2 {
   margin: 0;
-  color: var(--packs-ink);
+  color: var(--packs-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: var(--et-type-hero-compact, clamp(42px, 6vw, 68px));
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: .9;
   text-transform: uppercase;
 }
@@ -455,7 +454,7 @@
 
   .heroBuyButton,
   .payTrust {
-    width: 100% !important;
+    width: 100%;
   }
 
   .heroTitle {

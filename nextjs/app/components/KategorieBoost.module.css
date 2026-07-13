@@ -48,11 +48,11 @@
 
 .title {
   margin: 0;
-  color: var(--et-home-paper);
+  color: var(--et-home-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(29px, 3.3vw, 46px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
+  letter-spacing: -.025em;
   line-height: .94;
   text-transform: none;
 }

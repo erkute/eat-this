@@ -21,7 +21,7 @@
   /* Contain child margins (.grid margin-bottom etc.) so they don't
      collapse out of the page and expose body bg between main + footer. */
   display: flow-root;
-  /* Clears the fixed legacy .navbar (60px + safe-area) */
+  /* Reserves the fixed site navigation (64px + safe-area). */
   padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
   position: relative;
   overflow-x: clip;
@@ -118,7 +118,8 @@
   font-family: var(--f-display);
   font-size: clamp(28px, 7.5vw, 44px);
   line-height: 1.1;
-  color: var(--collage-red);
+  color: var(--et-home-red);
+  letter-spacing: -.025em;
   margin: 0 0 8px;
   text-transform: uppercase;
 }
@@ -470,7 +471,6 @@
 }
 
 .h1,
-.sectionHead h2,
 .cardName {
   color: var(--ink);
 }
@@ -679,11 +679,11 @@
 .bezirkDetail .sectionHead h2 {
   max-width: 14ch;
   margin: 0;
-  color: var(--et-home-ink);
+  color: var(--et-home-red);
   font-family: var(--et-font-display);
   font-size: clamp(42px, 7vw, 76px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
+  letter-spacing: -.025em;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -811,11 +811,11 @@
 .faqTitle {
   max-width: 10ch;
   margin: 0;
-  color: var(--et-home-ink);
+  color: var(--et-home-red);
   font-family: var(--et-font-display);
   font-size: clamp(38px, 6vw, 66px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
+  letter-spacing: -.025em;
   line-height: 0.92;
   text-transform: uppercase;
 }

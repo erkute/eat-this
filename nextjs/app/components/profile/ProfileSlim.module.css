@@ -347,6 +347,7 @@
 .heroEdit {
   appearance: none;
   justify-self: start;
+  border-radius: 0;
 }
 
 .heroEdit:hover,
@@ -656,7 +657,7 @@
   appearance: none;
   color: var(--profile-inverse);
   background: var(--profile-ink);
-  border-radius: var(--profile-radius);
+  border-radius: 0;
   justify-self: center;
   margin: clamp(4px, 1vw, 10px) 0 0;
   cursor: pointer;

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { localeUrl } from '@/lib/locale-url'
 
-export type AppLocale = 'de' | 'en'
+type AppLocale = 'de' | 'en'
 
 /**
  * Builds the `alternates.canonical` + `alternates.languages` block that every

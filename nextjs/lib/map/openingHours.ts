@@ -68,7 +68,7 @@ const SCHEMA_DAYS = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 ] as const
 
-export interface OpeningHoursSpecification {
+interface OpeningHoursSpecification {
   '@type': 'OpeningHoursSpecification'
   dayOfWeek: string[]
   opens: string

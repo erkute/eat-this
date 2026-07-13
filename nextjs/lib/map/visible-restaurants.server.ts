@@ -21,7 +21,7 @@ interface ComposeVisibleRestaurantsArgs {
   today?: string
 }
 
-export interface VisibleRestaurantsResult {
+interface VisibleRestaurantsResult {
   restaurants: MapRestaurant[]
   lockedRestaurants: MapRestaurant[]
   mustEats: MapMustEat[]

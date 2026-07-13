@@ -99,6 +99,7 @@
   margin-top: 13px;
   color: var(--et-home-inverse-text);
   background: var(--et-home-ink);
+  border-radius: 0;
   font-size: 16px;
   line-height: 1;
   cursor: pointer;

@@ -2,17 +2,17 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { Timestamp } from 'firebase-admin/firestore'
 
-export interface RateLimitState {
+interface RateLimitState {
   minuteStart: number
   minuteCount: number
   dayStart: number
   dayCount: number
 }
-export interface RateLimits {
+interface RateLimits {
   perMinute: number
   perDay: number
 }
-export interface RateLimitDecision {
+interface RateLimitDecision {
   allowed: boolean
   reason?: 'per_minute' | 'per_day'
   state: RateLimitState

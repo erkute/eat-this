@@ -11,7 +11,7 @@ import {
 
 import { mapGeoError, type UserLocationError } from './useUserLocation'
 
-export interface UserLocation {
+interface UserLocation {
   lat: number
   lng: number
 }

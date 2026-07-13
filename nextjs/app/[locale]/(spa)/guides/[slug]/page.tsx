@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import Link from 'next/link'
 import { setRequestLocale } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import SiteFooter from '@/app/components/SiteFooter'
 import { NEWS_GUIDES, getNewsGuide } from '@/lib/news-guides'
 import { getRestaurantsByCategory } from '@/lib/sanity.server'
@@ -55,16 +55,15 @@ export default async function GuidePage({ params }: PageProps) {
   const loc = locale === 'en' ? 'en' : 'de'
   const de = loc === 'de'
   const restaurants = await getRestaurantsByCategory(guide.categorySlug)
-  const categoryHref = de ? `/kategorie/${guide.categorySlug}` : `/${loc}/kategorie/${guide.categorySlug}`
-  const mapHref = de ? `/map?cat=${guide.mapQuery}` : `/${loc}/map?cat=${guide.mapQuery}`
-  const newsHref = de ? '/news' : `/${loc}/news`
-  const restaurantHref = (rSlug: string) => de ? `/restaurant/${rSlug}` : `/${loc}/restaurant/${rSlug}`
+  const categoryHref = `/kategorie/${guide.categorySlug}`
+  const mapHref = `/map?cat=${guide.mapQuery}`
+  const restaurantHref = (rSlug: string) => `/restaurant/${rSlug}`
 
   return (
     <div className={`app-page active ${styles.page}`} data-page="guides">
       <main className={styles.shell}>
         <nav className={styles.breadcrumb} aria-label={de ? 'Navigation' : 'Navigation'}>
-          <Link href={newsHref}>{de ? 'Auf dem Teller' : 'Food News'}</Link>
+          <Link href="/news">{de ? 'Auf dem Teller' : 'Food News'}</Link>
           <span aria-hidden="true">/</span>
           <span>{guide.shortTitle[loc]}</span>
         </nav>

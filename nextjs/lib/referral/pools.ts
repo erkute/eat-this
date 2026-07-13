@@ -1,6 +1,6 @@
 // Pure pool math for referral bonuses. No I/O — fully unit-tested.
 
-export interface PoolInput {
+interface PoolInput {
   allIds:             string[]
   anonIds:            Set<string>
   signedIds:          Set<string>

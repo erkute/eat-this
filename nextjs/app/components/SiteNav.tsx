@@ -1,24 +1,16 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
 
-// Strip the optional /en prefix to get the route the SPA cares about.
-function stripLocale(path: string): string {
-  if (path === '/en' || path.startsWith('/en/')) return path.slice(3) || '/';
-  return path;
-}
-
 function pageSlugFromPath(path: string): string {
-  const p = stripLocale(path);
-  if (p === '/') return 'start';
-  if (p.startsWith('/news/') && p.length > 6) return 'news-article';
-  return p.replace(/^\//, '').split('/')[0];
+  if (path === '/') return 'start';
+  if (path.startsWith('/news/') && path.length > 6) return 'news-article';
+  return path.replace(/^\//, '').split('/')[0];
 }
 
 export default function SiteNav() {
@@ -37,9 +29,8 @@ export default function SiteNav() {
   }, [activePage]);
 
   useEffect(() => {
-    const root = document.documentElement;
     const navbar = document.getElementById('navbar');
-    root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
+    if (navbar) navbar.dataset.visibility = 'visible';
     if (!navbar || activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
@@ -55,19 +46,19 @@ export default function SiteNav() {
       }
       if (showFrame !== undefined) return;
 
-      const wasCollapsed = root.classList.contains('navbar-collapsed');
-      root.classList.remove('navbar-collapsed');
+      const wasCollapsed = navbar.dataset.visibility === 'collapsed';
       if (!wasCollapsed) {
-        root.classList.remove('navbar-hidden');
+        navbar.dataset.visibility = 'visible';
         return;
       }
 
       // Restore the fully translated state for one frame before revealing it,
       // otherwise display:none -> visible skips the return transition.
+      navbar.dataset.visibility = 'hidden';
       void navbar.offsetHeight;
       showFrame = window.requestAnimationFrame(() => {
         showFrame = undefined;
-        root.classList.remove('navbar-hidden');
+        navbar.dataset.visibility = 'visible';
       });
     };
     const hide = () => {
@@ -75,15 +66,16 @@ export default function SiteNav() {
         window.cancelAnimationFrame(showFrame);
         showFrame = undefined;
       }
-      if (!root.classList.contains('navbar-hidden')) {
-        root.classList.add('navbar-hidden');
+      if (navbar.dataset.visibility === 'collapsed') return;
+      if (navbar.dataset.visibility !== 'hidden') {
+        navbar.dataset.visibility = 'hidden';
       }
-      if (collapseTimer !== undefined || root.classList.contains('navbar-collapsed')) return;
+      if (collapseTimer !== undefined) return;
 
       collapseTimer = window.setTimeout(() => {
         collapseTimer = undefined;
-        if (root.classList.contains('navbar-hidden')) {
-          root.classList.add('navbar-collapsed');
+        if (navbar.dataset.visibility === 'hidden') {
+          navbar.dataset.visibility = 'collapsed';
         }
       }, 280);
     };
@@ -122,7 +114,7 @@ export default function SiteNav() {
       media.removeEventListener('change', onMediaChange);
       if (collapseTimer !== undefined) window.clearTimeout(collapseTimer);
       if (showFrame !== undefined) window.cancelAnimationFrame(showFrame);
-      root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
+      navbar.dataset.visibility = 'visible';
     };
   }, [activePage]);
 
@@ -131,12 +123,17 @@ export default function SiteNav() {
       <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
-      <nav className="navbar" id="navbar">
+      <nav
+        className={styles.nav}
+        id="navbar"
+        data-nav-page={activePage}
+        data-visibility="visible"
+      >
         {/* Left: map text */}
-        <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
+        <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink
             href="/map"
-            className={`navbar-icon-btn ${styles.mapSticker}${activePage === 'map' ? ' active' : ''}`}
+            className={styles.control}
             id="navMapBtn"
             aria-label="Map"
           >
@@ -144,7 +141,7 @@ export default function SiteNav() {
           </MapIntentLink>
         </div>
         {/* Center: Logo */}
-        <div className="navbar-home">
+        <div className={styles.home}>
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -158,9 +155,10 @@ export default function SiteNav() {
           </Link>
         </div>
         {/* Right: menu text (News lives in the drawer) */}
-        <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <div className={`${styles.actions} ${styles.actionsEnd}`}>
           <button
-            className={`burger-btn ${styles.menuSticker}`}
+            type="button"
+            className={styles.control}
             id="burgerBtn"
             aria-label={lang === 'de' ? 'Menü' : 'Menu'}
             aria-controls="burgerDrawer"

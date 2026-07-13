@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/i18n/navigation'
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage'
 
 // BuddyWidget pulls in the whole chat machinery (~108 KB: streaming, message
@@ -13,7 +13,7 @@ const BuddyWidget = dynamic(loadBuddyWidget, { ssr: false })
 
 export default function BuddyWidgetLazy() {
   const pathname = usePathname()
-  const isHome = pathname === '/' || pathname === '/en'
+  const isHome = pathname === '/'
   const [mount, setMount] = useState(false)
 
   useEffect(() => {

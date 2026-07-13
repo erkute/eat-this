@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useId, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useMagicLink } from '@/lib/auth';
-import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
@@ -77,7 +76,7 @@ export default function LoginPanel({
     } catch {
       /* private mode */
     }
-    void postLoginRedirect(user.uid, router, locale);
+    router.replace('/');
   }, [user, loading, modal, router, locale]);
 
   const handleGoogle = useCallback(async () => {
@@ -95,7 +94,6 @@ export default function LoginPanel({
   const agbHref = locale === routing.defaultLocale ? '/agb' : `/${locale}/agb`;
   const dsHref = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
   const sent = magicState === 'sent';
-  const sloganLines = t('modals.login.kicker').split('|');
   const signinMode = mode === 'signin';
   const headlineKey = signinMode ? 'modals.login.signinHeroHeadline' : 'modals.login.heroHeadline';
   const taglineKey = signinMode ? 'modals.login.signinModalTagline' : 'modals.login.modalTagline';
@@ -169,7 +167,6 @@ export default function LoginPanel({
                 </svg>
               </div>
               <div className={styles.modalLoginHead}>
-                <p className={styles.modalEyebrow}>{t('modals.login.sentKicker')}</p>
                 <h2 className={styles.modalFormTitle}>{t('modals.login.sentH1')}</h2>
               </div>
 
@@ -233,9 +230,6 @@ export default function LoginPanel({
                 </div>
               </div>
               <p className={styles.modalBenefitLead}>{t('modals.login.modalBenefitLead')}</p>
-              {mustEatGate && (
-                <p className={styles.modalBenefitNote}>{t('modals.login.mustEatGateSub')}</p>
-              )}
             </section>
           )}
           {signinMode && (
@@ -264,7 +258,6 @@ export default function LoginPanel({
 
           <section className={styles.modalLogin} aria-label={t(headlineKey)}>
             <div className={styles.modalLoginHead}>
-              <p className={styles.modalEyebrow}>{t(headlineKey)}</p>
               <h2 className={styles.modalFormTitle}>{t(taglineKey)}</h2>
             </div>
 
@@ -276,10 +269,7 @@ export default function LoginPanel({
                 sendLink(email);
               }}
             >
-              <label
-                className={`${styles.fieldLabel} ${styles.fieldLabelSr}`}
-                htmlFor={emailInputId}
-              >
+              <label className={styles.fieldLabelSr} htmlFor={emailInputId}>
                 {t('modals.login.emailLabel')}
               </label>
               <input
@@ -370,11 +360,6 @@ export default function LoginPanel({
             <div className={styles.menuTop} aria-hidden="true">
               <span>EAT THIS</span>
               <span>{t('modals.login.menuTitle')}</span>
-            </div>
-            <div className={`${styles.kicker} ${styles.slogan}`} aria-label={sloganLines.join(' ')}>
-              {sloganLines.map((line) => (
-                <span key={line}>{line}</span>
-              ))}
             </div>
             <h1 id="login-panel-title" className={styles.h1}>
               {t('modals.login.heroH1')}
@@ -490,9 +475,6 @@ export default function LoginPanel({
                 {t('modals.login.privacyLink')}
               </a>
               .
-            </p>
-            <p className={styles.menuWord} aria-hidden="true">
-              {t('modals.login.menuTitle')}
             </p>
           </section>
         </div>

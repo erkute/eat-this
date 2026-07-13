@@ -23,8 +23,9 @@
   isolation: isolate;
 }
 
-.headlineSr {
-  position: absolute !important;
+.headlineSr,
+.fieldLabelSr {
+  position: absolute;
   width: 1px;
   height: 1px;
   padding: 0;
@@ -96,7 +97,6 @@
   text-transform: uppercase;
 }
 
-.kicker,
 .menuTop span:last-child {
   color: var(--login-ink);
   font-family: var(--et-font-mono);
@@ -277,10 +277,6 @@
   display: block;
 }
 
-.slogan {
-  display: none;
-}
-
 .h1 {
   margin: 0;
   font-family: var(--menu-condensed, Impact, sans-serif);
@@ -341,17 +337,9 @@
   text-align: right;
 }
 
-.menuWord {
-  display: none;
-}
-
 .frameSent {
   display: grid;
   justify-items: center;
-}
-
-.kicker {
-  margin-bottom: 8px;
 }
 
 .frameSent .h1 {
@@ -530,472 +518,17 @@
   }
 }
 
-/* 2026 Starter Pack modal: minimal home-like auth surface. */
-.frameModal {
-  --login-panel: var(--login-paper);
-}
-
-.frameModal .close {
-  transform: none;
-}
-
-.modalSimple {
-  border-radius: 0;
-}
-
-.modalBenefits {
-  position: relative;
-}
-
-.modalBenefitHead {
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-.modalPackArt {
-  margin-top: clamp(-28px, -2vw, -12px);
-}
-
-.modalLogin {
-  width: 100%;
-  margin: 0;
-  border-radius: 0;
-  transform: none;
-}
-
-.modalLoginHead,
-.modalForm,
-.frameModal .or,
-.frameModal .ctaGoogle,
-.frameModal .legal {
-  max-width: none;
-}
-
-.modalEyebrow,
-.fieldLabel {
-  margin: 0;
-  font-family: var(--et-font-mono);
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.modalEyebrow {
-  max-width: none;
-  justify-self: start;
-}
-
-.modalFormTitle {
-  justify-self: start;
-}
-
-.modalForm {
-  width: 100%;
-}
-
-.fieldLabel {
-  font-size: 11px;
-}
-
-.fieldLabelSr {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.frameModal .input::placeholder {
-  font: inherit;
-}
-
-.frameModal .ctaPrimary,
-.frameModal .ctaGoogle {
-  overflow: hidden;
-}
-
-.frameModal .ctaPrimary span,
-.frameModal .ctaGoogle span {
-  line-height: 1.12;
-}
-
-.frameModal .ctaGoogle {
-  justify-content: center;
-  transform: none;
-}
-
-.frameModal .ctaPrimary:hover,
-.frameModal .ctaPrimary:focus-visible,
-.frameModal .ctaGoogle:hover,
-.frameModal .ctaGoogle:focus-visible {
-  color: var(--login-paper);
-  background: var(--login-ink);
-  border-color: var(--login-ink);
-  outline: 0;
-}
-
-.frameModal .or {
-  width: 100%;
-}
-
-.frameModal .legal {
-  width: 100%;
-}
-
-@media (max-width: 820px) {
-
-  .modalBenefitHead {
-    grid-template-columns: 1fr;
-  }
-
-  .modalLogin {
-    width: 100%;
-    margin: 0;
-  }
-
-  .modalLoginHead {
-    gap: 8px;
-  }
-
-  .frameModal .close {
-    top: 14px;
-    right: 14px;
-    width: 38px;
-    height: 38px;
-    font-size: 30px;
-  }
-}
-
-@media (max-width: 420px) and (max-height: 740px) {
-  .modalBenefits {
-    padding: 46px 14px 14px;
-  }
-
-  .modalBenefitHead {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .modalBenefitIntro {
-    font-size: 29px;
-  }
-
-  .modalBenefitNote {
-    font-size: 16px;
-  }
-
-  .modalLogin {
-    gap: 8px;
-    padding: 14px;
-  }
-
-  .modalFormTitle {
-    font-size: 32px;
-  }
-
-  .frameModal .input,
-  .frameModal .ctaPrimary,
-  .frameModal .ctaGoogle {
-    min-height: 48px;
-  }
-
-  .frameModal .ctaPrimary,
-  .frameModal .ctaGoogle {
-    padding-top: 10px;
-    padding-bottom: 9px;
-    font-size: 19px;
-  }
-
-  .frameModal .legal {
-    font-size: 9px;
-    line-height: 1.18;
-  }
-}
-
-/* 2026-07 Login modal refresh: compact home palette, always in viewport. */
-.frameModal {
-  --login-red: var(--et-home-red, #d9382a);
-}
-
-.modalBenefits {
-  box-sizing: border-box;
-}
-
-.modalPackArt {
-  justify-self: center;
-  max-height: 100%;
-}
-
-.modalBenefitNote {
-  align-self: center;
-  text-wrap: balance;
-}
-
-.modalLogin {
-  box-sizing: border-box;
-  min-height: 0;
-}
-
-.modalForm {
-  display: grid;
-  margin: 0;
-}
-
-.frameModal .input,
-.frameModal .ctaPrimary,
-.frameModal .ctaGoogle {
-  border: 2px solid var(--login-ink);
-}
-
-.frameModal .input {
-  letter-spacing: 0;
-}
-
-.frameModal .input::placeholder {
-  color: rgba(21, 18, 14, 0.46);
-}
-
-.frameModal .ctaPrimary {
-  border-color: var(--login-accent);
-}
-
-.frameModal .ctaPrimary:hover,
-.frameModal .ctaPrimary:focus-visible {
-  border-color: var(--login-ink);
-}
-
-.frameModal .ctaGoogle:hover,
-.frameModal .ctaGoogle:focus-visible {
-  border-color: var(--login-ink);
-}
-
-.frameModal .legal {
-  text-align: center;
-}
-
-@media (max-width: 760px) {
-  .frameModal {
-    width: min(420px, calc(100vw - 20px));
-    height: min(640px, calc(100svh - 20px));
-    max-height: calc(100svh - 20px);
-  }
-
-  .modalSimple {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 0.92fr) minmax(0, 1.08fr);
-    overflow: hidden;
-  }
-
-  .modalBenefits {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 7px;
-    padding: 36px 18px 14px;
-  }
-
-  .modalPackArt {
-    align-self: center;
-    width: min(46vw, 170px);
-  }
-
-  .modalPackArt img {
-    max-height: 178px;
-  }
-
-  .modalBenefitNote {
-    align-self: center;
-    max-width: 25ch;
-    font-size: clamp(17px, 4.9vw, 21px);
-    line-height: 1.1;
-  }
-
-  .modalLogin {
-    align-content: start;
-    gap: 9px;
-    padding: 18px;
-    border-top: 2px solid var(--login-ink);
-    border-left: 0;
-    overflow: hidden;
-  }
-
-  .modalForm,
-  .frameModal .or,
-  .frameModal .ctaGoogle,
-  .frameModal .legal {
-    width: 100%;
-  }
-}
-
-@media (max-width: 380px), (max-height: 680px) {
-
-  .frameModal .close {
-    top: 9px;
-    right: 9px;
-    width: 32px;
-    height: 32px;
-    font-size: 28px;
-  }
-
-  .modalBenefits {
-    gap: 10px;
-  }
-
-  .modalForm {
-    gap: 7px;
-  }
-
-  .frameModal .input {
-    font-size: 17px;
-  }
-
-  .frameModal .ctaPrimary,
-  .frameModal .ctaGoogle {
-    padding: 8px 12px;
-  }
-
-  .frameModal .or {
-    gap: 8px;
-    font-size: 9px;
-  }
-
-  .frameModal .legal {
-    line-height: 1.18;
-  }
-}
-
-/* Starter Pack login modal final layer — keep this after older iteration
-   blocks so the modal follows the current Home/Pack visual language. */
-
-.modalSimple {
-  max-height: none;
-}
-
-.modalBenefitIntro {
-  text-align: center;
-}
-
-.modalPackArt {
-  align-self: center;
-}
-
-.modalLogin {
-  border-left: 3px solid var(--login-ink);
-}
-
-.modalLoginHead,
-.modalForm,
-.frameModal .or,
-.frameModal .ctaGoogle,
-.frameModal .legal {
-  width: var(--login-control);
-}
-
-.modalEyebrow {
-  width: auto;
-  margin: 0;
-  color: var(--login-red);
-  font-family: var(--et-font-label, Silkscreen, ui-monospace, monospace);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-.frameModal .input,
-.frameModal .ctaPrimary,
-.frameModal .ctaGoogle {
-  min-height: 50px;
-  border-radius: 0;
-}
-
-@media (max-width: 820px) {
-
-  .modalBenefitHead {
-    align-content: start;
-  }
-
-  .modalBenefitNote {
-    padding-top: 6px;
-  }
-
-  .modalLogin {
-    align-content: start;
-    overflow: hidden;
-  }
-}
-
-@media (max-width: 380px), (max-height: 680px) {
-  .frameModal {
-    height: calc(100svh - 14px);
-  }
-
-  .modalBenefitHead {
-    gap: 2px;
-  }
-
-  .modalLoginHead {
-    gap: 5px;
-  }
-}
-
-/* Simplified Starter Pack modal: one strong product image, one short promise,
-   then the sign-in controls. */
-
-.modalBenefitNote {
-  justify-self: center;
-  padding-top: 0;
-  border-top: 0;
-}
-
-@media (max-width: 820px) {
-  .frameModal {
-    height: min(650px, calc(100svh - 18px));
-  }
-
-  .modalSimple {
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .modalPackArt {
-    width: auto;
-  }
-
-  .modalLogin {
-    border-top: 3px solid var(--login-ink);
-    border-left: 0;
-  }
-}
-
-@media (max-width: 380px), (max-height: 680px) {
-  .modalSimple {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 0.43fr) minmax(0, 0.57fr);
-  }
-
-  .modalPackArt {
-    width: auto;
-  }
-
-  .modalBenefitNote {
-    font-size: clamp(12px, 3.25vw, 14px);
-  }
-}
-
-/* Home-aligned login modal: soft surfaces, thin rules, no packet-frame UI. */
+/* Shared modal foundations. Visual values live in the current layer below;
+   this block only owns layout and typography that all modal modes share. */
 .frameModal {
   height: auto;
   overflow: hidden;
 }
 
 .frameModal .close {
-  box-shadow: none;
   font-weight: 700;
+  box-shadow: none;
+  transform: none;
 }
 
 .frameModal .close:hover,
@@ -1007,23 +540,27 @@
   display: grid;
   width: 100%;
   height: auto;
+  max-height: none;
   border: 0;
+  border-radius: 0;
   overflow: hidden;
 }
 
 .modalBenefits {
+  position: relative;
   display: grid;
   grid-template-rows: auto;
   justify-items: center;
   min-height: 0;
-  border-right: 1px solid var(--login-line);
   text-align: center;
 }
 
 .modalBenefitHead {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto;
   align-content: center;
+  align-items: start;
   justify-items: center;
   min-height: 0;
 }
@@ -1037,7 +574,10 @@
 }
 
 .modalPackArt {
+  align-self: center;
+  justify-self: center;
   width: auto;
+  max-height: 100%;
   margin: 0;
 }
 
@@ -1048,36 +588,26 @@
   object-fit: contain;
 }
 
-/* Benefit lead under the pack — "Dich erwarten mehr Spots und mehr Must Eats
-   auf deiner Map." Providence display in ink on the warm panel, centered,
-   sized to stay one/two lines so the modal never needs to scroll. */
 .modalBenefitLead {
   margin: clamp(10px, 1.6vh, 18px) auto 0;
   padding: 0;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-weight: 700;
   letter-spacing: 0;
-  text-align: center;
-}
-
-.modalBenefitNote {
-  max-width: 28ch;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: clamp(13px, 1.2vw, 15px);
-  font-weight: 650;
-  letter-spacing: 0;
-  line-height: 1.35;
+  line-height: 1.08;
   text-align: center;
 }
 
 .modalLogin {
   display: grid;
+  width: 100%;
   min-width: 0;
+  min-height: 0;
+  margin: 0;
   border: 0;
+  border-radius: 0;
   overflow: hidden;
+  transform: none;
 }
 
 .modalLoginHead {
@@ -1088,13 +618,10 @@
   justify-self: start;
 }
 
-.modalEyebrow {
-  display: none;
-}
-
 .modalFormTitle {
   width: auto;
   margin: 0;
+  justify-self: start;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-weight: 700;
   letter-spacing: 0;
@@ -1112,6 +639,7 @@
 
 .modalForm {
   gap: 9px;
+  margin: 0;
 }
 
 .frameModal .input {
@@ -1119,6 +647,10 @@
   font-family: var(--font-body, system-ui, sans-serif);
   font-size: 16px;
   font-weight: 650;
+}
+
+.frameModal .input::placeholder {
+  font: inherit;
 }
 
 .frameModal .error {
@@ -1141,16 +673,7 @@
   box-shadow: none;
   line-height: 1;
   text-transform: uppercase;
-}
-
-.frameModal .ctaPrimary:hover,
-.frameModal .ctaPrimary:focus-visible {
-  outline: 0;
-}
-
-.frameModal .ctaGoogle:hover,
-.frameModal .ctaGoogle:focus-visible {
-  outline: 0;
+  overflow: hidden;
 }
 
 .frameModal .ctaPrimary span,
@@ -1158,26 +681,19 @@
   min-width: 0;
   max-width: 100%;
   overflow: visible;
+  line-height: 1.12;
   text-overflow: clip;
   white-space: nowrap;
 }
 
 .frameModal .or {
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
   margin: 0;
   font-family: var(--et-font-label, Silkscreen, ui-monospace, monospace);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: .12em;
   text-align: center;
   text-transform: uppercase;
-}
-
-.frameModal .or::before,
-.frameModal .or::after {
-  border-top: 1px solid var(--login-line);
 }
 
 .frameModal .legal {
@@ -1187,6 +703,7 @@
   font-weight: 650;
   letter-spacing: 0;
   line-height: 1.28;
+  text-align: center;
 }
 
 .frameModal .legalLink {
@@ -1196,26 +713,9 @@
 }
 
 @media (max-width: 820px) {
-
   .modalSimple {
     min-height: 0;
     -webkit-overflow-scrolling: touch;
-  }
-
-  .modalBenefits {
-    gap: 0;
-    border-right: 0;
-    border-bottom: 1px solid var(--login-line);
-  }
-
-  .modalPackArt {
-    margin-top: 0;
-  }
-
-  .modalBenefitNote {
-    max-width: 31ch;
-    font-size: 13px;
-    line-height: 1.28;
   }
 
   .modalLoginHead,
@@ -1225,24 +725,15 @@
   .frameModal .legal {
     width: 100%;
   }
+}
 
-  .frameModal .ctaPrimary,
-  .frameModal .ctaGoogle {
-    font-size: clamp(14px, 4vw, 17px);
+@media (max-width: 760px) {
+  .modalBenefits {
+    align-items: center;
   }
 }
 
 @media (max-width: 380px), (max-height: 680px) {
-
-  .modalLogin {
-    gap: 10px;
-  }
-
-  .frameModal .ctaPrimary,
-  .frameModal .ctaGoogle {
-    font-size: 13px;
-  }
-
   .frameModal .legal {
     font-size: 10px;
   }
@@ -1253,8 +744,6 @@
   --login-paper: var(--home-ink, #15120e);
   --login-ink: #fff;
   --login-accent: var(--home-accent, #ffc600);
-  --login-soft: rgba(255, 255, 255, 0.1);
-  --login-warm: transparent;
   --login-muted: rgba(255, 255, 255, 0.7);
   --login-line: rgba(255, 255, 255, 0.18);
   --login-control: min(100%, 380px);
@@ -1334,10 +823,6 @@
   color: rgba(255, 255, 255, 0.76);
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.08;
-}
-
-.modalBenefitNote {
-  color: rgba(255, 255, 255, 0.68);
 }
 
 .modalLogin {
@@ -1705,6 +1190,7 @@
 }
 
 .frameSent {
+  --login-accent: var(--home-accent, #ffc600);
   width: min(1080px, calc(100vw - 28px));
   max-height: calc(100svh - 28px);
   padding: 0;
@@ -1830,12 +1316,16 @@
   color: #fff;
   background: rgba(255, 255, 255, 0.1);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: 0;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(16px, 1.35vw, 20px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
+}
+
+.frameModal.frameSent .textlink {
+  border-radius: var(--et-radius-control, 7px);
 }
 
 .frameSent .textlink:hover,

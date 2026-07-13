@@ -20,7 +20,7 @@ type SendMagicLinkError =
   | 'email-misconfigured'
   | 'send-failed';
 
-export type SendMagicLinkResult =
+type SendMagicLinkResult =
   | { ok: true }
   | { ok: false; error: SendMagicLinkError };
 

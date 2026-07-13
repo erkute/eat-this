@@ -46,11 +46,11 @@
 .heroTitle {
   max-width: 8ch;
   margin: 0;
-  color: var(--category-ink);
+  color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(62px, 8.8vw, 126px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
+  letter-spacing: -.025em;
   line-height: .82;
   text-transform: uppercase;
 }
@@ -113,11 +113,11 @@
 .catalogHead h2 {
   max-width: 10ch;
   margin: 0;
-  color: var(--category-ink);
+  color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: var(--et-type-hero-compact);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
+  letter-spacing: -.025em;
   line-height: .88;
   text-transform: uppercase;
 }
@@ -329,11 +329,11 @@
 .detailTitle {
   max-width: 9ch;
   margin: 0;
-  color: var(--category-paper);
+  color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(52px, 8vw, 104px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
+  letter-spacing: -.025em;
   line-height: .84;
   overflow-wrap: anywhere;
   text-transform: uppercase;

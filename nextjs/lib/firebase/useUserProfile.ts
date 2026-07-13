@@ -5,7 +5,7 @@ import { getDb } from '@/lib/firebase/config';
 
 export type AvatarChoice = 1 | 2 | 3;
 
-export interface UserProfile {
+interface UserProfile {
   avatar: AvatarChoice | null;
 }
 

@@ -1,4 +1,3 @@
-'use client'
 import styles from './BuddyAvatar.module.css'
 
 // Remy's moods. 'talking' uses the neutral base plus a hard-cut teeth overlay

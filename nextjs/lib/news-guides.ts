@@ -4,7 +4,7 @@ type NewsGuideSlug =
   | 'beste-cafes-berlin'
   | 'beste-baeckereien-berlin'
 
-export interface NewsGuideDef {
+interface NewsGuideDef {
   slug: NewsGuideSlug
   categorySlug: string
   art: string

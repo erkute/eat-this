@@ -1,11 +1,9 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useLoginModal } from '@/lib/auth';
-import { routing } from '@/i18n/routing';
-import { Link, usePathname } from '@/i18n/navigation';
+import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
 
@@ -13,8 +11,8 @@ export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
   const { open: openLogin } = useLoginModal();
-  const locale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
 
   const drawerRef = useCallback((node: HTMLDivElement | null) => {
     if (node && !node.classList.contains('active')) node.setAttribute('inert', '');
@@ -64,9 +62,8 @@ export default function BurgerDrawer() {
       openLogin();
       return;
     }
-    const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
-    window.location.assign(href);
-  }, [closeBurger, openLogin, user, locale]);
+    router.push('/profile');
+  }, [closeBurger, openLogin, router, user]);
 
   // Event-delegated close: any anchor click bubbles up; we dispatch the close
   // event so same-route navigation also closes the drawer.
@@ -78,7 +75,7 @@ export default function BurgerDrawer() {
     <div ref={drawerRef} className="burger-drawer" id="burgerDrawer" aria-hidden="true">
       <button className="burger-drawer-backdrop" id="burgerBackdrop" type="button" tabIndex={-1} aria-label="Close menu" onClick={() => closeBurger(true)}></button>
       <div className="burger-drawer-panel" onClick={onPanelClick}>
-        <button className="burger-drawer-close" id="burgerClose" aria-label="Close" onClick={() => closeBurger(true)}>×</button>
+        <button type="button" className="burger-drawer-close" id="burgerClose" aria-label="Close" onClick={() => closeBurger(true)}>×</button>
 
         <div className="bd-scroller">
           {/* In-flow (not pinned): scrolls with the menu so it never collides
@@ -86,6 +83,7 @@ export default function BurgerDrawer() {
           <div className="bd-topbar">
             <div className="bd-lang" role="group" aria-label="Language / Sprache">
               <button
+                type="button"
                 className={`bd-lang-btn${lang === 'de' ? ' on' : ''}`}
                 aria-label="Deutsch"
                 onClick={() => setLang('de')}
@@ -94,6 +92,7 @@ export default function BurgerDrawer() {
               </button>
               <span className="bd-lang-sep" aria-hidden="true">/</span>
               <button
+                type="button"
                 className={`bd-lang-btn${lang === 'en' ? ' on' : ''}`}
                 aria-label="English"
                 onClick={() => setLang('en')}

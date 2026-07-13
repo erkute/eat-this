@@ -87,11 +87,11 @@
 .heroTitle {
   max-width: 9ch;
   margin: 0;
-  color: var(--news-ink);
+  color: var(--news-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(48px, 7.4vw, 92px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: .86;
   text-transform: uppercase;
 }
@@ -162,11 +162,11 @@
 .leadOverlay h2 {
   max-width: 16ch;
   margin: 0;
-  color: #fff !important;
+  color: #fff;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(30px, 3.7vw, 46px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -.025em;
   line-height: .96;
   text-shadow: 0 2px 18px rgba(0, 0, 0, .54);
   text-wrap: balance;
@@ -271,7 +271,9 @@
 
 .sectionHead h2 {
   max-width: 12ch;
+  color: var(--news-red);
   font-size: clamp(34px, 4.2vw, 52px);
+  letter-spacing: -.025em;
   line-height: .9;
 }
 

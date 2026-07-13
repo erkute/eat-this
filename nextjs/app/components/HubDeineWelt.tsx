@@ -62,14 +62,14 @@ export default function HubDeineWelt({ spotOfDay }: Props) {
           </p>
 
           <div className={styles.actions} aria-label={de ? 'Schnellzugriffe' : 'Quick actions'}>
-            <MapIntentLink href="/map" rel="nofollow" className={`hv-btn ${styles.mapBtn}`}>
+            <MapIntentLink href="/map" rel="nofollow" className={styles.mapBtn}>
               {de ? 'Map öffnen' : 'Open map'}
             </MapIntentLink>
             <Link
               href="/profile"
               rel="nofollow"
               prefetch={false}
-              className={`hv-link-underline ${styles.profileBtn}`}
+              className={styles.profileBtn}
             >
               <span>{de ? 'Profil' : 'Profile'}</span>
             </Link>

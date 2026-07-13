@@ -51,7 +51,7 @@ export default function LocaleError({
           <div className={styles.codeBlock} aria-hidden="true">
             <span>500</span>
           </div>
-          <h1 className={styles.title} id="error-title">
+          <h1 className={`${styles.title} ${styles.errorTitle}`} id="error-title">
             {copy.headline}
           </h1>
           <p className={styles.sub}>{copy.sub}</p>

@@ -25,7 +25,7 @@ interface PackTeaserRow {
   name: string
   district?: string
 }
-export interface PackTeaser {
+interface PackTeaser {
   /** First N spots shown by name + district (the hook). */
   revealed: PackTeaserRow[]
   /** Next M spots — district only, name stays covered until purchase. */

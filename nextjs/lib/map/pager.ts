@@ -1,6 +1,6 @@
 // Pure neighbour resolution for the restaurant-detail pager. Order follows
 // whatever list is passed (the filtered/displayed list the user is browsing).
-export interface Adjacent<T> {
+interface Adjacent<T> {
   index: number
   prev: T | null
   next: T | null

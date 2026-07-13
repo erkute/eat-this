@@ -13,6 +13,7 @@
   font-family: var(--font-ranchers), var(--font-display, 'Schoolbell'), cursive;
   font-size: clamp(2.4rem, 8vw, 3.6rem);
   text-transform: uppercase;
+  letter-spacing: -0.025em;
   line-height: 1.05;
   color: var(--collage-red);
   margin: 0 0 14px;

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { getStripe } from '@/lib/stripe'
 import { getPack } from '@/lib/stripe-catalog'
 import { maskEmail } from '@/lib/maskEmail'
@@ -95,7 +95,7 @@ export default async function CheckoutSuccessPage({
         {t.packTag && <span className={styles.packTag}>{t.packTag}</span>}
         <p className={styles.body}>{t.body}</p>
         <p className={styles.check}>{t.check}</p>
-        <Link href={locale === 'en' ? '/en/map' : '/map'} className={styles.cta}>
+        <Link href="/map" className={styles.cta}>
           {t.backLabel}
         </Link>
       </div>

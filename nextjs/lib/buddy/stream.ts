@@ -33,7 +33,7 @@ export function extractFollowups(content: string): { chips: string[]; rest: stri
   return { chips, rest }
 }
 
-export type AnswerSegment =
+type AnswerSegment =
   | { type: 'text'; text: string }
   | { type: 'spot'; slug: string }
 

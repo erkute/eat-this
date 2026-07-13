@@ -1,6 +1,6 @@
 import type { RestaurantCard } from '../types'
 
-export interface CrossLink {
+interface CrossLink {
   slug: string
   label: string
   count: number

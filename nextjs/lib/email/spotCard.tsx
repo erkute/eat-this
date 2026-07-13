@@ -30,7 +30,7 @@ export function mustEatCardUrl(cardPhoto: string): string {
   return `${cardPhoto.split('?')[0]}?w=400&h=560&fit=crop&fm=png`;
 }
 
-export type SpotCardData = Pick<
+type SpotCardData = Pick<
   EmailSpot,
   'name' | 'area' | 'cuisine' | 'photo' | 'mustEats'
 >;

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { handoffEvent, loadAnalytics, flushAnalyticsQueue, trackEvent, trackEventOnce } from './analytics'
+import { getAnalyticsPageLocation, handoffEvent, loadAnalytics, flushAnalyticsQueue, trackEvent, trackEventOnce } from './analytics'
 
 describe('analytics consent gate', () => {
   beforeEach(() => {
@@ -48,5 +48,18 @@ describe('analytics consent gate', () => {
     expect(gtag).toBeDefined()
     expect(sessionStorage.getItem('eatthis_analytics_handoff')).toBeNull()
     expect(appendChild).toHaveBeenCalled()
+  })
+})
+
+describe('getAnalyticsPageLocation', () => {
+  it('removes Stripe session IDs from page views but preserves other params', () => {
+    expect(
+      getAnalyticsPageLocation(
+        'https://www.eatthisdot.com/checkout/success?session_id=cs_secret&utm_source=stripe',
+      ),
+    ).toEqual({
+      pageLocation: 'https://www.eatthisdot.com/checkout/success?utm_source=stripe',
+      pagePath: '/checkout/success?utm_source=stripe',
+    })
   })
 })

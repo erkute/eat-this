@@ -1,10 +1,10 @@
 // Mask an email address for display on unauthenticated surfaces.
 //
-// The checkout success page renders the buyer's email from a Stripe session
-// looked up purely by the `session_id` URL param — anyone holding that URL
-// (referrer logs, shared screenshots, browser history) could read the full
-// address. Masking keeps the UX signal ("we mailed YOUR address") without
-// echoing recoverable PII: `dirtyersan@gmail.com` → `di•••@gmail.com`.
+// The checkout success page renders the buyer's email from a verified Stripe
+// session. Anyone holding that session URL (referrer logs, shared screenshots,
+// browser history) could otherwise read the full address. Masking keeps the UX
+// signal without echoing recoverable PII:
+// `dirtyersan@gmail.com` → `di•••@gmail.com`.
 export function maskEmail(email: string): string {
   const at = email.indexOf('@')
   if (at <= 0) return '•••'

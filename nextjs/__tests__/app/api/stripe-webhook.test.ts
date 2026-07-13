@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   constructEvent: vi.fn(),
+  retrieveVerified: vi.fn(),
+  refundsCreate: vi.fn(),
   assembleAndWriteEntitlement: vi.fn(),
+  markGuestMagicLinkSent: vi.fn(),
   findOrCreateUserByEmail: vi.fn(),
   sendMagicLinkEmail: vi.fn(),
   captureMessage: vi.fn(),
@@ -10,12 +13,24 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('../../../lib/stripe', () => ({
-  getStripe: () => ({ webhooks: { constructEvent: mocks.constructEvent } }),
+  getStripe: () => ({
+    webhooks: { constructEvent: mocks.constructEvent },
+    refunds: { create: mocks.refundsCreate },
+  }),
 }))
+
+vi.mock('../../../lib/stripe-session', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../lib/stripe-session')>()
+  return {
+    ...actual,
+    retrieveVerifiedCheckoutSession: mocks.retrieveVerified,
+  }
+})
 
 vi.mock('../../../lib/stripe-fulfill', () => ({
   assembleAndWriteEntitlement: mocks.assembleAndWriteEntitlement,
   findOrCreateUserByEmail: mocks.findOrCreateUserByEmail,
+  markGuestMagicLinkSent: mocks.markGuestMagicLinkSent,
 }))
 
 vi.mock('../../../lib/auth/sendMagicLink', () => ({
@@ -28,6 +43,7 @@ vi.mock('@sentry/nextjs', () => ({
 }))
 
 import { POST } from '../../../app/api/stripe/webhook/route'
+import { CheckoutSessionIntegrityError } from '../../../lib/stripe-session'
 
 function makeReq(body: string, sig: string | null) {
   return new Request('http://x/api/stripe/webhook', {
@@ -37,9 +53,42 @@ function makeReq(body: string, sig: string | null) {
   })
 }
 
+function event(id = 'cs_test', type = 'checkout.session.completed') {
+  return { id: `evt_${id}`, type, data: { object: { id } } }
+}
+
+function verifiedSession({
+  id = 'cs_test',
+  paymentStatus = 'paid',
+  mode = 'auth',
+  uid = 'u1' as string | null,
+  email = null as string | null,
+  locale = 'de',
+} = {}) {
+  return {
+    session: {
+      id,
+      payment_status: paymentStatus,
+      payment_intent: `pi_${id}`,
+      customer_details: email ? { email } : null,
+    },
+    pack: { packId: 'category-pizza' },
+    mode,
+    locale,
+    uid,
+  }
+}
+
 beforeEach(() => {
   mocks.constructEvent.mockReset()
+  mocks.retrieveVerified.mockReset()
+  mocks.retrieveVerified.mockImplementation(async (id: string) => verifiedSession({ id }))
+  mocks.refundsCreate.mockReset()
+  mocks.refundsCreate.mockResolvedValue({ id: 're_test' })
   mocks.assembleAndWriteEntitlement.mockReset()
+  mocks.assembleAndWriteEntitlement.mockResolvedValue({ status: 'created' })
+  mocks.markGuestMagicLinkSent.mockReset()
+  mocks.markGuestMagicLinkSent.mockResolvedValue(undefined)
   mocks.captureMessage.mockReset()
   mocks.captureException.mockReset()
   mocks.findOrCreateUserByEmail.mockReset()
@@ -61,15 +110,11 @@ describe('/api/stripe/webhook', () => {
     expect(res.status).toBe(400)
   })
 
-  it('writes entitlement on checkout.session.completed', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id:   'evt_1',
-      type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
-    })
-    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('created')
+  it('writes entitlement from a catalog-verified paid session', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event())
     const res = await POST(makeReq('raw', 'sig'))
     expect(res.status).toBe(200)
+    expect(mocks.retrieveVerified).toHaveBeenCalledWith('cs_test')
     expect(mocks.assembleAndWriteEntitlement).toHaveBeenCalledWith({
       uid: 'u1', packId: 'category-pizza', stripeSessionId: 'cs_test',
     })
@@ -79,15 +124,15 @@ describe('/api/stripe/webhook', () => {
     mocks.constructEvent.mockReturnValueOnce({ id: 'evt_2', type: 'invoice.paid' })
     const res = await POST(makeReq('raw', 'sig'))
     expect(res.status).toBe(200)
+    expect(mocks.retrieveVerified).not.toHaveBeenCalled()
     expect(mocks.assembleAndWriteEntitlement).not.toHaveBeenCalled()
   })
 
-  it('does NOT fulfill an unpaid session (Klarna/SEPA fires completed before the money clears)', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id:   'evt_unpaid',
-      type: 'checkout.session.completed',
-      data: { object: { id: 'cs_async', payment_status: 'unpaid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
-    })
+  it('does not fulfill an unpaid session', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_async'))
+    mocks.retrieveVerified.mockResolvedValueOnce(verifiedSession({
+      id: 'cs_async', paymentStatus: 'unpaid',
+    }))
     const res = await POST(makeReq('raw', 'sig'))
     expect(res.status).toBe(200)
     expect(await res.json()).toMatchObject({ pending: 'unpaid' })
@@ -95,12 +140,9 @@ describe('/api/stripe/webhook', () => {
   })
 
   it('fulfills on checkout.session.async_payment_succeeded once paid', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id:   'evt_async_ok',
-      type: 'checkout.session.async_payment_succeeded',
-      data: { object: { id: 'cs_async', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
-    })
-    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('created')
+    mocks.constructEvent.mockReturnValueOnce(event(
+      'cs_async', 'checkout.session.async_payment_succeeded',
+    ))
     const res = await POST(makeReq('raw', 'sig'))
     expect(res.status).toBe(200)
     expect(mocks.assembleAndWriteEntitlement).toHaveBeenCalledWith({
@@ -108,55 +150,112 @@ describe('/api/stripe/webhook', () => {
     })
   })
 
-  it('returns 200 when entitlement already exists (idempotent)', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id:   'evt_3',
-      type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
+  it('does not refund or resend guest mail once its outbox marker exists', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_guest_retry'))
+    mocks.retrieveVerified.mockResolvedValueOnce(verifiedSession({
+      id: 'cs_guest_retry', mode: 'guest', uid: null, email: 'guest@example.com',
+    }))
+    mocks.findOrCreateUserByEmail.mockResolvedValueOnce('guest-uid')
+    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce({
+      status: 'exists',
+      existingPackId: 'category-pizza',
+      existingStripeSessionId: 'cs_guest_retry',
+      guestMagicLinkSent: true,
     })
-    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('exists')
     const res = await POST(makeReq('raw', 'sig'))
     expect(res.status).toBe(200)
+    expect(mocks.refundsCreate).not.toHaveBeenCalled()
+    expect(mocks.sendMagicLinkEmail).not.toHaveBeenCalled()
   })
 
-  it('returns 400 when metadata is missing', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id:   'evt_4',
-      type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', metadata: {} } },
+  it('retries a failed same-session guest mail with the stable idempotency key', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_guest_retry'))
+    mocks.retrieveVerified.mockResolvedValueOnce(verifiedSession({
+      id: 'cs_guest_retry', mode: 'guest', uid: null, email: 'guest@example.com',
+    }))
+    mocks.findOrCreateUserByEmail.mockResolvedValueOnce('guest-uid')
+    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce({
+      status: 'exists',
+      existingPackId: 'category-pizza',
+      existingStripeSessionId: 'cs_guest_retry',
+      guestMagicLinkSent: false,
     })
+
     const res = await POST(makeReq('raw', 'sig'))
-    expect(res.status).toBe(400)
+
+    expect(res.status).toBe(200)
+    expect(mocks.sendMagicLinkEmail).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'stripe-guest-magic-link/cs_guest_retry',
+    }))
+    expect(mocks.markGuestMagicLinkSent).toHaveBeenCalledWith({
+      uid: 'guest-uid',
+      packId: 'category-pizza',
+      stripeSessionId: 'cs_guest_retry',
+    })
+  })
+
+  it('refunds a different paid session for an existing entitlement', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_duplicate'))
+    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce({
+      status: 'exists',
+      existingPackId: 'category-pizza',
+      existingStripeSessionId: 'cs_original',
+      guestMagicLinkSent: true,
+    })
+
+    const res = await POST(makeReq('raw', 'sig'))
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ result: 'duplicate_refunded' })
+    expect(mocks.refundsCreate).toHaveBeenCalledWith(
+      {
+        payment_intent: 'pi_cs_duplicate',
+        reason: 'duplicate',
+        metadata: {
+          reason: 'duplicate_entitlement',
+          checkoutSessionId: 'cs_duplicate',
+          existingPackId: 'category-pizza',
+        },
+      },
+      { idempotencyKey: 'duplicate-entitlement-refund:cs_duplicate' },
+    )
+  })
+
+  it('acknowledges and rejects a session that fails catalog integrity', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_bad'))
+    mocks.retrieveVerified.mockRejectedValueOnce(
+      new CheckoutSessionIntegrityError('wrong_amount'),
+    )
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ rejected: 'session_integrity' })
+    expect(mocks.assembleAndWriteEntitlement).not.toHaveBeenCalled()
     expect(mocks.captureMessage).toHaveBeenCalled()
   })
 
-  it('returns 500 when fulfill throws', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id:   'evt_5',
-      type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
-    })
+  it('returns 500 when session retrieval fails transiently', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_retry'))
+    mocks.retrieveVerified.mockRejectedValueOnce(new Error('Stripe timeout'))
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(500)
+    expect(mocks.captureException).toHaveBeenCalled()
+  })
+
+  it('returns 500 when fulfillment throws', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event())
     mocks.assembleAndWriteEntitlement.mockRejectedValueOnce(new Error('sanity down'))
     const res = await POST(makeReq('raw', 'sig'))
     expect(res.status).toBe(500)
     expect(mocks.captureException).toHaveBeenCalled()
   })
 
-  it('awaits the guest magic-link send and uses the configured app URL', async () => {
-    mocks.constructEvent.mockReturnValueOnce({
-      id: 'evt_guest',
-      type: 'checkout.session.completed',
-      data: {
-        object: {
-          id: 'cs_guest',
-          payment_status: 'paid',
-          customer_details: { email: 'guest@example.com' },
-          metadata: { packId: 'category-pizza', mode: 'guest', locale: 'en' },
-        },
-      },
-    })
+  it('awaits the first guest magic-link send and uses the configured app URL', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_guest'))
+    mocks.retrieveVerified.mockResolvedValueOnce(verifiedSession({
+      id: 'cs_guest', mode: 'guest', uid: null,
+      email: 'guest@example.com', locale: 'en',
+    }))
     mocks.findOrCreateUserByEmail.mockResolvedValueOnce('guest-uid')
-    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('created')
     let finishSend: (() => void) | undefined
     mocks.sendMagicLinkEmail.mockReturnValueOnce(
       new Promise((resolve) => {
@@ -179,6 +278,26 @@ describe('/api/stripe/webhook', () => {
       email: 'guest@example.com',
       continueUrl: 'https://trusted.example/en/profile',
       appUrl: 'https://trusted.example',
+      idempotencyKey: 'stripe-guest-magic-link/cs_guest',
     })
+    expect(mocks.markGuestMagicLinkSent).toHaveBeenCalledWith({
+      uid: 'guest-uid',
+      packId: 'category-pizza',
+      stripeSessionId: 'cs_guest',
+    })
+  })
+
+  it('returns 500 and leaves the guest outbox pending when email delivery fails', async () => {
+    mocks.constructEvent.mockReturnValueOnce(event('cs_guest_fail'))
+    mocks.retrieveVerified.mockResolvedValueOnce(verifiedSession({
+      id: 'cs_guest_fail', mode: 'guest', uid: null, email: 'guest@example.com',
+    }))
+    mocks.findOrCreateUserByEmail.mockResolvedValueOnce('guest-uid')
+    mocks.sendMagicLinkEmail.mockResolvedValueOnce({ ok: false, error: 'send-failed' })
+
+    const res = await POST(makeReq('raw', 'sig'))
+
+    expect(res.status).toBe(500)
+    expect(mocks.markGuestMagicLinkSent).not.toHaveBeenCalled()
   })
 })

@@ -30,8 +30,10 @@ export async function sendMagicLinkEmail(params: {
   continueUrl: string;
   /** Public base URL for email artwork. */
   appUrl: string;
+  /** Stable logical-send key for retry-safe trusted callers. */
+  idempotencyKey?: string;
 }): Promise<SendMagicLinkResult> {
-  const { email, continueUrl, appUrl } = params;
+  const { email, continueUrl, appUrl, idempotencyKey } = params;
 
   // The continue URL doubles as the cross-browser email carrier: /welcome
   // reads `e` to complete the sign-in when the link opens in a browser that
@@ -92,16 +94,26 @@ export async function sendMagicLinkEmail(params: {
 
   try {
     const resend = new Resend(resendKey);
-    const result = await resend.emails.send({
-      from:    `${fromName} <${fromEmail}>`,
-      to:      email,
-      subject: 'Dein Login-Link für Eat This',
-      html,
-      text,
-      replyTo: fromEmail,
-    });
+    const result = await resend.emails.send(
+      {
+        from:    `${fromName} <${fromEmail}>`,
+        to:      email,
+        subject: 'Dein Login-Link für Eat This',
+        html,
+        text,
+        replyTo: fromEmail,
+      },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
 
     if (result.error) {
+      // A retry regenerates the Firebase action link, so Resend sees a
+      // different payload for the same logical key. This response proves the
+      // original request was already accepted; treat it as delivered and let
+      // the caller persist its outbox marker.
+      if (idempotencyKey && result.error.name === 'invalid_idempotent_request') {
+        return { ok: true };
+      }
       console.error('[sendMagicLink] resend error:', result.error);
       return { ok: false, error: 'send-failed' };
     }

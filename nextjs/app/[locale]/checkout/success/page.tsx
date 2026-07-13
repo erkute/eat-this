@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { getStripe } from '@/lib/stripe'
-import { getPack } from '@/lib/stripe-catalog'
 import { maskEmail } from '@/lib/maskEmail'
+import { retrieveVerifiedCheckoutSession, type CheckoutMode } from '@/lib/stripe-session'
 import CheckoutSuccessAnalytics from './CheckoutSuccessAnalytics'
 import styles from './success.module.css'
 
@@ -13,7 +12,110 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-interface SearchParams { session_id?: string; pack?: string }
+interface SearchParams { session_id?: string }
+
+type CheckoutState =
+  | {
+      kind: 'paid'
+      transactionId: string
+      packId: string
+      packLabel: string
+      amountCents: number
+      mode: CheckoutMode
+      email: string | null
+    }
+  | { kind: 'pending'; packLabel: string }
+  | { kind: 'invalid' }
+
+interface CheckoutCopy {
+  eyebrow: string
+  headline: string
+  body: string
+  packTag: string | null
+  check: string
+  backLabel: string
+  backHref: '/map' | '/packs'
+}
+
+function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): CheckoutCopy {
+  if (locale === 'de') {
+    if (checkout.kind === 'paid') {
+      return {
+        eyebrow: 'Zahlung bestätigt',
+        headline: 'Pack gesichert.',
+        body: checkout.mode === 'guest'
+          ? checkout.email
+            ? `Deine Zahlung ist bestätigt. Den Login-Link für dein Pack schicken wir an ${checkout.email}.`
+            : 'Deine Zahlung ist bestätigt. Den Login-Link für dein Pack schicken wir dir per E-Mail.'
+          : 'Deine Zahlung ist bestätigt. Dein Pack wird jetzt auf deiner Map freigeschaltet.',
+        packTag: `${checkout.packLabel} Pack`,
+        check: checkout.mode === 'guest'
+          ? 'Check gleich dein Postfach (auch Spam).'
+          : 'Die Freischaltung kann einen Moment dauern.',
+        backLabel: 'Zurück zur Map',
+        backHref: '/map',
+      }
+    }
+    if (checkout.kind === 'pending') {
+      return {
+        eyebrow: 'Zahlung in Bearbeitung',
+        headline: 'Fast geschafft.',
+        body: 'Stripe verarbeitet deine Zahlung noch. Dein Pack wird erst nach der Zahlungsbestätigung freigeschaltet.',
+        packTag: `${checkout.packLabel} Pack`,
+        check: 'Du kannst diese Seite später erneut laden.',
+        backLabel: 'Zurück zur Map',
+        backHref: '/map',
+      }
+    }
+    return {
+      eyebrow: 'Nicht bestätigt',
+      headline: 'Kauf nicht gefunden.',
+      body: 'Wir konnten den Zahlungsstatus für diesen Link gerade nicht bestätigen. Prüfe deine Stripe-Bestätigung oder versuche es später erneut.',
+      packTag: null,
+      check: 'Versuche es erneut oder öffne deine Pack-Übersicht.',
+      backLabel: 'Zu den Packs',
+      backHref: '/packs',
+    }
+  }
+
+  if (checkout.kind === 'paid') {
+    return {
+      eyebrow: 'Payment confirmed',
+      headline: 'Pack secured.',
+      body: checkout.mode === 'guest'
+        ? checkout.email
+          ? `Your payment is confirmed. We will send the sign-in link for your pack to ${checkout.email}.`
+          : 'Your payment is confirmed. We will send the sign-in link for your pack by email.'
+        : 'Your payment is confirmed. Your pack is now being unlocked on your map.',
+      packTag: `${checkout.packLabel} pack`,
+      check: checkout.mode === 'guest'
+        ? 'Check your inbox (and spam) shortly.'
+        : 'Unlocking can take a moment.',
+      backLabel: 'Back to the map',
+      backHref: '/map',
+    }
+  }
+  if (checkout.kind === 'pending') {
+    return {
+      eyebrow: 'Payment processing',
+      headline: 'Almost there.',
+      body: 'Stripe is still processing your payment. Your pack will be unlocked only after payment is confirmed.',
+      packTag: `${checkout.packLabel} pack`,
+      check: 'You can reload this page later.',
+      backLabel: 'Back to the map',
+      backHref: '/map',
+    }
+  }
+  return {
+    eyebrow: 'Not confirmed',
+    headline: 'Purchase not found.',
+    body: 'We could not confirm the payment status for this link. Check your Stripe confirmation or try again later.',
+    packTag: null,
+    check: 'Try again or open the packs overview.',
+    backLabel: 'View packs',
+    backHref: '/packs',
+  }
+}
 
 export default async function CheckoutSuccessPage({
   params,
@@ -26,67 +128,45 @@ export default async function CheckoutSuccessPage({
   const locale = rawLocale === 'en' ? 'en' : 'de'
   setRequestLocale(rawLocale)
 
-  const { session_id, pack: packId } = await searchParams
+  const { session_id } = await searchParams
 
-  // Server-side fetch the Stripe session so we can show the buyer their
-  // own email and the pack they bought. Failure mode: just show the
-  // generic copy without the email/pack name.
-  //
-  // The session is addressed purely by the URL param, so this page must not
-  // echo the raw address (unauthenticated PII from an attacker-controlled
-  // parameter). Only paid sessions show it, and only masked — enough for the
-  // buyer to recognise their own inbox, useless to anyone else with the link.
-  let email: string | null = null
-  let packLabel: string | null = null
-  let amountCents: number | null = null
+  // Nothing displayed or tracked comes from query parameters except the
+  // opaque session identifier. Pack, amount and mode are accepted only after
+  // the server has bound the Stripe session to the catalog and exact Price.
+  let checkout: CheckoutState = { kind: 'invalid' }
   if (session_id) {
     try {
-      const session = await getStripe().checkout.sessions.retrieve(session_id)
-      if (session.payment_status === 'paid' && session.customer_details?.email) {
-        email = maskEmail(session.customer_details.email)
+      const { session, pack, mode } = await retrieveVerifiedCheckoutSession(session_id)
+      if (session.payment_status === 'paid') {
+        checkout = {
+          kind: 'paid',
+          transactionId: session.id,
+          packId: pack.packId,
+          packLabel: pack.displayName,
+          amountCents: session.amount_total!,
+          mode,
+          email: mode === 'guest' && session.customer_details?.email
+            ? maskEmail(session.customer_details.email)
+            : null,
+        }
+      } else {
+        checkout = { kind: 'pending', packLabel: pack.displayName }
       }
     } catch {
-      /* ignore — generic copy is fine */
-    }
-  }
-  if (packId) {
-    const pack = getPack(packId)
-    if (pack) {
-      packLabel = pack.displayName
-      amountCents = pack.amountCents
+      checkout = { kind: 'invalid' }
     }
   }
 
-  const t = locale === 'de'
-    ? {
-        eyebrow: 'Zahlung bestätigt',
-        headline: 'Pack gesichert.',
-        body: email
-          ? `Wir haben dir gerade einen Login-Link an ${email} geschickt. Klick rein — dein Pack wartet schon auf deiner Map.`
-          : 'Wir haben dir gerade einen Login-Link geschickt. Klick rein — dein Pack wartet schon auf deiner Map.',
-        packTag: packLabel ? `${packLabel} Pack freigeschaltet` : null,
-        check: 'Check dein Postfach (auch Spam).',
-        backLabel: 'Zurück zur Map',
-      }
-    : {
-        eyebrow: 'Payment confirmed',
-        headline: 'Pack secured.',
-        body: email
-          ? `We just sent a sign-in link to ${email}. Click it — your pack is already waiting on your map.`
-          : 'We just sent you a sign-in link. Click it — your pack is already waiting on your map.',
-        packTag: packLabel ? `${packLabel} pack unlocked` : null,
-        check: 'Check your inbox (and spam).',
-        backLabel: 'Back to the map',
-      }
+  const t = getCheckoutCopy(locale, checkout)
 
   return (
     <main className={styles.page}>
-      {session_id && packId && packLabel && amountCents !== null && (
+      {checkout.kind === 'paid' && (
         <CheckoutSuccessAnalytics
-          transactionId={session_id}
-          packId={packId}
-          packName={packLabel}
-          amountCents={amountCents}
+          transactionId={checkout.transactionId}
+          packId={checkout.packId}
+          packName={checkout.packLabel}
+          amountCents={checkout.amountCents}
         />
       )}
       <div className={styles.card}>
@@ -95,7 +175,7 @@ export default async function CheckoutSuccessPage({
         {t.packTag && <span className={styles.packTag}>{t.packTag}</span>}
         <p className={styles.body}>{t.body}</p>
         <p className={styles.check}>{t.check}</p>
-        <Link href="/map" className={styles.cta}>
+        <Link href={t.backHref} className={styles.cta}>
           {t.backLabel}
         </Link>
       </div>

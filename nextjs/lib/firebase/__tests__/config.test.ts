@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
-  initializeApp: vi.fn(() => ({ name: 'app' })),
+  initializeApp: vi.fn((options: { projectId?: string } = {}) => ({
+    name: 'app',
+    options,
+  })),
   getApps: vi.fn((): unknown[] => []),
   getAuth: vi.fn(() => ({ currentUser: null })),
   getFirestore: vi.fn(),

@@ -53,13 +53,15 @@ export default function NewsArticleShell({
   // card, floating freigestellt with a tilt. The whole banner links to the
   // Must-Eat detail on the map (?me=<id>), mirroring an in-app tap.
   const renderMustEatCard = (block: MustEatCardBlock) => {
-    if (!block.dish && !block.dishImage) return null;
+    if (!block.mustEatId && !block.restaurantName) return null;
     // "Must Eat" lives in the kicker only — the CTA uses the canonical map
     // wording so the label doesn't repeat itself.
     const ctaLabel = de ? 'Auf die Map' : 'To the map';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
-    const description =
-      (de ? block.dishDescription : block.dishDescriptionEn || block.dishDescription) || '';
+    const teaserTitle = de ? 'Das Must Eat aufdecken' : 'Reveal the Must Eat';
+    const description = de
+      ? 'Das Gericht bleibt bis zu deinem Reveal verdeckt.'
+      : 'The dish stays covered until you reveal it.';
     // Natural sentence instead of "@ Name · Bezirk" metadata soup.
     const whereLine = restName
       ? de
@@ -68,16 +70,14 @@ export default function NewsArticleShell({
       : block.district || '';
     const inner = (
       <>
-        {block.dishImage && (
-          <div className={styles.mustEatPh}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={block.dishImage} alt={block.dish || ''} />
-          </div>
-        )}
+        <div className={styles.mustEatPh}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/pics/card-back.webp?v=6" alt="" />
+        </div>
         <div className={styles.mustEatBody}>
           <span className={styles.mustEatKicker}>Must Eat</span>
-          {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
-          {description && <p className={styles.mustEatDesc}>{description}</p>}
+          <h3 className={styles.mustEatName}>{teaserTitle}</h3>
+          <p className={styles.mustEatDesc}>{description}</p>
           {whereLine && <span className={styles.mustEatRest}>{whereLine}</span>}
           <span className={styles.mustEatCta}>
             <span>{ctaLabel}</span>
@@ -90,7 +90,7 @@ export default function NewsArticleShell({
         href={`/map?me=${block.mustEatId}`}
         rel="nofollow"
         className={styles.mustEat}
-        aria-label={`${block.dish || 'Must Eat'}${restName ? ` — ${restName}` : ''}`}
+        aria-label={`${teaserTitle}${restName ? ` — ${restName}` : ''}`}
       >
         {inner}
       </MapIntentLink>

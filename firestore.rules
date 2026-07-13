@@ -6,6 +6,13 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Premium Must-Eat text and private Storage object paths are server-only.
+    // Browser delivery goes through /api/map-data, /api/must-eat-reveal and
+    // /api/must-eat-image after an entitlement/reveal decision.
+    match /privateMustEats/{document=**} {
+      allow read, write: if false;
+    }
+
     // User profile doc — owner-readable; writes restricted to the avatar
     // field so the client can't bloat the doc with arbitrary fields.
     match /users/{uid} {

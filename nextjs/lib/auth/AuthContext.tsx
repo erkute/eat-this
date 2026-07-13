@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import {
-  onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
@@ -18,6 +18,10 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
+import {
+  clearMapDataCaches,
+  reconcileMapDataCacheIdentity,
+} from '@/lib/map/map-data-cache';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -40,21 +44,56 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+async function clearPremiumAccess(): Promise<void> {
+  const response = await fetch('/api/auth/premium-access', { method: 'DELETE' });
+  if (!response.ok) throw new Error('Failed to clear premium access');
+}
+
+async function synchronizePremiumAccess(user: User | null): Promise<void> {
+  if (!user) return clearPremiumAccess();
+  const idToken = await user.getIdToken();
+  const response = await fetch('/api/auth/premium-access', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  if (!response.ok) throw new Error('Failed to synchronize premium access');
+}
+
 // ─── Provider ──────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser]       = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Subscribe to Firebase auth state changes.
-  // This fires once immediately with the current user (from IndexedDB persistence),
-  // then on every subsequent sign-in / sign-out.
+  // Synchronize the server-verifiable image session before exposing a Firebase
+  // identity to the app. onIdTokenChanged also refreshes the session when the
+  // SDK rotates its ID token.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(false);
+    let active = true;
+    let generation = 0;
+    const unsubscribe = onIdTokenChanged(auth, (firebaseUser) => {
+      const currentGeneration = ++generation;
+      setLoading(true);
+      reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
+      void synchronizePremiumAccess(firebaseUser)
+        .then(() => {
+          if (!active || currentGeneration !== generation) return;
+          setUser(firebaseUser);
+          setLoading(false);
+        })
+        .catch(async () => {
+          // Best-effort second clear. If synchronization is unavailable, keep
+          // the UI anonymous so a new identity never inherits old content.
+          await clearPremiumAccess().catch(() => undefined);
+          if (!active || currentGeneration !== generation) return;
+          setUser(null);
+          setLoading(false);
+        });
     });
-    return unsubscribe;
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   // ─── Auth operations ─────────────────────────────────────────────────────
@@ -64,6 +103,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = useCallback(async (): Promise<void> => {
+    // Clear the HttpOnly premium-image capability before Firebase drops the
+    // browser identity. Failure is surfaced to the caller so a shared browser
+    // never appears signed out while retaining the short-lived capability.
+    clearMapDataCaches();
+    await clearPremiumAccess();
     await firebaseSignOut(auth);
   }, []);
 
@@ -76,6 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const deleteAccount = useCallback(async (): Promise<void> => {
     if (!auth.currentUser) throw new Error('Not authenticated');
+    clearMapDataCaches();
+    await clearPremiumAccess();
     await deleteUser(auth.currentUser);
   }, []);
 

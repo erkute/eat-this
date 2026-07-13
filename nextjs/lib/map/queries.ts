@@ -1,5 +1,4 @@
 import {
-  groqImageUrl,
   presetQuery,
   publishableRestaurantImageUrl,
   restaurantPhotoCredit,
@@ -72,13 +71,8 @@ export const restaurantMapDetailQuery = `
 export const mapMustEatsQuery = `
   *[_type == "mustEat"] {
     _id,
-    dish,
-    description,
-    descriptionEn,
-    price,
     revealedForAnon,
     order,
-    "image": ${groqImageUrl('image', 'mapCard')},
     "restaurant": restaurantRef-> {
       _id,
       name,

@@ -47,7 +47,7 @@ export type FulfillmentResult =
 // cold fetches.
 async function categoryEntitlementPayload(slug: string): Promise<{ mustEatIds: string[]; restaurantIds: string[] }> {
   const rows = await sanity.fetch<{ _id: string; rid: string | null }[]>(
-    `*[_type == "mustEat" && defined(image.asset) && defined(restaurantRef._ref) && restaurantRef->isOpen != false && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
+    `*[_type == "mustEat" && defined(restaurantRef._ref) && restaurantRef->isOpen != false && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
     { slug },
   )
   const mustEatIds = rows.map((r) => r._id)

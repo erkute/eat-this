@@ -35,10 +35,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
   // is open in the collection too, even right after first signup.
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
-  const unlockedIds = useMemo(
-    () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds]),
-    [storedUnlockedIds, publicFaceUpIds]
-  );
   const { profile, setAvatar } = useUserProfile(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
@@ -47,6 +43,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const {
     restaurants: ownedRestaurants,
     mustEats,
+    revealedMustEatIds,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -54,6 +51,14 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     uid: user?.uid ?? null,
     authLoading,
   });
+  const unlockedIds = useMemo(
+    () => new Set<string>([
+      ...storedUnlockedIds,
+      ...publicFaceUpIds,
+      ...revealedMustEatIds,
+    ]),
+    [storedUnlockedIds, publicFaceUpIds, revealedMustEatIds]
+  );
   const hasMapData = ownedRestaurants.length > 0 || mustEats.length > 0;
   const ownedRestaurantIds = useMemo(
     () => new Set(ownedRestaurants.map((r) => r._id)),

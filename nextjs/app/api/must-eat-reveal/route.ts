@@ -4,8 +4,13 @@ import { resolveEntitlements } from '@/lib/firebase/entitlements'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 import { getFreeSurfaceData } from '@/lib/map/free-surface'
 import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server'
-import { unlockMustEat } from '@/lib/firebase/unlockedMustEats.server'
+import {
+  getUnlockedMustEatIds,
+  unlockMustEat,
+} from '@/lib/firebase/unlockedMustEats.server'
 import { checkRateLimit } from '@/lib/buddy/rateLimit'
+import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store'
+import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access'
 
 const num = (v: string | undefined, d: number) => {
   const n = Number(v)
@@ -63,10 +68,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'mustEatId required' }, { status: 400 })
   }
 
-  const [{ restaurants: all, mustEats: allMustEats }, ent, freeSurface] = await Promise.all([
+  const [
+    { restaurants: all, mustEats: allMustEats },
+    ent,
+    freeSurface,
+    unlockedIds,
+  ] = await Promise.all([
     getCachedMapData(),
     resolveEntitlements(uid, identity),
     getFreeSurfaceData(),
+    getUnlockedMustEatIds(uid),
   ])
 
   const mustEat = allMustEats.find((m) => m._id === mustEatId)
@@ -74,7 +85,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'unknown must-eat' }, { status: 404 })
   }
 
-  if (!ent.isAdmin && !ent.hasAllBerlin) {
+  let accessIds: Set<string>
+  if (ent.isAdmin || ent.hasAllBerlin) {
+    accessIds = new Set(allMustEats.map((candidate) => candidate._id))
+  } else {
     const visible = await composeVisibleRestaurants({
       all,
       allMustEats,
@@ -86,11 +100,22 @@ export async function POST(req: Request) {
     if (!visibleRestaurantIds.has(mustEat.restaurant._id)) {
       return NextResponse.json({ error: 'must-eat not available' }, { status: 403 })
     }
+    accessIds = new Set([
+      ...visible.revealedMustEatIds,
+      ...unlockedIds,
+      ...ent.mustEatIds,
+      mustEatId,
+    ])
   }
 
+  const [hydratedMustEat] = await hydrateAuthorizedMustEats(
+    [mustEat],
+    new Set([mustEatId]),
+  )
   await unlockMustEat(uid, mustEat)
 
-  const res = NextResponse.json({ mustEat })
+  const res = NextResponse.json({ mustEat: hydratedMustEat })
   res.headers.set('Cache-Control', 'private, no-store')
+  setPremiumAccessCookie(res, accessIds, uid)
   return res
 }

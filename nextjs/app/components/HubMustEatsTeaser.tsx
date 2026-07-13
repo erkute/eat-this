@@ -44,8 +44,7 @@ export default function HubMustEatsTeaser() {
     [mounted, storedUnlockedIds]
   );
   // Public anon face-up set — folded in for signed-in users too so the teaser
-  // matches the map/profile ("publicly face-up means face-up everywhere"; the
-  // signed-in /api/map-data ships revealedMustEatIds: []).
+  // matches the map/profile ("publicly face-up means face-up everywhere").
   const publicFaceUpIds = useMemo(
     () => new Set<string>(initialMapData.revealedMustEatIds),
     [initialMapData]

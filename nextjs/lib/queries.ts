@@ -75,20 +75,15 @@ export const allRestaurantSlugsQuery = `
   }
 `
 
-// Inline "Must Eat" reference blocks inside article content carry both the dish
-// (freigestellt photo + name) and the restaurant (photo/name/slug/district) so
-// the renderer can draw the inline card AND derive the "Spots im Artikel" grid +
-// spotrail without extra fetches. Normal blocks pass through untouched (`...`).
+// Public article payloads resolve only the restaurant side of a Must-Eat
+// reference. Dish text and images live in the private premium store and must
+// never be projected into an indexed article response.
 const articleContentProjection = `{
     ...,
     _type == "mustEatCard" => {
       _type,
       _key,
       "mustEatId": mustEatRef->_id,
-      "dish": mustEatRef->dish,
-      "dishDescription": mustEatRef->description,
-      "dishDescriptionEn": mustEatRef->descriptionEn,
-      "dishImage": ${groqImageUrl('mustEatRef->image', 'articleDish')},
       "restaurantName": mustEatRef->restaurantRef->name,
       "restaurantSlug": mustEatRef->restaurantRef->slug.current,
       "district": coalesce(mustEatRef->restaurantRef->district, mustEatRef->restaurantRef->bezirkRef->name, mustEatRef->district),
@@ -217,25 +212,20 @@ export const restaurantSiblingCandidatesQuery = `{
   ] | order(name asc, slug.current asc)[0...$categoryLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
 }`
 
-// Curated spots for the magic-link email: restaurants that have at least one
-// Must-Eat card, editorial first (`featured`), then by Must-Eat count. Projects
-// exactly what the email renders — restaurant photo + a single Must-Eat card.
+// Curated spots for the magic-link email: restaurant information only. Login
+// emails are not an entitlement boundary and therefore never embed premium
+// Must-Eat text or images.
 export const emailSpotsQuery = `
   *[_type == "restaurant" && isOpen != false
     && defined(slug.current) && defined(image.asset) && (${publishableRestaurantImageCondition('image')})
-    && count(*[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]) > 0]
+    && count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) > 0]
     | order(coalesce(featured, false) desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
     [0...$limit] {
     name,
     "slug": slug.current,
     "area": coalesce(bezirkRef->name, district),
     "cuisine": cuisineType,
-    "photo": ${publishableRestaurantImageUrl('image', 'card')},
-    "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]
-      | order(order asc)[0...1] {
-      dish,
-      "cardPhoto": image.asset->url
-    }
+    "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
 `
 
@@ -246,12 +236,7 @@ export const emailSpotCardQuery = `
     name,
     "area": coalesce(bezirkRef->name, district),
     "cuisine": cuisineType,
-    "photo": ${publishableRestaurantImageUrl('image', 'card')},
-    "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]
-      | order(order asc)[0...1] {
-      dish,
-      "cardPhoto": image.asset->url
-    }
+    "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
 `
 

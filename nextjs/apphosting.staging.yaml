@@ -13,6 +13,41 @@ env:
       - BUILD
       - RUNTIME
 
+  # A separate Sanity project/dataset. The project ID is kept in Secret
+  # Manager so this file remains reusable until the external project exists.
+  - variable: SANITY_PROJECT_ID
+    secret: SANITY_PROJECT_ID_STAGING
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SANITY_DATASET
+    value: staging
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SANITY_API_READ_TOKEN
+    secret: SANITY_API_READ_TOKEN_STAGING
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SANITY_REVALIDATE_SECRET
+    secret: SANITY_REVALIDATE_SECRET_STAGING
+    availability:
+      - RUNTIME
+
+  # Both SDKs reject a missing/mismatched project and explicitly reject the
+  # production project ID. This value is public by nature but stays a Secret
+  # Manager reference until the immutable staging project ID is chosen.
+  - variable: FIREBASE_EXPECTED_PROJECT_ID
+    secret: FIREBASE_PROJECT_ID_STAGING
+    availability:
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID
+    secret: FIREBASE_PROJECT_ID_STAGING
+    availability:
+      - BUILD
+      - RUNTIME
+
   # Basic Auth credentials — gates every non-webhook request on staging.
   - variable: STAGING_BASIC_AUTH_USER
     secret: STAGING_BASIC_AUTH_USER
@@ -25,9 +60,58 @@ env:
 
   # Public URL override — emails + absolute-URL builders point at staging.
   - variable: NEXT_PUBLIC_APP_URL
-    value: https://eat-this-staging--eat-this-8a13b.us-central1.hosted.app
+    secret: NEXT_PUBLIC_APP_URL_STAGING
     availability:
       - RUNTIME
+      - BUILD
+
+  # Provider credentials are intentionally separate even though this backend
+  # also lives in a different Firebase project. A missing staging credential
+  # must fail the rollout instead of inheriting production access.
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY_STAGING
+    availability:
+      - RUNTIME
+  - variable: RESEND_FROM_EMAIL
+    secret: RESEND_FROM_EMAIL_STAGING
+    availability:
+      - RUNTIME
+  - variable: STAGING_EMAIL_RECIPIENT
+    secret: STAGING_EMAIL_RECIPIENT
+    availability:
+      - RUNTIME
+  - variable: ANTHROPIC_API_KEY
+    secret: ANTHROPIC_API_KEY_STAGING
+    availability:
+      - RUNTIME
+  - variable: VOYAGE_API_KEY
+    secret: VOYAGE_API_KEY_STAGING
+    availability:
+      - RUNTIME
+  - variable: BUDDY_IP_SALT
+    secret: BUDDY_IP_SALT_STAGING
+    availability:
+      - RUNTIME
+  - variable: PREMIUM_ACCESS_SIGNING_KEY
+    secret: PREMIUM_ACCESS_SIGNING_KEY_STAGING
+    availability:
+      - RUNTIME
+  - variable: ADMIN_EMAILS
+    secret: ADMIN_EMAILS_STAGING
+    availability:
+      - RUNTIME
+  - variable: NEXT_PUBLIC_SENTRY_DSN
+    secret: NEXT_PUBLIC_SENTRY_DSN_STAGING
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SENTRY_AUTH_TOKEN
+    secret: SENTRY_AUTH_TOKEN_STAGING
+    availability:
+      - BUILD
+  - variable: SENTRY_PROJECT
+    value: javascript-staging
+    availability:
       - BUILD
 
   # Stripe — staging uses TEST-mode keys + a separate webhook endpoint.

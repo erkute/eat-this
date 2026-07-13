@@ -5,6 +5,11 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
+import { isStaging } from '@/lib/env';
+import {
+  assertFirebaseProjectBoundary,
+  PRODUCTION_FIREBASE_PROJECT_ID,
+} from './project-boundary'
 
 // authDomain: on production the auth helper (/__/auth/*) is reverse-proxied
 // through our own domain (see rewrites() in next.config.ts), so the popup is
@@ -23,17 +28,59 @@ const authDomain =
     ? window.location.host
     : 'eat-this-8a13b.firebaseapp.com';
 
-const firebaseConfig = {
+const productionFirebaseConfig = {
   apiKey:            'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
   authDomain,
-  projectId:         'eat-this-8a13b',
+  projectId:         PRODUCTION_FIREBASE_PROJECT_ID,
   storageBucket:     'eat-this-8a13b.firebasestorage.app',
   messagingSenderId: '768781457409',
   appId:             '1:768781457409:web:607ff46bfa4599d6b08800',
 };
 
+const explicitFirebaseValues = [
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+]
+const hasAnyExplicitFirebaseValue = explicitFirebaseValues.some(Boolean)
+const hasAllExplicitFirebaseValues = explicitFirebaseValues.every(Boolean)
+
+if (hasAnyExplicitFirebaseValue && !hasAllExplicitFirebaseValues) {
+  throw new Error('Incomplete NEXT_PUBLIC_FIREBASE_* configuration')
+}
+
+const explicitFirebaseConfig = hasAllExplicitFirebaseValues
+  ? {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+    }
+  : null;
+
 // Singleton guard — prevents duplicate app initialization during Next.js hot-reload.
-const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
+// App Hosting auto-populates no-argument Firebase JS initialization for its
+// associated web app. Staging deliberately uses that project-local config;
+// falling back to production there would silently reconnect Auth/Firestore.
+const app = getApps().length > 0
+  ? getApps()[0]
+  : explicitFirebaseConfig
+    ? initializeApp(explicitFirebaseConfig)
+    : isStaging
+      ? initializeApp()
+      : initializeApp(productionFirebaseConfig);
+
+assertFirebaseProjectBoundary({
+  actualProjectId: app.options.projectId,
+  expectedProjectId: process.env.NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID,
+  staging: isStaging,
+  surface: 'client',
+})
 
 export const auth        = getAuth(app);
 

@@ -91,17 +91,13 @@ interface NewsArticleSeo {
 
 export type PortableTextBlock = { _type: string; _key?: string } & Record<string, unknown>
 
-// Inline "Must Eat" block embedded in article Portable Text (resolved in
-// articleBySlugQuery). Carries the dish + its restaurant for the inline card
-// and the derived "Spots im Artikel" grid / spotrail.
+// Inline Must-Eat teaser embedded in article Portable Text. Public article
+// queries resolve only safe restaurant metadata; premium dish fields stay in
+// the private store.
 export interface MustEatCardBlock {
   _type: 'mustEatCard'
   _key?: string
   mustEatId?: string
-  dish?: string
-  dishDescription?: string
-  dishDescriptionEn?: string
-  dishImage?: string
   restaurantName?: string
   restaurantSlug?: string
   district?: string

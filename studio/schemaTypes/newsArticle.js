@@ -64,8 +64,8 @@ const contentBlocks = [
       },
     ],
   },
-  // Inline „Must Eat"-Karte — platziere ein Gericht mitten im Fließtext (beim
-  // passenden Abschnitt). Aus den referenzierten Spots baut das Frontend
+  // Inline „Must Eat"-Teaser — referenziert die private Karte, projiziert im
+  // öffentlichen Artikel aber nur den zugehörigen Spot. Aus den referenzierten Spots baut das Frontend
   // zusätzlich automatisch das „Spots im Artikel"-Grid + die Sticky-Spotrail.
   {
     type: 'object',
@@ -82,15 +82,12 @@ const contentBlocks = [
     ],
     preview: {
       select: {
-        dish: 'mustEatRef.dish',
         restaurant: 'mustEatRef.restaurantRef.name',
-        media: 'mustEatRef.image',
       },
-      prepare({dish, restaurant, media}) {
+      prepare({restaurant}) {
         return {
-          title: `🍴 ${dish || 'Must Eat'}`,
-          subtitle: restaurant ? `@ ${restaurant}` : 'Must Eat',
-          media,
+          title: '🍴 Must Eat',
+          subtitle: restaurant ? `@ ${restaurant}` : 'Privater Inhalt',
         }
       },
     },

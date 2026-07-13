@@ -80,12 +80,27 @@ export async function sendMagicLinkEmail(params: {
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
   const fromName  = process.env.RESEND_FROM_NAME  || 'Eat This';
+  const stagingRecipient = process.env.STAGING_EMAIL_RECIPIENT;
+  if (process.env.NEXT_PUBLIC_ENV === 'staging' && !stagingRecipient) {
+    console.error('[sendMagicLink] STAGING_EMAIL_RECIPIENT missing');
+    return { ok: false, error: 'email-misconfigured' };
+  }
+  // Staging may generate links for arbitrary guest test identities, but the
+  // message itself is delivered only to the explicitly configured sink/test
+  // inbox. This prevents a staging smoke test from mailing real customers.
+  const recipient = process.env.NEXT_PUBLIC_ENV === 'staging'
+    ? stagingRecipient!
+    : email;
 
-  // Curated spots are a nice-to-have — never block the login email on Sanity.
-  const restaurants = await getEmailSpots(4).catch((err) => {
-    console.error('[sendMagicLink] getEmailSpots failed:', err);
-    return [];
-  });
+  // Staging's dynamic card renderer remains behind Basic Auth, so external
+  // mail clients cannot fetch it. Keep staging messages self-contained and
+  // avoid a read dependency on the production image endpoint.
+  const restaurants = process.env.NEXT_PUBLIC_ENV === 'staging'
+    ? []
+    : await getEmailSpots(4).catch((err) => {
+        console.error('[sendMagicLink] getEmailSpots failed:', err);
+        return [];
+      });
 
   const html = await render(
     MagicLinkEmail({ magicLink, appUrl, restaurants, returning })
@@ -97,7 +112,7 @@ export async function sendMagicLinkEmail(params: {
     const result = await resend.emails.send(
       {
         from:    `${fromName} <${fromEmail}>`,
-        to:      email,
+        to:      recipient,
         subject: 'Dein Login-Link für Eat This',
         html,
         text,

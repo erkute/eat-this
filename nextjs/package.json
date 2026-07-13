@@ -14,10 +14,11 @@
     "import:restaurant": "tsx scripts/import-enriched.ts",
     "embed:restaurants": "tsx scripts/embed-restaurants.ts",
     "content:backlog": "tsx scripts/content-backlog.ts",
+    "premium:migrate": "tsx scripts/migrate-must-eats-private.ts",
     "lint": "eslint",
     "lint:content": "tsx scripts/content-lint.ts",
     "test": "vitest run",
-    "test:rules": "firebase emulators:exec --only firestore --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts\"",
+    "test:rules": "firebase emulators:exec --only firestore,storage --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts __tests__/storage.rules.test.ts\"",
     "test:watch": "vitest"
   },
   "dependencies": {

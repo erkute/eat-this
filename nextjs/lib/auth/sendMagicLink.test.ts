@@ -1,9 +1,10 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   send: vi.fn(),
   generateLink: vi.fn(),
   getUserByEmail: vi.fn(),
+  getEmailSpots: vi.fn(),
 }));
 
 vi.mock('resend', () => ({
@@ -19,7 +20,7 @@ vi.mock('@/lib/firebase/admin', () => ({
     getUserByEmail: mocks.getUserByEmail,
   }),
 }));
-vi.mock('@/lib/sanity.server', () => ({getEmailSpots: vi.fn(async () => [])}));
+vi.mock('@/lib/sanity.server', () => ({getEmailSpots: mocks.getEmailSpots}));
 vi.mock('@/emails/MagicLinkEmail', () => ({default: () => null}));
 vi.mock('@/emails/magicLinkText', () => ({buildMagicLinkText: () => 'text'}));
 
@@ -32,10 +33,33 @@ beforeEach(() => {
   mocks.generateLink.mockResolvedValue('https://firebase.test/link');
   mocks.getUserByEmail.mockReset();
   mocks.getUserByEmail.mockResolvedValue({uid: 'user-1'});
+  mocks.getEmailSpots.mockReset();
+  mocks.getEmailSpots.mockResolvedValue([]);
   vi.stubEnv('RESEND_API_KEY', 're_test');
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 describe('sendMagicLinkEmail idempotency', () => {
+  it('routes staging mail only to the configured test recipient', async () => {
+    vi.stubEnv('NEXT_PUBLIC_ENV', 'staging');
+    vi.stubEnv('STAGING_EMAIL_RECIPIENT', 'delivered@resend.dev');
+
+    await expect(sendMagicLinkEmail({
+      email: 'guest@example.com',
+      continueUrl: 'https://staging.example.com/welcome',
+      appUrl: 'https://staging.example.com',
+    })).resolves.toEqual({ok: true});
+
+    expect(mocks.send).toHaveBeenCalledWith(
+      expect.objectContaining({to: 'delivered@resend.dev'}),
+      undefined,
+    );
+    expect(mocks.getEmailSpots).not.toHaveBeenCalled();
+  });
+
   it('forwards a stable provider idempotency key', async () => {
     await expect(sendMagicLinkEmail({
       email: 'guest@example.com',

@@ -15,6 +15,7 @@ import { getFreeSurfaceData, applyFreeSurface } from './free-surface'
 import { stripCoveredMustEats } from './stripCoveredMustEats'
 import { stripLockedRestaurants } from './stripLockedRestaurant'
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
+import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
 
@@ -29,7 +30,7 @@ export interface InitialMapData {
   revealedMustEatIds: string[]
 }
 
-export async function getInitialAnonMapData(): Promise<InitialMapData> {
+async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
   const today = new Date().toISOString().slice(0, 10)
   const [
     { restaurants: all, mustEats: allMustEats, categories },
@@ -71,11 +72,28 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
   return {
     restaurants:        gifted.restaurants,
     lockedRestaurants:  stripLockedRestaurants(gifted.lockedRestaurants),
-    // Anon view: only the curated set + spot-of-day gift are face-up; covered
-    // cards ship stripped so the paid fields never reach the public HTML.
-    mustEats:           stripCoveredMustEats(gifted.mustEats, gifted.revealedMustEatIds),
+    mustEats:           gifted.mustEats,
     categories,
     totalCount:         all.length,
     revealedMustEatIds: Array.from(gifted.revealedMustEatIds),
+  }
+}
+
+export async function getPublicMustEatIds(): Promise<Set<string>> {
+  const data = await composeInitialAnonMapMetadata()
+  return new Set(data.revealedMustEatIds)
+}
+
+export async function getInitialAnonMapData(): Promise<InitialMapData> {
+  const metadata = await composeInitialAnonMapMetadata()
+  const faceUpIds = new Set(metadata.revealedMustEatIds)
+  const hydrated = await hydrateAuthorizedMustEats(metadata.mustEats, faceUpIds)
+
+  return {
+    ...metadata,
+    // Anonymous HTML receives only the curated set plus the spot-of-day gift.
+    // Covered cards are metadata-only and premium fields come exclusively
+    // from the private store after this server-side authorization decision.
+    mustEats: stripCoveredMustEats(hydrated, faceUpIds),
   }
 }

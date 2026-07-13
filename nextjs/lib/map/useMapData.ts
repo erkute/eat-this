@@ -4,6 +4,12 @@ import { auth } from '@/lib/firebase/config'
 import type { MapRestaurant, MapMustEat } from '../types'
 import type { CategoryDef } from '../categories'
 import type { InitialMapData } from './server-initial-map-data'
+import {
+  readMapCache,
+  seedUidBeforeAuth,
+  writeMapCache,
+  type CachedMapData,
+} from './map-data-cache'
 
 interface UseMapDataArgs {
   uid:             string | null
@@ -38,54 +44,6 @@ interface MapData {
    *  /api/must-eat-reveal response carries the full card data that the bulk
    *  payload ships stripped (covered cards have no dish/image). */
   mergeMustEat: (m: MapMustEat) => void
-}
-
-// Per-uid localStorage cache of the signed-in map payload. SSR can only render
-// the anonymous view (auth is client-side), so without this a signed-in user
-// sees the anon count first (e.g. 20) and it pops to their real tier (40) once
-// the authenticated /api/map-data refetch lands. Seeding first paint from cache
-// removes that pop; the live fetch still reconciles + refreshes it.
-interface CachedMapData {
-  restaurants: MapRestaurant[]
-  lockedRestaurants: MapRestaurant[]
-  mustEats: MapMustEat[]
-  categories: CategoryDef[]
-  totalCount: number
-  revealedMustEatIds: string[]
-}
-const CACHE_KEY = (uid: string) => `eatthis_mapdata_${uid}`
-const LAST_UID_KEY = 'eatthis_last_uid'
-
-function readMapCache(uid: string | null): CachedMapData | null {
-  if (!uid || typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(CACHE_KEY(uid))
-    if (!raw) return null
-    const d = JSON.parse(raw)
-    if (!d || !Array.isArray(d.restaurants)) return null
-    return d as CachedMapData
-  } catch { return null }
-}
-
-function writeMapCache(uid: string, data: CachedMapData) {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem(CACHE_KEY(uid), JSON.stringify(data))
-    window.localStorage.setItem(LAST_UID_KEY, uid)
-  } catch {}
-}
-
-// On a hard reload the uid isn't known synchronously (Firebase auth resolves
-// async). The CRITICAL_BOOTSTRAP writes `_authHint` ({n}) while signed in, and
-// we remember the last signed-in uid — together they let us seed the signed-in
-// tier on first paint, before auth resolves, so a reload doesn't pop 20→40.
-function seedUidBeforeAuth(): string | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const hint = JSON.parse(window.localStorage.getItem('_authHint') || 'null')
-    if (!hint || !hint.n) return null
-    return window.localStorage.getItem(LAST_UID_KEY)
-  } catch { return null }
 }
 
 // useLayoutEffect on the client (runs before the browser paints, so the

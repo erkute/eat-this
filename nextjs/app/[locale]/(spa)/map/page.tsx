@@ -14,7 +14,8 @@ const sairaCondensed = Saira_Condensed({
   variable: '--font-saira-condensed',
 })
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface PageProps {
   params: Promise<{ locale: string }>

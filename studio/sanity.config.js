@@ -4,13 +4,14 @@ import {visionTool} from '@sanity/vision'
 import {DownloadIcon} from '@sanity/icons'
 import {schemaTypes} from './schemaTypes'
 import RestaurantImporter from './tools/RestaurantImporter'
+import {sanityTarget} from './sanity-target.mjs'
 
 export default defineConfig({
   name: 'default',
   title: 'eat-this',
 
-  projectId: 'ehwjnjr2',
-  dataset: 'production',
+  projectId: sanityTarget.projectId,
+  dataset: sanityTarget.dataset,
 
   plugins: [
     structureTool({

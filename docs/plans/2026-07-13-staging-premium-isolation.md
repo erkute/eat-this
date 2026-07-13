@@ -1,6 +1,6 @@
 # Staging- und Premium-Must-Eat-Isolation
 
-Stand: 13.07.2026
+Stand: 14.07.2026
 
 Arbeitsbranch: `codex/staging-premium-isolation`
 Basis: `origin/staging` auf `26e0d7e072af8a8dd37ec233bbb1d08e9ef9a037`
@@ -347,8 +347,8 @@ offenes Production-Gate, kein grüner Staging-Befund.
 - Voyage-Staging-Key: offizieller Embedding-Endpunkt HTTP 200, ein Vektor mit
   512 Dimensionen für das vom Runtime-Code verwendete Modell
 - Anthropic-Staging-Key: offizieller Models-Endpunkt HTTP 200 und zehn Modelle
-  sichtbar. Das Konto hat derzeit jedoch kein API-Guthaben; ein echter Buddy-
-  Modellaufruf ist deshalb noch kein grüner Staging-Gate.
+  sichtbar. Nach der separaten Staging-Aufladung lieferte ein echter Buddy-
+  Modellaufruf einen vollständigen Stream ohne Fehler.
 
 ## Tatsächliches Staging-Deployment und Negativtests
 
@@ -380,7 +380,7 @@ Die folgenden Prüfungen wurden gegen die tatsächliche Staging-URL ausgeführt:
 | Duplicate/Refund | Zweite Zahlung desselben Gast-/Pack-Paars erzeugte genau einen automatischen `duplicate_entitlement`-Refund; ursprüngliches Entitlement blieb bestehen, Mail wurde nicht erneut ausgegeben |
 | Gast-Mail | Ausschließlich Testmodus und Test-Sink; Gast-Auth-User und `guestMagicLink`-Outbox erfolgreich, keine Production-Zustellung |
 | Revalidation | Gültige Staging-HMAC invalidierte 7 Oberflächen; fehlende Signatur wurde abgewiesen |
-| Provider | Voyage-Embedding HTTP 200/512 Dimensionen; Anthropic-Modellliste HTTP 200; Buddy-Modellaufruf fail-closed wegen fehlendem Staging-Guthaben |
+| Provider | Voyage-Embedding HTTP 200/512 Dimensionen; Anthropic-Modellliste HTTP 200; Buddy-Modellaufruf HTTP 200 mit Spot-, Pack-, Text- und `done`-Events, ohne Fehler |
 
 Der zuerst angelegte Stripe-Test-Webhook hatte ein nicht passendes Signing-
 Secret. Er wurde gelöscht, durch genau einen neuen Staging-Endpunkt ersetzt und
@@ -404,10 +404,6 @@ nicht mutiert.
 
 ## Offene Staging-Gates und Risiken
 
-- Der getrennte Anthropic-Key läuft nach 30 Tagen ab und das Staging-Konto hat
-  aktuell 0 API-Guthaben. Für den Buddy-Positivtest ist eine kleine, bewusst
-  manuelle Staging-Aufladung nötig; der getrennte Production-Key darf nicht als
-  Fallback verwendet werden.
 - GitHub Quality läuft für Pull Requests nach `staging`/`main`, nicht für den
   bloßen Feature-Branch-Push. Vor Integration ist deshalb ein PR mit grünen
   Checks erforderlich.

@@ -78,4 +78,22 @@ describeRules('firestore.rules favorites', () => {
     const snapshot = await getDoc(favoriteRef);
     expect(snapshot.data()?.name).toBe('Restaurant');
   });
+
+  it('denies premium Must-Eat reads and writes to every browser identity', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'privateMustEats/m1'), {
+        dish: 'server-only',
+        imageObjectPath: 'premium/must-eats/m1/hash.webp',
+      });
+    });
+
+    for (const db of [
+      testEnv.unauthenticatedContext().firestore(),
+      testEnv.authenticatedContext('owner').firestore(),
+    ]) {
+      const premiumRef = doc(db, 'privateMustEats/m1');
+      await assertFails(getDoc(premiumRef));
+      await assertFails(setDoc(premiumRef, {dish: 'overwrite'}));
+    }
+  });
 });

@@ -6,12 +6,10 @@ const spots = [
   {
     name: 'SOFI', slug: 'sofi', area: 'Mitte', cuisine: 'Bakery',
     photo: 'https://cdn.sanity.io/images/x/y/rest.png',
-    mustEats: [{ dish: 'Breakfast Plate', cardPhoto: 'https://cdn.sanity.io/images/x/y/a.png' }],
   },
   {
     name: 'GEMELLO', slug: 'gemello', area: 'Prenzlauer Berg', cuisine: 'Italian',
     photo: 'https://cdn.sanity.io/images/x/y/rest2.png?w=800',
-    mustEats: [{ dish: 'Pizza', cardPhoto: 'https://cdn.sanity.io/images/x/y/b.png?w=800' }],
   },
 ]
 
@@ -42,14 +40,14 @@ describe('MagicLinkEmail', () => {
 
   it('spots are server-composed cards that deep-link onto the map', async () => {
     const html = await render(MagicLinkEmail(props))
-    // Each spot is ONE composed image (photo + name + badge baked in)…
+    // Each spot is ONE composed image (public restaurant photo + name)…
     expect(html).toContain('/api/email/spot-card?slug=sofi')
     expect(html).toContain('/api/email/spot-card?slug=gemello')
     // …wrapped in a link that opens the restaurant on the map.
     expect(html).toContain('/map?r=sofi')
     expect(html).toContain('/map?r=gemello')
     // Alt text carries the full wording for blocked-images clients.
-    expect(html).toContain('SOFI — Mitte · Bakery: Breakfast Plate')
+    expect(html).toContain('SOFI — Mitte · Bakery')
     // The old in-HTML photo/card layers are gone.
     expect(html).not.toContain('rest.png?w=640')
     expect(html).not.toContain('a.png?w=400')

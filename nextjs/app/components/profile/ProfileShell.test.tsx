@@ -55,6 +55,7 @@ vi.mock('@/lib/map', () => ({
   useMapData: () => ({
     restaurants: state.restaurants,
     mustEats: [],
+    revealedMustEatIds: new Set<string>(),
     loading: state.mapLoading,
     error: state.mapError,
     refetch: state.refetch,

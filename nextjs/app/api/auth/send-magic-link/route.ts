@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkRateLimit, clientIp } from '@/lib/rateLimit';
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink';
+import { isStaging } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
@@ -22,7 +23,7 @@ function sanitizeContinueUrl(raw: string | undefined, origin: string, fallback: 
     [
       origin,
       process.env.NEXT_PUBLIC_APP_URL,
-      'https://www.eatthisdot.com',
+      ...(isStaging ? [] : ['https://www.eatthisdot.com']),
     ].filter(Boolean) as string[],
   );
   if (allowedOrigins.has(candidate.origin)) return candidate.toString();
@@ -63,11 +64,10 @@ export async function POST(request: Request) {
   // only Firebase's required link target plus the `e` email carrier param.
   const continueUrl = sanitizeContinueUrl(body.continueUrl, origin, `${origin}/`);
 
-  // Email artwork must load from a publicly reachable, non-auth host. `origin`
-  // can be localhost (dev) or the Basic-Auth-gated staging URL, where mail
-  // clients can't fetch the logo/slogan/card images — so always point email
-  // assets at production (override via EMAIL_ASSET_BASE_URL if ever needed).
-  const emailAssetBase = process.env.EMAIL_ASSET_BASE_URL || 'https://www.eatthisdot.com';
+  // Static /pics/email assets are intentionally outside the staging Basic
+  // Auth matcher. Keep staging mail on its own host; never fall back to the
+  // production site from a staging request.
+  const emailAssetBase = process.env.EMAIL_ASSET_BASE_URL || origin;
 
   const result = await sendMagicLinkEmail({ email, continueUrl, appUrl: emailAssetBase });
   if (!result.ok) {

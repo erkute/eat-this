@@ -1,9 +1,10 @@
 import {defineCliConfig} from 'sanity/cli'
+import {sanityTarget} from './sanity-target.mjs'
 
 export default defineCliConfig({
   api: {
-    projectId: 'ehwjnjr2',
-    dataset: 'production'
+    projectId: sanityTarget.projectId,
+    dataset: sanityTarget.dataset,
   },
   deployment: {
     /**

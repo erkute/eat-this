@@ -12,7 +12,11 @@ import { selectHomeInitialMapData } from '@/lib/map/initial-surface-data'
 import { buildHomeJsonLd } from '@/lib/json-ld'
 import { getLandingFaqs } from '@/lib/landing/faqs'
 
-export const revalidate = 3600
+// Public Must-Eat previews are hydrated from the private store only after the
+// request-time reveal policy is known. Do not pre-render them in CI/builds,
+// where no runtime service account exists.
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface PageProps {
   params: Promise<{ locale: string }>

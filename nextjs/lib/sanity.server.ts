@@ -215,10 +215,9 @@ type EmailSpot = {
   area: string
   cuisine?: string
   photo: string
-  mustEats: { dish: string; cardPhoto: string }[]
 }
 
-// Curated spots for the magic-link email — restaurant photo + one Must-Eat card.
+// Curated spots for the magic-link email — public restaurant data only.
 export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
   return client.fetch<EmailSpot[]>(
     emailSpotsQuery,

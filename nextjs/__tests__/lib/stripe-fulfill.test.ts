@@ -12,11 +12,14 @@ const { setFn, getFn, updateFn, sanityFetch } = vi.hoisted(() => {
     exists: false,
     data: () => undefined,
   }))
-  const sanityFetch = vi.fn(async () => [
-    { _id: 'mustEat-1', rid: 'rest-A' },
-    { _id: 'mustEat-2', rid: 'rest-A' },
-    { _id: 'mustEat-3', rid: 'rest-B' },
-  ])
+  const sanityFetch = vi.fn<(
+    query: string,
+    params: { slug: string },
+  ) => Promise<{ _id: string; rid: string }[]>>(async () => [
+      { _id: 'mustEat-1', rid: 'rest-A' },
+      { _id: 'mustEat-2', rid: 'rest-A' },
+      { _id: 'mustEat-3', rid: 'rest-B' },
+    ])
   return { setFn, getFn, updateFn, sanityFetch }
 })
 
@@ -71,6 +74,7 @@ describe('assembleAndWriteEntitlement', () => {
     })
     expect(result).toEqual({ status: 'created' })
     expect(sanityFetch).toHaveBeenCalledOnce()
+    expect(sanityFetch.mock.calls[0][0]).not.toContain('image.asset')
     expect(setFn).toHaveBeenCalledOnce()
     const written = setFn.mock.calls[0][0]
     expect(written.type).toBe('category')

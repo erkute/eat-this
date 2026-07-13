@@ -1,6 +1,6 @@
 // Server-composed email spot card — the JSX tree Satori (next/og ImageResponse)
 // renders into one flat 720×720 PNG: restaurant photo, scrim, meta + name in
-// brand fonts, Must-Eat card tilted onto the top-right corner. Composing
+// brand fonts. Composing
 // server-side is the only way this survives email clients: Gmail strips
 // position/transform/filter/box-shadow and never loads webfonts.
 
@@ -25,27 +25,20 @@ export function spotPhotoUrl(photo: string): string {
   return `${photo.split('?')[0]}?w=720&h=720&fit=crop&fm=jpg&q=80`;
 }
 
-// Trading-card crop (5:7) for the Must-Eat badge. `fm=png` keeps the alpha.
-export function mustEatCardUrl(cardPhoto: string): string {
-  return `${cardPhoto.split('?')[0]}?w=400&h=560&fit=crop&fm=png`;
-}
-
 type SpotCardData = Pick<
   EmailSpot,
-  'name' | 'area' | 'cuisine' | 'photo' | 'mustEats'
+  'name' | 'area' | 'cuisine' | 'photo'
 >;
 
-// The badge hangs OFF the photo corner: the canvas keeps a cream margin on
+// The canvas keeps a cream margin on
 // top/right (matches the email body background, so the JPEG reads as
-// transparent) and the photo sits bottom-left. The Must-Eat card straddles
-// the photo's top-right edge into that margin.
+// transparent) and the photo sits bottom-left.
 const OVERHANG = 96;
 const PHOTO = SPOT_CARD_SIZE - OVERHANG; // 624
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
   const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ').toUpperCase();
-  const mustEat = spot.mustEats[0];
 
   return (
     <div
@@ -131,28 +124,6 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
           {spot.name}
         </div>
       </div>
-
-      {/* Must-Eat card — hangs off the photo's top-right corner into the
-          cream margin, tilted hard. Inset from the canvas edges: rotation
-          happens around the center, so the corners swing ~28px past the
-          element box horizontally and ~18px vertically — without the inset
-          they get clipped at the canvas bounds. No drop shadow: cutouts
-          ship without shadows (brand rule). */}
-      {mustEat && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={mustEatCardUrl(mustEat.cardPhoto)}
-          alt=""
-          width={180}
-          height={252}
-          style={{
-            position:  'absolute',
-            top:       22,
-            right:     30,
-            transform: 'rotate(14deg)',
-          }}
-        />
-      )}
     </div>
   );
 }

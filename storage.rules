@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // This repository has no browser-writable Storage surface. Premium
+    // Must-Eat assets are read and written only by the App Hosting service
+    // account through the Admin SDK and streamed by an authorized app route.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

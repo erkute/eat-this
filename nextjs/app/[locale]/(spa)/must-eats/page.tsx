@@ -5,7 +5,8 @@ import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
 import { selectInitialMustEatsData } from '@/lib/map/initial-surface-data'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface PageProps {
   params: Promise<{ locale: string }>

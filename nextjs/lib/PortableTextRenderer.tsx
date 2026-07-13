@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
-import type { PortableTextBlock, MustEatCardBlock, SpotCardBlock, ArticleSpot } from './types';
+import type { PortableTextBlock, MustEatCardBlock, SpotCardBlock } from './types';
 
 type Span = {
   _type?: string;
@@ -97,30 +97,6 @@ function slugifyHeading(text: string): string {
     .replace(/ß/g, 'ss')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-}
-
-/** Walk article blocks and return the unique restaurants referenced by inline
- *  mustEatCard + spotCard blocks, in order of first appearance. Feeds the
- *  "Spots im Artikel" grid + spotrail. */
-export function extractArticleSpots(blocks?: PortableTextBlock[]): ArticleSpot[] {
-  if (!blocks?.length) return [];
-  const seen = new Set<string>();
-  const out: ArticleSpot[] = [];
-  for (const raw of blocks as (MustEatCardBlock | SpotCardBlock)[]) {
-    if (raw._type !== 'mustEatCard' && raw._type !== 'spotCard') continue;
-    if (!raw.restaurantName) continue;
-    const key = raw.restaurantSlug || raw.restaurantName;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({
-      name: raw.restaurantName,
-      slug: raw.restaurantSlug,
-      district: raw.district,
-      cuisineType: raw.cuisineType,
-      photo: raw.restaurantPhoto,
-    });
-  }
-  return out;
 }
 
 // Mirrors the shape of the legacy renderPortableText helper in app.min.js:

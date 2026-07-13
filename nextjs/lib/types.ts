@@ -82,7 +82,9 @@ export interface Restaurant {
 
 interface NewsArticleSeo {
   metaTitle?: string
+  metaTitleEn?: string
   metaDescription?: string
+  metaDescriptionEn?: string
   ogImageUrl?: string
   noIndex?: boolean
 }
@@ -120,26 +122,11 @@ export interface SpotCardBlock {
   restaurantPhoto?: string
 }
 
-// A unique restaurant referenced by an article (derived from its mustEatCard
-// and spotCard blocks) — feeds the "Spots im Artikel" grid + spotrail.
-export interface ArticleSpot {
-  name: string
-  slug?: string
-  district?: string
-  cuisineType?: string
-  photo?: string
-}
-
-interface NewsArticleAuthor {
-  name: string
-  slug?: string
-  photo?: string
-}
-
 export interface NewsArticle {
   _id: string
   slug: string
   title: string
+  titleEn?: string
   titleDe?: string
   category?: string
   categoryLabel?: string
@@ -151,7 +138,6 @@ export interface NewsArticle {
   excerptDe?: string
   content?: PortableTextBlock[]
   contentDe?: PortableTextBlock[]
-  author?: NewsArticleAuthor
   seo?: NewsArticleSeo
 }
 

@@ -111,6 +111,7 @@ export const articleBySlugQuery = `
     _id,
     "slug": slug.current,
     "title": coalesce(title, titleDe),
+    "titleEn": title,
     titleDe,
     category,
     categoryLabel, categoryLabelDe,
@@ -120,10 +121,11 @@ export const articleBySlugQuery = `
     excerpt, excerptDe,
     content[] ${articleContentProjection},
     contentDe[] ${articleContentProjection},
-    "author": author->{ name, "slug": slug.current, "photo": image.asset->url },
     seo {
       metaTitle,
+      metaTitleEn,
       metaDescription,
+      metaDescriptionEn,
       "ogImageUrl": ogImage.asset->url,
       noIndex
     }
@@ -334,8 +336,7 @@ export const allNewsArticlesQuery = `
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
     "alt": coalesce(image.alt, alt),
-    excerpt, excerptDe,
-    "author": author->{ name, "slug": slug.current, "photo": image.asset->url }
+    excerpt, excerptDe
   }
 `
 

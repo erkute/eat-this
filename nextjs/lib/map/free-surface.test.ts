@@ -1,13 +1,26 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
+
+vi.mock('@/lib/sanity', () => ({
+  client: { fetch: vi.fn() },
+}))
+
 import {
   brandKey,
   dedupeByBrand,
   composeFreeSurface,
   applyFreeSurface,
+  getFreeSurfaceData,
   NEW_ON_MAP_COUNT,
   type FreeSurfaceCard,
 } from './free-surface'
+import { client } from '@/lib/sanity'
 import type { MapRestaurant } from '@/lib/types'
+
+const fetchSpy = vi.mocked(client.fetch)
+
+beforeEach(() => {
+  fetchSpy.mockReset()
+})
 
 const card = (o: Partial<FreeSurfaceCard>): FreeSurfaceCard => ({
   _id: 'x',
@@ -88,5 +101,21 @@ describe('applyFreeSurface', () => {
     const all = [rest('a')]
     const visible = [all[0]]
     expect(applyFreeSurface(visible, all, new Set(['a']))).toBe(visible)
+  })
+})
+
+describe('getFreeSurfaceData', () => {
+  it('uses the tagged shared Next cache for every Sanity source', async () => {
+    fetchSpy
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never)
+
+    await getFreeSurfaceData()
+
+    expect(fetchSpy).toHaveBeenCalledTimes(3)
+    for (const call of fetchSpy.mock.calls) {
+      expect(call[2]).toEqual({ next: { revalidate: 60, tags: ['free-surface'] } })
+    }
   })
 })

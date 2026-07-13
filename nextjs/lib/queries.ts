@@ -180,6 +180,41 @@ export const restaurantsByCategoryQuery = `
   }
 `
 
+const RESTAURANT_SIBLING_CARD_PROJECTION = `{
+  _id,
+  name,
+  "slug": slug.current,
+  cuisineType,
+  "photo": ${publishableRestaurantImageUrl('image', 'card')}
+}`
+
+// Bounded circular windows immediately after the current restaurant in the
+// same alphabetical order used by the district/category listings. Each group
+// fetches at most twice its display candidate limit (tail + wrap-around),
+// instead of downloading the complete district and category collections.
+export const restaurantSiblingCandidatesQuery = `{
+  "bezirkAfter": *[
+    _type == "restaurant" && isOpen != false && $bezirkSlug != ""
+    && bezirkRef->slug.current == $bezirkSlug && slug.current != $selfSlug
+    && (name > $selfName || (name == $selfName && slug.current > $selfSlug))
+  ] | order(name asc, slug.current asc)[0...$bezirkLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
+  "bezirkWrap": *[
+    _type == "restaurant" && isOpen != false && $bezirkSlug != ""
+    && bezirkRef->slug.current == $bezirkSlug && slug.current != $selfSlug
+    && (name < $selfName || (name == $selfName && slug.current < $selfSlug))
+  ] | order(name asc, slug.current asc)[0...$bezirkLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
+  "categoryAfter": *[
+    _type == "restaurant" && isOpen != false && $categorySlug != ""
+    && $categorySlug in categories[]->slug.current && slug.current != $selfSlug
+    && (name > $selfName || (name == $selfName && slug.current > $selfSlug))
+  ] | order(name asc, slug.current asc)[0...$categoryLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
+  "categoryWrap": *[
+    _type == "restaurant" && isOpen != false && $categorySlug != ""
+    && $categorySlug in categories[]->slug.current && slug.current != $selfSlug
+    && (name < $selfName || (name == $selfName && slug.current < $selfSlug))
+  ] | order(name asc, slug.current asc)[0...$categoryLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
+}`
+
 // Curated spots for the magic-link email: restaurants that have at least one
 // Must-Eat card, editorial first (`featured`), then by Must-Eat count. Projects
 // exactly what the email renders — restaurant photo + a single Must-Eat card.

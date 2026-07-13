@@ -2,11 +2,10 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantBySlug, getAllRestaurantSlugs, getAllRestaurantsLite, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
+import { getRestaurantBySlug, getAllRestaurantSlugs, getAllRestaurantsLite, getMustEatsByRestaurant, getRestaurantSiblingCandidates } from '@/lib/sanity.server'
 import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { buildRestaurantTitle, buildOrderPromiseDescription, truncateAtSentence } from '@/lib/seo/restaurantMeta'
-import { siblingWindow } from '@/lib/seo/siblingWindow'
 import { SITE_URL } from '@/lib/constants'
 import { normalizeName } from '@/lib/normalizeName'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
@@ -135,16 +134,22 @@ export default async function RestaurantPage({ params }: PageProps) {
     notFound()
   }
   const primaryCategory = r.categories?.[0] ?? null
-  const [mustEats, siblingsBezirkRaw, siblingsCategoryRaw] = await Promise.all([
+  const SIBLING_LIMIT = 3
+  const [mustEats, siblingCandidates] = await Promise.all([
     getMustEatsByRestaurant(r._id),
-    r.bezirk?.slug ? getRestaurantsByBezirk(r.bezirk.slug) : Promise.resolve([]),
-    primaryCategory?.slug ? getRestaurantsByCategory(primaryCategory.slug) : Promise.resolve([]),
+    getRestaurantSiblingCandidates({
+      selfSlug: slug,
+      selfName: r.name,
+      bezirkSlug: r.bezirk?.slug,
+      categorySlug: primaryCategory?.slug,
+      bezirkLimit: SIBLING_LIMIT,
+      categoryLimit: SIBLING_LIMIT * 2,
+    }),
   ])
 
-  const SIBLING_LIMIT = 3
-  const siblingsBezirk = siblingWindow(siblingsBezirkRaw, slug, SIBLING_LIMIT)
+  const siblingsBezirk = siblingCandidates.bezirk
   const bezirkSlugSet = new Set(siblingsBezirk.map(s => s.slug))
-  const siblingsCategory = siblingWindow(siblingsCategoryRaw, slug, SIBLING_LIMIT * 2)
+  const siblingsCategory = siblingCandidates.category
     .filter(s => !bezirkSlugSet.has(s.slug))
     .slice(0, SIBLING_LIMIT)
   const categoryDef = primaryCategory

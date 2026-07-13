@@ -108,35 +108,20 @@ const newsSpotIdsQuery = `*[_type == "newsArticle" && !(_id in path("drafts.**")
   "en": content[_type == "mustEatCard"].mustEatRef->restaurantRef._ref
 }`
 
-const TTL_MS = 60_000
-
-let cached: { data: FreeSurfaceData; expiresAt: number } | null = null
-let inflight: Promise<FreeSurfaceData> | null = null
-
-export async function getFreeSurfaceData(): Promise<FreeSurfaceData> {
-  if (cached && Date.now() < cached.expiresAt) return cached.data
-  if (inflight) return inflight
-
-  inflight = (async () => {
-    const today = new Date().toISOString().slice(0, 10)
-    const [pool, bezirkIds, newsRows] = await Promise.all([
-      client.fetch<FreeSurfaceCard[]>(newOnMapPoolQuery),
-      client.fetch<string[] | null>(bezirkOfWeekIdsQuery, { today }),
-      client.fetch<NewsSpotRow[]>(newsSpotIdsQuery),
-    ])
-    const data = composeFreeSurface(pool ?? [], bezirkIds ?? [], newsRows ?? [])
-    cached = { data, expiresAt: Date.now() + TTL_MS }
-    return data
-  })()
-
-  try {
-    return await inflight
-  } finally {
-    inflight = null
-  }
+const FREE_SURFACE_CACHE_OPTIONS = {
+  next: { revalidate: 60, tags: ['free-surface'] },
 }
 
-/** Invalidates the free-surface cache (called from Sanity revalidation webhook). */
-export function invalidateFreeSurfaceCache(): void {
-  cached = null
+export async function getFreeSurfaceData(): Promise<FreeSurfaceData> {
+  const today = new Date().toISOString().slice(0, 10)
+  const [pool, bezirkIds, newsRows] = await Promise.all([
+    client.fetch<FreeSurfaceCard[]>(newOnMapPoolQuery, {}, FREE_SURFACE_CACHE_OPTIONS),
+    client.fetch<string[] | null>(
+      bezirkOfWeekIdsQuery,
+      { today },
+      FREE_SURFACE_CACHE_OPTIONS,
+    ),
+    client.fetch<NewsSpotRow[]>(newsSpotIdsQuery, {}, FREE_SURFACE_CACHE_OPTIONS),
+  ])
+  return composeFreeSurface(pool ?? [], bezirkIds ?? [], newsRows ?? [])
 }

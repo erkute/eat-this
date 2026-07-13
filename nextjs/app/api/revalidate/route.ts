@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidateTag, revalidatePath } from 'next/cache'
-import { invalidateMapDataCache } from '@/lib/map/cached-sanity'
-import { invalidateFreeSurfaceCache } from '@/lib/map/free-surface'
 import crypto from 'node:crypto'
 
 export const runtime = 'nodejs'
@@ -10,6 +8,23 @@ export const dynamic = 'force-dynamic'
 const num = (v: string | undefined, d: number) => {
   const n = Number(v)
   return Number.isFinite(n) && n > 0 ? n : d
+}
+
+function revalidateMapSurface(revalidated: string[], includeFreeSurface = false): void {
+  revalidateTag('map-data')
+  revalidatePath('/map')
+  revalidatePath('/en/map')
+  revalidated.push('tag:map-data', 'path:/map', 'path:/en/map')
+  if (includeFreeSurface) {
+    revalidateTag('free-surface')
+    revalidated.push('tag:free-surface')
+  }
+}
+
+function revalidateMustEatSurface(revalidated: string[]): void {
+  revalidatePath('/must-eats')
+  revalidatePath('/en/must-eats')
+  revalidated.push('path:/must-eats', 'path:/en/must-eats')
 }
 
 // Sanity signs every webhook with header "sanity-webhook-signature"
@@ -83,6 +98,8 @@ export async function POST(req: NextRequest) {
         revalidatePath(`/en/news/${slug}`)
         revalidated.push(`tag:article:${slug}`, `path:/news/${slug}`)
       }
+      revalidateMapSurface(revalidated, true)
+      revalidateMustEatSurface(revalidated)
       break
     case 'restaurant':
       revalidateTag('sitemap-restaurants')
@@ -98,49 +115,59 @@ export async function POST(req: NextRequest) {
       // — flush both aggregation tag groups.
       revalidateTag('bezirk')
       revalidateTag('category-list')
-      revalidated.push('tag:bezirk', 'tag:category-list')
+      revalidateTag('restaurant-siblings')
+      revalidated.push('tag:bezirk', 'tag:category-list', 'tag:restaurant-siblings')
+      revalidateMapSurface(revalidated, true)
+      revalidateMustEatSurface(revalidated)
       break
     case 'bezirk':
       revalidateTag('bezirk')
+      revalidateTag('restaurant-siblings')
       revalidateTag('sitemap-bezirke')
       revalidatePath('/bezirk')
       revalidatePath('/en/bezirk')
       revalidatePath('/sitemap.xml')
-      revalidated.push('tag:bezirk', 'tag:sitemap-bezirke', 'path:/bezirk', 'path:/sitemap.xml')
+      revalidated.push('tag:bezirk', 'tag:restaurant-siblings', 'tag:sitemap-bezirke', 'path:/bezirk', 'path:/sitemap.xml')
       if (slug) {
         revalidateTag(`bezirk:${slug}`)
         revalidatePath(`/bezirk/${slug}`)
         revalidatePath(`/en/bezirk/${slug}`)
         revalidated.push(`tag:bezirk:${slug}`, `path:/bezirk/${slug}`)
       }
+      revalidateMapSurface(revalidated)
       break
     case 'category':
       revalidateTag('category')
       revalidateTag('category-list')
+      revalidateTag('restaurant-siblings')
       revalidatePath('/')
       revalidatePath('/en')
       revalidatePath('/kategorie')
       revalidatePath('/en/kategorie')
-      revalidated.push('tag:category', 'tag:category-list', 'path:/', 'path:/kategorie')
+      revalidated.push('tag:category', 'tag:category-list', 'tag:restaurant-siblings', 'path:/', 'path:/kategorie')
       if (slug) {
         revalidateTag(`category:${slug}`)
         revalidatePath(`/kategorie/${slug}`)
         revalidatePath(`/en/kategorie/${slug}`)
         revalidated.push(`tag:category:${slug}`, `path:/kategorie/${slug}`)
       }
+      revalidateMapSurface(revalidated)
       break
     case 'mustEat':
       revalidateTag('mustEat')
       revalidated.push('tag:mustEat')
+      revalidateMapSurface(revalidated, true)
+      revalidateMustEatSurface(revalidated)
+      break
+    case 'homeWeek':
+      revalidateMapSurface(revalidated, true)
+      revalidateMustEatSurface(revalidated)
       break
     case 'staticPage':
       revalidateTag('staticPage')
       revalidated.push('tag:staticPage')
       break
   }
-
-  invalidateMapDataCache()
-  invalidateFreeSurfaceCache()
 
   return NextResponse.json({ ok: true, type, slug, revalidated })
 }

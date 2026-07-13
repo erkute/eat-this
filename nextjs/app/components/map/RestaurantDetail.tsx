@@ -14,7 +14,7 @@ import {
 import { useTranslation } from '@/lib/i18n';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
-import styles from './map.module.css';
+import styles from './MapDetails.module.css';
 import { HeartIcon, CloseIcon } from './icons';
 import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
@@ -24,7 +24,7 @@ import { useLoginModal } from '@/lib/auth';
 import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
-import { safeHttpUrl } from './MustEatImageLightbox';
+import { safeHttpUrl } from '@/lib/safeHttpUrl';
 
 const DAY_ALIASES: Record<string, number> = {
   su: 0,
@@ -330,7 +330,7 @@ export default function RestaurantDetail({
     : undefined;
 
   return (
-    <div className={styles.detailV13} role="dialog" aria-label={r.name}>
+    <div className={styles.detailV13} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle} ref={heroRef}>

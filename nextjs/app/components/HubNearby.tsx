@@ -3,31 +3,26 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/lib/auth';
-import { useMapData } from '@/lib/map';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
 import { getLocationStatus } from '@/lib/map/locationStatus';
 import { normalizeName } from '@/lib/normalizeName';
 import { nearestRestaurants } from '@/lib/home/nearby';
-import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import MapIntentLink from './MapIntentLink';
+import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
 
 const MITTE = { lat: 52.52, lng: 13.405 };
 
 interface Props {
-  initialMapData: InitialMapData;
   mode?: 'guest' | 'auth';
   locale?: 'de' | 'en';
 }
 
-export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de' }: Props) {
+export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   const t = useTranslations('hub.nearby');
   const authMode = mode === 'auth';
-  const { user, loading: authLoading } = useAuth();
-  const uid = user?.uid ?? null;
-  const live = useMapData({ uid, authLoading, initialMapData });
+  const { initialMapData, live } = useHomeMapData();
   const { location, loading: locating, error: locError, request } = useUserLocationContext();
   const locationStatus = getLocationStatus({ locale, location, locationError: locError, locateLoading: locating });
   const locationStatusKey = locationStatus.copy

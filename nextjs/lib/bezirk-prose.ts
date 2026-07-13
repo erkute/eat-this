@@ -32,49 +32,6 @@ function categoryBreakdown(restaurants: RestaurantCard[], locale: Loc, limit = 3
   return [...tally.values()].sort((a, b) => b.count - a.count).slice(0, limit)
 }
 
-/** Price range across the bezirk (min of mins, max of maxes). */
-function priceSpan(restaurants: RestaurantCard[]): { min: number; max: number; currency: string } | null {
-  let min = Infinity
-  let max = -Infinity
-  let currency = '€'
-  for (const r of restaurants) {
-    const p = r.priceRange
-    if (!p) continue
-    if (typeof p.min === 'number') min = Math.min(min, p.min)
-    if (typeof p.max === 'number') max = Math.max(max, p.max)
-    if (p.currency) currency = p.currency === 'EUR' ? '€' : p.currency
-  }
-  if (!Number.isFinite(min) || !Number.isFinite(max)) return null
-  return { min, max, currency }
-}
-
-/** One-line factual summary that sits below the bezirk header. */
-export function buildBezirkQuickFacts({ bezirk, restaurants, locale }: BezirkContext): string | null {
-  const count = restaurants.length
-  if (count === 0) return null
-  const de = locale === 'de'
-  const cats = categoryBreakdown(restaurants, locale)
-  const span = priceSpan(restaurants)
-
-  const segments: string[] = []
-  if (de) {
-    segments.push(`In ${bezirk.name} stehen ${count} von Eat This kuratierte Restaurants`)
-    if (cats.length > 0) {
-      const catText = cats.map(c => `${c.count} ${c.label}`).join(', ')
-      segments.push(`Schwerpunkte: ${catText}`)
-    }
-    if (span) segments.push(`Preisspanne ${span.min}–${span.max} ${span.currency}`)
-    return segments.join('. ') + '.'
-  }
-  segments.push(`${count} Eat This-curated restaurants in ${bezirk.name}`)
-  if (cats.length > 0) {
-    const catText = cats.map(c => `${c.count} ${c.label}`).join(', ')
-    segments.push(`mostly ${catText}`)
-  }
-  if (span) segments.push(`prices ${span.min}–${span.max} ${span.currency}`)
-  return segments.join('. ') + '.'
-}
-
 /** FAQ entries derived from the bezirk's restaurant list. */
 export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkContext): FAQEntry[] {
   const de = locale === 'de'

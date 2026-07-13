@@ -51,10 +51,10 @@
   padding: 0;
   border: 0;
   color: var(--detail-muted);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 0;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1.2;
   text-transform: uppercase;
   overflow-x: auto;
@@ -147,28 +147,6 @@
   z-index: 2;
   width: min(100%, 920px);
   padding: clamp(24px, 5vw, 58px);
-}
-
-.heroCredit {
-  position: absolute;
-  top: 58px;
-  right: 14px;
-  z-index: 3;
-  max-width: min(34ch, calc(100% - 28px));
-  padding: 4px 7px 5px;
-  background: rgba(13, 10, 7, 0.52);
-  color: #fff;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
-
-.heroCredit a {
-  color: inherit;
-  text-decoration: none;
 }
 
 .heroOverlay {
@@ -410,6 +388,12 @@
   line-height: var(--et-leading-title, 0.9);
 }
 
+.sibRowHead {
+  max-width: none;
+  font-size: clamp(18px, 4vw, 30px);
+  white-space: nowrap;
+}
+
 .orderList {
   display: grid;
   gap: 14px;
@@ -435,8 +419,7 @@
   line-height: var(--et-leading-title, 0.92);
 }
 
-.orderPrice,
-.orderNote {
+.orderPrice {
   color: var(--detail-muted);
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
@@ -449,6 +432,13 @@
 .orderNote {
   max-width: 58ch;
   margin: 7px 0 0;
+  color: var(--detail-muted);
+  font-family: var(--f-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
 }
 
 .facts {
@@ -698,12 +688,6 @@
 
   .heroCaption {
     padding: 24px 16px;
-  }
-
-  .heroCredit {
-    top: 58px;
-    right: 12px;
-    max-width: min(30ch, calc(100% - 88px));
   }
 
   .heroName,

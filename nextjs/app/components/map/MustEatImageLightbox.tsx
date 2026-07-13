@@ -1,5 +1,5 @@
 'use client'
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   motion,
@@ -7,9 +7,9 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion'
-import styles from './map.module.css'
+import styles from './MustEatImageLightbox.module.css'
 
-interface Props {
+export interface MustEatImageLightboxProps {
   imageUrl: string
   alt: string
   // null = closed; setting it to a DOMRect opens the lightbox and the
@@ -21,6 +21,10 @@ interface Props {
   // the origin card while the clone is on screen reveal it here — a timer
   // would leave a gap where neither is visible (the slot blinks).
   onExitComplete?: () => void
+  // Called once the dynamically loaded clone is ready to render. Callers keep
+  // the origin visible until this fires so a cold chunk load cannot leave an
+  // empty slot.
+  onOpenReady?: () => void
 }
 
 interface InnerProps {
@@ -30,19 +34,6 @@ interface InnerProps {
   open:       boolean
   onClose:    () => void
   onClosed:   () => void
-}
-
-// Credit URLs come from CMS content (Google attribution data / manual Studio
-// entry) — only link out for http(s) so a poisoned value can't become a
-// javascript: href. Shared with the restaurant gallery viewer + detail hero.
-export function safeHttpUrl(url: string | null | undefined): string | null {
-  if (!url) return null
-  try {
-    const u = new URL(url)
-    return u.protocol === 'http:' || u.protocol === 'https:' ? u.toString() : null
-  } catch {
-    return null
-  }
 }
 
 // Mirrors profile/ProfileDeck.ExpandedOverlay almost line-for-line so the
@@ -64,6 +55,7 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, on
   const tiltZ     = Math.max(-7, Math.min(7, fromX * 0.025))
 
   const cardRef  = useRef<HTMLDivElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
   const pointerX = useMotionValue(0)
   const pointerY = useMotionValue(0)
   const rotateXSpring = useSpring(
@@ -87,6 +79,10 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, on
     pointerX.set(0)
     pointerY.set(0)
   }
+
+  useLayoutEffect(() => {
+    dialogRef.current?.focus({ preventScroll: true })
+  }, [])
 
   const [closing, setClosing] = useState(false)
   // Flatten the pointer/gyro 3D-tilt before flying back — the springs would
@@ -147,14 +143,26 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, on
 
   return (
     <motion.div
-      className={closing ? `${styles.lightboxWrapper} ${styles.lightboxWrapperClosing}` : styles.lightboxWrapper}
+      ref={dialogRef}
+      className={closing ? `${styles.wrapper} ${styles.closing}` : styles.wrapper}
       onClick={handleClose}
       role="dialog"
+      aria-modal="true"
+      aria-label={alt || 'Must Eat'}
+      tabIndex={-1}
+      onKeyDown={(event) => {
+        // The viewer has no separate controls; keep keyboard focus inside the
+        // modal until Escape/click closes it.
+        if (event.key === 'Tab') {
+          event.preventDefault()
+          dialogRef.current?.focus({ preventScroll: true })
+        }
+      }}
     >
-      <div className={styles.lightboxBg} aria-hidden="true" />
+      <div className={styles.backdrop} aria-hidden="true" />
       <motion.div
         ref={cardRef}
-        className={styles.lightboxCard}
+        className={styles.card}
         initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ }}
         animate={open
           ? {
@@ -190,14 +198,14 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, on
         {/* Inner clip wrapper keeps the sheen's drifting gradient inside
             the card's rounded shape — without it the sheen leaks past
             the right edge at strong rotateY tilts. */}
-        <div className={styles.lightboxClip} style={{ width: overlayW }}>
+        <div className={styles.clip} style={{ width: overlayW }}>
           <img
             src={imageUrl}
             alt={alt}
-            className={styles.lightboxImg}
+            className={styles.image}
           />
           <motion.div
-            className={styles.lightboxSheen}
+            className={styles.sheen}
             style={{ x: sheenX }}
             aria-hidden="true"
           />
@@ -207,8 +215,17 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, on
   )
 })
 
-export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClose, onExitComplete }: Props) {
+export default function MustEatImageLightbox({
+  imageUrl,
+  alt,
+  originRect,
+  onClose,
+  onExitComplete,
+  onOpenReady,
+}: MustEatImageLightboxProps) {
   const [mounted, setMounted] = useState(false)
+  const restoreFocusRef = useRef<HTMLElement | null>(null)
+  const openingRef = useRef(false)
   const [rendered, setRendered] = useState<{
     imageUrl: string
     alt: string
@@ -218,13 +235,25 @@ export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClos
 
   useEffect(() => { setMounted(true) }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // The first client commit still returns null while the portal target is
+    // being established. Keep the origin visible until the same commit that
+    // can render the clone; otherwise a cold import produces a one-frame gap.
+    if (!mounted) return
+
     if (originRect) {
+      if (!openingRef.current) {
+        restoreFocusRef.current = document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null
+        openingRef.current = true
+      }
       setRendered({ imageUrl, alt, originRect, open: true })
+      onOpenReady?.()
       return
     }
     setRendered((current) => current ? { ...current, open: false } : null)
-  }, [alt, imageUrl, originRect])
+  }, [alt, imageUrl, mounted, onOpenReady, originRect])
 
   if (!mounted) return null
 
@@ -239,7 +268,11 @@ export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClos
         onClose={onClose}
         onClosed={() => {
           setRendered(null)
+          openingRef.current = false
           onExitComplete?.()
+          const restoreTarget = restoreFocusRef.current
+          restoreFocusRef.current = null
+          window.requestAnimationFrame(() => restoreTarget?.focus({ preventScroll: true }))
         }}
       />
     ),

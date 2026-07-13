@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
 import { setRequestLocale } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import { buildCategoryTitle, buildCategoryDescription } from '@/lib/seo/categoryMeta'
@@ -15,7 +14,9 @@ import { localeUrl } from '@/lib/locale-url'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
-import styles from '../../bezirk/Bezirk.module.css'
+import { sanitySrcSet } from '@/lib/sanity-image-presets'
+import sharedStyles from '../../bezirk/Bezirk.module.css'
+import styles from '../Kategorie.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
 import KategorieBoost from '@/app/components/KategorieBoost'
@@ -45,12 +46,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
-  const c = await getCategoryBySlug(slug)
+  const [c, restaurants] = await Promise.all([
+    getCategoryBySlug(slug),
+    getRestaurantsByCategory(slug),
+  ])
   if (!c) return {}
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
   const label = localizedCategoryName(c, loc)
-  const restaurants = await getRestaurantsByCategory(c.slug)
   // Brandlos — das Layout-Template hängt „| Eat This Berlin" an.
   // Suchsprache statt Katalog-Label: „Die beste Pizza in Berlin".
   const title = buildCategoryTitle(slug, label, loc)
@@ -90,10 +93,11 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const c = await getCategoryBySlug(slug)
+  const [c, restaurants] = await Promise.all([
+    getCategoryBySlug(slug),
+    getRestaurantsByCategory(slug),
+  ])
   if (!c) notFound()
-
-  const restaurants = await getRestaurantsByCategory(c.slug)
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
   const quickFacts = buildKategorieQuickFacts({ label, restaurants, locale: loc })
@@ -101,15 +105,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const faqEntries = buildKategorieFAQEntries({ label, restaurants, locale: loc })
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/' },
+    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
     { name: de ? 'Kategorien' : 'Categories', href: '/kategorie' },
     { name: label },
   ]
 
-  const restaurantUrl = (rSlug: string) =>
-    locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
-  const bezirkUrl = (bSlug: string) =>
-    locale === 'de' ? `/bezirk/${bSlug}` : `/${locale}/bezirk/${bSlug}`
+  const restaurantUrl = (rSlug: string) => `/restaurant/${rSlug}`
+  const bezirkUrl = (bSlug: string) => `/bezirk/${bSlug}`
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -144,7 +146,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             item: {
               '@type': 'Restaurant',
               name: r.name,
-              url: `${SITE_URL}${restaurantUrl(r.slug)}`,
+              url: localeUrl(locale, restaurantUrl(r.slug)),
               ...(r.cuisineType && { servesCuisine: r.cuisineType }),
               ...(priceLabel && { priceRange: priceLabel }),
             },
@@ -161,85 +163,110 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={styles.page}>
-        <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
+      <main className={`${sharedStyles.page} ${sharedStyles.bezirkDetail} ${styles.detailPage}`}>
+        <div className={styles.breadcrumbWrap}>
+          <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
+        </div>
 
-        <header className={styles.hero}>
-          <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
-          <h1 className={styles.h1}>{label}</h1>
-          <div className={styles.tagline}>{de ? 'Die besten Spots in Berlin' : 'The best spots in Berlin'}</div>
-          {blurb && <p className={styles.sub}>{blurb}</p>}
-          {quickFacts && <p className={styles.sub}>{quickFacts}</p>}
-          <MapPromoCTA variant="chip" kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
+        <header className={styles.detailHero}>
+          <div className={styles.detailHeroCopy}>
+            <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
+            <h1 className={styles.detailTitle}>{label}</h1>
+            <p className={styles.detailLead}>
+              {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
+            </p>
+            {quickFacts && <p className={styles.quickFacts}>{quickFacts}</p>}
+            <div className={sharedStyles.detailHeroActions}>
+              <MapPromoCTA variant="chip" kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
+              <a href="#restaurants" className={sharedStyles.detailHeroJump}>
+                <span>{de ? 'Spots ansehen' : 'See spots'}</span>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 3v12M5 10l5 5 5-5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
         </header>
 
         {districtLinks.length > 0 && (
-          <nav className={styles.crossLinks} aria-label={de ? `${label} nach Bezirk` : `${label} by district`}>
-            <span className={styles.crossLinksHead}>
+          <nav className={sharedStyles.crossLinks} aria-label={de ? `${label} nach Bezirk` : `${label} by district`}>
+            <span className={sharedStyles.crossLinksHead}>
               {de ? `${label} nach Bezirk:` : `${label} by district:`}
             </span>
             {districtLinks.map(b => (
-              <Link key={b.slug} href={bezirkUrl(b.slug)} className={styles.crossLink}>
+              <Link key={b.slug} href={bezirkUrl(b.slug)} className={sharedStyles.crossLink}>
                 {b.label}
               </Link>
             ))}
           </nav>
         )}
 
-        <KategorieBoost categorySlug={c.slug} locale={loc} />
+        <section id="restaurants" className={sharedStyles.restaurantSection}>
+          <div className={sharedStyles.sectionHead}>
+            <h2>{de ? 'Die handverlesene Auswahl' : 'The hand-picked selection'}</h2>
+            <p>{de
+              ? 'Kuratiert vom Eat-This-Team.'
+              : 'Curated by the Eat This team.'}</p>
+          </div>
 
-        <div className={styles.sectionHead}>
-          <h2>{de ? 'Die handverlesene Auswahl' : 'The hand-picked selection'}</h2>
-          <p>{de
-            ? 'Editor-Pick aus Berlin.'
-            : 'Editor pick from Berlin.'}</p>
-        </div>
-
-        <section className={styles.grid}>
-          {restaurants.map(r => {
-            const priceLabel = formatPriceLabel(r)
-            const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
-              || pickLocale(r.tip, r.tipEn, loc)
-            return (
-              <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
-                {r.photo && (
-                  <div className={styles.cardPhoto}>
-                    <Image
-                      src={r.photo}
-                      alt={r.name}
-                      fill
-                      sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
-                    />
+          <div className={`${sharedStyles.grid} ${restaurants.length <= 2 ? sharedStyles.gridCompact : ''}`}>
+            {restaurants.map(r => {
+              const priceLabel = formatPriceLabel(r)
+              const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+                || pickLocale(r.tip, r.tipEn, loc)
+              return (
+                <Link key={r._id} href={restaurantUrl(r.slug)} className={sharedStyles.card}>
+                  {r.photo && (
+                    <div className={sharedStyles.cardPhoto}>
+                      {/* Sanity already serves transformed WebP/AVIF. A compact
+                          three-width srcset avoids Next serialising its large
+                          global candidate list for every card on long pages. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={r.photo}
+                        alt={r.name}
+                        srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
+                        sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  )}
+                  <div className={sharedStyles.cardBody}>
+                    <h3 className={sharedStyles.cardName}>{r.name}</h3>
+                    <div className={sharedStyles.cardMeta}>
+                      {r.cuisineType && <span className={sharedStyles.chipYellow}>{r.cuisineType}</span>}
+                      {r.district && <span className={styles.districtLabel}>{r.district}</span>}
+                      {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
+                    </div>
+                    {cardLine && <p className={sharedStyles.cardTip}>{cardLine}</p>}
                   </div>
-                )}
-                <div className={styles.cardBody}>
-                  <h3 className={styles.cardName}>{r.name}</h3>
-                  <div className={styles.cardMeta}>
-                    {r.cuisineType && <span className={styles.chipYellow}>{r.cuisineType}</span>}
-                    {r.district && <span className={styles.chipOutline}>{r.district}</span>}
-                    {priceLabel && <span className={styles.price}>{priceLabel}</span>}
-                  </div>
-                  {cardLine && <p className={styles.cardTip}>{cardLine}</p>}
-                </div>
-              </Link>
-            )
-          })}
+                </Link>
+              )
+            })}
+          </div>
         </section>
 
-        <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
+        <div className={sharedStyles.detailMapCta}>
+          <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
+        </div>
 
         {faqEntries.length > 0 && (
-          <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
-            <div className={styles.faqKicker}>{de ? 'Häufige Fragen' : 'Frequently asked'}</div>
-            {faqEntries.map((entry, i) => (
-              <details key={i} className={styles.faqRow}>
-                <summary>
-                  <span className={styles.faqQ}>{entry.question}</span>
-                  <span className={styles.faqPlus} aria-hidden="true" />
-                </summary>
-                <p className={styles.faqA}>{entry.answer}</p>
-              </details>
-            ))}
+          <section className={sharedStyles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
+            <h2 className={sharedStyles.faqTitle}>{de ? 'Häufige Fragen' : 'Frequently asked'}</h2>
+            <div className={sharedStyles.faqList}>
+              {faqEntries.map((entry, i) => (
+                <details key={i} className={sharedStyles.faqRow}>
+                  <summary>
+                    <span className={sharedStyles.faqQ}>{entry.question}</span>
+                    <span className={sharedStyles.faqPlus} aria-hidden="true" />
+                  </summary>
+                  <p className={sharedStyles.faqA}>{entry.answer}</p>
+                </details>
+              ))}
+            </div>
           </section>
         )}
 

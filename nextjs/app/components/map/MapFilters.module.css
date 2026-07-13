@@ -1,0 +1,950 @@
+/* Map Filters — isolated map subsystem. */
+.listHeader {
+  position: relative;
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .filterChipRow .filterChip {
+    font-size: 11px;
+  }
+}
+.filterChipWrap {
+  display: inline-flex;
+  align-items: stretch;
+  /* Grow with the row so the chip rail runs flush edge-to-edge. */
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.filterChip {
+  /* All four chips — Kategorie / Bezirk / Küche / Jetzt geöffnet — fit a
+     360px viewport on one line; flex-grow distributes the leftover width
+     on wider phones so the rail is flush left AND right (no half-off-screen
+     scroll start, no ragged right edge). */
+  gap: 5px;
+  /* Frosted glass like the floating controls, but WHITE — cream sank into
+     the cream sheet, white pops fresher against it (User 2026-06-04). */
+  /* Scales with viewport width: 11px floor at 360px → ~13px on a 430px
+     phone, so the stretched chips don't read undersized. */
+  /* ≥1.15 + the chip's top padding keeps Chewy's uppercase umlaut dots
+     (KÜCHE / JETZT GEÖFFNET) from clipping at the top of the line box. */
+  cursor: pointer;
+  appearance: none;
+}
+.filterChipWrap .filterChip {
+  padding-right: 7px;
+}
+.pickerBackdrop {
+  position: fixed;
+  inset: 0;
+  /* Navbar is z-index 9999; modals must sit above it to cover the header. */
+  z-index: 11000;
+  animation: pickerBackdropIn 0.18s ease-out;
+}
+@keyframes pickerBackdropIn {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+  to {
+    background: rgba(0, 0, 0, 0.36);
+  }
+}
+.pickerSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 70vh;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  z-index: 11010;
+  animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+@keyframes pickerSheetIn {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.pickerList {
+  flex: 1 1 auto;
+  /* min-height: 0 is the flexbox-overflow fix — without it, the flex item
+     refuses to shrink below its intrinsic content height and `overflow-y`
+     has nothing to clip, so the inner list becomes unscrollable on iOS. */
+  -webkit-overflow-scrolling: touch;
+  /* The map-sheet's drag handler runs on touchmove globally; pan-y tells
+     the browser this region wants vertical scrolling, not a drag gesture. */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+.pickerItem {
+  width: 100%;
+  appearance: none;
+  /* Chewy: matches sitewide display font; covers full Latin-Extended
+     incl. German umlauts (SCHÖNEBERG, KÖPENICK, FRÜHSTÜCK). */
+  /* Chewy is taller than Saira — give rows enough vertical room so
+     umlaut diacritics (Ü, Ö) aren't clipped. */
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+.pickerItemActive {
+  font-weight: 900;
+}
+.pickerItemLabel {
+  flex: 1 1 auto;
+}
+.pickerItemSub {
+  flex-shrink: 0;
+  /* Keep sub text in a compact body font — Chewy at small sizes is hard
+     to read. Ink color with reduced opacity for a muted look. */
+  text-transform: none;
+}
+.pickerItemActive .pickerItemSub {
+  color: var(--c-black);
+  opacity: 0.55;
+}
+.pickerFooter {
+  border-top: 1px solid var(--border-subtle);
+  padding: 8px 14px;
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .pickerBackdrop {
+    background: transparent;
+    animation: none;
+  }
+  .pickerSheet {
+    position: fixed;
+    left: var(--picker-anchor-left, 0);
+    top: var(--picker-anchor-top, 0);
+    bottom: auto;
+    right: auto;
+    /* Grow to fit the full filter list (no internal scroll). Caps at the
+       remaining viewport space below the anchor so it never clips off
+       the bottom — JS sets --picker-anchor-top from the chip's rect. */
+    border: 2px solid var(--c-green);
+    border-radius: 0;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+    animation: pickerPopoverIn 0.18s ease-out;
+  }
+  @keyframes pickerPopoverIn {
+    from {
+      transform: translateY(-6px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+@media (min-width: 1024px) {
+  .filterChipRow {
+    display: grid;
+    overflow: visible;
+    padding: 14px 8px 16px;
+    touch-action: auto;
+  }
+  .filterChipWrap,
+.filterChipRow > .filterChip {
+    width: 100%;
+    min-width: 0;
+  }
+  .filterChipWrap .filterChip {
+    min-width: 0;
+  }
+  .filterChipRow .filterChipLabel {
+    min-width: 0;
+    font-size: 9px;
+    letter-spacing: 0.01em;
+  }
+}
+.pickerSheet {
+  border-top: 2px solid var(--brand-ink);
+}
+.pickerItem {
+  border-bottom-color: var(--brand-rule);
+}
+.filterChip {
+  filter: none;
+  text-shadow: none;
+}
+.pickerItemActive {
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+}
+@media (hover: hover) {
+  .filterChip:hover,
+.pickerItemActive:hover {
+    box-shadow: none;
+    filter: none;
+    text-shadow: none;
+  }
+}
+@media (max-width: 1023px) {
+  .filterChipRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px 16px 11px;
+    overflow: visible;
+    touch-action: auto;
+  }
+
+  .filterChipWrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filterChipWrap .filterChip,
+.filterChipRow > .filterChip {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 5px 10px;
+    gap: 0;
+    font-size: clamp(9px, 2.35vw, 10px);
+    letter-spacing: 0.08em;
+  }
+
+  .filterChipRow .filterChipLabel {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (min-width: 1024px) {
+
+  .filterChipWrap .filterChip,
+.filterChipRow > .filterChip {
+    padding: 8px 7px 9px;
+  }
+}
+@media (min-width: 1024px) {
+
+  .filterChipRow .filterChipLabel {
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+@media (max-width: 1023px) {
+  .filterChipRow {
+    gap: 4px;
+    padding-inline: 12px;
+  }
+}
+.filterChip[aria-expanded='true'] {
+  box-shadow: 1px 1px 0 rgba(21, 18, 14, 0.28);
+}
+.pickerSheet {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
+}
+@media (max-width: 420px) {
+  .filterChip {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+.filterChipRow {
+  grid-template-columns: none;
+}
+.filterChip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+.filterChipLabel {
+  text-align: center;
+}
+.pickerList {
+  overflow: auto;
+}
+.pickerItem {
+  justify-content: flex-start;
+}
+@media (max-width: 420px) {
+  .filterChipRow {
+    grid-template-columns: none;
+    gap: 6px;
+    padding: 10px 18px 14px;
+  }
+
+  .filterChipRow > .filterChip {
+    flex-basis: 88px;
+  }
+
+  .filterChip {
+    min-height: 39px;
+    padding: 0 8px;
+    font-size: 9px;
+    letter-spacing: 0.01em;
+  }
+}
+@media (min-width: 1024px) {
+  .filterChipRow {
+    grid-template-columns: none;
+    gap: 6px;
+    padding-inline: 14px;
+  }
+
+  .filterChipRow > .filterChip {
+    flex-basis: 88px;
+  }
+
+  .filterChip {
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 9px;
+    letter-spacing: 0.01em;
+  }
+}
+.pickerItemActive,
+.pickerItemActive:hover {
+  border-color: var(--et-home-ink);
+}
+.filterChipRow {
+  padding: 12px 14px 16px;
+  background: #fff;
+}
+.filterChip {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
+  border-color: #15120e;
+}
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
+  text-align: center;
+  text-decoration: none;
+}
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
+  text-decoration: none;
+}
+.filterChip:hover,
+.filterChip:focus-visible,
+.filterChip[aria-expanded='true'],
+.filterChipActive,
+.filterChipOpenActive {
+  border-color: var(--et-black, #15120e);
+}
+.filterChip:active {
+  transform: translateX(-2px);
+}
+.filterChipLabel {
+  font: inherit;
+}
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive {
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.filterChipOpenActive {
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+  flex: 0 0 auto;
+  transform: none;
+  white-space: nowrap;
+}
+.filterChip:hover,
+.filterChip:focus-visible,
+.filterChip[aria-expanded='true'] {
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  transform: none;
+}
+.filterChipLabel {
+  overflow-wrap: normal;
+  word-break: normal;
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-transform: inherit;
+}
+.filterChipRow > .filterChip {
+  margin-left: 0;
+}
+@media (max-width: 430px) {
+  .filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+    min-height: 36px;
+    padding: 9px 12px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .filterChipRow {
+    gap: 7px;
+    padding-inline: 12px;
+  }
+}
+@media (max-width: 767.98px) {
+  .filterChipRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+  }
+
+  .filterChipWrap,
+.filterChipRow > .filterChip {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 9px 8px;
+    line-height: 1.25;
+  }
+
+  .filterChipLabel {
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  .filterChipLabelLong {
+    font-size: clamp(8.8px, 2.55vw, 10px);
+    line-height: 1.2;
+  }
+}
+@media (max-width: 360px) {
+
+  .filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+    min-height: 34px;
+    padding: 8px 6px;
+  }
+
+  .filterChipLabelLong {
+    font-size: 7.8px;
+  }
+}
+.filterChipRow {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  box-sizing: border-box;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+  min-height: 42px;
+  padding: 9px 6px;
+  font-size: 11px;
+  line-height: 1.1;
+}
+.filterChipLabel,
+.filterChipLabelLong {
+  font-size: inherit;
+}
+@media (max-width: 360px) {
+  .filterChipRow {
+    gap: 5px;
+    padding-inline: 10px;
+  }
+
+  .filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+    font-size: 10px;
+    padding-inline: 5px;
+  }
+}
+.pickerList {
+  min-height: 0;
+}
+.pickerItem {
+  gap: 10px;
+  border-bottom: 1px solid rgba(21, 18, 14, 0.14);
+}
+.pickerItem:last-child {
+  border-bottom: 0;
+}
+.pickerItemLabel {
+  font: inherit;
+}
+@media (min-width: 1024px) {
+  .pickerSheet {
+    padding-bottom: 0;
+  }
+}
+.filterChipRow {
+  align-items: stretch;
+  gap: 8px;
+  max-width: 100%;
+  padding-inline: 12px;
+  overflow: visible;
+}
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+  overflow: visible;
+  padding-inline: clamp(6px, 1vw, 12px);
+}
+.filterChipLabel,
+.filterChipLabelLong {
+  display: block;
+}
+.filterChipRow > .filterChip,
+.filterChipWrap {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+}
+.filterChipWrap:has(.filterChipActive),
+.filterChipWrap:has(.filterChipOpenActive),
+.filterChipRow > .filterChipOpenActive,
+.filterChipRow > .filterChipActive {
+  flex-basis: 0;
+}
+.filterChipRow.filterChipRow > button.filterChip.filterChip {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+}
+@media (max-width: 767.98px) {
+  .filterChipRow {
+    gap: 6px;
+    padding-inline: 10px;
+  }
+
+  .filterChipWrap:has(.filterChipActive),
+.filterChipWrap:has(.filterChipOpenActive) {
+    flex-grow: 1.9;
+  }
+
+  .filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+    padding-inline: 5px;
+    font-size: clamp(9px, 2.7vw, 11px);
+  }
+
+  .filterChipActive .filterChipLabelLong,
+.filterChipOpenActive .filterChipLabelLong {
+    font-size: clamp(7.5px, 2.35vw, 9px);
+  }
+}
+.pickerSheet .pickerItem,
+.pickerSheet .pickerItemLabel {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+}
+.pickerSheet .pickerItemSub {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+}
+.filterChipRow > .filterChipOpenActive {
+  border-color: transparent;
+  box-shadow: none;
+}
+.filterChipRow > .filterChip[aria-pressed='true'] {
+  background: var(--et-home-accent, #ffc600);
+  color: #15120e;
+  border-color: transparent;
+  box-shadow: none;
+}
+.filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
+  color: #15120e;
+}
+.filterChipWrap:has(.filterChipActive),
+.filterChipWrap:has(.filterChipOpenActive),
+.filterChipRow > .filterChipActive,
+.filterChipRow > .filterChipOpenActive {
+  flex-grow: 0;
+}
+@media (max-width: 767.98px) {
+  .listHeader {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 3;
+    background: var(--et-home-paper, #fff);
+    /* Own compositing layer: without it the sticky header re-rasterizes per
+       scroll step and the right-edge tile can paint stale/clipped text — the
+       last chip ("Geöffnet") showed mangled glyphs while scrolling (User
+       2026-07-04). One small promoted layer, no scroll-perf cost. */
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  .filterChipRow {
+    touch-action: pan-x pan-y;
+  }
+}
+@media (max-width: 1023.98px) {
+
+  .filterChipWrap:has(.filterChipActive),
+.filterChipWrap:has(.filterChipOpenActive),
+.filterChipRow > .filterChipActive,
+.filterChipRow > .filterChipOpenActive {
+    flex-grow: 0;
+    flex-basis: auto;
+    width: auto;
+  }
+}
+.filterChipRow {
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scrollbar-width: none;
+}
+.filterChipRow::-webkit-scrollbar {
+  display: none;
+}
+.filterChipLabel,
+.filterChipLabelLong {
+  width: auto;
+  white-space: nowrap;
+}
+.filterChipActive .filterChipLabelLong,
+.filterChipOpenActive .filterChipLabelLong {
+  font-size: 11px;
+}
+.filterChipRow {
+  display: flex;
+  width: 100%;
+  justify-content: stretch;
+  overflow-x: hidden;
+}
+.filterChipWrap,
+.filterChipRow > .filterChip,
+.filterChipWrap:has(.filterChipActive),
+.filterChipWrap:has(.filterChipOpenActive),
+.filterChipRow > .filterChipActive,
+.filterChipRow > .filterChipOpenActive,
+.filterChipRow.filterChipRow > button.filterChip.filterChip {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+.filterChipWrap .filterChip,
+.filterChip,
+.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipActive,
+.filterChipOpenActive {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+.filterChipLabel,
+.filterChipLabelLong {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.filterChipOpenActive {
+  background: #1f8f4d;
+  color: #fff;
+  border: 0;
+}
+.filterChipOpenActive .filterChipLabel {
+  color: inherit;
+}
+.filterChipRow .filterChip,
+.filterChipRow .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 8px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 1px solid var(--et-home-ink, #15120e);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
+  text-transform: none;
+}
+.filterChipRow .filterChipActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 8px;
+  border: 1px solid var(--et-home-ink, #15120e);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
+  text-transform: none;
+}
+.filterChipRow .filterChip:hover,
+.filterChipRow .filterChip:focus-visible,
+.filterChipRow .filterChip[aria-expanded='true'],
+.filterChipRow .filterChipActive {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+}
+.pickerBackdrop {
+  background: rgba(21, 18, 14, 0.08);
+}
+.pickerSheet {
+  overflow: visible;
+  width: min(360px, calc(100vw - 24px));
+  padding: 8px;
+  background: var(--et-home-paper, #fff);
+  color: var(--et-home-ink, #15120e);
+  border: 1px solid rgba(21, 18, 14, 0.14);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: 0 18px 38px rgba(21, 18, 14, 0.16);
+}
+.pickerSheet::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px));
+  width: 14px;
+  height: 14px;
+  background: var(--et-home-paper, #fff);
+  border-left: 1px solid rgba(21, 18, 14, 0.14);
+  border-top: 1px solid rgba(21, 18, 14, 0.14);
+  transform: rotate(45deg);
+}
+.pickerHead {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 4px 8px 8px;
+  color: inherit;
+}
+.pickerTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+}
+.pickerClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-radius: 50%;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.pickerClose:hover,
+.pickerClose:focus-visible {
+  background: rgba(21, 18, 14, 0.08);
+  color: var(--et-home-ink, #15120e);
+  outline: 0;
+}
+.pickerList {
+  display: grid;
+  gap: 7px;
+  max-height: min(58vh, 470px);
+  padding: 0 0 14px;
+  overflow-y: auto;
+  background: transparent;
+  scroll-padding-bottom: 14px;
+}
+.pickerItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-align: left;
+  text-transform: none;
+}
+.pickerItem:hover,
+.pickerItem:focus-visible {
+  background: rgba(21, 18, 14, 0.86);
+  color: var(--et-home-inverse-text, #fff);
+  outline: 0;
+  transform: none;
+}
+.pickerItemActive,
+.pickerItemActive:hover,
+.pickerItemActive:focus-visible {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  transform: none;
+}
+.pickerItemActive::after {
+  content: none;
+  display: none;
+}
+.pickerItemLabel,
+.pickerItemSub {
+  color: inherit;
+  font-family: inherit;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+.pickerItemLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.pickerItemSub {
+  font-size: 12px;
+  font-weight: 750;
+  opacity: 0.62;
+}
+@media (max-width: 1023.98px) {
+  .pickerSheet {
+    left: 12px;
+    right: 12px;
+    bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-height: min(66dvh, 560px);
+  }
+
+  .pickerSheet::before {
+    content: none;
+  }
+}
+@media (min-width: 1024px) {
+  .pickerSheet {
+    width: min(520px, calc(100vw - 24px));
+    max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px);
+  }
+
+  .pickerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+    overflow: visible;
+  }
+}
+.filterChipRow .filterChipOpenActive,
+.filterChipRow > .filterChipOpenActive,
+.filterChipRow .filterChip[aria-pressed='true'] {
+  background: #1f8f4d;
+  color: #fff;
+  border: 0;
+}
+.filterChipRow .filterChipOpenActive .filterChipLabel,
+.filterChipRow > .filterChipOpenActive .filterChipLabel,
+.filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel {
+  color: #fff;
+}
+.filterChipRow .filterChipOpenActive:hover,
+.filterChipRow .filterChipOpenActive:focus-visible,
+.filterChipRow > .filterChipOpenActive:hover,
+.filterChipRow > .filterChipOpenActive:focus-visible,
+.filterChipRow .filterChip[aria-pressed='true']:hover,
+.filterChipRow .filterChip[aria-pressed='true']:focus-visible {
+  background: #176f3c;
+  color: #fff;
+  border: 0;
+}
+.filterChipRow .filterChipOpenActive:hover .filterChipLabel,
+.filterChipRow .filterChipOpenActive:focus-visible .filterChipLabel,
+.filterChipRow > .filterChipOpenActive:hover .filterChipLabel,
+.filterChipRow > .filterChipOpenActive:focus-visible .filterChipLabel,
+.filterChipRow .filterChip[aria-pressed='true']:hover .filterChipLabel,
+.filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterChipLabel {
+  color: #fff;
+}

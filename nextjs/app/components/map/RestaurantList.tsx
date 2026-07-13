@@ -11,7 +11,7 @@ import sanityImageLoader from '@/lib/sanityImageLoader'
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import { useLoginModal } from '@/lib/auth'
 import MapListEmpty from './MapListEmpty'
-import styles from './map.module.css'
+import styles from './RestaurantList.module.css'
 
 interface ItemProps {
   restaurant: MapRestaurant

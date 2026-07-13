@@ -3,7 +3,7 @@ import { Marker } from 'react-map-gl/maplibre'
 import { useAuth } from '@/lib/auth'
 import { useUserProfile, defaultAvatarFromUid } from '@/lib/firebase/useUserProfile'
 import type { UserLocation } from '@/lib/map'
-import styles from './map.module.css'
+import styles from './MapMarkers.module.css'
 
 interface UserLocationMarkerProps {
   location: UserLocation
@@ -31,7 +31,7 @@ export default function UserLocationMarker({ location }: UserLocationMarkerProps
       latitude={location.lat}
       anchor="center"
       style={{ pointerEvents: 'none' }}
-      className="user-loc-marker"
+      className={`user-loc-marker ${styles.markerRoot}`}
     >
       <div className={styles.userLoc} aria-label="Your location">
         <img

@@ -52,6 +52,10 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => new Set(ownedRestaurants.map((r) => r._id)),
     [ownedRestaurants]
   );
+  const ownedRestaurantSlugs = useMemo(
+    () => new Map(ownedRestaurants.map((r) => [r._id, r.slug])),
+    [ownedRestaurants]
+  );
   // Only Must-Eats whose spot the user owns appear in the album.
   const ownedMustEats = useMemo(
     () => mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)),
@@ -71,7 +75,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
   if (loading || !user) {
     return (
-      <main className={styles.page}>
+      <main className={styles.page} data-menu>
         <div className={styles.loading}>
           <div className={styles.spinner} aria-hidden="true" />
         </div>
@@ -91,7 +95,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
   return (
     <>
-      <main className={styles.page}>
+      <main className={styles.page} data-menu>
         <div className={styles.shell}>
           <header className={styles.hero}>
             <div className={styles.paper}>
@@ -166,7 +170,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             <div className={styles.secHead} id="gespeicherte-spots">
               <h3>{t('savedHeading')}</h3>
             </div>
-            <ProfileSpots uid={user.uid} />
+            <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
           </section>
 
           <section

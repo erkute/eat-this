@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { DM_Sans, Saira_Condensed, Anton } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
@@ -16,26 +16,6 @@ const dmSans = DM_Sans({
   display: 'swap',
   variable: '--font-dm-sans',
 });
-// Saira Condensed — heavy condensed grotesque used as the editorial-poster
-// display font for the Map list rows + Detail v13. Drives the BAR BASTA-
-// style coral hero headlines, mustard sticker chips, and the slim-row
-// titles. Weights 800/900 carry the brand-poster mass.
-const sairaCondensed = Saira_Condensed({
-  weight: ['700', '800', '900'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-saira-condensed',
-});
-// Anton — heavy condensed display sans, matches die Cover2-Headline
-// „THE MAP FOR PEOPLE WHO CARE ABOUT FOOD." 1:1. Newspaper-Masthead-
-// Typografie.
-const anton = Anton({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-anton',
-});
-
 const PROVIDENCE_REGULAR_WOFF2 =
   'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
 const PROVIDENCE_BOLD_WOFF2 =
@@ -116,7 +96,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-active-page before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={dmSans.variable} suppressHydrationWarning>
       <head suppressHydrationWarning>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />

@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { haversineDistance, type UserLocation } from '@/lib/map'
 import type { MapMustEat } from '@/lib/types'
 import { trackEvent } from '@/lib/analytics'
@@ -108,8 +108,10 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
     if (zoomActiveRef.current) return
     zoomActiveRef.current = true
     setZoomRect(e.currentTarget.getBoundingClientRect())
-    setZoomActive(true)
   }
+  // A cold dynamic import can take a moment. Keep the inline card visible
+  // until the lightbox clone has actually mounted, then swap them atomically.
+  const handleZoomReady = useCallback(() => setZoomActive(true), [])
   const handleZoomClose = () => setZoomRect(null)
   const handleZoomExitComplete = () => {
     zoomActiveRef.current = false
@@ -127,6 +129,7 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
     handleCardClick,
     handleRevealDone,
     handleCardZoom,
+    handleZoomReady,
     handleZoomClose,
     handleZoomExitComplete,
   }

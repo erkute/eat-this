@@ -1,6 +1,6 @@
 'use client'
 import { useTranslation } from '@/lib/i18n'
-import styles from './map.module.css'
+import styles from './MapListEmpty.module.css'
 
 interface Props { onReset?: () => void }
 

@@ -14,6 +14,7 @@ import HomeDishStrip from './HomeDishStrip';
 import DistrictsList from './DistrictsList';
 import MagazineGrid from './MagazineGrid';
 import SiteFooter from './SiteFooter';
+import { HomeMapDataProvider } from './HomeMapDataContext';
 import styles from './HubSection.module.css';
 
 interface Props {
@@ -38,7 +39,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
   const spot = initialData.spotOfDay;
 
   return (
-    <div className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
+    <main className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
       <HubHashScroll />
       <HubDeineWelt spotOfDay={spot} />
 
@@ -84,19 +85,20 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </div>
       </section>
 
-      <HubNearby initialMapData={initialMapData} locale={locale} />
-      <CategoriesRail
-        categoryNames={initialData.categoryNames}
-        categoryImages={initialData.categoryImages}
-        locale={locale}
-      />
-      <HomeDishStrip locale={locale} />
-      <HubMustEatsTeaser initialMapData={initialMapData} />
+      <HomeMapDataProvider initialMapData={initialMapData}>
+        <HubNearby locale={locale} />
+        <CategoriesRail
+          categoryNames={initialData.categoryNames}
+          locale={locale}
+        />
+        <HomeDishStrip locale={locale} />
+        <HubMustEatsTeaser />
+      </HomeMapDataProvider>
       <HubFragRemy />
       <DistrictsList districts={initialData.districts} locale={locale} />
       <MagazineGrid articles={initialData.magazine} locale={locale} />
       <HubFaq locale={locale} />
       <SiteFooter />
-    </div>
+    </main>
   );
 }

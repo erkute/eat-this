@@ -6,7 +6,7 @@ import {
   allArticleSlugsQuery,
   allNewsArticlesQuery,
   latestNewsArticlesQuery,
-  allStaticPagesQuery,
+  staticPageBySlugQuery,
   mustEatsByRestaurantQuery,
   allBezirkeWithStatsQuery,
   bezirkBySlugQuery,
@@ -72,11 +72,11 @@ export async function getAllNewsArticles(): Promise<NewsArticle[]> {
   )
 }
 
-export async function getAllStaticPages(): Promise<StaticPageDoc[]> {
-  return client.fetch<StaticPageDoc[]>(
-    allStaticPagesQuery,
-    {},
-    { next: { revalidate: 3600, tags: ['staticPage'] } }
+export async function getStaticPage(slug: string, locale: 'de' | 'en'): Promise<StaticPageDoc | null> {
+  return client.fetch<StaticPageDoc | null>(
+    staticPageBySlugQuery,
+    { slug, locale },
+    { next: { revalidate: 3600, tags: [`staticPage:${slug}`, 'staticPage'] } }
   )
 }
 
@@ -181,5 +181,4 @@ export async function getEmailSpotCard(
     { next: { revalidate: 3600, tags: ['restaurant'] } }
   )
 }
-
 

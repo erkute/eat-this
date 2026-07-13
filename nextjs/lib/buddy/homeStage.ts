@@ -11,6 +11,17 @@ export interface BuddyAskDetail {
   question?: string
 }
 
+// The widget is code-split and normally mounts on idle. Keep the latest ask so
+// a quick stage interaction is not lost while its chunk is still loading.
+let pendingBuddyAsk: BuddyAskDetail | null = null
+
 export function dispatchBuddyAsk(detail: BuddyAskDetail = {}): void {
+  pendingBuddyAsk = detail
   window.dispatchEvent(new CustomEvent<BuddyAskDetail>(BUDDY_ASK_EVENT, { detail }))
+}
+
+export function consumePendingBuddyAsk(): BuddyAskDetail | null {
+  const detail = pendingBuddyAsk
+  pendingBuddyAsk = null
+  return detail
 }

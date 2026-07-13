@@ -158,9 +158,7 @@ export interface NewsArticle {
 export interface StaticPageDoc {
   slug: string
   title: string
-  titleDe?: string
   body?: PortableTextBlock[]
-  bodyDe?: PortableTextBlock[]
 }
 
 interface BezirkSeo {

@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
+import { selectInitialMustEatsData } from '@/lib/map/initial-surface-data'
 
 export const revalidate = 3600
 
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateViewport({ params }: PageProps): Promise<Viewport> {
   await params
   return {
-    themeColor: '#e8b626',
+    themeColor: '#15120e',
   }
 }
 
@@ -45,10 +46,11 @@ export default async function MustEatsPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
-  const [{ default: MustEatsSection }, initialMapData] = await Promise.all([
+  const [{ default: MustEatsSection }, fullInitialMapData] = await Promise.all([
     import('@/app/components/MustEatsSection'),
     getInitialAnonMapData(),
   ])
+  const initialMapData = selectInitialMustEatsData(fullInitialMapData)
 
   return <MustEatsSection initialMapData={initialMapData} locale={locale as 'de' | 'en'} />
 }

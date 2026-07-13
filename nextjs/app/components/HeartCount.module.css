@@ -14,15 +14,11 @@
   color: #14100c;
   background: #fff;
   padding: 7px 12px;
-  border: 2px solid #fff;
-  border-radius: 0;
-  box-shadow: 3px 3px 0 #14100c;
   white-space: nowrap;
 }
 
 .heartCount::before {
   content: "\2665"; /* ♥ filled */
-  color: #ff6b57;
   font-size: 14px;
   line-height: 1;
 }

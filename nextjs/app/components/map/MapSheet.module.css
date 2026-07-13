@@ -1,0 +1,258 @@
+/* Map result sheet: desktop rail, tablet drag sheet and phone document flow. */
+
+@media (min-width: 1024px) {
+  :global([data-map-body][data-panel-hidden='true']) .list {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+}
+
+.list {
+  background: #ffffff;
+  color: #15120e;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .list {
+    height: 100%;
+    border-left: 1px solid var(--border-subtle);
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    /* Border radius scales with --sheet-y so corners go flat the moment the
+       sheet hugs the global header (--sheet-y = 0). Below ~4px sheet-y
+       (multiplied by 4 = 16) the radius caps at the regular 16px. */
+    /* Snap-settle: kürzere Dauer + festere standard-easing curve damit das
+       Sheet nicht „spring-bounced" sondern mechanisch in die Snap-Position
+       rastet. Drag selbst läuft transition-none für 1:1 Finger-Response. */
+    transition:
+      transform 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+      border-radius 0.22s ease;
+    transform: translateY(var(--sheet-y, calc(100% - 68px)));
+    z-index: 4;
+    /* Force the GPU layer up-front so the first drag frame doesn't paint a
+       repaint hitch — same trick the iOS bottom sheet uses. */
+    will-change: transform;
+  }
+  .list[data-dragging='true'] {
+    transition: none;
+    /* Lock the radius during drag so the browser doesn't recompute the
+       calc()-based corners on every frame — corner paint invalidation is
+       a real cost on iOS. Snap-settle re-enables the transition and the
+       corners glide back to their computed value. */
+  }
+}
+
+.handle {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Tight chrome by default — extra space made the sheet look top-heavy at
+     peek/mid. At `full` we add a touch more (see below). The whole strip is
+     the touch zone, so this is still finger-friendly. */
+  padding: 9px 0 7px;
+  min-height: 24px;
+  cursor: grab;
+  touch-action: none;
+  -ms-touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.handle::before {
+  content: '';
+}
+
+@media (min-width: 1024px) {
+  .handle {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .listScroll {
+    max-height: none;
+  }
+}
+
+.listScroll {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Inset cards 14px each side so the mustPeek (-8px box + ~6px Ink-Überhang
+     durch die 11°-Rotation) and 4px box-shadow sit inside the padding box —
+     nothing overflows, no horizontal swipe/scroll on mobile or desktop. Top
+     padding gives the first card's upward peek room to clear the filter bar. */
+  padding: 18px 14px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+  /* The map page is 100lvh tall, so the window CAN scroll by a bar-height —
+     keep list overscroll from chaining into it. */
+  overscroll-behavior: contain;
+  /* Vertical only — no native diagonal panning inside the rows. */
+  touch-action: pan-y;
+}
+
+@media (min-width: 1024px) {
+  .listScroll {
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .list {
+    border-top: 1px solid rgba(23, 26, 23, 0.12);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    box-shadow: none;
+  }
+
+  .handle,
+.list[data-view='detail'] .handle {
+    min-height: 26px;
+    padding: 8px 0 6px;
+    background: transparent;
+  }
+
+  .handle::before,
+.list[data-view='detail'] .handle::before {
+    width: 42px;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(23, 26, 23, 0.22);
+  }
+}
+
+.handle::before {
+  background: #15120e;
+}
+
+@media (max-width: 1023.98px) {
+  .listScroll {
+    max-height: calc(100dvh - var(--sheet-y, 40px) - 92px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .list {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    height: auto;
+    margin-top: -44dvh;
+    min-height: calc(86dvh + var(--map-bar-overhang, 0px));
+    transition: none;
+    will-change: auto;
+    z-index: 4;
+    /* Base .list is overflow:hidden — that would make IT the sticky
+       container for .listHeader (which must stick to the WINDOW here). */
+    overflow: visible;
+    /* Edge styling (10px radius, hairline top, no shadow) comes from the
+       html .list design-pass rules — unchanged from the drag-sheet look. */
+  }
+  .list[data-view='list'] {
+    background: var(--et-home-paper, #fff);
+  }
+  .handle {
+    cursor: default;
+    touch-action: auto;
+    -ms-touch-action: auto;
+  }
+  .stuckSentinel {
+    height: 0;
+  }
+  .list[data-header-stuck='true']::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background: var(--et-home-paper, #fff);
+    z-index: 5;
+  }
+  .listScroll {
+    max-height: none;
+    overflow: visible;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .list[data-view='detail'] {
+    --detail-map-peek: clamp(150px, 21dvh, 200px);
+
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: auto;
+    margin-top: calc(-100dvh + var(--detail-map-peek));
+    min-height: calc(100dvh - var(--detail-map-peek) + var(--map-bar-overhang, 0px));
+    transform: none;
+    transition: none;
+    will-change: auto;
+    z-index: 6;
+    border-radius: 0;
+    border-top: 1px solid rgba(21, 18, 14, 0.16);
+    overflow: visible;
+    background: var(--et-home-paper, #fff);
+    display: block;
+    padding-bottom: 0;
+  }
+  .list[data-view='detail'] .handle {
+    cursor: default;
+    touch-action: auto;
+    -ms-touch-action: auto;
+  }
+
+  .list[data-view='detail'][data-detail-kind='must-eat'] {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    transform: none;
+  }
+
+  .list[data-view='detail'][data-detail-kind='must-eat'] .handle {
+    display: none;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1023.98px) {
+  .list[data-detail-kind='must-eat'] {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    transform: none;
+  }
+
+  .list[data-detail-kind='must-eat'] .handle {
+    display: none;
+  }
+}

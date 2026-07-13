@@ -1,0 +1,888 @@
+/* Map controls: search, menu, location, panel disclosure and status UI. */
+
+.panelToggle {
+  position: absolute;
+  top: 50%;
+  right: 360px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 7px 16px 8px;
+  cursor: pointer;
+  z-index: 6;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: right var(--motion-slow, 280ms) var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+.panelToggle svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 220ms ease;
+}
+
+@media (min-width: 1024px) {
+  .panelToggle {
+    display: flex;
+  }
+}
+
+:global([data-map-body][data-panel-hidden='true']) .panelToggle {
+  right: 0;
+}
+
+.fab {
+  position: absolute;
+  /* Mobile: bottom-right, riding the top edge of the sheet. The +14 px
+     offset puts it just above the sheet so it stays touchable at every
+     snap. Clamped at 420px (= MID_VISIBLE_PX in useBottomSheet): past mid
+     the FAB parks and the sheet simply slides over it (Google-Maps
+     behavior) — unclamped it darts to the top-right corner at the full
+     snap, right next to the burger/search, and reads as those controls
+     flying off sideways. + --map-bar-overhang because mapWrap is 100lvh
+     tall — without it the FAB sits a bar-height too low, behind the URL
+     bar. Desktop overrides below. */
+  bottom: calc(min(var(--sheet-visible-px, 80px), 420px) + 14px + var(--map-bar-overhang, 0px));
+  z-index: 6;
+  /* Frosted glass like the search control — see .mapSearchToolbar. */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab:disabled {
+  cursor: wait;
+}
+
+@media (min-width: 1024px) {
+  .fab {
+    bottom: 12px;
+    top: auto;
+  }
+}
+
+.mapBurger {
+  position: absolute;
+  /* Below the bottom sheet (z-index 4): when the sheet is dragged up it
+     covers the burger, same as the search toolbar — the sheet is the top
+     surface. (Used to be 60 / above the sheet; design changed 2026-06-04.) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Frosted glass like the search control — see .mapSearchToolbar. */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:global([data-map-body][data-map-view='detail']) .fab {
+  transform: translateX(calc(100% + 18px));
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s 0.24s;
+}
+
+@media (min-width: 1024px) {
+  :global([data-map-body][data-map-view='detail']) .fab {
+    visibility: visible;
+  }
+}
+
+.fabIcon {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mapSearchToolbar {
+  position: absolute;
+  /* Clears the 38px burger at right:14px (+8px gap). */
+  z-index: 55;
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.mapSearchBtn {
+  position: absolute;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  appearance: none;
+}
+
+.mapSearchIcon {
+  flex: 0 0 auto;
+}
+
+.mapSearchInput {
+  flex: 1; /* iOS: ≥16px avoids focus-zoom */
+}
+
+.mapSearchClear {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  flex: 0 0 auto;
+}
+
+.mapSearchClear:hover {
+  opacity: 0.7;
+}
+
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
+:global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
+:global([data-map-body][data-map-view='detail']) .mapSearchBtn {
+  transform: translateY(calc(-100% - 80px));
+  pointer-events: none;
+}
+
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger,
+:global([data-map-body][data-map-view='detail']) .mapBurger {
+  transform: translateY(calc(-100% - 80px));
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .mapSearchToolbar {
+    /* Desktop: no floating burger in top-right corner — toolbar can
+       stretch freely. Use auto right so width governs the extent. */
+    height: 38px;
+    padding: 0 14px;
+  }
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger {
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+.fab {
+  right: 14px;
+}
+
+@media (min-width: 1024px) {
+  .mapSearchBtn {
+    top: 14px;
+    right: 14px;
+    left: auto;
+  }
+  .mapBurger {
+    top: 52px;
+    left: auto;
+  }
+  .mapSearchToolbar {
+    top: 14px;
+    right: 14px;
+    left: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  :global([data-map-body][data-map-view='detail']) .mapSearchBtn,
+:global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
+:global([data-map-body][data-map-view='detail']) .mapBurger,
+:global([data-map-body][data-map-view='detail']) .fab {
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+.mapSearchBtn,
+.mapSearchToolbar {
+  background-color: #fff;
+}
+
+.mapSearchBtn,
+.mapBurger,
+.fab,
+.panelToggle {
+  filter: drop-shadow(0 6px 5px rgba(43, 33, 28, 0.3));
+}
+
+.mapSearchBtn {
+  background-color: #fff;
+}
+
+.mapBurger {
+  background-color: #fff;
+}
+
+.fab {
+  background-color: #fff;
+}
+
+.panelToggle {
+  clip-path: polygon(0 8%, 100% 0, 92% 100%, 0 91%);
+  transform: translateY(-50%) rotate(-2deg);
+}
+
+.mapBurger {
+  transform: rotate(4deg);
+}
+
+.mapSearchBtn,
+.fab {
+  width: 44px;
+  height: 44px;
+  transform: none;
+  transition:
+    background-color 150ms var(--ease-standard, ease),
+    border-color 150ms var(--ease-standard, ease),
+    color 150ms var(--ease-standard, ease);
+}
+
+.mapSearchIcon,
+.fabIcon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+@media (min-width: 1024px) {
+  .mapSearchToolbar {
+    width: 320px;
+  }
+}
+
+.mapSearchIcon,
+.mapSearchInput,
+.mapSearchClear,
+.fabIcon {
+  color: currentColor;
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+.fab:hover {
+    border-color: var(--brand-ink);
+  }
+}
+
+.mapSearchBtn:active,
+.fab:active {
+  background: var(--brand-action-deep);
+  color: var(--brand-paper);
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.mapSearchBtn,
+.mapSearchToolbar,
+.fab,
+.mapBurger {
+  text-shadow: none;
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+.fab:hover,
+.mapBurger:hover {
+    filter: none;
+    text-shadow: none;
+  }
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+.fab:hover,
+.mapBurger:hover {
+    color: var(--brand-ink);
+  }
+}
+
+.mapSearchClear:active {
+  background: rgba(23, 26, 23, 0.08);
+}
+
+@media (min-width: 1024px) {
+
+  .panelToggle {
+    right: var(--map-desktop-panel-width);
+  }
+
+  :global([data-map-body][data-panel-hidden='true']) .panelToggle {
+    right: 0;
+  }
+}
+
+.mapSearchBtn {
+  z-index: 55;
+}
+
+.mapBurger {
+  top: 14px;
+  right: 14px;
+  left: auto;
+  z-index: 55;
+  width: 44px;
+  height: 44px;
+}
+
+.mapBurgerLines {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  width: 22px;
+  color: currentColor;
+}
+
+.mapBurgerLines span {
+  display: block;
+  height: 4px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.mapBurgerLines span:nth-child(1) {
+  width: 19px;
+  transform: rotate(-3deg);
+}
+
+.mapBurgerLines span:nth-child(2) {
+  width: 22px;
+  transform: rotate(2deg);
+}
+
+.mapBurgerLines span:nth-child(3) {
+  width: 15px;
+  transform: rotate(-2deg);
+  justify-self: end;
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+.mapBurger:hover,
+.fab:hover {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mapBurger {
+    right: calc(var(--map-desktop-panel-width) + 14px);
+  }
+
+  :global([data-map-body][data-panel-hidden='true']) .mapBurger {
+    right: 14px;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .mapBurger {
+      filter: none;
+    }
+  }
+}
+
+.mapSearchBtn,
+.mapBurger,
+.fab {
+  clip-path: none;
+  filter: none;
+}
+
+.mapSearchBtn:hover,
+.mapBurger:hover,
+.fab:hover {
+  filter: none;
+}
+
+.mapBurgerLines,
+.mapSearchIcon,
+.fabIcon {
+  filter: none;
+  text-shadow: none;
+}
+
+.mapSearchBtn {
+  gap: 0;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(24px, 6vw, 31px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.84;
+  text-transform: uppercase;
+  filter: none;
+}
+
+.mapSearchBtn:hover,
+.mapSearchBtn:focus-visible {
+  transform: translateY(-1px);
+}
+
+.mapSearchBtn .mapSearchIcon {
+  flex: 0 0 27px;
+}
+
+.mapSearchBtn:active {
+  transform: translateY(1px);
+}
+
+.mapSearchBtn:focus-visible {
+  outline: 2px solid #15120e;
+  outline-offset: 3px;
+}
+
+@media (max-width: 360px) {
+  .mapSearchBtn {
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+  }
+
+  .mapSearchBtn .mapSearchIcon {
+    width: 25px;
+    height: 25px;
+    flex-basis: 25px;
+  }
+}
+
+.mapSearchToolbar {
+  transform-origin: left center;
+  will-change: transform, clip-path;
+}
+
+.mapSearchToolbar::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+}
+
+.mapSearchInput::placeholder {
+  font-weight: 400;
+}
+
+@media (max-width: 520px) {
+  .mapSearchToolbar {
+    gap: 10px;
+    box-shadow: none;
+  }
+
+  .mapSearchClear {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+}
+
+.mapSearchBtn,
+.mapSearchToolbar,
+.fab,
+.panelToggle {
+  border-color: #15120e;
+}
+
+.mapSearchToolbar::before {
+  background: #ffc600;
+}
+
+.mapSearchBtn,
+.mapBurger,
+.fab,
+.panelToggle,
+.mapSearchClear {
+  background: transparent;
+  color: #15120e;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline-offset: 4px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.mapSearchBtn:hover,
+.mapSearchBtn:focus-visible,
+.mapBurger:hover,
+.mapBurger:focus-visible,
+.fab:hover,
+.fab:focus-visible,
+.panelToggle:hover,
+.panelToggle:focus-visible,
+.mapSearchClear:hover,
+.mapSearchClear:focus-visible {
+  background: transparent;
+  color: #d9382a;
+  border: 0;
+  box-shadow: none;
+}
+
+.mapSearchBtn .mapSearchIcon,
+.fabIcon,
+.panelToggle svg {
+  color: currentColor;
+  stroke: currentColor;
+  filter: none;
+}
+
+@media (min-width: 1024px) {
+  .fab {
+    right: 14px;
+  }
+}
+
+.mapStatusLayer {
+  position: absolute;
+  width: min(330px, calc(100vw - 28px));
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mapStatusAction {
+  appearance: none;
+  cursor: pointer;
+}
+
+.mapStatusDismiss {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.mapStatusLayer,
+.mapStatusLayerError {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.mapStatusAction {
+  box-shadow: none;
+}
+
+.mapStatusDismiss {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.mapSearchToolbar {
+  top: 14px;
+  left: 14px;
+  right: auto;
+  width: min(430px, calc(100vw - 84px));
+  min-height: 40px;
+  height: 40px;
+  gap: 8px;
+  padding: 0 8px 0 13px;
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  overflow: hidden;
+  filter: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: none;
+  clip-path: none;
+  transform: none;
+}
+
+.mapSearchToolbar::before {
+  content: none;
+}
+
+.mapSearchToolbar .mapSearchIcon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.mapSearchInput {
+  min-width: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  height: 100%;
+  outline: 0;
+  color: currentColor;
+  caret-color: currentColor;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.mapSearchInput::placeholder {
+  color: currentColor;
+  opacity: 0.55;
+  font: inherit;
+}
+
+.mapSearchInput::-webkit-search-decoration,
+.mapSearchInput::-webkit-search-cancel-button,
+.mapSearchInput::-webkit-search-results-button,
+.mapSearchInput::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.mapSearchClear {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  color: currentColor;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mapSearchClear:hover,
+.mapSearchClear:focus-visible {
+  background: transparent;
+  color: currentColor;
+  outline: 0;
+}
+
+@media (max-width: 520px) {
+  .mapSearchToolbar {
+    width: calc(100vw - 78px);
+    min-height: 38px;
+    height: 38px;
+    padding-left: 12px;
+  }
+
+  .mapSearchInput {
+    font-size: 16px;
+  }
+}
+
+.mapSearchBtn {
+  top: 14px;
+  left: 14px;
+  right: auto;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mapSearchBtn .mapSearchIcon {
+  width: 31px;
+  height: 31px;
+  color: currentColor;
+  stroke: currentColor;
+  stroke-width: 2.75px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-7deg);
+  transform-origin: 50% 50%;
+}
+
+.mapSearchBtn:hover,
+.mapSearchBtn:focus-visible {
+  background: transparent;
+  color: var(--et-home-red, #d9382a);
+  border: 0;
+  box-shadow: none;
+}
+
+.mapSearchBtn:active .mapSearchIcon {
+  transform: rotate(-7deg) scale(0.92);
+}
+
+.mapStatusLayer,
+.mapStatusLayerError {
+  top: auto;
+  right: auto;
+  bottom: calc(
+    var(--sheet-visible-px, 0px) + max(92px, calc(env(safe-area-inset-bottom, 0px) + 78px))
+  );
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  pointer-events: auto;
+}
+
+@media (min-width: 1024px) {
+  .mapStatusLayer,
+.mapStatusLayerError {
+    bottom: 24px;
+    left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
+    width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px));
+  }
+}
+
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayer,
+:global([data-map-body][data-map-view='detail']) .mapStatusLayer {
+  position: fixed;
+  top: auto;
+  left: 50%;
+  bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 24px));
+  width: min(360px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: auto;
+  z-index: 120;
+}
+
+@media (min-width: 1024px) {
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayer,
+:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayerError,
+:global([data-map-body][data-map-view='detail']) .mapStatusLayer,
+:global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
+    left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
+    width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px));
+  }
+
+  :global([data-map-body][data-panel-hidden='true']) .mapStatusLayer,
+:global([data-map-body][data-panel-hidden='true']) .mapStatusLayerError {
+    left: 50%;
+    width: min(360px, calc(100vw - 32px));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .fab {
+    bottom: calc(44dvh + 14px);
+  }
+  :global([data-map-body][data-map-view='detail']) .fab {
+    display: none;
+  }
+  .mapBurger {
+    position: fixed;
+  }
+  .mapStatusLayer,
+.mapStatusLayerError {
+    position: absolute;
+    top: 56dvh;
+    bottom: auto;
+    left: 50%;
+    transform: translate(-50%, calc(-100% - 12px));
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .mapBurger {
+    z-index: 3;
+  }
+
+  :global([data-map-body][data-header-stuck='true']) .mapSearchToolbar,
+:global([data-map-body][data-header-stuck='true']) .mapSearchBtn,
+:global([data-map-body][data-header-stuck='true']) .mapBurger {
+    transform: translateY(calc(-100% - 80px));
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+
+  :global([data-map-body][data-map-view='detail']) .mapStatusLayer,
+:global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
+    display: none;
+  }
+}
+
+.mapStatusLayer,
+.mapStatusLayerError {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  min-height: 38px;
+  margin-inline: auto;
+  padding: 8px 10px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+}
+
+.mapStatusLayerError {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.mapStatusText {
+  min-width: 0;
+  color: inherit;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.08;
+  overflow: visible;
+  text-overflow: clip;
+  text-transform: none;
+  white-space: normal;
+}
+
+.mapStatusAction {
+  min-height: 24px;
+  padding: 0 6px;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+}
+
+.mapStatusDismiss {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  color: currentColor;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mapStatusAction:hover,
+.mapStatusAction:focus-visible,
+.mapStatusDismiss:hover,
+.mapStatusDismiss:focus-visible {
+  color: var(--et-home-accent, #ffc600);
+  outline: 0;
+}

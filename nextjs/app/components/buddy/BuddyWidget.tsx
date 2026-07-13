@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
-import { Link, usePathname } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
@@ -9,6 +9,7 @@ import { greetingFor } from '@/lib/buddy/greeting'
 import { isNearbyIntent } from '@/lib/buddy/nearbyIntent'
 import {
   BUDDY_ASK_EVENT,
+  consumePendingBuddyAsk,
   type BuddyAskDetail,
 } from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
@@ -93,31 +94,33 @@ function SpotCard({
     ? locale === 'en' ? 'Saved' : 'Drin'
     : locale === 'en' ? 'Save' : 'Merken'
   return (
-    <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} prefetch onClick={onSelect}>
-      {spot.image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          className={styles.spotImg}
-          src={spot.image}
-          srcSet={sanitySrcSet(spot.image, [320, 480, 640, 800], 82)}
-          sizes="(max-width: 480px) calc(94vw - 48px), 360px"
-          alt=""
-          width={640}
-          height={400}
-          loading="lazy"
-        />
-      )}
-      <span className={styles.spotBody}>
-        <span className={styles.spotName}>{spot.name}</span>
-        {meta && <span className={styles.spotMeta}>{meta}</span>}
-        {spot.openLabel && (
-          <span className={styles.spotStatus} data-open={spot.openNow ? 'true' : 'false'}>
-            {spot.openLabel}
-          </span>
+    <article className={styles.spotCard}>
+      <Link className={styles.spotCardLink} href={`/map?r=${spot.slug}`} prefetch onClick={onSelect}>
+        {spot.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className={styles.spotImg}
+            src={spot.image}
+            srcSet={sanitySrcSet(spot.image, [320, 480, 640, 800], 82)}
+            sizes="(max-width: 480px) calc(94vw - 48px), 360px"
+            alt=""
+            width={640}
+            height={400}
+            loading="lazy"
+          />
         )}
-        {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
-        <span className={styles.spotCta}>{cta}</span>
-      </span>
+        <span className={styles.spotBody}>
+          <span className={styles.spotName}>{spot.name}</span>
+          {meta && <span className={styles.spotMeta}>{meta}</span>}
+          {spot.openLabel && (
+            <span className={styles.spotStatus} data-open={spot.openNow ? 'true' : 'false'}>
+              {spot.openLabel}
+            </span>
+          )}
+          {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
+          <span className={styles.spotCta}>{cta}</span>
+        </span>
+      </Link>
       {onSave && (
         <button
           type="button"
@@ -129,17 +132,13 @@ function SpotCard({
               ? locale === 'en' ? 'Remove heart' : 'Herz entfernen'
               : locale === 'en' ? 'Heart this spot' : 'Spot herzen'
           }
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onSave()
-          }}
+          onClick={onSave}
         >
           <HeartIcon filled={!!isSaved} />
           <span>{saveLabel}</span>
         </button>
       )}
-    </Link>
+    </article>
   )
 }
 
@@ -466,12 +465,20 @@ export default function BuddyWidget() {
   // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
   // `send` self-guards against empty text and concurrent streams.
   useEffect(() => {
-    const onAsk = (e: Event) => {
-      const { question } = (e as CustomEvent<BuddyAskDetail>).detail ?? {}
+    const handleAsk = ({ question }: BuddyAskDetail) => {
       setOpen(true)
       if (question) void sendWithLocationIfNeeded(question)
     }
+    const onAsk = (e: Event) => {
+      // dispatchBuddyAsk queued this event before dispatching it. Once the
+      // widget listener exists the event itself is authoritative, so clear the
+      // buffered copy to avoid handling it twice.
+      consumePendingBuddyAsk()
+      handleAsk((e as CustomEvent<BuddyAskDetail>).detail ?? {})
+    }
     window.addEventListener(BUDDY_ASK_EVENT, onAsk)
+    const pendingAsk = consumePendingBuddyAsk()
+    if (pendingAsk) handleAsk(pendingAsk)
     return () => window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
   }, [sendWithLocationIfNeeded])
 
@@ -508,11 +515,6 @@ export default function BuddyWidget() {
       : greetingBeat
         ? 'talking'
         : 'idle'
-  // Remy lives ONLY on the home hub and opens from the "Frag Remy" section.
-  // There is intentionally no fixed side launcher.
-  const pathname = usePathname()
-  if ((pathname ?? '/') !== '/') return null
-
   return (
     <>
       {open && (

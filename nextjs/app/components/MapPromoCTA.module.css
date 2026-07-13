@@ -2,10 +2,6 @@
    It deliberately does not inherit --ink/--cream from parent pages; restaurant
    and article shells flip those tokens for their own surfaces. */
 .promo {
-  --promo-bg: var(--et-home-paper);
-  --promo-fg: var(--et-home-ink);
-  --promo-accent: var(--et-home-red);
-  --promo-accent-fg: var(--et-home-inverse-text);
 
   position: relative;
   overflow: hidden;
@@ -58,9 +54,6 @@
   align-items: center;
   gap: 10px;
   margin-top: 6px;
-  background: var(--promo-accent);
-  color: var(--promo-accent-fg);
-  border: 1.5px solid var(--promo-fg);
   font-family: var(--et-font-display);
   font-size: 20px;
   letter-spacing: 0.06em;

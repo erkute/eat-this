@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import styles from './map.module.css'
+import styles from './MapFilters.module.css'
 
 export interface PickerItem {
   value: string

@@ -19,7 +19,6 @@ vi.mock('@/lib/map/UserLocationContext', () => ({
   useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
 }))
 vi.mock('@/i18n/navigation', () => ({
-  usePathname: () => '/',
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }))
 

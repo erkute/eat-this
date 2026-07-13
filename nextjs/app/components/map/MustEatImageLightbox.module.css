@@ -1,0 +1,81 @@
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+}
+
+/* Keep the returning card above the map sheet but below the fixed navbar. */
+.closing {
+  z-index: 9998;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: rgba(20, 19, 17, 0.22);
+  -webkit-backdrop-filter: blur(1px) saturate(1);
+  backdrop-filter: blur(1px) saturate(1);
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  touch-action: none;
+  cursor: default;
+}
+
+.clip {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border-radius: 6%;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6%;
+  filter: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 6%;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  mix-blend-mode: overlay;
+  transform: translateZ(2px);
+}
+
+/* Avoid rectangular alpha-WebP shadow layers on touch WebKit. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .image {
+      filter: none;
+    }
+  }
+}

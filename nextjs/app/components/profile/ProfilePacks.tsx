@@ -50,28 +50,24 @@ export default function ProfilePacks({ uid }: { uid: string }) {
             </div>
           );
         })}
+        {lockedBoosters.map((p) => {
+          const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
+          return (
+            <Link
+              key={p.packId}
+              href={`/pack/${packUrlSlug(p)}`}
+              className={`${styles.pack} ${styles.packLocked}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={art} alt="" />
+              <span className={styles.packName}>{p.displayName}</span>
+              <span className={styles.packButton}>
+                {t('packStatusLocked')}
+              </span>
+            </Link>
+          );
+        })}
       </div>
-      {lockedBoosters.length > 0 && (
-        <div className={`${styles.packs} ${styles.lockedPacks}`}>
-          {lockedBoosters.map((p) => {
-            const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
-            return (
-              <Link
-                key={p.packId}
-                href={`/pack/${packUrlSlug(p)}`}
-                className={`${styles.pack} ${styles.packLocked}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={art} alt="" />
-                <span className={styles.packName}>{p.displayName}</span>
-                <span className={styles.packButton}>
-                  {t('packStatusLocked')}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
     </>
   );
 }

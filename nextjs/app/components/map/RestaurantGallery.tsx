@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import RestaurantGalleryLightbox from './RestaurantGalleryLightbox'
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
-import styles from './map.module.css'
+import styles from './MapDetails.module.css'
 
 interface Props {
   images: RestaurantGalleryImage[]
@@ -21,14 +21,14 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
   return (
     <>
       <section className={styles.rdGalleryBlock} aria-label="Fotos">
-        <div className={styles.rdGallery} role="list" data-h-scroll>
+        <div className={styles.rdGallery} data-h-scroll>
           {usable.map((img, index) => (
             <button
               key={img._key}
               type="button"
-              role="listitem"
               className={styles.rdGalleryThumb}
               onClick={() => setOpenIndex(index)}
+              aria-label={`${restaurantName}: Foto ${index + 1} von ${usable.length} öffnen`}
             >
               <img src={img.thumb} alt={img.alt ?? restaurantName} loading="lazy" decoding="async" />
             </button>

@@ -88,16 +88,16 @@ describe('MustEatsSection', () => {
 
   it('closing block sells booster packs (de)', () => {
     const html = render()
+    expect(html).toContain('Mehr Must\u00a0Eats')
+    expect(html).toContain('und Spots.')
     expect(html).toContain('Kauf ein Booster Pack')
     expect(html).toContain('Packs kaufen')
   })
 
-  it('renders every booster pack artwork in the closing block', () => {
+  it('renders all nine category packs without the starter artwork', () => {
     const html = render()
 
     for (const src of [
-      '/pics/booster/booster.webp',
-      '/pics/booster/booster_free.webp',
       '/pics/booster/booster_breakfast.webp',
       '/pics/booster/booster_coffee.webp',
       '/pics/booster/booster_dinner.webp',
@@ -110,5 +110,9 @@ describe('MustEatsSection', () => {
     ]) {
       expect(html).toContain(src)
     }
+
+    expect(html).not.toContain('/pics/booster/booster.webp')
+    expect(html).not.toContain('/pics/booster/booster_free.webp')
+    expect(html.match(/src="\/pics\/booster\/[^"?]+\.webp"/g)).toHaveLength(9)
   })
 })

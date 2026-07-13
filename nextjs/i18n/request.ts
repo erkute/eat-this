@@ -11,6 +11,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
+    timeZone: 'Europe/Berlin',
     messages: translations[locale] as unknown as Record<string, unknown>,
     // Fall back to key path when a message is missing (matches legacy behaviour
     // so partially-migrated raw-HTML modals don't explode).

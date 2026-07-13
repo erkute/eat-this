@@ -8,7 +8,6 @@ import { UserLocationProvider } from '@/lib/map/UserLocationContext'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import SiteFooter from '@/app/components/SiteFooter'
-import SearchOverlay from '@/app/components/SearchOverlayLazy'
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth'
 
 export default async function BezirkLayout({
@@ -31,9 +30,9 @@ export default async function BezirkLayout({
           <BridgeAuth />
           <SiteNav />
           <BurgerDrawer />
+          <span id="main-content" tabIndex={-1} />
           {children}
           <SiteFooter />
-          <SearchOverlay />
         </UserLocationProvider>
       </LoginModalProvider>
     </AuthProvider>

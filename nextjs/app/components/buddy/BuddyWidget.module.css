@@ -297,6 +297,14 @@
   background: #fff;
 }
 
+.spotCardLink {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+
 .articleCard {
   padding: 11px;
 }

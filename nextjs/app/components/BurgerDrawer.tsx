@@ -30,7 +30,26 @@ export default function BurgerDrawer() {
   // Escape is global; visible controls below use React handlers.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeBurger(true);
+      if (event.key === 'Escape') {
+        closeBurger(true);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const drawer = document.getElementById('burgerDrawer');
+      if (!drawer?.classList.contains('active')) return;
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled]):not([tabindex="-1"])')
+      ).filter((element) => element.offsetParent !== null);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
@@ -85,13 +104,16 @@ export default function BurgerDrawer() {
 
           </div>
 
-          <Link href="/" className="bd-logo" aria-label="Eat This — Home">
+          <Link
+            href="/"
+            className="bd-logo"
+            aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" width="660" height="265" />
           </Link>
 
           <nav className="bd-nav" aria-label="Primary">
-            <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>
             <MapIntentLink href="/map" className="bd-nav-item">{t('burger.map')}</MapIntentLink>
             {/* Profile/login is a primary action, not footer furniture. Keep it
                 high in the stack so signed-in users can reach their deck fast. */}

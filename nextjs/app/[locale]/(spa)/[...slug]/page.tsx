@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
-import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
+import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server'
 
 export const revalidate = 3600
 
@@ -65,7 +65,12 @@ const PAGE_META: Record<string, SlugMeta> = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
   const top = slug?.[0]
-  if (!top || !PAGE_META[top]) return {}
+  if (!top || !PAGE_META[top]) {
+    return {
+      title: '404 — Eat This',
+      robots: { index: false, follow: false },
+    }
+  }
 
   const meta = PAGE_META[top]
   const copy = locale === 'en' ? meta.en : meta.de
@@ -91,7 +96,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateViewport({ params }: PageProps): Promise<Viewport> {
   await params
   return {
-    themeColor: '#e8b626',
+    themeColor: '#15120e',
   }
 }
 
@@ -113,11 +118,13 @@ export default async function SPACatchAllPage({ params }: PageProps) {
     return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />
   }
   if (STATIC_SLUGS.has(top)) {
-    const [{ default: StaticPages }, pages] = await Promise.all([
+    const activeLocale = locale === 'en' ? 'en' : 'de'
+    const [{ default: StaticPages }, page] = await Promise.all([
       import('@/app/components/StaticPages'),
-      getAllStaticPages(),
+      getStaticPage(top, activeLocale),
     ])
-    return <StaticPages pages={pages} activeSlug={top} />
+    if (!page) notFound()
+    return <StaticPages doc={page} locale={activeLocale} />
   }
 
   notFound()

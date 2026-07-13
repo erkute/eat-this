@@ -119,6 +119,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
           </ul>
 
           <div className={styles.heroActions}>
+            <Link href="/pack/all-berlin" className={styles.heroDetailLink}>
+              {t.details}
+            </Link>
             <PackBuyButton
               packId={allBerlin.packId}
               packName={allBerlin.displayName}
@@ -161,6 +164,8 @@ export default async function PacksOverviewPage({ params }: PageProps) {
               alt=""
               width={420}
               height={560}
+              sizes="(max-width: 760px) 34vw, 190px"
+              priority={index === 0}
               className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`}
             />
           ))}
@@ -202,6 +207,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                 </div>
 
                 <div className={styles.packActions}>
+                  <Link href={href} className={styles.detailLink}>
+                    {t.details}
+                  </Link>
                   <PackBuyButton
                     packId={pack.packId}
                     packName={pack.displayName}
@@ -211,9 +219,6 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     errorClassName={styles.buyError}
                     {...buyLabels(pack)}
                   />
-                  <Link href={href} className={styles.detailLink}>
-                    {t.details}
-                  </Link>
                 </div>
               </article>
             )

@@ -3,10 +3,9 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
-import { preloadMapSurface } from './map/preloadMapSurface';
 import styles from './SiteNav.module.css';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
@@ -25,7 +24,6 @@ function pageSlugFromPath(path: string): string {
 export default function SiteNav() {
   const { t, lang } = useTranslation();
   const pathname = usePathname();
-  const router = useRouter();
   const activePage = pageSlugFromPath(pathname);
 
   // Keep the html[data-active-page] attribute in sync with the current
@@ -40,14 +38,55 @@ export default function SiteNav() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('navbar-hidden');
-    if (activePage === 'map') return;
+    const navbar = document.getElementById('navbar');
+    root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
+    if (!navbar || activePage === 'map') return;
 
     const media = window.matchMedia('(max-width: 767px)');
     let lastY = window.scrollY || window.pageYOffset || 0;
     let ticking = false;
+    let collapseTimer: number | undefined;
+    let showFrame: number | undefined;
 
-    const show = () => root.classList.remove('navbar-hidden');
+    const show = () => {
+      if (collapseTimer !== undefined) {
+        window.clearTimeout(collapseTimer);
+        collapseTimer = undefined;
+      }
+      if (showFrame !== undefined) return;
+
+      const wasCollapsed = root.classList.contains('navbar-collapsed');
+      root.classList.remove('navbar-collapsed');
+      if (!wasCollapsed) {
+        root.classList.remove('navbar-hidden');
+        return;
+      }
+
+      // Restore the fully translated state for one frame before revealing it,
+      // otherwise display:none -> visible skips the return transition.
+      void navbar.offsetHeight;
+      showFrame = window.requestAnimationFrame(() => {
+        showFrame = undefined;
+        root.classList.remove('navbar-hidden');
+      });
+    };
+    const hide = () => {
+      if (showFrame !== undefined) {
+        window.cancelAnimationFrame(showFrame);
+        showFrame = undefined;
+      }
+      if (!root.classList.contains('navbar-hidden')) {
+        root.classList.add('navbar-hidden');
+      }
+      if (collapseTimer !== undefined || root.classList.contains('navbar-collapsed')) return;
+
+      collapseTimer = window.setTimeout(() => {
+        collapseTimer = undefined;
+        if (root.classList.contains('navbar-hidden')) {
+          root.classList.add('navbar-collapsed');
+        }
+      }, 280);
+    };
     const apply = () => {
       ticking = false;
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
@@ -56,7 +95,7 @@ export default function SiteNav() {
       if (!media.matches || y < 36) {
         show();
       } else if (delta > 6) {
-        root.classList.add('navbar-hidden');
+        hide();
       } else if (delta < -6) {
         show();
       }
@@ -81,42 +120,15 @@ export default function SiteNav() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       media.removeEventListener('change', onMediaChange);
-      show();
+      if (collapseTimer !== undefined) window.clearTimeout(collapseTimer);
+      if (showFrame !== undefined) window.cancelAnimationFrame(showFrame);
+      root.classList.remove('navbar-collapsed', 'navbar-detached', 'navbar-hidden');
     };
   }, [activePage]);
 
-  useEffect(() => {
-    if (activePage === 'map') return;
-    const connection = (
-      navigator as Navigator & {
-        connection?: { saveData?: boolean; effectiveType?: string };
-      }
-    ).connection;
-    if (
-      connection?.saveData ||
-      connection?.effectiveType === 'slow-2g' ||
-      connection?.effectiveType === '2g'
-    )
-      return;
-
-    const warmMap = () => {
-      (router.prefetch as (href: string) => void)('/map');
-      void preloadMapSurface();
-    };
-    const ric = window.requestIdleCallback as
-      | ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number)
-      | undefined;
-    if (ric) {
-      const id = ric(warmMap, { timeout: 3500 });
-      return () => window.cancelIdleCallback?.(id);
-    }
-    const id = window.setTimeout(warmMap, 2200);
-    return () => window.clearTimeout(id);
-  }, [activePage, router]);
-
   return (
     <>
-      <a href="#appPages" className="skip-link">
+      <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
       <nav className="navbar" id="navbar">

@@ -26,7 +26,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 /* overflow-x:hidden + position:relative on <html> caused Chrome desktop to drop wheel-scroll on /profile (Safari and mobile worked fine). Both are redundant — body already has overflow-x:hidden and overscroll-behavior:none. Don't move them back. */
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{overflow-x:hidden;max-width:100%;overscroll-behavior:none;background:var(--surface-canvas)}
+body{max-width:100%;overscroll-behavior:none}
 img{max-width:100%;height:auto;display:block}
 iframe{max-width:100%}
 a{text-decoration:none;color:inherit}
@@ -35,121 +35,8 @@ a,button,input,select,textarea,label{touch-action:manipulation}
 ul,ol{list-style:none}
 /* DESIGN TOKENS */
 :root {
-  --black: #15120E;
-  --white: #FFF;
-  --off-white: #FFF;
-  --gray-50: #FFF;
-  --gray-100: #15120E;
-  --gray-200: #15120E;
-  --gray-400: #15120E;
-  --gray-600: #15120E;
-  --orange: var(--et-black);        /* mono pivot — was coral */
-  --et-poster-red: #D9382A;
-  --et-print-black: #15120E;
-  --et-program-paper: #FFF;
-  --et-ticket-grey: #15120E;
-  --et-offset-grey: #15120E;
-  --et-pressed-red: #15120E;
-  --et-red: var(--et-poster-red);
-  --et-red-hot: var(--et-poster-red);
-  --et-red-deep: var(--et-pressed-red);
-  --et-yellow: var(--et-program-paper);
-  --et-yellow-bright: var(--et-ticket-grey);
-  --et-cream: var(--et-program-paper);
-  --et-black: var(--et-print-black);
-  --et-raw-red: var(--et-red);
-  --et-raw-red-hot: var(--et-red-hot);
-  --et-raw-red-deep: var(--et-red-deep);
-  --et-raw-yellow: var(--et-yellow);
-  --et-raw-yellow-bright: var(--et-yellow-bright);
-  --et-raw-cream: var(--et-cream);
-  --et-raw-ink: var(--et-black);
   /* Brand color roles mirror app/globals.css. Raw colors describe the Eat This
      palette; roles describe the UX job each color is allowed to do. */
-  --brand-stage: var(--et-raw-cream);
-  --brand-stage-bright: var(--et-raw-red);
-  --brand-action: var(--et-raw-red);
-  --brand-action-hot: var(--et-raw-red-hot);
-  --brand-action-deep: var(--et-raw-red-deep);
-  --brand-paper: var(--et-raw-cream);
-  --brand-ink: var(--et-raw-ink);
-  --brand-rule: var(--et-ticket-grey);
-  --brand-muted: var(--et-offset-grey);
-  --surface-canvas: var(--brand-stage);
-  --accent-ink: var(--brand-ink);
-  --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: var(--font);
-  --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
-  --font-label: var(--font-poster, var(--font-display));
-  --font-providence: "ff-providence-sans-web-pro-1","ff-providence-sans-web-pro-2",sans-serif;
-  --et-home-paper: #fff;
-  --et-home-ink: #15120e;
-  --et-home-accent: #ffc600;
-  --et-home-red: #d9382a;
-  --et-home-photo-rest: #eceae6;
-  --et-home-quiet: #f2f1ef;
-  --et-home-rule: #e4e1dc;
-  --et-home-muted: rgba(21, 18, 14, .64);
-  --et-home-muted-soft: rgba(21, 18, 14, .55);
-  --et-home-line: rgba(21, 18, 14, .2);
-  --et-home-panel-warm: #fff4cc;
-  --et-home-inverse-bg: var(--et-home-ink);
-  --et-home-inverse-text: #fff;
-  --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, .6), transparent);
-  --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, .5);
-  --et-font-display: var(--font-providence);
-  --et-font-label: var(--font-providence);
-  --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
-  --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
-  --et-type-hero: clamp(44px, 6.5vw, 80px);
-  --et-type-hero-compact: clamp(42px, 6vw, 68px);
-  --et-type-section-title: clamp(24px, 3.4vw, 42px);
-  --et-type-editorial-title: clamp(34px, 4.8vw, 72px);
-  --et-type-card-title: clamp(21px, 2.2vw, 32px);
-  --et-type-kicker: 10px;
-  --et-type-body: clamp(12px, 1.1vw, 14px);
-  --et-type-lead: clamp(16px, 1.5vw, 21px);
-  --et-type-caption: 11px;
-  --et-type-chip: 12px;
-  --et-type-button: 13px;
-  --et-leading-hero: .9;
-  --et-leading-title: .92;
-  --et-leading-tight: .95;
-  --et-leading-copy: 1.5;
-  --et-tracking-none: 0;
-  --et-tracking-title: -.02em;
-  --et-tracking-label: .16em;
-  --et-tracking-meta: .1em;
-  --et-page-top: clamp(40px, 5vw, 72px);
-  --et-wrap-max: 1360px;
-  --et-wrap-pad: clamp(24px, 4vw, 56px);
-  --et-wrap-pad-mobile: 16px;
-  --et-section-gap: clamp(72px, 8vw, 128px);
-  --et-section-gap-mobile: 64px;
-  --et-head-gap: clamp(16px, 2vw, 28px);
-  --et-grid-gap: clamp(24px, 4vw, 56px);
-  --et-rail-gap: 14px;
-  --et-control-gap: 8px;
-  --et-card-gap: clamp(20px, 2.4vw, 32px);
-  --et-radius-photo: 10px;
-  --et-radius-control: 7px;
-  --et-radius-none: 0;
-  --et-radius-pill: 999px;
-  --et-shadow-none: none;
-  --et-shadow-text-photo: var(--et-home-photo-text-shadow);
-  --et-motion-fast: 140ms ease;
-  --et-motion-base: 160ms ease;
-  --et-motion-card: 180ms ease;
-  --et-hover-lift-sm: translateY(-2px);
-  --et-hover-lift-md: translateY(-3px);
-  --et-hover-lift-card: translateY(-4px);
-  --et-img-photo-fit: cover;
-  --et-img-art-fit: contain;
-  --et-img-restaurant-ratio: 4 / 3;
-  --et-img-wide-ratio: 16 / 10;
-  --et-img-pack-ratio: 2 / 3;
-  --et-img-card-ratio: 5 / 7;
-  --et-img-square-ratio: 1 / 1;
   --home-paper: var(--et-home-paper);
   --home-ink: var(--et-home-ink);
   --home-accent: var(--et-home-accent);
@@ -162,81 +49,6 @@ ul,ol{list-style:none}
   --home-radius-btn: var(--et-radius-control);
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-standard: cubic-bezier(.2, .8, .2, 1);
-  --ease-snap: cubic-bezier(.22, .61, .36, 1);
-  --radius: 2px;
-  --radius-none: 0;
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --radius-pill: 999px;
-  --radius-circle: 50%;
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --motion-fast: 120ms;
-  --motion-base: 180ms;
-  --motion-slow: 320ms;
-  --motion-reveal: 700ms;
-  --color-page: var(--surface-canvas);
-  --color-surface: var(--brand-paper);
-  --color-surface-raised: var(--brand-paper);
-  --color-surface-overlay: rgba(241, 241, 236, .95);
-  --color-surface-inverse: var(--brand-ink);
-  --color-text: var(--brand-ink);
-  --color-text-muted: rgba(16, 13, 15, .72);
-  --color-text-subtle: rgba(16, 13, 15, .52);
-  --color-border: rgba(16, 13, 15, .14);
-  --color-border-strong: rgba(16, 13, 15, .32);
-  --color-action: var(--brand-action);
-  --color-action-hover: var(--brand-action-hot);
-  --color-action-text: var(--brand-paper);
-  --color-warning: var(--brand-stage-bright);
-  --color-success: #34a85a;
-  --color-danger: var(--brand-action);
-  --shadow-none: none;
-  --shadow-soft: 0 10px 24px rgba(16, 13, 15, .12);
-  --shadow-lifted: 0 18px 38px rgba(43, 33, 28, .16);
-  --shadow-hard-sm: 2px 2px 0 currentColor;
-  --shadow-hard-md: 4px 4px 0 currentColor;
-  --shadow-physical-card: 10px 16px 16px rgba(70, 23, 16, .24);
-  --button-primary-bg: var(--color-action);
-  --button-primary-text: var(--color-action-text);
-  --button-primary-border: var(--color-surface-inverse);
-  --button-primary-shadow: var(--shadow-hard-md);
-  --button-secondary-bg: var(--color-surface);
-  --button-secondary-text: var(--color-action);
-  --button-disabled-bg: rgba(16, 13, 15, .14);
-  --button-disabled-text: rgba(16, 13, 15, .5);
-  --card-bg: var(--color-surface);
-  --card-text: var(--color-text);
-  --card-border: var(--color-border);
-  --card-shadow: var(--shadow-soft);
-  --card-physical-shadow: var(--shadow-physical-card);
-  --chip-bg: var(--color-surface);
-  --chip-text: var(--color-text);
-  --chip-border: var(--color-border-strong);
-  --chip-active-bg: var(--color-action);
-  --chip-active-text: var(--color-action-text);
-  --sheet-bg: var(--color-surface);
-  --sheet-text: var(--color-text);
-  --sheet-border: var(--color-border);
-  --sheet-handle: var(--color-action);
-  --input-bg: var(--color-surface);
-  --input-text: var(--color-text);
-  --input-border: var(--color-border-strong);
-  --input-placeholder: var(--color-text-subtle);
-  --input-focus-ring: var(--color-action);
-  --input-error: var(--color-danger);
 }
 body {
   font-family: var(--font);
@@ -259,19 +71,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 74px;
-  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
-  background-color: var(--home-ink);
-  background-image: none;
-  border-bottom: 0;
-  border-top: 0;
-  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-}
-.navbar::before,
-.navbar::after {
-  content: none;
 }
 .navbar::before {
   background: none;
@@ -292,7 +93,6 @@ body {
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
 }
 /* Desktop: navbar hat reichlich Platz — die Icons dürfen atmen statt sich
    eng wie ein Mobile-Tabbar zu drängen. */
@@ -397,10 +197,10 @@ body {
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
   }
   /* When the list sheet is full OR a detail is open, slide the chips out. */
-  body:has(.app-page[data-page="map"] [class*="bodyListAtFull"]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"] [class*="bodyListAtFull"]) .navbar .navbar-home,
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .navbar .navbar-home {
+  body:has(.app-page[data-page="map"][data-map-view="list"][data-map-snap="full"]) .navbar .navbar-actions,
+  body:has(.app-page[data-page="map"][data-map-view="list"][data-map-snap="full"]) .navbar .navbar-home,
+  body:has(.app-page[data-page="map"][data-map-view="detail"]) .navbar .navbar-actions,
+  body:has(.app-page[data-page="map"][data-map-view="detail"]) .navbar .navbar-home {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
   }
@@ -517,7 +317,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 14px;
   border: 0;
   border-radius: var(--et-radius-control, 7px);
@@ -604,7 +404,7 @@ body {
     gap: 8px;
   }
   .cookie-btn {
-    min-height: 42px;
+    min-height: 44px;
     padding-inline: 10px;
     font-size: 14px;
   }
@@ -621,12 +421,6 @@ body {
 .app-page[data-page="news-article"] {
   overflow-anchor: none;
 }
-@keyframes newsArticleFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-
 /* Standalone article share buttons */
 
 
@@ -710,12 +504,6 @@ body {
     box-sizing: border-box;
   }
   /* Start page also cream in light mode */
-  .app-page[data-page="start"] {
-    background: var(--surface-canvas);
-  }
-  .app-page {
-    background: var(--surface-canvas);
-  }
 
   .app-page {
     position: relative;
@@ -773,18 +561,14 @@ body {
   body:has(.app-page[data-page="map"].active) {
     background: #ffffff;
   }
-  html:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]),
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]),
-  html:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .app-page[data-page="map"],
-  body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .app-page[data-page="map"] {
+  html:has(.app-page[data-page="map"][data-map-view="detail"]),
+  body:has(.app-page[data-page="map"][data-map-view="detail"]),
+  html:has(.app-page[data-page="map"][data-map-view="detail"]) .app-page[data-page="map"],
+  body:has(.app-page[data-page="map"][data-map-view="detail"]) .app-page[data-page="map"] {
     background: var(--et-home-paper, #fff) !important;
   }
   .app-page[data-page="start"] {
     background: var(--white);
-  }
-  /* Map page mobile */
-  .app-page[data-page="map"] {
-    overflow: hidden;
   }
 }
 
@@ -829,7 +613,6 @@ body {
   .app-page[data-page="map"] {
     height: calc(100dvh - 48px);
     min-height: 0;
-    overflow: hidden;
   }
   .app-page[data-page="start"] {
     background: var(--white);
@@ -979,9 +762,6 @@ body {
   color: var(--accent-coral);
   transform: translateY(-1px);
 }
-.burger-btn:active {
-  transform: translateY(1px);
-}
 .burger-btn:focus,
 .burger-btn:focus-visible {
   outline: none;
@@ -1020,12 +800,6 @@ body:has(.burger-drawer.active) .burger-btn {
 /* Providence collage icon system */
 .navbar-icon-btn,
 .burger-btn {
-  width: 38px;
-  height: 38px;
-  background: var(--brand-paper);
-  border: 2px solid var(--brand-ink);
-  box-shadow: 3px 3px 0 var(--brand-ink);
-  color: var(--brand-ink);
   transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease;
 }
 .navbar-icon-btn img,
@@ -1033,33 +807,13 @@ body:has(.burger-drawer.active) .burger-btn {
   filter: none !important;
   height: 24px !important;
 }
-.navbar-icon-btn.active { background: var(--brand-action); }
 .navbar-icon-btn.active::before { display: none; }
-@media (hover: hover) {
-  .navbar-icon-btn:hover,
-  .burger-btn:hover {
-    background: var(--brand-paper);
-    color: var(--brand-ink);
-    transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0 var(--brand-ink);
-  }
-}
-.navbar-icon-btn:active,
-.burger-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--brand-ink);
-}
 /* Header controls: typographic paper stickers instead of bitmap icons. */
 .navbar-icon-btn,
 .burger-btn {
   width: auto;
   height: 40px;
   min-width: 42px;
-  border: 0;
-  border-radius: 999px;
-  box-shadow: none;
-  background: transparent;
-  color: var(--brand-ink);
   clip-path: none;
   filter: none;
   transform: none;
@@ -1083,9 +837,6 @@ body:has(.burger-drawer.active) .burger-btn {
   box-shadow: none;
 }
 /* EAT THIS zine drawer: oversized brand page with numbered paper scraps. */
-@keyframes bdScrapIn {
-  from { transform: translateX(120%) rotate(8deg); }
-}
 .navbar {
   min-height: 78px;
   padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(18px, 3vw, 38px) 13px;
@@ -1093,7 +844,6 @@ body:has(.burger-drawer.active) .burger-btn {
   background-image: none;
   background-size: auto;
   border-top: 0;
-  border-bottom: 0;
   color: var(--et-black);
   box-shadow: none;
 }
@@ -1151,7 +901,7 @@ html .navbar-actions {
 html .navbar-icon-btn,
 html .burger-btn {
   min-width: 82px !important;
-  height: 42px !important;
+  height: 44px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1161,9 +911,9 @@ html .burger-btn {
   border-radius: 0 !important;
   background: transparent !important;
   color: #fff !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif) !important;
   font-size: clamp(18px, 2vw, 22px) !important;
-  font-weight: 400 !important;
+  font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: .9 !important;
   text-transform: uppercase !important;
@@ -1199,11 +949,6 @@ html .burger-btn {
 }
 /* Drawer footer final fit: keep legal links inside the viewport on desktop. */
 /* Final burger-menu direction: loud red poster, big edible rows, no default drawer chrome. */
-@keyframes bdMenuPunch {
-  from {
-    transform: translateX(46px) rotate(2.5deg);
-  }
-}
 html .navbar,
 html .navbar.scrolled,
 html[data-active-page="start"] .navbar {
@@ -1318,6 +1063,10 @@ html[data-active-page="start"] .burger-btn {
   color: #fff;
 }
 .bd-lang-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: 0;
   padding: 0;
@@ -1344,8 +1093,8 @@ html[data-active-page="start"] .burger-btn {
   top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
   right: clamp(18px, 2.4vw, 26px);
   z-index: 5;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

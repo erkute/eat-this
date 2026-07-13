@@ -4,7 +4,7 @@ import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import type { UserLocation, UserTier } from '@/lib/map'
 import RestaurantDetail from './RestaurantDetail'
 import MustEatDetail from './MustEatDetail'
-import styles from './map.module.css'
+import styles from './MapDetails.module.css'
 
 type CommonProps = {
   contentRef: Ref<HTMLDivElement | null>
@@ -51,6 +51,8 @@ export default function MapSheetDetail(props: Props) {
       // das fixe Karte+Text-Layout scrollt nicht, der Overhang wäre nur
       // toter Weißraum unterm Pager. Siehe .detailMountMustEat.
       className={`${styles.detailMount}${props.kind === 'mustEat' ? ` ${styles.detailMountMustEat}` : ''}`}
+      data-detail-mount=""
+      data-detail-kind={props.kind === 'mustEat' ? 'must-eat' : 'restaurant'}
     >
       {props.kind === 'mustEat' ? (
         <MustEatDetail

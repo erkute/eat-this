@@ -12,6 +12,9 @@ vi.mock('./HubFragRemy', () => ({ default: () => '<div data-testid="remy"></div>
 vi.mock('./HubFaq', () => ({ default: () => '<div data-testid="faq"></div>' }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
+vi.mock('./HomeMapDataContext', () => ({
+  HomeMapDataProvider: ({ children }: { children: ReactNode }) => children,
+}));
 
 // MapIntentLink uses useRouter from next-intl — stub it to render a plain anchor
 vi.mock('./MapIntentLink', () => ({
@@ -48,18 +51,15 @@ const data: HomeData = {
     featuredOnDate: null,
     mustEatCount: 0,
   },
-  newOnMap: [],
-  categories: [],
   districts: [],
   magazine: [],
   categoryNames: { pizza: 'Pizza' },
-  categoryImages: {},
 };
 const map = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown as InitialMapData;
 
 function renderHome(locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale={locale} messages={{}}>
+    <NextIntlClientProvider locale={locale} messages={{}} timeZone="Europe/Berlin">
       <HubSection initialData={data} initialMapData={map} locale={locale} />
     </NextIntlClientProvider>
   );

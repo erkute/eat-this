@@ -2,25 +2,18 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import MapIntentLink from './MapIntentLink';
-import { useAuth } from '@/lib/auth';
-import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
+import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { filterMustEats } from '@/lib/home/mustEatsGallery';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
-import type { InitialMapData } from '@/lib/map/server-initial-map-data';
+import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
 
 const TEASER_COUNT = 6;
 
-interface Props {
-  initialMapData: InitialMapData;
-}
-
-export default function HubMustEatsTeaser({ initialMapData }: Props) {
-  const { user, loading: authLoading } = useAuth();
-  const uid = user?.uid ?? null;
-  const live = useMapData({ uid, authLoading, initialMapData });
+export default function HubMustEatsTeaser() {
+  const { initialMapData, live, uid } = useHomeMapData();
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';

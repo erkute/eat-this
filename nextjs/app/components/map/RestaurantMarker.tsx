@@ -2,7 +2,7 @@
 import { memo } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
 import type { MapRestaurant } from '@/lib/types'
-import styles from './map.module.css'
+import styles from './MapMarkers.module.css'
 
 interface RestaurantMarkerProps {
   restaurant: MapRestaurant
@@ -22,6 +22,7 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
       longitude={restaurant.lng}
       latitude={restaurant.lat}
       anchor="bottom"
+      className={styles.markerRoot}
       onClick={e => {
         e.originalEvent.stopPropagation()
         onClick(restaurant)
@@ -29,9 +30,16 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
     >
       <div
         role="button"
+        tabIndex={0}
         aria-label={restaurant.name}
         className={className}
         style={{ position: 'relative' }}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return
+          event.preventDefault()
+          event.stopPropagation()
+          onClick(restaurant)
+        }}
         // Lets the detail-peek snapshot (MapSection) find and clone the
         // selected pin — DOM markers aren't part of the GL canvas frame.
         {...(isSelected ? { 'data-selected-pin': '' } : {})}

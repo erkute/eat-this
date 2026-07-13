@@ -30,9 +30,15 @@ export interface InitialMapData {
 }
 
 export async function getInitialAnonMapData(): Promise<InitialMapData> {
-  const [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface] = await Promise.all([
+  const today = new Date().toISOString().slice(0, 10)
+  const [
+    { restaurants: all, mustEats: allMustEats, categories },
+    freeSurface,
+    spotId,
+  ] = await Promise.all([
     getCachedMapData(),
     getFreeSurfaceData(),
+    getSpotOfDayId(today),
   ])
 
   const mustEatCountByRestaurant = new Map<string, number>()
@@ -55,8 +61,6 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
   // Spot des Tages — a free, daily-rotating gift for everyone. Surface today's
   // spot + reveal its must-eat (ephemeral: recomputed per request from the
   // date, so tomorrow's replaces it and the previous one falls back to locked).
-  const today  = new Date().toISOString().slice(0, 10)
-  const spotId = await getSpotOfDayId(today)
   const gifted = applySpotOfDayReveal(spotId, all, allMustEats, {
     restaurants:        visibleRestaurants,
     lockedRestaurants,

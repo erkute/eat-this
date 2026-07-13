@@ -46,9 +46,9 @@
 .insideLabel,
 .mn,
 .upsellKicker {
-  font-family: var(--et-font-mono);
-  font-weight: 900;
-  letter-spacing: .02em;
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
   text-transform: none;
 }
 
@@ -58,7 +58,7 @@
   gap: 10px;
   margin: 0 0 14px;
   color: var(--pack-ink);
-  font-size: clamp(13px, 1.8vw, 20px);
+  font-size: var(--et-type-button, 13px);
   line-height: 1;
 }
 
@@ -78,7 +78,7 @@
   margin: clamp(12px, 2vw, 22px) 0 clamp(18px, 3vw, 30px);
   color: var(--pack-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(72px, 14vw, 178px);
+  font-size: var(--et-type-hero, clamp(44px, 6.5vw, 80px));
   font-weight: 700;
   line-height: .8;
   letter-spacing: 0;
@@ -102,9 +102,9 @@
   margin: 0 0 clamp(20px, 3vw, 30px);
   color: var(--pack-muted);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(18px, 2.1vw, 25px);
-  font-weight: 800;
-  line-height: 1.2;
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
+  line-height: var(--et-leading-copy, 1.5);
 }
 
 .cta {
@@ -230,7 +230,7 @@
 .contentGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(18px, 3vw, 34px);
+  gap: clamp(42px, 7vw, 88px);
   padding: clamp(30px, 6vw, 76px) 0 0;
 }
 
@@ -307,8 +307,8 @@
 .upsell a {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  align-items: flex-end;
-  gap: clamp(28px, 4vw, 44px);
+  align-items: center;
+  gap: clamp(24px, 4vw, 44px);
   padding: clamp(10px, 2vw, 18px) 0 clamp(2px, 1vw, 8px);
   color: var(--pack-ink);
   text-decoration: none;
@@ -331,7 +331,7 @@
   display: block;
   color: var(--pack-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(48px, 8vw, 92px);
+  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   font-weight: 700;
   line-height: .82;
   letter-spacing: 0;
@@ -431,6 +431,8 @@
 
   .hero {
     grid-template-columns: minmax(0, .92fr) minmax(320px, 1fr);
+    min-height: auto;
+    padding-bottom: clamp(28px, 3vw, 44px);
   }
 
   .heroAll {
@@ -439,34 +441,43 @@
 
   .stage,
   .allStage {
-    min-height: min(620px, calc(100svh - 120px));
+    min-height: min(560px, calc(100svh - 150px));
+  }
+
+  .name {
+    font-size: clamp(76px, 7vw, 96px);
+  }
+
+  .kicker {
+    font-size: clamp(14px, 1.2vw, 16px);
   }
 
   .contentGrid {
-    grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
+    padding-top: 0;
   }
 
   .upsellArt {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: center;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    align-items: end;
     justify-items: center;
-    gap: 0;
-    overflow: hidden;
-    width: min(100%, 312px);
+    gap: clamp(2px, .8vw, 12px);
+    overflow: visible;
+    width: 100%;
     margin-inline: auto;
-    padding: 2px 2px 8px;
+    padding: 8px 0 20px;
   }
 
   .upsellPack,
   .upsellPack:nth-child(5) {
-    width: clamp(78px, 7vw, 96px);
-    margin: -3px -5px;
+    width: min(100%, 124px);
+    margin: 0;
   }
 
   .upsellPack:nth-child(5) {
-    width: clamp(84px, 7.5vw, 104px);
+    width: min(100%, 132px);
   }
 
   .upsellPack:nth-child(1) { transform: rotate(-5deg); }
@@ -478,6 +489,17 @@
   .upsellPack:nth-child(7) { transform: rotate(-5deg); }
   .upsellPack:nth-child(8) { transform: rotate(-1deg) translateY(3px); }
   .upsellPack:nth-child(9) { transform: rotate(5deg); }
+
+  .upsellCopy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .upsellCta {
+    width: min(100%, 520px);
+  }
 
 }
 
@@ -522,7 +544,25 @@
   }
 
   .upsellArt {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    justify-items: center;
+    gap: 14px 8px;
+    width: min(100%, 330px);
+    margin-inline: auto;
     margin-bottom: 8px;
+    padding: 8px 4px 18px;
+  }
+
+  .upsellPack,
+  .upsellPack:nth-child(5) {
+    width: min(100%, 88px);
+    margin: 0;
+  }
+
+  .upsellPack:nth-child(5) {
+    width: min(100%, 96px);
   }
 
   .upsellCta {

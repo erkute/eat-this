@@ -1,10 +1,10 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
-import { safeHttpUrl } from './MustEatImageLightbox'
-import styles from './map.module.css'
+import { safeHttpUrl } from '@/lib/safeHttpUrl'
+import styles from './RestaurantGalleryLightbox.module.css'
 
 interface Props {
   images: RestaurantGalleryImage[]
@@ -57,6 +57,8 @@ function Viewer({
 }) {
   const count = images.length
   const [[page, dir], setPage] = useState<[number, number]>([startIndex, 0])
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   const go = useCallback(
     (d: number) => {
@@ -75,6 +77,12 @@ function Viewer({
     return () => {
       document.body.style.overflow = prev
     }
+  }, [])
+
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    closeRef.current?.focus({ preventScroll: true })
+    return () => previousFocus?.focus({ preventScroll: true })
   }, [])
 
   // Escape closes; arrows page.
@@ -100,8 +108,27 @@ function Viewer({
 
   return (
     <motion.div
+      ref={dialogRef}
       className={styles.galleryLb}
       onClick={onClose}
+      onKeyDown={(event) => {
+        if (event.key !== 'Tab') return
+        const focusable = Array.from(
+          dialogRef.current?.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+          ) ?? []
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        }
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={`${restaurantName} – Foto ${page + 1} von ${count}`}
@@ -113,6 +140,21 @@ function Viewer({
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       />
+
+      <button
+        ref={closeRef}
+        type="button"
+        className={styles.galleryLbClose}
+        aria-label="Galerie schließen"
+        onClick={(event) => {
+          event.stopPropagation()
+          onClose()
+        }}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </button>
 
       {count > 1 && (
         <span className={styles.galleryLbCounter}>

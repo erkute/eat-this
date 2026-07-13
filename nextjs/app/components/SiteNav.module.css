@@ -52,7 +52,7 @@
 :global(.navbar-icon-btn).mapSticker,
 :global(.burger-btn).menuSticker {
   min-width: auto !important;
-  height: 42px !important;
+  height: 44px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -62,9 +62,9 @@
   border-radius: 0 !important;
   background: transparent !important;
   color: #fff !important;
-  font-family: var(--menu-condensed, Impact, sans-serif) !important;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif) !important;
   font-size: clamp(18px, 2vw, 22px) !important;
-  font-weight: 400 !important;
+  font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: 0.9 !important;
   text-transform: uppercase !important;
@@ -83,16 +83,21 @@
   background: transparent !important;
   color: #fff !important;
   box-shadow: none !important;
-  outline: 0 !important;
   transform: none !important;
+}
+
+:global(.navbar-icon-btn).mapSticker:focus-visible,
+:global(.burger-btn).menuSticker:focus-visible {
+  outline: 3px solid #ffc600 !important;
+  outline-offset: 4px !important;
 }
 
 .mapWord,
 .menuWord {
   display: inline-block;
-  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(24px, 2.4vw, 34px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 0.9;
   letter-spacing: 0;
   text-transform: uppercase;

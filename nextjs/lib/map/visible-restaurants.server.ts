@@ -36,6 +36,8 @@ export async function composeVisibleRestaurants({
   freeRestaurantIds,
   today = new Date().toISOString().slice(0, 10),
 }: ComposeVisibleRestaurantsArgs): Promise<VisibleRestaurantsResult> {
+  const spotIdPromise = getSpotOfDayId(today)
+
   const mustEatCountByRestaurant = new Map<string, number>()
   for (const m of allMustEats) {
     const rid = m.restaurant._id
@@ -84,7 +86,7 @@ export async function composeVisibleRestaurants({
   const visibleMustEats = allMustEats.filter((m) => visibleIdSet.has(m.restaurant._id))
   const lockedRestaurants = all.filter((r) => !visibleIdSet.has(r._id))
 
-  const spotId = await getSpotOfDayId(today)
+  const spotId = await spotIdPromise
   return applySpotOfDayReveal(spotId, all, allMustEats, {
     restaurants: visibleRestaurants,
     lockedRestaurants,

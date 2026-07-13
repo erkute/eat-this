@@ -29,10 +29,10 @@ vi.mock('./useBuddyChat', () => ({
   useBuddyChat: () => ({ ...chat, send: vi.fn(), setGeo: vi.fn() }),
 }))
 vi.mock('@/i18n/navigation', () => ({
-  usePathname: () => '/',
-  Link: ({ children, href, ...rest }: { children: React.ReactNode; href: string }) => (
-    <a href={href} {...rest}>{children}</a>
-  ),
+  Link: ({ children, href, prefetch, ...rest }: { children: React.ReactNode; href: string; prefetch?: boolean }) => {
+    void prefetch
+    return <a href={href} {...rest}>{children}</a>
+  },
 }))
 
 import BuddyWidget from './BuddyWidget'

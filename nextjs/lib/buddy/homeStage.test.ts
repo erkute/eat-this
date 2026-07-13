@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 // nextjs/lib/buddy/homeStage.test.ts
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect } from 'vitest'
 import {
   BUDDY_ASK_EVENT,
+  consumePendingBuddyAsk,
   dispatchBuddyAsk,
   type BuddyAskDetail,
 } from './homeStage'
+
+afterEach(() => consumePendingBuddyAsk())
 
 describe('homeStage event bridge', () => {
   it('round-trips an ask event with a question', () => {
@@ -28,5 +31,13 @@ describe('homeStage event bridge', () => {
     dispatchBuddyAsk()
     window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
     expect(got).toEqual({})
+  })
+
+  it('buffers the latest ask until the lazy widget consumes it', () => {
+    dispatchBuddyAsk({ question: 'Erste Frage' })
+    dispatchBuddyAsk({ question: 'Aktuelle Frage' })
+
+    expect(consumePendingBuddyAsk()).toEqual({ question: 'Aktuelle Frage' })
+    expect(consumePendingBuddyAsk()).toBeNull()
   })
 })

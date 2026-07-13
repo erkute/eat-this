@@ -1,8 +1,7 @@
 'use client';
 
-import { preloadMapSurface } from './map/preloadMapSurface';
-
 const BURGER_CANVAS_COLOR = '#15120e';
+let focusBeforeDrawer: HTMLElement | null = null;
 
 function tintMobileCanvasForDrawer() {
   if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
@@ -62,33 +61,22 @@ function unlockBody(restoreScroll: boolean) {
   restoreMobileCanvasTint();
 }
 
-function preloadMapAfterDrawerOpen() {
-  window.setTimeout(() => {
-    const run = () => void preloadMapSurface();
-    const ric = window.requestIdleCallback as
-      | ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number)
-      | undefined;
-
-    if (ric) {
-      ric(run, { timeout: 1200 });
-      return;
-    }
-
-    run();
-  }, 420);
-}
-
 export function openBurgerDrawer() {
   const drawer = document.getElementById('burgerDrawer');
   const openBtn = document.getElementById('burgerBtn');
   if (!drawer || drawer.classList.contains('active')) return;
 
+  focusBeforeDrawer = document.activeElement instanceof HTMLElement
+    ? document.activeElement
+    : null;
   lockBody();
   drawer.removeAttribute('inert');
   drawer.removeAttribute('aria-hidden');
   openBtn?.setAttribute('aria-expanded', 'true');
   drawer.classList.add('active');
-  preloadMapAfterDrawerOpen();
+  window.requestAnimationFrame(() => {
+    document.getElementById('burgerClose')?.focus({ preventScroll: true });
+  });
 }
 
 export function closeBurgerDrawer(restoreScroll = true) {
@@ -101,4 +89,9 @@ export function closeBurgerDrawer(restoreScroll = true) {
   drawer.setAttribute('inert', '');
   openBtn?.setAttribute('aria-expanded', 'false');
   unlockBody(restoreScroll);
+  const restoreTarget = focusBeforeDrawer;
+  focusBeforeDrawer = null;
+  if (restoreScroll) {
+    window.requestAnimationFrame(() => restoreTarget?.focus({ preventScroll: true }));
+  }
 }

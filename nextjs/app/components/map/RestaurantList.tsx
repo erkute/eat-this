@@ -1,5 +1,5 @@
 'use client'
-import { memo, useEffect, useRef } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
@@ -17,6 +17,10 @@ interface ItemProps {
   restaurant: MapRestaurant
   isSelected: boolean
   peek: Peek
+  /** Browser time, populated only after hydration. Keeping the SSR value null
+   *  prevents Cloud Run's UTC clock and the visitor's local timezone from
+   *  producing different opening-status markup during hydration. */
+  now: Date | null
   /** Visual-only blurred preview row — click routes to the booster/signup
    *  flow instead of opening restaurant detail. */
   locked?: boolean
@@ -33,7 +37,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
   return a.kind !== 'open' || b.kind !== 'open' || a.image === b.image
 }
 
-const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
+const Item = memo(function Item({ restaurant, isSelected, peek, now, locked, hideBadge, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -44,9 +48,9 @@ const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadg
     unitH: t('map.unitsH'),
     unitMin: t('map.unitsMin'),
   }
-  const status: OpenStatus = restaurant.openingHours
-    ? getOpenStatus(restaurant.openingHours, new Date(), statusLabels)
-    : { isOpen: false, label: t('map.closed'), minutesUntilChange: null }
+  const status: OpenStatus | null = now && restaurant.openingHours
+    ? getOpenStatus(restaurant.openingHours, now, statusLabels)
+    : null
 
   // Prenzlauer Berg shortens to P'berg so the mustard sticker stays one line.
   const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
@@ -55,7 +59,7 @@ const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadg
   const categoryLabel = restaurant.categories?.[0]
     ? localizedCategoryName(restaurant.categories[0], loc)
     : null
-  const [statusMain] = status.label ? status.label.split(' · ') : []
+  const [statusMain] = status?.label ? status.label.split(' · ') : []
 
   // Warm the on-demand detail fields once a card scrolls near the viewport —
   // by the time the user taps it, the story text is already cached and the
@@ -115,7 +119,7 @@ const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadg
       </div>
 
       {statusMain && (
-        <span className={`${styles.openPill} ${status.isOpen ? '' : styles.openPillClosed}`} role="status">
+        <span className={`${styles.openPill} ${status?.isOpen ? '' : styles.openPillClosed}`} role="status">
           {statusMain}
         </span>
       )}
@@ -153,6 +157,7 @@ const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadg
 }, (prev, next) =>
   prev.restaurant === next.restaurant &&
   prev.isSelected === next.isSelected &&
+  prev.now === next.now &&
   prev.locked === next.locked &&
   prev.hideBadge === next.hideBadge &&
   prev.onClick === next.onClick &&
@@ -185,6 +190,14 @@ export default function RestaurantList({
   const { t } = useTranslation()
   const { open: openLoginModal } = useLoginModal()
   const openSigninLogin = () => openLoginModal('signin')
+  const [now, setNow] = useState<Date | null>(null)
+
+  useEffect(() => {
+    const refresh = () => setNow(new Date())
+    refresh()
+    const timer = window.setInterval(refresh, 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />
 
@@ -200,6 +213,7 @@ export default function RestaurantList({
           <Item
             restaurant={r}
             isSelected={selectedId === r._id}
+            now={now}
             // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
             // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
             // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.

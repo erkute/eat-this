@@ -7,6 +7,9 @@ Basis: `origin/staging` auf `26e0d7e072af8a8dd37ec233bbb1d08e9ef9a037`
 
 ## Verifizierter Ist-Zustand
 
+Die folgenden Punkte dokumentieren den Ausgangszustand vor der Isolation; der
+aktuelle, getrennte Staging-Stand ist weiter unten protokolliert.
+
 - Firebase CLI sieht genau ein Projekt: `eat-this-8a13b`.
 - Die Backends `eat-this` und `eat-this-staging` liegen beide in diesem
   Projekt und laufen unter demselben App-Hosting-Service-Account.
@@ -319,13 +322,14 @@ offenes Production-Gate, kein grüner Staging-Befund.
 | Security Headers | CSP, HSTS, Frame-/Content-Type-Schutz und staging noindex vorhanden |
 | Qualität | Lint, vollständige Tests, TypeScript und `build:isolated` grün; Browser-Konsole/Netzwerk ohne Fehler |
 
-## Lokal bestandene Gates
+## Bestandene lokale Gates
 
-- `npm test`: 130 Testdateien bestanden, 2 übersprungen; 764 Tests bestanden,
+- `npm test`: 132 Testdateien bestanden, 2 übersprungen; 766 Tests bestanden,
   5 übersprungen
 - `npm run lint`: ohne Fehler oder Warnungen
 - `npx tsc --noEmit`: bestanden
-- `npm run build:isolated`: bestanden
+- `npm run build:isolated`: bestanden; der Pre-Push-Hook wiederholte den
+  vollständigen isolierten Build erfolgreich
 - `npm run test:rules`: Firestore- und Storage-Emulator, 5 Regeltests
   bestanden; die aktuelle Firebase CLI benötigt dafür JDK 21
 - Premium-Migration `backfill --dry-run`: 23 veröffentlichte Dokumente ohne
@@ -345,26 +349,70 @@ offenes Production-Gate, kein grüner Staging-Befund.
 - Anthropic-Staging-Key: offizieller Models-Endpunkt HTTP 200 und zehn Modelle
   sichtbar. Das Konto hat derzeit jedoch kein API-Guthaben; ein echter Buddy-
   Modellaufruf ist deshalb noch kein grüner Staging-Gate.
-- Sentry-Staging-Token: `org:ci`-Scope vorhanden; ein Project-Read wurde wie
-  beabsichtigt mit HTTP 403 abgewiesen. Der Build-/Source-Map-Upload wird erst
-  im tatsächlichen App-Hosting-Build als positiver Gate gewertet.
 
-Externe Stripe-, Resend-, Sanity- und Firebase-Aktionen werden im Testprotokoll
-mit Testkonto/Testmodus, Zeitpunkt und Ergebnis markiert. Es werden keine Live-
-Zahlungen, Production-Mails oder Production-Provider-Secrets benutzt.
+## Tatsächliches Staging-Deployment und Negativtests
+
+Das Backend ist mit `erkute/eat-this`, Root `nextjs`, Branch
+`codex/staging-premium-isolation` und Environment `staging` verbunden. Die
+Firebase-Auth-Domain enthält die App-Hosting-Domain. Die reservierte Firebase-
+Konfiguration `/__/firebase/init.json` liefert ausschließlich die Web-App des
+Projekts `eat-this-staging-8a13b`. Firestore, Storage, Auth und der App-Hosting-
+Service-Account gehören ebenfalls zu diesem Projekt.
+
+App-Hosting-Build `build-2026-07-13-005` baute den exakten Commit
+`f9f7f8e90619cf1f54ddb4a36ef246f437f5d43c` und erreichte `READY`. Der
+zugehörige Rollout `rollout-2026-07-13-003` erreichte am
+13.07.2026 um 21:50:46 UTC `SUCCEEDED`.
+
+Die folgenden Prüfungen wurden gegen die tatsächliche Staging-URL ausgeführt:
+
+| Gate | Ergebnis |
+| --- | --- |
+| Basic Auth | Ohne Basic Auth HTTP 401; mit Auth HTTP 200 für Home, Map und die geprüften Seiten |
+| Robots/Headers | `X-Robots-Tag: noindex, nofollow`, `robots.txt` mit `Disallow: /`, leere Sitemap, HSTS, Frame-, Content-Type-, Referrer-, Permissions- und CSP-Report-Only-Header vorhanden |
+| Sanity anonym | Privates Dataset liefert 0 Dokumente; mit Runtime-Token 23 Metadatendokumente und 0 Premiumfelder |
+| Sanity Legacy in Staging | Alle 23 bekannten Premium-Asset-Pfade fehlen im getrennten Sanity-Projekt |
+| Private Firestore/Storage | 23 Dokumente und 23 Bildobjekte mit verifizierten Hashes; direkte anonyme und Firebase-authentifizierte Reads jeweils HTTP 403 |
+| App-Bildroute | Locked-ID ohne Capability HTTP 403, öffentliche Demo HTTP 200 mit `private, no-store`, gekaufte ID mit UID-gebundener Session/Capability HTTP 200; ohne passende UID-Session HTTP 403; nach Logout wieder HTTP 403 |
+| Map-Payload | Locked-Karten enthalten 0 Premiumfelder und keine direkten Premium-URLs; erlaubte Bilder verwenden ausschließlich die App-Route |
+| Auth/Profile | Firebase-Sign-in, UID-gebundene Session, Premium-Access, Profile-Redirect und Logout geprüft; der temporäre QA-Login wurde danach entfernt |
+| Stripe-Testzahlung | Checkout `complete/paid`, signiertes Webhook-Fulfillment und Entitlement im Staging-Projekt bestanden |
+| Duplicate/Refund | Zweite Zahlung desselben Gast-/Pack-Paars erzeugte genau einen automatischen `duplicate_entitlement`-Refund; ursprüngliches Entitlement blieb bestehen, Mail wurde nicht erneut ausgegeben |
+| Gast-Mail | Ausschließlich Testmodus und Test-Sink; Gast-Auth-User und `guestMagicLink`-Outbox erfolgreich, keine Production-Zustellung |
+| Revalidation | Gültige Staging-HMAC invalidierte 7 Oberflächen; fehlende Signatur wurde abgewiesen |
+| Provider | Voyage-Embedding HTTP 200/512 Dimensionen; Anthropic-Modellliste HTTP 200; Buddy-Modellaufruf fail-closed wegen fehlendem Staging-Guthaben |
+
+Der zuerst angelegte Stripe-Test-Webhook hatte ein nicht passendes Signing-
+Secret. Er wurde gelöscht, durch genau einen neuen Staging-Endpunkt ersetzt und
+das Firebase-Secret auf eine neue Version rotiert. Erst danach wurden Zahlung,
+Idempotenz und Refund erfolgreich erneut geprüft. Es wurden ausschließlich
+Stripe-Testmodus, Testkarten, der Resend-Test-Sink und getrennte Staging-
+Provider-Keys verwendet.
+
+Ein reproduzierter React-Hydrationfehler auf `/map` wurde auf die
+zeitabhängigen Öffnungsstatus-Badges eingegrenzt: Cloud Run renderte in UTC,
+der Browser in Berliner Ortszeit. Der Fix hält das SSR-/Hydration-Markup
+deterministisch und berechnet/aktualisiert den Status erst nach dem Mount. Ein
+Regressionstest deckt die Grenze ab. Gegen den erfolgreichen Rollout enthielt
+das SSR-Markup 0 Öffnungsstatus-Badges, der Browser nach dem Mount 29. Eine
+frische authentifizierte Map-Navigation erzeugte nach dem Rollout keinen neuen
+React-Hydration- oder sonstigen Konsolenfehler.
+
+Production blieb während aller Schritte unverändert. Der Stand von
+`origin/main` und der Production-App-Hosting-Rollout wurden kontrolliert, aber
+nicht mutiert.
 
 ## Offene Staging-Gates und Risiken
 
-- Das neue App-Hosting-Backend ist angelegt, aber noch nicht mit dem GitHub-
-  Feature-Branch verbunden und hat noch keinen App-Rollout. Ein Backend allein
-  ist ausdrücklich kein Deployment-Nachweis.
-- Die App-Hosting-Domain konnte vor dem ersten Rollout noch nicht als Firebase-
-  Auth-Domain registriert werden. Das wird nach dem ersten erfolgreichen
-  Rollout erneut geprüft; Magic Links/Auth bleiben bis dahin rot.
-- Der Anthropic-Key läuft nach 30 Tagen ab und das getrennte Konto hat aktuell
-  0 API-Guthaben. Für den Buddy-Positivtest ist eine kleine, bewusst manuelle
-  Staging-Aufladung nötig; der getrennte Production-Key darf nicht als Fallback
-  verwendet werden.
+- Der getrennte Anthropic-Key läuft nach 30 Tagen ab und das Staging-Konto hat
+  aktuell 0 API-Guthaben. Für den Buddy-Positivtest ist eine kleine, bewusst
+  manuelle Staging-Aufladung nötig; der getrennte Production-Key darf nicht als
+  Fallback verwendet werden.
+- GitHub Quality läuft für Pull Requests nach `staging`/`main`, nicht für den
+  bloßen Feature-Branch-Push. Vor Integration ist deshalb ein PR mit grünen
+  Checks erforderlich.
+- Der getrennte Sentry-Build ist erfolgreich, der Source-Map-Upload wurde aber
+  nicht unabhängig über die Sentry-Oberfläche bestätigt.
 - Die 23 alten Production-Sanity-Asset-URLs bleiben bis zur nachgelagerten
   Production-Migration absichtlich erreichbar. Sie sind kein grüner Staging-
   Befund und werden erst nach Production-Backfill, Live-Smoke-Test und Purge

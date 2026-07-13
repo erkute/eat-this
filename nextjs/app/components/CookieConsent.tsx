@@ -140,10 +140,14 @@ export default function CookieConsent() {
   useEffect(() => {
     const stored = localStorage.getItem('cookieConsent');
     if (stored === 'accepted') {
+      setCollapsed(true);
       loadAnalytics();
       return;
     }
-    if (stored) return;
+    if (stored) {
+      setCollapsed(true);
+      return;
+    }
     const timer = setTimeout(() => setShow(true), 1500);
     return () => clearTimeout(timer);
   }, []);

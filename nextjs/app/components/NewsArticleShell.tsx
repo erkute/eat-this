@@ -144,96 +144,106 @@ export default function NewsArticleShell({
       data-page="news-article"
       id="newsModal"
     >
-      <article className={styles.article}>
-        <header className={styles.header}>
-          <div className={styles.breadcrumbWrap}>
-            <Breadcrumbs
-              items={breadcrumbItems}
-              ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+      <main className={styles.article}>
+        <article>
+          <header className={styles.header}>
+            <div className={styles.breadcrumbWrap}>
+              <Breadcrumbs
+                items={breadcrumbItems}
+                ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+              />
+            </div>
+
+            {article.imageUrl ? (
+              <>
+                <figure className={styles.heroWrap}>
+                  <Image
+                    src={article.imageUrl}
+                    alt={article.alt || title}
+                    fill
+                    priority
+                    sizes="(max-width: 760px) 100vw, 1180px"
+                    className={styles.hero}
+                  />
+                  <figcaption className={styles.introCopy}>
+                    <h1 className={styles.heroTitle}>{title}</h1>
+                  </figcaption>
+                </figure>
+                <div className={styles.heroBelow}>
+                  <div className={styles.byline}>
+                    <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                    {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+                  </div>
+                  {excerpt && <p className={styles.lede}>{excerpt}</p>}
+                </div>
+              </>
+            ) : (
+              <div className={styles.heroGridPlain}>
+                <div className={styles.introCopy}>
+                  <div className={styles.byline}>
+                    <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+                    {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+                  </div>
+                  <h1 className={styles.heroTitle}>{title}</h1>
+                  {excerpt && <p className={styles.lede}>{excerpt}</p>}
+                </div>
+              </div>
+            )}
+          </header>
+
+          <div className={styles.content}>
+            <PortableTextRenderer
+              blocks={content}
+              renderMustEatCard={renderMustEatCard}
+              renderSpotCard={renderSpotCard}
             />
           </div>
 
-          {article.imageUrl ? (
-            <>
-              <figure className={styles.heroWrap}>
-                <Image
-                  src={article.imageUrl}
-                  alt={article.alt || title}
-                  fill
-                  priority
-                  sizes="(max-width: 760px) 100vw, 1180px"
-                  className={styles.hero}
-                />
-                <figcaption className={styles.introCopy}>
-                  <h1 className={styles.heroTitle}>{title}</h1>
-                </figcaption>
-              </figure>
-              <div className={styles.heroBelow}>
-                <div className={styles.byline}>
-                  <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-                  {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-                </div>
-                {excerpt && <p className={styles.lede}>{excerpt}</p>}
-              </div>
-            </>
-          ) : (
-            <div className={styles.heroGridPlain}>
-              <div className={styles.introCopy}>
-                <div className={styles.byline}>
-                  <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-                  {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-                </div>
-                <h1 className={styles.heroTitle}>{title}</h1>
-                {excerpt && <p className={styles.lede}>{excerpt}</p>}
-              </div>
-            </div>
+          <div className={styles.shareRow}>
+            <NewsArticleShare
+              title={title}
+              excerpt={excerpt}
+              label={de ? 'Teilen' : 'Share'}
+              copiedLabel={de ? 'Kopiert' : 'Copied'}
+              className={styles.shareBtn}
+            />
+          </div>
+
+          {recommendations.length > 0 && (
+            <section className={styles.related}>
+              <h2 className={styles.relatedHeading}>{moreLabel}</h2>
+              <ul className={styles.relatedGrid} role="list">
+                {recommendations.map((rec) => {
+                  const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
+                  const recCategory =
+                    (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
+                  return (
+                    <li key={rec.slug}>
+                      <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
+                        <div
+                          className={styles.relatedImage}
+                          style={
+                            rec.imageUrl ? { backgroundImage: `url(${rec.imageUrl})` } : undefined
+                          }
+                          role="img"
+                          aria-label={recTitle}
+                        />
+                        <div className={styles.relatedBody}>
+                          {recCategory && (
+                            <span className={styles.relatedCategory}>{recCategory}</span>
+                          )}
+                          <h3 className={styles.relatedHeadline}>{recTitle}</h3>
+                          <span className={styles.relatedRead}>{readLabel}</span>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
           )}
-        </header>
-
-        <div className={styles.content}>
-          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} renderSpotCard={renderSpotCard} />
-        </div>
-
-        <div className={styles.shareRow}>
-          <NewsArticleShare
-            title={title}
-            excerpt={excerpt}
-            label={de ? 'Teilen' : 'Share'}
-            copiedLabel={de ? 'Kopiert' : 'Copied'}
-            className={styles.shareBtn}
-          />
-        </div>
-
-        {recommendations.length > 0 && (
-          <section className={styles.related}>
-            <h2 className={styles.relatedHeading}>{moreLabel}</h2>
-            <ul className={styles.relatedGrid} role="list">
-              {recommendations.map((rec) => {
-                const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
-                const recCategory =
-                  (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
-                return (
-                  <li key={rec.slug}>
-                    <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
-                      <div
-                        className={styles.relatedImage}
-                        style={rec.imageUrl ? { backgroundImage: `url(${rec.imageUrl})` } : undefined}
-                        role="img"
-                        aria-label={recTitle}
-                      />
-                      <div className={styles.relatedBody}>
-                        {recCategory && <span className={styles.relatedCategory}>{recCategory}</span>}
-                        <h3 className={styles.relatedHeadline}>{recTitle}</h3>
-                        <span className={styles.relatedRead}>{readLabel}</span>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-      </article>
+        </article>
+      </main>
 
       <SiteFooter />
     </div>

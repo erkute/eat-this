@@ -25,6 +25,10 @@ const VALID_SLUGS = new Set([
 
 const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb'])
 
+function exactTopSlug(slug: string[]): string | undefined {
+  return slug.length === 1 ? slug[0] : undefined
+}
+
 type SlugMeta = {
   de: { title: string; description: string }
   en: { title: string; description: string }
@@ -64,7 +68,7 @@ const PAGE_META: Record<string, SlugMeta> = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
-  const top = slug?.[0]
+  const top = exactTopSlug(slug)
   if (!top || !PAGE_META[top]) {
     return {
       title: '404 — Eat This',
@@ -107,7 +111,7 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
 
-  const top = slug?.[0]
+  const top = exactTopSlug(slug)
   if (!top || !VALID_SLUGS.has(top)) notFound()
 
   if (top === 'news') {

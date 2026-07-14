@@ -110,7 +110,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             </span>
           )}
         </form>
-        {entries.map(([slug, name], index) => {
+        {entries.map(([slug, name]) => {
           const art = categoryArt(slug);
           return (
             <article
@@ -123,7 +123,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
                 className={styles.photo}
                 aria-label={locale === 'en' ? `${name} restaurants` : `Restaurants: ${name}`}
               >
-                {art && <Image src={art} alt="" fill priority={index === 0} sizes="132px" />}
+                {art && <Image src={art} alt="" fill sizes="132px" />}
               </Link>
               <Link href={`/pack/${slug}`} className={styles.packButton}>
                 {copy.packCta}

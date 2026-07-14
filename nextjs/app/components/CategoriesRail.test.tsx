@@ -33,8 +33,10 @@ vi.mock('@/i18n/navigation', () => ({
   ),
 }));
 vi.mock('next/image', () => ({
-  // eslint-disable-next-line @next/next/no-img-element
-  default: ({ src }: { src: string }) => <img src={src} alt="" />,
+  default: ({ src, priority }: { src: string; priority?: boolean }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt="" data-priority={priority ? 'true' : undefined} />
+  ),
 }));
 import CategoriesRail from './CategoriesRail';
 
@@ -58,6 +60,7 @@ describe('CategoriesRail', () => {
     expect(html).toContain('/kategorie/pizza');
     expect(html).toContain('Öffnen');
     expect(html).toContain('Pizza');
+    expect(html).not.toContain('data-priority');
   });
   it('renders the starter pack signup before category packs', () => {
     const html = renderToStaticMarkup(

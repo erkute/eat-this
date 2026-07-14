@@ -132,13 +132,17 @@
   pointer-events: none;
 }
 
-.imageFill,
+.imageFill {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 260ms cubic-bezier(.16, .92, .18, 1);
+}
+
 .leadFallback {
   width: 100%;
   height: 100%;
-  background-position: center;
-  background-size: cover;
-  transition: transform 260ms cubic-bezier(.16, .92, .18, 1);
 }
 
 .leadFrame > .imageFill,

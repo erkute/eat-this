@@ -402,17 +402,85 @@ Production blieb während aller Schritte unverändert. Der Stand von
 `origin/main` und der Production-App-Hosting-Rollout wurden kontrolliert, aber
 nicht mutiert.
 
-## Offene Staging-Gates und Risiken
+## Production-Migration
 
-- GitHub Quality läuft für Pull Requests nach `staging`/`main`, nicht für den
-  bloßen Feature-Branch-Push. Vor Integration ist deshalb ein PR mit grünen
-  Checks erforderlich.
+Nach den grünen Staging-Gates wurde PR #296 `staging -> main` geprüft und am
+13.07.2026 gemergt. Quality, Lighthouse und der zugehörige isolierte Staging-
+Rollout waren erfolgreich. Der Merge-Commit ist
+`72940353591223cee0aefe7a34b52c75fc006518`.
+
+Der erste automatische Production-Build desselben Commits schlug fehl. Der
+unveränderte Commit wurde anschließend erneut gebaut: App-Hosting-Build
+`build-2026-07-13-004` erreichte `READY`, der zugehörige CLI-Rollout
+`build-2026-07-13-004` am 13.07.2026 um 22:59:08 UTC `SUCCEEDED`.
+
+Vor dem Sanity-Purge waren alle 23 Premium-Must-Eats vollständig in private
+Production-Firestore-/Storage-Pfade migriert und die Production-Regeln
+veröffentlicht. Danach wurden:
+
+- alle 23 öffentlichen Must-Eat-Dokumente auf Metadaten reduziert,
+- alle 23 nicht mehr referenzierten Legacy-Asset-Dokumente gelöscht,
+- 0 Premiumfelder und 0 Legacy-Asset-Dokumente am Sanity-Origin bestätigt,
+- alle 23 Cache-Buster-Asset-Anfragen mit HTTP 404 bestätigt.
+
+Die klassischen, bereits bekannten Asset-CDN-URLs bilden davon getrennte
+Cache-Einträge. Ihre Werte liegen ausschließlich in der lokalen Datei
+`.private/sanity-cdn-purge-urls.txt` mit Modus 0600. Die Datei und ihre Inhalte
+dürfen nie ausgegeben, öffentlich geteilt oder committed werden.
+
+## Production-Testmatrix
+
+| Gate | Aktueller Stand |
+| --- | --- |
+| Promotion | PR #296 `staging -> main` gemergt; Quality und Lighthouse erfolgreich |
+| App Hosting | Exakter Main-Commit gebaut; Build `READY`, Rollout `SUCCEEDED` |
+| Private Store | 23 Must-Eats in privaten Firestore-/Storage-Pfaden; Production-Regeln deployed |
+| Sanity-Dokumente | 23 öffentliche Dokumente enthalten nur Metadaten; 0 Premiumfelder |
+| Sanity-Origin | 0 Legacy-Asset-Dokumente; 23/23 Cache-Buster-Anfragen HTTP 404 |
+| Original-Asset-CDN | Am 14.07.2026 noch 7/23 HTTP 200 und 16/23 HTTP 404; Gate offen |
+| Finaler Live-Smoke | Nach geschlossenem CDN-Gate erneut auszuführen |
+
+## Offener Sanity-CDN-Gate
+
+Der anonyme HEAD-Retest vom 14.07.2026 prüfte alle 23 Original-URLs, ohne sie
+auszugeben: 7 lieferten weiterhin HTTP 200, 16 HTTP 404. Zuvor waren noch 17
+Cache-Einträge erreichbar. Sanity-Origin, Dokumente und Asset-Referenzen sind
+weiterhin sauber; ausschließlich verteilte Asset-CDN-Caches bleiben offen.
+
+Die Antwort an `support@sanity.io` war eine automatische Plan-/Support-
+Abweisung: dedizierter E-Mail-Support ist nur mit Enterprise beziehungsweise
+Growth-Support-Add-on verfügbar. Die vertraulichen URLs werden deshalb
+insbesondere nicht im öffentlichen Discord geteilt.
+
+Sanitys offizieller [Responsible-Disclosure-Kanal](https://www.sanity.io/responsible-disclosure)
+ist `security@sanity.io`. Sanity sagt dort eine Empfangsbestätigung innerhalb
+von drei Werktagen zu und bietet für vertrauliche Inhalte PGP-Verschlüsselung
+an. Sanitys [Privacy Policy](https://www.sanity.io/legal/privacy) weist darauf
+hin, dass gelöschte Assets bis zum konfigurierten Cache-Ablauf öffentlich
+verfügbar bleiben können.
+
+Das Gate bleibt offen, bis alle 23 Original-URLs anonym durchgehend non-2xx
+liefern. Der nächste kleine Schritt ist entweder eine vertrauliche Security-
+Eskalation oder ein erneuter anonymer Test nach kurzer Wartezeit. Es wird keine
+Dataset-Rotation, Dataset-Löschung oder andere riskante Ersatzmigration
+gestartet.
+
+Nach 0/23 erreichbaren URLs werden abschließend erneut geprüft:
+
+- Production Start, Map und Profile sowie Sanity-Revalidation,
+- gesperrte Nicht-Demo-Bildroute ohne Capability mit erwartetem HTTP 403,
+- direkte anonyme Firestore-/Storage-Reads ohne Leserecht,
+- Production-Backend, Rollout, Main-Commit und sauberer Git-Status.
+
+## Verbleibende Risiken
+
+- Sieben bekannte CDN-Cache-Einträge sind weiterhin öffentlich erreichbar;
+  der Sicherheitsabschluss darf deshalb noch nicht als vollständig gemeldet
+  werden.
 - Der getrennte Sentry-Build ist erfolgreich, der Source-Map-Upload wurde aber
   nicht unabhängig über die Sentry-Oberfläche bestätigt.
-- Die 23 alten Production-Sanity-Asset-URLs bleiben bis zur nachgelagerten
-  Production-Migration absichtlich erreichbar. Sie sind kein grüner Staging-
-  Befund und werden erst nach Production-Backfill, Live-Smoke-Test und Purge
-  mit `--require-legacy-unreachable` zum harten Gate.
+- Weil der Sanity-Purge erfolgt ist, darf Production nicht auf eine Revision
+  vor der Private-Store-Architektur zurückgerollt werden.
 
 ## Rollback
 

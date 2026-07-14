@@ -16,15 +16,15 @@ const SITE_URL = 'https://www.eatthisdot.com';
 
 const TITLE = 'EAT THIS – Restaurants & Geheimtipps';
 const DESCRIPTION =
-  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.';
+  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde deinen Spot.';
 const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=4';
 
 export const metadata: Metadata = {
-  // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
+  // `absolute` bypasses the root '%s | EAT THIS' template — the brand
   // title already carries "Berlin"; the suffix would just duplicate it. The
-  // template re-establishes the suffix for child segments (news, about, …)
+  // template re-establishes the compact suffix for child segments (news, about, …)
   // because `absolute` would otherwise null it out for the whole subtree.
-  title: { absolute: TITLE, template: '%s | Eat This Berlin' },
+  title: { absolute: TITLE, template: '%s | EAT THIS' },
   description: DESCRIPTION,
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   openGraph: {

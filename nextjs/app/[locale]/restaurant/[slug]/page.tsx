@@ -5,7 +5,12 @@ import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getAllRestaurantsLite, getMustEatsByRestaurant, getRestaurantSiblingCandidates } from '@/lib/sanity.server'
 import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
-import { buildRestaurantTitle, buildOrderPromiseDescription, truncateAtSentence } from '@/lib/seo/restaurantMeta'
+import {
+  buildCuratedRestaurantTitle,
+  buildRestaurantTitle,
+  buildOrderPromiseDescription,
+  truncateAtSentence,
+} from '@/lib/seo/restaurantMeta'
 import { SITE_URL } from '@/lib/constants'
 import { normalizeName } from '@/lib/normalizeName'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
@@ -83,13 +88,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       loc,
     ) ?? '',
   )
-  // Kuratierte Sanity-Titles sind brandlos und laufen wie bisher durchs
-  // Layout-Template (`%s | Eat This Berlin`). Der Builder liefert den Brand
-  // schon mit („| EAT THIS") und muss deshalb als absolute raus, sonst
-  // doppelt das Template den Brand.
+  // Sanity bleibt die redaktionelle Quelle. Die Ausgabeschicht ergänzt nur
+  // fehlende Filialqualifizierer und hält den finalen Titel im SERP-Budget.
   const curatedTitle = pickLocale(r.seo?.metaTitle || undefined, r.seo?.metaTitleEn || undefined, loc)
   const builtTitle = buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: loc })
-  const title = curatedTitle ?? builtTitle
+  const title = curatedTitle ? buildCuratedRestaurantTitle(curatedTitle, r.name) : builtTitle
 
   // Branded share card — the dynamic OG route overlays name + cuisine + district
   // on the restaurant photo (and falls back to a brand card when there is none),
@@ -99,7 +102,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, { hasEnContent: hasEnContent(r) })
 
   return {
-    title: curatedTitle ?? { absolute: builtTitle },
+    title: { absolute: title },
     description,
     robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates,

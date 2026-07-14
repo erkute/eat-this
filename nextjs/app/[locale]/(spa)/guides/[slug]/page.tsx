@@ -9,6 +9,8 @@ import { getRestaurantsByCategory } from '@/lib/sanity.server'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { buildBrandedTitle } from '@/lib/seo/metadata-text'
+import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import styles from './GuidePage.module.css'
 
@@ -31,17 +33,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const loc = locale === 'en' ? 'en' : 'de'
   const title = guide.title[loc]
   const description = guide.intro[loc]
+  const brandedTitle = buildBrandedTitle(title)
+  const image = `${SITE_URL}/pics/og/og_${guide.categorySlug}.png?v=2`
   const alternates = buildHreflangAlternates(`/guides/${slug}`, loc)
   return {
-    title,
+    title: { absolute: brandedTitle },
     description,
     alternates,
     openGraph: {
-      title,
+      title: brandedTitle,
       description,
       url: alternates.canonical,
       type: 'website',
       locale: toOgLocale(loc),
+      images: [{ url: image, width: 1200, height: 1200, alt: title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: brandedTitle,
+      description,
+      images: [image],
     },
   }
 }

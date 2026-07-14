@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params
   const de = locale !== 'en'
   return {
-    title: de ? 'Booster Packs kaufen · Eat This' : 'Buy Booster Packs · Eat This',
+    title: de ? 'Booster Packs kaufen' : 'Buy Booster Packs',
     description: de
       ? 'Alle Eat This Booster Packs auf einen Blick: All Berlin vorne, danach Kategorie-Packs fuer deine Map.'
       : 'All Eat This Booster Packs in one place: All Berlin first, then category packs for your map.',

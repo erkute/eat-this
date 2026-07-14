@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title:   'Anmeldung — Eat This',
+  title:   'Anmeldung',
   robots:  { index: false, follow: false },
 };
 

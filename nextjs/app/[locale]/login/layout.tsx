@@ -7,7 +7,7 @@ import { CSS_VERSION } from '@/lib/constants';
 import { AuthProvider } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title:  'Anmelden — Eat This',
+  title:  'Anmelden',
   robots: 'noindex, nofollow',
 };
 

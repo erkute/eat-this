@@ -8,6 +8,7 @@ import { localeUrl } from '@/lib/locale-url'
 import { toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { getLocalizedNewsMetadata } from '@/lib/news-metadata'
+import { buildBrandedTitle } from '@/lib/seo/metadata-text'
 import NewsArticleShell from '@/app/components/NewsArticleShell'
 
 interface PageProps {
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const de = locale === 'de'
   const { title, description } = getLocalizedNewsMetadata(a, locale)
+  const brandedTitle = buildBrandedTitle(title)
   const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0]
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
@@ -54,18 +56,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const alternates = { canonical: localeUrl(canonicalLocale, `/news/${slug}`), languages }
 
   return {
-    title,
+    title: { absolute: brandedTitle },
     description,
     robots: a.seo?.noIndex ? 'noindex,nofollow' : 'index,follow',
     alternates,
     openGraph: {
-      title: `${title} | Eat This Berlin`,
+      title: brandedTitle,
       description,
       url: alternates.canonical,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
       type: 'article',
       publishedTime: a.date,
       locale: toOgLocale(de ? 'de' : 'en'),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: brandedTitle,
+      description,
+      images: [image],
     },
   }
 }

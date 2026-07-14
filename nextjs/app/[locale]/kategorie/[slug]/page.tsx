@@ -12,6 +12,7 @@ import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { buildBrandedTitle } from '@/lib/seo/metadata-text'
 import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import { sanitySrcSet } from '@/lib/sanity-image-presets'
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
   const label = localizedCategoryName(c, loc)
-  // Brandlos — das Layout-Template hängt „| Eat This Berlin" an.
+  // Brandloser Suchbegriff; buildBrandedTitle ergänzt den kompakten Brand.
   // Suchsprache statt Katalog-Label: „Die beste Pizza in Berlin".
   const title = buildCategoryTitle(slug, label, loc)
   const description = buildCategoryDescription({
@@ -62,27 +63,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     restaurants,
     locale: loc,
   })
+  const brandedTitle = buildBrandedTitle(title)
+  const image = PACK_OG_SLUGS.has(slug)
+    ? `${SITE_URL}/pics/og/og_${slug}.png?v=${PACK_OG_VERSION}`
+    : `${SITE_URL}/pics/og-card.png?v=4`
   const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en')
   return {
-    title,
+    title: { absolute: brandedTitle },
     description,
     alternates,
     openGraph: {
-      title,
+      title: brandedTitle,
       description,
       url: alternates.canonical,
       type: 'website',
       locale: toOgLocale(de ? 'de' : 'en'),
-      ...(PACK_OG_SLUGS.has(slug) && {
-        images: [
-          {
-            url: `${SITE_URL}/pics/og/og_${slug}.png?v=${PACK_OG_VERSION}`,
-            width: 1200,
-            height: 1200,
-            alt: `${label} Pack — Eat This Berlin`,
-          },
-        ],
-      }),
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 1200,
+          alt: `${label} Pack — Eat This Berlin`,
+        },
+      ],
     },
   }
 }

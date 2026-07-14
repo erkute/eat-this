@@ -8,7 +8,7 @@ import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
 import { resolveUnlockedMustEatIds } from '@/lib/map/unlockedMustEats';
 
 export const metadata: Metadata = {
-  title: 'Profil — EAT THIS',
+  title: 'Profil',
   robots: 'noindex, nofollow',
 };
 export const dynamic = 'force-dynamic';

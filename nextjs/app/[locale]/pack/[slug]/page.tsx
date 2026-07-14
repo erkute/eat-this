@@ -8,6 +8,7 @@ import { getRestaurantsByCategory, getCategoryBySlug } from '@/lib/sanity.server
 import { localizedCategoryName } from '@/lib/categories'
 import { categoryArt } from '@/lib/categoryArt'
 import { hreflangAlternates } from '@/lib/seo/metadata'
+import { buildBrandedTitle } from '@/lib/seo/metadata-text'
 import { routing } from '@/i18n/routing'
 import {
   resolvePackByUrlSlug,
@@ -42,10 +43,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? localizedCategoryName(category, de ? 'de' : 'en')
     : pack.displayName
   const title = pack.type === 'all-berlin'
-    ? (de ? 'All Berlin — alle Packs · Eat This' : 'All Berlin — every pack · Eat This')
-    : `${packTitleName} Pack — Eat This`
+    ? (de ? 'All Berlin — alle Packs' : 'All Berlin — every pack')
+    : `${packTitleName} Booster Pack`
   return {
-    title,
+    title: { absolute: buildBrandedTitle(title) },
     description: pack.description[de ? 'de' : 'en'],
     // Conversion page reached from the app — keep it out of the index so it
     // doesn't cannibalise the /kategorie SEO pages, but let links be followed.

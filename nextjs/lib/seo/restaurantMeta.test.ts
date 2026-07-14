@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderPromiseDescription, buildRestaurantTitle, truncateAtSentence } from './restaurantMeta'
+import {
+  buildCuratedRestaurantTitle,
+  buildOrderPromiseDescription,
+  buildRestaurantTitle,
+  truncateAtSentence,
+} from './restaurantMeta'
 
 describe('buildRestaurantTitle', () => {
   it('builds the full DE pattern', () => {
@@ -26,14 +31,15 @@ describe('buildRestaurantTitle', () => {
     ).toBe('136 Berlin Restaurant – Peruanisch in Mitte | EAT THIS')
   })
 
-  it('drops the label when over the 62-char budget but keeps the location', () => {
+  it('falls back to the unique name when cuisine and location exceed the budget', () => {
     const t = buildRestaurantTitle({
       name: 'Der Weinlobbyist Restaurant & Weinbar',
       cuisineType: 'Wine Bar',
       district: 'Prenzlauer Berg',
       locale: 'de',
     })
-    expect(t).toBe('Der Weinlobbyist Restaurant & Weinbar – Berlin-Prenzlauer Berg | EAT THIS')
+    expect(t).toBe('Der Weinlobbyist Restaurant & Weinbar | EAT THIS')
+    expect(t.length).toBeLessThanOrEqual(60)
   })
 
   it('passes unknown cuisine values through', () => {
@@ -53,7 +59,7 @@ describe('truncateAtSentence', () => {
     expect(truncateAtSentence('Kurz und gut.')).toBe('Kurz und gut.')
   })
 
-  it('cuts at the last sentence boundary before 160 chars', () => {
+  it('cuts at the last sentence boundary before 155 chars', () => {
     const text =
       'Handgeformtes Sauerteigbrot aus dem Steinofen. Die Zimtschnecken haben Kultstatus und die Schlange reicht am Wochenende bis vor die Tür. ' +
       'Danach folgt ein dritter Satz, der definitiv über das Limit hinausschießt und abgeschnitten werden muss.'
@@ -61,14 +67,14 @@ describe('truncateAtSentence', () => {
     expect(out).toBe(
       'Handgeformtes Sauerteigbrot aus dem Steinofen. Die Zimtschnecken haben Kultstatus und die Schlange reicht am Wochenende bis vor die Tür.',
     )
-    expect(out.length).toBeLessThanOrEqual(160)
+    expect(out.length).toBeLessThanOrEqual(155)
   })
 
   it('falls back to a word boundary with ellipsis when no sentence end exists', () => {
     const text = 'wort '.repeat(60).trim()
     const out = truncateAtSentence(text)
     expect(out.endsWith(' …')).toBe(true)
-    expect(out.length).toBeLessThanOrEqual(160)
+    expect(out.length).toBeLessThanOrEqual(155)
   })
 
   it('collapses whitespace', () => {
@@ -79,6 +85,25 @@ describe('truncateAtSentence', () => {
     const short = 'Ja. ' + 'x '.repeat(80).trim()
     const out = truncateAtSentence(short)
     expect(out.endsWith(' …')).toBe(true)
+  })
+})
+
+describe('buildCuratedRestaurantTitle', () => {
+  it('adds missing branch qualifiers before applying the title budget', () => {
+    const stargarder = buildCuratedRestaurantTitle(
+      'Hokey Pokey — Eispatisserie in Prenzlauer Berg',
+      'Hokey Pokey Stargarder',
+    )
+    const oderberger = buildCuratedRestaurantTitle(
+      'Hokey Pokey — Eispatisserie in Prenzlauer Berg',
+      'Hokey Pokey Oderberger',
+    )
+
+    expect(stargarder).not.toBe(oderberger)
+    expect(stargarder).toContain('Stargarder')
+    expect(oderberger).toContain('Oderberger')
+    expect(stargarder.length).toBeLessThanOrEqual(60)
+    expect(oderberger.length).toBeLessThanOrEqual(60)
   })
 })
 

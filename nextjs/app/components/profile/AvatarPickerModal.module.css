@@ -97,7 +97,7 @@
   margin: 0;
   color: var(--avatar-ink);
   font-family: var(--avatar-display);
-  font-size: clamp(44px, 7vw, 82px);
+  font-size: clamp(40px, 5vw, 53px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.82;

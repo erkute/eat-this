@@ -233,7 +233,7 @@
   }
 }
 
-/* ── Auth-mode (2-up compact inside HubDeineWelt) ──────────────────────────── */
+/* ── Auth-mode (2-up compact variant) ──────────────────────────────────────── */
 .rail[data-auth-rail] .card {
   flex-basis: 160px;
 }

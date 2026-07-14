@@ -14,7 +14,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: 14px clamp(24px, 4vw, 54px);
+  gap: var(--et-head-gap) clamp(24px, 4vw, 54px);
   margin-bottom: clamp(34px, 5vw, 68px);
   text-align: left;
 }

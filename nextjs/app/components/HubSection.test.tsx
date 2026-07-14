@@ -5,13 +5,22 @@ import { NextIntlClientProvider } from 'next-intl';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 
-vi.mock('./HubDeineWelt', () => ({ default: () => null }));
 vi.mock('./HubNearby', () => ({ default: () => '<div data-testid="nearby"></div>' }));
 vi.mock('./HubMustEatsTeaser', () => ({ default: () => '<div data-testid="musteats"></div>' }));
 vi.mock('./HubFragRemy', () => ({ default: () => '<div data-testid="remy"></div>' }));
 vi.mock('./HubFaq', () => ({ default: () => '<div data-testid="faq"></div>' }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
+vi.mock('./HubHeroCopy', () => ({
+  default: () => (
+    <div>
+      <span>Was du essen solltest.</span>
+      <h1>We tell you what to eat</h1>
+      <span data-href="/map">Map öffnen</span>
+      <span data-href="/map">Was ist um mich?</span>
+    </div>
+  ),
+}));
 vi.mock('./HomeMapDataContext', () => ({
   HomeMapDataProvider: ({ children }: { children: ReactNode }) => children,
 }));
@@ -70,14 +79,20 @@ describe('HubSection home', () => {
     const html = renderHome();
     expect(html.toLowerCase()).toContain('we tell you');
     expect(html.toLowerCase()).toContain('what to eat');
-    expect(html).toContain('data-guest-only');
+  });
+
+  it('renders the signed-out reference hero without a visibility gate after auth resolves', () => {
+    const html = renderHome();
+    expect(html).not.toContain('data-guest-only');
+    expect(html).not.toContain('data-auth-only');
+    expect(html).not.toContain('Deine Map wartet');
   });
 
   it('hero links to the map', () => {
     const html = renderHome();
     expect(html).toContain('Map öffnen');
     expect(html).toContain('Was ist um mich?');
-    expect(html).toContain('href="/map"');
+    expect(html).toContain('data-href="/map"');
   });
 
   it('wraps the page in the homeV2 class', () => {

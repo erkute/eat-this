@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox';
 import type { MapMustEat } from '@/lib/types';
@@ -84,12 +83,16 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
                 }}
               >
                 {open && slot.mustEat?.image ? (
-                  <Image
+                  // The protected image route authorizes the browser's HttpOnly
+                  // capability cookie. next/image's internal optimizer does not
+                  // forward that cookie, so private album art must load directly.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={slot.mustEat.image}
                     alt=""
-                    fill
-                    sizes="(min-width: 1040px) 160px, (min-width: 660px) 18vw, 30vw"
                     className={styles.img}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element

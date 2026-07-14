@@ -1,378 +1,296 @@
-# Eat This — Agent Instructions
+# AGENTS.md — Eat This
 
-This file is the operational source of truth for work in this repository.
-Documents under `docs/specs/`, `docs/plans/`, and dated runbooks describe past
-decisions and setup work; verify them against the current code before following
-their commands.
+Diese Datei beschreibt den aktuellen Code. Historische Specs, Pläne und Runbooks sind nur Hinweise;
+vor ihrer Nutzung immer gegen Code, Lockfiles und aktive Infrastruktur prüfen.
 
-## 1. Project overview
+## Projekt
 
-The repository was rebuilt in 2026-06. The retired vanilla-JS SPA and one-off
-migration scripts are not part of this codebase; a local archive lives at
-`../Eat This`.
+Eat This ist eine deutschsprachig geführte, englisch lokalisierte Food-Discovery-Plattform für
+Berliner:innen und Berlin-Besucher:innen. Die Kernschleife ist: Spots auf der Map finden, exklusive
+Must Eats als Karten vor Ort aufdecken und sammeln, weitere Spots/Must Eats über Booster Packs
+freischalten und die Sammlung im Profil sehen. Remy ergänzt die kuratierte Suche.
 
-- `nextjs/` — production application: Next.js 15 App Router, React 19,
-  TypeScript, Firebase App Hosting
-- `studio/` — Sanity Studio, deployed manually with `sanity deploy`
-- `docs/` — historical specs, implementation plans, and operational runbooks
-- `.github/workflows/` — GitHub quality and Lighthouse workflows
+Das Produkt ist ein frühes, von einer Person betriebenes Produktionssystem. Production läuft auf
+Firebase App Hosting unter `https://www.eatthisdot.com`; das isolierte Staging ist Basic-Auth-
+geschützt. Stand 2026-07-14 sind die privaten Premium-Daten in Firebase ausgerollt. Offen ist nur
+Sanitys manuelle Invalidierung alter Asset-CDN-Caches; bis zur Bestätigung bleibt dieses Security-
+Gate offen und es gibt keine riskante Ersatzmigration.
 
-Runtime baseline:
+## Tech Stack
 
-- Node.js `20.19.6` from the root `.nvmrc`
-- `package.json` engines: `>=20.19 <21`
-- npm lockfiles are authoritative; use `npm ci` for clean installs
+- Runtime: Node.js `20.19.6`, npm-Lockfiles; Engines `>=20.19 <21`.
+- App: Next.js `15.5.19` App Router, React/React DOM `19.1.0`, TypeScript `5.9.3` strict.
+- Routing/i18n: `next-intl 4.13.0`; DE ohne Präfix, EN unter `/en`, keine Locale Detection.
+- Content: `@sanity/client 7.22.1`; separates Sanity Studio `5.30.0` mit React `19.2.7`.
+- Backend: Firebase Web SDK `12.14.0`, Admin SDK `13.10.0`, Auth, Firestore und Storage.
+- Map/UI: MapLibre über `react-map-gl 8.1.1`, `maplibre-gl 5.24.0`; Framer Motion `12.40.0`.
+- Commerce/Services: Stripe `17.7.0`, Resend `6.12.4`, Anthropic SDK `0.94.0`, Sentry `10.57.0`.
+- Tests/Build: Vitest `4.1.8`, Testing Library `16.3.2`, Firebase Rules Unit Testing `5.0.1`,
+  ESLint `9.39.4`, esbuild `0.28.1`, Sharp `0.34.5`.
+- Hosting: Firebase App Hosting, standalone Next output, Node 20, Region `us-central1`.
 
-## 2. How to work
+## Commands
 
-### Think before changing code
-
-- State assumptions and tradeoffs before implementation.
-- If multiple interpretations would materially change the result, present them
-  or ask instead of silently choosing.
-- Prefer the smallest solution that fully satisfies the request.
-- Do not add speculative features, compatibility shims, configuration, or
-  abstractions.
-- For multi-step work, define a short plan with a verification step for each
-  meaningful outcome.
-
-### Keep changes surgical
-
-- Touch only files required by the request.
-- Match the existing style and architecture.
-- Do not reformat or refactor unrelated code.
-- Remove imports, variables, helpers, tests, and files made obsolete by your
-  own change.
-- Mention unrelated dead code instead of deleting it.
-
-The project has essentially no public users yet. When the requested work
-touches clearly dead or legacy code within the same module boundary, remove it
-completely. Do not preserve migration paths for hypothetical users. Ask before
-crossing an obvious module boundary.
-
-### Work toward verifiable outcomes
-
-- Bug fix: identify or add a reproduction, then prove it passes.
-- Refactor: verify relevant behavior before and after.
-- UI change: check the rendered DOM, computed styles, accessibility, responsive
-  layout, and interactions.
-- Deployment: verify the intended remote branch and Firebase backend. A local
-  commit, GitHub push, PR, and Firebase rollout are four different states.
-
-## 3. Local development and checks
-
-From the repository root:
+App-Abhängigkeiten liegen in einem eigenen Lockfile; ein Root-`npm ci` installiert nur Root-Tools.
 
 ```bash
-nvm use
-npm run dev
+npm ci --prefix nextjs
+npm run dev                       # build:css, dann next dev
 npm run lint
 npm test
-npm run build
+cd nextjs && npx tsc --noEmit
+npm run build                     # CSS + Production Build; nicht parallel zu next dev
+npm run build:isolated --prefix nextjs  # .next-verify; sicher neben next dev
+npm run build:css --prefix nextjs
+npm run test:rules --prefix nextjs
 ```
 
-Equivalent app commands can be run from `nextjs/`. Useful explicit checks:
+Das Root-Paket bietet nur Wrapper für `dev`, `build`, `lint` und `test`. Weitere App-Scripts stehen
+in `nextjs/package.json`; Imports/Migrationen nie ohne passenden operativen Auftrag ausführen.
 
 ```bash
-cd nextjs
-npm run lint
-npm test
-npx tsc --noEmit
-npm run build:isolated
+npm ci --prefix studio
+SANITY_STUDIO_ENV=<production|staging> \
+SANITY_STUDIO_PROJECT_ID=<project> \
+SANITY_STUDIO_DATASET=<dataset> \
+npm run dev --prefix studio
 ```
 
-- `npm run dev` first builds the legacy stylesheet, then starts Next.js on
-  `localhost:3000`.
-- Keep the dev server running across normal UI iterations and browser feedback.
-- Do not stop it merely because QA is complete.
-- A normal `npm run build` writes to `.next/` and can corrupt a running dev
-  server. Stop dev first, or use `npm run build:isolated`, which writes to
-  `.next-verify/` and is safe alongside dev.
-- `npm run build:css` is safe while dev is running.
+App Hosting deployt branch-basiert; es gibt kein App-`deploy`-Script. Sanity Studio wird separat
+und nur auf ausdrücklichen Auftrag mit `npm run deploy --prefix studio` veröffentlicht. Rules werden
+mit explizitem Projekt deployt: `firebase deploy --only firestore:rules,storage --project <project>`.
 
-GitHub's `Quality` workflow runs `npm ci`, lint, tests, and the production build
-for PRs into `main` or `staging`, and for pushes to `staging`.
+## Projektstruktur
 
-## 4. Git hygiene in parallel sessions
+- `nextjs/app/[locale]/(spa)/`: Home, Map, Must Eats, News und Whitelist-Catch-all für statische Seiten.
+- `nextjs/app/[locale]/`: eigene Restaurant-, Bezirk-, Kategorie-, Pack-, Checkout-, Profil-, Login-
+  und Badge-Routen; Root-Ausnahmen sind APIs, Welcome, Robots, Sitemaps und `llms.txt`.
+- `nextjs/app/api/`: öffentliche/serverseitige HTTP-Grenzen; keine lokalen Migrations-CLIs.
+- `nextjs/app/components/`: wiederverwendbare UI und Feature-Unterordner; keine Admin-SDK-Zugriffe.
+- `nextjs/lib/`: server-/clientseitige Fachlogik, Loader, Hooks, Typen und Integrationen; Browser- und
+  Server-Abhängigkeiten nicht im selben Modul mischen.
+- `nextjs/i18n/`: Routing, Navigation und Request-Konfiguration; Übersetzungstexte bleiben in
+  `nextjs/lib/i18n/translations.ts`.
+- `nextjs/css/style.css`: handgeschriebene, gemeinsam verlinkte SPA-CSS-Quelle;
+  `nextjs/public/css/style.min.css` ist generiert und wird nie direkt editiert.
+- `nextjs/public/`: öffentlich auslieferbare, optimierte Assets; keine Secrets oder Premium-Bilder.
+- `nextjs/scripts/`: lokale Import-, Backfill-, Admin- und Migrations-CLIs; keine öffentlichen APIs.
+- `nextjs/__tests__/` und colocated `*.test.*`: Vitest-Tests; Rules-Tests benötigen Emulatoren.
+- `studio/schemaTypes/`: alle Sanity-Schemas; `studio/components/` enthält Schema-Inputs,
+  `studio/tools/` nur lokale Studio-Werkzeuge.
+- `firestore.rules`, `storage.rules`, `firestore.indexes.json`, `firebase.json`: Firebase-Datenvertrag.
+- `.github/workflows/`: Quality und Lighthouse; keine Deployment-Secrets in Workflow-Dateien.
+- `docs/`: historische Entscheidungen/Runbooks, nicht aktuelle Architekturquelle.
+- `.private/`: ignorierte Betriebsartefakte; niemals ausgeben, ins Build laden oder committen.
 
-The working tree and index may be shared by multiple Codex sessions.
+## Code-Konventionen
 
-Before every commit:
+### Naming und Format
 
-1. Run `git status` and read it completely.
-2. Stop and ask if staged changes were not made in the current session.
-3. Stage only explicit paths edited in this session.
-4. Never use `git add .`, `git add -A`, or `git add -u`.
-5. If the user confirms foreign staged changes are unrelated, unstage only
-   those paths with `git restore --staged <path>`.
+- React-Komponenten/Contexts: `PascalCase.tsx`; colocated Styles: `Component.module.css`.
+- Hooks: `useX.ts`/`useX.tsx`; Funktionen und Variablen `camelCase`; Typen/Interfaces `PascalCase`.
+- URL-Segmente sind lowercase/kebab-case; neue Nicht-React-Utilities ebenfalls kebab-case, ohne
+  bestehende camelCase-Dateien nebenbei umzubenennen. Next-Dateien nutzen ihre reservierten Namen.
+- Server-only Loader dürfen `.server.ts` tragen und importieren bei harter Grenze `server-only`.
+- Root-Prettier schreibt für Next Single Quotes, Semikolons, 2 Spaces, 100 Zeichen vor. Studio hat seine
+  eigene Config mit Single Quotes und ohne Semikolons. Nie unrelated Code nur dafür umformatieren.
 
-Before every push:
+### Server und Client
 
-- Fetch the remote and inspect the exact outgoing commit range.
-- Do not push unrelated work from another session.
-- Never force-push shared long-running branches.
-- Never push directly to `main`; branch protection requires a PR.
+- Default ist ein Server Component. Pages/Layout laden Daten, bauen Metadata/JSON-LD und reichen
+  serialisierbare Props an kleine Client Islands weiter.
+- `'use client'` nur für State, Effects, Events, Context, Browser APIs oder Firebase Web SDK.
+- Admin SDK, Stripe, private Must Eats und Sanity-Reads bleiben serverseitig. Client Components
+  sprechen Same-Origin-Route-Handler oder dafür vorgesehene Browser-Hooks an.
 
-## 5. Pre-push hook
+### Data Fetching und GROQ
 
-`.git/hooks/pre-push` runs `npm run build:isolated` when the outgoing range
-touches `nextjs/`. It skips documentation-only pushes. The isolated build
-mirrors Firebase App Hosting without overwriting the live dev server's `.next/`.
+Das einzige neue Pattern ist: Query in `lib/queries.ts` oder `lib/<feature>/queries.ts`, typisierter
+server-only Loader mit Cache-Policy/Tags, Aufruf aus Server Component oder Route Handler. Keine neue
+inline GROQ in Components und kein direkter Sanity-Client im Browser.
 
-- Never bypass it with `--no-verify` unless the user explicitly requests that.
-- If it fails, fix the cause. The complete log is at
-  `/tmp/eat-this-prepush-build.log`.
-- A Sanity CDN `UND_ERR_CONNECT_TIMEOUT` during static generation may be
-  transient; retry once before changing code.
+Aus `nextjs/lib/sanity.server.ts`:
 
-## 6. Branch and Firebase deployment workflow
-
-There are two long-running branches and two App Hosting backends:
-
-| Git branch | Firebase backend   | Environment                  | Public URL                                                        |
-| ---------- | ------------------ | ---------------------------- | ----------------------------------------------------------------- |
-| `staging`  | `eat-this-staging` | `NEXT_PUBLIC_ENV=staging`    | `https://eat-this-staging--eat-this-8a13b.us-central1.hosted.app` |
-| `main`     | `eat-this`         | `NEXT_PUBLIC_ENV=production` | `https://www.eatthisdot.com`                                      |
-
-A push to `staging` deploys only the staging backend. It does not deploy
-production. Production starts only after the corresponding PR is merged into
-`main`.
-
-Normal promotion path:
-
-```text
-feature branch or local staging work
-  -> PR/push to staging
-  -> successful staging rollout
-  -> staging smoke test
-  -> PR from staging to main
-  -> successful GitHub checks
-  -> merge PR
-  -> successful production rollout
-  -> live-site smoke test
+```ts
+export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
+  return client.fetch<Restaurant | null>(
+    restaurantBySlugQuery,
+    { slug },
+    { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } }
+  )
+}
 ```
 
-If the user asks to "push to Firebase", "deploy", "publish", or "make it
-live", establish the intended environment. If production is clearly intended,
-do not stop after pushing `staging` or opening the promotion PR. Complete the
-merge and verify the production rollout unless the user explicitly asks for
-only staging or only a PR.
+GROQ nutzt `$parameter`, explizite Projektionen/Aliasse, getypte Resultate, Referenzen statt alter
+String-Dualformen und die Helpers aus `sanity-image-presets.ts`. Tags müssen zur Switch-Logik in
+`app/api/revalidate/route.ts` passen. Premiumfelder dürfen in keiner öffentlichen Projektion stehen.
 
-Before merging a promotion PR:
+### TypeScript und Fehler
 
-1. Confirm the PR is exactly `staging -> main` and is mergeable.
-2. Inspect `git log origin/main..origin/staging --stat` for foreign commits.
-3. Wait for relevant GitHub checks to finish successfully.
-4. Merge through the PR; never simulate the merge with a direct main push.
+- `strict`, `noEmit`, Bundler Resolution und `@/*` gelten; neues App-Produktionscode ist TS/TSX.
+- Kein `any` in Produktionscode; SDK-Fehler zunächst als `unknown` behandeln. Der einzige generelle
+  ESLint-Relaxer für `any` gilt Testfixtures/SDK-Mocks.
+- Erwartbare Route-Fehler validieren und als stabile JSON-Codes mit 4xx zurückgeben; Secrets,
+  Tokens, E-Mails und private Inhalte nie in Antworten oder Logs spiegeln.
+- Fehlende Seiteninhalte führen zu `notFound()`. Fehlende Pflichtkonfiguration failt geschlossen.
+  Unerwartete Produktionsfehler gehen an Sentry und als generisches 500/503 an den Client.
+- `[locale]/error.tsx` und `global-error.tsx` sind die React-Grenzen; nicht durch lokale Catch-Alls
+  umgehen. Optionale Browserfunktionen dürfen gezielt degradieren, nicht Fehler pauschal schlucken.
 
-After pushing or merging, verify instead of assuming:
+## Design System
 
-```bash
-git fetch origin main staging
-git rev-parse origin/staging
-git rev-parse origin/main
-gh pr view <number> --json state,mergedAt,mergeCommit,statusCheckRollup
-firebase apphosting:backends:list --project eat-this-8a13b
-curl -I https://www.eatthisdot.com/
-```
+Visuelle Quelle der Wahrheit ist die Home Page: `HubSection.tsx`, ihre Home-Komponenten,
+`HubSection.module.css` und der `.homeV2`-Block in `css/style.css`. Bei Widerspruch gewinnt dieses
+System. Die kanonischen Tokens stehen in `app/globals.css`.
 
-Report deployment state precisely:
+### Farben
 
-- "committed" — commit exists locally
-- "pushed to staging" — `origin/staging` contains it
-- "staging deployed" — the staging App Hosting rollout succeeded and smoke
-  checks passed
-- "merged to main" — the promotion PR was merged
-- "production deployed" — the production backend rollout succeeded and the
-  live URL was verified
+- `--et-home-paper: #fff`, `--et-home-inverse-text: #fff`: Seite und Text auf dunklen Flächen.
+- `--et-home-ink: #15120e`, `--et-home-inverse-bg: #15120e`: Text, Masthead, starke Controls.
+- `--et-home-accent: #ffc600`: gelber Marker, Focus/Akzent; nicht als beliebige Vollfläche.
+- `--et-home-red: #d9382a`: Marke, Headlines und aktive/Hover-Zustände.
+- `--et-home-photo-rest: #eceae6`: ruhender Bildplatzhalter; `--et-home-quiet: #f2f1ef`: Chips.
+- `--et-home-rule: #e4e1dc`: semantische Listen-/FAQ-Regel; keine dekorativen Trenner.
+- `--et-home-panel-warm: #fff4cc`: sparsame warme Panel-Fläche.
+- `--et-home-muted: rgba(21,18,14,.64)`, `--et-home-muted-soft: rgba(21,18,14,.55)`,
+  `--et-home-line: rgba(21,18,14,.2)`: sekundärer Text und zurückhaltende Linien.
+- Foto-Text nutzt nur `--et-home-photo-overlay` und `--et-shadow-text-photo`; keine Card-Shadows.
 
-Do not claim a Firebase deployment based only on `git push` output. App Hosting
-rollouts are asynchronous and can take several minutes.
+Keine neuen Farben oder rohe Hex-/rgba-Werte. Die vielen älteren `--brand-*`, `--food-*`,
+`--collage-*` und Font-Aliasse sind Kompatibilität, kein zweites Token-System.
 
-### Environment configuration
+### Typografie
 
-- `nextjs/apphosting.yaml` contains production defaults.
-- `nextjs/apphosting.staging.yaml` overrides the staging environment.
-- Staging is protected by Basic Auth and must return
-  `X-Robots-Tag: noindex, nofollow`; its sitemap is empty and robots disallows
-  crawling.
-- Staging uses Stripe test-mode secrets and a separate webhook secret.
-- Treat all `.env.local` values, Firebase secrets, Stripe credentials, and
-  Basic Auth credentials as secrets. Never print or commit them.
-- Before testing email on staging, verify that production Resend credentials
-  are not available to the staging backend.
+- Providence (`--et-font-display`, `--et-font-label`, 400/700) für Home-Headlines, Labels, Buttons.
+- DM Sans (`--font-body`) für Fließtext; `--et-font-mono` nur für Metadaten/Utility-Sprache;
+  `--et-font-condensed` nur in den bereits etablierten Nav-/Footer-/Signed-in-Motiven.
+- Skala: Hero `clamp(44px,6.5vw,80px)`, kompakt `clamp(42px,6vw,68px)`, Section
+  `clamp(24px,3.4vw,42px)`, Editorial `clamp(34px,4.8vw,72px)`, Card
+  `clamp(21px,2.2vw,32px)`, Lead `clamp(16px,1.5vw,21px)`, Body
+  `clamp(12px,1.1vw,14px)`, Kicker `10px`, Caption `11px`, Chip `12px`, Button `13px`.
+- Headlines: Weight 700, Leading `.9/.92/.95`, Tracking `-.02em` bis `-.025em`; Body Leading `1.5`.
+- Moonblossom-/Poster-/Marker-Aliasse und das ungenutzte `Silkscreen` sind nicht für neue Controls.
 
-## 7. CSS and frontend architecture
+### Layout, Spacing und Breakpoints
 
-- `nextjs/app/globals.css` contains critical, app-wide CSS that must be present
-  before hydration.
-- `nextjs/css/style.css` is the source for the manually linked SPA stylesheet.
-- `nextjs/public/css/style.min.css` is generated output. Never edit it by hand.
-- Run `npm run build:css` after changing `style.css`.
-- Bump `CSS_VERSION` in `nextjs/lib/constants.ts` whenever `style.css` changes.
-- Prefer CSS Modules for component-specific styles already using that pattern.
-- The app is light-only. Do not add theme toggles, dark-mode branches, or
-  `prefers-color-scheme` variants.
+- Wrapper `max-width: 1360px`; Padding `clamp(24px,4vw,56px)`, mobil `16px`.
+- Page Top `clamp(40px,5vw,72px)`; Section Gap `clamp(72px,8vw,128px)`, mobil `64px`.
+- Head Gap `clamp(16px,2vw,28px)`; Grid Gap `clamp(24px,4vw,56px)`; Rail `14px`,
+  Control `8px`, Card `clamp(20px,2.4vw,32px)`.
+- Home-Rails wechseln bei `760/761px`; App-Frame/Nav bei `767/768px`. Kleinere lokale Schwellen
+  (`520/560/640`) und große Layoutschwellen (`740/900/920/960/1024`) nur dort wiederverwenden,
+  wo das jeweilige kanonische Component-Layout sie bereits besitzt.
 
-### Brand and interaction rules
+### Radius, Shadows, Borders und Komponenten
 
-- Never animate `opacity` for entry or exit motion on landing or brand-facing
-  surfaces. Use translate, rotate, scale-and-translate, clip-path, mask, or
-  absolute repositioning. Opacity remains acceptable for non-motion state
-  changes such as a modal backdrop or hover tint.
-- Do not add decorative rules, dividers, framed image boxes, grid lines, red
-  strips, or underline-like bars to editorial and brand surfaces. Use spacing,
-  type, scale, contrast, and solid surfaces.
-- Buttons and CTAs use the Providence display language: compact size, strong
-  weight, restrained letter spacing, and no forced uppercase unless an existing
-  component establishes it.
-- Do not use Moonblossom/Poster/marker display faces for buttons.
-- Do not add strong cast, offset, sticker, or block shadows to button hover and
-  active states. Prefer restrained color, translate, or scale feedback.
-- Honor `prefers-reduced-motion` and preserve visible keyboard focus.
+- Fotos `10px`, Controls `7px`, flach `0`, Pills `999px`; Standard ist `box-shadow: none`.
+- Borders sind `0`; `1px --et-home-rule` nur für echte Listen-/FAQ-Struktur. Kein Rahmen-Dekor.
+- Buttons/Links/Chips: `.hv-btn`, `.hv-link-underline`, `.hv-chip` in `css/style.css`; echte Nutzung
+  in `HubSection.tsx` und `CategoriesRail.tsx`. Providence, kompakt, Weight 700, keine Zwangs-
+  Uppercase außer bestehende Navigation/Headlines, Hover über Farbe/kleinen Translate.
+- Cards: flache Medien-/Editorialkarten in `MagazineGrid.module.css` und
+  `CategoriesRail.module.css`; Bildradius 10px, keine Cast-/Sticker-Shadows.
+- Inputs: `CategoriesRail.module.css` (`emailInput`, `emailButton`) ist die kanonische Home-Form:
+  Providence 700, 7px Radius, Ink-Inset-Ring, sichtbarer Focus und Inline-Fehler.
+- Motion nie über Opacity ein-/ausblenden; Translate/Scale/Clip verwenden. `prefers-reduced-motion`
+  und sichtbaren `:focus-visible`-Ring erhalten. Die App ist light-only.
 
-### Browser QA
+## Brand Voice
 
-- Prefer the in-app browser/Chrome control path for frontend verification.
-- Use DOM snapshots, computed styles, accessibility state, layout measurements,
-  interaction checks, network state, and console errors.
-- Do not capture screenshots during normal iteration unless the user explicitly
-  requests them.
+- Trocken, direkt, minimal; Oatly-inspirierter Berlin-Ton ohne Oatly zu imitieren.
+- Deutsch ist primär. Food-Anglizismen wie Must Eats, Spot und Booster Pack sind erlaubt.
+- Kein Marketing-Sprech, keine Superlative, keine Ausrufezeichen-Inflation; „entdecke“ und
+  „erlebe“ vermeiden.
+- Gaming-Vokabular nur für Karten, Reveals, Sammlung, Packs und Freischaltungen einsetzen.
+- Kurze Headlines und konkrete Food-Begriffe; Copy muss in DE/EN dieselbe Haltung behalten.
 
-## 8. Image assets
+## Sanity
 
-Browser-facing images should be WebP before commit:
+`studio/schemaTypes/index.js` registriert genau sieben Dokumenttypen:
 
-- cutouts with alpha: WebP quality 80
-- photos and map teasers: WebP quality 72
-- Sanity uploads may remain raw; `lib/sanityImageLoader.ts` requests CDN output
-  with `auto=format`
+- `restaurant`: Spot-Stammdaten, Geo, Bezirk-/Kategorie-Refs, DE/EN-Copy, Bilder, Öffnung, SEO,
+  Map-Tiers und redaktionelle Restaurantempfehlungen.
+- `mustEat`: ausschließlich öffentliche Metadaten `restaurantRef`, `order`, `revealedForAnon`.
+- `category`: DE/EN-Namen und -Beschreibungen sowie Home-/Pack-Artwork.
+- `bezirk`: District-Name, Slug, DE/EN-Beschreibung, SEO und Bild.
+- `newsArticle`: DE primär, optional EN, Portable Text; eingebettete `spotCard`/`mustEatCard`
+  projizieren öffentlich nur Restaurantbezug, nie Premiuminhalt.
+- `staticPage`: lokalisierte Portable-Text-Seiten für About, Kontakt und Rechtliches.
+- `homeWeek`: Wochenkuration; aktuell liest `lib/map/free-surface.ts` `bezirkSpots`. Die Home Page
+  selbst rotiert Bezirke deterministisch in `lib/home/getHomeData.ts` und liest dieses Doc nicht.
 
-PNG is allowed where the consumer requires or benefits from it:
+Schemas bleiben in `studio/schemaTypes/`; App-GROQ in `nextjs/lib/queries.ts` oder Feature-Queries.
+Eine Schemaänderung umfasst passende App-Typen, Projektionen/Loader, Revalidation-Tags, Tests und
+bei Datenformänderung ein explizites Migrationsscript. Studio-Deploy und Datenmigration sind
+getrennte Aktionen; nie stillschweigend gemeinsam ausführen.
 
-- favicons, Apple touch icons, and PWA manifest icons
-- Open Graph and Twitter share images
-- email assets under `nextjs/public/pics/email/`
-- source/working files outside `nextjs/public/`
+Premium-Must-Eats liegen in Firestore `privateMustEats` und Storage unter dem server-only Präfix aus
+`lib/must-eat/private-store.ts`. Firestore-/Storage-Rules verbieten direkte Browserzugriffe. In
+Production hydratisieren/streamen nur `/api/map-data`, `/api/must-eat-reveal` und
+`/api/must-eat-image/[id]` nach Entitlement-, Reveal- oder Public-Demo-Policy; `must-eat-demo` ist
+dort hart 404. Dish, Beschreibungen, Preis, Bildpfad oder private
+Bilder niemals zurück in Sanity, öffentliche GROQ-Projektionen, RSC-Payloads oder Client-Logs legen.
 
-Use `cwebp -q 80 input.png -o output.webp` for local conversion. Do not add
-large unoptimized browser assets to `nextjs/public/`.
+## Stripe
 
-## 9. Routing and internationalization
+- `lib/stripe-catalog.ts` ist die serverseitige Wahrheit für Pack, Typ, Slug, Price und Betrag.
+  Der Client sendet nur `packId`/Locale und optional ein Firebase-ID-Token; Clientpreise sind nie
+  autoritativ.
+- `POST /api/stripe/checkout` validiert Pack/Besitz, löst LIVE-Preise direkt und TEST-Preise per
+  `lookup_key`, erstellt Stripe Hosted Checkout und serialisiert parallele Auth-Requests über
+  `stripeCheckoutAttempts` plus Stripe-Idempotency-Key.
+- `lib/stripe-session.ts` lädt die Session serverseitig erneut und prüft Mode, Currency, Metadata,
+  exakt ein Line Item, Quantity, Price und Betrag gegen den Checkout-Snapshot/Katalog.
+- `POST /api/stripe/webhook` liest den Raw Body, verlangt eine gültige Stripe-Signatur und erfüllt
+  nur bezahlte `checkout.session.completed`/`async_payment_succeeded`-Sessions.
+- Fulfillment schreibt Entitlements transaktional first-writer-wins. Gleiche Session = idempotenter
+  Retry; andere bezahlte Session bei bestehendem Entitlement = vollständiger, idempotenter Refund.
+  Guest-Käufe erzeugen/finden den Firebase-User und versenden den Magic Link mit Outbox-Marker.
+- Staging verwendet ausschließlich Stripe TEST-Secrets/Prices/Webhook; Production ausschließlich
+  LIVE. Secret Keys und Webhook-Signing-Secrets bleiben serverseitig und projektgetrennt.
 
-The app uses `next-intl` v4:
+## Do & Don't
 
-- locales: `de`, `en`
-- default locale: `de`
-- German URLs are unprefixed (`/`, `/map`)
-- English URLs use `/en` (`/en`, `/en/map`)
-- locale detection is disabled; `/` is always German
+- Do: interne Navigation über `@/i18n/navigation`. Don't: `/en` selbst bauen, `next/link` mischen oder für Localewechsel Full Reloads erzwingen.
+- Do: Login über `useLoginModal()`. Don't: das entfernte `window.openLoginModal()` zurückbringen.
+- Do: `StaticPages` rendert nur das aktive Dokument. Don't: alle statischen Seiten gleichzeitig mounten; das erzeugt wieder doppelten SSR-/SEO-Inhalt.
+- Do: `ScrollRestorer.tsx` besitzt History-Restore. Don't: konkurrierende `popstate`- oder `history.scrollRestoration`-Logik in Bootstrap/Components ergänzen.
+- Do: neue deferred Overlays erhalten Closed-State-FOUC-Guards in `app/globals.css`. Don't: nur auf das später geladene `style.min.css` vertrauen.
+- Do: `css/style.css` ändern, `build:css` ausführen und `CSS_VERSION` in `lib/constants.ts` erhöhen. Don't: `public/css/style.min.css` oder route-lokale Versionsnummern editieren.
+- Do: Home-Tokens und flache Home-Komponenten wiederverwenden. Don't: rohe `--remy-stage-*`-Farben/starke Shadows aus `HubFragRemy.module.css` oder alte Font-/Palette-Aliasse kopieren.
+- Do: Restaurant-Kategorien als Sanity-Referenzen behandeln. Don't: alte String/Ref-Dualpfade oder Migrations-Shims wieder einführen.
+- Do: `homeWeek` nur entsprechend seinem belegten Consumer ändern. Don't: es ohne Änderung von `getHomeData.ts` zur vermeintlichen Home-Quelle erklären.
+- Do: Premiumdaten über den privaten Firebase-Pfad ausliefern. Don't: Sanity-Assets/-Felder, direkte Firestore/Storage-Reads oder erratbare öffentliche Bildpfade als Abkürzung verwenden.
+- Do: Browserbilder als WebP (Cutouts q80, Fotos q72); PNG nur für Icons/OG/E-Mail-Anforderungen. Don't: große rohe Browserassets in `public/` committen.
+- Do: Light-Mode, reduzierten Motion-Support und Translate-basierte Brand-Motion erhalten. Don't: Dark-Mode-Branches, Opacity-Entry/Exit, dekorative Balken/Rahmen oder harte Button-Shadows ergänzen.
 
-Key files:
+## Arbeitsweise
 
-- `nextjs/i18n/routing.ts` — locale and prefix policy
-- `nextjs/i18n/navigation.ts` — locale-aware `Link`, `useRouter`, and
-  `usePathname`
-- `nextjs/i18n/request.ts` — request configuration and messages
-- `nextjs/lib/i18n/translations.ts` — translation source of truth
-- `nextjs/lib/i18n/I18nContext.tsx` — compatibility wrapper exposing
-  `{ lang, t, setLang }`
+- Kleine fokussierte Änderungen; ein Thema pro Commit. Vor größeren Umbauten kurzer Plan mit überprüfbaren Ergebnissen. Nichts ohne Prüfung aktiver Imports, Routen, Queries und Tests löschen. Copy folgt der Brand Voice.
+- Bugfix: Reproduktion plus Nachweis. UI: DOM, Computed Styles, A11y, Responsive und Interaktionen. Backend/Security: positive/negative Pfade, Projektgrenzen und Datenlecks prüfen.
+- Bei laufendem Dev-Server nie normales `npm run build`; `build:isolated` verwenden. Dev-Server nach normaler QA weiterlaufen lassen.
+- Vor jedem Commit vollständiges `git status`; fremde staged Changes stoppen die Arbeit. Nur eigene explizite Pfade stagen, nie `git add .`, `-A` oder `-u`. Pre-push-Hook nie ohne Auftrag umgehen.
+- Nie direkt nach `main` pushen oder force-pushen. Vor Push Remote fetchen und ausgehenden Commitbereich prüfen. Promotion nach `main` nur über PR und erfolgreiche Checks.
+- Secrets bleiben in Env/Secret Manager; keine `.env.local`, `.private`, Credentials, Premium-CDN-URLs oder privaten Manifeste ausgeben, loggen oder committen.
 
-Use the locale-aware `Link` and router from `@/i18n/navigation` for internal
-navigation. Do not hand-build `/en` prefixes or force document reloads. Locale
-switching stores `NEXT_LOCALE` and performs a soft `router.replace`.
+Aktuelle App-Hosting-Zuordnung:
 
-The route tree under `app/[locale]/` contains the SPA hub routes plus separate
-restaurant, district, category, pack, checkout, profile, badge, and login
-surfaces. App-root exceptions include APIs, `welcome/`, `robots.ts`,
-`sitemap.ts`, `news-sitemap.xml`, and `llms.txt`.
+| Branch | Firebase-Projekt | Backend | Ziel |
+| --- | --- | --- | --- |
+| `staging` | `eat-this-staging-8a13b` | `eat-this-staging` | `https://eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app` |
+| `main` | `eat-this-8a13b` | `eat-this` | `https://www.eatthisdot.com` |
 
-`middleware.ts` owns:
+Das alte Staging-Backend im Production-Projekt ist gelöscht. Staging muss Basic Auth,
+`X-Robots-Tag: noindex, nofollow`, leere Sitemap, disallowende Robots, isolierte Firebase-/Sanity-
+Projekte und separate TEST-Provider nutzen. `apphosting.staging.yaml`, `lib/firebase/project-boundary.ts`,
+`lib/sanity.ts` und `middleware.ts` failen bei Grenzverletzungen geschlossen.
 
-- staging Basic Auth and noindex headers for matched page routes
-- apex to `www` redirect
-- legacy `?lang=` redirects
-- referral-cookie capture
-- legacy URL redirects and 410 responses
-- internal German locale rewrites
+Deploymentzustände exakt benennen: `committed` (nur lokal), `pushed` (Remote-Ref), `PR` (noch nicht
+gemergt), `rollout succeeded` (passendes App-Hosting-Backend), `smoke-tested` (Ziel-URL und negative
+Security-Checks geprüft). Ein Push allein ist kein Deploymentnachweis. Production erst nach
+`staging -> main`-Merge, erfolgreichem Rollout und Live-Smoke als deployed melden.
 
-`app/[locale]/layout.tsx` owns the `<html>` and `<body>` plus the synchronous
-`CRITICAL_BOOTSTRAP`. That script sets `data-active-page`, attempts portrait
-orientation lock on mobile, removes known extension hydration attributes, and
-restores the pre-hydration auth hint.
-
-`app/components/ScrollRestorer.tsx` exclusively owns manual back/forward scroll
-restoration. Do not add competing `popstate` or `history.scrollRestoration`
-logic to the bootstrap.
-
-## 10. Auth, modals, and SEO invariants
-
-- Auth state lives under `nextjs/lib/auth/`.
-- `LoginModalProvider` owns login modal state; `BridgeAuth.tsx` renders the
-  portal and synchronizes the pre-hydration auth hint.
-- Open the login modal through `useLoginModal()`, not a global window function.
-- Cookie information expands inside `CookieConsent.tsx`. AGB and privacy links
-  navigate to their pages; their former inline modals no longer exist.
-- `StaticPages.tsx` renders only the active static page. Rendering every static
-  page on every route recreates duplicate SSR content and must not return.
-- Restaurant and district English canonicals/alternates are content-aware.
-  `hasEnContent` and the sitemap's `deOnly` path intentionally omit EN
-  alternates when Sanity has no real English copy. Do not force EN hreflang for
-  untranslated documents.
-
-## 11. Known frontend gotchas
-
-1. Overlay FOUC: critical closed-state guards for map/search overlays and the
-   burger drawer live in `app/globals.css`. New deferred overlays need a
-   pre-paint hidden/non-interactive state there.
-2. iOS rubber-band: explicit light backgrounds on `html` and `body` prevent the
-   browser default from flashing during overscroll. Test top and bottom bounce
-   after changing page surfaces.
-3. Stylesheet loading: profile/login and several route groups link the generated
-   stylesheet separately through the shared `CSS_VERSION`; do not introduce
-   per-layout cache-bust values.
-4. Manual production build: `npm run build` and a running dev server share
-   `.next/`. Stop dev or use `build:isolated`.
-5. Favicons: `app/favicon.ico` and `public/favicon.ico` collide in dev. Keep only
-   `nextjs/public/favicon.ico`.
-6. Static content: preserving route-specific SSR output is an SEO requirement,
-   not an optional rendering optimization.
-
-## 12. Restaurant imports and Sanity Studio
-
-Restaurant imports are local CLI workflows, not public API or Studio browser
-features. Secrets stay in `nextjs/.env.local`.
-
-From `nextjs/`:
-
-```bash
-npx tsx scripts/import-from-url.ts <google-maps-url>
-npm run import:restaurant -- <google-maps-url>
-```
-
-The basic importer creates a draft. The enriched importer generates DE/EN
-descriptions and SEO fields and can publish, but deliberately leaves AI-created
-insider tips unpublished.
-
-Sanity Studio is independent of App Hosting. Changes under `studio/` are not
-deployed by merging the Next.js app; deploy Studio manually only when the user
-requests it.
-
-## 13. Completion checklist
-
-Before reporting code work complete:
-
-- requested behavior is implemented
-- relevant lint, type, test, build, and browser checks pass
-- generated CSS and cache-bust are updated when required
-- no new unused imports, dead compatibility code, secrets, or oversized image
-  assets were introduced
-- `git status` contains only understood changes
-
-Before reporting deployment complete:
-
-- the intended commit is on the intended remote branch
-- the matching Firebase backend rollout succeeded
-- the target URL responds successfully
-- staging security headers are present when testing staging
-- production work is merged into `main`, not merely present on `staging`
+Aktuelle offene Risiken: CSP ist bewusst nur `Content-Security-Policy-Report-Only`; nicht als
+enforced bezeichnen. Das Sanity-CDN-Purge-Gate wird erst geschlossen, wenn Support bestätigt hat und
+alle 23 vertraulich gespeicherten Original-URLs anonym non-2xx liefern. Bis dahin keine URL-Liste
+ausgeben und keine alternative Content-Migration starten.

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 const mocks = vi.hoisted(() => ({
   notFound: vi.fn(() => {
@@ -13,6 +14,9 @@ vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }))
 vi.mock('@/lib/sanity.server', () => ({
   getAllNewsArticles: mocks.getAllNewsArticles,
   getStaticPage: mocks.getStaticPage,
+}))
+vi.mock('@/app/components/NewsSection', () => ({
+  default: () => <main>News</main>,
 }))
 
 import SPACatchAllPage, {
@@ -47,5 +51,26 @@ describe('SPA catch-all exact path matching', () => {
     expect(mocks.notFound).toHaveBeenCalledOnce()
     expect(mocks.getAllNewsArticles).not.toHaveBeenCalled()
     expect(mocks.getStaticPage).not.toHaveBeenCalled()
+  })
+
+  it('emits BreadcrumbList and ItemList data for the news index', async () => {
+    mocks.getAllNewsArticles.mockResolvedValueOnce([
+      {
+        _id: 'news-1',
+        slug: 'pizza-in-berlin',
+        title: 'Pizza in Berlin',
+        titleDe: 'Pizza in Berlin',
+        date: '2026-07-14',
+      },
+    ])
+
+    const element = await SPACatchAllPage({
+      params: Promise.resolve({ locale: 'de', slug: ['news'] }),
+    })
+    const html = renderToStaticMarkup(element)
+
+    expect(html).toContain('"@type":"BreadcrumbList"')
+    expect(html).toContain('"@type":"ItemList"')
+    expect(html).toContain('https://www.eatthisdot.com/news/pizza-in-berlin')
   })
 })

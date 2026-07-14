@@ -4,6 +4,8 @@ import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server'
+import { serializeJsonLd } from '@/lib/json-ld'
+import { localeUrl } from '@/lib/locale-url'
 
 export const revalidate = 3600
 
@@ -24,6 +26,10 @@ const VALID_SLUGS = new Set([
 ])
 
 const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb'])
+
+function exactTopSlug(slug: string[]): string | undefined {
+  return slug.length === 1 ? slug[0] : undefined
+}
 
 type SlugMeta = {
   de: { title: string; description: string }
@@ -64,7 +70,7 @@ const PAGE_META: Record<string, SlugMeta> = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
-  const top = slug?.[0]
+  const top = exactTopSlug(slug)
   if (!top || !PAGE_META[top]) {
     return {
       title: '404 — Eat This',
@@ -107,7 +113,7 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
 
-  const top = slug?.[0]
+  const top = exactTopSlug(slug)
   if (!top || !VALID_SLUGS.has(top)) notFound()
 
   if (top === 'news') {
@@ -115,7 +121,47 @@ export default async function SPACatchAllPage({ params }: PageProps) {
       import('@/app/components/NewsSection'),
       getAllNewsArticles(),
     ])
-    return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />
+    const activeLocale = locale === 'en' ? 'en' : 'de'
+    const de = activeLocale === 'de'
+    const jsonLd = serializeJsonLd({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Eat This Berlin',
+              item: localeUrl(activeLocale, '/'),
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: de ? 'Auf dem Teller' : 'Food News',
+              item: localeUrl(activeLocale, '/news'),
+            },
+          ],
+        },
+        {
+          '@type': 'ItemList',
+          name: de ? 'Restaurant-News aus Berlin' : 'Berlin restaurant news',
+          numberOfItems: articles.length,
+          itemListElement: articles.map((article, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: de ? article.titleDe || article.title : article.title,
+            url: localeUrl(activeLocale, `/news/${article.slug}`),
+          })),
+        },
+      ],
+    })
+    return (
+      <>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+        <NewsSection articles={articles} locale={activeLocale} />
+      </>
+    )
   }
   if (STATIC_SLUGS.has(top)) {
     const activeLocale = locale === 'en' ? 'en' : 'de'

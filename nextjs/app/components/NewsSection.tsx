@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
@@ -63,11 +64,13 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
             <Link href={`/news/${lead.slug}`} className={styles.leadCard}>
               <div className={styles.leadFrame}>
                 {lead.imageUrl ? (
-                  <div
+                  <Image
+                    src={lead.imageUrl}
+                    alt={lead.alt || articleTitle(lead)}
+                    fill
+                    priority
+                    sizes="(max-width: 700px) 100vw, 900px"
                     className={styles.imageFill}
-                    style={{ backgroundImage: `url(${lead.imageUrl})` }}
-                    role="img"
-                    aria-label={lead.alt || articleTitle(lead)}
                   />
                 ) : (
                   <div className={styles.leadFallback} aria-hidden="true" />
@@ -107,11 +110,12 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     <Link href={`/news/${a.slug}`} className={styles.storyRow}>
                       <div className={styles.storyImage}>
                         {a.imageUrl ? (
-                          <div
+                          <Image
+                            src={a.imageUrl}
+                            alt={a.alt || title}
+                            fill
+                            sizes="(max-width: 700px) calc(100vw - 32px), (max-width: 1040px) 38vw, 342px"
                             className={styles.imageFill}
-                            style={{ backgroundImage: `url(${a.imageUrl})` }}
-                            role="img"
-                            aria-label={a.alt || title}
                           />
                         ) : (
                           <div className={styles.storyImageFallback} aria-hidden="true" />

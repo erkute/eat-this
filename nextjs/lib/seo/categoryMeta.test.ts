@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { RestaurantCard } from '../types'
 import { buildCategoryTitle, buildCategoryDescription } from './categoryMeta'
+import { buildBrandedTitle } from './metadata-text'
 
 function r(name: string): RestaurantCard {
   return { _id: name, name, slug: name.toLowerCase() }
@@ -18,6 +19,13 @@ describe('buildCategoryTitle', () => {
     for (const slug of ['pizza', 'coffee', 'breakfast', 'dinner', 'lunch', 'drinks', 'fine-dining', 'fast-food', 'sweets']) {
       expect(buildCategoryTitle(slug, 'X', 'de')).not.toContain('Eat This')
       expect(buildCategoryTitle(slug, 'X', 'en')).not.toContain('Eat This')
+    }
+  })
+
+  it('fits every curated category title inside the final title budget', () => {
+    for (const slug of ['pizza', 'coffee', 'breakfast', 'dinner', 'lunch', 'drinks', 'fine-dining', 'fast-food', 'sweets']) {
+      expect(buildBrandedTitle(buildCategoryTitle(slug, 'X', 'de')).length).toBeLessThanOrEqual(60)
+      expect(buildBrandedTitle(buildCategoryTitle(slug, 'X', 'en')).length).toBeLessThanOrEqual(60)
     }
   })
 
@@ -40,13 +48,13 @@ describe('buildCategoryDescription', () => {
     expect(desc).not.toContain('Gemello')
   })
 
-  it('caps at 160 chars via sentence truncation', () => {
+  it('caps at 155 chars via sentence truncation', () => {
     const desc = buildCategoryDescription({
       blurb: 'Lange Beschreibung. '.repeat(20),
       restaurants: [r('A'), r('B'), r('C')],
       locale: 'de',
     })
-    expect(desc!.length).toBeLessThanOrEqual(160)
+    expect(desc!.length).toBeLessThanOrEqual(155)
   })
 
   it('omits the data suffix below 3 restaurants', () => {

@@ -510,9 +510,9 @@ a {
 html[data-auth='1'] [data-signup-gift] {
   display: none;
 }
-/* The inverse: signed-in-only blocks (e.g. the Deine-Welt hub section) are
-   SSR'd as a static shell so they don't pop in / shift the page once client
-   auth resolves. Anyone without the pre-paint flag never sees the shell. */
+/* Signed-in-only blocks are SSR'd as static shells so they don't pop in /
+   shift the page once client auth resolves. Anyone without the pre-paint
+   flag never sees those shells. */
 html:not([data-auth='1']) [data-auth-only] {
   display: none;
 }

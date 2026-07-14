@@ -160,14 +160,14 @@ const T = {
   de: {
     open: 'Remy öffnen',
     close: 'Schließen',
-    thinking: 'Antwort wird geladen',
+    thinking: 'Remy denkt nach …',
     placeholder: 'Schreib Remy…',
     send: 'Senden',
   },
   en: {
     open: 'Open Remy',
     close: 'Close',
-    thinking: 'Answer loading',
+    thinking: 'Remy is thinking …',
     placeholder: 'Message Remy…',
     send: 'Send',
   },

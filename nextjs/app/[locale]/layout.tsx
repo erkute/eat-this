@@ -8,8 +8,7 @@ import ReferralToastListener from '@/app/components/ReferralToastListener';
 import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
-import { serializeJsonLd } from '@/lib/json-ld';
-import { SITE_URL } from '@/lib/constants';
+import { buildSiteJsonLd } from '@/lib/json-ld';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -48,38 +47,10 @@ const CRITICAL_BOOTSTRAP = `(function(){
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}
 }());`;
 
-// Sitewide Organization + WebSite schema. The Organization.logo is the
-// square cream-on-black EAT THIS mark — this is the asset Google associates
-// with the brand (knowledge panel / rich results). Static, no user input.
-const ORG_JSON_LD = serializeJsonLd({
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': `${SITE_URL}/#organization`,
-      name: 'EAT THIS',
-      url: SITE_URL,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${SITE_URL}/pics/logo.webp`,
-        width: 512,
-        height: 512,
-      },
-      sameAs: [
-        'https://www.instagram.com/eatthisdotcom/',
-        'https://www.tiktok.com/@eatthis',
-      ],
-    },
-    {
-      '@type': 'WebSite',
-      '@id': `${SITE_URL}/#website`,
-      name: 'EAT THIS',
-      url: SITE_URL,
-      inLanguage: 'de-DE',
-      publisher: { '@id': `${SITE_URL}/#organization` },
-    },
-  ],
-});
+const GLOBAL_JSON_LD = {
+  de: buildSiteJsonLd('de'),
+  en: buildSiteJsonLd('en'),
+} as const
 
 export default async function LocaleLayout({
   children,
@@ -93,6 +64,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const activeLocale = locale === 'en' ? 'en' : 'de';
   const messages = await getMessages();
 
   return (
@@ -110,7 +82,7 @@ export default async function LocaleLayout({
         <script
           id="schema-org"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: ORG_JSON_LD }}
+          dangerouslySetInnerHTML={{ __html: GLOBAL_JSON_LD[activeLocale] }}
         />
         <ClientIntlProvider locale={locale} messages={messages}>
           <ReferralToastListener />

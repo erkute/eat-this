@@ -45,4 +45,15 @@ describe('getLocalizedNewsMetadata', () => {
       description: 'Deutscher Teaser',
     })
   })
+
+  it('caps long editorial descriptions at 155 characters', () => {
+    const longArticle = {
+      ...article,
+      seo: {
+        ...article.seo,
+        metaDescription: 'Sehr lange Beschreibung ohne Satzende '.repeat(10),
+      },
+    }
+    expect(getLocalizedNewsMetadata(longArticle, 'de').description.length).toBeLessThanOrEqual(155)
+  })
 })

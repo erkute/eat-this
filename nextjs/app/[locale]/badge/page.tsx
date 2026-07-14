@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params
   const de = locale === 'de'
   return {
-    title: de ? 'Empfohlen von Eat This — Badge' : 'Featured on Eat This — badge',
+    title: de ? 'Empfohlenes Restaurant-Badge' : 'Featured restaurant badge',
     description: de
       ? 'Hol dir das „Empfohlen von Eat This"-Badge für deine Restaurant-Website.'
       : 'Grab the "Featured on Eat This" badge for your restaurant website.',

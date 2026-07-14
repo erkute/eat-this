@@ -9,6 +9,10 @@ import { getRestaurantsByCategory } from '@/lib/sanity.server'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { buildBrandedTitle } from '@/lib/seo/metadata-text'
+import { SITE_URL } from '@/lib/constants'
+import { serializeJsonLd } from '@/lib/json-ld'
+import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import styles from './GuidePage.module.css'
 
@@ -31,17 +35,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const loc = locale === 'en' ? 'en' : 'de'
   const title = guide.title[loc]
   const description = guide.intro[loc]
+  const brandedTitle = buildBrandedTitle(title)
+  const image = `${SITE_URL}/pics/og/og_${guide.categorySlug}.png?v=2`
   const alternates = buildHreflangAlternates(`/guides/${slug}`, loc)
   return {
-    title,
+    title: { absolute: brandedTitle },
     description,
     alternates,
     openGraph: {
-      title,
+      title: brandedTitle,
       description,
       url: alternates.canonical,
       type: 'website',
       locale: toOgLocale(loc),
+      images: [{ url: image, width: 1200, height: 1200, alt: title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: brandedTitle,
+      description,
+      images: [image],
     },
   }
 }
@@ -55,13 +68,59 @@ export default async function GuidePage({ params }: PageProps) {
   const loc = locale === 'en' ? 'en' : 'de'
   const de = loc === 'de'
   const restaurants = await getRestaurantsByCategory(guide.categorySlug)
+  const listedRestaurants = restaurants.slice(0, 12)
   const categoryHref = `/kategorie/${guide.categorySlug}`
   const mapHref = `/map?cat=${guide.mapQuery}`
   const restaurantHref = (rSlug: string) => `/restaurant/${rSlug}`
+  const jsonLd = serializeJsonLd({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Eat This Berlin',
+            item: localeUrl(loc, '/'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: de ? 'Auf dem Teller' : 'Food News',
+            item: localeUrl(loc, '/news'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: guide.shortTitle[loc],
+            item: localeUrl(loc, `/guides/${slug}`),
+          },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        name: guide.title[loc],
+        numberOfItems: listedRestaurants.length,
+        itemListElement: listedRestaurants.map((restaurant, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Restaurant',
+            name: restaurant.name,
+            url: localeUrl(loc, `/restaurant/${restaurant.slug}`),
+            ...(restaurant.cuisineType && { servesCuisine: restaurant.cuisineType }),
+          },
+        })),
+      },
+    ],
+  })
 
   return (
-    <div className={`app-page active ${styles.page}`} data-page="guides">
-      <main className={styles.shell}>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+      <div className={`app-page active ${styles.page}`} data-page="guides">
+        <main className={styles.shell}>
         <nav className={styles.breadcrumb} aria-label={de ? 'Navigation' : 'Navigation'}>
           <Link href="/news">{de ? 'Auf dem Teller' : 'Food News'}</Link>
           <span aria-hidden="true">/</span>
@@ -91,9 +150,9 @@ export default async function GuidePage({ params }: PageProps) {
           <p>{guide.promise[loc]}</p>
         </section>
 
-        {restaurants.length > 0 ? (
+        {listedRestaurants.length > 0 ? (
           <section className={styles.grid}>
-            {restaurants.slice(0, 12).map((r, index) => {
+            {listedRestaurants.map((r, index) => {
               const line = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
                 || pickLocale(r.tip, r.tipEn, loc)
               const priceLabel = formatPriceLabel(r)
@@ -128,8 +187,9 @@ export default async function GuidePage({ params }: PageProps) {
               : 'This list is being filled. The map already has matching spots.'}
           </p>
         )}
-      </main>
-      <SiteFooter />
-    </div>
+        </main>
+        <SiteFooter />
+      </div>
+    </>
   )
 }

@@ -56,6 +56,8 @@ describe('BuddyWidget expression policy', () => {
     chat.isStreaming = true
     renderOpenWidget()
     expect(panelMood()).toBe('idle')
+    expect(document.body.textContent).toContain('Remy denkt nach …')
+    expect(document.body.textContent).not.toContain('Antwort wird geladen')
   })
 
   it('talks once answer text is appearing', () => {

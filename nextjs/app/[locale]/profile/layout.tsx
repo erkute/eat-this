@@ -11,7 +11,7 @@ import BurgerDrawer from '@/app/components/BurgerDrawer';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 
 export const metadata: Metadata = {
-  title: 'Profil — EAT THIS',
+  title: 'Profil',
   robots: 'noindex, nofollow',
 };
 

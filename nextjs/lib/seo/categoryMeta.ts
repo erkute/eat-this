@@ -1,5 +1,5 @@
 import type { RestaurantCard } from '../types'
-import { truncateAtSentence } from './restaurantMeta'
+import { truncateMetadataDescription } from './metadata-text'
 
 type Loc = 'de' | 'en'
 
@@ -34,12 +34,12 @@ const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
     en: 'The Best Fine Dining Restaurants in Berlin',
   },
   'fast-food': {
-    de: 'Burger, Döner & Tacos: Die besten Spots in Berlin',
-    en: 'Burgers, Döner & Tacos: The Best Spots in Berlin',
+    de: 'Burger, Döner & Tacos in Berlin',
+    en: 'Burgers, Döner & Tacos in Berlin',
   },
   sweets: {
-    de: 'Eis, Donuts & Patisserie: Die besten süßen Spots in Berlin',
-    en: 'Ice Cream, Donuts & Pastry: The Best Sweet Spots in Berlin',
+    de: 'Eis, Donuts & Patisserie in Berlin',
+    en: 'Ice Cream, Donuts & Pastry in Berlin',
   },
 }
 
@@ -52,7 +52,7 @@ export function buildCategoryTitle(slug: string, label: string, locale: Loc): st
 /**
  * Meta-Description: kuratiertes Sanity-Blurb + datengetriebener Zusatz
  * (Spot-Anzahl + Trust-Signal) — unique pro Kategorie über das Blurb,
- * klick-relevanter als das Blurb allein. Satzgrenzen-Kürzung auf ≤160.
+ * klick-relevanter als das Blurb allein. Satzgrenzen-Kürzung auf ≤155.
  *
  * Bewusst KEINE Restaurant-Namen mehr: `restaurants` kommt in Roh-
  * Reihenfolge (nicht „die besten zuerst"), sodass `slice(0,2)` früher
@@ -79,5 +79,5 @@ export function buildCategoryDescription({
     )
   }
   if (parts.length === 0) return undefined
-  return truncateAtSentence(parts.join(' '))
+  return truncateMetadataDescription(parts.join(' '))
 }

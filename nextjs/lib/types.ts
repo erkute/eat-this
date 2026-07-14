@@ -128,6 +128,7 @@ export interface NewsArticle {
   categoryLabel?: string
   categoryLabelDe?: string
   date: string
+  updatedAt?: string
   imageUrl?: string
   alt?: string
   excerpt?: string

@@ -8,6 +8,7 @@ import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats } from 
 import { buildBezirkJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { buildBrandedTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
@@ -38,8 +39,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  // Brandlos — das Layout-Template hängt „| Eat This Berlin" an (die
-  // kuratierten seo.metaTitle sind ebenfalls brandlos).
+  // Brandlos — buildBrandedTitle ergänzt den kompakten Brand; die kuratierten
+  // seo.metaTitle bleiben ebenfalls brandlos.
   const fallbackTitleDe = `Beste Restaurants in ${b.name}`
   const fallbackTitleEn = `Best restaurants in ${b.name}`
   const title = pickLocale(
@@ -49,11 +50,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   )
 
   const fallbackDescriptionDe = `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
-  const description = pickLocale(
+  const rawDescription = pickLocale(
     b.seo?.metaDescription || b.description || fallbackDescriptionDe,
     b.seo?.metaDescriptionEn || b.descriptionEn || undefined,
     loc,
   )
+  const description = rawDescription ? truncateMetadataDescription(rawDescription) : undefined
+  const brandedTitle = buildBrandedTitle(title ?? fallbackTitleDe)
 
   const baseImage = b.seo?.ogImageUrl || b.imageUrl
   const image = baseImage || `${SITE_URL}/pics/og-card.png?v=4`
@@ -61,12 +64,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const alternates = buildHreflangAlternates(`/bezirk/${slug}`, loc, { hasEnContent: hasEnContent(b) })
 
   return {
-    title,
+    title: { absolute: brandedTitle },
     description,
     robots: b.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates,
     openGraph: {
-      title,
+      title: brandedTitle,
       description,
       url: alternates.canonical,
       images: [{ url: image, width: 1200, height: 630, alt: b.name }],

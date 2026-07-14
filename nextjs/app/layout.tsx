@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Eat This Berlin',
+    template: '%s | EAT THIS',
     default: 'EAT THIS – Restaurants & Geheimtipps',
   },
   description:

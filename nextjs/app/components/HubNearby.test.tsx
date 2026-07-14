@@ -30,20 +30,17 @@ vi.mock('@/lib/map/UserLocationContext', () => ({
   useUserLocationContext: () => locationState,
 }));
 
-// MapIntentLink uses useRouter from next-intl — render as a plain anchor
-vi.mock('@/app/components/MapIntentLink', () => ({
-  default: ({
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({
     href,
-    rel,
     className,
     children,
   }: {
     href: string;
-    rel?: string;
     className?: string;
     children?: ReactNode;
   }) => (
-    <a href={href} rel={rel} className={className}>
+    <a href={href} className={className}>
       {children}
     </a>
   ),
@@ -108,9 +105,10 @@ describe('HubNearby', () => {
     expect(html).toContain('Um dich herum');
   });
 
-  it('renders a spot link to /map?r=<slug>', () => {
+  it('renders a spot link to its canonical restaurant page', () => {
     const html = render(mapData([restaurant()]));
-    expect(html).toContain('href="/map?r=bar-basta"');
+    expect(html).toContain('href="/restaurant/bar-basta"');
+    expect(html).not.toContain('/map?r=');
   });
 
   it('renders the restaurant name', () => {

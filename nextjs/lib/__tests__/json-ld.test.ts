@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildRestaurantJsonLd, serializeJsonLd } from '../json-ld'
+import { buildRestaurantJsonLd, buildSiteJsonLd, serializeJsonLd } from '../json-ld'
 import type { Restaurant } from '../types'
 
 describe('serializeJsonLd', () => {
@@ -53,5 +53,49 @@ describe('buildRestaurantJsonLd', () => {
     const graph = build(baseRestaurant)
     const restaurant = graph['@graph'].find((n: { '@type': string }) => n['@type'] === 'Restaurant')
     expect(restaurant).not.toHaveProperty('hasMenu')
+  })
+
+  it('uses the explicit cuisine instead of discovery categories', () => {
+    const graph = build({
+      ...baseRestaurant,
+      cuisineType: 'Thai',
+      categories: [{ slug: 'dinner', name: 'Abendessen', nameEn: 'Dinner' }],
+    })
+    const restaurant = graph['@graph'].find((n: { '@type': string }) => n['@type'] === 'Restaurant')
+    expect(restaurant.servesCuisine).toBe('Thai')
+  })
+
+  it('splits a Berlin address into structured postal fields', () => {
+    const graph = build({
+      ...baseRestaurant,
+      address: 'Stargarder Str. 72, 10437 Berlin, Deutschland',
+    })
+    const restaurant = graph['@graph'].find((n: { '@type': string }) => n['@type'] === 'Restaurant')
+    expect(restaurant.address).toEqual({
+      '@type': 'PostalAddress',
+      streetAddress: 'Stargarder Str. 72',
+      postalCode: '10437',
+      addressLocality: 'Berlin',
+      addressRegion: 'Berlin',
+      addressCountry: 'DE',
+    })
+  })
+})
+
+describe('buildSiteJsonLd', () => {
+  it('matches WebSite language to the rendered locale and describes the Berlin scope', () => {
+    const de = JSON.parse(buildSiteJsonLd('de'))
+    const en = JSON.parse(buildSiteJsonLd('en'))
+    const deWebsite = de['@graph'].find((node: { '@type': string }) => node['@type'] === 'WebSite')
+    const enWebsite = en['@graph'].find((node: { '@type': string }) => node['@type'] === 'WebSite')
+    const organization = en['@graph'].find(
+      (node: { '@type': string }) => node['@type'] === 'Organization',
+    )
+
+    expect(deWebsite.inLanguage).toBe('de-DE')
+    expect(enWebsite.inLanguage).toBe('en-US')
+    expect(organization.areaServed).toEqual({ '@type': 'City', name: 'Berlin' })
+    expect(organization.description).toContain('Berlin')
+    expect(buildSiteJsonLd('en')).not.toContain('SearchAction')
   })
 })

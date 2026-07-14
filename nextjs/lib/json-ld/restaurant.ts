@@ -19,6 +19,24 @@ interface BuildRestaurantJsonLdArgs {
   faqs?: FAQEntry[]
 }
 
+function buildPostalAddress(address: string): Record<string, string> {
+  const clean = address.trim().replace(/,?\s*Deutschland$/i, '')
+  const parts = clean.split(',').map(part => part.trim()).filter(Boolean)
+  const postalIndex = parts.findIndex(part => /^\d{5}\s+\S/.test(part))
+  const postalMatch = postalIndex >= 0 ? parts[postalIndex].match(/^(\d{5})\s+(.+)$/) : null
+  const streetAddress = postalIndex > 0 ? parts.slice(0, postalIndex).join(', ') : clean
+  const addressLocality = postalMatch?.[2]?.trim() || 'Berlin'
+
+  return {
+    '@type': 'PostalAddress',
+    streetAddress,
+    ...(postalMatch?.[1] && { postalCode: postalMatch[1] }),
+    addressLocality,
+    ...(addressLocality.toLocaleLowerCase('de').includes('berlin') && { addressRegion: 'Berlin' }),
+    addressCountry: 'DE',
+  }
+}
+
 // Builds the Restaurant + BreadcrumbList JSON-LD graph for a restaurant
 // detail page and returns it as a sanitized string ready for inline
 // `<script type="application/ld+json">` injection. The </ → <\/ escape
@@ -65,8 +83,8 @@ export function buildRestaurantJsonLd({
         inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         image: r.photo,
         priceRange: formatPriceLabel(r) || undefined,
-        // schema.org expects strings; prefer EN labels (canonical for crawlers).
-        servesCuisine: r.categories?.map(c => c.nameEn || c.name).filter(Boolean),
+        // Explicit cuisine data, not discovery categories such as Breakfast.
+        servesCuisine: r.cuisineType || undefined,
         url: selfUrl,
         hasMap: r.mapsUrl,
         // Official menu URL — schema.org Restaurant.hasMenu accepts a URL;
@@ -77,12 +95,7 @@ export function buildRestaurantJsonLd({
         ...(r.reservationUrl && { acceptsReservations: r.reservationUrl }),
         ...(sameAs.length > 0 && { sameAs }),
         ...(r.address && {
-          address: {
-            '@type': 'PostalAddress',
-            streetAddress: r.address,
-            addressLocality: 'Berlin',
-            addressCountry: 'DE',
-          },
+          address: buildPostalAddress(r.address),
         }),
         ...(r.lat != null && r.lng != null && {
           geo: {

@@ -6,6 +6,7 @@ import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { SITE_URL } from '@/lib/constants'
 import styles from './Bezirk.module.css'
 
 interface PageProps {
@@ -32,6 +33,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: alternates.canonical,
       type: 'website',
       locale: toOgLocale(de ? 'de' : 'en'),
+      images: [
+        {
+          url: `${SITE_URL}/pics/og-card.png?v=4`,
+          width: 1200,
+          height: 1200,
+          alt: 'EAT THIS – We tell you what to eat',
+        },
+      ],
     },
   }
 }

@@ -8,7 +8,7 @@ import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
 import { getLocationStatus } from '@/lib/map/locationStatus';
 import { normalizeName } from '@/lib/normalizeName';
 import { nearestRestaurants } from '@/lib/home/nearby';
-import MapIntentLink from './MapIntentLink';
+import { Link } from '@/i18n/navigation';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
 
@@ -109,10 +109,9 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
             const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng));
             const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
             return (
-              <MapIntentLink
+              <Link
                 key={r._id}
-                href={`/map?r=${r.slug}`}
-                rel="nofollow"
+                href={`/restaurant/${r.slug}`}
                 className={styles.card}
               >
                 <span className={`hv-photo ${styles.photo}`}>
@@ -129,7 +128,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
                 {(walk || district) && (
                   <span className="hv-sub">{[walk, district].filter(Boolean).join(' · ')}</span>
                 )}
-              </MapIntentLink>
+              </Link>
             );
           })}
         </div>

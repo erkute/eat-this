@@ -111,6 +111,7 @@ export const articleBySlugQuery = `
     category,
     categoryLabel, categoryLabelDe,
     date,
+    "updatedAt": _updatedAt,
     "imageUrl": ${groqImageUrl('image', 'detailHero')},
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe,

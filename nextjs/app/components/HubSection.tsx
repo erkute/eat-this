@@ -3,8 +3,8 @@ import { normalizeName } from '@/lib/normalizeName';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import HubFaq from './HubFaq';
-import HubDeineWelt from './HubDeineWelt';
 import HubFragRemy from './HubFragRemy';
+import HubHeroCopy from './HubHeroCopy';
 import HubHashScroll from './HubHashScroll';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
@@ -25,11 +25,9 @@ interface Props {
 
 const copy = {
   de: {
-    heroCta: 'Map öffnen',
     spotDay: 'Spot des Tages',
   },
   en: {
-    heroCta: 'Open map',
     spotDay: 'Spot of the day',
   },
 };
@@ -41,31 +39,10 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
   return (
     <main className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
       <HubHashScroll />
-      <HubDeineWelt spotOfDay={spot} />
 
-      <section className={`hv-wrap ${styles.hero}`} data-guest-only="" aria-label={t.spotDay}>
+      <section className={`hv-wrap ${styles.hero}`} aria-label={t.spotDay}>
         <div className={styles.heroGrid}>
-          <div className={styles.heroCopy}>
-            <span className={`hv-kicker ${styles.heroKicker}`}>
-              {locale === 'en' ? 'What you should eat.' : 'Was du essen solltest.'}
-            </span>
-            <h1 className={styles.heroHeadline} aria-label="We tell you what to eat">
-              <span>We tell you</span>
-              <span>what to eat</span>
-            </h1>
-            <div className={styles.heroActions}>
-              <MapIntentLink
-                href="/map"
-                rel="nofollow"
-                className="hv-btn"
-              >
-                {t.heroCta}
-              </MapIntentLink>
-              <MapIntentLink href="/map" rel="nofollow" className={`hv-link-underline ${styles.heroNearbyLink}`}>
-                {locale === 'en' ? "What's near me" : 'Was ist um mich?'}
-              </MapIntentLink>
-            </div>
-          </div>
+          <HubHeroCopy locale={locale} />
           {spot && (
             <MapIntentLink
               href={`/map?r=${spot.slug}`}
@@ -74,7 +51,13 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
             >
               {spot.image && (
-                <Image src={spot.image} alt="" fill priority sizes="(max-width:760px) 92vw, 440px" />
+                <Image
+                  src={spot.image}
+                  alt=""
+                  fill
+                  priority
+                  sizes="(max-width:760px) 92vw, 440px"
+                />
               )}
               <span className={styles.heroPhotoTag}>
                 <span className="hv-kicker">{t.spotDay}</span>
@@ -87,10 +70,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
 
       <HomeMapDataProvider initialMapData={initialMapData}>
         <HubNearby locale={locale} />
-        <CategoriesRail
-          categoryNames={initialData.categoryNames}
-          locale={locale}
-        />
+        <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
         <HomeDishStrip locale={locale} />
         <HubMustEatsTeaser />
       </HomeMapDataProvider>

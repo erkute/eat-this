@@ -103,10 +103,11 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toMatch(/href="\/en\/must-eats"/);
   });
 
-  it('links dish/card to must-eat map detail and restaurant name to restaurant map detail', () => {
+  it('keeps the reveal deep-link and uses the canonical restaurant page', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain('href="/map?me=m1"');
-    expect(html).toContain('href="/map?r=bar-basta"');
+    expect(html).toContain('href="/restaurant/bar-basta"');
+    expect(html).not.toContain('/map?r=');
   });
 
   it('renders face-up cards with their must-eat image', () => {

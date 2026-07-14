@@ -50,11 +50,12 @@ describe('CategoriesRail', () => {
     cleanup();
   });
 
-  it('renders a category card linking to the booster detail page', () => {
+  it('links category artwork canonically and keeps the booster action', () => {
     const html = renderToStaticMarkup(
       <CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />
     );
     expect(html).toContain('/pack/pizza');
+    expect(html).toContain('/kategorie/pizza');
     expect(html).toContain('Öffnen');
     expect(html).toContain('Pizza');
   });

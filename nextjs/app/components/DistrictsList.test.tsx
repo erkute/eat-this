@@ -7,21 +7,15 @@ vi.mock('@/i18n/navigation', () => ({
     </a>
   ),
 }));
-vi.mock('./MapIntentLink', () => ({
-  default: ({ href, children, className }: any) => (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  ),
-}));
 import DistrictsList from './DistrictsList';
 
 const districts = [{ name: 'Kreuzberg', slug: 'kreuzberg', count: 12, spots: [] }] as any;
 
 describe('DistrictsList', () => {
-  it('renders a district row linking to the map', () => {
+  it('renders a district row linking to its canonical page', () => {
     const html = renderToStaticMarkup(<DistrictsList districts={districts} locale="de" />);
-    expect(html).toContain('/map?bezirk=kreuzberg');
+    expect(html).toContain('/bezirk/kreuzberg');
+    expect(html).not.toContain('/map?bezirk=');
     expect(html).toContain('Kreuzberg');
     expect(html).toContain('12');
   });

@@ -1,6 +1,5 @@
 import { normalizeName } from '@/lib/normalizeName';
 import { Link } from '@/i18n/navigation';
-import MapIntentLink from './MapIntentLink';
 import type { HubDistrict } from '@/lib/home/getHomeData';
 import styles from './DistrictsList.module.css';
 
@@ -27,17 +26,16 @@ export default function DistrictsList({ districts, locale }: Props) {
       </div>
       <div className={styles.rows}>
         {districts.map((d) => (
-          <MapIntentLink
+          <Link
             key={d.slug}
-            href={`/map?bezirk=${d.slug}`}
-            rel="nofollow"
+            href={`/bezirk/${d.slug}`}
             className={styles.row}
           >
             <span className={styles.name}>{normalizeName(d.name)}</span>
             <span className="hv-sub">
               {d.count ?? 0} {locale === 'en' ? 'spots' : 'Spots'} →
             </span>
-          </MapIntentLink>
+          </Link>
         ))}
       </div>
     </section>

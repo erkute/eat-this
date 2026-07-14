@@ -1,57 +1,57 @@
 import Image from 'next/image';
-import MapIntentLink from './MapIntentLink';
+import { Link } from '@/i18n/navigation';
 import styles from './HomeDishStrip.module.css';
 
 // Freigestellte Gerichte (cutout dishes on transparent bg) — the brand's
-// signature discovery element. Each dish opens that restaurant on the map.
+// signature discovery element. Each dish links to that restaurant's public page.
 const dishes = [
   {
     dish: 'Burger',
     restaurant: 'All In',
     src: '/pics/home-dishes/allin-single-burger.webp',
-    href: '/map?r=all-in',
+    href: '/restaurant/all-in',
   },
   {
     dish: 'Pizza',
     restaurant: 'Gazzo',
     src: '/pics/home-dishes/gazzo-aubergine.webp',
-    href: '/map?r=gazzo',
+    href: '/restaurant/gazzo',
   },
   {
     dish: 'Sardinen',
     restaurant: 'Sardinen Bar',
     src: '/pics/home-dishes/sardinen-print.webp',
-    href: '/map?r=sardinen-bar',
+    href: '/restaurant/sardinen-bar',
   },
   {
     dish: 'Rinderschaufel',
     restaurant: 'Schüsseldienst',
     src: '/pics/home-dishes/rinderschaufel-print.webp',
-    href: '/map?r=schuesseldienst',
+    href: '/restaurant/schuesseldienst',
   },
   {
     dish: 'Döner',
     restaurant: 'Uludag',
     src: '/pics/home-dishes/uludag-doener-print.webp',
-    href: '/map?r=bursa-uludag-kebapcisi',
+    href: '/restaurant/bursa-uludag-kebapcisi',
   },
   {
     dish: 'Galette',
     restaurant: 'Bubar',
     src: '/pics/home-dishes/bubar-galette-print.webp',
-    href: '/map?r=bubar-crepes-und-galettes',
+    href: '/restaurant/bubar-crepes-und-galettes',
   },
   {
     dish: 'Grilled Cheese',
     restaurant: 'AERA',
     src: '/pics/home-dishes/grilled-cheese-print.webp',
-    href: '/map?r=aera',
+    href: '/restaurant/aera',
   },
   {
     dish: 'Pizza',
     restaurant: 'The Grain',
     src: '/pics/home-dishes/the-grain-pizza-print.webp',
-    href: '/map?r=the-grain',
+    href: '/restaurant/the-grain',
   },
 ];
 
@@ -70,20 +70,19 @@ export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
       <div className={styles.grid}>
         {dishes.map((d) => (
           <article key={d.src} className={styles.item}>
-            <MapIntentLink
+            <Link
               href={d.href}
-              rel="nofollow"
               className={styles.dishLink}
-              aria-label={`${d.dish} ${locale === 'en' ? `at ${d.restaurant} on the map` : `bei ${d.restaurant} auf der Map`}`}
+              aria-label={`${d.dish} ${locale === 'en' ? `at ${d.restaurant} — restaurant page` : `bei ${d.restaurant} — Restaurantseite`}`}
             >
               <span className={styles.dishImg}>
                 <Image src={d.src} alt="" fill sizes="180px" />
               </span>
-            </MapIntentLink>
+            </Link>
             <span className={styles.dishName}>{d.dish}</span>
-            <MapIntentLink href={d.href} rel="nofollow" className={styles.rest}>
+            <Link href={d.href} className={styles.rest}>
               {d.restaurant}
-            </MapIntentLink>
+            </Link>
           </article>
         ))}
       </div>

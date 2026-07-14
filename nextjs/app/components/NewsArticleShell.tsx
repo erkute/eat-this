@@ -103,12 +103,11 @@ export default function NewsArticleShell({
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);
     const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
-    const cta = de ? 'Auf der Map öffnen' : 'Open on the map';
+    const cta = de ? 'Zum Restaurant' : 'Restaurant page';
 
     return (
-      <MapIntentLink
-        href={`/map?r=${block.restaurantSlug}`}
-        rel="nofollow"
+      <Link
+        href={`/restaurant/${block.restaurantSlug}`}
         className={styles.inlineSpot}
         style={block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined}
         aria-label={`${restName} ${cta}`}
@@ -120,7 +119,7 @@ export default function NewsArticleShell({
             <span>{cta}</span>
           </span>
         </span>
-      </MapIntentLink>
+      </Link>
     );
   };
 

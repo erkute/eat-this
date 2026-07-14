@@ -422,10 +422,12 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {(siblingsBezirk.length > 0 || siblingsCategory.length > 0) && (
           <section className={styles.siblings}>
-            {siblingsBezirk.length > 0 && r.bezirk?.name && (
+            {siblingsBezirk.length > 0 && r.bezirk?.name && r.bezirk.slug && (
               <div className={styles.sibRow}>
                 <h2 className={styles.sibRowHead}>
-                  {de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
+                  <IntlLink href={`/bezirk/${r.bezirk.slug}`} className={styles.sibRowHeadLink}>
+                    {de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
+                  </IntlLink>
                 </h2>
                 <div className={styles.sibCards}>
                   {siblingsBezirk.map(s => (
@@ -447,7 +449,12 @@ export default async function RestaurantPage({ params }: PageProps) {
             {siblingsCategory.length > 0 && categoryDef && (
               <div className={styles.sibRow}>
                 <h2 className={styles.sibRowHead}>
-                  {de ? `Mehr ${categoryDef.name}` : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`}
+                  <IntlLink
+                    href={`/kategorie/${categoryDef.slug}`}
+                    className={styles.sibRowHeadLink}
+                  >
+                    {de ? `Mehr ${categoryDef.name}` : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`}
+                  </IntlLink>
                 </h2>
                 <div className={styles.sibCards}>
                   {siblingsCategory.map(s => (

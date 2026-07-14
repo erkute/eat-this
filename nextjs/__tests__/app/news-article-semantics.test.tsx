@@ -3,11 +3,40 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/i18n/navigation', () => ({
-  Link: ({ href, children }: { href: string; children: ReactNode }) => (
-    <a href={href}>{children}</a>
+  Link: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string;
+    children: ReactNode;
+    className?: string;
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }));
-vi.mock('@/lib/PortableTextRenderer', () => ({ PortableTextRenderer: () => null }));
+vi.mock('@/lib/PortableTextRenderer', () => ({
+  PortableTextRenderer: ({
+    renderSpotCard,
+  }: {
+    renderSpotCard?: (block: {
+      _type: 'spotCard';
+      restaurantName: string;
+      restaurantSlug: string;
+      district: string;
+      cuisineType: string;
+    }) => ReactNode;
+  }) =>
+    renderSpotCard?.({
+      _type: 'spotCard',
+      restaurantName: 'Sofi',
+      restaurantSlug: 'sofi',
+      district: 'Mitte',
+      cuisineType: 'Bakery',
+    }) ?? null,
+}));
 vi.mock('@/app/components/SiteFooter', () => ({ default: () => <footer role="contentinfo" /> }));
 vi.mock('@/app/components/NewsArticleShare', () => ({ default: () => null }));
 vi.mock('@/app/components/Breadcrumbs', () => ({ default: () => <nav aria-label="Breadcrumb" /> }));
@@ -35,5 +64,7 @@ describe('NewsArticleShell semantics', () => {
     expect(html.match(/<main\b/g)).toHaveLength(1);
     expect(html).toMatch(/<main\b[^>]*><article>/);
     expect(html).toContain('<h1');
+    expect(html).toContain('href="/restaurant/sofi"');
+    expect(html).not.toContain('/map?r=sofi');
   });
 });

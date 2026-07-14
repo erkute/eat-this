@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
@@ -17,7 +18,7 @@ export default function HubMustEatsTeaser() {
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
-  const restaurantAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
+  const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
 
   // The first client render must match SSR exactly: SSR renders the anonymous
   // view (uid=null) from `initialMapData`, so the pre-mount render here mirrors
@@ -116,13 +117,13 @@ export default function HubMustEatsTeaser() {
                 >
                   <span className={styles.dish}>{normalizeName(m.dish ?? '')}</span>
                 </MapIntentLink>
-                <MapIntentLink
-                  href={`/map?r=${m.restaurant.slug}`}
+                <Link
+                  href={`/restaurant/${m.restaurant.slug}`}
                   className={styles.restaurantLink}
                   aria-label={`${normalizeName(m.restaurant.name)} ${restaurantAria}`}
                 >
                   <span className="hv-sub">{normalizeName(m.restaurant.name)}</span>
-                </MapIntentLink>
+                </Link>
               </span>
             </article>
           </li>

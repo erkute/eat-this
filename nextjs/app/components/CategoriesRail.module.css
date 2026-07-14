@@ -43,6 +43,11 @@
   object-fit: contain;
 }
 
+.photo:focus-visible {
+  outline: 3px solid var(--et-home-red);
+  outline-offset: 4px;
+}
+
 :global(.homeV2) .starterTitle:global(.hv-cap),
 :global(.homeV2) .packTitle:global(.hv-cap) {
   display: flex;

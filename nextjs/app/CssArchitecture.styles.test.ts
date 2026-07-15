@@ -79,7 +79,7 @@ describe('CSS architecture contracts', () => {
     const root = postcss.parse(readFileSync(globalsPath, 'utf8'), { from: globalsPath })
     const html = declarationsFor(root, 'html')
     const body = declarationsFor(root, 'body')
-    const burger = declarationsFor(root, '.burger-drawer:not(.active)')
+    const burger = declarationsFor(root, '.burger-drawer[hidden]')
     const mapOverlay = declarationsFor(root, '.map-spot-overlay:not(.active)')
     const searchOverlay = declarationsFor(root, '.search-overlay:not(.active)')
     const mapPage = declarationsFor(root, ".app-page[data-page='map']")
@@ -87,8 +87,7 @@ describe('CSS architecture contracts', () => {
 
     expect(html.get('background-color')).toBeTruthy()
     expect(body.get('background-color')).toBeTruthy()
-    expect(burger.get('position')).toContain('fixed')
-    expect(burger.get('opacity')).toContain('0')
+    expect(burger.get('display')).toContain('none')
     expect(burger.get('pointer-events')).toContain('none')
     expect(mapOverlay.get('display')).toContain('none')
     expect(searchOverlay.get('display')).toContain('none')

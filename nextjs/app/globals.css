@@ -493,14 +493,10 @@ a {
 .search-overlay:not(.active) {
   display: none;
 }
-/* Keep the burger drawer in the render tree while closed so the panel can
-   transition from its off-screen transform. Opacity hides it pre-paint while
-   style.min.css is loading; inert/aria-hidden keep it non-interactive. */
-.burger-drawer:not(.active) {
-  position: fixed;
-  inset: 0;
-  z-index: 10002;
-  opacity: 0;
+/* Keep the closed burger out of rendering on first paint. In particular, iOS
+   Safari must not retain its full-screen ink layer behind the browser bars. */
+.burger-drawer[hidden] {
+  display: none;
   pointer-events: none;
 }
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone

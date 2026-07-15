@@ -511,6 +511,9 @@ body {
   opacity: 0;
   transition: none;
 }
+.burger-drawer[hidden] {
+  display: none;
+}
 .burger-drawer.active {
   opacity: 1;
   pointer-events: auto;

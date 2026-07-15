@@ -70,9 +70,13 @@ export function openBurgerDrawer() {
     ? document.activeElement
     : null;
   lockBody();
+  drawer.hidden = false;
   drawer.removeAttribute('inert');
   drawer.removeAttribute('aria-hidden');
   openBtn?.setAttribute('aria-expanded', 'true');
+  // Record the off-canvas panel state after leaving display:none so adding
+  // .active below still animates the opening transform.
+  void drawer.offsetWidth;
   drawer.classList.add('active');
   window.requestAnimationFrame(() => {
     document.getElementById('burgerClose')?.focus({ preventScroll: true });
@@ -88,6 +92,11 @@ export function closeBurgerDrawer(restoreScroll = true) {
   drawer.setAttribute('aria-hidden', 'true');
   drawer.setAttribute('inert', '');
   openBtn?.setAttribute('aria-expanded', 'false');
+  // iOS Safari can keep sampling an opacity-hidden fixed layer behind its URL
+  // and status bars. Remove the full-screen ink sheet from rendering before
+  // restoring the page canvas and scroll position.
+  drawer.hidden = true;
+  void drawer.offsetWidth;
   unlockBody(restoreScroll);
   const restoreTarget = focusBeforeDrawer;
   focusBeforeDrawer = null;

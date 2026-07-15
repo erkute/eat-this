@@ -313,7 +313,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
      shape is blunt but stable: hide the sticky map wrapper for the whole
      phone-detail lifetime. The visible map peek is rendered as part of the
      detail sheet itself, not as a separate layer behind it. */
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isActive || sheetView !== 'detail') return;
     if (typeof window === 'undefined' || !isPhoneViewport()) return;
     const mapWrap = mapWrapRef.current;
@@ -394,9 +394,9 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     if (sheetView !== 'list') return;
     if (listScrollRef.current === 0) return;
     if (isPhoneViewport()) {
-      /* The detail overlay is position:fixed on phones — the window usually
-         kept its place behind it. Restore defensively (e.g. after iOS nudged
-         the scroll while the overlay was open). */
+      /* Phone details start at the top of the in-flow document. Restore the
+         list position before paint so closing does not flash a blank canvas
+         into iOS Safari's browser-chrome backdrop. */
       window.scrollTo(0, listScrollRef.current);
       return;
     }

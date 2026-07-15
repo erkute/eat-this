@@ -33,6 +33,31 @@ function localClasses(name: string) {
   return [...classes].sort()
 }
 
+function declarationsInMedia(name: string, selector: string, mediaParams: string) {
+  const root = postcss.parse(readFileSync(modulePath(name), 'utf8'))
+  const matches: Record<string, string>[] = []
+
+  root.walkRules((rule) => {
+    if (rule.selector !== selector) return
+    const parent = rule.parent
+    if (
+      parent?.type !== 'atrule' ||
+      parent.name !== 'media' ||
+      parent.params !== mediaParams
+    ) {
+      return
+    }
+
+    const declarations: Record<string, string> = {}
+    rule.walkDecls((declaration) => {
+      declarations[declaration.prop] = declaration.value
+    })
+    matches.push(declarations)
+  })
+
+  return matches
+}
+
 describe('Map CSS architecture', () => {
   it('keeps every map module free of !important', () => {
     const important: string[] = []
@@ -88,6 +113,40 @@ describe('Map CSS architecture', () => {
     expect(sheet).toContain(':global([data-map-body]')
     expect(controls).not.toMatch(/\.body(?:\[|\s|:)/)
     expect(sheet).not.toMatch(/\.(?:body|shell)(?:\[|\s|:)/)
+  })
+
+  it('keeps the phone Must Eat takeover in flow for Safari browser chrome', () => {
+    const mustEatRules = declarationsInMedia(
+      'MapSheet.module.css',
+      ".list[data-view='detail'][data-detail-kind='must-eat']",
+      '(max-width: 767.98px)'
+    )
+    const layout = readFileSync(modulePath('MapLayout.module.css'), 'utf8')
+
+    expect(mustEatRules).toEqual([
+      expect.objectContaining({
+        position: 'relative',
+        inset: 'auto',
+        width: '100%',
+        height: '100dvh',
+        'min-height': '100dvh',
+        'margin-top': '-100dvh',
+        overflow: 'hidden',
+      }),
+    ])
+    expect(layout).not.toContain(
+      "html:has(.shell [data-map-sheet][data-detail-kind='must-eat'])"
+    )
+  })
+
+  it('restores the phone map layer before paint when a detail closes', () => {
+    const section = readFileSync(fileURLToPath(new URL('../MapSection.tsx', import.meta.url)), 'utf8')
+    const visibilityWrite = section.indexOf("mapWrap.style.visibility = 'hidden'")
+    const layoutEffect = section.lastIndexOf('useLayoutEffect(() => {', visibilityWrite)
+    const passiveEffect = section.lastIndexOf('useEffect(() => {', visibilityWrite)
+
+    expect(visibilityWrite).toBeGreaterThan(-1)
+    expect(layoutEffect).toBeGreaterThan(passiveEffect)
   })
 
   it('contains only the MapLibre controls that are actually mounted', () => {

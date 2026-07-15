@@ -136,7 +136,7 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   const [zoomActive, setZoomActive] = useState(false)
   const zoomActiveRef = useRef(false)
   const handleCardZoom = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (zoomActiveRef.current) return
+    if (!mustEat.image || zoomActiveRef.current) return
     zoomActiveRef.current = true
     setZoomRect(e.currentTarget.getBoundingClientRect())
   }

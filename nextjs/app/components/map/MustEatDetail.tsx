@@ -138,7 +138,7 @@ export default function MustEatDetail({
       )}
       <LazyMustEatImageLightbox
         active={Boolean(state.zoomRect || state.zoomActive)}
-        imageUrl={visibleMustEat.image ?? ''}
+        imageUrl={visibleMustEat.image ?? null}
         alt={visibleMustEat.dish ?? ''}
         originRect={state.zoomRect}
         onClose={state.handleZoomClose}

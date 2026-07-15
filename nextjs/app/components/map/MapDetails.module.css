@@ -4815,3 +4815,11 @@
     min-height: 34px;
   }
 }
+
+/* The legacy Must-Eat kicker used translucent white from the former dark
+   card treatment. Both current restaurant panels are light, so keep the
+   small label on the canonical ink color in every responsive variant. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
+.detailV13MustEat > .fdRestDock .fdK {
+  color: var(--et-home-ink);
+}

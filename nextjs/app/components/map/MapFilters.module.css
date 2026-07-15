@@ -948,3 +948,28 @@
 .filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterChipLabel {
   color: #fff;
 }
+
+/* Keep every filter name readable inside its chip, including selected category,
+   district, and cuisine labels that are longer than the default placeholders. */
+.filterChipRow .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+.filterChipRow .filterChipActive,
+.filterChipRow .filterChipOpenActive,
+.filterChipRow > .filterChip {
+  overflow: hidden;
+  padding-block: 8px;
+}
+
+.filterChipRow .filterChipLabel,
+.filterChipRow .filterChipLabelLong {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding-block: 1px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}

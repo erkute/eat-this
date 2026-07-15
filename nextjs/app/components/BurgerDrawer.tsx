@@ -72,7 +72,13 @@ export default function BurgerDrawer() {
   }, [closeBurger]);
 
   return (
-    <div ref={drawerRef} className="burger-drawer" id="burgerDrawer" aria-hidden="true">
+    <div
+      ref={drawerRef}
+      className="burger-drawer"
+      id="burgerDrawer"
+      aria-hidden="true"
+      hidden
+    >
       <button className="burger-drawer-backdrop" id="burgerBackdrop" type="button" tabIndex={-1} aria-label="Close menu" onClick={() => closeBurger(true)}></button>
       <div className="burger-drawer-panel" onClick={onPanelClick}>
         <button type="button" className="burger-drawer-close" id="burgerClose" aria-label="Close" onClick={() => closeBurger(true)}>×</button>

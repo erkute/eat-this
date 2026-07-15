@@ -10,7 +10,7 @@ import {
 import styles from './MustEatImageLightbox.module.css'
 
 export interface MustEatImageLightboxProps {
-  imageUrl: string
+  imageUrl: string | null
   alt: string
   // null = closed; setting it to a DOMRect opens the lightbox and the
   // card flies out from that rect. Reverting to null triggers exit which
@@ -241,7 +241,7 @@ export default function MustEatImageLightbox({
     // can render the clone; otherwise a cold import produces a one-frame gap.
     if (!mounted) return
 
-    if (originRect) {
+    if (originRect && imageUrl) {
       if (!openingRef.current) {
         restoreFocusRef.current = document.activeElement instanceof HTMLElement
           ? document.activeElement
@@ -252,6 +252,9 @@ export default function MustEatImageLightbox({
       onOpenReady?.()
       return
     }
+    // An unlocked ID can briefly outlive its hydrated private fields while
+    // map data refreshes. Never create an image clone without a real source.
+    if (originRect) return
     setRendered((current) => current ? { ...current, open: false } : null)
   }, [alt, imageUrl, mounted, onOpenReady, originRect])
 

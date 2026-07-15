@@ -78,6 +78,18 @@ export default function MustEatDetailMobile({
       ? styles.fdNameLong
       : ''
   const closeAction = onViewRestaurant ?? onClose
+  const previousLabel = lang === 'en' ? 'Previous' : 'Zurück'
+  const nextLabel = lang === 'en' ? 'Next' : 'Weiter'
+  const previousName = prevMustEat
+    ? prevUnlocked
+      ? normalizeName(prevMustEat.dish ?? '') || previousLabel
+      : t('mustEats.covered')
+    : previousLabel
+  const nextName = nextMustEat
+    ? nextUnlocked
+      ? normalizeName(nextMustEat.dish ?? '') || nextLabel
+      : t('mustEats.covered')
+    : nextLabel
 
   // Swipe anywhere on the sheet (hero, name, pager band) pages to the
   // neighbouring must-eat — same gesture as the restaurant detail.
@@ -177,13 +189,17 @@ export default function MustEatDetailMobile({
                 <button
                   type="button"
                   className={styles.fdHero}
-                  onClick={handleCardZoom}
+                  onClick={mustEat.image ? handleCardZoom : undefined}
+                  disabled={!mustEat.image}
                   aria-label={t('map.zoomCard')}
                   /* Während des Zooms (inkl. Fly-Back) verstecken, sonst liegt die
                     Karte doppelt da — Zoom-Klon + statische Slot-Karte. */
                   style={state.zoomActive ? { visibility: 'hidden' } : undefined}
                 >
-                  <img src={mustEat.image} alt={mustEat.dish} />
+                  <img
+                    src={mustEat.image || CARD_BACK}
+                    alt={mustEat.image ? mustEat.dish : t('mustEats.covered')}
+                  />
                 </button>
               ) : (
                 <button
@@ -291,18 +307,14 @@ export default function MustEatDetailMobile({
             <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={() => pageWithCard('prev')}>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
               <span className={styles.fdPagerCopy}>
-                <span className={styles.fdPagerLabel}>{lang === 'en' ? 'Previous' : 'Zurück'}</span>
-                <span className={styles.fdPagerName}>
-                  {prevMustEat ? (prevUnlocked ? normalizeName(prevMustEat.dish ?? '') : t('mustEats.covered')) : ''}
-                </span>
+                <span className={styles.fdPagerLabel}>{previousLabel}</span>
+                <span className={styles.fdPagerName}>{previousName}</span>
               </span>
             </button>
             <button type="button" className={styles.fdPagerNext} disabled={!nextMustEat} onClick={() => pageWithCard('next')}>
               <span className={styles.fdPagerCopy}>
-                <span className={styles.fdPagerLabel}>{lang === 'en' ? 'Next' : 'Weiter'}</span>
-                <span className={styles.fdPagerName}>
-                  {nextMustEat ? (nextUnlocked ? normalizeName(nextMustEat.dish ?? '') : t('mustEats.covered')) : ''}
-                </span>
+                <span className={styles.fdPagerLabel}>{nextLabel}</span>
+                <span className={styles.fdPagerName}>{nextName}</span>
               </span>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
             </button>

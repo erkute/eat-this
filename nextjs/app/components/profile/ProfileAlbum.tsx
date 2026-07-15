@@ -106,7 +106,7 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
 
       <LazyMustEatImageLightbox
         active={Boolean(expanded || hiddenId)}
-        imageUrl={expanded?.imageUrl ?? ''}
+        imageUrl={expanded?.imageUrl ?? null}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={() => setExpanded(null)}

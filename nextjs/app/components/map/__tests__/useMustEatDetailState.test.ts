@@ -11,7 +11,7 @@ import type { MapMustEat } from '@/lib/types'
 const mkMustEat = (): MapMustEat => ({
   _id: 'me-1',
   dish: 'Pizza',
-  image: '',
+  image: '/card.webp',
   restaurant: {
     _id: 'r-1',
     name: 'R',
@@ -166,6 +166,22 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
 })
 
 describe('useMustEatDetailState — lazy zoom lifecycle', () => {
+  it('does not start a zoom without a hydrated image', () => {
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: { ...mkMustEat(), image: undefined },
+        userLocation: null,
+        onUnlock: vi.fn().mockResolvedValue(true),
+        isAuthed: true,
+      }),
+    )
+
+    act(() => { result.current.handleCardZoom(mkEvent()) })
+
+    expect(result.current.zoomRect).toBeNull()
+    expect(result.current.zoomActive).toBe(false)
+  })
+
   it('keeps the origin visible until the lightbox is ready and through fly-back', () => {
     const { result } = renderHook(() =>
       useMustEatDetailState({

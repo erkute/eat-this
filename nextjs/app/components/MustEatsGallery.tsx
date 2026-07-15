@@ -103,7 +103,7 @@ export default function MustEatsGallery({ initialMapData }: Props) {
 
       <LazyMustEatImageLightbox
         active={Boolean(expanded || hiddenId)}
-        imageUrl={expanded?.imageUrl ?? ''}
+        imageUrl={expanded?.imageUrl ?? null}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={closeExpanded}

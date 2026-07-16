@@ -149,6 +149,20 @@ describe('Map CSS architecture', () => {
     expect(layoutEffect).toBeGreaterThan(passiveEffect)
   })
 
+  it('reserves enough phone height for locked Must Eat proximity copy', () => {
+    const lockedMidRules = declarationsInMedia(
+      'MapDetails.module.css',
+      '.detailV13MustEat .fdMid.fdMidLocked',
+      '(max-width: 1023.98px)'
+    )
+
+    expect(lockedMidRules).toEqual([
+      expect.objectContaining({
+        '--me-name-slot': 'clamp(56px, 8dvh, 64px)',
+      }),
+    ])
+  })
+
   it('contains only the MapLibre controls that are actually mounted', () => {
     const layout = readFileSync(modulePath('MapLayout.module.css'), 'utf8')
     const controls = readFileSync(modulePath('MapControls.module.css'), 'utf8')

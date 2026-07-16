@@ -4608,6 +4608,15 @@
     --me-mid-slot: 158px;
   }
 }
+@media (max-width: 1023.98px) {
+  /* Locked cards only need the compact VERDECKT badge, not the full
+     two-line dish-name slot. Give that unused height to the proximity copy
+     so Safari's taller Providence metrics cannot clip its second line into
+     the following restaurant panel on short phone viewports. */
+  .detailV13MustEat .fdMid.fdMidLocked {
+    --me-name-slot: clamp(56px, 8dvh, 64px);
+  }
+}
 .detailV13MustEat .fdHeroLocked.mustEatCardCanUnlock {
   animation: fdRevealReadyShake 0.58s cubic-bezier(0.32, 0.72, 0.3, 1) infinite;
   transform-origin: 50% 58%;

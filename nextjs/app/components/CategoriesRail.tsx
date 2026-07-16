@@ -75,7 +75,12 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
         <form className={`${styles.card} ${styles.starterCard}`} onSubmit={handleStarterSubmit} noValidate>
           <span className={`hv-cap ${styles.starterTitle}`}>Starter Pack</span>
           <span className={styles.photo}>
-            <Image src="/pics/booster/booster_free.webp" alt="" fill sizes="(max-width:760px) 58vw, 220px" />
+            <Image
+              src="/pics/booster/booster_free.webp"
+              alt=""
+              fill
+              sizes="(max-width: 760px) min(56vw, 210px), (max-width: 1360px) 18vw, 240px"
+            />
           </span>
           <label className={styles.emailLabel} htmlFor={emailId}>
             {copy.emailAria}
@@ -123,7 +128,14 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
                 className={styles.photo}
                 aria-label={locale === 'en' ? `${name} restaurants` : `Restaurants: ${name}`}
               >
-                {art && <Image src={art} alt="" fill sizes="132px" />}
+                {art && (
+                  <Image
+                    src={art}
+                    alt=""
+                    fill
+                    sizes="(max-width: 760px) min(56vw, 210px), (max-width: 1360px) 18vw, 240px"
+                  />
+                )}
               </Link>
               <Link href={`/pack/${slug}`} className={styles.packButton}>
                 {copy.packCta}

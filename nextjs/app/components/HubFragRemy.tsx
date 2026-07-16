@@ -5,6 +5,7 @@
 // Behavior unchanged: daypart greeting, IntersectionObserver "talk" effect,
 // and chat/quick-ask dispatch via dispatchBuddyAsk.
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { stageFor } from '@/lib/buddy/greeting';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
@@ -133,21 +134,21 @@ export default function HubFragRemy() {
         {/* Remy avatar */}
         <div className={styles.avatarWrap} ref={stageRef} data-fragremy-avatar="">
           <div className={styles.avatar} data-talking={talking ? '' : undefined}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               className={styles.face}
               src="/buddy/buddy.webp"
               alt="Remy"
-              width={200}
-              height={200}
+              fill
+              sizes="(max-width: 899px) min(92vw, 560px), (max-width: 1360px) 38vw, 520px"
+              loading="lazy"
             />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               className={styles.faceOpen}
               src="/buddy/buddy-open.webp"
               alt=""
-              width={200}
-              height={200}
+              fill
+              sizes="(max-width: 899px) min(92vw, 560px), (max-width: 1360px) 38vw, 520px"
+              loading="lazy"
               aria-hidden="true"
             />
           </div>

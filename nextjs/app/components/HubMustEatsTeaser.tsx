@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
@@ -17,6 +17,8 @@ export default function HubMustEatsTeaser() {
   const { initialMapData, live, uid } = useHomeMapData();
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
   const { lang, t } = useTranslation();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [loadImages, setLoadImages] = useState(false);
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
 
@@ -67,10 +69,39 @@ export default function HubMustEatsTeaser() {
     return filterMustEats(mustEats, faceUp, 'open').slice(0, TEASER_COUNT);
   }, [mustEats, faceUp]);
 
+  // These protected card images are several sections below the fold and must
+  // be fetched directly (the Next image proxy cannot forward their capability
+  // cookie). Mount them shortly before the section approaches the viewport so
+  // they do not consume initial-page bandwidth, while the semantic card links
+  // and copy remain server-rendered. Watching teaser.length also covers data
+  // that only becomes available after hydration.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setLoadImages(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setLoadImages(true);
+        observer.disconnect();
+      },
+      { rootMargin: '600px 0px' }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [teaser.length]);
+
   if (teaser.length === 0) return null;
 
   return (
-    <section className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
+    <section
+      ref={sectionRef}
+      className="homeV2 hv-section hv-wrap"
+      data-hub-must-eats=""
+    >
       <div className="hv-head">
         <h2 className="hv-title">
           <span className="hv-mk" aria-hidden="true" />
@@ -95,18 +126,20 @@ export default function HubMustEatsTeaser() {
                 aria-label={`${normalizeName(m.dish ?? '')} ${mustEatAria}`}
               >
                 <span className={styles.photo}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className={styles.card}
-                    src={m.image}
-                    // The tile renders at clamp(112px, 14vw, 144px) — the
-                    // baked mapCard src (w=600) is ~4× oversized even at 2x
-                    // DPR. The srcset lets the browser drop to 300/450.
-                    srcSet={sanitySrcSet(m.image, [150, 300, 450])}
-                    sizes="(max-width: 760px) 112px, 144px"
-                    alt={normalizeName(m.dish ?? '')}
-                    loading="lazy"
-                  />
+                  {loadImages && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className={styles.card}
+                      src={m.image}
+                      // The tile renders at clamp(112px, 14vw, 144px) — the
+                      // baked mapCard src (w=600) is ~4× oversized even at 2x
+                      // DPR. The srcset lets the browser drop to 300/450.
+                      srcSet={sanitySrcSet(m.image, [150, 300, 450])}
+                      sizes="(max-width: 760px) 112px, 144px"
+                      alt={normalizeName(m.dish ?? '')}
+                      loading="lazy"
+                    />
+                  )}
                 </span>
               </MapIntentLink>
               <span className={styles.meta}>

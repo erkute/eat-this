@@ -21,7 +21,7 @@ export function getMustEatProximityProgress(distance: number | null): number | n
 
 function vibrateRevealReady() {
   if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
-  navigator.vibrate([22, 18, 28])
+  navigator.vibrate([55, 30, 75, 30, 95])
 }
 
 interface Args {

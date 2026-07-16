@@ -210,6 +210,7 @@ export default function MustEatDetailMobile({
                   onClick={handleCardClick}
                   disabled={unlocking}
                   aria-busy={unlocking || undefined}
+                  data-reveal-ready={canUnlock && !unlocking ? '' : undefined}
                   aria-label={
                     unlocking
                       ? t('map.revealSaving')

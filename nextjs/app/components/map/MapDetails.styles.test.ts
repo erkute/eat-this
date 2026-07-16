@@ -85,6 +85,30 @@ describe('MapDetails CSS contracts', () => {
     expect(hasAnimationNone('.rdBodySkel span')).toBe(true)
   })
 
+  it('keeps the in-range Must Eat card shake fast and high-amplitude', () => {
+    let animation = ''
+    let keyframes = ''
+
+    root.walkRules((rule) => {
+      if (rule.selector !== '.detailV13MustEat .fdHeroLocked.mustEatCardCanUnlock') return
+      if (isInside(rule, 'media', '(prefers-reduced-motion: reduce)')) return
+      rule.walkDecls('animation', (declaration) => {
+        animation = declaration.value
+      })
+    })
+    root.walkAtRules((atRule) => {
+      if (atRule.name === 'keyframes' && atRule.params === 'fdRevealReadyShake') {
+        keyframes = atRule.toString()
+      }
+    })
+
+    expect(animation).toContain('0.42s')
+    expect(keyframes).toContain('rotate(-8.4deg)')
+    expect(keyframes).toContain('rotate(4.8deg)')
+    expect(keyframes).toContain('* -7px')
+    expect(keyframes).toContain('* 7px')
+  })
+
   it('retains the responsive and Safari detail contracts', () => {
     const media = new Set<string>()
     const supports = new Set<string>()

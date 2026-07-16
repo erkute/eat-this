@@ -13,8 +13,8 @@ vi.mock('next-intl', () => ({
       proximityAway: 'Noch {distance}',
       proximityCloser: 'Komm näher',
       proximityDistanceGoal: '{meters} m zum Aufdecken',
-      proximityHere: 'Du bist am Ort',
-      proximityTapReveal: 'Karte aufdecken',
+      proximityHere: 'Jetzt aufdecken',
+      proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
     }
     return Object.entries(values ?? {}).reduce(
       (text, [name, value]) => text.replace(`{${name}}`, String(value)),
@@ -30,6 +30,7 @@ vi.mock('@/lib/i18n', () => ({
       'mustEats.covered': 'Verdeckt',
       'map.toSpot': 'Zum Spot',
       'map.tooFarToReveal': 'Zu weit weg',
+      'map.revealHere': 'Jetzt aufdecken. Tipp auf die Karte.',
       'map.inRestaurant': 'Bei',
       'map.searchClose': 'Schließen',
     })[key] ?? key,
@@ -109,6 +110,27 @@ describe('MustEatDetailMobile distance meter', () => {
     )
 
     expect(screen.getByText('Komm näher')).toBeTruthy()
+    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull()
+  })
+
+  it('switches to a strong reveal-now state inside the unlock radius', () => {
+    const { container } = render(
+      <MustEatDetailMobile
+        mustEat={mustEat}
+        isUnlocked={false}
+        onClose={vi.fn()}
+        state={makeState({
+          distance: 42,
+          canUnlock: true,
+          proximityProgress: 1,
+          vibrateIntensity: 0.92,
+        })}
+      />,
+    )
+
+    expect(screen.getByText('Jetzt aufdecken')).toBeTruthy()
+    expect(screen.getByText('Tipp auf die Karte und deck dein Must Eat auf.')).toBeTruthy()
+    expect(container.querySelector('[data-reveal-ready]')).not.toBeNull()
     expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull()
   })
 })

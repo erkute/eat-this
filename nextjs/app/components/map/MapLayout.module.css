@@ -207,16 +207,6 @@
   .body[data-map-view='detail'] .mapWrap {
     visibility: hidden;
   }
-
-  html:has(.shell [data-map-sheet][data-detail-kind='must-eat']),
-body:has(.shell [data-map-sheet][data-detail-kind='must-eat']),
-.shell:has([data-map-sheet][data-detail-kind='must-eat']),
-.body:has([data-map-sheet][data-detail-kind='must-eat']) {
-    height: 100dvh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-    overflow: hidden;
-  }
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
     bottom: calc(44dvh + 10px);
   }

@@ -19,6 +19,7 @@ const PROVIDENCE_REGULAR_WOFF2 =
   'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
 const PROVIDENCE_BOLD_WOFF2 =
   'https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3';
+const TYPEKIT_STYLESHEET = 'https://use.typekit.net/kgb1lmh.css';
 
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }));
@@ -45,6 +46,8 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}
+  var fontCss=document.getElementById('et-adobe-fonts');
+  if(fontCss){var applyFonts=function(){fontCss.media='all';};if(fontCss.sheet)applyFonts();else fontCss.addEventListener('load',applyFonts,{once:true});}
 }());`;
 
 const GLOBAL_JSON_LD = {
@@ -74,7 +77,14 @@ export default async function LocaleLayout({
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href={PROVIDENCE_BOLD_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
+        {/* The font files are critical and preloaded above; Adobe's CSS is not.
+            Loading it with print media keeps the third-party stylesheet out of
+            the render path. CRITICAL_BOOTSTRAP switches it on after it arrives. */}
+        <link rel="preload" href={TYPEKIT_STYLESHEET} as="style" />
+        <link id="et-adobe-fonts" rel="stylesheet" href={TYPEKIT_STYLESHEET} media="print" />
+        <noscript>
+          <link rel="stylesheet" href={TYPEKIT_STYLESHEET} />
+        </noscript>
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
       </head>

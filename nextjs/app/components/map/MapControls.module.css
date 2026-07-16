@@ -651,6 +651,17 @@
   display: none;
 }
 
+/* The late-loaded global focus rule otherwise draws its outline on the input.
+   The toolbar clips the horizontal edges, leaving two stray vertical lines. */
+.mapSearchToolbar .mapSearchInput:focus-visible {
+  outline: 0;
+}
+
+.mapSearchToolbar:has(.mapSearchInput:focus-visible) {
+  outline: 2px solid var(--et-home-red);
+  outline-offset: 2px;
+}
+
 .mapSearchClear {
   width: 28px;
   min-width: 28px;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslation } from '@/lib/i18n';
 import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
@@ -143,12 +144,13 @@ export default function SiteNav() {
         {/* Center: Logo */}
         <div className={styles.home}>
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/pics/eat-this-logo.webp?v=6"
               alt="Eat This"
-              width="1660"
-              height="667"
+              width={1660}
+              height={667}
+              sizes="(max-width: 520px) 115px, 140px"
+              loading="lazy"
               decoding="async"
               className={styles.logoImg}
             />

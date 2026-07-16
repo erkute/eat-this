@@ -10,15 +10,13 @@ interface Props {
 }
 
 type Variant = 'guest' | 'auth';
-type VisibilityGate = Variant | null;
 
 interface HeroCopyProps extends Props {
   firstName: string | null;
   variant: Variant;
-  visibilityGate?: VisibilityGate;
 }
 
-function HeroCopy({ firstName, locale, variant, visibilityGate = null }: HeroCopyProps) {
+function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
   const signedIn = variant === 'auth';
   const de = locale === 'de';
   const headline = signedIn
@@ -33,11 +31,7 @@ function HeroCopy({ firstName, locale, variant, visibilityGate = null }: HeroCop
     : 'We tell you what to eat';
 
   return (
-    <div
-      className={styles.heroCopy}
-      data-auth-only={visibilityGate === 'auth' ? '' : undefined}
-      data-guest-only={visibilityGate === 'guest' ? '' : undefined}
-    >
+    <div className={styles.heroCopy}>
       <span className={`hv-kicker ${styles.heroKicker}`}>
         {signedIn
           ? firstName
@@ -78,6 +72,62 @@ function HeroCopy({ firstName, locale, variant, visibilityGate = null }: HeroCop
   );
 }
 
+/**
+ * The server cannot know the Firebase user yet. Keep both pre-paint copy
+ * variants for the auth-hint FOUC guard, but place them inside one semantic
+ * hero. That preserves the signed-in shell without emitting two <h1>s for
+ * crawlers and assistive technology.
+ */
+function LoadingHeroCopy({ locale }: Props) {
+  const de = locale === 'de';
+
+  return (
+    <div className={styles.heroCopy}>
+      <span className={`hv-kicker ${styles.heroKicker}`}>
+        <span data-guest-only="">{de ? 'Was du essen solltest.' : 'What you should eat.'}</span>
+        <span data-auth-only="">Hey</span>
+      </span>
+      <h1 className={styles.heroHeadline}>
+        <span data-guest-only="">
+          <span>We tell you</span>
+          <span>what to eat</span>
+        </span>
+        <span data-auth-only="">
+          <span>{de ? 'Deine Map' : 'Your map'}</span>
+          <span>{de ? 'wartet.' : 'is ready.'}</span>
+        </span>
+      </h1>
+      <div className={styles.heroActions}>
+        <span className={styles.heroActionVariant} data-guest-only="">
+          <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
+            {de ? 'Map öffnen' : 'Open map'}
+          </MapIntentLink>
+          <MapIntentLink
+            href="/map"
+            rel="nofollow"
+            className={`hv-link-underline ${styles.heroNearbyLink}`}
+          >
+            {de ? 'Was ist um mich?' : "What's near me"}
+          </MapIntentLink>
+        </span>
+        <span className={styles.heroActionVariant} data-auth-only="">
+          <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
+            {de ? 'Map öffnen' : 'Open map'}
+          </MapIntentLink>
+          <Link
+            href="/profile"
+            rel="nofollow"
+            prefetch={false}
+            className={`hv-link-underline ${styles.heroNearbyLink}`}
+          >
+            {de ? 'Profil' : 'Profile'}
+          </Link>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function HubHeroCopy({ locale }: Props) {
   const { user, loading } = useAuth();
   const firstName = user
@@ -87,12 +137,7 @@ export default function HubHeroCopy({ locale }: Props) {
     : null;
 
   if (loading) {
-    return (
-      <>
-        <HeroCopy locale={locale} variant="guest" firstName={null} visibilityGate="guest" />
-        <HeroCopy locale={locale} variant="auth" firstName={null} visibilityGate="auth" />
-      </>
-    );
+    return <LoadingHeroCopy locale={locale} />;
   }
 
   return <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />;

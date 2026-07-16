@@ -110,10 +110,10 @@ describe('HubMustEatsTeaser', () => {
     expect(html).not.toContain('/map?r=');
   });
 
-  it('renders face-up cards with their must-eat image', () => {
+  it('server-renders face-up card content but defers the protected image request', () => {
     const html = render(dataRevealed([me()]));
-    expect(html).toContain('cdn.sanity.io');
     expect(html).toContain('Smash Burger');
+    expect(html).not.toContain('cdn.sanity.io');
   });
 
   it('renders nothing when no card is face-up', () => {

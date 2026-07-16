@@ -76,7 +76,12 @@ export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
               aria-label={`${d.dish} ${locale === 'en' ? `at ${d.restaurant} — restaurant page` : `bei ${d.restaurant} — Restaurantseite`}`}
             >
               <span className={styles.dishImg}>
-                <Image src={d.src} alt="" fill sizes="180px" />
+                <Image
+                  src={d.src}
+                  alt=""
+                  fill
+                  sizes="(max-width: 760px) 150px, (max-width: 1360px) 18vw, 220px"
+                />
               </span>
             </Link>
             <span className={styles.dishName}>{d.dish}</span>

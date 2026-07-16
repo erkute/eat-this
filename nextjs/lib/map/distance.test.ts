@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { haversineDistance, formatDistance, formatWalkingTime } from './distance'
+import {
+  haversineDistance,
+  formatDistance,
+  formatLocalizedDistance,
+  formatWalkingTime,
+} from './distance'
 
 describe('haversineDistance', () => {
   it('returns 0 for identical coordinates', () => {
@@ -20,6 +25,17 @@ describe('formatDistance', () => {
 
   it('shows km with 1 decimal when >= 1000', () => {
     expect(formatDistance(1500)).toBe('1.5km')
+  })
+})
+
+describe('formatLocalizedDistance', () => {
+  it('uses localized kilometer decimals with a readable unit gap', () => {
+    expect(formatLocalizedDistance(2400, 'de')).toBe('2,4 km')
+    expect(formatLocalizedDistance(2400, 'en')).toBe('2.4 km')
+  })
+
+  it('keeps short distances in meters', () => {
+    expect(formatLocalizedDistance(420, 'de')).toBe('420 m')
   })
 })
 

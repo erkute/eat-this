@@ -1,7 +1,8 @@
-import Image from 'next/image';
 import { normalizeName } from '@/lib/normalizeName';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
+import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import sanityImageLoader from '@/lib/sanityImageLoader';
 import HubFaq from './HubFaq';
 import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
@@ -51,11 +52,17 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
             >
               {spot.image && (
-                <Image
-                  src={spot.image}
+                // Deliberately bypass the App Hosting image proxy for the LCP:
+                // Sanity serves the responsive, format-negotiated variants directly.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className={styles.heroImage}
+                  src={sanityImageLoader({ src: spot.image, width: 750, quality: 75 })}
+                  srcSet={sanitySrcSet(spot.image, [480, 640, 750, 960], 75)}
                   alt=""
-                  fill
-                  priority
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
                   sizes="(max-width:760px) 92vw, 440px"
                 />
               )}

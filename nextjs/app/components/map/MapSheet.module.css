@@ -220,12 +220,17 @@
   }
 
   .list[data-view='detail'][data-detail-kind='must-eat'] {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
+    /* Keep the full-screen Must Eat takeover in document flow. iOS Safari
+       samples that real page canvas behind its browser chrome; a fixed
+       viewport layer leaves the URL bar with a stale/black backdrop after
+       the detail switches or closes. The negative margin overlays the
+       preceding 100dvh sticky map without creating a fixed compositor. */
+    position: relative;
+    inset: auto;
+    width: 100%;
     height: 100dvh;
     min-height: 100dvh;
-    margin: 0;
+    margin-top: -100dvh;
     border: 0;
     border-radius: 0;
     overflow: hidden;

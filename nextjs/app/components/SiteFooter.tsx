@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useTranslation } from '@/lib/i18n'
 import { Link } from '@/i18n/navigation'
 import styles from './SiteFooter.module.css'
@@ -15,23 +16,23 @@ export default function SiteFooter() {
       <div className={styles.top}>
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/pics/eat-this-logo.webp?v=6"
               alt="Eat This"
-              width="1660"
-              height="667"
+              width={1660}
+              height={667}
+              sizes="min(56vw, 230px)"
               loading="lazy"
               decoding="async"
               className={styles.megaImg}
             />
           </h2>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/pics/slogan.webp?v=3"
             alt="we tell you what to eat."
-            width="1029"
-            height="145"
+            width={1029}
+            height={145}
+            sizes="min(40vw, 170px)"
             loading="lazy"
             decoding="async"
             className={styles.tagImg}
@@ -39,8 +40,15 @@ export default function SiteFooter() {
         </div>
 
         <Link href="/#hub-fragremy" className={styles.remyLink}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/buddy/buddy-smile.webp" alt="" width="220" height="220" loading="lazy" decoding="async" />
+          <Image
+            src="/buddy/buddy-smile.webp"
+            alt=""
+            width={220}
+            height={220}
+            sizes="52px"
+            loading="lazy"
+            decoding="async"
+          />
           <span>{askRemy}</span>
         </Link>
       </div>

@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
-import { formatDistance } from '@/lib/map'
+import { formatLocalizedDistance } from '@/lib/map'
 import { useTranslations } from 'next-intl'
 import { useTranslation } from '@/lib/i18n'
 import { pickLocale } from '@/lib/i18n/pickLocale'
@@ -58,6 +58,7 @@ export default function MustEatDetailMobile({
   const {
     distance,
     canUnlock,
+    proximityProgress,
     vibrateIntensity,
     tapping,
     unlocking,
@@ -69,6 +70,7 @@ export default function MustEatDetailMobile({
   const { name: restaurantName } = mustEat.restaurant
   const restaurantPhoto = mustEat.restaurant.photo
   const open = isUnlocked && !revealOrigin
+  const showDistanceMeter = !unlocking && !unlockError && !canUnlock && distance !== null
   const nameRevealed = open && !nameBurning
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')
   const dishNameWeight = dishName.replace(/\s+/g, '').length
@@ -208,6 +210,7 @@ export default function MustEatDetailMobile({
                   onClick={handleCardClick}
                   disabled={unlocking}
                   aria-busy={unlocking || undefined}
+                  data-reveal-ready={canUnlock && !unlocking ? '' : undefined}
                   aria-label={
                     unlocking
                       ? t('map.revealSaving')
@@ -262,22 +265,40 @@ export default function MustEatDetailMobile({
                   : unlockError
                     ? t('map.revealError')
                     : canUnlock
-                  ? tMap('proximityHere')
-                  : distance !== null
-                    ? tMap('proximityAway', { distance: formatDistance(distance) })
-                    : tMap('proximityCloser')}
+                      ? tMap('proximityHere')
+                      : distance !== null
+                        ? tMap('proximityAway', {
+                            distance: formatLocalizedDistance(distance, lang),
+                          })
+                        : tMap('proximityCloser')}
               </p>
-              <p className={styles.fdProximitySub}>
-                {unlocking
-                  ? t('map.revealSavingHint')
-                  : unlockError
-                    ? t('map.revealRetry')
-                    : canUnlock
-                  ? tMap('proximityTapReveal')
-                  : lang === 'en'
-                    ? <>Get within <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of the spot, then you can reveal the Must Eat.</>
-                    : <>Komm auf <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an den Spot heran, dann kannst du das Must Eat aufdecken.</>}
-              </p>
+              {showDistanceMeter ? (
+                <div className={styles.fdDistanceMeter} data-must-eat-distance-meter>
+                  <div className={styles.fdDistanceTrack} aria-hidden="true">
+                    <span
+                      className={styles.fdDistanceFill}
+                      style={{
+                        ['--fd-distance-progress' as string]: `${Math.round((proximityProgress ?? 0) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <p className={styles.fdDistanceCaption}>
+                    {tMap('proximityDistanceGoal', { meters: UNLOCK_RADIUS_METERS })}
+                  </p>
+                </div>
+              ) : (
+                <p className={styles.fdProximitySub}>
+                  {unlocking
+                    ? t('map.revealSavingHint')
+                    : unlockError
+                      ? t('map.revealRetry')
+                      : canUnlock
+                        ? tMap('proximityTapReveal')
+                        : lang === 'en'
+                          ? <>Get within <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of the spot, then you can reveal the Must Eat.</>
+                          : <>Komm auf <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an den Spot heran, dann kannst du das Must Eat aufdecken.</>}
+                </p>
+              )}
             </div>
           )}
         </div>

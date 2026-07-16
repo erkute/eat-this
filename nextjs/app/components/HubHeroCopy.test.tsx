@@ -77,5 +77,6 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('data-auth-only');
     expect(html).toContain('We tell you');
     expect(html).toContain('Deine Map');
+    expect(html.match(/<h1/g)).toHaveLength(1);
   });
 });

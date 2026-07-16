@@ -5,10 +5,23 @@ import type { MapMustEat } from '@/lib/types'
 import { trackEvent } from '@/lib/analytics'
 
 export const UNLOCK_RADIUS_METERS = 50
+const PROXIMITY_SCALE_MAX_METERS = 10_000
+
+export function getMustEatProximityProgress(distance: number | null): number | null {
+  if (distance === null) return null
+  if (distance <= UNLOCK_RADIUS_METERS) return 1
+
+  // Berlin-wide distances span several orders of magnitude. A logarithmic
+  // scale keeps movement visible both a few kilometres and a few blocks away;
+  // the last sliver remains reserved for crossing the real reveal radius.
+  const scale = Math.log(PROXIMITY_SCALE_MAX_METERS / UNLOCK_RADIUS_METERS)
+  const progress = Math.log(PROXIMITY_SCALE_MAX_METERS / distance) / scale
+  return Math.max(0.08, Math.min(0.96, progress))
+}
 
 function vibrateRevealReady() {
   if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
-  navigator.vibrate([22, 18, 28])
+  navigator.vibrate([55, 30, 75, 30, 95])
 }
 
 interface Args {
@@ -37,6 +50,7 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   // In demo the card is always tappable, so it reads as "ready" and wiggles
   // invitingly even without a location fix.
   const canUnlock = demo || (distance !== null && distance <= UNLOCK_RADIUS_METERS)
+  const proximityProgress = getMustEatProximityProgress(distance)
 
   // Vibration ramps from a small idle baseline (0.18 - always perceptible)
   // up to 1.0 right on top of the restaurant. Under UNLOCK_RADIUS_METERS
@@ -152,6 +166,7 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   return {
     distance,
     canUnlock,
+    proximityProgress,
     vibrateIntensity,
     tapping,
     unlocking,

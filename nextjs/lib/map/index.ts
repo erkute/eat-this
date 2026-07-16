@@ -11,7 +11,12 @@
 export { buildPeekMustEatMap, resolvePeek } from './mustEatPeek'
 export type { Peek } from './mustEatPeek'
 export { resolveUnlockedMustEatIds } from './unlockedMustEats'
-export { haversineDistance, formatDistance, formatWalkingTime } from './distance'
+export {
+  haversineDistance,
+  formatDistance,
+  formatLocalizedDistance,
+  formatWalkingTime,
+} from './distance'
 export { getOpenStatus } from './openingHours'
 export { abbreviateBezirk } from './abbreviateBezirk'
 

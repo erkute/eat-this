@@ -76,6 +76,12 @@
   margin-top: clamp(26px, 3vw, 38px);
 }
 
+.heroActionVariant {
+  display: flex;
+  gap: var(--et-rail-gap);
+  align-items: center;
+}
+
 .page .heroActions :global(.hv-btn) {
   display: inline-flex;
   align-items: center;
@@ -110,6 +116,13 @@
   justify-self: end;
   width: min(100%, 440px);
   min-height: clamp(390px, 42vw, 560px);
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .heroPhoto :global(img) {

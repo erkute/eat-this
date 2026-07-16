@@ -3206,6 +3206,44 @@
   line-height: 1;
   white-space: nowrap;
 }
+.detailV13MustEat .fdDistanceMeter {
+  margin-top: clamp(7px, 1dvh, 9px);
+}
+.detailV13MustEat .fdDistanceTrack {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  background: var(--me-soft);
+  border-radius: 999px;
+}
+.detailV13MustEat .fdDistanceFill {
+  display: block;
+  width: var(--fd-distance-progress, 8%);
+  min-width: 8%;
+  max-width: 100%;
+  height: 100%;
+  background: var(--me-accent);
+  border-radius: inherit;
+}
+.detailV13MustEat .fdDistanceCaption {
+  margin: 4px 0 0;
+  color: var(--me-muted);
+  font-family: var(
+    --et-font-mono,
+    var(--menu-mono),
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace
+  );
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-align: right;
+  text-transform: uppercase;
+}
 .detailV13MustEat .fdRest {
   position: relative;
   z-index: 2;

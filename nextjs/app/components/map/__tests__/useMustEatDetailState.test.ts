@@ -4,7 +4,10 @@ import { renderHook, act } from '@testing-library/react'
 
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }))
 
-import { useMustEatDetailState } from '../useMustEatDetailState'
+import {
+  getMustEatProximityProgress,
+  useMustEatDetailState,
+} from '../useMustEatDetailState'
 import { trackEvent } from '@/lib/analytics'
 import type { MapMustEat } from '@/lib/types'
 
@@ -24,6 +27,23 @@ const mkMustEat = (): MapMustEat => ({
 const fakeRect = { width: 100, height: 100, x: 0, y: 0, top: 0, left: 0, right: 100, bottom: 100, toJSON: () => ({}) } as DOMRect
 const mkEvent = () =>
   ({ currentTarget: { getBoundingClientRect: () => fakeRect } }) as unknown as React.MouseEvent<HTMLButtonElement>
+
+describe('getMustEatProximityProgress', () => {
+  it('grows as the user approaches and reaches full at the reveal radius', () => {
+    const far = getMustEatProximityProgress(5000)
+    const nearby = getMustEatProximityProgress(500)
+    const almostThere = getMustEatProximityProgress(100)
+
+    expect(far).not.toBeNull()
+    expect(nearby).toBeGreaterThan(far ?? 0)
+    expect(almostThere).toBeGreaterThan(nearby ?? 0)
+    expect(getMustEatProximityProgress(50)).toBe(1)
+  })
+
+  it('has no progress without a location fix', () => {
+    expect(getMustEatProximityProgress(null)).toBeNull()
+  })
+})
 
 describe('useMustEatDetailState — handleCardClick auth gate', () => {
   beforeEach(() => {

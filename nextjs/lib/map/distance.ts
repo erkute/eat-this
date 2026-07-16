@@ -16,6 +16,16 @@ export function formatDistance(meters: number): string {
   return `${(meters / 1000).toFixed(1)}km`
 }
 
+export function formatLocalizedDistance(meters: number, locale: 'de' | 'en'): string {
+  const useKilometers = meters >= 1000
+  const value = useKilometers ? meters / 1000 : meters
+  const number = new Intl.NumberFormat(locale === 'de' ? 'de-DE' : 'en-GB', {
+    maximumFractionDigits: useKilometers ? 1 : 0,
+  }).format(value)
+
+  return `${number} ${useKilometers ? 'km' : 'm'}`
+}
+
 /**
  * Walking time at an average pedestrian pace of ~80 m/min (≈ 4.8 km/h).
  * Returns null beyond ~1600 m (≈ 20 min) — anything further reads as

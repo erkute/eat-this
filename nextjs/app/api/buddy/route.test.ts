@@ -1,6 +1,14 @@
 // nextjs/app/api/buddy/route.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
+const mocks = vi.hoisted(() => ({
+  captureException: vi.fn(),
+  runBuddyTurn: vi.fn(),
+}))
+
+vi.mock('@sentry/nextjs', () => ({
+  captureException: mocks.captureException,
+}))
 vi.mock('@/lib/buddy/rateLimit', () => ({
   checkRateLimit: vi.fn(),
   sessionLimitsFromEnv: () => ({ perMinute: 10, perDay: 100 }),
@@ -8,10 +16,7 @@ vi.mock('@/lib/buddy/rateLimit', () => ({
 }))
 vi.mock('@/lib/buddy/orchestrator', () => ({
   createAnthropicLlmClient: () => ({ runTurn: () => ({}) }),
-  runBuddyTurn: async function* () {
-    yield { type: 'text', value: 'hi' }
-    yield { type: 'done' }
-  },
+  runBuddyTurn: mocks.runBuddyTurn,
 }))
 vi.mock('@/lib/buddy/retrieval', () => ({ searchSpots: vi.fn(), searchArticles: vi.fn() }))
 
@@ -28,7 +33,15 @@ function req(body: unknown): Request {
 }
 
 describe('POST /api/buddy', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.captureException.mockReturnValue('sentry-event-id')
+    mocks.runBuddyTurn.mockImplementation(async function* () {
+      yield { type: 'text', value: 'hi' }
+      yield { type: 'done' }
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
 
   it('400s on a missing sessionId', async () => {
     const res = await POST(req({ messages: [{ role: 'user', content: 'hi' }], locale: 'de' }))
@@ -66,6 +79,51 @@ describe('POST /api/buddy', () => {
     const text = await res.text()
     expect(text).toContain('"type":"text"')
     expect(text).toContain('"type":"done"')
+  })
+
+  it('captures stream failures without logging request content or identifiers', async () => {
+    const failure = new Error('provider unavailable')
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mocks.runBuddyTurn.mockImplementation(async function* () {
+      throw failure
+    })
+    vi.mocked(checkRateLimit).mockResolvedValue({
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    })
+
+    const res = await POST(
+      req({
+        sessionId: 'private-session',
+        messages: [{ role: 'user', content: 'private prompt' }],
+        locale: 'en',
+        geo: { lat: 52.5, lng: 13.4 },
+      }),
+    )
+    const text = await res.text()
+
+    expect(text).toContain('"type":"error"')
+    expect(text).toContain('"value":"buddy_failed"')
+    expect(mocks.captureException).toHaveBeenCalledWith(failure, {
+      tags: { source: 'buddy-stream' },
+      extra: { locale: 'en', messageCount: 1, hasGeo: true },
+    })
+    expect(consoleError).toHaveBeenCalledWith('Buddy stream failed', {
+      source: 'buddy-stream',
+      locale: 'en',
+      messageCount: 1,
+      hasGeo: true,
+      sentryEventId: 'sentry-event-id',
+    })
+    const observed = JSON.stringify([
+      mocks.captureException.mock.calls[0]?.[1],
+      consoleError.mock.calls[0],
+    ])
+    expect(observed).not.toContain('private-session')
+    expect(observed).not.toContain('private prompt')
+    expect(observed).not.toContain('52.5')
+    expect(observed).not.toContain('13.4')
+    consoleError.mockRestore()
   })
 
   function ipReq(xff: string): Request {

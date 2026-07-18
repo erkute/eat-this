@@ -1,5 +1,6 @@
 // nextjs/app/api/buddy/route.ts
 import { createHash } from 'node:crypto'
+import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { checkRateLimit, sessionLimitsFromEnv, ipLimitsFromEnv } from '@/lib/buddy/rateLimit'
 import { createAnthropicLlmClient, runBuddyTurn } from '@/lib/buddy/orchestrator'
@@ -107,8 +108,25 @@ export async function POST(request: Request) {
           if (abortController.signal.aborted) return
           controller.enqueue(encoder.encode(encodeBuddyEvent(event)))
         }
-      } catch {
+      } catch (error: unknown) {
         if (!abortController.signal.aborted) {
+          const eventId = Sentry.captureException(error, {
+            tags: { source: 'buddy-stream' },
+            extra: {
+              locale: parsed.locale,
+              messageCount: parsed.messages.length,
+              hasGeo: parsed.geo !== undefined,
+            },
+          })
+          // Keep Cloud Logging useful without copying the provider error,
+          // prompt, session ID, IP, geo coordinates, or retrieved content.
+          console.error('Buddy stream failed', {
+            source: 'buddy-stream',
+            locale: parsed.locale,
+            messageCount: parsed.messages.length,
+            hasGeo: parsed.geo !== undefined,
+            sentryEventId: eventId,
+          })
           controller.enqueue(
             encoder.encode(encodeBuddyEvent({ type: 'error', value: 'buddy_failed' })),
           )

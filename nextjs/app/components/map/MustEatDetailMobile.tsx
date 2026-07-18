@@ -283,7 +283,7 @@ export default function MustEatDetailMobile({
                     />
                   </div>
                   <p className={styles.fdDistanceCaption}>
-                    {tMap('proximityDistanceGoal', { meters: UNLOCK_RADIUS_METERS })}
+                    {tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
                   </p>
                 </div>
               ) : (

@@ -13,6 +13,8 @@ vi.mock('next-intl', () => ({
       proximityAway: 'Noch {distance}',
       proximityCloser: 'Komm näher',
       proximityDistanceGoal: '{meters} m zum Aufdecken',
+      proximityHint:
+        'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
       proximityHere: 'Jetzt aufdecken',
       proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
     }
@@ -94,7 +96,11 @@ describe('MustEatDetailMobile distance meter', () => {
     )
 
     expect(screen.getByText('Noch 2,4 km')).toBeTruthy()
-    expect(screen.getByText('50 m zum Aufdecken')).toBeTruthy()
+    expect(
+      screen.getByText(
+        'Komm auf 50 m an den Spot heran, dann kannst du das Must Eat aufdecken.',
+      ),
+    ).toBeTruthy()
     const fill = container.querySelector('[data-must-eat-distance-meter] span')
     expect(fill?.getAttribute('style')).toContain('--fd-distance-progress: 27%')
   })

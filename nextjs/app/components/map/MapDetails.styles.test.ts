@@ -109,6 +109,28 @@ describe('MapDetails CSS contracts', () => {
     expect(keyframes).toContain('* 7px')
   })
 
+  it('keeps the covered-card distance guidance readable and left-aligned', () => {
+    let declarations: Record<string, string> = {}
+
+    root.walkRules((rule) => {
+      if (rule.selector !== '.detailV13MustEat .fdDistanceCaption') return
+      declarations = Object.fromEntries(
+        rule.nodes
+          .filter((node) => node.type === 'decl')
+          .map((node) => [node.prop, node.value]),
+      )
+    })
+
+    expect(declarations).toEqual(
+      expect.objectContaining({
+        'font-size': 'clamp(14px, 3.5vw, 17px)',
+        'line-height': '1.2',
+        'text-align': 'left',
+        'text-transform': 'none',
+      }),
+    )
+  })
+
   it('retains the responsive and Safari detail contracts', () => {
     const media = new Set<string>()
     const supports = new Set<string>()

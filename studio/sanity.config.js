@@ -4,6 +4,7 @@ import {visionTool} from '@sanity/vision'
 import {DownloadIcon} from '@sanity/icons'
 import {schemaTypes} from './schemaTypes'
 import RestaurantImporter from './tools/RestaurantImporter'
+import GenerateNewsArticleAction from './actions/GenerateNewsArticleAction'
 import {sanityTarget} from './sanity-target.mjs'
 
 export default defineConfig({
@@ -84,6 +85,11 @@ export default defineConfig({
       component: RestaurantImporter,
     },
   ],
+
+  document: {
+    actions: (prev, {schemaType}) =>
+      schemaType === 'newsArticle' ? [...prev, GenerateNewsArticleAction] : prev,
+  },
 
   schema: {
     types: schemaTypes,

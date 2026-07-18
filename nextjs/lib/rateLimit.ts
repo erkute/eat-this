@@ -23,12 +23,8 @@ interface WindowDoc {
  * `expiresAt` is a real Firestore `Timestamp` so the native TTL policy
  * (firestore.indexes.json → `_rateLimits.expiresAt`) actually garbage-collects
  * stale keys. (The old `updatedAt` field was a plain number, which TTL ignores.)
- *
- * Fails OPEN on any Firestore error: this guards the login/magic-link path, and
- * a transient datastore blip must never lock legitimate users out of signing in.
- * The counter caps doc size, so even fail-open abuse stays bounded per window.
  */
-export async function checkRateLimit(
+async function consumeRateLimit(
   key: string,
   maxRequests: number,
   windowMs: number,
@@ -37,24 +33,52 @@ export async function checkRateLimit(
   const db  = getAdminFirestore()
   const ref = db.collection('_rateLimits').doc(key)
 
-  try {
-    return await db.runTransaction(async (tx) => {
-      const doc   = await tx.get(ref)
-      const prev  = doc.exists ? (doc.data() as WindowDoc) : null
-      const fresh = !prev || now - prev.windowStart >= windowMs
+  return db.runTransaction(async (tx) => {
+    const doc   = await tx.get(ref)
+    const prev  = doc.exists ? (doc.data() as WindowDoc) : null
+    const fresh = !prev || now - prev.windowStart >= windowMs
 
-      const windowStart = fresh ? now : prev!.windowStart
-      const count       = (fresh ? 0 : prev!.count) + 1
-      if (count > maxRequests) return false
+    const windowStart = fresh ? now : prev!.windowStart
+    const count       = (fresh ? 0 : prev!.count) + 1
+    if (count > maxRequests) return false
 
-      tx.set(ref, {
-        windowStart,
-        count,
-        expiresAt: Timestamp.fromMillis(windowStart + windowMs),
-      })
-      return true
+    tx.set(ref, {
+      windowStart,
+      count,
+      expiresAt: Timestamp.fromMillis(windowStart + windowMs),
     })
+    return true
+  })
+}
+
+/**
+ * Authentication-friendly policy: a transient Firestore failure must not lock
+ * users out of login or magic-link flows, so those existing callers fail open.
+ */
+export async function checkRateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number,
+): Promise<boolean> {
+  try {
+    return await consumeRateLimit(key, maxRequests, windowMs)
   } catch {
     return true
+  }
+}
+
+/**
+ * Cost/security-sensitive variant. If Firestore cannot verify and increment
+ * the counter, deny the operation rather than removing the abuse guard.
+ */
+export async function checkRateLimitFailClosed(
+  key: string,
+  maxRequests: number,
+  windowMs: number,
+): Promise<boolean> {
+  try {
+    return await consumeRateLimit(key, maxRequests, windowMs)
+  } catch {
+    return false
   }
 }

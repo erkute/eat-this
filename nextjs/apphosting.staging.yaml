@@ -84,6 +84,13 @@ env:
     secret: ANTHROPIC_API_KEY_STAGING
     availability:
       - RUNTIME
+  - variable: GOOGLE_API_KEY
+    # The live importer is hard-404 on staging. Override the production secret
+    # reference with a non-credential value so staging cannot inherit provider
+    # access and does not require an unused secret.
+    value: disabled-in-staging
+    availability:
+      - RUNTIME
   - variable: VOYAGE_API_KEY
     secret: VOYAGE_API_KEY_STAGING
     availability:

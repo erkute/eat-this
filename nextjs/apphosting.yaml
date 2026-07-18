@@ -3,7 +3,8 @@ runConfig:
   maxInstances: 10
   minInstances: 0
   concurrency: 80
-  timeoutSeconds: 60
+  # Live restaurant imports run Places + photo uploads + three LLM passes.
+  timeoutSeconds: 120
 
 env:
   - variable: NEXT_PUBLIC_ENV
@@ -108,6 +109,11 @@ env:
   # KI Buddy
   - variable: ANTHROPIC_API_KEY
     secret: ANTHROPIC_API_KEY
+    availability:
+      - RUNTIME
+  # Server-only Google Places access for the authenticated Studio importer.
+  - variable: GOOGLE_API_KEY
+    secret: GOOGLE_API_KEY
     availability:
       - RUNTIME
   # Voyage AI — semantic spot ranking (embeds the user's query at request

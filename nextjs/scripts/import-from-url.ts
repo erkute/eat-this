@@ -15,6 +15,7 @@
  */
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
+import type { SanityClient } from '@sanity/client'
 import { randomUUID } from 'node:crypto'
 import { isOwnerPhoto } from './lib/photo-curation'
 
@@ -29,13 +30,12 @@ const SANITY_API_VERSION = '2024-01-01'
 // available. Validation happens inside runImport() / the CLI guard so the
 // build succeeds with envs missing and the actual request fails clearly.
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
-const SANITY_TOKEN = process.env.SANITY_API_WRITE_TOKEN
 
-const sanity = createClient({
+const defaultSanity = createClient({
   projectId: SANITY_PROJECT_ID,
   dataset: SANITY_DATASET,
   apiVersion: SANITY_API_VERSION,
-  token: SANITY_TOKEN,
+  token: process.env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
 })
 
@@ -90,7 +90,11 @@ function slugify(input: string): string {
  *  published). Falls back to `<base>-<ortsteil>` then numeric `-2/-3/...`
  *  when the bare name collides — same brand at different addresses keeps a
  *  human-readable URL instead of going straight to a numeric suffix. */
-async function uniqueSlug(base: string, ortsteil: string | null): Promise<string> {
+async function uniqueSlug(
+  base: string,
+  ortsteil: string | null,
+  sanity: SanityClient,
+): Promise<string> {
   const exists = async (s: string) =>
     (await sanity.fetch<number>(
       `count(*[_type=="restaurant" && slug.current == $s])`,
@@ -354,7 +358,7 @@ function findOrtsteil(components: Place['addressComponents'] = []): string | nul
 }
 
 /** Looks up an existing bezirk doc by exact name; returns its _id or null. */
-async function findBezirkRef(name: string): Promise<string | null> {
+async function findBezirkRef(name: string, sanity: SanityClient): Promise<string | null> {
   const doc = await sanity.fetch<{ _id: string } | null>(
     `*[_type=="bezirk" && name == $name][0]{_id}`,
     { name },
@@ -390,6 +394,7 @@ function inferCategories(types: string[] = []): string[] {
  *  resolves after the doc's `name` becomes "Café") via `nameEn`. */
 async function lookupCategoryRefs(
   names: string[],
+  sanity: SanityClient,
 ): Promise<{ _key: string; _type: 'reference'; _ref: string }[]> {
   if (!names.length) return []
   const docs = await sanity.fetch<{ _id: string; name: string; nameEn: string | null }[]>(
@@ -440,7 +445,12 @@ function photoAttribution(
  *  owner-uploaded Places photos carry the business name as attribution.
  *  Google Places ToS require attribution, so credit/creditUrl are captured
  *  and applied as image.credit / image.creditUrl in buildDoc. */
-async function importPhoto(place: Place, restaurantSlug: string, restaurantName: string): Promise<PhotoAsset | null> {
+async function importPhoto(
+  place: Place,
+  restaurantSlug: string,
+  restaurantName: string,
+  sanity: SanityClient,
+): Promise<PhotoAsset | null> {
   const ownerPhotos = (place.photos ?? [])
     .filter((p) => p?.name && isOwnerPhoto(p.authorAttributions?.[0]?.displayName, restaurantName))
   if (!ownerPhotos.length) {
@@ -488,6 +498,7 @@ export async function importGalleryPhotos(
   restaurantSlug: string,
   restaurantName: string,
   excludePhotoName?: string,
+  sanity: SanityClient = defaultSanity,
 ): Promise<GalleryAsset[]> {
   const candidates = (place.photos ?? [])
     .filter((p) => p?.name && p.name !== excludePhotoName)
@@ -631,6 +642,8 @@ export interface RunImportOptions {
   uploadPhoto?: boolean
   /** When false, don't reject on a name collision. Default true. */
   duplicateCheck?: boolean
+  /** Authenticated client used for queries and asset uploads. Defaults to the CLI write token. */
+  sanityClient?: SanityClient
 }
 
 export interface RunImportResult {
@@ -671,7 +684,11 @@ export async function runImportFromParsed(
   opts: RunImportOptions = {},
 ): Promise<RunImportResult> {
   if (!GOOGLE_API_KEY) throw new ImportError('GOOGLE_API_KEY is not set.')
-  if (!SANITY_TOKEN) throw new ImportError('SANITY_API_WRITE_TOKEN is not set.')
+
+  const sanity = opts.sanityClient ?? defaultSanity
+  if (!sanity.config().token) {
+    throw new ImportError('An authenticated Sanity client is required.')
+  }
 
   const uploadPhoto = opts.uploadPhoto !== false
   const duplicateCheck = opts.duplicateCheck !== false
@@ -707,16 +724,16 @@ export async function runImportFromParsed(
   }
 
   const ortsteil = findOrtsteil(place.addressComponents)
-  const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil) : null
+  const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil, sanity) : null
 
-  const slug = await uniqueSlug(slugify(matchedName), ortsteil)
-  const photoAsset = uploadPhoto ? await importPhoto(place, slug, matchedName) : null
+  const slug = await uniqueSlug(slugify(matchedName), ortsteil, sanity)
+  const photoAsset = uploadPhoto ? await importPhoto(place, slug, matchedName, sanity) : null
   const galleryAssets = uploadPhoto
-    ? await importGalleryPhotos(place, slug, matchedName, photoAsset?.sourcePhotoName)
+    ? await importGalleryPhotos(place, slug, matchedName, photoAsset?.sourcePhotoName, sanity)
     : []
 
   const categoryNames = inferCategories(place.types)
-  const categoryRefs = await lookupCategoryRefs(categoryNames)
+  const categoryRefs = await lookupCategoryRefs(categoryNames, sanity)
 
   const doc = buildDoc(parsed, place, canonicalUrl, {
     bezirkRefId,
@@ -782,7 +799,7 @@ async function main() {
     return
   }
 
-  const created = await sanity.create(result.doc)
+  const created = await defaultSanity.create(result.doc)
   const publishedId = created._id.replace(/^drafts\./, '')
   console.log(`✓ Draft created: ${created._id}`)
   console.log(`  Open in Studio:`)

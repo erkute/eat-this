@@ -1,15 +1,18 @@
 import {useCallback, useState} from 'react'
 import {Box, Button, Card, Container, Heading, Inline, Spinner, Stack, Text, TextArea} from '@sanity/ui'
+import {useClient} from 'sanity'
 import {useRouter} from 'sanity/router'
 
-// LOCAL-ONLY tool. It is registered in sanity.config.js *only* under
-// `import.meta.env.DEV`, so it never ships in a `sanity deploy` build. It
-// talks to the Next.js dev server's dev-only `/api/dev/import-restaurant`
-// route, which is itself 404 in production. No secret is involved on either
-// side — see the route file's security note.
+// The Studio forwards its short-lived Sanity session token to the first-party
+// import endpoint. The endpoint performs all Sanity operations with that same
+// token, so no write secret is bundled and the current user's role remains the
+// authorization boundary.
+const studioEnv = (import.meta as unknown as {
+  env: {DEV?: boolean; SANITY_STUDIO_API_BASE?: string}
+}).env
 const API_BASE: string =
-  (import.meta as unknown as {env: {SANITY_STUDIO_API_BASE?: string}}).env.SANITY_STUDIO_API_BASE ||
-  'http://localhost:3000'
+  studioEnv.SANITY_STUDIO_API_BASE ||
+  (studioEnv.DEV ? 'http://localhost:3000' : 'https://www.eatthisdot.com')
 
 interface ImportResult {
   url: string
@@ -34,20 +37,28 @@ function parseUrls(blob: string): string[] {
     .filter((line) => /^https?:\/\//i.test(line))
 }
 
-async function importOne(url: string): Promise<ImportResult> {
+async function importOne(url: string, token: string): Promise<ImportResult> {
   try {
-    const res = await fetch(`${API_BASE}/api/dev/import-restaurant`, {
+    const res = await fetch(`${API_BASE}/api/admin/import-restaurant`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({url}),
     })
     const payload = await res.json().catch(() => ({}))
     if (!res.ok) {
       const hint =
         res.status === 404
-          ? 'Is the Next.js dev server running? Start it with `npm run dev` in nextjs/.'
+          ? 'The import service is not deployed for this environment.'
           : payload.hint
-      return {url, status: 'error', message: payload.error ?? `HTTP ${res.status}`, hint}
+      return {
+        url,
+        status: 'error',
+        message: payload.message ?? payload.error ?? `HTTP ${res.status}`,
+        hint,
+      }
     }
     return {url, status: 'success', name: payload.name, docId: payload.docId}
   } catch (err) {
@@ -55,12 +66,13 @@ async function importOne(url: string): Promise<ImportResult> {
       url,
       status: 'error',
       message: (err as Error).message,
-      hint: 'Could not reach the Next.js dev server on localhost:3000 — start it with `npm run dev` in nextjs/.',
+      hint: 'Could not reach the import service. Check the app deployment and your connection.',
     }
   }
 }
 
 export default function RestaurantImporter() {
+  const client = useClient({apiVersion: '2024-01-01'})
   const router = useRouter()
   const [input, setInput] = useState('')
   const [status, setStatus] = useState<Status>({kind: 'idle'})
@@ -76,17 +88,31 @@ export default function RestaurantImporter() {
         })
         return
       }
+      const token = client.config().token
+      if (!token) {
+        setStatus({
+          kind: 'done',
+          results: [
+            {
+              url: '',
+              status: 'error',
+              message: 'No active Sanity session. Reload Studio and sign in again.',
+            },
+          ],
+        })
+        return
+      }
       const results: ImportResult[] = []
       // Sequential rather than Promise.all — keeps Places + Anthropic
       // rate-limit pressure low and gives clear "Importing N/M" progress.
       for (let i = 0; i < urls.length; i++) {
         setStatus({kind: 'running', current: i + 1, total: urls.length, results: [...results]})
-        const r = await importOne(urls[i])
+        const r = await importOne(urls[i], token)
         results.push(r)
       }
       setStatus({kind: 'done', results})
     },
-    [input],
+    [client, input],
   )
 
   const openDoc = useCallback(
@@ -111,8 +137,7 @@ export default function RestaurantImporter() {
             Paste one Maps URL per line — short links (maps.app.goo.gl/X) work too. Each URL
             takes ~1 minute (Places lookup, photo upload, web research on Berlin food editorials,
             AI generators) and publishes the restaurant directly. Open it from the result list
-            below to review or edit. Needs the Next.js dev server running
-            (<code>npm run dev</code> in <code>nextjs/</code>).
+            below to review or edit. Access follows your current Sanity role.
           </Text>
         </Stack>
         <Card padding={4} radius={3} shadow={1}>

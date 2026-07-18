@@ -71,23 +71,19 @@ export default defineConfig({
     visionTool(),
   ],
 
-  // Local-only restaurant importer. Registered ONLY in `sanity dev`
-  // (import.meta.env.DEV) so it is never bundled into a `sanity deploy`
-  // build — keeping the deployed Studio free of any import surface. It calls
-  // the Next.js dev server's 404-in-prod `/api/dev/import-restaurant` route;
-  // no secret is involved on either side (see that route's security note).
-  tools: (prev) =>
-    import.meta.env.DEV
-      ? [
-          ...prev,
-          {
-            name: 'restaurant-importer',
-            title: 'Import Restaurant',
-            icon: DownloadIcon,
-            component: RestaurantImporter,
-          },
-        ]
-      : prev,
+  // Available locally and in the deployed Studio. The browser bundle contains
+  // no provider or write secret: the live endpoint receives the current
+  // short-lived Sanity session token and keeps that user's role as the
+  // authorization boundary.
+  tools: (prev) => [
+    ...prev,
+    {
+      name: 'restaurant-importer',
+      title: 'Import Restaurant',
+      icon: DownloadIcon,
+      component: RestaurantImporter,
+    },
+  ],
 
   schema: {
     types: schemaTypes,

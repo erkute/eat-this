@@ -76,8 +76,9 @@ mit explizitem Projekt deployt: `firebase deploy --only firestore:rules,storage 
 - `nextjs/public/`: öffentlich auslieferbare, optimierte Assets; keine Secrets oder Premium-Bilder.
 - `nextjs/scripts/`: lokale Import-, Backfill-, Admin- und Migrations-CLIs; keine öffentlichen APIs.
 - `nextjs/__tests__/` und colocated `*.test.*`: Vitest-Tests; Rules-Tests benötigen Emulatoren.
-- `studio/schemaTypes/`: alle Sanity-Schemas; `studio/components/` enthält Schema-Inputs,
-  `studio/tools/` nur lokale Studio-Werkzeuge.
+- `studio/schemaTypes/`: alle Sanity-Schemas; `studio/components/` enthält Schema-Inputs.
+  `studio/tools/RestaurantImporter.tsx` läuft lokal und im deployten Production-Studio; andere
+  Werkzeuge bleiben entsprechend ihrer eigenen Guards lokal.
 - `firestore.rules`, `storage.rules`, `firestore.indexes.json`, `firebase.json`: Firebase-Datenvertrag.
 - `.github/workflows/`: Quality und Lighthouse; keine Deployment-Secrets in Workflow-Dateien.
 - `docs/`: historische Entscheidungen/Runbooks, nicht aktuelle Architekturquelle.
@@ -231,6 +232,13 @@ Production hydratisieren/streamen nur `/api/map-data`, `/api/must-eat-reveal` un
 dort hart 404. Dish, Beschreibungen, Preis, Bildpfad oder private
 Bilder niemals zurück in Sanity, öffentliche GROQ-Projektionen, RSC-Payloads oder Client-Logs legen.
 
+Der Production-Studio-Importer spricht `/api/admin/import-restaurant` mit dem kurzlebigen Sanity-
+Session-Token des eingeloggten Users an. Die Route akzeptiert nur bekannte Studio-Origins, erlaubt
+nur Administrator/Developer/Editor, limitiert kostenpflichtige Aufrufe und führt Sanity-Reads,
+Asset-Uploads und Writes mit genau diesem User-Token aus. Kein Import-/Write-Secret in Studio-Bundles
+oder Antworten legen. Staging bleibt hart 404; lokal bleibt die alte `/api/dev/import-restaurant`-
+Route ausschließlich als Dev-Fallback verfügbar.
+
 ## Stripe
 
 - `lib/stripe-catalog.ts` ist die serverseitige Wahrheit für Pack, Typ, Slug, Price und Betrag.
@@ -261,6 +269,8 @@ Bilder niemals zurück in Sanity, öffentliche GROQ-Projektionen, RSC-Payloads o
 - Do: Restaurant-Kategorien als Sanity-Referenzen behandeln. Don't: alte String/Ref-Dualpfade oder Migrations-Shims wieder einführen.
 - Do: `homeWeek` nur entsprechend seinem belegten Consumer ändern. Don't: es ohne Änderung von `getHomeData.ts` zur vermeintlichen Home-Quelle erklären.
 - Do: Premiumdaten über den privaten Firebase-Pfad ausliefern. Don't: Sanity-Assets/-Felder, direkte Firestore/Storage-Reads oder erratbare öffentliche Bildpfade als Abkürzung verwenden.
+- Do: Live-Restaurant-Imports mit der aktuellen Sanity-User-Session autorisieren. Don't: einen
+  `SANITY_API_WRITE_TOKEN`, Shared Import Secret oder Provider-Key in das Studio-Bundle legen.
 - Do: Browserbilder als WebP (Cutouts q80, Fotos q72); PNG nur für Icons/OG/E-Mail-Anforderungen. Don't: große rohe Browserassets in `public/` committen.
 - Do: Light-Mode, reduzierten Motion-Support und Translate-basierte Brand-Motion erhalten. Don't: Dark-Mode-Branches, Opacity-Entry/Exit, dekorative Balken/Rahmen oder harte Button-Shadows ergänzen.
 

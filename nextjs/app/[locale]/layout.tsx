@@ -81,7 +81,13 @@ export default async function LocaleLayout({
             Loading it with print media keeps the third-party stylesheet out of
             the render path. CRITICAL_BOOTSTRAP switches it on after it arrives. */}
         <link rel="preload" href={TYPEKIT_STYLESHEET} as="style" />
-        <link id="et-adobe-fonts" rel="stylesheet" href={TYPEKIT_STYLESHEET} media="print" />
+        <link
+          id="et-adobe-fonts"
+          rel="stylesheet"
+          href={TYPEKIT_STYLESHEET}
+          media="print"
+          suppressHydrationWarning
+        />
         <noscript>
           <link rel="stylesheet" href={TYPEKIT_STYLESHEET} />
         </noscript>

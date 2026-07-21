@@ -239,6 +239,12 @@ Asset-Uploads und Writes mit genau diesem User-Token aus. Kein Import-/Write-Sec
 oder Antworten legen. Staging bleibt hart 404; lokal bleibt die alte `/api/dev/import-restaurant`-
 Route ausschließlich als Dev-Fallback verfügbar.
 
+Der AI-News-Assistent ist eine Dokumentaktion auf `newsArticle`. Er spricht
+`/api/admin/generate-news-article` ebenfalls mit der aktuellen Sanity-Session an, schreibt aber
+nur über den Browser-Client einen prüfbaren Draft und veröffentlicht nie automatisch. Anthropic-
+Secrets und Web-Recherche bleiben serverseitig; Staging ist hart 404. Vorhandene Texte und Bilder
+bleiben standardmäßig erhalten, und Alt-Texte dürfen nur aus einem expliziten Bildmotiv entstehen.
+
 ## Stripe
 
 - `lib/stripe-catalog.ts` ist die serverseitige Wahrheit für Pack, Typ, Slug, Price und Betrag.
@@ -271,6 +277,8 @@ Route ausschließlich als Dev-Fallback verfügbar.
 - Do: Premiumdaten über den privaten Firebase-Pfad ausliefern. Don't: Sanity-Assets/-Felder, direkte Firestore/Storage-Reads oder erratbare öffentliche Bildpfade als Abkürzung verwenden.
 - Do: Live-Restaurant-Imports mit der aktuellen Sanity-User-Session autorisieren. Don't: einen
   `SANITY_API_WRITE_TOKEN`, Shared Import Secret oder Provider-Key in das Studio-Bundle legen.
+- Do: AI-News als redaktionellen Draft erzeugen und vor Publish prüfen. Don't: AI-generierte
+  Artikel automatisch veröffentlichen oder Alt-Texte für nicht beschriebene Bilder erfinden.
 - Do: Browserbilder als WebP (Cutouts q80, Fotos q72); PNG nur für Icons/OG/E-Mail-Anforderungen. Don't: große rohe Browserassets in `public/` committen.
 - Do: Light-Mode, reduzierten Motion-Support und Translate-basierte Brand-Motion erhalten. Don't: Dark-Mode-Branches, Opacity-Entry/Exit, dekorative Balken/Rahmen oder harte Button-Shadows ergänzen.
 

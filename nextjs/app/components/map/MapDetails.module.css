@@ -3207,7 +3207,7 @@
   white-space: nowrap;
 }
 .detailV13MustEat .fdDistanceMeter {
-  margin-top: clamp(7px, 1dvh, 9px);
+  margin-top: 4px;
 }
 .detailV13MustEat .fdDistanceTrack {
   width: 100%;
@@ -3226,23 +3226,15 @@
   border-radius: inherit;
 }
 .detailV13MustEat .fdDistanceCaption {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: var(--me-muted);
-  font-family: var(
-    --et-font-mono,
-    var(--menu-mono),
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Consolas,
-    monospace
-  );
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  text-align: right;
-  text-transform: uppercase;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 450;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-align: left;
+  text-transform: none;
 }
 .detailV13MustEat .fdRest {
   position: relative;

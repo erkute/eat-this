@@ -4610,7 +4610,7 @@
 }
 @media (min-width: 1024px) {
   .detailV13MustEat .detailV13Scroll {
-    --me-mid-slot: clamp(176px, 22dvh, 196px);
+    --me-mid-slot: clamp(196px, 24dvh, 212px);
   }
 }
 @media (max-width: 1023.98px) {
@@ -4875,4 +4875,30 @@
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
 .detailV13MustEat > .fdRestDock .fdK {
   color: var(--et-home-ink);
+}
+
+/* The desktop map rail can be narrower than the 1024px component breakpoint
+   (for example the 940px window in the clipping report). In that range the
+   compact tablet grid is used, but its locked-name and restaurant slots were
+   sized for shorter copy. Keep the covered badge compact and return that
+   space to the reveal guidance; give two-line restaurant names a complete
+   line box above the CTA. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .detailV13MustEat .fdMid.fdMidLocked {
+    --me-name-slot: 46px;
+  }
+
+  .detailV13MustEat .detailV13Scroll {
+    --me-rest-slot: 128px;
+  }
+}
+
+/* On short desktop rails the detailed proximity state needs more vertical
+   room than revealed-card prose: distance headline + meter + two-line hint.
+   Keep the complete middle stack so its last line cannot disappear behind
+   the fixed restaurant row. */
+@media (min-width: 1024px) and (max-height: 760px) {
+  .detailV13MustEat .detailV13Scroll {
+    --me-mid-slot: 196px;
+  }
 }

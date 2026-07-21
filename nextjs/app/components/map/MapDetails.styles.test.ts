@@ -160,6 +160,32 @@ describe('MapDetails CSS contracts', () => {
     )
   })
 
+  it('reserves the complete proximity stack on short desktop rails', () => {
+    const baseMedia = '(min-width: 1024px)'
+    const shortMedia = '(min-width: 1024px) and (max-height: 760px)'
+    const baseRules: Record<string, string>[] = []
+    const shortRules: Record<string, string>[] = []
+
+    root.walkRules((rule) => {
+      if (rule.selector !== '.detailV13MustEat .detailV13Scroll') return
+
+      const declarations =
+        Object.fromEntries(
+          rule.nodes
+            .filter((node) => node.type === 'decl')
+            .map((node) => [node.prop, node.value]),
+        )
+
+      if (isInside(rule, 'media', baseMedia)) baseRules.push(declarations)
+      if (isInside(rule, 'media', shortMedia)) shortRules.push(declarations)
+    })
+
+    expect(baseRules).toContainEqual(
+      expect.objectContaining({ '--me-mid-slot': 'clamp(196px, 24dvh, 212px)' }),
+    )
+    expect(shortRules).toContainEqual(expect.objectContaining({ '--me-mid-slot': '196px' }))
+  })
+
   it('retains the responsive and Safari detail contracts', () => {
     const media = new Set<string>()
     const supports = new Set<string>()

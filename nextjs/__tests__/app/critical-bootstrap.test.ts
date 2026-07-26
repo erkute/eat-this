@@ -13,4 +13,13 @@ describe('critical auth bootstrap', () => {
     expect(bootstrap).not.toContain('loginBtn')
     expect(bootstrap).not.toContain('.textContent=')
   })
+
+  it('acknowledges the intentional pre-hydration font media switch on the link itself', () => {
+    const source = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
+    const fontLink = source.match(/<link\s+id="et-adobe-fonts"[\s\S]*?\/>/)?.[0]
+
+    expect(fontLink).toBeDefined()
+    expect(fontLink).toContain('media="print"')
+    expect(fontLink).toContain('suppressHydrationWarning')
+  })
 })

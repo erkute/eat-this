@@ -131,6 +131,61 @@ describe('MapDetails CSS contracts', () => {
     )
   })
 
+  it('keeps narrow-desktop Must Eat copy out of fixed-height clipping', () => {
+    const media = '(min-width: 768px) and (max-width: 1023.98px)'
+    const declarations = new Map<string, Record<string, string>>()
+
+    root.walkRules((rule) => {
+      if (!isInside(rule, 'media', media)) return
+      if (
+        rule.selector !== '.detailV13MustEat .fdMid.fdMidLocked'
+        && rule.selector !== '.detailV13MustEat .detailV13Scroll'
+      ) return
+
+      declarations.set(
+        rule.selector,
+        Object.fromEntries(
+          rule.nodes
+            .filter((node) => node.type === 'decl')
+            .map((node) => [node.prop, node.value]),
+        ),
+      )
+    })
+
+    expect(declarations.get('.detailV13MustEat .fdMid.fdMidLocked')).toEqual(
+      expect.objectContaining({ '--me-name-slot': '46px' }),
+    )
+    expect(declarations.get('.detailV13MustEat .detailV13Scroll')).toEqual(
+      expect.objectContaining({ '--me-rest-slot': '128px' }),
+    )
+  })
+
+  it('reserves the complete proximity stack on short desktop rails', () => {
+    const baseMedia = '(min-width: 1024px)'
+    const shortMedia = '(min-width: 1024px) and (max-height: 760px)'
+    const baseRules: Record<string, string>[] = []
+    const shortRules: Record<string, string>[] = []
+
+    root.walkRules((rule) => {
+      if (rule.selector !== '.detailV13MustEat .detailV13Scroll') return
+
+      const declarations =
+        Object.fromEntries(
+          rule.nodes
+            .filter((node) => node.type === 'decl')
+            .map((node) => [node.prop, node.value]),
+        )
+
+      if (isInside(rule, 'media', baseMedia)) baseRules.push(declarations)
+      if (isInside(rule, 'media', shortMedia)) shortRules.push(declarations)
+    })
+
+    expect(baseRules).toContainEqual(
+      expect.objectContaining({ '--me-mid-slot': 'clamp(196px, 24dvh, 212px)' }),
+    )
+    expect(shortRules).toContainEqual(expect.objectContaining({ '--me-mid-slot': '196px' }))
+  })
+
   it('retains the responsive and Safari detail contracts', () => {
     const media = new Set<string>()
     const supports = new Set<string>()

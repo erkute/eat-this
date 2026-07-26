@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from '@/i18n/navigation'
+import { useLoginModal } from '@/lib/auth'
 import type { MapMustEat } from '@/lib/types'
 import type { UserLocation } from '@/lib/map'
 import MustEatRevealOverlay from './MustEatRevealOverlay'
@@ -52,13 +52,20 @@ export default function MustEatDetail({
     }
     try { return sessionStorage.getItem('revealdemo') === '1' } catch { return false }
   })
-  // Guest revealed on site (within 50 m) → login gate: the card goes into
-  // the deck only with an account.
-  const router = useRouter()
+  // Keep the map in place and use the shared login layer. The previous
+  // standalone route made this reveal flow leave the map entirely.
+  const { open: openLoginModal } = useLoginModal()
   const handleRequireLogin = useCallback(() => {
-    router.push('/login?ctx=musteat')
-  }, [router])
-  const state = useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed: Boolean(uid), onRequireLogin: handleRequireLogin, demo })
+    openLoginModal('starter')
+  }, [openLoginModal])
+  const state = useMustEatDetailState({
+    mustEat,
+    userLocation,
+    onUnlock,
+    isAuthed: Boolean(uid),
+    onRequireLogin: handleRequireLogin,
+    demo,
+  })
   // In demo the card stays face-down until the reveal animation finishes, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.
   const [demoRevealed, setDemoRevealed] = useState(false)

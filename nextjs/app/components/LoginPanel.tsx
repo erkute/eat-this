@@ -20,16 +20,12 @@ interface LoginPanelProps {
   onBack: () => void;
   modal?: boolean;
   mode?: 'starter' | 'signin';
-  /** Guest revealed a must-eat on site (50 m) — swap the sub line to explain
-   *  why login is needed: the card lands in the deck only with an account. */
-  mustEatGate?: boolean;
 }
 
 export default function LoginPanel({
   onBack,
   modal = false,
   mode = 'starter',
-  mustEatGate = false,
 }: LoginPanelProps) {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
@@ -50,9 +46,9 @@ export default function LoginPanel({
   useEffect(() => {
     trackEvent('login_view', {
       surface: modal ? 'modal' : 'page',
-      context: mustEatGate ? 'must_eat_gate' : 'general',
+      context: 'general',
     });
-  }, [modal, mustEatGate]);
+  }, [modal]);
 
   useEffect(() => {
     if (!user || authMethod.current !== 'google') return;
@@ -391,9 +387,7 @@ export default function LoginPanel({
                 <strong>{t('modals.login.menuProfileText')}</strong>
               </li>
             </ul>
-            <p className={styles.sub}>
-              {t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}
-            </p>
+            <p className={styles.sub}>{t('modals.login.heroSub')}</p>
 
             <form
               className={styles.form}

@@ -7,7 +7,14 @@ import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
-import { getLocationStatus } from '@/lib/map/locationStatus';
+import {
+  getLocatingCopy,
+  getLocationStatus,
+  LOCATING_MIN_VISIBLE_MS,
+  LOCATING_SHOW_DELAY_MS,
+  type LocationStatus,
+} from '@/lib/map/locationStatus';
+import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { openBurgerDrawer } from '../burgerDrawerState';
 
 import dynamic from 'next/dynamic';
@@ -205,15 +212,29 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
-  const locationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
+  const rawLocationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
+  /* The only non-error copy is the "searching" one, so this is exactly the
+     transient state that used to flash. Errors stay immediate — they are the
+     messages the user actually needs to read. */
+  const isLocating = Boolean(rawLocationStatus.copy) && !rawLocationStatus.isError;
+  const locatingVisible =
+    useDeferredStatus(isLocating, LOCATING_SHOW_DELAY_MS, LOCATING_MIN_VISIBLE_MS) &&
+    !rawLocationStatus.isError;
+  /* An error arriving mid-hold wins immediately (the && above), so the stale
+     "searching" copy can't sit on top of it for a frame. */
+  const locationStatus: LocationStatus = locatingVisible
+    ? { copy: getLocatingCopy(locale), isError: false, canRetry: false }
+    : isLocating
+      ? { copy: null, isError: false, canRetry: false }
+      : rawLocationStatus;
   const locationStatusKey = locationStatus.copy
-    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locateLoading ? 'loading' : 'idle'}`
+    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;
   const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
   const showLocationStatus = Boolean(
     sheetView !== 'detail' &&
-      locationStatus.copy &&
-      locationStatusKey !== dismissedLocationStatusKey
+    locationStatus.copy &&
+    locationStatusKey !== dismissedLocationStatusKey
   );
   const handleLocationRetry = useCallback(() => {
     setDismissedLocationStatusKey(null);
@@ -262,11 +283,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
     >
       <h1 className={styles.srOnly}>{locale === 'en' ? 'Eat This map' : 'Eat This Karte'}</h1>
-      <div
-        className={styles.shell}
-        data-map-shell=""
-        data-map-view={sheetView}
-      >
+      <div className={styles.shell} data-map-shell="" data-map-view={sheetView}>
         {/* The body data attributes slide the floating search toolbar + burger
             chip off-screen at full/detail states (see MapControls.module.css). */}
         <div
@@ -541,7 +558,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             ) : (
               <>
                 {/* Stuck-detection sentinel for the sticky header (phones). */}
-                <div ref={stuckSentinelRef} className={sheetStyles.stuckSentinel} aria-hidden="true" />
+                <div
+                  ref={stuckSentinelRef}
+                  className={sheetStyles.stuckSentinel}
+                  aria-hidden="true"
+                />
                 <MapListHeader
                   headerRef={setHeaderRef}
                   categories={categories}
@@ -611,7 +632,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               </button>
             </div>
           )}
-
         </div>
       </div>
     </main>

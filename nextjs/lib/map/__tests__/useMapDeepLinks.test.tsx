@@ -88,6 +88,28 @@ describe('useMapDeepLinks bounded map polling', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  it('does not reopen a restaurant that was already selected by the server render', () => {
+    window.history.replaceState({}, '', '/map?r=test-spot')
+    const mapRef: RefObject<MapRef | null> = { current: null }
+    const { stableArgs, onRestaurantSlugMatch } = createHarness(mapRef)
+    renderHook(() =>
+      useMapDeepLinks({
+        ...stableArgs,
+        isActive: true,
+        initialRestaurant: restaurant,
+      }),
+    )
+
+    expect(onRestaurantSlugMatch).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(0)
+
+    mapRef.current = {} as MapRef
+    act(() => vi.advanceTimersByTime(30_000))
+
+    expect(onRestaurantSlugMatch).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
   it('opens a Must-Eat once as a fallback if the map chunk never mounts', () => {
     window.history.replaceState({}, '', '/map?me=must-eat-1')
     const mapRef: RefObject<MapRef | null> = { current: null }

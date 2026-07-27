@@ -154,8 +154,10 @@
     bottom: auto;
     transform: none;
     height: auto;
-    margin-top: -44dvh;
-    min-height: calc(86dvh + var(--map-bar-overhang, 0px));
+    margin-top: calc(0px - var(--phone-list-sheet-visible, 50dvh));
+    min-height: calc(
+      42dvh + var(--phone-list-sheet-visible, 50dvh) + var(--map-bar-overhang, 0px)
+    );
     transition: none;
     will-change: auto;
     z-index: 4;
@@ -176,31 +178,19 @@
   .stuckSentinel {
     height: 0;
   }
-  .list[data-header-stuck='true']::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: env(safe-area-inset-top, 0px);
-    background: var(--et-home-paper, #fff);
-    z-index: 5;
-  }
   .listScroll {
     max-height: none;
     overflow: visible;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
   .list[data-view='detail'] {
-    --detail-map-peek: clamp(150px, 21dvh, 200px);
-
     position: relative;
     top: auto;
     left: auto;
     right: auto;
     bottom: auto;
     height: auto;
-    margin-top: calc(-100dvh + var(--detail-map-peek));
+    margin-top: 0;
     min-height: calc(100dvh - var(--detail-map-peek) + var(--map-bar-overhang, 0px));
     transform: none;
     transition: none;

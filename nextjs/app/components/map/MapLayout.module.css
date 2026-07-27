@@ -189,6 +189,8 @@
 
 @media (max-width: 767.98px) {
   .shell {
+    --phone-list-sheet-visible: 50dvh;
+    --detail-map-peek: clamp(190px, 27dvh, 240px);
     height: auto;
     overflow: visible;
   }
@@ -204,24 +206,41 @@
     height: 100dvh;
     z-index: 0;
   }
-  .body[data-map-view='detail'] .mapWrap {
-    visibility: hidden;
+  .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
+    /* The detail uses the same live MapLibre surface as the list, but its real
+       compositor is bounded to the visible peek and scrolls in normal flow.
+       It never sits behind the detail, so Safari's translucent bottom-bar
+       backdrop can sample only real content below. */
+    position: relative;
+    top: auto;
+    height: var(--detail-map-peek);
+    overflow: hidden;
   }
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
-    bottom: calc(44dvh + 10px);
+    bottom: calc(var(--phone-list-sheet-visible) + 10px);
+  }
+  .body[data-map-view='detail'][data-detail-kind='restaurant']
+    .mapWrap
+    :global(.maplibregl-ctrl-bottom-left) {
+    display: block;
+    bottom: 6px;
+    left: 8px;
+  }
+  .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
+    visibility: hidden;
   }
 }
 
 @media (max-width: 767.98px) {
   .shell[data-map-view='detail'],
-.shell[data-map-view='detail'] .body[data-map-view='detail'] {
+  .shell[data-map-view='detail'] .body[data-map-view='detail'] {
     background: var(--et-home-paper, #fff);
   }
 
   html:has(.body[data-map-view='detail']),
-body:has(.body[data-map-view='detail']),
-html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
-body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
+  body:has(.body[data-map-view='detail']),
+  html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
+  body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
     background: var(--et-home-paper, #fff);
   }
 }

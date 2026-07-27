@@ -49,9 +49,9 @@ const LIST_PEEK_BASE_PX = 90;
  * without a one-frame race where reapplySnap reads the previous view's peek
  * size and parks the sheet at the wrong height.
  */
-export function useMapSheet(onDetailDismiss?: () => void) {
-  const sheet = useBottomSheet('mid');
-  const [sheetView, setSheetViewState] = useState<SheetView>('list');
+export function useMapSheet(onDetailDismiss?: () => void, initialView: SheetView = 'list') {
+  const sheet = useBottomSheet(initialView === 'detail' ? 'full' : 'mid');
+  const [sheetView, setSheetViewState] = useState<SheetView>(initialView);
   /* Measured bottom-edge offset (relative to the sheet's top) of the last
      element visible at the detail middle stage — the pager when rendered
      (restaurant), otherwise the hero/dish-name (must-eat). Measuring the
@@ -126,9 +126,13 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     [sheetRef]
   );
 
-  // Initial configure on mount so the first applyY (in the sheet ref-callback)
-  // already has the right list peek size.
-  if (!sheetElRef.current) configure(viewConfig.list);
+  // Initial configure during render so the first applyY (in the sheet
+  // ref-callback) already uses the server-selected view. In particular, a
+  // hard reload of /map?r=… must not paint the list geometry before React's
+  // deep-link effect switches to the restaurant detail.
+  if (!sheetElRef.current) {
+    configure(sheetView === 'detail' ? viewConfig.detail : viewConfig.list);
+  }
 
   /* Observe the [data-detail-hero] block whenever the detail view is mounted.
      Re-targets the observer if the element swaps (e.g. restaurant change).

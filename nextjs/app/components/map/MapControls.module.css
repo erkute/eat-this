@@ -788,7 +788,7 @@
 
 @media (max-width: 767.98px) {
   .fab {
-    bottom: calc(44dvh + 14px);
+    bottom: calc(var(--phone-list-sheet-visible, 50dvh) + 14px);
   }
   :global([data-map-body][data-map-view='detail']) .fab {
     display: none;
@@ -799,7 +799,7 @@
   .mapStatusLayer,
 .mapStatusLayerError {
     position: absolute;
-    top: 56dvh;
+    top: calc(100dvh - var(--phone-list-sheet-visible, 50dvh));
     bottom: auto;
     left: 50%;
     transform: translate(-50%, calc(-100% - 12px));

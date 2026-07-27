@@ -44,6 +44,10 @@ interface Args {
   setSnap: (snap: 'peek' | 'mid' | 'full') => void
   onRestaurantSlugMatch: (r: MapRestaurant) => void
   onMustEatIdMatch: (m: MapMustEat) => void
+  /** Restaurant already selected in the server render for a hard-reloaded
+   *  ?r= URL. MapSection owns its initial camera poll; this hook only marks
+   *  the URL as consumed so it cannot reopen the detail after hydration. */
+  initialRestaurant?: MapRestaurant | null
 }
 
 export function useMapDeepLinks({
@@ -59,6 +63,7 @@ export function useMapDeepLinks({
   setSnap,
   onRestaurantSlugMatch,
   onMustEatIdMatch,
+  initialRestaurant = null,
 }: Args) {
   // ?r=<slug> opens the matching restaurant detail directly. Used by profile
   // favourites and any external link that wants to land on the map with a
@@ -68,7 +73,7 @@ export function useMapDeepLinks({
   // — same reasoning as the ?me= effect below.
   const onRestaurantSlugMatchRef = useRef(onRestaurantSlugMatch)
   onRestaurantSlugMatchRef.current = onRestaurantSlugMatch
-  const restaurantConsumed = useRef(false)
+  const restaurantConsumed = useRef(initialRestaurant !== null)
   const [restaurantPollTarget, setRestaurantPollTarget] = useState<MapRestaurant | null>(null)
   useEffect(() => {
     if (restaurantConsumed.current) return

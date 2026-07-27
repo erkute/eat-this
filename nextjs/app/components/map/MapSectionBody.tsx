@@ -20,7 +20,6 @@ import MapDataNotice from './MapDataNotice';
 import styles from './MapLayout.module.css';
 import controlStyles from './MapControls.module.css';
 import sheetStyles from './MapSheet.module.css';
-import markerStyles from './MapMarkers.module.css';
 
 /* The map canvas pulls in react-map-gl + maplibre-gl (~800 KB) and only runs
    in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
@@ -31,130 +30,9 @@ const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
   loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
 });
 
-const STATIC_PEEK_ZOOM = 15;
-const TILE_SIZE = 256;
-
-function projectTilePoint(lng: number, lat: number, zoom: number) {
-  const scale = TILE_SIZE * 2 ** zoom;
-  const sinLat = Math.sin((Math.max(-85.05112878, Math.min(85.05112878, lat)) * Math.PI) / 180);
-  return {
-    x: ((lng + 180) / 360) * scale,
-    y: (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * scale,
-  };
-}
-
-function StaticDetailMapPeek({
-  restaurant,
-  restaurants,
-  onRestaurantClick,
-}: {
-  restaurant: MapRestaurant | null;
-  restaurants: MapRestaurant[];
-  onRestaurantClick: (restaurant: MapRestaurant) => void;
-}) {
-  if (!restaurant || typeof restaurant.lat !== 'number' || typeof restaurant.lng !== 'number') {
-    return null;
-  }
-  const point = projectTilePoint(restaurant.lng, restaurant.lat, STATIC_PEEK_ZOOM);
-  const tileCount = 2 ** STATIC_PEEK_ZOOM;
-  const centerX = Math.floor(point.x / TILE_SIZE);
-  const centerY = Math.floor(point.y / TILE_SIZE);
-  const offsetX = point.x - centerX * TILE_SIZE;
-  const offsetY = point.y - centerY * TILE_SIZE;
-  const tiles = [-1, 0, 1].flatMap((dy) =>
-    [-1, 0, 1].map((dx) => {
-      const x = (centerX + dx + tileCount) % tileCount;
-      const y = Math.max(0, Math.min(tileCount - 1, centerY + dy));
-      const subdomain = ['a', 'b', 'c'][Math.abs(x + y) % 3];
-      return {
-        key: `${x}-${y}`,
-        src: `https://${subdomain}.basemaps.cartocdn.com/light_all/${STATIC_PEEK_ZOOM}/${x}/${y}.png`,
-        left: `calc(50% + ${Math.round(dx * TILE_SIZE - offsetX)}px)`,
-        top: `calc(var(--detail-map-peek, 150px) * 0.6 + ${Math.round(dy * TILE_SIZE - offsetY)}px)`,
-      };
-    })
-  );
-  const markerRestaurants = restaurants.some((r) => r._id === restaurant._id)
-    ? restaurants
-    : [...restaurants, restaurant];
-  const markers = markerRestaurants
-    .map((r) => {
-      const markerPoint = projectTilePoint(r.lng, r.lat, STATIC_PEEK_ZOOM);
-      const x = markerPoint.x - point.x;
-      const y = markerPoint.y - point.y;
-      return {
-        id: r._id,
-        restaurant: r,
-        isSelected: r._id === restaurant._id,
-        hasMustEat: r.mustEatCount > 0,
-        x,
-        y,
-        left: `calc(50% + ${Math.round(x)}px)`,
-        top: `calc(var(--detail-map-peek, 150px) * 0.6 + ${Math.round(y)}px)`,
-      };
-    })
-    .filter((marker) => marker.isSelected || (Math.abs(marker.x) < 360 && Math.abs(marker.y) < 240));
-
-  return (
-    <div className={markerStyles.staticDetailMapPeek}>
-      {tiles.map((tile) => (
-        <img
-          key={tile.key}
-          src={tile.src}
-          alt=""
-          className={markerStyles.staticDetailMapTile}
-          style={{ left: tile.left, top: tile.top }}
-          draggable={false}
-        />
-      ))}
-      {markers.map((marker) => {
-        const className = [
-          markerStyles.staticDetailPin,
-          marker.isSelected && markerStyles.staticDetailPinActive,
-          marker.hasMustEat && markerStyles.staticDetailPinHasMust,
-        ]
-          .filter(Boolean)
-          .join(' ');
-        const logo = (
-          <span className={markerStyles.pinLogoShape}>
-            <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
-          </span>
-        );
-
-        return marker.isSelected ? (
-          <span
-            key={marker.id}
-            className={className}
-            style={{ left: marker.left, top: marker.top }}
-            aria-hidden="true"
-          >
-            {logo}
-          </span>
-        ) : (
-          <button
-            key={marker.id}
-            type="button"
-            className={className}
-            style={{ left: marker.left, top: marker.top }}
-            onClick={() => onRestaurantClick(marker.restaurant)}
-            aria-label={marker.restaurant.name}
-          >
-            {logo}
-          </button>
-        );
-      })}
-      <div className={markerStyles.staticDetailAttribution}>© CARTO © OpenStreetMap</div>
-    </div>
-  );
-}
-
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>;
-  /* The sticky map wrapper. MapSection hides its live GL child while the
-     phone detail is open (iOS URL-bar frosting, see MapSection.tsx), leaving
-     the static raster peek visible. */
-  mapWrapRef: RefObject<HTMLDivElement | null>;
   handleRef: Ref<HTMLDivElement | null>;
   setHeaderRef: (el: HTMLDivElement | null) => void;
   setContentRef: (el: HTMLDivElement | null) => void;
@@ -252,7 +130,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     isActive,
     fontClassName,
     mapRef,
-    mapWrapRef,
     handleRef,
     setHeaderRef,
     setContentRef,
@@ -347,11 +224,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   }, [locationStatusKey]);
 
   /* In-flow phone list: the sticky header rests below the iOS status-bar/
-     notch zone (top: env(safe-area-inset-top), see MapSheet.module.css). While it
-     is STUCK, a fixed white cap on the sheet covers
-     that zone so rows don't scroll visibly through the notch area. Stuck is
-     detected via a 0-height sentinel right above the header: once it leaves
-     the (viewport top + safe-area) line, the header is pinned. */
+     notch zone (top: env(safe-area-inset-top), see MapFilters.module.css).
+     That zone deliberately stays uncapped so Safari can sample the scrolling
+     rows behind its translucent status bar. Stuck is still detected via a
+     0-height sentinel to move the floating map controls out of the way. */
   const stuckSentinelRef = useRef<HTMLDivElement | null>(null);
   const [headerStuck, setHeaderStuck] = useState(false);
   useEffect(() => {
@@ -398,10 +274,19 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           data-map-body=""
           data-map-view={sheetView}
           data-map-snap={snap}
+          data-detail-kind={
+            sheetView === 'detail'
+              ? selectedMustEat
+                ? 'must-eat'
+                : selectedRestaurant
+                  ? 'restaurant'
+                  : undefined
+              : undefined
+          }
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
           data-header-stuck={headerStuck && sheetView === 'list' ? 'true' : undefined}
         >
-          <div className={styles.mapWrap} ref={mapWrapRef} data-map-canvas="">
+          <div className={styles.mapWrap} data-map-canvas="">
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer
                 mapRef={mapRef}
@@ -615,14 +500,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             {/* Must-Eat detail has no handle-bar X/back chrome — the sheet is
                 dismissed by dragging it down; "Zum Spot" + the pager are the
                 in-sheet actions. */}
-
-            {sheetView === 'detail' && selectedRestaurant ? (
-              <StaticDetailMapPeek
-                restaurant={selectedRestaurant}
-                restaurants={displayedRestaurants}
-                onRestaurantClick={handleMapRestaurantClick}
-              />
-            ) : null}
 
             {sheetView === 'detail' && selectedMustEat ? (
               <MapSheetDetail

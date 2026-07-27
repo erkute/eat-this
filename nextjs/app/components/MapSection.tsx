@@ -29,6 +29,7 @@ import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 interface Props {
   isActive?: boolean;
   initialMapData?: InitialMapData;
+  initialRestaurantSlug?: string | null;
   fontClassName?: string;
 }
 
@@ -40,9 +41,13 @@ function isPhoneViewport(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(max-width: 767.98px)').matches;
 }
 
-export default function MapSection({ isActive = false, initialMapData, fontClassName }: Props) {
+export default function MapSection({
+  isActive = false,
+  initialMapData,
+  initialRestaurantSlug = null,
+  fontClassName,
+}: Props) {
   const mapRef = useRef<MapRef>(null);
-  const mapWrapRef = useRef<HTMLDivElement | null>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
@@ -66,6 +71,24 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     refetch: refetchMapData,
     mergeMustEat,
   } = useMapData({ uid, authLoading, initialMapData });
+  const initialRestaurant = useMemo(() => {
+    if (!initialRestaurantSlug || !initialMapData) return null;
+    return (
+      initialMapData.restaurants.find((restaurant) => restaurant.slug === initialRestaurantSlug) ??
+      initialMapData.lockedRestaurants.find(
+        (restaurant) => restaurant.slug === initialRestaurantSlug
+      ) ??
+      null
+    );
+  }, [initialMapData, initialRestaurantSlug]);
+  /* Derive the deep-linked selection in the lazy state initializer so the
+     server HTML and the first hydration render are both detail-first. Safari
+     therefore receives the compact document geometry before its status-bar
+     backdrop is established. */
+  const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(
+    () => initialRestaurant
+  );
+  const [selectedMustEat, setSelectedMustEat] = useState<MapMustEat | null>(null);
   const {
     location,
     loading: locating,
@@ -174,7 +197,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     setSheetView,
     sheetElRef,
     setSheetRef,
-  } = useMapSheet(dismissDetail);
+  } = useMapSheet(dismissDetail, initialRestaurant ? 'detail' : 'list');
 
   /* In-flow phone list: the sheet's snap vocabulary maps onto window-scroll
      anchors. peek = the list's CSS resting overlap (scroll 0), mid ≈ 440px of
@@ -214,8 +237,6 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     displayedLockedRestaurants,
   } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
 
-  const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null);
-  const [selectedMustEat, setSelectedMustEat] = useState<MapMustEat | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
@@ -305,25 +326,6 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
 
-  /* iOS URL-bar frosting for the in-flow phone detail.
-
-     On iOS Safari, letting the MapLibre WebGL layer overlap the detail even
-     briefly can poison the page's bottom URL-bar backdrop until reload: after
-     closing the detail, the restaurant list no longer frosts. The tested safe
-     shape is blunt but stable: hide the sticky map wrapper for the whole
-     phone-detail lifetime. The visible map peek is rendered as part of the
-     detail sheet itself, not as a separate layer behind it. */
-  useLayoutEffect(() => {
-    if (!isActive || sheetView !== 'detail') return;
-    if (typeof window === 'undefined' || !isPhoneViewport()) return;
-    const mapWrap = mapWrapRef.current;
-    if (!mapWrap) return;
-    mapWrap.style.visibility = 'hidden';
-    return () => {
-      mapWrap.style.visibility = '';
-    };
-  }, [isActive, sheetView]);
-
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user
      back to the list — and open details become shareable for free. The
@@ -334,7 +336,12 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     if (!isActive || typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const hasPendingDetailParam = params.has('r') || params.has('me');
-    if (sheetView !== 'detail' && hasPendingDetailParam && !selectedRestaurant?.slug && !selectedMustEat?._id) {
+    if (
+      sheetView !== 'detail' &&
+      hasPendingDetailParam &&
+      !selectedRestaurant?.slug &&
+      !selectedMustEat?._id
+    ) {
       return;
     }
     params.delete('r');
@@ -423,24 +430,51 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
      getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
      open-click handlers (whose closures still see sheetView 'list'). */
   const phoneDetailFlyPadding = useCallback(() => {
-    /* Mirrors --detail-map-peek: clamp(150px, 21dvh, 200px). */
-    const peek = Math.min(Math.max(150, 0.21 * window.innerHeight), 200);
-    const canvasH = mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
-    const overhang = Math.max(0, canvasH - window.innerHeight);
-    /* Where the spot's geographic point sits within the peek strip (0=top,
-       1=bottom). The pin's anchor is its bottom tip with the body extending
-       UP, so a point slightly below the strip's mid-line lands the pin body
-       visually centered. flyTo centers the map at canvas-y
-       (top + canvasH − bottom)/2, so bottom = innerHeight + overhang −
-       2·frac·peek + top puts that center at frac·peek. */
-    const frac = 0.6;
+    /* Mirrors --detail-map-peek: clamp(190px, 27dvh, 240px). */
+    const peek = Math.min(Math.max(190, 0.27 * window.innerHeight), 240);
+    /* The phone detail gives MapLibre a real container exactly as tall as the
+       visible peek. Top-only padding puts the pin anchor at 60% of that strip,
+       centering the pin body without extending WebGL behind the detail. */
     return {
-      top: 8,
-      bottom: Math.round(window.innerHeight + overhang - 2 * frac * peek) + 8,
+      top: Math.round(peek * 0.2),
+      bottom: 0,
       left: 20,
       right: 20,
     };
   }, []);
+
+  const selectedRestaurantId = selectedRestaurant?._id;
+  const selectedRestaurantLng = selectedRestaurant?.lng;
+  const selectedRestaurantLat = selectedRestaurant?.lat;
+  useLayoutEffect(() => {
+    if (!isActive || sheetView !== 'detail' || !selectedRestaurantId) return;
+    if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
+    if (!isPhoneViewport()) return;
+
+    /* React has now committed the compact detail height. Force MapLibre to
+       measure that real canvas before flying; otherwise it keeps the former
+       100dvh transform and places the selected pin far below the visible
+       peek. Polling also covers a fast tap before the lazy map has mounted. */
+    return pollUntilMapReady({
+      mapRef,
+      onReady: (map) => {
+        map.resize();
+        map.flyTo({
+          center: [selectedRestaurantLng, selectedRestaurantLat],
+          zoom: 15,
+          duration: 400,
+          padding: phoneDetailFlyPadding(),
+        });
+      },
+    });
+  }, [
+    isActive,
+    sheetView,
+    selectedRestaurantId,
+    selectedRestaurantLng,
+    selectedRestaurantLat,
+    phoneDetailFlyPadding,
+  ]);
 
   // We derive the mobile bottom from the snap STATE rather than the DOM
   // CSS variable so flyTo always uses the up-to-date target — reading from
@@ -462,12 +496,13 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       // *actual* current sheet height from the CSS var the bottom-sheet hook
       // sets — the only source of truth that handles drag in-progress AND the
       // content-fit detail snap.
-      /* In-flow phone list: 'peek' rests with the list's CSS overlap visible
-         (≈44dvh, see MapSheet.module.css) — not the drag-sheet's 28px pip strip. */
-      const phoneListPeek = Math.round(window.innerHeight * 0.44);
+      /* In-flow phone list: 'peek' rests with half the viewport occupied by
+         the list (see --phone-list-sheet-visible in MapLayout.module.css) —
+         not the drag-sheet's 28px pip strip. */
+      const phoneListPeek = Math.round(window.innerHeight * 0.5);
       const phoneInflowList = isPhoneViewport() && sheetView === 'list';
       /* In-flow phone DETAIL: the only visible map is the top peek strip
-         (--detail-map-peek ≈ 96–122px) — center the spot inside that strip,
+         (--detail-map-peek = 190–240px) — center the spot inside that strip,
          not in the drag-sheet-era "upper 42%" band. Applies to pager swaps
          and any flyTo while the detail is open; the open-click itself uses
          phoneDetailFlyPadding() because sheetView is still 'list' in its
@@ -522,6 +557,42 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     [snap, sheetView, sheetElRef, phoneDetailFlyPadding]
   );
 
+  const initialCameraRestaurantId = initialRestaurant?._id;
+  const initialCameraConsumedRef = useRef(false);
+  useEffect(() => {
+    if (initialCameraConsumedRef.current) return;
+    if (!isActive || sheetView !== 'detail' || isPhoneViewport()) return;
+    if (!initialCameraRestaurantId || selectedRestaurantId !== initialCameraRestaurantId) return;
+    if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
+
+    /* A server-selected ?r= detail is already open before the client
+       deep-link hook runs. Phones are centered by the compact-canvas layout
+       effect above; tablets and desktop still need their own bounded wait for
+       the lazy MapLibre ref because no click handler ran on this reload. */
+    return pollUntilMapReady({
+      mapRef,
+      onReady: (map) => {
+        initialCameraConsumedRef.current = true;
+        map.resize();
+        const isTablet = window.matchMedia('(min-width: 768px) and (max-width: 1023.98px)').matches;
+        map.flyTo({
+          center: [selectedRestaurantLng, selectedRestaurantLat],
+          zoom: 15,
+          duration: 400,
+          padding: getFlyPadding(isTablet ? 'full' : undefined),
+        });
+      },
+    });
+  }, [
+    getFlyPadding,
+    initialCameraRestaurantId,
+    isActive,
+    selectedRestaurantId,
+    selectedRestaurantLat,
+    selectedRestaurantLng,
+    sheetView,
+  ]);
+
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
       userInteractedRef.current = true;
@@ -536,6 +607,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       prefetchRestaurantDetail(r.slug);
       const isMobile =
         typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
+      const isPhone = isPhoneViewport();
       // Capture the list scroll *before* the view switches and the content
       // element unmounts — useLayoutEffect on return restores it. Phones
       // scroll the window (in-flow list), tablets the inner port.
@@ -551,6 +623,10 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       setSearchOpen(false);
       setSelectedRestaurant(r);
       setSelectedMustEat(null);
+      /* The phone canvas shrinks from 100dvh to the compact detail peek on the
+         next render. Apply its small padding before that resize so MapLibre
+         never has to fit the old list padding into a 170–215px canvas. */
+      if (isPhone) mapRef.current?.jumpTo({ padding: phoneDetailFlyPadding() });
       // Both mobile sheet AND desktop sidebar render the detail inline now —
       // desktop no longer uses a centered floating modal that hid the marker.
       setSheetView('detail');
@@ -561,16 +637,14 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       const target = openAtPeek ? 'peek' : 'full';
       pendingDetailSnapRef.current = target;
       setSnap(target);
-      mapRef.current?.flyTo({
-        center: [r.lng, r.lat],
-        zoom: 15,
-        duration: 500,
-        // In-flow phone detail: only the top peek strip shows map — center
-        // the pin there (sheetView in getFlyPadding's closure is still
-        // 'list' at this point, so the branch there can't catch this call).
-        padding: isPhoneViewport()
-          ? phoneDetailFlyPadding()
-          : openAtPeek
+      /* Phones fly in the layout effect above, after the canvas has its real
+         compact height. Larger viewports do not resize the map on open. */
+      if (!isPhone) {
+        mapRef.current?.flyTo({
+          center: [r.lng, r.lat],
+          zoom: 15,
+          duration: 500,
+          padding: openAtPeek
             ? getFlyPadding(
                 'peek',
                 estimateDetailMidVisiblePx(
@@ -580,7 +654,8 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
                 )
               )
             : getFlyPadding(isMobile ? 'full' : undefined),
-      });
+        });
+      }
     },
     [
       getFlyPadding,
@@ -1013,6 +1088,11 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     }
     if (selectedRestaurant || selectedMustEat) return;
     if (!mapRef.current) return;
+    /* Closing a phone detail expands the CSS container from the compact peek
+       back to 100dvh. Resize synchronously before applying list padding;
+       MapLibre's ResizeObserver otherwise updates one tick later and briefly
+       tries to fit the large list bounds into the old 170–215px transform. */
+    mapRef.current.resize();
     const list = displayedRestaurantsRef.current;
     if (!list.length) return;
     if (list.length === 1) {
@@ -1089,6 +1169,7 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
     setSnap,
     onRestaurantSlugMatch: handleRestaurantClick,
     onMustEatIdMatch: handleMustEatClick,
+    initialRestaurant,
   });
 
   /* ---------- Render ---------- */
@@ -1097,7 +1178,6 @@ export default function MapSection({ isActive = false, initialMapData, fontClass
       isActive={isActive}
       fontClassName={fontClassName}
       mapRef={mapRef}
-      mapWrapRef={mapWrapRef}
       handleRef={handleRef}
       setHeaderRef={setHeaderRef}
       setContentRef={setContentRef}

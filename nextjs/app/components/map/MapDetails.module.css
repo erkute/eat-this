@@ -599,7 +599,7 @@
 }
 @media (hover: hover) {
   .fdPagerPrev:hover,
-.fdPagerNext:hover {
+  .fdPagerNext:hover {
     transform: translateY(-2px) rotate(0);
   }
 }
@@ -656,7 +656,7 @@
   }
 
   .detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext {
+  .detailV13MustEat .fdPagerNext {
     min-height: 42px;
   }
 }
@@ -885,8 +885,8 @@
   }
 
   .detailV13MustEat .fdHeroWrap,
-.detailV13MustEat .fdRest,
-.detailV13MustEat .fdPager {
+  .detailV13MustEat .fdRest,
+  .detailV13MustEat .fdPager {
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
@@ -899,7 +899,7 @@
   }
 
   .detailV13MustEat .fdName,
-.detailV13MustEat .fdNameText {
+  .detailV13MustEat .fdNameText {
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -1405,12 +1405,12 @@
 }
 @media (hover: hover) {
   .rdCloseGlass:hover,
-.rdActBtn:hover,
-.rdPagerBtn:hover,
-.btnPrimary:hover,
-.btnPackPromo:hover,
-.ctaPill:hover,
-.fdClose:hover {
+  .rdActBtn:hover,
+  .rdPagerBtn:hover,
+  .btnPrimary:hover,
+  .btnPackPromo:hover,
+  .ctaPill:hover,
+  .fdClose:hover {
     box-shadow: none;
     filter: none;
     text-shadow: none;
@@ -1747,7 +1747,6 @@
   z-index: 1;
 }
 @media (max-width: 420px) {
-
   .rdMustHead {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2066,7 +2065,6 @@
   line-height: 0.92;
 }
 @media (max-width: 420px) {
-
   .rdMustGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2235,14 +2233,14 @@
 }
 @media (max-width: 420px) {
   .rdGalleryThumb,
-.rdGalleryThumb:first-child {
+  .rdGalleryThumb:first-child {
     width: 112px;
     height: 144px;
     padding: 7px 7px 23px;
   }
 
   .rdRow,
-.rdRowHours {
+  .rdRowHours {
     grid-template-columns: 108px minmax(0, 1fr);
     gap: 15px;
   }
@@ -2309,7 +2307,6 @@
   box-shadow: none;
 }
 @media (max-width: 420px) {
-
   .rdActBtn {
     min-height: 52px;
     padding-left: 14px;
@@ -2620,12 +2617,8 @@
   padding: 0;
   gap: 8px;
 }
-.detailV13:not(.detailV13MustEat)
-  .rdPager:has(.rdPagerBtn:first-child:disabled)
-  .rdPagerBtnRight,
-.detailV13:not(.detailV13MustEat)
-  .rdPager:has(.rdPagerBtnRight:disabled)
-  .rdPagerBtn:first-child {
+.detailV13:not(.detailV13MustEat) .rdPager:has(.rdPagerBtn:first-child:disabled) .rdPagerBtnRight,
+.detailV13:not(.detailV13MustEat) .rdPager:has(.rdPagerBtnRight:disabled) .rdPagerBtn:first-child {
   grid-column: 1 / -1;
 }
 .detailV13:not(.detailV13MustEat) .rdPagerBtn:disabled {
@@ -2965,14 +2958,14 @@
 }
 @media (max-width: 380px) {
   .detailV13:not(.detailV13MustEat) .rdRow,
-.detailV13:not(.detailV13MustEat) .rdRowHours {
+  .detailV13:not(.detailV13MustEat) .rdRowHours {
     grid-template-columns: 1fr;
     gap: 7px;
     padding: 14px 0;
   }
 
   .detailV13:not(.detailV13MustEat) .rdV,
-.detailV13:not(.detailV13MustEat) .rdV a {
+  .detailV13:not(.detailV13MustEat) .rdV a {
     font-size: 15px;
   }
 }
@@ -3360,7 +3353,6 @@
   visibility: hidden;
 }
 @media (max-width: 380px), (max-height: 740px) {
-
   .detailV13MustEat .fdName {
     font-size: clamp(31px, 8.8vw, 44px);
   }
@@ -3374,7 +3366,7 @@
   }
 
   .detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext {
+  .detailV13MustEat .fdPagerNext {
     min-height: 44px;
   }
 }
@@ -3397,13 +3389,12 @@
   }
 
   .detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext {
+  .detailV13MustEat .fdPagerNext {
     min-height: 48px;
     padding-block: 7px;
   }
 }
 @media (max-width: 380px), (max-height: 740px) {
-
   .detailV13MustEat .fdHeroWrap {
     padding-bottom: clamp(54px, 7.4dvh, 68px);
   }
@@ -3491,7 +3482,7 @@
      window scroll (frosting intact). The gallery keeps its own overflow-x
      auto for internal scrolling. */
   .detailMount,
-.detailV13Scroll {
+  .detailV13Scroll {
     max-height: none;
     overflow-x: clip;
     overflow-y: visible;
@@ -3507,9 +3498,7 @@
      block ends the detail instead of reintroducing scroll-port padding. */
   .detailV13MustEat .detailV13Scroll > :last-child {
     margin-bottom: 0;
-    padding-bottom: calc(
-      18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px)
-    );
+    padding-bottom: calc(18px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px));
   }
 
   .detailV13MustEat .detailV13Scroll {
@@ -3536,8 +3525,8 @@
   }
 
   [data-map-sheet][data-view='detail'] .detailMountMustEat,
-[data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat,
-[data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13Scroll {
+  [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat,
+  [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13Scroll {
     width: 100%;
     height: 100dvh;
     min-height: 100dvh;
@@ -3613,7 +3602,7 @@
   }
 
   .detailV13:not(.detailV13MustEat) .rdRow,
-.detailV13:not(.detailV13MustEat) .rdRowHours {
+  .detailV13:not(.detailV13MustEat) .rdRowHours {
     display: grid;
     grid-template-columns: 1fr;
     align-content: start;
@@ -3647,7 +3636,7 @@
   }
 
   .detailV13:not(.detailV13MustEat) .rdK,
-.detailV13:not(.detailV13MustEat) .rdHoursD {
+  .detailV13:not(.detailV13MustEat) .rdHoursD {
     color: rgba(21, 18, 14, 0.5);
     font-family: var(--font-dm-sans, system-ui, sans-serif);
     font-size: 11px;
@@ -3658,8 +3647,8 @@
   }
 
   .detailV13:not(.detailV13MustEat) .rdV,
-.detailV13:not(.detailV13MustEat) .rdV a,
-.detailV13:not(.detailV13MustEat) .rdHoursT {
+  .detailV13:not(.detailV13MustEat) .rdV a,
+  .detailV13:not(.detailV13MustEat) .rdHoursT {
     color: #15120e;
     font-family: var(--et-font-display, var(--font-providence), sans-serif);
     font-size: 19px;
@@ -3685,10 +3674,9 @@
    the translucent bottom URL bar. Keep Must-Eat detail out of this: it owns a
    fixed card/pager composition above. */
 @media (max-width: 767.98px) {
-
   [data-map-sheet][data-view='detail'] .detailMount,
-[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
-[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
+  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
+  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
     display: block;
     flex: none;
     height: auto;
@@ -3700,15 +3688,13 @@
   }
 
   [data-map-sheet][data-view='detail'] .detailMount,
-[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
-[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
+  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
+  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
     background: var(--et-home-paper, #fff);
   }
 
   [data-map-sheet][data-view='detail'] .detailMount {
-    min-height: calc(
-      100dvh - var(--detail-map-peek, 112px) + var(--map-bar-overhang, 0px)
-    );
+    min-height: calc(100dvh - var(--detail-map-peek, 190px) + var(--map-bar-overhang, 0px));
   }
 
   [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
@@ -3727,19 +3713,19 @@
   }
 
   [data-map-sheet][data-view='detail'] .detailMount:not(.detailMountMustEat),
-[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
-[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
+  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
+  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
     width: auto;
     overflow: visible;
   }
 
-  /* iOS URL-bar frosting for the phone detail: the always-composited
-     MapLibre GL layer under the detail suppresses WebKit's bar-backdrop
-     sampling of the detail content (bisected on-device 2026-07-06).
-     The live GL layer stays hidden for the whole phone-detail lifetime; the
-     visible peek is a plain raster-tile layer, which Safari can frost. */
+  /* iOS URL-bar frosting for the phone detail: MapLibre is constrained to the
+     real top peek instead of remaining a full-viewport compositor behind this
+     in-flow content. Safari can therefore sample the detail at the bottom. */
 
-  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll:has(> .packPromo:last-child) {
+  [data-map-sheet][data-view='detail']
+    .detailV13:not(.detailV13MustEat)
+    .detailV13Scroll:has(> .packPromo:last-child) {
     padding-bottom: 28px;
   }
 }
@@ -3885,7 +3871,7 @@
   }
 
   .detailV13MustEat .fdText,
-.detailV13MustEat .fdProximity {
+  .detailV13MustEat .fdProximity {
     height: auto;
     min-height: 0;
     max-height: 5.12em;
@@ -3963,7 +3949,7 @@
   }
 
   .detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext {
+  .detailV13MustEat .fdPagerNext {
     height: var(--me-pager-slot);
     min-height: var(--me-pager-slot);
     max-height: var(--me-pager-slot);
@@ -4106,7 +4092,7 @@
   }
 
   .detailV13MustEat .fdText,
-.detailV13MustEat .fdProximity {
+  .detailV13MustEat .fdProximity {
     height: auto;
     min-height: 0;
     max-height: 5.12em;
@@ -4228,7 +4214,7 @@
   }
 
   .detailV13MustEat .detailV13Scroll > .fdPager .fdPagerPrev,
-.detailV13MustEat .detailV13Scroll > .fdPager .fdPagerNext {
+  .detailV13MustEat .detailV13Scroll > .fdPager .fdPagerNext {
     height: var(--me-pager-slot);
     min-height: var(--me-pager-slot);
     max-height: var(--me-pager-slot);
@@ -4351,7 +4337,11 @@
     padding-bottom: 18px;
   }
 
-  [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat .detailV13Scroll > .fdPager {
+  [data-map-sheet][data-view='detail']
+    .detailMountMustEat
+    .detailV13MustEat
+    .detailV13Scroll
+    > .fdPager {
     position: relative;
     right: auto;
     bottom: auto;
@@ -4361,13 +4351,21 @@
   }
 }
 @media (min-width: 700px) and (max-width: 1023.98px) {
-
-  [data-map-shell][data-map-view='detail'] [data-map-body][data-map-view='detail'] [data-map-sheet][data-detail-kind='must-eat'] .detailMountMustEat,
-[data-map-shell][data-map-view='detail'] [data-map-body][data-map-view='detail'] [data-map-sheet][data-detail-kind='must-eat'] .detailV13MustEat,
-[data-map-shell][data-map-view='detail'] [data-map-body][data-map-view='detail'] [data-map-sheet][data-detail-kind='must-eat'] .detailV13Scroll,
-[data-map-sheet][data-detail-kind='must-eat'] .detailMountMustEat,
-[data-map-sheet][data-detail-kind='must-eat'] .detailV13MustEat,
-[data-map-sheet][data-detail-kind='must-eat'] .detailV13Scroll {
+  [data-map-shell][data-map-view='detail']
+    [data-map-body][data-map-view='detail']
+    [data-map-sheet][data-detail-kind='must-eat']
+    .detailMountMustEat,
+  [data-map-shell][data-map-view='detail']
+    [data-map-body][data-map-view='detail']
+    [data-map-sheet][data-detail-kind='must-eat']
+    .detailV13MustEat,
+  [data-map-shell][data-map-view='detail']
+    [data-map-body][data-map-view='detail']
+    [data-map-sheet][data-detail-kind='must-eat']
+    .detailV13Scroll,
+  [data-map-sheet][data-detail-kind='must-eat'] .detailMountMustEat,
+  [data-map-sheet][data-detail-kind='must-eat'] .detailV13MustEat,
+  [data-map-sheet][data-detail-kind='must-eat'] .detailV13Scroll {
     width: 100%;
     height: 100dvh;
     min-height: 100dvh;
@@ -4412,7 +4410,7 @@
   }
 
   .detailV13MustEat .fdText,
-.detailV13MustEat .fdProximitySub {
+  .detailV13MustEat .fdProximitySub {
     font-size: clamp(13px, 3.5vw, 15px);
     line-height: 1.2;
     -webkit-line-clamp: 3;
@@ -4501,7 +4499,12 @@
   height: 32px;
   padding: 0 11px;
   background:
-    linear-gradient(110deg, rgba(246, 196, 0, 0.22), rgba(246, 196, 0, 0.08) 42%, rgba(28, 37, 32, 0.08)),
+    linear-gradient(
+      110deg,
+      rgba(246, 196, 0, 0.22),
+      rgba(246, 196, 0, 0.08) 42%,
+      rgba(28, 37, 32, 0.08)
+    ),
     color-mix(in srgb, var(--me-soft) 82%, #fff 18%);
   border-radius: var(--et-radius-control, 7px);
   color: color-mix(in srgb, var(--me-ink) 72%, transparent);
@@ -4530,7 +4533,13 @@
   content: '';
   position: absolute;
   inset: 0 -8px 0 0;
-  background: linear-gradient(100deg, transparent 0 34%, rgba(246, 196, 0, 0.58) 48%, rgba(255, 255, 255, 0.82) 54%, transparent 68%);
+  background: linear-gradient(
+    100deg,
+    transparent 0 34%,
+    rgba(246, 196, 0, 0.58) 48%,
+    rgba(255, 255, 255, 0.82) 54%,
+    transparent 68%
+  );
   mix-blend-mode: screen;
   pointer-events: none;
   animation: fdNameMagicSweep 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
@@ -4559,7 +4568,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .detailV13MustEat .fdNameText.fdNameUnblurring,
-.detailV13MustEat .fdNameText.fdNameUnblurring::after {
+  .detailV13MustEat .fdNameText.fdNameUnblurring::after {
     animation: none;
   }
 }
@@ -4659,32 +4668,56 @@
   }
   12% {
     transform: rotate(-8.4deg) rotateY(-9deg) rotateX(1deg)
-      translate3d(calc(var(--vibrate-intensity, 1) * -7px), calc(var(--vibrate-intensity, 1) * 2px), 0)
+      translate3d(
+        calc(var(--vibrate-intensity, 1) * -7px),
+        calc(var(--vibrate-intensity, 1) * 2px),
+        0
+      )
       scale(1.02);
   }
   28% {
     transform: rotate(4.8deg) rotateY(3deg) rotateX(1deg)
-      translate3d(calc(var(--vibrate-intensity, 1) * 7px), calc(var(--vibrate-intensity, 1) * -2px), 0)
+      translate3d(
+        calc(var(--vibrate-intensity, 1) * 7px),
+        calc(var(--vibrate-intensity, 1) * -2px),
+        0
+      )
       scale(1.035);
   }
   44% {
     transform: rotate(-7.2deg) rotateY(-8deg) rotateX(1deg)
-      translate3d(calc(var(--vibrate-intensity, 1) * -6px), calc(var(--vibrate-intensity, 1) * 2px), 0)
+      translate3d(
+        calc(var(--vibrate-intensity, 1) * -6px),
+        calc(var(--vibrate-intensity, 1) * 2px),
+        0
+      )
       scale(1.015);
   }
   60% {
     transform: rotate(3.8deg) rotateY(2deg) rotateX(1deg)
-      translate3d(calc(var(--vibrate-intensity, 1) * 6px), calc(var(--vibrate-intensity, 1) * -2px), 0)
+      translate3d(
+        calc(var(--vibrate-intensity, 1) * 6px),
+        calc(var(--vibrate-intensity, 1) * -2px),
+        0
+      )
       scale(1.03);
   }
   76% {
     transform: rotate(-5.8deg) rotateY(-7deg) rotateX(1deg)
-      translate3d(calc(var(--vibrate-intensity, 1) * -5px), calc(var(--vibrate-intensity, 1) * 1px), 0)
+      translate3d(
+        calc(var(--vibrate-intensity, 1) * -5px),
+        calc(var(--vibrate-intensity, 1) * 1px),
+        0
+      )
       scale(1.02);
   }
   88% {
     transform: rotate(1.6deg) rotateY(0deg) rotateX(1deg)
-      translate3d(calc(var(--vibrate-intensity, 1) * 4px), calc(var(--vibrate-intensity, 1) * -1px), 0)
+      translate3d(
+        calc(var(--vibrate-intensity, 1) * 4px),
+        calc(var(--vibrate-intensity, 1) * -1px),
+        0
+      )
       scale(1.025);
   }
 }
@@ -4817,7 +4850,7 @@
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline,
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
     grid-template-columns: 80px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) 36px;
     column-gap: 11px;
@@ -4846,7 +4879,7 @@
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline,
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
     grid-template-columns: 66px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) 34px;
     column-gap: 10px;

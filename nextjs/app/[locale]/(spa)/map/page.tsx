@@ -19,6 +19,7 @@ export const revalidate = 0
 
 interface PageProps {
   params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -48,23 +49,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateViewport({ params }: PageProps): Promise<Viewport> {
   await params
   return {
-    themeColor: '#15120e',
+    /* Override the root ink theme on the map. Its phone list/detail deliberately
+       scrolls beneath Safari's translucent browser chrome, so a fixed theme
+       color would replace those live page pixels after a full reload. */
+    themeColor: null,
   }
 }
 
-export default async function MapPage({ params }: PageProps) {
-  const { locale } = await params
+export default async function MapPage({ params, searchParams }: PageProps) {
+  const [{ locale }, query] = await Promise.all([params, searchParams])
   setRequestLocale(locale)
 
   const [{ default: MapSection }, initialMapData] = await Promise.all([
     import('@/app/components/MapSection'),
     getInitialAnonMapData(),
   ])
+  const requestedRestaurantSlug = Array.isArray(query.r) ? query.r[0] : query.r
+  const initialRestaurantSlug = requestedRestaurantSlug
+    ? initialMapData.restaurants.find((restaurant) => restaurant.slug === requestedRestaurantSlug)
+        ?.slug ??
+      initialMapData.lockedRestaurants.find(
+        (restaurant) => restaurant.slug === requestedRestaurantSlug
+      )?.slug ??
+      null
+    : null
 
   return (
     <MapSection
       isActive
       initialMapData={initialMapData}
+      initialRestaurantSlug={initialRestaurantSlug}
       fontClassName={sairaCondensed.variable}
     />
   )

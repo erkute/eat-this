@@ -203,10 +203,16 @@ describe('Map CSS architecture', () => {
     expect(sheet).not.toContain(".list[data-header-stuck='true']::before");
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");
+    /* The inset rides as PADDING on a header pinned to 0, not as an offset.
+       Offsetting it leaves a gap above the bar that rows scroll through —
+       invisible in a browser tab (inset 0) but obvious once installed to the
+       home screen, where the page owns the status-bar band. */
     expect(headerRules).toEqual([
       expect.objectContaining({
         position: 'sticky',
-        top: 'env(safe-area-inset-top, 0px)',
+        top: '0',
+        'padding-top': 'env(safe-area-inset-top, 0px)',
+        background: 'var(--et-home-paper, #fff)',
       }),
     ]);
   });

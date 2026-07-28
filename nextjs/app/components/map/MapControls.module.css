@@ -1,4 +1,32 @@
-/* Map controls: search, menu, location, panel disclosure and status UI. */
+/* Map controls: search, menu, location, panel disclosure and status UI.
+ *
+ * ── Before you edit ──────────────────────────────────────────────────────────
+ * A control is NOT defined in one place here. `.mapSearchBtn` appears in 15
+ * blocks, `.mapBurger` in 13, `.fab` and `.mapSearchToolbar` in 12 — most of
+ * them grouped selectors that serve several controls at once. Grep the whole
+ * file for a class before changing it; the value you are looking at is often
+ * overwritten further down.
+ *
+ * Two traps this has already sprung:
+ *
+ *   `transition` is a shorthand. Setting it for a group replaces the whole
+ *   transition, including a `transform` one declared earlier. That is how
+ *   `.mapSearchBtn` ended up snapping off the top edge while `.mapBurger`
+ *   glided on the same trigger.
+ *
+ *   `filter: none` further down erases the icon halo, even when declared for a
+ *   different-but-overlapping selector.
+ *
+ * Flattening the file is not the fix — the grouping is load-bearing, and source
+ * order carries real meaning. Merging same-selector blocks at their last
+ * position was tried and measurably broke the cascade: `.mapSearchToolbar`'s
+ * gap flipped 8px → 10px, because `@media (max-width: 520px)` sits BEFORE the
+ * media-less block and loses the tie until something moves it.
+ *
+ * The safety net is MapControls.cascade.test.ts, which asserts EFFECTIVE values
+ * rather than any single block. Add a case there when you add a trap.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 
 .panelToggle {
   position: absolute;
@@ -571,7 +599,6 @@
 
 .mapStatusLayer {
   position: absolute;
-  width: min(330px, calc(100vw - 28px));
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 

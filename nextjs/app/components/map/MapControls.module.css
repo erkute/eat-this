@@ -792,7 +792,14 @@
   :global([data-map-body][data-map-view='detail']) .fab {
     display: none;
   }
-  .mapBurger {
+  /* Both top-corner controls hang off the viewport, not off the map surface.
+     The search button used to stay `absolute` inside .mapWrap while only the
+     burger was fixed, so the two drifted apart from each other during scroll
+     — iOS nudges fixed elements around as the URL bar collapses, and an
+     absolute child of the sticky map does not follow. Same model, same
+     behaviour. */
+  .mapBurger,
+  .mapSearchBtn {
     position: fixed;
   }
   .mapStatusLayer,

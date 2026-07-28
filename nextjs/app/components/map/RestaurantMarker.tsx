@@ -1,13 +1,13 @@
-'use client'
-import { memo } from 'react'
-import { Marker } from 'react-map-gl/maplibre'
-import type { MapRestaurant } from '@/lib/types'
-import styles from './MapMarkers.module.css'
+'use client';
+import { memo, useCallback } from 'react';
+import { Marker, type MarkerInstance } from 'react-map-gl/maplibre';
+import type { MapRestaurant } from '@/lib/types';
+import styles from './MapMarkers.module.css';
 
 interface RestaurantMarkerProps {
-  restaurant: MapRestaurant
-  isSelected: boolean
-  onClick: (restaurant: MapRestaurant) => void
+  restaurant: MapRestaurant;
+  isSelected: boolean;
+  onClick: (restaurant: MapRestaurant) => void;
 }
 
 function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerProps) {
@@ -15,17 +15,33 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
     styles.pinLogo,
     isSelected && styles.pinLogoActive,
     restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
-  ].filter(Boolean).join(' ')
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  /* MapLibre stamps role="button" + aria-label="Map marker" on its own wrapper
+     unless they are already there (Marker.addTo), and it does that after React
+     has mounted our inner button — so every pin announced as two nested
+     buttons, the outer one namelessly generic. The inner div carries the real
+     name, focus ring and Enter/Space handling, so demote the wrapper to
+     presentation and let the one meaningful control through. */
+  const setMarkerRef = useCallback((marker: MarkerInstance | null) => {
+    const el = marker?.getElement();
+    if (!el) return;
+    el.setAttribute('role', 'presentation');
+    el.removeAttribute('aria-label');
+  }, []);
 
   return (
     <Marker
+      ref={setMarkerRef}
       longitude={restaurant.lng}
       latitude={restaurant.lat}
       anchor="bottom"
       className={styles.markerRoot}
-      onClick={e => {
-        e.originalEvent.stopPropagation()
-        onClick(restaurant)
+      onClick={(e) => {
+        e.originalEvent.stopPropagation();
+        onClick(restaurant);
       }}
     >
       <div
@@ -35,10 +51,10 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
         className={className}
         style={{ position: 'relative' }}
         onKeyDown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return
-          event.preventDefault()
-          event.stopPropagation()
-          onClick(restaurant)
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          event.stopPropagation();
+          onClick(restaurant);
         }}
         // Lets the detail-peek snapshot (MapSection) find and clone the
         // selected pin — DOM markers aren't part of the GL canvas frame.
@@ -49,17 +65,19 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
         </span>
       </div>
     </Marker>
-  )
+  );
 }
 
 // Custom comparator: panning the map should not re-render markers whose
 // underlying restaurant + selected-state are unchanged. onClick is a stable
 // callback in the parent (useCallback) — included anyway for safety.
-export default memo(RestaurantMarker, (prev, next) =>
-  prev.restaurant._id === next.restaurant._id &&
-  prev.restaurant.mustEatCount === next.restaurant.mustEatCount &&
-  prev.restaurant.lat === next.restaurant.lat &&
-  prev.restaurant.lng === next.restaurant.lng &&
-  prev.isSelected === next.isSelected &&
-  prev.onClick === next.onClick,
-)
+export default memo(
+  RestaurantMarker,
+  (prev, next) =>
+    prev.restaurant._id === next.restaurant._id &&
+    prev.restaurant.mustEatCount === next.restaurant.mustEatCount &&
+    prev.restaurant.lat === next.restaurant.lat &&
+    prev.restaurant.lng === next.restaurant.lng &&
+    prev.isSelected === next.isSelected &&
+    prev.onClick === next.onClick
+);

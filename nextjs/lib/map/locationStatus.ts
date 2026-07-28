@@ -21,6 +21,9 @@ export interface LocationStatus {
 export const LOCATING_SHOW_DELAY_MS = 350;
 export const LOCATING_MIN_VISIBLE_MS = 600;
 
+/** How long an error notice stays up before retiring itself. */
+export const LOCATION_ERROR_VISIBLE_MS = 6000;
+
 export function getLocatingCopy(locale: string): string {
   return locale === 'en' ? 'Finding you' : 'Standort wird gesucht';
 }

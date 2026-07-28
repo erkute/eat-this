@@ -145,18 +145,21 @@
   opacity: 0.7;
 }
 
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
-:global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
-:global([data-map-body][data-map-view='detail']) .mapSearchBtn {
-  transform: translateY(calc(-100% - 80px));
-  pointer-events: none;
-}
-
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger,
-:global([data-map-body][data-map-view='detail']) .mapBurger {
-  transform: translateY(calc(-100% - 80px));
-  pointer-events: none;
+/* Tablet keeps the view-driven retreat (its sheet is a transformed drag-sheet,
+   so there is no scroll position to key off). PHONES are deliberately excluded:
+   there all three controls retreat on `data-header-stuck` alone — one trigger,
+   one direction, identical in the list and in the detail. Before, the detail
+   parked them off-screen outright and the list hid them at a different moment. */
+@media (min-width: 768px) {
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
+  :global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
+  :global([data-map-body][data-map-view='detail']) .mapSearchBtn,
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger,
+  :global([data-map-body][data-map-view='detail']) .mapBurger {
+    transform: translateY(calc(-100% - 80px));
+    pointer-events: none;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -243,7 +246,13 @@
   width: 44px;
   height: 44px;
   transform: none;
+  /* `transform` belongs in here: this shorthand replaces the whole transition,
+     and without it the retreat off the top edge was instant while .mapBurger
+     — which keeps its own `transition: transform` — glided. Same trigger, same
+     distance, but one jumped and the other animated. Duration/easing match
+     .mapBurger so the pair leaves together. */
   transition:
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
     background-color 150ms var(--ease-standard, ease),
     border-color 150ms var(--ease-standard, ease),
     color 150ms var(--ease-standard, ease);
@@ -534,7 +543,24 @@
 .panelToggle svg {
   color: currentColor;
   stroke: currentColor;
-  filter: none;
+}
+
+/* Free-standing icons: halo ─────────────────────────────────────────────────
+   These three sit straight on the tiles (the button plates were removed
+   2026-06-04), so a yellow pin sliding underneath — which happens on every
+   filter refit — left them unreadable. A white halo cuts them out of whatever
+   is behind without bringing the plate back. Stacked tight shadows rather than
+   one wide blur: a tight ring reads as a cut-out, a wide one as a glow.
+
+   Deliberately NOT applied to `.mapSearchToolbar .mapSearchIcon` — the
+   expanded toolbar has its own white fill and needs no halo. Declared after
+   the `filter: none` resets above, which is what this file needs to make an
+   icon filter stick at all. */
+.mapSearchBtn .mapSearchIcon,
+.mapBurgerLines,
+.fabIcon {
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 3px #fff)
+    drop-shadow(0 1px 2px rgba(21, 18, 14, 0.18));
 }
 
 @media (min-width: 1024px) {
@@ -792,23 +818,31 @@
   :global([data-map-body][data-map-view='detail']) .fab {
     display: none;
   }
-  /* Both top-corner controls hang off the viewport, not off the map surface.
-     The search button used to stay `absolute` inside .mapWrap while only the
-     burger was fixed, so the two drifted apart from each other during scroll
-     — iOS nudges fixed elements around as the URL bar collapses, and an
-     absolute child of the sticky map does not follow. Same model, same
-     behaviour. */
+  /* All three top-corner controls hang off the viewport, not off the map
+     surface. The search button used to stay `absolute` inside .mapWrap while
+     only the burger was fixed, so the two drifted apart from each other during
+     scroll — iOS nudges fixed elements around as the URL bar collapses, and an
+     absolute child of the sticky map does not follow. The EXPANDED toolbar was
+     absolute too, which is why it wandered off while typing. Same model for
+     all three, same behaviour. */
   .mapBurger,
-  .mapSearchBtn {
+  .mapSearchBtn,
+  .mapSearchToolbar {
     position: fixed;
   }
+
   .mapStatusLayer,
   .mapStatusLayerError {
     position: absolute;
     top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh));
     bottom: auto;
     left: 50%;
-    transform: translate(-50%, calc(-100% - 12px));
+    /* Park ABOVE the locate FAB instead of on top of it. The FAB (.fab in this
+       same block) floats 14px over the sheet and is 44px tall, so the toast has
+       to clear 58px plus its own 12px of breathing room. They used to occupy
+       the same band with the toast at z-index 120 — which hid, and made
+       untappable, the very control the message tells you to use. */
+    transform: translate(-50%, calc(-100% - 70px));
   }
 }
 

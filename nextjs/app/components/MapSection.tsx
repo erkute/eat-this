@@ -5,6 +5,7 @@ import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import {
   useMapData,
   useUserLocation,
+  hasGeolocationPermission,
   useUnlockedMustEats,
   useFavorites,
   useMapFilters,
@@ -26,6 +27,17 @@ import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from '@/lib/map/phoneSheetSnaps';
+import { safeAreaInsetTop } from '@/lib/map/safeArea';
+
+/* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
+   ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
+   Camera padding is expressed against the ANCHOR, so it has to carry the pin's
+   own extent plus whatever chrome sits there:
+   - sides: 24px of pin + 10px of air.
+   - top:   47px of pin + the 14px-inset, 44px-tall search/burger row + 10px,
+            with env(safe-area-inset-top) added by the caller. */
+const PIN_SAFE_SIDE = 34;
+const PIN_SAFE_TOP = 115;
 
 interface Props {
   isActive?: boolean;
@@ -205,7 +217,7 @@ export default function MapSection({
      list visible, full = list top parked 40px below the viewport top — same
      constants the tablet drag-sheet uses (MID_VISIBLE_PX / FULL_TOP_PX). */
   const scrollListToAnchor = useCallback(
-    (target: 'peek' | 'mid' | 'full') => {
+    (target: 'peek' | 'mid' | 'full', behavior: ScrollBehavior = 'smooth') => {
       const el = sheetElRef.current;
       if (!el) return;
       const listTopDoc = el.getBoundingClientRect().top + window.scrollY;
@@ -214,7 +226,7 @@ export default function MapSection({
       const desiredTop = target === 'peek' ? h : target === 'mid' ? Math.max(40, h - 440) : 40;
       window.scrollTo({
         top: Math.max(0, Math.round(listTopDoc - desiredTop)),
-        behavior: 'smooth',
+        behavior,
       });
     },
     [sheetElRef]
@@ -486,10 +498,15 @@ export default function MapSection({
       const isMobile = window.matchMedia('(max-width: 1023.98px)').matches;
       if (!isMobile) {
         // Desktop: the map canvas IS the left grid cell — the side panel is
-        // outside the canvas. Reserve a bit of room at top (toolbar) and bottom
-        // (zoom controls + FAB); horizontal stays symmetric so the marker lands
-        // at the column's geometric center.
-        return { top: 80, bottom: 100, left: 24, right: 24 };
+        // outside the canvas. Reserve room at top (toolbar + burger stacked
+        // beneath it) and bottom (zoom controls + FAB); horizontal stays
+        // symmetric so the marker lands at the column's geometric center.
+        return {
+          top: PIN_SAFE_TOP,
+          bottom: 100,
+          left: PIN_SAFE_SIDE,
+          right: PIN_SAFE_SIDE,
+        };
       }
       // When the caller specifies a target snap, use known pixel heights for
       // that snap (or an explicit visible-height override — the detail middle
@@ -550,10 +567,17 @@ export default function MapSection({
       // height so lvh/dvh bar states are handled for free.
       const canvasH = mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
       const overhang = Math.max(0, canvasH - window.innerHeight);
-      // top: 70 leaves room for the floating top controls plus a tiny gap.
-      // Centring then matches the geometric centre of the actually-visible
-      // map area between the controls and the sheet top.
-      return { top: 70, bottom: Math.round(visible + overhang) + 20, left: 20, right: 20 };
+      /* MapLibre applies padding to the marker's ANCHOR COORDINATE, but the pin
+         is a 47px card drawn bottom-anchored ABOVE that point (see
+         MapMarkers.module.css). Padding that only clears the anchor let pins
+         hang off the left/right edge and slide under the burger after a filter
+         refit, so reserve the pin's own extent on top of the chrome. */
+      return {
+        top: PIN_SAFE_TOP + safeAreaInsetTop(),
+        bottom: Math.round(visible + overhang) + 20,
+        left: PIN_SAFE_SIDE,
+        right: PIN_SAFE_SIDE,
+      };
     },
     [snap, sheetView, sheetElRef, phoneDetailFlyPadding]
   );
@@ -916,26 +940,37 @@ export default function MapSection({
     }
   }, [snap, setSnap, reapplySnap, sheetView, scrollListToAnchor]);
 
-  // When the user starts typing in the search, surface the list (mid snap) so
-  // they see the filtered results — typing into a hidden list is confusing.
+  /* Surface the list once when the search UI OPENS — never per keystroke.
+     Scrolling on every character moved the page ~200px out from under the
+     finger mid-word, and on iOS it also fought Safari's own "keep the caret
+     visible" scroll once the keyboard was up. Phones get an instant jump
+     (smooth would still be animating when the next character lands); the
+     reveal happens before the input takes focus, so the keyboard opens onto
+     an already-settled layout. */
+  const revealListForSearch = useCallback(() => {
+    if (sheetView !== 'list') return;
+    setDesktopPanelHidden(false);
+    if (!isPhoneViewport()) {
+      if (snap === 'peek') setSnap('mid');
+      return;
+    }
+    // Only scroll UP; never yank a user who is already deep in the rows.
+    const el = sheetElRef.current;
+    if (!el || window.innerHeight - el.getBoundingClientRect().top >= 440) return;
+    scrollListToAnchor('mid', 'instant');
+  }, [snap, sheetView, setSnap, sheetElRef, scrollListToAnchor]);
+
   const handleSearchChange = useCallback(
     (v: string) => {
       setSearch(v);
-      if (!v || sheetView !== 'list') return;
-      setDesktopPanelHidden(false);
-      if (isPhoneViewport()) {
-        // Surface enough of the in-flow list to show results — but only
-        // scroll UP; never yank a user who is already deep in the rows.
-        const el = sheetElRef.current;
-        if (el && window.innerHeight - el.getBoundingClientRect().top < 440) {
-          scrollListToAnchor('mid');
-        }
-        return;
-      }
-      if (snap === 'peek') setSnap('mid');
     },
-    [snap, sheetView, setSnap, setSearch, sheetElRef, scrollListToAnchor]
+    [setSearch]
   );
+
+  const handleSearchOpen = useCallback(() => {
+    setSearchOpen(true);
+    revealListForSearch();
+  }, [revealListForSearch]);
 
   const handleBezirkChange = useCallback(
     (name: string | null) => {
@@ -1033,37 +1068,51 @@ export default function MapSection({
     let cancelPoll = () => {};
     const params = new URLSearchParams(window.location.search);
     const hasDeepLink = ['r', 'me', 'bezirk', 'cat'].some((p) => params.has(p));
-    void requestLocation().then(({ location: loc }) => {
-      if (cancelled) return;
-      if (!loc || hasDeepLink) {
-        completed = true;
-        return;
-      }
-      const inBerlin = loc.lat > 52.3 && loc.lat < 52.7 && loc.lng > 12.9 && loc.lng < 13.8;
-      if (!inBerlin) {
-        completed = true;
-        return;
-      }
-      cancelPoll = pollUntilMapReady({
-        mapRef,
-        shouldStop: () => userInteractedRef.current,
-        onStopped: () => {
+    /* Only for an EXISTING grant — otherwise this fires the system permission
+       dialog on first paint with no context (see hasGeolocationPermission).
+       Silent on top of that, so even a grant that later fails (GPS off, indoors)
+       cannot raise a toast nobody asked for; the canvas default, Berlin Mitte,
+       simply stands. Asking is the locate button's job. */
+    void hasGeolocationPermission()
+      .then((granted) => {
+        if (cancelled) return { location: null, error: null };
+        if (!granted) {
           completed = true;
-        },
-        onTimeout: () => {
+          return { location: null, error: null };
+        }
+        return requestLocation({ silent: true });
+      })
+      .then(({ location: loc }) => {
+        if (cancelled) return;
+        if (!loc || hasDeepLink) {
           completed = true;
-        },
-        onReady: (map) => {
+          return;
+        }
+        const inBerlin = loc.lat > 52.3 && loc.lat < 52.7 && loc.lng > 12.9 && loc.lng < 13.8;
+        if (!inBerlin) {
           completed = true;
-          map.flyTo({
-            center: [loc.lng, loc.lat],
-            zoom: 14,
-            duration: 600,
-            padding: getFlyPaddingRef.current(),
-          });
-        },
+          return;
+        }
+        cancelPoll = pollUntilMapReady({
+          mapRef,
+          shouldStop: () => userInteractedRef.current,
+          onStopped: () => {
+            completed = true;
+          },
+          onTimeout: () => {
+            completed = true;
+          },
+          onReady: (map) => {
+            completed = true;
+            map.flyTo({
+              center: [loc.lng, loc.lat],
+              zoom: 14,
+              duration: 600,
+              padding: getFlyPaddingRef.current(),
+            });
+          },
+        });
       });
-    });
     return () => {
       cancelled = true;
       cancelPoll();
@@ -1220,6 +1269,7 @@ export default function MapSection({
       setOpenOnly={setOpenOnly}
       searchOpen={searchOpen}
       setSearchOpen={setSearchOpen}
+      onSearchOpen={handleSearchOpen}
       onMapClick={handleMapClick}
       onRestaurantClick={handleRestaurantClick}
       onMustEatClick={handleMustEatClick}

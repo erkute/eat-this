@@ -1,30 +1,30 @@
-'use client'
-import { useEffect, useState, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
-import styles from './MapFilters.module.css'
+'use client';
+import { useEffect, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import styles from './MapFilters.module.css';
 
 export interface PickerItem {
-  value: string
-  label: string
+  value: string;
+  label: string;
   /** Small muted text rendered right-aligned (e.g. result count). */
-  sub?: string
+  sub?: string;
 }
 
 interface Props {
-  title: string
-  items: PickerItem[]
+  title: string;
+  items: PickerItem[];
   /** Currently selected value. `null` means the "Alle …" reset row is active. */
-  selectedValue: string | null
+  selectedValue: string | null;
   /** Receives the picked value, or `null` for the reset row. */
-  onSelect: (value: string | null) => void
-  onClose: () => void
+  onSelect: (value: string | null) => void;
+  onClose: () => void;
   /** Anchor element so desktop renders as anchored popover (instead of bottom sheet). */
-  anchorEl?: HTMLElement | null
+  anchorEl?: HTMLElement | null;
   /** Optional extra rows after the list — e.g. sort direction toggle. */
-  footer?: ReactNode
+  footer?: ReactNode;
   /** Label for the "Alle …" reset row. Omit to skip the reset row. */
-  allLabel?: string
-  closeAriaLabel: string
+  allLabel?: string;
+  closeAriaLabel: string;
 }
 
 /**
@@ -35,76 +35,145 @@ interface Props {
  * picks the right layout. Closes on outside-click and on Escape.
  */
 export default function MapFilterPickerSheet({
-  title, items, selectedValue, onSelect, onClose,
-  anchorEl, footer, allLabel, closeAriaLabel,
+  title,
+  items,
+  selectedValue,
+  onSelect,
+  onClose,
+  anchorEl,
+  footer,
+  allLabel,
+  closeAriaLabel,
 }: Props) {
   // Callback-ref into state so position + touchmove effects re-run the moment
   // the sheet element actually attaches. The previous useState('mounted') +
   // useRef pattern raced: effects ran on the first pass when the portal
   // returned null, sheetRef.current was still null, and the position effect
   // never re-ran after mounted flipped — leaving the desktop popover at 0,0.
-  const [sheetEl, setSheetEl] = useState<HTMLDivElement | null>(null)
+  const [sheetEl, setSheetEl] = useState<HTMLDivElement | null>(null);
 
   // Outside-click / Escape close.
   useEffect(() => {
     const onPointer = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as Node
-      if (sheetEl && sheetEl.contains(target)) return
-      if (anchorEl && anchorEl.contains(target)) return
-      onClose()
-    }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('mousedown', onPointer)
-    document.addEventListener('touchstart', onPointer)
-    document.addEventListener('keydown', onKey)
+      const target = e.target as Node;
+      if (sheetEl && sheetEl.contains(target)) return;
+      if (anchorEl && anchorEl.contains(target)) return;
+      onClose();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('touchstart', onPointer);
+    document.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener('mousedown', onPointer)
-      document.removeEventListener('touchstart', onPointer)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [onClose, anchorEl, sheetEl])
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('touchstart', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, anchorEl, sheetEl]);
 
   // Prevent the map-sheet's drag handler from absorbing touches that start
   // inside the picker — otherwise scrolling a long bezirk list collapses
   // the bottom sheet underneath.
   useEffect(() => {
-    if (!sheetEl) return
-    const stop = (e: TouchEvent) => e.stopPropagation()
-    sheetEl.addEventListener('touchmove', stop, { passive: true })
-    return () => sheetEl.removeEventListener('touchmove', stop)
-  }, [sheetEl])
+    if (!sheetEl) return;
+    const stop = (e: TouchEvent) => e.stopPropagation();
+    sheetEl.addEventListener('touchmove', stop, { passive: true });
+    return () => sheetEl.removeEventListener('touchmove', stop);
+  }, [sheetEl]);
+
+  /* Focus management. This is an aria-modal dialog, but focus used to stay on
+     <body>: keyboard and VoiceOver users were told a modal had opened and then
+     left outside it, tabbing through the map behind. Move focus to the current
+     selection (or the first row), trap Tab inside, and hand focus back to
+     whatever opened the picker on close. */
+  useEffect(() => {
+    if (!sheetEl) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const focusables = () =>
+      Array.from(
+        sheetEl.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => el.offsetParent !== null);
+
+    const initial =
+      sheetEl.querySelector<HTMLElement>(`.${styles.pickerItemActive}`) ?? focusables()[0];
+    initial?.focus({ preventScroll: true });
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    sheetEl.addEventListener('keydown', onKey);
+    return () => {
+      sheetEl.removeEventListener('keydown', onKey);
+      // Only reclaim focus if it is still inside the closing dialog; a pick
+      // that navigates elsewhere must not be yanked back to the chip.
+      if (!opener || !document.contains(opener)) return;
+      if (sheetEl.contains(document.activeElement)) opener.focus({ preventScroll: true });
+    };
+  }, [sheetEl]);
+
+  /* Only fade the list edge when it actually scrolls — a fade over a list that
+     fits reads as a rendering bug. */
+  const [listEl, setListEl] = useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!listEl) return;
+    const sync = () =>
+      (listEl.dataset.scrollable =
+        listEl.scrollHeight > listEl.clientHeight + 1 ? 'true' : 'false');
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(listEl);
+    return () => ro.disconnect();
+  }, [listEl, items.length]);
 
   // Desktop popover positioning relative to the anchor chip.
   useEffect(() => {
-    if (!sheetEl || !anchorEl) return
+    if (!sheetEl || !anchorEl) return;
     const apply = () => {
-      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
       if (!isDesktop) {
-        sheetEl.style.removeProperty('--picker-anchor-top')
-        sheetEl.style.removeProperty('--picker-anchor-left')
-        return
+        sheetEl.style.removeProperty('--picker-anchor-top');
+        sheetEl.style.removeProperty('--picker-anchor-left');
+        return;
       }
-      const rect = anchorEl.getBoundingClientRect()
+      const rect = anchorEl.getBoundingClientRect();
       // Clamp horizontally so the 280px popover never spills past the viewport
       // edge — the filter chips live in the right-hand rail, so a left-aligned
       // sheet would overflow the right edge for every chip but the first.
-      const margin = 12
-      const sheetW = sheetEl.offsetWidth || 280
-      const left = Math.max(margin, Math.min(rect.left, window.innerWidth - sheetW - margin))
-      sheetEl.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`)
-      sheetEl.style.setProperty('--picker-anchor-left', `${left}px`)
-      sheetEl.style.setProperty('--picker-caret-left', `${Math.max(22, Math.min(rect.left + rect.width / 2 - left, sheetW - 22))}px`)
-    }
-    apply()
-    window.addEventListener('resize', apply)
-    window.addEventListener('scroll', apply, true)
+      const margin = 12;
+      const sheetW = sheetEl.offsetWidth || 280;
+      const left = Math.max(margin, Math.min(rect.left, window.innerWidth - sheetW - margin));
+      sheetEl.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`);
+      sheetEl.style.setProperty('--picker-anchor-left', `${left}px`);
+      sheetEl.style.setProperty(
+        '--picker-caret-left',
+        `${Math.max(22, Math.min(rect.left + rect.width / 2 - left, sheetW - 22))}px`
+      );
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('scroll', apply, true);
     return () => {
-      window.removeEventListener('resize', apply)
-      window.removeEventListener('scroll', apply, true)
-    }
-  }, [anchorEl, sheetEl])
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('scroll', apply, true);
+    };
+  }, [anchorEl, sheetEl]);
 
-  if (typeof document === 'undefined') return null
+  if (typeof document === 'undefined') return null;
 
   return createPortal(
     <>
@@ -118,38 +187,51 @@ export default function MapFilterPickerSheet({
       >
         <div className={styles.pickerHead}>
           <span className={styles.pickerTitle}>{title}</span>
-          <button type="button" className={styles.pickerClose} onClick={onClose} aria-label={closeAriaLabel}>
+          <button
+            type="button"
+            className={styles.pickerClose}
+            onClick={onClose}
+            aria-label={closeAriaLabel}
+          >
             ×
           </button>
         </div>
-        <div className={styles.pickerList}>
+        <div className={styles.pickerList} ref={setListEl}>
           {allLabel !== undefined && (
             <button
               type="button"
               className={`${styles.pickerItem} ${selectedValue === null ? styles.pickerItemActive : ''}`}
-              onClick={() => { onSelect(null); onClose() }}
+              aria-current={selectedValue === null ? 'true' : undefined}
+              onClick={() => {
+                onSelect(null);
+                onClose();
+              }}
             >
               <span className={styles.pickerItemLabel}>{allLabel}</span>
             </button>
           )}
-          {items.map(item => {
-            const active = item.value === selectedValue
+          {items.map((item) => {
+            const active = item.value === selectedValue;
             return (
               <button
                 key={item.value}
                 type="button"
                 className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''}`}
-                onClick={() => { onSelect(item.value); onClose() }}
+                aria-current={active ? 'true' : undefined}
+                onClick={() => {
+                  onSelect(item.value);
+                  onClose();
+                }}
               >
                 <span className={styles.pickerItemLabel}>{item.label}</span>
                 {item.sub && <span className={styles.pickerItemSub}>{item.sub}</span>}
               </button>
-            )
+            );
           })}
         </div>
         {footer && <div className={styles.pickerFooter}>{footer}</div>}
       </div>
     </>,
-    document.body,
-  )
+    document.body
+  );
 }

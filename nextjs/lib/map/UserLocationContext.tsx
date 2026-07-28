@@ -1,29 +1,22 @@
-'use client'
+'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
-import { mapGeoError, type UserLocationError } from './useUserLocation'
+import { hasGeolocationPermission, mapGeoError, type UserLocationError } from './useUserLocation';
 
 interface UserLocation {
-  lat: number
-  lng: number
+  lat: number;
+  lng: number;
 }
 
 interface UserLocationValue {
-  location: UserLocation | null
-  loading: boolean
-  error: UserLocationError | null
-  request: () => Promise<UserLocation | null>
+  location: UserLocation | null;
+  loading: boolean;
+  error: UserLocationError | null;
+  request: () => Promise<UserLocation | null>;
 }
 
-const UserLocationContext = createContext<UserLocationValue | null>(null)
+const UserLocationContext = createContext<UserLocationValue | null>(null);
 
 /**
  * Shared geolocation state for the hub. A single permission grant (e.g. the
@@ -37,61 +30,62 @@ const UserLocationContext = createContext<UserLocationValue | null>(null)
  * tap the button.
  */
 export function UserLocationProvider({ children }: { children: ReactNode }) {
-  const [location, setLocation] = useState<UserLocation | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<UserLocationError | null>(null)
+  const [location, setLocation] = useState<UserLocation | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<UserLocationError | null>(null);
 
   const request = useCallback((): Promise<UserLocation | null> => {
     return new Promise((resolve) => {
       if (typeof navigator === 'undefined' || !navigator.geolocation) {
-        setError('unavailable')
-        resolve(null)
-        return
+        setError('unavailable');
+        resolve(null);
+        return;
       }
-      setLoading(true)
+      setLoading(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-          setLocation(loc)
-          setError(null)
-          setLoading(false)
-          resolve(loc)
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setLocation(loc);
+          setError(null);
+          setLoading(false);
+          resolve(loc);
         },
         (err) => {
-          setError(mapGeoError(err.code))
-          setLoading(false)
-          resolve(null)
+          setError(mapGeoError(err.code));
+          setLoading(false);
+          resolve(null);
         },
-        { enableHighAccuracy: true, timeout: 10000 },
-      )
-    })
-  }, [])
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  }, []);
 
+  /* Resume an existing grant without prompting. Shares hasGeolocationPermission
+     with MapSection's auto-centre — the one surface that used to skip this check
+     and fired the system dialog on first paint. Permission is per-origin, so a
+     prompt on any page would poison it everywhere: both callers stay on the
+     same gate. */
   useEffect(() => {
-    let cancelled = false
-    if (typeof navigator === 'undefined' || !navigator.permissions?.query) return
-    navigator.permissions
-      .query({ name: 'geolocation' as PermissionName })
-      .then((status) => {
-        if (!cancelled && status.state === 'granted') void request()
-      })
-      .catch(() => {})
+    let cancelled = false;
+    void hasGeolocationPermission().then((granted) => {
+      if (!cancelled && granted) void request();
+    });
     return () => {
-      cancelled = true
-    }
-  }, [request])
+      cancelled = true;
+    };
+  }, [request]);
 
   return (
     <UserLocationContext.Provider value={{ location, loading, error, request }}>
       {children}
     </UserLocationContext.Provider>
-  )
+  );
 }
 
 export function useUserLocationContext(): UserLocationValue {
-  const ctx = useContext(UserLocationContext)
+  const ctx = useContext(UserLocationContext);
   if (!ctx) {
-    throw new Error('useUserLocationContext must be used within <UserLocationProvider>')
+    throw new Error('useUserLocationContext must be used within <UserLocationProvider>');
   }
-  return ctx
+  return ctx;
 }

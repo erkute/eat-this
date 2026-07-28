@@ -61,7 +61,8 @@
   align-items: center;
   /* Tight chrome by default — extra space made the sheet look top-heavy at
      peek/mid. At `full` we add a touch more (see below). The whole strip is
-     the touch zone, so this is still finger-friendly. */
+     the touch zone, so this is still finger-friendly. Phones widen it to a
+     proper drag target in the block below without changing the visual pill. */
   padding: 9px 0 7px;
   min-height: 24px;
   cursor: grab;
@@ -184,7 +185,10 @@
      space, so nothing shifts when it appears and the resting sheet has no
      dead whitespace above the chips. In a browser tab the inset is 0, so
      this collapses to nothing — which is why it can stay unconditional. */
-  .list[data-header-stuck='true']::before {
+  /* List only: the detail's top edge is a photo hero, and a paper-coloured cap
+     over it would read as a stray white stripe. `data-header-stuck` itself is
+     shared by both views (it drives the floating controls). */
+  .list[data-view='list'][data-header-stuck='true']::before {
     content: '';
     position: fixed;
     top: 0;
@@ -197,11 +201,24 @@
   .handle {
     cursor: grab;
     /* The handle drags the window scroller (useHandleScrollDrag). Claiming its
-       gesture is safe precisely because it is only this ~40x5 px pill — the
-       rows around it keep native scrolling, which is what ruled out binding
-       the whole sheet. */
+       gesture is safe precisely because it is only this strip — the rows around
+       it keep native scrolling, which is what ruled out binding the whole
+       sheet. */
+    position: relative;
     touch-action: none;
     -ms-touch-action: none;
+  }
+
+  /* Grab zone 26px → ~40px WITHOUT padding: extra padding here pushes the
+     whole sheet down and is exactly the top-heavy look the tight chrome above
+     was chosen to avoid. A pseudo-element takes no layout space, so the pill
+     stays put while a thumb landing slightly high or low still drags the sheet
+     instead of scrolling the rows under it. Pointer events on ::after target
+     the handle itself, which is what useHandleScrollDrag binds. */
+  .handle::after {
+    content: '';
+    position: absolute;
+    inset: -7px 0;
   }
   .handle:active {
     cursor: grabbing;

@@ -29,11 +29,11 @@
   clip-path: none;
   filter: none;
   transform: rotate(-4deg);
+  /* transform/filter only: width+height were in here too, so selecting a pin
+     ran a layout animation on every mounted marker at once. */
   transition:
     transform 0.16s ease,
-    filter 0.16s ease,
-    width 0.16s ease,
-    height 0.16s ease;
+    filter 0.16s ease;
 }
 
 .pinLogo:focus-visible {

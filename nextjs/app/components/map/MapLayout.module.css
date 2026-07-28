@@ -189,8 +189,13 @@
 
 @media (max-width: 767.98px) {
   .shell {
-    --phone-list-sheet-visible: 50dvh;
-    --detail-map-peek: clamp(190px, 27dvh, 240px);
+    /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
+       LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts — keep the two in step. */
+    --phone-list-sheet-visible: 28dvh;
+    /* The detail's map strip. Sized so the sheet has the same three stops as
+       the list; it stays well under 100dvh on purpose, because a
+       full-viewport GL compositor is what broke Safari's bar backdrop. */
+    --detail-map-peek: 50dvh;
     height: auto;
     overflow: visible;
   }
@@ -207,12 +212,14 @@
     z-index: 0;
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
-    /* The detail uses the same live MapLibre surface as the list, but its real
-       compositor is bounded to the visible peek and scrolls in normal flow.
-       It never sits behind the detail, so Safari's translucent bottom-bar
-       backdrop can sample only real content below. */
-    position: relative;
-    top: auto;
+    /* Same anchoring as the list: the map stays put and the sheet slides over
+       it, so the three stops uncover it instead of dragging it off-screen.
+       Only the HEIGHT differs — bounded to the strip, never a full-viewport
+       compositor. That bound is what matters for Safari: the bottom URL bar
+       always has real detail content beneath it to sample, never the GL layer
+       (the failure bisected on-device 2026-07-06). */
+    position: sticky;
+    top: 0;
     height: var(--detail-map-peek);
     overflow: hidden;
   }

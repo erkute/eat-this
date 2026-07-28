@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBottomSheet, type SheetSnap } from './useBottomSheet';
 import { detailMidVisiblePx, estimateDetailMidVisiblePx } from './detailSnap';
+import { useHandleScrollDrag } from './useHandleScrollDrag';
 
 export type SheetView = 'list' | 'detail';
 
@@ -237,6 +238,11 @@ export function useMapSheet(onDetailDismiss?: () => void, initialView: SheetView
     },
     [configure, viewConfig]
   );
+
+  /* Phones keep the window-scrolled in-flow sheet (useBottomSheet is inert
+     there), so the handle drives the native scroller instead of a transform.
+     Re-bound per view because the handle element is swapped between them. */
+  useHandleScrollDrag(sheet.handleRef, sheetView === 'detail' ? 'detail' : 'list');
 
   return {
     ...sheet,

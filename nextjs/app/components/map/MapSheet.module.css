@@ -120,21 +120,26 @@
   }
 
   .handle,
-.list[data-view='detail'] .handle {
+  .list[data-view='detail'] .handle {
     min-height: 26px;
     padding: 8px 0 6px;
     background: transparent;
   }
 
+  /* Geometry only. The colour is deliberately NOT set here: this selector
+     outranks the plain `.handle::before` below (attribute selector), so a
+     background here would apply to the detail alone and the two views would
+     drift apart — which is exactly how the detail ended up with a washed-out
+     22% pill while the list had a solid one. */
   .handle::before,
-.list[data-view='detail'] .handle::before {
+  .list[data-view='detail'] .handle::before {
     width: 42px;
     height: 3px;
     border-radius: 999px;
-    background: rgba(23, 26, 23, 0.22);
   }
 }
 
+/* One colour for both views — list and detail read as the same control. */
 .handle::before {
   background: #15120e;
 }
@@ -154,10 +159,10 @@
     bottom: auto;
     transform: none;
     height: auto;
-    margin-top: calc(0px - var(--phone-list-sheet-visible, 50dvh));
-    min-height: calc(
-      42dvh + var(--phone-list-sheet-visible, 50dvh) + var(--map-bar-overhang, 0px)
-    );
+    margin-top: calc(0px - var(--phone-list-sheet-visible, 28dvh));
+    /* At least a full viewport, otherwise the last stop ("sheet" — list
+       covering the map entirely) is simply not reachable by scrolling. */
+    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
     transition: none;
     will-change: auto;
     z-index: 4;
@@ -171,9 +176,16 @@
     background: var(--et-home-paper, #fff);
   }
   .handle {
-    cursor: default;
-    touch-action: auto;
-    -ms-touch-action: auto;
+    cursor: grab;
+    /* The handle drags the window scroller (useHandleScrollDrag). Claiming its
+       gesture is safe precisely because it is only this ~40x5 px pill — the
+       rows around it keep native scrolling, which is what ruled out binding
+       the whole sheet. */
+    touch-action: none;
+    -ms-touch-action: none;
+  }
+  .handle:active {
+    cursor: grabbing;
   }
   .stuckSentinel {
     height: 0;
@@ -191,7 +203,9 @@
     bottom: auto;
     height: auto;
     margin-top: 0;
-    min-height: calc(100dvh - var(--detail-map-peek) + var(--map-bar-overhang, 0px));
+    /* Same rule as the list: at least a viewport, or the last stop (sheet
+       fully covering the map) cannot be reached by scrolling. */
+    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
     transform: none;
     transition: none;
     will-change: auto;
@@ -203,12 +217,6 @@
     display: block;
     padding-bottom: 0;
   }
-  .list[data-view='detail'] .handle {
-    cursor: default;
-    touch-action: auto;
-    -ms-touch-action: auto;
-  }
-
   .list[data-view='detail'][data-detail-kind='must-eat'] {
     /* Keep the full-screen Must Eat takeover in document flow. iOS Safari
        samples that real page canvas behind its browser chrome; a fixed

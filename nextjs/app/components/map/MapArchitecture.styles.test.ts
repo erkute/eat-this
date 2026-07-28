@@ -152,19 +152,26 @@ describe('Map CSS architecture', () => {
 
     expect(shellRules).toEqual([
       expect.objectContaining({
-        '--phone-list-sheet-visible': '50dvh',
-        '--detail-map-peek': 'clamp(190px, 27dvh, 240px)',
+        '--phone-list-sheet-visible': '28dvh',
+        '--detail-map-peek': '50dvh',
       }),
     ]);
     expect(listRules).toEqual([
       expect.objectContaining({
-        'margin-top': 'calc(0px - var(--phone-list-sheet-visible, 50dvh))',
+        'margin-top': 'calc(0px - var(--phone-list-sheet-visible, 28dvh))',
+        /* The last stop is only reachable if the list is at least a viewport
+           tall — see phoneSheetSnaps.ts. */
+        'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
       }),
     ]);
     expect(layoutRules).toEqual([
       expect.objectContaining({
-        position: 'relative',
-        top: 'auto',
+        /* Anchored like the list so the sheet uncovers the map instead of
+           dragging it off-screen — but bounded in height, so the GL layer
+           never becomes the full-viewport compositor that broke Safari's
+           bottom-bar backdrop. */
+        position: 'sticky',
+        top: '0',
         height: 'var(--detail-map-peek)',
         overflow: 'hidden',
       }),
@@ -172,7 +179,7 @@ describe('Map CSS architecture', () => {
     expect(sheetRules).toEqual([
       expect.objectContaining({
         'margin-top': '0',
-        'min-height': 'calc(100dvh - var(--detail-map-peek) + var(--map-bar-overhang, 0px))',
+        'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
       }),
     ]);
     expect(section).not.toContain("mapWrap.style.visibility = 'hidden'");
@@ -181,8 +188,7 @@ describe('Map CSS architecture', () => {
     expect(body).not.toContain('StaticDetailMapPeek');
   });
 
-  it('leaves the phone status-bar safe area uncapped for scrolling content', () => {
-    const sheet = readFileSync(modulePath('MapSheet.module.css'), 'utf8');
+  it('caps the phone status-bar band only while the filter header is stuck', () => {
     const mapPage = readFileSync(
       fileURLToPath(new URL('../../[locale]/(spa)/map/page.tsx', import.meta.url)),
       'utf8'
@@ -192,14 +198,35 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
+    const capRules = declarationsInMedia(
+      'MapSheet.module.css',
+      ".list[data-header-stuck='true']::before",
+      '(max-width: 767.98px)'
+    );
 
-    expect(sheet).not.toContain(".list[data-header-stuck='true']::before");
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");
+
+    /* The header rests BELOW the band. Pinning it at 0 and carrying the inset
+       as padding instead reserves that space at every scroll position, which
+       shows up as dead whitespace above the chips at the resting stop. */
     expect(headerRules).toEqual([
       expect.objectContaining({
         position: 'sticky',
         top: 'env(safe-area-inset-top, 0px)',
+      }),
+    ]);
+
+    /* The band is covered by a zero-layout pseudo-element, gated on the stuck
+       state — so nothing shifts when it appears, and the resting sheet keeps
+       no whitespace. Its height is the inset itself, which is 0 in a browser
+       tab: there the cap collapses to nothing and rows still reach the top. */
+    expect(capRules).toEqual([
+      expect.objectContaining({
+        position: 'fixed',
+        top: '0',
+        height: 'env(safe-area-inset-top, 0px)',
+        background: 'var(--et-home-paper, #fff)',
       }),
     ]);
   });

@@ -167,8 +167,8 @@
     padding: 0 14px;
   }
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger {
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger {
     transform: none;
     pointer-events: auto;
   }
@@ -180,16 +180,16 @@
 
 @media (min-width: 1024px) {
   .mapSearchBtn {
-    top: 14px;
+    top: calc(14px + env(safe-area-inset-top, 0px));
     right: 14px;
     left: auto;
   }
   .mapBurger {
-    top: 52px;
+    top: calc(52px + env(safe-area-inset-top, 0px));
     left: auto;
   }
   .mapSearchToolbar {
-    top: 14px;
+    top: calc(14px + env(safe-area-inset-top, 0px));
     right: 14px;
     left: auto;
   }
@@ -197,9 +197,9 @@
 
 @media (min-width: 1024px) {
   :global([data-map-body][data-map-view='detail']) .mapSearchBtn,
-:global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
-:global([data-map-body][data-map-view='detail']) .mapBurger,
-:global([data-map-body][data-map-view='detail']) .fab {
+  :global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
+  :global([data-map-body][data-map-view='detail']) .mapBurger,
+  :global([data-map-body][data-map-view='detail']) .fab {
     transform: none;
     pointer-events: auto;
   }
@@ -271,7 +271,7 @@
 
 @media (hover: hover) {
   .mapSearchBtn:hover,
-.fab:hover {
+  .fab:hover {
     border-color: var(--brand-ink);
   }
 }
@@ -293,8 +293,8 @@
 
 @media (hover: hover) {
   .mapSearchBtn:hover,
-.fab:hover,
-.mapBurger:hover {
+  .fab:hover,
+  .mapBurger:hover {
     filter: none;
     text-shadow: none;
   }
@@ -302,8 +302,8 @@
 
 @media (hover: hover) {
   .mapSearchBtn:hover,
-.fab:hover,
-.mapBurger:hover {
+  .fab:hover,
+  .mapBurger:hover {
     color: var(--brand-ink);
   }
 }
@@ -313,7 +313,6 @@
 }
 
 @media (min-width: 1024px) {
-
   .panelToggle {
     right: var(--map-desktop-panel-width);
   }
@@ -328,7 +327,7 @@
 }
 
 .mapBurger {
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
   right: 14px;
   left: auto;
   z-index: 55;
@@ -370,8 +369,8 @@
 
 @media (hover: hover) {
   .mapSearchBtn:hover,
-.mapBurger:hover,
-.fab:hover {
+  .mapBurger:hover,
+  .fab:hover {
     background: transparent;
     border: 0;
     box-shadow: none;
@@ -583,7 +582,7 @@
 }
 
 .mapSearchToolbar {
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
   left: 14px;
   right: auto;
   width: min(430px, calc(100vw - 84px));
@@ -695,7 +694,7 @@
 }
 
 .mapSearchBtn {
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
   left: 14px;
   right: auto;
   width: 44px;
@@ -751,7 +750,7 @@
 
 @media (min-width: 1024px) {
   .mapStatusLayer,
-.mapStatusLayerError {
+  .mapStatusLayerError {
     bottom: 24px;
     left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
     width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px));
@@ -772,15 +771,15 @@
 
 @media (min-width: 1024px) {
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayer,
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayerError,
-:global([data-map-body][data-map-view='detail']) .mapStatusLayer,
-:global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayerError,
+  :global([data-map-body][data-map-view='detail']) .mapStatusLayer,
+  :global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
     left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
     width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px));
   }
 
   :global([data-map-body][data-panel-hidden='true']) .mapStatusLayer,
-:global([data-map-body][data-panel-hidden='true']) .mapStatusLayerError {
+  :global([data-map-body][data-panel-hidden='true']) .mapStatusLayerError {
     left: 50%;
     width: min(360px, calc(100vw - 32px));
   }
@@ -788,18 +787,25 @@
 
 @media (max-width: 767.98px) {
   .fab {
-    bottom: calc(var(--phone-list-sheet-visible, 50dvh) + 14px);
+    bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
   }
   :global([data-map-body][data-map-view='detail']) .fab {
     display: none;
   }
-  .mapBurger {
+  /* Both top-corner controls hang off the viewport, not off the map surface.
+     The search button used to stay `absolute` inside .mapWrap while only the
+     burger was fixed, so the two drifted apart from each other during scroll
+     — iOS nudges fixed elements around as the URL bar collapses, and an
+     absolute child of the sticky map does not follow. Same model, same
+     behaviour. */
+  .mapBurger,
+  .mapSearchBtn {
     position: fixed;
   }
   .mapStatusLayer,
-.mapStatusLayerError {
+  .mapStatusLayerError {
     position: absolute;
-    top: calc(100dvh - var(--phone-list-sheet-visible, 50dvh));
+    top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh));
     bottom: auto;
     left: 50%;
     transform: translate(-50%, calc(-100% - 12px));
@@ -812,17 +818,16 @@
   }
 
   :global([data-map-body][data-header-stuck='true']) .mapSearchToolbar,
-:global([data-map-body][data-header-stuck='true']) .mapSearchBtn,
-:global([data-map-body][data-header-stuck='true']) .mapBurger {
+  :global([data-map-body][data-header-stuck='true']) .mapSearchBtn,
+  :global([data-map-body][data-header-stuck='true']) .mapBurger {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
   }
 }
 
 @media (max-width: 767.98px) {
-
   :global([data-map-body][data-map-view='detail']) .mapStatusLayer,
-:global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
+  :global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
     display: none;
   }
 }

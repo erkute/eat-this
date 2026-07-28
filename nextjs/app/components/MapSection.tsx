@@ -25,6 +25,7 @@ import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
+import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from '@/lib/map/phoneSheetSnaps';
 
 interface Props {
   isActive?: boolean;
@@ -430,11 +431,11 @@ export default function MapSection({
      getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
      open-click handlers (whose closures still see sheetView 'list'). */
   const phoneDetailFlyPadding = useCallback(() => {
-    /* Mirrors --detail-map-peek: clamp(190px, 27dvh, 240px). */
-    const peek = Math.min(Math.max(190, 0.27 * window.innerHeight), 240);
+    /* Mirrors --detail-map-peek in MapLayout.module.css. */
+    const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
     /* The phone detail gives MapLibre a real container exactly as tall as the
-       visible peek. Top-only padding puts the pin anchor at 60% of that strip,
-       centering the pin body without extending WebGL behind the detail. */
+       strip. Top-only padding puts the pin anchor at 60% of it, centering the
+       pin body at the resting stop without extending WebGL behind the detail. */
     return {
       top: Math.round(peek * 0.2),
       bottom: 0,
@@ -496,13 +497,13 @@ export default function MapSection({
       // *actual* current sheet height from the CSS var the bottom-sheet hook
       // sets — the only source of truth that handles drag in-progress AND the
       // content-fit detail snap.
-      /* In-flow phone list: 'peek' rests with half the viewport occupied by
-         the list (see --phone-list-sheet-visible in MapLayout.module.css) —
-         not the drag-sheet's 28px pip strip. */
-      const phoneListPeek = Math.round(window.innerHeight * 0.5);
+      /* In-flow phone list: 'peek' rests at the three-stage sheet's first stop,
+         where the list only peeks in at the bottom (LIST_REST_VISIBLE_DVH, see
+         phoneSheetSnaps.ts) — not the drag-sheet's 28px pip strip. */
+      const phoneListPeek = Math.round(window.innerHeight * (LIST_REST_VISIBLE_DVH / 100));
       const phoneInflowList = isPhoneViewport() && sheetView === 'list';
       /* In-flow phone DETAIL: the only visible map is the top peek strip
-         (--detail-map-peek = 190–240px) — center the spot inside that strip,
+         (--detail-map-peek = 50dvh) — center the spot inside that strip,
          not in the drag-sheet-era "upper 42%" band. Applies to pager swaps
          and any flyTo while the detail is open; the open-click itself uses
          phoneDetailFlyPadding() because sheetView is still 'list' in its

@@ -151,7 +151,7 @@
     touch-action: auto;
   }
   .filterChipWrap,
-.filterChipRow > .filterChip {
+  .filterChipRow > .filterChip {
     width: 100%;
     min-width: 0;
   }
@@ -181,7 +181,7 @@
 }
 @media (hover: hover) {
   .filterChip:hover,
-.pickerItemActive:hover {
+  .pickerItemActive:hover {
     box-shadow: none;
     filter: none;
     text-shadow: none;
@@ -205,7 +205,7 @@
   }
 
   .filterChipWrap .filterChip,
-.filterChipRow > .filterChip {
+  .filterChipRow > .filterChip {
     width: 100%;
     min-width: 0;
     padding: 9px 5px 10px;
@@ -221,14 +221,12 @@
   }
 }
 @media (min-width: 1024px) {
-
   .filterChipWrap .filterChip,
-.filterChipRow > .filterChip {
+  .filterChipRow > .filterChip {
     padding: 8px 7px 9px;
   }
 }
 @media (min-width: 1024px) {
-
   .filterChipRow .filterChipLabel {
     overflow: visible;
     text-overflow: clip;
@@ -397,10 +395,10 @@
 }
 @media (max-width: 430px) {
   .filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
+  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipActive,
+  .filterChipOpenActive {
     min-height: 36px;
     padding: 9px 12px;
     font-size: 12px;
@@ -423,7 +421,7 @@
   }
 
   .filterChipWrap,
-.filterChipRow > .filterChip {
+  .filterChipRow > .filterChip {
     min-width: 0;
     width: 100%;
     max-width: 100%;
@@ -431,10 +429,10 @@
   }
 
   .filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
+  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipActive,
+  .filterChipOpenActive {
     min-width: 0;
     width: 100%;
     max-width: 100%;
@@ -456,12 +454,11 @@
   }
 }
 @media (max-width: 360px) {
-
   .filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
+  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipActive,
+  .filterChipOpenActive {
     min-height: 34px;
     padding: 8px 6px;
   }
@@ -497,10 +494,10 @@
   }
 
   .filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
+  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipActive,
+  .filterChipOpenActive {
     font-size: 10px;
     padding-inline: 5px;
   }
@@ -566,21 +563,21 @@
   }
 
   .filterChipWrap:has(.filterChipActive),
-.filterChipWrap:has(.filterChipOpenActive) {
+  .filterChipWrap:has(.filterChipOpenActive) {
     flex-grow: 1.9;
   }
 
   .filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
+  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  .filterChipActive,
+  .filterChipOpenActive {
     padding-inline: 5px;
     font-size: clamp(9px, 2.7vw, 11px);
   }
 
   .filterChipActive .filterChipLabelLong,
-.filterChipOpenActive .filterChipLabelLong {
+  .filterChipOpenActive .filterChipLabelLong {
     font-size: clamp(7.5px, 2.35vw, 9px);
   }
 }
@@ -623,6 +620,10 @@
 @media (max-width: 767.98px) {
   .listHeader {
     position: sticky;
+    /* Rests below the status-bar band. The band itself is covered by the cap
+       in MapSheet.module.css, and only while the header is actually stuck —
+       carrying the inset as padding here instead reserved the space at every
+       scroll position, leaving dead whitespace above the chips at rest. */
     top: env(safe-area-inset-top, 0px);
     z-index: 3;
     background: var(--et-home-paper, #fff);
@@ -638,11 +639,10 @@
   }
 }
 @media (max-width: 1023.98px) {
-
   .filterChipWrap:has(.filterChipActive),
-.filterChipWrap:has(.filterChipOpenActive),
-.filterChipRow > .filterChipActive,
-.filterChipRow > .filterChipOpenActive {
+  .filterChipWrap:has(.filterChipOpenActive),
+  .filterChipRow > .filterChipActive,
+  .filterChipRow > .filterChipOpenActive {
     flex-grow: 0;
     flex-basis: auto;
     width: auto;

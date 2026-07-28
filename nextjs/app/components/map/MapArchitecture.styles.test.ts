@@ -188,8 +188,7 @@ describe('Map CSS architecture', () => {
     expect(body).not.toContain('StaticDetailMapPeek');
   });
 
-  it('leaves the phone status-bar safe area uncapped for scrolling content', () => {
-    const sheet = readFileSync(modulePath('MapSheet.module.css'), 'utf8');
+  it('caps the phone status-bar band only while the filter header is stuck', () => {
     const mapPage = readFileSync(
       fileURLToPath(new URL('../../[locale]/(spa)/map/page.tsx', import.meta.url)),
       'utf8'
@@ -199,19 +198,34 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
+    const capRules = declarationsInMedia(
+      'MapSheet.module.css',
+      ".list[data-header-stuck='true']::before",
+      '(max-width: 767.98px)'
+    );
 
-    expect(sheet).not.toContain(".list[data-header-stuck='true']::before");
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");
-    /* The inset rides as PADDING on a header pinned to 0, not as an offset.
-       Offsetting it leaves a gap above the bar that rows scroll through —
-       invisible in a browser tab (inset 0) but obvious once installed to the
-       home screen, where the page owns the status-bar band. */
+
+    /* The header rests BELOW the band. Pinning it at 0 and carrying the inset
+       as padding instead reserves that space at every scroll position, which
+       shows up as dead whitespace above the chips at the resting stop. */
     expect(headerRules).toEqual([
       expect.objectContaining({
         position: 'sticky',
+        top: 'env(safe-area-inset-top, 0px)',
+      }),
+    ]);
+
+    /* The band is covered by a zero-layout pseudo-element, gated on the stuck
+       state — so nothing shifts when it appears, and the resting sheet keeps
+       no whitespace. Its height is the inset itself, which is 0 in a browser
+       tab: there the cap collapses to nothing and rows still reach the top. */
+    expect(capRules).toEqual([
+      expect.objectContaining({
+        position: 'fixed',
         top: '0',
-        'padding-top': 'env(safe-area-inset-top, 0px)',
+        height: 'env(safe-area-inset-top, 0px)',
         background: 'var(--et-home-paper, #fff)',
       }),
     ]);

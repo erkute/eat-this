@@ -620,15 +620,11 @@
 @media (max-width: 767.98px) {
   .listHeader {
     position: sticky;
-    /* Pinned to the very top with the inset as PADDING, not as an offset.
-       Installed to the home screen the page owns the status-bar band, and
-       offsetting the header left a gap above it that the rows scrolled
-       through — the bar read as a loose stripe with content on both sides.
-       Carrying the inset as padding lets the opaque background cover that
-       band while the chips stay put. In a browser tab the inset is 0, so
-       this is identical to the previous `top: env(...)`. */
-    top: 0;
-    padding-top: env(safe-area-inset-top, 0px);
+    /* Rests below the status-bar band. The band itself is covered by the cap
+       in MapSheet.module.css, and only while the header is actually stuck —
+       carrying the inset as padding here instead reserved the space at every
+       scroll position, leaving dead whitespace above the chips at rest. */
+    top: env(safe-area-inset-top, 0px);
     z-index: 3;
     background: var(--et-home-paper, #fff);
     /* Own compositing layer: without it the sticky header re-rasterizes per

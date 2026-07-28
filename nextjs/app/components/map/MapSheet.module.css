@@ -175,6 +175,25 @@
   .list[data-view='list'] {
     background: var(--et-home-paper, #fff);
   }
+  /* Cap over the status-bar band, ONLY while the filter header is stuck.
+     Installed to the home screen the page owns that band, so rows would
+     otherwise scroll visibly through the strip above the header and the bar
+     would read as a loose stripe with content on both sides.
+
+     A pseudo-element rather than padding on the header: it takes no layout
+     space, so nothing shifts when it appears and the resting sheet has no
+     dead whitespace above the chips. In a browser tab the inset is 0, so
+     this collapses to nothing — which is why it can stay unconditional. */
+  .list[data-header-stuck='true']::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background: var(--et-home-paper, #fff);
+    z-index: 5;
+  }
   .handle {
     cursor: grab;
     /* The handle drags the window scroller (useHandleScrollDrag). Claiming its

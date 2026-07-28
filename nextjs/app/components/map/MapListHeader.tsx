@@ -176,7 +176,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
         aria-expanded={expanded}
       >
         <span
-          className={`${styles.filterChipLabel} ${label.length > 10 ? styles.filterChipLabelLong : ''}`}
+          className={`${styles.filterChipLabel} ${label.length > 9 ? styles.filterChipLabelLong : ''}`}
         >
           {label}
         </span>

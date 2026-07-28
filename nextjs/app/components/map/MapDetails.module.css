@@ -1112,7 +1112,7 @@
     animation: none;
   }
 }
-.rdDropCap {
+.rdStoryLead::first-letter {
   line-height: 0.82;
   float: left;
   text-transform: uppercase;
@@ -1228,7 +1228,7 @@
   background-color: var(--map-collage-paper);
   background-image: none;
 }
-.rdDropCap,
+.rdStoryLead::first-letter,
 .rdK,
 .rdSecH {
   color: var(--map-collage-red);
@@ -1596,7 +1596,7 @@
   border-left: 1px solid currentColor;
   padding-left: 10px;
 }
-.rdDropCap {
+.rdStoryLead::first-letter {
   font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
   font-weight: 400;
 }
@@ -1858,7 +1858,7 @@
   font-weight: 560;
   line-height: 1.56;
 }
-.rdDropCap {
+.rdStoryLead::first-letter {
   color: var(--brand-ink);
   font-size: 68px;
   padding: 7px 9px 0 0;
@@ -2647,7 +2647,7 @@
   font-size: 15px;
   line-height: 1.55;
 }
-.detailV13:not(.detailV13MustEat) .rdDropCap,
+.detailV13:not(.detailV13MustEat) .rdStoryLead::first-letter,
 .detailV13:not(.detailV13MustEat) .rdSecH,
 .detailV13MustEat .fdName,
 .detailV13MustEat .fdNameText {

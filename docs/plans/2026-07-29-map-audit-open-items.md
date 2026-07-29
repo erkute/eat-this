@@ -66,6 +66,39 @@ Pinned by a new case in `mapCascade.test.ts` which asserts all three resolve to
 the _same_ `top` and that it carries the variable — verified to fail without the
 CSS change.
 
+### Where else this bites — swept 2026-07-29, and the answer is: nowhere
+
+The obvious worry after this fix was "how many other surfaces have it". Every
+`position: fixed` rule in the codebase with a top-ish anchor was listed, then
+cross-referenced against the components that actually contain a text input —
+without an input the keyboard never opens and the surface cannot be affected.
+
+That leaves only two candidates, and **both were tested on the device and both
+are fine**:
+
+- **Login modal** (`LoginModalOverlay.overlay`, `inset: 0` + `place-items:
+center`, contains the e-mail field). Safari scrolls the modal up itself; the
+  focused field sits right above the keyboard.
+- **Remy chat** (`buddy/BuddyWidget.panel`, on phones `fixed; top: 8px;
+bottom: 8px`, with the composer pinned at its bottom edge behind
+  `overflow: hidden`). Looked like the worse case on paper. Safari shifts the
+  whole panel up; the composer stays visible above the keyboard.
+
+Ruled out without a device test, because they contain no text input at all:
+`AvatarPickerModal`, `SiteNav`, `MustEatsOnboarding`, `MapFilters.pickerBackdrop`,
+`burger-drawer`. `CategoriesRail` has an e-mail field but is in normal flow.
+
+**The rule this establishes — worth more than the sweep itself:** a fixed
+surface with an input is _not_ automatically broken. Safari rescues anything it
+can reposition. What it cannot rescue is an element that **is itself the fixed
+anchor with a hard `top`** — there is nothing around it to scroll. That was
+exactly `.mapSearchToolbar`, and it is why the map was the only casualty.
+
+Minor artefact spotted while testing, not fixed: with the Remy keyboard up, the
+scrim (`inset: 0`, i.e. the layout viewport) rides up with everything else and
+leaves the strip between panel and keyboard untinted. Cosmetic, only while
+typing in the chat.
+
 ### Still to check on the same mechanism
 
 `.list[data-view='list'][data-header-stuck='true']::before` in

@@ -12,9 +12,11 @@ import {
   getLocationStatus,
   LOCATING_MIN_VISIBLE_MS,
   LOCATING_SHOW_DELAY_MS,
+  LOCATION_ERROR_VISIBLE_MS,
   type LocationStatus,
 } from '@/lib/map/locationStatus';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
+import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { openBurgerDrawer } from '../burgerDrawerState';
 
 import dynamic from 'next/dynamic';
@@ -86,6 +88,8 @@ interface MapBodyFilterState {
   onSearchChange: (v: string) => void;
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
+  /** Opens the search UI and reveals the result list — see MapSection. */
+  onSearchOpen: () => void;
   bezirk: string | null;
   bezirkNames: string[];
   onBezirkChange: (name: string | null) => void;
@@ -176,6 +180,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setOpenOnly,
     searchOpen,
     setSearchOpen,
+    onSearchOpen,
     onMapClick,
     onRestaurantClick,
     onMustEatClick,
@@ -236,6 +241,19 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     locationStatus.copy &&
     locationStatusKey !== dismissedLocationStatusKey
   );
+  /* Errors used to sit there until tapped away — and since the dismissal is
+     component state, a denied permission put the bar back on every reload,
+     permanently parked over the locate button. It is a notice, not a dialog:
+     let it retire on its own. The "searching" copy is excluded — it clears
+     itself the moment the request settles. */
+  useEffect(() => {
+    if (!showLocationStatus || !locationStatus.isError || !locationStatusKey) return;
+    const id = window.setTimeout(
+      () => setDismissedLocationStatusKey(locationStatusKey),
+      LOCATION_ERROR_VISIBLE_MS
+    );
+    return () => window.clearTimeout(id);
+  }, [showLocationStatus, locationStatus.isError, locationStatusKey]);
   const handleLocationRetry = useCallback(() => {
     setDismissedLocationStatusKey(null);
     onLocateMe();
@@ -244,29 +262,25 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
   }, [locationStatusKey]);
 
-  /* In-flow phone list: the sticky header rests below the iOS status-bar/
+  /* In-flow phone sheet: the sticky header rests below the iOS status-bar/
      notch zone (top: env(safe-area-inset-top), see MapFilters.module.css).
      That zone deliberately stays uncapped so Safari can sample the scrolling
      rows behind its translucent status bar. Stuck is still detected via a
-     0-height sentinel to move the floating map controls out of the way. */
+     0-height sentinel to move the floating map controls out of the way.
+
+     Runs in BOTH views. It used to be list-only, so search and burger left the
+     screen at a different scroll position in the detail than in the list. */
   const stuckSentinelRef = useRef<HTMLDivElement | null>(null);
   const [headerStuck, setHeaderStuck] = useState(false);
   useEffect(() => {
-    if (sheetView !== 'list') {
+    if (!window.matchMedia('(max-width: 767.98px)').matches) {
       setHeaderStuck(false);
       return;
     }
-    if (!window.matchMedia('(max-width: 767.98px)').matches) return;
     const sentinel = stuckSentinelRef.current;
     if (!sentinel) return;
     /* px value of env(safe-area-inset-top) — IO rootMargin can't use env(). */
-    const probe = document.createElement('div');
-    probe.style.cssText =
-      'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;' +
-      'padding-top:env(safe-area-inset-top,0px);';
-    document.body.appendChild(probe);
-    const safeTop = parseFloat(getComputedStyle(probe).paddingTop) || 0;
-    document.body.removeChild(probe);
+    const safeTop = safeAreaInsetTop();
     const io = new IntersectionObserver(([entry]) => setHeaderStuck(!entry.isIntersecting), {
       rootMargin: `-${Math.ceil(safeTop) + 1}px 0px 0px 0px`,
     });
@@ -301,7 +315,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               : undefined
           }
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
-          data-header-stuck={headerStuck && sheetView === 'list' ? 'true' : undefined}
+          data-header-stuck={headerStuck ? 'true' : undefined}
         >
           <div className={styles.mapWrap} data-map-canvas="">
             <div className={styles.liveMapLayer} data-live-map-layer="">
@@ -350,7 +364,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onBlur={() => {
                     if (!search) setSearchOpen(false);
                   }}
-                  placeholder="Spot, Kiez, Gericht"
+                  placeholder={locale === 'en' ? 'Spot, area, dish' : 'Spot, Kiez, Gericht'}
                   className={controlStyles.mapSearchInput}
                   aria-label={searchLabel}
                   autoComplete="off"
@@ -363,7 +377,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     onSearchChange('');
                     setSearchOpen(false);
                   }}
-                  aria-label="Clear"
+                  aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
                 >
                   <svg
                     width="14"
@@ -388,7 +402,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSearchOpen(true);
+                  onSearchOpen();
                 }}
                 aria-label={searchLabel}
               >
@@ -489,7 +503,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             data-snap={snap}
             data-view={sheetView}
             data-dragging={dragging ? 'true' : undefined}
-            data-header-stuck={headerStuck && sheetView === 'list' ? 'true' : undefined}
+            data-header-stuck={headerStuck ? 'true' : undefined}
             data-detail-kind={
               sheetView === 'detail'
                 ? selectedMustEat
@@ -509,6 +523,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               data-sheet-handle=""
               aria-hidden="true"
             />
+
+            {/* Stuck-detection sentinel for the floating map controls (phones).
+                Sits directly under the handle so it leaves the viewport the
+                moment the sheet reaches the top — in BOTH views, so search and
+                burger retreat at the same scroll position either way. */}
+            <div ref={stuckSentinelRef} className={sheetStyles.stuckSentinel} aria-hidden="true" />
 
             {/* Restaurant detail's chrome now lives on the photo hero (back
                 pill + save bookmark, per the Chewy mockup) — no handle-bar
@@ -557,12 +577,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               />
             ) : (
               <>
-                {/* Stuck-detection sentinel for the sticky header (phones). */}
-                <div
-                  ref={stuckSentinelRef}
-                  className={sheetStyles.stuckSentinel}
-                  aria-hidden="true"
-                />
                 <MapListHeader
                   headerRef={setHeaderRef}
                   categories={categories}

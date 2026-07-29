@@ -1,65 +1,72 @@
-'use client'
-import { forwardRef, useMemo, useRef, useState, type Ref } from 'react'
-import { useTranslation } from '@/lib/i18n'
-import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
-import type { MapCategory } from '@/lib/types'
-import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet'
-import styles from './MapFilters.module.css'
+'use client';
+import { forwardRef, useMemo, useRef, useState, type Ref } from 'react';
+import { useTranslation } from '@/lib/i18n';
+import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
+import type { MapCategory } from '@/lib/types';
+import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
+import styles from './MapFilters.module.css';
 
 interface Props {
-  headerRef: Ref<HTMLDivElement | null>
+  headerRef: Ref<HTMLDivElement | null>;
 
-  categories: CategoryDef[]
-  category: MapCategory
-  onCategoryChange: (c: MapCategory) => void
+  categories: CategoryDef[];
+  category: MapCategory;
+  onCategoryChange: (c: MapCategory) => void;
 
-  openOnly: boolean
-  onOpenOnly: (next: boolean) => void
+  openOnly: boolean;
+  onOpenOnly: (next: boolean) => void;
 
-  bezirkNames: string[]
-  bezirk: string | null
-  onBezirk: (name: string | null) => void
+  bezirkNames: string[];
+  bezirk: string | null;
+  onBezirk: (name: string | null) => void;
 
-  cuisineNames: string[]
-  cuisine: string | null
-  onCuisine: (name: string | null) => void
+  cuisineNames: string[];
+  cuisine: string | null;
+  onCuisine: (name: string | null) => void;
 }
 
-type ChipKind = 'category' | 'bezirk' | 'cuisine'
+type ChipKind = 'category' | 'bezirk' | 'cuisine';
 
 export default function MapListHeader({
   headerRef,
-  categories, category, onCategoryChange,
-  openOnly, onOpenOnly,
-  bezirkNames, bezirk, onBezirk,
-  cuisineNames, cuisine, onCuisine,
+  categories,
+  category,
+  onCategoryChange,
+  openOnly,
+  onOpenOnly,
+  bezirkNames,
+  bezirk,
+  onBezirk,
+  cuisineNames,
+  cuisine,
+  onCuisine,
 }: Props) {
-  const { t, lang } = useTranslation()
-  const loc = lang === 'de' ? 'de' : 'en'
+  const { t, lang } = useTranslation();
+  const loc = lang === 'de' ? 'de' : 'en';
 
-  const [openChip, setOpenChip] = useState<ChipKind | null>(null)
-  const categoryBtnRef = useRef<HTMLButtonElement>(null)
-  const bezirkBtnRef   = useRef<HTMLButtonElement>(null)
-  const cuisineBtnRef  = useRef<HTMLButtonElement>(null)
+  const [openChip, setOpenChip] = useState<ChipKind | null>(null);
+  const categoryBtnRef = useRef<HTMLButtonElement>(null);
+  const bezirkBtnRef = useRef<HTMLButtonElement>(null);
+  const cuisineBtnRef = useRef<HTMLButtonElement>(null);
 
   const categoryItems: PickerItem[] = useMemo(
-    () => categories.map(c => ({ value: c.slug, label: localizedCategoryName(c, loc) })),
-    [categories, loc],
-  )
+    () => categories.map((c) => ({ value: c.slug, label: localizedCategoryName(c, loc) })),
+    [categories, loc]
+  );
   const bezirkItems: PickerItem[] = useMemo(
-    () => bezirkNames.map(n => ({ value: n, label: n })),
-    [bezirkNames],
-  )
+    () => bezirkNames.map((n) => ({ value: n, label: n })),
+    [bezirkNames]
+  );
   const cuisineItems: PickerItem[] = useMemo(
-    () => cuisineNames.map(n => ({ value: n, label: n })),
-    [cuisineNames],
-  )
+    () => cuisineNames.map((n) => ({ value: n, label: n })),
+    [cuisineNames]
+  );
 
   const activeCategoryLabel = useMemo(() => {
-    if (category === 'All') return null
-    const def = categories.find(c => c.slug === category)
-    return def ? localizedCategoryName(def, loc) : null
-  }, [category, categories, loc])
+    if (category === 'All') return null;
+    const def = categories.find((c) => c.slug === category);
+    return def ? localizedCategoryName(def, loc) : null;
+  }, [category, categories, loc]);
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
@@ -70,14 +77,18 @@ export default function MapListHeader({
           label={activeCategoryLabel ?? t('map.filterChipCategory')}
           active={!!activeCategoryLabel}
           expanded={openChip === 'category'}
-          onClick={() => setOpenChip(prev => prev === 'category' ? null : 'category')}
+          onClick={() => setOpenChip((prev) => (prev === 'category' ? null : 'category'))}
+          clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCategory')}`}
+          onClear={() => onCategoryChange('All' as MapCategory)}
         />
         <FilterChip
           ref={bezirkBtnRef}
           label={bezirk ?? t('map.filterChipBezirk')}
           active={!!bezirk}
           expanded={openChip === 'bezirk'}
-          onClick={() => setOpenChip(prev => prev === 'bezirk' ? null : 'bezirk')}
+          onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
+          clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipBezirk')}`}
+          onClear={() => onBezirk(null)}
         />
         {cuisineNames.length > 0 && (
           <FilterChip
@@ -85,7 +96,9 @@ export default function MapListHeader({
             label={cuisine ?? t('map.filterChipCuisine')}
             active={!!cuisine}
             expanded={openChip === 'cuisine'}
-            onClick={() => setOpenChip(prev => prev === 'cuisine' ? null : 'cuisine')}
+            onClick={() => setOpenChip((prev) => (prev === 'cuisine' ? null : 'cuisine'))}
+            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCuisine')}`}
+            onClear={() => onCuisine(null)}
           />
         )}
         <button
@@ -104,7 +117,7 @@ export default function MapListHeader({
           items={categoryItems}
           selectedValue={category === 'All' ? null : category}
           allLabel={t('map.filterAll')}
-          onSelect={v => onCategoryChange((v ?? 'All') as MapCategory)}
+          onSelect={(v) => onCategoryChange((v ?? 'All') as MapCategory)}
           onClose={() => setOpenChip(null)}
           anchorEl={categoryBtnRef.current}
           closeAriaLabel={t('map.searchClose')}
@@ -116,7 +129,7 @@ export default function MapListHeader({
           items={bezirkItems}
           selectedValue={bezirk}
           allLabel={t('map.filterAll')}
-          onSelect={v => onBezirk(v)}
+          onSelect={(v) => onBezirk(v)}
           onClose={() => setOpenChip(null)}
           anchorEl={bezirkBtnRef.current}
           closeAriaLabel={t('map.searchClose')}
@@ -128,37 +141,61 @@ export default function MapListHeader({
           items={cuisineItems}
           selectedValue={cuisine}
           allLabel={t('map.filterAll')}
-          onSelect={v => onCuisine(v)}
+          onSelect={(v) => onCuisine(v)}
           onClose={() => setOpenChip(null)}
           anchorEl={cuisineBtnRef.current}
           closeAriaLabel={t('map.searchClose')}
         />
       )}
     </div>
-  )
+  );
 }
 
 interface FilterChipProps {
-  label: string
-  active: boolean
-  expanded: boolean
-  onClick: () => void
+  label: string;
+  active: boolean;
+  expanded: boolean;
+  onClick: () => void;
+  /** Accessible name for the reset affordance, e.g. "Filter Bezirk zurücksetzen". */
+  clearLabel: string;
+  /** Drops this filter. Rendered only while the chip is active. */
+  onClear: () => void;
 }
 
-const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
-  function FilterChip({ label, active, expanded, onClick }, ref) {
-    return (
-      <span className={styles.filterChipWrap}>
-        <button
-          ref={ref}
-          type="button"
-          className={`${styles.filterChip} ${active ? styles.filterChipActive : ''}`}
-          onClick={onClick}
-          aria-expanded={expanded}
+const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function FilterChip(
+  { label, active, expanded, onClick, clearLabel, onClear },
+  ref
+) {
+  return (
+    <span className={styles.filterChipWrap}>
+      <button
+        ref={ref}
+        type="button"
+        className={`${styles.filterChip} ${active ? styles.filterChipActive : ''}`}
+        onClick={onClick}
+        aria-expanded={expanded}
+      >
+        <span
+          className={`${styles.filterChipLabel} ${label.length > 9 ? styles.filterChipLabelLong : ''}`}
         >
-          <span className={`${styles.filterChipLabel} ${label.length > 10 ? styles.filterChipLabelLong : ''}`}>{label}</span>
+          {label}
+        </span>
+      </button>
+      {/* Sibling, not a child: a button inside a button is invalid markup and
+            makes screen readers announce two controls for one chip. Clearing a
+            filter otherwise meant opening the picker and hunting for "Alle". */}
+      {active && (
+        <button
+          type="button"
+          className={styles.filterChipClear}
+          onClick={onClear}
+          aria-label={clearLabel}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 6l12 12M18 6 6 18" />
+          </svg>
         </button>
-      </span>
-    )
-  },
-)
+      )}
+    </span>
+  );
+});

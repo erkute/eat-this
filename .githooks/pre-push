@@ -1,0 +1,109 @@
+#!/bin/sh
+#
+# Pre-push: run the full nextjs production build before any push.
+#
+# Why this exists: parallel sessions (e.g. one editing map, one editing auth)
+# both push to main. Firebase App Hosting auto-deploys main, and *any* build
+# failure (lint error, prerender error, type error, etc.) fails the rollout
+# → no deploy for either session's work.
+#
+# We run `npm run build:isolated` — the same `next build` Firebase runs (same
+# config, same errors caught), but writing to `.next-verify/` instead of
+# `.next/` so it can run while a local `next dev` is alive without corrupting
+# the dev server's chunks. Lint alone is not enough — it misses prerender
+# errors (Suspense boundaries, `useSearchParams` issues), runtime config
+# errors, etc.
+#
+# Trade-off: ~30–60s per push. Fix once, push without surprise rollback.
+#
+# Skipped automatically when no nextjs/ files changed in the push.
+# Override in an emergency: `git push --no-verify`. Use sparingly.
+#
+# Inspect the skip/build decision without paying for a build:
+#   PREPUSH_DRY_RUN=1 .git/hooks/pre-push origin <<'EOF'
+#   refs/heads/x <local_sha> refs/heads/x 0000000000000000000000000000000000000000
+#   EOF
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+NEXTJS_DIR="$REPO_ROOT/nextjs"
+
+if [ ! -d "$NEXTJS_DIR" ]; then
+  exit 0
+fi
+
+# Skip when nothing on the push side has touched nextjs/. Common case:
+# pushing only docs, scripts, or pics.
+#
+# What counts as "the push side" depends on the ref:
+#
+#   Updating a branch the remote already has
+#     → diff remote_sha..local_sha. Straightforward.
+#
+#   Creating a branch (remote_sha all-zero)
+#     → the remote has no counterpart to diff against. This used to fall back
+#       to `git diff --name-only <local_sha>`, which compares that commit to the
+#       WORKING TREE — identical right after committing, so it reported no
+#       changes and skipped the build on the FIRST push of every new branch.
+#       Since the repo's workflow is feature branch → PR into staging, that is
+#       the push that matters most, and the hook was silently sitting it out.
+#       Instead: list the commits this push actually introduces (reachable from
+#       the new tip, not from any ref the remote already has) and take the files
+#       they touch. `git log --name-only` also copes with a root commit, which
+#       `<sha>^..<sha>` cannot.
+#
+#   Deleting a branch (local_sha all-zero)
+#     → nothing to build.
+#
+# Every failure path falls through to running the build. Stale remote-tracking
+# refs make more commits look new, which over-reports changed files — erring
+# toward a needless 30s, never toward a silent skip.
+
+ZERO=0000000000000000000000000000000000000000
+
+changed=
+remote="$1"
+if [ -n "$remote" ]; then
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    [ -z "$local_sha" ] && continue
+    [ "$local_sha" = "$ZERO" ] && continue
+    if [ "$remote_sha" = "$ZERO" ]; then
+      files="$(git log --format= --name-only "$local_sha" --not --remotes 2>/dev/null)" || files=
+    else
+      files="$(git diff --name-only "$remote_sha..$local_sha" 2>/dev/null)" || files=
+    fi
+    if printf '%s\n' "$files" | grep -q '^nextjs/'; then
+      changed=1
+      break
+    fi
+  done
+  if [ -z "$changed" ]; then
+    echo "pre-push: no nextjs/ changes — skipping build."
+    exit 0
+  fi
+fi
+
+if [ -n "$PREPUSH_DRY_RUN" ]; then
+  echo "pre-push: would run the build (nextjs/ changes detected)."
+  exit 0
+fi
+
+echo "pre-push: running full nextjs build (mirrors Firebase, isolated dir) — ~30–60s …"
+cd "$NEXTJS_DIR"
+if ! npm run build:isolated --silent >/tmp/eat-this-prepush-build.log 2>&1; then
+  echo ""
+  echo "✖ pre-push: build failed. Push aborted."
+  echo ""
+  echo "  Last 40 lines of build log:"
+  echo "  ---"
+  tail -40 /tmp/eat-this-prepush-build.log | sed 's/^/  /'
+  echo "  ---"
+  echo "  Full log: /tmp/eat-this-prepush-build.log"
+  echo ""
+  echo "  Override (only if you really mean it): git push --no-verify"
+  exit 1
+fi
+
+echo "✓ pre-push: build clean."
+exit 0

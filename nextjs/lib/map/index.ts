@@ -8,36 +8,36 @@
 // with "Hook only works in a Client Component".
 
 // Pure helpers
-export { buildPeekMustEatMap, resolvePeek } from './mustEatPeek'
-export type { Peek } from './mustEatPeek'
-export { resolveUnlockedMustEatIds } from './unlockedMustEats'
+export { buildPeekMustEatMap, resolvePeek } from './mustEatPeek';
+export type { Peek } from './mustEatPeek';
+export { resolveUnlockedMustEatIds } from './unlockedMustEats';
 export {
   haversineDistance,
   formatDistance,
   formatLocalizedDistance,
   formatWalkingTime,
-} from './distance'
-export { getOpenStatus } from './openingHours'
-export { abbreviateBezirk } from './abbreviateBezirk'
+} from './distance';
+export { getOpenStatus } from './openingHours';
+export { abbreviateBezirk } from './abbreviateBezirk';
 
 // Data sources
-export { useMapData } from './useMapData'
-export { useUserLocation } from './useUserLocation'
-export type { UserLocation } from './useUserLocation'
-export { useFavorites } from './useFavorites'
-export { useUnlockedMustEats } from './useUnlockedMustEats'
+export { useMapData } from './useMapData';
+export { useUserLocation, hasGeolocationPermission } from './useUserLocation';
+export type { UserLocation } from './useUserLocation';
+export { useFavorites } from './useFavorites';
+export { useUnlockedMustEats } from './useUnlockedMustEats';
 
 // List/filter logic
-export { useMapFilters } from './useMapFilters'
+export { useMapFilters } from './useMapFilters';
 
 // Bottom-sheet state machine
-export type { SheetSnap } from './useBottomSheet'
-export { useMapSheet } from './useMapSheet'
-export type { SheetView } from './useMapSheet'
+export type { SheetSnap } from './useBottomSheet';
+export { useMapSheet } from './useMapSheet';
+export type { SheetView } from './useMapSheet';
 
 // URL <-> sheet wiring
-export { useMapDeepLinks } from './useMapDeepLinks'
+export { useMapDeepLinks } from './useMapDeepLinks';
 
 // Entitlement tier (drives anon/starter/all-Berlin promotion surfaces)
-export { useUserTier } from './useUserTier'
-export type { UserTier } from './useUserTier'
+export { useUserTier } from './useUserTier';
+export type { UserTier } from './useUserTier';

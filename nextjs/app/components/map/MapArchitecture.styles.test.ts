@@ -198,9 +198,13 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
+    /* Scoped to data-view='list': `data-header-stuck` is shared with the detail
+       now (it drives the floating search/burger in both views), but the detail's
+       top edge is a photo hero — a paper-coloured cap over it would read as a
+       stray white stripe. */
     const capRules = declarationsInMedia(
       'MapSheet.module.css',
-      ".list[data-header-stuck='true']::before",
+      ".list[data-view='list'][data-header-stuck='true']::before",
       '(max-width: 767.98px)'
     );
 

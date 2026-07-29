@@ -35,7 +35,20 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 
 - **Never** run `git push --no-verify` without an explicit user request, even if the hook complains.
 - If the hook reports a build failure, fix the underlying code. The full log is at `/tmp/eat-this-prepush-build.log`.
-- Hook lives in `.git/hooks/pre-push` (shared across worktrees because they all use the same `.git` common dir).
+- **Source of truth is `.githooks/pre-push` (versioned).** Activate it once per clone:
+  ```
+  git config core.hooksPath .githooks
+  ```
+  Without that, git only looks in `.git/hooks/`, which is not versioned — the fix
+  below would then be missing on a fresh clone.
+- Inspect the skip/build decision without paying for a build: `PREPUSH_DRY_RUN=1`.
+- **The hook used to skip the build on the first push of every new branch.** On a
+  branch the remote does not have yet, `remote_sha` is all-zero and the old code
+  fell back to `git diff --name-only <local_sha>` — which compares against the
+  _working tree_, identical right after committing, so it always reported "no
+  nextjs/ changes". Since the workflow is feature branch → PR into staging, that
+  was the push that mattered most. It now lists the commits the push actually
+  introduces (`git log --name-only <tip> --not --remotes`).
 - Sanity CDN can occasionally time out during static export — retry the push once if the failure is `UND_ERR_CONNECT_TIMEOUT`.
 
 ## Deployment
@@ -120,7 +133,9 @@ Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.ts
 
 1. **FOUC of overlay elements.** `.map-spot-overlay`, `.search-overlay`, `.burger-drawer` default to visible because their hide rule lives in `style.min.css` (loaded via `<link>` and may arrive after first paint). The inline-critical hide rule is in `app/globals.css` (Next.js ships it in the app layout CSS bundle). Any new toggle overlay: add `:not(.active) { display: none }` there too.
 
-2. **Mobile rubber-band flash.** `html` has explicit `background-color` per theme in `globals.css`, otherwise iOS Safari bounce exposes the browser default. Body bg is also theme-aware. If you change either, test rubber-band overscroll at top and bottom in both light and dark.
+2. **Mobile rubber-band flash.** `html` has an explicit `background-color` in `globals.css`, otherwise iOS Safari bounce exposes the browser default. Body bg is set too. If you change either, test rubber-band overscroll at top and bottom.
+
+   **The app is light-only.** There is no `prefers-color-scheme` rule anywhere in `globals.css` or `css/style.css`, so "theme-aware" backgrounds and testing "in both light and dark" (which this entry used to ask for) describe something that does not exist. The map hardcodes CartoDB Positron (`LIGHT_STYLE` in `MapCanvas.tsx`) to match. Adding a dark basemap alone would look broken — a dark map under a paper-white sheet — so dark mode is a whole-app decision, not a per-surface one.
 
 3. **Restaurant + Bezirk EN pages are gated per document by `hasEnContent` (= non-empty `descriptionEn`, see `lib/i18n/pickLocale.ts`).** The schema HAS the EN fields and the enriched importer fills them — as of 2026-06 all restaurants and bezirke have EN content, so their EN canonicals/hreflang/sitemap alternates are live. The gate exists because Google previously flagged EN restaurant URLs without real translations as duplicates and chose its own canonical. If a future doc lacks `descriptionEn`, its EN URL correctly falls back to the DE canonical — don't bypass `hasEnContent`, fill the field instead.
 

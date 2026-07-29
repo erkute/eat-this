@@ -66,6 +66,39 @@ Pinned by a new case in `mapCascade.test.ts` which asserts all three resolve to
 the _same_ `top` and that it carries the variable — verified to fail without the
 CSS change.
 
+### Where else this bites — swept 2026-07-29, and the answer is: nowhere
+
+The obvious worry after this fix was "how many other surfaces have it". Every
+`position: fixed` rule in the codebase with a top-ish anchor was listed, then
+cross-referenced against the components that actually contain a text input —
+without an input the keyboard never opens and the surface cannot be affected.
+
+That leaves only two candidates, and **both were tested on the device and both
+are fine**:
+
+- **Login modal** (`LoginModalOverlay.overlay`, `inset: 0` + `place-items:
+center`, contains the e-mail field). Safari scrolls the modal up itself; the
+  focused field sits right above the keyboard.
+- **Remy chat** (`buddy/BuddyWidget.panel`, on phones `fixed; top: 8px;
+bottom: 8px`, with the composer pinned at its bottom edge behind
+  `overflow: hidden`). Looked like the worse case on paper. Safari shifts the
+  whole panel up; the composer stays visible above the keyboard.
+
+Ruled out without a device test, because they contain no text input at all:
+`AvatarPickerModal`, `SiteNav`, `MustEatsOnboarding`, `MapFilters.pickerBackdrop`,
+`burger-drawer`. `CategoriesRail` has an e-mail field but is in normal flow.
+
+**The rule this establishes — worth more than the sweep itself:** a fixed
+surface with an input is _not_ automatically broken. Safari rescues anything it
+can reposition. What it cannot rescue is an element that **is itself the fixed
+anchor with a hard `top`** — there is nothing around it to scroll. That was
+exactly `.mapSearchToolbar`, and it is why the map was the only casualty.
+
+Minor artefact spotted while testing, not fixed: with the Remy keyboard up, the
+scrim (`inset: 0`, i.e. the layout viewport) rides up with everything else and
+leaves the strip between panel and keyboard untinted. Cosmetic, only while
+typing in the chat.
+
 ### Still to check on the same mechanism
 
 `.list[data-view='list'][data-header-stuck='true']::before` in
@@ -139,7 +172,7 @@ Four pins overlap within ~70 px in Mitte; the rearmost cannot be tapped.
 changes how the map reads as a brand surface. Revisit only as a design call,
 not as a bug.
 
-### Infinite reveal animations
+### Infinite reveal animations — re-opened 2026-07-29, and there is nothing to win
 
 `fdCardWiggle` and `fdRevealReadyShake` (`MapDetails.module.css`) run
 `infinite` with `will-change: transform` on a large 3D-transformed card. They
@@ -147,12 +180,49 @@ are deliberate "tap me" affordances that have been iterated on. They sit on the
 compositor, so the cost is smaller than it first looks. Capping them would
 weaken a designed cue — a product decision, not a cleanup.
 
-### Cookie banner covering the filter row
+Re-examined on the theory that the real cost was the `will-change` rather than
+the `infinite`, and that it could therefore be dropped with no visual change.
+**That theory is wrong.** Both declarations sit on the _same element that is
+already animating forever_ — a running transform animation promotes the element
+to its own compositor layer regardless, so the `will-change` is redundant, not
+expensive. Removing it would change nothing measurable.
 
-The consent bar bisects the filter chips on first load. Every fix either
-changes consent behaviour (adding a scrim makes it more modal than intended —
-a non-blocking banner is a deliberate GDPR posture) or requires wiring consent
-state into the map. Cosmetic, one-time.
+The one genuine instance of the classic misuse is `.fdTopCard` (line ~332):
+`will-change: transform` with `transform: translateX(0)` and no animation at
+all. But it is the swipe-pager's card, transformed by JS on drag, which is
+precisely the case `will-change` exists for — hinting _before_ the change. Left
+alone: there is no measurement showing it costs anything, and removing it could
+cost a frame at drag start. **Deliberately not changed on a hunch.**
+
+### ~~Cookie banner covering the filter row~~ FIXED
+
+Reproduced on-device first, and the old description understated it: the banner
+did not "bisect" the chips, it hid **the entire filter row** — on a phone the
+sheet rests at 28 dvh and the bar is fixed to `bottom: 0`, so it covered the
+whole resting sheet.
+
+Fixed 2026-07-29 **without touching consent behaviour** — no scrim, no
+modality, no consent state wired into the map. `CookieConsent` publishes its own
+measured height as `--consent-bar-h` on `<html>` while the bar is up (via
+`ResizeObserver`, so expanding "Mehr erfahren" keeps it in step) and removes it
+on dismiss. `MapLayout` adds it to `--phone-list-sheet-visible`, which lifts the
+sheet's resting stop — and with it the chips, the locate FAB, the status toast
+and the MapLibre attribution, all of which key off that one variable.
+
+Two things that make this safe rather than clever:
+
+- **The drag stops follow automatically.** `useHandleScrollDrag` feeds
+  `snapOffsets` a _measured_ sheet top; `LIST_REST_VISIBLE_DVH` is only the
+  fallback estimate. The one consumer that does not follow is the flyTo padding
+  estimate (`phoneListPeek` in `MapSection`), off by the bar height while the
+  bar is up — first-load cosmetic.
+- **The base stays pinned.** `MapArchitecture.styles.test.ts` now asserts the
+  resting stop still _starts_ at `calc(28dvh` — the number that has to stay in
+  step with `LIST_REST_VISIBLE_DVH` — and that the banner term is still there.
+
+Capped at 34 dvh so an expanded banner cannot yank the sheet across the screen.
+Verified on-device: chips fully visible above the bar, and the sheet returns to
+exactly its normal rest after accepting.
 
 ### Flattening `MapControls.module.css`
 
@@ -228,6 +298,40 @@ filter. Fine today (29 markers for the anon tier). At the premium tier — ~700
 unlocked spots — that is 700 DOM markers MapLibre transforms every pan frame.
 Not a bug yet; a wall to hit later.
 
+### Dead cascade declarations — `MapFilters` cleared 2026-07-29
+
+**Decision: delete, do not resurrect.** A dead declaration is evidence of an
+older design, not of a bug in the current one — the values that ship are the
+ones the design has been iterated against. Making the losers win would change
+small-phone _and_ desktop rendering in dozens of places at once.
+
+`MapFilters.module.css`: **94 lines / 83 declarations removed, 1126 → 1032.**
+`.filterChip` had been restyled at least four times (blocks around 280, 300,
+400, 456, 477, 490, 676, 713) and every round left the previous responsive
+tuning in place, dead — including a 9 px chip from a much smaller older design.
+
+Two things made this safe rather than brave:
+
+1. **A declaration was only removed when it is dead for _every_ class and
+   context its rule produces.** A grouped selector can be dead for
+   `.filterChip` and still live for `.filterChipActive`; dropping it then is a
+   real change. Of 113 dead entries only 57 declarations qualified — that
+   distinction is exactly what the earlier flattening attempt got wrong.
+2. **Computed-style diff, before vs after: 0 differences in 10 725
+   comparisons.** 13 elements × 75 properties × 8 viewports (320/360/400/430/
+   600/767/900/1280) for the chip rail, plus 39 elements × 75 properties with
+   the filter picker open — the picker is not in the DOM otherwise, so the
+   sweep would have missed every `.pickerSheet` / `.pickerItem` change.
+
+Confirmed en route: the two `.filterChipLabelLong` shrink attempts this
+document already records as doing nothing were among the removals, and
+`mapCascade.test.ts` still passes — the long-label rule that actually works is
+untouched.
+
+Still to do, same method, each needing its own baseline because their elements
+only exist in other states: **`MapDetails` (104)**, **`MapControls` (26)**,
+**`RestaurantList` (19)**.
+
 ### `/map` first-load JS is 327 kB
 
 Heaviest route by a wide margin (next is 270 kB); shared baseline is 188 kB.
@@ -250,16 +354,31 @@ The real constraint: an 84×44 chip cannot hold two 44 px targets. The clean fix
 is a flex chip layout where label and × split the width — rejected because the
 label would drop to ~52 px, and "Kreuzberg" already wraps at 84.
 
-### Search reveal still jumps once
+### ~~Search reveal still jumps once~~ REMOVED
 
-Opening search scrolls the list up ~204 px, once, instantly, before the input
-takes focus. Intentional (typing into a hidden result list is worse), and the
-per-keystroke scrolling is gone — but it is still a jump at the moment the
-keyboard appears.
+The re-check this section asked for happened, and the answer was: get rid of it.
 
-Measured as **not** the cause of the section 0 regression, but it happens at the
-same moment, so re-check it once that fix lands: with the field staying put,
-the jump may read differently than it does now.
+Opening search used to scroll the phone list up ~204 px instantly (and snap a
+tablet sheet peek→mid). The rationale was that typing into a hidden result list
+is worse than a jump. That held while the field _also_ vanished — the jump was
+masked by the bigger bug. With the field now staying put (section 0), the jump
+is the only thing left moving, and it reads as the page lurching under your
+thumb.
+
+**Removed 2026-07-29 on the user's call.** `revealListForSearch` is gone;
+`revealPanelForSearch` keeps only the desktop panel reveal, because there the
+side panel _is_ the result list and searching with it collapsed would filter
+into something invisible. That is not the list moving.
+
+Per-keystroke scrolling had already been removed earlier and must stay gone —
+it is a separate, worse bug (~200 px per character, and on iOS it fought
+Safari's own caret-visibility scroll).
+
+The trade this accepts: on a phone at rest only ~28 dvh of list is visible, so
+the first results land below the fold. If that turns out to be the wrong call,
+the middle option never tried is a _smooth_ scroll rather than an instant one —
+`'instant'` was chosen because "smooth would still be animating when the next
+character lands", and that reasoning died with the per-keystroke scrolling.
 
 ---
 

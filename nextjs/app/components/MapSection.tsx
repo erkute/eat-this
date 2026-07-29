@@ -964,25 +964,22 @@ export default function MapSection({
     }
   }, [snap, setSnap, reapplySnap, sheetView, scrollListToAnchor]);
 
-  /* Surface the list once when the search UI OPENS — never per keystroke.
-     Scrolling on every character moved the page ~200px out from under the
-     finger mid-word, and on iOS it also fought Safari's own "keep the caret
-     visible" scroll once the keyboard was up. Phones get an instant jump
-     (smooth would still be animating when the next character lands); the
-     reveal happens before the input takes focus, so the keyboard opens onto
-     an already-settled layout. */
-  const revealListForSearch = useCallback(() => {
+  /* Opening search moves NOTHING. It used to surface the list — an instant
+     ~204px window scroll on phones, a peek→mid snap on tablets — on the
+     reasoning that typing into a hidden result list is worse than a jump.
+     Removed 2026-07-29 on the user's call: with the search field no longer
+     leaving the viewport (see --map-visual-offset-top), the jump stopped being
+     masked by the bigger bug and just reads as the page lurching under your
+     thumb. Per-keystroke scrolling had already been removed earlier and must
+     stay gone.
+
+     The desktop panel is the one thing still revealed: it IS the result list
+     there, so searching with it collapsed would filter into something the user
+     cannot see at all. That is not the list moving. */
+  const revealPanelForSearch = useCallback(() => {
     if (sheetView !== 'list') return;
     setDesktopPanelHidden(false);
-    if (!isPhoneViewport()) {
-      if (snap === 'peek') setSnap('mid');
-      return;
-    }
-    // Only scroll UP; never yank a user who is already deep in the rows.
-    const el = sheetElRef.current;
-    if (!el || window.innerHeight - el.getBoundingClientRect().top >= 440) return;
-    scrollListToAnchor('mid', 'instant');
-  }, [snap, sheetView, setSnap, sheetElRef, scrollListToAnchor]);
+  }, [sheetView]);
 
   const handleSearchChange = useCallback(
     (v: string) => {
@@ -993,8 +990,8 @@ export default function MapSection({
 
   const handleSearchOpen = useCallback(() => {
     setSearchOpen(true);
-    revealListForSearch();
-  }, [revealListForSearch]);
+    revealPanelForSearch();
+  }, [revealPanelForSearch]);
 
   const handleBezirkChange = useCallback(
     (name: string | null) => {

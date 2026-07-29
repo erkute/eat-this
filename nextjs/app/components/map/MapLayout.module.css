@@ -190,8 +190,25 @@
 @media (max-width: 767.98px) {
   .shell {
     /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
-       LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts — keep the two in step. */
-    --phone-list-sheet-visible: 28dvh;
+       LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts — keep the two in step.
+
+       + --consent-bar-h while the cookie banner is on screen (published by
+       CookieConsent). The banner is fixed to the bottom of the viewport, i.e.
+       exactly over the resting sheet: on first load it hid the whole filter
+       chip row, not just part of it. Lifting the rest by the banner's height
+       puts the chips directly above it and takes the FAB, the status toast and
+       the MapLibre attribution — all keyed off this same variable — with them.
+
+       Safe against the JS: useHandleScrollDrag feeds snapOffsets a MEASURED
+       sheet top, so the drag stops follow this automatically; the dvh constant
+       is only the fallback estimate. The one thing that does not follow is the
+       flyTo padding estimate in MapSection (phoneListPeek), which is off by the
+       banner height for as long as the banner is up — a one-time, first-load
+       cosmetic.
+
+       Capped so an expanded banner cannot yank the sheet across the whole
+       screen. */
+    --phone-list-sheet-visible: calc(28dvh + min(var(--consent-bar-h, 0px), 34dvh));
     /* The detail's map strip. Sized so the sheet has the same three stops as
        the list; it stays well under 100dvh on purpose, because a
        full-viewport GL compositor is what broke Safari's bar backdrop. */

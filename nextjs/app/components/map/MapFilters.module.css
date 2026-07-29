@@ -1051,7 +1051,10 @@
 .filterChipClear {
   position: absolute;
   top: -5px;
-  right: -5px;
+  /* Flush with the chip's right edge, never past it. At right:-5px the dot plus
+     its touch extender reached 8px into the NEXT chip (grid gap is 6px), so
+     tapping the left edge of "Bezirk" cleared the category filter instead. */
+  right: 0;
   z-index: 1;
   display: grid;
   place-items: center;
@@ -1069,12 +1072,15 @@
   touch-action: manipulation;
 }
 
-/* Grows the touch area to ~40px without moving the 22px dot — the chips sit in
-   a tight 4-up grid, so the visible target has to stay small. */
+/* Grows the touch area without moving the 22px dot — the chips sit in a tight
+   4-up grid, so the visible target has to stay small. Deliberately 0 on the
+   right: any overhang there lands on the neighbouring chip, and stealing a
+   neighbour's tap is worse than a slightly narrower target. Ends up ~31x40,
+   biased left and down into the chip's own (empty, label-is-centred) corner. */
 .filterChipClear::before {
   content: '';
   position: absolute;
-  inset: -9px;
+  inset: -9px 0 -9px -9px;
 }
 
 .filterChipClear svg {
@@ -1097,7 +1103,28 @@
   transform: translate(1px, 1px);
 }
 
-/* Keep the label clear of the dot on the narrowest phones. */
-.filterChipRow .filterChipActive .filterChipLabel {
-  padding-right: 6px;
+/* No padding reserved for the clear dot: it sits flush in the top-right
+   corner and the label is centred, so they barely meet — while 6px of reserved
+   space was enough to push "Kreuzberg" (60px in a 62px slot) into a mid-word
+   break. */
+
+
+/* ── Chip labels: never break mid-word ───────────────────────────────────────
+   `overflow-wrap: anywhere` + `hyphens: auto` turned district names into
+   "Kreuz-berg". Wrap at spaces only ("Fine Dining" over two lines is fine),
+   and shrink the handful of single words that genuinely cannot fit — at 12px
+   "Charlottenburg" needs 88px in a 68px slot, so no wrapping rule can save it.
+   Declared last: the blocks above re-state the label's font-size, and an
+   earlier `font-size: inherit` is what made the existing long-label rule
+   (clamp(8.8px, 2.55vw, 10px)) inert. */
+.filterChipRow .filterChipLabel,
+.filterChipRow .filterChipLabelLong {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.filterChipRow .filterChipLabelLong {
+  font-size: 9px;
+  line-height: 12px;
 }

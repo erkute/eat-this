@@ -456,10 +456,15 @@ export default function RestaurantDetail({
         {hasStory ? (
           <div className={styles.rdBody}>
             {storyText.split('\n\n').map((para, idx) =>
+              /* The drop cap is a ::first-letter on the paragraph, not a
+                 <span> around para[0]. Splitting the text made screen readers
+                 announce it as its own word — "A", pause, "n der Torstraße" —
+                 and broke text selection across the first character. Every
+                 property the cap needs (float, font, colour, padding) is
+                 ::first-letter-legal, so nothing is lost visually. */
               idx === 0 && para.length > 0 ? (
-                <p key={idx}>
-                  <span className={styles.rdDropCap}>{para[0]}</span>
-                  {para.slice(1)}
+                <p key={idx} className={styles.rdStoryLead}>
+                  {para}
                 </p>
               ) : (
                 <p key={idx}>{para}</p>

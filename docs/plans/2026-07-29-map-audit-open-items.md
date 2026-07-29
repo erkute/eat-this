@@ -250,16 +250,31 @@ The real constraint: an 84×44 chip cannot hold two 44 px targets. The clean fix
 is a flex chip layout where label and × split the width — rejected because the
 label would drop to ~52 px, and "Kreuzberg" already wraps at 84.
 
-### Search reveal still jumps once
+### ~~Search reveal still jumps once~~ REMOVED
 
-Opening search scrolls the list up ~204 px, once, instantly, before the input
-takes focus. Intentional (typing into a hidden result list is worse), and the
-per-keystroke scrolling is gone — but it is still a jump at the moment the
-keyboard appears.
+The re-check this section asked for happened, and the answer was: get rid of it.
 
-Measured as **not** the cause of the section 0 regression, but it happens at the
-same moment, so re-check it once that fix lands: with the field staying put,
-the jump may read differently than it does now.
+Opening search used to scroll the phone list up ~204 px instantly (and snap a
+tablet sheet peek→mid). The rationale was that typing into a hidden result list
+is worse than a jump. That held while the field _also_ vanished — the jump was
+masked by the bigger bug. With the field now staying put (section 0), the jump
+is the only thing left moving, and it reads as the page lurching under your
+thumb.
+
+**Removed 2026-07-29 on the user's call.** `revealListForSearch` is gone;
+`revealPanelForSearch` keeps only the desktop panel reveal, because there the
+side panel _is_ the result list and searching with it collapsed would filter
+into something invisible. That is not the list moving.
+
+Per-keystroke scrolling had already been removed earlier and must stay gone —
+it is a separate, worse bug (~200 px per character, and on iOS it fought
+Safari's own caret-visibility scroll).
+
+The trade this accepts: on a phone at rest only ~28 dvh of list is visible, so
+the first results land below the fold. If that turns out to be the wrong call,
+the middle option never tried is a _smooth_ scroll rather than an instant one —
+`'instant'` was chosen because "smooth would still be animating when the next
+character lands", and that reasoning died with the per-keystroke scrolling.
 
 ---
 

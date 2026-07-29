@@ -1013,12 +1013,12 @@
   color: inherit;
 }
 
-/* The picker reads as a modal now: at 8% ink the backdrop was invisible, so
-   the panel floated over a fully live map and never signalled that the rest of
-   the screen was inert. Desktop keeps its transparent anchored-popover
-   backdrop (set in the min-width:1024px block above). */
+/* Just enough to mark the rest of the screen as inert, not enough to read as
+   a frosted pane over the map. 8% was invisible; 42% (tried 2026-07-29) looked
+   like the map had been fogged over. Desktop keeps its transparent anchored-
+   popover backdrop (set in the min-width:1024px block above). */
 .pickerBackdrop {
-  background: rgba(21, 18, 14, 0.42);
+  background: rgba(21, 18, 14, 0.16);
 }
 
 @media (min-width: 1024px) {
@@ -1028,16 +1028,13 @@
 }
 
 /* The option list clipped its last row flush against the panel edge, which
-   read as "cut off" rather than "scrollable". A bottom fade restores the
-   affordance without adding chrome. */
+   read as "cut off" rather than "scrollable". A bottom mask-image fade was
+   tried for that (2026-07-29) and rejected — it made the last row look
+   frosted/faded out rather than merely scrollable. Plain bottom padding gives
+   the same "there is more below" cue with no visual effect: the last row ends
+   short of the edge instead of dissolving into it. */
 .pickerList {
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent 100%);
-}
-
-.pickerList:not([data-scrollable='true']) {
-  -webkit-mask-image: none;
-  mask-image: none;
+  padding-bottom: 10px;
 }
 
 /* Reset affordance on an active chip. Sits in the wrap ALONGSIDE the chip
@@ -1107,7 +1104,6 @@
    corner and the label is centred, so they barely meet — while 6px of reserved
    space was enough to push "Kreuzberg" (60px in a 62px slot) into a mid-word
    break. */
-
 
 /* ── Chip labels: never break mid-word ───────────────────────────────────────
    `overflow-wrap: anywhere` + `hyphens: auto` turned district names into

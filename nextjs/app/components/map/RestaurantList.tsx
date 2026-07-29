@@ -28,15 +28,9 @@ interface ItemProps {
    *  prevents Cloud Run's UTC clock and the visitor's local timezone from
    *  producing different opening-status markup during hydration. */
   now: Date | null;
-  /** Visual-only blurred preview row — click routes to the booster/signup
-   *  flow instead of opening restaurant detail. */
-  locked?: boolean;
   /** First row only: it is visible at the sheet's resting stop, so its photo
    *  is the LCP candidate and must not be lazy. */
   priority?: boolean;
-  /** Suppress the per-card "Freischalten" lock badge (used in the calmer
-   *  locked-bezirk view where a single block carries the upsell instead). */
-  hideBadge?: boolean;
   onClick: (r: MapRestaurant) => void;
 }
 
@@ -53,8 +47,6 @@ const Item = memo(
     isSelected,
     peek,
     now,
-    locked,
-    hideBadge,
     priority,
     onClick,
   }: ItemProps) {
@@ -84,11 +76,9 @@ const Item = memo(
 
     // Warm the on-demand detail fields once a card scrolls near the viewport —
     // by the time the user taps it, the story text is already cached and the
-    // detail opens complete (no skeleton). Locked rows route to the booster
-    // flow, so there is nothing to prefetch for them.
+    // detail opens complete (no skeleton).
     const cardRef = useRef<HTMLButtonElement>(null);
     useEffect(() => {
-      if (locked) return;
       const el = cardRef.current;
       if (!el || typeof IntersectionObserver === 'undefined') return;
       const io = new IntersectionObserver(
@@ -102,59 +92,30 @@ const Item = memo(
       );
       io.observe(el);
       return () => io.disconnect();
-    }, [locked, restaurant.slug]);
+    }, [restaurant.slug]);
 
     return (
       <button
         ref={cardRef}
         type="button"
-        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${locked ? styles.rcardBlur : ''}`}
+        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''}`}
         onClick={() => onClick(restaurant)}
-        aria-label={locked ? t('map.starterEyebrow') : undefined}
       >
-        {locked && !hideBadge && (
-          <span className={styles.rcardBlurBadge}>
-            <svg
-              className={styles.rcardBlurLock}
-              viewBox="0 0 24 24"
-              width="13"
-              height="13"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              aria-hidden="true"
-            >
-              <rect x="5" y="11" width="14" height="9" rx="1" />
-              <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-            </svg>
-            {t('map.lockedCardBadge')}
-          </span>
-        )}
-
         {/* Real <img> instead of a CSS background so the browser can natively
           lazy-load off-screen card photos (backgrounds always fetch eagerly). */}
         <div className={styles.rcardImg}>
           {restaurant.photo && (
             <img
-              // Locked cards render the photo behind a blur (.rcardBlur), so a
-              // low-res variant is visually identical and saves ~270 spots'
-              // worth of full-size image bytes for the anon teaser.
-              src={sanityImageLoader({ src: restaurant.photo, width: locked ? 224 : 600 })}
-              /* Unlocked rows shipped ONE fixed 600px variant to every device:
-                 soft on a 3x phone (the card is ~362 CSS px wide there) and
-                 oversized for the 280px desktop column. Locked rows stay
-                 single-source — they render behind a blur, so resolution is
-                 wasted bytes. */
-              srcSet={
-                locked
-                  ? undefined
-                  : [400, 600, 900, 1200]
+              src={sanityImageLoader({ src: restaurant.photo, width: 600 })}
+              /* One fixed 600px variant for every device was soft on a 3x
+                 phone (the card is ~362 CSS px wide) and oversized for the
+                 280px desktop column. */
+              srcSet={[400, 600, 900, 1200]
                       .map(
                         (w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`
                       )
-                      .join(', ')
-              }
-              sizes={locked ? undefined : '(max-width: 767.98px) 94vw, 280px'}
+                      .join(', ')}
+              sizes="(max-width: 767.98px) 94vw, 280px"
               alt=""
               loading={priority ? 'eager' : 'lazy'}
               fetchPriority={priority ? 'high' : undefined}
@@ -173,7 +134,7 @@ const Item = memo(
           </span>
         )}
 
-        {peek.kind !== 'none' && !locked && (
+        {peek.kind !== 'none' && (
           <span className={styles.mustPeek}>
             <img
               src={
@@ -212,8 +173,6 @@ const Item = memo(
     prev.restaurant === next.restaurant &&
     prev.isSelected === next.isSelected &&
     prev.now === next.now &&
-    prev.locked === next.locked &&
-    prev.hideBadge === next.hideBadge &&
     prev.onClick === next.onClick &&
     peekEqual(prev.peek, next.peek)
 );

@@ -143,8 +143,6 @@
   min-height: 100lvh;
   z-index: 0;
   background: rgba(20, 19, 17, 0.44);
-  -webkit-backdrop-filter: blur(1px) saturate(1);
-  backdrop-filter: blur(1px) saturate(1);
 }
 .galleryLbStage {
   z-index: 1;

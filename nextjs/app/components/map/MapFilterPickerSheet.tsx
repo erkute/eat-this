@@ -126,19 +126,6 @@ export default function MapFilterPickerSheet({
     };
   }, [sheetEl]);
 
-  /* Only fade the list edge when it actually scrolls — a fade over a list that
-     fits reads as a rendering bug. */
-  const [listEl, setListEl] = useState<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (!listEl) return;
-    const sync = () =>
-      (listEl.dataset.scrollable =
-        listEl.scrollHeight > listEl.clientHeight + 1 ? 'true' : 'false');
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(listEl);
-    return () => ro.disconnect();
-  }, [listEl, items.length]);
 
   // Desktop popover positioning relative to the anchor chip.
   useEffect(() => {
@@ -196,7 +183,7 @@ export default function MapFilterPickerSheet({
             ×
           </button>
         </div>
-        <div className={styles.pickerList} ref={setListEl}>
+        <div className={styles.pickerList}>
           {allLabel !== undefined && (
             <button
               type="button"

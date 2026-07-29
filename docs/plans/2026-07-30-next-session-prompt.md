@@ -64,10 +64,11 @@ Zuständen existieren (Must-Eat-Detail, verdeckte Karte, Restaurant-Detail).
 - **Messen statt schließen.** Die Tastatur-Regression sah exakt wie ein
   Kaskadenfehler aus und war keiner. Ein Screenshot mit Live-Werten hat es in
   einem Zug geklärt.
-- **Der iPhone-Simulator ist echtes WebKit und billig.** Ohne
+- **Der iPhone-Simulator ist echtes WebKit und billig.** Die halbe Bug-Klasse
+  ist unsichtbar, solange die Simulator.app die Mac-Tastatur anhängt. Nötig
+  sind beide Schritte, danach zurücksetzen:
   `defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false`
-  - Neustart der Simulator.app ist die halbe Bug-Klasse unsichtbar. Hinterher
-    zurücksetzen.
+  **und** ein Neustart der Simulator.app.
 - **Bei CSS-Änderungen: Computed-Style-Diff über Viewports UND Zustände, sonst
   gar nicht.** Zustände über die `data-*`-Attribute auf `[data-map-body]`
   fahren, nicht über die UI.

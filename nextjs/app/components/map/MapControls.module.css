@@ -852,10 +852,21 @@
      absolute child of the sticky map does not follow. The EXPANDED toolbar was
      absolute too, which is why it wandered off while typing. Same model for
      all three, same behaviour. */
+  /* `fixed` anchors to the LAYOUT viewport, which iOS does NOT shrink when the
+     keyboard opens — it slides the VISUAL viewport down inside it instead, so a
+     top-pinned control rides straight out of the visible area. Measured on an
+     iPhone 16e (iOS 26.3) with the search toolbar open: visualViewport.offsetTop
+     96, toolbar client rect top -82. `data-header-stuck` stayed unset the whole
+     time, so the retreat animation is NOT what hides them here.
+     --map-visual-offset-top is that offset, republished by MapSection on every
+     visualViewport scroll/resize; adding it back keeps all three where the eye
+     expects them. It must land on `top` and not on `transform` — the retreat
+     owns transform, and mapCascade.test.ts pins that. */
   .mapBurger,
   .mapSearchBtn,
   .mapSearchToolbar {
     position: fixed;
+    top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
   }
 
   .mapStatusLayer,

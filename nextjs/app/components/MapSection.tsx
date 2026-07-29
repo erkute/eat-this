@@ -281,9 +281,21 @@ export default function MapSection({
     if (!isActive) return;
 
     const root = document.documentElement;
+    /* Both properties are recomputed on every scroll frame (see the listeners
+       below), but writing them only when the value actually moved keeps a plain
+       scroll from forcing a style recalc on the whole subtree. */
+    const written = new Map<string, string>();
+    const write = (prop: string, value: string) => {
+      if (written.get(prop) === value) return;
+      written.set(prop, value);
+      root.style.setProperty(prop, value);
+    };
+
     const apply = () => {
       if (!isPhoneViewport()) {
+        written.clear();
         root.style.removeProperty('--map-runtime-bar-overhang');
+        root.style.removeProperty('--map-visual-offset-top');
         return;
       }
 
@@ -297,22 +309,34 @@ export default function MapSection({
       const visualOffsetTop = visualViewport?.offsetTop ?? 0;
       const toolbarHeight = Math.max(0, layoutHeight - visualHeight - visualOffsetTop);
 
-      root.style.setProperty(
-        '--map-runtime-bar-overhang',
-        `${Math.round(Math.max(96, toolbarHeight + 96))}px`
-      );
+      write('--map-runtime-bar-overhang', `${Math.round(Math.max(96, toolbarHeight + 96))}px`);
+
+      /* How far the visual viewport has slid down inside the layout viewport.
+         Non-zero only while the iOS keyboard is up: the layout viewport keeps
+         its full height, Safari scrolls the visual one to keep the caret clear,
+         and anything `position: fixed` — which anchors to the LAYOUT viewport —
+         rides up out of sight with it. Measured on an iPhone 16e simulator,
+         iOS 26.3: tapping the magnifier put offsetTop at 96 while the toolbar's
+         own `top: 14px` left its client rect at -82, i.e. fully above the
+         visible area. The phone controls add this back onto their `top`
+         (MapControls.module.css). Kept off `transform`, which those three need
+         for their retreat animation. */
+      write('--map-visual-offset-top', `${Math.round(Math.max(0, visualOffsetTop))}px`);
     };
 
     apply();
     window.addEventListener('resize', apply, { passive: true });
+    window.addEventListener('scroll', apply, { passive: true });
     window.visualViewport?.addEventListener('resize', apply, { passive: true });
     window.visualViewport?.addEventListener('scroll', apply, { passive: true });
 
     return () => {
       window.removeEventListener('resize', apply);
+      window.removeEventListener('scroll', apply);
       window.visualViewport?.removeEventListener('resize', apply);
       window.visualViewport?.removeEventListener('scroll', apply);
       root.style.removeProperty('--map-runtime-bar-overhang');
+      root.style.removeProperty('--map-visual-offset-top');
     };
   }, [isActive]);
 

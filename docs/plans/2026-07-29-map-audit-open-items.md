@@ -5,9 +5,56 @@ fixes that shipped are in PRs #310, #312 and #313 (all merged to `main` via #311
 and #314). This file is what did **not** ship, and why — written so a later
 session can pick any item up without the original conversation.
 
-Nothing here is a known-broken state. Every item is either a deliberate
-trade-off, a scaling risk that has not bitten yet, or something that needs a
-real iPhone to judge.
+Section 0 is a live regression and the only thing here that is actually broken.
+Everything after it is a deliberate trade-off, a scaling risk that has not
+bitten yet, or something that needs a real iPhone to judge.
+
+---
+
+## 0. Live regression — search field leaves the viewport on iPhone
+
+**Reported on-device 2026-07-29, after #310–#315 shipped. Not reproducible in
+the Chromium preview.**
+
+Tap the magnifier on `/map` → the expanded search field scrolls up out of the
+visible area, so you cannot see what you are typing.
+
+### Already ruled out
+
+`data-header-stuck` is **not** the cause. Opening search was measured in the
+preview: `scrollY 0 → 204`, `stuck` stays `"-"`, toolbar sits at `top: 14` and
+is fully in-viewport. The one-off 204 px jump from `revealListForSearch` does
+not trigger the stuck state on any plausible iPhone height either — the
+`scrollListToAnchor('mid')` target is `max(40, innerHeight - 440)`, which
+always leaves the sentinel (~26 px below the sheet's top edge) below the
+viewport top.
+
+### Main suspect
+
+`.mapSearchToolbar` was switched from `position: absolute` to
+`position: fixed` on 2026-07-28 (`MapControls.module.css`, the
+`@media (max-width: 767.98px)` block, together with `.mapBurger` and
+`.mapSearchBtn`).
+
+On iOS the layout viewport does not shrink when the keyboard opens — only the
+visual viewport does, and Safari scrolls internally to keep the focused element
+visible. Elements pinned to the top of the _layout_ viewport ride along and end
+up above the visible area. That matches the symptom exactly, and it is
+invisible in a desktop browser because there is no real keyboard.
+
+So this is most likely a regression introduced by that change. The change
+itself had a real reason — the magnifier and the burger drifted apart during
+scroll because only two of the three were `fixed` — so reverting it alone
+re-opens that bug.
+
+### Constraints for the fix
+
+- Magnifier, burger and toolbar must keep moving together. `mapCascade.test.ts`
+  asserts they share a transform transition and retreat on the same
+  `data-header-stuck` trigger; keep that true.
+- The `visualViewport` API (`offsetTop`, `height`) is the usual lever: follow it
+  with a transform rather than un-pinning the elements.
+- Verify on a device. A desktop viewport cannot show this either way.
 
 ---
 
@@ -15,13 +62,15 @@ real iPhone to judge.
 
 ### Smoke-test the shipped map changes on iPhone Safari
 
-**The one real gap.** Everything below was measured in a Chromium-based
-preview. Three behaviours cannot be exercised there:
+Everything below was measured in a Chromium-based preview. These behaviours
+cannot be exercised there — and section 0 is what happens when that gap is left
+open, so treat this as the reason the regression got out rather than as a
+nice-to-have.
 
-- **Search with the real keyboard.** The fix stopped the page scrolling ~200 px
-  per keystroke (`MapSection.tsx`, `revealListForSearch`). Verified: the field
-  stays at `y=14` while typing. Not verified: how that interacts with iOS
-  Safari's own "keep the caret visible" scroll once the keyboard is up.
+- **Search with the real keyboard.** ~~Not verified.~~ Verified on-device
+  2026-07-29 and **it is broken** — see section 0. The per-keystroke scrolling
+  is genuinely gone (field stays at `y=14` while typing), but the field itself
+  leaves the viewport when the keyboard opens.
 - **Location prompt on a device that has never granted.** Should show _no_
   dialog on load (`hasGeolocationPermission` gate). The preview reported
   `permissionState: "denied"`, i.e. only the returning-user path was exercised.
@@ -130,7 +179,11 @@ label would drop to ~52 px, and "Kreuzberg" already wraps at 84.
 Opening search scrolls the list up ~204 px, once, instantly, before the input
 takes focus. Intentional (typing into a hidden result list is worse), and the
 per-keystroke scrolling is gone — but it is still a jump at the moment the
-keyboard appears. Worth a look during the device test.
+keyboard appears.
+
+Measured as **not** the cause of the section 0 regression, but it happens at the
+same moment, so re-check it once that fix lands: with the field staying put,
+the jump may read differently than it does now.
 
 ---
 

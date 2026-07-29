@@ -1807,6 +1807,8 @@
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.06em;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 .rdTagOpen {
   background: #246f45;

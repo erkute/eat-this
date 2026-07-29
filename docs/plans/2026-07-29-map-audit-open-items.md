@@ -298,6 +298,40 @@ filter. Fine today (29 markers for the anon tier). At the premium tier — ~700
 unlocked spots — that is 700 DOM markers MapLibre transforms every pan frame.
 Not a bug yet; a wall to hit later.
 
+### Dead cascade declarations — `MapFilters` cleared 2026-07-29
+
+**Decision: delete, do not resurrect.** A dead declaration is evidence of an
+older design, not of a bug in the current one — the values that ship are the
+ones the design has been iterated against. Making the losers win would change
+small-phone _and_ desktop rendering in dozens of places at once.
+
+`MapFilters.module.css`: **94 lines / 83 declarations removed, 1126 → 1032.**
+`.filterChip` had been restyled at least four times (blocks around 280, 300,
+400, 456, 477, 490, 676, 713) and every round left the previous responsive
+tuning in place, dead — including a 9 px chip from a much smaller older design.
+
+Two things made this safe rather than brave:
+
+1. **A declaration was only removed when it is dead for _every_ class and
+   context its rule produces.** A grouped selector can be dead for
+   `.filterChip` and still live for `.filterChipActive`; dropping it then is a
+   real change. Of 113 dead entries only 57 declarations qualified — that
+   distinction is exactly what the earlier flattening attempt got wrong.
+2. **Computed-style diff, before vs after: 0 differences in 10 725
+   comparisons.** 13 elements × 75 properties × 8 viewports (320/360/400/430/
+   600/767/900/1280) for the chip rail, plus 39 elements × 75 properties with
+   the filter picker open — the picker is not in the DOM otherwise, so the
+   sweep would have missed every `.pickerSheet` / `.pickerItem` change.
+
+Confirmed en route: the two `.filterChipLabelLong` shrink attempts this
+document already records as doing nothing were among the removals, and
+`mapCascade.test.ts` still passes — the long-label rule that actually works is
+untouched.
+
+Still to do, same method, each needing its own baseline because their elements
+only exist in other states: **`MapDetails` (104)**, **`MapControls` (26)**,
+**`RestaurantList` (19)**.
+
 ### `/map` first-load JS is 327 kB
 
 Heaviest route by a wide margin (next is 270 kB); shared baseline is 188 kB.

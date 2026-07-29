@@ -11,50 +11,70 @@ bitten yet, or something that needs a real iPhone to judge.
 
 ---
 
-## 0. Live regression — search field leaves the viewport on iPhone
+## 0. ~~Live regression — search field leaves the viewport on iPhone~~ FIXED
 
-**Reported on-device 2026-07-29, after #310–#315 shipped. Not reproducible in
-the Chromium preview.**
+**Reported on-device 2026-07-29. Reproduced, root-caused and fixed the same
+day** in an iPhone 16e simulator running iOS 26.3 — real WebKit with the real
+software keyboard, which is what the Chromium preview could never show.
 
-Tap the magnifier on `/map` → the expanded search field scrolls up out of the
-visible area, so you cannot see what you are typing.
+### What it actually was
 
-### Already ruled out
+Confirmed by instrumenting the live page and reading the numbers off the device
+at the moment the keyboard came up:
 
-`data-header-stuck` is **not** the cause. Opening search was measured in the
-preview: `scrollY 0 → 204`, `stuck` stays `"-"`, toolbar sits at `top: 14` and
-is fully in-viewport. The one-off 204 px jump from `revealListForSearch` does
-not trigger the stuck state on any plausible iPhone height either — the
-`scrollListToAnchor('mid')` target is `max(40, innerHeight - 440)`, which
-always leaves the sentinel (~26 px below the sheet's top edge) below the
-viewport top.
+```
+scrollY 96   innerH 699
+vv.h 362     vv.offsetTop 96   vv.pageTop 96
+stuck -      snap mid
+field toolbar top -82          ← 14 - 96
+```
 
-### Main suspect
+iOS does not shrink the layout viewport when the keyboard opens; it slides the
+**visual** viewport down inside it (`visualViewport.offsetTop` 0 → 96) and keeps
+the layout viewport at its full height. `position: fixed` anchors to the layout
+viewport, so `top: 14px` put the toolbar 82 px **above** the visible area.
+`getBoundingClientRect()` is measured against the visual viewport, which is why
+the rect reads `-82` rather than `14`.
 
-`.mapSearchToolbar` was switched from `position: absolute` to
-`position: fixed` on 2026-07-28 (`MapControls.module.css`, the
-`@media (max-width: 767.98px)` block, together with `.mapBurger` and
-`.mapSearchBtn`).
+`data-header-stuck` stayed `"-"` throughout — the earlier preview measurement
+was right to rule it out, and the retreat animation is **not** what hides the
+field here. Nor is the 204 px `revealListForSearch` jump: in the repro it had
+already returned early and `scrollY` moved only by the keyboard's own 96.
 
-On iOS the layout viewport does not shrink when the keyboard opens — only the
-visual viewport does, and Safari scrolls internally to keep the focused element
-visible. Elements pinned to the top of the _layout_ viewport ride along and end
-up above the visible area. That matches the symptom exactly, and it is
-invisible in a desktop browser because there is no real keyboard.
+### The fix
 
-So this is most likely a regression introduced by that change. The change
-itself had a real reason — the magnifier and the burger drifted apart during
-scroll because only two of the three were `fixed` — so reverting it alone
-re-opens that bug.
+`MapSection.tsx` publishes `--map-visual-offset-top` from
+`visualViewport.offsetTop` (folded into the effect that already maintained
+`--map-runtime-bar-overhang`, so there is still one listener set; both writes
+are now change-guarded so a plain scroll does not force a style recalc).
+`MapControls.module.css` adds it back onto the shared `top` of all three phone
+controls, in the same `@media (max-width: 767.98px)` block that makes them
+`fixed`.
 
-### Constraints for the fix
+It had to land on `top`, **not** `transform` — the retreat owns transform, and
+`mapCascade.test.ts` pins that.
 
-- Magnifier, burger and toolbar must keep moving together. `mapCascade.test.ts`
-  asserts they share a transform transition and retreat on the same
-  `data-header-stuck` trigger; keep that true.
-- The `visualViewport` API (`offsetTop`, `height`) is the usual lever: follow it
-  with a transform rather than un-pinning the elements.
-- Verify on a device. A desktop viewport cannot show this either way.
+Verified on-device, same conditions:
+
+| state                          | before              | after                                                         |
+| ------------------------------ | ------------------- | ------------------------------------------------------------- |
+| keyboard open (`offsetTop 96`) | toolbar top **-82** | toolbar top **14**                                            |
+| typing                         | —                   | stays 14, tracks `offsetTop` back to 2 as the keyboard closes |
+| `data-header-stuck='true'`     | -110                | **-110** (retreat intact, all three together)                 |
+
+Pinned by a new case in `mapCascade.test.ts` which asserts all three resolve to
+the _same_ `top` and that it carries the variable — verified to fail without the
+CSS change.
+
+### Still to check on the same mechanism
+
+`.list[data-view='list'][data-header-stuck='true']::before` in
+`MapSheet.module.css` — the status-bar cap — is also `position: fixed; top: 0`
+and would slide up under the same conditions. It only exists in standalone
+(`env(safe-area-inset-top)` is 0 in a browser tab, see section 1), and it only
+renders while the header is stuck, so keyboard-open-while-stuck is the only
+window. Deliberately **not** changed blind — check it during the standalone
+pass rather than guessing, which is how this regression got made.
 
 ---
 
@@ -67,16 +87,43 @@ cannot be exercised there — and section 0 is what happens when that gap is lef
 open, so treat this as the reason the regression got out rather than as a
 nice-to-have.
 
-- **Search with the real keyboard.** ~~Not verified.~~ Verified on-device
-  2026-07-29 and **it is broken** — see section 0. The per-keystroke scrolling
-  is genuinely gone (field stays at `y=14` while typing), but the field itself
-  leaves the viewport when the keyboard opens.
-- **Location prompt on a device that has never granted.** Should show _no_
-  dialog on load (`hasGeolocationPermission` gate). The preview reported
-  `permissionState: "denied"`, i.e. only the returning-user path was exercised.
-- **Standalone (Home Screen) status bar.** The paper-coloured cap is
-  deliberately scoped to `data-view='list'` so the detail's photo hero has no
-  white stripe over it (`MapSheet.module.css`). Never seen on-device.
+**An iPhone simulator closes most of this gap.** `xcrun simctl boot`, then
+Safari on `http://localhost:3000/map` — real WebKit, real safe-area behaviour.
+The one thing that needs setting up is the software keyboard: the Simulator
+attaches the Mac's hardware keyboard by default, so a focused input raises only
+the accessory bar and none of the visual-viewport behaviour happens.
+
+```bash
+defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+```
+
+then relaunch Simulator.app (⇧⌘K toggles it live). Without this step section 0
+is invisible in the simulator too.
+
+- **Search with the real keyboard.** ~~Not verified.~~ ~~Verified 2026-07-29 and
+  broken~~ — **fixed and re-verified on-device 2026-07-29, see section 0.**
+  Per-keystroke scrolling stays gone and the field now holds `top: 14` with the
+  keyboard up.
+- **Location prompt on a device that has never granted.** ✅ Verified
+  2026-07-29 on a simulator after `xcrun simctl privacy <udid> reset location`:
+  **no dialog on load**, and the deliberate tap on the locate FAB raises both
+  the Safari and the per-site prompt as intended. Granting then auto-centres.
+  The `hasGeolocationPermission` gate behaves exactly as documented.
+- **Standalone (Home Screen) status bar.** Still open, and it genuinely cannot
+  be checked in a browser tab: `env(safe-area-inset-top)` measures **0** there
+  (the search button's client rect reads exactly `14`, its full `top` value), so
+  the cap collapses to nothing — precisely what the comment in
+  `MapSheet.module.css` claims. Needs a real Add-to-Home-Screen; the Simulator's
+  Safari toolbar does not accept synthetic taps, so it is a manual one-off.
+  Check both views in the same pass: list should show the paper cap, the
+  detail's photo hero should have no white stripe. And see the note at the end
+  of section 0 about that cap and the keyboard.
+- **Scroll fades elsewhere.** ✅ Nothing left. Every stylesheet that ships was
+  parsed for bottom-anchored gradient overlays and for `mask-image`; the six
+  hits are all photo scrims on cards (`.sibCard::after`, `.inlineSpot::after`,
+  `.spotCard::after`, `.photo::after`, `.ph::after`, plus one must-eat reveal),
+  and the only `mask-image` occurrences are a comment and an explicit `none`.
+  That covers News, Profile and Packs without needing to open them.
 
 If something looks wrong, start from the git log of `MapSection.tsx` and
 `MapControls.module.css` around 2026-07-28.
@@ -189,11 +236,57 @@ the jump may read differently than it does now.
 
 ## 4. Small, unowned
 
-- **`aria-expanded` without `aria-haspopup`** on the filter chips
-  (`MapListHeader.tsx`). They open a dialog; the relationship is not announced.
-- **`MapDetails.module.css` is 4700+ lines.** Not audited. Given what
-  `MapControls.module.css` turned out to contain, assume similar traps —
-  and note that flattening is not the answer there either (see above).
+- **`aria-expanded` without `aria-haspopup`** on the filter chips. ✅ Fixed
+  2026-07-29 — `FilterChip` now carries `aria-haspopup="dialog"`, which is what
+  `MapFilterPickerSheet` actually is (`role="dialog" aria-modal="true"`). The
+  "Geöffnet" chip beside them is a real toggle and correctly keeps
+  `aria-pressed`.
+
+### `MapDetails.module.css` — audited 2026-07-29, and yes, same trap class
+
+`scripts/audit-css-cascade.mjs` was written for this. It reports, per class and
+property, declarations that a later rule silently voids — grouping by selector
+context and state and comparing specificity first, because without that the
+output is drowned in false positives (`:global([data-map-body]…) .x` outranks a
+later plain `.x`; `.x:hover` never competes with `.x`).
+
+It is validated against the known case: it independently rediscovers
+`.mapSearchToolbar { gap }` 10px → 8px, the exact declaration this document
+already records as dead.
+
+```bash
+node scripts/audit-css-cascade.mjs app/components/map/MapDetails.module.css
+```
+
+| module                                                                                                     | classes | findings |
+| ---------------------------------------------------------------------------------------------------------- | ------- | -------- |
+| `MapFilters.module.css`                                                                                    | 20      | **118**  |
+| `MapDetails.module.css`                                                                                    | 118     | **104**  |
+| `MapControls.module.css`                                                                                   | 15      | 26       |
+| `RestaurantList.module.css`                                                                                | 27      | 19       |
+| `RestaurantGalleryLightbox`                                                                                | 12      | 1        |
+| `MapSheet` / `MapLayout` / `MapMarkers` / `MapListEmpty` / `MustEatImageLightbox` / `MustEatRevealOverlay` | —       | 0        |
+
+So the assumption in the old wording was right, and **`MapFilters.module.css` is
+worse than `MapDetails`** — `.filterChip` alone carries six competing
+`font-size` declarations across media queries, every one of them beaten by a
+media-less `12px` at line 727. That is the same shape as the
+`filterChipLabelLong` bug already pinned in `mapCascade.test.ts`.
+
+Two findings were confirmed by reading the source, as samples:
+
+- `.detailV13MustEat .fdText` — `@media (max-height: 740px)` sets
+  `-webkit-line-clamp: 2` (line 653), a later media-less block at line 3160 sets
+  `3` at equal specificity. Short screens get 3 lines, not the intended 2.
+- `.rdActBtn` — `@media (max-width: 380px)` sets `font-size: 15px` (line 1502),
+  a later media-less group sets `11px` (line 2281). Small phones get 11px.
+
+**Do not bulk-fix this.** Most of `MapDetails`' findings cluster in one late
+block (~4440–4850) that appears to be a deliberate later redesign superseding
+the earlier responsive tuning — deleting the losers is safe, but "fixing" them
+by making them win would change the layout on every small phone. Each finding is
+a lead, not a verdict: confirm against computed styles, then pin the effective
+value in `mapCascade.test.ts`. Flattening is still not the answer (section 2).
 
 ---
 
@@ -214,9 +307,30 @@ the jump may read differently than it does now.
 **The recurring failure mode in this codebase is a later CSS rule silently
 voiding an earlier one.** It happened four times in one session — the
 transition shorthand dropping `transform`, `filter: none` erasing the icon
-halo, the active-chip colour, and the long-label font size. All four are now
+halo, the active-chip colour, and the long-label font size. All four are
 pinned by `mapCascade.test.ts`, which asserts effective values rather than
-individual blocks. **Add a case there when you find the fifth.**
+individual blocks. There are now **222 more candidates** across `MapFilters`
+and `MapDetails` (section 4) — `scripts/audit-css-cascade.mjs` finds them, and
+`mapCascade.test.ts` is still where a confirmed one gets nailed down.
+
+**Not every phone bug is a cascade bug.** The section 0 regression looked
+exactly like one — three controls leaving the top edge together is the
+signature of the `data-header-stuck` retreat — and it was not. It was the iOS
+visual viewport. Reading `data-header-stuck` live on the device settled it in
+one screenshot; reasoning about the stylesheet would not have.
+
+**The Chromium preview cannot see anything the software keyboard causes**, and
+that is not a small class: `visualViewport.offsetTop`, `position: fixed`
+anchoring, and `env(safe-area-inset-top)` all behave differently. An iPhone
+simulator is cheap and is real WebKit — see the setup note in section 1,
+including the hardware-keyboard default that silently disables the whole
+effect.
+
+**Instrument, then screenshot.** The fastest way to get numbers off a simulator
+is a temporary fixed overlay in the page printing `scrollY`, `innerHeight`,
+`visualViewport.height/offsetTop/pageTop`, the relevant data attribute and the
+element's `getBoundingClientRect().top`, gated behind a query param. Put it at
+`top: 38%` — at `bottom: 0` the keyboard covers the very readout you need.
 
 **Measuring in the preview browser has a trap.** The tab intermittently runs
 with `visibilityState: "hidden"`, where `requestAnimationFrame` does not tick

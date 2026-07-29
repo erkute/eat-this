@@ -1,67 +1,81 @@
-'use client'
-import { forwardRef, useEffect } from 'react'
-import Map, { AttributionControl, type MapRef } from 'react-map-gl/maplibre'
+'use client';
+import { forwardRef, useEffect } from 'react';
+import Map, { AttributionControl, type MapRef } from 'react-map-gl/maplibre';
 
-const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
+const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 }
+const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 };
 
 interface MapCanvasProps {
-  onMapClick?: () => void
-  children?: React.ReactNode
+  onMapClick?: () => void;
+  /* Fires once the basemap has actually painted. MapLibre's `load` is defined
+     as "all necessary resources downloaded and the first visually complete
+     rendering has occurred", which is exactly the moment the markers may show
+     without floating on white. `error` counts too: if the style or the tiles
+     never arrive, the caller still has to reveal them rather than sit on an
+     empty map. */
+  onFirstPaint?: () => void;
+  children?: React.ReactNode;
 }
 
-const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMapClick, children }, ref) => {
-  // MapLibre opens the compact attribution by default on mount. Collapse it
-  // so only the small ⓘ button stays visible until the user taps it. Then
-  // observe attribute changes for ~3 s after we find the element, undoing
-  // any maplibre-internal re-open before user interaction.
-  useEffect(() => {
-    let observer: MutationObserver | null = null
-    let observerStart = 0
-    const collapseEl = (el: HTMLDetailsElement) => {
-      el.open = false
-      el.classList.remove('maplibregl-compact-show')
-    }
-    const findAndAttach = () => {
-      const el = document.querySelector(
-        'details.maplibregl-ctrl-attrib.maplibregl-compact'
-      ) as HTMLDetailsElement | null
-      if (!el) return false
-      collapseEl(el)
-      observerStart = Date.now()
-      observer = new MutationObserver(() => {
-        if (Date.now() - observerStart > 3000) { observer?.disconnect(); return }
-        if (el.open) collapseEl(el)
-      })
-      observer.observe(el, { attributes: true, attributeFilter: ['open', 'class'] })
-      return true
-    }
-    let tries = 0
-    const id = window.setInterval(() => {
-      tries += 1
-      if (findAndAttach() || tries > 30) window.clearInterval(id)
-    }, 50)
-    return () => {
-      window.clearInterval(id)
-      observer?.disconnect()
-    }
-  }, [])
+const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
+  ({ onMapClick, onFirstPaint, children }, ref) => {
+    // MapLibre opens the compact attribution by default on mount. Collapse it
+    // so only the small ⓘ button stays visible until the user taps it. Then
+    // observe attribute changes for ~3 s after we find the element, undoing
+    // any maplibre-internal re-open before user interaction.
+    useEffect(() => {
+      let observer: MutationObserver | null = null;
+      let observerStart = 0;
+      const collapseEl = (el: HTMLDetailsElement) => {
+        el.open = false;
+        el.classList.remove('maplibregl-compact-show');
+      };
+      const findAndAttach = () => {
+        const el = document.querySelector(
+          'details.maplibregl-ctrl-attrib.maplibregl-compact'
+        ) as HTMLDetailsElement | null;
+        if (!el) return false;
+        collapseEl(el);
+        observerStart = Date.now();
+        observer = new MutationObserver(() => {
+          if (Date.now() - observerStart > 3000) {
+            observer?.disconnect();
+            return;
+          }
+          if (el.open) collapseEl(el);
+        });
+        observer.observe(el, { attributes: true, attributeFilter: ['open', 'class'] });
+        return true;
+      };
+      let tries = 0;
+      const id = window.setInterval(() => {
+        tries += 1;
+        if (findAndAttach() || tries > 30) window.clearInterval(id);
+      }, 50);
+      return () => {
+        window.clearInterval(id);
+        observer?.disconnect();
+      };
+    }, []);
 
-  return (
-    <Map
-      ref={ref}
-      initialViewState={BERLIN}
-      style={{ width: '100%', height: '100%' }}
-      mapStyle={LIGHT_STYLE}
-      attributionControl={false}
-      onClick={() => onMapClick?.()}
-    >
-      <AttributionControl position="bottom-left" compact />
-      {children}
-    </Map>
-  )
-})
+    return (
+      <Map
+        ref={ref}
+        initialViewState={BERLIN}
+        style={{ width: '100%', height: '100%' }}
+        mapStyle={LIGHT_STYLE}
+        attributionControl={false}
+        onClick={() => onMapClick?.()}
+        onLoad={() => onFirstPaint?.()}
+        onError={() => onFirstPaint?.()}
+      >
+        <AttributionControl position="bottom-left" compact />
+        {children}
+      </Map>
+    );
+  }
+);
 
-MapCanvas.displayName = 'MapCanvas'
-export default MapCanvas
+MapCanvas.displayName = 'MapCanvas';
+export default MapCanvas;

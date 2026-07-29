@@ -185,12 +185,41 @@ look broken: dark map under a paper-white sheet. This is a whole-app decision.
 
 ## 3. Open work, no blocker
 
-### Basemap paints after the markers
+### ~~Basemap paints after the markers~~ DONE
 
-On first load the pins render as DOM before the vector tiles arrive — yellow
-pins floating on white for a moment. Longer over mobile data. Wants either a
-neutral placeholder or holding the markers until the first tile paints. Design
-input needed on which.
+The pins are DOM and the basemap is WebGL, so the DOM won the first frame and
+the yellow markers hung on white until the tiles arrived — longer over mobile
+data.
+
+**Decision (2026-07-29): hold the markers**, rather than putting a neutral
+placeholder underneath them. `MapCanvasLayer` now gates every marker on
+MapLibre's `load`, which is defined as "all necessary resources downloaded and
+the first visually complete rendering has occurred" — exactly the moment the
+pins may appear without floating.
+
+Because they now have to _arrive_, they drop in: `translateY(-56px)
+rotate(-13deg)` → the resting `rotate(-4deg)`, 420 ms, staggered 22 ms and
+capped at 14 steps so the premium tier's ~700 spots land together instead of
+cascading. No opacity anywhere — that rule is now pinned by a test in
+`MapArchitecture.styles.test.ts` that fails if any marker keyframe animates
+`opacity`.
+
+Three things that are easy to get wrong here, all deliberate:
+
+- **A fallback reveals the pins after 2500 ms regardless.** A dead tile CDN
+  would otherwise leave a permanently empty map, which is worse than the
+  problem being fixed. `error` triggers the reveal too.
+- **The animation is on `.pinLogo`, not `.markerRoot`.** MapLibre owns the
+  root's `transform` to position the marker; animating it fights the map.
+- **`animation-fill-mode: backwards`, not `both`.** A forwards fill would leave
+  every pin stuck at `rotate(-4deg)` and override `.pinLogoActive`'s own
+  `rotate(3deg)` on a deep-linked selection. And the entering class comes off
+  after the window closes, so markers that mount later — a filter change — do
+  **not** re-animate; otherwise every chip tap would re-drop the whole map.
+
+Verified on the iPhone 16e simulator by forcing the fallback-only path: tiles
+fully painted with zero markers 8 s in, then the pins dropping in when the
+timer fired.
 
 ### Marker set is not viewport-culled
 

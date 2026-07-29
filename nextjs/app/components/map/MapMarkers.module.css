@@ -42,6 +42,45 @@
   outline-offset: 4px;
 }
 
+/* First-load drop-in ----------------------------------------------------
+   The pins are DOM and the basemap is WebGL, so the markers used to paint a
+   frame or more before the tiles — yellow on white. MapCanvasLayer now holds
+   them until MapLibre's first complete rendering, which means they have to
+   ARRIVE rather than just be there.
+
+   Translate + rotate, never opacity: a fade reads as "appearing" and washes
+   out the brand presence (see CLAUDE.md). The keyframe lands on exactly the
+   base `rotate(-4deg)`, so when the animation is done and the class comes off
+   there is nothing to snap back to.
+
+   It sits on .pinLogo, NOT on .markerRoot — MapLibre owns that element's
+   transform to position the marker, and animating it would fight the map.
+
+   `backwards` fill matters: with a stagger the later pins would otherwise
+   stand at their resting spot for their whole delay and then jump up to
+   start. It is deliberately NOT `both` — a forwards fill would pin every
+   marker at `rotate(-4deg)` and override `.pinLogoActive`'s own
+   `rotate(3deg)` for a deep-linked selection. */
+.pinLogoEnter {
+  animation: pinDrop 420ms cubic-bezier(0.18, 0.72, 0.28, 1.06) backwards;
+  animation-delay: var(--pin-enter-delay, 0ms);
+}
+
+@keyframes pinDrop {
+  from {
+    transform: translateY(-56px) rotate(-13deg);
+  }
+  to {
+    transform: translateY(0) rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pinLogoEnter {
+    animation: none;
+  }
+}
+
 .pinLogoHasMust::after {
   content: '';
   position: absolute;

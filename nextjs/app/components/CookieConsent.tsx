@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
 import { getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
@@ -28,7 +28,10 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
     list: [
       { strong: 'Carto / MapLibre', text: ' — Kartenkacheln für die Food Map' },
       { strong: 'Sanity CDN', text: ' — Bilder und Inhalte' },
-      { strong: 'Google Sign-In', text: ' — nur wenn du es nutzt; Google-Cookies liegen auf Googles Domain, nicht bei uns' },
+      {
+        strong: 'Google Sign-In',
+        text: ' — nur wenn du es nutzt; Google-Cookies liegen auf Googles Domain, nicht bei uns',
+      },
     ],
   },
   {
@@ -58,7 +61,10 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
     list: [
       { strong: 'Carto / MapLibre', text: ' — map tiles for the Food Map' },
       { strong: 'Sanity CDN', text: ' — photos and content' },
-      { strong: 'Google Sign-In', text: " — only when you choose it; Google's cookies live on its domain, not ours" },
+      {
+        strong: 'Google Sign-In',
+        text: " — only when you choose it; Google's cookies live on its domain, not ours",
+      },
     ],
   },
   {
@@ -133,6 +139,40 @@ export default function CookieConsent() {
   // clears that layer immediately. Reset when the banner reopens.
   const [collapsed, setCollapsed] = useState(false);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
+
+  /* Publish the bar's height while it is on screen. It is fixed to the bottom
+     of the viewport, which on /map is exactly where the sheet rests — the
+     filter chips sat completely behind it on first load, not merely clipped.
+     Surfaces that own the bottom edge can subtract this instead of guessing;
+     the map adds it to --phone-list-sheet-visible (MapLayout.module.css).
+
+     Deliberately NOT a scrim or any change to how consent behaves — the
+     non-blocking banner is a chosen GDPR posture. This only stops it covering
+     something. */
+  const barRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const root = document.documentElement;
+    const el = barRef.current;
+    if (!el || !show) {
+      root.style.removeProperty('--consent-bar-h');
+      return;
+    }
+    let last = -1;
+    const publish = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      if (h === last) return;
+      last = h;
+      root.style.setProperty('--consent-bar-h', `${h}px`);
+    };
+    publish();
+    // The bar grows when "Mehr erfahren" expands it.
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty('--consent-bar-h');
+    };
+  }, [show]);
 
   // On mount: if user already accepted, load GA. If undecided, schedule the
   // banner to slide in after 1.5s. The delay matches the legacy timing so
@@ -223,6 +263,7 @@ export default function CookieConsent() {
 
   return (
     <div
+      ref={barRef}
       className={`cookie-consent${show ? ' show' : ''}${expanded ? ' expanded' : ''}`}
       id="cookieConsent"
       role="dialog"

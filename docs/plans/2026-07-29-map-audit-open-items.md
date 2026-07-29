@@ -172,7 +172,7 @@ Four pins overlap within ~70 px in Mitte; the rearmost cannot be tapped.
 changes how the map reads as a brand surface. Revisit only as a design call,
 not as a bug.
 
-### Infinite reveal animations
+### Infinite reveal animations — re-opened 2026-07-29, and there is nothing to win
 
 `fdCardWiggle` and `fdRevealReadyShake` (`MapDetails.module.css`) run
 `infinite` with `will-change: transform` on a large 3D-transformed card. They
@@ -180,12 +180,49 @@ are deliberate "tap me" affordances that have been iterated on. They sit on the
 compositor, so the cost is smaller than it first looks. Capping them would
 weaken a designed cue — a product decision, not a cleanup.
 
-### Cookie banner covering the filter row
+Re-examined on the theory that the real cost was the `will-change` rather than
+the `infinite`, and that it could therefore be dropped with no visual change.
+**That theory is wrong.** Both declarations sit on the _same element that is
+already animating forever_ — a running transform animation promotes the element
+to its own compositor layer regardless, so the `will-change` is redundant, not
+expensive. Removing it would change nothing measurable.
 
-The consent bar bisects the filter chips on first load. Every fix either
-changes consent behaviour (adding a scrim makes it more modal than intended —
-a non-blocking banner is a deliberate GDPR posture) or requires wiring consent
-state into the map. Cosmetic, one-time.
+The one genuine instance of the classic misuse is `.fdTopCard` (line ~332):
+`will-change: transform` with `transform: translateX(0)` and no animation at
+all. But it is the swipe-pager's card, transformed by JS on drag, which is
+precisely the case `will-change` exists for — hinting _before_ the change. Left
+alone: there is no measurement showing it costs anything, and removing it could
+cost a frame at drag start. **Deliberately not changed on a hunch.**
+
+### ~~Cookie banner covering the filter row~~ FIXED
+
+Reproduced on-device first, and the old description understated it: the banner
+did not "bisect" the chips, it hid **the entire filter row** — on a phone the
+sheet rests at 28 dvh and the bar is fixed to `bottom: 0`, so it covered the
+whole resting sheet.
+
+Fixed 2026-07-29 **without touching consent behaviour** — no scrim, no
+modality, no consent state wired into the map. `CookieConsent` publishes its own
+measured height as `--consent-bar-h` on `<html>` while the bar is up (via
+`ResizeObserver`, so expanding "Mehr erfahren" keeps it in step) and removes it
+on dismiss. `MapLayout` adds it to `--phone-list-sheet-visible`, which lifts the
+sheet's resting stop — and with it the chips, the locate FAB, the status toast
+and the MapLibre attribution, all of which key off that one variable.
+
+Two things that make this safe rather than clever:
+
+- **The drag stops follow automatically.** `useHandleScrollDrag` feeds
+  `snapOffsets` a _measured_ sheet top; `LIST_REST_VISIBLE_DVH` is only the
+  fallback estimate. The one consumer that does not follow is the flyTo padding
+  estimate (`phoneListPeek` in `MapSection`), off by the bar height while the
+  bar is up — first-load cosmetic.
+- **The base stays pinned.** `MapArchitecture.styles.test.ts` now asserts the
+  resting stop still _starts_ at `calc(28dvh` — the number that has to stay in
+  step with `LIST_REST_VISIBLE_DVH` — and that the banner term is still there.
+
+Capped at 34 dvh so an expanded banner cannot yank the sheet across the screen.
+Verified on-device: chips fully visible above the bar, and the sheet returns to
+exactly its normal rest after accepting.
 
 ### Flattening `MapControls.module.css`
 

@@ -20,29 +20,6 @@
 .rcardImg img {
   object-position: center;
 }
-.rcardBlur {
-  overflow: hidden;
-}
-.rcardBlur .rcardBody,
-.rcardBlur .openPill {
-  display: none;
-}
-.rcardBlurBadge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 15px 11px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.rcardBlurLock {
-  flex: 0 0 auto;
-}
 .openPill {
   position: absolute;
   display: inline-flex;
@@ -201,8 +178,7 @@
     0 0 0 3px var(--map-collage-ink),
     0 14px 24px rgba(43, 33, 28, 0.22);
 }
-.openPillClosed,
-.rcardBlurBadge {
+.openPillClosed {
   border-color: var(--map-collage-ink);
 }
 @media (hover: hover) {
@@ -457,23 +433,6 @@
   line-height: 1;
   text-transform: uppercase;
 }
-.rcardBlur .rcardImg {
-  filter: none;
-  transform: none;
-}
-.rcardBlur .rcardImg img {
-  transform: scale(1.08);
-}
-.rcardBlur::after {
-  display: block;
-  background: rgba(0, 0, 0, 0.52);
-}
-.rcardBlurBadge {
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-}
 @media (min-width: 1024px) {
   .rcardName {
     font-size: 34px;
@@ -494,8 +453,7 @@
     font-size: 8px;
   }
 }
-.openPill,
-.rcardBlurBadge {
+.openPill {
   border-radius: 0;
 }
 .rcardImg img {
@@ -518,9 +476,6 @@
 }
 .openPillClosed::before {
   background: #fff;
-}
-.rcardBlur .rcardImg img {
-  filter: blur(7px) brightness(0.58) saturate(1.1);
 }
 .mustPeek {
   right: -8px;
@@ -546,12 +501,6 @@
   object-fit: contain;
   filter: none;
   transform: none;
-}
-.rcardBlurBadge {
-  background: #ffc600;
-  color: #15120e;
-  border: 0;
-  box-shadow: none;
 }
 .rcardMetaChip,
 .rcardMetaCategory {
@@ -588,16 +537,16 @@
   font-size: 11px;
   line-height: 1.1;
 }
-.rcard:not(.rcardBlur) {
+.rcard {
   overflow: visible;
 }
-.rcard:not(.rcardBlur)::after {
+.rcard::after {
   background: transparent;
 }
 .rcardImg {
   overflow: hidden;
 }
-.rcard:not(.rcardBlur) .rcardImg img {
+.rcard .rcardImg img {
   filter: none;
 }
 .openPill,

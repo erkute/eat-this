@@ -281,9 +281,21 @@ export default function MapSection({
     if (!isActive) return;
 
     const root = document.documentElement;
+    /* Both properties are recomputed on every scroll frame (see the listeners
+       below), but writing them only when the value actually moved keeps a plain
+       scroll from forcing a style recalc on the whole subtree. */
+    const written = new Map<string, string>();
+    const write = (prop: string, value: string) => {
+      if (written.get(prop) === value) return;
+      written.set(prop, value);
+      root.style.setProperty(prop, value);
+    };
+
     const apply = () => {
       if (!isPhoneViewport()) {
+        written.clear();
         root.style.removeProperty('--map-runtime-bar-overhang');
+        root.style.removeProperty('--map-visual-offset-top');
         return;
       }
 
@@ -297,22 +309,34 @@ export default function MapSection({
       const visualOffsetTop = visualViewport?.offsetTop ?? 0;
       const toolbarHeight = Math.max(0, layoutHeight - visualHeight - visualOffsetTop);
 
-      root.style.setProperty(
-        '--map-runtime-bar-overhang',
-        `${Math.round(Math.max(96, toolbarHeight + 96))}px`
-      );
+      write('--map-runtime-bar-overhang', `${Math.round(Math.max(96, toolbarHeight + 96))}px`);
+
+      /* How far the visual viewport has slid down inside the layout viewport.
+         Non-zero only while the iOS keyboard is up: the layout viewport keeps
+         its full height, Safari scrolls the visual one to keep the caret clear,
+         and anything `position: fixed` — which anchors to the LAYOUT viewport —
+         rides up out of sight with it. Measured on an iPhone 16e simulator,
+         iOS 26.3: tapping the magnifier put offsetTop at 96 while the toolbar's
+         own `top: 14px` left its client rect at -82, i.e. fully above the
+         visible area. The phone controls add this back onto their `top`
+         (MapControls.module.css). Kept off `transform`, which those three need
+         for their retreat animation. */
+      write('--map-visual-offset-top', `${Math.round(Math.max(0, visualOffsetTop))}px`);
     };
 
     apply();
     window.addEventListener('resize', apply, { passive: true });
+    window.addEventListener('scroll', apply, { passive: true });
     window.visualViewport?.addEventListener('resize', apply, { passive: true });
     window.visualViewport?.addEventListener('scroll', apply, { passive: true });
 
     return () => {
       window.removeEventListener('resize', apply);
+      window.removeEventListener('scroll', apply);
       window.visualViewport?.removeEventListener('resize', apply);
       window.visualViewport?.removeEventListener('scroll', apply);
       root.style.removeProperty('--map-runtime-bar-overhang');
+      root.style.removeProperty('--map-visual-offset-top');
     };
   }, [isActive]);
 
@@ -940,25 +964,22 @@ export default function MapSection({
     }
   }, [snap, setSnap, reapplySnap, sheetView, scrollListToAnchor]);
 
-  /* Surface the list once when the search UI OPENS — never per keystroke.
-     Scrolling on every character moved the page ~200px out from under the
-     finger mid-word, and on iOS it also fought Safari's own "keep the caret
-     visible" scroll once the keyboard was up. Phones get an instant jump
-     (smooth would still be animating when the next character lands); the
-     reveal happens before the input takes focus, so the keyboard opens onto
-     an already-settled layout. */
-  const revealListForSearch = useCallback(() => {
+  /* Opening search moves NOTHING. It used to surface the list — an instant
+     ~204px window scroll on phones, a peek→mid snap on tablets — on the
+     reasoning that typing into a hidden result list is worse than a jump.
+     Removed 2026-07-29 on the user's call: with the search field no longer
+     leaving the viewport (see --map-visual-offset-top), the jump stopped being
+     masked by the bigger bug and just reads as the page lurching under your
+     thumb. Per-keystroke scrolling had already been removed earlier and must
+     stay gone.
+
+     The desktop panel is the one thing still revealed: it IS the result list
+     there, so searching with it collapsed would filter into something the user
+     cannot see at all. That is not the list moving. */
+  const revealPanelForSearch = useCallback(() => {
     if (sheetView !== 'list') return;
     setDesktopPanelHidden(false);
-    if (!isPhoneViewport()) {
-      if (snap === 'peek') setSnap('mid');
-      return;
-    }
-    // Only scroll UP; never yank a user who is already deep in the rows.
-    const el = sheetElRef.current;
-    if (!el || window.innerHeight - el.getBoundingClientRect().top >= 440) return;
-    scrollListToAnchor('mid', 'instant');
-  }, [snap, sheetView, setSnap, sheetElRef, scrollListToAnchor]);
+  }, [sheetView]);
 
   const handleSearchChange = useCallback(
     (v: string) => {
@@ -969,8 +990,8 @@ export default function MapSection({
 
   const handleSearchOpen = useCallback(() => {
     setSearchOpen(true);
-    revealListForSearch();
-  }, [revealListForSearch]);
+    revealPanelForSearch();
+  }, [revealPanelForSearch]);
 
   const handleBezirkChange = useCallback(
     (name: string | null) => {

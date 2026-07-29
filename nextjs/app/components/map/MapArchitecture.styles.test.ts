@@ -88,11 +88,34 @@ describe('Map CSS architecture', () => {
       'markerRoot',
       'pinLogo',
       'pinLogoActive',
+      'pinLogoEnter',
       'pinLogoHasMust',
       'pinLogoShape',
       'userLoc',
       'userLocAvatar',
     ]);
+  });
+
+  it('reveals the markers with movement, never with an opacity fade', () => {
+    /* CLAUDE.md, repeatedly: entry motion on a brand surface translates (and
+     * may rotate); it does not fade. A fade reads as "appearing" rather than as
+     * motion and washes out the brand presence. The pins are held back until
+     * the basemap has painted (MapCanvasLayer), so they genuinely have to
+     * arrive — which is exactly the moment someone reaches for `opacity`.
+     */
+    const root = postcss.parse(readFileSync(modulePath('MapMarkers.module.css'), 'utf8'));
+    const frames: string[] = [];
+    root.walkAtRules('keyframes', (rule) => {
+      rule.walkDecls((decl) => {
+        expect(
+          decl.prop,
+          `@keyframes ${rule.params} animates ${decl.prop} — entry motion must translate, not fade`
+        ).not.toBe('opacity');
+        frames.push(rule.params);
+      });
+    });
+
+    expect(frames, 'the marker drop-in keyframes went missing').toContain('pinDrop');
   });
 
   it('uses stable data contracts between layout, sheet and controls', () => {
@@ -152,10 +175,27 @@ describe('Map CSS architecture', () => {
 
     expect(shellRules).toEqual([
       expect.objectContaining({
-        '--phone-list-sheet-visible': '28dvh',
         '--detail-map-peek': '50dvh',
       }),
     ]);
+    /* The resting stop is 28dvh plus whatever the cookie banner currently
+     * occupies — it is fixed to the bottom of the viewport, i.e. straight over
+     * the resting sheet, and hid the entire filter chip row on first load.
+     *
+     * Pin the BASE, not the whole expression: 28 is the number that has to stay
+     * in step with LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts. The banner term
+     * is additive and collapses to 0 when no banner is up.
+     */
+    const rest = shellRules[0]['--phone-list-sheet-visible'];
+    expect(rest, 'the phone sheet lost its resting stop').toBeDefined();
+    expect(
+      rest.startsWith('calc(28dvh'),
+      `the resting stop must still be based on 28dvh (= LIST_REST_VISIBLE_DVH). Got: ${rest}`
+    ).toBe(true);
+    expect(
+      rest.includes('--consent-bar-h'),
+      `the sheet no longer clears the cookie banner — the filter chips will sit behind it on first load. Got: ${rest}`
+    ).toBe(true);
     expect(listRules).toEqual([
       expect.objectContaining({
         'margin-top': 'calc(0px - var(--phone-list-sheet-visible, 28dvh))',

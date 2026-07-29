@@ -174,6 +174,11 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
         className={`${styles.filterChip} ${active ? styles.filterChipActive : ''}`}
         onClick={onClick}
         aria-expanded={expanded}
+        /* Without this, `aria-expanded` alone says the chip expands in place —
+           it actually opens MapFilterPickerSheet, which is role="dialog"
+           aria-modal="true". The "Geöffnet" chip next to these is a real toggle
+           and correctly stays on aria-pressed. */
+        aria-haspopup="dialog"
       >
         <span
           className={`${styles.filterChipLabel} ${label.length > 9 ? styles.filterChipLabelLong : ''}`}

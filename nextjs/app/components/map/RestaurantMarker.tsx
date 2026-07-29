@@ -8,13 +8,23 @@ interface RestaurantMarkerProps {
   restaurant: MapRestaurant;
   isSelected: boolean;
   onClick: (restaurant: MapRestaurant) => void;
+  /** Milliseconds to hold this pin back during the first-load drop-in, or
+   *  `null` outside that window — a pin that mounts later (filter change)
+   *  must appear without motion. */
+  enterDelayMs?: number | null;
 }
 
-function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerProps) {
+function RestaurantMarker({
+  restaurant,
+  isSelected,
+  onClick,
+  enterDelayMs = null,
+}: RestaurantMarkerProps) {
   const className = [
     styles.pinLogo,
     isSelected && styles.pinLogoActive,
     restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
+    enterDelayMs !== null && styles.pinLogoEnter,
   ]
     .filter(Boolean)
     .join(' ');
@@ -49,7 +59,14 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
         tabIndex={0}
         aria-label={restaurant.name}
         className={className}
-        style={{ position: 'relative' }}
+        style={
+          enterDelayMs !== null
+            ? ({
+                position: 'relative',
+                '--pin-enter-delay': `${enterDelayMs}ms`,
+              } as React.CSSProperties)
+            : { position: 'relative' }
+        }
         onKeyDown={(event) => {
           if (event.key !== 'Enter' && event.key !== ' ') return;
           event.preventDefault();
@@ -79,5 +96,6 @@ export default memo(
     prev.restaurant.lat === next.restaurant.lat &&
     prev.restaurant.lng === next.restaurant.lng &&
     prev.isSelected === next.isSelected &&
-    prev.onClick === next.onClick
+    prev.onClick === next.onClick &&
+    prev.enterDelayMs === next.enterDelayMs
 );

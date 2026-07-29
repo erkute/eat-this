@@ -101,6 +101,38 @@ describe('MapControls cascade', () => {
     }
   });
 
+  it('pins the phone controls to the VISUAL viewport, not just the layout one', () => {
+    /* iOS does not shrink the layout viewport when the keyboard opens — it
+     * slides the visual viewport down inside it. `position: fixed` anchors to
+     * the layout viewport, so a control at `top: 14px` rides straight out of
+     * the visible area. Measured on an iPhone 16e (iOS 26.3): opening the map
+     * search put `visualViewport.offsetTop` at 96 and the toolbar's client rect
+     * top at -82, with `data-header-stuck` never set — so the retreat animation
+     * was NOT what hid it.
+     *
+     * The three share one trigger and must share this too: if one of them loses
+     * the offset it stays behind while the others follow, which is the same
+     * class of drift that made them `fixed` in the first place.
+     */
+    const phone = '(max-width: 767.98px)';
+    const tops = ['mapSearchBtn', 'mapBurger', 'mapSearchToolbar'].map((control) => {
+      const position = effective(CONTROLS, control, 'position', phone);
+      expect(position, `.${control} is no longer fixed on phones`).toBe('fixed');
+      const top = effective(CONTROLS, control, 'top', phone);
+      expect(top, `.${control} has no effective phone top`).toBeDefined();
+      expect(
+        top!.includes('--map-visual-offset-top'),
+        `.${control} does not follow the visual viewport — it will leave the screen when the iOS keyboard opens. Got: ${top}`
+      ).toBe(true);
+      return top;
+    });
+
+    expect(
+      new Set(tops).size,
+      `the three top-corner controls must resolve to the SAME top or they drift apart: ${tops.join(' | ')}`
+    ).toBe(1);
+  });
+
   it('does not let the status toast overlap the locate FAB on phones', () => {
     // Both are positioned off the sheet's top edge. The toast used to land on
     // the exact band the FAB occupies, at z-index 120 over 6 — hiding and

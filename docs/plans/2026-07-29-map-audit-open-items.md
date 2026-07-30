@@ -3,7 +3,9 @@
 Working document for the mobile-Safari audit of `/map` that started 2026-07-28.
 **Rewritten 2026-07-29** after everything below the line shipped: the resolved
 items are compressed to one line each, the reasoning that is still load-bearing
-was kept, and the rest was deleted.
+was kept, and the rest was deleted. **Updated 2026-07-30**: the MapControls
+measurement contradiction in section 3 is resolved, MapControls is pruned, and
+the harness now lives in `nextjs/scripts/cascade/`.
 
 Everything here is either open work or a decision you would otherwise re-derive.
 
@@ -87,12 +89,17 @@ voids. Validated: it independently rediscovers `.mapSearchToolbar { gap }`
 node scripts/audit-css-cascade.mjs app/components/map/MapDetails.module.css
 ```
 
-| module           | findings | status                                                     |
-| ---------------- | -------- | ---------------------------------------------------------- |
-| `MapFilters`     | 118      | **done** — 83 declarations deleted, 0 diff in 10 725 cells |
-| `MapDetails`     | 104      | open                                                       |
-| `MapControls`    | 26       | open — **and it bit, see below**                           |
-| `RestaurantList` | 19       | open                                                       |
+| module           | findings | status                                                                            |
+| ---------------- | -------- | --------------------------------------------------------------------------------- |
+| `MapFilters`     | 118      | **done** (#321) — 83 deleted; **re-verified 2026-07-30**, 0 diff in 393 120 cells |
+| `MapControls`    | 26       | **done 2026-07-30** — 19 deleted, 0 diff in 223 560 cells; 7 kept, see below      |
+| `MapDetails`     | 104      | open                                                                              |
+| `RestaurantList` | 19       | open                                                                              |
+
+The harness is now in the repo: `nextjs/scripts/cascade/` (sweep + hover pass +
+diff + a README that is mostly a list of ways the measurement lies). It does not
+need rebuilding, and rebuilding it from scratch is how the contradiction below
+happened.
 
 ### The decision, already made: delete, do not resurrect
 
@@ -120,34 +127,63 @@ small-phone _and_ desktop rendering in dozens of places at once.
    attempt got wrong.**
 4. **Diff must be 0.** Then pin what matters in `mapCascade.test.ts`.
 
-A one-off pruner implementing 3 lives in the session scratchpad, not in the
-repo — it is too sharp to leave lying around. Rebuild it from
-`audit-css-cascade.mjs`; the logic is the same minus the reporting.
+Rule 3 is not theoretical: it saved two live declarations in MapControls. The
+audit reports per _class_, so a grouped declaration reads as dead the moment it
+is dead for one of them. `filter: drop-shadow(...)` is declared for
+`.mapSearchBtn, .mapBurger, .fab, .panelToggle` at once and reset for the first
+three — `.panelToggle` has no other `filter` in the file, so deleting it takes
+the shadow off the desktop panel handle. The 2px `@media (hover: hover)` lift is
+re-declared as 1px for `.mapSearchBtn` only, so it stays live for `.mapBurger`
+and `.fab`. Both are pinned in `mapCascade.test.ts`, and both fail that test when
+mutated.
 
-### ⚠ MapControls: the net caught something — resolve this first
+Add a step 5: **pseudo-classes need their own pass.** The viewport sweep never
+hovers anything, so a `:hover`-gated declaration is invisible to it. `hover.js`
+forces `:hover`/`:focus-visible` over CDP. One of MapControls' 19 removals was
+only justifiable that way.
 
-A bulk prune of MapControls' 19 removable declarations produced **24
-computed-style differences at 320 px**: `.mapStatusLayer` and
-`.mapStatusLayerError` moved from `translateY(0)` to `translateY(-162px)` /
-`-130px`, across every one of the 24 states.
+### ✅ RESOLVED 2026-07-30: the MapControls contradiction was the measurement
 
-Reverted immediately, unresolved. Two candidate explanations, and it matters
-which:
+**Candidate B, confirmed, with the mechanism reproduced.** At a settled 320 px
+the two toasts read `translateY(-166.08px)` / `-130px` — exactly
+`-100% - 70px` against each probe's own height (96 px and 60 px; the earlier
+`-162` was a 92 px probe). `translateY(0)` is the **≥768 px** value and cannot
+occur at a settled 320 px in any of the 24 states, so the _baseline_ was the
+broken side. The old "24 differences" number matches exactly: at 320 px only 12
+of the 24 states show the toast at all (phone + detail is `display: none`), and
+12 states × 2 classes = 24 cells.
 
-- **A real cascade change** the pruner caused. None of the 19 removals touches
-  `transform`, so this would have to be an ordering or empty-rule-cleanup
-  effect — worth understanding before trusting the pruner on MapDetails.
-- **A measurement artefact.** The _after_ value is what the stylesheet says
-  should apply at 320 px (the phone block at ~861 sets
-  `translate(-50%, calc(-100% - 70px))` and sits after the media-less
-  `translateX(-50%)` at ~791). So the suspicious number is the **baseline**,
-  which suggests the 320 px baseline was captured before the browser
-  re-evaluated media queries after `resize_window`.
+Reproduced directly — resize to 320 px, measure with no settle:
 
-Settle it by re-capturing the MapControls baseline with a settle delay after
-each resize, and by verifying the baseline value against the stylesheet before
-trusting it. **Do not prune MapDetails until this is understood** — the same
-harness produced the MapFilters result and its credibility rests on this.
+| step           | innerWidth | phone MQ | transform                   |
+| -------------- | ---------- | -------- | --------------------------- |
+| settled 1440   | 1440       | false    | `matrix(…, -180, 0)`        |
+| 320 imme­diate | **320**    | **true** | `matrix(…, -144, 0)`        |
+| 320 settled    | 320        | true     | `matrix(…, -144, -166.078)` |
+
+The sting is the middle row: `innerWidth` was already 320 and
+`matchMedia('(max-width: 767.98px)')` already `true`, and even the X translate
+had re-resolved against the new box — while the phone block's `transform` had
+not been applied. **The style engine re-matches `@media` rules a frame after the
+matchMedia API reports the change**, so a guard on `innerWidth`/`matchMedia`
+still accepts the bad snapshot. Only waiting a frame or two fixes it.
+
+Two more ways the same harness lies, both found the same way and both now
+guarded:
+
+- **Transitions.** These controls transition `transform` for up to 280 ms, so a
+  read one frame after a state change returns the interpolated _start_ value.
+  This made `.mapBurger:hover` look like it had lost its 2px lift — i.e. it
+  invites deleting a live declaration. CDP's own matched-rules list settled it.
+- **Used-value drift.** `top/bottom/left/right/inset` on an absolutely
+  positioned element resolve against the surrounding layout and differ between
+  two runs of _identical_ code: 160 of 198 720 cells, all `bottom`/`inset` on
+  the two toasts, ~12 px. Diff two same-code runs first and subtract that floor.
+
+Consequences: the pruner was never wrong, and **MapFilters (#321) was
+re-verified** from its pre-merge stylesheet with the hardened harness — 0
+differences in 393 120 cells, this time with all 15 DOM-absent classes probed
+and the filter picker mounted on `document.body` where it actually portals.
 
 ---
 

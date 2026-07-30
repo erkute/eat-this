@@ -102,6 +102,14 @@ diff + a README that is mostly a list of ways the measurement lies). It does not
 need rebuilding, and rebuilding it from scratch is how the contradiction below
 happened.
 
+**The audit still reports findings on three of these modules, and that is the
+finished state, not leftovers.** Run `triage.mjs` before believing otherwise:
+MapFilters' 10 remaining findings are 4 declarations that are all dead in one
+context and live in another (`.filterChipRow > .filterChip` vs
+`.filterChipWrap .filterChip`) — **0 removable**, so #321 was exhaustive.
+MapControls' 4 are the 2 keeps below, MapDetails' 13 are its 5 keeps plus the 4
+`.fdProximity` declarations nothing can measure. RestaurantList is at 0.
+
 ### The decision, already made: delete, do not resurrect
 
 A dead declaration is evidence of an **older design**, not a bug in the current

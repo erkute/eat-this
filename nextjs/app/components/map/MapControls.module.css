@@ -23,8 +23,15 @@
  * gap flipped 8px → 10px, because `@media (max-width: 520px)` sits BEFORE the
  * media-less block and loses the tie until something moves it.
  *
- * The safety net is MapControls.cascade.test.ts, which asserts EFFECTIVE values
- * rather than any single block. Add a case there when you add a trap.
+ * The safety net is mapCascade.test.ts, which asserts EFFECTIVE values rather
+ * than any single block. Add a case there when you add a trap.
+ *
+ * `node scripts/audit-css-cascade.mjs app/components/map/MapControls.module.css`
+ * lists declarations a later rule voids. It reports per CLASS, so a grouped
+ * declaration shows up as dead as soon as it is dead for one of its classes —
+ * only remove one when it is dead for ALL of them. Two here are not, and both
+ * are pinned in the test: the drop-shadow shared with `.panelToggle`, and the
+ * 2px hover lift that only `.mapSearchBtn` overrides.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
@@ -191,12 +198,6 @@
 }
 
 @media (min-width: 1024px) {
-  .mapSearchToolbar {
-    /* Desktop: no floating burger in top-right corner — toolbar can
-       stretch freely. Use auto right so width governs the extent. */
-    height: 38px;
-    padding: 0 14px;
-  }
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger {
@@ -212,17 +213,12 @@
 @media (min-width: 1024px) {
   .mapSearchBtn {
     top: calc(14px + env(safe-area-inset-top, 0px));
-    right: 14px;
-    left: auto;
   }
   .mapBurger {
-    top: calc(52px + env(safe-area-inset-top, 0px));
     left: auto;
   }
   .mapSearchToolbar {
     top: calc(14px + env(safe-area-inset-top, 0px));
-    right: 14px;
-    left: auto;
   }
 }
 
@@ -293,12 +289,6 @@
   stroke: currentColor;
 }
 
-@media (min-width: 1024px) {
-  .mapSearchToolbar {
-    width: 320px;
-  }
-}
-
 .mapSearchIcon,
 .mapSearchInput,
 .mapSearchClear,
@@ -334,14 +324,6 @@
   .mapBurger:hover {
     filter: none;
     text-shadow: none;
-  }
-}
-
-@media (hover: hover) {
-  .mapSearchBtn:hover,
-  .fab:hover,
-  .mapBurger:hover {
-    color: var(--brand-ink);
   }
 }
 
@@ -483,15 +465,7 @@
 }
 
 @media (max-width: 360px) {
-  .mapSearchBtn {
-    width: 50px;
-    min-width: 50px;
-    height: 50px;
-  }
-
   .mapSearchBtn .mapSearchIcon {
-    width: 25px;
-    height: 25px;
     flex-basis: 25px;
   }
 }
@@ -513,14 +487,7 @@
 
 @media (max-width: 520px) {
   .mapSearchToolbar {
-    gap: 10px;
     box-shadow: none;
-  }
-
-  .mapSearchClear {
-    width: 34px;
-    min-width: 34px;
-    height: 34px;
   }
 }
 
@@ -806,7 +773,6 @@
   .mapStatusLayerError {
     bottom: 24px;
     left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
-    width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px));
   }
 }
 

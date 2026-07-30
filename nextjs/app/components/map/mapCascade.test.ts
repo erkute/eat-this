@@ -133,6 +133,46 @@ describe('MapControls cascade', () => {
     ).toBe(1);
   });
 
+  it('keeps the panel disclosure on its drop-shadow', () => {
+    /* `filter: drop-shadow(...)` is declared once for four controls at a time:
+     * `.mapSearchBtn, .mapBurger, .fab, .panelToggle`. The later `filter: none`
+     * resets cover only the first three, so scripts/audit-css-cascade.mjs
+     * reports that declaration as dead — three times, once per overridden
+     * class. It is not dead: `.panelToggle` has no other `filter` anywhere in
+     * the file, so removing it takes the shadow off the desktop panel handle.
+     *
+     * This is the trap that sinks a bulk prune: a grouped declaration is only
+     * removable when it is dead for EVERY class its selector list produces.
+     */
+    const filter = effective(CONTROLS, 'panelToggle', 'filter');
+    expect(filter, '.panelToggle has no effective filter').toBeDefined();
+    expect(
+      filter!.includes('drop-shadow'),
+      `.panelToggle lost its shadow — effective filter is "${filter}"`
+    ).toBe(true);
+  });
+
+  it('keeps the hover lift on the controls that are not overridden later', () => {
+    /* Same shape as the case above, in the other direction. One
+     * `@media (hover: hover)` rule lifts `.mapSearchBtn`, `.mapBurger` and
+     * `.fab` by 2px; a later media-less rule re-declares the lift as 1px for
+     * `.mapSearchBtn` ONLY. So the 2px is dead for the search button and live
+     * for the other two, and the audit — which reports per class — flags it
+     * under `.mapSearchBtn`.
+     *
+     * Verified on the real elements with CDP-forced `:hover`: burger and FAB
+     * compute translateY(-2px), the search button translateY(-1px). Note that
+     * these transitions run 240ms, so a computed style read one frame after
+     * the state change still returns the OLD value.
+     */
+    for (const control of ['mapBurger', 'fab']) {
+      expect(
+        effective(CONTROLS, control, 'transform', '(hover: hover)'),
+        `.${control} lost its hover lift — it is not covered by the later 1px override`
+      ).toBe('translateY(-2px)');
+    }
+  });
+
   it('does not let the status toast overlap the locate FAB on phones', () => {
     // Both are positioned off the sheet's top edge. The toast used to land on
     // the exact band the FAB occupies, at z-index 120 over 6 — hiding and

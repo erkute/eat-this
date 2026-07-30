@@ -37,10 +37,35 @@ status toasts. Diff two same-code runs to get that noise floor, pass it as
 
 A declaration is removable only when it is dead for **every class its selector
 list produces**. The audit reports per class, so a grouped declaration reads as
-dead as soon as it is dead for one of them. Two live declarations in
-`MapControls.module.css` are flagged for exactly that reason and are pinned in
-`mapCascade.test.ts` — the `drop-shadow` shared with `.panelToggle`, and the 2px
-hover lift that only `.mapSearchBtn` overrides.
+dead as soon as it is dead for one of them.
+
+`triage.mjs` answers that question mechanically and is the authority on what may
+go:
+
+```bash
+node nextjs/scripts/cascade/triage.mjs app/components/map/MapDetails.module.css
+```
+
+It splits the audit's findings into REMOVABLE (dead for every class **and**
+context) and KEEP, printing which class each survivor is still live for. It
+reproduces the hand triage of MapControls (19 removable, 2 keep) and
+RestaurantList (19, 0) exactly, and found 5 keeps in MapDetails' 104 findings.
+
+`prune.mjs` applies that verdict — declarations out, then rules and at-rules
+left empty out too — and refuses nothing on its own:
+
+```bash
+node nextjs/scripts/cascade/prune.mjs <module.css> [--exclude-class=a,b] [--write]
+```
+
+`--exclude-class` is how you honour the coverage rule: a class the sweep cannot
+render (`fdProximity` only exists while a must-eat is still covered, which no
+anon session reaches locally) is excluded, and its declarations stay. A rule that
+would be emptied while still holding a **comment** is reported separately, since
+the reasoning in a comment can outlive the declaration.
+
+Every survivor is pinned in `mapCascade.test.ts`, and every pin there has been
+mutation-tested — deleted the declaration, watched the test fail, restored it.
 
 ## Probes
 
@@ -78,6 +103,22 @@ delete what the diff does not cover.
 
 One sweep per module, because the property list and the probes are
 module-specific: `sweep-controls.js` (MapControls), `sweep-filters.js`
-(MapFilters), `sweep-list.js` (RestaurantList). Copy the closest one for the
-next module, swap `PREFIX`, regenerate `PROPS` from the stylesheet, and set
-`WIDTHS` to both sides of every breakpoint the file actually uses.
+(MapFilters), `sweep-list.js` (RestaurantList), `sweep-details.js` (MapDetails).
+Copy the closest one for the next module, swap `PREFIX`, regenerate `PROPS` from
+the stylesheet, and set the viewports to both sides of every breakpoint the file
+actually uses — **including height**, if it has `max-height`/`min-height` rules
+the way MapDetails does.
+
+Two more things MapDetails needed that the others did not, and the next big
+module probably will too:
+
+- **Scenarios instead of probes.** Half that module only exists in the must-eat
+  sheet and half only in the restaurant sheet. Rendering both for real
+  (`?r=<slug>` / `?me=<id>`) beats hand-built probes, because the findings there
+  are `height` / `max-height` / `grid-template-rows` — geometry a stub would get
+  wrong. Probes are for a modifier class, not for half a component.
+- **Joined cells.** 94 property names repeated per class per state per viewport
+  makes the payload too large to hand back through CDP. `sweep-details.js`
+  stores U+0001-joined value lists and `diff-details.mjs` maps an index back to
+  a name via `props-details.json`. `selftest-diff.mjs` proves that diff can
+  still fail.

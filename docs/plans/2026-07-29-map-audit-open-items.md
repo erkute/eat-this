@@ -4,8 +4,9 @@ Working document for the mobile-Safari audit of `/map` that started 2026-07-28.
 **Rewritten 2026-07-29** after everything below the line shipped: the resolved
 items are compressed to one line each, the reasoning that is still load-bearing
 was kept, and the rest was deleted. **Updated 2026-07-30**: the MapControls
-measurement contradiction in section 3 is resolved, MapControls is pruned, and
-the harness now lives in `nextjs/scripts/cascade/`.
+measurement contradiction in section 3 is resolved, all four modules are pruned,
+and the harness now lives in `nextjs/scripts/cascade/`. The cascade sweep is
+finished — section 3 is history now, not a task list.
 
 Everything here is either open work or a decision you would otherwise re-derive.
 
@@ -94,7 +95,7 @@ node scripts/audit-css-cascade.mjs app/components/map/MapDetails.module.css
 | `MapFilters`     | 118      | **done** (#321) — 83 deleted; **re-verified 2026-07-30**, 0 diff in 393 120 cells |
 | `MapControls`    | 26       | **done 2026-07-30** — 19 deleted, 0 diff in 223 560 cells; 7 kept, see below      |
 | `RestaurantList` | 19       | **done 2026-07-30** — all 19 deleted, 0 diff in 579 360 cells                     |
-| `MapDetails`     | 104      | open — the last one                                                               |
+| `MapDetails`     | 104      | **done 2026-07-30** — 90 deleted, 0 diff in 622 548 cells; 5 kept, 4 unmeasurable |
 
 The harness is now in the repo: `nextjs/scripts/cascade/` (sweep + hover pass +
 diff + a README that is mostly a list of ways the measurement lies). It does not
@@ -144,7 +145,40 @@ of MapControls' 19 removals was only justifiable that way. And
 `getComputedStyle(el)` says nothing about `::before`/`::after`; the sweep now
 takes both (skipping `content: none`, or every class collects a screenful of
 empty rows). Without that, RestaurantList's dead `.rcard::after` gradient would
-have been deleted unmeasured. MapDetails has pseudo-element rules too.
+have been deleted unmeasured.
+
+And a step 6, from MapDetails — the module where all of this actually got
+tested: **the triage is a tool now, not a judgement call.**
+`scripts/cascade/triage.mjs` answers rule 3 mechanically, splitting the audit's
+findings into "dead for every class and context" and "keep, still live for X".
+It reproduces the MapControls (19 / 2) and RestaurantList (19 / 0) hand triage
+exactly, which is why its MapDetails verdict — 94 removable, **5 keeps** — was
+trustworthy enough to apply with `scripts/cascade/prune.mjs` instead of 90 hand
+edits. All 5 keeps are pinned in `mapCascade.test.ts` and mutation-tested.
+
+Three things MapDetails needed that no earlier module did:
+
+- **Both viewport axes.** It is the only map module with height-gated rules
+  (`max-height: 740px`, `min-height: 741px`,
+  `min-width: 1024px and max-height: 760px`), so a width-only sweep would have
+  measured nothing at all in six of its blocks.
+- **Scenarios instead of probes.** Half the module exists only in the must-eat
+  sheet, half only in the restaurant sheet, and 78 of the 104 findings sit on
+  must-eat classes. Those findings are `height` / `max-height` /
+  `grid-template-rows` — geometry a stub div gets wrong — so the sweep renders
+  both for real (`?r=crapulix`, a restaurant that HAS must-eats and therefore
+  mounts `rdMustSection` + the pack promo, and `?me=<id>`). Probes are for a
+  modifier class, not for half a component.
+- **Joined cells.** 94 property names repeated per class per state per viewport
+  is too large to hand back through CDP. Cells are U+0001-joined value lists;
+  `diff-details.mjs` maps an index to a name, and `selftest-diff.mjs` proves
+  that diff can still fail.
+
+**`.fdProximity` is the one thing left undeleted.** Its 4 dead declarations are
+real, but the class only renders while a must-eat is still _covered_
+(`!open` in `MustEatDetailMobile.tsx`) and every must-eat is revealed for anon
+sessions locally — so the sweep cannot reach it, so it stays. `--exclude-class`
+in `prune.mjs` is how that was enforced rather than remembered.
 
 ### ✅ RESOLVED 2026-07-30: the MapControls contradiction was the measurement
 

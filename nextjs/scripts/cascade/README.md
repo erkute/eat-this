@@ -70,6 +70,14 @@ version:
 
 ## Coverage
 
-The viewport sweep does not exercise pseudo-classes. `hover.js` covers
-`:hover`/`:focus-visible` via CDP `CSS.forcePseudoState`. Anything neither pass
-covers stays — do not delete what the diff does not cover.
+The viewport sweep does not exercise pseudo-**classes**: `hover.js` covers
+`:hover`/`:focus-visible` via CDP `CSS.forcePseudoState`. Pseudo-**elements** are
+in the sweep — `::before`/`::after` are measured alongside each element, skipping
+those whose `content` is `none`. Anything neither pass covers stays; do not
+delete what the diff does not cover.
+
+One sweep per module, because the property list and the probes are
+module-specific: `sweep-controls.js` (MapControls), `sweep-filters.js`
+(MapFilters), `sweep-list.js` (RestaurantList). Copy the closest one for the
+next module, swap `PREFIX`, regenerate `PROPS` from the stylesheet, and set
+`WIDTHS` to both sides of every breakpoint the file actually uses.

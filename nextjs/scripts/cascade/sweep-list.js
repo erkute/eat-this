@@ -1,112 +1,21 @@
-// Computed-style sweep: viewports x the 24 [data-map-body] states x every
-// class a CSS module ships, including the ones the live DOM never shows.
+// RestaurantList variant of sweep-controls.js — read that file's header first.
 //
-// HOW TO RUN — this needs a `page`, so it goes through the Playwright MCP:
-//   browser_run_code_unsafe { filename: "<repo>/nextjs/scripts/cascade/sweep-controls.js" }
-// then dump the result (the sweep parks it on window.__snaps):
-//   browser_evaluate { function: "() => JSON.stringify(window.__snaps)",
-//                      filename: ".playwright-mcp/cascade/snapshot-X.json" }
-// and diff two snapshots with diff.mjs. Run the dev server first.
+// This one also measures ::before and ::after. getComputedStyle(el) says nothing
+// about them, so without this pass RestaurantList's dead `.rcard::after`
+// gradient would have been deleted unmeasured. Pseudos whose `content` is
+// `none` are skipped, or every class collects a full set of empty rows.
 //
-// THE THREE WAYS THIS MEASUREMENT LIES — all three are guarded below, and all
-// three produced a "difference" that no CSS change caused:
-//
-//  1. Media queries re-match a frame LATE. After a resize, window.innerWidth
-//     and matchMedia() already report the new width while the style engine has
-//     not re-matched @media rules yet. A snapshot taken there carries the
-//     PREVIOUS width's values: that is how a 320px baseline recorded
-//     .mapStatusLayer at translateY(0) — the >=768px value — and made a prune
-//     that changed nothing look like it moved the toast 162px. Guarding on
-//     innerWidth/matchMedia is NOT enough; the double rAF is what fixes it.
-//
-//  2. Transitions. These controls transition transform for up to 280ms, so a
-//     computed style read right after a state change returns the interpolated
-//     START value — indistinguishable from "the rule did not apply".
-//
-//  3. Used values drift. top/bottom/left/right/inset on an absolutely
-//     positioned element resolve against the surrounding layout, so they
-//     differ between two runs of IDENTICAL code (measured: 160 cells, all
-//     bottom/inset on the two status toasts). Establish that noise floor by
-//     diffing two same-code runs before trusting any before/after diff.
-//
-// Only delete a declaration this sweep actually covers. Pseudo-class rules
-// (:hover, :focus-visible) are NOT covered here — see hover.js.
+// 26 of the 27 classes are live on /map, end-of-list fan included; only the
+// selected-card modifier needs a probe. Widths sit on both sides of every
+// breakpoint the module actually uses (380/420/600/1023.98/1024).
+
 async (page) => {
 
-  const WIDTHS = [320, 360, 400, 520, 600, 768, 1023, 1024, 1440];
-  const PREFIX = "MapControls_";
+  const WIDTHS = [320, 380, 400, 420, 600, 601, 768, 1023, 1024, 1440];
+  const PREFIX = "RestaurantList_";
 
   const HARNESS = ({ prefix }) => {
-    const PROPS = [
-      "-webkit-appearance",
-      "-webkit-backdrop-filter",
-      "-webkit-tap-highlight-color",
-      "align-items",
-      "animation",
-      "appearance",
-      "backdrop-filter",
-      "background",
-      "background-color",
-      "border",
-      "border-color",
-      "border-radius",
-      "bottom",
-      "box-shadow",
-      "box-sizing",
-      "caret-color",
-      "clip-path",
-      "color",
-      "content",
-      "cursor",
-      "display",
-      "fill",
-      "filter",
-      "flex",
-      "flex-basis",
-      "font",
-      "font-family",
-      "font-size",
-      "font-weight",
-      "gap",
-      "grid-template-columns",
-      "height",
-      "inset",
-      "justify-content",
-      "justify-self",
-      "left",
-      "letter-spacing",
-      "line-height",
-      "margin-inline",
-      "min-height",
-      "min-width",
-      "opacity",
-      "outline",
-      "outline-offset",
-      "overflow",
-      "padding",
-      "padding-left",
-      "place-items",
-      "pointer-events",
-      "position",
-      "right",
-      "stroke",
-      "stroke-linecap",
-      "stroke-linejoin",
-      "stroke-width",
-      "text-overflow",
-      "text-shadow",
-      "text-transform",
-      "top",
-      "touch-action",
-      "transform",
-      "transform-origin",
-      "transition",
-      "visibility",
-      "white-space",
-      "width",
-      "will-change",
-      "z-index",
-    ];
+    const PROPS = ["-webkit-backdrop-filter", "-webkit-tap-highlight-color", "align-content", "align-items", "appearance", "aspect-ratio", "backdrop-filter", "background", "background-color", "background-image", "background-position", "background-repeat", "background-size", "border", "border-bottom", "border-color", "border-radius", "bottom", "box-shadow", "color", "contain-intrinsic-size", "content", "content-visibility", "cursor", "display", "filter", "flex", "flex-direction", "flex-wrap", "font-family", "font-size", "font-weight", "gap", "grid-template-columns", "grid-template-rows", "height", "hyphens", "inset", "justify-content", "left", "letter-spacing", "line-height", "margin", "margin-bottom", "margin-top", "max-height", "max-width", "min-height", "min-width", "object-fit", "object-position", "opacity", "outline", "outline-offset", "overflow", "overflow-wrap", "padding", "pointer-events", "position", "right", "text-align", "text-decoration", "text-decoration-thickness", "text-overflow", "text-shadow", "text-transform", "text-underline-offset", "text-wrap", "top", "transform", "transform-origin", "transition", "visibility", "white-space", "width", "word-break", "z-index"];
     const body = document.querySelector("[data-map-body]");
     if (!body) return { error: "no [data-map-body]" };
 
@@ -135,50 +44,28 @@ async (page) => {
     document.querySelectorAll("[data-probe]").forEach((n) => n.remove());
     const mk = (tag, cls, text) => {
       const el = document.createElement(tag);
-      for (const c of cls) {
-        const h = local(c);
-        if (h) el.classList.add(h);
-      }
+      for (const c of cls) { const h = local(c); if (h) el.classList.add(h); }
       if (text != null) el.textContent = text;
       return el;
     };
-    const mount = (el) => {
-      el.setAttribute("data-probe", "");
-      body.appendChild(el);
-      return el;
-    };
-    const needProbe = (n) => {
-      const h = local(n);
-      return h && !document.querySelector("." + CSS.escape(h));
-    };
-    const statusProbe = (extra) => {
-      const el = mk("div", ["mapStatusLayer", ...extra]);
-      el.appendChild(
-        mk(
-          "span",
-          ["mapStatusText"],
-          "Standort konnte nicht ermittelt werden.",
-        ),
-      );
-      el.appendChild(mk("button", ["mapStatusAction"], "Nochmal"));
-      el.appendChild(mk("button", ["mapStatusDismiss"], "×"));
-      return mount(el);
-    };
-    if (needProbe("mapStatusLayer")) statusProbe([]);
-    if (needProbe("mapStatusLayerError")) statusProbe(["mapStatusLayerError"]);
-    if (needProbe("mapSearchToolbar")) {
-      const el = mk("div", ["mapSearchToolbar"]);
-      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      const icon = local("mapSearchIcon");
-      if (icon) svg.setAttribute("class", icon);
-      svg.setAttribute("viewBox", "0 0 24 24");
-      el.appendChild(svg);
-      const input = mk("input", ["mapSearchInput"]);
-      input.type = "search";
-      input.placeholder = "Spot, Kiez, Gericht";
-      el.appendChild(input);
-      el.appendChild(mk("button", ["mapSearchClear"], "×"));
-      mount(el);
+    // 26 of 27 classes are live on /map, fan included. Only the selected-card
+    // modifier needs a probe, and it has to sit in the list next to a real card
+    // so the :global([data-map-body]...) contexts and the grid resolve alike.
+    const cardCls = local("rcard");
+    const realCard = cardCls ? document.querySelector("." + CSS.escape(cardCls)) : null;
+    if (realCard && realCard.parentElement) {
+      const probe = mk("article", ["rcard", "rcardActive"]);
+      probe.setAttribute("data-probe", "");
+      const img = mk("div", ["rcardImg"]);
+      probe.appendChild(img);
+      const bodyEl = mk("div", ["rcardBody"]);
+      bodyEl.appendChild(mk("h3", ["rcardName"], "Romeo's Sandwiches"));
+      const meta = mk("div", ["rcardMeta"]);
+      meta.appendChild(mk("span", ["rcardMetaChip", "rcardMetaDistrict"], "Kreuzberg"));
+      meta.appendChild(mk("span", ["rcardMetaChip", "rcardMetaCategory"], "Fast Food"));
+      bodyEl.appendChild(meta);
+      probe.appendChild(bodyEl);
+      realCard.parentElement.appendChild(probe);
     }
 
     const targets = [];
@@ -234,8 +121,8 @@ async (page) => {
             for (const t of targets) {
               for (const pseudo of [null, "::before", "::after"]) {
                 const cs = getComputedStyle(t.el, pseudo);
-                // Skip a pseudo the class does not generate, or every class
-                // collects a full set of identical empty rows.
+                // Skip a pseudo the class does not generate at all, or every
+                // class picks up 77 identical `content: none` rows.
                 if (pseudo && cs.content === "none") continue;
                 const rec = {};
                 for (const p of PROPS) rec[p] = cs.getPropertyValue(p);

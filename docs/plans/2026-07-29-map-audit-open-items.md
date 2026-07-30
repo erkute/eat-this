@@ -93,8 +93,8 @@ node scripts/audit-css-cascade.mjs app/components/map/MapDetails.module.css
 | ---------------- | -------- | --------------------------------------------------------------------------------- |
 | `MapFilters`     | 118      | **done** (#321) — 83 deleted; **re-verified 2026-07-30**, 0 diff in 393 120 cells |
 | `MapControls`    | 26       | **done 2026-07-30** — 19 deleted, 0 diff in 223 560 cells; 7 kept, see below      |
-| `MapDetails`     | 104      | open                                                                              |
-| `RestaurantList` | 19       | open                                                                              |
+| `RestaurantList` | 19       | **done 2026-07-30** — all 19 deleted, 0 diff in 579 360 cells                     |
+| `MapDetails`     | 104      | open — the last one                                                               |
 
 The harness is now in the repo: `nextjs/scripts/cascade/` (sweep + hover pass +
 diff + a README that is mostly a list of ways the measurement lies). It does not
@@ -137,10 +137,14 @@ re-declared as 1px for `.mapSearchBtn` only, so it stays live for `.mapBurger`
 and `.fab`. Both are pinned in `mapCascade.test.ts`, and both fail that test when
 mutated.
 
-Add a step 5: **pseudo-classes need their own pass.** The viewport sweep never
-hovers anything, so a `:hover`-gated declaration is invisible to it. `hover.js`
-forces `:hover`/`:focus-visible` over CDP. One of MapControls' 19 removals was
-only justifiable that way.
+Add a step 5: **pseudo-classes and pseudo-elements need their own coverage.**
+The viewport sweep never hovers anything, so a `:hover`-gated declaration is
+invisible to it — `hover.js` forces `:hover`/`:focus-visible` over CDP, and one
+of MapControls' 19 removals was only justifiable that way. And
+`getComputedStyle(el)` says nothing about `::before`/`::after`; the sweep now
+takes both (skipping `content: none`, or every class collects a screenful of
+empty rows). Without that, RestaurantList's dead `.rcard::after` gradient would
+have been deleted unmeasured. MapDetails has pseudo-element rules too.
 
 ### ✅ RESOLVED 2026-07-30: the MapControls contradiction was the measurement
 

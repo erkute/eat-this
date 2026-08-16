@@ -619,19 +619,13 @@
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
     flex: none;
-    background: var(--brand-paper, #fff8ea);
   }
   .detailV13MustEat .fdHeroWrap {
     flex: 0 0 auto;
     margin: 0;
-    padding: clamp(14px, 2.4dvh, 24px) 0 clamp(8px, 1.3dvh, 14px);
   }
   .detailV13MustEat .fdCardStack {
-    height: var(--fd-card-h);
     max-height: 100%;
-  }
-  .detailV13MustEat .fdMid {
-    margin-top: clamp(24px, 4dvh, 34px);
   }
   .detailV13MustEat .fdRest {
     align-items: center;
@@ -640,7 +634,6 @@
   }
   .detailV13MustEat .ctaPill {
     width: auto;
-    max-width: 48%;
     align-self: center;
   }
 }
@@ -648,16 +641,6 @@
   .detailV13MustEat .detailV13Scroll {
     --fd-card-h: clamp(196px, 32dvh, 260px);
     --fd-title-size: clamp(28px, 8.2vw, 44px);
-  }
-
-  .detailV13MustEat .fdText {
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
-
-  .detailV13MustEat .fdPagerPrev,
-  .detailV13MustEat .fdPagerNext {
-    min-height: 42px;
   }
 }
 /* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal
@@ -872,7 +855,6 @@
      panel. The mobile composition clamps copy to keep the card/CTA/pager in
      one viewport, but on desktop that clips real dish descriptions. */
   .detailV13MustEat .detailV13Scroll {
-    grid-template-rows: auto auto auto auto;
     overflow-y: auto;
     padding-bottom: 20px;
   }
@@ -906,13 +888,11 @@
   }
 
   .detailV13MustEat .fdText {
-    display: block;
     width: 100%;
     max-width: 100%;
     min-width: 0;
     overflow-wrap: break-word;
     hyphens: auto;
-    -webkit-box-orient: initial;
   }
 
   /* Must-Eat detail shares the same readable, scrollable card system on
@@ -1013,11 +993,6 @@
    and long names sit close together — still bold, just harmonised. The
    per-name fit (--rd-name-max) still wins when it's smaller, so nothing clips.
    Mobile keeps the full 56px range (wider hero, no disparity there). */
-@media (min-width: 1024px) {
-  .rdNameOv {
-    font-size: clamp(24px, 12vw, min(var(--rd-name-max, 56px), 40px));
-  }
-}
 .rdTagsOv {
   display: flex;
   flex-wrap: wrap;
@@ -1054,17 +1029,8 @@
 }
 @media (min-width: 1024px) {
   .rdPager {
-    gap: 8px;
-    padding: 8px 13px;
     font-size: 10px;
     letter-spacing: 0.055em;
-  }
-  .rdPagerBtn {
-    gap: 4px;
-  }
-  .rdPagerArrow {
-    width: 16px;
-    height: 16px;
   }
 }
 .rdBody {
@@ -1440,9 +1406,6 @@
 }
 @media (hover: hover) {
   .rdActBtn:hover {
-    transform: translateY(-2px);
-    background: var(--brand-action);
-    color: var(--brand-paper);
     border-color: var(--brand-ink);
   }
 }
@@ -1497,20 +1460,12 @@
 }
 @media (max-width: 380px) {
   .rdActBtn {
-    min-height: 50px;
     padding-inline: 5px;
-    font-size: 15px;
-    letter-spacing: 0.025em;
   }
 
   .packPromo {
-    grid-template-columns: 58px minmax(0, 1fr);
     column-gap: 11px;
     padding-inline: 12px;
-  }
-
-  .packPromoSingleCard {
-    width: 54px;
   }
 }
 /* Restaurant detail facts: calmer rows with softer rhythm and lighter rules. */
@@ -1669,11 +1624,6 @@
 }
 .rdHero .rdHeartToggleCount {
   letter-spacing: 0;
-}
-@media (min-width: 1024px) {
-  .rdNameOv {
-    font-size: clamp(32px, 12vw, min(var(--rd-name-max, 60px), 50px));
-  }
 }
 .rdTag,
 .rdTagAlt {
@@ -2312,7 +2262,6 @@
     padding-left: 14px;
     padding-right: 42px;
     font-size: 10px;
-    letter-spacing: 0.035em;
   }
 
   .rdActBtn::after {
@@ -2962,11 +2911,6 @@
     grid-template-columns: 1fr;
     gap: 7px;
     padding: 14px 0;
-  }
-
-  .detailV13:not(.detailV13MustEat) .rdV,
-  .detailV13:not(.detailV13MustEat) .rdV a {
-    font-size: 15px;
   }
 }
 .detailV13:not(.detailV13MustEat) .rdPagerName {
@@ -3799,7 +3743,6 @@
     --me-card-h: min(calc(100% - var(--me-card-air)), 316px);
     --me-flow-gap: 16px;
     --me-content-gap: var(--me-flow-gap);
-    --me-rest-slot: clamp(108px, 13dvh, 116px);
     --me-footer-gap: var(--me-flow-gap);
     --me-pager-slot: clamp(50px, 6.8dvh, 56px);
     display: grid;
@@ -3835,25 +3778,18 @@
   .detailV13MustEat .fdMid {
     grid-row: 2;
     display: grid;
-    grid-template-rows: minmax(0, 2.42em) minmax(0, 5.12em);
     align-content: end;
-    row-gap: clamp(8px, 1dvh, 10px);
     height: var(--me-mid-slot);
     min-height: var(--me-mid-slot);
     max-height: var(--me-mid-slot);
     margin: 0;
     padding: 0;
-    overflow: visible;
   }
 
   .detailV13MustEat .fdName {
     display: flex;
     align-items: flex-end;
-    height: 2.42em;
-    min-height: 0;
-    max-height: 2.42em;
     padding-top: 0.08em;
-    overflow: visible;
     font-size: clamp(34px, 3.4vw, 44px);
     line-height: 1.14;
   }
@@ -3866,7 +3802,6 @@
   .detailV13MustEat .fdNameText {
     display: block;
     min-height: 1.05em;
-    overflow: visible;
     line-height: inherit;
   }
 
@@ -3961,15 +3896,11 @@
     --me-mid-slot: clamp(112px, 16dvh, 132px);
     --me-flow-gap: 14px;
     --me-content-gap: var(--me-flow-gap);
-    --me-rest-slot: clamp(96px, 12.8dvh, 104px);
     --me-footer-gap: var(--me-flow-gap);
     --me-pager-slot: 50px;
   }
 
   .detailV13MustEat .fdName {
-    height: clamp(38px, 5.3dvh, 48px);
-    min-height: clamp(38px, 5.3dvh, 48px);
-    max-height: clamp(38px, 5.3dvh, 48px);
     font-size: clamp(31px, 2.9vw, 38px);
     line-height: 1.18;
   }
@@ -4059,9 +3990,7 @@
   .detailV13MustEat .fdMid {
     grid-row: 2;
     display: grid;
-    grid-template-rows: minmax(0, 2.42em) minmax(0, 5.12em);
     align-content: end;
-    row-gap: clamp(8px, 1.1dvh, 10px);
     height: var(--me-mid-slot);
     min-height: var(--me-mid-slot);
     max-height: var(--me-mid-slot);
@@ -4075,10 +4004,6 @@
     line-height: 0.98;
     display: flex;
     align-items: flex-end;
-    height: 2.42em;
-    min-height: 0;
-    max-height: 2.42em;
-    overflow: visible;
   }
 
   .detailV13MustEat .fdNameLong {
@@ -4125,7 +4050,6 @@
   .detailV13MustEat .detailV13Scroll > .fdRestInline {
     display: grid;
     grid-row: 4;
-    align-items: center;
     height: var(--me-rest-slot);
     min-height: var(--me-rest-slot);
     max-height: var(--me-rest-slot);
@@ -4137,23 +4061,16 @@
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
     grid-column: 1;
-    justify-self: start;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
-    grid-column: 1;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 10px 44px;
-    justify-content: stretch;
     align-content: start;
     align-items: start;
-    justify-items: start;
     gap: 5px;
     min-width: 0;
     min-height: 0;
-    height: 59px;
-    max-height: 59px;
     padding: 0;
     overflow: hidden;
   }
@@ -4166,51 +4083,25 @@
     display: block;
     width: 100%;
     max-width: 100%;
-    height: 10px;
     margin: 0;
     place-self: start stretch;
     overflow: hidden;
-    font-family: var(
-      --et-font-mono,
-      var(--menu-mono),
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Consolas,
-      monospace
-    );
-    font-size: 10px;
-    font-weight: 850;
-    letter-spacing: 0.08em;
     line-height: 1;
     text-align: left;
     text-transform: uppercase;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-    display: -webkit-box;
     width: 100%;
     max-width: 100%;
     min-height: 0;
-    height: 44px;
-    max-height: 44px;
-    place-self: start stretch;
     overflow: hidden;
     font-family: var(--et-font-display, var(--font-providence), sans-serif);
-    font-weight: 500;
     letter-spacing: 0;
     text-align: left;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
-    grid-column: -2 / -1;
-    justify-self: end;
-    width: 104px;
-    min-width: 104px;
-    max-width: 104px;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdPager .fdPagerPrev,
@@ -4300,7 +4191,6 @@
   }
 
   .detailV13MustEat > .fdRestDock .fdV {
-    display: -webkit-box;
     width: 100%;
     max-width: 100%;
     min-height: 0;
@@ -4314,9 +4204,6 @@
     letter-spacing: 0;
     line-height: 1;
     text-align: left;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
   }
 
   .detailV13MustEat > .fdRestDock .ctaPill {
@@ -4380,12 +4267,6 @@
     --me-mid-slot: clamp(136px, 14dvh, 154px);
     padding-top: clamp(52px, 6dvh, 68px);
   }
-
-  .detailV13MustEat .fdName {
-    height: 2.42em;
-    min-height: 0;
-    max-height: 2.42em;
-  }
 }
 @media (max-width: 380px), (max-height: 740px) {
   .detailV13MustEat .detailV13Scroll {
@@ -4398,40 +4279,12 @@
     padding-bottom: 14px;
   }
 
-  .detailV13MustEat .fdMid {
-    grid-template-rows: minmax(0, 2.32em) minmax(0, 4.2em);
-    row-gap: 7px;
-  }
-
-  .detailV13MustEat .fdName {
-    height: 2.32em;
-    min-height: 0;
-    max-height: 2.32em;
-  }
-
   .detailV13MustEat .fdText,
   .detailV13MustEat .fdProximitySub {
     font-size: clamp(13px, 3.5vw, 15px);
     line-height: 1.2;
     -webkit-line-clamp: 3;
     line-clamp: 3;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
-    grid-template-rows: 10px 38px;
-    height: 53px;
-    max-height: 53px;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-    height: 38px;
-    max-height: 38px;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
-    width: 96px;
-    min-width: 96px;
-    max-width: 96px;
   }
 }
 /* Must Eat detail final stack: build upward from the fixed bottom controls.

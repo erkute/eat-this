@@ -28,6 +28,7 @@ import { describe, expect, it } from 'vitest';
 
 const CONTROLS = 'MapControls.module.css';
 const FILTERS = 'MapFilters.module.css';
+const DETAILS = 'MapDetails.module.css';
 
 function cssRoot(moduleName: string) {
   return postcss.parse(
@@ -133,6 +134,46 @@ describe('MapControls cascade', () => {
     ).toBe(1);
   });
 
+  it('keeps the panel disclosure on its drop-shadow', () => {
+    /* `filter: drop-shadow(...)` is declared once for four controls at a time:
+     * `.mapSearchBtn, .mapBurger, .fab, .panelToggle`. The later `filter: none`
+     * resets cover only the first three, so scripts/audit-css-cascade.mjs
+     * reports that declaration as dead — three times, once per overridden
+     * class. It is not dead: `.panelToggle` has no other `filter` anywhere in
+     * the file, so removing it takes the shadow off the desktop panel handle.
+     *
+     * This is the trap that sinks a bulk prune: a grouped declaration is only
+     * removable when it is dead for EVERY class its selector list produces.
+     */
+    const filter = effective(CONTROLS, 'panelToggle', 'filter');
+    expect(filter, '.panelToggle has no effective filter').toBeDefined();
+    expect(
+      filter!.includes('drop-shadow'),
+      `.panelToggle lost its shadow — effective filter is "${filter}"`
+    ).toBe(true);
+  });
+
+  it('keeps the hover lift on the controls that are not overridden later', () => {
+    /* Same shape as the case above, in the other direction. One
+     * `@media (hover: hover)` rule lifts `.mapSearchBtn`, `.mapBurger` and
+     * `.fab` by 2px; a later media-less rule re-declares the lift as 1px for
+     * `.mapSearchBtn` ONLY. So the 2px is dead for the search button and live
+     * for the other two, and the audit — which reports per class — flags it
+     * under `.mapSearchBtn`.
+     *
+     * Verified on the real elements with CDP-forced `:hover`: burger and FAB
+     * compute translateY(-2px), the search button translateY(-1px). Note that
+     * these transitions run 240ms, so a computed style read one frame after
+     * the state change still returns the OLD value.
+     */
+    for (const control of ['mapBurger', 'fab']) {
+      expect(
+        effective(CONTROLS, control, 'transform', '(hover: hover)'),
+        `.${control} lost its hover lift — it is not covered by the later 1px override`
+      ).toBe('translateY(-2px)');
+    }
+  });
+
   it('does not let the status toast overlap the locate FAB on phones', () => {
     // Both are positioned off the sheet's top edge. The toast used to land on
     // the exact band the FAB occupies, at z-index 120 over 6 — hiding and
@@ -146,6 +187,90 @@ describe('MapControls cascade', () => {
     // sheet + breathing room; 70px is what the stylesheet reserves.
     expect(toastShift).toContain('70px');
   });
+});
+
+/**
+ * Does the rule that declares `prop: <value containing fragment>` still carry a
+ * selector for `className`?
+ *
+ * For a declaration shared by several classes, `effective()` above is the wrong
+ * instrument: it ignores selector context, so for `.rdActBtn { border }` it
+ * reports the `0` from an unrelated context rather than the grouped `2px solid`
+ * that actually paints the button. What needs pinning for those is structural —
+ * the grouped declaration must keep serving the class that has no other source
+ * for it.
+ */
+function groupedDeclarationServes(
+  moduleName: string,
+  prop: string,
+  valueFragment: string,
+  className: string
+): boolean {
+  let serves = false;
+  cssRoot(moduleName).walkDecls(prop, (decl) => {
+    if (!decl.value.includes(valueFragment)) return;
+    const rule = decl.parent;
+    if (!rule || rule.type !== 'rule') return;
+    if (
+      'selectors' in rule &&
+      rule.selectors.some((sel) => new RegExp(`\\.${className}(?![\\w-])`).test(sel))
+    ) {
+      serves = true;
+    }
+  });
+  return serves;
+}
+
+describe('MapDetails cascade', () => {
+  /* Five declarations in this file are reported dead by
+   * scripts/audit-css-cascade.mjs and are NOT: each is shared by several
+   * classes and only overridden later for some of them. A bulk prune deletes
+   * all five. Each case below names the class that has no other source for the
+   * value, which is what makes the declaration load-bearing.
+   *
+   * scripts/cascade/triage.mjs is the tool that tells these apart — it asks
+   * whether a declaration is dead for EVERY class and context its rule
+   * produces, which is the question the audit does not answer.
+   */
+  const KEEPS: Array<[prop: string, fragment: string, className: string, why: string]> = [
+    [
+      'filter',
+      'drop-shadow(0 6px 5px',
+      'rdHeartToggle',
+      'the reset after it only covers .rdCloseGlass',
+    ],
+    [
+      'border',
+      '1.5px solid var(--brand-ink)',
+      'btnPrimary',
+      'overridden later only for .btnPackPromo',
+    ],
+    ['border', '2px solid #15120e', 'rdActBtn', 'overridden later only for .btnPackPromo'],
+    // .fdClose is deliberately NOT pinned here: it declares its own width
+    // earlier in the file, so the grouped one is not its only source.
+    ['width', '36px', 'rdCloseGlass', 'only .rdHeartToggle gets a later width in that context'],
+    [
+      'background',
+      '#fff',
+      'rdPager',
+      'the later transparent only covers .rdFacts and .rdMustSection',
+    ],
+    [
+      'background',
+      '#fff',
+      'packPromo',
+      'the later transparent only covers .rdFacts and .rdMustSection',
+    ],
+  ];
+
+  for (const [prop, fragment, className, why] of KEEPS) {
+    it(`keeps ${prop}: ${fragment} serving .${className}`, () => {
+      expect(
+        groupedDeclarationServes(DETAILS, prop, fragment, className),
+        `.${className} lost "${prop}: ${fragment}" — ${why}, so removing it changes how .${className} renders`
+      ).toBe(true);
+    });
+  }
 });
 
 describe('MapFilters cascade', () => {

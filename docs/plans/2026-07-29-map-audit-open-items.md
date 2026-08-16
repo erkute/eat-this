@@ -3,7 +3,10 @@
 Working document for the mobile-Safari audit of `/map` that started 2026-07-28.
 **Rewritten 2026-07-29** after everything below the line shipped: the resolved
 items are compressed to one line each, the reasoning that is still load-bearing
-was kept, and the rest was deleted.
+was kept, and the rest was deleted. **Updated 2026-07-30**: the MapControls
+measurement contradiction in section 3 is resolved, all four modules are pruned,
+and the harness now lives in `nextjs/scripts/cascade/`. The cascade sweep is
+finished — section 3 is history now, not a task list.
 
 Everything here is either open work or a decision you would otherwise re-derive.
 
@@ -87,12 +90,25 @@ voids. Validated: it independently rediscovers `.mapSearchToolbar { gap }`
 node scripts/audit-css-cascade.mjs app/components/map/MapDetails.module.css
 ```
 
-| module           | findings | status                                                     |
-| ---------------- | -------- | ---------------------------------------------------------- |
-| `MapFilters`     | 118      | **done** — 83 declarations deleted, 0 diff in 10 725 cells |
-| `MapDetails`     | 104      | open                                                       |
-| `MapControls`    | 26       | open — **and it bit, see below**                           |
-| `RestaurantList` | 19       | open                                                       |
+| module           | findings | status                                                                            |
+| ---------------- | -------- | --------------------------------------------------------------------------------- |
+| `MapFilters`     | 118      | **done** (#321) — 83 deleted; **re-verified 2026-07-30**, 0 diff in 393 120 cells |
+| `MapControls`    | 26       | **done 2026-07-30** — 19 deleted, 0 diff in 223 560 cells; 7 kept, see below      |
+| `RestaurantList` | 19       | **done 2026-07-30** — all 19 deleted, 0 diff in 579 360 cells                     |
+| `MapDetails`     | 104      | **done 2026-07-30** — 90 deleted, 0 diff in 622 548 cells; 5 kept, 4 unmeasurable |
+
+The harness is now in the repo: `nextjs/scripts/cascade/` (sweep + hover pass +
+diff + a README that is mostly a list of ways the measurement lies). It does not
+need rebuilding, and rebuilding it from scratch is how the contradiction below
+happened.
+
+**The audit still reports findings on three of these modules, and that is the
+finished state, not leftovers.** Run `triage.mjs` before believing otherwise:
+MapFilters' 10 remaining findings are 4 declarations that are all dead in one
+context and live in another (`.filterChipRow > .filterChip` vs
+`.filterChipWrap .filterChip`) — **0 removable**, so #321 was exhaustive.
+MapControls' 4 are the 2 keeps below, MapDetails' 13 are its 5 keeps plus the 4
+`.fdProximity` declarations nothing can measure. RestaurantList is at 0.
 
 ### The decision, already made: delete, do not resurrect
 
@@ -120,34 +136,100 @@ small-phone _and_ desktop rendering in dozens of places at once.
    attempt got wrong.**
 4. **Diff must be 0.** Then pin what matters in `mapCascade.test.ts`.
 
-A one-off pruner implementing 3 lives in the session scratchpad, not in the
-repo — it is too sharp to leave lying around. Rebuild it from
-`audit-css-cascade.mjs`; the logic is the same minus the reporting.
+Rule 3 is not theoretical: it saved two live declarations in MapControls. The
+audit reports per _class_, so a grouped declaration reads as dead the moment it
+is dead for one of them. `filter: drop-shadow(...)` is declared for
+`.mapSearchBtn, .mapBurger, .fab, .panelToggle` at once and reset for the first
+three — `.panelToggle` has no other `filter` in the file, so deleting it takes
+the shadow off the desktop panel handle. The 2px `@media (hover: hover)` lift is
+re-declared as 1px for `.mapSearchBtn` only, so it stays live for `.mapBurger`
+and `.fab`. Both are pinned in `mapCascade.test.ts`, and both fail that test when
+mutated.
 
-### ⚠ MapControls: the net caught something — resolve this first
+Add a step 5: **pseudo-classes and pseudo-elements need their own coverage.**
+The viewport sweep never hovers anything, so a `:hover`-gated declaration is
+invisible to it — `hover.js` forces `:hover`/`:focus-visible` over CDP, and one
+of MapControls' 19 removals was only justifiable that way. And
+`getComputedStyle(el)` says nothing about `::before`/`::after`; the sweep now
+takes both (skipping `content: none`, or every class collects a screenful of
+empty rows). Without that, RestaurantList's dead `.rcard::after` gradient would
+have been deleted unmeasured.
 
-A bulk prune of MapControls' 19 removable declarations produced **24
-computed-style differences at 320 px**: `.mapStatusLayer` and
-`.mapStatusLayerError` moved from `translateY(0)` to `translateY(-162px)` /
-`-130px`, across every one of the 24 states.
+And a step 6, from MapDetails — the module where all of this actually got
+tested: **the triage is a tool now, not a judgement call.**
+`scripts/cascade/triage.mjs` answers rule 3 mechanically, splitting the audit's
+findings into "dead for every class and context" and "keep, still live for X".
+It reproduces the MapControls (19 / 2) and RestaurantList (19 / 0) hand triage
+exactly, which is why its MapDetails verdict — 94 removable, **5 keeps** — was
+trustworthy enough to apply with `scripts/cascade/prune.mjs` instead of 90 hand
+edits. All 5 keeps are pinned in `mapCascade.test.ts` and mutation-tested.
 
-Reverted immediately, unresolved. Two candidate explanations, and it matters
-which:
+Three things MapDetails needed that no earlier module did:
 
-- **A real cascade change** the pruner caused. None of the 19 removals touches
-  `transform`, so this would have to be an ordering or empty-rule-cleanup
-  effect — worth understanding before trusting the pruner on MapDetails.
-- **A measurement artefact.** The _after_ value is what the stylesheet says
-  should apply at 320 px (the phone block at ~861 sets
-  `translate(-50%, calc(-100% - 70px))` and sits after the media-less
-  `translateX(-50%)` at ~791). So the suspicious number is the **baseline**,
-  which suggests the 320 px baseline was captured before the browser
-  re-evaluated media queries after `resize_window`.
+- **Both viewport axes.** It is the only map module with height-gated rules
+  (`max-height: 740px`, `min-height: 741px`,
+  `min-width: 1024px and max-height: 760px`), so a width-only sweep would have
+  measured nothing at all in six of its blocks.
+- **Scenarios instead of probes.** Half the module exists only in the must-eat
+  sheet, half only in the restaurant sheet, and 78 of the 104 findings sit on
+  must-eat classes. Those findings are `height` / `max-height` /
+  `grid-template-rows` — geometry a stub div gets wrong — so the sweep renders
+  both for real (`?r=crapulix`, a restaurant that HAS must-eats and therefore
+  mounts `rdMustSection` + the pack promo, and `?me=<id>`). Probes are for a
+  modifier class, not for half a component.
+- **Joined cells.** 94 property names repeated per class per state per viewport
+  is too large to hand back through CDP. Cells are U+0001-joined value lists;
+  `diff-details.mjs` maps an index to a name, and `selftest-diff.mjs` proves
+  that diff can still fail.
 
-Settle it by re-capturing the MapControls baseline with a settle delay after
-each resize, and by verifying the baseline value against the stylesheet before
-trusting it. **Do not prune MapDetails until this is understood** — the same
-harness produced the MapFilters result and its credibility rests on this.
+**`.fdProximity` is the one thing left undeleted.** Its 4 dead declarations are
+real, but the class only renders while a must-eat is still _covered_
+(`!open` in `MustEatDetailMobile.tsx`) and every must-eat is revealed for anon
+sessions locally — so the sweep cannot reach it, so it stays. `--exclude-class`
+in `prune.mjs` is how that was enforced rather than remembered.
+
+### ✅ RESOLVED 2026-07-30: the MapControls contradiction was the measurement
+
+**Candidate B, confirmed, with the mechanism reproduced.** At a settled 320 px
+the two toasts read `translateY(-166.08px)` / `-130px` — exactly
+`-100% - 70px` against each probe's own height (96 px and 60 px; the earlier
+`-162` was a 92 px probe). `translateY(0)` is the **≥768 px** value and cannot
+occur at a settled 320 px in any of the 24 states, so the _baseline_ was the
+broken side. The old "24 differences" number matches exactly: at 320 px only 12
+of the 24 states show the toast at all (phone + detail is `display: none`), and
+12 states × 2 classes = 24 cells.
+
+Reproduced directly — resize to 320 px, measure with no settle:
+
+| step           | innerWidth | phone MQ | transform                   |
+| -------------- | ---------- | -------- | --------------------------- |
+| settled 1440   | 1440       | false    | `matrix(…, -180, 0)`        |
+| 320 imme­diate | **320**    | **true** | `matrix(…, -144, 0)`        |
+| 320 settled    | 320        | true     | `matrix(…, -144, -166.078)` |
+
+The sting is the middle row: `innerWidth` was already 320 and
+`matchMedia('(max-width: 767.98px)')` already `true`, and even the X translate
+had re-resolved against the new box — while the phone block's `transform` had
+not been applied. **The style engine re-matches `@media` rules a frame after the
+matchMedia API reports the change**, so a guard on `innerWidth`/`matchMedia`
+still accepts the bad snapshot. Only waiting a frame or two fixes it.
+
+Two more ways the same harness lies, both found the same way and both now
+guarded:
+
+- **Transitions.** These controls transition `transform` for up to 280 ms, so a
+  read one frame after a state change returns the interpolated _start_ value.
+  This made `.mapBurger:hover` look like it had lost its 2px lift — i.e. it
+  invites deleting a live declaration. CDP's own matched-rules list settled it.
+- **Used-value drift.** `top/bottom/left/right/inset` on an absolutely
+  positioned element resolve against the surrounding layout and differ between
+  two runs of _identical_ code: 160 of 198 720 cells, all `bottom`/`inset` on
+  the two toasts, ~12 px. Diff two same-code runs first and subtract that floor.
+
+Consequences: the pruner was never wrong, and **MapFilters (#321) was
+re-verified** from its pre-merge stylesheet with the hardened harness — 0
+differences in 393 120 cells, this time with all 15 DOM-absent classes probed
+and the filter picker mounted on `document.body` where it actually portals.
 
 ---
 
@@ -221,9 +303,14 @@ observer. Screenshot first to front the pane, then measure.
 
 ## 6. Not code — waiting on a human
 
-- **Publish the Sanity draft** for restaurant
-  `5310ecbd-4c43-43ab-ba69-a805c983550a`: `"Kolo Coffee "` → `"Kolo Coffee"`.
-  Corrected in the draft 2026-07-29, not published.
+- ~~**Publish the Sanity draft** for restaurant
+  `5310ecbd-4c43-43ab-ba69-a805c983550a`: `"Kolo Coffee "` → `"Kolo Coffee"`.~~
+  **Published 2026-07-30.** The draft was byte-identical to the published
+  document apart from that one trailing space, so nothing else rode along with
+  it. Whether other restaurant names still carry stray whitespace is **not
+  checked** — `string::trim` does not exist in this dataset's GROQ version and
+  `name match "* "` tokenises, so it matches everything and proves nothing. If
+  it matters, trim on import rather than sweeping the dataset by hand.
 - **`git config core.hooksPath .githooks`** on your other machines. Set on this
   one. Without it git runs the un-patched copy in `.git/hooks/` and skips the
   build on the first push of every new branch.

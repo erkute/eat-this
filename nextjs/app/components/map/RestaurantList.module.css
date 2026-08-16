@@ -104,47 +104,13 @@
   }
 }
 @media (max-width: 600px) {
-  .listEnd {
-    padding: 18px 16px 18px;
-    gap: 8px;
-  }
-  .listEndTitle {
-    font-size: 30px;
-    max-width: 13ch;
-  }
-  .listEndFan {
-    width: min(100%, 286px);
-    height: 112px;
-    margin: 0 0 14px;
-  }
   .listEndPack {
     width: 52px;
     height: 78px;
     bottom: 10px;
   }
-  .listEndPackOne {
-    transform: translateX(-118px) translateY(6px) rotate(-22deg);
-  }
-  .listEndPackTwo {
-    transform: translateX(-80px) translateY(2px) rotate(-14deg);
-  }
-  .listEndPackThree {
-    transform: translateX(-44px) translateY(0) rotate(-6deg);
-  }
-  .listEndPackFour {
-    transform: translateX(-7px) translateY(-1px) rotate(2deg);
-  }
-  .listEndPackFive {
-    transform: translateX(30px) translateY(1px) rotate(10deg);
-  }
-  .listEndPackSix {
-    transform: translateX(66px) translateY(5px) rotate(18deg);
-  }
   .listEndSub {
-    max-width: 27ch;
     margin-bottom: 10px;
-    font-size: 14px;
-    line-height: 1.07;
   }
 }
 .listEndCta {
@@ -180,12 +146,6 @@
 }
 .openPillClosed {
   border-color: var(--map-collage-ink);
-}
-@media (hover: hover) {
-  .listEndCta:hover {
-    background: var(--brand-action-deep);
-    color: var(--brand-paper);
-  }
 }
 .rcardSlot:nth-child(odd) .rcard {
   --rcard-tilt: -0.7deg;
@@ -265,7 +225,6 @@
   }
 }
 @media (max-width: 420px) {
-
   .rcard {
     min-height: 242px;
   }
@@ -352,12 +311,6 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.16) 0%,
-    rgba(0, 0, 0, 0.18) 38%,
-    rgba(0, 0, 0, 0.88) 100%
-  );
 }
 .rcardActive {
   outline: 4px solid #fff;
@@ -540,9 +493,6 @@
 .rcard {
   overflow: visible;
 }
-.rcard::after {
-  background: transparent;
-}
 .rcardImg {
   overflow: hidden;
 }
@@ -697,7 +647,6 @@
   text-transform: none;
 }
 @media (max-width: 1023.98px) {
-
   .listEnd {
     margin-bottom: 0;
   }

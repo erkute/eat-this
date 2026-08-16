@@ -303,9 +303,14 @@ observer. Screenshot first to front the pane, then measure.
 
 ## 6. Not code — waiting on a human
 
-- **Publish the Sanity draft** for restaurant
-  `5310ecbd-4c43-43ab-ba69-a805c983550a`: `"Kolo Coffee "` → `"Kolo Coffee"`.
-  Corrected in the draft 2026-07-29, not published.
+- ~~**Publish the Sanity draft** for restaurant
+  `5310ecbd-4c43-43ab-ba69-a805c983550a`: `"Kolo Coffee "` → `"Kolo Coffee"`.~~
+  **Published 2026-07-30.** The draft was byte-identical to the published
+  document apart from that one trailing space, so nothing else rode along with
+  it. Whether other restaurant names still carry stray whitespace is **not
+  checked** — `string::trim` does not exist in this dataset's GROQ version and
+  `name match "* "` tokenises, so it matches everything and proves nothing. If
+  it matters, trim on import rather than sweeping the dataset by hand.
 - **`git config core.hooksPath .githooks`** on your other machines. Set on this
   one. Without it git runs the un-patched copy in `.git/hooks/` and skips the
   build on the first push of every new branch.

@@ -20,17 +20,10 @@ export default function DistrictsList({ districts, locale }: Props) {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'By district' : 'Nach Bezirk'}
         </h2>
-        <Link href="/bezirk" className={`hv-link ${styles.allLink}`}>
-          {locale === 'en' ? 'All' : 'Alle'} →
-        </Link>
       </div>
       <div className={styles.rows}>
         {districts.map((d) => (
-          <Link
-            key={d.slug}
-            href={`/bezirk/${d.slug}`}
-            className={styles.row}
-          >
+          <Link key={d.slug} href={`/bezirk/${d.slug}`} className={styles.row}>
             <span className={styles.name}>{normalizeName(d.name)}</span>
             <span className="hv-sub">
               {d.count ?? 0} {locale === 'en' ? 'spots' : 'Spots'} →

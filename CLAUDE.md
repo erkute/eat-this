@@ -135,7 +135,11 @@ Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.ts
 
 2. **Mobile rubber-band flash.** `html` has an explicit `background-color` in `globals.css`, otherwise iOS Safari bounce exposes the browser default. Body bg is set too. If you change either, test rubber-band overscroll at top and bottom.
 
-   **The app is light-only.** There is no `prefers-color-scheme` rule anywhere in `globals.css` or `css/style.css`, so "theme-aware" backgrounds and testing "in both light and dark" (which this entry used to ask for) describe something that does not exist. The map hardcodes CartoDB Positron (`LIGHT_STYLE` in `MapCanvas.tsx`) to match. Adding a dark basemap alone would look broken — a dark map under a paper-white sheet — so dark mode is a whole-app decision, not a per-surface one.
+   **The app is light-only, and that is settled (2026-07-30) — dark mode is not coming.** Don't add a `prefers-color-scheme` block, a `data-theme` attribute or a `--dark-*` token, not even "just for this one surface". There is nothing to clean up either: no such rule, attribute, class or flag exists anywhere in `app/`, `css/` or `lib/`.
+
+   What does exist and **must stay** is `color-scheme: light` (twice in `globals.css`). That is not a leftover — it tells the browser the page is light so it stops applying its own dark heuristics to form controls and scrollbars. Removing it lets dark rendering back in sideways.
+
+   Consequences to keep in mind: "theme-aware" backgrounds and testing "in both light and dark" describe something that does not exist, and the map hardcodes CartoDB Positron (`LIGHT_STYLE` in `MapCanvas.tsx`) to match. Sizing, if it is ever re-litigated: 564 hardcoded hex values across 53 CSS files, 18 more in TSX, a dark basemap, and a paper-white sheet that no longer fits over it.
 
 3. **Restaurant + Bezirk EN pages are gated per document by `hasEnContent` (= non-empty `descriptionEn`, see `lib/i18n/pickLocale.ts`).** The schema HAS the EN fields and the enriched importer fills them — as of 2026-06 all restaurants and bezirke have EN content, so their EN canonicals/hreflang/sitemap alternates are live. The gate exists because Google previously flagged EN restaurant URLs without real translations as duplicates and chose its own canonical. If a future doc lacks `descriptionEn`, its EN URL correctly falls back to the DE canonical — don't bypass `hasEnContent`, fill the field instead.
 

@@ -13,21 +13,6 @@
   vertical-align: 0;
 }
 
-.allLink.allLink:global(.hv-link) {
-  display: inline-flex;
-  font-size: clamp(16px, 1.6vw, 22px);
-  line-height: 0.95;
-  transition:
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.allLink.allLink:global(.hv-link):hover,
-.allLink.allLink:global(.hv-link):focus-visible {
-  color: var(--et-home-red);
-  transform: translateX(4px);
-}
-
 .row {
   display: flex;
   justify-content: space-between;

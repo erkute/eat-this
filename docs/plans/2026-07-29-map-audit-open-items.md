@@ -29,6 +29,29 @@ Two of those carry reasoning worth keeping, below: the keyboard mechanism
 
 ---
 
+## Closed — dark mode is not coming
+
+**Decided 2026-07-30. The app is light-only, permanently.** This is not a
+backlog item any more; do not re-open it as a cleanup, and do not add a
+`prefers-color-scheme` block "just for this one surface".
+
+There was never anything to remove: no `prefers-color-scheme` rule, no
+`data-theme`, no `.dark` class, no `--dark-*` token, no `darkMode` flag exists
+anywhere in `app/`, `css/` or `lib/`. What does exist, and **must stay**, is
+`color-scheme: light` (twice in `globals.css`). That is the opposite of a
+leftover — it tells the browser the page is light so it stops applying its own
+dark heuristics to form controls and scrollbars. Deleting it would let dark-mode
+rendering back in through the side door, which is exactly what this decision
+rules out.
+
+What it would have cost, for the record: 564 hardcoded hex values across 53 CSS
+files (65 distinct), 18 more in TSX inline styles, a dark basemap (the map
+hardcodes CartoDB Positron, `LIGHT_STYLE` in `MapCanvas.tsx`), and a
+paper-white sheet that no longer fits over it. Its own project with its own
+design round — and the answer is no.
+
+---
+
 ## 1. Open — needs a device
 
 ### Standalone (Home Screen) status bar
@@ -59,15 +82,6 @@ Four pins overlap within ~70 px in Mitte; the rearmost cannot be tapped.
 Declined 2026-07-28 because count bubbles change how the map reads as a brand
 surface. **The open question is not whether but what a cluster looks like** — a
 design call, not a bug. Re-opened by the user 2026-07-29 and still unanswered.
-
-### Dark mode
-
-Re-opened 2026-07-29. Before anyone starts, the size of it: **564 hardcoded hex
-values across 53 CSS files** (65 distinct), plus 18 in TSX inline styles, plus a
-dark basemap (the map hardcodes CartoDB Positron, `LIGHT_STYLE` in
-`MapCanvas.tsx`), plus the paper-white sheet that then no longer fits. There is
-no `prefers-color-scheme` rule anywhere today. This is its own project with its
-own design round, not an item on a list.
 
 ### Flattening `MapControls.module.css`
 

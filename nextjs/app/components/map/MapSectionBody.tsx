@@ -42,6 +42,10 @@ const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>;
+  /* The sticky GL-canvas wrapper — MapSection hides it (and shows a frozen
+     snapshot) while the in-flow detail is open, so iOS Safari's bottom URL
+     bar samples the detail content instead of the composited GL layer. */
+  mapWrapRef: RefObject<HTMLDivElement | null>;
   handleRef: Ref<HTMLDivElement | null>;
   setHeaderRef: (el: HTMLDivElement | null) => void;
   setContentRef: (el: HTMLDivElement | null) => void;
@@ -141,6 +145,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     isActive,
     fontClassName,
     mapRef,
+    mapWrapRef,
     handleRef,
     setHeaderRef,
     setContentRef,
@@ -317,7 +322,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
           data-header-stuck={headerStuck ? 'true' : undefined}
         >
-          <div className={styles.mapWrap} data-map-canvas="">
+          <div className={styles.mapWrap} data-map-canvas="" ref={mapWrapRef}>
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer
                 mapRef={mapRef}

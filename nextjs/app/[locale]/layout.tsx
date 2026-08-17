@@ -22,7 +22,7 @@ const PROVIDENCE_BOLD_WOFF2 =
 const TYPEKIT_STYLESHEET = 'https://use.typekit.net/kgb1lmh.css';
 
 export function generateStaticParams() {
-  return routing.locales.map(locale => ({ locale }));
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
@@ -46,6 +46,20 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}
+  /* Reserve the consent bar's height BEFORE first paint. The bar is fixed to
+     the bottom and the map subtracts its height from the sheet, so learning
+     about it only after hydration moved the sheet, the FAB and the toast up
+     by 175px at once — CLS 0.108 on /map against a 0.10 budget. The answer is
+     in a cookie precisely so it can be read here, synchronously. The CSS
+     behind [data-consent='pending'] owns the number; CookieConsent clears the
+     attribute when the user answers. */
+  try{var cc=/(?:^|;\\s*)cookieConsent=(accepted|declined)/.test(document.cookie);
+  if(!cc){var lc=null;try{lc=localStorage.getItem('cookieConsent');}catch(_){}
+  /* localStorage is checked too, and only here: a user who answered before the
+     cookie shipped still has the old key, and CookieConsent migrates it after
+     hydration. Without this they would get the reserved gap and then lose it
+     again — the exact shift this reservation exists to prevent, once each. */
+  if(lc!=='accepted'&&lc!=='declined')document.documentElement.setAttribute('data-consent','pending');}}catch(_){}
   var fontCss=document.getElementById('et-adobe-fonts');
   if(fontCss){var applyFonts=function(){fontCss.media='all';};if(fontCss.sheet)applyFonts();else fontCss.addEventListener('load',applyFonts,{once:true});}
 }());`;
@@ -53,7 +67,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
 const GLOBAL_JSON_LD = {
   de: buildSiteJsonLd('de'),
   en: buildSiteJsonLd('en'),
-} as const
+} as const;
 
 export default async function LocaleLayout({
   children,
@@ -72,11 +86,28 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-active-page before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={dmSans.variable} suppressHydrationWarning>
+    <html
+      lang={locale}
+      data-scroll-behavior="smooth"
+      className={dmSans.variable}
+      suppressHydrationWarning
+    >
       <head suppressHydrationWarning>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
-        <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href={PROVIDENCE_BOLD_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link
+          rel="preload"
+          href={PROVIDENCE_REGULAR_WOFF2}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href={PROVIDENCE_BOLD_WOFF2}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         {/* The font files are critical and preloaded above; Adobe's CSS is not.
             Loading it with print media keeps the third-party stylesheet out of
             the render path. CRITICAL_BOOTSTRAP switches it on after it arrives. */}

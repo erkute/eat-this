@@ -6,6 +6,9 @@ describe('analytics consent gate', () => {
   beforeEach(() => {
     localStorage.clear()
     sessionStorage.clear()
+    // Consent lives in a cookie now (lib/consent.ts) so the pre-paint
+    // bootstrap can read it; the gate reads it from there.
+    document.cookie = 'cookieConsent=; Max-Age=0; Path=/'
     delete (window as Window & { gtag?: unknown }).gtag
     delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue
   })
@@ -16,7 +19,7 @@ describe('analytics consent gate', () => {
   })
 
   it('queues after consent and flushes when gtag loads', () => {
-    localStorage.setItem('cookieConsent', 'accepted')
+    document.cookie = 'cookieConsent=accepted; Path=/'
     trackEvent('map_opened', { tier: 'anon' })
 
     const gtag = vi.fn()
@@ -27,7 +30,7 @@ describe('analytics consent gate', () => {
   })
 
   it('deduplicates session-scoped events', () => {
-    localStorage.setItem('cookieConsent', 'accepted')
+    document.cookie = 'cookieConsent=accepted; Path=/'
     const gtag = vi.fn()
     ;(window as Window & { gtag?: typeof gtag }).gtag = gtag
 
@@ -38,7 +41,7 @@ describe('analytics consent gate', () => {
   })
 
   it('hands an event across a hard navigation', () => {
-    localStorage.setItem('cookieConsent', 'accepted')
+    document.cookie = 'cookieConsent=accepted; Path=/'
     handoffEvent('sign_up', { method: 'email_link' })
 
     const appendChild = vi.spyOn(document.head, 'appendChild')

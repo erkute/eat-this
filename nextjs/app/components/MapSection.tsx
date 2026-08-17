@@ -432,13 +432,16 @@ export default function MapSection({
             snapEl.setAttribute('aria-hidden', 'true');
             snapEl.style.cssText =
               'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible;pointer-events:none;';
-            /* Into the canvas-container, BEFORE the first marker, so the
-               frozen tiles paint under the live pins (same stacking context,
-               DOM order decides). */
+            /* As the FIRST child of the canvas-container, so the frozen tiles
+               paint UNDER every .maplibregl-marker (same stacking context —
+               DOM order decides). Must be first-child, not before-the-first-
+               marker: the snapshot fires the moment the map is ready, often
+               BEFORE the pins mount, so an insertBefore(firstMarker) fell back
+               to appendChild and buried the pins under the image (User: "die
+               pins sind nicht zurück"). Later-mounting markers append after
+               the image and stay on top. */
             const container = mapWrap.querySelector('.maplibregl-canvas-container') ?? mapWrap;
-            const firstMarker = container.querySelector('.maplibregl-marker');
-            if (firstMarker) container.insertBefore(snapEl, firstMarker);
-            else container.appendChild(snapEl);
+            container.insertBefore(snapEl, container.firstChild);
             /* Freeze interaction too: the canvas is hidden but the map stays
                live, so a pan would drag the pins off the static tiles. Block
                pointer input on the map surface (the FAB/search sit outside

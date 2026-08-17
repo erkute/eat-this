@@ -7,7 +7,13 @@ node_modules/
 # Build artifacts & caches
 .firebase/
 .agents/
-.claude/
+# `.claude/*` and not `.claude/` — git does not descend into an excluded
+# DIRECTORY, so a `!.claude/launch.json` negation under `.claude/` would be
+# silently ignored. Everything in there stays out (settings, hooks, agents,
+# skills, worktrees, .DS_Store); only the dev-server launch config is shared,
+# because it is project knowledge — how to run this app — not machine state.
+.claude/*
+!.claude/launch.json
 .codex/
 .mcp.json
 .playwright-mcp/

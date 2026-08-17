@@ -398,12 +398,22 @@ export default function MapSection({
     let snapshotReady = false;
     let snapEl: HTMLImageElement | null = null;
     let waitTimer: ReturnType<typeof setTimeout> | null = null;
+    let canvasEl: HTMLCanvasElement | null = null;
+
+    /* Hide only the GL <canvas> — the always-composited layer that suppresses
+       the URL-bar backdrop — NOT the whole mapWrap. The restaurant pins are
+       .maplibregl-marker siblings of the canvas; hiding the wrapper took them
+       down too (User: "sehe die Icons nicht mehr"). The canvas mounts late
+       (dynamic import), so resolve it lazily. */
+    const findCanvas = () =>
+      canvasEl ?? (canvasEl = mapWrap.querySelector<HTMLCanvasElement>('.maplibregl-canvas'));
 
     /* No rAF gate: scroll events already fire at frame rate, and a
        pending-rAF gate can leave the map hidden at scroll top when rAF is
        throttled (background tab). */
     const apply = () => {
-      mapWrap.style.visibility = snapshotReady || window.scrollY > 4 ? 'hidden' : '';
+      const c = findCanvas();
+      if (c) c.style.visibility = snapshotReady || window.scrollY > 4 ? 'hidden' : '';
     };
 
     /* toDataURL on a WebGL canvas only yields pixels during the render
@@ -422,7 +432,18 @@ export default function MapSection({
             snapEl.setAttribute('aria-hidden', 'true');
             snapEl.style.cssText =
               'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible;pointer-events:none;';
-            mapWrap.appendChild(snapEl);
+            /* Into the canvas-container, BEFORE the first marker, so the
+               frozen tiles paint under the live pins (same stacking context,
+               DOM order decides). */
+            const container = mapWrap.querySelector('.maplibregl-canvas-container') ?? mapWrap;
+            const firstMarker = container.querySelector('.maplibregl-marker');
+            if (firstMarker) container.insertBefore(snapEl, firstMarker);
+            else container.appendChild(snapEl);
+            /* Freeze interaction too: the canvas is hidden but the map stays
+               live, so a pan would drag the pins off the static tiles. Block
+               pointer input on the map surface (the FAB/search sit outside
+               the canvas-container and stay clickable). */
+            (container as HTMLElement).style.pointerEvents = 'none';
           }
           snapEl.src = url;
           snapshotReady = true;
@@ -464,7 +485,10 @@ export default function MapSection({
       cancelled = true;
       if (waitTimer) clearTimeout(waitTimer);
       window.removeEventListener('scroll', apply);
+      const container = snapEl?.parentElement as HTMLElement | null;
       snapEl?.remove();
+      if (container) container.style.pointerEvents = '';
+      if (canvasEl) canvasEl.style.visibility = '';
       mapWrap.style.visibility = '';
     };
   }, [isActive, sheetView, selectedRestaurant?._id, selectedMustEat?._id]);

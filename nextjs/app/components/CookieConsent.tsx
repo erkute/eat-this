@@ -4,6 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
 import { getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
+import {
+  clearConsent,
+  migrateLegacyConsent,
+  readConsent,
+  setConsentPendingAttribute,
+  writeConsent,
+} from '@/lib/consent';
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
 // stays close to what's actually loaded by the site, and DE is properly
@@ -36,7 +43,7 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
   },
   {
     h: 'Cookies verwalten',
-    p: 'Im Browser jederzeit löschbar. Banner zurückrufen: localStorage-Eintrag „cookieConsent" entfernen und neu laden.',
+    p: 'Im Browser jederzeit löschbar. Banner zurückrufen: unten im Footer auf „Cookies verwalten" tippen — oder das Cookie „cookieConsent" löschen und neu laden.',
   },
   { h: 'Kontakt', p: 'Fragen? {mail}' },
 ];
@@ -69,7 +76,7 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
   },
   {
     h: 'Managing cookies',
-    p: 'You can clear them in your browser any time, or remove the cookieConsent entry in localStorage to see this banner again.',
+    p: 'You can clear them in your browser any time. To see this banner again, use "Manage cookies" in the footer — or delete the cookieConsent cookie and reload.',
   },
   { h: 'Contact', p: 'Questions? {mail}' },
 ];
@@ -177,15 +184,17 @@ export default function CookieConsent() {
   // On mount: if user already accepted, load GA. If undecided, schedule the
   // banner to slide in after 1.5s. The delay matches the legacy timing so
   // the banner doesn't compete with the hero-intro animation for attention.
+  //
+  // The answer lives in a cookie (lib/consent.ts) so the pre-paint bootstrap
+  // can read it and reserve the bar's height; an answer given before that
+  // shipped is migrated out of localStorage here, once.
   useEffect(() => {
-    const stored = localStorage.getItem('cookieConsent');
-    if (stored === 'accepted') {
-      setCollapsed(true);
-      loadAnalytics();
-      return;
-    }
+    const stored = readConsent() ?? migrateLegacyConsent();
     if (stored) {
+      // Decided: no bar, so nothing to reserve.
+      setConsentPendingAttribute(false);
       setCollapsed(true);
+      if (stored === 'accepted') loadAnalytics();
       return;
     }
     const timer = setTimeout(() => setShow(true), 1500);
@@ -193,7 +202,8 @@ export default function CookieConsent() {
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('cookieConsent', 'accepted');
+    writeConsent('accepted');
+    setConsentPendingAttribute(false);
     setShow(false);
     setExpanded(false);
     setTimeout(() => {
@@ -211,7 +221,8 @@ export default function CookieConsent() {
 
   const handleDecline = () => {
     const gaWasLoaded = !!(window as Window & { __gaLoaded?: boolean }).__gaLoaded;
-    localStorage.setItem('cookieConsent', 'declined');
+    writeConsent('declined');
+    setConsentPendingAttribute(false);
     setShow(false);
     setExpanded(false);
     // Consent withdrawn while GA was already running this session (reopened via
@@ -227,7 +238,11 @@ export default function CookieConsent() {
   // withdraw or change consent as easily as they granted it.
   useEffect(() => {
     const reopen = () => {
-      localStorage.removeItem('cookieConsent');
+      clearConsent();
+      // Back to undecided: the bar returns, so the space it needs is owed
+      // again. Re-stamping the attribute keeps the reservation and the bar in
+      // step for the rest of this page's life, same as on a first visit.
+      setConsentPendingAttribute(true);
       setCollapsed(false);
       setShow(true);
       setExpanded(true);

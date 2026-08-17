@@ -299,6 +299,21 @@ observer. Screenshot first to front the pane, then measure.
 
 ## 5. Still open, no blocker, no decision needed
 
+- ~~**`/map` fails the CLS budget.**~~ **Fixed 2026-08-17.** Lighthouse CI
+  asserts CLS ≤ 0.1 as an _error_ against production and `/map` sat at
+  **0.1084**, all of it one shift: the cookie banner is 175 px tall, its height
+  was published to `--consent-bar-h` only after hydration, and
+  `--phone-list-sheet-visible` subtracts it — so the sheet, the FAB, the status
+  toast and the map attribution all jumped up 175 px at once, ~4.3 s in. The
+  answer lived in `localStorage`, which cannot be read before paint, so the
+  space could never be reserved in time. Consent moved to a **cookie**, the
+  pre-paint bootstrap reserves the height behind `[data-consent='pending']`,
+  and one CSS variable both reserves the space and floors the bar
+  (`min-height`) so the two cannot drift. Measured 0.1084 → **0.00037**, and
+  the remainder is the MapLibre attribution control, not us. Note the metric
+  was always worse than the experience: only first-time visitors ever saw the
+  jump, but Lighthouse starts with a fresh profile every run.
+
 - **Marker set is not viewport-culled.** `useMapFilters.displayedRestaurants`
   returns every match. Fine at 29 markers; ~700 at the premium tier is the wall.
   The first-load drop-in already caps its stagger at 14 steps for this reason.

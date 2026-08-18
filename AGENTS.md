@@ -1,7 +1,16 @@
-# AGENTS.md — Eat This
+# AGENTS.md — Eat This (Referenz)
 
-Diese Datei beschreibt den aktuellen Code. Historische Specs, Pläne und Runbooks sind nur Hinweise;
-vor ihrer Nutzung immer gegen Code, Lockfiles und aktive Infrastruktur prüfen.
+**`CLAUDE.md` ist die Quelle der Wahrheit.** Diese Datei enthält nur Referenzdetail, das dort den
+Rahmen sprengen würde: Design System, Code-Konventionen, Sanity-Dokumentmodell, Stripe-Fulfillment
+und Brand Voice. Lies sie, wenn du in diesen Bereichen arbeitest.
+
+**Bei Widerspruch gewinnt `CLAUDE.md`** — und diese Datei wird korrigiert, nicht umgekehrt.
+
+Nicht hier, sondern in `CLAUDE.md`: Repo-Layout, Git-Hygiene, Pre-push-Hook, Deployment und
+Staging-Grenze, Routing/i18n, Tests und CI, Bildassets, Animationsregeln, Login-Modal und die
+Gotchas. Nicht hier und nirgends verbindlich: `docs/` — das sind historische Pläne, Specs und
+Runbooks, keine aktuelle Architekturquelle. Versionen stehen in den Lockfiles und `package.json`,
+nicht in Prosa.
 
 ## Projekt
 
@@ -10,61 +19,10 @@ Berliner:innen und Berlin-Besucher:innen. Die Kernschleife ist: Spots auf der Ma
 Must Eats als Karten vor Ort aufdecken und sammeln, weitere Spots/Must Eats über Booster Packs
 freischalten und die Sammlung im Profil sehen. Remy ergänzt die kuratierte Suche.
 
-Das Produkt ist ein frühes, von einer Person betriebenes Produktionssystem. Production läuft auf
-Firebase App Hosting unter `https://www.eatthisdot.com`; das isolierte Staging ist Basic-Auth-
-geschützt. Stand 2026-07-14 sind die privaten Premium-Daten in Firebase ausgerollt. Offen ist nur
-Sanitys manuelle Invalidierung alter Asset-CDN-Caches; bis zur Bestätigung bleibt dieses Security-
-Gate offen und es gibt keine riskante Ersatzmigration.
-
-## Tech Stack
-
-- Runtime: Node.js `20.19.6`, npm-Lockfiles; Engines `>=20.19 <21`.
-- App: Next.js `15.5.19` App Router, React/React DOM `19.1.0`, TypeScript `5.9.3` strict.
-- Routing/i18n: `next-intl 4.13.0`; DE ohne Präfix, EN unter `/en`, keine Locale Detection.
-- Content: `@sanity/client 7.22.1`; separates Sanity Studio `5.30.0` mit React `19.2.7`.
-- Backend: Firebase Web SDK `12.14.0`, Admin SDK `13.10.0`, Auth, Firestore und Storage.
-- Map/UI: MapLibre über `react-map-gl 8.1.1`, `maplibre-gl 5.24.0`; Framer Motion `12.40.0`.
-- Commerce/Services: Stripe `17.7.0`, Resend `6.12.4`, Anthropic SDK `0.94.0`, Sentry `10.57.0`.
-- Tests/Build: Vitest `4.1.8`, Testing Library `16.3.2`, Firebase Rules Unit Testing `5.0.1`,
-  ESLint `9.39.4`, esbuild `0.28.1`, Sharp `0.34.5`.
-- Hosting: Firebase App Hosting, standalone Next output, Node 20, Region `us-central1`.
-
-## Commands
-
-App-Abhängigkeiten liegen in einem eigenen Lockfile; ein Root-`npm ci` installiert nur Root-Tools.
-
-```bash
-npm ci --prefix nextjs
-npm run dev                       # build:css, dann next dev
-npm run lint
-npm test
-cd nextjs && npx tsc --noEmit
-npm run build                     # CSS + Production Build; nicht parallel zu next dev
-npm run build:isolated --prefix nextjs  # .next-verify; sicher neben next dev
-npm run build:css --prefix nextjs
-npm run test:rules --prefix nextjs
-```
-
-Das Root-Paket bietet nur Wrapper für `dev`, `build`, `lint` und `test`. Weitere App-Scripts stehen
-in `nextjs/package.json`; Imports/Migrationen nie ohne passenden operativen Auftrag ausführen.
-
-```bash
-npm ci --prefix studio
-SANITY_STUDIO_ENV=<production|staging> \
-SANITY_STUDIO_PROJECT_ID=<project> \
-SANITY_STUDIO_DATASET=<dataset> \
-npm run dev --prefix studio
-```
-
-App Hosting deployt branch-basiert; es gibt kein App-`deploy`-Script. Sanity Studio wird separat
-und nur auf ausdrücklichen Auftrag mit `npm run deploy --prefix studio` veröffentlicht. Rules werden
-mit explizitem Projekt deployt: `firebase deploy --only firestore:rules,storage --project <project>`.
+Das Produkt ist ein frühes, von einer Person betriebenes Produktionssystem.
 
 ## Projektstruktur
 
-- `nextjs/app/[locale]/(spa)/`: Home, Map, Must Eats, News und Whitelist-Catch-all für statische Seiten.
-- `nextjs/app/[locale]/`: eigene Restaurant-, Bezirk-, Kategorie-, Pack-, Checkout-, Profil-, Login-
-  und Badge-Routen; Root-Ausnahmen sind APIs, Welcome, Robots, Sitemaps und `llms.txt`.
 - `nextjs/app/api/`: öffentliche/serverseitige HTTP-Grenzen; keine lokalen Migrations-CLIs.
 - `nextjs/app/components/`: wiederverwendbare UI und Feature-Unterordner; keine Admin-SDK-Zugriffe.
 - `nextjs/lib/`: server-/clientseitige Fachlogik, Loader, Hooks, Typen und Integrationen; Browser- und
@@ -81,8 +39,23 @@ mit explizitem Projekt deployt: `firebase deploy --only firestore:rules,storage 
   Werkzeuge bleiben entsprechend ihrer eigenen Guards lokal.
 - `firestore.rules`, `storage.rules`, `firestore.indexes.json`, `firebase.json`: Firebase-Datenvertrag.
 - `.github/workflows/`: Quality und Lighthouse; keine Deployment-Secrets in Workflow-Dateien.
-- `docs/`: historische Entscheidungen/Runbooks, nicht aktuelle Architekturquelle.
 - `.private/`: ignorierte Betriebsartefakte; niemals ausgeben, ins Build laden oder committen.
+
+## Studio-Commands
+
+App-Commands stehen in `CLAUDE.md`. Studio hat ein eigenes Lockfile und eigene Env:
+
+```bash
+npm ci --prefix studio
+SANITY_STUDIO_ENV=<production|staging> \
+SANITY_STUDIO_PROJECT_ID=<project> \
+SANITY_STUDIO_DATASET=<dataset> \
+npm run dev --prefix studio
+```
+
+Studio wird separat und nur auf ausdrücklichen Auftrag mit `npm run deploy --prefix studio`
+veröffentlicht. Rules werden mit explizitem Projekt deployt:
+`firebase deploy --only firestore:rules,storage --project <project>`.
 
 ## Code-Konventionen
 
@@ -94,7 +67,8 @@ mit explizitem Projekt deployt: `firebase deploy --only firestore:rules,storage 
   bestehende camelCase-Dateien nebenbei umzubenennen. Next-Dateien nutzen ihre reservierten Namen.
 - Server-only Loader dürfen `.server.ts` tragen und importieren bei harter Grenze `server-only`.
 - Root-Prettier schreibt für Next Single Quotes, Semikolons, 2 Spaces, 100 Zeichen vor. Studio hat seine
-  eigene Config mit Single Quotes und ohne Semikolons. Nie unrelated Code nur dafür umformatieren.
+  eigene Config mit Single Quotes und ohne Semikolons. Nie unrelated Code nur dafür umformatieren —
+  einzelne Bestandsdateien haben Formatierungs-Drift, die kein Anlass für einen Sammel-Reformat ist.
 
 ### Server und Client
 
@@ -118,7 +92,7 @@ export async function getRestaurantBySlug(slug: string): Promise<Restaurant | nu
     restaurantBySlugQuery,
     { slug },
     { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } }
-  )
+  );
 }
 ```
 
@@ -140,9 +114,9 @@ String-Dualformen und die Helpers aus `sanity-image-presets.ts`. Tags müssen zu
 
 ## Design System
 
-Visuelle Quelle der Wahrheit ist die Home Page: `HubSection.tsx`, ihre Home-Komponenten,
-`HubSection.module.css` und der `.homeV2`-Block in `css/style.css`. Bei Widerspruch gewinnt dieses
-System. Die kanonischen Tokens stehen in `app/globals.css`.
+Visuelle Quelle der Wahrheit ist die Home Page: `app/components/HubSection.tsx`, ihre
+Home-Komponenten, `HubSection.module.css` und der `.homeV2`-Block in `css/style.css`. Bei
+Widerspruch gewinnt dieses System. Die kanonischen Tokens stehen in `app/globals.css`.
 
 ### Farben
 
@@ -265,12 +239,9 @@ bleiben standardmäßig erhalten, und Alt-Texte dürfen nur aus einem expliziten
 
 ## Do & Don't
 
-- Do: interne Navigation über `@/i18n/navigation`. Don't: `/en` selbst bauen, `next/link` mischen oder für Localewechsel Full Reloads erzwingen.
-- Do: Login über `useLoginModal()`. Don't: das entfernte `window.openLoginModal()` zurückbringen.
-- Do: `StaticPages` rendert nur das aktive Dokument. Don't: alle statischen Seiten gleichzeitig mounten; das erzeugt wieder doppelten SSR-/SEO-Inhalt.
-- Do: `ScrollRestorer.tsx` besitzt History-Restore. Don't: konkurrierende `popstate`- oder `history.scrollRestoration`-Logik in Bootstrap/Components ergänzen.
-- Do: neue deferred Overlays erhalten Closed-State-FOUC-Guards in `app/globals.css`. Don't: nur auf das später geladene `style.min.css` vertrauen.
-- Do: `css/style.css` ändern, `build:css` ausführen und `CSS_VERSION` in `lib/constants.ts` erhöhen. Don't: `public/css/style.min.css` oder route-lokale Versionsnummern editieren.
+Nur was `CLAUDE.md` nicht schon abdeckt — Routing, Login-Modal, StaticPages, ScrollRestorer,
+FOUC-Guards, `CSS_VERSION`, WebP und Light-only/Motion stehen dort.
+
 - Do: Home-Tokens und flache Home-Komponenten wiederverwenden. Don't: rohe `--remy-stage-*`-Farben/starke Shadows aus `HubFragRemy.module.css` oder alte Font-/Palette-Aliasse kopieren.
 - Do: Restaurant-Kategorien als Sanity-Referenzen behandeln. Don't: alte String/Ref-Dualpfade oder Migrations-Shims wieder einführen.
 - Do: `homeWeek` nur entsprechend seinem belegten Consumer ändern. Don't: es ohne Änderung von `getHomeData.ts` zur vermeintlichen Home-Quelle erklären.
@@ -279,36 +250,13 @@ bleiben standardmäßig erhalten, und Alt-Texte dürfen nur aus einem expliziten
   `SANITY_API_WRITE_TOKEN`, Shared Import Secret oder Provider-Key in das Studio-Bundle legen.
 - Do: AI-News als redaktionellen Draft erzeugen und vor Publish prüfen. Don't: AI-generierte
   Artikel automatisch veröffentlichen oder Alt-Texte für nicht beschriebene Bilder erfinden.
-- Do: Browserbilder als WebP (Cutouts q80, Fotos q72); PNG nur für Icons/OG/E-Mail-Anforderungen. Don't: große rohe Browserassets in `public/` committen.
-- Do: Light-Mode, reduzierten Motion-Support und Translate-basierte Brand-Motion erhalten. Don't: Dark-Mode-Branches, Opacity-Entry/Exit, dekorative Balken/Rahmen oder harte Button-Shadows ergänzen.
 
-## Arbeitsweise
+## Prüftiefe
 
-- Kleine fokussierte Änderungen; ein Thema pro Commit. Vor größeren Umbauten kurzer Plan mit überprüfbaren Ergebnissen. Nichts ohne Prüfung aktiver Imports, Routen, Queries und Tests löschen. Copy folgt der Brand Voice.
-- Bugfix: Reproduktion plus Nachweis. UI: DOM, Computed Styles, A11y, Responsive und Interaktionen. Backend/Security: positive/negative Pfade, Projektgrenzen und Datenlecks prüfen.
-- Bei laufendem Dev-Server nie normales `npm run build`; `build:isolated` verwenden. Dev-Server nach normaler QA weiterlaufen lassen.
-- Vor jedem Commit vollständiges `git status`; fremde staged Changes stoppen die Arbeit. Nur eigene explizite Pfade stagen, nie `git add .`, `-A` oder `-u`. Pre-push-Hook nie ohne Auftrag umgehen.
-- Nie direkt nach `main` pushen oder force-pushen. Vor Push Remote fetchen und ausgehenden Commitbereich prüfen. Promotion nach `main` nur über PR und erfolgreiche Checks.
-- Secrets bleiben in Env/Secret Manager; keine `.env.local`, `.private`, Credentials, Premium-CDN-URLs oder privaten Manifeste ausgeben, loggen oder committen.
-
-Aktuelle App-Hosting-Zuordnung:
-
-| Branch | Firebase-Projekt | Backend | Ziel |
-| --- | --- | --- | --- |
-| `staging` | `eat-this-staging-8a13b` | `eat-this-staging` | `https://eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app` |
-| `main` | `eat-this-8a13b` | `eat-this` | `https://www.eatthisdot.com` |
-
-Das alte Staging-Backend im Production-Projekt ist gelöscht. Staging muss Basic Auth,
-`X-Robots-Tag: noindex, nofollow`, leere Sitemap, disallowende Robots, isolierte Firebase-/Sanity-
-Projekte und separate TEST-Provider nutzen. `apphosting.staging.yaml`, `lib/firebase/project-boundary.ts`,
-`lib/sanity.ts` und `middleware.ts` failen bei Grenzverletzungen geschlossen.
-
-Deploymentzustände exakt benennen: `committed` (nur lokal), `pushed` (Remote-Ref), `PR` (noch nicht
-gemergt), `rollout succeeded` (passendes App-Hosting-Backend), `smoke-tested` (Ziel-URL und negative
-Security-Checks geprüft). Ein Push allein ist kein Deploymentnachweis. Production erst nach
-`staging -> main`-Merge, erfolgreichem Rollout und Live-Smoke als deployed melden.
-
-Aktuelle offene Risiken: CSP ist bewusst nur `Content-Security-Policy-Report-Only`; nicht als
-enforced bezeichnen. Das Sanity-CDN-Purge-Gate wird erst geschlossen, wenn Support bestätigt hat und
-alle 23 vertraulich gespeicherten Original-URLs anonym non-2xx liefern. Bis dahin keine URL-Liste
-ausgeben und keine alternative Content-Migration starten.
+- Kleine fokussierte Änderungen; ein Thema pro Commit. Vor größeren Umbauten kurzer Plan mit
+  überprüfbaren Ergebnissen. Nichts ohne Prüfung aktiver Imports, Routen, Queries und Tests löschen.
+  Copy folgt der Brand Voice.
+- Bugfix: Reproduktion plus Nachweis. UI: DOM, Computed Styles, A11y, Responsive und Interaktionen.
+  Backend/Security: positive/negative Pfade, Projektgrenzen und Datenlecks prüfen.
+- Secrets bleiben in Env/Secret Manager; keine `.env.local`, `.private`, Credentials,
+  Premium-CDN-URLs oder privaten Manifeste ausgeben, loggen oder committen.

@@ -20,6 +20,7 @@ import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
 import { classifyWebsite, formatPriceLabel, splitStatusLabel } from './restaurantDetail.helpers';
 import { normalizeName } from '@/lib/normalizeName';
+import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
@@ -463,7 +464,12 @@ export default function RestaurantDetail({
                  property the cap needs (float, font, colour, padding) is
                  ::first-letter-legal, so nothing is lost visually. */
               idx === 0 && para.length > 0 ? (
-                <p key={idx} className={styles.rdStoryLead}>
+                <p
+                  key={idx}
+                  className={`${styles.rdStoryLead} ${
+                    hasAmbiguousDropCap(para) ? styles.rdStoryLeadPlain : ''
+                  }`}
+                >
                   {para}
                 </p>
               ) : (

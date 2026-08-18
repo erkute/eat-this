@@ -9,11 +9,20 @@ node_modules/
 .agents/
 # `.claude/*` and not `.claude/` — git does not descend into an excluded
 # DIRECTORY, so a `!.claude/launch.json` negation under `.claude/` would be
-# silently ignored. Everything in there stays out (settings, hooks, agents,
-# skills, worktrees, .DS_Store); only the dev-server launch config is shared,
-# because it is project knowledge — how to run this app — not machine state.
+# silently ignored. That is also why the skills path below re-includes one
+# level at a time instead of naming the file directly: `!.../SKILL.md` alone
+# would never be reached, because `.claude/skills` is still excluded.
+#
+# Shared, because it is project knowledge rather than machine state:
+#   launch.json          — how to run this app
+#   skills/deploy-verify — how to tell a finished App Hosting rollout from the
+#                          CDN edge cache lying about it
+# Still local: settings.json, hooks/, agents/, worktrees/, .DS_Store.
 .claude/*
 !.claude/launch.json
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/deploy-verify/
 .codex/
 .mcp.json
 .playwright-mcp/

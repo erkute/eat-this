@@ -212,6 +212,11 @@ export default function MapSection({
     setSheetRef,
   } = useMapSheet(dismissDetail, initialRestaurant ? 'detail' : 'list');
 
+  // Read by the popstate listener, which is subscribed once per activation and
+  // must not close over a stale sheetView.
+  const sheetViewRef = useRef(sheetView);
+  sheetViewRef.current = sheetView;
+
   /* In-flow phone list: the sheet's snap vocabulary maps onto window-scroll
      anchors. peek = the list's CSS resting overlap (scroll 0), mid ≈ 440px of
      list visible, full = list top parked 40px below the viewport top — same
@@ -367,14 +372,32 @@ export default function MapSection({
      restores it via the existing deep-link path instead of dropping the user
      back to the list — and open details become shareable for free. The
      deep-link consumer (useMapDeepLinks) no longer strips the params; its
-     consumed-guards prevent same-session re-triggers. replaceState (never
-     push): no history spam, back still leaves the map like before. */
+     consumed-guards prevent same-session re-triggers.
+
+     Opening a detail from the list PUSHES that URL so the phone back gesture
+     closes the detail instead of leaving the map (which used to cost the user
+     their camera position and list scroll). Selecting another spot while the
+     detail is already open — pager swipes, marker taps — replaces instead, so
+     swiping through ten spots doesn't leave ten entries to back out of.
+     detailEntryPushedRef tracks whether the entry on top of the stack is ours
+     to unwind; a deep-linked or reloaded ?r= URL is somebody else's entry and
+     is only ever replaced. */
+  const detailEntryPushedRef = useRef(false);
+  const prevSheetViewRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
   useEffect(() => {
     if (!isActive || typeof window === 'undefined') return;
+    const wasDetail = prevSheetViewRef.current === 'detail';
+    prevSheetViewRef.current = sheetView;
     const params = new URLSearchParams(window.location.search);
     const hasPendingDetailParam = params.has('r') || params.has('me');
+    /* List view + a detail param + nothing selected is ambiguous: either a
+       soft-navigated deep link useMapDeepLinks hasn't consumed yet (leave the
+       param alone) or a detail the user just closed (strip it). wasDetail is
+       what tells them apart — without it the close path bailed out here and
+       left a stale ?r= behind, pointing at a spot that is no longer open. */
     if (
       sheetView !== 'detail' &&
+      !wasDetail &&
       hasPendingDetailParam &&
       !selectedRestaurant?.slug &&
       !selectedMustEat?._id
@@ -390,6 +413,26 @@ export default function MapSection({
     const qs = params.toString();
     const next = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
     const current = window.location.pathname + window.location.search + window.location.hash;
+
+    if (sheetView === 'detail') {
+      if (next === current) return;
+      if (detailEntryPushedRef.current) {
+        window.history.replaceState(window.history.state, '', next);
+      } else {
+        window.history.pushState(window.history.state, '', next);
+        detailEntryPushedRef.current = true;
+      }
+      return;
+    }
+
+    /* Closed from the UI (X, swipe-down, must-eat → list). Pop the entry we
+       pushed rather than replacing it — otherwise the forward stack keeps a
+       detail the user just dismissed, and one back press would re-open it. */
+    if (detailEntryPushedRef.current) {
+      detailEntryPushedRef.current = false;
+      window.history.back();
+      return;
+    }
     if (next !== current) {
       window.history.replaceState(window.history.state, '', next);
     }
@@ -942,6 +985,48 @@ export default function MapSection({
       else handleRestaurantClose();
     };
   }, [selectedMustEat, handleMustEatClose, handleRestaurantClose]);
+
+  /* The other half of the pushed detail entry: a back gesture / back button
+     lands on the list URL, and the open detail has to follow it shut. Clearing
+     detailEntryPushedRef first is what stops the URL-sync effect from calling
+     history.back() a second time on the state change we're reacting to.
+     Going forward again re-opens the spot the URL names — useMapDeepLinks
+     only fires once per session, so it can't do this for us. */
+  const popStateHandlersRef = useRef({ restaurants, lockedRestaurants, mustEats });
+  popStateHandlersRef.current = { restaurants, lockedRestaurants, mustEats };
+  const openFromUrlRef = useRef<(slug: string | null, mustEatId: string | null) => void>(() => {});
+  openFromUrlRef.current = (slug, mustEatId) => {
+    const { restaurants: owned, lockedRestaurants: locked, mustEats: mes } =
+      popStateHandlersRef.current;
+    if (mustEatId) {
+      const target = mes.find((m) => m._id === mustEatId);
+      if (target) handleMustEatClick(target);
+      return;
+    }
+    if (!slug) return;
+    const target = owned.find((r) => r.slug === slug) ?? locked.find((r) => r.slug === slug);
+    if (target) handleRestaurantClick(target);
+  };
+
+  useEffect(() => {
+    if (!isActive || typeof window === 'undefined') return;
+    const onPopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('r');
+      const mustEatId = params.get('me');
+      const detailOpen = sheetViewRef.current === 'detail';
+      if (!slug && !mustEatId) {
+        if (!detailOpen) return;
+        detailEntryPushedRef.current = false;
+        dismissDetailRef.current();
+        return;
+      }
+      if (detailOpen) return;
+      openFromUrlRef.current(slug, mustEatId);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [isActive]);
 
   const handleMapClick = useCallback(() => {
     const isMobile =

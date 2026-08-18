@@ -7,6 +7,8 @@ Fresh repo since 2026-06 (legacy vanilla-JS SPA and one-off migration scripts we
 - `nextjs/` — the live app (Next.js App Router, deployed via Firebase App Hosting)
 - `studio/` — Sanity Studio (deployed manually via `sanity deploy`)
 
+**This file is the source of truth.** `AGENTS.md` holds reference detail that would bloat this file — the design system (tokens, type scale, layout), code conventions (naming, server/client split, GROQ loader pattern, TypeScript/error rules), the Sanity document model, the Stripe fulfillment path, and brand voice. Read it when working in those areas. **On any contradiction, this file wins** and `AGENTS.md` gets corrected. Anything in `docs/` is historical: plans, specs and runbooks record what was decided then, not what is true now.
+
 ## Aggressive cleanup is OK (very early stage)
 
 The project has essentially no live users yet — Stripe is in live mode but only for internal testing. When you touch legacy or dead code, **rip it out entirely**: no compatibility shims, no "in case someone migrates" preservation, no deprecation paths. Backwards compatibility for a userbase that doesn't exist is just clutter.
@@ -31,7 +33,7 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 
 ## Pre-push hook (DO NOT bypass)
 
-`.git/hooks/pre-push` runs the **full** build (`npm run build:isolated`, ~30–60 s) before any push that touches `nextjs/`. Same `next build` Firebase App Hosting runs — same config, same errors caught — but it writes to `.next-verify/` instead of `.next/`, so it's safe to push while a local `next dev` is running. If it exits non-zero, the push is aborted.
+`.githooks/pre-push` runs the **full** build (`npm run build:isolated`, ~30–60 s) before any push that touches `nextjs/`. Same `next build` Firebase App Hosting runs — same config, same errors caught — but it writes to `.next-verify/` instead of `.next/`, so it's safe to push while a local `next dev` is running. If it exits non-zero, the push is aborted.
 
 - **Never** run `git push --no-verify` without an explicit user request, even if the hook complains.
 - If the hook reports a build failure, fix the underlying code. The full log is at `/tmp/eat-this-prepush-build.log`.
@@ -56,7 +58,36 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 - `nextjs/` is the live app. Push to `main` → Firebase App Hosting auto-builds and deploys.
 - CSS source lives in `nextjs/css/`, minified output in `nextjs/public/css/`. Never edit the minified file directly.
 - Build CSS with `npm run build:css` before testing changes — dev doesn't auto-rebuild.
-- Stylesheet cache-bust is the `?v=NN` on the `<link rel="stylesheet">` in `app/[locale]/(spa)/layout.tsx`. Bump on any `style.css` change.
+- Stylesheet cache-bust is `CSS_VERSION` in `lib/constants.ts`. Nine call sites render it as `?v=` on their `<link rel="stylesheet">` — the `(spa)`, `restaurant`, `bezirk`, `kategorie`, `pack`, `packs`, `profile` and `login` layouts plus `NotFoundAppFrame`. Bump the constant on any `style.css` change; never hand-edit the layouts.
+
+## Tests
+
+154 test files, Vitest. The pre-push hook only *builds* — it does not run tests, so run them yourself before pushing.
+
+**CI does gate this repo** (`.github/workflows/quality.yml`): `npm ci && npm run lint && npm test && npm run build` on every PR into `main` or `staging`, and on every direct push to `staging`. A red test blocks the PR, so a green local `npm test` is the cheap way to find out first. `.github/workflows/lighthouse.yml` additionally runs on `main`.
+
+```bash
+npm test --prefix nextjs                 # vitest run
+npm run test:watch --prefix nextjs
+npm run test:rules --prefix nextjs       # Firestore + Storage rules, needs the Firebase emulators
+npm run lint --prefix nextjs
+cd nextjs && npx tsc --noEmit
+```
+
+`test:rules` boots `firebase emulators:exec` against the throwaway project `eat-this-rules-test`; it is the only test command that needs the emulators. Three `*.styles.test.ts` files parse the stylesheets with PostCSS and assert architectural contracts rather than behaviour: `app/CssArchitecture.styles.test.ts`, `app/components/map/MapArchitecture.styles.test.ts` and `app/components/map/MapDetails.styles.test.ts`. The first asserts four contracts: `!important` only for the documented reduced-motion override, the critical first-paint / mobile-Safari / footer rules, navigation state staying local (no generated-class substring selectors), and the consolidated login states. If it fails after a stylesheet change, that is the intended alarm, not a flake.
+
+## Local agent tooling (`.claude/`)
+
+`.gitignore` excludes `.claude/*` and re-includes exactly two paths: `launch.json` and the `deploy-verify` skill. Everything else below lives **on this machine only** — a fresh clone has none of it.
+
+To share another path, re-include the whole directory chain, not just the file: `!.claude/skills/`, then `.claude/skills/*`, then `!.claude/skills/<name>/`. Git never descends into an excluded directory, so a lone `!.claude/skills/<name>/SKILL.md` is silently ignored and the file stays invisible.
+
+- `settings.json` wires two hooks:
+  - **PreToolUse** `hooks/protect-sensitive.sh` — turns edits to `.env*` and `firestore.rules` into an explicit confirmation prompt. It never blocks, it only asks.
+  - **PostToolUse** `hooks/format-lint.sh` — runs Prettier `--write` and (for JS/TS under `nextjs/`) ESLint `--fix` on the edited file. Always exits 0, skips `studio/`, `node_modules/` and minified output. **Don't hand-format edited files**; the hook already did.
+- `agents/security-reviewer.md` — review agent for diffs touching auth, Stripe, `firestore.rules`, API routes or Cloud Functions.
+- `skills/deploy-verify/SKILL.md` **(tracked)** — how to confirm an App Hosting rollout actually landed without being fooled by the CDN edge cache. It also carries the production/staging project pairing, which is the fact most easily got wrong.
+- `launch.json` **(tracked)** — dev-server config for the preview pane, `npm run dev` with `autoPort`.
 
 ## Restaurant imports
 
@@ -67,10 +98,19 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 
 ## Staging branch workflow
 
-This repo has a `staging` long-running branch that auto-deploys to a second
-App Hosting backend (`eat-this-staging`). Feature work flows:
+This repo has a `staging` long-running branch that auto-deploys to its own
+App Hosting backend. Feature work flows:
 
 feature branch → PR into `staging` → smoke on staging URL → PR into `main`
+
+**Staging is a separate Firebase project, not a second backend in the production one.** `lib/firebase/project-boundary.ts` actively rejects the production project ID on staging and fails closed; the old staging backend that used to live inside the production project was deleted.
+
+| Branch | Firebase project | Backend | URL |
+| --- | --- | --- | --- |
+| `main` | `eat-this-8a13b` | `eat-this` | `https://www.eatthisdot.com` |
+| `staging` | `eat-this-staging-8a13b` | `eat-this-staging` | `…--eat-this-staging-8a13b.us-central1.hosted.app` |
+
+Always pass `--project` explicitly to any `firebase` command — a bare backend name resolves against whatever project happens to be active, and both projects have same-shaped backends.
 
 - Never push directly to `main` — branch protection now blocks it
 - `staging` allows direct push for solo-dev speed
@@ -83,6 +123,23 @@ feature branch → PR into `staging` → smoke on staging URL → PR into `main`
 
 For the migration breakdown, see
 `docs/specs/2026-05-27-staging-and-migration-design.md`.
+
+### Name the deployment state exactly
+
+A push is not a deploy. Use these words and don't upgrade one to the next without the evidence:
+
+- `committed` — local only
+- `pushed` — the remote ref moved
+- `PR` — open, not merged
+- `rollout succeeded` — the matching App Hosting backend reports it (see the `deploy-verify` skill; the CDN edge cache makes page polls lie)
+- `smoke-tested` — target URL plus the negative security checks actually exercised
+
+Report production as deployed only after `staging → main` merged, the rollout succeeded, and a live smoke passed.
+
+### Standing constraints
+
+- **CSP is `Content-Security-Policy-Report-Only` on purpose.** Don't describe it as enforced.
+- **The Sanity CDN purge gate is still open.** It closes only once support confirms and all 23 confidentially stored original asset URLs return non-2xx anonymously. Until then: don't output the URL list, and don't start a substitute content migration.
 
 ## Animation — no opacity fades
 
@@ -114,10 +171,11 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 ## Routing & i18n (next-intl v4)
 
 - **DE at `/`, EN at `/en/...`.** `i18n/routing.ts`: locales `['de','en']`, default `'de'`, `localePrefix: 'as-needed'`, `localeDetection: false` (a NEXT_LOCALE cookie or Accept-Language header doesn't auto-redirect — `/` is always DE).
-- Route tree: `app/[locale]/(spa)/{page,[...slug],news/[slug]}` for all SPA routes, `app/[locale]/{restaurant,bezirk,kategorie,pack,checkout,profile,login,@modal}/...` for the rest. App-root exceptions: `welcome/`, `robots.ts`, `sitemap.ts`.
+- Route tree: `app/[locale]/(spa)/{page,[...slug],news/[slug],guides/[slug],map,must-eats}` for the SPA routes, `app/[locale]/{restaurant,bezirk,kategorie,pack,packs,badge,checkout,profile,login,@modal}/...` for the rest. App-root exceptions: `welcome/`, `robots.ts`, `sitemap.ts`, `llms.txt`, `news-sitemap.xml`, `not-found.tsx`, `global-error.tsx`.
 - `i18n/request.ts` imports `lib/i18n/translations.ts` as messages — single source of truth.
 - `i18n/navigation.ts` exports the locale-aware `Link`, `useRouter`, `usePathname`, `redirect`, `getPathname` from `createNavigation(routing)`. **Use the intl `Link` for all internal nav** — it handles the `/en` prefix automatically.
-- `middleware.ts`: handles apex→www 308 redirect and `?lang=de/?lang=en` legacy redirects (sets `NEXT_LOCALE` cookie + strips param). Matcher excludes `/api`, `/_next`, static assets, `/welcome`, `/reset-password`.
+- `middleware.ts` does more than locale routing. In order: Basic-Auth gate (staging only), apex→www 308, `/api` early-return, `/de`-prefix normalisation, `?lang=de|en` legacy redirects (sets `NEXT_LOCALE` cookie + strips the param), the referral-uid cookie, `NEWS_REDIRECTS`, and a **410 Gone** for permanently closed spots (`GONE_SLUGS` in `lib/seo/legacyRedirects.ts`, inline HTML because CSP forbids inline CSS).
+  The matcher excludes `_next`, `_vercel`, `__` (the Firebase Auth proxy), `css`, `js`, `pics`, `fonts`, `welcome`, and anything containing a dot. **`/api` is _not_ excluded by the matcher** — it is skipped by an early return inside the function, so a new `/api` behaviour has to be added there, not to the matcher.
 - `app/[locale]/layout.tsx` owns the `<html>`/`<body>` and the `CRITICAL_BOOTSTRAP` inline script that runs synchronously in `<head>` before hydration. The bootstrap sets:
   - `data-active-page` on `<html>` (start/news/map/profile/news-article/about/...) — read by CSS selectors like `[data-active-page="start"] .navbar:not(.scrolled)`
   - `screen.orientation.lock('portrait')` on mobile
@@ -125,9 +183,11 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 - `app/components/ScrollRestorer.tsx` owns back/forward scroll restoration (App Router soft-nav popstate clamps the browser's native restore — see the component header). It sets `history.scrollRestoration = 'manual'` client-side; don't re-add that to the bootstrap or fight it with own popstate scroll code.
 - `useTranslation()` in `lib/i18n/I18nContext.tsx` wraps next-intl, exposes `{ lang, t, setLang }`. `setLang` sets the NEXT_LOCALE cookie and soft-navigates via the intl router (`router.replace(pathname, { locale })`).
 
-## Modals
+## Login modal & consent
 
-Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.tsx` via `MODAL_BODIES` in `lib/i18n/translations.ts`), `welcomeModal` (`WelcomeModal.tsx`). Login modal lives in `BridgeAuth.tsx` as a portal — opened from anywhere via `window.openLoginModal()`. AGB/Datenschutz are kept because the welcome-modal signup flow opens them inline so users don't lose their state mid-registration.
+- **The login modal is the only modal left.** Its state lives in `lib/auth/LoginModalContext.tsx`; open it from anywhere with `const { open } = useLoginModal()` and a mode of `'starter' | 'signin'` (re-exported from `lib/auth`). `app/[locale]/(spa)/BridgeAuth.tsx` renders the portal and syncs auth state — it only *consumes* the context, it does not own the open/close state. Current consumers: `BurgerDrawer`, `MustEatDetail`, `RestaurantDetail`, `RestaurantList`, `lib/map/useFavorites.ts`.
+- **AGB and Datenschutz are pages, not modals.** They are Sanity `staticPage` docs served at `/agb` and `/datenschutz` via `app/[locale]/(spa)/[...slug]/page.tsx` → `StaticPages.tsx`; `LoginPanel` links to them with a plain `<a href>`. The old `agbModal` / `datenschutzModal` / `welcomeModal` machinery and the `MODAL_BODIES` table were deleted in 2026-06 — don't reintroduce them.
+- **Cookie consent is a banner, not a modal.** `CookieConsent.tsx` renders a fixed bar with an inline expandable info section. The answer lives in a **cookie** (`lib/consent.ts`), not localStorage, so the pre-paint bootstrap can read it, set `html[data-consent="pending"]` and reserve the bar's height (`--consent-bar-h`) before first paint. Changing that storage reintroduces the CLS the cookie was added to fix.
 
 ## Gotchas
 
@@ -143,7 +203,7 @@ Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.ts
 
 3. **Restaurant + Bezirk EN pages are gated per document by `hasEnContent` (= non-empty `descriptionEn`, see `lib/i18n/pickLocale.ts`).** The schema HAS the EN fields and the enriched importer fills them — as of 2026-06 all restaurants and bezirke have EN content, so their EN canonicals/hreflang/sitemap alternates are live. The gate exists because Google previously flagged EN restaurant URLs without real translations as duplicates and chose its own canonical. If a future doc lacks `descriptionEn`, its EN URL correctly falls back to the DE canonical — don't bypass `hasEnContent`, fill the field instead.
 
-4. **`StaticPages.tsx` renders only the active page.** It used to render all six (about/contact/press/impressum/datenschutz/agb) on every route, which made the SSR'd HTML almost identical across URLs and Google refused to index them. If you bring it back to "render all", you'll re-introduce the duplicate-content trap.
+4. **`StaticPages.tsx` renders exactly one page.** It takes a single `StaticPageDoc` and renders that. An earlier version rendered all six static pages (about/contact/press/impressum/datenschutz/agb) on every route, which made the SSR'd HTML nearly identical across URLs and Google refused to index them. Keep the one-doc signature — anything that renders a list of static pages walks back into the duplicate-content trap.
 
 5. **Building while `npm run dev` is alive → use `npm run build:isolated`.** Plain `npm run build` writes to `.next/`, which the dev server is also using — it would overwrite the dev chunks and the server then 500s on missing module IDs. `npm run build:isolated` runs the identical `next build` into `.next-verify/` (via `NEXT_DIST_DIR`, see `next.config.ts`), so it can run concurrently with dev. Use it whenever you need to validate a build without stopping dev (the pre-push hook already does). Plain `npm run build` stays reserved for Firebase App Hosting and clean local builds. `npm run build:css` remains safe during a dev session.
 

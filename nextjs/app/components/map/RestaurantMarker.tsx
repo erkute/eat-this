@@ -48,7 +48,11 @@ function RestaurantMarker({
       longitude={restaurant.lng}
       latitude={restaurant.lat}
       anchor="bottom"
-      className={isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot}
+      className={
+        isSelected
+          ? `${styles.markerRoot} ${styles.markerRootFree} ${styles.markerRootActive}`
+          : `${styles.markerRoot} ${styles.markerRootFree}`
+      }
       onClick={(e) => {
         e.originalEvent.stopPropagation();
         onClick(restaurant);

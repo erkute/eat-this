@@ -231,6 +231,23 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      search for what is usually a "what is this?" tap. */
   const lockedMarkerLabel =
     locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
+  /* Clustered markers carry their count in the accessible name — the free tag
+     shows the number, the locked dot only grows, so for a screen reader the
+     name is the only place either count exists. */
+  const clusterLabel = useCallback(
+    (count: number) =>
+      locale === 'en'
+        ? `${count} spots — tap to zoom in`
+        : `${count} Spots – zum Reinzoomen tippen`,
+    [locale],
+  );
+  const lockedClusterLabel = useCallback(
+    (count: number) =>
+      locale === 'en'
+        ? `${count} locked spots — tap to zoom in`
+        : `${count} gesperrte Spots – zum Reinzoomen tippen`,
+    [locale],
+  );
   const handleLockedClick = useCallback(
     (r: MapRestaurant) => {
       trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
@@ -365,6 +382,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onRestaurantClick={handleMapRestaurantClick}
                 onLockedClick={handleLockedClick}
                 lockedLabel={lockedMarkerLabel}
+                clusterLabel={clusterLabel}
+                lockedClusterLabel={lockedClusterLabel}
                 location={location}
               />
             </div>

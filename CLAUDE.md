@@ -26,6 +26,14 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 3. Only commit files you explicitly edited in this session. Never use `git add .`, `git add -A`, or `git add -u`. Always stage specific paths.
 4. If the user confirms unknown staged files are unrelated, unstage them with `git restore --staged <path>` before committing.
 
+**When creating a branch — name the base explicitly:**
+
+```
+git checkout -b <branch> origin/staging
+```
+
+Not the bare `git checkout -b <branch>`. That branches off whatever the local branch pointer happens to be _at that instant_, and a parallel session can commit onto it between your `git status` and your checkout. The shared branch pointer is the same hazard as the shared index, one level up: the foreign commit then sits under yours and rides along into the PR. Naming the base closes the window.
+
 **Before any `git push` to `main`:**
 
 - Confirm the commit range only contains your intended changes (`git log origin/main..HEAD --stat`).

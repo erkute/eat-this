@@ -5,8 +5,8 @@ import { haversineDistance } from './distance'
 
 interface Args {
   restaurants: MapRestaurant[]
-  /** Paywalled rows. Never rendered — run through the same filter only so the
-   *  empty state can say how many matches the paywall is holding back. */
+  /** Paywalled spots. Run through the same filter so the empty state can say
+   *  how many matches are held back and the map can dot them in. */
   lockedRestaurants?: MapRestaurant[]
   mustEats?: MapMustEat[]
   location: { lat: number; lng: number } | null
@@ -109,14 +109,16 @@ export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats = 
     })
   }, [restaurants, filterRestaurant, location])
 
-  // The same filter applied to the locked rows, counted. The map no longer
-  // renders locked rows at all, so the only thing left to know about them is
-  // how many the active filter matches — that is what the empty state names
-  // instead of leaving the paywall a blackbox. Uncapped on purpose.
-  const lockedMatchCount = useMemo(
-    () => lockedRestaurants.filter(filterRestaurant).length,
+  // The same filter applied to the locked rows. Two consumers, both uncapped:
+  // the empty state names how many matches the paywall is holding back, and
+  // the map draws each one as a muted dot so the locked catalogue is visible
+  // instead of simply absent. The list is never rendered as rows.
+  const displayedLockedRestaurants = useMemo(
+    () => lockedRestaurants.filter(filterRestaurant),
     [lockedRestaurants, filterRestaurant],
   )
+
+  const lockedMatchCount = displayedLockedRestaurants.length
 
   return {
     category, setCategory,
@@ -127,6 +129,7 @@ export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats = 
     bezirkNames, bezirkCenters,
     cuisineNames,
     displayedRestaurants,
+    displayedLockedRestaurants,
     lockedMatchCount,
   }
 }

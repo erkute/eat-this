@@ -18,6 +18,8 @@ import {
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { openBurgerDrawer } from '../burgerDrawerState';
+import { useRouter } from '@/i18n/navigation';
+import { trackEvent } from '@/lib/analytics';
 
 import dynamic from 'next/dynamic';
 import RestaurantList from './RestaurantList';
@@ -60,6 +62,8 @@ interface MapBodyState {
   displayedRestaurants: MapRestaurant[];
   /** Locked preview rows — same filter pipeline as displayedRestaurants,
    *  rendered as blurred entries below the booster banner in the list. */
+  /** Paywalled spots matching the active filter — drawn as muted dots. */
+  displayedLockedRestaurants: MapRestaurant[];
   /** Uncapped locked-match count — see useMapFilters. */
   lockedMatchCount: number;
   restaurantMustEats: MapMustEat[];
@@ -137,6 +141,7 @@ export type MapSectionBodyProps = MapBodyRefs &
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
   const locale = useLocale();
+  const router = useRouter();
   const searchLabel = locale === 'en' ? 'Search' : 'Suche';
   const {
     isActive,
@@ -150,6 +155,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     snap,
     dragging,
     displayedRestaurants,
+    displayedLockedRestaurants,
     lockedMatchCount,
     restaurantMustEats,
     pagerPrev,
@@ -218,6 +224,17 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
+  /* A locked dot has no detail to open — its whole job is to say what sits
+     behind the paywall, so it goes straight to the pack. */
+  const lockedMarkerLabel =
+    locale === 'en' ? 'Locked spot — unlock all Berlin' : 'Gesperrter Spot — ganz Berlin holen';
+  const handleLockedClick = useCallback(
+    (r: MapRestaurant) => {
+      trackEvent('locked_spot_clicked', { restaurant_id: r._id, restaurant_slug: r.slug });
+      router.push('/pack/all-berlin');
+    },
+    [router],
+  );
   /* What the "0 free hits" headline is a zero *of*. Search wins because a query
      overrides every other filter in useMapFilters; then the narrowest chip.
      "Open now" alone yields no label — the count still carries the message. */
@@ -339,8 +356,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 mapRef={mapRef}
                 onMapClick={onMapClick}
                 displayedRestaurants={displayedRestaurants}
+                displayedLockedRestaurants={displayedLockedRestaurants}
                 selectedRestaurant={selectedRestaurant}
                 onRestaurantClick={handleMapRestaurantClick}
+                onLockedClick={handleLockedClick}
+                lockedLabel={lockedMarkerLabel}
                 location={location}
               />
             </div>

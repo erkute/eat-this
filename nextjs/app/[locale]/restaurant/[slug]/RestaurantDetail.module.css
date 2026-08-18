@@ -538,6 +538,18 @@
   gap: 6px;
 }
 
+.factsLink {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: color 140ms ease;
+}
+
+.factsLink:hover,
+.factsLink:focus-visible {
+  color: var(--detail-red);
+}
+
 .hoursDay {
   color: var(--detail-muted);
 }
@@ -553,6 +565,19 @@
   margin-bottom: clamp(38px, 7vw, 86px);
 }
 
+/* The three contact actions split one row instead of stacking. */
+.actsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.actsRow > * {
+  flex: 1 1 0;
+  min-width: 96px;
+}
+
 .act,
 .actPrimary {
   min-height: 46px;
@@ -562,7 +587,9 @@
   padding: 13px 20px 14px;
   background: var(--detail-ink);
   color: var(--detail-paper);
+  border: 0;
   border-radius: var(--et-radius-control, 0);
+  cursor: pointer;
   font-family: var(--f-display);
   font-size: 18px;
   font-weight: 700;
@@ -810,6 +837,13 @@
   .act,
   .actPrimary {
     width: 100%;
+  }
+
+  .actsRow .act,
+  .actsRow .actPrimary {
+    width: auto;
+    padding-inline: 10px;
+    font-size: 16px;
   }
 
   .sibCards {

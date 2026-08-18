@@ -3,9 +3,12 @@ import { client } from '@/lib/sanity'
 import { restaurantMapDetailQuery } from '@/lib/map/queries'
 
 // On-demand detail fields for the map detail sheet (address, phone, tip,
-// description, …). These are the same editorial/contact fields the public
-// /restaurant/[slug] SEO page already renders, so no auth gate — the point
-// is that they no longer ship up-front in the map payload for every spot.
+// description, …). Same editorial/contact fields the public /restaurant/[slug]
+// SEO page renders, so no auth gate — the point is that they no longer ship
+// up-front in the map payload for every spot. The two projections are separate
+// and have drifted before (`phone` was here and not there, which left the
+// public page unable to offer a call button); the overlap the UI depends on is
+// pinned by lib/__tests__/restaurantContactFields.test.ts.
 export const revalidate = 3600
 
 export async function GET(

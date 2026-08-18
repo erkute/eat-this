@@ -25,6 +25,7 @@ import HeartCount from '@/app/components/HeartCount'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
 import MapIntentLink from '@/app/components/MapIntentLink'
+import ShareButton from '@/app/components/ShareButton'
 import RestaurantFAQ from '@/app/components/RestaurantFAQ'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
@@ -207,6 +208,13 @@ export default async function RestaurantPage({ params }: PageProps) {
   const websiteUrl = websiteInfo?.url ?? null
   const address = r.address
   const mapHref = `/map?r=${slug}`
+  // Same derivation as the map sheet: a name+address search always resolves to
+  // a result, whereas the curated mapsUrl can be stale. This page had neither —
+  // its only Google-Maps links were photo credits.
+  const mapsHref = address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
+    : (r.mapsUrl ?? null)
+  const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null
 
   const homeLabel = de ? 'Start' : 'Home'
   const districtsLabel = de ? 'Bezirke' : 'Districts'
@@ -371,13 +379,26 @@ export default async function RestaurantPage({ params }: PageProps) {
               <dd className={styles.factsVal}>
                 {(() => {
                   const idx = address.indexOf(',')
-                  if (idx === -1) return address
+                  const lines =
+                    idx === -1 ? (
+                      address
+                    ) : (
+                      <>
+                        {address.slice(0, idx).trim()}
+                        <br />
+                        {address.slice(idx + 1).trim()}
+                      </>
+                    )
+                  if (!mapsHref) return lines
                   return (
-                    <>
-                      {address.slice(0, idx).trim()}
-                      <br />
-                      {address.slice(idx + 1).trim()}
-                    </>
+                    <a
+                      className={styles.factsLink}
+                      href={mapsHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {lines}
+                    </a>
                   )
                 })()}
               </dd>
@@ -403,7 +424,45 @@ export default async function RestaurantPage({ params }: PageProps) {
         </dl>
 
         <div className={styles.acts}>
-          <MapIntentLink href={mapHref} rel="nofollow" className={`${styles.act} ${styles.actPrimary}`}>
+          {/* Route / call / share share one row — they are the three things a
+              hungry visitor does next, and six stacked full-width buttons at
+              375px is a wall. The rest stay stacked below. */}
+          <div className={styles.actsRow}>
+            {mapsHref && (
+              <a
+                className={`${styles.act} ${styles.actPrimary}`}
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {de ? 'Route' : 'Directions'}
+              </a>
+            )}
+            {telHref && (
+              <a className={styles.act} href={telHref}>
+                {de ? 'Anrufen' : 'Call'}
+              </a>
+            )}
+            <ShareButton
+              title={r.name}
+              slug={slug}
+              contentType="restaurant"
+              className={styles.act}
+              label={de ? 'Teilen' : 'Share'}
+              copiedLabel={de ? 'Kopiert' : 'Copied'}
+            />
+          </div>
+          {r.reservationUrl && (
+            <a
+              className={styles.act}
+              href={r.reservationUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
+              {de ? 'Reservieren' : 'Reserve'}
+            </a>
+          )}
+          <MapIntentLink href={mapHref} rel="nofollow" className={styles.act}>
             {de ? 'Auf der Map öffnen' : 'Open on the map'}
           </MapIntentLink>
           {websiteUrl && (

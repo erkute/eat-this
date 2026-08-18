@@ -36,6 +36,7 @@ export const restaurantBySlugQuery = `
     priceRange,
     lat,
     lng,
+    phone,
     mapsUrl,
     website,
     menuUrl,

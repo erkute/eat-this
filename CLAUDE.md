@@ -78,15 +78,16 @@ cd nextjs && npx tsc --noEmit
 
 ## Local agent tooling (`.claude/`)
 
-`.gitignore` excludes `.claude/*` and re-includes only `launch.json`, so everything below lives **on this machine only** — a fresh clone has none of it.
+`.gitignore` excludes `.claude/*` and re-includes exactly two paths: `launch.json` and the `deploy-verify` skill. Everything else below lives **on this machine only** — a fresh clone has none of it.
+
+To share another path, re-include the whole directory chain, not just the file: `!.claude/skills/`, then `.claude/skills/*`, then `!.claude/skills/<name>/`. Git never descends into an excluded directory, so a lone `!.claude/skills/<name>/SKILL.md` is silently ignored and the file stays invisible.
 
 - `settings.json` wires two hooks:
   - **PreToolUse** `hooks/protect-sensitive.sh` — turns edits to `.env*` and `firestore.rules` into an explicit confirmation prompt. It never blocks, it only asks.
   - **PostToolUse** `hooks/format-lint.sh` — runs Prettier `--write` and (for JS/TS under `nextjs/`) ESLint `--fix` on the edited file. Always exits 0, skips `studio/`, `node_modules/` and minified output. **Don't hand-format edited files**; the hook already did.
 - `agents/security-reviewer.md` — review agent for diffs touching auth, Stripe, `firestore.rules`, API routes or Cloud Functions.
-- `skills/deploy-verify/SKILL.md` — how to confirm an App Hosting rollout actually landed without being fooled by the CDN edge cache.
-- `launch.json` (the one tracked file) — dev-server config for the preview pane, `npm run dev` with `autoPort`.
-
+- `skills/deploy-verify/SKILL.md` **(tracked)** — how to confirm an App Hosting rollout actually landed without being fooled by the CDN edge cache. It also carries the production/staging project pairing, which is the fact most easily got wrong.
+- `launch.json` **(tracked)** — dev-server config for the preview pane, `npm run dev` with `autoPort`.
 
 ## Restaurant imports
 

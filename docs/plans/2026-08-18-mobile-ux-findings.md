@@ -7,6 +7,10 @@ Rolle: hungrig, 20–40, sucht abends in Berlin was zu essen.
 **Erledigt** (PR #337 → staging, PR #338 → main): Order-Block-Overflow,
 Drop-Cap-Balken, Zurück-Geste auf der Map. Nicht mehr anfassen.
 
+**In PR** (→ staging): 1.1 Empty State (PR #347), 1.2 Aktionen auf der
+Detailseite (PR #348). Beide haben Reste hinterlassen — siehe die Notizen
+unter dem jeweiligen Punkt.
+
 Alles Folgende ist offen. Reihenfolge = mein Vorschlag nach Wirkung pro Aufwand,
 nicht bindend.
 
@@ -25,6 +29,15 @@ Es gibt bereits `app/components/map/MapListEmpty.tsx` — der greift hier nicht.
 Erst klären warum, dann: Empty State mit Zahl, z. B. „Keine freien Treffer für
 ‚Ramen'. 3 Ramen-Spots stecken im Dinner-Pack."
 
+**Erledigt in PR #347.** Der Grund war das Gate
+`restaurants.length === 0 && lockedRestaurants.length === 0` in
+`RestaurantList.tsx` — „Ramen" ist 0 frei / 3 gesperrt, also war die zweite
+Hälfte falsch und der Block blieb genau im erklärungsbedürftigen Fall aus. Die
+Zahl kommt jetzt ungekappt aus `useMapFilters` (`lockedMatchCount`); die auf 20
+Zeilen gekappte Teaser-Liste hatte keinen Konsumenten mehr und ist entfallen.
+
+Offen bleibt: **die Kartenfläche selbst ist weiter leer** — das ist 2.4.
+
 ### 1.2 Kein Weg zum Restaurant auf der Detailseite
 
 `/restaurant/<slug>` hat exakt drei Links: 2× `/map?r=…` und Instagram. Kein
@@ -37,6 +50,25 @@ landen, ist also die schlechtere Variante. Umgekehrt fehlt dem Sheet der
 
 Vorschlag: Sticky Action-Bar unten `[Route] [Anrufen] [Teilen]`, und beide
 Detailansichten auf eine gemeinsame Datenquelle ziehen.
+
+**Erledigt in PR #348**, ohne Sticky Bar: Route/Anrufen/Teilen sind in die
+bestehende `.acts`-Reihe gewandert, die Adresse ist der Route-Link. Gemessen
+vorher: 0 `tel:`, 0 Teilen, 0 Route — die drei `google.com/maps`-Links auf der
+Seite waren Foto-Credits. Teilen liegt jetzt einmal in
+`app/components/ShareButton.tsx`, beide Oberflächen benutzen es.
+
+Was davon offen bleibt:
+
+- **Die zwei GROQ-Projektionen sind weiter getrennt.** `restaurantBySlugQuery`
+  und `restaurantMapDetailQuery` waren auseinandergelaufen — `phone` gab es nur
+  im Sheet, deshalb konnte die Seite gar keinen Anrufen-Button füllen. In #348
+  wurde nur `phone` ergänzt; die Überlappung, auf die das UI baut, hält jetzt
+  `lib/__tests__/restaurantContactFields.test.ts` fest. Eine gemeinsame
+  Projektion wäre die eigentliche Lösung.
+- **Der „Was bestellen?"-Block fehlt dem Sheet weiterhin.** Unberührt.
+- **Datenlücke, nicht Code-Lücke:** `Anrufen` erscheint auf 11 von 26 freien
+  Spots (42 %), `Reservieren` auf **keinem** — kein einziges freies Restaurant
+  hat aktuell eine `reservationUrl`. Der Code-Pfad existiert.
 
 ### 1.3 „Um dich herum" ist nicht um dich herum
 

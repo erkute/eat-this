@@ -61,7 +61,6 @@ export default function MapSection({
   fontClassName,
 }: Props) {
   const mapRef = useRef<MapRef>(null);
-  const mapWrapRef = useRef<HTMLDivElement | null>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
@@ -363,183 +362,6 @@ export default function MapSection({
     setSnap(target);
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
-
-  /* iOS URL-bar frosting for the in-flow phone detail. The MapLibre GL
-     canvas is an always-composited layer; while it sits under the detail,
-     WebKit promotes the whole detail subtree, which drops it from the
-     bottom URL bar's backdrop — the bar then samples only the page
-     background instead of the detail content (bisected on-device
-     2026-07-06: canvas hidden → frosts, canvas visible → doesn't;
-     z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
-
-     The list frosts even at scroll 0 (rows sit in the sampling strip and
-     the bar keeps its compact state across SPA navigation), so the detail
-     must too. That means the live GL layer can't be on screen AT ALL while
-     the detail is open: once the camera settles we freeze the current view
-     into a static <img> (visibility:visible child inside the hidden
-     mapWrap — the peek looks identical, just non-interactive) and hide the
-     GL layer for the whole detail lifetime. Until the snapshot is ready
-     (flyTo still moving) a scroll-start fallback hides the canvas anyway.
-     `visibility` (not `display`) so MapLibre keeps its size and repaints
-     instantly when the detail closes. */
-  useEffect(() => {
-    if (!isActive || sheetView !== 'detail') return;
-    if (typeof window === 'undefined' || !isPhoneViewport()) return;
-    /* Restaurant detail only. The must-eat detail hides the whole map strip
-       (MapLayout: [data-detail-kind='must-eat'] .mapWrap { visibility:hidden });
-       a visibility:visible snapshot <img> would override that and show a stray
-       map. selectedMustEat set = must-eat detail (see MapSectionBody
-       data-detail-kind). */
-    if (selectedMustEat) return;
-    const mapWrap = mapWrapRef.current;
-    if (!mapWrap) return;
-
-    let cancelled = false;
-    let snapshotReady = false;
-    let mode: 'frozen' | 'live' = 'frozen';
-    let snapEl: HTMLImageElement | null = null;
-    let tapEl: HTMLDivElement | null = null;
-    let waitTimer: ReturnType<typeof setTimeout> | null = null;
-    let canvasEl: HTMLCanvasElement | null = null;
-    let containerEl: HTMLElement | null = null;
-
-    /* The GL <canvas> is the always-composited layer that suppresses the
-       URL-bar backdrop; the .maplibregl-marker pins are its siblings inside
-       .maplibregl-canvas-container. Resolve both lazily — the map mounts late
-       (dynamic import). */
-    const findCanvas = () =>
-      canvasEl ?? (canvasEl = mapWrap.querySelector<HTMLCanvasElement>('.maplibregl-canvas'));
-    const findContainer = () =>
-      containerEl ??
-      (containerEl = mapWrap.querySelector<HTMLElement>('.maplibregl-canvas-container'));
-
-    /* Tap-to-activate (User wants both frost AND a movable map — mutually
-       exclusive live, so switch on demand). FROZEN (default): GL canvas
-       hidden so the URL bar frosts, the static snapshot shows the tiles with
-       the live pins on top, map non-interactive; a transparent catcher takes
-       a tap to go live. LIVE (after a tap): GL canvas shown, snapshot hidden,
-       map interactive (pan + all pins) — the frost pauses while that
-       composited layer is on screen. A scroll re-freezes it. No rAF gate:
-       scroll already fires per frame. */
-    const sync = () => {
-      const c = findCanvas();
-      const cont = findContainer();
-      if (mode === 'live') {
-        if (c) c.style.visibility = '';
-        if (snapEl) snapEl.style.visibility = 'hidden';
-        if (tapEl) tapEl.style.pointerEvents = 'none';
-        if (cont) cont.style.pointerEvents = '';
-        return;
-      }
-      if (c) c.style.visibility = snapshotReady || window.scrollY > 4 ? 'hidden' : '';
-      if (snapEl) snapEl.style.visibility = snapshotReady ? 'visible' : 'hidden';
-      if (tapEl) tapEl.style.pointerEvents = snapshotReady ? 'auto' : 'none';
-      if (cont) cont.style.pointerEvents = 'none';
-    };
-
-    const goLive = () => {
-      if (cancelled || mode === 'live') return;
-      mode = 'live';
-      sync();
-      mapRef.current?.getMap()?.triggerRepaint();
-    };
-
-    /* toDataURL on a WebGL canvas only yields pixels during the render
-       event (preserveDrawingBuffer is off) — the documented MapLibre
-       snapshot pattern: once('render') + triggerRepaint. Reused for the
-       idle-refresh: same <img>, just a fresher frame. */
-    const takeSnapshot = (map: ReturnType<MapRef['getMap']>) => {
-      if (cancelled) return;
-      map.once('render', () => {
-        if (cancelled) return;
-        try {
-          const url = map.getCanvas().toDataURL('image/jpeg', 0.75);
-          const container = findContainer() ?? mapWrap;
-          if (!snapEl) {
-            snapEl = document.createElement('img');
-            snapEl.alt = '';
-            snapEl.setAttribute('aria-hidden', 'true');
-            snapEl.style.cssText =
-              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible;pointer-events:none;';
-            /* FIRST child so the frozen tiles paint UNDER every marker,
-               whenever the pins mount (they append after — first-child, not
-               insertBefore(firstMarker), because the snapshot often fires
-               before any pin exists; the old fallback appended it on top and
-               buried them, "die pins sind nicht zurück"). */
-            container.insertBefore(snapEl, container.firstChild);
-          }
-          if (!tapEl) {
-            /* Transparent catcher ABOVE the pins (z-index, robust against
-               late-mounting markers) — a tap on the frozen map goes live. */
-            tapEl = document.createElement('div');
-            tapEl.setAttribute('aria-hidden', 'true');
-            tapEl.style.cssText =
-              'position:absolute;inset:0;z-index:5;cursor:pointer;pointer-events:none;';
-            tapEl.addEventListener('click', goLive);
-            container.appendChild(tapEl);
-          }
-          snapEl.src = url;
-          snapshotReady = true;
-          mode = 'frozen';
-          sync();
-        } catch {
-          /* Snapshot failed (tainted canvas or similar) — sync() still hides
-             the GL layer once the user scrolls (scrollY > 4). */
-        }
-      });
-      map.triggerRepaint();
-    };
-
-    /* The GL layer mounts late (dynamic import, deep links open the detail
-       before MapCanvasLayer exists) — poll until the map instance is there. */
-    const waitForMap = () => {
-      if (cancelled) return;
-      const map = mapRef.current?.getMap();
-      if (map) {
-        /* Freeze the CURRENT frame immediately — coming from the list the
-           tiles are warm, and waiting for the open-flyTo to settle kept the
-           GL layer (and thus the beige, sample-less bar) alive for the
-           first 1–2 s of the detail. The peek briefly shows the pre-flight
-           view; the idle refresh below swaps in the settled frame (camera
-           on the restaurant, all tiles loaded). Cold deep-links may freeze
-           a half-loaded frame first — same refresh fixes that too. */
-        takeSnapshot(map);
-        if (!map.loaded() || map.isMoving()) {
-          map.once('idle', () => takeSnapshot(map));
-        }
-        return;
-      }
-      waitTimer = setTimeout(waitForMap, 150);
-    };
-    waitForMap();
-
-    /* A scroll re-freezes a live map: the user tapped to explore, now they're
-       reading the detail — recapture the view they left it at and frost again.
-       Also drives the pre-snapshot frost fallback while frozen. */
-    const onScroll = () => {
-      if (mode === 'live' && window.scrollY > 4) {
-        const map = mapRef.current?.getMap();
-        mode = 'frozen';
-        if (map) takeSnapshot(map);
-      }
-      sync();
-    };
-    sync();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      cancelled = true;
-      if (waitTimer) clearTimeout(waitTimer);
-      window.removeEventListener('scroll', onScroll);
-      snapEl?.remove();
-      if (tapEl) {
-        tapEl.removeEventListener('click', goLive);
-        tapEl.remove();
-      }
-      if (containerEl) containerEl.style.pointerEvents = '';
-      if (canvasEl) canvasEl.style.visibility = '';
-      mapWrap.style.visibility = '';
-    };
-  }, [isActive, sheetView, selectedRestaurant?._id, selectedMustEat?._id]);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user
@@ -1427,7 +1249,6 @@ export default function MapSection({
       isActive={isActive}
       fontClassName={fontClassName}
       mapRef={mapRef}
-      mapWrapRef={mapWrapRef}
       handleRef={handleRef}
       setHeaderRef={setHeaderRef}
       setContentRef={setContentRef}

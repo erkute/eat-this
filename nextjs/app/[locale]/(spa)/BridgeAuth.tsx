@@ -3,9 +3,16 @@
 /**
  * Renders the login modal portal and synchronizes the resolved auth state.
  * Modal open/close state lives in LoginModalContext; this component only
- * consumes it. Triggers come from SiteNav (header profile icon), BurgerDrawer
- * (login button), and MustEatTeaserSection (locked card click) via
- * useLoginModal().
+ * consumes it. Triggers call useLoginModal().open(mode), where mode defaults
+ * to 'starter':
+ *
+ *   BurgerDrawer      login button, only while signed out (default 'starter')
+ *   MustEatDetail     reveal flow hits the login wall ('starter')
+ *   RestaurantDetail  starter-pack banner ('starter'); existing user ('signin')
+ *   RestaurantList    end-of-list promo, rendered only when signed out ('signin')
+ *   useFavorites      heart toggle with no signed-in user ('signin')
+ *
+ * SiteNav does not open the modal — it has no login affordance at all.
  *
  * - localStorage._authHint: read by the inline CRITICAL_BOOTSTRAP in
  *   [locale]/layout.tsx only to set html[data-auth] before paint. The

@@ -396,24 +396,52 @@ export default function MapSection({
 
     let cancelled = false;
     let snapshotReady = false;
+    let mode: 'frozen' | 'live' = 'frozen';
     let snapEl: HTMLImageElement | null = null;
+    let tapEl: HTMLDivElement | null = null;
     let waitTimer: ReturnType<typeof setTimeout> | null = null;
     let canvasEl: HTMLCanvasElement | null = null;
+    let containerEl: HTMLElement | null = null;
 
-    /* Hide only the GL <canvas> — the always-composited layer that suppresses
-       the URL-bar backdrop — NOT the whole mapWrap. The restaurant pins are
-       .maplibregl-marker siblings of the canvas; hiding the wrapper took them
-       down too (User: "sehe die Icons nicht mehr"). The canvas mounts late
-       (dynamic import), so resolve it lazily. */
+    /* The GL <canvas> is the always-composited layer that suppresses the
+       URL-bar backdrop; the .maplibregl-marker pins are its siblings inside
+       .maplibregl-canvas-container. Resolve both lazily — the map mounts late
+       (dynamic import). */
     const findCanvas = () =>
       canvasEl ?? (canvasEl = mapWrap.querySelector<HTMLCanvasElement>('.maplibregl-canvas'));
+    const findContainer = () =>
+      containerEl ??
+      (containerEl = mapWrap.querySelector<HTMLElement>('.maplibregl-canvas-container'));
 
-    /* No rAF gate: scroll events already fire at frame rate, and a
-       pending-rAF gate can leave the map hidden at scroll top when rAF is
-       throttled (background tab). */
-    const apply = () => {
+    /* Tap-to-activate (User wants both frost AND a movable map — mutually
+       exclusive live, so switch on demand). FROZEN (default): GL canvas
+       hidden so the URL bar frosts, the static snapshot shows the tiles with
+       the live pins on top, map non-interactive; a transparent catcher takes
+       a tap to go live. LIVE (after a tap): GL canvas shown, snapshot hidden,
+       map interactive (pan + all pins) — the frost pauses while that
+       composited layer is on screen. A scroll re-freezes it. No rAF gate:
+       scroll already fires per frame. */
+    const sync = () => {
       const c = findCanvas();
+      const cont = findContainer();
+      if (mode === 'live') {
+        if (c) c.style.visibility = '';
+        if (snapEl) snapEl.style.visibility = 'hidden';
+        if (tapEl) tapEl.style.pointerEvents = 'none';
+        if (cont) cont.style.pointerEvents = '';
+        return;
+      }
       if (c) c.style.visibility = snapshotReady || window.scrollY > 4 ? 'hidden' : '';
+      if (snapEl) snapEl.style.visibility = snapshotReady ? 'visible' : 'hidden';
+      if (tapEl) tapEl.style.pointerEvents = snapshotReady ? 'auto' : 'none';
+      if (cont) cont.style.pointerEvents = 'none';
+    };
+
+    const goLive = () => {
+      if (cancelled || mode === 'live') return;
+      mode = 'live';
+      sync();
+      mapRef.current?.getMap()?.triggerRepaint();
     };
 
     /* toDataURL on a WebGL canvas only yields pixels during the render
@@ -426,34 +454,37 @@ export default function MapSection({
         if (cancelled) return;
         try {
           const url = map.getCanvas().toDataURL('image/jpeg', 0.75);
+          const container = findContainer() ?? mapWrap;
           if (!snapEl) {
             snapEl = document.createElement('img');
             snapEl.alt = '';
             snapEl.setAttribute('aria-hidden', 'true');
             snapEl.style.cssText =
               'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible;pointer-events:none;';
-            /* As the FIRST child of the canvas-container, so the frozen tiles
-               paint UNDER every .maplibregl-marker (same stacking context —
-               DOM order decides). Must be first-child, not before-the-first-
-               marker: the snapshot fires the moment the map is ready, often
-               BEFORE the pins mount, so an insertBefore(firstMarker) fell back
-               to appendChild and buried the pins under the image (User: "die
-               pins sind nicht zurück"). Later-mounting markers append after
-               the image and stay on top. */
-            const container = mapWrap.querySelector('.maplibregl-canvas-container') ?? mapWrap;
+            /* FIRST child so the frozen tiles paint UNDER every marker,
+               whenever the pins mount (they append after — first-child, not
+               insertBefore(firstMarker), because the snapshot often fires
+               before any pin exists; the old fallback appended it on top and
+               buried them, "die pins sind nicht zurück"). */
             container.insertBefore(snapEl, container.firstChild);
-            /* Freeze interaction too: the canvas is hidden but the map stays
-               live, so a pan would drag the pins off the static tiles. Block
-               pointer input on the map surface (the FAB/search sit outside
-               the canvas-container and stay clickable). */
-            (container as HTMLElement).style.pointerEvents = 'none';
+          }
+          if (!tapEl) {
+            /* Transparent catcher ABOVE the pins (z-index, robust against
+               late-mounting markers) — a tap on the frozen map goes live. */
+            tapEl = document.createElement('div');
+            tapEl.setAttribute('aria-hidden', 'true');
+            tapEl.style.cssText =
+              'position:absolute;inset:0;z-index:5;cursor:pointer;pointer-events:none;';
+            tapEl.addEventListener('click', goLive);
+            container.appendChild(tapEl);
           }
           snapEl.src = url;
           snapshotReady = true;
-          apply();
+          mode = 'frozen';
+          sync();
         } catch {
-          /* Snapshot failed (tainted canvas or similar) — the scroll-start
-             fallback in apply() still hides the GL layer while scrolling. */
+          /* Snapshot failed (tainted canvas or similar) — sync() still hides
+             the GL layer once the user scrolls (scrollY > 4). */
         }
       });
       map.triggerRepaint();
@@ -482,15 +513,29 @@ export default function MapSection({
     };
     waitForMap();
 
-    apply();
-    window.addEventListener('scroll', apply, { passive: true });
+    /* A scroll re-freezes a live map: the user tapped to explore, now they're
+       reading the detail — recapture the view they left it at and frost again.
+       Also drives the pre-snapshot frost fallback while frozen. */
+    const onScroll = () => {
+      if (mode === 'live' && window.scrollY > 4) {
+        const map = mapRef.current?.getMap();
+        mode = 'frozen';
+        if (map) takeSnapshot(map);
+      }
+      sync();
+    };
+    sync();
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       cancelled = true;
       if (waitTimer) clearTimeout(waitTimer);
-      window.removeEventListener('scroll', apply);
-      const container = snapEl?.parentElement as HTMLElement | null;
+      window.removeEventListener('scroll', onScroll);
       snapEl?.remove();
-      if (container) container.style.pointerEvents = '';
+      if (tapEl) {
+        tapEl.removeEventListener('click', goLive);
+        tapEl.remove();
+      }
+      if (containerEl) containerEl.style.pointerEvents = '';
       if (canvasEl) canvasEl.style.visibility = '';
       mapWrap.style.visibility = '';
     };

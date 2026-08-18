@@ -47,14 +47,20 @@ function spot(id: string, over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant
 }
 
-function layer(free: MapRestaurant[], locked: MapRestaurant[]) {
+function layer(
+  free: MapRestaurant[],
+  locked: MapRestaurant[],
+  selected: MapRestaurant | null = null,
+  selectedIsLocked = false,
+) {
   return (
     <MapCanvasLayer
       mapRef={{ current: null }}
       onMapClick={vi.fn()}
       displayedRestaurants={free}
       displayedLockedRestaurants={locked}
-      selectedRestaurant={null}
+      selectedRestaurant={selected}
+      selectedIsLocked={selectedIsLocked}
       onRestaurantClick={vi.fn()}
       onLockedClick={vi.fn()}
       lockedLabel="Gesperrter Spot"
@@ -83,6 +89,27 @@ describe('MapCanvasLayer locked spots', () => {
     // "locked first" is what keeps a free pin on top of the dots around it.
     const labels = screen.getAllByRole('button').map((el) => el.getAttribute('aria-label'))
     expect(labels).toEqual(['Gesperrter Spot', 'Gesperrter Spot', 'free-1'])
+  })
+
+  it('does not hand an open locked spot the free-spot pin', async () => {
+    // The "selected spot may sit outside the visible set" fallback exists for
+    // deep links. A locked selection is already drawn as its own dot, and the
+    // yellow pin would announce it as free at exactly the moment the sheet
+    // says it is not.
+    const target = spot('locked-1')
+    render(layer([spot('free-1')], [target], target, true))
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0))
+
+    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(1)
+    expect(screen.queryAllByLabelText('locked-1')).toHaveLength(0)
+  })
+
+  it('still gives a deep-linked free spot a pin when it is outside the set', async () => {
+    const target = spot('deep-linked')
+    render(layer([spot('free-1')], [], target, false))
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0))
+
+    expect(screen.getByLabelText('deep-linked')).toBeTruthy()
   })
 
   it('draws nothing extra when no locked spot matches the filter', async () => {

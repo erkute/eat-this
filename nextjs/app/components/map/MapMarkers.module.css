@@ -242,3 +242,11 @@
   background: rgba(21, 18, 14, 0.72);
   transform: scale(1.25);
 }
+
+/* The dot whose sheet is open. It stays a dot — promoting it to a pin would
+   read as "this one is free" at exactly the moment the sheet says it is not. */
+.pinLockedActive .pinLockedDot {
+  background: var(--et-home-ink, #15120e);
+  border-color: var(--et-home-accent, #ffc600);
+  transform: scale(1.55);
+}

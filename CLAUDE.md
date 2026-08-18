@@ -17,7 +17,9 @@ Re-confirm only if the change crosses obvious module boundaries.
 
 ## Git Hygiene (parallel sessions)
 
-This repo is occasionally worked on in **multiple agent sessions simultaneously**. The working tree and git index are shared between them, which means one session's staged changes can accidentally be committed by another.
+This repo is occasionally worked on in **multiple agent sessions simultaneously**, in two shapes. Sessions in this directory share the working tree and the git index outright, so one session's staged changes can accidentally be committed by another. Sessions in their own `git worktree` get a private tree, but still share the object database and — the part that surprises — **the branch pointers**. Either shape can put someone else's work in your commit.
+
+`git worktree list` shows what else is checked out right now, and `git branch` marks those branches with `+`.
 
 **Before any `git commit`:**
 
@@ -32,7 +34,9 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 git checkout -b <branch> origin/staging
 ```
 
-Not the bare `git checkout -b <branch>`. That branches off whatever the local branch pointer happens to be _at that instant_, and a parallel session can commit onto it between your `git status` and your checkout. The shared branch pointer is the same hazard as the shared index, one level up: the foreign commit then sits under yours and rides along into the PR. Naming the base closes the window.
+Not the bare `git checkout -b <branch>`. That branches off whatever the local branch pointer happens to be _at that instant_, and another session — or another worktree — can commit onto it between your `git status` and your checkout. The foreign commit then sits under yours and rides along into the PR. Naming the base closes the window.
+
+This one bites **even with a private working tree**, so a worktree is no protection: `git status` is clean and honest, and the commit still arrives from the side. It is the shared-index hazard one level up.
 
 **Before any `git push` to `main`:**
 

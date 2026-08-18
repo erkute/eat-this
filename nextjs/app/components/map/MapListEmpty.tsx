@@ -14,6 +14,8 @@ interface Props {
   filterLabel?: string | null
   /** All-Berlin pack link, rendered only in the locked variant. */
   packHref?: string
+  /** District index — the free way to read the spots the map is holding back. */
+  districtsHref?: string
 }
 
 export default function MapListEmpty({
@@ -21,6 +23,7 @@ export default function MapListEmpty({
   lockedCount = 0,
   filterLabel,
   packHref,
+  districtsHref,
 }: Props) {
   const { t } = useTranslation()
   // Legacy t() can't interpolate ICU values — parametrized keys go through
@@ -43,6 +46,17 @@ export default function MapListEmpty({
       <span className={styles.esKicker}>{kicker}</span>
       <h3 className={styles.esHeading}>{heading}</h3>
       <p className={styles.esSub}>{body}</p>
+      {/* The paywall covers the map, not the writing. Without this line a
+          locked-only search reads as broken rather than limited — the spots it
+          "cannot find" are sitting on a free district page. */}
+      {locked && districtsHref && (
+        <p className={styles.esFree}>
+          {t('map.emptyLockedFree')}{' '}
+          <a className={styles.esFreeLink} href={districtsHref}>
+            {t('map.emptyLockedFreeCta')}
+          </a>
+        </p>
+      )}
       {(onReset || (locked && packHref)) && (
         <div className={styles.esActions}>
           {locked && packHref && (

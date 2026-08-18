@@ -162,3 +162,25 @@
   background: var(--et-home-accent, #ffc600);
   transform: translateX(-3px);
 }
+
+/* Free-tier note — the paywall covers the map, not the writing. Quieter than
+   the body copy so it reads as a footnote to the offer, not a competing one. */
+.esFree {
+  max-width: 32ch;
+  margin: 2px 0 8px;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.38;
+}
+
+.esFreeLink {
+  color: var(--et-home-ink, #15120e);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}

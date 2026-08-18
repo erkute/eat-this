@@ -48,7 +48,7 @@ function RestaurantMarker({
       longitude={restaurant.lng}
       latitude={restaurant.lat}
       anchor="bottom"
-      className={styles.markerRoot}
+      className={isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot}
       onClick={(e) => {
         e.originalEvent.stopPropagation();
         onClick(restaurant);
@@ -73,9 +73,6 @@ function RestaurantMarker({
           event.stopPropagation();
           onClick(restaurant);
         }}
-        // Lets the detail-peek snapshot (MapSection) find and clone the
-        // selected pin — DOM markers aren't part of the GL canvas frame.
-        {...(isSelected ? { 'data-selected-pin': '' } : {})}
       >
         <span className={styles.pinLogoShape} aria-hidden="true">
           <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />

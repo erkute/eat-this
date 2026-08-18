@@ -10,6 +10,15 @@
   will-change: transform;
 }
 
+/* Selected pin always on top. MapLibre stacks markers purely by DOM order
+   (it sets no inline z-index), so a later-inserted pin would otherwise paint
+   over the active one. z-index must sit on the marker ROOT — the inner
+   .pinLogoActive z-index only orders within this marker's own box, not
+   against sibling markers. */
+.markerRootActive:global(.maplibregl-marker) {
+  z-index: 10;
+}
+
 /* Restaurant logo marker ----------------------------------------------- */
 
 .pinLogo {

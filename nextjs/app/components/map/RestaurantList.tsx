@@ -224,6 +224,7 @@ export default function RestaurantList({
 
   const allBerlinHref =
     locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
+  const districtsHref = locale === routing.defaultLocale ? '/bezirk' : `/${locale}/bezirk`;
 
   // Zero free rows always gets the empty state — it used to be gated on the
   // locked list being empty too, so a search that only matched locked spots
@@ -238,6 +239,7 @@ export default function RestaurantList({
         lockedCount={userTier === 'allBerlin' ? 0 : lockedMatchCount}
         filterLabel={activeFilterLabel}
         packHref={allBerlinHref}
+        districtsHref={districtsHref}
       />
     );
 

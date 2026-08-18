@@ -321,6 +321,11 @@ const en = {
       '{count, plural, one {1 matching spot for “{label}” is still locked — it’s inside a Booster Pack.} other {# matching spots for “{label}” are still locked — they’re inside Booster Packs.}}',
     emptyLockedBodyBare:
       '{count, plural, one {1 matching spot is still locked — it’s inside a Booster Pack.} other {# matching spots are still locked — they’re inside Booster Packs.}}',
+    // The paywall covers the map, not the writing — every spot is readable for
+    // free on its district list. Saying so is what stops a locked-only search
+    // from reading as broken rather than limited.
+    emptyLockedFree: 'Reading them is free — every spot is on its district list.',
+    emptyLockedFreeCta: 'To the district lists',
     listEndKicker: 'All Berlin',
     listEndTitle: 'Unlock all of Berlin',
     listEndSub: 'Nine Booster Packs with every spot and Must Eat, right on your map.',
@@ -853,6 +858,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{count, plural, one {Für „{label}“ ist 1 passender Spot noch gesperrt — er steckt in einem Booster Pack.} other {Für „{label}“ sind # passende Spots noch gesperrt — sie stecken in Booster Packs.}}',
     emptyLockedBodyBare:
       '{count, plural, one {1 passender Spot ist noch gesperrt — er steckt in einem Booster Pack.} other {# passende Spots sind noch gesperrt — sie stecken in Booster Packs.}}',
+    emptyLockedFree: 'Lesen kannst du sie frei — jeder Spot steht in seiner Bezirk-Liste.',
+    emptyLockedFreeCta: 'Zu den Bezirk-Listen',
     listEndKicker: 'All Berlin',
     listEndTitle: 'Schalt dir ganz Berlin frei',
     listEndSub: 'Neun Booster Packs mit allen Spots und Must Eats direkt auf deiner Map.',

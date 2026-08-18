@@ -58,6 +58,28 @@ describe('MapListEmpty', () => {
     )
   })
 
+  it('points at the free district lists — the paywall covers the map, not the writing', () => {
+    render(
+      <MapListEmpty
+        lockedCount={3}
+        filterLabel="Ramen"
+        packHref="/pack/all-berlin"
+        districtsHref="/bezirk"
+      />,
+    )
+
+    const free = screen.getByRole('link', { name: 'map.emptyLockedFreeCta' })
+    expect(free).toHaveProperty('href', expect.stringContaining('/bezirk'))
+    expect(screen.getByRole('status').textContent).toContain('map.emptyLockedFree')
+  })
+
+  it('offers no free-lists route when nothing matches at all', () => {
+    render(<MapListEmpty lockedCount={0} districtsHref="/bezirk" />)
+
+    // Nothing is being held back, so there is nothing to read elsewhere either.
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+
   it('says "nothing found" rather than "locked" when nothing matches at all', () => {
     render(<MapListEmpty lockedCount={0} filterLabel="Xyzzy" />)
 

@@ -59,6 +59,7 @@ export interface Restaurant {
   priceRange?: PriceRange
   lat: number
   lng: number
+  phone?: string
   mapsUrl?: string
   website?: string
   menuUrl?: string

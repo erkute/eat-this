@@ -43,6 +43,8 @@ interface MapCanvasLayerProps {
   /** Paywalled spots matching the active filter — drawn as muted dots. */
   displayedLockedRestaurants: MapRestaurant[];
   selectedRestaurant: MapRestaurant | null;
+  /** True when the open sheet belongs to a paywalled spot. */
+  selectedIsLocked: boolean;
   onRestaurantClick: (r: MapRestaurant) => void;
   onLockedClick: (r: MapRestaurant) => void;
   lockedLabel: string;
@@ -55,6 +57,7 @@ export default function MapCanvasLayer({
   displayedRestaurants,
   displayedLockedRestaurants,
   selectedRestaurant,
+  selectedIsLocked,
   onRestaurantClick,
   onLockedClick,
   lockedLabel,
@@ -92,7 +95,13 @@ export default function MapCanvasLayer({
           overlap. */}
       {painted &&
         displayedLockedRestaurants.map((r) => (
-          <LockedMarker key={r._id} restaurant={r} onClick={onLockedClick} label={lockedLabel} />
+          <LockedMarker
+            key={r._id}
+            restaurant={r}
+            isSelected={selectedIsLocked && selectedRestaurant?._id === r._id}
+            onClick={onLockedClick}
+            label={lockedLabel}
+          />
         ))}
       {painted &&
         displayedRestaurants.map((r, i) => (
@@ -104,12 +113,14 @@ export default function MapCanvasLayer({
             enterDelayMs={entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null}
           />
         ))}
-      {/* Deep-Link/Locked-Selektion: der selektierte Spot kann außerhalb
-          des sichtbaren Sets liegen (alter Share-Link, locked Preview).
-          Immer einen Pin geben — sonst zentriert die Kamera sichtbar
-          auf nichts. */}
+      {/* Deep-Link-Selektion: der selektierte Spot kann außerhalb des
+          sichtbaren Sets liegen (alter Share-Link). Immer einen Pin geben —
+          sonst zentriert die Kamera sichtbar auf nichts. Gesperrte Spots sind
+          ausgenommen: die haben schon ihren Punkt, und ein gelber Pin würde
+          sie im Moment des Öffnens als frei ausgeben. */}
       {painted &&
         selectedRestaurant &&
+        !selectedIsLocked &&
         !displayedRestaurants.some((r) => r._id === selectedRestaurant._id) && (
           <RestaurantMarker
             key={selectedRestaurant._id}

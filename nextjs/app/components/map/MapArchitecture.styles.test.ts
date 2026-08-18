@@ -88,6 +88,7 @@ describe('Map CSS architecture', () => {
       'markerRoot',
       'markerRootActive',
       'pinLocked',
+      'pinLockedActive',
       'pinLockedDot',
       'pinLogo',
       'pinLogoActive',

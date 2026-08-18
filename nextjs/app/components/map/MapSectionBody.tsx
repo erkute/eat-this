@@ -18,12 +18,12 @@ import {
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { openBurgerDrawer } from '../burgerDrawerState';
-import { useRouter } from '@/i18n/navigation';
 import { trackEvent } from '@/lib/analytics';
 
 import dynamic from 'next/dynamic';
 import RestaurantList from './RestaurantList';
 import MapSheetDetail from './MapSheetDetail';
+import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
 import MapDataNotice from './MapDataNotice';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
@@ -64,6 +64,8 @@ interface MapBodyState {
    *  rendered as blurred entries below the booster banner in the list. */
   /** Paywalled spots matching the active filter — drawn as muted dots. */
   displayedLockedRestaurants: MapRestaurant[];
+  /** Every paywalled id, so the sheet knows which detail to render. */
+  lockedIdSet: Set<string>;
   /** Uncapped locked-match count — see useMapFilters. */
   lockedMatchCount: number;
   restaurantMustEats: MapMustEat[];
@@ -141,7 +143,6 @@ export type MapSectionBodyProps = MapBodyRefs &
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
   const locale = useLocale();
-  const router = useRouter();
   const searchLabel = locale === 'en' ? 'Search' : 'Suche';
   const {
     isActive,
@@ -156,6 +157,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     dragging,
     displayedRestaurants,
     displayedLockedRestaurants,
+    lockedIdSet,
     lockedMatchCount,
     restaurantMustEats,
     pagerPrev,
@@ -224,16 +226,17 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
-  /* A locked dot has no detail to open — its whole job is to say what sits
-     behind the paywall, so it goes straight to the pack. */
+  /* A locked dot opens the sheet like any other spot. It used to navigate
+     straight to the pack page, which threw away the map, the filter and the
+     search for what is usually a "what is this?" tap. */
   const lockedMarkerLabel =
-    locale === 'en' ? 'Locked spot — unlock all Berlin' : 'Gesperrter Spot — ganz Berlin holen';
+    locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
   const handleLockedClick = useCallback(
     (r: MapRestaurant) => {
-      trackEvent('locked_spot_clicked', { restaurant_id: r._id, restaurant_slug: r.slug });
-      router.push('/pack/all-berlin');
+      trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
+      onRestaurantClick(r, 'map');
     },
-    [router],
+    [onRestaurantClick],
   );
   /* What the "0 free hits" headline is a zero *of*. Search wins because a query
      overrides every other filter in useMapFilters; then the narrowest chip.
@@ -358,6 +361,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 displayedRestaurants={displayedRestaurants}
                 displayedLockedRestaurants={displayedLockedRestaurants}
                 selectedRestaurant={selectedRestaurant}
+                selectedIsLocked={!!selectedRestaurant && lockedIdSet.has(selectedRestaurant._id)}
                 onRestaurantClick={handleMapRestaurantClick}
                 onLockedClick={handleLockedClick}
                 lockedLabel={lockedMarkerLabel}
@@ -590,6 +594,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 nextMustEat={mustEatPagerNext}
                 onPagePrev={() => onPageMustEat('prev')}
                 onPageNext={() => onPageMustEat('next')}
+              />
+            ) : sheetView === 'detail' &&
+              selectedRestaurant &&
+              lockedIdSet.has(selectedRestaurant._id) ? (
+              <LockedDetail
+                restaurant={selectedRestaurant}
+                contentRef={setContentRef}
+                onClose={onRestaurantClose}
               />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail

@@ -686,6 +686,13 @@ export default function MapSection({
     sheetView,
   ]);
 
+  /* Ids the paywall is holding back. Locked spots open the same sheet as free
+     ones — see LockedDetail for what it shows and why it names the spot. */
+  const lockedIdSet = useMemo(
+    () => new Set(lockedRestaurants.map((r) => r._id)),
+    [lockedRestaurants]
+  );
+
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
       userInteractedRef.current = true;
@@ -697,7 +704,8 @@ export default function MapSection({
       });
       // Kick off the detail-field fetch now so it's usually cached by the time
       // the sheet finishes opening (the map payload no longer carries them).
-      prefetchRestaurantDetail(r.slug);
+      // Locked spots render no detail fields, so there is nothing to prefetch.
+      if (!lockedIdSet.has(r._id)) prefetchRestaurantDetail(r.slug);
       const isMobile =
         typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
       const isPhone = isPhoneViewport();
@@ -752,6 +760,7 @@ export default function MapSection({
     },
     [
       getFlyPadding,
+      lockedIdSet,
       phoneDetailFlyPadding,
       setSearch,
       setSheetView,
@@ -1344,6 +1353,7 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
+      lockedIdSet={lockedIdSet}
       lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}

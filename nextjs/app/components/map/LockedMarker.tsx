@@ -6,6 +6,8 @@ import styles from './MapMarkers.module.css';
 
 interface LockedMarkerProps {
   restaurant: MapRestaurant;
+  /** The open sheet belongs to this dot — grow it so the tap is visible. */
+  isSelected?: boolean;
   onClick: (restaurant: MapRestaurant) => void;
   label: string;
 }
@@ -22,7 +24,7 @@ interface LockedMarkerProps {
  * Tapping one goes to the pack flow, not to a detail sheet: there is nothing
  * to show yet, and the dot's whole job is to say what is behind the paywall.
  */
-function LockedMarker({ restaurant, onClick, label }: LockedMarkerProps) {
+function LockedMarker({ restaurant, isSelected = false, onClick, label }: LockedMarkerProps) {
   // Same wrapper de-duplication as RestaurantMarker: MapLibre stamps its own
   // role="button" + aria-label on the wrapper after mount, which would
   // announce every dot as two nested buttons.
@@ -39,7 +41,7 @@ function LockedMarker({ restaurant, onClick, label }: LockedMarkerProps) {
       longitude={restaurant.lng}
       latitude={restaurant.lat}
       anchor="center"
-      className={styles.markerRoot}
+      className={isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot}
       onClick={(e) => {
         e.originalEvent.stopPropagation();
         onClick(restaurant);
@@ -49,7 +51,7 @@ function LockedMarker({ restaurant, onClick, label }: LockedMarkerProps) {
         role="button"
         tabIndex={0}
         aria-label={label}
-        className={styles.pinLocked}
+        className={isSelected ? `${styles.pinLocked} ${styles.pinLockedActive}` : styles.pinLocked}
         onKeyDown={(event) => {
           if (event.key !== 'Enter' && event.key !== ' ') return;
           event.preventDefault();
@@ -67,6 +69,7 @@ export default memo(
   LockedMarker,
   (prev, next) =>
     prev.restaurant._id === next.restaurant._id &&
+    prev.isSelected === next.isSelected &&
     prev.restaurant.lat === next.restaurant.lat &&
     prev.restaurant.lng === next.restaurant.lng &&
     prev.onClick === next.onClick &&

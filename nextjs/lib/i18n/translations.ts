@@ -311,15 +311,20 @@ const en = {
     emptyBody: 'Loosen a filter or try a different area.',
     emptyKicker: 'Nothing found',
     emptyReset: 'Reset filters',
+    // Shown when the filter matches nothing FREE but the paywall is holding
+    // matches back. Names the number, because "buy and you get more" without
+    // one is a blackbox — and for a query with no locked matches either it
+    // would be a straight lie.
+    emptyLockedKicker: 'Locked only',
+    emptyLockedTitle: '0 free hits.',
+    emptyLockedBody:
+      '{count, plural, one {1 matching spot for “{label}” is still locked — it’s inside a Booster Pack.} other {# matching spots for “{label}” are still locked — they’re inside Booster Packs.}}',
+    emptyLockedBodyBare:
+      '{count, plural, one {1 matching spot is still locked — it’s inside a Booster Pack.} other {# matching spots are still locked — they’re inside Booster Packs.}}',
     listEndKicker: 'All Berlin',
     listEndTitle: 'Unlock all of Berlin',
     listEndSub: 'Nine Booster Packs with every spot and Must Eat, right on your map.',
     listEndCta: 'Unlock all Berlin',
-    bezirkLockedTitleSuffix: 'is packed with spots',
-    bezirkLockedBodyPre: 'The spots in ',
-    bezirkLockedBodyPost:
-      " aren't on your map yet. Unlock all of Berlin and they're yours — every spot, every Must Eat.",
-    bezirkLockedCta: 'Unlock all of Berlin',
     mustEatAtAria: 'Must Eat at {name}',
     proximityHere: 'Reveal now',
     proximityAway: '{distance} to go',
@@ -842,15 +847,16 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyBody: 'Filter lockern oder andere Gegend probieren.',
     emptyKicker: 'Nichts gefunden',
     emptyReset: 'Filter zurücksetzen',
+    emptyLockedKicker: 'Nur gesperrt',
+    emptyLockedTitle: '0 freie Treffer.',
+    emptyLockedBody:
+      '{count, plural, one {Für „{label}“ ist 1 passender Spot noch gesperrt — er steckt in einem Booster Pack.} other {Für „{label}“ sind # passende Spots noch gesperrt — sie stecken in Booster Packs.}}',
+    emptyLockedBodyBare:
+      '{count, plural, one {1 passender Spot ist noch gesperrt — er steckt in einem Booster Pack.} other {# passende Spots sind noch gesperrt — sie stecken in Booster Packs.}}',
     listEndKicker: 'All Berlin',
     listEndTitle: 'Schalt dir ganz Berlin frei',
     listEndSub: 'Neun Booster Packs mit allen Spots und Must Eats direkt auf deiner Map.',
     listEndCta: 'Ganz Berlin holen',
-    bezirkLockedTitleSuffix: 'steckt voller Spots',
-    bezirkLockedBodyPre: 'Die Spots in ',
-    bezirkLockedBodyPost:
-      ' sind noch nicht auf deiner Map. Mit ganz Berlin schaltest du sie frei — jeden Spot, jedes Must Eat.',
-    bezirkLockedCta: 'Ganz Berlin holen',
     mustEatAtAria: 'Must Eat bei {name}',
     proximityHere: 'Jetzt aufdecken',
     proximityAway: 'Noch {distance}',

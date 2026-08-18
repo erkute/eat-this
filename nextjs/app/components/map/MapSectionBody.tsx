@@ -1,10 +1,10 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
-import type { CategoryDef } from '@/lib/categories';
+import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
@@ -60,7 +60,8 @@ interface MapBodyState {
   displayedRestaurants: MapRestaurant[];
   /** Locked preview rows — same filter pipeline as displayedRestaurants,
    *  rendered as blurred entries below the booster banner in the list. */
-  displayedLockedRestaurants: MapRestaurant[];
+  /** Uncapped locked-match count — see useMapFilters. */
+  lockedMatchCount: number;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
   selectedMustEat: MapMustEat | null;
@@ -149,7 +150,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     snap,
     dragging,
     displayedRestaurants,
-    displayedLockedRestaurants,
+    lockedMatchCount,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -217,6 +218,21 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
+  /* What the "0 free hits" headline is a zero *of*. Search wins because a query
+     overrides every other filter in useMapFilters; then the narrowest chip.
+     "Open now" alone yields no label — the count still carries the message. */
+  const emptyFilterLabel = useMemo(() => {
+    const q = search.trim();
+    if (q) return q;
+    if (bezirk) return bezirk;
+    if (cuisine) return cuisine;
+    if (category !== 'All') {
+      const def = categories.find((c) => c.slug === category);
+      return def ? localizedCategoryName(def, locale === 'en' ? 'en' : 'de') : null;
+    }
+    return null;
+  }, [search, bezirk, cuisine, category, categories, locale]);
+
   const rawLocationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
   /* The only non-error copy is the "searching" one, so this is exactly the
      transient state that used to flash. Errors stay immediate — they are the
@@ -594,7 +610,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <div ref={setContentRef} className={sheetStyles.listScroll}>
                   <RestaurantList
                     restaurants={displayedRestaurants}
-                    lockedRestaurants={displayedLockedRestaurants}
                     userLocation={location}
                     selectedId={selectedRestaurant?._id ?? null}
                     uid={uid}
@@ -604,7 +619,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
-                    activeBezirk={bezirk}
+                    lockedMatchCount={lockedMatchCount}
+                    activeFilterLabel={emptyFilterLabel}
                   />
                 </div>
               </>

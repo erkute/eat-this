@@ -252,7 +252,7 @@ export default function MapSection({
     bezirkCenters,
     cuisineNames,
     displayedRestaurants,
-    displayedLockedRestaurants,
+    lockedMatchCount,
   } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
 
   const [searchOpen, setSearchOpen] = useState(false);
@@ -1342,7 +1342,7 @@ export default function MapSection({
       snap={snap}
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
-      displayedLockedRestaurants={displayedLockedRestaurants}
+      lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}

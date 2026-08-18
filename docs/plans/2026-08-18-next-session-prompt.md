@@ -11,10 +11,10 @@ Begründung, die man sonst neu herleitet. Ich will die schrittweise abarbeiten,
 nicht alles auf einmal.
 
 Vorgeschichte: PR #337 (drei Bugs) → `staging`, PR #338 (Promotion) → `main`,
-beide gemerged. Erledigt und **nicht nochmal anfassen**: der Grid-Overflow im
-„Was bestellen?"-Block, der Drop-Cap-Balken bei Ledes mit „I", und die
-Zurück-Geste auf der Map (inkl. des dabei gefundenen stale `?r=` beim
-X-Schließen).
+beide gemerged und auf Produktion ausgerollt. Erledigt und **nicht nochmal
+anfassen**: der Grid-Overflow im „Was bestellen?"-Block, der Drop-Cap-Balken bei
+Ledes mit „I", und die Zurück-Geste auf der Map (inkl. des dabei gefundenen
+stale `?r=` beim X-Schließen).
 
 ## Vorgehen
 
@@ -50,6 +50,12 @@ formulierst.
 ## Randbedingungen, die hier greifen
 
 - `CLAUDE.md` ist die Quelle der Wahrheit, `AGENTS.md` ist Referenzdetail.
+- **Lies den Git-Hygiene-Abschnitt in `CLAUDE.md`.** An diesem Repo arbeiten
+  mehrere Sessions und `git worktree`s gleichzeitig, und zwar wirklich: in der
+  Session, die diese Datei geschrieben hat, hat eine andere Session den Branch
+  unter mir gewechselt und einen Fremd-Commit unter meinen geschoben. Branch
+  immer mit explizitem Base anlegen (`git checkout -b <name> origin/staging`),
+  und vor jedem Commit `git status` lesen.
 - **Keine Opacity-Fades** für Ein-/Ausblend-Motion auf Marken-Oberflächen.
   Zustandswechsel (Hover, Backdrop) dürfen Opacity nutzen, Bewegung nicht.
 - Die App ist **light-only**, das ist entschieden. Kein `prefers-color-scheme`,

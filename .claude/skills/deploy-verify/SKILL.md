@@ -12,12 +12,13 @@ The job: confirm a rollout finished, **without** being fooled by the CDN edge ca
 
 - **Two separate Firebase projects.** Production and staging are not two backends in one project — `lib/firebase/project-boundary.ts` actively rejects the production project ID on staging, and the old staging backend inside the production project was deleted.
 
-  | Branch | Firebase project | Backend | URL |
-  | --- | --- | --- | --- |
-  | `main` | `eat-this-8a13b` | `eat-this` | `https://www.eatthisdot.com` |
+  | Branch    | Firebase project         | Backend            | URL                                                |
+  | --------- | ------------------------ | ------------------ | -------------------------------------------------- |
+  | `main`    | `eat-this-8a13b`         | `eat-this`         | `https://www.eatthisdot.com`                       |
   | `staging` | `eat-this-staging-8a13b` | `eat-this-staging` | `…--eat-this-staging-8a13b.us-central1.hosted.app` |
 
   Both region `us-central1`. Staging is Basic-Auth gated + `noindex`.
+
 - **Always pass `--project` explicitly.** A backend name alone resolves against whatever project is active, and the two projects have same-shaped backends — the wrong pair silently reports the wrong timestamp.
 - Push to `main` → production auto-builds `nextjs/` (~3–10 min typical). Push to `staging` → the staging backend. Flow is feature branch → PR into `staging` → PR into `main`, so confirm **which** backend you are verifying before reading a timestamp.
 - Firestore rules and Sanity Studio deploy **separately** (not via git push).
@@ -29,17 +30,27 @@ The job: confirm a rollout finished, **without** being fooled by the CDN edge ca
 ## Steps
 
 1. **Check the backend timestamp:**
+
    ```bash
    # production
    firebase apphosting:backends:get eat-this --project eat-this-8a13b
    # staging
    firebase apphosting:backends:get eat-this-staging --project eat-this-staging-8a13b
    ```
-   Read the **"Updated Date"** (shown in local TZ, UTC+2). If it's at/after when you pushed, the latest rollout succeeded — you're done. There is **no** `apphosting:rollouts:list` command in the CLI; don't look for it.
+
+   Read the **"Updated Date"** (shown in local TZ, UTC+2). If it's at/after when you pushed, the latest rollout succeeded — you're done.
+
+   A backend that has not finished yet still shows the **previous** rollout's date, which reads exactly like a stuck deploy. That is what step 3 is for — don't act on the first stale-looking read.
+
+   `apphosting:rollouts:list <backendId>` does exist (this file used to claim otherwise), but it is the worse tool here:
+   - without `-l/--location` it fails with `HTTP 400 … given collection path not supported for aggregated list`, and `--location` already warns that it is being removed in the next major release
+   - the output is **not** sorted by time — on this backend the first entries were three weeks old among 597 rollouts, so "the latest rollout" means sorting `createTime` yourself
+
+   Use it only when you need a rollout's `state` (`SUCCEEDED` / failed) or its build id. For the plain "did my push land" question, the backend timestamp answers it in one line.
 
 2. **Cross-check the commit** that's live, if needed: compare the deployed revision against `git rev-parse HEAD`.
 
-3. **Decide if it's actually stuck:** only suspect a hang when *both* (a) well past ~10 min have elapsed **and** (b) the backend "Updated Date" is still old. A fresh timestamp + stale page = CDN cache, not a hang. Do not trigger a redundant manual rollout on a content poll alone (this has happened — one redundant rollout was fired needlessly).
+3. **Decide if it's actually stuck:** only suspect a hang when _both_ (a) well past ~10 min have elapsed **and** (b) the backend "Updated Date" is still old. A fresh timestamp + stale page = CDN cache, not a hang. Do not trigger a redundant manual rollout on a content poll alone (this has happened — one redundant rollout was fired needlessly).
 
 4. **Manual rollout (only if genuinely stuck):**
    ```bash

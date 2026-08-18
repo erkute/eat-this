@@ -7,6 +7,8 @@ Fresh repo since 2026-06 (legacy vanilla-JS SPA and one-off migration scripts we
 - `nextjs/` — the live app (Next.js App Router, deployed via Firebase App Hosting)
 - `studio/` — Sanity Studio (deployed manually via `sanity deploy`)
 
+**This file is the source of truth.** `AGENTS.md` holds reference detail that would bloat this file — the design system (tokens, type scale, layout), code conventions (naming, server/client split, GROQ loader pattern, TypeScript/error rules), the Sanity document model, the Stripe fulfillment path, and brand voice. Read it when working in those areas. **On any contradiction, this file wins** and `AGENTS.md` gets corrected. Anything in `docs/` is historical: plans, specs and runbooks record what was decided then, not what is true now.
+
 ## Aggressive cleanup is OK (very early stage)
 
 The project has essentially no live users yet — Stripe is in live mode but only for internal testing. When you touch legacy or dead code, **rip it out entirely**: no compatibility shims, no "in case someone migrates" preservation, no deprecation paths. Backwards compatibility for a userbase that doesn't exist is just clutter.
@@ -95,10 +97,19 @@ cd nextjs && npx tsc --noEmit
 
 ## Staging branch workflow
 
-This repo has a `staging` long-running branch that auto-deploys to a second
-App Hosting backend (`eat-this-staging`). Feature work flows:
+This repo has a `staging` long-running branch that auto-deploys to its own
+App Hosting backend. Feature work flows:
 
 feature branch → PR into `staging` → smoke on staging URL → PR into `main`
+
+**Staging is a separate Firebase project, not a second backend in the production one.** `lib/firebase/project-boundary.ts` actively rejects the production project ID on staging and fails closed; the old staging backend that used to live inside the production project was deleted.
+
+| Branch | Firebase project | Backend | URL |
+| --- | --- | --- | --- |
+| `main` | `eat-this-8a13b` | `eat-this` | `https://www.eatthisdot.com` |
+| `staging` | `eat-this-staging-8a13b` | `eat-this-staging` | `…--eat-this-staging-8a13b.us-central1.hosted.app` |
+
+Always pass `--project` explicitly to any `firebase` command — a bare backend name resolves against whatever project happens to be active, and both projects have same-shaped backends.
 
 - Never push directly to `main` — branch protection now blocks it
 - `staging` allows direct push for solo-dev speed
@@ -111,6 +122,23 @@ feature branch → PR into `staging` → smoke on staging URL → PR into `main`
 
 For the migration breakdown, see
 `docs/specs/2026-05-27-staging-and-migration-design.md`.
+
+### Name the deployment state exactly
+
+A push is not a deploy. Use these words and don't upgrade one to the next without the evidence:
+
+- `committed` — local only
+- `pushed` — the remote ref moved
+- `PR` — open, not merged
+- `rollout succeeded` — the matching App Hosting backend reports it (see the `deploy-verify` skill; the CDN edge cache makes page polls lie)
+- `smoke-tested` — target URL plus the negative security checks actually exercised
+
+Report production as deployed only after `staging → main` merged, the rollout succeeded, and a live smoke passed.
+
+### Standing constraints
+
+- **CSP is `Content-Security-Policy-Report-Only` on purpose.** Don't describe it as enforced.
+- **The Sanity CDN purge gate is still open.** It closes only once support confirms and all 23 confidentially stored original asset URLs return non-2xx anonymously. Until then: don't output the URL list, and don't start a substitute content migration.
 
 ## Animation — no opacity fades
 

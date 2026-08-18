@@ -7,6 +7,7 @@ import type { UserLocation } from '@/lib/map';
 
 import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
+import LockedMarker from './LockedMarker';
 import UserLocationMarker from './UserLocationMarker';
 
 /* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
@@ -39,8 +40,12 @@ interface MapCanvasLayerProps {
   mapRef: RefObject<MapRef | null>;
   onMapClick: () => void;
   displayedRestaurants: MapRestaurant[];
+  /** Paywalled spots matching the active filter — drawn as muted dots. */
+  displayedLockedRestaurants: MapRestaurant[];
   selectedRestaurant: MapRestaurant | null;
   onRestaurantClick: (r: MapRestaurant) => void;
+  onLockedClick: (r: MapRestaurant) => void;
+  lockedLabel: string;
   location: UserLocation | null;
 }
 
@@ -48,8 +53,11 @@ export default function MapCanvasLayer({
   mapRef,
   onMapClick,
   displayedRestaurants,
+  displayedLockedRestaurants,
   selectedRestaurant,
   onRestaurantClick,
+  onLockedClick,
+  lockedLabel,
   location,
 }: MapCanvasLayerProps) {
   /* `painted` gates the markers, `entering` only decides whether they arrive
@@ -79,6 +87,13 @@ export default function MapCanvasLayer({
 
   return (
     <MapCanvas ref={mapRef} onMapClick={onMapClick} onFirstPaint={reveal}>
+      {/* Locked dots first: MapLibre stacks markers by DOM order, so the free
+          pins that follow paint on top and win the tap wherever the two
+          overlap. */}
+      {painted &&
+        displayedLockedRestaurants.map((r) => (
+          <LockedMarker key={r._id} restaurant={r} onClick={onLockedClick} label={lockedLabel} />
+        ))}
       {painted &&
         displayedRestaurants.map((r, i) => (
           <RestaurantMarker

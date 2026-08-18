@@ -88,6 +88,17 @@
   .pinLogoEnter {
     animation: none;
   }
+
+  /* The dot's hover/focus scale is movement, so it goes too. The colour
+     change stays — that is a state change, not motion. */
+  .pinLockedDot {
+    transition: background-color 0.16s ease;
+  }
+
+  .pinLocked:hover .pinLockedDot,
+  .pinLocked:focus-visible .pinLockedDot {
+    transform: none;
+  }
 }
 
 .pinLogoHasMust::after {
@@ -186,4 +197,48 @@
       filter: none;
     }
   }
+}
+
+/* Locked spot ------------------------------------------------------------
+   A paywalled spot, drawn as a dot rather than a pin. At the default camera
+   on a 375px viewport there are 15 free spots in view and 194 locked ones in
+   the same box; as 44px pins that is a closed carpet and the free spots
+   vanish into it. At 11px they read as density instead — which is the thing
+   that actually sells — and the yellow pins stay the only markers that look
+   like they open a spot.
+
+   The hit area is 28px, not the 44px the pins get. That is deliberate: 194
+   overlapping 44px targets would steal taps from the free pins sitting among
+   them, and every dot leads to the same place, so landing on a neighbour
+   costs nothing. Free pins are also rendered after the dots, so where the two
+   overlap the pin is on top and wins the tap. */
+.pinLocked {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.pinLocked:focus-visible {
+  border-radius: 50%;
+  outline: 3px solid #ffc600;
+  outline-offset: 2px;
+}
+
+.pinLockedDot {
+  width: 11px;
+  height: 11px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  /* Reads on CartoDB Positron, which is near-white with pale grey roads. */
+  background: rgba(21, 18, 14, 0.42);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.pinLocked:hover .pinLockedDot,
+.pinLocked:focus-visible .pinLockedDot {
+  background: rgba(21, 18, 14, 0.72);
+  transform: scale(1.25);
 }

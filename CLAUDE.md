@@ -62,7 +62,7 @@ This repo is occasionally worked on in **multiple agent sessions simultaneously*
 
 ## Tests
 
-154 test files, Vitest. The pre-push hook only *builds* — it does not run tests, so run them yourself before pushing.
+154 test files, Vitest. The pre-push hook only _builds_ — it does not run tests, so run them yourself before pushing.
 
 **CI does gate this repo** (`.github/workflows/quality.yml`): `npm ci && npm run lint && npm test && npm run build` on every PR into `main` or `staging`, and on every direct push to `staging`. A red test blocks the PR, so a green local `npm test` is the cheap way to find out first. `.github/workflows/lighthouse.yml` additionally runs on `main`.
 
@@ -105,9 +105,9 @@ feature branch → PR into `staging` → smoke on staging URL → PR into `main`
 
 **Staging is a separate Firebase project, not a second backend in the production one.** `lib/firebase/project-boundary.ts` actively rejects the production project ID on staging and fails closed; the old staging backend that used to live inside the production project was deleted.
 
-| Branch | Firebase project | Backend | URL |
-| --- | --- | --- | --- |
-| `main` | `eat-this-8a13b` | `eat-this` | `https://www.eatthisdot.com` |
+| Branch    | Firebase project         | Backend            | URL                                                |
+| --------- | ------------------------ | ------------------ | -------------------------------------------------- |
+| `main`    | `eat-this-8a13b`         | `eat-this`         | `https://www.eatthisdot.com`                       |
 | `staging` | `eat-this-staging-8a13b` | `eat-this-staging` | `…--eat-this-staging-8a13b.us-central1.hosted.app` |
 
 Always pass `--project` explicitly to any `firebase` command — a bare backend name resolves against whatever project happens to be active, and both projects have same-shaped backends.
@@ -185,7 +185,7 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 
 ## Login modal & consent
 
-- **The login modal is the only modal left.** Its state lives in `lib/auth/LoginModalContext.tsx`; open it from anywhere with `const { open } = useLoginModal()` and a mode of `'starter' | 'signin'` (re-exported from `lib/auth`). `app/[locale]/(spa)/BridgeAuth.tsx` renders the portal and syncs auth state — it only *consumes* the context, it does not own the open/close state. Current consumers: `BurgerDrawer`, `MustEatDetail`, `RestaurantDetail`, `RestaurantList`, `lib/map/useFavorites.ts`.
+- **The login modal is the only modal left.** Its state lives in `lib/auth/LoginModalContext.tsx`; open it from anywhere with `const { open } = useLoginModal()` and a mode of `'starter' | 'signin'` (re-exported from `lib/auth`). `app/[locale]/(spa)/BridgeAuth.tsx` renders the portal and syncs auth state — it only _consumes_ the context, it does not own the open/close state. Current consumers: `BurgerDrawer`, `MustEatDetail`, `RestaurantDetail`, `RestaurantList`, `lib/map/useFavorites.ts`.
 - **AGB and Datenschutz are pages, not modals.** They are Sanity `staticPage` docs served at `/agb` and `/datenschutz` via `app/[locale]/(spa)/[...slug]/page.tsx` → `StaticPages.tsx`; `LoginPanel` links to them with a plain `<a href>`. The old `agbModal` / `datenschutzModal` / `welcomeModal` machinery and the `MODAL_BODIES` table were deleted in 2026-06 — don't reintroduce them.
 - **Cookie consent is a banner, not a modal.** `CookieConsent.tsx` renders a fixed bar with an inline expandable info section. The answer lives in a **cookie** (`lib/consent.ts`), not localStorage, so the pre-paint bootstrap can read it, set `html[data-consent="pending"]` and reserve the bar's height (`--consent-bar-h`) before first paint. Changing that storage reintroduces the CLS the cookie was added to fix.
 

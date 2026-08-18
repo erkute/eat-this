@@ -72,7 +72,7 @@ Not the bare `git checkout -b <branch>`. That branches off whatever the local br
 
 154 test files, Vitest. The pre-push hook only _builds_ — it does not run tests, so run them yourself before pushing.
 
-**CI does gate this repo** (`.github/workflows/quality.yml`): `npm ci && npm run lint && npm test && npm run build` on every PR into `main` or `staging`, and on every direct push to `staging`. A red test blocks the PR, so a green local `npm test` is the cheap way to find out first. `.github/workflows/lighthouse.yml` additionally runs on `main`.
+**CI does gate this repo** (`.github/workflows/quality.yml`): `npm ci && npm run lint && npm test && npm run build` on every PR into `main` or `staging`, and on every direct push to `staging`. A red test blocks the PR, so a green local `npm test` is the cheap way to find out first. `.github/workflows/lighthouse.yml` also runs on `main` (PRs and pushes), but only when `nextjs/**`, `.lighthouserc.json` or the workflow itself changed. It audits the **live production URLs** from `.lighthouserc.json`, not a build of the ref that triggered it — so on a PR it measures what is already deployed, and a docs-only change has nothing for it to audit. It takes ~16 min against ~3 for `quality.yml`, which is why it is filtered.
 
 ```bash
 npm test --prefix nextjs                 # vitest run

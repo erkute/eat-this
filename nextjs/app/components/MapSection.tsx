@@ -61,7 +61,6 @@ export default function MapSection({
   fontClassName,
 }: Props) {
   const mapRef = useRef<MapRef>(null);
-  const mapWrapRef = useRef<HTMLDivElement | null>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
@@ -363,111 +362,6 @@ export default function MapSection({
     setSnap(target);
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
-
-  /* iOS URL-bar frosting for the in-flow phone detail. The MapLibre GL
-     canvas is an always-composited layer; while it sits under the detail,
-     WebKit promotes the whole detail subtree, which drops it from the
-     bottom URL bar's backdrop — the bar then samples only the page
-     background instead of the detail content (bisected on-device
-     2026-07-06: canvas hidden → frosts, canvas visible → doesn't;
-     z-index/border/backgrounds irrelevant; Chrome/Blink unaffected).
-
-     The list frosts even at scroll 0 (rows sit in the sampling strip and
-     the bar keeps its compact state across SPA navigation), so the detail
-     must too. That means the live GL layer can't be on screen AT ALL while
-     the detail is open: once the camera settles we freeze the current view
-     into a static <img> (visibility:visible child inside the hidden
-     mapWrap — the peek looks identical, just non-interactive) and hide the
-     GL layer for the whole detail lifetime. Until the snapshot is ready
-     (flyTo still moving) a scroll-start fallback hides the canvas anyway.
-     `visibility` (not `display`) so MapLibre keeps its size and repaints
-     instantly when the detail closes. */
-  useEffect(() => {
-    if (!isActive || sheetView !== 'detail') return;
-    if (typeof window === 'undefined' || !isPhoneViewport()) return;
-    /* Restaurant detail only. The must-eat detail hides the whole map strip
-       (MapLayout: [data-detail-kind='must-eat'] .mapWrap { visibility:hidden });
-       a visibility:visible snapshot <img> would override that and show a stray
-       map. selectedMustEat set = must-eat detail (see MapSectionBody
-       data-detail-kind). */
-    if (selectedMustEat) return;
-    const mapWrap = mapWrapRef.current;
-    if (!mapWrap) return;
-
-    let cancelled = false;
-    let snapshotReady = false;
-    let snapEl: HTMLImageElement | null = null;
-    let waitTimer: ReturnType<typeof setTimeout> | null = null;
-
-    /* No rAF gate: scroll events already fire at frame rate, and a
-       pending-rAF gate can leave the map hidden at scroll top when rAF is
-       throttled (background tab). */
-    const apply = () => {
-      mapWrap.style.visibility = snapshotReady || window.scrollY > 4 ? 'hidden' : '';
-    };
-
-    /* toDataURL on a WebGL canvas only yields pixels during the render
-       event (preserveDrawingBuffer is off) — the documented MapLibre
-       snapshot pattern: once('render') + triggerRepaint. Reused for the
-       idle-refresh: same <img>, just a fresher frame. */
-    const takeSnapshot = (map: ReturnType<MapRef['getMap']>) => {
-      if (cancelled) return;
-      map.once('render', () => {
-        if (cancelled) return;
-        try {
-          const url = map.getCanvas().toDataURL('image/jpeg', 0.75);
-          if (!snapEl) {
-            snapEl = document.createElement('img');
-            snapEl.alt = '';
-            snapEl.setAttribute('aria-hidden', 'true');
-            snapEl.style.cssText =
-              'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible;pointer-events:none;';
-            mapWrap.appendChild(snapEl);
-          }
-          snapEl.src = url;
-          snapshotReady = true;
-          apply();
-        } catch {
-          /* Snapshot failed (tainted canvas or similar) — the scroll-start
-             fallback in apply() still hides the GL layer while scrolling. */
-        }
-      });
-      map.triggerRepaint();
-    };
-
-    /* The GL layer mounts late (dynamic import, deep links open the detail
-       before MapCanvasLayer exists) — poll until the map instance is there. */
-    const waitForMap = () => {
-      if (cancelled) return;
-      const map = mapRef.current?.getMap();
-      if (map) {
-        /* Freeze the CURRENT frame immediately — coming from the list the
-           tiles are warm, and waiting for the open-flyTo to settle kept the
-           GL layer (and thus the beige, sample-less bar) alive for the
-           first 1–2 s of the detail. The peek briefly shows the pre-flight
-           view; the idle refresh below swaps in the settled frame (camera
-           on the restaurant, all tiles loaded). Cold deep-links may freeze
-           a half-loaded frame first — same refresh fixes that too. */
-        takeSnapshot(map);
-        if (!map.loaded() || map.isMoving()) {
-          map.once('idle', () => takeSnapshot(map));
-        }
-        return;
-      }
-      waitTimer = setTimeout(waitForMap, 150);
-    };
-    waitForMap();
-
-    apply();
-    window.addEventListener('scroll', apply, { passive: true });
-    return () => {
-      cancelled = true;
-      if (waitTimer) clearTimeout(waitTimer);
-      window.removeEventListener('scroll', apply);
-      snapEl?.remove();
-      mapWrap.style.visibility = '';
-    };
-  }, [isActive, sheetView, selectedRestaurant?._id, selectedMustEat?._id]);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user
@@ -1355,7 +1249,6 @@ export default function MapSection({
       isActive={isActive}
       fontClassName={fontClassName}
       mapRef={mapRef}
-      mapWrapRef={mapWrapRef}
       handleRef={handleRef}
       setHeaderRef={setHeaderRef}
       setContentRef={setContentRef}

@@ -210,8 +210,7 @@
        screen. */
     --phone-list-sheet-visible: calc(28dvh + min(var(--consent-bar-h, 0px), 34dvh));
     /* The detail's map strip. Sized so the sheet has the same three stops as
-       the list; it stays well under 100dvh on purpose, because a
-       full-viewport GL compositor is what broke Safari's bar backdrop. */
+       the list — a live, pannable map behind the sliding detail sheet. */
     --detail-map-peek: 50dvh;
     height: auto;
     overflow: visible;
@@ -231,10 +230,7 @@
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
     /* Same anchoring as the list: the map stays put and the sheet slides over
        it, so the three stops uncover it instead of dragging it off-screen.
-       Only the HEIGHT differs — bounded to the strip, never a full-viewport
-       compositor. That bound is what matters for Safari: the bottom URL bar
-       always has real detail content beneath it to sample, never the GL layer
-       (the failure bisected on-device 2026-07-06). */
+       Only the HEIGHT differs — bounded to the strip. */
     position: sticky;
     top: 0;
     height: var(--detail-map-peek);

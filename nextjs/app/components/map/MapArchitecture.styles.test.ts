@@ -86,6 +86,7 @@ describe('Map CSS architecture', () => {
     ]);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
+      'markerRootActive',
       'pinLogo',
       'pinLogoActive',
       'pinLogoEnter',

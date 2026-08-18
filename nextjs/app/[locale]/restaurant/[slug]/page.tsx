@@ -13,6 +13,7 @@ import {
 } from '@/lib/seo/restaurantMeta'
 import { SITE_URL } from '@/lib/constants'
 import { normalizeName } from '@/lib/normalizeName'
+import { hasAmbiguousDropCap } from '@/lib/dropCap'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
@@ -171,6 +172,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const tipText = pickLocale(r.tip, r.tipEn, loc)
   const displayName = normalizeName(r.name)
   const magazine = splitDescriptionForMagazine(description)
+  const lede = magazine?.lede || description
   const faqEntries = buildFAQEntries(r, loc)
   const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
   const heroAssetKey = imageAssetKey(r.photo)
@@ -284,7 +286,11 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {description && (
           <article className={styles.story}>
-            <p className={styles.lede}>{magazine?.lede || description}</p>
+            <p
+              className={`${styles.lede} ${hasAmbiguousDropCap(lede) ? styles.ledePlain : ''}`}
+            >
+              {lede}
+            </p>
             {magazine?.paragraphsBefore.map((p, i) => (
               <p key={`bf-${i}`}>{p}</p>
             ))}

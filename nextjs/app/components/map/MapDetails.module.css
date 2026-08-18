@@ -4788,3 +4788,18 @@
     --me-mid-slot: 196px;
   }
 }
+
+/* No drop cap when the lede's initial is a bare stroke — see lib/dropCap.ts.
+   Two selectors because .rdStoryLead::first-letter is styled both bare and
+   under .detailV13; each reset has to out-specify its own variant. */
+.rdStoryLead.rdStoryLeadPlain::first-letter,
+.detailV13:not(.detailV13MustEat) .rdStoryLead.rdStoryLeadPlain::first-letter {
+  float: none;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-transform: none;
+}

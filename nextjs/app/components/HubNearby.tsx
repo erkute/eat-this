@@ -50,7 +50,11 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4);
   if (cards.length === 0) return null;
 
-  const title = locale === 'en' ? 'Around you' : 'Um dich herum';
+  // `loc` falls back to Mitte, so without a grant the walking time below is
+  // measured from a place the user isn't. A denial is indistinguishable from a
+  // question never asked — the silent resume only runs on an existing grant —
+  // which leaves `activeLocation` as the only honest split there is.
+  const title = activeLocation ? t('title') : t('titleFallback');
   const locateLabel = locale === 'en' ? 'Locate' : 'Standort';
   const showLocationStatus = Boolean(
     mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
@@ -106,7 +110,9 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
 
         <div className={`hv-rail ${styles.rail}`}>
           {cards.map((r) => {
-            const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng));
+            const walk = activeLocation
+              ? formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
+              : null;
             const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
             return (
               <Link

@@ -39,57 +39,67 @@
   text-transform: uppercase;
 }
 
-.btnPrimary,
-.btnSecondary {
-  display: inline-flex;
-  width: 100%;
-  min-height: 62px;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  padding: 6px 14px 6px 6px;
-  box-sizing: border-box;
+/* Offers read as pack artwork, not as buttons — the same language the rest of
+   the site sells packs in (user decision, 2026-08-19). The whole block is the
+   link; the label sits under the art like a caption. */
+.offer {
+  display: grid;
+  gap: 8px;
+  padding: 12px 12px 14px;
   border-radius: var(--et-radius-control, 7px);
+  border: 1.5px solid rgba(21, 18, 14, 0.14);
+  text-decoration: none;
+  color: var(--et-home-ink, #15120e);
+  transition:
+    border-color var(--et-motion-fast, 140ms ease),
+    background-color var(--et-motion-fast, 140ms ease);
+}
+
+.offer:hover,
+.offer:focus-visible {
+  border-color: var(--et-home-ink, #15120e);
+  background: var(--et-home-accent, #ffc600);
+}
+
+.offerArt {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 96px;
+}
+
+.offerPack {
+  width: 88px;
+  height: auto;
+  filter: drop-shadow(0 6px 10px rgba(21, 18, 14, 0.22));
+}
+
+/* Nine bags in a 340px sheet only fit overlapped. The negative margin does
+   what /packs does with nine hand-placed absolute positions, at a size where
+   the fan reads as "all of them" rather than as nine readable packs.
+   These override .offerPack above, so they have to come after it AND out-rank
+   it — a bare `.offerFan > *` ties on specificity and loses to source order. */
+.offerFan .offerPack {
+  width: 56px;
+}
+
+.offerFan .offerPack + .offerPack {
+  margin-left: -28px;
+}
+
+.offerFan .offerPack:nth-child(odd) {
+  transform: rotate(-4deg);
+}
+
+.offerFan .offerPack:nth-child(even) {
+  transform: rotate(3deg);
+}
+
+.offerLabel {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1.15;
   text-align: center;
-  text-decoration: none;
   text-transform: uppercase;
-  transition:
-    transform var(--et-motion-fast, 140ms ease),
-    background-color var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease);
-}
-
-.btnPrimary {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  border: 0;
-}
-
-.btnSecondary {
-  background: transparent;
-  color: var(--et-home-ink, #15120e);
-  border: 1.5px solid var(--et-home-ink, #15120e);
-}
-
-.btnPrimary:hover,
-.btnPrimary:focus-visible,
-.btnSecondary:hover,
-.btnSecondary:focus-visible {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  transform: translateX(-3px);
-}
-
-/* The pack's own art, so the offer looks like the thing being bought rather
-   than a text link. Portrait foil bag at 5:8 — 32px wide keeps it inside the
-   button's 62px without letterboxing. */
-.packArt {
-  flex: 0 0 auto;
-  width: 32px;
-  height: auto;
-  border-radius: 3px;
 }

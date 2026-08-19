@@ -81,10 +81,26 @@ describe('LockedDetail', () => {
     expect(out).toContain('/pack/all-berlin');
   });
 
-  it('shows each pack its own art, so the offer looks like the thing being bought', () => {
+  it('shows the category pack as its own art', () => {
+    expect(html(spot())).toContain('booster_lunch.webp');
+  });
+
+  it('fans out all nine packs for all-Berlin, the way /packs does', () => {
+    // One generic bag cannot say "everything". Nine can.
     const out = html(spot());
-    expect(out).toContain('booster_lunch.webp');
-    expect(out).toContain('booster.webp');
+    for (const art of [
+      'booster_breakfast',
+      'booster_coffee',
+      'booster_dinner',
+      'booster_drinks',
+      'booster_fastfood',
+      'booster_finedining',
+      'booster_lunch',
+      'booster_pizza',
+      'booster_sweets',
+    ]) {
+      expect(out).toContain(`${art}.webp`);
+    }
   });
 
   it('still names the spot — the name is not what the paywall covers', () => {

@@ -7,6 +7,7 @@ import type { MapRestaurant } from '@/lib/types';
 import { abbreviateBezirk } from '@/lib/map';
 import { formatPackPrice, packUrlSlug, resolvePackByUrlSlug } from '@/lib/pack/packDetail';
 import { categoryArt } from '@/lib/categoryArt';
+import { CATALOG } from '@/lib/stripe-catalog';
 import { normalizeName } from '@/lib/normalizeName';
 import { useTranslation } from '@/lib/i18n';
 import { trackEvent } from '@/lib/analytics';
@@ -68,9 +69,13 @@ export default function LockedDetail({
   const categoryCount = categoryPack?.slug ? (spotsByCategory[categoryPack.slug] ?? 0) : 0;
   const allBerlin = resolvePackByUrlSlug('all-berlin');
   const spotsWord = de ? 'Spots' : 'spots';
-  /* All-Berlin has no art of its own — /packs fans out every category instead,
-     which is far too much for a 62px button. The generic foil bag stands in. */
-  const ALL_BERLIN_ART = '/pics/booster/booster.webp';
+  /* All-Berlin has no art of its own. /packs answers that by fanning out every
+     category pack, and this does the same — nine bags say "everything" in a way
+     one generic bag cannot. */
+  const allBerlinArt = Object.values(CATALOG)
+    .filter((pack) => pack.type === 'category' && pack.slug)
+    .map((pack) => categoryArt(pack.slug as string))
+    .filter((src): src is string => Boolean(src));
   const heroStyle = r.photo ? ({ backgroundImage: `url(${r.photo})` } as CSSProperties) : undefined;
 
   return (
@@ -104,9 +109,9 @@ export default function LockedDetail({
           <p className={lockedStyles.lead}>
             {de ? 'Liegt noch nicht auf deiner Map.' : 'Not on your map yet.'}
           </p>
-          {categoryPack && categoryCount > 0 && (
+          {categoryPack && categoryCount > 0 && categoryPack.slug && categoryArt(categoryPack.slug) && (
             <a
-              className={lockedStyles.btnPrimary}
+              className={lockedStyles.offer}
               href={`${prefix}/pack/${packUrlSlug(categoryPack)}`}
               onClick={() =>
                 trackEvent('locked_spot_pack_clicked', {
@@ -116,22 +121,24 @@ export default function LockedDetail({
                 })
               }
             >
-              {categoryPack.slug && categoryArt(categoryPack.slug) && (
+              <span className={lockedStyles.offerArt}>
                 <Image
-                  className={lockedStyles.packArt}
+                  className={lockedStyles.offerPack}
                   src={categoryArt(categoryPack.slug)!}
                   alt=""
                   width={420}
                   height={630}
-                  sizes="32px"
+                  sizes="88px"
                 />
-              )}
-              {`${categoryPack.displayName} · ${categoryCount} ${spotsWord} · ${formatPackPrice(categoryPack.amountCents)}`}
+              </span>
+              <span className={lockedStyles.offerLabel}>
+                {`${categoryPack.displayName} · ${categoryCount} ${spotsWord} · ${formatPackPrice(categoryPack.amountCents)}`}
+              </span>
             </a>
           )}
-          {allBerlin && (
+          {allBerlin && allBerlinArt.length > 0 && (
             <a
-              className={categoryPack ? lockedStyles.btnSecondary : lockedStyles.btnPrimary}
+              className={lockedStyles.offer}
               href={`${prefix}/pack/all-berlin`}
               onClick={() =>
                 trackEvent('locked_spot_pack_clicked', {
@@ -141,15 +148,22 @@ export default function LockedDetail({
                 })
               }
             >
-              <Image
-                className={lockedStyles.packArt}
-                src={ALL_BERLIN_ART}
-                alt=""
-                width={420}
-                height={630}
-                sizes="32px"
-              />
-              {`${de ? 'Ganz Berlin' : 'All Berlin'} · ${totalSpots} ${spotsWord} · ${formatPackPrice(allBerlin.amountCents)}`}
+              <span className={`${lockedStyles.offerArt} ${lockedStyles.offerFan}`}>
+                {allBerlinArt.map((src) => (
+                  <Image
+                    key={src}
+                    className={lockedStyles.offerPack}
+                    src={src}
+                    alt=""
+                    width={420}
+                    height={630}
+                    sizes="56px"
+                  />
+                ))}
+              </span>
+              <span className={lockedStyles.offerLabel}>
+                {`${de ? 'Ganz Berlin' : 'All Berlin'} · ${totalSpots} ${spotsWord} · ${formatPackPrice(allBerlin.amountCents)}`}
+              </span>
             </a>
           )}
         </div>

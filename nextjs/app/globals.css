@@ -487,12 +487,6 @@ a {
   text-decoration: none;
   color: inherit;
 }
-/* Inline-critical FOUC guards: these legacy overlay hooks may be mounted by
-   deferred SPA code before the external stylesheet is available. */
-.map-spot-overlay:not(.active),
-.search-overlay:not(.active) {
-  display: none;
-}
 /* Keep the closed burger out of rendering on first paint. In particular, iOS
    Safari must not retain its full-screen ink layer behind the browser bars. */
 .burger-drawer[hidden] {

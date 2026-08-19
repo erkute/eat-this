@@ -203,7 +203,9 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 
 ## Gotchas
 
-1. **FOUC of overlay elements.** `.map-spot-overlay`, `.search-overlay`, `.burger-drawer` default to visible because their hide rule lives in `style.min.css` (loaded via `<link>` and may arrive after first paint). The inline-critical hide rule is in `app/globals.css` (Next.js ships it in the app layout CSS bundle). Any new toggle overlay: add `:not(.active) { display: none }` there too.
+1. **FOUC of overlay elements.** `.burger-drawer` defaults to visible because its hide rule lives in `style.min.css` (loaded via `<link>` and may arrive after first paint). The inline-critical duplicate is in `app/globals.css` (Next.js ships it in the app layout CSS bundle), and `app/CssArchitecture.styles.test.ts` pins it. Any new toggle overlay: add `:not(.active) { display: none }` there too.
+
+   This used to list `.map-spot-overlay` and `.search-overlay` as well. Both were leftovers of the removed vanilla-JS SPA — no component rendered either, and neither ever had a rule in `style.css`, so the globals.css guard was hiding nothing. Deleted 2026-08-19; don't re-add them from this note.
 
 2. **Mobile rubber-band flash.** `html` has an explicit `background-color` in `globals.css`, otherwise iOS Safari bounce exposes the browser default. Body bg is set too. If you change either, test rubber-band overscroll at top and bottom.
 

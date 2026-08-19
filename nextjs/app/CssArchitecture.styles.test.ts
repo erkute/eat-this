@@ -80,8 +80,6 @@ describe('CSS architecture contracts', () => {
     const html = declarationsFor(root, 'html')
     const body = declarationsFor(root, 'body')
     const burger = declarationsFor(root, '.burger-drawer[hidden]')
-    const mapOverlay = declarationsFor(root, '.map-spot-overlay:not(.active)')
-    const searchOverlay = declarationsFor(root, '.search-overlay:not(.active)')
     const mapPage = declarationsFor(root, ".app-page[data-page='map']")
     const source = root.toString()
 
@@ -89,8 +87,6 @@ describe('CSS architecture contracts', () => {
     expect(body.get('background-color')).toBeTruthy()
     expect(burger.get('display')).toContain('none')
     expect(burger.get('pointer-events')).toContain('none')
-    expect(mapOverlay.get('display')).toContain('none')
-    expect(searchOverlay.get('display')).toContain('none')
     expect(mapPage.get('height')).toContain('100dvh')
     expect(source).toContain('100lvh - 100dvh + 80px')
 

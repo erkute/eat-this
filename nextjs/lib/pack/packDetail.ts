@@ -1,4 +1,4 @@
-// Pure helpers for the booster pack detail route (/pack/[slug]).
+// Pure helpers for the booster pack routes (/pack/[slug] and /packs).
 // Keep free of React / Sanity so they stay unit-testable.
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog'
 import type { RestaurantCard } from '@/lib/types'
@@ -35,18 +35,56 @@ interface PackTeaser {
 /**
  * Split a category's restaurants into a small revealed teaser + a couple of
  * covered rows. Names of locked rows are deliberately withheld.
+ *
+ * Restaurants are alphabetical, so a chain puts its branches side by side —
+ * Breakfast opened on "01 AERA · Mitte / 02 AERA · Charlottenburg", which reads
+ * like a thin pack rather than two genuinely different rooms. One row per name
+ * in the revealed part; the branches are still in the pack and still counted.
  */
 export function buildPackTeaser(
   restaurants: RestaurantCard[],
   revealCount = 3,
   lockedCount = 2,
 ): PackTeaser {
-  const revealed = restaurants.slice(0, revealCount).map(r => ({
+  const seen = new Set<string>()
+  const distinct = restaurants.filter(r => {
+    if (seen.has(r.name)) return false
+    seen.add(r.name)
+    return true
+  })
+  const revealed = distinct.slice(0, revealCount).map(r => ({
     name: r.name,
     district: r.district,
   }))
-  const locked = restaurants
+  const locked = distinct
     .slice(revealCount, revealCount + lockedCount)
     .map(r => ({ district: r.district }))
   return { revealed, locked }
+}
+
+/** Spot + Must-Eat totals a pack puts on the map. */
+export interface PackContents {
+  spots: number
+  mustEats: number
+}
+
+export interface PackContentsIndex {
+  byCategory: Record<string, PackContents>
+  allBerlin: PackContents
+}
+
+/**
+ * The one line that stands between interest and a 2,99 € purchase: "52 Spots ·
+ * 6 Must Eats". Packs without a Must Eat yet (fine-dining) say only the spots
+ * rather than advertising a zero.
+ */
+export function formatPackContents(
+  { spots, mustEats }: PackContents,
+  locale: 'de' | 'en',
+): string {
+  const spotLabel = locale === 'de'
+    ? `${spots} ${spots === 1 ? 'Spot' : 'Spots'}`
+    : `${spots} ${spots === 1 ? 'spot' : 'spots'}`
+  if (mustEats === 0) return spotLabel
+  return `${spotLabel} · ${mustEats} ${mustEats === 1 ? 'Must Eat' : 'Must Eats'}`
 }

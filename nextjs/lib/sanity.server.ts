@@ -17,9 +17,11 @@ import {
   categoryBySlugQuery,
   emailSpotsQuery,
   emailSpotCardQuery,
+  packContentsQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types'
 import type { CategoryDef } from './categories'
+import type { PackContents, PackContentsIndex } from './pack/packDetail'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   return client.fetch<Restaurant | null>(
@@ -235,4 +237,16 @@ export async function getEmailSpotCard(
     { slug },
     { next: { revalidate: 3600, tags: ['restaurant'] } }
   )
+}
+
+/** Spot + Must-Eat counts for every pack, keyed by category slug. */
+export async function getPackContents(): Promise<PackContentsIndex> {
+  const raw = await client.fetch<{
+    categories: ({ slug: string } & PackContents)[]
+    allBerlin: PackContents
+  }>(packContentsQuery, {}, { next: { revalidate: 3600, tags: ['pack-contents'] } })
+  return {
+    byCategory: Object.fromEntries(raw.categories.map(({ slug, ...counts }) => [slug, counts])),
+    allBerlin: raw.allBerlin,
+  }
 }

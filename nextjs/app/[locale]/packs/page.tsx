@@ -4,7 +4,8 @@ import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
-import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail'
+import { formatPackPrice, packUrlSlug, formatPackContents } from '@/lib/pack/packDetail'
+import { getPackContents } from '@/lib/sanity.server'
 import { hreflangAlternates } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import PackBuyButton from '../pack/[slug]/PackBuyButton'
@@ -51,7 +52,11 @@ const copy = {
     allTitle: ['All', 'Berlin'],
     allLead:
       'Einmal kaufen, alles freischalten: alle Kategorien, alle kuratierten Berliner Spots und alle kommenden Updates direkt auf deiner Map.',
-    allIncludes: ['Alle 9 Kategorien', 'Alle Must Eats', 'Alle neuen Berlin-Updates'],
+    allIncludes: (spots: number, mustEats: number) => [
+      `Alle ${spots} Spots in ${categoryPacks.length} Kategorien`,
+      `Alle ${mustEats} Must Eats`,
+      'Alle neuen Berlin-Updates',
+    ],
     allCta: 'All Berlin freischalten',
     pending: 'Weiter zu Stripe ...',
     owned: 'Auf die Map',
@@ -67,7 +72,11 @@ const copy = {
     allTitle: ['All', 'Berlin'],
     allLead:
       'Buy once, unlock everything: every category, every curated Berlin spot and every future update straight onto your map.',
-    allIncludes: ['All 9 categories', 'Every Must Eat', 'Every new Berlin update'],
+    allIncludes: (spots: number, mustEats: number) => [
+      `All ${spots} spots across ${categoryPacks.length} categories`,
+      `All ${mustEats} Must Eats`,
+      'Every new Berlin update',
+    ],
     allCta: 'Unlock All Berlin',
     pending: 'Going to Stripe ...',
     owned: 'Open map',
@@ -92,6 +101,8 @@ export default async function PacksOverviewPage({ params }: PageProps) {
   const de = loc === 'de'
   const t = copy[loc]
   const mapHref = de ? t.map : `/en${t.map}`
+  const packContents = await getPackContents()
+  const allIncludes = t.allIncludes(packContents.allBerlin.spots, packContents.allBerlin.mustEats)
 
   const buyLabels = (pack: PackDef, primary = false) => ({
     label: `${primary ? t.allCta : t.buy} · ${formatPackPrice(pack.amountCents)}`,
@@ -113,7 +124,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
           <p className={styles.heroLead}>{t.allLead}</p>
 
           <ul className={styles.includeList} aria-label={de ? 'All Berlin enthaelt' : 'All Berlin includes'}>
-            {t.allIncludes.map((item) => (
+            {allIncludes.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
@@ -182,6 +193,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
           {categoryPacks.map((pack) => {
             const art = pack.slug ? categoryArt(pack.slug) : null
             const href = `/pack/${packUrlSlug(pack)}`
+            const contents = pack.slug ? packContents.byCategory[pack.slug] : undefined
 
             return (
               <article key={pack.packId} className={styles.packTile}>
@@ -203,6 +215,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     <PackPrice pack={pack} />
                   </div>
                   <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
+                  {contents && (
+                    <p className={styles.contents}>{formatPackContents(contents, loc)}</p>
+                  )}
                   <p className={styles.desc}>{pack.description[loc]}</p>
                 </div>
 

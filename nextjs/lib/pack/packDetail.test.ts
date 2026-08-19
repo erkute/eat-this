@@ -4,6 +4,7 @@ import {
   packUrlSlug,
   formatPackPrice,
   buildPackTeaser,
+  formatPackContents,
 } from './packDetail'
 import { CATALOG } from '@/lib/stripe-catalog'
 import type { RestaurantCard } from '@/lib/types'
@@ -91,5 +92,37 @@ describe('buildPackTeaser', () => {
     const t = buildPackTeaser([])
     expect(t.revealed).toHaveLength(0)
     expect(t.locked).toHaveLength(0)
+  })
+
+  it('shows a chain once, so two branches do not read as a thin pack', () => {
+    // Breakfast is alphabetical, so AERA Mitte and AERA Charlottenburg opened
+    // the teaser as rows 01 and 02.
+    const t = buildPackTeaser([
+      card('1', 'AERA', 'Mitte'),
+      card('2', 'AERA', 'Charlottenburg'),
+      card('3', 'AKKURAT Café', 'Kreuzberg'),
+      card('4', 'Albatross', 'Kreuzberg'),
+      card('5', 'Benedict', 'Charlottenburg'),
+      card('6', 'Bonanza', 'Mitte'),
+    ])
+    expect(t.revealed.map(r => r.name)).toEqual(['AERA', 'AKKURAT Café', 'Albatross'])
+    expect(t.locked.map(l => l.district)).toEqual(['Charlottenburg', 'Mitte'])
+  })
+})
+
+describe('formatPackContents', () => {
+  it('names both halves', () => {
+    expect(formatPackContents({ spots: 52, mustEats: 6 }, 'de')).toBe('52 Spots · 6 Must Eats')
+    expect(formatPackContents({ spots: 52, mustEats: 6 }, 'en')).toBe('52 spots · 6 Must Eats')
+  })
+
+  it('says only the spots rather than advertising zero Must Eats', () => {
+    expect(formatPackContents({ spots: 34, mustEats: 0 }, 'de')).toBe('34 Spots')
+    expect(formatPackContents({ spots: 34, mustEats: 0 }, 'en')).toBe('34 spots')
+  })
+
+  it('drops the plural s on one', () => {
+    expect(formatPackContents({ spots: 1, mustEats: 1 }, 'de')).toBe('1 Spot · 1 Must Eat')
+    expect(formatPackContents({ spots: 1, mustEats: 1 }, 'en')).toBe('1 spot · 1 Must Eat')
   })
 })

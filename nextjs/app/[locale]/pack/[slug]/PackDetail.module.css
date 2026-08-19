@@ -97,6 +97,21 @@
   display: block;
 }
 
+/* What you get for the money, between the name and the editorial line. The
+   pack sold itself on five teaser rows before this; the count is the sentence
+   that was missing. */
+.contents {
+  width: fit-content;
+  margin: 0 0 clamp(14px, 2vw, 20px);
+  padding: 5px 10px 6px;
+  background: var(--pack-accent);
+  color: var(--pack-ink);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 700;
+  line-height: 1.1;
+}
+
 .sub {
   max-width: 39ch;
   margin: 0 0 clamp(20px, 3vw, 30px);

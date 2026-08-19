@@ -7,9 +7,16 @@ Rolle: hungrig, 20–40, sucht abends in Berlin was zu essen.
 **Erledigt** (PR #337 → staging, PR #338 → main): Order-Block-Overflow,
 Drop-Cap-Balken, Zurück-Geste auf der Map. Nicht mehr anfassen.
 
-**In PR** (→ staging): 1.1 Empty State (PR #347), 1.2 Aktionen auf der
-Detailseite (PR #348). Beide haben Reste hinterlassen — siehe die Notizen
-unter dem jeweiligen Punkt.
+**Auf `staging`** (gemerged, CI grün, **nicht** auf Produktion; der
+App-Hosting-Rollout ist nicht verifiziert): 1.1 Empty State (PR #347), 1.2
+Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots als Punkte
+(PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet das Sheet
+(PR #353).
+
+**In PR** (→ staging): 1.4 Clustering (PR #354).
+
+Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
+Punkt.
 
 Alles Folgende ist offen. Reihenfolge = mein Vorschlag nach Wirkung pro Aufwand,
 nicht bindend.
@@ -88,6 +95,35 @@ identisch („EAT THIS"-Tütchen) — die Karte sagt nichts darüber, was wo ist
 Fix: Clustering ab Zoomstufe X, plus Differenzierung nach Kategorie
 (Icon oder Farbe).
 
+**Clustering erledigt in PR #354**, die Differenzierung nicht.
+
+Nachgemessen wurde im sichtbaren Kartenstreifen (0–585px, was das Sheet
+übriglässt), nicht im ganzen Viewport — darunter lagen 10 freie Pins, 5 Paare
+unter 40px, und **79 Marker bekamen auf ihrem eigenen Mittelpunkt keinen
+Treffer**. Zwei davon waren freie Pins: „Slice Society" verlor seinen an Hokey
+Pokey Mitte, „Bar Basta" an SOFI. Die 194 gesperrten Punkte aus #351 lagen als
+130 sichtbare Punkte mit 90 Überlappungen darunter — deshalb trägt das
+Clustering beide Sorten. Nachher: 0 freie Paare unter 40px (dichtestes 52px bei
+48px Radius), 0 überlappende Punkte, kein freier Marker verliert seinen
+Mittelpunkt.
+
+Zwei Dinge, die dabei herauskamen:
+
+- **MapLibre stapelt Marker nach DOM-Reihenfolge, und das ist die
+  MOUNT-Reihenfolge, nicht die des React-Baums.** Jeder Marker hängt sich beim
+  Mounten selbst an den Canvas-Container. Ein Punkt, den ein Zoomwechsel neu
+  erzeugt, landet also hinter schon vorhandenen Pins und malt über sie. Bei z13
+  beobachtet: ein „2 Spots"-Cluster von einem gesperrten Punkt verdeckt. Die in
+  #351 dokumentierte Regel „Punkte zuerst rendern" hielt nur für den ersten
+  Paint. Freie Marker haben jetzt ein eigenes z-index-Band
+  (`.markerRootFree`) — dieselbe Mechanik, die der aktive Pin schon hatte.
+- **Die Projektionskonstante wurde gegen die laufende Karte geprüft, nicht
+  angenommen.** Bei z12 sagt die 512px-Kachel-Formel für den Datensatz eine
+  Ausdehnung von 7779×7259px voraus, das DOM misst 7778×7237.
+
+Offen bleibt: **alle Pins sehen gleich aus.** Die Karte sagt weiterhin nichts
+darüber, was wo ist. Eigene Änderung (Icon oder Farbe pro Kategorie).
+
 ---
 
 ## P2 — Vertrauen und Konversion
@@ -115,10 +151,46 @@ die Map-Suche nach „Ramen" nichts findet.
 Das Geschäftsmodell (Liste frei, Map kostet) ist in Ordnung — es wird nur
 nirgends erklärt, und die Suche wirkt dadurch kaputt statt limitiert.
 
+**Erledigt in PR #352.** Der gesperrte Empty State sagt jetzt, dass sich jeder
+Spot in seiner Bezirk-Liste frei lesen lässt, und verlinkt `/bezirk`. Gemessen
+vorher: Kreuzberg 2 frei auf der Map gegen 57 klickbare Restaurants auf der
+Bezirk-Seite, Mitte 5 gegen 77 — und `/bezirk/kreuzberg` enthielt **null**
+Treffer für gesperrt/locked/booster/pack/freischalt, also keinerlei Hinweis auf
+das Modell. Der Satz fehlt bewusst, wenn gar nichts matcht („Qwertzuiop"): dann
+gibt es auch nichts anderswo zu lesen.
+
+Nicht angefasst: das dauerhafte All-Berlin-Banner, das erscheint, wenn es freie
+Treffer _gibt_. Derselbe Satz könnte dort stehen.
+
 ### 2.4 Gesperrte Spots verstecken statt zeigen
 
 Ausgegraute Pins/Karten mit Schloss verkaufen; eine leere Karte frustriert nur.
 Hängt eng an 1.1 und 2.3.
+
+**Erledigt in PR #351**, mit einem Nachzug in **PR #353**.
+
+Gesperrte Spots sind **11px-Punkte, keine Pins**. Der Grund ist gemessen: bei
+Default-Zoom liegen 15 freie Spots im Bild und **194 gesperrte im selben
+Ausschnitt**. Als 44px-Pins wäre das ein geschlossener Teppich, in dem die
+freien Spots verschwinden — das Gegenteil des Zwecks. Als Punkte lesen sie sich
+als Dichte, und die gelben Pins bleiben das Einzige, was aussieht, als öffne es
+einen Spot. Die Trefferzahl der Punkte deckt sich exakt mit der Zahl im Empty
+State (1.1): „Ramen" zeichnet genau die 3 Punkte, die das Sheet zählt.
+
+Bewusste Ausnahme: die Punkte bekommen **28px** Trefferfläche statt 44px. 194
+überlappende 44px-Ziele würden den freien Pins die Taps klauen.
+
+**PR #353** hat dann die Navigation korrigiert: ein Punkt öffnete
+`/pack/all-berlin` direkt und warf dafür Kartenposition, Filter und Suche weg —
+bei einem Tap, der meistens „was ist das?" heißt und bei 28px-Zielen oft
+danebengeht. Jetzt öffnet er das Sheet (kein dritter Sheet-Typ, ein gesperrter
+Spot benutzt `selectedRestaurant`) mit zwei Wegen: ganz Berlin holen, oder den
+Spot frei lesen. Dabei fiel auf, dass die „Selektion außerhalb des sichtbaren
+Sets"-Rückfalloption gesperrten Spots den gelben Pin gab — sie also als frei
+auswies, während das Sheet das Gegenteil sagte.
+
+Offen bleibt an diesem Punkt nichts; die Überlappung der Punkte untereinander
+war ein eigener Fund und ist in 1.4 erledigt.
 
 ### 2.5 Küche-Filter greift kaum
 

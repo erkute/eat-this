@@ -27,11 +27,10 @@ function spot(over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant;
 }
 
-function html(r: MapRestaurant, counts: Record<string, number> = { lunch: 205 }, total = 345) {
+function html(r: MapRestaurant, total = 345) {
   return renderToStaticMarkup(
     <LockedDetail
       restaurant={r}
-      spotsByCategory={counts}
       totalSpots={total}
       contentRef={null}
       onClose={() => {}}
@@ -56,13 +55,15 @@ describe('LockedDetail', () => {
   it('leads with the pack that actually unlocks this spot', () => {
     const out = html(spot());
     expect(out).toContain('/pack/lunch');
-    expect(out).toContain('Lunch · 205 Spots · 2,99 €');
+    expect(out).toContain('Lunch');
+    expect(out).toContain('2,99 €');
   });
 
   it('offers all-Berlin with its size and price, not a bare slogan', () => {
     const out = html(spot());
     expect(out).toContain('/pack/all-berlin');
-    expect(out).toContain('Ganz Berlin · 345 Spots · 20 €');
+    expect(out).toContain('Ganz Berlin · 345 Spots');
+    expect(out).toContain('20 €');
   });
 
   it('keeps the line the wording was built around', () => {
@@ -75,10 +76,14 @@ describe('LockedDetail', () => {
     expect(out).not.toContain('/pack/lunch');
   });
 
-  it('skips a category pack whose count is unknown rather than printing "0 Spots"', () => {
-    const out = html(spot(), {});
-    expect(out).not.toContain('/pack/lunch');
-    expect(out).toContain('/pack/all-berlin');
+  it('states a spot count for all-Berlin only', () => {
+    /* A category count invites the comparison that sinks the bundle: Lunch
+       alone is 205 of 345 spots, so "205 Spots · 2,99 €" beside "340 Spots ·
+       20 €" argues against the 20 € every time. */
+    const out = html(spot());
+    const lunchBlock = out.slice(out.indexOf('/pack/lunch'), out.indexOf('/pack/all-berlin'));
+    expect(lunchBlock).not.toContain('Spots');
+    expect(out.slice(out.indexOf('/pack/all-berlin'))).toContain('Spots');
   });
 
   it('shows the category pack as its own art', () => {

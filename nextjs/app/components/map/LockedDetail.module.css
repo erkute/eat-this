@@ -30,6 +30,16 @@
   flex: 0 0 auto;
 }
 
+.sub {
+  max-width: 36ch;
+  margin: 0 0 4px;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.38;
+}
+
 .lead {
   margin: 4px 0 0;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -41,27 +51,92 @@
 
 /* Offers read as pack artwork, not as buttons — the same language the rest of
    the site sells packs in (user decision, 2026-08-19). The whole block is the
-   link; the label sits under the art like a caption. */
+   link. Light card with a soft shadow rather than a bordered button — it reads
+   as something you pick up. Two earlier tries are deliberately NOT here (user,
+   2026-08-19): an accent band behind the bags, which fought the art instead of
+   framing it, and an ink card, which turned a bright foil pack into a dark
+   slab. */
 .offer {
+  position: relative;
   display: grid;
-  gap: 8px;
-  padding: 12px 12px 14px;
-  border-radius: var(--et-radius-control, 7px);
-  border: 1.5px solid rgba(21, 18, 14, 0.14);
-  text-decoration: none;
+  gap: 10px;
+  padding: 16px 12px 14px;
+  border-radius: 10px;
+  background: var(--et-home-paper, #fff);
   color: var(--et-home-ink, #15120e);
+  box-shadow:
+    0 1px 2px rgba(21, 18, 14, 0.1),
+    0 8px 18px rgba(21, 18, 14, 0.1);
+  text-decoration: none;
+  overflow: hidden;
   transition:
-    border-color var(--et-motion-fast, 140ms ease),
-    background-color var(--et-motion-fast, 140ms ease);
+    transform var(--et-motion-fast, 140ms ease),
+    box-shadow var(--et-motion-fast, 140ms ease);
 }
 
 .offer:hover,
 .offer:focus-visible {
-  border-color: var(--et-home-ink, #15120e);
-  background: var(--et-home-accent, #ffc600);
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 3px rgba(21, 18, 14, 0.12),
+    0 14px 26px rgba(21, 18, 14, 0.16);
+}
+
+/* Price as a badge, where the eye lands first — the packs print theirs the
+   same way. */
+.offerPrice {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  transform: rotate(-6deg);
+}
+
+/* The single pack sits beside its own copy; the nine-bag fan needs the full
+   width, so it keeps art-over-text. Two shapes, one card. */
+.offerRow {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+  padding-right: 60px;
+}
+
+.offerRow .offerArt {
+  min-height: 0;
+}
+
+.offerRow .offerLabel,
+.offerRow .offerSpectrum {
+  text-align: left;
+}
+
+.offerText {
+  display: grid;
+  gap: 4px;
+}
+
+.offerSpectrum {
+  position: relative;
+  z-index: 1;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
 }
 
 .offerArt {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -96,9 +171,12 @@
 }
 
 .offerLabel {
+  position: relative;
+  z-index: 1;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
+  letter-spacing: 0.01em;
   line-height: 1.15;
   text-align: center;
   text-transform: uppercase;

@@ -64,8 +64,7 @@ interface MapBodyState {
    *  rendered as blurred entries below the booster banner in the list. */
   /** Paywalled spots matching the active filter — drawn as muted dots. */
   displayedLockedRestaurants: MapRestaurant[];
-  /** Unfiltered catalog counts for the locked sheet's pack offer. */
-  spotsByCategory: Record<string, number>;
+  /** Unfiltered catalog size for the locked sheet's all-Berlin offer. */
   totalSpots: number;
   /** Every paywalled id, so the sheet knows which detail to render. */
   lockedIdSet: Set<string>;
@@ -160,7 +159,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     dragging,
     displayedRestaurants,
     displayedLockedRestaurants,
-    spotsByCategory,
     totalSpots,
     lockedIdSet,
     lockedMatchCount,
@@ -604,7 +602,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               lockedIdSet.has(selectedRestaurant._id) ? (
               <LockedDetail
                 restaurant={selectedRestaurant}
-                spotsByCategory={spotsByCategory}
                 totalSpots={totalSpots}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}

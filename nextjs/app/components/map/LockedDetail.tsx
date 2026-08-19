@@ -17,9 +17,8 @@ import lockedStyles from './LockedDetail.module.css';
 
 interface Props {
   restaurant: MapRestaurant;
-  /** Spots per category slug across the WHOLE catalog, not the filtered map —
-   *  a pack's size must not move when the user ticks a chip. */
-  spotsByCategory: Record<string, number>;
+  /** Whole-catalog spot count, not the filtered map — the all-Berlin offer's
+   *  size must not move when the user ticks a chip. */
   totalSpots: number;
   contentRef: Ref<HTMLDivElement | null>;
   onClose: () => void;
@@ -43,17 +42,14 @@ interface Props {
  * against the pack sitting right above it (user decision, 2026-08-19).
  *
  * The offer leads with the pack this spot is actually in — the 2,99 € one that
- * unlocks it — and puts all-Berlin underneath. Both carry their spot count and
- * price, because "Ganz Berlin holen" on its own asked for money without saying
- * how much or for what.
+ * unlocks it — and puts all-Berlin underneath.
+ *
+ * Only all-Berlin states a spot count. A category pack's count invites exactly
+ * the comparison that sinks the bundle: Lunch alone is 205 of 345 spots, so
+ * "205 Spots · 2,99 €" next to "340 Spots · 20 €" argues against the 20 €
+ * every time (user decision, 2026-08-19).
  */
-export default function LockedDetail({
-  restaurant: r,
-  spotsByCategory,
-  totalSpots,
-  contentRef,
-  onClose,
-}: Props) {
+export default function LockedDetail({ restaurant: r, totalSpots, contentRef, onClose }: Props) {
   const locale = useLocale();
   const { t } = useTranslation();
   const de = locale !== 'en';
@@ -66,7 +62,6 @@ export default function LockedDetail({
   const categoryPack = (r.categories ?? [])
     .map((c) => resolvePackByUrlSlug(c.slug))
     .find((pack) => pack !== null && pack.slug !== null);
-  const categoryCount = categoryPack?.slug ? (spotsByCategory[categoryPack.slug] ?? 0) : 0;
   const allBerlin = resolvePackByUrlSlug('all-berlin');
   const spotsWord = de ? 'Spots' : 'spots';
   /* All-Berlin has no art of its own. /packs answers that by fanning out every
@@ -109,9 +104,14 @@ export default function LockedDetail({
           <p className={lockedStyles.lead}>
             {de ? 'Liegt noch nicht auf deiner Map.' : 'Not on your map yet.'}
           </p>
-          {categoryPack && categoryCount > 0 && categoryPack.slug && categoryArt(categoryPack.slug) && (
+          <p className={lockedStyles.sub}>
+            {de
+              ? 'Mit einem Pack schaltest du diesen Spot frei — und alle anderen darin gleich mit.'
+              : 'A pack unlocks this spot — and every other one in it.'}
+          </p>
+          {categoryPack?.slug && categoryArt(categoryPack.slug) && (
             <a
-              className={lockedStyles.offer}
+              className={`${lockedStyles.offer} ${lockedStyles.offerRow}`}
               href={`${prefix}/pack/${packUrlSlug(categoryPack)}`}
               onClick={() =>
                 trackEvent('locked_spot_pack_clicked', {
@@ -131,8 +131,14 @@ export default function LockedDetail({
                   sizes="88px"
                 />
               </span>
-              <span className={lockedStyles.offerLabel}>
-                {`${categoryPack.displayName} · ${categoryCount} ${spotsWord} · ${formatPackPrice(categoryPack.amountCents)}`}
+              <span className={lockedStyles.offerPrice}>
+                {formatPackPrice(categoryPack.amountCents)}
+              </span>
+              <span className={lockedStyles.offerText}>
+                <span className={lockedStyles.offerLabel}>{categoryPack.displayName}</span>
+                <span className={lockedStyles.offerSpectrum}>
+                  {categoryPack.spectrum[de ? 'de' : 'en']}
+                </span>
               </span>
             </a>
           )}
@@ -161,8 +167,16 @@ export default function LockedDetail({
                   />
                 ))}
               </span>
-              <span className={lockedStyles.offerLabel}>
-                {`${de ? 'Ganz Berlin' : 'All Berlin'} · ${totalSpots} ${spotsWord} · ${formatPackPrice(allBerlin.amountCents)}`}
+              <span className={lockedStyles.offerPrice}>
+                {formatPackPrice(allBerlin.amountCents)}
+              </span>
+              <span className={lockedStyles.offerText}>
+                <span className={lockedStyles.offerLabel}>
+                  {`${de ? 'Ganz Berlin' : 'All Berlin'} · ${totalSpots} ${spotsWord}`}
+                </span>
+                <span className={lockedStyles.offerSpectrum}>
+                  {allBerlin.spectrum[de ? 'de' : 'en']}
+                </span>
               </span>
             </a>
           )}

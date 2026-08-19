@@ -12,11 +12,14 @@
   nofollow`, Produktion 200 ohne den Header. Der funktionale Smoke hinter dem
   Gate steht aus (Zugangsdaten:
   `docs/runbooks/2026-05-27-staging-backend-setup.md`).
-- **Produktion: unverändert.** Kein `staging → main`. `staging` ist **51**
-  Commits vor `main`, nichts davon ist live.
+- **Produktion: unverändert.** Kein `staging → main`. `staging` ist rund **55**
+  Commits vor `main` (`git rev-list --count origin/main..origin/staging` sagt
+  die genaue Zahl), nichts davon ist live.
 - **Keine offenen PRs.** Außer `main` und `staging` existiert kein Branch,
   lokal wie remote (`origin/chore/prettier-format-everything` war eine
   veraltete Referenz und ist mit `git fetch --prune` weg).
+- Dazu gemergt: **PR #370** (dieses Protokoll + Handoff), Merge-Commit
+  `1d7422d1`, dessen Rollout regulär vom Push-Event ausgelöst wurde.
 
 ## Die Falle dieser Runde: der Push-Event kam nie an
 
@@ -40,11 +43,16 @@ Was das beweist, und wie man es misst:
   `refs/heads/staging` von `refs/pull/369/merge`, kann den Lauf also nicht
   weggecancelt haben. GitHub-Status meldete Actions, Webhooks und Git Ops
   `operational`.
-- **Nicht bewiesen, aber auffällig:** alle früheren `staging`-Läufe stammen von
-  Merge-Commits („Merge pull request #NNN…") oder direkten Pushes. Meiner war
-  der erste **Squash**-Merge im sichtbaren Verlauf. Der billige Test wäre, den
-  nächsten PR mit `--merge` statt `--squash` zu mergen und zu sehen, ob der
-  Event kommt.
+- **Der Gegentest ist gelaufen und hat es entschieden: es lag am Squash.**
+  PR #370 wurde 30 Minuten später mit `--merge` in denselben Branch gemergt —
+  Push-Event nach **4 Sekunden** (Merge `14:11:28Z`, Actions-Lauf und
+  App-Hosting-Rollout beide `14:11:32Z`, dieselbe Sekunde, was nebenbei den
+  gemeinsamen Webhook bestätigt). Der Squash von #369 hatte in 14 Minuten
+  niemanden geweckt. Gleicher Branch, gleicher Tag, halbe Stunde auseinander.
+
+  **Konsequenz: in dieses Repo mit `gh pr merge --merge --delete-branch` mergen,
+  nicht `--squash`.** Das ist ohnehin die Hausvariante — #367 und #368 sind
+  Merge-Commits, #369 war die Abweichung.
 
 Zwei Konsequenzen fürs Vorgehen:
 
@@ -167,8 +175,8 @@ Reihenfolge nach Wirkung pro Aufwand, nicht bindend.
    zum nächsten Lookup aus:
    `openssl rand -hex 16 | firebase apphosting:secrets:set STAGING_BASIC_AUTH_PASS --data-file - --project eat-this-staging-8a13b`
    danach neuer Rollout.
-3. **`staging → main`**, falls das Ganze auf Produktion soll — 51 Commits, davon
-   nichts live. Davor der Smoke; 51 ungeprüfte Commits auf eine auto-deployende
+3. **`staging → main`**, falls das Ganze auf Produktion soll — rund 55 Commits, davon
+   nichts live. Davor der Smoke; so viele ungeprüfte Commits auf eine auto-deployende
    Produktion ist die teure Variante.
 
 ## Randbedingungen (unverändert)

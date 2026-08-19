@@ -224,6 +224,9 @@ const en = {
     // one is a blackbox — and for a query with no locked matches either it
     // would be a straight lie.
     emptyLockedKicker: 'Locked only',
+    // Card metaphor, matching the reveal mechanic — NOT the same string as
+    // emptyLockedKicker, which labels a filter result with no free hits.
+    lockedDetailKicker: 'Still face down',
     emptyLockedTitle: '0 free hits.',
     emptyLockedBody:
       '{count, plural, one {1 matching spot for “{label}” is still locked — it’s inside a Booster Pack.} other {# matching spots for “{label}” are still locked — they’re inside Booster Packs.}}',
@@ -669,6 +672,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyKicker: 'Nichts gefunden',
     emptyReset: 'Filter zurücksetzen',
     emptyLockedKicker: 'Nur gesperrt',
+    lockedDetailKicker: 'Noch verdeckt',
     emptyLockedTitle: '0 freie Treffer.',
     emptyLockedBody:
       '{count, plural, one {Für „{label}“ ist 1 passender Spot noch gesperrt — er steckt in einem Booster Pack.} other {Für „{label}“ sind # passende Spots noch gesperrt — sie stecken in Booster Packs.}}',

@@ -76,6 +76,85 @@ function layer(
   );
 }
 
+/* A map ref whose bounds cover Berlin-Mitte only, so the culling window can be
+   exercised. `moveend` is registered but never fired — the initial read is
+   what the assertions below depend on. */
+function mapRefWithBounds(west: number, south: number, east: number, north: number) {
+  const map = {
+    getBounds: () => ({
+      getWest: () => west,
+      getSouth: () => south,
+      getEast: () => east,
+      getNorth: () => north,
+    }),
+    on: () => {},
+    off: () => {},
+  };
+  return { current: { getMap: () => map } } as never;
+}
+
+function layerWithRef(free: MapRestaurant[], locked: MapRestaurant[], ref: never) {
+  return (
+    <MapCanvasLayer
+      mapRef={ref}
+      onMapClick={vi.fn()}
+      displayedRestaurants={free}
+      displayedLockedRestaurants={locked}
+      selectedRestaurant={null}
+      selectedIsLocked={false}
+      onRestaurantClick={vi.fn()}
+      onLockedClick={vi.fn()}
+      lockedLabel="Gesperrter Spot"
+      location={null}
+    />
+  );
+}
+
+describe('MapCanvasLayer viewport culling', () => {
+  /* Ungrouping the markers took the default camera from 169 DOM markers to
+     340. Only what is near the viewport gets a node, or the DOM cost of one
+     spot per icon lands on every page load. */
+  const nearby = () => spot('nearby', { lat: 52.52, lng: 13.405 });
+  const faraway = () => spot('faraway', { lat: 52.9, lng: 14.9 });
+
+  it('skips spots outside the padded viewport', async () => {
+    render(
+      layerWithRef([nearby(), faraway()], [], mapRefWithBounds(13.3, 52.45, 13.5, 52.58))
+    );
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(screen.getByLabelText('nearby')).toBeTruthy();
+    expect(screen.queryByLabelText('faraway')).toBeNull();
+  });
+
+  it('culls the locked dots on the same window', async () => {
+    render(
+      layerWithRef([], [nearby(), faraway()], mapRefWithBounds(13.3, 52.45, 13.5, 52.58))
+    );
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(1);
+  });
+
+  it('keeps a spot just outside the edge, because the window is padded', async () => {
+    // 0.6 of the span on each side: a 0.2° wide window reaches 0.12° further.
+    const justOutside = spot('just-outside', { lat: 52.52, lng: 13.58 });
+    render(
+      layerWithRef([justOutside], [], mapRefWithBounds(13.3, 52.45, 13.5, 52.58))
+    );
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(screen.getByLabelText('just-outside')).toBeTruthy();
+  });
+
+  it('renders everything when the map has not reported bounds yet', async () => {
+    render(layer([nearby(), faraway()], []));
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+  });
+});
+
 describe('MapCanvasLayer locked spots', () => {
   it('draws one dot per locked spot alongside the free pins', async () => {
     render(layer(spread('free-1', 'free-2'), spread('locked-1', 'locked-2', 'locked-3')));

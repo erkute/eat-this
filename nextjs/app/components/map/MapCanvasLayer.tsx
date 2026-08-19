@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant } from '@/lib/types';
@@ -29,6 +29,13 @@ const ENTER_STAGGER_CAP = 14;
    full stagger, and no longer — markers that mount later (a filter change)
    must NOT drop in again, or every chip tap re-animates the whole map. */
 const ENTER_WINDOW_MS = 460 + ENTER_STAGGER_MS * ENTER_STAGGER_CAP;
+
+/* Only spots inside the viewport get a DOM marker, grown by this much on each
+   side so a pan reveals markers that already exist rather than popping them in.
+   0.6 of the viewport in each direction covers a fast flick between `moveend`
+   events; the cost of being generous is a few dozen nodes, the cost of being
+   tight is visible popping. */
+const VIEWPORT_MARGIN = 0.6;
 
 /* The entire react-map-gl / maplibre-gl surface — the canvas plus every
    marker — lives behind this single component so it can be code-split into
@@ -91,18 +98,62 @@ export default function MapCanvasLayer({
 
   const selectedId = selectedRestaurant?._id ?? null;
 
-  /* Every spot is its own marker — no grouping. The open spot is filtered out
-     of its list and re-added below as its own pin, so it always paints last
-     and over whatever sits beneath it. */
-  const freePins =
-    selectedId && !selectedIsLocked
-      ? displayedRestaurants.filter((r) => r._id !== selectedId)
-      : displayedRestaurants;
+  /* Culling window, refreshed when the camera settles. `null` until the map
+     reports in — everything renders then, which is also the fallback if the
+     listener never attaches. Kept as plain numbers rather than a LngLatBounds
+     so the memos below can compare it by value. */
+  const [bounds, setBounds] = useState<[number, number, number, number] | null>(null);
 
-  const lockedPins =
-    selectedId && selectedIsLocked
-      ? displayedLockedRestaurants.filter((r) => r._id !== selectedId)
-      : displayedLockedRestaurants;
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const read = () => {
+      const b = map.getBounds();
+      const padX = (b.getEast() - b.getWest()) * VIEWPORT_MARGIN;
+      const padY = (b.getNorth() - b.getSouth()) * VIEWPORT_MARGIN;
+      setBounds([
+        b.getWest() - padX,
+        b.getSouth() - padY,
+        b.getEast() + padX,
+        b.getNorth() + padY,
+      ]);
+    };
+    read();
+    /* `moveend`, not `move`: recomputing per frame of a drag would cost more
+       than the markers it saves. */
+    map.on('moveend', read);
+    return () => {
+      map.off('moveend', read);
+    };
+  }, [mapRef, painted]);
+
+  /* Every spot is its own marker — no grouping — but only the ones near the
+     viewport get a DOM node. Production carried 169 markers at the default
+     camera before ungrouping; without this the same camera would mount 340.
+     The open spot is filtered out here and re-added below, so it always paints
+     last and over whatever sits beneath it. */
+  const inView = useCallback(
+    (r: MapRestaurant) =>
+      !bounds ||
+      (r.lng >= bounds[0] && r.lng <= bounds[2] && r.lat >= bounds[1] && r.lat <= bounds[3]),
+    [bounds]
+  );
+
+  const freePins = useMemo(
+    () =>
+      displayedRestaurants.filter(
+        (r) => r._id !== (selectedIsLocked ? null : selectedId) && inView(r)
+      ),
+    [displayedRestaurants, selectedId, selectedIsLocked, inView]
+  );
+
+  const lockedPins = useMemo(
+    () =>
+      displayedLockedRestaurants.filter(
+        (r) => r._id !== (selectedIsLocked ? selectedId : null) && inView(r)
+      ),
+    [displayedLockedRestaurants, selectedId, selectedIsLocked, inView]
+  );
 
   return (
     <MapCanvas

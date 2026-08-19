@@ -99,8 +99,8 @@
 }
 
 /* What you get for the money, between the name and the editorial line. All
-   Berlin only — a category pack never states its size, because Dinner's 226 of
-   341 spots for 2,99 € argues against the bundle. */
+   Berlin only — a category pack never states its size, because Dinner's 225 of
+   340 spots for 2,99 € argues against the bundle. */
 .contents {
   width: fit-content;
   margin: 0 0 clamp(14px, 2vw, 20px);

@@ -74,9 +74,9 @@ export interface PackContentsIndex {
 }
 
 /**
- * "341 Spots · 22 Must Eats" — All Berlin only. Category packs deliberately
- * never state their size: Dinner carries 226 of 341 spots and Lunch 206, so
- * "226 Spots · 2,99 €" next to the bundle argues against the bundle. A category
+ * "340 Spots · 22 Must Eats" — All Berlin only. Category packs deliberately
+ * never state their size: Dinner carries 225 of 340 spots and Lunch 205, so
+ * "225 Spots · 2,99 €" next to the bundle argues against the bundle. A category
  * pack sells on what is in it; only All Berlin sells on how much.
  * Packs without a Must Eat yet say only the spots rather than advertising zero.
  */

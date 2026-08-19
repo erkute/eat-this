@@ -172,6 +172,9 @@ export default async function PackDetailPage({ params }: PageProps) {
   const art = categoryArt(categorySlug);
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
   const allBerlinHref = '/pack/all-berlin';
+  // Never spell the bundle price out here — it was hardcoded as 20 € and
+  // survived the drop to 9,99 € on this one CTA.
+  const allBerlinPrice = formatPackPrice(CATALOG['all-berlin'].amountCents);
 
   return (
     <main className={styles.page}>
@@ -257,7 +260,9 @@ export default async function PackDetailPage({ params }: PageProps) {
                 </span>
                 <span className={styles.upsellMain}>All Berlin</span>
                 <span className={styles.upsellCta}>
-                  {de ? 'Alle Packs freischalten · 20 €' : 'Unlock every pack · €20'}
+                  {de
+                    ? `Alle Packs freischalten · ${allBerlinPrice}`
+                    : `Unlock every pack · ${allBerlinPrice}`}
                 </span>
                 <span className={styles.upsellSavings}>{formatBundleSavings(loc)}</span>
               </span>

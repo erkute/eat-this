@@ -78,7 +78,7 @@ describe('LockedDetail', () => {
 
   it('states a spot count for all-Berlin only', () => {
     /* A category count invites the comparison that sinks the bundle: Dinner
-       alone is 226 of 341 spots and Lunch 206, so "226 Spots · 2,99 €" beside
+       alone is 225 of 340 spots and Lunch 205, so "225 Spots · 2,99 €" beside
        the bundle argues against the bundle every time. */
     const out = html(spot());
     const lunchBlock = out.slice(out.indexOf('/pack/lunch'), out.indexOf('/pack/all-berlin'));

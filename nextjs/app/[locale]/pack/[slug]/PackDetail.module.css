@@ -122,6 +122,29 @@
   line-height: var(--et-leading-copy, 1.5);
 }
 
+/* Sits under the All-Berlin CTA, where the 20 € it undercuts is on screen.
+   Deliberately quiet type rather than a second yellow badge — the contents
+   line above already owns that emphasis. */
+.savings {
+  width: min(100%, 520px);
+  margin: 0 0 12px;
+  color: var(--pack-ink);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.upsellSavings {
+  display: block;
+  margin-top: 10px;
+  color: var(--pack-muted);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
 .cta {
   width: min(100%, 520px);
   min-height: 62px;

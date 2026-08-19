@@ -4,7 +4,12 @@ import { setRequestLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
-import { formatPackPrice, packUrlSlug, formatPackContents } from '@/lib/pack/packDetail'
+import {
+  formatPackPrice,
+  packUrlSlug,
+  formatPackContents,
+  formatBundleSavings,
+} from '@/lib/pack/packDetail'
 import { getPackContents } from '@/lib/sanity.server'
 import { hreflangAlternates } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
@@ -142,6 +147,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
               errorClassName={styles.buyError}
               {...buyLabels(allBerlin, true)}
             />
+            <p className={styles.savings}>{formatBundleSavings(loc)}</p>
             <div className={styles.payTrust} aria-label={`${t.trust}: ${PAYMENT_LOGOS.map((logo) => logo.label).join(', ')}`}>
               <span className={styles.payMethods}>
                 {PAYMENT_LOGOS.map((logo) => (

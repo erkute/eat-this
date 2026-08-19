@@ -77,7 +77,37 @@ describe('composeAnonRestaurants', () => {
     expect(result.map((r) => r._id)).toEqual(['r0', 'r1', 'r2', 'r3'])
   })
 
-  it('fallback excludes restaurants without must-eats (spec rule)', () => {
+  it('keeps a curated spot that carries no must-eat', () => {
+    // The flag IS the editorial decision. Measured 2026-08-19 against production:
+    // 7 of 19 `tierAnon` spots carried no must-eat and were silently dropped —
+    // among them the only Japanese, Mexican and Israeli spots on the free map.
+    const all = [
+      mkRestaurant('curated-no-card', { tierAnon: true }),
+      mkRestaurant('r1'),
+    ]
+    const mustEatCount = new Map([['curated-no-card', 0], ['r1', 1]])
+    const result = composeAnonRestaurants(all, mustEatCount)
+    expect(result.map((r) => r._id)).toContain('curated-no-card')
+  })
+
+  it('does not let a card-less curated spot eat the must-eat budget', () => {
+    // TIER_TARGETS.ANON budgets the spots that can show a card. A curated spot
+    // without one adds to the tier instead of displacing a card-carrying fill,
+    // otherwise honouring curation would cost the map a revealed must-eat.
+    const all = [
+      mkRestaurant('curated-no-card', { tierAnon: true }),
+      ...Array.from({ length: 30 }, (_, i) => mkRestaurant(`r${i}`)),
+    ]
+    const mustEatCount = new Map<string, number>([['curated-no-card', 0]])
+    for (let i = 0; i < 30; i++) mustEatCount.set(`r${i}`, 1)
+    const result = composeAnonRestaurants(all, mustEatCount)
+    expect(result.filter((r) => (mustEatCount.get(r._id) ?? 0) > 0).length).toBe(
+      TIER_TARGETS.ANON,
+    )
+    expect(result.length).toBe(TIER_TARGETS.ANON + 1)
+  })
+
+  it('fill excludes uncurated restaurants without must-eats', () => {
     const all = [
       mkRestaurant('r0', { tierAnon: true }),
       mkRestaurant('r1'), // no must-eats

@@ -26,23 +26,34 @@ function byMustEatCountDesc(
   }
 }
 
-// Anon tier: flagged set + fallback, BOTH constrained to restaurants WITH at
-// least one must-eat — every free/anon spot must carry a must-eat (so it can
-// show a revealed or teaser card). Target ANON.
+// Anon tier: every curated spot, plus a must-eat-backed fill up to ANON.
+//
+// The flag IS the editorial decision, so a `tierAnon` spot is on the free map
+// whether or not it carries a must-eat. It used to need one, which silently
+// dropped 7 of 19 curated spots — with them the only free Japanese, Mexican and
+// Israeli spots in a 339-restaurant catalog (measured 2026-08-19). The rule was
+// already dead anyway: all 8 free-surface spots on the anonymous map carry zero
+// must-eats, and Kolo Coffee is flagged, was dropped here, and walked back in
+// through that door.
+//
+// ANON stays a budget for spots that CAN show a revealed or teaser card, so the
+// fill tops up the curated card-carriers rather than competing with curation for
+// the same slots — honouring a flag must not cost the map a must-eat.
 export function composeAnonRestaurants(
   all:          MapRestaurant[],
   mustEatCount: Map<string, number>,
 ): MapRestaurant[] {
-  const flagged = all.filter((r) => r.tierAnon && (mustEatCount.get(r._id) ?? 0) > 0)
-  if (flagged.length >= TIER_TARGETS.ANON) {
-    return flagged
-  }
-  const flaggedIds = new Set(flagged.map((r) => r._id))
-  const fallbackPool = all
-    .filter((r) => !flaggedIds.has(r._id) && (mustEatCount.get(r._id) ?? 0) > 0)
+  const hasMustEat = (r: MapRestaurant) => (mustEatCount.get(r._id) ?? 0) > 0
+  const curated = all.filter((r) => r.tierAnon)
+  const fillCount = TIER_TARGETS.ANON - curated.filter(hasMustEat).length
+  if (fillCount <= 0) return curated
+
+  const curatedIds = new Set(curated.map((r) => r._id))
+  const fill = all
+    .filter((r) => !curatedIds.has(r._id) && hasMustEat(r))
     .sort(byMustEatCountDesc(mustEatCount))
-  const fillCount = TIER_TARGETS.ANON - flagged.length
-  return [...flagged, ...fallbackPool.slice(0, fillCount)]
+    .slice(0, fillCount)
+  return [...curated, ...fill]
 }
 
 // Signed tier: flagged set (minus anon overlap) + fallback excluding anon

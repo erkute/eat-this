@@ -15,6 +15,33 @@ The project has essentially no live users yet — Stripe is in live mode but onl
 
 Re-confirm only if the change crosses obvious module boundaries.
 
+## Hand the next task to a new session at ~40% context
+
+**At roughly 40% context used, stop taking on a new work item.** Finish and
+land what is already open, then write the handoff prompt — do not start "just
+one more quick point" below that line.
+
+Landing means: commit, push, PR, CI green, and the plan document updated for
+what this round actually shipped. Then write the next session a prompt that
+carries:
+
+- **The deployment state in the exact words** from the Staging branch workflow
+  section below — `committed` / `pushed` / `PR` / `rollout succeeded` /
+  `smoke-tested`. Never upgrade one without the evidence.
+- **Every measurement already taken**, with its number and where it was taken
+  (viewport, zoom, which strip of the screen). This is the expensive part.
+- **The traps** that cost time in this round.
+
+Why the line sits this low: the work in this repo is measurement-driven, and a
+summarised context keeps the conclusions but loses the exact numbers behind
+them. A session that runs to the edge hands over "the pins overlapped" instead
+of "8 pairs under 40px at a 44px marker box in the visible strip" — and the
+next one re-measures, or worse, guesses. Handing over early is cheaper than
+re-deriving.
+
+The percentage is a target, not a reading — approximate it and err early. A
+natural task boundary just below the line beats an exact 40% mid-task.
+
 ## Git Hygiene (parallel sessions)
 
 This repo is occasionally worked on in **multiple agent sessions simultaneously**, in two shapes. Sessions in this directory share the working tree and the git index outright, so one session's staged changes can accidentally be committed by another. Sessions in their own `git worktree` get a private tree, but still share the object database and — the part that surprises — **the branch pointers**. Either shape can put someone else's work in your commit.

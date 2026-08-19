@@ -49,9 +49,16 @@ reagierten: letzter Rollout `016` um `13:07:24Z`, letzter Actions-Lauf auf
 Webhook hängen. `gh api …/actions/runs?branch=staging&created=>13:40Z` gab
 `total_count: 0`. Ausgeschlossen: `quality.yml` hat keinen `paths`-Filter, und
 seine `concurrency`-Gruppe trennt `refs/heads/staging` von `refs/pull/369/merge`.
-GitHub-Status meldete alles `operational`. Auffällig, aber nicht bewiesen: alle
-früheren `staging`-Läufe stammen von Merge-Commits oder direkten Pushes, meiner
-war der erste **Squash**-Merge im sichtbaren Verlauf.
+GitHub-Status meldete alles `operational`.
+
+**Der Gegentest hat es dann entschieden: es lag am Squash.** PR #370 wurde
+30 Minuten später mit `--merge` statt `--squash` in denselben Branch gemergt —
+Push-Event nach **4 Sekunden** (Merge `14:11:28Z`, Actions-Lauf und
+App-Hosting-Rollout beide `14:11:32Z`, dieselbe Sekunde). Der Squash-Merge von
+#369 hatte in 14 Minuten keinen einzigen Konsumenten geweckt. Gleicher Branch,
+gleicher Tag, halbe Stunde auseinander. Also: **in dieses Repo mit `--merge`
+mergen**, nicht mit `--squash` — was ohnehin die Hausvariante ist, #367 und #368
+sind Merge-Commits.
 
 Konsequenz, die zählt: **der Quality-Gate-Lauf auf `staging` ist mit ausgefallen.**
 Inhaltlich gedeckt, weil der PR-Lauf auf `f7dda608` grün war und denselben Code

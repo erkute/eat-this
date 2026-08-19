@@ -37,6 +37,7 @@ export { useUnlockedMustEats } from './useUnlockedMustEats';
 
 // List/filter logic
 export { useMapFilters } from './useMapFilters';
+export { useMapFilterUrl } from './useMapFilterUrl';
 
 // Bottom-sheet state machine
 export type { SheetSnap } from './useBottomSheet';

@@ -39,11 +39,7 @@ function createHarness(mapRef: RefObject<MapRef | null>) {
     restaurants: [restaurant],
     lockedRestaurants: [] as MapRestaurant[],
     mustEats: [mustEat],
-    sheetView: 'list' as const,
     userInteractedRef,
-    setBezirk: vi.fn(),
-    setCategory: vi.fn(),
-    setSnap: vi.fn(),
     onRestaurantSlugMatch,
     onMustEatIdMatch,
   };
@@ -146,7 +142,6 @@ describe('useMapDeepLinks bounded map polling', () => {
     const { stableArgs } = createHarness(mapRef);
     renderHook(() => useMapDeepLinks({ ...stableArgs, isActive: true }));
 
-    expect(stableArgs.setBezirk).toHaveBeenCalledWith('Mitte');
     expect(vi.getTimerCount()).toBe(1);
 
     act(() => vi.advanceTimersByTime(15_000));

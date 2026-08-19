@@ -433,6 +433,54 @@ Filter „Burgers" gesetzt → URL bleibt `/map`. Nicht teilbar, nicht bookmarkb
 Zurück macht den Filter nicht rückgängig. (Die Detail-URL `?r=` ist seit
 PR #337 sauber — die Filter fehlen noch.)
 
+**Erledigt in PR #369.**
+
+Gemessen am 375×812-Viewport, alle fünf Filter gesetzt
+(Kategorie Pizza, Bezirk Kreuzberg, Küche Italian, Geöffnet, Suche „Pizza"):
+
+| | vorher | nachher |
+| --- | --- | --- |
+| `location.search` | `""` | `?cat=pizza&bezirk=kreuzberg&cuisine=Italian&q=Pizza&open=1` |
+| `history.length` nach fünf Filtern + 5 Anschlägen | 2 → 2 | 4 → 5 (**ein** Eintrag) |
+| Reload | alle vier Chips auf Default, Suchfeld leer | alle vier Chips + Suchtext zurück |
+| Zurück bei aktivem Filter | verlässt `/map`, landet auf `/` | bleibt auf `/map`, Filter weg |
+
+**Die Aufgabenstellung stimmte nur zur Hälfte.** Der Handoff sprach von „fünf
+`useState`, die in Query-Parameter gehören" — die Leserichtung gab es für zwei
+davon längst: `useMapDeepLinks` konsumiert `?cat=` und `?bezirk=` seit jeher,
+und die Kategorie-, Bezirk- und Guide-Seiten verlinken die Map darüber
+(`MapPromoCTA`). Namen und Slug-Werte dieser beiden waren damit gesetzt und
+nicht verhandelbar; gefehlt hat die **Schreibrichtung für alle fünf** plus die
+Leserichtung für `cuisine`, `q` und `open`.
+
+Deshalb liegt die Filter-Hoheit jetzt komplett in `lib/map/useMapFilterUrl.ts`,
+und `useMapDeepLinks` behält nur noch Kamera und Detail (−43 Zeilen, sein
+`?cat=`-Effekt entfiel ganz). Zwei Hooks, die beide die URL schreiben, wären
+genau das Rennen gewesen, das der Bug unten beschreibt.
+
+**Die Push-Regel** steht im Kopfkommentar des Hooks: Der erste aktive Chip
+pusht **einen** History-Eintrag, alles danach ersetzt ihn. Zurück landet damit
+auf der ungefilterten Map statt außerhalb, und zehn Chip-Wechsel kosten trotzdem
+einen Tastendruck. Die Suche ersetzt immer — ein Suchstring ist ein Strom von
+Anschlägen, keine Entscheidung, sonst wären fünf Buchstaben fünf Einträge.
+
+**Der Bug, den der Test gefunden hat, war die Effekt-Reihenfolge.** Der erste
+Entwurf gatete den Writer mit einem `useRef`. Das Ref kippt aber im selben
+Commit, in dem der Reader die URL anwendet — der Writer lief also noch mit den
+Default-Props und strippte als Erstes das `?cat=pizza`, das er gerade bekommen
+hatte. Als `useState` gebatcht es mit den Settern, und der erste Lauf des
+Writers sieht die Filter der URL bereits. Der Test
+`does not strip the inbound params it was handed` hält das fest.
+
+Mitgeprüft, weil zwei Schreiber auf denselben History-Stack zeigen: Detail aus
+der gefilterten Liste öffnen pusht (`?cat=pizza` → `?cat=pizza&r=slice-society`,
+`h` 8→9), Zurück schließt das Detail und **behält** den Filter (`?cat=pizza`,
+`h` bleibt 9). Der `?r=`-Sync löscht nur `r`/`me`, der Filter-Sync nur seine
+fünf Keys — sie fassen sich nicht an.
+
+Nicht mitgenommen: 4.2 (Bezug zum Kartenausschnitt, Trefferzähler) bleibt offen,
+das ist ein eigener Punkt.
+
 ### 4.2 Liste hat nichts mit dem Kartenausschnitt zu tun
 
 Karte zeigt Mitte, erster Listeneintrag ist Hafenküche in **Lichtenberg**.

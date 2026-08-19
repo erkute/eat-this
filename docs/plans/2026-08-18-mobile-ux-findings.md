@@ -12,9 +12,10 @@ App-Hosting-Rollout ist nicht verifiziert): 1.1 Empty State (PR #347), 1.2
 Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots als Punkte
 (PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet das Sheet
 (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359), 2.1 Pack-
-Inhalt als Zahl (PR #360).
+Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362).
 
-**In PR** (→ staging): 2.2 Bundle-Ersparnis (PR #362).
+**In PR** (→ staging): 2.5 kuratierte Spots ohne Must Eat (PR #365) — die
+Hälfte, die Code war; die andere Hälfte ist redaktionell, siehe dort.
 
 Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
 Punkt.
@@ -276,6 +277,50 @@ war ein eigener Fund und ist in 1.4 erledigt.
 Gemessene freie Treffer: Pizza 4, Kaffee 3, Burger 1, Sushi/Ramen/vegan 0.
 Ein „Burgers"-Filter mit einem Ergebnis lässt das Produkt kleiner wirken als es
 ist. Free-Tier auf ~5 Spots pro Küche anheben wäre die einfache Variante.
+
+**Der Vorschlag oben war nicht ausführbar — halb erledigt in PR #365.**
+
+Das Free-Tier war keine Auswahl, sondern der komplette Vorrat. Gemessen gegen
+Produktion: **23 Must-Eat-Dokumente auf 20 Restaurants**, bei 339 im Katalog
+(`isOpen != false`). `composeAnonRestaurants` ließ nur Spots mit mindestens
+einem Must Eat zu, also war das Anon-Tier **exakt diese 20**.
+`TIER_TARGETS.ANON = 20` deckelte damit nichts — es gab keinen 21. Kandidaten,
+und **den Wert hochzudrehen hätte null geändert**. „~5 Spots pro Küche" hätte
+Must Eats auf rund 130 Restaurants gebraucht, die keins haben.
+
+Der Code-Fund lag daneben: 19 Spots sind in Sanity `tierAnon`-geflaggt, **7
+erreichten die Map nie**, weil ihnen ein Must Eat fehlte — und es waren genau
+die, die die Küchen-Lücke schließen (NOVEMBER Brasserie war der einzige freie
+Japaner, Tacos el Rey der einzige Mexikaner, AVIV 030 der einzige Israeli). Die
+redaktionelle Absicht stand schon im Datensatz und wurde vom Code weggeworfen.
+
+**Die Begründung der Constraint trug schon vorher nicht mehr.** Der Kommentar
+sagte, jeder freie Spot müsse ein Must Eat tragen, damit er eine Karte zeigen
+kann. Gemessen: **alle 8 free-surface-Spots auf der anonymen Map haben null Must
+Eats** — Curry Baude, Bari, La Miche, Hokey Pokey Mitte, der Weinlobbyist und
+drei weitere. Kolo Coffee ist sogar geflaggt, flog vorne raus und kam hinten
+über free-surface wieder rein. `composeSignedRestaurants` hatte die Regel nie.
+
+Jetzt sticht die Kuratierung, und `TIER_TARGETS.ANON` behält seine Bedeutung als
+Budget für Spots, die eine Karte zeigen **können**: der Fill füllt die
+kuratierten Kartenträger auf, statt mit der Kuratierung um dieselben Slots zu
+konkurrieren. Sonst hätte das Ehren eines Flags die Map ein Must Eat gekostet.
+Vorher → nachher: Anon-Tier 20 → 27 bei **unveränderten 20 Kartenträgern**, frei
+gesamt 28 → 34, Küchen mit mindestens einem freien Spot 15 → 18 von 33,
+geflaggt-aber-nicht-frei 7 → 0.
+
+Offen bleibt die lange Fahne, und die ist **redaktionell, nicht technisch**: 15
+Küchen haben weiterhin null freie Spots, weil in ihnen kein einziges Restaurant
+ein Must Eat trägt. Für das Anon-Tier strukturell unerreichbar sind damit
+23 der 33 Küchen — darunter German (21 Spots im Katalog), Japanese (20), Vegan
+(5), Korean, Thai, Indian, Greek, Middle Eastern. Solange 23 Must Eats auf 339
+Restaurants kommen, ist jede Tier-Zahl die falsche Schraube.
+
+Die Küchen-Auswahl selbst ist übrigens nie leer: `cuisineNames` in
+`useMapFilters` wird aus dem **sichtbaren** Set gebaut, jeder Eintrag im Picker
+hat also mindestens einen Treffer. „Sushi/Ramen/vegan 0" aus der Messung oben
+waren Sucheingaben, keine Filter-Einträge — und Sushi und Ramen sind gar keine
+`cuisineType`-Werte, sondern stecken unter Japanese.
 
 ---
 

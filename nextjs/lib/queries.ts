@@ -367,3 +367,28 @@ export const staticPageBySlugQuery = `
     )
   }
 `
+
+/**
+ * How much a Booster Pack actually contains, for every pack at once.
+ *
+ * The filters MUST stay identical to `mapRestaurantsQuery` (`isOpen != false`)
+ * and to `isRestaurantVisible` (a category pack unlocks every restaurant
+ * carrying that category), or the number on the pack card promises spots the
+ * map never shows. Must Eats inherit their restaurant's `isOpen` for the same
+ * reason: they only become visible with the restaurant they hang off.
+ */
+export const packContentsQuery = `
+  {
+    "categories": *[_type == "category" && defined(slug.current)] {
+      "slug": slug.current,
+      "spots": count(*[_type == "restaurant" && isOpen != false
+        && ^.slug.current in categories[]->slug.current]),
+      "mustEats": count(*[_type == "mustEat" && restaurantRef->isOpen != false
+        && ^.slug.current in restaurantRef->categories[]->slug.current])
+    },
+    "allBerlin": {
+      "spots": count(*[_type == "restaurant" && isOpen != false]),
+      "mustEats": count(*[_type == "mustEat" && restaurantRef->isOpen != false])
+    }
+  }
+`

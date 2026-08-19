@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { Link } from '@/i18n/navigation'
-import { getRestaurantsByCategory, getCategoryBySlug } from '@/lib/sanity.server'
+import { getRestaurantsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { categoryArt } from '@/lib/categoryArt'
 import { hreflangAlternates } from '@/lib/seo/metadata'
@@ -15,6 +15,7 @@ import {
   packUrlSlug,
   formatPackPrice,
   buildPackTeaser,
+  formatPackContents,
 } from '@/lib/pack/packDetail'
 import PackBuyButton from './PackBuyButton'
 import styles from './PackDetail.module.css'
@@ -108,6 +109,7 @@ export default async function PackDetailPage({ params }: PageProps) {
 
   // ── All-Berlin variant ──────────────────────────────────────────────
   if (pack.type === 'all-berlin') {
+    const { allBerlin } = await getPackContents()
     return (
       <main className={styles.page}>
         <div className={styles.inner}>
@@ -119,6 +121,7 @@ export default async function PackDetailPage({ params }: PageProps) {
               <h1 className={`${styles.name} ${styles.allName}`}>
                 All<br /><span className={styles.y}>Berlin</span>
               </h1>
+              <p className={styles.contents}>{formatPackContents(allBerlin, loc)}</p>
               <p className={styles.sub}>{pack.description[loc]}</p>
 
               <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
@@ -150,11 +153,17 @@ export default async function PackDetailPage({ params }: PageProps) {
 
   // ── Category pack variant ───────────────────────────────────────────
   const categorySlug = pack.slug as string
-  const [category, restaurants] = await Promise.all([
+  const [category, restaurants, packContents] = await Promise.all([
     getCategoryBySlug(categorySlug),
     getRestaurantsByCategory(categorySlug),
+    getPackContents(),
   ])
   const teaser = buildPackTeaser(restaurants)
+  const contents = packContents.byCategory[categorySlug]
+  // Rows the teaser names or covers; everything past them is what "und mehr"
+  // has to sell, and it only sells if it says how many.
+  const teased = teaser.revealed.length + teaser.locked.length
+  const more = contents ? contents.spots - teased : 0
   const art = categoryArt(categorySlug)
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName
   const allBerlinHref = '/pack/all-berlin'
@@ -169,6 +178,9 @@ export default async function PackDetailPage({ params }: PageProps) {
               <span>{heroName}</span>{' '}
               <span className={styles.nameLine}>Pack</span>
             </h1>
+            {contents && (
+              <p className={styles.contents}>{formatPackContents(contents, loc)}</p>
+            )}
             <p className={styles.sub}>{pack.description[loc]}</p>
 
             <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
@@ -202,11 +214,15 @@ export default async function PackDetailPage({ params }: PageProps) {
                     {l.district && <span className={styles.mn}>{l.district}</span>}
                   </div>
                 ))}
-                <div className={`${styles.row} ${styles.rowLocked}`}>
-                  <div className={styles.thumb}>+</div>
-                  <span className={styles.rn}>{de ? 'Und mehr' : 'And more'}</span>
-                  <span className={styles.mn}>{de ? 'Live-Map' : 'Live map'}</span>
-                </div>
+                {more > 0 && (
+                  <div className={`${styles.row} ${styles.rowLocked}`}>
+                    <div className={styles.thumb}>+</div>
+                    <span className={styles.rn}>
+                      {de ? `${more} weitere Spots` : `${more} more spots`}
+                    </span>
+                    <span className={styles.mn}>{de ? 'Live-Map' : 'Live map'}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

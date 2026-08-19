@@ -14,6 +14,13 @@ das Sheet (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359),
 2.1 Pack-Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362), 2.5
 kuratierte Spots ohne Must Eat (PR #365), toter-Key-Sweep (PR #366).
 
+**Auf `staging`**, gemerged und CI grün, **nicht auf Produktion**: 1.1 Empty
+State (PR #347), 1.2 Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots
+als Punkte (PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet
+das Sheet (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359),
+2.1 Pack-Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362), 2.5
+kuratierte Spots ohne Must Eat (PR #365), toter-Key-Sweep (PR #366).
+
 **Rollout und Smoke, Stand 2026-08-19 11:06 — gilt bis einschließlich 2.1**
 (Commit `73087a33`): `rollout succeeded` und `smoke-tested`. Build
 `build-2026-08-19-008` steht auf `READY`, sein `source.codebase.hash` ist
@@ -25,12 +32,28 @@ Firebase-Boundary lädt die Staging-Config statt der Produktions-Config. Auf der
 Startseite steht „Rund um Mitte" ohne Gehzeiten (1.3), auf `/packs` die
 Spot-Zahlen (2.1).
 
-**2.2 (PR #362), 2.5 (PR #365) und der toter-Key-Sweep (PR #366) sind danach
-gemerged — ihr Rollout ist in diesem Eintrag nicht mitverifiziert.** Wer das
-nachholt: die Prozedur steht in `.claude/skills/deploy-verify/SKILL.md`. Kurz,
-weil es hier schon einmal danebenging: mehrere Merges lösen mehrere Rollouts
-aus, die seriell laufen, und der Backend-Zeitstempel wird schon nach dem
-**ersten** frisch. Nur der Quell-Commit des **letzten** Builds beweist etwas.
+**Rollout, Stand 2026-08-19 13:52 lokal — deckt 2.2, 2.5 und den Key-Sweep**
+(Commit `55496ced`): `rollout succeeded`. `build-2026-08-19-012` steht auf
+`READY`, sein `source.codebase.hash` ist
+`55496ced158e3b9d7fa69f4d0b0635968c7ecf5d` und damit identisch mit
+`origin/staging`. Negative Checks ohne Zugangsdaten: Staging antwortet 401 mit
+`WWW-Authenticate: Basic realm="Staging"` **und** `x-robots-tag: noindex,
+nofollow`, Produktion 200 ohne diesen Header.
+
+**`smoke-tested` gilt für diese drei aber NICHT** — der funktionale Smoke hinter
+dem Basic-Auth-Gate steht aus, er braucht die Zugangsdaten aus
+`docs/runbooks/2026-05-27-staging-backend-setup.md`. Nicht mit dem Rollout
+verwechseln: der ist bewiesen, das Verhalten der Seite ist es nicht.
+
+**Die Falle war wieder die Warteschlange, exakt wie im Skill beschrieben.** Zwei
+Merges lösten zwei Rollouts aus, die seriell liefen. Der Backend-Zeitstempel las
+sich dabei doppelt irreführend: er zeigte `11:48:34` in **Lokalzeit**, also
+09:48 UTC — der Rollout von #362, zwei Stunden alt — während die Merges bei
+13:38 und 13:43 lokal lagen. Wer den Zeitstempel für UTC hält, liest ihn als
+vier Minuten in der Zukunft und hält den Deploy für erledigt. Erst
+`rollouts:list` zeigte beide als `QUEUED`; 011 wurde um 13:47 fertig, 012 erst
+um 13:51. Zwischen erstem und letztem `SUCCEEDED` lagen vier Minuten, in denen
+der Backend-Zeitstempel schon frisch war und trotzdem den falschen Commit meinte.
 
 Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
 Punkt.

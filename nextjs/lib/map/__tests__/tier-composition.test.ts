@@ -4,6 +4,7 @@ import {
   composeSignedRestaurants,
   composeRevealedMustEats,
   TIER_TARGETS,
+  ANON_PER_BEZIRK,
 } from '@/lib/map/tier-composition';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 
@@ -31,108 +32,99 @@ function mkMustEat(id: string, restaurantId: string, opts: Partial<MapMustEat> =
 
 describe('TIER_TARGETS', () => {
   it('exports the locked-in numbers from the spec', () => {
-    expect(TIER_TARGETS.ANON).toBe(20);
     expect(TIER_TARGETS.SIGNED).toBe(20);
     expect(TIER_TARGETS.REVEALED).toBe(10);
+  });
+
+  it('no longer budgets the anon tier — geography does', () => {
+    expect('ANON' in TIER_TARGETS).toBe(false);
+    expect(ANON_PER_BEZIRK).toBe(5);
   });
 });
 
 describe('composeAnonRestaurants', () => {
-  it('returns ALL flagged when count >= TARGET_ANON (no truncation)', () => {
-    const all = Array.from({ length: 30 }, (_, i) => mkRestaurant(`r${i}`, { tierAnon: i < 25 }));
-    const mustEatCount = new Map(all.map((r) => [r._id, 1]));
-    const result = composeAnonRestaurants(all, mustEatCount);
-    expect(result.length).toBe(25);
+  const inBezirk = (id: string, name: string, opts: Partial<MapRestaurant> = {}) =>
+    mkRestaurant(id, { bezirk: { name }, ...opts });
+
+  it('tops every district up to ANON_PER_BEZIRK', () => {
+    const all = [
+      ...Array.from({ length: 9 }, (_, i) => inBezirk(`mi${i}`, 'Mitte')),
+      ...Array.from({ length: 7 }, (_, i) => inBezirk(`kb${i}`, 'Kreuzberg')),
+    ];
+    const result = composeAnonRestaurants(all, new Map());
+    const count = (b: string) => result.filter((r) => r.bezirk?.name === b).length;
+    expect(count('Mitte')).toBe(ANON_PER_BEZIRK);
+    expect(count('Kreuzberg')).toBe(ANON_PER_BEZIRK);
+  });
+
+  it('gives a thin district everything it has instead of nothing', () => {
+    // The regression this rule exists for: Friedrichshain had 12 spots in the
+    // catalog and 0 on the free map, Wedding had 2 and 0 (measured 2026-08-19).
+    const all = [
+      ...Array.from({ length: 20 }, (_, i) => inBezirk(`mi${i}`, 'Mitte')),
+      inBezirk('we0', 'Wedding'),
+      inBezirk('we1', 'Wedding'),
+    ];
+    const result = composeAnonRestaurants(all, new Map());
+    expect(result.filter((r) => r.bezirk?.name === 'Wedding')).toHaveLength(2);
+  });
+
+  it('includes spots without must-eats — the old fill excluded them', () => {
+    // 21 of 345 restaurants carry a must-eat, so a must-eat-gated fill could
+    // never cover the map. Coverage now outranks card-carrying capability.
+    const all = [inBezirk('r0', 'Mitte'), inBezirk('r1', 'Mitte')];
+    const result = composeAnonRestaurants(all, new Map([['r0', 1]]));
+    expect(result.map((r) => r._id).sort()).toEqual(['r0', 'r1']);
+  });
+
+  it('keeps every curated spot, even past its district quota', () => {
+    const all = [
+      ...Array.from({ length: 7 }, (_, i) => inBezirk(`c${i}`, 'Mitte', { tierAnon: true })),
+      inBezirk('x0', 'Mitte'),
+    ];
+    const result = composeAnonRestaurants(all, new Map());
+    expect(result).toHaveLength(7);
     expect(result.every((r) => r.tierAnon)).toBe(true);
   });
 
-  it('tops up to TARGET_ANON when flagged count < target', () => {
-    // 10 flagged, 30 total all with must-eats — should return exactly TARGET_ANON
-    const all = Array.from({ length: 30 }, (_, i) => mkRestaurant(`r${i}`, { tierAnon: i < 10 }));
-    const mustEatCount = new Map(all.map((r) => [r._id, 1]));
-    const result = composeAnonRestaurants(all, mustEatCount);
-    expect(result.length).toBe(TIER_TARGETS.ANON);
-    // First 10 are flagged
-    expect(result.slice(0, 10).every((r) => r.tierAnon)).toBe(true);
-    // Remaining are fallback
-    expect(result.slice(10).every((r) => !r.tierAnon)).toBe(true);
-  });
-
-  it('fallback picks by must-eat count desc, then _id asc as tiebreak', () => {
-    // 0 flagged. 5 total. Must-eat counts: r0=5, r1=3, r2=3, r3=1, r4=0.
-    // r4 ineligible (no must-eats). Expected order in fallback: r0, r1, r2, r3.
+  it('counts curated spots against their district quota', () => {
     const all = [
-      mkRestaurant('r0'),
-      mkRestaurant('r1'),
-      mkRestaurant('r2'),
-      mkRestaurant('r3'),
-      mkRestaurant('r4'),
+      inBezirk('c0', 'Mitte', { tierAnon: true }),
+      inBezirk('c1', 'Mitte', { tierAnon: true }),
+      ...Array.from({ length: 6 }, (_, i) => inBezirk(`x${i}`, 'Mitte')),
     ];
-    const mustEatCount = new Map([
-      ['r0', 5],
-      ['r1', 3],
-      ['r2', 3],
-      ['r3', 1],
-      ['r4', 0],
-    ]);
-    const result = composeAnonRestaurants(all, mustEatCount);
-    expect(result.map((r) => r._id)).toEqual(['r0', 'r1', 'r2', 'r3']);
+    const result = composeAnonRestaurants(all, new Map());
+    expect(result).toHaveLength(ANON_PER_BEZIRK);
+    expect(result.filter((r) => r.tierAnon)).toHaveLength(2);
   });
 
-  it('keeps a curated spot that carries no must-eat', () => {
-    // The flag IS the editorial decision. Measured 2026-08-19 against production:
-    // 7 of 19 `tierAnon` spots carried no must-eat and were silently dropped —
-    // among them the only Japanese, Mexican and Israeli spots on the free map.
-    const all = [mkRestaurant('curated-no-card', { tierAnon: true }), mkRestaurant('r1')];
-    const mustEatCount = new Map([
-      ['curated-no-card', 0],
-      ['r1', 1],
-    ]);
-    const result = composeAnonRestaurants(all, mustEatCount);
-    expect(result.map((r) => r._id)).toContain('curated-no-card');
-  });
-
-  it('does not let a card-less curated spot eat the must-eat budget', () => {
-    // TIER_TARGETS.ANON budgets the spots that can show a card. A curated spot
-    // without one adds to the tier instead of displacing a card-carrying fill,
-    // otherwise honouring curation would cost the map a revealed must-eat.
+  it('ranks the fill by must-eat count desc, then _id asc', () => {
     const all = [
-      mkRestaurant('curated-no-card', { tierAnon: true }),
-      ...Array.from({ length: 30 }, (_, i) => mkRestaurant(`r${i}`)),
+      inBezirk('r-a', 'Mitte'),
+      inBezirk('r-b', 'Mitte'),
+      inBezirk('r-c', 'Mitte'),
     ];
-    const mustEatCount = new Map<string, number>([['curated-no-card', 0]]);
-    for (let i = 0; i < 30; i++) mustEatCount.set(`r${i}`, 1);
-    const result = composeAnonRestaurants(all, mustEatCount);
-    expect(result.filter((r) => (mustEatCount.get(r._id) ?? 0) > 0).length).toBe(TIER_TARGETS.ANON);
-    expect(result.length).toBe(TIER_TARGETS.ANON + 1);
+    const result = composeAnonRestaurants(
+      all,
+      new Map([
+        ['r-c', 5],
+        ['r-a', 1],
+        ['r-b', 1],
+      ])
+    );
+    expect(result.map((r) => r._id)).toEqual(['r-c', 'r-a', 'r-b']);
   });
 
-  it('fill excludes uncurated restaurants without must-eats', () => {
-    const all = [
-      mkRestaurant('r0', { tierAnon: true }),
-      mkRestaurant('r1'), // no must-eats
-      mkRestaurant('r2'),
-    ];
-    const mustEatCount = new Map([
-      ['r0', 1],
-      ['r1', 0],
-      ['r2', 2],
-    ]);
-    const result = composeAnonRestaurants(all, mustEatCount);
-    // r1 should be excluded (no must-eats)
-    expect(result.map((r) => r._id)).toEqual(['r0', 'r2']);
+  it('falls back to the legacy `district` string when there is no bezirk ref', () => {
+    const all = Array.from({ length: 8 }, (_, i) => mkRestaurant(`d${i}`, { district: 'Moabit' }));
+    const result = composeAnonRestaurants(all, new Map());
+    expect(result).toHaveLength(ANON_PER_BEZIRK);
   });
 
-  it('returns fewer than target if pool is exhausted', () => {
-    // 0 flagged, only 3 restaurants with must-eats
-    const all = [mkRestaurant('r0'), mkRestaurant('r1'), mkRestaurant('r2')];
-    const mustEatCount = new Map([
-      ['r0', 1],
-      ['r1', 1],
-      ['r2', 1],
-    ]);
-    const result = composeAnonRestaurants(all, mustEatCount);
-    expect(result.length).toBe(3);
+  it('caps undistricted spots in one shared bucket', () => {
+    const all = Array.from({ length: 9 }, (_, i) => mkRestaurant(`n${i}`));
+    const result = composeAnonRestaurants(all, new Map());
+    expect(result).toHaveLength(ANON_PER_BEZIRK);
   });
 });
 

@@ -87,9 +87,14 @@ beforeEach(() => {
 
 describe('/api/map-data — tier composition', () => {
   it('anonymous: returns anonSet + revealedMustEatIds', async () => {
+    // a3/a4 exist to consume the district quota. Without them the anon tier
+    // has room for every spot and nothing is locked, which would make the
+    // assertions below vacuous.
     const restaurants = [
       mkRestaurant('a1', { tierAnon: true }),
       mkRestaurant('a2', { tierAnon: true }),
+      mkRestaurant('a3'),
+      mkRestaurant('a4'),
       mkRestaurant('b1', { tierSigned: true }),
       mkRestaurant('c1'),
     ]
@@ -114,14 +119,15 @@ describe('/api/map-data — tier composition', () => {
     const res = await GET(mkReq(null))
     const json = await res.json()
 
-    // anon: tierAnon (a1, a2) + fallback from restaurants with must-eats.
-    // b1 has m3 so it fills the fallback (target=20, only 3 total with must-eats).
-    // c1 has no must-eats so it stays out of the anon set.
+    // anon: tierAnon (a1, a2) + fill up to ANON_PER_BEZIRK (5). These fixtures
+    // carry no district, so they share one bucket. The fill ranks by must-eat
+    // count first — b1 has m3 — then by _id, taking a3 and a4. 'c1' sorts last
+    // and is the one the quota pushes out.
     const anonIds = json.restaurants.map((r: any) => r._id).sort()
     expect(anonIds).toContain('a1')
     expect(anonIds).toContain('a2')
-    expect(anonIds).toContain('b1')   // fallback-filled (has m3)
-    expect(anonIds).not.toContain('c1') // no must-eats → excluded from anon fallback
+    expect(anonIds).toContain('b1')   // fill ranks it first (has m3)
+    expect(anonIds).not.toContain('c1') // quota full → pushed out
     // mustEats for anon: m1 (a1), m2 (a2), m3 (b1) — all visible
     expect(json.mustEats.map((m: any) => m._id).sort()).toEqual(['m1', 'm2', 'm3'])
     expect(json.revealedMustEatIds).toContain('m1')

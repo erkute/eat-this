@@ -48,11 +48,14 @@ function mkReq(cookieUid: string | null, idToken: string | null = 'tok'): NextRe
 }
 
 // Catalog for happy-path tests: 1 anon-tier restaurant ('a-anon', tierAnon +
-// must-eat), 20 plain restaurants ('b01'–'b20') that fill the signed-tier
-// fallback, plus 1 remainder restaurant ('z-plain') that escapes both tiers.
-// friendPool = inviterPool = ['z-plain'] — both non-empty → batch.set called
-// twice (friend doc + inviter doc).
-const SIGNED_FILL_RESTAURANTS = Array.from({ length: 20 }, (_, i) => ({
+// must-eat), 24 plain restaurants ('b01'–'b24'), plus 1 remainder restaurant
+// ('z-plain') that escapes both tiers. friendPool = inviterPool = ['z-plain'].
+//
+// 26 is the smallest catalog that still leaves a remainder: the anon tier takes
+// ANON_PER_BEZIRK (5) — these fixtures carry no district, so they share one
+// bucket — and the signed tier takes TIER_TARGETS.SIGNED (20) of the other 21.
+// 'z-plain' sorts after every 'b' id, so it is the one that falls out of both.
+const SIGNED_FILL_RESTAURANTS = Array.from({ length: 24 }, (_, i) => ({
   _id: `b${String(i + 1).padStart(2, '0')}`,
   categories: [],
 }))

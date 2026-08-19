@@ -11,9 +11,10 @@ Drop-Cap-Balken, Zurück-Geste auf der Map. Nicht mehr anfassen.
 App-Hosting-Rollout ist nicht verifiziert): 1.1 Empty State (PR #347), 1.2
 Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots als Punkte
 (PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet das Sheet
-(PR #353).
+(PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359), 2.1 Pack-
+Inhalt als Zahl (PR #360).
 
-**In PR** (→ staging): 1.4 Clustering (PR #354).
+**In PR** (→ staging): 2.2 Bundle-Ersparnis (PR #362).
 
 Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
 Punkt.
@@ -86,6 +87,34 @@ liest eine falsche Gehzeit.
 
 Fix: vor der Freigabe „Rund um Mitte" titeln und die Gehzeiten weglassen.
 
+**Erledigt in PR #359**, genau so.
+
+Der Punkt, der beim Messen die Lösung entschieden hat: **eine abgelehnte
+Freigabe und eine nie gestellte Frage sind auf dem Hub nicht unterscheidbar.**
+`UserLocationProvider` startet den stillen Request nur, wenn die Permission
+schon erteilt ist — eine Ablehnung löst also nie einen Request aus und setzt nie
+einen Error. Beim Laden sieht sie exakt aus wie ein Erstbesuch. `location ===
+null` ist die einzige ehrliche Trennlinie; ein neuer Zustand war nicht nötig,
+`lib/map/locationStatus.ts` bleibt unangetastet.
+
+Die Sortierung nach Distanz zu Mitte ist geblieben — „am nächsten an Mitte" ist
+eine echte Ordnung, sie war nur falsch beschriftet.
+
+Mitgezogen: die Subline sagte „Mitte · nächste Spots auf der Map" und war damit
+die einzige Stelle, die Mitte nannte. Mit der neuen Überschrift stand „Mitte"
+sechsmal auf dem Schirm, also zeigt sie jetzt auf den STANDORT-Button daneben
+(„Tipp auf Standort für Gehzeiten von dir aus.") — was gleichzeitig die Antwort
+auf „wo sind die Gehzeiten hin?" ist.
+
+`hub.nearby.title` existierte und wurde von niemandem gelesen, während die
+Komponente den String hartcodierte; er hält jetzt die Live-Kopie, `titleFallback`
+daneben.
+
+Nebenbei gefunden, nicht angefasst — **tote Übersetzungs-Keys** im Schnitt von
+#357: `hub.nearby.location`, `errDenied`, `errRetry`, `mustEatsTitle`,
+`mustEatsSub`, `more` sowie `deineWelt.nearbyLive` / `nearbyFallback`. Kein
+Konsument. `deineWelt.nearbyFallback` war ironischerweise schon „Rund um Mitte".
+
 ### 1.4 Pins überlappen, kein Clustering
 
 Bei Default-Zoom gemessen: 15 sichtbare Marker, **8 Paare unter 40px Abstand** bei
@@ -137,9 +166,59 @@ und Kauf: „**47 Spots + 12 Must Eats**" prominent auf jede Pack-Karte.
 Nebenbei: Platz 01 und 02 sind beide „AERA" (Mitte + Charlottenburg), das lässt
 den Pack dünner wirken als er ist.
 
+**Erledigt in PR #360**, beide Hälften.
+
+Die geschätzten „47 Spots + 12 Must Eats" waren zu niedrig bzw. zu hoch — die
+echten Zahlen: breakfast 52/6, coffee 50/2, dinner 224/8, drinks 68/2, fast-food
+9/4, fine-dining 34/0, lunch 204/7, pizza 20/3, sweets 33/9, All Berlin 339/22.
+Ein 52-Spot-Pack verkaufte sich über fünf Teaser-Zeilen und ein „Und mehr".
+
+Die Zeile steht jetzt auf jeder `/packs`-Kachel und in beiden Pack-Heros, und
+die letzte Teaser-Zeile zählt, was sie zurückhält („+ 47 weitere Spots" statt
+„Und mehr"). Packs ohne Must Eat (fine-dining) sagen nur die Spots, statt eine
+Null zu bewerben.
+
+**Die Falle war die Zählung, nicht die Anzeige.** Die Zahl ist ein Versprechen,
+das ein Käufer nachzählen kann, also muss `packContentsQuery` dieselbe Population
+zählen, die die Map rendert (`isOpen != false`, wie `mapRestaurantsQuery`), unter
+der Regel, die sie freischaltet — ein Kategorie-Pack öffnet **jedes** Restaurant,
+das die Kategorie trägt, nicht nur seine primäre (`isRestaurantVisible`). Must
+Eats erben das `isOpen` ihres Restaurants, weil `composeVisibleRestaurants` nur
+Must Eats zeigt, deren Restaurant auf der Map liegt: ohne den Filter meldet
+breakfast **7**, wo der Käufer 6 findet, und sweets 10 statt 9.
+`lib/__tests__/packContentsQuery.test.ts` hält die drei Invarianten fest, im
+Schnitt von `restaurantContactFields.test.ts`. Geprüft und unkritisch: alle
+gezählten Restaurants haben `lat`/`lng`, es ist kein Spot dabei, der nie einen
+Pin zeichnet.
+
+Zur AERA-Doppelung: die Liste ist alphabetisch, also stehen die Filialen einer
+Kette nebeneinander. `buildPackTeaser` zeigt jetzt einen Eintrag pro Name — die
+Filialen bleiben im Pack und bleiben gezählt, nur der Teaser dedupliziert.
+Breakfast vorher → nachher: `AERA, AERA, AKKURAT Café` → `AERA, AKKURAT Café,
+Albatross Bäckerei`.
+
 ### 2.2 Ersparnis des Bundles unsichtbar
 
 9 × 2,99 € = 26,91 € gegen All Berlin 20 €. Rund 26 % Ersparnis, steht nirgends.
+
+**In PR #362** (offen, CI grün). Eine Zeile unter allen drei
+All-Berlin-CTAs — `/packs`-Hero, `/pack/all-berlin` und der Upsell-Block auf
+jeder Kategorie-Pack-Seite, also dort, wo jemand kurz davor ist, 2,99 € für einen
+von neun zu zahlen: „Einzeln 26,91 € · du sparst 6,91 € (25 %)".
+
+Zwei Entscheidungen, die nicht selbsterklärend sind:
+
+- **Der Prozentsatz ist abgerundet, nicht kaufmännisch gerundet.** Der echte Wert
+  ist 25,68 %. Gerundet wären es die 26 % aus diesem Fund, aber ein zu groß
+  angegebener Rabatt ist der eine Fehler, den man nicht verteidigen kann, wenn
+  jemand nachrechnet. Die Euro-Zahl trägt ohnehin das Gewicht und ist exakt.
+- **Nichts ist hartcodiert.** `bundleSavings()` summiert die Kategorie-Packs aus
+  `CATALOG` und zieht All Berlin ab, damit ein zehnter Pack oder eine
+  Preisänderung keine veraltete Behauptung neben einem Kaufen-Button stehen
+  lässt. Ein Test prüft das Abrunden explizit.
+
+Ruhige Typo statt eines zweiten gelben Badges — die Zeile aus 2.1 hält auf
+denselben Seiten schon die Betonung.
 
 ### 2.3 Free-Tier vs. Bezirk-Seiten widersprechen sich
 
@@ -314,6 +393,12 @@ zwischen Spots im Sheet · Tap-Targets generell · kein horizontaler Overflow.
   Auf Staging/Prod nicht nachgeprüft.
 - Der funktionale Smoke der drei gefixten Bugs auf der Staging-URL steht aus
   (Basic-Auth-Gate).
+- **Im Browser-Pane scrollen `window.scrollTo` und `scrollIntoView` auf den
+  Pack-Seiten nicht** — `window.scrollY` bleibt bei 4, und `computer scroll`
+  lief in einen 30-Sekunden-Timeout. Zum Prüfen von Inhalten unterhalb der
+  Falte das Viewport hochziehen (`resize_window` auf 375×2500) statt zu scrollen.
+  Dieselbe Familie wie das pausierte `requestAnimationFrame`: eine
+  Pane-Eigenheit, kein Produktdefekt.
 
 ## Repo-Hygiene am Rande
 

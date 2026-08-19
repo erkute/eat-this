@@ -1,9 +1,12 @@
 'use client';
 import type { CSSProperties, Ref } from 'react';
+import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import type { MapRestaurant } from '@/lib/types';
 import { abbreviateBezirk } from '@/lib/map';
+import { formatPackPrice, packUrlSlug, resolvePackByUrlSlug } from '@/lib/pack/packDetail';
+import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import { useTranslation } from '@/lib/i18n';
 import { trackEvent } from '@/lib/analytics';
@@ -13,6 +16,10 @@ import lockedStyles from './LockedDetail.module.css';
 
 interface Props {
   restaurant: MapRestaurant;
+  /** Spots per category slug across the WHOLE catalog, not the filtered map —
+   *  a pack's size must not move when the user ticks a chip. */
+  spotsByCategory: Record<string, number>;
+  totalSpots: number;
   contentRef: Ref<HTMLDivElement | null>;
   onClose: () => void;
 }
@@ -26,17 +33,44 @@ interface Props {
  * mistakes. This answers the question in place and leaves both routes open.
  *
  * It names the restaurant, because the name is not a secret: the same spot is
- * readable for free on its district list and on /restaurant/<slug>. Only the
- * map layer is paid, so hiding the name here would protect nothing and would
- * make the paywall look like it covers more than it does.
+ * readable on its district list and on /restaurant/<slug>. Only the map layer
+ * is paid, so hiding the name here would protect nothing and would make the
+ * paywall look like it covers more than it does.
+ *
+ * It does NOT link to that page. Those restaurant articles exist for search,
+ * and pointing a paying-curious visitor at "read this one for free" sells
+ * against the pack sitting right above it (user decision, 2026-08-19).
+ *
+ * The offer leads with the pack this spot is actually in — the 2,99 € one that
+ * unlocks it — and puts all-Berlin underneath. Both carry their spot count and
+ * price, because "Ganz Berlin holen" on its own asked for money without saying
+ * how much or for what.
  */
-export default function LockedDetail({ restaurant: r, contentRef, onClose }: Props) {
+export default function LockedDetail({
+  restaurant: r,
+  spotsByCategory,
+  totalSpots,
+  contentRef,
+  onClose,
+}: Props) {
   const locale = useLocale();
   const { t } = useTranslation();
   const de = locale !== 'en';
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
   const cuisine = r.cuisineType ?? null;
   const prefix = locale === routing.defaultLocale ? '' : `/${locale}`;
+
+  /* First category that maps to a real pack. A spot can carry several; the
+     first is the one its card already shows. */
+  const categoryPack = (r.categories ?? [])
+    .map((c) => resolvePackByUrlSlug(c.slug))
+    .find((pack) => pack !== null && pack.slug !== null);
+  const categoryCount = categoryPack?.slug ? (spotsByCategory[categoryPack.slug] ?? 0) : 0;
+  const allBerlin = resolvePackByUrlSlug('all-berlin');
+  const spotsWord = de ? 'Spots' : 'spots';
+  /* All-Berlin has no art of its own — /packs fans out every category instead,
+     which is far too much for a 62px button. The generic foil bag stands in. */
+  const ALL_BERLIN_ART = '/pics/booster/booster.webp';
   const heroStyle = r.photo ? ({ backgroundImage: `url(${r.photo})` } as CSSProperties) : undefined;
 
   return (
@@ -66,39 +100,58 @@ export default function LockedDetail({ restaurant: r, contentRef, onClose }: Pro
         </header>
 
         <div className={lockedStyles.body}>
-          <p className={lockedStyles.kicker}>{t('map.emptyLockedKicker')}</p>
+          <p className={lockedStyles.kicker}>{t('map.lockedDetailKicker')}</p>
           <p className={lockedStyles.lead}>
             {de ? 'Liegt noch nicht auf deiner Map.' : 'Not on your map yet.'}
           </p>
-          <p className={lockedStyles.sub}>
-            {de
-              ? 'Lesen kannst du ihn trotzdem — nur die Map kostet.'
-              : 'You can still read it — only the map costs.'}
-          </p>
-          <a
-            className={lockedStyles.btnPrimary}
-            href={`${prefix}/pack/all-berlin`}
-            onClick={() =>
-              trackEvent('locked_spot_pack_clicked', {
-                restaurant_id: r._id,
-                restaurant_slug: r.slug,
-              })
-            }
-          >
-            {t('map.listEndCta')}
-          </a>
-          <a
-            className={lockedStyles.btnSecondary}
-            href={`${prefix}/restaurant/${r.slug}`}
-            onClick={() =>
-              trackEvent('locked_spot_read_clicked', {
-                restaurant_id: r._id,
-                restaurant_slug: r.slug,
-              })
-            }
-          >
-            {de ? 'Spot frei lesen' : 'Read this spot for free'}
-          </a>
+          {categoryPack && categoryCount > 0 && (
+            <a
+              className={lockedStyles.btnPrimary}
+              href={`${prefix}/pack/${packUrlSlug(categoryPack)}`}
+              onClick={() =>
+                trackEvent('locked_spot_pack_clicked', {
+                  restaurant_id: r._id,
+                  restaurant_slug: r.slug,
+                  pack_id: categoryPack.packId,
+                })
+              }
+            >
+              {categoryPack.slug && categoryArt(categoryPack.slug) && (
+                <Image
+                  className={lockedStyles.packArt}
+                  src={categoryArt(categoryPack.slug)!}
+                  alt=""
+                  width={420}
+                  height={630}
+                  sizes="32px"
+                />
+              )}
+              {`${categoryPack.displayName} · ${categoryCount} ${spotsWord} · ${formatPackPrice(categoryPack.amountCents)}`}
+            </a>
+          )}
+          {allBerlin && (
+            <a
+              className={categoryPack ? lockedStyles.btnSecondary : lockedStyles.btnPrimary}
+              href={`${prefix}/pack/all-berlin`}
+              onClick={() =>
+                trackEvent('locked_spot_pack_clicked', {
+                  restaurant_id: r._id,
+                  restaurant_slug: r.slug,
+                  pack_id: allBerlin.packId,
+                })
+              }
+            >
+              <Image
+                className={lockedStyles.packArt}
+                src={ALL_BERLIN_ART}
+                alt=""
+                width={420}
+                height={630}
+                sizes="32px"
+              />
+              {`${de ? 'Ganz Berlin' : 'All Berlin'} · ${totalSpots} ${spotsWord} · ${formatPackPrice(allBerlin.amountCents)}`}
+            </a>
+          )}
         </div>
       </div>
     </div>

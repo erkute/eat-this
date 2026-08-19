@@ -258,8 +258,10 @@
 
 /* The dot whose sheet is open. It stays a dot — promoting it to a pin would
    read as "this one is free" at exactly the moment the sheet says it is not. */
+/* The open dot only darkens. It used to take a yellow ring and scale to 1.55,
+   which read as a second, louder marker sitting on top of the spot — and the
+   camera already flies to zoom 15 on selection, so the emphasis was doing work
+   nothing needed. */
 .pinLockedActive .pinLockedDot {
   background: var(--et-home-ink, #15120e);
-  border-color: var(--et-home-accent, #ffc600);
-  transform: scale(1.55);
 }

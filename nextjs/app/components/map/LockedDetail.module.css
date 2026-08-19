@@ -39,23 +39,16 @@
   text-transform: uppercase;
 }
 
-.sub {
-  max-width: 34ch;
-  margin: 0 0 6px;
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.38;
-}
-
 .btnPrimary,
 .btnSecondary {
   display: inline-flex;
   width: 100%;
-  min-height: 46px;
+  min-height: 62px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 6px 14px 6px 6px;
+  box-sizing: border-box;
   border-radius: var(--et-radius-control, 7px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
@@ -89,4 +82,14 @@
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
   transform: translateX(-3px);
+}
+
+/* The pack's own art, so the offer looks like the thing being bought rather
+   than a text link. Portrait foil bag at 5:8 — 32px wide keeps it inside the
+   button's 62px without letterboxing. */
+.packArt {
+  flex: 0 0 auto;
+  width: 32px;
+  height: auto;
+  border-radius: 3px;
 }

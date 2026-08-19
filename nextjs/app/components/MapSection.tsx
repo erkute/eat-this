@@ -1359,6 +1359,20 @@ export default function MapSection({
     setSnap,
   });
 
+  /* Pack sizes for the locked sheet. Counted off the FULL catalog, not the
+     filtered lists — a pack holds what it holds regardless of which chips are
+     on. Locked spots keep their categories through stripLockedRestaurants, so
+     both halves count. */
+  const spotsByCategory = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of [...restaurants, ...lockedRestaurants]) {
+      for (const c of r.categories ?? []) {
+        if (c.slug) counts[c.slug] = (counts[c.slug] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }, [restaurants, lockedRestaurants]);
+
   /* ---------- Render ---------- */
   return (
     <MapSectionBody
@@ -1374,6 +1388,8 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
+      spotsByCategory={spotsByCategory}
+      totalSpots={restaurants.length + lockedRestaurants.length}
       lockedIdSet={lockedIdSet}
       lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}

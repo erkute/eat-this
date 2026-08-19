@@ -14,13 +14,6 @@ das Sheet (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359),
 2.1 Pack-Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362), 2.5
 kuratierte Spots ohne Must Eat (PR #365), toter-Key-Sweep (PR #366).
 
-**Auf `staging`**, gemerged und CI grün, **nicht auf Produktion**: 1.1 Empty
-State (PR #347), 1.2 Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots
-als Punkte (PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet
-das Sheet (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359),
-2.1 Pack-Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362), 2.5
-kuratierte Spots ohne Must Eat (PR #365), toter-Key-Sweep (PR #366).
-
 **Rollout und Smoke, Stand 2026-08-19 11:06 — gilt bis einschließlich 2.1**
 (Commit `73087a33`): `rollout succeeded` und `smoke-tested`. Build
 `build-2026-08-19-008` steht auf `READY`, sein `source.codebase.hash` ist

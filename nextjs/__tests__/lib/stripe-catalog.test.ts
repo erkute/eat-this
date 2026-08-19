@@ -12,8 +12,8 @@ describe('stripe-catalog', () => {
     for (const p of cats) expect(p.amountCents).toBe(299)
   })
 
-  it('all-berlin pack costs 2000 cents (€20)', () => {
-    expect(CATALOG['all-berlin'].amountCents).toBe(2000)
+  it('all-berlin pack costs 999 cents (€9.99)', () => {
+    expect(CATALOG['all-berlin'].amountCents).toBe(999)
   })
 
   it('every category pack has a non-empty slug (matches Sanity category slug)', () => {

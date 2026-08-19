@@ -146,11 +146,11 @@ export const CATALOG: Record<string, PackDef> = {
   },
   'all-berlin': {
     packId: 'all-berlin',
-    stripePriceId: 'price_1TWhs7PjwS4Z8dw65FYYgZJF',
+    stripePriceId: 'price_1U6FhgPjwS4Z8dw63VwVKjR4',
     type: 'all-berlin',
     slug: null,
     displayName: 'All Berlin',
-    amountCents: 2000,
+    amountCents: 999,
     description: {
       de: 'Alle Berliner Spots auf deiner Map. Neun Kategorien, jede Adresse die wir kuratieren — plus alle die noch dazukommen.',
       en: 'Every Berlin spot on your map. Nine categories, every address we curate — plus everything still to come.',

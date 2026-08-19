@@ -390,19 +390,6 @@
   line-height: 1.18;
 }
 
-/* Same line as the pack detail hero, tile-sized: the buyer should not have to
-   open a pack to learn how many spots are in it. */
-.contents {
-  width: fit-content;
-  margin: 0;
-  padding: 4px 8px 5px;
-  background: var(--packs-accent);
-  color: var(--packs-ink);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
 .desc {
   margin: 0;
   color: var(--packs-muted);

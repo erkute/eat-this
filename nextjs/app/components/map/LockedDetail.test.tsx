@@ -63,7 +63,7 @@ describe('LockedDetail', () => {
     const out = html(spot());
     expect(out).toContain('/pack/all-berlin');
     expect(out).toContain('Ganz Berlin · 345 Spots');
-    expect(out).toContain('20 €');
+    expect(out).toContain('9,99 €');
   });
 
   it('keeps the line the wording was built around', () => {
@@ -77,9 +77,9 @@ describe('LockedDetail', () => {
   });
 
   it('states a spot count for all-Berlin only', () => {
-    /* A category count invites the comparison that sinks the bundle: Lunch
-       alone is 205 of 345 spots, so "205 Spots · 2,99 €" beside "340 Spots ·
-       20 €" argues against the 20 € every time. */
+    /* A category count invites the comparison that sinks the bundle: Dinner
+       alone is 226 of 341 spots and Lunch 206, so "226 Spots · 2,99 €" beside
+       the bundle argues against the bundle every time. */
     const out = html(spot());
     const lunchBlock = out.slice(out.indexOf('/pack/lunch'), out.indexOf('/pack/all-berlin'));
     expect(lunchBlock).not.toContain('Spots');

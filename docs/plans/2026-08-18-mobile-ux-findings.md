@@ -14,8 +14,11 @@ Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots als Punkte
 (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359), 2.1 Pack-
 Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362).
 
-**In PR** (→ staging): 2.5 kuratierte Spots ohne Must Eat (PR #365) — die
-Hälfte, die Code war; die andere Hälfte ist redaktionell, siehe dort.
+**Auf `staging` gemergt, Rollout nicht verifiziert**: 2.5 kuratierte Spots ohne
+Must Eat (PR #365) — die Hälfte, die Code war; die andere Hälfte ist
+redaktionell, siehe dort.
+
+**In PR** (→ staging): toter-Key-Sweep (PR #366), Notiz unter 1.3.
 
 Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
 Punkt.
@@ -115,6 +118,36 @@ Nebenbei gefunden, nicht angefasst — **tote Übersetzungs-Keys** im Schnitt vo
 #357: `hub.nearby.location`, `errDenied`, `errRetry`, `mustEatsTitle`,
 `mustEatsSub`, `more` sowie `deineWelt.nearbyLive` / `nearbyFallback`. Kein
 Konsument. `deineWelt.nearbyFallback` war ironischerweise schon „Rund um Mitte".
+
+**Erledigt in PR #366** — nachgeprüft ist das Loch größer und anders geschnitten
+als diese Notiz annahm, in drei Richtungen.
+
+**`hub.deineWelt` ist komplett tot, nicht nur zwei Keys daraus**: 83 Keys pro
+Locale, 166 insgesamt. Kein `useTranslations('hub.deineWelt')`, kein gepunkteter
+Zugriff, kein dynamischer Namespace, der ihn erreichen könnte. Die vier
+Key-Namen, die anderswo auftauchen, gehören nicht hierher — `profileTitle` und
+`toMap` kommen aus dem `profile`-Namespace, `actionsLabel` aus einem lokalen
+Copy-Objekt in `NotFoundContent.tsx`, `newMeta` hat gar keinen Konsumenten. Der
+Konsument verschwand in `61d1d092` „Refactor map and spot data flow", die
+Strings blieben liegen.
+
+**`hub.nearby.location` war nicht tot, sondern übersehen** — dieselbe Falle wie
+oben bei `hub.nearby.title`: der Key existierte ungelesen, während die
+Komponente `locale === 'en' ? 'Locate' : 'Standort'` hartcodierte, ein
+Locale-Ternary in einer Datei mit Übersetzungstabelle. Der Key trägt jetzt die
+Live-Kopie. Gerendertes Ergebnis unverändert, gegen den laufenden Dev-Server
+geprüft: DE „Standort", EN „Locate", kein `MISSING_MESSAGE` auf `/` oder `/en`.
+
+**Die Falle beim Löschen war der bloße Name.** `mustEatsTitle` gab es zweimal —
+in `hub.nearby` (tot) und in `hub.deineWelt`; `location` und `more` treffen als
+Namen hundertfach im Repo (`window.location`, `${more} weitere Spots`). Ein
+Grep-und-Löschen hätte danebengegriffen, die Löschung lief deshalb pro Block.
+
+Unterm Strich −178 Zeilen in `translations.ts`; beide `nearby`-Blöcke tragen
+jetzt exakt die 7 Keys, die `HubNearby` liest, symmetrisch über DE/EN.
+
+Mitgenommen für die Hygiene-Notiz unten: `HubNearby.tsx` ist schon auf `HEAD`
+nicht prettier-konform — ein sechstes File, das dort noch nicht steht.
 
 ### 1.4 Pins überlappen, kein Clustering
 

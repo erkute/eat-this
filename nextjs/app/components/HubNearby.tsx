@@ -55,7 +55,6 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   // question never asked — the silent resume only runs on an existing grant —
   // which leaves `activeLocation` as the only honest split there is.
   const title = activeLocation ? t('title') : t('titleFallback');
-  const locateLabel = locale === 'en' ? 'Locate' : 'Standort';
   const showLocationStatus = Boolean(
     mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
   );
@@ -102,7 +101,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
               <line x1="19" y1="12" x2="22" y2="12" />
               <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
             </svg>
-            <span>{locating ? t('locating') : locateLabel}</span>
+            <span>{locating ? t('locating') : t('location')}</span>
           </button>
         </div>
 

@@ -74,9 +74,11 @@ export interface PackContentsIndex {
 }
 
 /**
- * The one line that stands between interest and a 2,99 € purchase: "52 Spots ·
- * 6 Must Eats". Packs without a Must Eat yet (fine-dining) say only the spots
- * rather than advertising a zero.
+ * "340 Spots · 22 Must Eats" — All Berlin only. Category packs deliberately
+ * never state their size: Dinner carries 225 of 340 spots and Lunch 205, so
+ * "225 Spots · 2,99 €" next to the bundle argues against the bundle. A category
+ * pack sells on what is in it; only All Berlin sells on how much.
+ * Packs without a Must Eat yet say only the spots rather than advertising zero.
  */
 export function formatPackContents({ spots, mustEats }: PackContents, locale: 'de' | 'en'): string {
   const spotLabel =

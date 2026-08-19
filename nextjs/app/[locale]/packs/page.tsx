@@ -7,7 +7,6 @@ import { categoryArt } from '@/lib/categoryArt';
 import {
   formatPackPrice,
   packUrlSlug,
-  formatPackContents,
   formatBundleSavings,
 } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
@@ -207,7 +206,6 @@ export default async function PacksOverviewPage({ params }: PageProps) {
           {categoryPacks.map((pack) => {
             const art = pack.slug ? categoryArt(pack.slug) : null;
             const href = `/pack/${packUrlSlug(pack)}`;
-            const contents = pack.slug ? packContents.byCategory[pack.slug] : undefined;
 
             return (
               <article key={pack.packId} className={styles.packTile}>
@@ -227,9 +225,6 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     <PackPrice pack={pack} />
                   </div>
                   <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
-                  {contents && (
-                    <p className={styles.contents}>{formatPackContents(contents, loc)}</p>
-                  )}
                   <p className={styles.desc}>{pack.description[loc]}</p>
                 </div>
 

@@ -1,118 +1,203 @@
-# Nächste Session — Stand 2026-08-19
+# Nächste Session — Stand 2026-08-19, nach 4.1
 
 ## Deployment-Stand, in den exakten Worten
 
-- **`rollout succeeded` auf `staging`**, Commit `55496ced`: 2.5 (PR #365),
-  toter-Key-Sweep (PR #366) und das vorher offene 2.2 (PR #362).
-  Beweis: `build-2026-08-19-012` ist `READY`, `source.codebase.hash` identisch
-  mit `origin/staging`.
-- **`smoke-tested`: nein.** Nur die Checks ohne Zugangsdaten sind gelaufen —
-  Staging 401 mit `Basic realm="Staging"` und `x-robots-tag: noindex, nofollow`,
-  Produktion 200 ohne diesen Header. Der funktionale Smoke hinter dem
-  Basic-Auth-Gate steht aus (Zugangsdaten:
+- **`rollout succeeded` auf `staging`**, Commit `b225a82b`: 4.1 (PR #369),
+  obendrauf alles Frühere bis `768300cb`. Beweis: `build-2026-08-19-017` ist
+  `READY`, `source.codebase.hash` = `b225a82bd226dea3c3a40d3e037a0bb88aecdd64`
+  = `origin/staging`. Backend „Updated Date" `16:03:12` lokal.
+- **`smoke-tested`: weiterhin nur bis 2.1** (`73087a33`). Für alles danach
+  liegen nur die Checks ohne Zugangsdaten vor: Staging 401 mit
+  `WWW-Authenticate: Basic realm="Staging"` und `x-robots-tag: noindex,
+  nofollow`, Produktion 200 ohne den Header. Der funktionale Smoke hinter dem
+  Gate steht aus (Zugangsdaten:
   `docs/runbooks/2026-05-27-staging-backend-setup.md`).
-- **Produktion: unverändert.** Kein `staging → main`. Nichts davon ist live.
-- **`PR`, offen:** nur #367 (dieses Dokument + Rollout-Protokoll). #364 ist
-  rebased und gemerged; sein 11:06-Smoke-Protokoll steht jetzt im Kopfblock des
-  Fund-Dokuments, direkt über dem 13:52-Rollout-Eintrag.
-- Der Branch `docs/p13-p21-p22-followups` ist gepusht, hat **keinen PR** und ist
-  inhaltlich identisch zum Doc-Stand auf `staging` — vermutlich entbehrlich.
+- **Produktion: unverändert.** Kein `staging → main`. `staging` ist **51**
+  Commits vor `main`, nichts davon ist live.
+- **Keine offenen PRs.** Außer `main` und `staging` existiert kein Branch,
+  lokal wie remote (`origin/chore/prettier-format-everything` war eine
+  veraltete Referenz und ist mit `git fetch --prune` weg).
 
-## Gemessene Zahlen (die teure Hälfte)
+## Die Falle dieser Runde: der Push-Event kam nie an
 
-Alle gegen das Sanity-Projekt `ehwjnjr2`, Dataset `production`, `perspective:
-published`, am 2026-08-19. Population durchgehend `isOpen != false`, wie
-`mapRestaurantsQuery`.
+Das ist die teuerste Erkenntnis der Runde, und sie betrifft **jeden** künftigen
+Merge.
 
-**Das Free-Tier war der komplette Vorrat, keine Auswahl:**
+PR #369 wurde um `13:41:49Z` gemerged, der Remote-Ref bewegte sich
+(`git ls-remote --heads origin staging` → `b225a82b`) — und danach passierte
+nichts. Weder App Hosting noch GitHub Actions liefen an.
 
-| | |
-| --- | --- |
-| Restaurants im Katalog | **339** |
-| `mustEat`-Dokumente | **23**, auf **20** Restaurants |
-| `tierAnon`-geflaggt | **19**, davon mit Must Eat **12** |
-| Anon-Tier vorher → nachher | **20 → 27** |
-| davon Must-Eat-Träger | **20 → 20** (unverändert) |
-| Frei gesamt (Anon ∪ free-surface) | **28 → 34** |
-| Küchen mit ≥1 freiem Spot | **15 → 18** von 33 |
-| Geflaggt aber nicht frei | **7 → 0** |
+Was das beweist, und wie man es misst:
 
-**Küchen-Abdeckung (`cuisineType`), Katalog / frei, vor der Änderung:**
-Bakery 16/7 · Café 44/2 · Italian 40/3 · Fine Dining 29/1 · European 27/2 ·
-German 21/0 · Japanese 20/0 · French 19/1 · Bar 19/1 · Wine Bar 14/1 ·
-Chinese 12/1 · Ice Cream 11/3 · Austrian 9/0 · Middle Eastern 6/0 · Vegan 5/0 ·
-Vietnamese 5/1 · Turkish 5/2 · Burgers 2/1.
-**23 der 33 Küchen sind für das Anon-Tier strukturell unerreichbar** — in ihnen
-trägt kein einziges Restaurant ein Must Eat.
+- Letzter Rollout `016` um `13:07:24Z`, letzter Actions-Lauf auf `staging` um
+  `13:07:25Z`. **Eine Sekunde auseinander** — die beiden hängen am selben
+  Push-Webhook. Wenn beide gleichzeitig schweigen, ist nicht App Hosting kaputt,
+  sondern der Event fehlt.
+- `gh api "repos/erkute/eat-this/actions/runs?branch=staging&created=>2026-08-19T13:40:00Z" --jq '.total_count'`
+  → `0`. Das ist die Ein-Zeilen-Frage „ist überhaupt etwas gelaufen?".
+- Ausgeschlossen: `quality.yml` hat keinen `paths`-Filter (`push: branches:
+  [staging]`, unbedingt), und seine `concurrency`-Gruppe trennt
+  `refs/heads/staging` von `refs/pull/369/merge`, kann den Lauf also nicht
+  weggecancelt haben. GitHub-Status meldete Actions, Webhooks und Git Ops
+  `operational`.
+- **Nicht bewiesen, aber auffällig:** alle früheren `staging`-Läufe stammen von
+  Merge-Commits („Merge pull request #NNN…") oder direkten Pushes. Meiner war
+  der erste **Squash**-Merge im sichtbaren Verlauf. Der billige Test wäre, den
+  nächsten PR mit `--merge` statt `--squash` zu mergen und zu sehen, ob der
+  Event kommt.
 
-**Kategorie-Slugs (das, was der Kategorie-Filter benutzt), Katalog / frei:**
-dinner 224/10 · lunch 204/9 · drinks 68/3 · breakfast 52/6 · coffee 50/3 ·
-fine-dining 34/1 · sweets 33/11 · pizza 20/4 · fast-food 9/4.
+Zwei Konsequenzen fürs Vorgehen:
 
-**free-surface:** 8 zusätzliche freie Spots, **alle 8 mit null Must Eats** —
-Tobi ornot ToBe, Curry Baude, Bari, La Miche, Kolo Coffee, Hokey Pokey Mitte,
-der Weinlobbyist, Gorilla Bäckerei.
+1. **Nach jedem Merge nachsehen, ob überhaupt etwas gelaufen ist**, statt auf
+   den Rollout zu warten. Der Backend-Timestamp beantwortet die Frage nicht: er
+   las `15:14:19` und sah frisch aus, gehörte aber zu Rollout 016 und lag damit
+   **vor** dem Merge. Frisch heißt „ein Rollout landete", nicht „meiner".
+2. **Der Quality-Gate-Lauf auf `staging` fällt dann mit aus.** Hier inhaltlich
+   gedeckt, weil der PR-Lauf auf `f7dda608` grün war und denselben Code prüfte —
+   aber die Regel „jeder direkte Push auf `staging` wird geprüft" hat
+   stillschweigend nicht gegriffen.
 
-**i18n-Sweep:** `hub.deineWelt` 83 Keys pro Locale = **166 tot**; `hub.nearby`
-**5 von 12** Keys tot; `translations.ts` **−178 Zeilen**.
+Manueller Rollout, wenn es wieder passiert (die Skill-Warnung „kein redundanter
+Rollout" gilt für Content-Polls; hier lag der positive Nachweis vor, dass gar
+keiner angelegt wurde):
 
-**Rollout-Timing:** Merges 13:38 und 13:43 lokal, `rollout-011` `SUCCEEDED`
-13:47, `rollout-012` `SUCCEEDED` 13:51. Rund 5–6 Minuten pro Rollout, seriell.
+```
+firebase apphosting:rollouts:create eat-this-staging -g <voller-sha> -f --project eat-this-staging-8a13b
+```
 
-## Die Fallen, die diese Runde Zeit gekostet haben
+**`rollouts:create` kennt kein `--location`** (`error: unknown option`), anders
+als `rollouts:list`, das es verlangt. Der Skill erwähnt das nicht. Der volle SHA
+ist Pflicht. Dauer war ~7,5 min (`13:55:46Z` angelegt → Build `READY`
+`14:03:11Z`).
 
-1. **Der App-Hosting-Zeitstempel steht in Lokalzeit.** Er las `11:48:34`,
-   während die Merges bei `13:38`/`13:43` lokal lagen. Als UTC gelesen liegt er
-   vier Minuten in der Zukunft und der Deploy wirkt erledigt — tatsächlich war
-   es der zwei Stunden alte Rollout von #362. Nur `rollouts:list` zeigte beide
-   eigenen als `QUEUED`.
+## Gemessene Zahlen dieser Runde
 
-2. **`TIER_TARGETS.ANON` war nie die Schraube.** 20 Restaurants tragen ein Must
-   Eat, das Target ist 20 — die Zahl deckelte nichts. Hochdrehen hätte null
-   geändert. Wer an einer Tier-Zahl dreht, sollte vorher den Kandidaten-Pool
-   zählen.
+**4.1, am 375×812-Viewport, alle fünf Filter gesetzt** (Kategorie Pizza,
+Bezirk Kreuzberg, Küche Italian, Geöffnet, Suche „Pizza"):
 
-3. **Übersetzungs-Keys nicht per Namensgrep löschen.** `mustEatsTitle` gab es
-   zweimal (`hub.nearby` tot, `hub.deineWelt` tot, aber daneben lebende
-   Nachbarn); `location` und `more` treffen als bloße Namen hundertfach
-   (`window.location`, `${more} weitere Spots`). Pro Block löschen, und den
-   Namespace über `useTranslations('…')` auflösen, nicht über den Key-Namen.
+| | vorher | nachher |
+| --- | --- | --- |
+| `location.search` | `""` | `?cat=pizza&bezirk=kreuzberg&cuisine=Italian&q=Pizza&open=1` |
+| `history.length`, 5 Filter + 5 Anschläge | 2 → 2 | 4 → 5, **ein** Eintrag |
+| Reload | vier Chips auf Default, Suchfeld leer | vier Chips + Suchtext zurück |
+| Zurück bei aktivem Filter | verlässt `/map`, landet auf `/` | bleibt auf `/map`, Filter weg |
 
-4. **Ein „toter" Key kann der übersehene sein.** `hub.nearby.location` war
-   ungelesen, weil die Komponente `locale === 'en' ? 'Locate' : 'Standort'`
-   hartcodierte — dieselbe Falle wie bei `hub.nearby.title` in #359. Vor dem
-   Löschen prüfen, ob die Komponente den String stattdessen fest verdrahtet hat.
+Detail und Filter zusammen: Detail aus der gefilterten Liste öffnen pusht
+(`?cat=pizza` → `?cat=pizza&r=slice-society`, `h` 8→9), Zurück schließt das
+Detail und **behält** den Filter (`?cat=pizza`, `h` bleibt 9).
 
-5. **`HubNearby.tsx` ist schon auf `HEAD` nicht prettier-konform** — ein
-   sechstes File zusätzlich zu den fünf in der Hygiene-Notiz. Nicht
-   mitformatieren, das begräbt jeden inhaltlichen Diff.
+Testsuite jetzt **969 passed / 5 skipped** (vorher 953/5, +16 neue). Lint
+unverändert 0 Errors / 16 Warnungen.
 
-6. **Werkzeug-Kleinkram:** in zsh brauchen `grep --include`-Patterns
-   Anführungszeichen; `npx tsx`-Skripte lösen den `@/`-Alias **nicht** auf
-   (relative Importe nehmen) und vertragen kein Top-Level-`await` (in
-   `async function main()` wickeln).
+## Was 4.1 an der Aufgabenstellung korrigiert hat
 
-## Was als Nächstes ansteht
+Der letzte Handoff sprach von „fünf `useState`, die in Query-Parameter gehören".
+Die **Leserichtung** gab es für zwei davon längst: `useMapDeepLinks` konsumiert
+`?cat=` und `?bezirk=`, und die Kategorie-, Bezirk- und Guide-Seiten verlinken
+die Map darüber (`MapPromoCTA`, plus `app/[locale]/kategorie/[slug]/page.tsx`
+und `bezirk/[slug]/page.tsx`). Namen und Slug-Werte dieser beiden waren damit
+**nicht verhandelbar**. Gefehlt hat die Schreibrichtung für alle fünf plus die
+Leserichtung für `cuisine`, `q` und `open`.
+
+Deshalb liegt die Filter-Hoheit jetzt komplett in `lib/map/useMapFilterUrl.ts`
+(+ `lib/map/mapFilterParams.ts` für die reinen Lese-/Schreibfunktionen), und
+`useMapDeepLinks` behält nur Kamera und Detail — −43 Zeilen, sein
+`?cat=`-Effekt entfiel ganz. Zwei Hooks, die beide die URL schreiben, wären
+genau das Rennen gewesen, das der Bug unten beschreibt.
+
+**Push-Regel** (steht im Kopfkommentar des Hooks): Der erste aktive Chip pusht
+**einen** History-Eintrag, alles danach ersetzt ihn. Zurück landet damit auf der
+ungefilterten Map statt außerhalb, und zehn Chip-Wechsel kosten einen
+Tastendruck. Die Suche ersetzt immer — ein Suchstring ist ein Strom von
+Anschlägen, keine Entscheidung, sonst wären fünf Buchstaben fünf Einträge.
+
+**Der Bug, den der eigene Test gefunden hat: die Effekt-Reihenfolge.** Der erste
+Entwurf gatete den Writer mit einem `useRef`. Das Ref kippt aber im selben
+Commit, in dem der Reader die URL anwendet — der Writer lief also noch mit den
+Default-Props und strippte als Erstes das `?cat=pizza`, das er gerade bekommen
+hatte. Als `useState` batcht es mit den Settern. Wer an diesen Hooks etwas
+ändert: der Test `does not strip the inbound params it was handed` in
+`lib/map/__tests__/useMapFilterUrl.test.tsx` ist die Alarmanlage dafür.
+
+## Was noch offen ist
 
 Reihenfolge nach Wirkung pro Aufwand, nicht bindend.
 
-- **2.5, die redaktionelle Hälfte.** Die Code-Hälfte ist erledigt. Was bleibt,
-  ist keine Code-Frage: **23 Must Eats auf 339 Restaurants.** 15 Küchen haben
-  weiterhin null freie Spots. Solange das so ist, ist jede Tier-Zahl die
-  falsche Schraube. Die günstigste nächste Bewegung wären Must Eats auf den
-  großen leeren Küchen — German (21 Spots), Japanese (20), Vegan (5).
-- **4.1 Filter in die URL.** Filter „Burgers" gesetzt → URL bleibt `/map`.
-  Nicht teilbar, nicht bookmarkbar, Zurück macht ihn nicht rückgängig. Der
-  Zustand liegt komplett in `lib/map/useMapFilters.ts` (`category`, `search`,
-  `bezirk`, `cuisine`, `openOnly`) — fünf `useState`, die in Query-Parameter
-  gehören. `?r=` ist seit #337 sauber und zeigt das Muster.
-- **1.4 zweite Hälfte: Pins nach Kategorie differenzieren.** Clustering steht
-  (#354), aber alle Pins sehen gleich aus — die Karte sagt nicht, was wo ist.
-  Icon oder Farbe pro Kategorie. Beim Anfassen die z-index-Regel aus #354 im
-  Kopf behalten: MapLibre stapelt Marker nach **Mount**-Reihenfolge, nicht nach
-  React-Baum; freie Marker haben deshalb ein eigenes Band (`.markerRootFree`).
+- **2.5, die redaktionelle Hälfte** — der größte Hebel, und keine Code-Frage:
+  **23 Must Eats auf 339 Restaurants.** Weil das Anon-Tier an Must-Eat-Träger
+  gebunden ist, sind 23 von 33 Küchen strukturell unerreichbar — darunter
+  German (21 Spots im Katalog), Japanese (20), Vegan (5). 15 Küchen haben null
+  freie Spots. Jede Tier-Zahl ist hier die falsche Schraube.
+- **1.4, zweite Hälfte:** alle Pins sehen gleich aus, die Karte sagt nichts
+  darüber, was wo ist. Differenzierung nach Kategorie (Icon oder Farbe). Das
+  Clustering (#354) ist fertig und davon unabhängig. Beim Anfassen: MapLibre
+  stapelt Marker nach **Mount**-Reihenfolge, nicht nach React-Baum; freie Marker
+  haben deshalb ein eigenes z-index-Band (`.markerRootFree`), und
+  `MapArchitecture.styles.test.ts` hat eine exakte Klassenliste für
+  `MapMarkers.module.css`. `app/components/map/MarkerButton.tsx` ist die Shell —
+  Marker nicht von Hand neu bauen.
+- **P4, der Rest (4.2–4.5):** Liste ohne Bezug zum Kartenausschnitt und ohne
+  Trefferzähler, Listenkarten zu groß und zu leer (252px, 2,5 pro Bildschirm),
+  kein Einstieg in die freien `/bezirk/*`-Seiten, Breadcrumb abgeschnitten
+  („BUYA RAMEN FACTOR'"). 4.1 ist erledigt.
+- **P3 Sprache und Daten (3.1–3.6):** Küchen-Liste komplett englisch auf der
+  DE-Seite — beim Messen dieser Runde im Picker gesehen: Bakery, Bar, Burgers,
+  Café, Chinese, Coffee, European, Fine Dining, French, German / Fast Food,
+  Ice Cream, Israeli, Italian, Japanese, Mexican, Thai, Turkish, Vietnamese,
+  Wine Bar. Dazu unsaubere Taxonomie („Café" neben „Coffee", „Lunch" als Küche,
+  fehlendes vegan/vegetarisch), Öffnungszeiten in zwei Darstellungen, Pack mit
+  zwei Namen, Tippfehler „CROSSAINT" im Hero-Asset, englische Must-Eat-Texte.
+  3.5 und 3.6 sind Asset-Neubau, nicht nur Text.
+- **P5 Feinschliff:** zwei gestapelte Overlays auf `/must-eats`, leere
+  „verdeckte" Must-Eat-Karten, Remy-Placeholder abgeschnitten, Startseite
+  9,7 Bildschirmhöhen, „Schon dabei? Einloggen" mit 20px der einzige
+  Touch-Target unter 44px auf der Map.
+- **Reste aus 1.2:** `restaurantBySlugQuery` und `restaurantMapDetailQuery` sind
+  weiter getrennt, die Überlappung hält nur
+  `lib/__tests__/restaurantContactFields.test.ts`. Dem Map-Sheet fehlt der
+  „Was bestellen?"-Block. Datenlücke: `reservationUrl` hat kein freies
+  Restaurant.
 
-Der Kopfblock des Fund-Dokuments trägt jetzt **zwei** Rollout-Einträge — 11:06
-bis einschließlich 2.1, 13:52 für 2.2/2.5/Key-Sweep. Wer einen dritten anhängt:
-Zeitpunkt und Commit dazuschreiben und sagen, **wie weit** er reicht. Genau das
-Fehlen dieser Reichweite hat #364 und #367 in den Konflikt laufen lassen.
+## Offene Aufgaben
+
+1. **Funktionaler Smoke für alles ab 2.2** hinter dem Basic-Auth-Gate.
+   Zugangsdaten: `docs/runbooks/2026-05-27-staging-backend-setup.md`.
+2. **Staging-Gate-Credentials rotieren.** Sie stehen im Klartext im Transcript
+   einer früheren Session. Ungefragt nicht rotieren — es sperrt den Nutzer bis
+   zum nächsten Lookup aus:
+   `openssl rand -hex 16 | firebase apphosting:secrets:set STAGING_BASIC_AUTH_PASS --data-file - --project eat-this-staging-8a13b`
+   danach neuer Rollout.
+3. **`staging → main`**, falls das Ganze auf Produktion soll — 51 Commits, davon
+   nichts live. Davor der Smoke; 51 ungeprüfte Commits auf eine auto-deployende
+   Produktion ist die teure Variante.
+
+## Randbedingungen (unverändert)
+
+- Keine Opacity-Fades für Bewegung. App ist light-only. Kein `!important` — drei
+  `*.styles.test.ts` prüfen das.
+- `npm test` vor dem Push (Soll jetzt **969 passed, 5 skipped**). Der
+  Pre-push-Hook baut nur, er testet nicht. Lint sauber = 0 Errors, 16 Warnungen.
+- Ein Punkt pro Durchgang, erst messen, dann fixen, dann mit derselben Messung
+  gegenprüfen. Feature-Branch → PR in `staging`, keine Sammel-PRs.
+- Branch immer mit explizitem Base (`git checkout -b <name> origin/staging`),
+  nie `git add .`, immer explizite Pfade. Beim Mergen `--delete-branch`, außer
+  ein anderer PR setzt darauf auf.
+- Übergabe bei ~40 % Kontext statt den nächsten Punkt noch anzufangen.
+- Kürzungs-Pass vor jedem PR, danach die eigene Messung wiederholen, nicht nur
+  die Tests.
+
+## Werkzeug-Fallen, die weiter gelten
+
+- Im Browser-Pane ist `requestAnimationFrame` pausiert — MapLibres
+  `easeTo`/`flyTo` starten, ticken aber nie; `jumpTo` benutzen. React committet
+  nicht im selben Tick: ein per Klick ausgelöster Zustandswechsel zeigt Wirkung
+  erst im nächsten Tool-Aufruf. Für Filter-Messungen hieß das: klicken und
+  lesen immer in **zwei** Aufrufen.
+- Ein React-kontrolliertes `<input>` füllt man über den nativen Value-Setter
+  (`Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set`)
+  plus `new Event('input',{bubbles:true})` — ein simples `el.value = …` sieht
+  React nicht.
+- `curl -w '%{redirect_url}'` gibt `-u`-Credentials im Klartext aus. Nur
+  `%{http_code}` benutzen.
+- Niemals `rm -rf .next`. `npx tsx`-Skripte lösen den `@/`-Alias nicht auf und
+  vertragen kein Top-Level-`await`. In zsh `grep --include`-Patterns quoten.

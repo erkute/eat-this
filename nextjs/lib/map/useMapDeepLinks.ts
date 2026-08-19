@@ -42,11 +42,7 @@ interface Args {
   lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   isActive: boolean;
-  sheetView: 'list' | 'detail';
   userInteractedRef: RefObject<boolean>;
-  setBezirk: (name: string | null) => void;
-  setCategory: (slug: string) => void;
-  setSnap: (snap: 'peek' | 'mid' | 'full') => void;
   onRestaurantSlugMatch: (r: MapRestaurant) => void;
   onMustEatIdMatch: (m: MapMustEat) => void;
   /** Restaurant already selected in the server render for a hard-reloaded
@@ -61,11 +57,7 @@ export function useMapDeepLinks({
   lockedRestaurants,
   mustEats,
   isActive,
-  sheetView,
   userInteractedRef,
-  setBezirk,
-  setCategory,
-  setSnap,
   onRestaurantSlugMatch,
   onMustEatIdMatch,
   initialRestaurant = null,
@@ -166,10 +158,11 @@ export function useMapDeepLinks({
     });
   }, [isActive, mapRef, mustEatPollTarget, userInteractedRef]);
 
-  // ?bezirk=<slug> pre-selects a bezirk filter and fits the camera to show all
-  // restaurants in that district. Mirrors the ?r= polling pattern above. Note
-  // we intentionally keep the param in the URL so the filtered view stays
-  // bookmark/share-friendly — reset is via the pill ✕.
+  /* ?bezirk=<slug> also moves the camera to fit that district. The filter
+     itself is applied by useMapFilterUrl — this hook owns only the camera, so
+     the two never race over who writes the URL. Mirrors the ?r= polling above.
+     Owned + locked, because a district may hold ONLY locked spots (Friedenau
+     for a free user) and the camera should still go there. */
   const bezirkConsumed = useRef(false);
   const [bezirkBboxTarget, setBezirkBboxTarget] = useState<Bbox | null>(null);
   useEffect(() => {
@@ -180,26 +173,16 @@ export function useMapDeepLinks({
     const slug = params.get('bezirk');
     if (!slug) return;
     const slugLower = slug.toLowerCase();
-    // Search owned + locked: a district may have ONLY locked spots (e.g.
-    // Friedenau for a free user). We still want to set the filter so the list
-    // shows those spots as locked previews + the booster upsell — not a dead
-    // "filter never applied" click.
     const all = restaurants.concat(lockedRestaurants);
     const match = all.find((r) => (r.bezirk?.slug ?? '').toLowerCase() === slugLower);
-    if (!match || !match.bezirk?.name) {
-      bezirkConsumed.current = true;
-      return;
-    }
     bezirkConsumed.current = true;
+    if (!match?.bezirk?.name) return;
     userInteractedRef.current = true;
     const bezirkName = match.bezirk.name;
-    setBezirk(bezirkName);
-    if (sheetView === 'list') setSnap('mid');
-    const filtered = all.filter((r) => districtOf(r) === bezirkName);
-    const bbox = computeBezirkBbox(filtered);
+    const bbox = computeBezirkBbox(all.filter((r) => districtOf(r) === bezirkName));
     if (!bbox) return;
     setBezirkBboxTarget(bbox);
-  }, [isActive, restaurants, lockedRestaurants, sheetView, setSnap, setBezirk, userInteractedRef]);
+  }, [isActive, restaurants, lockedRestaurants, userInteractedRef]);
 
   useEffect(() => {
     if (!isActive || !bezirkBboxTarget) return;
@@ -218,30 +201,4 @@ export function useMapDeepLinks({
       onTimeout: () => setBezirkBboxTarget(null),
     });
   }, [bezirkBboxTarget, isActive, mapRef]);
-
-  // ?cat=<slug> pre-selects a category filter so a hub "Pizza"/"Frühstück"/
-  // "Drinks" card (and the Deine-Welt pack CTA) lands on the map with that
-  // filter already applied. We resolve to the exact slug the restaurants use
-  // (case-safe) and only set it if it actually matches something — an unknown
-  // slug is ignored so the map doesn't show an empty filtered list. The param
-  // stays in the URL so the filtered view is shareable; the category chip UI
-  // clears it.
-  const categoryConsumed = useRef(false);
-  useEffect(() => {
-    if (categoryConsumed.current) return;
-    if (!isActive) return;
-    if (restaurants.length === 0) return;
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('cat');
-    if (!slug) return;
-    categoryConsumed.current = true;
-    const slugLower = slug.toLowerCase();
-    const canonical = restaurants
-      .flatMap((r) => r.categories ?? [])
-      .find((c) => (c.slug ?? '').toLowerCase() === slugLower)?.slug;
-    if (!canonical) return;
-    userInteractedRef.current = true;
-    setCategory(canonical);
-    if (sheetView === 'list') setSnap('mid');
-  }, [isActive, restaurants, sheetView, setSnap, setCategory, userInteractedRef]);
 }

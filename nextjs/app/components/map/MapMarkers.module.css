@@ -12,10 +12,10 @@
 
 /* Three stacking bands, because MapLibre sets no inline z-index and orders
    markers purely by the DOM — and that order is NOT the React tree's. Each
-   marker appends itself to the canvas container when it mounts, so after a
-   re-cluster (a zoom crossing) a freshly mounted locked dot lands after the
-   free pins that were already there and paints over them. Rendering the dots
-   first only holds for the very first paint.
+   marker appends itself to the canvas container when it mounts, so a locked
+   dot mounted by a later filter change lands after the free pins that were
+   already there and paints over them. Rendering the dots first only holds for
+   the very first paint.
 
    z-index must sit on the marker ROOT — the inner .pinLogoActive z-index only
    orders within this marker's own box, not against sibling markers.
@@ -175,63 +175,6 @@
   height: 25px;
 }
 
-/* Free-spot cluster ------------------------------------------------------
-   Several free pins that would otherwise paint over each other. Measured at
-   the default camera on a 375px viewport: 10 pins in the visible map strip,
-   5 pairs closer than 40px, and two of them never received a tap at their own
-   centre. Clustering is what gives every one of them a reachable target.
-
-   It keeps the brand tag rather than becoming a neutral bubble: at the default
-   camera most of what is tappable IS a cluster, and a grey circle there would
-   read as map furniture instead of as spots. Slightly larger than a single pin
-   (44x48 against 38x42) and still smaller than the active one (50x55), so the
-   three states stay distinguishable at a glance. */
-.pinCluster {
-  cursor: pointer;
-  transform-origin: center bottom;
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 48px;
-  transform: rotate(-4deg);
-  transition: transform 0.16s ease;
-}
-
-.pinCluster:focus-visible {
-  border-radius: 50%;
-  outline: 3px solid #ffc600;
-  outline-offset: 4px;
-}
-
-.pinCluster:hover {
-  transform: rotate(3deg) translateY(-3px) scale(1.1);
-}
-
-.pinClusterShape {
-  position: absolute;
-  inset: 0;
-  display: block;
-  background: #f5c518;
-  clip-path: polygon(5% 4%, 96% 0, 100% 82%, 62% 86%, 50% 100%, 38% 86%, 0 80%);
-  filter: drop-shadow(0 3px 2px rgba(20, 16, 12, 0.32));
-}
-
-/* Lifted off the tag's bottom point so the number sits in the body of the
-   tag, where the logo sits on a single pin. */
-.pinClusterCount {
-  position: relative;
-  z-index: 1;
-  margin-bottom: 7px;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 18px;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  color: var(--et-home-ink, #15120e);
-}
-
 /* Informational user-location marker ----------------------------------- */
 
 .userLoc {
@@ -260,8 +203,7 @@
 @supports (-webkit-touch-callout: none) {
   @media (pointer: coarse) {
     .pinLogoHasMust::after,
-    .pinLogoShape,
-    .pinClusterShape {
+    .pinLogoShape {
       filter: none;
     }
   }
@@ -280,10 +222,7 @@
    them, and every dot leads to the same place, so landing on a neighbour
    costs nothing. Free pins also sit in a higher stacking band
    (.markerRootFree), so where the two overlap the pin wins the tap.
-
-   The dots are clustered like the pins (LOCKED_DOT_CLUSTER_RADIUS_PX), which
-   is what stops the layer from being 130 dots with 90 overlapping pairs in
-   the visible strip. A group keeps this box and only grows its dot. */
+ */
 .pinLocked {
   display: grid;
   place-items: center;
@@ -298,11 +237,9 @@
   outline-offset: 2px;
 }
 
-/* The size is a variable so LockedClusterMarker can grow the dot with its
-   member count; a single spot keeps the 11px default. */
 .pinLockedDot {
-  width: var(--locked-dot-size, 11px);
-  height: var(--locked-dot-size, 11px);
+  width: 11px;
+  height: 11px;
   border: 2px solid rgba(255, 255, 255, 0.92);
   border-radius: 50%;
   /* Reads on CartoDB Positron, which is near-white with pale grey roads. */

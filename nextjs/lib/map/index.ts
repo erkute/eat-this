@@ -18,14 +18,6 @@ export {
   formatWalkingTime,
 } from './distance';
 export { getOpenStatus } from './openingHours';
-export {
-  clusterSpots,
-  clusterExpansionZoom,
-  CLUSTER_MAX_ZOOM,
-  FREE_PIN_CLUSTER_RADIUS_PX,
-  LOCKED_DOT_CLUSTER_RADIUS_PX,
-} from './clusterMarkers';
-export type { MarkerGroup, ClusterableSpot } from './clusterMarkers';
 export { abbreviateBezirk } from './abbreviateBezirk';
 
 // Data sources

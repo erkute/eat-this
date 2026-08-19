@@ -1,14 +1,10 @@
 'use client';
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import Map, { AttributionControl, type MapRef } from 'react-map-gl/maplibre';
 
 const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
 const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 };
-
-/** Where the camera starts, so the marker layer can cluster on the first
- *  frame instead of waiting for the first zoom event. */
-export const INITIAL_ZOOM_LEVEL = Math.floor(BERLIN.zoom);
 
 interface MapCanvasProps {
   onMapClick?: () => void;
@@ -19,16 +15,11 @@ interface MapCanvasProps {
      never arrive, the caller still has to reveal them rather than sit on an
      empty map. */
   onFirstPaint?: () => void;
-  /* Fires only when the camera crosses into a new INTEGER zoom level, which is
-     the granularity marker clustering works at. Emitting the raw zoom instead
-     would re-render every marker on every frame of a pinch. */
-  onZoomLevelChange?: (level: number) => void;
   children?: React.ReactNode;
 }
 
 const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
-  ({ onMapClick, onFirstPaint, onZoomLevelChange, children }, ref) => {
-    const zoomLevelRef = useRef(INITIAL_ZOOM_LEVEL);
+  ({ onMapClick, onFirstPaint, children }, ref) => {
     // MapLibre opens the compact attribution by default on mount. Collapse it
     // so only the small ⓘ button stays visible until the user taps it. Then
     // observe attribute changes for ~3 s after we find the element, undoing
@@ -78,12 +69,6 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
         onClick={() => onMapClick?.()}
         onLoad={() => onFirstPaint?.()}
         onError={() => onFirstPaint?.()}
-        onZoom={(e) => {
-          const level = Math.floor(e.viewState.zoom);
-          if (level === zoomLevelRef.current) return;
-          zoomLevelRef.current = level;
-          onZoomLevelChange?.(level);
-        }}
       >
         <AttributionControl position="bottom-left" compact />
         {children}

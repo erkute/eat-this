@@ -14,8 +14,6 @@ interface MarkerButtonProps {
   label: string;
   onActivate: () => void;
   style?: React.CSSProperties;
-  /** Member count, when this marker stands for a group. */
-  clusterCount?: number;
   children: React.ReactNode;
 }
 
@@ -43,7 +41,6 @@ export default function MarkerButton({
   label,
   onActivate,
   style,
-  clusterCount,
   children,
 }: MarkerButtonProps) {
   const demoteWrapper = useCallback((marker: MarkerInstance | null) => {
@@ -69,7 +66,6 @@ export default function MarkerButton({
         role="button"
         tabIndex={0}
         aria-label={label}
-        data-cluster={clusterCount}
         className={className}
         style={style}
         onKeyDown={(event) => {

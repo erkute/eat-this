@@ -27,8 +27,7 @@ vi.mock('./MapCanvas', () => {
     useEffect(() => onFirstPaint(), [onFirstPaint]);
     return <div data-canvas>{children}</div>;
   }
-  // The real initial camera, so the stub clusters at the same zoom the app does.
-  return { default: MapCanvasStub, INITIAL_ZOOM_LEVEL: 12 };
+  return { default: MapCanvasStub };
 });
 vi.mock('./UserLocationMarker', () => ({ default: () => <div data-user-marker /> }));
 
@@ -48,10 +47,9 @@ function spot(id: string, over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant;
 }
 
-/* Spots far enough apart that nothing clusters at the default zoom (0.03° is
-   roughly 290px at z12, against a 48px radius). These cases are about which
-   markers are rendered and in what order; clustering itself is covered in
-   lib/map/clusterMarkers.test.ts. */
+/* Distinct coordinates. Nothing depends on the spacing any more — every spot
+   is its own marker regardless — but keeping them apart matches how the cases
+   read. */
 function spread(...ids: string[]): MapRestaurant[] {
   return ids.map((id, i) => spot(id, { lat: 52.42 + i * 0.03, lng: 13.31 + i * 0.03 }));
 }
@@ -73,8 +71,6 @@ function layer(
       onRestaurantClick={vi.fn()}
       onLockedClick={vi.fn()}
       lockedLabel="Gesperrter Spot"
-      clusterLabel={(n) => `${n} Spots`}
-      lockedClusterLabel={(n) => `${n} gesperrte Spots`}
       location={null}
     />
   );
@@ -131,56 +127,52 @@ describe('MapCanvasLayer locked spots', () => {
   });
 });
 
-describe('MapCanvasLayer clustering', () => {
-  /* Measured on a 375px viewport at the default camera: 10 free pins in the
-     visible map strip, 5 pairs closer than 40px at a 44px marker box, and two
-     pins that never received a tap at their own centre. */
-  it('collapses free pins that would overlap into one tag with the count', async () => {
-    // Same coordinate, so they cluster at any zoom the map can reach.
+describe('MapCanvasLayer draws every spot on its own', () => {
+  /* Markers used to be grouped by pixel radius. They are not any more (user
+     decision 2026-08-19): a grouped pin hides which spot is underneath, and
+     "hungry, standing here" wants to see and tap the actual spots. The
+     assertions below are the ones that guard against grouping coming back by
+     accident. */
+
+  it('gives each free pin its own marker even at one coordinate', async () => {
     render(layer([spot('free-1'), spot('free-2'), spot('free-3')], []));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getByLabelText('3 Spots')).toBeTruthy();
-    expect(screen.queryByLabelText('free-1')).toBeNull();
-    // The count is on the tag itself, not only in the accessible name.
-    expect(screen.getByLabelText('3 Spots').textContent).toBe('3');
+    expect(screen.getByLabelText('free-1')).toBeTruthy();
+    expect(screen.getByLabelText('free-2')).toBeTruthy();
+    expect(screen.getByLabelText('free-3')).toBeTruthy();
   });
 
-  it('clusters the locked dots as well as the pins', async () => {
-    /* Clustering only the pins would uncover the carpet underneath: the same
-       strip carries 130 locked dots with 90 overlapping pairs. */
+  it('gives each locked dot its own marker too', async () => {
     render(layer([], [spot('locked-1'), spot('locked-2'), spot('locked-3'), spot('locked-4')]));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getByLabelText('4 gesperrte Spots')).toBeTruthy();
-    expect(screen.queryAllByLabelText('Gesperrter Spot')).toHaveLength(0);
+    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(4);
   });
 
-  it('keeps the open spot out of the cluster it came from', async () => {
-    // A sheet describing a spot the map cannot show is the dead end the
-    // deep-link fallback exists for — a cluster must not recreate it.
+  it('draws the open spot once, not twice', async () => {
+    // It is filtered out of its list and re-added last so it paints on top.
     const target = spot('free-2');
     render(layer([spot('free-1'), target, spot('free-3')], [], target, false));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getByLabelText('free-2')).toBeTruthy();
-    expect(screen.getByLabelText('2 Spots')).toBeTruthy();
+    expect(screen.getAllByLabelText('free-2')).toHaveLength(1);
+    expect(screen.getAllByRole('button')).toHaveLength(3);
   });
 
-  it('keeps an open locked spot out of its dot cluster', async () => {
+  it('draws an open locked spot once', async () => {
     const target = spot('locked-2');
     render(layer([], [spot('locked-1'), target, spot('locked-3')], target, true));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(1);
-    expect(screen.getByLabelText('2 gesperrte Spots')).toBeTruthy();
+    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(3);
   });
 
-  it('leaves the free pin painting over the dots when both cluster', async () => {
+  it('still paints the dots before the pins where they overlap', async () => {
     render(layer([spot('free-1'), spot('free-2')], [spot('locked-1'), spot('locked-2')]));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
     const labels = screen.getAllByRole('button').map((el) => el.getAttribute('aria-label'));
-    expect(labels).toEqual(['2 gesperrte Spots', '2 Spots']);
+    expect(labels).toEqual(['Gesperrter Spot', 'Gesperrter Spot', 'free-1', 'free-2']);
   });
 });

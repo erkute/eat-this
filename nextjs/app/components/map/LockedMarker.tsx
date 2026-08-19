@@ -22,7 +22,7 @@ interface LockedMarkerProps {
  * while the yellow pins stay the only thing that looks tappable-to-a-spot.
  *
  * Tapping opens the sheet like any other spot; a group of dots zooms in
- * instead (see LockedClusterMarker).
+ * instead.
  */
 function LockedMarker({ restaurant, isSelected = false, onClick, label }: LockedMarkerProps) {
   return (

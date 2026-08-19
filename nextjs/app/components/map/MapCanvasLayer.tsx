@@ -4,20 +4,9 @@ import type { RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
-import {
-  CLUSTER_MAX_ZOOM,
-  FREE_PIN_CLUSTER_RADIUS_PX,
-  LOCKED_DOT_CLUSTER_RADIUS_PX,
-  clusterExpansionZoom,
-  clusterSpots,
-  type MarkerGroup,
-} from '@/lib/map/clusterMarkers';
-
-import MapCanvas, { INITIAL_ZOOM_LEVEL } from './MapCanvas';
+import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
-import ClusterMarker from './ClusterMarker';
 import LockedMarker from './LockedMarker';
-import LockedClusterMarker from './LockedClusterMarker';
 import UserLocationMarker from './UserLocationMarker';
 
 /* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
@@ -41,11 +30,12 @@ const ENTER_STAGGER_CAP = 14;
    must NOT drop in again, or every chip tap re-animates the whole map. */
 const ENTER_WINDOW_MS = 460 + ENTER_STAGGER_MS * ENTER_STAGGER_CAP;
 
-/* Camera move when a cluster is tapped. `around` rather than `center`: the
-   group stays under the finger, so it never slides behind the bottom sheet and
-   this file needs to know nothing about the sheet's geometry. MapLibre skips
-   the animation itself when the user asked for reduced motion. */
-const CLUSTER_EASE_MS = 380;
+/* Only spots inside the viewport get a DOM marker, grown by this much on each
+   side so a pan reveals markers that already exist rather than popping them in.
+   0.6 of the viewport in each direction covers a fast flick between `moveend`
+   events; the cost of being generous is a few dozen nodes, the cost of being
+   tight is visible popping. */
+const VIEWPORT_MARGIN = 0.6;
 
 /* The entire react-map-gl / maplibre-gl surface — the canvas plus every
    marker — lives behind this single component so it can be code-split into
@@ -65,9 +55,7 @@ interface MapCanvasLayerProps {
   onLockedClick: (r: MapRestaurant) => void;
   lockedLabel: string;
   /** Accessible name for a group of free pins, e.g. "5 Spots …". */
-  clusterLabel: (count: number) => string;
   /** Accessible name for a group of locked dots. */
-  lockedClusterLabel: (count: number) => string;
   location: UserLocation | null;
 }
 
@@ -81,8 +69,6 @@ export default function MapCanvasLayer({
   onRestaurantClick,
   onLockedClick,
   lockedLabel,
-  clusterLabel,
-  lockedClusterLabel,
   location,
 }: MapCanvasLayerProps) {
   /* `painted` gates the markers, `entering` only decides whether they arrive
@@ -91,12 +77,6 @@ export default function MapCanvasLayer({
   const [painted, setPainted] = useState(false);
   const [entering, setEntering] = useState(false);
   const paintedRef = useRef(false);
-
-  /* Integer zoom, the granularity clustering runs at. Because the groups are
-     built in world-pixel space they depend on the zoom alone — panning cannot
-     change them, so the markers keep their old property of not re-rendering
-     while the map is dragged. */
-  const [zoomLevel, setZoomLevel] = useState(INITIAL_ZOOM_LEVEL);
 
   const reveal = useCallback(() => {
     if (paintedRef.current) return;
@@ -116,49 +96,63 @@ export default function MapCanvasLayer({
     return () => window.clearTimeout(id);
   }, [entering]);
 
-  /* Past the max zoom the radius is 0, which is how clusterSpots is told to
-     hand every spot back on its own. */
-  const clustering = zoomLevel < CLUSTER_MAX_ZOOM;
   const selectedId = selectedRestaurant?._id ?? null;
 
-  /* The open spot is always drawn as its own marker, never folded into a
-     group — a sheet describing a spot the map cannot show is the same dead end
-     the deep-link fallback below was written for. */
-  const freeGroups = useMemo(
-    () =>
-      clusterSpots(
-        selectedId && !selectedIsLocked
-          ? displayedRestaurants.filter((r) => r._id !== selectedId)
-          : displayedRestaurants,
-        zoomLevel,
-        clustering ? FREE_PIN_CLUSTER_RADIUS_PX : 0
-      ),
-    [displayedRestaurants, selectedId, selectedIsLocked, zoomLevel, clustering]
+  /* Culling window, refreshed when the camera settles. `null` until the map
+     reports in — everything renders then, which is also the fallback if the
+     listener never attaches. Kept as plain numbers rather than a LngLatBounds
+     so the memos below can compare it by value. */
+  const [bounds, setBounds] = useState<[number, number, number, number] | null>(null);
+
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const read = () => {
+      const b = map.getBounds();
+      const padX = (b.getEast() - b.getWest()) * VIEWPORT_MARGIN;
+      const padY = (b.getNorth() - b.getSouth()) * VIEWPORT_MARGIN;
+      setBounds([
+        b.getWest() - padX,
+        b.getSouth() - padY,
+        b.getEast() + padX,
+        b.getNorth() + padY,
+      ]);
+    };
+    read();
+    /* `moveend`, not `move`: recomputing per frame of a drag would cost more
+       than the markers it saves. */
+    map.on('moveend', read);
+    return () => {
+      map.off('moveend', read);
+    };
+  }, [mapRef, painted]);
+
+  /* Every spot is its own marker — no grouping — but only the ones near the
+     viewport get a DOM node. Production carried 169 markers at the default
+     camera before ungrouping; without this the same camera would mount 340.
+     The open spot is filtered out here and re-added below, so it always paints
+     last and over whatever sits beneath it. */
+  const inView = useCallback(
+    (r: MapRestaurant) =>
+      !bounds ||
+      (r.lng >= bounds[0] && r.lng <= bounds[2] && r.lat >= bounds[1] && r.lat <= bounds[3]),
+    [bounds]
   );
 
-  const lockedGroups = useMemo(
+  const freePins = useMemo(
     () =>
-      clusterSpots(
-        selectedId && selectedIsLocked
-          ? displayedLockedRestaurants.filter((r) => r._id !== selectedId)
-          : displayedLockedRestaurants,
-        zoomLevel,
-        clustering ? LOCKED_DOT_CLUSTER_RADIUS_PX : 0
+      displayedRestaurants.filter(
+        (r) => r._id !== (selectedIsLocked ? null : selectedId) && inView(r)
       ),
-    [displayedLockedRestaurants, selectedId, selectedIsLocked, zoomLevel, clustering]
+    [displayedRestaurants, selectedId, selectedIsLocked, inView]
   );
 
-  const expandCluster = useCallback(
-    (group: MarkerGroup<MapRestaurant>, radiusPx: number) => {
-      const map = mapRef.current;
-      if (!map) return;
-      map.easeTo({
-        around: [group.lng, group.lat],
-        zoom: clusterExpansionZoom(group.members, zoomLevel, radiusPx),
-        duration: CLUSTER_EASE_MS,
-      });
-    },
-    [mapRef, zoomLevel]
+  const lockedPins = useMemo(
+    () =>
+      displayedLockedRestaurants.filter(
+        (r) => r._id !== (selectedIsLocked ? selectedId : null) && inView(r)
+      ),
+    [displayedLockedRestaurants, selectedId, selectedIsLocked, inView]
   );
 
   return (
@@ -166,7 +160,6 @@ export default function MapCanvasLayer({
       ref={mapRef}
       onMapClick={onMapClick}
       onFirstPaint={reveal}
-      onZoomLevelChange={setZoomLevel}
     >
       {/* Locked dots first, so the free pins that follow paint on top and win
           the tap wherever the two overlap. DOM order alone does not hold that
@@ -175,25 +168,14 @@ export default function MapCanvasLayer({
           were already there. .markerRootFree is what actually guarantees the
           band; this order is the first-paint case of the same rule. */}
       {painted &&
-        lockedGroups.map((group) =>
-          group.members.length === 1 ? (
-            <LockedMarker
-              key={group.key}
-              restaurant={group.members[0]}
-              onClick={onLockedClick}
-              label={lockedLabel}
-            />
-          ) : (
-            <LockedClusterMarker
-              key={group.key}
-              lat={group.lat}
-              lng={group.lng}
-              count={group.members.length}
-              label={lockedClusterLabel(group.members.length)}
-              onClick={() => expandCluster(group, LOCKED_DOT_CLUSTER_RADIUS_PX)}
-            />
-          )
-        )}
+        lockedPins.map((restaurant) => (
+          <LockedMarker
+            key={restaurant._id}
+            restaurant={restaurant}
+            onClick={onLockedClick}
+            label={lockedLabel}
+          />
+        ))}
       {painted && selectedRestaurant && selectedIsLocked && (
         <LockedMarker
           key={selectedRestaurant._id}
@@ -204,29 +186,15 @@ export default function MapCanvasLayer({
         />
       )}
       {painted &&
-        freeGroups.map((group, i) => {
-          const enterDelayMs = entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null;
-          return group.members.length === 1 ? (
-            <RestaurantMarker
-              key={group.key}
-              restaurant={group.members[0]}
-              isSelected={false}
-              onClick={onRestaurantClick}
-              enterDelayMs={enterDelayMs}
-            />
-          ) : (
-            <ClusterMarker
-              key={group.key}
-              lat={group.lat}
-              lng={group.lng}
-              count={group.members.length}
-              hasMustEat={group.members.some((r) => r.mustEatCount > 0)}
-              label={clusterLabel(group.members.length)}
-              onClick={() => expandCluster(group, FREE_PIN_CLUSTER_RADIUS_PX)}
-              enterDelayMs={enterDelayMs}
-            />
-          );
-        })}
+        freePins.map((restaurant, i) => (
+          <RestaurantMarker
+            key={restaurant._id}
+            restaurant={restaurant}
+            isSelected={false}
+            onClick={onRestaurantClick}
+            enterDelayMs={entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null}
+          />
+        ))}
       {/* The open spot, always its own pin and always last so it paints over
           the group it came out of. It also covers the deep-link case, where
           the selection can sit outside the visible set entirely (an old share

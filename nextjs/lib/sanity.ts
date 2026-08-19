@@ -1,10 +1,10 @@
-import 'server-only'
-import { createClient } from '@sanity/client'
-import { isStaging } from '@/lib/env'
+import 'server-only';
+import { createClient } from '@sanity/client';
+import { isStaging } from '@/lib/env';
 
-const PRODUCTION_PROJECT_ID = 'ehwjnjr2'
-const projectId = process.env.SANITY_PROJECT_ID ?? PRODUCTION_PROJECT_ID
-const dataset = process.env.SANITY_DATASET ?? 'production'
+const PRODUCTION_PROJECT_ID = 'ehwjnjr2';
+const projectId = process.env.SANITY_PROJECT_ID ?? PRODUCTION_PROJECT_ID;
+const dataset = process.env.SANITY_DATASET ?? 'production';
 
 if (
   isStaging &&
@@ -13,7 +13,7 @@ if (
     projectId === PRODUCTION_PROJECT_ID ||
     dataset === 'production')
 ) {
-  throw new Error('Staging must use an isolated Sanity project and dataset')
+  throw new Error('Staging must use an isolated Sanity project and dataset');
 }
 
 // The read token is optional while the production dataset is public. It is
@@ -26,4 +26,4 @@ export const client = createClient({
   useCdn: true,
   perspective: 'published',
   token: process.env.SANITY_API_READ_TOKEN,
-})
+});

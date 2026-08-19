@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 
-import type { ReactNode } from 'react'
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { MapMustEat } from '@/lib/types'
-import type { MustEatDetailState } from './useMustEatDetailState'
+import type { ReactNode } from 'react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { MapMustEat } from '@/lib/types';
+import type { MustEatDetailState } from './useMustEatDetailState';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) => {
@@ -17,39 +17,40 @@ vi.mock('next-intl', () => ({
         'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
       proximityHere: 'Jetzt aufdecken',
       proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
-    }
+    };
     return Object.entries(values ?? {}).reduce(
       (text, [name, value]) => text.replace(`{${name}}`, String(value)),
-      copy[key] ?? key,
-    )
+      copy[key] ?? key
+    );
   },
-}))
+}));
 
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({
     lang: 'de',
-    t: (key: string) => ({
-      'mustEats.covered': 'Verdeckt',
-      'map.toSpot': 'Zum Spot',
-      'map.tooFarToReveal': 'Zu weit weg',
-      'map.revealHere': 'Jetzt aufdecken. Tipp auf die Karte.',
-      'map.inRestaurant': 'Bei',
-      'map.searchClose': 'Schließen',
-    })[key] ?? key,
+    t: (key: string) =>
+      ({
+        'mustEats.covered': 'Verdeckt',
+        'map.toSpot': 'Zum Spot',
+        'map.tooFarToReveal': 'Zu weit weg',
+        'map.revealHere': 'Jetzt aufdecken. Tipp auf die Karte.',
+        'map.inRestaurant': 'Bei',
+        'map.searchClose': 'Schließen',
+      })[key] ?? key,
   }),
-}))
+}));
 
 vi.mock('@/i18n/navigation', () => ({
   Link: ({ children, href }: { children: ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   ),
-}))
+}));
 
-vi.mock('./useSwipePager', () => ({ useSwipePager: vi.fn() }))
+vi.mock('./useSwipePager', () => ({ useSwipePager: vi.fn() }));
 
-import MustEatDetailMobile from './MustEatDetailMobile'
+import MustEatDetailMobile from './MustEatDetailMobile';
 
-afterEach(cleanup)
+afterEach(cleanup);
 
 const mustEat: MapMustEat = {
   _id: 'must-eat-1',
@@ -60,7 +61,7 @@ const mustEat: MapMustEat = {
     lat: 52.52,
     lng: 13.405,
   },
-}
+};
 
 function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailState {
   return {
@@ -81,7 +82,7 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
     handleZoomClose: vi.fn(),
     handleZoomExitComplete: vi.fn(),
     ...overrides,
-  }
+  };
 }
 
 describe('MustEatDetailMobile distance meter', () => {
@@ -92,18 +93,16 @@ describe('MustEatDetailMobile distance meter', () => {
         isUnlocked={false}
         onClose={vi.fn()}
         state={makeState()}
-      />,
-    )
+      />
+    );
 
-    expect(screen.getByText('Noch 2,4 km')).toBeTruthy()
+    expect(screen.getByText('Noch 2,4 km')).toBeTruthy();
     expect(
-      screen.getByText(
-        'Komm auf 50 m an den Spot heran, dann kannst du das Must Eat aufdecken.',
-      ),
-    ).toBeTruthy()
-    const fill = container.querySelector('[data-must-eat-distance-meter] span')
-    expect(fill?.getAttribute('style')).toContain('--fd-distance-progress: 27%')
-  })
+      screen.getByText('Komm auf 50 m an den Spot heran, dann kannst du das Must Eat aufdecken.')
+    ).toBeTruthy();
+    const fill = container.querySelector('[data-must-eat-distance-meter] span');
+    expect(fill?.getAttribute('style')).toContain('--fd-distance-progress: 27%');
+  });
 
   it('keeps the existing no-location guidance when no GPS fix is available', () => {
     const { container } = render(
@@ -112,12 +111,12 @@ describe('MustEatDetailMobile distance meter', () => {
         isUnlocked={false}
         onClose={vi.fn()}
         state={makeState({ distance: null, proximityProgress: null })}
-      />,
-    )
+      />
+    );
 
-    expect(screen.getByText('Komm näher')).toBeTruthy()
-    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull()
-  })
+    expect(screen.getByText('Komm näher')).toBeTruthy();
+    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull();
+  });
 
   it('switches to a strong reveal-now state inside the unlock radius', () => {
     const { container } = render(
@@ -131,12 +130,12 @@ describe('MustEatDetailMobile distance meter', () => {
           proximityProgress: 1,
           vibrateIntensity: 0.92,
         })}
-      />,
-    )
+      />
+    );
 
-    expect(screen.getByText('Jetzt aufdecken')).toBeTruthy()
-    expect(screen.getByText('Tipp auf die Karte und deck dein Must Eat auf.')).toBeTruthy()
-    expect(container.querySelector('[data-reveal-ready]')).not.toBeNull()
-    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull()
-  })
-})
+    expect(screen.getByText('Jetzt aufdecken')).toBeTruthy();
+    expect(screen.getByText('Tipp auf die Karte und deck dein Must Eat auf.')).toBeTruthy();
+    expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
+    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull();
+  });
+});

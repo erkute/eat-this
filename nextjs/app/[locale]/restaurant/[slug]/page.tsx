@@ -1,77 +1,91 @@
-import { notFound, permanentRedirect } from 'next/navigation'
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantBySlug, getAllRestaurantSlugs, getAllRestaurantsLite, getMustEatsByRestaurant, getRestaurantSiblingCandidates } from '@/lib/sanity.server'
-import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects'
-import { buildRestaurantJsonLd } from '@/lib/json-ld'
+import { notFound, permanentRedirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import { setRequestLocale } from 'next-intl/server';
+import {
+  getRestaurantBySlug,
+  getAllRestaurantSlugs,
+  getAllRestaurantsLite,
+  getMustEatsByRestaurant,
+  getRestaurantSiblingCandidates,
+} from '@/lib/sanity.server';
+import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects';
+import { buildRestaurantJsonLd } from '@/lib/json-ld';
 import {
   buildCuratedRestaurantTitle,
   buildRestaurantTitle,
   buildOrderPromiseDescription,
   truncateAtSentence,
-} from '@/lib/seo/restaurantMeta'
-import { SITE_URL } from '@/lib/constants'
-import { normalizeName } from '@/lib/normalizeName'
-import { hasAmbiguousDropCap } from '@/lib/dropCap'
-import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
-import { routing } from '@/i18n/routing'
-import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
-import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers'
-import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose'
-import { getOpenStatus } from '@/lib/map/openingHours'
-import HeartButton from '@/app/components/HeartButton'
-import HeartCount from '@/app/components/HeartCount'
-import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
-import MapPromoCTA from '@/app/components/MapPromoCTA'
-import MapIntentLink from '@/app/components/MapIntentLink'
-import ShareButton from '@/app/components/ShareButton'
-import RestaurantFAQ from '@/app/components/RestaurantFAQ'
-import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
-import { Link as IntlLink } from '@/i18n/navigation'
-import styles from './RestaurantDetail.module.css'
+} from '@/lib/seo/restaurantMeta';
+import { SITE_URL } from '@/lib/constants';
+import { normalizeName } from '@/lib/normalizeName';
+import { hasAmbiguousDropCap } from '@/lib/dropCap';
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+import { routing } from '@/i18n/routing';
+import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
+import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
+import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose';
+import { getOpenStatus } from '@/lib/map/openingHours';
+import HeartButton from '@/app/components/HeartButton';
+import HeartCount from '@/app/components/HeartCount';
+import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
+import MapPromoCTA from '@/app/components/MapPromoCTA';
+import MapIntentLink from '@/app/components/MapIntentLink';
+import ShareButton from '@/app/components/ShareButton';
+import RestaurantFAQ from '@/app/components/RestaurantFAQ';
+import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
+import { Link as IntlLink } from '@/i18n/navigation';
+import styles from './RestaurantDetail.module.css';
 
 interface PageProps {
-  params: Promise<{ locale: string; slug: string }>
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 function safeCreditUrl(url: string | undefined): string | null {
-  if (!url) return null
+  if (!url) return null;
   try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? url : null
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? url : null;
   } catch {
-    return null
+    return null;
   }
 }
 
 function imageAssetKey(url: string | undefined): string {
-  return url?.split('?')[0] ?? ''
+  return url?.split('?')[0] ?? '';
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllRestaurantSlugs()
-  return routing.locales.flatMap(locale =>
-    slugs.map(slug => ({ locale, slug })),
-  )
+  const slugs = await getAllRestaurantSlugs();
+  return routing.locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
 }
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug } = await params
-  const r = await getRestaurantBySlug(slug)
-  if (!r) return {}
-  const loc = locale === 'de' ? 'de' : 'en'
+  const { locale, slug } = await params;
+  const r = await getRestaurantBySlug(slug);
+  if (!r) return {};
+  const loc = locale === 'de' ? 'de' : 'en';
 
-  const districtName = r.bezirk?.name ?? r.district ?? null
+  const districtName = r.bezirk?.name ?? r.district ?? null;
 
   // Antwort-Versprechen aus den whatToOrder-Empfehlungen: schlägt die
   // beschreibenden Fallbacks, kuratierte seo.metaDescription gewinnt weiter.
-  const orderDishes = (r.whatToOrder ?? []).map(i => i.dish)
-  const orderPriceLabel = formatPriceLabel(r)
-  const orderPromiseDe = buildOrderPromiseDescription({ name: r.name, dishes: orderDishes, priceLabel: orderPriceLabel, locale: 'de' })
-  const orderPromiseEn = buildOrderPromiseDescription({ name: r.name, dishes: orderDishes, priceLabel: orderPriceLabel, locale: 'en' })
+  const orderDishes = (r.whatToOrder ?? []).map((i) => i.dish);
+  const orderPriceLabel = formatPriceLabel(r);
+  const orderPromiseDe = buildOrderPromiseDescription({
+    name: r.name,
+    dishes: orderDishes,
+    priceLabel: orderPriceLabel,
+    locale: 'de',
+  });
+  const orderPromiseEn = buildOrderPromiseDescription({
+    name: r.name,
+    dishes: orderDishes,
+    priceLabel: orderPriceLabel,
+    locale: 'en',
+  });
 
   const description = truncateAtSentence(
     pickLocale(
@@ -87,21 +101,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         r.tipEn ||
         r.descriptionEn ||
         undefined,
-      loc,
-    ) ?? '',
-  )
+      loc
+    ) ?? ''
+  );
   // Sanity bleibt die redaktionelle Quelle. Die Ausgabeschicht ergänzt nur
   // fehlende Filialqualifizierer und hält den finalen Titel im SERP-Budget.
-  const curatedTitle = pickLocale(r.seo?.metaTitle || undefined, r.seo?.metaTitleEn || undefined, loc)
-  const builtTitle = buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: loc })
-  const title = curatedTitle ? buildCuratedRestaurantTitle(curatedTitle, r.name) : builtTitle
+  const curatedTitle = pickLocale(
+    r.seo?.metaTitle || undefined,
+    r.seo?.metaTitleEn || undefined,
+    loc
+  );
+  const builtTitle = buildRestaurantTitle({
+    name: r.name,
+    cuisineType: r.cuisineType,
+    district: districtName,
+    locale: loc,
+  });
+  const title = curatedTitle ? buildCuratedRestaurantTitle(curatedTitle, r.name) : builtTitle;
 
   // Branded share card — the dynamic OG route overlays name + cuisine + district
   // on the restaurant photo (and falls back to a brand card when there is none),
   // which previews far stronger on social than the bare photo did.
-  const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}`
+  const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}`;
 
-  const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, { hasEnContent: hasEnContent(r) })
+  const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, {
+    hasEnContent: hasEnContent(r),
+  });
 
   return {
     title: { absolute: title },
@@ -122,24 +147,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       images: [ogImage],
     },
-  }
+  };
 }
 
 export default async function RestaurantPage({ params }: PageProps) {
-  const { locale, slug } = await params
-  setRequestLocale(locale)
-  const r = await getRestaurantBySlug(slug)
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  const r = await getRestaurantBySlug(slug);
   if (!r) {
     // Post-rebuild slug migration: try to 301 an old/404 slug to its current
     // page before giving up. See lib/seo/legacyRedirects.ts.
-    const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite())
+    const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite());
     if (dest && dest !== slug) {
-      permanentRedirect(locale === 'de' ? `/restaurant/${dest}` : `/${locale}/restaurant/${dest}`)
+      permanentRedirect(locale === 'de' ? `/restaurant/${dest}` : `/${locale}/restaurant/${dest}`);
     }
-    notFound()
+    notFound();
   }
-  const primaryCategory = r.categories?.[0] ?? null
-  const SIBLING_LIMIT = 3
+  const primaryCategory = r.categories?.[0] ?? null;
+  const SIBLING_LIMIT = 3;
   const [mustEats, siblingCandidates] = await Promise.all([
     getMustEatsByRestaurant(r._id),
     getRestaurantSiblingCandidates({
@@ -150,48 +175,50 @@ export default async function RestaurantPage({ params }: PageProps) {
       bezirkLimit: SIBLING_LIMIT,
       categoryLimit: SIBLING_LIMIT * 2,
     }),
-  ])
+  ]);
 
-  const siblingsBezirk = siblingCandidates.bezirk
-  const bezirkSlugSet = new Set(siblingsBezirk.map(s => s.slug))
+  const siblingsBezirk = siblingCandidates.bezirk;
+  const bezirkSlugSet = new Set(siblingsBezirk.map((s) => s.slug));
   const siblingsCategory = siblingCandidates.category
-    .filter(s => !bezirkSlugSet.has(s.slug))
-    .slice(0, SIBLING_LIMIT)
+    .filter((s) => !bezirkSlugSet.has(s.slug))
+    .slice(0, SIBLING_LIMIT);
   const categoryDef = primaryCategory
     ? {
         slug: primaryCategory.slug,
         name: primaryCategory.name,
         nameEn: primaryCategory.nameEn,
       }
-    : null
+    : null;
 
-  const loc = locale === 'de' ? 'de' : 'en'
-  const de = loc === 'de'
+  const loc = locale === 'de' ? 'de' : 'en';
+  const de = loc === 'de';
 
-  const description = pickLocale(r.description, r.descriptionEn, loc) || ''
-  const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
-  const tipText = pickLocale(r.tip, r.tipEn, loc)
-  const displayName = normalizeName(r.name)
-  const magazine = splitDescriptionForMagazine(description)
-  const lede = magazine?.lede || description
-  const faqEntries = buildFAQEntries(r, loc)
-  const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
-  const heroAssetKey = imageAssetKey(r.photo)
+  const description = pickLocale(r.description, r.descriptionEn, loc) || '';
+  const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc);
+  const tipText = pickLocale(r.tip, r.tipEn, loc);
+  const displayName = normalizeName(r.name);
+  const magazine = splitDescriptionForMagazine(description);
+  const lede = magazine?.lede || description;
+  const faqEntries = buildFAQEntries(r, loc);
+  const orderItems = (r.whatToOrder ?? []).filter((i) => i?.dish?.trim());
+  const heroAssetKey = imageAssetKey(r.photo);
   const galleryImages = [
     ...(r.photo
-      ? [{
-          _key: `${r._id}-hero`,
-          thumb: r.photo,
-          full: r.photo,
-          alt: r.name,
-          credit: r.photoCredit,
-          creditUrl: r.photoCreditUrl,
-        }]
+      ? [
+          {
+            _key: `${r._id}-hero`,
+            thumb: r.photo,
+            full: r.photo,
+            alt: r.name,
+            credit: r.photoCredit,
+            creditUrl: r.photoCreditUrl,
+          },
+        ]
       : []),
     ...(r.gallery ?? [])
-      .filter(img => img?.thumb && img?.full)
-      .filter(img => imageAssetKey(img.full) !== heroAssetKey),
-  ]
+      .filter((img) => img?.thumb && img?.full)
+      .filter((img) => imageAssetKey(img.full) !== heroAssetKey),
+  ];
 
   const openStatus =
     r.openingHours && r.openingHours.length > 0
@@ -201,23 +228,23 @@ export default async function RestaurantPage({ params }: PageProps) {
           opens: de ? 'öffnet' : 'opens',
           closes: de ? 'schließt' : 'closes',
         })
-      : null
+      : null;
 
-  const priceLabel = formatPriceLabel(r)
-  const websiteInfo = classifyWebsite(r.website)
-  const websiteUrl = websiteInfo?.url ?? null
-  const address = r.address
-  const mapHref = `/map?r=${slug}`
+  const priceLabel = formatPriceLabel(r);
+  const websiteInfo = classifyWebsite(r.website);
+  const websiteUrl = websiteInfo?.url ?? null;
+  const address = r.address;
+  const mapHref = `/map?r=${slug}`;
   // Same derivation as the map sheet: a name+address search always resolves to
   // a result, whereas the curated mapsUrl can be stale. This page had neither —
   // its only Google-Maps links were photo credits.
   const mapsHref = address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
-    : (r.mapsUrl ?? null)
-  const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null
+    : (r.mapsUrl ?? null);
+  const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
 
-  const homeLabel = de ? 'Start' : 'Home'
-  const districtsLabel = de ? 'Bezirke' : 'Districts'
+  const homeLabel = de ? 'Start' : 'Home';
+  const districtsLabel = de ? 'Bezirke' : 'Districts';
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: homeLabel, href: '/', logo: 'eat-this' },
     ...(r.bezirk?.slug && r.bezirk?.name
@@ -227,7 +254,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         ]
       : []),
     { name: r.name },
-  ]
+  ];
 
   const jsonLd = buildRestaurantJsonLd({
     restaurant: r,
@@ -236,7 +263,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     description: shortDescription || description || tipText,
     districtsLabel,
     faqs: faqEntries,
-  })
+  });
 
   return (
     <>
@@ -247,7 +274,10 @@ export default async function RestaurantPage({ params }: PageProps) {
       />
       <main className={styles.page}>
         <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
+          <Breadcrumbs
+            items={breadcrumbItems}
+            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+          />
         </div>
 
         <header className={r.photo ? styles.hero : styles.heroNoPhoto}>
@@ -284,7 +314,9 @@ export default async function RestaurantPage({ params }: PageProps) {
               {r.bezirk?.name && <span className={styles.chip}>{r.bezirk.name}</span>}
               {r.cuisineType && <span className={styles.chipAlt}>{r.cuisineType}</span>}
               {openStatus && (
-                <span className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}>
+                <span
+                  className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}
+                >
                   {openStatus.label}
                 </span>
               )}
@@ -294,9 +326,7 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {description && (
           <article className={styles.story}>
-            <p
-              className={`${styles.lede} ${hasAmbiguousDropCap(lede) ? styles.ledePlain : ''}`}
-            >
+            <p className={`${styles.lede} ${hasAmbiguousDropCap(lede) ? styles.ledePlain : ''}`}>
               {lede}
             </p>
             {magazine?.paragraphsBefore.map((p, i) => (
@@ -314,14 +344,16 @@ export default async function RestaurantPage({ params }: PageProps) {
         {galleryImages.length > 0 && (
           <section className={styles.gallery} aria-label={de ? 'Galerie' : 'Gallery'}>
             {galleryImages.map((img, i) => {
-              const creditHref = safeCreditUrl(img.creditUrl)
+              const creditHref = safeCreditUrl(img.creditUrl);
               return (
                 <figure key={img._key} className={styles.galleryItem}>
                   <Image
                     src={img.thumb ?? img.full ?? ''}
                     alt={img.alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 1}`}
                     fill
-                    sizes={i === 0 ? '(max-width: 700px) 82vw, 560px' : '(max-width: 700px) 68vw, 280px'}
+                    sizes={
+                      i === 0 ? '(max-width: 700px) 82vw, 560px' : '(max-width: 700px) 68vw, 280px'
+                    }
                     className={styles.galleryImg}
                   />
                   {img.credit && (
@@ -336,7 +368,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                     </figcaption>
                   )}
                 </figure>
-              )
+              );
             })}
           </section>
         )}
@@ -351,11 +383,14 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
 
             {orderItems.length > 0 && (
-              <section className={styles.order} aria-label={de ? 'Was bestellen?' : 'What to order?'}>
+              <section
+                className={styles.order}
+                aria-label={de ? 'Was bestellen?' : 'What to order?'}
+              >
                 <h2 className={styles.orderHead}>{de ? 'Was bestellen?' : 'What to order?'}</h2>
                 <ul className={styles.orderList}>
-                  {orderItems.map(item => {
-                    const note = pickLocale(item.note, item.noteEn, loc)
+                  {orderItems.map((item) => {
+                    const note = pickLocale(item.note, item.noteEn, loc);
                     return (
                       <li key={item.dish} className={styles.orderItem}>
                         <div className={styles.orderTop}>
@@ -364,7 +399,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                         </div>
                         {note && <p className={styles.orderNote}>{note}</p>}
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               </section>
@@ -378,7 +413,7 @@ export default async function RestaurantPage({ params }: PageProps) {
               <dt className={styles.factsKey}>{de ? 'Adresse' : 'Address'}</dt>
               <dd className={styles.factsVal}>
                 {(() => {
-                  const idx = address.indexOf(',')
+                  const idx = address.indexOf(',');
                   const lines =
                     idx === -1 ? (
                       address
@@ -388,8 +423,8 @@ export default async function RestaurantPage({ params }: PageProps) {
                         <br />
                         {address.slice(idx + 1).trim()}
                       </>
-                    )
-                  if (!mapsHref) return lines
+                    );
+                  if (!mapsHref) return lines;
                   return (
                     <a
                       className={styles.factsLink}
@@ -399,7 +434,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                     >
                       {lines}
                     </a>
-                  )
+                  );
                 })()}
               </dd>
             </div>
@@ -409,8 +444,12 @@ export default async function RestaurantPage({ params }: PageProps) {
               <dt className={styles.factsKey}>{de ? 'Öffnungs­zeiten' : 'Hours'}</dt>
               <dd className={`${styles.factsVal} ${styles.hours}`}>
                 {r.openingHours.map((slot, i) => [
-                  <span key={`d-${i}`} className={styles.hoursDay}>{slot.days}</span>,
-                  <span key={`t-${i}`} className={styles.hoursTime}>{slot.hours}</span>,
+                  <span key={`d-${i}`} className={styles.hoursDay}>
+                    {slot.days}
+                  </span>,
+                  <span key={`t-${i}`} className={styles.hoursTime}>
+                    {slot.hours}
+                  </span>,
                 ])}
               </dd>
             </div>
@@ -466,20 +505,28 @@ export default async function RestaurantPage({ params }: PageProps) {
             {de ? 'Auf der Map öffnen' : 'Open on the map'}
           </MapIntentLink>
           {websiteUrl && (
-            <a className={styles.act} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
+            <a
+              className={styles.act}
+              href={websiteUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
               Website
             </a>
           )}
           {r.menuUrl && (
-            <a className={styles.act} href={r.menuUrl} target="_blank" rel="noopener nofollow noreferrer">
+            <a
+              className={styles.act}
+              href={r.menuUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
               {de ? 'Speisekarte' : 'Menu'}
             </a>
           )}
         </div>
 
-        {mustEats.length > 0 && (
-          <MustEatTeaserSection mustEats={mustEats} locale={loc} />
-        )}
+        {mustEats.length > 0 && <MustEatTeaserSection mustEats={mustEats} locale={loc} />}
 
         <MapPromoCTA kind="restaurant" name={r.name} mapHref={mapHref} locale={loc} />
 
@@ -495,7 +542,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                   </IntlLink>
                 </h2>
                 <div className={styles.sibCards}>
-                  {siblingsBezirk.map(s => (
+                  {siblingsBezirk.map((s) => (
                     <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
                       {s.photo && (
                         <div className={styles.sibPhoto}>
@@ -518,11 +565,13 @@ export default async function RestaurantPage({ params }: PageProps) {
                     href={`/kategorie/${categoryDef.slug}`}
                     className={styles.sibRowHeadLink}
                   >
-                    {de ? `Mehr ${categoryDef.name}` : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`}
+                    {de
+                      ? `Mehr ${categoryDef.name}`
+                      : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`}
                   </IntlLink>
                 </h2>
                 <div className={styles.sibCards}>
-                  {siblingsCategory.map(s => (
+                  {siblingsCategory.map((s) => (
                     <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
                       {s.photo && (
                         <div className={styles.sibPhoto}>
@@ -540,8 +589,7 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
           </section>
         )}
-
       </main>
     </>
-  )
+  );
 }

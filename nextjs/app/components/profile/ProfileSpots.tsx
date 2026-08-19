@@ -26,10 +26,10 @@ export default function ProfileSpots({
   if (favorites.length === 0) {
     return (
       <div className={styles.empty}>
-        <p className={styles.emptyLine}>
-          {t('emptySpots')}
-        </p>
-        <Link href="/map" className={styles.emptyCta}>{t('toMap')}</Link>
+        <p className={styles.emptyLine}>{t('emptySpots')}</p>
+        <Link href="/map" className={styles.emptyCta}>
+          {t('toMap')}
+        </Link>
       </div>
     );
   }
@@ -57,9 +57,26 @@ export default function ProfileSpots({
               type="button"
               className={styles.spotRemove}
               aria-label={t('removeSaved', { name: normalizeName(f.name) })}
-              onClick={() => void toggle({ _id: f.restaurantId, name: f.name, slug: f.slug, photo: f.photo, district: f.district })}
+              onClick={() =>
+                void toggle({
+                  _id: f.restaurantId,
+                  name: f.name,
+                  slug: f.slug,
+                  photo: f.photo,
+                  district: f.district,
+                })
+              }
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
                 <path d="M6 6l12 12" />
                 <path d="M18 6L6 18" />
               </svg>

@@ -1,30 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { revalidateTag, revalidatePath } from 'next/cache'
-import crypto from 'node:crypto'
+import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag, revalidatePath } from 'next/cache';
+import crypto from 'node:crypto';
 
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const num = (v: string | undefined, d: number) => {
-  const n = Number(v)
-  return Number.isFinite(n) && n > 0 ? n : d
-}
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : d;
+};
 
 function revalidateMapSurface(revalidated: string[], includeFreeSurface = false): void {
-  revalidateTag('map-data')
-  revalidatePath('/map')
-  revalidatePath('/en/map')
-  revalidated.push('tag:map-data', 'path:/map', 'path:/en/map')
+  revalidateTag('map-data');
+  revalidatePath('/map');
+  revalidatePath('/en/map');
+  revalidated.push('tag:map-data', 'path:/map', 'path:/en/map');
   if (includeFreeSurface) {
-    revalidateTag('free-surface')
-    revalidated.push('tag:free-surface')
+    revalidateTag('free-surface');
+    revalidated.push('tag:free-surface');
   }
 }
 
 function revalidateMustEatSurface(revalidated: string[]): void {
-  revalidatePath('/must-eats')
-  revalidatePath('/en/must-eats')
-  revalidated.push('path:/must-eats', 'path:/en/must-eats')
+  revalidatePath('/must-eats');
+  revalidatePath('/en/must-eats');
+  revalidated.push('path:/must-eats', 'path:/en/must-eats');
 }
 
 // Sanity signs every webhook with header "sanity-webhook-signature"
@@ -33,145 +33,154 @@ function revalidateMustEatSurface(revalidated: string[]): void {
 function isValidSanitySignature(
   rawBody: string,
   sigHeader: string | null,
-  secret: string,
+  secret: string
 ): boolean {
-  if (!sigHeader) return false
-  const parts: Record<string, string> = {}
+  if (!sigHeader) return false;
+  const parts: Record<string, string> = {};
   for (const part of sigHeader.split(',')) {
-    const [k, v] = part.split('=')
-    if (k && v) parts[k.trim()] = v.trim()
+    const [k, v] = part.split('=');
+    if (k && v) parts[k.trim()] = v.trim();
   }
-  const t = parts.t
-  const v1 = parts.v1
-  if (!t || !v1) return false
+  const t = parts.t;
+  const v1 = parts.v1;
+  if (!t || !v1) return false;
 
-  const timestamp = Number(t)
-  if (!Number.isInteger(timestamp)) return false
-  const toleranceSeconds = num(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300)
-  const nowSeconds = Math.floor(Date.now() / 1000)
-  if (Math.abs(nowSeconds - timestamp) > toleranceSeconds) return false
+  const timestamp = Number(t);
+  if (!Number.isInteger(timestamp)) return false;
+  const toleranceSeconds = num(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300);
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (Math.abs(nowSeconds - timestamp) > toleranceSeconds) return false;
 
-  const expected = crypto
-    .createHmac('sha256', secret)
-    .update(`${t}.${rawBody}`)
-    .digest('hex')
+  const expected = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
 
-  const a = Buffer.from(v1, 'hex')
-  const b = Buffer.from(expected, 'hex')
-  if (a.length !== b.length) return false
-  return crypto.timingSafeEqual(a, b)
+  const a = Buffer.from(v1, 'hex');
+  const b = Buffer.from(expected, 'hex');
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
 }
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.SANITY_REVALIDATE_SECRET
+  const secret = process.env.SANITY_REVALIDATE_SECRET;
   if (!secret) {
-    return NextResponse.json({ error: 'secret_missing' }, { status: 500 })
+    return NextResponse.json({ error: 'secret_missing' }, { status: 500 });
   }
 
-  const rawBody = await req.text()
-  const sig = req.headers.get('sanity-webhook-signature')
+  const rawBody = await req.text();
+  const sig = req.headers.get('sanity-webhook-signature');
 
   if (!isValidSanitySignature(rawBody, sig, secret)) {
-    return NextResponse.json({ error: 'invalid_signature' }, { status: 401 })
+    return NextResponse.json({ error: 'invalid_signature' }, { status: 401 });
   }
 
-  let doc: { _type?: string; slug?: { current?: string }; _id?: string } = {}
+  let doc: { _type?: string; slug?: { current?: string }; _id?: string } = {};
   try {
-    doc = JSON.parse(rawBody)
+    doc = JSON.parse(rawBody);
   } catch {
-    return NextResponse.json({ error: 'invalid_json' }, { status: 400 })
+    return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
   }
 
-  const type = doc._type
-  const slug = doc.slug?.current
-  const revalidated: string[] = []
+  const type = doc._type;
+  const slug = doc.slug?.current;
+  const revalidated: string[] = [];
 
   switch (type) {
     case 'newsArticle':
-      revalidateTag('news')
-      revalidateTag('sitemap-articles')
-      revalidatePath('/sitemap.xml')
-      revalidated.push('tag:news', 'tag:sitemap-articles', 'path:/sitemap.xml')
+      revalidateTag('news');
+      revalidateTag('sitemap-articles');
+      revalidatePath('/sitemap.xml');
+      revalidated.push('tag:news', 'tag:sitemap-articles', 'path:/sitemap.xml');
       if (slug) {
-        revalidateTag(`article:${slug}`)
-        revalidatePath(`/news/${slug}`)
-        revalidatePath(`/en/news/${slug}`)
-        revalidated.push(`tag:article:${slug}`, `path:/news/${slug}`)
+        revalidateTag(`article:${slug}`);
+        revalidatePath(`/news/${slug}`);
+        revalidatePath(`/en/news/${slug}`);
+        revalidated.push(`tag:article:${slug}`, `path:/news/${slug}`);
       }
-      revalidateMapSurface(revalidated, true)
-      revalidateMustEatSurface(revalidated)
-      break
+      revalidateMapSurface(revalidated, true);
+      revalidateMustEatSurface(revalidated);
+      break;
     case 'restaurant':
-      revalidateTag('sitemap-restaurants')
-      revalidatePath('/sitemap.xml')
-      revalidated.push('tag:sitemap-restaurants', 'path:/sitemap.xml')
+      revalidateTag('sitemap-restaurants');
+      revalidatePath('/sitemap.xml');
+      revalidated.push('tag:sitemap-restaurants', 'path:/sitemap.xml');
       if (slug) {
-        revalidateTag(`restaurant:${slug}`)
-        revalidatePath(`/restaurant/${slug}`)
-        revalidatePath(`/en/restaurant/${slug}`)
-        revalidated.push(`tag:restaurant:${slug}`, `path:/restaurant/${slug}`)
+        revalidateTag(`restaurant:${slug}`);
+        revalidatePath(`/restaurant/${slug}`);
+        revalidatePath(`/en/restaurant/${slug}`);
+        revalidated.push(`tag:restaurant:${slug}`, `path:/restaurant/${slug}`);
       }
       // Restaurant changes can shift bezirk and category membership/order
       // — flush both aggregation tag groups.
-      revalidateTag('bezirk')
-      revalidateTag('category-list')
-      revalidateTag('restaurant-siblings')
-      revalidated.push('tag:bezirk', 'tag:category-list', 'tag:restaurant-siblings')
-      revalidateMapSurface(revalidated, true)
-      revalidateMustEatSurface(revalidated)
-      break
+      revalidateTag('bezirk');
+      revalidateTag('category-list');
+      revalidateTag('restaurant-siblings');
+      revalidated.push('tag:bezirk', 'tag:category-list', 'tag:restaurant-siblings');
+      revalidateMapSurface(revalidated, true);
+      revalidateMustEatSurface(revalidated);
+      break;
     case 'bezirk':
-      revalidateTag('bezirk')
-      revalidateTag('restaurant-siblings')
-      revalidateTag('sitemap-bezirke')
-      revalidatePath('/bezirk')
-      revalidatePath('/en/bezirk')
-      revalidatePath('/sitemap.xml')
-      revalidated.push('tag:bezirk', 'tag:restaurant-siblings', 'tag:sitemap-bezirke', 'path:/bezirk', 'path:/sitemap.xml')
+      revalidateTag('bezirk');
+      revalidateTag('restaurant-siblings');
+      revalidateTag('sitemap-bezirke');
+      revalidatePath('/bezirk');
+      revalidatePath('/en/bezirk');
+      revalidatePath('/sitemap.xml');
+      revalidated.push(
+        'tag:bezirk',
+        'tag:restaurant-siblings',
+        'tag:sitemap-bezirke',
+        'path:/bezirk',
+        'path:/sitemap.xml'
+      );
       if (slug) {
-        revalidateTag(`bezirk:${slug}`)
-        revalidatePath(`/bezirk/${slug}`)
-        revalidatePath(`/en/bezirk/${slug}`)
-        revalidated.push(`tag:bezirk:${slug}`, `path:/bezirk/${slug}`)
+        revalidateTag(`bezirk:${slug}`);
+        revalidatePath(`/bezirk/${slug}`);
+        revalidatePath(`/en/bezirk/${slug}`);
+        revalidated.push(`tag:bezirk:${slug}`, `path:/bezirk/${slug}`);
       }
-      revalidateMapSurface(revalidated)
-      break
+      revalidateMapSurface(revalidated);
+      break;
     case 'category':
-      revalidateTag('category')
-      revalidateTag('category-list')
-      revalidateTag('restaurant-siblings')
-      revalidatePath('/')
-      revalidatePath('/en')
-      revalidatePath('/kategorie')
-      revalidatePath('/en/kategorie')
-      revalidated.push('tag:category', 'tag:category-list', 'tag:restaurant-siblings', 'path:/', 'path:/kategorie')
+      revalidateTag('category');
+      revalidateTag('category-list');
+      revalidateTag('restaurant-siblings');
+      revalidatePath('/');
+      revalidatePath('/en');
+      revalidatePath('/kategorie');
+      revalidatePath('/en/kategorie');
+      revalidated.push(
+        'tag:category',
+        'tag:category-list',
+        'tag:restaurant-siblings',
+        'path:/',
+        'path:/kategorie'
+      );
       if (slug) {
-        revalidateTag(`category:${slug}`)
-        revalidatePath(`/kategorie/${slug}`)
-        revalidatePath(`/en/kategorie/${slug}`)
-        revalidated.push(`tag:category:${slug}`, `path:/kategorie/${slug}`)
+        revalidateTag(`category:${slug}`);
+        revalidatePath(`/kategorie/${slug}`);
+        revalidatePath(`/en/kategorie/${slug}`);
+        revalidated.push(`tag:category:${slug}`, `path:/kategorie/${slug}`);
       }
-      revalidateMapSurface(revalidated)
-      break
+      revalidateMapSurface(revalidated);
+      break;
     case 'mustEat':
-      revalidateTag('mustEat')
-      revalidated.push('tag:mustEat')
-      revalidateMapSurface(revalidated, true)
-      revalidateMustEatSurface(revalidated)
-      break
+      revalidateTag('mustEat');
+      revalidated.push('tag:mustEat');
+      revalidateMapSurface(revalidated, true);
+      revalidateMustEatSurface(revalidated);
+      break;
     case 'homeWeek':
-      revalidateMapSurface(revalidated, true)
-      revalidateMustEatSurface(revalidated)
-      break
+      revalidateMapSurface(revalidated, true);
+      revalidateMustEatSurface(revalidated);
+      break;
     case 'staticPage':
-      revalidateTag('staticPage')
-      revalidated.push('tag:staticPage')
-      break
+      revalidateTag('staticPage');
+      revalidated.push('tag:staticPage');
+      break;
   }
 
-  return NextResponse.json({ ok: true, type, slug, revalidated })
+  return NextResponse.json({ ok: true, type, slug, revalidated });
 }
 
 export async function GET() {
-  return NextResponse.json({ ok: true, route: 'revalidate' })
+  return NextResponse.json({ ok: true, route: 'revalidate' });
 }

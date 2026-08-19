@@ -1,21 +1,21 @@
-'use client'
-import { useTranslations } from 'next-intl'
-import { useTranslation } from '@/lib/i18n'
-import styles from './MapListEmpty.module.css'
+'use client';
+import { useTranslations } from 'next-intl';
+import { useTranslation } from '@/lib/i18n';
+import styles from './MapListEmpty.module.css';
 
 interface Props {
-  onReset?: () => void
+  onReset?: () => void;
   /** Uncapped number of locked spots matching the active filter. > 0 switches
    *  the block from "there is nothing" to "there is something, it is locked" —
    *  the distinction the user cannot otherwise make from an empty surface. */
-  lockedCount?: number
+  lockedCount?: number;
   /** The filter term the zero applies to (query, bezirk, cuisine, category).
    *  Absent only when nothing but "open now" is active. */
-  filterLabel?: string | null
+  filterLabel?: string | null;
   /** All-Berlin pack link, rendered only in the locked variant. */
-  packHref?: string
+  packHref?: string;
   /** District index — the free way to read the spots the map is holding back. */
-  districtsHref?: string
+  districtsHref?: string;
 }
 
 export default function MapListEmpty({
@@ -25,21 +25,21 @@ export default function MapListEmpty({
   packHref,
   districtsHref,
 }: Props) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   // Legacy t() can't interpolate ICU values — parametrized keys go through
   // next-intl directly.
-  const tMap = useTranslations('map')
-  const locked = lockedCount > 0
+  const tMap = useTranslations('map');
+  const locked = lockedCount > 0;
 
-  const kicker = locked ? t('map.emptyLockedKicker') : t('map.emptyKicker')
-  const heading = locked ? t('map.emptyLockedTitle') : t('map.emptyTitle')
+  const kicker = locked ? t('map.emptyLockedKicker') : t('map.emptyKicker');
+  const heading = locked ? t('map.emptyLockedTitle') : t('map.emptyTitle');
   // The filter term rides in the body, not the headline — „0 FREIE TREFFER FÜR
   // „RAMEN“." ran to four lines of 32px display type at 375px.
   const body = locked
     ? filterLabel
       ? tMap('emptyLockedBody', { count: lockedCount, label: filterLabel })
       : tMap('emptyLockedBodyBare', { count: lockedCount })
-    : t('map.emptyBody')
+    : t('map.emptyBody');
 
   return (
     <div className={styles.esBlock} role="status">
@@ -76,5 +76,5 @@ export default function MapListEmpty({
         </div>
       )}
     </div>
-  )
+  );
 }

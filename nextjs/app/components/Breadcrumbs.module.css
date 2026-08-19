@@ -19,7 +19,7 @@
   font-size: 11px;
   font-weight: 900;
   line-height: 1.2;
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
   color: var(--et-home-ink);
   text-transform: uppercase;
 }
@@ -52,7 +52,10 @@
 .link {
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
-  transition: color 140ms ease, transform 140ms ease, text-decoration-color 140ms ease;
+  transition:
+    color 140ms ease,
+    transform 140ms ease,
+    text-decoration-color 140ms ease;
 }
 
 .link:hover,
@@ -97,7 +100,7 @@
     gap: 6px 8px;
     padding-bottom: 8px;
     font-size: 10px;
-    letter-spacing: .08em;
+    letter-spacing: 0.08em;
   }
 
   .current {

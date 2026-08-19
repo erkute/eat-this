@@ -1,21 +1,21 @@
-'use client'
-import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '@/lib/auth'
-import { trackEvent } from '@/lib/analytics'
-import styles from './PackDetail.module.css'
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@/lib/auth';
+import { trackEvent } from '@/lib/analytics';
+import styles from './PackDetail.module.css';
 
 interface Props {
-  packId: string
-  packName: string
-  amountCents: number
-  locale: 'de' | 'en'
-  label: string
-  pendingLabel: string
-  ownedLabel: string
-  ownedHref: string
-  errorLabel: string
-  className?: string
-  errorClassName?: string
+  packId: string;
+  packName: string;
+  amountCents: number;
+  locale: 'de' | 'en';
+  label: string;
+  pendingLabel: string;
+  ownedLabel: string;
+  ownedHref: string;
+  errorLabel: string;
+  className?: string;
+  errorClassName?: string;
 }
 
 // Kicks off Stripe Hosted Checkout for a single pack. Signed-in users send
@@ -35,8 +35,8 @@ export default function PackBuyButton({
   className,
   errorClassName,
 }: Props) {
-  const { user } = useAuth()
-  const [state, setState] = useState<'idle' | 'pending' | 'owned' | 'error'>('idle')
+  const { user } = useAuth();
+  const [state, setState] = useState<'idle' | 'pending' | 'owned' | 'error'>('idle');
 
   useEffect(() => {
     trackEvent('view_item', {
@@ -44,57 +44,57 @@ export default function PackBuyButton({
       item_name: packName,
       currency: 'EUR',
       value: amountCents / 100,
-    })
-  }, [packId, packName, amountCents])
+    });
+  }, [packId, packName, amountCents]);
 
   const onBuy = useCallback(async () => {
-    if (state === 'pending') return
+    if (state === 'pending') return;
     trackEvent('begin_checkout', {
       item_id: packId,
       item_name: packName,
       currency: 'EUR',
       value: amountCents / 100,
       checkout_mode: user ? 'authenticated' : 'guest',
-    })
-    setState('pending')
+    });
+    setState('pending');
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-      if (user) headers.Authorization = `Bearer ${await user.getIdToken()}`
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user) headers.Authorization = `Bearer ${await user.getIdToken()}`;
 
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers,
         body: JSON.stringify({ packId, locale }),
-      })
+      });
 
       if (res.status === 409) {
-        trackEvent('checkout_already_owned', { item_id: packId })
-        setState('owned')
-        return
+        trackEvent('checkout_already_owned', { item_id: packId });
+        setState('owned');
+        return;
       }
       if (!res.ok) {
-        trackEvent('checkout_error', { item_id: packId, status: res.status })
-        setState('error')
-        return
+        trackEvent('checkout_error', { item_id: packId, status: res.status });
+        setState('error');
+        return;
       }
-      const data = (await res.json()) as { url?: string }
+      const data = (await res.json()) as { url?: string };
       if (data.url) {
-        window.location.href = data.url
-        return
+        window.location.href = data.url;
+        return;
       }
-      setState('error')
+      setState('error');
     } catch {
-      trackEvent('checkout_error', { item_id: packId, status: 'network' })
-      setState('error')
+      trackEvent('checkout_error', { item_id: packId, status: 'network' });
+      setState('error');
     }
-  }, [user, packId, packName, amountCents, locale, state])
+  }, [user, packId, packName, amountCents, locale, state]);
 
   if (state === 'owned') {
     return (
       <a className={className ?? styles.cta} href={ownedHref}>
         {ownedLabel}
       </a>
-    )
+    );
   }
 
   return (
@@ -109,5 +109,5 @@ export default function PackBuyButton({
       </button>
       {state === 'error' && <p className={errorClassName ?? styles.ctaError}>{errorLabel}</p>}
     </>
-  )
+  );
 }

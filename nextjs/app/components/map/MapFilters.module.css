@@ -410,7 +410,6 @@
   font-size: inherit;
 }
 @media (max-width: 360px) {
-
   .filterChip,
   .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
   .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),

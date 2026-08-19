@@ -1,15 +1,15 @@
-import type { RestaurantCard } from '../types'
+import type { RestaurantCard } from '../types';
 
 interface CrossLink {
-  slug: string
-  label: string
-  count: number
+  slug: string;
+  label: string;
+  count: number;
 }
 
 function rank(map: Map<string, CrossLink>, limit: number): CrossLink[] {
   return [...map.values()]
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
-    .slice(0, limit)
+    .slice(0, limit);
 }
 
 /**
@@ -21,16 +21,16 @@ function rank(map: Map<string, CrossLink>, limit: number): CrossLink[] {
  */
 export function categoryDistrictLinks(
   restaurants: Array<Pick<RestaurantCard, 'bezirk' | 'district'>>,
-  limit = 8,
+  limit = 8
 ): CrossLink[] {
-  const tally = new Map<string, CrossLink>()
+  const tally = new Map<string, CrossLink>();
   for (const r of restaurants) {
-    const slug = r.bezirk?.slug
-    const label = r.bezirk?.name
-    if (!slug || !label) continue
-    const existing = tally.get(slug)
-    if (existing) existing.count += 1
-    else tally.set(slug, { slug, label, count: 1 })
+    const slug = r.bezirk?.slug;
+    const label = r.bezirk?.name;
+    if (!slug || !label) continue;
+    const existing = tally.get(slug);
+    if (existing) existing.count += 1;
+    else tally.set(slug, { slug, label, count: 1 });
   }
-  return rank(tally, limit)
+  return rank(tally, limit);
 }

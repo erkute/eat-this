@@ -1,45 +1,45 @@
-import { client } from '@/lib/sanity'
-import { localeUrl } from '@/lib/locale-url'
-import { isStaging } from '@/lib/env'
+import { client } from '@/lib/sanity';
+import { localeUrl } from '@/lib/locale-url';
+import { isStaging } from '@/lib/env';
 
 // llms.txt — a curated, machine-readable map of the site for AI answer engines
 // (ChatGPT, Perplexity, …). The content depth (Was-bestellen blocks, FAQs) is
 // already AEO-friendly; this is the cheap entry point that points crawlers at
 // the best hubs. Markdown per the llms.txt convention. Referenced implicitly
 // at /llms.txt (root, dotted path bypasses the locale middleware).
-export const revalidate = 86400
+export const revalidate = 86400;
 
 interface NamedSlug {
-  slug: string
-  name: string
+  slug: string;
+  name: string;
 }
 
 export async function GET(): Promise<Response> {
   if (isStaging) {
     return new Response('# Eat This (staging)\n', {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    })
+    });
   }
 
   const [categories, bezirke, articles] = await Promise.all([
     client.fetch<NamedSlug[]>(
       `*[_type == "category" && defined(slug.current)] | order(name asc) { "slug": slug.current, name }`,
       {},
-      { next: { revalidate: 86400, tags: ['category-list'] } },
+      { next: { revalidate: 86400, tags: ['category-list'] } }
     ),
     client.fetch<NamedSlug[]>(
       `*[_type == "bezirk" && defined(slug.current) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]) > 0] | order(name asc) { "slug": slug.current, name }`,
       {},
-      { next: { revalidate: 86400, tags: ['sitemap-bezirke'] } },
+      { next: { revalidate: 86400, tags: ['sitemap-bezirke'] } }
     ),
     client.fetch<NamedSlug[]>(
       `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**"))] | order(date desc)[0...15] { "slug": slug.current, "name": coalesce(titleDe, title) }`,
       {},
-      { next: { revalidate: 86400, tags: ['sitemap-articles'] } },
+      { next: { revalidate: 86400, tags: ['sitemap-articles'] } }
     ),
-  ])
+  ]);
 
-  const link = (name: string, path: string) => `- [${name}](${localeUrl('de', path)})`
+  const link = (name: string, path: string) => `- [${name}](${localeUrl('de', path)})`;
 
   const lines = [
     '# Eat This Berlin',
@@ -55,20 +55,20 @@ export async function GET(): Promise<Response> {
     link('Über uns', '/about'),
     '',
     '## Kategorien',
-    ...categories.map(c => link(c.name, `/kategorie/${c.slug}`)),
+    ...categories.map((c) => link(c.name, `/kategorie/${c.slug}`)),
     '',
     '## Bezirke',
-    ...bezirke.map(b => link(b.name, `/bezirk/${b.slug}`)),
+    ...bezirke.map((b) => link(b.name, `/bezirk/${b.slug}`)),
     '',
     '## Aktuelle Artikel',
-    ...articles.map(a => link(a.name, `/news/${a.slug}`)),
+    ...articles.map((a) => link(a.name, `/news/${a.slug}`)),
     '',
-  ]
+  ];
 
   return new Response(lines.join('\n'), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, max-age=86400, s-maxage=86400',
     },
-  })
+  });
 }

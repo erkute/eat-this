@@ -18,7 +18,7 @@
 }
 
 .heartCount::before {
-  content: "\2665"; /* ♥ filled */
+  content: '\2665'; /* ♥ filled */
   font-size: 14px;
   line-height: 1;
 }
@@ -29,6 +29,8 @@
   box-shadow: none;
   clip-path: polygon(3% 10%, 97% 0, 100% 86%, 6% 100%);
   transform: rotate(-3deg);
-  filter: drop-shadow(0 5px 4px rgba(43, 33, 28, .28));
+  filter: drop-shadow(0 5px 4px rgba(43, 33, 28, 0.28));
 }
-.heartCount::before { color: #ef3108; }
+.heartCount::before {
+  color: #ef3108;
+}

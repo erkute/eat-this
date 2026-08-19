@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // Segment error boundary for everything below [locale]/layout.tsx. Before
 // this existed, any render/data error on a page (e.g. a Sanity CDN timeout
@@ -8,10 +8,10 @@
 //
 // Deliberately minimal dependencies: no providers, no nav, no i18n context.
 // Those can be part of the failure; the boundary must not crash itself.
-import * as Sentry from '@sentry/nextjs'
-import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
-import styles from '../not-found.module.css'
+import * as Sentry from '@sentry/nextjs';
+import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import styles from '../not-found.module.css';
 
 const COPY = {
   de: {
@@ -26,23 +26,23 @@ const COPY = {
     retry: 'Try again',
     home: 'Back to home',
   },
-} as const
+} as const;
 
 export default function LocaleError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    Sentry.captureException(error)
-  }, [error])
+    Sentry.captureException(error);
+  }, [error]);
 
   // No i18n provider here by design — derive the locale from the URL.
-  const pathname = usePathname() ?? '/'
-  const locale = pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'de'
-  const copy = COPY[locale]
+  const pathname = usePathname() ?? '/';
+  const locale = pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'de';
+  const copy = COPY[locale];
 
   return (
     <main className={styles.page} aria-labelledby="error-title">
@@ -56,7 +56,11 @@ export default function LocaleError({
           </h1>
           <p className={styles.sub}>{copy.sub}</p>
           <div className={styles.actions}>
-            <button type="button" onClick={reset} className={`${styles.primaryCta} ${styles.ctaButton}`}>
+            <button
+              type="button"
+              onClick={reset}
+              className={`${styles.primaryCta} ${styles.ctaButton}`}
+            >
               {copy.retry}
             </button>
             <a href={locale === 'en' ? '/en' : '/'} className={styles.secondaryCta}>
@@ -66,5 +70,5 @@ export default function LocaleError({
         </div>
       </section>
     </main>
-  )
+  );
 }

@@ -41,7 +41,7 @@ export function useTranslation(): I18nContextValue {
         }
       }
     },
-    [t],
+    [t]
   );
 
   // Soft-nav locale switch — next-intl's router rewrites the /en prefix and
@@ -51,10 +51,12 @@ export function useTranslation(): I18nContextValue {
     (newLang: Lang) => {
       if (newLang === lang) return;
       document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=${60 * 60 * 24 * 365}`;
-      try { localStorage.setItem('lang', newLang); } catch {}
+      try {
+        localStorage.setItem('lang', newLang);
+      } catch {}
       router.replace(pathname, { locale: newLang });
     },
-    [lang, pathname, router],
+    [lang, pathname, router]
   );
 
   return { lang, t: tWrapped, setLang };

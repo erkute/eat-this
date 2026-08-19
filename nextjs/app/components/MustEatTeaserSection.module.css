@@ -48,7 +48,7 @@
   font-weight: 700;
   font-size: clamp(26px, 5.6vw, 38px);
   line-height: var(--et-leading-title, 0.9);
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   text-transform: uppercase;
   color: var(--et-home-red);
   margin: 0 0 12px;
@@ -146,13 +146,28 @@
    opening, then resets. Anchored on the wrapper-applied tilt so the shake
    wobbles around the resting orientation, not (0). */
 @keyframes mustEatShake {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  10% { transform: translate3d(-4px, 0, 0) rotate(-1.2deg); }
-  25% { transform: translate3d(5px, 0, 0) rotate(1.4deg); }
-  40% { transform: translate3d(-4px, 0, 0) rotate(-1deg); }
-  55% { transform: translate3d(3px, 0, 0) rotate(0.8deg); }
-  70% { transform: translate3d(-2px, 0, 0) rotate(-0.5deg); }
-  85% { transform: translate3d(2px, 0, 0) rotate(0.3deg); }
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  10% {
+    transform: translate3d(-4px, 0, 0) rotate(-1.2deg);
+  }
+  25% {
+    transform: translate3d(5px, 0, 0) rotate(1.4deg);
+  }
+  40% {
+    transform: translate3d(-4px, 0, 0) rotate(-1deg);
+  }
+  55% {
+    transform: translate3d(3px, 0, 0) rotate(0.8deg);
+  }
+  70% {
+    transform: translate3d(-2px, 0, 0) rotate(-0.5deg);
+  }
+  85% {
+    transform: translate3d(2px, 0, 0) rotate(0.3deg);
+  }
 }
 
 .cardShake {

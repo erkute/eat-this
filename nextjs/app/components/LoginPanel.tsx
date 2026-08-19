@@ -22,11 +22,7 @@ interface LoginPanelProps {
   mode?: 'starter' | 'signin';
 }
 
-export default function LoginPanel({
-  onBack,
-  modal = false,
-  mode = 'starter',
-}: LoginPanelProps) {
+export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: LoginPanelProps) {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
@@ -246,9 +242,7 @@ export default function LoginPanel({
                   />
                 ))}
               </div>
-              <p className={styles.modalSigninBoosterLead}>
-                {t('modals.login.signinBoosterLead')}
-              </p>
+              <p className={styles.modalSigninBoosterLead}>{t('modals.login.signinBoosterLead')}</p>
             </section>
           )}
 

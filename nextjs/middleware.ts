@@ -64,12 +64,12 @@ async function stagingAuthToken(): Promise<string | null> {
     encoder.encode(pass),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign'],
+    ['sign']
   );
   const signature = await crypto.subtle.sign(
     'HMAC',
     key,
-    encoder.encode(`eat-this-staging-auth:v1:${user}`),
+    encoder.encode(`eat-this-staging-auth:v1:${user}`)
   );
   return toBase64Url(signature);
 }
@@ -117,8 +117,7 @@ export default async function middleware(req: NextRequest) {
   // prompt for credentials on every page load.
   const reqHost = req.headers.get('host') ?? '';
   const isLocalhost = reqHost.startsWith('localhost') || reqHost.startsWith('127.0.0.1');
-  const isSignedWebhook =
-    pathname === '/api/stripe/webhook' || pathname === '/api/revalidate';
+  const isSignedWebhook = pathname === '/api/stripe/webhook' || pathname === '/api/revalidate';
   if (isStaging && !isLocalhost && !isSignedWebhook) {
     const access = await getStagingAccess(req);
     if (!access.allowed) {
@@ -197,10 +196,12 @@ export default async function middleware(req: NextRequest) {
 
     const gone = rest.match(/^\/restaurant\/([^/]+)\/?$/);
     if (gone && GONE_SLUGS.has(gone[1])) {
-      return finalizeResponse(new NextResponse(GONE_HTML, {
-        status: 410,
-        headers: { 'content-type': 'text/html; charset=utf-8' },
-      }));
+      return finalizeResponse(
+        new NextResponse(GONE_HTML, {
+          status: 410,
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        })
+      );
     }
 
     const news = rest.match(/^\/news\/([^/]+)\/?$/);
@@ -229,7 +230,10 @@ export default async function middleware(req: NextRequest) {
     const headers = new Headers(req.headers);
     headers.set(INTERNAL_LOCALE_HEADER, routing.defaultLocale);
     const res = NextResponse.rewrite(url, { request: { headers } });
-    res.cookies.set('NEXT_LOCALE', routing.defaultLocale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    res.cookies.set('NEXT_LOCALE', routing.defaultLocale, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+    });
     return finalizeResponse(res);
   }
 

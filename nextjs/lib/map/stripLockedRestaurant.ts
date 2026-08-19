@@ -1,4 +1,4 @@
-import type { MapRestaurant } from '@/lib/types'
+import type { MapRestaurant } from '@/lib/types';
 
 // Locked spots ship to anon/free viewers as blurred teaser cards + grey pins
 // and never open a detail sheet (a locked card routes to the booster flow).
@@ -16,7 +16,7 @@ import type { MapRestaurant } from '@/lib/types'
 export function stripLockedRestaurants(locked: MapRestaurant[]): MapRestaurant[] {
   return locked.map((r) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- omit-by-destructure
-    const { priceRange, tierAnon, tierSigned, ...keep } = r
-    return keep
-  })
+    const { priceRange, tierAnon, tierSigned, ...keep } = r;
+    return keep;
+  });
 }

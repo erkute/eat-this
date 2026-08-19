@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest'
-import { resolveLegacyRestaurantSlug, GONE_SLUGS, NEWS_REDIRECTS, type LegacyRestaurant } from './legacyRedirects'
+import { describe, it, expect } from 'vitest';
+import {
+  resolveLegacyRestaurantSlug,
+  GONE_SLUGS,
+  NEWS_REDIRECTS,
+  type LegacyRestaurant,
+} from './legacyRedirects';
 
 const RESTAURANTS: LegacyRestaurant[] = [
   // accent / apostrophe renames
@@ -25,7 +30,7 @@ const RESTAURANTS: LegacyRestaurant[] = [
   { name: 'Bonanza Coffee Heroes', slug: 'bonanza-coffee-heroes', bezirk: 'prenzlauer-berg' },
   // untouched control
   { name: 'Borchardt', slug: 'borchardt', bezirk: 'mitte' },
-]
+];
 
 describe('resolveLegacyRestaurantSlug', () => {
   it.each([
@@ -36,8 +41,8 @@ describe('resolveLegacyRestaurantSlug', () => {
     ['sh-do-udon-lab', 'shodo-udon-lab'],
     ['caf-botanico', 'cafe-botanico'],
   ])('accent map: %s → %s', (oldSlug, newSlug) => {
-    expect(resolveLegacyRestaurantSlug(oldSlug, RESTAURANTS)).toBe(newSlug)
-  })
+    expect(resolveLegacyRestaurantSlug(oldSlug, RESTAURANTS)).toBe(newSlug);
+  });
 
   it.each([
     ['five-elephant', 'five-elephant-kreuzberg'],
@@ -49,31 +54,39 @@ describe('resolveLegacyRestaurantSlug', () => {
     ['knoedelwirtschaft-nord', 'knoedelwirtschaft-sued'],
     ['tribeca-ice-cream-prenzlauer-berg', 'tribeca-ice-cream'],
   ])('explicit map: %s → %s', (oldSlug, newSlug) => {
-    expect(resolveLegacyRestaurantSlug(oldSlug, RESTAURANTS)).toBe(newSlug)
-  })
+    expect(resolveLegacyRestaurantSlug(oldSlug, RESTAURANTS)).toBe(newSlug);
+  });
 
   it('generic split fallback prefers the mitte branch', () => {
-    expect(resolveLegacyRestaurantSlug('bonanza-coffee', RESTAURANTS)).toBe('bonanza-coffee-mitte')
-  })
+    expect(resolveLegacyRestaurantSlug('bonanza-coffee', RESTAURANTS)).toBe('bonanza-coffee-mitte');
+  });
 
   it('returns null for a real current slug (no redirect)', () => {
-    expect(resolveLegacyRestaurantSlug('cafe-botanico', RESTAURANTS)).toBeNull()
-    expect(resolveLegacyRestaurantSlug('borchardt', RESTAURANTS)).toBeNull()
-  })
+    expect(resolveLegacyRestaurantSlug('cafe-botanico', RESTAURANTS)).toBeNull();
+    expect(resolveLegacyRestaurantSlug('borchardt', RESTAURANTS)).toBeNull();
+  });
 
   it('returns null for a genuine 404', () => {
-    expect(resolveLegacyRestaurantSlug('total-nonsense-xyz', RESTAURANTS)).toBeNull()
-  })
-})
+    expect(resolveLegacyRestaurantSlug('total-nonsense-xyz', RESTAURANTS)).toBeNull();
+  });
+});
 
 describe('static gone / news maps', () => {
   it('flags the five permanently closed spots', () => {
     expect([...GONE_SLUGS].sort()).toEqual(
-      ['doyum-restaurant', 'gnam-pasta-factory', 'lala-restaurant', 'phantom-bar', 'zeit-caf'].sort(),
-    )
-  })
+      [
+        'doyum-restaurant',
+        'gnam-pasta-factory',
+        'lala-restaurant',
+        'phantom-bar',
+        'zeit-caf',
+      ].sort()
+    );
+  });
   it('routes the File Asto article to its restaurant page, the rest to /news', () => {
-    expect(NEWS_REDIRECTS['file-asto-brings-a-taste-of-athens-to-kreuzberg']).toBe('/restaurant/file-asto')
-    expect(NEWS_REDIRECTS['ramen-berlin']).toBe('/news')
-  })
-})
+    expect(NEWS_REDIRECTS['file-asto-brings-a-taste-of-athens-to-kreuzberg']).toBe(
+      '/restaurant/file-asto'
+    );
+    expect(NEWS_REDIRECTS['ramen-berlin']).toBe('/news');
+  });
+});

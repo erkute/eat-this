@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { oldStyleSlug } from './legacySlug'
+import { describe, it, expect } from 'vitest';
+import { oldStyleSlug } from './legacySlug';
 
 describe('oldStyleSlug — reproduces the pre-rebuild slug from a name', () => {
   // name (current Sanity) → the old slug Google still has indexed (from GSC 404 report).
@@ -17,8 +17,8 @@ describe('oldStyleSlug — reproduces the pre-rebuild slug from a name', () => {
     ['Shōdo Udon Lab', 'sh-do-udon-lab'],
     ['Café Botanico', 'caf-botanico'],
   ])('%s → %s', (name, expected) => {
-    expect(oldStyleSlug(name)).toBe(expected)
-  })
+    expect(oldStyleSlug(name)).toBe(expected);
+  });
 
   // German umlauts + Turkish/Polish were ALREADY transliterated by the old
   // builder, so these spots never changed slug — oldStyleSlug must equal the
@@ -28,6 +28,6 @@ describe('oldStyleSlug — reproduces the pre-rebuild slug from a name', () => {
     ['Blomeyers Käse aus Deutschland', 'blomeyers-kaese-aus-deutschland'],
     ['Bursa Uludağ Kebapçısı', 'bursa-uludag-kebapcisi'],
   ])('%s → %s (unchanged)', (name, expected) => {
-    expect(oldStyleSlug(name)).toBe(expected)
-  })
-})
+    expect(oldStyleSlug(name)).toBe(expected);
+  });
+});

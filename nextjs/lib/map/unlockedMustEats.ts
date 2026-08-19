@@ -9,19 +9,19 @@
  *  across the map, the /must-eats gallery, the profile collection and the
  *  /home teaser. */
 export function resolveUnlockedMustEatIds(args: {
-  uid: string | null
-  storedUnlockedIds: Set<string>
-  revealedMustEatIds: Set<string>
+  uid: string | null;
+  storedUnlockedIds: Set<string>;
+  revealedMustEatIds: Set<string>;
   /** The server-computed anon face-up set — "publicly face-up means face-up
    *  everywhere", so it's unioned in for signed-in users too. Ids not present
    *  in the consumer's dataset are inert. Compute it from
    *  `getInitialAnonMapData()`. */
-  publicFaceUpIds?: Set<string>
+  publicFaceUpIds?: Set<string>;
 }): Set<string> {
-  const { uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds } = args
+  const { uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds } = args;
   const out = uid
     ? new Set<string>([...storedUnlockedIds, ...revealedMustEatIds])
-    : new Set<string>(revealedMustEatIds)
-  if (publicFaceUpIds) for (const id of publicFaceUpIds) out.add(id)
-  return out
+    : new Set<string>(revealedMustEatIds);
+  if (publicFaceUpIds) for (const id of publicFaceUpIds) out.add(id);
+  return out;
 }

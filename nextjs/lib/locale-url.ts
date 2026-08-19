@@ -1,4 +1,4 @@
-import { SITE_URL } from './constants'
+import { SITE_URL } from './constants';
 
 /**
  * Builds an absolute URL for a given locale + path.
@@ -10,7 +10,7 @@ import { SITE_URL } from './constants'
  * breadcrumb JSON-LD items pointing at the locale root.
  */
 export function localeUrl(locale: string, path: string): string {
-  const normalized = path === '/' ? '' : path
-  if (locale === 'de') return normalized ? `${SITE_URL}${normalized}` : `${SITE_URL}/`
-  return `${SITE_URL}/${locale}${normalized}`
+  const normalized = path === '/' ? '' : path;
+  if (locale === 'de') return normalized ? `${SITE_URL}${normalized}` : `${SITE_URL}/`;
+  return `${SITE_URL}/${locale}${normalized}`;
 }

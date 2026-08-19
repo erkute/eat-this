@@ -52,11 +52,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     authLoading,
   });
   const unlockedIds = useMemo(
-    () => new Set<string>([
-      ...storedUnlockedIds,
-      ...publicFaceUpIds,
-      ...revealedMustEatIds,
-    ]),
+    () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds, ...revealedMustEatIds]),
     [storedUnlockedIds, publicFaceUpIds, revealedMustEatIds]
   );
   const hasMapData = ownedRestaurants.length > 0 || mustEats.length > 0;
@@ -135,11 +131,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             >
               <p>{mapDataError ? t('dataStale') : t('dataRefreshing')}</p>
               {mapDataError && (
-                <button
-                  type="button"
-                  className={styles.dataNoticeAction}
-                  onClick={refetchMapData}
-                >
+                <button type="button" className={styles.dataNoticeAction} onClick={refetchMapData}>
                   {t('dataRetry')}
                 </button>
               )}

@@ -90,9 +90,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
             >
               <PackArt src={art} />
               <span className={styles.packName}>{p.displayName}</span>
-              <span className={styles.packButton}>
-                {t('packStatusLocked')}
-              </span>
+              <span className={styles.packButton}>{t('packStatusLocked')}</span>
             </Link>
           );
         })}

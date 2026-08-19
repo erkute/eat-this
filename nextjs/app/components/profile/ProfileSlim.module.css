@@ -20,7 +20,10 @@
   --profile-label: var(--et-font-label, var(--font-providence), sans-serif);
   --profile-mono: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   min-height: 100vh;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + clamp(30px, 5vw, 62px)) 0 clamp(56px, 8vw, 104px);
+  padding: calc(
+      72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + clamp(30px, 5vw, 62px)
+    )
+    0 clamp(56px, 8vw, 104px);
   color: var(--profile-ink);
   background: var(--profile-quiet);
   font-family: var(--profile-display);
@@ -603,7 +606,10 @@
   content: '';
   position: absolute;
   inset: 34% 0 0;
-  background: var(--et-home-photo-overlay, linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent));
+  background: var(
+    --et-home-photo-overlay,
+    linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent)
+  );
 }
 
 .spotBody {
@@ -946,5 +952,4 @@
     width: 4px;
     height: 29px;
   }
-
 }

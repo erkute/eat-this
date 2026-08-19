@@ -30,7 +30,12 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
   const english = lang === 'en';
 
   if (lower.includes('standort') || lower.includes('location')) {
-    if (lower.includes('block') || lower.includes('zugriff') || lower.includes('allow') || lower.includes('browser')) {
+    if (
+      lower.includes('block') ||
+      lower.includes('zugriff') ||
+      lower.includes('allow') ||
+      lower.includes('browser')
+    ) {
       return english
         ? {
             tone: 'warning',
@@ -64,7 +69,12 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
         };
   }
 
-  if (lower.includes('gespeichert') || lower.includes('saved') || lower.includes('geherzt') || lower.includes('hearted')) {
+  if (
+    lower.includes('gespeichert') ||
+    lower.includes('saved') ||
+    lower.includes('geherzt') ||
+    lower.includes('hearted')
+  ) {
     return english
       ? {
           tone: 'success',
@@ -80,7 +90,12 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
         };
   }
 
-  if (lower.includes('spot entfernt') || lower.includes('spot removed') || lower.includes('herz entfernt') || lower.includes('heart removed')) {
+  if (
+    lower.includes('spot entfernt') ||
+    lower.includes('spot removed') ||
+    lower.includes('herz entfernt') ||
+    lower.includes('heart removed')
+  ) {
     return english
       ? {
           tone: 'info',
@@ -119,7 +134,7 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
       ? {
           tone: 'info',
           eyebrow: 'Login',
-          title: "Signed out",
+          title: 'Signed out',
           icon: 'check',
         }
       : {
@@ -239,7 +254,9 @@ export default function NotificationToast() {
     try {
       msg = sessionStorage.getItem(TOAST_HANDOFF_KEY);
       if (msg) sessionStorage.removeItem(TOAST_HANDOFF_KEY);
-    } catch { /* private mode */ }
+    } catch {
+      /* private mode */
+    }
     if (!msg) return;
     const t = setTimeout(() => show(msg as string, 3500), 600);
     return () => clearTimeout(t);

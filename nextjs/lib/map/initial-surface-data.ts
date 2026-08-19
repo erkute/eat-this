@@ -1,11 +1,8 @@
-import type { InitialMapData } from './server-initial-map-data'
+import type { InitialMapData } from './server-initial-map-data';
 
-const HOME_MUST_EAT_COUNT = 6
+const HOME_MUST_EAT_COUNT = 6;
 
-export type InitialMustEatsData = Pick<
-  InitialMapData,
-  'mustEats' | 'revealedMustEatIds'
->
+export type InitialMustEatsData = Pick<InitialMapData, 'mustEats' | 'revealedMustEatIds'>;
 
 /**
  * The home client islands share useMapData, but only need the visible
@@ -13,7 +10,7 @@ export type InitialMustEatsData = Pick<
  * Dropping the map-only collections keeps them out of the HTML/RSC payload.
  */
 export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
-  const revealedIds = new Set(data.revealedMustEatIds)
+  const revealedIds = new Set(data.revealedMustEatIds);
 
   return {
     ...data,
@@ -22,15 +19,13 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
     mustEats: data.mustEats
       .filter((mustEat) => revealedIds.has(mustEat._id))
       .slice(0, HOME_MUST_EAT_COUNT),
-  }
+  };
 }
 
 /** The public Must-Eats catalog never reads restaurant or category payloads. */
-export function selectInitialMustEatsData(
-  data: InitialMapData,
-): InitialMustEatsData {
+export function selectInitialMustEatsData(data: InitialMapData): InitialMustEatsData {
   return {
     mustEats: data.mustEats,
     revealedMustEatIds: data.revealedMustEatIds,
-  }
+  };
 }

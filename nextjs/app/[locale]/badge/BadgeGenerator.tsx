@@ -1,20 +1,21 @@
-'use client'
+'use client';
 
-import { useMemo, useState } from 'react'
-import styles from './Badge.module.css'
+import { useMemo, useState } from 'react';
+import styles from './Badge.module.css';
 
-type RestaurantOption = { name: string; slug: string }
+type RestaurantOption = { name: string; slug: string };
 
 interface Props {
-  restaurants: RestaurantOption[]
-  locale: 'de' | 'en'
-  siteUrl: string
+  restaurants: RestaurantOption[];
+  locale: 'de' | 'en';
+  siteUrl: string;
 }
 
 const COPY = {
   de: {
     h1: 'Empfohlen von Eat This',
-    intro: 'Dein Restaurant ist bei Eat This empfohlen. Bau dir das Badge auf deine Website (z. B. Footer oder „Presse") und verlinke deine Eat-This-Seite — ein Vertrauenssignal für deine Gäste.',
+    intro:
+      'Dein Restaurant ist bei Eat This empfohlen. Bau dir das Badge auf deine Website (z. B. Footer oder „Presse") und verlinke deine Eat-This-Seite — ein Vertrauenssignal für deine Gäste.',
     pick: 'Restaurant wählen',
     placeholder: 'Restaurant suchen …',
     notFound: 'Nicht gefunden? Schreib uns.',
@@ -27,7 +28,8 @@ const COPY = {
   },
   en: {
     h1: 'Featured on Eat This',
-    intro: 'Your restaurant is featured on Eat This. Add the badge to your website (footer or a “Press” section) and link your Eat This page — a trust signal for your guests.',
+    intro:
+      'Your restaurant is featured on Eat This. Add the badge to your website (footer or a “Press” section) and link your Eat This page — a trust signal for your guests.',
     pick: 'Choose restaurant',
     placeholder: 'Search restaurant …',
     notFound: 'Not listed? Get in touch.',
@@ -38,36 +40,36 @@ const COPY = {
     hint: 'Paste the code wherever you want it on your site. Done.',
     alt: 'Featured on Eat This',
   },
-} as const
+} as const;
 
 export default function BadgeGenerator({ restaurants, locale, siteUrl }: Props) {
-  const t = COPY[locale]
-  const [query, setQuery] = useState('')
-  const [copied, setCopied] = useState(false)
+  const t = COPY[locale];
+  const [query, setQuery] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const selected = useMemo(
-    () => restaurants.find(r => r.name === query) ?? null,
-    [restaurants, query],
-  )
+    () => restaurants.find((r) => r.name === query) ?? null,
+    [restaurants, query]
+  );
 
-  const langQuery = locale === 'en' ? '?lang=en' : ''
+  const langQuery = locale === 'en' ? '?lang=en' : '';
   // Preview loads from the current host (works locally AND in prod); the copy
   // snippet must be the absolute prod URL, since restaurants embed it elsewhere.
-  const previewSrc = `/api/og/badge${langQuery}`
-  const snippetSrc = `${siteUrl}/api/og/badge${langQuery}`
-  const pageBase = locale === 'en' ? `${siteUrl}/en` : siteUrl
-  const linkHref = selected ? `${pageBase}/restaurant/${selected.slug}` : ''
+  const previewSrc = `/api/og/badge${langQuery}`;
+  const snippetSrc = `${siteUrl}/api/og/badge${langQuery}`;
+  const pageBase = locale === 'en' ? `${siteUrl}/en` : siteUrl;
+  const linkHref = selected ? `${pageBase}/restaurant/${selected.slug}` : '';
 
   const snippet = selected
     ? `<a href="${linkHref}" target="_blank" rel="noopener">\n  <img src="${snippetSrc}" alt="${t.alt}" width="270" height="85" loading="lazy" style="border:0" />\n</a>`
-    : ''
+    : '';
 
   async function copy() {
-    if (!snippet) return
+    if (!snippet) return;
     try {
-      await navigator.clipboard.writeText(snippet)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(snippet);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       /* clipboard blocked — user can still select the textarea manually */
     }
@@ -87,11 +89,11 @@ export default function BadgeGenerator({ restaurants, locale, siteUrl }: Props) 
         list="restaurant-options"
         placeholder={t.placeholder}
         value={query}
-        onChange={e => setQuery(e.target.value)}
+        onChange={(e) => setQuery(e.target.value)}
         autoComplete="off"
       />
       <datalist id="restaurant-options">
-        {restaurants.map(r => (
+        {restaurants.map((r) => (
           <option key={r.slug} value={r.name} />
         ))}
       </datalist>
@@ -117,5 +119,5 @@ export default function BadgeGenerator({ restaurants, locale, siteUrl }: Props) 
         </>
       )}
     </main>
-  )
+  );
 }

@@ -6,31 +6,31 @@
 // a replacement — searchSpots still filters; the semantic scores reorder. On any
 // failure (no key, 429, missing index) it returns null and the caller falls back
 // to keyword order unchanged.
-import { embed, cosine } from './voyage'
+import { embed, cosine } from './voyage';
 
 interface EmbeddingsFile {
-  model: string
-  dim: number
-  count: number
-  vectors: Record<string, number[]>
+  model: string;
+  dim: number;
+  count: number;
+  vectors: Record<string, number[]>;
 }
 
-let indexPromise: Promise<EmbeddingsFile | null> | null = null
+let indexPromise: Promise<EmbeddingsFile | null> | null = null;
 
 interface SemanticScore {
-  slug: string
-  score: number
+  slug: string;
+  score: number;
 }
 
 /** True when an embeddings index is present (build-time asset was generated). */
 async function getSemanticIndex(): Promise<EmbeddingsFile | null> {
   indexPromise ??= import('./restaurant-embeddings.json')
     .then((mod) => {
-      const index = mod.default as EmbeddingsFile
-      return index?.vectors && Object.keys(index.vectors).length > 0 ? index : null
+      const index = mod.default as EmbeddingsFile;
+      return index?.vectors && Object.keys(index.vectors).length > 0 ? index : null;
     })
-    .catch(() => null)
-  return indexPromise
+    .catch(() => null);
+  return indexPromise;
 }
 
 /**
@@ -39,23 +39,23 @@ async function getSemanticIndex(): Promise<EmbeddingsFile | null> {
  * the caller keeps the keyword ordering.
  */
 export async function semanticRank(query: string): Promise<SemanticScore[] | null> {
-  const q = query.trim()
-  if (q.length < 3 || !process.env.VOYAGE_API_KEY) return null
-  const index = await getSemanticIndex()
-  if (!index) return null
-  let qvec: number[]
+  const q = query.trim();
+  if (q.length < 3 || !process.env.VOYAGE_API_KEY) return null;
+  const index = await getSemanticIndex();
+  if (!index) return null;
+  let qvec: number[];
   try {
-    ;[qvec] = await embed([q], 'query')
+    [qvec] = await embed([q], 'query');
   } catch {
-    return null // 429 / network / key issue → caller falls back to keyword order
+    return null; // 429 / network / key issue → caller falls back to keyword order
   }
-  if (!qvec) return null
+  if (!qvec) return null;
   const scores = Object.entries(index.vectors).map(([slug, vec]) => ({
     slug,
     score: cosine(qvec, vec),
-  }))
-  scores.sort((a, b) => b.score - a.score)
-  return scores
+  }));
+  scores.sort((a, b) => b.score - a.score);
+  return scores;
 }
 
 /**
@@ -65,14 +65,14 @@ export async function semanticRank(query: string): Promise<SemanticScore[] | nul
  */
 export function applySemanticOrder<T extends { slug?: string }>(
   candidates: T[],
-  semantic: SemanticScore[] | null,
+  semantic: SemanticScore[] | null
 ): T[] {
-  if (!semantic) return candidates
-  const rank = new Map(semantic.map((s, i) => [s.slug, i]))
+  if (!semantic) return candidates;
+  const rank = new Map(semantic.map((s, i) => [s.slug, i]));
   // Stable sort: items with a semantic rank come first (by rank); the rest keep
   // their original order behind them.
   return candidates
     .map((c, i) => ({ c, i, r: c.slug != null && rank.has(c.slug) ? rank.get(c.slug)! : Infinity }))
-    .sort((a, b) => (a.r - b.r) || (a.i - b.i))
-    .map((x) => x.c)
+    .sort((a, b) => a.r - b.r || a.i - b.i)
+    .map((x) => x.c);
 }

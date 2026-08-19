@@ -38,8 +38,8 @@ function loadFonts() {
 let logoPromise: Promise<string> | null = null;
 function loadLogo() {
   logoPromise ??= readFile(
-    join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png'),
-  ).then(buf => `data:image/png;base64,${buf.toString('base64')}`);
+    join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png')
+  ).then((buf) => `data:image/png;base64,${buf.toString('base64')}`);
   return logoPromise;
 }
 
@@ -70,89 +70,94 @@ export async function GET(request: Request) {
   const nameSize = r.name.length > 26 ? 72 : r.name.length > 18 ? 90 : 108;
 
   const png = new ImageResponse(
-    (
-      <div
-        style={{
-          display: 'flex',
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          backgroundColor: '#1a1815',
-          fontFamily: 'Saira Condensed',
-        }}
-      >
-        {bg && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={bg}
-            width={WIDTH}
-            height={HEIGHT}
-            style={{ position: 'absolute', top: 0, left: 0, width: WIDTH, height: HEIGHT, objectFit: 'cover' }}
-            alt=""
-          />
-        )}
-        {/* Scrim for legibility — darkens the lower half, leaves the top photo clear. */}
-        <div
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        backgroundColor: '#1a1815',
+        fontFamily: 'Saira Condensed',
+      }}
+    >
+      {bg && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={bg}
+          width={WIDTH}
+          height={HEIGHT}
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
             width: WIDTH,
             height: HEIGHT,
-            display: 'flex',
-            backgroundImage:
-              'linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.40) 40%, rgba(0,0,0,0) 68%)',
+            objectFit: 'cover',
           }}
-        />
-        {/* Brand wordmark — the actual Eat This logo, top-left. Its built-in
-            black outline keeps it legible over the (un-scrimmed) top of the photo. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={logo}
-          width={216}
-          height={86}
-          style={{ position: 'absolute', top: 44, left: 50 }}
           alt=""
         />
-        {/* Content — cuisine/district eyebrow + restaurant name, bottom-left. */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 52,
-            right: 52,
-            bottom: 52,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {metaLine && (
-            <div
-              style={{
-                display: 'flex',
-                color: '#ffd84a',
-                fontSize: 34,
-                letterSpacing: 4,
-                textTransform: 'uppercase',
-                marginBottom: 12,
-              }}
-            >
-              {metaLine}
-            </div>
-          )}
+      )}
+      {/* Scrim for legibility — darkens the lower half, leaves the top photo clear. */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: WIDTH,
+          height: HEIGHT,
+          display: 'flex',
+          backgroundImage:
+            'linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.40) 40%, rgba(0,0,0,0) 68%)',
+        }}
+      />
+      {/* Brand wordmark — the actual Eat This logo, top-left. Its built-in
+            black outline keeps it legible over the (un-scrimmed) top of the photo. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={logo}
+        width={216}
+        height={86}
+        style={{ position: 'absolute', top: 44, left: 50 }}
+        alt=""
+      />
+      {/* Content — cuisine/district eyebrow + restaurant name, bottom-left. */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 52,
+          right: 52,
+          bottom: 52,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {metaLine && (
           <div
             style={{
               display: 'flex',
-              color: '#ffffff',
-              fontSize: nameSize,
-              lineHeight: 1,
+              color: '#ffd84a',
+              fontSize: 34,
+              letterSpacing: 4,
               textTransform: 'uppercase',
+              marginBottom: 12,
             }}
           >
-            {r.name}
+            {metaLine}
           </div>
+        )}
+        <div
+          style={{
+            display: 'flex',
+            color: '#ffffff',
+            fontSize: nameSize,
+            lineHeight: 1,
+            textTransform: 'uppercase',
+          }}
+        >
+          {r.name}
         </div>
       </div>
-    ),
+    </div>,
     {
       width: WIDTH,
       height: HEIGHT,
@@ -160,7 +165,7 @@ export async function GET(request: Request) {
         { name: 'Saira Condensed', data: saira, weight: 800, style: 'normal' },
         { name: 'Schoolbell', data: schoolbell, weight: 400, style: 'normal' },
       ],
-    },
+    }
   );
 
   // ImageResponse only emits PNG (~1 MB for a photo-dominated card). The

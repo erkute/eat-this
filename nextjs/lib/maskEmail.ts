@@ -6,10 +6,10 @@
 // signal without echoing recoverable PII:
 // `dirtyersan@gmail.com` → `di•••@gmail.com`.
 export function maskEmail(email: string): string {
-  const at = email.indexOf('@')
-  if (at <= 0) return '•••'
-  const local = email.slice(0, at)
-  const domain = email.slice(at)
-  const keep = local.length > 2 ? 2 : 1
-  return `${local.slice(0, keep)}•••${domain}`
+  const at = email.indexOf('@');
+  if (at <= 0) return '•••';
+  const local = email.slice(0, at);
+  const domain = email.slice(at);
+  const keep = local.length > 2 ? 2 : 1;
+  return `${local.slice(0, keep)}•••${domain}`;
 }

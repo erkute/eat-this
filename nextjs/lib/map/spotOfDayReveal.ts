@@ -1,10 +1,10 @@
-import type { MapRestaurant, MapMustEat } from '@/lib/types'
+import type { MapRestaurant, MapMustEat } from '@/lib/types';
 
 interface MapSlice {
-  restaurants: MapRestaurant[]
-  lockedRestaurants: MapRestaurant[]
-  mustEats: MapMustEat[]
-  revealedMustEatIds: Set<string>
+  restaurants: MapRestaurant[];
+  lockedRestaurants: MapRestaurant[];
+  mustEats: MapMustEat[];
+  revealedMustEatIds: Set<string>;
 }
 
 /**
@@ -24,30 +24,30 @@ export function applySpotOfDayReveal(
   spotId: string | null,
   allRestaurants: MapRestaurant[],
   allMustEats: MapMustEat[],
-  slice: MapSlice,
+  slice: MapSlice
 ): MapSlice {
-  if (!spotId) return slice
+  if (!spotId) return slice;
 
   // The spot of the day is ALWAYS surfaced (visible + openable), even if it has
   // no must-eat — "it's shown regardless". When it does have a must-eat, that
   // must-eat is additionally revealed face-up.
-  const spotMustEats = allMustEats.filter((m) => m.restaurant._id === spotId)
+  const spotMustEats = allMustEats.filter((m) => m.restaurant._id === spotId);
 
-  let { restaurants, lockedRestaurants } = slice
+  let { restaurants, lockedRestaurants } = slice;
   if (!restaurants.some((r) => r._id === spotId)) {
-    const spot = allRestaurants.find((r) => r._id === spotId)
+    const spot = allRestaurants.find((r) => r._id === spotId);
     if (spot) {
-      restaurants = [spot, ...restaurants]
-      lockedRestaurants = lockedRestaurants.filter((r) => r._id !== spotId)
+      restaurants = [spot, ...restaurants];
+      lockedRestaurants = lockedRestaurants.filter((r) => r._id !== spotId);
     }
   }
 
-  const haveMustEat = new Set(slice.mustEats.map((m) => m._id))
-  const missing = spotMustEats.filter((m) => !haveMustEat.has(m._id))
-  const mustEats = missing.length ? [...slice.mustEats, ...missing] : slice.mustEats
+  const haveMustEat = new Set(slice.mustEats.map((m) => m._id));
+  const missing = spotMustEats.filter((m) => !haveMustEat.has(m._id));
+  const mustEats = missing.length ? [...slice.mustEats, ...missing] : slice.mustEats;
 
-  const revealedMustEatIds = new Set(slice.revealedMustEatIds)
-  for (const m of spotMustEats) revealedMustEatIds.add(m._id)
+  const revealedMustEatIds = new Set(slice.revealedMustEatIds);
+  for (const m of spotMustEats) revealedMustEatIds.add(m._id);
 
-  return { restaurants, lockedRestaurants, mustEats, revealedMustEatIds }
+  return { restaurants, lockedRestaurants, mustEats, revealedMustEatIds };
 }

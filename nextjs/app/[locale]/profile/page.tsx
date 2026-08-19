@@ -34,7 +34,7 @@ export default async function ProfileRoute({ params }: PageProps) {
       uid: null,
       storedUnlockedIds: new Set(),
       revealedMustEatIds: new Set(anon.revealedMustEatIds),
-    }),
+    })
   );
   return (
     <ProfileAuthGuard>

@@ -1,14 +1,15 @@
 .page {
   --packs-paper: var(--et-home-paper, #fff);
   --packs-ink: var(--et-home-ink, #15120e);
-  --packs-muted: var(--et-home-muted, rgba(21, 18, 14, .64));
-  --packs-line: var(--et-home-line, rgba(21, 18, 14, .18));
+  --packs-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --packs-line: var(--et-home-line, rgba(21, 18, 14, 0.18));
   --packs-quiet: var(--et-home-quiet, #f2f1ef);
   --packs-accent: var(--et-home-accent, #ffc600);
   --packs-red: var(--et-home-red, #d9382a);
   min-height: 100%;
   overflow-x: clip;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(24px, 4vw, 52px)) 0 clamp(64px, 8vw, 120px);
+  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(24px, 4vw, 52px)) 0
+    clamp(64px, 8vw, 120px);
   background: var(--packs-paper);
   color: var(--packs-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -22,7 +23,7 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, .9fr) minmax(320px, .82fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.82fr);
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
   padding-bottom: clamp(36px, 6vw, 78px);
@@ -39,8 +40,8 @@
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(58px, 7.5vw, 100px);
   font-weight: 700;
-  letter-spacing: -.025em;
-  line-height: .84;
+  letter-spacing: -0.025em;
+  line-height: 0.84;
   text-transform: uppercase;
 }
 
@@ -106,7 +107,9 @@
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
   cursor: pointer;
-  transition: transform var(--et-motion-fast, 140ms ease), background-color var(--et-motion-fast, 140ms ease);
+  transition:
+    transform var(--et-motion-fast, 140ms ease),
+    background-color var(--et-motion-fast, 140ms ease);
 }
 
 .buyButton:hover,
@@ -124,7 +127,7 @@
   padding: 0 18px 0 22px;
   color: var(--packs-ink);
   font-size: clamp(16px, 1.4vw, 19px);
-  line-height: .95;
+  line-height: 0.95;
   background: var(--packs-accent);
 }
 
@@ -168,7 +171,9 @@
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: color var(--et-motion-fast, 140ms ease), transform var(--et-motion-fast, 140ms ease);
+  transition:
+    color var(--et-motion-fast, 140ms ease),
+    transform var(--et-motion-fast, 140ms ease);
 }
 
 .heroDetailLink:hover,
@@ -197,7 +202,7 @@
   width: 44px;
   height: auto;
   border-radius: 4px;
-  box-shadow: 0 1px 0 rgba(21, 18, 14, .08);
+  box-shadow: 0 1px 0 rgba(21, 18, 14, 0.08);
 }
 
 .heroStage {
@@ -212,7 +217,7 @@
   position: absolute;
   width: clamp(124px, 13vw, 190px);
   height: auto;
-  filter: drop-shadow(0 20px 28px rgba(21, 18, 14, .2));
+  filter: drop-shadow(0 20px 28px rgba(21, 18, 14, 0.2));
   transform-origin: 50% 92%;
 }
 
@@ -285,7 +290,7 @@
 
 .catalogHead {
   display: grid;
-  grid-template-columns: minmax(0, .8fr) minmax(280px, .62fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(280px, 0.62fr);
   gap: clamp(20px, 5vw, 64px);
   align-items: flex-end;
   margin-bottom: clamp(22px, 4vw, 42px);
@@ -297,8 +302,8 @@
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: var(--et-type-hero-compact, clamp(42px, 6vw, 68px));
   font-weight: 700;
-  letter-spacing: -.025em;
-  line-height: .9;
+  letter-spacing: -0.025em;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
@@ -335,8 +340,8 @@
   display: block;
   width: min(72%, 210px);
   height: auto;
-  filter: drop-shadow(0 12px 18px rgba(21, 18, 14, .18));
-  transition: transform .18s cubic-bezier(.22, 1, .36, 1);
+  filter: drop-shadow(0 12px 18px rgba(21, 18, 14, 0.18));
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .packArtLink:hover .packArt,
@@ -366,7 +371,7 @@
   font-size: clamp(27px, 3.2vw, 42px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: .9;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
@@ -423,7 +428,9 @@
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: color var(--et-motion-fast, 140ms ease), transform var(--et-motion-fast, 140ms ease);
+  transition:
+    color var(--et-motion-fast, 140ms ease),
+    transform var(--et-motion-fast, 140ms ease);
 }
 
 .detailLink:hover,

@@ -168,13 +168,13 @@
     display: block;
     background: #15120e;
     pointer-events: none;
-    transition: transform 260ms cubic-bezier(.2, .8, .2, 1);
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .nav:not([data-nav-page='map']) > * {
     position: relative;
     z-index: 1;
-    transition: transform 260ms cubic-bezier(.2, .8, .2, 1);
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .nav[data-visibility='hidden']:not([data-nav-page='map']) {

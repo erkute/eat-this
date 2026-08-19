@@ -28,8 +28,20 @@ export default function NotFound() {
     <html lang="de" className={dmSans.variable}>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
-        <link rel="preload" href={PROVIDENCE_REGULAR_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href={PROVIDENCE_BOLD_WOFF2} as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link
+          rel="preload"
+          href={PROVIDENCE_REGULAR_WOFF2}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href={PROVIDENCE_BOLD_WOFF2}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
       </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#fff' }}>

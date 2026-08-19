@@ -243,7 +243,7 @@ export default function RestaurantDetail({
             credit: r.photoCredit,
             creditUrl: r.photoCreditUrl,
           }
-        : null,
+        : null
     );
     detail.gallery?.forEach(add);
     return images;
@@ -323,15 +323,21 @@ export default function RestaurantDetail({
   };
 
   const heroCredit = r.photo ? r.photoCredit?.trim() : undefined;
-  const heroStyle = r.photo && heroCredit
-    ? ({
-        '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
-        backgroundImage: `url(${r.photo})`,
-      } as CSSProperties)
-    : undefined;
+  const heroStyle =
+    r.photo && heroCredit
+      ? ({
+          '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
+          backgroundImage: `url(${r.photo})`,
+        } as CSSProperties)
+      : undefined;
 
   return (
-    <div className={styles.detailV13} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
+    <div
+      className={styles.detailV13}
+      data-detail-root="restaurant"
+      role="dialog"
+      aria-label={r.name}
+    >
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle} ref={heroRef}>
@@ -385,7 +391,9 @@ export default function RestaurantDetail({
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
               {hasHours && (
-                <span className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}>
+                <span
+                  className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}
+                >
                   {openTag}
                 </span>
               )}

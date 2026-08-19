@@ -99,7 +99,9 @@
   letter-spacing: -0.005em;
   text-decoration: none;
   box-shadow: var(--et-shadow-none);
-  transition: background-color var(--conversion-motion), transform var(--conversion-motion);
+  transition:
+    background-color var(--conversion-motion),
+    transform var(--conversion-motion);
 }
 .cta:hover {
   background: var(--conversion-action-strong);

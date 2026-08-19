@@ -6,10 +6,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
 import { isStaging } from '@/lib/env';
-import {
-  assertFirebaseProjectBoundary,
-  PRODUCTION_FIREBASE_PROJECT_ID,
-} from './project-boundary'
+import { assertFirebaseProjectBoundary, PRODUCTION_FIREBASE_PROJECT_ID } from './project-boundary';
 
 // authDomain: on production the auth helper (/__/auth/*) is reverse-proxied
 // through our own domain (see rewrites() in next.config.ts), so the popup is
@@ -29,12 +26,12 @@ const authDomain =
     : 'eat-this-8a13b.firebaseapp.com';
 
 const productionFirebaseConfig = {
-  apiKey:            'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
+  apiKey: 'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
   authDomain,
-  projectId:         PRODUCTION_FIREBASE_PROJECT_ID,
-  storageBucket:     'eat-this-8a13b.firebasestorage.app',
+  projectId: PRODUCTION_FIREBASE_PROJECT_ID,
+  storageBucket: 'eat-this-8a13b.firebasestorage.app',
   messagingSenderId: '768781457409',
-  appId:             '1:768781457409:web:607ff46bfa4599d6b08800',
+  appId: '1:768781457409:web:607ff46bfa4599d6b08800',
 };
 
 const explicitFirebaseValues = [
@@ -44,12 +41,12 @@ const explicitFirebaseValues = [
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-]
-const hasAnyExplicitFirebaseValue = explicitFirebaseValues.some(Boolean)
-const hasAllExplicitFirebaseValues = explicitFirebaseValues.every(Boolean)
+];
+const hasAnyExplicitFirebaseValue = explicitFirebaseValues.some(Boolean);
+const hasAllExplicitFirebaseValues = explicitFirebaseValues.every(Boolean);
 
 if (hasAnyExplicitFirebaseValue && !hasAllExplicitFirebaseValues) {
-  throw new Error('Incomplete NEXT_PUBLIC_FIREBASE_* configuration')
+  throw new Error('Incomplete NEXT_PUBLIC_FIREBASE_* configuration');
 }
 
 const explicitFirebaseConfig = hasAllExplicitFirebaseValues
@@ -67,22 +64,23 @@ const explicitFirebaseConfig = hasAllExplicitFirebaseValues
 // App Hosting auto-populates no-argument Firebase JS initialization for its
 // associated web app. Staging deliberately uses that project-local config;
 // falling back to production there would silently reconnect Auth/Firestore.
-const app = getApps().length > 0
-  ? getApps()[0]
-  : explicitFirebaseConfig
-    ? initializeApp(explicitFirebaseConfig)
-    : isStaging
-      ? initializeApp()
-      : initializeApp(productionFirebaseConfig);
+const app =
+  getApps().length > 0
+    ? getApps()[0]
+    : explicitFirebaseConfig
+      ? initializeApp(explicitFirebaseConfig)
+      : isStaging
+        ? initializeApp()
+        : initializeApp(productionFirebaseConfig);
 
 assertFirebaseProjectBoundary({
   actualProjectId: app.options.projectId,
   expectedProjectId: process.env.NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID,
   staging: isStaging,
   surface: 'client',
-})
+});
 
-export const auth        = getAuth(app);
+export const auth = getAuth(app);
 
 // Lazy Firestore. A static `getFirestore(app)` pulls the ~85 KB gzip
 // firebase/firestore SDK into every route's first-load via the global

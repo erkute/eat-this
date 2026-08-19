@@ -525,31 +525,23 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 1023.98px) {
   [data-active-page='map'] .app-pages {
     margin-top: 0;
-    height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 
   .app-page[data-page='map'] {
-    height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 }
 
 @media (max-width: 767.98px) {
   [data-active-page='map'] .app-pages {
     height: auto;
-    min-height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    min-height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 
   .app-page[data-page='map'] {
     height: auto;
-    min-height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    min-height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
     z-index: 9990;
     overflow: visible;
   }

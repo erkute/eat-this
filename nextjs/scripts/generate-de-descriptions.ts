@@ -14,32 +14,32 @@
  *   SANITY_API_WRITE_TOKEN  (Editor role)
  *   GOOGLE_API_KEY          (Places API v1 enabled)
  */
-import { config as loadEnv } from 'dotenv'
-import { createClient } from '@sanity/client'
-import Anthropic from '@anthropic-ai/sdk'
-import { extractJsonObjectTextFromBlocks } from './lib/extract-json'
+import { config as loadEnv } from 'dotenv';
+import { createClient } from '@sanity/client';
+import Anthropic from '@anthropic-ai/sdk';
+import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 
-loadEnv({ path: '.env.local' })
+loadEnv({ path: '.env.local' });
 
-const SANITY_PROJECT_ID = 'ehwjnjr2'
-const SANITY_DATASET = 'production'
-const SANITY_API_VERSION = '2024-01-01'
-const TRANSLATION_MODEL = 'claude-sonnet-4-6'
+const SANITY_PROJECT_ID = 'ehwjnjr2';
+const SANITY_DATASET = 'production';
+const SANITY_API_VERSION = '2024-01-01';
+const TRANSLATION_MODEL = 'claude-sonnet-4-6';
 
-type DocType = 'restaurant' | 'bezirk'
+type DocType = 'restaurant' | 'bezirk';
 
 interface CliOptions {
-  type: DocType | 'all'
-  limit: number | null
-  dryRun: boolean
-  includeShortDesc: boolean
-  includeTip: boolean
-  draftsOnly: boolean
-  force: boolean
+  type: DocType | 'all';
+  limit: number | null;
+  dryRun: boolean;
+  includeShortDesc: boolean;
+  includeTip: boolean;
+  draftsOnly: boolean;
+  force: boolean;
 }
 
 function parseArgs(): CliOptions {
-  const args = process.argv.slice(2)
+  const args = process.argv.slice(2);
   const opts: CliOptions = {
     type: 'all',
     limit: null,
@@ -48,29 +48,29 @@ function parseArgs(): CliOptions {
     includeTip: true,
     draftsOnly: false,
     force: false,
-  }
+  };
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-    if (arg === '--dry-run') opts.dryRun = true
-    else if (arg === '--drafts-only') opts.draftsOnly = true
-    else if (arg === '--force') opts.force = true
-    else if (arg === '--no-shortdesc') opts.includeShortDesc = false
-    else if (arg === '--no-tip') opts.includeTip = false
-    else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
+    const arg = args[i];
+    if (arg === '--dry-run') opts.dryRun = true;
+    else if (arg === '--drafts-only') opts.draftsOnly = true;
+    else if (arg === '--force') opts.force = true;
+    else if (arg === '--no-shortdesc') opts.includeShortDesc = false;
+    else if (arg === '--no-tip') opts.includeTip = false;
+    else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10);
     else if (arg === '--type') {
-      const v = args[++i]
+      const v = args[++i];
       if (v !== 'restaurant' && v !== 'bezirk' && v !== 'all') {
-        throw new Error(`--type must be restaurant|bezirk|all, got "${v}"`)
+        throw new Error(`--type must be restaurant|bezirk|all, got "${v}"`);
       }
-      opts.type = v
+      opts.type = v;
     } else {
-      throw new Error(`Unknown arg: ${arg}`)
+      throw new Error(`Unknown arg: ${arg}`);
     }
   }
   if (opts.limit !== null && (Number.isNaN(opts.limit) || opts.limit < 1)) {
-    throw new Error(`--limit must be a positive integer`)
+    throw new Error(`--limit must be a positive integer`);
   }
-  return opts
+  return opts;
 }
 
 // Lazy env reads — Next.js loads this module at build time (page-data
@@ -83,43 +83,43 @@ const sanity = createClient({
   apiVersion: SANITY_API_VERSION,
   token: process.env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
-})
+});
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? '' })
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY ?? ''
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? '' });
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY ?? '';
 
 export interface RestaurantSource {
-  _id: string
-  name: string
-  description?: string
-  shortDescription?: string
-  tip?: string
-  cuisineType?: string
-  district?: string
-  address?: string
-  categories?: string[]
-  priceRange?: { min?: number; max?: number; currency?: string }
-  lat: number
-  lng: number
-  website?: string
+  _id: string;
+  name: string;
+  description?: string;
+  shortDescription?: string;
+  tip?: string;
+  cuisineType?: string;
+  district?: string;
+  address?: string;
+  categories?: string[];
+  priceRange?: { min?: number; max?: number; currency?: string };
+  lat: number;
+  lng: number;
+  website?: string;
 }
 
 /** Cheap derivation of a €/€€/€€€/€€€€ symbol from the Places price range,
  *  matching the buckets the prompts learned to read. Falls back to null when
  *  no min is present. */
 function priceSymbolFromRange(pr?: { min?: number }): string | null {
-  const min = pr?.min
-  if (min == null || Number.isNaN(min)) return null
-  if (min < 10) return '€'
-  if (min < 25) return '€€'
-  if (min < 50) return '€€€'
-  return '€€€€'
+  const min = pr?.min;
+  if (min == null || Number.isNaN(min)) return null;
+  if (min < 10) return '€';
+  if (min < 25) return '€€';
+  if (min < 50) return '€€€';
+  return '€€€€';
 }
 
 interface BezirkSource {
-  _id: string
-  name: string
-  description?: string
+  _id: string;
+  name: string;
+  description?: string;
 }
 
 // Project all fields with {...} wildcard. The script needs the full doc to clone
@@ -131,55 +131,61 @@ interface BezirkSource {
 // only if neither the published doc NOR its draft already has a description.
 // Without the draft check, re-runs would re-translate every restaurant whose
 // description lives only in the draft (because publish hasn't happened yet).
-async function fetchRestaurants(opts: { draftsOnly: boolean; force: boolean }): Promise<RestaurantSource[]> {
-  const descClause = opts.force ? '' : ' && !defined(description)'
+async function fetchRestaurants(opts: {
+  draftsOnly: boolean;
+  force: boolean;
+}): Promise<RestaurantSource[]> {
+  const descClause = opts.force ? '' : ' && !defined(description)';
   if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "restaurant" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`,
-    )
+      `*[_type == "restaurant" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`
+    );
   }
   // Non-drafts mode: in force-regen we want EVERY published restaurant; in
   // normal mode we still skip ones whose draft already has a description
   // (live-doc empty but draft staged).
   if (opts.force) {
     return sanity.fetch(
-      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
-    )
+      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`
+    );
   }
   return sanity.fetch(
     `*[_type == "restaurant" && !(_id in path("drafts.**"))
         && !defined(description)
-        && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`,
-  )
+        && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`
+  );
 }
 
-async function fetchBezirke(opts: { draftsOnly: boolean; force: boolean }): Promise<BezirkSource[]> {
-  const descClause = opts.force ? '' : ' && !defined(description)'
+async function fetchBezirke(opts: {
+  draftsOnly: boolean;
+  force: boolean;
+}): Promise<BezirkSource[]> {
+  const descClause = opts.force ? '' : ' && !defined(description)';
   if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "bezirk" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`,
-    )
+      `*[_type == "bezirk" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`
+    );
   }
   if (opts.force) {
     return sanity.fetch(
-      `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
-    )
+      `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...} | order(name asc)`
+    );
   }
   return sanity.fetch(
     `*[_type == "bezirk" && !(_id in path("drafts.**"))
         && !defined(description)
-        && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`,
-  )
+        && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`
+  );
 }
 
 export interface PlaceContext {
-  formattedAddress?: string
-  websiteUri?: string
-  rating?: number
-  userRatingCount?: number
-  priceLevel?: string
-  editorialSummary?: string
-  types?: string[]
+  formattedAddress?: string;
+  websiteUri?: string;
+  rating?: number;
+  userRatingCount?: number;
+  priceLevel?: string;
+  editorialSummary?: string;
+  types?: string[];
 }
 
 export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceContext | null> {
@@ -211,14 +217,14 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
         circle: { center: { latitude: r.lat, longitude: r.lng }, radius: 300 },
       },
     }),
-  })
+  });
   if (!res.ok) {
-    console.warn(`      Places ${res.status}: ${await res.text()}`)
-    return null
+    console.warn(`      Places ${res.status}: ${await res.text()}`);
+    return null;
   }
-  const data = (await res.json()) as { places?: Array<Record<string, unknown>> }
-  const place = data.places?.[0]
-  if (!place) return null
+  const data = (await res.json()) as { places?: Array<Record<string, unknown>> };
+  const place = data.places?.[0];
+  if (!place) return null;
 
   return {
     formattedAddress: place.formattedAddress as string | undefined,
@@ -228,7 +234,7 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
     priceLevel: place.priceLevel as string | undefined,
     editorialSummary: (place.editorialSummary as { text?: string } | undefined)?.text,
     types: place.types as string[] | undefined,
-  }
+  };
 }
 
 const RESTAURANT_PROMPT = `Du schreibst Restaurant-Beschreibungen auf Deutsch für "Eat This Berlin", einen kuratierten Berliner Food-Guide.
@@ -326,7 +332,7 @@ Gib NUR ein JSON-Objekt zurück (kein Prosa, kein Markdown-Fence):
   "description": string,
   "shortDescription": string | null,
   "tip": string | null
-}`
+}`;
 
 const BEZIRK_PROMPT = `Du schreibst Bezirks-Beschreibungen auf Deutsch für "Eat This Berlin", einen kuratierten Berliner Food-Guide.
 
@@ -339,12 +345,12 @@ LÄNGEN-BUDGET: 200-300 Zeichen, zwei bis drei Sätze.
 Gib NUR ein JSON-Objekt zurück:
 {
   "description": string
-}`
+}`;
 
 export interface RestaurantGen {
-  description: string
-  shortDescription: string | null
-  tip: string | null
+  description: string;
+  shortDescription: string | null;
+  tip: string | null;
 }
 
 // Last-resort filters: even with the strengthened prompt the model occasionally
@@ -374,22 +380,22 @@ const BANNED_PATTERNS: RegExp[] = [
   /\bInsider-Adresse\b/i,
   /\bPflichtbesuch\b/i,
   /\bhidden gem\b/i,
-]
+];
 
 function findBannedPhrase(text: string): string | null {
   for (const re of BANNED_PATTERNS) {
-    const m = text.match(re)
-    if (m) return m[0]
+    const m = text.match(re);
+    if (m) return m[0];
   }
-  return null
+  return null;
 }
 
 interface BezirkGen {
-  description: string
+  description: string;
 }
 
 function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
-  return extractJsonObjectTextFromBlocks(content, docId)
+  return extractJsonObjectTextFromBlocks(content, docId);
 }
 
 // Curated, editorial Berlin food sources the model may research for grounding
@@ -406,7 +412,7 @@ const RESEARCH_DOMAINS = [
   'falstaff.de',
   'bonjour-berlin.de',
   'theberliner.com',
-]
+];
 
 // Server tool — Anthropic runs the search on its infra and returns results
 // inline. `allowed_domains` hard-bounds it to RESEARCH_DOMAINS; `max_uses` caps
@@ -419,9 +425,12 @@ const RESEARCH_TOOLS = [
     allowed_domains: RESEARCH_DOMAINS,
     max_uses: 5,
   },
-] as unknown as Anthropic.Messages.ToolUnion[]
+] as unknown as Anthropic.Messages.ToolUnion[];
 
-export async function generateRestaurant(r: RestaurantSource, places: PlaceContext | null): Promise<RestaurantGen> {
+export async function generateRestaurant(
+  r: RestaurantSource,
+  places: PlaceContext | null
+): Promise<RestaurantGen> {
   const sanityFacts = {
     name: r.name,
     cuisineType: r.cuisineType ?? null,
@@ -432,7 +441,7 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
     website: r.website ?? null,
     existingShortDescription: r.shortDescription ?? null,
     existingTip: r.tip ?? null,
-  }
+  };
   // Note: Google user reviews intentionally excluded — they're third-party
   // voices and would undermine the "personally visited & curated" promise.
   const placesFacts = places
@@ -442,173 +451,188 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
         priceLevel: places.priceLevel ?? null,
         types: places.types ?? [],
       }
-    : { note: 'No Google Places match found — derive description only from Sanity facts.' }
+    : { note: 'No Google Places match found — derive description only from Sanity facts.' };
 
-  const userMsg = `SANITY-FAKTEN:\n${JSON.stringify(sanityFacts, null, 2)}\n\nGOOGLE-PLACES-KONTEXT:\n${JSON.stringify(placesFacts, null, 2)}`
+  const userMsg = `SANITY-FAKTEN:\n${JSON.stringify(sanityFacts, null, 2)}\n\nGOOGLE-PLACES-KONTEXT:\n${JSON.stringify(placesFacts, null, 2)}`;
 
   const callOnce = async (extraReminder = false) => {
     const content = extraReminder
-      ? userMsg + '\n\nWICHTIG: Recherche ist abgeschlossen — gib JETZT die finale Antwort. AUSSCHLIESSLICH gültiges JSON in der oben definierten Form, keine Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Wenn Recherche/Source-Daten dünn sind, schreibe trotzdem JSON — eine kürzere description NUR aus belegten Fakten, tip/shortDescription auf null falls keine Substanz da ist.'
-      : userMsg
-    const messages: Anthropic.MessageParam[] = [{ role: 'user', content }]
+      ? userMsg +
+        '\n\nWICHTIG: Recherche ist abgeschlossen — gib JETZT die finale Antwort. AUSSCHLIESSLICH gültiges JSON in der oben definierten Form, keine Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Wenn Recherche/Source-Daten dünn sind, schreibe trotzdem JSON — eine kürzere description NUR aus belegten Fakten, tip/shortDescription auf null falls keine Substanz da ist.'
+      : userMsg;
+    const messages: Anthropic.MessageParam[] = [{ role: 'user', content }];
     let msg = await anthropic.messages.create({
       model: TRANSLATION_MODEL,
       max_tokens: 2048,
       system: RESTAURANT_PROMPT,
       tools: RESEARCH_TOOLS,
       messages,
-    })
+    });
     // The web_search server loop can return `pause_turn` if it hits its internal
     // iteration cap before finishing — re-send the accumulated turn to resume.
-    let guard = 0
+    let guard = 0;
     while ((msg.stop_reason as string) === 'pause_turn' && guard++ < 4) {
-      messages.push({ role: 'assistant', content: msg.content })
+      messages.push({ role: 'assistant', content: msg.content });
       msg = await anthropic.messages.create({
         model: TRANSLATION_MODEL,
         max_tokens: 2048,
         system: RESTAURANT_PROMPT,
         tools: RESEARCH_TOOLS,
         messages,
-      })
+      });
     }
-    return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen
-  }
+    return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen;
+  };
 
-  let parsed: RestaurantGen
+  let parsed: RestaurantGen;
   try {
-    parsed = await callOnce(false)
+    parsed = await callOnce(false);
   } catch (firstErr) {
     if (firstErr instanceof SyntaxError) {
       // Model returned prose instead of JSON (typically when Places data is thin).
       // Retry once with an explicit JSON-only reminder at the end of the user message.
-      parsed = await callOnce(true)
+      parsed = await callOnce(true);
     } else {
-      throw firstErr
+      throw firstErr;
     }
   }
 
   if (!parsed.description || parsed.description.length > 700) {
-    throw new Error(`description out of bounds (${parsed.description?.length ?? 0} chars) for ${r._id}`)
+    throw new Error(
+      `description out of bounds (${parsed.description?.length ?? 0} chars) for ${r._id}`
+    );
   }
   if (parsed.shortDescription && parsed.shortDescription.length > 170) {
-    throw new Error(`shortDescription too long (${parsed.shortDescription.length}) for ${r._id}`)
+    throw new Error(`shortDescription too long (${parsed.shortDescription.length}) for ${r._id}`);
   }
   if (parsed.tip && parsed.tip.length > 220) {
-    throw new Error(`tip too long (${parsed.tip.length}) for ${r._id}`)
+    throw new Error(`tip too long (${parsed.tip.length}) for ${r._id}`);
   }
   if (parsed.tip) {
-    const banned = findBannedPhrase(parsed.tip)
+    const banned = findBannedPhrase(parsed.tip);
     if (banned) {
-      console.warn(`      tip dropped (banned phrase: "${banned}") for ${r._id}`)
-      parsed.tip = null
+      console.warn(`      tip dropped (banned phrase: "${banned}") for ${r._id}`);
+      parsed.tip = null;
     }
   }
   if (parsed.description) {
-    const banned = findBannedPhrase(parsed.description)
+    const banned = findBannedPhrase(parsed.description);
     if (banned) {
-      console.warn(`      description has banned phrase: "${banned}" for ${r._id} — review manually`)
+      console.warn(
+        `      description has banned phrase: "${banned}" for ${r._id} — review manually`
+      );
     }
   }
-  return parsed
+  return parsed;
 }
 
 async function generateBezirk(b: BezirkSource): Promise<BezirkGen> {
-  const userMsg = `Bezirk: ${b.name}\n\nSchreib eine kulinarisch fokussierte Beschreibung dieses Berliner Bezirks für "Eat This Berlin" Lesende, 200-300 Zeichen.`
+  const userMsg = `Bezirk: ${b.name}\n\nSchreib eine kulinarisch fokussierte Beschreibung dieses Berliner Bezirks für "Eat This Berlin" Lesende, 200-300 Zeichen.`;
   const msg = await anthropic.messages.create({
     model: TRANSLATION_MODEL,
     max_tokens: 512,
     system: BEZIRK_PROMPT,
     messages: [{ role: 'user', content: userMsg }],
-  })
-  const parsed = JSON.parse(extractJsonText(msg.content, b._id)) as BezirkGen
+  });
+  const parsed = JSON.parse(extractJsonText(msg.content, b._id)) as BezirkGen;
   if (!parsed.description || parsed.description.length > 320) {
-    throw new Error(`description out of bounds (${parsed.description?.length ?? 0}) for ${b._id}`)
+    throw new Error(`description out of bounds (${parsed.description?.length ?? 0}) for ${b._id}`);
   }
-  return parsed
+  return parsed;
 }
 
 async function patchRestaurantDraft(
   r: RestaurantSource,
   g: RestaurantGen,
-  opts: CliOptions,
+  opts: CliOptions
 ): Promise<boolean> {
-  const draftId = r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`
-  const sets: Record<string, string> = { description: g.description }
+  const draftId = r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`;
+  const sets: Record<string, string> = { description: g.description };
   // In --force mode, write over any existing shortDescription/tip so the new
   // brand-voice content fully replaces older versions. Otherwise we only fill
   // gaps (keep manual edits intact).
   if (opts.includeShortDesc && g.shortDescription && (opts.force || !r.shortDescription)) {
-    sets.shortDescription = g.shortDescription
+    sets.shortDescription = g.shortDescription;
   }
   if (opts.includeTip && g.tip && (opts.force || !r.tip)) {
-    sets.tip = g.tip
+    sets.tip = g.tip;
   }
-  if (Object.keys(sets).length === 0) return false
+  if (Object.keys(sets).length === 0) return false;
 
   await sanity.createIfNotExists({
     ...r,
     _id: draftId,
     _type: 'restaurant',
-  } as { _id: string; _type: 'restaurant' } & Record<string, unknown>)
-  await sanity.patch(draftId).set(sets).commit({ autoGenerateArrayKeys: true })
-  return true
+  } as { _id: string; _type: 'restaurant' } & Record<string, unknown>);
+  await sanity.patch(draftId).set(sets).commit({ autoGenerateArrayKeys: true });
+  return true;
 }
 
 async function patchBezirkDraft(b: BezirkSource, g: BezirkGen): Promise<boolean> {
-  const draftId = b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`
+  const draftId = b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`;
   await sanity.createIfNotExists({
     ...b,
     _id: draftId,
     _type: 'bezirk',
-  } as { _id: string; _type: 'bezirk' } & Record<string, unknown>)
-  await sanity.patch(draftId).set({ description: g.description }).commit()
-  return true
+  } as { _id: string; _type: 'bezirk' } & Record<string, unknown>);
+  await sanity.patch(draftId).set({ description: g.description }).commit();
+  return true;
 }
 
 async function main(): Promise<void> {
-  const opts = parseArgs()
-  console.log(`[generate-de] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun} shortDesc=${opts.includeShortDesc} tip=${opts.includeTip}`)
+  const opts = parseArgs();
+  console.log(
+    `[generate-de] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun} shortDesc=${opts.includeShortDesc} tip=${opts.includeTip}`
+  );
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force })
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit)
-    console.log(`[generate-de] restaurants needing description: ${docs.length}`)
+    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
+    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+    console.log(`[generate-de] restaurants needing description: ${docs.length}`);
     for (const r of docs) {
       try {
-        const places = await fetchPlaceContext(r)
-        const g = await generateRestaurant(r, places)
-        console.log(`  ✓ ${r.name} (${r._id})${places ? '' : '  [no Places match]'}`)
+        const places = await fetchPlaceContext(r);
+        const g = await generateRestaurant(r, places);
+        console.log(`  ✓ ${r.name} (${r._id})${places ? '' : '  [no Places match]'}`);
         if (opts.dryRun) {
-          console.log(JSON.stringify(g, null, 2))
+          console.log(JSON.stringify(g, null, 2));
         } else {
-          const wrote = await patchRestaurantDraft(r, g, opts)
-          console.log(wrote ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}` : `    (skipped: nothing to set)`)
+          const wrote = await patchRestaurantDraft(r, g, opts);
+          console.log(
+            wrote
+              ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
+              : `    (skipped: nothing to set)`
+          );
         }
         // Rate-limit gentle: 200ms between docs (~5 req/s, well under Places + Anthropic limits)
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (e) {
-        console.error(`  ✗ ${r.name} (${r._id}):`, e instanceof Error ? e.message : e)
+        console.error(`  ✗ ${r.name} (${r._id}):`, e instanceof Error ? e.message : e);
       }
     }
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force })
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit)
-    console.log(`[generate-de] bezirke needing description: ${docs.length}`)
+    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force });
+    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+    console.log(`[generate-de] bezirke needing description: ${docs.length}`);
     for (const b of docs) {
       try {
-        const g = await generateBezirk(b)
-        console.log(`  ✓ ${b.name} (${b._id})`)
+        const g = await generateBezirk(b);
+        console.log(`  ✓ ${b.name} (${b._id})`);
         if (opts.dryRun) {
-          console.log(JSON.stringify(g, null, 2))
+          console.log(JSON.stringify(g, null, 2));
         } else {
-          const wrote = await patchBezirkDraft(b, g)
-          console.log(wrote ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}` : `    (skipped: nothing to set)`)
+          const wrote = await patchBezirkDraft(b, g);
+          console.log(
+            wrote
+              ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
+              : `    (skipped: nothing to set)`
+          );
         }
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (e) {
-        console.error(`  ✗ ${b.name} (${b._id}):`, e instanceof Error ? e.message : e)
+        console.error(`  ✗ ${b.name} (${b._id}):`, e instanceof Error ? e.message : e);
       }
     }
   }
@@ -616,18 +640,18 @@ async function main(): Promise<void> {
 
 // Only run main when invoked directly via tsx; skipped when imported by the
 // another local script. Symlink-safe via realpath (macOS /tmp → /private/tmp).
-import { realpathSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 function isCliEntry(): boolean {
   try {
-    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '')
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '');
   } catch {
-    return false
+    return false;
   }
 }
 if (isCliEntry()) {
-  main().catch(err => {
-    console.error('[generate-de] FATAL:', err)
-    process.exit(1)
-  })
+  main().catch((err) => {
+    console.error('[generate-de] FATAL:', err);
+    process.exit(1);
+  });
 }

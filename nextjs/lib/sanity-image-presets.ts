@@ -8,10 +8,10 @@
 // projection ships.
 
 interface Preset {
-  w: number
-  q: number
-  h?: number
-  fit?: 'crop'
+  w: number;
+  q: number;
+  h?: number;
+  fit?: 'crop';
 }
 
 const IMAGE_PRESETS = {
@@ -31,48 +31,65 @@ const IMAGE_PRESETS = {
   buddyThumb: { w: 120, h: 120, fit: 'crop', q: 80 },
   // Restaurant detail-sheet gallery strip (fixed 4:3 crop for a uniform look)
   galleryThumb: { w: 400, h: 300, fit: 'crop', q: 80 },
-} as const satisfies Record<string, Preset>
+} as const satisfies Record<string, Preset>;
 
-type ImagePresetName = keyof typeof IMAGE_PRESETS
+type ImagePresetName = keyof typeof IMAGE_PRESETS;
 
 /** The `?w=…&auto=format&q=…` query string for a preset (param order matches
  *  the hand-written projections this replaced — keep it stable). */
 export function presetQuery(preset: ImagePresetName): string {
-  const p: Preset = IMAGE_PRESETS[preset]
-  let qs = `?w=${p.w}`
-  if (p.h != null) qs += `&h=${p.h}`
-  if (p.fit != null) qs += `&fit=${p.fit}`
-  qs += `&auto=format&q=${p.q}`
-  return qs
+  const p: Preset = IMAGE_PRESETS[preset];
+  let qs = `?w=${p.w}`;
+  if (p.h != null) qs += `&h=${p.h}`;
+  if (p.fit != null) qs += `&fit=${p.fit}`;
+  qs += `&auto=format&q=${p.q}`;
+  return qs;
 }
 
 /** A GROQ image-URL snippet: `<path>.asset->url + "<preset query>"`.
  *  `path` is the dereference expression up to the image field, e.g.
  *  `image`, `restaurantRef->image`, `mustEatRef->restaurantRef->image`. */
 export function groqImageUrl(path: string, preset: ImagePresetName): string {
-  return `${path}.asset->url + "${presetQuery(preset)}"`
+  return `${path}.asset->url + "${presetQuery(preset)}"`;
 }
 
-export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta'] as const
+export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta'] as const;
 
 function groqStringList(values: readonly string[]): string {
-  return `[${values.map((value) => JSON.stringify(value)).join(', ')}]`
+  return `[${values.map((value) => JSON.stringify(value)).join(', ')}]`;
 }
 
-export function publishableRestaurantImageCondition(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
-  return `(defined(${path}.credit) && defined(${path}.creditUrl)) || ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} || defined(${instagramPath})`
+export function publishableRestaurantImageCondition(
+  path = 'image',
+  slugPath = 'slug.current',
+  instagramPath = 'instagramHandle'
+): string {
+  return `(defined(${path}.credit) && defined(${path}.creditUrl)) || ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} || defined(${instagramPath})`;
 }
 
-export function publishableRestaurantImageUrl(path: string, preset: ImagePresetName, slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
-  return `select(${publishableRestaurantImageCondition(path, slugPath, instagramPath)} => ${groqImageUrl(path, preset)})`
+export function publishableRestaurantImageUrl(
+  path: string,
+  preset: ImagePresetName,
+  slugPath = 'slug.current',
+  instagramPath = 'instagramHandle'
+): string {
+  return `select(${publishableRestaurantImageCondition(path, slugPath, instagramPath)} => ${groqImageUrl(path, preset)})`;
 }
 
-export function restaurantPhotoCredit(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
-  return `select(defined(${path}.credit) => ${path}.credit, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "Foto: Eat This", defined(${instagramPath}) => "Foto: @" + ${instagramPath})`
+export function restaurantPhotoCredit(
+  path = 'image',
+  slugPath = 'slug.current',
+  instagramPath = 'instagramHandle'
+): string {
+  return `select(defined(${path}.credit) => ${path}.credit, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "Foto: Eat This", defined(${instagramPath}) => "Foto: @" + ${instagramPath})`;
 }
 
-export function restaurantPhotoCreditUrl(path = 'image', slugPath = 'slug.current', instagramPath = 'instagramHandle'): string {
-  return `select(defined(${path}.creditUrl) => ${path}.creditUrl, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "https://eat-this.de", defined(${instagramPath}) => "https://www.instagram.com/" + ${instagramPath})`
+export function restaurantPhotoCreditUrl(
+  path = 'image',
+  slugPath = 'slug.current',
+  instagramPath = 'instagramHandle'
+): string {
+  return `select(defined(${path}.creditUrl) => ${path}.creditUrl, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "https://eat-this.de", defined(${instagramPath}) => "https://www.instagram.com/" + ${instagramPath})`;
 }
 
 /** Responsive `srcSet` for a raw `<img>` holding a Sanity CDN URL (projections
@@ -85,9 +102,9 @@ export function restaurantPhotoCreditUrl(path = 'image', slugPath = 'slug.curren
 export function sanitySrcSet(
   url: string | null | undefined,
   widths: number[],
-  q = 80,
+  q = 80
 ): string | undefined {
-  if (!url || !url.includes('cdn.sanity.io')) return undefined
-  const base = url.split('?')[0]
-  return widths.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ')
+  if (!url || !url.includes('cdn.sanity.io')) return undefined;
+  const base = url.split('?')[0];
+  return widths.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ');
 }

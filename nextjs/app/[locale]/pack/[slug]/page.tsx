@@ -1,15 +1,15 @@
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import { setRequestLocale } from 'next-intl/server'
-import { CATALOG } from '@/lib/stripe-catalog'
-import { Link } from '@/i18n/navigation'
-import { getRestaurantsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server'
-import { localizedCategoryName } from '@/lib/categories'
-import { categoryArt } from '@/lib/categoryArt'
-import { hreflangAlternates } from '@/lib/seo/metadata'
-import { buildBrandedTitle } from '@/lib/seo/metadata-text'
-import { routing } from '@/i18n/routing'
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import { setRequestLocale } from 'next-intl/server';
+import { CATALOG } from '@/lib/stripe-catalog';
+import { Link } from '@/i18n/navigation';
+import { getRestaurantsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
+import { localizedCategoryName } from '@/lib/categories';
+import { categoryArt } from '@/lib/categoryArt';
+import { hreflangAlternates } from '@/lib/seo/metadata';
+import { buildBrandedTitle } from '@/lib/seo/metadata-text';
+import { routing } from '@/i18n/routing';
 import {
   resolvePackByUrlSlug,
   packUrlSlug,
@@ -17,36 +17,38 @@ import {
   buildPackTeaser,
   formatPackContents,
   formatBundleSavings,
-} from '@/lib/pack/packDetail'
-import PackBuyButton from './PackBuyButton'
-import styles from './PackDetail.module.css'
+} from '@/lib/pack/packDetail';
+import PackBuyButton from './PackBuyButton';
+import styles from './PackDetail.module.css';
 
 interface PageProps {
-  params: Promise<{ locale: string; slug: string }>
+  params: Promise<{ locale: string; slug: string }>;
 }
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return routing.locales.flatMap(locale =>
-    Object.values(CATALOG).map(p => ({ locale, slug: packUrlSlug(p) })),
-  )
+  return routing.locales.flatMap((locale) =>
+    Object.values(CATALOG).map((p) => ({ locale, slug: packUrlSlug(p) }))
+  );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug } = await params
-  const pack = resolvePackByUrlSlug(slug)
-  if (!pack) return {}
-  const de = locale === 'de'
-  const category = pack.type === 'category' && pack.slug
-    ? await getCategoryBySlug(pack.slug)
-    : null
+  const { locale, slug } = await params;
+  const pack = resolvePackByUrlSlug(slug);
+  if (!pack) return {};
+  const de = locale === 'de';
+  const category =
+    pack.type === 'category' && pack.slug ? await getCategoryBySlug(pack.slug) : null;
   const packTitleName = category
     ? localizedCategoryName(category, de ? 'de' : 'en')
-    : pack.displayName
-  const title = pack.type === 'all-berlin'
-    ? (de ? 'All Berlin — alle Packs' : 'All Berlin — every pack')
-    : `${packTitleName} Booster Pack`
+    : pack.displayName;
+  const title =
+    pack.type === 'all-berlin'
+      ? de
+        ? 'All Berlin — alle Packs'
+        : 'All Berlin — every pack'
+      : `${packTitleName} Booster Pack`;
   return {
     title: { absolute: buildBrandedTitle(title) },
     description: pack.description[de ? 'de' : 'en'],
@@ -56,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Packs are always bilingual (CATALOG ships de+en copy), so emit the full
     // de/en/x-default set like every other route instead of a bare canonical.
     alternates: hreflangAlternates(`/pack/${slug}`, de ? 'de' : 'en'),
-  }
+  };
 }
 
 // Ordered 3×3 grid for the All-Berlin fan.
@@ -64,27 +66,27 @@ const ALL_BERLIN_GRID: string[][] = [
   ['breakfast', 'fine-dining', 'pizza'],
   ['coffee', 'drinks', 'lunch'],
   ['dinner', 'sweets', 'fast-food'],
-]
-const ALL_BERLIN_UPSELL = ALL_BERLIN_GRID.flat()
+];
+const ALL_BERLIN_UPSELL = ALL_BERLIN_GRID.flat();
 
 const PAYMENT_METHODS = [
   { src: '/payment/apple-pay.webp', alt: { de: 'Apple Pay', en: 'Apple Pay' } },
   { src: '/payment/paypal.webp', alt: { de: 'PayPal', en: 'PayPal' } },
   { src: '/payment/klarna.webp', alt: { de: 'Klarna', en: 'Klarna' } },
   { src: '/payment/credit-card.webp', alt: { de: 'Kreditkarte', en: 'Credit card' } },
-]
+];
 
 export default async function PackDetailPage({ params }: PageProps) {
-  const { locale, slug } = await params
-  setRequestLocale(locale)
-  const de = locale === 'de'
-  const loc: 'de' | 'en' = de ? 'de' : 'en'
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  const de = locale === 'de';
+  const loc: 'de' | 'en' = de ? 'de' : 'en';
 
-  const pack = resolvePackByUrlSlug(slug)
-  if (!pack) notFound()
+  const pack = resolvePackByUrlSlug(slug);
+  if (!pack) notFound();
 
-  const mapHref = de ? '/map' : `/${locale}/map`
-  const priceLabel = formatPackPrice(pack.amountCents)
+  const mapHref = de ? '/map' : `/${locale}/map`;
+  const priceLabel = formatPackPrice(pack.amountCents);
   const buyLabels = {
     label: `${de ? 'Jetzt freischalten' : 'Unlock now'} · ${priceLabel}`,
     pendingLabel: de ? 'Weiter zu Stripe …' : 'Going to Stripe …',
@@ -93,24 +95,18 @@ export default async function PackDetailPage({ params }: PageProps) {
     errorLabel: de
       ? 'Da ging was schief. Versuch es nochmal.'
       : 'Something went wrong. Please try again.',
-  }
+  };
   const paymentLogos = (
     <div className={styles.paymentLogos} aria-label={de ? 'Zahlungsarten' : 'Payment methods'}>
-      {PAYMENT_METHODS.map(method => (
-        <Image
-          key={method.src}
-          src={method.src}
-          alt={method.alt[loc]}
-          width={70}
-          height={48}
-        />
+      {PAYMENT_METHODS.map((method) => (
+        <Image key={method.src} src={method.src} alt={method.alt[loc]} width={70} height={48} />
       ))}
     </div>
-  )
+  );
 
   // ── All-Berlin variant ──────────────────────────────────────────────
   if (pack.type === 'all-berlin') {
-    const { allBerlin } = await getPackContents()
+    const { allBerlin } = await getPackContents();
     return (
       <main className={styles.page}>
         <div className={styles.inner}>
@@ -120,12 +116,20 @@ export default async function PackDetailPage({ params }: PageProps) {
                 {de ? 'Alles auf einmal · alle Packs' : 'Everything at once · every pack'}
               </div>
               <h1 className={`${styles.name} ${styles.allName}`}>
-                All<br /><span className={styles.y}>Berlin</span>
+                All
+                <br />
+                <span className={styles.y}>Berlin</span>
               </h1>
               <p className={styles.contents}>{formatPackContents(allBerlin, loc)}</p>
               <p className={styles.sub}>{pack.description[loc]}</p>
 
-              <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
+              <PackBuyButton
+                packId={pack.packId}
+                packName={pack.displayName}
+                amountCents={pack.amountCents}
+                locale={loc}
+                {...buyLabels}
+              />
               <p className={styles.savings}>{formatBundleSavings(loc)}</p>
               {paymentLogos}
             </div>
@@ -137,38 +141,37 @@ export default async function PackDetailPage({ params }: PageProps) {
                     key={i}
                     className={`${styles.allRow} ${i === 0 ? styles.allRowTop : i === 1 ? styles.allRowMid : styles.allRowBottom}`}
                   >
-                    {rowSlugs.map(s => {
-                      const art = categoryArt(s)
+                    {rowSlugs.map((s) => {
+                      const art = categoryArt(s);
                       // eslint-disable-next-line @next/next/no-img-element
-                      return art ? <img key={s} src={art} alt="" loading="lazy" /> : null
+                      return art ? <img key={s} src={art} alt="" loading="lazy" /> : null;
                     })}
                   </div>
                 ))}
               </div>
             </div>
           </section>
-
         </div>
       </main>
-    )
+    );
   }
 
   // ── Category pack variant ───────────────────────────────────────────
-  const categorySlug = pack.slug as string
+  const categorySlug = pack.slug as string;
   const [category, restaurants, packContents] = await Promise.all([
     getCategoryBySlug(categorySlug),
     getRestaurantsByCategory(categorySlug),
     getPackContents(),
-  ])
-  const teaser = buildPackTeaser(restaurants)
-  const contents = packContents.byCategory[categorySlug]
+  ]);
+  const teaser = buildPackTeaser(restaurants);
+  const contents = packContents.byCategory[categorySlug];
   // Rows the teaser names or covers; everything past them is what "und mehr"
   // has to sell, and it only sells if it says how many.
-  const teased = teaser.revealed.length + teaser.locked.length
-  const more = contents ? contents.spots - teased : 0
-  const art = categoryArt(categorySlug)
-  const heroName = category ? localizedCategoryName(category, loc) : pack.displayName
-  const allBerlinHref = '/pack/all-berlin'
+  const teased = teaser.revealed.length + teaser.locked.length;
+  const more = contents ? contents.spots - teased : 0;
+  const art = categoryArt(categorySlug);
+  const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
+  const allBerlinHref = '/pack/all-berlin';
 
   return (
     <main className={styles.page}>
@@ -177,15 +180,18 @@ export default async function PackDetailPage({ params }: PageProps) {
           <div className={styles.copy}>
             <div className={styles.kicker}>Booster Pack</div>
             <h1 className={styles.name}>
-              <span>{heroName}</span>{' '}
-              <span className={styles.nameLine}>Pack</span>
+              <span>{heroName}</span> <span className={styles.nameLine}>Pack</span>
             </h1>
-            {contents && (
-              <p className={styles.contents}>{formatPackContents(contents, loc)}</p>
-            )}
+            {contents && <p className={styles.contents}>{formatPackContents(contents, loc)}</p>}
             <p className={styles.sub}>{pack.description[loc]}</p>
 
-            <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
+            <PackBuyButton
+              packId={pack.packId}
+              packName={pack.displayName}
+              amountCents={pack.amountCents}
+              locale={loc}
+              {...buyLabels}
+            />
             {paymentLogos}
           </div>
 
@@ -211,7 +217,9 @@ export default async function PackDetailPage({ params }: PageProps) {
                 ))}
                 {teaser.locked.map((l, i) => (
                   <div key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
-                    <div className={styles.thumb}>{String(teaser.revealed.length + i + 1).padStart(2, '0')}</div>
+                    <div className={styles.thumb}>
+                      {String(teaser.revealed.length + i + 1).padStart(2, '0')}
+                    </div>
                     <span className={styles.rn}>{de ? 'Verdeckt' : 'Covered'}</span>
                     {l.district && <span className={styles.mn}>{l.district}</span>}
                   </div>
@@ -232,8 +240,8 @@ export default async function PackDetailPage({ params }: PageProps) {
           <div className={styles.upsell}>
             <Link href={allBerlinHref}>
               <span className={styles.upsellArt} aria-hidden="true">
-                {ALL_BERLIN_UPSELL.map(s => {
-                  const boosterArt = categoryArt(s)
+                {ALL_BERLIN_UPSELL.map((s) => {
+                  const boosterArt = categoryArt(s);
                   return boosterArt ? (
                     <Image
                       key={s}
@@ -243,7 +251,7 @@ export default async function PackDetailPage({ params }: PageProps) {
                       height={108}
                       className={styles.upsellPack}
                     />
-                  ) : null
+                  ) : null;
                 })}
               </span>
               <span className={styles.upsellCopy}>
@@ -261,5 +269,5 @@ export default async function PackDetailPage({ params }: PageProps) {
         </section>
       </div>
     </main>
-  )
+  );
 }

@@ -1,26 +1,26 @@
 // nextjs/lib/buddy/retrieval.ts
-import { client as sanityClient } from '@/lib/sanity'
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
-import { getOpenStatus } from '@/lib/map/openingHours'
-import { distanceKm, distanceLabel, type LatLng } from './geo'
-import type { OpeningHourSlot } from '@/lib/types'
-import type { Locale, SpotCandidate, ArticleResult } from './types'
-import { groqImageUrl } from '@/lib/sanity-image-presets'
-import { semanticRank, applySemanticOrder } from './semanticSearch'
+import { client as sanityClient } from '@/lib/sanity';
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
+import { getOpenStatus } from '@/lib/map/openingHours';
+import { distanceKm, distanceLabel, type LatLng } from './geo';
+import type { OpeningHourSlot } from '@/lib/types';
+import type { Locale, SpotCandidate, ArticleResult } from './types';
+import { groqImageUrl } from '@/lib/sanity-image-presets';
+import { semanticRank, applySemanticOrder } from './semanticSearch';
 
 export interface SpotFilters {
-  cuisine?: string
-  bezirk?: string
-  priceRange?: string
+  cuisine?: string;
+  bezirk?: string;
+  priceRange?: string;
   /** A specific spot named by the user (e.g. "Gazzo"). Matched against name. */
-  name?: string
+  name?: string;
   /** User location — when set, results are sorted by distance and labelled. */
-  userGeo?: LatLng
-  vibeQuery: string
+  userGeo?: LatLng;
+  vibeQuery: string;
 }
 
 const clamp = (n: number, lo: number, hi: number) =>
-  Math.max(lo, Math.min(hi, Math.trunc(Number.isFinite(n) ? n : lo)))
+  Math.max(lo, Math.min(hi, Math.trunc(Number.isFinite(n) ? n : lo)));
 
 const SPOTS_PROJECTION = `{
   _id,
@@ -36,26 +36,32 @@ const SPOTS_PROJECTION = `{
   lat, lng, // used to compute distance when the user shares their location
   "categorySlugs": categories[defined(@->_id)]->slug.current, // pack-teaser vote (server-internal)
   "image": ${groqImageUrl('image', 'buddyThumb')}
-}`
+}`;
 
 // Server runs in UTC; build a Date whose local accessors (getDay/getHours/…)
 // reflect Europe/Berlin so getOpenStatus reads the right wall-clock time.
 function berlinNow(base: Date): Date {
   const p = new Intl.DateTimeFormat('en-US', {
     timeZone: 'Europe/Berlin',
-    year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false,
-  }).formatToParts(base)
-  const get = (t: string) => Number(p.find((x) => x.type === t)?.value)
-  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'))
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  }).formatToParts(base);
+  const get = (t: string) => Number(p.find((x) => x.type === t)?.value);
+  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'));
 }
 
-const OPEN_LABELS: Record<Locale, { open: string; closed: string; opens: string; closes: string }> = {
-  de: { open: 'Offen', closed: 'Geschlossen', opens: 'öffnet', closes: 'bis' },
-  en: { open: 'Open', closed: 'Closed', opens: 'opens', closes: 'till' },
-}
+const OPEN_LABELS: Record<Locale, { open: string; closed: string; opens: string; closes: string }> =
+  {
+    de: { open: 'Offen', closed: 'Geschlossen', opens: 'öffnet', closes: 'bis' },
+    en: { open: 'Open', closed: 'Closed', opens: 'opens', closes: 'till' },
+  };
 
 export function buildSpotsQuery(limit: number): string {
-  const n = clamp(limit, 1, 40)
+  const n = clamp(limit, 1, 40);
   return `*[
     _type == "restaurant"
     && isOpen == true && isClosed != true
@@ -87,13 +93,13 @@ export function buildSpotsQuery(limit: number): string {
     ) desc,
     featured desc,
     lastReviewed desc
-  ) [0...${n}] ${SPOTS_PROJECTION}`
+  ) [0...${n}] ${SPOTS_PROJECTION}`;
 }
 
 const wildcard = (s?: string) => {
-  const t = (s ?? '').trim()
-  return t.length > 0 ? `*${t}*` : null
-}
+  const t = (s ?? '').trim();
+  return t.length > 0 ? `*${t}*` : null;
+};
 
 // Diacritic-folded, lowercased, alphanumeric-only — "Kuréme" and "kureme",
 // "amatō" and "amato", "Boii Boii" and "boiboi" land on comparable strings.
@@ -102,50 +108,50 @@ export function foldName(s: string): string {
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, '')
+    .replace(/[^a-z0-9]/g, '');
 }
 
 function levenshtein(a: string, b: string): number {
-  if (Math.abs(a.length - b.length) > 3) return 99
-  const prev = Array.from({ length: b.length + 1 }, (_, i) => i)
+  if (Math.abs(a.length - b.length) > 3) return 99;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
-    let diag = prev[0]
-    prev[0] = i
+    let diag = prev[0];
+    prev[0] = i;
     for (let j = 1; j <= b.length; j++) {
-      const tmp = prev[j]
-      prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1))
-      diag = tmp
+      const tmp = prev[j];
+      prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = tmp;
     }
   }
-  return prev[b.length]
+  return prev[b.length];
 }
 
 interface NameIndexRow {
-  name: string
-  slug: string
-  folded: string
+  name: string;
+  slug: string;
+  folded: string;
 }
 
 // GROQ `match` is case-insensitive but diacritic-blind: a user typing "amato"
 // never finds "amatō", "kureme" never finds "Kuréme" — exactly the spellings
 // real searchers use (see GSC). 340 names fit comfortably in memory, so we
 // resolve the model's `name` input against a folded index instead.
-const NAME_INDEX_TTL = 10 * 60_000
-let nameIndexCache: { at: number; rows: NameIndexRow[] } | null = null
+const NAME_INDEX_TTL = 10 * 60_000;
+let nameIndexCache: { at: number; rows: NameIndexRow[] } | null = null;
 
 async function getNameIndex(client: SanityLike, now: number): Promise<NameIndexRow[]> {
-  if (nameIndexCache && now - nameIndexCache.at < NAME_INDEX_TTL) return nameIndexCache.rows
+  if (nameIndexCache && now - nameIndexCache.at < NAME_INDEX_TTL) return nameIndexCache.rows;
   const rows = (await client.fetch(
-    `*[_type == "restaurant" && isOpen == true && isClosed != true && defined(slug.current)]{ name, "slug": slug.current }`,
-  )) as { name: string; slug: string }[]
-  const indexed = (rows ?? []).map((r) => ({ ...r, folded: foldName(r.name) }))
-  nameIndexCache = { at: now, rows: indexed }
-  return indexed
+    `*[_type == "restaurant" && isOpen == true && isClosed != true && defined(slug.current)]{ name, "slug": slug.current }`
+  )) as { name: string; slug: string }[];
+  const indexed = (rows ?? []).map((r) => ({ ...r, folded: foldName(r.name) }));
+  nameIndexCache = { at: now, rows: indexed };
+  return indexed;
 }
 
 /** Exposed for tests — clears the module-level name-index cache. */
 export function __resetNameIndexCache(): void {
-  nameIndexCache = null
+  nameIndexCache = null;
 }
 
 // Resolve a user-/model-provided spot name to a slug: exact folded match,
@@ -153,37 +159,81 @@ export function __resetNameIndexCache(): void {
 // scaled to length). Returns null when nothing is convincing — the caller
 // falls back to the raw GROQ `match`.
 export function resolveNameToSlug(query: string, index: NameIndexRow[]): string | null {
-  const q = foldName(query)
-  if (q.length < 3) return null
-  const exact = index.find((r) => r.folded === q)
-  if (exact) return exact.slug
-  const contains = index.filter((r) => r.folded.includes(q) || q.includes(r.folded))
-  if (contains.length === 1) return contains[0].slug
-  if (contains.length > 1) return null // ambiguous — let GROQ rank the candidates
-  const maxDist = q.length <= 5 ? 1 : 2
-  let best: { slug: string; dist: number } | null = null
-  let bestIsUnique = true
+  const q = foldName(query);
+  if (q.length < 3) return null;
+  const exact = index.find((r) => r.folded === q);
+  if (exact) return exact.slug;
+  const contains = index.filter((r) => r.folded.includes(q) || q.includes(r.folded));
+  if (contains.length === 1) return contains[0].slug;
+  if (contains.length > 1) return null; // ambiguous — let GROQ rank the candidates
+  const maxDist = q.length <= 5 ? 1 : 2;
+  let best: { slug: string; dist: number } | null = null;
+  let bestIsUnique = true;
   for (const r of index) {
-    const dist = levenshtein(q, r.folded)
-    if (dist > maxDist) continue
+    const dist = levenshtein(q, r.folded);
+    if (dist > maxDist) continue;
     if (!best || dist < best.dist) {
-      best = { slug: r.slug, dist }
-      bestIsUnique = true
+      best = { slug: r.slug, dist };
+      bestIsUnique = true;
     } else if (dist === best.dist && r.slug !== best.slug) {
-      bestIsUnique = false
+      bestIsUnique = false;
     }
   }
-  return best && bestIsUnique ? best.slug : null
+  return best && bestIsUnique ? best.slug : null;
 }
 
 // Up to three folded, wildcarded tokens from the free-text vibe — used as a
 // soft ranking signal in the GROQ order(), never as a filter.
 const VIBE_STOPWORDS = new Set([
-  'der', 'die', 'das', 'und', 'oder', 'ein', 'eine', 'einen', 'einem', 'für', 'fuer', 'mit', 'ohne',
-  'nach', 'beim', 'zum', 'zur', 'ich', 'wir', 'ihr', 'mir', 'uns', 'was', 'etwas', 'bisschen',
-  'gerne', 'gern', 'mal', 'heute', 'abend', 'morgen', 'essen', 'gehen', 'suche', 'will', 'möchte',
-  'the', 'and', 'for', 'with', 'some', 'something', 'nice', 'good', 'place', 'food', 'want', 'looking',
-])
+  'der',
+  'die',
+  'das',
+  'und',
+  'oder',
+  'ein',
+  'eine',
+  'einen',
+  'einem',
+  'für',
+  'fuer',
+  'mit',
+  'ohne',
+  'nach',
+  'beim',
+  'zum',
+  'zur',
+  'ich',
+  'wir',
+  'ihr',
+  'mir',
+  'uns',
+  'was',
+  'etwas',
+  'bisschen',
+  'gerne',
+  'gern',
+  'mal',
+  'heute',
+  'abend',
+  'morgen',
+  'essen',
+  'gehen',
+  'suche',
+  'will',
+  'möchte',
+  'the',
+  'and',
+  'for',
+  'with',
+  'some',
+  'something',
+  'nice',
+  'good',
+  'place',
+  'food',
+  'want',
+  'looking',
+]);
 
 export function vibeTokens(vibe: string): (string | null)[] {
   // NICHT diakritika-falten: GROQ matcht gegen den ungefalteten Feldtext —
@@ -192,9 +242,13 @@ export function vibeTokens(vibe: string): (string | null)[] {
   const tokens = vibe
     .split(/[^\p{L}\p{N}]+/u)
     .map((t) => t.toLowerCase())
-    .filter((t) => t.length >= 4 && !VIBE_STOPWORDS.has(t))
-  const unique = [...new Set(tokens)].slice(0, 3)
-  return [unique[0] ? `*${unique[0]}*` : null, unique[1] ? `*${unique[1]}*` : null, unique[2] ? `*${unique[2]}*` : null]
+    .filter((t) => t.length >= 4 && !VIBE_STOPWORDS.has(t));
+  const unique = [...new Set(tokens)].slice(0, 3);
+  return [
+    unique[0] ? `*${unique[0]}*` : null,
+    unique[1] ? `*${unique[1]}*` : null,
+    unique[2] ? `*${unique[2]}*` : null,
+  ];
 }
 
 // Map the user-facing "€"/"€€"/"€€€" level to a band on priceRange.min (the
@@ -206,16 +260,20 @@ export function vibeTokens(vibe: string): (string | null)[] {
 // €€€€; an unparseable value yields null so the filter is dropped (fail open)
 // rather than returning nothing.
 export function priceBand(raw?: string): { min: number; maxExcl: number | null } | null {
-  const level = (raw ?? '').split('').filter((c) => c === '€').length
-  if (level <= 0) return null
-  if (level === 1) return { min: 0, maxExcl: 15 }
-  if (level === 2) return { min: 15, maxExcl: 35 }
-  return { min: 35, maxExcl: null }
+  const level = (raw ?? '').split('').filter((c) => c === '€').length;
+  if (level <= 0) return null;
+  if (level === 1) return { min: 0, maxExcl: 15 };
+  if (level === 2) return { min: 15, maxExcl: 35 };
+  return { min: 35, maxExcl: null };
 }
 
-export function buildSpotsParams(filters: SpotFilters, locale: Locale, resolvedSlug: string | null = null) {
-  const band = priceBand(filters.priceRange)
-  const [vibe1, vibe2, vibe3] = vibeTokens(filters.vibeQuery ?? '')
+export function buildSpotsParams(
+  filters: SpotFilters,
+  locale: Locale,
+  resolvedSlug: string | null = null
+) {
+  const band = priceBand(filters.priceRange);
+  const [vibe1, vibe2, vibe3] = vibeTokens(filters.vibeQuery ?? '');
   return {
     // When the name resolved against the folded index, query by exact slug and
     // drop the raw `name match` — otherwise diacritics would empty the result.
@@ -227,83 +285,85 @@ export function buildSpotsParams(filters: SpotFilters, locale: Locale, resolvedS
     priceMaxExcl: band ? band.maxExcl : null,
     lat: filters.userGeo?.lat ?? null,
     lng: filters.userGeo?.lng ?? null,
-    vibe1, vibe2, vibe3,
+    vibe1,
+    vibe2,
+    vibe3,
     locale,
-  }
+  };
 }
 
 interface SanityLike {
-  fetch: (query: string, params?: Record<string, unknown>) => Promise<unknown>
+  fetch: (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 }
 interface RetrievalDeps {
-  client?: SanityLike
+  client?: SanityLike;
   /** Override "now" for deterministic tests; defaults to the real clock. */
-  now?: Date
+  now?: Date;
 }
 
-const SPOTS_LIMIT = 30
-export const MIN_SEMANTIC_CANDIDATES = 8
+const SPOTS_LIMIT = 30;
+export const MIN_SEMANTIC_CANDIDATES = 8;
 
 // The raw row before priceRange/openingHours/coords are collapsed to display values.
 type RawSpotRow = Omit<SpotCandidate, 'priceRange' | 'openNow' | 'openLabel' | 'distanceLabel'> & {
-  priceRange?: { min?: number; max?: number; currency?: string } | null
-  openingHours?: OpeningHourSlot[] | null
-  lat?: number | null
-  lng?: number | null
-}
+  priceRange?: { min?: number; max?: number; currency?: string } | null;
+  openingHours?: OpeningHourSlot[] | null;
+  lat?: number | null;
+  lng?: number | null;
+};
 
 export function shouldUseSemanticRank(args: {
-  candidateCount: number
-  hasUserGeo: boolean
-  hasResolvedSlug: boolean
-  semanticQuery: string
+  candidateCount: number;
+  hasUserGeo: boolean;
+  hasResolvedSlug: boolean;
+  semanticQuery: string;
 }): boolean {
   return (
     args.candidateCount >= MIN_SEMANTIC_CANDIDATES &&
     !args.hasUserGeo &&
     !args.hasResolvedSlug &&
     args.semanticQuery.trim().length >= 3
-  )
+  );
 }
 
 export async function searchSpots(
   filters: SpotFilters,
   locale: Locale,
-  deps: RetrievalDeps = {},
+  deps: RetrievalDeps = {}
 ): Promise<SpotCandidate[]> {
-  const client = deps.client ?? (sanityClient as unknown as SanityLike)
-  const query = buildSpotsQuery(SPOTS_LIMIT)
+  const client = deps.client ?? (sanityClient as unknown as SanityLike);
+  const query = buildSpotsQuery(SPOTS_LIMIT);
   // A named spot resolves against the folded index first ("amato" → amatō,
   // "boi boi" → Boii Boii); only unresolved names fall back to raw `match`.
-  let resolvedSlug: string | null = null
+  let resolvedSlug: string | null = null;
   if (filters.name && filters.name.trim().length > 0) {
     try {
-      const index = await getNameIndex(client, (deps.now ?? new Date()).getTime())
-      resolvedSlug = resolveNameToSlug(filters.name, index)
+      const index = await getNameIndex(client, (deps.now ?? new Date()).getTime());
+      resolvedSlug = resolveNameToSlug(filters.name, index);
     } catch {
       // Index fetch failed — raw match still works, just diacritic-blind.
     }
   }
-  const params = buildSpotsParams(filters, locale, resolvedSlug)
-  const rows = (await client.fetch(query, params)) as RawSpotRow[]
-  const now = berlinNow(deps.now ?? new Date())
-  const labels = OPEN_LABELS[locale]
-  const userGeo = filters.userGeo
+  const params = buildSpotsParams(filters, locale, resolvedSlug);
+  const rows = (await client.fetch(query, params)) as RawSpotRow[];
+  const now = berlinNow(deps.now ?? new Date());
+  const labels = OPEN_LABELS[locale];
+  const userGeo = filters.userGeo;
   // Drop openingHours/coords + the raw price object from the payload; keep only
   // the derived label/status so the streamed spots stay lean.
   const mapped = (rows ?? []).map(({ openingHours, priceRange: rawPrice, lat, lng, ...rest }) => {
     // priceRange is a {min,max,currency} object in Sanity — format it to the
     // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
-    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined })
+    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined });
     // Compute "open now" (Berlin time) so Remy can prioritise open spots and
     // the card can show a status badge. Null when there's no hours data.
-    const hours = openingHours ?? []
-    const status = hours.length > 0 ? getOpenStatus(hours, now, labels) : null
+    const hours = openingHours ?? [];
+    const status = hours.length > 0 ? getOpenStatus(hours, now, labels) : null;
     // Distance from the user, when they shared their location.
     const km =
       userGeo && typeof lat === 'number' && typeof lng === 'number'
         ? distanceKm(userGeo, { lat, lng })
-        : null
+        : null;
     return {
       ...rest,
       priceRange,
@@ -311,36 +371,40 @@ export async function searchSpots(
       openLabel: status ? status.label : null,
       distanceLabel: km !== null ? distanceLabel(km, locale) : null,
       _km: km,
-    }
-  })
+    };
+  });
   // Nearest first when we know where the user is.
-  if (userGeo) mapped.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity))
+  if (userGeo) mapped.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity));
 
   // Semantic re-ranking: reorder the GROQ candidates by how well they match the
   // free-text intent (vibe + cuisine). Only when location isn't driving the
   // order and the user didn't name a specific spot — and it degrades to a no-op
   // if the embeddings index or Voyage key is absent (see semanticRank). The
   // GROQ filter stays the hard gate; this only changes order.
-  let ordered = mapped
-  const semanticQuery = [filters.cuisine, filters.vibeQuery].filter((s) => s && s.trim()).join(', ')
-  if (shouldUseSemanticRank({
-    candidateCount: mapped.length,
-    hasUserGeo: Boolean(userGeo),
-    hasResolvedSlug: Boolean(resolvedSlug),
-    semanticQuery,
-  })) {
-    const semantic = await semanticRank(semanticQuery)
-    ordered = applySemanticOrder(mapped, semantic)
+  let ordered = mapped;
+  const semanticQuery = [filters.cuisine, filters.vibeQuery]
+    .filter((s) => s && s.trim())
+    .join(', ');
+  if (
+    shouldUseSemanticRank({
+      candidateCount: mapped.length,
+      hasUserGeo: Boolean(userGeo),
+      hasResolvedSlug: Boolean(resolvedSlug),
+      semanticQuery,
+    })
+  ) {
+    const semantic = await semanticRank(semanticQuery);
+    ordered = applySemanticOrder(mapped, semantic);
   }
 
   return ordered.map(({ _km, ...spot }) => {
-    void _km
-    return spot
-  })
+    void _km;
+    return spot;
+  });
 }
 
 export interface ArticleQuery {
-  query: string
+  query: string;
 }
 
 const ARTICLES_QUERY = `*[
@@ -351,16 +415,16 @@ const ARTICLES_QUERY = `*[
   "title": select($locale == "en" => coalesce(title, titleDe), coalesce(titleDe, title)),
   "slug": slug.current,
   "excerpt": select($locale == "en" => coalesce(excerpt, excerptDe), coalesce(excerptDe, excerpt))
-}`
+}`;
 
 export async function searchArticles(
   input: ArticleQuery,
   locale: Locale,
-  deps: RetrievalDeps = {},
+  deps: RetrievalDeps = {}
 ): Promise<ArticleResult[]> {
-  const client = deps.client ?? (sanityClient as unknown as SanityLike)
-  const term = input.query.trim()
-  const q = term.length > 0 ? `*${term}*` : '*'
-  const rows = (await client.fetch(ARTICLES_QUERY, { q, locale })) as ArticleResult[]
-  return rows ?? []
+  const client = deps.client ?? (sanityClient as unknown as SanityLike);
+  const term = input.query.trim();
+  const q = term.length > 0 ? `*${term}*` : '*';
+  const rows = (await client.fetch(ARTICLES_QUERY, { q, locale })) as ArticleResult[];
+  return rows ?? [];
 }

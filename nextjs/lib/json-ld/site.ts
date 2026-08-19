@@ -1,8 +1,8 @@
-import { SITE_URL } from '@/lib/constants'
-import { serializeJsonLd } from './serialize'
+import { SITE_URL } from '@/lib/constants';
+import { serializeJsonLd } from './serialize';
 
 export function buildSiteJsonLd(locale: 'de' | 'en'): string {
-  const de = locale === 'de'
+  const de = locale === 'de';
   return serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
@@ -21,10 +21,7 @@ export function buildSiteJsonLd(locale: 'de' | 'en'): string {
           width: 512,
           height: 512,
         },
-        sameAs: [
-          'https://www.instagram.com/eatthisdotcom/',
-          'https://www.tiktok.com/@eatthis',
-        ],
+        sameAs: ['https://www.instagram.com/eatthisdotcom/', 'https://www.tiktok.com/@eatthis'],
       },
       {
         '@type': 'WebSite',
@@ -35,5 +32,5 @@ export function buildSiteJsonLd(locale: 'de' | 'en'): string {
         publisher: { '@id': `${SITE_URL}/#organization` },
       },
     ],
-  })
+  });
 }

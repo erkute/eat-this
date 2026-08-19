@@ -97,11 +97,7 @@ export default function HubMustEatsTeaser() {
   if (teaser.length === 0) return null;
 
   return (
-    <section
-      ref={sectionRef}
-      className="homeV2 hv-section hv-wrap"
-      data-hub-must-eats=""
-    >
+    <section ref={sectionRef} className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
       <div className="hv-head">
         <h2 className="hv-title">
           <span className="hv-mk" aria-hidden="true" />

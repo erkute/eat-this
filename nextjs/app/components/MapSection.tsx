@@ -1006,8 +1006,11 @@ export default function MapSection({
   popStateHandlersRef.current = { restaurants, lockedRestaurants, mustEats };
   const openFromUrlRef = useRef<(slug: string | null, mustEatId: string | null) => void>(() => {});
   openFromUrlRef.current = (slug, mustEatId) => {
-    const { restaurants: owned, lockedRestaurants: locked, mustEats: mes } =
-      popStateHandlersRef.current;
+    const {
+      restaurants: owned,
+      lockedRestaurants: locked,
+      mustEats: mes,
+    } = popStateHandlersRef.current;
     if (mustEatId) {
       const target = mes.find((m) => m._id === mustEatId);
       if (target) handleMustEatClick(target);

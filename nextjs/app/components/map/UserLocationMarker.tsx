@@ -1,24 +1,22 @@
-'use client'
-import { Marker } from 'react-map-gl/maplibre'
-import { useAuth } from '@/lib/auth'
-import { useUserProfile, defaultAvatarFromUid } from '@/lib/firebase/useUserProfile'
-import type { UserLocation } from '@/lib/map'
-import styles from './MapMarkers.module.css'
+'use client';
+import { Marker } from 'react-map-gl/maplibre';
+import { useAuth } from '@/lib/auth';
+import { useUserProfile, defaultAvatarFromUid } from '@/lib/firebase/useUserProfile';
+import type { UserLocation } from '@/lib/map';
+import styles from './MapMarkers.module.css';
 
 interface UserLocationMarkerProps {
-  location: UserLocation
+  location: UserLocation;
 }
 
 export default function UserLocationMarker({ location }: UserLocationMarkerProps) {
-  const { user } = useAuth()
-  const { profile } = useUserProfile(user?.uid ?? null)
+  const { user } = useAuth();
+  const { profile } = useUserProfile(user?.uid ?? null);
 
   // Selected avatar wins; otherwise fall back to a UID-derived default
   // (deterministic per user, no flicker on remount). Anonymous viewers
   // get avatar 1.
-  const avatarIndex =
-    profile.avatar ??
-    (user?.uid ? defaultAvatarFromUid(user.uid) : 1)
+  const avatarIndex = profile.avatar ?? (user?.uid ? defaultAvatarFromUid(user.uid) : 1);
 
   return (
     // The user marker is purely informational — restaurant/must-eat
@@ -42,5 +40,5 @@ export default function UserLocationMarker({ location }: UserLocationMarkerProps
         />
       </div>
     </Marker>
-  )
+  );
 }

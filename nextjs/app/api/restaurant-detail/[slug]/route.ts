@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { client } from '@/lib/sanity'
-import { restaurantMapDetailQuery } from '@/lib/map/queries'
+import { NextResponse } from 'next/server';
+import { client } from '@/lib/sanity';
+import { restaurantMapDetailQuery } from '@/lib/map/queries';
 
 // On-demand detail fields for the map detail sheet (address, phone, tip,
 // description, …). Same editorial/contact fields the public /restaurant/[slug]
@@ -9,27 +9,26 @@ import { restaurantMapDetailQuery } from '@/lib/map/queries'
 // and have drifted before (`phone` was here and not there, which left the
 // public page unable to offer a call button); the overlap the UI depends on is
 // pinned by lib/__tests__/restaurantContactFields.test.ts.
-export const revalidate = 3600
+export const revalidate = 3600;
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
-  const { slug } = await params
+export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const detail = await client.fetch(
     restaurantMapDetailQuery,
     { slug },
-    { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } },
-  )
+    { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } }
+  );
   // Never let a 404 stick in the CDN/browser: a slug that isn't published yet
   // would otherwise be cached as "not found" for up to s-maxage+SWR, so the
   // restaurant appears with a delay after it goes live.
   if (!detail)
     return NextResponse.json(
       { error: 'not_found' },
-      { status: 404, headers: { 'Cache-Control': 'no-store' } },
-    )
+      { status: 404, headers: { 'Cache-Control': 'no-store' } }
+    );
   return NextResponse.json(detail, {
-    headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' },
-  })
+    headers: {
+      'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+    },
+  });
 }

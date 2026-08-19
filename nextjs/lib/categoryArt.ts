@@ -9,8 +9,8 @@ const CATEGORY_ART: Record<string, string> = {
   lunch: '/pics/booster/booster_lunch.webp',
   pizza: '/pics/booster/booster_pizza.webp',
   sweets: '/pics/booster/booster_sweets.webp',
-}
+};
 
 export function categoryArt(slug: string): string | null {
-  return CATEGORY_ART[slug] ?? null
+  return CATEGORY_ART[slug] ?? null;
 }

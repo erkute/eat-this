@@ -1,50 +1,47 @@
-import type { MapMustEat } from '@/lib/types'
+import type { MapMustEat } from '@/lib/types';
 
 /** Restaurant-list badge card. Prefer a face-up must-eat for the viewer; if
  *  none exists, fall back to the restaurant's primary covered card.
  */
 export function buildPeekMustEatMap(
   mustEats: MapMustEat[],
-  faceUpIds: ReadonlySet<string>,
+  faceUpIds: ReadonlySet<string>
 ): Map<string, MapMustEat> {
-  const map = new Map<string, MapMustEat>()
+  const map = new Map<string, MapMustEat>();
   for (const m of mustEats) {
-    const restId = m.restaurant._id
-    const current = map.get(restId)
+    const restId = m.restaurant._id;
+    const current = map.get(restId);
     if (!current) {
-      map.set(restId, m)
-      continue
+      map.set(restId, m);
+      continue;
     }
 
-    const mFaceUp = faceUpIds.has(m._id)
-    const currentFaceUp = faceUpIds.has(current._id)
+    const mFaceUp = faceUpIds.has(m._id);
+    const currentFaceUp = faceUpIds.has(current._id);
     if (mFaceUp !== currentFaceUp) {
-      if (mFaceUp) map.set(restId, m)
-      continue
+      if (mFaceUp) map.set(restId, m);
+      continue;
     }
 
-    const a = m.order ?? Number.POSITIVE_INFINITY
-    const b = current.order ?? Number.POSITIVE_INFINITY
-    if (a < b) map.set(restId, m)
+    const a = m.order ?? Number.POSITIVE_INFINITY;
+    const b = current.order ?? Number.POSITIVE_INFINITY;
+    if (a < b) map.set(restId, m);
   }
-  return map
+  return map;
 }
 
-export type Peek =
-  | { kind: 'none' }
-  | { kind: 'covered' }
-  | { kind: 'open'; image: string }
+export type Peek = { kind: 'none' } | { kind: 'covered' } | { kind: 'open'; image: string };
 
 /** Face-up when the must-eat is unlocked OR pre-revealed for anon; otherwise
  *  the card-back. `revealedIds` is empty for signed-in users → uniform rule. */
 export function resolvePeek(
   primary: MapMustEat | undefined,
   unlockedIds: Set<string>,
-  revealedIds: Set<string>,
+  revealedIds: Set<string>
 ): Peek {
-  if (!primary) return { kind: 'none' }
+  if (!primary) return { kind: 'none' };
   if (unlockedIds.has(primary._id) || revealedIds.has(primary._id)) {
-    return primary.image ? { kind: 'open', image: primary.image } : { kind: 'covered' }
+    return primary.image ? { kind: 'open', image: primary.image } : { kind: 'covered' };
   }
-  return { kind: 'covered' }
+  return { kind: 'covered' };
 }

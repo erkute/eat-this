@@ -10,7 +10,7 @@ import type { EmailSpot } from '@/emails/MagicLinkEmail';
 export const SPOT_CARD_SIZE = 720;
 
 const PALETTE = {
-  ink:   '#0A0A0A',
+  ink: '#0A0A0A',
   cream: '#F7F2E8',
 };
 
@@ -25,10 +25,7 @@ export function spotPhotoUrl(photo: string): string {
   return `${photo.split('?')[0]}?w=720&h=720&fit=crop&fm=jpg&q=80`;
 }
 
-type SpotCardData = Pick<
-  EmailSpot,
-  'name' | 'area' | 'cuisine' | 'photo'
->;
+type SpotCardData = Pick<EmailSpot, 'name' | 'area' | 'cuisine' | 'photo'>;
 
 // The canvas keeps a cream margin on
 // top/right (matches the email body background, so the JPEG reads as
@@ -43,9 +40,9 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
   return (
     <div
       style={{
-        width:    SPOT_CARD_SIZE,
-        height:   SPOT_CARD_SIZE,
-        display:  'flex',
+        width: SPOT_CARD_SIZE,
+        height: SPOT_CARD_SIZE,
+        display: 'flex',
         position: 'relative',
         // Must match the email body bg — the overhang margin poses as
         // transparency in the flattened JPEG.
@@ -56,12 +53,12 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
       <div
         style={{
           position: 'absolute',
-          left:     0,
-          top:      OVERHANG,
-          width:    PHOTO,
-          height:   PHOTO,
-          display:  'flex',
-          border:   `4px solid ${PALETTE.ink}`,
+          left: 0,
+          top: OVERHANG,
+          width: PHOTO,
+          height: PHOTO,
+          display: 'flex',
+          border: `4px solid ${PALETTE.ink}`,
           backgroundColor: PALETTE.ink,
         }}
       >
@@ -79,10 +76,10 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
       <div
         style={{
           position: 'absolute',
-          left:     4,
-          bottom:   4,
-          width:    PHOTO - 8,
-          height:   300,
+          left: 4,
+          bottom: 4,
+          width: PHOTO - 8,
+          height: 300,
           backgroundImage:
             'linear-gradient(to bottom, rgba(10,10,10,0) 0%, rgba(10,10,10,0.82) 78%)',
         }}
@@ -91,23 +88,23 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
       {/* meta + name — bottom left, on the photo */}
       <div
         style={{
-          position:      'absolute',
-          left:          36,
-          bottom:        32,
-          width:         PHOTO - 72,
-          display:       'flex',
+          position: 'absolute',
+          left: 36,
+          bottom: 32,
+          width: PHOTO - 72,
+          display: 'flex',
           flexDirection: 'column',
         }}
       >
         {meta && (
           <div
             style={{
-              fontFamily:    'Saira Condensed',
-              fontSize:      27,
-              fontWeight:    800,
+              fontFamily: 'Saira Condensed',
+              fontSize: 27,
+              fontWeight: 800,
               letterSpacing: 4,
-              color:         PALETTE.cream,
-              marginBottom:  6,
+              color: PALETTE.cream,
+              marginBottom: 6,
             }}
           >
             {meta}
@@ -116,9 +113,9 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         <div
           style={{
             fontFamily: 'Schoolbell',
-            fontSize:   72,
+            fontSize: 72,
             lineHeight: 1.05,
-            color:      PALETTE.cream,
+            color: PALETTE.cream,
           }}
         >
           {spot.name}

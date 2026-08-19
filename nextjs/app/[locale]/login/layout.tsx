@@ -7,7 +7,7 @@ import { CSS_VERSION } from '@/lib/constants';
 import { AuthProvider } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title:  'Anmelden',
+  title: 'Anmelden',
   robots: 'noindex, nofollow',
 };
 
@@ -16,7 +16,7 @@ export default async function LoginLayout({
   params,
 }: {
   children: React.ReactNode;
-  params:   Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();

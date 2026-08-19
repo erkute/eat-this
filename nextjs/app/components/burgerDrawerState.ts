@@ -66,9 +66,7 @@ export function openBurgerDrawer() {
   const openBtn = document.getElementById('burgerBtn');
   if (!drawer || drawer.classList.contains('active')) return;
 
-  focusBeforeDrawer = document.activeElement instanceof HTMLElement
-    ? document.activeElement
-    : null;
+  focusBeforeDrawer = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   lockBody();
   drawer.hidden = false;
   drawer.removeAttribute('inert');

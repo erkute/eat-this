@@ -229,8 +229,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* A locked dot opens the sheet like any other spot. It used to navigate
      straight to the pack page, which threw away the map, the filter and the
      search for what is usually a "what is this?" tap. */
-  const lockedMarkerLabel =
-    locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
+  const lockedMarkerLabel = locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
   /* Clustered markers carry their count in the accessible name — the free tag
      shows the number, the locked dot only grows, so for a screen reader the
      name is the only place either count exists. */
@@ -239,21 +238,21 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       locale === 'en'
         ? `${count} spots — tap to zoom in`
         : `${count} Spots – zum Reinzoomen tippen`,
-    [locale],
+    [locale]
   );
   const lockedClusterLabel = useCallback(
     (count: number) =>
       locale === 'en'
         ? `${count} locked spots — tap to zoom in`
         : `${count} gesperrte Spots – zum Reinzoomen tippen`,
-    [locale],
+    [locale]
   );
   const handleLockedClick = useCallback(
     (r: MapRestaurant) => {
       trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
       onRestaurantClick(r, 'map');
     },
-    [onRestaurantClick],
+    [onRestaurantClick]
   );
   /* What the "0 free hits" headline is a zero *of*. Search wins because a query
      overrides every other filter in useMapFilters; then the narrowest chip.

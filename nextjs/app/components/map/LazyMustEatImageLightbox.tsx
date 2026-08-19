@@ -1,12 +1,9 @@
-'use client'
+'use client';
 
-import dynamic from 'next/dynamic'
-import type { MustEatImageLightboxProps } from './MustEatImageLightbox'
+import dynamic from 'next/dynamic';
+import type { MustEatImageLightboxProps } from './MustEatImageLightbox';
 
-const MustEatImageLightbox = dynamic(
-  () => import('./MustEatImageLightbox'),
-  { ssr: false },
-)
+const MustEatImageLightbox = dynamic(() => import('./MustEatImageLightbox'), { ssr: false });
 
 interface Props extends MustEatImageLightboxProps {
   /**
@@ -14,9 +11,9 @@ interface Props extends MustEatImageLightboxProps {
    * chunk is requested only when an opening starts, while `onExitComplete`
    * remains responsible for ending this active phase.
    */
-  active: boolean
+  active: boolean;
 }
 
 export default function LazyMustEatImageLightbox({ active, ...props }: Props) {
-  return active ? <MustEatImageLightbox {...props} /> : null
+  return active ? <MustEatImageLightbox {...props} /> : null;
 }

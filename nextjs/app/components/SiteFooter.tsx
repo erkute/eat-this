@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { useTranslation } from '@/lib/i18n'
-import { Link } from '@/i18n/navigation'
-import styles from './SiteFooter.module.css'
+import Image from 'next/image';
+import { useTranslation } from '@/lib/i18n';
+import { Link } from '@/i18n/navigation';
+import styles from './SiteFooter.module.css';
 
 export default function SiteFooter() {
-  const { t, lang, setLang } = useTranslation()
-  const de = lang === 'de'
-  const follow = de ? 'Folgen' : 'Follow'
-  const askRemy = de ? 'Frag Remy' : 'Ask Remy'
+  const { t, lang, setLang } = useTranslation();
+  const de = lang === 'de';
+  const follow = de ? 'Folgen' : 'Follow';
+  const askRemy = de ? 'Frag Remy' : 'Ask Remy';
 
   return (
     <footer className={styles.footer} data-site-footer role="contentinfo" aria-label="Site footer">
@@ -66,9 +66,15 @@ export default function SiteFooter() {
       </div>
 
       <nav className={styles.legal} aria-label="Footer legal">
-        <Link href="/impressum" className={styles.legalLink}>{t('footer.impressum')}</Link>
-        <Link href="/datenschutz" className={styles.legalLink}>{t('footer.datenschutz')}</Link>
-        <Link href="/agb" className={styles.legalLink}>{t('footer.agb')}</Link>
+        <Link href="/impressum" className={styles.legalLink}>
+          {t('footer.impressum')}
+        </Link>
+        <Link href="/datenschutz" className={styles.legalLink}>
+          {t('footer.datenschutz')}
+        </Link>
+        <Link href="/agb" className={styles.legalLink}>
+          {t('footer.agb')}
+        </Link>
         <button
           type="button"
           className={`${styles.legalLink} ${styles.legalBtn}`}
@@ -102,5 +108,5 @@ export default function SiteFooter() {
         <span className={styles.copy}>{t('footer.copyright')}</span>
       </div>
     </footer>
-  )
+  );
 }

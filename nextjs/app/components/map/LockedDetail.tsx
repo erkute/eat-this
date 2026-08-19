@@ -37,9 +37,7 @@ export default function LockedDetail({ restaurant: r, contentRef, onClose }: Pro
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
   const cuisine = r.cuisineType ?? null;
   const prefix = locale === routing.defaultLocale ? '' : `/${locale}`;
-  const heroStyle = r.photo
-    ? ({ backgroundImage: `url(${r.photo})` } as CSSProperties)
-    : undefined;
+  const heroStyle = r.photo ? ({ backgroundImage: `url(${r.photo})` } as CSSProperties) : undefined;
 
   return (
     <div
@@ -70,9 +68,7 @@ export default function LockedDetail({ restaurant: r, contentRef, onClose }: Pro
         <div className={lockedStyles.body}>
           <p className={lockedStyles.kicker}>{t('map.emptyLockedKicker')}</p>
           <p className={lockedStyles.lead}>
-            {de
-              ? 'Liegt noch nicht auf deiner Map.'
-              : 'Not on your map yet.'}
+            {de ? 'Liegt noch nicht auf deiner Map.' : 'Not on your map yet.'}
           </p>
           <p className={lockedStyles.sub}>
             {de

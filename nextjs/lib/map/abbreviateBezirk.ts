@@ -7,8 +7,8 @@
  * distinguish "no bezirk" from "abbreviated bezirk".
  */
 export function abbreviateBezirk(name: string | null | undefined): string | null {
-  if (name == null) return null
-  if (name === '') return ''
-  if (name.toLowerCase() === 'prenzlauer berg') return "P'berg"
-  return name
+  if (name == null) return null;
+  if (name === '') return '';
+  if (name.toLowerCase() === 'prenzlauer berg') return "P'berg";
+  return name;
 }

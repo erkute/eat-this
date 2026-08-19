@@ -1,68 +1,77 @@
 // @vitest-environment jsdom
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getAnalyticsPageLocation, handoffEvent, loadAnalytics, flushAnalyticsQueue, trackEvent, trackEventOnce } from './analytics'
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  getAnalyticsPageLocation,
+  handoffEvent,
+  loadAnalytics,
+  flushAnalyticsQueue,
+  trackEvent,
+  trackEventOnce,
+} from './analytics';
 
 describe('analytics consent gate', () => {
   beforeEach(() => {
-    localStorage.clear()
-    sessionStorage.clear()
+    localStorage.clear();
+    sessionStorage.clear();
     // Consent lives in a cookie now (lib/consent.ts) so the pre-paint
     // bootstrap can read it; the gate reads it from there.
-    document.cookie = 'cookieConsent=; Max-Age=0; Path=/'
-    delete (window as Window & { gtag?: unknown }).gtag
-    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue
-  })
+    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
+    delete (window as Window & { gtag?: unknown }).gtag;
+    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
+  });
 
   it('drops events before consent', () => {
-    trackEvent('map_opened')
-    expect((window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue).toBeUndefined()
-  })
+    trackEvent('map_opened');
+    expect(
+      (window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue
+    ).toBeUndefined();
+  });
 
   it('queues after consent and flushes when gtag loads', () => {
-    document.cookie = 'cookieConsent=accepted; Path=/'
-    trackEvent('map_opened', { tier: 'anon' })
+    document.cookie = 'cookieConsent=accepted; Path=/';
+    trackEvent('map_opened', { tier: 'anon' });
 
-    const gtag = vi.fn()
-    ;(window as Window & { gtag?: typeof gtag }).gtag = gtag
-    flushAnalyticsQueue()
+    const gtag = vi.fn();
+    (window as Window & { gtag?: typeof gtag }).gtag = gtag;
+    flushAnalyticsQueue();
 
-    expect(gtag).toHaveBeenCalledWith('event', 'map_opened', { tier: 'anon' })
-  })
+    expect(gtag).toHaveBeenCalledWith('event', 'map_opened', { tier: 'anon' });
+  });
 
   it('deduplicates session-scoped events', () => {
-    document.cookie = 'cookieConsent=accepted; Path=/'
-    const gtag = vi.fn()
-    ;(window as Window & { gtag?: typeof gtag }).gtag = gtag
+    document.cookie = 'cookieConsent=accepted; Path=/';
+    const gtag = vi.fn();
+    (window as Window & { gtag?: typeof gtag }).gtag = gtag;
 
-    trackEventOnce('purchase_1', 'purchase', { value: 2.99 })
-    trackEventOnce('purchase_1', 'purchase', { value: 2.99 })
+    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
+    trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
 
-    expect(gtag).toHaveBeenCalledTimes(1)
-  })
+    expect(gtag).toHaveBeenCalledTimes(1);
+  });
 
   it('hands an event across a hard navigation', () => {
-    document.cookie = 'cookieConsent=accepted; Path=/'
-    handoffEvent('sign_up', { method: 'email_link' })
+    document.cookie = 'cookieConsent=accepted; Path=/';
+    handoffEvent('sign_up', { method: 'email_link' });
 
-    const appendChild = vi.spyOn(document.head, 'appendChild')
-    loadAnalytics()
-    const gtag = (window as Window & { gtag?: ReturnType<typeof vi.fn> }).gtag
+    const appendChild = vi.spyOn(document.head, 'appendChild');
+    loadAnalytics();
+    const gtag = (window as Window & { gtag?: ReturnType<typeof vi.fn> }).gtag;
 
-    expect(gtag).toBeDefined()
-    expect(sessionStorage.getItem('eatthis_analytics_handoff')).toBeNull()
-    expect(appendChild).toHaveBeenCalled()
-  })
-})
+    expect(gtag).toBeDefined();
+    expect(sessionStorage.getItem('eatthis_analytics_handoff')).toBeNull();
+    expect(appendChild).toHaveBeenCalled();
+  });
+});
 
 describe('getAnalyticsPageLocation', () => {
   it('removes Stripe session IDs from page views but preserves other params', () => {
     expect(
       getAnalyticsPageLocation(
-        'https://www.eatthisdot.com/checkout/success?session_id=cs_secret&utm_source=stripe',
-      ),
+        'https://www.eatthisdot.com/checkout/success?session_id=cs_secret&utm_source=stripe'
+      )
     ).toEqual({
       pageLocation: 'https://www.eatthisdot.com/checkout/success?utm_source=stripe',
       pagePath: '/checkout/success?utm_source=stripe',
-    })
-  })
-})
+    });
+  });
+});

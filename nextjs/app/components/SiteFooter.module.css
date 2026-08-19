@@ -198,7 +198,7 @@
   content: '·';
   display: inline-block;
   margin-left: clamp(10px, 1.5vw, 18px);
-  color: rgba(255, 255, 255, .55);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .legalLink:hover {
@@ -258,7 +258,7 @@
   border: 0;
   background: transparent;
   padding: 0;
-  color: rgba(255, 255, 255, .68);
+  color: rgba(255, 255, 255, 0.68);
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
@@ -276,7 +276,7 @@
 }
 
 .langSep {
-  color: rgba(255, 255, 255, .32);
+  color: rgba(255, 255, 255, 0.32);
 }
 
 @media (min-width: 740px) {

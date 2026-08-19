@@ -44,7 +44,7 @@ export async function GET(request: Request) {
   const { schoolbell, saira } = await loadFonts();
 
   const png = new ImageResponse(<SpotCardImage spot={spot} />, {
-    width:  SPOT_CARD_SIZE,
+    width: SPOT_CARD_SIZE,
     height: SPOT_CARD_SIZE,
     fonts: [
       { name: 'Schoolbell', data: schoolbell, weight: 400, style: 'normal' },

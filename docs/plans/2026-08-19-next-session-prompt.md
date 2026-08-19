@@ -12,9 +12,9 @@
   Basic-Auth-Gate steht aus (Zugangsdaten:
   `docs/runbooks/2026-05-27-staging-backend-setup.md`).
 - **Produktion: unverändert.** Kein `staging → main`. Nichts davon ist live.
-- **`PR`, offen:** #367 (dieses Dokument + Rollout-Protokoll) und **#364**, das
-  denselben Kopfblock umschreibt und nach den Merges **kollidiert** — braucht
-  einen Rebase, sein 11:06-Smoke-Protokoll ist inhaltlich weiter gültig.
+- **`PR`, offen:** nur #367 (dieses Dokument + Rollout-Protokoll). #364 ist
+  rebased und gemerged; sein 11:06-Smoke-Protokoll steht jetzt im Kopfblock des
+  Fund-Dokuments, direkt über dem 13:52-Rollout-Eintrag.
 - Der Branch `docs/p13-p21-p22-followups` ist gepusht, hat **keinen PR** und ist
   inhaltlich identisch zum Doc-Stand auf `staging` — vermutlich entbehrlich.
 
@@ -112,5 +112,7 @@ Reihenfolge nach Wirkung pro Aufwand, nicht bindend.
   Kopf behalten: MapLibre stapelt Marker nach **Mount**-Reihenfolge, nicht nach
   React-Baum; freie Marker haben deshalb ein eigenes Band (`.markerRootFree`).
 
-Vor dem Weiterbauen: **#364 rebasen oder schließen**, sonst wächst der Konflikt
-im Kopfblock des Fund-Dokuments mit jedem weiteren Eintrag.
+Der Kopfblock des Fund-Dokuments trägt jetzt **zwei** Rollout-Einträge — 11:06
+bis einschließlich 2.1, 13:52 für 2.2/2.5/Key-Sweep. Wer einen dritten anhängt:
+Zeitpunkt und Commit dazuschreiben und sagen, **wie weit** er reicht. Genau das
+Fehlen dieser Reichweite hat #364 und #367 in den Konflikt laufen lassen.

@@ -182,7 +182,6 @@ export default async function PackDetailPage({ params }: PageProps) {
             <h1 className={styles.name}>
               <span>{heroName}</span> <span className={styles.nameLine}>Pack</span>
             </h1>
-            {contents && <p className={styles.contents}>{formatPackContents(contents, loc)}</p>}
             <p className={styles.sub}>{pack.description[loc]}</p>
 
             <PackBuyButton
@@ -227,9 +226,7 @@ export default async function PackDetailPage({ params }: PageProps) {
                 {more > 0 && (
                   <div className={`${styles.row} ${styles.rowLocked}`}>
                     <div className={styles.thumb}>+</div>
-                    <span className={styles.rn}>
-                      {de ? `${more} weitere Spots` : `${more} more spots`}
-                    </span>
+                    <span className={styles.rn}>{de ? 'Weitere Spots' : 'More spots'}</span>
                     <span className={styles.mn}>{de ? 'Live-Map' : 'Live map'}</span>
                   </div>
                 )}

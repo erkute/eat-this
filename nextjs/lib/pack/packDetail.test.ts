@@ -137,15 +137,15 @@ describe('bundleSavings', () => {
     expect(savedCents).toBe(singleTotalCents - CATALOG['all-berlin'].amountCents);
   });
 
-  it('matches the live catalog: 9 x 2,99 EUR against 20 EUR', () => {
+  it('matches the live catalog: 9 x 2,99 EUR against 9,99 EUR', () => {
     expect(bundleSavings()).toEqual({
       singleTotalCents: 2691,
-      savedCents: 691,
-      percent: 25,
+      savedCents: 1692,
+      percent: 62,
     });
   });
 
-  it('floors the percentage — 25.68% must not advertise as 26%', () => {
+  it('floors the percentage — 62.87% must not advertise as 63%', () => {
     const { savedCents, singleTotalCents, percent } = bundleSavings();
     expect((savedCents / singleTotalCents) * 100).toBeGreaterThan(percent);
     expect(percent).toBe(Math.floor((savedCents / singleTotalCents) * 100));
@@ -154,7 +154,7 @@ describe('bundleSavings', () => {
 
 describe('formatBundleSavings', () => {
   it('states the exact euro figure next to the rounded percentage', () => {
-    expect(formatBundleSavings('de')).toBe('Einzeln 26,91 € · du sparst 6,91 € (25 %)');
-    expect(formatBundleSavings('en')).toBe('26,91 € separately · you save 6,91 € (25%)');
+    expect(formatBundleSavings('de')).toBe('Einzeln 26,91 € · du sparst 16,92 € (62 %)');
+    expect(formatBundleSavings('en')).toBe('26,91 € separately · you save 16,92 € (62%)');
   });
 });

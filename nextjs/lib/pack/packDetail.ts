@@ -88,3 +88,39 @@ export function formatPackContents(
   if (mustEats === 0) return spotLabel
   return `${spotLabel} · ${mustEats} ${mustEats === 1 ? 'Must Eat' : 'Must Eats'}`
 }
+
+/**
+ * What the nine category packs cost bought one at a time, against All Berlin.
+ * Derived from CATALOG rather than written down, so adding a tenth pack or
+ * moving a price cannot leave a stale claim on the page.
+ */
+export function bundleSavings(): {
+  singleTotalCents: number
+  savedCents: number
+  /** Floored: a discount may read smaller than it is, never larger. */
+  percent: number
+} {
+  const singleTotalCents = Object.values(CATALOG)
+    .filter(p => p.type === 'category')
+    .reduce((sum, p) => sum + p.amountCents, 0)
+  const savedCents = singleTotalCents - CATALOG['all-berlin'].amountCents
+  return {
+    singleTotalCents,
+    savedCents,
+    percent: Math.floor((savedCents / singleTotalCents) * 100),
+  }
+}
+
+/**
+ * "Einzeln 26,91 € · du sparst 6,91 € (25 %)" — the line that was missing next
+ * to every All-Berlin CTA. The euro figure is exact; only the percentage is
+ * rounded, and downwards.
+ */
+export function formatBundleSavings(locale: 'de' | 'en'): string {
+  const { singleTotalCents, savedCents, percent } = bundleSavings()
+  const single = formatPackPrice(singleTotalCents)
+  const saved = formatPackPrice(savedCents)
+  return locale === 'de'
+    ? `Einzeln ${single} · du sparst ${saved} (${percent} %)`
+    : `${single} separately · you save ${saved} (${percent}%)`
+}

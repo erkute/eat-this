@@ -5,6 +5,8 @@ import {
   formatPackPrice,
   buildPackTeaser,
   formatPackContents,
+  bundleSavings,
+  formatBundleSavings,
 } from './packDetail'
 import { CATALOG } from '@/lib/stripe-catalog'
 import type { RestaurantCard } from '@/lib/types'
@@ -124,5 +126,35 @@ describe('formatPackContents', () => {
   it('drops the plural s on one', () => {
     expect(formatPackContents({ spots: 1, mustEats: 1 }, 'de')).toBe('1 Spot · 1 Must Eat')
     expect(formatPackContents({ spots: 1, mustEats: 1 }, 'en')).toBe('1 spot · 1 Must Eat')
+  })
+})
+
+describe('bundleSavings', () => {
+  it('adds up the category packs rather than hardcoding their total', () => {
+    const categoryPacks = Object.values(CATALOG).filter(p => p.type === 'category')
+    const { singleTotalCents, savedCents } = bundleSavings()
+    expect(singleTotalCents).toBe(categoryPacks.reduce((n, p) => n + p.amountCents, 0))
+    expect(savedCents).toBe(singleTotalCents - CATALOG['all-berlin'].amountCents)
+  })
+
+  it('matches the live catalog: 9 x 2,99 EUR against 20 EUR', () => {
+    expect(bundleSavings()).toEqual({
+      singleTotalCents: 2691,
+      savedCents: 691,
+      percent: 25,
+    })
+  })
+
+  it('floors the percentage — 25.68% must not advertise as 26%', () => {
+    const { savedCents, singleTotalCents, percent } = bundleSavings()
+    expect((savedCents / singleTotalCents) * 100).toBeGreaterThan(percent)
+    expect(percent).toBe(Math.floor((savedCents / singleTotalCents) * 100))
+  })
+})
+
+describe('formatBundleSavings', () => {
+  it('states the exact euro figure next to the rounded percentage', () => {
+    expect(formatBundleSavings('de')).toBe('Einzeln 26,91 € · du sparst 6,91 € (25 %)')
+    expect(formatBundleSavings('en')).toBe('26,91 € separately · you save 6,91 € (25%)')
   })
 })

@@ -16,6 +16,7 @@ import {
   formatPackPrice,
   buildPackTeaser,
   formatPackContents,
+  formatBundleSavings,
 } from '@/lib/pack/packDetail'
 import PackBuyButton from './PackBuyButton'
 import styles from './PackDetail.module.css'
@@ -125,6 +126,7 @@ export default async function PackDetailPage({ params }: PageProps) {
               <p className={styles.sub}>{pack.description[loc]}</p>
 
               <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
+              <p className={styles.savings}>{formatBundleSavings(loc)}</p>
               {paymentLogos}
             </div>
 
@@ -252,6 +254,7 @@ export default async function PackDetailPage({ params }: PageProps) {
                 <span className={styles.upsellCta}>
                   {de ? 'Alle Packs freischalten · 20 €' : 'Unlock every pack · €20'}
                 </span>
+                <span className={styles.upsellSavings}>{formatBundleSavings(loc)}</span>
               </span>
             </Link>
           </div>

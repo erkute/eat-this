@@ -33,6 +33,32 @@ Spot-Zahlen (2.1).
 `WWW-Authenticate: Basic realm="Staging"` **und** `x-robots-tag: noindex,
 nofollow`, Produktion 200 ohne diesen Header.
 
+**Rollout, Stand 2026-08-19 16:03 lokal — deckt 4.1** (Commit `b225a82b`):
+`rollout succeeded`. `build-2026-08-19-017` steht auf `READY`, sein
+`source.codebase.hash` ist `b225a82bd226dea3c3a40d3e037a0bb88aecdd64` und damit
+identisch mit `origin/staging`. Negative Checks ohne Zugangsdaten: Staging 401
+mit `WWW-Authenticate: Basic realm="Staging"` und `x-robots-tag: noindex,
+nofollow`, Produktion 200 ohne diesen Header. `smoke-tested` gilt weiterhin nur
+bis 2.1 (`73087a33`).
+
+**Dieser Rollout musste von Hand gestartet werden — der Push-Event kam nie an.**
+Der Merge von PR #369 lag um `13:41:49Z` und der Remote-Ref bewegte sich
+(`git ls-remote` zeigte `b225a82b`), aber weder App Hosting noch GitHub Actions
+reagierten: letzter Rollout `016` um `13:07:24Z`, letzter Actions-Lauf auf
+`staging` um `13:07:25Z` — eine Sekunde auseinander, weil beide am selben
+Webhook hängen. `gh api …/actions/runs?branch=staging&created=>13:40Z` gab
+`total_count: 0`. Ausgeschlossen: `quality.yml` hat keinen `paths`-Filter, und
+seine `concurrency`-Gruppe trennt `refs/heads/staging` von `refs/pull/369/merge`.
+GitHub-Status meldete alles `operational`. Auffällig, aber nicht bewiesen: alle
+früheren `staging`-Läufe stammen von Merge-Commits oder direkten Pushes, meiner
+war der erste **Squash**-Merge im sichtbaren Verlauf.
+
+Konsequenz, die zählt: **der Quality-Gate-Lauf auf `staging` ist mit ausgefallen.**
+Inhaltlich gedeckt, weil der PR-Lauf auf `f7dda608` grün war und denselben Code
+prüfte — aber die Regel „jeder direkte Push auf `staging` wird geprüft" hat hier
+stillschweigend nicht gegriffen. Nach jedem Merge also nachsehen, ob überhaupt
+etwas gelaufen ist, statt es anzunehmen.
+
 **`smoke-tested` gilt für diese drei aber NICHT** — der funktionale Smoke hinter
 dem Basic-Auth-Gate steht aus, er braucht die Zugangsdaten aus
 `docs/runbooks/2026-05-27-staging-backend-setup.md`. Nicht mit dem Rollout

@@ -9,20 +9,20 @@
 // Use this only for raw Sanity <img> call sites. next/image keeps its default
 // optimizer so local browser assets receive real responsive variants too.
 
-const DEFAULT_QUALITY = 80
+const DEFAULT_QUALITY = 80;
 
 export default function sanityImageLoader({
   src,
   width,
   quality,
 }: {
-  src: string
-  width: number
-  quality?: number
+  src: string;
+  width: number;
+  quality?: number;
 }): string {
   // Strip any pre-existing query string the GROQ projection may have added,
   // so we don't end up with duplicated `?w=`/`?q=` params.
-  const base = src.split('?')[0]
-  const q = quality ?? DEFAULT_QUALITY
-  return `${base}?w=${width}&auto=format&q=${q}`
+  const base = src.split('?')[0];
+  const q = quality ?? DEFAULT_QUALITY;
+  return `${base}?w=${width}&auto=format&q=${q}`;
 }

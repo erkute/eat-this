@@ -1,17 +1,17 @@
-import type { NewsArticle } from './types'
-import { truncateMetadataDescription } from './seo/metadata-text'
+import type { NewsArticle } from './types';
+import { truncateMetadataDescription } from './seo/metadata-text';
 
 export function getLocalizedNewsMetadata(
   article: NewsArticle,
-  locale: string,
+  locale: string
 ): { title: string; description: string } {
   if (locale === 'de') {
     return {
       title: article.seo?.metaTitle || article.titleDe || article.title,
       description: truncateMetadataDescription(
-        article.seo?.metaDescription || article.excerptDe || article.excerpt || '',
+        article.seo?.metaDescription || article.excerptDe || article.excerpt || ''
       ),
-    }
+    };
   }
 
   return {
@@ -26,7 +26,7 @@ export function getLocalizedNewsMetadata(
         article.excerpt ||
         article.seo?.metaDescription ||
         article.excerptDe ||
-        '',
+        ''
     ),
-  }
+  };
 }

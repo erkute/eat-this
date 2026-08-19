@@ -1,4 +1,4 @@
-import { client } from './sanity'
+import { client } from './sanity';
 import {
   restaurantBySlugQuery,
   allRestaurantSlugsQuery,
@@ -17,16 +17,18 @@ import {
   categoryBySlugQuery,
   emailSpotsQuery,
   emailSpotCardQuery,
-} from './queries'
-import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types'
-import type { CategoryDef } from './categories'
+  packContentsQuery,
+} from './queries';
+import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types';
+import type { CategoryDef } from './categories';
+import type { PackContents, PackContentsIndex } from './pack/packDetail';
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   return client.fetch<Restaurant | null>(
     restaurantBySlugQuery,
     { slug },
     { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } }
-  )
+  );
 }
 
 export async function getAllRestaurantSlugs(): Promise<string[]> {
@@ -34,18 +36,20 @@ export async function getAllRestaurantSlugs(): Promise<string[]> {
     allRestaurantSlugsQuery,
     {},
     { next: { revalidate: 3600 } }
-  )
-  return results.map(r => r.slug)
+  );
+  return results.map((r) => r.slug);
 }
 
 // Lightweight name+slug+bezirk list, used by the legacy-slug resolver to map
 // post-rebuild 404 URLs to their current slug. See lib/seo/legacyRedirects.ts.
-export async function getAllRestaurantsLite(): Promise<{ name: string; slug: string; bezirk: string | null }[]> {
+export async function getAllRestaurantsLite(): Promise<
+  { name: string; slug: string; bezirk: string | null }[]
+> {
   return client.fetch(
     `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current, "bezirk": bezirkRef->slug.current }`,
     {},
     { next: { revalidate: 3600, tags: ['restaurants-lite'] } }
-  )
+  );
 }
 
 export async function getArticleBySlug(slug: string): Promise<NewsArticle | null> {
@@ -53,7 +57,7 @@ export async function getArticleBySlug(slug: string): Promise<NewsArticle | null
     articleBySlugQuery,
     { slug },
     { next: { revalidate: 3600, tags: [`article:${slug}`] } }
-  )
+  );
 }
 
 export async function getAllArticleSlugs(): Promise<string[]> {
@@ -61,8 +65,8 @@ export async function getAllArticleSlugs(): Promise<string[]> {
     allArticleSlugsQuery,
     {},
     { next: { revalidate: 3600 } }
-  )
-  return results.map(a => a.slug)
+  );
+  return results.map((a) => a.slug);
 }
 
 export async function getAllNewsArticles(): Promise<NewsArticle[]> {
@@ -70,22 +74,25 @@ export async function getAllNewsArticles(): Promise<NewsArticle[]> {
     allNewsArticlesQuery,
     {},
     { next: { revalidate: 3600, tags: ['news'] } }
-  )
+  );
 }
 
-export async function getStaticPage(slug: string, locale: 'de' | 'en'): Promise<StaticPageDoc | null> {
+export async function getStaticPage(
+  slug: string,
+  locale: 'de' | 'en'
+): Promise<StaticPageDoc | null> {
   return client.fetch<StaticPageDoc | null>(
     staticPageBySlugQuery,
     { slug, locale },
     { next: { revalidate: 3600, tags: [`staticPage:${slug}`, 'staticPage'] } }
-  )
+  );
 }
 
 // Card-back teaser data only — never add content fields (dish/photo/price)
 // here; they would leak through the public restaurant page's RSC payload.
 export interface MustEatPreview {
-  _id: string
-  order?: number
+  _id: string;
+  order?: number;
 }
 
 export async function getMustEatsByRestaurant(restaurantId: string): Promise<MustEatPreview[]> {
@@ -93,7 +100,7 @@ export async function getMustEatsByRestaurant(restaurantId: string): Promise<Mus
     mustEatsByRestaurantQuery,
     { restaurantId },
     { next: { revalidate: 3600, tags: ['mustEat'] } }
-  )
+  );
 }
 
 export async function getAllBezirkeWithStats(): Promise<BezirkDoc[]> {
@@ -101,7 +108,7 @@ export async function getAllBezirkeWithStats(): Promise<BezirkDoc[]> {
     allBezirkeWithStatsQuery,
     {},
     { next: { revalidate: 3600, tags: ['bezirk', 'sitemap-bezirke'] } }
-  )
+  );
 }
 
 export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
@@ -111,7 +118,7 @@ export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
     // `bezirk` (generic) catches restaurant publishes — the webhook can't
     // resolve the restaurant's bezirk slug, so it fires the generic tag.
     { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'bezirk'] } }
-  )
+  );
 }
 
 export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCard[]> {
@@ -119,7 +126,7 @@ export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCa
     restaurantsByBezirkQuery,
     { bezirkSlug: slug },
     { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'bezirk', 'sitemap-restaurants'] } }
-  )
+  );
 }
 
 export async function getRestaurantsByCategory(categorySlug: string): Promise<RestaurantCard[]> {
@@ -127,19 +134,19 @@ export async function getRestaurantsByCategory(categorySlug: string): Promise<Re
     restaurantsByCategoryQuery,
     { categorySlug },
     { next: { revalidate: 3600, tags: [`category:${categorySlug}`, 'category-list'] } }
-  )
+  );
 }
 
 interface RestaurantSiblingCandidates {
-  bezirk: RestaurantCard[]
-  category: RestaurantCard[]
+  bezirk: RestaurantCard[];
+  category: RestaurantCard[];
 }
 
 interface RestaurantSiblingRows {
-  bezirkAfter: RestaurantCard[]
-  bezirkWrap: RestaurantCard[]
-  categoryAfter: RestaurantCard[]
-  categoryWrap: RestaurantCard[]
+  bezirkAfter: RestaurantCard[];
+  bezirkWrap: RestaurantCard[];
+  categoryAfter: RestaurantCard[];
+  categoryWrap: RestaurantCard[];
 }
 
 export async function getRestaurantSiblingCandidates({
@@ -150,12 +157,12 @@ export async function getRestaurantSiblingCandidates({
   bezirkLimit = 3,
   categoryLimit = 6,
 }: {
-  selfSlug: string
-  selfName: string
-  bezirkSlug?: string
-  categorySlug?: string
-  bezirkLimit?: number
-  categoryLimit?: number
+  selfSlug: string;
+  selfName: string;
+  bezirkSlug?: string;
+  categorySlug?: string;
+  bezirkLimit?: number;
+  categoryLimit?: number;
 }): Promise<RestaurantSiblingCandidates> {
   const rows = await client.fetch<RestaurantSiblingRows>(
     restaurantSiblingCandidatesQuery,
@@ -176,13 +183,13 @@ export async function getRestaurantSiblingCandidates({
           ...(categorySlug ? [`category:${categorySlug}`] : []),
         ],
       },
-    },
-  )
+    }
+  );
 
   return {
     bezirk: [...(rows.bezirkAfter ?? []), ...(rows.bezirkWrap ?? [])].slice(0, bezirkLimit),
     category: [...(rows.categoryAfter ?? []), ...(rows.categoryWrap ?? [])].slice(0, categoryLimit),
-  }
+  };
 }
 
 export async function getAllCategories(): Promise<CategoryDef[]> {
@@ -190,7 +197,7 @@ export async function getAllCategories(): Promise<CategoryDef[]> {
     allCategoriesQuery,
     {},
     { next: { revalidate: 3600, tags: ['category', 'category-list'] } }
-  )
+  );
 }
 
 export async function getCategoryBySlug(slug: string): Promise<CategoryDef | null> {
@@ -198,24 +205,24 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDef | nul
     categoryBySlugQuery,
     { slug },
     { next: { revalidate: 3600, tags: [`category:${slug}`] } }
-  )
+  );
 }
 
 export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[]> {
   return client.fetch<NewsArticle[]>(
     latestNewsArticlesQuery,
     { limit },
-    { next: { revalidate: 3600, tags: ['news'] } },
-  )
+    { next: { revalidate: 3600, tags: ['news'] } }
+  );
 }
 
 type EmailSpot = {
-  name: string
-  slug: string
-  area: string
-  cuisine?: string
-  photo: string
-}
+  name: string;
+  slug: string;
+  area: string;
+  cuisine?: string;
+  photo: string;
+};
 
 // Curated spots for the magic-link email — public restaurant data only.
 export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
@@ -223,16 +230,26 @@ export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
     emailSpotsQuery,
     { limit },
     { next: { revalidate: 3600, tags: ['restaurant'] } }
-  )
+  );
 }
 
 // One spot for the composed email card image (/api/email/spot-card).
-export async function getEmailSpotCard(
-  slug: string
-): Promise<Omit<EmailSpot, 'slug'> | null> {
+export async function getEmailSpotCard(slug: string): Promise<Omit<EmailSpot, 'slug'> | null> {
   return client.fetch<Omit<EmailSpot, 'slug'> | null>(
     emailSpotCardQuery,
     { slug },
     { next: { revalidate: 3600, tags: ['restaurant'] } }
-  )
+  );
+}
+
+/** Spot + Must-Eat counts for every pack, keyed by category slug. */
+export async function getPackContents(): Promise<PackContentsIndex> {
+  const raw = await client.fetch<{
+    categories: ({ slug: string } & PackContents)[];
+    allBerlin: PackContents;
+  }>(packContentsQuery, {}, { next: { revalidate: 3600, tags: ['pack-contents'] } });
+  return {
+    byCategory: Object.fromEntries(raw.categories.map(({ slug, ...counts }) => [slug, counts])),
+    allBerlin: raw.allBerlin,
+  };
 }

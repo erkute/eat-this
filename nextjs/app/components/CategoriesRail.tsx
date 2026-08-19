@@ -14,7 +14,12 @@ interface Props {
 
 export default function CategoriesRail({ categoryNames, locale }: Props) {
   const entries = Object.entries(categoryNames);
-  const { sendLink, state: magicState, errorMessage: magicError, reset: resetMagicLink } = useMagicLink();
+  const {
+    sendLink,
+    state: magicState,
+    errorMessage: magicError,
+    reset: resetMagicLink,
+  } = useMagicLink();
   const emailId = useId();
   const emailErrorId = `${emailId}-error`;
   const [email, setEmail] = useState('');
@@ -72,7 +77,11 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
         </h2>
       </div>
       <div className={styles.grid}>
-        <form className={`${styles.card} ${styles.starterCard}`} onSubmit={handleStarterSubmit} noValidate>
+        <form
+          className={`${styles.card} ${styles.starterCard}`}
+          onSubmit={handleStarterSubmit}
+          noValidate
+        >
           <span className={`hv-cap ${styles.starterTitle}`}>Starter Pack</span>
           <span className={styles.photo}>
             <Image
@@ -102,12 +111,12 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             aria-describedby={emailFeedback ? emailErrorId : undefined}
             required
           />
-          <button
-            className={styles.emailButton}
-            type="submit"
-            disabled={magicState === 'sending'}
-          >
-            {magicState === 'sent' ? copy.sent : magicState === 'sending' ? copy.sending : copy.submit}
+          <button className={styles.emailButton} type="submit" disabled={magicState === 'sending'}>
+            {magicState === 'sent'
+              ? copy.sent
+              : magicState === 'sending'
+                ? copy.sending
+                : copy.submit}
           </button>
           {emailFeedback && (
             <span id={emailErrorId} className={styles.emailError} role="alert">
@@ -118,10 +127,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
         {entries.map(([slug, name]) => {
           const art = categoryArt(slug);
           return (
-            <article
-              key={slug}
-              className={styles.card}
-            >
+            <article key={slug} className={styles.card}>
               <span className={`hv-cap ${styles.packTitle}`}>{name}</span>
               <Link
                 href={`/kategorie/${slug}`}

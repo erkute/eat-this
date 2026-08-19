@@ -74,7 +74,9 @@ describe('CategoriesRail', () => {
   it('keeps the starter pack submit hoverable before an email is entered', () => {
     render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
 
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Anmelden' }).disabled).toBe(false);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Anmelden' }).disabled).toBe(
+      false
+    );
   });
   it('shows a local error when the starter email is empty', () => {
     render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
@@ -90,13 +92,17 @@ describe('CategoriesRail', () => {
     fireEvent.change(screen.getByLabelText('E-Mail Adresse'), { target: { value: 'nope' } });
     fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
 
-    expect(screen.getByRole('alert').textContent).toBe('Das sieht noch nicht nach einer E-Mail aus.');
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Das sieht noch nicht nach einer E-Mail aus.'
+    );
     expect(magicLinkState.sendLink).not.toHaveBeenCalled();
   });
   it('sends the starter magic link for a valid email', () => {
     render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
 
-    fireEvent.change(screen.getByLabelText('E-Mail Adresse'), { target: { value: ' test@example.com ' } });
+    fireEvent.change(screen.getByLabelText('E-Mail Adresse'), {
+      target: { value: ' test@example.com ' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
 
     expect(magicLinkState.sendLink).toHaveBeenCalledWith('test@example.com');

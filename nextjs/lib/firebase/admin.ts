@@ -6,8 +6,8 @@ import { initializeApp, getApps, cert, applicationDefault, App } from 'firebase-
 import { getAuth, Auth } from 'firebase-admin/auth';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getStorage, Storage } from 'firebase-admin/storage';
-import { isStaging } from '@/lib/env'
-import { assertFirebaseProjectBoundary } from './project-boundary'
+import { isStaging } from '@/lib/env';
+import { assertFirebaseProjectBoundary } from './project-boundary';
 
 let adminApp: App | null = null;
 
@@ -17,14 +17,14 @@ function getAdminApp(): App {
   const existing = getApps();
   if (existing.length > 0) {
     adminApp = existing[0];
-    assertAdminProjectBoundary(adminApp)
+    assertAdminProjectBoundary(adminApp);
     return adminApp;
   }
 
-  const projectId   = process.env.FIREBASE_ADMIN_PROJECT_ID;
+  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
   const expectedProjectId = process.env.FIREBASE_EXPECTED_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-  const privateKey  = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
   const hasAnyExplicitCredential = Boolean(clientEmail || privateKey);
   if (hasAnyExplicitCredential && (!projectId || !clientEmail || !privateKey)) {
@@ -38,41 +38,42 @@ function getAdminApp(): App {
   // Explicit credentials remain supported for local CLI development only.
   if (hasAnyExplicitCredential) {
     adminApp = initializeApp({
-      credential: cert({ projectId: projectId!, clientEmail: clientEmail!, privateKey: privateKey! }),
+      credential: cert({
+        projectId: projectId!,
+        clientEmail: clientEmail!,
+        privateKey: privateKey!,
+      }),
       projectId,
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET ?? `${projectId}.firebasestorage.app`,
-    })
+    });
   } else if (projectId || expectedProjectId || process.env.FIREBASE_STORAGE_BUCKET) {
-    const applicationProjectId = projectId ?? expectedProjectId
+    const applicationProjectId = projectId ?? expectedProjectId;
     adminApp = initializeApp({
       credential: applicationDefault(),
       ...(applicationProjectId ? { projectId: applicationProjectId } : {}),
       ...(process.env.FIREBASE_STORAGE_BUCKET || applicationProjectId
         ? {
             storageBucket:
-              process.env.FIREBASE_STORAGE_BUCKET ??
-              `${applicationProjectId}.firebasestorage.app`,
+              process.env.FIREBASE_STORAGE_BUCKET ?? `${applicationProjectId}.firebasestorage.app`,
           }
         : {}),
-    })
+    });
   } else {
     // App Hosting supplies FIREBASE_CONFIG and ADC automatically.
-    adminApp = initializeApp()
+    adminApp = initializeApp();
   }
-  assertAdminProjectBoundary(adminApp)
+  assertAdminProjectBoundary(adminApp);
   return adminApp;
 }
 
 function assertAdminProjectBoundary(app: App): void {
   assertFirebaseProjectBoundary({
     actualProjectId:
-      app.options.projectId ??
-      process.env.GOOGLE_CLOUD_PROJECT ??
-      process.env.GCLOUD_PROJECT,
+      app.options.projectId ?? process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT,
     expectedProjectId: process.env.FIREBASE_EXPECTED_PROJECT_ID,
     staging: isStaging,
     surface: 'admin',
-  })
+  });
 }
 
 export function getAdminAuth(): Auth {

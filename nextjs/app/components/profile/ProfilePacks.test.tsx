@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
 
-const state = vi.hoisted(() => ({owned: new Set<string>() as Set<string> | null}));
+const state = vi.hoisted(() => ({ owned: new Set<string>() as Set<string> | null }));
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -11,8 +11,14 @@ vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => state.owned,
 }));
 vi.mock('@/i18n/navigation', () => ({
-  Link: ({ href, className, children }: React.PropsWithChildren<{ href: string; className?: string }>) => (
-    <a href={href} className={className}>{children}</a>
+  Link: ({
+    href,
+    className,
+    children,
+  }: React.PropsWithChildren<{ href: string; className?: string }>) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }));
 vi.mock('next/image', () => ({

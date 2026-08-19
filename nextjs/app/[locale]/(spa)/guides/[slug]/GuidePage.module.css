@@ -4,7 +4,7 @@
   --guide-soft: var(--et-home-quiet, #f2f1ef);
   --guide-red: var(--et-home-red, #d9382a);
   --guide-yellow: var(--et-home-accent, #ffc600);
-  --guide-muted: var(--et-home-muted, rgba(21, 18, 14, .64));
+  --guide-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
   display: flow-root;
   min-height: 100%;
   background: var(--guide-paper);
@@ -14,7 +14,8 @@
 .shell {
   width: min(100%, 1220px);
   margin: 0 auto;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(20px, 4vw, 48px)) clamp(14px, 3vw, 34px) clamp(58px, 8vw, 108px);
+  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(20px, 4vw, 48px))
+    clamp(14px, 3vw, 34px) clamp(58px, 8vw, 108px);
 }
 
 .breadcrumb {
@@ -27,7 +28,7 @@
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -40,7 +41,7 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, .45fr);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.45fr);
   gap: clamp(18px, 5vw, 62px);
   align-items: center;
   min-height: min(680px, calc(100svh - 150px));
@@ -80,8 +81,8 @@
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(56px, 9.5vw, 142px);
   font-weight: 700;
-  letter-spacing: -.025em;
-  line-height: .78;
+  letter-spacing: -0.025em;
+  line-height: 0.78;
   text-transform: uppercase;
 }
 
@@ -113,7 +114,7 @@
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -146,17 +147,17 @@
   width: min(100%, 270px);
   height: auto;
   transform: rotate(7deg);
-  filter: drop-shadow(0 18px 28px rgba(21, 18, 14, .24));
+  filter: drop-shadow(0 18px 28px rgba(21, 18, 14, 0.24));
 }
 
 .hero_ink .heroPack img,
 .hero_red .heroPack img {
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, .32));
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.32));
 }
 
 .listHead {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, .42fr);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr);
   gap: 18px;
   align-items: flex-end;
   margin: clamp(34px, 6vw, 72px) 0 18px;
@@ -171,8 +172,8 @@
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(42px, 7vw, 96px);
   font-weight: 700;
-  letter-spacing: -.025em;
-  line-height: .82;
+  letter-spacing: -0.025em;
+  line-height: 0.82;
   text-transform: uppercase;
 }
 
@@ -199,13 +200,13 @@
   color: var(--guide-ink);
   border-bottom: 3px solid var(--guide-ink);
   text-decoration: none;
-  transition: transform 160ms cubic-bezier(.16, .92, .18, 1);
+  transition: transform 160ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .card:hover,
 .card:focus-visible {
   outline: 0;
-  transform: translateY(-4px) rotate(-.35deg);
+  transform: translateY(-4px) rotate(-0.35deg);
 }
 
 .index {
@@ -234,7 +235,7 @@
 
 .photo img {
   object-fit: cover;
-  transition: transform 260ms cubic-bezier(.16, .92, .18, 1);
+  transition: transform 260ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .card:hover .photo img,
@@ -255,7 +256,7 @@
   font-size: clamp(29px, 3vw, 44px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: .9;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
@@ -265,7 +266,7 @@
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 10px;
   font-weight: 900;
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
   line-height: 1.2;
   text-transform: uppercase;
 }

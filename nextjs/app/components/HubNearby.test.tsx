@@ -2,7 +2,13 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { cleanup, fireEvent, render as renderClient, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render as renderClient,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { translations } from '@/lib/i18n/translations';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
@@ -71,14 +77,22 @@ const mapData = (restaurants: MapRestaurant[] = []): InitialMapData =>
     revealedMustEatIds: [],
   }) as unknown as InitialMapData;
 
+const tree = (initialMapData: InitialMapData, mode?: 'guest' | 'auth') => (
+  <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
+    <HomeMapDataProvider initialMapData={initialMapData}>
+      <HubNearby mode={mode} />
+    </HomeMapDataProvider>
+  </NextIntlClientProvider>
+);
+
+/** SSR snapshot: mounted = false, so this is always the position-unknown state. */
 function render(initialMapData: InitialMapData = mapData(), mode?: 'guest' | 'auth') {
-  return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-      <HomeMapDataProvider initialMapData={initialMapData}>
-        <HubNearby mode={mode} />
-      </HomeMapDataProvider>
-    </NextIntlClientProvider>
-  );
+  return renderToStaticMarkup(tree(initialMapData, mode));
+}
+
+/** Mounted render — the only way to reach the located branch. */
+function renderLive(initialMapData: InitialMapData = mapData()) {
+  return renderClient(tree(initialMapData));
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -100,9 +114,27 @@ describe('HubNearby', () => {
     expect(render(mapData([]))).toBe('');
   });
 
-  it('renders the section header "Um dich herum"', () => {
+  it('names Mitte, not the user, while the position is unknown', () => {
     const html = render(mapData([restaurant()]));
-    expect(html).toContain('Um dich herum');
+    expect(html).toContain('Rund um Mitte');
+    expect(html).not.toContain('Um dich herum');
+  });
+
+  it('omits walking times while the position is unknown', () => {
+    const html = render(mapData([restaurant()]));
+    // The Mitte fallback would put a real number on a made-up origin.
+    expect(html).not.toMatch(/\d+ Min/);
+    expect(html).toContain('Mitte');
+  });
+
+  it('names the user and shows walking times once the position is known', async () => {
+    locationState.location = { lat: 52.52, lng: 13.405 };
+    renderLive(mapData([restaurant()]));
+
+    await waitFor(() => {
+      expect(screen.getByText('Um dich herum')).toBeTruthy();
+    });
+    expect(screen.getByText('1 Min · Mitte')).toBeTruthy();
   });
 
   it('renders a spot link to its canonical restaurant page', () => {
@@ -132,13 +164,7 @@ describe('HubNearby', () => {
   it('shows a success layer after locating succeeds', async () => {
     locationState.request = vi.fn(() => Promise.resolve({ lat: 52.5, lng: 13.4 }));
 
-    renderClient(
-      <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
-        <HomeMapDataProvider initialMapData={mapData([restaurant()])}>
-          <HubNearby />
-        </HomeMapDataProvider>
-      </NextIntlClientProvider>
-    );
+    renderLive(mapData([restaurant()]));
 
     fireEvent.click(screen.getByRole('button', { name: 'Mein Standort verwenden' }));
 

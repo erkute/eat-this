@@ -1,9 +1,9 @@
-import type { Restaurant, OpeningHourSlot } from './types'
-import { localizedCategoryName } from './categories'
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
-import { pickLocale } from '@/lib/i18n/pickLocale'
+import type { Restaurant, OpeningHourSlot } from './types';
+import { localizedCategoryName } from './categories';
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
+import { pickLocale } from '@/lib/i18n/pickLocale';
 
-type Loc = 'de' | 'en'
+type Loc = 'de' | 'en';
 
 /**
  * Auto-generated prose blocks that live on the restaurant detail page.
@@ -16,13 +16,13 @@ type Loc = 'de' | 'en'
 
 /** Concise multi-slot opening-hours summary, comma-separated. Null when empty. */
 export function summarizeHours(slots: OpeningHourSlot[] | undefined): string | null {
-  if (!slots || slots.length === 0) return null
-  return slots.map(s => `${s.days} ${s.hours}`).join(', ')
+  if (!slots || slots.length === 0) return null;
+  return slots.map((s) => `${s.days} ${s.hours}`).join(', ');
 }
 
 export interface FAQEntry {
-  question: string
-  answer: string
+  question: string;
+  answer: string;
 }
 
 /**
@@ -31,20 +31,20 @@ export interface FAQEntry {
  * Null when no recommendations are maintained (callers fall back to `tip`).
  */
 export function buildWhatToOrderAnswer(r: Restaurant, locale: Loc): string | null {
-  const items = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
-  if (items.length === 0) return null
+  const items = (r.whatToOrder ?? []).filter((i) => i?.dish?.trim());
+  if (items.length === 0) return null;
 
-  const parts = items.map(i => {
-    const note = pickLocale(i.note, i.noteEn, locale)?.trim().replace(/\.$/, '')
-    const price = i.price?.trim()
-    let s = i.dish.trim()
-    if (price) s += ` (${price})`
-    if (note) s += ` — ${note}`
-    return s
-  })
+  const parts = items.map((i) => {
+    const note = pickLocale(i.note, i.noteEn, locale)?.trim().replace(/\.$/, '');
+    const price = i.price?.trim();
+    let s = i.dish.trim();
+    if (price) s += ` (${price})`;
+    if (note) s += ` — ${note}`;
+    return s;
+  });
 
-  const lead = locale === 'de' ? 'Unsere Empfehlungen' : 'Our picks'
-  return `${lead}: ${parts.join('. ')}.`
+  const lead = locale === 'de' ? 'Unsere Empfehlungen' : 'Our picks';
+  return `${lead}: ${parts.join('. ')}.`;
 }
 
 /**
@@ -66,71 +66,71 @@ export function buildWhatToOrderAnswer(r: Restaurant, locale: Loc): string | nul
  * No editorial Sanity field is involved: this is pure presentation.
  */
 interface MagazineDescription {
-  lede:             string
-  paragraphsBefore: string[]
-  midQuote:         string | null
-  paragraphsAfter:  string[]
+  lede: string;
+  paragraphsBefore: string[];
+  midQuote: string | null;
+  paragraphsAfter: string[];
 }
 
 export function splitDescriptionForMagazine(
-  description: string | undefined,
+  description: string | undefined
 ): MagazineDescription | null {
-  const text = (description ?? '').trim()
-  if (!text) return null
+  const text = (description ?? '').trim();
+  if (!text) return null;
 
   // Split source into paragraphs on 2+ consecutive newlines. Single \n is
   // treated as a soft break inside a paragraph (standard prose convention).
-  const paragraphs = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean)
-  if (paragraphs.length === 0) return null
+  const paragraphs = text
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (paragraphs.length === 0) return null;
 
   // Lede = first sentence of paragraph 1. The remainder of paragraph 1 (if
   // any) becomes the leading body paragraph.
-  const firstPara = paragraphs[0]!
-  const ledeMatch = firstPara.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
-  let lede: string
-  let firstParaRest = ''
+  const firstPara = paragraphs[0]!;
+  const ledeMatch = firstPara.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/);
+  let lede: string;
+  let firstParaRest = '';
   if (ledeMatch) {
-    lede = ledeMatch[1]!.trim()
-    firstParaRest = ledeMatch[2]!.trim()
+    lede = ledeMatch[1]!.trim();
+    firstParaRest = ledeMatch[2]!.trim();
   } else {
-    lede = firstPara
+    lede = firstPara;
   }
 
-  const bodyParagraphs: string[] = []
-  if (firstParaRest) bodyParagraphs.push(firstParaRest)
-  for (let i = 1; i < paragraphs.length; i++) bodyParagraphs.push(paragraphs[i]!)
+  const bodyParagraphs: string[] = [];
+  if (firstParaRest) bodyParagraphs.push(firstParaRest);
+  for (let i = 1; i < paragraphs.length; i++) bodyParagraphs.push(paragraphs[i]!);
 
   // Mid-page pull-quote: only fires when the body has ≥3 paragraphs AND the
   // first sentence of the middle paragraph is quotable (60-220 chars). For
   // shorter bodies we keep the rhythm clean — just paragraphs, no quote.
-  let midQuote:        string   | null = null
-  let paragraphsBefore: string[]      = bodyParagraphs
-  let paragraphsAfter:  string[]      = []
+  let midQuote: string | null = null;
+  let paragraphsBefore: string[] = bodyParagraphs;
+  let paragraphsAfter: string[] = [];
 
   if (bodyParagraphs.length >= 3) {
-    const midIdx     = Math.floor(bodyParagraphs.length / 2)
-    const midPara    = bodyParagraphs[midIdx]!
-    const midSentences = splitSentences(midPara)
-    const firstMid   = midSentences[0]?.trim() ?? ''
+    const midIdx = Math.floor(bodyParagraphs.length / 2);
+    const midPara = bodyParagraphs[midIdx]!;
+    const midSentences = splitSentences(midPara);
+    const firstMid = midSentences[0]?.trim() ?? '';
     if (firstMid.length >= 60 && firstMid.length <= 220) {
-      midQuote = firstMid
-      const midRest = midSentences.slice(1).join(' ').trim()
-      paragraphsBefore = bodyParagraphs.slice(0, midIdx)
-      paragraphsAfter  = [
-        ...(midRest ? [midRest] : []),
-        ...bodyParagraphs.slice(midIdx + 1),
-      ]
+      midQuote = firstMid;
+      const midRest = midSentences.slice(1).join(' ').trim();
+      paragraphsBefore = bodyParagraphs.slice(0, midIdx);
+      paragraphsAfter = [...(midRest ? [midRest] : []), ...bodyParagraphs.slice(midIdx + 1)];
     }
   }
 
-  return { lede, paragraphsBefore, midQuote, paragraphsAfter }
+  return { lede, paragraphsBefore, midQuote, paragraphsAfter };
 }
 
 // Sentence splitter that doesn't get fooled by abbreviations like "z.B."
 // or "i.e." — keeps trailing whitespace + punctuation with each sentence.
 function splitSentences(text: string): string[] {
-  const parts = text.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ])/)
-  return parts.map(p => p.trim()).filter(Boolean)
+  const parts = text.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ])/);
+  return parts.map((p) => p.trim()).filter(Boolean);
 }
 
 /**
@@ -142,21 +142,21 @@ function splitSentences(text: string): string[] {
  * "Information not available", which would itself be near-duplicate filler.
  */
 export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
-  const de = locale === 'de'
-  const name = r.name
-  const bezirk = r.bezirk?.name || r.district
-  const tip = pickLocale(r.tip, r.tipEn, locale)
-  const entries: FAQEntry[] = []
+  const de = locale === 'de';
+  const name = r.name;
+  const bezirk = r.bezirk?.name || r.district;
+  const tip = pickLocale(r.tip, r.tipEn, locale);
+  const entries: FAQEntry[] = [];
 
   // Curated whatToOrder recommendations beat the one-line tip — they answer
   // the "karte/speisekarte" search intent with concrete dishes + prices.
-  const orderAnswer = buildWhatToOrderAnswer(r, locale) ?? tip
+  const orderAnswer = buildWhatToOrderAnswer(r, locale) ?? tip;
   if (orderAnswer) {
     entries.push(
       de
         ? { question: `Was sollte man bei ${name} bestellen?`, answer: orderAnswer }
-        : { question: `What should I order at ${name}?`, answer: orderAnswer },
-    )
+        : { question: `What should I order at ${name}?`, answer: orderAnswer }
+    );
   }
 
   if (r.address) {
@@ -170,19 +170,21 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
           }
         : {
             question: `Where do I find ${name}?`,
-            answer: bezirk ? `${name} is in ${bezirk}, ${r.address}.` : `${name} is at ${r.address}.`,
-          },
-    )
+            answer: bezirk
+              ? `${name} is in ${bezirk}, ${r.address}.`
+              : `${name} is at ${r.address}.`,
+          }
+    );
   }
 
   if (r.openingHours && r.openingHours.length > 0) {
-    const summary = summarizeHours(r.openingHours)
+    const summary = summarizeHours(r.openingHours);
     if (summary) {
       entries.push(
         de
           ? { question: `Wann hat ${name} geöffnet?`, answer: `Geöffnet ${summary}.` }
-          : { question: `When is ${name} open?`, answer: `Open ${summary}.` },
-      )
+          : { question: `When is ${name} open?`, answer: `Open ${summary}.` }
+      );
     }
   }
 
@@ -196,30 +198,37 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
         : {
             question: `Should I book ahead at ${name}?`,
             answer: `Online reservations are available and recommended.`,
-          },
-    )
+          }
+    );
   }
 
-  const priceLabel = formatPriceLabel(r)
+  const priceLabel = formatPriceLabel(r);
   if (priceLabel) {
     entries.push(
       de
-        ? { question: `Was zahlt man bei ${name}?`, answer: `Hauptgerichte und Drinks bewegen sich im Bereich ${priceLabel}.` }
-        : { question: `What does ${name} cost?`, answer: `Mains and drinks sit in the ${priceLabel} range.` },
-    )
+        ? {
+            question: `Was zahlt man bei ${name}?`,
+            answer: `Hauptgerichte und Drinks bewegen sich im Bereich ${priceLabel}.`,
+          }
+        : {
+            question: `What does ${name} cost?`,
+            answer: `Mains and drinks sit in the ${priceLabel} range.`,
+          }
+    );
   }
 
-  const cuisineParts = [r.cuisineType?.trim() || null, ...(r.categories?.slice(0, 3).map(c => localizedCategoryName(c, locale)) ?? [])].filter(
-    (s): s is string => !!s && s.length > 0,
-  )
+  const cuisineParts = [
+    r.cuisineType?.trim() || null,
+    ...(r.categories?.slice(0, 3).map((c) => localizedCategoryName(c, locale)) ?? []),
+  ].filter((s): s is string => !!s && s.length > 0);
   if (cuisineParts.length > 0) {
-    const text = cuisineParts.join(' · ')
+    const text = cuisineParts.join(' · ');
     entries.push(
       de
         ? { question: `Wofür steht ${name} kulinarisch?`, answer: `${name} steht für ${text}.` }
-        : { question: `What does ${name} stand for?`, answer: `${name} stands for ${text}.` },
-    )
+        : { question: `What does ${name} stand for?`, answer: `${name} stands for ${text}.` }
+    );
   }
 
-  return entries
+  return entries;
 }

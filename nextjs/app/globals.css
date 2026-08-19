@@ -487,12 +487,6 @@ a {
   text-decoration: none;
   color: inherit;
 }
-/* Inline-critical FOUC guards: these legacy overlay hooks may be mounted by
-   deferred SPA code before the external stylesheet is available. */
-.map-spot-overlay:not(.active),
-.search-overlay:not(.active) {
-  display: none;
-}
 /* Keep the closed burger out of rendering on first paint. In particular, iOS
    Safari must not retain its full-screen ink layer behind the browser bars. */
 .burger-drawer[hidden] {
@@ -531,31 +525,23 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 1023.98px) {
   [data-active-page='map'] .app-pages {
     margin-top: 0;
-    height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 
   .app-page[data-page='map'] {
-    height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 }
 
 @media (max-width: 767.98px) {
   [data-active-page='map'] .app-pages {
     height: auto;
-    min-height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    min-height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 
   .app-page[data-page='map'] {
     height: auto;
-    min-height: calc(
-      100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px))
-    );
+    min-height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
     z-index: 9990;
     overflow: visible;
   }

@@ -1,10 +1,10 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
-import type { CategoryDef } from '@/lib/categories';
+import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
@@ -18,10 +18,12 @@ import {
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { openBurgerDrawer } from '../burgerDrawerState';
+import { trackEvent } from '@/lib/analytics';
 
 import dynamic from 'next/dynamic';
 import RestaurantList from './RestaurantList';
 import MapSheetDetail from './MapSheetDetail';
+import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
 import MapDataNotice from './MapDataNotice';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
@@ -60,7 +62,12 @@ interface MapBodyState {
   displayedRestaurants: MapRestaurant[];
   /** Locked preview rows — same filter pipeline as displayedRestaurants,
    *  rendered as blurred entries below the booster banner in the list. */
+  /** Paywalled spots matching the active filter — drawn as muted dots. */
   displayedLockedRestaurants: MapRestaurant[];
+  /** Every paywalled id, so the sheet knows which detail to render. */
+  lockedIdSet: Set<string>;
+  /** Uncapped locked-match count — see useMapFilters. */
+  lockedMatchCount: number;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
   selectedMustEat: MapMustEat | null;
@@ -150,6 +157,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     dragging,
     displayedRestaurants,
     displayedLockedRestaurants,
+    lockedIdSet,
+    lockedMatchCount,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -217,6 +226,49 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
+  /* A locked dot opens the sheet like any other spot. It used to navigate
+     straight to the pack page, which threw away the map, the filter and the
+     search for what is usually a "what is this?" tap. */
+  const lockedMarkerLabel = locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
+  /* Clustered markers carry their count in the accessible name — the free tag
+     shows the number, the locked dot only grows, so for a screen reader the
+     name is the only place either count exists. */
+  const clusterLabel = useCallback(
+    (count: number) =>
+      locale === 'en'
+        ? `${count} spots — tap to zoom in`
+        : `${count} Spots – zum Reinzoomen tippen`,
+    [locale]
+  );
+  const lockedClusterLabel = useCallback(
+    (count: number) =>
+      locale === 'en'
+        ? `${count} locked spots — tap to zoom in`
+        : `${count} gesperrte Spots – zum Reinzoomen tippen`,
+    [locale]
+  );
+  const handleLockedClick = useCallback(
+    (r: MapRestaurant) => {
+      trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
+      onRestaurantClick(r, 'map');
+    },
+    [onRestaurantClick]
+  );
+  /* What the "0 free hits" headline is a zero *of*. Search wins because a query
+     overrides every other filter in useMapFilters; then the narrowest chip.
+     "Open now" alone yields no label — the count still carries the message. */
+  const emptyFilterLabel = useMemo(() => {
+    const q = search.trim();
+    if (q) return q;
+    if (bezirk) return bezirk;
+    if (cuisine) return cuisine;
+    if (category !== 'All') {
+      const def = categories.find((c) => c.slug === category);
+      return def ? localizedCategoryName(def, locale === 'en' ? 'en' : 'de') : null;
+    }
+    return null;
+  }, [search, bezirk, cuisine, category, categories, locale]);
+
   const rawLocationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
   /* The only non-error copy is the "searching" one, so this is exactly the
      transient state that used to flash. Errors stay immediate — they are the
@@ -323,8 +375,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 mapRef={mapRef}
                 onMapClick={onMapClick}
                 displayedRestaurants={displayedRestaurants}
+                displayedLockedRestaurants={displayedLockedRestaurants}
                 selectedRestaurant={selectedRestaurant}
+                selectedIsLocked={!!selectedRestaurant && lockedIdSet.has(selectedRestaurant._id)}
                 onRestaurantClick={handleMapRestaurantClick}
+                onLockedClick={handleLockedClick}
+                lockedLabel={lockedMarkerLabel}
+                clusterLabel={clusterLabel}
+                lockedClusterLabel={lockedClusterLabel}
                 location={location}
               />
             </div>
@@ -555,6 +613,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onPagePrev={() => onPageMustEat('prev')}
                 onPageNext={() => onPageMustEat('next')}
               />
+            ) : sheetView === 'detail' &&
+              selectedRestaurant &&
+              lockedIdSet.has(selectedRestaurant._id) ? (
+              <LockedDetail
+                restaurant={selectedRestaurant}
+                contentRef={setContentRef}
+                onClose={onRestaurantClose}
+              />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail
                 kind="restaurant"
@@ -594,7 +660,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <div ref={setContentRef} className={sheetStyles.listScroll}>
                   <RestaurantList
                     restaurants={displayedRestaurants}
-                    lockedRestaurants={displayedLockedRestaurants}
                     userLocation={location}
                     selectedId={selectedRestaurant?._id ?? null}
                     uid={uid}
@@ -604,7 +669,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
-                    activeBezirk={bezirk}
+                    lockedMatchCount={lockedMatchCount}
+                    activeFilterLabel={emptyFilterLabel}
                   />
                 </div>
               </>

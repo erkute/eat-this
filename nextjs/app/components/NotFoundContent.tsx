@@ -1,19 +1,19 @@
-import Image from 'next/image'
-import { Link } from '@/i18n/navigation'
-import styles from '../not-found.module.css'
+import Image from 'next/image';
+import { Link } from '@/i18n/navigation';
+import styles from '../not-found.module.css';
 
-type Locale = 'de' | 'en'
+type Locale = 'de' | 'en';
 
 interface NotFoundContentProps {
-  locale?: Locale
+  locale?: Locale;
 }
 
-const CARD_BACK = '/pics/card-back.webp?v=6'
+const CARD_BACK = '/pics/card-back.webp?v=6';
 const REVEALED_CARDS = [
   '/pics/not-found-cards/main-1.webp',
   '/pics/not-found-cards/main-10.webp',
   '/pics/not-found-cards/main-12.webp',
-] as const
+] as const;
 
 const COPY = {
   de: {
@@ -32,13 +32,18 @@ const COPY = {
     secondary: 'Must Eats',
     actionsLabel: 'Continue',
   },
-} satisfies Record<Locale, Record<string, string>>
+} satisfies Record<Locale, Record<string, string>>;
 
 export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps) {
-  const copy = COPY[locale]
+  const copy = COPY[locale];
 
   return (
-    <main className={styles.page} data-page="not-found" data-menu="" aria-labelledby="not-found-title">
+    <main
+      className={styles.page}
+      data-page="not-found"
+      data-menu=""
+      aria-labelledby="not-found-title"
+    >
       <section className={styles.hero} aria-labelledby="not-found-title">
         <div className={styles.copy}>
           <div className={styles.codeBlock} aria-hidden="true">
@@ -48,9 +53,7 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
             {copy.headline}
           </h1>
 
-          <p className={styles.sub}>
-            {copy.sub}
-          </p>
+          <p className={styles.sub}>{copy.sub}</p>
 
           <div className={styles.actions} aria-label={copy.actionsLabel}>
             <Link href="/map" className={styles.primaryCta}>
@@ -76,7 +79,11 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
           {REVEALED_CARDS.map((src, index) => (
             <div
               className={`${styles.card} ${
-                index === 0 ? styles.cardFrontOne : index === 1 ? styles.cardFrontTwo : styles.cardFrontThree
+                index === 0
+                  ? styles.cardFrontOne
+                  : index === 1
+                    ? styles.cardFrontTwo
+                    : styles.cardFrontThree
               }`}
               key={src}
             >
@@ -93,5 +100,5 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
         </div>
       </section>
     </main>
-  )
+  );
 }

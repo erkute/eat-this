@@ -11,6 +11,7 @@ import {
   useMapFilters,
   useMapSheet,
   useMapDeepLinks,
+  useMapFilterUrl,
   useUserTier,
   buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
@@ -28,6 +29,7 @@ import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
+import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
    ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
@@ -253,6 +255,7 @@ export default function MapSection({
     cuisineNames,
     displayedRestaurants,
     displayedLockedRestaurants,
+    lockedMatchCount,
   } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
 
   const [searchOpen, setSearchOpen] = useState(false);
@@ -410,9 +413,8 @@ export default function MapSection({
       if (selectedMustEat?._id) params.set('me', selectedMustEat._id);
       else if (selectedRestaurant?.slug) params.set('r', selectedRestaurant.slug);
     }
-    const qs = params.toString();
-    const next = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
-    const current = window.location.pathname + window.location.search + window.location.hash;
+    const next = urlWithParams(params);
+    const current = currentUrl();
 
     if (sheetView === 'detail') {
       if (next === current) return;
@@ -685,6 +687,13 @@ export default function MapSection({
     sheetView,
   ]);
 
+  /* Ids the paywall is holding back. Locked spots open the same sheet as free
+     ones — see LockedDetail for what it shows and why it names the spot. */
+  const lockedIdSet = useMemo(
+    () => new Set(lockedRestaurants.map((r) => r._id)),
+    [lockedRestaurants]
+  );
+
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
       userInteractedRef.current = true;
@@ -696,7 +705,8 @@ export default function MapSection({
       });
       // Kick off the detail-field fetch now so it's usually cached by the time
       // the sheet finishes opening (the map payload no longer carries them).
-      prefetchRestaurantDetail(r.slug);
+      // Locked spots render no detail fields, so there is nothing to prefetch.
+      if (!lockedIdSet.has(r._id)) prefetchRestaurantDetail(r.slug);
       const isMobile =
         typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
       const isPhone = isPhoneViewport();
@@ -751,6 +761,7 @@ export default function MapSection({
     },
     [
       getFlyPadding,
+      lockedIdSet,
       phoneDetailFlyPadding,
       setSearch,
       setSheetView,
@@ -996,8 +1007,11 @@ export default function MapSection({
   popStateHandlersRef.current = { restaurants, lockedRestaurants, mustEats };
   const openFromUrlRef = useRef<(slug: string | null, mustEatId: string | null) => void>(() => {});
   openFromUrlRef.current = (slug, mustEatId) => {
-    const { restaurants: owned, lockedRestaurants: locked, mustEats: mes } =
-      popStateHandlersRef.current;
+    const {
+      restaurants: owned,
+      lockedRestaurants: locked,
+      mustEats: mes,
+    } = popStateHandlersRef.current;
     if (mustEatId) {
       const target = mes.find((m) => m._id === mustEatId);
       if (target) handleMustEatClick(target);
@@ -1309,23 +1323,40 @@ export default function MapSection({
     });
   }, [isActive, selectedRestaurant, selectedMustEat, location, getFlyPadding]);
 
-  // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> pre-filters
-  // the map. Both poll mapRef so the camera moves don't no-op before the
-  // canvas finishes mounting.
+  // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves
+  // the camera onto that district. Both poll mapRef so the camera moves don't
+  // no-op before the canvas finishes mounting. The filters themselves belong
+  // to useMapFilterUrl below.
   useMapDeepLinks({
     mapRef,
     restaurants,
     lockedRestaurants,
     mustEats,
     isActive,
-    sheetView,
     userInteractedRef,
-    setBezirk,
-    setCategory,
-    setSnap,
     onRestaurantSlugMatch: handleRestaurantClick,
     onMustEatIdMatch: handleMustEatClick,
     initialRestaurant,
+  });
+
+  // The five filters live in the query string, both directions — so a filtered
+  // map is shareable, survives a reload, and the back gesture undoes it.
+  useMapFilterUrl({
+    isActive,
+    restaurants,
+    lockedRestaurants,
+    category,
+    bezirk,
+    cuisine,
+    search,
+    openOnly,
+    setCategory,
+    setBezirk,
+    setCuisine,
+    setSearch,
+    setOpenOnly,
+    sheetView,
+    setSnap,
   });
 
   /* ---------- Render ---------- */
@@ -1343,6 +1374,8 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
+      lockedIdSet={lockedIdSet}
+      lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}

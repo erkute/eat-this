@@ -22,9 +22,7 @@ export default function ClientIntlProvider({
       timeZone="Europe/Berlin"
       messages={messages}
       onError={() => {}}
-      getMessageFallback={({ key, namespace }) =>
-        namespace ? `${namespace}.${key}` : key
-      }
+      getMessageFallback={({ key, namespace }) => (namespace ? `${namespace}.${key}` : key)}
     >
       {children}
     </NextIntlClientProvider>

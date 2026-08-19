@@ -18,67 +18,72 @@
  * Note: the user must obtain a fresh ID token (re-login, or wait up to ~1h
  * for token refresh) before the new claim takes effect on the API.
  */
-import { config as loadEnv } from 'dotenv'
-import { initializeApp, cert } from 'firebase-admin/app'
-import { getAuth } from 'firebase-admin/auth'
+import { config as loadEnv } from 'dotenv';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
-loadEnv({ path: '.env.local' })
+loadEnv({ path: '.env.local' });
 
 initializeApp({
   credential: cert({
-    projectId:   process.env.FIREBASE_ADMIN_PROJECT_ID!,
+    projectId: process.env.FIREBASE_ADMIN_PROJECT_ID!,
     clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL!,
-    privateKey:  process.env.FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, '\n'),
   }),
-})
+});
 
-const auth = getAuth()
+const auth = getAuth();
 
 function adminEmailsFromEnv(): string[] {
   return (process.env.ADMIN_EMAILS ?? '')
     .split(',')
     .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)
+    .filter(Boolean);
 }
 
 async function main() {
-  const args   = process.argv.slice(2)
-  const revoke = args.includes('--revoke')
-  const explicit = args.filter((a) => a !== '--revoke').map((s) => s.toLowerCase())
-  const emails = explicit.length > 0 ? explicit : adminEmailsFromEnv()
+  const args = process.argv.slice(2);
+  const revoke = args.includes('--revoke');
+  const explicit = args.filter((a) => a !== '--revoke').map((s) => s.toLowerCase());
+  const emails = explicit.length > 0 ? explicit : adminEmailsFromEnv();
 
   if (emails.length === 0) {
-    console.error('No emails to process. Set ADMIN_EMAILS or pass an email argument.')
-    process.exit(1)
+    console.error('No emails to process. Set ADMIN_EMAILS or pass an email argument.');
+    process.exit(1);
   }
 
   for (const email of emails) {
-    let user
+    let user;
     try {
-      user = await auth.getUserByEmail(email)
+      user = await auth.getUserByEmail(email);
     } catch {
-      console.warn(`[skip] no account for ${email}`)
-      continue
+      console.warn(`[skip] no account for ${email}`);
+      continue;
     }
 
     if (revoke) {
-      const claims = { ...(user.customClaims ?? {}) }
-      delete (claims as Record<string, unknown>).admin
-      await auth.setCustomUserClaims(user.uid, claims)
-      console.log(`[revoked] admin claim removed for ${email} (uid ${user.uid})`)
-      continue
+      const claims = { ...(user.customClaims ?? {}) };
+      delete (claims as Record<string, unknown>).admin;
+      await auth.setCustomUserClaims(user.uid, claims);
+      console.log(`[revoked] admin claim removed for ${email} (uid ${user.uid})`);
+      continue;
     }
 
     if (!user.emailVerified) {
-      console.warn(`[refuse] ${email} is NOT email-verified — not granting admin`)
-      continue
+      console.warn(`[refuse] ${email} is NOT email-verified — not granting admin`);
+      continue;
     }
 
-    await auth.setCustomUserClaims(user.uid, { ...(user.customClaims ?? {}), admin: true })
-    console.log(`[granted] admin claim set for ${email} (uid ${user.uid})`)
+    await auth.setCustomUserClaims(user.uid, { ...(user.customClaims ?? {}), admin: true });
+    console.log(`[granted] admin claim set for ${email} (uid ${user.uid})`);
   }
 
-  console.log('Done. Affected users must refresh their ID token (re-login) to pick up the claim.')
+  console.log('Done. Affected users must refresh their ID token (re-login) to pick up the claim.');
 }
 
-main().then(() => process.exit(0)).catch((err) => { console.error(err); process.exit(1) })
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

@@ -1,14 +1,14 @@
-import { serializeJsonLd } from './serialize'
-import { SITE_URL } from '@/lib/constants'
-import { localeUrl } from '@/lib/locale-url'
-import type { LandingFaqEntry } from '@/lib/landing/faqs'
+import { serializeJsonLd } from './serialize';
+import { SITE_URL } from '@/lib/constants';
+import { localeUrl } from '@/lib/locale-url';
+import type { LandingFaqEntry } from '@/lib/landing/faqs';
 
 // The brand share card (yellow EAT THIS mark). Same asset the og:image points
 // at — declaring it as the page's primaryImageOfPage gives Google a structured,
 // crawlable hint for the SERP/Discover thumbnail. Without it Google free-picks
 // a random restaurant photo from the image-rich hub (it's not obliged to honour
 // og:image for thumbnails), which is why the home thumbnail looked off.
-const PRIMARY_IMAGE_URL = `${SITE_URL}/pics/og-card.png?v=4`
+const PRIMARY_IMAGE_URL = `${SITE_URL}/pics/og-card.png?v=4`;
 
 // Builds the home page JSON-LD graph: a WebPage node carrying the representative
 // image, plus the FAQPage that mirrors the FAQ entries the hub renders so Google
@@ -16,7 +16,7 @@ const PRIMARY_IMAGE_URL = `${SITE_URL}/pics/og-card.png?v=4`
 // site-wide `schema-org` graph emitted by app/[locale]/layout.tsx; we only
 // reference the WebSite by @id here (don't redefine it — duplicate @ids).
 export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = 'de'): string {
-  const pageUrl = localeUrl(locale, '/')
+  const pageUrl = localeUrl(locale, '/');
   return serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
@@ -52,5 +52,5 @@ export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = '
           ]
         : []),
     ],
-  })
+  });
 }

@@ -1,13 +1,6 @@
 'use client';
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   onIdTokenChanged,
   signInWithPopup,
@@ -18,10 +11,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import {
-  clearMapDataCaches,
-  reconcileMapDataCacheIdentity,
-} from '@/lib/map/map-data-cache';
+import { clearMapDataCaches, reconcileMapDataCacheIdentity } from '@/lib/map/map-data-cache';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -62,7 +52,7 @@ async function synchronizePremiumAccess(user: User | null): Promise<void> {
 // ─── Provider ──────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser]       = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Synchronize the server-verifiable image session before exposing a Firebase
@@ -136,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updateDisplayName,
       deleteAccount,
     }),
-    [user, loading, signInWithGoogle, signOut, updateDisplayName, deleteAccount],
+    [user, loading, signInWithGoogle, signOut, updateDisplayName, deleteAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

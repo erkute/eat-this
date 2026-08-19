@@ -1,5 +1,5 @@
 // nextjs/lib/buddy/tools.ts
-import type Anthropic from '@anthropic-ai/sdk'
+import type Anthropic from '@anthropic-ai/sdk';
 
 export const BUDDY_TOOLS: Anthropic.Tool[] = [
   {
@@ -9,10 +9,24 @@ export const BUDDY_TOOLS: Anthropic.Tool[] = [
     input_schema: {
       type: 'object',
       properties: {
-        cuisine: { type: 'string', description: 'Das genannte Gericht ODER die Küche als EIN Stichwort, z.B. "pizza", "burger", "döner", "ramen", "kaffee", "brunch". Setzen, sobald der Nutzer ein Gericht/eine Küche nennt.' },
-        bezirk: { type: 'string', description: 'Berliner Bezirk, z.B. "Schöneberg". Nur wenn genannt.' },
-        price_range: { type: 'string', description: 'Preisklasse, z.B. "€", "€€", "€€€". Nur wenn genannt.' },
-        name: { type: 'string', description: 'Name eines konkreten Lokals, wenn der Nutzer einen Spot beim Namen nennt (z.B. "Gazzo", "Mrs Robinson"). Nur setzen, wenn ein konkreter Name fällt — sonst weglassen.' },
+        cuisine: {
+          type: 'string',
+          description:
+            'Das genannte Gericht ODER die Küche als EIN Stichwort, z.B. "pizza", "burger", "döner", "ramen", "kaffee", "brunch". Setzen, sobald der Nutzer ein Gericht/eine Küche nennt.',
+        },
+        bezirk: {
+          type: 'string',
+          description: 'Berliner Bezirk, z.B. "Schöneberg". Nur wenn genannt.',
+        },
+        price_range: {
+          type: 'string',
+          description: 'Preisklasse, z.B. "€", "€€", "€€€". Nur wenn genannt.',
+        },
+        name: {
+          type: 'string',
+          description:
+            'Name eines konkreten Lokals, wenn der Nutzer einen Spot beim Namen nennt (z.B. "Gazzo", "Mrs Robinson"). Nur setzen, wenn ein konkreter Name fällt — sonst weglassen.',
+        },
         vibe_query: { type: 'string', description: 'Stimmung/Art der Anfrage in eigenen Worten.' },
       },
       required: ['vibe_query'],
@@ -30,4 +44,4 @@ export const BUDDY_TOOLS: Anthropic.Tool[] = [
       required: ['query'],
     },
   },
-]
+];

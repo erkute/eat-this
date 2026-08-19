@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { safeHttpUrl } from './safeHttpUrl'
+import { describe, expect, it } from 'vitest';
+import { safeHttpUrl } from './safeHttpUrl';
 
 describe('safeHttpUrl', () => {
   it.each([
@@ -7,8 +7,8 @@ describe('safeHttpUrl', () => {
     ['http://example.com', 'http://example.com/'],
     ['HTTPS://EXAMPLE.COM/a', 'https://example.com/a'],
   ])('accepts and normalizes web URL %s', (input, expected) => {
-    expect(safeHttpUrl(input)).toBe(expected)
-  })
+    expect(safeHttpUrl(input)).toBe(expected);
+  });
 
   it.each([
     null,
@@ -20,6 +20,6 @@ describe('safeHttpUrl', () => {
     'ftp://example.com/file',
     'not a URL',
   ])('rejects non-HTTP value %s', (input) => {
-    expect(safeHttpUrl(input)).toBeNull()
-  })
-})
+    expect(safeHttpUrl(input)).toBeNull();
+  });
+});

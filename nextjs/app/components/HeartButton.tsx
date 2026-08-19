@@ -1,16 +1,16 @@
-'use client'
-import { useAuth } from '@/lib/auth'
-import { useFavorites } from '@/lib/map/useFavorites'
-import { HeartIcon } from '@/app/components/map/icons'
-import styles from './HeartButton.module.css'
+'use client';
+import { useAuth } from '@/lib/auth';
+import { useFavorites } from '@/lib/map/useFavorites';
+import { HeartIcon } from '@/app/components/map/icons';
+import styles from './HeartButton.module.css';
 
 interface HeartButtonProps {
-  restaurantId: string
-  name: string
-  slug?: string
-  photo?: string
-  district?: string
-  locale: string
+  restaurantId: string;
+  name: string;
+  slug?: string;
+  photo?: string;
+  district?: string;
+  locale: string;
 }
 
 // Personal "heart this spot" toggle for the SEO restaurant page (a client
@@ -21,10 +21,17 @@ interface HeartButtonProps {
 // (Airbnb-style: wishlist heart ≠ social-proof badge). Anon tap opens the
 // shared login modal (handled inside useFavorites).
 // See docs/specs/2026-06-09-hearts-design.md.
-export default function HeartButton({ restaurantId, name, slug, photo, district, locale }: HeartButtonProps) {
-  const de = locale !== 'en'
-  const { favoriteIds, toggle } = useFavorites(useAuth().user?.uid ?? null)
-  const hearted = favoriteIds.has(restaurantId)
+export default function HeartButton({
+  restaurantId,
+  name,
+  slug,
+  photo,
+  district,
+  locale,
+}: HeartButtonProps) {
+  const de = locale !== 'en';
+  const { favoriteIds, toggle } = useFavorites(useAuth().user?.uid ?? null);
+  const hearted = favoriteIds.has(restaurantId);
 
   return (
     <div className={styles.row}>
@@ -34,13 +41,19 @@ export default function HeartButton({ restaurantId, name, slug, photo, district,
         aria-pressed={hearted}
         aria-label={
           hearted
-            ? (de ? 'Herz entfernen' : 'Remove heart')
-            : (de ? 'Spot herzen' : 'Heart this spot')
+            ? de
+              ? 'Herz entfernen'
+              : 'Remove heart'
+            : de
+              ? 'Spot herzen'
+              : 'Heart this spot'
         }
-        onClick={() => { void toggle({ _id: restaurantId, name, slug, photo, district }) }}
+        onClick={() => {
+          void toggle({ _id: restaurantId, name, slug, photo, district });
+        }}
       >
         <HeartIcon filled={hearted} />
       </button>
     </div>
-  )
+  );
 }

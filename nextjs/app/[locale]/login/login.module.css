@@ -443,7 +443,6 @@
 }
 
 @media (max-width: 820px) {
-
   .modalSimple,
   .loginGrid {
     grid-template-columns: 1fr;
@@ -691,7 +690,7 @@
   font-family: var(--et-font-label, Silkscreen, ui-monospace, monospace);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-align: center;
   text-transform: uppercase;
 }

@@ -15,14 +15,9 @@ import { getEmailSpots } from '@/lib/sanity.server';
 import MagicLinkEmail from '@/emails/MagicLinkEmail';
 import { buildMagicLinkText } from '@/emails/magicLinkText';
 
-type SendMagicLinkError =
-  | 'link-generation-failed'
-  | 'email-misconfigured'
-  | 'send-failed';
+type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
-type SendMagicLinkResult =
-  | { ok: true }
-  | { ok: false; error: SendMagicLinkError };
+type SendMagicLinkResult = { ok: true } | { ok: false; error: SendMagicLinkError };
 
 export async function sendMagicLinkEmail(params: {
   email: string;
@@ -53,7 +48,7 @@ export async function sendMagicLinkEmail(params: {
   let magicLink: string;
   try {
     magicLink = await getAdminAuth().generateSignInWithEmailLink(email, {
-      url:             linkUrl,
+      url: linkUrl,
       handleCodeInApp: true,
     });
   } catch (err) {
@@ -79,7 +74,7 @@ export async function sendMagicLinkEmail(params: {
   }
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-  const fromName  = process.env.RESEND_FROM_NAME  || 'Eat This';
+  const fromName = process.env.RESEND_FROM_NAME || 'Eat This';
   const stagingRecipient = process.env.STAGING_EMAIL_RECIPIENT;
   if (process.env.NEXT_PUBLIC_ENV === 'staging' && !stagingRecipient) {
     console.error('[sendMagicLink] STAGING_EMAIL_RECIPIENT missing');
@@ -88,37 +83,34 @@ export async function sendMagicLinkEmail(params: {
   // Staging may generate links for arbitrary guest test identities, but the
   // message itself is delivered only to the explicitly configured sink/test
   // inbox. This prevents a staging smoke test from mailing real customers.
-  const recipient = process.env.NEXT_PUBLIC_ENV === 'staging'
-    ? stagingRecipient!
-    : email;
+  const recipient = process.env.NEXT_PUBLIC_ENV === 'staging' ? stagingRecipient! : email;
 
   // Staging's dynamic card renderer remains behind Basic Auth, so external
   // mail clients cannot fetch it. Keep staging messages self-contained and
   // avoid a read dependency on the production image endpoint.
-  const restaurants = process.env.NEXT_PUBLIC_ENV === 'staging'
-    ? []
-    : await getEmailSpots(4).catch((err) => {
-        console.error('[sendMagicLink] getEmailSpots failed:', err);
-        return [];
-      });
+  const restaurants =
+    process.env.NEXT_PUBLIC_ENV === 'staging'
+      ? []
+      : await getEmailSpots(4).catch((err) => {
+          console.error('[sendMagicLink] getEmailSpots failed:', err);
+          return [];
+        });
 
-  const html = await render(
-    MagicLinkEmail({ magicLink, appUrl, restaurants, returning })
-  );
+  const html = await render(MagicLinkEmail({ magicLink, appUrl, restaurants, returning }));
   const text = buildMagicLinkText(magicLink);
 
   try {
     const resend = new Resend(resendKey);
     const result = await resend.emails.send(
       {
-        from:    `${fromName} <${fromEmail}>`,
-        to:      recipient,
+        from: `${fromName} <${fromEmail}>`,
+        to: recipient,
         subject: 'Dein Login-Link für Eat This',
         html,
         text,
         replyTo: fromEmail,
       },
-      idempotencyKey ? { idempotencyKey } : undefined,
+      idempotencyKey ? { idempotencyKey } : undefined
     );
 
     if (result.error) {

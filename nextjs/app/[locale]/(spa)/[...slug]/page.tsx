@@ -1,54 +1,67 @@
-import { notFound } from 'next/navigation'
-import type { Metadata, Viewport } from 'next'
-import { setRequestLocale } from 'next-intl/server'
-import { SITE_URL } from '@/lib/constants'
-import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
-import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server'
-import { serializeJsonLd } from '@/lib/json-ld'
-import { localeUrl } from '@/lib/locale-url'
+import { notFound } from 'next/navigation';
+import type { Metadata, Viewport } from 'next';
+import { setRequestLocale } from 'next-intl/server';
+import { SITE_URL } from '@/lib/constants';
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server';
+import { serializeJsonLd } from '@/lib/json-ld';
+import { localeUrl } from '@/lib/locale-url';
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 interface PageProps {
-  params: Promise<{ locale: string; slug: string[] }>
+  params: Promise<{ locale: string; slug: string[] }>;
 }
 
 // Whitelist of slugs this catch-all renders. Anything else 404s instead of
 // silently dropping the user on the home view. /profile is dispatched by the
 // dedicated /[locale]/profile/page.tsx route — it never reaches this catch-all.
-const VALID_SLUGS = new Set([
-  'news',
-  'about',
-  'contact',
-  'impressum',
-  'datenschutz',
-  'agb',
-])
+const VALID_SLUGS = new Set(['news', 'about', 'contact', 'impressum', 'datenschutz', 'agb']);
 
-const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb'])
+const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb']);
 
 function exactTopSlug(slug: string[]): string | undefined {
-  return slug.length === 1 ? slug[0] : undefined
+  return slug.length === 1 ? slug[0] : undefined;
 }
 
 type SlugMeta = {
-  de: { title: string; description: string }
-  en: { title: string; description: string }
-  noIndex?: boolean
-}
+  de: { title: string; description: string };
+  en: { title: string; description: string };
+  noIndex?: boolean;
+};
 
 const PAGE_META: Record<string, SlugMeta> = {
   news: {
-    de: { title: 'News', description: 'Aktuelle Restaurant-News, Empfehlungen und Storys aus Berlins Food-Szene.' },
-    en: { title: 'News', description: "Latest restaurant news, recommendations and stories from Berlin's food scene." },
+    de: {
+      title: 'News',
+      description: 'Aktuelle Restaurant-News, Empfehlungen und Storys aus Berlins Food-Szene.',
+    },
+    en: {
+      title: 'News',
+      description: "Latest restaurant news, recommendations and stories from Berlin's food scene.",
+    },
   },
   about: {
-    de: { title: 'Über uns', description: 'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren – plus Remy, unsere KI-Suche für deinen nächsten Spot.' },
-    en: { title: 'About', description: "What Eat This is, who's behind it, why we curate Berlin's restaurants – plus Remy, our AI search for your next spot." },
+    de: {
+      title: 'Über uns',
+      description:
+        'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren – plus Remy, unsere KI-Suche für deinen nächsten Spot.',
+    },
+    en: {
+      title: 'About',
+      description:
+        "What Eat This is, who's behind it, why we curate Berlin's restaurants – plus Remy, our AI search for your next spot.",
+    },
   },
   contact: {
-    de: { title: 'Kontakt', description: 'Kontaktiere das Eat-This-Team für Anfragen, Kooperationen oder Feedback.' },
-    en: { title: 'Contact', description: 'Get in touch with the Eat This team for inquiries, partnerships or feedback.' },
+    de: {
+      title: 'Kontakt',
+      description: 'Kontaktiere das Eat-This-Team für Anfragen, Kooperationen oder Feedback.',
+    },
+    en: {
+      title: 'Contact',
+      description: 'Get in touch with the Eat This team for inquiries, partnerships or feedback.',
+    },
     noIndex: true,
   },
   impressum: {
@@ -66,22 +79,22 @@ const PAGE_META: Record<string, SlugMeta> = {
     en: { title: 'Terms', description: 'Terms and conditions for Eat This Berlin.' },
     noIndex: true,
   },
-}
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug } = await params
-  const top = exactTopSlug(slug)
+  const { locale, slug } = await params;
+  const top = exactTopSlug(slug);
   if (!top || !PAGE_META[top]) {
     return {
       title: '404 — Eat This',
       robots: { index: false, follow: false },
-    }
+    };
   }
 
-  const meta = PAGE_META[top]
-  const copy = locale === 'en' ? meta.en : meta.de
-  const path = `/${top}`
-  const alternates = buildHreflangAlternates(path, locale === 'en' ? 'en' : 'de')
+  const meta = PAGE_META[top];
+  const copy = locale === 'en' ? meta.en : meta.de;
+  const path = `/${top}`;
+  const alternates = buildHreflangAlternates(path, locale === 'en' ? 'en' : 'de');
 
   return {
     title: copy.title,
@@ -93,36 +106,43 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: copy.description,
       url: alternates.canonical,
       type: 'website',
-      images: [{ url: `${SITE_URL}/pics/og-card.png?v=4`, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' }],
+      images: [
+        {
+          url: `${SITE_URL}/pics/og-card.png?v=4`,
+          width: 1200,
+          height: 1200,
+          alt: 'EAT THIS – We tell you what to eat',
+        },
+      ],
       locale: toOgLocale(locale === 'en' ? 'en' : 'de'),
     },
-  }
+  };
 }
 
 export async function generateViewport({ params }: PageProps): Promise<Viewport> {
-  await params
+  await params;
   return {
     themeColor: '#15120e',
-  }
+  };
 }
 
 // Catch-all for SPA routes: /map, /news, /about, etc. Each top-slug renders
 // only its own section. More-specific routes (/news/[slug], /restaurant/[slug])
 // take priority via Next.js routing precedence.
 export default async function SPACatchAllPage({ params }: PageProps) {
-  const { locale, slug } = await params
-  setRequestLocale(locale)
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
 
-  const top = exactTopSlug(slug)
-  if (!top || !VALID_SLUGS.has(top)) notFound()
+  const top = exactTopSlug(slug);
+  if (!top || !VALID_SLUGS.has(top)) notFound();
 
   if (top === 'news') {
     const [{ default: NewsSection }, articles] = await Promise.all([
       import('@/app/components/NewsSection'),
       getAllNewsArticles(),
-    ])
-    const activeLocale = locale === 'en' ? 'en' : 'de'
-    const de = activeLocale === 'de'
+    ]);
+    const activeLocale = locale === 'en' ? 'en' : 'de';
+    const de = activeLocale === 'de';
     const jsonLd = serializeJsonLd({
       '@context': 'https://schema.org',
       '@graph': [
@@ -155,23 +175,23 @@ export default async function SPACatchAllPage({ params }: PageProps) {
           })),
         },
       ],
-    })
+    });
     return (
       <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
         <NewsSection articles={articles} locale={activeLocale} />
       </>
-    )
+    );
   }
   if (STATIC_SLUGS.has(top)) {
-    const activeLocale = locale === 'en' ? 'en' : 'de'
+    const activeLocale = locale === 'en' ? 'en' : 'de';
     const [{ default: StaticPages }, page] = await Promise.all([
       import('@/app/components/StaticPages'),
       getStaticPage(top, activeLocale),
-    ])
-    if (!page) notFound()
-    return <StaticPages doc={page} locale={activeLocale} />
+    ]);
+    if (!page) notFound();
+    return <StaticPages doc={page} locale={activeLocale} />;
   }
 
-  notFound()
+  notFound();
 }

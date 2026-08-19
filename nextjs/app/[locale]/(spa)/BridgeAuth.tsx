@@ -71,8 +71,7 @@ export default function BridgeAuth() {
     const loginSpan = loginBtn?.querySelector('span');
 
     if (user) {
-      const firstName = (user.displayName ?? user.email ?? '')
-        .split(' ')[0] || t('footer.signIn');
+      const firstName = (user.displayName ?? user.email ?? '').split(' ')[0] || t('footer.signIn');
       loginBtn?.classList.add('logged-in');
       if (loginSpan) loginSpan.textContent = t('burger.profile');
       // Keep the pre-paint flag accurate once auth actually resolves (the
@@ -80,12 +79,11 @@ export default function BridgeAuth() {
       document.documentElement.setAttribute('data-auth', '1');
       try {
         const cachedAvatar = Number(localStorage.getItem(`eatthis_avatar_${user.uid}`));
-        const avatar = cachedAvatar === 1 || cachedAvatar === 2 || cachedAvatar === 3
-          ? cachedAvatar
-          : null;
+        const avatar =
+          cachedAvatar === 1 || cachedAvatar === 2 || cachedAvatar === 3 ? cachedAvatar : null;
         localStorage.setItem(
           '_authHint',
-          JSON.stringify({ n: firstName, u: user.uid, ...(avatar ? { a: avatar } : {}) }),
+          JSON.stringify({ n: firstName, u: user.uid, ...(avatar ? { a: avatar } : {}) })
         );
       } catch {}
       // Close the modal if the user just signed in.
@@ -94,19 +92,25 @@ export default function BridgeAuth() {
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');
       document.documentElement.removeAttribute('data-auth');
-      try { localStorage.removeItem('_authHint'); } catch {}
+      try {
+        localStorage.removeItem('_authHint');
+      } catch {}
     }
   }, [user, loading, t, closeLogin]);
 
-  return loginOpen ? createPortal(
-    <div
-      className={modalStyles.overlay}
-      onClick={(e) => { if (e.target === e.currentTarget) closeLogin(); }}
-    >
-      {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}
-      <LoginModalBarLock />
-      <LoginPanel onBack={closeLogin} modal mode={loginMode} />
-    </div>,
-    document.body,
-  ) : null;
+  return loginOpen
+    ? createPortal(
+        <div
+          className={modalStyles.overlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeLogin();
+          }}
+        >
+          {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}
+          <LoginModalBarLock />
+          <LoginPanel onBack={closeLogin} modal mode={loginMode} />
+        </div>,
+        document.body
+      )
+    : null;
 }

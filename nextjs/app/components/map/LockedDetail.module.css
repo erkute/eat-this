@@ -1,0 +1,92 @@
+/* Locked spot sheet — isolated map subsystem. */
+.body {
+  display: grid;
+  gap: 10px;
+  padding: 20px 18px 26px;
+  background: var(--et-home-paper, #fff);
+  color: var(--et-home-ink, #15120e);
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0;
+  font-family: var(--et-font-label, var(--font-label), sans-serif);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.kicker::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent, #ffc600);
+  flex: 0 0 auto;
+}
+
+.lead {
+  margin: 4px 0 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.04;
+  text-transform: uppercase;
+}
+
+.sub {
+  max-width: 34ch;
+  margin: 0 0 6px;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.38;
+}
+
+.btnPrimary,
+.btnSecondary {
+  display: inline-flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    transform var(--et-motion-fast, 140ms ease),
+    background-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
+}
+
+.btnPrimary {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 0;
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--et-home-ink, #15120e);
+  border: 1.5px solid var(--et-home-ink, #15120e);
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible,
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  transform: translateX(-3px);
+}

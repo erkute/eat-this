@@ -1,7 +1,7 @@
-import type { RestaurantCard } from '../types'
-import { truncateMetadataDescription } from './metadata-text'
+import type { RestaurantCard } from '../types';
+import { truncateMetadataDescription } from './metadata-text';
 
-type Loc = 'de' | 'en'
+type Loc = 'de' | 'en';
 
 /**
  * SERP-Titles für Kategorie-Seiten in der Sprache, in der Leute suchen
@@ -41,12 +41,12 @@ const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
     de: 'Eis, Donuts & Patisserie in Berlin',
     en: 'Ice Cream, Donuts & Pastry in Berlin',
   },
-}
+};
 
 export function buildCategoryTitle(slug: string, label: string, locale: Loc): string {
-  const curated = CATEGORY_TITLES[slug]
-  if (curated) return curated[locale]
-  return `${label} in Berlin`
+  const curated = CATEGORY_TITLES[slug];
+  if (curated) return curated[locale];
+  return `${label} in Berlin`;
 }
 
 /**
@@ -64,20 +64,20 @@ export function buildCategoryDescription({
   restaurants,
   locale,
 }: {
-  blurb: string
-  restaurants: RestaurantCard[]
-  locale: Loc
+  blurb: string;
+  restaurants: RestaurantCard[];
+  locale: Loc;
 }): string | undefined {
-  const de = locale === 'de'
-  const parts: string[] = []
-  if (blurb) parts.push(blurb.trim())
+  const de = locale === 'de';
+  const parts: string[] = [];
+  if (blurb) parts.push(blurb.trim());
   if (restaurants.length >= 3) {
     parts.push(
       de
         ? `${restaurants.length} kuratierte Spots, alle persönlich getestet.`
-        : `${restaurants.length} curated spots, every one tested in person.`,
-    )
+        : `${restaurants.length} curated spots, every one tested in person.`
+    );
   }
-  if (parts.length === 0) return undefined
-  return truncateMetadataDescription(parts.join(' '))
+  if (parts.length === 0) return undefined;
+  return truncateMetadataDescription(parts.join(' '));
 }

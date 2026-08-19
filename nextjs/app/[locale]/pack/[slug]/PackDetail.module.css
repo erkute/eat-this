@@ -9,10 +9,11 @@
   --pack-accent: var(--et-home-accent);
   --pack-muted: var(--et-home-muted);
   --pack-quiet: var(--et-home-quiet);
-  --pack-shadow: 0 26px 42px rgba(20, 18, 14, .15);
+  --pack-shadow: 0 26px 42px rgba(20, 18, 14, 0.15);
   display: flow-root;
   min-height: 100svh;
-  padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile) clamp(48px, 7vw, 96px);
+  padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px))
+    var(--et-wrap-pad-mobile) clamp(48px, 7vw, 96px);
   background: var(--pack-surface);
   color: var(--pack-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
@@ -63,7 +64,7 @@
 }
 
 .kicker::before {
-  content: "";
+  content: '';
   width: clamp(9px, 1.4vw, 14px);
   height: clamp(9px, 1.4vw, 14px);
   background: var(--pack-accent);
@@ -80,8 +81,8 @@
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: var(--et-type-hero, clamp(44px, 6.5vw, 80px));
   font-weight: 700;
-  line-height: .8;
-  letter-spacing: -.025em;
+  line-height: 0.8;
+  letter-spacing: -0.025em;
   text-transform: none;
 }
 
@@ -90,11 +91,26 @@
   padding: 0;
   background: transparent;
   color: var(--pack-ink);
-  line-height: .88;
+  line-height: 0.88;
 }
 
 .nameLine {
   display: block;
+}
+
+/* What you get for the money, between the name and the editorial line. The
+   pack sold itself on five teaser rows before this; the count is the sentence
+   that was missing. */
+.contents {
+  width: fit-content;
+  margin: 0 0 clamp(14px, 2vw, 20px);
+  padding: 5px 10px 6px;
+  background: var(--pack-accent);
+  color: var(--pack-ink);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .sub {
@@ -105,6 +121,29 @@
   font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
   font-weight: 400;
   line-height: var(--et-leading-copy, 1.5);
+}
+
+/* Sits under the All-Berlin CTA, where the 20 € it undercuts is on screen.
+   Deliberately quiet type rather than a second yellow badge — the contents
+   line above already owns that emphasis. */
+.savings {
+  width: min(100%, 520px);
+  margin: 0 0 12px;
+  color: var(--pack-ink);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.upsellSavings {
+  display: block;
+  margin-top: 10px;
+  color: var(--pack-muted);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .cta {
@@ -129,7 +168,9 @@
   text-transform: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: transform var(--et-motion-fast), background-color var(--et-motion-fast);
+  transition:
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
 }
 
 .cta:hover {
@@ -219,17 +260,51 @@ button.cta {
   margin: 0 clamp(-34px, -4vw, -18px);
 }
 
-.allRowTop img:nth-child(1) { transform: translateX(-18px) rotate(-11deg) translateY(6px); z-index: 2; }
-.allRowTop img:nth-child(2) { width: clamp(104px, 15vw, 190px); transform: rotate(0deg) translateY(-4px); z-index: 5; }
-.allRowTop img:nth-child(3) { transform: translateX(18px) rotate(11deg) translateY(6px); z-index: 2; }
-.allRowMid { margin-top: clamp(-70px, -6vw, -38px); }
-.allRowMid img:nth-child(1) { transform: translateX(-24px) rotate(-7deg) translateY(2px); z-index: 3; }
-.allRowMid img:nth-child(2) { width: clamp(112px, 16vw, 202px); transform: rotate(2deg) translateY(-6px); z-index: 9; }
-.allRowMid img:nth-child(3) { transform: translateX(24px) rotate(8deg) translateY(2px); z-index: 3; }
-.allRowBottom { margin-top: clamp(-76px, -6.5vw, -42px); }
-.allRowBottom img:nth-child(1) { transform: translateX(-20px) rotate(-9deg) translateY(6px); z-index: 1; }
-.allRowBottom img:nth-child(2) { width: clamp(100px, 14.5vw, 182px); transform: rotate(0deg) translateY(2px); z-index: 4; }
-.allRowBottom img:nth-child(3) { transform: translateX(20px) rotate(9deg) translateY(6px); z-index: 1; }
+.allRowTop img:nth-child(1) {
+  transform: translateX(-18px) rotate(-11deg) translateY(6px);
+  z-index: 2;
+}
+.allRowTop img:nth-child(2) {
+  width: clamp(104px, 15vw, 190px);
+  transform: rotate(0deg) translateY(-4px);
+  z-index: 5;
+}
+.allRowTop img:nth-child(3) {
+  transform: translateX(18px) rotate(11deg) translateY(6px);
+  z-index: 2;
+}
+.allRowMid {
+  margin-top: clamp(-70px, -6vw, -38px);
+}
+.allRowMid img:nth-child(1) {
+  transform: translateX(-24px) rotate(-7deg) translateY(2px);
+  z-index: 3;
+}
+.allRowMid img:nth-child(2) {
+  width: clamp(112px, 16vw, 202px);
+  transform: rotate(2deg) translateY(-6px);
+  z-index: 9;
+}
+.allRowMid img:nth-child(3) {
+  transform: translateX(24px) rotate(8deg) translateY(2px);
+  z-index: 3;
+}
+.allRowBottom {
+  margin-top: clamp(-76px, -6.5vw, -42px);
+}
+.allRowBottom img:nth-child(1) {
+  transform: translateX(-20px) rotate(-9deg) translateY(6px);
+  z-index: 1;
+}
+.allRowBottom img:nth-child(2) {
+  width: clamp(100px, 14.5vw, 182px);
+  transform: rotate(0deg) translateY(2px);
+  z-index: 4;
+}
+.allRowBottom img:nth-child(3) {
+  transform: translateX(20px) rotate(9deg) translateY(6px);
+  z-index: 1;
+}
 
 .contentGrid {
   display: grid;
@@ -282,7 +357,7 @@ button.cta {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(22px, 3vw, 34px);
   font-weight: 700;
-  line-height: .95;
+  line-height: 0.95;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -337,7 +412,7 @@ button.cta {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   font-weight: 700;
-  line-height: .82;
+  line-height: 0.82;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -364,7 +439,7 @@ button.cta {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: clamp(-4px, -.45vw, -2px);
+  gap: clamp(-4px, -0.45vw, -2px);
   width: 100%;
   min-height: 0;
   padding: 8px 0 18px;
@@ -434,13 +509,13 @@ button.cta {
   }
 
   .hero {
-    grid-template-columns: minmax(0, .92fr) minmax(320px, 1fr);
+    grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1fr);
     min-height: auto;
     padding-bottom: clamp(28px, 3vw, 44px);
   }
 
   .heroAll {
-    grid-template-columns: minmax(0, .82fr) minmax(380px, 1.1fr);
+    grid-template-columns: minmax(0, 0.82fr) minmax(380px, 1.1fr);
   }
 
   .stage,
@@ -467,7 +542,7 @@ button.cta {
     grid-template-columns: repeat(9, minmax(0, 1fr));
     align-items: end;
     justify-items: center;
-    gap: clamp(2px, .8vw, 12px);
+    gap: clamp(2px, 0.8vw, 12px);
     overflow: visible;
     width: 100%;
     margin-inline: auto;
@@ -484,15 +559,33 @@ button.cta {
     width: min(100%, 132px);
   }
 
-  .upsellPack:nth-child(1) { transform: rotate(-5deg); }
-  .upsellPack:nth-child(2) { transform: rotate(1deg) translateY(-3px); }
-  .upsellPack:nth-child(3) { transform: rotate(5deg); }
-  .upsellPack:nth-child(4) { transform: rotate(-3deg); }
-  .upsellPack:nth-child(5) { transform: rotate(0deg) translateY(-4px); }
-  .upsellPack:nth-child(6) { transform: rotate(3deg); }
-  .upsellPack:nth-child(7) { transform: rotate(-5deg); }
-  .upsellPack:nth-child(8) { transform: rotate(-1deg) translateY(3px); }
-  .upsellPack:nth-child(9) { transform: rotate(5deg); }
+  .upsellPack:nth-child(1) {
+    transform: rotate(-5deg);
+  }
+  .upsellPack:nth-child(2) {
+    transform: rotate(1deg) translateY(-3px);
+  }
+  .upsellPack:nth-child(3) {
+    transform: rotate(5deg);
+  }
+  .upsellPack:nth-child(4) {
+    transform: rotate(-3deg);
+  }
+  .upsellPack:nth-child(5) {
+    transform: rotate(0deg) translateY(-4px);
+  }
+  .upsellPack:nth-child(6) {
+    transform: rotate(3deg);
+  }
+  .upsellPack:nth-child(7) {
+    transform: rotate(-5deg);
+  }
+  .upsellPack:nth-child(8) {
+    transform: rotate(-1deg) translateY(3px);
+  }
+  .upsellPack:nth-child(9) {
+    transform: rotate(5deg);
+  }
 
   .upsellCopy {
     display: flex;
@@ -504,7 +597,6 @@ button.cta {
   .upsellCta {
     width: min(100%, 520px);
   }
-
 }
 
 @media (max-width: 759px) {
@@ -581,7 +673,6 @@ button.cta {
     grid-column: 2;
     text-align: left;
   }
-
 }
 
 @supports (-webkit-touch-callout: none) {

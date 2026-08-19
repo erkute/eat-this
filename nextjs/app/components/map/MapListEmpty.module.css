@@ -88,12 +88,16 @@
 .esActions {
   display: flex;
   align-items: stretch;
-  gap: 0;
+  gap: 10px;
 }
 .esBtnPrimary {
+  display: inline-flex;
   width: 100%;
   min-height: 46px;
+  align-items: center;
   justify-content: center;
+  text-align: center;
+  text-decoration: none;
   background: var(--et-home-ink, #15120e);
   color: var(--et-home-inverse-text, #fff);
   border: 0;
@@ -125,4 +129,58 @@
   .esHeading {
     font-size: 36px;
   }
+}
+
+/* Locked variant: the pack link takes the filled treatment, so "reset filters"
+   steps back to an outline. Same 46px target, no opacity — the hover moves. */
+.esBtnSecondary {
+  display: inline-flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--et-home-ink, #15120e);
+  border: 1.5px solid var(--et-home-ink, #15120e);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  cursor: pointer;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    transform var(--et-motion-fast, 140ms ease),
+    background-color var(--et-motion-fast, 140ms ease);
+}
+.esBtnSecondary:hover,
+.esBtnSecondary:focus-visible {
+  background: var(--et-home-accent, #ffc600);
+  transform: translateX(-3px);
+}
+
+/* Free-tier note — the paywall covers the map, not the writing. Quieter than
+   the body copy so it reads as a footnote to the offer, not a competing one. */
+.esFree {
+  max-width: 32ch;
+  margin: 2px 0 8px;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.38;
+}
+
+.esFreeLink {
+  color: var(--et-home-ink, #15120e);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  white-space: nowrap;
 }

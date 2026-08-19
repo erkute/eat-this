@@ -19,14 +19,19 @@ function readCachedAvatar(uid: string | null): AvatarChoice | null {
     const raw = window.localStorage.getItem(CACHE_KEY(uid));
     const n = Number(raw);
     return n === 1 || n === 2 || n === 3 ? (n as AvatarChoice) : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function writeCachedAvatar(uid: string, avatar: AvatarChoice) {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(CACHE_KEY(uid), String(avatar));
-    const authHint = JSON.parse(window.localStorage.getItem('_authHint') || 'null') as { n?: string; a?: AvatarChoice } | null;
+    const authHint = JSON.parse(window.localStorage.getItem('_authHint') || 'null') as {
+      n?: string;
+      a?: AvatarChoice;
+    } | null;
     if (authHint?.n) {
       window.localStorage.setItem('_authHint', JSON.stringify({ ...authHint, a: avatar }));
     }
@@ -58,10 +63,7 @@ export function useUserProfile(uid: string | null) {
     let unsub = () => {};
     let active = true;
     void (async () => {
-      const [{ doc, onSnapshot }, db] = await Promise.all([
-        import('firebase/firestore'),
-        getDb(),
-      ]);
+      const [{ doc, onSnapshot }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
       if (!active) return;
       const ref = doc(db, 'users', uid);
       unsub = onSnapshot(
@@ -75,10 +77,13 @@ export function useUserProfile(uid: string | null) {
           setProfile({ avatar });
           setLoading(false);
         },
-        () => setLoading(false),
+        () => setLoading(false)
       );
     })();
-    return () => { active = false; unsub(); };
+    return () => {
+      active = false;
+      unsub();
+    };
   }, [uid]);
 
   const setAvatar = useCallback(
@@ -89,13 +94,10 @@ export function useUserProfile(uid: string | null) {
       // Firestore snapshot has fired.
       writeCachedAvatar(uid, choice);
       setProfile({ avatar: choice });
-      const [{ doc, setDoc }, db] = await Promise.all([
-        import('firebase/firestore'),
-        getDb(),
-      ]);
+      const [{ doc, setDoc }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
       await setDoc(doc(db, 'users', uid), { avatar: choice }, { merge: true });
     },
-    [uid],
+    [uid]
   );
 
   return { profile, loading, setAvatar };

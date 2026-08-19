@@ -1,4 +1,4 @@
-import { oldStyleSlug } from './legacySlug'
+import { oldStyleSlug } from './legacySlug';
 
 // Cleanup for the 2026-06-07 rebuild that re-slugged every spot without
 // 301s, leaving Google's whole index on 404 URLs. Three mechanisms:
@@ -10,9 +10,9 @@ import { oldStyleSlug } from './legacySlug'
 // See [[project-rebuild-slug-404-incident]].
 
 export interface LegacyRestaurant {
-  name: string
-  slug: string
-  bezirk?: string | null
+  name: string;
+  slug: string;
+  bezirk?: string | null;
 }
 
 // Irregular, curated old→new restaurant slug map (locale-agnostic).
@@ -30,7 +30,7 @@ const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
   'jones-ice-cream-2': 'jones-ice-cream',
   // renamed location (NORD branch closed, SÜD remains)
   'knoedelwirtschaft-nord': 'knoedelwirtschaft-sued',
-}
+};
 
 // Permanently closed spots — return 410 Gone so Google drops them cleanly.
 export const GONE_SLUGS: ReadonlySet<string> = new Set([
@@ -39,7 +39,7 @@ export const GONE_SLUGS: ReadonlySet<string> = new Set([
   'lala-restaurant',
   'gnam-pasta-factory',
   'zeit-caf',
-])
+]);
 
 // Removed news articles → closest living target (path without locale prefix).
 export const NEWS_REDIRECTS: Record<string, string> = {
@@ -48,12 +48,12 @@ export const NEWS_REDIRECTS: Record<string, string> = {
   'ramen-berlin': '/news',
   'michelin-berlin': '/news',
   'the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle': '/news',
-}
+};
 
 function pickPrimary(branches: LegacyRestaurant[]): string {
-  const mitte = branches.find(b => b.bezirk === 'mitte')
-  if (mitte) return mitte.slug
-  return [...branches].sort((a, b) => a.slug.localeCompare(b.slug))[0].slug
+  const mitte = branches.find((b) => b.bezirk === 'mitte');
+  if (mitte) return mitte.slug;
+  return [...branches].sort((a, b) => a.slug.localeCompare(b.slug))[0].slug;
 }
 
 /**
@@ -62,33 +62,33 @@ function pickPrimary(branches: LegacyRestaurant[]): string {
  */
 export function resolveLegacyRestaurantSlug(
   slug: string,
-  restaurants: LegacyRestaurant[],
+  restaurants: LegacyRestaurant[]
 ): string | null {
-  if (EXPLICIT_RESTAURANT_REDIRECTS[slug]) return EXPLICIT_RESTAURANT_REDIRECTS[slug]
+  if (EXPLICIT_RESTAURANT_REDIRECTS[slug]) return EXPLICIT_RESTAURANT_REDIRECTS[slug];
 
-  const currentSlugs = new Set(restaurants.map(r => r.slug))
-  if (currentSlugs.has(slug)) return null // real page — leave it alone
+  const currentSlugs = new Set(restaurants.map((r) => r.slug));
+  if (currentSlugs.has(slug)) return null; // real page — leave it alone
 
   // Accent map: old slug → new slug, only when unambiguous and not shadowing
   // a real page.
-  const byOld = new Map<string, Set<string>>()
+  const byOld = new Map<string, Set<string>>();
   for (const r of restaurants) {
-    const key = oldStyleSlug(r.name)
-    if (!key || key === r.slug || currentSlugs.has(key)) continue
-    if (!byOld.has(key)) byOld.set(key, new Set())
-    byOld.get(key)!.add(r.slug)
+    const key = oldStyleSlug(r.name);
+    if (!key || key === r.slug || currentSlugs.has(key)) continue;
+    if (!byOld.has(key)) byOld.set(key, new Set());
+    byOld.get(key)!.add(r.slug);
   }
-  const accentHit = byOld.get(slug)
-  if (accentHit?.size === 1) return [...accentHit][0]
+  const accentHit = byOld.get(slug);
+  if (accentHit?.size === 1) return [...accentHit][0];
 
   // Generic split fallback: old bare slug now carries a branch suffix.
-  const branches = restaurants.filter(r => r.slug.startsWith(`${slug}-`))
-  if (branches.length > 0) return pickPrimary(branches)
+  const branches = restaurants.filter((r) => r.slug.startsWith(`${slug}-`));
+  if (branches.length > 0) return pickPrimary(branches);
 
   // Ambiguous accent collision (e.g. two same-named spots) → primary.
   if (accentHit && accentHit.size > 1) {
-    return pickPrimary(restaurants.filter(r => accentHit.has(r.slug)))
+    return pickPrimary(restaurants.filter((r) => accentHit.has(r.slug)));
   }
 
-  return null
+  return null;
 }

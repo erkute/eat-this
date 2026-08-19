@@ -60,7 +60,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
         </header>
 
         {lead ? (
-          <section className={styles.leadSection} aria-label={de ? 'Aktuelle Titelstory' : 'Current lead story'}>
+          <section
+            className={styles.leadSection}
+            aria-label={de ? 'Aktuelle Titelstory' : 'Current lead story'}
+          >
             <Link href={`/news/${lead.slug}`} className={styles.leadCard}>
               <div className={styles.leadFrame}>
                 {lead.imageUrl ? (

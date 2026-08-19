@@ -24,7 +24,12 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   const authMode = mode === 'auth';
   const { initialMapData, live } = useHomeMapData();
   const { location, loading: locating, error: locError, request } = useUserLocationContext();
-  const locationStatus = getLocationStatus({ locale, location, locationError: locError, locateLoading: locating });
+  const locationStatus = getLocationStatus({
+    locale,
+    location,
+    locationError: locError,
+    locateLoading: locating,
+  });
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locating ? 'loading' : 'idle'}`
     : null;
@@ -50,8 +55,11 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4);
   if (cards.length === 0) return null;
 
-  const title = locale === 'en' ? 'Around you' : 'Um dich herum';
-  const locateLabel = locale === 'en' ? 'Locate' : 'Standort';
+  // `loc` falls back to Mitte, so without a grant the walking time below is
+  // measured from a place the user isn't. A denial is indistinguishable from a
+  // question never asked — the silent resume only runs on an existing grant —
+  // which leaves `activeLocation` as the only honest split there is.
+  const title = activeLocation ? t('title') : t('titleFallback');
   const showLocationStatus = Boolean(
     mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
   );
@@ -98,7 +106,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
               <line x1="19" y1="12" x2="22" y2="12" />
               <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
             </svg>
-            <span>{locating ? t('locating') : locateLabel}</span>
+            <span>{locating ? t('locating') : t('location')}</span>
           </button>
         </div>
 
@@ -106,14 +114,12 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
 
         <div className={`hv-rail ${styles.rail}`}>
           {cards.map((r) => {
-            const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng));
+            const walk = activeLocation
+              ? formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
+              : null;
             const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
             return (
-              <Link
-                key={r._id}
-                href={`/restaurant/${r.slug}`}
-                className={styles.card}
-              >
+              <Link key={r._id} href={`/restaurant/${r.slug}`} className={styles.card}>
                 <span className={`hv-photo ${styles.photo}`}>
                   {r.photo && (
                     <Image
@@ -156,9 +162,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
             type="button"
             className={styles.locationDismiss}
             onClick={handleDismissLocationStatus}
-            aria-label={
-              locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'
-            }
+            aria-label={locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'}
           >
             ×
           </button>

@@ -1,28 +1,28 @@
-'use client'
-import { useCallback, useEffect, useState } from 'react'
-import { useLoginModal } from '@/lib/auth'
-import type { MapMustEat } from '@/lib/types'
-import type { UserLocation } from '@/lib/map'
-import MustEatRevealOverlay from './MustEatRevealOverlay'
-import LazyMustEatImageLightbox from './LazyMustEatImageLightbox'
-import MustEatDetailMobile from './MustEatDetailMobile'
-import { useMustEatDetailState } from './useMustEatDetailState'
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { useLoginModal } from '@/lib/auth';
+import type { MapMustEat } from '@/lib/types';
+import type { UserLocation } from '@/lib/map';
+import MustEatRevealOverlay from './MustEatRevealOverlay';
+import LazyMustEatImageLightbox from './LazyMustEatImageLightbox';
+import MustEatDetailMobile from './MustEatDetailMobile';
+import { useMustEatDetailState } from './useMustEatDetailState';
 
 interface MustEatDetailProps {
-  mustEat: MapMustEat
-  userLocation: UserLocation | null
-  isUnlocked: boolean
-  onUnlock: () => Promise<boolean>
-  onClose: () => void
-  onViewRestaurant?: () => void
+  mustEat: MapMustEat;
+  userLocation: UserLocation | null;
+  isUnlocked: boolean;
+  onUnlock: () => Promise<boolean>;
+  onClose: () => void;
+  onViewRestaurant?: () => void;
   /** Global must-eat pager — adjacent cards + page handlers. */
-  prevMustEat?: MapMustEat | null
-  nextMustEat?: MapMustEat | null
-  prevUnlocked?: boolean
-  nextUnlocked?: boolean
-  onPagePrev?: () => void
-  onPageNext?: () => void
-  uid?: string | null
+  prevMustEat?: MapMustEat | null;
+  nextMustEat?: MapMustEat | null;
+  prevUnlocked?: boolean;
+  nextUnlocked?: boolean;
+  onPagePrev?: () => void;
+  onPageNext?: () => void;
+  uid?: string | null;
 }
 
 export default function MustEatDetail({
@@ -45,19 +45,27 @@ export default function MustEatDetail({
   // with ?revealdemo latches it into sessionStorage so it survives in-app
   // navigation for the whole session (no need to keep the param in the URL).
   const [demo] = useState(() => {
-    if (typeof window === 'undefined') return false
+    if (typeof window === 'undefined') return false;
     if (new URLSearchParams(window.location.search).has('revealdemo')) {
-      try { sessionStorage.setItem('revealdemo', '1') } catch { /* ignore */ }
-      return true
+      try {
+        sessionStorage.setItem('revealdemo', '1');
+      } catch {
+        /* ignore */
+      }
+      return true;
     }
-    try { return sessionStorage.getItem('revealdemo') === '1' } catch { return false }
-  })
+    try {
+      return sessionStorage.getItem('revealdemo') === '1';
+    } catch {
+      return false;
+    }
+  });
   // Keep the map in place and use the shared login layer. The previous
   // standalone route made this reveal flow leave the map entirely.
-  const { open: openLoginModal } = useLoginModal()
+  const { open: openLoginModal } = useLoginModal();
   const handleRequireLogin = useCallback(() => {
-    openLoginModal('starter')
-  }, [openLoginModal])
+    openLoginModal('starter');
+  }, [openLoginModal]);
   const state = useMustEatDetailState({
     mustEat,
     userLocation,
@@ -65,45 +73,45 @@ export default function MustEatDetail({
     isAuthed: Boolean(uid),
     onRequireLogin: handleRequireLogin,
     demo,
-  })
+  });
   // In demo the card stays face-down until the reveal animation finishes, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.
-  const [demoRevealed, setDemoRevealed] = useState(false)
-  const [demoMustEat, setDemoMustEat] = useState<MapMustEat | null>(null)
+  const [demoRevealed, setDemoRevealed] = useState(false);
+  const [demoMustEat, setDemoMustEat] = useState<MapMustEat | null>(null);
   // Once the card has flown back onto its slot, the "VERDECKT" stamp burns
   // away to expose the dish name underneath.
-  const [stampBurning, setStampBurning] = useState(false)
-  const effectiveUnlocked = demo ? demoRevealed : isUnlocked
-  const visibleMustEat = demoMustEat?._id === mustEat._id ? demoMustEat : mustEat
+  const [stampBurning, setStampBurning] = useState(false);
+  const effectiveUnlocked = demo ? demoRevealed : isUnlocked;
+  const visibleMustEat = demoMustEat?._id === mustEat._id ? demoMustEat : mustEat;
 
   useEffect(() => {
-    if (!demo) return
-    setDemoRevealed(false)
-    setStampBurning(false)
-    setDemoMustEat(null)
-  }, [demo, mustEat._id])
+    if (!demo) return;
+    setDemoRevealed(false);
+    setStampBurning(false);
+    setDemoMustEat(null);
+  }, [demo, mustEat._id]);
 
   useEffect(() => {
-    if (!demo || mustEat.image || demoMustEat?._id === mustEat._id) return
-    const ctrl = new AbortController()
+    if (!demo || mustEat.image || demoMustEat?._id === mustEat._id) return;
+    const ctrl = new AbortController();
     void (async () => {
       try {
         const r = await fetch(`/api/must-eat-demo?mustEatId=${encodeURIComponent(mustEat._id)}`, {
           signal: ctrl.signal,
-        })
-        if (!r.ok) return
-        const { mustEat: full } = (await r.json()) as { mustEat?: MapMustEat }
-        if (full?._id === mustEat._id) setDemoMustEat(full)
+        });
+        if (!r.ok) return;
+        const { mustEat: full } = (await r.json()) as { mustEat?: MapMustEat };
+        if (full?._id === mustEat._id) setDemoMustEat(full);
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
-          console.warn('Must Eat demo preview failed', err)
+          console.warn('Must Eat demo preview failed', err);
         }
       }
-    })()
-    return () => ctrl.abort()
-  }, [demo, demoMustEat?._id, mustEat._id, mustEat.image])
+    })();
+    return () => ctrl.abort();
+  }, [demo, demoMustEat?._id, mustEat._id, mustEat.image]);
 
-  const r = state.revealOrigin
+  const r = state.revealOrigin;
 
   return (
     <>
@@ -134,12 +142,12 @@ export default function MustEatDetail({
           flyOutTarget={{ cx: r.left + r.width / 2, cy: r.top + r.height / 2, size: r.width }}
           landOpaque
           onDone={() => {
-            state.handleRevealDone()
-            if (demo) setDemoRevealed(true)
+            state.handleRevealDone();
+            if (demo) setDemoRevealed(true);
             // Card has landed → the blurred dish name slowly sharpens into
             // focus (0.2s delay + 1.9s unblur, see .fdNameUnblurring).
-            setStampBurning(true)
-            window.setTimeout(() => setStampBurning(false), 2350)
+            setStampBurning(true);
+            window.setTimeout(() => setStampBurning(false), 2350);
           }}
         />
       )}
@@ -155,5 +163,5 @@ export default function MustEatDetail({
         onExitComplete={state.handleZoomExitComplete}
       />
     </>
-  )
+  );
 }

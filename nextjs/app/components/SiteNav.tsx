@@ -124,20 +124,10 @@ export default function SiteNav() {
       <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
-      <nav
-        className={styles.nav}
-        id="navbar"
-        data-nav-page={activePage}
-        data-visibility="visible"
-      >
+      <nav className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
-          <MapIntentLink
-            href="/map"
-            className={styles.control}
-            id="navMapBtn"
-            aria-label="Map"
-          >
+          <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">
             <span className={styles.mapWord}>Map</span>
           </MapIntentLink>
         </div>

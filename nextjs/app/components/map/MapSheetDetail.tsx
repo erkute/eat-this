@@ -1,47 +1,47 @@
-'use client'
-import { type Ref } from 'react'
-import type { MapRestaurant, MapMustEat } from '@/lib/types'
-import type { UserLocation, UserTier } from '@/lib/map'
-import RestaurantDetail from './RestaurantDetail'
-import MustEatDetail from './MustEatDetail'
-import styles from './MapDetails.module.css'
+'use client';
+import { type Ref } from 'react';
+import type { MapRestaurant, MapMustEat } from '@/lib/types';
+import type { UserLocation, UserTier } from '@/lib/map';
+import RestaurantDetail from './RestaurantDetail';
+import MustEatDetail from './MustEatDetail';
+import styles from './MapDetails.module.css';
 
 type CommonProps = {
-  contentRef: Ref<HTMLDivElement | null>
-  uid: string | null
-  userTier: UserTier
-  userLocation: UserLocation | null
-  unlockedIds: Set<string>
-}
+  contentRef: Ref<HTMLDivElement | null>;
+  uid: string | null;
+  userTier: UserTier;
+  userLocation: UserLocation | null;
+  unlockedIds: Set<string>;
+};
 
 type MustEatProps = CommonProps & {
-  kind: 'mustEat'
-  mustEat: MapMustEat
-  onUnlock: () => Promise<boolean>
-  onClose: () => void
-  onViewRestaurant: () => void
-  prevMustEat: MapMustEat | null
-  nextMustEat: MapMustEat | null
-  onPagePrev: () => void
-  onPageNext: () => void
-}
+  kind: 'mustEat';
+  mustEat: MapMustEat;
+  onUnlock: () => Promise<boolean>;
+  onClose: () => void;
+  onViewRestaurant: () => void;
+  prevMustEat: MapMustEat | null;
+  nextMustEat: MapMustEat | null;
+  onPagePrev: () => void;
+  onPageNext: () => void;
+};
 
 type RestaurantProps = CommonProps & {
-  kind: 'restaurant'
-  restaurant: MapRestaurant
-  mustEats: MapMustEat[]
-  revealedMustEatIds: Set<string>
-  onClose: () => void
-  onMustEatClick: (m: MapMustEat) => void
-  isFavorite: boolean
-  onToggleFavorite: () => void
-  prevRestaurant: MapRestaurant | null
-  nextRestaurant: MapRestaurant | null
-  onPagePrev: () => void
-  onPageNext: () => void
-}
+  kind: 'restaurant';
+  restaurant: MapRestaurant;
+  mustEats: MapMustEat[];
+  revealedMustEatIds: Set<string>;
+  onClose: () => void;
+  onMustEatClick: (m: MapMustEat) => void;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  prevRestaurant: MapRestaurant | null;
+  nextRestaurant: MapRestaurant | null;
+  onPagePrev: () => void;
+  onPageNext: () => void;
+};
 
-type Props = MustEatProps | RestaurantProps
+type Props = MustEatProps | RestaurantProps;
 
 export default function MapSheetDetail(props: Props) {
   return (
@@ -90,5 +90,5 @@ export default function MapSheetDetail(props: Props) {
         />
       )}
     </div>
-  )
+  );
 }

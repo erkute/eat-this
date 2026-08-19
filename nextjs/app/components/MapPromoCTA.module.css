@@ -2,7 +2,6 @@
    It deliberately does not inherit --ink/--cream from parent pages; restaurant
    and article shells flip those tokens for their own surfaces. */
 .promo {
-
   position: relative;
   overflow: hidden;
   background: var(--promo-bg);
@@ -18,7 +17,7 @@
   gap: var(--et-rail-gap);
 }
 .promo::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0 0 auto;
   height: 9px;
@@ -29,7 +28,7 @@
   font-family: var(--et-font-display);
   font-size: clamp(30px, 8vw, 46px);
   line-height: 1.1;
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   text-transform: uppercase;
   margin: 0;
   max-width: 16ch;
@@ -65,15 +64,33 @@
   text-decoration: none;
   transition: transform var(--et-motion-fast);
 }
-.cta:hover { transform: var(--et-hover-lift-sm); }
-.cta svg { flex-shrink: 0; }
+.cta:hover {
+  transform: var(--et-hover-lift-sm);
+}
+.cta svg {
+  flex-shrink: 0;
+}
 
 @media (min-width: 720px) {
-  .promo { margin-top: 56px; padding: 64px 6vw 68px; gap: 18px; }
-  .title { font-size: clamp(44px, 5vw, 68px); }
-  .titleRestaurant { font-size: clamp(44px, 4vw, 50px); }
-  .sub { font-size: 17px; max-width: 44ch; }
-  .cta { font-size: 24px; padding: 18px 32px 19px; }
+  .promo {
+    margin-top: 56px;
+    padding: 64px 6vw 68px;
+    gap: 18px;
+  }
+  .title {
+    font-size: clamp(44px, 5vw, 68px);
+  }
+  .titleRestaurant {
+    font-size: clamp(44px, 4vw, 50px);
+  }
+  .sub {
+    font-size: 17px;
+    max-width: 44ch;
+  }
+  .cta {
+    font-size: 24px;
+    padding: 18px 32px 19px;
+  }
 }
 
 /* Chip variant — slim inline yellow pill placed high in the page hero for
@@ -93,8 +110,14 @@
   text-decoration: none;
   transition: transform var(--et-motion-fast);
 }
-.chip:hover { transform: var(--et-hover-lift-sm); }
-.chip svg { flex-shrink: 0; width: 22px; height: auto; }
+.chip:hover {
+  transform: var(--et-hover-lift-sm);
+}
+.chip svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: auto;
+}
 
 /* Poster CTA: no white banner with a black frame. */
 .promo {

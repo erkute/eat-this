@@ -25,9 +25,7 @@ const HEIGHT = 170;
 let fontPromise: Promise<Buffer> | null = null;
 function loadFont() {
   // Schoolbell is the brand display face (the home kicker/headline font).
-  fontPromise ??= readFile(
-    join(process.cwd(), 'assets', 'fonts', 'Schoolbell-Regular.ttf'),
-  );
+  fontPromise ??= readFile(join(process.cwd(), 'assets', 'fonts', 'Schoolbell-Regular.ttf'));
   return fontPromise;
 }
 
@@ -37,8 +35,8 @@ function loadFont() {
 let logoPromise: Promise<string> | null = null;
 function loadLogo() {
   logoPromise ??= readFile(
-    join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png'),
-  ).then(buf => `data:image/png;base64,${buf.toString('base64')}`);
+    join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png')
+  ).then((buf) => `data:image/png;base64,${buf.toString('base64')}`);
   return logoPromise;
 }
 
@@ -49,49 +47,47 @@ export async function GET(request: Request) {
   const [schoolbell, logo] = await Promise.all([loadFont(), loadLogo()]);
 
   const png = new ImageResponse(
-    (
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'Schoolbell',
+      }}
+    >
       <div
         style={{
           display: 'flex',
-          width: '100%',
-          height: '100%',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'Schoolbell',
+          backgroundColor: '#a02814',
+          borderRadius: 22,
+          padding: '26px 52px 30px',
         }}
       >
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            backgroundColor: '#a02814',
-            borderRadius: 22,
-            padding: '26px 52px 30px',
+            color: '#fbf8ee',
+            fontSize: 30,
+            letterSpacing: 4,
+            textTransform: 'uppercase',
+            marginBottom: 10,
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              color: '#fbf8ee',
-              fontSize: 30,
-              letterSpacing: 4,
-              textTransform: 'uppercase',
-              marginBottom: 10,
-            }}
-          >
-            {kicker}
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logo} width={184} height={75} alt="" />
+          {kicker}
         </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} width={184} height={75} alt="" />
       </div>
-    ),
+    </div>,
     {
       width: WIDTH,
       height: HEIGHT,
       fonts: [{ name: 'Schoolbell', data: schoolbell, weight: 400, style: 'normal' }],
-    },
+    }
   );
 
   return new Response(new Uint8Array(await png.arrayBuffer()), {

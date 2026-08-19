@@ -1,12 +1,12 @@
-import type { InitialMustEatsData } from '@/lib/map/initial-surface-data'
-import MustEatsGallery from './MustEatsGallery'
-import MustEatsOnboarding from './MustEatsOnboarding'
-import SiteFooter from './SiteFooter'
-import styles from './MustEatsSection.module.css'
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
+import MustEatsGallery from './MustEatsGallery';
+import MustEatsOnboarding from './MustEatsOnboarding';
+import SiteFooter from './SiteFooter';
+import styles from './MustEatsSection.module.css';
 
 interface Props {
-  initialMapData: InitialMustEatsData
-  locale: 'de' | 'en'
+  initialMapData: InitialMustEatsData;
+  locale: 'de' | 'en';
 }
 
 // Server-rendered head + closing block use locale-keyed strings (a server
@@ -33,9 +33,9 @@ const COPY = {
       'Buy a Booster Pack to unlock new curated spots for your map — including more Must Eats you can reveal on site.',
     closeCta: 'Buy packs',
   },
-} as const
+} as const;
 
-const CARD_BACK = '/pics/card-back.webp?v=6'
+const CARD_BACK = '/pics/card-back.webp?v=6';
 const PACK_ART = [
   '/pics/booster/booster_breakfast.webp',
   '/pics/booster/booster_coffee.webp',
@@ -46,12 +46,12 @@ const PACK_ART = [
   '/pics/booster/booster_lunch.webp',
   '/pics/booster/booster_pizza.webp',
   '/pics/booster/booster_sweets.webp',
-] as const
+] as const;
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
-  const c = COPY[locale]
-  const packsHref = locale === 'en' ? '/en/packs' : '/packs'
-  const heroCards = initialMapData.mustEats.slice(0, 3)
+  const c = COPY[locale];
+  const packsHref = locale === 'en' ? '/en/packs' : '/packs';
+  const heroCards = initialMapData.mustEats.slice(0, 3);
 
   return (
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
@@ -83,8 +83,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         <div className={styles.closeCopy}>
           <div className={styles.closeK}>{c.closeKicker}</div>
           <h2 className={styles.closeTitle}>
-            {c.closeTitle[0]}{' '}
-            <br className={styles.closeTitleBreak} />
+            {c.closeTitle[0]} <br className={styles.closeTitleBreak} />
             {c.closeTitle[1]}
           </h2>
           <p className={styles.closeBody}>{c.closeBody}</p>
@@ -105,5 +104,5 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
       <SiteFooter />
     </main>
-  )
+  );
 }

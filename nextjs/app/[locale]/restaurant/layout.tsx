@@ -15,7 +15,7 @@ export default async function RestaurantLayout({
   params,
 }: {
   children: React.ReactNode;
-  params:   Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
@@ -26,7 +26,11 @@ export default async function RestaurantLayout({
       <LoginModalProvider>
         <UserLocationProvider>
           {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
-          <link rel="stylesheet" href={`/css/style.min.css?v=${CSS_VERSION}`} precedence="default" />
+          <link
+            rel="stylesheet"
+            href={`/css/style.min.css?v=${CSS_VERSION}`}
+            precedence="default"
+          />
           <BridgeAuth />
           <SiteNav />
           <BurgerDrawer />

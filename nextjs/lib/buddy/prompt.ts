@@ -1,11 +1,11 @@
 // nextjs/lib/buddy/prompt.ts
-import type { Locale } from './types'
+import type { Locale } from './types';
 
 export function buildSystemPrompt(locale: Locale, opts: { hasGeo?: boolean } = {}): string {
   const lang =
     locale === 'en'
       ? 'Answer in English (informal "you").'
-      : 'Antworte auf Deutsch, in der Du-Form.'
+      : 'Antworte auf Deutsch, in der Du-Form.';
 
   return [
     'Du bist Remy — der kenntnisreiche Berliner Food-Insider von Eat This. Stell dich bei Bedarf als Remy vor.',
@@ -57,5 +57,5 @@ export function buildSystemPrompt(locale: Locale, opts: { hasGeo?: boolean } = {
     '- Gib in deiner Antwort KEINE URLs oder Links aus. Nenne Spots nur beim Namen.',
     '',
     lang,
-  ].join('\n')
+  ].join('\n');
 }

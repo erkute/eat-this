@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import {
@@ -22,6 +22,7 @@ import { classifyWebsite, formatPriceLabel, splitStatusLabel } from './restauran
 import { normalizeName } from '@/lib/normalizeName';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
+import ShareButton from '../ShareButton';
 import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
@@ -164,7 +165,6 @@ export default function RestaurantDetail({
   const locale = useLocale();
   const { open: openLoginModal } = useLoginModal();
   const { count: heartCount } = useHeartCount(restaurant._id);
-  const [shareDone, setShareDone] = useState(false);
   const scrollWrapRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
 
@@ -243,7 +243,7 @@ export default function RestaurantDetail({
             credit: r.photoCredit,
             creditUrl: r.photoCreditUrl,
           }
-        : null,
+        : null
     );
     detail.gallery?.forEach(add);
     return images;
@@ -323,15 +323,21 @@ export default function RestaurantDetail({
   };
 
   const heroCredit = r.photo ? r.photoCredit?.trim() : undefined;
-  const heroStyle = r.photo && heroCredit
-    ? ({
-        '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
-        backgroundImage: `url(${r.photo})`,
-      } as CSSProperties)
-    : undefined;
+  const heroStyle =
+    r.photo && heroCredit
+      ? ({
+          '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
+          backgroundImage: `url(${r.photo})`,
+        } as CSSProperties)
+      : undefined;
 
   return (
-    <div className={styles.detailV13} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
+    <div
+      className={styles.detailV13}
+      data-detail-root="restaurant"
+      role="dialog"
+      aria-label={r.name}
+    >
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle} ref={heroRef}>
@@ -385,7 +391,9 @@ export default function RestaurantDetail({
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
               {hasHours && (
-                <span className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}>
+                <span
+                  className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}
+                >
                   {openTag}
                 </span>
               )}
@@ -644,63 +652,14 @@ export default function RestaurantDetail({
               <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
             </a>
           )}
-          <button
-            type="button"
+          <ShareButton
+            title={r.name}
+            slug={r.slug}
+            contentType="restaurant"
             className={styles.rdActBtn}
-            onClick={async () => {
-              const url = typeof window !== 'undefined' ? window.location.href : '';
-              const shareData = { title: r.name, text: r.name, url };
-              // Native share sheet only on touch devices (mobile). Desktop
-              // Chrome exposes navigator.share but it's a poor fit there — so
-              // desktop always copies the link and shows a confirmation.
-              const isTouch =
-                typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
-              if (isTouch && typeof navigator !== 'undefined' && 'share' in navigator) {
-                try {
-                  await navigator.share(shareData);
-                  trackEvent('share', {
-                    content_type: 'restaurant',
-                    item_id: r.slug,
-                    method: 'native',
-                  });
-                  return;
-                } catch {
-                  return;
-                }
-              }
-              try {
-                if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(url);
-                else {
-                  // readonly = no iOS keyboard; restore scroll after select() —
-                  // the map page is 100lvh tall (URL-bar apron) and iOS scrolls
-                  // it to "reveal" the focused textarea, which left every
-                  // floating control sitting a bar-height too high.
-                  const sx = window.scrollX,
-                    sy = window.scrollY;
-                  const ta = document.createElement('textarea');
-                  ta.value = url;
-                  ta.readOnly = true;
-                  ta.style.position = 'fixed';
-                  ta.style.top = '0';
-                  ta.style.opacity = '0';
-                  document.body.appendChild(ta);
-                  ta.select();
-                  document.execCommand('copy');
-                  ta.remove();
-                  window.scrollTo(sx, sy);
-                }
-              } catch {}
-              trackEvent('share', {
-                content_type: 'restaurant',
-                item_id: r.slug,
-                method: 'copy_link',
-              });
-              setShareDone(true);
-              window.setTimeout(() => setShareDone(false), 1800);
-            }}
-          >
-            <span>{shareDone ? (locale === 'en' ? 'Copied' : 'Kopiert') : t('map.share')}</span>
-          </button>
+            label={t('map.share')}
+            copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
+          />
         </div>
 
         {/* RESERVIEREN — kept */}

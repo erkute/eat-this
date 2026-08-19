@@ -38,14 +38,11 @@ export default function NewsArticleShell({
   if (!article) return null;
 
   const de = locale === 'de';
-  const title =
-    (de ? article.titleDe : article.title) || article.title || article.titleDe || '';
-  const excerpt =
-    (de ? article.excerptDe : article.excerpt) || article.excerpt || '';
+  const title = (de ? article.titleDe : article.title) || article.title || article.titleDe || '';
+  const excerpt = (de ? article.excerptDe : article.excerpt) || article.excerpt || '';
   const categoryLabel =
     (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
-  const content =
-    (de ? article.contentDe : article.content) || article.content || [];
+  const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
 
   // Inline "Must Eat" banner — dark poster block in the article column, same
@@ -109,7 +106,9 @@ export default function NewsArticleShell({
       <Link
         href={`/restaurant/${block.restaurantSlug}`}
         className={styles.inlineSpot}
-        style={block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined}
+        style={
+          block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined
+        }
         aria-label={`${restName} ${cta}`}
       >
         <span className={styles.inlineSpotFoot}>
@@ -131,9 +130,7 @@ export default function NewsArticleShell({
     { name: title },
   ];
 
-  const recommendations = relatedArticles
-    .filter((a) => a.slug !== article.slug)
-    .slice(0, 3);
+  const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const readLabel = de ? 'Lesen' : 'Read';
 

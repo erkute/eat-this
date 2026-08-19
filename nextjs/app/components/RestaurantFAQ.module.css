@@ -9,7 +9,7 @@
   line-height: 1;
   text-transform: uppercase;
   color: var(--et-home-red);
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   margin: 0 0 14px;
 }
 .row {
@@ -24,7 +24,9 @@
   justify-content: space-between;
   gap: 12px;
 }
-.row summary::-webkit-details-marker { display: none; }
+.row summary::-webkit-details-marker {
+  display: none;
+}
 .q {
   font-family: var(--f-display, var(--et-font-display));
   font-size: 20px;
@@ -48,7 +50,7 @@
    minus. Both strokes anchor at exact center (50/50, translate -50/-50). */
 .plus::before,
 .plus::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -77,5 +79,7 @@
 }
 
 @media (min-width: 720px) {
-  .faq { margin: 40px 22px 28px; }
+  .faq {
+    margin: 40px 22px 28px;
+  }
 }

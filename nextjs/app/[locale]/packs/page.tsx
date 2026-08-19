@@ -1,28 +1,34 @@
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import { setRequestLocale } from 'next-intl/server'
-import { Link } from '@/i18n/navigation'
-import { CATALOG, type PackDef } from '@/lib/stripe-catalog'
-import { categoryArt } from '@/lib/categoryArt'
-import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail'
-import { hreflangAlternates } from '@/lib/seo/metadata'
-import { routing } from '@/i18n/routing'
-import PackBuyButton from '../pack/[slug]/PackBuyButton'
-import styles from './PacksOverview.module.css'
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import { setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import { CATALOG, type PackDef } from '@/lib/stripe-catalog';
+import { categoryArt } from '@/lib/categoryArt';
+import {
+  formatPackPrice,
+  packUrlSlug,
+  formatPackContents,
+  formatBundleSavings,
+} from '@/lib/pack/packDetail';
+import { getPackContents } from '@/lib/sanity.server';
+import { hreflangAlternates } from '@/lib/seo/metadata';
+import { routing } from '@/i18n/routing';
+import PackBuyButton from '../pack/[slug]/PackBuyButton';
+import styles from './PacksOverview.module.css';
 
 interface PageProps {
-  params: Promise<{ locale: string }>
+  params: Promise<{ locale: string }>;
 }
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export function generateStaticParams() {
-  return routing.locales.map(locale => ({ locale }))
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale } = await params
-  const de = locale !== 'en'
+  const { locale } = await params;
+  const de = locale !== 'en';
   return {
     title: de ? 'Booster Packs kaufen' : 'Buy Booster Packs',
     description: de
@@ -30,35 +36,40 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       : 'All Eat This Booster Packs in one place: All Berlin first, then category packs for your map.',
     robots: { index: false, follow: true },
     alternates: hreflangAlternates('/packs', de ? 'de' : 'en'),
-  }
+  };
 }
 
-const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category')
-const allBerlin = CATALOG['all-berlin']
+const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
+const allBerlin = CATALOG['all-berlin'];
 const heroArt = categoryPacks
   .map((pack) => (pack.slug ? categoryArt(pack.slug) : null))
-  .filter((src): src is string => Boolean(src))
+  .filter((src): src is string => Boolean(src));
 
 const PAYMENT_LOGOS = [
   { key: 'creditCard', label: 'Kreditkarte', src: '/payment/credit-card.webp' },
   { key: 'applePay', label: 'Apple Pay', src: '/payment/apple-pay.webp' },
   { key: 'paypal', label: 'PayPal', src: '/payment/paypal.webp' },
   { key: 'klarna', label: 'Klarna', src: '/payment/klarna.webp' },
-] as const
+] as const;
 
 const copy = {
   de: {
     allTitle: ['All', 'Berlin'],
     allLead:
       'Einmal kaufen, alles freischalten: alle Kategorien, alle kuratierten Berliner Spots und alle kommenden Updates direkt auf deiner Map.',
-    allIncludes: ['Alle 9 Kategorien', 'Alle Must Eats', 'Alle neuen Berlin-Updates'],
+    allIncludes: (spots: number, mustEats: number) => [
+      `Alle ${spots} Spots in ${categoryPacks.length} Kategorien`,
+      `Alle ${mustEats} Must Eats`,
+      'Alle neuen Berlin-Updates',
+    ],
     allCta: 'All Berlin freischalten',
     pending: 'Weiter zu Stripe ...',
     owned: 'Auf die Map',
     error: 'Da ging was schief. Versuch es nochmal.',
     trust: 'Sicher bezahlen via Stripe',
     categoryTitle: 'Kategorie-Packs',
-    categoryLead: 'Such dir gezielt aus, worauf du Hunger hast. Jeder Pack legt neue Spots plus passende Must Eats auf deine Map.',
+    categoryLead:
+      'Such dir gezielt aus, worauf du Hunger hast. Jeder Pack legt neue Spots plus passende Must Eats auf deine Map.',
     buy: 'Kaufen',
     details: 'Details',
     map: '/map',
@@ -67,31 +78,38 @@ const copy = {
     allTitle: ['All', 'Berlin'],
     allLead:
       'Buy once, unlock everything: every category, every curated Berlin spot and every future update straight onto your map.',
-    allIncludes: ['All 9 categories', 'Every Must Eat', 'Every new Berlin update'],
+    allIncludes: (spots: number, mustEats: number) => [
+      `All ${spots} spots across ${categoryPacks.length} categories`,
+      `All ${mustEats} Must Eats`,
+      'Every new Berlin update',
+    ],
     allCta: 'Unlock All Berlin',
     pending: 'Going to Stripe ...',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
     trust: 'Secure checkout via Stripe',
     categoryTitle: 'Category Packs',
-    categoryLead: 'Pick exactly what you are hungry for. Each pack adds new spots plus matching Must Eats to your map.',
+    categoryLead:
+      'Pick exactly what you are hungry for. Each pack adds new spots plus matching Must Eats to your map.',
     buy: 'Buy',
     details: 'Details',
     map: '/map',
   },
-} as const
+} as const;
 
 function PackPrice({ pack }: { pack: PackDef }) {
-  return <span className={styles.price}>{formatPackPrice(pack.amountCents)}</span>
+  return <span className={styles.price}>{formatPackPrice(pack.amountCents)}</span>;
 }
 
 export default async function PacksOverviewPage({ params }: PageProps) {
-  const { locale } = await params
-  setRequestLocale(locale)
-  const loc: 'de' | 'en' = locale === 'en' ? 'en' : 'de'
-  const de = loc === 'de'
-  const t = copy[loc]
-  const mapHref = de ? t.map : `/en${t.map}`
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const loc: 'de' | 'en' = locale === 'en' ? 'en' : 'de';
+  const de = loc === 'de';
+  const t = copy[loc];
+  const mapHref = de ? t.map : `/en${t.map}`;
+  const packContents = await getPackContents();
+  const allIncludes = t.allIncludes(packContents.allBerlin.spots, packContents.allBerlin.mustEats);
 
   const buyLabels = (pack: PackDef, primary = false) => ({
     label: `${primary ? t.allCta : t.buy} · ${formatPackPrice(pack.amountCents)}`,
@@ -99,7 +117,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
     ownedLabel: t.owned,
     ownedHref: mapHref,
     errorLabel: t.error,
-  })
+  });
 
   return (
     <main className={styles.page}>
@@ -112,8 +130,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
           </h1>
           <p className={styles.heroLead}>{t.allLead}</p>
 
-          <ul className={styles.includeList} aria-label={de ? 'All Berlin enthaelt' : 'All Berlin includes'}>
-            {t.allIncludes.map((item) => (
+          <ul
+            className={styles.includeList}
+            aria-label={de ? 'All Berlin enthaelt' : 'All Berlin includes'}
+          >
+            {allIncludes.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
@@ -131,7 +152,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
               errorClassName={styles.buyError}
               {...buyLabels(allBerlin, true)}
             />
-            <div className={styles.payTrust} aria-label={`${t.trust}: ${PAYMENT_LOGOS.map((logo) => logo.label).join(', ')}`}>
+            <p className={styles.savings}>{formatBundleSavings(loc)}</p>
+            <div
+              className={styles.payTrust}
+              aria-label={`${t.trust}: ${PAYMENT_LOGOS.map((logo) => logo.label).join(', ')}`}
+            >
               <span className={styles.payMethods}>
                 {PAYMENT_LOGOS.map((logo) => (
                   <span
@@ -180,20 +205,19 @@ export default async function PacksOverviewPage({ params }: PageProps) {
 
         <div className={styles.packGrid}>
           {categoryPacks.map((pack) => {
-            const art = pack.slug ? categoryArt(pack.slug) : null
-            const href = `/pack/${packUrlSlug(pack)}`
+            const art = pack.slug ? categoryArt(pack.slug) : null;
+            const href = `/pack/${packUrlSlug(pack)}`;
+            const contents = pack.slug ? packContents.byCategory[pack.slug] : undefined;
 
             return (
               <article key={pack.packId} className={styles.packTile}>
-                <Link href={href} className={styles.packArtLink} aria-label={`${pack.displayName} ${t.details}`}>
+                <Link
+                  href={href}
+                  className={styles.packArtLink}
+                  aria-label={`${pack.displayName} ${t.details}`}
+                >
                   {art && (
-                    <Image
-                      src={art}
-                      alt=""
-                      width={420}
-                      height={560}
-                      className={styles.packArt}
-                    />
+                    <Image src={art} alt="" width={420} height={560} className={styles.packArt} />
                   )}
                 </Link>
 
@@ -203,6 +227,9 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     <PackPrice pack={pack} />
                   </div>
                   <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
+                  {contents && (
+                    <p className={styles.contents}>{formatPackContents(contents, loc)}</p>
+                  )}
                   <p className={styles.desc}>{pack.description[loc]}</p>
                 </div>
 
@@ -221,10 +248,10 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                   />
                 </div>
               </article>
-            )
+            );
           })}
         </div>
       </section>
     </main>
-  )
+  );
 }

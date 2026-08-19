@@ -1,6 +1,6 @@
 // Next.js 15.3+ entry point for client-side Sentry init. Runs in the browser
 // once before any page code. Replaces the older sentry.client.config.ts file.
-import * as Sentry from '@sentry/nextjs'
+import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -22,7 +22,7 @@ Sentry.init({
   // PII collection is ON per project decision (2026-05-09): IP and User-Agent
   // help debug "this crash only hits Safari 17 in Berlin" without round-trips.
   sendDefaultPii: true,
-})
+});
 
 // Required for next/navigation route-change instrumentation in app router.
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

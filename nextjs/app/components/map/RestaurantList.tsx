@@ -42,14 +42,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
 }
 
 const Item = memo(
-  function Item({
-    restaurant,
-    isSelected,
-    peek,
-    now,
-    priority,
-    onClick,
-  }: ItemProps) {
+  function Item({ restaurant, isSelected, peek, now, priority, onClick }: ItemProps) {
     const { t, lang } = useTranslation();
     const loc = lang === 'de' ? 'de' : 'en';
     const statusLabels = {
@@ -111,10 +104,8 @@ const Item = memo(
                  phone (the card is ~362 CSS px wide) and oversized for the
                  280px desktop column. */
               srcSet={[400, 600, 900, 1200]
-                      .map(
-                        (w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`
-                      )
-                      .join(', ')}
+                .map((w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`)
+                .join(', ')}
               sizes="(max-width: 767.98px) 94vw, 280px"
               alt=""
               loading={priority ? 'eager' : 'lazy'}
@@ -179,9 +170,6 @@ const Item = memo(
 
 interface RestaurantListProps {
   restaurants: MapRestaurant[];
-  /** Locked restaurants exist only as a count/upsell signal now. The list no
-   *  longer renders blurred locked rows. */
-  lockedRestaurants?: MapRestaurant[];
   userLocation: UserLocation | null;
   selectedId: string | null;
   uid: string | null;
@@ -191,14 +179,16 @@ interface RestaurantListProps {
   unlockedIds: Set<string>;
   revealedMustEatIds: Set<string>;
   onResetFilters?: () => void;
-  /** Active bezirk filter name, if any. Used for the All-Berlin banner copy
-   *  when a district has only locked spots. */
-  activeBezirk?: string | null;
+  /** Uncapped count of locked spots matching the active filter — `lockedRestaurants`
+   *  is capped at a 20-row teaser, so it cannot be counted for the empty state. */
+  lockedMatchCount?: number;
+  /** What the active filter narrowed to (query, bezirk, cuisine or category),
+   *  for the empty-state headline. */
+  activeFilterLabel?: string | null;
 }
 
 export default function RestaurantList({
   restaurants,
-  lockedRestaurants = [],
   selectedId,
   uid,
   userTier,
@@ -207,7 +197,8 @@ export default function RestaurantList({
   unlockedIds,
   revealedMustEatIds,
   onResetFilters,
-  activeBezirk,
+  lockedMatchCount = 0,
+  activeFilterLabel,
 }: RestaurantListProps) {
   const locale = useLocale();
   const { t } = useTranslation();
@@ -222,15 +213,30 @@ export default function RestaurantList({
     return () => window.clearInterval(timer);
   }, []);
 
-  if (restaurants.length === 0 && lockedRestaurants.length === 0)
-    return <MapListEmpty onReset={onResetFilters} />;
+  const allBerlinHref =
+    locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
+  const districtsHref = locale === routing.defaultLocale ? '/bezirk' : `/${locale}/bezirk`;
+
+  // Zero free rows always gets the empty state — it used to be gated on the
+  // locked list being empty too, so a search that only matched locked spots
+  // („Ramen": 0 free, 3 locked) fell through to the bare All-Berlin banner:
+  // an empty surface plus a paywall, with no "0 hits" and no reason. The block
+  // carries the pack CTA itself in that case, so the banner below would only
+  // repeat it.
+  if (restaurants.length === 0)
+    return (
+      <MapListEmpty
+        onReset={onResetFilters}
+        lockedCount={userTier === 'allBerlin' ? 0 : lockedMatchCount}
+        filterLabel={activeFilterLabel}
+        packHref={allBerlinHref}
+        districtsHref={districtsHref}
+      />
+    );
 
   // One calm upsell only: no blurred locked rows and no separate signup
   // banner. Guests get sign-in as a secondary text link inside this block.
-  const showAllBerlinBanner =
-    userTier !== 'allBerlin' && (lockedRestaurants.length > 0 || restaurants.length > 0);
-  const allBerlinHref =
-    locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
+  const showAllBerlinBanner = userTier !== 'allBerlin';
 
   return (
     <>
@@ -264,11 +270,7 @@ export default function RestaurantList({
             <span className={`${styles.listEndPack} ${styles.listEndPackFive}`} />
             <span className={`${styles.listEndPack} ${styles.listEndPackSix}`} />
           </div>
-          <p className={styles.listEndSub}>
-            {activeBezirk && restaurants.length === 0
-              ? `${t('map.bezirkLockedBodyPre')}${activeBezirk}${t('map.bezirkLockedBodyPost')}`
-              : t('map.listEndSub')}
-          </p>
+          <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
           <a href={allBerlinHref} className={styles.listEndCta}>
             <span>{t('map.listEndCta')}</span>
             <svg

@@ -1,5 +1,3 @@
-
-
 .page {
   /* Scoped tokens — aligned to the Home paper/ink/accent contract. */
 
@@ -22,7 +20,8 @@
      collapse out of the page and expose body bg between main + footer. */
   display: flow-root;
   /* Reserves the fixed site navigation (64px + safe-area). */
-  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 22px
+    48px;
   position: relative;
   overflow-x: clip;
 }
@@ -37,7 +36,7 @@
   border-radius: var(--et-radius-photo);
   box-shadow: var(--et-shadow-none);
   text-align: left;
-  transform: rotate(-.2deg);
+  transform: rotate(-0.2deg);
 }
 .kicker {
   font-family: var(--f-display);
@@ -50,7 +49,7 @@
 .h1 {
   font-family: var(--f-display);
   font-size: clamp(38px, 11vw, 64px);
-  line-height: 1.0;
+  line-height: 1;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--et-home-red);
@@ -102,7 +101,10 @@
   padding: 5px 11px 6px;
   line-height: 1.16;
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 .crossLink:hover {
   transform: translateY(-1px);
@@ -119,7 +121,7 @@
   font-size: clamp(28px, 7.5vw, 44px);
   line-height: 1.1;
   color: var(--et-home-red);
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   margin: 0 0 8px;
   text-transform: uppercase;
 }
@@ -149,7 +151,9 @@
   box-shadow: var(--collage-shadow);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
 }
 .card:hover {
   transform: rotate(0) translateY(-4px);
@@ -179,8 +183,12 @@
   color: var(--collage-red);
 }
 
-.card:nth-child(odd) { transform: rotate(-.8deg); }
-.card:nth-child(even) { transform: rotate(.8deg); }
+.card:nth-child(odd) {
+  transform: rotate(-0.8deg);
+}
+.card:nth-child(even) {
+  transform: rotate(0.8deg);
+}
 .cardMeta {
   display: flex;
   flex-wrap: wrap;
@@ -234,7 +242,9 @@
   justify-content: space-between;
   gap: 12px;
 }
-.faqRow summary::-webkit-details-marker { display: none; }
+.faqRow summary::-webkit-details-marker {
+  display: none;
+}
 .faqQ {
   font-family: var(--f-body);
   font-size: 16px;
@@ -256,7 +266,7 @@
    centered. Vertical stroke hides when [open] → renders as minus. */
 .faqPlus::before,
 .faqPlus::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -288,7 +298,6 @@
    FINAL CTA — full-bleed black surface
 ============================================================ */
 
-
 /* ============================================================
    INDEX-PAGE CARDS (used by /bezirk and /kategorie index pages,
    no per-card photo)
@@ -299,7 +308,7 @@
 .bezirkCard {
   flex-direction: column;
   border: 0;
-  box-shadow: 0 16px 28px rgba(43, 33, 28, .12);
+  box-shadow: 0 16px 28px rgba(43, 33, 28, 0.12);
   text-decoration: none;
 }
 .bezirkCard:hover {
@@ -319,14 +328,14 @@
 ============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px) 32px 56px;
+    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px) 32px
+      56px;
   }
   .grid,
   .bezirkGrid {
     grid-template-columns: 1fr 1fr;
     gap: 22px;
   }
-
 }
 @media (min-width: 960px) {
   .page {
@@ -362,7 +371,7 @@
     /* Confident middle: commands the centred column without the Anton-era
        104 "riesig" feel. */
     font-size: clamp(52px, 6.4vw, 92px);
-    line-height: 1.0;
+    line-height: 1;
     margin: 20px 0 16px;
   }
   .sub {
@@ -411,14 +420,12 @@
      (FRIEDRICHSHAIN, ~6.8px text width per font px) fits a 3-col track at
      every viewport from 960 up. */
   /* Kategorie index poster name — was 30 max. Bump for wider posters. */
-
 }
 
 /* ============================================================
    Components rendered inside .page that need cream surface
    bridges (DetailPageOutro etc).
 ============================================================ */
-
 
 /* iOS Safari alpha-image fallback: prevent the category poster artwork shadow
    from being rasterized as a rectangular tile on touch WebKit. */
@@ -609,7 +616,10 @@
   letter-spacing: 0;
   line-height: 1.1;
   text-transform: none;
-  transition: background var(--et-motion-fast), color var(--et-motion-fast), transform var(--et-motion-fast);
+  transition:
+    background var(--et-motion-fast),
+    color var(--et-motion-fast),
+    transform var(--et-motion-fast);
 }
 
 .detailHeroActions > a:first-child {
@@ -683,7 +693,7 @@
   font-family: var(--et-font-display);
   font-size: clamp(42px, 7vw, 76px);
   font-weight: 700;
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -815,7 +825,7 @@
   font-family: var(--et-font-display);
   font-size: clamp(38px, 6vw, 66px);
   font-weight: 700;
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   line-height: 0.92;
   text-transform: uppercase;
 }
@@ -1021,7 +1031,9 @@
   text-transform: none;
   white-space: nowrap;
   text-decoration: none;
-  transition: background var(--et-motion-fast), transform var(--et-motion-fast);
+  transition:
+    background var(--et-motion-fast),
+    transform var(--et-motion-fast);
 }
 
 .bezirkMore:hover {

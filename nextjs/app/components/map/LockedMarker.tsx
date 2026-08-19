@@ -1,7 +1,7 @@
 'use client';
-import { memo, useCallback } from 'react';
-import { Marker, type MarkerInstance } from 'react-map-gl/maplibre';
+import { memo } from 'react';
 import type { MapRestaurant } from '@/lib/types';
+import MarkerButton from './MarkerButton';
 import styles from './MapMarkers.module.css';
 
 interface LockedMarkerProps {
@@ -21,47 +21,24 @@ interface LockedMarkerProps {
  * the point. At ~11px they read as density ("this much is still in there")
  * while the yellow pins stay the only thing that looks tappable-to-a-spot.
  *
- * Tapping one goes to the pack flow, not to a detail sheet: there is nothing
- * to show yet, and the dot's whole job is to say what is behind the paywall.
+ * Tapping opens the sheet like any other spot; a group of dots zooms in
+ * instead (see LockedClusterMarker).
  */
 function LockedMarker({ restaurant, isSelected = false, onClick, label }: LockedMarkerProps) {
-  // Same wrapper de-duplication as RestaurantMarker: MapLibre stamps its own
-  // role="button" + aria-label on the wrapper after mount, which would
-  // announce every dot as two nested buttons.
-  const setMarkerRef = useCallback((marker: MarkerInstance | null) => {
-    const el = marker?.getElement();
-    if (!el) return;
-    el.setAttribute('role', 'presentation');
-    el.removeAttribute('aria-label');
-  }, []);
-
   return (
-    <Marker
-      ref={setMarkerRef}
-      longitude={restaurant.lng}
-      latitude={restaurant.lat}
+    <MarkerButton
+      lat={restaurant.lat}
+      lng={restaurant.lng}
       anchor="center"
-      className={isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot}
-      onClick={(e) => {
-        e.originalEvent.stopPropagation();
-        onClick(restaurant);
-      }}
+      rootClassName={
+        isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot
+      }
+      className={isSelected ? `${styles.pinLocked} ${styles.pinLockedActive}` : styles.pinLocked}
+      label={label}
+      onActivate={() => onClick(restaurant)}
     >
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={label}
-        className={isSelected ? `${styles.pinLocked} ${styles.pinLockedActive}` : styles.pinLocked}
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
-          event.preventDefault();
-          event.stopPropagation();
-          onClick(restaurant);
-        }}
-      >
-        <span className={styles.pinLockedDot} aria-hidden="true" />
-      </div>
-    </Marker>
+      <span className={styles.pinLockedDot} aria-hidden="true" />
+    </MarkerButton>
   );
 }
 

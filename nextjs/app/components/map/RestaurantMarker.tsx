@@ -1,7 +1,7 @@
 'use client';
-import { memo, useCallback } from 'react';
-import { Marker, type MarkerInstance } from 'react-map-gl/maplibre';
+import { memo } from 'react';
 import type { MapRestaurant } from '@/lib/types';
+import MarkerButton from './MarkerButton';
 import styles from './MapMarkers.module.css';
 
 interface RestaurantMarkerProps {
@@ -20,65 +20,38 @@ function RestaurantMarker({
   onClick,
   enterDelayMs = null,
 }: RestaurantMarkerProps) {
-  const className = [
-    styles.pinLogo,
-    isSelected && styles.pinLogoActive,
-    restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
-    enterDelayMs !== null && styles.pinLogoEnter,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  /* MapLibre stamps role="button" + aria-label="Map marker" on its own wrapper
-     unless they are already there (Marker.addTo), and it does that after React
-     has mounted our inner button — so every pin announced as two nested
-     buttons, the outer one namelessly generic. The inner div carries the real
-     name, focus ring and Enter/Space handling, so demote the wrapper to
-     presentation and let the one meaningful control through. */
-  const setMarkerRef = useCallback((marker: MarkerInstance | null) => {
-    const el = marker?.getElement();
-    if (!el) return;
-    el.setAttribute('role', 'presentation');
-    el.removeAttribute('aria-label');
-  }, []);
-
   return (
-    <Marker
-      ref={setMarkerRef}
-      longitude={restaurant.lng}
-      latitude={restaurant.lat}
+    <MarkerButton
+      lat={restaurant.lat}
+      lng={restaurant.lng}
       anchor="bottom"
-      className={isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot}
-      onClick={(e) => {
-        e.originalEvent.stopPropagation();
-        onClick(restaurant);
-      }}
+      rootClassName={[
+        styles.markerRoot,
+        styles.markerRootFree,
+        isSelected && styles.markerRootActive,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      className={[
+        styles.pinLogo,
+        isSelected && styles.pinLogoActive,
+        restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
+        enterDelayMs !== null && styles.pinLogoEnter,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      label={restaurant.name}
+      onActivate={() => onClick(restaurant)}
+      style={
+        enterDelayMs !== null
+          ? ({ '--pin-enter-delay': `${enterDelayMs}ms` } as React.CSSProperties)
+          : undefined
+      }
     >
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={restaurant.name}
-        className={className}
-        style={
-          enterDelayMs !== null
-            ? ({
-                position: 'relative',
-                '--pin-enter-delay': `${enterDelayMs}ms`,
-              } as React.CSSProperties)
-            : { position: 'relative' }
-        }
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
-          event.preventDefault();
-          event.stopPropagation();
-          onClick(restaurant);
-        }}
-      >
-        <span className={styles.pinLogoShape} aria-hidden="true">
-          <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
-        </span>
-      </div>
-    </Marker>
+      <span className={styles.pinLogoShape} aria-hidden="true">
+        <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
+      </span>
+    </MarkerButton>
   );
 }
 

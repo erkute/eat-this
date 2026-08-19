@@ -35,16 +35,14 @@ describe('MapDataNotice', () => {
   });
 
   it('distinguishes a total load failure from stale data', () => {
-    render(
-      <MapDataNotice loading={false} error="HTTP 500" hasData={false} onRetry={vi.fn()} />,
-    );
+    render(<MapDataNotice loading={false} error="HTTP 500" hasData={false} onRetry={vi.fn()} />);
 
     expect(screen.getByRole('alert').textContent).toContain('Map data failed');
   });
 
   it('renders nothing while the payload is current', () => {
     const { container } = render(
-      <MapDataNotice loading={false} error={null} hasData onRetry={vi.fn()} />,
+      <MapDataNotice loading={false} error={null} hasData onRetry={vi.fn()} />
     );
 
     expect(container.innerHTML).toBe('');

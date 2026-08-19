@@ -42,14 +42,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
 }
 
 const Item = memo(
-  function Item({
-    restaurant,
-    isSelected,
-    peek,
-    now,
-    priority,
-    onClick,
-  }: ItemProps) {
+  function Item({ restaurant, isSelected, peek, now, priority, onClick }: ItemProps) {
     const { t, lang } = useTranslation();
     const loc = lang === 'de' ? 'de' : 'en';
     const statusLabels = {
@@ -111,10 +104,8 @@ const Item = memo(
                  phone (the card is ~362 CSS px wide) and oversized for the
                  280px desktop column. */
               srcSet={[400, 600, 900, 1200]
-                      .map(
-                        (w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`
-                      )
-                      .join(', ')}
+                .map((w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`)
+                .join(', ')}
               sizes="(max-width: 767.98px) 94vw, 280px"
               alt=""
               loading={priority ? 'eager' : 'lazy'}

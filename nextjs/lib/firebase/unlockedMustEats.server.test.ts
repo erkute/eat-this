@@ -1,19 +1,19 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const set = vi.fn()
-const unlockedDoc = vi.fn(() => ({ set }))
-const unlockedCollection = { doc: unlockedDoc }
-const userDoc = { collection: vi.fn(() => unlockedCollection) }
+const set = vi.fn();
+const unlockedDoc = vi.fn(() => ({ set }));
+const unlockedCollection = { doc: unlockedDoc };
+const userDoc = { collection: vi.fn(() => unlockedCollection) };
 
 vi.mock('./admin', () => ({
   getAdminFirestore: () => ({
     collection: () => ({ doc: () => userDoc }),
   }),
-}))
+}));
 
-import { unlockMustEat } from './unlockedMustEats.server'
+import { unlockMustEat } from './unlockedMustEats.server';
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => vi.clearAllMocks());
 
 describe('unlockMustEat', () => {
   it('persists only non-sensitive metadata and replaces legacy payloads', async () => {
@@ -26,14 +26,14 @@ describe('unlockMustEat', () => {
         lat: 1,
         lng: 2,
       },
-    })
+    });
 
-    expect(unlockedDoc).toHaveBeenCalledWith('m1')
-    expect(set).toHaveBeenCalledOnce()
+    expect(unlockedDoc).toHaveBeenCalledWith('m1');
+    expect(set).toHaveBeenCalledOnce();
     expect(set.mock.calls[0][0]).toEqual({
       restaurantId: 'r1',
       unlockedAt: expect.anything(),
-    })
-    expect(set.mock.calls[0]).toHaveLength(1)
-  })
-})
+    });
+    expect(set.mock.calls[0]).toHaveLength(1);
+  });
+});

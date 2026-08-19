@@ -126,7 +126,6 @@ export default function MapFilterPickerSheet({
     };
   }, [sheetEl]);
 
-
   // Desktop popover positioning relative to the anchor chip.
   useEffect(() => {
     if (!sheetEl || !anchorEl) return;

@@ -24,7 +24,7 @@ function sanitizeContinueUrl(raw: string | undefined, origin: string, fallback: 
       origin,
       process.env.NEXT_PUBLIC_APP_URL,
       ...(isStaging ? [] : ['https://www.eatthisdot.com']),
-    ].filter(Boolean) as string[],
+    ].filter(Boolean) as string[]
   );
   if (allowedOrigins.has(candidate.origin)) return candidate.toString();
   if (/^https?:\/\/localhost(:\d+)?$/.test(candidate.origin)) return candidate.toString();

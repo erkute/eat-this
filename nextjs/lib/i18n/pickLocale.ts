@@ -10,12 +10,12 @@
 export function pickLocale(
   base: string | undefined,
   override: string | null | undefined,
-  locale: 'de' | 'en',
+  locale: 'de' | 'en'
 ): string | undefined {
   if (locale === 'en' && typeof override === 'string' && override.length > 0) {
-    return override
+    return override;
   }
-  return base
+  return base;
 }
 
 /**
@@ -25,5 +25,5 @@ export function pickLocale(
  * consumers should fall back to deOnly + DE canonical in that case.
  */
 export function hasEnContent(doc: { descriptionEn?: string | null }): boolean {
-  return typeof doc.descriptionEn === 'string' && doc.descriptionEn.trim().length > 0
+  return typeof doc.descriptionEn === 'string' && doc.descriptionEn.trim().length > 0;
 }

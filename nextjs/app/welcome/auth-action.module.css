@@ -10,18 +10,18 @@
 
 .page {
   --conversion-bg: #f8f6f1;
-  --conversion-surface: rgba(255, 255, 255, .9);
+  --conversion-surface: rgba(255, 255, 255, 0.9);
   --conversion-field: #fbf8ee;
   --conversion-ink: #0a0a0a;
   --conversion-action: #ef3108;
   --conversion-action-text: #fff;
   --conversion-accent: #ffd84a;
-  --conversion-border: rgba(17, 13, 9, .18);
+  --conversion-border: rgba(17, 13, 9, 0.18);
   --conversion-radius: 8px;
   --conversion-pill: 999px;
-  --conversion-shadow: 0 16px 30px rgba(43, 33, 28, .18);
+  --conversion-shadow: 0 16px 30px rgba(43, 33, 28, 0.18);
   --conversion-hard-shadow: 4px 4px 0 #0a0a0a;
-  --conversion-motion: 180ms cubic-bezier(.22, .9, .3, 1);
+  --conversion-motion: 180ms cubic-bezier(0.22, 0.9, 0.3, 1);
   min-height: 100dvh;
   width: 100%;
   background-color: var(--conversion-bg);
@@ -30,7 +30,10 @@
   display: flex;
   flex-direction: column;
   font-family:
-    var(--font-dm-sans), "DM Sans", -apple-system, BlinkMacSystemFont,
+    var(--font-dm-sans),
+    'DM Sans',
+    -apple-system,
+    BlinkMacSystemFont,
     sans-serif;
 }
 
@@ -117,7 +120,9 @@
   outline: none;
   box-sizing: border-box;
 }
-.input::placeholder { color: rgba(17, 13, 9, 0.4); }
+.input::placeholder {
+  color: rgba(17, 13, 9, 0.4);
+}
 
 /* CTA — shared brand button typography and restrained press feedback. */
 .cta {
@@ -140,12 +145,18 @@
   cursor: pointer;
   text-decoration: none;
   box-sizing: border-box;
-  transition: transform var(--conversion-motion), background-color var(--conversion-motion);
+  transition:
+    transform var(--conversion-motion),
+    background-color var(--conversion-motion);
 }
 .cta:active:not(:disabled) {
   transform: translateY(1px);
 }
-.cta:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+.cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 
 .error {
   margin: 0;
@@ -209,7 +220,9 @@
   line-height: 1.15;
   word-break: break-word;
 }
-.avatarActive .avatarName { opacity: 1; }
+.avatarActive .avatarName {
+  opacity: 1;
+}
 
 /* Checkmark (success) */
 .checkmark {
@@ -241,8 +254,7 @@
   align-items: center;
   justify-content: center;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 .splash {
   display: flex;
@@ -270,7 +282,7 @@
   position: relative;
 }
 .bar::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0 auto 0 0;
   height: 100%;
@@ -280,8 +292,12 @@
   animation: welcomeSweep 1.05s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 @keyframes welcomeSweep {
-  0%   { transform: translateX(-115%); }
-  100% { transform: translateX(345%); }
+  0% {
+    transform: translateX(-115%);
+  }
+  100% {
+    transform: translateX(345%);
+  }
 }
 .splashTitle {
   margin: 0;

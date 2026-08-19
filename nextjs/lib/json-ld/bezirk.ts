@@ -1,18 +1,18 @@
-import { serializeJsonLd } from './serialize'
-import { localeUrl } from '@/lib/locale-url'
-import type { BezirkDoc, RestaurantCard } from '@/lib/types'
-import type { FAQEntry } from '@/lib/restaurant-prose'
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { serializeJsonLd } from './serialize';
+import { localeUrl } from '@/lib/locale-url';
+import type { BezirkDoc, RestaurantCard } from '@/lib/types';
+import type { FAQEntry } from '@/lib/restaurant-prose';
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 
 interface BuildBezirkJsonLdArgs {
-  bezirk: Pick<BezirkDoc, 'name' | 'slug'>
-  restaurants: RestaurantCard[]
-  locale: string
+  bezirk: Pick<BezirkDoc, 'name' | 'slug'>;
+  restaurants: RestaurantCard[];
+  locale: string;
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
-  districtsLabel: string
+  districtsLabel: string;
   // Auto-generated FAQs shown on the page — mirrored into a FAQPage entity
   // so Google can pick them up for FAQ rich snippets. Omit/empty to skip.
-  faqs?: FAQEntry[]
+  faqs?: FAQEntry[];
 }
 
 // Builds the BreadcrumbList + ItemList<Restaurant> JSON-LD graph for a
@@ -35,7 +35,7 @@ export function buildBezirkJsonLd({
             acceptedAnswer: { '@type': 'Answer', text: answer },
           })),
         }
-      : null
+      : null;
 
   return serializeJsonLd({
     '@context': 'https://schema.org',
@@ -44,9 +44,24 @@ export function buildBezirkJsonLd({
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Eat This Berlin', item: localeUrl(locale, '/') },
-          { '@type': 'ListItem', position: 2, name: districtsLabel, item: localeUrl(locale, '/bezirk') },
-          { '@type': 'ListItem', position: 3, name: bezirk.name, item: localeUrl(locale, `/bezirk/${bezirk.slug}`) },
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Eat This Berlin',
+            item: localeUrl(locale, '/'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: districtsLabel,
+            item: localeUrl(locale, '/bezirk'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: bezirk.name,
+            item: localeUrl(locale, `/bezirk/${bezirk.slug}`),
+          },
         ],
       },
       {
@@ -54,7 +69,7 @@ export function buildBezirkJsonLd({
         name: `Restaurants in ${bezirk.name}`,
         numberOfItems: restaurants.length,
         itemListElement: restaurants.map((r, i) => {
-          const priceLabel = formatPriceLabel(r)
+          const priceLabel = formatPriceLabel(r);
           return {
             '@type': 'ListItem',
             position: i + 1,
@@ -65,9 +80,9 @@ export function buildBezirkJsonLd({
               ...(r.cuisineType && { servesCuisine: r.cuisineType }),
               ...(priceLabel && { priceRange: priceLabel }),
             },
-          }
+          };
         }),
       },
     ],
-  })
+  });
 }

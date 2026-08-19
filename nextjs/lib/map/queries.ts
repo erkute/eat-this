@@ -3,13 +3,13 @@ import {
   publishableRestaurantImageUrl,
   restaurantPhotoCredit,
   restaurantPhotoCreditUrl,
-} from '@/lib/sanity-image-presets'
+} from '@/lib/sanity-image-presets';
 // Category projection — only resolves reference entries. See lib/queries.ts.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,
   name,
   nameEn
-}`
+}`;
 
 // Map list/marker payload — deliberately WITHOUT the detail-only fields
 // (address, phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
@@ -38,7 +38,7 @@ export const mapRestaurantsQuery = `
     tierAnon,
     tierSigned
   }
-`
+`;
 
 // On-demand detail fields for the map detail sheet — fetched by slug when a
 // spot is opened. Mirrors the fields RestaurantDetail renders below the hero.
@@ -66,7 +66,7 @@ export const restaurantMapDetailQuery = `
       creditUrl
     }
   }
-`
+`;
 
 export const mapMustEatsQuery = `
   *[_type == "mustEat"] {
@@ -84,4 +84,4 @@ export const mapMustEatsQuery = `
       "photo": ${publishableRestaurantImageUrl('image', 'mapCard')}
     }
   }
-`
+`;

@@ -79,8 +79,12 @@ export default function HubFragRemy() {
         <div className={styles.ask}>
           <div className={`hv-head ${styles.panelHead}`}>
             <h2 className="hv-title">
-              <span className={styles.titleLine}>{locale === 'de' ? 'Keine Idee?' : 'No idea?'}</span>
-              <span className={styles.titleLine}>{locale === 'de' ? 'Frag Remy.' : 'Ask Remy.'}</span>
+              <span className={styles.titleLine}>
+                {locale === 'de' ? 'Keine Idee?' : 'No idea?'}
+              </span>
+              <span className={styles.titleLine}>
+                {locale === 'de' ? 'Frag Remy.' : 'Ask Remy.'}
+              </span>
             </h2>
           </div>
 

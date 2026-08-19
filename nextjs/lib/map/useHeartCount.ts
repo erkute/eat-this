@@ -1,6 +1,6 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { getDb } from '@/lib/firebase/config'
+'use client';
+import { useEffect, useState } from 'react';
+import { getDb } from '@/lib/firebase/config';
 
 // Live public heart count for a restaurant (restaurants/{id}.heartCount, keyed
 // by Sanity _id). Public doc — works for anon visitors too. Subscribes with
@@ -11,33 +11,41 @@ import { getDb } from '@/lib/firebase/config'
 //
 // Firestore SDK is code-split behind getDb() + a dynamic import (like the other
 // map hooks) so it stays out of the SEO restaurant page's first-load bundle.
-export function useHeartCount(restaurantId: string | null | undefined): { count: number; loading: boolean } {
-  const [count, setCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+export function useHeartCount(restaurantId: string | null | undefined): {
+  count: number;
+  loading: boolean;
+} {
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!restaurantId) { setLoading(false); return }
-    let cancelled = false
-    let unsubscribe: (() => void) | null = null
-    setLoading(true)
+    if (!restaurantId) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
+    setLoading(true);
     void (async () => {
-      const [{ doc, onSnapshot }, db] = await Promise.all([
-        import('firebase/firestore'),
-        getDb(),
-      ])
-      if (cancelled) return
+      const [{ doc, onSnapshot }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
+      if (cancelled) return;
       unsubscribe = onSnapshot(
         doc(db, 'restaurants', restaurantId),
         (snap) => {
-          const raw = snap.exists() ? (snap.data() as { heartCount?: unknown }).heartCount : 0
-          setCount(typeof raw === 'number' && Number.isFinite(raw) ? Math.max(0, raw) : 0)
-          setLoading(false)
+          const raw = snap.exists() ? (snap.data() as { heartCount?: unknown }).heartCount : 0;
+          setCount(typeof raw === 'number' && Number.isFinite(raw) ? Math.max(0, raw) : 0);
+          setLoading(false);
         },
-        () => { setLoading(false) }, // read denied / offline → keep last count, stop loading
-      )
-    })()
-    return () => { cancelled = true; unsubscribe?.() }
-  }, [restaurantId])
+        () => {
+          setLoading(false);
+        } // read denied / offline → keep last count, stop loading
+      );
+    })();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [restaurantId]);
 
-  return { count, loading }
+  return { count, loading };
 }

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { restaurantBySlugQuery } from '../queries'
-import { restaurantMapDetailQuery } from '../map/queries'
+import { describe, it, expect } from 'vitest';
+import { restaurantBySlugQuery } from '../queries';
+import { restaurantMapDetailQuery } from '../map/queries';
 
 /**
  * The public /restaurant/[slug] page and the map detail sheet render the same
@@ -21,14 +21,14 @@ const CONTACT_FIELDS = [
   'reservationUrl',
   'mapsUrl',
   'instagramHandle',
-] as const
+] as const;
 
 describe('restaurant contact fields', () => {
   it.each(CONTACT_FIELDS)('the public page query selects %s', (field) => {
-    expect(restaurantBySlugQuery).toMatch(new RegExp(`^\\s*${field},?\\s*$`, 'm'))
-  })
+    expect(restaurantBySlugQuery).toMatch(new RegExp(`^\\s*${field},?\\s*$`, 'm'));
+  });
 
   it.each(CONTACT_FIELDS)('the map detail query selects %s', (field) => {
-    expect(restaurantMapDetailQuery).toMatch(new RegExp(`^\\s*${field},?\\s*$`, 'm'))
-  })
-})
+    expect(restaurantMapDetailQuery).toMatch(new RegExp(`^\\s*${field},?\\s*$`, 'm'));
+  });
+});

@@ -205,9 +205,7 @@ export default function MapCanvasLayer({
       )}
       {painted &&
         freeGroups.map((group, i) => {
-          const enterDelayMs = entering
-            ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS
-            : null;
+          const enterDelayMs = entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null;
           return group.members.length === 1 ? (
             <RestaurantMarker
               key={group.key}

@@ -34,7 +34,9 @@ export default function MagazineGrid({ articles, locale }: Props) {
           <li key={a.slug}>
             <Link href={`/news/${a.slug}`} className={styles.card}>
               <span className={`hv-photo ${styles.photo}`}>
-                {a.image && <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 33vw" />}
+                {a.image && (
+                  <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 33vw" />
+                )}
               </span>
               <span className={styles.text}>
                 {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}

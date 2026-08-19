@@ -1,5 +1,5 @@
-import { client } from '@/lib/sanity'
-import { pickSpotOfDay } from './pickSpotOfDay'
+import { client } from '@/lib/sanity';
+import { pickSpotOfDay } from './pickSpotOfDay';
 
 // Same candidate filter as getHomeData's spotCandidatesQuery (open, non-draft)
 // so the id resolved here is ALWAYS the same spot the hub hero shows — the map
@@ -9,13 +9,13 @@ const spotOfDayCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !
   featuredOnDate,
   "featured": featured == true,
   "mustEatCount": count(*[_type == "mustEat" && references(^._id)])
-}`
+}`;
 
 interface Candidate {
-  _id: string
-  featuredOnDate: string | null
-  featured: boolean
-  mustEatCount: number
+  _id: string;
+  featuredOnDate: string | null;
+  featured: boolean;
+  mustEatCount: number;
 }
 
 /**
@@ -27,7 +27,7 @@ export async function getSpotOfDayId(today: string): Promise<string | null> {
   const candidates = await client.fetch<Candidate[]>(
     spotOfDayCandidatesQuery,
     {},
-    { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } },
-  )
-  return pickSpotOfDay(candidates, today)?._id ?? null
+    { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }
+  );
+  return pickSpotOfDay(candidates, today)?._id ?? null;
 }

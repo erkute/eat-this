@@ -300,7 +300,7 @@
     padding-bottom: 34px;
   }
 
-.galleryLbImg {
+  .galleryLbImg {
     max-width: calc(100vw - 52px);
     max-height: calc(100dvh - 252px);
   }

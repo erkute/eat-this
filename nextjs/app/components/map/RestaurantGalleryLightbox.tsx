@@ -1,28 +1,28 @@
-'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
-import { safeHttpUrl } from '@/lib/safeHttpUrl'
-import styles from './RestaurantGalleryLightbox.module.css'
+'use client';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
+import { safeHttpUrl } from '@/lib/safeHttpUrl';
+import styles from './RestaurantGalleryLightbox.module.css';
 
 interface Props {
-  images: RestaurantGalleryImage[]
+  images: RestaurantGalleryImage[];
   // null = closed; a number opens the viewer at that index.
-  startIndex: number | null
-  onClose: () => void
-  restaurantName: string
+  startIndex: number | null;
+  onClose: () => void;
+  restaurantName: string;
 }
 
-const SWIPE_THRESHOLD = 60
-const preloadedImages = new Set<string>()
+const SWIPE_THRESHOLD = 60;
+const preloadedImages = new Set<string>();
 
 function preloadImage(src: string | undefined) {
-  if (!src || preloadedImages.has(src)) return
-  preloadedImages.add(src)
-  const image = new Image()
-  image.src = src
-  void image.decode?.().catch(() => {})
+  if (!src || preloadedImages.has(src)) return;
+  preloadedImages.add(src);
+  const image = new Image();
+  image.src = src;
+  void image.decode?.().catch(() => {});
 }
 
 // Slide between photos with a horizontal translate (project rule: motion is
@@ -31,14 +31,22 @@ const slide = {
   enter: (dir: number) => ({ x: dir >= 0 ? '100%' : '-100%' }),
   center: { x: 0 },
   exit: (dir: number) => ({ x: dir >= 0 ? '-100%' : '100%' }),
-}
+};
 
 function Chevron({ dir }: { dir: 'left' | 'right' }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
     </svg>
-  )
+  );
 }
 
 // Flat, swipeable photo viewer for the restaurant gallery. Unlike the
@@ -50,61 +58,62 @@ function Viewer({
   onClose,
   restaurantName,
 }: {
-  images: RestaurantGalleryImage[]
-  startIndex: number
-  onClose: () => void
-  restaurantName: string
+  images: RestaurantGalleryImage[];
+  startIndex: number;
+  onClose: () => void;
+  restaurantName: string;
 }) {
-  const count = images.length
-  const [[page, dir], setPage] = useState<[number, number]>([startIndex, 0])
-  const dialogRef = useRef<HTMLDivElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
+  const count = images.length;
+  const [[page, dir], setPage] = useState<[number, number]>([startIndex, 0]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const go = useCallback(
     (d: number) => {
       setPage(([p]) => {
-        const next = p + d
-        return next < 0 || next >= count ? [p, 0] : [next, d]
-      })
+        const next = p + d;
+        return next < 0 || next >= count ? [p, 0] : [next, d];
+      });
     },
-    [count],
-  )
+    [count]
+  );
 
   // Lock body scroll while open.
   useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = prev
-    }
-  }, [])
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   useEffect(() => {
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    closeRef.current?.focus({ preventScroll: true })
-    return () => previousFocus?.focus({ preventScroll: true })
-  }, [])
+    const previousFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeRef.current?.focus({ preventScroll: true });
+    return () => previousFocus?.focus({ preventScroll: true });
+  }, []);
 
   // Escape closes; arrows page.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      else if (e.key === 'ArrowLeft') go(-1)
-      else if (e.key === 'ArrowRight') go(1)
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [onClose, go])
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowLeft') go(-1);
+      else if (e.key === 'ArrowRight') go(1);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose, go]);
 
-  const img = images[page]
-  const href = safeHttpUrl(img.creditUrl)
-  const credit = img.credit?.trim()
+  const img = images[page];
+  const href = safeHttpUrl(img.creditUrl);
+  const credit = img.credit?.trim();
 
   useEffect(() => {
-    preloadImage(images[page - 1]?.full)
-    preloadImage(images[page]?.full)
-    preloadImage(images[page + 1]?.full)
-  }, [images, page])
+    preloadImage(images[page - 1]?.full);
+    preloadImage(images[page]?.full);
+    preloadImage(images[page + 1]?.full);
+  }, [images, page]);
 
   return (
     <motion.div
@@ -112,21 +121,21 @@ function Viewer({
       className={styles.galleryLb}
       onClick={onClose}
       onKeyDown={(event) => {
-        if (event.key !== 'Tab') return
+        if (event.key !== 'Tab') return;
         const focusable = Array.from(
           dialogRef.current?.querySelectorAll<HTMLElement>(
             'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
           ) ?? []
-        )
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
         if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault()
-          last.focus()
+          event.preventDefault();
+          last.focus();
         } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault()
-          first.focus()
+          event.preventDefault();
+          first.focus();
         }
       }}
       role="dialog"
@@ -147,8 +156,8 @@ function Viewer({
         className={styles.galleryLbClose}
         aria-label="Galerie schließen"
         onClick={(event) => {
-          event.stopPropagation()
-          onClose()
+          event.stopPropagation();
+          onClose();
         }}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -177,8 +186,8 @@ function Viewer({
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.18}
             onDragEnd={(_, info) => {
-              if (info.offset.x < -SWIPE_THRESHOLD) go(1)
-              else if (info.offset.x > SWIPE_THRESHOLD) go(-1)
+              if (info.offset.x < -SWIPE_THRESHOLD) go(1);
+              else if (info.offset.x > SWIPE_THRESHOLD) go(-1);
             }}
           >
             <div className={styles.galleryLbPrint} onClick={(e) => e.stopPropagation()}>
@@ -215,8 +224,8 @@ function Viewer({
             aria-label="Vorheriges Foto"
             disabled={page === 0}
             onClick={(e) => {
-              e.stopPropagation()
-              go(-1)
+              e.stopPropagation();
+              go(-1);
             }}
           >
             <Chevron dir="left" />
@@ -227,23 +236,27 @@ function Viewer({
             aria-label="Nächstes Foto"
             disabled={page === count - 1}
             onClick={(e) => {
-              e.stopPropagation()
-              go(1)
+              e.stopPropagation();
+              go(1);
             }}
           >
             <Chevron dir="right" />
           </button>
         </>
       )}
-
     </motion.div>
-  )
+  );
 }
 
-export default function RestaurantGalleryLightbox({ images, startIndex, onClose, restaurantName }: Props) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+export default function RestaurantGalleryLightbox({
+  images,
+  startIndex,
+  onClose,
+  restaurantName,
+}: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
@@ -257,6 +270,6 @@ export default function RestaurantGalleryLightbox({ images, startIndex, onClose,
         />
       )}
     </AnimatePresence>,
-    document.body,
-  )
+    document.body
+  );
 }

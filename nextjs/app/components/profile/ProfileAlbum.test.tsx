@@ -33,16 +33,10 @@ describe('ProfileAlbum', () => {
     ];
 
     const { container } = render(
-      <ProfileAlbum
-        mustEats={mustEats}
-        faceUpIds={new Set(['m1'])}
-        categoryOf={() => 'Nudeln'}
-      />
+      <ProfileAlbum mustEats={mustEats} faceUpIds={new Set(['m1'])} categoryOf={() => 'Nudeln'} />
     );
 
-    const image = container.querySelector<HTMLImageElement>(
-      'img[src="/api/must-eat-image/m1"]'
-    );
+    const image = container.querySelector<HTMLImageElement>('img[src="/api/must-eat-image/m1"]');
     expect(image).not.toBeNull();
     expect(image?.getAttribute('loading')).toBe('lazy');
   });

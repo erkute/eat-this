@@ -1,4 +1,4 @@
-import type { MapMustEat } from '@/lib/types'
+import type { MapMustEat } from '@/lib/types';
 
 /** Server-side paywall guard for must-eat content.
  *
@@ -11,11 +11,9 @@ import type { MapMustEat } from '@/lib/types'
  */
 export function stripCoveredMustEats(
   mustEats: MapMustEat[],
-  faceUpIds: ReadonlySet<string>,
+  faceUpIds: ReadonlySet<string>
 ): MapMustEat[] {
   return mustEats.map((m) =>
-    faceUpIds.has(m._id)
-      ? m
-      : { _id: m._id, order: m.order, restaurant: m.restaurant },
-  )
+    faceUpIds.has(m._id) ? m : { _id: m._id, order: m.order, restaurant: m.restaurant }
+  );
 }

@@ -1,22 +1,26 @@
 // @vitest-environment jsdom
 
-import { render, screen } from '@testing-library/react'
-import { renderToString } from 'react-dom/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('next-intl', () => ({ useLocale: () => 'de' }))
-vi.mock('@/lib/i18n', () => ({ useTranslation: () => ({ lang: 'de', t: (key: string) => key }) }))
-vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: vi.fn() }) }))
+vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
+vi.mock('@/lib/i18n', () => ({ useTranslation: () => ({ lang: 'de', t: (key: string) => key }) }));
+vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: vi.fn() }) }));
 vi.mock('@/lib/map', () => ({
   abbreviateBezirk: (value: string | null) => value,
-  getOpenStatus: () => ({ isOpen: true, label: 'Geöffnet · Schließt 23:00', minutesUntilChange: 60 }),
+  getOpenStatus: () => ({
+    isOpen: true,
+    label: 'Geöffnet · Schließt 23:00',
+    minutesUntilChange: 60,
+  }),
   resolvePeek: () => ({ kind: 'none' }),
-}))
-vi.mock('@/lib/sanityImageLoader', () => ({ default: ({ src }: { src: string }) => src }))
-vi.mock('@/lib/map/useRestaurantDetail', () => ({ prefetchRestaurantDetail: vi.fn() }))
+}));
+vi.mock('@/lib/sanityImageLoader', () => ({ default: ({ src }: { src: string }) => src }));
+vi.mock('@/lib/map/useRestaurantDetail', () => ({ prefetchRestaurantDetail: vi.fn() }));
 
-import RestaurantList from './RestaurantList'
-import type { MapRestaurant } from '@/lib/types'
+import RestaurantList from './RestaurantList';
+import type { MapRestaurant } from '@/lib/types';
 
 const restaurant = {
   _id: 'restaurant-1',
@@ -27,7 +31,7 @@ const restaurant = {
   openingHours: [{ days: 'daily', hours: '10:00-23:00' }],
   categories: [],
   mustEatCount: 0,
-} as unknown as MapRestaurant
+} as unknown as MapRestaurant;
 
 function list() {
   return (
@@ -42,17 +46,17 @@ function list() {
       revealedMustEatIds={new Set()}
       userLocation={null}
     />
-  )
+  );
 }
 
 describe('RestaurantList hydration', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => vi.clearAllMocks());
 
   it('defers timezone-dependent opening status until after hydration', async () => {
-    expect(renderToString(list())).not.toContain('role="status"')
+    expect(renderToString(list())).not.toContain('role="status"');
 
-    render(list())
+    render(list());
 
-    expect((await screen.findByRole('status')).textContent).toContain('Geöffnet')
-  })
-})
+    expect((await screen.findByRole('status')).textContent).toContain('Geöffnet');
+  });
+});

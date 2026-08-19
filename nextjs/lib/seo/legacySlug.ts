@@ -11,25 +11,39 @@
 // they 404. `oldStyleSlug` lets us regenerate the old slug from the current
 // name and map it back. See [[project-rebuild-slug-404-incident]].
 const UMLAUTS: Record<string, string> = {
-  ä: 'ae', ö: 'oe', ü: 'ue', Ä: 'ae', Ö: 'oe', Ü: 'ue', ß: 'ss',
-}
+  ä: 'ae',
+  ö: 'oe',
+  ü: 'ue',
+  Ä: 'ae',
+  Ö: 'oe',
+  Ü: 'ue',
+  ß: 'ss',
+};
 
 const LEGACY_NAME_SPECIAL: Record<string, string> = {
-  ğ: 'g', Ğ: 'G',
-  ş: 's', Ş: 'S',
-  ç: 'c', Ç: 'C',
-  ı: 'i', İ: 'I',
-  ł: 'l', Ł: 'L',
-  ø: 'o', Ø: 'O',
-}
+  ğ: 'g',
+  Ğ: 'G',
+  ş: 's',
+  Ş: 'S',
+  ç: 'c',
+  Ç: 'C',
+  ı: 'i',
+  İ: 'I',
+  ł: 'l',
+  Ł: 'L',
+  ø: 'o',
+  Ø: 'O',
+};
 
 export function oldStyleSlug(name: string): string {
-  return name
-    .replace(/[ğĞşŞçÇıİłŁøØ]/g, (c) => LEGACY_NAME_SPECIAL[c] ?? c)
-    .replace(/[äöüÄÖÜß]/g, (c) => UMLAUTS[c] ?? c)
-    .toLowerCase()
-    // Anything left that isn't a-z/0-9 — remaining diacritics, apostrophes,
-    // spaces, punctuation — becomes a separator (the old builder's behaviour).
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  return (
+    name
+      .replace(/[ğĞşŞçÇıİłŁøØ]/g, (c) => LEGACY_NAME_SPECIAL[c] ?? c)
+      .replace(/[äöüÄÖÜß]/g, (c) => UMLAUTS[c] ?? c)
+      .toLowerCase()
+      // Anything left that isn't a-z/0-9 — remaining diacritics, apostrophes,
+      // spaces, punctuation — becomes a separator (the old builder's behaviour).
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  );
 }

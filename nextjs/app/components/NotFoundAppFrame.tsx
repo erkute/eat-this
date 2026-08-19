@@ -1,10 +1,10 @@
-import { CSS_VERSION } from '@/lib/constants'
-import { AuthProvider, LoginModalProvider } from '@/lib/auth'
-import { UserLocationProvider } from '@/lib/map/UserLocationContext'
-import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth'
-import BurgerDrawer from './BurgerDrawer'
-import SiteFooter from './SiteFooter'
-import SiteNav from './SiteNav'
+import { CSS_VERSION } from '@/lib/constants';
+import { AuthProvider, LoginModalProvider } from '@/lib/auth';
+import { UserLocationProvider } from '@/lib/map/UserLocationContext';
+import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
+import BurgerDrawer from './BurgerDrawer';
+import SiteFooter from './SiteFooter';
+import SiteNav from './SiteNav';
 
 export default function NotFoundAppFrame({ children }: { children: React.ReactNode }) {
   return (
@@ -25,5 +25,5 @@ export default function NotFoundAppFrame({ children }: { children: React.ReactNo
         </LoginModalProvider>
       </AuthProvider>
     </>
-  )
+  );
 }

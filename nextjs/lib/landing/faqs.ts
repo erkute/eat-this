@@ -1,6 +1,6 @@
 export interface LandingFaqEntry {
-  q: string
-  a: string
+  q: string;
+  a: string;
 }
 
 const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
@@ -96,11 +96,11 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
       a: "Because we don't run ads and don't get paid by restaurants. Our independence is your filter for good food.",
     },
   ],
-}
+};
 
 export function getLandingFaqs(locale: 'de' | 'en'): LandingFaqEntry[] {
   // Defensive fallback: callers can receive the raw URL segment as `locale`
   // (dotted paths bypass the locale middleware), and undefined here turns
   // into a 500 on the home page.
-  return FAQS[locale] ?? []
+  return FAQS[locale] ?? [];
 }

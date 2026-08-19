@@ -92,17 +92,16 @@ function AuthActionInner() {
   const [state, setState] = useState<State>({ kind: 'processing' });
 
   useEffect(() => {
-    const mode    = params.get('mode');
+    const mode = params.get('mode');
     const oobCode = params.get('oobCode');
-    const url     = window.location.href;
+    const url = window.location.href;
 
     if (mode === 'signIn') {
       if (!isSignInWithEmailLink(auth, url)) {
         setState({ kind: 'expired' });
         return;
       }
-      const email =
-        localStorage.getItem('emailForSignIn') || emailFromContinueUrl(params);
+      const email = localStorage.getItem('emailForSignIn') || emailFromContinueUrl(params);
       if (!email) {
         // Legacy links without the `e` param, opened in a foreign browser.
         setState({ kind: 'needs-email', href: url });
@@ -121,9 +120,9 @@ function AuthActionInner() {
       applyActionCode(auth, oobCode)
         .then(() => {
           setState({
-            kind:  'success',
+            kind: 'success',
             title: 'Bestätigt.',
-            sub:   'Du wirst weitergeleitet …',
+            sub: 'Du wirst weitergeleitet …',
           });
           setTimeout(() => window.location.assign('/'), 1800);
         })
@@ -166,29 +165,29 @@ function AuthActionInner() {
           {state.kind === 'success' && (
             <>
               <div className={styles.checkmark} aria-hidden>
-                <svg viewBox="0 0 24 24"><polyline points="5 13 9 17 19 7" /></svg>
+                <svg viewBox="0 0 24 24">
+                  <polyline points="5 13 9 17 19 7" />
+                </svg>
               </div>
               <h1 className={styles.title}>{state.title}</h1>
               <p className={styles.sub}>{state.sub}</p>
             </>
           )}
 
-          {state.kind === 'needs-email' && (
-            <NeedsEmailForm href={state.href} setState={setState} />
-          )}
+          {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
 
-          {state.kind === 'needs-identity' && (
-            <IdentityForm user={state.user} />
-          )}
+          {state.kind === 'needs-identity' && <IdentityForm user={state.user} />}
 
           {state.kind === 'expired' && (
             <>
               <h1 className={styles.title}>Dieser Link funktioniert nicht.</h1>
               <p className={styles.sub}>
-                Er ist abgelaufen oder wurde bereits verwendet. Starte
-                den Login einfach noch einmal von der Startseite.
+                Er ist abgelaufen oder wurde bereits verwendet. Starte den Login einfach noch einmal
+                von der Startseite.
               </p>
-              <Link href="/" className={styles.cta}>Zur Startseite</Link>
+              <Link href="/" className={styles.cta}>
+                Zur Startseite
+              </Link>
             </>
           )}
 
@@ -196,7 +195,9 @@ function AuthActionInner() {
             <>
               <h1 className={styles.title}>{state.title}</h1>
               <p className={styles.sub}>{state.sub}</p>
-              <Link href="/" className={styles.cta}>Zur Startseite</Link>
+              <Link href="/" className={styles.cta}>
+                Zur Startseite
+              </Link>
             </>
           )}
         </div>
@@ -208,10 +209,10 @@ function AuthActionInner() {
 // First-sign-in onboarding: pick name + avatar once, then land on Home.
 // Shown to every new account (the sign-in itself already happened).
 function IdentityForm({ user }: { user: User }) {
-  const [name,       setName]       = useState('');
+  const [name, setName] = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
-  const [error,      setError]      = useState('');
-  const [busy,       setBusy]       = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,14 +223,18 @@ function IdentityForm({ user }: { user: User }) {
       // Save display name + avatar so the profile renders with the user's
       // chosen identity right after sign-in.
       await updateProfile(user, { displayName: name.trim() });
-      const [{ doc, setDoc }, db] = await Promise.all([
-        import('firebase/firestore'),
-        getDb(),
-      ]);
+      const [{ doc, setDoc }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
       await setDoc(doc(db, 'users', user.uid), { avatar: avatarPick }, { merge: true });
       try {
         localStorage.setItem(`eatthis_avatar_${user.uid}`, String(avatarPick));
-        localStorage.setItem('_authHint', JSON.stringify({ n: name.trim().split(' ')[0] || name.trim(), a: avatarPick, u: user.uid }));
+        localStorage.setItem(
+          '_authHint',
+          JSON.stringify({
+            n: name.trim().split(' ')[0] || name.trim(),
+            a: avatarPick,
+            u: user.uid,
+          })
+        );
       } catch {}
       hardRedirectToHome();
     } catch {
@@ -240,15 +245,20 @@ function IdentityForm({ user }: { user: User }) {
 
   return (
     <>
-      <h1 className={styles.title}>Wer bist du<br />auf der Map?</h1>
+      <h1 className={styles.title}>
+        Wer bist du
+        <br />
+        auf der Map?
+      </h1>
       <p className={styles.sub}>
-        Such dir Name und Avatar — beides siehst nur du im Profil, später nicht
-        mehr änderbar.
+        Such dir Name und Avatar — beides siehst nur du im Profil, später nicht mehr änderbar.
       </p>
 
       <form onSubmit={submit} className={styles.form}>
         <div>
-          <label className={styles.nameLabel} htmlFor="ob-name">Dein Name</label>
+          <label className={styles.nameLabel} htmlFor="ob-name">
+            Dein Name
+          </label>
           <input
             id="ob-name"
             type="text"
@@ -286,7 +296,14 @@ function IdentityForm({ user }: { user: User }) {
         <button type="submit" className={styles.cta} disabled={busy || !name.trim()}>
           <span>{busy ? 'Speichern …' : 'Weiter'}</span>
           {!busy && (
-            <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.6}>
+            <svg
+              viewBox="0 0 24 24"
+              width={16}
+              height={16}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.6}
+            >
               <path d="M5 12h14M13 5l7 7-7 7" />
             </svg>
           )}
@@ -300,16 +317,10 @@ function IdentityForm({ user }: { user: User }) {
 // in a different browser than where they were requested (localStorage empty).
 // Firebase needs the address to complete the sign-in; identity onboarding
 // follows separately via finishSignIn.
-function NeedsEmailForm({
-  href,
-  setState,
-}: {
-  href: string;
-  setState: (s: State) => void;
-}) {
+function NeedsEmailForm({ href, setState }: { href: string; setState: (s: State) => void }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-  const [busy,  setBusy]  = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -324,10 +335,7 @@ function NeedsEmailForm({
       const code = (err as { code?: string }).code ?? '';
       if (code === 'auth/invalid-email') {
         setError('Bitte gib eine gültige E-Mail-Adresse ein.');
-      } else if (
-        code === 'auth/expired-action-code' ||
-        code === 'auth/invalid-action-code'
-      ) {
+      } else if (code === 'auth/expired-action-code' || code === 'auth/invalid-action-code') {
         setState({ kind: 'expired' });
       } else {
         setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
@@ -339,8 +347,8 @@ function NeedsEmailForm({
     <>
       <h1 className={styles.title}>Fast drin.</h1>
       <p className={styles.sub}>
-        Du hast den Link in einem anderen Browser geöffnet. Bestätige kurz die
-        E-Mail-Adresse, an die er geschickt wurde.
+        Du hast den Link in einem anderen Browser geöffnet. Bestätige kurz die E-Mail-Adresse, an
+        die er geschickt wurde.
       </p>
 
       <form onSubmit={submit} className={styles.form}>
@@ -359,7 +367,14 @@ function NeedsEmailForm({
         <button type="submit" className={styles.cta} disabled={busy || !email}>
           <span>{busy ? 'Anmelden …' : 'Weiter'}</span>
           {!busy && (
-            <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.6}>
+            <svg
+              viewBox="0 0 24 24"
+              width={16}
+              height={16}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.6}
+            >
               <path d="M5 12h14M13 5l7 7-7 7" />
             </svg>
           )}

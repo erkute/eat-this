@@ -508,8 +508,23 @@ zwischen Spots im Sheet · Tap-Targets generell · kein horizontaler Overflow.
 
 ## Repo-Hygiene am Rande
 
-Fünf Dateien sind schon auf `HEAD` nicht prettier-konform:
-`MapSection.tsx`, `map/RestaurantDetail.tsx`, `restaurant/[slug]/page.tsx`,
-`RestaurantDetail.module.css`, `MapDetails.module.css`. Der PostToolUse-Hook
-formatiert nur, was über Edit/Write läuft. Falls aufräumen: eigener Commit,
-sonst begräbt das jeden inhaltlichen Diff.
+Diese Notiz sprach von „fünf Dateien", die auf `HEAD` nicht prettier-konform
+seien. Nachgemessen waren es **354 von 385** — die Stichprobe war zufällig
+klein. **Erledigt in PR #368**, mit einem einmaligen Durchlauf über die ganze
+`nextjs/`-Quelle.
+
+Warum das kein Schönheitsthema war: der PostToolUse-Hook fährt
+`prettier --write` über **jede** per Edit/Write geänderte Datei. Bei einer
+unformatierten Datei schreibt eine geänderte Zeile also die ganze Datei um — an
+einer 10-Zeilen-Probe gemessen: eine Zeile geändert, sechs umgeschrieben. Der
+Kürzungs-Pass aus CLAUDE.md wäre in so einem PR nicht mehr zu erkennen gewesen.
+
+Eine Config-Anpassung hätte es nicht gelöst; die bestehende ist bereits das
+Optimum (`printWidth` 100 / `semi` true → 354, jede andere getestete Kombination
+schlechter, 80/false → 404, 120/true → 396). Die Ursachen waren gemischt und
+widersprüchlich: manche Dateien semikolonlos, andere nicht, `SiteNav.tsx` und
+`globals.css` auf ~80 umbrochen. Der Code war nie konsistent durch prettier
+gelaufen.
+
+`css/style.css` bleibt bewusst ausgenommen (handgeschrieben, steht in
+`.prettierignore`), deshalb bewegt sich `CSS_VERSION` nicht.

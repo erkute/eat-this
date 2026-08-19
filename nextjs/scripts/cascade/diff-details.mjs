@@ -16,7 +16,11 @@ const [aPath, bPath] = process.argv.slice(2);
 const A = load(aPath);
 const B = load(bPath);
 // the sweep may or may not embed __props; fall back to the sidecar file
-const props = [...(A.__props ?? JSON.parse(readFileSync(new URL('./props-details.json', import.meta.url), 'utf8'))), '@size'];
+const props = [
+  ...(A.__props ??
+    JSON.parse(readFileSync(new URL('./props-details.json', import.meta.url), 'utf8'))),
+  '@size',
+];
 
 let cells = 0;
 const diffs = [];

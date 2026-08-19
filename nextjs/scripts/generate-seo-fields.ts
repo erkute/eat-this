@@ -15,51 +15,57 @@
  *   ANTHROPIC_API_KEY
  *   SANITY_API_WRITE_TOKEN  (Editor role)
  */
-import { config as loadEnv } from 'dotenv'
-import { createClient } from '@sanity/client'
-import Anthropic from '@anthropic-ai/sdk'
-import { extractJsonObjectTextFromBlocks } from './lib/extract-json'
+import { config as loadEnv } from 'dotenv';
+import { createClient } from '@sanity/client';
+import Anthropic from '@anthropic-ai/sdk';
+import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 
-loadEnv({ path: '.env.local' })
+loadEnv({ path: '.env.local' });
 
-const SANITY_PROJECT_ID = 'ehwjnjr2'
-const SANITY_DATASET = 'production'
-const SANITY_API_VERSION = '2024-01-01'
-const MODEL = 'claude-sonnet-4-6'
+const SANITY_PROJECT_ID = 'ehwjnjr2';
+const SANITY_DATASET = 'production';
+const SANITY_API_VERSION = '2024-01-01';
+const MODEL = 'claude-sonnet-4-6';
 
-type DocType = 'restaurant' | 'bezirk'
+type DocType = 'restaurant' | 'bezirk';
 
 interface CliOptions {
-  type: DocType | 'all'
-  limit: number | null
-  dryRun: boolean
-  draftsOnly: boolean
-  force: boolean
+  type: DocType | 'all';
+  limit: number | null;
+  dryRun: boolean;
+  draftsOnly: boolean;
+  force: boolean;
 }
 
 function parseArgs(): CliOptions {
-  const args = process.argv.slice(2)
-  const opts: CliOptions = { type: 'restaurant', limit: null, dryRun: false, draftsOnly: false, force: false }
+  const args = process.argv.slice(2);
+  const opts: CliOptions = {
+    type: 'restaurant',
+    limit: null,
+    dryRun: false,
+    draftsOnly: false,
+    force: false,
+  };
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-    if (arg === '--dry-run') opts.dryRun = true
-    else if (arg === '--drafts-only') opts.draftsOnly = true
-    else if (arg === '--force') opts.force = true
-    else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
+    const arg = args[i];
+    if (arg === '--dry-run') opts.dryRun = true;
+    else if (arg === '--drafts-only') opts.draftsOnly = true;
+    else if (arg === '--force') opts.force = true;
+    else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10);
     else if (arg === '--type') {
-      const v = args[++i]
+      const v = args[++i];
       if (v !== 'restaurant' && v !== 'bezirk' && v !== 'all') {
-        throw new Error(`--type must be restaurant|bezirk|all, got "${v}"`)
+        throw new Error(`--type must be restaurant|bezirk|all, got "${v}"`);
       }
-      opts.type = v
+      opts.type = v;
     } else {
-      throw new Error(`Unknown arg: ${arg}`)
+      throw new Error(`Unknown arg: ${arg}`);
     }
   }
   if (opts.limit !== null && (Number.isNaN(opts.limit) || opts.limit < 1)) {
-    throw new Error(`--limit must be a positive integer`)
+    throw new Error(`--limit must be a positive integer`);
   }
-  return opts
+  return opts;
 }
 
 // Lazy env reads — Next.js loads this module at build time and runtime
@@ -71,48 +77,48 @@ const sanity = createClient({
   apiVersion: SANITY_API_VERSION,
   token: process.env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
-})
+});
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? '' })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? '' });
 
 export interface RestaurantSource {
-  _id: string
-  name: string
-  description?: string
-  descriptionEn?: string
-  shortDescription?: string
-  cuisineType?: string
-  district?: string
-  categories?: string[]
-  priceRange?: { min?: number; max?: number; currency?: string }
+  _id: string;
+  name: string;
+  description?: string;
+  descriptionEn?: string;
+  shortDescription?: string;
+  cuisineType?: string;
+  district?: string;
+  categories?: string[];
+  priceRange?: { min?: number; max?: number; currency?: string };
   seo?: {
-    metaTitle?: string
-    metaTitleEn?: string
-    metaDescription?: string
-    metaDescriptionEn?: string
-  }
+    metaTitle?: string;
+    metaTitleEn?: string;
+    metaDescription?: string;
+    metaDescriptionEn?: string;
+  };
 }
 
 function priceSymbolFromRange(pr?: { min?: number }): string | null {
-  const min = pr?.min
-  if (min == null || Number.isNaN(min)) return null
-  if (min < 10) return '€'
-  if (min < 25) return '€€'
-  if (min < 50) return '€€€'
-  return '€€€€'
+  const min = pr?.min;
+  if (min == null || Number.isNaN(min)) return null;
+  if (min < 10) return '€';
+  if (min < 25) return '€€';
+  if (min < 50) return '€€€';
+  return '€€€€';
 }
 
 interface BezirkSource {
-  _id: string
-  name: string
-  description?: string
-  descriptionEn?: string
+  _id: string;
+  name: string;
+  description?: string;
+  descriptionEn?: string;
   seo?: {
-    metaTitle?: string
-    metaTitleEn?: string
-    metaDescription?: string
-    metaDescriptionEn?: string
-  }
+    metaTitle?: string;
+    metaTitleEn?: string;
+    metaDescription?: string;
+    metaDescriptionEn?: string;
+  };
 }
 
 // Project all fields with {...} wildcard. The script needs the full doc to clone
@@ -122,42 +128,48 @@ interface BezirkSource {
 // Idempotent on BOTH published and draft state: a doc qualifies only if neither
 // side has seo.metaTitle. Without the draft check, re-runs would regenerate
 // every doc whose seo lives only in the draft.
-async function fetchRestaurants(opts: { draftsOnly: boolean; force: boolean }): Promise<RestaurantSource[]> {
-  const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)'
+async function fetchRestaurants(opts: {
+  draftsOnly: boolean;
+  force: boolean;
+}): Promise<RestaurantSource[]> {
+  const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)';
   if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "restaurant" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`,
-    )
+      `*[_type == "restaurant" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`
+    );
   }
   if (opts.force) {
     return sanity.fetch(
-      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
-    )
+      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`
+    );
   }
   return sanity.fetch(
     `*[_type == "restaurant" && !(_id in path("drafts.**"))
         && !defined(seo.metaTitle)
-        && !defined(*[_id == "drafts." + ^._id][0].seo.metaTitle)]{...} | order(name asc)`,
-  )
+        && !defined(*[_id == "drafts." + ^._id][0].seo.metaTitle)]{...} | order(name asc)`
+  );
 }
 
-async function fetchBezirke(opts: { draftsOnly: boolean; force: boolean }): Promise<BezirkSource[]> {
-  const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)'
+async function fetchBezirke(opts: {
+  draftsOnly: boolean;
+  force: boolean;
+}): Promise<BezirkSource[]> {
+  const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)';
   if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "bezirk" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`,
-    )
+      `*[_type == "bezirk" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`
+    );
   }
   if (opts.force) {
     return sanity.fetch(
-      `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
-    )
+      `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...} | order(name asc)`
+    );
   }
   return sanity.fetch(
     `*[_type == "bezirk" && !(_id in path("drafts.**"))
         && !defined(seo.metaTitle)
-        && !defined(*[_id == "drafts." + ^._id][0].seo.metaTitle)]{...} | order(name asc)`,
-  )
+        && !defined(*[_id == "drafts." + ^._id][0].seo.metaTitle)]{...} | order(name asc)`
+  );
 }
 
 const RESTAURANT_SEO_PROMPT = `Du schreibst Suchmaschinen-Meta-Felder für "Eat This Berlin", einen kuratierten Berliner Food-Guide.
@@ -193,7 +205,7 @@ Gib NUR ein JSON-Objekt zurück (kein Prosa, kein Markdown-Fence):
   "metaTitleEn": string,
   "metaDescription": string,
   "metaDescriptionEn": string
-}`
+}`;
 
 const BEZIRK_SEO_PROMPT = `Du schreibst Suchmaschinen-Meta-Felder für "Eat This Berlin", einen kuratierten Berliner Food-Guide.
 
@@ -227,17 +239,17 @@ Gib NUR ein JSON-Objekt zurück (kein Prosa, kein Markdown-Fence):
   "metaTitleEn": string,
   "metaDescription": string,
   "metaDescriptionEn": string
-}`
+}`;
 
 export interface SeoGen {
-  metaTitle: string
-  metaTitleEn: string
-  metaDescription: string
-  metaDescriptionEn: string
+  metaTitle: string;
+  metaTitleEn: string;
+  metaDescription: string;
+  metaDescriptionEn: string;
 }
 
 function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
-  return extractJsonObjectTextFromBlocks(content, docId)
+  return extractJsonObjectTextFromBlocks(content, docId);
 }
 
 const LENGTH_LIMITS: Array<[keyof SeoGen, number]> = [
@@ -245,86 +257,90 @@ const LENGTH_LIMITS: Array<[keyof SeoGen, number]> = [
   ['metaTitleEn', 60],
   ['metaDescription', 160],
   ['metaDescriptionEn', 160],
-]
+];
 
-function validateLengths(parsed: SeoGen, docId: string): { ok: true } | { ok: false; offenders: string[] } {
-  const offenders: string[] = []
+function validateLengths(
+  parsed: SeoGen,
+  docId: string
+): { ok: true } | { ok: false; offenders: string[] } {
+  const offenders: string[] = [];
   for (const [key, max] of LENGTH_LIMITS) {
-    const v = parsed[key]
+    const v = parsed[key];
     if (!v || typeof v !== 'string') {
-      throw new Error(`${key} missing or not a string for ${docId}`)
+      throw new Error(`${key} missing or not a string for ${docId}`);
     }
     if (v.length > max) {
-      offenders.push(`${key} ist ${v.length} Zeichen, Limit ${max} (überschuss: ${v.length - max})`)
+      offenders.push(
+        `${key} ist ${v.length} Zeichen, Limit ${max} (überschuss: ${v.length - max})`
+      );
     }
   }
-  return offenders.length === 0 ? { ok: true } : { ok: false, offenders }
+  return offenders.length === 0 ? { ok: true } : { ok: false, offenders };
 }
 
 async function generateSeoFromFacts(
   systemPrompt: string,
   facts: Record<string, unknown>,
-  docId: string,
+  docId: string
 ): Promise<SeoGen> {
-  const userMsg = `SANITY-FAKTEN:\n${JSON.stringify(facts, null, 2)}`
+  const userMsg = `SANITY-FAKTEN:\n${JSON.stringify(facts, null, 2)}`;
 
   const callOnce = async (reminder: 'none' | 'json' | 'length', lengthOffenders: string[] = []) => {
-    let content = userMsg
+    let content = userMsg;
     if (reminder === 'json') {
       content +=
-        '\n\nWICHTIG: Antworte AUSSCHLIESSLICH mit gültigem JSON in der oben definierten Form. Keine Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Halte die Längen-Limits ein.'
+        '\n\nWICHTIG: Antworte AUSSCHLIESSLICH mit gültigem JSON in der oben definierten Form. Keine Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Halte die Längen-Limits ein.';
     } else if (reminder === 'length') {
       // Tell the model exactly which fields overshot and by how much. Avoid the
       // word "count" / "zählen" — Sonnet 4.6 takes it literally and replies with
       // prose ("I'll count…") instead of JSON. Just state the overshoot and
       // demand a shortened JSON object.
-      content +=
-        `\n\nDer letzte Versuch hat die HARTEN Längen-Limits verletzt:\n- ${lengthOffenders.join('\n- ')}\n\nKürze die betroffenen Felder strikt unter ihr Limit (metaTitle/metaTitleEn ≤ 60, metaDescription/metaDescriptionEn ≤ 160). Antworte AUSSCHLIESSLICH mit dem aktualisierten JSON-Objekt — keine Erklärung, keine Prosa, kein Markdown-Fence.`
+      content += `\n\nDer letzte Versuch hat die HARTEN Längen-Limits verletzt:\n- ${lengthOffenders.join('\n- ')}\n\nKürze die betroffenen Felder strikt unter ihr Limit (metaTitle/metaTitleEn ≤ 60, metaDescription/metaDescriptionEn ≤ 160). Antworte AUSSCHLIESSLICH mit dem aktualisierten JSON-Objekt — keine Erklärung, keine Prosa, kein Markdown-Fence.`;
     }
     const msg = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 1024,
       system: systemPrompt,
       messages: [{ role: 'user', content }],
-    })
-    return JSON.parse(extractJsonText(msg.content, docId)) as SeoGen
-  }
+    });
+    return JSON.parse(extractJsonText(msg.content, docId)) as SeoGen;
+  };
 
-  let parsed: SeoGen
+  let parsed: SeoGen;
   try {
-    parsed = await callOnce('none')
+    parsed = await callOnce('none');
   } catch (firstErr) {
     if (firstErr instanceof SyntaxError) {
-      parsed = await callOnce('json')
+      parsed = await callOnce('json');
     } else {
-      throw firstErr
+      throw firstErr;
     }
   }
 
   // Length-violation retry: Sonnet 4.6 routinely overshoots EN metaDescription
   // by 1-15 chars (~15% rate). Re-prompt with explicit char counts + overshoot
   // delta — cheaper than a manual cleanup pass after the full run.
-  let validation = validateLengths(parsed, docId)
+  let validation = validateLengths(parsed, docId);
   if (!validation.ok) {
     try {
-      parsed = await callOnce('length', validation.offenders)
+      parsed = await callOnce('length', validation.offenders);
     } catch (lenErr) {
       // Some retries come back as prose ("I'll count chars…") if the prompt
       // accidentally triggers reasoning-out-loud. One more attempt with the
       // stricter JSON-only reminder usually fixes it.
       if (lenErr instanceof SyntaxError) {
-        parsed = await callOnce('json')
+        parsed = await callOnce('json');
       } else {
-        throw lenErr
+        throw lenErr;
       }
     }
-    validation = validateLengths(parsed, docId)
+    validation = validateLengths(parsed, docId);
     if (!validation.ok) {
-      throw new Error(`length retry still failed for ${docId}: ${validation.offenders.join('; ')}`)
+      throw new Error(`length retry still failed for ${docId}: ${validation.offenders.join('; ')}`);
     }
   }
 
-  return parsed
+  return parsed;
 }
 
 export function generateRestaurantSeo(r: RestaurantSource): Promise<SeoGen> {
@@ -340,8 +356,8 @@ export function generateRestaurantSeo(r: RestaurantSource): Promise<SeoGen> {
       categories: r.categories ?? [],
       priceLevel: priceSymbolFromRange(r.priceRange),
     },
-    r._id,
-  )
+    r._id
+  );
 }
 
 function generateBezirkSeo(b: BezirkSource): Promise<SeoGen> {
@@ -352,16 +368,12 @@ function generateBezirkSeo(b: BezirkSource): Promise<SeoGen> {
       description: b.description ?? null,
       descriptionEn: b.descriptionEn ?? null,
     },
-    b._id,
-  )
+    b._id
+  );
 }
 
-async function patchSeoDraft(
-  doc: { _id: string },
-  type: DocType,
-  g: SeoGen,
-): Promise<void> {
-  const draftId = doc._id.startsWith('drafts.') ? doc._id : `drafts.${doc._id}`
+async function patchSeoDraft(doc: { _id: string }, type: DocType, g: SeoGen): Promise<void> {
+  const draftId = doc._id.startsWith('drafts.') ? doc._id : `drafts.${doc._id}`;
 
   // Clone the full published doc into a draft if no draft exists yet — preserves
   // image, slug, openingHours, etc. so a later publish doesn't blow them away.
@@ -369,7 +381,7 @@ async function patchSeoDraft(
     ...doc,
     _id: draftId,
     _type: type,
-  } as { _id: string; _type: DocType } & Record<string, unknown>)
+  } as { _id: string; _type: DocType } & Record<string, unknown>);
 
   // setIfMissing the parent seo object first — most docs have no seo block at
   // all, so a direct .set({'seo.metaTitle': ...}) on a missing parent would
@@ -384,83 +396,89 @@ async function patchSeoDraft(
       'seo.metaDescription': g.metaDescription,
       'seo.metaDescriptionEn': g.metaDescriptionEn,
     })
-    .commit({ autoGenerateArrayKeys: true })
+    .commit({ autoGenerateArrayKeys: true });
 }
 
 function logSeoOutput(g: SeoGen): void {
-  console.log(`     T  DE [${g.metaTitle.length}]: ${g.metaTitle}`)
-  console.log(`     T  EN [${g.metaTitleEn.length}]: ${g.metaTitleEn}`)
-  console.log(`     D  DE [${g.metaDescription.length}]: ${g.metaDescription}`)
-  console.log(`     D  EN [${g.metaDescriptionEn.length}]: ${g.metaDescriptionEn}`)
+  console.log(`     T  DE [${g.metaTitle.length}]: ${g.metaTitle}`);
+  console.log(`     T  EN [${g.metaTitleEn.length}]: ${g.metaTitleEn}`);
+  console.log(`     D  DE [${g.metaDescription.length}]: ${g.metaDescription}`);
+  console.log(`     D  EN [${g.metaDescriptionEn.length}]: ${g.metaDescriptionEn}`);
 }
 
 async function main(): Promise<void> {
-  const opts = parseArgs()
-  console.log(`[generate-seo] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`)
+  const opts = parseArgs();
+  console.log(
+    `[generate-seo] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`
+  );
 
-  let ok = 0
-  let failed = 0
+  let ok = 0;
+  let failed = 0;
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force })
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit)
-    console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`)
+    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
+    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+    console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`);
     for (const r of docs) {
       try {
-        const g = await generateRestaurantSeo(r)
-        console.log(`  ✓ ${r.name} (${r._id})`)
-        logSeoOutput(g)
+        const g = await generateRestaurantSeo(r);
+        console.log(`  ✓ ${r.name} (${r._id})`);
+        logSeoOutput(g);
         if (!opts.dryRun) {
-          await patchSeoDraft(r, 'restaurant', g)
-          console.log(`     → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`)
+          await patchSeoDraft(r, 'restaurant', g);
+          console.log(
+            `     → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
+          );
         }
-        ok++
+        ok++;
         // Gentle rate-limit: 200ms (~5 req/s, well under Anthropic limits).
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (e) {
-        console.error(`  ✗ ${r.name} (${r._id}):`, e instanceof Error ? e.message : e)
-        failed++
+        console.error(`  ✗ ${r.name} (${r._id}):`, e instanceof Error ? e.message : e);
+        failed++;
       }
     }
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force })
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit)
-    console.log(`[generate-seo] bezirke needing seo fields: ${docs.length}`)
+    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force });
+    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+    console.log(`[generate-seo] bezirke needing seo fields: ${docs.length}`);
     for (const b of docs) {
       try {
-        const g = await generateBezirkSeo(b)
-        console.log(`  ✓ ${b.name} (${b._id})`)
-        logSeoOutput(g)
+        const g = await generateBezirkSeo(b);
+        console.log(`  ✓ ${b.name} (${b._id})`);
+        logSeoOutput(g);
         if (!opts.dryRun) {
-          await patchSeoDraft(b, 'bezirk', g)
-          console.log(`     → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`)
+          await patchSeoDraft(b, 'bezirk', g);
+          console.log(
+            `     → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
+          );
         }
-        ok++
-        await new Promise(resolve => setTimeout(resolve, 200))
+        ok++;
+        await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (e) {
-        console.error(`  ✗ ${b.name} (${b._id}):`, e instanceof Error ? e.message : e)
-        failed++
+        console.error(`  ✗ ${b.name} (${b._id}):`, e instanceof Error ? e.message : e);
+        failed++;
       }
     }
   }
 
-  console.log(`[generate-seo] done — ok: ${ok}, failed: ${failed}`)
+  console.log(`[generate-seo] done — ok: ${ok}, failed: ${failed}`);
 }
 
-import { realpathSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 function isCliEntry(): boolean {
   try {
-    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '')
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '');
   } catch {
-    return false
+    return false;
   }
 }
 if (isCliEntry()) {
-  main().catch(err => {
-    console.error('[generate-seo] FATAL:', err)
-    process.exit(1)
-  })
+  main().catch((err) => {
+    console.error('[generate-seo] FATAL:', err);
+    process.exit(1);
+  });
 }

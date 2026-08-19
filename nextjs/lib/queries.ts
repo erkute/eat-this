@@ -5,7 +5,7 @@ import {
   publishableRestaurantImageUrl,
   restaurantPhotoCredit,
   restaurantPhotoCreditUrl,
-} from './sanity-image-presets'
+} from './sanity-image-presets';
 // Category projection. The string→ref migration finished in 2026-06 (verified
 // 2026-07: 0 of 343 restaurants carry legacy string entries), so all entries
 // are references. The `defined(@->_id)` filter stays as a guard against
@@ -17,7 +17,7 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   nameEn,
   description,
   descriptionEn
-}`
+}`;
 
 export const restaurantBySlugQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {
@@ -68,13 +68,13 @@ export const restaurantBySlugQuery = `
       noIndex
     }
   }
-`
+`;
 
 export const allRestaurantSlugsQuery = `
   *[_type == "restaurant" && defined(slug.current)] {
     "slug": slug.current
   }
-`
+`;
 
 // Public article payloads resolve only the restaurant side of a Must-Eat
 // reference. Dish text and images live in the private premium store and must
@@ -100,7 +100,7 @@ const articleContentProjection = `{
       "cuisineType": restaurantRef->cuisineType,
       "restaurantPhoto": ${publishableRestaurantImageUrl('restaurantRef->image', 'card', 'restaurantRef->slug.current', 'restaurantRef->instagramHandle')}
     }
-  }`
+  }`;
 
 export const articleBySlugQuery = `
   *[_type == "newsArticle" && slug.current == $slug][0] {
@@ -127,13 +127,13 @@ export const articleBySlugQuery = `
       noIndex
     }
   }
-`
+`;
 
 export const allArticleSlugsQuery = `
   *[_type == "newsArticle" && defined(slug.current)] {
     "slug": slug.current
   }
-`
+`;
 
 // Restaurants filtered by Bezirk slug
 export const restaurantsByBezirkQuery = `
@@ -153,7 +153,7 @@ export const restaurantsByBezirkQuery = `
     tipEn,
     "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
-`
+`;
 
 // Restaurants filtered by category slug (reference match — the legacy
 // string dual-shape was removed after the 2026-06 migration completed).
@@ -177,7 +177,7 @@ export const restaurantsByCategoryQuery = `
     tipEn,
     "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
-`
+`;
 
 const RESTAURANT_SIBLING_CARD_PROJECTION = `{
   _id,
@@ -185,7 +185,7 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
   "slug": slug.current,
   cuisineType,
   "photo": ${publishableRestaurantImageUrl('image', 'card')}
-}`
+}`;
 
 // Bounded circular windows immediately after the current restaurant in the
 // same alphabetical order used by the district/category listings. Each group
@@ -212,7 +212,7 @@ export const restaurantSiblingCandidatesQuery = `{
     && $categorySlug in categories[]->slug.current && slug.current != $selfSlug
     && (name < $selfName || (name == $selfName && slug.current < $selfSlug))
   ] | order(name asc, slug.current asc)[0...$categoryLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
-}`
+}`;
 
 // Curated spots for the magic-link email: restaurant information only. Login
 // emails are not an entitlement boundary and therefore never embed premium
@@ -229,7 +229,7 @@ export const emailSpotsQuery = `
     "cuisine": cuisineType,
     "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
-`
+`;
 
 // One spot for the composed email card image (/api/email/spot-card) — same
 // shape as emailSpotsQuery, addressed by slug.
@@ -240,7 +240,7 @@ export const emailSpotCardQuery = `
     "cuisine": cuisineType,
     "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
-`
+`;
 
 // Bezirke for the /bezirk index — includes count and a few example restaurants.
 export const allBezirkeWithStatsQuery = `
@@ -263,7 +263,7 @@ export const allBezirkeWithStatsQuery = `
         "photo": ${publishableRestaurantImageUrl('image', 'card')}
       }
   }
-`
+`;
 
 // One Bezirk by slug — for the detail landing page
 export const bezirkBySlugQuery = `
@@ -283,7 +283,7 @@ export const bezirkBySlugQuery = `
       noIndex
     }
   }
-`
+`;
 
 // All categories for navigation/listing — pulled directly from the category
 // document type (single source of truth). Sorted by EN name (falls back to DE)
@@ -297,7 +297,7 @@ export const allCategoriesQuery = `
     description,
     descriptionEn
   }
-`
+`;
 
 // One category by slug — detail / hub page.
 export const categoryBySlugQuery = `
@@ -309,7 +309,7 @@ export const categoryBySlugQuery = `
     description,
     descriptionEn
   }
-`
+`;
 
 // All news articles — newest first
 export const allNewsArticlesQuery = `
@@ -325,7 +325,7 @@ export const allNewsArticlesQuery = `
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe
   }
-`
+`;
 
 // Latest N news articles — for detail-page outro / home feed
 export const latestNewsArticlesQuery = `
@@ -339,7 +339,7 @@ export const latestNewsArticlesQuery = `
     categoryLabel, categoryLabelDe,
     "imageUrl": ${groqImageUrl('image', 'card')}
   }
-`
+`;
 
 // Must Eat cards for a specific restaurant — card-back teaser only.
 // Deliberately NO dish/photo: the teaser renders covered cards, and any
@@ -350,7 +350,7 @@ export const mustEatsByRestaurantQuery = `
     _id,
     order
   }
-`
+`;
 
 // One localized static page. Selecting the active language in GROQ keeps the
 // other page documents and translation fields out of the RSC payload.
@@ -366,7 +366,7 @@ export const staticPageBySlugQuery = `
       coalesce(body, bodyDe)
     )
   }
-`
+`;
 
 /**
  * How much a Booster Pack actually contains, for every pack at once.
@@ -391,4 +391,4 @@ export const packContentsQuery = `
       "mustEats": count(*[_type == "mustEat" && restaurantRef->isOpen != false])
     }
   }
-`
+`;

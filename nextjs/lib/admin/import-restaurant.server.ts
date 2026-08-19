@@ -1,10 +1,10 @@
-import 'server-only'
+import 'server-only';
 
-import type { SanityClient } from '@sanity/client'
+import type { SanityClient } from '@sanity/client';
 
 export interface RestaurantImportResult {
-  docId: string
-  name: string
+  docId: string;
+  name: string;
 }
 
 /**
@@ -15,7 +15,7 @@ export interface RestaurantImportResult {
  */
 export async function importRestaurant(
   url: string,
-  sanity: SanityClient,
+  sanity: SanityClient
 ): Promise<RestaurantImportResult> {
   const [
     { runImport },
@@ -27,10 +27,10 @@ export async function importRestaurant(
     import('@/scripts/generate-de-descriptions'),
     import('@/scripts/bootstrap-en-translations'),
     import('@/scripts/generate-seo-fields'),
-  ])
+  ]);
 
   // Places lookup + owner-photo uploads + base document shape.
-  const result = await runImport(url, { sanityClient: sanity })
+  const result = await runImport(url, { sanityClient: sanity });
 
   // Each generator consumes a subset of this shared source projection.
   const generatorSource = {
@@ -48,46 +48,44 @@ export async function importRestaurant(
     lat: result.doc.lat as number,
     lng: result.doc.lng as number,
     website: result.doc.website as string | undefined,
-  }
+  };
 
-  let placeContext: Awaited<ReturnType<typeof fetchPlaceContext>> | null = null
+  let placeContext: Awaited<ReturnType<typeof fetchPlaceContext>> | null = null;
   try {
     placeContext = await fetchPlaceContext(
-      generatorSource as Parameters<typeof fetchPlaceContext>[0],
-    )
+      generatorSource as Parameters<typeof fetchPlaceContext>[0]
+    );
   } catch {
     // The description generator has an explicit Sanity-facts-only fallback.
   }
 
   const description = await generateRestaurant(
     generatorSource as Parameters<typeof generateRestaurant>[0],
-    placeContext,
-  )
+    placeContext
+  );
 
   const sourceWithDescription = {
     ...generatorSource,
     description: description.description,
     shortDescription: description.shortDescription ?? generatorSource.shortDescription,
     tip: description.tip ?? undefined,
-  }
+  };
   const translation = await translateRestaurant(
-    sourceWithDescription as Parameters<typeof translateRestaurant>[0],
-  )
+    sourceWithDescription as Parameters<typeof translateRestaurant>[0]
+  );
   const seo = await generateRestaurantSeo({
     ...sourceWithDescription,
     descriptionEn: translation.descriptionEn ?? undefined,
-  } as Parameters<typeof generateRestaurantSeo>[0])
+  } as Parameters<typeof generateRestaurantSeo>[0]);
 
   // Keep the established importer behavior: create the published document so
   // it appears on the site immediately. Personally curated tips stay manual.
-  const publishedId = result.doc._id.replace(/^drafts\./, '')
+  const publishedId = result.doc._id.replace(/^drafts\./, '');
   const finalDoc = {
     ...result.doc,
     _id: publishedId,
     ...(description.description ? { description: description.description } : {}),
-    ...(description.shortDescription
-      ? { shortDescription: description.shortDescription }
-      : {}),
+    ...(description.shortDescription ? { shortDescription: description.shortDescription } : {}),
     ...(translation.shortDescriptionEn
       ? { shortDescriptionEn: translation.shortDescriptionEn }
       : {}),
@@ -98,8 +96,8 @@ export async function importRestaurant(
       metaDescription: seo.metaDescription,
       metaDescriptionEn: seo.metaDescriptionEn,
     },
-  }
+  };
 
-  const created = await sanity.create(finalDoc)
-  return { docId: created._id, name: result.matchedName }
+  const created = await sanity.create(finalDoc);
+  return { docId: created._id, name: result.matchedName };
 }

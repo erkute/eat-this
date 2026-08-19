@@ -24,7 +24,12 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   const authMode = mode === 'auth';
   const { initialMapData, live } = useHomeMapData();
   const { location, loading: locating, error: locError, request } = useUserLocationContext();
-  const locationStatus = getLocationStatus({ locale, location, locationError: locError, locateLoading: locating });
+  const locationStatus = getLocationStatus({
+    locale,
+    location,
+    locationError: locError,
+    locateLoading: locating,
+  });
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locating ? 'loading' : 'idle'}`
     : null;
@@ -114,11 +119,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
               : null;
             const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
             return (
-              <Link
-                key={r._id}
-                href={`/restaurant/${r.slug}`}
-                className={styles.card}
-              >
+              <Link key={r._id} href={`/restaurant/${r.slug}`} className={styles.card}>
                 <span className={`hv-photo ${styles.photo}`}>
                   {r.photo && (
                     <Image
@@ -161,9 +162,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
             type="button"
             className={styles.locationDismiss}
             onClick={handleDismissLocationStatus}
-            aria-label={
-              locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'
-            }
+            aria-label={locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'}
           >
             ×
           </button>

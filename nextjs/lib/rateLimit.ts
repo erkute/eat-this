@@ -2,13 +2,13 @@
 // Keys live in _rateLimits/{key}; the collection is deny-all in
 // firestore.rules, so only the Admin SDK (this code) can touch it.
 
-import { getAdminFirestore } from './firebase/admin'
-import { Timestamp } from 'firebase-admin/firestore'
-export { clientIp } from './clientIp'
+import { getAdminFirestore } from './firebase/admin';
+import { Timestamp } from 'firebase-admin/firestore';
+export { clientIp } from './clientIp';
 
 interface WindowDoc {
-  windowStart: number
-  count: number
+  windowStart: number;
+  count: number;
 }
 
 /**
@@ -27,28 +27,28 @@ interface WindowDoc {
 async function consumeRateLimit(
   key: string,
   maxRequests: number,
-  windowMs: number,
+  windowMs: number
 ): Promise<boolean> {
-  const now = Date.now()
-  const db  = getAdminFirestore()
-  const ref = db.collection('_rateLimits').doc(key)
+  const now = Date.now();
+  const db = getAdminFirestore();
+  const ref = db.collection('_rateLimits').doc(key);
 
   return db.runTransaction(async (tx) => {
-    const doc   = await tx.get(ref)
-    const prev  = doc.exists ? (doc.data() as WindowDoc) : null
-    const fresh = !prev || now - prev.windowStart >= windowMs
+    const doc = await tx.get(ref);
+    const prev = doc.exists ? (doc.data() as WindowDoc) : null;
+    const fresh = !prev || now - prev.windowStart >= windowMs;
 
-    const windowStart = fresh ? now : prev!.windowStart
-    const count       = (fresh ? 0 : prev!.count) + 1
-    if (count > maxRequests) return false
+    const windowStart = fresh ? now : prev!.windowStart;
+    const count = (fresh ? 0 : prev!.count) + 1;
+    if (count > maxRequests) return false;
 
     tx.set(ref, {
       windowStart,
       count,
       expiresAt: Timestamp.fromMillis(windowStart + windowMs),
-    })
-    return true
-  })
+    });
+    return true;
+  });
 }
 
 /**
@@ -58,12 +58,12 @@ async function consumeRateLimit(
 export async function checkRateLimit(
   key: string,
   maxRequests: number,
-  windowMs: number,
+  windowMs: number
 ): Promise<boolean> {
   try {
-    return await consumeRateLimit(key, maxRequests, windowMs)
+    return await consumeRateLimit(key, maxRequests, windowMs);
   } catch {
-    return true
+    return true;
   }
 }
 
@@ -74,11 +74,11 @@ export async function checkRateLimit(
 export async function checkRateLimitFailClosed(
   key: string,
   maxRequests: number,
-  windowMs: number,
+  windowMs: number
 ): Promise<boolean> {
   try {
-    return await consumeRateLimit(key, maxRequests, windowMs)
+    return await consumeRateLimit(key, maxRequests, windowMs);
   } catch {
-    return false
+    return false;
   }
 }

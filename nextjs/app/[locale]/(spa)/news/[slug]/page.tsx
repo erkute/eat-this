@@ -1,41 +1,39 @@
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
-import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server'
-import { serializeJsonLd } from '@/lib/json-ld'
-import { SITE_URL } from '@/lib/constants'
-import { localeUrl } from '@/lib/locale-url'
-import { toOgLocale } from '@/lib/seo/metadata'
-import { routing } from '@/i18n/routing'
-import { getLocalizedNewsMetadata } from '@/lib/news-metadata'
-import { buildBrandedTitle } from '@/lib/seo/metadata-text'
-import NewsArticleShell from '@/app/components/NewsArticleShell'
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
+import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server';
+import { serializeJsonLd } from '@/lib/json-ld';
+import { SITE_URL } from '@/lib/constants';
+import { localeUrl } from '@/lib/locale-url';
+import { toOgLocale } from '@/lib/seo/metadata';
+import { routing } from '@/i18n/routing';
+import { getLocalizedNewsMetadata } from '@/lib/news-metadata';
+import { buildBrandedTitle } from '@/lib/seo/metadata-text';
+import NewsArticleShell from '@/app/components/NewsArticleShell';
 
 interface PageProps {
-  params: Promise<{ locale: string; slug: string }>
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllArticleSlugs()
-  return routing.locales.flatMap(locale =>
-    slugs.map(slug => ({ locale, slug })),
-  )
+  const slugs = await getAllArticleSlugs();
+  return routing.locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
 }
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug } = await params
-  const a = await getArticleBySlug(slug)
-  if (!a) return {}
+  const { locale, slug } = await params;
+  const a = await getArticleBySlug(slug);
+  if (!a) return {};
 
-  const de = locale === 'de'
-  const { title, description } = getLocalizedNewsMetadata(a, locale)
-  const brandedTitle = buildBrandedTitle(title)
-  const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0]
+  const de = locale === 'de';
+  const { title, description } = getLocalizedNewsMetadata(a, locale);
+  const brandedTitle = buildBrandedTitle(title);
+  const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0];
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
-    : `${SITE_URL}/pics/og-card.png?v=4`
+    : `${SITE_URL}/pics/og-card.png?v=4`;
 
   // News uses the inverse i18n convention (base = EN `title`/`content`, DE
   // override = `titleDe`/`contentDe`), so the DE-base `buildHreflangAlternates`
@@ -43,17 +41,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // actually have a real translation — otherwise a single-language article gets
   // an `en` (or `de`) URL that just re-renders the other language's body, the
   // exact duplicate-content trap `hasEnContent` prevents for restaurants.
-  const hasDe = Boolean(a.titleDe?.trim() && a.contentDe && a.contentDe.length > 0)
-  const hasEn = Boolean(a.title?.trim() && a.content && a.content.length > 0)
-  const languages: Record<string, string> = {}
-  if (hasDe) languages.de = localeUrl('de', `/news/${slug}`)
-  if (hasEn) languages.en = localeUrl('en', `/news/${slug}`)
-  languages['x-default'] = localeUrl(hasDe ? 'de' : 'en', `/news/${slug}`)
+  const hasDe = Boolean(a.titleDe?.trim() && a.contentDe && a.contentDe.length > 0);
+  const hasEn = Boolean(a.title?.trim() && a.content && a.content.length > 0);
+  const languages: Record<string, string> = {};
+  if (hasDe) languages.de = localeUrl('de', `/news/${slug}`);
+  if (hasEn) languages.en = localeUrl('en', `/news/${slug}`);
+  languages['x-default'] = localeUrl(hasDe ? 'de' : 'en', `/news/${slug}`);
   // Canonical = the requested locale if it has its own content, else the locale
   // that does (so the untranslated fallback page points at the real version).
-  const selfHasContent = de ? hasDe : hasEn
-  const canonicalLocale: 'de' | 'en' = selfHasContent ? (de ? 'de' : 'en') : hasDe ? 'de' : 'en'
-  const alternates = { canonical: localeUrl(canonicalLocale, `/news/${slug}`), languages }
+  const selfHasContent = de ? hasDe : hasEn;
+  const canonicalLocale: 'de' | 'en' = selfHasContent ? (de ? 'de' : 'en') : hasDe ? 'de' : 'en';
+  const alternates = { canonical: localeUrl(canonicalLocale, `/news/${slug}`), languages };
 
   return {
     title: { absolute: brandedTitle },
@@ -75,21 +73,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       images: [image],
     },
-  }
+  };
 }
 
 export default async function NewsArticlePage({ params }: PageProps) {
-  const { locale, slug } = await params
-  setRequestLocale(locale)
-  const [a, relatedArticles] = await Promise.all([
-    getArticleBySlug(slug),
-    getAllNewsArticles(),
-  ])
-  if (!a) notFound()
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  const [a, relatedArticles] = await Promise.all([getArticleBySlug(slug), getAllNewsArticles()]);
+  if (!a) notFound();
 
-  const de = locale === 'de'
-  const title = de ? a.titleDe || a.title : a.title
-  const excerpt = de ? a.excerptDe || a.excerpt : a.excerpt
+  const de = locale === 'de';
+  const title = de ? a.titleDe || a.title : a.title;
+  const excerpt = de ? a.excerptDe || a.excerpt : a.excerpt;
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -135,7 +130,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
         ],
       },
     ],
-  })
+  });
 
   return (
     <>
@@ -143,5 +138,5 @@ export default async function NewsArticlePage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <NewsArticleShell article={a} relatedArticles={relatedArticles} locale={locale} isActive />
     </>
-  )
+  );
 }

@@ -1,17 +1,18 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render } from '@testing-library/react';
 
-const dynamicComponent = vi.hoisted(() => vi.fn())
+const dynamicComponent = vi.hoisted(() => vi.fn());
 
 vi.mock('next/dynamic', () => ({
-  default: () => function MockMustEatImageLightbox() {
-    dynamicComponent()
-    return <div data-testid="must-eat-lightbox" />
-  },
-}))
+  default: () =>
+    function MockMustEatImageLightbox() {
+      dynamicComponent();
+      return <div data-testid="must-eat-lightbox" />;
+    },
+}));
 
-import LazyMustEatImageLightbox from './LazyMustEatImageLightbox'
+import LazyMustEatImageLightbox from './LazyMustEatImageLightbox';
 
 const rect = {
   width: 100,
@@ -23,12 +24,12 @@ const rect = {
   right: 100,
   bottom: 140,
   toJSON: () => ({}),
-} as DOMRect
+} as DOMRect;
 
 afterEach(() => {
-  cleanup()
-  dynamicComponent.mockClear()
-})
+  cleanup();
+  dynamicComponent.mockClear();
+});
 
 describe('LazyMustEatImageLightbox', () => {
   it('does not mount the dynamic component before an opening starts', () => {
@@ -39,11 +40,11 @@ describe('LazyMustEatImageLightbox', () => {
         alt="Card"
         originRect={null}
         onClose={vi.fn()}
-      />,
-    )
+      />
+    );
 
-    expect(queryByTestId('must-eat-lightbox')).toBeNull()
-    expect(dynamicComponent).not.toHaveBeenCalled()
+    expect(queryByTestId('must-eat-lightbox')).toBeNull();
+    expect(dynamicComponent).not.toHaveBeenCalled();
 
     rerender(
       <LazyMustEatImageLightbox
@@ -52,12 +53,12 @@ describe('LazyMustEatImageLightbox', () => {
         alt="Card"
         originRect={rect}
         onClose={vi.fn()}
-      />,
-    )
+      />
+    );
 
-    expect(queryByTestId('must-eat-lightbox')).not.toBeNull()
-    expect(dynamicComponent).toHaveBeenCalledOnce()
-  })
+    expect(queryByTestId('must-eat-lightbox')).not.toBeNull();
+    expect(dynamicComponent).toHaveBeenCalledOnce();
+  });
 
   it('can stay mounted with a null origin during the fly-back', () => {
     const { queryByTestId } = render(
@@ -67,9 +68,9 @@ describe('LazyMustEatImageLightbox', () => {
         alt="Card"
         originRect={null}
         onClose={vi.fn()}
-      />,
-    )
+      />
+    );
 
-    expect(queryByTestId('must-eat-lightbox')).not.toBeNull()
-  })
-})
+    expect(queryByTestId('must-eat-lightbox')).not.toBeNull();
+  });
+});

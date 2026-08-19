@@ -34,4 +34,4 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   Vegan: 'Vegan',
   Vietnamese: 'Vietnamesisch',
   'Wine Bar': 'Weinbar',
-}
+};

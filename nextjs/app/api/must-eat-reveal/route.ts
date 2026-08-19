@@ -1,24 +1,21 @@
-import { NextResponse } from 'next/server'
-import { getAdminAuth } from '@/lib/firebase/admin'
-import { resolveEntitlements } from '@/lib/firebase/entitlements'
-import { getCachedMapData } from '@/lib/map/cached-sanity'
-import { getFreeSurfaceData } from '@/lib/map/free-surface'
-import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server'
-import {
-  getUnlockedMustEatIds,
-  unlockMustEat,
-} from '@/lib/firebase/unlockedMustEats.server'
-import { checkRateLimit } from '@/lib/buddy/rateLimit'
-import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store'
-import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access'
+import { NextResponse } from 'next/server';
+import { getAdminAuth } from '@/lib/firebase/admin';
+import { resolveEntitlements } from '@/lib/firebase/entitlements';
+import { getCachedMapData } from '@/lib/map/cached-sanity';
+import { getFreeSurfaceData } from '@/lib/map/free-surface';
+import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server';
+import { getUnlockedMustEatIds, unlockMustEat } from '@/lib/firebase/unlockedMustEats.server';
+import { checkRateLimit } from '@/lib/buddy/rateLimit';
+import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
+import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access';
 
 const num = (v: string | undefined, d: number) => {
-  const n = Number(v)
-  return Number.isFinite(n) && n > 0 ? n : d
-}
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : d;
+};
 
-export const dynamic    = 'force-dynamic'
-export const revalidate = 0
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // On-site reveal (50 m): persists the unlock and returns the full must-eat.
 // The map payload ships covered cards stripped (see stripCoveredMustEats), so
@@ -30,24 +27,24 @@ export const revalidate = 0
 // The win is that the content can no longer be bulk-read from the anonymous map
 // payload, and guessed IDs for locked restaurants are rejected server-side.
 export async function POST(req: Request) {
-  const authHeader = req.headers.get('authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
   if (!token) {
-    return NextResponse.json({ error: 'auth required' }, { status: 401 })
+    return NextResponse.json({ error: 'auth required' }, { status: 401 });
   }
 
-  let uid: string
-  let identity: Parameters<typeof resolveEntitlements>[1] = {}
+  let uid: string;
+  let identity: Parameters<typeof resolveEntitlements>[1] = {};
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token)
-    uid = decoded.uid
+    const decoded = await getAdminAuth().verifyIdToken(token);
+    uid = decoded.uid;
     identity = {
-      email:         decoded.email ?? null,
+      email: decoded.email ?? null,
       emailVerified: decoded.email_verified === true,
-      admin:         decoded.admin === true,
-    }
+      admin: decoded.admin === true,
+    };
   } catch {
-    return NextResponse.json({ error: 'invalid token' }, { status: 401 })
+    return NextResponse.json({ error: 'invalid token' }, { status: 401 });
   }
 
   // Per-uid rate limit: a person on a food walk reveals a handful of cards
@@ -57,37 +54,33 @@ export async function POST(req: Request) {
   const limit = await checkRateLimit(`reveal:${uid}`, {
     perMinute: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_MIN, 10),
     perDay: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 80),
-  })
+  });
   if (!limit.allowed) {
-    return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 })
+    return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }
 
-  const body = await req.json().catch(() => null)
-  const mustEatId = typeof body?.mustEatId === 'string' ? body.mustEatId : null
+  const body = await req.json().catch(() => null);
+  const mustEatId = typeof body?.mustEatId === 'string' ? body.mustEatId : null;
   if (!mustEatId) {
-    return NextResponse.json({ error: 'mustEatId required' }, { status: 400 })
+    return NextResponse.json({ error: 'mustEatId required' }, { status: 400 });
   }
 
-  const [
-    { restaurants: all, mustEats: allMustEats },
-    ent,
-    freeSurface,
-    unlockedIds,
-  ] = await Promise.all([
-    getCachedMapData(),
-    resolveEntitlements(uid, identity),
-    getFreeSurfaceData(),
-    getUnlockedMustEatIds(uid),
-  ])
+  const [{ restaurants: all, mustEats: allMustEats }, ent, freeSurface, unlockedIds] =
+    await Promise.all([
+      getCachedMapData(),
+      resolveEntitlements(uid, identity),
+      getFreeSurfaceData(),
+      getUnlockedMustEatIds(uid),
+    ]);
 
-  const mustEat = allMustEats.find((m) => m._id === mustEatId)
+  const mustEat = allMustEats.find((m) => m._id === mustEatId);
   if (!mustEat) {
-    return NextResponse.json({ error: 'unknown must-eat' }, { status: 404 })
+    return NextResponse.json({ error: 'unknown must-eat' }, { status: 404 });
   }
 
-  let accessIds: Set<string>
+  let accessIds: Set<string>;
   if (ent.isAdmin || ent.hasAllBerlin) {
-    accessIds = new Set(allMustEats.map((candidate) => candidate._id))
+    accessIds = new Set(allMustEats.map((candidate) => candidate._id));
   } else {
     const visible = await composeVisibleRestaurants({
       all,
@@ -95,27 +88,24 @@ export async function POST(req: Request) {
       ent,
       uid,
       freeRestaurantIds: freeSurface.restaurantIds,
-    })
-    const visibleRestaurantIds = new Set(visible.restaurants.map((r) => r._id))
+    });
+    const visibleRestaurantIds = new Set(visible.restaurants.map((r) => r._id));
     if (!visibleRestaurantIds.has(mustEat.restaurant._id)) {
-      return NextResponse.json({ error: 'must-eat not available' }, { status: 403 })
+      return NextResponse.json({ error: 'must-eat not available' }, { status: 403 });
     }
     accessIds = new Set([
       ...visible.revealedMustEatIds,
       ...unlockedIds,
       ...ent.mustEatIds,
       mustEatId,
-    ])
+    ]);
   }
 
-  const [hydratedMustEat] = await hydrateAuthorizedMustEats(
-    [mustEat],
-    new Set([mustEatId]),
-  )
-  await unlockMustEat(uid, mustEat)
+  const [hydratedMustEat] = await hydrateAuthorizedMustEats([mustEat], new Set([mustEatId]));
+  await unlockMustEat(uid, mustEat);
 
-  const res = NextResponse.json({ mustEat: hydratedMustEat })
-  res.headers.set('Cache-Control', 'private, no-store')
-  setPremiumAccessCookie(res, accessIds, uid)
-  return res
+  const res = NextResponse.json({ mustEat: hydratedMustEat });
+  res.headers.set('Cache-Control', 'private, no-store');
+  setPremiumAccessCookie(res, accessIds, uid);
+  return res;
 }

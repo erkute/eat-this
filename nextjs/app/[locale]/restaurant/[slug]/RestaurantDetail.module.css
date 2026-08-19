@@ -24,7 +24,8 @@
   --brand-action: var(--detail-red);
   min-height: 100vh;
   min-height: 100dvh;
-  padding: calc(96px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px)) clamp(16px, 4vw, 54px) 0;
+  padding: calc(96px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px))
+    clamp(16px, 4vw, 54px) 0;
   overflow-x: clip;
   background: var(--detail-paper);
   color: var(--detail-ink);
@@ -77,12 +78,12 @@
 
 .breadcrumbWrap :global(a:hover),
 .breadcrumbWrap :global(a:focus-visible),
-.breadcrumbWrap :global([aria-current="page"]) {
+.breadcrumbWrap :global([aria-current='page']) {
   color: var(--detail-red);
   text-decoration: none;
 }
 
-.breadcrumbWrap :global([aria-current="page"]) {
+.breadcrumbWrap :global([aria-current='page']) {
   flex: 0 0 auto;
   max-width: none;
   overflow: visible;
@@ -184,7 +185,7 @@
 .name,
 .orderHead,
 .sibRowHead {
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
 }
 
 .heroName {
@@ -304,8 +305,8 @@
   left: 50%;
   width: 82px;
   height: 20px;
-  background: rgba(255, 255, 255, .62);
-  box-shadow: 0 1px 2px rgba(43, 33, 28, .12);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
   transform: translateX(-50%) rotate(3deg);
 }
 
@@ -597,7 +598,9 @@
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
-  transition: background-color 140ms ease, transform 140ms ease;
+  transition:
+    background-color 140ms ease,
+    transform 140ms ease;
 }
 
 .actPrimary {
@@ -644,10 +647,15 @@
 }
 
 .sibCard::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 28% 0 0;
-  background: linear-gradient(to top, rgba(12, 9, 7, 0.88), rgba(12, 9, 7, 0.48) 48%, rgba(12, 9, 7, 0));
+  background: linear-gradient(
+    to top,
+    rgba(12, 9, 7, 0.88),
+    rgba(12, 9, 7, 0.48) 48%,
+    rgba(12, 9, 7, 0)
+  );
   pointer-events: none;
 }
 
@@ -765,7 +773,12 @@
 
   .heroGradient {
     background:
-      linear-gradient(to top, rgba(13, 10, 7, 0.8), rgba(13, 10, 7, 0.22) 62%, rgba(13, 10, 7, 0.04)),
+      linear-gradient(
+        to top,
+        rgba(13, 10, 7, 0.8),
+        rgba(13, 10, 7, 0.22) 62%,
+        rgba(13, 10, 7, 0.04)
+      ),
       linear-gradient(to right, rgba(13, 10, 7, 0.44), rgba(13, 10, 7, 0) 72%);
   }
 

@@ -2,7 +2,13 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { cleanup, fireEvent, render as renderClient, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render as renderClient,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { translations } from '@/lib/i18n/translations';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';

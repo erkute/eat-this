@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest';
 
-import { getLocationStatus } from './locationStatus'
+import { getLocationStatus } from './locationStatus';
 
 describe('getLocationStatus', () => {
   it('hides the layer when a location is available despite a stale denied error', () => {
@@ -10,9 +10,9 @@ describe('getLocationStatus', () => {
         location: { lat: 52.52, lng: 13.405 },
         locationError: 'denied',
         locateLoading: false,
-      }),
-    ).toEqual({ copy: null, isError: false, canRetry: false })
-  })
+      })
+    ).toEqual({ copy: null, isError: false, canRetry: false });
+  });
 
   it('shows denied as an error when no location is present', () => {
     expect(
@@ -21,13 +21,13 @@ describe('getLocationStatus', () => {
         location: null,
         locationError: 'denied',
         locateLoading: false,
-      }),
+      })
     ).toEqual({
       copy: 'Blockiert. Im Browser erlauben.',
       isError: true,
       canRetry: false,
-    })
-  })
+    });
+  });
 
   it('allows retry for transient location errors', () => {
     expect(
@@ -36,7 +36,7 @@ describe('getLocationStatus', () => {
         location: null,
         locationError: 'timeout',
         locateLoading: false,
-      }),
-    ).toEqual({ copy: 'Standort nicht gefunden', isError: true, canRetry: true })
-  })
-})
+      })
+    ).toEqual({ copy: 'Standort nicht gefunden', isError: true, canRetry: true });
+  });
+});

@@ -1,38 +1,38 @@
-'use client'
-import { useLayoutEffect, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
-import type { MapMustEat } from '@/lib/types'
-import { Link } from '@/i18n/navigation'
-import { formatLocalizedDistance } from '@/lib/map'
-import { useTranslations } from 'next-intl'
-import { useTranslation } from '@/lib/i18n'
-import { pickLocale } from '@/lib/i18n/pickLocale'
-import { normalizeName } from '@/lib/normalizeName'
-import styles from './MapDetails.module.css'
-import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
-import { useSwipePager } from './useSwipePager'
-import { CloseIcon, PagerArrowIcon } from './icons'
+'use client';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import type { MapMustEat } from '@/lib/types';
+import { Link } from '@/i18n/navigation';
+import { formatLocalizedDistance } from '@/lib/map';
+import { useTranslations } from 'next-intl';
+import { useTranslation } from '@/lib/i18n';
+import { pickLocale } from '@/lib/i18n/pickLocale';
+import { normalizeName } from '@/lib/normalizeName';
+import styles from './MapDetails.module.css';
+import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState';
+import { useSwipePager } from './useSwipePager';
+import { CloseIcon, PagerArrowIcon } from './icons';
 
-const CARD_BACK = '/pics/card-back.webp?v=6'
+const CARD_BACK = '/pics/card-back.webp?v=6';
 
 interface Props {
-  mustEat: MapMustEat
-  isUnlocked: boolean
+  mustEat: MapMustEat;
+  isUnlocked: boolean;
   /** True for the brief window after the card lands: the "VERDECKT" stamp
    *  burns away and the name un-blurs into view. */
-  nameBurning?: boolean
-  onClose: () => void
-  onViewRestaurant?: () => void
+  nameBurning?: boolean;
+  onClose: () => void;
+  onViewRestaurant?: () => void;
   /** Global must-eat pager — adjacent cards + page handlers. */
-  prevMustEat?: MapMustEat | null
-  nextMustEat?: MapMustEat | null
+  prevMustEat?: MapMustEat | null;
+  nextMustEat?: MapMustEat | null;
   /** Whether the adjacent cards are revealed — a locked neighbour must NOT
    *  leak its dish name in the pager (it'd spoil the surprise). */
-  prevUnlocked?: boolean
-  nextUnlocked?: boolean
-  onPagePrev?: () => void
-  onPageNext?: () => void
-  state: MustEatDetailState
+  prevUnlocked?: boolean;
+  nextUnlocked?: boolean;
+  onPagePrev?: () => void;
+  onPageNext?: () => void;
+  state: MustEatDetailState;
 }
 
 // Poster sheet: card hero → huge dish name → prose → spot action. Horizontal
@@ -51,10 +51,10 @@ export default function MustEatDetailMobile({
   onPageNext,
   state,
 }: Props) {
-  const { t, lang } = useTranslation()
+  const { t, lang } = useTranslation();
   // Legacy t() can't interpolate ICU values — parametrized keys go through next-intl directly.
-  const tMap = useTranslations('map')
-  const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang)
+  const tMap = useTranslations('map');
+  const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang);
   const {
     distance,
     canUnlock,
@@ -66,68 +66,70 @@ export default function MustEatDetailMobile({
     revealOrigin,
     handleCardClick,
     handleCardZoom,
-  } = state
-  const { name: restaurantName } = mustEat.restaurant
-  const restaurantPhoto = mustEat.restaurant.photo
-  const open = isUnlocked && !revealOrigin
-  const showDistanceMeter = !unlocking && !unlockError && !canUnlock && distance !== null
-  const nameRevealed = open && !nameBurning
-  const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')
-  const dishNameWeight = dishName.replace(/\s+/g, '').length
-  const dishNameSizeClass = dishNameWeight > 22
-    ? styles.fdNameCompact
-    : dishNameWeight > 12
-      ? styles.fdNameLong
-      : ''
-  const closeAction = onViewRestaurant ?? onClose
-  const previousLabel = lang === 'en' ? 'Previous' : 'Zurück'
-  const nextLabel = lang === 'en' ? 'Next' : 'Weiter'
+  } = state;
+  const { name: restaurantName } = mustEat.restaurant;
+  const restaurantPhoto = mustEat.restaurant.photo;
+  const open = isUnlocked && !revealOrigin;
+  const showDistanceMeter = !unlocking && !unlockError && !canUnlock && distance !== null;
+  const nameRevealed = open && !nameBurning;
+  const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered');
+  const dishNameWeight = dishName.replace(/\s+/g, '').length;
+  const dishNameSizeClass =
+    dishNameWeight > 22 ? styles.fdNameCompact : dishNameWeight > 12 ? styles.fdNameLong : '';
+  const closeAction = onViewRestaurant ?? onClose;
+  const previousLabel = lang === 'en' ? 'Previous' : 'Zurück';
+  const nextLabel = lang === 'en' ? 'Next' : 'Weiter';
   const previousName = prevMustEat
     ? prevUnlocked
       ? normalizeName(prevMustEat.dish ?? '') || previousLabel
       : t('mustEats.covered')
-    : previousLabel
+    : previousLabel;
   const nextName = nextMustEat
     ? nextUnlocked
       ? normalizeName(nextMustEat.dish ?? '') || nextLabel
       : t('mustEats.covered')
-    : nextLabel
+    : nextLabel;
 
   // Swipe anywhere on the sheet (hero, name, pager band) pages to the
   // neighbouring must-eat — same gesture as the restaurant detail.
-  const rootRef = useRef<HTMLDivElement>(null)
-  const topCardRef = useRef<HTMLDivElement>(null)
-  const cardEnterDirRef = useRef<'prev' | 'next' | null>(null)
-  const [cardHiddenForPage, setCardHiddenForPage] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null);
+  const topCardRef = useRef<HTMLDivElement>(null);
+  const cardEnterDirRef = useRef<'prev' | 'next' | null>(null);
+  const [cardHiddenForPage, setCardHiddenForPage] = useState(false);
   useLayoutEffect(() => {
-    const target = topCardRef.current
-    const enterDir = cardEnterDirRef.current
-    cardEnterDirRef.current = null
-    setCardHiddenForPage(false)
-    if (!target) return
+    const target = topCardRef.current;
+    const enterDir = cardEnterDirRef.current;
+    cardEnterDirRef.current = null;
+    setCardHiddenForPage(false);
+    if (!target) return;
 
-    target.style.removeProperty('transition')
-    target.style.removeProperty('transform')
+    target.style.removeProperty('transition');
+    target.style.removeProperty('transform');
 
     if (enterDir) {
-      const root = rootRef.current
-      const startX = enterDir === 'next'
-        ? (root?.clientWidth ?? window.innerWidth)
-        : -(root?.clientWidth ?? window.innerWidth)
+      const root = rootRef.current;
+      const startX =
+        enterDir === 'next'
+          ? (root?.clientWidth ?? window.innerWidth)
+          : -(root?.clientWidth ?? window.innerWidth);
 
-      target.style.setProperty('transition', 'none', 'important')
-      target.style.setProperty('transform', `translateX(${startX}px)`, 'important')
-      void target.offsetWidth
+      target.style.setProperty('transition', 'none', 'important');
+      target.style.setProperty('transform', `translateX(${startX}px)`, 'important');
+      void target.offsetWidth;
       window.requestAnimationFrame(() => {
-        target.style.setProperty('transition', 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)', 'important')
-        target.style.setProperty('transform', 'translateX(0)', 'important')
+        target.style.setProperty(
+          'transition',
+          'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+          'important'
+        );
+        target.style.setProperty('transform', 'translateX(0)', 'important');
         window.setTimeout(() => {
-          target.style.removeProperty('transition')
-          target.style.removeProperty('transform')
-        }, 320)
-      })
+          target.style.removeProperty('transition');
+          target.style.removeProperty('transform');
+        }, 320);
+      });
     }
-  }, [mustEat._id])
+  }, [mustEat._id]);
   useSwipePager(rootRef, {
     onPrev: onPagePrev,
     onNext: onPageNext,
@@ -136,24 +138,28 @@ export default function MustEatDetailMobile({
     transformRef: topCardRef,
     animateIn: true,
     flushPage: true,
-  })
+  });
 
   const pageWithCard = (dir: 'prev' | 'next') => {
-    const target = topCardRef.current
-    const root = rootRef.current
-    const page = dir === 'prev' ? onPagePrev : onPageNext
+    const target = topCardRef.current;
+    const root = rootRef.current;
+    const page = dir === 'prev' ? onPagePrev : onPageNext;
     if (!target || !root || !page) {
-      page?.()
-      return
+      page?.();
+      return;
     }
-    const outX = dir === 'next' ? -root.clientWidth : root.clientWidth
-    target.style.setProperty('transition', 'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)', 'important')
-    target.style.setProperty('transform', `translateX(${outX}px)`, 'important')
+    const outX = dir === 'next' ? -root.clientWidth : root.clientWidth;
+    target.style.setProperty(
+      'transition',
+      'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)',
+      'important'
+    );
+    target.style.setProperty('transform', `translateX(${outX}px)`, 'important');
     window.setTimeout(() => {
-      cardEnterDirRef.current = dir
-      flushSync(() => page())
-    }, 220)
-  }
+      cardEnterDirRef.current = dir;
+      flushSync(() => page());
+    }, 220);
+  };
 
   return (
     <div
@@ -166,8 +172,12 @@ export default function MustEatDetailMobile({
       {/* Nachbar-Bilder vorladen, damit beim Swipen die nächste Karte sofort
           komplett dasteht statt nachzuladen (Card-Back der Locked-Karten ist
           eh im Cache). React hoisted die link-Tags in den <head>. */}
-      {prevUnlocked && prevMustEat?.image && <link rel="preload" as="image" href={prevMustEat.image} />}
-      {nextUnlocked && nextMustEat?.image && <link rel="preload" as="image" href={nextMustEat.image} />}
+      {prevUnlocked && prevMustEat?.image && (
+        <link rel="preload" as="image" href={prevMustEat.image} />
+      )}
+      {nextUnlocked && nextMustEat?.image && (
+        <link rel="preload" as="image" href={nextMustEat.image} />
+      )}
       <div className={styles.detailV13Scroll} data-detail-scroll>
         <button
           type="button"
@@ -183,10 +193,28 @@ export default function MustEatDetailMobile({
             reveal in range — flach bleibt wichtig für die Reveal-Fly-Origin). */}
         <div className={styles.fdHeroWrap} data-detail-hero>
           <div className={styles.fdCardStack}>
-            <img className={`${styles.fdStackCard} ${styles.fdStackCardOne}`} src={CARD_BACK} alt="" aria-hidden="true" />
-            <img className={`${styles.fdStackCard} ${styles.fdStackCardTwo}`} src={CARD_BACK} alt="" aria-hidden="true" />
-            <img className={`${styles.fdStackCard} ${styles.fdStackCardThree}`} src={CARD_BACK} alt="" aria-hidden="true" />
-            <div className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}`} ref={topCardRef}>
+            <img
+              className={`${styles.fdStackCard} ${styles.fdStackCardOne}`}
+              src={CARD_BACK}
+              alt=""
+              aria-hidden="true"
+            />
+            <img
+              className={`${styles.fdStackCard} ${styles.fdStackCardTwo}`}
+              src={CARD_BACK}
+              alt=""
+              aria-hidden="true"
+            />
+            <img
+              className={`${styles.fdStackCard} ${styles.fdStackCardThree}`}
+              src={CARD_BACK}
+              alt=""
+              aria-hidden="true"
+            />
+            <div
+              className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}`}
+              ref={topCardRef}
+            >
               {open ? (
                 <button
                   type="button"
@@ -220,7 +248,9 @@ export default function MustEatDetailMobile({
                   }
                   style={{
                     ...(revealOrigin ? { visibility: 'hidden' } : {}),
-                    ['--vibrate-intensity' as string]: tapping ? '2.4' : vibrateIntensity.toFixed(3),
+                    ['--vibrate-intensity' as string]: tapping
+                      ? '2.4'
+                      : vibrateIntensity.toFixed(3),
                   }}
                 >
                   <img src={CARD_BACK} alt={t('mustEats.covered')} />
@@ -288,15 +318,25 @@ export default function MustEatDetailMobile({
                 </div>
               ) : (
                 <p className={styles.fdProximitySub}>
-                  {unlocking
-                    ? t('map.revealSavingHint')
-                    : unlockError
-                      ? t('map.revealRetry')
-                      : canUnlock
-                        ? tMap('proximityTapReveal')
-                        : lang === 'en'
-                          ? <>Get within <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of the spot, then you can reveal the Must Eat.</>
-                          : <>Komm auf <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an den Spot heran, dann kannst du das Must Eat aufdecken.</>}
+                  {unlocking ? (
+                    t('map.revealSavingHint')
+                  ) : unlockError ? (
+                    t('map.revealRetry')
+                  ) : canUnlock ? (
+                    tMap('proximityTapReveal')
+                  ) : lang === 'en' ? (
+                    <>
+                      Get within{' '}
+                      <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of
+                      the spot, then you can reveal the Must Eat.
+                    </>
+                  ) : (
+                    <>
+                      Komm auf{' '}
+                      <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an
+                      den Spot heran, dann kannst du das Must Eat aufdecken.
+                    </>
+                  )}
                 </p>
               )}
             </div>
@@ -325,23 +365,36 @@ export default function MustEatDetailMobile({
 
         {(prevMustEat || nextMustEat) && (
           <div className={styles.fdPager} data-detail-pager aria-label="Must Eat wechseln">
-            <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={() => pageWithCard('prev')}>
-              <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
+            <button
+              type="button"
+              className={styles.fdPagerPrev}
+              disabled={!prevMustEat}
+              onClick={() => pageWithCard('prev')}
+            >
+              <span className={styles.fdPagerArrow}>
+                <PagerArrowIcon />
+              </span>
               <span className={styles.fdPagerCopy}>
                 <span className={styles.fdPagerLabel}>{previousLabel}</span>
                 <span className={styles.fdPagerName}>{previousName}</span>
               </span>
             </button>
-            <button type="button" className={styles.fdPagerNext} disabled={!nextMustEat} onClick={() => pageWithCard('next')}>
+            <button
+              type="button"
+              className={styles.fdPagerNext}
+              disabled={!nextMustEat}
+              onClick={() => pageWithCard('next')}
+            >
               <span className={styles.fdPagerCopy}>
                 <span className={styles.fdPagerLabel}>{nextLabel}</span>
                 <span className={styles.fdPagerName}>{nextName}</span>
               </span>
-              <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
+              <span className={styles.fdPagerArrow}>
+                <PagerArrowIcon />
+              </span>
             </button>
           </div>
         )}
-
       </div>
 
       <div className={`${styles.fdRest} ${styles.fdRestDock}`} aria-hidden={false}>
@@ -363,5 +416,5 @@ export default function MustEatDetailMobile({
         )}
       </div>
     </div>
-  )
+  );
 }

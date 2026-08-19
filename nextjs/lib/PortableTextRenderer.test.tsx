@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { PortableTextRenderer } from './PortableTextRenderer'
-import type { PortableTextBlock, SpotCardBlock } from './types'
+import { describe, it, expect } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { PortableTextRenderer } from './PortableTextRenderer';
+import type { PortableTextBlock, SpotCardBlock } from './types';
 
 function render(blocks: PortableTextBlock[]): string {
-  return renderToStaticMarkup(<PortableTextRenderer blocks={blocks} />)
+  return renderToStaticMarkup(<PortableTextRenderer blocks={blocks} />);
 }
 
 const spotCard = (over: Partial<SpotCardBlock> = {}): PortableTextBlock =>
@@ -17,98 +17,120 @@ const spotCard = (over: Partial<SpotCardBlock> = {}): PortableTextBlock =>
     cuisineType: 'Bakery',
     restaurantPhoto: 'https://cdn/sofi.jpg',
     ...over,
-  }) as unknown as PortableTextBlock
+  }) as unknown as PortableTextBlock;
 
 function para(children: unknown[], markDefs: unknown[] = []): PortableTextBlock {
-  return { _type: 'block', _key: 'b1', style: 'normal', markDefs, children } as unknown as PortableTextBlock
+  return {
+    _type: 'block',
+    _key: 'b1',
+    style: 'normal',
+    markDefs,
+    children,
+  } as unknown as PortableTextBlock;
 }
 
-const link = (key: string, href: string, blank = false) => ({ _key: key, _type: 'link', href, blank })
-const span = (text: string, marks: string[] = []) => ({ _type: 'span', _key: 's' + text, text, marks })
+const link = (key: string, href: string, blank = false) => ({
+  _key: key,
+  _type: 'link',
+  href,
+  blank,
+});
+const span = (text: string, marks: string[] = []) => ({
+  _type: 'span',
+  _key: 's' + text,
+  text,
+  marks,
+});
 
 describe('PortableTextRenderer links', () => {
   it('renders Amato with a plain o', () => {
-    const html = render([
-      para([
-        span('AMATŌ – MATCHA'),
-        span(' und amatō im Text.'),
-      ]),
-    ])
-    expect(html).toContain('AMATO – MATCHA')
-    expect(html).toContain('amato im Text')
-    expect(html).not.toContain('AMATŌ')
-    expect(html).not.toContain('amatō')
-  })
+    const html = render([para([span('AMATŌ – MATCHA'), span(' und amatō im Text.')])]);
+    expect(html).toContain('AMATO – MATCHA');
+    expect(html).toContain('amato im Text');
+    expect(html).not.toContain('AMATŌ');
+    expect(html).not.toContain('amatō');
+  });
 
   it('renders a link annotation as an anchor with the href', () => {
-    const html = render([para([span('SOFI', ['l1']), span(' in Mitte.')], [link('l1', '/map?r=sofi')])])
-    expect(html).toContain('href="/map?r=sofi"')
-    expect(html).toContain('SOFI')
-  })
+    const html = render([
+      para([span('SOFI', ['l1']), span(' in Mitte.')], [link('l1', '/map?r=sofi')]),
+    ]);
+    expect(html).toContain('href="/map?r=sofi"');
+    expect(html).toContain('SOFI');
+  });
 
   it('adds rel=nofollow to internal /map deep-links', () => {
-    const html = render([para([span('Map', ['l1'])], [link('l1', '/map?r=sofi')])])
-    expect(html).toContain('rel="nofollow"')
-  })
+    const html = render([para([span('Map', ['l1'])], [link('l1', '/map?r=sofi')])]);
+    expect(html).toContain('rel="nofollow"');
+  });
 
   it('adds rel=nofollow to /en/map locale deep-links too', () => {
-    const html = render([para([span('Map', ['l1'])], [link('l1', '/en/map?r=sofi')])])
-    expect(html).toContain('rel="nofollow"')
-  })
+    const html = render([para([span('Map', ['l1'])], [link('l1', '/en/map?r=sofi')])]);
+    expect(html).toContain('rel="nofollow"');
+  });
 
   it('does NOT mark a regular internal link as nofollow', () => {
-    const html = render([para([span('Spot', ['l1'])], [link('l1', '/restaurant/sofi')])])
-    expect(html).toContain('href="/restaurant/sofi"')
-    expect(html).not.toContain('rel=')
-  })
+    const html = render([para([span('Spot', ['l1'])], [link('l1', '/restaurant/sofi')])]);
+    expect(html).toContain('href="/restaurant/sofi"');
+    expect(html).not.toContain('rel=');
+  });
 
   it('opens external blank links in a new tab with noopener', () => {
-    const html = render([para([span('Site', ['l1'])], [link('l1', 'https://example.com', true)])])
-    expect(html).toContain('target="_blank"')
-    expect(html).toContain('rel="noopener noreferrer"')
-  })
+    const html = render([para([span('Site', ['l1'])], [link('l1', 'https://example.com', true)])]);
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+  });
 
   it('still renders strong and em marks', () => {
-    const html = render([para([span('bold', ['strong']), span('it', ['em'])])])
-    expect(html).toContain('<strong>bold</strong>')
-    expect(html).toContain('<em>it</em>')
-  })
+    const html = render([para([span('bold', ['strong']), span('it', ['em'])])]);
+    expect(html).toContain('<strong>bold</strong>');
+    expect(html).toContain('<em>it</em>');
+  });
 
   it('renders a link nested with strong (both marks apply)', () => {
-    const html = render([para([span('SOFI', ['strong', 'l1'])], [link('l1', '/map?r=sofi')])])
-    expect(html).toContain('href="/map?r=sofi"')
-    expect(html).toContain('<strong>SOFI</strong>')
-  })
+    const html = render([para([span('SOFI', ['strong', 'l1'])], [link('l1', '/map?r=sofi')])]);
+    expect(html).toContain('href="/map?r=sofi"');
+    expect(html).toContain('<strong>SOFI</strong>');
+  });
 
   it('auto-links the public contact email in plain text', () => {
-    const html = render([para([span('Mail: hello@eatthisdot.com')])])
-    expect(html).toContain('href="mailto:hello@eatthisdot.com"')
-    expect(html).toContain('Mail: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a>')
-  })
+    const html = render([para([span('Mail: hello@eatthisdot.com')])]);
+    expect(html).toContain('href="mailto:hello@eatthisdot.com"');
+    expect(html).toContain('Mail: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a>');
+  });
 
   it('auto-links the public contact email inside strong text', () => {
-    const html = render([para([span('hello@eatthisdot.com', ['strong'])])])
-    expect(html).toContain('<strong><a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></strong>')
-  })
+    const html = render([para([span('hello@eatthisdot.com', ['strong'])])]);
+    expect(html).toContain(
+      '<strong><a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></strong>'
+    );
+  });
 
   it('ignores a dangling mark key with no matching markDef', () => {
-    const html = render([para([span('text', ['ghost'])], [])])
-    expect(html).toContain('text')
-    expect(html).not.toContain('<a')
-  })
-})
+    const html = render([para([span('text', ['ghost'])], [])]);
+    expect(html).toContain('text');
+    expect(html).not.toContain('<a');
+  });
+});
 
 describe('PortableTextRenderer spotCard blocks', () => {
   it('renders a spotCard inline as a map link when renderSpotCard is provided', () => {
     const html = renderToStaticMarkup(
-      <PortableTextRenderer blocks={[spotCard()]} renderSpotCard={(b) => <a href={`/map?r=${b.restaurantSlug}`} rel="nofollow">{b.restaurantName}</a>} />,
-    )
-    expect(html).toContain('href="/map?r=sofi"')
-    expect(html).toContain('rel="nofollow"')
-  })
+      <PortableTextRenderer
+        blocks={[spotCard()]}
+        renderSpotCard={(b) => (
+          <a href={`/map?r=${b.restaurantSlug}`} rel="nofollow">
+            {b.restaurantName}
+          </a>
+        )}
+      />
+    );
+    expect(html).toContain('href="/map?r=sofi"');
+    expect(html).toContain('rel="nofollow"');
+  });
 
   it('skips spotCard blocks when no renderSpotCard prop is passed', () => {
-    const html = render([spotCard()])
-    expect(html).not.toContain('SOFI')
-  })
-})
+    const html = render([spotCard()]);
+    expect(html).not.toContain('SOFI');
+  });
+});

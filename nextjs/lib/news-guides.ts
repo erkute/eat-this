@@ -2,18 +2,18 @@ type NewsGuideSlug =
   | 'beste-fast-food-berlin'
   | 'beste-pizza-berlin'
   | 'beste-cafes-berlin'
-  | 'beste-baeckereien-berlin'
+  | 'beste-baeckereien-berlin';
 
 interface NewsGuideDef {
-  slug: NewsGuideSlug
-  categorySlug: string
-  art: string
-  accent: 'red' | 'yellow' | 'ink' | 'paper'
-  title: { de: string; en: string }
-  shortTitle: { de: string; en: string }
-  intro: { de: string; en: string }
-  promise: { de: string; en: string }
-  mapQuery: string
+  slug: NewsGuideSlug;
+  categorySlug: string;
+  art: string;
+  accent: 'red' | 'yellow' | 'ink' | 'paper';
+  title: { de: string; en: string };
+  shortTitle: { de: string; en: string };
+  intro: { de: string; en: string };
+  promise: { de: string; en: string };
+  mapQuery: string;
 }
 
 export const NEWS_GUIDES: NewsGuideDef[] = [
@@ -42,7 +42,10 @@ export const NEWS_GUIDES: NewsGuideDef[] = [
       de: 'Von neapolitanisch bis New York Slice: die Spots, bei denen Kruste, Hitze und Sauce wirklich stimmen.',
       en: 'From Neapolitan to New York slices: the places where crust, heat and sauce actually land.',
     },
-    promise: { de: 'Für Slice, Date Night und Teig-Nerds.', en: 'For slices, date night and dough nerds.' },
+    promise: {
+      de: 'Für Slice, Date Night und Teig-Nerds.',
+      en: 'For slices, date night and dough nerds.',
+    },
     mapQuery: 'pizza',
   },
   {
@@ -56,7 +59,10 @@ export const NEWS_GUIDES: NewsGuideDef[] = [
       de: 'Kaffee, Kuchen, Frühstück, zweite Verabredung: Cafés, die mehr können als nur einen hübschen Flat White.',
       en: 'Coffee, cake, breakfast, second dates: cafes that do more than a photogenic flat white.',
     },
-    promise: { de: 'Für gute Gespräche und bessere Koffein-Level.', en: 'For better conversations and caffeine levels.' },
+    promise: {
+      de: 'Für gute Gespräche und bessere Koffein-Level.',
+      en: 'For better conversations and caffeine levels.',
+    },
     mapQuery: 'coffee',
   },
   {
@@ -70,11 +76,14 @@ export const NEWS_GUIDES: NewsGuideDef[] = [
       de: 'Croissants, Sauerteig, Zimtschnecken und alles, was morgens gefährlich gute Laune macht.',
       en: 'Croissants, sourdough, buns and everything that makes mornings dangerously good.',
     },
-    promise: { de: 'Früh aufstehen lohnt sich manchmal doch.', en: 'Sometimes getting up early is worth it.' },
+    promise: {
+      de: 'Früh aufstehen lohnt sich manchmal doch.',
+      en: 'Sometimes getting up early is worth it.',
+    },
     mapQuery: 'breakfast',
   },
-]
+];
 
 export function getNewsGuide(slug: string): NewsGuideDef | null {
-  return NEWS_GUIDES.find((guide) => guide.slug === slug) ?? null
+  return NEWS_GUIDES.find((guide) => guide.slug === slug) ?? null;
 }

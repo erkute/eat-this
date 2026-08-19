@@ -91,8 +91,7 @@
 }
 
 .slot:focus-visible {
-  filter:
-    drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1))
+  filter: drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1))
     drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-red) 42%, transparent));
 }
 

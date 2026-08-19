@@ -6,18 +6,18 @@
  * Run from nextjs/:
  *   npm run import:restaurant -- <google-maps-url>
  */
-import { config as loadEnv } from 'dotenv'
-import { createClient } from '@sanity/client'
-import { runImport, ImportError } from './import-from-url'
+import { config as loadEnv } from 'dotenv';
+import { createClient } from '@sanity/client';
+import { runImport, ImportError } from './import-from-url';
 import {
   fetchPlaceContext,
   generateRestaurant,
   type PlaceContext,
-} from './generate-de-descriptions'
-import { translateRestaurant } from './bootstrap-en-translations'
-import { generateRestaurantSeo } from './generate-seo-fields'
+} from './generate-de-descriptions';
+import { translateRestaurant } from './bootstrap-en-translations';
+import { generateRestaurantSeo } from './generate-seo-fields';
 
-loadEnv({ path: '.env.local' })
+loadEnv({ path: '.env.local' });
 
 const sanity = createClient({
   projectId: 'ehwjnjr2',
@@ -25,16 +25,16 @@ const sanity = createClient({
   apiVersion: '2024-01-01',
   token: process.env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
-})
+});
 
 async function main() {
-  const url = process.argv.slice(2).find((arg) => !arg.startsWith('--'))
+  const url = process.argv.slice(2).find((arg) => !arg.startsWith('--'));
   if (!url) {
-    console.error('Usage: npm run import:restaurant -- <google-maps-url>')
-    process.exit(1)
+    console.error('Usage: npm run import:restaurant -- <google-maps-url>');
+    process.exit(1);
   }
 
-  const result = await runImport(url)
+  const result = await runImport(url);
   const source = {
     _id: result.doc._id,
     name: result.matchedName,
@@ -44,36 +44,38 @@ async function main() {
     district: result.doc.district as string | undefined,
     address: result.doc.address as string | undefined,
     categories: result.categoryNames,
-    priceRange: result.doc.priceRange as { min?: number; max?: number; currency?: string } | undefined,
+    priceRange: result.doc.priceRange as
+      | { min?: number; max?: number; currency?: string }
+      | undefined,
     lat: result.doc.lat as number,
     lng: result.doc.lng as number,
     website: result.doc.website as string | undefined,
-  }
+  };
 
-  let placeContext: PlaceContext | null = null
+  let placeContext: PlaceContext | null = null;
   try {
-    placeContext = await fetchPlaceContext(source as Parameters<typeof fetchPlaceContext>[0])
+    placeContext = await fetchPlaceContext(source as Parameters<typeof fetchPlaceContext>[0]);
   } catch (err) {
-    console.warn(`Places context unavailable: ${(err as Error).message}`)
+    console.warn(`Places context unavailable: ${(err as Error).message}`);
   }
 
   const de = await generateRestaurant(
     source as Parameters<typeof generateRestaurant>[0],
-    placeContext,
-  )
+    placeContext
+  );
   const withDe = {
     ...source,
     description: de.description,
     shortDescription: de.shortDescription ?? source.shortDescription,
     tip: de.tip ?? undefined,
-  }
-  const en = await translateRestaurant(withDe as Parameters<typeof translateRestaurant>[0])
+  };
+  const en = await translateRestaurant(withDe as Parameters<typeof translateRestaurant>[0]);
   const seo = await generateRestaurantSeo({
     ...withDe,
     descriptionEn: en.descriptionEn ?? undefined,
-  } as Parameters<typeof generateRestaurantSeo>[0])
+  } as Parameters<typeof generateRestaurantSeo>[0]);
 
-  const publishedId = String(result.doc._id).replace(/^drafts\./, '')
+  const publishedId = String(result.doc._id).replace(/^drafts\./, '');
   // Insider tips remain personally curated. The generator's tip may inform
   // the refined short description, but it is deliberately not published.
   const finalDoc = {
@@ -89,19 +91,19 @@ async function main() {
       metaDescription: seo.metaDescription,
       metaDescriptionEn: seo.metaDescriptionEn,
     },
-  }
+  };
 
-  const created = await sanity.create(finalDoc)
-  console.log(`Published ${result.matchedName}: ${created._id}`)
-  console.log(`Studio: https://eat-this.sanity.studio/structure/restaurant;${created._id}`)
+  const created = await sanity.create(finalDoc);
+  console.log(`Published ${result.matchedName}: ${created._id}`);
+  console.log(`Studio: https://eat-this.sanity.studio/structure/restaurant;${created._id}`);
 }
 
 main().catch((err) => {
   if (err instanceof ImportError) {
-    console.error(err.message)
-    if (err.hint) console.error(err.hint)
+    console.error(err.message);
+    if (err.hint) console.error(err.hint);
   } else {
-    console.error(err)
+    console.error(err);
   }
-  process.exit(1)
-})
+  process.exit(1);
+});

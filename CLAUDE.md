@@ -21,9 +21,9 @@ Re-confirm only if the change crosses obvious module boundaries.
 land what is already open, then write the handoff prompt — do not start "just
 one more quick point" below that line.
 
-Landing means: commit, push, PR, CI green, and the plan document updated for
-what this round actually shipped. Then write the next session a prompt that
-carries:
+Landing means: commit, push, PR, CI green, the shrink pass below done, and the
+plan document updated for what this round actually shipped. Then write the next
+session a prompt that carries:
 
 - **The deployment state in the exact words** from the Staging branch workflow
   section below — `committed` / `pushed` / `PR` / `rollout succeeded` /
@@ -41,6 +41,38 @@ re-deriving.
 
 The percentage is a target, not a reading — approximate it and err early. A
 natural task boundary just below the line beats an exact 40% mid-task.
+
+## Shrink the code before you hand it over
+
+Every handoff includes a pass over what this round wrote: **cut it down**. Code
+that could be 100 lines does not get to be 1000.
+
+What that pass actually looks for, in order of what it keeps finding here:
+
+- **The third copy.** Two similar blocks are usually fine; the third is the
+  signal to extract. Watch for it especially when a round ADDS a variant of
+  something that already existed twice — that is how four byte-identical copies
+  of a workaround happen, each with its own copy of the comment explaining it.
+- **Code that restates the stylesheet.** An inline `position: relative` on an
+  element whose module class already sets it, a wrapper div a `display: grid`
+  would have handled.
+- **Abstractions with one caller.** A helper, prop or option added "for the next
+  case" that never came. Delete it; the next case can add it back and will know
+  its own requirements better.
+- **Comments that repeat the code.** Comments here earn their place by saying
+  WHY — a measurement, a browser bug, a decision that looks wrong without its
+  reason. A comment restating what the line does is more to keep in sync.
+
+Two rules for the pass itself:
+
+- **Do it before the PR, not after.** A branch that ships bloat and cleans it in
+  a follow-up has paid for the bloat twice, in review and in the extra PR.
+- **Verify the shrink, don't assume it.** Re-run the tests AND the round's own
+  measurement — a refactor that keeps the tests green can still change rendered
+  markup. If the numbers move, the shrink changed behaviour.
+
+Shorter is not the same as denser. Do not buy line count with unreadable
+one-liners, dropped names, or comments that were carrying a reason.
 
 ## Git Hygiene (parallel sessions)
 

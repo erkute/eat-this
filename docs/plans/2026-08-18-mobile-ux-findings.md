@@ -7,18 +7,30 @@ Rolle: hungrig, 20–40, sucht abends in Berlin was zu essen.
 **Erledigt** (PR #337 → staging, PR #338 → main): Order-Block-Overflow,
 Drop-Cap-Balken, Zurück-Geste auf der Map. Nicht mehr anfassen.
 
-**Auf `staging`** (gemerged, CI grün, **nicht** auf Produktion; der
-App-Hosting-Rollout ist nicht verifiziert): 1.1 Empty State (PR #347), 1.2
-Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots als Punkte
-(PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet das Sheet
-(PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359), 2.1 Pack-
-Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362).
+**Auf `staging`**, gemerged und CI grün, **nicht auf Produktion**: 1.1 Empty
+State (PR #347), 1.2 Aktionen auf der Detailseite (PR #348), 2.4 gesperrte Spots
+als Punkte (PR #351), 2.3 Free-Tier erklärt (PR #352), gesperrter Punkt öffnet
+das Sheet (PR #353), 1.4 Clustering (PR #354), 1.3 „Rund um Mitte" (PR #359),
+2.1 Pack-Inhalt als Zahl (PR #360), 2.2 Bundle-Ersparnis (PR #362), 2.5
+kuratierte Spots ohne Must Eat (PR #365), toter-Key-Sweep (PR #366).
 
-**Auf `staging` gemergt, Rollout nicht verifiziert**: 2.5 kuratierte Spots ohne
-Must Eat (PR #365) — die Hälfte, die Code war; die andere Hälfte ist
-redaktionell, siehe dort.
+**Rollout und Smoke, Stand 2026-08-19 11:06 — gilt bis einschließlich 2.1**
+(Commit `73087a33`): `rollout succeeded` und `smoke-tested`. Build
+`build-2026-08-19-008` steht auf `READY`, sein `source.codebase.hash` ist
+identisch mit dem damaligen Branch-Tip. Geprüft: alle Kernrouten 200, 410 für
+dauerhaft geschlossene Spots, Basic-Auth-Gate hält (ohne Auth, falsches Passwort
+und falscher User je 401), `x-robots-tag: noindex, nofollow`, CSP als
+Report-Only, `robots.txt` mit `Disallow: /`, kein `pk_live_`, und die
+Firebase-Boundary lädt die Staging-Config statt der Produktions-Config. Auf der
+Startseite steht „Rund um Mitte" ohne Gehzeiten (1.3), auf `/packs` die
+Spot-Zahlen (2.1).
 
-**In PR** (→ staging): toter-Key-Sweep (PR #366), Notiz unter 1.3.
+**2.2 (PR #362), 2.5 (PR #365) und der toter-Key-Sweep (PR #366) sind danach
+gemerged — ihr Rollout ist in diesem Eintrag nicht mitverifiziert.** Wer das
+nachholt: die Prozedur steht in `.claude/skills/deploy-verify/SKILL.md`. Kurz,
+weil es hier schon einmal danebenging: mehrere Merges lösen mehrere Rollouts
+aus, die seriell laufen, und der Backend-Zeitstempel wird schon nach dem
+**ersten** frisch. Nur der Quell-Commit des **letzten** Builds beweist etwas.
 
 Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
 Punkt.

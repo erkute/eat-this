@@ -1,6 +1,6 @@
 'use client';
-import { memo, useCallback } from 'react';
-import { Marker, type MarkerInstance } from 'react-map-gl/maplibre';
+import { memo } from 'react';
+import MarkerButton from './MarkerButton';
 import styles from './MapMarkers.module.css';
 
 interface LockedClusterMarkerProps {
@@ -30,45 +30,23 @@ function dotSize(count: number): number {
  * spot (that is PR #353); a group has no single spot to open.
  */
 function LockedClusterMarker({ lat, lng, count, label, onClick }: LockedClusterMarkerProps) {
-  const setMarkerRef = useCallback((marker: MarkerInstance | null) => {
-    const el = marker?.getElement();
-    if (!el) return;
-    el.setAttribute('role', 'presentation');
-    el.removeAttribute('aria-label');
-  }, []);
-
   return (
-    <Marker
-      ref={setMarkerRef}
-      longitude={lng}
-      latitude={lat}
+    <MarkerButton
+      lat={lat}
+      lng={lng}
       anchor="center"
-      className={styles.markerRoot}
-      onClick={(e) => {
-        e.originalEvent.stopPropagation();
-        onClick();
-      }}
+      rootClassName={styles.markerRoot}
+      className={styles.pinLocked}
+      label={label}
+      onActivate={onClick}
+      clusterCount={count}
     >
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={label}
-        data-cluster={count}
-        className={styles.pinLocked}
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
-          event.preventDefault();
-          event.stopPropagation();
-          onClick();
-        }}
-      >
-        <span
-          className={styles.pinLockedDot}
-          aria-hidden="true"
-          style={{ '--locked-dot-size': `${dotSize(count)}px` } as React.CSSProperties}
-        />
-      </div>
-    </Marker>
+      <span
+        className={styles.pinLockedDot}
+        aria-hidden="true"
+        style={{ '--locked-dot-size': `${dotSize(count)}px` } as React.CSSProperties}
+      />
+    </MarkerButton>
   );
 }
 

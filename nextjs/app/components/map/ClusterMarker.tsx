@@ -1,6 +1,6 @@
 'use client';
-import { memo, useCallback } from 'react';
-import { Marker, type MarkerInstance } from 'react-map-gl/maplibre';
+import { memo } from 'react';
+import MarkerButton from './MarkerButton';
 import styles from './MapMarkers.module.css';
 
 interface ClusterMarkerProps {
@@ -34,61 +34,34 @@ function ClusterMarker({
   onClick,
   enterDelayMs = null,
 }: ClusterMarkerProps) {
-  const className = [
-    styles.pinCluster,
-    // Reused from the single pin so the Must Eat badge stays one rule.
-    hasMustEat && styles.pinLogoHasMust,
-    enterDelayMs !== null && styles.pinLogoEnter,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  // Same wrapper de-duplication as RestaurantMarker: MapLibre stamps its own
-  // role="button" + aria-label on the wrapper after mount, which would
-  // announce every cluster as two nested buttons.
-  const setMarkerRef = useCallback((marker: MarkerInstance | null) => {
-    const el = marker?.getElement();
-    if (!el) return;
-    el.setAttribute('role', 'presentation');
-    el.removeAttribute('aria-label');
-  }, []);
-
   return (
-    <Marker
-      ref={setMarkerRef}
-      longitude={lng}
-      latitude={lat}
+    <MarkerButton
+      lat={lat}
+      lng={lng}
       anchor="bottom"
-      className={`${styles.markerRoot} ${styles.markerRootFree}`}
-      onClick={(e) => {
-        e.originalEvent.stopPropagation();
-        onClick();
-      }}
+      rootClassName={`${styles.markerRoot} ${styles.markerRootFree}`}
+      className={[
+        styles.pinCluster,
+        // Reused from the single pin so the Must Eat badge stays one rule.
+        hasMustEat && styles.pinLogoHasMust,
+        enterDelayMs !== null && styles.pinLogoEnter,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      label={label}
+      onActivate={onClick}
+      clusterCount={count}
+      style={
+        enterDelayMs !== null
+          ? ({ '--pin-enter-delay': `${enterDelayMs}ms` } as React.CSSProperties)
+          : undefined
+      }
     >
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={label}
-        data-cluster={count}
-        className={className}
-        style={
-          enterDelayMs !== null
-            ? ({ '--pin-enter-delay': `${enterDelayMs}ms` } as React.CSSProperties)
-            : undefined
-        }
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
-          event.preventDefault();
-          event.stopPropagation();
-          onClick();
-        }}
-      >
-        <span className={styles.pinClusterShape} aria-hidden="true" />
-        <span className={styles.pinClusterCount} aria-hidden="true">
-          {count}
-        </span>
-      </div>
-    </Marker>
+      <span className={styles.pinClusterShape} aria-hidden="true" />
+      <span className={styles.pinClusterCount} aria-hidden="true">
+        {count}
+      </span>
+    </MarkerButton>
   );
 }
 

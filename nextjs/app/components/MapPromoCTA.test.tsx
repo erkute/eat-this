@@ -68,7 +68,12 @@ describe('MapPromoCTA', () => {
     });
     expect(html).toContain('href="/map?r=cocolo"');
     expect(html).toContain('<span>The map for people</span> <span>who care about food.</span>');
-    expect(html).toContain('Mit den besten Restaurants, Cafés und Bars in Berlin.');
+    expect(html).toContain(
+      'Cocolo liegt auf der Eat This Map — zusammen mit weiteren kuratierten Restaurants, Cafés und Bars in Berlin.'
+    );
+    // The map screenshot is what makes the banner an invitation instead of a
+    // black slab of type — regressing to a text-only CTA should fail here.
+    expect(html).toContain('map_app.webp');
   });
 
   it('chip variant renders an inline yellow pill (title + nofollow deep-link, no section heading)', () => {
@@ -83,5 +88,18 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('rel="nofollow"');
     expect(html).toContain('Ganz Mitte auf der Map');
     expect(html).not.toContain('<h2');
+  });
+
+  it('chip variant uses a short neutral label — no slogan, no restaurant name', () => {
+    const html = render({
+      kind: 'restaurant',
+      name: 'Bari',
+      mapHref: '/map?r=bari',
+      locale: 'en',
+      variant: 'chip',
+    });
+    expect(html).toContain('Open on the map');
+    expect(html).not.toContain('Bari');
+    expect(html).not.toContain('The map for people who care about food.');
   });
 });

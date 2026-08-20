@@ -30,6 +30,56 @@ const DAY_MAP: Record<string, DayIndex> = {
   saturday: 6,
 };
 
+// Indexed to match DayIndex (0 = Sunday).
+const DAY_LABELS = {
+  de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+} as const;
+
+/**
+ * `days` is free text an editor typed into Sanity ("Mon-Thu", "Mo–So",
+ * "Wed,Thu,Sun "), so the German page was showing English abbreviations.
+ * Tokens that map to a weekday get the locale's label; anything unrecognised
+ * is passed through untouched rather than dropped.
+ */
+export function localizeOpeningDays(days: string | undefined, locale: string): string {
+  const lang = locale === 'en' ? 'en' : 'de';
+  const labels = DAY_LABELS[lang];
+  const raw = (days ?? '').trim();
+  if (!raw) return '';
+  if (/^(daily|täglich)$/i.test(raw)) return lang === 'en' ? 'Daily' : 'Täglich';
+  return raw
+    .split(',')
+    .map((group) =>
+      group
+        .trim()
+        .split(/\s*[–-]\s*/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) => {
+          const idx = DAY_MAP[part.toLowerCase()];
+          return idx === undefined ? part : labels[idx];
+        })
+        .join('–')
+    )
+    .filter(Boolean)
+    .join(', ');
+}
+
+/** Same treatment for the time column: "closed" and the run-together "24Stundengeöffnet". */
+export function localizeOpeningHours(hours: string | undefined, locale: string): string {
+  const lang = locale === 'en' ? 'en' : 'de';
+  const raw = (hours ?? '').trim();
+  if (!raw) return '';
+  if (/closed|ruhetag|geschlossen/i.test(raw)) return lang === 'en' ? 'closed' : 'geschlossen';
+  if (
+    /^24\s*(stunden?|hours?|h)?\s*(geöffnet|offen|open)?$|^24\/7$/i.test(raw.replace(/\s+/g, ' '))
+  ) {
+    return lang === 'en' ? 'Open 24 hours' : '24 Stunden geöffnet';
+  }
+  return raw;
+}
+
 function parseDays(str: string): DayIndex[] {
   if (/daily|täglich/i.test(str)) return [0, 1, 2, 3, 4, 5, 6];
   const result: DayIndex[] = [];

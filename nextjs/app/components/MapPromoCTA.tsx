@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import MapIntentLink from './MapIntentLink';
 import styles from './MapPromoCTA.module.css';
 
@@ -15,7 +16,13 @@ interface Props {
 
 // All map-promo wording lives here — single place to wordsmith. Brand voice:
 // declarative, no "gratis/free", no spot counts, no cheesy framing.
-function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { title: string; sub: string } {
+// `chipTitle` overrides the headline in the slim pill, where the restaurant
+// slogan is far too long to read as a label.
+function getCopy(
+  kind: Kind,
+  name: string,
+  locale: 'de' | 'en'
+): { title: string; sub: string; chipTitle?: string } {
   const de = locale === 'de';
   switch (kind) {
     case 'restaurant':
@@ -23,11 +30,13 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { title: string
       return de
         ? {
             title: 'The map for people who care about food.',
-            sub: 'Mit den besten Restaurants, Cafés und Bars in Berlin.',
+            sub: `${name} liegt auf der Eat This Map — zusammen mit weiteren kuratierten Restaurants, Cafés und Bars in Berlin.`,
+            chipTitle: 'Auf der Map öffnen',
           }
         : {
             title: 'The map for people who care about food.',
-            sub: 'With the best restaurants, cafés and bars in Berlin.',
+            sub: `${name} is on the Eat This map — along with more curated restaurants, cafés and bars in Berlin.`,
+            chipTitle: 'Open on the map',
           };
     case 'bezirk':
       return de
@@ -58,14 +67,15 @@ const arrow = (
 );
 
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
-  const { title, sub } = getCopy(kind, name, locale);
+  const { title, sub, chipTitle } = getCopy(kind, name, locale);
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map';
   const isRestaurant = kind === 'restaurant';
 
   if (variant === 'chip') {
+    const label = chipTitle ?? title;
     return (
-      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={title}>
-        <span>{title}</span>
+      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={label}>
+        <span>{label}</span>
         {arrow}
       </MapIntentLink>
     );
@@ -73,22 +83,37 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
 
   return (
     <section className={styles.promo} aria-label={title}>
-      <h2 className={`${styles.title} ${isRestaurant ? styles.titleRestaurant : ''}`}>
-        {isRestaurant ? (
-          <>
-            <span>The map for people</span> <span>who care about food.</span>
-          </>
-        ) : (
-          title
-        )}
-      </h2>
-      <p className={styles.sub}>{sub}</p>
-      {/* rel="nofollow" — /map is noindex; without it Google enumerates every
-          ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}
-      <MapIntentLink href={mapHref} rel="nofollow" className={styles.cta}>
-        <span>{ctaLabel}</span>
-        {arrow}
-      </MapIntentLink>
+      <div className={styles.copy}>
+        <h2 className={`${styles.title} ${isRestaurant ? styles.titleRestaurant : ''}`}>
+          {isRestaurant ? (
+            <>
+              <span>The map for people</span> <span>who care about food.</span>
+            </>
+          ) : (
+            title
+          )}
+        </h2>
+        <p className={styles.sub}>{sub}</p>
+        {/* rel="nofollow" — /map is noindex; without it Google enumerates every
+            ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}
+        <MapIntentLink href={mapHref} rel="nofollow" className={styles.cta}>
+          <span>{ctaLabel}</span>
+          {arrow}
+        </MapIntentLink>
+      </div>
+      {/* The map IS the product — a black slab of type sold it badly. The
+          device shot bleeds off the bottom edge so the banner reads as a
+          window into the app rather than a poster about it. */}
+      <div className={styles.shot} aria-hidden="true">
+        <Image
+          src="/pics/map-teaser/map_app.webp"
+          alt=""
+          width={855}
+          height={1736}
+          sizes="(max-width: 719px) 62vw, 360px"
+          className={styles.shotImg}
+        />
+      </div>
     </section>
   );
 }

@@ -19,22 +19,29 @@ import {
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
 import { normalizeName } from '@/lib/normalizeName';
-import { hasAmbiguousDropCap } from '@/lib/dropCap';
+import { shouldSkipDropCap } from '@/lib/dropCap';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose';
-import { getOpenStatus } from '@/lib/map/openingHours';
+import { getOpenStatus, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
 import HeartCount from '@/app/components/HeartCount';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
-import MapIntentLink from '@/app/components/MapIntentLink';
 import ShareButton from '@/app/components/ShareButton';
 import RestaurantFAQ from '@/app/components/RestaurantFAQ';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import { Link as IntlLink } from '@/i18n/navigation';
+import {
+  RouteIcon,
+  ReserveIcon,
+  PhoneIcon,
+  WebsiteIcon,
+  MenuCardIcon,
+  ShareIcon,
+} from './actionIcons';
 import styles from './RestaurantDetail.module.css';
 
 interface PageProps {
@@ -202,23 +209,13 @@ export default async function RestaurantPage({ params }: PageProps) {
   const faqEntries = buildFAQEntries(r, loc);
   const orderItems = (r.whatToOrder ?? []).filter((i) => i?.dish?.trim());
   const heroAssetKey = imageAssetKey(r.photo);
-  const galleryImages = [
-    ...(r.photo
-      ? [
-          {
-            _key: `${r._id}-hero`,
-            thumb: r.photo,
-            full: r.photo,
-            alt: r.name,
-            credit: r.photoCredit,
-            creditUrl: r.photoCreditUrl,
-          },
-        ]
-      : []),
-    ...(r.gallery ?? [])
-      .filter((img) => img?.thumb && img?.full)
-      .filter((img) => imageAssetKey(img.full) !== heroAssetKey),
-  ];
+  // The hero photo is NOT a gallery item. It used to be prepended here, which
+  // showed the same picture twice on every spot that has no extra gallery
+  // images (Bari et al.) — header photo, then the identical "gallery".
+  const galleryImages = (r.gallery ?? [])
+    .filter((img) => img?.thumb && img?.full)
+    .filter((img) => imageAssetKey(img.full) !== heroAssetKey);
+  const heroCreditHref = safeCreditUrl(r.photoCreditUrl);
 
   const openStatus =
     r.openingHours && r.openingHours.length > 0
@@ -242,6 +239,28 @@ export default async function RestaurantPage({ params }: PageProps) {
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
     : (r.mapsUrl ?? null);
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
+
+  // Rendered inside the hero photo (or next to the name when there is none).
+  const heroTags = [
+    r.bezirk?.name ? (
+      <span key="district" className={styles.chip}>
+        {r.bezirk.name}
+      </span>
+    ) : null,
+    r.cuisineType ? (
+      <span key="cuisine" className={styles.chipAlt}>
+        {r.cuisineType}
+      </span>
+    ) : null,
+    openStatus ? (
+      <span
+        key="open"
+        className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}
+      >
+        {openStatus.label}
+      </span>
+    ) : null,
+  ].filter(Boolean);
 
   const homeLabel = de ? 'Start' : 'Home';
   const districtsLabel = de ? 'Bezirke' : 'Districts';
@@ -281,7 +300,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         </div>
 
         <header className={r.photo ? styles.hero : styles.heroNoPhoto}>
-          {r.photo && (
+          {r.photo ? (
             <figure className={styles.heroPhoto}>
               <Image
                 src={r.photo}
@@ -302,31 +321,45 @@ export default async function RestaurantPage({ params }: PageProps) {
                 district={r.bezirk?.name ?? undefined}
                 locale={loc}
               />
+              {r.photoCredit && (
+                <span className={styles.heroCredit}>
+                  {heroCreditHref ? (
+                    <a href={heroCreditHref} target="_blank" rel="noopener noreferrer">
+                      {r.photoCredit}
+                    </a>
+                  ) : (
+                    r.photoCredit
+                  )}
+                </span>
+              )}
+              {/* District / cuisine / open-state ride on the photo instead of
+                  sitting in a stray white strip underneath it. */}
               <figcaption className={styles.heroCaption}>
+                {heroTags.length > 0 && <div className={styles.heroTags}>{heroTags}</div>}
                 <h1 className={styles.heroName}>{displayName}</h1>
               </figcaption>
             </figure>
+          ) : (
+            <div className={styles.heroOverlay}>
+              <h1 className={styles.name}>{displayName}</h1>
+              {heroTags.length > 0 && <div className={styles.heroTags}>{heroTags}</div>}
+            </div>
           )}
 
-          <div className={styles.heroOverlay}>
-            {!r.photo && <h1 className={styles.name}>{displayName}</h1>}
-            <div className={styles.heroTags}>
-              {r.bezirk?.name && <span className={styles.chip}>{r.bezirk.name}</span>}
-              {r.cuisineType && <span className={styles.chipAlt}>{r.cuisineType}</span>}
-              {openStatus && (
-                <span
-                  className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}
-                >
-                  {openStatus.label}
-                </span>
-              )}
-            </div>
+          <div className={styles.heroMapLine}>
+            <MapPromoCTA
+              kind="restaurant"
+              name={displayName}
+              mapHref={mapHref}
+              locale={loc}
+              variant="chip"
+            />
           </div>
         </header>
 
         {description && (
           <article className={styles.story}>
-            <p className={`${styles.lede} ${hasAmbiguousDropCap(lede) ? styles.ledePlain : ''}`}>
+            <p className={`${styles.lede} ${shouldSkipDropCap(lede) ? styles.ledePlain : ''}`}>
               {lede}
             </p>
             {magazine?.paragraphsBefore.map((p, i) => (
@@ -445,10 +478,10 @@ export default async function RestaurantPage({ params }: PageProps) {
               <dd className={`${styles.factsVal} ${styles.hours}`}>
                 {r.openingHours.map((slot, i) => [
                   <span key={`d-${i}`} className={styles.hoursDay}>
-                    {slot.days}
+                    {localizeOpeningDays(slot.days, loc)}
                   </span>,
                   <span key={`t-${i}`} className={styles.hoursTime}>
-                    {slot.hours}
+                    {localizeOpeningHours(slot.hours, loc)}
                   </span>,
                 ])}
               </dd>
@@ -462,48 +495,42 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
+        {/* One wrapping row where every item grows, so the last line fills the
+            width instead of trailing off half-empty. Six identical black slabs
+            read as a wall, so the row runs in three weights — go there (red),
+            book a table (solid), everything else outlined — and each action
+            carries its own glyph.
+            "Open on the map" is deliberately not here — the map gets its own
+            block below rather than a small button in the pile. */}
         <div className={styles.acts}>
-          {/* Route / call / share share one row — they are the three things a
-              hungry visitor does next, and six stacked full-width buttons at
-              375px is a wall. The rest stay stacked below. */}
-          <div className={styles.actsRow}>
-            {mapsHref && (
-              <a
-                className={`${styles.act} ${styles.actPrimary}`}
-                href={mapsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {de ? 'Route' : 'Directions'}
-              </a>
-            )}
-            {telHref && (
-              <a className={styles.act} href={telHref}>
-                {de ? 'Anrufen' : 'Call'}
-              </a>
-            )}
-            <ShareButton
-              title={r.name}
-              slug={slug}
-              contentType="restaurant"
-              className={styles.act}
-              label={de ? 'Teilen' : 'Share'}
-              copiedLabel={de ? 'Kopiert' : 'Copied'}
-            />
-          </div>
+          {mapsHref && (
+            <a
+              className={`${styles.act} ${styles.actPrimary}`}
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <RouteIcon />
+              <span>{de ? 'Route' : 'Directions'}</span>
+            </a>
+          )}
           {r.reservationUrl && (
             <a
-              className={styles.act}
+              className={`${styles.act} ${styles.actStrong}`}
               href={r.reservationUrl}
               target="_blank"
               rel="noopener nofollow noreferrer"
             >
-              {de ? 'Reservieren' : 'Reserve'}
+              <ReserveIcon />
+              <span>{de ? 'Reservieren' : 'Reserve'}</span>
             </a>
           )}
-          <MapIntentLink href={mapHref} rel="nofollow" className={styles.act}>
-            {de ? 'Auf der Map öffnen' : 'Open on the map'}
-          </MapIntentLink>
+          {telHref && (
+            <a className={styles.act} href={telHref}>
+              <PhoneIcon />
+              <span>{de ? 'Anrufen' : 'Call'}</span>
+            </a>
+          )}
           {websiteUrl && (
             <a
               className={styles.act}
@@ -511,7 +538,8 @@ export default async function RestaurantPage({ params }: PageProps) {
               target="_blank"
               rel="noopener nofollow noreferrer"
             >
-              Website
+              <WebsiteIcon />
+              <span>Website</span>
             </a>
           )}
           {r.menuUrl && (
@@ -521,14 +549,24 @@ export default async function RestaurantPage({ params }: PageProps) {
               target="_blank"
               rel="noopener nofollow noreferrer"
             >
-              {de ? 'Speisekarte' : 'Menu'}
+              <MenuCardIcon />
+              <span>{de ? 'Speisekarte' : 'Menu'}</span>
             </a>
           )}
+          <ShareButton
+            title={r.name}
+            slug={slug}
+            contentType="restaurant"
+            className={styles.act}
+            label={de ? 'Teilen' : 'Share'}
+            copiedLabel={de ? 'Kopiert' : 'Copied'}
+            icon={<ShareIcon />}
+          />
         </div>
 
         {mustEats.length > 0 && <MustEatTeaserSection mustEats={mustEats} locale={loc} />}
 
-        <MapPromoCTA kind="restaurant" name={r.name} mapHref={mapHref} locale={loc} />
+        <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
 
         <RestaurantFAQ entries={faqEntries} locale={loc} />
 

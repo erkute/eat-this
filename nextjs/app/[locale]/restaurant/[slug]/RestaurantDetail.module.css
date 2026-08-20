@@ -43,6 +43,7 @@
   margin-bottom: 0;
 }
 
+/* Same breadcrumb as the news article: Providence, not mono. */
 .breadcrumbWrap :global(ol) {
   display: flex;
   flex-wrap: nowrap;
@@ -52,10 +53,10 @@
   padding: 0;
   border: 0;
   color: var(--detail-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  font-family: var(--f-display);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0;
   line-height: 1.2;
   text-transform: uppercase;
   overflow-x: auto;
@@ -146,8 +147,40 @@
   bottom: 0;
   left: 0;
   z-index: 2;
+  display: grid;
+  justify-items: start;
+  gap: clamp(12px, 1.6vw, 18px);
   width: min(100%, 920px);
   padding: clamp(24px, 5vw, 58px);
+}
+
+/* Photo credit — bottom right, clear of the heart controls and the caption. */
+.heroCredit {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  z-index: 3;
+  max-width: calc(50% - 24px);
+  padding: 4px 8px 5px;
+  background: rgba(13, 10, 7, 0.5);
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.heroCredit a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Early map entry point, directly under the opener. */
+.heroMapLine {
+  width: min(100%, 900px);
+  margin-inline: auto;
 }
 
 .heroOverlay {
@@ -206,15 +239,15 @@
 .chipAlt,
 .chipOpen,
 .chipClosed {
-  min-height: 32px;
+  min-height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px 9px;
+  padding: 7px 12px 8px;
   background: var(--detail-quiet);
   color: var(--detail-ink);
   font-family: var(--f-display);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.04;
@@ -233,6 +266,26 @@
 
 .chipClosed {
   color: var(--detail-muted);
+}
+
+/* On the photo the flat light chips would disappear into the gradient, so the
+   neutral ones become glass and the state chips keep their colour coding. */
+.heroCaption .chipAlt {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.heroCaption .chipOpen {
+  background: #fff;
+  color: var(--detail-ink);
+}
+
+.heroCaption .chipClosed {
+  background: rgba(13, 10, 7, 0.55);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .story,
@@ -273,7 +326,14 @@
   line-height: 0.68;
 }
 
-/* No drop cap when the initial is a bare stroke — see lib/dropCap.ts. */
+/* Belt and braces: even if a cap does render, the next paragraph starts on a
+   fresh line instead of wrapping into the float. */
+.story .lede + p {
+  clear: left;
+}
+
+/* No drop cap when the initial is a bare stroke or the lede is too short to
+   wrap around one — see lib/dropCap.ts. */
 .lede.ledePlain::first-letter {
   float: none;
   margin: 0;
@@ -313,7 +373,9 @@
 .gallery {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  grid-auto-rows: minmax(170px, 1fr);
+  /* Fixed rows, not aspect-ratio'd tiles: a 4/3 tile is shorter than its row
+     and leaves a hole next to the tall opener. */
+  grid-auto-rows: clamp(170px, 21vw, 250px);
   gap: clamp(10px, 1.8vw, 16px);
   margin-bottom: clamp(38px, 7vw, 82px);
 }
@@ -322,7 +384,6 @@
   position: relative;
   min-width: 0;
   min-height: 0;
-  aspect-ratio: 4 / 3;
   margin: 0;
   overflow: hidden;
   background: var(--detail-quiet);
@@ -330,7 +391,12 @@
 
 .galleryItem:first-child {
   grid-row: span 2;
-  aspect-ratio: auto;
+}
+
+/* Exactly two images read better as an even pair than tall + short + hole. */
+.galleryItem:first-child:nth-last-child(2),
+.galleryItem:first-child:nth-last-child(2) ~ .galleryItem {
+  grid-row: auto;
 }
 
 .galleryItem:only-child {
@@ -375,6 +441,24 @@
   gap: clamp(18px, 3vw, 34px);
   align-items: stretch;
   margin-bottom: clamp(36px, 6vw, 78px);
+}
+
+/* Spots without a whatToOrder list (most of them) left the right half of the
+   row blank next to a narrow tip column. Alone, the tip takes the full width
+   and reads as a pull-quote instead of a leftover. */
+.editorialGrid > :only-child {
+  grid-column: 1 / -1;
+}
+
+.tipp:only-child {
+  align-content: center;
+  padding: clamp(28px, 5vw, 52px);
+}
+
+.tipp:only-child .tippText {
+  max-width: 22ch;
+  font-size: clamp(24px, 3.4vw, 44px);
+  line-height: 1.06;
 }
 
 .tipp,
@@ -559,37 +643,37 @@
   color: var(--detail-ink);
 }
 
+/* Every button grows, so a wrapped last line still spans the full width —
+   no more short black buttons trailing off to the left. */
 .acts {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: clamp(38px, 7vw, 86px);
 }
 
-/* The three contact actions split one row instead of stacking. */
-.actsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
-}
-
-.actsRow > * {
-  flex: 1 1 0;
-  min-width: 96px;
-}
-
+/* Base tier — outlined, so a row of five secondary actions reads as a light
+   set instead of a black wall. The inset ring keeps every button exactly the
+   same box as the filled tiers. */
 .act,
-.actPrimary {
-  min-height: 46px;
+.actPrimary,
+.actStrong {
+  /* flex-shrink: 0 — with shrink on, six buttons squeeze into one row and
+     ellipsise their labels ("SPEISEKA…"). They must wrap instead; grow then
+     stretches whatever landed in a line across the full width. */
+  flex: 1 0 200px;
+  min-width: 0;
+  min-height: 52px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 20px 14px;
-  background: var(--detail-ink);
-  color: var(--detail-paper);
+  gap: 9px;
+  padding: 13px 16px 14px;
+  background: var(--detail-paper);
+  color: var(--detail-ink);
   border: 0;
   border-radius: var(--et-radius-control, 0);
+  box-shadow: inset 0 0 0 2px var(--detail-ink);
   cursor: pointer;
   font-family: var(--f-display);
   font-size: 18px;
@@ -600,11 +684,39 @@
   text-transform: uppercase;
   transition:
     background-color 140ms ease,
+    box-shadow 140ms ease,
+    color 140ms ease,
     transform 140ms ease;
 }
 
+.act svg,
+.actPrimary svg,
+.actStrong svg {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+}
+
+.act span,
+.actPrimary span,
+.actStrong span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "Go there" — the one thing a hungry visitor does next. */
 .actPrimary {
   background: var(--detail-red);
+  color: var(--detail-paper);
+  box-shadow: inset 0 0 0 2px var(--detail-red);
+}
+
+/* "Book a table" — committal, but not the default move. */
+.actStrong {
+  background: var(--detail-ink);
+  color: var(--detail-paper);
 }
 
 .siblings {
@@ -687,9 +799,19 @@
 }
 
 @media (hover: hover) {
-  .act:hover,
-  .actPrimary:hover {
+  .act:hover {
+    background: var(--detail-ink);
+    color: var(--detail-paper);
+  }
+
+  .actStrong:hover {
     background: var(--detail-red);
+    box-shadow: inset 0 0 0 2px var(--detail-red);
+  }
+
+  .act:hover,
+  .actPrimary:hover,
+  .actStrong:hover {
     transform: translateY(-2px);
   }
 
@@ -701,6 +823,7 @@
 
 .act:focus-visible,
 .actPrimary:focus-visible,
+.actStrong:focus-visible,
 .sibCard:focus-visible {
   outline: 2px solid var(--detail-red);
   outline-offset: 4px;
@@ -752,6 +875,19 @@
 
   .breadcrumbWrap {
     margin-bottom: 10px;
+    padding-block: 10px 0;
+  }
+
+  .breadcrumbWrap :global(ol) {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 10px;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .breadcrumbWrap :global([aria-current='page']) {
+    white-space: normal;
   }
 
   .hero,
@@ -783,7 +919,13 @@
   }
 
   .heroCaption {
-    padding: 24px 16px;
+    gap: 12px;
+    padding: 22px 16px 24px;
+  }
+
+  .heroCredit {
+    right: 10px;
+    bottom: 8px;
   }
 
   .heroName,
@@ -846,17 +988,23 @@
     font-size: clamp(22px, 8vw, 42px);
   }
 
-  .acts,
+  /* Exactly two per row; a trailing odd button takes the full width. */
   .act,
-  .actPrimary {
-    width: 100%;
-  }
-
-  .actsRow .act,
-  .actsRow .actPrimary {
-    width: auto;
+  .actPrimary,
+  .actStrong {
+    flex-basis: calc(50% - 5px);
+    min-height: 50px;
+    padding-block: 12px 13px;
+    gap: 8px;
     padding-inline: 10px;
     font-size: 16px;
+  }
+
+  .act svg,
+  .actPrimary svg,
+  .actStrong svg {
+    width: 17px;
+    height: 17px;
   }
 
   .sibCards {

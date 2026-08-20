@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { getOpenStatus, buildOpeningHoursSpec } from './openingHours';
+import {
+  localizeOpeningDays,
+  localizeOpeningHours,
+  getOpenStatus,
+  buildOpeningHoursSpec,
+} from './openingHours';
 import type { OpeningHourSlot } from '../types';
 
 describe('buildOpeningHoursSpec', () => {
@@ -93,5 +98,41 @@ describe('getOpenStatus', () => {
     const { isOpen, label } = getOpenStatus(slots, MON_2PM);
     expect(isOpen).toBe(false);
     expect(label.toLowerCase()).toContain('closed');
+  });
+});
+
+describe('localizeOpeningDays', () => {
+  it('translates the English abbreviations editors type into German', () => {
+    expect(localizeOpeningDays('Mon-Thu', 'de')).toBe('Mo–Do');
+    expect(localizeOpeningDays('Sun', 'de')).toBe('So');
+    expect(localizeOpeningDays('Wed,Thu,Sun ', 'de')).toBe('Mi, Do, So');
+  });
+
+  it('normalises German input and stray whitespace for both locales', () => {
+    expect(localizeOpeningDays('Mo–So', 'en')).toBe('Mon–Sun');
+    expect(localizeOpeningDays('Mon - Sun', 'de')).toBe('Mo–So');
+    expect(localizeOpeningDays('Mon–Fr ', 'de')).toBe('Mo–Fr');
+  });
+
+  it('passes unknown tokens through instead of dropping them', () => {
+    expect(localizeOpeningDays('Feiertags', 'de')).toBe('Feiertags');
+    expect(localizeOpeningDays('daily', 'de')).toBe('Täglich');
+    expect(localizeOpeningDays(undefined, 'de')).toBe('');
+  });
+});
+
+describe('localizeOpeningHours', () => {
+  it('translates closed days', () => {
+    expect(localizeOpeningHours('closed', 'de')).toBe('geschlossen');
+    expect(localizeOpeningHours('Ruhetag', 'en')).toBe('closed');
+  });
+
+  it('unpacks the run-together 24h value', () => {
+    expect(localizeOpeningHours('24Stundengeöffnet', 'de')).toBe('24 Stunden geöffnet');
+    expect(localizeOpeningHours('24Stundengeöffnet', 'en')).toBe('Open 24 hours');
+  });
+
+  it('leaves real time ranges alone', () => {
+    expect(localizeOpeningHours('12:00-23:00', 'de')).toBe('12:00-23:00');
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasAmbiguousDropCap } from './dropCap';
+import { hasAmbiguousDropCap, shouldSkipDropCap } from './dropCap';
 
 describe('hasAmbiguousDropCap', () => {
   it('flags the German ledes that start with a bare stroke', () => {
@@ -26,5 +26,29 @@ describe('hasAmbiguousDropCap', () => {
     expect(hasAmbiguousDropCap(null)).toBe(false);
     expect(hasAmbiguousDropCap(undefined)).toBe(false);
     expect(hasAmbiguousDropCap('—')).toBe(false);
+  });
+});
+
+describe('shouldSkipDropCap', () => {
+  const longLede =
+    'An der Friedelstraße steht eine Bar, die nachmittags als Café durchgeht und abends ' +
+    'zur besten Adresse im Kiez wird.';
+
+  it('drops the cap for ledes too short to wrap around it', () => {
+    // Bari: a one-line lede let the 4em float bleed into the next paragraph.
+    expect(shouldSkipDropCap('Bar on Friedelstraße, Neukölln.')).toBe(true);
+  });
+
+  it('keeps the cap once the lede has enough text', () => {
+    expect(shouldSkipDropCap(longLede)).toBe(false);
+  });
+
+  it('still drops ambiguous initials no matter the length', () => {
+    expect(shouldSkipDropCap(`Im Hinterhof: ${longLede}`)).toBe(true);
+  });
+
+  it('treats missing copy as skip', () => {
+    expect(shouldSkipDropCap('')).toBe(true);
+    expect(shouldSkipDropCap(null)).toBe(true);
   });
 });

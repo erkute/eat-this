@@ -24,3 +24,16 @@ export function hasAmbiguousDropCap(text: string | null | undefined): boolean {
   }
   return false;
 }
+
+/**
+ * A 4em cap needs three lines of text to wrap around it. Short ledes ("Bar on
+ * Friedelstraße, Neukölln.") don't have them, so the float bleeds into the next
+ * paragraph and indents it — it reads as a layout bug, not as typography.
+ */
+const MIN_LEDE_CHARS_FOR_DROP_CAP = 90;
+
+/** True when the lede should render without a drop cap. */
+export function shouldSkipDropCap(text: string | null | undefined): boolean {
+  if (!text) return true;
+  return hasAmbiguousDropCap(text) || text.trim().length < MIN_LEDE_CHARS_FOR_DROP_CAP;
+}

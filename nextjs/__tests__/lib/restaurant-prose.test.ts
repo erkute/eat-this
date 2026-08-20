@@ -21,13 +21,24 @@ function makeRestaurant(overrides: Partial<Restaurant> = {}): Restaurant {
 }
 
 describe('summarizeHours', () => {
-  it('joins multiple slots with a comma', () => {
+  it('joins multiple slots with a comma and normalises the day range dash', () => {
     expect(
       summarizeHours([
         { days: 'Mo-Fr', hours: '11:00-15:00' },
         { days: 'Sa', hours: '11:00-22:00' },
       ]),
-    ).toBe('Mo-Fr 11:00-15:00, Sa 11:00-22:00')
+    ).toBe('Mo–Fr 11:00-15:00, Sa 11:00-22:00')
+  })
+
+  // This string is the answer body of a FAQPage entry and ends up in the
+  // JSON-LD, so an English slot on a German page misinforms Google too.
+  it('localises the editor-typed English abbreviations', () => {
+    const slots = [
+      { days: 'Mon-Tue', hours: 'closed' },
+      { days: 'Wed-Fri', hours: '17:00-21:00' },
+    ]
+    expect(summarizeHours(slots, 'de')).toBe('Mo–Di geschlossen, Mi–Fr 17:00-21:00')
+    expect(summarizeHours(slots, 'en')).toBe('Mon–Tue closed, Wed–Fri 17:00-21:00')
   })
 
   it('returns null on empty input', () => {

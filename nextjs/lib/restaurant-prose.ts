@@ -2,6 +2,7 @@ import type { Restaurant, OpeningHourSlot } from './types';
 import { localizedCategoryName } from './categories';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { pickLocale } from '@/lib/i18n/pickLocale';
+import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 
 type Loc = 'de' | 'en';
 
@@ -14,10 +15,23 @@ type Loc = 'de' | 'en';
  * Every helper degrades gracefully when source fields are missing.
  */
 
-/** Concise multi-slot opening-hours summary, comma-separated. Null when empty. */
-export function summarizeHours(slots: OpeningHourSlot[] | undefined): string | null {
+/**
+ * Concise multi-slot opening-hours summary, comma-separated. Null when empty.
+ *
+ * Localised, because this string is not just prose: it is the answer body of a
+ * FAQPage entry and goes into the JSON-LD Google reads. Unlocalised it told
+ * German readers "Geöffnet Mon-Tue closed, Wed-Fri 17:00-21:00".
+ */
+export function summarizeHours(
+  slots: OpeningHourSlot[] | undefined,
+  locale: Loc = 'de'
+): string | null {
   if (!slots || slots.length === 0) return null;
-  return slots.map((s) => `${s.days} ${s.hours}`).join(', ');
+  return slots
+    .map((s) => `${localizeOpeningDays(s.days, locale)} ${localizeOpeningHours(s.hours, locale)}`)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join(', ');
 }
 
 export interface FAQEntry {
@@ -178,7 +192,7 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
   }
 
   if (r.openingHours && r.openingHours.length > 0) {
-    const summary = summarizeHours(r.openingHours);
+    const summary = summarizeHours(r.openingHours, locale);
     if (summary) {
       entries.push(
         de

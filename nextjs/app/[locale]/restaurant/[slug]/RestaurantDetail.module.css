@@ -24,8 +24,13 @@
   --brand-action: var(--detail-red);
   min-height: 100vh;
   min-height: 100dvh;
-  padding: calc(96px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px))
-    clamp(16px, 4vw, 54px) 0;
+  /* Shared page frame — same max-width, top offset and gutter as
+     /bezirk and /bezirk/[slug]. See Bezirk.module.css .page. */
+  --page-pad: 22px;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px)
+    var(--page-pad) 0;
   overflow-x: clip;
   background: var(--detail-paper);
   color: var(--detail-ink);
@@ -38,58 +43,17 @@
   min-width: 0;
 }
 
-.breadcrumbWrap :global(nav) {
-  width: 100%;
-  margin-bottom: 0;
+@media (min-width: 720px) {
+  .page {
+    --page-pad: 32px;
+    padding-top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px);
+  }
 }
 
-/* Same breadcrumb as the news article: Providence, not mono. */
-.breadcrumbWrap :global(ol) {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 7px 9px;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  color: var(--detail-muted);
-  font-family: var(--f-display);
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.2;
-  text-transform: uppercase;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-}
-
-.breadcrumbWrap :global(ol::-webkit-scrollbar) {
-  display: none;
-}
-
-.breadcrumbWrap :global(a),
-.breadcrumbWrap :global(span) {
-  flex: 0 0 auto;
-  color: inherit;
-  text-decoration: none;
-}
-
-.breadcrumbWrap :global(a:hover),
-.breadcrumbWrap :global(a:focus-visible),
-.breadcrumbWrap :global([aria-current='page']) {
-  color: var(--detail-red);
-  text-decoration: none;
-}
-
-.breadcrumbWrap :global([aria-current='page']) {
-  flex: 0 0 auto;
-  max-width: none;
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
+@media (min-width: 960px) {
+  .page {
+    --page-pad: 64px;
+  }
 }
 
 .hero,
@@ -865,25 +829,9 @@
 }
 
 @media (max-width: 700px) {
-  .page {
-    padding: calc(94px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px)) 16px 0;
-  }
-
   .breadcrumbWrap {
     margin-bottom: 10px;
     padding-block: 10px 0;
-  }
-
-  .breadcrumbWrap :global(ol) {
-    flex-wrap: wrap;
-    gap: 8px;
-    font-size: 10px;
-    overflow: visible;
-    white-space: normal;
-  }
-
-  .breadcrumbWrap :global([aria-current='page']) {
-    white-space: normal;
   }
 
   .hero,
@@ -898,9 +846,9 @@
   }
 
   .heroPhoto {
-    width: calc(100% + 32px);
+    width: calc(100% + var(--page-pad) * 2);
     min-height: min(124vw, 560px);
-    margin-inline: -16px;
+    margin-inline: calc(var(--page-pad) * -1);
   }
 
   .heroGradient {

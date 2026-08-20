@@ -9,6 +9,7 @@ import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { SITE_URL } from '@/lib/constants';
+import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import sharedStyles from '../bezirk/Bezirk.module.css';
 import styles from './Kategorie.module.css';
 
@@ -57,6 +58,11 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   const loc = de ? 'de' : 'en';
   const categories = await getAllCategories();
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
+    { name: de ? 'Kategorien' : 'Categories' },
+  ];
+
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
@@ -97,6 +103,13 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={`${sharedStyles.page} ${styles.indexPage}`}>
+        <div className={styles.indexBreadcrumb}>
+          <Breadcrumbs
+            items={breadcrumbItems}
+            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+          />
+        </div>
+
         <header className={styles.indexHero}>
           <div className={styles.heroCopy}>
             <div className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</div>

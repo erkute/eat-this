@@ -91,12 +91,6 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           the product shot — a single wide band instead of half the fold. */}
       {spot && (
         <section className={`homeV2 hv-section hv-wrap ${styles.spotBand}`} aria-label={t.spotDay}>
-          <div className="hv-head">
-            <h2 className="hv-title">
-              <span className="hv-mk" aria-hidden="true" />
-              {t.spotDay}
-            </h2>
-          </div>
           <MapIntentLink
             href={`/map?r=${spot.slug}`}
             rel="nofollow"
@@ -118,6 +112,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               />
             )}
             <span className={styles.spotTag}>
+              <span className={styles.spotLabel}>{t.spotDay}</span>
               <strong>{normalizeName(spot.name)}</strong>
               {spot.district && <span className="hv-kicker">{spot.district}</span>}
             </span>

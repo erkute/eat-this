@@ -106,7 +106,7 @@
 }
 
 .section .photo:global(.hv-photo) {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 4 / 5;
   border: 0;
   border-radius: var(--et-radius-photo);
   background: var(--et-home-photo-rest);
@@ -117,7 +117,7 @@
 .section .photo:global(.hv-photo)::after {
   content: '';
   position: absolute;
-  inset: 30% 0 0 0;
+  inset: 42% 0 0 0;
   background: linear-gradient(to bottom, rgba(21, 18, 14, 0), rgba(21, 18, 14, 0.82));
   pointer-events: none;
 }

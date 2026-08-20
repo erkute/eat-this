@@ -5,6 +5,17 @@
   align-items: center;
 }
 
+/* Some spots carry their tagline in the name field ("der Weinlobbyist -
+   Restaurant&Weinbar"). Cap it at two lines so one long record cannot push
+   the card's meta row around. */
+:global(.homeV2) .card :global(.hv-cap) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
 /* The promoted locate button is wider than the old text link, so on narrow
    screens the shared .hv-head flex row lets it collide with the wrapping
    title. Allow the row to break instead. */

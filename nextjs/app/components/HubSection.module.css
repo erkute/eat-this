@@ -23,7 +23,7 @@
 }
 
 .page .hero + :global(.hv-section) {
-  margin-top: clamp(38px, 3.4vw, 56px);
+  margin-top: clamp(78px, 6.4vw, 116px);
 }
 
 .page :global(.hv-section.hv-wrap[data-hub-faq]) {

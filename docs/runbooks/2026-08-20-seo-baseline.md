@@ -112,8 +112,8 @@ mit, war der Effekt nicht die Kategorie-Änderung, sondern etwas Domainweites.
 
 ## Weitere Änderungen im selben Fenster
 
-Sauber wäre eine Änderung pro Messfenster. Tatsächlich liegt eine zweite drin,
-am selben Tag:
+Sauber wäre eine Änderung pro Messfenster. Tatsächlich liegen zwei weitere
+drin, beide am selben Tag:
 
 **`17e63b65` — News-Sitemap entfernt.** `/news-sitemap.xml` war seit der
 Einreichung in der Search Console als „Has errors" markiert: Eine
@@ -145,6 +145,19 @@ Web-Interface unter *Indexierung → Sitemaps* trotzdem auftauchen. Solche
 Einträge lassen sich ohnehin nicht manuell entfernen; sie verschwinden, sobald
 Google die neue `robots.txt` liest — und die nennt seit dem 20.08. nur noch
 `sitemap.xml`.
+
+**`719ef943` — deutsche Öffnungszeiten-FAQ.** Die FAQ auf den
+Restaurant-Detailseiten baute ihre Antwort aus den rohen Sanity-Strings, die
+deutsche Seite sagte also „Geöffnet Mon-Tue closed, Wed-Fri 17:00-21:00". Das
+ist nicht nur Fließtext, sondern der Antworttext eines `FAQPage`-Eintrags und
+landet im JSON-LD — Google las die englische Fassung mit. `summarizeHours`
+nimmt jetzt die Locale entgegen.
+
+Betrifft **Restaurant-Detailseiten**, nicht die Kategorie-Seiten. Die primäre
+Hypothese dieses Runbooks wird dadurch nicht verwässert — die Kontrollgruppe
+(Bezirks-Seiten) bleibt ebenfalls unberührt. Beim Auswerten aber im Kopf
+behalten: Bewegen sich im selben Zeitraum die Restaurant-Detailseiten, ist das
+diese Änderung und nicht die der Kategorie-Seiten.
 
 ## Reproduzieren
 

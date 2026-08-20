@@ -42,6 +42,17 @@ export default defineType({
       description: 'Short blurb for SEO + hub page. 1–2 sentences.',
     }),
     defineField({
+      name: 'topSpots',
+      title: 'Top-Spots (kuratierte Reihenfolge)',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'restaurant'}]}],
+      validation: Rule => Rule.max(10).unique(),
+      description:
+        'Die besten Spots dieser Kategorie, in Reihenfolge — Platz 1 ganz oben, per Drag & Drop ' +
+        'sortieren. Sie erscheinen als nummerierte Bestenliste über der A–Z-Liste. ' +
+        'Leer lassen (oder unter 3 Einträge) = die Seite bleibt wie bisher rein alphabetisch.',
+    }),
+    defineField({
       name: 'homeImage',
       title: 'Home Kategorie-Bild',
       type: 'image',

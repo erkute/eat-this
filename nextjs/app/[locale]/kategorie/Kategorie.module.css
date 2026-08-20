@@ -430,3 +430,32 @@
     transform: none;
   }
 }
+
+/* Platzziffer der kuratierten Bestenliste.
+   Nur die Top-Sektion trägt sie; das A–Z-Verzeichnis darunter nicht. Der
+   Badge sitzt auf dem Foto (.cardPhoto ist position: relative), die
+   Inline-Variante fängt Karten ohne Foto ab, damit kein Platz verlorengeht. */
+.rankBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding-inline: 7px;
+  border: 2px solid var(--category-ink);
+  border-radius: 999px;
+  background: var(--category-yellow);
+  color: var(--category-ink);
+  font-family: var(--f-display);
+  font-size: 16px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankInline {
+  margin-right: 7px;
+  color: var(--category-red);
+  font-variant-numeric: tabular-nums;
+}

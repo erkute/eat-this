@@ -8,7 +8,10 @@ import {
   buildCategoryTitle,
   buildCategoryDescription,
   buildCategorySectionHeading,
+  buildCategoryDirectoryHeading,
 } from '@/lib/seo/categoryMeta';
+import { rankCategoryRestaurants } from '@/lib/kategorie-ranking';
+import type { RestaurantCard } from '@/lib/types';
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
@@ -48,6 +51,71 @@ const PACK_OG_SLUGS = new Set([
 const PACK_OG_VERSION = 2;
 
 export const revalidate = 3600;
+
+/**
+ * Ein Kartenraster. `ranked` blendet die Platzziffer ein — nur die kuratierte
+ * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht.
+ */
+function RestaurantGrid({
+  restaurants,
+  locale,
+  ranked = false,
+}: {
+  restaurants: RestaurantCard[];
+  locale: 'de' | 'en';
+  ranked?: boolean;
+}) {
+  return (
+    <div
+      className={`${sharedStyles.grid} ${restaurants.length <= 2 ? sharedStyles.gridCompact : ''}`}
+    >
+      {restaurants.map((r, i) => {
+        const priceLabel = formatPriceLabel(r);
+        const cardLine =
+          pickLocale(r.shortDescription, r.shortDescriptionEn, locale) ||
+          pickLocale(r.tip, r.tipEn, locale);
+        return (
+          <Link key={r._id} href={`/restaurant/${r.slug}`} className={sharedStyles.card}>
+            {r.photo && (
+              <div className={sharedStyles.cardPhoto}>
+                {/* Sanity already serves transformed WebP/AVIF. A compact
+                    three-width srcset avoids Next serialising its large
+                    global candidate list for every card on long pages. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={r.photo}
+                  alt={r.name}
+                  srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
+                  sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+                {ranked && (
+                  <span className={styles.rankBadge} aria-hidden="true">
+                    {i + 1}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className={sharedStyles.cardBody}>
+              <h3 className={sharedStyles.cardName}>
+                {/* Ohne Foto gibt es keinen Badge — dann trägt die Ziffer der Name. */}
+                {ranked && !r.photo && <span className={styles.rankInline}>{i + 1}.</span>}
+                {r.name}
+              </h3>
+              <div className={sharedStyles.cardMeta}>
+                {r.cuisineType && <span className={sharedStyles.chipYellow}>{r.cuisineType}</span>}
+                {r.district && <span className={styles.districtLabel}>{r.district}</span>}
+                {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
+              </div>
+              {cardLine && <p className={sharedStyles.cardTip}>{cardLine}</p>}
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 export async function generateStaticParams() {
   const cats = await getAllCategories();
@@ -112,9 +180,23 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   if (!c) notFound();
   const label = localizedCategoryName(c, loc);
   const blurb = localizedCategoryBlurb(c, loc);
+  // Kuratierte Bestenliste oben, vollständiges A–Z darunter. Ohne gepflegte
+  // `topSpots` ist `top` leer und die Seite rendert wie bisher eine Liste.
+  const { top, rest } = rankCategoryRestaurants(restaurants, c.topSpots);
+  // Anzeigereihenfolge = JSON-LD-Reihenfolge: `position` ist eine
+  // Rangbehauptung, Schema und Seite dürfen sich nicht widersprechen.
+  const orderedRestaurants = [...top, ...rest];
   const quickFacts = buildKategorieQuickFacts({ slug, label, restaurants, locale: loc });
   const districtLinks = categoryDistrictLinks(restaurants);
-  const faqEntries = buildKategorieFAQEntries({ slug, label, restaurants, locale: loc });
+  // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
+  // Bestenliste über ihr — auseinanderlaufen können sie nicht mehr.
+  const faqEntries = buildKategorieFAQEntries({
+    slug,
+    label,
+    restaurants,
+    locale: loc,
+    curated: top,
+  });
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
@@ -166,8 +248,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
       {
         '@type': 'ItemList',
         name: buildCategoryTitle(slug, label, loc),
-        numberOfItems: restaurants.length,
-        itemListElement: restaurants.map((r, i) => {
+        numberOfItems: orderedRestaurants.length,
+        itemListElement: orderedRestaurants.map((r, i) => {
           const priceLabel = formatPriceLabel(r);
           return {
             '@type': 'ListItem',
@@ -216,18 +298,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                 mapHref={`/map?cat=${slug}`}
                 locale={loc}
               />
-              <a href="#restaurants" className={sharedStyles.detailHeroJump}>
-                <span>{de ? 'Spots ansehen' : 'See spots'}</span>
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M10 3v12M5 10l5 5 5-5"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
 
@@ -255,51 +325,41 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             {/* Trägt die Ziel-Query im Klartext — die H1 darüber ist auf ein
                 einzelnes Display-Wort designt („LUNCH") und kann das nicht. */}
             <h2>{buildCategorySectionHeading(slug, label, loc)}</h2>
-            <p>{de ? 'Kuratiert vom Eat-This-Team.' : 'Curated by the Eat This team.'}</p>
+            <p>
+              {top.length > 0
+                ? de
+                  ? `Die ${top.length} besten, ausgewählt vom Eat-This-Team.`
+                  : `The top ${top.length}, picked by the Eat This team.`
+                : de
+                  ? 'Kuratiert vom Eat-This-Team.'
+                  : 'Curated by the Eat This team.'}
+            </p>
           </div>
 
-          <div
-            className={`${sharedStyles.grid} ${restaurants.length <= 2 ? sharedStyles.gridCompact : ''}`}
-          >
-            {restaurants.map((r) => {
-              const priceLabel = formatPriceLabel(r);
-              const cardLine =
-                pickLocale(r.shortDescription, r.shortDescriptionEn, loc) ||
-                pickLocale(r.tip, r.tipEn, loc);
-              return (
-                <Link key={r._id} href={restaurantUrl(r.slug)} className={sharedStyles.card}>
-                  {r.photo && (
-                    <div className={sharedStyles.cardPhoto}>
-                      {/* Sanity already serves transformed WebP/AVIF. A compact
-                          three-width srcset avoids Next serialising its large
-                          global candidate list for every card on long pages. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={r.photo}
-                        alt={r.name}
-                        srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
-                        sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  )}
-                  <div className={sharedStyles.cardBody}>
-                    <h3 className={sharedStyles.cardName}>{r.name}</h3>
-                    <div className={sharedStyles.cardMeta}>
-                      {r.cuisineType && (
-                        <span className={sharedStyles.chipYellow}>{r.cuisineType}</span>
-                      )}
-                      {r.district && <span className={styles.districtLabel}>{r.district}</span>}
-                      {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
-                    </div>
-                    {cardLine && <p className={sharedStyles.cardTip}>{cardLine}</p>}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <RestaurantGrid
+            restaurants={top.length > 0 ? top : rest}
+            locale={loc}
+            ranked={top.length > 0}
+          />
         </section>
+
+        {/* Vollständiges Verzeichnis — nur als eigene Sektion, wenn oben eine
+            Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
+            der Crawl-Pfad zu den Restaurant-Detailseiten. */}
+        {top.length > 0 && rest.length > 0 && (
+          <section id="alle" className={sharedStyles.restaurantSection}>
+            <div className={sharedStyles.sectionHead}>
+              <h2>{buildCategoryDirectoryHeading(restaurants.length, loc)}</h2>
+              <p>
+                {de
+                  ? 'Das komplette Verzeichnis dieser Kategorie.'
+                  : 'The complete directory for this category.'}
+              </p>
+            </div>
+
+            <RestaurantGrid restaurants={rest} locale={loc} />
+          </section>
+        )}
 
         <div className={sharedStyles.detailMapCta}>
           <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />

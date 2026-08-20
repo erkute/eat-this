@@ -16,6 +16,11 @@ export interface CategoryDef {
   nameEn?: string;
   description?: string;
   descriptionEn?: string;
+  /**
+   * Slugs of the curated best-of list, in editorial order. Only projected by
+   * `categoryBySlugQuery`; the hub listing doesn't need it.
+   */
+  topSpots?: string[];
 }
 
 /** DE/EN display label for a category, falling back to the other locale when one is missing. */

@@ -300,6 +300,14 @@ export const allCategoriesQuery = `
 `;
 
 // One category by slug — detail / hub page.
+//
+// `topSpots` is the editorially ordered best-of list (see
+// docs/specs/2026-08-20-kategorie-ranking.md). Only the slugs are projected:
+// the page already loads every restaurant of the category, so the slug is
+// enough to reorder them, and the full card payload would ship twice.
+// `defined(@->slug.current)` guards dangling refs the same way
+// CATEGORY_PROJECTION does — without it a deleted restaurant would land as a
+// null hole in the array.
 export const categoryBySlugQuery = `
   *[_type == "category" && slug.current == $slug][0] {
     _id,
@@ -307,7 +315,8 @@ export const categoryBySlugQuery = `
     nameEn,
     "slug": slug.current,
     description,
-    descriptionEn
+    descriptionEn,
+    "topSpots": topSpots[defined(@->slug.current)]->slug.current
   }
 `;
 

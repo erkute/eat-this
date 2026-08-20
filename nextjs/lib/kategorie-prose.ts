@@ -22,6 +22,15 @@ interface KategorieContext {
   label: string;
   restaurants: RestaurantCard[];
   locale: Loc;
+  /**
+   * Die kuratierte Bestenliste der Seite, bereits aufgelöst und sortiert
+   * (`rankCategoryRestaurants().top`). Leer/undefined für Kategorien ohne
+   * gepflegte `topSpots`.
+   *
+   * Bewusst die fertigen Karten statt der Slugs: so kann die FAQ gar nicht
+   * andere Namen nennen als die Bestenliste, die darüber steht.
+   */
+  curated?: RestaurantCard[];
 }
 
 /** Counts of the top districts represented in this category. */
@@ -38,24 +47,6 @@ function districtBreakdown(
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
-}
-
-/** Price range across the category (min of mins, max of maxes). */
-function priceSpan(
-  restaurants: RestaurantCard[]
-): { min: number; max: number; currency: string } | null {
-  let min = Infinity;
-  let max = -Infinity;
-  let currency = '€';
-  for (const r of restaurants) {
-    const p = r.priceRange;
-    if (!p) continue;
-    if (typeof p.min === 'number') min = Math.min(min, p.min);
-    if (typeof p.max === 'number') max = Math.max(max, p.max);
-    if (p.currency) currency = p.currency === 'EUR' ? '€' : p.currency;
-  }
-  if (!Number.isFinite(min) || !Number.isFinite(max)) return null;
-  return { min, max, currency };
 }
 
 /**
@@ -93,12 +84,6 @@ function pickShowcase(restaurants: RestaurantCard[], limit = 5): RestaurantCard[
   return pool.slice(0, limit).map((x) => x.r);
 }
 
-function showcaseNames(restaurants: RestaurantCard[], limit = 5): string {
-  return pickShowcase(restaurants, limit)
-    .map((r) => r.name)
-    .join(', ');
-}
-
 /** One-line factual summary that sits below the kategorie header. */
 export function buildKategorieQuickFacts({
   slug,
@@ -111,7 +96,6 @@ export function buildKategorieQuickFacts({
   const de = locale === 'de';
   const { term, kind } = categorySearchTerm(slug, label, locale);
   const districts = districtBreakdown(restaurants);
-  const span = priceSpan(restaurants);
 
   // Erstes und zweites Segment hängen an einem Gedankenstrich, sonst entsteht
   // „… in Berlin. die meisten in Mitte“ — Kleinbuchstabe nach Punkt.
@@ -132,11 +116,7 @@ export function buildKategorieQuickFacts({
       ? `${head} – ${de ? `die meisten in ${top}` : `most of them in ${top}`}`
       : head;
 
-  if (!span) return `${lead}.`;
-  const price = de
-    ? `Preisspanne ${span.min}–${span.max} ${span.currency}`
-    : `prices ${span.min}–${span.max} ${span.currency}`;
-  return `${lead}. ${de ? price : price.charAt(0).toUpperCase() + price.slice(1)}.`;
+  return `${lead}.`;
 }
 
 /** FAQ entries derived from the category's restaurant list. */
@@ -145,6 +125,7 @@ export function buildKategorieFAQEntries({
   label,
   restaurants,
   locale,
+  curated,
 }: KategorieContext): FAQEntry[] {
   const de = locale === 'de';
   const entries: FAQEntry[] = [];
@@ -188,7 +169,14 @@ export function buildKategorieFAQEntries({
 
   // 3. Highlights
   if (restaurants.length >= 3) {
-    const highlights = showcaseNames(restaurants);
+    // Gibt es eine redaktionelle Bestenliste, ist sie die ehrliche Antwort auf
+    // „bekannte Adressen“ — und identisch mit dem, was oben auf der Seite steht.
+    // Sonst greift die Heuristik, die immerhin Ziffern-Namen hinten einsortiert.
+    const picks = curated?.length ? curated : pickShowcase(restaurants);
+    const highlights = picks
+      .slice(0, 5)
+      .map((r) => r.name)
+      .join(', ');
     entries.push(
       de
         ? {
@@ -202,44 +190,6 @@ export function buildKategorieFAQEntries({
               ? `What are some notable ${term} in Berlin?`
               : `What are some notable places for ${term} in Berlin?`,
             answer: `Highlights from the selection: ${highlights}.`,
-          }
-    );
-  }
-
-  // 4. Budget spots (max <= 20)
-  const budget = restaurants.filter(
-    (r) => typeof r.priceRange?.max === 'number' && r.priceRange.max! <= 20
-  );
-  if (budget.length > 0) {
-    const list = showcaseNames(budget);
-    entries.push(
-      de
-        ? {
-            question: `Wo gibt es ${term} in Berlin für kleines Geld?`,
-            answer: `Im unteren Preissegment (bis 20 €): ${list}.`,
-          }
-        : {
-            question: `Where can I get ${term} in Berlin on a budget?`,
-            answer: `In the lower price range (up to €20): ${list}.`,
-          }
-    );
-  }
-
-  // 5. Higher-end spots (min >= 40)
-  const fineDining = restaurants.filter(
-    (r) => typeof r.priceRange?.min === 'number' && r.priceRange.min! >= 40
-  );
-  if (fineDining.length > 0) {
-    const list = showcaseNames(fineDining);
-    entries.push(
-      de
-        ? {
-            question: `Welche ${subject} in Berlin sind gehoben?`,
-            answer: `Im höheren Preissegment (ab 40 €): ${list}.`,
-          }
-        : {
-            question: `Which ${subject} in Berlin are higher-end?`,
-            answer: `In the higher price range (from €40): ${list}.`,
           }
     );
   }

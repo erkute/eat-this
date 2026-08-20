@@ -315,27 +315,6 @@
 ============================================================ */
 
 /* ============================================================
-   INDEX-PAGE CARDS (used by /bezirk and /kategorie index pages,
-   no per-card photo)
-============================================================ */
-.bezirkGrid {
-  display: grid;
-}
-.bezirkCard {
-  flex-direction: column;
-  border: 0;
-  box-shadow: 0 16px 28px rgba(43, 33, 28, 0.12);
-  text-decoration: none;
-}
-.bezirkCard:hover {
-  background: var(--et-cream);
-  transform: rotate(0) translateY(-4px);
-}
-.bezirkName {
-  color: var(--ink);
-}
-
-/* ============================================================
    Kategorie-Index Poster-Grid (booster-pack treatment)
 ============================================================ */
 
@@ -348,8 +327,7 @@
     padding-top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px);
     padding-bottom: 56px;
   }
-  .grid,
-  .bezirkGrid {
+  .grid {
     grid-template-columns: 1fr 1fr;
     gap: 22px;
   }
@@ -365,13 +343,6 @@
   .grid {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 28px;
-  }
-  .bezirkGrid {
-    /* 3 cols, not 4 — single-word names like FRIEDRICHSHAIN can't wrap, and
-       their min-content blew the 4-col 1fr tracks past the container (right
-       column clipped). minmax(0,1fr) removes the min-content floor so the
-       grid can never overflow the page again. */
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   /* Hero desktop-treatment: H1 fills the space typographically — no photo,
      no decoration, just Anton at full presence so the cream column doesn't
@@ -461,8 +432,7 @@
 }
 
 .hero,
-.card,
-.bezirkCard {
+.card {
   border-radius: 0;
   box-shadow: none;
   transform: none;
@@ -487,8 +457,7 @@
 
 .h1,
 .sectionHead h2,
-.cardName,
-.bezirkName {
+.cardName {
   font-family: var(--et-font-condensed);
   letter-spacing: 0;
 }
@@ -504,15 +473,13 @@
   color: var(--muted);
 }
 
-.card,
-.bezirkCard {
+.card {
   border: 0;
   border-bottom: 3px solid var(--ink);
   background: transparent;
 }
 
-.card:hover,
-.bezirkCard:hover {
+.card:hover {
   transform: translateY(-3px);
 }
 
@@ -980,156 +947,197 @@
   margin: 0;
 }
 
-.bezirkGrid {
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(18px, 2.5vw, 30px);
-  min-width: 0;
-  margin-bottom: 0;
-}
-
-.bezirkCard {
+/* ============================================================
+   DISTRICT ROWS
+   One row per district: a linked name, a "see all" link, and a strip of
+   photo cards. Deliberately the same object as the recommendation rails at
+   the foot of a restaurant page — arriving here from there should feel like
+   the same shelf, not a different site. Replaces the 76px thumbnail list,
+   which was too small to make anyone want to click it.
+============================================================ */
+.districtRows {
   display: grid;
-  align-content: start;
-  justify-content: stretch;
-  justify-items: stretch;
-  gap: 14px;
+  gap: clamp(38px, 5vw, 64px);
+}
+
+/* Grid children default to min-width: auto, so a long unbroken district or
+   restaurant name could push the row past the page. */
+.districtRow {
   min-width: 0;
-  min-height: 0;
-  padding: 14px 0;
-  background: transparent;
-  border-bottom: 0;
-  color: var(--ink);
-  text-align: left;
-  transition: none;
 }
 
-.page .districtsBlock .bezirkCard:hover {
-  background: transparent;
-  color: var(--ink);
-  transform: none;
+.districtHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 18px;
+  margin-bottom: clamp(14px, 2vw, 20px);
 }
 
-.bezirkName {
+.districtName {
+  min-width: 0;
+  margin: 0;
   font-family: var(--et-font-display);
+  font-size: clamp(26px, 4.4vw, 40px);
   font-weight: 700;
-  font-size: clamp(28px, 7vw, 36px);
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.92;
+  letter-spacing: -0.025em;
+  line-height: 0.94;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: normal;
-  text-align: left;
-  margin: 0;
-}
-
-.bezirkLink {
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.bezirkMore {
-  display: inline-flex;
-  align-items: center;
-  justify-self: start;
-  gap: 7px;
-  margin-top: -4px;
-  padding: 8px 11px 9px;
-  border-radius: var(--et-radius-control);
-  background: var(--et-home-red);
-  color: var(--et-home-paper);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
-  text-transform: none;
-  white-space: nowrap;
-  text-decoration: none;
-  transition:
-    background var(--et-motion-fast),
-    transform var(--et-motion-fast);
-}
-
-.bezirkMore:hover {
-  background: var(--et-home-ink);
-  transform: translateX(2px);
-}
-
-.bezirkExamples {
-  display: grid;
-  gap: 10px;
-  min-width: 0;
-  max-width: 100%;
-  text-align: left;
-}
-
-.bezirkExample {
-  display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
-  padding: 0;
-  margin: 0;
-  border-radius: var(--et-radius-control);
-  background: transparent;
-  color: var(--ink);
-  text-decoration: none;
-  text-align: left;
-  transition: transform 0.16s ease;
-}
-
-.bezirkExample:hover {
-  background: transparent;
-  transform: translateX(2px);
-}
-
-.bezirkExamplePhoto {
-  position: relative;
-  display: block;
-  width: 76px;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  background: var(--cream-deep);
-}
-
-.bezirkExamplePhoto img {
-  object-fit: cover;
-}
-
-.bezirkExampleCopy {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
-  text-align: left;
-}
-
-.bezirkExampleName {
-  font-family: var(--et-font-display);
-  font-size: clamp(21px, 5.5vw, 27px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 1;
   overflow-wrap: anywhere;
 }
 
-.bezirkExampleCategory {
+.districtLink {
+  color: var(--et-home-red);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.districtLink:hover {
+  color: var(--et-home-ink);
+}
+
+.districtMore {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  color: var(--et-home-ink);
   font-family: var(--et-font-mono);
   font-size: 11px;
   font-weight: 900;
+  letter-spacing: 0.1em;
   line-height: 1.2;
   text-transform: uppercase;
-  color: var(--et-home-red);
-  overflow-wrap: anywhere;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 140ms ease;
 }
 
-.bezirkLink:focus-visible,
-.bezirkMore:focus-visible,
-.bezirkExample:focus-visible {
+.districtMore span {
+  transition: transform 140ms ease;
+}
+
+.districtMore:hover {
+  color: var(--et-home-red);
+}
+
+.districtMore:hover span {
+  transform: translateX(3px);
+}
+
+/* Districts carry anywhere from one to four curated spots, so the track count
+   has to divide the card count or a row trails off half-empty (Friedenau, with
+   its single spot, was three quarters air). Two tracks here, four further down
+   — never three, because four cards across three tracks strands one alone on
+   row two. */
+.spotGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 20px);
+}
+
+/* An odd card at the end spans the row rather than leaving a gap beside it:
+   one spot reads as a banner, three as two-plus-a-banner. */
+.spotGrid > :nth-child(odd):last-child {
+  grid-column: 1 / -1;
+}
+
+.spotCard {
+  position: relative;
+  display: block;
+  min-height: 190px;
+  overflow: hidden;
+  background: var(--et-home-ink);
+  text-decoration: none;
+}
+
+.spotPhoto {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.spotPhoto img {
+  object-fit: cover;
+  transition: transform 320ms ease;
+}
+
+/* Gradient sits above the photo and below the copy, so a bright picture can
+   never swallow the name. */
+.spotCard::after {
+  content: '';
+  position: absolute;
+  inset: 26% 0 0;
+  background: linear-gradient(
+    to top,
+    rgba(12, 9, 7, 0.9),
+    rgba(12, 9, 7, 0.5) 48%,
+    rgba(12, 9, 7, 0)
+  );
+  pointer-events: none;
+}
+
+.spotOverlay {
+  position: absolute;
+  right: 13px;
+  bottom: 13px;
+  left: 13px;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* min-width: 0 + break anywhere — one unbreakable name ("Berlinburger
+   International") would otherwise set the track's min-content width and run
+   straight out of the card. */
+.spotName {
+  min-width: 0;
+  color: #fff;
+  font-family: var(--et-font-display);
+  font-size: clamp(18px, 4.8vw, 24px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+.spotMeta {
+  color: #ff5a4e;
+  font-family: var(--et-font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.districtLink:focus-visible,
+.districtMore:focus-visible,
+.spotCard:focus-visible {
   outline: 3px solid var(--et-home-red);
   outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .spotCard:hover .spotPhoto img {
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotPhoto img,
+  .districtMore span {
+    transition: none;
+  }
+
+  .spotCard:hover .spotPhoto img {
+    transform: none;
+  }
 }
 
 @media (min-width: 720px) {
@@ -1138,22 +1146,18 @@
     align-items: start;
   }
 
-  .bezirkExamples {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+  .spotCard {
+    min-height: 230px;
   }
 
-  .bezirkExample {
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 10px;
+  .spotName {
+    font-size: clamp(21px, 2.8vw, 28px);
   }
 
-  .bezirkExamplePhoto {
-    width: 72px;
-  }
-
-  .bezirkExampleName {
-    font-size: clamp(20px, 2.4vw, 27px);
+  .spotOverlay {
+    right: 15px;
+    bottom: 15px;
+    left: 15px;
   }
 }
 
@@ -1163,28 +1167,28 @@
     font-size: clamp(82px, 8.4vw, 116px);
   }
 
-  .bezirkName {
-    font-size: clamp(34px, 3vw, 40px);
+  .districtName {
+    font-size: clamp(32px, 3vw, 44px);
   }
 
-  .bezirkExampleName {
-    font-size: clamp(22px, 1.9vw, 27px);
+  .spotCard {
+    min-height: 260px;
   }
 }
 
 @media (min-width: 1100px) {
-  .bezirkGrid {
-    gap: 30px;
+  /* Wide enough for four tracks. auto-fit collapses the unused ones, so a
+     district with two spots still fills the row — and four is the ceiling the
+     query slices to, so the last row is never short. */
+  .spotGrid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   }
 
-  .bezirkCard {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    gap: 18px;
-    padding: 14px 0;
+  .spotGrid > :nth-child(odd):last-child {
+    grid-column: auto;
   }
 
-  .bezirkName {
-    padding-top: 0;
+  .spotName {
+    font-size: clamp(23px, 2.1vw, 30px);
   }
 }

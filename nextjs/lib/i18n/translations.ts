@@ -76,12 +76,14 @@ const en = {
     },
     nearby: {
       title: 'Around you',
-      titleFallback: 'Around Mitte',
+      // Without a location grant the list is centred on Mitte — saying so as a
+      // headline claims a place the visitor probably isn't. Ask instead.
+      titleFallback: "What's near you?",
       locationAria: 'Use my location',
       location: 'Locate',
       locating: 'Locating…',
       sub: 'A quick entry to the closest spots on the map.',
-      subFallback: 'Tap Locate for walking times from where you are.',
+      subFallback: 'Share your location and Berlin sorts itself around you.',
     },
     welcomePack: {
       cat: 'Booster Pack',
@@ -537,12 +539,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     nearby: {
       title: 'Um dich herum',
-      titleFallback: 'Rund um Mitte',
+      titleFallback: 'Was ist um dich?',
       locationAria: 'Mein Standort verwenden',
       location: 'Standort',
       locating: 'Ortet …',
       sub: 'Der schnelle Einstieg zu den nächsten Spots auf der Map.',
-      subFallback: 'Tipp auf Standort für Gehzeiten von dir aus.',
+      subFallback: 'Gib deinen Standort frei — dann sortiert sich Berlin um dich herum.',
     },
     welcomePack: {
       desc: 'Weitere kuratierte Spots samt Must Eats — direkt nach deiner Anmeldung.',

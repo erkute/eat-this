@@ -1,10 +1,4 @@
-'use client';
-
-import { useId, useState, type FormEvent } from 'react';
-import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
-import { useMagicLink } from '@/lib/auth';
-import { categoryArt } from '@/lib/categoryArt';
 import styles from './CategoriesRail.module.css';
 
 interface Props {
@@ -12,58 +6,18 @@ interface Props {
   locale: 'de' | 'en';
 }
 
+/**
+ * Typographic navigation into the category pages.
+ *
+ * This rail used to show each category as its booster-pack artwork with an
+ * "Öffnen" button pointing at /pack/<slug>. Two problems: it read as a shop to
+ * someone who hasn't seen the map yet, and the pack sachets are product shots,
+ * not category imagery — nine of them in a row said "buy" no matter where the
+ * links went. Type carries the brand here without pretending to sell anything.
+ */
 export default function CategoriesRail({ categoryNames, locale }: Props) {
   const entries = Object.entries(categoryNames);
-  const {
-    sendLink,
-    state: magicState,
-    errorMessage: magicError,
-    reset: resetMagicLink,
-  } = useMagicLink();
-  const emailId = useId();
-  const emailErrorId = `${emailId}-error`;
-  const [email, setEmail] = useState('');
-  const [validationError, setValidationError] = useState('');
   if (!entries.length) return null;
-
-  const copy =
-    locale === 'en'
-      ? {
-          emailAria: 'Email address',
-          emailPlaceholder: 'your@email.com',
-          sending: 'Sending...',
-          sent: 'Check your mail',
-          packCta: 'Open',
-          submit: 'Sign in',
-          emptyEmail: 'Add your email first.',
-          invalidEmail: 'That does not look like an email yet.',
-        }
-      : {
-          emailAria: 'E-Mail Adresse',
-          emailPlaceholder: 'deine@email.com',
-          sending: 'Sende...',
-          sent: 'Check deine Mail',
-          packCta: 'Öffnen',
-          submit: 'Anmelden',
-          emptyEmail: 'Bitte gib deine E-Mail ein.',
-          invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
-        };
-  const emailFeedback = validationError || magicError;
-  const handleStarterSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (magicState === 'sending') return;
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setValidationError(copy.emptyEmail);
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      setValidationError(copy.invalidEmail);
-      return;
-    }
-    setValidationError('');
-    void sendLink(trimmedEmail);
-  };
 
   return (
     <section
@@ -76,80 +30,18 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
           {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
         </h2>
       </div>
-      <div className={styles.grid}>
-        <form
-          className={`${styles.card} ${styles.starterCard}`}
-          onSubmit={handleStarterSubmit}
-          noValidate
-        >
-          <span className={`hv-cap ${styles.starterTitle}`}>Starter Pack</span>
-          <span className={styles.photo}>
-            <Image
-              src="/pics/booster/booster_free.webp"
-              alt=""
-              fill
-              sizes="(max-width: 760px) min(56vw, 210px), (max-width: 1360px) 18vw, 240px"
-            />
-          </span>
-          <label className={styles.emailLabel} htmlFor={emailId}>
-            {copy.emailAria}
-          </label>
-          <input
-            id={emailId}
-            className={styles.emailInput}
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            placeholder={copy.emailPlaceholder}
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setValidationError('');
-              if (magicState !== 'idle') resetMagicLink();
-            }}
-            aria-invalid={Boolean(emailFeedback)}
-            aria-describedby={emailFeedback ? emailErrorId : undefined}
-            required
-          />
-          <button className={styles.emailButton} type="submit" disabled={magicState === 'sending'}>
-            {magicState === 'sent'
-              ? copy.sent
-              : magicState === 'sending'
-                ? copy.sending
-                : copy.submit}
-          </button>
-          {emailFeedback && (
-            <span id={emailErrorId} className={styles.emailError} role="alert">
-              {emailFeedback}
-            </span>
-          )}
-        </form>
-        {entries.map(([slug, name]) => {
-          const art = categoryArt(slug);
-          return (
-            <article key={slug} className={styles.card}>
-              <span className={`hv-cap ${styles.packTitle}`}>{name}</span>
-              <Link
-                href={`/kategorie/${slug}`}
-                className={styles.photo}
-                aria-label={locale === 'en' ? `${name} restaurants` : `Restaurants: ${name}`}
-              >
-                {art && (
-                  <Image
-                    src={art}
-                    alt=""
-                    fill
-                    sizes="(max-width: 760px) min(56vw, 210px), (max-width: 1360px) 18vw, 240px"
-                  />
-                )}
-              </Link>
-              <Link href={`/pack/${slug}`} className={styles.packButton}>
-                {copy.packCta}
-              </Link>
-            </article>
-          );
-        })}
-      </div>
+      <ul className={styles.grid} role="list">
+        {entries.map(([slug, name]) => (
+          <li key={slug}>
+            <Link href={`/kategorie/${slug}`} className={styles.chip}>
+              <span className={styles.chipLabel}>{name}</span>
+              <span className={styles.chipArrow} aria-hidden="true">
+                →
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -1,79 +1,84 @@
 import Image from 'next/image';
-import { Link } from '@/i18n/navigation';
+import MapIntentLink from './MapIntentLink';
 import styles from './HomeDishStrip.module.css';
 
 // Freigestellte Gerichte (cutout dishes on transparent bg) — the brand's
-// signature discovery element. Each dish links to that restaurant's public page.
+// signature discovery element. Each dish opens that spot on the map: every
+// clickable thing on the home page leads back to the product.
 const dishes = [
   {
     dish: 'Burger',
     restaurant: 'All In',
     src: '/pics/home-dishes/allin-single-burger.webp',
-    href: '/restaurant/all-in',
+    slug: 'all-in',
   },
   {
     dish: 'Pizza',
     restaurant: 'Gazzo',
     src: '/pics/home-dishes/gazzo-aubergine.webp',
-    href: '/restaurant/gazzo',
+    slug: 'gazzo',
   },
   {
     dish: 'Sardinen',
     restaurant: 'Sardinen Bar',
     src: '/pics/home-dishes/sardinen-print.webp',
-    href: '/restaurant/sardinen-bar',
+    slug: 'sardinen-bar',
   },
   {
     dish: 'Rinderschaufel',
     restaurant: 'Schüsseldienst',
     src: '/pics/home-dishes/rinderschaufel-print.webp',
-    href: '/restaurant/schuesseldienst',
+    slug: 'schuesseldienst',
   },
   {
     dish: 'Döner',
     restaurant: 'Uludag',
     src: '/pics/home-dishes/uludag-doener-print.webp',
-    href: '/restaurant/bursa-uludag-kebapcisi',
+    slug: 'bursa-uludag-kebapcisi',
   },
   {
     dish: 'Galette',
     restaurant: 'Bubar',
     src: '/pics/home-dishes/bubar-galette-print.webp',
-    href: '/restaurant/bubar-crepes-und-galettes',
+    slug: 'bubar-crepes-und-galettes',
   },
   {
     dish: 'Grilled Cheese',
     restaurant: 'AERA',
     src: '/pics/home-dishes/grilled-cheese-print.webp',
-    href: '/restaurant/aera',
+    slug: 'aera',
   },
   {
     dish: 'Pizza',
     restaurant: 'The Grain',
     src: '/pics/home-dishes/the-grain-pizza-print.webp',
-    href: '/restaurant/the-grain',
+    slug: 'the-grain',
   },
 ];
 
+/**
+ * Renders inside the Must Eats section (see HubMustEatsTeaser) rather than as
+ * its own band — a plain <div>, no heading, so the two food-photo rows read as
+ * one idea instead of two competing ones.
+ */
 export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
   return (
-    <section
-      className="homeV2 hv-section hv-wrap"
-      aria-label={locale === 'en' ? 'What to eat' : 'Das willst du essen'}
+    <div
+      className={styles.embedded}
+      role="group"
+      aria-label={locale === 'en' ? 'Dishes worth ordering' : 'Gerichte, die sich lohnen'}
     >
-      <div className="hv-head">
-        <h2 className="hv-title">
-          <span className="hv-mk" aria-hidden="true" />
-          {locale === 'en' ? 'This is what to eat' : 'Das willst du essen'}
-        </h2>
-      </div>
+      <p className={styles.stripLead}>
+        {locale === 'en' ? 'Dishes worth the trip' : 'Gerichte, für die sich der Weg lohnt'}
+      </p>
       <div className={styles.grid}>
         {dishes.map((d) => (
           <article key={d.src} className={styles.item}>
-            <Link
-              href={d.href}
+            <MapIntentLink
+              href={`/map?r=${d.slug}`}
+              rel="nofollow"
               className={styles.dishLink}
-              aria-label={`${d.dish} ${locale === 'en' ? `at ${d.restaurant} — restaurant page` : `bei ${d.restaurant} — Restaurantseite`}`}
+              aria-label={`${d.dish} ${locale === 'en' ? `at ${d.restaurant} — show on the map` : `bei ${d.restaurant} — auf der Map anzeigen`}`}
             >
               <span className={styles.dishImg}>
                 <Image
@@ -83,14 +88,14 @@ export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
                   sizes="(max-width: 760px) 150px, (max-width: 1360px) 18vw, 220px"
                 />
               </span>
-            </Link>
+            </MapIntentLink>
             <span className={styles.dishName}>{d.dish}</span>
-            <Link href={d.href} className={styles.rest}>
+            <MapIntentLink href={`/map?r=${d.slug}`} rel="nofollow" className={styles.rest}>
               {d.restaurant}
-            </Link>
+            </MapIntentLink>
           </article>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

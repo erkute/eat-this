@@ -11,6 +11,21 @@ interface Props {
 
 type Variant = 'guest' | 'auth';
 
+// The one-line explainer a first-time visitor needs: what this is, which city,
+// and the Must-Eat hook.
+const LEAD = {
+  de: 'Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir gleich, was du bestellen musst.',
+  en: "The best places in Berlin on one map — and at selected spots we'll tell you exactly what to order.",
+} as const;
+
+// Signed-in visitors get a line of their own rather than a gap where the
+// explainer sits — the hero should have the same shape either way.
+const LEAD_AUTH = {
+  de: 'Deine freigeschalteten Spots und Must Eats warten auf der Map.',
+  en: 'Your unlocked spots and Must Eats are waiting on the map.',
+} as const;
+
+
 interface HeroCopyProps extends Props {
   firstName: string | null;
   variant: Variant;
@@ -45,6 +60,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         <span>{headline[0]}</span>
         <span>{headline[1]}</span>
       </h1>
+      <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
       <div className={styles.heroActions}>
         <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
           {de ? 'Map öffnen' : 'Open map'}
@@ -54,19 +70,11 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
             href="/profile"
             rel="nofollow"
             prefetch={false}
-            className={`hv-link-underline ${styles.heroNearbyLink}`}
+            className={`hv-btn ${styles.heroSecondaryBtn}`}
           >
-            {de ? 'Profil' : 'Profile'}
+            {de ? 'Dein Profil' : 'Your profile'}
           </Link>
-        ) : (
-          <MapIntentLink
-            href="/map"
-            rel="nofollow"
-            className={`hv-link-underline ${styles.heroNearbyLink}`}
-          >
-            {de ? 'Was ist um mich?' : "What's near me"}
-          </MapIntentLink>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -97,17 +105,16 @@ function LoadingHeroCopy({ locale }: Props) {
           <span>{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
+      <p className={styles.heroLead} data-guest-only="">
+        {LEAD[locale]}
+      </p>
+      <p className={styles.heroLead} data-auth-only="">
+        {LEAD_AUTH[locale]}
+      </p>
       <div className={styles.heroActions}>
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
             {de ? 'Map öffnen' : 'Open map'}
-          </MapIntentLink>
-          <MapIntentLink
-            href="/map"
-            rel="nofollow"
-            className={`hv-link-underline ${styles.heroNearbyLink}`}
-          >
-            {de ? 'Was ist um mich?' : "What's near me"}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
@@ -118,9 +125,9 @@ function LoadingHeroCopy({ locale }: Props) {
             href="/profile"
             rel="nofollow"
             prefetch={false}
-            className={`hv-link-underline ${styles.heroNearbyLink}`}
+            className={`hv-btn ${styles.heroSecondaryBtn}`}
           >
-            {de ? 'Profil' : 'Profile'}
+            {de ? 'Dein Profil' : 'Your profile'}
           </Link>
         </span>
       </div>

@@ -5,6 +5,38 @@
   align-items: center;
 }
 
+/* Embedded in the home's "today" grid: the parent section owns the spacing. */
+.embedded {
+  min-width: 0;
+}
+
+
+/* Some spots carry their tagline in the name field ("der Weinlobbyist -
+   Restaurant&Weinbar"). Cap it at two lines so one long record cannot push
+   the card's meta row around. */
+:global(.homeV2) .card :global(.hv-cap) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* The promoted locate button is wider than the old text link, so on narrow
+   screens the shared .hv-head flex row lets it collide with the wrapping
+   title. Allow the row to break instead. */
+@media (max-width: 560px) {
+  :global(.homeV2) .head:global(.hv-head) {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  :global(.homeV2) .head:global(.hv-head) .locBtn {
+    margin-left: 0;
+  }
+}
+
 .title :global(.hv-mk) {
   flex: 0 0 auto;
   vertical-align: 0;
@@ -101,6 +133,22 @@
 }
 .locBtn:disabled {
   cursor: wait;
+}
+
+/* Until a location is granted this is what the section is asking for, so it
+   reads as a button rather than as a quiet utility link. */
+.locBtn[data-primary] {
+  margin-right: 0;
+  padding: 0 14px;
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
+  border-radius: var(--et-radius-control);
+}
+
+.locBtn[data-primary]:hover:not(:disabled),
+.locBtn[data-primary]:focus-visible:not(:disabled) {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-red);
 }
 
 .locBtn:hover:not(:disabled),
@@ -230,6 +278,21 @@
   .card {
     min-width: 0;
     flex: none;
+  }
+}
+
+/* Inside the home's two-column "today" block the rail only has half the page,
+   so four across would be 122px thumbnails. Two-by-two instead. Must come
+   after the four-column rule and carry both classes to beat it. */
+@media (min-width: 921px) {
+  :global(.homeV2) :global(.hv-rail).rail.railEmbedded {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(12px, 1.2vw, 18px);
+  }
+
+  .railEmbedded .card {
+    flex: none;
+    width: auto;
   }
 }
 

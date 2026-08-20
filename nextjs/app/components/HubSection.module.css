@@ -19,22 +19,24 @@
 }
 
 .page :global(.hv-section) {
-  margin-top: clamp(88px, 9vw, 148px);
+  margin-top: clamp(64px, 5.4vw, 92px);
 }
 
 .page .hero + :global(.hv-section) {
-  margin-top: clamp(44px, 4.5vw, 74px);
+  margin-top: clamp(78px, 6.4vw, 116px);
 }
 
 .page :global(.hv-section.hv-wrap[data-hub-faq]) {
-  margin-top: clamp(72px, 8vw, 112px);
+  margin-top: clamp(56px, 4.6vw, 80px);
 }
 
 .heroGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
-  gap: clamp(48px, 5.2vw, 76px);
-  align-items: stretch;
+  /* The phone column is sized to its content, not to half the page: an even
+     split left a 240px void between the copy and the mockups. */
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(40px, 4.2vw, 64px);
+  align-items: center;
 }
 
 .heroCopy {
@@ -73,6 +75,19 @@
   white-space: nowrap;
 }
 
+/* One-line explainer under the headline, set in the brand face like the
+   kicker above it. */
+.heroLead {
+  max-width: 26em;
+  margin: clamp(16px, 1.8vw, 22px) 0 0;
+  color: var(--home-ink);
+  font-family: var(--font-providence);
+  font-size: clamp(19px, 1.55vw, 23px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.18;
+}
+
 .heroActions {
   display: flex;
   gap: var(--et-rail-gap);
@@ -102,101 +117,247 @@
   background: var(--et-home-red);
 }
 
-.page .heroNearbyLink:global(.hv-link-underline) {
-  border-bottom: 0;
-  font-family: var(--font-providence);
-  font-size: clamp(23px, 2.4vw, 30px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.95;
+/* Two device cutouts, the map phone in front and slightly lower, the spot page
+   peeking out behind it. No frame, no shadow box — they are already rendered
+   with their own hardware edges and sit straight on the white. */
+.page .heroActions .heroSecondaryBtn:global(.hv-btn) {
+  color: var(--et-home-ink);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--et-home-ink);
+  text-decoration: none;
 }
 
-.page .heroNearbyLink:global(.hv-link-underline):hover,
-.page .heroNearbyLink:global(.hv-link-underline):focus-visible {
-  color: var(--et-home-red);
+.page .heroActions .heroSecondaryBtn:global(.hv-btn):hover,
+.page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
 }
 
-.heroPhoto {
+.heroPhones {
+  position: relative;
   justify-self: end;
-  width: min(100%, 440px);
-  min-height: clamp(390px, 42vw, 560px);
+  display: block;
+  width: clamp(300px, 30vw, 396px);
+  /* Mockups are 855×1736 (0.493). Sized by height and heavily overlapped, the
+     stacked pair needs ~0.74 of its height in width. Driving them off the
+     container width instead blows them past the box on narrow screens. */
+  aspect-ratio: 0.74;
 }
 
-.heroImage {
+.phoneFront,
+.phoneBack {
+  position: absolute;
+  object-fit: contain;
+  transition: transform 260ms ease;
+}
+
+/* Tilted and deeply overlapped, like two phones tossed on a table — the
+   earlier side-by-side pair read as a spec sheet. */
+.phoneFront {
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  height: 94%;
+  width: auto;
+  transform: rotate(-5deg);
+  filter: drop-shadow(0 20px 32px rgba(21, 18, 14, 0.2));
+}
+
+.phoneBack {
+  right: 0;
+  top: 0;
+  height: 88%;
+  width: auto;
+  transform: rotate(6deg);
+  filter: drop-shadow(0 16px 26px rgba(21, 18, 14, 0.14));
+}
+
+.heroPhones:hover .phoneFront,
+.heroPhones:focus-visible .phoneFront {
+  transform: rotate(-3deg) translateY(-8px);
+}
+
+.heroPhones:hover .phoneBack,
+.heroPhones:focus-visible .phoneBack {
+  transform: rotate(4deg) translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPhones:hover .phoneFront,
+  .heroPhones:focus-visible .phoneFront {
+    transform: rotate(-5deg);
+  }
+
+  .heroPhones:hover .phoneBack,
+  .heroPhones:focus-visible .phoneBack {
+    transform: rotate(6deg);
+  }
+}
+
+.heroPhones:focus-visible {
+  outline: 3px solid var(--et-home-red);
+  outline-offset: 8px;
+  border-radius: var(--et-radius-photo);
+}
+
+/* ── today: the day's pick + what's around you, side by side ── */
+.todayGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: clamp(28px, 3vw, 48px);
+  align-items: start;
+}
+
+.spot {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--et-radius-photo);
+  overflow: hidden;
+  background: var(--et-home-quiet);
+}
+
+.spot .spotPhoto {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.spotImage {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  transition: transform 260ms ease;
 }
 
-.heroPhoto :global(img) {
-  transition: transform 220ms ease;
-}
-
-.heroPhoto:hover :global(img),
-.heroPhoto:focus-visible :global(img) {
+.spotPhoto:hover .spotImage,
+.spotPhoto:focus-visible .spotImage {
   transform: scale(1.03);
 }
 
-.heroPhoto::after {
+.spotPhoto::after {
   content: '';
   position: absolute;
   inset: auto 0 0 0;
-  height: 45%;
+  height: 55%;
   background: var(--et-home-photo-overlay);
   pointer-events: none;
 }
 
-.heroPhotoTag {
+.spotTag {
   position: absolute;
-  left: clamp(16px, 2.2vw, 24px);
-  bottom: clamp(14px, 2vw, 22px);
+  left: clamp(16px, 2.2vw, 28px);
+  bottom: clamp(14px, 2vw, 24px);
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 8px;
   color: var(--et-home-inverse-text);
   text-shadow: var(--et-shadow-text-photo);
 }
 
-.page .heroPhotoTag :global(.hv-kicker) {
+.spotLabel {
+  display: inline-flex;
+  padding: 5px 9px 6px;
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
+  border-radius: var(--et-radius-control);
+  font-family: var(--font-providence);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-shadow: none;
+}
+
+.spotTag strong {
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: clamp(26px, 2.6vw, 38px);
+  line-height: 0.95;
+}
+
+.page .spotTag :global(.hv-kicker) {
   color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
-  font-size: clamp(17px, 1.75vw, 23px);
+  font-size: clamp(15px, 1.4vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.95;
   text-transform: none;
 }
 
-.heroPhotoTag strong {
+.spotSub {
+  max-width: 40ch;
+  margin: 0;
+  padding: clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 24px) clamp(16px, 1.8vw, 22px);
+  color: var(--home-ink);
   font-family: var(--font-providence);
+  font-size: clamp(16px, 1.25vw, 19px);
   font-weight: 700;
-  font-size: clamp(26px, 2.7vw, 38px);
-  line-height: 0.95;
+  letter-spacing: 0;
+  line-height: 1.22;
 }
 
 @media (max-width: 920px) {
   .page :global(.hv-section) {
-    margin-top: 82px;
+    margin-top: 92px;
   }
 
   .page :global(.hv-section.hv-wrap[data-hub-faq]) {
-    margin-top: 72px;
+    margin-top: 84px;
   }
 
   .heroGrid {
     grid-template-columns: 1fr;
-    gap: clamp(34px, 7vw, 48px);
+    gap: clamp(28px, 5vw, 40px);
   }
 
   .heroHeadline {
     font-size: clamp(42px, 12vw, 72px);
   }
 
-  .heroPhoto {
-    width: 100%;
-    justify-self: stretch;
-    min-height: clamp(240px, 42vw, 360px);
+  .heroLead {
+    margin-top: 14px;
+    font-size: 19px;
+    line-height: 1.15;
+  }
+
+    .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
+  color: var(--et-home-ink);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--et-home-ink);
+  text-decoration: none;
+}
+
+.page .heroActions .heroSecondaryBtn:global(.hv-btn):hover,
+.page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
+}
+
+.heroPhones {
+    width: min(100%, 320px);
+    justify-self: center;
+    margin-top: 8px;
+  }
+
+  .heroCopy {
+    align-items: flex-start;
+  }
+
+  .todayGrid {
+    grid-template-columns: 1fr;
+    gap: clamp(34px, 6vw, 46px);
+  }
+
+  .spot .spotPhoto {
+    aspect-ratio: 5 / 4;
   }
 }

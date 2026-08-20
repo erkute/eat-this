@@ -1,3 +1,20 @@
+/* Embedded inside the Must Eats section — a single scrollable row, never a
+   multi-row grid: as a sub-element it must stay visually subordinate to the
+   card rail above it. */
+.embedded {
+  margin-top: clamp(30px, 3.6vw, 48px);
+}
+
+.stripLead {
+  margin: 0 0 clamp(14px, 1.6vw, 20px);
+  color: var(--home-muted, var(--et-home-muted));
+  font-family: var(--font-providence);
+  font-size: clamp(17px, 1.5vw, 22px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
 /* Mobile: swipeable rail. Desktop: wraps into rows (grid). */
 .grid {
   display: flex;
@@ -69,16 +86,13 @@
 
 @media (min-width: 761px) {
   .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: clamp(24px, 2.4vw, 44px) clamp(16px, 1.6vw, 28px);
-    overflow: visible;
+    gap: clamp(16px, 1.8vw, 30px);
   }
   .item {
-    width: auto;
+    width: clamp(150px, 13vw, 190px);
   }
   .dishImg {
-    height: clamp(190px, 16vw, 250px);
+    height: clamp(150px, 12vw, 190px);
   }
 }
 

@@ -14,7 +14,7 @@ function r(name: string, opts: Partial<RestaurantCard> = {}): RestaurantCard {
 }
 
 describe('buildKategorieQuickFacts', () => {
-  it('summarises count, districts and price span in DE', () => {
+  it('summarises count and districts in DE, without a price span', () => {
     const restaurants = [
       r('A', { district: 'Mitte' }),
       r('B', { district: 'Mitte' }),
@@ -24,7 +24,10 @@ describe('buildKategorieQuickFacts', () => {
     const text = buildKategorieQuickFacts({ slug: 'pizza', label: 'Pizza', restaurants, locale: 'de' })
     expect(text).toContain('4 von Eat This kuratierte Spots für Pizza in Berlin')
     expect(text).toContain('Mitte')
-    expect(text).toContain('Preisspanne 5–100 €')
+    // Der Preis ist bewusst raus: im Kategorie-Banner sagt eine Spanne von
+    // 5–100 € nichts aus, weil sie über die ganze Kategorie mittelt.
+    expect(text).not.toContain('Preisspanne')
+    expect(text).not.toMatch(/\d+–\d+\s?€/)
   })
 
   it('uses the German search term instead of the catalogue label', () => {
@@ -64,7 +67,7 @@ describe('buildKategorieQuickFacts', () => {
     const restaurants = [r('A'), r('B', { district: 'Kreuzberg' })]
     const text = buildKategorieQuickFacts({ slug: 'coffee', label: 'Coffee', restaurants, locale: 'en' })
     expect(text).toContain('2 Eat This-curated cafés in Berlin')
-    expect(text).toContain('Prices 5–15 €')
+    expect(text).not.toMatch(/[Pp]rices/)
   })
 
   it('falls back to the label for unknown slugs', () => {
@@ -88,21 +91,25 @@ describe('buildKategorieFAQEntries', () => {
     ).toEqual([])
   })
 
-  it('builds count, district, highlight, budget and high-end entries (DE)', () => {
+  it('builds count, district and highlight entries (DE)', () => {
     const entries = buildKategorieFAQEntries({ slug: 'pizza', label: 'Pizza', restaurants, locale: 'de' })
     const questions = entries.map(e => e.question)
     expect(questions).toContain('Wie viele Spots für Pizza in Berlin empfiehlt Eat This?')
     expect(questions).toContain('In welchen Bezirken findet man Pizza in Berlin?')
     expect(questions).toContain('Was sind bekannte Adressen für Pizza in Berlin?')
-    expect(questions).toContain('Wo gibt es Pizza in Berlin für kleines Geld?')
-    expect(questions).toContain('Welche Spots für Pizza in Berlin sind gehoben?')
 
     const count = entries.find(e => e.question.startsWith('Wie viele'))
     expect(count?.answer).toContain('4 kuratierte Spots für Pizza in Berlin')
-    const budget = entries.find(e => e.question.includes('kleines Geld'))
-    expect(budget?.answer).toContain('Delta')
-    const fine = entries.find(e => e.question.includes('gehoben'))
-    expect(fine?.answer).toContain('Gamma')
+  })
+
+  it('carries no price statements at all', () => {
+    // Preis ist auf der Kategorie-Seite bewusst kein Thema mehr — weder als
+    // Spanne im Banner noch als Schwelle in der FAQ.
+    for (const locale of ['de', 'en'] as const) {
+      const entries = buildKategorieFAQEntries({ slug: 'pizza', label: 'Pizza', restaurants, locale })
+      const all = entries.map(e => `${e.question} ${e.answer}`).join(' ')
+      expect(all).not.toMatch(/€|Preissegment|kleines Geld|gehoben|budget|price/i)
+    }
   })
 
   it('asks in German search vocabulary, not the catalogue label', () => {
@@ -124,20 +131,6 @@ describe('buildKategorieFAQEntries', () => {
     expect(districts?.answer).toContain('Mitte (2)')
     const highlights = entries.find(e => e.question.includes('notable'))
     expect(highlights?.answer).toContain('Alpha')
-  })
-
-  it('skips budget entry when no spot is in the bucket', () => {
-    const expensive = [
-      r('A', { priceRange: { min: 45, max: 90, currency: 'EUR' } }),
-      r('B', { priceRange: { min: 50, max: 120, currency: 'EUR' }, district: 'Kreuzberg' }),
-    ]
-    const entries = buildKategorieFAQEntries({
-      slug: 'fine-dining',
-      label: 'Fine Dining',
-      restaurants: expensive,
-      locale: 'de',
-    })
-    expect(entries.some(e => e.question.includes('kleines Geld'))).toBe(false)
   })
 
   it('keeps numeric names out of the "notable addresses" answer', () => {
@@ -162,6 +155,49 @@ describe('buildKategorieFAQEntries', () => {
     expect(highlights.answer).toContain('Gemello')
     expect(highlights.answer).not.toContain('1811')
     expect(highlights.answer).not.toContain('963')
+  })
+
+  it('answers "notable addresses" from the curated list when there is one', () => {
+    const curated = [r('Jules Geisberg'), r('Kolo Coffee'), r('Bonanza Coffee Heroes')]
+    const entries = buildKategorieFAQEntries({
+      slug: 'coffee',
+      label: 'Coffee',
+      restaurants,
+      locale: 'de',
+      curated,
+    })
+    const highlights = entries.find(e => e.question.includes('bekannte'))!
+    expect(highlights.answer).toContain('Jules Geisberg, Kolo Coffee, Bonanza Coffee Heroes')
+    // Die alphabetische Heuristik darf nicht mehr durchschlagen.
+    expect(highlights.answer).not.toContain('Alpha')
+  })
+
+  it('keeps the curated order and caps the answer at five names', () => {
+    const curated = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'].map(n => r(n))
+    const entries = buildKategorieFAQEntries({
+      slug: 'lunch',
+      label: 'Lunch',
+      restaurants,
+      locale: 'de',
+      curated,
+    })
+    const highlights = entries.find(e => e.question.includes('bekannte'))!
+    expect(highlights.answer).toContain('One, Two, Three, Four, Five')
+    expect(highlights.answer).not.toContain('Six')
+  })
+
+  it('falls back to the heuristic when nothing is curated', () => {
+    for (const curated of [undefined, []]) {
+      const entries = buildKategorieFAQEntries({
+        slug: 'pizza',
+        label: 'Pizza',
+        restaurants,
+        locale: 'de',
+        curated,
+      })
+      const highlights = entries.find(e => e.question.includes('bekannte'))!
+      expect(highlights.answer).toContain('Alpha')
+    }
   })
 
   it('ranks editorial content above bare entries', () => {

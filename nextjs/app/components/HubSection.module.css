@@ -4,6 +4,14 @@
   --home-muted: var(--et-home-muted);
   --home-line: var(--et-home-line);
   --home-gutter: var(--et-wrap-pad);
+  /* Section titles: same curve as the global token, higher floor. At 24px the
+     mobile headings sat barely above the 19px lead and nothing announced that
+     a new section had started. Above ~880px this resolves identically. */
+  --et-type-section-title: clamp(30px, 3.4vw, 42px);
+  /* One rhythm for every boundary on the page, including the last one down to
+     the footer (HubFaq's margin-bottom). Sections used to carry their own
+     values and drifted apart by up to 50px. */
+  --home-section-gap: clamp(64px, 5.4vw, 92px);
   width: 100%;
   min-height: 100svh;
   padding-top: var(--et-page-top);
@@ -18,16 +26,15 @@
   margin-top: 0;
 }
 
+/* The one exception is the block after the hero: the drop-shadow of the tilted
+   phones paints ~8px past the hero's box, so an equal-looking gap has to be a
+   slightly larger one. */
 .page :global(.hv-section) {
-  margin-top: clamp(64px, 5.4vw, 92px);
+  margin-top: var(--home-section-gap);
 }
 
 .page .hero + :global(.hv-section) {
-  margin-top: clamp(78px, 6.4vw, 116px);
-}
-
-.page :global(.hv-section.hv-wrap[data-hub-faq]) {
-  margin-top: clamp(56px, 4.6vw, 80px);
+  margin-top: calc(var(--home-section-gap) + 8px);
 }
 
 .heroGrid {
@@ -257,7 +264,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  /* The name is set at 26-38px on a 0.95 leading, so a flat 8px put the chip
+     right on its cap-height. */
+  gap: clamp(12px, 1.4vw, 16px);
   color: var(--et-home-inverse-text);
   text-shadow: var(--et-shadow-text-photo);
 }
@@ -306,12 +315,12 @@
 }
 
 @media (max-width: 920px) {
-  .page :global(.hv-section) {
-    margin-top: 92px;
-  }
-
-  .page :global(.hv-section.hv-wrap[data-hub-faq]) {
-    margin-top: 84px;
+  /* Stacked, every block is the full column width, so the only thing telling a
+     visitor where one section ends and the next begins is the space between
+     them. It has to be clearly more than any gap inside a section — see
+     .todayGrid below, which is the tightest of them. */
+  .page {
+    --home-section-gap: 104px;
   }
 
   .heroGrid {
@@ -329,20 +338,7 @@
     line-height: 1.15;
   }
 
-    .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
-  color: var(--et-home-ink);
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--et-home-ink);
-  text-decoration: none;
-}
-
-.page .heroActions .heroSecondaryBtn:global(.hv-btn):hover,
-.page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
-}
-
-.heroPhones {
+  .heroPhones {
     width: min(100%, 320px);
     justify-self: center;
     margin-top: 8px;
@@ -354,7 +350,10 @@
 
   .todayGrid {
     grid-template-columns: 1fr;
-    gap: clamp(34px, 6vw, 46px);
+    /* Side by side these are one answer to "what do I eat now". Stacked they
+       read as two blocks — the second one opens with its own heading — and at
+       34px that heading sat almost on the spot card. */
+    gap: clamp(56px, 9vw, 68px);
   }
 
   .spot .spotPhoto {

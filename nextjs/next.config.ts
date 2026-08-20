@@ -139,6 +139,20 @@ const nextConfig: NextConfig = {
         destination: '/en/restaurant/engelbecken',
         permanent: true,
       },
+      // Bäckereien-Guide lag doppelt im Index: NEWS_GUIDES und ein Sanity-
+      // newsArticle teilten sich den Slug, beide selbst-kanonisch, beide in der
+      // Sitemap. Google hat sie durchweg gegeneinander ausgespielt (der Guide
+      // 20-30 Plätze schlechter). Guide-Eintrag entfernt, URL 308 → Artikel.
+      {
+        source: '/guides/beste-baeckereien-berlin',
+        destination: '/news/beste-baeckereien-berlin',
+        permanent: true,
+      },
+      {
+        source: '/en/guides/beste-baeckereien-berlin',
+        destination: '/en/news/beste-baeckereien-berlin',
+        permanent: true,
+      },
     ];
   },
 };

@@ -45,7 +45,7 @@ describe('sitemap.ts', () => {
     const urls = result.map((entry) => entry.url);
     expect(urls.some((url) => url.endsWith('/restaurant/live-spot'))).toBe(true);
     expect(urls.some((url) => url.endsWith('/restaurant/phantom-bar'))).toBe(false);
-    expect(urls.filter((url) => url.includes('/guides/'))).toHaveLength(4);
+    expect(urls.filter((url) => url.includes('/guides/'))).toHaveLength(3);
 
     const guide = result.find((entry) => entry.url.endsWith('/guides/beste-pizza-berlin'));
     expect(guide?.alternates?.languages?.en).toMatch(/\/en\/guides\/beste-pizza-berlin$/);

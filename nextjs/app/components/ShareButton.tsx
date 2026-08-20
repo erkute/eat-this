@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { trackEvent } from '@/lib/analytics';
 
 interface Props {
@@ -11,6 +11,8 @@ interface Props {
   className?: string;
   label: string;
   copiedLabel: string;
+  /** Optional leading glyph, so the button can sit in an icon'd action row. */
+  icon?: ReactNode;
 }
 
 /**
@@ -28,6 +30,7 @@ export default function ShareButton({
   className,
   label,
   copiedLabel,
+  icon,
 }: Props) {
   const [done, setDone] = useState(false);
 
@@ -79,6 +82,7 @@ export default function ShareButton({
         window.setTimeout(() => setDone(false), 1800);
       }}
     >
+      {icon}
       <span>{done ? copiedLabel : label}</span>
     </button>
   );

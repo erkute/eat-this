@@ -4,7 +4,11 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server';
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories';
-import { buildCategoryTitle, buildCategoryDescription } from '@/lib/seo/categoryMeta';
+import {
+  buildCategoryTitle,
+  buildCategoryDescription,
+  buildCategorySectionHeading,
+} from '@/lib/seo/categoryMeta';
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
@@ -108,9 +112,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   if (!c) notFound();
   const label = localizedCategoryName(c, loc);
   const blurb = localizedCategoryBlurb(c, loc);
-  const quickFacts = buildKategorieQuickFacts({ label, restaurants, locale: loc });
+  const quickFacts = buildKategorieQuickFacts({ slug, label, restaurants, locale: loc });
   const districtLinks = categoryDistrictLinks(restaurants);
-  const faqEntries = buildKategorieFAQEntries({ label, restaurants, locale: loc });
+  const faqEntries = buildKategorieFAQEntries({ slug, label, restaurants, locale: loc });
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
@@ -248,7 +252,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
 
         <section id="restaurants" className={sharedStyles.restaurantSection}>
           <div className={sharedStyles.sectionHead}>
-            <h2>{de ? 'Die handverlesene Auswahl' : 'The hand-picked selection'}</h2>
+            {/* Trägt die Ziel-Query im Klartext — die H1 darüber ist auf ein
+                einzelnes Display-Wort designt („LUNCH") und kann das nicht. */}
+            <h2>{buildCategorySectionHeading(slug, label, loc)}</h2>
             <p>{de ? 'Kuratiert vom Eat-This-Team.' : 'Curated by the Eat This team.'}</p>
           </div>
 

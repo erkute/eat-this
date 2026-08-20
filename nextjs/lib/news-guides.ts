@@ -1,8 +1,7 @@
 type NewsGuideSlug =
   | 'beste-fast-food-berlin'
   | 'beste-pizza-berlin'
-  | 'beste-cafes-berlin'
-  | 'beste-baeckereien-berlin';
+  | 'beste-cafes-berlin';
 
 interface NewsGuideDef {
   slug: NewsGuideSlug;
@@ -64,23 +63,6 @@ export const NEWS_GUIDES: NewsGuideDef[] = [
       en: 'For better conversations and caffeine levels.',
     },
     mapQuery: 'coffee',
-  },
-  {
-    slug: 'beste-baeckereien-berlin',
-    categorySlug: 'breakfast',
-    art: '/pics/booster/booster_breakfast.webp',
-    accent: 'paper',
-    title: { de: 'Die besten Bäckereien in Berlin', en: 'The best bakeries in Berlin' },
-    shortTitle: { de: 'Bäckerei', en: 'Bakeries' },
-    intro: {
-      de: 'Croissants, Sauerteig, Zimtschnecken und alles, was morgens gefährlich gute Laune macht.',
-      en: 'Croissants, sourdough, buns and everything that makes mornings dangerously good.',
-    },
-    promise: {
-      de: 'Früh aufstehen lohnt sich manchmal doch.',
-      en: 'Sometimes getting up early is worth it.',
-    },
-    mapQuery: 'breakfast',
   },
 ];
 

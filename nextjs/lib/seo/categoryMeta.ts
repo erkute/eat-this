@@ -81,3 +81,68 @@ export function buildCategoryDescription({
   if (parts.length === 0) return undefined;
   return truncateMetadataDescription(parts.join(' '));
 }
+
+/**
+ * Das Wort, mit dem Leute die Kategorie *suchen* — nicht das Katalog-Label.
+ * Ohne das schreibt die deutsche Seite durchgehend „Lunch“, während gesucht
+ * wird nach „Mittagessen“: GSC hatte `/kategorie/lunch` auf Pos. 37,7 für
+ * „berlin mittagessen“, aber auf Pos. 9,5 für „best lunch berlin“ — die DE-
+ * Seite konkurrierte mit ihrer eigenen EN-Version statt den DE-Markt zu
+ * bedienen.
+ *
+ * `kind` steuert die Satzform: eine Mahlzeit braucht „Spots für {term}“,
+ * ein Lokaltyp steht allein („die besten Cafés“). Ohne die Unterscheidung
+ * kommt „Wo gibt es Café in Berlin“ heraus.
+ */
+export type CategoryTermKind = 'meal' | 'venue';
+
+export interface CategorySearchTerm {
+  term: string;
+  kind: CategoryTermKind;
+}
+
+const CATEGORY_SEARCH_TERMS: Record<string, { de: CategorySearchTerm; en: CategorySearchTerm }> = {
+  pizza: { de: { term: 'Pizza', kind: 'meal' }, en: { term: 'pizza', kind: 'meal' } },
+  coffee: { de: { term: 'Cafés', kind: 'venue' }, en: { term: 'cafés', kind: 'venue' } },
+  breakfast: {
+    de: { term: 'Frühstück', kind: 'meal' },
+    en: { term: 'breakfast', kind: 'meal' },
+  },
+  dinner: { de: { term: 'Abendessen', kind: 'meal' }, en: { term: 'dinner', kind: 'meal' } },
+  lunch: { de: { term: 'Mittagessen', kind: 'meal' }, en: { term: 'lunch', kind: 'meal' } },
+  drinks: { de: { term: 'Bars', kind: 'venue' }, en: { term: 'bars', kind: 'venue' } },
+  'fine-dining': {
+    de: { term: 'Fine Dining', kind: 'meal' },
+    en: { term: 'fine dining', kind: 'meal' },
+  },
+  'fast-food': {
+    de: { term: 'Fast Food', kind: 'meal' },
+    en: { term: 'fast food', kind: 'meal' },
+  },
+  sweets: { de: { term: 'Dessert', kind: 'meal' }, en: { term: 'dessert', kind: 'meal' } },
+};
+
+/**
+ * Suchbegriff + Satzform für eine Kategorie. Unbekannte Slugs fallen auf das
+ * Label zurück und werden als Mahlzeit behandelt — die neutralere Satzform.
+ */
+export function categorySearchTerm(slug: string, label: string, locale: Loc): CategorySearchTerm {
+  return CATEGORY_SEARCH_TERMS[slug]?.[locale] ?? { term: label, kind: 'meal' };
+}
+
+/**
+ * Sichtbare H2 über der Restaurant-Liste — trägt die Ziel-Query im Klartext,
+ * weil die H1 darüber auf ein einzelnes Display-Wort designt ist („LUNCH“).
+ *
+ * Bewusst „handverlesen“ statt „die besten“: der SERP-Title sagt schon „die
+ * besten“, und für Kategorien wie `coffee` wären Title und H2 sonst wortgleich.
+ */
+export function buildCategorySectionHeading(slug: string, label: string, locale: Loc): string {
+  const { term, kind } = categorySearchTerm(slug, label, locale);
+  if (locale === 'de') {
+    return kind === 'venue'
+      ? `Handverlesene ${term} in Berlin`
+      : `Handverlesene Spots für ${term} in Berlin`;
+  }
+  return kind === 'venue' ? `Hand-picked ${term} in Berlin` : `Hand-picked ${term} spots in Berlin`;
+}

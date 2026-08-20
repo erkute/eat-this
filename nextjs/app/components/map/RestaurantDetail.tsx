@@ -27,65 +27,7 @@ import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
-
-const DAY_ALIASES: Record<string, number> = {
-  su: 0,
-  sun: 0,
-  sunday: 0,
-  so: 0,
-  mo: 1,
-  mon: 1,
-  monday: 1,
-  tu: 2,
-  tue: 2,
-  tuesday: 2,
-  di: 2,
-  we: 3,
-  wed: 3,
-  wednesday: 3,
-  mi: 3,
-  th: 4,
-  thu: 4,
-  thursday: 4,
-  do: 4,
-  fr: 5,
-  fri: 5,
-  friday: 5,
-  sa: 6,
-  sat: 6,
-  saturday: 6,
-};
-
-const DAY_LABELS = {
-  de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-} as const;
-
-function localizeOpeningDays(days: string, locale: string) {
-  const lang = locale === 'en' ? 'en' : 'de';
-  const labels = DAY_LABELS[lang];
-  return days
-    .split(',')
-    .map((group) => {
-      const parts = group
-        .trim()
-        .split(/[–-]/)
-        .map((part) => part.trim());
-      const localized = parts.map((part) => {
-        const idx = DAY_ALIASES[part.toLowerCase()];
-        return idx === undefined ? part : labels[idx];
-      });
-      return localized.join('–');
-    })
-    .join(', ');
-}
-
-function localizeOpeningHours(hours: string, locale: string) {
-  if (/closed|ruhetag|geschlossen/i.test(hours)) {
-    return locale === 'en' ? 'closed' : 'geschlossen';
-  }
-  return hours;
-}
+import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 
 function MustEatMiniCard({
   mustEat,

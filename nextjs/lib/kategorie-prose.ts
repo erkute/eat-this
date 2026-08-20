@@ -1,5 +1,6 @@
 import type { RestaurantCard } from './types';
 import type { FAQEntry } from './restaurant-prose';
+import { categorySearchTerm } from './seo/categoryMeta';
 
 type Loc = 'de' | 'en';
 
@@ -9,9 +10,15 @@ type Loc = 'de' | 'en';
  * Same goal as bezirk-prose: lift unique word count above Google's
  * thin-content bar. Each helper derives from the list of restaurants the
  * page already loads, so no extra Sanity calls are needed.
+ *
+ * Die Prosa spricht bewusst im Suchvokabular („Mittagessen“) statt im
+ * Katalog-Label („Lunch“) — sonst liest sich die deutsche Seite für Google
+ * wie ein Duplikat der englischen. Siehe `categorySearchTerm`.
  */
 
 interface KategorieContext {
+  /** Kategorie-Slug — bestimmt Suchbegriff und Satzform. */
+  slug: string;
   label: string;
   restaurants: RestaurantCard[];
   locale: Loc;
@@ -51,8 +58,50 @@ function priceSpan(
   return { min, max, currency };
 }
 
+/**
+ * Wie „vorzeigbar“ ein Name in einer Aufzählung ist.
+ *
+ * Die Liste kommt alphabetisch aus Sanity (`order(name asc)`), also lieferte
+ * ein blankes `slice(0, 5)` als „bekannte Adressen“ Antworten wie „136 Berlin
+ * Restaurant, 1811, 3 Minutes sur Mer, 893 Ryōtei, 963“ — und das ging als
+ * FAQPage-Schema an Google. Namen, die mit einem Buchstaben beginnen, kommen
+ * zuerst; danach entscheidet gepflegter Redaktions-Content.
+ */
+function showcaseRank(r: RestaurantCard): [number, number] {
+  const startsWithLetter = /^\p{L}/u.test(r.name) ? 1 : 0;
+  let content = 0;
+  if (r.tip || r.tipEn) content += 2;
+  if (r.shortDescription || r.shortDescriptionEn) content += 2;
+  if (r.photo) content += 1;
+  return [startsWithLetter, content];
+}
+
+/**
+ * Deterministische Auswahl der Namen, die in Fließtext-Aufzählungen landen.
+ * Stabil sortiert (Alphabet als Tie-Break), damit SSG-Output nicht zwischen
+ * Builds springt.
+ *
+ * Ziffern-Namen fallen ganz raus, solange genug echte Namen übrig bleiben —
+ * eine kurze Aufzählung ist besser als eine, die mit „963“ aufgefüllt wird.
+ */
+function pickShowcase(restaurants: RestaurantCard[], limit = 5): RestaurantCard[] {
+  const ranked = restaurants
+    .map((r, i) => ({ r, i, rank: showcaseRank(r) }))
+    .sort((a, b) => b.rank[0] - a.rank[0] || b.rank[1] - a.rank[1] || a.i - b.i);
+  const named = ranked.filter((x) => x.rank[0] === 1);
+  const pool = named.length >= Math.min(3, ranked.length) ? named : ranked;
+  return pool.slice(0, limit).map((x) => x.r);
+}
+
+function showcaseNames(restaurants: RestaurantCard[], limit = 5): string {
+  return pickShowcase(restaurants, limit)
+    .map((r) => r.name)
+    .join(', ');
+}
+
 /** One-line factual summary that sits below the kategorie header. */
 export function buildKategorieQuickFacts({
+  slug,
   label,
   restaurants,
   locale,
@@ -60,38 +109,39 @@ export function buildKategorieQuickFacts({
   const count = restaurants.length;
   if (count === 0) return null;
   const de = locale === 'de';
+  const { term, kind } = categorySearchTerm(slug, label, locale);
   const districts = districtBreakdown(restaurants);
   const span = priceSpan(restaurants);
 
-  const segments: string[] = [];
-  if (de) {
-    segments.push(`${count} von Eat This kuratierte ${label}-Spots in Berlin`);
-    if (districts.length > 1) {
-      segments.push(
-        `die meisten in ${districts
-          .slice(0, 3)
-          .map((d) => d.name)
-          .join(', ')}`
-      );
-    }
-    if (span) segments.push(`Preisspanne ${span.min}–${span.max} ${span.currency}`);
-    return segments.join('. ') + '.';
-  }
-  segments.push(`${count} Eat This-curated ${label.toLowerCase()} spots in Berlin`);
-  if (districts.length > 1) {
-    segments.push(
-      `most of them in ${districts
-        .slice(0, 3)
-        .map((d) => d.name)
-        .join(', ')}`
-    );
-  }
-  if (span) segments.push(`prices ${span.min}–${span.max} ${span.currency}`);
-  return segments.join('. ') + '.';
+  // Erstes und zweites Segment hängen an einem Gedankenstrich, sonst entsteht
+  // „… in Berlin. die meisten in Mitte“ — Kleinbuchstabe nach Punkt.
+  const head = de
+    ? kind === 'venue'
+      ? `${count} von Eat This kuratierte ${term} in Berlin`
+      : `${count} von Eat This kuratierte Spots für ${term} in Berlin`
+    : kind === 'venue'
+      ? `${count} Eat This-curated ${term} in Berlin`
+      : `${count} Eat This-curated ${term} spots in Berlin`;
+
+  const top = districts
+    .slice(0, 3)
+    .map((d) => d.name)
+    .join(', ');
+  const lead =
+    districts.length > 1
+      ? `${head} – ${de ? `die meisten in ${top}` : `most of them in ${top}`}`
+      : head;
+
+  if (!span) return `${lead}.`;
+  const price = de
+    ? `Preisspanne ${span.min}–${span.max} ${span.currency}`
+    : `prices ${span.min}–${span.max} ${span.currency}`;
+  return `${lead}. ${de ? price : price.charAt(0).toUpperCase() + price.slice(1)}.`;
 }
 
 /** FAQ entries derived from the category's restaurant list. */
 export function buildKategorieFAQEntries({
+  slug,
   label,
   restaurants,
   locale,
@@ -100,16 +150,22 @@ export function buildKategorieFAQEntries({
   const entries: FAQEntry[] = [];
   if (restaurants.length === 0) return entries;
 
+  const { term, kind } = categorySearchTerm(slug, label, locale);
+  const venue = kind === 'venue';
+  // Präpositionalphrase, die in jeder Frage trägt: „Spots für Mittagessen“
+  // bzw. schlicht „Cafés“.
+  const subject = de ? (venue ? term : `Spots für ${term}`) : venue ? term : `${term} spots`;
+
   // 1. How many
   entries.push(
     de
       ? {
-          question: `Wie viele ${label}-Spots empfiehlt Eat This in Berlin?`,
-          answer: `Aktuell stehen ${restaurants.length} kuratierte ${label}-Spots auf Eat This Berlin.`,
+          question: `Wie viele ${subject} in Berlin empfiehlt Eat This?`,
+          answer: `Aktuell stehen ${restaurants.length} kuratierte ${subject} in Berlin auf Eat This.`,
         }
       : {
-          question: `How many ${label.toLowerCase()} spots does Eat This recommend in Berlin?`,
-          answer: `Eat This Berlin currently features ${restaurants.length} curated ${label.toLowerCase()} spots.`,
+          question: `How many ${subject} in Berlin does Eat This recommend?`,
+          answer: `Eat This Berlin currently features ${restaurants.length} curated ${subject}.`,
         }
   );
 
@@ -120,68 +176,69 @@ export function buildKategorieFAQEntries({
     entries.push(
       de
         ? {
-            question: `In welchen Bezirken findet man ${label} in Berlin?`,
+            question: `In welchen Bezirken findet man ${term} in Berlin?`,
             answer: `Die Auswahl verteilt sich u. a. auf ${list}.`,
           }
         : {
-            question: `Which districts are best for ${label.toLowerCase()} in Berlin?`,
+            question: `Which districts are best for ${term} in Berlin?`,
             answer: `The selection spreads across ${list}.`,
           }
     );
   }
 
-  // 3. Highlights (top 5 by list order)
+  // 3. Highlights
   if (restaurants.length >= 3) {
-    const highlights = restaurants
-      .slice(0, 5)
-      .map((r) => r.name)
-      .join(', ');
+    const highlights = showcaseNames(restaurants);
     entries.push(
       de
         ? {
-            question: `Was sind bekannte ${label}-Adressen in Berlin?`,
+            question: venue
+              ? `Was sind bekannte ${term} in Berlin?`
+              : `Was sind bekannte Adressen für ${term} in Berlin?`,
             answer: `Aus der Auswahl: ${highlights}.`,
           }
         : {
-            question: `What are some notable ${label.toLowerCase()} spots in Berlin?`,
+            question: venue
+              ? `What are some notable ${term} in Berlin?`
+              : `What are some notable places for ${term} in Berlin?`,
             answer: `Highlights from the selection: ${highlights}.`,
           }
     );
   }
 
   // 4. Budget spots (max <= 20)
-  const budget = restaurants
-    .filter((r) => typeof r.priceRange?.max === 'number' && r.priceRange.max! <= 20)
-    .slice(0, 5);
+  const budget = restaurants.filter(
+    (r) => typeof r.priceRange?.max === 'number' && r.priceRange.max! <= 20
+  );
   if (budget.length > 0) {
-    const list = budget.map((r) => r.name).join(', ');
+    const list = showcaseNames(budget);
     entries.push(
       de
         ? {
-            question: `Wo gibt es ${label} in Berlin für kleines Geld?`,
+            question: `Wo gibt es ${term} in Berlin für kleines Geld?`,
             answer: `Im unteren Preissegment (bis 20 €): ${list}.`,
           }
         : {
-            question: `Where can I get ${label.toLowerCase()} in Berlin on a budget?`,
+            question: `Where can I get ${term} in Berlin on a budget?`,
             answer: `In the lower price range (up to €20): ${list}.`,
           }
     );
   }
 
   // 5. Higher-end spots (min >= 40)
-  const fineDining = restaurants
-    .filter((r) => typeof r.priceRange?.min === 'number' && r.priceRange.min! >= 40)
-    .slice(0, 5);
+  const fineDining = restaurants.filter(
+    (r) => typeof r.priceRange?.min === 'number' && r.priceRange.min! >= 40
+  );
   if (fineDining.length > 0) {
-    const list = fineDining.map((r) => r.name).join(', ');
+    const list = showcaseNames(fineDining);
     entries.push(
       de
         ? {
-            question: `Welche ${label}-Spots in Berlin sind gehoben?`,
+            question: `Welche ${subject} in Berlin sind gehoben?`,
             answer: `Im höheren Preissegment (ab 40 €): ${list}.`,
           }
         : {
-            question: `Which ${label.toLowerCase()} spots in Berlin are higher-end?`,
+            question: `Which ${subject} in Berlin are higher-end?`,
             answer: `In the higher price range (from €40): ${list}.`,
           }
     );

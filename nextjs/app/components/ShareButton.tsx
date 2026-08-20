@@ -13,6 +13,9 @@ interface Props {
   copiedLabel: string;
   /** Optional leading glyph, so the button can sit in an icon'd action row. */
   icon?: ReactNode;
+  /** Share this URL instead of the current page — the profile's invite link
+   *  is not the address the user is standing on. */
+  url?: string;
 }
 
 /**
@@ -31,6 +34,7 @@ export default function ShareButton({
   label,
   copiedLabel,
   icon,
+  url: shareUrl,
 }: Props) {
   const [done, setDone] = useState(false);
 
@@ -39,7 +43,7 @@ export default function ShareButton({
       type="button"
       className={className}
       onClick={async () => {
-        const url = typeof window !== 'undefined' ? window.location.href : '';
+        const url = shareUrl ?? (typeof window !== 'undefined' ? window.location.href : '');
         const shareData = { title, text: title, url };
         // Native share sheet only on touch devices (mobile). Desktop Chrome
         // exposes navigator.share but it's a poor fit there — so desktop

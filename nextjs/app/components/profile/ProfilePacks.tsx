@@ -7,7 +7,7 @@ import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
 import { CATALOG, allPackIds } from '@/lib/stripe-catalog';
 import { packUrlSlug } from '@/lib/pack/packDetail';
 import { categoryArt } from '@/lib/categoryArt';
-import styles from './ProfileSlim.module.css';
+import styles from './Profile.module.css';
 
 const PACK_ART_VERSION = '1';
 const WELCOME_ART = '/pics/booster/booster_free.webp';
@@ -30,17 +30,25 @@ function PackArt({ src }: { src: string }) {
   );
 }
 
-// Opened packs stay grouped above unopened packs; locked cards link as a whole
-// so the pack art is tappable too.
+// A swipeable rail like the home's category rail — opened packs first, locked
+// ones behind them. Locked cards link as a whole so the pack art is tappable.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
+
+  const head = (
+    <div className={`hv-head ${styles.head}`}>
+      <h2 className="hv-title">{t('packsHeading')}</h2>
+      <Link href="/packs" className="hv-link-underline">
+        {t('packsCta')}
+      </Link>
+    </div>
+  );
+
   if (owned === null) {
     return (
       <>
-        <div className={styles.secHead}>
-          <h3>{t('packsHeading')}</h3>
-        </div>
+        {head}
         <div className={styles.dataNotice} role="status" aria-live="polite">
           <p>{t('dataLoading')}</p>
         </div>
@@ -59,14 +67,11 @@ export default function ProfilePacks({ uid }: { uid: string }) {
 
   return (
     <>
-      <div className={styles.secHead}>
-        <h3>{t('packsHeading')}</h3>
-      </div>
-      <div className={styles.packs}>
+      {head}
+      <div className={`hv-rail ${styles.packs}`}>
         <div className={`${styles.pack} ${styles.packOwned}`}>
           <PackArt src={WELCOME_ART} />
           <span className={styles.packName}>Welcome Pack</span>
-          <span className={styles.dots} />
           <span className={styles.packStatus}>{t('packStatusOwned')}</span>
         </div>
         {openedBoosters.map((p) => {
@@ -75,7 +80,6 @@ export default function ProfilePacks({ uid }: { uid: string }) {
             <div key={p.packId} className={`${styles.pack} ${styles.packOwned}`}>
               <PackArt src={art} />
               <span className={styles.packName}>{p.displayName}</span>
-              <span className={styles.dots} />
               <span className={styles.packStatus}>{t('packStatusOwned')}</span>
             </div>
           );
@@ -90,7 +94,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
             >
               <PackArt src={art} />
               <span className={styles.packName}>{p.displayName}</span>
-              <span className={styles.packButton}>{t('packStatusLocked')}</span>
+              <span className={`hv-btn ${styles.packButton}`}>{t('packStatusLocked')}</span>
             </Link>
           );
         })}

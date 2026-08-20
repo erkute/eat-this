@@ -70,7 +70,9 @@ describe('ProfilePacks artwork delivery', () => {
     const { container, getByRole } = render(<ProfilePacks uid="user-1" />);
 
     expect(getByRole('status').textContent).toBe('dataLoading');
-    expect(container.querySelectorAll('a')).toHaveLength(0);
+    // The section head's "see all packs" link is not a pack — only individual
+    // /pack/<slug> links would mean we guessed at ownership.
+    expect(container.querySelectorAll('a[href^="/pack/"]')).toHaveLength(0);
     expect(container.querySelectorAll('img')).toHaveLength(0);
   });
 });

@@ -48,8 +48,8 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
 
   return (
     <div className={styles.panel}>
-      <div className={styles.head}>
-        <h2 className={styles.title}>{t('albumHeading')}</h2>
+      <div className={`hv-head ${styles.head}`}>
+        <h2 className="hv-title">{t('albumHeading')}</h2>
         {slots.length > 0 && (
           <span className={styles.count}>
             <strong>{collected}</strong>

@@ -6,10 +6,8 @@
   --album-muted: var(--profile-muted, rgba(21, 18, 14, 0.64));
   --album-line: var(--profile-line, rgba(21, 18, 14, 0.2));
   --album-quiet: var(--profile-quiet, var(--et-home-quiet, #f2f1ef));
-  --album-warm: var(--profile-warm, var(--et-home-panel-warm, #fff4cc));
   --album-red: var(--profile-red, var(--et-home-red, #d9382a));
-  --album-display: var(--profile-display, var(--et-font-display), sans-serif);
-  --album-label: var(--profile-label, var(--et-font-label), monospace);
+  --album-display: var(--et-font-display, sans-serif);
   position: relative;
   z-index: 1;
   display: grid;
@@ -18,22 +16,10 @@
   background: transparent;
 }
 
-.head {
-  display: flex;
+/* hv-head aligns on the baseline; the count chip is a box, so centre it.
+   Scoped through .panel to outweigh the two-class .homeV2 .hv-head. */
+.panel .head {
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.title {
-  margin: 0;
-  color: #15120e;
-  font-family: var(--album-display);
-  font-size: clamp(32px, 3.6vw, 52px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.9;
-  text-transform: uppercase;
 }
 
 .count {
@@ -46,10 +32,10 @@
   color: var(--album-ink);
   background: var(--profile-accent, #ffc600);
   border-radius: var(--profile-radius, 7px);
-  font-family: var(--album-label);
+  font-family: var(--et-font-display);
   font-size: clamp(10px, 0.9vw, 12px);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -119,7 +105,7 @@
   margin: 0;
   color: var(--album-muted);
   font-family: var(--album-display);
-  font-size: var(--et-type-body, clamp(12px, 1.1vw, 14px));
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
   font-weight: 400;
   line-height: var(--et-leading-copy, 1.5);
 }

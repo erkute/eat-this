@@ -1,0 +1,628 @@
+/* Profile — the home's page, logged in.
+   Layout only: the element vocabulary (hv-wrap/-section/-head/-title/-rail/
+   -photo/-btn) comes from the homeV2 block in css/style.css, so the two pages
+   stay one system instead of two that resemble each other. */
+
+.page {
+  --profile-ink: var(--et-home-ink, #15120e);
+  --profile-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --profile-quiet: var(--et-home-quiet, #f2f1ef);
+  --profile-accent: var(--et-home-accent, #ffc600);
+  --profile-red: var(--et-home-red, #d9382a);
+  --profile-inverse: var(--et-home-inverse-text, #fff);
+  --profile-radius: var(--et-radius-control, 7px);
+  --profile-motion: var(--et-motion-card, 180ms ease);
+  min-height: 100svh;
+  padding: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 24px) 0
+    clamp(56px, 8vw, 104px);
+  color: var(--profile-ink);
+  background: var(--et-home-paper, #fff);
+}
+
+.section {
+  min-width: 0;
+}
+
+/* hv-head/hv-wrap/hv-rail are two-class selectors (.homeV2 .hv-*), so a bare
+   module class loses to them. Anything that overrides the shared vocabulary
+   is scoped with .page to match their weight. */
+.page .head {
+  align-items: flex-end;
+}
+
+/* ── loading / stale-data ───────────────────────────────── */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--profile-quiet);
+  border-top-color: var(--profile-red);
+  border-radius: 50%;
+  animation: profileSpin 0.7s linear infinite;
+}
+
+@keyframes profileSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
+.dataNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
+  border-radius: var(--profile-radius);
+}
+
+.dataNotice p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.dataNoticeError {
+  background: var(--profile-red);
+}
+
+.dataNoticeAction {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 7px 11px;
+  color: inherit;
+  background: transparent;
+  border: 2px solid currentColor;
+  border-radius: var(--profile-radius);
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dataNoticeAction:focus-visible {
+  outline: 3px solid var(--profile-accent);
+  outline-offset: 3px;
+}
+
+/* ── head: name + character ─────────────────────────────── */
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+
+.heroCopy {
+  min-width: 0;
+}
+
+.heroName {
+  margin: 12px 0 0;
+  color: var(--et-home-red, #d9382a);
+  font-family: var(--et-font-display);
+  font-size: clamp(48px, 8vw, 104px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-hero, 0.9);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.heroLine {
+  margin: clamp(12px, 1.4vw, 18px) 0 0;
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.heroCharacter {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+/* Cut out on the white like the home's phone mockups — no card, no frame. */
+.heroAvatar {
+  display: block;
+  width: clamp(150px, 20vw, 250px);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.heroAvatarImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 16px 26px rgba(21, 18, 14, 0.18));
+  transition: transform 260ms ease;
+}
+
+.heroAvatar:hover .heroAvatarImg,
+.heroAvatar:focus-visible .heroAvatarImg {
+  transform: translateY(-6px) rotate(-2deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroAvatar:hover .heroAvatarImg,
+  .heroAvatar:focus-visible .heroAvatarImg {
+    transform: none;
+  }
+}
+
+.heroEdit {
+  padding: 4px 0 3px;
+  color: var(--profile-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--profile-accent);
+  cursor: pointer;
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+}
+
+.heroEdit:hover,
+.heroEdit:focus-visible {
+  color: var(--profile-red);
+}
+
+/* ── recently revealed ──────────────────────────────────── */
+
+.recentRail {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.recentItem {
+  width: clamp(132px, 15vw, 176px);
+}
+
+.recentCard {
+  display: block;
+  aspect-ratio: 1539 / 2115;
+  border-radius: var(--profile-radius);
+  overflow: hidden;
+  filter: drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1));
+  transition: transform var(--profile-motion);
+}
+
+.recentCard:hover,
+.recentCard:focus-visible {
+  transform: translateY(-4px) rotate(-1deg);
+}
+
+.recentCard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.recentDish {
+  margin: 12px 0 0;
+  color: var(--profile-ink);
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.1vw, 16px);
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.recentMeta {
+  margin: 4px 0 0;
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* ── saved spots ────────────────────────────────────────── */
+
+.spotsCards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(16px, 2.4vw, 28px);
+}
+
+.spotCardWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.spotCard {
+  aspect-ratio: 4 / 3;
+  color: #fff;
+  text-decoration: none;
+  transition: transform var(--profile-motion);
+}
+
+.spotCard:hover,
+.spotCard:focus-visible {
+  transform: translateY(-4px);
+}
+
+.spotImg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+}
+
+.spotCard::after {
+  content: '';
+  position: absolute;
+  inset: 40% 0 0;
+  background: var(
+    --et-home-photo-overlay,
+    linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent)
+  );
+}
+
+.spotBody {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1;
+  text-shadow: var(--et-shadow-text-photo);
+}
+
+.spotName {
+  margin: 0;
+  color: #fff;
+  font-family: var(--et-font-display);
+  font-size: clamp(15px, 1.4vw, 20px);
+  font-weight: 700;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.spotMeta {
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--et-font-display);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.spotRemove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  background: rgba(21, 18, 14, 0.55);
+  border: 0;
+  border-radius: var(--profile-radius);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: background-color var(--profile-motion);
+}
+
+.spotRemove:hover,
+.spotRemove:focus-visible {
+  background: var(--profile-red);
+}
+
+/* A written line under the spot, not a form field. */
+.spotNote {
+  display: block;
+  width: 100%;
+  margin-top: 9px;
+  padding: 0;
+  resize: none;
+  color: var(--profile-ink);
+  background: transparent;
+  border: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 400;
+  line-height: 1.28;
+}
+
+.spotNote::placeholder {
+  color: color-mix(in srgb, var(--profile-muted) 62%, transparent);
+}
+
+.spotNote:focus-visible {
+  outline: 0;
+  box-shadow: 0 2px 0 var(--profile-accent);
+}
+
+.empty {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+  max-width: 46ch;
+}
+
+.emptyLine {
+  margin: 0;
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.emptyCta {
+  text-decoration: none;
+}
+
+/* ── packs ──────────────────────────────────────────────── */
+
+.page .packs {
+  gap: clamp(18px, 2.4vw, 32px);
+}
+
+.pack {
+  display: grid;
+  grid-template-rows: 190px auto auto;
+  align-items: start;
+  justify-items: center;
+  gap: 8px;
+  width: clamp(136px, 14vw, 166px);
+  color: var(--profile-ink);
+  text-align: center;
+  text-decoration: none;
+  transition: transform var(--profile-motion);
+}
+
+.pack img {
+  width: 100%;
+  height: 190px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 18px rgba(21, 18, 14, 0.18));
+}
+
+.pack:hover,
+.pack:focus-visible {
+  transform: translateY(-4px);
+}
+
+.packName {
+  font-family: var(--et-font-display);
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.packStatus {
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-caption, 11px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+}
+
+.packButton {
+  text-decoration: none;
+}
+
+.packLocked img,
+.packLocked .packName {
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+/* ── invite ─────────────────────────────────────────────── */
+
+/* The one yellow field on the page. Everything else earns attention from
+   photography, so the single thing with no picture gets the accent. */
+.invite {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(20px, 3vw, 48px);
+  align-items: center;
+  padding: clamp(24px, 3.4vw, 44px);
+  background: var(--profile-accent);
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.inviteTitle {
+  margin: 0;
+  color: var(--profile-ink);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title, 0.92);
+  text-transform: uppercase;
+}
+
+.inviteLine {
+  max-width: 44ch;
+  margin: 12px 0 0;
+  color: var(--profile-ink);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.inviteAction {
+  display: grid;
+  justify-items: stretch;
+  gap: 10px;
+  min-width: 0;
+}
+
+.inviteUrl {
+  overflow: hidden;
+  color: color-mix(in srgb, var(--profile-ink) 72%, transparent);
+  font-family: var(--et-font-mono);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inviteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
+  border: 0;
+  border-radius: var(--profile-radius);
+  cursor: pointer;
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  transition: background-color var(--profile-motion);
+}
+
+.inviteButton:hover,
+.inviteButton:focus-visible {
+  background: var(--profile-red);
+}
+
+/* ── foot ───────────────────────────────────────────────── */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--et-home-rule, #e4e1dc);
+}
+
+/* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands. At
+   least a full section gap: the foot follows the filled invite panel, so
+   anything tighter reads as part of it rather than as the page closing. */
+.page .foot {
+  margin-top: var(--et-section-gap, clamp(72px, 8vw, 128px));
+  padding-top: clamp(28px, 3vw, 40px);
+}
+
+.footAccount {
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-body, clamp(12px, 1.1vw, 14px));
+  overflow-wrap: anywhere;
+}
+
+.logout {
+  min-height: 40px;
+  padding: 0 18px;
+  color: var(--profile-ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--profile-radius);
+  box-shadow: inset 0 0 0 2px var(--profile-ink);
+  cursor: pointer;
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion);
+}
+
+.logout:hover,
+.logout:focus-visible {
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
+}
+
+/* ── narrow ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .spotsCards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 20px);
+  }
+
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr) clamp(112px, 30vw, 150px);
+    gap: 16px;
+  }
+
+  .heroAvatar {
+    width: 100%;
+  }
+
+  .heroName {
+    font-size: clamp(38px, 11vw, 60px);
+  }
+
+  .heroLine {
+    font-size: 16px;
+  }
+
+  .spotsCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+  }
+
+  .spotCard {
+    aspect-ratio: 1 / 1;
+  }
+
+  .invite {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .inviteAction {
+    justify-items: start;
+  }
+
+  .inviteUrl {
+    max-width: 100%;
+  }
+
+  .inviteButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .foot {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .logout {
+    width: 100%;
+  }
+}

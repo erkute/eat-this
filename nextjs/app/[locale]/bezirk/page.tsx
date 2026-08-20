@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
+import { normalizeName } from '@/lib/normalizeName';
+import { pickShelf } from '@/lib/curated-ranking';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -110,8 +112,8 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           <h1 className={styles.h1}>{de ? 'Berlin nach Bezirk' : 'Berlin by district'}</h1>
           <p className={styles.sub}>
             {de
-              ? 'Mitte ist nicht Neukölln, Charlottenburg nicht Wedding. Such dir den Bezirk aus - wir zeigen dir die Läden, für die wir wirklich nochmal hinfahren würden.'
-              : "Mitte is not Neukölln, Charlottenburg is not Wedding. Pick a district - we'll show you the places we'd cross town for again."}
+              ? 'Jeder Bezirk isst anders. Such dir einen aus – wir haben überall die Adressen gesammelt, für die wir geradestehen.'
+              : "Every district eats differently. Pick one – we've gathered the addresses we vouch for, right across the city."}
           </p>
         </header>
 
@@ -122,59 +124,64 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           <div className={styles.districtsIntro}>
             <h2>{de ? 'Alle Bezirke' : 'All districts'}</h2>
           </div>
-          <div className={styles.bezirkGrid}>
+          <div className={styles.districtRows}>
             {bezirke.map((b) => {
-              const examples = b.exampleRestaurants?.slice(0, 3) ?? [];
+              // Kuratierte Spots führen das Regal an; aufgefüllt wird mit der
+              // alphabetischen Auswahl. Die Karte ist ganz Foto, also fliegt
+              // raus, was kein publizierbares Bild hat — sonst stünde da ein
+              // schwarzes Rechteck.
+              const curated = (b.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
+              const spots = pickShelf(curated, b.exampleRestaurants, 4);
+              const moreLabel = de ? 'Alle Spots ansehen' : 'See all spots';
 
               return (
-                <article key={b._id} className={styles.bezirkCard}>
-                  <h3 className={styles.bezirkName}>
-                    <Link href={`/bezirk/${b.slug}`} className={styles.bezirkLink}>
+                <section
+                  key={b._id}
+                  className={styles.districtRow}
+                  aria-labelledby={`bezirk-${b.slug}`}
+                >
+                  <h3 id={`bezirk-${b.slug}`} className={styles.districtName}>
+                    <Link href={`/bezirk/${b.slug}`} className={styles.districtLink}>
                       {b.name}
                     </Link>
                   </h3>
-                  {examples.length > 0 && (
-                    <div
-                      className={styles.bezirkExamples}
-                      aria-label={
-                        de
-                          ? `Beispiel-Restaurants in ${b.name}`
-                          : `Example restaurants in ${b.name}`
-                      }
-                    >
-                      {examples.map((restaurant) => (
+
+                  {spots.length > 0 && (
+                    <div className={styles.spotGrid}>
+                      {spots.map((restaurant) => (
                         <Link
                           key={restaurant._id}
                           href={`/restaurant/${restaurant.slug}`}
-                          className={styles.bezirkExample}
+                          className={styles.card}
                         >
                           {restaurant.photo && (
-                            <span className={styles.bezirkExamplePhoto}>
+                            <div className={styles.cardPhoto}>
                               <Image
                                 src={restaurant.photo}
                                 alt=""
                                 fill
-                                sizes="(max-width: 719px) 76px, 72px"
+                                sizes="(max-width: 1099px) 46vw, 248px"
                               />
-                            </span>
+                            </div>
                           )}
-                          <span className={styles.bezirkExampleCopy}>
-                            <span className={styles.bezirkExampleName}>{restaurant.name}</span>
+                          <div className={styles.cardBody}>
+                            <h4 className={styles.cardName}>{normalizeName(restaurant.name)}</h4>
                             {restaurant.cuisineType && (
-                              <span className={styles.bezirkExampleCategory}>
-                                {restaurant.cuisineType}
-                              </span>
+                              <div className={styles.cardMeta}>
+                                <span className={styles.chipYellow}>{restaurant.cuisineType}</span>
+                              </div>
                             )}
-                          </span>
+                          </div>
                         </Link>
                       ))}
                     </div>
                   )}
-                  <Link href={`/bezirk/${b.slug}`} className={styles.bezirkMore}>
-                    {de ? 'Mehr' : 'More'}
+
+                  <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
+                    {moreLabel}
                     <span aria-hidden="true">→</span>
                   </Link>
-                </article>
+                </section>
               );
             })}
           </div>

@@ -146,3 +146,12 @@ export function buildCategorySectionHeading(slug: string, label: string, locale:
   }
   return kind === 'venue' ? `Hand-picked ${term} in Berlin` : `Hand-picked ${term} spots in Berlin`;
 }
+
+/**
+ * H2 über dem Rest der Liste, unter der kuratierten Bestenliste. Bewusst ohne
+ * Zahl und ohne „A–Z": beides beschrieb die Mechanik statt den Inhalt. Nur
+ * gerendert, wenn es tatsächlich eine Bestenliste darüber gibt.
+ */
+export function buildCategoryDirectoryHeading(locale: Loc): string {
+  return locale === 'de' ? 'Weitere Spots' : 'More spots';
+}

@@ -315,27 +315,6 @@
 ============================================================ */
 
 /* ============================================================
-   INDEX-PAGE CARDS (used by /bezirk and /kategorie index pages,
-   no per-card photo)
-============================================================ */
-.bezirkGrid {
-  display: grid;
-}
-.bezirkCard {
-  flex-direction: column;
-  border: 0;
-  box-shadow: 0 16px 28px rgba(43, 33, 28, 0.12);
-  text-decoration: none;
-}
-.bezirkCard:hover {
-  background: var(--et-cream);
-  transform: rotate(0) translateY(-4px);
-}
-.bezirkName {
-  color: var(--ink);
-}
-
-/* ============================================================
    Kategorie-Index Poster-Grid (booster-pack treatment)
 ============================================================ */
 
@@ -348,8 +327,7 @@
     padding-top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px);
     padding-bottom: 56px;
   }
-  .grid,
-  .bezirkGrid {
+  .grid {
     grid-template-columns: 1fr 1fr;
     gap: 22px;
   }
@@ -366,13 +344,6 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 28px;
   }
-  .bezirkGrid {
-    /* 3 cols, not 4 — single-word names like FRIEDRICHSHAIN can't wrap, and
-       their min-content blew the 4-col 1fr tracks past the container (right
-       column clipped). minmax(0,1fr) removes the min-content floor so the
-       grid can never overflow the page again. */
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
   /* Hero desktop-treatment: H1 fills the space typographically — no photo,
      no decoration, just Anton at full presence so the cream column doesn't
      feel empty on wide screens. */
@@ -386,7 +357,7 @@
   .h1 {
     /* Confident middle: commands the centred column without the Anton-era
        104 "riesig" feel. */
-    font-size: clamp(52px, 6.4vw, 92px);
+    font-size: clamp(44px, 5vw, 68px);
     line-height: 1;
     margin: 20px 0 16px;
   }
@@ -400,7 +371,7 @@
      Auswahl") — clear second-tier under the hero H1, not a competing
      headline. Chewy needs less px than Anton to carry the same weight. */
   .sectionHead h2 {
-    font-size: clamp(34px, 3.8vw, 54px);
+    font-size: clamp(30px, 3vw, 42px);
     line-height: 1.06;
   }
   .sectionHead p {
@@ -461,8 +432,7 @@
 }
 
 .hero,
-.card,
-.bezirkCard {
+.card {
   border-radius: 0;
   box-shadow: none;
   transform: none;
@@ -487,8 +457,7 @@
 
 .h1,
 .sectionHead h2,
-.cardName,
-.bezirkName {
+.cardName {
   font-family: var(--et-font-condensed);
   letter-spacing: 0;
 }
@@ -504,15 +473,13 @@
   color: var(--muted);
 }
 
-.card,
-.bezirkCard {
+.card {
   border: 0;
   border-bottom: 3px solid var(--ink);
   background: transparent;
 }
 
-.card:hover,
-.bezirkCard:hover {
+.card:hover {
   transform: translateY(-3px);
 }
 
@@ -587,7 +554,7 @@
   margin: 0;
   color: var(--et-home-paper);
   font-family: var(--et-font-display);
-  font-size: clamp(24px, var(--district-title-size, 10cqi), 88px);
+  font-size: clamp(24px, var(--district-title-size, 10cqi), 66px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
@@ -643,19 +610,8 @@
   transform: translateY(-2px);
 }
 
-.detailHeroJump {
-  background: var(--et-home-accent);
-  color: var(--et-home-ink);
-  text-decoration: none;
-}
-
-.detailHeroJump svg {
-  flex: 0 0 auto;
-}
-
 .detailHeroMedia {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 0;
   margin: 0;
@@ -675,21 +631,22 @@
   object-fit: cover;
 }
 
-.detailHeroMedia figcaption {
-  margin: 0;
-  padding: 11px 14px 14px;
-  background: transparent;
-  color: var(--et-home-paper);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.2;
-  text-transform: none;
-}
-
 .restaurantSection {
   scroll-margin-top: 88px;
+}
+
+/* Der Rest der Liste unter der Bestenliste. Ohne sichtbaren Schnitt lasen die
+   beiden Sektionen als eine lange Liste mit einer Zwischenüberschrift — die
+   Linie und die Luft darüber sagen: hier hört die Kuratierung auf. */
+.directorySection {
+  margin-top: clamp(52px, 7vw, 90px);
+  padding-top: clamp(30px, 4vw, 48px);
+  border-top: 2px solid var(--et-home-line);
+}
+
+.directorySection .sectionHead {
+  margin-top: 0;
+  margin-bottom: clamp(22px, 3vw, 34px);
 }
 
 .bezirkDetail .sectionHead {
@@ -703,7 +660,7 @@
   margin: 0;
   color: var(--et-home-red);
   font-family: var(--et-font-display);
-  font-size: clamp(42px, 7vw, 76px);
+  font-size: clamp(34px, 5vw, 52px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.9;
@@ -725,7 +682,8 @@
   margin-bottom: 0;
 }
 
-.bezirkDetail .card {
+.bezirkDetail .card,
+.spotGrid .card {
   min-width: 0;
   border: 0;
   background: transparent;
@@ -734,29 +692,35 @@
   transition: transform var(--et-motion-card);
 }
 
-.bezirkDetail .card:hover {
+.bezirkDetail .card:hover,
+.spotGrid .card:hover {
   transform: translateY(-4px);
 }
 
-.bezirkDetail .cardPhoto {
+.bezirkDetail .cardPhoto,
+.spotGrid .cardPhoto {
   aspect-ratio: var(--et-img-restaurant-ratio);
   border-radius: var(--et-radius-photo);
   background: var(--et-home-photo-rest);
 }
 
-.bezirkDetail .cardPhoto img {
+.bezirkDetail .cardPhoto img,
+.spotGrid .cardPhoto img {
   transition: transform var(--et-motion-card);
 }
 
-.bezirkDetail .card:hover .cardPhoto img {
+.bezirkDetail .card:hover .cardPhoto img,
+.spotGrid .card:hover .cardPhoto img {
   transform: scale(1.025);
 }
 
-.bezirkDetail .cardBody {
+.bezirkDetail .cardBody,
+.spotGrid .cardBody {
   padding: 16px 0 0;
 }
 
-.bezirkDetail .cardName {
+.bezirkDetail .cardName,
+.spotGrid .cardName {
   margin: 0 0 10px;
   color: var(--et-home-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
@@ -768,21 +732,24 @@
   overflow-wrap: anywhere;
 }
 
-.bezirkDetail .cardMeta {
+.bezirkDetail .cardMeta,
+.spotGrid .cardMeta {
   gap: 8px;
   margin-bottom: 11px;
 }
 
-.bezirkDetail .chipYellow {
-  padding: 6px 9px 7px;
+.bezirkDetail .chipYellow,
+.spotGrid .chipYellow {
+  padding: 6px 10px 7px;
   border-radius: var(--et-radius-control);
   background: var(--et-home-red);
   color: var(--et-home-paper);
-  font-family: var(--et-font-mono);
-  font-size: 10px;
-  font-weight: 900;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
+  text-transform: none;
 }
 
 .bezirkDetail .price {
@@ -835,7 +802,7 @@
   margin: 0;
   color: var(--et-home-red);
   font-family: var(--et-font-display);
-  font-size: clamp(38px, 6vw, 66px);
+  font-size: clamp(32px, 4.4vw, 46px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.92;
@@ -905,7 +872,11 @@
 }
 
 @media (min-width: 840px) {
-  .bezirkDetail .detailHero {
+  /* Two columns only when there is actually a picture for the second one.
+     Districts without their own image used to borrow a restaurant photo; now
+     that they don't, the copy takes the whole banner instead of leaving half
+     of it black. */
+  .bezirkDetail .detailHero:has(.detailHeroMedia) {
     grid-template-columns: minmax(0, 1.08fr) minmax(330px, 0.92fr);
   }
 
@@ -947,7 +918,7 @@
 .page .indexHero .h1 {
   font-family: var(--et-font-display);
   max-width: 9ch;
-  font-size: clamp(60px, 14vw, 138px);
+  font-size: clamp(52px, 11vw, 92px);
   letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
   color: var(--ink);
@@ -966,12 +937,12 @@
 }
 
 .districtsIntro {
-  margin-bottom: clamp(14px, 2vw, 22px);
+  margin-bottom: clamp(30px, 4.5vw, 52px);
 }
 
 .page .districtsBlock .districtsIntro h2 {
   font-family: var(--et-font-display);
-  font-size: clamp(42px, 10vw, 78px);
+  font-size: clamp(34px, 7vw, 52px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.9;
@@ -980,156 +951,166 @@
   margin: 0;
 }
 
-.bezirkGrid {
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(18px, 2.5vw, 30px);
-  min-width: 0;
-  margin-bottom: 0;
-}
-
-.bezirkCard {
+/* ============================================================
+   RANG-ZIFFER der kuratierten Bestenliste (bezirk.topSpots)
+   Nur die Top-Sektion trägt sie; das A–Z-Verzeichnis darunter nicht. Der
+   Badge sitzt auf dem Foto (.cardPhoto ist position: relative), die
+   Inline-Variante fängt Karten ohne Foto ab, damit kein Platz verlorengeht.
+============================================================ */
+.rankBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   display: grid;
-  align-content: start;
-  justify-content: stretch;
-  justify-items: stretch;
-  gap: 14px;
-  min-width: 0;
-  min-height: 0;
-  padding: 14px 0;
-  background: transparent;
-  border-bottom: 0;
-  color: var(--ink);
-  text-align: left;
-  transition: none;
-}
-
-.page .districtsBlock .bezirkCard:hover {
-  background: transparent;
-  color: var(--ink);
-  transform: none;
-}
-
-.bezirkName {
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding-inline: 7px;
+  border: 2px solid var(--et-home-ink);
+  border-radius: 999px;
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
   font-family: var(--et-font-display);
+  font-size: 16px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankInline {
+  margin-right: 7px;
+  color: var(--et-home-red);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   DISTRICT ROWS
+   One row per district: a linked name, a "see all" link, and a strip of
+   photo cards. Deliberately the same object as the recommendation rails at
+   the foot of a restaurant page — arriving here from there should feel like
+   the same shelf, not a different site. Replaces the 76px thumbnail list,
+   which was too small to make anyone want to click it.
+============================================================ */
+.districtRows {
+  display: grid;
+  gap: clamp(52px, 7vw, 88px);
+}
+
+/* Grid children default to min-width: auto, so a long unbroken district or
+   restaurant name could push the row past the page. */
+.districtRow {
+  min-width: 0;
+}
+
+.districtName {
+  min-width: 0;
+  margin: 0 0 clamp(16px, 2.2vw, 24px);
+  font-family: var(--et-font-display);
+  font-size: clamp(24px, 3.6vw, 32px);
   font-weight: 700;
-  font-size: clamp(28px, 7vw, 36px);
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.92;
+  letter-spacing: -0.025em;
+  line-height: 0.94;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: normal;
-  text-align: left;
-  margin: 0;
+  overflow-wrap: anywhere;
 }
 
-.bezirkLink {
-  color: var(--ink);
+.districtLink {
+  color: var(--et-home-red);
   text-decoration: none;
+  transition: color 140ms ease;
 }
 
-.bezirkMore {
+.districtLink:hover {
+  color: var(--et-home-ink);
+}
+
+.districtMore {
   display: inline-flex;
+  flex: 0 0 auto;
+  margin-top: clamp(18px, 2.4vw, 26px);
   align-items: center;
-  justify-self: start;
-  gap: 7px;
-  margin-top: -4px;
-  padding: 8px 11px 9px;
+  justify-content: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 9px 16px 10px;
+  border: 2px solid var(--et-home-ink);
   border-radius: var(--et-radius-control);
-  background: var(--et-home-red);
-  color: var(--et-home-paper);
+  background: transparent;
+  color: var(--et-home-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 13px;
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
   text-transform: none;
-  white-space: nowrap;
   text-decoration: none;
+  white-space: nowrap;
   transition:
     background var(--et-motion-fast),
+    color var(--et-motion-fast),
     transform var(--et-motion-fast);
 }
 
-.bezirkMore:hover {
+.districtMore span {
+  transition: transform 140ms ease;
+}
+
+.districtMore:hover {
   background: var(--et-home-ink);
-  transform: translateX(2px);
+  color: var(--et-home-paper);
+  transform: translateY(-2px);
 }
 
-.bezirkExamples {
-  display: grid;
-  gap: 10px;
+.districtMore:hover span {
+  transform: translateX(3px);
+}
+
+.spotGrid .cardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   min-width: 0;
-  max-width: 100%;
-  text-align: left;
 }
 
-.bezirkExample {
+.spotGrid .cardMeta {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+/* Auf dem Hub sitzt die Karte in einer 247px-Spur unter einer Bezirks-H3 —
+   der Detailseiten-Grad (36px) war dort breiter als die Überschrift darüber
+   und drehte die Hierarchie um. */
+.spotGrid .cardName {
+  font-size: clamp(18px, 1.6vw, 23px);
+  margin-bottom: 8px;
+}
+
+/* Fixed track count, so every card in every district is the same width — a
+   full-bleed card next to a quarter-width one made the same label read as two
+   different sizes. Two or four, never three: four spots across three tracks
+   strand one on a second row. */
+.spotGrid {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
-  padding: 0;
-  margin: 0;
-  border-radius: var(--et-radius-control);
-  background: transparent;
-  color: var(--ink);
-  text-decoration: none;
-  text-align: left;
-  transition: transform 0.16s ease;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 32px) clamp(12px, 2vw, 22px);
 }
 
-.bezirkExample:hover {
-  background: transparent;
-  transform: translateX(2px);
-}
-
-.bezirkExamplePhoto {
-  position: relative;
-  display: block;
-  width: 76px;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  background: var(--cream-deep);
-}
-
-.bezirkExamplePhoto img {
-  object-fit: cover;
-}
-
-.bezirkExampleCopy {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
-  text-align: left;
-}
-
-.bezirkExampleName {
-  font-family: var(--et-font-display);
-  font-size: clamp(21px, 5.5vw, 27px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 1;
-  overflow-wrap: anywhere;
-}
-
-.bezirkExampleCategory {
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1.2;
-  text-transform: uppercase;
-  color: var(--et-home-red);
-  overflow-wrap: anywhere;
-}
-
-.bezirkLink:focus-visible,
-.bezirkMore:focus-visible,
-.bezirkExample:focus-visible {
+.districtLink:focus-visible,
+.districtMore:focus-visible,
+.spotGrid .card:focus-visible {
   outline: 3px solid var(--et-home-red);
   outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .districtMore span,
+  .spotGrid .cardPhoto img {
+    transition: none;
+  }
+
+  .spotGrid .card:hover,
+  .spotGrid .card:hover .cardPhoto img {
+    transform: none;
+  }
 }
 
 @media (min-width: 720px) {
@@ -1137,54 +1118,21 @@
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
-
-  .bezirkExamples {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .bezirkExample {
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 10px;
-  }
-
-  .bezirkExamplePhoto {
-    width: 72px;
-  }
-
-  .bezirkExampleName {
-    font-size: clamp(20px, 2.4vw, 27px);
-  }
 }
 
 @media (min-width: 960px) {
   .page .indexHero .h1 {
     max-width: 11.5ch;
-    font-size: clamp(82px, 8.4vw, 116px);
+    font-size: clamp(64px, 6.2vw, 86px);
   }
 
-  .bezirkName {
-    font-size: clamp(34px, 3vw, 40px);
-  }
-
-  .bezirkExampleName {
-    font-size: clamp(22px, 1.9vw, 27px);
+  .districtName {
+    font-size: clamp(26px, 2.2vw, 34px);
   }
 }
 
 @media (min-width: 1100px) {
-  .bezirkGrid {
-    gap: 30px;
-  }
-
-  .bezirkCard {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    gap: 18px;
-    padding: 14px 0;
-  }
-
-  .bezirkName {
-    padding-top: 0;
+  .spotGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

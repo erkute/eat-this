@@ -253,7 +253,7 @@ export const allBezirkeWithStatsQuery = `
     "imageUrl": ${groqImageUrl('image', 'card')},
     "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]),
     "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
-      | order(coalesce(featured, false) desc, name asc)[0...3] {
+      | order(coalesce(featured, false) desc, name asc)[0...4] {
         _id,
         name,
         "slug": slug.current,
@@ -261,7 +261,15 @@ export const allBezirkeWithStatsQuery = `
         shortDescription,
         shortDescriptionEn,
         "photo": ${publishableRestaurantImageUrl('image', 'card')}
-      }
+      },
+    "topSpotCards": topSpots[]->{
+      _id,
+      name,
+      "slug": slug.current,
+      cuisineType,
+      isOpen,
+      "photo": ${publishableRestaurantImageUrl('image', 'card')}
+    }
   }
 `;
 
@@ -274,6 +282,7 @@ export const bezirkBySlugQuery = `
     description,
     descriptionEn,
     "imageUrl": ${groqImageUrl('image', 'bezirkHero')},
+    "topSpots": topSpots[defined(@->slug.current)]->slug.current,
     seo {
       metaTitle,
       metaTitleEn,
@@ -300,6 +309,14 @@ export const allCategoriesQuery = `
 `;
 
 // One category by slug — detail / hub page.
+//
+// `topSpots` is the editorially ordered best-of list (see
+// docs/specs/2026-08-20-kategorie-ranking.md). Only the slugs are projected:
+// the page already loads every restaurant of the category, so the slug is
+// enough to reorder them, and the full card payload would ship twice.
+// `defined(@->slug.current)` guards dangling refs the same way
+// CATEGORY_PROJECTION does — without it a deleted restaurant would land as a
+// null hole in the array.
 export const categoryBySlugQuery = `
   *[_type == "category" && slug.current == $slug][0] {
     _id,
@@ -307,7 +324,8 @@ export const categoryBySlugQuery = `
     nameEn,
     "slug": slug.current,
     description,
-    descriptionEn
+    descriptionEn,
+    "topSpots": topSpots[defined(@->slug.current)]->slug.current
   }
 `;
 

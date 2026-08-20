@@ -269,7 +269,6 @@
 
 .detailHero {
   display: grid;
-  grid-template-columns: minmax(0, 0.94fr) minmax(360px, 0.86fr);
   align-items: stretch;
   margin: 0 0 clamp(28px, 5vw, 54px);
   overflow: hidden;

@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { normalizeName } from '@/lib/normalizeName';
-import styles from './ProfileSlim.module.css';
+import styles from './Profile.module.css';
 
 // Saved spots (Firestore favorites) as full-image cards → tap opens the map.
 // Each card carries a remove button so spots can be un-saved here too (not
@@ -27,7 +27,7 @@ export default function ProfileSpots({
     return (
       <div className={styles.empty}>
         <p className={styles.emptyLine}>{t('emptySpots')}</p>
-        <Link href="/map" className={styles.emptyCta}>
+        <Link href="/map" className={`hv-btn ${styles.emptyCta}`}>
           {t('toMap')}
         </Link>
       </div>
@@ -42,7 +42,7 @@ export default function ProfileSpots({
           <div key={f.restaurantId} className={styles.spotCardWrap}>
             <MapIntentLink
               href={slug ? `/map?r=${encodeURIComponent(slug)}` : '/map'}
-              className={styles.spotCard}
+              className={`hv-photo ${styles.spotCard}`}
               rel="nofollow"
             >
               {f.photo && (
@@ -83,7 +83,7 @@ export default function ProfileSpots({
             </button>
             <SpotNote
               initialNote={f.note ?? ''}
-              label={t('spotNoteLabel')}
+              label={t('spotNoteLabel', { name: normalizeName(f.name) })}
               placeholder={t('spotNotePlaceholder')}
               saveError={t('spotNoteError')}
               onSave={(note) => updateNote(f.restaurantId, note)}
@@ -95,6 +95,8 @@ export default function ProfileSpots({
   );
 }
 
+// The note is the most personal thing on the page, so it reads as a written
+// line under the spot — not as a grey form field with a label above it.
 function SpotNote({
   initialNote,
   label,
@@ -133,16 +135,15 @@ function SpotNote({
   }
 
   return (
-    <label className={styles.spotNote}>
-      <span>{label}</span>
-      <textarea
-        value={value}
-        rows={2}
-        maxLength={180}
-        placeholder={placeholder}
-        onChange={(e) => setValue(e.currentTarget.value)}
-        onBlur={() => void save()}
-      />
-    </label>
+    <textarea
+      className={styles.spotNote}
+      value={value}
+      aria-label={label}
+      rows={value ? 2 : 1}
+      maxLength={180}
+      placeholder={placeholder}
+      onChange={(e) => setValue(e.currentTarget.value)}
+      onBlur={() => void save()}
+    />
   );
 }

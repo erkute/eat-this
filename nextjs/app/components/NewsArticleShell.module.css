@@ -31,59 +31,6 @@
   min-width: 0;
 }
 
-.breadcrumbWrap :global(nav) {
-  width: 100%;
-  margin-bottom: 0;
-}
-
-.breadcrumbWrap :global(ol) {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 7px 9px;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  color: var(--article-muted);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.2;
-  text-transform: uppercase;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-}
-
-.breadcrumbWrap :global(ol::-webkit-scrollbar) {
-  display: none;
-}
-
-.breadcrumbWrap :global(a),
-.breadcrumbWrap :global(span) {
-  flex: 0 0 auto;
-  color: inherit;
-  text-decoration: none;
-}
-
-.breadcrumbWrap :global(a:hover),
-.breadcrumbWrap :global(a:focus-visible),
-.breadcrumbWrap :global([aria-current='page']) {
-  color: var(--article-red);
-  text-decoration: none;
-}
-
-.breadcrumbWrap :global([aria-current='page']) {
-  flex: 0 0 auto;
-  max-width: none;
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
 .heroGridPlain {
   display: grid;
   align-items: flex-end;
@@ -743,25 +690,6 @@ a.mustEat:focus-visible .mustEatPh img {
   .header {
     gap: 8px;
     margin-bottom: 34px;
-  }
-
-  .breadcrumbWrap :global(ol) {
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-inline: 0;
-    padding-inline: 0;
-    font-size: 10px;
-    letter-spacing: 0;
-    overflow: visible;
-    white-space: normal;
-  }
-
-  .breadcrumbWrap :global(ol > li:last-child) {
-    flex-basis: 100%;
-  }
-
-  .breadcrumbWrap :global([aria-current='page']) {
-    white-space: normal;
   }
 
   .breadcrumbWrap {

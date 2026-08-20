@@ -66,12 +66,20 @@ export function localizeOpeningDays(days: string | undefined, locale: string): s
     .join(', ');
 }
 
+/**
+ * A slot that names a rest day rather than a time range. Editors type this in
+ * either language, hence the three spellings.
+ */
+export function isClosedSlot(hours: string | undefined): boolean {
+  return /closed|ruhetag|geschlossen/i.test(hours ?? '');
+}
+
 /** Same treatment for the time column: "closed" and the run-together "24Stundengeöffnet". */
 export function localizeOpeningHours(hours: string | undefined, locale: string): string {
   const lang = locale === 'en' ? 'en' : 'de';
   const raw = (hours ?? '').trim();
   if (!raw) return '';
-  if (/closed|ruhetag|geschlossen/i.test(raw)) return lang === 'en' ? 'closed' : 'geschlossen';
+  if (isClosedSlot(raw)) return lang === 'en' ? 'closed' : 'geschlossen';
   if (
     /^24\s*(stunden?|hours?|h)?\s*(geöffnet|offen|open)?$|^24\/7$/i.test(raw.replace(/\s+/g, ' '))
   ) {
@@ -110,7 +118,7 @@ function parseDays(str: string): DayIndex[] {
 }
 
 function parseTimeRange(str: string): { open: number; close: number } | null {
-  if (/closed|ruhetag|geschlossen/i.test(str)) return null;
+  if (isClosedSlot(str)) return null;
   const compact = str.toLowerCase().replace(/\s/g, '');
   if (/24(?:stunden?)?(?:geöffnet|offen)|24\/7/.test(compact)) {
     return { open: 0, close: 24 * 60 };

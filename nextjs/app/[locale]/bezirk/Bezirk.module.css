@@ -19,11 +19,27 @@
   /* Contain child margins (.grid margin-bottom etc.) so they don't
      collapse out of the page and expose body bg between main + footer. */
   display: flow-root;
-  /* Reserves the fixed site navigation (64px + safe-area). */
-  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 22px
-    48px;
+  /* Shared page frame. /bezirk, /bezirk/[slug] and /restaurant/[slug] carry
+     the identical max-width, top offset and gutter, so the breadcrumb and the
+     block under it start on the same line wherever you land. --page-pad is the
+     single source for that gutter — full-bleed blocks negate it instead of
+     hard-coding a number that then drifts. Top offset reserves the fixed site
+     navigation (64px + safe-area). */
+  --page-pad: 22px;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px)
+    var(--page-pad) 48px;
   position: relative;
   overflow-x: clip;
+}
+
+/* Breadcrumb column — spans the full content measure, so it sits flush with
+   the hero underneath it. */
+.breadcrumbWrap {
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 clamp(16px, 2vw, 24px);
 }
 
 /* ============================================================
@@ -328,8 +344,9 @@
 ============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px) 32px
-      56px;
+    --page-pad: 32px;
+    padding-top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px);
+    padding-bottom: 56px;
   }
   .grid,
   .bezirkGrid {
@@ -339,12 +356,11 @@
 }
 @media (min-width: 960px) {
   .page {
-    /* Centred content column — full-bleed 1280 left the left-aligned hero
-       hugging the left edge with a dead void on the right. A capped, centred
-       measure turns that into balanced gutters and reins the grid in. */
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 88px 64px 72px;
+    /* Wider gutter on desktop. The capped, centred 1180 measure lives on the
+       base rule now — full-bleed 1280 left the left-aligned hero hugging the
+       left edge with a dead void on the right. */
+    --page-pad: 64px;
+    padding-bottom: 72px;
   }
   .grid {
     grid-template-columns: 1fr 1fr 1fr;
@@ -534,10 +550,6 @@
    The category pages share this stylesheet, so every rule stays below
    .bezirkDetail and cannot leak into their index/detail templates.
 ============================================================ */
-.bezirkDetail > nav:first-child ul {
-  border-bottom: 0;
-}
-
 .bezirkDetail .detailHero {
   display: grid;
   gap: 0;
@@ -922,8 +934,11 @@
 .indexHero {
   display: grid;
   gap: 18px;
-  margin: 8px 0 clamp(38px, 6vw, 72px);
-  padding: clamp(18px, 5vw, 52px) 0 0;
+  /* No top inset: the breadcrumb wrapper above supplies the air now, same as
+     on the detail pages. The old 52px was there for a hero that started the
+     page. */
+  margin: 0 0 clamp(38px, 6vw, 72px);
+  padding: 0;
   border-bottom: 0;
   justify-items: start;
   text-align: left;
@@ -1143,10 +1158,6 @@
 }
 
 @media (min-width: 960px) {
-  .indexHero {
-    margin-top: 32px;
-  }
-
   .page .indexHero .h1 {
     max-width: 11.5ch;
     font-size: clamp(82px, 8.4vw, 116px);

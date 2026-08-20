@@ -114,7 +114,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   } as CSSProperties;
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/' },
+    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
     { name: de ? 'Bezirke' : 'Districts', href: '/bezirk' },
     { name: b.name },
   ];
@@ -135,10 +135,12 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={`${styles.page} ${styles.bezirkDetail}`}>
-        <Breadcrumbs
-          items={breadcrumbItems}
-          ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-        />
+        <div className={styles.breadcrumbWrap}>
+          <Breadcrumbs
+            items={breadcrumbItems}
+            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+          />
+        </div>
 
         <header className={`${styles.hero} ${styles.detailHero}`}>
           <div className={styles.detailHeroCopy}>

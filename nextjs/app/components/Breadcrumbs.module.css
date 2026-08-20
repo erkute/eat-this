@@ -1,46 +1,56 @@
+/* The one breadcrumb. News, Kategorie, Bezirk and Restaurant all render this
+   component — the look lives here and nowhere else. Pages only decide how wide
+   the trail is and how much air sits under it, via their own wrapper. */
 .nav {
-  width: min(100%, 1280px);
-  margin: 0 auto clamp(18px, 3vw, 34px);
+  width: 100%;
+  min-width: 0;
+  margin: 0;
 }
 
 .list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 7px 10px;
+  gap: 7px 9px;
   margin: 0;
-  padding: 0 0 10px;
-  list-style: none;
+  padding: 0;
   border: 0;
-  border-bottom: 2px solid var(--et-home-ink);
   background: transparent;
   box-shadow: none;
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
+  list-style: none;
+  color: var(--et-home-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0;
   line-height: 1.2;
-  letter-spacing: 0.1em;
-  color: var(--et-home-ink);
   text-transform: uppercase;
+  /* One line that scrolls sideways. A wrapping trail pushed the hero down
+     and shifted the fold on long restaurant names. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
 }
 
 .item {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 7px;
   min-width: 0;
 }
 
-.item:last-child {
-  min-width: 0;
-  max-width: 100%;
-}
-
 .link,
 .current {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  min-height: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -50,19 +60,12 @@
 }
 
 .link {
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-  transition:
-    color 140ms ease,
-    transform 140ms ease,
-    text-decoration-color 140ms ease;
+  transition: color 140ms ease;
 }
 
 .link:hover,
 .link:focus-visible {
   color: var(--et-home-red);
-  text-decoration-line: underline;
-  transform: translateY(-1px);
 }
 
 .link:focus-visible {
@@ -78,32 +81,28 @@
 }
 
 .current {
-  max-width: min(100%, 42ch);
-  overflow: hidden;
   color: var(--et-home-red);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .sep {
-  color: var(--et-home-red);
+  color: inherit;
   font-size: 12px;
   line-height: 1;
 }
 
-@media (max-width: 640px) {
-  .nav {
-    margin-bottom: 18px;
-  }
-
+@media (max-width: 700px) {
+  /* Below 700 the trail wraps instead of scrolling — a hidden scroll area is
+     easy to miss on touch. Crumbs wrap only when they run out of room; a name
+     too long for a whole line breaks inside itself rather than overflowing. */
   .list {
-    gap: 6px 8px;
-    padding-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+    overflow: visible;
     font-size: 10px;
-    letter-spacing: 0.08em;
+    white-space: normal;
   }
 
   .current {
-    max-width: 20ch;
+    white-space: normal;
   }
 }

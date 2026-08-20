@@ -8,9 +8,15 @@ interface Props {
   locale: 'de' | 'en';
 }
 
+// Three stories, not six. Stacked full-width on mobile the old six-card grid
+// ran 3218px — 41% of the entire home page — for the section readers reach
+// last. Three cards in a swipeable rail carry the same "we know this city"
+// signal at a fifth of the height.
+const CARD_COUNT = 3;
+
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
-  const list = articles.slice(0, 6);
+  const list = articles.slice(0, CARD_COUNT);
   const labels = {
     read: locale === 'en' ? 'Read' : 'Lesen',
     all: locale === 'en' ? 'All stories' : 'Alle Stories',

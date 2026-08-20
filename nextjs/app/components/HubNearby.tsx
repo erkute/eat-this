@@ -7,19 +7,19 @@ import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
 import { getLocationStatus } from '@/lib/map/locationStatus';
 import { normalizeName } from '@/lib/normalizeName';
-import { nearestRestaurants } from '@/lib/home/nearby';
-import { Link } from '@/i18n/navigation';
+import { nearestRestaurants, rotatingRestaurants } from '@/lib/home/nearby';
+import MapIntentLink from './MapIntentLink';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
-
-const MITTE = { lat: 52.52, lng: 13.405 };
 
 interface Props {
   mode?: 'guest' | 'auth';
   locale?: 'de' | 'en';
+  /** Server date (YYYY-MM-DD) seeding the no-location rotation. */
+  today: string;
 }
 
-export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
+export default function HubNearby({ mode = 'guest', locale = 'de', today }: Props) {
   const t = useTranslations('hub.nearby');
   const authMode = mode === 'auth';
   const { initialMapData, live } = useHomeMapData();
@@ -50,9 +50,14 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
   }, [locationSuccessKey]);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  const loc = activeLocation ?? MITTE;
+  const count = authMode ? 2 : 4;
 
-  const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4);
+  // With a grant: genuinely nearest. Without: a daily rotation across Berlin
+  // rather than the same four spots around a Mitte centroid the visitor never
+  // asked for.
+  const cards = activeLocation
+    ? nearestRestaurants(restaurants, activeLocation, count)
+    : rotatingRestaurants(restaurants, today, count);
   if (cards.length === 0) return null;
 
   // `loc` falls back to Mitte, so without a grant the walking time below is
@@ -86,7 +91,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
         data-auth-nearby={authMode ? '' : undefined}
         data-auth-only={authMode ? '' : undefined}
       >
-        <div className="hv-head">
+        <div className={`hv-head ${styles.head}`}>
           <h2 className={`hv-title ${styles.title}`}>
             <span className="hv-mk" aria-hidden="true" />
             {title}
@@ -94,6 +99,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
           <button
             type="button"
             className={styles.locBtn}
+            data-primary={activeLocation ? undefined : ''}
             onClick={handleLocate}
             disabled={locating}
             aria-label={t('locationAria')}
@@ -115,11 +121,20 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
         <div className={`hv-rail ${styles.rail}`}>
           {cards.map((r) => {
             const walk = activeLocation
-              ? formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
+              ? formatWalkingTime(
+                  haversineDistance(activeLocation.lat, activeLocation.lng, r.lat, r.lng)
+                )
               : null;
             const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
             return (
-              <Link key={r._id} href={`/restaurant/${r.slug}`} className={styles.card}>
+              // Every card on the home page leads back to the map — that is
+              // the product, and the spot is already pinned there.
+              <MapIntentLink
+                key={r._id}
+                href={`/map?r=${r.slug}`}
+                rel="nofollow"
+                className={styles.card}
+              >
                 <span className={`hv-photo ${styles.photo}`}>
                   {r.photo && (
                     <Image
@@ -134,7 +149,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de' }: Props) {
                 {(walk || district) && (
                   <span className="hv-sub">{[walk, district].filter(Boolean).join(' · ')}</span>
                 )}
-              </Link>
+              </MapIntentLink>
             );
           })}
         </div>

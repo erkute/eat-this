@@ -55,8 +55,25 @@ describe('HubHeroCopy', () => {
     const html = render();
     expect(html).toContain('Was du essen solltest.');
     expect(html).toContain('We tell you');
-    expect(html).toContain('Was ist um mich?');
+    // One CTA only — the nearby prompt lives in the Nearby section now.
+    expect(html).toContain('Map öffnen');
+    expect(html).not.toContain('Was ist um mich?');
     expect(html).not.toContain('Deine Map');
+  });
+
+  it('explains what this is — guests only', () => {
+    const html = render();
+    expect(html).toContain('Die besten Orte Berlins auf einer Map');
+    expect(html).toContain('was du bestellen musst');
+
+    const en = render('en');
+    expect(en).toContain('The best places in Berlin on one map');
+  });
+
+  it('drops the explainer once a visitor is signed in', () => {
+    authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
+    const html = render();
+    expect(html).not.toContain('Die besten Orte Berlins');
   });
 
   it('keeps the same hero structure while restoring signed-in copy', () => {
@@ -78,5 +95,7 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('We tell you');
     expect(html).toContain('Deine Map');
     expect(html.match(/<h1/g)).toHaveLength(1);
+    // The explainer is guest copy — one copy only, behind the guest gate.
+    expect(html.match(/Die besten Orte Berlins auf einer Map/g)).toHaveLength(1);
   });
 });

@@ -12,8 +12,8 @@ import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
 import CategoriesRail from './CategoriesRail';
 import HomeDishStrip from './HomeDishStrip';
-import DistrictsList from './DistrictsList';
 import MagazineGrid from './MagazineGrid';
+import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
 import { HomeMapDataProvider } from './HomeMapDataContext';
 import styles from './HubSection.module.css';
@@ -27,63 +27,120 @@ interface Props {
 const copy = {
   de: {
     spotDay: 'Spot des Tages',
+    heroLabel: 'Eat This — die Food-Map für Berlin',
+    heroPhonesLabel: 'Die Eat This Map auf dem Handy',
   },
   en: {
     spotDay: 'Spot of the day',
+    heroLabel: 'Eat This — the food map for Berlin',
+    heroPhonesLabel: 'The Eat This map on your phone',
   },
 };
 
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
   const spot = initialData.spotOfDay;
+  // Server date seeds HubNearby's no-location rotation. Taken here rather than
+  // in the client island so SSR and the first client render can't disagree
+  // across a midnight boundary. The page is force-dynamic, so it stays fresh.
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <main className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
       <HubHashScroll />
 
-      <section className={`hv-wrap ${styles.hero}`} aria-label={t.spotDay}>
+      <section className={`hv-wrap ${styles.hero}`} aria-label={t.heroLabel}>
         <div className={styles.heroGrid}>
           <HubHeroCopy locale={locale} />
-          {spot && (
-            <MapIntentLink
-              href={`/map?r=${spot.slug}`}
-              rel="nofollow"
-              className={`hv-photo ${styles.heroPhoto}`}
-              aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
-            >
-              {spot.image && (
-                // Deliberately bypass the App Hosting image proxy for the LCP:
-                // Sanity serves the responsive, format-negotiated variants directly.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  className={styles.heroImage}
-                  src={sanityImageLoader({ src: spot.image, width: 750, quality: 75 })}
-                  srcSet={sanitySrcSet(spot.image, [480, 640, 750, 960], 75)}
-                  alt=""
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  sizes="(max-width:760px) 92vw, 440px"
-                />
-              )}
-              <span className={styles.heroPhotoTag}>
-                <span className="hv-kicker">{t.spotDay}</span>
-                <strong>{normalizeName(spot.name)}</strong>
-              </span>
-            </MapIntentLink>
-          )}
+          {/* The product itself, not a mood shot: the map a visitor is about to
+              open, with a spot page staggered behind it. Both mockups are
+              cutouts on transparent ground so they float on the white home. */}
+          <MapIntentLink
+            href="/map"
+            rel="nofollow"
+            className={styles.heroPhones}
+            aria-label={t.heroPhonesLabel}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.phoneBack}
+              src="/pics/home-phones/phone-restaurant.webp"
+              alt=""
+              width={855}
+              height={1736}
+              loading="lazy"
+              decoding="async"
+            />
+            {/* LCP element — the map phone is what the hero is actually about. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.phoneFront}
+              src="/pics/home-phones/phone-map.webp"
+              alt={t.heroPhonesLabel}
+              width={855}
+              height={1736}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
+          </MapIntentLink>
         </div>
       </section>
 
+      {/* Spot of the day kept its daily-ritual job but lost the hero slot to
+          the product shot — a single wide band instead of half the fold. */}
+      {spot && (
+        <section className={`homeV2 hv-section hv-wrap ${styles.spotBand}`} aria-label={t.spotDay}>
+          <div className="hv-head">
+            <h2 className="hv-title">
+              <span className="hv-mk" aria-hidden="true" />
+              {t.spotDay}
+            </h2>
+          </div>
+          <MapIntentLink
+            href={`/map?r=${spot.slug}`}
+            rel="nofollow"
+            className={`hv-photo ${styles.spotPhoto}`}
+            aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
+          >
+            {spot.image && (
+              // Deliberately bypass the App Hosting image proxy: Sanity serves
+              // the responsive, format-negotiated variants directly.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className={styles.spotImage}
+                src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
+                srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                sizes="(max-width:760px) 92vw, min(100vw, 1280px)"
+              />
+            )}
+            <span className={styles.spotTag}>
+              <strong>{normalizeName(spot.name)}</strong>
+              {spot.district && <span className="hv-kicker">{spot.district}</span>}
+            </span>
+          </MapIntentLink>
+        </section>
+      )}
+
+      {/* Order follows what a first-time visitor needs, in that order: what is
+          this (hero) → the free offer while interest is highest (signup) →
+          proof it works here (nearby) → the thing nobody else has (must eats)
+          → proof we know the city (magazine) → a second chance at the offer →
+          navigation → Remy and FAQ. Selling packs moved off the home page. */}
+      <StarterPackSignup locale={locale} />
       <HomeMapDataProvider initialMapData={initialMapData}>
-        <HubNearby locale={locale} />
-        <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
-        <HomeDishStrip locale={locale} />
-        <HubMustEatsTeaser />
+        <HubNearby locale={locale} today={today} />
+        <HubMustEatsTeaser>
+          <HomeDishStrip locale={locale} />
+        </HubMustEatsTeaser>
       </HomeMapDataProvider>
-      <HubFragRemy />
-      <DistrictsList districts={initialData.districts} locale={locale} />
       <MagazineGrid articles={initialData.magazine} locale={locale} />
+      <StarterPackSignup locale={locale} variant="repeat" />
+      <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
+      <HubFragRemy />
       <HubFaq locale={locale} />
       <SiteFooter />
     </main>

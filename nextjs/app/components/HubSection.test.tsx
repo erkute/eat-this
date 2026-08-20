@@ -60,7 +60,6 @@ const data: HomeData = {
     featuredOnDate: null,
     mustEatCount: 0,
   },
-  districts: [],
   magazine: [],
   categoryNames: { pizza: 'Pizza' },
 };
@@ -82,10 +81,21 @@ describe('HubSection home', () => {
   });
 
   it('renders the signed-out reference hero without a visibility gate after auth resolves', () => {
+    const hero = renderHome().split('</section>')[0];
+    expect(hero).not.toContain('data-guest-only');
+    expect(hero).not.toContain('data-auth-only');
+    expect(hero).not.toContain('Deine Map wartet');
+  });
+
+  it('puts the free signup directly under the hero, before anything else', () => {
     const html = renderHome();
-    expect(html).not.toContain('data-guest-only');
-    expect(html).not.toContain('data-auth-only');
-    expect(html).not.toContain('Deine Map wartet');
+    expect(html).toContain('data-hub-starter="primary"');
+    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
+  });
+
+  it('sells no packs on the home page', () => {
+    const html = renderHome();
+    expect(html).not.toContain('/pack/');
   });
 
   it('hero links to the map', () => {

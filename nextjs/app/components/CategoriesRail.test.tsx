@@ -1,112 +1,45 @@
-// @vitest-environment jsdom
 import { renderToStaticMarkup } from 'react-dom/server';
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 
-const magicLinkState = vi.hoisted(() => ({
-  sendLink: vi.fn(),
-  reset: vi.fn(),
-  state: 'idle',
-  errorMessage: '',
-}));
-
-vi.mock('@/lib/auth', () => ({
-  useMagicLink: () => ({
-    sendLink: magicLinkState.sendLink,
-    state: magicLinkState.state,
-    errorMessage: magicLinkState.errorMessage,
-    reset: magicLinkState.reset,
-  }),
-}));
-vi.mock('./MapIntentLink', () => ({
-  default: ({ href, children, className }: any) => (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  ),
-}));
 vi.mock('@/i18n/navigation', () => ({
-  Link: ({ href, children, className }: any) => (
-    <a href={href} className={className}>
+  Link: ({ href, children, className, ...rest }: any) => (
+    <a href={href} className={className} {...rest}>
       {children}
     </a>
   ),
 }));
-vi.mock('next/image', () => ({
-  default: ({ src, priority }: { src: string; priority?: boolean }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt="" data-priority={priority ? 'true' : undefined} />
-  ),
-}));
+
 import CategoriesRail from './CategoriesRail';
 
 describe('CategoriesRail', () => {
-  beforeEach(() => {
-    magicLinkState.sendLink.mockReset();
-    magicLinkState.reset.mockReset();
-    magicLinkState.state = 'idle';
-    magicLinkState.errorMessage = '';
-  });
-
-  afterEach(() => {
-    cleanup();
-  });
-
-  it('links category artwork canonically and keeps the booster action', () => {
+  it('links each category to its category page', () => {
     const html = renderToStaticMarkup(
       <CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />
     );
-    expect(html).toContain('/pack/pizza');
     expect(html).toContain('/kategorie/pizza');
-    expect(html).toContain('Öffnen');
     expect(html).toContain('Pizza');
-    expect(html).not.toContain('data-priority');
   });
-  it('renders the starter pack signup before category packs', () => {
+
+  it('sells nothing: no pack links, no buy buttons, no signup form', () => {
+    const html = renderToStaticMarkup(
+      <CategoriesRail categoryNames={{ pizza: 'Pizza', lunch: 'Lunch' }} locale="de" />
+    );
+    // Packs live on /packs and the map now — a first-time visitor who has not
+    // seen the map yet must not meet a shop here.
+    expect(html).not.toContain('/pack/');
+    expect(html).not.toContain('Öffnen');
+    expect(html).not.toContain('Starter Pack');
+    expect(html).not.toContain('type="email"');
+  });
+
+  it('carries no booster artwork — the pack sachets read as product shots', () => {
     const html = renderToStaticMarkup(
       <CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />
     );
-    expect(html).toContain('Starter Pack');
-    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Pizza'));
-    expect(html).toContain('placeholder="deine@email.com"');
-    expect(html).toContain('Anmelden');
+    expect(html).not.toContain('booster');
+    expect(html).not.toContain('<img');
   });
-  it('keeps the starter pack submit hoverable before an email is entered', () => {
-    render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
 
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Anmelden' }).disabled).toBe(
-      false
-    );
-  });
-  it('shows a local error when the starter email is empty', () => {
-    render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
-
-    expect(screen.getByRole('alert').textContent).toBe('Bitte gib deine E-Mail ein.');
-    expect(magicLinkState.sendLink).not.toHaveBeenCalled();
-  });
-  it('shows a local error when the starter email is invalid', () => {
-    render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
-
-    fireEvent.change(screen.getByLabelText('E-Mail Adresse'), { target: { value: 'nope' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
-
-    expect(screen.getByRole('alert').textContent).toBe(
-      'Das sieht noch nicht nach einer E-Mail aus.'
-    );
-    expect(magicLinkState.sendLink).not.toHaveBeenCalled();
-  });
-  it('sends the starter magic link for a valid email', () => {
-    render(<CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />);
-
-    fireEvent.change(screen.getByLabelText('E-Mail Adresse'), {
-      target: { value: ' test@example.com ' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
-
-    expect(magicLinkState.sendLink).toHaveBeenCalledWith('test@example.com');
-  });
   it('renders nothing when empty', () => {
     const html = renderToStaticMarkup(<CategoriesRail categoryNames={{}} locale="de" />);
     expect(html).toBe('');

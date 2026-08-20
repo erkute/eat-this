@@ -5,6 +5,21 @@
   align-items: center;
 }
 
+/* The promoted locate button is wider than the old text link, so on narrow
+   screens the shared .hv-head flex row lets it collide with the wrapping
+   title. Allow the row to break instead. */
+@media (max-width: 560px) {
+  :global(.homeV2) .head:global(.hv-head) {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  :global(.homeV2) .head:global(.hv-head) .locBtn {
+    margin-left: 0;
+  }
+}
+
 .title :global(.hv-mk) {
   flex: 0 0 auto;
   vertical-align: 0;
@@ -101,6 +116,22 @@
 }
 .locBtn:disabled {
   cursor: wait;
+}
+
+/* Until a location is granted this is what the section is asking for, so it
+   reads as a button rather than as a quiet utility link. */
+.locBtn[data-primary] {
+  margin-right: 0;
+  padding: 0 14px;
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
+  border-radius: var(--et-radius-control);
+}
+
+.locBtn[data-primary]:hover:not(:disabled),
+.locBtn[data-primary]:focus-visible:not(:disabled) {
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-red);
 }
 
 .locBtn:hover:not(:disabled),

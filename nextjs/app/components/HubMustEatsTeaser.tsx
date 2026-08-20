@@ -13,7 +13,17 @@ import styles from './HubMustEatsTeaser.module.css';
 
 const TEASER_COUNT = 6;
 
-export default function HubMustEatsTeaser() {
+/**
+ * `children` carries the cutout-dish strip, which used to be its own section
+ * ("Das willst du essen"). Both sections showed a row of food photos with a
+ * restaurant name underneath, so they read as the same thing twice. Folded
+ * into one: the card mechanic is the headline, the cutouts are its texture.
+ */
+interface Props {
+  children?: React.ReactNode;
+}
+
+export default function HubMustEatsTeaser({ children }: Props) {
   const { initialMapData, live, uid } = useHomeMapData();
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
   const { lang, t } = useTranslation();
@@ -107,8 +117,8 @@ export default function HubMustEatsTeaser() {
 
       <p className={styles.lead}>
         {lang === 'en'
-          ? 'Every Must Eat is a card — discover it on the map, reveal it on site.'
-          : 'Jedes Must Eat ist eine Karte — auf der Map entdecken, vor Ort aufdecken.'}
+          ? 'Every Must Eat is a card: discover it on the map, reveal it on site.'
+          : 'Jedes Must Eat ist eine Karte: auf der Map entdecken, vor Ort aufdecken.'}
       </p>
 
       <ul className={`hv-rail ${styles.rail}`} role="list">
@@ -127,11 +137,11 @@ export default function HubMustEatsTeaser() {
                     <img
                       className={styles.card}
                       src={m.image}
-                      // The tile renders at clamp(112px, 14vw, 144px) — the
-                      // baked mapCard src (w=600) is ~4× oversized even at 2x
-                      // DPR. The srcset lets the browser drop to 300/450.
-                      srcSet={sanitySrcSet(m.image, [150, 300, 450])}
-                      sizes="(max-width: 760px) 112px, 144px"
+                      // The tile renders at clamp(168px, 20vw, 208px), so the
+                      // srcset spans 220–620: 220 covers 1x, 440 covers the
+                      // common 2x phone, 620 the widest 3x case.
+                      srcSet={sanitySrcSet(m.image, [220, 440, 620])}
+                      sizes="(max-width: 560px) 52vw, (max-width: 760px) 208px, 208px"
                       alt={normalizeName(m.dish ?? '')}
                       loading="lazy"
                     />
@@ -158,6 +168,8 @@ export default function HubMustEatsTeaser() {
           </li>
         ))}
       </ul>
+
+      {children}
 
       <div className={styles.foot}>
         <MapIntentLink href="/must-eats" className="hv-btn">

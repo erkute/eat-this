@@ -77,7 +77,9 @@ export function localizeOpeningHours(hours: string | undefined, locale: string):
   ) {
     return lang === 'en' ? 'Open 24 hours' : '24 Stunden geöffnet';
   }
-  return raw;
+  // Split shifts arrive unspaced ("12:00-14:30,15:30-21:00") and run together
+  // at the size this column is set in.
+  return raw.replace(/,\s*/g, ', ');
 }
 
 function parseDays(str: string): DayIndex[] {

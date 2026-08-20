@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
-  // Dotted paths (/news-sitemap.xml, /foo.txt, …) bypass the next-intl
+  // Dotted paths (/sitemap.xml, /foo.txt, …) bypass the next-intl
   // middleware (matcher excludes them), so this page renders with the raw
   // first segment as `locale`. The [locale] layout's notFound() doesn't
   // preempt the page (they render concurrently) — guard here too, or the

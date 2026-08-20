@@ -1,5 +1,5 @@
 .faq {
-  margin: 32px 16px 24px;
+  margin: 32px 0 24px;
   border-top: 2px solid var(--ink, var(--et-home-ink));
   padding-top: 18px;
 }
@@ -80,6 +80,6 @@
 
 @media (min-width: 720px) {
   .faq {
-    margin: 40px 22px 28px;
+    margin: 40px 0 28px;
   }
 }

@@ -25,7 +25,7 @@ import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose';
-import { getOpenStatus, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
+import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
 import HeartCount from '@/app/components/HeartCount';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
@@ -217,16 +217,6 @@ export default async function RestaurantPage({ params }: PageProps) {
     .filter((img) => imageAssetKey(img.full) !== heroAssetKey);
   const heroCreditHref = safeCreditUrl(r.photoCreditUrl);
 
-  const openStatus =
-    r.openingHours && r.openingHours.length > 0
-      ? getOpenStatus(r.openingHours, new Date(), {
-          open: de ? 'Jetzt geöffnet' : 'Open now',
-          closed: de ? 'Jetzt geschlossen' : 'Closed now',
-          opens: de ? 'öffnet' : 'opens',
-          closes: de ? 'schließt' : 'closes',
-        })
-      : null;
-
   const priceLabel = formatPriceLabel(r);
   const websiteInfo = classifyWebsite(r.website);
   const websiteUrl = websiteInfo?.url ?? null;
@@ -250,14 +240,6 @@ export default async function RestaurantPage({ params }: PageProps) {
     r.cuisineType ? (
       <span key="cuisine" className={styles.chipAlt}>
         {r.cuisineType}
-      </span>
-    ) : null,
-    openStatus ? (
-      <span
-        key="open"
-        className={`${styles.chipAlt} ${openStatus.isOpen ? styles.chipOpen : styles.chipClosed}`}
-      >
-        {openStatus.label}
       </span>
     ) : null,
   ].filter(Boolean);
@@ -321,22 +303,24 @@ export default async function RestaurantPage({ params }: PageProps) {
                 district={r.bezirk?.name ?? undefined}
                 locale={loc}
               />
-              {r.photoCredit && (
-                <span className={styles.heroCredit}>
-                  {heroCreditHref ? (
-                    <a href={heroCreditHref} target="_blank" rel="noopener noreferrer">
-                      {r.photoCredit}
-                    </a>
-                  ) : (
-                    r.photoCredit
-                  )}
-                </span>
-              )}
-              {/* District / cuisine / open-state ride on the photo instead of
-                  sitting in a stray white strip underneath it. */}
+              {/* District and cuisine ride on the photo instead of sitting in a
+                  stray white strip underneath it. The credit is part of this
+                  flow, not absolutely positioned: a two-line name fills the
+                  width and used to run straight under it. */}
               <figcaption className={styles.heroCaption}>
                 {heroTags.length > 0 && <div className={styles.heroTags}>{heroTags}</div>}
                 <h1 className={styles.heroName}>{displayName}</h1>
+                {r.photoCredit && (
+                  <span className={styles.heroCredit}>
+                    {heroCreditHref ? (
+                      <a href={heroCreditHref} target="_blank" rel="noopener noreferrer">
+                        {r.photoCredit}
+                      </a>
+                    ) : (
+                      r.photoCredit
+                    )}
+                  </span>
+                )}
               </figcaption>
             </figure>
           ) : (
@@ -564,11 +548,19 @@ export default async function RestaurantPage({ params }: PageProps) {
           />
         </div>
 
-        {mustEats.length > 0 && <MustEatTeaserSection mustEats={mustEats} locale={loc} />}
+        {mustEats.length > 0 && (
+          <div className={styles.rail}>
+            <MustEatTeaserSection mustEats={mustEats} locale={loc} />
+          </div>
+        )}
 
-        <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
+        <div className={styles.rail}>
+          <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
+        </div>
 
-        <RestaurantFAQ entries={faqEntries} locale={loc} />
+        <div className={styles.rail}>
+          <RestaurantFAQ entries={faqEntries} locale={loc} />
+        </div>
 
         {(siblingsBezirk.length > 0 || siblingsCategory.length > 0) && (
           <section className={styles.siblings}>

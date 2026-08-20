@@ -8,19 +8,13 @@
   /* Horizontal margin matches sibling restaurant-detail blocks (.tipp,
      .facts, .siblings = 16px) so the header lockup and card grid sit
      flush with the rest of the page, not 16px further out. */
-  margin: 56px 16px 0;
+  margin: 56px 0 0;
 }
 
+/* No side margin at any width: the page wraps this in .rail, which already
+   holds it to the same column as .facts and .siblings. */
 @media (min-width: 720px) {
   .section {
-    margin: 80px 22px 0;
-  }
-}
-
-@media (min-width: 1024px) {
-  .section {
-    /* Desktop drops side margin — page itself has 56px padding, content
-       runs full content-width like .facts and .siblings. */
     margin: 80px 0 0;
   }
 }

@@ -135,4 +135,8 @@ describe('localizeOpeningHours', () => {
   it('leaves real time ranges alone', () => {
     expect(localizeOpeningHours('12:00-23:00', 'de')).toBe('12:00-23:00');
   });
+
+  it('spaces split shifts so they do not run together', () => {
+    expect(localizeOpeningHours('12:00-14:30,15:30-21:00', 'de')).toBe('12:00-14:30, 15:30-21:00');
+  });
 });

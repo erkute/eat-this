@@ -94,7 +94,7 @@
 
 .hero,
 .heroNoPhoto {
-  width: min(100%, 1180px);
+  width: min(100%, 900px);
   margin: 0 auto clamp(36px, 6vw, 78px);
   display: grid;
   gap: clamp(14px, 2vw, 22px);
@@ -154,13 +154,12 @@
   padding: clamp(24px, 5vw, 58px);
 }
 
-/* Photo credit — bottom right, clear of the heart controls and the caption. */
+/* Photo credit — last row of the caption grid, right-aligned. It used to be
+   absolutely positioned bottom-right, where a name that wrapped to two lines
+   ("Bollenpiepe Restaurant") ran straight underneath it. */
 .heroCredit {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  z-index: 3;
-  max-width: calc(50% - 24px);
+  justify-self: end;
+  max-width: 100%;
   padding: 4px 8px 5px;
   background: rgba(13, 10, 7, 0.5);
   color: rgba(255, 255, 255, 0.86);
@@ -236,9 +235,7 @@
 }
 
 .chip,
-.chipAlt,
-.chipOpen,
-.chipClosed {
+.chipAlt {
   min-height: 30px;
   display: inline-flex;
   align-items: center;
@@ -259,15 +256,6 @@
   color: var(--detail-paper);
 }
 
-.chipOpen {
-  background: var(--detail-ink);
-  color: var(--detail-paper);
-}
-
-.chipClosed {
-  color: var(--detail-muted);
-}
-
 /* On the photo the flat light chips would disappear into the gradient, so the
    neutral ones become glass and the state chips keep their colour coding. */
 .heroCaption .chipAlt {
@@ -278,24 +266,22 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-.heroCaption .chipOpen {
-  background: #fff;
-  color: var(--detail-ink);
-}
-
-.heroCaption .chipClosed {
-  background: rgba(13, 10, 7, 0.55);
-  color: rgba(255, 255, 255, 0.86);
-}
-
 .story,
 .gallery,
 .editorialGrid,
 .facts,
 .acts,
-.siblings {
+.siblings,
+.rail {
   width: min(100%, 900px);
   margin-inline: auto;
+}
+
+/* Must-Eats, map promo and FAQ bring their own full-bleed margins from the
+   app shell they were written for. On this page they have to sit in the same
+   column as everything else. */
+.rail {
+  min-width: 0;
 }
 
 .story {
@@ -373,9 +359,10 @@
 .gallery {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  /* Fixed rows, not aspect-ratio'd tiles: a 4/3 tile is shorter than its row
-     and leaves a hole next to the tall opener. */
-  grid-auto-rows: clamp(170px, 21vw, 250px);
+  /* A floor, not a fixed height. Fixed rows closed the hole next to the tall
+     opener but clipped nothing — a single 16/10 tile is 563px at this width
+     and simply overflowed its 250px track, straight over the Insider Tip. */
+  grid-auto-rows: minmax(clamp(170px, 21vw, 250px), auto);
   gap: clamp(10px, 1.8vw, 16px);
   margin-bottom: clamp(38px, 7vw, 82px);
 }
@@ -600,10 +587,10 @@
 
 .factsKey {
   color: var(--detail-red);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-family: var(--f-display);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0;
   line-height: 1.25;
   text-transform: uppercase;
 }
@@ -612,9 +599,11 @@
 .factsVal a,
 .hours {
   color: var(--detail-ink);
-  font-size: 17px;
+  font-family: var(--f-display);
+  font-size: 20px;
   font-weight: 700;
-  line-height: 1.45;
+  letter-spacing: 0;
+  line-height: 1.34;
 }
 
 .hours {
@@ -779,9 +768,16 @@
   z-index: 1;
   display: grid;
   gap: 7px;
+  min-width: 0;
 }
 
+/* Grid items default to min-width:auto, so one unbreakable name at 38px
+   ("Sticks'n'Sushi", "Berlinburger International") set the track's min-content
+   width and ran straight out of the card. Same trap as .orderItem above. */
 .sibName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
   color: #fff;
   font-size: clamp(26px, 3vw, 38px);
   line-height: var(--et-leading-title, 0.94);
@@ -923,20 +919,13 @@
     padding: 22px 16px 24px;
   }
 
-  .heroCredit {
-    right: 10px;
-    bottom: 8px;
-  }
-
   .heroName,
   .name {
     font-size: clamp(42px, 12.4vw, 62px);
   }
 
   .chip,
-  .chipAlt,
-  .chipOpen,
-  .chipClosed {
+  .chipAlt {
     min-height: 30px;
     padding: 7px 10px 8px;
     font-size: 15px;

@@ -23,6 +23,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: '*', allow: '/' },
       ...AI_CRAWLER_USER_AGENTS.map((userAgent) => ({ userAgent, allow: '/' })),
     ],
-    sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/news-sitemap.xml`],
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

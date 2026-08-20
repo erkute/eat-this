@@ -25,12 +25,11 @@ describe('robots.ts', () => {
         { userAgent: 'Bingbot', allow: '/' },
       ])
     );
-    expect(result.sitemap).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/\/sitemap\.xml$/),
-        expect.stringMatching(/\/news-sitemap\.xml$/),
-      ])
-    );
+    // Genau eine Sitemap: die News-Sitemap ist raus, weil sie bei
+    // Evergreen-Guides und Wochen ohne neuen Artikel dauerhaft leer war
+    // und in der Search Console als Fehler stand.
+    expect(result.sitemap).toMatch(/\/sitemap\.xml$/);
+    expect(result.sitemap).not.toMatch(/news-sitemap/);
   });
 
   it('staging: disallow all, no sitemap reference', async () => {

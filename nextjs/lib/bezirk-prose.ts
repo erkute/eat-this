@@ -18,24 +18,19 @@ interface BezirkContext {
   locale: Loc;
 }
 
-/**
- * H2 über der kuratierten Bestenliste (`bezirk.topSpots`). Nennt die Zahl, die
- * darunter steht — nicht eine runde Wunschzahl: eine „Top 10" über acht Karten
- * ist eine Behauptung, die die Seite selbst widerlegt.
- */
-export function buildBezirkBestOfHeading(count: number, name: string, locale: Loc): string {
-  return locale === 'de'
-    ? `Die ${count} besten Spots in ${name}`
-    : `The ${count} best spots in ${name}`;
+/** H2 über der kuratierten Bestenliste (`bezirk.topSpots`). */
+export function buildBezirkBestOfHeading(name: string, locale: Loc): string {
+  return locale === 'de' ? `Die besten Spots in ${name}` : `The best spots in ${name}`;
 }
 
 /**
- * H2 über dem vollständigen A–Z-Verzeichnis unter der Bestenliste. Sagt im
- * Klartext, was es ist — ein Verzeichnis, kein Ranking. Nur gerendert, wenn es
- * tatsächlich eine Bestenliste darüber gibt.
+ * H2 über dem Rest der Liste, unter der Bestenliste. Bewusst ohne Zahl und ohne
+ * „A–Z": beides beschrieb die Mechanik statt den Inhalt, und die Zahl stand
+ * ohnehin schon in der Liste darunter. Nur gerendert, wenn es tatsächlich eine
+ * Bestenliste darüber gibt.
  */
-export function buildBezirkDirectoryHeading(count: number, locale: Loc): string {
-  return locale === 'de' ? `Alle ${count} Spots von A–Z` : `All ${count} spots, A–Z`;
+export function buildBezirkDirectoryHeading(locale: Loc): string {
+  return locale === 'de' ? 'Weitere Spots' : 'More spots';
 }
 
 /** Counts of the top categories represented in this bezirk. */

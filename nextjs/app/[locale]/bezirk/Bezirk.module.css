@@ -635,6 +635,20 @@
   scroll-margin-top: 88px;
 }
 
+/* Der Rest der Liste unter der Bestenliste. Ohne sichtbaren Schnitt lasen die
+   beiden Sektionen als eine lange Liste mit einer Zwischenüberschrift — die
+   Linie und die Luft darüber sagen: hier hört die Kuratierung auf. */
+.directorySection {
+  margin-top: clamp(52px, 7vw, 90px);
+  padding-top: clamp(30px, 4vw, 48px);
+  border-top: 2px solid var(--et-home-line);
+}
+
+.directorySection .sectionHead {
+  margin-top: 0;
+  margin-bottom: clamp(22px, 3vw, 34px);
+}
+
 .bezirkDetail .sectionHead {
   display: grid;
   gap: 10px;

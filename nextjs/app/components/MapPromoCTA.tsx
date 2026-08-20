@@ -38,14 +38,31 @@ function getCopy(
             sub: `${name} is on the Eat This map — along with more curated restaurants, cafés and bars in Berlin.`,
             chipTitle: 'Open on the map',
           };
+    // Bezirk und Kategorie sind nur die Tür: die Map ist stadtweit. Die alten
+    // Einzeiler („Die besten Spots in der Gegend.") ließen sie wie einen
+    // Ausschnitt der Seite aussehen, auf der sie steht, und gaben keinen Grund
+    // zu klicken. Genannt werden nur Filter, die es wirklich gibt —
+    // Kategorie, Bezirk, Küche (siehe map/MapListHeader).
     case 'bezirk':
       return de
-        ? { title: `Ganz ${name} auf der Map`, sub: 'Die besten Spots in der Gegend.' }
-        : { title: `All of ${name} on the map`, sub: 'The best spots in the area.' };
+        ? {
+            title: `Ganz ${name} auf der Map`,
+            sub: `Die Map hört nicht an der Bezirksgrenze auf: jedes kuratierte Restaurant, jedes Café und jede Bar in Berlin — filterbar nach Kategorie, Bezirk und Küche.`,
+          }
+        : {
+            title: `All of ${name} on the map`,
+            sub: `The map doesn't stop at the district line: every curated restaurant, café and bar in Berlin — filter by category, district and cuisine.`,
+          };
     case 'kategorie':
       return de
-        ? { title: `${name} auf der Map`, sub: 'Unsere ganze Auswahl in Berlin.' }
-        : { title: `${name} on the map`, sub: 'Our full selection in Berlin.' };
+        ? {
+            title: `${name} auf der Map`,
+            sub: `Auf der Map steht nicht nur ${name}: jedes kuratierte Restaurant, jedes Café und jede Bar in Berlin — filterbar nach Kategorie, Bezirk und Küche.`,
+          }
+        : {
+            title: `${name} on the map`,
+            sub: `The map holds more than ${name}: every curated restaurant, café and bar in Berlin — filter by category, district and cuisine.`,
+          };
   }
 }
 

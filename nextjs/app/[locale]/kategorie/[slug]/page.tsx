@@ -347,14 +347,15 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
             der Crawl-Pfad zu den Restaurant-Detailseiten. */}
         {top.length > 0 && rest.length > 0 && (
-          <section id="alle" className={sharedStyles.restaurantSection}>
+          <section
+            id="alle"
+            className={`${sharedStyles.restaurantSection} ${sharedStyles.directorySection}`}
+          >
             <div className={sharedStyles.sectionHead}>
-              <h2>{buildCategoryDirectoryHeading(restaurants.length, loc)}</h2>
-              <p>
-                {de
-                  ? 'Das komplette Verzeichnis dieser Kategorie.'
-                  : 'The complete directory for this category.'}
-              </p>
+              {/* Kein Unterzeilen-Text: Linie und Abstand darüber machen den
+                  Schnitt schon deutlich, und die Zeile stand rechts oben in
+                  der Luft. */}
+              <h2>{buildCategoryDirectoryHeading(loc)}</h2>
             </div>
 
             <RestaurantGrid restaurants={rest} locale={loc} />

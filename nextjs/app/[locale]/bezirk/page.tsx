@@ -132,15 +132,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
               // schwarzes Rechteck.
               const curated = (b.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
               const spots = pickShelf(curated, b.exampleRestaurants, 4);
-              const count = b.restaurantCount ?? 0;
-              const moreLabel =
-                count === 1
-                  ? de
-                    ? 'Zum Spot'
-                    : 'See the spot'
-                  : de
-                    ? `Alle ${count} Spots`
-                    : `All ${count} spots`;
+              const moreLabel = de ? 'Alle Spots ansehen' : 'See all spots';
 
               return (
                 <section

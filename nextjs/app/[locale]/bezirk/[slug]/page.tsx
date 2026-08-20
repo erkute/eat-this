@@ -242,7 +242,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           <div className={styles.sectionHead}>
             <h2>
               {top.length > 0
-                ? buildBezirkBestOfHeading(top.length, b.name, loc)
+                ? buildBezirkBestOfHeading(b.name, loc)
                 : de
                   ? 'Wo du essen solltest'
                   : 'Where to eat'}
@@ -260,12 +260,12 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               internen Links sind der Weg, auf dem die Restaurant-Detailseiten
               gecrawlt werden. Die Trennung ist visuell, nicht datenseitig. */}
           {top.length > 0 && rest.length > 0 && (
-            <>
+            <div className={styles.directorySection}>
               <div className={styles.sectionHead}>
-                <h2>{buildBezirkDirectoryHeading(restaurants.length, loc)}</h2>
+                <h2>{buildBezirkDirectoryHeading(loc)}</h2>
               </div>
               <RestaurantGrid restaurants={rest} locale={loc} />
-            </>
+            </div>
           )}
         </section>
 

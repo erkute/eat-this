@@ -148,10 +148,10 @@ export function buildCategorySectionHeading(slug: string, label: string, locale:
 }
 
 /**
- * H2 über dem vollständigen A–Z-Verzeichnis, das unter der kuratierten
- * Bestenliste steht. Sagt im Klartext, was es ist — ein Verzeichnis, kein
- * Ranking. Nur gerendert, wenn es tatsächlich eine Bestenliste darüber gibt.
+ * H2 über dem Rest der Liste, unter der kuratierten Bestenliste. Bewusst ohne
+ * Zahl und ohne „A–Z": beides beschrieb die Mechanik statt den Inhalt. Nur
+ * gerendert, wenn es tatsächlich eine Bestenliste darüber gibt.
  */
-export function buildCategoryDirectoryHeading(count: number, locale: Loc): string {
-  return locale === 'de' ? `Alle ${count} Spots von A–Z` : `All ${count} spots, A–Z`;
+export function buildCategoryDirectoryHeading(locale: Loc): string {
+  return locale === 'de' ? 'Weitere Spots' : 'More spots';
 }

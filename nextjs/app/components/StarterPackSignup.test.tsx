@@ -54,12 +54,9 @@ describe('StarterPackSignup', () => {
     expect(html).toContain('data-guest-only');
   });
 
-  it('drops the artwork in the repeat placement', () => {
-    const primary = renderToStaticMarkup(<StarterPackSignup locale="de" />);
-    const repeat = renderToStaticMarkup(<StarterPackSignup locale="de" variant="repeat" />);
-    expect(primary).toContain('booster_free.webp');
-    expect(repeat).not.toContain('booster_free.webp');
-    expect(repeat).toContain('Hol dir das Starter Pack');
+  it('shows the pack, so the free thing is visible and not just named', () => {
+    const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
+    expect(html).toContain('booster_free.webp');
   });
 
   it('keeps the submit hoverable before an email is entered', () => {

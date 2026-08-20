@@ -87,9 +87,11 @@ describe('HubSection home', () => {
     expect(hero).not.toContain('Deine Map wartet');
   });
 
-  it('puts the free signup directly under the hero, before anything else', () => {
+  it('carries exactly one signup, high on the page', () => {
     const html = renderHome();
-    expect(html).toContain('data-hub-starter="primary"');
+    // A second copy lower down was tried and dropped: it looked identical
+    // once it gained the pack and panel, so it read as repetition.
+    expect(html.match(/data-hub-starter/g)).toHaveLength(1);
     expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
   });
 

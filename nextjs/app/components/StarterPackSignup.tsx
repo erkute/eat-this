@@ -12,12 +12,13 @@ import styles from './StarterPackSignup.module.css';
  * section: the offer is named, the price is stated, and the magic-link step is
  * announced up front so the mail that follows isn't a surprise.
  *
- * `variant="repeat"` renders the compact second placement further down the page
- * for readers who needed the whole scroll to be convinced.
+ * One placement only, directly under the hero. A second copy lower down was
+ * tried and dropped: once it carried the same pack and panel as this one it
+ * read as repetition, and at this page's traffic the difference could never
+ * be measured either way.
  */
 interface Props {
   locale: 'de' | 'en';
-  variant?: 'primary' | 'repeat';
 }
 
 const copy = {
@@ -25,8 +26,6 @@ const copy = {
     kicker: 'Gratis',
     title: 'Starter Pack',
     lead: 'Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei. Kostenlos.',
-    repeatTitle: 'Hol dir das Starter Pack',
-    repeatLead: 'Kostenlos anmelden und mehr Spots samt Must Eats freischalten.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
@@ -42,8 +41,6 @@ const copy = {
     kicker: 'Free',
     title: 'Starter Pack',
     lead: 'Sign up and unlock more spots and their Must Eats on your map. Free.',
-    repeatTitle: 'Grab the Starter Pack',
-    repeatLead: 'Sign up free and unlock more spots and their Must Eats.',
     hint: 'We send you a sign-in link.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',
@@ -57,9 +54,8 @@ const copy = {
   },
 } as const;
 
-export default function StarterPackSignup({ locale, variant = 'primary' }: Props) {
+export default function StarterPackSignup({ locale }: Props) {
   const t = copy[locale];
-  const repeat = variant === 'repeat';
   const { sendLink, state, errorMessage, reset } = useMagicLink();
   const emailId = useId();
   const errorId = `${emailId}-error`;
@@ -86,31 +82,29 @@ export default function StarterPackSignup({ locale, variant = 'primary' }: Props
 
   return (
     <section
-      className={`homeV2 hv-section hv-wrap ${styles.section} ${repeat ? styles.repeat : ''}`}
-      data-hub-starter={repeat ? 'repeat' : 'primary'}
+      className="homeV2 hv-section hv-wrap"
+      data-hub-starter=""
       data-guest-only=""
       aria-label={t.title}
     >
       <div className={styles.inner}>
-        {!repeat && (
-          <div className={styles.art}>
-            <Image
-              src="/pics/booster/booster_free.webp"
-              alt={t.imgAlt}
-              fill
-              sizes="(max-width: 760px) 168px, 220px"
-              priority={false}
-            />
-          </div>
-        )}
+        <div className={styles.art}>
+          <Image
+            src="/pics/booster/booster_free.webp"
+            alt={t.imgAlt}
+            fill
+            sizes="(max-width: 760px) 168px, 220px"
+            priority={false}
+          />
+        </div>
 
         <div className={styles.head}>
           <span className={`hv-cap ${styles.kicker}`}>{t.kicker}</span>
-          <h2 className={`hv-title ${styles.title}`}>{repeat ? t.repeatTitle : t.title}</h2>
+          <h2 className={`hv-title ${styles.title}`}>{t.title}</h2>
         </div>
 
         <div className={styles.body}>
-          <p className={styles.lead}>{sent ? t.sentLead : repeat ? t.repeatLead : t.lead}</p>
+          <p className={styles.lead}>{sent ? t.sentLead : t.lead}</p>
 
           <form className={styles.form} onSubmit={handleSubmit} noValidate>
             <label className={styles.srOnly} htmlFor={emailId}>

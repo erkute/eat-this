@@ -683,32 +683,13 @@ html[data-auth='1'] [data-guest-only] {
   }
 }
 
-/* ── Consent bar: reserve its height before the first paint ──────────────────
-   The bar is `position: fixed`, so it takes no flow space; surfaces that own
-   the bottom edge subtract `--consent-bar-h` instead (the map adds it to
-   `--phone-list-sheet-visible`, see MapLayout.module.css). CookieConsent
-   measures the real bar and publishes that variable — but only after
-   hydration, and the bar itself only slides in at 1.5s. Learning the height
-   that late moved the sheet, the FAB, the status toast and the map
-   attribution up by 175px in one go: a single layout shift worth CLS 0.108 on
-   /map, against a 0.10 budget, reproduced with Lighthouse.
-
-   So the bootstrap stamps [data-consent='pending'] on <html> before the first
-   paint (it reads the cookie synchronously, which is why consent moved out of
-   localStorage), and the number below reserves the space from the start.
-
-   ONE number does both jobs on purpose: it reserves the space here AND floors
-   the bar via min-height, so the reserved and the measured height cannot drift
-   apart when the copy changes. Measured at 175px across 320–1440px in both
-   locales; if the bar's copy or padding grows past it, min-height keeps the
-   floor and CookieConsent's ResizeObserver corrects the remainder. Pinned in
-   CookieConsent.test.tsx. */
-:root {
-  --consent-bar-reserved: 175px;
-}
-:root[data-consent='pending'] {
-  --consent-bar-h: var(--consent-bar-reserved);
-}
-.cookie-consent {
-  min-height: var(--consent-bar-reserved);
+/* ── Consent gate: hold the page still while the question is up ─────────────
+   The gate is a blocking dialog with a scrim over the whole viewport. Scrolling
+   the page behind it would let the scrim slide over fresh content and read as a
+   broken overlay, so the document stops moving until the user answers. The
+   scrim's own `touch-action: none` (css/style.css) is what covers iOS Safari,
+   which ignores overflow:hidden on the scroll container. */
+:root[data-consent-gate='open'],
+:root[data-consent-gate='open'] body {
+  overflow: hidden;
 }

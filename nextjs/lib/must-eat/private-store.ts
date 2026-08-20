@@ -93,27 +93,49 @@ export async function getPrivateMustEatContent(id: string): Promise<PrivateMustE
 }
 
 /**
+ * Reads the premium documents for a set of IDs. Split out of
+ * `hydrateAuthorizedMustEats` so a caller whose ID set is not per-viewer can
+ * put a cache in front of it — the authorization decision stays in the caller
+ * either way, and what a given ID contains never depends on who asked.
+ *
+ * Returns a plain record rather than a Map so the result survives being
+ * serialized into a cache.
+ */
+export type PrivateMustEatReader = (
+  ids: string[]
+) => Promise<Record<string, PrivateMustEatContent>>;
+
+export const readPrivateMustEatContent: PrivateMustEatReader = async (ids) => {
+  const snapshots = await getAdminFirestore().getAll(...ids.map(documentRef));
+  return Object.fromEntries(
+    snapshots.map((snapshot) => [snapshot.id, parsePrivateMustEat(snapshot.id, snapshot.data())])
+  );
+};
+
+/**
  * Adds premium fields only for IDs already authorized by the caller. Sanity
  * contributes metadata (ID, order, public reveal flag, restaurant relation)
  * but never the paid text or image reference.
+ *
+ * `read` exists for callers whose authorized set is the same for every viewer;
+ * the default reads Firestore on every call, which is what a per-viewer set
+ * needs.
  */
 export async function hydrateAuthorizedMustEats(
   mustEats: MapMustEat[],
-  authorizedIds: ReadonlySet<string>
+  authorizedIds: ReadonlySet<string>,
+  read: PrivateMustEatReader = readPrivateMustEatContent
 ): Promise<MapMustEat[]> {
   const authorized = mustEats.filter((mustEat) => authorizedIds.has(mustEat._id));
   if (authorized.length === 0) return mustEats;
 
-  const snapshots = await getAdminFirestore().getAll(
-    ...authorized.map((mustEat) => documentRef(mustEat._id))
-  );
-  const contentById = new Map(
-    snapshots.map((snapshot) => [snapshot.id, parsePrivateMustEat(snapshot.id, snapshot.data())])
-  );
+  // Sorted: a cached `read` keys on its arguments, and the same set of cards
+  // must not miss the cache because Sanity returned them in another order.
+  const contentById = await read(authorized.map((mustEat) => mustEat._id).sort());
 
   return mustEats.map((mustEat) => {
     if (!authorizedIds.has(mustEat._id)) return mustEat;
-    const content = contentById.get(mustEat._id);
+    const content = contentById[mustEat._id];
     if (!content) {
       throw new PrivateMustEatContentError(`Private Must-Eat ${mustEat._id} is missing`);
     }

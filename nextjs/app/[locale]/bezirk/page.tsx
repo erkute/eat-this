@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
 import { normalizeName } from '@/lib/normalizeName';
+import { pickShelf } from '@/lib/curated-ranking';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -125,16 +126,13 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           </div>
           <div className={styles.districtRows}>
             {bezirke.map((b) => {
-              const spots = b.exampleRestaurants ?? [];
-              const count = b.restaurantCount ?? 0;
-              const moreLabel =
-                count === 1
-                  ? de
-                    ? 'Zum Spot'
-                    : 'See the spot'
-                  : de
-                    ? `Alle ${count} Spots`
-                    : `All ${count} spots`;
+              // Kuratierte Spots führen das Regal an; aufgefüllt wird mit der
+              // alphabetischen Auswahl. Die Karte ist ganz Foto, also fliegt
+              // raus, was kein publizierbares Bild hat — sonst stünde da ein
+              // schwarzes Rechteck.
+              const curated = (b.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
+              const spots = pickShelf(curated, b.exampleRestaurants, 4);
+              const moreLabel = de ? 'Alle Spots ansehen' : 'See all spots';
 
               return (
                 <section
@@ -142,17 +140,11 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                   className={styles.districtRow}
                   aria-labelledby={`bezirk-${b.slug}`}
                 >
-                  <div className={styles.districtHead}>
-                    <h3 id={`bezirk-${b.slug}`} className={styles.districtName}>
-                      <Link href={`/bezirk/${b.slug}`} className={styles.districtLink}>
-                        {b.name}
-                      </Link>
-                    </h3>
-                    <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
-                      {moreLabel}
-                      <span aria-hidden="true">→</span>
+                  <h3 id={`bezirk-${b.slug}`} className={styles.districtName}>
+                    <Link href={`/bezirk/${b.slug}`} className={styles.districtLink}>
+                      {b.name}
                     </Link>
-                  </div>
+                  </h3>
 
                   {spots.length > 0 && (
                     <div className={styles.spotGrid}>
@@ -160,28 +152,35 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                         <Link
                           key={restaurant._id}
                           href={`/restaurant/${restaurant.slug}`}
-                          className={styles.spotCard}
+                          className={styles.card}
                         >
                           {restaurant.photo && (
-                            <span className={styles.spotPhoto}>
+                            <div className={styles.cardPhoto}>
                               <Image
                                 src={restaurant.photo}
                                 alt=""
                                 fill
-                                sizes="(max-width: 719px) 46vw, (max-width: 1099px) 31vw, 248px"
+                                sizes="(max-width: 1099px) 46vw, 248px"
                               />
-                            </span>
+                            </div>
                           )}
-                          <span className={styles.spotOverlay}>
-                            <span className={styles.spotName}>{normalizeName(restaurant.name)}</span>
+                          <div className={styles.cardBody}>
+                            <h4 className={styles.cardName}>{normalizeName(restaurant.name)}</h4>
                             {restaurant.cuisineType && (
-                              <span className={styles.spotMeta}>{restaurant.cuisineType}</span>
+                              <div className={styles.cardMeta}>
+                                <span className={styles.chipYellow}>{restaurant.cuisineType}</span>
+                              </div>
                             )}
-                          </span>
+                          </div>
                         </Link>
                       ))}
                     </div>
                   )}
+
+                  <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
+                    {moreLabel}
+                    <span aria-hidden="true">→</span>
+                  </Link>
                 </section>
               );
             })}

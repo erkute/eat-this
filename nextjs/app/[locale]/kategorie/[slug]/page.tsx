@@ -10,7 +10,7 @@ import {
   buildCategorySectionHeading,
   buildCategoryDirectoryHeading,
 } from '@/lib/seo/categoryMeta';
-import { rankCategoryRestaurants } from '@/lib/kategorie-ranking';
+import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
@@ -91,7 +91,7 @@ function RestaurantGrid({
                   decoding="async"
                 />
                 {ranked && (
-                  <span className={styles.rankBadge} aria-hidden="true">
+                  <span className={sharedStyles.rankBadge} aria-hidden="true">
                     {i + 1}
                   </span>
                 )}
@@ -100,7 +100,7 @@ function RestaurantGrid({
             <div className={sharedStyles.cardBody}>
               <h3 className={sharedStyles.cardName}>
                 {/* Ohne Foto gibt es keinen Badge — dann trägt die Ziffer der Name. */}
-                {ranked && !r.photo && <span className={styles.rankInline}>{i + 1}.</span>}
+                {ranked && !r.photo && <span className={sharedStyles.rankInline}>{i + 1}.</span>}
                 {r.name}
               </h3>
               <div className={sharedStyles.cardMeta}>
@@ -182,7 +182,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const blurb = localizedCategoryBlurb(c, loc);
   // Kuratierte Bestenliste oben, vollständiges A–Z darunter. Ohne gepflegte
   // `topSpots` ist `top` leer und die Seite rendert wie bisher eine Liste.
-  const { top, rest } = rankCategoryRestaurants(restaurants, c.topSpots);
+  const { top, rest } = rankCurated(restaurants, c.topSpots);
   // Anzeigereihenfolge = JSON-LD-Reihenfolge: `position` ist eine
   // Rangbehauptung, Schema und Seite dürfen sich nicht widersprechen.
   const orderedRestaurants = [...top, ...rest];
@@ -300,9 +300,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               />
             </div>
           </div>
-
-          <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
         </header>
+
+        <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
 
         {districtLinks.length > 0 && (
           <nav
@@ -347,14 +347,15 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
             der Crawl-Pfad zu den Restaurant-Detailseiten. */}
         {top.length > 0 && rest.length > 0 && (
-          <section id="alle" className={sharedStyles.restaurantSection}>
+          <section
+            id="alle"
+            className={`${sharedStyles.restaurantSection} ${sharedStyles.directorySection}`}
+          >
             <div className={sharedStyles.sectionHead}>
-              <h2>{buildCategoryDirectoryHeading(restaurants.length, loc)}</h2>
-              <p>
-                {de
-                  ? 'Das komplette Verzeichnis dieser Kategorie.'
-                  : 'The complete directory for this category.'}
-              </p>
+              {/* Kein Unterzeilen-Text: Linie und Abstand darüber machen den
+                  Schnitt schon deutlich, und die Zeile stand rechts oben in
+                  der Luft. */}
+              <h2>{buildCategoryDirectoryHeading(loc)}</h2>
             </div>
 
             <RestaurantGrid restaurants={rest} locale={loc} />

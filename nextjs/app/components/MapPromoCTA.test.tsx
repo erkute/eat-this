@@ -43,7 +43,8 @@ describe('MapPromoCTA', () => {
     });
     expect(html).toContain('href="/map?bezirk=neukoelln"');
     expect(html).toContain('rel="nofollow"');
-    expect(html).toContain('Ganz Neukölln auf der Map');
+    // Der Name trägt den Fließtext, nicht die Headline — die gehört dem Slogan.
+    expect(html).toContain('Die Map hört nicht an der Bezirksgrenze auf');
     expect(html).toContain('Map öffnen');
   });
 
@@ -55,11 +56,22 @@ describe('MapPromoCTA', () => {
       locale: 'en',
     });
     expect(html).toContain('/map?cat=pizza');
-    expect(html).toContain('Pizza on the map');
+    expect(html).toContain('The map holds more than Pizza:');
     expect(html).toContain('Open the map');
   });
 
-  it('renders restaurant copy (no name in headline) + ?r= deep-link', () => {
+  it.each(['restaurant', 'bezirk', 'kategorie'] as const)(
+    'leads the %s banner with the brand slogan, not the place',
+    (kind) => {
+      const html = render({ kind, name: 'Neukölln', mapHref: '/map', locale: 'de' });
+      expect(html).toContain('<span>The map for people</span> <span>who care about food.</span>');
+      // Der ortsspezifische Titel gehört in die Pille, nicht in die Headline.
+      const heading = html.match(/<h2[^>]*>(.*?)<\/h2>/)?.[1] ?? '';
+      expect(heading).not.toContain('Neukölln');
+    }
+  );
+
+  it('renders restaurant copy + ?r= deep-link', () => {
     const html = render({
       kind: 'restaurant',
       name: 'Cocolo',

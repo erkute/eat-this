@@ -57,7 +57,7 @@
 .shot {
   position: relative;
   z-index: 1;
-  width: min(62vw, 300px);
+  width: min(62%, 260px);
   margin-bottom: -14%;
   transform: rotate(-3deg);
 }
@@ -119,8 +119,8 @@
 @media (min-width: 720px) {
   .promo {
     margin-top: 56px;
-    padding: 64px 6vw 0;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+    padding: 52px clamp(28px, 5%, 56px) 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 250px);
     align-items: center;
     justify-items: start;
     text-align: left;
@@ -128,30 +128,30 @@
   }
   .copy {
     align-items: flex-start;
-    gap: 18px;
-    padding-bottom: 64px;
+    gap: 16px;
+    padding-bottom: 52px;
   }
   .title,
   .sub {
     text-align: left;
   }
   .title {
-    font-size: clamp(44px, 5vw, 68px);
+    font-size: clamp(36px, 4.4vw, 56px);
   }
   .titleRestaurant {
-    font-size: clamp(44px, 4vw, 50px);
+    font-size: clamp(34px, 3.4vw, 42px);
   }
   .sub {
-    font-size: 17px;
-    max-width: 44ch;
+    font-size: 16px;
+    max-width: 40ch;
   }
   .cta {
-    font-size: 24px;
-    padding: 18px 32px 19px;
+    font-size: 21px;
+    padding: 15px 26px 16px;
   }
   .shot {
-    width: min(30vw, 320px);
-    margin-bottom: -11%;
+    width: min(100%, 250px);
+    margin-bottom: -9%;
     justify-self: end;
   }
 }

@@ -46,20 +46,6 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}
-  /* Reserve the consent bar's height BEFORE first paint. The bar is fixed to
-     the bottom and the map subtracts its height from the sheet, so learning
-     about it only after hydration moved the sheet, the FAB and the toast up
-     by 175px at once — CLS 0.108 on /map against a 0.10 budget. The answer is
-     in a cookie precisely so it can be read here, synchronously. The CSS
-     behind [data-consent='pending'] owns the number; CookieConsent clears the
-     attribute when the user answers. */
-  try{var cc=/(?:^|;\\s*)cookieConsent=(accepted|declined)/.test(document.cookie);
-  if(!cc){var lc=null;try{lc=localStorage.getItem('cookieConsent');}catch(_){}
-  /* localStorage is checked too, and only here: a user who answered before the
-     cookie shipped still has the old key, and CookieConsent migrates it after
-     hydration. Without this they would get the reserved gap and then lose it
-     again — the exact shift this reservation exists to prevent, once each. */
-  if(lc!=='accepted'&&lc!=='declined')document.documentElement.setAttribute('data-consent','pending');}}catch(_){}
   var fontCss=document.getElementById('et-adobe-fonts');
   if(fontCss){var applyFonts=function(){fontCss.media='all';};if(fontCss.sheet)applyFonts();else fontCss.addEventListener('load',applyFonts,{once:true});}
 }());`;

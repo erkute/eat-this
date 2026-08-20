@@ -1,8 +1,5 @@
 // @vitest-environment jsdom
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { act } from 'react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const analytics = vi.hoisted(() => ({
@@ -15,16 +12,24 @@ vi.mock('@/lib/analytics', () => ({
   getAnalyticsPageLocation: () => ({ pageLocation: 'https://x/', pagePath: '/' }),
 }));
 
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
+}));
+
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({
     lang: 'de',
     t: (key: string) =>
       ({
-        'cookie.title': 'Cookie-Check',
+        'cookie.title': 'Dürfen wir mitzählen?',
         'cookie.text': 'Cookie-Text',
-        'cookie.moreInfo': 'Mehr erfahren',
-        'cookie.decline': 'Ablehnen',
-        'cookie.accept': 'Akzeptieren',
+        'cookie.moreInfo': 'Was genau wird gespeichert?',
+        'cookie.decline': 'Nein, danke',
+        'cookie.accept': 'Ja, gerne',
+        'footer.datenschutz': 'Datenschutz',
+        'burger.impressum': 'Impressum',
       })[key] ?? key,
   }),
 }));
@@ -39,22 +44,21 @@ function clearCookies() {
   }
 }
 
+const gate = () => screen.queryByRole('dialog', { name: 'Dürfen wir mitzählen?' });
+
+/** The gate mounts at once but transitions in over two frames. */
+function openGate() {
+  return waitFor(() => {
+    expect(document.documentElement.getAttribute('data-consent-gate')).toBe('open');
+  });
+}
+
 describe('CookieConsent', () => {
   beforeEach(() => {
     localStorage.clear();
     clearCookies();
-    document.documentElement.removeAttribute('data-consent');
+    document.documentElement.removeAttribute('data-consent-gate');
     analytics.load.mockReset();
-    // jsdom has no ResizeObserver, and the banner observes itself to publish
-    // its height. Only the visible-banner cases reach it.
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      }
-    );
   });
 
   afterEach(() => {
@@ -67,7 +71,8 @@ describe('CookieConsent', () => {
 
     render(<CookieConsent />);
 
-    expect(screen.queryByRole('dialog', { name: 'Cookie-Check' })).toBeNull();
+    expect(gate()).toBeNull();
+    expect(document.documentElement.getAttribute('data-consent-gate')).toBeNull();
     expect(analytics.load).toHaveBeenCalledTimes(choice === 'accepted' ? 1 : 0);
   });
 
@@ -79,54 +84,103 @@ describe('CookieConsent', () => {
 
     render(<CookieConsent />);
 
-    expect(screen.queryByRole('dialog', { name: 'Cookie-Check' })).toBeNull();
+    expect(gate()).toBeNull();
     expect(readConsent(), 'the answer should now be in the cookie').toBe(choice);
     expect(localStorage.getItem('cookieConsent'), 'the old key should be gone').toBeNull();
     expect(analytics.load).toHaveBeenCalledTimes(choice === 'accepted' ? 1 : 0);
   });
 
-  it('clears the pre-paint reservation as soon as a stored answer is found', () => {
-    // The bootstrap stamps this before first paint; a decided user must not
-    // keep a 175px gap reserved for a bar that will never appear.
-    document.documentElement.setAttribute('data-consent', 'pending');
-    document.cookie = `${CONSENT_COOKIE}=accepted; Path=/`;
-
+  it('asks an undecided visitor immediately and locks the page behind it', async () => {
     render(<CookieConsent />);
 
-    expect(document.documentElement.getAttribute('data-consent')).toBeNull();
+    expect(gate(), 'the gate should be up on mount, not on a timer').not.toBeNull();
+    expect(gate()?.getAttribute('aria-modal')).toBe('true');
+    await openGate();
   });
 
-  it('writes the cookie and drops the reservation when the user accepts', () => {
-    vi.useFakeTimers();
-    document.documentElement.setAttribute('data-consent', 'pending');
+  /* The whole point of the redesign: the question cannot be walked away from.
+   * If any of these start dismissing it, we are back to counting a fraction of
+   * the traffic. */
+  it('cannot be dismissed except by answering', async () => {
+    const { container } = render(<CookieConsent />);
+    await openGate();
 
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(gate(), 'Escape must not close the gate').not.toBeNull();
+
+    fireEvent.mouseDown(container.querySelector('.cookie-scrim') as Element);
+    fireEvent.click(container.querySelector('.cookie-scrim') as Element);
+    expect(gate(), 'the scrim must not be a dismiss target').not.toBeNull();
+
+    expect(
+      screen.queryByRole('button', { name: /schließen|close|×/i }),
+      'no close button — the two answers are the only way out'
+    ).toBeNull();
+    expect(readConsent(), 'nothing may be written without an answer').toBeNull();
+    expect(document.documentElement.getAttribute('data-consent-gate')).toBe('open');
+  });
+
+  /* The gate is over everything, so these two have to be reachable from inside
+   * it — otherwise answering is the price of reading the privacy policy, which
+   * is the exact pressure that makes the consent worthless. */
+  it('links to the privacy policy and the imprint without asking for an answer', async () => {
     render(<CookieConsent />);
-    act(() => {
-      vi.advanceTimersByTime(1600); // the banner slides in at 1.5s
-    });
+    await openGate();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Akzeptieren' }));
+    expect(screen.getByRole('link', { name: 'Datenschutz' }).getAttribute('href')).toBe(
+      '/datenschutz'
+    );
+    expect(screen.getByRole('link', { name: 'Impressum' }).getAttribute('href')).toBe('/impressum');
+  });
+
+  it('closes Escape on the details panel without closing the gate', async () => {
+    render(<CookieConsent />);
+    await openGate();
+
+    const trigger = () => screen.getByRole('button', { name: 'Was genau wird gespeichert?' });
+    fireEvent.click(trigger());
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(gate()).not.toBeNull();
+  });
+
+  it('writes the cookie and unlocks the page when the user accepts', async () => {
+    render(<CookieConsent />);
+    await openGate();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ja, gerne' }));
 
     expect(readConsent()).toBe('accepted');
-    expect(document.documentElement.getAttribute('data-consent')).toBeNull();
+    await waitFor(() => {
+      expect(document.documentElement.getAttribute('data-consent-gate')).toBeNull();
+    });
   });
 
-  /* The reserved height and the bar's floor must be ONE number, or the space
-   * reserved before paint and the height the bar actually takes drift apart —
-   * which is the layout shift this whole mechanism exists to remove. */
-  it('reserves the bar height from the same variable that floors the bar', () => {
-    // cwd, not import.meta.url: this suite runs in jsdom, where that is not a
-    // file: URL and fileURLToPath throws.
-    const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+  it('writes the cookie and loads nothing when the user declines', async () => {
+    render(<CookieConsent />);
+    await openGate();
 
-    expect(css, 'the reserved height should be defined once').toMatch(
-      /--consent-bar-reserved:\s*\d+px/
-    );
-    expect(css, '[data-consent=pending] should reserve it').toMatch(
-      /\[data-consent='pending'\][^}]*--consent-bar-h:\s*var\(--consent-bar-reserved\)/
-    );
-    expect(css, '.cookie-consent should be floored by the same variable').toMatch(
-      /\.cookie-consent\s*\{[^}]*min-height:\s*var\(--consent-bar-reserved\)/
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Nein, danke' }));
+
+    expect(readConsent()).toBe('declined');
+    expect(analytics.load).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(document.documentElement.getAttribute('data-consent-gate')).toBeNull();
+    });
+  });
+
+  /* Withdrawing has to be as easy as granting — the footer link fires this. */
+  it('reopens on the cookie-settings event and clears the stored answer', async () => {
+    document.cookie = `${CONSENT_COOKIE}=accepted; Path=/`;
+    render(<CookieConsent />);
+    expect(gate()).toBeNull();
+
+    fireEvent(window, new Event('eatthis:open-cookie-settings'));
+
+    await waitFor(() => expect(gate()).not.toBeNull());
+    expect(readConsent(), 'the old answer should be cleared while re-asking').toBeNull();
   });
 });

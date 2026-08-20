@@ -247,7 +247,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                   ? 'Wo du essen solltest'
                   : 'Where to eat'}
             </h2>
-            <p>{de ? 'Kuratiert vom Eat-This-Team.' : 'Curated by the Eat This team.'}</p>
           </div>
 
           <RestaurantGrid

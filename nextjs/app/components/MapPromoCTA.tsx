@@ -16,53 +16,46 @@ interface Props {
 
 // All map-promo wording lives here — single place to wordsmith. Brand voice:
 // declarative, no "gratis/free", no spot counts, no cheesy framing.
-// Der Slogan bleibt auch auf DE englisch. `chipTitle` trägt die schmale Pille,
-// in der der Slogan als Label viel zu lang wäre — dort steht stattdessen der
-// ortsspezifische Einstieg.
+// Der Slogan bleibt auch auf DE englisch. Die schmale Pille trägt ihn nicht —
+// dort steht `chipLabel`, siehe unten.
 /** Headline des Banners — auf jeder Fläche dieselbe, das ist die Marke. */
 const SLOGAN = 'The map for people who care about food.';
 
-function getCopy(
-  kind: Kind,
-  name: string,
-  locale: 'de' | 'en'
-): { sub: string; chipTitle: string } {
+/** Pillen-Label — bewusst neutral: auf welcher Seite man steht, sagt die Seite
+ *  selbst, die Pille muss nur den Weg zur Map zeigen. */
+const chipLabel = (locale: 'de' | 'en') =>
+  locale === 'de' ? 'Auf der Map öffnen' : 'Open on the map';
+
+function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string } {
   const de = locale === 'de';
   switch (kind) {
+    // Drei Sätze, immer dieselbe Form: wo du gerade bist ist nur die Tür —
+    // was die Map verspricht — was du tun sollst. Vorher stand hier eine
+    // Funktionsliste („filterbar nach Kategorie, Bezirk und Küche"), die
+    // beschrieb, was die Map kann, statt warum man sie aufmacht.
     case 'restaurant':
       return de
         ? {
-            sub: `${name} liegt auf der Eat This Map — zusammen mit weiteren kuratierten Restaurants, Cafés und Bars in Berlin.`,
-            chipTitle: 'Auf der Map öffnen',
+            sub: `${name} ist nur einer der Pins. Auf der Map steht, wo wir selbst essen — Restaurants, Cafés und Bars in ganz Berlin. Mach sie auf und schau, was noch in der Nähe liegt.`,
           }
         : {
-            sub: `${name} is on the Eat This map — along with more curated restaurants, cafés and bars in Berlin.`,
-            chipTitle: 'Open on the map',
+            sub: `${name} is one pin of many. The map is where we actually eat — restaurants, cafés and bars across Berlin. Open it and see what else is close.`,
           };
-    // Bezirk und Kategorie sind nur die Tür: die Map ist stadtweit. Die alten
-    // Einzeiler („Die besten Spots in der Gegend.") ließen sie wie einen
-    // Ausschnitt der Seite aussehen, auf der sie steht, und gaben keinen Grund
-    // zu klicken. Genannt werden nur Filter, die es wirklich gibt —
-    // Kategorie, Bezirk, Küche (siehe map/MapListHeader).
     case 'bezirk':
       return de
         ? {
-            sub: `Die Map hört nicht an der Bezirksgrenze auf: jedes kuratierte Restaurant, jedes Café und jede Bar in Berlin — filterbar nach Kategorie, Bezirk und Küche.`,
-            chipTitle: `Ganz ${name} auf der Map`,
+            sub: `Die Map hört nicht an der Bezirksgrenze auf. Auf ihr steht, wo wir selbst essen — Restaurants, Cafés und Bars in ganz Berlin. Mach sie auf und schau, was in deiner Nähe gut ist.`,
           }
         : {
-            sub: `The map doesn't stop at the district line: every curated restaurant, café and bar in Berlin — filter by category, district and cuisine.`,
-            chipTitle: `All of ${name} on the map`,
+            sub: `The map doesn't stop at the district line. It's where we actually eat — restaurants, cafés and bars across Berlin. Open it and see what's good near you.`,
           };
     case 'kategorie':
       return de
         ? {
-            sub: `Auf der Map steht nicht nur ${name}: jedes kuratierte Restaurant, jedes Café und jede Bar in Berlin — filterbar nach Kategorie, Bezirk und Küche.`,
-            chipTitle: `${name} auf der Map`,
+            sub: `Auf der Map steht nicht nur ${name}. Sie zeigt, wo wir selbst essen — Restaurants, Cafés und Bars in ganz Berlin. Mach sie auf und schau, was in deiner Nähe gut ist.`,
           }
         : {
-            sub: `The map holds more than ${name}: every curated restaurant, café and bar in Berlin — filter by category, district and cuisine.`,
-            chipTitle: `${name} on the map`,
+            sub: `The map holds more than ${name}. It's where we actually eat — restaurants, cafés and bars across Berlin. Open it and see what's good near you.`,
           };
   }
 }
@@ -85,13 +78,14 @@ const arrow = (
 );
 
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
-  const { sub, chipTitle } = getCopy(kind, name, locale);
+  const { sub } = getCopy(kind, name, locale);
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map';
 
   if (variant === 'chip') {
+    const label = chipLabel(locale);
     return (
-      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={chipTitle}>
-        <span>{chipTitle}</span>
+      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={label}>
+        <span>{label}</span>
         {arrow}
       </MapIntentLink>
     );

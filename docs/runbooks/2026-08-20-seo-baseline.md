@@ -127,9 +127,24 @@ keine Rankingsignale bei, und die betroffenen Artikel standen ohnehin schon in
 `sitemap.xml`. Trotzdem hier notiert, damit in drei Wochen niemand rätselt,
 warum sich der Sitemaps-Bericht geändert hat.
 
-Offener Punkt daraus: **die Einreichung in der Search Console muss separat
-entfernt werden**, sonst meldet Google statt „Has errors" künftig einen
-Fetch-Fehler. Das ist noch nicht passiert.
+Vermeintlich offener Punkt, nachgeprüft am 20.08.: **In der Search Console ist
+nichts zu löschen.** Die API listet für die Property genau eine eingereichte
+Sitemap:
+
+```
+https://www.eatthisdot.com/sitemap.xml
+Valid · 381 URLs · 0 Fehler · zuletzt geladen 2026-08-18 04:08
+```
+
+`/news-sitemap.xml` steht dort nicht. Die Commit-Beschreibung von `17e63b65`
+kündigt eine manuelle Löschung an — die ist gegenstandslos.
+
+Einschränkung: Die API liefert nur **eingereichte** Sitemaps. Falls Google
+`/news-sitemap.xml` seinerzeit nur über `robots.txt` gefunden hat, kann sie im
+Web-Interface unter *Indexierung → Sitemaps* trotzdem auftauchen. Solche
+Einträge lassen sich ohnehin nicht manuell entfernen; sie verschwinden, sobald
+Google die neue `robots.txt` liest — und die nennt seit dem 20.08. nur noch
+`sitemap.xml`.
 
 ## Reproduzieren
 

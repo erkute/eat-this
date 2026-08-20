@@ -16,25 +16,26 @@ interface Props {
 
 // All map-promo wording lives here — single place to wordsmith. Brand voice:
 // declarative, no "gratis/free", no spot counts, no cheesy framing.
-// `chipTitle` overrides the headline in the slim pill, where the restaurant
-// slogan is far too long to read as a label.
+// Der Slogan bleibt auch auf DE englisch. `chipTitle` trägt die schmale Pille,
+// in der der Slogan als Label viel zu lang wäre — dort steht stattdessen der
+// ortsspezifische Einstieg.
+/** Headline des Banners — auf jeder Fläche dieselbe, das ist die Marke. */
+const SLOGAN = 'The map for people who care about food.';
+
 function getCopy(
   kind: Kind,
   name: string,
   locale: 'de' | 'en'
-): { title: string; sub: string; chipTitle?: string } {
+): { sub: string; chipTitle: string } {
   const de = locale === 'de';
   switch (kind) {
     case 'restaurant':
-      // Headline = Brand-Slogan (bleibt auch auf DE englisch).
       return de
         ? {
-            title: 'The map for people who care about food.',
             sub: `${name} liegt auf der Eat This Map — zusammen mit weiteren kuratierten Restaurants, Cafés und Bars in Berlin.`,
             chipTitle: 'Auf der Map öffnen',
           }
         : {
-            title: 'The map for people who care about food.',
             sub: `${name} is on the Eat This map — along with more curated restaurants, cafés and bars in Berlin.`,
             chipTitle: 'Open on the map',
           };
@@ -46,22 +47,22 @@ function getCopy(
     case 'bezirk':
       return de
         ? {
-            title: `Ganz ${name} auf der Map`,
             sub: `Die Map hört nicht an der Bezirksgrenze auf: jedes kuratierte Restaurant, jedes Café und jede Bar in Berlin — filterbar nach Kategorie, Bezirk und Küche.`,
+            chipTitle: `Ganz ${name} auf der Map`,
           }
         : {
-            title: `All of ${name} on the map`,
             sub: `The map doesn't stop at the district line: every curated restaurant, café and bar in Berlin — filter by category, district and cuisine.`,
+            chipTitle: `All of ${name} on the map`,
           };
     case 'kategorie':
       return de
         ? {
-            title: `${name} auf der Map`,
             sub: `Auf der Map steht nicht nur ${name}: jedes kuratierte Restaurant, jedes Café und jede Bar in Berlin — filterbar nach Kategorie, Bezirk und Küche.`,
+            chipTitle: `${name} auf der Map`,
           }
         : {
-            title: `${name} on the map`,
             sub: `The map holds more than ${name}: every curated restaurant, café and bar in Berlin — filter by category, district and cuisine.`,
+            chipTitle: `${name} on the map`,
           };
   }
 }
@@ -84,31 +85,23 @@ const arrow = (
 );
 
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
-  const { title, sub, chipTitle } = getCopy(kind, name, locale);
+  const { sub, chipTitle } = getCopy(kind, name, locale);
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map';
-  const isRestaurant = kind === 'restaurant';
 
   if (variant === 'chip') {
-    const label = chipTitle ?? title;
     return (
-      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={label}>
-        <span>{label}</span>
+      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={chipTitle}>
+        <span>{chipTitle}</span>
         {arrow}
       </MapIntentLink>
     );
   }
 
   return (
-    <section className={styles.promo} aria-label={title}>
+    <section className={styles.promo} aria-label={SLOGAN}>
       <div className={styles.copy}>
-        <h2 className={`${styles.title} ${isRestaurant ? styles.titleRestaurant : ''}`}>
-          {isRestaurant ? (
-            <>
-              <span>The map for people</span> <span>who care about food.</span>
-            </>
-          ) : (
-            title
-          )}
+        <h2 className={`${styles.title} ${styles.titleRestaurant}`}>
+          <span>The map for people</span> <span>who care about food.</span>
         </h2>
         <p className={styles.sub}>{sub}</p>
         {/* rel="nofollow" — /map is noindex; without it Google enumerates every

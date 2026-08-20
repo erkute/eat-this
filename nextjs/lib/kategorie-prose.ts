@@ -24,7 +24,7 @@ interface KategorieContext {
   locale: Loc;
   /**
    * Die kuratierte Bestenliste der Seite, bereits aufgelöst und sortiert
-   * (`rankCategoryRestaurants().top`). Leer/undefined für Kategorien ohne
+   * (`rankCurated().top`). Leer/undefined für Kategorien ohne
    * gepflegte `topSpots`.
    *
    * Bewusst die fertigen Karten statt der Slugs: so kann die FAQ gar nicht

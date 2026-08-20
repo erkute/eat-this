@@ -1,22 +1,12 @@
 'use client';
 import { useEffect, type RefObject } from 'react';
-import { resolveSnap, snapOffsets } from './phoneSheetSnaps';
+import { measureSheetTop, resolveSnap, snapOffsets } from './phoneSheetSnaps';
 
 const PHONE_MAX = 767.98;
 
 function isPhone(): boolean {
   if (typeof window === 'undefined') return false;
   return window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches;
-}
-
-/* Document offset of the sheet's top edge. Measured rather than derived so the
-   last stop lands the sheet — and the handle on it — flush with the viewport
-   top, i.e. under the status bar. See snapOffsets for why the dvh estimate
-   drifts on iOS. */
-function measureSheetTop(): number | undefined {
-  const sheet = document.querySelector('[data-map-sheet]');
-  if (!sheet) return undefined;
-  return Math.round(sheet.getBoundingClientRect().top + window.scrollY);
 }
 
 /**

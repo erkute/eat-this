@@ -84,3 +84,54 @@ export function resolveSnap(
   const nearest = nearestTo(scrollY);
   return step > 0 ? Math.max(offsets[target], nearest) : Math.min(offsets[target], nearest);
 }
+
+/**
+ * Document offset of the sheet's top edge — exactly how far to scroll for it
+ * to sit flush with the viewport top, i.e. the LAST stop.
+ *
+ * Measured rather than derived: on iOS the CSS sizes the map in `dvh` while JS
+ * reads `window.innerHeight`, and the two disagree while the URL bar collapses.
+ * Deriving the stop from the dvh estimate stranded the sheet roughly a
+ * safe-area below the top.
+ */
+export function measureSheetTop(): number | undefined {
+  const sheet = document.querySelector('[data-map-sheet]');
+  if (!sheet) return undefined;
+  return Math.round(sheet.getBoundingClientRect().top + window.scrollY);
+}
+
+/** What the map/list toggle offers at a given scroll position, or nothing. */
+export type ToggleMode = 'toMap' | 'toList' | null;
+
+/* Slack around a stop. Rounded stop offsets and iOS rubber-banding both land a
+   few px off the exact value. */
+const AT_STOP_PX = 24;
+
+/**
+ * Which way the map/list toggle points at `scrollY` — the pill's whole
+ * visibility rule.
+ *
+ * - Past the LAST stop the map is fully covered: offer the way back to it.
+ * - At or above the MIDDLE stop, with a remembered list position: offer the way
+ *   back down. Without a remembered position there is nothing to return to and
+ *   the pill stays away.
+ * - In the stretch between, the map is half on screen anyway and the pill would
+ *   be noise.
+ *
+ * The middle stop — not the top — is what bounds the 'toList' half. Keying it
+ * to the map stop meant a 24px nudge made the pill vanish, which reads as it
+ * flinching away from the finger.
+ */
+export function resolveToggleMode(
+  offsets: number[],
+  scrollY: number,
+  hasRememberedListY: boolean
+): ToggleMode {
+  const sheetStop = offsets[offsets.length - 1];
+  /* Second-to-last stop: the middle one of the three, and still meaningful if
+     a view ever declares only two. */
+  const splitStop = offsets[Math.max(0, offsets.length - 2)];
+  if (scrollY >= sheetStop - AT_STOP_PX) return 'toMap';
+  if (hasRememberedListY && scrollY <= splitStop + AT_STOP_PX) return 'toList';
+  return null;
+}

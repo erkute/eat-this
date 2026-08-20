@@ -11,6 +11,7 @@ const moduleNames = [
   'MapDetails.module.css',
   'MapFilters.module.css',
   'MapListEmpty.module.css',
+  'MapViewToggle.module.css',
   'RestaurantList.module.css',
   'RestaurantGalleryLightbox.module.css',
   'MustEatImageLightbox.module.css',

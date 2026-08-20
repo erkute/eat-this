@@ -1,0 +1,101 @@
+/* "Karte ⇄ Liste" — the phone list's way back to the map.
+ *
+ * Deliberately its OWN module and not part of MapControls.module.css: that
+ * file's header documents a load-bearing cascade where a single grouped
+ * `transition` or `filter: none` voids declarations for four other controls.
+ * This pill shares none of their selectors and has no business in there.
+ *
+ * Phone only. Tablets and desktop keep a transformed drag-sheet / a side panel
+ * where the map never leaves the screen, so there is nothing to return to.
+ */
+
+.toggle {
+  position: fixed;
+  left: 50%;
+  /* Above the iOS home indicator, and above the cookie banner while it is up —
+     the banner is fixed to the same edge (--consent-bar-h, see CookieConsent).
+     Nothing else lives at bottom-center: the locate FAB is bottom-RIGHT and the
+     status toast parks well above both. */
+  bottom: calc(
+    max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px)) + var(--consent-bar-h, 0px)
+  );
+  /* Over the sheet (z-index 4), under the status toast (120) — a location
+     error has to stay readable and tappable even with the pill up. */
+  z-index: 100;
+  display: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 15px;
+  /* Ink plate, like the status toast. The pill floats over both surfaces of the
+     list — the paper sheet and the near-black restaurant cards — so the outline
+     is PAPER rather than ink: a black pill on a black card was one flat shape
+     until the border separated them (checked on a 375px viewport). */
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 2px solid var(--et-home-paper, #fff);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: 0 6px 18px rgba(21, 18, 14, 0.26);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* Enter and exit by MOVEMENT, never by an opacity fade — CLAUDE.md. The pill
+     slides out past the bottom edge and back. `visibility` flips at the END of
+     the outbound slide (0s delayed by the duration) so the hidden pill is not
+     hit-testable, and instantly on the way in so the slide is actually seen. */
+  transform: translate(-50%, calc(100% + 28px)) rotate(-1.5deg);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s 260ms;
+}
+
+@media (max-width: 767.98px) {
+  .toggle {
+    display: inline-flex;
+  }
+}
+
+.toggle[data-visible='true'] {
+  transform: translate(-50%, 0) rotate(-1.5deg);
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s;
+}
+
+.toggle:active {
+  color: var(--et-home-accent, #ffc600);
+  border-color: var(--et-home-accent, #ffc600);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 3px;
+}
+
+.icon {
+  display: inline-flex;
+  flex: 0 0 17px;
+}
+
+.icon svg {
+  width: 17px;
+  height: 17px;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.label {
+  color: inherit;
+}

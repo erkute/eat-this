@@ -54,7 +54,7 @@ const data: HomeData = {
     slug: 'gazzo',
     image: '/x.webp',
     district: 'Prenzlberg',
-    sub: null,
+    sub: 'Sauerteigpizza, die den Vergleich nicht scheut.',
     _id: 'r1',
     featured: false,
     featuredOnDate: null,
@@ -91,6 +91,27 @@ describe('HubSection home', () => {
     const html = renderHome();
     expect(html).toContain('data-hub-starter="primary"');
     expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
+  });
+
+  it('pairs the day\'s pick with the nearby block in one section', () => {
+    const html = renderHome();
+    // Two stacked half-empty sections on desktop became one two-column block.
+    const section = html.split('aria-label="Heute essen"')[1] ?? '';
+    const upToNextSection = section.split('<section')[0];
+    expect(upToNextSection).toContain('Spot des Tages');
+    expect(upToNextSection).toContain('Gazzo');
+    // The HubNearby mock returns a string, so it lands HTML-escaped.
+    expect(upToNextSection).toContain('nearby');
+  });
+
+  it("renders the spot's description, which used to be fetched and dropped", () => {
+    const html = renderHome();
+    expect(html).toContain('Sauerteigpizza, die den Vergleich nicht scheut.');
+  });
+
+  it('opens the day\'s pick on the map', () => {
+    const html = renderHome();
+    expect(html).toContain('/map?r=gazzo');
   });
 
   it('sells no packs on the home page', () => {

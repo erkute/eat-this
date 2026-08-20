@@ -29,11 +29,13 @@ const copy = {
     spotDay: 'Spot des Tages',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Die Eat This Map auf dem Handy',
+    todayLabel: 'Heute essen',
   },
   en: {
     spotDay: 'Spot of the day',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'The Eat This map on your phone',
+    todayLabel: 'Eat today',
   },
 };
 
@@ -87,47 +89,56 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </div>
       </section>
 
-      {/* Spot of the day kept its daily-ritual job but lost the hero slot to
-          the product shot — a single wide band instead of half the fold. */}
-      {spot && (
-        <section className={`homeV2 hv-section hv-wrap ${styles.spotBand}`} aria-label={t.spotDay}>
-          <MapIntentLink
-            href={`/map?r=${spot.slug}`}
-            rel="nofollow"
-            className={`hv-photo ${styles.spotPhoto}`}
-            aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
-          >
-            {spot.image && (
-              // Deliberately bypass the App Hosting image proxy: Sanity serves
-              // the responsive, format-negotiated variants directly.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={styles.spotImage}
-                src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
-                srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                sizes="(max-width:760px) 92vw, min(100vw, 1280px)"
-              />
-            )}
-            <span className={styles.spotTag}>
-              <span className={styles.spotLabel}>{t.spotDay}</span>
-              <strong>{normalizeName(spot.name)}</strong>
-              {spot.district && <span className="hv-kicker">{spot.district}</span>}
-            </span>
-          </MapIntentLink>
-        </section>
-      )}
-
-      {/* Order follows what a first-time visitor needs, in that order: what is
-          this (hero) → the free offer while interest is highest (signup) →
-          proof it works here (nearby) → the thing nobody else has (must eats)
-          → proof we know the city (magazine) → a second chance at the offer →
-          navigation → Remy and FAQ. Selling packs moved off the home page. */}
-      <StarterPackSignup locale={locale} />
       <HomeMapDataProvider initialMapData={initialMapData}>
-        <HubNearby locale={locale} today={today} />
+        {/* "What should I eat right now" answered once, not twice: the day's pick
+          beside what is actually around you. Split into two stacked sections
+          they each filled half a desktop row and left the other half empty. */}
+        <section className={`homeV2 hv-section hv-wrap ${styles.today}`} aria-label={t.todayLabel}>
+          <div className={styles.todayGrid}>
+            {spot && (
+              <article className={styles.spot}>
+                <MapIntentLink
+                  href={`/map?r=${spot.slug}`}
+                  rel="nofollow"
+                  className={`hv-photo ${styles.spotPhoto}`}
+                  aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
+                >
+                  {spot.image && (
+                    // Deliberately bypass the App Hosting image proxy: Sanity
+                    // serves the responsive, format-negotiated variants directly.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className={styles.spotImage}
+                      src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
+                      srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(max-width:760px) 92vw, 620px"
+                    />
+                  )}
+                  <span className={styles.spotTag}>
+                    <span className={styles.spotLabel}>{t.spotDay}</span>
+                    <strong>{normalizeName(spot.name)}</strong>
+                    {spot.district && <span className="hv-kicker">{spot.district}</span>}
+                  </span>
+                </MapIntentLink>
+                {/* Loaded from Sanity all along and never rendered — it is the
+                  reason this spot is today's pick, so it belongs here. */}
+                {spot.sub && <p className={styles.spotSub}>{spot.sub}</p>}
+              </article>
+            )}
+
+            <HubNearby locale={locale} today={today} embedded />
+          </div>
+        </section>
+
+        {/* Order follows what a first-time visitor needs, in that order: what is
+          this (hero) → what to eat right now → the free offer while interest is
+          highest → the thing nobody else has (must eats) → proof we know the
+          city (magazine) → a second chance at the offer → navigation → Remy and
+          FAQ. Selling packs moved off the home page. */}
+        <StarterPackSignup locale={locale} />
         <HubMustEatsTeaser>
           <HomeDishStrip locale={locale} />
         </HubMustEatsTeaser>

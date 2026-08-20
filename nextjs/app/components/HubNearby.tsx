@@ -17,9 +17,17 @@ interface Props {
   locale?: 'de' | 'en';
   /** Server date (YYYY-MM-DD) seeding the no-location rotation. */
   today: string;
+  /** Rendered inside the shared "what should I eat now" block, so it drops its
+      own section chrome and lets the parent grid own the spacing. */
+  embedded?: boolean;
 }
 
-export default function HubNearby({ mode = 'guest', locale = 'de', today }: Props) {
+export default function HubNearby({
+  mode = 'guest',
+  locale = 'de',
+  today,
+  embedded = false,
+}: Props) {
   const t = useTranslations('hub.nearby');
   const authMode = mode === 'auth';
   const { initialMapData, live } = useHomeMapData();
@@ -86,7 +94,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de', today }: Prop
   return (
     <>
       <section
-        className="homeV2 hv-section hv-wrap"
+        className={embedded ? styles.embedded : 'homeV2 hv-section hv-wrap'}
         data-hub-nearby=""
         data-auth-nearby={authMode ? '' : undefined}
         data-auth-only={authMode ? '' : undefined}
@@ -118,7 +126,7 @@ export default function HubNearby({ mode = 'guest', locale = 'de', today }: Prop
 
         <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
 
-        <div className={`hv-rail ${styles.rail}`}>
+        <div className={`hv-rail ${styles.rail} ${embedded ? styles.railEmbedded : ''}`}>
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(

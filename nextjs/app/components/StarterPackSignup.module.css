@@ -120,8 +120,17 @@
 .error {
   display: block;
   margin-top: 9px;
-  font-family: var(--et-font-mono);
   line-height: 1.4;
+}
+
+/* Mono is the footnote voice; a validation message speaks in the brand face
+   like the copy it is correcting. */
+.error {
+  font-family: var(--font-providence);
+}
+
+.hint {
+  font-family: var(--et-font-mono);
 }
 
 .hint {
@@ -132,8 +141,9 @@
 
 .error {
   color: var(--et-home-red);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: 0;
 }
 
 .srOnly {

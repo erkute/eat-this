@@ -144,10 +144,13 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </HubMustEatsTeaser>
       </HomeMapDataProvider>
       <MagazineGrid articles={initialData.magazine} locale={locale} />
-      <StarterPackSignup locale={locale} variant="repeat" />
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />
       <HubFaq locale={locale} />
+      {/* Last thing before the footer: whoever read this far has worked
+          through the objections, and it is now a full page away from the
+          first form rather than two sections. */}
+      <StarterPackSignup locale={locale} variant="repeat" />
       <SiteFooter />
     </main>
   );

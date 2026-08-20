@@ -212,6 +212,9 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border-radius: var(--et-radius-photo);
+  overflow: hidden;
+  background: var(--et-home-quiet);
 }
 
 .spot .spotPhoto {
@@ -219,7 +222,7 @@
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -291,8 +294,9 @@
 }
 
 .spotSub {
-  max-width: 34ch;
-  margin: clamp(12px, 1.4vw, 18px) 0 0;
+  max-width: 40ch;
+  margin: 0;
+  padding: clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 24px) clamp(16px, 1.8vw, 22px);
   color: var(--home-ink);
   font-family: var(--font-providence);
   font-size: clamp(16px, 1.25vw, 19px);

@@ -54,13 +54,12 @@ const data: HomeData = {
     slug: 'gazzo',
     image: '/x.webp',
     district: 'Prenzlberg',
-    sub: null,
+    sub: 'Sauerteigpizza, die den Vergleich nicht scheut.',
     _id: 'r1',
     featured: false,
     featuredOnDate: null,
     mustEatCount: 0,
   },
-  districts: [],
   magazine: [],
   categoryNames: { pizza: 'Pizza' },
 };
@@ -82,10 +81,44 @@ describe('HubSection home', () => {
   });
 
   it('renders the signed-out reference hero without a visibility gate after auth resolves', () => {
+    const hero = renderHome().split('</section>')[0];
+    expect(hero).not.toContain('data-guest-only');
+    expect(hero).not.toContain('data-auth-only');
+    expect(hero).not.toContain('Deine Map wartet');
+  });
+
+  it('carries exactly one signup, high on the page', () => {
     const html = renderHome();
-    expect(html).not.toContain('data-guest-only');
-    expect(html).not.toContain('data-auth-only');
-    expect(html).not.toContain('Deine Map wartet');
+    // A second copy lower down was tried and dropped: it looked identical
+    // once it gained the pack and panel, so it read as repetition.
+    expect(html.match(/data-hub-starter/g)).toHaveLength(1);
+    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
+  });
+
+  it('pairs the day\'s pick with the nearby block in one section', () => {
+    const html = renderHome();
+    // Two stacked half-empty sections on desktop became one two-column block.
+    const section = html.split('aria-label="Heute essen"')[1] ?? '';
+    const upToNextSection = section.split('<section')[0];
+    expect(upToNextSection).toContain('Spot des Tages');
+    expect(upToNextSection).toContain('Gazzo');
+    // The HubNearby mock returns a string, so it lands HTML-escaped.
+    expect(upToNextSection).toContain('nearby');
+  });
+
+  it("renders the spot's description, which used to be fetched and dropped", () => {
+    const html = renderHome();
+    expect(html).toContain('Sauerteigpizza, die den Vergleich nicht scheut.');
+  });
+
+  it('opens the day\'s pick on the map', () => {
+    const html = renderHome();
+    expect(html).toContain('/map?r=gazzo');
+  });
+
+  it('sells no packs on the home page', () => {
+    const html = renderHome();
+    expect(html).not.toContain('/pack/');
   });
 
   it('hero links to the map', () => {

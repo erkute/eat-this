@@ -36,6 +36,21 @@ vi.mock('@/lib/map/UserLocationContext', () => ({
   useUserLocationContext: () => locationState,
 }));
 
+vi.mock('./MapIntentLink', () => ({
+  default: ({
+    href,
+    className,
+    children,
+  }: {
+    href: string;
+    className?: string;
+    children?: ReactNode;
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  ),
+}));
 vi.mock('@/i18n/navigation', () => ({
   Link: ({
     href,
@@ -80,7 +95,7 @@ const mapData = (restaurants: MapRestaurant[] = []): InitialMapData =>
 const tree = (initialMapData: InitialMapData, mode?: 'guest' | 'auth') => (
   <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
     <HomeMapDataProvider initialMapData={initialMapData}>
-      <HubNearby mode={mode} />
+      <HubNearby mode={mode} today={TODAY} />
     </HomeMapDataProvider>
   </NextIntlClientProvider>
 );
@@ -96,6 +111,8 @@ function renderLive(initialMapData: InitialMapData = mapData()) {
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
+const TODAY = '2026-08-20';
+
 describe('HubNearby', () => {
   beforeEach(() => {
     authState.loading = true;
@@ -114,10 +131,19 @@ describe('HubNearby', () => {
     expect(render(mapData([]))).toBe('');
   });
 
-  it('names Mitte, not the user, while the position is unknown', () => {
+  it('asks for the position instead of naming a place, while it is unknown', () => {
     const html = render(mapData([restaurant()]));
-    expect(html).toContain('Rund um Mitte');
+    // The list is centred on Mitte, but headlining that claims a district the
+    // visitor probably isn't in. Ask for the location instead of asserting one.
+    expect(html).toContain('Was ist um dich?');
+    expect(html).toContain('Gib deinen Standort frei');
+    expect(html).not.toContain('Rund um Mitte');
     expect(html).not.toContain('Um dich herum');
+  });
+
+  it('promotes the locate button while the position is unknown', () => {
+    const html = render(mapData([restaurant()]));
+    expect(html).toContain('data-primary=""');
   });
 
   it('omits walking times while the position is unknown', () => {
@@ -137,10 +163,12 @@ describe('HubNearby', () => {
     expect(screen.getByText('1 Min · Mitte')).toBeTruthy();
   });
 
-  it('renders a spot link to its canonical restaurant page', () => {
+  it('opens the spot on the map', () => {
     const html = render(mapData([restaurant()]));
-    expect(html).toContain('href="/restaurant/bar-basta"');
-    expect(html).not.toContain('/map?r=');
+    // Every card on the home page leads back to the map — the spot is already
+    // pinned there, so the map is the shorter path to what the visitor wants.
+    expect(html).toContain('href="/map?r=bar-basta"');
+    expect(html).not.toContain('/restaurant/');
   });
 
   it('renders the restaurant name', () => {

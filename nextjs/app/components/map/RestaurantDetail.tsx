@@ -16,6 +16,14 @@ import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import styles from './MapDetails.module.css';
 import { HeartIcon, CloseIcon } from './icons';
+import {
+  RouteIcon,
+  ReserveIcon,
+  PhoneIcon,
+  WebsiteIcon,
+  MenuCardIcon,
+  ShareIcon,
+} from '../actionIcons';
 import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
 import { classifyWebsite, formatPriceLabel, splitStatusLabel } from './restaurantDetail.helpers';
@@ -235,7 +243,8 @@ export default function RestaurantDetail({
   const hasStory = !!storyText;
   const hasTipp = !!r.tip;
 
-  // Detect booking provider from host for the OpenTable lockup.
+  // Booking provider, from the reservation host — named on the Reservieren
+  // button so you know where the link lands before you leave the map.
   let reservationProvider: string | null = null;
   if (r.reservationUrl) {
     try {
@@ -515,34 +524,6 @@ export default function RestaurantDetail({
               <span className={styles.rdV}>{priceLabel}</span>
             </div>
           )}
-          {r.phone && (
-            <div className={styles.rdRow}>
-              <span className={styles.rdK}>{t('map.phone')}</span>
-              <span className={styles.rdV}>
-                <a
-                  className={styles.rdContactPlainLink}
-                  href={`tel:${r.phone.replace(/\s+/g, '')}`}
-                >
-                  {r.phone}
-                </a>
-              </span>
-            </div>
-          )}
-          {websiteInfo?.kind === 'web' && (
-            <div className={styles.rdRow}>
-              <span className={styles.rdK}>Website</span>
-              <span className={styles.rdV}>
-                <a
-                  className={styles.rdContactPlainLink}
-                  href={websiteInfo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {websiteInfo.display}
-                </a>
-              </span>
-            </div>
-          )}
           {igUrl && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Instagram</span>
@@ -560,8 +541,42 @@ export default function RestaurantDetail({
           )}
         </div>
 
-        {/* ACTIONS — menu joins Maps + Teilen when an official URL exists. */}
+        {/* ACTIONS — same icon'd button system as the public /restaurant/[slug]
+            page, so a spot looks the same wherever you meet it. Three weights:
+            book a table (ink, full width, carries the booking provider),
+            go there (red), everything else outlined. Phone and website live
+            here as buttons instead of as rows in the facts list above. */}
         <div className={styles.rdActs}>
+          {r.reservationUrl && (
+            <a
+              className={`${styles.rdActBtn} ${styles.rdActStrong} ${styles.rdActReserve}`}
+              href={r.reservationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent('restaurant_reservation_clicked', {
+                  restaurant_id: r._id,
+                  restaurant_slug: r.slug,
+                  provider: reservationProvider ?? 'other',
+                })
+              }
+            >
+              <span className={styles.rdActLabel}>
+                <ReserveIcon />
+                <span>{t('map.reserve')}</span>
+              </span>
+              {reservationProvider && (
+                <span className={styles.rdActProvider}>
+                  {reservationProvider === 'OpenTable' && (
+                    <span className={styles.rdActProviderMark} aria-hidden="true">
+                      ot
+                    </span>
+                  )}
+                  <span className={styles.rdActProviderWord}>{reservationProvider}</span>
+                </span>
+              )}
+            </a>
+          )}
           {mapsHref && (
             <a
               className={`${styles.rdActBtn} ${styles.rdActPrimary}`}
@@ -575,7 +590,34 @@ export default function RestaurantDetail({
                 })
               }
             >
+              <RouteIcon />
               <span>{t('map.maps')}</span>
+            </a>
+          )}
+          <ShareButton
+            title={r.name}
+            slug={r.slug}
+            contentType="restaurant"
+            className={styles.rdActBtn}
+            label={t('map.share')}
+            copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
+            icon={<ShareIcon />}
+          />
+          {r.phone && (
+            <a className={styles.rdActBtn} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
+              <PhoneIcon />
+              <span>{locale === 'en' ? 'Call' : 'Anrufen'}</span>
+            </a>
+          )}
+          {websiteInfo?.kind === 'web' && (
+            <a
+              className={styles.rdActBtn}
+              href={websiteInfo.url}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
+              <WebsiteIcon />
+              <span>Website</span>
             </a>
           )}
           {r.menuUrl && (
@@ -591,65 +633,16 @@ export default function RestaurantDetail({
                 })
               }
             >
+              <MenuCardIcon />
               <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
             </a>
           )}
-          <ShareButton
-            title={r.name}
-            slug={r.slug}
-            contentType="restaurant"
-            className={styles.rdActBtn}
-            label={t('map.share')}
-            copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
-          />
         </div>
 
-        {/* RESERVIEREN — kept */}
-        {r.reservationUrl && (
-          <section className={styles.actions}>
-            <a
-              href={r.reservationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.btnPrimary}
-              onClick={() =>
-                trackEvent('restaurant_reservation_clicked', {
-                  restaurant_id: r._id,
-                  restaurant_slug: r.slug,
-                  provider: reservationProvider ?? 'other',
-                })
-              }
-            >
-              <span className={styles.btnPrimaryLbl}>{t('map.reserve')}</span>
-              <svg className={styles.btnPrimaryArr} viewBox="0 0 24 18" aria-hidden="true">
-                <line x1="2" y1="9" x2="20" y2="9" />
-                <polyline points="14 3 20 9 14 15" />
-              </svg>
-            </a>
-            {reservationProvider === 'OpenTable' && (
-              <div className={styles.ctaFoot}>
-                <a
-                  href={r.reservationUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.opentableLockup}
-                  onClick={() =>
-                    trackEvent('restaurant_reservation_clicked', {
-                      restaurant_id: r._id,
-                      restaurant_slug: r.slug,
-                      provider: 'OpenTable',
-                    })
-                  }
-                >
-                  <span className={styles.otMark}>ot</span>
-                  <span className={styles.otWord}>OpenTable</span>
-                </a>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* PACK PROMO — anon + starter only, qualitative (no counts/prices) */}
+        {/* PACK PROMO — anon + starter only, qualitative (no counts/prices).
+            Set apart by colour, not by an outline: the action row right above
+            it is already a grid of ringed buttons, and a second frame under
+            those read as clutter. */}
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">
@@ -673,18 +666,10 @@ export default function RestaurantDetail({
                 {isAnon ? (
                   <button type="button" className={styles.btnPackPromo} onClick={openStarterLogin}>
                     <span className={styles.btnPackPromoLbl}>{t('map.starterCta')}</span>
-                    <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
-                      <line x1="2" y1="9" x2="20" y2="9" />
-                      <polyline points="14 3 20 9 14 15" />
-                    </svg>
                   </button>
                 ) : (
                   <a href={boosterHref} className={styles.btnPackPromo}>
                     <span className={styles.btnPackPromoLbl}>{t('map.boosterCta')}</span>
-                    <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
-                      <line x1="2" y1="9" x2="20" y2="9" />
-                      <polyline points="14 3 20 9 14 15" />
-                    </svg>
                   </a>
                 )}
                 {isAnon && (

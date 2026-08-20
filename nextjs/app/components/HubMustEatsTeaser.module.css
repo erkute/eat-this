@@ -8,7 +8,7 @@
   max-width: 44ch;
   margin: 0 0 clamp(18px, 2.2vw, 28px);
   font-family: var(--font-providence);
-  font-size: clamp(20px, 2vw, 30px);
+  font-size: clamp(19px, 1.6vw, 25px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 0.98;
@@ -18,7 +18,7 @@
 
 /* ── Rail override: grid instead of flex scroll on wide screens ────────────── */
 .rail {
-  padding: 0 0 clamp(24px, 3vw, 40px);
+  padding: 14px 0 clamp(24px, 3vw, 40px);
   list-style: none;
   border: 0;
 }
@@ -31,7 +31,7 @@
   :global(.homeV2) :global(.hv-rail).rail {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: clamp(10px, 1.2vw, 16px);
+    gap: clamp(16px, 1.8vw, 26px);
     overflow: visible;
   }
 
@@ -41,8 +41,14 @@
   }
 
   .photo {
-    min-height: clamp(104px, 10vw, 132px);
-    padding: clamp(3px, 0.5vw, 6px);
+    min-height: clamp(140px, 12vw, 178px);
+    padding: 0;
+  }
+
+  /* Cap the card itself, not just its slot: at six columns across a wide
+     viewport the artwork would otherwise keep growing with the container. */
+  .card {
+    max-width: 178px;
   }
 
   .dish {
@@ -57,7 +63,7 @@
 /* ── Card shell ────────────────────────────────────────────────────────────── */
 .item {
   min-width: 0;
-  flex: 0 0 clamp(112px, 14vw, 144px);
+  flex: 0 0 clamp(168px, 20vw, 208px);
 }
 
 .cardShell {
@@ -77,31 +83,57 @@
   text-decoration: none;
 }
 
-/* Card tile — flat, full card shown (no 3D tilt/lift that the rail's
-   overflow-x:auto would clip). */
 .photo {
-  min-height: clamp(118px, 13vw, 160px);
+  min-height: clamp(170px, 22vw, 240px);
   display: grid;
   place-items: center;
-  padding: clamp(4px, 0.8vw, 8px);
+  padding: 0;
 }
 
+/* These are collectible cards, so they should read as physical objects: a
+   shadow that lifts them off the paper and a small alternating tilt, as if a
+   hand had laid them down. Straightening on hover is the reward. */
 .card {
   display: block;
   width: 100%;
   height: auto;
   object-fit: contain;
-  transition: transform 180ms ease;
+  filter: drop-shadow(0 7px 10px rgba(21, 18, 14, 0.26));
+  transform: rotate(-2.4deg);
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1),
+    filter 220ms ease;
+}
+
+.item:nth-child(even) .card {
+  transform: rotate(2deg);
+}
+
+.item:nth-child(3n) .card {
+  transform: rotate(-1deg);
 }
 
 .cardShell:hover .card,
-.cardShell:focus-within .card {
-  transform: translateY(-4px);
-}
-
+.cardShell:focus-within .card,
 .cardLink:hover .card,
 .cardLink:focus-visible .card {
-  transform: translateY(-4px);
+  transform: rotate(0deg) translateY(-8px) scale(1.04);
+  filter: drop-shadow(0 12px 16px rgba(21, 18, 14, 0.3));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .item:nth-child(even) .card,
+  .item:nth-child(3n) .card {
+    transform: none;
+  }
+
+  .cardShell:hover .card,
+  .cardShell:focus-within .card,
+  .cardLink:hover .card,
+  .cardLink:focus-visible .card {
+    transform: none;
+  }
 }
 
 /* ── Card meta (dish + restaurant) ────────────────────────────────────────── */
@@ -109,7 +141,7 @@
   display: grid;
   align-content: start;
   gap: 4px;
-  padding: 6px 4px 0;
+  padding: 14px 2px 0;
 }
 
 .dishLink,
@@ -149,7 +181,7 @@
   color: var(--et-home-red);
 }
 
-/* ── Footer row: must-eats CTA + accent commerce CTA ──────────────────────── */
+/* ── Footer row: the all-must-eats CTA ───────────────────────────────────── */
 .foot {
   display: flex;
   flex-wrap: wrap;
@@ -178,7 +210,7 @@
 
 @media (max-width: 560px) {
   .item {
-    flex-basis: min(46vw, 150px);
+    flex-basis: min(52vw, 190px);
   }
 
   .foot {

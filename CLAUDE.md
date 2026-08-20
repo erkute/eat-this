@@ -30,6 +30,7 @@ Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verif
 - **Die App ist light-only.** Kein Dark Mode, kein `prefers-color-scheme`. `color-scheme: light` in `globals.css` muss bleiben.
 - **CSP läuft als `Report-Only`** – nicht als „enforced" beschreiben.
 - **i18n:** DE auf `/`, EN auf `/en/...`. Interne Links immer über den `Link` aus `i18n/navigation.ts`.
+- **Parallele Sessions:** ein Worktree pro Session – `scripts/worktree.sh <branch>`. Zwei Agents in einer Arbeitskopie teilen HEAD und `.next-verify/`: Branch-Wechsel und `git stash` verschieben fremde Arbeit, gleichzeitige Builds killen sich gegenseitig.
 
 ## Deployment-Zustand ehrlich benennen
 

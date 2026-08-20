@@ -26,6 +26,7 @@ import MapSheetDetail from './MapSheetDetail';
 import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
 import MapDataNotice from './MapDataNotice';
+import MapViewToggle from './MapViewToggle';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -214,6 +215,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     myLocationAriaLabel,
     restaurantsListAriaLabel,
   } = props;
+
+  /* Every input that reorders or re-scopes the list, in one string. The map
+     toggle forgets its remembered scroll position whenever this changes. */
+  const listFilterKey = `${category}|${bezirk ?? ''}|${cuisine ?? ''}|${openOnly}|${search.trim()}`;
 
   const handleResetFilters = () => {
     setCategory('All');
@@ -661,6 +666,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               </>
             )}
           </aside>
+
+          {/* Phone list only. Mounted unconditionally so the list position it
+              remembers survives a trip into a detail and back — see the
+              component. */}
+          <MapViewToggle sheetView={sheetView} filterKey={listFilterKey} />
 
           <MapDataNotice
             loading={mapDataLoading}

@@ -2,9 +2,9 @@ import type { RestaurantCard } from './types';
 
 /**
  * Reihenfolge einer Restaurant-Liste: kuratierte Bestenliste oben, Rest als
- * vollständiges A–Z-Verzeichnis darunter. Genutzt von den Bezirks-Seiten
- * (`bezirk.topSpots`) und vorgesehen für die Kategorie-Seiten
- * (`category.topSpots`), die dieselbe Mechanik brauchen.
+ * vollständiges Verzeichnis darunter. Genutzt von den Bezirks-Seiten
+ * (`bezirk.topSpots`) und den Kategorie-Seiten (`category.topSpots`) — dieselbe
+ * Mechanik, ein Modul.
  *
  * Warum kuratiert statt berechnet: Der Datensatz enthält kein Qualitätssignal.
  * `tip`, `shortDescription` und `description` werden beim Import generiert und

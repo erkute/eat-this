@@ -1,7 +1,8 @@
-/* Icons for the action row on the public restaurant page. Same drawing style
-   as app/components/map/icons.tsx (24-grid, 2.4 stroke, round joins) but kept
-   local: this row is the only surface that needs them, and the map panels have
-   their own inventory with different semantics. */
+/* Icons for the restaurant action rows — the public /restaurant/[slug] page
+   and the map detail sheet, which share one button system. Same drawing style
+   as app/components/map/icons.tsx (24-grid, 2.4 stroke, round joins); that
+   module stays separate because its glyphs are map chrome (close, pager,
+   heart) with different semantics. Sized by the call site's CSS. */
 
 function Icon({ children }: { children: React.ReactNode }) {
   return (

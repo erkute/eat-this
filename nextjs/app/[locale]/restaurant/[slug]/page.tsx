@@ -41,7 +41,7 @@ import {
   WebsiteIcon,
   MenuCardIcon,
   ShareIcon,
-} from './actionIcons';
+} from '@/app/components/actionIcons';
 import styles from './RestaurantDetail.module.css';
 
 interface PageProps {

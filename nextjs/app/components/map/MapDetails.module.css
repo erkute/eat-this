@@ -654,105 +654,6 @@
    Coral-tinted Hintergrund mit coral border-left; der getiltete Stamp sitzt
    als Eyebrow oben links, darunter Title + Body. Wirkt als zusammengehörige
    editorial Einheit statt zwei lose Inseln. */
-/* 6. Footer actions — big coral Reservieren type-as-button */
-.actions {
-  padding: 22px 18px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  border-top: 1px solid var(--d-rule);
-  background: var(--d-bg);
-  position: relative;
-}
-.actions::before {
-  content: '';
-  position: absolute;
-  top: 22px;
-  right: 18px;
-  width: 22px;
-  height: 22px;
-  border-top: 2.5px solid var(--c-coral);
-  border-right: 2.5px solid var(--c-coral);
-  pointer-events: none;
-}
-.btnPrimary {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 14px;
-  text-decoration: none;
-  padding: 0;
-  margin: 0;
-  transition: gap var(--map-motion);
-}
-.btnPrimary:hover {
-  gap: 20px;
-}
-.btnPrimaryLbl {
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-weight: 900;
-  font-size: 44px;
-  line-height: 0.92;
-  letter-spacing: -0.014em;
-  text-transform: uppercase;
-  color: var(--map-action);
-}
-.btnPrimaryArr {
-  width: 36px;
-  height: 20px;
-  stroke: var(--map-action);
-  fill: none;
-  stroke-width: 2.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  align-self: center;
-  margin-bottom: 6px;
-  transition: transform var(--map-motion);
-}
-.btnPrimary:hover .btnPrimaryArr {
-  transform: translateX(8px);
-}
-/* Compact variant — used on the must-eat detail where the footer CTA
-   doesn't need to dominate the same way as the restaurant detail's
-   Reservieren block. */
-.ctaFoot {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 14px;
-  flex-wrap: wrap;
-  padding-top: 14px;
-  border-top: 1px solid var(--d-rule);
-}
-.opentableLockup {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  text-decoration: none;
-}
-.otMark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  background: #da3743;
-  color: #ffffff;
-  border-radius: 4px;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-weight: 700;
-  font-style: italic;
-  font-size: 13px;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  padding-bottom: 2px;
-}
-.otWord {
-  font-family: var(--font);
-  font-weight: 700;
-  font-size: 12.5px;
-  letter-spacing: -0.005em;
-  color: var(--d-text);
-}
 /* Pack Promo — compact unlock panel in the restaurant detail sheet. */
 .packPromo {
   display: grid;
@@ -809,17 +710,6 @@
   align-items: center;
   /* Keep the short action label on one line inside the narrow side panel. */
   white-space: nowrap;
-}
-.btnPackPromoIcon {
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform var(--map-motion);
-}
-.btnPackPromo:hover .btnPackPromoIcon {
-  transform: translateX(3px);
 }
 .linkPromo {
   /* Saira Condensed instead of the global DM Sans body face. */
@@ -897,17 +787,6 @@
 
   /* Must-Eat detail shares the same readable, scrollable card system on
      desktop and mobile; the rail width is handled by the base component rules. */
-  .actions {
-    padding: 26px 22px 32px;
-    gap: 16px;
-  }
-  .actions::before {
-    top: 26px;
-    right: 22px;
-  }
-  .btnPrimaryLbl {
-    font-size: 58px;
-  }
 }
 /* -------------------- List-end closing CTA -------------------- */
 /* Locked-bezirk block — one calm All-Berlin pitch when a filtered district has
@@ -1137,19 +1016,7 @@
 .rdVMeta {
   display: block;
 }
-.rdActs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
 /* Public heart count under the actions — centred, quiet. */
-.rdActBtn {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  text-align: center;
-}
 .rdSecH {
   text-transform: uppercase;
 }
@@ -1327,16 +1194,13 @@
   --d-hero-text: var(--brand-paper);
   --d-hero-accent: var(--brand-paper);
 }
-.btnPrimary,
 .btnPackPromo {
   background: var(--brand-paper);
   color: var(--brand-ink);
-  border: 1.5px solid var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-.btnPrimary:hover,
 .btnPackPromo:hover {
   background: var(--brand-action);
   color: var(--brand-paper);
@@ -1359,9 +1223,7 @@
   color: var(--brand-ink);
 }
 .rdCloseGlass,
-.rdActBtn,
 .rdPagerBtn,
-.btnPrimary,
 .btnPackPromo,
 .ctaPill,
 .fdClose {
@@ -1371,9 +1233,7 @@
 }
 @media (hover: hover) {
   .rdCloseGlass:hover,
-  .rdActBtn:hover,
   .rdPagerBtn:hover,
-  .btnPrimary:hover,
   .btnPackPromo:hover,
   .ctaPill:hover,
   .fdClose:hover {
@@ -1383,32 +1243,6 @@
   }
 }
 /* Restaurant detail actions — flatter, closer to the Home brand palette. */
-.rdActs > :last-child:nth-child(odd) {
-  grid-column: auto;
-}
-.rdActs:has(> :only-child) {
-  grid-template-columns: 1fr;
-}
-.rdActs:has(> :nth-child(2):last-child) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.rdActBtn {
-  flex-direction: row;
-  gap: 0;
-  filter: none;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  transition:
-    transform var(--map-motion),
-    background-color var(--map-motion),
-    color var(--map-motion),
-    border-color var(--map-motion);
-}
-@media (hover: hover) {
-  .rdActBtn:hover {
-    border-color: var(--brand-ink);
-  }
-}
 .packPromo {
   column-gap: 15px;
   filter: none;
@@ -1444,10 +1278,6 @@
   font-weight: 400;
   letter-spacing: 0.035em;
 }
-.btnPackPromoIcon {
-  width: 14px;
-  height: 10px;
-}
 .linkPromo {
   border-bottom: 0;
   text-decoration: none;
@@ -1459,10 +1289,6 @@
   border-bottom-color: transparent;
 }
 @media (max-width: 380px) {
-  .rdActBtn {
-    padding-inline: 5px;
-  }
-
   .packPromo {
     column-gap: 11px;
     padding-inline: 12px;
@@ -1575,9 +1401,6 @@
   justify-self: start;
   text-align: left;
 }
-.rdActs {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
 .rdTipp,
 .packPromo {
   -webkit-backdrop-filter: none;
@@ -1609,11 +1432,6 @@
 }
 .ctaPill {
   font-size: 20px;
-}
-@media (max-width: 420px) {
-  .rdActs {
-    grid-template-columns: 1fr;
-  }
 }
 /* Restaurant detail refresh — bolder map sheet, sharper controls, clearer info hierarchy. */
 .rdHero {
@@ -1788,9 +1606,6 @@
 .rdPagerArrow {
   width: 19px;
   height: 19px;
-}
-.rdGalleryBlock {
-  margin: 0;
 }
 .rdGalleryThumb,
 .rdGalleryThumb:first-child {
@@ -2099,9 +1914,6 @@
 .rdPagerBtnRight .rdPagerName {
   text-align: right;
 }
-.rdGalleryBlock {
-  padding: 14px 0 0;
-}
 .rdGallery {
   gap: 8px;
   padding: 0 14px 14px;
@@ -2133,26 +1945,17 @@
 .rdRowHours > .rdK {
   padding-right: 8px;
 }
-.rdActs {
-  gap: 9px;
-  padding: 2px 14px 20px;
-}
-.rdActBtn,
 .btnPackPromo,
 .ctaPill {
   min-height: 48px;
   border: 0;
   text-decoration: none;
 }
-.rdActBtn:hover,
 .btnPackPromo:hover,
 .ctaPill:hover {
   transform: translateY(-1px);
   background: #c42f24;
   color: #fff;
-}
-.rdActBtn:not(.rdActPrimary):hover {
-  background: #2a2621;
 }
 .rdMustSection {
   margin: 14px 14px 18px;
@@ -2217,57 +2020,18 @@
 .rdMustSection,
 .medish,
 .packPromo,
-.btnPackPromo,
-.rdActBtn {
+.btnPackPromo {
   border-radius: 0;
 }
-.rdActBtn,
 .btnPackPromo {
   min-height: 54px;
   padding: 0 48px 0 18px;
-  border: 2px solid #15120e;
   background: #f3ead8;
   color: #15120e;
   font-size: 11px;
   line-height: 1.05;
   position: relative;
   overflow: visible;
-}
-.rdActBtn::after {
-  content: '→';
-  position: absolute;
-  right: 17px;
-  top: 50%;
-  font-size: 21px;
-  font-weight: 950;
-  line-height: 1;
-  transform: translateY(-53%);
-}
-.rdActBtn:not(.rdActPrimary) {
-  background: #f3ead8;
-  color: #15120e;
-}
-.rdActBtn:hover,
-.rdActBtn:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: none;
-}
-.rdActBtn:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-@media (max-width: 420px) {
-  .rdActBtn {
-    min-height: 52px;
-    padding-left: 14px;
-    padding-right: 42px;
-    font-size: 10px;
-  }
-
-  .rdActBtn::after {
-    right: 14px;
-    font-size: 19px;
-  }
 }
 /* Detail surface pass: kill white-on-white framed modules. */
 .rdFacts {
@@ -2341,7 +2105,6 @@
   background: var(--et-home-paper);
   color: var(--et-home-ink);
 }
-.rdActBtn,
 .btnPackPromo,
 .ctaPill,
 .fdPagerPrev,
@@ -2361,7 +2124,6 @@
   color: var(--et-home-ink);
   border: 2px solid var(--et-home-ink);
 }
-.rdActPrimary,
 .btnPackPromo,
 .ctaPill {
   background: var(--et-home-ink);
@@ -2574,7 +2336,6 @@
   display: none;
 }
 .detailV13:not(.detailV13MustEat) .rdPagerBtn,
-.detailV13:not(.detailV13MustEat) .rdActBtn,
 .detailV13:not(.detailV13MustEat) .btnPackPromo,
 .detailV13MustEat .ctaPill {
   min-height: 40px;
@@ -2690,31 +2451,16 @@
   border: 0;
   box-shadow: none;
 }
-.detailV13:not(.detailV13MustEat) .rdActBtn,
 .detailV13:not(.detailV13MustEat) .btnPackPromo {
   padding: 0 18px;
-}
-.detailV13:not(.detailV13MustEat) .rdActBtn::after {
-  content: none;
-}
-.detailV13:not(.detailV13MustEat) .btnPackPromoIcon {
-  display: none;
 }
 .detailV13:not(.detailV13MustEat) .packPromo {
   display: grid;
   grid-template-columns: 128px minmax(0, 1fr);
   align-items: center;
   gap: 20px;
-  margin: 22px 14px 32px;
-  padding: 22px 18px;
-  background: #fff;
   color: #15120e;
-  border: 0;
-  border-top: 1px solid rgba(21, 18, 14, 0.16);
-  border-bottom: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 0;
   box-shadow: none;
-  overflow: visible;
 }
 .detailV13:not(.detailV13MustEat) .detailV13Scroll > .packPromo:last-child {
   margin-bottom: 28px;
@@ -2797,7 +2543,7 @@
 .detailV13:not(.detailV13MustEat) .btnPackPromoLbl {
   font: inherit;
   letter-spacing: 0;
-  text-transform: none;
+  text-transform: inherit;
 }
 .detailV13:not(.detailV13MustEat) .linkPromo {
   color: #15120e;
@@ -2816,7 +2562,6 @@
   .detailV13:not(.detailV13MustEat) .packPromo {
     grid-template-columns: 106px minmax(0, 1fr);
     gap: 14px;
-    padding: 18px 12px;
   }
 
   .detailV13:not(.detailV13MustEat) .packPromoCardWrap {
@@ -2826,14 +2571,6 @@
 
   .detailV13:not(.detailV13MustEat) .packPromoSingleCard {
     width: 98px;
-  }
-
-  .detailV13:not(.detailV13MustEat) .packPromoTitle {
-    font-size: clamp(24px, 7vw, 32px);
-  }
-
-  .detailV13:not(.detailV13MustEat) .packPromoBody {
-    font-size: 13px;
   }
 }
 .detailV13:not(.detailV13MustEat) .rdFacts {
@@ -3647,12 +3384,14 @@
     overscroll-behavior: auto;
   }
 
+  /* Last block on the phone sheet: drop its bottom margin so it closes the
+     scroll instead of floating above an apron. It used to be painted white
+     with a hairline under it to look terminated; the warm panel does that on
+     its own now, so neither is repeated here. */
   [data-map-sheet][data-view='detail']
     .detailV13:not(.detailV13MustEat)
     .detailV13Scroll
     > .packPromo:last-child {
-    background: var(--et-home-paper, #fff);
-    border-bottom: 1px solid rgba(21, 18, 14, 0.16);
     margin-bottom: 0;
   }
 
@@ -3675,11 +3414,6 @@
 }
 /* Open-state labels: green in the filter chip and restaurant list. */
 /* Map gallery: hero photo as the first Polaroid preview; zoom stays centered. */
-.detailV13:not(.detailV13MustEat) .rdGalleryBlock {
-  display: flex;
-  justify-content: flex-start;
-  padding: 18px 0 12px;
-}
 .detailV13:not(.detailV13MustEat) .rdGallery {
   width: max-content;
   max-width: 100%;
@@ -4802,4 +4536,310 @@
   font-weight: inherit;
   line-height: inherit;
   text-transform: none;
+}
+
+/* ============ Restaurant detail actions ============
+   One definition for the whole action row — the same icon'd button system the
+   public /restaurant/[slug] page uses, scaled down for the ~350px map panel.
+   Three weights so six buttons don't read as a black wall: book a table (ink),
+   go there (red), everything else outlined against the paper.
+   The outline is an inset ring rather than a border so every tier occupies
+   exactly the same box and nothing shifts by a pixel between them. */
+.rdActs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 2px 14px 20px;
+}
+
+/* Fill the last row instead of leaving a half-width button next to a hole.
+   Which child needs it depends on whether the full-width Reservieren button
+   shifts the parity of everything after it. */
+.rdActs:has(.rdActReserve) > :last-child:nth-child(even),
+.rdActs:not(:has(.rdActReserve)) > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.detailV13:not(.detailV13MustEat) .rdActBtn {
+  min-width: 0;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  background: var(--et-home-paper, #fff);
+  color: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  cursor: pointer;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    transform var(--map-motion),
+    background-color var(--map-motion),
+    box-shadow var(--map-motion),
+    color var(--map-motion);
+}
+
+.detailV13:not(.detailV13MustEat) .rdActBtn svg {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+
+/* The label is the only part allowed to shrink — a long menu or district word
+   ellipsises rather than pushing its glyph out of the button. */
+.detailV13:not(.detailV13MustEat) .rdActBtn > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Go there" — the one thing a hungry visitor does next. */
+.detailV13:not(.detailV13MustEat) .rdActPrimary {
+  background: var(--et-home-red, #d9382a);
+  color: var(--et-home-paper, #fff);
+  box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+}
+
+/* "Reservieren" — committal, so it gets the ink fill and the full width. */
+.detailV13:not(.detailV13MustEat) .rdActStrong {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
+  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+}
+
+.rdActReserve {
+  grid-column: 1 / -1;
+}
+
+/* With a booking provider the button is a lockup: action left, provider right.
+   Without one it is an ordinary centred button. */
+.detailV13:not(.detailV13MustEat) .rdActReserve:has(.rdActProvider) {
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.rdActLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.rdActProvider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+/* OpenTable's red roundel, so the destination is recognisable before the tap. */
+.rdActProviderMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding-bottom: 1px;
+  background: #da3743;
+  color: #fff;
+  border-radius: 50%;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  /* The button uppercases its label; the roundel's "ot" must not follow. */
+  text-transform: lowercase;
+}
+
+.rdActProviderWord {
+  font-family: var(--font-dm-sans, var(--font), system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Every tier has to visibly change: outlined and red both fill with ink, and
+   the ink one — already filled — swaps to red. Hovering red into red would
+   have left the primary button with nothing but the lift. */
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
+    transform: translateY(-1px);
+    background: var(--et-home-ink, #15120e);
+    color: var(--et-home-paper, #fff);
+    box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  }
+
+  .detailV13:not(.detailV13MustEat) .rdActStrong:hover {
+    background: var(--et-home-red, #d9382a);
+    box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+  }
+}
+
+.detailV13:not(.detailV13MustEat) .rdActBtn:active {
+  transform: translateY(0);
+}
+
+.detailV13:not(.detailV13MustEat) .rdActBtn:focus-visible {
+  outline: 2px solid var(--et-home-red, #d9382a);
+  outline-offset: 2px;
+}
+
+/* The row stays two-up on every phone — a five-high stack of full-width slabs
+   is worse than a compact grid. The longest label ("SPEISEKARTE", 90px) plus
+   its glyph needs 137px, and half of a 320px sheet is 142px, so only the
+   spacing has to give at the bottom end. */
+@media (max-width: 359.98px) {
+  .rdActs {
+    gap: 7px;
+  }
+
+  .detailV13:not(.detailV13MustEat) .rdActBtn {
+    gap: 6px;
+    padding: 0 9px;
+  }
+}
+
+/* ============ Pack promo — the "extra" panel ============
+   Everything else in the sheet is about the spot you opened; this block is
+   not. It is set apart by SURFACE, not by an outline: the action row directly
+   above is a grid of ringed buttons, so another frame here just stacks
+   borders. The warm panel tint is the same "there is more behind this" yellow
+   the map list uses for its pack banner.
+   The copy speaks the sheet's own voice too — display face for the pitch and
+   the sign-in link, the action-row button treatment for the CTA. */
+.detailV13:not(.detailV13MustEat) .packPromo {
+  position: relative;
+  margin: 30px 14px 32px;
+  padding: clamp(22px, 5vw, 24px) clamp(14px, 4vw, 18px) clamp(20px, 4.5vw, 22px);
+  background: var(--et-home-panel-warm, #fff4cc);
+  border: 0;
+  border-radius: var(--et-radius-photo, 10px);
+  overflow: visible;
+}
+
+.detailV13:not(.detailV13MustEat) .packPromoTitle {
+  font-size: clamp(26px, 6.6vw, 34px);
+  line-height: 0.94;
+}
+
+.detailV13:not(.detailV13MustEat) .packPromoBody {
+  max-width: 27ch;
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(13.5px, 3.6vw, 14px);
+  font-weight: 500;
+  line-height: 1.34;
+}
+
+/* Same button as the action row above, so the sheet has one CTA shape. */
+.detailV13:not(.detailV13MustEat) .btnPackPromo {
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  text-transform: uppercase;
+  transition:
+    transform var(--map-motion),
+    background-color var(--map-motion),
+    box-shadow var(--map-motion);
+}
+
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .btnPackPromo:hover {
+    transform: translateY(-1px);
+    background: var(--et-home-red, #d9382a);
+    box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+  }
+}
+
+.detailV13:not(.detailV13MustEat) .btnPackPromo:focus-visible {
+  outline: 2px solid var(--et-home-red, #d9382a);
+  outline-offset: 2px;
+}
+
+/* Sits under the filled CTA as the quiet second option — same face as the
+   pitch above it, just smaller and underlined, so the two never read as
+   competing buttons. nowrap because the desktop rail leaves this column
+   ~167px and a wrapped underlined link there looks like a broken sentence. */
+.detailV13:not(.detailV13MustEat) .linkPromo {
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.detailV13:not(.detailV13MustEat) .linkPromo:hover {
+  color: var(--et-home-red, #d9382a);
+}
+
+/* ============ Gallery strip ============
+   Curated Places photos, shown as a row of prints. The strip used to begin
+   mid-sheet with no label, so it read as pictures that fell into the page;
+   it is now a titled section like Must Eats, with the sheet's own gutter, and
+   the white band under each photo — previously empty — carries the print
+   number so the tilted stack looks deliberate. */
+.detailV13:not(.detailV13MustEat) .rdGalleryBlock {
+  display: block;
+  margin: 30px 0 4px;
+  padding: 0;
+}
+
+.rdGalleryHead {
+  padding: 0 14px 12px;
+}
+
+/* .rdSecH carries a rule and its own margins for the standalone case; inside a
+   section head the wrapper owns the spacing — same as .rdMustHead .rdSecH, so
+   "Fotos" and "Must Eats" line up on the same left edge. */
+.rdGalleryHead .rdSecH {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.detailV13:not(.detailV13MustEat) .rdGallery {
+  /* Same 14px gutter as the Must-Eats grid below, and the vertical padding is
+     the room the tilt and the drop shadow need — without it the prints clip
+     against the section edges. */
+  width: max-content;
+  max-width: 100%;
+  padding: 10px 14px 26px;
+  gap: 15px;
+  scroll-padding-inline: 14px;
+}
+
+.rdGalleryNum {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  color: rgba(21, 18, 14, 0.42);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.rdGalleryNumTotal {
+  color: rgba(21, 18, 14, 0.28);
+  font-style: normal;
 }

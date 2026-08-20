@@ -222,10 +222,10 @@ function groupedDeclarationServes(
 }
 
 describe('MapDetails cascade', () => {
-  /* Five declarations in this file are reported dead by
+  /* Three declarations in this file are reported dead by
    * scripts/audit-css-cascade.mjs and are NOT: each is shared by several
    * classes and only overridden later for some of them. A bulk prune deletes
-   * all five. Each case below names the class that has no other source for the
+   * all three. Each case below names the class that has no other source for the
    * value, which is what makes the declaration load-bearing.
    *
    * scripts/cascade/triage.mjs is the tool that tells these apart — it asks
@@ -239,13 +239,6 @@ describe('MapDetails cascade', () => {
       'rdHeartToggle',
       'the reset after it only covers .rdCloseGlass',
     ],
-    [
-      'border',
-      '1.5px solid var(--brand-ink)',
-      'btnPrimary',
-      'overridden later only for .btnPackPromo',
-    ],
-    ['border', '2px solid #15120e', 'rdActBtn', 'overridden later only for .btnPackPromo'],
     // .fdClose is deliberately NOT pinned here: it declares its own width
     // earlier in the file, so the grouped one is not its only source.
     ['width', '36px', 'rdCloseGlass', 'only .rdHeartToggle gets a later width in that context'],

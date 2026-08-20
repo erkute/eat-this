@@ -1,6 +1,5 @@
-/* Centred stack: the pack sits on top and everything else lines up under it.
-   The earlier side-by-side grid left the artwork stranded next to a ragged
-   two-column text block and broke apart on narrow screens. */
+/* Centred stack on mobile, pack beside the copy from 761px up (see below).
+   Everything is centre-aligned so the pack anchors the block either way. */
 .inner {
   display: flex;
   flex-direction: column;

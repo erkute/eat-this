@@ -18,7 +18,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
   const list = articles.slice(0, CARD_COUNT);
   const labels = {
-    read: locale === 'en' ? 'Read' : 'Lesen',
     all: locale === 'en' ? 'All stories' : 'Alle Stories',
     kicker: locale === 'en' ? 'Magazine' : 'Magazin',
   };
@@ -47,7 +46,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
               <span className={styles.text}>
                 {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
                 <span className={styles.title}>{a.title}</span>
-                <span className={styles.readButton}>{labels.read}</span>
               </span>
             </Link>
           </li>

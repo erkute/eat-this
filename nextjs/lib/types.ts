@@ -168,6 +168,16 @@ export interface BezirkDoc {
     RestaurantCard,
     '_id' | 'name' | 'slug' | 'cuisineType' | 'shortDescription' | 'shortDescriptionEn' | 'photo'
   >[];
+  /**
+   * Curated best-of, in editorial order (`bezirk.topSpots` in the Studio).
+   * `allBezirkeWithStatsQuery` projects the resolved cards so the hub shelf can
+   * lead with them; `bezirkBySlugQuery` projects only the slugs, because the
+   * detail page already loads every restaurant of the district.
+   */
+  topSpotCards?: (Pick<RestaurantCard, '_id' | 'name' | 'slug' | 'cuisineType' | 'photo'> & {
+    isOpen?: boolean;
+  })[];
+  topSpots?: string[];
 }
 
 export interface RestaurantCard {

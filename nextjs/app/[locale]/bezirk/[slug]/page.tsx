@@ -16,7 +16,13 @@ import { buildBrandedTitle, truncateMetadataDescription } from '@/lib/seo/metada
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { routing } from '@/i18n/routing';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
-import { buildBezirkFAQEntries } from '@/lib/bezirk-prose';
+import {
+  buildBezirkFAQEntries,
+  buildBezirkBestOfHeading,
+  buildBezirkDirectoryHeading,
+} from '@/lib/bezirk-prose';
+import { rankCurated } from '@/lib/curated-ranking';
+import type { RestaurantCard } from '@/lib/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from '../Bezirk.module.css';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
@@ -24,6 +30,60 @@ import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
+}
+
+/**
+ * Ein Kartenraster. `ranked` blendet die Platzziffer ein — nur die kuratierte
+ * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht.
+ */
+function RestaurantGrid({
+  restaurants,
+  locale,
+  ranked = false,
+}: {
+  restaurants: RestaurantCard[];
+  locale: 'de' | 'en';
+  ranked?: boolean;
+}) {
+  return (
+    <div className={`${styles.grid} ${restaurants.length <= 2 ? styles.gridCompact : ''}`}>
+      {restaurants.map((r, i) => {
+        const priceLabel = formatPriceLabel(r);
+        const cardLine =
+          pickLocale(r.shortDescription, r.shortDescriptionEn, locale) ||
+          pickLocale(r.tip, r.tipEn, locale);
+        return (
+          <Link key={r._id} href={`/restaurant/${r.slug}`} className={styles.card}>
+            {r.photo && (
+              <div className={styles.cardPhoto}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={r.photo}
+                  alt={r.name}
+                  srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
+                  sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+                {ranked && <span className={styles.rankBadge}>{i + 1}</span>}
+              </div>
+            )}
+            <div className={styles.cardBody}>
+              <h3 className={styles.cardName}>
+                {ranked && !r.photo && <span className={styles.rankInline}>{i + 1}.</span>}
+                {r.name}
+              </h3>
+              <div className={styles.cardMeta}>
+                {r.cuisineType && <span className={styles.chipYellow}>{r.cuisineType}</span>}
+                {priceLabel && <span className={styles.price}>{priceLabel}</span>}
+              </div>
+              {cardLine && <p className={styles.cardTip}>{cardLine}</p>}
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
 }
 
 export const revalidate = 3600;
@@ -99,16 +159,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc);
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc });
-  const heroRestaurant = restaurants.find((restaurant) => restaurant.photo);
-  const heroImage = b.imageUrl ?? heroRestaurant?.photo;
-  const heroImageAlt = b.imageUrl
-    ? de
-      ? `Essen in ${b.name}`
-      : `Food in ${b.name}`
-    : (heroRestaurant?.name ?? b.name);
-  const heroCaption = b.imageUrl
-    ? b.name
-    : [heroRestaurant?.name, heroRestaurant?.cuisineType].filter(Boolean).join(' · ');
+  // Only the district's own picture. Falling back to a restaurant photo put a
+  // spot in the banner that the grid below lists again — and captioned it,
+  // so the banner read as a recommendation of its own.
+  const heroImage = b.imageUrl;
+  const heroImageAlt = de ? `Essen in ${b.name}` : `Food in ${b.name}`;
   const districtTitleStyle = {
     '--district-title-size': `${Math.min(19, 150 / Math.max(b.name.length, 1))}cqi`,
   } as CSSProperties;
@@ -119,9 +174,15 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     { name: b.name },
   ];
 
+  // Kuratierte Bestenliste aus dem Studio; ohne Pflege (oder unter
+  // MIN_CURATED) fällt `top` leer aus und die Seite bleibt rein alphabetisch.
+  const { top, rest } = rankCurated(restaurants, b.topSpots);
+
   const jsonLd = buildBezirkJsonLd({
     bezirk: b,
-    restaurants,
+    // `position` im ItemList ist eine Rangbehauptung — Schema und Seite dürfen
+    // sich nicht widersprechen, also exakt die Anzeigereihenfolge.
+    restaurants: [...top, ...rest],
     locale,
     districtsLabel: de ? 'Bezirke' : 'Districts',
     faqs: faqEntries,
@@ -160,18 +221,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                 mapHref={`/map?bezirk=${slug}`}
                 locale={loc}
               />
-              <a href="#restaurants" className={styles.detailHeroJump}>
-                <span>{de ? 'Restaurants ansehen' : 'See restaurants'}</span>
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M10 3v12M5 10l5 5 5-5"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
           {heroImage && (
@@ -185,50 +234,39 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                   sizes="(max-width: 839px) 100vw, 48vw"
                 />
               </div>
-              {heroCaption && <figcaption>{heroCaption}</figcaption>}
             </figure>
           )}
         </header>
 
         <section id="restaurants" className={styles.restaurantSection}>
           <div className={styles.sectionHead}>
-            <h2>{de ? 'Wo du essen solltest' : 'Where to eat'}</h2>
+            <h2>
+              {top.length > 0
+                ? buildBezirkBestOfHeading(top.length, b.name, loc)
+                : de
+                  ? 'Wo du essen solltest'
+                  : 'Where to eat'}
+            </h2>
             <p>{de ? 'Kuratiert vom Eat-This-Team.' : 'Curated by the Eat This team.'}</p>
           </div>
 
-          <div className={`${styles.grid} ${restaurants.length <= 2 ? styles.gridCompact : ''}`}>
-            {restaurants.map((r) => {
-              const priceLabel = formatPriceLabel(r);
-              const cardLine =
-                pickLocale(r.shortDescription, r.shortDescriptionEn, loc) ||
-                pickLocale(r.tip, r.tipEn, loc);
-              return (
-                <Link key={r._id} href={`/restaurant/${r.slug}`} className={styles.card}>
-                  {r.photo && (
-                    <div className={styles.cardPhoto}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={r.photo}
-                        alt={r.name}
-                        srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
-                        sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  )}
-                  <div className={styles.cardBody}>
-                    <h3 className={styles.cardName}>{r.name}</h3>
-                    <div className={styles.cardMeta}>
-                      {r.cuisineType && <span className={styles.chipYellow}>{r.cuisineType}</span>}
-                      {priceLabel && <span className={styles.price}>{priceLabel}</span>}
-                    </div>
-                    {cardLine && <p className={styles.cardTip}>{cardLine}</p>}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <RestaurantGrid
+            restaurants={top.length > 0 ? top : rest}
+            locale={loc}
+            ranked={top.length > 0}
+          />
+
+          {/* Das Verzeichnis bleibt vollständig und wird nicht paginiert: die
+              internen Links sind der Weg, auf dem die Restaurant-Detailseiten
+              gecrawlt werden. Die Trennung ist visuell, nicht datenseitig. */}
+          {top.length > 0 && rest.length > 0 && (
+            <>
+              <div className={styles.sectionHead}>
+                <h2>{buildBezirkDirectoryHeading(restaurants.length, loc)}</h2>
+              </div>
+              <RestaurantGrid restaurants={rest} locale={loc} />
+            </>
+          )}
         </section>
 
         <div className={styles.detailMapCta}>

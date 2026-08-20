@@ -261,7 +261,15 @@ export const allBezirkeWithStatsQuery = `
         shortDescription,
         shortDescriptionEn,
         "photo": ${publishableRestaurantImageUrl('image', 'card')}
-      }
+      },
+    "topSpotCards": topSpots[]->{
+      _id,
+      name,
+      "slug": slug.current,
+      cuisineType,
+      isOpen,
+      "photo": ${publishableRestaurantImageUrl('image', 'card')}
+    }
   }
 `;
 
@@ -274,6 +282,7 @@ export const bezirkBySlugQuery = `
     description,
     descriptionEn,
     "imageUrl": ${groqImageUrl('image', 'bezirkHero')},
+    "topSpots": topSpots[defined(@->slug.current)]->slug.current,
     seo {
       metaTitle,
       metaTitleEn,

@@ -32,6 +32,18 @@ export default defineType({
       description: 'Optional EN override. Leave empty to fall back to German.',
     }),
     defineField({
+      name: 'topSpots',
+      title: 'Top-Spots (kuratierte Reihenfolge)',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'restaurant'}]}],
+      validation: Rule => Rule.max(10).unique(),
+      description:
+        'Die besten Spots dieses Bezirks, in Reihenfolge — Platz 1 ganz oben, per Drag & Drop ' +
+        'sortieren. Sie erscheinen als nummerierte Bestenliste über der A–Z-Liste und bestimmen, ' +
+        'welche Spots der Bezirk auf der Übersichtsseite zeigt. ' +
+        'Leer lassen (oder unter 3 Einträge) = die Seite bleibt wie bisher rein alphabetisch.',
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'object',

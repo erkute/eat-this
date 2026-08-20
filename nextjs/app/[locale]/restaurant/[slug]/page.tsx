@@ -485,7 +485,10 @@ export default async function RestaurantPage({ params }: PageProps) {
             book a table (solid), everything else outlined — and each action
             carries its own glyph.
             "Open on the map" is deliberately not here — the map gets its own
-            block below rather than a small button in the pile. */}
+            block below rather than a small button in the pile.
+            Share sits third, not last: a lone button on a wrapped second row
+            stretches to the full width, and that slot should not go to the
+            least important action. */}
         <div className={styles.acts}>
           {mapsHref && (
             <a
@@ -509,6 +512,15 @@ export default async function RestaurantPage({ params }: PageProps) {
               <span>{de ? 'Reservieren' : 'Reserve'}</span>
             </a>
           )}
+          <ShareButton
+            title={r.name}
+            slug={slug}
+            contentType="restaurant"
+            className={styles.act}
+            label={de ? 'Teilen' : 'Share'}
+            copiedLabel={de ? 'Kopiert' : 'Copied'}
+            icon={<ShareIcon />}
+          />
           {telHref && (
             <a className={styles.act} href={telHref}>
               <PhoneIcon />
@@ -537,15 +549,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               <span>{de ? 'Speisekarte' : 'Menu'}</span>
             </a>
           )}
-          <ShareButton
-            title={r.name}
-            slug={slug}
-            contentType="restaurant"
-            className={styles.act}
-            label={de ? 'Teilen' : 'Share'}
-            copiedLabel={de ? 'Kopiert' : 'Copied'}
-            icon={<ShareIcon />}
-          />
         </div>
 
         {mustEats.length > 0 && (

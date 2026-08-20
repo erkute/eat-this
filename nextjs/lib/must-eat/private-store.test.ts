@@ -81,4 +81,21 @@ describe('private Must-Eat hydration', () => {
       'points at the wrong restaurant'
     );
   });
+
+  // getInitialAnonMapData hands in a cached reader that keys on its argument.
+  // Sanity's ordering is not part of the authorization, so the same set of
+  // cards arriving in another order has to reach the reader identically.
+  it('asks an injected reader for the authorized IDs in a stable order', async () => {
+    const read = vi.fn().mockResolvedValue({});
+    const cards = ['m2', 'm1', 'm3'].map((_id) => ({ ...metadata, _id }));
+
+    await hydrateAuthorizedMustEats(cards, new Set(['m3', 'm1']), read).catch(() => {});
+    await hydrateAuthorizedMustEats([...cards].reverse(), new Set(['m1', 'm3']), read).catch(
+      () => {}
+    );
+
+    expect(read).toHaveBeenNthCalledWith(1, ['m1', 'm3']);
+    expect(read).toHaveBeenNthCalledWith(2, ['m1', 'm3']);
+    expect(getAll).not.toHaveBeenCalled();
+  });
 });

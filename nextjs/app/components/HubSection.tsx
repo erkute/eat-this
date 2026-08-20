@@ -39,6 +39,18 @@ const copy = {
   },
 };
 
+// The mockups render ~235px wide on phones and ~290px on desktop. Shipping the
+// 855px master to every viewport cost 250KB in the hero — more than the rest of
+// the page's images put together — for slots a quarter that size.
+const PHONE_WIDTHS = [300, 480, 600, 855];
+const PHONE_SIZES = '(max-width: 920px) 240px, 290px';
+
+function phoneSrcSet(name: string): string {
+  return PHONE_WIDTHS.map(
+    (w) => `/pics/home-phones/${name}${w === 855 ? '' : `-${w}`}.webp ${w}w`
+  ).join(', ');
+}
+
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
   const spot = initialData.spotOfDay;
@@ -66,7 +78,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className={styles.phoneBack}
-              src="/pics/home-phones/phone-restaurant.webp"
+              src="/pics/home-phones/phone-restaurant-480.webp"
+              srcSet={phoneSrcSet('phone-restaurant')}
+              sizes={PHONE_SIZES}
               alt=""
               width={855}
               height={1736}
@@ -77,7 +91,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className={styles.phoneFront}
-              src="/pics/home-phones/phone-map.webp"
+              src="/pics/home-phones/phone-map-480.webp"
+              srcSet={phoneSrcSet('phone-map')}
+              sizes={PHONE_SIZES}
               alt={t.heroPhonesLabel}
               width={855}
               height={1736}

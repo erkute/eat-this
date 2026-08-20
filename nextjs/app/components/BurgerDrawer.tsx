@@ -129,8 +129,18 @@ export default function BurgerDrawer() {
             className="bd-logo"
             aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
           >
+            {/* The drawer sits translated off-screen until opened, so lazy here
+                genuinely defers: eager cost every page load 50KB of wordmark
+                nobody had asked to see yet. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" width="660" height="265" />
+            <img
+              src="/pics/eat-this-logo.webp?v=6"
+              alt="Eat This"
+              width="660"
+              height="265"
+              loading="lazy"
+              decoding="async"
+            />
           </Link>
 
           <nav className="bd-nav" aria-label="Primary">

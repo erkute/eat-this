@@ -12,7 +12,11 @@ import { getFreeSurfaceData, applyFreeSurface } from './free-surface';
 import { stripCoveredMustEats } from './stripCoveredMustEats';
 import { stripLockedRestaurants } from './stripLockedRestaurant';
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server';
-import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
+import { unstable_cache } from 'next/cache';
+import {
+  hydrateAuthorizedMustEats,
+  readPrivateMustEatContent,
+} from '@/lib/must-eat/private-store';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
 
@@ -69,6 +73,29 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
   };
 }
 
+/**
+ * The face-up set below is the anon tier plus the spot-of-day gift — the same
+ * cards for every visitor, and the same cards whose premium fields already ship
+ * in the anonymous HTML. So this read has no per-viewer component and caching
+ * it publishes nothing that isn't published already. The per-viewer path
+ * (/api/map-data, entitlements + on-site unlocks + purchases) keeps the
+ * uncached default reader.
+ *
+ * Uncached it was 192-583ms per request, measured against a production build —
+ * roughly 95% of the server time on the four surfaces that call this, with
+ * Sanity already served from the Data Cache in single-digit milliseconds.
+ *
+ * `privateMustEats` has no runtime writer: scripts/migrate-must-eats-private.ts
+ * is the only thing that touches it, and a Firestore write fires no webhook.
+ * The `mustEat` tag covers edits to the public metadata in Sanity; after a
+ * backfill run the TTL is what bounds the staleness.
+ */
+const readPublicMustEatContent = unstable_cache(
+  readPrivateMustEatContent,
+  ['public-must-eat-content'],
+  { tags: ['mustEat'], revalidate: 300 }
+);
+
 export async function getPublicMustEatIds(): Promise<Set<string>> {
   const data = await composeInitialAnonMapMetadata();
   return new Set(data.revealedMustEatIds);
@@ -77,7 +104,11 @@ export async function getPublicMustEatIds(): Promise<Set<string>> {
 export async function getInitialAnonMapData(): Promise<InitialMapData> {
   const metadata = await composeInitialAnonMapMetadata();
   const faceUpIds = new Set(metadata.revealedMustEatIds);
-  const hydrated = await hydrateAuthorizedMustEats(metadata.mustEats, faceUpIds);
+  const hydrated = await hydrateAuthorizedMustEats(
+    metadata.mustEats,
+    faceUpIds,
+    readPublicMustEatContent
+  );
 
   return {
     ...metadata,

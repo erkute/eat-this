@@ -13,12 +13,25 @@ import {
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName } from '@/lib/categories';
+import { categoryArt } from '@/lib/categoryArt';
+import { CATALOG } from '@/lib/stripe-catalog';
+import { formatPackPrice } from '@/lib/pack/packDetail';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { useLoginModal } from '@/lib/auth';
 import MapListEmpty from './MapListEmpty';
 import styles from './RestaurantList.module.css';
+
+/* All-Berlin has no art of its own, so the banner fans out every category pack
+   the way /packs and the locked-spot sheet do — nine bags say "everything" in a
+   way one generic bag cannot. */
+const ALL_BERLIN_ART = Object.values(CATALOG)
+  .filter((pack) => pack.type === 'category' && pack.slug)
+  .map((pack) => categoryArt(pack.slug as string))
+  .filter((src): src is string => Boolean(src));
+
+const ALL_BERLIN_PRICE = formatPackPrice(CATALOG['all-berlin'].amountCents);
 
 interface ItemProps {
   restaurant: MapRestaurant;
@@ -260,30 +273,40 @@ export default function RestaurantList({
       ))}
       {showAllBerlinBanner && (
         <div className={styles.listEnd}>
-          <p className={styles.listEndKicker}>{t('map.listEndKicker')}</p>
-          <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
-          <div className={styles.listEndFan} aria-hidden="true">
-            <span className={`${styles.listEndPack} ${styles.listEndPackOne}`} />
-            <span className={`${styles.listEndPack} ${styles.listEndPackTwo}`} />
-            <span className={`${styles.listEndPack} ${styles.listEndPackThree}`} />
-            <span className={`${styles.listEndPack} ${styles.listEndPackFour}`} />
-            <span className={`${styles.listEndPack} ${styles.listEndPackFive}`} />
-            <span className={`${styles.listEndPack} ${styles.listEndPackSix}`} />
-          </div>
-          <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
-          <a href={allBerlinHref} className={styles.listEndCta}>
-            <span>{t('map.listEndCta')}</span>
-            <svg
-              viewBox="0 0 14 10"
-              width="15"
-              height="11"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          <a href={allBerlinHref} className={styles.listEndOffer}>
+            <p className={styles.listEndKicker}>{t('map.listEndKicker')}</p>
+            <span className={styles.listEndPrice}>{ALL_BERLIN_PRICE}</span>
+            <span className={styles.listEndFan} aria-hidden="true">
+              {ALL_BERLIN_ART.map((src) => (
+                <img
+                  key={src}
+                  className={styles.listEndPack}
+                  src={src}
+                  alt=""
+                  width={420}
+                  height={630}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              ))}
+            </span>
+            <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
+            <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
+            <span className={styles.listEndCta}>
+              <span>{t('map.listEndCta')}</span>
+              <svg
+                viewBox="0 0 14 10"
+                width="15"
+                height="11"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
           </a>
           {!uid && (
             <button type="button" className={styles.listEndSecondary} onClick={openSigninLogin}>

@@ -108,7 +108,7 @@ export default function BridgeAuth() {
         >
           {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}
           <LoginModalBarLock />
-          <LoginPanel onBack={closeLogin} modal mode={loginMode} />
+          <LoginPanel onBack={closeLogin} mode={loginMode} />
         </div>,
         document.body
       )

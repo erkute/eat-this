@@ -164,7 +164,16 @@ export default function CookieConsent() {
   // The gate is position:fixed; on iOS Safari the promoted GPU layer can
   // linger in the bottom-URL-bar zone until a reload. Dropping it from the DOM
   // clears that layer immediately. Reset when the gate reopens.
-  const [closed, setClosed] = useState(false);
+  //
+  // Starts closed, and that is load-bearing: the answer lives in a cookie this
+  // component can only read after mounting. Starting open rendered the gate
+  // into the SSR HTML on every request, and .cookie-consent is a solid panel —
+  // without .show it is merely offset by a transform, not hidden. So every
+  // visitor, including everyone who had already answered, got the dialog
+  // painted for one frame until hydration read the cookie and unmounted it.
+  // Closed-first costs the undecided a few ms before the question appears;
+  // open-first cost everyone else a flash on every single page load.
+  const [closed, setClosed] = useState(true);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
   const cardRef = useRef<HTMLDivElement | null>(null);
 

@@ -16,7 +16,6 @@ export default function AuthActionLayout({ children }: { children: React.ReactNo
   return (
     <html lang="de" data-scroll-behavior="smooth" className={dmSans.variable}>
       <head>
-        <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         <style>{`:root { --font-chewy: 'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif; }`}</style>
       </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#fbf8ee' }}>{children}</body>

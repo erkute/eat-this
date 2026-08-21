@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
+  browserPopupRedirectResolver,
   onIdTokenChanged,
   signInWithPopup,
   GoogleAuthProvider,
@@ -89,7 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── Auth operations ─────────────────────────────────────────────────────
 
   const signInWithGoogle = useCallback(async (): Promise<void> => {
-    await signInWithPopup(auth, googleProvider);
+    // The resolver is passed here rather than baked into the auth instance:
+    // it drags in Google's gapi iframe, which must not load for visitors who
+    // never sign in (see lib/firebase/config.ts).
+    await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
   }, []);
 
   const signOut = useCallback(async (): Promise<void> => {

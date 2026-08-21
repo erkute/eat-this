@@ -16,6 +16,59 @@
   font-weight: 700;
 }
 
+/* chauncy-pro-1 (--menu-condensed) and moonblossom-1 (--font-chewy) used to
+   arrive via Adobe's kit stylesheet, use.typekit.net/kgb1lmh.css. That kit CSS
+   @imports p.typekit.net/p.css — Adobe's usage beacon, not a font — which fired
+   for every visitor on every page before the consent dialog was answered.
+   Declaring the faces here points straight at the same font files and drops the
+   beacon. Kit families corsairpe-1 and salted-1 were in the kit but used
+   nowhere, so they are not carried over. URLs come from the kit; refresh them
+   from https://use.typekit.net/kgb1lmh.css if the Adobe kit changes. */
+@font-face {
+  font-family: 'chauncy-pro-1';
+  src: url('https://use.typekit.net/af/1ae4b9/000000000000000077584744/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'chauncy-pro-1';
+  src: url('https://use.typekit.net/af/5f7188/0000000000000000773597e1/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'chauncy-pro-1';
+  src: url('https://use.typekit.net/af/d1b4c8/0000000000000000773597da/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: italic;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'chauncy-pro-1';
+  src: url('https://use.typekit.net/af/432b35/0000000000000000773597e3/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i7&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: italic;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'moonblossom-1';
+  src: url('https://use.typekit.net/af/075816/00000000000000007735fbe5/31/l?subset_id=2&fvd=n4&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
 @font-face {
   font-family: 'Providence Sans Pro Regular';
   src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')

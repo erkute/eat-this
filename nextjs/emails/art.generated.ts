@@ -3,7 +3,7 @@
 // nie eine Breite hardcoden, die bei neuem Text auseinanderläuft.
 
 /** False, solange die echte Markenschrift fehlt und Schoolbell einspringt. */
-export const BRAND_FACE_AVAILABLE = false;
+export const BRAND_FACE_AVAILABLE = true;
 
 export interface ArtAsset {
   /** Datei unter /pics/email/, ohne Endung. */
@@ -19,31 +19,31 @@ export const ART = {
   "headlineSignup": {
     "id": "headline-signup",
     "width": 470,
-    "height": 157,
+    "height": 114,
     "alt": "WE TELL YOU WHAT TO EAT"
   },
   "headlineLogin": {
     "id": "headline-login",
     "width": 470,
-    "height": 154,
+    "height": 113,
     "alt": "WILLKOMMEN ZURÜCK"
   },
   "titleStarterPack": {
     "id": "title-starter-pack",
     "width": 210,
-    "height": 34,
+    "height": 23,
     "alt": "STARTER PACK"
   },
   "sloganInverse": {
     "id": "slogan-inverse",
     "width": 172,
-    "height": 10,
+    "height": 8,
     "alt": "WE TELL YOU WHAT TO EAT"
   },
   "titleSpots": {
     "id": "title-spots",
     "width": 290,
-    "height": 25,
+    "height": 17,
     "alt": "SCHON MAL REINSCHAUEN"
   }
 } as const satisfies Record<string, ArtAsset>;

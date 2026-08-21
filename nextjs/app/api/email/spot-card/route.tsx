@@ -31,7 +31,17 @@ export async function GET(request: Request) {
 
   // Satori knows no system fonts — the display face ships as a repo asset
   // (traced into the standalone build via outputFileTracingIncludes).
-  const { faces } = await loadBrandFont();
+  //
+  // ACHTUNG: FF Providence Sans Pro liegt bewusst NICHT im Repo (Desktop-Lizenz,
+  // siehe .gitignore). Auf dem Server steht deshalb nur die Ausweichschrift zur
+  // Verfügung — die Spot-Card-Namen setzen in Schoolbell, während die Headlines
+  // der Mail als lokal gerenderte PNGs in Providence kommen. Das ist ein
+  // sichtbarer Bruch. Saubere Auflösung: die Karten wie die Headlines lokal
+  // vorrendern und als Bilder ausliefern, statt sie hier zur Laufzeit zu bauen.
+  const { faces, isBrandFace } = await loadBrandFont();
+  if (!isBrandFace) {
+    console.warn('[spot-card] Markenschrift fehlt — gerendert wird mit der Ausweichschrift');
+  }
 
   const png = new ImageResponse(<SpotCardImage spot={spot} />, {
     width: SPOT_CARD_WIDTH,

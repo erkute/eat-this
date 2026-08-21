@@ -23,6 +23,7 @@ import { ImageResponse } from 'next/og';
 import sharp from 'sharp';
 import { createClient } from '@sanity/client';
 import { readdir, writeFile, mkdir, unlink } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import {
   SpotCardImage,
@@ -86,7 +87,7 @@ if (!isBrandFace) {
 
 await mkdir(OUT_DIR, { recursive: true });
 
-const rendered: { slug: string; name: string; meta: string }[] = [];
+const rendered: { slug: string; name: string; meta: string; version: string }[] = [];
 
 for (const spot of spots) {
   // Der Slug wird zum Dateinamen — auch wenn er aus Sanity kommt, nicht
@@ -111,7 +112,9 @@ for (const spot of spots) {
   await writeFile(join(OUT_DIR, `${spot.slug}.jpg`), jpeg);
 
   const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ');
-  rendered.push({ slug: spot.slug, name: spot.name, meta });
+  // Inhalts-Hash fuer die URL — siehe build-email-phones.mts.
+  const version = createHash('sha1').update(jpeg).digest('hex').slice(0, 8);
+  rendered.push({ slug: spot.slug, name: spot.name, meta, version });
   console.log(`  ${spot.slug}.jpg  ${Math.round(jpeg.length / 1024)} kB  —  ${spot.name}`);
 }
 
@@ -143,6 +146,8 @@ await writeFile(
     '  name: string;',
     '  /** „Bezirk · Küche" für den Alt-Text. */',
     '  meta: string;',
+    '  /** Inhalts-Hash; haengt als ?v= an der Bild-URL, sonst cacht Gmail ewig. */',
+    '  version: string;',
     '}',
     '',
     `/** Anzeigebreite in CSS-Pixeln; die JPEGs sind ${SPOT_CARD_WIDTH}×${SPOT_CARD_HEIGHT} (2x). */`,

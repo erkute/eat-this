@@ -356,21 +356,6 @@
 /* Läuft, kurz bevor /welcome hart auf die Home-Route wechselt: eine gelbe
    Fläche zieht von unten über den Bildschirm. Deckt die harte Navigation
    zwischen zwei Root-Layouts ab, die sonst als Weissblitz sichtbar wäre. */
-.curtain {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: var(--et-home-accent, #ffc600);
-  transform: translateY(100%);
-  animation: curtainUp 420ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
-}
-
-@keyframes curtainUp {
-  to {
-    transform: translateY(0);
-  }
-}
-
 @media (max-width: 420px) {
   .avatars {
     gap: 7px;
@@ -386,8 +371,7 @@
 @media (prefers-reduced-motion: reduce) {
   .frame,
   .mark,
-  .avatarActive::after,
-  .curtain {
+  .avatarActive::after {
     animation: none;
   }
   .avatar,
@@ -396,8 +380,5 @@
   }
   .mark {
     transform: scale(1);
-  }
-  .curtain {
-    transform: translateY(0);
   }
 }

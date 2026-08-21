@@ -45,5 +45,15 @@ export const LAYOUT = {
   radiusControl: 7,
 } as const;
 
+/**
+ * Haengt als ?v= an den Bildern unter public/pics/email, die KEIN Generator
+ * erzeugt (Logo, Starter-Pack-Artwork) und die daher keinen Inhalts-Hash im
+ * Manifest tragen. Bei jeder Aenderung an einer dieser Dateien hochzaehlen.
+ *
+ * Ohne Version liefert Gmails Bild-Proxy eine einmal geholte URL dauerhaft aus
+ * seinem Cache aus — eine ersetzte Datei erreicht den Empfaenger dann nie.
+ */
+export const EMAIL_ASSET_VERSION = '1';
+
 /** The yellow `hv-mk` square that precedes every section title on home. */
 export const MARKER_SIZE = 9;

@@ -19,6 +19,7 @@ import React from 'react';
 import { ImageResponse } from 'next/og';
 import sharp from 'sharp';
 import { writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { loadBrandFont, BRAND_FONT_NAME } from '../lib/email/brandFont.ts';
 import { COLOR } from '../emails/theme.ts';
@@ -189,6 +190,10 @@ async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBra
     width: Math.round((finalMeta.width ?? 0) / SCALE),
     height: Math.round((finalMeta.height ?? 0) / SCALE),
     alt: spec.lines.join(' '),
+    // Inhalts-Hash fuer die URL. Ohne ihn liefert Gmails Bild-Proxy eine einmal
+    // geholte URL dauerhaft aus seinem Cache — beim Wechsel von Schoolbell auf
+    // die echte Markenschrift haette jede aeltere Mail den Platzhalter behalten.
+    version: createHash('sha1').update(final).digest('hex').slice(0, 8),
   };
 }
 
@@ -205,7 +210,7 @@ if (!isBrandFace) {
 }
 
 await mkdir(OUT_DIR, { recursive: true });
-const manifest: Record<string, { width: number; height: number; alt: string }> = {};
+const manifest: Record<string, { width: number; height: number; alt: string; version: string }> = {};
 for (const spec of ART) {
   manifest[spec.id] = await renderOne(spec, faces);
   const { width, height } = manifest[spec.id];
@@ -230,6 +235,8 @@ await writeFile(
     '  height: number;',
     '  /** Volle Wortlaut-Fassung für Clients mit blockierten Bildern. */',
     '  alt: string;',
+    '  /** Inhalts-Hash; haengt als ?v= an der URL, sonst cacht Gmail ewig. */',
+    '  version: string;',
     '}',
     '',
     `export const ART = ${JSON.stringify(

@@ -14,7 +14,7 @@ import {
   Text,
 } from '@react-email/components';
 import { ART } from '../art.generated';
-import { BODY_FONT, COLOR, LAYOUT } from '../theme';
+import { BODY_FONT, COLOR, LAYOUT, EMAIL_ASSET_VERSION } from '../theme';
 
 interface ShellProps {
   /** Inbox preview line — the sentence under the subject. */
@@ -87,7 +87,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
           <Section style={{ backgroundColor: COLOR.ink, padding: '18px 0', textAlign: 'center' }}>
             <Link href={appUrl}>
               <Img
-                src={`${appUrl}/pics/email/eat-this-logo.png`}
+                src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
                 alt="Eat This"
                 width="122"
                 style={{
@@ -113,7 +113,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
             style={{ backgroundColor: COLOR.ink, padding: '34px 24px 30px', textAlign: 'center' }}
           >
             <Img
-              src={`${appUrl}/pics/email/eat-this-logo.png`}
+              src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
               alt="Eat This"
               width="150"
               style={{
@@ -127,7 +127,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
               }}
             />
             <Img
-              src={`${appUrl}/pics/email/${ART.sloganInverse.id}.png`}
+              src={`${appUrl}/pics/email/${ART.sloganInverse.id}.png?v=${ART.sloganInverse.version}`}
               alt={ART.sloganInverse.alt}
               width={ART.sloganInverse.width}
               style={{

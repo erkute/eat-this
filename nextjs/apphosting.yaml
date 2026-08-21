@@ -136,6 +136,18 @@ env:
     availability:
       - RUNTIME
 
+  # Salt for the daily-rotating visitor hash in /api/count (consent-free
+  # traffic counting). It is what stops the hash from being recomputable from
+  # an IP by anyone who knows the construction, so it must not be a `value:`.
+  # Rotating it on purpose is harmless: it only resets today's unique-visitor
+  # dedupe. lib/analytics/visitorHash.ts throws in production without it,
+  # rather than falling back to the public dev constant. Set with:
+  #   firebase apphosting:secrets:set COUNT_SALT
+  - variable: COUNT_SALT
+    secret: COUNT_SALT
+    availability:
+      - RUNTIME
+
   # Stripe (one-time payments for category packs + all-berlin bundle).
   # Production uses LIVE-mode secrets here. The staging backend has its own
   # App Hosting env/secrets with TEST-mode Stripe values and different price

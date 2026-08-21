@@ -84,6 +84,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Consent-free traffic counters, written only by /api/count through the
+    // Admin SDK. Read is denied too, not just write: analytics_seen holds the
+    // day's salted visitor hashes, and a readable list of them would turn a
+    // per-day pseudonym into a lookup table anyone could test an IP against.
+    // The dashboard reads these server-side behind the ADMIN_EMAILS allowlist.
+    match /analytics_daily/{day} {
+      allow read, write: if false;
+    }
+    match /analytics_seen/{hash} {
+      allow read, write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

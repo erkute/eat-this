@@ -42,7 +42,6 @@ export default function NotFound() {
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
       </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#fff' }}>
         <ClientIntlProvider locale="de" messages={translations.de}>

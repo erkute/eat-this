@@ -69,28 +69,48 @@ const PHONES: Phone[] = [
 const SRC_DIR = join(process.cwd(), 'public', 'pics', 'home-phones');
 const OUT_DIR = join(process.cwd(), 'public', 'pics', 'email');
 
-/** Gedrehtes Telefon plus weicher Schlagschatten, beides mit Alpha. */
+/** Gedrehtes Telefon, freigestellt. */
 async function renderPhone(p: Phone) {
   const targetH = Math.round(CANVAS_H * p.heightPct);
-  const rotated = await sharp(join(SRC_DIR, `${p.file}.webp`))
+  const { data, info } = await sharp(join(SRC_DIR, `${p.file}.webp`))
     .resize({ height: targetH })
     .rotate(p.rotate, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer({ resolveWithObject: true });
+  return { body: data, width: info.width, height: info.height };
+}
 
-  // Schatten: dieselbe Silhouette, schwarz, weichgezeichnet. sharp kann kein
-  // drop-shadow, aber die Alphamaske des gedrehten Bildes reicht dafür.
-  const { width, height } = rotated.info;
-  const alpha = await sharp(rotated.data).extractChannel('alpha').toBuffer();
-  const shadow = await sharp({
-    create: { width, height, channels: 3, background: { r: 21, g: 18, b: 14 } },
+/**
+ * Schlagschatten in voller Leinwandgroesse.
+ *
+ * Zwei Fallstricke, beide schon einmal als hartkantiges graues Rechteck
+ * sichtbar gewesen:
+ *
+ *  * `composite({ opacity })` legt die Deckkraft ueber die GANZE Kachel, auch
+ *    ueber deren transparente Flaeche. Die Deckkraft gehoert deshalb in den
+ *    Alphakanal (`linear`), nicht ans Compositing.
+ *  * Weichzeichnen kann nicht ueber den Bildrand hinaus. Wird der Schatten in
+ *    der Kachelgroesse des Telefons gebaut, bricht er an deren Kante hart ab.
+ *    Auf der Leinwand gebaut, hat er ueberall Platz zum Auslaufen.
+ */
+async function renderShadow(body: Buffer, left: number, top: number, p: Phone) {
+  const sigma = p.shadow.blur * SCALE * 0.5;
+  const mask = await sharp({
+    create: { width: CANVAS_W, height: CANVAS_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
   })
-    .joinChannel(alpha)
-    .blur(p.shadow.blur * SCALE * 0.5)
+    .composite([{ input: body, left, top: top + p.shadow.dy * SCALE }])
+    .png()
+    .toBuffer()
+    .then((full) =>
+      sharp(full).extractChannel('alpha').blur(sigma).linear(p.shadow.opacity, 0).toBuffer()
+    );
+
+  return sharp({
+    create: { width: CANVAS_W, height: CANVAS_H, channels: 3, background: { r: 21, g: 18, b: 14 } },
+  })
+    .joinChannel(mask)
     .png()
     .toBuffer();
-
-  return { body: rotated.data, shadow, width, height };
 }
 
 function place(anchor: Phone['anchor'], w: number, h: number) {
@@ -103,12 +123,9 @@ function place(anchor: Phone['anchor'], w: number, h: number) {
 
 const layers: OverlayOptions[] = [];
 for (const p of PHONES) {
-  const { body, shadow, width, height } = await renderPhone(p);
+  const { body, width, height } = await renderPhone(p);
   const { left, top } = place(p.anchor, width, height);
-  // Schatten sitzt um dy tiefer und wird nach unten hin abgeschnitten, falls er
-  // über die Leinwand hinausragt — `composite` verlangt Offsets im Bild.
-  const shadowTop = Math.min(top + p.shadow.dy * SCALE, CANVAS_H - 1);
-  layers.push({ input: shadow, left, top: shadowTop, opacity: p.shadow.opacity });
+  layers.push({ input: await renderShadow(body, left, top, p), left: 0, top: 0 });
   layers.push({ input: body, left, top });
 }
 

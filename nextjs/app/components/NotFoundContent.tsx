@@ -1,40 +1,75 @@
-import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import styles from '../not-found.module.css';
 
 type Locale = 'de' | 'en';
 
-interface NotFoundContentProps {
-  locale?: Locale;
-}
-
-const CARD_BACK = '/pics/card-back.webp?v=6';
-const REVEALED_CARDS = [
-  '/pics/not-found-cards/main-1.webp',
-  '/pics/not-found-cards/main-10.webp',
-  '/pics/not-found-cards/main-12.webp',
-] as const;
-
 const COPY = {
   de: {
-    headline: 'Nicht auf der Karte.',
-    sub: 'Der Link ist falsch abgebogen. Zurück zur Map, da liegt das gute Zeug.',
-    navMap: 'Map',
+    code: 'Fehler 404',
+    headline: 'Falsch abgebogen.',
+    sub: 'Diese Seite steht auf keiner Karte. Zurück zur Map — da liegt das gute Zeug.',
     primary: 'Zur Map',
     secondary: 'Must Eats',
     actionsLabel: 'Weiter',
+    moreLabel: 'Oder direkt',
+    more: [
+      { href: '/bezirk', label: 'Bezirke' },
+      { href: '/packs', label: 'Packs' },
+      { href: '/news', label: 'Magazin' },
+    ],
   },
   en: {
-    headline: 'Not on the map.',
-    sub: 'This link took a wrong turn. Head back to the map, that is where the good stuff lives.',
-    navMap: 'Map',
+    code: 'Error 404',
+    headline: 'Wrong turn.',
+    sub: "This page is not on any map. Head back — that is where the good stuff lives.",
     primary: 'Open map',
     secondary: 'Must Eats',
     actionsLabel: 'Continue',
+    moreLabel: 'Or try',
+    more: [
+      { href: '/bezirk', label: 'Districts' },
+      { href: '/packs', label: 'Packs' },
+      { href: '/news', label: 'Magazine' },
+    ],
   },
-} satisfies Record<Locale, Record<string, string>>;
+} satisfies Record<Locale, unknown>;
 
-export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps) {
+// A dropped pin at the end of a route that stops short — the wrong turn as
+// a picture. Inline so the 404 needs no image request and no Sanity data.
+function WrongTurn() {
+  return (
+    <svg
+      className={styles.art}
+      viewBox="0 0 268 150"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="14" cy="126" r="4.5" fill="#15120e" />
+      <path
+        d="M14 126C50 138 76 116 106 106c32-11 56-2 72 16"
+        stroke="#15120e"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray="7 9"
+      />
+      <ellipse cx="196" cy="123" rx="13" ry="3.5" fill="#15120e" opacity="0.16" />
+      <g transform="rotate(-9 196 118)">
+        <path
+          d="M196 118s28-26 28-44a28 28 0 1 0-56 0c0 18 28 44 28 44Z"
+          fill="#ffc600"
+          stroke="#15120e"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
+        <circle cx="196" cy="74" r="10" fill="#15120e" />
+      </g>
+    </svg>
+  );
+}
+
+export default function NotFoundContent({ locale = 'de' }: { locale?: Locale }) {
   const copy = COPY[locale];
 
   return (
@@ -45,10 +80,13 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
       aria-labelledby="not-found-title"
     >
       <section className={styles.hero} aria-labelledby="not-found-title">
+        <div className={styles.stage} aria-hidden="true" />
+
+        <WrongTurn />
+
         <div className={styles.copy}>
-          <div className={styles.codeBlock} aria-hidden="true">
-            <span>404</span>
-          </div>
+          <p className={styles.codeBlock}>{copy.code}</p>
+
           <h1 className={styles.title} id="not-found-title">
             {copy.headline}
           </h1>
@@ -65,39 +103,14 @@ export default function NotFoundContent({ locale = 'de' }: NotFoundContentProps)
           </div>
         </div>
 
-        <div className={styles.cardStage} aria-hidden="true">
-          <div className={`${styles.card} ${styles.cardBack}`}>
-            <Image
-              src={CARD_BACK}
-              alt=""
-              width={760}
-              height={1076}
-              sizes="(max-width: 390px) 102px, (max-width: 720px) 116px, 182px"
-              priority
-            />
-          </div>
-          {REVEALED_CARDS.map((src, index) => (
-            <div
-              className={`${styles.card} ${
-                index === 0
-                  ? styles.cardFrontOne
-                  : index === 1
-                    ? styles.cardFrontTwo
-                    : styles.cardFrontThree
-              }`}
-              key={src}
-            >
-              <Image
-                src={src}
-                alt=""
-                width={1539}
-                height={2115}
-                sizes="(max-width: 390px) 102px, (max-width: 720px) 116px, 182px"
-                priority={index === 0}
-              />
-            </div>
+        <nav className={styles.more} aria-label={copy.moreLabel}>
+          <p className={styles.moreLabel}>{copy.moreLabel}</p>
+          {copy.more.map((item) => (
+            <Link key={item.href} href={item.href} className={styles.moreLink}>
+              {item.label}
+            </Link>
           ))}
-        </div>
+        </nav>
       </section>
     </main>
   );

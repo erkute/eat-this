@@ -8,7 +8,7 @@ import { useAuth, useMagicLink } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
-import styles from '@/app/[locale]/login/login.module.css';
+import styles from './LoginPanel.module.css';
 
 const SIGNIN_BOOSTER_PACKS = [
   '/pics/booster/booster_pizza.webp',
@@ -18,11 +18,13 @@ const SIGNIN_BOOSTER_PACKS = [
 
 interface LoginPanelProps {
   onBack: () => void;
-  modal?: boolean;
   mode?: 'starter' | 'signin';
 }
 
-export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: LoginPanelProps) {
+// One shape only. The standalone /login route that rendered a second, older
+// full-page variant of this panel is gone — nothing linked to it, and it had
+// drifted a redesign behind the modal everyone actually sees.
+export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps) {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
@@ -40,11 +42,8 @@ export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: 
   const emailInputId = useId();
 
   useEffect(() => {
-    trackEvent('login_view', {
-      surface: modal ? 'modal' : 'page',
-      context: 'general',
-    });
-  }, [modal]);
+    trackEvent('login_view', { surface: 'modal', context: 'general' });
+  }, []);
 
   useEffect(() => {
     if (!user || authMethod.current !== 'google') return;
@@ -54,22 +53,6 @@ export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: 
     const event = Math.abs(signedIn - created) < 10_000 ? 'sign_up' : 'login';
     trackEvent(event, { method: 'google' });
   }, [user]);
-
-  // Redirect to the home hub after sign-in on the standalone /login page. In the
-  // modal, BridgeAuth owns this redirect (it controls the modal lifecycle), so
-  // skip it here to avoid a double-navigation.
-  useEffect(() => {
-    if (loading || !user || modal) return;
-    try {
-      sessionStorage.setItem(
-        TOAST_HANDOFF_KEY,
-        locale === 'de' ? 'Du bist angemeldet' : "You're signed in"
-      );
-    } catch {
-      /* private mode */
-    }
-    router.replace('/');
-  }, [user, loading, modal, router, locale]);
 
   const handleGoogle = useCallback(async () => {
     authMethod.current = 'google';
@@ -92,11 +75,7 @@ export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: 
   const sendLinkKey = signinMode ? 'modals.login.signinSendLinkBtn' : 'modals.login.sendLinkBtn';
   const googleKey = signinMode ? 'modals.login.signinGoogleBtn' : 'modals.login.googleBtn';
   const legalLeadKey = signinMode ? 'modals.login.signinLegalLead' : 'modals.login.legalLead';
-  const frameClassName = [
-    styles.frame,
-    modal ? styles.frameModal : '',
-    sent ? styles.frameSent : '',
-  ]
+  const frameClassName = [styles.frame, styles.frameModal, sent ? styles.frameSent : '']
     .filter(Boolean)
     .join(' ');
 
@@ -204,7 +183,7 @@ export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: 
             </section>
           </div>
         </>
-      ) : modal ? (
+      ) : (
         <div className={`${styles.modalSimple} ${signinMode ? styles.modalSimpleSignin : ''}`}>
           {!signinMode && (
             <section className={styles.modalBenefits} aria-label={t('modals.login.heroSub')}>
@@ -333,128 +312,6 @@ export default function LoginPanel({ onBack, modal = false, mode = 'starter' }: 
 
             <p className={styles.legal}>
               {t(legalLeadKey)}{' '}
-              <a className={styles.legalLink} href={agbHref}>
-                {t('modals.login.termsLink')}
-              </a>{' '}
-              {t('modals.login.legalAnd')}{' '}
-              <a className={styles.legalLink} href={dsHref}>
-                {t('modals.login.privacyLink')}
-              </a>
-              .
-            </p>
-          </section>
-        </div>
-      ) : (
-        <div className={styles.loginGrid}>
-          <section className={styles.coverPanel} aria-labelledby="login-panel-title">
-            <div className={styles.menuTop} aria-hidden="true">
-              <span>EAT THIS</span>
-              <span>{t('modals.login.menuTitle')}</span>
-            </div>
-            <h1 id="login-panel-title" className={styles.h1}>
-              {t('modals.login.heroH1')}
-            </h1>
-            <div className={styles.packHero} aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/pics/booster/booster_free.webp"
-                alt=""
-                loading="eager"
-                decoding="sync"
-                fetchPriority="high"
-              />
-            </div>
-          </section>
-
-          <section className={styles.formPanel}>
-            <ul className={styles.menuList} aria-hidden="true">
-              <li>
-                <span>{t('modals.login.menuSpotsLabel')}</span>
-                <strong>{t('modals.login.menuSpotsText')}</strong>
-              </li>
-              <li>
-                <span>{t('modals.login.menuMustEatsLabel')}</span>
-                <strong>{t('modals.login.menuMustEatsText')}</strong>
-              </li>
-              <li>
-                <span>{t('modals.login.menuProfileLabel')}</span>
-                <strong>{t('modals.login.menuProfileText')}</strong>
-              </li>
-            </ul>
-            <p className={styles.sub}>{t('modals.login.heroSub')}</p>
-
-            <form
-              className={styles.form}
-              noValidate
-              onSubmit={(e) => {
-                e.preventDefault();
-                sendLink(email);
-              }}
-            >
-              <input
-                className={styles.input}
-                type="email"
-                placeholder={t('modals.login.emailPlaceholder')}
-                required
-                autoComplete="email"
-                aria-label="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {magicState === 'error' && <p className={styles.error}>{magicError}</p>}
-              <button
-                type="submit"
-                className={styles.ctaPrimary}
-                disabled={magicState === 'sending'}
-              >
-                <span>{t('modals.login.sendLinkBtn')}</span>
-                <svg
-                  viewBox="0 0 24 24"
-                  width={18}
-                  height={18}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
-            </form>
-
-            <div className={styles.or}>
-              <span>{t('modals.login.dividerOr')}</span>
-            </div>
-
-            <button
-              type="button"
-              className={styles.ctaGoogle}
-              onClick={handleGoogle}
-              disabled={googleBusy}
-            >
-              <svg viewBox="0 0 24 24" width={18} height={18} aria-hidden="true">
-                <path
-                  fill="#4285F4"
-                  d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.75 3.28-8.09Z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.24 1.05-3.72 1.05-2.86 0-5.29-1.93-6.15-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.85 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.35-2.1V7.06H2.18a11 11 0 0 0 0 9.88l3.67-2.84Z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.07.56 4.21 1.64l3.16-3.16C17.45 2.1 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.67 2.84C6.71 7.31 9.14 5.38 12 5.38Z"
-                />
-              </svg>
-              <span>{t('modals.login.googleBtn')}</span>
-            </button>
-
-            <p className={styles.legal}>
-              {t('modals.login.legalLead')}{' '}
               <a className={styles.legalLink} href={agbHref}>
                 {t('modals.login.termsLink')}
               </a>{' '}

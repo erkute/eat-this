@@ -8,14 +8,6 @@
   color: var(--login-ink);
 }
 
-.page {
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  background: var(--login-paper);
-}
-
 .frame {
   position: relative;
   width: min(1100px, calc(100vw - 28px));
@@ -71,58 +63,6 @@
   height: 100%;
   min-height: 0;
   background: var(--login-ink);
-}
-
-.coverPanel {
-  position: relative;
-  display: grid;
-  gap: 22px;
-  min-width: 0;
-  overflow: visible;
-  padding: clamp(26px, 3vw, 38px);
-  color: var(--login-ink);
-  background: var(--login-red);
-}
-
-.menuTop span:first-child {
-  margin: 0;
-  padding-right: 52px;
-  padding-bottom: 10px;
-  border-bottom: 4px solid var(--login-ink);
-  font-family: var(--et-font-condensed);
-  font-size: clamp(58px, 6vw, 84px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.78;
-  text-transform: uppercase;
-}
-
-.menuTop span:last-child {
-  color: var(--login-ink);
-  font-family: var(--et-font-mono);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  line-height: 1.1;
-  text-transform: uppercase;
-}
-
-.packHero {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  overflow: visible;
-}
-
-.packHero img {
-  display: block;
-  width: auto;
-  max-width: min(92%, 380px);
-  height: auto;
-  max-height: min(calc(100% - 8px), clamp(300px, 25vw, 360px));
-  object-fit: contain;
-  transform: none;
 }
 
 .modalLogin,
@@ -263,65 +203,6 @@
   text-transform: uppercase;
 }
 
-.loginGrid {
-  min-height: min(700px, calc(100svh - 36px));
-  border: 6px solid var(--login-ink);
-}
-
-.menuTop {
-  display: grid;
-  gap: 14px;
-}
-
-.menuTop span:last-child {
-  display: block;
-}
-
-.h1 {
-  margin: 0;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(68px, 9vw, 124px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.8;
-  text-transform: uppercase;
-}
-
-.coverPanel {
-  grid-template-rows: auto auto minmax(0, 1fr);
-}
-
-.coverPanel .h1 {
-  max-width: 7ch;
-}
-
-.packHero {
-  padding-top: 10px;
-}
-
-.formPanel {
-  gap: 18px;
-}
-
-.menuList {
-  display: grid;
-  gap: 0;
-  width: var(--login-control);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 2px solid var(--login-ink);
-}
-
-.menuList li {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 12px;
-  align-items: baseline;
-  min-height: 42px;
-  border-bottom: 2px solid var(--login-ink);
-}
-
 .menuList span,
 .menuList strong,
 .toLabel {
@@ -333,19 +214,9 @@
   text-transform: uppercase;
 }
 
-.menuList strong {
-  text-align: right;
-}
-
 .frameSent {
   display: grid;
   justify-items: center;
-}
-
-.frameSent .h1 {
-  max-width: 9ch;
-  margin-bottom: 14px;
-  font-size: clamp(56px, 10vw, 92px);
 }
 
 .toBlock,
@@ -449,25 +320,6 @@
     grid-template-rows: minmax(300px, 50%) minmax(0, 1fr);
   }
 
-  .coverPanel {
-    padding: 14px;
-  }
-
-  .menuTop span:first-child {
-    padding-right: 52px;
-    padding-bottom: 7px;
-    border-bottom-width: 3px;
-    font-size: clamp(38px, 11vw, 48px);
-  }
-
-  .packHero {
-    padding-top: 28px;
-  }
-
-  .packHero img {
-    max-height: min(calc(100% - 8px), clamp(210px, 31svh, 270px));
-  }
-
   .modalLogin,
   .formPanel {
     align-content: center;
@@ -487,10 +339,6 @@
   .modalSimple,
   .loginGrid {
     grid-template-rows: minmax(240px, 43%) minmax(0, 1fr);
-  }
-
-  .packHero img {
-    max-height: min(calc(100% - 8px), clamp(150px, 24svh, 180px));
   }
 
   .input,
@@ -515,10 +363,9 @@
     font-size: 9px;
     line-height: 1.18;
   }
-}
-
-/* Shared modal foundations. Visual values live in the current layer below;
+} /* Shared modal foundations. Visual values live in the current layer below;
    this block only owns layout and typography that all modal modes share. */
+
 .frameModal {
   height: auto;
   overflow: hidden;
@@ -736,9 +583,8 @@
   .frameModal .legal {
     font-size: 10px;
   }
-}
+} /* Burger-menu aligned modal: one ink sheet, one product image, one yellow action. */
 
-/* Burger-menu aligned modal: one ink sheet, one product image, one yellow action. */
 .frameModal {
   --login-paper: var(--home-ink, #15120e);
   --login-ink: #fff;

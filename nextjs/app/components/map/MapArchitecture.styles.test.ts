@@ -184,24 +184,14 @@ describe('Map CSS architecture', () => {
         '--detail-map-peek': '50dvh',
       }),
     ]);
-    /* The resting stop is 28dvh plus whatever the cookie banner currently
-     * occupies — it is fixed to the bottom of the viewport, i.e. straight over
-     * the resting sheet, and hid the entire filter chip row on first load.
-     *
-     * Pin the BASE, not the whole expression: 28 is the number that has to stay
-     * in step with LIST_REST_VISIBLE_DVH in phoneSheetSnaps.ts. The banner term
-     * is additive and collapses to 0 when no banner is up.
+    /* 28 is the number that has to stay in step with LIST_REST_VISIBLE_DVH in
+     * phoneSheetSnaps.ts. Nothing is added to it: the cookie banner used to be
+     * fixed over this exact edge and the sheet had to lift itself clear of it,
+     * but consent is a blocking dialog on a scrim now and owns none of it.
      */
     const rest = shellRules[0]['--phone-list-sheet-visible'];
     expect(rest, 'the phone sheet lost its resting stop').toBeDefined();
-    expect(
-      rest.startsWith('calc(28dvh'),
-      `the resting stop must still be based on 28dvh (= LIST_REST_VISIBLE_DVH). Got: ${rest}`
-    ).toBe(true);
-    expect(
-      rest.includes('--consent-bar-h'),
-      `the sheet no longer clears the cookie banner — the filter chips will sit behind it on first load. Got: ${rest}`
-    ).toBe(true);
+    expect(rest, 'the resting stop must stay at 28dvh (= LIST_REST_VISIBLE_DVH)').toBe('28dvh');
     expect(listRules).toEqual([
       expect.objectContaining({
         'margin-top': 'calc(0px - var(--phone-list-sheet-visible, 28dvh))',

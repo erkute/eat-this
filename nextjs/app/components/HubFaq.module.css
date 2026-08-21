@@ -1,6 +1,9 @@
+/* No margin-top: this outranked the home page's shared section rhythm and left
+   the FAQ sitting roughly half as far from Remy as every other pair of
+   sections. The bottom margin stays — nothing else carries the gap to the
+   footer. */
 .section:global(.hv-section.hv-wrap) {
-  margin-top: clamp(28px, 3.5vw, 44px);
-  margin-bottom: clamp(44px, 6vw, 76px);
+  margin-bottom: var(--home-section-gap);
 }
 
 .list {

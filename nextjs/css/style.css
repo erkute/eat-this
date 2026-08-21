@@ -59,59 +59,96 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-/* Cookie Consent — system bottom sheet.
-   Entry remains pure translate — no opacity fade (brand motion rule). */
-.cookie-consent {
-  --cookie-pad-x: max(clamp(16px, 4vw, 48px), env(safe-area-inset-left, 0px));
-  --cookie-pad-r: max(clamp(16px, 4vw, 48px), env(safe-area-inset-right, 0px));
-  --cookie-panel-w: 1120px;
-  --cookie-gap: clamp(14px, 2vw, 24px);
+/* Consent gate — a blocking dialog, not a bottom bar.
+   The bar this replaced sat on the bottom edge, paper-white on a paper-white
+   page, and could be ignored indefinitely; almost nobody ever answered, and an
+   unanswered question counts as a refusal. Now: a scrim, a centred ink card,
+   and no way past it except one of the two answers.
+
+   Both answers are the same size, the same type and the same weight — only the
+   fill differs. Forcing the decision is legal; nudging the answer is not, so
+   do not make "decline" quieter than "accept".
+
+   Motion is translate/scale only (brand rule: no opacity fades on brand
+   surfaces). The scrim transitions its background-COLOR rather than opacity —
+   it is a veil over the page, not a surface of its own. */
+.cookie-gate {
+  --cookie-panel-w: 560px;
+  --cookie-panel-w-wide: 940px;
+  --cookie-on-ink: rgba(255, 255, 255, .72);
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: auto;
-  margin: 0;
-  padding:
-    clamp(18px, 2.4vw, 26px)
-    var(--cookie-pad-r)
-    calc(clamp(14px, 2vw, 20px) + env(safe-area-inset-bottom, 0px))
-    var(--cookie-pad-x);
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-paper, #fff);
-  border: 0;
-  border-radius: 0;
-  box-shadow: 0 -14px 38px rgba(21, 18, 14, .12);
+  inset: 0;
   z-index: 10002;
-  transform: translateY(calc(100% + 36px));
-  transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
+  display: grid;
+  /* A definite track, not `auto`: the card's width is a percentage, and against
+     an auto track that percentage resolves back against the card's own content
+     — so `.expanded` could never widen it. */
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding:
+    max(16px, env(safe-area-inset-top, 0px))
+    max(16px, env(safe-area-inset-right, 0px))
+    max(16px, env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-left, 0px));
 }
-.cookie-consent::before {
-  content: none;
+.cookie-scrim {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(21, 18, 14, 0);
+  /* Stops iOS Safari scrolling the page underneath; the overflow lock behind
+     [data-consent-gate='open'] covers every other browser. */
+  touch-action: none;
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.cookie-consent.show {
-  transform: translateY(0);
+.cookie-gate.show .cookie-scrim {
+  background-color: rgba(21, 18, 14, .62);
+}
+.cookie-consent {
+  position: relative;
+  width: min(100%, var(--cookie-panel-w));
+  max-height: min(88dvh, 780px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: clamp(22px, 3vw, 34px);
+  color: var(--et-home-paper, #fff);
+  background: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: var(--et-radius-photo, 10px);
+  box-shadow: 0 30px 70px rgba(21, 18, 14, .45);
+  transform: translateY(22px) scale(.97);
+  transition:
+    transform 0.46s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+.cookie-consent.expanded {
+  width: min(100%, var(--cookie-panel-w-wide));
+}
+.cookie-gate.show .cookie-consent {
+  transform: translateY(0) scale(1);
+}
+.cookie-consent:focus,
+.cookie-consent:focus-visible {
+  outline: none;
 }
 .cookie-content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(230px, auto);
-  align-items: center;
-  gap: var(--cookie-gap);
-  width: min(100%, var(--cookie-panel-w));
-  margin-inline: auto;
+  gap: clamp(16px, 2.2vw, 22px);
+  width: 100%;
 }
 .cookie-copy {
   display: grid;
-  grid-template-columns: 10px minmax(0, 1fr);
-  column-gap: 12px;
+  grid-template-columns: 12px minmax(0, 1fr);
+  column-gap: 13px;
   row-gap: 0;
   min-width: 0;
   align-items: start;
 }
 .cookie-mark {
-  width: 10px;
-  height: 10px;
-  margin-top: .28em;
+  width: 12px;
+  height: 12px;
+  margin-top: .3em;
   background: var(--et-home-red, #d9382a);
 }
 .cookie-copy-main {
@@ -119,9 +156,9 @@ body {
 }
 .cookie-title {
   margin: 0;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(25px, 2.8vw, 34px);
+  font-size: clamp(30px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title, 0);
   line-height: .9;
@@ -129,54 +166,56 @@ body {
   text-wrap: balance;
 }
 .cookie-text {
-  max-width: 62ch;
-  margin: 6px 0 0;
-  color: var(--et-home-muted, rgba(21, 18, 14, .62));
+  max-width: 54ch;
+  margin: 10px 0 0;
+  color: var(--cookie-on-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(13px, 1.05vw, 15px);
+  font-size: clamp(14px, 1.05vw, 16px);
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 .cookie-info-trigger {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 9px;
+  margin-top: 12px;
   padding: 0 0 2px;
   cursor: pointer;
+  background: none;
+  border: 0;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
-  text-decoration-color: var(--et-home-red, #d9382a);
+  text-decoration-color: var(--et-home-accent, #ffc600);
   text-transform: none;
 }
 .cookie-info-trigger:hover,
 .cookie-info-trigger:focus-visible {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-home-accent, #ffc600);
 }
+/* Two equal answers. Same box, same type — the fills differ, nothing else. */
 .cookie-buttons {
   display: grid;
-  grid-template-columns: repeat(2, minmax(104px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   align-items: stretch;
-  justify-self: end;
-  width: min(100%, 260px);
+  width: 100%;
 }
 .cookie-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 14px;
+  min-height: 52px;
+  padding: 0 16px;
   border: 0;
   border-radius: var(--et-radius-control, 7px);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -200,67 +239,88 @@ body {
 }
 .cookie-btn-decline {
   color: var(--et-home-ink, #15120e);
-  background: var(--et-home-quiet, #f2f1ef);
+  background: var(--et-home-paper, #fff);
 }
 .cookie-btn-decline:hover,
 .cookie-btn-decline:focus-visible {
-  color: var(--et-home-red, #d9382a);
-  background: color-mix(in srgb, var(--et-home-red, #d9382a) 10%, var(--et-home-paper, #fff));
+  color: var(--et-home-ink, #15120e);
+  background: var(--et-home-quiet, #f2f1ef);
+  transform: translateY(-1px);
 }
 .cookie-btn-decline:active {
-  transform: translateY(1px);
+  transform: translateY(0);
+}
+.cookie-legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: -6px;
+  color: rgba(255, 255, 255, .45);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 13px;
+}
+.cookie-legal a {
+  color: var(--cookie-on-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.cookie-legal a:hover,
+.cookie-legal a:focus-visible {
+  color: var(--et-home-accent, #ffc600);
 }
 @media (max-width: 640px) {
-  .cookie-consent {
-    --cookie-pad-x: max(14px, env(safe-area-inset-left, 0px));
-    --cookie-pad-r: max(14px, env(safe-area-inset-right, 0px));
-    max-height: calc(100dvh - 12px);
+  /* Bottom-anchored on phones so both answers sit in the thumb zone — but
+     inset on every side, so the scrim frames it as a dialog and it can never
+     be mistaken for the page's own footer. */
+  .cookie-gate {
+    align-items: end;
     padding:
       16px
-      var(--cookie-pad-r)
+      max(12px, env(safe-area-inset-right, 0px))
       calc(12px + env(safe-area-inset-bottom, 0px))
-      var(--cookie-pad-x);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
+      max(12px, env(safe-area-inset-left, 0px));
+  }
+  .cookie-consent {
+    width: 100%;
+    max-height: calc(100dvh - 28px - env(safe-area-inset-bottom, 0px));
+    padding: 20px 18px;
+  }
+  .cookie-consent.expanded {
+    width: 100%;
   }
   .cookie-content {
-    grid-template-columns: 1fr;
-    align-items: start;
-    gap: 12px;
+    gap: 16px;
   }
   .cookie-copy {
-    grid-template-columns: 9px minmax(0, 1fr);
-    column-gap: 10px;
+    grid-template-columns: 10px minmax(0, 1fr);
+    column-gap: 11px;
   }
   .cookie-mark {
-    width: 9px;
-    height: 9px;
+    width: 10px;
+    height: 10px;
   }
   .cookie-title {
-    font-size: clamp(23px, 7vw, 28px);
+    font-size: clamp(27px, 8vw, 34px);
     line-height: .92;
   }
   .cookie-text {
-    margin-top: 5px;
-    font-size: 13px;
-    line-height: 1.34;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.4;
   }
   .cookie-info-trigger {
-    margin-top: 8px;
-    font-size: 13px;
+    margin-top: 10px;
+    font-size: 14px;
   }
   .cookie-buttons {
-    min-width: 0;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 8px;
   }
   .cookie-btn {
-    min-height: 44px;
-    padding-inline: 10px;
-    font-size: 14px;
+    min-height: 50px;
+    font-size: 16px;
   }
 }
 /* Prevent browser scroll-anchoring from holding position when content swaps */
@@ -372,39 +432,39 @@ body {
   transform: rotate(180deg);
 }
 .cookie-expand {
-  width: min(100%, var(--cookie-panel-w));
-  margin: clamp(14px, 2vw, 18px) auto 0;
+  width: 100%;
+  margin: 0;
   padding: 0;
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  max-height: min(36dvh, 300px);
+  max-height: min(46dvh, 420px);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: rgba(21, 18, 14, .32) transparent;
+  scrollbar-color: rgba(255, 255, 255, .3) transparent;
   scrollbar-width: thin;
 }
 /* Each section sits in its own card inside .cookie-info-body — give them
    strong separation so heading↔text grouping is obvious. */
 .cookie-expand .cookie-info-body {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   align-items: start;
   gap: 8px;
 }
 .cookie-info-card {
   min-width: 0;
   padding: 13px;
-  background: var(--et-home-quiet, #f2f1ef);
+  background: rgba(255, 255, 255, .07);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
   margin: 0;
 }
 .cookie-expand .cookie-info-body h3 {
   margin: 0 0 6px;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(17px, 1.5vw, 20px);
   font-weight: 700;
@@ -415,7 +475,7 @@ body {
 }
 .cookie-expand .cookie-info-body p {
   margin: 0;
-  color: var(--et-home-muted, rgba(21, 18, 14, .62));
+  color: var(--cookie-on-ink, rgba(255, 255, 255, .72));
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: 13px;
   font-weight: 400;
@@ -429,7 +489,7 @@ body {
 .cookie-expand .cookie-info-body ul li {
   position: relative;
   padding-left: 13px;
-  color: var(--et-home-muted, rgba(21, 18, 14, .62));
+  color: var(--cookie-on-ink, rgba(255, 255, 255, .72));
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: 13px;
   font-weight: 400;
@@ -444,14 +504,14 @@ body {
   top: .7em;
   width: 4px;
   height: 4px;
-  background: var(--et-home-red, #d9382a);
+  background: var(--et-home-accent, #ffc600);
 }
 .cookie-expand .cookie-info-body strong {
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   font-weight: 800;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-home-accent, #ffc600);
   font-weight: 800;
   text-decoration: underline;
   text-decoration-thickness: 2px;
@@ -459,8 +519,7 @@ body {
 }
 @media (max-width: 640px) {
   .cookie-expand {
-    margin-top: 12px;
-    max-height: min(40dvh, 330px);
+    max-height: min(34dvh, 300px);
     overflow-y: auto;
   }
   .cookie-expand .cookie-info-body {

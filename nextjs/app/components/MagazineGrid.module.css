@@ -3,11 +3,10 @@
   background: var(--et-home-paper);
   box-shadow: 0 0 0 100vmax var(--et-home-paper);
   clip-path: inset(0 -100vmax);
-}
-
-.section:global(.hv-wrap) {
-  padding-top: clamp(44px, 4.4vw, 62px);
-  padding-bottom: clamp(48px, 5vw, 72px);
+  /* No vertical padding of its own: the band is the same paper as the page, so
+     padding here read as nothing but extra gap on top of the section margin —
+     44-62px above and 48-72px below, which made this the one block on the home
+     page that floated further from its neighbours than every other. */
 }
 
 .section .head:global(.hv-head) {
@@ -184,11 +183,6 @@
 }
 
 @media (max-width: 760px) {
-  .section:global(.hv-wrap) {
-    padding-top: 28px;
-    padding-bottom: 54px;
-  }
-
   .section .head:global(.hv-head) {
     grid-template-columns: 1fr;
     align-items: start;

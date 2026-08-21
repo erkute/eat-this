@@ -1,20 +1,14 @@
 /**
  * Cookie consent state.
  *
- * Lives in a COOKIE, not localStorage, for one reason: the answer has to be
- * knowable before the first paint. The banner is `position: fixed` and its
- * height feeds `--consent-bar-h`, which the map subtracts from
- * `--phone-list-sheet-visible` so the bar cannot cover the filter row. While
- * the answer sat in localStorage it could only be read after hydration, so the
- * map laid out at the wrong height first and corrected 175px later — a single
- * layout shift worth CLS 0.108 on /map against a 0.10 budget, measured. A
- * cookie is readable synchronously in the pre-paint bootstrap (and server-side
- * if a route ever wants it), which is what lets the space be reserved up front.
+ * Lives in a COOKIE, not localStorage, so the answer is knowable synchronously
+ * — before hydration, and server-side if a route ever wants it. The consent
+ * gate is a blocking dialog, and reading the answer late would mean flashing
+ * it at people who already answered.
  *
  * Values are the same three the banner always used, so nothing downstream had
  * to learn a new vocabulary: 'accepted' | 'declined' | absent (undecided).
  */
-
 export const CONSENT_COOKIE = 'cookieConsent';
 
 /** Also the old localStorage key — read once for migration, never written. */
@@ -73,19 +67,4 @@ export function migrateLegacyConsent(): ConsentValue | null {
     // Keeping the stale key is harmless: the cookie now wins every read.
   }
   return legacy;
-}
-
-/**
- * Drop the pre-paint reservation once the banner is gone.
- *
- * The bootstrap sets `data-consent="pending"` before first paint, and the CSS
- * behind that attribute is what reserves the bar's height. It has to come off
- * when the user answers, or the map keeps a 175px gap for a bar that will
- * never appear again.
- */
-export function setConsentPendingAttribute(pending: boolean): void {
-  if (typeof document === 'undefined') return;
-  const root = document.documentElement;
-  if (pending) root.setAttribute('data-consent', 'pending');
-  else root.removeAttribute('data-consent');
 }

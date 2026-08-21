@@ -6,6 +6,8 @@ Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
 gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
 
+**Fortschritt:** Session A erledigt (PR #425) · B, C, D, E offen.
+
 ---
 
 ## 1. Vorgehen
@@ -17,22 +19,49 @@ braucht denselben Beleg danach noch einmal.
 
 ### Die sechs Messschnitte
 
-| # | Schnitt | Werkzeug | Was er beantwortet |
-|---|---------|----------|--------------------|
-| 1 | Repo-Hygiene | `git worktree list`, `git branch`, `du -sh` | Was liegt herum und kostet nichts als Platz? |
-| 2 | Build-Gesundheit | `npm run build:isolated`, `npx tsc --noEmit`, `npm test` | Ist das Deploy-Gate überhaupt grün? |
-| 3 | Toter Code | Skripte unten | Was ist geschrieben, aber nie ausgeliefert? |
-| 4 | Bundle | `.next-verify/app-build-manifest.json` + `gzip -c` | Was zahlt *jeder* Besucher, auf *jeder* Seite? |
-| 5 | Auslieferung | `curl -sI` gegen Produktion | Was passiert zwischen Cloud Run und Browser? |
-| 6 | Inhalt | `npx tsx scripts/content-lint.ts` | Wo fehlen Pflege-Felder? |
+| #   | Schnitt          | Werkzeug                                                  | Was er beantwortet                             |
+| --- | ---------------- | --------------------------------------------------------- | ---------------------------------------------- |
+| 1   | Repo-Hygiene     | `git worktree list`, `git branch`, `du -sh`               | Was liegt herum und kostet nichts als Platz?   |
+| 2   | Build-Gesundheit | `npm run build:isolated`, `npm run typecheck`, `npm test` | Ist das Deploy-Gate überhaupt grün?            |
+| 3   | Toter Code       | Skripte unten                                             | Was ist geschrieben, aber nie ausgeliefert?    |
+| 4   | Bundle           | `.next-verify/app-build-manifest.json` + `gzip -c`        | Was zahlt _jeder_ Besucher, auf _jeder_ Seite? |
+| 5   | Auslieferung     | `curl -sI` gegen Produktion                               | Was passiert zwischen Cloud Run und Browser?   |
+| 6   | Nutzererlebnis   | Lighthouse CI (siehe unten)                               | Wie fühlt sich das Ergebnis am Gerät an?       |
+| 7   | Inhalt           | `npx tsx scripts/content-lint.ts`                         | Wo fehlen Pflege-Felder?                       |
 
-Schnitt 4 und 5 sind die, die tatsächlich Ladezeit bewegen. Schnitt 3 bewegt
+Schnitt 4, 5 und 6 sind die, die tatsächlich Ladezeit bewegen. Schnitt 3 bewegt
 Wartbarkeit, nicht Performance — nicht verwechseln.
+
+### Schnitt 6 muss man nicht bauen — er läuft schon
+
+`.github/workflows/lighthouse.yml` misst bei jedem `main`-Push die **echten
+Produktions-URLs** dreimal durch, mit Schwellen aus `.lighthouserc.json`. Das
+ist die fertige Vorher-/Nachher-Messung für die Sessions B, C und D; niemand
+muss dafür etwas Neues aufsetzen. Ergebnisse holt man sich mit:
+
+```bash
+gh run list --workflow=lighthouse.yml --limit 5
+gh run view <id> --log | grep -A3 'warning for'
+```
+
+Zwei Dinge dabei im Kopf behalten: die Werte sind Lighthouse-Simulation mit
+gedrosseltem Mobilnetz, nicht gemessene Nutzer — und Performance ist dort nur
+`warn`, blockiert also nichts.
 
 ### Die Skripte
 
 Die Dead-Code-Analysen liegen bewusst nicht im Repo (Einmal-Werkzeug, kein
 Produktionscode). So werden sie reproduziert:
+
+**Vorher aber:** für CSS gibt es im Repo bereits das schärfere Werkzeug.
+`scripts/audit-css-cascade.mjs` findet Deklarationen, die eine spätere Regel
+überschreibt, und `scripts/cascade/` (README, Selbsttest, Playwright-Anbindung)
+macht aus so einem Verdacht einen Beweis — per Computed-Style-Sweep über
+Viewports × die 24 `[data-map-body]`-Zustände × jede Klasse eines Moduls, mit
+`prune.mjs` zum Entfernen. Meine Analyse unten arbeitet auf Klassen*namen*, die
+dort auf Deklarationen _innerhalb_ lebender Regeln. Für Session E ist das
+Repo-Werkzeug das bessere. (Es ist mir im ersten Durchgang entgangen, weil
+meine Scans über `.ts`/`.tsx` liefen und diese Dateien `.mjs`/`.js` sind.)
 
 **Tote CSS-Modul-Klassen.** Pro `*.module.css` die Klassenselektoren
 extrahieren, Kommentare / `@keyframes` / `:global(…)` vorher wegschneiden — sonst
@@ -102,7 +131,7 @@ Build sauber durch (Exit 0). Eine Gegenprobe mit einem `tsconfig` ohne
 **Fix:** `.next/types/**/*.ts` aus `include` nehmen. Next trägt für den jeweils
 aktiven Dist-Ordner selbst ein, was der Typecheck braucht; der zweite,
 inaktive Ordner ist per Definition veraltet. Danach beide Builds fahren
-(`build` *und* `build:isolated`), um zu zeigen, dass keiner Typinformation
+(`build` _und_ `build:isolated`), um zu zeigen, dass keiner Typinformation
 verliert.
 
 **Aufwand:** eine Zeile. **Risiko:** gering, aber Typecheck-Abdeckung nachweisen.
@@ -120,15 +149,31 @@ set-cookie: NEXT_LOCALE=de; Path=/; Max-Age=31536000
 `cdn-cache-status: miss` — bei jedem Abruf, auch beim zweiten hintereinander.
 Gemessene TTFB aus Berlin:
 
-| Seite | TTFB | Rendering |
-|---|---|---|
-| `/news/drei-doener-berlin` | 0,37 s | ISR, `revalidate = 3600` |
-| `/` | 0,48 s | `force-dynamic` |
-| `/map` | 0,49 s | `force-dynamic` |
-| `/must-eats` | 0,53 s | `force-dynamic` |
+| Seite                       | TTFB       | Rendering                         |
+| --------------------------- | ---------- | --------------------------------- |
+| `/news/drei-doener-berlin`  | 0,37 s     | ISR, `revalidate = 3600`          |
+| `/`                         | 0,48 s     | `force-dynamic`                   |
+| `/map`                      | 0,49 s     | `force-dynamic`                   |
+| `/must-eats`                | 0,53 s     | `force-dynamic`                   |
 | `/restaurant/cafe-botanico` | **0,97 s** | vorgerendert, `revalidate = 3600` |
 
 Die langsamste Seite ist die, die eigentlich fertig auf der Platte liegt.
+
+Der Lighthouse-CI-Lauf vom selben Tag (Run `32518436983`, drei Durchgänge je
+URL gegen Produktion) zeigt, was davon am Gerät ankommt:
+
+| URL                             | LCP     | Sonstiges                                   |
+| ------------------------------- | ------- | ------------------------------------------- |
+| `/`                             | 4383 ms | über der 4000-ms-Schwelle                   |
+| `/map`                          | 5588 ms | Performance-Score **0,48**, TBT **2619 ms** |
+| `/news`                         | 4463 ms |                                             |
+| `/en/guides/beste-pizza-berlin` | 4510 ms |                                             |
+| `/restaurant/engelbecken`       | —       | einzige Seite ohne Warnung                  |
+
+Vier von fünf gemessenen Seiten reißen die LCP-Schwelle. Das sind
+Lighthouse-Simulationswerte mit gedrosseltem Mobilnetz, keine echten Nutzer —
+aber sie decken sich mit beiden P1-Befunden: TTFB, den kein CDN abfängt, plus
+ein JS-Sockel, der auf `/map` 2,6 Sekunden blockiert.
 
 **Ursache:** [`middleware.ts:233`](nextjs/middleware.ts:233) setzt auf dem
 DE-Rewrite-Pfad — also bei praktisch jedem Seitenaufruf — `NEXT_LOCALE`. Eine
@@ -139,11 +184,11 @@ cachebar.
 `localeDetection: false`, next-intl liest ihn also gar nicht. Gelesen wird er
 nur von Client-Code (`app/welcome/page.tsx:37`, `lib/i18n/I18nContext.tsx:53`) —
 und `I18nContext` setzt ihn beim Sprachwechsel selbst. Die beiden anderen
-Stellen in der Middleware (`?lang=`-Redirect Zeile 166, `/de/…`-Redirect Zeile
-220) sind die, die ihn wirklich brauchen; die auf dem Rewrite-Pfad ist reine
+Stellen in der Middleware (`?lang=`-Redirect Zeile 166, `/de/…`-Redirect Zeile 220) sind die, die ihn wirklich brauchen; die auf dem Rewrite-Pfad ist reine
 Kosten.
 
 **Fix in zwei Schritten, nicht in einem:**
+
 1. Das `res.cookies.set` auf dem Rewrite-Pfad streichen. Danach prüfen, ob
    `cdn-cache-status` bei ISR-Seiten auf `hit` geht.
 2. Falls nicht: explizite `Cache-Control`/`CDN-Cache-Control` für die
@@ -182,7 +227,7 @@ auf 0. Was bleibt:
   nie auslösen. Bei der aktuellen Besucherzahl liefert das kaum verwertbare
   Daten.
 - Alternative statt Abschalten: Sentry erst nach `load` bzw. bei der ersten
-  Interaktion nachladen. Fehler *vor* dem Init gehen dann verloren — das ist
+  Interaktion nachladen. Fehler _vor_ dem Init gehen dann verloren — das ist
   die Abwägung, und sie ist eine Produktentscheidung, keine technische.
 
 **Aufwand:** klein bis mittel. **Risiko:** gering technisch, aber es ist bewusst
@@ -213,8 +258,8 @@ das Bild fertig. Next schickt es trotzdem durch den App-Hosting-Optimizer.
 
 Die Nachbarkomponenten machen es anders und begründen es im Code:
 
-> *„Deliberately bypass the App Hosting image proxy: Sanity serves the
-> responsive, format-negotiated variants directly."* — `HubSection.tsx`
+> _„Deliberately bypass the App Hosting image proxy: Sanity serves the
+> responsive, format-negotiated variants directly."_ — `HubSection.tsx`
 
 `HubSection`, `HubMustEatsTeaser`, `RestaurantList`, `bezirk/[slug]`,
 `kategorie/[slug]` nutzen alle `sanityImageLoader`/`sanitySrcSet`. `HubNearby`
@@ -234,7 +279,7 @@ teuren Weg aus.
 Sie werden korrekt genutzt (`guides/[slug]/page.tsx:39` baut
 `og_${categorySlug}.png` zusammen). CLAUDE.md nimmt OG-Bilder bewusst von der
 WebP-Regel aus — das ist richtig, viele Social-Crawler mögen kein WebP. Aber
-*PNG bleiben* heißt nicht *unkomprimiert bleiben*: verlustbehaftete
+_PNG bleiben_ heißt nicht _unkomprimiert bleiben_: verlustbehaftete
 PNG-Quantisierung (`pngquant`) holt hier typisch 60–70 % raus, ohne das Format
 zu wechseln.
 
@@ -255,10 +300,11 @@ korrektes `sizes`, der Browser lädt die passende Variante.
 
 `LoginPanel.tsx` sagt selbst:
 
-> *„The standalone /login route that rendered a second, older full-page variant
-> of this panel is gone."*
+> _„The standalone /login route that rendered a second, older full-page variant
+> of this panel is gone."_
 
 Zurückgeblieben sind:
+
 - `app/components/LoginModalOverlay.module.css` — Datei wird nirgends importiert
 - `LoginPanel.module.css`: `.page`, `.loginGrid`, `.formPanel`, `.form`,
   `.menuList` — nie referenziert
@@ -374,26 +420,35 @@ Freigabe, auch wenn alles gemergt ist.
 
 Jede Session ist für sich abschließbar und endet mit einem PR nach `staging`.
 
-**Session A — Gate reparieren, Platz schaffen** *(klein, kein Produktionsrisiko)*
-P0 `tsconfig`-Fix, Worktree- und Branch-Aufräumen, `.claude/worktrees/nextjs/`
-weg, CLAUDE.md-Korrekturen. Abschluss: `build` und `build:isolated` beide grün,
-`npx tsc --noEmit` sauber.
+**Session A — Gate reparieren, Platz schaffen** — ✅ **erledigt am 21.08.2026, PR #425**
+P0 behoben, aber anders als hier geplant: der Eintrag einfach aus `include` zu
+streichen hält nicht, weil Next ihn bei jedem Default-Build wieder einträgt
+(nachgemessen). Stattdessen eine tsconfig pro Dist-Dir —
+`tsconfig.verify.json` plus `typescript.tsconfigPath` in `next.config.ts`,
+gewählt über `NEXT_DIST_DIR`. Beide Builds bleiben voll typgeprüft. Der Beweis
+lief über einen künstlich rekonstruierten Stale-Eintrag: alte Konfiguration
+reproduziert `TS2307`, `build:isolated` und der neue `npm run typecheck` laufen
+durch, und der Pre-Push-Hook meldete beim echten Push `build clean`.
+Aufgeräumt: vier gemergte Worktrees und das Streuverzeichnis entfernt
+(6,9 GB → 2,0 GB), zwölf gemergte lokale Branches gelöscht. **Offen
+geblieben:** die zwölf gemergten Branches auf `origin` — löschen betrifft das
+geteilte Repo und war nicht freigegeben.
 
-**Session B — Auslieferung** *(größter Einzelgewinn, höchstes Risiko)*
+**Session B — Auslieferung** _(größter Einzelgewinn, höchstes Risiko)_
 P1 CDN-Caching. Cookie-Fix, dann messen, dann ggf. Cache-Header. Braucht
 Staging-Verifikation mit und ohne Session. Erfolgsmaß: `cdn-cache-status: hit`
 auf `/restaurant/*` und `/news/*`, TTFB dort unter 0,2 s.
 
-**Session C — JS-Sockel** *(Entscheidung vor Code)*
+**Session C — JS-Sockel** _(Entscheidung vor Code)_
 P1 Sentry. Zuerst die Produktfrage klären: wie viel Beobachtbarkeit ist die
 Ladezeit wert? Danach Tracing abschalten oder Sentry verzögert laden.
 Erfolgsmaß: „First Load JS shared by all" unter 100 kB.
 
-**Session D — Bilder und Daten** *(mittel, gut testbar)*
+**Session D — Bilder und Daten** _(mittel, gut testbar)_
 P2 `HubNearby`-Bildpfad, `<Image sizes>`, OG-PNGs quantisieren, `spotOfDay`-
 Query nach GROQ verlagern. Erfolgsmaß: Startseiten-Payload vorher/nachher.
 
-**Session E — Reste** *(klein, angenehm)*
+**Session E — Reste** _(klein, angenehm)_
 P3 `/login`-Überbleibsel, drei ungenutzte Assets, die fünf Content-Lint-Befunde
 in Sanity nachpflegen.
 
@@ -407,7 +462,7 @@ das CDN nichts hält.
 
 ```bash
 # Alles aus nextjs/
-npx tsc --noEmit                       # P0 sichtbar machen
+npm run typecheck                      # seit PR #425 immun gegen ein veraltetes .next
 npm run build:isolated                 # Bundle-Tabelle
 npm test                               # 1156 Tests
 npx tsx scripts/content-lint.ts        # Content-Befunde
@@ -415,6 +470,10 @@ npx tsx scripts/content-lint.ts        # Content-Befunde
 # Auslieferung (Produktion)
 curl -sI https://www.eatthisdot.com/restaurant/cafe-botanico \
   | grep -iE 'cache-control|set-cookie|cdn-cache-status'
+
+# Nutzererlebnis — die Messung läuft schon, Ergebnisse abholen
+gh run list --workflow=lighthouse.yml --limit 5
+gh run view <id> --log | grep -A3 'warning for'
 
 # Wie viele Routen laden den Sentry-Chunk
 node -e "const m=require('./.next-verify/app-build-manifest.json');

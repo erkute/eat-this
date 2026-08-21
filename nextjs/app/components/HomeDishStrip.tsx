@@ -5,6 +5,13 @@ import styles from './HomeDishStrip.module.css';
 // Freigestellte Gerichte (cutout dishes on transparent bg) — the brand's
 // signature discovery element. Each dish opens that spot on the map: every
 // clickable thing on the home page leads back to the product.
+//
+// Exactly six, and that count is load-bearing: on desktop they sit in one
+// six-column row that mirrors the Must Eats card row above (see
+// HomeDishStrip.module.css). Adding a seventh pushes it off-screen behind a
+// hidden scrollbar, so swap dishes here rather than append — and keep the dish
+// name short: at six columns a name has ~186px, and "Rinderschaufel" (199px)
+// was dropped for exactly that reason.
 const dishes = [
   {
     dish: 'Burger',
@@ -25,12 +32,6 @@ const dishes = [
     slug: 'sardinen-bar',
   },
   {
-    dish: 'Rinderschaufel',
-    restaurant: 'Schüsseldienst',
-    src: '/pics/home-dishes/rinderschaufel-print.webp',
-    slug: 'schuesseldienst',
-  },
-  {
     dish: 'Döner',
     restaurant: 'Uludag',
     src: '/pics/home-dishes/uludag-doener-print.webp',
@@ -47,12 +48,6 @@ const dishes = [
     restaurant: 'AERA',
     src: '/pics/home-dishes/grilled-cheese-print.webp',
     slug: 'aera',
-  },
-  {
-    dish: 'Pizza',
-    restaurant: 'The Grain',
-    src: '/pics/home-dishes/the-grain-pizza-print.webp',
-    slug: 'the-grain',
   },
 ];
 

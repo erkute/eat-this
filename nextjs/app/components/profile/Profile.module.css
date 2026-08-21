@@ -389,6 +389,28 @@ main.page .packs {
   gap: clamp(18px, 2.4vw, 32px);
 }
 
+/* Der hv-rail ist die Mobile-Form: gewischt, eine Karte nach der anderen.
+   Auf Desktop ist dieselbe Menge eine geschlossene, gleichrangige Liste, die
+   man am Stück überblicken will ("was hab ich, was fehlt mir") - und im Rail
+   laegen rund fuenf Packs hinter einer ausgeblendeten Scrollbar, ohne Pfeile
+   und ohne Anschnitt. Ab Tablet deshalb umbrechendes Grid statt Schublade. */
+@media (min-width: 761px) {
+  main.page .packs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(166px, 1fr));
+    overflow: visible;
+    scroll-snap-type: none;
+    justify-items: center;
+    padding-bottom: 0;
+  }
+
+  /* Karte fuellt ihre Spalte, bleibt aber bei der Rail-Breite gedeckelt. */
+  main.page .pack {
+    width: 100%;
+    max-width: 166px;
+  }
+}
+
 .pack {
   display: grid;
   grid-template-rows: 190px auto auto;

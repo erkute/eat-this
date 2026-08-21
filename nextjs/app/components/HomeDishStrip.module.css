@@ -1,6 +1,7 @@
-/* Embedded inside the Must Eats section — a single scrollable row, never a
-   multi-row grid: as a sub-element it must stay visually subordinate to the
-   card rail above it. */
+/* Embedded inside the Must Eats section — a single row, never a multi-row
+   grid: as a sub-element it must stay visually subordinate to the card rail
+   above it. Mobile scrolls that row; desktop lays the six dishes out as six
+   columns, matching the Must Eats row above, so nothing hides off-screen. */
 .embedded {
   margin-top: clamp(30px, 3.6vw, 48px);
 }
@@ -15,7 +16,7 @@
   line-height: 1;
 }
 
-/* Mobile: swipeable rail. Desktop: wraps into rows (grid). */
+/* Mobile: swipeable rail (see the min-width:761px block for the desktop grid). */
 .grid {
   display: flex;
   gap: 14px;
@@ -84,12 +85,22 @@
   color: var(--et-home-red);
 }
 
+/* Desktop: six real columns instead of a scroll container. The strip is a
+   fixed set of six, so a rail only ever hid the last three behind a scrollbar
+   that is display:none — no arrows, no cut-off card, nothing to scroll with a
+   mouse. overflow must go back to visible too, otherwise overflow-y computes
+   to auto and clips the cutouts' hover-lift at the top edge. */
 @media (min-width: 761px) {
   .grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: clamp(16px, 1.8vw, 30px);
+    overflow: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
   }
   .item {
-    width: clamp(150px, 13vw, 190px);
+    width: 100%;
   }
   .dishImg {
     height: clamp(150px, 12vw, 190px);

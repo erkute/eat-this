@@ -35,7 +35,7 @@ vi.mock('@/lib/i18n', () => ({
 }));
 
 import CookieConsent from './CookieConsent';
-import { CONSENT_COOKIE, readConsent } from '@/lib/consent';
+import { CONSENT_COOKIE, CONSENT_VERSION, readConsent } from '@/lib/consent';
 
 function clearCookies() {
   for (const part of document.cookie.split(';')) {
@@ -67,7 +67,7 @@ describe('CookieConsent', () => {
   });
 
   it.each(['accepted', 'declined'])('honours a %s choice already in the cookie', (choice) => {
-    document.cookie = `${CONSENT_COOKIE}=${choice}; Path=/`;
+    document.cookie = `${CONSENT_COOKIE}=${choice}.${CONSENT_VERSION}; Path=/`;
 
     render(<CookieConsent />);
 
@@ -76,18 +76,26 @@ describe('CookieConsent', () => {
     expect(analytics.load).toHaveBeenCalledTimes(choice === 'accepted' ? 1 : 0);
   });
 
-  /* The migration is what keeps the deploy quiet: everyone who had already
-   * answered would otherwise be asked again, because the answer used to live
-   * in localStorage and the cookie is what is read now. */
-  it.each(['accepted', 'declined'])('migrates a %s choice out of localStorage, once', (choice) => {
-    localStorage.setItem('cookieConsent', choice);
+  /* An answer to an older version of the question is not an answer to this
+   * one. Art. 7(1) asks what someone agreed to, so a stale version has to send
+   * them back through the dialog rather than quietly counting as a yes. */
+  it.each(['accepted', 'declined'])('re-asks when the stored %s answer is an old version', (choice) => {
+    document.cookie = `${CONSENT_COOKIE}=${choice}.${CONSENT_VERSION - 1}; Path=/`;
 
     render(<CookieConsent />);
 
-    expect(gate()).toBeNull();
-    expect(readConsent(), 'the answer should now be in the cookie').toBe(choice);
-    expect(localStorage.getItem('cookieConsent'), 'the old key should be gone').toBeNull();
-    expect(analytics.load).toHaveBeenCalledTimes(choice === 'accepted' ? 1 : 0);
+    expect(gate(), 'a stale version should reopen the dialog').not.toBeNull();
+    expect(readConsent()).toBeNull();
+    expect(analytics.load, 'a stale yes must not load analytics').not.toHaveBeenCalled();
+  });
+
+  it('ignores an answer that carries no version at all', () => {
+    document.cookie = `${CONSENT_COOKIE}=accepted; Path=/`;
+
+    render(<CookieConsent />);
+
+    expect(gate()).not.toBeNull();
+    expect(analytics.load).not.toHaveBeenCalled();
   });
 
   it('asks an undecided visitor immediately and locks the page behind it', async () => {
@@ -174,7 +182,7 @@ describe('CookieConsent', () => {
 
   /* Withdrawing has to be as easy as granting — the footer link fires this. */
   it('reopens on the cookie-settings event and clears the stored answer', async () => {
-    document.cookie = `${CONSENT_COOKIE}=accepted; Path=/`;
+    document.cookie = `${CONSENT_COOKIE}=accepted.${CONSENT_VERSION}; Path=/`;
     render(<CookieConsent />);
     expect(gate()).toBeNull();
 

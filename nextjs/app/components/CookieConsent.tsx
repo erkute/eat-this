@@ -138,10 +138,15 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
  *
  * So: a scrim, a centred ink card, no Escape, no outside-click, no close
  * button. The only way past it is one of the two answers — which is what the
- * GDPR permits and no more than that. The two buttons are deliberately the
- * same size, the same type and the same weight; only their fill differs. Do
- * not make "decline" quieter than "accept" — forcing the decision is legal,
- * nudging the answer is not.
+ * GDPR permits and no more than that.
+ *
+ * "Accept" is the primary button and comes first; "decline" is the outlined
+ * secondary next to it. That is as far as the emphasis may go: both answers
+ * keep the same box, the same type, the same weight and the same single
+ * click, and the decline label stays full-contrast white. Forcing the
+ * decision is legal; making the refusal cost more than the yes is not — and
+ * consent obtained that way is void, which would make the analytics it buys
+ * unusable.
  */
 export default function CookieConsent() {
   const { t, lang } = useTranslation();
@@ -331,19 +336,19 @@ export default function CookieConsent() {
           <div className="cookie-buttons">
             <button
               type="button"
-              className="cookie-btn cookie-btn-decline"
-              id="cookieDecline"
-              onClick={handleDecline}
-            >
-              {t('cookie.decline')}
-            </button>
-            <button
-              type="button"
               className="cookie-btn cookie-btn-accept"
               id="cookieAccept"
               onClick={handleAccept}
             >
               {t('cookie.accept')}
+            </button>
+            <button
+              type="button"
+              className="cookie-btn cookie-btn-decline"
+              id="cookieDecline"
+              onClick={handleDecline}
+            >
+              {t('cookie.decline')}
             </button>
           </div>
           {/* Datenschutzerklärung and Impressum have to be reachable at all

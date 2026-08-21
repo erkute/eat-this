@@ -198,7 +198,13 @@ body {
 .cookie-info-trigger:focus-visible {
   color: var(--et-home-accent, #ffc600);
 }
-/* Two equal answers. Same box, same type — the fills differ, nothing else. */
+/* Accept is the primary answer, decline the secondary one: filled against
+   outlined. What must NOT differ is everything the law looks at — same box,
+   same type, same weight, same single click, and decline keeps full-white
+   label text so it stays as readable as accept. Do not shrink it, grey the
+   label down or push it behind another click: a refusal that costs more than
+   a yes makes the consent invalid, and invalid consent makes the analytics it
+   buys unusable. */
 .cookie-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -212,7 +218,7 @@ body {
   justify-content: center;
   min-height: 52px;
   padding: 0 16px;
-  border: 0;
+  border: 1.5px solid transparent;
   border-radius: var(--et-radius-control, 7px);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 16px;
@@ -222,29 +228,37 @@ body {
   text-transform: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
 }
 .cookie-btn-accept {
   color: var(--et-home-ink, #15120e);
   background: var(--et-home-accent, #ffc600);
+  box-shadow: 0 8px 22px rgba(255, 198, 0, .26);
 }
 .cookie-btn-accept:hover,
 .cookie-btn-accept:focus-visible {
   color: var(--et-home-inverse-text, #fff);
   background: var(--et-home-red, #d9382a);
+  box-shadow: 0 8px 22px rgba(217, 56, 42, .3);
   transform: translateY(-1px);
 }
 .cookie-btn-accept:active {
   transform: translateY(0);
 }
 .cookie-btn-decline {
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-paper, #fff);
+  color: var(--et-home-paper, #fff);
+  background: transparent;
+  border-color: rgba(255, 255, 255, .38);
 }
 .cookie-btn-decline:hover,
 .cookie-btn-decline:focus-visible {
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-quiet, #f2f1ef);
+  color: var(--et-home-paper, #fff);
+  background: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .62);
   transform: translateY(-1px);
 }
 .cookie-btn-decline:active {

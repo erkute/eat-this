@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["**/*.ts", "**/*.tsx", ".next-verify/types/**/*.ts", "next-env.d.ts"]
+}

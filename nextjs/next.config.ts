@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
   // validation/pre-push build sets NEXT_DIST_DIR=.next-verify so it can run
   // alongside a live `next dev` without clobbering the dev server's `.next`.
   distDir: process.env.NEXT_DIST_DIR || '.next',
+  // Each build type-checks against its OWN dist dir's generated route types.
+  // Next appends `<distDir>/types/**/*.ts` to whichever tsconfig it is handed,
+  // so a single config accumulated both `.next/types` and `.next-verify/types`
+  // — and then the isolated build failed on the *other* dir's stale validator
+  // whenever a route had been deleted since the last default-distDir build.
+  // That broke `build:isolated`, which is the pre-push gate, for reasons
+  // unrelated to the code being pushed. One config per dist dir, no crosstalk.
+  typescript: {
+    tsconfigPath: process.env.NEXT_DIST_DIR ? 'tsconfig.verify.json' : 'tsconfig.json',
+  },
   outputFileTracingRoot: path.resolve(__dirname),
   // Satori fonts for the composed email spot-card image — read via
   // fs.readFile at runtime, so the tracer can't see them on its own.

@@ -17,8 +17,9 @@
 }
 
 /* hv-head aligns on the baseline; the count chip is a box, so centre it.
-   Scoped through .panel to outweigh the two-class .homeV2 .hv-head. */
-.panel .head {
+   Element-qualified (0,2,1) so it outweighs .homeV2 .hv-head regardless of
+   stylesheet order — see the note in Profile.module.css. */
+div.panel .head {
   align-items: center;
 }
 

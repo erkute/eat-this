@@ -23,10 +23,13 @@
   min-width: 0;
 }
 
-/* hv-head/hv-wrap/hv-rail are two-class selectors (.homeV2 .hv-*), so a bare
-   module class loses to them. Anything that overrides the shared vocabulary
-   is scoped with .page to match their weight. */
-.page .head {
+/* hv-head/hv-wrap/hv-rail are two-class selectors (.homeV2 .hv-*). Matching
+   that weight with `.page .foo` is NOT enough: at equal specificity the later
+   stylesheet wins, and the order differs between dev and production — in the
+   production build style.min.css loads AFTER the CSS modules, so the shared
+   vocabulary silently won and these overrides computed to nothing. Qualifying
+   with the element (main.page = 0,2,1) beats 0,2,0 whatever the order. */
+main.page .head {
   align-items: flex-end;
 }
 
@@ -382,7 +385,7 @@
 
 /* ── packs ──────────────────────────────────────────────── */
 
-.page .packs {
+main.page .packs {
   gap: clamp(18px, 2.4vw, 32px);
 }
 
@@ -524,7 +527,7 @@
 /* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands. At
    least a full section gap: the foot follows the filled invite panel, so
    anything tighter reads as part of it rather than as the page closing. */
-.page .foot {
+main.page .foot {
   margin-top: var(--et-section-gap, clamp(72px, 8vw, 128px));
   padding-top: clamp(28px, 3vw, 40px);
 }

@@ -6,7 +6,6 @@
 // only way this survives email clients: Gmail strips position/transform/filter/
 // box-shadow and never loads webfonts.
 
-import type { EmailSpot } from '@/emails/SignupEmail';
 import { BRAND_FONT_NAME } from '@/lib/email/brandFont';
 
 /** Rendered bitmap size — 2x of the 536px CSS display width in the email. */
@@ -32,7 +31,16 @@ export function spotPhotoUrl(photo: string): string {
   return `${photo.split('?')[0]}?w=${SPOT_CARD_WIDTH}&h=${SPOT_CARD_HEIGHT}&fit=crop&fm=jpg&q=80`;
 }
 
-type SpotCardData = Pick<EmailSpot, 'name' | 'area' | 'cuisine' | 'photo'>;
+/** Was eine Karte zum Zeichnen braucht — genau die Felder aus emailSpotsQuery. */
+export interface SpotCardData {
+  name: string;
+  /** Bezirk, z. B. „Mitte". */
+  area: string;
+  /** Küche, z. B. „Bakery". Nicht jedes Restaurant hat eine. */
+  cuisine?: string;
+  /** Roh-URL aus dem Sanity-CDN, Query-String optional. */
+  photo: string;
+}
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {

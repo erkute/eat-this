@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { mapMustEatsQuery } from '@/lib/map/queries';
-import { articleBySlugQuery, emailSpotCardQuery, emailSpotsQuery } from '@/lib/queries';
+import { articleBySlugQuery, emailSpotsQuery } from '@/lib/queries';
 
 const FORBIDDEN_PROJECTIONS = [
   /mustEatRef->dish/,
@@ -22,7 +22,7 @@ describe('public Sanity premium boundary', () => {
   });
 
   it('does not project premium content into public articles or login emails', () => {
-    for (const query of [articleBySlugQuery, emailSpotsQuery, emailSpotCardQuery]) {
+    for (const query of [articleBySlugQuery, emailSpotsQuery]) {
       for (const forbidden of FORBIDDEN_PROJECTIONS) {
         expect(query).not.toMatch(forbidden);
       }

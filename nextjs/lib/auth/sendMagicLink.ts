@@ -11,13 +11,9 @@
 import { Resend } from 'resend';
 import { renderEmail } from '@/emails/render';
 import { getAdminAuth } from '@/lib/firebase/admin';
-import { getEmailSpots } from '@/lib/sanity.server';
 import SignupEmail, { SIGNUP_SUBJECT } from '@/emails/SignupEmail';
 import LoginEmail, { LOGIN_SUBJECT } from '@/emails/LoginEmail';
 import { buildLoginText, buildSignupText } from '@/emails/magicLinkText';
-
-/** Spot cards teased in the signup mail — must match SignupEmail's MAX_SPOTS. */
-const SIGNUP_SPOT_COUNT = 3;
 
 type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
@@ -91,21 +87,9 @@ export async function sendMagicLinkEmail(params: {
   // inbox. This prevents a staging smoke test from mailing real customers.
   const recipient = process.env.NEXT_PUBLIC_ENV === 'staging' ? stagingRecipient! : email;
 
-  // Only the signup mail carries spot cards, and staging's dynamic card
-  // renderer sits behind Basic Auth, so external mail clients cannot fetch it.
-  // Keep staging messages self-contained and skip the Sanity read entirely
-  // where the artwork would 401 anyway.
-  const restaurants =
-    returning || process.env.NEXT_PUBLIC_ENV === 'staging'
-      ? []
-      : await getEmailSpots(SIGNUP_SPOT_COUNT).catch((err) => {
-          console.error('[sendMagicLink] getEmailSpots failed:', err);
-          return [];
-        });
-
   const html = returning
     ? await renderEmail(LoginEmail({ magicLink, appUrl }))
-    : await renderEmail(SignupEmail({ magicLink, appUrl, restaurants }));
+    : await renderEmail(SignupEmail({ magicLink, appUrl }));
   const text = returning ? buildLoginText(magicLink) : buildSignupText(magicLink);
   const subject = returning ? LOGIN_SUBJECT : SIGNUP_SUBJECT;
 

@@ -11,7 +11,7 @@ const stylePath = resolve(nextDir, 'css/style.css');
 const siteNavPath = resolve(appDir, 'components/SiteNav.module.css');
 const siteNavComponentPath = resolve(appDir, 'components/SiteNav.tsx');
 const siteFooterPath = resolve(appDir, 'components/SiteFooter.tsx');
-const loginPath = resolve(appDir, '[locale]/login/login.module.css');
+const loginPath = resolve(appDir, 'components/LoginPanel.module.css');
 
 function cssFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

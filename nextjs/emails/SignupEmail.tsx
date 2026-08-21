@@ -23,7 +23,7 @@ import {
   SPOT_DISPLAY_WIDTH,
   type EmailSpot,
 } from './spots.generated';
-import { COLOR, LAYOUT } from './theme';
+import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from './theme';
 
 export type { EmailSpot };
 
@@ -93,7 +93,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           (npm run build:email-phones), Kippung und Schatten eingebacken. */}
       <Section style={{ backgroundColor: COLOR.paper, padding: '0 0 8px', textAlign: 'center' }}>
         <img
-          src={`${appUrl}/pics/email/${PHONES_ART.id}.jpg`}
+          src={`${appUrl}/pics/email/${PHONES_ART.id}.jpg?v=${PHONES_ART.version}`}
           alt={PHONES_ART.alt}
           width={PHONES_ART.width}
           style={{
@@ -126,6 +126,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               width: 168,
               height: 260,
               alt: 'Eat This Starter Pack — 20 Must Eats',
+              version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
             altStyle={{ color: COLOR.ink, fontSize: '14px', fontWeight: 700 }}
@@ -195,7 +196,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
                   process as an HTML string, and there is no runtime to optimise. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`${appUrl}/pics/email/spots/${s.slug}.jpg`}
+                src={`${appUrl}/pics/email/spots/${s.slug}.jpg?v=${s.version}`}
                 alt={`${s.name} — ${s.meta}`}
                 width={SPOT_DISPLAY_WIDTH}
                 height={SPOT_DISPLAY_HEIGHT}

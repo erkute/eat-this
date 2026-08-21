@@ -105,7 +105,7 @@ export function ArtImage({
 }) {
   return (
     <Img
-      src={`${appUrl}/pics/email/${art.id}.png`}
+      src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`}
       alt={art.alt}
       width={art.width}
       style={{

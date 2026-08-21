@@ -16,6 +16,7 @@
 
 import sharp, { type OverlayOptions } from 'sharp';
 import { writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 
 /** Anzeigebreite in der Mail; gerendert wird 2x für Retina-Postfächer. */
@@ -26,11 +27,20 @@ const SCALE = 2;
 const ASPECT = 0.74;
 
 /**
- * Rand um das Paar. Auf home darf eine gedrehte Ecke über den Container
- * hinausragen — nichts clippt dort. Eine Leinwand clippt sehr wohl, deshalb
- * sitzen die Telefone hier etwas kleiner und eingerückt statt bündig.
+ * Der Rand ist KEINE Geschmacksfrage, sondern der Platz, den die Schatten zum
+ * Auslaufen brauchen. Zu klein gewählt, schneidet die Leinwandkante sie ab —
+ * links, unten und rechts, je nachdem wo ein Telefon sitzt.
+ *
+ * Eine Gauss-Weichzeichnung ist nach 3 Sigma praktisch bei null, dazu kommt
+ * der Versatz nach unten. Beides wird aus den Schattenwerten unten berechnet,
+ * damit ein geänderter Blur den Rand automatisch mitzieht.
  */
-const INSET = 0.03;
+function shadowRoom() {
+  const sigmas = PHONES.map((p) => p.shadow.blur * SCALE * 0.5);
+  const side = Math.ceil(Math.max(...sigmas) * 3);
+  const drop = Math.max(...PHONES.map((p) => p.shadow.dy)) * SCALE;
+  return { side, bottom: side + drop };
+}
 
 const CANVAS_W = DISPLAY_WIDTH * SCALE;
 const CANVAS_H = Math.round(CANVAS_W / ASPECT);
@@ -71,7 +81,7 @@ const OUT_DIR = join(process.cwd(), 'public', 'pics', 'email');
 
 /** Gedrehtes Telefon, freigestellt. */
 async function renderPhone(p: Phone) {
-  const targetH = Math.round(CANVAS_H * p.heightPct);
+  const targetH = Math.round(INNER_H * p.heightPct);
   const { data, info } = await sharp(join(SRC_DIR, `${p.file}.webp`))
     .resize({ height: targetH })
     .rotate(p.rotate, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -113,12 +123,15 @@ async function renderShadow(body: Buffer, left: number, top: number, p: Phone) {
     .toBuffer();
 }
 
+const ROOM = shadowRoom();
+/** Fläche, in der die Telefone selbst liegen dürfen — Leinwand minus Schattenplatz. */
+const INNER_W = CANVAS_W - ROOM.side * 2;
+const INNER_H = CANVAS_H - ROOM.side - ROOM.bottom;
+
 function place(anchor: Phone['anchor'], w: number, h: number) {
-  const mx = Math.round(CANVAS_W * INSET);
-  const my = Math.round(CANVAS_H * INSET);
   return anchor === 'bottom-left'
-    ? { left: mx, top: CANVAS_H - h - my }
-    : { left: CANVAS_W - w - mx, top: my };
+    ? { left: ROOM.side, top: ROOM.side + INNER_H - h }
+    : { left: CANVAS_W - ROOM.side - w, top: ROOM.side };
 }
 
 const layers: OverlayOptions[] = [];
@@ -129,14 +142,21 @@ for (const p of PHONES) {
   layers.push({ input: body, left, top });
 }
 
-const out = join(OUT_DIR, 'phones.jpg');
-const info = await sharp({
+const jpeg = await sharp({
   create: { width: CANVAS_W, height: CANVAS_H, channels: 4, background: PAPER },
 })
   .composite(layers)
   .flatten({ background: PAPER })
   .jpeg({ quality: 82, chromaSubsampling: '4:4:4' })
-  .toFile(out);
+  .toBuffer();
+
+const out = join(OUT_DIR, 'phones.jpg');
+await writeFile(out, jpeg);
+
+// Inhalts-Hash in die URL: der Dateiname bleibt gleich, und Gmails Bild-Proxy
+// liefert eine einmal geholte URL sonst dauerhaft aus seinem Cache aus — eine
+// neu gerenderte Datei erreicht den Empfaenger dann nie.
+const version = createHash('sha1').update(jpeg).digest('hex').slice(0, 8);
 
 const manifest = [
   '// GENERIERT von `npm run build:email-phones` — nicht von Hand editieren.',
@@ -146,11 +166,12 @@ const manifest = [
   `  width: ${DISPLAY_WIDTH},`,
   `  height: ${Math.round(CANVAS_H / SCALE)},`,
   "  alt: 'Die Eat-This-App: die Map mit Must-Eat-Pins und ein Restaurant im Detail',",
+  `  version: '${version}',`,
   '} as const;',
   '',
 ].join('\n');
 await writeFile(join(process.cwd(), 'emails', 'phones.generated.ts'), manifest, 'utf8');
 
-console.log(`  phones.jpg  ${info.width}×${info.height}  ${Math.round(info.size / 1024)} kB`);
+console.log(`  phones.jpg  ${CANVAS_W}×${CANVAS_H}  ${Math.round(jpeg.length / 1024)} kB  v=${version}`);
 console.log(`  Anzeige: ${DISPLAY_WIDTH}×${Math.round(CANVAS_H / SCALE)}`);
 console.log('\nManifest: emails/phones.generated.ts');

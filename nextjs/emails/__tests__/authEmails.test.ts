@@ -4,8 +4,8 @@ import SignupEmail, { SIGNUP_SUBJECT } from '../SignupEmail';
 import LoginEmail, { LOGIN_SUBJECT } from '../LoginEmail';
 
 const spots = [
-  { slug: 'sofi', name: 'SOFI', meta: 'Mitte · Bakery' },
-  { slug: 'gemello', name: 'GEMELLO', meta: 'Prenzlauer Berg · Italian' },
+  { slug: 'sofi', name: 'SOFI', meta: 'Mitte · Bakery', version: 'aaaa1111' },
+  { slug: 'gemello', name: 'GEMELLO', meta: 'Prenzlauer Berg · Italian', version: 'bbbb2222' },
 ];
 
 const magicLink = 'https://x/verify?abc=1';
@@ -141,6 +141,17 @@ describe('SignupEmail', () => {
     // 401 on staging and drag the brand font back onto the server.
     for (const html of [await signup(), await login()]) {
       expect(html).not.toContain('/api/email/');
+    }
+  });
+
+  it('versioniert jede Bild-URL, damit Gmails Proxy nicht ewig die alte Datei ausliefert', async () => {
+    // Ein neu gerendertes Bild unter unveraenderter URL erreicht den Empfaenger
+    // nie — genau so blieb eine korrigierte Spot-Card im Postfach die alte.
+    const html = await signup();
+    for (const src of html.match(/src="[^"]*\/pics\/email\/[^"]*"/g) ?? []) {
+      // Generierte Bilder tragen einen Inhalts-Hash, Handdateien die
+      // hochgezaehlte EMAIL_ASSET_VERSION — beides zaehlt.
+      expect(src).toMatch(/\?v=[0-9a-z]+"/);
     }
   });
 

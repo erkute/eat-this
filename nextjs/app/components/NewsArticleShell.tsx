@@ -1,10 +1,11 @@
 import Image from 'next/image';
-import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
+import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle, MustEatCardBlock, SpotCardBlock } from '@/lib/types';
+import type { NewsArticle, MustEatCardBlock, SpotCardBlock, PortableTextBlock } from '@/lib/types';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
+import ArticleRail from './ArticleRail';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
 import MapIntentLink from './MapIntentLink';
 import styles from './NewsArticleShell.module.css';
@@ -27,8 +28,50 @@ function formatDate(iso: string | undefined, locale: string): string {
   });
 }
 
-// Article detail — Chewy magazine feature (mockup-chewy screen 8). Inline
-// must-eat cards are driven by mustEatCard reference blocks in the body.
+type TextBlock = PortableTextBlock & { style?: string; children?: { text?: string }[] };
+
+function blockText(block: TextBlock): string {
+  return (block.children ?? []).map((c) => c.text ?? '').join('');
+}
+
+/** Plain prose of the article, for the reading estimate. */
+function countWords(blocks: PortableTextBlock[]): number {
+  let words = 0;
+  for (const raw of blocks as TextBlock[]) {
+    if (raw._type !== 'block') continue;
+    const text = blockText(raw).trim();
+    if (text) words += text.split(/\s+/).length;
+  }
+  return words;
+}
+
+function normalizeForCompare(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[‘’‚“”„]/g, "'")
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+}
+
+/** The excerpt is authored as the article's opening line, so on most pieces it
+ *  is word-for-word the first paragraph — printed as a bold lede and then again
+ *  right below with a drop cap. When they overlap, the lede loses. */
+function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): boolean {
+  if (!excerpt.trim()) return false;
+  const first = (blocks as TextBlock[]).find(
+    (b) => b._type === 'block' && (b.style ?? 'normal') === 'normal' && blockText(b).trim()
+  );
+  if (!first) return false;
+  const opening = normalizeForCompare(blockText(first));
+  const lede = normalizeForCompare(excerpt);
+  if (!opening || !lede) return false;
+  return opening.startsWith(lede) || lede.startsWith(opening);
+}
+
+// Article detail — Chewy magazine feature. On desktop the piece runs as a
+// reading column with a sticky chapter rail beside it; inline must-eat and spot
+// cards break out wider than the prose. Inline cards are driven by mustEatCard
+// / spotCard reference blocks in the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -44,27 +87,30 @@ export default function NewsArticleShell({
     (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
+  const chapters = extractHeadings(content);
+  const showLede = Boolean(excerpt) && !ledeDuplicatesOpening(excerpt, content);
+  const minutes = Math.max(1, Math.round(countWords(content) / 200));
+  const readingTime = de ? `${minutes} Min. Lesezeit` : `${minutes} min read`;
+  const shareLabel = de ? 'Teilen' : 'Share';
+  const copiedLabel = de ? 'Kopiert' : 'Copied';
 
-  // Inline "Must Eat" banner — dark poster block in the article column, same
-  // sticker language as MapPromoCTA. The image is the full collectible trading
-  // card, floating freigestellt with a tilt. The whole banner links to the
-  // Must-Eat detail on the map (?me=<id>), mirroring an in-app tap.
+  // Inline "Must Eat" band — a flat strip in the article column, not a poster.
+  // The restaurant carries the headline so two must-eats in one guide can't
+  // read as the same block twice; the reveal idea lives in the line below.
+  // The image is the collectible card's back, floating freigestellt with a
+  // tilt. The whole band links to the Must-Eat detail on the map (?me=<id>),
+  // mirroring an in-app tap.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
     // "Must Eat" lives in the kicker only — the CTA uses the canonical map
     // wording so the label doesn't repeat itself.
     const ctaLabel = de ? 'Auf die Map' : 'To the map';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
-    const teaserTitle = de ? 'Das Must Eat aufdecken' : 'Reveal the Must Eat';
+    const heading = restName || (de ? 'Das Must Eat' : 'The Must Eat');
     const description = de
-      ? 'Das Gericht bleibt bis zu deinem Reveal verdeckt.'
-      : 'The dish stays covered until you reveal it.';
-    // Natural sentence instead of "@ Name · Bezirk" metadata soup.
-    const whereLine = restName
-      ? de
-        ? `Gibt's bei ${restName}${block.district ? ` in ${block.district}` : ''}`
-        : `Get it at ${restName}${block.district ? ` in ${block.district}` : ''}`
-      : block.district || '';
+      ? 'Das Gericht bleibt verdeckt, bis du es auf der Map aufdeckst.'
+      : 'The dish stays covered until you reveal it on the map.';
+    const kickerMeta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
     const inner = (
       <>
         <div className={styles.mustEatPh}>
@@ -72,10 +118,12 @@ export default function NewsArticleShell({
           <img src="/pics/card-back.webp?v=6" alt="" />
         </div>
         <div className={styles.mustEatBody}>
-          <span className={styles.mustEatKicker}>Must Eat</span>
-          <h3 className={styles.mustEatName}>{teaserTitle}</h3>
+          <span className={styles.mustEatKicker}>
+            <span className={styles.mustEatTag}>Must Eat</span>
+            {kickerMeta && <span className={styles.mustEatMeta}>{kickerMeta}</span>}
+          </span>
+          <h3 className={styles.mustEatName}>{heading}</h3>
           <p className={styles.mustEatDesc}>{description}</p>
-          {whereLine && <span className={styles.mustEatRest}>{whereLine}</span>}
           <span className={styles.mustEatCta}>
             <span>{ctaLabel}</span>
           </span>
@@ -87,7 +135,11 @@ export default function NewsArticleShell({
         href={`/map?me=${block.mustEatId}`}
         rel="nofollow"
         className={styles.mustEat}
-        aria-label={`${teaserTitle}${restName ? ` — ${restName}` : ''}`}
+        aria-label={
+          de
+            ? `Must Eat${restName ? ` bei ${restName}` : ''} auf der Map aufdecken`
+            : `Reveal the Must Eat${restName ? ` at ${restName}` : ''} on the map`
+        }
       >
         {inner}
       </MapIntentLink>
@@ -132,7 +184,17 @@ export default function NewsArticleShell({
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
-  const readLabel = de ? 'Lesen' : 'Read';
+  const chaptersLabel = de ? 'Kapitel' : 'Chapters';
+
+  const byline = (
+    <div className={styles.byline}>
+      <span className={styles.category}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
+      <span className={styles.bylineMeta}>
+        {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
+        <span className={styles.readingTime}>{readingTime}</span>
+      </span>
+    </div>
+  );
 
   return (
     <div
@@ -151,63 +213,68 @@ export default function NewsArticleShell({
             </div>
 
             {article.imageUrl ? (
-              <>
-                <figure className={styles.heroWrap}>
-                  <Image
-                    src={article.imageUrl}
-                    alt={article.alt || title}
-                    fill
-                    priority
-                    sizes="(max-width: 760px) 100vw, 1180px"
-                    className={styles.hero}
-                  />
-                  <figcaption className={styles.introCopy}>
-                    <h1 className={styles.heroTitle}>{title}</h1>
-                  </figcaption>
-                </figure>
-                <div className={styles.heroBelow}>
-                  <div className={styles.byline}>
-                    <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-                    {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-                  </div>
-                  {excerpt && <p className={styles.lede}>{excerpt}</p>}
-                </div>
-              </>
+              <figure className={styles.heroWrap}>
+                <Image
+                  src={article.imageUrl}
+                  alt={article.alt || title}
+                  fill
+                  priority
+                  sizes="(max-width: 760px) 100vw, 1180px"
+                  className={styles.hero}
+                />
+                <figcaption className={styles.introCopy}>
+                  <h1 className={styles.heroTitle}>{title}</h1>
+                </figcaption>
+              </figure>
             ) : (
               <div className={styles.heroGridPlain}>
                 <div className={styles.introCopy}>
-                  <div className={styles.byline}>
-                    <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
-                    {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-                  </div>
                   <h1 className={styles.heroTitle}>{title}</h1>
-                  {excerpt && <p className={styles.lede}>{excerpt}</p>}
                 </div>
               </div>
             )}
           </header>
 
-          <div className={styles.content}>
-            <PortableTextRenderer
-              blocks={content}
-              renderMustEatCard={renderMustEatCard}
-              renderSpotCard={renderSpotCard}
+          <div className={styles.body}>
+            <ArticleRail
+              chapters={chapters}
+              label={chaptersLabel}
+              shareLabel={shareLabel}
+              shareCopiedLabel={copiedLabel}
+              shareTitle={title}
+              shareExcerpt={excerpt}
             />
-          </div>
 
-          <div className={styles.shareRow}>
-            <NewsArticleShare
-              title={title}
-              excerpt={excerpt}
-              label={de ? 'Teilen' : 'Share'}
-              copiedLabel={de ? 'Kopiert' : 'Copied'}
-              className={styles.shareBtn}
-            />
+            <div className={styles.column}>
+              {byline}
+              {showLede && <p className={styles.lede}>{excerpt}</p>}
+
+              <div className={styles.content}>
+                <PortableTextRenderer
+                  blocks={content}
+                  renderMustEatCard={renderMustEatCard}
+                  renderSpotCard={renderSpotCard}
+                />
+              </div>
+
+              <div className={styles.shareRow}>
+                <NewsArticleShare
+                  title={title}
+                  excerpt={excerpt}
+                  label={shareLabel}
+                  copiedLabel={copiedLabel}
+                  className={styles.shareBtn}
+                />
+              </div>
+            </div>
           </div>
 
           {recommendations.length > 0 && (
             <section className={styles.related}>
-              <h2 className={styles.relatedHeading}>{moreLabel}</h2>
+              <div className={styles.relatedHead}>
+                <span className={styles.relatedMark} aria-hidden="true" />
+                <h2 className={styles.relatedHeading}>{moreLabel}</h2>
+              </div>
               <ul className={styles.relatedGrid} role="list">
                 {recommendations.map((rec) => {
                   const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
@@ -216,21 +283,22 @@ export default function NewsArticleShell({
                   return (
                     <li key={rec.slug}>
                       <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
-                        <div
-                          className={styles.relatedImage}
-                          style={
-                            rec.imageUrl ? { backgroundImage: `url(${rec.imageUrl})` } : undefined
-                          }
-                          role="img"
-                          aria-label={recTitle}
-                        />
-                        <div className={styles.relatedBody}>
+                        <span className={styles.relatedPhoto}>
+                          {rec.imageUrl && (
+                            <Image
+                              src={rec.imageUrl}
+                              alt=""
+                              fill
+                              sizes="(max-width: 760px) 76vw, 33vw"
+                            />
+                          )}
+                        </span>
+                        <span className={styles.relatedText}>
                           {recCategory && (
                             <span className={styles.relatedCategory}>{recCategory}</span>
                           )}
-                          <h3 className={styles.relatedHeadline}>{recTitle}</h3>
-                          <span className={styles.relatedRead}>{readLabel}</span>
-                        </div>
+                          <span className={styles.relatedHeadline}>{recTitle}</span>
+                        </span>
                       </Link>
                     </li>
                   );

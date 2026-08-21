@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { PortableTextRenderer } from './PortableTextRenderer';
+import { PortableTextRenderer, extractHeadings } from './PortableTextRenderer';
 import type { PortableTextBlock, SpotCardBlock } from './types';
 
 function render(blocks: PortableTextBlock[]): string {
@@ -132,5 +132,38 @@ describe('PortableTextRenderer spotCard blocks', () => {
   it('skips spotCard blocks when no renderSpotCard prop is passed', () => {
     const html = render([spotCard()]);
     expect(html).not.toContain('SOFI');
+  });
+});
+
+describe('extractHeadings', () => {
+  const heading = (text: string, style = 'h2', key = text): PortableTextBlock =>
+    ({
+      _type: 'block',
+      _key: key,
+      style,
+      children: [{ _type: 'span', text }],
+    }) as unknown as PortableTextBlock;
+
+  it('returns h2 chapters with the same anchor ids the renderer emits', () => {
+    const blocks = [heading('Hasir am Nollendorfplatz'), para([{ text: 'x' }])];
+    expect(extractHeadings(blocks)).toEqual([
+      { id: 'hasir-am-nollendorfplatz', text: 'Hasir am Nollendorfplatz' },
+    ]);
+    expect(render(blocks)).toContain('id="hasir-am-nollendorfplatz"');
+  });
+
+  it('leaves h3 and empty headings out and drops duplicate anchors', () => {
+    const blocks = [
+      heading('Saucen'),
+      heading('Zwischenschritt', 'h3'),
+      heading('   ', 'h2', 'blank'),
+      heading('Saucen', 'h2', 'dupe'),
+    ];
+    expect(extractHeadings(blocks)).toEqual([{ id: 'saucen', text: 'Saucen' }]);
+  });
+
+  it('returns nothing for an empty or missing body', () => {
+    expect(extractHeadings([])).toEqual([]);
+    expect(extractHeadings(undefined)).toEqual([]);
   });
 });

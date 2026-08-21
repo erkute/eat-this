@@ -69,17 +69,61 @@ const articles: NewsArticle[] = [
 ];
 
 describe('NewsSection images', () => {
-  it('serves responsive images and prioritizes only the lead story', () => {
+  it('serves responsive images and prioritizes only the first tile', () => {
     const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
 
     expect(html).toContain('src="https://cdn.sanity.io/lead.webp"');
-    expect(html).toContain('sizes="(max-width: 700px) 100vw, 900px"');
-    expect(html).toContain('data-priority="true"');
     expect(html).toContain('src="https://cdn.sanity.io/latest.webp"');
-    expect(html).toContain(
-      'sizes="(max-width: 700px) calc(100vw - 32px), (max-width: 1040px) 38vw, 342px"'
-    );
+    expect(html.match(/sizes="\(max-width: 960px\) 46vw, 380px"/g)).toHaveLength(2);
+    expect(html).toContain('data-priority="true"');
     expect(html.match(/data-priority=/g)).toHaveLength(1);
     expect(html).not.toContain('background-image');
+  });
+});
+
+describe('NewsSection cards', () => {
+  it('lists every story as a tile — no separate lead treatment', () => {
+    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
+
+    expect(html.match(/href="\/news\//g)).toHaveLength(2);
+    expect(html).toContain('href="/news/lead-story"');
+    expect(html).toContain('href="/news/latest-story"');
+  });
+
+  it('uses the category as the card kicker and omits it when there is none', () => {
+    const html = renderToStaticMarkup(
+      <NewsSection
+        articles={[{ ...articles[0], categoryLabelDe: 'Guides' }, articles[1]]}
+        locale="de"
+      />
+    );
+
+    expect(html).toContain('Guides');
+    expect(html).toContain('Titelstory');
+  });
+
+  it('prints the publication date under the title as a machine-readable time', () => {
+    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
+
+    // renderToStaticMarkup emits the JSX casing; HTML attribute names parse
+    // case-insensitively, so this is the `datetime` attribute either way.
+    expect(html).toMatch(/<time[^>]*dateTime="2026-07-14"[^>]*>14\. Juli 2026<\/time>/i);
+    // Title first, date after it — the date is the last line on the tile.
+    expect(html.indexOf('Titelstory')).toBeLessThan(html.indexOf('14. Juli 2026'));
+  });
+
+  it('omits the date element when an article carries no usable date', () => {
+    const html = renderToStaticMarkup(
+      <NewsSection articles={[{ ...articles[0], date: '' }]} locale="de" />
+    );
+
+    expect(html).not.toContain('<time');
+  });
+
+  it('falls back to the empty note when there is nothing to show', () => {
+    const html = renderToStaticMarkup(<NewsSection articles={[]} locale="de" />);
+
+    expect(html).toContain('Aktuell keine Artikel');
+    expect(html).not.toContain('<ul');
   });
 });

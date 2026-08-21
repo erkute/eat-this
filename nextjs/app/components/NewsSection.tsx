@@ -10,23 +10,26 @@ interface NewsSectionProps {
   locale: 'de' | 'en';
 }
 
+// The magazine index. One card language across the site: the tile here is the
+// same photo-first card the home rail and the article footer use — photo 4/5,
+// title inside the photo, yellow kicker. The old row list ran a different
+// design (16/10 photo, all-caps headline, excerpt, red text link) and made the
+// phone page 4343px long for seven stories — 1800px as tiles.
 export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const de = locale === 'de';
-  const [lead, ...latest] = articles;
 
   const coverTitle = de ? 'Auf dem Teller' : 'Food News';
   const coverSub = de
     ? 'Restaurantgeschichten, Empfehlungen und Beobachtungen aus Berlin. Orte, Gerichte und Szenen, die uns auffallen - manchmal neu, manchmal vertraut, meistens ziemlich gut.'
     : 'Restaurant stories, recommendations and observations from Berlin. Places, dishes and scenes that catch our eye - sometimes new, sometimes familiar, usually pretty good.';
   const latestTitle = de ? 'Alle Stories' : 'All stories';
-  const readMore = de ? 'Lesen' : 'Read';
-  const rowCta = de ? 'Story lesen' : 'Read story';
   const emptyMsg = de
     ? 'Aktuell keine Artikel — schau bald wieder vorbei.'
     : 'No articles right now — check back soon.';
 
   const articleTitle = (a: NewsArticle) => (de && a.titleDe ? a.titleDe : a.title);
-  const articleExcerpt = (a: NewsArticle) => (de && a.excerptDe ? a.excerptDe : a.excerpt || '');
+  const articleKicker = (a: NewsArticle) =>
+    (de && a.categoryLabelDe ? a.categoryLabelDe : a.categoryLabel) || '';
   const formatDate = (iso: string | undefined) => {
     if (!iso) return '';
     const d = new Date(iso);
@@ -37,7 +40,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
       year: 'numeric',
     });
   };
-  const leadDate = lead ? formatDate(lead.date) : '';
+
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
     { name: coverTitle },
@@ -59,87 +62,52 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           </div>
         </header>
 
-        {lead ? (
-          <section
-            className={styles.leadSection}
-            aria-label={de ? 'Aktuelle Titelstory' : 'Current lead story'}
-          >
-            <Link href={`/news/${lead.slug}`} className={styles.leadCard}>
-              <div className={styles.leadFrame}>
-                {lead.imageUrl ? (
-                  <Image
-                    src={lead.imageUrl}
-                    alt={lead.alt || articleTitle(lead)}
-                    fill
-                    priority
-                    sizes="(max-width: 700px) 100vw, 900px"
-                    className={styles.imageFill}
-                  />
-                ) : (
-                  <div className={styles.leadFallback} aria-hidden="true" />
-                )}
-                <div className={styles.leadOverlay}>
-                  <h2>{articleTitle(lead)}</h2>
-                </div>
-              </div>
-              <div className={styles.leadText}>
-                {leadDate && (
-                  <div className={styles.metaLine}>
-                    <time dateTime={lead.date}>{leadDate}</time>
-                  </div>
-                )}
-                {articleExcerpt(lead) && <p>{articleExcerpt(lead)}</p>}
-                <span className={styles.primaryCta}>{readMore}</span>
-              </div>
-            </Link>
-          </section>
-        ) : (
-          <p className={styles.empty}>{emptyMsg}</p>
-        )}
-
-        {latest.length > 0 && (
-          <section className={styles.latestSection}>
+        {articles.length > 0 ? (
+          <section>
             <div className={styles.sectionHead}>
+              <span className={styles.sectionMark} aria-hidden="true" />
               <h2>{latestTitle}</h2>
             </div>
-            <ul className={styles.latestList} role="list">
-              {latest.map((a) => {
+            <ul className={styles.grid} role="list">
+              {articles.map((a, i) => {
                 const title = articleTitle(a);
-                const excerpt = articleExcerpt(a);
+                const kicker = articleKicker(a);
                 const date = formatDate(a.date);
-
                 return (
                   <li key={a.slug}>
-                    <Link href={`/news/${a.slug}`} className={styles.storyRow}>
-                      <div className={styles.storyImage}>
+                    <Link href={`/news/${a.slug}`} className={styles.card}>
+                      <span className={styles.photo}>
                         {a.imageUrl ? (
                           <Image
                             src={a.imageUrl}
                             alt={a.alt || title}
                             fill
-                            sizes="(max-width: 700px) calc(100vw - 32px), (max-width: 1040px) 38vw, 342px"
+                            // Only the first tile is above the fold.
+                            priority={i === 0}
+                            sizes="(max-width: 960px) 46vw, 380px"
                             className={styles.imageFill}
                           />
                         ) : (
-                          <div className={styles.storyImageFallback} aria-hidden="true" />
+                          <span className={styles.photoFallback} aria-hidden="true" />
                         )}
-                      </div>
-                      <div className={styles.storyCopy}>
+                      </span>
+                      <span className={styles.text}>
+                        {kicker && <span className={styles.kicker}>{kicker}</span>}
+                        <span className={styles.title}>{title}</span>
                         {date && (
-                          <div className={styles.storyMeta}>
-                            <time dateTime={a.date}>{date}</time>
-                          </div>
+                          <time className={styles.date} dateTime={a.date}>
+                            {date}
+                          </time>
                         )}
-                        <h3>{title}</h3>
-                        {excerpt && <p>{excerpt}</p>}
-                        <span className={styles.storyCta}>{rowCta}</span>
-                      </div>
+                      </span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
           </section>
+        ) : (
+          <p className={styles.empty}>{emptyMsg}</p>
         )}
       </main>
       <SiteFooter />

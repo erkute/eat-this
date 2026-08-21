@@ -181,3 +181,21 @@ export function PortableTextRenderer({
   flushList();
   return <>{out}</>;
 }
+
+/** The article's h2 chapters with the same anchor ids the renderer emits, so
+ *  the rail's jump list and the headings can't drift apart. h3 stays out — the
+ *  rail is a chapter list, not an outline. */
+export function extractHeadings(blocks?: PortableTextBlock[]): { id: string; text: string }[] {
+  if (!blocks?.length) return [];
+  const seen = new Set<string>();
+  const out: { id: string; text: string }[] = [];
+  for (const raw of blocks as Block[]) {
+    if (raw._type !== 'block' || raw.style !== 'h2' || raw.listItem) continue;
+    const text = headingText(raw.children).trim();
+    const id = slugifyHeading(text);
+    if (!text || !id || seen.has(id)) continue;
+    seen.add(id);
+    out.push({ id, text });
+  }
+  return out;
+}

@@ -1,341 +1,403 @@
-/* ════════════════════════════════════════════════════════════
-   /welcome — magic-link landing (mockup screens 13/14 language).
+/* /welcome — Splash beim Linkcheck und die einmalige Identitäts-Wahl.
+   Vokabular und Farben kommen aus dem Home-Kontrakt (--et-* in globals.css):
+   weisses Papier, Ink, ein gelber Akzent, Rot für Headlines, Providence als
+   Display-Schrift. Vorher lief die Seite auf der ausgemusterten Creme-Palette
+   und lud gar keine Markenschrift.
 
-   Cream sheet, ink hairlines, big Schoolbell headings, square fields,
-   yellow sticker CTA, yellow-ringed avatar tiles, red error accents.
-   /welcome has its own root layout, so colors are literal (no globals
-   tokens) and Schoolbell comes via --font-chewy loaded in
-   welcome/layout.tsx (same alias the app layout uses).
-   ════════════════════════════════════════════════════════════ */
+   Bewegung: keine Opacity-Fades für Ein-/Ausblenden auf Markenflächen
+   (CLAUDE.md) — gearbeitet wird mit translate, scale und clip-path. */
 
-.page {
-  --conversion-bg: #f8f6f1;
-  --conversion-surface: rgba(255, 255, 255, 0.9);
-  --conversion-field: #fbf8ee;
-  --conversion-ink: #0a0a0a;
-  --conversion-action: #ef3108;
-  --conversion-action-text: #fff;
-  --conversion-accent: #ffd84a;
-  --conversion-border: rgba(17, 13, 9, 0.18);
-  --conversion-radius: 8px;
-  --conversion-pill: 999px;
-  --conversion-shadow: 0 16px 30px rgba(43, 33, 28, 0.18);
-  --conversion-hard-shadow: 4px 4px 0 #0a0a0a;
-  --conversion-motion: 180ms cubic-bezier(0.22, 0.9, 0.3, 1);
+.page,
+.splashPage {
+  --w-ink: var(--et-home-ink, #15120e);
+  --w-paper: var(--et-home-paper, #fff);
+  --w-accent: var(--et-home-accent, #ffc600);
+  --w-red: var(--et-home-red, #d9382a);
+  --w-quiet: var(--et-home-quiet, #f2f1ef);
+  --w-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --w-display: var(--et-font-display, var(--font-providence), sans-serif);
+  --w-body: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100dvh;
-  width: 100%;
-  background-color: var(--conversion-bg);
-  background-image: none;
-  color: var(--conversion-ink);
-  display: flex;
-  flex-direction: column;
-  font-family:
-    var(--font-dm-sans),
-    'DM Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  color: var(--w-ink);
+  font-family: var(--w-body);
 }
 
-.frame {
-  position: relative;
-  flex: 1;
-  width: 100%;
-  max-width: 460px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  padding: 56px 22px max(28px, env(safe-area-inset-bottom, 0px));
-  overflow-y: auto;
-  background: var(--conversion-surface);
-  box-shadow: var(--conversion-shadow);
+/* ============================================
+   SPLASH — Ink-Fläche wie die Chrome der Site
+   ============================================ */
+
+.splashPage {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--w-ink);
 }
 
-/* Logo top-center */
-.logoWrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 8px;
+.splash {
+  display: grid;
+  justify-items: center;
+  gap: 26px;
+  text-align: center;
 }
-.logoMark {
-  width: min(48vw, 180px);
+
+.splashLogo {
+  width: clamp(190px, 46vw, 280px);
   height: auto;
-  user-select: none;
-  -webkit-user-drag: none;
 }
 
-/* Content — bottom-anchored on the landing states. */
-.content {
-  margin-top: auto;
+/* Drei Marker-Quadrate wie `.hv-mk` vor jedem Section-Titel — sie pulsieren
+   nacheinander in der Grösse. Liest schneller als ein Spinner und bleibt im
+   Vokabular der Startseite. */
+.marks {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.title {
-  margin: 0;
-  font-family: var(--font-label, var(--font-chewy)), cursive;
-  font-size: clamp(40px, 12vw, 56px);
-  line-height: 0.92;
-  letter-spacing: -0.005em;
-  text-transform: uppercase;
-  color: var(--conversion-action);
-}
-.sub {
-  margin: 0 0 6px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--conversion-ink);
-  opacity: 0.85;
-  max-width: 32ch;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
   gap: 10px;
 }
 
-/* Name label */
-.nameLabel {
-  font-family: var(--font-label, var(--font-chewy)), cursive;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--conversion-ink);
-  display: block;
-  margin-bottom: 6px;
+.mark {
+  width: 11px;
+  height: 11px;
+  background: var(--w-accent);
+  transform: scale(0.5);
+  animation: markPulse 1.05s ease-in-out infinite;
 }
 
-/* Square fields */
+.mark:nth-child(2) {
+  animation-delay: 0.14s;
+}
+.mark:nth-child(3) {
+  animation-delay: 0.28s;
+}
+
+@keyframes markPulse {
+  0%,
+  100% {
+    transform: scale(0.5);
+  }
+  45% {
+    transform: scale(1);
+  }
+}
+
+.splashTitle {
+  margin: 0 0 6px;
+  font-family: var(--w-display);
+  font-weight: 700;
+  font-size: clamp(21px, 4.6vw, 27px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--w-paper);
+}
+
+.splashCopy p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+/* ============================================
+   PANEL — Identität, Fehler, Fallbacks
+   ============================================ */
+
+.page {
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 5vw, 48px) 20px;
+  background: var(--w-paper);
+}
+
+.frame {
+  width: min(560px, 100%);
+}
+
+/* Der Auftritt: von unten aufgedeckt statt eingeblendet. clip-path plus
+   translate, damit auf der weissen Fläche nichts flimmert. */
+.frame {
+  animation: panelIn 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes panelIn {
+  from {
+    clip-path: inset(28% 0 0 0);
+    transform: translateY(14px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+.logoWrap {
+  margin-bottom: clamp(26px, 5vw, 40px);
+}
+
+.logoMark {
+  width: 132px;
+  height: auto;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--w-ink);
+}
+
+.kicker::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  background: var(--w-accent);
+}
+
+.title {
+  margin: 0 0 14px;
+  font-family: var(--w-display);
+  font-weight: 700;
+  font-size: clamp(34px, 7.4vw, 54px);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: var(--w-red);
+}
+
+.sub {
+  margin: 0 0 28px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--w-muted);
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+}
+
+.nameLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--w-ink);
+}
+
 .input {
   width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  border: 2px solid var(--conversion-ink);
-  border-radius: var(--conversion-radius);
-  background: var(--conversion-field);
-  font-size: 16px; /* iOS no-zoom */
-  color: var(--conversion-ink);
-  outline: none;
   box-sizing: border-box;
-}
-.input::placeholder {
-  color: rgba(17, 13, 9, 0.4);
+  padding: 15px 16px;
+  font-family: var(--w-body);
+  font-size: 16px;
+  color: var(--w-ink);
+  background: var(--w-paper);
+  border: 2px solid var(--w-ink);
+  border-radius: var(--et-radius-control, 7px);
+  outline: none;
 }
 
-/* CTA — shared brand button typography and restrained press feedback. */
+.input::placeholder {
+  color: rgba(21, 18, 14, 0.38);
+}
+
+.input:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--w-accent);
+}
+
+/* ============================================
+   AVATARE — Kartenauswahl im Must-Eat-Idiom
+   ============================================ */
+
+.avatars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.avatar {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 8px 12px;
+  background: var(--w-quiet);
+  border: 2px solid transparent;
+  border-radius: var(--et-radius-photo, 10px);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.avatar:hover {
+  transform: translateY(-3px);
+}
+
+/* Die gewählte Karte hebt sich an und bekommt den Ink-Rahmen — Bewegung
+   und Rahmen tragen die Auswahl, nicht Farbe allein. */
+.avatarActive {
+  background: var(--w-paper);
+  border-color: var(--w-ink);
+  transform: translateY(-5px);
+}
+
+/* Gelber Balken, der unter der aktiven Karte aufzieht. Skaliert von der
+   Mitte, kein Fade. */
+.avatarActive::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -2px;
+  height: 3px;
+  background: var(--w-accent);
+  transform-origin: 50% 50%;
+  animation: barIn 220ms ease both;
+}
+
+@keyframes barIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.avatarPh {
+  display: block;
+  width: clamp(52px, 14vw, 70px);
+  aspect-ratio: 1;
+}
+
+.avatarPh img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.avatarName {
+  font-family: var(--w-display);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--w-ink);
+}
+
+/* ============================================
+   AKTIONEN
+   ============================================ */
+
 .cta {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   width: 100%;
-  height: 50px;
-  background: var(--conversion-action);
-  color: var(--conversion-action-text);
-  border: 2px solid var(--conversion-ink);
-  border-radius: var(--conversion-pill);
-  box-shadow: none;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-  cursor: pointer;
-  text-decoration: none;
   box-sizing: border-box;
-  transition:
-    transform var(--conversion-motion),
-    background-color var(--conversion-motion);
+  padding: 16px 22px;
+  font-family: var(--w-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--et-home-inverse-text, #fff);
+  text-decoration: none;
+  background: var(--w-ink);
+  border: none;
+  border-radius: var(--et-radius-control, 7px);
+  cursor: pointer;
+  transition: transform 140ms ease;
 }
-.cta:active:not(:disabled) {
-  transform: translateY(1px);
+
+.cta:hover:not(:disabled) {
+  transform: translateY(-2px);
 }
+
 .cta:disabled {
-  opacity: 0.55;
   cursor: not-allowed;
-  box-shadow: none;
+  background: rgba(21, 18, 14, 0.28);
 }
 
 .error {
   margin: 0;
-  font-size: 13px;
-  color: var(--conversion-action);
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--w-red);
 }
 
-/* Avatars — 3 named tiles (screen 14) */
-.avatars {
-  display: flex;
-  gap: 12px;
-  margin: 6px 0 4px;
-  justify-content: space-between;
-  align-items: flex-start;
+.checkmark {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 16px;
+  color: var(--w-ink);
 }
-.avatar {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-.avatarPh {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: #efe9d8;
-  border: 2px solid var(--conversion-border);
-  border-radius: var(--conversion-radius);
-  position: relative;
-  overflow: hidden;
-}
-.avatarPh img {
-  position: absolute;
-  inset: 0;
+
+.checkmark svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  padding: 10% 6% 4%;
-  box-sizing: border-box;
-}
-.avatarActive .avatarPh {
-  border-color: var(--conversion-ink);
-  box-shadow: 0 0 0 3px var(--conversion-accent);
-}
-.avatarName {
-  font-family: var(--font-label, var(--font-chewy)), cursive;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--conversion-ink);
-  opacity: 0.5;
-  text-align: center;
-  width: 100%;
-  line-height: 1.15;
-  word-break: break-word;
-}
-.avatarActive .avatarName {
-  opacity: 1;
-}
-
-/* Checkmark (success) */
-.checkmark {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--conversion-pill);
-  background: var(--conversion-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-.checkmark svg {
-  width: 26px;
-  height: 26px;
-  stroke: #0a0a0a;
-  stroke-width: 3;
   fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-/* ── Processing splash ── */
-.splashPage {
-  min-height: 100dvh;
-  width: 100%;
-  background: #fbf8ee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-.splash {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: min(360px, calc(100vw - 36px));
-  padding: 28px 24px;
-  border: 2px solid #0a0a0a;
-  background: #fffdf7;
-  box-shadow: 5px 5px 0 #0a0a0a;
-}
-.splashLogo {
-  width: min(64vw, 250px);
-  height: auto;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-.bar {
-  width: 172px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(10, 10, 10, 0.12);
-  overflow: hidden;
-  position: relative;
-}
-.bar::after {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  height: 100%;
-  width: 42%;
-  border-radius: 999px;
-  background: #0a0a0a;
-  animation: welcomeSweep 1.05s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-}
-@keyframes welcomeSweep {
-  0% {
-    transform: translateX(-115%);
-  }
-  100% {
-    transform: translateX(345%);
-  }
-}
-.splashTitle {
-  margin: 0;
-  font-family: var(--font-chewy), cursive;
-  font-size: clamp(25px, 7vw, 34px);
-  line-height: 0.95;
-  text-transform: uppercase;
-  letter-spacing: -0.005em;
-  color: #0a0a0a;
-  text-align: center;
-}
-.splashCopy {
-  display: grid;
-  gap: 8px;
-  justify-items: center;
-}
-.splashCopy p {
-  max-width: 28ch;
-  margin: 0;
-  color: rgba(10, 10, 10, 0.72);
-  font-size: 14px;
-  line-height: 1.4;
-  text-align: center;
+/* ============================================
+   ÜBERGANG ZUR MAP — gelber Vorhang
+   ============================================ */
+
+/* Läuft, kurz bevor /welcome hart auf die Home-Route wechselt: eine gelbe
+   Fläche zieht von unten über den Bildschirm. Deckt die harte Navigation
+   zwischen zwei Root-Layouts ab, die sonst als Weissblitz sichtbar wäre. */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--et-home-accent, #ffc600);
+  transform: translateY(100%);
+  animation: curtainUp 420ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
-/* ── Desktop — sticker card ── */
-@media (min-width: 768px) {
-  .page {
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
+@keyframes curtainUp {
+  to {
+    transform: translateY(0);
   }
-  .frame {
-    flex: 0 0 auto;
-    width: min(460px, 94vw);
-    max-height: 96vh;
-    border: 2px solid #0a0a0a;
-    box-shadow: 5px 5px 0 #0a0a0a;
-    background: #fbf8ee;
+}
+
+@media (max-width: 420px) {
+  .avatars {
+    gap: 7px;
+  }
+  .avatar {
+    padding: 11px 5px 10px;
+  }
+  .avatarName {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .mark,
+  .avatarActive::after,
+  .curtain {
+    animation: none;
+  }
+  .avatar,
+  .cta {
+    transition: none;
+  }
+  .mark {
+    transform: scale(1);
+  }
+  .curtain {
+    transform: translateY(0);
   }
 }

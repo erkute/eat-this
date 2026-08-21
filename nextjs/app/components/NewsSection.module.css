@@ -14,23 +14,18 @@
   margin-inline: calc(50% - 50vw);
 }
 
+/* Same 1180 frame as the article detail — both pages are "Auf dem Teller" and
+   used to disagree about how wide that is (1040 shell, 900 content). */
 .shell {
-  width: min(100%, 1040px);
+  width: min(100%, 1180px);
   margin: 0 auto;
   padding: calc(34px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) clamp(56px, 8vw, 112px);
 }
 
-.hero,
-.leadSection,
-.latestSection {
-  width: min(100%, 900px);
-  margin-inline: auto;
-}
-
 .hero {
   display: grid;
-  gap: clamp(16px, 3vw, 28px);
-  margin-bottom: clamp(34px, 6vw, 76px);
+  gap: clamp(14px, 2.4vw, 24px);
+  margin-bottom: clamp(34px, 5vw, 64px);
 }
 
 .breadcrumbWrap {
@@ -39,7 +34,7 @@
 
 .heroCopy {
   display: grid;
-  gap: clamp(12px, 2vw, 18px);
+  gap: clamp(12px, 1.8vw, 18px);
 }
 
 .heroTitle {
@@ -47,300 +42,183 @@
   margin: 0;
   color: var(--news-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(48px, 7.4vw, 92px);
+  font-size: clamp(46px, 7vw, 88px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.86;
   text-transform: uppercase;
 }
 
+/* Was 750-weight at 23px — a second headline rather than a standfirst. */
 .heroSub {
-  max-width: 58ch;
+  max-width: 52ch;
   margin: 0;
   color: var(--news-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(18px, 1.7vw, 23px);
-  font-weight: 750;
-  line-height: 1.32;
-}
-
-.leadCard {
-  display: grid;
-  gap: 0;
-  color: var(--news-ink);
-  text-decoration: none;
-}
-
-.leadFrame {
-  position: relative;
-  display: grid;
-  align-items: end;
-  min-height: clamp(440px, 48vw, 560px);
-  overflow: hidden;
-  background: var(--news-ink);
-}
-
-.leadFrame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to top, rgba(13, 10, 7, 0.58), rgba(13, 10, 7, 0.18) 48%, rgba(13, 10, 7, 0)),
-    linear-gradient(to right, rgba(13, 10, 7, 0.42), rgba(13, 10, 7, 0) 68%);
-  pointer-events: none;
-}
-
-.imageFill {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 260ms cubic-bezier(0.16, 0.92, 0.18, 1);
-}
-
-.leadFallback {
-  width: 100%;
-  height: 100%;
-}
-
-.leadFrame > .imageFill,
-.leadFallback {
-  position: absolute;
-  inset: 0;
-}
-
-.leadFallback {
-  background: var(--news-soft);
-}
-
-.leadOverlay {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  align-content: end;
-  padding: clamp(24px, 5vw, 58px);
-}
-
-.leadOverlay h2 {
-  max-width: 16ch;
-  margin: 0;
-  color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(30px, 3.7vw, 46px);
+  font-size: clamp(17px, 1.45vw, 20px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.96;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.54);
-  text-wrap: balance;
-  text-transform: uppercase;
-}
-
-.leadText {
-  display: grid;
-  grid-template-columns: minmax(92px, 0.18fr) minmax(0, 1fr) auto;
-  gap: clamp(16px, 2.8vw, 34px);
-  align-items: start;
-  max-width: none;
-  padding: clamp(20px, 3vw, 34px) clamp(22px, 4vw, 44px);
-  background: var(--news-ink);
-  color: #fff;
-}
-
-.leadText .metaLine {
-  color: var(--news-red);
-}
-
-.leadText .primaryCta {
-  justify-self: end;
-}
-
-.metaLine,
-.storyMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  color: var(--news-red);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(14px, 1.1vw, 16px);
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 1.25;
-  text-transform: none;
-}
-
-.leadText p,
-.storyCopy p,
-.empty {
-  margin: 0;
-  color: var(--news-ink);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(17px, 1.35vw, 19px);
-  font-weight: 750;
   line-height: 1.38;
 }
 
-.leadText p {
-  max-width: 58ch;
-  color: rgba(255, 255, 255, 0.84);
-}
-
-.primaryCta,
-.storyCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: max-content;
-  color: inherit;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: none;
-}
-
-.primaryCta {
-  min-height: 44px;
-  padding: 13px 18px 14px;
-  background: var(--news-yellow);
-  color: var(--news-ink);
-}
-
-.primaryCta::after,
-.storyCta::after {
-  content: '→';
-  margin-left: 8px;
-}
-
-.latestSection {
-  margin-top: clamp(64px, 10vw, 118px);
-}
+/* ----------------------------------------------------------- stories ---- */
 
 .sectionHead {
-  margin-bottom: clamp(22px, 4vw, 38px);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: clamp(20px, 2.6vw, 32px);
 }
 
-.sectionHead h2,
-.storyCopy h3 {
-  margin: 0;
-  color: inherit;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
+.sectionMark {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--news-yellow);
 }
 
 .sectionHead h2 {
-  max-width: 12ch;
+  margin: 0;
   color: var(--news-red);
-  font-size: clamp(34px, 4.2vw, 52px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.9;
+  text-transform: uppercase;
 }
 
-.latestList {
+.grid {
   display: grid;
-  gap: clamp(30px, 4.6vw, 54px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.2vw, 32px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.storyRow {
-  display: grid;
-  grid-template-columns: minmax(230px, 0.38fr) minmax(0, 0.62fr);
-  gap: clamp(18px, 2.8vw, 30px);
-  align-items: stretch;
-  min-height: clamp(270px, 24vw, 300px);
+.grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
   color: var(--news-ink);
   text-decoration: none;
 }
 
-.storyImage {
+.photo {
   position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: clamp(270px, 24vw, 300px);
+  display: block;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--news-soft);
+  border-radius: var(--et-radius-photo, 10px);
 }
 
-.storyImageFallback {
-  width: 100%;
-  height: 100%;
+.photoFallback {
+  position: absolute;
+  inset: 0;
   background: var(--news-soft);
 }
 
-.storyCopy {
-  display: grid;
-  align-content: start;
-  gap: clamp(8px, 1.2vw, 12px);
+.imageFill {
+  object-fit: cover;
+  object-position: center;
+  transition: transform 220ms ease;
+}
+
+/* Legible type over any photo without an opacity fade on a brand surface. */
+.photo::after {
+  content: '';
+  position: absolute;
+  inset: 42% 0 0 0;
+  background: linear-gradient(to bottom, rgba(21, 18, 14, 0), rgba(21, 18, 14, 0.82));
+  pointer-events: none;
+}
+
+.text {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
   min-width: 0;
-  padding-block: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: clamp(12px, 1.5vw, 20px);
 }
 
-.storyCopy h3 {
-  max-width: 24ch;
-  font-size: clamp(25px, 2.45vw, 34px);
-  line-height: 1.02;
-  overflow-wrap: break-word;
-}
-
-.storyCopy p {
-  max-width: 48ch;
-  color: var(--news-muted);
+.kicker {
+  display: block;
+  color: var(--news-yellow);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(14px, 1.2vw, 19px);
   font-weight: 700;
-  font-size: clamp(15px, 1.25vw, 17px);
-  line-height: 1.38;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
 }
 
-.storyCta {
-  color: var(--news-red);
-  font-size: clamp(17px, 1.55vw, 21px);
+.title {
+  display: block;
+  color: #fff;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(16px, 1.5vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-shadow: var(--et-shadow-text-photo, 0 1px 8px rgba(0, 0, 0, 0.5));
+  text-transform: none;
+}
+
+/* Quiet date under the headline — chronology is worth having on an index, but
+   it is the last thing you read on the tile, not the first. */
+.date {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.76);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(12px, 0.95vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-shadow: var(--et-shadow-text-photo, 0 1px 8px rgba(0, 0, 0, 0.5));
 }
 
 .empty {
-  margin-top: 28px;
+  margin: 28px 0 0;
+  color: var(--news-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(17px, 1.35vw, 19px);
+  font-weight: 700;
+  line-height: 1.38;
 }
 
-.leadCard:focus-visible,
-.storyRow:focus-visible {
+.card:focus-visible {
   outline: 2px solid var(--news-red);
   outline-offset: 4px;
 }
 
 @media (hover: hover) {
-  .leadCard:hover .imageFill,
-  .leadCard:focus-visible .imageFill,
-  .storyRow:hover .imageFill,
-  .storyRow:focus-visible .imageFill {
+  .card:hover .imageFill,
+  .card:focus-visible .imageFill {
     transform: scale(1.035);
   }
+}
 
-  .primaryCta,
-  .storyCta {
-    transition:
-      color 140ms ease,
-      background-color 140ms ease,
-      transform 140ms ease;
-  }
-
-  .leadCard:hover .primaryCta,
-  .leadCard:focus-visible .primaryCta,
-  .storyRow:hover .storyCta,
-  .storyRow:focus-visible .storyCta {
-    transform: translateX(-4px);
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
   .shell {
     padding-top: calc(24px + env(safe-area-inset-top, 0px));
-  }
-
-  .leadFrame {
-    min-height: clamp(440px, 72vw, 560px);
   }
 }
 
@@ -350,105 +228,54 @@
   }
 
   .hero {
-    gap: 18px;
-    margin-bottom: 34px;
+    gap: 16px;
+    margin-bottom: 30px;
   }
 
   .heroTitle {
     max-width: 7.8ch;
-    font-size: clamp(44px, 13.2vw, 66px);
+    font-size: clamp(42px, 12.6vw, 62px);
     line-height: 0.88;
   }
 
   .heroSub {
-    font-size: clamp(16px, 4.8vw, 20px);
-  }
-
-  .leadFrame {
-    width: calc(100% + 32px);
-    min-height: clamp(360px, 96vw, 460px);
-    margin-inline: -16px;
-  }
-
-  .leadOverlay {
-    padding: 22px 16px;
-  }
-
-  .leadOverlay h2 {
-    max-width: 16.5ch;
-    font-size: clamp(25px, 7vw, 34px);
-    line-height: 1;
-  }
-
-  .leadText {
-    grid-template-columns: 1fr;
-    gap: 11px;
-    padding: 17px 0 0;
-    background: transparent;
-    color: var(--news-ink);
-  }
-
-  .leadText .primaryCta {
-    justify-self: start;
-  }
-
-  .leadText p {
-    color: var(--news-ink);
-    font-size: 16px;
-    line-height: 1.38;
-  }
-
-  .leadText .metaLine {
-    color: var(--news-red);
-  }
-
-  .primaryCta {
-    background: var(--news-ink);
-    color: var(--news-paper);
-  }
-
-  .latestSection {
-    margin-top: 54px;
-  }
-
-  .sectionHead {
-    margin-bottom: 22px;
+    max-width: none;
+    font-size: clamp(16px, 4.4vw, 19px);
   }
 
   .sectionHead h2 {
-    max-width: 100%;
-    font-size: clamp(30px, 8.8vw, 42px);
+    font-size: clamp(26px, 7.4vw, 34px);
   }
 
-  .latestList {
-    gap: 30px;
+  /* Two columns, not a stack. Seven stories ran 4343px as full-width rows at
+     390px wide; the same seven as tiles measure 1800px. */
+  .grid {
+    gap: 12px;
   }
 
-  .storyRow {
-    grid-template-columns: 1fr;
-    min-height: 0;
-    gap: 11px;
+  .text {
+    gap: 4px;
+    padding: 10px;
   }
 
-  .storyImage {
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 16 / 10;
+  .kicker {
+    font-size: 13px;
   }
 
-  .storyCopy h3 {
-    max-width: 100%;
-    font-size: clamp(23px, 6.3vw, 30px);
-    line-height: 1.02;
-  }
-
-  .storyCopy p {
-    display: block;
+  .title {
     font-size: 15px;
-    line-height: 1.36;
+    line-height: 1.06;
   }
 
-  .storyCta {
-    font-size: clamp(15px, 4vw, 18px);
+  .date {
+    margin-top: 1px;
+    font-size: 11px;
+  }
+
+  /* Two-column tiles are short and the longest guide titles run six lines. With
+     kicker and date the worst case in the current set starts at 31% of the
+     card, so the scrim begins at 24% — headroom for one more line. */
+  .photo::after {
+    inset: 24% 0 0 0;
   }
 }

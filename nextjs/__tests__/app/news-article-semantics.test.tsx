@@ -18,6 +18,7 @@ vi.mock('@/i18n/navigation', () => ({
   ),
 }));
 vi.mock('@/lib/PortableTextRenderer', () => ({
+  extractHeadings: () => [],
   PortableTextRenderer: ({
     renderSpotCard,
   }: {

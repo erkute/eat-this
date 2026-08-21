@@ -1,13 +1,29 @@
 .page {
   --article-ink: var(--et-home-ink, #15120e);
   --article-red: var(--et-home-red, #d9382a);
+  --article-accent: var(--et-home-accent, #ffc600);
   --article-paper: var(--et-home-paper, #fff);
   --article-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
   --article-line: var(--et-home-line, rgba(21, 18, 14, 0.16));
+  /* The reading measure. 680px at 18-19px lands around 68 characters — the
+     old full-width 900px column ran ~95, which is why desktop read worse than
+     mobile despite all the extra room. */
+  --article-measure: 680px;
   min-height: 100%;
   padding: calc(34px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
   background: var(--article-paper);
   color: var(--article-ink);
+}
+
+/* `.app-page` (css/style.css) pairs overflow-x:hidden with overflow-y:visible
+   from 768px up — a combination CSS computes to overflow-y:auto, i.e. a
+   scrollport that never scrolls. That silently kills `position: sticky` in the
+   chapter rail. `clip` contains the same horizontal overflow without creating a
+   scroll container. Qualified with the element (0,1,1) so it also outranks
+   `.app-page` in the production load order, where style.css wins ties. */
+div.page {
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .page > :global(footer[role='contentinfo']) {
@@ -21,133 +37,26 @@
 
 .header {
   display: grid;
-  gap: clamp(18px, 3vw, 34px);
-  margin-bottom: clamp(34px, 6vw, 76px);
+  gap: clamp(16px, 2.4vw, 26px);
+  margin-bottom: clamp(28px, 4vw, 52px);
 }
 
 .breadcrumbWrap {
-  width: min(100%, 900px);
-  margin-inline: auto;
   min-width: 0;
 }
 
-.heroGridPlain {
-  display: grid;
-  align-items: flex-end;
-  max-width: 900px;
-  gap: clamp(22px, 4vw, 58px);
-}
-
-.introCopy {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  display: grid;
-  gap: clamp(14px, 2.2vw, 24px);
-}
-
-.heroWrap .introCopy {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  align-content: end;
-  box-sizing: border-box;
-  width: min(100%, 920px);
-  padding: clamp(24px, 5vw, 58px);
-}
-
-.heroGridPlain .introCopy {
-  padding-bottom: clamp(2px, 1vw, 12px);
-}
-
-.heroBelow {
-  display: grid;
-  width: min(100%, 900px);
-  margin-inline: auto;
-  gap: clamp(12px, 2vw, 18px);
-}
-
-.heroBelow .byline {
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(14px, 1.35vw, 17px);
-  font-weight: 850;
-  letter-spacing: 0;
-  line-height: 1.2;
-  text-transform: none;
-}
-
-.heroBelow .lede {
-  max-width: 58ch;
-}
-
-.byline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  color: var(--article-red);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(12px, 1.1vw, 14px);
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.heroTitle,
-.content h2,
-.content h3,
-.inlineSpotName,
-.mustEatName {
-  font-family: var(--et-font-condensed, Impact, sans-serif);
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.heroTitle {
-  max-width: 10ch;
-  margin: 0;
-  font-size: clamp(50px, 8vw, 116px);
-}
-
-.heroTitle {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-weight: 700;
-  color: var(--article-red);
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title, 0.86);
-}
-
-.heroWrap .heroTitle {
-  max-width: 18ch;
-  color: #fff;
-  font-size: clamp(36px, 5.4vw, 70px);
-  line-height: 0.88;
-  text-wrap: balance;
-}
-
-.lede {
-  max-width: 34ch;
-  margin: 0;
-  color: var(--article-ink);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(18px, 1.7vw, 23px);
-  font-weight: 750;
-  line-height: 1.32;
-}
+/* ---------------------------------------------------------------- hero --- */
 
 .heroWrap {
   position: relative;
   display: grid;
   align-items: end;
-  width: min(100%, 900px);
-  min-height: clamp(520px, 68vw, 720px);
-  margin: 0 auto;
+  width: 100%;
+  min-height: clamp(400px, 44vw, 600px);
+  margin: 0;
   overflow: hidden;
   background: var(--article-ink);
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: var(--et-radius-photo, 10px);
 }
 
 .heroWrap::after {
@@ -157,11 +66,11 @@
   background:
     linear-gradient(
       to top,
-      rgba(13, 10, 7, 0.76),
-      rgba(13, 10, 7, 0.18) 56%,
-      rgba(13, 10, 7, 0.08)
+      rgba(13, 10, 7, 0.78),
+      rgba(13, 10, 7, 0.16) 58%,
+      rgba(13, 10, 7, 0.06)
     ),
-    linear-gradient(to right, rgba(13, 10, 7, 0.58), rgba(13, 10, 7, 0) 66%);
+    linear-gradient(to right, rgba(13, 10, 7, 0.5), rgba(13, 10, 7, 0) 62%);
 }
 
 .hero {
@@ -169,17 +78,117 @@
   filter: saturate(1.04) contrast(1.03);
 }
 
-.content,
-.shareRow,
-.related {
-  width: min(100%, 900px);
+.heroGridPlain {
+  display: grid;
+  align-items: flex-end;
+  max-width: var(--article-measure);
+}
+
+.introCopy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  gap: clamp(12px, 1.8vw, 20px);
+}
+
+.heroWrap .introCopy {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  align-content: end;
+  box-sizing: border-box;
+  width: min(100%, 980px);
+  padding: clamp(22px, 4vw, 52px);
+}
+
+.heroTitle {
+  max-width: 16ch;
+  margin: 0;
+  color: var(--article-red);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: clamp(38px, 5.6vw, 76px);
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title, 0.9);
+  text-transform: uppercase;
+}
+
+.heroWrap .heroTitle {
+  max-width: 17ch;
+  color: #fff;
+  text-wrap: balance;
+}
+
+/* ------------------------------------------------------- column + rail --- */
+
+.body {
+  display: block;
+}
+
+.column {
+  min-width: 0;
+  max-width: 720px;
   margin-inline: auto;
 }
+
+.byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: clamp(14px, 1.8vw, 20px);
+}
+
+/* Yellow chip, same as the magazine eyebrow on the home page — which frees red
+   up to mean "headline" and nothing else. */
+.category {
+  display: inline-block;
+  padding: 6px 9px 7px;
+  color: var(--article-ink);
+  background: var(--article-accent);
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(14px, 1.15vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.bylineMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--article-muted);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.readingTime::before {
+  content: '·';
+  margin-right: 12px;
+}
+
+.lede {
+  max-width: 46ch;
+  margin: 0 0 clamp(22px, 3vw, 34px);
+  color: var(--article-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(17px, 1.45vw, 21px);
+  font-weight: 700;
+  line-height: 1.38;
+}
+
+/* ------------------------------------------------------------- prose ---- */
 
 .content {
   color: var(--article-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(17px, 1.35vw, 19px);
+  font-size: clamp(17px, 1.25vw, 19px);
   line-height: 1.65;
 }
 
@@ -189,29 +198,30 @@
 
 .content > p:first-of-type::first-letter {
   float: left;
-  margin: 0.06em 0.12em 0 0;
+  margin: 0.04em 0.1em 0 0;
   color: var(--article-red);
-  font-family: var(--et-font-condensed, Impact, sans-serif);
-  font-size: 4.5em;
-  line-height: 0.68;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: 3.6em;
+  line-height: 0.74;
 }
 
 .content h2,
 .content h3 {
-  max-width: 28ch;
-  margin: clamp(46px, 7vw, 82px) 0 18px;
+  max-width: 24ch;
+  margin: clamp(38px, 5vw, 66px) 0 14px;
   color: var(--article-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
-  font-size: clamp(32px, 4.8vw, 58px);
-  letter-spacing: var(--et-tracking-title, 0);
-  line-height: 0.94;
+  font-size: clamp(27px, 3.2vw, 44px);
+  letter-spacing: -0.02em;
+  line-height: 0.98;
   text-transform: none;
-  scroll-margin-top: 96px;
+  scroll-margin-top: 104px;
 }
 
-.content h2 {
-  letter-spacing: -0.025em;
+.content h3 {
+  font-size: clamp(23px, 2.2vw, 30px);
 }
 
 .content ul,
@@ -229,29 +239,33 @@
 }
 
 .content a:not(.inlineSpot):not(.mustEat) {
-  color: var(--article-red);
+  color: var(--article-ink);
   font-weight: 800;
   text-decoration: underline;
-  text-decoration-thickness: 2px;
+  text-decoration-color: var(--article-accent);
+  text-decoration-thickness: 3px;
   text-underline-offset: 3px;
+}
+
+.content a:not(.inlineSpot):not(.mustEat):hover {
+  text-decoration-color: var(--article-red);
 }
 
 .content blockquote {
   position: relative;
-  width: min(100%, 18ch);
+  width: min(100%, 22ch);
   max-width: none;
-  margin: clamp(38px, 7vw, 78px) 0;
-  padding: clamp(22px, 3.2vw, 34px) clamp(24px, 4vw, 40px);
+  margin: clamp(34px, 5vw, 64px) 0;
+  padding: clamp(20px, 2.8vw, 32px) clamp(22px, 3.2vw, 36px);
   color: var(--article-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(30px, 4.4vw, 52px);
+  font-size: clamp(26px, 3vw, 40px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.92;
+  line-height: 0.96;
   text-transform: none;
   background: var(--article-red);
   border: 0;
-  box-shadow: none;
   transform: rotate(-1deg);
 }
 
@@ -267,140 +281,114 @@
   transform: translateX(-50%) rotate(3deg);
 }
 
+/* --------------------------------------------------------- must-eat ----- */
+
+/* A flat band, not a poster. The old block ran a 74px headline — louder than
+   the article's own h2 — and printed the identical teaser copy for every
+   must-eat in a guide. The restaurant now carries the headline, so two bands
+   in one piece can never read as the same block twice. */
 .mustEat {
-  display: grid;
-  grid-template-columns: minmax(164px, 0.42fr) minmax(0, 1fr);
-  gap: 0;
-  align-items: stretch;
-  margin: clamp(38px, 6vw, 74px) 0;
-  padding: 0;
   position: relative;
-  isolation: isolate;
-  background: #fff;
+  display: grid;
+  grid-template-columns: clamp(88px, 15%, 128px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(16px, 2.2vw, 26px);
+  margin: clamp(30px, 4.5vw, 56px) 0;
+  padding: clamp(16px, 2vw, 22px);
+  background: var(--et-home-quiet, #f2f1ef);
+  border-radius: var(--et-radius-photo, 10px);
   color: var(--article-ink);
-  border-radius: 0;
   text-align: left;
   text-decoration: none;
-  overflow: hidden;
-}
-
-.mustEat::before {
-  content: none;
+  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .mustEatPh {
-  position: relative;
   display: grid;
   place-items: center;
   margin: 0;
-  min-height: clamp(210px, 28vw, 292px);
-  padding: clamp(22px, 4vw, 38px) clamp(18px, 3vw, 30px);
-  background: #fff;
-}
-
-.mustEatPh::before {
-  content: none;
+  padding: 0;
 }
 
 .mustEatPh img {
   display: block;
-  width: min(100%, 172px);
+  width: 100%;
   height: auto;
-  border-radius: 0;
-  filter: none;
   transform: rotate(-5deg);
   transition: transform 180ms ease;
-  position: relative;
-  z-index: 1;
-}
-
-a.mustEat:hover .mustEatPh img,
-a.mustEat:focus-visible .mustEatPh img {
-  transform: rotate(-2deg) translateY(-4px);
 }
 
 .mustEatBody {
   display: grid;
   align-content: center;
   justify-items: start;
-  gap: clamp(8px, 1.4vw, 13px);
-  padding: clamp(24px, 4vw, 40px) clamp(22px, 4vw, 44px);
-}
-
-.mustEatKicker,
-.inlineSpotMeta,
-.relatedCategory {
-  color: var(--article-red);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  line-height: 1.15;
-  text-transform: uppercase;
+  gap: 7px;
 }
 
 .mustEatKicker {
-  margin: 0;
-  color: var(--article-red);
-}
-
-.mustEat .mustEatName {
-  max-width: 11ch;
-  margin: 0;
-  color: var(--article-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(38px, 5.6vw, 74px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title, 0);
-  line-height: var(--et-leading-title, 0.86);
-  text-shadow: none;
-  text-transform: none;
-}
-
-.mustEat .mustEatDesc {
-  max-width: 34ch;
-  margin: 0;
-  color: var(--article-ink);
-  font-size: clamp(16px, 1.45vw, 19px);
-  font-weight: 750;
-  line-height: 1.36;
-}
-
-.mustEatRest {
-  color: rgba(21, 18, 14, 0.58);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(13px, 1.1vw, 15px);
-  font-weight: 750;
-  line-height: 1.3;
-}
-
-.mustEatRest::before {
-  content: none;
-}
-
-.mustEatCta,
-.inlineSpotCta,
-.relatedRead,
-.shareBtn {
-  display: inline-flex;
-  width: max-content;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  border-radius: var(--et-radius-control, 0);
+  gap: 8px 10px;
+}
+
+.mustEatTag {
+  display: inline-block;
+  padding: 4px 7px 5px;
+  color: var(--article-ink);
+  background: var(--article-accent);
+  border-radius: 5px;
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
 }
 
+.mustEatMeta {
+  color: var(--article-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.mustEat .mustEatName {
+  max-width: 18ch;
+  margin: 0;
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(22px, 2.1vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-transform: none;
+}
+
+.mustEat .mustEatDesc {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--article-muted);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(14px, 1.1vw, 16px);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .mustEatCta {
-  gap: 10px;
-  margin-top: clamp(6px, 1vw, 12px);
-  min-height: 44px;
-  padding: 13px 18px 14px;
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  min-height: 38px;
+  padding: 10px 15px 11px;
   background: var(--article-ink);
   color: var(--article-paper);
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
@@ -409,15 +397,23 @@ a.mustEat:focus-visible .mustEatPh img {
   text-transform: none;
 }
 
+.mustEatCta::after {
+  content: '→';
+  transition: transform 140ms ease;
+}
+
+/* ------------------------------------------------------- inline spot ---- */
+
 .inlineSpot {
   position: relative;
   display: block;
-  min-height: clamp(360px, 48vw, 520px);
-  margin: clamp(34px, 6vw, 68px) 0;
+  min-height: clamp(320px, 40vw, 460px);
+  margin: clamp(30px, 5vw, 60px) 0;
   overflow: hidden;
   background-color: var(--article-ink);
   background-position: center;
   background-size: cover;
+  border-radius: var(--et-radius-photo, 10px);
   color: #fff;
   text-decoration: none;
 }
@@ -425,7 +421,7 @@ a.mustEat:focus-visible .mustEatPh img {
 .inlineSpot::after {
   content: '';
   position: absolute;
-  inset: 20% 0 0;
+  inset: 24% 0 0;
   background: linear-gradient(
     to top,
     rgba(12, 9, 7, 0.92),
@@ -436,68 +432,81 @@ a.mustEat:focus-visible .mustEatPh img {
 
 .inlineSpotFoot {
   position: absolute;
-  right: clamp(16px, 3vw, 28px);
-  bottom: clamp(16px, 3vw, 28px);
-  left: clamp(16px, 3vw, 28px);
+  right: clamp(16px, 2.4vw, 26px);
+  bottom: clamp(16px, 2.4vw, 26px);
+  left: clamp(16px, 2.4vw, 26px);
   z-index: 1;
   display: grid;
-  gap: 12px;
+  gap: 10px;
+  justify-items: start;
 }
 
-.inlineSpotName {
-  max-width: 14ch;
-  margin-bottom: 2px;
+.inlineSpotMeta {
   color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(30px, 5.6vw, 58px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title, 0);
-  line-height: 0.96;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.38);
-  text-transform: none;
-}
-
-.inlineSpot .inlineSpotMeta {
-  color: #fff;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-transform: uppercase;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
 }
 
-.inlineSpotCta {
-  min-height: 40px;
-  padding: 11px 16px 12px;
-  background: var(--article-ink);
+.inlineSpotName {
+  max-width: 16ch;
+  margin-bottom: 2px;
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.46);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(26px, 3vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.98;
+  text-shadow: var(--et-shadow-text-photo, 0 2px 14px rgba(0, 0, 0, 0.38));
+  text-transform: none;
+}
+
+.inlineSpotCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 10px 15px 11px;
+  background: var(--article-paper);
+  color: var(--article-ink);
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
   letter-spacing: 0;
+  line-height: 1;
   text-transform: none;
 }
 
 .inlineSpotCta::after {
   content: '→';
-  margin-left: 8px;
+  transition: transform 140ms ease;
 }
+
+/* ------------------------------------------------------------- share ---- */
 
 .shareRow {
   display: flex;
-  justify-content: flex-end;
-  margin-top: clamp(28px, 5vw, 54px);
+  justify-content: flex-start;
+  margin-top: clamp(24px, 4vw, 44px);
 }
 
 .shareBtn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 30px;
-  padding: 4px 7px;
+  min-height: 38px;
+  padding: 8px 13px 9px;
   border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--et-home-quiet, #f2f1ef);
   color: var(--article-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(15px, 1.45vw, 18px);
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -505,8 +514,8 @@ a.mustEat:focus-visible .mustEatPh img {
   text-transform: none;
   cursor: pointer;
   transition:
-    color 140ms ease,
-    transform 140ms ease;
+    background 140ms ease,
+    color 140ms ease;
 }
 
 .shareBtn svg {
@@ -520,106 +529,123 @@ a.mustEat:focus-visible .mustEatPh img {
   stroke-width: 2.3;
 }
 
+/* ----------------------------------------------------------- related ---- */
+
+/* Same card as the magazine rail on the home page: photo 4/5, title inside the
+   photo, yellow kicker. It used to be a dark box with 34px all-caps headlines —
+   the loudest type on a page whose own chapter headings were smaller. */
 .related {
-  margin-top: clamp(56px, 9vw, 110px);
-  margin-bottom: clamp(54px, 8vw, 96px);
-  padding: clamp(26px, 4vw, 44px);
-  background: var(--et-home-ink, #15120e);
-  color: #fff;
-  border-top: 0;
+  margin-top: clamp(56px, 8vw, 104px);
+  margin-bottom: clamp(48px, 7vw, 88px);
+}
+
+.relatedHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: clamp(20px, 2.6vw, 32px);
+}
+
+.relatedMark {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--article-accent);
 }
 
 .relatedHeading {
-  max-width: 14ch;
-  margin: 0 0 clamp(24px, 4vw, 42px);
-  color: #fff;
+  margin: 0;
+  color: var(--article-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: clamp(28px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 0.82;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
 .relatedGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(22px, 3vw, 34px);
+  gap: clamp(20px, 2.2vw, 32px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.relatedGrid > li {
+  display: flex;
+  min-width: 0;
+}
+
 .relatedCard {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 16px;
-  height: 100%;
-  overflow: hidden;
-  color: #fff;
-  text-decoration: none;
-  transition: transform 160ms cubic-bezier(0.16, 0.92, 0.18, 1);
-}
-
-.relatedImage {
+  position: relative;
+  display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  background-color: rgba(255, 255, 255, 0.1);
-  background-position: center;
-  background-size: cover;
+  min-width: 0;
+  color: var(--article-ink);
+  text-decoration: none;
 }
 
-.relatedBody {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  padding: 0;
+.relatedPhoto {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--et-home-photo-rest, #eceae6);
+  border-radius: var(--et-radius-photo, 10px);
 }
 
-.relatedHeadline {
-  margin: 0;
-  color: #fff;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(24px, 2.75vw, 34px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.86;
-  text-transform: uppercase;
+.relatedPhoto img {
+  object-fit: cover;
+  transition: transform 220ms ease;
+}
+
+.relatedPhoto::after {
+  content: '';
+  position: absolute;
+  inset: 42% 0 0 0;
+  background: linear-gradient(to bottom, rgba(21, 18, 14, 0), rgba(21, 18, 14, 0.82));
+  pointer-events: none;
+}
+
+.relatedText {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: clamp(14px, 1.5vw, 20px);
 }
 
 .relatedCategory {
-  color: rgba(255, 255, 255, 0.62);
+  display: block;
+  color: var(--article-accent);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  line-height: 1.1;
-  text-transform: uppercase;
-}
-
-.relatedRead {
-  min-height: 0;
-  margin-top: clamp(8px, 1.3vw, 14px);
-  padding: 8px 12px 9px;
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border-radius: var(--home-radius-btn, 8px);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 14px;
+  font-size: clamp(15px, 1.2vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
   text-transform: none;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
 }
 
-.relatedRead::after {
-  content: '→';
-  margin-left: 7px;
+.relatedHeadline {
+  display: block;
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(19px, 1.5vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-shadow: var(--et-shadow-text-photo, 0 1px 8px rgba(0, 0, 0, 0.5));
+  text-transform: none;
 }
+
+/* ------------------------------------------------------------ states ---- */
 
 .mustEat:focus-visible,
 .inlineSpot:focus-visible,
@@ -630,28 +656,74 @@ a.mustEat:focus-visible .mustEatPh img {
 }
 
 @media (hover: hover) {
-  .relatedCard:hover .relatedHeadline,
-  .relatedCard:focus-visible .relatedHeadline {
-    color: var(--et-home-accent, #ffc600);
+  a.mustEat:hover {
+    transform: translateY(-3px);
   }
 
-  .relatedCard:hover .relatedRead,
-  .relatedCard:focus-visible .relatedRead {
-    background: #fff;
-    color: var(--et-home-ink, #15120e);
-    transform: translateX(-4px);
+  a.mustEat:hover .mustEatPh img {
+    transform: rotate(-2deg) translateY(-3px);
   }
 
-  .relatedCard:hover,
-  .relatedCard:focus-visible {
-    transform: translateY(-4px);
+  a.mustEat:hover .mustEatCta::after,
+  .inlineSpot:hover .inlineSpotCta::after {
+    transform: translateX(4px);
+  }
+
+  .relatedCard:hover .relatedPhoto img,
+  .relatedCard:focus-visible .relatedPhoto img {
+    transform: scale(1.03);
   }
 
   .shareBtn:hover,
   .shareBtn:focus-visible {
-    background: rgba(21, 18, 14, 0.08);
-    color: var(--et-home-accent, #ffc600);
-    transform: translateX(-6px);
+    background: var(--article-accent);
+  }
+}
+
+/* ------------------------------------------------------------ layout ---- */
+
+@media (min-width: 1080px) {
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 216px) minmax(0, 1fr);
+    column-gap: clamp(40px, 4.5vw, 76px);
+    /* No `align-items: start` — the rail has to stretch to the full row height,
+       otherwise its sticky child unsticks as soon as the rail's own short box
+       has scrolled past. */
+  }
+
+  .column {
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  /* Prose keeps the measure; the visual blocks take the whole column and so
+     step out past the text — the wide space to the right of the paragraphs is
+     the point, not an accident. */
+  .byline,
+  .lede,
+  .content > p,
+  .content > h2,
+  .content > h3,
+  .content > ul,
+  .content > ol {
+    max-width: var(--article-measure);
+  }
+
+  .content > h2,
+  .content > h3 {
+    max-width: min(24ch, var(--article-measure));
+  }
+
+  /* The pull quote hangs in the margin next to the text. */
+  .content blockquote {
+    margin-left: auto;
+    margin-right: clamp(0px, 2vw, 40px);
+  }
+
+  /* The rail already carries Teilen. */
+  .shareRow {
+    display: none;
   }
 }
 
@@ -661,24 +733,11 @@ a.mustEat:focus-visible .mustEatPh img {
   }
 
   .header {
-    gap: 10px;
+    gap: 12px;
   }
 
   .heroWrap {
-    min-height: clamp(470px, 78vw, 620px);
-  }
-
-  .heroTitle,
-  .lede {
-    max-width: none;
-  }
-
-  .heroWrap .heroTitle {
-    max-width: 17ch;
-  }
-
-  .heroWrap .lede {
-    max-width: 34ch;
+    min-height: clamp(380px, 62vw, 520px);
   }
 }
 
@@ -688,36 +747,37 @@ a.mustEat:focus-visible .mustEatPh img {
   }
 
   .header {
-    gap: 8px;
-    margin-bottom: 34px;
+    gap: 10px;
+    margin-bottom: 26px;
   }
 
   .breadcrumbWrap {
-    padding-block: 10px 0;
-  }
-
-  .heroTitle {
-    font-size: clamp(40px, 12vw, 60px);
-    line-height: 0.86;
-  }
-
-  .heroWrap .heroTitle {
-    max-width: 15.5ch;
-    font-size: clamp(32px, 9.4vw, 48px);
-  }
-
-  .lede {
-    font-size: clamp(16px, 4.8vw, 20px);
+    padding-block: 8px 0;
   }
 
   .heroWrap {
     margin-inline: -16px;
     width: calc(100% + 32px);
-    min-height: clamp(460px, 132vw, 620px);
+    min-height: clamp(360px, 104vw, 500px);
+    border-radius: 0;
   }
 
   .heroWrap .introCopy {
-    padding: 24px 16px;
+    padding: 22px 16px 24px;
+  }
+
+  .heroTitle {
+    max-width: none;
+    font-size: clamp(30px, 8.6vw, 46px);
+  }
+
+  .heroWrap .heroTitle {
+    max-width: 15ch;
+  }
+
+  .lede {
+    max-width: none;
+    font-size: clamp(17px, 4.4vw, 19px);
   }
 
   .content {
@@ -726,84 +786,74 @@ a.mustEat:focus-visible .mustEatPh img {
   }
 
   .content > p:first-of-type::first-letter {
-    font-size: 3.8em;
+    font-size: 3.2em;
   }
 
   .content h2,
   .content h3 {
-    font-size: clamp(26px, 7.2vw, 34px);
-    line-height: 0.96;
+    max-width: none;
+    font-size: clamp(26px, 7vw, 32px);
+    line-height: 1;
+  }
+
+  .content h3 {
+    font-size: clamp(22px, 5.8vw, 26px);
   }
 
   .content blockquote {
-    width: calc(100% - 8px);
-    padding: 24px 24px 26px;
-    font-size: clamp(26px, 7.6vw, 36px);
+    width: calc(100% - 6px);
+    padding: 22px 22px 24px;
+    font-size: clamp(24px, 7vw, 32px);
   }
 
   .mustEat {
-    grid-template-columns: 1fr;
-    margin-inline: -16px;
-    text-align: left;
-  }
-
-  .mustEat::before {
-    content: none;
-  }
-
-  .mustEatPh {
-    min-height: 190px;
-    padding: 24px 18px 20px;
-  }
-
-  .mustEatPh::before {
-    content: none;
-  }
-
-  .mustEatPh img {
-    width: min(46vw, 156px);
-  }
-
-  .mustEatBody {
-    justify-items: start;
-    padding: 22px 16px 24px;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 16px;
+    padding: 14px;
   }
 
   .mustEat .mustEatName {
-    max-width: 9ch;
-    font-size: clamp(34px, 10.4vw, 52px);
+    font-size: clamp(21px, 6vw, 26px);
   }
 
   .mustEat .mustEatDesc {
     max-width: none;
-    font-size: 16px;
-  }
-
-  .mustEatCta {
-    width: auto;
+    font-size: 14px;
   }
 
   .inlineSpot {
-    min-height: clamp(360px, 92vw, 500px);
-    margin-inline: -16px;
-  }
-
-  .shareRow {
-    justify-content: flex-start;
-    margin-top: 30px;
-  }
-
-  .relatedGrid {
-    grid-template-columns: 1fr;
-    gap: 34px;
-  }
-
-  .relatedHeadline {
-    font-size: clamp(30px, 8vw, 42px);
-    line-height: 0.9;
+    min-height: clamp(300px, 78vw, 420px);
   }
 
   .relatedHeading {
-    font-size: clamp(24px, 6.7vw, 34px);
+    font-size: clamp(26px, 7.4vw, 34px);
+  }
+
+  /* Swipeable rail instead of a stack — same three cards, a fifth of the
+     height. Bleeds to both edges so the next card peeks in, exactly like the
+     magazine rail on the home page. */
+  .relatedGrid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    scroll-padding-inline: 16px;
+  }
+
+  .relatedGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .relatedGrid > li {
+    flex: 0 0 min(76vw, 300px);
+    scroll-snap-align: start;
+  }
+
+  .relatedHeadline {
+    font-size: clamp(20px, 5.4vw, 24px);
   }
 }

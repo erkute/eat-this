@@ -229,7 +229,17 @@
   .listScroll {
     max-height: none;
     overflow: visible;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    /* Clearance for the map/list pill, which is `position: fixed` at
+       bottom-centre over this list (MapViewToggle). 24px was not enough: the
+       pill is 44px tall and parks max(18px, safe-area + 14px) above the edge —
+       plus the cookie bar while it is up — so the last thing in the list sat
+       underneath it. Today that is the All-Berlin banner's centred sign-in
+       line, which the pill covers exactly; before it, the last card.
+       Keep the two in step: the first two terms are the pill's own `bottom`,
+       then its height and a gap. */
+    padding-bottom: calc(
+      max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px)) + var(--consent-bar-h, 0px) + 56px
+    );
   }
   .list[data-view='detail'] {
     position: relative;

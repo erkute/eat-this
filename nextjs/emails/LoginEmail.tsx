@@ -26,7 +26,12 @@ export default function LoginEmail({ magicLink, appUrl }: LoginEmailProps) {
       <Paper padding="40px 32px 44px">
         <Kicker>Schön, dass du wieder da bist</Kicker>
 
-        <ArtImage art={ART.headlineLogin} appUrl={appUrl} style={{ margin: '0 0 20px' }} />
+        <ArtImage
+          art={ART.headlineLogin}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.red, fontSize: '30px', fontWeight: 700 }}
+          style={{ margin: '0 0 20px' }}
+        />
 
         <Lead style={{ marginBottom: '28px' }}>
           Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.

@@ -86,29 +86,53 @@ export function SectionHead({
         </div>
       </Column>
       <Column style={{ verticalAlign: 'bottom' }}>
-        <ArtImage art={art} appUrl={appUrl} />
+        <ArtImage
+          art={art}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.red, fontSize: '20px', fontWeight: 700 }}
+        />
       </Column>
     </Row>
   );
 }
 
-/** Brand-font art, sized from the generated manifest so copy edits can't skew it. */
+/**
+ * Brand-font art, sized from the generated manifest so copy edits can't skew it.
+ *
+ * Two things here exist purely for recipients whose client blocks images —
+ * Outlook by default, and a large share of Gmail accounts:
+ *
+ *  * No `height` attribute. With one, a blocked image reserves its full box and
+ *    leaves a conspicuous hole above the copy; without it the row collapses to
+ *    the height of the alt text and the mail still reads as a mail.
+ *  * `altStyle` colours and sizes the alt text. Clients render alt text in the
+ *    img's own font and colour, so an unstyled headline degrades to small black
+ *    body text — and on the ink masthead and footer, to black on black.
+ */
 export function ArtImage({
   art,
   appUrl,
   style,
+  altStyle,
 }: {
   art: ArtAsset;
   appUrl: string;
   style?: React.CSSProperties;
+  altStyle?: Pick<React.CSSProperties, 'color' | 'fontSize' | 'fontWeight' | 'letterSpacing'>;
 }) {
   return (
     <Img
       src={`${appUrl}/pics/email/${art.id}.png`}
       alt={art.alt}
       width={art.width}
-      height={art.height}
-      style={{ display: 'block', border: 0, height: 'auto', maxWidth: '100%', ...style }}
+      style={{
+        display: 'block',
+        border: 0,
+        height: 'auto',
+        maxWidth: '100%',
+        ...altStyle,
+        ...style,
+      }}
     />
   );
 }

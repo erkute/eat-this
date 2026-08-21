@@ -79,15 +79,18 @@ describe('CookieConsent', () => {
   /* An answer to an older version of the question is not an answer to this
    * one. Art. 7(1) asks what someone agreed to, so a stale version has to send
    * them back through the dialog rather than quietly counting as a yes. */
-  it.each(['accepted', 'declined'])('re-asks when the stored %s answer is an old version', (choice) => {
-    document.cookie = `${CONSENT_COOKIE}=${choice}.${CONSENT_VERSION - 1}; Path=/`;
+  it.each(['accepted', 'declined'])(
+    're-asks when the stored %s answer is an old version',
+    (choice) => {
+      document.cookie = `${CONSENT_COOKIE}=${choice}.${CONSENT_VERSION - 1}; Path=/`;
 
-    render(<CookieConsent />);
+      render(<CookieConsent />);
 
-    expect(gate(), 'a stale version should reopen the dialog').not.toBeNull();
-    expect(readConsent()).toBeNull();
-    expect(analytics.load, 'a stale yes must not load analytics').not.toHaveBeenCalled();
-  });
+      expect(gate(), 'a stale version should reopen the dialog').not.toBeNull();
+      expect(readConsent()).toBeNull();
+      expect(analytics.load, 'a stale yes must not load analytics').not.toHaveBeenCalled();
+    }
+  );
 
   it('ignores an answer that carries no version at all', () => {
     document.cookie = `${CONSENT_COOKIE}=accepted; Path=/`;
@@ -190,5 +193,19 @@ describe('CookieConsent', () => {
 
     await waitFor(() => expect(gate()).not.toBeNull());
     expect(readConsent(), 'the old answer should be cleared while re-asking').toBeNull();
+  });
+
+  /* The gate must not exist in the server HTML. The answer lives in a cookie
+   * this component can only read after mounting, so anything rendered server-
+   * side is rendered for everyone — and .cookie-consent is a solid panel that
+   * without .show is merely transform-offset, not hidden. Rendering it on the
+   * server therefore painted the dialog for one frame on every page load, for
+   * visitors who had long since answered. An assertion on the client render
+   * cannot catch that: RTL flushes effects, so the gate is already gone by the
+   * time the test looks. Only the server output shows it. */
+  it('renders nothing on the server, so no visitor gets a flash of the dialog', async () => {
+    const { renderToStaticMarkup } = await import('react-dom/server');
+
+    expect(renderToStaticMarkup(<CookieConsent />)).toBe('');
   });
 });

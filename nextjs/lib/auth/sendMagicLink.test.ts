@@ -13,7 +13,7 @@ vi.mock('resend', () => ({
   },
 }));
 
-vi.mock('@react-email/render', () => ({ render: vi.fn(async () => '<html />') }));
+vi.mock('@/emails/render', () => ({ renderEmail: vi.fn(async () => '<html />') }));
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({
     generateSignInWithEmailLink: mocks.generateLink,
@@ -21,8 +21,9 @@ vi.mock('@/lib/firebase/admin', () => ({
   }),
 }));
 vi.mock('@/lib/sanity.server', () => ({ getEmailSpots: mocks.getEmailSpots }));
-vi.mock('@/emails/MagicLinkEmail', () => ({ default: () => null }));
-vi.mock('@/emails/magicLinkText', () => ({ buildMagicLinkText: () => 'text' }));
+vi.mock('@/emails/SignupEmail', () => ({ default: () => null, SIGNUP_SUBJECT: 'signup' }));
+vi.mock('@/emails/LoginEmail', () => ({ default: () => null, LOGIN_SUBJECT: 'login' }));
+vi.mock('@/emails/magicLinkText', () => ({ buildLoginText: () => 'text', buildSignupText: () => 'text' }));
 
 import { sendMagicLinkEmail } from './sendMagicLink';
 

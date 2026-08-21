@@ -1,0 +1,171 @@
+// Signup mail — first contact with an address that has no account yet.
+//
+// Carries the product where the login mail does not: the home hero, the Starter
+// Pack panel in its home shape (quiet grey, yellow pill, red title), and a few
+// composed spot cards. The link still comes first — someone who only wants in
+// never has to scroll.
+
+import { Link, Section, Text } from '@react-email/components';
+import { Shell } from './components/Shell';
+import { ArtImage, CtaButton, Fineprint, Kicker, Lead, Paper, SectionHead } from './components/Pieces';
+import { ART } from './art.generated';
+import { COLOR, LAYOUT } from './theme';
+
+/** One curated restaurant teased in the email. */
+export interface EmailSpot {
+  name: string;
+  /** Sanity slug — drives the /map?r= deep-link and the composed card image. */
+  slug: string;
+  /** Neighborhood / district, e.g. "Mitte". */
+  area: string;
+  /** Cuisine label, e.g. "Bakery". */
+  cuisine?: string;
+  /** Restaurant photo — raw Sanity CDN URL (query string optional). */
+  photo: string;
+}
+
+export interface SignupEmailProps {
+  /** The Firebase sign-in link the recipient clicks to authenticate. */
+  magicLink: string;
+  /** Absolute base URL for artwork (https://www.eatthisdot.com or http://localhost:3000). */
+  appUrl: string;
+  /** Curated restaurants to tease. Three fit the rhythm; more are dropped. */
+  restaurants?: EmailSpot[];
+}
+
+export const SIGNUP_SUBJECT = 'Willkommen bei Eat This — dein Link zum Anmelden';
+
+/** Home shows four in a rail; a mail that scrolls forever converts worse. */
+const MAX_SPOTS = 3;
+
+export default function SignupEmail({ magicLink, appUrl, restaurants = [] }: SignupEmailProps) {
+  const spots = restaurants.slice(0, MAX_SPOTS);
+
+  return (
+    <Shell
+      appUrl={appUrl}
+      preview="Dein Link zum Anmelden — und dein Starter Pack liegt schon bereit."
+    >
+      {/* HERO — the home hero, one column narrower: kicker, red Providence
+          headline, the site's own lead sentence, ink CTA. */}
+      <Paper padding="40px 32px 36px">
+        <Kicker>Was du essen solltest</Kicker>
+
+        <ArtImage art={ART.headlineSignup} appUrl={appUrl} style={{ margin: '0 0 22px' }} />
+
+        <Lead style={{ marginBottom: '28px' }}>
+          Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir gleich,
+          was du bestellen musst.
+        </Lead>
+
+        <CtaButton href={magicLink} label="Anmelden und Map öffnen" />
+
+        <Fineprint>
+          Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:{' '}
+          <Link href={magicLink} style={{ color: COLOR.ink, textDecoration: 'underline' }}>
+            hier ist er als normaler Link
+          </Link>
+          .
+        </Fineprint>
+      </Paper>
+
+      {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
+          artwork, yellow "Gratis" pill, red title. */}
+      <Section className="et-pad" style={{ backgroundColor: COLOR.paper, padding: '0 32px 36px' }}>
+        <Section
+          style={{
+            backgroundColor: COLOR.quiet,
+            borderRadius: `${LAYOUT.radiusPhoto}px`,
+            padding: '30px 24px 32px',
+            textAlign: 'center',
+          }}
+        >
+          <ArtImage
+            art={{
+              id: 'booster_free',
+              width: 168,
+              height: 260,
+              alt: 'Eat This Starter Pack — 20 Must Eats',
+            }}
+            appUrl={appUrl}
+            style={{ margin: '0 auto 16px' }}
+          />
+
+          {/* The yellow pill from home — a padded inline anchor-free span reads
+              as a pill in every client that keeps background colours, and as
+              plain bold text in the few that don't. */}
+          <Text
+            style={{
+              margin: '0 0 12px',
+              display: 'inline-block',
+              backgroundColor: COLOR.accent,
+              color: COLOR.red,
+              borderRadius: '999px',
+              padding: '5px 14px',
+              fontSize: '12px',
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+            }}
+          >
+            Gratis
+          </Text>
+
+          <ArtImage art={ART.titleStarterPack} appUrl={appUrl} style={{ margin: '0 auto 14px' }} />
+
+          <Text
+            style={{
+              margin: 0,
+              fontSize: '15px',
+              lineHeight: 1.6,
+              color: COLOR.ink,
+            }}
+          >
+            Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei.
+            Kostenlos.
+          </Text>
+        </Section>
+      </Section>
+
+      {/* SPOTS — each one a single server-composed image (photo + scrim + name
+          in the brand font, see /api/email/spot-card) wrapped in a /map?r=
+          deep-link. One flat image is the only composition email clients can't
+          break: Gmail strips position/transform/filter/box-shadow and never
+          loads webfonts. */}
+      {spots.length > 0 && (
+        <Paper padding="0 32px 40px">
+          <SectionHead art={ART.titleSpots} appUrl={appUrl} />
+
+          <Lead style={{ marginBottom: '20px', fontSize: '15px' }}>
+            Drei von vielen. Tipp drauf, dann öffnet sich der Spot auf der Map.
+          </Lead>
+
+          {spots.map((s, i) => {
+            const meta = [s.area, s.cuisine].filter(Boolean).join(' · ');
+            return (
+              <Link
+                key={`${s.slug}-${i}`}
+                href={`${appUrl}/map?r=${s.slug}`}
+                style={{ display: 'block', margin: '0 0 14px' }}
+              >
+                <img
+                  src={`${appUrl}/api/email/spot-card?slug=${s.slug}&v=4`}
+                  alt={`${s.name} — ${meta}`}
+                  width="536"
+                  height="402"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    maxWidth: '536px',
+                    height: 'auto',
+                    border: 0,
+                    borderRadius: `${LAYOUT.radiusPhoto}px`,
+                  }}
+                />
+              </Link>
+            );
+          })}
+        </Paper>
+      )}
+    </Shell>
+  );
+}

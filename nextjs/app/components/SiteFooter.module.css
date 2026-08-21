@@ -1,16 +1,21 @@
+/* One footer everywhere: ink page, white type, a single yellow accent — the
+   same chrome palette as the masthead and the burger drawer. This used to be
+   gated on html[data-active-page='start'|'must-eats'], so every other route
+   (and every 404) got a red-shadowed, accent-less variant of it. */
 .footer {
   --footer-ink: #fff;
   --footer-paper: #fff;
-  --footer-red: #d9382a;
-  --footer-hover: var(--footer-red);
+  --footer-accent: #ffc600;
+  --footer-shadow: #15120e;
+  --footer-hover: var(--footer-accent);
   --footer-instagram: #c13584;
   --footer-bg: #15120e;
   background: var(--footer-bg);
   color: var(--footer-ink);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   text-align: center;
-  border-top: 0;
   overflow: hidden;
 }
 
@@ -51,7 +56,7 @@
   height: auto;
   margin-top: -9px;
   margin-inline: auto;
-  filter: brightness(0) invert(1);
+  filter: invert(1);
 }
 
 .remyLink {
@@ -122,7 +127,7 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--footer-ink);
+  color: var(--footer-accent);
 }
 
 .socialLink {
@@ -139,7 +144,7 @@
   text-transform: uppercase;
   color: var(--footer-paper);
   text-decoration: none;
-  text-shadow: 1.5px 1.5px 0 var(--footer-red);
+  text-shadow: 1.5px 1.5px 0 var(--footer-shadow);
   transform: rotate(1deg);
 }
 
@@ -266,7 +271,7 @@
 }
 
 .langBtnActive {
-  color: var(--footer-ink);
+  color: var(--footer-accent);
 }
 
 .langBtn:hover,
@@ -325,22 +330,3 @@
   }
 }
 
-:global(html[data-active-page='start']) .footer,
-:global(html[data-active-page='must-eats']) .footer {
-  --footer-red: #15120e;
-  --footer-hover: #ffc600;
-  --footer-ink: #fff;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-:global(html[data-active-page='start']) .tagImg,
-:global(html[data-active-page='must-eats']) .tagImg {
-  filter: invert(1);
-}
-
-:global(html[data-active-page='start']) .linksKicker,
-:global(html[data-active-page='start']) .langBtnActive,
-:global(html[data-active-page='must-eats']) .linksKicker,
-:global(html[data-active-page='must-eats']) .langBtnActive {
-  color: #ffc600;
-}

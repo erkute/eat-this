@@ -30,8 +30,11 @@ function PackArt({ src }: { src: string }) {
   );
 }
 
-// A swipeable rail like the home's category rail — opened packs first, locked
-// ones behind them. Locked cards link as a whole so the pack art is tappable.
+// Opened packs first, locked ones behind them. Locked cards link as a whole so
+// the pack art is tappable. On mobile a swipeable rail like the home's category
+// rail; from tablet up the same set wraps into a grid (see Profile.module.css) —
+// the list is closed and every pack equally ranked, so it wants to be scanned
+// whole rather than scrolled past.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);

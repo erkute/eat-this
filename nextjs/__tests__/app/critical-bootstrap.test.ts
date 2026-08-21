@@ -14,12 +14,21 @@ describe('critical auth bootstrap', () => {
     expect(bootstrap).not.toContain('.textContent=')
   })
 
-  it('acknowledges the intentional pre-hydration font media switch on the link itself', () => {
-    const source = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
-    const fontLink = source.match(/<link\s+id="et-adobe-fonts"[\s\S]*?\/>/)?.[0]
+  /* Adobe's kit stylesheet used to be linked here and loaded with media="print"
+   * until the bootstrap flipped it. It @imported p.typekit.net/p.css — Adobe's
+   * usage beacon — which ran for every visitor before the cookie dialog was
+   * answered. The @font-face rules now live in app/globals.css and only the
+   * font files are fetched. Do not put a third-party stylesheet back in a head:
+   * a stylesheet is a request the visitor never agreed to. */
+  it.each([
+    'app/[locale]/layout.tsx',
+    'app/not-found.tsx',
+    'app/welcome/layout.tsx',
+  ])('links no third-party stylesheet from %s', (file) => {
+    const source = readFileSync(join(process.cwd(), file), 'utf8')
+    const sheets = source.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []
 
-    expect(fontLink).toBeDefined()
-    expect(fontLink).toContain('media="print"')
-    expect(fontLink).toContain('suppressHydrationWarning')
+    expect(sheets.filter((tag) => /https?:\/\//.test(tag))).toEqual([])
+    expect(source).not.toContain('typekit.net/kgb1lmh.css')
   })
 })

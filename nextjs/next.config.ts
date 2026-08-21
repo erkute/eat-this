@@ -64,7 +64,10 @@ const nextConfig: NextConfig = {
       "object-src 'none'",
       "frame-ancestors 'self'",
       "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://apis.google.com",
-      "style-src 'self' 'unsafe-inline' https://use.typekit.net",
+      // No third-party stylesheet any more: Adobe's kit CSS is gone and the
+      // @font-face rules live in app/globals.css. Only the font FILES are
+      // still fetched from Adobe, which font-src below covers.
+      "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://cdn.sanity.io https://*.cartocdn.com https://*.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com",
       "font-src 'self' data: https://use.typekit.net",
       "connect-src 'self' https://cdn.sanity.io https://*.cartocdn.com https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com https://www.google-analytics.com https://*.analytics.google.com",

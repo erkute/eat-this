@@ -96,10 +96,6 @@ const copy = {
   },
 } as const;
 
-function PackPrice({ pack }: { pack: PackDef }) {
-  return <span className={styles.price}>{formatPackPrice(pack.amountCents)}</span>;
-}
-
 export default async function PacksOverviewPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -220,10 +216,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                 </Link>
 
                 <div className={styles.packInfo}>
-                  <div className={styles.packTop}>
-                    <h3>{pack.displayName}</h3>
-                    <PackPrice pack={pack} />
-                  </div>
+                  <h3 className={styles.packName}>{pack.displayName}</h3>
                   <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
                   <p className={styles.desc}>{pack.description[loc]}</p>
                 </div>

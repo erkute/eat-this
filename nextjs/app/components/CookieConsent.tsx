@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
 import { getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
-import { clearConsent, migrateLegacyConsent, readConsent, writeConsent } from '@/lib/consent';
+import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
 // stays close to what's actually loaded by the site, and DE is properly
@@ -13,11 +13,15 @@ import { clearConsent, migrateLegacyConsent, readConsent, writeConsent } from '@
 const COOKIE_SECTIONS_DE: ModalBodySection[] = [
   {
     h: 'Notwendig',
-    p: 'Wir speichern ein paar Daten lokal in deinem Browser, damit die Seite funktioniert — kein Tracking:',
+    p: 'Damit die Seite funktioniert, speichern wir ein paar Daten in deinem Browser — kein Tracking. Nur beim letzten Punkt liegt zusätzlich ein Eintrag bei uns:',
     list: [
       { strong: 'Login-Session', text: ' — hält dich eingeloggt (Firebase Auth)' },
       { strong: 'Sprache', text: ' — merkt sich DE/EN' },
       { strong: 'Cookie-Auswahl', text: ' — damit wir dich nicht nochmal fragen' },
+      {
+        strong: 'Einwilligungs-Nachweis',
+        text: ' — eine zufällige Kennung plus ein Eintrag bei uns mit deiner Antwort, dem Zeitpunkt und der Version dieses Textes. Dazu sind wir verpflichtet: wir müssen belegen können, dass wir gefragt haben. Kein Name, keine IP.',
+      },
     ],
   },
   {
@@ -38,7 +42,7 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
   },
   {
     h: 'Cookies verwalten',
-    p: 'Im Browser jederzeit löschbar. Frage zurückholen: unten im Footer auf „Cookies verwalten" tippen — oder das Cookie „cookieConsent" löschen und neu laden.',
+    p: 'Im Browser jederzeit löschbar. Frage zurückholen: unten im Footer auf „Cookies verwalten" tippen — oder die Cookies „cookieConsent" und „consentId" löschen und neu laden. Ändert sich dieser Text, fragen wir von selbst nochmal.',
   },
   { h: 'Kontakt', p: 'Fragen? {mail}' },
 ];
@@ -46,11 +50,15 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
 const COOKIE_SECTIONS_EN: ModalBodySection[] = [
   {
     h: 'Necessary',
-    p: 'We store small bits of data locally on your device so the site works as expected — no tracking:',
+    p: 'So the site works as expected, we store small bits of data in your browser — no tracking. Only the last one also leaves a record on our side:',
     list: [
       { strong: 'Login session', text: ' — keeps you signed in (Firebase Auth)' },
       { strong: 'Language', text: ' — remembers DE/EN' },
       { strong: 'Cookie choice', text: " — so we don't ask you again" },
+      {
+        strong: 'Proof of consent',
+        text: ' — a random identifier plus a record on our side holding your answer, when you gave it and which version of this text you read. We are required to keep it: we have to be able to show that we asked. No name, no IP.',
+      },
     ],
   },
   {
@@ -71,7 +79,7 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
   },
   {
     h: 'Managing cookies',
-    p: 'You can clear them in your browser any time. To see this question again, use "Cookie settings" in the footer — or delete the cookieConsent cookie and reload.',
+    p: 'You can clear them in your browser any time. To see this question again, use "Cookie settings" in the footer — or delete the cookieConsent and consentId cookies and reload. If this text changes, we ask again on our own.',
   },
   { h: 'Contact', p: 'Questions? {mail}' },
 ];
@@ -138,10 +146,15 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
  *
  * So: a scrim, a centred ink card, no Escape, no outside-click, no close
  * button. The only way past it is one of the two answers — which is what the
- * GDPR permits and no more than that. The two buttons are deliberately the
- * same size, the same type and the same weight; only their fill differs. Do
- * not make "decline" quieter than "accept" — forcing the decision is legal,
- * nudging the answer is not.
+ * GDPR permits and no more than that.
+ *
+ * "Accept" is the primary button and comes first; "decline" is the outlined
+ * secondary next to it. That is as far as the emphasis may go: both answers
+ * keep the same box, the same type, the same weight and the same single
+ * click, and the decline label stays full-contrast white. Forcing the
+ * decision is legal; making the refusal cost more than the yes is not — and
+ * consent obtained that way is void, which would make the analytics it buys
+ * unusable.
  */
 export default function CookieConsent() {
   const { t, lang } = useTranslation();
@@ -170,7 +183,7 @@ export default function CookieConsent() {
   // The answer lives in a cookie (lib/consent.ts); an answer given before that
   // shipped is migrated out of localStorage here, once.
   useEffect(() => {
-    const stored = readConsent() ?? migrateLegacyConsent();
+    const stored = readConsent();
     if (stored) {
       setClosed(true);
       if (stored === 'accepted') loadAnalytics();
@@ -223,6 +236,7 @@ export default function CookieConsent() {
 
   const handleAccept = () => {
     writeConsent('accepted');
+    recordConsent('accepted', lang);
     setShow(false);
     setExpanded(false);
     setTimeout(() => {
@@ -241,6 +255,7 @@ export default function CookieConsent() {
   const handleDecline = () => {
     const gaWasLoaded = !!(window as Window & { __gaLoaded?: boolean }).__gaLoaded;
     writeConsent('declined');
+    recordConsent('declined', lang);
     setShow(false);
     setExpanded(false);
     // Consent withdrawn while GA was already running this session (reopened via
@@ -331,19 +346,19 @@ export default function CookieConsent() {
           <div className="cookie-buttons">
             <button
               type="button"
-              className="cookie-btn cookie-btn-decline"
-              id="cookieDecline"
-              onClick={handleDecline}
-            >
-              {t('cookie.decline')}
-            </button>
-            <button
-              type="button"
               className="cookie-btn cookie-btn-accept"
               id="cookieAccept"
               onClick={handleAccept}
             >
               {t('cookie.accept')}
+            </button>
+            <button
+              type="button"
+              className="cookie-btn cookie-btn-decline"
+              id="cookieDecline"
+              onClick={handleDecline}
+            >
+              {t('cookie.decline')}
             </button>
           </div>
           {/* Datenschutzerklärung and Impressum have to be reachable at all

@@ -41,24 +41,24 @@ export const ART = {
   },
   "sloganInverse": {
     "id": "slogan-inverse",
-    "width": 172,
-    "height": 8,
+    "width": 192,
+    "height": 20,
     "alt": "WE TELL YOU WHAT TO EAT",
-    "version": "95f3e500"
+    "version": "5808536e"
   },
   "kickerSignup": {
     "id": "kicker-signup",
-    "width": 200,
-    "height": 11,
+    "width": 220,
+    "height": 23,
     "alt": "WAS DU ESSEN SOLLTEST",
-    "version": "d912c98f"
+    "version": "d7007115"
   },
   "kickerLogin": {
     "id": "kicker-login",
-    "width": 276,
-    "height": 15,
+    "width": 296,
+    "height": 27,
     "alt": "SCHÖN, DASS DU WIEDER DA BIST",
-    "version": "9edf6795"
+    "version": "5d46d3ec"
   },
   "titleSpots": {
     "id": "title-spots",

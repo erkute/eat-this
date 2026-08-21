@@ -37,6 +37,16 @@ interface ArtSpec {
   letterSpacing?: number;
   align?: 'left' | 'center';
   /**
+   * Eingebackene Hintergrundfarbe statt Transparenz.
+   *
+   * Nur fuer Grafiken, die sonst im Dark Mode verschwinden: Clients wie die
+   * Gmail-App invertieren den Untergrund der Mail, das Bild aber nicht. Ink auf
+   * einem invertiert-dunklen Papier bzw. Weiss auf einem invertiert-hellen
+   * Footer ist dann unsichtbar. Mit eigener Flaeche bringt die Grafik ihren
+   * Kontrast mit. Rote Kunst braucht das nicht — Rot ueberlebt beide Faelle.
+   */
+  bg?: string;
+  /**
    * Exact rendered width at 1x. The renderer measures the first pass and
    * re-renders at a corrected font size to hit it, so swapping the display
    * face (Schoolbell stand-in → FF Providence Sans Pro) changes the letter
@@ -82,6 +92,7 @@ const ART: ArtSpec[] = [
     id: 'slogan-inverse',
     lines: ['WE TELL YOU WHAT TO EAT'],
     color: COLOR.inverse,
+    bg: COLOR.ink,
     size: 12,
     letterSpacing: 2,
     align: 'center',
@@ -96,6 +107,7 @@ const ART: ArtSpec[] = [
     id: 'kicker-signup',
     lines: ['WAS DU ESSEN SOLLTEST'],
     color: COLOR.ink,
+    bg: COLOR.paper,
     size: 14,
     letterSpacing: 1.2,
     align: 'left',
@@ -105,6 +117,7 @@ const ART: ArtSpec[] = [
     id: 'kicker-login',
     lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
     color: COLOR.ink,
+    bg: COLOR.paper,
     size: 14,
     letterSpacing: 1.2,
     align: 'left',
@@ -176,8 +189,21 @@ async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBra
   const corrected = (spec.size * spec.width) / probeWidth;
   const art = await rasterise(spec, corrected, faces);
 
-  const final = await sharp(art)
-    .resize({ width: spec.width * SCALE })
+  const sized = sharp(art).resize({ width: spec.width * SCALE });
+  // Etwas Luft um die Schrift, sonst klebt die eingebackene Flaeche an den
+  // Buchstaben. In hellem Modus ist sie ohnehin unsichtbar, weil sie die Farbe
+  // des Untergrunds hat.
+  const padded = spec.bg
+    ? sized.extend({
+        top: 6 * SCALE,
+        bottom: 6 * SCALE,
+        left: 10 * SCALE,
+        right: 10 * SCALE,
+        background: spec.bg,
+      })
+    : sized;
+
+  const final = await (spec.bg ? padded.flatten({ background: spec.bg }) : padded)
     // Flat two-colour art with an alpha edge: a palette PNG is visually
     // identical here and roughly a fifth of the bytes.
     .png({ compressionLevel: 9, palette: true, quality: 90, effort: 10 })

@@ -85,7 +85,17 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                 src={`${appUrl}/pics/email/eat-this-logo.png`}
                 alt="Eat This"
                 width="122"
-                style={{ display: 'block', margin: '0 auto', height: 'auto', border: 0 }}
+                style={{
+                  display: 'block',
+                  margin: '0 auto',
+                  height: 'auto',
+                  border: 0,
+                  // Alt-Text erbt Farbe und Schnitt vom img. Ohne das steht er
+                  // bei blockierten Bildern schwarz auf der Ink-Fläche.
+                  color: COLOR.inverse,
+                  fontSize: '20px',
+                  fontWeight: 700,
+                }}
               />
             </Link>
           </Section>
@@ -101,13 +111,29 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
               src={`${appUrl}/pics/email/eat-this-logo.png`}
               alt="Eat This"
               width="150"
-              style={{ display: 'block', margin: '0 auto 12px', height: 'auto', border: 0 }}
+              style={{
+                display: 'block',
+                margin: '0 auto 12px',
+                height: 'auto',
+                border: 0,
+                color: COLOR.inverse,
+                fontSize: '22px',
+                fontWeight: 700,
+              }}
             />
             <Img
               src={`${appUrl}/pics/email/${ART.sloganInverse.id}.png`}
               alt={ART.sloganInverse.alt}
               width={ART.sloganInverse.width}
-              style={{ display: 'block', margin: '0 auto 26px', height: 'auto', border: 0 }}
+              style={{
+                display: 'block',
+                margin: '0 auto 26px',
+                height: 'auto',
+                border: 0,
+                color: COLOR.inverse,
+                fontSize: '11px',
+                letterSpacing: '0.16em',
+              }}
             />
 
             <Text

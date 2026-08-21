@@ -58,7 +58,12 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
       <Paper padding="40px 32px 36px">
         <Kicker>Was du essen solltest</Kicker>
 
-        <ArtImage art={ART.headlineSignup} appUrl={appUrl} style={{ margin: '0 0 22px' }} />
+        <ArtImage
+          art={ART.headlineSignup}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.red, fontSize: '30px', fontWeight: 700 }}
+          style={{ margin: '0 0 22px' }}
+        />
 
         <Lead style={{ marginBottom: '28px' }}>
           Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir gleich,
@@ -95,6 +100,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               alt: 'Eat This Starter Pack — 20 Must Eats',
             }}
             appUrl={appUrl}
+            altStyle={{ color: COLOR.ink, fontSize: '14px', fontWeight: 700 }}
             style={{ margin: '0 auto 16px' }}
           />
 
@@ -117,7 +123,12 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
             Gratis
           </Text>
 
-          <ArtImage art={ART.titleStarterPack} appUrl={appUrl} style={{ margin: '0 auto 14px' }} />
+          <ArtImage
+            art={ART.titleStarterPack}
+            appUrl={appUrl}
+            altStyle={{ color: COLOR.red, fontSize: '22px', fontWeight: 700 }}
+            style={{ margin: '0 auto 14px' }}
+          />
 
           <Text
             style={{

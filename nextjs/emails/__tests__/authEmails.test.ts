@@ -51,6 +51,36 @@ describe('shared shell', () => {
     }
   });
 
+  it('keeps every image legible when the client blocks images', async () => {
+    // Outlook blocks by default, and so does a large share of Gmail accounts.
+    // Alt text inherits the img's own colour — without an explicit one, the
+    // wordmark on the ink masthead and footer renders black on black, and the
+    // headline degrades to small body text.
+    for (const html of [await signup(), await login()]) {
+      for (const img of html.match(/<img[^>]*>/g) ?? []) {
+        const alt = /alt="([^"]*)"/.exec(img)?.[1] ?? '';
+        expect(alt.trim()).not.toBe('');
+        // Spot photos carry their type inside the bitmap; the brand art and the
+        // wordmark are type, and must survive as styled text.
+        if (!img.includes('/spots/')) {
+          expect(img).toMatch(/color:#(?:15120e|d9382a|ffffff)/i);
+        }
+      }
+    }
+  });
+
+  it('reserves no empty box for art that failed to load', async () => {
+    // A height attribute holds the full image box open even when nothing
+    // arrives, leaving a conspicuous hole above the copy.
+    for (const html of [await signup(), await login()]) {
+      for (const img of html.match(/<img[^>]*>/g) ?? []) {
+        if (img.includes('/pics/email/') && !img.includes('/spots/')) {
+          expect(img).not.toMatch(/\sheight="/);
+        }
+      }
+    }
+  });
+
   it('never hides the call to action behind an image', async () => {
     // An image button is invisible wherever images are blocked (Outlook, many
     // Gmail accounts) — in a login mail that is a dead end.

@@ -26,7 +26,12 @@ interface ShellProps {
 /** White at ~64% over ink — the footer's muted tone, as a solid hex. */
 const FOOTER_MUTED = '#a6a09a';
 
-const FOOTER_LINKS: { label: string; path: string }[] = [
+// Instagram steht auch im Website-Footer und ist der einzige Kanal dort, der
+// in einer Mail ueberhaupt funktioniert: "Frag Remy" ist ein Anker auf die
+// Startseite, die Cookie-Einstellungen sind ein JS-Button. Beide bleiben
+// draussen, dieser eine gehoert rein.
+const FOOTER_LINKS: { label: string; path?: string; url?: string }[] = [
+  { label: 'Instagram', url: 'https://www.instagram.com/eatthisdotcom/' },
   { label: 'Impressum', path: '/impressum' },
   { label: 'Datenschutz', path: '/datenschutz' },
   { label: 'AGB', path: '/agb' },
@@ -147,10 +152,10 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
               }}
             >
               {FOOTER_LINKS.map((l, i) => (
-                <span key={l.path}>
+                <span key={l.label}>
                   {i > 0 && <span style={{ color: FOOTER_MUTED }}>{'  ·  '}</span>}
                   <Link
-                    href={`${appUrl}${l.path}`}
+                    href={l.url ?? `${appUrl}${l.path}`}
                     style={{ color: COLOR.inverse, textDecoration: 'none' }}
                   >
                     {l.label}

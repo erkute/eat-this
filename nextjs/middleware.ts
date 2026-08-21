@@ -224,17 +224,21 @@ export default async function middleware(req: NextRequest) {
   // The public DE routes are unprefixed (`/`, `/must-eats`, …), but the App
   // Router page tree lives below `[locale]`. Rewrite DE requests ourselves and
   // mark the internal pass so `as-needed` canonicalization doesn't loop.
+  //
+  // Deliberately NO `NEXT_LOCALE` cookie here. This branch handles nearly every
+  // request the site serves, and a response carrying `Set-Cookie` is one the
+  // App Hosting CDN refuses to store — every page, including the ~690
+  // prerendered ones, was a `cdn-cache-status: miss`. The cookie also had no
+  // reader on this path: `localeDetection` is off, so next-intl never consults
+  // it, and `/welcome`'s detectLocale() falls back to exactly this default when
+  // it is absent. The two branches that DO set it above (`?lang=`, `/de/…`)
+  // record an explicit choice on a redirect, which was never cacheable anyway.
   if (!pathname.startsWith('/en')) {
     const url = req.nextUrl.clone();
     url.pathname = `/${routing.defaultLocale}${pathname === '/' ? '' : pathname}`;
     const headers = new Headers(req.headers);
     headers.set(INTERNAL_LOCALE_HEADER, routing.defaultLocale);
-    const res = NextResponse.rewrite(url, { request: { headers } });
-    res.cookies.set('NEXT_LOCALE', routing.defaultLocale, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365,
-    });
-    return finalizeResponse(res);
+    return finalizeResponse(NextResponse.rewrite(url, { request: { headers } }));
   }
 
   const res = intlMiddleware(req);

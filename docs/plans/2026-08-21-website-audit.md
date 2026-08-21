@@ -6,8 +6,7 @@ Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
 gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
 
-**Fortschritt:** Session A erledigt (PR #425) · Session B angefangen, Ursache
-neu bestimmt und nicht behoben (siehe P0-neu) · C, D, E offen.
+**Fortschritt:** Session A und B erledigt (PR #425) · C, D, E offen.
 
 ---
 
@@ -221,14 +220,49 @@ gebaut, damit die nächste Session das nicht wiederholt):
 | `setRequestLocale` in `generateMetadata` ergänzt  | unverändert                         |
 | Root-Layout, `instrumentation.ts`, `cacheHandler` | unauffällig                         |
 
-**Offen:** warum `setRequestLocale` den Header-Zugriff nicht verhindert. Das ist
-der nächste Schritt — und der einzige, der die P1-Befunde unten überhaupt
-messbar macht. Lokal reproduzierbar mit `npx next build --debug`; ein
-Produktions-Build lässt sich über `node .next/standalone/server.js` mit `curl -sI`
-prüfen, das reproduziert die Produktionsheader eins zu eins.
+**Gefunden und behoben.** Ein einziges `<Link>` aus `@/i18n/navigation` in
+`app/components/NotFoundContent.tsx`. Die Datei ist eine **Server**-Komponente,
+und `not-found.tsx` hängt im Baum **jeder** Route — next-intls `Link` löst dort
+die Locale über die Request-Config auf und liest dabei `headers()`. Ein
+einziger `headers()`-Zugriff irgendwo im Baum macht die ganze Route dynamisch.
 
-**Wirkung, wenn es fällt:** ~690 Seiten kämen aus dem CDN statt aus Cloud Run.
-Das ist die mit Abstand größte Einzelverbesserung im ganzen Audit.
+Der Beweis kam durch Herausnehmen: Build ohne `app/not-found.tsx` → dynamische
+Fehler von 791 auf 10, vorgerenderte HTML-Dateien von 0 auf 791. Die
+Nachbarkomponenten (`SiteNav`, `SiteFooter`, `BurgerDrawer`) nutzen dasselbe
+`Link`, sind aber Client-Komponenten — deren Lookup läuft im Browser und ist
+harmlos. `NotFoundContent` war die einzige Server-Komponente in der Kette.
+
+**Fix:** plain `<a>` mit selbst gebautem Präfix (`locale === 'en' ? '/en'+href
+: href`). Die Locale ist dort ohnehin ein Prop, wird also nie erschlossen.
+Kosten: die drei 404-Links machen einen vollen Seitenwechsel statt Soft-Nav —
+auf einer 404-Seite die richtige Abwägung.
+
+**Ergebnis, gemessen am Standalone-Server:**
+
+```
+vorher:   cache-control: private, no-cache, no-store, max-age=0, must-revalidate
+          (kein x-nextjs-cache-Header — der Prerender-Cache wurde nie gefragt)
+
+nachher:  x-nextjs-cache: HIT
+          cache-control: s-maxage=3600, stale-while-revalidate=31532400
+```
+
+790 vorgerenderte Seiten statt 0. Die verbliebenen 10 dynamischen Routen sind
+exakt die gewollten: `/map`, `/must-eats`, `/profile`, `/checkout` × 2 Sprachen.
+
+**Der Fehler war unsichtbar** — der Build meldet weiter „Generating static pages
+(811/811)" und markiert die Routen weiter `●`. Nur das leere
+`.next/server/app/**` und ein prerender-manifest mit drei Einträgen verraten
+ihn. Dagegen steht jetzt
+`__tests__/app/not-found-keeps-pages-static.test.ts`: er verbietet
+locale-auflösende Server-Importe im Root-404-Baum. Beim ersten Lauf hat er
+sofort eine zweite Stelle gemeldet (`app/[locale]/not-found.tsx` nutzt
+`getLocale()`) — die ist nachweislich harmlos, weil `[locale]/layout.tsx`
+vorher `setRequestLocale()` aufruft; der Test hält diese Unterscheidung fest.
+
+**Noch offen:** EN-Seiten setzen weiterhin `NEXT_LOCALE` (das macht next-intls
+eigene Middleware, nicht unsere) und bleiben damit für den CDN uncachebar. DE
+ist der Großteil des Traffics; EN wäre ein eigener, kleiner Schritt.
 
 ---
 
@@ -492,11 +526,15 @@ Aufgeräumt: vier gemergte Worktrees und das Streuverzeichnis entfernt
 geblieben:** die zwölf gemergten Branches auf `origin` — löschen betrifft das
 geteilte Repo und war nicht freigegeben.
 
-**Session B — Auslieferung** — ⏸ **angefangen 21.08.2026, nicht abgeschlossen**
-Die Cookie-Diagnose war nur der kleinere von zwei Blockern. Der größere: keine
-Seite wird überhaupt statisch erzeugt (siehe P0-neu). Fünf Verdachtsfälle
-widerlegt, Ursache bei next-intls `requestLocale` lokalisiert, aber nicht
-behoben. Der Cookie-Fix liegt fertig vor und wartet, bis er messbar wird.
+**Session B — Auslieferung** — ✅ **erledigt am 21.08.2026, PR #425**
+Die geplante Cookie-Diagnose war der kleinere von zwei Blockern und allein
+wirkungslos. Der größere lag eine Ebene tiefer: keine einzige Seite wurde
+statisch erzeugt, wegen eines `<Link>` in einer Server-Komponente des
+404-Baums (siehe P0-neu). Beide Blocker sind weg, gemessen: `x-nextjs-cache:
+HIT` und `s-maxage=3600` statt `no-store`, 790 vorgerenderte Seiten statt 0.
+Dazu ein Regressionstest, der den Fehler nicht wiederkommen lässt.
+**Offen:** `cdn-cache-status` in Produktion — das lässt sich erst nach dem
+Rollout auf `main` prüfen, Staging trägt es wegen der Basic Auth nicht.
 
 _(ursprünglicher Plan:)_
 P1 CDN-Caching. Cookie-Fix, dann messen, dann ggf. Cache-Header. Braucht

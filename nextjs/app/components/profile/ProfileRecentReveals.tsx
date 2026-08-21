@@ -8,6 +8,11 @@ import type { MapMustEat } from '@/lib/types';
 import styles from './Profile.module.css';
 
 const MAX_CARDS = 8;
+// Below this the section is not a strip, it is one lonely card under a
+// full-width heading — and a single reveal from months ago does not read as
+// "zuletzt" either. The deck above already shows every card that is face-up,
+// so nothing is lost by staying quiet.
+const MIN_CARDS = 3;
 
 /** Coarse "vor 3 Tagen" without pulling in a date library. */
 function relativeDay(locale: string, then: number, now: number): string {
@@ -24,6 +29,8 @@ function relativeDay(locale: string, then: number, now: number): string {
  * Reveals are the one thing in this product that happens at a moment, in a
  * place — the deck above only ever shows a state. `unlockedAt` was already
  * being written on every reveal and never read.
+ *
+ * Renders nothing until there are MIN_CARDS of them.
  */
 export default function ProfileRecentReveals({
   mustEats,
@@ -48,7 +55,7 @@ export default function ProfileRecentReveals({
     );
   }, [mustEats, unlockedAt, locale]);
 
-  if (recent.length === 0) return null;
+  if (recent.length < MIN_CARDS) return null;
 
   return (
     <section className={`hv-section hv-wrap ${styles.section}`}>

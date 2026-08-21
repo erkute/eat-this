@@ -9,11 +9,15 @@
 // the shared-IP rate-limit bucket.
 
 import { Resend } from 'resend';
-import { render } from '@react-email/render';
+import { renderEmail } from '@/emails/render';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import { getEmailSpots } from '@/lib/sanity.server';
-import MagicLinkEmail from '@/emails/MagicLinkEmail';
-import { buildMagicLinkText } from '@/emails/magicLinkText';
+import SignupEmail, { SIGNUP_SUBJECT } from '@/emails/SignupEmail';
+import LoginEmail, { LOGIN_SUBJECT } from '@/emails/LoginEmail';
+import { buildLoginText, buildSignupText } from '@/emails/magicLinkText';
+
+/** Spot cards teased in the signup mail — must match SignupEmail's MAX_SPOTS. */
+const SIGNUP_SPOT_COUNT = 3;
 
 type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
@@ -56,9 +60,11 @@ export async function sendMagicLinkEmail(params: {
     return { ok: false, error: 'link-generation-failed' };
   }
 
-  // First-time signup vs. returning login: an existing account means we drop the
-  // starter-pack framing and greet them back instead. `getUserByEmail` throws
-  // `auth/user-not-found` for a brand-new email — treat that (or any error) as new.
+  // First-time signup vs. returning login: two separate mails, not one template
+  // with a flag. A returning login gets the short transactional message (link
+  // above the fold, no artwork); only a new address gets the product pitch.
+  // `getUserByEmail` throws `auth/user-not-found` for a brand-new email — treat
+  // that (or any error) as new.
   let returning = false;
   try {
     await getAdminAuth().getUserByEmail(email);
@@ -85,19 +91,23 @@ export async function sendMagicLinkEmail(params: {
   // inbox. This prevents a staging smoke test from mailing real customers.
   const recipient = process.env.NEXT_PUBLIC_ENV === 'staging' ? stagingRecipient! : email;
 
-  // Staging's dynamic card renderer remains behind Basic Auth, so external
-  // mail clients cannot fetch it. Keep staging messages self-contained and
-  // avoid a read dependency on the production image endpoint.
+  // Only the signup mail carries spot cards, and staging's dynamic card
+  // renderer sits behind Basic Auth, so external mail clients cannot fetch it.
+  // Keep staging messages self-contained and skip the Sanity read entirely
+  // where the artwork would 401 anyway.
   const restaurants =
-    process.env.NEXT_PUBLIC_ENV === 'staging'
+    returning || process.env.NEXT_PUBLIC_ENV === 'staging'
       ? []
-      : await getEmailSpots(4).catch((err) => {
+      : await getEmailSpots(SIGNUP_SPOT_COUNT).catch((err) => {
           console.error('[sendMagicLink] getEmailSpots failed:', err);
           return [];
         });
 
-  const html = await render(MagicLinkEmail({ magicLink, appUrl, restaurants, returning }));
-  const text = buildMagicLinkText(magicLink);
+  const html = returning
+    ? await renderEmail(LoginEmail({ magicLink, appUrl }))
+    : await renderEmail(SignupEmail({ magicLink, appUrl, restaurants }));
+  const text = returning ? buildLoginText(magicLink) : buildSignupText(magicLink);
+  const subject = returning ? LOGIN_SUBJECT : SIGNUP_SUBJECT;
 
   try {
     const resend = new Resend(resendKey);
@@ -105,7 +115,7 @@ export async function sendMagicLinkEmail(params: {
       {
         from: `${fromName} <${fromEmail}>`,
         to: recipient,
-        subject: 'Dein Login-Link für Eat This',
+        subject,
         html,
         text,
         replyTo: fromEmail,

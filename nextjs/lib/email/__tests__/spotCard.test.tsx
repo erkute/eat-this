@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { isValidSlug, spotPhotoUrl, SpotCardImage } from '../spotCard';
+import {
+  isValidSlug,
+  spotPhotoUrl,
+  SpotCardImage,
+  SPOT_CARD_WIDTH,
+  SPOT_CARD_HEIGHT,
+} from '../spotCard';
 
 describe('isValidSlug', () => {
   it('accepts normal sanity slugs', () => {
@@ -18,9 +24,9 @@ describe('isValidSlug', () => {
 });
 
 describe('image url builders', () => {
-  it('photo: square server-crop, forced JPEG (Satori cannot decode WebP)', () => {
+  it('photo: 4:3 server-crop, forced JPEG (Satori cannot decode WebP)', () => {
     expect(spotPhotoUrl('https://cdn.sanity.io/images/x/y/a.png?w=99')).toBe(
-      'https://cdn.sanity.io/images/x/y/a.png?w=720&h=720&fit=crop&fm=jpg&q=80'
+      `https://cdn.sanity.io/images/x/y/a.png?w=${SPOT_CARD_WIDTH}&h=${SPOT_CARD_HEIGHT}&fit=crop&fm=jpg&q=80`
     );
   });
 });
@@ -37,18 +43,26 @@ describe('SpotCardImage', () => {
     return JSON.stringify(node);
   }
 
-  it('composes the public restaurant photo, meta line and name', () => {
+  it('composes the public restaurant photo, name and meta line', () => {
     const tree = flatten(SpotCardImage({ spot }));
     expect(tree).toContain('fm=jpg'); // photo layer
-    expect(tree).toContain('MITTE · BAKERY'); // meta caps on the photo
-    expect(tree).toContain('Sofi'); // name in Schoolbell
+    expect(tree).toContain('Sofi'); // name in the brand face
+    expect(tree).toContain('Mitte · Bakery'); // meta under the name, as on home
     expect(tree).not.toContain('rotate(14deg)');
     expect(tree).not.toContain('fm=png');
   });
 
+  it('sets every type layer in the brand face, never a system font', () => {
+    // Satori knows no system fonts — a stray family name renders as a blank box.
+    const tree = flatten(SpotCardImage({ spot }));
+    expect(tree).toContain('EatThisDisplay');
+    expect(tree).not.toContain('Schoolbell');
+    expect(tree).not.toContain('Saira');
+  });
+
   it('handles a missing cuisine without a dangling separator', () => {
     const tree = flatten(SpotCardImage({ spot: { ...spot, cuisine: undefined } }));
-    expect(tree).toContain('MITTE');
-    expect(tree).not.toContain('MITTE ·');
+    expect(tree).toContain('Mitte');
+    expect(tree).not.toContain('Mitte ·');
   });
 });

@@ -9,6 +9,7 @@ Frühes Stadium, praktisch keine echten User: alten/toten Code ersatzlos raussch
 npm test          npm run lint          npx tsc --noEmit
 npm run build:css                 # Pflicht nach jeder Änderung an css/ – dev baut nicht neu
 npm run build:isolated            # statt `build`, wenn `next dev` läuft (sonst 500er)
+npm run build:email-art           # Pflicht nach jeder Textänderung in scripts/build-email-art.mts
 ```
 
 ## Deploy
@@ -25,6 +26,7 @@ Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verif
 ## Was sonst kaputtgeht
 
 - **CSS:** Quelle `nextjs/css/`, minifiziert `nextjs/public/css/` (nie direkt editieren). Nach jeder `style.css`-Änderung `CSS_VERSION` in `lib/constants.ts` hochzählen – neun Layouts hängen dran.
+- **Auth-Mails:** `emails/SignupEmail.tsx` (neue Adresse) und `emails/LoginEmail.tsx` (bestehendes Konto) – zwei getrennte Mails, kein Flag. Jede Headline in Markenschrift ist ein PNG aus `npm run build:email-art` (Gmail lädt keine Webfonts, die Typekit-Lizenz deckt E-Mail nicht ab); Maße kommen aus `emails/art.generated.ts`. Der CTA bleibt Live-Text – nie ein Bild, sonst ist er bei blockierten Bildern unsichtbar. Fehlt `assets/fonts/Providence*.otf|ttf`, rendert das Skript sichtbar gewarnt mit Schoolbell.
 - **Bilder unter `public/`:** vor dem Commit zu WebP (`cwebp -q 80`). Ausnahmen, die PNG bleiben: `favicon.ico`, `apple-touch-icon.png`, PWA-Icons, OG-/Twitter-Bilder.
 - **Keine Opacity-Fades** für Ein-/Ausblend-*Bewegung* auf Brand-Flächen – stattdessen translate/scale/clip-path. (Hover-States etc. dürfen Opacity nutzen.)
 - **Die App ist light-only.** Kein Dark Mode, kein `prefers-color-scheme`. `color-scheme: light` in `globals.css` muss bleiben.

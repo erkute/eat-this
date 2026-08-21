@@ -44,9 +44,64 @@ function hasConsent(): boolean {
   }
 }
 
+/* ── Consent-free counting ───────────────────────────────────────────────────
+ *
+ * A second, much smaller pipe that runs for EVERYONE, next to GA4 rather than
+ * instead of it. GA needs consent and consent is a minority, so on its own it
+ * reported about a third of the real traffic with no way to tell which third.
+ *
+ * Nothing here reads or writes the device: no cookie, no localStorage, no
+ * sessionStorage, no fingerprint. That is not an implementation detail, it is
+ * the whole reason this needs no banner (TDDDG 25). If you ever add a client-
+ * side id here, the endpoint moves behind the consent dialog with it.
+ *
+ * sendBeacon rather than fetch: it survives the page being closed, which is
+ * exactly when the last page view of a visit happens. connect-src 'self'
+ * already covers it, same as the Sentry tunnel.
+ */
+const COUNT_ENDPOINT = '/api/count';
+
+function sendCount(payload: Record<string, string>): void {
+  if (typeof window === 'undefined') return;
+  const body = JSON.stringify(payload);
+  try {
+    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+      navigator.sendBeacon(COUNT_ENDPOINT, new Blob([body], { type: 'application/json' }));
+      return;
+    }
+    void fetch(COUNT_ENDPOINT, {
+      method: 'POST',
+      body,
+      keepalive: true,
+      headers: { 'content-type': 'application/json' },
+    }).catch(() => {});
+  } catch {
+    // Counting must never be the reason a page misbehaves.
+  }
+}
+
+/** Count a page view. The path only — never the query string, which carries
+ *  session ids and search terms we have no use for. */
+export function countView(): void {
+  if (typeof window === 'undefined') return;
+  sendCount({ path: window.location.pathname, referrer: document.referrer });
+}
+
+/** Count one named event. `page_view` is deliberately not accepted here — it
+ *  arrives through countView, and letting it in too would double every view. */
+export function countEvent(name: string): void {
+  if (typeof window === 'undefined' || name === 'page_view') return;
+  sendCount({ path: window.location.pathname, event: name });
+}
+
 /** Send a GA4 event only after analytics consent. Events fired shortly before
- * gtag finishes loading are queued; pre-consent behavior is never replayed. */
+ * gtag finishes loading are queued; pre-consent behavior is never replayed.
+ *
+ * The consent-free counter fires FIRST and unconditionally: it is the half of
+ * this function that must not depend on an answer. Everything below the fan-out
+ * is GA and stays behind consent, unchanged. */
 export function trackEvent(name: string, params?: AnalyticsParams): void {
+  countEvent(name);
   const w = analyticsWindow();
   if (!w || !hasConsent()) return;
   if (w.gtag) {

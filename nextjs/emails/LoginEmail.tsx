@@ -7,7 +7,7 @@
 
 import { Link } from '@react-email/components';
 import { Shell } from './components/Shell';
-import { ArtImage, CtaButton, Fineprint, Kicker, Lead, Paper } from './components/Pieces';
+import { ArtImage, CtaButton, Fineprint, Lead, Paper } from './components/Pieces';
 import { ART } from './art.generated';
 import { COLOR } from './theme';
 
@@ -24,7 +24,15 @@ export default function LoginEmail({ magicLink, appUrl }: LoginEmailProps) {
   return (
     <Shell appUrl={appUrl} preview="Ein Klick und du bist drin — dein Login-Link.">
       <Paper padding="40px 32px 44px">
-        <Kicker>Schön, dass du wieder da bist</Kicker>
+        {/* Kicker als Markenschrift-Art, wie die Zeile auf home: dort ist
+            `.hv-kicker` ebenfalls Providence. Blockiert der Client Bilder,
+            faellt sie auf den getrackten Alt-Text zurueck. */}
+        <ArtImage
+          art={ART.kickerLogin}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.ink, fontSize: '11px', fontWeight: 700, letterSpacing: '0.16em' }}
+          style={{ margin: '0 0 14px' }}
+        />
 
         <ArtImage
           art={ART.headlineLogin}

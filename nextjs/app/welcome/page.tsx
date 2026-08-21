@@ -22,7 +22,17 @@ import styles from './auth-action.module.css';
 function hardRedirectToHome() {
   const locale = detectLocale();
   const target = locale === routing.defaultLocale ? '/' : `/${locale}`;
-  window.location.assign(target);
+  // Gelber Vorhang über den Sprung zwischen den beiden Root-Layouts. Ohne ihn
+  // blitzt zwischen /welcome und der Home-Route eine weisse Fläche auf.
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) {
+    window.location.assign(target);
+    return;
+  }
+  const curtain = document.createElement('div');
+  curtain.className = styles.curtain;
+  document.body.appendChild(curtain);
+  window.setTimeout(() => window.location.assign(target), 380);
 }
 
 // /welcome lives outside [locale], so there is no NextIntlClientProvider.
@@ -143,10 +153,14 @@ function AuthActionInner() {
         <div className={styles.splash} role="status" aria-live="polite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.splashLogo} />
-          <div className={styles.bar} aria-hidden />
+          <div className={styles.marks} aria-hidden>
+            <span className={styles.mark} />
+            <span className={styles.mark} />
+            <span className={styles.mark} />
+          </div>
           <div className={styles.splashCopy}>
-            <h1 className={styles.splashTitle}>Dein Login-Link wird geprüft.</h1>
-            <p>Wir melden dich über deine Mail an.</p>
+            <h1 className={styles.splashTitle}>Wir schliessen auf</h1>
+            <p>Dein Link wird geprüft — gleich ist deine Map offen.</p>
           </div>
         </div>
       </main>
@@ -180,7 +194,8 @@ function AuthActionInner() {
 
           {state.kind === 'expired' && (
             <>
-              <h1 className={styles.title}>Dieser Link funktioniert nicht.</h1>
+              <p className={styles.kicker}>Sackgasse</p>
+              <h1 className={styles.title}>Dieser Link geht nicht mehr</h1>
               <p className={styles.sub}>
                 Er ist abgelaufen oder wurde bereits verwendet. Starte den Login einfach noch einmal
                 von der Startseite.
@@ -245,6 +260,7 @@ function IdentityForm({ user }: { user: User }) {
 
   return (
     <>
+      <p className={styles.kicker}>Fast fertig</p>
       <h1 className={styles.title}>
         Wer bist du
         <br />
@@ -345,7 +361,8 @@ function NeedsEmailForm({ href, setState }: { href: string; setState: (s: State)
 
   return (
     <>
-      <h1 className={styles.title}>Fast drin.</h1>
+      <p className={styles.kicker}>Noch ein Schritt</p>
+      <h1 className={styles.title}>Fast drin</h1>
       <p className={styles.sub}>
         Du hast den Link in einem anderen Browser geöffnet. Bestätige kurz die E-Mail-Adresse, an
         die er geschickt wurde.

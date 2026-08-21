@@ -11,12 +11,12 @@ import {
   ArtImage,
   CtaButton,
   Fineprint,
-  Kicker,
   Lead,
   Paper,
   SectionHead,
 } from './components/Pieces';
 import { ART } from './art.generated';
+import { PHONES_ART } from './phones.generated';
 import {
   EMAIL_SPOTS,
   SPOT_DISPLAY_HEIGHT,
@@ -56,7 +56,12 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
       <Paper padding="40px 32px 36px">
-        <Kicker>Was du essen solltest</Kicker>
+        <ArtImage
+          art={ART.kickerSignup}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.ink, fontSize: '11px', fontWeight: 700, letterSpacing: '0.16em' }}
+          style={{ margin: '0 0 14px' }}
+        />
 
         <ArtImage
           art={ART.headlineSignup}
@@ -80,6 +85,29 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           .
         </Fineprint>
       </Paper>
+
+      {/* PHONES — auf home stehen die beiden Mockups neben der Hero-Copy,
+          gekippt und ueberlappt. In einer 600px-Spalte gibt es kein Neben-,
+          nur ein Darunter; und `transform` entfernt Gmail ohnehin. Deshalb
+          liegt das Paar als EIN vorkomponiertes Bild bei
+          (npm run build:email-phones), Kippung und Schatten eingebacken. */}
+      <Section style={{ backgroundColor: COLOR.paper, padding: '0 0 8px', textAlign: 'center' }}>
+        <img
+          src={`${appUrl}/pics/email/${PHONES_ART.id}.jpg`}
+          alt={PHONES_ART.alt}
+          width={PHONES_ART.width}
+          style={{
+            display: 'block',
+            border: 0,
+            margin: '0 auto',
+            height: 'auto',
+            maxWidth: '100%',
+            color: COLOR.ink,
+            fontSize: '13px',
+            fontWeight: 700,
+          }}
+        />
+      </Section>
 
       {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
           artwork, yellow "Gratis" pill, red title. */}

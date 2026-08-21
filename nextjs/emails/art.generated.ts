@@ -40,6 +40,18 @@ export const ART = {
     "height": 8,
     "alt": "WE TELL YOU WHAT TO EAT"
   },
+  "kickerSignup": {
+    "id": "kicker-signup",
+    "width": 200,
+    "height": 11,
+    "alt": "WAS DU ESSEN SOLLTEST"
+  },
+  "kickerLogin": {
+    "id": "kicker-login",
+    "width": 276,
+    "height": 15,
+    "alt": "SCHÖN, DASS DU WIEDER DA BIST"
+  },
   "titleSpots": {
     "id": "title-spots",
     "width": 290,

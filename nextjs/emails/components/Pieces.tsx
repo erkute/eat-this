@@ -39,23 +39,6 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
  * `.hv-kicker` — the small uppercase eyebrow above a hero headline. No yellow
  * square: on home the marker belongs to section heads, not to the hero.
  */
-export function Kicker({ children }: { children: string }) {
-  return (
-    <Text
-      style={{
-        margin: '0 0 14px',
-        fontSize: '11px',
-        fontWeight: 700,
-        letterSpacing: '0.16em',
-        textTransform: 'uppercase',
-        color: COLOR.ink,
-      }}
-    >
-      {children}
-    </Text>
-  );
-}
-
 /**
  * `.hv-head` — the yellow `.hv-mk` square followed by a red section title, on
  * one line. Two table cells rather than an inline-block: the 9px square must

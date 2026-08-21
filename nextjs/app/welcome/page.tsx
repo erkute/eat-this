@@ -22,17 +22,11 @@ import styles from './auth-action.module.css';
 function hardRedirectToHome() {
   const locale = detectLocale();
   const target = locale === routing.defaultLocale ? '/' : `/${locale}`;
-  // Gelber Vorhang über den Sprung zwischen den beiden Root-Layouts. Ohne ihn
-  // blitzt zwischen /welcome und der Home-Route eine weisse Fläche auf.
-  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) {
-    window.location.assign(target);
-    return;
-  }
-  const curtain = document.createElement('div');
-  curtain.className = styles.curtain;
-  document.body.appendChild(curtain);
-  window.setTimeout(() => window.location.assign(target), 380);
+  // Kein Übergangseffekt: hier wartet jemand darauf, dass der Login endlich
+  // durch ist. Ein gelber Vorhang stand hier mal, um den weissen Blitz beim
+  // Wechsel der Root-Layouts zu verdecken — er navigierte aber 40ms vor Ende
+  // seiner eigenen Animation, deckte also nie, und kostete 380ms Wartezeit.
+  window.location.assign(target);
 }
 
 // /welcome lives outside [locale], so there is no NextIntlClientProvider.

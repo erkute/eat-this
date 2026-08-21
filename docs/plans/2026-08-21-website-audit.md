@@ -6,7 +6,8 @@ Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
 gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
 
-**Fortschritt:** Session A erledigt (PR #425) · B, C, D, E offen.
+**Fortschritt:** Session A erledigt (PR #425) · Session B angefangen, Ursache
+neu bestimmt und nicht behoben (siehe P0-neu) · C, D, E offen.
 
 ---
 
@@ -175,10 +176,67 @@ Lighthouse-Simulationswerte mit gedrosseltem Mobilnetz, keine echten Nutzer —
 aber sie decken sich mit beiden P1-Befunden: TTFB, den kein CDN abfängt, plus
 ein JS-Sockel, der auf `/map` 2,6 Sekunden blockiert.
 
-**Ursache:** [`middleware.ts:233`](nextjs/middleware.ts:233) setzt auf dem
-DE-Rewrite-Pfad — also bei praktisch jedem Seitenaufruf — `NEXT_LOCALE`. Eine
-Antwort mit `Set-Cookie` ist für den App-Hosting-CDN grundsätzlich nicht
-cachebar.
+> **Korrigiert am 21.08.2026 (Session B).** Die unten stehende Cookie-Diagnose
+> ist richtig, aber sie ist nicht die Ursache — sie ist ein zweiter, kleinerer
+> Blocker hinter einem viel größeren. Siehe **P0-neu** direkt darunter.
+
+### P0-neu — Keine einzige Seite wird statisch erzeugt
+
+Der Build meldet „Generating static pages (811/811)" und markiert ~750 Pfade
+als `●` (SSG). Auf der Platte landet davon **nichts**:
+
+```bash
+find .next/server/app -name '*.html' | wc -l     # → 0
+node -e "console.log(Object.keys(require('./.next/prerender-manifest.json').routes))"
+# → [ '/robots.txt', '/sitemap.xml', '/llms.txt' ]
+```
+
+Drei statische Routen, alle drei Route-Handler. **Keine Seite.** Die
+Verzeichnisse (`.next/server/app/de/restaurant/` …) werden angelegt und bleiben
+leer. Jeder einzelne Seitenaufruf wird in Cloud Run neu gerendert — deshalb
+`no-store`, deshalb `cdn-cache-status: miss`, und deshalb ist ausgerechnet die
+vorgerenderte Restaurantseite mit 0,97 s die langsamste der Messung.
+
+`next build --debug` nennt den Grund, 791-mal:
+
+```
+Error: Static generation failed due to dynamic usage on /de/restaurant/aris, reason: headers
+    at get requestLocale [as requestLocale] (.next/server/chunks/5655.js:5:49958)
+```
+
+Der Stacktrace zeigt auf **next-intls `requestLocale`**, das auf `headers()`
+zurückfällt. Betroffen ist alles: 688 Restaurantseiten, 36 Bezirke, 20 Packs,
+20 Kategorien, 14 News — und eine zur Kontrolle angelegte Probe-Seite, die
+nichts enthält außer `<p>probe</p>`.
+
+**Was nachweislich NICHT die Ursache ist** (jeweils vollständig entfernt und neu
+gebaut, damit die nächste Session das nicht wiederholt):
+
+| Verdacht                                          | Ergebnis                            |
+| ------------------------------------------------- | ----------------------------------- |
+| `NEXT_LOCALE`-Cookie im Rewrite-Pfad              | `Set-Cookie` weg, `no-store` bleibt |
+| Middleware (Datei komplett entfernt)              | unverändert                         |
+| Sentry (`withSentryConfig` komplett entfernt)     | unverändert                         |
+| `clientTraceMetadata` (Sentrys Trace-Meta-Tags)   | Tags weg, unverändert               |
+| `setRequestLocale` in `generateMetadata` ergänzt  | unverändert                         |
+| Root-Layout, `instrumentation.ts`, `cacheHandler` | unauffällig                         |
+
+**Offen:** warum `setRequestLocale` den Header-Zugriff nicht verhindert. Das ist
+der nächste Schritt — und der einzige, der die P1-Befunde unten überhaupt
+messbar macht. Lokal reproduzierbar mit `npx next build --debug`; ein
+Produktions-Build lässt sich über `node .next/standalone/server.js` mit `curl -sI`
+prüfen, das reproduziert die Produktionsheader eins zu eins.
+
+**Wirkung, wenn es fällt:** ~690 Seiten kämen aus dem CDN statt aus Cloud Run.
+Das ist die mit Abstand größte Einzelverbesserung im ganzen Audit.
+
+---
+
+**Nachgelagerte Ursache (bleibt gültig):** [`middleware.ts:233`](nextjs/middleware.ts:233)
+setzt auf dem DE-Rewrite-Pfad — also bei praktisch jedem Seitenaufruf —
+`NEXT_LOCALE`. Eine Antwort mit `Set-Cookie` ist für den App-Hosting-CDN
+grundsätzlich nicht cachebar. Auch wenn das Prerendering repariert ist, muss
+dieser Cookie weg, sonst cacht der CDN weiterhin nichts.
 
 **Und der Cookie hat dort keine Funktion.** `routing.ts` setzt
 `localeDetection: false`, next-intl liest ihn also gar nicht. Gelesen wird er
@@ -434,7 +492,13 @@ Aufgeräumt: vier gemergte Worktrees und das Streuverzeichnis entfernt
 geblieben:** die zwölf gemergten Branches auf `origin` — löschen betrifft das
 geteilte Repo und war nicht freigegeben.
 
-**Session B — Auslieferung** _(größter Einzelgewinn, höchstes Risiko)_
+**Session B — Auslieferung** — ⏸ **angefangen 21.08.2026, nicht abgeschlossen**
+Die Cookie-Diagnose war nur der kleinere von zwei Blockern. Der größere: keine
+Seite wird überhaupt statisch erzeugt (siehe P0-neu). Fünf Verdachtsfälle
+widerlegt, Ursache bei next-intls `requestLocale` lokalisiert, aber nicht
+behoben. Der Cookie-Fix liegt fertig vor und wartet, bis er messbar wird.
+
+_(ursprünglicher Plan:)_
 P1 CDN-Caching. Cookie-Fix, dann messen, dann ggf. Cache-Header. Braucht
 Staging-Verifikation mit und ohne Session. Erfolgsmaß: `cdn-cache-status: hit`
 auf `/restaurant/*` und `/news/*`, TTFB dort unter 0,2 s.

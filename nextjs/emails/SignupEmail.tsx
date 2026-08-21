@@ -7,30 +7,37 @@
 
 import { Link, Section, Text } from '@react-email/components';
 import { Shell } from './components/Shell';
-import { ArtImage, CtaButton, Fineprint, Kicker, Lead, Paper, SectionHead } from './components/Pieces';
+import {
+  ArtImage,
+  CtaButton,
+  Fineprint,
+  Kicker,
+  Lead,
+  Paper,
+  SectionHead,
+} from './components/Pieces';
 import { ART } from './art.generated';
+import {
+  EMAIL_SPOTS,
+  SPOT_DISPLAY_HEIGHT,
+  SPOT_DISPLAY_WIDTH,
+  type EmailSpot,
+} from './spots.generated';
 import { COLOR, LAYOUT } from './theme';
 
-/** One curated restaurant teased in the email. */
-export interface EmailSpot {
-  name: string;
-  /** Sanity slug — drives the /map?r= deep-link and the composed card image. */
-  slug: string;
-  /** Neighborhood / district, e.g. "Mitte". */
-  area: string;
-  /** Cuisine label, e.g. "Bakery". */
-  cuisine?: string;
-  /** Restaurant photo — raw Sanity CDN URL (query string optional). */
-  photo: string;
-}
+export type { EmailSpot };
 
 export interface SignupEmailProps {
   /** The Firebase sign-in link the recipient clicks to authenticate. */
   magicLink: string;
   /** Absolute base URL for artwork (https://www.eatthisdot.com or http://localhost:3000). */
   appUrl: string;
-  /** Curated restaurants to tease. Three fit the rhythm; more are dropped. */
-  restaurants?: EmailSpot[];
+  /**
+   * Overrides the curated selection. Production passes nothing — the spots come
+   * from `npm run build:email-spots`, which renders each card locally and drops
+   * the finished JPEG into public/. Only tests inject here.
+   */
+  spots?: readonly EmailSpot[];
 }
 
 export const SIGNUP_SUBJECT = 'Willkommen bei Eat This — dein Link zum Anmelden';
@@ -38,8 +45,8 @@ export const SIGNUP_SUBJECT = 'Willkommen bei Eat This — dein Link zum Anmelde
 /** Home shows four in a rail; a mail that scrolls forever converts worse. */
 const MAX_SPOTS = 3;
 
-export default function SignupEmail({ magicLink, appUrl, restaurants = [] }: SignupEmailProps) {
-  const spots = restaurants.slice(0, MAX_SPOTS);
+export default function SignupEmail({ magicLink, appUrl, spots: override }: SignupEmailProps) {
+  const spots = (override ?? EMAIL_SPOTS).slice(0, MAX_SPOTS);
 
   return (
     <Shell
@@ -126,11 +133,11 @@ export default function SignupEmail({ magicLink, appUrl, restaurants = [] }: Sig
         </Section>
       </Section>
 
-      {/* SPOTS — each one a single server-composed image (photo + scrim + name
-          in the brand font, see /api/email/spot-card) wrapped in a /map?r=
-          deep-link. One flat image is the only composition email clients can't
-          break: Gmail strips position/transform/filter/box-shadow and never
-          loads webfonts. */}
+      {/* SPOTS — jede Karte ist EIN lokal vorgerendertes Bild (Foto + Scrim +
+          Name in der Markenschrift, siehe scripts/build-email-spots.mts),
+          verpackt in einen /map?r=-Deeplink. Ein flaches Bild ist die einzige
+          Komposition, die kein Mail-Client zerlegen kann: Gmail entfernt
+          position/transform/filter/box-shadow und lädt nie Webfonts. */}
       {spots.length > 0 && (
         <Paper padding="0 32px 40px">
           <SectionHead art={ART.titleSpots} appUrl={appUrl} />
@@ -139,31 +146,31 @@ export default function SignupEmail({ magicLink, appUrl, restaurants = [] }: Sig
             Drei von vielen. Tipp drauf, dann öffnet sich der Spot auf der Map.
           </Lead>
 
-          {spots.map((s, i) => {
-            const meta = [s.area, s.cuisine].filter(Boolean).join(' · ');
-            return (
-              <Link
-                key={`${s.slug}-${i}`}
-                href={`${appUrl}/map?r=${s.slug}`}
-                style={{ display: 'block', margin: '0 0 14px' }}
-              >
-                <img
-                  src={`${appUrl}/api/email/spot-card?slug=${s.slug}&v=4`}
-                  alt={`${s.name} — ${meta}`}
-                  width="536"
-                  height="402"
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    maxWidth: '536px',
-                    height: 'auto',
-                    border: 0,
-                    borderRadius: `${LAYOUT.radiusPhoto}px`,
-                  }}
-                />
-              </Link>
-            );
-          })}
+          {spots.map((s) => (
+            <Link
+              key={s.slug}
+              href={`${appUrl}/map?r=${s.slug}`}
+              style={{ display: 'block', margin: '0 0 14px' }}
+            >
+              {/* next/image has no meaning in an inbox — the markup leaves this
+                  process as an HTML string, and there is no runtime to optimise. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${appUrl}/pics/email/spots/${s.slug}.jpg`}
+                alt={`${s.name} — ${s.meta}`}
+                width={SPOT_DISPLAY_WIDTH}
+                height={SPOT_DISPLAY_HEIGHT}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  maxWidth: `${SPOT_DISPLAY_WIDTH}px`,
+                  height: 'auto',
+                  border: 0,
+                  borderRadius: `${LAYOUT.radiusPhoto}px`,
+                }}
+              />
+            </Link>
+          ))}
         </Paper>
       )}
     </Shell>

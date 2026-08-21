@@ -205,6 +205,40 @@ main.page .head {
   width: clamp(132px, 15vw, 176px);
 }
 
+/* Chronologisch waere ein Rail auf Desktop vertretbar, wenn die Liste offen
+   waere - aeltere Reveals sind legitim weniger wichtig. Sie ist es nicht:
+   MAX_CARDS deckelt bei 8, die Menge ist also geschlossen und das
+   Wisch-Versprechen ("da kommt noch was") ab Karte 8 unwahr. Gemessen lagen
+   bei 8 Karten 258 px hinter der ausgeblendeten Scrollbar (1440/1920 px) und
+   350 px bei 900 px - ein bis drei eigene Reveals, fuer eine gesparte Zeile.
+   Ausserdem rechnete overflow-y durch overflow-x:auto auf auto und schnitt den
+   Hover-Lift der Karte oben ab. Ab Tablet deshalb umbrechendes Grid.
+   main.page (0,2,1) schlaegt .homeV2 .hv-rail (0,2,0) unabhaengig von der
+   Ladereihenfolge; Mobile bleibt Rail. */
+@media (min-width: 761px) {
+  main.page .recentRail {
+    display: grid;
+    /* 160er Spur, nicht 176: bei 176 passen zwischen 761 und ~1100 px nur drei
+       bis vier Spalten, der Rest der Zeile verteilt sich als 63 px Luft
+       zwischen die Karten. Mit 160 fuellen die Spalten die Zeile aus - Karte
+       163-176 px, Abstand bleibt der deklarierte. */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: clamp(26px, 3vw, 38px) clamp(16px, 2vw, 28px);
+    overflow: visible;
+    scroll-snap-type: none;
+    /* start, nicht center: zentriert saesse die erste Karte bis zu 22 px
+       rechts von der Ueberschrift darueber. */
+    justify-items: start;
+    padding-bottom: 0;
+  }
+
+  /* Karte fuellt ihre Spalte, bleibt aber auf Rail-Breite gedeckelt. */
+  main.page .recentItem {
+    width: 100%;
+    max-width: 176px;
+  }
+}
+
 .recentCard {
   display: block;
   aspect-ratio: 1539 / 2115;

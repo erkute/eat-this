@@ -16,7 +16,6 @@ import {
   allCategoriesQuery,
   categoryBySlugQuery,
   emailSpotsQuery,
-  emailSpotCardQuery,
   packContentsQuery,
 } from './queries';
 import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types';
@@ -229,15 +228,6 @@ export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
   return client.fetch<EmailSpot[]>(
     emailSpotsQuery,
     { limit },
-    { next: { revalidate: 3600, tags: ['restaurant'] } }
-  );
-}
-
-// One spot for the composed email card image (/api/email/spot-card).
-export async function getEmailSpotCard(slug: string): Promise<Omit<EmailSpot, 'slug'> | null> {
-  return client.fetch<Omit<EmailSpot, 'slug'> | null>(
-    emailSpotCardQuery,
-    { slug },
     { next: { revalidate: 3600, tags: ['restaurant'] } }
   );
 }

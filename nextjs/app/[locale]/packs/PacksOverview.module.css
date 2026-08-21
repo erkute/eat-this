@@ -356,16 +356,7 @@
   padding-top: clamp(14px, 2vw, 24px);
 }
 
-.packTop {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  border-top: 0;
-  padding-top: 0;
-}
-
-.packTop h3 {
+.packName {
   margin: 0;
   color: var(--packs-ink);
   font-size: clamp(27px, 3.2vw, 42px);
@@ -373,13 +364,6 @@
   letter-spacing: 0;
   line-height: 0.9;
   text-transform: uppercase;
-}
-
-.price {
-  flex: 0 0 auto;
-  color: var(--packs-ink);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
 }
 
 .spectrum {

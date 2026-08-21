@@ -4,26 +4,14 @@ import SignupEmail, { SIGNUP_SUBJECT } from '../SignupEmail';
 import LoginEmail, { LOGIN_SUBJECT } from '../LoginEmail';
 
 const spots = [
-  {
-    name: 'SOFI',
-    slug: 'sofi',
-    area: 'Mitte',
-    cuisine: 'Bakery',
-    photo: 'https://cdn.sanity.io/images/x/y/rest.png',
-  },
-  {
-    name: 'GEMELLO',
-    slug: 'gemello',
-    area: 'Prenzlauer Berg',
-    cuisine: 'Italian',
-    photo: 'https://cdn.sanity.io/images/x/y/rest2.png?w=800',
-  },
+  { slug: 'sofi', name: 'SOFI', meta: 'Mitte · Bakery' },
+  { slug: 'gemello', name: 'GEMELLO', meta: 'Prenzlauer Berg · Italian' },
 ];
 
 const magicLink = 'https://x/verify?abc=1';
 const appUrl = 'https://www.eatthisdot.com';
 
-const signup = () => render(SignupEmail({ magicLink, appUrl, restaurants: spots }));
+const signup = () => render(SignupEmail({ magicLink, appUrl, spots }));
 const login = () => render(LoginEmail({ magicLink, appUrl }));
 
 describe('shared shell', () => {
@@ -86,7 +74,7 @@ describe('LoginEmail', () => {
     const html = await login();
     expect(html).not.toContain('Starter Pack');
     expect(html).not.toContain('booster_free');
-    expect(html).not.toContain('/api/email/spot-card');
+    expect(html).not.toContain('/pics/email/spots/');
     expect(html).not.toContain('/map?r=');
   });
 });
@@ -104,11 +92,13 @@ describe('SignupEmail', () => {
     expect(SIGNUP_SUBJECT).toContain('Willkommen');
   });
 
-  it('spots are server-composed cards that deep-link onto the map', async () => {
+  it('spots are pre-rendered static cards that deep-link onto the map', async () => {
     const html = await signup();
-    // Each spot is ONE composed image (public restaurant photo + name)…
-    expect(html).toContain('/api/email/spot-card?slug=sofi');
-    expect(html).toContain('/api/email/spot-card?slug=gemello');
+    // Each spot is ONE image, rendered locally and served from public/ — never
+    // built at request time, so no mail client waits on a renderer and no
+    // licensed font has to live on the server.
+    expect(html).toContain('/pics/email/spots/sofi.jpg');
+    expect(html).toContain('/pics/email/spots/gemello.jpg');
     // …wrapped in a link that opens the restaurant on the map.
     expect(html).toContain('/map?r=sofi');
     expect(html).toContain('/map?r=gemello');
@@ -116,16 +106,38 @@ describe('SignupEmail', () => {
     expect(html).toContain('SOFI — Mitte · Bakery');
   });
 
+  it('never points at a runtime image endpoint', async () => {
+    // The /api/email/spot-card route is gone; a reintroduced reference would
+    // 401 on staging and drag the brand font back onto the server.
+    for (const html of [await signup(), await login()]) {
+      expect(html).not.toContain('/api/email/');
+    }
+  });
+
   it('caps the spot rail at three so the mail stays short', async () => {
     const many = [...spots, { ...spots[0], slug: 'c' }, { ...spots[0], slug: 'd' }];
-    const html = await render(SignupEmail({ magicLink, appUrl, restaurants: many }));
-    expect(html.match(/\/api\/email\/spot-card/g)?.length).toBe(3);
+    const html = await render(SignupEmail({ magicLink, appUrl, spots: many }));
+    expect(html.match(/\/pics\/email\/spots\//g)?.length).toBe(3);
   });
 
   it('drops the spot section entirely when there is no content', async () => {
-    const html = await render(SignupEmail({ magicLink, appUrl, restaurants: [] }));
-    expect(html).not.toContain('/api/email/spot-card');
+    const html = await render(SignupEmail({ magicLink, appUrl, spots: [] }));
+    expect(html).not.toContain('/pics/email/spots/');
     expect(html).toContain('Anmelden und Map öffnen');
+  });
+
+  it('ships a real rendered card for every spot in the generated manifest', async () => {
+    // The manifest and public/ must not drift apart — a spot without its JPEG
+    // is a broken image in a first-contact mail.
+    const { EMAIL_SPOTS } = await import('../spots.generated');
+    const { existsSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    expect(EMAIL_SPOTS.length).toBeGreaterThan(0);
+    for (const spot of EMAIL_SPOTS) {
+      expect(
+        existsSync(join(process.cwd(), 'public', 'pics', 'email', 'spots', `${spot.slug}.jpg`))
+      ).toBe(true);
+    }
   });
 
   it('drops all retired onboarding-script content', async () => {

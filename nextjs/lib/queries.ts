@@ -231,17 +231,6 @@ export const emailSpotsQuery = `
   }
 `;
 
-// One spot for the composed email card image (/api/email/spot-card) — same
-// shape as emailSpotsQuery, addressed by slug.
-export const emailSpotCardQuery = `
-  *[_type == "restaurant" && slug.current == $slug && defined(image.asset) && (${publishableRestaurantImageCondition('image')})][0] {
-    name,
-    "area": coalesce(bezirkRef->name, district),
-    "cuisine": cuisineType,
-    "photo": ${publishableRestaurantImageUrl('image', 'card')}
-  }
-`;
-
 // Bezirke for the /bezirk index — includes count and a few example restaurants.
 export const allBezirkeWithStatsQuery = `
   *[_type == "bezirk"] | order(name asc) {

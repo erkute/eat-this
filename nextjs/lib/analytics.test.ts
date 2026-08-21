@@ -10,6 +10,7 @@ import {
   trackEvent,
   trackEventOnce,
 } from './analytics';
+import { CONSENT_VERSION } from './consent';
 
 describe('analytics consent gate', () => {
   beforeEach(() => {
@@ -31,7 +32,7 @@ describe('analytics consent gate', () => {
   });
 
   it('queues after consent and flushes when gtag loads', () => {
-    document.cookie = 'cookieConsent=accepted; Path=/';
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
     trackEvent('map_opened', { tier: 'anon' });
 
     const gtag = vi.fn();
@@ -42,7 +43,7 @@ describe('analytics consent gate', () => {
   });
 
   it('deduplicates session-scoped events', () => {
-    document.cookie = 'cookieConsent=accepted; Path=/';
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
     const gtag = vi.fn();
     (window as Window & { gtag?: typeof gtag }).gtag = gtag;
 
@@ -53,7 +54,7 @@ describe('analytics consent gate', () => {
   });
 
   it('hands an event across a hard navigation', () => {
-    document.cookie = 'cookieConsent=accepted; Path=/';
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
     handoffEvent('sign_up', { method: 'email_link' });
 
     const appendChild = vi.spyOn(document.head, 'appendChild');
@@ -109,8 +110,8 @@ describe('consent-free counting', () => {
 
   it.each([
     ['no answer yet', ''],
-    ['declined', 'cookieConsent=declined; Path=/'],
-    ['accepted', 'cookieConsent=accepted; Path=/'],
+    ['declined', `cookieConsent=declined.${CONSENT_VERSION}; Path=/`],
+    ['accepted', `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`],
   ])('counts a page view when consent is %s', async (_label, cookie) => {
     if (cookie) document.cookie = cookie;
 

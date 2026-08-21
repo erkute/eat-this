@@ -9,7 +9,9 @@ Frühes Stadium, praktisch keine echten User: alten/toten Code ersatzlos raussch
 npm test          npm run lint          npx tsc --noEmit
 npm run build:css                 # Pflicht nach jeder Änderung an css/ – dev baut nicht neu
 npm run build:isolated            # statt `build`, wenn `next dev` läuft (sonst 500er)
+npm run sync:brand-font           # holt die aktivierte Providence aus Creative Cloud
 npm run build:email-art           # Pflicht nach jeder Textänderung in scripts/build-email-art.mts
+npm run build:email-spots         # rendert die Spot-Cards der Anmelde-Mail neu aus Sanity
 ```
 
 ## Deploy
@@ -26,7 +28,8 @@ Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verif
 ## Was sonst kaputtgeht
 
 - **CSS:** Quelle `nextjs/css/`, minifiziert `nextjs/public/css/` (nie direkt editieren). Nach jeder `style.css`-Änderung `CSS_VERSION` in `lib/constants.ts` hochzählen – neun Layouts hängen dran.
-- **Auth-Mails:** `emails/SignupEmail.tsx` (neue Adresse) und `emails/LoginEmail.tsx` (bestehendes Konto) – zwei getrennte Mails, kein Flag. Jede Headline in Markenschrift ist ein PNG aus `npm run build:email-art` (Gmail lädt keine Webfonts, die Typekit-Lizenz deckt E-Mail nicht ab); Maße kommen aus `emails/art.generated.ts`. Der CTA bleibt Live-Text – nie ein Bild, sonst ist er bei blockierten Bildern unsichtbar. Fehlt `assets/fonts/Providence*.otf|ttf`, rendert das Skript sichtbar gewarnt mit Schoolbell.
+- **Auth-Mails:** `emails/SignupEmail.tsx` (neue Adresse) und `emails/LoginEmail.tsx` (bestehendes Konto) – zwei getrennte Mails, kein Flag. Der CTA bleibt Live-Text – nie ein Bild, sonst ist er bei blockierten Bildern unsichtbar.
+- **Markenschrift in Mails:** Gmail lädt keine Webfonts, und die Typekit-Lizenz deckt E-Mail nicht ab. Alles in FF Providence Sans Pro wird deshalb **lokal** zu Bildern gerendert: Headlines über `build:email-art` (Maße in `emails/art.generated.ts`), Spot-Cards über `build:email-spots` (Auswahl in `emails/spots.generated.ts`). Die Schrift selbst liegt per `.gitignore` nur lokal – sie darf nicht ins Repo und nicht auf den Server. Fehlt sie, rendern beide Skripte sichtbar gewarnt mit Schoolbell. Nie eine Laufzeit-Route bauen, die Mail-Bilder rendert: die hing auf Staging hinter der Basic Auth und hätte die Schrift aufs Deployment gezwungen.
 - **Bilder unter `public/`:** vor dem Commit zu WebP (`cwebp -q 80`). Ausnahmen, die PNG bleiben: `favicon.ico`, `apple-touch-icon.png`, PWA-Icons, OG-/Twitter-Bilder.
 - **Keine Opacity-Fades** für Ein-/Ausblend-*Bewegung* auf Brand-Flächen – stattdessen translate/scale/clip-path. (Hover-States etc. dürfen Opacity nutzen.)
 - **Die App ist light-only.** Kein Dark Mode, kein `prefers-color-scheme`. `color-scheme: light` in `globals.css` muss bleiben.

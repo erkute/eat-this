@@ -3,7 +3,13 @@
 // See: https://firebase.google.com/docs/projects/api-keys
 
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  getAuth,
+  indexedDBLocalPersistence,
+  initializeAuth,
+  type Auth,
+} from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
 import { isStaging } from '@/lib/env';
 import { assertFirebaseProjectBoundary, PRODUCTION_FIREBASE_PROJECT_ID } from './project-boundary';
@@ -80,7 +86,40 @@ assertFirebaseProjectBoundary({
   surface: 'client',
 });
 
-export const auth = getAuth(app);
+/* Auth WITHOUT the default popup/redirect resolver.
+ *
+ * getAuth() bundles Firebase's browserPopupRedirectResolver, and that resolver
+ * loads Google's gapi bridge — apis.google.com/js/api.js plus the
+ * {authDomain}/__/auth/iframe helper — on every page, for every visitor,
+ * before the consent dialog has been answered and whether or not anyone ever
+ * signs in. The cookie banner tells people Google Sign-In loads "only when you
+ * use it", so it also has to be true.
+ *
+ * initializeAuth keeps the resolver out; the one flow that needs it passes
+ * browserPopupRedirectResolver explicitly (lib/auth/AuthContext.tsx). Email
+ * -link sign-in (/welcome) never needed it.
+ *
+ * Persistence has to be spelled out here: initializeAuth defaults to in-memory,
+ * which would sign everyone out on reload. These two are exactly what getAuth()
+ * would have picked.
+ */
+function initAuth(): Auth {
+  // Server render: no popup machinery exists to avoid, and initializeAuth's
+  // browser persistences would throw.
+  if (typeof window === 'undefined') return getAuth(app);
+  try {
+    return initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+    });
+  } catch {
+    // Already initialized — hot reload, or a second importer racing this one.
+    // getAuth returns the existing instance as-is; it does not bolt the
+    // resolver onto an auth that was created without one.
+    return getAuth(app);
+  }
+}
+
+export const auth = initAuth();
 
 // Lazy Firestore. A static `getFirestore(app)` pulls the ~85 KB gzip
 // firebase/firestore SDK into every route's first-load via the global

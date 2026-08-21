@@ -86,6 +86,29 @@ const ART: ArtSpec[] = [
     align: 'center',
     width: 172,
   },
+  // Kicker — auf home ist die Zeile ueber der Hero-Headline `--et-font-label`,
+  // also ebenfalls Providence. Als Live-Text konnte sie das nie sein; hier
+  // traegt sie dieselbe Schrift wie alles andere Markige in der Mail.
+  // Die Zielbreiten stehen im Verhaeltnis der Zeichenzahl (21 vs. 29), damit
+  // beide Kicker optisch gleich gross wirken.
+  {
+    id: 'kicker-signup',
+    lines: ['WAS DU ESSEN SOLLTEST'],
+    color: COLOR.ink,
+    size: 14,
+    letterSpacing: 1.2,
+    align: 'left',
+    width: 200,
+  },
+  {
+    id: 'kicker-login',
+    lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
+    color: COLOR.ink,
+    size: 14,
+    letterSpacing: 1.2,
+    align: 'left',
+    width: 276,
+  },
   {
     id: 'title-spots',
     lines: ['SCHON MAL REINSCHAUEN'],

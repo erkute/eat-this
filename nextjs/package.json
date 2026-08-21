@@ -12,6 +12,7 @@
     "build:isolated": "npm run build:css && NEXT_DIST_DIR=.next-verify next build && cp -r public/. .next-verify/standalone/public/",
     "build:email-art": "tsx scripts/build-email-art.mts",
     "build:email-spots": "tsx scripts/build-email-spots.mts",
+    "build:email-phones": "tsx scripts/build-email-phones.mts",
     "sync:brand-font": "tsx scripts/sync-brand-font.mts",
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",

@@ -99,6 +99,10 @@ env:
     secret: BUDDY_IP_SALT_STAGING
     availability:
       - RUNTIME
+  - variable: COUNT_SALT
+    secret: COUNT_SALT_STAGING
+    availability:
+      - RUNTIME
   - variable: PREMIUM_ACCESS_SIGNING_KEY
     secret: PREMIUM_ACCESS_SIGNING_KEY_STAGING
     availability:

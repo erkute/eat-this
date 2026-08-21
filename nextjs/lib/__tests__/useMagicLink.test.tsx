@@ -25,6 +25,12 @@ const apiResponse = (ok: boolean, body: unknown) =>
 describe('useMagicLink', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock);
+    /* sendLink fires trackEvent('login_start') before it fetches, and
+     * trackEvent now also counts the event for the consent-free pipe. Real
+     * browsers all have sendBeacon, so that count never touches fetch — jsdom
+     * has none, and without this stub the beacon falls back to fetch and eats
+     * the mockReturnValueOnce meant for the magic-link request. */
+    vi.stubGlobal('navigator', { ...navigator, sendBeacon: vi.fn(() => true) });
     fetchMock.mockReset();
     localStorage.clear();
   });

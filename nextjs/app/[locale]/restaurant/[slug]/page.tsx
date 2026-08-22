@@ -27,7 +27,6 @@ import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaura
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
-import HeartCount from '@/app/components/HeartCount';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
 import ShareButton from '@/app/components/ShareButton';
@@ -293,8 +292,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                 className={styles.heroImg}
               />
               <div className={styles.heroGradient} />
-              {/* Public heart count — badge in the photo corner (≥ 1 only) */}
-              <HeartCount restaurantId={r._id} className={styles.heroHeartBadge} />
+              {/* Heart toggle with the public count next to it (≥ 1 only) */}
               <HeartButton
                 restaurantId={r._id}
                 name={r.name}

@@ -1,8 +1,10 @@
+// Exactly what the pick reads — nothing else. `featured` and `mustEatCount`
+// used to sit here too, and both queries below dutifully computed them; no
+// branch ever looked at either. The mustEatCount one was a correlated
+// subquery over every restaurant, run twice per page.
 export interface SpotCandidate {
   _id: string;
   featuredOnDate: string | null;
-  featured: boolean;
-  mustEatCount: number;
 }
 
 /**

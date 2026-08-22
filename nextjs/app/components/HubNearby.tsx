@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
 import { getLocationStatus } from '@/lib/map/locationStatus';
 import { normalizeName } from '@/lib/normalizeName';
 import { nearestRestaurants, rotatingRestaurants } from '@/lib/home/nearby';
+import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import sanityImageLoader from '@/lib/sanityImageLoader';
 import MapIntentLink from './MapIntentLink';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
@@ -145,10 +146,21 @@ export default function HubNearby({
               >
                 <span className={`hv-photo ${styles.photo}`}>
                   {r.photo && (
-                    <Image
-                      src={r.photo}
+                    // Deliberately bypass the App Hosting image proxy, like
+                    // HubSection and HubMustEatsTeaser next door: `r.photo` is
+                    // already a Sanity URL carrying ?w=600&auto=format&q=80
+                    // (mapCard preset), so routing it through /_next/image
+                    // re-optimised an optimised file on Cloud Run for nothing.
+                    // These were the last seven images on the home page still
+                    // taking that detour.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className={styles.photoImg}
+                      src={sanityImageLoader({ src: r.photo, width: 560, quality: 80 })}
+                      srcSet={sanitySrcSet(r.photo, [280, 380, 560, 760], 80)}
                       alt={normalizeName(r.name)}
-                      fill
+                      loading="lazy"
+                      decoding="async"
                       sizes="(max-width:760px) 78vw, 280px"
                     />
                   )}

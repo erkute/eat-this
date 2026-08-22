@@ -5,9 +5,9 @@ import * as Sentry from '@sentry/nextjs';
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // 10 % of transactions get a performance trace. Free tier has a quota,
-  // so keep this conservative until we know real traffic shape.
-  tracesSampleRate: 0.1,
+  // No tracesSampleRate: performance tracing is tree-shaken out of the bundle
+  // entirely (webpack.treeshake.removeTracing in next.config.ts). Setting it
+  // here would be inert and misleading.
 
   // Capture browser-build context so the dashboard shows release names
   // and minified stack traces resolve back to source via uploaded sourcemaps.
@@ -24,5 +24,6 @@ Sentry.init({
   sendDefaultPii: true,
 });
 
-// Required for next/navigation route-change instrumentation in app router.
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+// No onRouterTransitionStart export: it only feeds navigation SPANS, and
+// `Sentry.captureRouterTransitionStart` is tree-shaken away with the rest of
+// tracing — exporting it would hand Next.js an `undefined` hook.

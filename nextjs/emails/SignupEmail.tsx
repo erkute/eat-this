@@ -194,7 +194,6 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
             >
               {/* next/image has no meaning in an inbox — the markup leaves this
                   process as an HTML string, and there is no runtime to optimise. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`${appUrl}/pics/email/spots/${s.slug}.jpg?v=${s.version}`}
                 alt={`${s.name} — ${s.meta}`}

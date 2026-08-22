@@ -27,6 +27,7 @@ export default function KategorieBoost({ categorySlug, categoryName, locale }: P
             alt={`${categoryName} Pack`}
             width={420}
             height={630}
+            sizes="(max-width: 540px) 150px, (max-width: 839px) 220px, 150px"
             className={styles.posterImg}
             priority
           />

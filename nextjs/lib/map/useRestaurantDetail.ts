@@ -21,8 +21,11 @@ interface RestaurantMapDetail {
   instagramHandle?: string;
   reservationUrl?: string;
   tip?: string;
+  tipEn?: string;
   description?: string;
+  descriptionEn?: string;
   shortDescription?: string;
+  shortDescriptionEn?: string;
   photo?: string;
   photoCredit?: string;
   photoCreditUrl?: string;

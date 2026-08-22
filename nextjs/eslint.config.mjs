@@ -27,6 +27,33 @@ const eslintConfig = [
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
   {
+    // Email templates cannot use next/image. Gmail and friends need a plain
+    // <img> with an absolute URL and inline styles; there is no client runtime
+    // to hydrate an optimized component, and the Next optimizer is not
+    // reachable from a mail client anyway.
+    files: ['emails/**'],
+    rules: { '@next/next/no-img-element': 'off' },
+  },
+  {
+    // The cascade sweep scripts are not modules — each file IS a bare
+    // `async (page) => {…}` expression, handed to the Playwright MCP as a
+    // file to evaluate in the page (see scripts/cascade/README.md). A
+    // top-level expression is the whole point of the format.
+    files: ['scripts/cascade/sweep-*.js', 'scripts/cascade/hover*.js'],
+    rules: { '@typescript-eslint/no-unused-expressions': 'off' },
+  },
+  {
+    // `for (const _ of …)` is the counting idiom in the cascade tooling: the
+    // match itself is irrelevant, only how many there are. Underscore is the
+    // conventional "deliberately unused" name.
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { varsIgnorePattern: '^_$', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
+    },
+  },
+  {
     ignores: [
       'node_modules/**',
       '.next/**',

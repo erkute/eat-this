@@ -131,6 +131,10 @@ export default async function KategorieIndexPage({ params }: PageProps) {
                   alt=""
                   width={420}
                   height={630}
+                  // Three of these render above the fold with priority. Capped
+                  // at clamp(202px, 22vw, 318px) (Kategorie.module.css:100),
+                  // so retina was preloading 1080w apiece for a 318px slot.
+                  sizes="(max-width: 639px) 168px, (max-width: 959px) 212px, (max-width: 1440px) 22vw, 318px"
                   priority
                   className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`}
                 />

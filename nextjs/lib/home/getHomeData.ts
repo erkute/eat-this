@@ -28,11 +28,9 @@ const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id 
   "name": name,
   "slug": slug.current,
   featuredOnDate,
-  featured,
   "image": image.asset->url,
   "district": coalesce(bezirkRef->name, district, null),
-  "sub": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription),
-  "mustEatCount": count(*[_type == "mustEat" && references(^._id)])
+  "sub": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription)
 }`;
 
 

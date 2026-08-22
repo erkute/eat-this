@@ -10,7 +10,7 @@ import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
-import { SITE_URL } from '@/lib/constants';
+import { OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { routing } from '@/i18n/routing';
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = guide.title[loc];
   const description = guide.intro[loc];
   const brandedTitle = buildBrandedTitle(title);
-  const image = `${SITE_URL}/pics/og/og_${guide.categorySlug}.png?v=2`;
+  const image = `${SITE_URL}/pics/og/og_${guide.categorySlug}.png?v=${OG_PACK_VERSION}`;
   const alternates = buildHreflangAlternates(`/guides/${slug}`, loc);
   return {
     title: { absolute: brandedTitle },
@@ -141,7 +141,18 @@ export default async function GuidePage({ params }: PageProps) {
               </div>
             </div>
             <div className={styles.heroPack} aria-hidden="true">
-              <Image src={guide.art} alt="" width={420} height={560} priority />
+              <Image
+                src={guide.art}
+                alt=""
+                width={420}
+                height={560}
+                // Renders at most 270px wide (GuidePage.module.css:150
+                // `min(100%, 270px)`). Without sizes, a numeric width makes
+                // Next emit x-descriptors — 640w @1x, 1080w @2x — so retina
+                // fetched 169 kB for a 540px slot. With sizes it picks 640w.
+                sizes="(max-width: 400px) 54vw, (max-width: 900px) 220px, 270px"
+                priority
+              />
             </div>
           </header>
 

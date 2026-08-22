@@ -1,7 +1,8 @@
-import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
 import styles from './MagazineGrid.module.css';
+import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import sanityImageLoader from '@/lib/sanityImageLoader';
 
 interface Props {
   articles: HubArticle[];
@@ -40,7 +41,19 @@ export default function MagazineGrid({ articles, locale }: Props) {
             <Link href={`/news/${a.slug}`} className={styles.card}>
               <span className={`hv-photo ${styles.photo}`}>
                 {a.image && (
-                  <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 33vw" />
+                  // Same detour as HubNearby had: `a.image` is already a Sanity
+                  // URL, so /_next/image re-optimised an optimised file on
+                  // Cloud Run. Sanity serves the responsive variants itself.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.photoImg}
+                    src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
+                    srcSet={sanitySrcSet(a.image, [480, 800, 1200])}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(max-width:760px) 92vw, 33vw"
+                  />
                 )}
               </span>
               <span className={styles.text}>

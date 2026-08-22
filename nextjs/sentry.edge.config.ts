@@ -4,7 +4,9 @@ import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 0.1,
+  // No tracesSampleRate: removeTracing in next.config.ts strips tracing from
+  // the server and edge bundles too (Next runs the webpack config for all
+  // three runtimes), so this would be inert.
   environment: process.env.NODE_ENV,
   sendDefaultPii: true,
 });

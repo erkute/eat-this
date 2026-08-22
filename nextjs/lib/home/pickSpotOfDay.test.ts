@@ -4,15 +4,13 @@ import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay';
 const r = (id: string, o: Partial<SpotCandidate> = {}): SpotCandidate => ({
   _id: id,
   featuredOnDate: null,
-  featured: false,
-  mustEatCount: 0,
   ...o,
 });
 
 describe('pickSpotOfDay', () => {
   it('prefers a restaurant whose featuredOnDate equals today', () => {
     const today = '2026-06-01';
-    const list = [r('a', { mustEatCount: 9 }), r('b', { featuredOnDate: today }), r('c')];
+    const list = [r('a'), r('b', { featuredOnDate: today }), r('c')];
     expect(pickSpotOfDay(list, today)?._id).toBe('b');
   });
 

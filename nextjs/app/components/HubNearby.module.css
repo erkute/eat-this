@@ -107,6 +107,15 @@
   pointer-events: none;
 }
 
+/* Replaces what next/image's `fill` used to do: cover the 4/3 box. The
+   object-fit itself comes from the global `.homeV2 .hv-photo img` rule. */
+.photoImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .photo img {
   transition: transform 180ms ease;
 }

@@ -6,7 +6,7 @@ Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
 gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
 
-**Fortschritt:** Session A, B und C erledigt (PR #425) · D, E offen.
+**Fortschritt:** Session A, B, C und D erledigt (PR #425) · E offen.
 
 ---
 
@@ -369,68 +369,100 @@ RSC-Payload jeder Seite. Die Startseite ist 36,8 kB gzip, `translations.ts`
 allein 9,2 kB gzip für beide Sprachen. next-intl kann Namespaces selektiv
 ausliefern — eigener, kleiner Schritt.
 
-### P2 — Startseite zieht 339 Restaurants für einen Spot des Tages
+### P2 — Eine tote Subquery, zweimal berechnet ✅ **behoben, PR #425**
 
-`lib/home/getHomeData.ts` holt über `spotCandidatesQuery` **alle** offenen
-Restaurants — inklusive einer `count(*[_type == "mustEat" && references(^._id)])`-
-Subquery **pro Restaurant** — und wählt danach in JS einen aus.
+> **Korrigiert am 22.08.2026 (Session D).** Der Befund hieß hier „Startseite
+> zieht 339 Restaurants für einen Spot des Tages" und schlug vor, die Auswahl
+> nach GROQ zu verlagern. Das Problem war ein anderes — und billiger zu lösen.
 
-Das Ergebnis ist per `next: { revalidate: 3600, tags: [...] }` gecacht, der
-Schaden ist also begrenzt. Aber die Kosten wachsen linear mit dem Katalog, und
-der Cache wird von den Tags `restaurant` und `mustEat` invalidiert — also bei
-jeder Redaktionsänderung. Bei 339 Restaurants noch unauffällig, bei 1000 nicht
-mehr.
+`pickSpotOfDay` liest **ausschließlich** `featuredOnDate`, `_id` und die
+Kandidatenzahl (`lib/home/pickSpotOfDay.ts:15-23`). `featured` und
+`mustEatCount` standen im Interface, wurden in **beiden** Queries berechnet —
+`mustEatCount` als korrelierte Subquery über alle 339 Restaurants,
+in `getHomeData.ts:35` und noch einmal in `spotOfDay.server.ts:11` — und in
+keiner Verzweigung je gelesen. Die Studio-Beschreibung
+(`studio/schemaTypes/restaurant.js:65`) behauptet noch die alte Semantik; die
+Doku war dem Code hinterher.
 
-**Fix:** die Auswahl nach GROQ verlagern (Kandidaten nach `featuredOnDate` /
-`featured` vorfiltern und projizieren, statt den vollen Katalog zu übertragen).
-**Aufwand:** mittel — die Logik in `pickSpotOfDay` ist getestet, die Tests sind
-der Schutz beim Umbau.
+Der Fix ist damit keine Query-Verlagerung mit Risiko für getestete
+Auswahllogik, sondern eine **ersatzlose Streichung**. Gemessen gegen die
+Sanity-API: Antwort 33 → 21 kB, Laufzeit im Rauschen leicht besser.
 
-### P2 — Doppelte Bildoptimierung auf der Startseite
+**Noch offen:** Die Präsentationsfelder (`name`, `slug`, `image`, `district`,
+`sub`) braucht nur der Gewinner, nicht alle 339. Das wäre ein zweiter Schritt
+mit zwei Queries — mehr Risiko, kleinerer Gewinn. **Nebenbedingung dabei:** der
+Kandidatenfilter muss eine Teilmenge von `mapRestaurantsQuery`
+(`lib/map/queries.ts:21`, `isOpen != false`) bleiben, sonst findet
+`applySpotOfDayReveal` den Spot nicht und die Map-Freigabe fällt still aus.
 
-`app/components/HubNearby.tsx:148` rendert Sanity-Bilder über `next/image`. Die
-URL ist zu dem Zeitpunkt bereits `…?w=600&auto=format&q=80` — Sanitys CDN hat
-das Bild fertig. Next schickt es trotzdem durch den App-Hosting-Optimizer.
+### P2 — Doppelte Bildoptimierung auf der Startseite ✅ **behoben, PR #425**
+
+`HubNearby` rendert Sanity-Bilder über `next/image`. Die URL ist zu dem
+Zeitpunkt bereits `…?w=600&auto=format&q=80` (mapCard-Preset) — Sanitys CDN hat
+das Bild fertig. Next schickte es trotzdem durch den App-Hosting-Optimizer,
+also durch Cloud Run.
 
 Die Nachbarkomponenten machen es anders und begründen es im Code:
 
 > _„Deliberately bypass the App Hosting image proxy: Sanity serves the
 > responsive, format-negotiated variants directly."_ — `HubSection.tsx`
 
-`HubSection`, `HubMustEatsTeaser`, `RestaurantList`, `bezirk/[slug]`,
-`kategorie/[slug]` nutzen alle `sanityImageLoader`/`sanitySrcSet`. `HubNearby`
-ist der Ausreißer und liefert ~6 Bilder auf der meistbesuchten Seite über den
-teuren Weg aus.
+**Korrektur:** `HubNearby` war nicht der einzige Ausreißer. Beim Nachmessen am
+laufenden Produktionsserver blieben nach dem Umbau noch drei Bilder übrig —
+`MagazineGrid.tsx:43` machte dasselbe. Beide sind jetzt umgestellt.
 
-**Fix:** `HubNearby` auf denselben Pfad ziehen. **Aufwand:** klein.
+Gemessen am gebauten Server: **Sanity-Bilder durch den Proxy 7 → 0.** Die zwölf
+lokalen Assets laufen weiter korrekt über den Optimizer.
 
-### P2 — OG-Bilder sind 460–685 kB PNG
+### P2 — OG-Bilder sind 460–685 kB PNG ✅ **behoben, PR #425**
 
-```
-685 KB  public/pics/og/og_fine-dining.png
-541 KB  public/pics/og/og_lunch.png
-…       (9 Dateien, zusammen 4,7 MB)
-```
+Neun Kategorie-Share-Cards, zusammen 4,60 MB, als unquantisierte 24-Bit-PNGs.
+CLAUDE.md nimmt OG-Bilder bewusst von der WebP-Regel aus — richtig, viele
+Social-Crawler mögen kein WebP. Aber _PNG bleiben_ heißt nicht _unkomprimiert
+bleiben_.
 
-Sie werden korrekt genutzt (`guides/[slug]/page.tsx:39` baut
-`og_${categorySlug}.png` zusammen). CLAUDE.md nimmt OG-Bilder bewusst von der
-WebP-Regel aus — das ist richtig, viele Social-Crawler mögen kein WebP. Aber
-_PNG bleiben_ heißt nicht _unkomprimiert bleiben_: verlustbehaftete
-PNG-Quantisierung (`pngquant`) holt hier typisch 60–70 % raus, ohne das Format
-zu wechseln.
+`pngquant` ist auf dem Rechner nicht installiert, `sharp` liegt als
+Next-Abhängigkeit ohnehin im Baum und kann dasselbe:
+`sharp(x).png({ palette: true, quality: 100, effort: 10 })`. Es sind flache
+Illustrationen, also greift Palettenquantisierung fast verlustfrei.
 
-Betrifft keine Seitenladezeit, nur Crawler und Link-Vorschauen. Deshalb P2.
+**Ergebnis: 4,60 → 1,73 MB (62 %),** RMSE 1,2–1,4 auf einer 0–255-Skala,
+schlechtester Fall zusätzlich im direkten Bildvergleich angesehen — kein
+sichtbarer Unterschied.
 
-### P3 — 7 `<Image>` ohne `sizes`
+**Nebenbefund:** Zwei Routen liefern dieselben neun Dateien mit je eigener
+Version aus — `kategorie/[slug]` über ein lokales `PACK_OG_VERSION`,
+`guides/[slug]` über ein hartkodiertes `?v=2`. Beide standen zufällig auf 2,
+was genau die Art Drift ist, die unsichtbar bleibt, bis eine der beiden sich
+bewegt. Jetzt eine Konstante `OG_PACK_VERSION` in `lib/constants.ts`, mit Test.
 
-`guides/[slug]:144`, `pack/[slug]:102` und `:246`, `kategorie:128`,
-`packs:163` und `:214`, `KategorieBoost:25`. Ohne `sizes` nimmt Next `100vw` an
-und lässt den Browser aus dem vollen srcset wählen — auf Retina-Desktop
-entsprechend groß.
+### P3 — `<Image>` ohne `sizes` ✅ **behoben, PR #425**
+
+> **Korrigiert am 22.08.2026 (Session D).** Hier stand: „Ohne `sizes` nimmt
+> Next `100vw` an." Das gilt **nur für `fill`-Bilder**. Bei numerischem `width`
+> erzeugt Next x-Deskriptoren aus `[width, width*2]`
+> (`node_modules/next/dist/shared/lib/get-img-props.js`, Funktion `getWidths`).
+
+Die Schlussfolgerung stimmte trotzdem, und der Effekt ist größer als gedacht.
+Das Hero-Pack der Guide-Seiten hat `width={420}` und lieferte damit fix
+`640w 1x, 1080w 2x` — auf Retina also **169 kB für einen Slot, der nie breiter
+als 270 px rendert**, wo 640w (**87 kB**) reicht. Auf der Kategorie-Übersicht
+dreimal dasselbe, alle drei mit `priority` vorgeladen.
+
+Gesetzt wurden fünf `sizes`. **Zwei bewusst nicht:** die Payment-Logos in
+`pack/[slug]:102` und `packs:163` sind konstant 70 px breit und bekommen heute
+`w=96`/`w=256`. Ein `sizes` würde ihnen die volle 16-stufige Leiter geben —
+eine Verschlechterung, keine Verbesserung.
+
+**Noch offen:** Die Payment-Logo-Quellen sind selbst nur 70×48 px und bleiben
+auf Retina unscharf. Das heilt kein `sizes`, nur ein größeres Ausgangsbild.
+Ebenfalls offen: das Guide-Hero-Pack trägt `priority`, obwohl es dekorativ ist
+(`alt=""`, Container `aria-hidden`) — es konkurriert im Preload mit echten
+LCP-Ressourcen. Mit `sizes` ist der Preload jetzt 640w statt 1080w; ob
+`priority` dort überhaupt gerechtfertigt ist, wäre separat zu prüfen.
 
 Nebenbei geprüft und **kein** Befund: die `w=3840`-Einträge im Live-HTML sind
-nur das letzte Glied des srcset. Die Bilder auf der Startseite haben alle ein
-korrektes `sizes`, der Browser lädt die passende Variante.
+nur das letzte Glied des srcset.
 
 ### P3 — Reste des entfernten `/login`-Routes
 
@@ -598,7 +630,14 @@ P1 Sentry. Zuerst die Produktfrage klären: wie viel Beobachtbarkeit ist die
 Ladezeit wert? Danach Tracing abschalten oder Sentry verzögert laden.
 Erfolgsmaß: „First Load JS shared by all" unter 100 kB.
 
-**Session D — Bilder und Daten** _(mittel, gut testbar)_
+**Session D — Bilder und Daten** — ✅ **erledigt am 22.08.2026, PR #425**
+Share-Cards 4,60 → 1,73 MB · doppelt optimierte Bilder auf der Startseite 7 → 0
+(MagazineGrid kam beim Nachmessen dazu) · fünf `sizes` gesetzt, zwei bewusst
+nicht · tote Subquery ersatzlos gestrichen, Antwort 33 → 21 kB. Zwei Befunde
+mussten dabei korrigiert werden: die `100vw`-Begründung und der
+GROQ-Umbau-Vorschlag.
+
+_(ursprünglicher Plan:)_
 P2 `HubNearby`-Bildpfad, `<Image sizes>`, OG-PNGs quantisieren, `spotOfDay`-
 Query nach GROQ verlagern. Erfolgsmaß: Startseiten-Payload vorher/nachher.
 

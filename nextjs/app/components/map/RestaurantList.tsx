@@ -44,10 +44,15 @@ interface ItemProps {
   /** First row only: it is visible at the sheet's resting stop, so its photo
    *  is the LCP candidate and must not be lazy. */
   priority?: boolean;
-  /** A paywalled spot, rendered as a row so a search can hand it back. Same
-   *  card, minus the two things that would be a paid leak: the must-eat peek
-   *  and the detail prefetch. Clicking it opens LockedDetail, exactly like
-   *  tapping its grey dot on the map. */
+  /** A paywalled spot, rendered as a row so a search can hand it back.
+   *
+   *  Deliberately NOT marked as locked — no badge, no grey photo, no heading
+   *  above the block (user decision, 22.08.2026: the markers read as an ad).
+   *  The row is the search result; the paywall is what the click reveals.
+   *
+   *  So this flag is purely behavioural now, and both parts must stay: no
+   *  must-eat peek and no detail prefetch, because either would ship paid
+   *  content for a spot nobody paid for. */
   locked?: boolean;
   onClick: (r: MapRestaurant) => void;
 }
@@ -109,9 +114,7 @@ const Item = memo(
       <button
         ref={cardRef}
         type="button"
-        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${
-          locked ? styles.rcardLocked : ''
-        }`}
+        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''}`}
         onClick={() => onClick(restaurant)}
       >
         {/* Real <img> instead of a CSS background so the browser can natively
@@ -142,16 +145,6 @@ const Item = memo(
             role="status"
           >
             {statusMain}
-          </span>
-        )}
-
-        {locked && (
-          <span className={styles.lockBadge}>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <rect x="4.5" y="10" width="15" height="10.5" rx="2.5" fill="currentColor" />
-            </svg>
-            <span>{t('map.lockedRowBadge')}</span>
           </span>
         )}
 
@@ -296,29 +289,23 @@ export default function RestaurantList({
           />
         </div>
       ))}
-      {/* Locked hits last: the free rows are what the user can actually open
-          today, and burying them under a wall of paywalled cards would sell
-          the pack at the expense of the map. The heading is what keeps the
-          grey cards from reading as more of the same. */}
-      {lockedRestaurants.length > 0 && (
-        <>
-          <p className={styles.lockedRowsHeading}>{t('map.lockedRowsHeading')}</p>
-          {lockedRestaurants.map((r, index) => (
-            <div key={r._id} className={styles.rcardSlot}>
-              <Item
-                restaurant={r}
-                isSelected={selectedId === r._id}
-                /* LCP candidate only when no free row sits above it. */
-                priority={restaurants.length === 0 && index === 0}
-                now={now}
-                peek={{ kind: 'none' }}
-                locked
-                onClick={onSelect}
-              />
-            </div>
-          ))}
-        </>
-      )}
+      {/* Locked hits last, and otherwise indistinguishable — they simply
+          continue the list. Free rows stay on top because they are what the
+          user can open today; ordering is the only weighting left. */}
+      {lockedRestaurants.map((r, index) => (
+        <div key={r._id} className={styles.rcardSlot}>
+          <Item
+            restaurant={r}
+            isSelected={selectedId === r._id}
+            /* LCP candidate only when no free row sits above it. */
+            priority={restaurants.length === 0 && index === 0}
+            now={now}
+            peek={{ kind: 'none' }}
+            locked
+            onClick={onSelect}
+          />
+        </div>
+      ))}
       {showAllBerlinBanner && (
         <div className={styles.listEnd}>
           <a href={allBerlinHref} className={styles.listEndOffer}>

@@ -604,3 +604,66 @@
     margin-bottom: 0;
   }
 }
+
+/* Locked search hits — the grey dots, handed back as rows so a query can find
+   them. They are real cards, not teasers: the name is public on the spot's
+   district page, so hiding it here would protect nothing and would make the
+   paywall look wider than it is (same reasoning as LockedDetail).
+
+   What separates them from a free row is deliberately quiet — a desaturated
+   photo and a lock badge. Loud treatment here reads as an ad, and these rows
+   exist to answer a search, not to sell. */
+.lockedRowsHeading {
+  margin: 18px 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--map-collage-ink, #2b211c);
+  opacity: 0.62;
+}
+
+.rcardLocked .rcardImg img {
+  filter: grayscale(1) contrast(0.92);
+}
+
+/* Opacity is fine here: this is a resting state, not ein Ein-/Ausblenden. */
+.rcardLocked .rcardImg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(43, 33, 28, 0.28);
+  pointer-events: none;
+}
+
+.lockBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px 5px 7px;
+  border-radius: 999px;
+  background: var(--map-collage-ink, #2b211c);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.lockBadge svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+
+@media (hover: hover) {
+  /* The free cards lift on hover; a locked one should feel openable too — it
+     opens LockedDetail, the same sheet its dot opens. */
+  .rcardLocked:hover .rcardImg img {
+    filter: grayscale(0.55) contrast(0.96);
+  }
+}

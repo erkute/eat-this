@@ -37,6 +37,10 @@ import sheetStyles from './MapSheet.module.css';
    in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
    hydrates immediately, with the heavy maplibre chunk streaming in behind a
    neutral placeholder. */
+/* Stable identity — a fresh [] every render would defeat RestaurantList's
+   memoised rows on every keystroke. */
+const EMPTY_LOCKED: MapRestaurant[] = [];
+
 const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
   ssr: false,
   loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
@@ -659,6 +663,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
+                    /* Only a typed query lists its locked matches. A chip
+                       filter ("Pizza", "Neukölln") is browsing, and the list
+                       stays the quiet free-only surface it was designed as;
+                       a query is someone naming a spot and expecting it back. */
+                    lockedRestaurants={search.trim() ? displayedLockedRestaurants : EMPTY_LOCKED}
                     lockedMatchCount={lockedMatchCount}
                     activeFilterLabel={emptyFilterLabel}
                   />

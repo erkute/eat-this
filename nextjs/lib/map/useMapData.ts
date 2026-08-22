@@ -23,9 +23,11 @@ interface UseMapDataArgs {
 
 interface MapData {
   restaurants: MapRestaurant[];
-  /** Visible-but-locked rows — rendered as blurred preview entries in the
-   *  list so anon/partial-entitlement viewers see catalog depth. Click on a
-   *  locked row routes to the booster/signup flow, not the detail view. */
+  /** The paywalled part of the catalogue — every spot this viewer cannot open,
+   *  uncapped. Drawn on the map as grey dots, and run through the same filter
+   *  as the free set, so a search matches them too and lists them as rows.
+   *  Opening one — dot or row — shows LockedDetail: the spot named, with the
+   *  packs that unlock it. Not a blurred teaser; the name is public anyway. */
   lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   categories: CategoryDef[];

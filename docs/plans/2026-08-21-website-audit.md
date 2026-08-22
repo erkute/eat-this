@@ -343,6 +343,13 @@ Trace-Header auf eigene API-Aufrufe. Bei `tracesSampleRate: 0.1` und dem
 aktuellen Traffic war das nie ein brauchbares Sample — und die Lighthouse-CI
 misst Web Vitals bei jedem `main`-Push gegen Produktion.
 
+Die Lücke ist real und nachgezählt: `useReportWebVitals`, `web-vitals`,
+`onLCP`, `onINP`, `onCLS`, `onFCP`, `onTTFB` haben in `app/` und `lib/`
+zusammen **0 Treffer**. Es gibt also keine zweite Quelle im Code — die
+Lighthouse-CI ist ab jetzt die einzige. Wer echte Feldwerte statt
+Labormessungen braucht, muss sie eigens aufsetzen (Next liefert dafür
+`useReportWebVitals`, das die Daten an `/api/count` schicken könnte).
+
 **Was bleibt:** `captureException`, Breadcrumbs, Stacktraces,
 Sourcemap-Auflösung, serverseitiges Sentry inklusive `onRequestError` und der
 17 manuellen Aufrufe in den API-Routen.

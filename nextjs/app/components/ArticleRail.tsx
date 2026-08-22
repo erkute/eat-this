@@ -1,8 +1,34 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import NewsArticleShare from './NewsArticleShare';
 import styles from './ArticleRail.module.css';
+
+/** Reading position: a chapter counts as current once its heading has passed
+ *  this line, just below the 74px masthead. */
+export const READING_LINE = 140;
+
+/** The last chapter whose heading is at or above the reading line — or the
+ *  first one while the reader is still above all of them. Headings without a
+ *  node in the document are skipped rather than ending the scan, so one
+ *  missing anchor cannot freeze the marker on everything after it.
+ *
+ *  Pure on purpose: this is the part that was wrong the first time round, and
+ *  it is the part worth pinning down in a test. */
+export function activeChapterId(
+  ids: string[],
+  topOf: (id: string) => number | null,
+  line: number = READING_LINE
+): string {
+  let current = ids[0] ?? '';
+  for (const id of ids) {
+    const top = topOf(id);
+    if (top === null) continue;
+    if (top > line) break;
+    current = id;
+  }
+  return current;
+}
 
 export interface Chapter {
   id: string;
@@ -30,38 +56,49 @@ export default function ArticleRail({
   shareExcerpt,
 }: Props) {
   const [activeId, setActiveId] = useState<string>(chapters[0]?.id ?? '');
-  // The last heading that entered the top band stays lit while the reader is
-  // between headings — otherwise the marker blanks out mid-chapter.
-  const lastSeen = useRef(activeId);
+  // A stable dependency: `chapters` is rebuilt on every parent render, so
+  // depending on the array itself would tear the listeners down each time.
+  const chapterKey = chapters.map((c) => c.id).join('|');
 
   useEffect(() => {
-    if (!chapters.length) return;
-    const nodes = chapters
-      .map((c) => document.getElementById(c.id))
-      .filter((n): n is HTMLElement => Boolean(n));
-    if (!nodes.length) return;
+    if (!chapterKey) return;
+    const ids = chapterKey.split('|');
+    let frame = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          lastSeen.current = entry.target.id;
-        }
-        // Among everything currently in the band, the topmost one wins.
-        const inBand = nodes.filter((n) => {
-          const r = n.getBoundingClientRect();
-          return r.top <= 140 && r.bottom >= 0;
-        });
-        const next = inBand.length ? inBand[inBand.length - 1].id : lastSeen.current;
-        setActiveId(next);
-      },
-      // A band just under the masthead, so a heading counts as "current" from
-      // the moment it reaches reading position — not when it fills the screen.
-      { rootMargin: '-96px 0px -68% 0px', threshold: 0 }
-    );
-    nodes.forEach((n) => observer.observe(n));
-    return () => observer.disconnect();
-  }, [chapters]);
+    // Measured from positions, not from crossings. The first version used an
+    // IntersectionObserver with a 153px-tall band (`rootMargin: -96px 0 -68%`)
+    // and only recomputed inside its callback: a heading that jumped clear
+    // over the band between two samples produced no entry at all, and the
+    // marker then stayed put forever. Verified in production on a guide with
+    // eight chapters — the plain observer fired twice over the same scroll,
+    // the banded one only once, at attach time.
+    const measure = () => {
+      frame = 0;
+      setActiveId(
+        activeChapterId(ids, (id) => {
+          const node = document.getElementById(id);
+          return node ? node.getBoundingClientRect().top : null;
+        })
+      );
+    };
+
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(measure);
+    };
+
+    measure();
+    // `scroll` does not bubble, and on desktop the page scrolls inside
+    // `.app-pages` rather than the window — so listen in the capture phase to
+    // catch it whichever element actually scrolls.
+    document.addEventListener('scroll', schedule, true);
+    window.addEventListener('resize', schedule);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      document.removeEventListener('scroll', schedule, true);
+      window.removeEventListener('resize', schedule);
+    };
+  }, [chapterKey]);
 
   if (!chapters.length) return null;
 

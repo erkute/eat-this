@@ -4,7 +4,7 @@ export const SITE_URL = 'https://www.eatthisdot.com';
 // Single source of truth — every (spa)/restaurant/bezirk/pack/kategorie/
 // profile/login layout references this so the value can't drift between routes
 // (it had: 6× v=154 vs 1× v=170). BUMP THIS on any css/style.css change.
-export const CSS_VERSION = 310;
+export const CSS_VERSION = 311;
 
 // Cache-bust for the shared category share cards (public/pics/og/og_*.png).
 // Two routes emit the same nine files — guides/[slug] and kategorie/[slug] —

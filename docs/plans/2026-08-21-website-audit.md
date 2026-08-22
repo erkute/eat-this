@@ -6,7 +6,7 @@ Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
 gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
 
-**Fortschritt:** Session A und B erledigt (PR #425) · C, D, E offen.
+**Fortschritt:** Session A, B und C erledigt (PR #425) · D, E offen.
 
 ---
 
@@ -291,39 +291,76 @@ Kosten.
 schlimmsten Fall, dass ein eingeloggter Nutzer eine fremde Seite sieht. Das
 gehört auf Staging verifiziert, mit und ohne Session, bevor es auf `main` geht.
 
-### P1 — 127 kB gzip Sentry auf jeder einzelnen Seite
+### P1 — Der JS-Sockel: 188 kB auf jeder Seite ✅ **behoben, PR #425**
 
-Die Bundle-Tabelle des Builds:
+> **Korrigiert am 22.08.2026 (Session C).** Die Überschrift hier hieß „127 kB
+> gzip Sentry auf jeder einzelnen Seite" und die Zahl war falsch. Der Chunk
+> ist nicht Sentry, er enthält ihn nur.
+
+Ausgangslage:
 
 ```
 + First Load JS shared by all             188 kB
-  ├ chunks/7327-…                         130 kB   ← Sentry
-  ├ chunks/c34fc056-…                     54,4 kB  ← React
+  ├ chunks/7327-…                         130 kB
+  ├ chunks/c34fc056-…                     54,4 kB   ← React
   └ other shared chunks                   3,97 kB
 ```
 
-Nachgemessen: 7327 ist 416 kB roh, 127 kB gzip, enthält
-`browserTracingIntegration`, `captureException`, Breadcrumb-Maschinerie. Laut
-`app-build-manifest.json` laden **58 von 58** App-Routen diesen Chunk, und er
-steht in `rootMainFiles` — er ist Teil des Startpfads, nicht nachgelagert.
+Der Chunk lädt laut `app-build-manifest.json` in **58 von 58** Routen und
+steht in `rootMainFiles` — Startpfad, nicht nachgelagert.
 
-Rund **zwei Drittel des JS-Sockels sind Fehler-Telemetrie.** Zum Vergleich: die
-gesamte Startseite hat 274 kB First Load, davon 12,8 kB eigener Seitencode.
+**Was Sentry wirklich kostet.** Nur ein Build entscheidet das, und drei
+Schätzungen lagen daneben: mein Audit sagte 127 kB, zwei unabhängige
+Analysen 32,7 und 56,8 kB. Gemessen, mit neutralisiertem
+`instrumentation-client.ts` und Error-Boundaries ohne Sentry-Import:
 
-Die naheliegenden Hebel sind schon gezogen — `next.config.ts` schaltet
-Replay-Iframe/ShadowDom/Worker und Debug-Statements ab, Replay-Sampling steht
-auf 0. Was bleibt:
+| Variante                            | Shared First Load | `/map`     |
+| ----------------------------------- | ----------------- | ---------- |
+| vorher                              | 188 kB            | 341 kB     |
+| **Tracing tree-shaken (umgesetzt)** | **137 kB**        | **291 kB** |
+| Client-Sentry ganz raus             | 105 kB            | 260 kB     |
 
-- `browserTracingIntegration` kostet den größten verbliebenen Block.
-  `tracesSampleRate: 0.1` heißt: 90 % der Besucher laden Tracing-Code, den sie
-  nie auslösen. Bei der aktuellen Besucherzahl liefert das kaum verwertbare
-  Daten.
-- Alternative statt Abschalten: Sentry erst nach `load` bzw. bei der ersten
-  Interaktion nachladen. Fehler _vor_ dem Init gehen dann verloren — das ist
-  die Abwägung, und sie ist eine Produktentscheidung, keine technische.
+Der echte Sentry-Anteil ist also **83 kB**, nicht 127. Umgesetzt wurde die
+mittlere Variante: **51 kB weniger auf allen 43 Routen**, Fehlerberichte
+vollständig erhalten.
 
-**Aufwand:** klein bis mittel. **Risiko:** gering technisch, aber es ist bewusst
-weniger Beobachtbarkeit. Vorher entscheiden, was wichtiger ist.
+**Der Schalter, der nicht wirkte.** Die alte Konfiguration nutzte
+`bundleSizeOptimizations` und behauptete im Kommentar, damit den Sentry-Chunk
+zu trimmen. In `@sentry/nextjs` 10.57.0 liest aber nur `webpack.treeshake` die
+Flags, die den DefinePlugin füttern (`setupTreeshakingFromConfig`,
+`build/cjs/config/webpack.js:549`) — und die Namen sind andere:
+`removeTracing`, nicht `excludeTracing`. Ein Vergleichsbuild mit und ohne den
+alten Block ergab beide Male 137 kB; er ist ersatzlos raus.
+
+Weil Next die Webpack-Konfiguration für Client, Server **und** Edge ausführt,
+greift `removeTracing` in allen drei Bundles. `tracesSampleRate` ist damit
+überall wirkungslos und fliegt aus allen drei Sentry-Configs; ebenso der
+Export `onRouterTransitionStart`, der auf das weggeshakete
+`captureRouterTransitionStart` zeigte.
+
+**Was verloren geht:** Performance-Traces, Transactions, Web Vitals in Sentry,
+Trace-Header auf eigene API-Aufrufe. Bei `tracesSampleRate: 0.1` und dem
+aktuellen Traffic war das nie ein brauchbares Sample — und die Lighthouse-CI
+misst Web Vitals bei jedem `main`-Push gegen Produktion.
+
+**Was bleibt:** `captureException`, Breadcrumbs, Stacktraces,
+Sourcemap-Auflösung, serverseitiges Sentry inklusive `onRequestError` und der
+17 manuellen Aufrufe in den API-Routen.
+
+**Nicht-Befund, geprüft:** Der `/monitoring`-Tunnel funktioniert. Eine Analyse
+hielt ihn für von der Middleware abgefangen und schloss daraus, Client-Sentry
+melde ohnehin nichts. Gegen Produktion geprüft: mit der echten Org-ID kommt
+eine `401` von Sentrys Ingestion, mit falscher eine `404`, per GET eine `404`.
+Der Tunnel greift — und er ist die einzige CSP-konforme Sendeadresse, denn
+`connect-src` enthält keinen Sentry-Host.
+
+**Nicht-Befund, geprüft:** Der Polyfill-Chunk (39 kB) trägt `noModule` —
+moderne Browser laden ihn nie. Dort ist nichts zu holen.
+
+**Offen geblieben:** Der vollständige Übersetzungskatalog steckt im
+RSC-Payload jeder Seite. Die Startseite ist 36,8 kB gzip, `translations.ts`
+allein 9,2 kB gzip für beide Sprachen. next-intl kann Namespaces selektiv
+ausliefern — eigener, kleiner Schritt.
 
 ### P2 — Startseite zieht 339 Restaurants für einen Spot des Tages
 
@@ -541,7 +578,15 @@ P1 CDN-Caching. Cookie-Fix, dann messen, dann ggf. Cache-Header. Braucht
 Staging-Verifikation mit und ohne Session. Erfolgsmaß: `cdn-cache-status: hit`
 auf `/restaurant/*` und `/news/*`, TTFB dort unter 0,2 s.
 
-**Session C — JS-Sockel** _(Entscheidung vor Code)_
+**Session C — JS-Sockel** — ✅ **erledigt am 22.08.2026, PR #425**
+Entscheidung gefallen: Tracing raus, Fehlerberichte bleiben. Gemessen
+188 → 137 kB Sockel, ~50 kB auf allen 43 Routen. Das Erfolgsmaß „unter 100 kB"
+aus dem ursprünglichen Plan wurde bewusst NICHT verfolgt — es hätte den
+kompletten Client-Sentry gekostet (105 kB) und damit jede Browser-Fehlermeldung.
+Regressionstest hält die drei Stellen zusammen, die still auseinanderdriften
+können.
+
+_(ursprünglicher Plan:)_
 P1 Sentry. Zuerst die Produktfrage klären: wie viel Beobachtbarkeit ist die
 Ladezeit wert? Danach Tracing abschalten oder Sentry verzögert laden.
 Erfolgsmaß: „First Load JS shared by all" unter 100 kB.

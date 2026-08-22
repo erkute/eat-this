@@ -21,7 +21,7 @@ import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent } from '@/lib/analytics';
 
 import dynamic from 'next/dynamic';
-import RestaurantList from './RestaurantList';
+import RestaurantList, { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from './RestaurantList';
 import MapSheetDetail from './MapSheetDetail';
 import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
@@ -223,6 +223,18 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* Every input that reorders or re-scopes the list, in one string. The map
      toggle forgets its remembered scroll position whenever this changes. */
   const listFilterKey = `${category}|${bezirk ?? ''}|${cuisine ?? ''}|${openOnly}|${search.trim()}`;
+
+  /* Wie viele Listenzeilen gerendert werden. Der Stand liegt hier und nicht in
+     RestaurantList, weil ein Sprung ins Detail die Liste aushängt: der
+     View-Toggle stellt beim Zurück die alte Scroll-Position wieder her, und
+     eine in der Liste gehaltene Zahl wäre dann wieder bei INITIAL_LIST_ROWS —
+     die Seite wäre kürzer als die Position, auf die zurückgesprungen wird.
+     Ein neuer Filter ist dagegen eine neue Liste und fängt oben an. */
+  const [listRows, setListRows] = useState(INITIAL_LIST_ROWS);
+  useEffect(() => {
+    setListRows(INITIAL_LIST_ROWS);
+  }, [displayedRestaurants, displayedLockedRestaurants]);
+  const showMoreRows = useCallback(() => setListRows((n) => n + LIST_ROWS_PER_BATCH), []);
 
   const handleResetFilters = () => {
     setCategory('All');
@@ -670,6 +682,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     lockedRestaurants={search.trim() ? displayedLockedRestaurants : EMPTY_LOCKED}
                     lockedMatchCount={lockedMatchCount}
                     activeFilterLabel={emptyFilterLabel}
+                    visibleRows={listRows}
+                    onNeedMoreRows={showMoreRows}
                   />
                 </div>
               </>

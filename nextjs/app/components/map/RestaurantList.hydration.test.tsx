@@ -45,6 +45,8 @@ function list() {
       unlockedIds={new Set()}
       revealedMustEatIds={new Set()}
       userLocation={null}
+      visibleRows={12}
+      onNeedMoreRows={vi.fn()}
     />
   );
 }

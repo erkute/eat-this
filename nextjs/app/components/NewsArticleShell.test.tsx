@@ -41,6 +41,16 @@ const mustEat = (restaurantName: string): PortableTextBlock =>
     district: 'Schöneberg',
   }) as unknown as PortableTextBlock;
 
+const spot = (restaurantName: string, restaurantSlug: string): PortableTextBlock =>
+  ({
+    _type: 'spotCard',
+    _key: `spot-${restaurantSlug}`,
+    restaurantName,
+    restaurantSlug,
+    district: 'Kreuzberg',
+    cuisineType: 'Ice Cream',
+  }) as unknown as PortableTextBlock;
+
 function render(content: PortableTextBlock[], over: Partial<NewsArticle> = {}): string {
   return renderToStaticMarkup(
     <NewsArticleShell
@@ -91,6 +101,13 @@ describe('NewsArticleShell', () => {
     // normalizeName strips the diacritics the display font can't render.
     expect(html).toContain('Bursa Uludag Kebapcisi');
     expect(html).toContain('href="/map?me=id-Hasir"');
+  });
+
+  it('sends the spot card to the map, not to the restaurant page', () => {
+    const html = render([spot('Spumante', 'spumante')]);
+    expect(html).toContain('href="/map?r=spumante"');
+    expect(html).not.toContain('/restaurant/spumante');
+    expect(html).toContain('Auf die Map');
   });
 
   it('lists the h2 chapters in the rail', () => {

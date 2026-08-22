@@ -148,20 +148,24 @@ export default function NewsArticleShell({
     );
   };
 
+  // The spot card is the in-article tap on a restaurant: it opens the spot on
+  // the map (?r=<slug>), not the restaurant page — same intent as a tap in the
+  // app. nofollow because the map is noindex (see isMapLink in the renderer).
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);
     const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
-    const cta = de ? 'Zum Restaurant' : 'Restaurant page';
+    const cta = de ? 'Auf die Map' : 'To the map';
 
     return (
-      <Link
-        href={`/restaurant/${block.restaurantSlug}`}
+      <MapIntentLink
+        href={`/map?r=${block.restaurantSlug}`}
+        rel="nofollow"
         className={styles.inlineSpot}
         style={
           block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined
         }
-        aria-label={`${restName} ${cta}`}
+        aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
       >
         <span className={styles.inlineSpotFoot}>
           {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
@@ -170,7 +174,7 @@ export default function NewsArticleShell({
             <span>{cta}</span>
           </span>
         </span>
-      </Link>
+      </MapIntentLink>
     );
   };
 

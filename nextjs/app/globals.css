@@ -16,6 +16,40 @@
   font-weight: 700;
 }
 
+/* Metrisch angepasster Fallback für Providence. Providence kommt von Typekit
+   mit `font-display: swap`, also rendert der erste Frame in der Systemschrift
+   und der Text springt beim Tausch — auf /news waren das 0.06 CLS, gemessen
+   bei 559 ms. Arial (bzw. Helvetica/Liberation Sans, metrisch identisch) wird
+   hier auf Providence' Maße gestreckt, damit vorher und nachher gleich viel
+   Platz gebraucht wird.
+
+   Zahlen sind gemessen, nicht geraten: Canvas-`measureText` bei 100px über
+   einen Sample-String, mittlere Vorschubbreite Providence/Arial = 105.8 %
+   (n4) bzw. 102.1 % (n7); `fontBoundingBox` gibt Providence 95 % Ascent und
+   51 % Descent, geteilt durch das jeweilige size-adjust. Neu messen, wenn
+   Adobe die Schriftdateien austauscht. Ohne den Fallback drifteten die 32
+   Providence-Elemente über dem Fold auf /news zusammen um 1103 px, mit ihm
+   um 96 px. */
+@font-face {
+  font-family: 'Providence Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  font-weight: 400;
+  size-adjust: 105.8%;
+  ascent-override: 89.8%;
+  descent-override: 48.2%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Providence Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  font-weight: 700;
+  size-adjust: 102.1%;
+  ascent-override: 93%;
+  descent-override: 49.9%;
+  line-gap-override: 0%;
+}
+
 /* chauncy-pro-1 (--menu-condensed) and moonblossom-1 (--font-chewy) used to
    arrive via Adobe's kit stylesheet, use.typekit.net/kgb1lmh.css. That kit CSS
    @imports p.typekit.net/p.css — Adobe's usage beacon, not a font — which fired
@@ -174,7 +208,9 @@
   --collage-shadow: none;
 
   --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-providence: 'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', sans-serif;
+  --font-providence:
+    'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
+    sans-serif;
   --font-chewy:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed

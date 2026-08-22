@@ -43,9 +43,10 @@ const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
 
 /* How long the search query has to hold still before the camera follows it.
-   Long enough that typing "kreuzberg" flies once instead of nine times, short
-   enough that the move still reads as the answer to what was typed. */
-const SEARCH_REFIT_DELAY_MS = 450;
+   Long enough that typing "kreuzberg" flies once rather than once per letter,
+   short enough that the move still reads as the answer to what was typed.
+   Was 450 ms; taken down to 300 on 22.08.2026 because the wait read as lag. */
+const SEARCH_REFIT_DELAY_MS = 300;
 
 interface Props {
   isActive?: boolean;

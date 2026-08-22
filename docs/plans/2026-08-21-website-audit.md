@@ -564,12 +564,23 @@ info    larb-koi                      Insider-Tipp fehlt im Map-Popup
 
 In den Datensatz geschaut (Session E), und die fünf zerfallen in zwei Gruppen:
 
-**Mechanisch lösbar (1).** `smashd-eatery-x-forn-simsim` hat fünf
-Galerie-Einträge, von denen zwei Assets je zweimal referenziert sind:
-`2efdaa5d…` unter den `_key`s `6118e033` und `77cc57c2`, `8ed232af…` unter
-`5b3d74e9` und `926f26e2`. Die beiden späteren Einträge entfernen lässt drei
-eindeutige Bilder übrig — eine Dublettenbereinigung ohne redaktionelle
-Entscheidung.
+**Mechanisch lösbar (1) — erledigt, wartet auf Veröffentlichung.**
+`smashd-eatery-x-forn-simsim` hatte fünf Galerie-Einträge, von denen zwei
+Assets je zweimal referenziert waren: `2efdaa5d…` unter den `_key`s `6118e033`
+und `77cc57c2`, `8ed232af…` unter `5b3d74e9` und `926f26e2`. Die beiden
+späteren Einträge trugen identische `caption` und `credit` — es ging also keine
+Information verloren.
+
+Entfernt am 22.08.2026 mit Revisions-Sperre (`ifRevisionId`), damit der Patch
+fehlschlägt, falls jemand zwischenzeitlich editiert. Ergebnis im Draft: drei
+Einträge, drei eindeutige Bilder, Reihenfolge unverändert.
+
+**Der Befund bleibt bis zur Veröffentlichung bestehen.** `lib/sanity.ts:27`
+setzt `perspective: 'published'`, der Content-Lint sieht also weiter das
+veröffentlichte Dokument mit fünf Einträgen. Der Draft liegt unter
+`drafts.restaurant-smash-d-eatery-x-forn-simsim` im Studio und muss dort
+publiziert werden — das ist bewusst eine Entscheidung des Betreibers, keine
+Aufräumarbeit.
 
 **Braucht Wissen, das im Repo nicht steht (4).** `sardinen-bar` hat weder
 `photoCredit` noch `photoCreditUrl` — wer das Foto gemacht hat, ist eine
@@ -578,9 +589,8 @@ Beschreibungstext, Website, Instagram und Insider-Tipp; das sind redaktionelle
 Inhalte über ein reales Restaurant, die auf einer öffentlichen Seite landen.
 Erfundene Angaben wären schlimmer als fehlende.
 
-**Nicht ausgeführt:** Schreibzugriffe auf das Sanity-Produktionsdataset. Ein
-Patch legt dort einen Draft an, den jemand publizieren muss — das ist eine
-Entscheidung des Betreibers, keine Aufräumarbeit.
+**Nicht ausgeführt:** das Publizieren. Ein Patch legt nur einen Draft an; live
+geht er erst, wenn ihn jemand im Studio veröffentlicht.
 
 ## 3. Wo nichts zu holen war
 

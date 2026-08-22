@@ -49,7 +49,18 @@ function RestaurantMarker({
       }
     >
       <span className={styles.pinLogoShape} aria-hidden="true">
-        <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
+        {/* 128px-Variante: das Logo sitzt hier in einem 31px breiten Slot (82%
+            von 38px, 41px am aktiven Pin), und davon stehen bis zu 55 Stück
+            gleichzeitig auf der Karte. Die große Datei war 1058×1119 und
+            37 kB — jeder Pin skalierte ein 1-Megapixel-Bitmap auf Daumennagel-
+            größe herunter. */}
+        <img
+          src="/pics/eat-this-square-sm.webp"
+          alt=""
+          width={128}
+          height={136}
+          draggable={false}
+        />
       </span>
     </MarkerButton>
   );

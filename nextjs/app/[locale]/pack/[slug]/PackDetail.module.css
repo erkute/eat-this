@@ -346,9 +346,12 @@ button.cta {
   flex: 0 0 auto;
   background: var(--pack-ink);
   color: var(--pack-surface);
-  font-family: var(--et-font-mono);
-  font-size: 12px;
-  font-weight: 900;
+  /* Marken-Schrift mit tabellarischen Ziffern statt System-Mono — dieselbe
+     Machart wie die Rang-Badges auf den Bezirks- und Kategorieseiten. */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .rn {

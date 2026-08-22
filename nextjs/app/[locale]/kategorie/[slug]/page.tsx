@@ -327,11 +327,11 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             <p>
               {top.length > 0
                 ? de
-                  ? `Die ${top.length} besten, ausgewählt vom Eat-This-Team.`
-                  : `The top ${top.length}, picked by the Eat This team.`
+                  ? `Die ${top.length} besten, ausgewählt von Eat This.`
+                  : `The top ${top.length}, picked by Eat This.`
                 : de
-                  ? 'Kuratiert vom Eat-This-Team.'
-                  : 'Curated by the Eat This team.'}
+                  ? 'Kuratiert von Eat This.'
+                  : 'Curated by Eat This.'}
             </p>
           </div>
 

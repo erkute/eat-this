@@ -6,7 +6,7 @@ Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
 gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
 
-**Fortschritt:** Session A, B, C und D erledigt (PR #425) · E offen.
+**Fortschritt:** Session A bis E erledigt (PR #425).
 
 ---
 
@@ -69,6 +69,15 @@ zählt man Kommentarreste und fremde Bibliotheksklassen mit (mein erster Lauf
 meldete 103 Treffer, davon waren 97 genau das). Dann gegen die tatsächlichen
 Importeure prüfen: `styles.foo`, `styles['foo']`, `styles[\`foo${x}\`]`-Präfixe
 und `composes:`.
+
+> **Der Fallstrick, der mich erwischt hat (Session E):** Importe müssen über
+> **beide** Schreibweisen aufgelöst werden — relativ (`./Foo.module.css`) **und**
+> über den `@/`-Alias (`@/app/components/Foo.module.css`). Mein Skript konnte nur
+> relativ, und beide Prüfagenten hatten denselben blinden Fleck. Ergebnis:
+> `LoginModalOverlay.module.css` galt als verwaist, wird aber von
+> `BridgeAuth.tsx:33` per Alias importiert. Erst der Pre-Push-Build hat es
+> gefangen. Es ist im ganzen Repo das einzige so eingebundene CSS-Modul — genau
+> deshalb fiel es durch.
 
 **Ungenutzte globale Klassen.** `css/style.css` gegen den gesamten Baum aus
 `.tsx`/`.ts`/`.module.css` — die globalen `hv-*`-Klassen werden aus CSS-Modulen
@@ -464,34 +473,86 @@ LCP-Ressourcen. Mit `sizes` ist der Preload jetzt 640w statt 1080w; ob
 Nebenbei geprüft und **kein** Befund: die `w=3840`-Einträge im Live-HTML sind
 nur das letzte Glied des srcset.
 
-### P3 — Reste des entfernten `/login`-Routes
+### P3 — Reste des entfernten `/login`-Routes ✅ **behoben, PR #425**
 
 `LoginPanel.tsx` sagt selbst:
 
 > _„The standalone /login route that rendered a second, older full-page variant
 > of this panel is gone."_
 
-Zurückgeblieben sind:
+Entfernt wurden fünf tote Klassen in `LoginPanel.module.css` — alle als
+**Alias-Selektoren in Gruppenregeln**, nicht als eigene Regeln: `.page` neben
+`.frame`, `.loginGrid` neben `.modalSimple` (dreimal, inklusive zweier Media
+Queries), `.formPanel` neben `.modalLogin` (zweimal), `.form` neben
+`.modalForm`, und `.menuList span/strong` neben `.toLabel`. Dazu in
+`LoginPanel.tsx` der `useRouter`-Import samt `const router` und der
+`TOAST_HANDOFF_KEY`-Import.
 
-- `app/components/LoginModalOverlay.module.css` — Datei wird nirgends importiert
-- `LoginPanel.module.css`: `.page`, `.loginGrid`, `.formPanel`, `.form`,
-  `.menuList` — nie referenziert
-- `LoginPanel.tsx`: ESLint meldet `TOAST_HANDOFF_KEY` und `router` als ungenutzt
+**Korrektur:** `LoginModalOverlay.module.css` stand hier als „wird nirgends
+importiert". Das war falsch — `BridgeAuth.tsx:33` importiert es über den
+`@/`-Alias und nutzt `modalStyles.overlay` in Zeile 104. Die Löschung wurde
+zurückgenommen; siehe den Fallstrick in Abschnitt 1.
 
-Das sind die **einzigen** toten CSS-Klassen im ganzen Projekt (siehe Abschnitt 3).
+### P3 — Tote Regel in der globalen `style.css` ✅ **behoben, PR #425**
 
-### P3 — Drei ungenutzte Assets (~293 kB)
+`.homeV2 .hv-link` (`css/style.css:893`) wird von keinem Element getragen. Der
+einzige Treffer auf `hv-link` im Code ist eine Test-Zusicherung, dass die Klasse
+eben **nicht** im Markup steht. Nicht zu verwechseln mit `.hv-link-underline`,
+das `ProfilePacks` nutzt — anderer Klassenname, bleibt.
+
+`CSS_VERSION` auf 310 gehoben und `style.min.css` neu gebaut, wie CLAUDE.md es
+verlangt.
+
+### P3 — Ungenutzte Assets: acht statt drei ✅ **behoben, PR #425**
+
+Das Audit nannte drei. Die Reste-Suche fand fünf weitere:
 
 ```
-239 KB  public/pics/about/0477e049b54b21c5fb7ea43d5a97ac2b.webp
- 44 KB  public/pics/eat-email.png
- 10 KB  public/pics/logo-red.webp
+240 KB  public/pics/about/0477e049b54b21c5fb7ea43d5a97ac2b.webp
+ 48 KB  public/pics/eat-email.png
+ 16 KB  public/pics/eat.webp
+ 12 KB  public/pics/icon-news.webp
+ 12 KB  public/pics/logo-red.webp
+  8 KB  public/pics/icon-burger.webp
+  8 KB  public/pics/icon-map.webp
+  8 KB  public/pics/icons/standort.webp   (Verzeichnis danach leer)
 ```
 
-Kein Treffer, auch nicht als Template-Fragment. Der Hash-Dateiname deutet auf
-einen Import-Rest.
+Selbst gegengeprüft: exakte Pfadsuche über `nextjs/`, `studio/`, `docs/` und
+`.github/`, plus `manifest.json`. Bei `eat.webp` und `icon-news.webp` liefert
+`git log -S` **überhaupt keinen Commit** — sie wurden nie von Code referenziert.
+Bei den anderen ließ sich der Commit benennen, der die letzte Referenz entfernt
+hat. Die Roh-Treffer auf „eat" und „standort" waren Namensartefakte
+(`NotificationToast` spricht von Standort, nicht vom Icon).
 
-### P3 — Content-Lint: 5 Befunde bei 339 Restaurants
+Nebenbei erledigt sich der einzige Verstoß gegen die WebP-Regel aus CLAUDE.md:
+`eat-email.png`.
+
+### P3 — Lint: 20 Warnungen auf 0 ✅ **behoben, PR #425**
+
+Vier waren echter toter Code: die beiden in `LoginPanel`, `INNER_W` in
+`build-email-phones.mts`, und eine `eslint-disable`-Direktive in
+`SignupEmail.tsx`, die durch die neue Konfiguration überflüssig wurde (Lint
+meldet so etwas selbst — schöner Beleg, dass die Regel greift).
+
+Die übrigen sechzehn waren zwei bewusste Muster, jetzt ehrlich konfiguriert
+statt einzeln unterdrückt:
+
+- **E-Mail-Templates können kein `next/image` nutzen.** Gmail hat keine
+  Laufzeit, die eine optimierte Komponente hydrieren könnte, und der
+  Next-Optimizer ist aus einem Mailclient nicht erreichbar. Override für
+  `emails/**`, im selben Stil wie der bestehende für `app/components/map/**`.
+- **Die Cascade-Sweep-Skripte sind absichtlich je EIN bare
+  `async (page) => {…}`,** weil sie so an die Playwright-MCP übergeben werden
+  (siehe `scripts/cascade/README.md`). Ein Top-Level-Ausdruck ist der Sinn des
+  Formats.
+- Dazu die Standardkonvention, dass `_` „absichtlich ungenutzt" heißt — das
+  Zählidiom `for (const _ of …)` allein stellte zehn der zwanzig Warnungen.
+
+**Warum das zählt:** bei zwanzig bekannten Warnungen geht eine neue unter. Eine
+Lint-Ausgabe, die niemand mehr liest, ist keine.
+
+### P3 — Content-Lint: 5 Befunde bei 339 Restaurants ⏸ **1 von 5 lösbar**
 
 ```
 hoch    sardinen-bar                  photoCreditUrl fehlt
@@ -501,10 +562,25 @@ info    larb-koi                      weder website noch instagramHandle
 info    larb-koi                      Insider-Tipp fehlt im Map-Popup
 ```
 
-Das ist Redaktionsarbeit, kein Code. `larb-koi` taucht dreimal auf — ein
-halbfertig angelegter Eintrag.
+In den Datensatz geschaut (Session E), und die fünf zerfallen in zwei Gruppen:
 
----
+**Mechanisch lösbar (1).** `smashd-eatery-x-forn-simsim` hat fünf
+Galerie-Einträge, von denen zwei Assets je zweimal referenziert sind:
+`2efdaa5d…` unter den `_key`s `6118e033` und `77cc57c2`, `8ed232af…` unter
+`5b3d74e9` und `926f26e2`. Die beiden späteren Einträge entfernen lässt drei
+eindeutige Bilder übrig — eine Dublettenbereinigung ohne redaktionelle
+Entscheidung.
+
+**Braucht Wissen, das im Repo nicht steht (4).** `sardinen-bar` hat weder
+`photoCredit` noch `photoCreditUrl` — wer das Foto gemacht hat, ist eine
+Tatsache, die ich nicht kenne und nicht erfinden darf. `larb-koi` fehlen
+Beschreibungstext, Website, Instagram und Insider-Tipp; das sind redaktionelle
+Inhalte über ein reales Restaurant, die auf einer öffentlichen Seite landen.
+Erfundene Angaben wären schlimmer als fehlende.
+
+**Nicht ausgeführt:** Schreibzugriffe auf das Sanity-Produktionsdataset. Ein
+Patch legt dort einen Draft an, den jemand publizieren muss — das ist eine
+Entscheidung des Betreibers, keine Aufräumarbeit.
 
 ## 3. Wo nichts zu holen war
 
@@ -641,7 +717,16 @@ _(ursprünglicher Plan:)_
 P2 `HubNearby`-Bildpfad, `<Image sizes>`, OG-PNGs quantisieren, `spotOfDay`-
 Query nach GROQ verlagern. Erfolgsmaß: Startseiten-Payload vorher/nachher.
 
-**Session E — Reste** _(klein, angenehm)_
+**Session E — Reste** — ✅ **erledigt am 22.08.2026, PR #425**
+Acht ungenutzte Assets (nicht drei), die `/login`-Reste, eine tote Regel in der
+globalen `style.css`, Lint von 20 auf 0. Erfolgsmaß erreicht: 0 tote
+CSS-Klassen, 0 Lint-Warnungen. **Der Pre-Push-Build hat dabei einen echten
+Beinahe-Fehler gefangen** — siehe den Alias-Fallstrick in Abschnitt 1.
+**Offen geblieben:** vier der fünf Content-Lint-Befunde brauchen Wissen, das im
+Repo nicht steht (ein Fotografenname, redaktionelle Texte). Nur der
+Galerie-Dublettenfall ist mechanisch lösbar.
+
+_(ursprünglicher Plan:)_
 P3 `/login`-Überbleibsel, drei ungenutzte Assets, die fünf Content-Lint-Befunde
 in Sanity nachpflegen.
 

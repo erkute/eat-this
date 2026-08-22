@@ -181,14 +181,42 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   // Tunneling routes errors through our own /monitoring endpoint, dodging
   // ad-blockers that strip Sentry calls. Cheap insurance for prod traffic.
   tunnelRoute: '/monitoring',
-  // Tree-shake code we never run. Session Replay is disabled, so its
-  // iframe/shadow-DOM/worker helpers are dead weight in the client bundle;
-  // excludeDebugStatements drops Sentry's internal debug logging. Trims the
-  // ~126 KB gzip Sentry chunk without touching runtime error reporting.
-  bundleSizeOptimizations: {
-    excludeReplayIframe: true,
-    excludeReplayShadowDom: true,
-    excludeReplayWorker: true,
-    excludeDebugStatements: true,
+  // Tree-shake code we never run.
+  //
+  // These are the `webpack.treeshake` keys, NOT `bundleSizeOptimizations`.
+  // In @sentry/nextjs 10.57.0 only this shape reaches the DefinePlugin that
+  // actually drops the code — see setupTreeshakingFromConfig in
+  // node_modules/@sentry/nextjs/build/cjs/config/webpack.js:549. The names
+  // differ too (`removeTracing`, not `excludeTracing`).
+  //
+  // `removeTracing` is the big one: measured 188 kB → 136 kB "First Load JS
+  // shared by all", i.e. 52 kB gzip off EVERY page. What goes with it is
+  // performance tracing — spans, transactions, Web Vitals, trace headers on
+  // our own API calls. Error reporting is untouched: captureException,
+  // stack traces, breadcrumbs, source-map resolution all still work. At
+  // tracesSampleRate 0.1 and this traffic the traces were never a usable
+  // sample anyway, and Lighthouse CI measures Web Vitals against production
+  // on every main push.
+  //
+  // Note this applies to the server and edge bundles too — Next runs the
+  // webpack config function three times and the DefinePlugin is added on
+  // every pass. Hence tracesSampleRate is gone from all three Sentry configs.
+  //
+  // Session Replay is disabled, so its iframe/shadow-DOM/worker helpers are
+  // dead weight; removeDebugLogging drops Sentry's internal debug logging.
+  //
+  // The old `bundleSizeOptimizations` block is gone: measured with and
+  // without it, the bundle came out at 137 kB either way. It is forwarded to
+  // @sentry/webpack-plugin and may do something in other setups, but here it
+  // did nothing — and keeping a second, differently-named block around is
+  // exactly what made the previous comment claim a saving that never existed.
+  webpack: {
+    treeshake: {
+      removeTracing: true,
+      removeDebugLogging: true,
+      excludeReplayIframe: true,
+      excludeReplayShadowDOM: true,
+      excludeReplayCompressionWorker: true,
+    },
   },
 });

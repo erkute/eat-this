@@ -81,12 +81,11 @@ read/write) and stays untouched.
 
 ## Client
 
-> **UI update (2026-06-15).** The public count is shown as a **frosted-glass
-> badge in the corner of the hero photo** (Airbnb "Guest favorite" placement),
-> not as a caption under the action buttons — researched against how venue apps
-> surface social proof (Maps/Yelp near the title, Airbnb on the photo). The
-> count is **live** (onSnapshot), and it's kept **separate** from the personal
-> save/heart toggle.
+> **UI update (2026-08-22).** The count now rides **inside the heart toggle**
+> on the hero photo, on both surfaces. It used to be a separate badge in the
+> opposite corner, which meant hearting a spot made a *second* heart appear on
+> the photo. One heart, number next to it. The count stays **live**
+> (onSnapshot) and still counts everyone, not just you.
 
 - `lib/map/useHeartCount.ts` — subscribes to `restaurants/{id}.heartCount` with
   `onSnapshot` (live; updates everywhere the moment `/api/heart` lands). Public
@@ -94,13 +93,11 @@ read/write) and stays untouched.
 - `lib/map/heartLabel.ts` — pure, unit-tested: `heartLabel(count, locale)` (full
   phrase for the accessible label, `null` below 1) and `heartCountShort(count,
   locale)` (compact `142` / `1,2k` shown in the badge).
-- `app/components/HeartCount.tsx` — the read-only **glass badge** (`♥ 142`).
-  Rendered in the hero of **both** the map detail sheet (`.rdHeartBadge`) and the
-  SEO restaurant page (`.heroHeartBadge`); the host positions it via `className`.
-  Renders nothing below 1 (no "geherzt von 0").
 - `app/components/HeartButton.tsx` — the personal **heart toggle** on the SEO
-  page (no count — that's the badge's job). Wires `useAuth` →
-  `useFavorites().toggle`. Anon tap → `/login`.
+  page, with the public count right next to the glyph (hidden below 1, so no
+  "0"). Wires `useAuth` → `useFavorites().toggle`; anon tap → login modal.
+  The map detail sheet does the same in `RestaurantDetail.tsx`
+  (`.rdHeartToggle` + `.rdHeartToggleCount`).
 - `icons.tsx` — `HeartIcon` (outline → filled). The map detail save toggle uses
   it so the icon matches the "geherzt" wording.
 

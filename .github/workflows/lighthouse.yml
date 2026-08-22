@@ -33,6 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # Der Rollout-Status von App Hosting kommt als Check-Run auf demselben
+      # Commit — ohne Leserecht darauf kann der Job nicht warten.
+      checks: read
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -45,12 +48,60 @@ jobs:
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli
 
-      - name: Wait for live deploy
-        # Firebase App Hosting auto-deploys on push to main and may briefly
-        # serve 500/502/503 while the new container takes over. Wait for
-        # the homepage to return 200 plus a short grace for edge propagation
-        # before auditing — otherwise lhci races the deploy and fails on a
-        # transient 500 (ERRORED_DOCUMENT_REQUEST).
+      - name: Wait for the rollout of THIS commit
+        # Auf einen Push nach `main` baut App Hosting einen neuen Container und
+        # schaltet den Traffic erst um, wenn er steht — das dauert 5 bis 10
+        # Minuten. Solange antwortet die alte Version mit HTTP 200.
+        #
+        # Genau daran hing der alte Schritt: er pollte die Startseite auf 200
+        # und lief sofort weiter. Am 22.08.2026 auditierte der Job `/map`
+        # von 20:47:58 bis 20:51:22, der Rollout wurde 20:51:45 fertig — die
+        # Zahlen im Report beschrieben den Stand VOR dem Push, sahen aber aus
+        # wie eine Messung danach. Für einen Job, dessen einziger Zweck das
+        # Messen der Produktion ist, ist das die teuerste Art zu lügen.
+        #
+        # Also auf das Signal warten, das den Traffic-Wechsel wirklich meldet:
+        # die Firebase-Integration hängt pro Commit einen Check-Run
+        # "App Hosting - Rollout (eat-this-8a13b/…)" an. Der steht auf
+        # `success`, wenn der neue Container den Traffic hat.
+        #
+        # Nur bei `push`. Ein PR-Lauf misst bewusst die bereits deployte Seite
+        # (siehe Kommentar oben) und hat keinen eigenen Rollout, auf den er
+        # warten könnte.
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+          # Prod-Projekt. Der Präfix reicht: auf einem `main`-Commit gibt es
+          # keinen Staging-Rollout, aber ein exakter Name würde bei jeder
+          # Umbenennung der Location still auf den alten Pfad zurückfallen.
+          ROLLOUT_PREFIX: 'App Hosting - Rollout (eat-this-8a13b'
+        run: |
+          deadline=$(( $(date +%s) + 1500 ))   # 25 Minuten
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            status=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SHA}/check-runs" \
+              --jq "[.check_runs[] | select(.name | startswith(\"${ROLLOUT_PREFIX}\"))][0] | \"\(.status)/\(.conclusion // \"-\")\"" 2>/dev/null || echo "error/-")
+            echo "Rollout: ${status}"
+            case "$status" in
+              completed/success)
+                echo "Rollout durch — 30s Karenz für die Edge-Propagierung."
+                sleep 30
+                exit 0
+                ;;
+              completed/*)
+                echo "Rollout endete mit '${status#completed/}' — es gibt keinen neuen Stand zu messen." >&2
+                exit 1
+                ;;
+            esac
+            sleep 20
+          done
+          echo "Nach 25 Minuten kein erfolgreicher Rollout für ${SHA}." >&2
+          echo "Ohne ihn würde dieser Lauf die alte Version messen und als neue ausweisen — deshalb Abbruch statt Messung." >&2
+          exit 1
+
+      - name: Wait for the site to answer
+        # Zweite Stufe, und für PR-Läufe die einzige: der Traffic kann
+        # umgeschaltet sein, während einzelne Edges noch 502 werfen.
         env:
           SITE_URL: https://www.eatthisdot.com/
         run: |
@@ -58,8 +109,6 @@ jobs:
             code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$SITE_URL" || echo 000)
             echo "Attempt $i: HTTP $code"
             if [ "$code" = "200" ]; then
-              echo "Site live; 30s grace for edge propagation."
-              sleep 30
               exit 0
             fi
             sleep 10

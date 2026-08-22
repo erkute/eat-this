@@ -44,6 +44,11 @@ interface ItemProps {
   /** First row only: it is visible at the sheet's resting stop, so its photo
    *  is the LCP candidate and must not be lazy. */
   priority?: boolean;
+  /** A paywalled spot, rendered as a row so a search can hand it back. Same
+   *  card, minus the two things that would be a paid leak: the must-eat peek
+   *  and the detail prefetch. Clicking it opens LockedDetail, exactly like
+   *  tapping its grey dot on the map. */
+  locked?: boolean;
   onClick: (r: MapRestaurant) => void;
 }
 
@@ -55,7 +60,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
 }
 
 const Item = memo(
-  function Item({ restaurant, isSelected, peek, now, priority, onClick }: ItemProps) {
+  function Item({ restaurant, isSelected, peek, now, priority, locked, onClick }: ItemProps) {
     const { t, lang } = useTranslation();
     const loc = lang === 'de' ? 'de' : 'en';
     const statusLabels = {
@@ -86,7 +91,7 @@ const Item = memo(
     const cardRef = useRef<HTMLButtonElement>(null);
     useEffect(() => {
       const el = cardRef.current;
-      if (!el || typeof IntersectionObserver === 'undefined') return;
+      if (locked || !el || typeof IntersectionObserver === 'undefined') return;
       const io = new IntersectionObserver(
         (entries) => {
           if (entries.some((e) => e.isIntersecting)) {
@@ -98,13 +103,15 @@ const Item = memo(
       );
       io.observe(el);
       return () => io.disconnect();
-    }, [restaurant.slug]);
+    }, [restaurant.slug, locked]);
 
     return (
       <button
         ref={cardRef}
         type="button"
-        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''}`}
+        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${
+          locked ? styles.rcardLocked : ''
+        }`}
         onClick={() => onClick(restaurant)}
       >
         {/* Real <img> instead of a CSS background so the browser can natively
@@ -138,7 +145,17 @@ const Item = memo(
           </span>
         )}
 
-        {peek.kind !== 'none' && (
+        {locked && (
+          <span className={styles.lockBadge}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <rect x="4.5" y="10" width="15" height="10.5" rx="2.5" fill="currentColor" />
+            </svg>
+            <span>{t('map.lockedRowBadge')}</span>
+          </span>
+        )}
+
+        {!locked && peek.kind !== 'none' && (
           <span className={styles.mustPeek}>
             <img
               src={
@@ -177,6 +194,7 @@ const Item = memo(
     prev.restaurant === next.restaurant &&
     prev.isSelected === next.isSelected &&
     prev.now === next.now &&
+    prev.locked === next.locked &&
     prev.onClick === next.onClick &&
     peekEqual(prev.peek, next.peek)
 );
@@ -192,8 +210,15 @@ interface RestaurantListProps {
   unlockedIds: Set<string>;
   revealedMustEatIds: Set<string>;
   onResetFilters?: () => void;
-  /** Uncapped count of locked spots matching the active filter — `lockedRestaurants`
-   *  is capped at a 20-row teaser, so it cannot be counted for the empty state. */
+  /** Paywalled matches to render as rows, after the free ones. Non-empty only
+   *  while a search query is active: a query is someone naming a spot, and
+   *  answering "not found" for something that is in the catalogue — and whose
+   *  name is public on its district page anyway — is the bug this fixes. The
+   *  chip filters keep the quiet free-only list. */
+  lockedRestaurants?: MapRestaurant[];
+  /** Count of locked spots matching the active filter, for the empty state
+   *  headline. Independent of `lockedRestaurants`: the chip filters count them
+   *  without listing them. */
   lockedMatchCount?: number;
   /** What the active filter narrowed to (query, bezirk, cuisine or category),
    *  for the empty-state headline. */
@@ -202,6 +227,7 @@ interface RestaurantListProps {
 
 export default function RestaurantList({
   restaurants,
+  lockedRestaurants = [],
   selectedId,
   uid,
   userTier,
@@ -230,13 +256,12 @@ export default function RestaurantList({
     locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
   const districtsHref = locale === routing.defaultLocale ? '/bezirk' : `/${locale}/bezirk`;
 
-  // Zero free rows always gets the empty state — it used to be gated on the
-  // locked list being empty too, so a search that only matched locked spots
-  // („Ramen": 0 free, 3 locked) fell through to the bare All-Berlin banner:
-  // an empty surface plus a paywall, with no "0 hits" and no reason. The block
-  // carries the pack CTA itself in that case, so the banner below would only
-  // repeat it.
-  if (restaurants.length === 0)
+  // The empty state is for a filter that found NOTHING — neither free rows nor
+  // locked ones to list. A search that matches only locked spots no longer
+  // lands here: those rows are rendered below, which is the whole point of
+  // being able to search the grey spots. The chip filters still reach it with
+  // a locked count, because they don't list their locked matches.
+  if (restaurants.length === 0 && lockedRestaurants.length === 0)
     return (
       <MapListEmpty
         onReset={onResetFilters}
@@ -271,6 +296,29 @@ export default function RestaurantList({
           />
         </div>
       ))}
+      {/* Locked hits last: the free rows are what the user can actually open
+          today, and burying them under a wall of paywalled cards would sell
+          the pack at the expense of the map. The heading is what keeps the
+          grey cards from reading as more of the same. */}
+      {lockedRestaurants.length > 0 && (
+        <>
+          <p className={styles.lockedRowsHeading}>{t('map.lockedRowsHeading')}</p>
+          {lockedRestaurants.map((r, index) => (
+            <div key={r._id} className={styles.rcardSlot}>
+              <Item
+                restaurant={r}
+                isSelected={selectedId === r._id}
+                /* LCP candidate only when no free row sits above it. */
+                priority={restaurants.length === 0 && index === 0}
+                now={now}
+                peek={{ kind: 'none' }}
+                locked
+                onClick={onSelect}
+              />
+            </div>
+          ))}
+        </>
+      )}
       {showAllBerlinBanner && (
         <div className={styles.listEnd}>
           <a href={allBerlinHref} className={styles.listEndOffer}>

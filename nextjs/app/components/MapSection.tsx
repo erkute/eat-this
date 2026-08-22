@@ -30,6 +30,7 @@ import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
+import { searchRefitSpots, spotsCameraTarget } from '@/lib/map/cameraFit';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
    ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
@@ -40,6 +41,11 @@ import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
             with env(safe-area-inset-top) added by the caller. */
 const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
+
+/* How long the search query has to hold still before the camera follows it.
+   Long enough that typing "kreuzberg" flies once instead of nine times, short
+   enough that the move still reads as the answer to what was typed. */
+const SEARCH_REFIT_DELAY_MS = 450;
 
 interface Props {
   isActive?: boolean;
@@ -1242,49 +1248,98 @@ export default function MapSection({
     };
   }, [isActive, requestLocation]);
 
+  /* Move the camera onto a match set. Shared by the structured-filter refit
+     and the search refit below. */
+  const fitCameraToSpots = useCallback(
+    (list: MapRestaurant[]) => {
+      const map = mapRef.current;
+      if (!map) return;
+      /* Closing a phone detail expands the CSS container from the compact peek
+         back to 100dvh. Resize synchronously before applying list padding;
+         MapLibre's ResizeObserver otherwise updates one tick later and briefly
+         tries to fit the large list bounds into the old 170–215px transform. */
+      map.resize();
+      const target = spotsCameraTarget(list);
+      if (!target) return;
+      if (target.kind === 'point') {
+        map.flyTo({
+          center: [target.lng, target.lat],
+          zoom: 14,
+          duration: 500,
+          padding: getFlyPaddingRef.current(),
+        });
+        return;
+      }
+      map.fitBounds([target.sw, target.ne], {
+        padding: getFlyPaddingRef.current(),
+        duration: 500,
+        maxZoom: 14,
+      });
+    },
+    [getFlyPaddingRef]
+  );
+
   /* Refit the map whenever a structured filter narrows or widens the visible
      set. Without this the user picks "Pizza" → 3 spots in the list but the
      map stays parked on Mitte and they have to manually zoom out to find the
-     other two. Search (live keystrokes) is intentionally excluded — refitting
-     mid-type feels jittery. Skip during a detail view so the selected pin's
-     centering isn't overridden. */
+     other two. Search is handled by its own debounced effect below — refitting
+     on every keystroke feels jittery. Skip during a detail view so the
+     selected pin's centering isn't overridden. */
   const didFirstFilterRefitRef = useRef(false);
   const displayedRestaurantsRef = useRef(displayedRestaurants);
   displayedRestaurantsRef.current = displayedRestaurants;
+  const displayedLockedRestaurantsRef = useRef(displayedLockedRestaurants);
+  displayedLockedRestaurantsRef.current = displayedLockedRestaurants;
   useEffect(() => {
     if (!didFirstFilterRefitRef.current) {
       didFirstFilterRefitRef.current = true;
       return;
     }
     if (selectedRestaurant || selectedMustEat) return;
-    if (!mapRef.current) return;
-    /* Closing a phone detail expands the CSS container from the compact peek
-       back to 100dvh. Resize synchronously before applying list padding;
-       MapLibre's ResizeObserver otherwise updates one tick later and briefly
-       tries to fit the large list bounds into the old 170–215px transform. */
-    mapRef.current.resize();
-    const list = displayedRestaurantsRef.current;
-    if (!list.length) return;
-    if (list.length === 1) {
-      const r = list[0];
-      mapRef.current.flyTo({
-        center: [r.lng, r.lat],
-        zoom: 14,
-        duration: 500,
-        padding: getFlyPaddingRef.current(),
-      });
+    fitCameraToSpots(displayedRestaurantsRef.current);
+  }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
+
+  /* Search refit — the reason a query for a locked spot used to read as "not
+     found". The filter DOES match locked rows (useMapFilters runs both sets
+     through it) and the canvas DOES draw them as grey dots, but only the ones
+     near the current camera get a DOM node, and nothing ever moved the camera.
+     So searching a spot in Spandau from a Mitte camera produced an empty list,
+     an unchanged map and no visible dot anywhere — the match existed and was
+     invisible.
+
+     The fit spans EVERY match, free and locked — a query lists both as rows,
+     so framing only the free ones would show a fraction of its own result set.
+
+     Dropping the query refits too, immediately: the camera is parked on
+     whatever the search flew to, so without this the map keeps showing one
+     corner of the city while the list is back to every spot. Same target the
+     structured filters use — the free set under the remaining filters, which
+     with nothing else active is all of Berlin.
+
+     Debounced on the way in, not on the way out: typing is a stream of
+     intermediate states (the jitter the structured-filter effect avoids by
+     excluding search), clearing is one deliberate act and waiting on it just
+     reads as lag.
+
+     `hadSearchQueryRef` is what keeps the clear branch from firing on mount,
+     where the query is empty because nothing was ever typed. */
+  const hadSearchQueryRef = useRef(false);
+  useEffect(() => {
+    const query = search.trim();
+    const hadQuery = hadSearchQueryRef.current;
+    hadSearchQueryRef.current = Boolean(query);
+    if (selectedRestaurant || selectedMustEat) return;
+    if (!query) {
+      if (hadQuery) fitCameraToSpots(displayedRestaurantsRef.current);
       return;
     }
-    const lngs = list.map((r) => r.lng);
-    const lats = list.map((r) => r.lat);
-    mapRef.current.fitBounds(
-      [
-        [Math.min(...lngs), Math.min(...lats)],
-        [Math.max(...lngs), Math.max(...lats)],
-      ],
-      { padding: getFlyPaddingRef.current(), duration: 500, maxZoom: 14 }
-    );
-  }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat]);
+    const timer = window.setTimeout(() => {
+      fitCameraToSpots(
+        searchRefitSpots(displayedRestaurantsRef.current, displayedLockedRestaurantsRef.current)
+      );
+    }, SEARCH_REFIT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [search, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
 
   /* Scroll keeper — TABLET only (768–1023.98px). There the map page is a
      fixed-height in-flow box (100lvh + 80px apron) whose drag-sheet captures

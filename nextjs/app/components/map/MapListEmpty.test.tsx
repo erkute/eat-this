@@ -24,6 +24,8 @@ vi.mock('@/lib/map', () => ({
 vi.mock('@/lib/sanityImageLoader', () => ({ default: ({ src }: { src: string }) => src }));
 vi.mock('@/lib/map/useRestaurantDetail', () => ({ prefetchRestaurantDetail: vi.fn() }));
 
+import type { MapRestaurant } from '@/lib/types';
+import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import MapListEmpty from './MapListEmpty';
 import RestaurantList from './RestaurantList';
 
@@ -126,5 +128,74 @@ describe('RestaurantList empty state', () => {
     const status = screen.getByRole('status');
     expect(status.textContent).toContain('map.emptyTitle');
     expect(screen.queryByRole('link')).toBeNull();
+  });
+});
+
+describe('RestaurantList locked search hits', () => {
+  const spot = (id: string, name: string): MapRestaurant =>
+    ({ _id: id, name, slug: id, lat: 52.5, lng: 13.4 }) as unknown as MapRestaurant;
+
+  // The bug this fixes: a query naming a grey spot got "0 hits" back, even
+  // though the spot is in the catalogue and its name is public on its district
+  // page. Now the query hands it back as a row you can open.
+  it('lists locked matches instead of the empty state', () => {
+    render(emptyList({ lockedRestaurants: [spot('l1', 'Geheime Ramen Bar')] }));
+
+    expect(screen.getByRole('heading', { name: 'Geheime Ramen Bar' })).toBeTruthy();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('opens a locked row like its grey dot — same handler, same spot', () => {
+    const onSelect = vi.fn();
+    const locked = spot('l1', 'Geheime Ramen Bar');
+    render(emptyList({ lockedRestaurants: [locked], onSelect }));
+
+    screen.getByRole('button', { name: /Geheime Ramen Bar/ }).click();
+
+    expect(onSelect).toHaveBeenCalledWith(locked);
+  });
+
+  it('keeps the free hits above the locked ones', () => {
+    render(
+      emptyList({
+        restaurants: [spot('f1', 'Freies Lokal')],
+        lockedRestaurants: [spot('l1', 'Geheime Ramen Bar')],
+      })
+    );
+
+    // The All-Berlin banner carries a heading too, so this is about order,
+    // not about the list containing exactly two.
+    const names = screen.getAllByRole('heading').map((h) => h.textContent);
+    expect(names.indexOf('Freies Lokal')).toBeLessThan(names.indexOf('Geheime Ramen Bar'));
+  });
+
+  // /api/restaurant-detail serves the paid fields. A locked row must never
+  // warm it — the row exists to name the spot, not to fetch what was not paid for.
+  it('never prefetches the paid detail payload for a locked row', () => {
+    const observed: Element[] = [];
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(private cb: (e: { isIntersecting: boolean }[]) => void) {}
+        observe(el: Element) {
+          observed.push(el);
+          this.cb([{ isIntersecting: true }]);
+        }
+        disconnect() {}
+      }
+    );
+    vi.mocked(prefetchRestaurantDetail).mockClear();
+
+    render(
+      emptyList({
+        restaurants: [spot('f1', 'Freies Lokal')],
+        lockedRestaurants: [spot('l1', 'Geheime Ramen Bar')],
+      })
+    );
+
+    expect(observed.length).toBe(1);
+    expect(prefetchRestaurantDetail).toHaveBeenCalledTimes(1);
+    expect(prefetchRestaurantDetail).toHaveBeenCalledWith('f1');
+    vi.unstubAllGlobals();
   });
 });

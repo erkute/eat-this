@@ -1,14 +1,14 @@
 import type { MapRestaurant } from '@/lib/types';
 
-// Locked spots ship to anon/free viewers as blurred teaser cards + grey pins
-// and never open a detail sheet (a locked card routes to the booster flow).
-// So the fields that ONLY the detail sheet or server-side tier composition
-// read are dead weight in the anon payload — multiplied across ~270 spots the
-// visitor can't actually see.
+// Locked spots ship to anon/free viewers as grey pins, as rows under a search,
+// and as LockedDetail when one is opened — never as a full detail sheet. So the
+// fields that ONLY that sheet or the server-side tier composition read are dead
+// weight in the anon payload, multiplied across ~270 spots.
 //
 // Kept (still rendered/filtered for locked): name, slug, lat, lng, bezirk/
 // district, categories, cuisineType, openingHours (open-now pill + filter),
-// photo (blurred preview), mustEatCount (pin styling).
+// photo (LockedDetail's hero + the search row's card), mustEatCount (pin
+// styling).
 // Dropped: priceRange (detail-only), tierAnon/tierSigned (server tier logic).
 //
 // MUST run on the FINAL locked array only — spot-of-day promotion pulls full

@@ -240,6 +240,11 @@ const en = {
     // from reading as broken rather than limited.
     emptyLockedFree: 'Reading them is free — every spot is on its district list.',
     emptyLockedFreeCta: 'To the district lists',
+    // Separates the locked search hits from the free rows above them. The rows
+    // themselves are the answer to "the search cannot find my spot" — this only
+    // says why they look different.
+    lockedRowsHeading: 'Locked hits',
+    lockedRowBadge: 'Locked',
     listEndKicker: 'All Berlin',
     listEndTitle: 'Unlock all of Berlin',
     listEndSub: 'Nine Booster Packs with every spot and Must Eat, right on your map.',
@@ -657,6 +662,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{count, plural, one {1 passender Spot ist noch gesperrt — er steckt in einem Booster Pack.} other {# passende Spots sind noch gesperrt — sie stecken in Booster Packs.}}',
     emptyLockedFree: 'Lesen kannst du sie frei — jeder Spot steht in seiner Bezirk-Liste.',
     emptyLockedFreeCta: 'Zu den Bezirk-Listen',
+    lockedRowsHeading: 'Gesperrte Treffer',
+    lockedRowBadge: 'Gesperrt',
     listEndKicker: 'All Berlin',
     listEndTitle: 'Schalt dir ganz Berlin frei',
     listEndSub: 'Neun Booster Packs mit allen Spots und Must Eats direkt auf deiner Map.',

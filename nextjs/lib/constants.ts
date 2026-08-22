@@ -4,7 +4,7 @@ export const SITE_URL = 'https://www.eatthisdot.com';
 // Single source of truth — every (spa)/restaurant/bezirk/pack/kategorie/
 // profile/login layout references this so the value can't drift between routes
 // (it had: 6× v=154 vs 1× v=170). BUMP THIS on any css/style.css change.
-export const CSS_VERSION = 309;
+export const CSS_VERSION = 310;
 
 // Adobe Fonts kit (Providence, chauncy, salted, moonblossom). [locale]/layout
 // loads it non-blocking via CRITICAL_BOOTSTRAP, but that script never runs on

@@ -376,8 +376,14 @@ body {
   }
   /* Natural window scroll so Safari URL bar auto-hides on scroll. */
   .app-pages {
-    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
-    margin-top: calc(64px + env(safe-area-inset-top, 0px));
+    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px).
+       Padding, not margin: body has no overflow here (see above, Safari URL
+       bar), so a top margin collapses out through body — and the moment the
+       consent gate sets `overflow: hidden` on body it stops collapsing, the
+       body box jumps up by these 64px and Chrome books it as a 0.08 layout
+       shift. Padding never collapses, so the box stays put. `.app-pages` is
+       transparent and the fixed navbar covers the strip: same picture. */
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
     height: auto;
     overflow: visible;
   }

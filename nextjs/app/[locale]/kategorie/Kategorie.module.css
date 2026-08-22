@@ -40,12 +40,14 @@
   max-width: 690px;
 }
 
+/* Providence statt System-Mono: das Label steht direkt über der Providence-
+   Headline und soll aus derselben Schrift kommen. */
 .kicker {
   margin: 0 0 18px;
   color: var(--category-red);
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
@@ -267,14 +269,15 @@
   margin: 0 0 clamp(16px, 2vw, 24px);
 }
 
+/* Kein schwarzer Kasten mehr. Der Aufmacher steht auf derselben weißen Fläche
+   wie der Rest der Seite — die Struktur kommt aus Luft und Type, nicht aus
+   einer Farbfläche, und die Copy fluchtet mit Brotkrume und Kartenraster. */
 .detailHero {
   display: grid;
   align-items: stretch;
-  margin: 0 0 clamp(28px, 5vw, 54px);
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  background: var(--category-ink);
-  color: var(--category-paper);
+  margin: 0 0 clamp(24px, 4vw, 46px);
+  background: transparent;
+  color: var(--category-ink);
 }
 
 .detailHeroCopy {
@@ -282,7 +285,7 @@
   flex-direction: column;
   justify-content: center;
   min-width: 0;
-  padding: clamp(28px, 6vw, 72px);
+  padding: clamp(4px, 1.4vw, 14px) 0 clamp(18px, 3vw, 32px);
 }
 
 .detailTitle {
@@ -301,7 +304,7 @@
 .detailLead {
   max-width: 43ch;
   margin: clamp(22px, 3vw, 32px) 0 0;
-  color: var(--category-paper);
+  color: var(--category-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 20px);
   line-height: 1.48;
@@ -310,7 +313,7 @@
 .quickFacts {
   max-width: 46ch;
   margin: 12px 0 0;
-  color: rgba(255, 255, 255, 0.64);
+  color: var(--et-home-muted-soft);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: 14px;
   line-height: 1.5;
@@ -408,7 +411,7 @@
   }
 
   .detailHeroCopy {
-    padding: 30px 24px 24px;
+    padding: 4px 0 18px;
   }
 
   .detailTitle {

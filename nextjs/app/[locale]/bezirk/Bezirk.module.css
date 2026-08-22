@@ -444,7 +444,6 @@
 }
 
 .kicker,
-.crossLinksHead,
 .chipYellow,
 .price {
   font-family: var(--et-font-mono);
@@ -453,6 +452,17 @@
 
 .kicker {
   color: var(--et-home-red);
+}
+
+/* „Lunch nach Bezirk:" lief in Systemschrift-Mono aus der Reihe — die Marke
+   spricht Providence, auch in den kleinen Labels. */
+.crossLinksHead {
+  color: var(--et-home-muted);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  opacity: 1;
 }
 
 .h1,
@@ -517,6 +527,9 @@
    The category pages share this stylesheet, so every rule stays below
    .bezirkDetail and cannot leak into their index/detail templates.
 ============================================================ */
+/* Kein schwarzer Kasten mehr: der Aufmacher steht auf der weißen Seitenfläche,
+   die Struktur kommt aus Luft und Type. Radius und `overflow` bleiben — sie
+   runden jetzt nur noch das Bild in der zweiten Spalte. */
 .bezirkDetail .detailHero {
   display: grid;
   gap: 0;
@@ -525,8 +538,8 @@
   overflow: hidden;
   border: 0;
   border-radius: var(--et-radius-photo);
-  background: var(--et-home-ink);
-  color: var(--et-home-paper);
+  background: transparent;
+  color: var(--et-home-ink);
   transform: none;
 }
 
@@ -536,15 +549,15 @@
   flex-direction: column;
   justify-content: center;
   min-width: 0;
-  padding: clamp(26px, 6vw, 68px);
+  padding: clamp(4px, 1.4vw, 14px) 0 clamp(18px, 3vw, 32px);
 }
 
 .bezirkDetail .detailHero .kicker {
   margin: 0 0 18px;
-  color: var(--et-home-accent);
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
+  color: var(--et-home-red);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
@@ -552,7 +565,7 @@
 
 .bezirkDetail .detailHero .h1 {
   margin: 0;
-  color: var(--et-home-paper);
+  color: var(--et-home-red);
   font-family: var(--et-font-display);
   font-size: clamp(24px, var(--district-title-size, 10cqi), 66px);
   font-weight: 700;
@@ -567,7 +580,7 @@
 .detailHeroDescription {
   max-width: 48ch;
   margin: clamp(20px, 3vw, 30px) 0 0;
-  color: var(--et-home-paper);
+  color: var(--et-home-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 20px);
   line-height: 1.48;
@@ -615,7 +628,7 @@
   min-width: 0;
   min-height: 0;
   margin: 0;
-  background: var(--et-home-ink);
+  background: var(--et-home-photo-rest);
 }
 
 .detailHeroImage {
@@ -624,6 +637,9 @@
   min-height: 0;
   aspect-ratio: 4 / 3;
   overflow: hidden;
+  /* Ohne die schwarze Fläche darunter braucht das Bild seine eigene Rundung —
+     vorher schnitt sie der Kasten. */
+  border-radius: var(--et-radius-photo);
   background: var(--et-home-photo-rest);
 }
 
@@ -881,6 +897,12 @@
      of it black. */
   .bezirkDetail .detailHero:has(.detailHeroMedia) {
     grid-template-columns: minmax(0, 1.08fr) minmax(330px, 0.92fr);
+  }
+
+  /* Die Copy fluchtet links mit der Seite; nach rechts hält sie Abstand zum
+     Bild, wo vorher die Innenkante des Kastens war. */
+  .bezirkDetail .detailHero:has(.detailHeroMedia) .detailHeroCopy {
+    padding-right: clamp(26px, 4vw, 56px);
   }
 
   .detailHeroMedia {

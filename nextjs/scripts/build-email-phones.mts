@@ -125,7 +125,6 @@ async function renderShadow(body: Buffer, left: number, top: number, p: Phone) {
 
 const ROOM = shadowRoom();
 /** Fläche, in der die Telefone selbst liegen dürfen — Leinwand minus Schattenplatz. */
-const INNER_W = CANVAS_W - ROOM.side * 2;
 const INNER_H = CANVAS_H - ROOM.side - ROOM.bottom;
 
 function place(anchor: Phone['anchor'], w: number, h: number) {

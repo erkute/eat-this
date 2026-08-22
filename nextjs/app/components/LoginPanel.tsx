@@ -2,12 +2,10 @@
 
 import { useState, useEffect, useCallback, useId, useRef } from 'react';
 import { useLocale } from 'next-intl';
-import { useRouter } from '@/i18n/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
-import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
 import styles from './LoginPanel.module.css';
 
 const SIGNIN_BOOSTER_PACKS = [
@@ -27,7 +25,6 @@ interface LoginPanelProps {
 export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps) {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
-  const router = useRouter();
   const locale = useLocale();
   const {
     sendLink,

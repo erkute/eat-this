@@ -208,3 +208,56 @@
   color: var(--promo-accent-fg);
   border: 0;
 }
+
+/* Frühe Map-CTA unter dem Opener der Restaurantseite.
+   Davor: erst die schmale rote Pille (`.chip`, ging zwischen den roten Flächen
+   der Seite unter), dann ein gelbes Band über die volle Breite (zu laut, zu
+   groß). Jetzt die Form des Startseiten-Knopfs `.hv-btn` — Display-Schrift,
+   13px, 11/18 Polster, 7px Radius — aber in Markengelb statt Schwarz: auf
+   dieser Seite ist Gelb die Farbe der Map (siehe `.promo`), und Schwarz wäre
+   der dritte dunkle Block unter einem dunklen Foto. Die Werte stehen hier
+   nachgebaut statt geteilt, weil `.hv-btn` in style.css auf `.homeV2` hängt
+   und nur auf der Startseite gilt. */
+.band {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: var(--et-type-button, 13px);
+  line-height: 1.1;
+  text-decoration: none;
+  border-radius: var(--et-radius-control, 7px);
+  transition:
+    background-color var(--et-motion-fast),
+    transform var(--et-motion-fast);
+}
+
+.bandMark {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--et-home-red);
+  transition: color var(--et-motion-fast);
+}
+
+.bandMark svg {
+  width: 13px;
+  height: auto;
+}
+
+/* Beim Hover kippt der Knopf auf Tinte — Gelb und Schwarz tauschen die Plätze,
+   der Pin geht mit. */
+@media (hover: hover) {
+  .band:hover {
+    background: var(--et-home-ink);
+    color: var(--et-home-inverse-text);
+    transform: var(--et-hover-lift-sm);
+  }
+
+  .band:hover .bandMark {
+    color: var(--et-home-accent);
+  }
+}

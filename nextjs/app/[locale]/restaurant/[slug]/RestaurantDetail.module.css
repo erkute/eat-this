@@ -98,6 +98,9 @@
   pointer-events: none;
 }
 
+/* Name unten links, Credit unten rechts — beide dicht an ihrer Ecke. Vorher
+   hielt ein Polster von bis zu 58px beide weit vom Rand weg, was auf Desktop
+   wie ein zweiter Rahmen im Bild aussah. */
 .heroCaption {
   position: absolute;
   right: 0;
@@ -106,25 +109,34 @@
   z-index: 2;
   display: grid;
   justify-items: start;
-  gap: clamp(12px, 1.6vw, 18px);
-  width: min(100%, 920px);
-  padding: clamp(24px, 5vw, 58px);
+  gap: clamp(9px, 1.1vw, 13px);
+  width: 100%;
+  padding: var(--hero-cap-pad);
+
+  --hero-cap-pad: clamp(14px, 2.2vw, 22px);
 }
 
-/* Photo credit — last row of the caption grid, right-aligned. It used to be
-   absolutely positioned bottom-right, where a name that wrapped to two lines
-   ("Bollenpiepe Restaurant") ran straight underneath it. */
+/* Photo credit — last row of the caption grid, right-aligned. It stays a grid
+   row rather than going absolute: absolutely positioned bottom-right, a name
+   that wrapped to two lines ("Bollenpiepe Restaurant") ran straight underneath
+   it. The negative margins push it out of the caption's padding and into the
+   corner itself — 6px from the right edge, 4px from the bottom — ohne dass der
+   Name seinen Abstand verliert. */
 .heroCredit {
   justify-self: end;
   max-width: 100%;
-  padding: 4px 8px 5px;
-  background: rgba(13, 10, 7, 0.5);
-  color: rgba(255, 255, 255, 0.86);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  line-height: 1.25;
+  margin-right: calc(6px - var(--hero-cap-pad));
+  margin-bottom: calc(4px - var(--hero-cap-pad));
+  padding: 3px 7px 4px;
+  background: rgba(13, 10, 7, 0.45);
+  color: rgba(255, 255, 255, 0.8);
+  /* Dieselbe Schrift wie die Chips darüber und die Brotkrumen — der Mono-Satz
+     mit Gewicht 900 war der einzige Fremdkörper im Bild. */
+  font-family: var(--f-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -396,13 +408,15 @@
 
 .tipp:only-child {
   align-content: center;
-  padding: clamp(28px, 5vw, 52px);
+  padding: clamp(24px, 3.4vw, 34px);
 }
 
+/* Ohne "Was bestellen?" daneben stand der Tipp allein auf der Spalte und wurde
+   mit 44px auf 52px Polster zum Plakat. Er ist ein Hinweis, keine Schlagzeile. */
 .tipp:only-child .tippText {
-  max-width: 22ch;
-  font-size: clamp(24px, 3.4vw, 44px);
-  line-height: 1.06;
+  max-width: 34ch;
+  font-size: clamp(19px, 2vw, 26px);
+  line-height: 1.18;
 }
 
 .tipp,
@@ -430,12 +444,12 @@
 }
 
 .tippText {
-  max-width: 28ch;
+  max-width: 32ch;
   margin: 0;
   color: inherit;
-  font-size: clamp(20px, 2.2vw, 30px);
+  font-size: clamp(18px, 1.8vw, 23px);
   font-weight: 800;
-  line-height: 1.22;
+  line-height: 1.25;
 }
 
 .order {
@@ -856,8 +870,10 @@
   }
 
   .heroCaption {
-    gap: 12px;
-    padding: 22px 16px 24px;
+    gap: 10px;
+    padding: var(--hero-cap-pad);
+
+    --hero-cap-pad: 14px;
   }
 
   .heroName,

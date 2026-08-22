@@ -334,7 +334,7 @@ export default async function RestaurantPage({ params }: PageProps) {
               name={displayName}
               mapHref={mapHref}
               locale={loc}
-              variant="chip"
+              variant="band"
             />
           </div>
         </header>

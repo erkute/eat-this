@@ -87,6 +87,33 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('map_app.webp');
   });
 
+  it('band variant is the home-page button: label, deep-link, no section heading', () => {
+    const html = render({
+      kind: 'restaurant',
+      name: 'Cocolo',
+      mapHref: '/map?r=cocolo',
+      locale: 'de',
+      variant: 'band',
+    });
+    expect(html).toContain('href="/map?r=cocolo"');
+    expect(html).toContain('rel="nofollow"');
+    expect(html).toContain('Auf der Map öffnen');
+    // Wie bei der Pille: der Name des Spots steht nicht drin.
+    expect(html).not.toContain('Cocolo');
+    expect(html).not.toContain('<h2');
+  });
+
+  it('band variant speaks English on /en', () => {
+    const html = render({
+      kind: 'restaurant',
+      name: 'Cocolo',
+      mapHref: '/map?r=cocolo',
+      locale: 'en',
+      variant: 'band',
+    });
+    expect(html).toContain('Open on the map');
+  });
+
   it('chip variant renders an inline pill (nofollow deep-link, no section heading)', () => {
     const html = render({
       kind: 'bezirk',

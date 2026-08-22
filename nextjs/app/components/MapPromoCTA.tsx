@@ -11,7 +11,7 @@ interface Props {
   /** Locale-relative deep-link to the (paywall-gated, noindex) /map route. */
   mapHref: string;
   locale: 'de' | 'en';
-  variant?: 'block' | 'chip';
+  variant?: 'block' | 'chip' | 'band';
 }
 
 // All map-promo wording lives here — single place to wordsmith. Brand voice:
@@ -25,6 +25,7 @@ const SLOGAN = 'The map for people who care about food.';
  *  selbst, die Pille muss nur den Weg zur Map zeigen. */
 const chipLabel = (locale: 'de' | 'en') =>
   locale === 'de' ? 'Auf der Map öffnen' : 'Open on the map';
+
 
 function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string } {
   const de = locale === 'de';
@@ -60,6 +61,23 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string }
   }
 }
 
+const pin = (
+  <svg
+    width="22"
+    height="26"
+    viewBox="0 0 22 26"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.4"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M11 24.5C11 24.5 19.5 16.6 19.5 10.5a8.5 8.5 0 1 0-17 0C2.5 16.6 11 24.5 11 24.5Z" />
+    <circle cx="11" cy="10.4" r="3.1" />
+  </svg>
+);
+
 const arrow = (
   <svg
     width="28"
@@ -80,6 +98,18 @@ const arrow = (
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
   const { sub } = getCopy(kind, name, locale);
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map';
+
+  // Die frühe Map-CTA unter dem Opener — derselbe Knopf wie im Hero der
+  // Startseite, nur mit dem gelben Pin davor.
+  if (variant === 'band') {
+    const label = chipLabel(locale);
+    return (
+      <MapIntentLink href={mapHref} rel="nofollow" className={styles.band} aria-label={label}>
+        <span className={styles.bandMark}>{pin}</span>
+        <span>{label}</span>
+      </MapIntentLink>
+    );
+  }
 
   if (variant === 'chip') {
     const label = chipLabel(locale);

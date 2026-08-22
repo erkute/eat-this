@@ -6,16 +6,12 @@ import { pickSpotOfDay } from './pickSpotOfDay';
 // must free-reveal exactly that one, not a different pick.
 const spotOfDayCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
   _id,
-  featuredOnDate,
-  "featured": featured == true,
-  "mustEatCount": count(*[_type == "mustEat" && references(^._id)])
+  featuredOnDate
 }`;
 
 interface Candidate {
   _id: string;
   featuredOnDate: string | null;
-  featured: boolean;
-  mustEatCount: number;
 }
 
 /**

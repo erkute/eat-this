@@ -4,11 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import {
-  formatPackPrice,
-  packUrlSlug,
-  formatBundleSavings,
-} from '@/lib/pack/packDetail';
+import { formatPackPrice, packUrlSlug, formatBundleSavings } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
@@ -211,7 +207,16 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                   aria-label={`${pack.displayName} ${t.details}`}
                 >
                   {art && (
-                    <Image src={art} alt="" width={420} height={560} className={styles.packArt} />
+                    <Image
+                      src={art}
+                      alt=""
+                      width={420}
+                      height={560}
+                      // Capped at 210px (PacksOverview.module.css:341) and
+                      // 178px below 560px (:494).
+                      sizes="(max-width: 560px) 178px, 210px"
+                      className={styles.packArt}
+                    />
                   )}
                 </Link>
 

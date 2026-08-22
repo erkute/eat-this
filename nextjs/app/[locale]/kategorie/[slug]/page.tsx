@@ -16,7 +16,7 @@ import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/katego
 import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { serializeJsonLd } from '@/lib/json-ld';
-import { SITE_URL } from '@/lib/constants';
+import { OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
@@ -48,7 +48,6 @@ const PACK_OG_SLUGS = new Set([
   'pizza',
   'sweets',
 ]);
-const PACK_OG_VERSION = 2;
 
 export const revalidate = 3600;
 
@@ -142,7 +141,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
   const brandedTitle = buildBrandedTitle(title);
   const image = PACK_OG_SLUGS.has(slug)
-    ? `${SITE_URL}/pics/og/og_${slug}.png?v=${PACK_OG_VERSION}`
+    ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
     : `${SITE_URL}/pics/og-card.png?v=4`;
   const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en');
   return {

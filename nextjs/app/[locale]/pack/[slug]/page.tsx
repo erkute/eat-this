@@ -249,6 +249,11 @@ export default async function PackDetailPage({ params }: PageProps) {
                       alt=""
                       width={70}
                       height={108}
+                      // Renders WIDER than its width prop: 96px below 760px,
+                      // 132px above (PackDetail.module.css:552, :642). The
+                      // x-descriptor srcset topped out at 256w, which is short
+                      // of 132px on retina — this makes it sharp, not smaller.
+                      sizes="(max-width: 760px) 96px, 132px"
                       className={styles.upsellPack}
                     />
                   ) : null;

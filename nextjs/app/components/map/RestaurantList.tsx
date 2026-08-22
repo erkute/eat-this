@@ -33,6 +33,15 @@ const ALL_BERLIN_ART = Object.values(CATALOG)
 
 const ALL_BERLIN_PRICE = formatPackPrice(CATALOG['all-berlin'].amountCents);
 
+/* Wie viele Karten die Liste zunächst rendert. Sichtbar sind nie mehr als eine
+   Handvoll Zeilen — auf dem Telefon liegt die Liste hinter dem Sheet, auf dem
+   Desktop in einer schmalen Spalte —, gerendert wurden trotzdem alle. Auf der
+   Produktionskarte waren das 68 Karten mit rund 1600 DOM-Knoten, und die kosten
+   doppelt: einmal im SSR-HTML (480 kB) und einmal bei der Hydration.
+   Nachgeladen wird 600px bevor die letzte Zeile ins Bild kommt. */
+export const INITIAL_LIST_ROWS = 12;
+export const LIST_ROWS_PER_BATCH = 24;
+
 interface ItemProps {
   restaurant: MapRestaurant;
   isSelected: boolean;
@@ -220,6 +229,14 @@ interface RestaurantListProps {
   /** What the active filter narrowed to (query, bezirk, cuisine or category),
    *  for the empty-state headline. */
   activeFilterLabel?: string | null;
+  /** Obergrenze der gerenderten Zeilen, gemeinsam über freie und gesperrte.
+   *  Der Stand liegt bewusst im Elternteil: ein Sprung ins Detail hängt diese
+   *  Liste aus, und der View-Toggle stellt beim Zurück die alte Scroll-Position
+   *  wieder her — eine hier gehaltene Zahl würde auf 12 zurückfallen und die
+   *  Liste unter dieser Position wegziehen. */
+  visibleRows: number;
+  /** Die letzte gerenderte Zeile kommt in Sichtweite. */
+  onNeedMoreRows: () => void;
 }
 
 export default function RestaurantList({
@@ -235,6 +252,8 @@ export default function RestaurantList({
   onResetFilters,
   lockedMatchCount = 0,
   activeFilterLabel,
+  visibleRows,
+  onNeedMoreRows,
 }: RestaurantListProps) {
   const locale = useLocale();
   const { t } = useTranslation();
@@ -248,6 +267,33 @@ export default function RestaurantList({
     const timer = window.setInterval(refresh, 60_000);
     return () => window.clearInterval(timer);
   }, []);
+
+  /* Ein gemeinsames Budget über beide Listen, in der Reihenfolge, in der sie
+     auch untereinander stehen: erst die freien Zeilen, dann die gesperrten.
+     Die Auswahl zählt immer dazu — ein von der Karte angetippter Spot muss als
+     aktive Zeile existieren, auch wenn er weit unten liegt. */
+  const selectedIndex = selectedId ? restaurants.findIndex((r) => r._id === selectedId) : -1;
+  const budget = Math.max(visibleRows, selectedIndex + 1);
+  const freeRows = restaurants.slice(0, budget);
+  const lockedRows = lockedRestaurants.slice(0, Math.max(0, budget - restaurants.length));
+  const hasMoreRows =
+    freeRows.length < restaurants.length || lockedRows.length < lockedRestaurants.length;
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) onNeedMoreRows();
+      },
+      /* Vorlauf, damit die nächsten Karten stehen, bevor die letzte sichtbare
+         Zeile den unteren Rand erreicht — sonst sieht man das Nachladen. */
+      { rootMargin: '600px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [onNeedMoreRows, hasMoreRows, budget]);
 
   const allBerlinHref =
     locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
@@ -275,7 +321,7 @@ export default function RestaurantList({
 
   return (
     <>
-      {restaurants.map((r, index) => (
+      {freeRows.map((r, index) => (
         <div key={r._id} className={styles.rcardSlot}>
           <Item
             restaurant={r}
@@ -296,7 +342,7 @@ export default function RestaurantList({
       {/* Locked hits last, and otherwise indistinguishable — they simply
           continue the list. Free rows stay on top because they are what the
           user can open today; ordering is the only weighting left. */}
-      {lockedRestaurants.map((r, index) => (
+      {lockedRows.map((r, index) => (
         <div key={r._id} className={styles.rcardSlot}>
           <Item
             restaurant={r}
@@ -310,6 +356,10 @@ export default function RestaurantList({
           />
         </div>
       ))}
+      {/* Messpunkt, keine Zeile: kommt er in Sichtweite, rendert die Liste die
+          nächsten Karten. Steht hinter den gesperrten Zeilen, damit das
+          gemeinsame Budget in der sichtbaren Reihenfolge aufgefüllt wird. */}
+      {hasMoreRows && <div ref={sentinelRef} className={styles.moreSentinel} aria-hidden="true" />}
       {showAllBerlinBanner && (
         <div className={styles.listEnd}>
           <a href={allBerlinHref} className={styles.listEndOffer}>

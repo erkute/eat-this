@@ -605,3 +605,12 @@
   }
 }
 
+/* Der Nachlade-Messpunkt. Nimmt keinen sichtbaren Platz ein, braucht aber eine
+   Höhe: ein 0px hohes Element meldet dem IntersectionObserver nie eine
+   Kreuzung. */
+.moreSentinel {
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}

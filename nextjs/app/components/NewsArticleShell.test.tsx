@@ -108,6 +108,8 @@ describe('NewsArticleShell', () => {
     expect(html).toContain('href="/map?r=spumante"');
     expect(html).not.toContain('/restaurant/spumante');
     expect(html).toContain('Auf die Map');
+    // Die Map ist noindex – der indexierbare Artikel vererbt kein Link-Equity.
+    expect(html).toContain('rel="nofollow"');
   });
 
   it('lists the h2 chapters in the rail', () => {

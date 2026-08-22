@@ -126,7 +126,11 @@ const Item = memo(
               /* One fixed 600px variant for every device was soft on a 3x
                  phone (the card is ~362 CSS px wide) and oversized for the
                  280px desktop column. */
-              srcSet={[400, 600, 900, 1200]
+              /* 700 sitzt zwischen 600 und 900, weil genau dort die häufigste
+                 Android-Klasse landet: 94vw auf 412px bei DPR 1.75 sind 677px
+                 — ohne die Stufe griff der Browser zu 900w und lud rund ein
+                 Drittel zu viel. */
+              srcSet={[400, 600, 700, 900, 1200]
                 .map((w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`)
                 .join(', ')}
               sizes="(max-width: 767.98px) 94vw, 280px"

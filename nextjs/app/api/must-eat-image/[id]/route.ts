@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import sharp from 'sharp';
 
 import { getAdminStorage } from '@/lib/firebase/admin';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
@@ -10,6 +11,27 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const SAFE_ID = /^[A-Za-z0-9._-]{1,128}$/;
+
+// Aufrufer hängen über `sanityImageLoader` ein Sanity-artiges `?w=…&auto=format&q=…`
+// an — die Route lieferte davon unbeeindruckt die Originaldatei aus dem Bucket.
+// Auf /map hieß das 124 kB für einen 69×90-Daumennagel. Also selbst skalieren.
+//
+// Die Breite rastet auf eine feste Leiter ein, statt jede Zahl zu akzeptieren:
+// ein beliebiges `?w=` wäre ein CPU-Verstärker (jede neue Zahl ein neuer
+// sharp-Lauf, und die Antwort ist `no-store`, cacht also nichts ab).
+const ALLOWED_WIDTHS = [90, 180, 360, 720, 1200] as const;
+
+function pickWidth(raw: string | null): number | null {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return ALLOWED_WIDTHS.find((w) => w >= n) ?? null;
+}
+
+function pickQuality(raw: string | null): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 80;
+  return Math.min(90, Math.max(40, Math.round(n)));
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -46,15 +68,43 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       throw new Error('Private Must-Eat object is not an image');
     }
 
-    return new NextResponse(new Uint8Array(buffer), {
+    const params = request.nextUrl.searchParams;
+    const width = pickWidth(params.get('w'));
+    const wantsWebp = params.get('auto') === 'format';
+    let body = buffer;
+    let outputType = contentType;
+    let variant = '';
+
+    if (width) {
+      const quality = pickQuality(params.get('q'));
+      try {
+        // `withoutEnlargement`: ein kleineres Original bleibt, wie es ist —
+        // Hochskalieren kostet Bytes und bringt kein Pixel dazu.
+        const pipeline = sharp(buffer).rotate().resize({ width, withoutEnlargement: true });
+        body = wantsWebp ? await pipeline.webp({ quality }).toBuffer() : await pipeline.toBuffer();
+        outputType = wantsWebp ? 'image/webp' : contentType;
+        variant = `-w${width}-q${quality}${wantsWebp ? '-webp' : ''}`;
+      } catch (error) {
+        // Ein Format, das sharp nicht anfasst (SVG, animiertes GIF), ist kein
+        // Grund, gar kein Bild zu liefern — dann eben das Original.
+        console.error(
+          '[must-eat-image] resize failed, serving original',
+          error instanceof Error ? error.name : 'UnknownError'
+        );
+      }
+    }
+
+    return new NextResponse(new Uint8Array(body), {
       headers: {
         // A shared browser must not keep premium bytes after logout. The
         // short-lived HttpOnly capability is checked on every image request.
         'Cache-Control': 'private, no-store',
-        'Content-Type': contentType,
+        'Content-Type': outputType,
         'Content-Disposition': 'inline',
         'X-Content-Type-Options': 'nosniff',
-        ...(metadata.etag ? { ETag: metadata.etag } : {}),
+        // Das ETag des Buckets beschreibt das Original — eine skalierte
+        // Variante braucht ihr eigenes, sonst gilt ein 304 für die falschen Bytes.
+        ...(metadata.etag ? { ETag: `"${metadata.etag.replaceAll('"', '')}${variant}"` } : {}),
       },
     });
   } catch (error) {

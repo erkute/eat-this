@@ -745,10 +745,41 @@ die dreiteiligen Varianten.
 ```
 
 Acht Abrufe auf `/welcome`: acht Treffer. Sobald eine Seite die Middleware
-nicht durchläuft, ist sie CDN-cachebar. **Vorsicht bei der Messung:** die
-ersten Abrufe nach einem Rollout sind `miss`, weil der Eintrag erst gefüllt
-wird. Wer daraus schließt, der CDN sei tot, misst den Kaltstart — mir genau so
-passiert.
+nicht durchläuft, ist sie CDN-cachebar.
+
+#### Messfalle: Trefferquoten misst man nicht mit drei Requests
+
+Der CDN steht auf mehreren Edge-Knoten, und ein Abruf landet nicht immer auf
+demselben. Zwölf Abrufe auf `/welcome`, direkt hintereinander:
+
+```
+miss  hit(760)  hit(761)  miss  hit(762)  hit(762)
+hit(762)  miss  hit(763)  hit(763)  hit(764)  miss
+```
+
+**Rund drei von vier treffen, jeder vierte landet auf einem Knoten ohne
+Eintrag.** Bei dieser Quote sind drei aufeinanderfolgende `miss` reiner Zufall —
+und genau das ist mir am 22.08.2026 passiert: Ich habe dreimal `miss` gemessen
+und daraus geschlossen, der CDN cache überhaupt nichts, nicht einmal
+`immutable`-Assets. Die Schlussfolgerung war falsch und stand fünfzehn Minuten
+lang als Ergebnis im Raum.
+
+Zwei Dinge, die die Serie zusätzlich zeigt und die eine Einzelmessung nie
+hergibt:
+
+- **Das `age` läuft linear durch** (760 → 764 über die zwölf Abrufe, 825 nach
+  einer Minute Pause). Der Eintrag war beim ersten Abruf schon 13 Minuten alt,
+  stammt also nicht aus meinen Requests. Ein `age`, das mit der Wanduhr mitgeht,
+  ist der Beleg, dass man einen echten Cache-Eintrag vor sich hat und nicht
+  einen, den man gerade selbst erzeugt hat.
+- **Ein Rollout invalidiert den Eintrag nicht zwingend.** Fünf Minuten nach dem
+  Rollout um 21:50 war alles `miss`; der Eintrag, der kurz darauf mit `age 825`
+  antwortete, hatte den Rollout überlebt. Die `miss` kamen von Knoten, die ihn
+  nie hatten — nicht von einem geleerten Cache.
+
+**Regel:** Für eine Aussage über CDN-Verhalten mindestens zehn Abrufe fahren und
+die Quote nennen, nicht das Ergebnis. `age` immer mitprotokollieren. Ein
+einzelnes `miss` bedeutet nichts.
 
 #### Warum der naheliegende Fix nicht funktioniert
 

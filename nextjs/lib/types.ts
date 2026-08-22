@@ -219,8 +219,11 @@ export interface MapRestaurant {
   reservationUrl?: string;
   openingHours?: OpeningHourSlot[];
   tip?: string;
+  tipEn?: string;
   shortDescription?: string;
+  shortDescriptionEn?: string;
   description?: string;
+  descriptionEn?: string;
   photo?: string;
   photoCredit?: string;
   photoCreditUrl?: string;

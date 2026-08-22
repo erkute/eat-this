@@ -12,6 +12,7 @@ import {
   type UserTier,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
+import { pickLocale } from '@/lib/i18n/pickLocale';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import styles from './MapDetails.module.css';
@@ -239,9 +240,17 @@ export default function RestaurantDetail({
       })()
     : null;
 
-  const storyText = r.description ?? r.shortDescription ?? '';
+  // Editorial prose is DE-base with an optional EN override, same convention
+  // as the public /restaurant/[slug] page — without pickLocale the /en map
+  // served German descriptions and tips.
+  const loc = locale === 'en' ? 'en' : 'de';
+  const storyText =
+    pickLocale(r.description, r.descriptionEn, loc) ??
+    pickLocale(r.shortDescription, r.shortDescriptionEn, loc) ??
+    '';
+  const tipText = pickLocale(r.tip, r.tipEn, loc);
   const hasStory = !!storyText;
-  const hasTipp = !!r.tip;
+  const hasTipp = !!tipText;
 
   // Booking provider, from the reservation host — named on the Reservieren
   // button so you know where the link lands before you leave the map.
@@ -454,7 +463,7 @@ export default function RestaurantDetail({
         {hasTipp && (
           <div className={styles.rdTipp}>
             <span className={styles.rdTippLabel}>{t('map.insiderTip')}</span>
-            <p className={styles.rdTippText}>{r.tip}</p>
+            <p className={styles.rdTippText}>{tipText}</p>
           </div>
         )}
 

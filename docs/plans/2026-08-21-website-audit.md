@@ -4,7 +4,7 @@ Stand: 21.08.2026 · Basis: `main` @ cd5c23d9 · Live-Messungen gegen www.eatthi
 
 Eine Session reicht nicht. Dieses Dokument ist deshalb zweigeteilt: **wie** man
 sich durch das Thema arbeitet (Abschnitt 1) und **was** der erste Durchgang
-gefunden hat (Abschnitt 2–4). Abschnitt 5 schneidet die Arbeit in Sessions.
+gefunden hat (Abschnitt 2–4). Abschnitt 5 hält fest, was nach dem Rollout in Produktion ankam; Abschnitt 6 schneidet die Arbeit in Sessions.
 
 **Fortschritt:** Session A bis E erledigt (PR #425).
 
@@ -670,7 +670,95 @@ Freigabe, auch wenn alles gemergt ist.
 
 ---
 
-## 5. Session-Schnitt
+## 5. Nach dem Rollout — was in Produktion ankam
+
+Gemessen am 22.08.2026 gegen www.eatthisdot.com. Rollout
+`rollout-2026-08-22-005` meldete `SUCCEEDED` um 19:51:25Z; die Vorher-Werte
+sind wenige Minuten davor auf derselben Leitung entstanden.
+
+### Was trägt
+
+**Der Prerender-Cache greift.** Auf allen ISR-Seiten steht jetzt
+`x-nextjs-cache: HIT`. Vorher fehlte dieser Header **komplett** — der Cache
+wurde nie gefragt, jede Seite wurde in Cloud Run neu gerendert. Das ist der
+Kern von Session B, und er ist eingelöst.
+
+| Seite                        | TTFB vorher | nachher     |
+| ---------------------------- | ----------- | ----------- |
+| `/guides/beste-pizza-berlin` | 0,475 s     | **0,266 s** |
+| `/bezirk/kreuzberg`          | 0,457 s     | **0,281 s** |
+| `/restaurant/cafe-botanico`  | 0,403 s     | **0,251 s** |
+| `/`                          | 0,482 s     | **0,346 s** |
+| `/kategorie/pizza`           | 0,405 s     | **0,295 s** |
+| `/news/drei-doener-berlin`   | 0,357 s     | **0,288 s** |
+
+Methodisch: Vorher-Werte sind Einzelmessungen, Nachher-Werte Mediane aus drei.
+Die Richtung ist über alle sechs Seiten konsistent. Am 21.08. lag
+`/restaurant/cafe-botanico` bei 0,97 s und war die langsamste Seite der
+Messung — jetzt ist sie die schnellste.
+
+**Weiteres, in Produktion bestätigt:** JS der Startseite 338,4 → 289,9 kB gzip
+(−48,5 kB, praktisch die 50 kB aus Session C) · Sanity-Bilder durch den Proxy
+7 → 0 · `og_pizza.png` 542.834 → 202.971 Bytes, ausgeliefert als `?v=3` ·
+Guide-Hero-srcSet beginnt bei 384w statt fix 640/1080 · `style.min.css?v=311`.
+
+### P1-neu — Der CDN cacht weiterhin nichts, und der Cookie war es nicht
+
+`cdn-cache-status: miss`, auch beim zweiten Abruf derselben Seite. Der
+entfernte `NEXT_LOCALE`-Cookie war also nicht der verbliebene Blocker. Das
+Muster ist eindeutig:
+
+```
+/robots.txt                Middleware=NEIN   public, max-age=0, must-revalidate
+/sitemap.xml               Middleware=NEIN   public, max-age=0, must-revalidate
+/llms.txt                  Middleware=NEIN   public, max-age=86400, s-maxage=86400
+/restaurant/cafe-botanico  Middleware=ja     no-store
+/news/drei-doener-berlin   Middleware=ja     no-store
+```
+
+Jede Route mit `x-fah-middleware: true` bekommt `no-store` — obwohl der
+Standalone-Server lokal für dieselben Seiten sauber
+`s-maxage=3600, stale-while-revalidate` liefert. Die Routen mit Punkt im Pfad
+sind vom Matcher ausgenommen und behalten ihre Header.
+
+**Arbeitshypothese:** Firebase App Hosting markiert middleware-verarbeitete
+Antworten grundsätzlich als nicht cachebar. **Nicht belegt** — belegt ist nur
+die Korrelation. Der nächste Schritt wäre, eine ISR-Route testweise aus dem
+Matcher zu nehmen und zu messen; das ginge nur mit einem Deploy, weil Staging
+den Header wegen der Basic Auth nicht trägt.
+
+Die Frage dahinter ist eine Architekturfrage, keine Aufräumarbeit: muss die
+Middleware für ISR-Seiten überhaupt laufen? Sie leistet dort die
+DE-Rewrite-Auflösung — ohne sie bräuchte es einen anderen Weg von `/` nach
+`/de`.
+
+### Lighthouse: `/map` sieht schlechter aus, aber nicht wegen dieses Rollouts
+
+| Lauf          | Build   | Score | LCP     | TBT     |
+| ------------- | ------- | ----- | ------- | ------- |
+| 21.08.        | alt     | 0,48  | 5588 ms | 2619 ms |
+| 22.08. 19:31Z | alt     | 0,44  | 7709 ms | 3745 ms |
+| 22.08. 19:42Z | alt     | 0,44  | 6872 ms | 3128 ms |
+| 22.08. 19:53Z | **neu** | 0,43  | 7462 ms | 3246 ms |
+
+`/map` war heute schon vor dem Rollout schlechter als gestern, und die beiden
+Läufe auf demselben alten Build unterscheiden sich um 837 ms LCP und 617 ms
+TBT. Der Wert nach dem Rollout liegt mitten in dieser Spanne. Die Verschlechterung
+ist diesem Merge **nicht zuzuschreiben** — sie ist entweder Messrauschen oder
+stammt aus den parallel gemergten Map-Änderungen (#429, #434).
+
+Auf den übrigen Seiten sind die LCP-Warnungen verschwunden: `/`, `/news` und
+`/en/guides/beste-pizza-berlin` warnen nicht mehr. Neu ist eine TBT-Warnung auf
+`/` mit 818,5 ms — knapp über der 800-ms-Schwelle.
+
+**Lehre für die Methode:** Ein einzelner Lighthouse-Lauf trägt hier keine
+Aussage. Auf `/map` streuen zwei Läufe auf identischem Build um mehr als 10 %.
+Wer eine Verbesserung belegen will, braucht mindestens einen Vorher-Lauf am
+selben Tag — sonst misst man den Wochentag.
+
+---
+
+## 6. Session-Schnitt
 
 Jede Session ist für sich abschließbar und endet mit einem PR nach `staging`.
 

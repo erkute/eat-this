@@ -702,35 +702,112 @@ Messung — jetzt ist sie die schnellste.
 7 → 0 · `og_pizza.png` 542.834 → 202.971 Bytes, ausgeliefert als `?v=3` ·
 Guide-Hero-srcSet beginnt bei 384w statt fix 640/1080 · `style.min.css?v=311`.
 
-### P1-neu — Der CDN cacht weiterhin nichts, und der Cookie war es nicht
+### P1-neu — Middleware macht Seiten uncachebar. Ursache belegt, Fix nicht trivial
 
-`cdn-cache-status: miss`, auch beim zweiten Abruf derselben Seite. Der
-entfernte `NEXT_LOCALE`-Cookie war also nicht der verbliebene Blocker. Das
-Muster ist eindeutig:
+**Stand 22.08.2026, nach gezielter Untersuchung.** Die Arbeitshypothese ist
+bestätigt, und der Weg zum Fix ist enger als gedacht.
+
+#### Die Ursache ist dokumentiert
+
+Firebase App Hosting schreibt es wörtlich hin
+([Doku](https://firebase.google.com/docs/app-hosting/optimize-cache)):
+
+> Routes affected by Next.js middleware are not cached.
+
+Der Adapter (`@apphosting/adapter-nextjs@14.0.21`, aus dem Header
+`x-fah-adapter`) markiert die Routen zur **Build-Zeit** anhand von
+`config.matcher` — unabhängig davon, was die Middleware zur Laufzeit tut.
+
+#### Der Beweis, dass die Plattform unseren eigenen Header umschreibt
+
+Zwei Route-Handler desselben Builds, beide mit `revalidate`, beide setzen ihren
+`Cache-Control` **selbst im Code**:
+
+|                  | `/llms.txt`                             | `/api/restaurant-detail/[slug]`                                    |
+| ---------------- | --------------------------------------- | ------------------------------------------------------------------ |
+| unser Code setzt | `public, max-age=86400, s-maxage=86400` | `public, max-age=300, s-maxage=3600, stale-while-revalidate=86400` |
+| Matcher          | ausgenommen (Punkt im Pfad)             | **trifft**                                                         |
+| es kommt an      | **byteidentisch**                       | `max-age=300, stale-while-revalidate=86400, private`               |
+| CDN              | `hit`, `age: 697`                       | `miss`                                                             |
+
+`public` → `private`, `s-maxage` gestrichen. Den String haben wir selbst
+geschrieben; Next kann ihn nicht verändert haben. Ein blankes `no-store` als
+einziges Token existiert in `next@15.5.23` überhaupt nicht — dort gibt es nur
+die dreiteiligen Varianten.
+
+#### Der Gewinn ist gemessen, nicht geschätzt
+
+`/welcome` ist die einzige vorgerenderte **Seite** außerhalb des Matchers:
 
 ```
-/robots.txt                Middleware=NEIN   public, max-age=0, must-revalidate
-/sitemap.xml               Middleware=NEIN   public, max-age=0, must-revalidate
-/llms.txt                  Middleware=NEIN   public, max-age=86400, s-maxage=86400
-/restaurant/cafe-botanico  Middleware=ja     no-store
-/news/drei-doener-berlin   Middleware=ja     no-store
+/welcome                  kein x-fah-middleware   s-maxage=31536000   cdn=hit, age 740
+/restaurant/cafe-botanico x-fah-middleware: true  no-store            cdn=miss, immer
 ```
 
-Jede Route mit `x-fah-middleware: true` bekommt `no-store` — obwohl der
-Standalone-Server lokal für dieselben Seiten sauber
-`s-maxage=3600, stale-while-revalidate` liefert. Die Routen mit Punkt im Pfad
-sind vom Matcher ausgenommen und behalten ihre Header.
+Acht Abrufe auf `/welcome`: acht Treffer. Sobald eine Seite die Middleware
+nicht durchläuft, ist sie CDN-cachebar. **Vorsicht bei der Messung:** die
+ersten Abrufe nach einem Rollout sind `miss`, weil der Eintrag erst gefüllt
+wird. Wer daraus schließt, der CDN sei tot, misst den Kaltstart — mir genau so
+passiert.
 
-**Arbeitshypothese:** Firebase App Hosting markiert middleware-verarbeitete
-Antworten grundsätzlich als nicht cachebar. **Nicht belegt** — belegt ist nur
-die Korrelation. Der nächste Schritt wäre, eine ISR-Route testweise aus dem
-Matcher zu nehmen und zu messen; das ginge nur mit einem Deploy, weil Staging
-den Header wegen der Basic Auth nicht trägt.
+#### Warum der naheliegende Fix nicht funktioniert
 
-Die Frage dahinter ist eine Architekturfrage, keine Aufräumarbeit: muss die
-Middleware für ISR-Seiten überhaupt laufen? Sie leistet dort die
-DE-Rewrite-Auflösung — ohne sie bräuchte es einen anderen Weg von `/` nach
-`/de`.
+Der Plan wäre: ISR-Pfade aus dem Matcher nehmen, den DE-Rewrite stattdessen
+über `rewrites()` in `next.config.ts` erzeugen. Für einen normalen Google-Klick
+macht die Middleware ohnehin nur eine Sache — sie hängt `/de` vor den Pfad;
+alle elf anderen Zweige fallen durch.
+
+**Aber `rewrites()` verhält sich auf App Hosting anders als bei Next.** Die
+Sentry-Tunnel-Regeln liegen in `afterFiles` (`routes-manifest.json`:
+`beforeFiles: []`), laufen bei Next also _nach_ der Middleware. Gemessen gegen
+Produktion:
+
+```
+/monitoring                 x-fah-middleware=1  x-fah-adapter=1
+/monitoring?o=123           x-fah-middleware=1  x-fah-adapter=1
+/monitoring?o=123&p=456     x-fah-middleware=0  x-fah-adapter=0
+```
+
+Sobald die `has`-Bedingungen greifen, **unterdrückt die Rewrite-Regel die
+Middleware** — der Next-Server sieht den Request nicht. Die Plattform dreht
+Nexts Reihenfolge um.
+
+Damit sind beide Ausgänge eines Catch-all-Rewrites schlecht:
+
+- **Er unterdrückt die Middleware überall.** Dann fallen auch die Zweige weg,
+  die der Plan bewusst behalten wollte: Staging-Basic-Auth, Apex→www, die fünf
+  410er für geschlossene Spots, `?ref=`-Referrals.
+- **Oder er schreibt um und reicht weiter.** Dann sieht die Middleware
+  `/de/restaurant/x` **ohne** den `INTERNAL_LOCALE_HEADER` (den setzt nur
+  `middleware.ts:240`), trifft den Zweig `middleware.ts:216` und leitet mit 308
+  zurück auf `/restaurant/x` — das der Edge erneut umschreibt. Endlosschleife
+  über den kompletten Katalog.
+
+#### Der zweite Blocker: Staging
+
+Der Basic-Auth-Gate steckt **in** der Middleware (`middleware.ts:114-127`) und
+ist der einzige Träger des `X-Robots-Tag: noindex` auf ISR-Seiten. Nimmt man
+die Pfade aus dem Matcher, stehen auf Staging ~690 vorgerenderte Seiten ohne
+Passwort und ohne noindex offen. Der verbleibende Schutz wäre
+`app/robots.ts` (`disallow: /`) — eine Bitte, kein Riegel.
+
+#### Was das für die Umsetzung heißt
+
+Kein Ein-Zeilen-Fix. Wer das angeht, braucht drei Dinge zusammen:
+
+1. Einen **eng gefassten** Rewrite nur für die ISR-Präfixe, nicht catch-all —
+   und die Messung, welches der beiden Verhalten oben eintritt.
+2. Eine Antwort auf die Schleife: entweder den `/de/…`-308-Zweig für dieselben
+   Präfixe deaktivieren, oder den Rewrite so bauen, dass er die Middleware
+   sicher unterdrückt.
+3. Einen Ersatz für den Staging-Gate auf diesen Pfaden — eine Ebene tiefer
+   (Layout, Route) oder über einen anderen Mechanismus.
+
+**Nebenbefund, unbelegt aber prüfenswert:** Der Localhost-Ausnahme des
+Staging-Gates (`middleware.ts:118`) liest `req.headers.get('host')`, obwohl elf
+Zeilen später steht, dass auf App Hosting `x-forwarded-host` der echte Host
+ist. Greift dort je ein Host, der mit `localhost` beginnt, fällt der
+Staging-Schutz für alle Pfade.
 
 ### Lighthouse: `/map` sieht schlechter aus, aber nicht wegen dieses Rollouts
 

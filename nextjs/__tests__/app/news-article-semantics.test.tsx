@@ -16,6 +16,8 @@ vi.mock('@/i18n/navigation', () => ({
       {children}
     </a>
   ),
+  // The spot cards link through MapIntentLink, which prefetches the map route.
+  useRouter: () => ({ push: () => {}, prefetch: () => {} }),
 }));
 vi.mock('@/lib/PortableTextRenderer', () => ({
   extractHeadings: () => [],
@@ -65,7 +67,12 @@ describe('NewsArticleShell semantics', () => {
     expect(html.match(/<main\b/g)).toHaveLength(1);
     expect(html).toMatch(/<main\b[^>]*><article>/);
     expect(html).toContain('<h1');
-    expect(html).toContain('href="/restaurant/sofi"');
-    expect(html).not.toContain('/map?r=sofi');
+    // Die Spot-Karte zielt bewusst auf die Map, nicht auf die Restaurantseite:
+    // ein Tap auf ein Restaurant im Artikel soll den Spot öffnen wie in der App.
+    // Kehrt die Entscheidung aus 1a199751 (fix(seo): strengthen canonical
+    // internal links) für diese eine Karte um. Das nofollow prüft der
+    // Shell-Test – der Link-Mock hier reicht nur href und className durch.
+    expect(html).toContain('href="/map?r=sofi"');
+    expect(html).not.toContain('/restaurant/sofi');
   });
 });

@@ -26,9 +26,17 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       { error: 'not_found' },
       { status: 404, headers: { 'Cache-Control': 'no-store' } }
     );
+  // SWR is deliberately short. It used to be a day, which meant a returning
+  // visitor kept seeing the old body for up to 24h after an edit went live —
+  // the browser answers from its own cache and revalidates in the background,
+  // so the Sanity webhook (app/api/revalidate) that busts the
+  // `restaurant:<slug>` tag above only clears the SERVER cache. That is how
+  // the EN map texts still read German after a green rollout. Worst case is
+  // now max-age + SWR = 10 minutes; the instant re-open inside a session,
+  // which is the point of the header, is untouched.
   return NextResponse.json(detail, {
     headers: {
-      'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+      'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=300',
     },
   });
 }

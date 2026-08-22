@@ -98,13 +98,6 @@
   pointer-events: none;
 }
 
-.heroHeartBadge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 3;
-}
-
 .heroCaption {
   position: absolute;
   right: 0;

@@ -1,5 +1,7 @@
 /* Heart toggle + public count for the SEO restaurant page. A client island on
-   an otherwise static page. See docs/specs/2026-06-09-hearts-design.md. */
+   an otherwise static page. Count sits inside the button, right of the glyph —
+   one heart on the photo, like the map detail sheet.
+   See docs/specs/2026-06-09-hearts-design.md. */
 .row {
   position: absolute;
   top: 14px;
@@ -8,12 +10,13 @@
 }
 
 .btn {
-  width: 44px;
+  min-width: 44px;
   height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  gap: 7px;
+  padding: 0 6px;
   border: 0;
   background: transparent;
   color: #fff;
@@ -41,6 +44,18 @@
   height: 29px;
   stroke-width: 2.2;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.46));
+}
+
+/* Stays white even when the glyph flips to coral — a coral number on a bright
+   photo (ice cream, white tiles) all but disappears. Own shadow, a touch
+   deeper than the button's, so a thin Providence "1" holds on a light photo. */
+.count {
+  font-family: var(--f-display);
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-shadow: 0 2px 9px rgba(0, 0, 0, 0.6);
 }
 
 .btnActive {

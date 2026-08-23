@@ -298,12 +298,19 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       : rawLocationStatus;
 
   /* The locate FAB is a bare icon on a halo — nothing on screen says the map
-     could centre on you, so nobody presses it. It introduces itself instead,
-     but only while that helps: no fix yet, nothing in flight, and no answer
-     already on file (useLocationInvite). */
-  const inviteAllowed = useLocationInvite();
+     could centre on you, so nobody presses it. It introduces itself instead.
+     The hook owns WHEN, because the two cases differ: an unanswered permission
+     gets a standing invitation, a granted one a short greeting that ends when
+     the position lands (useLocationInvite). Note it is NOT gated on `location`
+     here any more — that would collapse the greeting the instant the fix
+     arrives, which for a cached fix is a frame or two. */
+  const locateLabel = useLocationInvite(location !== null);
   const showLocateInvite =
-    inviteAllowed && isActive && !location && !locationError && !locateLoading;
+    locateLabel !== null && isActive && !locationError && !locateLoading;
+  /* Only an unanswered permission is a funnel step. A greeting is shown to
+     someone who has nothing left to decide, so counting it would pad the
+     denominator with returning visitors. */
+  const isRealInvite = showLocateInvite && locateLabel === 'invite';
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;
@@ -319,9 +326,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      visitors never accept cookies. Once per session — a re-render would
      inflate it past any use. */
   useEffect(() => {
-    if (!showLocateInvite) return;
+    if (!isRealInvite) return;
     trackEventOnce('map_location_invite', 'map_location_invite_shown');
-  }, [showLocateInvite]);
+  }, [isRealInvite]);
 
   /* Errors used to sit there until tapped away — and since the dismissal is
      component state, a denied permission put the bar back on every reload,
@@ -343,9 +350,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* One control, one path into geolocation — the label only changes what it
      says, never what it does. */
   const handleLocateMe = useCallback(() => {
-    if (showLocateInvite) trackEvent('map_location_invite_accepted');
+    if (isRealInvite) trackEvent('map_location_invite_accepted');
     onLocateMe();
-  }, [showLocateInvite, onLocateMe]);
+  }, [isRealInvite, onLocateMe]);
   const handleDismissLocationStatus = useCallback(() => {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
   }, [locationStatusKey]);

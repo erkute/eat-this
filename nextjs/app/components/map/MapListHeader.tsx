@@ -2,6 +2,7 @@
 import { forwardRef, useMemo, useRef, useState, type Ref } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
+import { abbreviateBezirk, type MapOptionCounts } from '@/lib/map';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
@@ -23,6 +24,14 @@ interface Props {
   cuisineNames: string[];
   cuisine: string | null;
   onCuisine: (name: string | null) => void;
+
+  /** Hits behind every picker row, counted against the other chips. */
+  optionCounts: MapOptionCounts;
+
+  /** A non-empty search query overrides every chip below (see useMapFilters).
+   *  The chips stayed painted "live" while being ignored, so the row now
+   *  drops back to its inactive fill and says why. */
+  searchActive: boolean;
 }
 
 type ChipKind = 'category' | 'bezirk' | 'cuisine';
@@ -40,6 +49,8 @@ export default function MapListHeader({
   cuisineNames,
   cuisine,
   onCuisine,
+  optionCounts,
+  searchActive,
 }: Props) {
   const { t, lang } = useTranslation();
   const loc = lang === 'de' ? 'de' : 'en';
@@ -49,17 +60,28 @@ export default function MapListHeader({
   const bezirkBtnRef = useRef<HTMLButtonElement>(null);
   const cuisineBtnRef = useRef<HTMLButtonElement>(null);
 
+  /* Every row carries what it would actually return. Rows that would return
+     nothing stay listed and stay clickable — hiding them makes the list jump
+     between openings, and "Peruvian: 0" is the answer the user came for. */
+  const withCount = (value: string, label: string, counts: Map<string, number>): PickerItem => {
+    const hits = counts.get(value) ?? 0;
+    return { value, label, sub: String(hits), empty: hits === 0 };
+  };
+
   const categoryItems: PickerItem[] = useMemo(
-    () => categories.map((c) => ({ value: c.slug, label: localizedCategoryName(c, loc) })),
-    [categories, loc]
+    () =>
+      categories.map((c) =>
+        withCount(c.slug, localizedCategoryName(c, loc), optionCounts.byValue.category)
+      ),
+    [categories, loc, optionCounts]
   );
   const bezirkItems: PickerItem[] = useMemo(
-    () => bezirkNames.map((n) => ({ value: n, label: n })),
-    [bezirkNames]
+    () => bezirkNames.map((n) => withCount(n, n, optionCounts.byValue.bezirk)),
+    [bezirkNames, optionCounts]
   );
   const cuisineItems: PickerItem[] = useMemo(
-    () => cuisineNames.map((n) => ({ value: n, label: n })),
-    [cuisineNames]
+    () => cuisineNames.map((n) => withCount(n, n, optionCounts.byValue.cuisine)),
+    [cuisineNames, optionCounts]
   );
 
   const activeCategoryLabel = useMemo(() => {
@@ -68,10 +90,14 @@ export default function MapListHeader({
     return def ? localizedCategoryName(def, loc) : null;
   }, [category, categories, loc]);
 
+  /* Only worth saying when a chip actually holds a value — an untouched rail
+     has nothing for the query to override. */
+  const chipsPaused = searchActive && Boolean(activeCategoryLabel || bezirk || cuisine || openOnly);
+
   return (
     <div ref={headerRef} className={styles.listHeader}>
       {/* Chip rail — Kategorie · Bezirk · Küche · Jetzt offen. */}
-      <div className={styles.filterChipRow}>
+      <div className={`${styles.filterChipRow} ${chipsPaused ? styles.filterChipRowPaused : ''}`}>
         <FilterChip
           ref={categoryBtnRef}
           label={activeCategoryLabel ?? t('map.filterChipCategory')}
@@ -83,7 +109,9 @@ export default function MapListHeader({
         />
         <FilterChip
           ref={bezirkBtnRef}
-          label={bezirk ?? t('map.filterChipBezirk')}
+          /* "Prenzlauer Berg" is the one district name the rail cannot hold;
+             the list stickers already shorten it the same way. */
+          label={abbreviateBezirk(bezirk) ?? t('map.filterChipBezirk')}
           active={!!bezirk}
           expanded={openChip === 'bezirk'}
           onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
@@ -111,12 +139,17 @@ export default function MapListHeader({
         </button>
       </div>
 
+      {chipsPaused && (
+        <p className={styles.filterChipPausedNote}>{t('map.filterChipsPausedBySearch')}</p>
+      )}
+
       {openChip === 'category' && (
         <MapFilterPickerSheet
           title={t('map.pickerCategoryTitle')}
           items={categoryItems}
           selectedValue={category === 'All' ? null : category}
           allLabel={t('map.filterAll')}
+          allSub={String(optionCounts.withoutDimension.category)}
           onSelect={(v) => onCategoryChange((v ?? 'All') as MapCategory)}
           onClose={() => setOpenChip(null)}
           anchorEl={categoryBtnRef.current}
@@ -129,6 +162,7 @@ export default function MapListHeader({
           items={bezirkItems}
           selectedValue={bezirk}
           allLabel={t('map.filterAll')}
+          allSub={String(optionCounts.withoutDimension.bezirk)}
           onSelect={(v) => onBezirk(v)}
           onClose={() => setOpenChip(null)}
           anchorEl={bezirkBtnRef.current}
@@ -141,6 +175,7 @@ export default function MapListHeader({
           items={cuisineItems}
           selectedValue={cuisine}
           allLabel={t('map.filterAll')}
+          allSub={String(optionCounts.withoutDimension.cuisine)}
           onSelect={(v) => onCuisine(v)}
           onClose={() => setOpenChip(null)}
           anchorEl={cuisineBtnRef.current}

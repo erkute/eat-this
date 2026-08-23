@@ -11,6 +11,12 @@ if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(firebaseAuthProjectId)) {
   throw new Error('Invalid NEXT_PUBLIC_FIREBASE_EXPECTED_PROJECT_ID');
 }
 
+const GUIDE_TO_CATEGORY = [
+  ['beste-pizza-berlin', 'pizza'],
+  ['beste-fast-food-berlin', 'fast-food'],
+  ['beste-cafes-berlin', 'coffee'],
+] as const;
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   // Build output dir. Defaults to `.next` (dev + Firebase App Hosting). A
@@ -165,6 +171,21 @@ const nextConfig: NextConfig = {
         destination: '/en/news/beste-baeckereien-berlin',
         permanent: true,
       },
+      // Die drei verbliebenen Guides waren derselbe Fall eine Ebene weiter:
+      // jeder doppelte die Absicht seiner Kategorieseite, beide selbst-
+      // kanonisch, beide in der Sitemap — beste-cafes-berlin trug sogar
+      // denselben Title wie /kategorie/coffee. Die Kategorieseite gewinnt
+      // jeden Vergleich (mehr Text, mehr Spots, FAQ-Schema, Bezirks-
+      // Querlinks) und ist der Ort, auf den die Navigation zeigt; auf die
+      // Guides verlinkte intern nichts.
+      ...GUIDE_TO_CATEGORY.flatMap(([slug, category]) => [
+        { source: `/guides/${slug}`, destination: `/kategorie/${category}`, permanent: true },
+        {
+          source: `/en/guides/${slug}`,
+          destination: `/en/kategorie/${category}`,
+          permanent: true,
+        },
+      ]),
     ];
   },
 };

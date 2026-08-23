@@ -14,7 +14,6 @@ import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
 
 interface Props {
-  mode?: 'guest' | 'auth';
   locale?: 'de' | 'en';
   /** Server date (YYYY-MM-DD) seeding the no-location rotation. */
   today: string;
@@ -24,14 +23,8 @@ interface Props {
   embedded?: boolean;
 }
 
-export default function HubNearby({
-  mode = 'guest',
-  locale = 'de',
-  today,
-  embedded = false,
-}: Props) {
+export default function HubNearby({ locale = 'de', today, embedded = false }: Props) {
   const t = useTranslations('hub.nearby');
-  const authMode = mode === 'auth';
   const { initialMapData, live } = useHomeMapData();
   const { location, loading: locating, error: locError, request } = useUserLocationContext();
   const locationStatus = getLocationStatus({
@@ -60,7 +53,7 @@ export default function HubNearby({
   }, [locationSuccessKey]);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  const count = authMode ? 2 : 4;
+  const count = 4;
 
   // With a grant: genuinely nearest. Without: a daily rotation across Berlin
   // rather than the same four spots around a Mitte centroid the visitor never
@@ -98,8 +91,6 @@ export default function HubNearby({
       <section
         className={embedded ? styles.embedded : 'homeV2 hv-section hv-wrap'}
         data-hub-nearby=""
-        data-auth-nearby={authMode ? '' : undefined}
-        data-auth-only={authMode ? '' : undefined}
       >
         <div className={`hv-head ${styles.head}`}>
           <h2 className={`hv-title ${styles.title} ${embedded ? styles.titleEmbedded : ''}`}>

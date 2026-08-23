@@ -19,8 +19,7 @@ import type { MapRestaurant } from '@/lib/types';
 // Node/vitest environment. The first client render mirrors the SSR snapshot:
 // mounted = false → initialMapData is used, location = null → Mitte fallback.
 
-const authState = { user: null as { uid: string } | null, loading: true };
-vi.mock('@/lib/auth', () => ({ useAuth: () => authState }));
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null, loading: true }) }));
 
 vi.mock('@/lib/map', () => ({
   useMapData: ({ initialMapData }: { initialMapData: InitialMapData }) => initialMapData,
@@ -92,17 +91,17 @@ const mapData = (restaurants: MapRestaurant[] = []): InitialMapData =>
     revealedMustEatIds: [],
   }) as unknown as InitialMapData;
 
-const tree = (initialMapData: InitialMapData, mode?: 'guest' | 'auth') => (
+const tree = (initialMapData: InitialMapData) => (
   <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
     <HomeMapDataProvider initialMapData={initialMapData}>
-      <HubNearby mode={mode} today={TODAY} />
+      <HubNearby today={TODAY} />
     </HomeMapDataProvider>
   </NextIntlClientProvider>
 );
 
 /** SSR snapshot: mounted = false, so this is always the position-unknown state. */
-function render(initialMapData: InitialMapData = mapData(), mode?: 'guest' | 'auth') {
-  return renderToStaticMarkup(tree(initialMapData, mode));
+function render(initialMapData: InitialMapData = mapData()) {
+  return renderToStaticMarkup(tree(initialMapData));
 }
 
 /** Mounted render — the only way to reach the located branch. */
@@ -115,8 +114,6 @@ const TODAY = '2026-08-20';
 
 describe('HubNearby', () => {
   beforeEach(() => {
-    authState.loading = true;
-    authState.user = null;
     locationState.location = null;
     locationState.loading = false;
     locationState.error = null;
@@ -179,14 +176,6 @@ describe('HubNearby', () => {
   it('renders the data-hub-nearby attribute', () => {
     const html = render(mapData([restaurant()]));
     expect(html).toContain('data-hub-nearby');
-  });
-
-  it('guest mode: SSR shell stays visible for signed-in users too', () => {
-    authState.loading = false;
-    authState.user = { uid: 'u1' } as never;
-    const html = render(mapData([restaurant()]), 'guest');
-    expect(html).toContain('data-hub-nearby');
-    expect(html).not.toContain('data-guest-only');
   });
 
   it('shows a success layer after locating succeeds', async () => {

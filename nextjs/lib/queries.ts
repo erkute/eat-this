@@ -247,6 +247,7 @@ export const allBezirkeWithStatsQuery = `
         name,
         "slug": slug.current,
         cuisineType,
+        priceRange,
         shortDescription,
         shortDescriptionEn,
         "photo": ${publishableRestaurantImageUrl('image', 'card')}
@@ -256,6 +257,7 @@ export const allBezirkeWithStatsQuery = `
       name,
       "slug": slug.current,
       cuisineType,
+      priceRange,
       isOpen,
       "photo": ${publishableRestaurantImageUrl('image', 'card')}
     }

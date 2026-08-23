@@ -26,6 +26,12 @@
      hard-coding a number that then drifts. Top offset reserves the fixed site
      navigation (64px + safe-area). */
   --page-pad: 22px;
+  /* Freiraum über jedem Sprungziel der Bezirksliste: fixierte Navigation plus,
+     auf Mobil, die klebende Chip-Leiste (63px). Ab 761px klebt sie nicht mehr,
+     dort bleibt nur die Navigation stehen (Override weiter unten). */
+  --bezirk-scroll-offset: calc(
+    64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 79px
+  );
   max-width: 1180px;
   margin-inline: auto;
   padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px)
@@ -1008,6 +1014,143 @@
 }
 
 /* ============================================================
+   BEZIRKS-FILTER
+   Siebzehn Bezirke à vier Karten sind rund zehn Bildschirme. Die Leiste macht
+   jeden davon mit einem Klick erreichbar und bleibt beim Scrollen stehen —
+   gesucht wird sie genau dann, wenn man tief in der Liste steckt.
+============================================================ */
+
+/* Zähl- und Statuszeile über der Leiste. Scrollt bewusst mit weg: die
+   Bestätigung eines Klicks ist der gedrückte Chip, nicht dieser Text. */
+.filterStatus {
+  margin: 0 0 12px;
+  color: var(--et-home-muted);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Klebt unter der fixierten Seiten-Navigation — aber nur, solange die Chips
+   eine Zeile sind (Mobil, ~63px). Ab Tablet brechen siebzehn Chips auf drei
+   Zeilen um; klebend wären das mit der Navigation zusammen rund 220px
+   Dauer-Chrome, ein Drittel des Bildschirms. Dort steht der Block deshalb im
+   Fluss — dafür vollständig, was auf Desktop die bessere Wahl ist.
+
+   Muss ein direktes Kind des hohen Abschnitts sein: in einem eigenen Wrapper
+   wäre der Elternteil genauso hoch wie die Leiste selbst und `sticky` bliebe
+   wirkungslos. */
+.filterSticky {
+  position: sticky;
+  top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px));
+  z-index: 4;
+  /* Über die volle Blattbreite, damit beim Scrollen nichts seitlich an der
+     Leiste vorbeiläuft. Der Gutter ist geklippt (.page), es entsteht also
+     keine Querscroll-Leiste. */
+  margin-inline: calc(var(--page-pad) * -1);
+  margin-bottom: clamp(30px, 4.5vw, 52px);
+  padding: 10px var(--page-pad);
+  background: var(--et-home-paper);
+  border-bottom: 1px solid var(--et-home-rule);
+}
+
+/* Mobil ein Rail mit Anschnitt an der Blattkante, ab Tablet ein Umbruch:
+   siebzehn gleichrangige Chips sind eine geschlossene Menge und wollen am
+   Stück überblickt werden. Ein Rail versteckt auf Desktop die Hälfte davon
+   hinter einer Scrollbar, die per ::-webkit-scrollbar gar nicht sichtbar ist. */
+.filterRail {
+  display: flex;
+  gap: 8px;
+  margin-inline: calc(var(--page-pad) * -1);
+  padding: 2px var(--page-pad);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filterRail::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 7px 13px 8px;
+  border: 2px solid var(--et-home-line);
+  border-radius: var(--et-radius-pill);
+  background: var(--et-home-paper);
+  color: var(--et-home-ink);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: var(--et-type-button);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--et-motion-fast),
+    border-color var(--et-motion-fast),
+    color var(--et-motion-fast);
+}
+
+.filterChip:hover {
+  border-color: var(--et-home-ink);
+}
+
+.filterChip[aria-pressed='true'] {
+  border-color: var(--et-home-ink);
+  background: var(--et-home-ink);
+  color: var(--et-home-paper);
+}
+
+.filterChipCount {
+  color: var(--et-home-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.filterChip[aria-pressed='true'] .filterChipCount {
+  color: var(--et-home-accent);
+}
+
+.filterChip:focus-visible {
+  outline: 3px solid var(--et-home-red);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filterChip {
+    transition: none;
+  }
+}
+
+@media (min-width: 761px) {
+  .page {
+    --bezirk-scroll-offset: calc(
+      64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 16px
+    );
+  }
+
+  .filterSticky {
+    position: static;
+    margin-inline: 0;
+    padding: 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+
+  .filterRail {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+}
+
+/* ============================================================
    DISTRICT ROWS
    One row per district: a linked name, a "see all" link, and a strip of
    photo cards. Deliberately the same object as the recommendation rails at
@@ -1018,12 +1161,22 @@
 .districtRows {
   display: grid;
   gap: clamp(52px, 7vw, 88px);
+  /* Ziel von scrollIntoView nach jedem Filterwechsel: Navigation (64px) plus
+     die klebende Chip-Leiste freihalten, sonst startet die Liste dahinter. */
+  scroll-margin-top: var(--bezirk-scroll-offset);
 }
 
 /* Grid children default to min-width: auto, so a long unbroken district or
    restaurant name could push the row past the page. */
 .districtRow {
   min-width: 0;
+  scroll-margin-top: var(--bezirk-scroll-offset);
+}
+
+/* Ausgefiltert. Explizit, weil das UA-`[hidden]` von jeder späteren
+   `display`-Regel auf .districtRow überstimmt würde. */
+.districtRow[hidden] {
+  display: none;
 }
 
 .districtName {
@@ -1046,6 +1199,18 @@
 
 .districtLink:hover {
   color: var(--et-home-ink);
+}
+
+/* Die Bezirksbeschreibung aus dem Studio — auf dem Index bisher ungenutzt.
+   Sie steht zwischen Name und Karten, weil sie die Entscheidung trägt: vier
+   Restaurantnamen sagen nicht, wie ein Bezirk isst. */
+.districtBlurb {
+  max-width: 62ch;
+  margin: 0 0 clamp(20px, 2.6vw, 28px);
+  color: var(--et-home-muted);
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.55;
 }
 
 .districtMore {

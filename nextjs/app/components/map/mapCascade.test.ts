@@ -104,16 +104,25 @@ describe('MapControls cascade', () => {
 
   it('unfolds the locate label by geometry, never by fading it in', () => {
     /* A brand surface appearing on the map moves — it does not materialise
-     * (CLAUDE.md). The label rides a 0fr → 1fr grid column so it also needs no
-     * measured width; swapping that for an opacity transition would both break
-     * the rule and leave a full-width dead zone next to the icon while the text
-     * is invisible. */
+     * (CLAUDE.md). It must also actually MOVE: this shipped once as a
+     * `0fr → 1fr` grid column, the usual animate-to-content-width trick, and
+     * Chrome refused to create a transition for it at all in an auto-width
+     * flex item — `getAnimations()` on the label came back empty on
+     * production and the track stayed pinned at 0px, so the label was clipped
+     * to nothing. `max-width` is the mechanism that survives; the fr trick is
+     * documented for HEIGHTS, where the container has a definite inline size.
+     * Assert the property by name so a well-meaning "cleanup" back to fr
+     * fails here instead of on someone's phone. */
     const transition = effective(CONTROLS, 'fabLabel', 'transition');
     expect(transition, '.fabLabel has no effective transition').toBeDefined();
     expect(
-      transition!.includes('grid-template-columns'),
-      `.fabLabel must animate its grid column. Got: ${transition}`
+      transition!.includes('max-width'),
+      `.fabLabel must animate max-width — an fr track does not transition here. Got: ${transition}`
     ).toBe(true);
+    expect(
+      transition!.includes('grid-template-columns'),
+      `.fabLabel must NOT go back to an fr track — Chrome creates no transition for it. Got: ${transition}`
+    ).toBe(false);
     expect(
       transition!.includes('opacity'),
       `.fabLabel must not fade — brand surfaces move. Got: ${transition}`

@@ -996,15 +996,29 @@
   border-radius: var(--et-radius-control, 7px);
 }
 
-/* Das Label klappt AUS dem Icon heraus statt als Kasten daneben zu erscheinen:
-   eine 0fr → 1fr Grid-Spalte animiert die echte Textbreite, ohne sie zu
-   messen — trägt also in jeder Sprache. Kein Opacity-Fade: Markenflächen
-   bewegen sich, sie blenden nicht auf. */
+/* Das Label klappt AUS dem Icon heraus statt als Kasten daneben zu erscheinen.
+   Kein Opacity-Fade: Markenflächen bewegen sich, sie blenden nicht auf.
+   
+   Hier stand eine `0fr → 1fr` Grid-Spalte — der bekannte Trick, um auf eine
+   Inhaltsbreite zu animieren, ohne sie zu messen. Er trägt in dieser Richtung
+   NICHT. Auf www.eatthisdot.com in Chrome nachgemessen: `getAnimations()` auf
+   dem Label liefert `[]`, Chrome legt für `grid-template-columns` in einem
+   auto-breiten Flex-Item also gar keine Transition an, und der `fr`-Track
+   bleibt bei 0px stehen — das Label war unsichtbar geklemmt, übrig blieb ein
+   53px breiter Klotz. Dieselbe Kontrolle mit `max-width` auf demselben Element
+   liefert `[max-width]`. (Der fr-Trick ist für HÖHEN dokumentiert, wo der
+   Container eine definite Inline-Größe hat. Nicht wieder darauf reinfallen.)
+   
+   `max-width` braucht dafür eine Obergrenze statt der echten Breite: 7rem
+   liegt über dem längsten Label (DE „Wo bist du?" ~75px, EN „Where are you?"
+   ~85px), also ist das Label bei rund zwei Dritteln der Kurve draußen und der
+   Rest läuft unsichtbar aus. Bewusst knapp gewählt — je größer die Kappe,
+   desto früher steht die sichtbare Bewegung. */
 .fabLabel {
-  display: grid;
-  grid-template-columns: 0fr;
+  display: block;
+  max-width: 0;
   overflow: hidden;
-  transition: grid-template-columns 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: max-width 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -1014,11 +1028,11 @@
 }
 
 .fab[data-invite] .fabLabel {
-  grid-template-columns: 1fr;
+  max-width: 7rem;
 }
 
 .fabLabel > span {
-  min-width: 0;
+  display: block;
   white-space: nowrap;
 }
 

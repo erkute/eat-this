@@ -12,7 +12,7 @@ import {
 import { buildBezirkJsonLd } from '@/lib/json-ld';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
-import { buildBrandedTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
+import { buildPlainTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { routing } from '@/i18n/routing';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
@@ -112,10 +112,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
 
-  // Brandlos — buildBrandedTitle ergänzt den kompakten Brand; die kuratierten
-  // seo.metaTitle bleiben ebenfalls brandlos.
-  const fallbackTitleDe = `Beste Restaurants in ${b.name}`;
-  const fallbackTitleEn = `Best restaurants in ${b.name}`;
+  // Brandlos in Sanity wie hier: die Bezirksseiten hängen keinen Marken-Suffix
+  // an, siehe buildPlainTitle. Die 11 Zeichen gehen an den Titel selbst, damit
+  // „Berlin" neben den Bezirksnamen passt — 491 der 506 Impressionen dieser
+  // Seiten kommen auf Anfragen, die „Berlin" enthalten.
+  const fallbackTitleDe = `Restaurants in Berlin-${b.name}`;
+  const fallbackTitleEn = `Restaurants in Berlin-${b.name}`;
   const title = pickLocale(
     b.seo?.metaTitle || fallbackTitleDe,
     b.seo?.metaTitleEn || fallbackTitleEn,
@@ -129,7 +131,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     loc
   );
   const description = rawDescription ? truncateMetadataDescription(rawDescription) : undefined;
-  const brandedTitle = buildBrandedTitle(title ?? fallbackTitleDe);
+  const pageTitle = buildPlainTitle(title ?? fallbackTitleDe);
 
   const baseImage = b.seo?.ogImageUrl || b.imageUrl;
   const image = baseImage || `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
@@ -139,12 +141,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 
   return {
-    title: { absolute: brandedTitle },
+    title: { absolute: pageTitle },
     description,
     robots: b.seo?.noIndex ? 'noindex,nofollow' : INDEXABLE_ROBOTS,
     alternates,
     openGraph: {
-      title: brandedTitle,
+      title: pageTitle,
       description,
       url: alternates.canonical,
       images: [{ url: image, width: 1200, height: 630, alt: b.name }],

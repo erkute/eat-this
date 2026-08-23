@@ -72,6 +72,9 @@ interface MapBodyState {
   displayedLockedRestaurants: MapRestaurant[];
   /** Unfiltered catalog size for the locked sheet's all-Berlin offer. */
   totalSpots: number;
+  /** Locked spots that an account alone opens — see LockedDetail. Empty once
+   *  signed in, so the sheet falls through to the pack offer. */
+  signupUnlockableIds: Set<string>;
   /** Every paywalled id, so the sheet knows which detail to render. */
   lockedIdSet: Set<string>;
   /** Uncapped locked-match count — see useMapFilters. */
@@ -170,6 +173,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     displayedRestaurants,
     displayedLockedRestaurants,
     totalSpots,
+    signupUnlockableIds,
     lockedIdSet,
     lockedMatchCount,
     restaurantMustEats,
@@ -677,6 +681,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <LockedDetail
                 restaurant={selectedRestaurant}
                 totalSpots={totalSpots}
+                unlocksWithAccount={signupUnlockableIds.has(selectedRestaurant._id)}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}
               />

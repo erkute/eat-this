@@ -22,4 +22,10 @@ export const ACCOUNT_FRESHNESS_MS = 10 * 60 * 1000;
 // shrinks toward the full paid catalog, so without a ceiling a single inviter
 // could unlock all of Berlin via throwaway signups. Past the cap the friend
 // still gets their own welcome bonus — only the inviter-side reward stops.
-export const MAX_REFERRALS_PER_INVITER = 25;
+//
+// The cap has to be read against the paid remainder, not on its own: it only
+// bites while REFERRAL_BONUS_SIZE × cap stays under the number of spots the
+// signed tier leaves behind. Raising the free tiers to 100/150 (2026-08-23)
+// cut that remainder to 194, which 25 × 10 would have cleared outright — the
+// whole map for 20 throwaway signups. 15 keeps the ceiling below it again.
+export const MAX_REFERRALS_PER_INVITER = 15;

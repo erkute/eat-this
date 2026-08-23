@@ -26,6 +26,7 @@ const EMPTY: InitialMapData = {
   categories: [],
   totalCount: 0,
   revealedMustEatIds: [],
+  signupUnlockableIds: [],
 };
 
 function render(locale: 'de' | 'en' = 'de', data: InitialMapData = EMPTY) {

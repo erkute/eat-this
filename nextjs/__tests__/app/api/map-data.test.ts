@@ -87,9 +87,11 @@ beforeEach(() => {
 
 describe('/api/map-data — tier composition', () => {
   it('anonymous: returns anonSet + revealedMustEatIds', async () => {
-    // a3/a4 exist to consume the district quota. Without them the anon tier
-    // has room for every spot and nothing is locked, which would make the
-    // assertions below vacuous.
+    // A catalog this small fits inside the free tier whole, so nothing is
+    // locked here. What this test is for is the wiring: flags honoured,
+    // must-eats attached, the anon reveal set applied. The composition's own
+    // budget behaviour is covered in tier-composition.test.ts, and the
+    // signed-tier signal has its own test below.
     const restaurants = [
       mkRestaurant('a1', { tierAnon: true }),
       mkRestaurant('a2', { tierAnon: true }),
@@ -124,15 +126,71 @@ describe('/api/map-data — tier composition', () => {
     // count first — b1 has m3 — then by _id, taking a3 and a4. 'c1' sorts last
     // and is the one the quota pushes out.
     const anonIds = json.restaurants.map((r: any) => r._id).sort()
-    expect(anonIds).toContain('a1')
-    expect(anonIds).toContain('a2')
-    expect(anonIds).toContain('b1')   // fill ranks it first (has m3)
-    expect(anonIds).not.toContain('c1') // quota full → pushed out
+    expect(anonIds).toEqual(['a1', 'a2', 'a3', 'a4', 'b1', 'c1'])
     // mustEats for anon: m1 (a1), m2 (a2), m3 (b1) — all visible
     expect(json.mustEats.map((m: any) => m._id).sort()).toEqual(['m1', 'm2', 'm3'])
     expect(json.revealedMustEatIds).toContain('m1')
-    // c1 is the only locked restaurant (no must-eats, no flag)
-    expect(json.lockedRestaurants.map((r: any) => r._id)).toEqual(['c1'])
+    expect(json.lockedRestaurants).toEqual([])
+    expect(json.signupUnlockableIds).toEqual([])
+  })
+
+  it('anonymous: names the locked spots an account alone would open', async () => {
+    // 200 spots — big enough that both rungs bite: 100 free, 50 more with an
+    // account, 50 that still need a pack. The locked sheet decides which of
+    // its two offers to make from exactly this list, so a wrong one here is a
+    // sign-in button on a spot that signing in does not open.
+    const restaurants = Array.from({ length: 200 }, (_, i) =>
+      mkRestaurant(`r${String(i).padStart(3, '0')}`)
+    )
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: restaurants as any,
+      mustEats: [],
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue({
+      isAdmin: false,
+      hasAllBerlin: false,
+      categorySlugs: new Set(),
+      restaurantIds: new Set(),
+      mustEatIds: new Set(),
+    })
+
+    const res = await GET(mkReq(null))
+    const json = await res.json()
+
+    expect(json.restaurants).toHaveLength(100)
+    expect(json.lockedRestaurants).toHaveLength(100)
+    expect(json.signupUnlockableIds).toHaveLength(50)
+
+    // Every one of them is locked right now — advertising a spot the viewer
+    // can already open would be the same lie in the other direction.
+    const visible = new Set(json.restaurants.map((r: any) => r._id))
+    for (const id of json.signupUnlockableIds) {
+      expect(visible.has(id)).toBe(false)
+    }
+  })
+
+  it('signed-in: has the signed tier already, so nothing is left to unlock by signing in', async () => {
+    const restaurants = Array.from({ length: 200 }, (_, i) =>
+      mkRestaurant(`r${String(i).padStart(3, '0')}`)
+    )
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: restaurants as any,
+      mustEats: [],
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue({
+      isAdmin: false,
+      hasAllBerlin: false,
+      categorySlugs: new Set(),
+      restaurantIds: new Set(),
+      mustEatIds: new Set(),
+    })
+
+    const res = await GET(mkReq('valid-token'))
+    const json = await res.json()
+    expect(json.restaurants).toHaveLength(150)
+    expect(json.signupUnlockableIds).toEqual([])
   })
 
   it('signed-in (no entitlements): returns anonSet ∪ signedSet', async () => {

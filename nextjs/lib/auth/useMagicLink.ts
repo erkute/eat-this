@@ -20,8 +20,16 @@ export function useMagicLink() {
   const [state, setState] = useState<MagicLinkState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  /**
+   * `continueUrl` is where the mail's link lands the user after sign-in.
+   * Omit it and /welcome sends them home, which is right for a signup that
+   * started on the home page and wrong for one that started somewhere the
+   * user was in the middle of something — a locked spot on the map, say.
+   * The server re-validates it against an own-origin allow-list, so an
+   * arbitrary value here cannot bounce anyone off-site.
+   */
   const sendLink = useCallback(
-    async (email: string) => {
+    async (email: string, continueUrl?: string) => {
       trackEvent('login_start', { method: 'email_link' });
       setState('sending');
       setErrorMessage('');
@@ -30,7 +38,7 @@ export function useMagicLink() {
         const response = await fetch('/api/auth/send-magic-link', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify(continueUrl ? { email, continueUrl } : { email }),
         });
         const data = await response.json().catch(() => ({}));
 

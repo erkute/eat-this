@@ -140,7 +140,10 @@
 
 .hint {
   color: var(--home-muted, var(--et-home-muted));
-  font-size: 11px;
+  /* A footnote about what happens next, not part of the offer — held below the
+     smallest copy on the section (user, 2026-08-23). The sent state repeats it
+     at full size, so nothing here is only readable at 9px. */
+  font-size: 9px;
   letter-spacing: 0.01em;
 }
 
@@ -196,7 +199,6 @@
   .input {
     text-align: left;
   }
-
 }
 
 @media (max-width: 760px) {

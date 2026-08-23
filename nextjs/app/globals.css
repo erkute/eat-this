@@ -613,7 +613,14 @@ html[data-auth='1'] [data-guest-only] {
 
 @media (max-width: 1023.98px) {
   [data-active-page='map'] .app-pages {
+    /* Both spellings of the navbar offset have to go: tablets still get
+       `margin-top` from style.css, phones get `padding-top` since 46789c54
+       moved it (a top margin collapsed out through body and Chrome booked the
+       jump as a layout shift). The map hides the navbar outright, so either
+       one leaves a white strip across the top of the canvas — with the fixed
+       burger and search sitting on it instead of on the map. */
     margin-top: 0;
+    padding-top: 0;
     height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
   }
 

@@ -58,4 +58,46 @@ describe('sitemap.ts', () => {
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isOpen != false');
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isClosed != true');
   });
+
+  it('dates every URL, and lets a fresher article beat the template date', async () => {
+    process.env.NEXT_PUBLIC_ENV = 'production';
+    mocks.fetch
+      .mockResolvedValueOnce([{ slug: 'live-spot' }])
+      .mockResolvedValueOnce([
+        // Older than the template revision — the template change is what
+        // last touched this page, so that date wins.
+        { slug: 'alt', updatedAt: '2026-07-13T10:00:00Z', hasEnContent: false },
+        // Edited after it — the human edit is the later change.
+        { slug: 'frisch', updatedAt: '2099-01-01T10:00:00Z', hasEnContent: false },
+      ])
+      .mockResolvedValueOnce([{ slug: 'mitte' }])
+      .mockResolvedValueOnce([{ slug: 'pizza' }]);
+
+    vi.resetModules();
+    const { TEMPLATE_REVISED } = await import('@/lib/constants');
+    const mod = await import('@/app/sitemap');
+    const result = await mod.default();
+
+    // A URL without lastmod is a URL Google has no reason to re-fetch.
+    expect(result.filter((entry) => !entry.lastModified)).toEqual([]);
+
+    const lastmod = (suffix: string) =>
+      result.find((entry) => entry.url.endsWith(suffix))?.lastModified;
+    expect(lastmod('/restaurant/live-spot')).toBe(TEMPLATE_REVISED);
+    expect(lastmod('/bezirk/mitte')).toBe(TEMPLATE_REVISED);
+    expect(lastmod('/kategorie/pizza')).toBe(TEMPLATE_REVISED);
+    expect(lastmod('/news/alt')).toBe(TEMPLATE_REVISED);
+    expect(lastmod('/news/frisch')).toBe('2099-01-01T10:00:00Z');
+  });
+
+  it('keeps the template date a plain past date', async () => {
+    vi.resetModules();
+    const { TEMPLATE_REVISED } = await import('@/lib/constants');
+    // A bare YYYY-MM-DD, never a full timestamp, and never ahead of today —
+    // a lastmod in the future is the fastest way to make Google stop
+    // believing the field. That it must not be computed from `new Date()`
+    // is a rule no assertion can express; it lives in the constant's comment.
+    expect(TEMPLATE_REVISED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(TEMPLATE_REVISED <= new Date().toISOString().slice(0, 10)).toBe(true);
+  });
 });

@@ -140,11 +140,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     locale: loc,
   });
   const brandedTitle = buildBrandedTitle(title);
-  // Two different cards with two different shapes: the per-category pack art is
-  // square, the brand fallback is 1200×630. Declaring one fixed height for both
-  // would misreport whichever one wasn't picked.
-  const hasPackOg = PACK_OG_SLUGS.has(slug);
-  const image = hasPackOg
+  const image = PACK_OG_SLUGS.has(slug)
     ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
     : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
   const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en');
@@ -162,7 +158,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         {
           url: image,
           width: 1200,
-          height: hasPackOg ? 1200 : 630,
+          height: 630,
           alt: `${label} Pack — Eat This Berlin`,
         },
       ],

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { SITE_URL } from '@/lib/constants';
-import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: copy.title,
     description: copy.description,
-    robots: meta.noIndex ? 'noindex,follow' : 'index,follow',
+    robots: meta.noIndex ? 'noindex,follow' : INDEXABLE_ROBOTS,
     alternates,
     openGraph: {
       title: copy.title,

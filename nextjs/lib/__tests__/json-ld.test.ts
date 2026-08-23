@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { buildRestaurantJsonLd, buildSiteJsonLd, serializeJsonLd } from '../json-ld';
-import type { Restaurant } from '../types';
+import {
+  buildBezirkJsonLd,
+  buildRestaurantJsonLd,
+  buildSiteJsonLd,
+  serializeJsonLd,
+} from '../json-ld';
+import type { Restaurant, RestaurantCard } from '../types';
 
 describe('serializeJsonLd', () => {
   it('serializes a plain object to JSON string', () => {
@@ -87,6 +92,38 @@ describe('buildRestaurantJsonLd', () => {
       addressRegion: 'Berlin',
       addressCountry: 'DE',
     });
+  });
+});
+
+describe('buildBezirkJsonLd', () => {
+  const card = (over: Partial<RestaurantCard> = {}): RestaurantCard => ({
+    _id: 'r1',
+    name: 'Boii Boii',
+    slug: 'boii-boii',
+    ...over,
+  });
+
+  const listItems = (restaurants: RestaurantCard[]) => {
+    const graph = JSON.parse(
+      buildBezirkJsonLd({
+        bezirk: { name: 'Mitte', slug: 'mitte' },
+        restaurants,
+        locale: 'de',
+        districtsLabel: 'Bezirke',
+      })
+    );
+    const list = graph['@graph'].find((node: { '@type': string }) => node['@type'] === 'ItemList');
+    return list.itemListElement.map((entry: { item: Record<string, unknown> }) => entry.item);
+  };
+
+  it('gives each listed restaurant its photo so Google can attach a thumbnail', () => {
+    const [item] = listItems([card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })]);
+    expect(item.image).toBe('https://cdn.sanity.io/boii.jpg?w=800');
+  });
+
+  it('omits image when there is no publishable photo', () => {
+    const [item] = listItems([card()]);
+    expect(item).not.toHaveProperty('image');
   });
 });
 

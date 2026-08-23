@@ -21,7 +21,7 @@ import {
 import { SITE_URL } from '@/lib/constants';
 import { normalizeName } from '@/lib/normalizeName';
 import { shouldSkipDropCap } from '@/lib/dropCap';
-import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
@@ -208,7 +208,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: { absolute: title },
     description,
-    robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
+    robots: r.seo?.noIndex ? 'noindex,nofollow' : INDEXABLE_ROBOTS,
     alternates,
     openGraph: {
       title,

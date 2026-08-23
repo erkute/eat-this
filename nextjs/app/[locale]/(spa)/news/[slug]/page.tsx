@@ -5,7 +5,7 @@ import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
-import { toOgLocale } from '@/lib/seo/metadata';
+import { INDEXABLE_ROBOTS, toOgLocale } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
 import { getLocalizedNewsMetadata } from '@/lib/news-metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: { absolute: brandedTitle },
     description,
-    robots: a.seo?.noIndex ? 'noindex,nofollow' : 'index,follow',
+    robots: a.seo?.noIndex ? 'noindex,nofollow' : INDEXABLE_ROBOTS,
     alternates,
     openGraph: {
       title: brandedTitle,

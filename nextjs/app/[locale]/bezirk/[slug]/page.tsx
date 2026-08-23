@@ -11,7 +11,7 @@ import {
 } from '@/lib/sanity.server';
 import { buildBezirkJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
-import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { routing } from '@/i18n/routing';
@@ -132,7 +132,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: { absolute: brandedTitle },
     description,
-    robots: b.seo?.noIndex ? 'noindex,nofollow' : undefined,
+    robots: b.seo?.noIndex ? 'noindex,nofollow' : INDEXABLE_ROBOTS,
     alternates,
     openGraph: {
       title: brandedTitle,

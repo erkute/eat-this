@@ -102,6 +102,32 @@ describe('MapControls cascade', () => {
     }
   });
 
+  it('unfolds the locate label by geometry, never by fading it in', () => {
+    /* A brand surface appearing on the map moves — it does not materialise
+     * (CLAUDE.md). The label rides a 0fr → 1fr grid column so it also needs no
+     * measured width; swapping that for an opacity transition would both break
+     * the rule and leave a full-width dead zone next to the icon while the text
+     * is invisible. */
+    const transition = effective(CONTROLS, 'fabLabel', 'transition');
+    expect(transition, '.fabLabel has no effective transition').toBeDefined();
+    expect(
+      transition!.includes('grid-template-columns'),
+      `.fabLabel must animate its grid column. Got: ${transition}`
+    ).toBe(true);
+    expect(
+      transition!.includes('opacity'),
+      `.fabLabel must not fade — brand surfaces move. Got: ${transition}`
+    ).toBe(false);
+  });
+
+  it('drops the icon halo once the icon sits on its own plate', () => {
+    /* The drop-shadow exists so the free-standing icon survives on top of a
+     * yellow pin. On the ink pill the same filter is a white glow around a
+     * yellow crosshair. Separate class on purpose, so the halo assertion above
+     * keeps guarding the plate-less state. */
+    expect(effective(CONTROLS, 'fabIconOnPlate', 'filter')).toBe('none');
+  });
+
   it('pins the phone controls to the VISUAL viewport, not just the layout one', () => {
     /* iOS does not shrink the layout viewport when the keyboard opens — it
      * slides the visual viewport down inside it. `position: fixed` anchors to

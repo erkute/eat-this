@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { hasGeolocationPermission } from '../useUserLocation';
+import { getGeolocationPermissionState, hasGeolocationPermission } from '../useUserLocation';
 
 /**
  * The gate that keeps the map from raising the system location dialog on first
@@ -59,6 +59,43 @@ describe('hasGeolocationPermission', () => {
     stubPermissions({ query: vi.fn().mockResolvedValue({ state: 'granted' }) });
 
     await hasGeolocationPermission();
+
+    expect(getCurrentPosition).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The map's location invite needs a THIRD answer the boolean gate cannot give:
+ * "unanswered" has to be told apart from "denied", so the nudge is never shown
+ * to someone who already said no.
+ */
+describe('getGeolocationPermissionState', () => {
+  it('reports the browser state verbatim', async () => {
+    for (const state of ['granted', 'denied', 'prompt'] as const) {
+      stubPermissions({ query: vi.fn().mockResolvedValue({ state }) });
+      await expect(getGeolocationPermissionState()).resolves.toBe(state);
+    }
+  });
+
+  it("says 'unknown' — not 'prompt' — where the Permissions API is missing", async () => {
+    stubPermissions(undefined);
+    await expect(getGeolocationPermissionState()).resolves.toBe('unknown');
+  });
+
+  it("says 'unknown' when the geolocation descriptor is unsupported", async () => {
+    stubPermissions({ query: vi.fn().mockRejectedValue(new TypeError('unsupported')) });
+    await expect(getGeolocationPermissionState()).resolves.toBe('unknown');
+  });
+
+  it('never touches geolocation itself — querying must not prompt', async () => {
+    const getCurrentPosition = vi.fn();
+    Object.defineProperty(navigator, 'geolocation', {
+      value: { getCurrentPosition },
+      configurable: true,
+    });
+    stubPermissions({ query: vi.fn().mockResolvedValue({ state: 'prompt' }) });
+
+    await getGeolocationPermissionState();
 
     expect(getCurrentPosition).not.toHaveBeenCalled();
   });

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLoginModal } from '@/lib/auth';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
+import type { UserLocationError } from '@/lib/map/useUserLocation';
 import MustEatRevealOverlay from './MustEatRevealOverlay';
 import LazyMustEatImageLightbox from './LazyMustEatImageLightbox';
 import MustEatDetailMobile from './MustEatDetailMobile';
@@ -11,6 +12,10 @@ import { useMustEatDetailState } from './useMustEatDetailState';
 interface MustEatDetailProps {
   mustEat: MapMustEat;
   userLocation: UserLocation | null;
+  locationError?: UserLocationError | null;
+  /** Same request the locate FAB fires — a covered card with no fix asks for
+   *  one on tap instead of shaking at the visitor. */
+  onRequestLocation?: () => void;
   isUnlocked: boolean;
   onUnlock: () => Promise<boolean>;
   onClose: () => void;
@@ -28,6 +33,8 @@ interface MustEatDetailProps {
 export default function MustEatDetail({
   mustEat,
   userLocation,
+  locationError,
+  onRequestLocation,
   isUnlocked,
   onUnlock,
   onClose,
@@ -73,6 +80,8 @@ export default function MustEatDetail({
     isAuthed: Boolean(uid),
     onRequireLogin: handleRequireLogin,
     demo,
+    locationError,
+    onRequestLocation,
   });
   // In demo the card stays face-down until the reveal animation finishes, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.

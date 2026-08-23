@@ -220,6 +220,129 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
   });
 });
 
+/**
+ * A covered card with no position fix is the single place where the missing
+ * permission actually costs the visitor something — and it used to answer a tap
+ * with a shake and a "come within 50 m" line, which is a guess, not a fact.
+ * Asking here is also the safest place to ask: the tap is deliberate and the
+ * payoff is on screen, which is exactly what keeps the map from prompting on
+ * first paint and collecting a permanent "Don't Allow".
+ */
+describe('useMustEatDetailState — no position fix', () => {
+  beforeEach(() => {
+    vi.mocked(trackEvent).mockClear();
+  });
+
+  const noFix = (extra: Record<string, unknown> = {}) => ({
+    mustEat: mkMustEat(),
+    userLocation: null,
+    onUnlock: vi.fn().mockResolvedValue(true),
+    isAuthed: true,
+    ...extra,
+  });
+
+  it('flags the state instead of reporting a distance', () => {
+    const { result } = renderHook(() => useMustEatDetailState(noFix()));
+
+    expect(result.current.distance).toBeNull();
+    expect(result.current.needsLocation).toBe(true);
+    expect(result.current.locationDenied).toBe(false);
+    expect(result.current.canUnlock).toBe(false);
+  });
+
+  it('asks for the position on tap rather than shaking', () => {
+    const onRequestLocation = vi.fn();
+    const { result } = renderHook(() => useMustEatDetailState(noFix({ onRequestLocation })));
+
+    act(() => {
+      result.current.handleCardClick(mkEvent());
+    });
+
+    expect(onRequestLocation).toHaveBeenCalledOnce();
+    expect(result.current.tapping).toBe(false);
+    expect(result.current.revealOrigin).toBeNull();
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'location_requested', distance_meters: -1 })
+    );
+  });
+
+  it('does not re-ask a denial — the browser would not prompt anyway', () => {
+    const onRequestLocation = vi.fn();
+    const { result } = renderHook(() =>
+      useMustEatDetailState(noFix({ onRequestLocation, locationError: 'denied' }))
+    );
+
+    expect(result.current.locationDenied).toBe(true);
+
+    act(() => {
+      result.current.handleCardClick(mkEvent());
+    });
+
+    expect(onRequestLocation).not.toHaveBeenCalled();
+    expect(result.current.tapping).toBe(true);
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'location_missing' })
+    );
+  });
+
+  it('treats a transient failure as still askable', () => {
+    const onRequestLocation = vi.fn();
+    const { result } = renderHook(() =>
+      useMustEatDetailState(noFix({ onRequestLocation, locationError: 'timeout' }))
+    );
+
+    expect(result.current.locationDenied).toBe(false);
+
+    act(() => {
+      result.current.handleCardClick(mkEvent());
+    });
+
+    expect(onRequestLocation).toHaveBeenCalledOnce();
+  });
+
+  it('leaves demo mode alone — it is tappable by design, fix or not', () => {
+    const onRequestLocation = vi.fn();
+    const { result } = renderHook(() =>
+      useMustEatDetailState(noFix({ onRequestLocation, demo: true }))
+    );
+
+    expect(result.current.needsLocation).toBe(false);
+
+    act(() => {
+      result.current.handleCardClick(mkEvent());
+    });
+
+    expect(onRequestLocation).not.toHaveBeenCalled();
+    expect(result.current.revealOrigin).toBe(fakeRect);
+  });
+
+  it('hands a granted position straight back to the unlock path', () => {
+    const onUnlock = vi.fn().mockResolvedValue(true);
+    const { result, rerender } = renderHook(
+      (props: { userLocation: { lat: number; lng: number } | null }) =>
+        useMustEatDetailState({
+          mustEat: mkMustEat(),
+          userLocation: props.userLocation,
+          onUnlock,
+          isAuthed: true,
+          onRequestLocation: vi.fn(),
+        }),
+      { initialProps: { userLocation: null as { lat: number; lng: number } | null } }
+    );
+
+    expect(result.current.canUnlock).toBe(false);
+
+    // What the grant does: the map's shared location lands and the same card
+    // becomes revealable — the second tap is a real unlock, not another ask.
+    rerender({ userLocation: { lat: 52.52, lng: 13.405 } });
+
+    expect(result.current.needsLocation).toBe(false);
+    expect(result.current.canUnlock).toBe(true);
+  });
+});
+
 describe('useMustEatDetailState — lazy zoom lifecycle', () => {
   it('does not start a zoom without a hydrated image', () => {
     const { result } = renderHook(() =>

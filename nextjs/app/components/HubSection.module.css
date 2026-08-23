@@ -207,29 +207,44 @@
   border-radius: var(--et-radius-photo);
 }
 
-/* ── today: the day's pick + what's around you, side by side ── */
-.todayGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
-  gap: clamp(28px, 3vw, 48px);
-  align-items: start;
-}
-
+/* ── today: the day's pick as the lead, then what's around you ── */
 .spot {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  border-radius: var(--et-radius-photo);
-  overflow: hidden;
-  background: var(--et-home-quiet);
+  display: block;
+  /* Binds the second movement to the first: clearly tighter than the gap to
+     the next section (--home-section-gap), clearly wider than anything inside
+     either movement. */
+  margin-bottom: clamp(48px, 5vw, 70px);
 }
 
-.spot .spotPhoto {
+.page .spotHead:global(.hv-head) {
+  margin-bottom: clamp(20px, 2.2vw, 30px);
+}
+
+.spotCard {
+  display: grid;
+  /* Photo leads, text follows at a little under half — a 50/50 split left the
+     four-line description swimming in its column. */
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(24px, 3.2vw, 52px);
+  align-items: center;
+  color: var(--home-ink);
+  text-decoration: none;
+}
+
+/* A candidate without an image would otherwise park an empty grey 16/10 box
+   next to the text. */
+.spotCardTextOnly {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.spotCard .spotPhoto {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 0;
+  /* Wider than the 4/3 the card used, so the lead reads as an opener rather
+     than an oversized version of the four cards below it — and flat enough
+     that the block does not push the signup much further down the page. */
+  aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
@@ -242,83 +257,93 @@
   transition: transform 260ms ease;
 }
 
-.spotPhoto:hover .spotImage,
-.spotPhoto:focus-visible .spotImage {
+.spotCard:hover .spotImage,
+.spotCard:focus-visible .spotImage {
   transform: scale(1.03);
 }
 
-.spotPhoto::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 55%;
-  background: var(--et-home-photo-overlay);
-  pointer-events: none;
+.spotCard:focus-visible {
+  outline: 3px solid var(--et-home-red);
+  outline-offset: 8px;
+  border-radius: var(--et-radius-photo);
 }
 
-.spotTag {
-  position: absolute;
-  left: clamp(16px, 2.2vw, 28px);
-  bottom: clamp(14px, 2vw, 24px);
-  z-index: 1;
+.spotBody {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* The name is set at 26-38px on a 0.95 leading, so a flat 8px put the chip
-     right on its cap-height. */
-  gap: clamp(12px, 1.4vw, 16px);
-  color: var(--et-home-inverse-text);
-  text-shadow: var(--et-shadow-text-photo);
+  min-width: 0;
 }
 
-.spotLabel {
-  display: inline-flex;
-  padding: 5px 9px 6px;
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
-  border-radius: var(--et-radius-control);
+/* The district is the quiet line above the name, not a spaced-out micro-label
+   — at 10px with 0.16em tracking it read as a system tag. */
+.page .spotBody .spotKicker:global(.hv-kicker) {
   font-family: var(--font-providence);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 700;
+  font-size: clamp(15px, 1.3vw, 19px);
   letter-spacing: 0;
-  line-height: 0.9;
-  text-shadow: none;
-}
-
-.spotTag strong {
-  font-family: var(--font-providence);
-  font-weight: 700;
-  font-size: clamp(26px, 2.6vw, 38px);
-  line-height: 0.95;
-}
-
-.page .spotTag :global(.hv-kicker) {
-  color: var(--et-home-inverse-text);
-  font-family: var(--font-providence);
-  font-size: clamp(15px, 1.4vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.95;
+  line-height: 1;
   text-transform: none;
+  color: var(--home-muted);
+}
+
+.spotName {
+  margin-top: clamp(9px, 1.1vw, 14px);
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: clamp(32px, 3.1vw, 48px);
+  letter-spacing: -0.015em;
+  line-height: 0.95;
+  /* Same rule the restaurant hero needed: `anywhere`, not `break-word` — only
+     `anywhere` counts towards min-content, so "Nationalgalerie" at 48px cannot
+     push the text column past its grid track. No `hyphens: auto`; it split
+     "Five Elephant Schwedter" in the wrong places. */
+  overflow-wrap: anywhere;
 }
 
 .spotSub {
-  max-width: 40ch;
-  margin: 0;
-  padding: clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 24px) clamp(16px, 1.8vw, 22px);
+  max-width: 34ch;
+  margin-top: clamp(12px, 1.3vw, 18px);
   color: var(--home-ink);
   font-family: var(--font-providence);
-  font-size: clamp(16px, 1.25vw, 19px);
+  font-size: clamp(17px, 1.35vw, 21px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.22;
+  line-height: 1.2;
+}
+
+/* Not a second dark button under the hero's — a text link on the page's own
+   yellow rule, the same move the 404 uses. */
+.spotCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(18px, 2vw, 28px);
+  padding-bottom: 3px;
+  box-shadow: inset 0 -4px 0 var(--et-home-accent);
+  font-family: var(--font-providence);
+  font-size: clamp(15px, 1.25vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.spotCta::after {
+  content: '→';
+  font-size: 0.85em;
+  transition: transform 160ms ease;
+}
+
+.spotCard:hover .spotCta::after,
+.spotCard:focus-visible .spotCta::after {
+  transform: translateX(4px);
 }
 
 @media (max-width: 920px) {
   /* Stacked, every block is the full column width, so the only thing telling a
      visitor where one section ends and the next begins is the space between
-     them. It has to be clearly more than any gap inside a section — see
-     .todayGrid below, which is the tightest of them. */
+     them. It has to be clearly more than any gap inside a section — the
+     tightest of those is .spot's margin-bottom, at 48-70px. */
   .page {
     --home-section-gap: 104px;
   }
@@ -348,15 +373,16 @@
     align-items: flex-start;
   }
 
-  .todayGrid {
+  .spotCard {
     grid-template-columns: 1fr;
-    /* Side by side these are one answer to "what do I eat now". Stacked they
-       read as two blocks — the second one opens with its own heading — and at
-       34px that heading sat almost on the spot card. */
-    gap: clamp(56px, 9vw, 68px);
+    gap: clamp(16px, 4vw, 22px);
   }
 
-  .spot .spotPhoto {
-    aspect-ratio: 5 / 4;
+  .spotCard .spotPhoto {
+    aspect-ratio: 4 / 3;
+  }
+
+  .spotSub {
+    max-width: none;
   }
 }

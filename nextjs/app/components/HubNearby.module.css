@@ -5,9 +5,17 @@
   align-items: center;
 }
 
-/* Embedded in the home's "today" grid: the parent section owns the spacing. */
+/* Second movement of the home's "today" section: no chrome, no margin of its
+   own — the day's pick above it owns the gap. */
 .embedded {
   min-width: 0;
+}
+
+/* One step under the red "Spot des Tages" that opens the section, so the two
+   read as one block with a lead and a follow-up rather than as two sections
+   that happen to touch. */
+:global(.homeV2) .titleEmbedded:global(.hv-title) {
+  font-size: clamp(24px, 2.4vw, 31px);
 }
 
 /* Some spots carry their tagline in the name field ("der Weinlobbyist -
@@ -286,21 +294,6 @@
   .card {
     min-width: 0;
     flex: none;
-  }
-}
-
-/* Inside the home's two-column "today" block the rail only has half the page,
-   so four across would be 122px thumbnails. Two-by-two instead. Must come
-   after the four-column rule and carry both classes to beat it. */
-@media (min-width: 921px) {
-  :global(.homeV2) :global(.hv-rail).rail.railEmbedded {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(12px, 1.2vw, 18px);
-  }
-
-  .railEmbedded .card {
-    flex: none;
-    width: auto;
   }
 }
 

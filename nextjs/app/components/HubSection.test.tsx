@@ -93,15 +93,25 @@ describe('HubSection home', () => {
     expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
   });
 
-  it('pairs the day\'s pick with the nearby block in one section', () => {
+  it("leads the day's pick with a heading of its own, above the nearby block", () => {
     const html = renderHome();
-    // Two stacked half-empty sections on desktop became one two-column block.
-    const section = html.split('aria-label="Heute essen"')[1] ?? '';
-    const upToNextSection = section.split('<section')[0];
-    expect(upToNextSection).toContain('Spot des Tages');
-    expect(upToNextSection).toContain('Gazzo');
-    // The HubNearby mock returns a string, so it lands HTML-escaped.
-    expect(upToNextSection).toContain('nearby');
+    // The pick used to be an unlabelled photo in the left half of a row, with
+    // the only heading in the block sitting over the nearby cards beside it.
+    const head = html.indexOf('Spot des Tages');
+    expect(html.slice(head - 120, head)).toContain('hv-title');
+    // Same section, in this order: heading, the pick, then what's around you.
+    // (The HubNearby mock returns a string, so it lands HTML-escaped.)
+    expect(head).toBeLessThan(html.indexOf('Gazzo'));
+    expect(html.indexOf('Gazzo')).toBeLessThan(html.indexOf('nearby'));
+    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('data-hub-starter'));
+  });
+
+  it('keeps the pick\'s name off the photo, where a bright image swallows it', () => {
+    const html = renderHome();
+    const photo = html.indexOf('hv-photo');
+    const name = html.indexOf('Gazzo');
+    // Name after the closing </span> of the photo box, not inside it.
+    expect(html.slice(photo, name)).toContain('</span>');
   });
 
   it("renders the spot's description, which used to be fetched and dropped", () => {
@@ -131,8 +141,10 @@ describe('HubSection home', () => {
     expect(html).toContain('homeV2');
   });
 
-  it('renders spot of day name in the hero photo tag', () => {
+  it('renders the spot of the day', () => {
     const html = renderHome();
     expect(html).toContain('Gazzo');
+    expect(html).toContain('Prenzlberg');
+    expect(html).toContain('Auf der Map ansehen');
   });
 });

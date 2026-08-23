@@ -166,7 +166,14 @@ export interface BezirkDoc {
   restaurantCount?: number;
   exampleRestaurants?: Pick<
     RestaurantCard,
-    '_id' | 'name' | 'slug' | 'cuisineType' | 'shortDescription' | 'shortDescriptionEn' | 'photo'
+    | '_id'
+    | 'name'
+    | 'slug'
+    | 'cuisineType'
+    | 'priceRange'
+    | 'shortDescription'
+    | 'shortDescriptionEn'
+    | 'photo'
   >[];
   /**
    * Curated best-of, in editorial order (`bezirk.topSpots` in the Studio).
@@ -174,7 +181,10 @@ export interface BezirkDoc {
    * lead with them; `bezirkBySlugQuery` projects only the slugs, because the
    * detail page already loads every restaurant of the district.
    */
-  topSpotCards?: (Pick<RestaurantCard, '_id' | 'name' | 'slug' | 'cuisineType' | 'photo'> & {
+  topSpotCards?: (Pick<
+    RestaurantCard,
+    '_id' | 'name' | 'slug' | 'cuisineType' | 'priceRange' | 'photo'
+  > & {
     isOpen?: boolean;
   })[];
   topSpots?: string[];

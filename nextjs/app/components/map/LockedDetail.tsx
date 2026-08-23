@@ -222,10 +222,7 @@ export default function LockedDetail({
                   {categoryPack.spectrum[de ? 'de' : 'en']}
                 </span>
                 <span className={lockedStyles.offerCta}>
-                  <span>
-                    {de ? `${categoryPack.displayName} holen` : `Get ${categoryPack.displayName}`}
-                  </span>
-                  <OfferArrow />
+                  {de ? `${categoryPack.displayName} holen` : `Get ${categoryPack.displayName}`}
                 </span>
               </span>
             </a>
@@ -262,33 +259,13 @@ export default function LockedDetail({
                 <span className={lockedStyles.offerSpectrum}>
                   {allBerlin.spectrum[de ? 'de' : 'en']}
                 </span>
-                <span className={lockedStyles.offerCta}>
-                  <span>{t('map.listEndCta')}</span>
-                  <OfferArrow />
-                </span>
+                <span className={lockedStyles.offerCta}>{t('map.listEndCta')}</span>
               </span>
             </a>
           )}
         </div>
       </div>
     </div>
-  );
-}
-
-/** Same arrow the end-of-list offer uses — one motion, one shape. */
-function OfferArrow() {
-  return (
-    <svg
-      viewBox="0 0 14 10"
-      width="15"
-      height="11"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden="true"
-    >
-      <path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }
 

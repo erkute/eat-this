@@ -437,18 +437,57 @@
    pack's full 132px of stacked height. */
 @media (min-width: 1024px) {
   /* 1280x900 and 1440x900 are the two most common desktop windows there are,
-     and the sheet lands 6px over at exactly 900. The scroll port already adds
-     20px of its own padding below this, so taking it from here costs nothing
-     visible and buys the whole panel on those screens. */
+     and both branches land a handful of pixels over at exactly 900. The scroll
+     port already adds 20px of its own padding below this, so taking it from
+     here costs nothing visible and buys the whole panel on those screens. */
   .body {
-    padding-bottom: 20px;
+    padding-bottom: 18px;
+  }
+
+  /* Kleinere Pack-Bilder, damit auch der Pack-Zweig ins Panel passt (User,
+     2026-08-23). Nur hier: auf dem Telefon zieht man die Sheet einfach weiter
+     auf, auf dem Desktop ist die Panelhöhe fest. Die Zeilenkarte wurde von der
+     Höhe ihres Packs getrieben, die Fächerkarte von einem 96px-Mindestmaß für
+     den Fächer — beide geben nach, ohne dass eine Karte ihre Form verliert.
+     56px war zu klein (User, 2026-08-23): das Einzelpack las sich als Icon,
+     die Illustration auf der Tüte war weg. Auf 72px bleibt es ein Produkt-
+     bild; die fehlenden Pixel kommen dünn verteilt aus Fächer, Innenabständen
+     und einem halben Zeilenschritt beim Anriss, damit keine Stelle allein
+     sichtbar dafür bezahlt. */
+  .offerPack {
+    width: 74px;
+  }
+
+  .offerFan .offerPack {
+    width: 50px;
+  }
+
+  .offerFan .offerPack + .offerPack {
+    margin-left: -25px;
+  }
+
+  .offerArt {
+    min-height: 75px;
+  }
+
+  .offer {
+    gap: 6px;
+    padding: 9px 12px;
+  }
+
+  .offerRow .offerArt {
+    min-height: 0;
+  }
+
+  .body {
+    gap: 6px;
   }
 
   .excerpt {
     /* Shorter here, because the offer under it still has to stand in the panel
-       without scrolling. Four lines is enough to read as an article in
-       progress; the mask does the rest of the work. */
-    max-height: 84px;
+       without scrolling. The mask does most of the work anyway — where exactly
+       it cuts within a line is not something a reader can name. */
+    max-height: 70px;
   }
 
   .starter {
@@ -501,7 +540,6 @@
   align-items: center;
   justify-content: center;
   justify-self: center;
-  gap: 9px;
   min-height: 42px;
   margin-top: 8px;
   padding: 12px 18px 11px;
@@ -526,4 +564,21 @@
    a card whose left half is a pack. */
 .offerRow .offerCta {
   justify-self: start;
+}
+
+/* Die Pille darf kleiner sein als das Produkt, das sie verkauft (User,
+   2026-08-23). Sie behält ihre 44px-Trefferfläche über das Padding der Karte,
+   die als Ganzes der Link ist — die Pille ist die Beschriftung dieses Links,
+   nicht der einzige Weg hinein.
+   Steht bewusst hier unten und nicht im großen Desktop-Block weiter oben: die
+   Basis-Regel für .offerCta kommt in dieser Datei danach, und bei gleicher
+   Spezifität entscheidet die Reihenfolge — dort oben blieb die Pille stur bei
+   ihren 42px. */
+@media (min-width: 1024px) {
+  .offerCta {
+    min-height: 34px;
+    margin-top: 6px;
+    padding: 9px 15px 8px;
+    font-size: 12px;
+  }
 }

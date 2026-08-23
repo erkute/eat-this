@@ -77,6 +77,11 @@ export function buildBezirkJsonLd({
               '@type': 'Restaurant',
               name: r.name,
               url: localeUrl(locale, `/restaurant/${r.slug}`),
+              // `photo` is already gated on a publishable licence (see
+              // publishableRestaurantImageUrl) — undefined means we may not
+              // show it, so the spread drops the key rather than emitting a
+              // URL we have no right to hand Google.
+              ...(r.photo && { image: r.photo }),
               ...(r.cuisineType && { servesCuisine: r.cuisineType }),
               ...(priceLabel && { priceRange: priceLabel }),
             },

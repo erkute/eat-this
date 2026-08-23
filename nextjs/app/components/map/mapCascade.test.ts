@@ -302,22 +302,23 @@ describe('MapDetails cascade', () => {
 });
 
 describe('MapFilters cascade', () => {
-  it('renders long chip labels smaller than normal ones', () => {
-    /* The chip rail is a 4-up grid; at the base 12px a few district names do
-     * not fit on one line no matter how wrapping is configured
-     * ("Charlottenburg" needs 88px in a 68px slot), so `.filterChipLabelLong`
-     * exists to shrink them.
+  it('lets an active chip keep full-size type on one line', () => {
+    /* The chip rail used to be four equal tracks, so an active chip holding a
+     * value ("Prenzlauer Berg") got the same quarter as one holding a word
+     * ("Bezirk"). `.filterChipLabelLong` existed to shrink what did not fit —
+     * and spent a long while doing nothing, because two media-scoped attempts
+     * (`clamp(8.8px, 2.55vw, 10px)` and `clamp(7.5px, 2.35vw, 9px)`) both lost
+     * to a later media-less `font-size: 12px` shared with the plain label.
      *
-     * It spent a while doing nothing. Two separate attempts —
-     * `clamp(8.8px, 2.55vw, 10px)` and `clamp(7.5px, 2.35vw, 9px)`, both
-     * media-scoped — were overridden by a later media-less `font-size: 12px`
-     * shared with the plain label, so long labels computed IDENTICALLY to
-     * short ones and the names broke mid-word instead. Same trap as the
-     * transition shorthand and the icon halo above: the losing declaration
-     * looks perfectly reasonable where it sits.
+     * Once it finally landed at 9px the result was worse, not better: the
+     * value wrapped to two lines, rendered a quarter smaller than its
+     * neighbours, and still passed under the clear dot. The fix was to let an
+     * active chip size to its content instead — which only works while the
+     * label stays on ONE line at the SAME size as the plain one.
      *
-     * Pin the relationship, not the number — any value is fine as long as long
-     * labels actually end up smaller.
+     * So the relationship to pin is now equality, not "smaller". A reinstated
+     * shrink, or a `white-space` that allows wrapping, puts the two-line chip
+     * straight back.
      */
     const long = effective(FILTERS, 'filterChipLabelLong', 'font-size');
     const plain = effective(FILTERS, 'filterChipLabel', 'font-size');
@@ -326,23 +327,34 @@ describe('MapFilters cascade', () => {
     expect(plain, '.filterChipLabel has no effective font-size').toBeDefined();
     expect(
       long,
-      '.filterChipLabelLong resolves to `inherit` — it is not shrinking anything'
-    ).not.toBe('inherit');
+      'long labels are shrunk again — the chip grows now, so the type must not'
+    ).toBe(plain);
 
-    const px = (value: string) => {
-      const match = /^(-?[\d.]+)px$/.exec(value.trim());
-      return match ? Number(match[1]) : Number.NaN;
-    };
-    const longPx = px(long!);
-    const plainPx = px(plain!);
     expect(
-      Number.isFinite(longPx) && Number.isFinite(plainPx),
-      `expected both to resolve to plain px, got long="${long}" plain="${plain}"`
-    ).toBe(true);
+      effective(FILTERS, 'filterChipActive', 'white-space'),
+      'an active chip label must stay on one line — wrapping is what produced "Prenzlaue|r / Berg"'
+    ).toBe('nowrap');
+  });
+
+  it('keeps the desktop filter popover scrollable', () => {
+    /* The desktop popover caps its own height (`max-height: calc(100vh -
+     * anchor-top - 16px)`) but shipped the list inside it with `max-height:
+     * none; overflow: visible` — and the sheet does not clip either. The rows
+     * therefore ran straight past the panel edge: on a 722px viewport the last
+     * five entries of the cuisine picker rendered ~200px below the fold,
+     * `scrollTop` pinned at 0, unreachable by any means.
+     *
+     * A shorthand `overflow` anywhere in the desktop block resets `overflow-y`
+     * along with it, so both are pinned.
+     */
     expect(
-      longPx,
-      `long labels must be smaller than normal ones — both computed to ${plain}`
-    ).toBeLessThan(plainPx);
+      effective(FILTERS, 'pickerList', 'overflow-y', 'min-width: 1024px'),
+      'the desktop picker list must scroll — its rows overflow the capped sheet'
+    ).toBe('auto');
+    expect(
+      effective(FILTERS, 'pickerList', 'overflow', 'min-width: 1024px'),
+      'an `overflow` shorthand here silently undoes the scroll'
+    ).not.toBe('visible');
   });
 
   it('never breaks a chip label mid-word', () => {

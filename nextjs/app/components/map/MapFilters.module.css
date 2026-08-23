@@ -544,16 +544,6 @@
     touch-action: pan-x pan-y;
   }
 }
-@media (max-width: 1023.98px) {
-  .filterChipWrap:has(.filterChipActive),
-  .filterChipWrap:has(.filterChipOpenActive),
-  .filterChipRow > .filterChipActive,
-  .filterChipRow > .filterChipOpenActive {
-    flex-grow: 0;
-    flex-basis: auto;
-    width: auto;
-  }
-}
 .filterChipRow {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -818,10 +808,18 @@
     max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px);
   }
 
+  /* The sheet's max-height above is the real cap; the list takes whatever is
+     left of it and scrolls past that. `max-height: none` alone was fine, but
+     it shipped with `overflow: visible`, and the sheet does not clip either —
+     so the rows simply kept going past the panel edge. On a 722px-tall
+     viewport the last five cuisines rendered ~200px BELOW the fold with no
+     way to reach them: not scrollable, not clipped, just gone. `min-height:
+     0` (declared earlier) is what lets the list shrink into the capped sheet
+     instead of pushing it open. */
   .pickerList {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-height: none;
-    overflow: visible;
+    overflow-y: auto;
   }
 }
 .filterChipRow .filterChipOpenActive,
@@ -1028,4 +1026,128 @@
 .filterChipRow .filterChipLabelLong {
   font-size: 9px;
   line-height: 12px;
+}
+
+/* ── Active chips size to their value ────────────────────────────────────────
+   An inactive chip holds a fixed word ("Bezirk"); an active one holds whatever
+   the user picked, and the equal-track rule above handed it the same quarter
+   of the rail either way. "Prenzlauer Berg" then wrapped to two lines, shrank
+   to 9px and still ran under the clear dot.
+
+   Growing to content is what the earlier `flex-grow: 0` rule wanted — it just
+   lost to the equal-track block further down, which re-applied `flex: 1 1 0`
+   to the same `:has()` selectors at equal specificity. Hence: declared last,
+   and scoped through `.filterChipRow` so it outranks that block outright.
+
+   The inactive chips keep a floor at the 44px tap target — the same number
+   their `min-height` already uses. Without one, a long value eats the whole
+   row and its neighbours collapse to their own padding. Above it the value
+   wins: two long values on a 360px phone ellipsise "Kategorie" and "Geöffnet"
+   rather than the district and cuisine the user actually picked. */
+.filterChipRow .filterChipWrap:has(.filterChipActive),
+.filterChipRow .filterChipWrap:has(.filterChipOpenActive),
+.filterChipRow > .filterChipActive,
+.filterChipRow > .filterChipOpenActive {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.filterChipRow .filterChipWrap:not(:has(.filterChipActive)):not(:has(.filterChipOpenActive)),
+/* The "Geöffnet" toggle is a bare button in the row, not wrapped like the
+   three pickers — and the equal-track block above reaches it through
+   `.filterChipRow.filterChipRow > button.filterChip.filterChip`, whose type
+   selector outranks a plain four-class one. Same shape here, or the floor
+   applies to the pickers and this one alone shrinks to "Geö…". */
+.filterChipRow.filterChipRow
+  > button.filterChip.filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
+  flex: 1 1 0;
+  min-width: 44px;
+}
+
+/* One line, at the same size as the inactive chips: the chip widens now
+   instead of the type shrinking, so the 9px long-label floor above no longer
+   has a job. Ellipsis stays as the fallback for several long values at once. */
+.filterChipRow .filterChipActive .filterChipLabel,
+.filterChipRow .filterChipActive .filterChipLabelLong,
+.filterChipRow .filterChipOpenActive .filterChipLabel,
+.filterChipRow .filterChipOpenActive .filterChipLabelLong {
+  width: 100%;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  hyphens: none;
+}
+
+/* Room for the clear dot. Reserving space used to only force an earlier line
+   break (see the note above) because the chip could not get any wider — now it
+   grows by the same 20px instead, so the label clears the dot rather than
+   passing under it. Symmetric, so the label stays centred. */
+.filterChipRow .filterChipActive {
+  padding-inline: 20px;
+}
+
+/* ── Chips paused by an active search ────────────────────────────────────────
+   A non-empty query short-circuits every chip in useMapFilters — category,
+   bezirk, cuisine and open-now are all skipped. The chips kept their accent
+   fill through that, so the rail claimed "Pizza · Neukölln" while the list
+   answered the query from Steglitz and Schöneberg.
+
+   They drop back to the inactive ink fill, keep an accent OUTLINE so the ones
+   holding a value are still findable (and still clearable), and the row says
+   why. Not disabled: picking a filter mid-search is a legitimate thing to set
+   up for the moment the query is cleared. */
+.filterChipRow.filterChipRowPaused .filterChipActive,
+.filterChipRow.filterChipRowPaused .filterChipActive:hover,
+.filterChipRow.filterChipRowPaused .filterChipActive:focus-visible,
+.filterChipRow.filterChipRowPaused .filterChipOpenActive,
+.filterChipRow.filterChipRowPaused .filterChip[aria-pressed='true'] {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 1px solid var(--et-home-accent, #ffc600);
+}
+
+.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabel,
+.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabelLong,
+.filterChipRow.filterChipRowPaused .filterChipOpenActive .filterChipLabel {
+  color: inherit;
+}
+
+.filterChipPausedNote {
+  margin: 0;
+  padding: 0 14px 10px;
+  color: var(--et-home-ink, #15120e);
+  opacity: 0.62;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .filterChipPausedNote {
+    padding-inline: 12px;
+  }
+}
+
+/* ── Rows that would return nothing ──────────────────────────────────────────
+   Both pickers list the whole catalogue, so a Bezirk holding five spots still
+   offers every cuisine — most of them dead ends. The count next to each row is
+   the answer; this dims the zeroes so they read as spent before they are
+   tapped. Still clickable: from a zero row the way out is usually to clear a
+   different chip, and a disabled control cannot say that. */
+.pickerItemEmpty {
+  opacity: 0.42;
+}
+
+.pickerItemEmpty .pickerItemSub {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .pickerItemEmpty:hover {
+    opacity: 0.72;
+  }
 }

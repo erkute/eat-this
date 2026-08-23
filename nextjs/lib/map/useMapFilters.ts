@@ -20,6 +20,41 @@ function includesQuery(value: string | null | undefined, q: string): boolean {
   return Boolean(value?.toLowerCase().includes(q));
 }
 
+/** The three pickable filters plus the open-now toggle — everything the chip
+ *  rail holds. The search box is deliberately not part of it: a query replaces
+ *  this whole predicate rather than narrowing it. */
+export interface MapChipState {
+  category: MapCategory;
+  bezirk: string | null;
+  cuisine: string | null;
+  openOnly: boolean;
+}
+
+/** A picker dimension, i.e. a chip whose value is chosen from a list. */
+export type FilterDimension = 'category' | 'bezirk' | 'cuisine';
+
+/** How many spots each picker row would yield. `byValue` is keyed by the same
+ *  value the picker passes back (category slug, district name, raw cuisine);
+ *  `withoutDimension` is the "Alle …" reset row for that picker. */
+export interface MapOptionCounts {
+  byValue: Record<FilterDimension, Map<string, number>>;
+  withoutDimension: Record<FilterDimension, number>;
+}
+
+/** Pulled out of `filterRestaurant` so the same rules can answer a
+ *  hypothetical — "how many spots if the Bezirk were Neukölln instead" — which
+ *  is what puts a count on every picker row. */
+function matchesChips(r: MapRestaurant, s: MapChipState): boolean {
+  if (s.category !== 'All' && !r.categories?.some((c) => c.slug === s.category)) return false;
+  if (s.bezirk && districtOf(r) !== s.bezirk) return false;
+  if (s.cuisine && r.cuisineType !== s.cuisine) return false;
+  if (s.openOnly) {
+    if (!r.openingHours) return false;
+    if (!getOpenStatus(r.openingHours).isOpen) return false;
+  }
+  return true;
+}
+
 export function useMapFilters({
   restaurants,
   lockedRestaurants = [],
@@ -32,30 +67,15 @@ export function useMapFilters({
   const [cuisine, setCuisine] = useState<string | null>(null);
   const [openOnly, setOpenOnly] = useState(false);
 
-  // Bezirk centroid index — used by handleBezirkChange to flyTo the
-  // selected district's center.
-  const { bezirkNames, bezirkCenters } = useMemo(() => {
-    const groups = new Map<string, { lat: number; lng: number; count: number }>();
+  // Distinct district names across the visible set — populates the Bezirk
+  // picker. Sorted alphabetically (German collation).
+  const bezirkNames = useMemo(() => {
+    const set = new Set<string>();
     for (const r of restaurants) {
       const d = districtOf(r);
-      if (!d) continue;
-      const g = groups.get(d);
-      if (g) {
-        g.lat += r.lat;
-        g.lng += r.lng;
-        g.count += 1;
-      } else {
-        groups.set(d, { lat: r.lat, lng: r.lng, count: 1 });
-      }
+      if (d) set.add(d);
     }
-    const names: string[] = [];
-    const centers = new Map<string, { lat: number; lng: number }>();
-    for (const [name, g] of groups) {
-      names.push(name);
-      centers.set(name, { lat: g.lat / g.count, lng: g.lng / g.count });
-    }
-    names.sort((a, b) => a.localeCompare(b, 'de'));
-    return { bezirkNames: names, bezirkCenters: centers };
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'));
   }, [restaurants]);
 
   // Distinct cuisine values across the visible set — used to populate the
@@ -99,17 +119,56 @@ export function useMapFilters({
           );
         return Boolean(hit);
       }
-      if (category !== 'All' && !r.categories?.some((c) => c.slug === category)) return false;
-      if (bezirk && districtOf(r) !== bezirk) return false;
-      if (cuisine && r.cuisineType !== cuisine) return false;
-      if (openOnly) {
-        if (!r.openingHours) return false;
-        if (!getOpenStatus(r.openingHours).isOpen) return false;
-      }
-      return true;
+      return matchesChips(r, { category, bezirk, cuisine, openOnly });
     },
     [category, bezirk, cuisine, openOnly, search, dishIndexByRestaurantId]
   );
+
+  /* What every picker row would actually yield, counted against the OTHER
+     chips. Both lists are built from the whole catalogue, so a Bezirk with
+     five spots still offered all 23 cuisines and eighteen of them were
+     guaranteed zeroes with nothing saying so — you found out by tapping and
+     landing on "Keine Spots".
+     
+     Counted over the free set only: that is the set the list renders for a
+     chip filter, so it is what the number has to predict. Search is left out
+     on purpose — a query overrides the chips (see above), and these counts
+     describe what the chips give once it is cleared. */
+  const optionCounts = useMemo<MapOptionCounts>(() => {
+    const byValue: Record<FilterDimension, Map<string, number>> = {
+      category: new Map(),
+      bezirk: new Map(),
+      cuisine: new Map(),
+    };
+    const withoutDimension: Record<FilterDimension, number> = {
+      category: 0,
+      bezirk: 0,
+      cuisine: 0,
+    };
+    const bump = (into: Map<string, number>, key: string) =>
+      into.set(key, (into.get(key) ?? 0) + 1);
+
+    const base = { category, bezirk, cuisine, openOnly };
+    for (const r of restaurants) {
+      // Each dimension is counted with its own chip lifted — otherwise every
+      // row but the active one reads 0.
+      if (matchesChips(r, { ...base, category: 'All' })) {
+        withoutDimension.category += 1;
+        for (const c of r.categories ?? []) if (c.slug) bump(byValue.category, c.slug);
+      }
+      if (matchesChips(r, { ...base, bezirk: null })) {
+        withoutDimension.bezirk += 1;
+        const d = districtOf(r);
+        if (d) bump(byValue.bezirk, d);
+      }
+      if (matchesChips(r, { ...base, cuisine: null })) {
+        withoutDimension.cuisine += 1;
+        const c = r.cuisineType?.trim();
+        if (c) bump(byValue.cuisine, c);
+      }
+    }
+    return { byValue, withoutDimension };
+  }, [restaurants, category, bezirk, cuisine, openOnly]);
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant);
@@ -144,8 +203,8 @@ export function useMapFilters({
     openOnly,
     setOpenOnly,
     bezirkNames,
-    bezirkCenters,
     cuisineNames,
+    optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,
     lockedMatchCount,

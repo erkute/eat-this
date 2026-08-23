@@ -5,7 +5,7 @@ import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
-import type { SheetView, SheetSnap, UserLocation, UserTier } from '@/lib/map';
+import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
   getLocatingCopy,
@@ -111,6 +111,7 @@ interface MapBodyFilterState {
   cuisine: string | null;
   setCuisine: (c: string | null) => void;
   cuisineNames: string[];
+  optionCounts: MapOptionCounts;
   openOnly: boolean;
   setOpenOnly: (v: boolean) => void;
 }
@@ -197,6 +198,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     cuisine,
     setCuisine,
     cuisineNames,
+    optionCounts,
     openOnly,
     setOpenOnly,
     searchOpen,
@@ -713,6 +715,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   cuisineNames={cuisineNames}
                   cuisine={cuisine}
                   onCuisine={setCuisine}
+                  optionCounts={optionCounts}
+                  searchActive={Boolean(search.trim())}
                 />
                 <div ref={setContentRef} className={sheetStyles.listScroll}>
                   <RestaurantList

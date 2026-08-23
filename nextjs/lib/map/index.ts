@@ -29,6 +29,7 @@ export { useUnlockedMustEats } from './useUnlockedMustEats';
 
 // List/filter logic
 export { useMapFilters } from './useMapFilters';
+export type { MapOptionCounts, FilterDimension } from './useMapFilters';
 export { useMapFilterUrl } from './useMapFilterUrl';
 
 // Bottom-sheet state machine

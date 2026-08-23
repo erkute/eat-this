@@ -11,7 +11,8 @@ import { pickLocale } from '@/lib/i18n/pickLocale';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
-import { serializeJsonLd } from '@/lib/json-ld';
+import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
+import { schemaImageUrl } from '@/lib/sanity-image-presets';
 import { localeUrl } from '@/lib/locale-url';
 import { routing } from '@/i18n/routing';
 import styles from './GuidePage.module.css';
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: alternates.canonical,
       type: 'website',
       locale: toOgLocale(loc),
-      images: [{ url: image, width: 1200, height: 1200, alt: title }],
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -75,6 +76,14 @@ export default async function GuidePage({ params }: PageProps) {
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
+      // Der Hero trägt die Pack-Illustration — Markenkunst, `aria-hidden`,
+      // als Thumbnail wertlos. Leitbild ist deshalb das erste gelistete Foto.
+      ...buildWebPageNodes({
+        pageUrl: localeUrl(loc, `/guides/${slug}`),
+        locale: loc,
+        image: schemaImageUrl(listedRestaurants.find((r) => r.photo)?.photo),
+        caption: guide.title[loc],
+      }),
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
@@ -110,7 +119,7 @@ export default async function GuidePage({ params }: PageProps) {
             name: restaurant.name,
             url: localeUrl(loc, `/restaurant/${restaurant.slug}`),
             // Licence-gated like the bezirk list — see lib/json-ld/bezirk.ts.
-            ...(restaurant.photo && { image: restaurant.photo }),
+            ...(restaurant.photo && { image: schemaImageUrl(restaurant.photo) }),
             ...(restaurant.cuisineType && { servesCuisine: restaurant.cuisineType }),
           },
         })),
@@ -166,6 +175,9 @@ export default async function GuidePage({ params }: PageProps) {
           {listedRestaurants.length > 0 ? (
             <section className={styles.grid}>
               {listedRestaurants.map((r, index) => {
+                // Das erste Foto der Liste ist das Leitbild der Seite — kein
+                // `priority`, das gehört dem Pack-Hero, aber auch nicht lazy.
+                const isLeadPhoto = index === listedRestaurants.findIndex((x) => x.photo);
                 const line =
                   pickLocale(r.shortDescription, r.shortDescriptionEn, loc) ||
                   pickLocale(r.tip, r.tipEn, loc);
@@ -180,6 +192,7 @@ export default async function GuidePage({ params }: PageProps) {
                           alt={r.name}
                           fill
                           sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 360px"
+                          loading={isLeadPhoto ? 'eager' : 'lazy'}
                         />
                       </div>
                     )}

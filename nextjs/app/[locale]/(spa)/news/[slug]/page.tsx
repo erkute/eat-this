@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server';
 import { serializeJsonLd } from '@/lib/json-ld';
-import { SITE_URL } from '@/lib/constants';
+import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { INDEXABLE_ROBOTS, toOgLocale } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0];
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
-    : `${SITE_URL}/pics/og-card.png?v=4`;
+    : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
   // News uses the inverse i18n convention (base = EN `title`/`content`, DE
   // override = `titleDe`/`contentDe`), so the DE-base `buildHreflangAlternates`

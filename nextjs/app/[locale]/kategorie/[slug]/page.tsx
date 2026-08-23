@@ -15,8 +15,9 @@ import type { RestaurantCard } from '@/lib/types';
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
-import { serializeJsonLd } from '@/lib/json-ld';
-import { OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
+import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
+import { schemaImageUrl } from '@/lib/sanity-image-presets';
+import { OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
@@ -53,17 +54,25 @@ export const revalidate = 3600;
 
 /**
  * Ein Kartenraster. `ranked` blendet die Platzziffer ein — nur die kuratierte
- * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht.
+ * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht. `eagerFirst`
+ * nimmt dem ersten Foto das Lazy-Loading: auf einer Seite ohne eigenes
+ * Bannerbild ist es das Leitbild, und ein Bild, das erst beim Scrollen lädt,
+ * liest sich weder für den LCP noch für Googles Thumbnail-Wahl als eines.
  */
 function RestaurantGrid({
   restaurants,
   locale,
   ranked = false,
+  eagerFirst = false,
 }: {
   restaurants: RestaurantCard[];
   locale: 'de' | 'en';
   ranked?: boolean;
+  eagerFirst?: boolean;
 }) {
+  // Not simply index 0: the first spot may have no publishable photo, and
+  // then the lead picture is the next card that does have one.
+  const leadPhotoIndex = eagerFirst ? restaurants.findIndex((r) => r.photo) : -1;
   return (
     <div
       className={`${sharedStyles.grid} ${restaurants.length <= 2 ? sharedStyles.gridCompact : ''}`}
@@ -86,7 +95,8 @@ function RestaurantGrid({
                   alt={r.name}
                   srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
                   sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
-                  loading="lazy"
+                  loading={i === leadPhotoIndex ? 'eager' : 'lazy'}
+                  fetchPriority={i === leadPhotoIndex ? 'high' : undefined}
                   decoding="async"
                 />
                 {ranked && (
@@ -142,7 +152,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brandedTitle = buildBrandedTitle(title);
   const image = PACK_OG_SLUGS.has(slug)
     ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
-    : `${SITE_URL}/pics/og-card.png?v=4`;
+    : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
   const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en');
   return {
     title: { absolute: brandedTitle },
@@ -158,7 +168,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         {
           url: image,
           width: 1200,
-          height: 1200,
+          height: 630,
           alt: `${label} Pack — Eat This Berlin`,
         },
       ],
@@ -209,6 +219,14 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
+      // Kein eigenes Bannerbild auf dieser Seite: das erste gelistete Foto
+      // ist das Leitbild — dasselbe, das oben eager lädt.
+      ...buildWebPageNodes({
+        pageUrl: localeUrl(locale, `/kategorie/${slug}`),
+        locale: loc,
+        image: schemaImageUrl(orderedRestaurants.find((r) => r.photo)?.photo),
+        caption: buildCategoryTitle(slug, label, loc),
+      }),
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
@@ -258,7 +276,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               name: r.name,
               url: localeUrl(locale, restaurantUrl(r.slug)),
               // Licence-gated like the bezirk list — see lib/json-ld/bezirk.ts.
-              ...(r.photo && { image: r.photo }),
+              ...(r.photo && { image: schemaImageUrl(r.photo) }),
               ...(r.cuisineType && { servesCuisine: r.cuisineType }),
               ...(priceLabel && { priceRange: priceLabel }),
             },
@@ -341,6 +359,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             restaurants={top.length > 0 ? top : rest}
             locale={loc}
             ranked={top.length > 0}
+            // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
+            // ist hier das Leitbild.
+            eagerFirst
           />
         </section>
 

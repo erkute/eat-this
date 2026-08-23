@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata, Viewport } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { SITE_URL } from '@/lib/constants';
+import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server';
 import { serializeJsonLd } from '@/lib/json-ld';
@@ -108,9 +108,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       images: [
         {
-          url: `${SITE_URL}/pics/og-card.png?v=4`,
+          url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`,
           width: 1200,
-          height: 1200,
+          height: 630,
           alt: 'EAT THIS – We tell you what to eat',
         },
       ],

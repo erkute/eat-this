@@ -31,6 +31,8 @@ const IMAGE_PRESETS = {
   buddyThumb: { w: 120, h: 120, fit: 'crop', q: 80 },
   // Restaurant detail-sheet gallery strip (fixed 4:3 crop for a uniform look)
   galleryThumb: { w: 400, h: 300, fit: 'crop', q: 80 },
+  // The copy of a photo that goes into JSON-LD — see schemaImageUrl below.
+  schemaImage: { w: 1200, q: 80 },
 } as const satisfies Record<string, Preset>;
 
 type ImagePresetName = keyof typeof IMAGE_PRESETS;
@@ -90,6 +92,24 @@ export function restaurantPhotoCreditUrl(
   instagramPath = 'instagramHandle'
 ): string {
   return `select(defined(${path}.creditUrl) => ${path}.creditUrl, ${slugPath} in ${groqStringList(FIRST_PARTY_RESTAURANT_PHOTO_SLUGS)} => "https://eat-this.de", defined(${instagramPath}) => "https://www.instagram.com/" + ${instagramPath})`;
+}
+
+/** Re-points a Sanity CDN URL at the `schemaImage` preset for structured data.
+ *
+ *  Google only serves a large preview (`max-image-preview:large`) for images
+ *  from 1200 px wide, and the list projections bake `card` — 800 px. That is
+ *  the right size for the card the visitor downloads and too small for the
+ *  thumbnail, so the JSON-LD hands Google its own wider URL instead of making
+ *  every card on the page heavier. Sanity does upscale to the requested width
+ *  (measured 23.08.2026: a 1072 px source came back 1200×994), so every entry
+ *  clears the threshold — for the few sources under 1200 px at the cost of a
+ *  mild stretch, which a thumbnail survives.
+ *
+ *  Returns undefined for null/non-Sanity URLs so callers can pass an optional
+ *  field straight through. */
+export function schemaImageUrl(url: string | null | undefined): string | undefined {
+  if (!url || !url.includes('cdn.sanity.io')) return undefined;
+  return `${url.split('?')[0]}${presetQuery('schemaImage')}`;
 }
 
 /** Responsive `srcSet` for a raw `<img>` holding a Sanity CDN URL (projections

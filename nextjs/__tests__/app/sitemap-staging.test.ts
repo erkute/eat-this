@@ -24,7 +24,7 @@ describe('sitemap.ts', () => {
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
 
-  it('production: lists guides and excludes closed or untranslated duplicate URLs', async () => {
+  it('production: excludes closed, untranslated duplicate and retired URLs', async () => {
     process.env.NEXT_PUBLIC_ENV = 'production';
     mocks.fetch
       .mockResolvedValueOnce([
@@ -45,10 +45,10 @@ describe('sitemap.ts', () => {
     const urls = result.map((entry) => entry.url);
     expect(urls.some((url) => url.endsWith('/restaurant/live-spot'))).toBe(true);
     expect(urls.some((url) => url.endsWith('/restaurant/phantom-bar'))).toBe(false);
-    expect(urls.filter((url) => url.includes('/guides/'))).toHaveLength(3);
-
-    const guide = result.find((entry) => entry.url.endsWith('/guides/beste-pizza-berlin'));
-    expect(guide?.alternates?.languages?.en).toMatch(/\/en\/guides\/beste-pizza-berlin$/);
+    // The three guides 308 to their category pages (next.config.ts) — a
+    // redirect in the sitemap is exactly the mixed signal that put them and
+    // /kategorie/* against each other in the first place.
+    expect(urls.filter((url) => url.includes('/guides/'))).toHaveLength(0);
 
     const germanOnly = result.find((entry) => entry.url.endsWith('/news/nur-deutsch'));
     const translated = result.find((entry) => entry.url.endsWith('/news/translated'));

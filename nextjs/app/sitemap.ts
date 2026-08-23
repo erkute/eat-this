@@ -4,7 +4,6 @@ import { localeUrl } from '@/lib/locale-url';
 import { routing } from '@/i18n/routing';
 import { hasEnContent } from '@/lib/i18n/pickLocale';
 import { isStaging } from '@/lib/env';
-import { NEWS_GUIDES } from '@/lib/news-guides';
 import { GONE_SLUGS } from '@/lib/seo/legacyRedirects';
 import { TEMPLATE_REVISED } from '@/lib/constants';
 
@@ -102,10 +101,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return withAlternates(p, TEMPLATE_REVISED, priority, changeFrequency);
   });
 
-  const guideEntries = NEWS_GUIDES.map(({ slug }) =>
-    withAlternates(`/guides/${slug}`, TEMPLATE_REVISED, 0.7, 'monthly')
-  );
-
   // Restaurants/Bezirke/Kategorien have no per-document date worth trusting:
   // Sanity's `_updatedAt` moves on every batch-script touch (Places
   // enrichment etc.), so it would claim a change that never reached the page.
@@ -141,7 +136,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticEntries,
-    ...guideEntries,
     ...restaurantEntries,
     ...articleEntries,
     ...bezirkEntries,

@@ -13,6 +13,25 @@ function isInside(rule: Rule, name: string, params: string) {
   return false;
 }
 
+/**
+ * Last-winning value of `prop` for a class across the WHOLE file, media blocks
+ * included. Same instrument as mapCascade.test.ts: what a single block says is
+ * worthless here, because `.fdText` alone is declared in three of them.
+ */
+function effective(className: string, prop: string): string | undefined {
+  let winner: string | undefined;
+  root.walkRules((rule) => {
+    const hits = rule.selectors.some((selector) =>
+      new RegExp(`\\.${className}(?![\\w-])`).test(selector)
+    );
+    if (!hits) return;
+    rule.walkDecls(prop, (declaration) => {
+      winner = declaration.value;
+    });
+  });
+  return winner;
+}
+
 function hasAnimationNone(selectorPart: string) {
   let found = false;
   root.walkRules((rule) => {
@@ -129,11 +148,48 @@ describe('MapDetails CSS contracts', () => {
     expect(declarations).toEqual(
       expect.objectContaining({
         'font-size': 'clamp(14px, 3.5vw, 17px)',
-        'line-height': '1.2',
         'text-align': 'left',
         'text-transform': 'none',
       })
     );
+  });
+
+  it('keeps running copy off the brand display face', () => {
+    /* Providence Sans ist gezeichnet: dünne Striche, niedrige x-Höhe. Als
+     * Headline trägt sie die Marke, als Fließtext bei 14–17px war sie der
+     * Grund für "die Texte sind schlecht zu lesen". Die drei laufenden Texte
+     * gehören deshalb auf DM Sans — und die Zeilenhöhe muss mit, weil 1.2–1.28
+     * auf Providence' niedrige x-Höhe gerechnet war.
+     *
+     * Effektive Werte, nicht Einzelblöcke: `.fdText` allein wird in drei
+     * Blöcken deklariert, zwei davon in Media-Queries. */
+    for (const copy of ['fdProximitySub', 'fdDistanceCaption', 'fdText']) {
+      const family = effective(copy, 'font-family');
+      expect(family, `.${copy} hat keine effektive font-family`).toBeDefined();
+      expect(
+        family!.includes('--font-body') || family!.includes('--font)'),
+        `.${copy} steht noch auf der Display-Schrift — effektiv: ${family}`
+      ).toBe(true);
+      expect(
+        family!.includes('providence') || family!.includes('et-font-display'),
+        `.${copy} zieht noch Providence heran — effektiv: ${family}`
+      ).toBe(false);
+
+      const leading = Number.parseFloat(effective(copy, 'line-height') ?? '0');
+      expect(
+        leading,
+        `.${copy} braucht Durchschuss für die groessere x-Hoehe — effektiv: ${leading}`
+      ).toBeGreaterThanOrEqual(1.4);
+    }
+
+    // Gegenprobe: die Marken-Elemente bleiben auf Providence.
+    for (const brand of ['fdName', 'fdProximityHead']) {
+      const family = effective(brand, 'font-family');
+      expect(
+        family!.includes('providence') || family!.includes('et-font-display'),
+        `.${brand} hat die Markenschrift verloren — effektiv: ${family}`
+      ).toBe(true);
+    }
   });
 
   it('keeps narrow-desktop Must Eat copy out of fixed-height clipping', () => {

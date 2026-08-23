@@ -5196,3 +5196,43 @@
     display: block;
   }
 }
+
+/* ── Fließtext gehört nicht in die Markenschrift ────────────────────────────
+ *
+ * Providence Sans ist eine gezeichnete Display-Schrift: dünne Striche,
+ * niedrige x-Höhe, unruhige Grundlinie. Als Headline trägt sie die Marke, als
+ * Fließtext bei 14–17px auf 62 % Tinte war sie der Grund, warum die Texte auf
+ * dem Desktop-Rail „schlecht zu lesen" waren. Die drei betroffenen Stellen
+ * gehen auf DM Sans, die laut globals.css ohnehin „the body + eyebrow
+ * workhorse" ist:
+ *
+ *   .fdProximitySub     "Komm auf 50 m an den Spot heran, dann …"
+ *   .fdDistanceCaption  die Entfernungsangabe unter dem Meter
+ *   .fdText             die Gerichtsbeschreibung im aufgedeckten Zustand
+ *
+ * Alles andere bleibt Providence: Gerichtsname, "KOMM NÄHER", das
+ * VERDECKT-Badge, der Restaurantname, die Kicker. Das ist der Markenauftritt
+ * und soll gezeichnet aussehen.
+ *
+ * .fdDistanceBadge (die gelbe "50 m"-Pille mitten im Satz) setzt keine eigene
+ * font-family und erbt mit — genau richtig, sie ist Teil des Satzes und kein
+ * eigenes Label.
+ *
+ * Die Durchschusserhöhung auf 1.45 gehört zum Wechsel dazu: 1.2–1.28 war auf
+ * Providence' niedrige x-Höhe gerechnet. DM Sans hat eine deutlich größere,
+ * bei der die Zeilen sonst aufeinanderkleben. Der Textblock wird dadurch rund
+ * 7px höher — das federt die Hero-Zeile ab (siehe oben), gemessen bleibt der
+ * Überlauf 0.
+ *
+ * Die Schriftgrößen bleiben unangetastet: DM Sans wirkt bei gleicher
+ * Punktgröße größer als Providence, kleiner setzen wäre also der falsche
+ * Reflex — und eine eigene Entscheidung, keine Folge des Schriftwechsels.
+ */
+.detailV13MustEat .fdProximitySub,
+.detailV13MustEat .fdDistanceCaption,
+.detailV13MustEat .fdText {
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.45;
+}

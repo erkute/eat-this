@@ -5,11 +5,20 @@ import { Link } from '@/i18n/navigation';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
 import { normalizeName } from '@/lib/normalizeName';
 import { pickShelf } from '@/lib/curated-ranking';
+import { pickLocale } from '@/lib/i18n/pickLocale';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { SITE_URL } from '@/lib/constants';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
+import {
+  BEZIRK_LIST_ID,
+  BezirkFilterBar,
+  BezirkFilterProvider,
+  BezirkRow,
+  type BezirkChip,
+} from './BezirkFilter';
 import styles from './Bezirk.module.css';
 
 interface PageProps {
@@ -17,6 +26,16 @@ interface PageProps {
 }
 
 export const revalidate = 3600;
+
+/**
+ * „Alle 45 Spots ansehen" — die Zahl gehört auf den Knopf, nicht daneben.
+ * Friedenau hat genau einen Spot, deshalb die eigene Einzahl-Variante statt
+ * eines „Alle 1 Spots".
+ */
+function moreLabel(count: number, de: boolean): string {
+  if (count === 1) return de ? 'Zum Spot' : 'See the spot';
+  return de ? `Alle ${count} Spots ansehen` : `See all ${count} spots`;
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -52,9 +71,16 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
   const de = locale === 'de';
+  const loc = de ? 'de' : 'en';
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
   const bezirke = (await getAllBezirkeWithStats()).filter((b) => (b.restaurantCount ?? 0) > 0);
+
+  const chips: BezirkChip[] = bezirke.map((b) => ({
+    slug: b.slug,
+    name: b.name,
+    count: b.restaurantCount ?? 0,
+  }));
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
@@ -121,70 +147,94 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           className={styles.districtsBlock}
           aria-label={de ? 'Alle Bezirke' : 'All districts'}
         >
-          <div className={styles.districtsIntro}>
-            <h2>{de ? 'Alle Bezirke' : 'All districts'}</h2>
-          </div>
-          <div className={styles.districtRows}>
-            {bezirke.map((b) => {
-              // Kuratierte Spots führen das Regal an; aufgefüllt wird mit der
-              // alphabetischen Auswahl. Die Karte ist ganz Foto, also fliegt
-              // raus, was kein publizierbares Bild hat — sonst stünde da ein
-              // schwarzes Rechteck.
-              const curated = (b.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
-              const spots = pickShelf(curated, b.exampleRestaurants, 4);
-              const moreLabel = de ? 'Alle Spots ansehen' : 'See all spots';
+          <BezirkFilterProvider slugs={chips.map((c) => c.slug)}>
+            <div className={styles.districtsIntro}>
+              <h2>{de ? 'Bezirk wählen' : 'Choose a district'}</h2>
+            </div>
 
-              return (
-                <section
-                  key={b._id}
-                  className={styles.districtRow}
-                  aria-labelledby={`bezirk-${b.slug}`}
-                >
-                  <h3 id={`bezirk-${b.slug}`} className={styles.districtName}>
-                    <Link href={`/bezirk/${b.slug}`} className={styles.districtLink}>
-                      {b.name}
-                    </Link>
-                  </h3>
+            <BezirkFilterBar districts={chips} locale={loc} />
 
-                  {spots.length > 0 && (
-                    <div className={styles.spotGrid}>
-                      {spots.map((restaurant) => (
-                        <Link
-                          key={restaurant._id}
-                          href={`/restaurant/${restaurant.slug}`}
-                          className={styles.card}
-                        >
-                          {restaurant.photo && (
-                            <div className={styles.cardPhoto}>
-                              <Image
-                                src={restaurant.photo}
-                                alt=""
-                                fill
-                                sizes="(max-width: 1099px) 46vw, 248px"
-                              />
-                            </div>
-                          )}
-                          <div className={styles.cardBody}>
-                            <h4 className={styles.cardName}>{normalizeName(restaurant.name)}</h4>
-                            {restaurant.cuisineType && (
-                              <div className={styles.cardMeta}>
-                                <span className={styles.chipYellow}>{restaurant.cuisineType}</span>
+            <div className={styles.districtRows} id={BEZIRK_LIST_ID}>
+              {bezirke.map((b) => {
+                // Kuratierte Spots führen das Regal an; aufgefüllt wird mit der
+                // alphabetischen Auswahl. Die Karte ist ganz Foto, also fliegt
+                // raus, was kein publizierbares Bild hat — sonst stünde da ein
+                // schwarzes Rechteck.
+                const curated = (b.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
+                const spots = pickShelf(curated, b.exampleRestaurants, 4);
+                const count = b.restaurantCount ?? 0;
+                const blurb = pickLocale(b.description, b.descriptionEn, loc);
+
+                return (
+                  <BezirkRow key={b._id} slug={b.slug}>
+                    <h3 id={`bezirk-${b.slug}-title`} className={styles.districtName}>
+                      <Link href={`/bezirk/${b.slug}`} className={styles.districtLink}>
+                        {b.name}
+                      </Link>
+                    </h3>
+
+                    {/* Die Bezirksbeschreibung stand bisher nur auf der
+                        Detailseite. Auf dem Index erklärt sie, warum man den
+                        Bezirk anklicken sollte — vier Restaurantnamen tun das
+                        nicht. */}
+                    {blurb && <p className={styles.districtBlurb}>{blurb}</p>}
+
+                    {spots.length > 0 && (
+                      <div className={styles.spotGrid}>
+                        {spots.map((restaurant) => {
+                          // Gleiche Zeile wie auf der Detailseite: Küche als
+                          // Chip, Preisspanne daneben. Rund ein Viertel der
+                          // Spots hat keine gepflegte Spanne — dort fällt sie
+                          // weg statt als leere Hülse dazustehen.
+                          const priceLabel = formatPriceLabel(restaurant);
+                          return (
+                            <Link
+                              key={restaurant._id}
+                              href={`/restaurant/${restaurant.slug}`}
+                              className={styles.card}
+                            >
+                              {restaurant.photo && (
+                                <div className={styles.cardPhoto}>
+                                  <Image
+                                    src={restaurant.photo}
+                                    alt=""
+                                    fill
+                                    sizes="(max-width: 1099px) 46vw, 248px"
+                                  />
+                                </div>
+                              )}
+                              <div className={styles.cardBody}>
+                                <h4 className={styles.cardName}>
+                                  {normalizeName(restaurant.name)}
+                                </h4>
+                                {(restaurant.cuisineType || priceLabel) && (
+                                  <div className={styles.cardMeta}>
+                                    {restaurant.cuisineType && (
+                                      <span className={styles.chipYellow}>
+                                        {restaurant.cuisineType}
+                                      </span>
+                                    )}
+                                    {priceLabel && (
+                                      <span className={styles.price}>{priceLabel}</span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
 
-                  <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
-                    {moreLabel}
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                </section>
-              );
-            })}
-          </div>
+                    <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
+                      {moreLabel(count, de)}
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  </BezirkRow>
+                );
+              })}
+            </div>
+          </BezirkFilterProvider>
         </section>
       </main>
     </>

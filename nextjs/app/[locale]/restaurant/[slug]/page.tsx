@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -41,7 +42,77 @@ import {
   MenuCardIcon,
   ShareIcon,
 } from '@/app/components/actionIcons';
+import type { RestaurantCard } from '@/lib/types';
 import styles from './RestaurantDetail.module.css';
+
+/**
+ * Eine Empfehlungszeile am Seitenfuß: anklickbare Überschrift plus vier Karten.
+ *
+ * Die Überschrift war schon immer ein Link auf den Bezirks- bzw.
+ * Kategorie-Hub, sah aber wie eine gewöhnliche Zeilenüberschrift aus. Der Pfeil
+ * macht daraus sichtbar den Weg zur vollständigen Liste — dieselbe Geste wie
+ * „Alle Spots ansehen →" auf dem Bezirks-Index.
+ *
+ * `showDistrict` nur für die Kategorie-Zeile: die Spots darin liegen über die
+ * ganze Stadt verteilt, und ob ein Café um die Ecke oder in Köpenick steht,
+ * entscheidet, ob die Empfehlung etwas taugt. In der Bezirks-Zeile stünde
+ * dagegen unter jeder Karte derselbe Bezirk, den die Überschrift schon nennt.
+ */
+function SiblingRow({
+  heading,
+  href,
+  restaurants,
+  showDistrict = false,
+}: {
+  heading: string;
+  href: string;
+  restaurants: RestaurantCard[];
+  showDistrict?: boolean;
+}) {
+  return (
+    <div className={styles.sibRow}>
+      <h2 className={styles.sibRowHead}>
+        <IntlLink href={href} className={styles.sibRowHeadLink}>
+          {heading}
+          <span className={styles.sibRowHeadArrow} aria-hidden="true">
+            →
+          </span>
+        </IntlLink>
+      </h2>
+      <div className={styles.sibCards}>
+        {restaurants.map((s) => {
+          const meta = [
+            s.cuisineType,
+            showDistrict ? s.bezirk?.name : null,
+            formatPriceLabel(s),
+          ].filter(Boolean);
+          return (
+            <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
+              {s.photo && (
+                <div className={styles.sibPhoto}>
+                  <Image src={s.photo} alt={s.name} fill sizes="(max-width: 700px) 46vw, 232px" />
+                </div>
+              )}
+              <span className={styles.sibOverlay}>
+                <span className={styles.sibName}>{normalizeName(s.name)}</span>
+                {meta.length > 0 && (
+                  <span className={styles.sibMeta}>
+                    {meta.map((part, i) => (
+                      <Fragment key={part}>
+                        {i > 0 && <span aria-hidden="true"> · </span>}
+                        <span className={styles.sibMetaPart}>{part}</span>
+                      </Fragment>
+                    ))}
+                  </span>
+                )}
+              </span>
+            </IntlLink>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -170,7 +241,10 @@ export default async function RestaurantPage({ params }: PageProps) {
     notFound();
   }
   const primaryCategory = r.categories?.[0] ?? null;
-  const SIBLING_LIMIT = 3;
+  // Vier, nicht drei: das Raster ist auf Mobil zweispaltig und auf Desktop
+  // vierspaltig — eine Dreiergruppe lässt in beiden Fällen eine Karte allein
+  // in der letzten Zeile stehen. Gleiche Regel wie im Bezirks-Regal.
+  const SIBLING_LIMIT = 4;
   const [mustEats, siblingCandidates] = await Promise.all([
     getMustEatsByRestaurant(r._id),
     getRestaurantSiblingCandidates({
@@ -564,59 +638,28 @@ export default async function RestaurantPage({ params }: PageProps) {
         </div>
 
         {(siblingsBezirk.length > 0 || siblingsCategory.length > 0) && (
-          <section className={styles.siblings}>
+          <section
+            className={styles.siblings}
+            aria-label={de ? 'Weitere Empfehlungen' : 'More recommendations'}
+          >
             {siblingsBezirk.length > 0 && r.bezirk?.name && r.bezirk.slug && (
-              <div className={styles.sibRow}>
-                <h2 className={styles.sibRowHead}>
-                  <IntlLink href={`/bezirk/${r.bezirk.slug}`} className={styles.sibRowHeadLink}>
-                    {de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
-                  </IntlLink>
-                </h2>
-                <div className={styles.sibCards}>
-                  {siblingsBezirk.map((s) => (
-                    <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
-                      {s.photo && (
-                        <div className={styles.sibPhoto}>
-                          <Image src={s.photo} alt={s.name} fill sizes="33vw" />
-                        </div>
-                      )}
-                      <span className={styles.sibOverlay}>
-                        <span className={styles.sibName}>{normalizeName(s.name)}</span>
-                        {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
-                      </span>
-                    </IntlLink>
-                  ))}
-                </div>
-              </div>
+              <SiblingRow
+                heading={de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
+                href={`/bezirk/${r.bezirk.slug}`}
+                restaurants={siblingsBezirk}
+              />
             )}
             {siblingsCategory.length > 0 && categoryDef && (
-              <div className={styles.sibRow}>
-                <h2 className={styles.sibRowHead}>
-                  <IntlLink
-                    href={`/kategorie/${categoryDef.slug}`}
-                    className={styles.sibRowHeadLink}
-                  >
-                    {de
-                      ? `Mehr ${categoryDef.name}`
-                      : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`}
-                  </IntlLink>
-                </h2>
-                <div className={styles.sibCards}>
-                  {siblingsCategory.map((s) => (
-                    <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
-                      {s.photo && (
-                        <div className={styles.sibPhoto}>
-                          <Image src={s.photo} alt={s.name} fill sizes="33vw" />
-                        </div>
-                      )}
-                      <span className={styles.sibOverlay}>
-                        <span className={styles.sibName}>{normalizeName(s.name)}</span>
-                        {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
-                      </span>
-                    </IntlLink>
-                  ))}
-                </div>
-              </div>
+              <SiblingRow
+                heading={
+                  de
+                    ? `Mehr ${categoryDef.name}`
+                    : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`
+                }
+                href={`/kategorie/${categoryDef.slug}`}
+                restaurants={siblingsCategory}
+                showDistrict
+              />
             )}
           </section>
         )}

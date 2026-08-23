@@ -88,6 +88,7 @@ export default function MapSection({
     mustEats,
     categories,
     revealedMustEatIds,
+    signupUnlockableIds,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -712,8 +713,9 @@ export default function MapSection({
       });
       // Kick off the detail-field fetch now so it's usually cached by the time
       // the sheet finishes opening (the map payload no longer carries them).
-      // Locked spots render no detail fields, so there is nothing to prefetch.
-      if (!lockedIdSet.has(r._id)) prefetchRestaurantDetail(r.slug);
+      // Locked spots need it too since 2026-08-23: their sheet opens with the
+      // spot's own shortDescription above the offer.
+      prefetchRestaurantDetail(r.slug);
       const isMobile =
         typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
       const isPhone = isPhoneViewport();
@@ -768,7 +770,6 @@ export default function MapSection({
     },
     [
       getFlyPadding,
-      lockedIdSet,
       phoneDetailFlyPadding,
       setSearch,
       setSheetView,
@@ -1431,6 +1432,7 @@ export default function MapSection({
       displayedLockedRestaurants={displayedLockedRestaurants}
       totalSpots={restaurants.length + lockedRestaurants.length}
       lockedIdSet={lockedIdSet}
+      signupUnlockableIds={signupUnlockableIds}
       lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}

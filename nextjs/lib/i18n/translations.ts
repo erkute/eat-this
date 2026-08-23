@@ -141,6 +141,10 @@ const en = {
     openNow: 'Open',
     filterAll: 'All',
     myLocationAriaLabel: 'My location',
+    // The locate control wears this until a position is shared. It talks the
+    // way the rest of the map does ("Come closer", "Reveal now") — a bare
+    // "Locate" would be a system control, not ours.
+    locateInvite: 'Where are you?',
     restaurantsListAriaLabel: 'Restaurants nearby',
     open: 'Open',
     closed: 'Closed',
@@ -170,7 +174,6 @@ const en = {
     tooFarToReveal: 'Too far to reveal',
     revealHere: 'Reveal now. Tap the card to uncover your Must Eat.',
     awayToUnlock: 'away \u2014 come within 200 m to unlock.',
-    enableLocation: 'Enable location to unlock Must Eats on-site.',
     viewRestaurant: 'View restaurant',
     mustEatLabel: 'Must Eat',
     unitsMin: 'min',
@@ -248,7 +251,14 @@ const en = {
     mustEatAtAria: 'Must Eat at {name}',
     proximityHere: 'Reveal now',
     proximityAway: '{distance} to go',
-    proximityCloser: 'Come closer',
+    // Shown on a covered card when there is no fix at all. It used to read
+    // "Come closer", which is a lie to anyone already standing in the doorway:
+    // the app does not know where they are, and never said so.
+    locationNeeded: 'Share your location',
+    enableLocation: "Tap the card to share your location \u2014 then you'll see how far you still have to go.",
+    locationBlocked: 'Location blocked',
+    locationBlockedHint:
+      'Allow location in your browser settings, then you can reveal Must Eats on site.',
     proximityDistanceGoal: 'Reveal within {meters} m',
     proximityTapReveal: 'Tap the card to uncover your Must Eat.',
     proximityHint: 'Get within {meters} m of the spot, then you can reveal the Must Eat.',
@@ -566,6 +576,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   map: {
     filterAll: 'Alle',
     myLocationAriaLabel: 'Mein Standort',
+    locateInvite: 'Wo bist du?',
     restaurantsListAriaLabel: 'Restaurants in der N\u00e4he',
     searchPlaceholder: 'Restaurant, Bezirk, Pizza\u2026',
     openNow: 'Offen',
@@ -597,7 +608,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     tooFarToReveal: 'Zu weit weg',
     revealHere: 'Jetzt aufdecken. Tipp auf die Karte.',
     awayToUnlock: 'entfernt \u2014 komm auf 200 m heran zum Aufdecken.',
-    enableLocation: 'Aktiviere den Standort, um Must Eats vor Ort freizuschalten.',
     viewRestaurant: 'Restaurant ansehen',
     mustEatLabel: 'Must Eat',
     unitsMin: 'Min',
@@ -666,7 +676,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     mustEatAtAria: 'Must Eat bei {name}',
     proximityHere: 'Jetzt aufdecken',
     proximityAway: 'Noch {distance}',
-    proximityCloser: 'Komm näher',
+    locationNeeded: 'Standort freigeben',
+    enableLocation:
+      'Tipp auf die Karte und gib deinen Standort frei \u2014 dann siehst du, wie weit es noch ist.',
+    locationBlocked: 'Standort blockiert',
+    locationBlockedHint:
+      'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.',
     proximityDistanceGoal: '{meters} m zum Aufdecken',
     proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
     proximityHint: 'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',

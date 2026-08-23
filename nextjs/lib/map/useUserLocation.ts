@@ -22,6 +22,31 @@ interface LocationRequestResult {
 }
 
 /**
+ * 'unknown' means the browser would not say — the Permissions API or its
+ * geolocation descriptor is missing. It is NOT a synonym for 'prompt': callers
+ * must treat it as "no information" and fail closed on anything that could
+ * raise a dialog.
+ */
+export type GeolocationPermissionState = 'granted' | 'denied' | 'prompt' | 'unknown';
+
+/**
+ * This origin's geolocation permission, read WITHOUT prompting.
+ *
+ * Safari ships navigator.permissions from 16.0; where the API or the
+ * geolocation descriptor is missing this reports 'unknown' rather than
+ * guessing.
+ */
+export async function getGeolocationPermissionState(): Promise<GeolocationPermissionState> {
+  if (typeof navigator === 'undefined' || !navigator.permissions?.query) return 'unknown';
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    return status.state;
+  } catch {
+    return 'unknown';
+  }
+}
+
+/**
  * True only when this origin ALREADY holds geolocation permission — i.e. when
  * calling getCurrentPosition raises no dialog.
  *
@@ -33,18 +58,11 @@ interface LocationRequestResult {
  * who already said yes and leaves the ASKING to a deliberate tap on the locate
  * button, where the intent is unambiguous.
  *
- * Safari ships navigator.permissions from 16.0. Where the API or the
- * geolocation descriptor is missing we report false and simply skip the silent
- * attempt — never prompt on a guess.
+ * Every non-'granted' state — 'denied', 'prompt' and 'unknown' alike — is
+ * false here: never prompt on a guess.
  */
 export async function hasGeolocationPermission(): Promise<boolean> {
-  if (typeof navigator === 'undefined' || !navigator.permissions?.query) return false;
-  try {
-    const status = await navigator.permissions.query({ name: 'geolocation' });
-    return status.state === 'granted';
-  } catch {
-    return false;
-  }
+  return (await getGeolocationPermissionState()) === 'granted';
 }
 
 interface RequestOptions {

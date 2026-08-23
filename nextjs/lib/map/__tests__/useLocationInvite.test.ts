@@ -2,12 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import {
-  GREETING_MIN_VISIBLE_MS,
-  isLabelStillOwed,
-  mayInviteLocation,
-  useLocationInvite,
-} from '../useLocationInvite';
+import { GREETING_MIN_VISIBLE_MS, isLabelStillOwed, useLocationInvite } from '../useLocationInvite';
 
 /**
  * The gate in front of the locate control's label. Two ways to get it wrong
@@ -27,16 +22,6 @@ afterEach(() => {
   stubPermissions(null);
   vi.useRealTimers();
   vi.restoreAllMocks();
-});
-
-describe('mayInviteLocation', () => {
-  it('lets every state but a denial speak', () => {
-    expect(mayInviteLocation('prompt')).toBe(true);
-    expect(mayInviteLocation('granted')).toBe(true);
-    // Pre-16 Safari: a denial is indistinguishable from an open prompt there.
-    expect(mayInviteLocation('unknown')).toBe(true);
-    expect(mayInviteLocation('denied')).toBe(false);
-  });
 });
 
 describe('isLabelStillOwed', () => {

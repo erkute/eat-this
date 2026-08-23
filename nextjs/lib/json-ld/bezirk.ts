@@ -1,11 +1,13 @@
 import { serializeJsonLd } from './serialize';
+import { buildWebPageNodes } from './webpage';
 import { localeUrl } from '@/lib/locale-url';
+import { schemaImageUrl } from '@/lib/sanity-image-presets';
 import type { BezirkDoc, RestaurantCard } from '@/lib/types';
 import type { FAQEntry } from '@/lib/restaurant-prose';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 
 interface BuildBezirkJsonLdArgs {
-  bezirk: Pick<BezirkDoc, 'name' | 'slug'>;
+  bezirk: Pick<BezirkDoc, 'name' | 'slug' | 'imageUrl'>;
   restaurants: RestaurantCard[];
   locale: string;
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
@@ -15,8 +17,8 @@ interface BuildBezirkJsonLdArgs {
   faqs?: FAQEntry[];
 }
 
-// Builds the BreadcrumbList + ItemList<Restaurant> JSON-LD graph for a
-// bezirk detail page and returns it as a sanitized string ready for inline
+// Builds the WebPage + BreadcrumbList + ItemList<Restaurant> JSON-LD graph for
+// a bezirk detail page and returns it as a sanitized string ready for inline
 // `<script type="application/ld+json">` injection.
 export function buildBezirkJsonLd({
   bezirk,
@@ -25,6 +27,14 @@ export function buildBezirkJsonLd({
   districtsLabel,
   faqs,
 }: BuildBezirkJsonLdArgs): string {
+  const pageUrl = localeUrl(locale, `/bezirk/${bezirk.slug}`);
+  // The district's own banner leads when it has one; otherwise the first
+  // listed photo, which is the first real picture a visitor sees anyway.
+  // Restaurant photos are licence-gated upstream, so `find` may come back
+  // empty — then the page ships without an ImageObject rather than with the
+  // brand card.
+  const primaryImage = schemaImageUrl(bezirk.imageUrl || restaurants.find((r) => r.photo)?.photo);
+
   const faqEntity =
     faqs && faqs.length > 0
       ? {
@@ -40,6 +50,12 @@ export function buildBezirkJsonLd({
   return serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
+      ...buildWebPageNodes({
+        pageUrl,
+        locale: locale === 'en' ? 'en' : 'de',
+        image: primaryImage,
+        caption: `Restaurants in ${bezirk.name}`,
+      }),
       ...(faqEntity ? [faqEntity] : []),
       {
         '@type': 'BreadcrumbList',
@@ -81,7 +97,7 @@ export function buildBezirkJsonLd({
               // publishableRestaurantImageUrl) — undefined means we may not
               // show it, so the spread drops the key rather than emitting a
               // URL we have no right to hand Google.
-              ...(r.photo && { image: r.photo }),
+              ...(r.photo && { image: schemaImageUrl(r.photo) }),
               ...(r.cuisineType && { servesCuisine: r.cuisineType }),
               ...(priceLabel && { priceRange: priceLabel }),
             },

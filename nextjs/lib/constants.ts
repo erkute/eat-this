@@ -12,7 +12,15 @@ export const CSS_VERSION = 311;
 // cache these hard, so a stale copy sticks around for a long time. Single
 // source of truth, same deal as CSS_VERSION: BUMP THIS whenever a file in
 // public/pics/og/ changes.
-export const OG_PACK_VERSION = 3;
+export const OG_PACK_VERSION = 4;
+
+// Cache-bust for the brand share cards (public/pics/og-card.png, 1200×630, and
+// og-card-square.png, 1200×1200). Twelve call sites emit these two files and
+// every one of them carried its own hardcoded `?v=4` — same drift risk
+// OG_PACK_VERSION was introduced to kill. Social crawlers cache share images
+// hard, so a stale copy sticks around for a long time: BUMP THIS whenever
+// either file changes.
+export const OG_CARD_VERSION = 5;
 
 // Adobe Fonts kit (Providence, chauncy, salted, moonblossom). [locale]/layout
 // loads it non-blocking via CRITICAL_BOOTSTRAP, but that script never runs on

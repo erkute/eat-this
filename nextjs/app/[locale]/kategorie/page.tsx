@@ -8,7 +8,7 @@ import { categoryArt } from '@/lib/categoryArt';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
-import { SITE_URL } from '@/lib/constants';
+import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import sharedStyles from '../bezirk/Bezirk.module.css';
 import styles from './Kategorie.module.css';
@@ -41,9 +41,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: toOgLocale(de ? 'de' : 'en'),
       images: [
         {
-          url: `${SITE_URL}/pics/og-card.png?v=4`,
+          url: `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`,
           width: 1200,
-          height: 1200,
+          height: 630,
           alt: 'EAT THIS – We tell you what to eat',
         },
       ],

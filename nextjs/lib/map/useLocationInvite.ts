@@ -1,10 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-import {
-  getGeolocationPermissionState,
-  type GeolocationPermissionState,
-} from './useUserLocation';
+import { getGeolocationPermissionState, type GeolocationPermissionState } from './useUserLocation';
 
 /**
  * The cookie gate locks the whole page while it is up (CookieConsent puts this
@@ -57,29 +54,22 @@ export const GREETING_MIN_VISIBLE_MS = 1400;
 export type LocateLabel = 'invite' | 'greeting' | null;
 
 /**
- * Whether the locate control may say its own name at all.
+ * Whether the label is still owed screen time.
  *
  * Kept as a pure function because this is the difference between a control
  * that introduces itself and one that nags. A denial is the one state that
  * gets nothing: they answered, and a label cannot reopen that door.
- *
- * 'unknown' — pre-16 Safari and anything else without the Permissions API —
- * counts as unanswered. There a denial is indistinguishable from an open
- * prompt, and a tap that lands on a standing denial resolves into the
- * "Blockiert. Im Browser erlauben." notice, which beats staying mute.
- */
-export function mayInviteLocation(state: 'granted' | 'denied' | 'prompt' | 'unknown'): boolean {
-  return state !== 'denied';
-}
-
-/**
- * Whether the label is still owed screen time.
  *
  * Two different jobs behind one control:
  *   granted → a GREETING. It goes away once the position is in, but never
  *             before the floor, so it cannot flash.
  *   prompt  → an INVITATION. Nothing arrives on its own to end it, so it
  *   unknown   stands until the visitor acts.
+ *
+ * 'unknown' — pre-16 Safari and anything else without the Permissions API —
+ * counts as unanswered. There a denial is indistinguishable from an open
+ * prompt, and a tap that lands on a standing denial resolves into the
+ * "Blockiert. Im Browser erlauben." notice, which beats staying mute.
  *
  * A position ends BOTH. The permission is read once, at mount, so a visitor
  * who starts at 'prompt' and then grants stays 'prompt' to this function for

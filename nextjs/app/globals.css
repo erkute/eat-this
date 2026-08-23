@@ -642,6 +642,31 @@ html[data-auth='1'] [data-guest-only] {
     overflow: visible;
   }
 
+  /* Das Must-Eat-Detail ist auf dem Phone ein 100dvh-Takeover, der bewusst
+     nicht scrollt — die Karte dahinter ist unsichtbar geschaltet
+     (MapLayout.module.css), es gibt also nichts, wohin man scrollen könnte.
+     Trotzdem blieb die iOS-Bar-Schürze aus den beiden Regeln oben stehen:
+     96px Dokument-Scroll, die ins Leere führen. Sie ist für die LISTE da,
+     damit Safari seine URL-Leiste einklappen kann; im Takeover gibt es nichts
+     einzuklappen. (Das Navbar-Padding, das hier früher ebenfalls mitgezählt
+     hat, räumt inzwischen die Regel weiter oben für die ganze Kartenseite ab.)
+
+     Bewusst über `min-height` und NICHT über `position: fixed` oder einen
+     Overflow-Lock auf html/body: der Takeover muss im Dokumentfluss bleiben,
+     sonst hat iOS Safari hinter seiner Browser-Leiste einen veralteten
+     Backdrop (siehe MapSheet.module.css, in MapArchitecture.styles.test.ts
+     festgenagelt). */
+  [data-active-page='map']
+    .app-pages:has([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) {
+    min-height: 100dvh;
+  }
+
+  .app-page[data-page='map']:has(
+      [data-map-body][data-map-view='detail'][data-detail-kind='must-eat']
+    ) {
+    min-height: 100dvh;
+  }
+
   .app-page[data-page='map'].active {
     z-index: 9995;
   }

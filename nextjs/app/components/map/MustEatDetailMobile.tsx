@@ -1,5 +1,5 @@
 'use client';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { MapMustEat } from '@/lib/types';
 import { Link } from '@/i18n/navigation';
@@ -14,6 +14,10 @@ import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PagerArrowIcon } from './icons';
 
 const CARD_BACK = '/pics/card-back.webp?v=6';
+/* Gesetzt, sobald jemand einmal gewischt hat — danach kommt der Wisch-Hinweis
+   nie wieder, auch nicht in einer neuen Session. */
+const SWIPE_HINT_KEY = 'et:me-swipe-hint';
+const SWIPE_HINT_DONE = 'done';
 
 interface Props {
   mustEat: MapMustEat;
@@ -130,9 +134,60 @@ export default function MustEatDetailMobile({
       });
     }
   }, [mustEat._id]);
+  /* Auf dem Phone gibt es keine Pager-Tasten mehr (siehe MapDetails.module.css,
+     "Phone: gewischt wird, nicht getippt") — die Geste muss sich selbst zeigen:
+     die oberste Karte ruckt zur Seite und federt zurück, wodurch die Karten
+     darunter kurz sichtbar werden.
+
+     Der Hinweis läuft DURCHGEHEND, im Takt mit Pause dazwischen, bei jedem
+     geöffneten Must Eat — und ist nach der ersten echten Wischgeste für immer
+     weg, über Sessions hinweg. Bewusst nicht "einmal zeigen und abhaken": ein
+     Hinweis, der im Öffnen-Moment untergeht, wäre damit verbrannt gewesen.
+     Wer die Geste kennt, macht sie sofort und ist ihn nach anderthalb
+     Sekunden los.
+
+     Der Merker wird im Effekt gelesen, nicht beim Rendern: localStorage gibt
+     es beim Server-Render nicht, und ein Lazy-Init würde eine
+     Hydration-Abweichung erzeugen. Der Hinweis startet mit 0,45s Verzögerung,
+     die eine Runde bis zum Effekt sieht also niemand.
+
+     Nicht in Reichweite: dort zittert die Karte bereits dauerhaft als
+     "tipp mich zum Aufdecken" (fdRevealReadyShake). Zwei Dauerbewegungen mit
+     verschiedener Bedeutung auf derselben Karte heben sich gegenseitig auf —
+     das Aufdecken ist in dem Moment die wichtigere Botschaft.
+
+     Kein Hinweis ohne Nachbarn — ohne zweite Karte gäbe es nichts zu wischen. */
+  const [hasSwiped, setHasSwiped] = useState(false);
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(SWIPE_HINT_KEY) === SWIPE_HINT_DONE) setHasSwiped(true);
+    } catch {
+      /* Private Mode o. ä. — dann bleibt es beim Hinweis. */
+    }
+  }, []);
+  const markSwiped = () => {
+    setHasSwiped(true);
+    try {
+      window.localStorage.setItem(SWIPE_HINT_KEY, SWIPE_HINT_DONE);
+    } catch {
+      /* ignore */
+    }
+  };
+  const swipeHint = (!!prevMustEat || !!nextMustEat) && !canUnlock && !hasSwiped;
+
   useSwipePager(rootRef, {
-    onPrev: onPagePrev,
-    onNext: onPageNext,
+    onPrev:
+      onPagePrev &&
+      (() => {
+        markSwiped();
+        onPagePrev();
+      }),
+    onNext:
+      onPageNext &&
+      (() => {
+        markSwiped();
+        onPageNext();
+      }),
     hasPrev: !!prevMustEat,
     hasNext: !!nextMustEat,
     transformRef: topCardRef,
@@ -178,16 +233,20 @@ export default function MustEatDetailMobile({
       {nextUnlocked && nextMustEat?.image && (
         <link rel="preload" as="image" href={nextMustEat.image} />
       )}
+      {/* Der Schließen-Glyph hängt am Panel-Root, NICHT im Scrollport: seit der
+          Scrollport bei Überlauf wirklich scrollt (siehe „Slots als Mindestmaß"
+          in MapDetails.module.css) würde ein Kind darin mit dem Inhalt
+          wegwandern. Am Root — der ist position: relative und scrollt nie —
+          bleibt er, wo das Auge ihn erwartet. */}
+      <button
+        type="button"
+        className={styles.fdClose}
+        aria-label={onViewRestaurant ? t('map.toSpot') : t('map.searchClose')}
+        onClick={closeAction}
+      >
+        <CloseIcon />
+      </button>
       <div className={styles.detailV13Scroll} data-detail-scroll>
-        <button
-          type="button"
-          className={styles.fdClose}
-          aria-label={onViewRestaurant ? t('map.toSpot') : t('map.searchClose')}
-          onClick={closeAction}
-        >
-          <CloseIcon />
-        </button>
-
         {/* HERO — freigestellte Karte mit Glow-Halo. Open: dish card (3D-Tilt
             via CSS, tap-to-zoom). Locked: card-back (flach + Wackeln, tap to
             reveal in range — flach bleibt wichtig für die Reveal-Fly-Origin). */}
@@ -211,8 +270,13 @@ export default function MustEatDetailMobile({
               alt=""
               aria-hidden="true"
             />
+            {/* Der Wisch-Nudge bewegt NUR die oberste Karte, nicht den ganzen
+                Stapel: so kommen die Karten darunter kurz zum Vorschein, und
+                der Hinweis zeigt dasselbe, was eine echte Wischgeste tut
+                (useSwipePager animiert ebenfalls topCardRef). Am Stapel als
+                Ganzem sah man nur "die Karte wackelt". */}
             <div
-              className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}`}
+              className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}${swipeHint ? ` ${styles.fdTopCardHint}` : ''}`}
               ref={topCardRef}
             >
               {open ? (
@@ -258,6 +322,14 @@ export default function MustEatDetailMobile({
               )}
             </div>
           </div>
+          {/* Textfassung desselben Hinweises — sichtbar NUR bei
+              prefers-reduced-motion, wo der Nudge nicht laufen darf. Absolut
+              positioniert, damit sie keine Grid-Höhe kostet. */}
+          {swipeHint && (
+            <p className={styles.fdSwipeHint} aria-hidden="true">
+              {t('map.swipeHint')}
+            </p>
+          )}
         </div>
 
         {/* Clip-sicherer Mittelteil: Gericht-Name + Beschreibung (open) bzw.

@@ -56,6 +56,7 @@ describe('MapDetails CSS contracts', () => {
       'fdNameMagicReveal',
       'fdNameMagicSweep',
       'fdRevealReadyShake',
+      'fdSwipeNudge',
     ];
     const definitions = new Map<string, number>();
     const references = new Map<string, number>();
@@ -85,6 +86,10 @@ describe('MapDetails CSS contracts', () => {
     expect(hasAnimationNone('.fdNameText.fdNameUnblurring')).toBe(true);
     expect(hasAnimationNone('.fdNameText.fdNameUnblurring::after')).toBe(true);
     expect(hasAnimationNone('.rdBodySkel span')).toBe(true);
+    // Der einmalige Wisch-Nudge ersetzt auf dem Phone die Pager-Tasten. Bei
+    // reduzierter Bewegung darf er nicht laufen — dort tritt die Textfassung
+    // (.fdSwipeHint) an seine Stelle.
+    expect(hasAnimationNone('.fdTopCardHint')).toBe(true);
   });
 
   it('keeps the in-range Must Eat card shake fast and high-amplitude', () => {

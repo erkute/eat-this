@@ -864,6 +864,22 @@
 }
 
 @media (max-width: 767.98px) {
+  /* Phone + Must-Eat-Detail ist ein 100dvh-Takeover OHNE Karte dahinter:
+     MapLayout.module.css setzt dort `.mapWrap { visibility: hidden }`. Der
+     Suchen-Button und die Locate-FAB verschwinden damit von selbst, weil sie
+     IN .mapWrap liegen — der Burger nicht, der ist ein direktes Kind von
+     .body. Also stand er als einziges Control auf der weißen Fläche, 18px
+     über dem × des Panels, und hat die Ecke mit ihm geteilt.
+
+     Bewusst NUR must-eat: im Restaurant-Detail bleibt auf dem Phone der
+     Kartenstreifen sichtbar (`.mapWrap` wird dort nur auf --detail-map-peek
+     gekürzt), und darüber gehört der Burger hin. Ab 768px greift ohnehin der
+     Rückzug weiter oben in dieser Datei für BEIDE Detail-Arten. */
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   :global([data-map-body][data-map-view='detail']) .mapStatusLayer,
   :global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
     display: none;

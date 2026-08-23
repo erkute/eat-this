@@ -14,7 +14,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: {
     template: '%s | EAT THIS',
-    default: 'EAT THIS – Restaurants & Geheimtipps',
+    default: 'EAT THIS – Restaurants & Geheimtipps in Berlin',
   },
   description:
     'Die kuratierte Food-Map mit den besten Restaurants, Cafés und Bars in Berlin. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.',

@@ -1,4 +1,5 @@
 import { serializeJsonLd } from './serialize';
+import { buildWebPageNodes } from './webpage';
 import { localeUrl } from '@/lib/locale-url';
 import type { Restaurant } from '@/lib/types';
 import type { FAQEntry } from '@/lib/restaurant-prose';
@@ -78,6 +79,16 @@ export function buildRestaurantJsonLd({
   return serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
+      // The Restaurant node already carries the same photo, but that is the
+      // entity's picture, not a statement about this page — Google reads
+      // primaryImageOfPage for the thumbnail. `r.photo` is the detailHero
+      // projection (1200 px), so it is wide enough as it stands.
+      ...buildWebPageNodes({
+        pageUrl: selfUrl,
+        locale: locale === 'en' ? 'en' : 'de',
+        image: r.photo,
+        caption: r.name,
+      }),
       {
         '@type': 'Restaurant',
         '@id': `${selfUrl}#restaurant`,

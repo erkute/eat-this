@@ -34,17 +34,25 @@ interface PageProps {
 
 /**
  * Ein Kartenraster. `ranked` blendet die Platzziffer ein — nur die kuratierte
- * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht.
+ * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht. `eagerFirst`
+ * nimmt dem ersten Foto das Lazy-Loading: auf einer Seite ohne eigenes
+ * Bannerbild ist es das Leitbild, und ein Bild, das erst beim Scrollen lädt,
+ * liest sich weder für den LCP noch für Googles Thumbnail-Wahl als eines.
  */
 function RestaurantGrid({
   restaurants,
   locale,
   ranked = false,
+  eagerFirst = false,
 }: {
   restaurants: RestaurantCard[];
   locale: 'de' | 'en';
   ranked?: boolean;
+  eagerFirst?: boolean;
 }) {
+  // Not simply index 0: the first spot may have no publishable photo, and
+  // then the lead picture is the next card that does have one.
+  const leadPhotoIndex = eagerFirst ? restaurants.findIndex((r) => r.photo) : -1;
   return (
     <div className={`${styles.grid} ${restaurants.length <= 2 ? styles.gridCompact : ''}`}>
       {restaurants.map((r, i) => {
@@ -62,7 +70,8 @@ function RestaurantGrid({
                   alt={r.name}
                   srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
                   sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
-                  loading="lazy"
+                  loading={i === leadPhotoIndex ? 'eager' : 'lazy'}
+                  fetchPriority={i === leadPhotoIndex ? 'high' : undefined}
                   decoding="async"
                 />
                 {ranked && <span className={styles.rankBadge}>{i + 1}</span>}
@@ -253,6 +262,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             restaurants={top.length > 0 ? top : rest}
             locale={loc}
             ranked={top.length > 0}
+            // Nur ohne Bezirksbild: sonst führt der Banner-Hero (priority)
+            // und ein zweites eiliges Bild nähme ihm die Bandbreite.
+            eagerFirst={!heroImage}
           />
 
           {/* Das Verzeichnis bleibt vollständig und wird nicht paginiert: die

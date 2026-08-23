@@ -3,3 +3,4 @@ export { buildRestaurantJsonLd } from './restaurant';
 export { buildBezirkJsonLd } from './bezirk';
 export { buildHomeJsonLd } from './home';
 export { buildSiteJsonLd } from './site';
+export { buildWebPageNodes } from './webpage';

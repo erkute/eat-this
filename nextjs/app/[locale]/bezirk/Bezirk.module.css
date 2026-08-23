@@ -60,14 +60,6 @@
   text-align: left;
   transform: rotate(-0.2deg);
 }
-.kicker {
-  font-family: var(--f-display);
-  font-size: 14px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin: 14px 0 0;
-  white-space: nowrap;
-}
 .h1 {
   font-family: var(--f-display);
   font-size: clamp(38px, 11vw, 64px);
@@ -81,6 +73,23 @@
   margin: 18px 0 14px;
   overflow-wrap: break-word;
   hyphens: manual;
+}
+
+/* The former kicker, now the h1's first line. The values are those of the old
+   `.bezirkDetail .detailHero .kicker` override, not the base `.kicker` — the
+   detail page never rendered the base rule. Every property the h1 would
+   otherwise impose (its clamp size, display family, title tracking, 0.86
+   leading) is restated; colour and uppercase are inherited, both rules set the
+   same values. */
+.h1Lead {
+  display: block;
+  margin: 0 0 18px;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.2;
+  white-space: nowrap;
 }
 .sub {
   font-family: var(--f-body);
@@ -356,10 +365,6 @@
   .hero {
     margin: 16px 0 46px;
   }
-  .kicker {
-    font-size: 15px;
-    letter-spacing: 0.15em;
-  }
   .h1 {
     /* Confident middle: commands the centred column without the Anton-era
        104 "riesig" feel. */
@@ -449,15 +454,10 @@
   border-bottom: 3px solid var(--ink);
 }
 
-.kicker,
 .chipYellow,
 .price {
   font-family: var(--et-font-mono);
   font-weight: 900;
-}
-
-.kicker {
-  color: var(--et-home-red);
 }
 
 /* „Lunch nach Bezirk:" lief in Systemschrift-Mono aus der Reihe — die Marke
@@ -556,17 +556,6 @@
   justify-content: center;
   min-width: 0;
   padding: clamp(4px, 1.4vw, 14px) 0 clamp(18px, 3vw, 32px);
-}
-
-.bezirkDetail .detailHero .kicker {
-  margin: 0 0 18px;
-  color: var(--et-home-red);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
 }
 
 .bezirkDetail .detailHero .h1 {

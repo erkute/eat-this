@@ -304,7 +304,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         <header className={styles.detailHero}>
           <div className={styles.detailHeroCopy}>
             <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
-            <h1 className={styles.detailTitle}>{label}</h1>
+            {/* "Lunch" alone was no match for "lunch berlin" / "mittagessen
+                berlin". The suffix rides inside the h1 so the heading reads
+                "Lunch in Berlin" while the label stays the big display word. */}
+            <h1 className={styles.detailTitle}>
+              {label}
+              <span className={styles.detailTitleSuffix}>in Berlin</span>
+            </h1>
             <p className={styles.detailLead}>
               {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
             </p>

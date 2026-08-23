@@ -214,8 +214,14 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
         <header className={`${styles.hero} ${styles.detailHero}`}>
           <div className={styles.detailHeroCopy}>
-            <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
             <h1 className={styles.h1} style={districtTitleStyle}>
+              {/* The lead line used to be a separate "Bezirk" kicker above the
+                  name, which left the h1 reading just "Mitte" — no match for
+                  what people actually search ("restaurants berlin mitte").
+                  Folding it into the h1 keeps the two-line look and gives the
+                  heading the phrase. */}
+              {/* Same phrase in both locales — no ternary to fake a difference. */}
+              <span className={styles.h1Lead}>Restaurants in</span>
               {b.name}
             </h1>
             <p className={styles.detailHeroDescription}>

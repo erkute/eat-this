@@ -6,6 +6,7 @@ import {
   buildSiteJsonLd,
   serializeJsonLd,
 } from '../json-ld';
+import { schemaImageUrl } from '../sanity-image-presets';
 import type { Restaurant, RestaurantCard } from '../types';
 
 describe('serializeJsonLd', () => {
@@ -104,27 +105,79 @@ describe('buildBezirkJsonLd', () => {
     ...over,
   });
 
-  const listItems = (restaurants: RestaurantCard[]) => {
-    const graph = JSON.parse(
+  type Node = { '@type': string } & Record<string, unknown>;
+
+  const graphOf = (restaurants: RestaurantCard[], imageUrl?: string): Node[] =>
+    JSON.parse(
       buildBezirkJsonLd({
-        bezirk: { name: 'Mitte', slug: 'mitte' },
+        bezirk: { name: 'Mitte', slug: 'mitte', imageUrl },
         restaurants,
         locale: 'de',
         districtsLabel: 'Bezirke',
       })
-    );
-    const list = graph['@graph'].find((node: { '@type': string }) => node['@type'] === 'ItemList');
-    return list.itemListElement.map((entry: { item: Record<string, unknown> }) => entry.item);
+    )['@graph'];
+
+  const nodeOf = (graph: Node[], type: string) => graph.find((node) => node['@type'] === type);
+
+  const listItems = (restaurants: RestaurantCard[]) => {
+    const list = nodeOf(graphOf(restaurants), 'ItemList') as unknown as {
+      itemListElement: { item: Record<string, unknown> }[];
+    };
+    return list.itemListElement.map((entry) => entry.item);
   };
 
   it('gives each listed restaurant its photo so Google can attach a thumbnail', () => {
-    const [item] = listItems([card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })]);
-    expect(item.image).toBe('https://cdn.sanity.io/boii.jpg?w=800');
+    const [item] = listItems([card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800&q=80' })]);
+    // Re-targeted to the schema width — the card projection's 800 px is below
+    // what Google serves a large preview from.
+    expect(item.image).toBe('https://cdn.sanity.io/boii.jpg?w=1200&auto=format&q=80');
   });
 
   it('omits image when there is no publishable photo', () => {
     const [item] = listItems([card()]);
     expect(item).not.toHaveProperty('image');
+  });
+
+  it("names the district's own picture as the page's primary image", () => {
+    const graph = graphOf(
+      [card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })],
+      'https://cdn.sanity.io/mitte.jpg?w=1600'
+    );
+    const page = nodeOf(graph, 'WebPage') as unknown as {
+      primaryImageOfPage: { '@id': string };
+      image: { '@id': string };
+    };
+    const image = nodeOf(graph, 'ImageObject') as unknown as { '@id': string; url: string };
+
+    expect(image.url).toBe('https://cdn.sanity.io/mitte.jpg?w=1200&auto=format&q=80');
+    expect(page.primaryImageOfPage).toEqual({ '@id': image['@id'] });
+    expect(page.image).toEqual({ '@id': image['@id'] });
+  });
+
+  it('falls back to the first listed photo when the district has no picture', () => {
+    const graph = graphOf([card(), card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })]);
+    const image = nodeOf(graph, 'ImageObject') as unknown as { url: string };
+    expect(image.url).toBe('https://cdn.sanity.io/boii.jpg?w=1200&auto=format&q=80');
+  });
+
+  it('ships no ImageObject at all when nothing is publishable', () => {
+    const graph = graphOf([card()]);
+    const page = nodeOf(graph, 'WebPage') as unknown as Record<string, unknown>;
+    expect(nodeOf(graph, 'ImageObject')).toBeUndefined();
+    expect(page).not.toHaveProperty('primaryImageOfPage');
+  });
+});
+
+describe('schemaImageUrl', () => {
+  it('re-points a baked card URL at the 1200 px schema preset', () => {
+    expect(schemaImageUrl('https://cdn.sanity.io/a.jpg?w=800&auto=format&q=80')).toBe(
+      'https://cdn.sanity.io/a.jpg?w=1200&auto=format&q=80'
+    );
+  });
+
+  it('passes over anything that is not a Sanity URL', () => {
+    expect(schemaImageUrl('https://example.com/a.jpg')).toBeUndefined();
+    expect(schemaImageUrl(undefined)).toBeUndefined();
   });
 });
 
@@ -163,6 +216,9 @@ describe('buildSiteJsonLd', () => {
     expect(deWebsite.inLanguage).toBe('de-DE');
     expect(enWebsite.inLanguage).toBe('en-US');
     expect(organization.areaServed).toEqual({ '@type': 'City', name: 'Berlin' });
+    // The bare name is contested; the Berlin forms are what tells the two apart.
+    expect(organization.alternateName).toContain('Eat This Berlin');
+    expect(deWebsite.alternateName).toBe('Eat This Berlin');
     expect(organization.description).toContain('Berlin');
     expect(buildSiteJsonLd('en')).not.toContain('SearchAction');
   });

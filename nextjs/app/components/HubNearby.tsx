@@ -92,11 +92,17 @@ export default function HubNearby({ locale = 'de', today, embedded = false }: Pr
         className={embedded ? styles.embedded : 'homeV2 hv-section hv-wrap'}
         data-hub-nearby=""
       >
+        {/* Heading, its own line of copy and the button that acts on it live in
+            one block. Stacked on phones the button used to sit between the
+            heading and the line explaining it, which put more space inside the
+            heading than above it — the section read as if it belonged to the
+            day's pick above. */}
         <div className={`hv-head ${styles.head}`}>
           <h2 className={`hv-title ${styles.title} ${embedded ? styles.titleEmbedded : ''}`}>
             <span className="hv-mk" aria-hidden="true" />
             {title}
           </h2>
+          <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
           <button
             type="button"
             className={styles.locBtn}
@@ -113,11 +119,11 @@ export default function HubNearby({ locale = 'de', today, embedded = false }: Pr
               <line x1="19" y1="12" x2="22" y2="12" />
               <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
             </svg>
-            <span>{locating ? t('locating') : t('location')}</span>
+            <span>
+              {locating ? t('locating') : activeLocation ? t('location') : t('locationRequest')}
+            </span>
           </button>
         </div>
-
-        <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
 
         <div className={`hv-rail ${styles.rail}`}>
           {cards.map((r) => {

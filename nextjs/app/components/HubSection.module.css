@@ -343,9 +343,18 @@
   /* Stacked, every block is the full column width, so the only thing telling a
      visitor where one section ends and the next begins is the space between
      them. It has to be clearly more than any gap inside a section — the
-     tightest of those is .spot's margin-bottom, at 48-70px. */
+     tightest of those is .spot's margin-bottom below. */
   .page {
     --home-section-gap: 104px;
+  }
+
+  /* The clamp above floors at 48px for this whole range, which on a phone put
+     the day's pick and "was ist um dich?" close enough to read as one run:
+     both headings are red, uppercase and near enough the same width that the
+     eye pairs them. Fixed here instead of raising the clamp's floor — on
+     desktop the two sit at 64-70px and that is already right. */
+  .spot {
+    margin-bottom: 64px;
   }
 
   .heroGrid {

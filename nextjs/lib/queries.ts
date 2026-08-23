@@ -184,6 +184,8 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
   name,
   "slug": slug.current,
   cuisineType,
+  priceRange,
+  "bezirk": bezirkRef->{name},
   "photo": ${publishableRestaurantImageUrl('image', 'card')}
 }`;
 

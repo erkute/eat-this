@@ -4843,3 +4843,356 @@
   color: rgba(21, 18, 14, 0.28);
   font-style: normal;
 }
+
+/* ── Must-Eat-Detail: elastisch statt fest verplant ─────────────────────────
+ *
+ * Das Panel war ein festes Pixelbudget: `.detailV13Scroll` stand auf
+ * `overflow: hidden`, und jede Zeile — `--me-mid-slot`, `--me-rest-slot`,
+ * `--me-pager-slot` — bekam height, min-height UND max-height auf denselben
+ * Wert. Das trägt exakt so lange, wie jeder String einzeilig bleibt. Gemessen
+ * auf www.eatthisdot.com/map?me=… bei 1512×900:
+ *
+ *   .fdV  ("Bubar Crepes und Galettes")  scrollHeight 45 / clientHeight 38
+ *         → die zweite Zeile wurde mittig durchgeschnitten.
+ *   .fdProximity  max-height 5.12em (81.9px) bei ~85px Inhalt
+ *         → die Unterlängen von "Komm näher" wurden abrasiert; gerendert
+ *           stand da "KOMM NAHER".
+ *
+ * Die Slots bleiben — aber als MINDESTmaß. Der Kartenstapel ist der
+ * Stoßdämpfer: er nimmt den freien Platz und gibt ihn wieder her, wenn Name
+ * oder Beschreibung mehr brauchen. Geschnitten wird nur noch dort, wo ein
+ * ehrlicher line-clamp es ansagt.
+ *
+ * GRID WAR HIER DAS FALSCHE WERKZEUG, zweimal. Ein `auto`-Track wird über
+ * max-content bemessen, und max-content ermittelt der Browser bei
+ * UNBEGRENZTER Breite — eine umbrechende Headline meldet dort eine Zeile
+ * statt drei. `minmax(slot, auto)` wuchs deshalb nie mit. Gemessen auf
+ * 375×812: die Mittelzeile blieb bei 158px, während .fdMid 249px brauchte,
+ * und `justify-content: flex-end` schob die Differenz nach oben — hinter den
+ * Kartenstapel, der mit z-index: 3 darüber liegt. In einer Flex-Spalte
+ * ergeben sich die Höhen aus dem echten Layout bei der tatsächlichen Breite.
+ * Reihenfolge = DOM-Reihenfolge = die alte Zeilenreihenfolge; die Abstände,
+ * die vorher eigene Gap-Tracks waren, sind jetzt margin-top.
+ *
+ * Steht am Dateiende, weil `.detailV13Scroll` in rund 30 Blöcken vorkommt und
+ * Quellreihenfolge hier trägt — siehe den Kopf von MapControls.module.css.
+ */
+
+.detailV13MustEat .detailV13Scroll {
+  --me-hero-min: clamp(150px, 20dvh, 240px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-x: hidden;
+}
+
+/* Das Scroll-Ventil gibt es NUR auf dem Desktop-Rail. Phone und Tablet sind
+   ein 100dvh-Takeover, der bewusst nicht scrollt (siehe „viewport-füllendes
+   Layout ohne Scrollen" weiter oben) — dort federt allein der Kartenstapel,
+   und mehr als er hergibt kann der Inhalt nicht wachsen: Gerichtsname,
+   Beschreibung und Restaurantname sind alle geklemmt. */
+@media (min-width: 1024px) {
+  .detailV13MustEat .detailV13Scroll {
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    /* 768–1023.98px: die Karte ist hier noch BREITEN-gesteuert
+       (--me-card-w) und schrumpft nicht mit ihrer Zeile — ihre Höhe ist
+       Breite × 2115/1539 (--me-card-ratio, ausgeschrieben weil calc() das
+       Verhältnis nicht als Wert nimmt). Die Untergrenze muss also Karte plus
+       Abstand tragen. Unter 768px wird sie höhengesteuert, siehe unten. */
+    --me-hero-min: calc(var(--me-card-w) * 2115 / 1539 + var(--me-card-gap));
+    overflow-y: hidden;
+  }
+}
+
+/* Der Stoßdämpfer. `flex-basis: 0` statt `auto`, damit die Höhe aus dem
+   Flex-Algorithmus kommt und die Prozenthöhe des Stapels (--me-card-h)
+   dagegen auflösbar bleibt. Das padding-bottom (die Luft unter der Karte)
+   bleibt unangetastet. */
+.detailV13MustEat .fdHeroWrap {
+  flex: 1 1 0;
+  height: auto;
+  min-height: var(--me-hero-min);
+  max-height: none;
+  margin: 0;
+}
+
+.detailV13MustEat .fdMid {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--me-name-copy-gap);
+  flex: 0 0 auto;
+  height: auto;
+  min-height: var(--me-mid-slot);
+  max-height: none;
+  margin: 0;
+  /* `overflow: hidden` wäre hier gefährlich: zusammen mit
+     `justify-content: flex-end` schiebt zu wenig Platz das ERSTE Kind über die
+     Oberkante — und das ist die Headline. Sie verschwände komplett, statt dass
+     unten etwas knapp wird. Passieren kann das jetzt nicht mehr (die Zeile
+     wächst), aber die Kante bleibt trotzdem offen: falls doch, will man den
+     Fehler sehen und nicht die Überschrift verlieren. Horizontal klemmt
+     weiterhin .detailV13Scroll. */
+  overflow: visible;
+}
+
+/* Der Gerichtsname stand in einer Box fester Höhe mit `overflow: hidden`, und
+   seine Zeilenhöhe ist KLEINER als die Schriftgröße (0.98 auf dem Phone, 1.14
+   auf dem Rail). Alles, was über die Zeilenbox hinausragt — Umlautpunkte,
+   Oberlängen — lief damit gegen eine Kante: aus "Döner" wurde "Doner", nach
+   demselben Muster wie "Komm näher" → "Komm naher".
+
+   Der verdeckte Zustand behält seine Kante: dort sitzt das VERDECKT-Badge im
+   Slot, und der Reveal-Sweep (.fdNameUnblurring::after) braucht die
+   Clip-Grenze. `:has(.fdNameBlur)` sticht diese Regel spezifitätsseitig
+   ohnehin aus, die bestehende Zeile weiter oben bleibt also gültig. */
+.detailV13MustEat .fdName {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: var(--me-name-slot);
+  max-height: none;
+  overflow: visible;
+}
+
+.detailV13MustEat .fdNameText {
+  max-height: none;
+  overflow: visible;
+}
+
+.detailV13MustEat .fdProximity,
+.detailV13MustEat .fdMidLocked .fdProximity {
+  flex: 0 0 auto;
+  height: auto;
+  /* Der Copy-Slot, den vorher die zweite Grid-Zeile reserviert hat. */
+  min-height: calc(var(--me-mid-slot) - var(--me-name-slot) - var(--me-name-copy-gap));
+  max-height: none;
+  overflow: visible;
+}
+
+/* .fdText — die Beschreibung im aufgedeckten Zustand — hing an
+   `height: 100%`. Das war die implizite Klammer, solange .fdMid eine feste
+   Höhe hatte: der Text füllte den Slot und wurde am Rand abgeschnitten.
+   Gegen ein auto-hohes .fdMid wird daraus eine Zirkelreferenz, die Chrome auf
+   die volle Slot-Höhe auflöst — der Block war dann so hoch wie sein eigener
+   Container, der Inhalt brauchte 251 statt 158px, und die Headline wurde nach
+   oben hinter die Karte geschoben. Also echte Höhe plus echter line-clamp:
+   auf dem Phone gibt es keinen Scroll, der eine lange Beschreibung auffangen
+   könnte, geklemmt werden muss sie also — aber sichtbar und auf ganze
+   Zeilen, nicht mitten durch die Glyphen. */
+.detailV13MustEat .fdText {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: calc(var(--me-mid-slot) - var(--me-name-slot) - var(--me-name-copy-gap));
+  max-height: none;
+  overflow: hidden;
+}
+
+@media (max-width: 1023.98px) {
+  .detailV13MustEat .fdText {
+    /* Drei Zeilen entsprechen dem, was der alte Höhen-Clip auf dem Phone
+       faktisch übrig ließ (Slot 158px minus Namensfeld ≈ 3,4 Zeilen). */
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
+
+/* Restaurant-Zeile: gleiche Behandlung. Sie darf wachsen, statt den Namen
+   abzuschneiden — der Boden bleibt --me-rest-slot. Der Abstand darüber war
+   ein eigener Grid-Track und ist jetzt ein margin. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: var(--me-rest-slot);
+  max-height: none;
+  margin: var(--me-content-gap) 0 0;
+  overflow: visible;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Wenn gekürzt werden muss, dann ehrlich: zwei volle Zeilen plus Ellipse,
+   nicht eine halbe. `height: auto` ist der Unterschied — vorher stand hier
+   eine 38px-Box um 45px Text.
+   Die Unterlängen trägt jetzt die Zeilenhöhe (1.24 statt 1.08 + 0.16em
+   padding-bottom). Das Padding musste weg: bei -webkit-line-clamp liegt es
+   INNERHALB des Clips, trägt also nicht die Unterlänge der letzten Zeile,
+   sondern gibt der übernächsten Zeile genau so viel Platz, dass ihre
+   Oberkante unter der Ellipse hervorschaut. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding-bottom: 0;
+  overflow: hidden;
+  line-height: 1.24;
+  text-overflow: ellipsis;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdPager {
+  flex: 0 0 auto;
+  margin: var(--me-footer-gap) 0 0;
+}
+
+/* Verdeckter Name = 32px-Badge, kein zweizeiliger Gerichtsname. Der
+   768–1023.98px-Rail kollabiert den Slot dafür längst (46px, siehe oben), der
+   Desktop-Rail nie — dort standen 88–102px Grid um ein 32px-Badge herum. Das
+   ist die tote Fläche zwischen Kartenstapel und "KOMM NÄHER". Gleiche
+   Behandlung, gleicher Grund: die Höhe gehört der Proximity-Copy. */
+@media (min-width: 1024px) {
+  .detailV13MustEat .fdMid.fdMidLocked {
+    --me-name-slot: 46px;
+  }
+}
+
+/* ── Desktop-Rail: größerer Kartenstapel ────────────────────────────────────
+ * Der Stapel war kleiner, als der Platz hergab — nicht wegen der Deckel
+ * (`--me-card-h` 316px, Breiten-Guard 68%), sondern wegen einer
+ * Doppelsubtraktion: `min(calc(100% - var(--me-card-air)), …)`. Die 100%
+ * beziehen sich auf die Content-Box von .fdHeroWrap, und die hat
+ * `--me-card-air` als padding-bottom bei border-box bereits abgezogen. Bei
+ * 1512×900 gemessen: Zeile 376px, davon Content 329px, daraus wurden nach dem
+ * zweiten Abzug 283px Karte. Die Luft unter der Karte macht das Padding, der
+ * Abzug war nur Verlust. */
+@media (min-width: 1024px) {
+  .detailV13MustEat .detailV13Scroll {
+    --me-card-h: min(100%, 380px);
+  }
+
+  .detailV13MustEat .fdCardStack {
+    width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
+    max-width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
+  }
+}
+
+/* ── Phone: gewischt wird, nicht getippt ────────────────────────────────────
+ *
+ * Der Pager war auf dem Phone doppelt gemoppelt: useSwipePager hängt ohnehin
+ * am Panel-Root (MustEatDetailMobile.tsx) und ist touch-only — ein Maus-Drag
+ * steigt dort bewusst aus, der Desktop behält also seine Tasten. Auf dem
+ * Phone kostete die Leiste 62px (--me-pager-slot + --me-footer-gap) für zwei
+ * Buttons, die beide "Verdeckt" hießen und damit nichts aussagten.
+ *
+ * Die Höhe geht an den Kartenstapel — aber ELASTISCH. Der Phone-Stapel war
+ * breitengesteuert (--me-card-w) und damit starr: seine Höhe stand fest, egal
+ * wie viel Platz seine Zeile hatte. Ohne Scroll ist er der einzige
+ * Stoßdämpfer, und ein starrer Stapel macht ihn wirkungslos — im aufgedeckten
+ * Zustand (Name plus Beschreibung statt Badge plus zwei Zeilen) schob er die
+ * Restaurant-Zeile unter die Safari-Leiste, wo sie abgeschnitten wurde.
+ * Deshalb hier dasselbe Modell wie auf dem Desktop-Rail: Höhe aus dem
+ * verfügbaren Platz, Breite aus dem Seitenverhältnis.
+ */
+@media (max-width: 767.98px) {
+  .detailV13MustEat .fdClose {
+    position: fixed;
+    top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
+    right: 14px;
+    z-index: 30;
+    width: 44px;
+    height: 44px;
+  }
+
+  .detailV13MustEat .detailV13Scroll {
+    --me-card-h: min(calc(100% - var(--me-card-gap)), 380px);
+    /* Nicht mehr an --me-card-w gekoppelt: der Stapel schrumpft jetzt mit
+       seinem Platz, die Untergrenze muss also nur noch eine lesbare Karte
+       tragen. */
+    --me-hero-min: clamp(190px, 26dvh, 260px);
+    /* Die Phone-Regel hatte die Safe-Area verloren (padding-bottom: 18px).
+       Ohne Dokument-Scroll gibt es keinen Puffer mehr darunter, also muss der
+       Home-Indicator hier wieder eingerechnet werden. */
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .detailV13MustEat .fdCardStack {
+    width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
+    max-width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
+    height: var(--me-card-h);
+    max-height: var(--me-card-h);
+  }
+
+  .detailV13MustEat .detailV13Scroll > .fdPager {
+    display: none;
+  }
+}
+
+/* ── Wisch-Hinweis: einmal zeigen, nie wieder ───────────────────────────────
+ * Ohne Pager-Tasten muss die Geste sich selbst erklären. Beim allerersten
+ * geöffneten Must Eat ruckt der Stapel einmal zur Seite und federt zurück —
+ * translate, kein Fade (Projektregel für Brand-Flächen). Der Merker liegt in
+ * localStorage, gesetzt in MustEatDetailMobile.tsx.
+ *
+ * Nur unter 768px: der Desktop-Rail behält seine Tasten und braucht nichts.
+ */
+/* Bewegung in den ersten ~32 % des Takts, der Rest ist Ruhe. Dadurch wird aus
+   der Endlosschleife ein wiederkehrender Stups (alle ~3,4 s) statt eines
+   Dauerwackelns — das würde neben dem Aufdeck-Zittern zu Unruhe. */
+@keyframes fdSwipeNudge {
+  0%,
+  6% {
+    transform: translateX(0);
+  }
+  14% {
+    transform: translateX(-34px);
+  }
+  26% {
+    transform: translateX(9px);
+  }
+  32% {
+    transform: translateX(-3px);
+  }
+  38%,
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.detailV13MustEat .fdSwipeHint {
+  /* Textfassung: standardmäßig aus, sichtbar nur bei reduzierter Bewegung
+     (siehe unten). Absolut, damit sie keine Layouthöhe kostet. */
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  margin: 0;
+  color: var(--me-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (max-width: 767.98px) {
+  .detailV13MustEat .fdTopCardHint {
+    animation: fdSwipeNudge 3.4s cubic-bezier(0.22, 0.82, 0.28, 1) 0.45s infinite both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailV13MustEat .fdTopCardHint {
+    animation: none;
+  }
+
+  .detailV13MustEat .fdSwipeHint {
+    display: block;
+  }
+}

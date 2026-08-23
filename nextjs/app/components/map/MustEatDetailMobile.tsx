@@ -85,16 +85,25 @@ export default function MustEatDetailMobile({
   const closeAction = onViewRestaurant ?? onClose;
   const previousLabel = lang === 'en' ? 'Previous' : 'Zurück';
   const nextLabel = lang === 'en' ? 'Next' : 'Weiter';
-  const previousName = prevMustEat
-    ? prevUnlocked
-      ? normalizeName(prevMustEat.dish ?? '') || previousLabel
-      : t('mustEats.covered')
-    : previousLabel;
-  const nextName = nextMustEat
-    ? nextUnlocked
-      ? normalizeName(nextMustEat.dish ?? '') || nextLabel
-      : t('mustEats.covered')
-    : nextLabel;
+  /* Verdeckte Nachbarn hießen beide "Verdeckt" — zwei gleich beschriftete
+     Tasten, die nichts über ihr Ziel sagten. Geheim ist aber nur das GERICHT:
+     der Server strippt dish/image/description für verdeckte Karten (siehe
+     lib/map/stripCoveredMustEats.ts), das Restaurant liefert er mit. Es steht
+     ohnehin auf der Karte, in der Liste und im Detail darunter. Also zeigt der
+     Pager, was er zeigen darf, statt zweimal dasselbe Wort.
+
+     Kein Fallback auf das Richtungswort mehr: ohne Nachbarn ist die Taste
+     `disabled` und per `visibility: hidden` ohnehin unsichtbar. Die Richtung
+     trägt jetzt das wieder eingeblendete .fdPagerLabel — nötig, weil zwei
+     Nachbarn sehr wohl im selben Restaurant liegen können und dann beide
+     Tasten wieder denselben Namen zeigen würden. */
+  const neighbourName = (neighbour: MapMustEat | null | undefined, unlocked?: boolean) => {
+    if (!neighbour) return null;
+    if (unlocked) return normalizeName(neighbour.dish ?? '') || neighbour.restaurant.name;
+    return neighbour.restaurant.name;
+  };
+  const previousName = neighbourName(prevMustEat, prevUnlocked);
+  const nextName = neighbourName(nextMustEat, nextUnlocked);
 
   // Swipe anywhere on the sheet (hero, name, pager band) pages to the
   // neighbouring must-eat — same gesture as the restaurant detail.
@@ -458,7 +467,7 @@ export default function MustEatDetailMobile({
               </span>
               <span className={styles.fdPagerCopy}>
                 <span className={styles.fdPagerLabel}>{previousLabel}</span>
-                <span className={styles.fdPagerName}>{previousName}</span>
+                {previousName && <span className={styles.fdPagerName}>{previousName}</span>}
               </span>
             </button>
             <button
@@ -469,7 +478,7 @@ export default function MustEatDetailMobile({
             >
               <span className={styles.fdPagerCopy}>
                 <span className={styles.fdPagerLabel}>{nextLabel}</span>
-                <span className={styles.fdPagerName}>{nextName}</span>
+                {nextName && <span className={styles.fdPagerName}>{nextName}</span>}
               </span>
               <span className={styles.fdPagerArrow}>
                 <PagerArrowIcon />

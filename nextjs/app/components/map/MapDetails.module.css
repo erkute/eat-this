@@ -5236,3 +5236,37 @@
   letter-spacing: 0;
   line-height: 1.45;
 }
+
+/* ── Pager: Richtung sichtbar, Ziel benannt ─────────────────────────────────
+ *
+ * `.fdPagerLabel` ("Zurück"/"Weiter") stand media-los auf `display: none` —
+ * ausgeblendet also auf JEDER Breite, nicht nur auf schmalen. Übrig blieb der
+ * Pfeil plus ein Name, und weil beide Nachbarn verdeckt sein können, hieß es
+ * links wie rechts "Verdeckt". Zwei identische Tasten.
+ *
+ * Der Name zeigt jetzt das Restaurant des Nachbarn (siehe
+ * MustEatDetailMobile.tsx), und die Richtung kommt zurück — sie muss, denn
+ * mehrere Must Eats desselben Restaurants liegen im Pager nebeneinander, dann
+ * stünde ohne sie wieder zweimal dasselbe da.
+ *
+ * Nur ab 768px: darunter gibt es den Pager gar nicht mehr, dort wird gewischt.
+ *
+ * Die Farbe muss pro Taste getrennt kommen. `.fdPagerLabel` erbt
+ * `var(--me-muted)` aus dem Block, den es sich mit `.fdK` teilt — dunkles
+ * Grau. Auf der "Weiter"-Taste steht das auf `var(--me-ink)`, also dunkel auf
+ * dunkel und praktisch unsichtbar.
+ */
+@media (min-width: 768px) {
+  .detailV13MustEat .fdPagerLabel {
+    display: block;
+  }
+
+  .detailV13MustEat .fdPagerCopy {
+    gap: 3px;
+    align-content: center;
+  }
+
+  .detailV13MustEat .fdPagerNext .fdPagerLabel {
+    color: rgba(255, 255, 255, 0.72);
+  }
+}

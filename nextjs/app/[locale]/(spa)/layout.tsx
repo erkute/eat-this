@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
-import { CSS_VERSION } from '@/lib/constants';
+import { CSS_VERSION, OG_CARD_VERSION } from '@/lib/constants';
 import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
@@ -17,7 +17,7 @@ const SITE_URL = 'https://www.eatthisdot.com';
 const TITLE = 'EAT THIS – Restaurants & Geheimtipps';
 const DESCRIPTION =
   'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde deinen Spot.';
-const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=4';
+const OG_IMAGE = `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
 export const metadata: Metadata = {
   // `absolute` bypasses the root '%s | EAT THIS' template — the brand
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: SITE_URL,
     images: [
-      { url: OG_IMAGE, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' },
+      { url: OG_IMAGE, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' },
     ],
     locale: 'de_DE',
   },

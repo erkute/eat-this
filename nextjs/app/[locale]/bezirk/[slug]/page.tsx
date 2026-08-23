@@ -10,7 +10,7 @@ import {
   getAllBezirkeWithStats,
 } from '@/lib/sanity.server';
 import { buildBezirkJsonLd } from '@/lib/json-ld';
-import { SITE_URL } from '@/lib/constants';
+import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
@@ -123,7 +123,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brandedTitle = buildBrandedTitle(title ?? fallbackTitleDe);
 
   const baseImage = b.seo?.ogImageUrl || b.imageUrl;
-  const image = baseImage || `${SITE_URL}/pics/og-card.png?v=4`;
+  const image = baseImage || `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
   const alternates = buildHreflangAlternates(`/bezirk/${slug}`, loc, {
     hasEnContent: hasEnContent(b),

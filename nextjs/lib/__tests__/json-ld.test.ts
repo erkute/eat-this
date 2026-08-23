@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildBezirkJsonLd,
+  buildHomeJsonLd,
   buildRestaurantJsonLd,
   buildSiteJsonLd,
   serializeJsonLd,
@@ -124,6 +125,28 @@ describe('buildBezirkJsonLd', () => {
   it('omits image when there is no publishable photo', () => {
     const [item] = listItems([card()]);
     expect(item).not.toHaveProperty('image');
+  });
+});
+
+describe('buildHomeJsonLd', () => {
+  const graph = () => JSON.parse(buildHomeJsonLd([], 'de'))['@graph'];
+  const images = () =>
+    graph().filter((node: { '@type': string }) => node['@type'] === 'ImageObject');
+
+  it('offers both share-card shapes, wide first', () => {
+    const [wide, square] = images();
+    expect([wide.width, wide.height]).toEqual([1200, 630]);
+    expect([square.width, square.height]).toEqual([1200, 1200]);
+    expect(wide.url).toContain('og-card.png');
+    expect(square.url).toContain('og-card-square.png');
+  });
+
+  it('gives the two cards distinct @ids and references both from the page', () => {
+    const [wide, square] = images();
+    expect(wide['@id']).not.toBe(square['@id']);
+    const page = graph().find((node: { '@type': string }) => node['@type'] === 'WebPage');
+    expect(page.image).toEqual([{ '@id': wide['@id'] }, { '@id': square['@id'] }]);
+    expect(page.primaryImageOfPage).toEqual({ '@id': wide['@id'] });
   });
 });
 

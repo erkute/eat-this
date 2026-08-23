@@ -16,7 +16,7 @@ import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/katego
 import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { serializeJsonLd } from '@/lib/json-ld';
-import { OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
+import { OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
@@ -140,9 +140,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     locale: loc,
   });
   const brandedTitle = buildBrandedTitle(title);
-  const image = PACK_OG_SLUGS.has(slug)
+  // Two different cards with two different shapes: the per-category pack art is
+  // square, the brand fallback is 1200×630. Declaring one fixed height for both
+  // would misreport whichever one wasn't picked.
+  const hasPackOg = PACK_OG_SLUGS.has(slug);
+  const image = hasPackOg
     ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
-    : `${SITE_URL}/pics/og-card.png?v=4`;
+    : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
   const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en');
   return {
     title: { absolute: brandedTitle },
@@ -158,7 +162,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         {
           url: image,
           width: 1200,
-          height: 1200,
+          height: hasPackOg ? 1200 : 630,
           alt: `${label} Pack — Eat This Berlin`,
         },
       ],

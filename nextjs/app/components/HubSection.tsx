@@ -27,15 +27,15 @@ interface Props {
 const copy = {
   de: {
     spotDay: 'Spot des Tages',
+    spotCta: 'Auf der Map ansehen',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Die Eat This Map auf dem Handy',
-    todayLabel: 'Heute essen',
   },
   en: {
     spotDay: 'Spot of the day',
+    spotCta: 'See it on the map',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'The Eat This map on your phone',
-    todayLabel: 'Eat today',
   },
 };
 
@@ -106,23 +106,33 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
 
       <HomeMapDataProvider initialMapData={initialMapData}>
-        {/* "What should I eat right now" answered once, not twice: the day's pick
-          beside what is actually around you. Split into two stacked sections
-          they each filled half a desktop row and left the other half empty. */}
-        <section className={`homeV2 hv-section hv-wrap ${styles.today}`} aria-label={t.todayLabel}>
-          <div className={styles.todayGrid}>
-            {spot && (
-              <article className={styles.spot}>
-                <MapIntentLink
-                  href={`/map?r=${spot.slug}`}
-                  rel="nofollow"
-                  className={`hv-photo ${styles.spotPhoto}`}
-                  aria-label={`${normalizeName(spot.name)} — ${t.spotDay}`}
-                >
-                  {spot.image && (
-                    // Deliberately bypass the App Hosting image proxy: Sanity
-                    // serves the responsive, format-negotiated variants directly.
-                    // eslint-disable-next-line @next/next/no-img-element
+        {/* One question — "what do I eat now" — answered in two movements: the
+          day's pick as the lead, then what is actually around you. They shared
+          a two-column row before; the pick had no heading of its own, the
+          columns started at different heights, and the nearby cards were 2×2
+          thumbnails in half a page. Stacked, both get the full width. */}
+        <section className="homeV2 hv-section hv-wrap">
+          {spot && (
+            <article className={styles.spot}>
+              <div className={`hv-head ${styles.spotHead}`}>
+                <h2 className="hv-title">
+                  <span className="hv-mk" aria-hidden="true" />
+                  {t.spotDay}
+                </h2>
+              </div>
+              {/* Name and reason sit beside the photo, not on it: the pick is a
+                different restaurant every day and half the images are bright
+                enough to swallow white type. */}
+              <MapIntentLink
+                href={`/map?r=${spot.slug}`}
+                rel="nofollow"
+                className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
+              >
+                {spot.image && (
+                  <span className={`hv-photo ${styles.spotPhoto}`}>
+                    {/* Deliberately bypass the App Hosting image proxy: Sanity
+                      serves the responsive, format-negotiated variants directly. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       className={styles.spotImage}
                       src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
@@ -130,23 +140,25 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:760px) 92vw, 620px"
+                      sizes="(max-width:760px) 92vw, (max-width:1200px) 55vw, 690px"
                     />
-                  )}
-                  <span className={styles.spotTag}>
-                    <span className={styles.spotLabel}>{t.spotDay}</span>
-                    <strong>{normalizeName(spot.name)}</strong>
-                    {spot.district && <span className="hv-kicker">{spot.district}</span>}
                   </span>
-                </MapIntentLink>
-                {/* Loaded from Sanity all along and never rendered — it is the
-                  reason this spot is today's pick, so it belongs here. */}
-                {spot.sub && <p className={styles.spotSub}>{spot.sub}</p>}
-              </article>
-            )}
+                )}
+                <span className={styles.spotBody}>
+                  {spot.district && (
+                    <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
+                  )}
+                  <span className={styles.spotName}>{normalizeName(spot.name)}</span>
+                  {/* Loaded from Sanity all along and never rendered — it is the
+                    reason this spot is today's pick, so it belongs here. */}
+                  {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
+                  <span className={styles.spotCta}>{t.spotCta}</span>
+                </span>
+              </MapIntentLink>
+            </article>
+          )}
 
-            <HubNearby locale={locale} today={today} embedded />
-          </div>
+          <HubNearby locale={locale} today={today} embedded />
         </section>
 
         {/* Order follows what a first-time visitor needs, in that order: what is

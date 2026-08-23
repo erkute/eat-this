@@ -18,8 +18,9 @@ interface Props {
   locale?: 'de' | 'en';
   /** Server date (YYYY-MM-DD) seeding the no-location rotation. */
   today: string;
-  /** Rendered inside the shared "what should I eat now" block, so it drops its
-      own section chrome and lets the parent grid own the spacing. */
+  /** Rendered as the second movement of the home's "what should I eat now"
+      block, under the day's pick: no section chrome of its own, and a heading
+      one step below the red section title above it. */
   embedded?: boolean;
 }
 
@@ -101,7 +102,7 @@ export default function HubNearby({
         data-auth-only={authMode ? '' : undefined}
       >
         <div className={`hv-head ${styles.head}`}>
-          <h2 className={`hv-title ${styles.title}`}>
+          <h2 className={`hv-title ${styles.title} ${embedded ? styles.titleEmbedded : ''}`}>
             <span className="hv-mk" aria-hidden="true" />
             {title}
           </h2>
@@ -127,7 +128,7 @@ export default function HubNearby({
 
         <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
 
-        <div className={`hv-rail ${styles.rail} ${embedded ? styles.railEmbedded : ''}`}>
+        <div className={`hv-rail ${styles.rail}`}>
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(

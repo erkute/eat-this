@@ -22,6 +22,28 @@ export const OG_PACK_VERSION = 4;
 // either file changes.
 export const OG_CARD_VERSION = 5;
 
+/**
+ * The day the page templates last changed in a way a crawler can see — new
+ * JSON-LD, different image markup, a changed robots or title tag. Feeds
+ * `lastmod` in app/sitemap.ts for every URL that has no trustworthy
+ * per-document date of its own.
+ *
+ * Bump it by hand, and only for a change that alters what Googlebot receives.
+ * **Never derive it from `new Date()`.** A `lastmod` that moves on its own is
+ * the exact lie Google stops believing — and it stops believing it for the
+ * whole host, not just the URL that lied.
+ *
+ * Understating is safe, overstating is not: when a single restaurant's copy
+ * changes in Sanity, this date stays put and Google recrawls on its own
+ * schedule. That is the trade the old "omit it entirely" comment was after —
+ * except omitting it left the catalogue with no recrawl signal at all, and
+ * /bezirk/schoeneberg sat six weeks stale in the index because of it.
+ *
+ * 2026-08-23: primaryImageOfPage, 1200 px JSON-LD images, eager lead photo,
+ * max-image-preview:large across the catalogue, Berlin in the brand titles.
+ */
+export const TEMPLATE_REVISED = '2026-08-23';
+
 // Adobe Fonts kit (Providence, chauncy, salted, moonblossom). [locale]/layout
 // loads it non-blocking via CRITICAL_BOOTSTRAP, but that script never runs on
 // a streamed notFound()/error render — those screens link it themselves.

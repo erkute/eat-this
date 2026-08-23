@@ -258,8 +258,8 @@ export default function MapSection({
     openOnly,
     setOpenOnly,
     bezirkNames,
-    bezirkCenters,
     cuisineNames,
+    optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,
     lockedMatchCount,
@@ -1099,6 +1099,15 @@ export default function MapSection({
     revealPanelForSearch();
   }, [revealPanelForSearch]);
 
+  /* Bezirk is the one chip with extra work on top of setting state: it lifts a
+     collapsed list so the results are actually in view.
+
+     It used to fly the camera here as well — onto the district's centroid at
+     zoom 13, from an index of averaged coordinates kept for that one purpose.
+     That flight never finished. Setting the state re-runs the filter-refit
+     effect below one commit later, and its `fitBounds` cancels whatever is in
+     the air; the centroid index has been dead weight ever since. One camera
+     owner is enough, and fitting the actual matches beats an average of them. */
   const handleBezirkChange = useCallback(
     (name: string | null) => {
       userInteractedRef.current = true;
@@ -1114,27 +1123,8 @@ export default function MapSection({
           setSnap('mid');
         }
       }
-      if (name) {
-        const c = bezirkCenters.get(name);
-        if (c)
-          mapRef.current?.flyTo({
-            center: [c.lng, c.lat],
-            zoom: 13,
-            duration: 600,
-            padding: getFlyPadding(),
-          });
-      } else {
-        // "Alle Bezirke" → centre on Berlin Mitte, tight enough that the inner
-        // ring (Mitte/Kreuzberg/Prenzlauer Berg) fills the viewport.
-        mapRef.current?.flyTo({
-          center: [13.405, 52.52],
-          zoom: 11.6,
-          duration: 700,
-          padding: getFlyPadding(),
-        });
-      }
     },
-    [bezirkCenters, getFlyPadding, sheetView, setSnap, setBezirk, sheetElRef, scrollListToAnchor]
+    [sheetView, setSnap, setBezirk, sheetElRef, scrollListToAnchor]
   );
 
   const handleUnlock = useCallback(async () => {
@@ -1285,7 +1275,15 @@ export default function MapSection({
      map stays parked on Mitte and they have to manually zoom out to find the
      other two. Search is handled by its own debounced effect below — refitting
      on every keystroke feels jittery. Skip during a detail view so the
-     selected pin's centering isn't overridden. */
+     selected pin's centering isn't overridden.
+
+     Free set first: that is what the list renders for a chip filter. But when
+     it is EMPTY the locked matches are the only thing drawn, and framing
+     nothing would leave the camera on the previous district while the sheet
+     says "Keine Spots" — so fall back to them. This is also what makes
+     handleBezirkChange safe to strip: a district with no free spots still
+     flies somewhere, and it now flies to its actual (locked) spots rather than
+     to an averaged centroid. */
   const didFirstFilterRefitRef = useRef(false);
   const displayedRestaurantsRef = useRef(displayedRestaurants);
   displayedRestaurantsRef.current = displayedRestaurants;
@@ -1297,7 +1295,8 @@ export default function MapSection({
       return;
     }
     if (selectedRestaurant || selectedMustEat) return;
-    fitCameraToSpots(displayedRestaurantsRef.current);
+    const free = displayedRestaurantsRef.current;
+    fitCameraToSpots(free.length ? free : displayedLockedRestaurantsRef.current);
   }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
 
   /* Search refit — the reason a query for a locked spot used to read as "not
@@ -1461,6 +1460,7 @@ export default function MapSection({
       cuisine={cuisine}
       setCuisine={setCuisine}
       cuisineNames={cuisineNames}
+      optionCounts={optionCounts}
       openOnly={openOnly}
       setOpenOnly={setOpenOnly}
       searchOpen={searchOpen}

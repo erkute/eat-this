@@ -6,6 +6,7 @@ import { hasEnContent } from '@/lib/i18n/pickLocale';
 import { isStaging } from '@/lib/env';
 import { NEWS_GUIDES } from '@/lib/news-guides';
 import { GONE_SLUGS } from '@/lib/seo/legacyRedirects';
+import { TEMPLATE_REVISED } from '@/lib/constants';
 
 // Cache the generated sitemap for a day instead of rebuilding it (full Sanity
 // fetch of all restaurants/articles/bezirke) on every crawler hit. Content
@@ -58,6 +59,13 @@ function deOnly(
   };
 }
 
+/** The later of two ISO dates. Both start `YYYY-MM-DD`, so a string compare
+ *  is the date compare — no Date parsing needed, and none wanted: `new Date()`
+ *  has no business anywhere near a `lastmod`. */
+function laterOf(a: string, b: string): string {
+  return a > b ? a : b;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (isStaging) return [];
 
@@ -91,40 +99,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5;
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
       p === '' ? 'daily' : p === '/news' ? 'weekly' : 'monthly';
-    return withAlternates(p, undefined, priority, changeFrequency);
+    return withAlternates(p, TEMPLATE_REVISED, priority, changeFrequency);
   });
 
   const guideEntries = NEWS_GUIDES.map(({ slug }) =>
-    withAlternates(`/guides/${slug}`, undefined, 0.7, 'monthly')
+    withAlternates(`/guides/${slug}`, TEMPLATE_REVISED, 0.7, 'monthly')
   );
 
-  // Restaurants/Bezirke: no `lastmod` — Sanity's `_updatedAt` reflects every
-  // batch script touch (Places enrichment etc.), which clusters timestamps
-  // and Google then ignores `lastmod` site-wide. Better to omit than lie.
+  // Restaurants/Bezirke/Kategorien have no per-document date worth trusting:
+  // Sanity's `_updatedAt` moves on every batch-script touch (Places
+  // enrichment etc.), so it would claim a change that never reached the page.
+  // They get the template date instead — the last time their rendered output
+  // actually changed, which is a claim we can stand behind.
   const restaurantEntries = restaurants
     .filter(({ slug }) => !GONE_SLUGS.has(slug))
     .map(({ slug, descriptionEn }) =>
       hasEnContent({ descriptionEn })
-        ? withAlternates(`/restaurant/${slug}`, undefined, 0.8, 'monthly')
-        : deOnly(`/restaurant/${slug}`, undefined, 0.8, 'monthly')
+        ? withAlternates(`/restaurant/${slug}`, TEMPLATE_REVISED, 0.8, 'monthly')
+        : deOnly(`/restaurant/${slug}`, TEMPLATE_REVISED, 0.8, 'monthly')
     );
 
-  // News keeps `lastmod` — articles are individually edited by humans, so
-  // `_updatedAt` is a meaningful "content changed" signal.
-  const articleEntries = articles.map(({ slug, updatedAt, hasEnContent: hasEnglishArticle }) =>
-    hasEnglishArticle
-      ? withAlternates(`/news/${slug}`, updatedAt, 0.7, 'monthly')
-      : deOnly(`/news/${slug}`, updatedAt, 0.7, 'monthly')
-  );
+  // News articles are individually edited by humans, so `_updatedAt` is a
+  // meaningful signal — but the template changed under them too. The page
+  // changed on whichever came last.
+  const articleEntries = articles.map(({ slug, updatedAt, hasEnContent: hasEnglishArticle }) => {
+    const lastModified = laterOf(updatedAt, TEMPLATE_REVISED);
+    return hasEnglishArticle
+      ? withAlternates(`/news/${slug}`, lastModified, 0.7, 'monthly')
+      : deOnly(`/news/${slug}`, lastModified, 0.7, 'monthly');
+  });
 
   const bezirkEntries = bezirke.map(({ slug, descriptionEn }) =>
     hasEnContent({ descriptionEn })
-      ? withAlternates(`/bezirk/${slug}`, undefined, 0.7, 'monthly')
-      : deOnly(`/bezirk/${slug}`, undefined, 0.7, 'monthly')
+      ? withAlternates(`/bezirk/${slug}`, TEMPLATE_REVISED, 0.7, 'monthly')
+      : deOnly(`/bezirk/${slug}`, TEMPLATE_REVISED, 0.7, 'monthly')
   );
 
   const kategorieEntries = categorySlugs.map(({ slug }) =>
-    withAlternates(`/kategorie/${slug}`, undefined, 0.7, 'weekly')
+    withAlternates(`/kategorie/${slug}`, TEMPLATE_REVISED, 0.7, 'weekly')
   );
 
   return [

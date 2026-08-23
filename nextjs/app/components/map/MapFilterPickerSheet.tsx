@@ -8,6 +8,9 @@ export interface PickerItem {
   label: string;
   /** Small muted text rendered right-aligned (e.g. result count). */
   sub?: string;
+  /** This row would return nothing. Still listed and still pickable — it is
+   *  dimmed so the dead ends are visible before they are tapped. */
+  empty?: boolean;
 }
 
 interface Props {
@@ -24,6 +27,8 @@ interface Props {
   footer?: ReactNode;
   /** Label for the "Alle …" reset row. Omit to skip the reset row. */
   allLabel?: string;
+  /** Count for the reset row — hits with this picker's filter lifted. */
+  allSub?: string;
   closeAriaLabel: string;
 }
 
@@ -43,6 +48,7 @@ export default function MapFilterPickerSheet({
   anchorEl,
   footer,
   allLabel,
+  allSub,
   closeAriaLabel,
 }: Props) {
   // Callback-ref into state so position + touchmove effects re-run the moment
@@ -194,6 +200,7 @@ export default function MapFilterPickerSheet({
               }}
             >
               <span className={styles.pickerItemLabel}>{allLabel}</span>
+              {allSub && <span className={styles.pickerItemSub}>{allSub}</span>}
             </button>
           )}
           {items.map((item) => {
@@ -202,7 +209,9 @@ export default function MapFilterPickerSheet({
               <button
                 key={item.value}
                 type="button"
-                className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''}`}
+                className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''} ${
+                  item.empty && !active ? styles.pickerItemEmpty : ''
+                }`}
                 aria-current={active ? 'true' : undefined}
                 onClick={() => {
                   onSelect(item.value);

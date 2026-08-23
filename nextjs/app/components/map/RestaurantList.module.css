@@ -124,15 +124,6 @@
     min-height: 242px;
   }
 }
-.rcard {
-  --polaroid-bottom: 40px;
-}
-.rcard::after {
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  aspect-ratio: 4 / 3;
-}
 .rcardMeta {
   margin-top: 8px;
 }
@@ -195,6 +186,29 @@
   border-radius: 0;
   background: #15120e;
 }
+/* Der Name liegt direkt auf dem Foto, und welches Foto das ist, entscheidet
+   die Redaktion — nicht das Layout. Auf einem hellen Bild (Tageslicht durch
+   Fensterfronten, weiße Wand) trug der text-shadow allein nicht mehr: bei
+   „Five Elephant Neue Nationalgalerie" verschwand die Schrift halb in den
+   Fenstern. Ein Schatten reagiert auf die Helligkeit dahinter nicht, ein
+   Verlauf schiebt sie nach unten fest.
+
+   Diese Ebene gab es schon — leer, korrekt gestapelt zwischen Foto (0) und
+   Text (2) und auf `pointer-events: none`. Sie brauchte nur noch einen Grund.
+
+   Vier Stopps statt zwei: eine lineare Rampe auf so großer Fläche bandet
+   sichtbar, die Zwischenstopps nähern eine Ease-Kurve an. Ink statt Schwarz,
+   damit der Verlauf in denselben Ton läuft, auf dem die Karte ohnehin steht
+   (`.rcard { background: #15120e }`) — sonst legt sich ein kalter Rand über
+   den unteren Bildrand. Der text-shadow bleibt: er fängt den Fall ab, dass es
+   ausgerechnet unter der Schrift hell ist.
+
+   Bis 72 % hinauf, nicht knapper: der Name ist `clamp(30px, 7vw, 38px)` ohne
+   line-clamp, „Five Elephant Neue Nationalgalerie" belegt schon drei Zeilen und
+   seine Oberkante liegt bei 58 % der Kartenhöhe. Bei einem früheren Ende säße
+   die erste Zeile eines noch längeren Namens im Klaren. Die oberen 28 % — und
+   damit `.openPill` (top: 14px) und `.mustPeek` (z-index: 4) — bleiben
+   unberührt. */
 .rcard::after {
   content: '';
   display: block;
@@ -202,6 +216,13 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(21, 18, 14, 0.78) 0%,
+    rgba(21, 18, 14, 0.58) 22%,
+    rgba(21, 18, 14, 0.22) 48%,
+    rgba(21, 18, 14, 0) 72%
+  );
 }
 .rcardActive {
   outline: 4px solid #fff;

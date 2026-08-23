@@ -29,17 +29,57 @@
   overflow: hidden;
 }
 
-/* The promoted locate button is wider than the old text link, so on narrow
-   screens the shared .hv-head flex row lets it collide with the wrapping
-   title. Allow the row to break instead. */
+/* Title and locate button share the top row, the line that explains them runs
+   under both. A grid, not the shared .hv-head flex row: on phones the sub line
+   has to move above the button, and only named areas can reorder it. */
+:global(.homeV2) .head:global(.hv-head) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'title action'
+    'sub sub';
+  align-items: baseline;
+  column-gap: 16px;
+  row-gap: var(--et-head-gap);
+  /* The sub line used to carry this as its own margin-bottom; it now sits
+     inside the head, so the head owns the distance down to the rail. */
+  margin-bottom: 14px;
+}
+
+:global(.homeV2) .head .title {
+  grid-area: title;
+}
+
+:global(.homeV2) .head .sub {
+  grid-area: sub;
+}
+
+:global(.homeV2) .head .locBtn {
+  grid-area: action;
+  justify-self: end;
+}
+
+/* Stacked: ask, explain, then the button — in that order. Side by side the
+   button collided with the wrapping title anyway. */
 @media (max-width: 560px) {
   :global(.homeV2) .head:global(.hv-head) {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'title'
+      'sub'
+      'action';
+    align-items: start;
+    row-gap: 12px;
   }
 
-  :global(.homeV2) .head:global(.hv-head) .locBtn {
+  /* In the head row the button pulls its right padding back so the label ends
+     flush with the column; stacked at the left it has to pull the left one. */
+  :global(.homeV2) .head .locBtn {
+    justify-self: start;
+    margin: 4px 0 0 -8px;
+  }
+
+  :global(.homeV2) .head .locBtn[data-primary] {
     margin-left: 0;
   }
 }
@@ -151,20 +191,24 @@
   cursor: wait;
 }
 
-/* Until a location is granted this is what the section is asking for, so it
-   reads as a button rather than as a quiet utility link. */
+/* Until a location is granted, this button is the entire point of the section
+   — nothing below it is really about the visitor until it is pressed. Ink
+   would make it the fourth dark button on a white page and it read as a
+   utility toggle; brand yellow is the page's "this is live" colour (marker
+   squares, the CTA underline) and nothing else in the column carries it as a
+   surface. */
 .locBtn[data-primary] {
   margin-right: 0;
-  padding: 0 14px;
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  padding: 0 16px;
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
   border-radius: var(--et-radius-control);
 }
 
 .locBtn[data-primary]:hover:not(:disabled),
 .locBtn[data-primary]:focus-visible:not(:disabled) {
   color: var(--et-home-inverse-text);
-  background: var(--et-home-red);
+  background: var(--et-home-ink);
 }
 
 .locBtn:hover:not(:disabled),
@@ -185,7 +229,7 @@
 
 /* ── Sub / fallback line ───────────────────────────────────────────────────── */
 .sub {
-  margin: 0 0 14px;
+  margin: 0;
   font-family: var(--font-providence);
   font-size: clamp(17px, 1.55vw, 22px);
   font-weight: 700;

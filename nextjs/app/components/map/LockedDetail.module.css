@@ -14,7 +14,10 @@
   width: fit-content;
   margin: 0;
   font-family: var(--et-font-label, var(--font-label), sans-serif);
-  font-size: var(--et-type-kicker, 10px);
+  /* One step above the shared kicker size: since the headline under it went,
+     this is the only thing on the sheet that names the state, and at 10px it
+     was quieter than the sentence it introduces (user, 2026-08-23). */
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-label, 0.16em);
   line-height: 1;
@@ -24,8 +27,8 @@
 .kicker::before {
   content: '';
   display: inline-block;
-  width: 9px;
-  height: 9px;
+  width: 11px;
+  height: 11px;
   background: var(--et-home-accent, #ffc600);
   flex: 0 0 auto;
 }
@@ -40,13 +43,27 @@
   line-height: 1.38;
 }
 
-.lead {
-  margin: 4px 0 0;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.04;
-  text-transform: uppercase;
+/* The spot's own story, cut off partway down. It borrows MapDetails' .rdBody
+   and .rdStoryLead, so it is typeset as the real article — drop cap and all —
+   and the only difference is that it stops.
+   The mask is what says "this goes on": a hard edge reads as the end of the
+   text, a faded one as a page still running underneath. Static gradient, not
+   an opacity animation — the project rule bans opacity for appear/disappear
+   movement and points at clip-path, and a mask is that family standing still.
+   -webkit-mask ships alongside for Safari, which still wants the prefix. */
+.excerpt {
+  position: relative;
+  max-height: 148px;
+  margin: 2px 0 4px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* The body block's own bottom margin would leave a gap the mask fades into,
+   which reads as the text ending early rather than being cut. */
+.excerpt p:last-child {
+  margin-bottom: 0;
 }
 
 /* Offers read as pack artwork, not as buttons — the same language the rest of
@@ -82,31 +99,12 @@
     0 14px 26px rgba(21, 18, 14, 0.16);
 }
 
-/* Price as a badge, where the eye lands first — the packs print theirs the
-   same way. */
-.offerPrice {
-  position: absolute;
-  z-index: 2;
-  top: 10px;
-  right: 10px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  transform: rotate(-6deg);
-}
-
 /* The single pack sits beside its own copy; the nine-bag fan needs the full
    width, so it keeps art-over-text. Two shapes, one card. */
 .offerRow {
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 14px;
-  padding-right: 60px;
 }
 
 .offerRow .offerArt {
@@ -180,4 +178,407 @@
   line-height: 1.15;
   text-align: center;
   text-transform: uppercase;
+}
+
+/* The free rung, built to the home page's Starter Pack section: quiet panel,
+   free-pack art on top, "Gratis" badge, product name, centred form. The values
+   are copied rather than imported because the home treatment hangs off global
+   `.homeV2 .hv-*` classes that do not reach into this isolated map subsystem —
+   see the file header. Anything changed there has to be changed here too, and
+   the reason to bother is that a reader who saw the offer on the home page has
+   to meet the same thing here.
+
+   Copied at the SHEET's scale, not the home page's (user decision, 2026-08-23):
+   the home section owns a full page width and sizes for it, while this sits in
+   a 340px detail sheet whose own rhythm is a 24px headline, 13px prose and
+   88px pack art. Lifted 1:1 the pack alone stood 213px tall and the block read
+   as a landing page that had fallen into the sheet. Identity travels — art,
+   badge, name, centred stack — proportions stay local. */
+.starter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 4px;
+  padding: 16px 14px 15px;
+  border-radius: 10px;
+  background: var(--et-home-quiet, rgba(21, 18, 14, 0.05));
+  text-align: left;
+}
+
+/* The pack is a rendered foil sachet — a soft ground shadow keeps it from
+   looking pasted onto the panel. */
+.starterArt {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 88px;
+  aspect-ratio: 2 / 3;
+  filter: drop-shadow(0 12px 20px rgba(21, 18, 14, 0.14));
+}
+
+.starterArt img {
+  object-fit: contain;
+}
+
+/* Pack + its copy, side by side at every width (user, 2026-08-23). Stacked,
+   the pack alone pushed the fields a full 132px down the sheet for no gain —
+   the panel is 340px wide even on a phone, which is room enough for an 88px
+   pack and a column of copy beside it. The form never joins this row; it
+   spans the panel underneath. */
+.starterHead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+/* Column rather than a plain block: the badge is width: fit-content, and only
+   a flex parent can align a shrink-wrapped box — text-align cannot reach it. */
+.starterBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.starterKicker {
+  display: block;
+  width: fit-content;
+  margin-bottom: 7px;
+  padding: 4px 8px 5px;
+  border-radius: var(--et-radius-control, 8px);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-red, #e2261c);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.starterTitle {
+  margin: 0;
+  color: var(--et-home-red, #e2261c);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  text-transform: uppercase;
+}
+
+.starterLead {
+  max-width: 26em;
+  margin: 6px 0 0;
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.18;
+}
+
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.input,
+.button,
+.google {
+  min-height: 46px;
+  border: 0;
+  border-radius: var(--et-radius-control, 8px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* Field and CTA stacked, both full width. The home page does this below 761px
+   for a reason that holds here always: side by side, each falls under the 44px
+   tap target — and this sheet is never wider than that breakpoint. */
+/* A field, not a third button. It used to carry the same 2px ink outline as
+   the Google button below it, which made the panel read as three near-identical
+   bars stacked up — and the one you type into looked like the one you press.
+   Hairline border, left-aligned text, and the weight goes to the CTA instead. */
+.input {
+  flex: 1 1 100%;
+  min-width: 0;
+  padding: 0 14px;
+  color: var(--et-home-ink, #15120e);
+  background: var(--et-home-paper, #fff);
+  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.24);
+  /* 16px keeps iOS Safari from zooming the whole sheet on focus — the one
+     value that does NOT scale down with the rest. */
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  transition: box-shadow var(--et-motion-fast, 140ms ease);
+}
+
+.input::placeholder {
+  color: rgba(21, 18, 14, 0.42);
+  font-weight: 400;
+}
+
+.input:hover {
+  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.44);
+}
+
+.input:focus-visible,
+.input:focus {
+  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  outline: 3px solid var(--et-home-red, #e2261c);
+  outline-offset: 2px;
+}
+
+.button {
+  flex: 1 1 100%;
+  padding: 0 20px;
+  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-home-ink, #15120e);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: default;
+}
+
+.button:hover:not(:disabled),
+.button:focus-visible:not(:disabled) {
+  background: var(--et-home-red, #e2261c);
+}
+
+/* Not on the home page: the map is the one place where signing in opens the
+   very thing the reader is looking at, so the one-tap path earns its spot.
+   Dressed like the login layer's Google button — paper ground, ink border, and
+   the four-colour mark — because it IS that button, just in another room. It
+   deliberately never inverts on hover: the login layer doesn't, and a fixed
+   brand mark on an inverted ground looks like a mistake.
+   Set wider apart than the hint above it — the hint explains the mail, not this
+   button, and at equal spacing it read as a caption for whichever was nearer. */
+.google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 0 18px;
+  color: var(--et-home-ink, #15120e);
+  background: var(--et-home-paper, #fff);
+  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background var(--et-motion-fast, 140ms ease);
+}
+
+.google svg {
+  flex: 0 0 auto;
+}
+
+.google:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.google:hover:not(:disabled),
+.google:focus-visible:not(:disabled) {
+  background: var(--et-home-quiet, rgba(21, 18, 14, 0.05));
+}
+
+.hint,
+.error {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  line-height: 1.4;
+}
+
+.hint {
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-mono, ui-monospace, monospace);
+  /* Below the sheet's smallest step: a footnote about what happens next, not
+     part of the offer (user, 2026-08-23). The sent state repeats it in full
+     size ("Check deine Mail"), so nothing here is only readable at 9px. */
+  font-size: 9px;
+  letter-spacing: 0.01em;
+}
+
+/* Mono is the footnote voice; a validation message speaks in the brand face
+   like the copy it is correcting. */
+.error {
+  color: var(--et-home-red, #e2261c);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Desktop: the panel is 380-420px wide and the sheet has to fit its whole
+   height without scrolling, so the pack moves beside the copy instead of
+   standing on top of it — the same turn the home page's section makes at
+   761px, at the breakpoint the map layout uses for its side panel. Saves the
+   pack's full 132px of stacked height. */
+@media (min-width: 1024px) {
+  /* 1280x900 and 1440x900 are the two most common desktop windows there are,
+     and both branches land a handful of pixels over at exactly 900. The scroll
+     port already adds 20px of its own padding below this, so taking it from
+     here costs nothing visible and buys the whole panel on those screens. */
+  .body {
+    padding-bottom: 18px;
+  }
+
+  /* Kleinere Pack-Bilder, damit auch der Pack-Zweig ins Panel passt (User,
+     2026-08-23). Nur hier: auf dem Telefon zieht man die Sheet einfach weiter
+     auf, auf dem Desktop ist die Panelhöhe fest. Die Zeilenkarte wurde von der
+     Höhe ihres Packs getrieben, die Fächerkarte von einem 96px-Mindestmaß für
+     den Fächer — beide geben nach, ohne dass eine Karte ihre Form verliert.
+     56px war zu klein (User, 2026-08-23): das Einzelpack las sich als Icon,
+     die Illustration auf der Tüte war weg. Auf 72px bleibt es ein Produkt-
+     bild; die fehlenden Pixel kommen dünn verteilt aus Fächer, Innenabständen
+     und einem halben Zeilenschritt beim Anriss, damit keine Stelle allein
+     sichtbar dafür bezahlt. */
+  .offerPack {
+    width: 74px;
+  }
+
+  .offerFan .offerPack {
+    width: 50px;
+  }
+
+  .offerFan .offerPack + .offerPack {
+    margin-left: -25px;
+  }
+
+  .offerArt {
+    min-height: 75px;
+  }
+
+  .offer {
+    gap: 6px;
+    padding: 9px 12px;
+  }
+
+  .offerRow .offerArt {
+    min-height: 0;
+  }
+
+  .body {
+    gap: 6px;
+  }
+
+  .excerpt {
+    /* Shorter here, because the offer under it still has to stand in the panel
+       without scrolling. The mask does most of the work anyway — where exactly
+       it cuts within a line is not something a reader can name. */
+    max-height: 70px;
+  }
+
+  .starter {
+    padding: 13px 13px 12px;
+    text-align: left;
+  }
+
+  .starterHead {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .starterArt {
+    flex: 0 0 auto;
+    margin-bottom: 0;
+  }
+
+  .starterBody {
+    flex: 1 1 auto;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .form {
+    margin-top: 10px;
+  }
+
+  .google {
+    margin-top: 12px;
+  }
+
+  .starterKicker {
+    margin-bottom: 5px;
+  }
+}
+
+/* The cards stay pack ART rather than buttons (user decision, 2026-08-19) —
+   but art alone never said what a tap does, while the free offer next door
+   ends in a plain "Starter Pack holen". This closes that gap without turning
+   the card back into a button: the same filled pill the end-of-list offer
+   already uses on this map.
+   It lives inside .offerText so each card's own shape places it. Spanning the
+   whole card instead put three alignments on one small card — art left, copy
+   right, pill centred underneath — with dead space under the pack. */
+.offerCta {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  min-height: 42px;
+  margin-top: 8px;
+  padding: 12px 18px 11px;
+  border-radius: 999px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: background var(--et-motion-fast, 140ms ease);
+}
+
+.offer:hover .offerCta,
+.offer:focus-visible .offerCta {
+  background: var(--et-home-red, #e2261c);
+}
+
+/* In the row card the pill belongs under the copy it acts on, not centred on
+   a card whose left half is a pack. */
+.offerRow .offerCta {
+  justify-self: start;
+}
+
+/* Die Pille darf kleiner sein als das Produkt, das sie verkauft (User,
+   2026-08-23). Sie behält ihre 44px-Trefferfläche über das Padding der Karte,
+   die als Ganzes der Link ist — die Pille ist die Beschriftung dieses Links,
+   nicht der einzige Weg hinein.
+   Steht bewusst hier unten und nicht im großen Desktop-Block weiter oben: die
+   Basis-Regel für .offerCta kommt in dieser Datei danach, und bei gleicher
+   Spezifität entscheidet die Reihenfolge — dort oben blieb die Pille stur bei
+   ihren 42px. */
+@media (min-width: 1024px) {
+  .offerCta {
+    min-height: 34px;
+    margin-top: 6px;
+    padding: 9px 15px 8px;
+    font-size: 12px;
+  }
 }

@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { auth, getDb } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
+import { postSignInTarget } from '@/lib/auth/postSignInTarget';
 import { handoffEvent } from '@/lib/analytics';
 import styles from './auth-action.module.css';
 
@@ -19,14 +20,14 @@ import styles from './auth-action.module.css';
 // post-sign-in landing pages live under [locale]/. Crossing root layouts
 // with router.replace can silently no-op, so we hard-navigate via
 // window.location.assign to guarantee the page actually changes.
-function hardRedirectToHome() {
+function hardRedirectAfterSignIn() {
   const locale = detectLocale();
-  const target = locale === routing.defaultLocale ? '/' : `/${locale}`;
+  const home = locale === routing.defaultLocale ? '/' : `/${locale}`;
   // Kein Übergangseffekt: hier wartet jemand darauf, dass der Login endlich
   // durch ist. Ein gelber Vorhang stand hier mal, um den weissen Blitz beim
   // Wechsel der Root-Layouts zu verdecken — er navigierte aber 40ms vor Ende
   // seiner eigenen Animation, deckte also nie, und kostete 380ms Wartezeit.
-  window.location.assign(target);
+  window.location.assign(postSignInTarget(window.location.search, window.location.origin, home));
 }
 
 // /welcome lives outside [locale], so there is no NextIntlClientProvider.
@@ -80,7 +81,7 @@ function finishSignIn(user: User, setState: (s: State) => void) {
     setState({ kind: 'needs-identity', user });
     return;
   }
-  hardRedirectToHome();
+  hardRedirectAfterSignIn();
 }
 
 export default function AuthActionPage() {
@@ -245,7 +246,7 @@ function IdentityForm({ user }: { user: User }) {
           })
         );
       } catch {}
-      hardRedirectToHome();
+      hardRedirectAfterSignIn();
     } catch {
       setBusy(false);
       setError('Etwas ist schiefgelaufen. Versuch es nochmal.');

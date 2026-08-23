@@ -33,6 +33,8 @@ vi.mock('@/lib/firebase/entitlements', () => ({ resolveEntitlements: vi.fn() }))
 import { POST } from '@/app/api/referral/confirm/route'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 import { resolveEntitlements } from '@/lib/firebase/entitlements'
+import { TIER_TARGETS } from '@/lib/map/tier-composition'
+import { MAX_REFERRALS_PER_INVITER } from '@/lib/referral/constants'
 
 const INVITER = 'i'.repeat(28)
 const FRIEND  = 'f'.repeat(28)
@@ -48,15 +50,16 @@ function mkReq(cookieUid: string | null, idToken: string | null = 'tok'): NextRe
 }
 
 // Catalog for happy-path tests: 1 anon-tier restaurant ('a-anon', tierAnon +
-// must-eat), 24 plain restaurants ('b01'–'b24'), plus 1 remainder restaurant
-// ('z-plain') that escapes both tiers. friendPool = inviterPool = ['z-plain'].
+// must-eat), enough plain ones to swallow both free tiers, plus 1 remainder
+// ('z-plain') that escapes them. friendPool = inviterPool = ['z-plain'].
 //
-// 26 is the smallest catalog that still leaves a remainder: the anon tier takes
-// ANON_PER_BEZIRK (5) — these fixtures carry no district, so they share one
-// bucket — and the signed tier takes TIER_TARGETS.SIGNED (20) of the other 21.
+// Sized off TIER_TARGETS rather than a literal: the referral pool is defined
+// as what the free tiers leave behind, so a catalog smaller than the ladder
+// has no pool at all and every award silently stops being written. Deriving it
+// keeps this fixture from rotting the next time the ladder moves.
 // 'z-plain' sorts after every 'b' id, so it is the one that falls out of both.
-const SIGNED_FILL_RESTAURANTS = Array.from({ length: 24 }, (_, i) => ({
-  _id: `b${String(i + 1).padStart(2, '0')}`,
+const SIGNED_FILL_RESTAURANTS = Array.from({ length: TIER_TARGETS.SIGNED - 1 }, (_, i) => ({
+  _id: `b${String(i + 1).padStart(3, '0')}`,
   categories: [],
 }))
 
@@ -230,8 +233,8 @@ describe('/api/referral/confirm', () => {
 
   it('inviter at farming cap → friend doc still written, inviter doc withheld', async () => {
     primeHappyPath()
-    // 25 legacy awards seed the shared counter at the cap.
-    mockCount.mockResolvedValue({ data: () => ({ count: 25 }) })
+    // Legacy awards seed the shared counter right at the cap.
+    mockCount.mockResolvedValue({ data: () => ({ count: MAX_REFERRALS_PER_INVITER }) })
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
     // The friend's welcome bonus and initial counter are written; no
@@ -239,30 +242,34 @@ describe('/api/referral/confirm', () => {
     expect(mockTransactionSet).toHaveBeenCalledTimes(2)
     const friendDoc = mockTransactionSet.mock.calls[0][1] as { source: string }
     expect(friendDoc.source).toBe('invited-by')
-    expect(mockTransactionSet.mock.calls[1][1]).toMatchObject({ awardedCount: 25 })
+    expect(mockTransactionSet.mock.calls[1][1]).toMatchObject({
+      awardedCount: MAX_REFERRALS_PER_INVITER,
+    })
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
   it('inviter one below cap → both docs written', async () => {
     primeHappyPath()
-    mockCount.mockResolvedValue({ data: () => ({ count: 24 }) })
+    mockCount.mockResolvedValue({ data: () => ({ count: MAX_REFERRALS_PER_INVITER - 1 }) })
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
     expect(mockTransactionSet).toHaveBeenCalledTimes(3)
     expect(mockTransactionSet.mock.calls[2][0]).toEqual({
       path: `users/${INVITER}/referralStats/inviter`,
     })
-    expect(mockTransactionSet.mock.calls[2][1]).toMatchObject({ awardedCount: 25 })
+    expect(mockTransactionSet.mock.calls[2][1]).toMatchObject({
+      awardedCount: MAX_REFERRALS_PER_INVITER,
+    })
   })
 
   it('uses the shared transactional counter for the cap decision', async () => {
     primeHappyPath()
     // The legacy aggregate is stale/below cap. The transaction sees the
-    // serialized counter at 25 and must withhold the inviter award.
+    // serialized counter at the cap and must withhold the inviter award.
     mockCount.mockResolvedValue({ data: () => ({ count: 0 }) })
     mockTransactionGet.mockImplementation(async (ref: { path?: string }) =>
       ref.path?.endsWith('/referralStats/inviter')
-        ? { exists: true, data: () => ({ awardedCount: 25 }) }
+        ? { exists: true, data: () => ({ awardedCount: MAX_REFERRALS_PER_INVITER }) }
         : { exists: false },
     )
 

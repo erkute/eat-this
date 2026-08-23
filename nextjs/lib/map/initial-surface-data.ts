@@ -16,6 +16,8 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
     ...data,
     lockedRestaurants: [],
     categories: [],
+    // Map-only, and only useful next to a locked spot — home renders none.
+    signupUnlockableIds: [],
     mustEats: data.mustEats
       .filter((mustEat) => revealedIds.has(mustEat._id))
       .slice(0, HOME_MUST_EAT_COUNT),

@@ -23,6 +23,7 @@ const DATA: InitialMapData = {
   categories: [],
   totalCount: 1,
   revealedMustEatIds: ['me-1'],
+  signupUnlockableIds: [],
 };
 
 beforeEach(() => {

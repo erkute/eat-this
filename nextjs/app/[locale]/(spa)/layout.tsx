@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   // because `absolute` would otherwise null it out for the whole subtree.
   title: { absolute: TITLE, template: '%s | EAT THIS' },
   description: DESCRIPTION,
-  robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   openGraph: {
     type: 'website',
     siteName: 'EAT THIS',

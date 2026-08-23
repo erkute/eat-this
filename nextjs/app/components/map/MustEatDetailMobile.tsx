@@ -62,6 +62,8 @@ export default function MustEatDetailMobile({
   const {
     distance,
     canUnlock,
+    needsLocation,
+    locationDenied,
     proximityProgress,
     vibrateIntensity,
     tapping,
@@ -303,12 +305,21 @@ export default function MustEatDetailMobile({
                   disabled={unlocking}
                   aria-busy={unlocking || undefined}
                   data-reveal-ready={canUnlock && !unlocking ? '' : undefined}
+                  /* The accessible name has to follow the same state machine
+                     as the copy above. Without a fix "Zu weit weg" is the same
+                     guess the headline used to make — and here it is the ONLY
+                     thing a screen reader gets, since the tap now opens the
+                     permission prompt rather than revealing anything. */
                   aria-label={
                     unlocking
                       ? t('map.revealSaving')
                       : canUnlock
                         ? t('map.revealHere')
-                        : t('map.tooFarToReveal')
+                        : needsLocation
+                          ? locationDenied
+                            ? tMap('locationBlocked')
+                            : tMap('locationNeeded')
+                          : t('map.tooFarToReveal')
                   }
                   style={{
                     ...(revealOrigin ? { visibility: 'hidden' } : {}),
@@ -358,6 +369,7 @@ export default function MustEatDetailMobile({
           {!open && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
+              data-location-needed={needsLocation ? (locationDenied ? 'blocked' : 'ask') : undefined}
               role={unlockError ? 'alert' : 'status'}
               aria-live="polite"
             >
@@ -372,7 +384,9 @@ export default function MustEatDetailMobile({
                         ? tMap('proximityAway', {
                             distance: formatLocalizedDistance(distance, lang),
                           })
-                        : tMap('proximityCloser')}
+                        : locationDenied
+                          ? tMap('locationBlocked')
+                          : tMap('locationNeeded')}
               </p>
               {showDistanceMeter ? (
                 <div className={styles.fdDistanceMeter} data-must-eat-distance-meter>
@@ -396,18 +410,14 @@ export default function MustEatDetailMobile({
                     t('map.revealRetry')
                   ) : canUnlock ? (
                     tMap('proximityTapReveal')
-                  ) : lang === 'en' ? (
-                    <>
-                      Get within{' '}
-                      <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> of
-                      the spot, then you can reveal the Must Eat.
-                    </>
+                  ) : locationDenied ? (
+                    tMap('locationBlockedHint')
                   ) : (
-                    <>
-                      Komm auf{' '}
-                      <span className={styles.fdDistanceBadge}>{UNLOCK_RADIUS_METERS} m</span> an
-                      den Spot heran, dann kannst du das Must Eat aufdecken.
-                    </>
+                    /* Reached only with distance === null — the meter takes
+                       over the moment there IS a fix (showDistanceMeter). The
+                       "come within 50 m" line used to sit here and told someone
+                       standing in the doorway to walk closer. */
+                    tMap('enableLocation')
                   )}
                 </p>
               )}

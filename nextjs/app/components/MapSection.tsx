@@ -1487,6 +1487,7 @@ export default function MapSection({
       onToggleDesktopPanel={() => setDesktopPanelHidden((v) => !v)}
       onRetryMapData={refetchMapData}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
+      locateInviteLabel={t('map.locateInvite') ?? 'Where are you?'}
       restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}
     />
   );

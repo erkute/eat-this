@@ -109,6 +109,8 @@ export default async function GuidePage({ params }: PageProps) {
             '@type': 'Restaurant',
             name: restaurant.name,
             url: localeUrl(loc, `/restaurant/${restaurant.slug}`),
+            // Licence-gated like the bezirk list — see lib/json-ld/bezirk.ts.
+            ...(restaurant.photo && { image: restaurant.photo }),
             ...(restaurant.cuisineType && { servesCuisine: restaurant.cuisineType }),
           },
         })),

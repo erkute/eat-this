@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { INDEXABLE_ROBOTS } from '@/lib/seo/metadata';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
   description:
     'Die kuratierte Food-Map mit den besten Restaurants, Cafés und Bars in Berlin. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.',
   metadataBase: new URL('https://www.eatthisdot.com'),
+  robots: INDEXABLE_ROBOTS,
   /* Installed to the home screen the page owns the whole screen, unlike a
      Safari tab where the status-bar band belongs to the browser and
      env(safe-area-inset-top) is 0 (measured on-device 2026-07-27).

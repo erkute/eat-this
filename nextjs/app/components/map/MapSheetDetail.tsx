@@ -2,6 +2,7 @@
 import { type Ref } from 'react';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { UserLocation, UserTier } from '@/lib/map';
+import type { UserLocationError } from '@/lib/map/useUserLocation';
 import RestaurantDetail from './RestaurantDetail';
 import MustEatDetail from './MustEatDetail';
 import styles from './MapDetails.module.css';
@@ -17,6 +18,10 @@ type CommonProps = {
 type MustEatProps = CommonProps & {
   kind: 'mustEat';
   mustEat: MapMustEat;
+  /* Only the must-eat detail needs these: it is the one surface where a
+     missing fix blocks the whole point of the card. */
+  locationError: UserLocationError | null;
+  onRequestLocation: () => void;
   onUnlock: () => Promise<boolean>;
   onClose: () => void;
   onViewRestaurant: () => void;
@@ -58,6 +63,8 @@ export default function MapSheetDetail(props: Props) {
         <MustEatDetail
           mustEat={props.mustEat}
           userLocation={props.userLocation}
+          locationError={props.locationError}
+          onRequestLocation={props.onRequestLocation}
           isUnlocked={props.unlockedIds.has(props.mustEat._id)}
           onUnlock={props.onUnlock}
           onClose={props.onClose}

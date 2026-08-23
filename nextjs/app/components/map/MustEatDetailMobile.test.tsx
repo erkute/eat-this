@@ -11,8 +11,13 @@ vi.mock('next-intl', () => ({
     const copy: Record<string, string> = {
       mustEatAtAria: 'Must Eat bei {name}',
       proximityAway: 'Noch {distance}',
-      proximityCloser: 'Komm näher',
       proximityDistanceGoal: '{meters} m zum Aufdecken',
+      locationNeeded: 'Standort freigeben',
+      enableLocation:
+        'Tipp auf die Karte und gib deinen Standort frei — dann siehst du, wie weit es noch ist.',
+      locationBlocked: 'Standort blockiert',
+      locationBlockedHint:
+        'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.',
       proximityHint:
         'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
       proximityHere: 'Jetzt aufdecken',
@@ -67,6 +72,8 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
   return {
     distance: 2400,
     canUnlock: false,
+    needsLocation: false,
+    locationDenied: false,
     proximityProgress: 0.27,
     vibrateIntensity: 0.18,
     tapping: false,
@@ -104,18 +111,61 @@ describe('MustEatDetailMobile distance meter', () => {
     expect(fill?.getAttribute('style')).toContain('--fd-distance-progress: 27%');
   });
 
-  it('keeps the existing no-location guidance when no GPS fix is available', () => {
+  /* Without a fix the card used to read "Komm näher" over a "come within 50 m"
+     line — a guess dressed as a measurement, and a wrong one for anyone already
+     standing in the doorway. It has to name the actual blocker instead. */
+  it('asks for the location instead of guessing at a distance when there is no fix', () => {
     const { container } = render(
       <MustEatDetailMobile
         mustEat={mustEat}
         isUnlocked={false}
         onClose={vi.fn()}
-        state={makeState({ distance: null, proximityProgress: null })}
+        state={makeState({ distance: null, proximityProgress: null, needsLocation: true })}
       />
     );
 
-    expect(screen.getByText('Komm näher')).toBeTruthy();
+    expect(screen.getByText('Standort freigeben')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Tipp auf die Karte und gib deinen Standort frei — dann siehst du, wie weit es noch ist.'
+      )
+    ).toBeTruthy();
+    expect(screen.queryByText(/Komm auf/)).toBeNull();
+    // The accessible name is all a screen reader gets, and the tap it labels
+    // now opens the permission prompt — "Zu weit weg" would be a lie there.
+    expect(screen.getByLabelText('Standort freigeben')).toBeTruthy();
+    expect(screen.queryByLabelText('Zu weit weg')).toBeNull();
+    expect(container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed'))
+      .toBe('ask');
     expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull();
+  });
+
+  /* A denial cannot be re-asked from the page, so the copy has to point at the
+     one place that can still change it. */
+  it('points at the browser settings once the permission was denied', () => {
+    const { container } = render(
+      <MustEatDetailMobile
+        mustEat={mustEat}
+        isUnlocked={false}
+        onClose={vi.fn()}
+        state={makeState({
+          distance: null,
+          proximityProgress: null,
+          needsLocation: true,
+          locationDenied: true,
+        })}
+      />
+    );
+
+    expect(screen.getByText('Standort blockiert')).toBeTruthy();
+    expect(screen.getByLabelText('Standort blockiert')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.'
+      )
+    ).toBeTruthy();
+    expect(container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed'))
+      .toBe('blocked');
   });
 
   it('switches to a strong reveal-now state inside the unlock radius', () => {

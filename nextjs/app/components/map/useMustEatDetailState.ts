@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useRef, useState } from 'react';
 import { haversineDistance, type UserLocation } from '@/lib/map';
+import type { UserLocationError } from '@/lib/map/useUserLocation';
 import type { MapMustEat } from '@/lib/types';
 import { trackEvent } from '@/lib/analytics';
 
@@ -40,6 +41,11 @@ interface Args {
   // distance/auth, with no unlock side effects — lets the look be reviewed
   // without physically walking into a 50 m radius.
   demo?: boolean;
+  /** The map's shared geolocation error, so a covered card can tell "we have
+   *  no idea where you are" apart from "you told the browser no". */
+  locationError?: UserLocationError | null;
+  /** Ask for the position — the same call the locate FAB fires. */
+  onRequestLocation?: () => void;
 }
 
 export function useMustEatDetailState({
@@ -49,6 +55,8 @@ export function useMustEatDetailState({
   isAuthed,
   onRequireLogin,
   demo,
+  locationError,
+  onRequestLocation,
 }: Args) {
   const distance = userLocation
     ? haversineDistance(
@@ -63,6 +71,15 @@ export function useMustEatDetailState({
   // invitingly even without a location fix.
   const canUnlock = demo || (distance !== null && distance <= UNLOCK_RADIUS_METERS);
   const proximityProgress = getMustEatProximityProgress(distance);
+
+  /* No fix means this card cannot say ANYTHING about proximity — not that the
+     visitor is far away. Treated as its own state so the copy stops guessing.
+     Demo is excluded: there the card is unconditionally tappable by design. */
+  const needsLocation = !demo && distance === null;
+  /* A denial is final for this origin until the visitor changes it in browser
+     settings, so re-asking is dead UI. Split out so the card can point at the
+     one place that still works. */
+  const locationDenied = needsLocation && locationError === 'denied';
 
   // Vibration ramps from a small idle baseline (0.18 - always perceptible)
   // up to 1.0 right on top of the restaurant. Under UNLOCK_RADIUS_METERS
@@ -142,6 +159,22 @@ export function useMustEatDetailState({
       onRequireLogin();
       return;
     }
+    /* No fix, and nothing standing in the way of asking for one. This card is
+       not "too far" — the app does not know where the visitor is, and the
+       shake it used to answer with told them nothing. A tap here is exactly
+       the deliberate gesture the permission prompt wants: the payoff is on
+       screen and the ask is unmistakable, which is what keeps a first-paint
+       prompt (and the permanent "Don't Allow" it collects) off the map. */
+    if (needsLocation && !locationDenied && onRequestLocation) {
+      trackEvent('must_eat_reveal_attempt', {
+        must_eat_id: mustEat._id,
+        restaurant_id: mustEat.restaurant._id,
+        result: 'location_requested',
+        distance_meters: -1,
+      });
+      onRequestLocation();
+      return;
+    }
     trackEvent('must_eat_reveal_attempt', {
       must_eat_id: mustEat._id,
       restaurant_id: mustEat.restaurant._id,
@@ -178,6 +211,8 @@ export function useMustEatDetailState({
   return {
     distance,
     canUnlock,
+    needsLocation,
+    locationDenied,
     proximityProgress,
     vibrateIntensity,
     tapping,

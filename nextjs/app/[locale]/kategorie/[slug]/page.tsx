@@ -257,6 +257,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               '@type': 'Restaurant',
               name: r.name,
               url: localeUrl(locale, restaurantUrl(r.slug)),
+              // Licence-gated like the bezirk list — see lib/json-ld/bezirk.ts.
+              ...(r.photo && { image: r.photo }),
               ...(r.cuisineType && { servesCuisine: r.cuisineType }),
               ...(priceLabel && { priceRange: priceLabel }),
             },

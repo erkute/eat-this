@@ -956,3 +956,83 @@
   color: var(--et-home-accent, #ffc600);
   outline: 0;
 }
+
+/* ── Locate-Control: der Einladungs-Zustand ────────────────────────────────
+ *
+ * `.fab` ist ein nacktes 20px-Icon auf einem weißen Halo — keine Platte, kein
+ * Label. Das trägt, sobald man weiß was es tut, und ist davor wertlos: beim
+ * ersten Kartenbesuch steht nirgends, dass sich die Karte auf einen zentrieren
+ * könnte, also drückt es niemand. Der Preis steht auf jeder verdeckten
+ * Must-Eat-Karte, die jemandem „zu weit weg" sagt, der im Türrahmen steht.
+ *
+ * Die Antwort ist kein zweites Element, das auf dieses zeigt, sondern dieses,
+ * das seinen Namen sagt. Unter `data-invite` wächst der FAB zur beschrifteten
+ * Pille — dieselbe Ink/Providence-Sprache wie die Filter-Chips ein paar Pixel
+ * darunter, das Fadenkreuz in Markengelb, damit es als unseres liest und nicht
+ * als System-Control. Sobald eine Position da ist, klappt es aufs blanke Icon
+ * zurück.
+ *
+ * Steht bewusst am DATEIENDE: `.fab` verteilt sich oben über zwei Dutzend
+ * Blöcke, und Gleichstände entscheidet die Quellreihenfolge (siehe Dateikopf).
+ * Was hier herauskommen MUSS, pinnt mapCascade.test.ts.
+ */
+/* Die Breite muss dem INHALT folgen, in beiden Zuständen. `width` von 44px auf
+   `auto` umzuschalten sieht nach einer Animation aus und ist keine: `auto` ist
+   nicht interpolierbar, der Knopf springt und schneidet das Label in derselben
+   Frame ab. Content-Breite mit 44px-Boden ergibt bare exakt dieselben 44px wie
+   vorher (20px Icon, zentriert) — und lässt die Pille der Grid-Spalte des
+   Labels folgen, die als einzige animiert. Nach rechts verankert (`right`),
+   also wächst sie nach links weg von der Bildschirmkante. */
+.fab {
+  width: auto;
+  min-width: 44px;
+}
+
+.fab[data-invite] {
+  gap: 7px;
+  padding: 0 15px 0 11px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border-radius: var(--et-radius-control, 7px);
+}
+
+/* Das Label klappt AUS dem Icon heraus statt als Kasten daneben zu erscheinen:
+   eine 0fr → 1fr Grid-Spalte animiert die echte Textbreite, ohne sie zu
+   messen — trägt also in jeder Sprache. Kein Opacity-Fade: Markenflächen
+   bewegen sich, sie blenden nicht auf. */
+.fabLabel {
+  display: grid;
+  grid-template-columns: 0fr;
+  overflow: hidden;
+  transition: grid-template-columns 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+}
+
+.fab[data-invite] .fabLabel {
+  grid-template-columns: 1fr;
+}
+
+.fabLabel > span {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Auf eigener Platte ist der Halo ein Leuchten, keine Lesbarkeit — der Filter
+   existiert, damit das freistehende Icon auf den Kartenkacheln überlebt.
+   Bewusst eine EIGENE Klasse neben .fabIcon, damit die Halo-Zusicherung in
+   mapCascade.test.ts weiter genau den plattenlosen Zustand bewacht. */
+.fabIconOnPlate {
+  filter: none;
+  color: var(--et-home-accent, #ffc600);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fabLabel {
+    transition: none;
+  }
+}

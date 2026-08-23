@@ -15,10 +15,11 @@ import {
   LOCATION_ERROR_VISIBLE_MS,
   type LocationStatus,
 } from '@/lib/map/locationStatus';
+import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { openBurgerDrawer } from '../burgerDrawerState';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
 import dynamic from 'next/dynamic';
 import RestaurantList, { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from './RestaurantList';
@@ -139,6 +140,9 @@ interface MapBodyHandlers {
 /* Host-locale-aware aria copy passed in from the server-rendered shell. */
 interface MapBodyAria {
   myLocationAriaLabel: string;
+  /** Visible on the locate control until a position is shared — see
+   *  `.fab[data-invite]`. Doubles as its accessible name there. */
+  locateInviteLabel: string;
   restaurantsListAriaLabel: string;
 }
 
@@ -217,6 +221,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onToggleDesktopPanel,
     onRetryMapData,
     myLocationAriaLabel,
+    locateInviteLabel,
     restaurantsListAriaLabel,
   } = props;
 
@@ -291,6 +296,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     : isLocating
       ? { copy: null, isError: false, canRetry: false }
       : rawLocationStatus;
+
+  /* The locate FAB is a bare icon on a halo — nothing on screen says the map
+     could centre on you, so nobody presses it. It introduces itself instead,
+     but only while that helps: no fix yet, nothing in flight, and no answer
+     already on file (useLocationInvite). */
+  const inviteAllowed = useLocationInvite();
+  const showLocateInvite =
+    inviteAllowed && isActive && !location && !locationError && !locateLoading;
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;
@@ -300,6 +313,16 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     locationStatus.copy &&
     locationStatusKey !== dismissedLocationStatusKey
   );
+  /* The denominator for map_location_invite_accepted. Consent-free: trackEvent
+     counts the NAME through /api/count for everyone and only the params need a
+     consent grant, so "labelled vs. pressed" stays readable even though most
+     visitors never accept cookies. Once per session — a re-render would
+     inflate it past any use. */
+  useEffect(() => {
+    if (!showLocateInvite) return;
+    trackEventOnce('map_location_invite', 'map_location_invite_shown');
+  }, [showLocateInvite]);
+
   /* Errors used to sit there until tapped away — and since the dismissal is
      component state, a denied permission put the bar back on every reload,
      permanently parked over the locate button. It is a notice, not a dialog:
@@ -317,6 +340,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setDismissedLocationStatusKey(null);
     onLocateMe();
   }, [onLocateMe]);
+  /* One control, one path into geolocation — the label only changes what it
+     says, never what it does. */
+  const handleLocateMe = useCallback(() => {
+    if (showLocateInvite) trackEvent('map_location_invite_accepted');
+    onLocateMe();
+  }, [showLocateInvite, onLocateMe]);
   const handleDismissLocationStatus = useCallback(() => {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
   }, [locationStatusKey]);
@@ -491,12 +520,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
             <button
               type="button"
-              onClick={onLocateMe}
+              onClick={handleLocateMe}
               disabled={locateLoading}
-              aria-label={myLocationAriaLabel}
+              /* In the invite state the accessible name IS the visible label —
+                 anything else leaves a screen reader hearing one control and
+                 everyone else reading another. */
+              aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
               className={controlStyles.fab}
+              data-invite={showLocateInvite ? '' : undefined}
             >
-              <svg className={controlStyles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <circle cx="12" cy="12" r="6.8" fill="none" stroke="currentColor" strokeWidth="2" />
                 <circle cx="12" cy="12" r="2" fill="currentColor" />
                 <path
@@ -507,6 +544,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   strokeLinecap="round"
                 />
               </svg>
+              {/* Always mounted so the label can collapse back out on the way
+                  down, not just unfold on the way in. */}
+              <span className={controlStyles.fabLabel} aria-hidden="true">
+                <span>{locateInviteLabel}</span>
+              </span>
             </button>
 
             {/* Desktop floating modals removed — both mobile and desktop now
@@ -608,6 +650,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 uid={uid}
                 userTier={userTier}
                 userLocation={location}
+                locationError={locationError}
+                onRequestLocation={onLocateMe}
                 unlockedIds={unlockedIds}
                 mustEat={selectedMustEat}
                 onUnlock={onUnlock}

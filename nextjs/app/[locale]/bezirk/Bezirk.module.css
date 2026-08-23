@@ -1043,7 +1043,13 @@
    wirkungslos. */
 .filterSticky {
   position: sticky;
-  top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px));
+  /* Voreinstellung: ganz oben kleben. Genau das ist richtig, solange SiteNav
+     weg ist — und unter 768px klappt die sich beim Scrollen nach unten weg und
+     steht am Ende auf `display: none` (SiteNav.tsx:86, `data-visibility` auf
+     `#navbar`). Mit fest reservierten 64px blieb dort ein leeres Band über der
+     Leiste stehen, durch das der Seiteninhalt lief. Am 23.08.2026 auf prod
+     gesehen; lokal fiel es nicht auf, weil der Sicht-Check nicht gescrollt hat. */
+  top: var(--staging-banner-h, 0px);
   z-index: 4;
   /* Über die volle Blattbreite, damit beim Scrollen nichts seitlich an der
      Leiste vorbeiläuft. Der Gutter ist geklippt (.page), es entsteht also
@@ -1124,6 +1130,24 @@
 @media (prefers-reduced-motion: reduce) {
   .filterChip {
     transition: none;
+  }
+}
+
+/* Solange die Navigation steht, rückt die Leiste darunter. Die Höhe steht in
+   SiteNav.module.css und ist nicht konstant: bis 520px `64px + safe-area`,
+   darüber `72px + safe-area` mit `min-height: 78px` — bei 700px sind das 78px,
+   und die alten 64px schoben die Leiste 14px hinter die Navigation.
+
+   `:has()` statt einer festen Annahme, weil der Zustand wirklich wechselt.
+   Fehlt die Unterstützung, bleibt es bei `top: 0` — die Navigation überdeckt
+   die Chips dann beim Hochscrollen, aber es entsteht kein leeres Band. */
+body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
+  top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+}
+
+@media (min-width: 521px) {
+  body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
+    top: calc(max(78px, 72px + env(safe-area-inset-top, 0px)) + var(--staging-banner-h, 0px));
   }
 }
 

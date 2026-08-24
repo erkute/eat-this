@@ -27,4 +27,21 @@ describe('buildSystemPrompt', () => {
     expect(buildSystemPrompt('de')).toMatch(/Antworte auf Deutsch/i);
     expect(buildSystemPrompt('en')).toMatch(/Answer in English/i);
   });
+
+  it('binds "hier" to the restaurant page the user is reading', () => {
+    const p = buildSystemPrompt('de', {
+      page: { type: 'restaurant', slug: 'bari', name: 'BARI' },
+    });
+    // The context names the spot and pre-binds the search…
+    expect(p).toMatch(/SEITEN-KONTEXT/);
+    expect(p).toMatch(/„BARI"/);
+    expect(p).toMatch(/name: "BARI"/);
+    // …and forbids the counter-question the context exists to avoid.
+    expect(p).toMatch(/NIE zurückfragen, welches Restaurant/i);
+  });
+
+  it('omits the page-context block without page context', () => {
+    expect(buildSystemPrompt('de')).not.toMatch(/SEITEN-KONTEXT/);
+    expect(buildSystemPrompt('de', { hasGeo: true })).not.toMatch(/SEITEN-KONTEXT/);
+  });
 });

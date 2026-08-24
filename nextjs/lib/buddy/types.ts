@@ -49,6 +49,17 @@ export interface ChatMessage {
   content: string;
 }
 
+/** Where the user is talking to Remy from. On a restaurant page "hier"/"das
+ *  Restaurant" means THIS spot — the prompt layer turns that into search_spots
+ *  calls with the name pre-bound instead of a counter-question. */
+export interface BuddyPageContext {
+  type: 'restaurant';
+  /** Restaurant slug — exactly the /restaurant/<slug> segment. */
+  slug: string;
+  /** Display name as rendered on the page (what the user is looking at). */
+  name: string;
+}
+
 export type BuddyStreamEvent =
   | { type: 'text'; value: string }
   | { type: 'spots'; value: SpotCandidate[] }

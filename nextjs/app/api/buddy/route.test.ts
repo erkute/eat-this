@@ -19,6 +19,13 @@ vi.mock('@/lib/buddy/orchestrator', () => ({
   runBuddyTurn: mocks.runBuddyTurn,
 }));
 vi.mock('@/lib/buddy/retrieval', () => ({ searchSpots: vi.fn(), searchArticles: vi.fn() }));
+vi.mock('@/lib/map/cached-sanity', () => ({
+  getCachedMapData: vi.fn(async () => ({
+    restaurants: [{ _id: 'r1', name: 'BARI', slug: 'bari' }],
+    mustEats: [],
+    categories: [],
+  })),
+}));
 
 import { POST } from './route';
 import { clientIpFromXff } from '@/lib/clientIp';
@@ -86,6 +93,54 @@ describe('POST /api/buddy', () => {
     const text = await res.text();
     expect(text).toContain('"type":"text"');
     expect(text).toContain('"type":"done"');
+  });
+
+  it('resolves a known page slug into trusted context (name from catalog, not client)', async () => {
+    vi.mocked(checkRateLimit).mockResolvedValue({
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    });
+    const res = await POST(
+      req({
+        sessionId: 's1',
+        messages: [{ role: 'user', content: 'hi' }],
+        locale: 'de',
+        // Client-sent name must be ignored — only the slug counts.
+        page: { type: 'restaurant', slug: 'bari', name: 'IGNORE ME' },
+      })
+    );
+    expect(res.status).toBe(200);
+    await res.text();
+    expect(mocks.runBuddyTurn).toHaveBeenCalledWith(
+      expect.objectContaining({ page: { type: 'restaurant', slug: 'bari', name: 'BARI' } }),
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
+  it('drops page context for unknown or malformed slugs without failing the request', async () => {
+    vi.mocked(checkRateLimit).mockResolvedValue({
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    });
+    for (const page of [
+      { type: 'restaurant', slug: 'does-not-exist' },
+      { type: 'restaurant', slug: 'Bad/Slug' },
+      { type: 'map' },
+      'garbage',
+    ]) {
+      mocks.runBuddyTurn.mockClear();
+      const res = await POST(
+        req({ sessionId: 's1', messages: [{ role: 'user', content: 'hi' }], locale: 'de', page })
+      );
+      expect(res.status).toBe(200);
+      await res.text();
+      expect(mocks.runBuddyTurn).toHaveBeenCalledWith(
+        expect.objectContaining({ page: undefined }),
+        expect.anything(),
+        expect.anything()
+      );
+    }
   });
 
   it('captures stream failures without logging request content or identifiers', async () => {

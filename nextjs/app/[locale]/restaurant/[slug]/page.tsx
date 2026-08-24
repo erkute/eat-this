@@ -26,11 +26,13 @@ import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
-import { splitDescriptionForMagazine, summarizeHours } from '@/lib/restaurant-prose';
+import { splitDescriptionForMagazine } from '@/lib/restaurant-prose';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
+import RestaurantRemySection from '@/app/components/RestaurantRemySection';
+import RemyDock from '@/app/components/buddy/RemyDock';
 import ShareButton from '@/app/components/ShareButton';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import { Link as IntlLink } from '@/i18n/navigation';
@@ -74,9 +76,6 @@ function SiblingRow({
       <h2 className={styles.sibRowHead}>
         <IntlLink href={href} className={styles.sibRowHeadLink}>
           {heading}
-          <span className={styles.sibRowHeadArrow} aria-hidden="true">
-            →
-          </span>
         </IntlLink>
       </h2>
       <div className={styles.sibCards}>
@@ -286,9 +285,6 @@ export default async function RestaurantPage({ params }: PageProps) {
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
     : (r.mapsUrl ?? null);
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
-  // Einzeiler statt der vier Zeilen aus dem Fakten-Block: der Streifen unter
-  // dem Hero soll die Frage beantworten, nicht die Tabelle vorwegnehmen.
-  const hoursSummary = summarizeHours(r.openingHours, loc);
 
   // Rendered inside the hero photo (or next to the name when there is none).
   const heroTags = [
@@ -398,31 +394,6 @@ export default async function RestaurantPage({ params }: PageProps) {
             />
           </div>
         </header>
-
-        {/* Wo und wann — direkt unter dem Titelbild. Der ausführliche
-            Fakten-Block weiter unten bleibt, wo er ist; er stand aber auf dem
-            Telefon erst bei 2035px, also nach 2,4 Bildschirmhöhen, und das ist
-            die Frage, mit der die meisten auf eine Restaurantseite kommen.
-            Bewusst eine stille Zeile und keine zweite Tabelle: die Seite
-            eröffnet weiter mit Bild und Text, nicht mit Daten. */}
-        {(address || hoursSummary) && (
-          <div className={styles.quickFacts}>
-            {address &&
-              (mapsHref ? (
-                <a
-                  className={styles.quickAddress}
-                  href={mapsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {address}
-                </a>
-              ) : (
-                <span className={styles.quickAddress}>{address}</span>
-              ))}
-            {hoursSummary && <span className={styles.quickHours}>{hoursSummary}</span>}
-          </div>
-        )}
 
         {description && (
           <article className={styles.story}>
@@ -634,6 +605,13 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </div>
 
+        {/* Remy steht zwischen den Fakten zum Spot und dem, was es sonst noch
+            gibt: wer bis hier gelesen hat, kennt den Laden — die offene Frage
+            ist jetzt „und was heißt das für mich?". Die Chips sind auf genau
+            diesen Spot gebunden (der Slug geht mit, der Server löst den Namen
+            auf); das Chat-Widget lädt erst mit der ersten Frage. */}
+        <RestaurantRemySection locale={loc} name={displayName} bezirk={r.bezirk?.name} />
+
         {mustEats.length > 0 && (
           <div className={styles.rail}>
             <MustEatTeaserSection mustEats={mustEats} locale={loc} />
@@ -660,6 +638,18 @@ export default async function RestaurantPage({ params }: PageProps) {
             />
           </section>
         )}
+
+        {/* Der zweite, erklärende Map-Ausgang — Bezirk und Kategorie haben ihn
+            längst, ausgerechnet die Restaurant-Seiten nicht, obwohl sie den
+            Suchtraffic tragen. Die Pille unter dem Hero fängt die Ungeduldigen;
+            wer bis hierhin gelesen hat, ist der beste Map-Kandidat und bekam
+            bisher am Seitenende gar kein Angebot. Der Block sagt anders als die
+            Pille auch, WAS auf der Map steht. */}
+        <div className={styles.detailMapCta}>
+          <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
+        </div>
+
+        <RemyDock pageSlug={slug} />
       </main>
     </>
   );

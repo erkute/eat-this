@@ -1,7 +1,10 @@
 // nextjs/lib/buddy/prompt.ts
-import type { Locale } from './types';
+import type { BuddyPageContext, Locale } from './types';
 
-export function buildSystemPrompt(locale: Locale, opts: { hasGeo?: boolean } = {}): string {
+export function buildSystemPrompt(
+  locale: Locale,
+  opts: { hasGeo?: boolean; page?: BuddyPageContext } = {}
+): string {
   const lang =
     locale === 'en'
       ? 'Answer in English (informal "you").'
@@ -55,6 +58,20 @@ export function buildSystemPrompt(locale: Locale, opts: { hasGeo?: boolean } = {
     '- Bei Anfragen außerhalb Berlins (andere Stadt) ehrlich abwinken, statt etwas zu erfinden.',
     '- Allgemeine Food-Erklärungen (z.B. „Was ist Naturwein?") gern aus eigenem Wissen — das sind keine Ortsempfehlungen. Aber sobald es um ein KONKRETES Lokal geht, gilt: nur aus dem Ergebnis.',
     '- Gib in deiner Antwort KEINE URLs oder Links aus. Nenne Spots nur beim Namen.',
+    // Ganz ans Ende, nach allen generischen Regeln: Haiku gewichtet späte
+    // System-Blöcke stärker, und beim frühen Platz oben ignorierte es den
+    // Kontext bei der ersten Frage regelmäßig und fragte „welches Restaurant?".
+    ...(opts.page?.type === 'restaurant'
+      ? [
+          '',
+          '## SEITEN-KONTEXT (WICHTIGSTE REGEL FÜR DIESES GESPRÄCH)',
+          `Der Nutzer liest JETZT GERADE die Seite des Restaurants „${opts.page.name}". Er sieht sie vor sich — du weißt also bereits, um welchen Spot es geht.`,
+          `- „Hier", „das Restaurant", „der Laden", „bei denen" oder eine Frage ohne Ortsnennung („was bestell ich am besten?", „lohnt sich das?") meint IMMER „${opts.page.name}".`,
+          `- ERSTE AKTION bei so einer Frage: \`search_spots\` mit \`name: "${opts.page.name}"\` aufrufen und aus dem Ergebnis antworten (Tipp, Küche, Öffnungszeiten). NIE zurückfragen, welches Restaurant gemeint ist, NIE nach dem Standort des Nutzers fragen.`,
+          `- Bei „ähnliche Spots"/„Alternativen": such nach derselben Küche oder demselben Bezirk wie „${opts.page.name}".`,
+          `- Kein \`[[spot:…]]\`-Marker für „${opts.page.name}" selbst — die Seite, auf der der Nutzer steht, musst du ihm nicht verlinken (Ausnahme: er will den Spot auf der Map sehen). Für ANDERE empfohlene Spots gelten die Marker-Regeln normal.`,
+        ]
+      : []),
     '',
     lang,
   ].join('\n');

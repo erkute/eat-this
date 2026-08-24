@@ -29,8 +29,7 @@
   --page-pad: 22px;
   max-width: 1180px;
   margin-inline: auto;
-  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px)
-    var(--page-pad) 0;
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px) var(--page-pad) 0;
   overflow-x: clip;
   background: var(--detail-paper);
   color: var(--detail-ink);
@@ -46,7 +45,7 @@
 @media (min-width: 720px) {
   .page {
     --page-pad: 32px;
-    padding-top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px);
+    padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 32px);
   }
 }
 
@@ -264,69 +263,10 @@
 .editorialGrid,
 .facts,
 .acts,
-.quickFacts,
 .siblings,
 .rail {
   width: min(100%, 900px);
   margin-inline: auto;
-}
-
-/* Adresse und Öffnungszeiten direkt unter dem Titelbild. Der ausführliche
-   Fakten-Block bleibt bestehen — er stand auf dem Telefon aber erst bei 2035px,
-   und „wo" und „wann offen" ist die Frage, mit der die meisten hier ankommen.
-
-   Bewusst eine stille Zeile: gleiche Schrift wie der Fließtext, kein Kasten,
-   keine Labels. Eine zweite Tabelle so weit oben würde die Seite mit Daten
-   eröffnen statt mit Bild und Text, und das ist erkennbar nicht ihre
-   Handschrift. */
-.quickFacts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  margin-bottom: clamp(26px, 4vw, 44px);
-  color: var(--detail-muted);
-  font-family: var(--f-body);
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-/* Der Trenner hängt am zweiten Element, nicht als eigener Knoten dazwischen:
-   bricht die Zeile um, verschwindet er mit, statt allein am Zeilenanfang zu
-   stehen. */
-.quickHours::before {
-  content: '·';
-  margin-right: 18px;
-  color: var(--detail-muted);
-}
-
-@media (max-width: 560px) {
-  .quickHours::before {
-    content: none;
-    margin-right: 0;
-  }
-
-  .quickFacts {
-    flex-direction: column;
-  }
-}
-
-.quickAddress {
-  color: var(--detail-ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-  transition: color var(--et-motion-fast, 140ms ease);
-}
-
-.quickAddress:hover,
-.quickAddress:focus-visible {
-  color: var(--detail-red);
-}
-
-.quickAddress:focus-visible {
-  outline: 2px solid var(--detail-red);
-  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -553,73 +493,6 @@
   color: var(--detail-red);
   font-size: clamp(18px, 4vw, 30px);
   line-height: var(--et-leading-title, 0.9);
-}
-
-/* „Was bestellen?" stand auf clamp(30px, 4.5vw, 56px) und damit auf 390px bei
-   30px — die Gerichtsnamen darunter kamen auf 31,2px. Die Überschrift war also
-   kleiner als ihr eigener Inhalt, in derselben Schrift, derselben Versalstellung,
-   unterschieden nur durch Rot gegen Schwarz. Man las „BIRRIA-TACOS" zuerst.
-
-   Statt einer zweiten Schlagzeile ist das hier jetzt ein Label in derselben
-   Geste wie `.factsKey` — die Gerichtsnamen sind der Inhalt, die Zeile darüber
-   sagt nur, was für eine Liste das ist. Nebenbei erledigt das den Umbruch: das
-   alte `max-width: 12ch` konnte die 14 Zeichen von „Was bestellen?" nie halten,
-   die Überschrift brach ausnahmslos zweizeilig. */
-.orderHead {
-  margin: 0 0 clamp(16px, 2.2vw, 22px);
-  color: var(--detail-red);
-  font-family: var(--f-display);
-  font-size: 13px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
-
-/* `white-space: nowrap` stand hier, damit die Zeile nicht umbricht — mit
-   „Weitere in Prenzlauer Berg" plus Pfeil ist das auf schmalen Geräten aber
-   breiter als die Spalte, und dann läuft die Überschrift aus dem Blatt.
-   Umbrechen darf sie. */
-.sibRowHeadLink {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Der Link war optisch von einer stummen Überschrift nicht zu unterscheiden —
-   niemand klickt, was nicht wie ein Weg aussieht. Gleiche Geste wie „Alle
-   Spots ansehen →" auf dem Bezirks-Index.
-
-   Inline, nicht Flex: als Flex-Item richtete sich der Pfeil an der ersten
-   Grundlinie aus und hing bei einer umbrochenen Überschrift („Weitere in
-   Prenzlauer Berg" ab ~340px) mitten rechts in der Luft. Inline läuft er im
-   Textfluss mit und landet hinter dem letzten Wort. Der Abstand kommt aus
-   `margin-left` statt aus einem Leerzeichen — sonst gäbe es dort eine
-   Umbruchstelle und der Pfeil stünde allein auf der nächsten Zeile. */
-.sibRowHeadArrow {
-  display: inline-block;
-  margin-left: 0.34em;
-  transition: transform var(--et-motion-fast, 140ms ease);
-}
-
-.sibRowHeadLink:hover .sibRowHeadArrow,
-.sibRowHeadLink:focus-visible .sibRowHeadArrow {
-  transform: translateX(3px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sibRowHeadArrow {
-    transition: none;
-  }
-}
-
-.sibRowHeadLink:hover,
-.sibRowHeadLink:focus-visible {
-  color: var(--detail-ink);
-}
-
-.sibRowHeadLink:focus-visible {
-  outline: 3px solid var(--detail-red);
-  outline-offset: 4px;
 }
 
 .orderList {
@@ -923,11 +796,31 @@
    sollte, in einer Versal-Displayschrift, wo die Trennfuge doppelt auffällt.
    `overflow-wrap: anywhere` bleibt: es bricht nur, wenn ein Wort sonst aus der
    Karte liefe, und deckelt zugleich die min-content-Breite der Spur. */
+/* 27px auf einer 210px-Karte hiess ~7 Zeichen pro Zeile: „Berlin Burger
+   International" lief über VIER Zeilen und verdeckte 42 % des Fotos, „CODA
+   Dessert Dining" 33 %. Das Foto ist hier das Verkaufsargument, nicht der
+   Name. Bei ~19px passen doppelt so viele Zeichen pro Zeile, und selbst der
+   längste Name im Bestand bleibt zweizeilig.
+   `line-clamp: 2` ist die Notbremse für Ausreisser: bei den alten 27px hätte
+   sie ständig echte Namen abgeschnitten (deshalb stand hier lange gar keine),
+   bei 19px greift sie praktisch nie. */
 .sibName {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  /* Die Zeilenhöhe der Displayschrift (0.94) ist kleiner als ihre Glyphen:
+     gemessen 15px Zeilenbox gegen 19px Inhalt. Mit `overflow: hidden` schnitte
+     das die Unterlängen ab — „Jules Geisberg" verlöre die Bögen von g und J.
+     Das Padding gibt sie zurück, ohne die enge Zeilenführung aufzugeben; der
+     negative Ausgleich hält den Abstand zur Meta-Zeile, wo er war. */
+  padding-bottom: 0.28em;
+  margin-bottom: -0.28em;
   min-width: 0;
   overflow-wrap: anywhere;
   color: #fff;
-  font-size: clamp(21px, 2.1vw, 27px);
+  font-size: clamp(18px, 1.5vw, 20px);
   line-height: var(--et-leading-title, 0.94);
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
 }
@@ -1013,9 +906,16 @@
 }
 
 @media (max-width: 700px) {
+  /* Das `padding-block: 10px` hier war der Versuch, die zu knappe Luft unter
+     der Navbar auszugleichen — der Fehler sass aber im Seitenabstand selbst
+     (64px-Konstante gegen 78px hohe Navbar) und ist dort behoben. Bleibt nur
+     der engere Abstand nach unten zum Titelbild. */
+  /* 10px standen hier — die Brotkrumen klebten damit am Titelbild, während
+     nach oben zur Navleiste 24px Luft waren. Eine Zeile, die unten enger
+     sitzt als oben, liest sich als Beschriftung des Bildes statt als
+     Wegmarke der Seite. */
   .breadcrumbWrap {
-    margin-bottom: 10px;
-    padding-block: 10px 0;
+    margin-bottom: 16px;
   }
 
   .hero,
@@ -1152,15 +1052,46 @@
     gap: 5px;
   }
 
-  /* Untergrenze 17px, nicht 19px: bei 320px ist die Karte 140px breit, und
-     19px liessen schon „RESTAURANT" zu „RESTAURA/NT" brechen. Lange Komposita
-     („Helmholtzplatz") brechen weiterhin — das tun sie im Bezirks-Regal
-     genauso, und ein abgeschnittener Name wäre schlechter. */
+  /* Untergrenze 16px: bei 320px ist die Karte 140px breit, und alles darüber
+     liesse schon „RESTAURANT" zu „RESTAURA/NT" brechen. Obergrenze 19px, damit
+     die Zwei-Zeilen-Grenze aus der Desktop-Regel auch hier reicht — bei den
+     alten 24px wurden dieselben Namen dreizeilig, die auf dem Desktop
+     zweizeilig passen. */
   .sibName {
-    font-size: clamp(17px, 5.2vw, 24px);
+    font-size: clamp(16px, 4.6vw, 19px);
   }
 
   .sibMeta {
     font-size: 10px;
   }
+}
+
+/* Der erklärende Map-Block am Seitenende — dieselbe Rahmung wie auf Bezirk
+   und Kategorie, damit der Ausgang überall gleich aussieht. Die Komponente
+   bringt ihre eigene Fläche mit; hier steht nur, wie sie in dieser Seite
+   sitzt. */
+.detailMapCta {
+  width: min(100%, 900px);
+  margin-inline: auto;
+  margin-top: clamp(48px, 7vw, 96px);
+  /* `.page` hat padding-bottom: 0 — als letztes Element der Seite stiess das
+     gelbe Poster sonst mit 0px direkt auf den schwarzen Footer. Auf Bezirk und
+     Kategorie fällt das nicht auf, weil dort noch die FAQ folgt. */
+  margin-bottom: clamp(56px, 8vw, 104px);
+}
+
+.detailMapCta > section {
+  margin: 0;
+  border-radius: var(--et-radius-photo);
+}
+
+.detailMapCta > section::before {
+  display: none;
+}
+
+.detailMapCta > section a {
+  border-radius: var(--et-radius-control);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  letter-spacing: 0;
+  text-transform: none;
 }

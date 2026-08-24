@@ -10,8 +10,8 @@ function r(name: string): RestaurantCard {
 describe('buildCategoryTitle', () => {
   it('uses the curated search-language title for known slugs', () => {
     expect(buildCategoryTitle('pizza', 'Pizza', 'de')).toBe('Die beste Pizza in Berlin');
-    expect(buildCategoryTitle('coffee', 'Kaffee', 'de')).toBe('Die besten Cafés in Berlin');
-    expect(buildCategoryTitle('coffee', 'Coffee', 'en')).toBe('The Best Cafés in Berlin');
+    expect(buildCategoryTitle('coffee', 'Kaffee', 'de')).toBe('Kaffee in Berlin: Die besten Cafés');
+    expect(buildCategoryTitle('coffee', 'Coffee', 'en')).toBe('The Best Coffee & Cafés in Berlin');
     expect(buildCategoryTitle('drinks', 'Drinks', 'de')).toBe('Die besten Bars in Berlin');
   });
 
@@ -32,7 +32,10 @@ describe('buildCategoryTitle', () => {
     }
   });
 
-  it('fits every curated category title inside the final title budget', () => {
+  // `buildBrandedTitle` kürzt selbst auf 60 — eine reine Längenprüfung kann
+  // deshalb gar nicht fehlschlagen. Der echte Fehlerfall ist das Auslassungs-
+  // zeichen: ein Title, der so lang ist, dass die Kürzung ihm ein Wort abschneidet.
+  it('fits every curated category title without being ellipsised', () => {
     for (const slug of [
       'pizza',
       'coffee',
@@ -44,8 +47,11 @@ describe('buildCategoryTitle', () => {
       'fast-food',
       'sweets',
     ]) {
-      expect(buildBrandedTitle(buildCategoryTitle(slug, 'X', 'de')).length).toBeLessThanOrEqual(60);
-      expect(buildBrandedTitle(buildCategoryTitle(slug, 'X', 'en')).length).toBeLessThanOrEqual(60);
+      for (const locale of ['de', 'en'] as const) {
+        const branded = buildBrandedTitle(buildCategoryTitle(slug, 'X', locale));
+        expect(branded.length).toBeLessThanOrEqual(60);
+        expect(branded, `${slug}/${locale} wird gekürzt`).not.toContain('…');
+      }
     }
   });
 

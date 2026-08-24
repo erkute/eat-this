@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     default: 'EAT THIS – Restaurants & Geheimtipps in Berlin',
   },
   description:
-    'Die kuratierte Food-Map mit den besten Restaurants, Cafés und Bars in Berlin. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.',
+    'Die kuratierte Food-Map mit den besten Restaurants, Cafés und Bars in Berlin. Frag Remy, er kennt jeden Spot und findet sofort deinen.',
   metadataBase: new URL('https://www.eatthisdot.com'),
   robots: INDEXABLE_ROBOTS,
   /* Installed to the home screen the page owns the whole screen, unlike a

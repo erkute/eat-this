@@ -19,7 +19,7 @@ const SITE_URL = 'https://www.eatthisdot.com';
 // das, was die Marke für Google und für den Leser unterscheidbar macht.
 const TITLE = 'EAT THIS – Restaurants & Geheimtipps in Berlin';
 const DESCRIPTION =
-  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde deinen Spot.';
+  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, er kennt jeden Spot auf der Map.';
 const OG_IMAGE = `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
 export const metadata: Metadata = {

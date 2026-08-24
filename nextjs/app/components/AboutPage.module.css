@@ -252,6 +252,142 @@
   transform: translateX(-50%) rotate(3deg);
 }
 
+/* ---------- the dark chapter ----------
+
+   Every section in the right rail made the page even but monotonous — one
+   picture, one place, five times over. This one steps out of the white page
+   instead: full-bleed ink, roughly at the middle of the read, carrying the
+   section the whole collectible idea hangs on. The text column keeps its
+   position inside, so the spine survives the change of ground. */
+
+.band {
+  margin-top: clamp(56px, 8vw, 96px);
+  margin-inline: calc(50% - 50vw);
+  padding: clamp(44px, 6vw, 80px) clamp(18px, 4vw, 54px);
+  background: var(--about-ink);
+  color: var(--about-paper);
+}
+
+.bandInner {
+  width: min(100%, 960px);
+  margin: 0 auto;
+}
+
+.bandGrid {
+  display: grid;
+  gap: clamp(24px, 3.4vw, 36px);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .bandGrid {
+    grid-template-columns: minmax(0, 60ch) 300px;
+    justify-content: space-between;
+    gap: clamp(40px, 5vw, 72px);
+  }
+}
+
+.band .sectionTitle {
+  color: var(--about-accent);
+}
+
+.band .body {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.band .body strong,
+.band .body b {
+  color: var(--about-paper);
+}
+
+.band .body a {
+  color: var(--about-accent);
+}
+
+.band .body a:hover,
+.band .body a:focus-visible {
+  color: var(--about-paper);
+}
+
+.band .caption {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------- Frag Remy ---------- */
+
+.remy {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 22px);
+  margin-top: clamp(34px, 5vw, 52px);
+  padding-top: clamp(26px, 3.4vw, 34px);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--about-paper);
+  text-decoration: none;
+}
+
+.remyArt {
+  flex: none;
+  width: clamp(72px, 11vw, 96px);
+  height: auto;
+  transform: rotate(-3deg);
+  transition: transform 140ms ease;
+}
+
+.remy:hover .remyArt,
+.remy:focus-visible .remyArt {
+  transform: translateY(-4px) rotate(-5deg);
+}
+
+.remyCopy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.remyTitle {
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--about-accent);
+  text-transform: uppercase;
+}
+
+.remyText {
+  max-width: 46ch;
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Under the line it explains, not flung to the far edge — at 1440 the two sat
+   270px apart and stopped reading as one thing. */
+.remyCta {
+  justify-self: start;
+  margin-top: 3px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 700;
+  color: var(--about-paper);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 140ms ease;
+}
+
+.remy:hover .remyCta,
+.remy:focus-visible .remyCta {
+  color: var(--about-accent);
+}
+
+@media (max-width: 639px) {
+  .remy {
+    align-items: flex-start;
+  }
+}
+
 /* ---------- figures ---------- */
 
 /* The column stays put; the object inside it does not. Hanging the caption
@@ -262,17 +398,15 @@
   width: min(100%, 300px);
 }
 
-/* Filling the column would be right for three pictures of the same shape, but
-   a 600x1219 phone next to an 867x856 plate is twice as tall at the same
-   width and swallows its section. So: a set width per object, chosen for
-   optical weight, with height as the backstop. Left-aligned, so the objects
-   share an edge the way the text column does. */
+/* One width per object, chosen for optical weight — a 600x1219 phone and an
+   867x856 plate cannot share a width without one of them dominating. Width
+   only: pairing it with a max-height does not scale a picture, it squashes
+   one, and that is exactly what happened to the phone. */
 .figureImg {
   display: block;
   width: var(--fig-w, 290px);
   max-width: 100%;
   height: auto;
-  max-height: 460px;
   transform: rotate(var(--tilt, 0deg));
   filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.15));
 }
@@ -337,25 +471,6 @@
 }
 
 .ctaPrimary,
-.ctaSecondary {
-  display: inline-flex;
-  align-items: center;
-  min-height: 48px;
-  padding: 0 22px;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(18px, 1.7vw, 21px);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background-color 140ms ease,
-    border-color 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
-}
 
 .ctaPrimary {
   background: var(--about-accent);
@@ -363,23 +478,10 @@
   color: var(--about-ink);
 }
 
-.ctaSecondary {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  color: var(--about-paper);
-}
 
 .ctaPrimary:hover,
-.ctaPrimary:focus-visible,
-.ctaSecondary:hover,
-.ctaSecondary:focus-visible {
+.ctaPrimary:focus-visible {
   transform: translateY(-2px);
-}
-
-.ctaSecondary:hover,
-.ctaSecondary:focus-visible {
-  border-color: var(--about-accent);
-  color: var(--about-accent);
 }
 
 @media (max-width: 560px) {

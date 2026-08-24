@@ -35,9 +35,6 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
           <li key={slug}>
             <Link href={`/kategorie/${slug}`} className={styles.chip}>
               <span className={styles.chipLabel}>{name}</span>
-              <span className={styles.chipArrow} aria-hidden="true">
-                →
-              </span>
             </Link>
           </li>
         ))}

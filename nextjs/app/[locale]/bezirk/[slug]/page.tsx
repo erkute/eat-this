@@ -11,6 +11,7 @@ import {
 } from '@/lib/sanity.server';
 import { buildBezirkJsonLd } from '@/lib/json-ld';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { buildBrandedTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
@@ -83,7 +84,11 @@ function RestaurantGrid({
                 {r.name}
               </h3>
               <div className={styles.cardMeta}>
-                {r.cuisineType && <span className={styles.chipYellow}>{r.cuisineType}</span>}
+                {r.cuisineType && (
+                  <span className={styles.chipYellow}>
+                    {localizedCuisine(r.cuisineType, locale)}
+                  </span>
+                )}
                 {priceLabel && <span className={styles.price}>{priceLabel}</span>}
               </div>
               {cardLine && <p className={styles.cardTip}>{cardLine}</p>}

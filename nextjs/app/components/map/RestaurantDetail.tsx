@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { useMemo, useRef } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
   abbreviateBezirk,
   formatWalkingTime,
@@ -207,8 +208,9 @@ export default function RestaurantDetail({
     : null;
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null;
 
+  const loc = locale === 'en' ? 'en' : 'de';
   const priceLabel = formatPriceLabel(r);
-  const cuisine = r.cuisineType ?? null;
+  const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null;
 
   const websiteInfo = classifyWebsite(r.website);
   let igHandle: string | null = null;
@@ -242,8 +244,8 @@ export default function RestaurantDetail({
 
   // Editorial prose is DE-base with an optional EN override, same convention
   // as the public /restaurant/[slug] page — without pickLocale the /en map
-  // served German descriptions and tips.
-  const loc = locale === 'en' ? 'en' : 'de';
+  // served German descriptions and tips. (`loc` steht weiter oben, es trägt
+  // jetzt auch das Küchen-Label.)
   const storyText =
     pickLocale(r.description, r.descriptionEn, loc) ??
     pickLocale(r.shortDescription, r.shortDescriptionEn, loc) ??

@@ -6,6 +6,7 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar';
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat';
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream';
 import { greetingFor } from '@/lib/buddy/greeting';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { isNearbyIntent } from '@/lib/buddy/nearbyIntent';
 import {
   BUDDY_ASK_EVENT,
@@ -90,7 +91,12 @@ function SpotCard({
   isSaved?: boolean;
   onSave?: () => void;
 }) {
-  const meta = [spot.cuisineType, spot.bezirk, spot.priceRange, spot.distanceLabel]
+  const meta = [
+    spot.cuisineType ? localizedCuisine(spot.cuisineType, locale === 'en' ? 'en' : 'de') : null,
+    spot.bezirk,
+    spot.priceRange,
+    spot.distanceLabel,
+  ]
     .filter(Boolean)
     .join(' · ');
   const cta = locale === 'en' ? 'Show on map' : 'Auf der Map ansehen';

@@ -11,6 +11,7 @@ import { ImageResponse } from 'next/og';
 import sharp from 'sharp';
 import { getRestaurantBySlug } from '@/lib/sanity.server';
 import { isValidSlug } from '@/lib/email/spotCard';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 
 export const runtime = 'nodejs';
 
@@ -50,7 +51,13 @@ function ogPhotoUrl(photo: string): string {
 }
 
 export async function GET(request: Request) {
-  const slug = new URL(request.url).searchParams.get('slug') ?? '';
+  const params = new URL(request.url).searchParams;
+  const slug = params.get('slug') ?? '';
+  /* Die Karte trug bisher immer den rohen Sanity-Wert, also „Mexican" auch
+     unter einem deutschen Beitrag. Die Locale kommt aus dem Aufrufer, weil die
+     Route selbst keinen Pfad-Kontext hat; ohne Parameter bleibt es Deutsch,
+     die Standard-Locale der Seite. */
+  const locale = params.get('locale') === 'en' ? 'en' : 'de';
   if (!isValidSlug(slug)) {
     return new Response('invalid slug', { status: 400 });
   }
@@ -65,7 +72,9 @@ export async function GET(request: Request) {
   const district = r.bezirk?.name ?? r.district ?? null;
   const basePhoto = r.seo?.ogImageUrl || r.photo;
   const bg = basePhoto ? ogPhotoUrl(basePhoto) : null;
-  const metaLine = [r.cuisineType, district].filter(Boolean).join('   ·   ');
+  const metaLine = [r.cuisineType ? localizedCuisine(r.cuisineType, locale) : null, district]
+    .filter(Boolean)
+    .join('   ·   ');
   // Saira Condensed is narrow, but very long names still need a step down.
   const nameSize = r.name.length > 26 ? 72 : r.name.length > 18 ? 90 : 108;
 

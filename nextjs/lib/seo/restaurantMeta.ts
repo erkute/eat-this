@@ -1,4 +1,4 @@
-import { CUISINE_LABELS_DE } from './cuisineLabels';
+import { localizedCuisine } from '../cuisineLabels';
 import {
   buildBrandedTitle,
   METADATA_TITLE_TEXT_MAX,
@@ -18,11 +18,7 @@ export function buildRestaurantTitle(opts: {
   locale: 'de' | 'en';
 }): string {
   const { name, cuisineType, district, locale } = opts;
-  const label = cuisineType
-    ? locale === 'de'
-      ? (CUISINE_LABELS_DE[cuisineType] ?? cuisineType)
-      : cuisineType
-    : null;
+  const label = cuisineType ? localizedCuisine(cuisineType, locale) : null;
   const nameHasBerlin = /berlin/i.test(name);
   const place = district
     ? nameHasBerlin

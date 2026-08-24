@@ -5,6 +5,7 @@ import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
@@ -279,7 +280,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     const q = search.trim();
     if (q) return q;
     if (bezirk) return bezirk;
-    if (cuisine) return cuisine;
+    if (cuisine) return localizedCuisine(cuisine, locale === 'en' ? 'en' : 'de');
     if (category !== 'All') {
       const def = categories.find((c) => c.slug === category);
       return def ? localizedCategoryName(def, locale === 'en' ? 'en' : 'de') : null;
@@ -311,8 +312,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      here any more — that would collapse the greeting the instant the fix
      arrives, which for a cached fix is a frame or two. */
   const locateLabel = useLocationInvite(location !== null);
-  const showLocateInvite =
-    locateLabel !== null && isActive && !locationError && !locateLoading;
+  const showLocateInvite = locateLabel !== null && isActive && !locationError && !locateLoading;
   /* Only an unanswered permission is a funnel step. A greeting is shown to
      someone who has nothing left to decide, so counting it would pad the
      denominator with returning visitors. */

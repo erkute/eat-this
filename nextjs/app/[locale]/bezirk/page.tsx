@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
 import { normalizeName } from '@/lib/normalizeName';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { pickShelf } from '@/lib/curated-ranking';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { serializeJsonLd } from '@/lib/json-ld';
@@ -211,7 +212,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                                   <div className={styles.cardMeta}>
                                     {restaurant.cuisineType && (
                                       <span className={styles.chipYellow}>
-                                        {restaurant.cuisineType}
+                                        {localizedCuisine(restaurant.cuisineType, loc)}
                                       </span>
                                     )}
                                     {priceLabel && (

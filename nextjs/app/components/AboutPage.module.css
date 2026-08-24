@@ -39,7 +39,7 @@
 }
 
 .inner {
-  width: min(100%, 1080px);
+  width: min(100%, 960px);
   margin: 0 auto;
   padding: clamp(26px, 4vw, 48px) 0 clamp(54px, 8vw, 96px);
 }
@@ -147,18 +147,10 @@
 }
 
 @media (min-width: 900px) {
-  .section[data-figure='right'],
-  .section[data-figure='left'] {
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: clamp(36px, 5vw, 64px);
-  }
-
-  .section[data-figure='left'] {
-    grid-template-columns: 320px minmax(0, 1fr);
-  }
-
-  .section[data-figure='left'] .sectionCopy {
-    order: 2;
+  .section {
+    grid-template-columns: minmax(0, 60ch) 300px;
+    justify-content: space-between;
+    gap: clamp(40px, 5vw, 72px);
   }
 }
 
@@ -180,7 +172,7 @@
 }
 
 .body {
-  max-width: 62ch;
+  max-width: 60ch;
   color: var(--about-text);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(16px, 1.15vw, 17.5px);
@@ -264,13 +256,20 @@
 
 .figure {
   margin: 0;
-  width: min(100%, var(--fig-w, 300px));
+  width: min(100%, 300px);
 }
 
+/* Filling the column would be right for three pictures of the same shape,
+   but a 600x1219 phone next to an 867x856 plate is twice as tall at the same
+   width and swallows its section. Height is the cap; the column is the
+   ceiling on width. Left-aligned, so the objects share an edge the way the
+   text column does. */
 .figureImg {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: auto;
+  max-height: 460px;
   transform: rotate(var(--tilt, 0deg));
 }
 

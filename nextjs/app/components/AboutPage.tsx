@@ -18,10 +18,6 @@ type Figure = {
   src: string;
   width: number;
   height: number;
-  /** Rendered width in px. Set per image, not per breakpoint: a 600x1219
-   *  phone shot and an 867x861 plate need very different boxes to read as
-   *  the same weight on the page. */
-  renderWidth: number;
   tilt: number;
   caption: { de: string; en: string };
   alt: { de: string; en: string };
@@ -29,14 +25,15 @@ type Figure = {
 
 /* Editorial furniture, keyed by section order — the About copy lives in Sanity
    and its headings get rewritten, so matching on heading text would break the
-   first time a word changes. Order is the stable part. Extra entries are
-   simply unused if a section is dropped; a new section just gets no figure. */
+   first time a word changes. Order is the stable part.
+
+   Deliberately shorter than the section list: the last sections carry no
+   picture. A figure per paragraph turned the page into a contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
     src: '/pics/home-phones/phone-map-600.webp',
     width: 600,
     height: 1219,
-    renderWidth: 230,
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
@@ -48,7 +45,6 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/home-dishes/bubar-galette-print.webp',
     width: 871,
     height: 856,
-    renderWidth: 300,
     tilt: 1.5,
     caption: {
       de: 'Galette bei Bubar. Ein Spot von vielen.',
@@ -63,36 +59,11 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1076,
-    renderWidth: 240,
     tilt: -3,
     caption: { de: 'Jedes Must Eat ist eine Karte.', en: 'Every Must Eat is a card.' },
     alt: {
       de: 'Die Rückseite einer Eat-This-Sammelkarte',
       en: 'The back of an Eat This trading card',
-    },
-  },
-  {
-    src: '/pics/home-dishes/uludag-doener-print.webp',
-    width: 928,
-    height: 1152,
-    renderWidth: 300,
-    tilt: 2,
-    caption: { de: 'Berlin, Bezirk für Bezirk.', en: 'Berlin, district by district.' },
-    alt: {
-      de: 'Ein Döner auf Uludag-Papier, von oben fotografiert',
-      en: 'A döner on Uludag paper, shot from above',
-    },
-  },
-  {
-    src: '/pics/home-dishes/grilled-cheese-print.webp',
-    width: 1808,
-    height: 1504,
-    renderWidth: 320,
-    tilt: -1.5,
-    caption: { de: 'Grilled Cheese bei Aera. Deiner fehlt noch.', en: 'Grilled cheese at Aera. Yours is still missing.' },
-    alt: {
-      de: 'Ein gegrilltes Käsesandwich mit Gurke auf einem Blech',
-      en: 'A grilled cheese sandwich with a pickle on a tray',
     },
   },
 ];
@@ -198,11 +169,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
         {sections.map((section, index) => {
           const figure = FIGURES[index] ?? null;
           return (
-            <section
-              key={section.title || index}
-              className={styles.section}
-              data-figure={figure ? (index % 2 === 0 ? 'right' : 'left') : undefined}
-            >
+            <section key={section.title || index} className={styles.section}>
               <div className={styles.sectionCopy}>
                 <h2 className={styles.sectionTitle}>{section.title}</h2>
                 <div className={styles.body}>
@@ -211,16 +178,13 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               </div>
 
               {figure && (
-                <figure
-                  className={styles.figure}
-                  style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
-                >
+                <figure className={styles.figure}>
                   <Image
                     src={figure.src}
                     alt={de ? figure.alt.de : figure.alt.en}
                     width={figure.width}
                     height={figure.height}
-                    sizes={`${figure.renderWidth}px`}
+                    sizes="300px"
                     loading="lazy"
                     className={styles.figureImg}
                     style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}

@@ -7,7 +7,8 @@ import { createAnthropicLlmClient, runBuddyTurn } from '@/lib/buddy/orchestrator
 import { searchSpots, searchArticles } from '@/lib/buddy/retrieval';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { encodeBuddyEvent } from '@/lib/buddy/stream';
-import type { ChatMessage, Locale } from '@/lib/buddy/types';
+import { getCachedMapData } from '@/lib/map/cached-sanity';
+import type { BuddyPageContext, ChatMessage, Locale } from '@/lib/buddy/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,7 @@ function parseBody(body: unknown):
       messages: ChatMessage[];
       locale: Locale;
       geo?: { lat: number; lng: number };
+      pageSlug?: string;
     }
   | { ok: false } {
   if (typeof body !== 'object' || body === null) return { ok: false };
@@ -57,7 +59,40 @@ function parseBody(body: unknown):
       geo = { lat: g.lat, lng: g.lng };
     }
   }
-  return { ok: true, sessionId, messages, locale, geo };
+  // Page context arrives as a bare slug — the display name is resolved
+  // SERVER-side against the catalog, so client-sent text can never reach the
+  // system prompt. Malformed values just drop the context, never the request.
+  let pageSlug: string | undefined;
+  if (typeof b.page === 'object' && b.page !== null) {
+    const p = b.page as Record<string, unknown>;
+    if (
+      p.type === 'restaurant' &&
+      typeof p.slug === 'string' &&
+      p.slug.length > 0 &&
+      p.slug.length <= 120 &&
+      /^[a-z0-9-]+$/.test(p.slug)
+    ) {
+      pageSlug = p.slug;
+    }
+  }
+  return { ok: true, sessionId, messages, locale, geo, pageSlug };
+}
+
+// Resolve a restaurant slug into trusted page context. Unknown slug → no
+// context (the chat still works, Remy just has no page anchor).
+async function resolvePageContext(
+  pageSlug: string | undefined
+): Promise<BuddyPageContext | undefined> {
+  if (!pageSlug) return undefined;
+  try {
+    const { restaurants } = await getCachedMapData();
+    const match = restaurants.find((r) => r.slug === pageSlug);
+    return match ? { type: 'restaurant', slug: match.slug, name: match.name } : undefined;
+  } catch (error) {
+    // Catalog hiccups must not take the chat down — degrade to no context.
+    Sentry.captureException(error, { tags: { source: 'buddy-page-context' } });
+    return undefined;
+  }
 }
 
 // Hashed before use so no raw IP is ever stored (rate-limit bucketing only).
@@ -106,6 +141,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }
 
+  const page = await resolvePageContext(parsed.pageSlug);
   const llm = createAnthropicLlmClient();
   const encoder = new TextEncoder();
   const abortController = new AbortController();
@@ -116,7 +152,7 @@ export async function POST(request: Request) {
     async start(controller) {
       try {
         for await (const event of runBuddyTurn(
-          { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo },
+          { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo, page },
           { llm, searchSpots, searchArticles },
           { signal: abortController.signal }
         )) {

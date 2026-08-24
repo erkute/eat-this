@@ -113,6 +113,13 @@
 }
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
+  /* Tatsächliche Höhe der fixierten SiteNav — einzige Quelle für die Navbar
+     selbst UND für den Abstand, den die Seiten darunter freihalten.
+     Die Detailseiten rechneten vorher mit einer festen 64px-Konstante. Auf dem
+     Telefon stimmte die zufällig, ab 521px ist die Leiste aber 78px hoch: dort
+     fehlten 14px, und die Brotkrumen rückten der Navkante auf die Pelle.
+     Der schmale Wert steht in der Media Query weiter unten. */
+  --site-nav-h: max(78px, calc(72px + env(safe-area-inset-top, 0px)));
   --black: #15120e;
   --white: #fff;
   --off-white: #fff;
@@ -475,6 +482,15 @@ html:root {
   outline: 2px solid var(--c-coral, #ef3528);
   outline-offset: 2px;
 }
+/* Unter 520px ist die Navbar flacher (siehe SiteNav.module.css) — der Wert
+   gehört an dieselbe Stelle wie die Vorgabe, sonst rechnen die Seiten auf dem
+   Telefon mit einer Leiste, die es dort gar nicht gibt. */
+@media (max-width: 520px) {
+  :root {
+    --site-nav-h: calc(64px + env(safe-area-inset-top, 0px));
+  }
+}
+
 html {
   color-scheme: light;
   font-synthesis-weight: none;

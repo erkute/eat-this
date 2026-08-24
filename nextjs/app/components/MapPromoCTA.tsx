@@ -26,7 +26,6 @@ const SLOGAN = 'The map for people who care about food.';
 const chipLabel = (locale: 'de' | 'en') =>
   locale === 'de' ? 'Auf der Map öffnen' : 'Open on the map';
 
-
 function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string } {
   const de = locale === 'de';
   switch (kind) {
@@ -137,10 +136,22 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
       </div>
       {/* The map IS the product — a black slab of type sold it badly. The
           device shot bleeds off the bottom edge so the banner reads as a
-          window into the app rather than a poster about it. */}
+          window into the app rather than a poster about it.
+          Zwei Geräte statt einem, dieselbe Staffelung wie im Hero der
+          Startseite: die Map vorn, eine Spot-Seite dahinter. Ein einzelnes
+          Telefon zeigt nur die Karte — das Paar zeigt, dass hinter jedem Pin
+          noch etwas liegt. */}
       <div className={styles.shot} aria-hidden="true">
         <Image
-          src="/pics/map-teaser/map_app.webp"
+          src="/pics/home-phones/phone-restaurant.webp"
+          alt=""
+          width={855}
+          height={1736}
+          sizes="(max-width: 719px) 48vw, 280px"
+          className={styles.shotBack}
+        />
+        <Image
+          src="/pics/home-phones/phone-map.webp"
           alt=""
           width={855}
           height={1736}

@@ -1,8 +1,3 @@
-import type { OpeningHourSlot } from './types';
-import { isClosedSlot, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
-
-type Loc = 'de' | 'en';
-
 /**
  * Auto-generated prose blocks that live on the restaurant detail page.
  *
@@ -11,51 +6,6 @@ type Loc = 'de' | 'en';
  * bar (target: ~200+ unique words per page) and qualify for indexing.
  * Every helper degrades gracefully when source fields are missing.
  */
-
-/**
- * Concise multi-slot opening-hours summary, comma-separated. Null when empty.
- *
- * Trägt seit dem Wegfall der FAQ den Kurzstreifen unter dem Hero: dort ist die
- * Zeile die Antwort auf „wann offen", bevor der ausführliche Fakten-Block
- * überhaupt in Sicht kommt. Lokalisiert, sonst stünde dort für deutsche Leser
- * "Mon-Tue closed, Wed-Fri 17:00-21:00".
- *
- * Rest days move to the end and share one "geschlossen", because the caller
- * leads with "Geöffnet" and slot order is the editor's, not the reader's:
- * "Geöffnet Mo–Di geschlossen, Mi–Sa 18:00-23:00" opens by announcing when the
- * place is shut. Now: "Geöffnet Mi–Sa 18:00-23:00, Mo–Di und So geschlossen".
- */
-export function summarizeHours(
-  slots: OpeningHourSlot[] | undefined,
-  locale: Loc = 'de'
-): string | null {
-  if (!slots || slots.length === 0) return null;
-
-  const open: string[] = [];
-  const closedDays: string[] = [];
-  for (const slot of slots) {
-    const days = localizeOpeningDays(slot.days, locale).trim();
-    if (isClosedSlot(slot.hours)) {
-      if (days) closedDays.push(days);
-      continue;
-    }
-    const entry = `${days} ${localizeOpeningHours(slot.hours, locale)}`.trim();
-    if (entry) open.push(entry);
-  }
-
-  const parts = [...open];
-  if (closedDays.length > 0) {
-    parts.push(`${joinDays(closedDays, locale)} ${locale === 'de' ? 'geschlossen' : 'closed'}`);
-  }
-  return parts.length > 0 ? parts.join(', ') : null;
-}
-
-/** "Mo", "Mo–Di und So", "Mo, Mi und So" — Oxford-less, matching German usage. */
-function joinDays(days: string[], locale: Loc): string {
-  if (days.length === 1) return days[0];
-  const conjunction = locale === 'de' ? 'und' : 'and';
-  return `${days.slice(0, -1).join(', ')} ${conjunction} ${days[days.length - 1]}`;
-}
 
 export interface FAQEntry {
   question: string;

@@ -82,9 +82,12 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('<span>The map for people</span> <span>who care about food.</span>');
     // Der Name steht im Fließtext, nicht in der Headline.
     expect(html).toContain('Cocolo ist nur einer der Pins.');
-    // The map screenshot is what makes the banner an invitation instead of a
+    // The device shots are what make the banner an invitation instead of a
     // black slab of type — regressing to a text-only CTA should fail here.
-    expect(html).toContain('map_app.webp');
+    // Zwei Geräte: die Map vorn, eine Spot-Seite dahinter. Fällt eines weg,
+    // ist die Staffelung kaputt und der Banner zeigt nur noch die halbe Idee.
+    expect(html).toContain('phone-map.webp');
+    expect(html).toContain('phone-restaurant.webp');
   });
 
   it('band variant is the home-page button: label, deep-link, no section heading', () => {

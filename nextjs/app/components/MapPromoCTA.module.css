@@ -53,19 +53,64 @@
   min-width: 0;
 }
 
-/* Device shot — bleeds off the bottom edge of the banner. */
+/* Device shot — bleeds off the bottom edge of the banner. Zwei Geräte,
+   gestaffelt wie im Hero der Startseite: die Spot-Seite hinten, die Map vorn.
+
+   Beide sind GLEICH BREIT (`--shot-device`) — ein kleineres Hintergrundgerät
+   liest sich als perspektivischer Fehler, nicht als Stapel.
+
+   Und beide stehen im Fluss, nicht absolut: absolut positioniert lag das
+   hintere Telefon ausserhalb der Shot-Spalte und schob sich ab 720px über die
+   Textspalte. Als Flex-Zeile mit negativem Rand bleibt der ganze Stapel in
+   seiner Spur, egal wie breit das Banner wird. */
 .shot {
+  /* Die Geräte behalten die Grösse, die das Banner vorher mit EINEM Telefon
+     hatte (~250px). Der Platz für das zweite kommt NICHT aus schmaleren
+     Geräten, sondern aus einer breiteren Spur plus kräftiger Überlappung —
+     zwei auf 180px geschrumpfte Telefone lasen sich wie Spielzeug. */
+  --shot-device: 72%;
+  --shot-overlap: -61%;
+
   position: relative;
   z-index: 1;
-  width: min(62%, 260px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: min(84%, 348px);
   margin-bottom: -14%;
-  transform: rotate(-3deg);
+  /* Optische Mitte statt Layout-Mitte: das hintere Gerät ist stärker gekippt
+     und schlägt darum weiter nach links aus als das vordere nach rechts.
+     Flexbox rechnet Drehungen nicht mit, der Fächer stand deshalb messbar
+     links neben seiner Spur (auf dem Telefon deutlich sichtbar). */
+  transform: translateX(3.8%);
 }
-.shotImg {
+.shotImg,
+.shotBack {
   display: block;
-  width: 100%;
+  width: var(--shot-device);
   height: auto;
+  /* Unten bündig drehen: mit dem Vorgabe-Zentrum wandert der Fuss des
+     gekippten Geräts nach oben und der Stapel steht nicht mehr auf einer
+     Linie. */
+  transform-origin: bottom center;
+}
+/* Fächer statt Stapel: die beiden Geräte kippen in ENTGEGENGESETZTE
+   Richtungen und stehen auf einer gemeinsamen Fusslinie, wie zwei
+   aufgefächerte Karten. Zwei gleichsinnig gekippte Telefone lasen sich als
+   ein verrutschter Stapel. Die Winkel sind bewusst gegengleich: so heben
+   sich die seitlichen Überstände der Drehung fast auf und der Fächer bleibt
+   in seiner Spur zentriert. */
+.shotImg {
+  position: relative;
+  z-index: 1;
+  transform: rotate(2deg);
   filter: drop-shadow(0 18px 38px rgba(21, 18, 14, 0.34));
+}
+.shotBack {
+  z-index: 0;
+  margin-right: var(--shot-overlap);
+  transform: rotate(-4deg);
+  filter: drop-shadow(0 14px 30px rgba(21, 18, 14, 0.28));
 }
 .title {
   color: var(--et-home-red);
@@ -120,11 +165,15 @@
   .promo {
     margin-top: 56px;
     padding: 52px clamp(28px, 5%, 56px) 0;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 250px);
+    /* Breitere Spur, weil sie jetzt zwei Geräte in voller Grösse trägt. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 348px);
     align-items: center;
     justify-items: start;
     text-align: left;
-    gap: clamp(24px, 4vw, 56px);
+    /* Untergrenze 36px statt 24px: die Drehung lässt den Fächer rund 40px
+       über seine Spur ragen, und knapp über dem 720px-Umbruch war der
+       Zwischenraum schmaler als dieser Überstand. */
+    gap: clamp(36px, 4vw, 56px);
   }
   .copy {
     align-items: flex-start;
@@ -138,8 +187,11 @@
   .title {
     font-size: clamp(36px, 4.4vw, 56px);
   }
+  /* 36px statt 42px: der Titel steht mit `white-space: nowrap` und konnte
+     nicht ausweichen — bei 42px lief „who care about food." bis unter die
+     Geräte. Kleiner ist er hier die bessere Lösung als schmalere Telefone. */
   .titleRestaurant {
-    font-size: clamp(34px, 3.4vw, 42px);
+    font-size: clamp(32px, 3vw, 36px);
   }
   .sub {
     font-size: 16px;
@@ -150,15 +202,18 @@
     padding: 15px 26px 16px;
   }
   .shot {
-    width: min(100%, 250px);
+    width: min(100%, 348px);
     margin-bottom: -9%;
     justify-self: end;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  /* Nur anheben — die Neigung sitzt an den Geräten selbst. Der
+     Zentrier-Versatz muss mitgeschrieben werden, sonst springt der Fächer
+     beim Hover um seinen Ausgleich zurück. */
   .promo:hover .shot {
-    transform: rotate(-3deg) translateY(-6px);
+    transform: translateX(3.8%) translateY(-6px);
   }
   .shot {
     transition: transform var(--et-motion-card);

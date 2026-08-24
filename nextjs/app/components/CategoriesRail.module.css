@@ -33,23 +33,12 @@
     transform 160ms ease;
 }
 
-.chipArrow {
-  font-size: 0.72em;
-  transform: translateX(0);
-  transition: transform 160ms ease;
-}
-
 .chip:hover,
 .chip:focus-visible {
   color: var(--et-home-inverse-text);
   background: var(--et-home-ink);
   outline: 0;
   transform: translateY(-2px);
-}
-
-.chip:hover .chipArrow,
-.chip:focus-visible .chipArrow {
-  transform: translateX(4px);
 }
 
 .chip:focus-visible {
@@ -59,8 +48,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chip,
-  .chipArrow {
+  .chip {
     transition: none;
   }
 

@@ -23,7 +23,11 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion: '2024-01-01',
-  useCdn: true,
+  // CDN and plain API draw on SEPARATE plan quotas. `SANITY_USE_CDN=false`
+  // is the escape hatch when the CDN quota is exhausted (first hit 24.08.2026:
+  // plan_limit_reached → local dev and fresh ISR revalidates failed) — flip it
+  // per environment without a code change. Default stays CDN.
+  useCdn: process.env.SANITY_USE_CDN !== 'false',
   perspective: 'published',
   token: process.env.SANITY_API_READ_TOKEN,
 });

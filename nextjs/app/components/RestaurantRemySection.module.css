@@ -1,0 +1,234 @@
+/* "Frag Remy" auf der Restaurant-Seite — gleiche Breite wie .story/.facts/
+   .siblings (900px), gleicher Layer wie die Bühne auf der Startseite:
+   ruhiges Panel, gerundet, weich abgesetzt. Rot bleibt der Titel-Akzent,
+   Gelb der Senden-Knopf — kein Vollflächen-Farbband. */
+
+.section {
+  --remy-ink: #15120e;
+  --remy-red: #d9382a;
+  --remy-yellow: #ffd84d;
+  --remy-paper: #fff;
+  --remy-soft: #eaf2ed;
+
+  width: min(100%, 900px);
+  margin-inline: auto;
+  margin-block: clamp(36px, 5.5vw, 64px);
+}
+
+/* Remy links, seine Ansage rechts daneben, die klickbaren Fragen darunter
+   über die volle Breite. Remy spannt über Überschrift UND Fliesstext, damit
+   die rechte Spalte gefüllt ist statt neben dem Kopf halb leer zu stehen. */
+.panel {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'avatar title'
+    'avatar copy'
+    'actions actions';
+  align-content: start;
+  gap: clamp(12px, 2.2vw, 20px) clamp(16px, 3vw, 30px);
+  padding: clamp(20px, 3.4vw, 36px);
+  border-radius: var(--et-radius-control, 12px);
+  background: var(--remy-soft);
+  color: var(--remy-ink);
+  box-shadow:
+    0 20px 56px rgba(21, 18, 14, 0.12),
+    0 6px 18px rgba(21, 18, 14, 0.07);
+}
+
+.copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  align-self: start;
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  grid-area: title;
+  align-self: end;
+  margin: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: clamp(26px, 4.6vw, 46px);
+  line-height: 0.92;
+  color: var(--remy-red);
+}
+
+/* Eigene Zeile pro Halbsatz, wie auf der Startseite — „Noch was offen? Frag"
+   / „Remy." wäre ein Umbruch mitten im Satz. */
+.titleLine {
+  display: block;
+}
+
+/* Markenschrift, nicht Fliesstext: der Satz ist Remys Ansage, kein Beipack —
+   in Providence steht er auf einer Ebene mit der Überschrift darüber. */
+.lead {
+  margin: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 700;
+  line-height: 1.32;
+  max-width: 34ch;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  appearance: none;
+  border: none;
+  border-radius: var(--et-radius-control, 999px);
+  background: var(--remy-paper);
+  color: var(--remy-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.chip:hover,
+.chip:focus-visible {
+  background: var(--remy-ink);
+  color: var(--remy-paper);
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  border-radius: var(--et-radius-control, 12px);
+  background: var(--remy-paper);
+  color: var(--remy-ink);
+  font-family: var(--font-body, var(--font), system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px 14px;
+}
+
+.input::placeholder {
+  color: rgba(21, 18, 14, 0.45);
+}
+
+.send {
+  appearance: none;
+  border: none;
+  border-radius: var(--et-radius-control, 12px);
+  background: var(--remy-ink);
+  color: var(--remy-paper);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.send:hover,
+.send:focus-visible {
+  background: var(--remy-red);
+}
+
+.chip:focus-visible,
+.input:focus-visible,
+.send:focus-visible {
+  outline: 2px solid var(--remy-red);
+  outline-offset: 2px;
+}
+
+/* Remy steht links neben seiner Ansage — freigestellt auf der ruhigen Fläche,
+   ohne Kasten und ohne Überstand: die Restaurantseite ist redaktionell, der
+   Kopf soll den Text begleiten, nicht über die Kante kippen. */
+.avatarWrap {
+  grid-area: avatar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+
+.face {
+  width: clamp(120px, 15vw, 190px);
+  height: auto;
+}
+
+@media (max-width: 700px) {
+  /* Auf dem Telefon steht neben Remy nur die Überschrift — der Fliesstext
+     bekommt die volle Breite, statt sich in einer 180px-Spalte auf acht
+     Zeilen zu strecken. */
+  .panel {
+    grid-template-areas:
+      'avatar title'
+      'copy copy'
+      'actions actions';
+    align-items: center;
+    gap: 14px;
+    padding: 20px 18px 22px;
+  }
+
+  .title {
+    align-self: center;
+    font-size: clamp(24px, 7.4vw, 34px);
+  }
+
+  .face {
+    width: clamp(96px, 25vw, 128px);
+  }
+
+  .lead {
+    font-size: 17px;
+    max-width: none;
+  }
+
+  /* Volle Zeilenbreite pro Frage: nebeneinander gequetscht brechen die
+     Fragen mitten im Satz um und die Tippfläche wird schmal. Untereinander
+     liest sich die Liste wie ein Menü — und jede Zeile ist sicher zu treffen. */
+  .chips {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .chip {
+    width: 100%;
+    min-height: 44px;
+    text-align: left;
+    padding: 11px 14px;
+  }
+
+  .form {
+    flex-wrap: wrap;
+  }
+
+  .input,
+  .send {
+    min-height: 46px;
+  }
+
+  .send {
+    flex: 1 1 auto;
+  }
+}

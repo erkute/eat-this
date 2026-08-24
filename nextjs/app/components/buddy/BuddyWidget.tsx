@@ -359,12 +359,12 @@ function BotMessage({
   );
 }
 
-export default function BuddyWidget() {
+export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   const locale = useLocale() as Locale;
   const t = T[locale];
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
-  const { messages, isStreaming, send, setGeo } = useBuddyChat();
+  const { messages, isStreaming, send, setGeo } = useBuddyChat({ pageSlug });
   const { location, loading: locating, request: requestLocation } = useUserLocationContext();
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -422,7 +422,7 @@ export default function BuddyWidget() {
       const trimmed = text.trim();
       if (!trimmed || isStreaming || locating) return;
 
-      if (isNearbyIntent(trimmed) && !location) {
+      if (isNearbyIntent(trimmed, { pageBound: !!pageSlug }) && !location) {
         const loc = await requestLocation();
         if (!loc) {
           notifyLocationFailure();
@@ -434,7 +434,16 @@ export default function BuddyWidget() {
       setDraft('');
       void send(trimmed);
     },
-    [isStreaming, locating, location, notifyLocationFailure, requestLocation, send, setGeo]
+    [
+      isStreaming,
+      locating,
+      location,
+      notifyLocationFailure,
+      requestLocation,
+      send,
+      setGeo,
+      pageSlug,
+    ]
   );
 
   // A short "happy" laugh beat the moment an answer with spot recommendations

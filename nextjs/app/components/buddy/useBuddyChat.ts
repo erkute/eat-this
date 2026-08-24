@@ -43,7 +43,14 @@ export interface BuddyDisplayMessage extends ChatMessage {
   pack?: PackTeaser;
 }
 
-export function useBuddyChat() {
+export interface BuddyChatOptions {
+  /** Wire form of the page context: only the slug travels — the server
+   *  resolves the display name itself (see /api/buddy resolvePageContext). */
+  pageSlug?: string;
+}
+
+export function useBuddyChat(options: BuddyChatOptions = {}) {
+  const { pageSlug } = options;
   const locale = useLocale() as Locale;
   const [messages, setMessages] = useState<BuddyDisplayMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -82,6 +89,7 @@ export function useBuddyChat() {
             sessionId: getSessionId(),
             locale,
             geo: geoRef.current ?? undefined,
+            page: pageSlug ? { type: 'restaurant', slug: pageSlug } : undefined,
             messages: history.map((m) => ({ role: m.role, content: m.content })),
           }),
         });
@@ -146,7 +154,7 @@ export function useBuddyChat() {
         setIsStreaming(false);
       }
     },
-    [messages, isStreaming, locale]
+    [messages, isStreaming, locale, pageSlug]
   );
 
   return { messages, isStreaming, send, setGeo };

@@ -1,6 +1,13 @@
 // nextjs/lib/buddy/orchestrator.ts
 import Anthropic from '@anthropic-ai/sdk';
-import type { Locale, ChatMessage, BuddyStreamEvent, SpotCandidate, ArticleResult } from './types';
+import type {
+  Locale,
+  ChatMessage,
+  BuddyStreamEvent,
+  SpotCandidate,
+  ArticleResult,
+  BuddyPageContext,
+} from './types';
 import { BUDDY_TOOLS } from './tools';
 import { buildSystemPrompt } from './prompt';
 import { pickPackForSpots, buildPackTeaser } from './packTeaser';
@@ -41,14 +48,19 @@ function throwIfAborted(signal?: AbortSignal): void {
 }
 
 export async function* runBuddyTurn(
-  input: { messages: ChatMessage[]; locale: Locale; geo?: { lat: number; lng: number } },
+  input: {
+    messages: ChatMessage[];
+    locale: Locale;
+    geo?: { lat: number; lng: number };
+    page?: BuddyPageContext;
+  },
   deps: OrchestratorDeps,
   options: { signal?: AbortSignal } = {}
 ): AsyncGenerator<BuddyStreamEvent> {
   const system: Anthropic.TextBlockParam[] = [
     {
       type: 'text',
-      text: buildSystemPrompt(input.locale, { hasGeo: !!input.geo }),
+      text: buildSystemPrompt(input.locale, { hasGeo: !!input.geo, page: input.page }),
       cache_control: { type: 'ephemeral' },
     },
   ];
@@ -62,7 +74,7 @@ export async function* runBuddyTurn(
   let packSent = false;
   const latestUserText =
     [...input.messages].reverse().find((m) => m.role === 'user')?.content ?? '';
-  const forceGeoSearch = !!input.geo && isNearbyIntent(latestUserText);
+  const forceGeoSearch = !!input.geo && isNearbyIntent(latestUserText, { pageBound: !!input.page });
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     throwIfAborted(options.signal);

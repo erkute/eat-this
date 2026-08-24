@@ -83,7 +83,7 @@ describe('MustEatsSection', () => {
       ],
     } as InitialMapData);
 
-    expect(html).toContain('/pics/card-back.webp?v=6');
+    expect(html).toContain('/pics/card-back.webp?v=7');
     expect(html).not.toContain('card-back-gallery');
   });
 

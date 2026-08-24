@@ -296,7 +296,7 @@ export default function MustEatRevealOverlay({
             <div className={flipperClass}>
               <img
                 className={styles.faceBack}
-                src="/pics/card-back.webp?v=6"
+                src="/pics/card-back.webp?v=7"
                 alt=""
                 aria-hidden="true"
               />

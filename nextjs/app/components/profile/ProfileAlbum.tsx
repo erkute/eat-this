@@ -7,7 +7,7 @@ import type { MapMustEat } from '@/lib/types';
 import { buildAlbum, type AlbumMustEat } from '@/lib/profile/mustEatAlbum';
 import styles from './ProfileAlbum.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=6';
+const CARD_BACK = '/pics/card-back.webp?v=7';
 
 interface Props {
   mustEats: MapMustEat[];

@@ -60,7 +60,7 @@ function MustEatMiniCard({
       >
         <div className={styles.medishPh}>
           <img
-            src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=6'}
+            src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=7'}
             alt={unlocked ? dish : ''}
             loading="lazy"
           />

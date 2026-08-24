@@ -70,7 +70,7 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
               aria-label={t.ariaCard}
             >
               <Image
-                src="/pics/card-back.webp?v=6"
+                src="/pics/card-back.webp?v=7"
                 alt=""
                 fill
                 sizes="(max-width: 480px) 38vw, (max-width: 720px) 28vw, 180px"

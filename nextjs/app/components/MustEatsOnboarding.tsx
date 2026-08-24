@@ -8,7 +8,7 @@ import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import styles from './MustEatsOnboarding.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=6';
+const CARD_BACK = '/pics/card-back.webp?v=7';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new spots.
 const BOOSTER_ART = '/pics/booster/booster.webp';
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen';

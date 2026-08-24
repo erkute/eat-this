@@ -35,7 +35,7 @@ const COPY = {
   },
 } as const;
 
-const CARD_BACK = '/pics/card-back.webp?v=6';
+const CARD_BACK = '/pics/card-back.webp?v=7';
 const PACK_ART = [
   '/pics/booster/booster_breakfast.webp',
   '/pics/booster/booster_coffee.webp',

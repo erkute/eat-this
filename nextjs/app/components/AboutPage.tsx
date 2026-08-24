@@ -84,14 +84,13 @@ const FIGURES: (Figure | null)[] = [
 ];
 
 /* Remy closes the dark chapter, because the last paragraph of that section is
-   already about him — "frag einfach Remy, meine KI-Suche". He was named once
+   already about him — "frag einfach Remy, unsere KI-Suche". He was named once
    in passing and never reachable; now the sentence has a door next to it.
-   First person here too: the page is one person's account, and a stray "our"
-   in furniture I wrote would break it just as loudly as one in the copy. */
+   The page speaks as Eat This, not as one person, so this does too. */
 const COPY = {
   de: {
     remyTitle: 'Frag Remy',
-    remyText: 'Meine KI-Suche kennt jeden Spot auf der Map. Sag ihr, worauf du Lust hast.',
+    remyText: 'Unsere KI-Suche kennt jeden Spot auf der Map. Sag ihr, worauf du Lust hast.',
     remyCta: 'Remy fragen',
     ctaTitle: 'Hungrig geworden?',
     ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
@@ -99,7 +98,7 @@ const COPY = {
   },
   en: {
     remyTitle: 'Ask Remy',
-    remyText: "My AI search knows every spot on the map. Tell it what you're in the mood for.",
+    remyText: "Our AI search knows every spot on the map. Tell it what you're in the mood for.",
     remyCta: 'Ask Remy',
     ctaTitle: 'Hungry yet?',
     ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',

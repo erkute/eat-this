@@ -6,7 +6,6 @@ import { Link } from '@/i18n/navigation';
 import SiteFooter from '@/app/components/SiteFooter';
 import { NEWS_GUIDES, getNewsGuide } from '@/lib/news-guides';
 import { getRestaurantsByCategory } from '@/lib/sanity.server';
-import { localizedCuisine } from '@/lib/cuisineLabels';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -200,13 +199,7 @@ export default async function GuidePage({ params }: PageProps) {
                     <div className={styles.cardBody}>
                       <h3>{r.name}</h3>
                       <p className={styles.meta}>
-                        {[
-                          r.district,
-                          r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null,
-                          priceLabel,
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
+                        {[r.district, r.cuisineType, priceLabel].filter(Boolean).join(' · ')}
                       </p>
                       {line && <p className={styles.line}>{line}</p>}
                     </div>

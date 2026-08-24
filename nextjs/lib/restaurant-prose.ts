@@ -1,8 +1,4 @@
-import type { Restaurant, OpeningHourSlot } from './types';
-import { localizedCategoryName } from './categories';
-import { localizedCuisine } from './cuisineLabels';
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
-import { pickLocale } from '@/lib/i18n/pickLocale';
+import type { OpeningHourSlot } from './types';
 import { isClosedSlot, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 
 type Loc = 'de' | 'en';
@@ -19,9 +15,10 @@ type Loc = 'de' | 'en';
 /**
  * Concise multi-slot opening-hours summary, comma-separated. Null when empty.
  *
- * Localised, because this string is not just prose: it is the answer body of a
- * FAQPage entry and goes into the JSON-LD Google reads. Unlocalised it told
- * German readers "Geöffnet Mon-Tue closed, Wed-Fri 17:00-21:00".
+ * Trägt seit dem Wegfall der FAQ den Kurzstreifen unter dem Hero: dort ist die
+ * Zeile die Antwort auf „wann offen", bevor der ausführliche Fakten-Block
+ * überhaupt in Sicht kommt. Lokalisiert, sonst stünde dort für deutsche Leser
+ * "Mon-Tue closed, Wed-Fri 17:00-21:00".
  *
  * Rest days move to the end and share one "geschlossen", because the caller
  * leads with "Geöffnet" and slot order is the editor's, not the reader's:
@@ -63,28 +60,6 @@ function joinDays(days: string[], locale: Loc): string {
 export interface FAQEntry {
   question: string;
   answer: string;
-}
-
-/**
- * Natural-language answer for "Was bestellen?" built from the editorial
- * `whatToOrder` recommendations: dish (price) — reason, joined as sentences.
- * Null when no recommendations are maintained (callers fall back to `tip`).
- */
-export function buildWhatToOrderAnswer(r: Restaurant, locale: Loc): string | null {
-  const items = (r.whatToOrder ?? []).filter((i) => i?.dish?.trim());
-  if (items.length === 0) return null;
-
-  const parts = items.map((i) => {
-    const note = pickLocale(i.note, i.noteEn, locale)?.trim().replace(/\.$/, '');
-    const price = i.price?.trim();
-    let s = i.dish.trim();
-    if (price) s += ` (${price})`;
-    if (note) s += ` — ${note}`;
-    return s;
-  });
-
-  const lead = locale === 'de' ? 'Unsere Empfehlungen' : 'Our picks';
-  return `${lead}: ${parts.join('. ')}.`;
 }
 
 /**
@@ -171,107 +146,4 @@ export function splitDescriptionForMagazine(
 function splitSentences(text: string): string[] {
   const parts = text.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ])/);
   return parts.map((p) => p.trim()).filter(Boolean);
-}
-
-/**
- * FAQ entries built from Sanity fields. Each answer is unique per restaurant
- * (it interpolates the restaurant's own hours / address / cuisine), so this
- * is real unique content — not template noise.
- *
- * Missing source fields skip the corresponding entry rather than emit
- * "Information not available", which would itself be near-duplicate filler.
- */
-export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
-  const de = locale === 'de';
-  const name = r.name;
-  const bezirk = r.bezirk?.name || r.district;
-  const tip = pickLocale(r.tip, r.tipEn, locale);
-  const entries: FAQEntry[] = [];
-
-  // Curated whatToOrder recommendations beat the one-line tip — they answer
-  // the "karte/speisekarte" search intent with concrete dishes + prices.
-  const orderAnswer = buildWhatToOrderAnswer(r, locale) ?? tip;
-  if (orderAnswer) {
-    entries.push(
-      de
-        ? { question: `Was sollte man bei ${name} bestellen?`, answer: orderAnswer }
-        : { question: `What should I order at ${name}?`, answer: orderAnswer }
-    );
-  }
-
-  if (r.address) {
-    entries.push(
-      de
-        ? {
-            question: `Wo finde ich ${name}?`,
-            answer: bezirk
-              ? `${name} liegt in ${bezirk}, ${r.address}.`
-              : `${name} liegt an der Adresse ${r.address}.`,
-          }
-        : {
-            question: `Where do I find ${name}?`,
-            answer: bezirk
-              ? `${name} is in ${bezirk}, ${r.address}.`
-              : `${name} is at ${r.address}.`,
-          }
-    );
-  }
-
-  if (r.openingHours && r.openingHours.length > 0) {
-    const summary = summarizeHours(r.openingHours, locale);
-    // Every slot a rest day: the "Geöffnet" lead would contradict the answer.
-    const hasOpenSlot = r.openingHours.some((slot) => !isClosedSlot(slot.hours));
-    if (summary) {
-      const lead = hasOpenSlot ? (de ? 'Geöffnet ' : 'Open ') : '';
-      entries.push(
-        de
-          ? { question: `Wann hat ${name} geöffnet?`, answer: `${lead}${summary}.` }
-          : { question: `When is ${name} open?`, answer: `${lead}${summary}.` }
-      );
-    }
-  }
-
-  if (r.reservationUrl) {
-    entries.push(
-      de
-        ? {
-            question: `Sollte ich bei ${name} reservieren?`,
-            answer: `Eine Reservierung ist online möglich und wird empfohlen.`,
-          }
-        : {
-            question: `Should I book ahead at ${name}?`,
-            answer: `Online reservations are available and recommended.`,
-          }
-    );
-  }
-
-  const priceLabel = formatPriceLabel(r);
-  if (priceLabel) {
-    entries.push(
-      de
-        ? {
-            question: `Was zahlt man bei ${name}?`,
-            answer: `Hauptgerichte und Drinks bewegen sich im Bereich ${priceLabel}.`,
-          }
-        : {
-            question: `What does ${name} cost?`,
-            answer: `Mains and drinks sit in the ${priceLabel} range.`,
-          }
-    );
-  }
-
-  const cuisineParts = [
-    r.cuisineType?.trim() ? localizedCuisine(r.cuisineType.trim(), locale) : null,
-    ...(r.categories?.slice(0, 3).map((c) => localizedCategoryName(c, locale)) ?? []),
-  ].filter((s): s is string => !!s && s.length > 0);
-  if (cuisineParts.length > 0) {
-    const text = cuisineParts.join(' · ');
-    entries.push(
-      de
-        ? { question: `Wofür steht ${name} kulinarisch?`, answer: `${name} steht für ${text}.` }
-        : { question: `What does ${name} stand for?`, answer: `${name} stands for ${text}.` }
-    );
-  }
-
-  return entries;
 }

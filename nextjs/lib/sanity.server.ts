@@ -138,30 +138,23 @@ export async function getRestaurantsByCategory(categorySlug: string): Promise<Re
 
 interface RestaurantSiblingCandidates {
   bezirk: RestaurantCard[];
-  category: RestaurantCard[];
 }
 
 interface RestaurantSiblingRows {
   bezirkAfter: RestaurantCard[];
   bezirkWrap: RestaurantCard[];
-  categoryAfter: RestaurantCard[];
-  categoryWrap: RestaurantCard[];
 }
 
 export async function getRestaurantSiblingCandidates({
   selfSlug,
   selfName,
   bezirkSlug,
-  categorySlug,
   bezirkLimit = 3,
-  categoryLimit = 6,
 }: {
   selfSlug: string;
   selfName: string;
   bezirkSlug?: string;
-  categorySlug?: string;
   bezirkLimit?: number;
-  categoryLimit?: number;
 }): Promise<RestaurantSiblingCandidates> {
   const rows = await client.fetch<RestaurantSiblingRows>(
     restaurantSiblingCandidatesQuery,
@@ -169,25 +162,18 @@ export async function getRestaurantSiblingCandidates({
       selfSlug,
       selfName,
       bezirkSlug: bezirkSlug ?? '',
-      categorySlug: categorySlug ?? '',
       bezirkLimit,
-      categoryLimit,
     },
     {
       next: {
         revalidate: 3600,
-        tags: [
-          'restaurant-siblings',
-          ...(bezirkSlug ? [`bezirk:${bezirkSlug}`] : []),
-          ...(categorySlug ? [`category:${categorySlug}`] : []),
-        ],
+        tags: ['restaurant-siblings', ...(bezirkSlug ? [`bezirk:${bezirkSlug}`] : [])],
       },
     }
   );
 
   return {
     bezirk: [...(rows.bezirkAfter ?? []), ...(rows.bezirkWrap ?? [])].slice(0, bezirkLimit),
-    category: [...(rows.categoryAfter ?? []), ...(rows.categoryWrap ?? [])].slice(0, categoryLimit),
   };
 }
 

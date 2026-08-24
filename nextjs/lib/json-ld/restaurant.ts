@@ -2,7 +2,6 @@ import { serializeJsonLd } from './serialize';
 import { buildWebPageNodes } from './webpage';
 import { localeUrl } from '@/lib/locale-url';
 import type { Restaurant } from '@/lib/types';
-import type { FAQEntry } from '@/lib/restaurant-prose';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildOpeningHoursSpec } from '@/lib/map/openingHours';
 
@@ -15,9 +14,6 @@ interface BuildRestaurantJsonLdArgs {
   description: string | undefined;
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
   districtsLabel: string;
-  // Auto-generated FAQs shown on the page — mirrored into a FAQPage entity
-  // so Google can pick them up for FAQ rich snippets. Omit/empty to skip.
-  faqs?: FAQEntry[];
 }
 
 function buildPostalAddress(address: string): Record<string, string> {
@@ -51,7 +47,6 @@ export function buildRestaurantJsonLd({
   slug,
   description,
   districtsLabel,
-  faqs,
 }: BuildRestaurantJsonLdArgs): string {
   const openingHours = r.openingHours ? buildOpeningHoursSpec(r.openingHours) : [];
 
@@ -63,18 +58,6 @@ export function buildRestaurantJsonLd({
     r.website,
     r.instagramHandle && `https://www.instagram.com/${r.instagramHandle.replace(/^@/, '')}/`,
   ].filter((x): x is string => Boolean(x));
-
-  const faqEntity =
-    faqs && faqs.length > 0
-      ? {
-          '@type': 'FAQPage',
-          mainEntity: faqs.map(({ question, answer }) => ({
-            '@type': 'Question',
-            name: question,
-            acceptedAnswer: { '@type': 'Answer', text: answer },
-          })),
-        }
-      : null;
 
   return serializeJsonLd({
     '@context': 'https://schema.org',
@@ -161,7 +144,6 @@ export function buildRestaurantJsonLd({
               ]),
         ],
       },
-      ...(faqEntity ? [faqEntity] : []),
     ],
   });
 }

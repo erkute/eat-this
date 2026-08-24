@@ -99,7 +99,7 @@ describe('getStaticPage', () => {
 describe('getRestaurantSiblingCandidates', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns bounded tail + wrap windows from one card-only query', async () => {
+  it('returns a bounded tail + wrap window from one card-only query', async () => {
     mockFetch.mockResolvedValue({
       bezirkAfter: [{ _id: 'b1', name: 'B1', slug: 'b1' }],
       bezirkWrap: [
@@ -107,43 +107,47 @@ describe('getRestaurantSiblingCandidates', () => {
         { _id: 'b3', name: 'B3', slug: 'b3' },
         { _id: 'b4', name: 'B4', slug: 'b4' },
       ],
-      categoryAfter: [
-        { _id: 'c1', name: 'C1', slug: 'c1' },
-        { _id: 'c2', name: 'C2', slug: 'c2' },
-      ],
-      categoryWrap: [{ _id: 'c3', name: 'C3', slug: 'c3' }],
     } as never);
 
     const result = await getRestaurantSiblingCandidates({
       selfSlug: 'self',
       selfName: 'Self',
       bezirkSlug: 'mitte',
-      categorySlug: 'dinner',
       bezirkLimit: 3,
-      categoryLimit: 6,
     });
 
     expect(result.bezirk.map((row) => row.slug)).toEqual(['b1', 'b2', 'b3']);
-    expect(result.category.map((row) => row.slug)).toEqual(['c1', 'c2', 'c3']);
     expect(mockFetch).toHaveBeenCalledOnce();
 
     const [query, params, options] = mockFetch.mock.calls[0];
     expect(query).toContain('[0...$bezirkLimit]');
-    expect(query).toContain('[0...$categoryLimit]');
     expect(query).not.toContain('shortDescription');
     expect(params).toEqual({
       selfSlug: 'self',
       selfName: 'Self',
       bezirkSlug: 'mitte',
-      categorySlug: 'dinner',
       bezirkLimit: 3,
-      categoryLimit: 6,
     });
     expect(options).toMatchObject({
       next: {
         revalidate: 3600,
-        tags: ['restaurant-siblings', 'bezirk:mitte', 'category:dinner'],
+        tags: ['restaurant-siblings', 'bezirk:mitte'],
       },
     });
+  });
+
+  // Die Kategorie-Hälfte der Abfrage ist am 24.08.2026 mit der zweiten
+  // Empfehlungszeile weggefallen. Der Test hält fest, dass sie nicht
+  // zurückkommt: sie kostete auf jeder der 344 Seiten zwei GROQ-Fenster.
+  it('no longer fetches a category window', async () => {
+    mockFetch.mockResolvedValue({ bezirkAfter: [], bezirkWrap: [] } as never);
+
+    await getRestaurantSiblingCandidates({ selfSlug: 'self', selfName: 'Self' });
+
+    const [query, params] = mockFetch.mock.calls[0];
+    expect(query).not.toContain('categoryAfter');
+    expect(query).not.toContain('categoryWrap');
+    expect(params).not.toHaveProperty('categorySlug');
+    expect(params).not.toHaveProperty('categoryLimit');
   });
 });

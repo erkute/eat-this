@@ -142,17 +142,21 @@ jobs:
               echo "Weiterhin gestört — Issue #${existing} ist offen, keine erneute Meldung."
               exit 0
             fi
+            # Der Text wird zusammengesetzt statt inline geschrieben: eine
+            # mehrzeilige Zeichenkette direkt im `run:`-Block bricht das YAML,
+            # sobald eine Fortsetzungszeile links vom Blockrand steht.
+            {
+              printf 'Der Uptime-Job hat einen Ausfall festgestellt.\n\n'
+              printf '%s\n' "$DETAILS"
+              printf '[Lauf ansehen](%s)\n\n' "$RUN_URL"
+              printf 'Bei `plan_limit_reached` auf dem API-CDN ist `SANITY_USE_CDN=false` in\n'
+              printf '`nextjs/apphosting.yaml` und `.github/workflows/quality.yml` der Nothebel —\n'
+              printf 'CDN und normale API ziehen auf getrennte Kontingente.\n'
+            } > "$RUNNER_TEMP/uptime-issue.md"
             gh issue create \
               --title "Produktion gestört: $(date -u '+%Y-%m-%d %H:%M UTC')" \
               --label uptime \
-              --body "Der Uptime-Job hat einen Ausfall festgestellt.
-
-$DETAILS
-[Lauf ansehen]($RUN_URL)
-
-Bei \`plan_limit_reached\` auf dem API-CDN: \`SANITY_USE_CDN=false\` in
-\`nextjs/apphosting.yaml\` und \`.github/workflows/quality.yml\` ist der Nothebel —
-CDN und normale API ziehen auf getrennte Kontingente."
+              --body-file "$RUNNER_TEMP/uptime-issue.md"
             # Nur der ERSTE Lauf eines Vorfalls schlägt fehl: eine Mail pro
             # Vorfall statt einer alle zehn Minuten.
             exit 1

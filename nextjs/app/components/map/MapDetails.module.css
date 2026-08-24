@@ -3018,7 +3018,11 @@
     height: 100%;
     min-height: 0;
     max-height: 100%;
-    padding: clamp(58px, 7dvh, 76px) 24px 16px;
+    /* Das Schließen-X sitzt bei top: 12px und ist 38px hoch, endet also bei
+       50px. Mit 58px Polster begann die Karte 8px darunter — auf einer Höhe
+       mit dem X, und weil sie fast die Railbreite füllt, stieß ihre obere
+       Ecke optisch daran. 76px lassen sie sichtbar darunter beginnen. */
+    padding: clamp(76px, 9dvh, 94px) 24px 16px;
   }
 
   .detailV13MustEat .fdHeroWrap {
@@ -4060,9 +4064,16 @@
     --me-mid-slot: clamp(196px, 24dvh, 212px);
   }
 }
+/* Die Untergrenze muss den GRÖSSEREN der beiden Zustände tragen. Verdeckt
+   steht in der Copy-Zeile "Standort freigeben" plus zwei Zeilen Hinweis
+   (gemessen 433x813: 65,9px), aufgedeckt nur die geklemmte Beschreibung
+   (59px) — und weil .fdHeroWrap den Rest der Spalte schluckt, zahlte genau
+   diese Differenz der Kartenstapel: 317,1px verdeckt gegen 324,0px
+   aufgedeckt, bei jedem Blättern sichtbar. Mit einem Slot, der beide Zustände
+   fasst, steht die Zeile fest und die Karte bleibt gleich groß. */
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
-    --me-mid-slot: clamp(156px, 19dvh, 174px);
+    --me-mid-slot: clamp(168px, 19dvh, 178px);
   }
 
   .detailV13MustEat .fdMid {
@@ -4072,7 +4083,9 @@
 }
 @media (max-width: 380px), (max-height: 740px) {
   .detailV13MustEat .detailV13Scroll {
-    --me-mid-slot: clamp(136px, 20dvh, 148px);
+    /* Gemessen 375x667: verdeckt braucht die Zeile 148,8px (84 + 7 + 57,8) —
+       der alte 136px-Boden lag 12,8px darunter. */
+    --me-mid-slot: clamp(152px, 20dvh, 158px);
   }
 
   .detailV13MustEat .fdMid {
@@ -4971,13 +4984,13 @@
  * seinen Inhalt unten verankert (align-content: end), stand die Differenz als
  * Loch zwischen Text und Restaurant-Streifen.
  *
- * .fdProximity reserviert den Copy-Anteil nicht mehr, und der verbleibende
- * Platz im Slot verteilt sich symmetrisch um den Text. Der Slot selbst bleibt
- * in beiden Zuständen gleich hoch: nur so sitzen Kartenstapel und
- * Restaurant-Streifen verdeckt wie aufgedeckt an derselben Stelle. */
-.detailV13MustEat .fdMidLocked .fdProximity {
-  min-height: 0;
-}
+ * Inzwischen ist der Slot so bemessen, dass er den verdeckten Zustand fasst
+ * (siehe --me-mid-slot weiter oben) — das Loch von damals kann nicht mehr
+ * entstehen, und die Reservierung darf wieder gelten. Sie muss sogar: nur
+ * wenn BEIDE Copy-Blöcke exakt den Rest des Slots füllen, beginnt der Text
+ * verdeckt wie aufgedeckt an derselben Stelle und endet am selben Abstand
+ * zum Restaurant-Streifen. Ohne sie stand der verdeckte Block 3-7px höher
+ * als die Beschreibung. */
 /* Der Textblock behält in beiden Zuständen dieselbe Slot-Höhe — sonst wandern
    Karte und Streifen beim Aufdecken, weil die Geometrie zwingend ist:
    Kartenunterkante + Luft + Textblock + Gap = Streifenoberkante.
@@ -4990,6 +5003,24 @@
 .detailV13MustEat .fdMid.fdMidLocked {
   justify-content: flex-start;
   align-content: start;
+}
+
+/* Phone/Tablet: Name oben, Copy unten — in BEIDEN Zuständen.
+ *
+ * Der Slot fasst seit dem Höhenfix den verdeckten Zustand (Chip plus zwei
+ * Zeilen) und hat im aufgedeckten deshalb Luft. Bei flex-start sammelte die
+ * sich unter der Copy: der aufgedeckte Text stand sichtbar weiter vom
+ * Restaurantstreifen weg als der verdeckte. space-between legt die Differenz
+ * zwischen Name und Copy — Oberkante Name und Unterkante Copy sitzen damit in
+ * beiden Zuständen an derselben Stelle.
+ *
+ * Beide Selektoren, weil .fdMidLocked direkt darüber sein eigenes
+ * justify-content setzt; der Desktop-Rail behält seine Aufteilung. */
+@media (max-width: 1023.98px) {
+  .detailV13MustEat .fdMid,
+  .detailV13MustEat .fdMid.fdMidLocked {
+    justify-content: space-between;
+  }
 }
 
 /* Titel ohne Inhalt, aber mit Platz: in Reichweite soll kein VERDECKT-Badge
@@ -5035,6 +5066,14 @@
        seinem Platz, die Untergrenze muss also nur noch eine lesbare Karte
        tragen. */
     --me-hero-min: clamp(190px, 26dvh, 260px);
+    /* Das Schließen-X ist hier `fixed` und rechnet Safe-Area plus
+       --map-visual-offset-top ein (siehe .fdClose unten) — das Polster über
+       der Karte tat das nicht. Auf einem Gerät mit Notch rutschte das X damit
+       auf die Karte statt über sie. Beide folgen jetzt demselben Offset. */
+    padding-top: calc(
+      clamp(68px, 8dvh, 84px) + env(safe-area-inset-top, 0px) +
+        var(--map-visual-offset-top, 0px)
+    );
     /* Die Phone-Regel hatte die Safe-Area verloren (padding-bottom: 18px).
        Ohne Dokument-Scroll gibt es keinen Puffer mehr darunter, also muss der
        Home-Indicator hier wieder eingerechnet werden. */

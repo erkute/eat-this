@@ -293,31 +293,30 @@
 
 .cta {
   display: grid;
+  justify-items: center;
   gap: clamp(18px, 2.6vw, 28px);
   align-items: center;
   margin-top: clamp(54px, 8vw, 96px);
-  padding: clamp(26px, 4vw, 44px) clamp(24px, 4vw, 48px);
+  padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 48px);
+  text-align: center;
   background: var(--about-ink);
   border-radius: var(--et-radius-panel, 10px);
   color: var(--about-paper);
 }
 
-@media (min-width: 760px) {
-  .cta {
-    grid-template-columns: minmax(0, 1fr) 168px;
-    gap: clamp(28px, 4vw, 48px);
-  }
-}
+
 
 .ctaTitle {
   margin: 0;
+  max-width: 20ch;
   color: var(--about-accent);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(28px, 3.6vw, 44px);
+  font-size: clamp(32px, 4.4vw, 54px);
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 0.94;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .ctaText {
@@ -333,6 +332,7 @@
 .ctaRow {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   margin-top: clamp(20px, 2.6vw, 26px);
 }
@@ -385,20 +385,8 @@
   color: var(--about-accent);
 }
 
-.ctaPack {
-  justify-self: center;
-  width: clamp(132px, 24vw, 168px);
-  height: auto;
-  transform: rotate(-4deg);
-  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.4));
-}
-
 @media (max-width: 560px) {
   .page {
     padding-inline: clamp(16px, 5vw, 22px);
-  }
-
-  .cta {
-    text-align: left;
   }
 }

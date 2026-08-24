@@ -58,10 +58,10 @@
   gap: 9px;
   margin: 0 0 clamp(12px, 1.6vw, 18px);
   color: var(--legal-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -90,12 +90,10 @@
 .updated {
   margin: clamp(12px, 1.6vw, 16px) 0 0;
   color: var(--legal-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.2;
-  text-transform: uppercase;
 }
 
 /* Switcher — the three filings sit one tap apart instead of a footer scroll
@@ -111,16 +109,15 @@
 .docLink {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 0 14px;
+  min-height: 38px;
+  padding: 0 16px;
   border: 1px solid var(--legal-line);
   border-radius: var(--et-radius-control, 7px);
   background: transparent;
   color: var(--legal-ink);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-family: var(--et-font-condensed, var(--menu-condensed), Impact, sans-serif);
+  font-size: clamp(16px, 1.5vw, 18px);
+  letter-spacing: 0.01em;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
@@ -179,10 +176,10 @@
 .tocLabel {
   margin: 0 0 12px;
   color: var(--legal-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(12px, 1vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -231,12 +228,13 @@
 
 .tocNum {
   flex: none;
+  width: 1.9em;
   padding-top: 1px;
   color: var(--legal-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 /* ---------- the filing itself ---------- */
@@ -373,13 +371,6 @@
   margin: clamp(30px, 4vw, 44px) 0;
   border: 0;
   border-top: 1px solid var(--legal-line);
-}
-
-.body code {
-  padding: 2px 6px;
-  background: color-mix(in srgb, var(--legal-ink) 7%, transparent);
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.9em;
 }
 
 @media (max-width: 560px) {

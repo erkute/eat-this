@@ -234,6 +234,9 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           );
         })}
 
+        {/* No object in here. A booster pack is something you buy, next to a
+            button that sends you to a free map — two offers in one band, and
+            the eye went to the packaging instead of the button. */}
         <aside className={styles.cta}>
           <div className={styles.ctaCopy}>
             <h2 className={styles.ctaTitle}>{copy.ctaTitle}</h2>
@@ -252,15 +255,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               </a>
             </div>
           </div>
-          <Image
-            src="/pics/booster/booster.webp"
-            alt=""
-            width={1008}
-            height={1560}
-            sizes="(min-width: 760px) 168px, 132px"
-            loading="lazy"
-            className={styles.ctaPack}
-          />
         </aside>
       </div>
       <SiteFooter />

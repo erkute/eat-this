@@ -6,7 +6,6 @@ import { routing } from '@/i18n/routing';
 import type { MapRestaurant } from '@/lib/types';
 import { abbreviateBezirk } from '@/lib/map';
 import { localizedCuisine } from '@/lib/cuisineLabels';
-import { packUrlSlug, resolvePackByUrlSlug } from '@/lib/pack/packDetail';
 import { categoryArt } from '@/lib/categoryArt';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { normalizeName } from '@/lib/normalizeName';
@@ -23,9 +22,6 @@ import lockedStyles from './LockedDetail.module.css';
 
 interface Props {
   restaurant: MapRestaurant;
-  /** Whole-catalog spot count, not the filtered map — the all-Berlin offer's
-   *  size must not move when the user ticks a chip. */
-  totalSpots: number;
   /** This spot sits in the signed tier: an account alone opens it, no purchase.
    *  Decides which of the two offers this sheet makes. */
   unlocksWithAccount: boolean;
@@ -77,17 +73,15 @@ interface Props {
  * argues against itself, and the all-Berlin offer is already standing at the
  * end of the list on every view of this map.
  *
- * The pack offer leads with the pack this spot is actually in — the 2,99 € one
- * that unlocks it — and puts all-Berlin underneath.
- *
- * Only all-Berlin states a spot count. A category pack's count invites exactly
- * the comparison that sinks the bundle: Lunch alone is 205 of 345 spots, so
- * "205 Spots · 2,99 €" next to "340 Spots · 20 €" argues against the 20 €
- * every time (user decision, 2026-08-19).
+ * The pack branch makes exactly ONE offer, and it is the packs as a whole:
+ * their art, one sentence, one way to /packs. It went through two cards plus
+ * an overview link, then a single named pack with spot counts — both asked the
+ * reader to compare products before he knew what this one spot costs him
+ * (user decision, 2026-08-24). Selection, sizes and prices live on the pack
+ * page; this sheet only has to make him want the spot.
  */
 export default function LockedDetail({
   restaurant: r,
-  totalSpots,
   unlocksWithAccount,
   contentRef,
   onClose,
@@ -96,9 +90,12 @@ export default function LockedDetail({
   const { t } = useTranslation();
   const de = locale !== 'en';
   /* Usually already cached: MapSection prefetches on the tap that opens this.
-     Until it lands there is simply no excerpt — the offer moves up, and a
-     skeleton would promise a length the cut deliberately does not commit to. */
-  const { detail } = useRestaurantDetail(r.slug);
+     Auf einem kalten Cache dauert der Fetch aber sichtbar, und solange er
+     läuft, stand die ganze Paywall dort, wo später der Anriss steht — mit dem
+     Text sprang sie dann nach unten. Der Platz wird jetzt reserviert (kein
+     Skelett, das eine Länge verspräche, die der Anschnitt bewusst offen
+     lässt), damit "Noch verdeckt" und die Packs von Anfang an sitzen. */
+  const { detail, loading } = useRestaurantDetail(r.slug);
   const loc = de ? 'de' : 'en';
   /* Same source and same fallback order as the unlocked sheet, so the cut
      lands in the middle of the very text that sheet would show. */
@@ -110,17 +107,9 @@ export default function LockedDetail({
   const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null;
   const prefix = locale === routing.defaultLocale ? '' : `/${locale}`;
 
-  /* First category that maps to a real pack. A spot can carry several; the
-     first is the one its card already shows. */
-  const categoryPack = (r.categories ?? [])
-    .map((c) => resolvePackByUrlSlug(c.slug))
-    .find((pack) => pack !== null && pack.slug !== null);
-  const allBerlin = resolvePackByUrlSlug('all-berlin');
-  const spotsWord = de ? 'Spots' : 'spots';
-  /* All-Berlin has no art of its own. /packs answers that by fanning out every
-     category pack, and this does the same — nine bags say "everything" in a way
-     one generic bag cannot. */
-  const allBerlinArt = Object.values(CATALOG)
+  /* Die Packs als Bild — dieselbe Auffächerung, mit der /packs sie zeigt.
+     Ein generischer Beutel sagt nicht "davon gibt es mehrere". Neun schon. */
+  const packArt = Object.values(CATALOG)
     .filter((pack) => pack.type === 'category' && pack.slug)
     .map((pack) => categoryArt(pack.slug as string))
     .filter((src): src is string => Boolean(src));
@@ -133,7 +122,11 @@ export default function LockedDetail({
       role="dialog"
       aria-label={normalizeName(r.name)}
     >
-      <div className={styles.detailV13Scroll} data-detail-scroll ref={contentRef}>
+      <div
+        className={`${styles.detailV13Scroll} ${lockedStyles.scroll}`}
+        data-detail-scroll
+        ref={contentRef}
+      >
         <header className={styles.rdHero} data-detail-hero style={heroStyle}>
           <button
             type="button"
@@ -153,6 +146,9 @@ export default function LockedDetail({
         </header>
 
         <div className={lockedStyles.body}>
+          {!storyText && loading && (
+            <div className={lockedStyles.excerptReserve} aria-hidden="true" />
+          )}
           {storyText && (
             <div className={lockedStyles.excerpt} aria-hidden="false">
               <div className={styles.rdBody}>
@@ -184,85 +180,52 @@ export default function LockedDetail({
           {unlocksWithAccount ? (
             <SignupOffer restaurant={r} prefix={prefix} de={de} />
           ) : (
-            <p className={lockedStyles.sub}>
-              {/* No headline above this: the kicker already says the spot is
-                  face down, and "Liegt noch nicht auf deiner Map." said the
-                  same thing again one type step larger (user, 2026-08-23).
-                  What is left is the one line the kicker does NOT cover — what
-                  opens it — and under that the cards carry the weight. */}
-              {de
-                ? 'Ein Pack schaltet diesen Spot frei. Und jeden anderen darin.'
-                : 'One pack unlocks this spot. And every other one in it.'}
-            </p>
-          )}
-          {!unlocksWithAccount && categoryPack?.slug && categoryArt(categoryPack.slug) && (
-            <a
-              className={`${lockedStyles.offer} ${lockedStyles.offerRow}`}
-              href={`${prefix}/pack/${packUrlSlug(categoryPack)}`}
-              onClick={() =>
-                trackEvent('locked_spot_pack_clicked', {
-                  restaurant_id: r._id,
-                  restaurant_slug: r.slug,
-                  pack_id: categoryPack.packId,
-                })
-              }
-            >
-              <span className={lockedStyles.offerArt}>
-                <Image
-                  className={lockedStyles.offerPack}
-                  src={categoryArt(categoryPack.slug)!}
-                  alt=""
-                  width={420}
-                  height={630}
-                  sizes="88px"
-                />
-              </span>
-              <span className={lockedStyles.offerText}>
-                <span className={lockedStyles.offerLabel}>{categoryPack.displayName}</span>
-                <span className={lockedStyles.offerSpectrum}>
-                  {categoryPack.spectrum[de ? 'de' : 'en']}
+            packArt.length > 0 && (
+              /* EIN Angebot, EIN Weg: die Packs. Hier stand zuletzt die Karte
+                 des Kategorie-Packs mit Spotzahlen und Produktnamen — das ist
+                 mehr Information, als jemand an dieser Stelle sortieren will
+                 (User, 2026-08-24). Was bleibt: ein paar Packs als Bild, der
+                 Satz, dass sie diesen Spot und viele weitere öffnen, und ein
+                 Weg zur Pack-Seite, wo Auswahl und Preise hingehören. */
+              <a
+                className={lockedStyles.offer}
+                href={`${prefix}/packs`}
+                onClick={() =>
+                  trackEvent('locked_spot_pack_clicked', {
+                    restaurant_id: r._id,
+                    restaurant_slug: r.slug,
+                    pack_id: 'packs_overview',
+                  })
+                }
+              >
+                <span className={`${lockedStyles.offerArt} ${lockedStyles.offerFan}`}>
+                  {packArt.map((src) => (
+                    <Image
+                      key={src}
+                      className={lockedStyles.offerPack}
+                      src={src}
+                      alt=""
+                      width={420}
+                      height={630}
+                      sizes="56px"
+                    />
+                  ))}
                 </span>
-                <span className={lockedStyles.offerCta}>
-                  {de ? `${categoryPack.displayName} holen` : `Get ${categoryPack.displayName}`}
+                <span className={lockedStyles.offerText}>
+                  <span className={lockedStyles.offerLabel}>
+                    {de ? 'Diesen Spot freischalten' : 'Unlock this spot'}
+                  </span>
+                  <span className={lockedStyles.offerSpectrum}>
+                    {de
+                      ? 'Ein Pack öffnet ihn — und viele weitere dazu.'
+                      : 'One pack opens it — and plenty more with it.'}
+                  </span>
+                  <span className={lockedStyles.offerCta}>
+                    {de ? 'Packs ansehen' : 'See the packs'}
+                  </span>
                 </span>
-              </span>
-            </a>
-          )}
-          {!unlocksWithAccount && allBerlin && allBerlinArt.length > 0 && (
-            <a
-              className={lockedStyles.offer}
-              href={`${prefix}/pack/all-berlin`}
-              onClick={() =>
-                trackEvent('locked_spot_pack_clicked', {
-                  restaurant_id: r._id,
-                  restaurant_slug: r.slug,
-                  pack_id: allBerlin.packId,
-                })
-              }
-            >
-              <span className={`${lockedStyles.offerArt} ${lockedStyles.offerFan}`}>
-                {allBerlinArt.map((src) => (
-                  <Image
-                    key={src}
-                    className={lockedStyles.offerPack}
-                    src={src}
-                    alt=""
-                    width={420}
-                    height={630}
-                    sizes="56px"
-                  />
-                ))}
-              </span>
-              <span className={lockedStyles.offerText}>
-                <span className={lockedStyles.offerLabel}>
-                  {`${de ? 'Ganz Berlin' : 'All Berlin'} · ${totalSpots} ${spotsWord}`}
-                </span>
-                <span className={lockedStyles.offerSpectrum}>
-                  {allBerlin.spectrum[de ? 'de' : 'en']}
-                </span>
-                <span className={lockedStyles.offerCta}>{t('map.listEndCta')}</span>
-              </span>
-            </a>
+              </a>
+            )
           )}
         </div>
       </div>

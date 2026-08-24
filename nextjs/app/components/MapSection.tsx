@@ -1430,7 +1430,6 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
-      totalSpots={restaurants.length + lockedRestaurants.length}
       lockedIdSet={lockedIdSet}
       signupUnlockableIds={signupUnlockableIds}
       lockedMatchCount={lockedMatchCount}

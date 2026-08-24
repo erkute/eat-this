@@ -1,5 +1,10 @@
 /* Locked spot sheet — isolated map subsystem. */
 .body {
+  /* Höhe des Anrisses an einer Stelle — .excerpt und .excerptReserve müssen
+     denselben Wert haben, sonst springt die Paywall beim Nachladen doch.
+     Sechs Zeilen statt vier: bei weniger las sich der Anriss als Stummel,
+     nicht als Text, der unter dem Verlauf weiterläuft (User, 2026-08-24). */
+  --locked-excerpt-h: 210px;
   display: grid;
   gap: 10px;
   padding: 20px 18px 26px;
@@ -33,16 +38,6 @@
   flex: 0 0 auto;
 }
 
-.sub {
-  max-width: 36ch;
-  margin: 0 0 4px;
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.38;
-}
-
 /* The spot's own story, cut off partway down. It borrows MapDetails' .rdBody
    and .rdStoryLead, so it is typeset as the real article — drop cap and all —
    and the only difference is that it stops.
@@ -53,11 +48,20 @@
    -webkit-mask ships alongside for Safari, which still wants the prefix. */
 .excerpt {
   position: relative;
-  max-height: 148px;
+  max-height: var(--locked-excerpt-h);
   margin: 2px 0 4px;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Platzhalter für die Sekunde, in der der Anriss noch lädt — exakt so hoch
+   wie der Anriss selbst, damit "Noch verdeckt" und die Packs nicht erst oben
+   stehen und dann nach unten rutschen. Leer statt Skelett: der Anschnitt legt
+   sich bewusst nicht auf eine Länge fest. */
+.excerptReserve {
+  height: var(--locked-excerpt-h);
+  margin: 2px 0 4px;
 }
 
 /* The body block's own bottom margin would leave a gap the mask fades into,
@@ -483,11 +487,38 @@
     gap: 6px;
   }
 
-  .excerpt {
-    /* Shorter here, because the offer under it still has to stand in the panel
-       without scrolling. The mask does most of the work anyway — where exactly
-       it cuts within a line is not something a reader can name. */
-    max-height: 70px;
+  /* Kein Weißraum unter dem Angebot: die Sheet füllt das Panel, und was den
+     Rest aufnimmt, ist der Anriss — nicht die Lücke unter der Paywall (User,
+     2026-08-24). Der Anriss ist die erste Zeile des Rasters und bekommt 1fr;
+     Kicker und Karte behalten ihre eigene Höhe und stehen damit unten.
+     Nebeneffekt, der die feste Höhe von oben ersetzt: Platzhalter und
+     fertiger Anriss teilen sich dieselbe Rasterzeile, können also gar nicht
+     mehr unterschiedlich hoch sein. */
+  .scroll {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .body {
+    flex: 1;
+    /* Ohne die 0 bleibt die automatische Mindesthöhe des Flex-Kindes stehen —
+       das ist die volle Länge der Geschichte, und dann schiebt der Anriss das
+       Angebot unter die Panelkante, statt selbst nachzugeben. */
+    min-height: 0;
+    grid-template-rows: 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .excerpt,
+  .excerptReserve {
+    height: auto;
+    max-height: none;
+    /* Nach oben offen, nach unten ein Boden: das Packs-Angebot ist flach, dort
+       füllt der Anriss den ganzen Rest — der Anmelde-Zweig mit Formular und
+       Google-Button ist es nicht, und ohne diesen Boden bliebe von der
+       Geschichte dort gar nichts übrig. Dann scrollt das Panel eben ein
+       Stück, wie vorher auch. */
+    min-height: 110px;
   }
 
   .starter {

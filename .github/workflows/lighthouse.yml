@@ -117,4 +117,20 @@ jobs:
           exit 1
 
       - name: Run Lighthouse CI
-        run: lhci autorun
+        # Die Middleware weist seit dem 24.08.2026 jeden `Chrome-Lighthouse`-UA
+        # ab — ein fremder Dienst grast damit die ganze Seite ab und hat das
+        # Sanity-CDN-Kontingent gesprengt. Unsere eigene Messung sendet
+        # denselben UA (Lighthouse setzt ihn selbst) und liegt als
+        # GitHub-Runner im selben Azure-Adressraum, ist also weder am UA noch
+        # an der IP von ihm zu unterscheiden. Der gemeinsame Header ist die
+        # Ausnahme; er steht bewusst hier und nicht in .lighthouserc.json,
+        # damit der Wert nicht im Repo landet.
+        #
+        # Ohne das Secret antwortet die Seite mit 429 und dieser Schritt
+        # scheitert sichtbar — genau so gewollt, siehe isForeignLighthouse()
+        # in nextjs/middleware.ts.
+        env:
+          LHCI_BYPASS_SECRET: ${{ secrets.LHCI_BYPASS_SECRET }}
+        run: |
+          lhci autorun \
+            --collect.settings.extraHeaders="{\"x-eat-this-lhci\":\"${LHCI_BYPASS_SECRET}\"}"

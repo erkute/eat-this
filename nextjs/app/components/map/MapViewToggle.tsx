@@ -17,6 +17,16 @@ const ARRIVAL_PX = 8;
 /* Smooth scrolling has no completion event. If the target turns out to be
    unreachable (the document shrank under us) the lock releases anyway. */
 const SETTLE_TIMEOUT_MS = 1200;
+/* How long without a scroll event before the list counts as standing still and
+   the pill comes back.
+
+   This delay is felt directly — it is the wait between letting go and the pill
+   returning — so it is much shorter than a lingering timeout would need to be.
+   It cannot go to zero either: a deliberate swipe-swipe-swipe leaves gaps of a
+   couple hundred ms with no events, and the pill flashing in and out through
+   each of them is worse than either state. iOS momentum keeps firing while it
+   glides, so the clock effectively starts when the list truly stops. */
+const AT_REST_MS = 500;
 
 interface Props {
   /** The pill is a phone-list affordance; the detail keeps it parked. */
@@ -37,10 +47,28 @@ interface Props {
  * a scroll: the map never unmounts and the camera never moves. The pill only
  * remembers where you left the list, which is what makes it a toggle rather
  * than a one-way scroll-to-top.
+ *
+ * It stands aside while you scroll. Two conditions, kept separate on purpose:
+ * `mode` is whether there is anywhere to go, `scrolling` is whether you are
+ * busy going there. Mid-flick the pill slides out from over the list; the
+ * moment the list comes to rest it slides back, which is also the moment you
+ * are in a position to read it and decide.
+ *
+ * `tabIndex` and `aria-hidden` follow the same flag, so the pill is never a
+ * tab stop while it is off screen — with one exception, see `focused`.
  */
 export default function MapViewToggle({ sheetView, filterKey }: Props) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<ToggleMode>(null);
+  /* The pill gets out of the way while the list is moving and comes back once
+     it stops. `mode` still decides WHETHER there is anywhere to go and in which
+     direction — this only decides whether the offer is on screen right now. */
+  const [scrolling, setScrolling] = useState(false);
+  /* ...with one exception. A pill that vanished out from under the keyboard
+     would take the focus ring with it and leave focus on an inert, invisible
+     element. While it is focused it stays put, moving or not. */
+  const [focused, setFocused] = useState(false);
+  const idleTimer = useRef<number | null>(null);
   /* Where the list was when the map was last requested. null = nothing to go
      back to, which is also what hides the 'toList' direction. */
   const rememberedListY = useRef<number | null>(null);
@@ -94,6 +122,10 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
 
   useEffect(() => {
     const onScroll = () => {
+      setScrolling(true);
+      if (idleTimer.current) window.clearTimeout(idleTimer.current);
+      idleTimer.current = window.setTimeout(() => setScrolling(false), AT_REST_MS);
+
       const flight = pending.current;
       if (flight) {
         /* Our own scroll is still travelling — leave the label alone so it
@@ -111,6 +143,7 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      if (idleTimer.current) window.clearTimeout(idleTimer.current);
     };
   }, []);
 
@@ -130,6 +163,7 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
   useEffect(
     () => () => {
       if (settleTimer.current) window.clearTimeout(settleTimer.current);
+      if (idleTimer.current) window.clearTimeout(idleTimer.current);
     },
     []
   );
@@ -172,17 +206,22 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
 
   const toMap = mode === 'toMap';
   const label = toMap ? t('map.viewToggleMap') : t('map.viewToggleList');
+  const visible = Boolean(mode) && (!scrolling || focused);
 
   return (
     <button
       type="button"
       className={styles.toggle}
-      data-visible={mode ? 'true' : undefined}
+      data-visible={visible ? 'true' : undefined}
       data-map-view-toggle=""
       /* Kept mounted so the remembered position outlives a detail detour; the
-         hidden state is inert rather than unmounted. */
-      tabIndex={mode ? undefined : -1}
-      aria-hidden={mode ? undefined : true}
+         hidden state is inert rather than unmounted. Tab order and the
+         accessibility tree follow what is actually on screen — a pill hidden
+         mid-scroll is as unreachable as a mode-less one. */
+      tabIndex={visible ? undefined : -1}
+      aria-hidden={visible ? undefined : true}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       onClick={handleClick}
     >
       <span className={styles.icon} aria-hidden="true">

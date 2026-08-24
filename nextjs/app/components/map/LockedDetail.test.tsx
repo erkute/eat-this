@@ -35,11 +35,10 @@ function spot(over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant;
 }
 
-function html(r: MapRestaurant, total = 345) {
+function html(r: MapRestaurant) {
   return renderToStaticMarkup(
     <LockedDetail
       restaurant={r}
-      totalSpots={total}
       unlocksWithAccount={false}
       contentRef={null}
       onClose={() => {}}
@@ -48,11 +47,10 @@ function html(r: MapRestaurant, total = 345) {
 }
 
 /** The same spot, but sitting in the signed tier — an account opens it. */
-function signupHtml(r: MapRestaurant, total = 345) {
+function signupHtml(r: MapRestaurant) {
   return renderToStaticMarkup(
     <LockedDetail
       restaurant={r}
-      totalSpots={total}
       unlocksWithAccount
       contentRef={null}
       onClose={() => {}}
@@ -71,7 +69,7 @@ describe('LockedDetail story excerpt', () => {
     expect(out).toContain('Im Erdgeschoss des Grand Hyatt.');
     // Before the paywall: the reader meets the restaurant, then the price.
     expect(out.indexOf('Im Erdgeschoss')).toBeLessThan(out.indexOf('Noch verdeckt'));
-    expect(out.indexOf('Im Erdgeschoss')).toBeLessThan(out.indexOf('/pack/lunch'));
+    expect(out.indexOf('Im Erdgeschoss')).toBeLessThan(out.indexOf('href="/packs"'));
   });
 
   it('prefers the long story, exactly as the unlocked sheet does', () => {
@@ -121,10 +119,12 @@ describe('LockedDetail', () => {
     expect(html(spot())).not.toContain('nur die Map kostet');
   });
 
-  it('leads with the pack that actually unlocks this spot', () => {
+  it('sends the one CTA to the packs page, not to a single product', () => {
+    // Auswahl, Größen und Preise gehören auf /packs; diese Sheet muss nur Lust
+    // auf den Spot machen (user, 2026-08-24).
     const out = html(spot());
-    expect(out).toContain('/pack/lunch');
-    expect(out).toContain('Lunch');
+    expect(out).toContain('href="/packs"');
+    expect(out).toContain('Packs ansehen');
   });
 
   it('names no price — the CTA carries the action, the pack page the price', () => {
@@ -137,10 +137,20 @@ describe('LockedDetail', () => {
     expect(out).not.toContain('€');
   });
 
-  it('offers all-Berlin with its size, not a bare slogan', () => {
+  it('makes exactly one offer — one card, one CTA', () => {
+    // Zwei Pack-Karten plus ein Link zur Übersicht waren drei Wege aus einer
+    // Sheet mit einer Frage (user, 2026-08-24).
     const out = html(spot());
-    expect(out).toContain('/pack/all-berlin');
-    expect(out).toContain('Ganz Berlin · 345 Spots');
+    expect(out.match(/href="\/pack/g)?.length).toBe(1);
+    expect(out).not.toContain('/pack/lunch');
+    expect(out).not.toContain('/pack/all-berlin');
+  });
+
+  it('keeps the offer short — no counts, no product names to weigh up', () => {
+    const out = html(spot());
+    expect(out).not.toContain('345');
+    expect(out).not.toContain('Ganz Berlin');
+    expect(out).toContain('Ein Pack öffnet ihn — und viele weitere dazu.');
   });
 
   it('says the spot is face down once, not twice', () => {
@@ -149,39 +159,19 @@ describe('LockedDetail', () => {
     const out = html(spot());
     expect(out).toContain('Noch verdeckt');
     expect(out).not.toContain('Liegt noch nicht auf deiner Map.');
-    expect(out).toContain('Ein Pack schaltet diesen Spot frei. Und jeden anderen darin.');
+    // Und die Karte sagt, was zu holen ist (user, 2026-08-24).
+    expect(out).toContain('Diesen Spot freischalten');
   });
 
-  it('falls back to all-Berlin alone when no category pack applies', () => {
+  it('makes the same offer to a spot no category pack covers', () => {
+    // Das Angebot hängt nicht mehr an der Kategorie des Spots.
     const out = html(spot({ categories: [] }));
-    expect(out).toContain('/pack/all-berlin');
-    expect(out).not.toContain('/pack/lunch');
+    expect(out).toContain('href="/packs"');
+    expect(out).toContain('Diesen Spot freischalten');
   });
 
-  it('states a spot count for all-Berlin only', () => {
-    /* A category count invites the comparison that sinks the bundle: Dinner
-       alone is 225 of 340 spots and Lunch 205, so "225 Spots · 2,99 €" beside
-       the bundle argues against the bundle every time. */
-    const out = html(spot());
-    const lunchBlock = out.slice(out.indexOf('/pack/lunch'), out.indexOf('/pack/all-berlin'));
-    expect(lunchBlock).not.toContain('Spots');
-    expect(out.slice(out.indexOf('/pack/all-berlin'))).toContain('Spots');
-  });
-
-  it('says what a tap on each pack does', () => {
-    // The cards are pack art, not buttons — but art alone never named the
-    // action, while the free offer beside them ends in a plain CTA.
-    const out = html(spot());
-    expect(out).toContain('Lunch holen');
-    expect(out).toContain('map.listEndCta');
-  });
-
-  it('shows the category pack as its own art', () => {
-    expect(html(spot())).toContain('booster_lunch.webp');
-  });
-
-  it('fans out all nine packs for all-Berlin, the way /packs does', () => {
-    // One generic bag cannot say "everything". Nine can.
+  it('fans out the packs as art, the way /packs does', () => {
+    // One generic bag cannot say "there are several". Nine can.
     const out = html(spot());
     for (const art of [
       'booster_breakfast',

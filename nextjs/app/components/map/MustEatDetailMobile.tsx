@@ -13,7 +13,7 @@ import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetai
 import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PagerArrowIcon } from './icons';
 
-const CARD_BACK = '/pics/card-back.webp?v=6';
+const CARD_BACK = '/pics/card-back.webp?v=7';
 /* Gesetzt, sobald jemand einmal gewischt hat — danach kommt der Wisch-Hinweis
    nie wieder, auch nicht in einer neuen Session. */
 const SWIPE_HINT_KEY = 'et:me-swipe-hint';

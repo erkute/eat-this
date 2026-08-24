@@ -710,7 +710,9 @@
     top: var(--picker-anchor-top, 0);
     right: auto;
     bottom: auto;
-    width: min(520px, calc(100vw - 24px));
+    /* Breiter als die 520px von vorher, damit drei Spalten hineinpassen —
+       siehe .pickerList unten. */
+    width: min(600px, calc(100vw - 24px));
     /* JS setzt --picker-anchor-top aus dem Rect des Chips. */
     max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px);
     animation: pickerPopoverIn 0.18s ease-out;
@@ -722,8 +724,15 @@
      die Zeilen liefen also schlicht über die Panel-Kante hinaus. Bei 722px
      Fensterhöhe rendeten die letzten fünf Küchen rund 200px unter dem Fold: nicht
      scrollbar, nicht abgeschnitten, einfach weg. */
+  /* Drei Spalten statt zwei: mit 28 Küchen füllten zwei Spalten 14 Zeilen und
+     damit 689px — auf einem 800px-Fenster blieben 667px für die Liste, also
+     scrollte sie um 22px. Ein Filter, den man scrollen muss, um seine letzte
+     Zeile zu sehen, ist auf dem Desktop keiner (User, 2026-08-24). Drei
+     Spalten sind zehn Zeilen, rund 500px — das passt auch auf kurze Fenster.
+     `overflow-y: auto` bleibt als Ventil für den Fall, dass die Küchenliste
+     doch einmal über das Fenster hinauswächst. */
   .pickerList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     max-height: none;
     overflow-y: auto;
   }

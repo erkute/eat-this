@@ -8,7 +8,7 @@ import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLight
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import styles from './MustEatsSection.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=6';
+const CARD_BACK = '/pics/card-back.webp?v=7';
 
 interface Props {
   initialMapData: InitialMustEatsData;

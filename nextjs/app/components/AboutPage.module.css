@@ -85,55 +85,34 @@
   text-wrap: pretty;
 }
 
-/* Object stack. Sized off the phone; the two cards hang off its corners.
-   No fades — the pieces are simply placed and tilted.
-
-   The widths are the real objects: a phone is 70.6mm across, a trading card
-   63mm, so the card lands at ~0.89 of the phone. Drawn at half that, the deck
-   read as a keyring fob next to a phone instead of a thing you hold. */
+/* One object, centred under nothing — the hero art is a single freigestellte
+   figure now, so the absolutely-positioned stack that held a phone and two
+   cards is gone with it. Kept as a box rather than a bare <img> so the column
+   can cap the object without the grid track doing it. */
 .heroArt {
-  position: relative;
-  width: min(100%, 360px);
-  margin: 0 auto;
-  aspect-ratio: 360 / 455;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-.heroPhone {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 46%;
+/* Drawn with its own floor and cast shadow: no tilt, and deliberately no
+   drop-shadow. A CSS shadow under a picture that already casts one reads as
+   a printing error. */
+.heroFigure {
+  width: min(100%, 320px);
   height: auto;
-  transform: translateX(-50%) rotate(-3deg);
-  filter: drop-shadow(0 18px 32px rgba(21, 18, 14, 0.16));
-}
-
-/* The pair: face-down left, face-up right. The revealed one runs a little
-   bigger and sits a little higher — it is the object the page is actually
-   arguing for, and a dead-symmetric pair would read as wallpaper. */
-.heroCard {
-  position: absolute;
-  bottom: 0;
-  left: 1%;
-  width: 41%;
-  height: auto;
-  transform: rotate(-8deg);
-  filter: drop-shadow(0 12px 22px rgba(21, 18, 14, 0.18));
-}
-
-.heroCardFront {
-  position: absolute;
-  right: 1%;
-  bottom: 4%;
-  width: 42%;
-  height: auto;
-  transform: rotate(7deg);
-  filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.2));
 }
 
 @media (max-width: 899px) {
   .heroArt {
-    width: min(100%, 330px);
+    margin-inline: auto;
+  }
+
+  /* Stacked under the headline the figure has to earn its height: it is a
+     0.57 portrait, so every 100px of width buys 175px of scroll. At 300 it
+     stood 524 tall on a 375 screen and pushed the whole read below the fold. */
+  .heroFigure {
+    width: min(62vw, 230px);
   }
 }
 
@@ -151,6 +130,23 @@
     grid-template-columns: minmax(0, 60ch) 300px;
     justify-content: space-between;
     gap: clamp(40px, 5vw, 72px);
+  }
+
+  /* The mirrored spread. Placement only — the copy is still the first child,
+     so nothing about the markup order changes and the one-column stack below
+     900px is unaffected. */
+  .flip {
+    grid-template-columns: 300px minmax(0, 60ch);
+  }
+
+  .flip .sectionCopy {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .flip .figure {
+    grid-column: 1;
+    grid-row: 1;
   }
 }
 
@@ -285,6 +281,13 @@
     justify-content: space-between;
     gap: clamp(40px, 5vw, 72px);
   }
+
+  /* Spelled out rather than left to the shared `.flip`: this block sits later
+     in the file at the same specificity, so the plain rule would have quietly
+     won and the dark chapter alone would have stayed unmirrored. */
+  .bandGrid.flip {
+    grid-template-columns: 300px minmax(0, 60ch);
+  }
 }
 
 .band .sectionTitle {
@@ -313,79 +316,134 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* ---------- Frag Remy ---------- */
-
-.remy {
-  display: flex;
-  align-items: center;
-  gap: clamp(14px, 2vw, 22px);
-  margin-top: clamp(34px, 5vw, 52px);
-  padding-top: clamp(26px, 3.4vw, 34px);
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  color: var(--about-paper);
-  text-decoration: none;
+/* The pair. Two cards overlapping inside one rail measure — the back tucked
+   left and low, the revealed one over it to the right and a little higher.
+   The revealed card is the thing the section argues for, so it sits on top;
+   a dead-level, evenly-spaced pair read as two catalogue shots. */
+.pair {
+  position: relative;
+  width: var(--fig-w, 260px);
+  max-width: 100%;
+  margin-inline: auto;
+  /* Reserved height, or the absolute children collapse the figure and drag the
+     caption up under them. It has to cover the *rotated* card, not the upright
+     one: at 62% of the rail a card stands 221px, and an 8deg tilt swings that
+     to 242. Measured at 260/215 the pair hung 31px out over the top. */
+  aspect-ratio: 260 / 252;
 }
 
-.remyArt {
-  flex: none;
-  width: clamp(72px, 11vw, 96px);
+.pairBack,
+.pairFront {
+  position: absolute;
+  bottom: 0;
+  width: 62%;
   height: auto;
-  transform: rotate(-3deg);
-  transition: transform 140ms ease;
+  transform: rotate(var(--tilt, 0deg));
+  filter: drop-shadow(0 12px 22px rgba(21, 18, 14, 0.3));
 }
 
-.remy:hover .remyArt,
-.remy:focus-visible .remyArt {
-  transform: translateY(-4px) rotate(-5deg);
+.pairBack {
+  left: 0;
+}
+
+/* The caption under the pair needs its own measure. Rotating a card about its
+   centre swings the lower corner roughly 10px past the box `bottom: 0` put it
+   in, and that overhang came straight out of the caption's margin: 6px of
+   daylight where the untilted phone and plate get 12. Sibling margins collapse
+   rather than add, so paying it back on the pair itself would have done
+   nothing — it is spent here instead. */
+.pair + .caption {
+  margin-top: clamp(26px, 3vw, 34px);
+}
+
+.pairFront {
+  right: 0;
+  bottom: 7%;
+}
+
+/* ---------- Frag Remy ----------
+
+   Out of the ink band and back onto paper. Inside the dark chapter this was a
+   link tacked below a closed argument; as its own section it reads as what it
+   is — the one door on the page that leads somewhere before the closer. It
+   borrows the section grid so the text column stays on the same spine. */
+
+.remySection {
+  display: grid;
+  gap: clamp(24px, 3.4vw, 36px);
+  align-items: center;
+  margin-top: clamp(46px, 6.5vw, 84px);
+}
+
+@media (min-width: 900px) {
+  .remySection {
+    grid-template-columns: minmax(0, 60ch) 300px;
+    justify-content: space-between;
+    gap: clamp(40px, 5vw, 72px);
+  }
 }
 
 .remyCopy {
-  display: grid;
-  gap: 5px;
   min-width: 0;
 }
 
 .remyTitle {
+  margin: 0;
+  color: var(--about-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(22px, 2.4vw, 30px);
+  font-size: clamp(26px, 3.2vw, 38px);
   font-weight: 700;
-  line-height: 1;
-  color: var(--about-accent);
+  letter-spacing: -0.01em;
+  line-height: 0.98;
   text-transform: uppercase;
 }
 
 .remyText {
   max-width: 46ch;
+  margin: clamp(12px, 1.6vw, 16px) 0 0;
+  color: var(--about-text);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(14px, 1.05vw, 16px);
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(16px, 1.15vw, 17.5px);
+  line-height: 1.65;
+  text-wrap: pretty;
 }
 
-/* Under the line it explains, not flung to the far edge — at 1440 the two sat
-   270px apart and stopped reading as one thing. */
+/* A link, not a button: the yellow button at the foot of the page is the one
+   the reader is being pushed toward, and two filled buttons on one page split
+   that push in half. */
 .remyCta {
-  justify-self: start;
-  margin-top: 3px;
+  display: inline-block;
+  margin-top: clamp(14px, 1.8vw, 18px);
+  color: var(--about-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(16px, 1.4vw, 19px);
+  font-size: clamp(17px, 1.5vw, 20px);
   font-weight: 700;
-  color: var(--about-paper);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
+  text-transform: uppercase;
   transition: color 140ms ease;
 }
 
-.remy:hover .remyCta,
-.remy:focus-visible .remyCta {
-  color: var(--about-accent);
+.remyCta:hover,
+.remyCta:focus-visible {
+  color: var(--about-ink);
 }
 
-@media (max-width: 639px) {
-  .remy {
-    align-items: flex-start;
-  }
+/* Alone in the rail now, and bigger for it — beside a phone he had to stay
+   small enough not to cover the screen, which left him looking like a
+   footnote to his own section. */
+.remyArt {
+  display: block;
+  width: min(100%, 170px);
+  height: auto;
+  margin-inline: auto;
+  transform: rotate(-3deg);
+  transition: transform 140ms ease;
+}
+
+.remySection:hover .remyArt {
+  transform: translateY(-4px) rotate(-5deg);
 }
 
 /* ---------- figures ---------- */
@@ -407,8 +465,13 @@
   width: var(--fig-w, 290px);
   max-width: 100%;
   height: auto;
+  /* Centred so the caption below has something to be centred *on*. Left-hung
+     objects put the 185px card 57px off its own caption's axis. */
+  margin-inline: auto;
   transform: rotate(var(--tilt, 0deg));
-  filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.15));
+  /* Overridable per figure: an object that was drawn with its own cast shadow
+     sets `--fig-shadow: none` rather than wearing a second one. */
+  filter: var(--fig-shadow, drop-shadow(0 14px 26px rgba(21, 18, 14, 0.15)));
 }
 
 .caption {
@@ -419,7 +482,11 @@
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.15;
+  text-align: center;
   text-transform: none;
+  /* Measure still comes from the column, not the object: at the card's 185px
+     a six-word caption breaks in two. Centred text, column-wide box. */
+  text-wrap: balance;
 }
 
 /* ---------- closer ---------- */
@@ -437,7 +504,48 @@
   color: var(--about-paper);
 }
 
+/* Object left, copy right — the one place on the page where it goes that way
+   round. Only from 760px: stacked, a picture above a headline above a button
+   is a queue, and putting the picture at the front of it delays the sentence
+   that does the asking. */
+@media (min-width: 760px) {
+  .cta {
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start;
+    gap: clamp(28px, 4vw, 52px);
+    text-align: left;
+    padding-block: clamp(30px, 4vw, 44px);
+  }
 
+  .cta .ctaTitle,
+  .cta .ctaText {
+    margin-inline: 0;
+  }
+
+  .cta .ctaRow {
+    justify-content: flex-start;
+  }
+}
+
+/* Trimmed against the panel's own padding rather than given a shadow: on ink
+   a drop-shadow is invisible, and the phone already reads as lifted because
+   its screen is the brightest thing in the block. */
+.ctaPhone {
+  display: block;
+  width: 170px;
+  max-width: 100%;
+  height: auto;
+  transform: rotate(-2deg);
+}
+
+@media (min-width: 760px) {
+  .ctaPhone {
+    width: 210px;
+    /* Let it sit deeper than the copy: the panel is short and a phone this
+       tall would otherwise set the whole block's height. */
+    margin-block: clamp(-14px, -1.5vw, -6px);
+  }
+}
 
 .ctaTitle {
   margin: 0;

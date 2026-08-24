@@ -60,7 +60,7 @@ function MustEatMiniCard({
       >
         <div className={styles.medishPh}>
           <img
-            src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=6'}
+            src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=7'}
             alt={unlocked ? dish : ''}
             loading="lazy"
           />
@@ -119,6 +119,7 @@ export default function RestaurantDetail({
   const { count: heartCount } = useHeartCount(restaurant._id);
   const scrollWrapRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+
 
   // The map list payload is now trimmed to hero/list fields; the editorial +
   // contact fields (address, phone, tip, description, …) load on demand when

@@ -96,57 +96,6 @@
   line-height: 1.2;
 }
 
-/* Switcher — the three filings sit one tap apart instead of a footer scroll
-   away. "Cookies verwalten" rides along because it is the fourth thing people
-   come here to find. */
-.docNav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: clamp(20px, 2.6vw, 28px);
-}
-
-.docLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0 16px;
-  border: 1px solid var(--legal-line);
-  border-radius: var(--et-radius-control, 7px);
-  background: transparent;
-  color: var(--legal-ink);
-  /* Reading face, not a display one. chauncy-pro carries the brand's shouting
-     voice — right for INSTAGRAM in the footer, wrong above a privacy policy.
-     Sentence case for the same reason: these are utility controls on a legal
-     filing, and versals make them shout a second time. */
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    border-color 140ms ease,
-    background-color 140ms ease,
-    color 140ms ease;
-}
-
-.docLink:hover,
-.docLink:focus-visible {
-  border-color: var(--legal-ink);
-}
-
-.docLinkCurrent {
-  background: var(--legal-ink);
-  border-color: var(--legal-ink);
-  color: var(--legal-paper);
-}
-
-.docBtn {
-  appearance: none;
-  cursor: pointer;
-}
-
 /* ---------- layout: jump list beside the filing on wide screens ---------- */
 
 .layout {

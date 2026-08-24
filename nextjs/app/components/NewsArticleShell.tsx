@@ -121,7 +121,7 @@ export default function NewsArticleShell({
       <>
         <div className={styles.mustEatPh}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/card-back.webp?v=6" alt="" />
+          <img src="/pics/card-back.webp?v=7" alt="" />
         </div>
         <div className={styles.mustEatBody}>
           <span className={styles.mustEatKicker}>

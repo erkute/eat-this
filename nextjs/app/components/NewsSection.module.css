@@ -19,7 +19,8 @@
 .shell {
   width: min(100%, 1180px);
   margin: 0 auto;
-  padding: calc(34px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) clamp(56px, 8vw, 112px);
+  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
+  padding: 34px clamp(18px, 4vw, 54px) clamp(56px, 8vw, 112px);
 }
 
 .hero {
@@ -218,7 +219,7 @@
 
 @media (max-width: 900px) {
   .shell {
-    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-top: 24px;
   }
 }
 

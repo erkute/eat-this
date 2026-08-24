@@ -1,19 +1,9 @@
-import { Link } from '@/i18n/navigation';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
-import CookieSettingsButton from './CookieSettingsButton';
 import SiteFooter from './SiteFooter';
 import styles from './LegalPage.module.css';
 
 type Locale = 'de' | 'en';
-
-/** The three documents that cross-link each other. `contact` uses the same
- *  shell but is not part of the switcher — it is a warm page, not a filing. */
-const LEGAL_DOCS = [
-  { slug: 'impressum', de: 'Impressum', en: 'Imprint' },
-  { slug: 'datenschutz', de: 'Datenschutz', en: 'Privacy' },
-  { slug: 'agb', de: 'AGB', en: 'Terms' },
-] as const;
 
 const KICKER: Record<string, { de: string; en: string }> = {
   impressum: { de: 'Rechtliches', en: 'Legal' },
@@ -62,7 +52,6 @@ export default function LegalPage({ doc, locale }: { doc: StaticPageDoc; locale:
   // A jump list earns its space on a long filing (the German privacy policy
   // runs 20+ chapters); on a four-heading imprint it is just noise.
   const showToc = chapters.length >= 5;
-  const isLegalDoc = LEGAL_DOCS.some((entry) => entry.slug === doc.slug);
   const kicker = KICKER[doc.slug] ?? { de: 'Rechtliches', en: 'Legal' };
 
   return (
@@ -77,27 +66,6 @@ export default function LegalPage({ doc, locale }: { doc: StaticPageDoc; locale:
             {doc.title || ''}
           </h1>
           {updated && <p className={styles.updated}>{updated}</p>}
-          {isLegalDoc && (
-            <nav
-              className={styles.docNav}
-              aria-label={de ? 'Rechtliche Dokumente' : 'Legal documents'}
-            >
-              {LEGAL_DOCS.map((entry) => {
-                const current = entry.slug === doc.slug;
-                return (
-                  <Link
-                    key={entry.slug}
-                    href={`/${entry.slug}`}
-                    className={`${styles.docLink} ${current ? styles.docLinkCurrent : ''}`}
-                    aria-current={current ? 'page' : undefined}
-                  >
-                    {de ? entry.de : entry.en}
-                  </Link>
-                );
-              })}
-              <CookieSettingsButton className={`${styles.docLink} ${styles.docBtn}`} />
-            </nav>
-          )}
         </header>
 
         <div className={showToc ? styles.layout : undefined}>

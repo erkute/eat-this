@@ -2,8 +2,17 @@
 // once before any page code. Replaces the older sentry.client.config.ts file.
 import * as Sentry from '@sentry/nextjs';
 
+import { dropResourceLoadErrors } from '@/lib/sentry/beforeSend';
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+
+  // Ein gescheitertes <link>/<script> kommt als DOM-Event über den
+  // Rejection-Handler herein — ohne Titel, ohne Stacktrace. Solche Events
+  // haben JAVASCRIPT-3N gefüllt (56 Stück seit Mai, überwiegend Bots und
+  // Chunk-404s direkt nach einem Deploy). Der Filter wirft nur diese weg;
+  // echte Fehler mit Stacktrace bleiben unberührt (siehe lib/sentry/beforeSend.ts).
+  beforeSend: dropResourceLoadErrors,
 
   // No tracesSampleRate: performance tracing is tree-shaken out of the bundle
   // entirely (webpack.treeshake.removeTracing in next.config.ts). Setting it

@@ -45,12 +45,12 @@ const PAGE_META: Record<string, SlugMeta> = {
     de: {
       title: 'Über uns',
       description:
-        'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren – plus Remy, unsere KI-Suche für deinen nächsten Spot.',
+        'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren – plus Remy, der jeden Spot auf der Map kennt.',
     },
     en: {
       title: 'About',
       description:
-        "What Eat This is, who's behind it, why we curate Berlin's restaurants – plus Remy, our AI search for your next spot.",
+        "What Eat This is, who's behind it, why we curate Berlin's restaurants – plus Remy, who knows every spot on the map.",
     },
   },
   contact: {

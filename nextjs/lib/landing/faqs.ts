@@ -7,7 +7,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   de: [
     {
       q: 'Was ist Eat This?',
-      a: 'Eat This ist eine kuratierte Food-Map für Berlin: handverlesene Restaurants, Cafés und Bars. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.',
+      a: 'Eat This ist eine kuratierte Food-Map für Berlin: handverlesene Restaurants, Cafés und Bars. Frag Remy, er kennt jeden Spot und findet sofort deinen.',
     },
     {
       q: 'Was sind Must Eats?',
@@ -29,7 +29,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   en: [
     {
       q: 'What is Eat This?',
-      a: 'Eat This is a curated food map for Berlin: hand-picked restaurants, cafés and bars on one map. Ask Remy, our AI search, to find the right spot instantly.',
+      a: 'Eat This is a curated food map for Berlin: hand-picked restaurants, cafés and bars on one map. Ask Remy — he knows every spot and finds yours instantly.',
     },
     {
       q: 'What are Must Eats?',

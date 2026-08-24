@@ -1,959 +1,308 @@
 /* Map Filters — isolated map subsystem. */
+
+/* ══ Chip-Leiste ══════════════════════════════════════════════════════════════
+   Vier Chips über der Liste: Kategorie · Bezirk · Küche · Geöffnet. Die ersten
+   drei öffnen einen Picker und sitzen in einem `.filterChipWrap` (der den
+   Zurücksetzen-Punkt trägt), „Geöffnet" ist ein nackter Toggle-Button direkt in
+   der Reihe.
+
+   Ein Block pro Element und Zustand, Zustände über sich ausschließende
+   Selektoren getrennt. Vorher lag `.filterChipRow` in sechs Blöcken über die
+   Datei verteilt und `.filterChip` in vier, dazwischen Media-Regeln, die von
+   späteren Basisregeln wieder überschrieben wurden — mehrere davon waren
+   wirkungslos, sahen aber aus, als täten sie etwas. */
+
 .listHeader {
   position: relative;
   flex-shrink: 0;
 }
+
+.filterChipRow {
+  display: flex;
+  box-sizing: border-box;
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 12px 8px;
+  background: #fff;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Reste der früheren Grid-Fassung. Sie wirken auf einem Flex-Container nicht,
+     stehen aber im berechneten Stil — bis die Reihe wirklich wieder ein Grid
+     wird, bleiben sie hier stehen statt verstreut über die Datei. */
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.filterChipRow::-webkit-scrollbar {
+  display: none;
+}
+
+/* Der Wrap trägt den Zurücksetzen-Punkt (siehe unten) und ist deshalb der
+   Positionsanker. Er selbst ist unsichtbar. */
 .filterChipWrap {
+  position: relative;
   display: inline-flex;
   align-items: stretch;
-  /* Grow with the row so the chip rail runs flush edge-to-edge. */
+  width: auto;
+  max-width: none;
   background: transparent;
   border: 0;
   border-radius: 0;
   overflow: visible;
 }
-.filterChip {
-  /* All four chips — Kategorie / Bezirk / Küche / Jetzt geöffnet — fit a
-     360px viewport on one line; flex-grow distributes the leftover width
-     on wider phones so the rail is flush left AND right (no half-off-screen
-     scroll start, no ragged right edge). */
-  gap: 5px;
-  /* Frosted glass like the floating controls, but WHITE — cream sank into
-     the cream sheet, white pops fresher against it (User 2026-06-04). */
-  /* Scales with viewport width: 11px floor at 360px → ~13px on a 430px
-     phone, so the stretched chips don't read undersized. */
-  /* ≥1.15 + the chip's top padding keeps Chewy's uppercase umlaut dots
-     (KÜCHE / JETZT GEÖFFNET) from clipping at the top of the line box. */
-  cursor: pointer;
-  appearance: none;
-}
-.filterChipWrap .filterChip {
-  padding-right: 7px;
-}
-.pickerBackdrop {
-  position: fixed;
-  inset: 0;
-  /* Navbar is z-index 9999; modals must sit above it to cover the header. */
-  z-index: 11000;
-  animation: pickerBackdropIn 0.18s ease-out;
-}
-@keyframes pickerBackdropIn {
-  from {
-    background: rgba(0, 0, 0, 0);
-  }
-  to {
-    background: rgba(0, 0, 0, 0.36);
-  }
-}
-.pickerSheet {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-height: 70vh;
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
-  display: flex;
-  flex-direction: column;
-  z-index: 11010;
-  animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
-}
-@keyframes pickerSheetIn {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-.pickerList {
-  flex: 1 1 auto;
-  /* min-height: 0 is the flexbox-overflow fix — without it, the flex item
-     refuses to shrink below its intrinsic content height and `overflow-y`
-     has nothing to clip, so the inner list becomes unscrollable on iOS. */
-  -webkit-overflow-scrolling: touch;
-  /* The map-sheet's drag handler runs on touchmove globally; pan-y tells
-     the browser this region wants vertical scrolling, not a drag gesture. */
-  touch-action: pan-y;
-  overscroll-behavior: contain;
-}
-.pickerItem {
-  width: 100%;
-  appearance: none;
-  /* Chewy: matches sitewide display font; covers full Latin-Extended
-     incl. German umlauts (SCHÖNEBERG, KÖPENICK, FRÜHSTÜCK). */
-  /* Chewy is taller than Saira — give rows enough vertical room so
-     umlaut diacritics (Ü, Ö) aren't clipped. */
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease;
-}
-.pickerItemActive {
-  font-weight: 900;
-}
-.pickerItemLabel {
-  flex: 1 1 auto;
-}
-.pickerItemSub {
-  flex-shrink: 0;
-  /* Keep sub text in a compact body font — Chewy at small sizes is hard
-     to read. Ink color with reduced opacity for a muted look. */
-  text-transform: none;
-}
-.pickerItemActive .pickerItemSub {
-  color: var(--c-black);
-  opacity: 0.55;
-}
-.pickerFooter {
-  border-top: 1px solid var(--border-subtle);
-  padding: 8px 14px;
-  flex-shrink: 0;
-}
-@media (min-width: 1024px) {
-  .pickerBackdrop {
-    animation: none;
-  }
-  .pickerSheet {
-    position: fixed;
-    left: var(--picker-anchor-left, 0);
-    top: var(--picker-anchor-top, 0);
-    bottom: auto;
-    right: auto;
-    /* Grow to fit the full filter list (no internal scroll). Caps at the
-       remaining viewport space below the anchor so it never clips off
-       the bottom — JS sets --picker-anchor-top from the chip's rect. */
-    animation: pickerPopoverIn 0.18s ease-out;
-  }
-  @keyframes pickerPopoverIn {
-    from {
-      transform: translateY(-6px);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-}
-@media (min-width: 1024px) {
-  .filterChipRow {
-    overflow: visible;
-  }
-  .filterChipWrap,
-  .filterChipRow > .filterChip {
-    min-width: 0;
-  }
-  .filterChipWrap .filterChip {
-    min-width: 0;
-  }
-  .filterChipRow .filterChipLabel {
-    min-width: 0;
-    letter-spacing: 0.01em;
-  }
-}
-.pickerSheet {
-  border-top: 2px solid var(--brand-ink);
-}
-.pickerItem {
-  border-bottom-color: var(--brand-rule);
-}
-.filterChip {
-  filter: none;
-  text-shadow: none;
-}
-.pickerItemActive {
-  box-shadow: none;
-  filter: none;
-  text-shadow: none;
-}
-@media (hover: hover) {
-  .filterChip:hover,
-  .pickerItemActive:hover {
-    box-shadow: none;
-    filter: none;
-    text-shadow: none;
-  }
-}
-@media (max-width: 1023px) {
-  .filterChipRow {
-    width: 100%;
-    overflow: visible;
-  }
 
-  .filterChipWrap {
-    min-width: 0;
-  }
+/* Breitenverteilung. Ein inaktiver Chip trägt ein festes Wort ("Bezirk") und
+   teilt sich die Reihe zu gleichen Teilen; ein aktiver trägt den gewählten Wert
+   und wächst auf dessen Breite. Ohne den 44px-Boden — dasselbe Maß wie das
+   Tap-Target der Chips — frisst ein langer Wert die ganze Reihe und die
+   Nachbarn fallen auf ihr eigenes Padding zusammen. Darüber gewinnt der Wert:
+   zwei lange Werte auf einem 360px-Telefon kürzen "Kategorie" und "Geöffnet",
+   nicht den Bezirk und die Küche, die jemand ausgewählt hat. */
+.filterChipRow .filterChipWrap:not(:has(.filterChipActive)):not(:has(.filterChipOpenActive)) {
+  flex: 1 1 0;
+  min-width: 44px;
+}
 
-  .filterChipWrap .filterChip,
-  .filterChipRow > .filterChip {
-    width: 100%;
-    min-width: 0;
-    padding: 9px 5px 10px;
-    gap: 0;
-    font-size: clamp(9px, 2.35vw, 10px);
-    letter-spacing: 0.08em;
-  }
+/* ABSICHTLICH BEIBEHALTEN: der Geoeffnet-Toggle behaelt sein Viertel der Reihe
+   in JEDEM Zustand — er waechst als einziger Chip nicht mit seinem Inhalt.
+   Heute unsichtbar, weil auf ihm immer dasselbe Wort steht. Frueher ergab sich
+   das aus einem Spezifitaets-Unfall; jetzt steht es als Entscheidung da. Wer
+   ihm einmal einen variablen Wert gibt, faengt hier an. */
+.filterChipRow.filterChipRow > button.filterChip.filterChip {
+  flex: 1 1 0;
+}
 
-  .filterChipRow .filterChipLabel {
-    min-width: 0;
-    overflow: hidden;
-  }
+.filterChipRow.filterChipRow
+  > button.filterChip.filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
+  min-width: 44px;
 }
-@media (min-width: 1024px) {
-  .filterChipWrap .filterChip,
-  .filterChipRow > .filterChip {
-    padding: 8px 7px 9px;
-  }
+
+.filterChipRow .filterChipWrap:has(.filterChipActive),
+.filterChipRow .filterChipWrap:has(.filterChipOpenActive) {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
 }
-@media (min-width: 1024px) {
-  .filterChipRow .filterChipLabel {
-    text-overflow: clip;
-  }
-}
-@media (max-width: 1023px) {
-  .filterChipRow {
-    padding-inline: 12px;
-  }
-}
-.filterChip[aria-expanded='true'] {
-  box-shadow: 1px 1px 0 rgba(21, 18, 14, 0.28);
-}
-.pickerSheet {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
-}
-@media (max-width: 420px) {
-  .filterChip {
-    padding-left: 6px;
-    padding-right: 6px;
-  }
-}
-.filterChipRow {
-  grid-template-columns: none;
-}
-.filterChip {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+
+/* ── Chip: gemeinsame Form ─────────────────────────────────────────────────── */
+.filterChipRow .filterChip {
+  display: inline-flex;
   align-items: center;
   align-content: center;
   justify-content: center;
-}
-.filterChipLabel {
-  text-align: center;
-}
-.pickerList {
-  overflow: auto;
-}
-.pickerItem {
-  justify-content: flex-start;
-}
-@media (max-width: 420px) {
-  .filterChipRow {
-    grid-template-columns: none;
-  }
-}
-@media (min-width: 1024px) {
-  .filterChipRow {
-    grid-template-columns: none;
-  }
-}
-.pickerItemActive,
-.pickerItemActive:hover {
-  border-color: var(--et-home-ink);
-}
-.filterChipRow {
-  padding: 12px 14px 16px;
-  background: #fff;
-}
-.filterChip {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
-  border-color: #15120e;
-}
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
-  text-align: center;
-  text-decoration: none;
-}
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
-  text-decoration: none;
-}
-.filterChip:hover,
-.filterChip:focus-visible,
-.filterChip[aria-expanded='true'],
-.filterChipActive,
-.filterChipOpenActive {
-  border-color: var(--et-black, #15120e);
-}
-.filterChip:active {
-  transform: translateX(-2px);
-}
-.filterChipLabel {
-  font: inherit;
-}
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive {
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
-  border: 0;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  min-height: 44px;
+  padding: 8px;
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
+  overflow: hidden;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
   text-transform: none;
-}
-.filterChipOpenActive {
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
-  flex: 0 0 auto;
-  transform: none;
   white-space: nowrap;
-}
-.filterChip:hover,
-.filterChip:focus-visible,
-.filterChip[aria-expanded='true'] {
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
   transform: none;
+  cursor: pointer;
+  appearance: none;
+  filter: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  text-shadow: none;
+  grid-template-columns: minmax(0, 1fr);
 }
-.filterChipLabel {
-  overflow-wrap: normal;
-  word-break: normal;
-  color: inherit;
-  font-family: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  text-transform: inherit;
+
+/* Der Chip im Wrap ist Flex-Item DES WRAPS, nicht der Reihe, und behaelt seine
+   Inhaltsbreite. Die Verteilung passiert eine Ebene hoeher, am Wrap. */
+.filterChipRow .filterChipWrap .filterChip {
+  flex: 0 0 auto;
 }
+
 .filterChipRow > .filterChip {
   margin-left: 0;
 }
-@media (max-width: 430px) {
-  .filterChip,
-  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipActive,
-  .filterChipOpenActive {
-    font-size: 12px;
-  }
 
-  .filterChipRow {
-    padding-inline: 12px;
-  }
-}
-@media (max-width: 767.98px) {
-  .filterChipRow {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow: visible;
-  }
-
-  .filterChipWrap,
-  .filterChipRow > .filterChip {
-    min-width: 0;
-  }
-
-  .filterChip,
-  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipActive,
-  .filterChipOpenActive {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .filterChipLabel {
-    min-width: 0;
-    max-width: 100%;
-    white-space: nowrap;
-  }
-
-  .filterChipLabelLong {
-    line-height: 1.2;
-  }
-}
-.filterChipRow {
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  box-sizing: border-box;
-  padding-top: 12px;
-  padding-bottom: 8px;
-}
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
-  min-height: 42px;
-  padding: 9px 6px;
-  font-size: 11px;
-  line-height: 1.1;
-}
-.filterChipLabel,
-.filterChipLabelLong {
-  font-size: inherit;
-}
-@media (max-width: 360px) {
-  .filterChip,
-  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipActive,
-  .filterChipOpenActive {
-    font-size: 10px;
-  }
-}
-.pickerList {
-  min-height: 0;
-}
-.pickerItem {
-  gap: 10px;
-  border-bottom: 1px solid rgba(21, 18, 14, 0.14);
-}
-.pickerItem:last-child {
-  border-bottom: 0;
-}
-.pickerItemLabel {
-  font: inherit;
-}
-@media (min-width: 1024px) {
-  .pickerSheet {
-    padding-bottom: 0;
-  }
-}
-.filterChipRow {
-  align-items: stretch;
-  gap: 8px;
-  max-width: 100%;
-  padding-inline: 12px;
+/* ABSICHTLICH BEIBEHALTEN: der nackte Toggle traegt anderes Padding als die
+   drei Chips im Wrap (10px statt 8px oben und unten) und schneidet nicht ab.
+   Das war frueher ein Ergebnis der Spezifitaet, kein Entwurf. */
+.filterChipRow > .filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
+  padding: 10px 8px;
   overflow: visible;
 }
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
-  overflow: visible;
-  padding-inline: clamp(6px, 1vw, 12px);
-}
-.filterChipLabel,
-.filterChipLabelLong {
-  display: block;
-}
-.filterChipRow > .filterChip,
-.filterChipWrap {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-}
-.filterChipWrap:has(.filterChipActive),
-.filterChipWrap:has(.filterChipOpenActive),
-.filterChipRow > .filterChipOpenActive,
-.filterChipRow > .filterChipActive {
-  flex-basis: 0;
-}
-.filterChipRow.filterChipRow > button.filterChip.filterChip {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-}
-@media (max-width: 767.98px) {
-  .filterChipRow {
-    gap: 6px;
-    padding-inline: 10px;
-  }
 
-  .filterChip,
-  .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-  .filterChipActive,
-  .filterChipOpenActive {
-    padding-inline: 5px;
-    font-size: clamp(9px, 2.7vw, 11px);
-  }
+/* ── Chip: inaktiv ─────────────────────────────────────────────────────────── */
+.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 1px solid var(--et-home-ink, #15120e);
 }
-.pickerSheet .pickerItem,
-.pickerSheet .pickerItemLabel {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
-  text-transform: none;
+
+.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):hover,
+.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):focus-visible,
+.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive)[aria-expanded='true'] {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
 }
-.pickerSheet .pickerItemSub {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
-  text-transform: none;
+
+.filterChip:active {
+  transform: translateX(-2px);
 }
-.filterChipRow > .filterChipOpenActive {
-  border-color: transparent;
-  box-shadow: none;
-}
-.filterChipRow > .filterChip[aria-pressed='true'] {
+
+/* ── Chip: aktiv (trägt einen gewählten Wert) ──────────────────────────────────
+   Akzentfüllung mit Ink-Text — die Kombination, die die Marke ohnehin für „das
+   hier ist an" benutzt. Vorher rendete der aktive Chip mit byte-identischen
+   Werten wie ein inaktiver: `.filterChipActive` setzte denselben Ink-Hintergrund
+   ein paar Regeln weiter unten nochmal. Man konnte nicht sehen, welcher Filter
+   lief.
+
+   Das Padding ist symmetrisch 20px, damit das Label am Zurücksetzen-Punkt
+   vorbeikommt statt darunter durchzulaufen — der Chip wächst um dieselben 20px
+   mit, weil er sich nach seinem Inhalt bemisst. */
+.filterChipRow .filterChipActive,
+.filterChipRow .filterChipActive:hover,
+.filterChipRow .filterChipActive:focus-visible {
+  padding-inline: 20px;
   background: var(--et-home-accent, #ffc600);
-  color: #15120e;
-  border-color: transparent;
-  box-shadow: none;
-}
-.filterChipRow > .filterChip[aria-pressed='true'] .filterChipLabel {
-  color: #15120e;
-}
-.filterChipWrap:has(.filterChipActive),
-.filterChipWrap:has(.filterChipOpenActive),
-.filterChipRow > .filterChipActive,
-.filterChipRow > .filterChipOpenActive {
-  flex-grow: 0;
-}
-@media (max-width: 767.98px) {
-  .listHeader {
-    position: sticky;
-    /* Rests below the status-bar band. The band itself is covered by the cap
-       in MapSheet.module.css, and only while the header is actually stuck —
-       carrying the inset as padding here instead reserved the space at every
-       scroll position, leaving dead whitespace above the chips at rest. */
-    top: env(safe-area-inset-top, 0px);
-    z-index: 3;
-    background: var(--et-home-paper, #fff);
-    /* Own compositing layer: without it the sticky header re-rasterizes per
-       scroll step and the right-edge tile can paint stale/clipped text — the
-       last chip ("Geöffnet") showed mangled glyphs while scrolling (User
-       2026-07-04). One small promoted layer, no scroll-perf cost. */
-    will-change: transform;
-    transform: translateZ(0);
-  }
-  .filterChipRow {
-    touch-action: pan-x pan-y;
-  }
-}
-.filterChipRow {
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x pan-y;
-  scrollbar-width: none;
-}
-.filterChipRow::-webkit-scrollbar {
-  display: none;
-}
-.filterChipLabel,
-.filterChipLabelLong {
-  width: auto;
-  white-space: nowrap;
-}
-.filterChipActive .filterChipLabelLong,
-.filterChipOpenActive .filterChipLabelLong {
-  font-size: 11px;
-}
-.filterChipRow {
-  display: flex;
-  width: 100%;
-  justify-content: stretch;
-  overflow-x: hidden;
-}
-.filterChipWrap,
-.filterChipRow > .filterChip,
-.filterChipWrap:has(.filterChipActive),
-.filterChipWrap:has(.filterChipOpenActive),
-.filterChipRow > .filterChipActive,
-.filterChipRow > .filterChipOpenActive,
-.filterChipRow.filterChipRow > button.filterChip.filterChip {
-  flex: 1 1 0;
-  width: auto;
-  min-width: 0;
-  max-width: none;
-}
-.filterChipWrap .filterChip,
-.filterChip,
-.filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipActive,
-.filterChipOpenActive {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-}
-.filterChipLabel,
-.filterChipLabelLong {
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.filterChipOpenActive {
-  background: #1f8f4d;
-  color: #fff;
-  border: 0;
-}
-.filterChipOpenActive .filterChipLabel {
-  color: inherit;
-}
-.filterChipRow .filterChip,
-.filterChipRow .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 10px 8px;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  border: 1px solid var(--et-home-ink, #15120e);
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-transform: none;
-}
-.filterChipRow .filterChipActive {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 10px 8px;
-  border: 1px solid var(--et-home-ink, #15120e);
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-transform: none;
-}
-.filterChipRow .filterChip:hover,
-.filterChipRow .filterChip:focus-visible,
-.filterChipRow .filterChip[aria-expanded='true'],
-.filterChipRow .filterChipActive {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-}
-.pickerBackdrop {
-  background: rgba(21, 18, 14, 0.08);
-}
-.pickerSheet {
-  overflow: visible;
-  width: min(360px, calc(100vw - 24px));
-  padding: 8px;
-  background: var(--et-home-paper, #fff);
   color: var(--et-home-ink, #15120e);
-  border: 1px solid rgba(21, 18, 14, 0.14);
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: 0 18px 38px rgba(21, 18, 14, 0.16);
+  border: 1px solid var(--et-home-accent, #ffc600);
 }
-.pickerSheet::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px));
-  width: 14px;
-  height: 14px;
-  background: var(--et-home-paper, #fff);
-  border-left: 1px solid rgba(21, 18, 14, 0.14);
-  border-top: 1px solid rgba(21, 18, 14, 0.14);
-  transform: rotate(45deg);
-}
-.pickerHead {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 36px;
-  padding: 0 4px 8px 8px;
-  color: inherit;
-}
-.pickerTitle {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 1;
-}
-.pickerClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  background: transparent;
-  color: inherit;
-  border: 0;
-  border-radius: 50%;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-  cursor: pointer;
-}
-.pickerClose:hover,
-.pickerClose:focus-visible {
-  background: rgba(21, 18, 14, 0.08);
-  color: var(--et-home-ink, #15120e);
-  outline: 0;
-}
-.pickerList {
-  display: grid;
-  gap: 7px;
-  max-height: min(58vh, 470px);
-  padding: 0 0 14px;
-  overflow-y: auto;
-  background: transparent;
-  scroll-padding-bottom: 14px;
-}
-.pickerItem {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  min-height: 42px;
-  padding: 10px 12px;
+
+/* ABSICHTLICH BEIBEHALTEN: solange seine Auswahlliste offen ist, faellt ein
+   Chip auf die Ink-Fuellung zurueck — er sieht dann gedrueckt aus statt
+   gesetzt. Der RAND bleibt dabei in seiner Zustandsfarbe (gelb beim aktiven
+   Chip), nur die Fuellung wechselt; deshalb hier kein border-color.
+
+   Frueher ergab sich das daraus, dass ein Attributselektor ein Gewicht mehr
+   hat als eine Klasse — entschieden hatte es niemand. Jetzt steht es hier, mit
+   derselben Wirkung, und gilt bewusst fuer JEDEN Chip: auch der gruene Toggle
+   wird aufgeklappt dunkel. */
+.filterChipRow .filterChip[aria-expanded='true'] {
   background: var(--et-home-ink, #15120e);
   color: var(--et-home-inverse-text, #fff);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.05;
-  text-align: left;
-  text-transform: none;
 }
-.pickerItem:hover,
-.pickerItem:focus-visible {
-  background: rgba(21, 18, 14, 0.86);
-  color: var(--et-home-inverse-text, #fff);
-  outline: 0;
-  transform: none;
-}
-.pickerItemActive,
-.pickerItemActive:hover,
-.pickerItemActive:focus-visible {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  transform: none;
-}
-.pickerItemActive::after {
-  content: none;
-  display: none;
-}
-.pickerItemLabel,
-.pickerItemSub {
-  color: inherit;
-  font-family: inherit;
-  letter-spacing: 0;
-  line-height: 1.05;
-}
-.pickerItemLabel {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: inherit;
-  font-weight: inherit;
-}
-.pickerItemSub {
-  font-size: 12px;
-  font-weight: 750;
-  opacity: 0.62;
-}
-@media (max-width: 1023.98px) {
-  .pickerSheet {
-    left: 12px;
-    right: 12px;
-    bottom: max(14px, env(safe-area-inset-bottom, 0px));
-    width: auto;
-    max-height: min(66dvh, 560px);
-  }
 
-  .pickerSheet::before {
-    content: none;
-  }
-}
-@media (min-width: 1024px) {
-  .pickerSheet {
-    width: min(520px, calc(100vw - 24px));
-    max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px);
-  }
-
-  /* The sheet's max-height above is the real cap; the list takes whatever is
-     left of it and scrolls past that. `max-height: none` alone was fine, but
-     it shipped with `overflow: visible`, and the sheet does not clip either —
-     so the rows simply kept going past the panel edge. On a 722px-tall
-     viewport the last five cuisines rendered ~200px BELOW the fold with no
-     way to reach them: not scrollable, not clipped, just gone. `min-height:
-     0` (declared earlier) is what lets the list shrink into the capped sheet
-     instead of pushing it open. */
-  .pickerList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-height: none;
-    overflow-y: auto;
-  }
-}
+/* ── Chip: „Geöffnet"-Toggle ──────────────────────────────────────────────────
+   Der einzige echte Umschalter in der Reihe, deshalb Grün statt Akzent — sonst
+   sähe er aus wie ein gesetzter Filterwert. `aria-pressed` ist der Zustand, den
+   der Screenreader liest; die Klasse ist nur das visuelle Gegenstück. */
 .filterChipRow .filterChipOpenActive,
-.filterChipRow > .filterChipOpenActive,
 .filterChipRow .filterChip[aria-pressed='true'] {
   background: #1f8f4d;
   color: #fff;
   border: 0;
 }
-.filterChipRow .filterChipOpenActive .filterChipLabel,
-.filterChipRow > .filterChipOpenActive .filterChipLabel,
-.filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel {
-  color: #fff;
-}
+
 .filterChipRow .filterChipOpenActive:hover,
 .filterChipRow .filterChipOpenActive:focus-visible,
-.filterChipRow > .filterChipOpenActive:hover,
-.filterChipRow > .filterChipOpenActive:focus-visible,
 .filterChipRow .filterChip[aria-pressed='true']:hover,
 .filterChipRow .filterChip[aria-pressed='true']:focus-visible {
   background: #176f3c;
   color: #fff;
   border: 0;
 }
-.filterChipRow .filterChipOpenActive:hover .filterChipLabel,
-.filterChipRow .filterChipOpenActive:focus-visible .filterChipLabel,
-.filterChipRow > .filterChipOpenActive:hover .filterChipLabel,
-.filterChipRow > .filterChipOpenActive:focus-visible .filterChipLabel,
-.filterChipRow .filterChip[aria-pressed='true']:hover .filterChipLabel,
-.filterChipRow .filterChip[aria-pressed='true']:focus-visible .filterChipLabel {
-  color: #fff;
+
+/* ── Chips, die eine laufende Suche überstimmt ────────────────────────────────
+   Eine nicht-leere Query überspringt in useMapFilters jeden Chip. Vorher
+   behielten sie ihre Akzentfüllung und behaupteten damit einen Filter, der nicht
+   lief. Sie fallen auf die Ink-Füllung zurück, behalten aber eine Akzent-Kontur,
+   damit die mit einem Wert auffindbar (und löschbar) bleiben. */
+.filterChipRow.filterChipRowPaused .filterChipActive,
+.filterChipRow.filterChipRowPaused .filterChipActive:hover,
+.filterChipRow.filterChipRowPaused .filterChipActive:focus-visible,
+.filterChipRow.filterChipRowPaused .filterChipOpenActive,
+.filterChipRow.filterChipRowPaused .filterChip[aria-pressed='true'] {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 1px solid var(--et-home-accent, #ffc600);
 }
 
-/* Keep every filter name readable inside its chip, including selected category,
-   district, and cuisine labels that are longer than the default placeholders. */
-.filterChipRow .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
-.filterChipRow .filterChipActive,
-.filterChipRow .filterChipOpenActive,
-.filterChipRow > .filterChip {
-  overflow: hidden;
-  padding-block: 8px;
-}
-
+/* ── Label ─────────────────────────────────────────────────────────────────────
+   Erbt Farbe und Schnitt vom Chip; gesetzt wird hier nur, was der Chip nicht
+   vererben kann. `overflow-wrap: anywhere` plus `hyphens: auto` hat aus
+   Bezirksnamen "Kreuz-berg" gemacht — deshalb wird ausschließlich an Leerzeichen
+   umbrochen. */
 .filterChipRow .filterChipLabel,
 .filterChipRow .filterChipLabelLong {
+  display: block;
   width: 100%;
   min-width: 0;
   max-width: 100%;
   padding-block: 1px;
   overflow: hidden;
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
   font-size: 12px;
+  letter-spacing: inherit;
   line-height: 16px;
+  text-align: center;
+  text-transform: inherit;
   text-overflow: clip;
   white-space: normal;
-  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
-/* ── Selected state ───────────────────────────────────────────────────────────
-   Both the chip row and the picker rows used to render the active entry with
-   byte-identical computed styles to the inactive ones (ink fill, white text,
-   weight 700) — `.filterChipActive` re-declared the same background a few
-   rules further down, and `.pickerItemActive`'s `font-weight: 900` had no
-   effect on a single-weight display face. There was no way to see which filter
-   was on, or which row you had picked.
+/* Einzelne Wörter, die bei 12px selbst in einem gewachsenen Chip nicht passen
+   ("Charlottenburg" braucht 88px in einem 68px-Slot) — nur im inaktiven Chip,
+   denn ein aktiver bemisst sich nach seinem Inhalt und braucht das nicht. */
+.filterChipRow .filterChipLabelLong {
+  font-size: 9px;
+  line-height: 12px;
+}
 
-   Accent fill + ink text is the one combination the brand already uses for
-   "this is live", and it survives on the black chip row without a border.
-   Declared last on purpose: the blocks above re-state the ink fill several
-   times over, so anything earlier gets overwritten. */
-.filterChipRow .filterChipActive,
-.filterChipRow .filterChipActive:hover,
-.filterChipRow .filterChipActive:focus-visible,
-.filterChipWrap .filterChipActive {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border-color: var(--et-home-accent, #ffc600);
+/* Ein aktiver Chip wächst mit seinem Wert, also darf das Label auf voller Größe
+   einzeilig bleiben. Ellipsis ist der Rückfall, wenn mehrere lange Werte sich
+   die Reihe teilen. */
+.filterChipRow .filterChipActive .filterChipLabel,
+.filterChipRow .filterChipActive .filterChipLabelLong,
+.filterChipRow .filterChipOpenActive .filterChipLabel,
+.filterChipRow .filterChipOpenActive .filterChipLabelLong {
+  width: 100%;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  hyphens: none;
 }
 
 .filterChipRow .filterChipActive .filterChipLabel,
-.filterChipRow .filterChipActive .filterChipLabelLong {
+.filterChipRow .filterChipActive .filterChipLabelLong,
+.filterChipRow .filterChipOpenActive .filterChipLabel,
+.filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel,
+.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabel,
+.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabelLong,
+.filterChipRow.filterChipRowPaused .filterChipOpenActive .filterChipLabel {
   color: inherit;
 }
 
-.pickerItemActive,
-.pickerItemActive:hover,
-.pickerItemActive:focus-visible {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border-color: var(--et-home-accent, #ffc600);
-}
+/* ── Zurücksetzen-Punkt ────────────────────────────────────────────────────────
+   Sitzt im Wrap NEBEN dem Chip-Button, nie darin — ein Button im Button ist
+   ungültiges Markup und meldet sich beim Screenreader doppelt. Er überlappt die
+   obere rechte Ecke; das Label ist zentriert, sie treffen sich also kaum.
 
-.pickerItemActive .pickerItemLabel,
-.pickerItemActive .pickerItemSub {
-  color: inherit;
-}
-
-/* Just enough to mark the rest of the screen as inert, not enough to read as
-   a frosted pane over the map. 8% was invisible; 42% (tried 2026-07-29) looked
-   like the map had been fogged over. Desktop keeps its transparent anchored-
-   popover backdrop (set in the min-width:1024px block above). */
-.pickerBackdrop {
-  background: rgba(21, 18, 14, 0.16);
-}
-
-@media (min-width: 1024px) {
-  .pickerBackdrop {
-    background: transparent;
-  }
-}
-
-/* The option list clipped its last row flush against the panel edge, which
-   read as "cut off" rather than "scrollable". A bottom mask-image fade was
-   tried for that (2026-07-29) and rejected — it made the last row look
-   frosted/faded out rather than merely scrollable. Plain bottom padding gives
-   the same "there is more below" cue with no visual effect: the last row ends
-   short of the edge instead of dissolving into it. */
-.pickerList {
-  padding-bottom: 10px;
-}
-
-/* Reset affordance on an active chip. Sits in the wrap ALONGSIDE the chip
-   button (never inside it — nested buttons are invalid and double up in screen
-   readers), overlapping the top-right corner so the 4-column grid keeps its
-   equal track widths. Only rendered while the filter is on. */
-.filterChipWrap {
-  position: relative;
-}
-
+   Die Trefferfläche wächst über ein ::before, ohne den 22px-Punkt zu bewegen.
+   Rechts bewusst 0: jeder Überstand dort landet auf dem Nachbar-Chip, und einem
+   Nachbarn den Tap zu stehlen ist schlimmer als ein etwas schmaleres Ziel. */
 .filterChipClear {
   position: absolute;
   top: -5px;
-  /* Flush with the chip's right edge, never past it. At right:-5px the dot plus
-     its touch extender reached 8px into the NEXT chip (grid gap is 6px), so
-     tapping the left edge of "Bezirk" cleared the category filter instead. */
   right: 0;
   z-index: 1;
   display: grid;
@@ -961,22 +310,17 @@
   width: 22px;
   height: 22px;
   padding: 0;
-  appearance: none;
   background: var(--et-home-ink, #15120e);
   color: var(--et-home-accent, #ffc600);
   border: 0;
   border-radius: 999px;
   box-shadow: none;
+  appearance: none;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Grows the touch area without moving the 22px dot — the chips sit in a tight
-   4-up grid, so the visible target has to stay small. Deliberately 0 on the
-   right: any overhang there lands on the neighbouring chip, and stealing a
-   neighbour's tap is worse than a slightly narrower target. Ends up ~31x40,
-   biased left and down into the chip's own (empty, label-is-centred) corner. */
 .filterChipClear::before {
   content: '';
   position: absolute;
@@ -1003,118 +347,6 @@
   transform: translate(1px, 1px);
 }
 
-/* No padding reserved for the clear dot: it sits flush in the top-right
-   corner and the label is centred, so they barely meet — while 6px of reserved
-   space was enough to push "Kreuzberg" (60px in a 62px slot) into a mid-word
-   break. */
-
-/* ── Chip labels: never break mid-word ───────────────────────────────────────
-   `overflow-wrap: anywhere` + `hyphens: auto` turned district names into
-   "Kreuz-berg". Wrap at spaces only ("Fine Dining" over two lines is fine),
-   and shrink the handful of single words that genuinely cannot fit — at 12px
-   "Charlottenburg" needs 88px in a 68px slot, so no wrapping rule can save it.
-   Declared last: the blocks above re-state the label's font-size, and an
-   earlier `font-size: inherit` is what made the existing long-label rule
-   (clamp(8.8px, 2.55vw, 10px)) inert. */
-.filterChipRow .filterChipLabel,
-.filterChipRow .filterChipLabelLong {
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
-}
-
-.filterChipRow .filterChipLabelLong {
-  font-size: 9px;
-  line-height: 12px;
-}
-
-/* ── Active chips size to their value ────────────────────────────────────────
-   An inactive chip holds a fixed word ("Bezirk"); an active one holds whatever
-   the user picked, and the equal-track rule above handed it the same quarter
-   of the rail either way. "Prenzlauer Berg" then wrapped to two lines, shrank
-   to 9px and still ran under the clear dot.
-
-   Growing to content is what the earlier `flex-grow: 0` rule wanted — it just
-   lost to the equal-track block further down, which re-applied `flex: 1 1 0`
-   to the same `:has()` selectors at equal specificity. Hence: declared last,
-   and scoped through `.filterChipRow` so it outranks that block outright.
-
-   The inactive chips keep a floor at the 44px tap target — the same number
-   their `min-height` already uses. Without one, a long value eats the whole
-   row and its neighbours collapse to their own padding. Above it the value
-   wins: two long values on a 360px phone ellipsise "Kategorie" and "Geöffnet"
-   rather than the district and cuisine the user actually picked. */
-.filterChipRow .filterChipWrap:has(.filterChipActive),
-.filterChipRow .filterChipWrap:has(.filterChipOpenActive),
-.filterChipRow > .filterChipActive,
-.filterChipRow > .filterChipOpenActive {
-  flex: 0 1 auto;
-  width: auto;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.filterChipRow .filterChipWrap:not(:has(.filterChipActive)):not(:has(.filterChipOpenActive)),
-/* The "Geöffnet" toggle is a bare button in the row, not wrapped like the
-   three pickers — and the equal-track block above reaches it through
-   `.filterChipRow.filterChipRow > button.filterChip.filterChip`, whose type
-   selector outranks a plain four-class one. Same shape here, or the floor
-   applies to the pickers and this one alone shrinks to "Geö…". */
-.filterChipRow.filterChipRow
-  > button.filterChip.filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  flex: 1 1 0;
-  min-width: 44px;
-}
-
-/* One line, at the same size as the inactive chips: the chip widens now
-   instead of the type shrinking, so the 9px long-label floor above no longer
-   has a job. Ellipsis stays as the fallback for several long values at once. */
-.filterChipRow .filterChipActive .filterChipLabel,
-.filterChipRow .filterChipActive .filterChipLabelLong,
-.filterChipRow .filterChipOpenActive .filterChipLabel,
-.filterChipRow .filterChipOpenActive .filterChipLabelLong {
-  width: 100%;
-  font-size: 12px;
-  line-height: 16px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  hyphens: none;
-}
-
-/* Room for the clear dot. Reserving space used to only force an earlier line
-   break (see the note above) because the chip could not get any wider — now it
-   grows by the same 20px instead, so the label clears the dot rather than
-   passing under it. Symmetric, so the label stays centred. */
-.filterChipRow .filterChipActive {
-  padding-inline: 20px;
-}
-
-/* ── Chips paused by an active search ────────────────────────────────────────
-   A non-empty query short-circuits every chip in useMapFilters — category,
-   bezirk, cuisine and open-now are all skipped. The chips kept their accent
-   fill through that, so the rail claimed "Pizza · Neukölln" while the list
-   answered the query from Steglitz and Schöneberg.
-
-   They drop back to the inactive ink fill, keep an accent OUTLINE so the ones
-   holding a value are still findable (and still clearable), and the row says
-   why. Not disabled: picking a filter mid-search is a legitimate thing to set
-   up for the moment the query is cleared. */
-.filterChipRow.filterChipRowPaused .filterChipActive,
-.filterChipRow.filterChipRowPaused .filterChipActive:hover,
-.filterChipRow.filterChipRowPaused .filterChipActive:focus-visible,
-.filterChipRow.filterChipRowPaused .filterChipOpenActive,
-.filterChipRow.filterChipRowPaused .filterChip[aria-pressed='true'] {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  border: 1px solid var(--et-home-accent, #ffc600);
-}
-
-.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabel,
-.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabelLong,
-.filterChipRow.filterChipRowPaused .filterChipOpenActive .filterChipLabel {
-  color: inherit;
-}
-
 .filterChipPausedNote {
   margin: 0;
   padding: 0 14px 10px;
@@ -1126,28 +358,373 @@
   text-align: center;
 }
 
+/* ── Telefon ──────────────────────────────────────────────────────────────────
+   Die Leiste klebt oben, sobald die Liste darunter scrollt. Eigene
+   Compositing-Ebene, weil der sticky Header sonst pro Scrollschritt neu
+   rastert und die rechte Kachel veralteten Text malt — der letzte Chip zeigte
+   beim Scrollen verstümmelte Glyphen (User 2026-07-04). */
+@media (max-width: 767.98px) {
+  .listHeader {
+    position: sticky;
+    /* Liegt unter dem Statusleisten-Band. Das Band selbst deckt die Kappe in
+       MapSheet.module.css ab, und nur solange der Header wirklich klebt — den
+       Inset hier als Padding zu tragen reservierte den Platz bei jeder
+       Scrollposition und ließ über den Chips totes Weiß stehen. */
+    top: env(safe-area-inset-top, 0px);
+    z-index: 3;
+    background: var(--et-home-paper, #fff);
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  .filterChipRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding-inline: 10px;
+  }
+}
+
 @media (max-width: 1023px) {
+  .filterChipRow .filterChip {
+    gap: 0;
+  }
+
   .filterChipPausedNote {
     padding-inline: 12px;
   }
 }
 
-/* ── Rows that would return nothing ──────────────────────────────────────────
-   Both pickers list the whole catalogue, so a Bezirk holding five spots still
-   offers every cuisine — most of them dead ends. The count next to each row is
-   the answer; this dims the zeroes so they read as spent before they are
-   tapped. Still clickable: from a zero row the way out is usually to clear a
-   different chip, and a disabled control cannot say that. */
-.pickerItemEmpty {
-  opacity: 0.42;
+@media (min-width: 1024px) {
+  .filterChipRow .filterChipLabel,
+  .filterChipRow .filterChipLabelLong {
+    letter-spacing: 0.01em;
+  }
 }
 
-.pickerItemEmpty .pickerItemSub {
-  opacity: 1;
+/* ══ Picker ═══════════════════════════════════════════════════════════════════
+   Die Auswahl-Liste hinter jedem Chip. Mobile ein eingerücktes Bottom-Sheet,
+   Desktop ein am Chip verankertes Popover — dieselbe Komponente, die Aufteilung
+   macht die Media Query.
+
+   Diese Sektion ist bewusst konfliktfrei geschrieben: ein Block pro Element und
+   Zustand, Zustände über sich ausschließende Selektoren getrennt. Vorher lag
+   `.pickerList` in fünf Blöcken über die Datei verteilt, `.pickerItem` in fünf,
+   `.pickerSheet` in vier — mit dem Ergebnis, dass Regeln einander unbemerkt
+   überschrieben (der Desktop-Scroll-Bug kam genau daher). Wer hier etwas ändert,
+   ändert es an genau einer Stelle. */
+
+@keyframes pickerBackdropIn {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+  to {
+    background: rgba(0, 0, 0, 0.36);
+  }
+}
+
+@keyframes pickerSheetIn {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pickerPopoverIn {
+  from {
+    transform: translateY(-6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Gerade genug, um den Rest des Bildschirms als inaktiv zu markieren, nicht
+   genug, um wie eine Milchglasscheibe über der Karte zu wirken. 8 % war
+   unsichtbar, 42 % (29.07.2026 probiert) sah aus, als hätte jemand die Karte
+   vernebelt. Desktop bleibt transparent — das Popover hängt am Chip, da braucht
+   es keine Abdunklung. */
+.pickerBackdrop {
+  position: fixed;
+  inset: 0;
+  /* Die Navbar liegt auf z-index 9999; Modals müssen darüber, um sie zu decken. */
+  z-index: 11000;
+  background: rgba(21, 18, 14, 0.16);
+  animation: pickerBackdropIn 0.18s ease-out;
+}
+
+.pickerSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 11010;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  width: min(360px, calc(100vw - 24px));
+  max-height: 70vh;
+  padding: 8px;
+  background: var(--et-home-paper, #fff);
+  color: var(--et-home-ink, #15120e);
+  border: 1px solid rgba(21, 18, 14, 0.14);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: 0 18px 38px rgba(21, 18, 14, 0.16);
+  animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+
+/* Das Dreieck, das das Popover am Chip festmacht. Mobile abgeschaltet — dort
+   ist es kein Popover, sondern ein Sheet. */
+.pickerSheet::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px));
+  width: 14px;
+  height: 14px;
+  background: var(--et-home-paper, #fff);
+  border-left: 1px solid rgba(21, 18, 14, 0.14);
+  border-top: 1px solid rgba(21, 18, 14, 0.14);
+  transform: rotate(45deg);
+}
+
+.pickerHead {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 4px 8px 8px;
+  color: inherit;
+}
+
+.pickerTitle {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickerClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-radius: 50%;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pickerClose:hover,
+.pickerClose:focus-visible {
+  background: rgba(21, 18, 14, 0.08);
+  color: var(--et-home-ink, #15120e);
+  outline: 0;
+}
+
+/* `min-height: 0` ist der Flexbox-Overflow-Trick: ohne ihn weigert sich das
+   Flex-Item, unter seine Inhaltshöhe zu schrumpfen, und `overflow-y` hat nichts
+   zu kappen — die Liste wird auf iOS unscrollbar. `touch-action: pan-y` sagt dem
+   Browser, dass hier gescrollt und nicht das Map-Sheet gezogen werden soll.
+
+   Das `padding-bottom` ist der „da kommt noch was"-Hinweis: die letzte Zeile
+   endet kurz vor der Kante statt bündig daran. Ein Mask-Fade war die Alternative
+   (29.07.2026) und sah aus, als löse sich die Zeile auf. */
+.pickerList {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  gap: 7px;
+  max-height: min(58vh, 470px);
+  padding: 0 0 10px;
+  overflow: auto;
+  background: transparent;
+  scroll-padding-bottom: 14px;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pickerItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  appearance: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-align: left;
+  text-transform: none;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.pickerItem:hover,
+.pickerItem:focus-visible {
+  background: rgba(21, 18, 14, 0.86);
+  color: var(--et-home-inverse-text, #fff);
+  outline: 0;
+  transform: none;
+}
+
+/* Ausgewählte Zeile: Akzentfüllung mit Ink-Text. Vorher rendete sie mit
+   byte-identischen Werten wie eine normale Zeile — `font-weight: 900` hat auf
+   einer Schrift mit nur einem Schnitt keine Wirkung, und der Ink-Hintergrund
+   wurde weiter unten nochmal gesetzt. Man konnte nicht sehen, was man gewählt
+   hatte. */
+.pickerItemActive,
+.pickerItemActive:hover,
+.pickerItemActive:focus-visible {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  border-color: var(--et-home-accent, #ffc600);
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+  transform: none;
+}
+
+.pickerItemActive::after {
+  content: none;
+  display: none;
+}
+
+/* Zeilen ohne Treffer. Die Zahl daneben ist die Antwort; das Dimmen macht die
+   Sackgassen erkennbar, bevor man sie antippt. Klickbar bleiben sie: aus einer
+   Null führt der Weg meist über einen ANDEREN Chip, und ein deaktivierter
+   Knopf kann das nicht sagen. */
+.pickerItemEmpty {
+  opacity: 0.42;
 }
 
 @media (hover: hover) {
   .pickerItemEmpty:hover {
     opacity: 0.72;
+  }
+}
+
+.pickerItemLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickerItemSub {
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.62;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+}
+
+.pickerItemActive .pickerItemLabel,
+.pickerItemActive .pickerItemSub {
+  color: inherit;
+}
+
+.pickerItemActive .pickerItemSub {
+  opacity: 0.55;
+}
+
+/* Die gedimmte Zeile dimmt als Ganzes; ohne das hier läge die Zahl bei
+   0,42 x 0,62 und wäre kaum noch lesbar. */
+.pickerItemEmpty .pickerItemSub {
+  opacity: 1;
+}
+
+.pickerFooter {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Mobile: eingerücktes Bottom-Sheet ─────────────────────────────────────── */
+@media (max-width: 1023.98px) {
+  .pickerSheet {
+    left: 12px;
+    right: 12px;
+    bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-height: min(66dvh, 560px);
+  }
+
+  .pickerSheet::before {
+    content: none;
+  }
+}
+
+/* ── Desktop: am Chip verankertes Popover ──────────────────────────────────── */
+@media (min-width: 1024px) {
+  .pickerBackdrop {
+    background: transparent;
+    animation: none;
+  }
+
+  .pickerSheet {
+    left: var(--picker-anchor-left, 0);
+    top: var(--picker-anchor-top, 0);
+    right: auto;
+    bottom: auto;
+    width: min(520px, calc(100vw - 24px));
+    /* JS setzt --picker-anchor-top aus dem Rect des Chips. */
+    max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px);
+    animation: pickerPopoverIn 0.18s ease-out;
+  }
+
+  /* Der Deckel des Sheets oben ist die echte Grenze; die Liste nimmt sich, was
+     davon übrig ist, und scrollt darüber hinaus. Vorher stand hier
+     `max-height: none` MIT `overflow: visible`, und das Sheet kappt auch nicht —
+     die Zeilen liefen also schlicht über die Panel-Kante hinaus. Bei 722px
+     Fensterhöhe rendeten die letzten fünf Küchen rund 200px unter dem Fold: nicht
+     scrollbar, nicht abgeschnitten, einfach weg. */
+  .pickerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+    overflow-y: auto;
   }
 }

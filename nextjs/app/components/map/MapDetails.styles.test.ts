@@ -135,56 +135,16 @@ describe('MapDetails CSS contracts', () => {
     expect(keyframes).toContain('* 7px');
   });
 
-  it('keeps the covered-card distance guidance readable and left-aligned', () => {
-    let declarations: Record<string, string> = {};
-
-    root.walkRules((rule) => {
-      if (rule.selector !== '.detailV13MustEat .fdDistanceCaption') return;
-      declarations = Object.fromEntries(
-        rule.nodes.filter((node) => node.type === 'decl').map((node) => [node.prop, node.value])
-      );
-    });
-
-    expect(declarations).toEqual(
-      expect.objectContaining({
-        'font-size': 'clamp(14px, 3.5vw, 17px)',
-        'text-align': 'left',
-        'text-transform': 'none',
-      })
-    );
-  });
-
-  it('keeps running copy off the brand display face', () => {
-    /* Providence Sans ist gezeichnet: dünne Striche, niedrige x-Höhe. Als
-     * Headline trägt sie die Marke, als Fließtext bei 14–17px war sie der
-     * Grund für "die Texte sind schlecht zu lesen". Die drei laufenden Texte
-     * gehören deshalb auf DM Sans — und die Zeilenhöhe muss mit, weil 1.2–1.28
-     * auf Providence' niedrige x-Höhe gerechnet war.
+  it('keeps the whole Must Eat panel on the brand display face', () => {
+    /* Das Panel spricht durchgehend in Providence: Gerichtsname, Zustands-
+     * Headline, der Zustands-Satz darunter UND die Gerichtsbeschreibung. Ein
+     * DM-Sans-Block mittendrin las sich wie ein Fremdkörper.
      *
-     * Effektive Werte, nicht Einzelblöcke: `.fdText` allein wird in drei
-     * Blöcken deklariert, zwei davon in Media-Queries. */
-    for (const copy of ['fdProximitySub', 'fdDistanceCaption', 'fdText']) {
-      const family = effective(copy, 'font-family');
-      expect(family, `.${copy} hat keine effektive font-family`).toBeDefined();
-      expect(
-        family!.includes('--font-body') || family!.includes('--font)'),
-        `.${copy} steht noch auf der Display-Schrift — effektiv: ${family}`
-      ).toBe(true);
-      expect(
-        family!.includes('providence') || family!.includes('et-font-display'),
-        `.${copy} zieht noch Providence heran — effektiv: ${family}`
-      ).toBe(false);
-
-      const leading = Number.parseFloat(effective(copy, 'line-height') ?? '0');
-      expect(
-        leading,
-        `.${copy} braucht Durchschuss für die groessere x-Hoehe — effektiv: ${leading}`
-      ).toBeGreaterThanOrEqual(1.4);
-    }
-
-    // Gegenprobe: die Marken-Elemente bleiben auf Providence.
-    for (const brand of ['fdName', 'fdProximityHead']) {
+     * Effektive Werte, nicht Einzelblöcke: `.fdText` allein wird in mehreren
+     * Blöcken deklariert, einige davon in Media-Queries. */
+    for (const brand of ['fdName', 'fdProximityHead', 'fdProximitySub', 'fdText']) {
       const family = effective(brand, 'font-family');
+      expect(family, `.${brand} hat keine effektive font-family`).toBeDefined();
       expect(
         family!.includes('providence') || family!.includes('et-font-display'),
         `.${brand} hat die Markenschrift verloren — effektiv: ${family}`
@@ -212,9 +172,9 @@ describe('MapDetails CSS contracts', () => {
       );
     });
 
-    expect(declarations.get('.detailV13MustEat .fdMid.fdMidLocked')).toEqual(
-      expect.objectContaining({ '--me-name-slot': '46px' })
-    );
+    // Kein eigener Namens-Slot mehr für den verdeckten Zustand: er ließ die
+    // Copy beim Aufdecken springen (dort steht der Gerichtsname im Slot).
+    expect(declarations.get('.detailV13MustEat .fdMid.fdMidLocked')).toBeUndefined();
     expect(declarations.get('.detailV13MustEat .detailV13Scroll')).toEqual(
       expect.objectContaining({ '--me-rest-slot': '128px' })
     );

@@ -32,8 +32,13 @@ export const CONSENT_ID_COOKIE = 'consentId';
  *
  * 2 is the first version with a record behind it. Answers from before this
  * shipped carry no version and cannot be evidenced, so they do not survive.
+ *
+ * 3 names Adobe Fonts (Typekit) and Sentry under third parties. Both already
+ * ran on every page load and both see the visitor's IP; only the dialog had
+ * stayed quiet about them, so answers to version 2 were given to an
+ * incomplete list.
  */
-export const CONSENT_VERSION = 2;
+export const CONSENT_VERSION = 3;
 
 export type ConsentValue = 'accepted' | 'declined';
 

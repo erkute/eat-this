@@ -23,6 +23,10 @@ type Figure = {
    *  plate's width it shouted down the section it belongs to. */
   renderWidth: number;
   tilt: number;
+  /** `rail` hangs the object in the right column beside the copy. `band`
+   *  takes the section out of the white page entirely — full-bleed ink, one
+   *  dark chapter in the middle of the read. */
+  layout: 'rail' | 'band';
   caption: { de: string; en: string };
   alt: { de: string; en: string };
 };
@@ -38,8 +42,11 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/home-phones/phone-map-600.webp',
     width: 600,
     height: 1219,
-    renderWidth: 290,
+    // 600x1219 is a tall object: anything wider than this and the phone runs
+    // past the copy beside it.
+    renderWidth: 225,
     tilt: -2,
+    layout: 'rail',
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
       de: 'Die Eat-This-App zeigt Berliner Spots als gelbe Pins auf der Karte',
@@ -52,6 +59,7 @@ const FIGURES: (Figure | null)[] = [
     height: 856,
     renderWidth: 290,
     tilt: 1.5,
+    layout: 'rail',
     caption: { de: 'Galette bei Bubar.', en: 'Galette at Bubar.' },
     alt: {
       de: 'Eine Buchweizen-Galette mit Eigelb auf einem Pappteller',
@@ -62,8 +70,11 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1076,
-    renderWidth: 205,
+    // Smallest of the three: on the dark ground the card is the brightest
+    // thing on the page, and brightness reads as size.
+    renderWidth: 185,
     tilt: -3,
+    layout: 'band',
     caption: { de: 'Jedes Must Eat ist eine Karte.', en: 'Every Must Eat is a card.' },
     alt: {
       de: 'Die Rückseite einer Eat-This-Sammelkarte',
@@ -72,18 +83,27 @@ const FIGURES: (Figure | null)[] = [
   },
 ];
 
+/* Remy closes the dark chapter, because the last paragraph of that section is
+   already about him — "frag einfach Remy, meine KI-Suche". He was named once
+   in passing and never reachable; now the sentence has a door next to it.
+   First person here too: the page is one person's account, and a stray "our"
+   in furniture I wrote would break it just as loudly as one in the copy. */
 const COPY = {
   de: {
+    remyTitle: 'Frag Remy',
+    remyText: 'Meine KI-Suche kennt jeden Spot auf der Map. Sag ihr, worauf du Lust hast.',
+    remyCta: 'Remy fragen',
     ctaTitle: 'Hungrig geworden?',
     ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
     ctaMap: 'Zur Map',
-    ctaInstagram: 'Instagram',
   },
   en: {
+    remyTitle: 'Ask Remy',
+    remyText: "My AI search knows every spot on the map. Tell it what you're in the mood for.",
+    remyCta: 'Ask Remy',
     ctaTitle: 'Hungry yet?',
     ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',
     ctaMap: 'Open the map',
-    ctaInstagram: 'Instagram',
   },
 } as const;
 
@@ -172,8 +192,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
         {sections.map((section, index) => {
           const figure = FIGURES[index] ?? null;
-          return (
-            <section key={section.title || index} className={styles.section}>
+          const body = (
+            <>
               <div className={styles.sectionCopy}>
                 <h2 className={styles.sectionTitle}>{section.title}</h2>
                 <div className={styles.body}>
@@ -201,6 +221,39 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                   </figcaption>
                 </figure>
               )}
+            </>
+          );
+
+          if (figure?.layout === 'band') {
+            return (
+              <section key={section.title || index} className={styles.band}>
+                <div className={styles.bandInner}>
+                  <div className={styles.bandGrid}>{body}</div>
+
+                  <Link href="/#hub-fragremy" className={styles.remy}>
+                    <Image
+                      src="/buddy/buddy-smile.webp"
+                      alt=""
+                      width={791}
+                      height={876}
+                      sizes="96px"
+                      loading="lazy"
+                      className={styles.remyArt}
+                    />
+                    <span className={styles.remyCopy}>
+                      <span className={styles.remyTitle}>{copy.remyTitle}</span>
+                      <span className={styles.remyText}>{copy.remyText}</span>
+                      <span className={styles.remyCta}>{copy.remyCta}</span>
+                    </span>
+                  </Link>
+                </div>
+              </section>
+            );
+          }
+
+          return (
+            <section key={section.title || index} className={styles.section}>
+              {body}
             </section>
           );
         })}
@@ -216,14 +269,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               <Link href="/map" className={styles.ctaPrimary}>
                 {copy.ctaMap}
               </Link>
-              <a
-                href="https://www.instagram.com/eatthisdotcom/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.ctaSecondary}
-              >
-                {copy.ctaInstagram}
-              </a>
             </div>
           </div>
         </aside>

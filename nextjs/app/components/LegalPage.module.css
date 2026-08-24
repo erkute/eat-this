@@ -115,12 +115,16 @@
   border-radius: var(--et-radius-control, 7px);
   background: transparent;
   color: var(--legal-ink);
-  font-family: var(--et-font-condensed, var(--menu-condensed), Impact, sans-serif);
-  font-size: clamp(16px, 1.5vw, 18px);
+  /* Reading face, not a display one. chauncy-pro carries the brand's shouting
+     voice — right for INSTAGRAM in the footer, wrong above a privacy policy.
+     Sentence case for the same reason: these are utility controls on a legal
+     filing, and versals make them shout a second time. */
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 13.5px;
+  font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
   transition:
     border-color 140ms ease,
     background-color 140ms ease,

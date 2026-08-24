@@ -70,7 +70,9 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1076,
-    renderWidth: 260,
+    // Smallest of the three: on the dark ground the card is the brightest
+    // thing on the page, and brightness reads as size.
+    renderWidth: 185,
     tilt: -3,
     layout: 'band',
     caption: { de: 'Jedes Must Eat ist eine Karte.', en: 'Every Must Eat is a card.' },

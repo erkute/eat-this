@@ -993,40 +993,6 @@
 .medish:active .medishPh img {
   transform: rotate(0deg) scale(0.98);
 }
-/* Dealt-card nudge, once, when the grid comes into view — see the comment on
-   `mustHint` in RestaurantDetail.tsx. No fill mode: the last frame is the
-   resting tilt, so :hover/:active own the card again the moment it settles. */
-@media (prefers-reduced-motion: no-preference) {
-  .rdMustGrid[data-hint='1'] .medishPh img {
-    animation: medishNudge 640ms ease-out;
-  }
-  .rdMustGrid[data-hint='1'] li:nth-child(2) .medishPh img {
-    animation-delay: 90ms;
-  }
-  .rdMustGrid[data-hint='1'] li:nth-child(3) .medishPh img {
-    animation-delay: 180ms;
-  }
-  .rdMustGrid[data-hint='1'] li:nth-child(4) .medishPh img {
-    animation-delay: 270ms;
-  }
-}
-@keyframes medishNudge {
-  0% {
-    transform: rotate(var(--medish-tilt, 0deg));
-  }
-  25% {
-    transform: translateY(-6px) rotate(calc(var(--medish-tilt, 0deg) * 2.4));
-  }
-  55% {
-    transform: translateY(0) rotate(calc(var(--medish-tilt, 0deg) * -0.4));
-  }
-  78% {
-    transform: translateY(-2px) rotate(calc(var(--medish-tilt, 0deg) * 1.5));
-  }
-  100% {
-    transform: rotate(var(--medish-tilt, 0deg));
-  }
-}
 .detailV13,
 .detailV13Scroll {
   background-color: var(--map-collage-paper);

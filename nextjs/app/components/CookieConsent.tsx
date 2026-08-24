@@ -33,7 +33,15 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
     p: 'Diese Dienste werden eingebunden, setzen aber keine Tracking-Cookies bei dir:',
     list: [
       { strong: 'Carto / MapLibre', text: ' — Kartenkacheln für die Food Map' },
+      {
+        strong: 'Adobe Fonts (Typekit)',
+        text: ' — die Schriften der Seite; sie kommen von Adobes Servern, die dabei deine IP sehen',
+      },
       { strong: 'Sanity CDN', text: ' — Bilder und Inhalte' },
+      {
+        strong: 'Sentry',
+        text: ' — meldet uns technische Fehler, wenn bei dir etwas kaputtgeht; dabei fallen Browser, Betriebssystem, die aufgerufene Seite und eine pseudonymisierte IP an',
+      },
       {
         strong: 'Google Sign-In',
         text: ' — nur wenn du es nutzt; Google-Cookies liegen auf Googles Domain, nicht bei uns',
@@ -70,7 +78,15 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
     p: "These are loaded by the page but don't drop tracking cookies on you:",
     list: [
       { strong: 'Carto / MapLibre', text: ' — map tiles for the Food Map' },
+      {
+        strong: 'Adobe Fonts (Typekit)',
+        text: " — the site's typefaces; they come from Adobe's servers, which see your IP in the process",
+      },
       { strong: 'Sanity CDN', text: ' — photos and content' },
+      {
+        strong: 'Sentry',
+        text: ' — reports technical errors to us when something breaks on your side; it records browser, operating system, the page you were on and a pseudonymised IP',
+      },
       {
         strong: 'Google Sign-In',
         text: " — only when you choose it; Google's cookies live on its domain, not ours",

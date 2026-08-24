@@ -1,27 +1,13 @@
-import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { StaticPageDoc } from '@/lib/types';
-import SiteFooter from './SiteFooter';
-import styles from './StaticPages.module.css';
+import AboutPage from './AboutPage';
+import LegalPage from './LegalPage';
 
-function pageId(slug: string) {
-  return 'staticPage' + slug.charAt(0).toUpperCase() + slug.slice(1);
-}
-
+/* One entry point for every Sanity `staticPage`, two very different pages
+   behind it: About is a story (photos, a red headline, an ink closer), the
+   filings are documents (jump list, quiet type, no drop cap). They used to
+   share one shell, which meant the privacy policy inherited a 116px headline
+   and the imprint lost the first letter of the company name to a drop cap. */
 export default function StaticPages({ doc, locale }: { doc: StaticPageDoc; locale: 'de' | 'en' }) {
-  const id = pageId(doc.slug);
-
-  return (
-    <main className={styles.page} data-page={doc.slug} id={id}>
-      <div className={styles.inner}>
-        <p className={styles.kicker}>{locale === 'de' ? 'Auf dem Teller' : 'On the plate'}</p>
-        <h1 className={styles.title} id={`${id}-title`}>
-          {doc.title || ''}
-        </h1>
-        <div className={styles.body} id={`${id}-body`}>
-          <PortableTextRenderer blocks={doc.body || []} />
-        </div>
-      </div>
-      <SiteFooter />
-    </main>
-  );
+  if (doc.slug === 'about') return <AboutPage doc={doc} locale={locale} />;
+  return <LegalPage doc={doc} locale={locale} />;
 }

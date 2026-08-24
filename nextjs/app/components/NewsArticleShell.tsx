@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
 import type { NewsArticle, MustEatCardBlock, SpotCardBlock, PortableTextBlock } from '@/lib/types';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
@@ -110,7 +111,12 @@ export default function NewsArticleShell({
     const description = de
       ? 'Das Gericht bleibt verdeckt, bis du es auf der Map aufdeckst.'
       : 'The dish stays covered until you reveal it on the map.';
-    const kickerMeta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
+    const kickerMeta = [
+      block.district,
+      block.cuisineType ? localizedCuisine(block.cuisineType, de ? 'de' : 'en') : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
     const inner = (
       <>
         <div className={styles.mustEatPh}>
@@ -154,7 +160,12 @@ export default function NewsArticleShell({
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);
-    const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
+    const meta = [
+      block.district,
+      block.cuisineType ? localizedCuisine(block.cuisineType, de ? 'de' : 'en') : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
     const cta = de ? 'Auf die Map' : 'To the map';
 
     return (

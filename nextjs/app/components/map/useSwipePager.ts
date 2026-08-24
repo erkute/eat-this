@@ -102,7 +102,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         const target = animatedEl();
         const w = el.clientWidth || window.innerWidth;
         const outX = dir === 'next' ? -w : w;
-        setTransition(target, 'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)');
+        setTransition(target, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)');
         setTransform(target, `translateX(${outX}px)`);
         window.setTimeout(() => {
           optsRef.current.onPageOut?.(dir);
@@ -122,12 +122,17 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
           nextTarget.style.setProperty('transition', 'none', 'important');
           setTransform(nextTarget, `translateX(${-outX}px)`);
           void nextTarget.offsetWidth; // force reflow so the next transition animates
-          setTransition(nextTarget, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)');
-          setTransform(nextTarget, 'translateX(0)');
-          window.setTimeout(() => {
-            clearMotion(nextTarget);
-          }, 320);
-        }, 220);
+          // Der Timeout landet mitten zwischen zwei Frames; direkt hier die
+          // Transition zu starten kostet den ersten Frame der Einfahrt. Ein
+          // rAF richtet den Start am Frame-Takt aus.
+          window.requestAnimationFrame(() => {
+            setTransition(nextTarget, 'transform .34s cubic-bezier(0.2, 0.8, 0.2, 1)');
+            setTransform(nextTarget, 'translateX(0)');
+            window.setTimeout(() => {
+              clearMotion(nextTarget);
+            }, 360);
+          });
+        }, 300);
       } else {
         settle();
       }

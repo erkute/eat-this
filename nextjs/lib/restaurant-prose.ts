@@ -1,5 +1,6 @@
 import type { Restaurant, OpeningHourSlot } from './types';
 import { localizedCategoryName } from './categories';
+import { localizedCuisine } from './cuisineLabels';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { isClosedSlot, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
@@ -260,7 +261,7 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
   }
 
   const cuisineParts = [
-    r.cuisineType?.trim() || null,
+    r.cuisineType?.trim() ? localizedCuisine(r.cuisineType.trim(), locale) : null,
     ...(r.categories?.slice(0, 3).map((c) => localizedCategoryName(c, locale)) ?? []),
   ].filter((s): s is string => !!s && s.length > 0);
   if (cuisineParts.length > 0) {

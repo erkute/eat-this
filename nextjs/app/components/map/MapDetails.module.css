@@ -286,6 +286,12 @@
    stacked card stage, warm paper content, compact controls, and no internal
    scrolling. Copy is clamped so the whole composition fits the viewport. */
 .detailV13MustEat .detailV13Scroll {
+  /* Wie weit die unterste Stapelkarte unter der obersten heraushängt
+     (translate + Rotation, siehe .fdStackCardOne) — gemessene 38px. Jede
+     Luft-unter-der-Karte rechnet damit, weil die Paddings ab .fdCardStack
+     messen, also ab der OBERSTEN Karte. Hier definiert, damit sowohl der
+     Scrollport (--me-card-air) als auch .fdHeroWrap sie sehen. */
+  --me-fan-drop: 38px;
   --fd-card-h: clamp(226px, 38dvh, 340px);
   --fd-title-size: clamp(32px, 9.2vw, 52px);
   align-content: stretch;
@@ -358,7 +364,12 @@
   object-fit: contain;
   border-radius: 11px;
 }
-/* Leichte Poster-Neigung, aber keine geworfenen Schatten oder Glow. */
+/* Leichte Poster-Neigung, aber keine geworfenen Schatten oder Glow.
+   ACHTUNG: Die Wiggle-Keyframes unten ersetzen das `transform` der
+   .fdHero-Regel komplett (Animationen gewinnen gegen den statischen Wert).
+   Ruhelage und Winkel müssen dort deshalb identisch wiederholt werden — sonst
+   sitzt die verdeckte Karte anders als die aufgedeckte, gemessen waren es 8px
+   Höhenversatz und 0,2° Drehung. */
 .fdHeroLocked {
   cursor: pointer;
   /* Verdeckte Karte wackelt dezent UM die 3D-Neigung herum (Antippen-Signal,
@@ -370,14 +381,14 @@
 @keyframes fdCardWiggle {
   0%,
   100% {
-    transform: rotate(-2.4deg) rotateY(-4deg) rotateX(1deg);
+    transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg);
   }
   30% {
-    transform: rotate(calc(-2.4deg + var(--vibrate-intensity, 0.18) * 2.6deg))
+    transform: translateY(-8px) rotate(calc(-2.2deg + var(--vibrate-intensity, 0.18) * 2.6deg))
       rotateY(calc(-4deg + var(--vibrate-intensity, 0.18) * 4deg)) rotateX(1deg);
   }
   70% {
-    transform: rotate(calc(-2.4deg - var(--vibrate-intensity, 0.18) * 2.2deg))
+    transform: translateY(-8px) rotate(calc(-2.2deg - var(--vibrate-intensity, 0.18) * 2.2deg))
       rotateY(calc(-4deg - var(--vibrate-intensity, 0.18) * 2deg)) rotateX(1deg);
   }
 }
@@ -536,73 +547,6 @@
     transform var(--map-motion),
     background-color var(--map-motion);
 }
-.fdPager {
-  flex: 0 0 auto;
-  position: relative;
-  z-index: 4;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-auto-rows: 1fr;
-  align-items: stretch;
-}
-.fdPagerPrev,
-.fdPagerNext {
-  appearance: none;
-  min-width: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-.fdPagerNext {
-  justify-content: flex-end;
-  text-align: right;
-}
-.fdPagerPrev {
-  padding-right: 11px;
-}
-.fdPagerArrow {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  color: currentColor;
-}
-.fdPagerArrow svg {
-  display: block;
-  width: 19px;
-  height: 19px;
-}
-.fdPagerNext .fdPagerArrow svg {
-  transform: scaleX(-1);
-}
-.fdPagerName {
-  min-width: 0;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  white-space: normal;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-.fdPagerPrev:disabled,
-.fdPagerNext:disabled {
-  visibility: hidden;
-  cursor: default;
-}
-@media (hover: hover) {
-  .fdPagerPrev:hover,
-  .fdPagerNext:hover {
-    transform: translateY(-2px) rotate(0);
-  }
-}
 /* X — nackter cremefarbener Glyph oben rechts. */
 .fdClose {
   position: absolute;
@@ -757,8 +701,7 @@
   }
 
   .detailV13MustEat .fdHeroWrap,
-  .detailV13MustEat .fdRest,
-  .detailV13MustEat .fdPager {
+  .detailV13MustEat .fdRest {
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
@@ -1212,9 +1155,6 @@
   color: var(--brand-ink);
   border-radius: 0;
   box-shadow: none;
-}
-.fdPager {
-  color: var(--brand-ink);
 }
 .fdName,
 .fdProximityHead,
@@ -1794,41 +1734,6 @@
   min-width: 92px;
   height: 36px;
 }
-.fdPager {
-  gap: 6px;
-  margin: 10px 0 12px;
-  border: 0;
-}
-.fdPagerPrev,
-.fdPagerNext {
-  height: 56px;
-  min-height: 56px;
-  padding: 9px 10px;
-  transform: none;
-}
-.fdPagerCopy {
-  min-width: 0;
-  display: grid;
-  gap: 3px;
-}
-.fdPagerNext .fdPagerCopy {
-  justify-items: end;
-}
-.fdPagerLabel {
-  font-family: var(--font, system-ui, sans-serif);
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--brand-ink) 58%, transparent);
-}
-.fdPagerName {
-  font-family: var(--font-saira-condensed, var(--font-label), sans-serif);
-  font-size: 17px;
-  font-weight: 900;
-  line-height: 0.92;
-}
 @media (max-width: 420px) {
   .rdMustGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2107,8 +2012,6 @@
 }
 .btnPackPromo,
 .ctaPill,
-.fdPagerPrev,
-.fdPagerNext,
 .fdClose {
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -2117,8 +2020,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.fdPagerPrev,
-.fdPagerNext,
 .fdClose {
   background: var(--et-home-paper);
   color: var(--et-home-ink);
@@ -2406,8 +2307,6 @@
 }
 .detailV13MustEat .fdMid,
 .detailV13MustEat .fdRest,
-.detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext,
 .detailV13MustEat .fdProximity {
   border-radius: 0;
 }
@@ -2422,8 +2321,7 @@
 .detailV13MustEat .fdText,
 .detailV13MustEat .fdProximitySub,
 .detailV13MustEat .fdRest .fdV,
-.detailV13MustEat .fdRest .fdV a,
-.detailV13MustEat .fdPagerName {
+.detailV13MustEat .fdRest .fdV a {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 500;
   letter-spacing: 0;
@@ -2432,13 +2330,6 @@
 .detailV13MustEat .fdRest .fdV {
   font-size: clamp(24px, 6vw, 34px);
   line-height: 1;
-}
-.detailV13MustEat .fdPagerCopy {
-  gap: 0;
-  align-content: center;
-}
-.detailV13MustEat .fdPagerLabel {
-  display: none;
 }
 @media (min-width: 1024px) {
   .detailV13:not(.detailV13MustEat) .rdHero {
@@ -2712,7 +2603,12 @@
   width: 100%;
   min-height: 0;
   margin: 0;
-  padding: 0 0 clamp(44px, 6dvh, 62px);
+  /* Die Luft unter der Karte muss den Fächerüberhang mittragen: die unterste
+     Stapelkarte sitzt --me-fan-drop tiefer als die oberste (translate plus
+     Rotation, siehe .fdStackCardOne), das Padding misst aber ab .fdCardStack
+     — also ab der obersten. Ohne den Aufschlag blieben real 6–24px übrig, der
+     Text klebte am Fächer; auf schmalen Breiten überlappte er ihn sogar. */
+  padding: 0 0 calc(clamp(44px, 6dvh, 62px) + var(--me-fan-drop));
   perspective: 1200px;
 }
 .detailV13MustEat .fdHeroWrap::before {
@@ -2728,6 +2624,11 @@
   margin: 0 auto;
   overflow: visible;
   isolation: isolate;
+  /* Der Fächer ragt rechts über die Top-Karte hinaus — translate(30px) plus
+     die Rotation der untersten Karte, gemessen 42px. `margin: 0 auto`
+     zentriert aber nur die Top-Karte; 21px nach links rückt die optische
+     Mitte des GESAMTEN Fächers in die Mitte des Rails. */
+  left: -21px;
 }
 .detailV13MustEat .fdStackCard,
 .detailV13MustEat .fdTopCard,
@@ -2770,6 +2671,108 @@
   z-index: 4;
   width: 100%;
   height: 100%;
+  /* Die Karte wird beim Blättern/Wischen per translate bewegt (useSwipePager,
+     pageWithCard). Ohne Promotion baut der Browser den Layer erst beim ersten
+     Frame der Bewegung — das ist der sichtbare Ruckler am Animationsstart. */
+  will-change: transform;
+}
+/* ── Pager: dezente Chevrons neben der Karte ────────────────────────────────
+ *
+ * Die Buttonleiste am Panelende ist weg — geblättert wird am Objekt selbst,
+ * wie in Bild-Galerien üblich: zwei nackte, halbtransparente Winkel in den
+ * Seitenräumen neben der Karte, bei Hover volle Tinte. Kein Kreis, keine
+ * Fläche, kein Gelb. Die Namen der Nachbarn tragen die aria-Labels.
+ *
+ * Sitzt im Markup IM .fdCardStack (position: relative), damit die Pfeile der
+ * Kartenhöhe folgen. pointer-events: none auf dem nav, damit die Fläche
+ * dazwischen weiter der Karte gehört (Tap = aufdecken/zoomen).
+ *
+ * Nur ab 768px — auf dem Phone wird gewischt (siehe "Phone: gewischt wird,
+ * nicht getippt"). */
+.detailV13MustEat .fdPager {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: none;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .detailV13MustEat .fdPager {
+    display: block;
+  }
+}
+.detailV13MustEat .fdPagerPrev,
+.detailV13MustEat .fdPagerNext {
+  pointer-events: auto;
+  position: absolute;
+  /* Der Fächer hängt gemessene 38px unter die Top-Karte — seine Mitte liegt
+     also 19px tiefer. Daran zentrieren, nicht an der Top-Karte. */
+  top: calc(50% + 19px);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  cursor: pointer;
+  color: var(--me-ink);
+  opacity: 0.38;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  transform: translateY(-50%);
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+/* Symmetrisch um den FÄCHER, nicht um die Top-Karte: auf Pfeilhöhe gemessen
+   liegt die rechte Fächerkante 30px hinter der Top-Karte (Überhang der
+   untersten Karte), links deckungsgleich. Beide Pfeile halten je 4px Luft zu
+   ihrer Kante — nah genug, dass sie zur Karte gehören, ohne in ihre
+   Tap-Fläche zu ragen. Mit dem left: -15px des Stapels steht das Ensemble
+   Pfeil–Fächer–Pfeil mittig. */
+.detailV13MustEat .fdPagerPrev {
+  left: -36px;
+}
+.detailV13MustEat .fdPagerNext {
+  right: -78px;
+}
+.detailV13MustEat .fdPagerArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  color: currentColor;
+}
+.detailV13MustEat .fdPagerArrow svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.detailV13MustEat .fdPagerNext .fdPagerArrow svg {
+  transform: scaleX(-1);
+}
+.detailV13MustEat .fdPagerPrev:disabled,
+.detailV13MustEat .fdPagerNext:disabled {
+  visibility: hidden;
+  cursor: default;
+}
+.detailV13MustEat .fdPagerPrev:focus-visible,
+.detailV13MustEat .fdPagerNext:focus-visible {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .detailV13MustEat .fdPagerPrev:hover {
+    opacity: 1;
+    transform: translateY(-50%) translateX(-2px);
+  }
+
+  .detailV13MustEat .fdPagerNext:hover {
+    opacity: 1;
+    transform: translateY(-50%) translateX(2px);
+  }
 }
 .detailV13MustEat .fdHero {
   appearance: none;
@@ -2861,6 +2864,14 @@
   font-size: clamp(30px, 7.4vw, 46px);
   line-height: 0.88;
 }
+/* Die Standort-Zustände ("Standort freigeben"/"Standort blockiert") sind eine
+   Browser-Berechtigung, kein Produktmoment — in Dish-Name-Größe schrien sie
+   wie das Gericht selbst. Eine Stufe leiser: groß bleibt dem Gericht und der
+   Distanz vorbehalten. Gilt über [data-location-needed] auf jeder Breite. */
+.detailV13MustEat .fdProximity[data-location-needed] .fdProximityHead {
+  font-size: clamp(20px, 4.8vw, 27px);
+  line-height: 1.05;
+}
 .detailV13MustEat .fdProximitySub {
   margin: clamp(5px, 0.8dvh, 7px) 0 0;
   color: var(--me-muted);
@@ -2869,46 +2880,6 @@
   font-weight: 450;
   letter-spacing: 0;
   line-height: 1.24;
-}
-.detailV13MustEat .fdDistanceBadge {
-  display: inline-block;
-  padding: 0.02em 0.26em 0.08em;
-  color: var(--me-ink);
-  background: var(--me-accent);
-  border-radius: 4px;
-  font-weight: 750;
-  line-height: 1;
-  white-space: nowrap;
-}
-.detailV13MustEat .fdDistanceMeter {
-  margin-top: 4px;
-}
-.detailV13MustEat .fdDistanceTrack {
-  width: 100%;
-  height: 6px;
-  overflow: hidden;
-  background: var(--me-soft);
-  border-radius: 999px;
-}
-.detailV13MustEat .fdDistanceFill {
-  display: block;
-  width: var(--fd-distance-progress, 8%);
-  min-width: 8%;
-  max-width: 100%;
-  height: 100%;
-  background: var(--me-accent);
-  border-radius: inherit;
-}
-.detailV13MustEat .fdDistanceCaption {
-  margin: 2px 0 0;
-  color: var(--me-muted);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(14px, 3.5vw, 17px);
-  font-weight: 450;
-  letter-spacing: 0;
-  line-height: 1.2;
-  text-align: left;
-  text-transform: none;
 }
 .detailV13MustEat .fdRest {
   position: relative;
@@ -2927,8 +2898,7 @@
   box-shadow: none;
   transform: none;
 }
-.detailV13MustEat .fdK,
-.detailV13MustEat .fdPagerLabel {
+.detailV13MustEat .fdK {
   color: var(--me-muted);
   font-family: var(
     --et-font-mono,
@@ -2979,60 +2949,9 @@
   transform: translateX(2px);
   box-shadow: none;
 }
-.detailV13MustEat .fdPager {
-  position: relative;
-  z-index: 3;
-  bottom: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px;
-  flex: 0 0 auto;
-  margin: auto 0 0;
-  padding-top: clamp(12px, 2dvh, 20px);
-  background: var(--me-paper);
-  border: 0;
-}
-.detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  min-height: 50px;
-  height: auto;
-  margin: 0;
-  padding: 8px 10px;
-  color: var(--me-ink);
-  background: var(--me-soft);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  transform: none;
-}
-.detailV13MustEat .fdPagerNext {
-  justify-content: flex-end;
-  text-align: right;
-  background: var(--me-ink);
-  color: #fff;
-}
-.detailV13MustEat .fdPagerArrow {
-  width: 22px;
-  height: 22px;
-  color: currentColor;
-}
-.detailV13MustEat .fdPagerName {
-  color: currentColor;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 14px;
-  font-weight: 650;
-  letter-spacing: 0;
-  line-height: 1.2;
-  padding-top: 2px;
-  text-transform: none;
-}
-.detailV13MustEat .fdPagerPrev:disabled,
-.detailV13MustEat .fdPagerNext:disabled {
-  visibility: hidden;
-}
+/* Beide Tasten gleich hell: die dunkle "Weiter"-Taste sah aus wie ein
+   Primär-CTA und stand als zweite schwarze Pille direkt unter "Zum Spot".
+   Gleichrangige Navigation, gleiches Gewicht — schwarz bleibt dem CTA. */
 @media (max-width: 380px), (max-height: 740px) {
   .detailV13MustEat .fdName {
     font-size: clamp(31px, 8.8vw, 44px);
@@ -3045,11 +2964,6 @@
   .detailV13MustEat .fdNameCompact {
     font-size: clamp(25px, 6.8vw, 34px);
   }
-
-  .detailV13MustEat .fdPagerPrev,
-  .detailV13MustEat .fdPagerNext {
-    min-height: 44px;
-  }
 }
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
@@ -3058,30 +2972,10 @@
     max-height: 100dvh;
     padding: clamp(68px, 9dvh, 86px) 16px calc(82px + env(safe-area-inset-bottom, 0px));
   }
-
-  .detailV13MustEat .fdPager {
-    position: absolute;
-    right: 16px;
-    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    left: 16px;
-    margin: 0;
-    padding-top: 0;
-    background: transparent;
-  }
-
-  .detailV13MustEat .fdPagerPrev,
-  .detailV13MustEat .fdPagerNext {
-    min-height: 48px;
-    padding-block: 7px;
-  }
 }
 @media (max-width: 380px), (max-height: 740px) {
   .detailV13MustEat .fdHeroWrap {
-    padding-bottom: clamp(54px, 7.4dvh, 68px);
-  }
-
-  .detailV13MustEat .fdPager {
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(clamp(30px, 4.4dvh, 40px) + var(--me-fan-drop));
   }
 }
 @media (min-width: 768px) {
@@ -3189,20 +3083,6 @@
     max-height: 100dvh;
     padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
     overflow-y: hidden;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdPager {
-    position: fixed;
-    right: 16px;
-    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    left: 16px;
-    margin: 0;
-    padding: 0;
-    z-index: 20;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdPager:last-child {
-    padding-bottom: 0;
   }
 
   [data-map-sheet][data-view='detail'] .detailMountMustEat,
@@ -3473,20 +3353,18 @@
   }
 
   .detailV13MustEat .detailV13Scroll {
-    --me-card-air: clamp(42px, 5.2dvh, 58px);
+    --me-card-air: calc(clamp(42px, 5.2dvh, 58px) + var(--me-fan-drop));
     --me-card-h: min(calc(100% - var(--me-card-air)), 316px);
     --me-flow-gap: 16px;
     --me-content-gap: var(--me-flow-gap);
-    --me-footer-gap: var(--me-flow-gap);
-    --me-pager-slot: clamp(50px, 6.8dvh, 56px);
     display: grid;
+    /* Keine Pager-Zeile mehr: geblättert wird an der Karte selbst (Pfeile
+       auf den Kartenkanten), die Leiste unter dem Panel ist weg. */
     grid-template-rows:
       minmax(0, 1fr)
       var(--me-mid-slot)
       var(--me-content-gap)
-      var(--me-rest-slot)
-      var(--me-footer-gap)
-      var(--me-pager-slot);
+      var(--me-rest-slot);
     align-content: stretch;
     gap: 0;
     overflow: hidden;
@@ -3512,7 +3390,7 @@
   .detailV13MustEat .fdMid {
     grid-row: 2;
     display: grid;
-    align-content: end;
+    align-content: start;
     height: var(--me-mid-slot);
     min-height: var(--me-mid-slot);
     max-height: var(--me-mid-slot);
@@ -3606,32 +3484,13 @@
     font-size: clamp(21px, 2.05vw, 25px);
     line-height: 1;
   }
-
-  .detailV13MustEat .fdPager {
-    grid-row: 6;
-    align-self: end;
-    height: var(--me-pager-slot);
-    min-height: var(--me-pager-slot);
-    max-height: var(--me-pager-slot);
-    margin: 0;
-    padding-top: 0;
-  }
-
-  .detailV13MustEat .fdPagerPrev,
-  .detailV13MustEat .fdPagerNext {
-    height: var(--me-pager-slot);
-    min-height: var(--me-pager-slot);
-    max-height: var(--me-pager-slot);
-  }
 }
 @media (min-width: 1024px) and (max-height: 760px) {
   .detailV13MustEat .detailV13Scroll {
-    --me-card-air: clamp(28px, 4dvh, 36px);
+    --me-card-air: calc(clamp(28px, 4dvh, 36px) + var(--me-fan-drop));
     --me-mid-slot: clamp(112px, 16dvh, 132px);
     --me-flow-gap: 14px;
     --me-content-gap: var(--me-flow-gap);
-    --me-footer-gap: var(--me-flow-gap);
-    --me-pager-slot: 50px;
   }
 
   .detailV13MustEat .fdName {
@@ -3690,16 +3549,12 @@
     --me-card-w: min(60vw, 242px);
     --me-card-gap: clamp(30px, 4dvh, 38px);
     --me-flow-gap: 14px;
-    --me-footer-gap: var(--me-flow-gap);
-    --me-pager-slot: 48px;
     display: grid;
     grid-template-rows:
       minmax(0, 1fr)
       var(--me-mid-slot)
       var(--me-content-gap)
-      var(--me-rest-slot)
-      var(--me-footer-gap)
-      var(--me-pager-slot);
+      var(--me-rest-slot);
     align-content: stretch;
     gap: 0;
     padding-top: clamp(68px, 8dvh, 84px);
@@ -3712,7 +3567,7 @@
     height: 100%;
     min-height: 0;
     max-height: none;
-    padding-bottom: var(--me-card-gap);
+    padding-bottom: calc(var(--me-card-gap) + var(--me-fan-drop));
     overflow: visible;
   }
 
@@ -3724,7 +3579,7 @@
   .detailV13MustEat .fdMid {
     grid-row: 2;
     display: grid;
-    align-content: end;
+    align-content: start;
     height: var(--me-mid-slot);
     min-height: var(--me-mid-slot);
     max-height: var(--me-mid-slot);
@@ -3764,21 +3619,6 @@
     font-size: 15px;
     font-weight: 500;
     line-height: 1.28;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdPager {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    grid-row: 6;
-    align-self: end;
-    z-index: 20;
-    height: var(--me-pager-slot);
-    min-height: var(--me-pager-slot);
-    max-height: var(--me-pager-slot);
-    margin: 0;
-    padding: 0;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline {
@@ -3836,13 +3676,6 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdPager .fdPagerPrev,
-  .detailV13MustEat .detailV13Scroll > .fdPager .fdPagerNext {
-    height: var(--me-pager-slot);
-    min-height: var(--me-pager-slot);
-    max-height: var(--me-pager-slot);
   }
 
   .detailV13MustEat > .fdRestDock {
@@ -3957,19 +3790,6 @@
   [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat .detailV13Scroll {
     padding-bottom: 18px;
   }
-
-  [data-map-sheet][data-view='detail']
-    .detailMountMustEat
-    .detailV13MustEat
-    .detailV13Scroll
-    > .fdPager {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    grid-row: 6;
-    align-self: end;
-  }
 }
 @media (min-width: 700px) and (max-width: 1023.98px) {
   [data-map-shell][data-map-view='detail']
@@ -4007,8 +3827,6 @@
     --me-card-w: min(52vw, 196px);
     --me-card-gap: clamp(20px, 3.2dvh, 26px);
     --me-flow-gap: 12px;
-    --me-footer-gap: var(--me-flow-gap);
-    --me-pager-slot: 46px;
     padding-top: clamp(54px, 8dvh, 64px);
     padding-bottom: 14px;
   }
@@ -4032,7 +3850,7 @@
   grid-template-rows:
     var(--me-name-slot)
     minmax(0, calc(var(--me-mid-slot) - var(--me-name-slot) - var(--me-name-copy-gap)));
-  align-content: end;
+  align-content: start;
   row-gap: var(--me-name-copy-gap);
   overflow: hidden;
 }
@@ -4072,8 +3890,13 @@
 .detailV13MustEat .fdName:has(.fdNameBlur) {
   overflow: hidden;
 }
+/* Der Text kommt aus dem DOM, nicht aus dem Stylesheet: hier stand 'VERDECKT'
+   hartkodiert, und auf /en las sich das Badge als einziges Element deutsch,
+   während der echte (per color: transparent verdeckte) Name daneben schon
+   "Face-down" hieß. `attr()` zieht die übersetzte Fassung aus dem
+   data-Attribut, das MustEatDetailMobile setzt. */
 .detailV13MustEat .fdNameText.fdNameBlur::before {
-  content: 'VERDECKT';
+  content: attr(data-covered);
   position: absolute;
   top: auto;
   right: auto;
@@ -4234,15 +4057,13 @@
     --me-mid-slot: 158px;
   }
 }
-@media (max-width: 1023.98px) {
-  /* Locked cards only need the compact VERDECKT badge, not the full
-     two-line dish-name slot. Give that unused height to the proximity copy
-     so Safari's taller Providence metrics cannot clip its second line into
-     the following restaurant panel on short phone viewports. */
-  .detailV13MustEat .fdMid.fdMidLocked {
-    --me-name-slot: clamp(56px, 8dvh, 64px);
-  }
-}
+/* Kein eigener Namens-Slot mehr für die verdeckte Karte: er gab der
+   Proximity-Copy zwar mehr Platz, verschob sie aber beim Aufdecken, weil in
+   diesem Slot dann der Gerichtsname steht. Verdeckt erbt jetzt in jedem
+   Breakpoint exakt den Wert des aufgedeckten Zustands — nur so sitzen Badge
+   und Gerichtsname, und damit auch die Copy darunter, an derselben Stelle.
+   Gegen das Clipping, das der kompakte Wert abfangen sollte, hilft der
+   elastische Kartenstapel: der Slot ist keine harte Obergrenze mehr. */
 .detailV13MustEat .fdHeroLocked.mustEatCardCanUnlock {
   animation: fdRevealReadyShake 0.42s linear infinite;
   transform-origin: 50% 58%;
@@ -4251,7 +4072,8 @@
 @keyframes fdRevealReadyShake {
   0%,
   100% {
-    transform: rotate(-2.4deg) rotateY(-4deg) rotateX(1deg) translate3d(0, 0, 0);
+    transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg)
+      translate3d(0, 0, 0);
   }
   12% {
     transform: rotate(-8.4deg) rotateY(-9deg) rotateX(1deg)
@@ -4504,9 +4326,6 @@
    space to the reveal guidance; give two-line restaurant names a complete
    line box above the CTA. */
 @media (min-width: 768px) and (max-width: 1023.98px) {
-  .detailV13MustEat .fdMid.fdMidLocked {
-    --me-name-slot: 46px;
-  }
 
   .detailV13MustEat .detailV13Scroll {
     --me-rest-slot: 128px;
@@ -5046,21 +4865,48 @@
   text-overflow: ellipsis;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdPager {
-  flex: 0 0 auto;
-  margin: var(--me-footer-gap) 0 0;
+/* Das Restaurant-Feld ändert seine Höhe nicht mit dem Namen — aber ohne eine
+   reservierte Leerzeile: die konstante Streifenhöhe kommt vom 96px-Foto, das
+   höher ist als zwei Namenszeilen (gemessen 47px). Der Name wird über
+   `align-items: center` des Streifens mittig daneben gesetzt, einzeilig wie
+   zweizeilig. Eine min-height auf .fdV hätte bei "SOFI" eine sichtbar leere
+   zweite Zeile hinterlassen, ohne für die Höhe nötig zu sein.
+
+   Unterlängen: Providence malt das "g" UNTER die Zeilenbox hinaus — bei
+   scrollHeight == clientHeight schneidet der overflow-Clip (Pflicht für
+   line-clamp) trotzdem die Tinte ab, mehr line-height allein hilft nicht.
+   Das padding-bottom ist Tintenraum unter der letzten Zeile und steckt mit
+   in der min-height, damit die Feldhöhe konstant bleibt. Der bekannte
+   line-clamp-Nebeneffekt (Oberkante einer 3. Zeile lugt ins Padding) bleibt
+   theoretisch — 0.22em sind bei Providence' niedriger x-Höhe reines Leading.
+   Gilt für beide Varianten des Streifens (Inline im Panel + Dock). */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
+.detailV13MustEat > .fdRestDock .fdV {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  line-height: 1.24;
+  padding-bottom: 0.22em;
+  text-overflow: ellipsis;
 }
 
 /* Verdeckter Name = 32px-Badge, kein zweizeiliger Gerichtsname. Der
    768–1023.98px-Rail kollabiert den Slot dafür längst (46px, siehe oben), der
    Desktop-Rail nie — dort standen 88–102px Grid um ein 32px-Badge herum. Das
-   ist die tote Fläche zwischen Kartenstapel und "KOMM NÄHER". Gleiche
-   Behandlung, gleicher Grund: die Höhe gehört der Proximity-Copy. */
-@media (min-width: 1024px) {
-  .detailV13MustEat .fdMid.fdMidLocked {
-    --me-name-slot: 46px;
-  }
-}
+   ist die tote Fläche zwischen Kartenstapel und "KOMM NÄHER".
+
+   Am Desktop-Rail gilt das nicht mehr: dort liegen verdeckter und aufgedeckter
+   Zustand direkt hintereinander (Aufdecken, Blättern), und ein eigener
+   Namens-Slot ließ die Copy beim Wechsel um 40px springen. Beide Zustände
+   teilen sich hier denselben Slot — nur so sitzen Badge und Gerichtsname an
+   derselben Stelle. Schmalere Breiten behalten ihre kompakten Werte: dort ist
+   der Platz knapp und die Proximity-Copy braucht ihn. */
+
 
 /* ── Desktop-Rail: größerer Kartenstapel ────────────────────────────────────
  * Der Stapel war kleiner, als der Platz hergab — nicht wegen der Deckel
@@ -5073,13 +4919,57 @@
  * Abzug war nur Verlust. */
 @media (min-width: 1024px) {
   .detailV13MustEat .detailV13Scroll {
-    --me-card-h: min(100%, 380px);
+    /* Nicht mehr allein aus dem Resttrack: `100%` ist die Höhe der
+       Hero-Zeile, und die wächst, seit der Textslot im verdeckten Zustand nur
+       noch seinen Inhalt misst — die Karte war verdeckt 362px und aufgedeckt
+       315px groß, sprang beim Blättern also sichtbar. Der dvh-Wert ist so
+       gewählt, dass er auch im engeren aufgedeckten Layout passt; damit ist er
+       in beiden Zuständen der kleinste Term und die Karte bleibt gleich groß.
+       `100%` bleibt als Sicherheitsnetz für flache Fenster. */
+    --me-card-h: min(100%, 37dvh, 380px);
   }
 
   .detailV13MustEat .fdCardStack {
     width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
     max-width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
   }
+}
+
+/* ── Verdeckt: der Slot misst den Text, nicht umgekehrt ─────────────────────
+ *
+ * Der Mittelteil stand auf einer festen Slot-Höhe (--me-mid-slot, 197px am
+ * Desktop-Rail), und .fdProximity reservierte davon per min-height den ganzen
+ * Copy-Anteil — 141px um zwei Zeilen "Tipp auf die Karte …". Weil der Slot
+ * seinen Inhalt unten verankert (align-content: end), stand die Differenz als
+ * Loch zwischen Text und Restaurant-Streifen.
+ *
+ * .fdProximity reserviert den Copy-Anteil nicht mehr, und der verbleibende
+ * Platz im Slot verteilt sich symmetrisch um den Text. Der Slot selbst bleibt
+ * in beiden Zuständen gleich hoch: nur so sitzen Kartenstapel und
+ * Restaurant-Streifen verdeckt wie aufgedeckt an derselben Stelle. */
+.detailV13MustEat .fdMidLocked .fdProximity {
+  min-height: 0;
+}
+/* Der Textblock behält in beiden Zuständen dieselbe Slot-Höhe — sonst wandern
+   Karte und Streifen beim Aufdecken, weil die Geometrie zwingend ist:
+   Kartenunterkante + Luft + Textblock + Gap = Streifenoberkante.
+   Beide Zustände sind oben bündig: der aufgedeckte Block ist mit großem
+   Gerichtsnamen plus Beschreibung 153px hoch, der verdeckte nur 71px — an der
+   Oberkante ausgerichtet beginnt der Text in beiden Fällen an derselben
+   Stelle, und die Differenz sammelt sich unten, wo der Streifen sie abfängt.
+   `justify-content` ist die vertikale Achse, falls .fdMid als Flex-Spalte
+   rendert. */
+.detailV13MustEat .fdMid.fdMidLocked {
+  justify-content: flex-start;
+  align-content: start;
+}
+
+/* Titel ohne Inhalt, aber mit Platz: in Reichweite soll kein VERDECKT-Badge
+   neben dem "Jetzt aufdecken"-Chip stehen — der Namens-Track muss trotzdem
+   stehen bleiben, sonst rückt die Copy in ihn hinein und sitzt anders als im
+   aufgedeckten Zustand. */
+.detailV13MustEat .fdName.fdNameVoid {
+  visibility: hidden;
 }
 
 /* ── Phone: gewischt wird, nicht getippt ────────────────────────────────────
@@ -5110,7 +5000,9 @@
   }
 
   .detailV13MustEat .detailV13Scroll {
-    --me-card-h: min(calc(100% - var(--me-card-gap)), 380px);
+    /* Wie am Desktop-Rail: der dvh-Term hält die Karte in beiden Zuständen
+       gleich groß (verdeckt maß sie 379px, aufgedeckt 351px). */
+    --me-card-h: min(calc(100% - var(--me-card-gap)), 42dvh, 380px);
     /* Nicht mehr an --me-card-w gekoppelt: der Stapel schrumpft jetzt mit
        seinem Platz, die Untergrenze muss also nur noch eine lesbare Karte
        tragen. */
@@ -5126,10 +5018,6 @@
     max-width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
     height: var(--me-card-h);
     max-height: var(--me-card-h);
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdPager {
-    display: none;
   }
 }
 
@@ -5197,76 +5085,93 @@
   }
 }
 
-/* ── Fließtext gehört nicht in die Markenschrift ────────────────────────────
- *
- * Providence Sans ist eine gezeichnete Display-Schrift: dünne Striche,
- * niedrige x-Höhe, unruhige Grundlinie. Als Headline trägt sie die Marke, als
- * Fließtext bei 14–17px auf 62 % Tinte war sie der Grund, warum die Texte auf
- * dem Desktop-Rail „schlecht zu lesen" waren. Die drei betroffenen Stellen
- * gehen auf DM Sans, die laut globals.css ohnehin „the body + eyebrow
- * workhorse" ist:
- *
- *   .fdProximitySub     "Komm auf 50 m an den Spot heran, dann …"
- *   .fdDistanceCaption  die Entfernungsangabe unter dem Meter
- *   .fdText             die Gerichtsbeschreibung im aufgedeckten Zustand
- *
- * Alles andere bleibt Providence: Gerichtsname, "KOMM NÄHER", das
- * VERDECKT-Badge, der Restaurantname, die Kicker. Das ist der Markenauftritt
- * und soll gezeichnet aussehen.
- *
- * .fdDistanceBadge (die gelbe "50 m"-Pille mitten im Satz) setzt keine eigene
- * font-family und erbt mit — genau richtig, sie ist Teil des Satzes und kein
- * eigenes Label.
- *
- * Die Durchschusserhöhung auf 1.45 gehört zum Wechsel dazu: 1.2–1.28 war auf
- * Providence' niedrige x-Höhe gerechnet. DM Sans hat eine deutlich größere,
- * bei der die Zeilen sonst aufeinanderkleben. Der Textblock wird dadurch rund
- * 7px höher — das federt die Hero-Zeile ab (siehe oben), gemessen bleibt der
- * Überlauf 0.
- *
- * Die Schriftgrößen bleiben unangetastet: DM Sans wirkt bei gleicher
- * Punktgröße größer als Providence, kleiner setzen wäre also der falsche
- * Reflex — und eine eigene Entscheidung, keine Folge des Schriftwechsels.
- */
-.detailV13MustEat .fdProximitySub,
-.detailV13MustEat .fdDistanceCaption,
+/* Die Copy im Must-Eat-Detail steht komplett in der Markenschrift: der
+   Zustands-Satz ("Komm auf 50 m …") ebenso wie die Gerichtsbeschreibung.
+   Beide sind kurz genug, dass Providence' gezeichneter Look trägt — ein
+   DM-Sans-Block mittendrin wirkte wie ein Fremdkörper im Panel. Die
+   Zeilenhöhe bleibt auf Providence gerechnet (1.24 aus den Blöcken oben). */
 .detailV13MustEat .fdText {
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-weight: 400;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 450;
   letter-spacing: 0;
-  line-height: 1.45;
+  line-height: 1.28;
 }
 
-/* ── Pager: Richtung sichtbar, Ziel benannt ─────────────────────────────────
+/* ── Restaurant-Streifen: feste Höhe, egal wie lang die Namen sind ──────────
  *
- * `.fdPagerLabel` ("Zurück"/"Weiter") stand media-los auf `display: none` —
- * ausgeblendet also auf JEDER Breite, nicht nur auf schmalen. Übrig blieb der
- * Pfeil plus ein Name, und weil beide Nachbarn verdeckt sein können, hieß es
- * links wie rechts "Verdeckt". Zwei identische Tasten.
+ * Der Streifen sprang beim Blättern: "SOFI" einzeilig, "Hokey Pokey
+ * Stargarder" zweizeilig — gemessen 175px vs 186px zwischen zwei Nachbarn.
+ * Statt den Streifen zu clippen (das war der alte Bug: abrasierte
+ * Unterlängen) deckelt der Name bei zwei Zeilen — ohne sie zu RESERVIEREN:
+ * die konstante Streifenhöhe kommt vom 96px-Foto, das höher ist als zwei
+ * Zeilen (gemessen 47px). Eine feste Höhe hier hinterließ bei "Slice Society"
+ * eine sichtbar leere zweite Zeile, ohne für die Höhe nötig zu sein.
  *
- * Der Name zeigt jetzt das Restaurant des Nachbarn (siehe
- * MustEatDetailMobile.tsx), und die Richtung kommt zurück — sie muss, denn
- * mehrere Must Eats desselben Restaurants liegen im Pager nebeneinander, dann
- * stünde ohne sie wieder zweimal dasselbe da.
- *
- * Nur ab 768px: darunter gibt es den Pager gar nicht mehr, dort wird gewischt.
- *
- * Die Farbe muss pro Taste getrennt kommen. `.fdPagerLabel` erbt
- * `var(--me-muted)` aus dem Block, den es sich mit `.fdK` teilt — dunkles
- * Grau. Auf der "Weiter"-Taste steht das auf `var(--me-ink)`, also dunkel auf
- * dunkel und praktisch unsichtbar.
- */
-@media (min-width: 768px) {
-  .detailV13MustEat .fdPagerLabel {
-    display: block;
+ * Steht am Dateiende, weil frühere Blöcke `display: flow-root` und eigene
+ * Höhen auf .fdV setzen; drei Klassen im Selektor schlagen sie. Der
+ * `padding-bottom` ist Tintenraum unter der letzten Zeile: Providence malt
+ * das "g" unter die Zeilenbox, und der line-clamp-Clip schnitt es ab. */
+.detailV13MustEat .fdRestInline .fdRestName .fdV,
+.detailV13MustEat .fdRestDock .fdRestName .fdV {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.24;
+  padding-bottom: 0.22em;
+  height: auto;
+  min-height: 0;
+  max-height: calc(2 * 1.24em + 0.22em);
+  text-overflow: ellipsis;
+}
+/* Der Namens-Block wird an seinem Inhalt gemessen, nicht am Platz: sein
+   zweiter Track stand auf `minmax(0, 1fr)`, in dem sich .fdV auf die volle
+   Zeilenhöhe streckte — bei "Slice Society" waren das 47px um eine 33px-Zeile,
+   also genau die leere Fläche unter dem Namen. Mit `auto` ist der Block so
+   hoch wie Kicker + echte Zeilen; die Reserve hält der Streifen (min-height
+   138px + align-content: center), der die Luft symmetrisch verteilt. */
+.detailV13MustEat .fdRestName {
+  align-self: center;
+  align-content: center;
+}
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName,
+.detailV13MustEat > .fdRestDock .fdRestName {
+  grid-template-rows: auto auto;
+  align-content: center;
+}
+
+/* Der Restaurant-Streifen war der höchste Block im Panel (gemessen 186px):
+   ein 86px-Foto mit Bildunterschrift daneben, die Pille darunter. Die Pille
+   bleibt unten — nur das Foto wird kleiner, damit der Streifen dem
+   Kartenstapel Platz zurückgibt. */
+@media (min-width: 1024px) {
+  .detailV13MustEat .detailV13Scroll > .fdRestInline {
+    padding: 12px;
+    row-gap: 8px;
   }
 
-  .detailV13MustEat .fdPagerCopy {
-    gap: 3px;
+  /* Der Platz, den die Bezirks-Bildunterschrift belegt hat, geht ans Foto. */
+  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
+    width: 96px;
+    min-width: 96px;
+    height: 96px;
+    min-height: 96px;
+  }
+
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  /* Die konstante Streifenhöhe gehört auf den STREIFEN, nicht auf den Namen:
+     eine reservierte zweite Namenszeile stand bei "Slice Society" als leere
+     Fläche unter dem Text. Der Streifen hält 138px (das Maß des zweizeiligen
+     Falls, gemessen) und zentriert seinen Inhalt — bei einem einzeiligen Namen
+     verteilt sich die Luft dadurch oben und unten statt sich unter ihm zu
+     sammeln. Wächst ein Name darüber hinaus, schiebt `height: auto` den
+     Streifen auf und der Kartentrack (1fr) gibt nach; geclippt wird nichts. */
+  .detailV13MustEat .detailV13Scroll > .fdRestInline {
+    min-height: 138px;
     align-content: center;
-  }
-
-  .detailV13MustEat .fdPagerNext .fdPagerLabel {
-    color: rgba(255, 255, 255, 0.72);
   }
 }

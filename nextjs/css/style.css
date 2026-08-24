@@ -455,7 +455,6 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -465,6 +464,17 @@ body {
   -webkit-overflow-scrolling: touch;
   scrollbar-color: rgba(255, 255, 255, .3) transparent;
   scrollbar-width: thin;
+  /* Self-hiding scroll shadows. The panel is height-capped, so the card grid
+     gets cut mid-row — without an edge cue that reads as a rendering bug
+     rather than "keep scrolling". The `local` layers ride with the content and
+     mask the `scroll` layers once an end is reached, so the hint appears only
+     where there is actually more to see. No JS, no listener. */
+  background:
+    linear-gradient(var(--et-home-ink, #15120e) 30%, rgba(21, 18, 14, 0)) top / 100% 22px no-repeat local,
+    linear-gradient(rgba(21, 18, 14, 0), var(--et-home-ink, #15120e) 72%) bottom / 100% 26px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0)) top / 100% 11px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0)) bottom / 100% 13px no-repeat scroll;
+  background-color: var(--et-home-ink, #15120e);
 }
 /* Each section sits in its own card inside .cookie-info-body — give them
    strong separation so heading↔text grouping is obvious. */

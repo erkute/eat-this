@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server';
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
   buildCategoryTitle,
   buildCategoryDescription,
@@ -113,7 +114,11 @@ function RestaurantGrid({
                 {r.name}
               </h3>
               <div className={sharedStyles.cardMeta}>
-                {r.cuisineType && <span className={sharedStyles.chipYellow}>{r.cuisineType}</span>}
+                {r.cuisineType && (
+                  <span className={sharedStyles.chipYellow}>
+                    {localizedCuisine(r.cuisineType, locale)}
+                  </span>
+                )}
                 {r.district && <span className={styles.districtLabel}>{r.district}</span>}
                 {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
               </div>

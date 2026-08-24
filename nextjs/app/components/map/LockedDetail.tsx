@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import type { MapRestaurant } from '@/lib/types';
 import { abbreviateBezirk } from '@/lib/map';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { packUrlSlug, resolvePackByUrlSlug } from '@/lib/pack/packDetail';
 import { categoryArt } from '@/lib/categoryArt';
 import { CATALOG } from '@/lib/stripe-catalog';
@@ -106,7 +107,7 @@ export default function LockedDetail({
     pickLocale(detail?.shortDescription, detail?.shortDescriptionEn, loc) ??
     '';
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
-  const cuisine = r.cuisineType ?? null;
+  const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null;
   const prefix = locale === routing.defaultLocale ? '' : `/${locale}`;
 
   /* First category that maps to a real pack. A spot can carry several; the

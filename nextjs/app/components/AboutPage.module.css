@@ -1,0 +1,389 @@
+/* The About page is the one static page that gets to be a story: white paper,
+   red Providence headline, freigestellte Objekte tilted onto the page, and an
+   ink closer that hands the reader back to the map. Same vocabulary as the
+   home rails — photos on white, no borders, structure from whitespace. */
+.page {
+  --about-ink: var(--et-home-ink, #15120e);
+  --about-red: var(--et-home-red, #d9382a);
+  --about-accent: var(--et-home-accent, #ffc600);
+  --about-paper: var(--et-home-paper, #fff);
+  --about-quiet: var(--et-home-quiet, #f2f1ef);
+  --about-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --about-text: rgba(21, 18, 14, 0.87);
+  --about-line: var(--et-home-rule, #e4e1dc);
+  /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
+     64px below 768px and by a 74px margin above it. A plain 100dvh overshot
+     that offset and left a strip of dead scroll under the footer. */
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - 64px);
+  padding: calc(24px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
+  background: var(--about-paper);
+  color: var(--about-ink);
+}
+
+.page > :global(footer[role='contentinfo']) {
+  /* .inner already carries the closing whitespace; a second block margin here
+     stacked on top of it and left a dead band above the footer. */
+  margin-inline: calc(50% - 50vw);
+  /* Sticky-footer: short filings (imprint, contact) used to end mid-page and
+     leave white paper below the ink band. */
+  margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .page {
+    min-height: calc(100dvh - 74px);
+  }
+}
+
+.inner {
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 48px) 0 clamp(54px, 8vw, 96px);
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  display: grid;
+  gap: clamp(28px, 4vw, 40px);
+  align-items: center;
+  padding-bottom: clamp(34px, 5vw, 56px);
+  border-bottom: 1px solid var(--about-line);
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: clamp(40px, 5vw, 64px);
+  }
+}
+
+.title {
+  max-width: 12ch;
+  margin: 0;
+  color: var(--about-red);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(40px, 6.6vw, 82px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title, 0.86);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 34ch;
+  margin: clamp(20px, 2.6vw, 28px) 0 0;
+  color: var(--about-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 500;
+  line-height: 1.42;
+  text-wrap: pretty;
+}
+
+/* Object stack. Sized off the phone; the two cards hang off its corners.
+   No fades — the pieces are simply placed and tilted.
+
+   The widths are the real objects: a phone is 70.6mm across, a trading card
+   63mm, so the card lands at ~0.89 of the phone. Drawn at half that, the deck
+   read as a keyring fob next to a phone instead of a thing you hold. */
+.heroArt {
+  position: relative;
+  width: min(100%, 360px);
+  margin: 0 auto;
+  aspect-ratio: 360 / 455;
+}
+
+.heroPhone {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 46%;
+  height: auto;
+  transform: translateX(-50%) rotate(-3deg);
+  filter: drop-shadow(0 18px 32px rgba(21, 18, 14, 0.16));
+}
+
+/* The pair: face-down left, face-up right. The revealed one runs a little
+   bigger and sits a little higher — it is the object the page is actually
+   arguing for, and a dead-symmetric pair would read as wallpaper. */
+.heroCard {
+  position: absolute;
+  bottom: 0;
+  left: 1%;
+  width: 41%;
+  height: auto;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 12px 22px rgba(21, 18, 14, 0.18));
+}
+
+.heroCardFront {
+  position: absolute;
+  right: 1%;
+  bottom: 4%;
+  width: 42%;
+  height: auto;
+  transform: rotate(7deg);
+  filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.2));
+}
+
+@media (max-width: 899px) {
+  .heroArt {
+    width: min(100%, 330px);
+  }
+}
+
+/* ---------- sections ---------- */
+
+.section {
+  display: grid;
+  gap: clamp(24px, 3.4vw, 36px);
+  align-items: start;
+  margin-top: clamp(46px, 6.5vw, 84px);
+}
+
+@media (min-width: 900px) {
+  .section {
+    grid-template-columns: minmax(0, 60ch) 300px;
+    justify-content: space-between;
+    gap: clamp(40px, 5vw, 72px);
+  }
+}
+
+.sectionTitle {
+  margin: 0 0 clamp(14px, 1.8vw, 18px);
+  color: var(--about-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.98;
+  text-transform: none;
+  text-wrap: balance;
+  scroll-margin-top: 96px;
+}
+
+.intro {
+  margin-top: clamp(30px, 4vw, 44px);
+}
+
+.body {
+  max-width: 60ch;
+  color: var(--about-text);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(16px, 1.15vw, 17.5px);
+  line-height: 1.65;
+}
+
+.body p {
+  margin: 0 0 1.15em;
+}
+
+.body p:last-child {
+  margin-bottom: 0;
+}
+
+.body ul,
+.body ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.15em;
+}
+
+.body li {
+  margin: 0 0 0.4em;
+}
+
+.body strong,
+.body b {
+  color: var(--about-ink);
+  font-weight: 700;
+}
+
+.body em,
+.body i {
+  font-style: italic;
+}
+
+.body a {
+  color: var(--about-red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: color 140ms ease;
+}
+
+.body a:hover,
+.body a:focus-visible {
+  color: var(--about-ink);
+}
+
+/* The taped red sticker stays — it is the one loud thing on the page and it
+   carries the founding line. */
+.body blockquote {
+  position: relative;
+  width: min(100%, 20ch);
+  margin: clamp(30px, 4.5vw, 48px) 0;
+  padding: clamp(22px, 3vw, 30px) clamp(22px, 3.2vw, 32px);
+  background: var(--about-accent);
+  border: 0;
+  color: var(--about-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 700;
+  line-height: 0.96;
+  text-transform: none;
+  transform: rotate(-1.4deg);
+}
+
+.body blockquote::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 82px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
+  transform: translateX(-50%) rotate(3deg);
+}
+
+/* ---------- figures ---------- */
+
+/* The column stays put; the object inside it does not. Hanging the caption
+   off the image width instead gave the narrow card a 205px measure and broke
+   a six-word line in two. */
+.figure {
+  margin: 0;
+  width: min(100%, 300px);
+}
+
+/* Filling the column would be right for three pictures of the same shape, but
+   a 600x1219 phone next to an 867x856 plate is twice as tall at the same
+   width and swallows its section. So: a set width per object, chosen for
+   optical weight, with height as the backstop. Left-aligned, so the objects
+   share an edge the way the text column does. */
+.figureImg {
+  display: block;
+  width: var(--fig-w, 290px);
+  max-width: 100%;
+  height: auto;
+  max-height: 460px;
+  transform: rotate(var(--tilt, 0deg));
+  filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.15));
+}
+
+.caption {
+  margin-top: clamp(12px, 1.6vw, 16px);
+  color: var(--about-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(15px, 1.2vw, 17px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.15;
+  text-transform: none;
+}
+
+/* ---------- closer ---------- */
+
+.cta {
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 2.6vw, 28px);
+  align-items: center;
+  margin-top: clamp(54px, 8vw, 96px);
+  padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 48px);
+  text-align: center;
+  background: var(--about-ink);
+  border-radius: var(--et-radius-panel, 10px);
+  color: var(--about-paper);
+}
+
+
+
+.ctaTitle {
+  margin: 0;
+  max-width: 20ch;
+  color: var(--about-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(32px, 4.4vw, 54px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 0.94;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.ctaText {
+  max-width: 46ch;
+  text-wrap: pretty;
+  margin: clamp(12px, 1.6vw, 16px) 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.55;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: clamp(20px, 2.6vw, 26px);
+}
+
+.ctaPrimary,
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(18px, 1.7vw, 21px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.ctaPrimary {
+  background: var(--about-accent);
+  border: 1px solid var(--about-accent);
+  color: var(--about-ink);
+}
+
+.ctaSecondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  color: var(--about-paper);
+}
+
+.ctaPrimary:hover,
+.ctaPrimary:focus-visible,
+.ctaSecondary:hover,
+.ctaSecondary:focus-visible {
+  transform: translateY(-2px);
+}
+
+.ctaSecondary:hover,
+.ctaSecondary:focus-visible {
+  border-color: var(--about-accent);
+  color: var(--about-accent);
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding-inline: clamp(16px, 5vw, 22px);
+  }
+}

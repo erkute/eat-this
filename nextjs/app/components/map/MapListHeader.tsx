@@ -2,6 +2,7 @@
 import { forwardRef, useMemo, useRef, useState, type Ref } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { abbreviateBezirk, type MapOptionCounts } from '@/lib/map';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
@@ -79,9 +80,20 @@ export default function MapListHeader({
     () => bezirkNames.map((n) => withCount(n, n, optionCounts.byValue.bezirk)),
     [bezirkNames, optionCounts]
   );
+  /* Wert bleibt der rohe Sanity-String — er ist die Filteridentität und steht
+     so auch im `?cuisine=`-Parameter. Übersetzt wird nur das Label, genau wie
+     bei den Kategorien eine Zeile höher.
+
+     Neu sortiert, und zwar nach dem Label: `cuisineNames` kommt alphabetisch
+     nach den englischen Rohwerten aus useMapFilters, und die laufen nicht
+     parallel zu den deutschen — „German/Deutsche Küche" und „Middle Eastern/
+     Orientalisch" landen sonst quer in der Liste. */
   const cuisineItems: PickerItem[] = useMemo(
-    () => cuisineNames.map((n) => withCount(n, n, optionCounts.byValue.cuisine)),
-    [cuisineNames, optionCounts]
+    () =>
+      cuisineNames
+        .map((n) => withCount(n, localizedCuisine(n, loc), optionCounts.byValue.cuisine))
+        .sort((a, b) => a.label.localeCompare(b.label, loc)),
+    [cuisineNames, loc, optionCounts]
   );
 
   const activeCategoryLabel = useMemo(() => {
@@ -121,7 +133,7 @@ export default function MapListHeader({
         {cuisineNames.length > 0 && (
           <FilterChip
             ref={cuisineBtnRef}
-            label={cuisine ?? t('map.filterChipCuisine')}
+            label={cuisine ? localizedCuisine(cuisine, loc) : t('map.filterChipCuisine')}
             active={!!cuisine}
             expanded={openChip === 'cuisine'}
             onClick={() => setOpenChip((prev) => (prev === 'cuisine' ? null : 'cuisine'))}

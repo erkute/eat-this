@@ -19,6 +19,7 @@ import {
   truncateAtSentence,
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import { shouldSkipDropCap } from '@/lib/dropCap';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -62,11 +63,13 @@ function SiblingRow({
   heading,
   href,
   restaurants,
+  locale,
   showDistrict = false,
 }: {
   heading: string;
   href: string;
   restaurants: RestaurantCard[];
+  locale: 'de' | 'en';
   showDistrict?: boolean;
 }) {
   return (
@@ -82,7 +85,7 @@ function SiblingRow({
       <div className={styles.sibCards}>
         {restaurants.map((s) => {
           const meta = [
-            s.cuisineType,
+            s.cuisineType ? localizedCuisine(s.cuisineType, locale) : null,
             showDistrict ? s.bezirk?.name : null,
             formatPriceLabel(s),
           ].filter(Boolean);
@@ -199,7 +202,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Branded share card — the dynamic OG route overlays name + cuisine + district
   // on the restaurant photo (and falls back to a brand card when there is none),
   // which previews far stronger on social than the bare photo did.
-  const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}`;
+  const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}&locale=${loc}`;
 
   const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, {
     hasEnContent: hasEnContent(r),
@@ -312,7 +315,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     ) : null,
     r.cuisineType ? (
       <span key="cuisine" className={styles.chipAlt}>
-        {r.cuisineType}
+        {localizedCuisine(r.cuisineType, loc)}
       </span>
     ) : null,
   ].filter(Boolean);
@@ -647,6 +650,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                 heading={de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
                 href={`/bezirk/${r.bezirk.slug}`}
                 restaurants={siblingsBezirk}
+                locale={loc}
               />
             )}
             {siblingsCategory.length > 0 && categoryDef && (
@@ -658,6 +662,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                 }
                 href={`/kategorie/${categoryDef.slug}`}
                 restaurants={siblingsCategory}
+                locale={loc}
                 showDistrict
               />
             )}

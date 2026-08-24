@@ -166,7 +166,6 @@
 
 .heroName,
 .name,
-.orderHead,
 .orderDish,
 .sibName,
 .sibRowHead,
@@ -196,7 +195,6 @@
 
 .heroName,
 .name,
-.orderHead,
 .sibRowHead {
   letter-spacing: -0.025em;
 }
@@ -417,11 +415,16 @@
   text-decoration: none;
 }
 
+/* `align-items: start`, nicht `stretch`: der Tipp ist drei Zeilen lang, die
+   Bestellliste daneben füllt 500px und mehr. Gestreckt erbte die rote Fläche
+   deren Höhe und stand zu zwei Dritteln leer — bei 940px, wo die Spalte am
+   schmalsten und die Liste am höchsten ist, waren es 356px rotes Nichts über
+   vier Zeilen Text. Der Block soll so hoch sein wie sein Inhalt. */
 .editorialGrid {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(18px, 3vw, 34px);
-  align-items: stretch;
+  align-items: start;
   margin-bottom: clamp(36px, 6vw, 78px);
 }
 
@@ -433,7 +436,6 @@
 }
 
 .tipp:only-child {
-  align-content: center;
   padding: clamp(24px, 3.4vw, 34px);
 }
 
@@ -453,7 +455,6 @@
 
 .tipp {
   display: grid;
-  align-content: end;
   background: var(--detail-red);
   color: var(--detail-paper);
 }
@@ -482,18 +483,32 @@
   background: var(--detail-quiet);
 }
 
-.orderHead,
 .sibRowHead {
-  max-width: 12ch;
   margin: 0 0 clamp(18px, 3vw, 30px);
   color: var(--detail-red);
-  font-size: clamp(30px, 4.5vw, 56px);
+  font-size: clamp(18px, 4vw, 30px);
   line-height: var(--et-leading-title, 0.9);
 }
 
-.sibRowHead {
-  max-width: none;
-  font-size: clamp(18px, 4vw, 30px);
+/* „Was bestellen?" stand auf clamp(30px, 4.5vw, 56px) und damit auf 390px bei
+   30px — die Gerichtsnamen darunter kamen auf 31,2px. Die Überschrift war also
+   kleiner als ihr eigener Inhalt, in derselben Schrift, derselben Versalstellung,
+   unterschieden nur durch Rot gegen Schwarz. Man las „BIRRIA-TACOS" zuerst.
+
+   Statt einer zweiten Schlagzeile ist das hier jetzt ein Label in derselben
+   Geste wie `.factsKey` — die Gerichtsnamen sind der Inhalt, die Zeile darüber
+   sagt nur, was für eine Liste das ist. Nebenbei erledigt das den Umbruch: das
+   alte `max-width: 12ch` konnte die 14 Zeichen von „Was bestellen?" nie halten,
+   die Überschrift brach ausnahmslos zweizeilig. */
+.orderHead {
+  margin: 0 0 clamp(16px, 2.2vw, 22px);
+  color: var(--detail-red);
+  font-family: var(--f-display);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
 
 /* `white-space: nowrap` stand hier, damit die Zeile nicht umbricht — mit
@@ -566,9 +581,13 @@
   align-items: baseline;
 }
 
+/* Von clamp(28px, 4vw, 46px) heruntergenommen: 46px gegen eine 14px-Notiz war
+   ein Sprung, den die Notiz nicht überlebt — und sie trägt die Information.
+   Der längste Gerichtsname im Bestand („Panko-knuspriger Blumenkohl mit Amba",
+   36 Zeichen) brauchte bei 46px drei Zeilen in der Spalte, jetzt zwei. */
 .orderDish {
   color: var(--detail-ink);
-  font-size: clamp(28px, 4vw, 46px);
+  font-size: clamp(26px, 3.2vw, 38px);
   line-height: var(--et-leading-title, 0.92);
   hyphens: auto;
   overflow-wrap: anywhere;
@@ -584,18 +603,23 @@
   text-transform: uppercase;
 }
 
+/* 15px statt 14px und dichter am Gericht: die Notiz sagt, warum man das Gericht
+   nimmt, und war als grauer 14px-Satz unter einer 46px-Zeile das Kleingedruckte
+   einer Überschrift. */
 .orderNote {
   max-width: 58ch;
-  margin: 7px 0 0;
+  margin: 5px 0 0;
   color: var(--detail-muted);
   font-family: var(--f-body);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0;
-  line-height: 1.45;
+  line-height: 1.5;
   text-transform: none;
 }
 
+/* Basis ist das Telefon: ein Fakt pro Zeile, Label über dem Wert. Ab 901px
+   stehen die drei Slabs nebeneinander — siehe unten. */
 .facts {
   display: grid;
   grid-template-columns: 1fr;
@@ -657,6 +681,29 @@
 
 .hoursTime {
   color: var(--detail-ink);
+}
+
+/* Die Fakten hatten kein Desktop-Layout: `.facts`, `.factsRow` und `.hours`
+   standen auf `1fr`, und die 900er-Query setzte exakt dieselben Werte noch
+   einmal — eine Leiche aus einer früheren zweispaltigen Fassung. Sichtbar war
+   das als drei graue Bänder über die volle 900px-Spalte, in denen „PREIS /
+   10–20 €" 900x80px für acht Zeichen belegte.
+
+   Drei Slabs nebeneinander statt untereinander; `auto-fit` deckt ab, dass
+   Adresse, Zeiten und Preis einzeln fehlen dürfen — bei zwei Fakten werden es
+   zwei Spalten, bei einem eine. Und die Zeiten laufen als Tag/Uhrzeit-Paar in
+   eine Zeile statt in zwei, sonst braucht ein Laden mit zwei Zeitfenstern hier
+   vier Zeilen. */
+@media (min-width: 901px) {
+  .facts {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+
+  .hours {
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 6px 14px;
+    align-items: baseline;
+  }
 }
 
 /* Every button grows, so a wrapped last line still spans the full width —
@@ -898,20 +945,6 @@
   .galleryItem:only-child {
     grid-column: 1 / -1;
   }
-
-  .facts {
-    grid-template-columns: 1fr;
-  }
-
-  .factsRow,
-  .hours {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .factsRow {
-    min-height: 0;
-  }
 }
 
 @media (max-width: 700px) {
@@ -1009,8 +1042,10 @@
     padding: 22px 18px;
   }
 
+  /* Deckel bei 34px statt 42px, sonst wäre das Gericht auf dem Telefon größer
+     als auf dem Desktop. */
   .orderDish {
-    font-size: clamp(22px, 8vw, 42px);
+    font-size: clamp(22px, 8vw, 34px);
   }
 
   /* Exactly two per row; a trailing odd button takes the full width. */

@@ -988,16 +988,59 @@
 .medishPh img {
   max-width: 100%;
   filter: none;
+  transform: rotate(var(--medish-tilt, 0deg));
   transition: transform 0.18s ease;
 }
-.rdMustGrid li:nth-child(odd) .medishPh img {
-  transform: rotate(-2.5deg);
+/* The resting tilt rides on the li as a variable, not as a `transform` on the
+   img: as a rule it out-specified every state below it, so pressing a card
+   used to do nothing at all. */
+.rdMustGrid li:nth-child(odd) {
+  --medish-tilt: -2.5deg;
 }
-.rdMustGrid li:nth-child(even) .medishPh img {
-  transform: rotate(2.5deg);
+.rdMustGrid li:nth-child(even) {
+  --medish-tilt: 2.5deg;
+}
+@media (hover: hover) and (pointer: fine) {
+  .medish:hover .medishPh img {
+    transform: translateY(-3px) rotate(0deg) scale(1.03);
+  }
 }
 .medish:active .medishPh img {
   transform: rotate(0deg) scale(0.98);
+}
+/* Dealt-card nudge, once, when the grid comes into view — see the comment on
+   `mustHint` in RestaurantDetail.tsx. No fill mode: the last frame is the
+   resting tilt, so :hover/:active own the card again the moment it settles. */
+@media (prefers-reduced-motion: no-preference) {
+  .rdMustGrid[data-hint='1'] .medishPh img {
+    animation: medishNudge 640ms ease-out;
+  }
+  .rdMustGrid[data-hint='1'] li:nth-child(2) .medishPh img {
+    animation-delay: 90ms;
+  }
+  .rdMustGrid[data-hint='1'] li:nth-child(3) .medishPh img {
+    animation-delay: 180ms;
+  }
+  .rdMustGrid[data-hint='1'] li:nth-child(4) .medishPh img {
+    animation-delay: 270ms;
+  }
+}
+@keyframes medishNudge {
+  0% {
+    transform: rotate(var(--medish-tilt, 0deg));
+  }
+  25% {
+    transform: translateY(-6px) rotate(calc(var(--medish-tilt, 0deg) * 2.4));
+  }
+  55% {
+    transform: translateY(0) rotate(calc(var(--medish-tilt, 0deg) * -0.4));
+  }
+  78% {
+    transform: translateY(-2px) rotate(calc(var(--medish-tilt, 0deg) * 1.5));
+  }
+  100% {
+    transform: rotate(var(--medish-tilt, 0deg));
+  }
 }
 .detailV13,
 .detailV13Scroll {

@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -119,6 +119,38 @@ export default function RestaurantDetail({
   const { count: heartCount } = useHeartCount(restaurant._id);
   const scrollWrapRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+
+  /* The card backs are the only tappable thing down here that reads as an
+     object rather than a control — a thumb has no way of knowing they open.
+     One dealt-card nudge when the grid scrolls into view says "these move";
+     a permanent wobble would just fidget next to the insider tip and would
+     leave reduced-motion users with no cue at all. Plays once per restaurant,
+     and only while something is still face down. */
+  const mustGridRef = useRef<HTMLOListElement>(null);
+  const [mustHint, setMustHint] = useState(false);
+  const hasFaceDownMustEat = mustEats.some(
+    (m) => !unlockedIds.has(m._id) && !revealedMustEatIds.has(m._id)
+  );
+
+  useEffect(() => {
+    setMustHint(false);
+  }, [restaurant._id]);
+
+  useEffect(() => {
+    const grid = mustGridRef.current;
+    if (!grid || !hasFaceDownMustEat || mustHint) return;
+    if (typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setMustHint(true);
+        observer.disconnect();
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, [hasFaceDownMustEat, mustHint, restaurant._id]);
 
   // The map list payload is now trimmed to hero/list fields; the editorial +
   // contact fields (address, phone, tip, description, …) load on demand when
@@ -475,7 +507,7 @@ export default function RestaurantDetail({
             <div className={styles.rdMustHead}>
               <h2 className={styles.rdSecH}>Must Eats</h2>
             </div>
-            <ol className={styles.rdMustGrid}>
+            <ol className={styles.rdMustGrid} ref={mustGridRef} data-hint={mustHint ? '1' : undefined}>
               {mustEats.slice(0, 4).map((m) => (
                 <MustEatMiniCard
                   key={m._id}

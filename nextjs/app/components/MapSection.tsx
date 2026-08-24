@@ -394,6 +394,13 @@ export default function MapSection({
      to unwind; a deep-linked or reloaded ?r= URL is somebody else's entry and
      is only ever replaced. */
   const detailEntryPushedRef = useRef(false);
+  /* Gesetzt, wenn eine Sucheingabe das Detail schließt (siehe
+     handleSearchChange). Der normale Schließweg poppt unseren History-Eintrag,
+     und der popstate wendet den ALTEN Filterzustand wieder an — die gerade
+     getippte Query wäre damit im selben Moment weg, in dem sie die Liste
+     zurückholt. In diesem einen Fall wird der Eintrag deshalb ersetzt statt
+     gepoppt. */
+  const detailClosedBySearchRef = useRef(false);
   const prevSheetViewRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
   useEffect(() => {
     if (!isActive || typeof window === 'undefined') return;
@@ -440,6 +447,11 @@ export default function MapSection({
        detail the user just dismissed, and one back press would re-open it. */
     if (detailEntryPushedRef.current) {
       detailEntryPushedRef.current = false;
+      if (detailClosedBySearchRef.current) {
+        detailClosedBySearchRef.current = false;
+        window.history.replaceState(window.history.state, '', next);
+        return;
+      }
       window.history.back();
       return;
     }
@@ -1091,8 +1103,24 @@ export default function MapSection({
   const handleSearchChange = useCallback(
     (v: string) => {
       setSearch(v);
+      /* Suchen heißt "zeig mir Treffer". Stand eine Detailansicht offen, blieb
+         sie stehen und die gefilterte Liste lag unsichtbar darunter: wer im
+         Restaurant-Detail auf Suchen tippte und "Pizza" eingab, sah weiter
+         dasselbe Restaurant. Das Suchfeld sitzt im Kopf der Sheet und ist auch
+         im Detail bedienbar — also muss die Eingabe die Sheet zurückholen.
+         Leeren lässt die Ansicht in Ruhe: das ist Aufräumen, keine Suche. */
+      if (!v.trim() || sheetView === 'list') return;
+      detailClosedBySearchRef.current = true;
+      setSelectedMustEat(null);
+      setSelectedRestaurant(null);
+      setSheetView('list');
+      setDesktopPanelHidden(false);
+      // Wie beim Schließen des Details: eine heruntergezogene Sheet zurück auf
+      // 'mid', sonst liegt das Ergebnis unter der Kante.
+      const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
+      if (nextSnap !== snap) setSnap(nextSnap);
     },
-    [setSearch]
+    [setSearch, sheetView, setSheetView, snap, setSnap]
   );
 
   const handleSearchOpen = useCallback(() => {

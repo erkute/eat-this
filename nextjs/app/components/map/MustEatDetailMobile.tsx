@@ -64,7 +64,6 @@ export default function MustEatDetailMobile({
     canUnlock,
     needsLocation,
     locationDenied,
-    proximityProgress,
     vibrateIntensity,
     tapping,
     unlocking,
@@ -76,15 +75,12 @@ export default function MustEatDetailMobile({
   const { name: restaurantName } = mustEat.restaurant;
   const restaurantPhoto = mustEat.restaurant.photo;
   const open = isUnlocked && !revealOrigin;
-  const showDistanceMeter = !unlocking && !unlockError && !canUnlock && distance !== null;
   const nameRevealed = open && !nameBurning;
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered');
   const dishNameWeight = dishName.replace(/\s+/g, '').length;
   const dishNameSizeClass =
     dishNameWeight > 22 ? styles.fdNameCompact : dishNameWeight > 12 ? styles.fdNameLong : '';
   const closeAction = onViewRestaurant ?? onClose;
-  const previousLabel = lang === 'en' ? 'Previous' : 'Zurück';
-  const nextLabel = lang === 'en' ? 'Next' : 'Weiter';
   /* Verdeckte Nachbarn hießen beide "Verdeckt" — zwei gleich beschriftete
      Tasten, die nichts über ihr Ziel sagten. Geheim ist aber nur das GERICHT:
      der Server strippt dish/image/description für verdeckte Karten (siehe
@@ -92,11 +88,11 @@ export default function MustEatDetailMobile({
      ohnehin auf der Karte, in der Liste und im Detail darunter. Also zeigt der
      Pager, was er zeigen darf, statt zweimal dasselbe Wort.
 
-     Kein Fallback auf das Richtungswort mehr: ohne Nachbarn ist die Taste
-     `disabled` und per `visibility: hidden` ohnehin unsichtbar. Die Richtung
-     trägt jetzt das wieder eingeblendete .fdPagerLabel — nötig, weil zwei
-     Nachbarn sehr wohl im selben Restaurant liegen können und dann beide
-     Tasten wieder denselben Namen zeigen würden. */
+     Die Richtung tragen allein die Pfeile — ein "Zurück"/"Weiter" darüber las
+     sich wie ein Formular-Wizard und stand als einziger Map-String hartkodiert
+     im Ternary. Zeigen beide Nachbarn denselben Restaurantnamen, ist das keine
+     Mehrdeutigkeit, sondern wahr: beide liegen dort, die Pfeile unterscheiden
+     sie. Fürs Screenreader-Ohr benennen aria-Labels die Richtung. */
   const neighbourName = (neighbour: MapMustEat | null | undefined, unlocked?: boolean) => {
     if (!neighbour) return null;
     if (unlocked) return normalizeName(neighbour.dish ?? '') || neighbour.restaurant.name;
@@ -134,14 +130,14 @@ export default function MustEatDetailMobile({
       window.requestAnimationFrame(() => {
         target.style.setProperty(
           'transition',
-          'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+          'transform .34s cubic-bezier(0.2, 0.8, 0.2, 1)',
           'important'
         );
         target.style.setProperty('transform', 'translateX(0)', 'important');
         window.setTimeout(() => {
           target.style.removeProperty('transition');
           target.style.removeProperty('transform');
-        }, 320);
+        }, 360);
       });
     }
   }, [mustEat._id]);
@@ -217,14 +213,14 @@ export default function MustEatDetailMobile({
     const outX = dir === 'next' ? -root.clientWidth : root.clientWidth;
     target.style.setProperty(
       'transition',
-      'transform .22s cubic-bezier(0.2, 0.8, 0.2, 1)',
+      'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)',
       'important'
     );
     target.style.setProperty('transform', `translateX(${outX}px)`, 'important');
     window.setTimeout(() => {
       cardEnterDirRef.current = dir;
       flushSync(() => page());
-    }, 220);
+    }, 300);
   };
 
   return (
@@ -303,7 +299,7 @@ export default function MustEatDetailMobile({
                 >
                   <img
                     src={mustEat.image || CARD_BACK}
-                    alt={mustEat.image ? mustEat.dish : t('mustEats.covered')}
+                    alt={mustEat.image ? (mustEat.dish ?? '') : t('mustEats.covered')}
                   />
                 </button>
               ) : (
@@ -341,6 +337,39 @@ export default function MustEatDetailMobile({
                 </button>
               )}
             </div>
+            {/* Blättern direkt an der Karte: zwei runde Pfeile auf den
+                Kartenkanten statt einer Buttonleiste unter dem Panel — die
+                Karte ist das Objekt, durch das geblättert wird. Nur ab 768px
+                sichtbar; auf dem Phone wird gewischt. Die Namen der Nachbarn
+                tragen die aria-Labels, nicht mehr die Fläche. */}
+            {(prevMustEat || nextMustEat) && (
+              <nav className={styles.fdPager} data-detail-pager aria-label={t('map.pagerAria')}>
+                <button
+                  type="button"
+                  className={styles.fdPagerPrev}
+                  disabled={!prevMustEat}
+                  onClick={() => pageWithCard('prev')}
+                  aria-label={
+                    previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
+                  }
+                >
+                  <span className={styles.fdPagerArrow}>
+                    <PagerArrowIcon />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.fdPagerNext}
+                  disabled={!nextMustEat}
+                  onClick={() => pageWithCard('next')}
+                  aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
+                >
+                  <span className={styles.fdPagerArrow}>
+                    <PagerArrowIcon />
+                  </span>
+                </button>
+              </nav>
+            )}
           </div>
           {/* Textfassung desselben Hinweises — sichtbar NUR bei
               prefers-reduced-motion, wo der Nudge nicht laufen darf. Absolut
@@ -358,18 +387,35 @@ export default function MustEatDetailMobile({
         <div className={`${styles.fdMid}${!open ? ` ${styles.fdMidLocked}` : ''}`}>
           {/* Gericht-Name — unten im 2-Zeilen-Feld verankert, sitzt direkt über
               der Beschreibung; eine 2. Zeile füllt nach oben → nichts darunter
-              springt. Locked: stark verschwommen (kein Stempel). */}
-          <h1
-            className={`${styles.fdName}${dishNameSizeClass ? ` ${dishNameSizeClass}` : ''}`}
-            aria-label={nameRevealed ? undefined : t('mustEats.covered')}
-          >
-            <span
-              className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
-              aria-hidden={nameRevealed ? undefined : true}
+              springt. Locked: stark verschwommen (kein Stempel).
+
+              In Reichweite verschwindet der "Verdeckt"-Titel, BEHÄLT aber seinen
+              Platz (fdNameVoid → visibility: hidden): darunter steht schon der
+              "Jetzt aufdecken"-Chip, und zwei gleich laute Chips übereinander
+              sagten Zustand und Aufforderung durcheinander. Ausgehängt statt
+              versteckt rutschte die Copy jedoch in den Namens-Track hoch — und
+              genau dort sitzt aufgedeckt der Gerichtsname, der Text sprang also
+              beim Aufdecken um 40px. */}
+          {
+            <h1
+              className={`${styles.fdName}${dishNameSizeClass ? ` ${dishNameSizeClass}` : ''}${
+                !open && canUnlock ? ` ${styles.fdNameVoid}` : ''
+              }`}
+              aria-hidden={!open && canUnlock ? true : undefined}
+              aria-label={nameRevealed || (!open && canUnlock) ? undefined : t('mustEats.covered')}
             >
-              {dishName}
-            </span>
-          </h1>
+              <span
+                className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
+                aria-hidden={nameRevealed ? undefined : true}
+                /* Das Badge über dem verschwommenen Namen ist ein
+                   ::before-Pseudo — sein Text muss als Attribut hier hoch,
+                   sonst steht er unübersetzbar im Stylesheet. */
+                data-covered={t('mustEats.covered')}
+              >
+                {dishName}
+              </span>
+            </h1>
+          }
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
           {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
@@ -378,7 +424,9 @@ export default function MustEatDetailMobile({
           {!open && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
-              data-location-needed={needsLocation ? (locationDenied ? 'blocked' : 'ask') : undefined}
+              data-location-needed={
+                needsLocation ? (locationDenied ? 'blocked' : 'ask') : undefined
+              }
               role={unlockError ? 'alert' : 'status'}
               aria-live="polite"
             >
@@ -397,39 +445,22 @@ export default function MustEatDetailMobile({
                           ? tMap('locationBlocked')
                           : tMap('locationNeeded')}
               </p>
-              {showDistanceMeter ? (
-                <div className={styles.fdDistanceMeter} data-must-eat-distance-meter>
-                  <div className={styles.fdDistanceTrack} aria-hidden="true">
-                    <span
-                      className={styles.fdDistanceFill}
-                      style={{
-                        ['--fd-distance-progress' as string]: `${Math.round((proximityProgress ?? 0) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <p className={styles.fdDistanceCaption}>
-                    {tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
-                  </p>
-                </div>
-              ) : (
-                <p className={styles.fdProximitySub}>
-                  {unlocking ? (
-                    t('map.revealSavingHint')
-                  ) : unlockError ? (
-                    t('map.revealRetry')
-                  ) : canUnlock ? (
-                    tMap('proximityTapReveal')
-                  ) : locationDenied ? (
-                    tMap('locationBlockedHint')
-                  ) : (
-                    /* Reached only with distance === null — the meter takes
-                       over the moment there IS a fix (showDistanceMeter). The
-                       "come within 50 m" line used to sit here and told someone
-                       standing in the doorway to walk closer. */
-                    tMap('enableLocation')
-                  )}
-                </p>
-              )}
+              {/* Kein Distanz-Balken mehr: die log-Skala von 10 km auf 50 m
+                  sagte niemandem etwas. Die Headline nennt die Distanz, der
+                  Satz darunter erklärt die Spielregel — mehr braucht es nicht. */}
+              <p className={styles.fdProximitySub}>
+                {unlocking
+                  ? t('map.revealSavingHint')
+                  : unlockError
+                    ? t('map.revealRetry')
+                    : canUnlock
+                      ? tMap('proximityTapReveal')
+                      : distance !== null
+                        ? tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })
+                        : locationDenied
+                          ? tMap('locationBlockedHint')
+                          : tMap('enableLocation')}
+              </p>
             </div>
           )}
         </div>
@@ -453,42 +484,9 @@ export default function MustEatDetailMobile({
             </Link>
           )}
         </div>
-
-        {(prevMustEat || nextMustEat) && (
-          <div className={styles.fdPager} data-detail-pager aria-label="Must Eat wechseln">
-            <button
-              type="button"
-              className={styles.fdPagerPrev}
-              disabled={!prevMustEat}
-              onClick={() => pageWithCard('prev')}
-            >
-              <span className={styles.fdPagerArrow}>
-                <PagerArrowIcon />
-              </span>
-              <span className={styles.fdPagerCopy}>
-                <span className={styles.fdPagerLabel}>{previousLabel}</span>
-                {previousName && <span className={styles.fdPagerName}>{previousName}</span>}
-              </span>
-            </button>
-            <button
-              type="button"
-              className={styles.fdPagerNext}
-              disabled={!nextMustEat}
-              onClick={() => pageWithCard('next')}
-            >
-              <span className={styles.fdPagerCopy}>
-                <span className={styles.fdPagerLabel}>{nextLabel}</span>
-                {nextName && <span className={styles.fdPagerName}>{nextName}</span>}
-              </span>
-              <span className={styles.fdPagerArrow}>
-                <PagerArrowIcon />
-              </span>
-            </button>
-          </div>
-        )}
       </div>
 
-      <div className={`${styles.fdRest} ${styles.fdRestDock}`} aria-hidden={false}>
+      <div className={`${styles.fdRest} ${styles.fdRestDock}`}>
         {restaurantPhoto && (
           <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
         )}

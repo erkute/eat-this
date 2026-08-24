@@ -19,7 +19,11 @@
   flex-direction: column;
   min-height: calc(100vh - 64px);
   min-height: calc(100dvh - 64px);
-  padding: calc(24px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
+  /* Kein safe-area-inset hier: `.app-pages` reserviert unter 768px bereits
+     `64px + env(safe-area-inset-top)` für die fixe SiteNav (css/style.css).
+     Ein zweiter Inset schob den Kicker auf Notch-Geräten um weitere ~59px
+     nach unten. */
+  padding: 24px clamp(18px, 4vw, 54px) 0;
   background: var(--legal-paper);
   color: var(--legal-ink);
 }

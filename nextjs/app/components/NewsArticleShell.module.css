@@ -10,7 +10,8 @@
      mobile despite all the extra room. */
   --article-measure: 680px;
   min-height: 100%;
-  padding: calc(34px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
+  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
+  padding: 34px clamp(18px, 4vw, 54px) 0;
   background: var(--article-paper);
   color: var(--article-ink);
 }
@@ -729,7 +730,7 @@ div.page {
 
 @media (max-width: 900px) {
   .page {
-    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-top: 24px;
   }
 
   .header {

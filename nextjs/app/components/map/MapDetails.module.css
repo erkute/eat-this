@@ -364,33 +364,18 @@
   object-fit: contain;
   border-radius: 11px;
 }
-/* Leichte Poster-Neigung, aber keine geworfenen Schatten oder Glow.
-   ACHTUNG: Die Wiggle-Keyframes unten ersetzen das `transform` der
-   .fdHero-Regel komplett (Animationen gewinnen gegen den statischen Wert).
-   Ruhelage und Winkel müssen dort deshalb identisch wiederholt werden — sonst
-   sitzt die verdeckte Karte anders als die aufgedeckte, gemessen waren es 8px
-   Höhenversatz und 0,2° Drehung. */
+/* Die verdeckte Karte liegt still — dieselbe Ruhelage wie die aufgedeckte
+   (siehe .detailV13MustEat .fdHero). Sie hatte hier eine Dauerschleife
+   (fdCardWiggle): ein Kippeln um die 3D-Neigung, das die Karte unter der
+   `perspective` sichtbar unruhig machte — die Ecken wanderten bis 3,7px, und
+   beim Blättern von einer aufgedeckten auf eine verdeckte Karte las sich das
+   als Zoom. Das Antippen-Signal trägt die Copy darunter ("Tipp auf die Karte
+   …"); die zwei ereignisgetriebenen Shakes (in Reichweite / vergeblicher Tap)
+   bleiben. */
 .fdHeroLocked {
   cursor: pointer;
-  /* Verdeckte Karte wackelt dezent UM die 3D-Neigung herum (Antippen-Signal,
-     skaliert mit der Nähe via --vibrate-intensity). */
+  /* Steuert die Dauer des Reichweiten-Shakes weiter unten. */
   --vibrate-duration: calc(1.15s - 0.6s * var(--vibrate-intensity, 0.18));
-  animation: fdCardWiggle var(--vibrate-duration) ease-in-out infinite;
-  will-change: transform;
-}
-@keyframes fdCardWiggle {
-  0%,
-  100% {
-    transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg);
-  }
-  30% {
-    transform: translateY(-8px) rotate(calc(-2.2deg + var(--vibrate-intensity, 0.18) * 2.6deg))
-      rotateY(calc(-4deg + var(--vibrate-intensity, 0.18) * 4deg)) rotateX(1deg);
-  }
-  70% {
-    transform: translateY(-8px) rotate(calc(-2.2deg - var(--vibrate-intensity, 0.18) * 2.2deg))
-      rotateY(calc(-4deg - var(--vibrate-intensity, 0.18) * 2deg)) rotateX(1deg);
-  }
 }
 /* Tap when out of range → a firm "nope" shake (reuses the marker keyframes). */
 .fdHeroLocked.mustEatCardTapping {

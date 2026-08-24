@@ -70,7 +70,6 @@ describe('MapDetails CSS contracts', () => {
   it('defines and references every detail animation exactly once', () => {
     const expected = [
       'mustEatTapShake',
-      'fdCardWiggle',
       'rdSkelShimmer',
       'fdNameMagicReveal',
       'fdNameMagicSweep',

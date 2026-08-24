@@ -18,6 +18,10 @@ type Figure = {
   src: string;
   width: number;
   height: number;
+  /** Rendered width in px. Not uniform on purpose — optical weight is not
+   *  area. The card back is a solid field of yellow, black and red; at the
+   *  plate's width it shouted down the section it belongs to. */
+  renderWidth: number;
   tilt: number;
   caption: { de: string; en: string };
   alt: { de: string; en: string };
@@ -34,6 +38,7 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/home-phones/phone-map-600.webp',
     width: 600,
     height: 1219,
+    renderWidth: 290,
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
@@ -45,11 +50,9 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/home-dishes/bubar-galette-print.webp',
     width: 871,
     height: 856,
+    renderWidth: 290,
     tilt: 1.5,
-    caption: {
-      de: 'Galette bei Bubar. Ein Spot von vielen.',
-      en: 'Galette at Bubar. One spot of many.',
-    },
+    caption: { de: 'Galette bei Bubar.', en: 'Galette at Bubar.' },
     alt: {
       de: 'Eine Buchweizen-Galette mit Eigelb auf einem Pappteller',
       en: 'A buckwheat galette with an egg yolk on a paper plate',
@@ -59,6 +62,7 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1076,
+    renderWidth: 205,
     tilt: -3,
     caption: { de: 'Jedes Must Eat ist eine Karte.', en: 'Every Must Eat is a card.' },
     alt: {
@@ -178,13 +182,16 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               </div>
 
               {figure && (
-                <figure className={styles.figure}>
+                <figure
+                  className={styles.figure}
+                  style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
+                >
                   <Image
                     src={figure.src}
                     alt={de ? figure.alt.de : figure.alt.en}
                     width={figure.width}
                     height={figure.height}
-                    sizes="300px"
+                    sizes={`${figure.renderWidth}px`}
                     loading="lazy"
                     className={styles.figureImg}
                     style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}

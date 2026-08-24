@@ -1,0 +1,164 @@
+name: Uptime
+
+# Warum es das gibt: am 24.08.2026 antworteten Startseite und /map in
+# Produktion mit 500, weil das Sanity-CDN-Kontingent aufgebraucht war. Beide
+# Seiten sind force-dynamic und holen pro Request frisch; die ISR-Seiten
+# lebten von ihrem Cache und verdeckten den Ausfall. Aufgefallen ist er nur,
+# weil zufällig ein CI-Check die Live-Seite nicht erreichte.
+#
+# Sentry überwacht `/` bereits im Minutentakt (Monitor 1196645) und hat den
+# Ausfall auch erwischt. Ein zweiter Monitor für /map kostet dort einen
+# bezahlten Seat — dieser Job ist die kostenlose Abdeckung dafür.
+#
+# Er prüft außerdem eine Stufe FRÜHER als jeder reine Uptime-Check: die
+# Sanity-Kontingente direkt. Die kippen, bevor die Seiten kippen.
+
+on:
+  schedule:
+    # Alle 10 Minuten. GitHub verzögert geplante Läufe unter Last um einige
+    # Minuten — die Erkennung liegt realistisch bei 10 bis 25 Minuten. Für
+    # eine Seite dieser Größe reicht das; wer schneller will, nimmt Sentry.
+    # Das Repo ist öffentlich, Actions-Minuten kosten hier also nichts.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Ein Ausfall wird als Issue gemeldet — das ist der Benachrichtigungsweg,
+  # GitHub mailt es an den Repo-Inhaber.
+  issues: write
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      # Gebraucht, um in apphosting.yaml nachzusehen, ob der CDN-Nothebel
+      # gerade gezogen ist — siehe unten.
+      - uses: actions/checkout@v5
+
+      - name: Probe
+        id: probe
+        env:
+          SANITY_PROJECT_ID: ehwjnjr2
+          SANITY_DATASET: production
+        run: |
+          set -uo pipefail
+          failures=""
+
+          check_page() {
+            url="$1"
+            # Drei Versuche: eine einzelne Zeitüberschreitung ist kein Ausfall.
+            for attempt in 1 2 3; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 "$url" || echo 000)
+              if [ "$code" = "200" ]; then
+                echo "OK   $url ($code)"
+                return 0
+              fi
+              echo "..   $url -> $code (Versuch $attempt)"
+              sleep 10
+            done
+            echo "FAIL $url -> $code"
+            failures="${failures}- \`${url}\` antwortet mit HTTP ${code} statt 200\n"
+            return 1
+          }
+
+          check_page "https://www.eatthisdot.com/"    || true
+          check_page "https://www.eatthisdot.com/map" || true
+
+          # Solange SANITY_USE_CDN=false in apphosting.yaml steht, läuft die App
+          # bewusst am CDN vorbei. Ein 402 auf dem CDN ist dann der ERWARTETE
+          # Zustand und kein Vorfall — sonst meldete dieser Job im Zehnminuten-
+          # takt einen Ausfall, den wir längst umschifft haben. Wird die Zeile
+          # entfernt, zählt ein CDN-402 wieder als Vorfall. Der Job folgt damit
+          # der Konfiguration statt einer Kopie davon.
+          if grep -qE "^\s*value:\s*'false'" <(grep -A2 'variable: SANITY_USE_CDN' nextjs/apphosting.yaml); then
+            cdn_is_bypassed=1
+            echo "INFO CDN-Nothebel ist gezogen (SANITY_USE_CDN=false) — CDN-Kontingent wird nur berichtet, nicht gemeldet."
+          else
+            cdn_is_bypassed=0
+          fi
+
+          # CDN und normale API ziehen auf GETRENNTE Kontingente — genau daran
+          # hing der 24.08.: das CDN war leer, die API trug noch. Beide einzeln
+          # prüfen, sonst liest sich ein halber Ausfall wie ein ganzer.
+          probe_sanity() {
+            host="$1"; label="$2"; fatal="$3"
+            code=$(curl -s -o /tmp/sanity.json -w '%{http_code}' --max-time 25 \
+              --get --data-urlencode 'query=count(*[_type=="restaurant"])' \
+              "https://${SANITY_PROJECT_ID}.${host}/v2024-01-01/data/query/${SANITY_DATASET}" || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "OK   sanity ${label} ($code)"
+              return 0
+            fi
+            reason=$(head -c 200 /tmp/sanity.json | tr -d '\n')
+            if [ "$fatal" = "0" ]; then
+              echo "INFO sanity ${label} -> ${code} (erwartet, nicht gemeldet): ${reason}"
+              return 0
+            fi
+            echo "FAIL sanity ${label} -> ${code}"
+            failures="${failures}- Sanity **${label}** antwortet mit HTTP ${code}: \`${reason}\`\n"
+            return 1
+          }
+
+          # Das CDN ist der Frühwarner: es kippt, bevor die Seiten kippen.
+          if [ "$cdn_is_bypassed" = "1" ]; then
+            probe_sanity 'apicdn.sanity.io' 'API-CDN' 0 || true
+          else
+            probe_sanity 'apicdn.sanity.io' 'API-CDN' 1 || true
+          fi
+          probe_sanity 'api.sanity.io' 'API' 1 || true
+
+          if [ -n "$failures" ]; then
+            {
+              echo 'failed=true'
+              echo 'details<<UPTIME_EOF'
+              printf '%b' "$failures"
+              echo 'UPTIME_EOF'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo 'failed=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Melden oder entwarnen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FAILED: ${{ steps.probe.outputs.failed }}
+          DETAILS: ${{ steps.probe.outputs.details }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          existing=$(gh issue list --label uptime --state open --limit 1 --json number --jq '.[0].number // empty')
+
+          if [ "$FAILED" = "true" ]; then
+            if [ -n "$existing" ]; then
+              # Schon gemeldet. Bewusst still: ein Kommentar alle zehn Minuten
+              # macht aus einer Meldung eine Geräuschkulisse, und das offene
+              # Issue ist das Signal. Der Lauf bleibt grün, damit GitHub nicht
+              # pro Durchlauf eine Fehlermail schickt.
+              echo "Weiterhin gestört — Issue #${existing} ist offen, keine erneute Meldung."
+              exit 0
+            fi
+            gh issue create \
+              --title "Produktion gestört: $(date -u '+%Y-%m-%d %H:%M UTC')" \
+              --label uptime \
+              --body "Der Uptime-Job hat einen Ausfall festgestellt.
+
+$DETAILS
+[Lauf ansehen]($RUN_URL)
+
+Bei \`plan_limit_reached\` auf dem API-CDN: \`SANITY_USE_CDN=false\` in
+\`nextjs/apphosting.yaml\` und \`.github/workflows/quality.yml\` ist der Nothebel —
+CDN und normale API ziehen auf getrennte Kontingente."
+            # Nur der ERSTE Lauf eines Vorfalls schlägt fehl: eine Mail pro
+            # Vorfall statt einer alle zehn Minuten.
+            exit 1
+          fi
+
+          if [ -n "$existing" ]; then
+            gh issue close "$existing" --comment "Wieder erreichbar seit $(date -u '+%Y-%m-%d %H:%M UTC'). [Lauf ansehen]($RUN_URL)"
+          fi
+          echo "Alles grün."

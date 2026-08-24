@@ -1,0 +1,423 @@
+/* The About page is the one static page that gets to be a story: white paper,
+   red Providence headline, freigestellte Objekte tilted onto the page, and an
+   ink closer that hands the reader back to the map. Same vocabulary as the
+   home rails — photos on white, no borders, structure from whitespace. */
+.page {
+  --about-ink: var(--et-home-ink, #15120e);
+  --about-red: var(--et-home-red, #d9382a);
+  --about-accent: var(--et-home-accent, #ffc600);
+  --about-paper: var(--et-home-paper, #fff);
+  --about-quiet: var(--et-home-quiet, #f2f1ef);
+  --about-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --about-text: rgba(21, 18, 14, 0.87);
+  --about-line: var(--et-home-rule, #e4e1dc);
+  /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
+     64px below 768px and by a 74px margin above it. A plain 100dvh overshot
+     that offset and left a strip of dead scroll under the footer. */
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - 64px);
+  padding: calc(24px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
+  background: var(--about-paper);
+  color: var(--about-ink);
+}
+
+.page > :global(footer[role='contentinfo']) {
+  /* .inner already carries the closing whitespace; a second block margin here
+     stacked on top of it and left a dead band above the footer. */
+  margin-inline: calc(50% - 50vw);
+  /* Sticky-footer: short filings (imprint, contact) used to end mid-page and
+     leave white paper below the ink band. */
+  margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .page {
+    min-height: calc(100dvh - 74px);
+  }
+}
+
+.inner {
+  width: min(100%, 1080px);
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 48px) 0 clamp(54px, 8vw, 96px);
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  display: grid;
+  gap: clamp(28px, 4vw, 40px);
+  align-items: center;
+  padding-bottom: clamp(34px, 5vw, 56px);
+  border-bottom: 1px solid var(--about-line);
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: clamp(40px, 5vw, 64px);
+  }
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 clamp(14px, 1.8vw, 20px);
+  color: var(--about-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.mark {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  background: var(--about-accent);
+}
+
+.title {
+  max-width: 12ch;
+  margin: 0;
+  color: var(--about-red);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(40px, 6.6vw, 82px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title, 0.86);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 34ch;
+  margin: clamp(20px, 2.6vw, 28px) 0 0;
+  color: var(--about-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 500;
+  line-height: 1.42;
+  text-wrap: pretty;
+}
+
+/* Object stack. Sized off the phone; the card and the dish hang off its
+   corners. No fades — the pieces are simply placed and tilted. */
+.heroArt {
+  position: relative;
+  width: min(100%, 340px);
+  margin: 0 auto;
+  aspect-ratio: 340 / 420;
+}
+
+.heroPhone {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: auto;
+  transform: translateX(-50%) rotate(-3deg);
+  filter: drop-shadow(0 18px 32px rgba(21, 18, 14, 0.16));
+}
+
+/* The pair: face-down left, face-up right. The revealed one runs a little
+   bigger and sits a little higher — it is the object the page is actually
+   arguing for, and a dead-symmetric pair would read as wallpaper. */
+.heroCard {
+  position: absolute;
+  bottom: 3%;
+  left: 0;
+  width: 32%;
+  height: auto;
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 12px 22px rgba(21, 18, 14, 0.18));
+}
+
+.heroCardFront {
+  position: absolute;
+  right: 0;
+  bottom: 9%;
+  width: 36%;
+  height: auto;
+  transform: rotate(8deg);
+  filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.2));
+}
+
+@media (max-width: 899px) {
+  .heroArt {
+    width: min(100%, 300px);
+  }
+}
+
+/* ---------- sections ---------- */
+
+.section {
+  display: grid;
+  gap: clamp(24px, 3.4vw, 36px);
+  align-items: start;
+  margin-top: clamp(46px, 6.5vw, 84px);
+}
+
+@media (min-width: 900px) {
+  .section[data-figure='right'],
+  .section[data-figure='left'] {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: clamp(36px, 5vw, 64px);
+  }
+
+  .section[data-figure='left'] {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+
+  .section[data-figure='left'] .sectionCopy {
+    order: 2;
+  }
+}
+
+.sectionTitle {
+  margin: 0 0 clamp(14px, 1.8vw, 18px);
+  color: var(--about-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.98;
+  text-transform: none;
+  text-wrap: balance;
+  scroll-margin-top: 96px;
+}
+
+.intro {
+  margin-top: clamp(30px, 4vw, 44px);
+}
+
+.body {
+  max-width: 62ch;
+  color: var(--about-text);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(16px, 1.15vw, 17.5px);
+  line-height: 1.65;
+}
+
+.body p {
+  margin: 0 0 1.15em;
+}
+
+.body p:last-child {
+  margin-bottom: 0;
+}
+
+.body ul,
+.body ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.15em;
+}
+
+.body li {
+  margin: 0 0 0.4em;
+}
+
+.body strong,
+.body b {
+  color: var(--about-ink);
+  font-weight: 700;
+}
+
+.body em,
+.body i {
+  font-style: italic;
+}
+
+.body a {
+  color: var(--about-red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: color 140ms ease;
+}
+
+.body a:hover,
+.body a:focus-visible {
+  color: var(--about-ink);
+}
+
+/* The taped red sticker stays — it is the one loud thing on the page and it
+   carries the founding line. */
+.body blockquote {
+  position: relative;
+  width: min(100%, 20ch);
+  margin: clamp(30px, 4.5vw, 48px) 0;
+  padding: clamp(22px, 3vw, 30px) clamp(22px, 3.2vw, 32px);
+  background: var(--about-red);
+  border: 0;
+  color: var(--about-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 700;
+  line-height: 0.96;
+  text-transform: none;
+  transform: rotate(-1.4deg);
+}
+
+.body blockquote::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 82px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
+  transform: translateX(-50%) rotate(3deg);
+}
+
+/* ---------- figures ---------- */
+
+.figure {
+  margin: 0;
+  width: min(100%, var(--fig-w, 300px));
+}
+
+.figureImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(var(--tilt, 0deg));
+}
+
+.figure[data-shape='cutout'] .figureImg {
+  filter: drop-shadow(0 14px 26px rgba(21, 18, 14, 0.15));
+}
+
+.figure[data-shape='card'] .figureImg {
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--about-quiet);
+}
+
+.caption {
+  margin-top: clamp(14px, 1.8vw, 18px);
+  color: var(--about-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+/* ---------- closer ---------- */
+
+.cta {
+  display: grid;
+  gap: clamp(18px, 2.6vw, 28px);
+  align-items: center;
+  margin-top: clamp(54px, 8vw, 96px);
+  padding: clamp(26px, 4vw, 44px) clamp(24px, 4vw, 48px);
+  background: var(--about-ink);
+  border-radius: var(--et-radius-panel, 10px);
+  color: var(--about-paper);
+}
+
+@media (min-width: 760px) {
+  .cta {
+    grid-template-columns: minmax(0, 1fr) 168px;
+    gap: clamp(28px, 4vw, 48px);
+  }
+}
+
+.ctaTitle {
+  margin: 0;
+  color: var(--about-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 0.94;
+  text-transform: uppercase;
+}
+
+.ctaText {
+  max-width: 46ch;
+  text-wrap: pretty;
+  margin: clamp(12px, 1.6vw, 16px) 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.55;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(20px, 2.6vw, 26px);
+}
+
+.ctaPrimary,
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.ctaPrimary {
+  background: var(--about-accent);
+  border: 1px solid var(--about-accent);
+  color: var(--about-ink);
+}
+
+.ctaSecondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  color: var(--about-paper);
+}
+
+.ctaPrimary:hover,
+.ctaPrimary:focus-visible,
+.ctaSecondary:hover,
+.ctaSecondary:focus-visible {
+  transform: translateY(-2px);
+}
+
+.ctaSecondary:hover,
+.ctaSecondary:focus-visible {
+  border-color: var(--about-accent);
+  color: var(--about-accent);
+}
+
+.ctaPack {
+  justify-self: center;
+  width: clamp(132px, 24vw, 168px);
+  height: auto;
+  transform: rotate(-4deg);
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.4));
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding-inline: clamp(16px, 5vw, 22px);
+  }
+
+  .cta {
+    text-align: left;
+  }
+}

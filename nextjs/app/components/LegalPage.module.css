@@ -1,0 +1,389 @@
+/* Legal filings (Impressum / Datenschutz / AGB) and the contact page.
+   These are documents, not posters: the brand shows up in the kicker, the
+   yellow marker, the Providence headings and the ink footer — the type itself
+   stays quiet and scannable. The old shared shell put a 116px red headline and
+   a drop cap on a 120-chapter privacy policy; nothing about that was readable. */
+.page {
+  --legal-ink: var(--et-home-ink, #15120e);
+  --legal-red: var(--et-home-red, #d9382a);
+  --legal-accent: var(--et-home-accent, #ffc600);
+  --legal-paper: var(--et-home-paper, #fff);
+  --legal-quiet: var(--et-home-quiet, #f2f1ef);
+  --legal-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --legal-text: rgba(21, 18, 14, 0.87);
+  --legal-line: var(--et-home-rule, #e4e1dc);
+  /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
+     64px below 768px and by a 74px margin above it. A plain 100dvh overshot
+     that offset and left a strip of dead scroll under the footer. */
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - 64px);
+  padding: calc(24px + env(safe-area-inset-top, 0px)) clamp(18px, 4vw, 54px) 0;
+  background: var(--legal-paper);
+  color: var(--legal-ink);
+}
+
+.page > :global(footer[role='contentinfo']) {
+  /* .inner already carries the closing whitespace; a second block margin here
+     stacked on top of it and left a dead band above the footer. */
+  margin-inline: calc(50% - 50vw);
+  /* Sticky-footer: short filings (imprint, contact) used to end mid-page and
+     leave white paper below the ink band. */
+  margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .page {
+    min-height: calc(100dvh - 74px);
+  }
+}
+
+.inner {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: clamp(30px, 4.5vw, 56px) 0 clamp(54px, 8vw, 96px);
+}
+
+/* ---------- header ---------- */
+
+.head {
+  padding-bottom: clamp(22px, 3vw, 32px);
+  border-bottom: 1px solid var(--legal-line);
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 clamp(12px, 1.6vw, 18px);
+  color: var(--legal-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.mark {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  background: var(--legal-accent);
+}
+
+.title {
+  max-width: 20ch;
+  margin: 0;
+  color: var(--legal-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(30px, 4.4vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 0.94;
+  text-transform: uppercase;
+  text-wrap: balance;
+  hyphens: auto;
+}
+
+.updated {
+  margin: clamp(12px, 1.6vw, 16px) 0 0;
+  color: var(--legal-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* Switcher — the three filings sit one tap apart instead of a footer scroll
+   away. "Cookies verwalten" rides along because it is the fourth thing people
+   come here to find. */
+.docNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: clamp(20px, 2.6vw, 28px);
+}
+
+.docLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--legal-line);
+  border-radius: var(--et-radius-control, 7px);
+  background: transparent;
+  color: var(--legal-ink);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.docLink:hover,
+.docLink:focus-visible {
+  border-color: var(--legal-ink);
+}
+
+.docLinkCurrent {
+  background: var(--legal-ink);
+  border-color: var(--legal-ink);
+  color: var(--legal-paper);
+}
+
+.docBtn {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* ---------- layout: jump list beside the filing on wide screens ---------- */
+
+.layout {
+  display: grid;
+  gap: clamp(28px, 4vw, 44px);
+  align-items: start;
+}
+
+@media (min-width: 1080px) {
+  .layout {
+    grid-template-columns: 232px minmax(0, 1fr);
+    gap: clamp(40px, 5vw, 72px);
+  }
+
+  .toc {
+    position: sticky;
+    top: 96px;
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+.toc {
+  margin-top: clamp(28px, 4vw, 40px);
+  padding: clamp(18px, 2.2vw, 22px);
+  background: var(--legal-quiet);
+  border-radius: var(--et-radius-panel, 10px);
+}
+
+.tocLabel {
+  margin: 0 0 12px;
+  color: var(--legal-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.tocList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2;
+  column-gap: 24px;
+}
+
+@media (min-width: 1080px) {
+  .tocList {
+    columns: 1;
+  }
+}
+
+@media (max-width: 620px) {
+  .tocList {
+    columns: 1;
+  }
+}
+
+.tocList li {
+  break-inside: avoid;
+  margin: 0 0 2px;
+}
+
+.tocLink {
+  display: flex;
+  gap: 9px;
+  padding: 5px 0;
+  color: var(--legal-text);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 14px;
+  line-height: 1.35;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.tocLink:hover,
+.tocLink:focus-visible {
+  color: var(--legal-red);
+}
+
+.tocNum {
+  flex: none;
+  padding-top: 1px;
+  color: var(--legal-muted);
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- the filing itself ---------- */
+
+.body {
+  max-width: 70ch;
+  margin-top: clamp(28px, 4vw, 40px);
+  color: var(--legal-text);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(15px, 1.05vw, 16.5px);
+  line-height: 1.68;
+}
+
+.body p {
+  margin: 0 0 1.15em;
+}
+
+/* Chapter heads: a hairline and a yellow tick, ink type at reading scale.
+   No drop cap anywhere — this is a filing, and on the imprint the old one
+   swallowed the company name's first letter. */
+.body h2 {
+  position: relative;
+  margin: clamp(40px, 5vw, 58px) 0 14px;
+  padding-top: clamp(20px, 2.4vw, 26px);
+  border-top: 1px solid var(--legal-line);
+  color: var(--legal-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-transform: none;
+  text-wrap: balance;
+  scroll-margin-top: 96px;
+}
+
+.body h2::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  background: var(--legal-accent);
+}
+
+.body h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.body h2:first-child::before {
+  content: none;
+}
+
+.body h3 {
+  margin: clamp(26px, 3.2vw, 34px) 0 10px;
+  color: var(--legal-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: none;
+  scroll-margin-top: 96px;
+}
+
+.body h4 {
+  margin: clamp(22px, 2.6vw, 28px) 0 8px;
+  color: var(--legal-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 1em;
+  font-weight: 800;
+  line-height: 1.35;
+  scroll-margin-top: 96px;
+}
+
+.body ul,
+.body ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.15em;
+}
+
+.body li {
+  margin: 0 0 0.4em;
+}
+
+.body strong,
+.body b {
+  color: var(--legal-ink);
+  font-weight: 700;
+}
+
+.body em,
+.body i {
+  font-style: italic;
+}
+
+.body a {
+  color: var(--legal-red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  transition: color 140ms ease;
+}
+
+.body a:hover,
+.body a:focus-visible {
+  color: var(--legal-ink);
+}
+
+/* Blockquote reads as an aside here — the tilted red sticker from the story
+   pages would look like a mistake in the middle of a privacy policy. */
+.body blockquote {
+  margin: clamp(26px, 3.4vw, 36px) 0;
+  padding: clamp(16px, 2vw, 20px) clamp(18px, 2.2vw, 24px);
+  background: var(--legal-quiet);
+  border-left: 3px solid var(--legal-accent);
+  border-radius: 0 var(--et-radius-control, 7px) var(--et-radius-control, 7px) 0;
+  color: var(--legal-ink);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 1em;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.body hr {
+  margin: clamp(30px, 4vw, 44px) 0;
+  border: 0;
+  border-top: 1px solid var(--legal-line);
+}
+
+.body code {
+  padding: 2px 6px;
+  background: color-mix(in srgb, var(--legal-ink) 7%, transparent);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.9em;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding-inline: clamp(16px, 5vw, 22px);
+  }
+}

@@ -22,9 +22,6 @@ type Figure = {
    *  phone shot and an 867x861 plate need very different boxes to read as
    *  the same weight on the page. */
   renderWidth: number;
-  /** `card` sits in a tinted frame (photos with their own background);
-   *  `cutout` floats freigestellt on the paper, the way the home rails do. */
-  shape: 'card' | 'cutout';
   tilt: number;
   caption: { de: string; en: string };
   alt: { de: string; en: string };
@@ -40,7 +37,6 @@ const FIGURES: (Figure | null)[] = [
     width: 600,
     height: 1219,
     renderWidth: 230,
-    shape: 'cutout',
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
@@ -49,19 +45,18 @@ const FIGURES: (Figure | null)[] = [
     },
   },
   {
-    src: '/pics/home-dishes/sofi-morning-bun.webp',
-    width: 928,
-    height: 1152,
-    renderWidth: 285,
-    shape: 'card',
+    src: '/pics/home-dishes/bubar-galette-print.webp',
+    width: 871,
+    height: 856,
+    renderWidth: 300,
     tilt: 1.5,
     caption: {
-      de: 'Morning Bun bei Sofi. Ein Spot von vielen.',
-      en: 'Morning bun at Sofi. One spot of many.',
+      de: 'Galette bei Bubar. Ein Spot von vielen.',
+      en: 'Galette at Bubar. One spot of many.',
     },
     alt: {
-      de: 'Ein gezuckerter Morning Bun auf einem weißen Teller',
-      en: 'A sugared morning bun on a white plate',
+      de: 'Eine Buchweizen-Galette mit Eigelb auf einem Pappteller',
+      en: 'A buckwheat galette with an egg yolk on a paper plate',
     },
   },
   {
@@ -69,7 +64,6 @@ const FIGURES: (Figure | null)[] = [
     width: 760,
     height: 1076,
     renderWidth: 240,
-    shape: 'cutout',
     tilt: -3,
     caption: { de: 'Jedes Must Eat ist eine Karte.', en: 'Every Must Eat is a card.' },
     alt: {
@@ -82,7 +76,6 @@ const FIGURES: (Figure | null)[] = [
     width: 928,
     height: 1152,
     renderWidth: 300,
-    shape: 'cutout',
     tilt: 2,
     caption: { de: 'Berlin, Bezirk für Bezirk.', en: 'Berlin, district by district.' },
     alt: {
@@ -91,30 +84,27 @@ const FIGURES: (Figure | null)[] = [
     },
   },
   {
-    src: '/pics/home-dishes/jules-cappuccino.webp',
-    width: 1856,
-    height: 2304,
-    renderWidth: 260,
-    shape: 'card',
+    src: '/pics/home-dishes/grilled-cheese-print.webp',
+    width: 1808,
+    height: 1504,
+    renderWidth: 320,
     tilt: -1.5,
-    caption: { de: 'Auf einen Kaffee. Oder einen Tipp.', en: 'Come for a coffee. Or a tip.' },
+    caption: { de: 'Grilled Cheese bei Aera. Deiner fehlt noch.', en: 'Grilled cheese at Aera. Yours is still missing.' },
     alt: {
-      de: 'Ein Cappuccino mit Latte Art auf einer weißen Untertasse',
-      en: 'A cappuccino with latte art on a white saucer',
+      de: 'Ein gegrilltes Käsesandwich mit Gurke auf einem Blech',
+      en: 'A grilled cheese sandwich with a pickle on a tray',
     },
   },
 ];
 
 const COPY = {
   de: {
-    kicker: 'Über uns',
     ctaTitle: 'Hungrig geworden?',
     ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
     ctaMap: 'Zur Map',
     ctaInstagram: 'Instagram',
   },
   en: {
-    kicker: 'About us',
     ctaTitle: 'Hungry yet?',
     ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',
     ctaMap: 'Open the map',
@@ -160,10 +150,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
       <div className={styles.inner}>
         <header className={styles.hero}>
           <div className={styles.heroCopy}>
-            <p className={styles.kicker}>
-              <span className={styles.mark} aria-hidden="true" />
-              {copy.kicker}
-            </p>
             <h1 className={styles.title} id="staticPageAbout-title">
               {doc.title || ''}
             </h1>
@@ -227,7 +213,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               {figure && (
                 <figure
                   className={styles.figure}
-                  data-shape={figure.shape}
                   style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
                 >
                   <Image

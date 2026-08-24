@@ -1,14 +1,18 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { client } from '@/lib/sanity';
-import { SITE_URL } from '@/lib/constants';
+import { SANITY_REVALIDATE_SECONDS, SITE_URL } from '@/lib/constants';
 import BadgeGenerator from './BadgeGenerator';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export const revalidate = 3600;
+// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
+// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
+// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
+// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
+export const revalidate = 86400;
 
 // Utility page for partner restaurants — noindex,follow. It exists to hand out
 // the embed snippet during backlink outreach, not to rank. The links it
@@ -34,7 +38,7 @@ export default async function BadgePage({ params }: PageProps) {
   const restaurants = await client.fetch<RestaurantOption[]>(
     `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current } | order(name asc)`,
     {},
-    { next: { revalidate: 3600, tags: ['badge-restaurants'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['badge-restaurants'] } }
   );
 
   return (

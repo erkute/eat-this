@@ -10,6 +10,7 @@ vi.mock('@/lib/sanity', () => ({
 
 import { client } from '@/lib/sanity'
 import { getLatestNewsArticles } from '@/lib/sanity.server'
+import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants'
 
 describe('getLatestNewsArticles', () => {
   beforeEach(() => {
@@ -37,7 +38,7 @@ describe('getLatestNewsArticles', () => {
     const callArgs = vi.mocked(client.fetch).mock.calls[0]
     // Third arg is the fetch options object.
     expect(callArgs[2]).toMatchObject({
-      next: { revalidate: 3600, tags: ['news'] },
+      next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] },
     })
   })
 })

@@ -1,4 +1,5 @@
 import { client } from './sanity';
+import { SANITY_REVALIDATE_SECONDS } from './constants';
 import {
   restaurantBySlugQuery,
   allRestaurantSlugsQuery,
@@ -27,7 +28,7 @@ export async function getRestaurantBySlug(slug: string): Promise<Restaurant | nu
   return client.fetch<Restaurant | null>(
     restaurantBySlugQuery,
     { slug },
-    { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`restaurant:${slug}`] } }
   );
 }
 
@@ -35,7 +36,7 @@ export async function getAllRestaurantSlugs(): Promise<string[]> {
   const results = await client.fetch<{ slug: string }[]>(
     allRestaurantSlugsQuery,
     {},
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS } }
   );
   return results.map((r) => r.slug);
 }
@@ -48,7 +49,7 @@ export async function getAllRestaurantsLite(): Promise<
   return client.fetch(
     `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current, "bezirk": bezirkRef->slug.current }`,
     {},
-    { next: { revalidate: 3600, tags: ['restaurants-lite'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurants-lite'] } }
   );
 }
 
@@ -56,7 +57,7 @@ export async function getArticleBySlug(slug: string): Promise<NewsArticle | null
   return client.fetch<NewsArticle | null>(
     articleBySlugQuery,
     { slug },
-    { next: { revalidate: 3600, tags: [`article:${slug}`] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`] } }
   );
 }
 
@@ -64,7 +65,7 @@ export async function getAllArticleSlugs(): Promise<string[]> {
   const results = await client.fetch<{ slug: string }[]>(
     allArticleSlugsQuery,
     {},
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS } }
   );
   return results.map((a) => a.slug);
 }
@@ -73,7 +74,7 @@ export async function getAllNewsArticles(): Promise<NewsArticle[]> {
   return client.fetch<NewsArticle[]>(
     allNewsArticlesQuery,
     {},
-    { next: { revalidate: 3600, tags: ['news'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] } }
   );
 }
 
@@ -84,7 +85,7 @@ export async function getStaticPage(
   return client.fetch<StaticPageDoc | null>(
     staticPageBySlugQuery,
     { slug, locale },
-    { next: { revalidate: 3600, tags: [`staticPage:${slug}`, 'staticPage'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`staticPage:${slug}`, 'staticPage'] } }
   );
 }
 
@@ -99,7 +100,7 @@ export async function getMustEatsByRestaurant(restaurantId: string): Promise<Mus
   return client.fetch<MustEatPreview[]>(
     mustEatsByRestaurantQuery,
     { restaurantId },
-    { next: { revalidate: 3600, tags: ['mustEat'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['mustEat'] } }
   );
 }
 
@@ -107,7 +108,7 @@ export async function getAllBezirkeWithStats(): Promise<BezirkDoc[]> {
   return client.fetch<BezirkDoc[]>(
     allBezirkeWithStatsQuery,
     {},
-    { next: { revalidate: 3600, tags: ['bezirk', 'sitemap-bezirke'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['bezirk', 'sitemap-bezirke'] } }
   );
 }
 
@@ -117,7 +118,7 @@ export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
     { slug },
     // `bezirk` (generic) catches restaurant publishes — the webhook can't
     // resolve the restaurant's bezirk slug, so it fires the generic tag.
-    { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'bezirk'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`bezirk:${slug}`, 'bezirk'] } }
   );
 }
 
@@ -125,7 +126,12 @@ export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCa
   return client.fetch<RestaurantCard[]>(
     restaurantsByBezirkQuery,
     { bezirkSlug: slug },
-    { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'bezirk', 'sitemap-restaurants'] } }
+    {
+      next: {
+        revalidate: SANITY_REVALIDATE_SECONDS,
+        tags: [`bezirk:${slug}`, 'bezirk', 'sitemap-restaurants'],
+      },
+    }
   );
 }
 
@@ -133,7 +139,12 @@ export async function getRestaurantsByCategory(categorySlug: string): Promise<Re
   return client.fetch<RestaurantCard[]>(
     restaurantsByCategoryQuery,
     { categorySlug },
-    { next: { revalidate: 3600, tags: [`category:${categorySlug}`, 'category-list'] } }
+    {
+      next: {
+        revalidate: SANITY_REVALIDATE_SECONDS,
+        tags: [`category:${categorySlug}`, 'category-list'],
+      },
+    }
   );
 }
 
@@ -167,7 +178,7 @@ export async function getRestaurantSiblingCandidates({
     },
     {
       next: {
-        revalidate: 3600,
+        revalidate: SANITY_REVALIDATE_SECONDS,
         tags: ['restaurant-siblings', ...(bezirkSlug ? [`bezirk:${bezirkSlug}`] : [])],
       },
     }
@@ -182,7 +193,7 @@ export async function getAllCategories(): Promise<CategoryDef[]> {
   return client.fetch<CategoryDef[]>(
     allCategoriesQuery,
     {},
-    { next: { revalidate: 3600, tags: ['category', 'category-list'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['category', 'category-list'] } }
   );
 }
 
@@ -198,7 +209,7 @@ export async function getAllCategoriesWithStats(): Promise<CategoryWithStats[]> 
   return client.fetch<CategoryWithStats[]>(
     allCategoriesWithStatsQuery,
     {},
-    { next: { revalidate: 3600, tags: ['category', 'category-list'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['category', 'category-list'] } }
   );
 }
 
@@ -206,7 +217,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDef | nul
   return client.fetch<CategoryDef | null>(
     categoryBySlugQuery,
     { slug },
-    { next: { revalidate: 3600, tags: [`category:${slug}`] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`category:${slug}`] } }
   );
 }
 
@@ -214,7 +225,7 @@ export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[
   return client.fetch<NewsArticle[]>(
     latestNewsArticlesQuery,
     { limit },
-    { next: { revalidate: 3600, tags: ['news'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] } }
   );
 }
 
@@ -231,7 +242,7 @@ export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
   return client.fetch<EmailSpot[]>(
     emailSpotsQuery,
     { limit },
-    { next: { revalidate: 3600, tags: ['restaurant'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurant'] } }
   );
 }
 
@@ -240,7 +251,11 @@ export async function getPackContents(): Promise<PackContentsIndex> {
   const raw = await client.fetch<{
     categories: ({ slug: string } & PackContents)[];
     allBerlin: PackContents;
-  }>(packContentsQuery, {}, { next: { revalidate: 3600, tags: ['pack-contents'] } });
+  }>(
+    packContentsQuery,
+    {},
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['pack-contents'] } }
+  );
   return {
     byCategory: Object.fromEntries(raw.categories.map(({ slug, ...counts }) => [slug, counts])),
     allBerlin: raw.allBerlin,

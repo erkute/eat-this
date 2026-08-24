@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { client } from '@/lib/sanity';
+import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { restaurantMapDetailQuery } from '@/lib/map/queries';
 
 // On-demand detail fields for the map detail sheet (address, phone, tip,
@@ -9,14 +10,19 @@ import { restaurantMapDetailQuery } from '@/lib/map/queries';
 // and have drifted before (`phone` was here and not there, which left the
 // public page unable to offer a call button); the overlap the UI depends on is
 // pinned by lib/__tests__/restaurantContactFields.test.ts.
-export const revalidate = 3600;
+
+// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
+// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
+// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
+// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
+export const revalidate = 86400;
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const detail = await client.fetch(
     restaurantMapDetailQuery,
     { slug },
-    { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`restaurant:${slug}`] } }
   );
   // Never let a 404 stick in the CDN/browser: a slug that isn't published yet
   // would otherwise be cached as "not found" for up to s-maxage+SWR, so the

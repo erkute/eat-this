@@ -5,6 +5,7 @@ vi.mock('../sanity', () => ({
 }));
 
 import { client } from '../sanity';
+import { SANITY_REVALIDATE_SECONDS } from '../constants';
 import {
   getRestaurantBySlug,
   getAllRestaurantSlugs,
@@ -28,7 +29,9 @@ describe('getRestaurantBySlug', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining('restaurant'),
       { slug: 'ramen-place' },
-      expect.objectContaining({ next: expect.objectContaining({ revalidate: 3600 }) })
+      expect.objectContaining({
+        next: expect.objectContaining({ revalidate: SANITY_REVALIDATE_SECONDS }),
+      })
     );
   });
 
@@ -83,7 +86,7 @@ describe('getStaticPage', () => {
       { slug: 'about', locale: 'de' },
       {
         next: {
-          revalidate: 3600,
+          revalidate: SANITY_REVALIDATE_SECONDS,
           tags: ['staticPage:about', 'staticPage'],
         },
       }
@@ -130,7 +133,7 @@ describe('getRestaurantSiblingCandidates', () => {
     });
     expect(options).toMatchObject({
       next: {
-        revalidate: 3600,
+        revalidate: SANITY_REVALIDATE_SECONDS,
         tags: ['restaurant-siblings', 'bezirk:mitte'],
       },
     });

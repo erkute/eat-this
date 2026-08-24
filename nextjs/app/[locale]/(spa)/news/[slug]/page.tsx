@@ -20,7 +20,11 @@ export async function generateStaticParams() {
   return routing.locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
 }
 
-export const revalidate = 3600;
+// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
+// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
+// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
+// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;

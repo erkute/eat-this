@@ -19,19 +19,20 @@ export function CloseIcon() {
   );
 }
 
+// Dezenter Galerie-Chevron (kein Pfeil mit Schaft): der Pager neben der Karte
+// soll zurücktreten wie in Bild-Galerien üblich — dünner Winkel, sonst nichts.
 export function PagerArrowIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.4"
+      strokeWidth="2.2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M19 12H5" />
-      <path d="M11 6l-6 6 6 6" />
+      <path d="M14.5 5l-7 7 7 7" />
     </svg>
   );
 }

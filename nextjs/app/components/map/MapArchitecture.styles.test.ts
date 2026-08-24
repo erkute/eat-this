@@ -293,18 +293,29 @@ describe('Map CSS architecture', () => {
     ]);
   });
 
-  it('reserves enough phone height for locked Must Eat proximity copy', () => {
-    const lockedMidRules = declarationsInMedia(
-      'MapDetails.module.css',
-      '.detailV13MustEat .fdMid.fdMidLocked',
-      '(max-width: 1023.98px)'
-    );
+  /* Der verdeckte Zustand hatte einen eigenen, kompakten Namens-Slot, damit
+     die Proximity-Copy mehr Platz bekommt. Das verschob sie beim Aufdecken:
+     in genau diesem Slot steht dann der Gerichtsname. Verdeckt erbt den Wert
+     jetzt überall vom aufgedeckten Zustand — kein Override mehr, auf keiner
+     Breite. */
+  it('gives the locked Must Eat no name slot of its own', () => {
+    for (const media of [
+      '(max-width: 1023.98px)',
+      '(min-width: 768px) and (max-width: 1023.98px)',
+      '(min-width: 1024px)',
+    ]) {
+      const lockedMidRules = declarationsInMedia(
+        'MapDetails.module.css',
+        '.detailV13MustEat .fdMid.fdMidLocked',
+        media
+      );
 
-    expect(lockedMidRules).toEqual([
-      expect.objectContaining({
-        '--me-name-slot': 'clamp(56px, 8dvh, 64px)',
-      }),
-    ]);
+      for (const rule of lockedMidRules) {
+        expect(rule, `${media} setzt wieder einen eigenen Namens-Slot`).not.toHaveProperty(
+          '--me-name-slot'
+        );
+      }
+    }
   });
 
   /* The pill is `position: fixed` over the phone list, so nothing in the list

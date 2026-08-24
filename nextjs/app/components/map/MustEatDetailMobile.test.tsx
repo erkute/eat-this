@@ -11,15 +11,14 @@ vi.mock('next-intl', () => ({
     const copy: Record<string, string> = {
       mustEatAtAria: 'Must Eat bei {name}',
       proximityAway: 'Noch {distance}',
-      proximityDistanceGoal: '{meters} m zum Aufdecken',
+      proximityHint:
+        'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
       locationNeeded: 'Standort freigeben',
       enableLocation:
         'Tipp auf die Karte und gib deinen Standort frei — dann siehst du, wie weit es noch ist.',
       locationBlocked: 'Standort blockiert',
       locationBlockedHint:
         'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.',
-      proximityHint:
-        'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
       proximityHere: 'Jetzt aufdecken',
       proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
     };
@@ -74,7 +73,6 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
     canUnlock: false,
     needsLocation: false,
     locationDenied: false,
-    proximityProgress: 0.27,
     vibrateIntensity: 0.18,
     tapping: false,
     unlocking: false,
@@ -92,9 +90,9 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
   };
 }
 
-describe('MustEatDetailMobile distance meter', () => {
+describe('MustEatDetailMobile proximity states', () => {
   it('shows localized kilometres and the real reveal radius for a covered card', () => {
-    const { container } = render(
+    render(
       <MustEatDetailMobile
         mustEat={mustEat}
         isUnlocked={false}
@@ -107,8 +105,6 @@ describe('MustEatDetailMobile distance meter', () => {
     expect(
       screen.getByText('Komm auf 50 m an den Spot heran, dann kannst du das Must Eat aufdecken.')
     ).toBeTruthy();
-    const fill = container.querySelector('[data-must-eat-distance-meter] span');
-    expect(fill?.getAttribute('style')).toContain('--fd-distance-progress: 27%');
   });
 
   /* Without a fix the card used to read "Komm näher" over a "come within 50 m"
@@ -120,7 +116,7 @@ describe('MustEatDetailMobile distance meter', () => {
         mustEat={mustEat}
         isUnlocked={false}
         onClose={vi.fn()}
-        state={makeState({ distance: null, proximityProgress: null, needsLocation: true })}
+        state={makeState({ distance: null, needsLocation: true })}
       />
     );
 
@@ -135,9 +131,9 @@ describe('MustEatDetailMobile distance meter', () => {
     // now opens the permission prompt — "Zu weit weg" would be a lie there.
     expect(screen.getByLabelText('Standort freigeben')).toBeTruthy();
     expect(screen.queryByLabelText('Zu weit weg')).toBeNull();
-    expect(container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed'))
-      .toBe('ask');
-    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull();
+    expect(
+      container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed')
+    ).toBe('ask');
   });
 
   /* A denial cannot be re-asked from the page, so the copy has to point at the
@@ -150,7 +146,6 @@ describe('MustEatDetailMobile distance meter', () => {
         onClose={vi.fn()}
         state={makeState({
           distance: null,
-          proximityProgress: null,
           needsLocation: true,
           locationDenied: true,
         })}
@@ -164,8 +159,9 @@ describe('MustEatDetailMobile distance meter', () => {
         'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.'
       )
     ).toBeTruthy();
-    expect(container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed'))
-      .toBe('blocked');
+    expect(
+      container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed')
+    ).toBe('blocked');
   });
 
   it('switches to a strong reveal-now state inside the unlock radius', () => {
@@ -177,7 +173,6 @@ describe('MustEatDetailMobile distance meter', () => {
         state={makeState({
           distance: 42,
           canUnlock: true,
-          proximityProgress: 1,
           vibrateIntensity: 0.92,
         })}
       />
@@ -186,6 +181,5 @@ describe('MustEatDetailMobile distance meter', () => {
     expect(screen.getByText('Jetzt aufdecken')).toBeTruthy();
     expect(screen.getByText('Tipp auf die Karte und deck dein Must Eat auf.')).toBeTruthy();
     expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
-    expect(container.querySelector('[data-must-eat-distance-meter]')).toBeNull();
   });
 });

@@ -113,7 +113,10 @@ const en = {
     filterAll: 'All',
     filterOpen: 'Face-up',
     filterLocked: 'Face-down',
-    covered: 'Face-down',
+    // "Covered" wie auf der Pack-Seite — dieselbe Sache hieß dort schon so.
+    // Das Filter-Paar darüber bleibt Face-up/Face-down: es beschreibt die
+    // Kartenlage als Filterkategorie und funktioniert nur als Paar.
+    covered: 'Covered',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eat?',
     onb1Title: 'You gotta try this.',
@@ -213,10 +216,13 @@ const en = {
     pickerCuisineTitle: 'Pick a cuisine',
     statusLabel: 'Status',
     allHours: 'All hours',
-    inRestaurant: 'At',
-    toSpot: 'To the spot →',
+    inRestaurant: 'In the restaurant',
+    toSpot: 'To the spot',
     zoomCard: 'Zoom card',
     swipeHint: '← swipe →',
+    pagerAria: 'Switch Must Eat',
+    pagerPrev: 'Previous Must Eat',
+    pagerNext: 'Next Must Eat',
     inMaps: 'In Maps',
     mapsApple: 'Apple Maps',
     mapsGoogle: 'Google Maps',
@@ -260,11 +266,11 @@ const en = {
     // "Come closer", which is a lie to anyone already standing in the doorway:
     // the app does not know where they are, and never said so.
     locationNeeded: 'Share your location',
-    enableLocation: "Tap the card to share your location \u2014 then you'll see how far you still have to go.",
+    enableLocation:
+      "Tap the card to share your location \u2014 then you'll see how far you still have to go.",
     locationBlocked: 'Location blocked',
     locationBlockedHint:
       'Allow location in your browser settings, then you can reveal Must Eats on site.',
-    proximityDistanceGoal: 'Reveal within {meters} m',
     proximityTapReveal: 'Tap the card to uncover your Must Eat.',
     proximityHint: 'Get within {meters} m of the spot, then you can reveal the Must Eat.',
     revealSaving: 'Saving your Must Eat…',
@@ -650,9 +656,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     statusLabel: 'Status',
     allHours: 'Alle Zeiten',
     inRestaurant: 'Im Restaurant',
-    toSpot: 'Zum Spot →',
+    toSpot: 'Zum Spot',
     zoomCard: 'Karte vergrößern',
     swipeHint: '← wischen →',
+    pagerAria: 'Must Eat wechseln',
+    pagerPrev: 'Vorheriges Must Eat',
+    pagerNext: 'Nächstes Must Eat',
     inMaps: 'In Maps',
     mapsApple: 'Apple Maps',
     mapsGoogle: 'Google Maps',
@@ -689,7 +698,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     locationBlocked: 'Standort blockiert',
     locationBlockedHint:
       'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.',
-    proximityDistanceGoal: '{meters} m zum Aufdecken',
     proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
     proximityHint: 'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
     revealSaving: 'Dein Must Eat wird gespeichert …',

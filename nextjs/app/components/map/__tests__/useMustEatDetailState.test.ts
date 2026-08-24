@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react';
 
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 
-import { getMustEatProximityProgress, useMustEatDetailState } from '../useMustEatDetailState';
+import { useMustEatDetailState } from '../useMustEatDetailState';
 import { trackEvent } from '@/lib/analytics';
 import type { MapMustEat } from '@/lib/types';
 
@@ -46,23 +46,6 @@ afterAll(() => {
   } else {
     Reflect.deleteProperty(navigator, 'vibrate');
   }
-});
-
-describe('getMustEatProximityProgress', () => {
-  it('grows as the user approaches and reaches full at the reveal radius', () => {
-    const far = getMustEatProximityProgress(5000);
-    const nearby = getMustEatProximityProgress(500);
-    const almostThere = getMustEatProximityProgress(100);
-
-    expect(far).not.toBeNull();
-    expect(nearby).toBeGreaterThan(far ?? 0);
-    expect(almostThere).toBeGreaterThan(nearby ?? 0);
-    expect(getMustEatProximityProgress(50)).toBe(1);
-  });
-
-  it('has no progress without a location fix', () => {
-    expect(getMustEatProximityProgress(null)).toBeNull();
-  });
 });
 
 describe('useMustEatDetailState — handleCardClick auth gate', () => {

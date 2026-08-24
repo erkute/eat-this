@@ -189,10 +189,14 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
   "photo": ${publishableRestaurantImageUrl('image', 'card')}
 }`;
 
-// Bounded circular windows immediately after the current restaurant in the
-// same alphabetical order used by the district/category listings. Each group
-// fetches at most twice its display candidate limit (tail + wrap-around),
-// instead of downloading the complete district and category collections.
+// Bounded circular window immediately after the current restaurant in the same
+// alphabetical order the district listing uses. Fetches at most twice the
+// display limit (tail + wrap-around) instead of downloading the whole district.
+//
+// Die Kategorie-Hälfte stand hier bis 24.08.2026 daneben. Sie speiste eine
+// zweite Empfehlungszeile am Seitenende, die von einer Kreuzberg-Seite nach
+// Schöneberg und Charlottenburg schickte — rund 500px für Karten, deren
+// gemeinsamer Nenner „auch Lunch" war.
 export const restaurantSiblingCandidatesQuery = `{
   "bezirkAfter": *[
     _type == "restaurant" && isOpen != false && $bezirkSlug != ""
@@ -203,17 +207,7 @@ export const restaurantSiblingCandidatesQuery = `{
     _type == "restaurant" && isOpen != false && $bezirkSlug != ""
     && bezirkRef->slug.current == $bezirkSlug && slug.current != $selfSlug
     && (name < $selfName || (name == $selfName && slug.current < $selfSlug))
-  ] | order(name asc, slug.current asc)[0...$bezirkLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
-  "categoryAfter": *[
-    _type == "restaurant" && isOpen != false && $categorySlug != ""
-    && $categorySlug in categories[]->slug.current && slug.current != $selfSlug
-    && (name > $selfName || (name == $selfName && slug.current > $selfSlug))
-  ] | order(name asc, slug.current asc)[0...$categoryLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
-  "categoryWrap": *[
-    _type == "restaurant" && isOpen != false && $categorySlug != ""
-    && $categorySlug in categories[]->slug.current && slug.current != $selfSlug
-    && (name < $selfName || (name == $selfName && slug.current < $selfSlug))
-  ] | order(name asc, slug.current asc)[0...$categoryLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
+  ] | order(name asc, slug.current asc)[0...$bezirkLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
 }`;
 
 // Curated spots for the magic-link email: restaurant information only. Login

@@ -26,13 +26,12 @@ import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
-import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose';
+import { splitDescriptionForMagazine, summarizeHours } from '@/lib/restaurant-prose';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
 import ShareButton from '@/app/components/ShareButton';
-import RestaurantFAQ from '@/app/components/RestaurantFAQ';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import { Link as IntlLink } from '@/i18n/navigation';
 import {
@@ -49,28 +48,26 @@ import styles from './RestaurantDetail.module.css';
 /**
  * Eine Empfehlungszeile am Seitenfuß: anklickbare Überschrift plus vier Karten.
  *
- * Die Überschrift war schon immer ein Link auf den Bezirks- bzw.
- * Kategorie-Hub, sah aber wie eine gewöhnliche Zeilenüberschrift aus. Der Pfeil
- * macht daraus sichtbar den Weg zur vollständigen Liste — dieselbe Geste wie
- * „Alle Spots ansehen →" auf dem Bezirks-Index.
+ * Die Überschrift war schon immer ein Link auf den Bezirks-Hub, sah aber wie
+ * eine gewöhnliche Zeilenüberschrift aus. Der Pfeil macht daraus sichtbar den
+ * Weg zur vollständigen Liste — dieselbe Geste wie „Alle Spots ansehen →" auf
+ * dem Bezirks-Index.
  *
- * `showDistrict` nur für die Kategorie-Zeile: die Spots darin liegen über die
- * ganze Stadt verteilt, und ob ein Café um die Ecke oder in Köpenick steht,
- * entscheidet, ob die Empfehlung etwas taugt. In der Bezirks-Zeile stünde
- * dagegen unter jeder Karte derselbe Bezirk, den die Überschrift schon nennt.
+ * Ein `showDistrict` stand hier, solange daneben eine Kategorie-Zeile lief:
+ * deren Spots lagen über die ganze Stadt verteilt, und der Bezirk entschied,
+ * ob die Empfehlung etwas taugt. In der Bezirks-Zeile stünde unter jeder Karte
+ * derselbe Bezirk, den die Überschrift schon nennt.
  */
 function SiblingRow({
   heading,
   href,
   restaurants,
   locale,
-  showDistrict = false,
 }: {
   heading: string;
   href: string;
   restaurants: RestaurantCard[];
   locale: 'de' | 'en';
-  showDistrict?: boolean;
 }) {
   return (
     <div className={styles.sibRow}>
@@ -86,7 +83,6 @@ function SiblingRow({
         {restaurants.map((s) => {
           const meta = [
             s.cuisineType ? localizedCuisine(s.cuisineType, locale) : null,
-            showDistrict ? s.bezirk?.name : null,
             formatPriceLabel(s),
           ].filter(Boolean);
           return (
@@ -243,7 +239,6 @@ export default async function RestaurantPage({ params }: PageProps) {
     }
     notFound();
   }
-  const primaryCategory = r.categories?.[0] ?? null;
   // Vier, nicht drei: das Raster ist auf Mobil zweispaltig und auf Desktop
   // vierspaltig — eine Dreiergruppe lässt in beiden Fällen eine Karte allein
   // in der letzten Zeile stehen. Gleiche Regel wie im Bezirks-Regal.
@@ -254,24 +249,11 @@ export default async function RestaurantPage({ params }: PageProps) {
       selfSlug: slug,
       selfName: r.name,
       bezirkSlug: r.bezirk?.slug,
-      categorySlug: primaryCategory?.slug,
       bezirkLimit: SIBLING_LIMIT,
-      categoryLimit: SIBLING_LIMIT * 2,
     }),
   ]);
 
   const siblingsBezirk = siblingCandidates.bezirk;
-  const bezirkSlugSet = new Set(siblingsBezirk.map((s) => s.slug));
-  const siblingsCategory = siblingCandidates.category
-    .filter((s) => !bezirkSlugSet.has(s.slug))
-    .slice(0, SIBLING_LIMIT);
-  const categoryDef = primaryCategory
-    ? {
-        slug: primaryCategory.slug,
-        name: primaryCategory.name,
-        nameEn: primaryCategory.nameEn,
-      }
-    : null;
 
   const loc = locale === 'de' ? 'de' : 'en';
   const de = loc === 'de';
@@ -282,7 +264,6 @@ export default async function RestaurantPage({ params }: PageProps) {
   const displayName = normalizeName(r.name);
   const magazine = splitDescriptionForMagazine(description);
   const lede = magazine?.lede || description;
-  const faqEntries = buildFAQEntries(r, loc);
   const orderItems = (r.whatToOrder ?? []).filter((i) => i?.dish?.trim());
   const heroAssetKey = imageAssetKey(r.photo);
   // The hero photo is NOT a gallery item. It used to be prepended here, which
@@ -305,6 +286,9 @@ export default async function RestaurantPage({ params }: PageProps) {
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
     : (r.mapsUrl ?? null);
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
+  // Einzeiler statt der vier Zeilen aus dem Fakten-Block: der Streifen unter
+  // dem Hero soll die Frage beantworten, nicht die Tabelle vorwegnehmen.
+  const hoursSummary = summarizeHours(r.openingHours, loc);
 
   // Rendered inside the hero photo (or next to the name when there is none).
   const heroTags = [
@@ -339,7 +323,6 @@ export default async function RestaurantPage({ params }: PageProps) {
     slug,
     description: shortDescription || description || tipText,
     districtsLabel,
-    faqs: faqEntries,
   });
 
   return (
@@ -415,6 +398,31 @@ export default async function RestaurantPage({ params }: PageProps) {
             />
           </div>
         </header>
+
+        {/* Wo und wann — direkt unter dem Titelbild. Der ausführliche
+            Fakten-Block weiter unten bleibt, wo er ist; er stand aber auf dem
+            Telefon erst bei 2035px, also nach 2,4 Bildschirmhöhen, und das ist
+            die Frage, mit der die meisten auf eine Restaurantseite kommen.
+            Bewusst eine stille Zeile und keine zweite Tabelle: die Seite
+            eröffnet weiter mit Bild und Text, nicht mit Daten. */}
+        {(address || hoursSummary) && (
+          <div className={styles.quickFacts}>
+            {address &&
+              (mapsHref ? (
+                <a
+                  className={styles.quickAddress}
+                  href={mapsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {address}
+                </a>
+              ) : (
+                <span className={styles.quickAddress}>{address}</span>
+              ))}
+            {hoursSummary && <span className={styles.quickHours}>{hoursSummary}</span>}
+          </div>
+        )}
 
         {description && (
           <article className={styles.story}>
@@ -632,40 +640,24 @@ export default async function RestaurantPage({ params }: PageProps) {
           </div>
         )}
 
-        <div className={styles.rail}>
-          <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
-        </div>
-
-        <div className={styles.rail}>
-          <RestaurantFAQ entries={faqEntries} locale={loc} />
-        </div>
-
-        {(siblingsBezirk.length > 0 || siblingsCategory.length > 0) && (
+        {/* Nur noch die Bezirks-Zeile. Die Kategorie-Zeile darunter schickte von
+            einer Kreuzberg-Seite nach Schöneberg, Prenzlauer Berg,
+            Charlottenburg und Mitte — vier Karten, deren gemeinsamer Nenner
+            „auch Lunch" war, für rund 500px am Seitenende. Wer schon liest, was
+            es in Kreuzberg gibt, ist mit vier weiteren Spots aus Kreuzberg
+            besser bedient. Die Kategorie-Hubs bleiben über die Startseite und
+            ihren eigenen Index verlinkt. */}
+        {siblingsBezirk.length > 0 && r.bezirk?.name && r.bezirk.slug && (
           <section
             className={styles.siblings}
             aria-label={de ? 'Weitere Empfehlungen' : 'More recommendations'}
           >
-            {siblingsBezirk.length > 0 && r.bezirk?.name && r.bezirk.slug && (
-              <SiblingRow
-                heading={de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
-                href={`/bezirk/${r.bezirk.slug}`}
-                restaurants={siblingsBezirk}
-                locale={loc}
-              />
-            )}
-            {siblingsCategory.length > 0 && categoryDef && (
-              <SiblingRow
-                heading={
-                  de
-                    ? `Mehr ${categoryDef.name}`
-                    : `More ${(categoryDef.nameEn || categoryDef.name).toLowerCase()}`
-                }
-                href={`/kategorie/${categoryDef.slug}`}
-                restaurants={siblingsCategory}
-                locale={loc}
-                showDistrict
-              />
-            )}
+            <SiblingRow
+              heading={de ? `Weitere in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
+              href={`/bezirk/${r.bezirk.slug}`}
+              restaurants={siblingsBezirk}
+              locale={loc}
+            />
           </section>
         )}
       </main>

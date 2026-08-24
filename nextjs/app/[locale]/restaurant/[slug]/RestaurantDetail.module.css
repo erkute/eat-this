@@ -264,10 +264,75 @@
 .editorialGrid,
 .facts,
 .acts,
+.quickFacts,
 .siblings,
 .rail {
   width: min(100%, 900px);
   margin-inline: auto;
+}
+
+/* Adresse und Öffnungszeiten direkt unter dem Titelbild. Der ausführliche
+   Fakten-Block bleibt bestehen — er stand auf dem Telefon aber erst bei 2035px,
+   und „wo" und „wann offen" ist die Frage, mit der die meisten hier ankommen.
+
+   Bewusst eine stille Zeile: gleiche Schrift wie der Fließtext, kein Kasten,
+   keine Labels. Eine zweite Tabelle so weit oben würde die Seite mit Daten
+   eröffnen statt mit Bild und Text, und das ist erkennbar nicht ihre
+   Handschrift. */
+.quickFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-bottom: clamp(26px, 4vw, 44px);
+  color: var(--detail-muted);
+  font-family: var(--f-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Der Trenner hängt am zweiten Element, nicht als eigener Knoten dazwischen:
+   bricht die Zeile um, verschwindet er mit, statt allein am Zeilenanfang zu
+   stehen. */
+.quickHours::before {
+  content: '·';
+  margin-right: 18px;
+  color: var(--detail-muted);
+}
+
+@media (max-width: 560px) {
+  .quickHours::before {
+    content: none;
+    margin-right: 0;
+  }
+
+  .quickFacts {
+    flex-direction: column;
+  }
+}
+
+.quickAddress {
+  color: var(--detail-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+.quickAddress:hover,
+.quickAddress:focus-visible {
+  color: var(--detail-red);
+}
+
+.quickAddress:focus-visible {
+  outline: 2px solid var(--detail-red);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quickAddress {
+    transition: none;
+  }
 }
 
 /* Must-Eats, map promo and FAQ bring their own full-bleed margins from the

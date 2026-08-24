@@ -30,11 +30,11 @@
      auf Mobil, die klebende Chip-Leiste (63px). Ab 761px klebt sie nicht mehr,
      dort bleibt nur die Navigation stehen (Override weiter unten). */
   --bezirk-scroll-offset: calc(
-    64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 79px
+    var(--site-nav-h) + var(--staging-banner-h, 0px) + 79px
   );
   max-width: 1180px;
   margin-inline: auto;
-  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px)
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px)
     var(--page-pad) 48px;
   position: relative;
   overflow-x: clip;
@@ -339,7 +339,7 @@
 @media (min-width: 720px) {
   .page {
     --page-pad: 32px;
-    padding-top: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px);
+    padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 32px);
     padding-bottom: 56px;
   }
   .grid {
@@ -1143,7 +1143,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 @media (min-width: 761px) {
   .page {
     --bezirk-scroll-offset: calc(
-      64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 16px
+      var(--site-nav-h) + var(--staging-banner-h, 0px) + 16px
     );
   }
 

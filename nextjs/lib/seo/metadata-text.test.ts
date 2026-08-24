@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildBrandedTitle,
-  METADATA_DESCRIPTION_MAX,
-  METADATA_TITLE_MAX,
-  truncateMetadataDescription,
-} from './metadata-text';
+import { METADATA_DESCRIPTION_MAX, METADATA_TITLE_MAX, buildBrandedTitle, buildPlainTitle, truncateMetadataDescription } from './metadata-text';
 
 describe('buildBrandedTitle', () => {
   it('adds the compact brand once', () => {
@@ -22,6 +17,31 @@ describe('buildBrandedTitle', () => {
     );
     expect(title.length).toBeLessThanOrEqual(METADATA_TITLE_MAX);
     expect(title).toMatch(/… \| EAT THIS$/);
+  });
+});
+
+describe('buildPlainTitle', () => {
+  it('keeps the full 60 characters for the title itself', () => {
+    const sixty = 'Restaurants in Berlin-Prenzlauer Berg – Qualitaet statt Hype';
+    expect(sixty).toHaveLength(60);
+    expect(buildPlainTitle(sixty)).toBe(sixty);
+  });
+
+  it('adds no brand suffix', () => {
+    expect(buildPlainTitle('Restaurants in Berlin-Mitte')).toBe('Restaurants in Berlin-Mitte');
+  });
+
+  it('still strips a trailing brand the editor typed in', () => {
+    expect(buildPlainTitle('Restaurants in Berlin-Mitte | Eat This')).toBe(
+      'Restaurants in Berlin-Mitte'
+    );
+  });
+
+  it('truncates past 60 rather than letting the SERP cut mid-word', () => {
+    const long = 'Restaurants in Berlin-Charlottenburg – Kueche, Kantine, Kantstrasse';
+    const out = buildPlainTitle(long);
+    expect(out.length).toBeLessThanOrEqual(60);
+    expect(out.endsWith('…')).toBe(true);
   });
 });
 

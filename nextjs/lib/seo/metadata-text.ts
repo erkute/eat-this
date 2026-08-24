@@ -23,6 +23,22 @@ export function buildBrandedTitle(title: string): string {
   return `${truncateAtWord(clean, METADATA_TITLE_TEXT_MAX)}${METADATA_BRAND_SUFFIX}`;
 }
 
+/**
+ * Same cleanup, no brand suffix — the whole 60 characters go to the title.
+ *
+ * The suffix costs 11 of 60, and on the district pages that was the binding
+ * constraint: six of seventeen curated titles were already being cut with an
+ * ellipsis, and Lichtenberg's lost the only "Berlin" in the whole set
+ * ("Vietnamesisches Berlin" → "Vietnamesisches…"). The brand is in the domain
+ * and Google renders the site name beside the title anyway, so on a page whose
+ * ranking depends on naming its district AND its city, those characters buy
+ * more as content than as branding.
+ */
+export function buildPlainTitle(title: string): string {
+  const clean = title.trim().replace(/\s+/g, ' ').replace(TRAILING_BRAND, '').trim();
+  return truncateAtWord(clean, METADATA_TITLE_MAX);
+}
+
 export function truncateMetadataDescription(text: string, max = METADATA_DESCRIPTION_MAX): string {
   const clean = text.trim().replace(/\s+/g, ' ');
   if (clean.length <= max) return clean;

@@ -288,7 +288,14 @@
   text-decoration: none;
 }
 
-.spotCard .spotPhoto {
+/* The `.page` prefix is load-bearing, here and on the stacked override below.
+   Without it the selector ties with `.homeV2 .hv-photo` (0,2,0) — and since
+   style.css loads after the modules, that rule decided the radius. This block
+   claimed a square left edge and the stacked one claimed square corners; on
+   production both photos were rounded all round the whole time. Raise the two
+   together or not at all: at (0,3,0) here and (0,2,0) below, the base rule
+   would outrank its own media override and take the stacked bleed with it. */
+.page .spotCard .spotPhoto {
   grid-column: 1 / 10;
   grid-row: 1;
   position: relative;
@@ -296,9 +303,7 @@
   /* Flush left with the rest of the page (--spot-bleed is 0 here); the bleed
      only opens up once the card stacks. Rounded on all four corners for the
      same reason: a square edge said "this continues off the page", and sitting
-     inside the column it has nothing to continue into. Set explicitly rather
-     than left to .hv-photo — that rule carries the same specificity, so which
-     radius wins would come down to stylesheet order. */
+     inside the column it has nothing to continue into. */
   width: calc(100% + var(--spot-bleed));
   margin-left: calc(-1 * var(--spot-bleed));
   aspect-ratio: 16 / 9;
@@ -474,8 +479,10 @@
 
   /* Stacked, the photo bleeds both ways and drops its corners: full width is
      the only thing left that separates the lead from the rail of cards under
-     it, and rounded corners on an edge-to-edge photo just look like a mistake. */
-  .spotCard .spotPhoto {
+     it, and rounded corners on an edge-to-edge photo just look like a mistake.
+     `.page` for the same reason as the base rule — and to keep both at the
+     same specificity, so source order still decides between them. */
+  .page .spotCard .spotPhoto {
     grid-column: 1;
     width: calc(100% + 2 * var(--spot-bleed));
     aspect-ratio: 4 / 3;

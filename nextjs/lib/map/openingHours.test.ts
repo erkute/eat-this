@@ -38,6 +38,23 @@ describe('buildOpeningHoursSpec', () => {
     expect(buildOpeningHoursSpec([{ days: 'Mo', hours: 'closed' }])).toEqual([]);
   });
 
+  it('emits one entry per shift when a slot holds a split shift', () => {
+    const spec = buildOpeningHoursSpec([{ days: 'Mo–Fr', hours: '12:00-15:00,18:00-23:00' }]);
+    expect(spec).toHaveLength(2);
+    expect(spec.map((s) => [s.opens, s.closes])).toEqual([
+      ['12:00', '15:00'],
+      ['18:00', '23:00'],
+    ]);
+    expect(spec[1].dayOfWeek).toEqual(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
+  });
+
+  it('handles three shifts and a space after the comma', () => {
+    const spec = buildOpeningHoursSpec([
+      { days: 'Mon-Fri', hours: '06:30-10:30, 12:00-15:00, 17:00-23:00' },
+    ]);
+    expect(spec.map((s) => s.opens)).toEqual(['06:30', '12:00', '17:00']);
+  });
+
   it('maps common 24-hour labels to a full-day specification', () => {
     expect(buildOpeningHoursSpec([{ days: 'Mon-Sun', hours: '24Stundengeöffnet' }])).toEqual([
       {
@@ -98,6 +115,28 @@ describe('getOpenStatus', () => {
     const { isOpen, label } = getOpenStatus(slots, MON_2PM);
     expect(isOpen).toBe(false);
     expect(label.toLowerCase()).toContain('closed');
+  });
+
+  // Split shifts arrive as one string. Reading only the first range reported
+  // "closed" through the entire evening service.
+  it('is open during the evening half of a split shift', () => {
+    const slots: OpeningHourSlot[] = [{ days: 'Mo–Fr', hours: '12:00-15:00,18:00-23:00' }];
+    expect(getOpenStatus(slots, new Date('2026-04-13T20:00:00'))).toMatchObject({
+      isOpen: true,
+      label: 'Open · Closes 23:00',
+    });
+  });
+
+  it('is closed in the gap between two shifts and names the later opening', () => {
+    const slots: OpeningHourSlot[] = [{ days: 'Mo–Fr', hours: '12:00-15:00,18:00-23:00' }];
+    const { isOpen, label } = getOpenStatus(slots, new Date('2026-04-13T16:30:00'));
+    expect(isOpen).toBe(false);
+    expect(label).toContain('18:00');
+  });
+
+  it('still reports the earlier shift before the day starts', () => {
+    const slots: OpeningHourSlot[] = [{ days: 'Mo–Fr', hours: '12:00-15:00,18:00-23:00' }];
+    expect(getOpenStatus(slots, MON_11AM).label).toContain('12:00');
   });
 });
 

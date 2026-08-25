@@ -215,18 +215,31 @@
 /* ── Spot des Tages ─────────────────────────────────────────────────────────
    The pick used to be a rounded 16/9 box with a text column parked next to it:
    two floating objects on white, and visibly less designed than the four cards
-   that followed it. Now the photo runs out past the page gutter to the edge of
-   the paper and the copy holds the right column — one object, and unmistakably
-   the section's lead rather than an oversized card. */
+   that followed it. Now the copy holds the right column as a layer on the
+   photo — one object, and unmistakably the section's lead rather than an
+   oversized card. */
 .spot {
   display: block;
-  /* How far the photo has to reach to clear .hv-wrap's gutter. The wrap swaps
-     to the mobile gutter at 760px but leaves --et-wrap-pad at its desktop
-     value, so the bleed needs its own switch (below) — not the same one the
-     rest of this file uses at 920px. */
-  --spot-bleed: var(--et-wrap-pad);
+  /* How far the photo reaches past .hv-wrap's gutter. Side by side it reaches
+     nowhere: the photo shares its left edge with the heading above it and the
+     cards below, like every other element on the page. Reaching for the paper's
+     edge only worked up to --et-wrap-max — past that the page is centred and
+     the photo stopped in a white margin that grew with the window (40px at
+     1440, 280px at 1920), which read as a misaligned photo rather than a bleed.
+     Stacked (≤920px) it does run out to the edge, and there the wrap's own
+     gutter is the distance — that one swaps to the mobile value at 760px, so
+     the bleed needs its own switch and cannot ride on the 920px one. */
+  --spot-bleed: 0px;
 }
 
+@media (max-width: 920px) {
+  .spot {
+    --spot-bleed: var(--et-wrap-pad);
+  }
+}
+
+/* Order matters: this has to overwrite the 920px value above, and both blocks
+   match at 700px with the same specificity. */
 @media (max-width: 760px) {
   .spot {
     --spot-bleed: var(--et-wrap-pad-mobile);
@@ -280,14 +293,16 @@
   grid-row: 1;
   position: relative;
   display: block;
-  /* Out through the wrap's gutter to the edge of the paper — up to
-     --et-wrap-max that is the viewport edge, past it the page's outer margin.
-     Square on that side, rounded on the other: the frame reads as continuing
-     off the page instead of as a card that happens to be large. */
+  /* Flush left with the rest of the page (--spot-bleed is 0 here); the bleed
+     only opens up once the card stacks. Rounded on all four corners for the
+     same reason: a square edge said "this continues off the page", and sitting
+     inside the column it has nothing to continue into. Set explicitly rather
+     than left to .hv-photo — that rule carries the same specificity, so which
+     radius wins would come down to stylesheet order. */
   width: calc(100% + var(--spot-bleed));
   margin-left: calc(-1 * var(--spot-bleed));
   aspect-ratio: 16 / 9;
-  border-radius: 0 var(--et-radius-photo) var(--et-radius-photo) 0;
+  border-radius: var(--et-radius-photo);
   overflow: hidden;
 }
 

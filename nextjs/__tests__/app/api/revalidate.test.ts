@@ -20,7 +20,7 @@ function signature(rawBody: string, timestamp: number, secret = SECRET): string 
   const v1 = crypto
     .createHmac('sha256', secret)
     .update(`${timestamp}.${rawBody}`)
-    .digest('hex')
+    .digest('base64url')
   return `t=${timestamp},v1=${v1}`
 }
 
@@ -136,5 +136,52 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
+  })
+})
+
+// Diese beiden Tests halten die Kodierung fest, an der der Hook von seiner
+// Einrichtung bis zum 25.08.2026 gescheitert ist: die Route erwartete hex,
+// Sanity sendet base64url. Der Helfer `signature()` oben signierte damals
+// ebenfalls hex — die Suite war also mit dem Fehler einverstanden und grün,
+// während in Produktion jede einzelne Auslieferung mit 401 abgewiesen wurde.
+//
+// Deshalb signiert der erste Test hier NICHT mit Nodes `digest('base64url')`,
+// sondern baut die Signatur so nach, wie sanity-io/webhook-toolkit sie
+// tatsächlich erzeugt (signature.ts). Ein gemeinsamer Helfer könnte sich mit
+// der Route zusammen irren; dieser Nachbau kann es nicht.
+describe('/api/revalidate: Signaturkodierung', () => {
+  const RAW = JSON.stringify({ _type: 'category', slug: { current: 'lunch' } })
+
+  // Wortgetreu die Kodierung aus dem Sanity-Toolkit.
+  function toolkitSignature(rawBody: string, timestamp: number): string {
+    const digest = crypto
+      .createHmac('sha256', SECRET)
+      .update(`${timestamp}.${rawBody}`)
+      .digest()
+    const v1 = Buffer.from(digest)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '')
+    return `t=${timestamp},v1=${v1}`
+  }
+
+  it('akzeptiert genau die base64url-Signatur, die Sanity über die Leitung schickt', async () => {
+    const ts = Math.floor(Date.now() / 1000)
+
+    const res = await POST(mkReq(RAW, toolkitSignature(RAW, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('category:lunch')
+  })
+
+  it('weist dieselbe Signatur hex-kodiert ab — das war der Fehler', async () => {
+    const ts = Math.floor(Date.now() / 1000)
+    const hex = crypto.createHmac('sha256', SECRET).update(`${ts}.${RAW}`).digest('hex')
+
+    const res = await POST(mkReq(RAW, `t=${ts},v1=${hex}`))
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({ error: 'invalid_signature' })
   })
 })

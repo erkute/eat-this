@@ -104,7 +104,7 @@ function RestaurantGrid({
       className={`${sharedStyles.grid} ${restaurants.length <= 2 ? sharedStyles.gridCompact : ''}`}
     >
       {restaurants.map((r, i) => {
-        const priceLabel = formatPriceLabel(r);
+        const priceLabel = formatPriceLabel(r, locale);
         const cardLine =
           pickLocale(r.shortDescription, r.shortDescriptionEn, locale) ||
           pickLocale(r.tip, r.tipEn, locale);
@@ -313,7 +313,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         name: buildCategoryTitle(slug, label, loc),
         numberOfItems: orderedRestaurants.length,
         itemListElement: orderedRestaurants.map((r, i) => {
-          const priceLabel = formatPriceLabel(r);
+          const priceLabel = formatPriceLabel(r, loc);
           return {
             '@type': 'ListItem',
             position: i + 1,

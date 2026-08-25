@@ -191,7 +191,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                           // Chip, Preisspanne daneben. Rund ein Viertel der
                           // Spots hat keine gepflegte Spanne — dort fällt sie
                           // weg statt als leere Hülse dazustehen.
-                          const priceLabel = formatPriceLabel(restaurant);
+                          const priceLabel = formatPriceLabel(restaurant, locale);
                           return (
                             <Link
                               key={restaurant._id}

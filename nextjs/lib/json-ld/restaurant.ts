@@ -79,7 +79,7 @@ export function buildRestaurantJsonLd({
         description,
         inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         image: r.photo,
-        priceRange: formatPriceLabel(r) || undefined,
+        priceRange: formatPriceLabel(r, locale) || undefined,
         // Explicit cuisine data, not discovery categories such as Breakfast.
         servesCuisine: r.cuisineType || undefined,
         url: selfUrl,

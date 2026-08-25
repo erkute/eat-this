@@ -44,15 +44,28 @@ export function classifyWebsite(url: string | null | undefined): WebsiteInfo | n
 
 /**
  * Format a price range from Places (`{min, max, currency}`) as "10–20 €".
- * Returns null when min/max aren't both present.
+ *
+ * Google leaves `endPrice` off its top band and only sends `startPrice: 100`,
+ * which is how nearly every fine-dining spot arrives — those render open-ended
+ * as "ab 100 €" / "from 100 €" rather than being dropped. Requiring both bounds
+ * is what kept the price off 45 of 51 fine-dining pages until 25.08.2026.
+ *
+ * A lone `max` stays null: "up to 20 €" is not a claim Places supports, and no
+ * document in either dataset has one.
  */
-export function formatPriceLabel(input: {
-  priceRange?: { min?: number; max?: number; currency?: string };
-}): string | null {
+export function formatPriceLabel(
+  input: {
+    priceRange?: { min?: number; max?: number; currency?: string };
+  },
+  locale?: string
+): string | null {
   const r = input.priceRange;
   if (!r) return null;
-  if (r.min == null || r.max == null) return null;
+  if (r.min == null) return null;
   const cur = r.currency === 'EUR' || !r.currency ? '€' : r.currency;
+  if (r.max == null) {
+    return locale === 'en' ? `from ${r.min} ${cur}` : `ab ${r.min} ${cur}`;
+  }
   return `${r.min}–${r.max} ${cur}`;
 }
 

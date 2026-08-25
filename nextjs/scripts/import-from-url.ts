@@ -643,16 +643,25 @@ export async function importGalleryPhotos(
 
 // ----- Doc construction -----------------------------------------------------
 
+/**
+ * Places sends its most expensive tier open-ended: `startPrice: 100` with no
+ * `endPrice`. Requiring both bounds silently dropped exactly that band, which
+ * is why 45 of 51 fine-dining spots had no price at all until 25.08.2026 —
+ * the gap looked like sloppy curation and was this line. Open ranges now come
+ * through with `max` undefined and render as "ab 100 €".
+ *
+ * A lone `endPrice` is still rejected: Places does not emit it, and a bare
+ * upper bound has no sensible label.
+ */
 function buildPriceRange(pr?: Place['priceRange']) {
-  if (!pr?.startPrice?.units || !pr?.endPrice?.units) return null;
+  if (!pr?.startPrice?.units) return null;
   const min = Number(pr.startPrice.units);
+  if (Number.isNaN(min) || min <= 0) return null;
+  const currency = pr.startPrice.currencyCode ?? pr.endPrice?.currencyCode ?? 'EUR';
+  if (!pr.endPrice?.units) return { min, currency };
   const max = Number(pr.endPrice.units);
-  if (Number.isNaN(min) || Number.isNaN(max) || (min <= 0 && max <= 0)) return null;
-  return {
-    min,
-    max,
-    currency: pr.startPrice.currencyCode ?? pr.endPrice.currencyCode ?? 'EUR',
-  };
+  if (Number.isNaN(max) || max <= 0) return { min, currency };
+  return { min, max, currency };
 }
 
 interface BuildContext {

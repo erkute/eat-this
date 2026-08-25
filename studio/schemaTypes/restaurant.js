@@ -241,7 +241,7 @@ export default {
       title: 'Preisspanne',
       type: 'object',
       description:
-        'Wird beim Import aus Google Places gezogen und überall als "10–20 €" angezeigt. Manuell editieren wenn Places keine Daten hat.',
+        'Wird beim Import aus Google Places gezogen und überall als "10–20 €" angezeigt. Max darf leer bleiben — Google liefert für sein teuerstes Band nur einen Startpreis, das rendert dann als "ab 100 €". Manuell editieren wenn Places keine Daten hat.',
       options: { collapsible: true, collapsed: false },
       fields: [
         { name: 'min', title: 'Min', type: 'number' },

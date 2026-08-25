@@ -10,8 +10,13 @@
   --et-type-section-title: clamp(30px, 3.4vw, 42px);
   /* One rhythm for every boundary on the page, including the last one down to
      the footer (HubFaq's margin-bottom). Sections used to carry their own
-     values and drifted apart by up to 50px. */
-  --home-section-gap: clamp(64px, 5.4vw, 92px);
+     values and drifted apart by up to 50px.
+     The floor is the mobile value, not a smaller number: at clamp(64px, …) the
+     home ran 69px between sections at 1280px while the mobile block below sat
+     at 104px — desktop was the *tighter* layout, and crossing 920px jumped 40px
+     in one step. It was also well under the site's own --et-section-gap
+     (~102px at 1280), which every other page uses. */
+  --home-section-gap: clamp(104px, 8vw, 128px);
   width: 100%;
   min-height: 100svh;
   padding-top: var(--et-page-top);
@@ -207,44 +212,82 @@
   border-radius: var(--et-radius-photo);
 }
 
-/* ── today: the day's pick as the lead, then what's around you ── */
+/* ── Spot des Tages ─────────────────────────────────────────────────────────
+   The pick used to be a rounded 16/9 box with a text column parked next to it:
+   two floating objects on white, and visibly less designed than the four cards
+   that followed it. Now the photo runs out past the page gutter to the edge of
+   the paper and the copy holds the right column — one object, and unmistakably
+   the section's lead rather than an oversized card. */
 .spot {
   display: block;
-  /* Binds the second movement to the first: clearly tighter than the gap to
-     the next section (--home-section-gap), clearly wider than anything inside
-     either movement. */
-  margin-bottom: clamp(48px, 5vw, 70px);
+  /* How far the photo has to reach to clear .hv-wrap's gutter. The wrap swaps
+     to the mobile gutter at 760px but leaves --et-wrap-pad at its desktop
+     value, so the bleed needs its own switch (below) — not the same one the
+     rest of this file uses at 920px. */
+  --spot-bleed: var(--et-wrap-pad);
+}
+
+@media (max-width: 760px) {
+  .spot {
+    --spot-bleed: var(--et-wrap-pad-mobile);
+  }
 }
 
 .page .spotHead:global(.hv-head) {
+  column-gap: clamp(12px, 2vw, 28px);
   margin-bottom: clamp(20px, 2.2vw, 30px);
+}
+
+/* Under ~560px the 30px title and the date stop fitting on one line and end up
+   touching. Stacked they read as headline and dateline, which is what they
+   are, and no width can make them collide. */
+@media (max-width: 560px) {
+  .page .spotHead:global(.hv-head) {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 7px;
+  }
+}
+
+/* On the title's baseline at the far end of the head row. Without it nothing
+   on the page said the pick is new today; the heading alone claims a daily
+   rhythm the visitor has no way to see. Muted, not a second red thing. */
+.spotDate {
+  flex: none;
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: clamp(14px, 1.15vw, 17px);
+  letter-spacing: 0;
+  line-height: 1;
+  color: var(--home-muted);
+  white-space: nowrap;
 }
 
 .spotCard {
   display: grid;
-  /* Photo leads, text follows at a little under half — a 50/50 split left the
-     four-line description swimming in its column. */
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: clamp(24px, 3.2vw, 52px);
+  /* Twelve tracks so the photo and the copy can share two of them: side by
+     side with a gap they were two objects that happened to be near each other.
+     Overlapping, the copy is a layer on top of the photo and the two read as
+     one thing. No column gap for the same reason. */
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
   color: var(--home-ink);
   text-decoration: none;
 }
 
-/* A candidate without an image would otherwise park an empty grey 16/10 box
-   next to the text. */
-.spotCardTextOnly {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .spotCard .spotPhoto {
+  grid-column: 1 / 10;
+  grid-row: 1;
   position: relative;
   display: block;
-  width: 100%;
-  /* Wider than the 4/3 the card used, so the lead reads as an opener rather
-     than an oversized version of the four cards below it — and flat enough
-     that the block does not push the signup much further down the page. */
+  /* Out through the wrap's gutter to the edge of the paper — up to
+     --et-wrap-max that is the viewport edge, past it the page's outer margin.
+     Square on that side, rounded on the other: the frame reads as continuing
+     off the page instead of as a card that happens to be large. */
+  width: calc(100% + var(--spot-bleed));
+  margin-left: calc(-1 * var(--spot-bleed));
   aspect-ratio: 16 / 9;
+  border-radius: 0 var(--et-radius-photo) var(--et-radius-photo) 0;
   overflow: hidden;
 }
 
@@ -269,10 +312,31 @@
 }
 
 .spotBody {
+  grid-column: 7 / 13;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
+  padding: clamp(26px, 2.9vw, 44px);
+  background: var(--home-paper);
+  border-radius: var(--et-radius-photo);
+  /* A layer only reads as a layer if it casts something. Long and soft, so the
+     panel lifts off the photo instead of turning into a boxed-in card. */
+  box-shadow:
+    0 30px 60px -34px rgba(21, 18, 14, 0.55),
+    0 3px 10px -6px rgba(21, 18, 14, 0.14);
+}
+
+/* A candidate without an image has nothing to lie on top of — no panel, no
+   shadow, and the copy takes the full width. */
+.spotCardTextOnly .spotBody {
+  grid-column: 1 / 13;
+  padding: 0;
+  background: none;
+  box-shadow: none;
 }
 
 /* The district is the quiet line above the name, not a spaced-out micro-label
@@ -287,45 +351,61 @@
 }
 
 .spotName {
-  margin-top: clamp(9px, 1.1vw, 14px);
+  margin-top: clamp(10px, 1.2vw, 15px);
   font-family: var(--font-providence);
   font-weight: 700;
-  font-size: clamp(32px, 3.1vw, 48px);
+  font-size: clamp(34px, 3.4vw, 54px);
   letter-spacing: -0.015em;
   line-height: 0.95;
   /* Same rule the restaurant hero needed: `anywhere`, not `break-word` — only
-     `anywhere` counts towards min-content, so "Nationalgalerie" at 48px cannot
+     `anywhere` counts towards min-content, so "Nationalgalerie" at 54px cannot
      push the text column past its grid track. No `hyphens: auto`; it split
      "Five Elephant Schwedter" in the wrong places. */
   overflow-wrap: anywhere;
 }
 
+/* Three lines of running copy, so it is set to be read rather than to shout:
+   Providence at 400 instead of 700 and 1.45 leading instead of 1.2. Bold brush
+   type packed at 1.2 is what made the reason the pick was picked the least
+   legible thing in the block. */
 .spotSub {
-  max-width: 34ch;
+  max-width: 36ch;
   margin-top: clamp(12px, 1.3vw, 18px);
   color: var(--home-ink);
   font-family: var(--font-providence);
-  font-size: clamp(17px, 1.35vw, 21px);
-  font-weight: 700;
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.2;
+  line-height: 1.45;
 }
 
-/* Not a second dark button under the hero's — a text link on the page's own
-   yellow rule, the same move the 404 uses. */
+/* The underlined "Auf der Map ansehen" was a four-word label pretending to be
+   a control. On its own panel the block can carry the site's real primary
+   shape, and the label only has to name the destination. */
 .spotCta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: clamp(18px, 2vw, 28px);
-  padding-bottom: 3px;
-  box-shadow: inset 0 -4px 0 var(--et-home-accent);
+  gap: 9px;
+  min-height: 46px;
+  margin-top: clamp(20px, 2.2vw, 30px);
+  padding: 0 22px;
+  border-radius: var(--et-radius-control);
+  background: var(--home-ink);
+  color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
-  font-size: clamp(15px, 1.25vw, 18px);
+  font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
+  transition: background 160ms ease;
+}
+
+/* Same hover the hero's button carries, so the two dark buttons on the page
+   behave alike. */
+.spotCard:hover .spotCta,
+.spotCard:focus-visible .spotCta {
+  background: var(--et-home-red);
 }
 
 .spotCta::after {
@@ -342,19 +422,10 @@
 @media (max-width: 920px) {
   /* Stacked, every block is the full column width, so the only thing telling a
      visitor where one section ends and the next begins is the space between
-     them. It has to be clearly more than any gap inside a section — the
-     tightest of those is .spot's margin-bottom below. */
+     them — it has to be clearly more than any gap inside a section. Same value
+     the clamp above floors at, so nothing jumps at the breakpoint. */
   .page {
     --home-section-gap: 104px;
-  }
-
-  /* The clamp above floors at 48px for this whole range, which on a phone put
-     the day's pick and "was ist um dich?" close enough to read as one run:
-     both headings are red, uppercase and near enough the same width that the
-     eye pairs them. Fixed here instead of raising the clamp's floor — on
-     desktop the two sit at 64-70px and that is already right. */
-  .spot {
-    margin-bottom: 64px;
   }
 
   .heroGrid {
@@ -383,12 +454,31 @@
   }
 
   .spotCard {
-    grid-template-columns: 1fr;
-    gap: clamp(16px, 4vw, 22px);
+    grid-template-columns: minmax(0, 1fr);
   }
 
+  /* Stacked, the photo bleeds both ways and drops its corners: full width is
+     the only thing left that separates the lead from the rail of cards under
+     it, and rounded corners on an edge-to-edge photo just look like a mistake. */
   .spotCard .spotPhoto {
+    grid-column: 1;
+    width: calc(100% + 2 * var(--spot-bleed));
     aspect-ratio: 4 / 3;
+    border-radius: 0;
+  }
+
+  /* The same layer move turned 90°: the panel sits in the gutter and rides up
+     over the bottom of a photo that runs edge to edge. */
+  .spotBody {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: clamp(-56px, -6vw, -32px);
+    padding: clamp(22px, 5vw, 30px);
+  }
+
+  .spotCardTextOnly .spotBody {
+    grid-row: 1;
+    margin-top: 0;
   }
 
   .spotSub {

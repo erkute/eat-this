@@ -111,10 +111,26 @@ describe('HubMustEatsTeaser', () => {
     expect(html).not.toContain('/map?r=');
   });
 
-  it('server-renders face-up card content but defers the protected image request', () => {
+  it('server-renders the card image and leaves the fetch to native lazy loading', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain('Smash Burger');
-    expect(html).not.toContain('cdn.sanity.io');
+    // The image used to be withheld from SSR and mounted by an
+    // IntersectionObserver after hydration, which put the JS bundle in front of
+    // every card on the page's furthest-down section. `loading="lazy"` keeps it
+    // off the initial payload without that dependency.
+    expect(html).toContain('loading="lazy"');
+    expect(html).toContain('src="https://cdn.sanity.io/i.png?w=360');
+  });
+
+  it('asks the image route for a card-sized variant, not the original', () => {
+    const html = render(dataRevealed([me()]));
+    // Without a srcset every tile downloaded the 1200px original into a slot at
+    // most 208px wide — `sanitySrcSet` returns undefined for the
+    // /api/must-eat-image URLs these carry, so there was never one.
+    expect(html).toContain('180w');
+    expect(html).toContain('360w');
+    expect(html).toContain('440w');
+    expect(html).toContain('sizes="(min-width: 761px) 178px, 208px"');
   });
 
   it('renders nothing when no card is face-up', () => {

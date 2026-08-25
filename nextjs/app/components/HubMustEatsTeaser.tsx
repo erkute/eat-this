@@ -1,17 +1,30 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { filterMustEats } from '@/lib/home/mustEatsGallery';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
 
 const TEASER_COUNT = 6;
+
+// Card art comes from /api/must-eat-image, not the Sanity CDN, so
+// `sanitySrcSet` silently returned undefined here: every tile downloaded the
+// 1200px original (~140 kB) into a slot that is at most 208 px wide, and the
+// `sizes` attribute below described a candidate list that did not exist. The
+// route resizes on demand, but only for widths on its own ladder — these three
+// are its rungs for 1x and 2x of the desktop (178 px) and phone (208 px) slot.
+// Measured 25.08.2026: 22 kB at w=360 against 142 kB for the original, at the
+// same TTFB.
+const CARD_WIDTHS = [180, 360, 440] as const;
+
+function cardSrcSet(url: string): string {
+  return CARD_WIDTHS.map((w) => `${url}?w=${w}&auto=format&q=80 ${w}w`).join(', ');
+}
 
 /**
  * `children` carries the cutout-dish strip, which used to be its own section
@@ -27,8 +40,6 @@ export default function HubMustEatsTeaser({ children }: Props) {
   const { initialMapData, live, uid } = useHomeMapData();
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
   const { lang, t } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
-  const [loadImages, setLoadImages] = useState(false);
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
 
@@ -79,35 +90,10 @@ export default function HubMustEatsTeaser({ children }: Props) {
     return filterMustEats(mustEats, faceUp, 'open').slice(0, TEASER_COUNT);
   }, [mustEats, faceUp]);
 
-  // These protected card images are several sections below the fold and must
-  // be fetched directly (the Next image proxy cannot forward their capability
-  // cookie). Mount them shortly before the section approaches the viewport so
-  // they do not consume initial-page bandwidth, while the semantic card links
-  // and copy remain server-rendered. Watching teaser.length also covers data
-  // that only becomes available after hydration.
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    if (typeof IntersectionObserver === 'undefined') {
-      setLoadImages(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        setLoadImages(true);
-        observer.disconnect();
-      },
-      { rootMargin: '600px 0px' }
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [teaser.length]);
-
   if (teaser.length === 0) return null;
 
   return (
-    <section ref={sectionRef} className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
+    <section className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
       <div className="hv-head">
         <h2 className="hv-title">
           <span className="hv-mk" aria-hidden="true" />
@@ -132,18 +118,24 @@ export default function HubMustEatsTeaser({ children }: Props) {
                 aria-label={`${normalizeName(m.dish ?? '')} ${mustEatAria}`}
               >
                 <span className={styles.photo}>
-                  {loadImages && (
+                  {/* Server-rendered with native lazy loading rather than
+                    mounted by an IntersectionObserver after hydration. The
+                    observer kept the images off the initial payload, which
+                    `loading="lazy"` does by itself — but it also made every
+                    card wait for the JS bundle and hydration first, on the
+                    section furthest down the page. */}
+                  {m.image && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       className={styles.card}
-                      src={m.image}
-                      // The tile renders at clamp(168px, 20vw, 208px), so the
-                      // srcset spans 220–620: 220 covers 1x, 440 covers the
-                      // common 2x phone, 620 the widest 3x case.
-                      srcSet={sanitySrcSet(m.image, [220, 440, 620])}
-                      sizes="(max-width: 560px) 52vw, (max-width: 760px) 208px, 208px"
+                      src={`${m.image}?w=360&auto=format&q=80`}
+                      srcSet={cardSrcSet(m.image)}
+                      // The tile is clamp(168px, 20vw, 208px) on the phone rail
+                      // and capped at 178px from 761px up.
+                      sizes="(min-width: 761px) 178px, 208px"
                       alt={normalizeName(m.dish ?? '')}
                       loading="lazy"
+                      decoding="async"
                     />
                   )}
                 </span>

@@ -27,13 +27,13 @@ interface Props {
 const copy = {
   de: {
     spotDay: 'Spot des Tages',
-    spotCta: 'Auf der Map ansehen',
+    spotCta: 'Zur Map',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Die Eat This Map auf dem Handy',
   },
   en: {
     spotDay: 'Spot of the day',
-    spotCta: 'See it on the map',
+    spotCta: 'To the map',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'The Eat This map on your phone',
   },
@@ -49,6 +49,19 @@ function phoneSrcSet(name: string): string {
   return PHONE_WIDTHS.map(
     (w) => `/pics/home-phones/${name}${w === 855 ? '' : `-${w}`}.webp ${w}w`
   ).join(', ');
+}
+
+// Makes "des Tages" literal. Nothing else on the page said the pick is new
+// today, so nothing gave a reason to come back tomorrow. Formatted from the
+// very string the pick is keyed to, pinned to noon UTC so no zone or DST
+// shift can move the label off the day it labels.
+function dayLabel(today: string, locale: 'de' | 'en'): string {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
+    weekday: 'short',
+    day: '2-digit',
+    month: locale === 'en' ? 'short' : '2-digit',
+    timeZone: 'UTC',
+  }).format(new Date(`${today}T12:00:00Z`));
 }
 
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
@@ -106,23 +119,30 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
 
       <HomeMapDataProvider initialMapData={initialMapData}>
-        {/* One question — "what do I eat now" — answered in two movements: the
-          day's pick as the lead, then what is actually around you. They shared
-          a two-column row before; the pick had no heading of its own, the
-          columns started at different heights, and the nearby cards were 2×2
-          thumbnails in half a page. Stacked, both get the full width. */}
-        <section className="homeV2 hv-section hv-wrap">
-          {spot && (
+        {/* What is around you comes first: it needs nothing from the visitor
+          but a tap, and it answers "what do I eat now" with their own street.
+          The day's pick follows as the editorial answer to the same question.
+          Both are full-width sections of their own now — stacked inside one
+          section the second heading had to shrink to stay out of the first
+          one's way, and neither block led. */}
+        <HubNearby locale={locale} today={today} />
+
+        {spot && (
+          <section className="homeV2 hv-section hv-wrap">
             <article className={styles.spot}>
               <div className={`hv-head ${styles.spotHead}`}>
                 <h2 className="hv-title">
                   <span className="hv-mk" aria-hidden="true" />
                   {t.spotDay}
                 </h2>
+                <time className={styles.spotDate} dateTime={today}>
+                  {dayLabel(today, locale)}
+                </time>
               </div>
               {/* Name and reason sit beside the photo, not on it: the pick is a
                 different restaurant every day and half the images are bright
-                enough to swallow white type. */}
+                enough to swallow white type. The photo runs out to the page
+                edge instead, which is what makes this read as the lead. */}
               <MapIntentLink
                 href={`/map?r=${spot.slug}`}
                 rel="nofollow"
@@ -140,7 +160,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:760px) 92vw, (max-width:1200px) 55vw, 690px"
+                      sizes="(max-width:920px) 100vw, (max-width:1200px) 60vw, 780px"
                     />
                   </span>
                 )}
@@ -156,22 +176,20 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 </span>
               </MapIntentLink>
             </article>
-          )}
-
-          <HubNearby locale={locale} today={today} embedded />
-        </section>
+          </section>
+        )}
 
         {/* Order follows what a first-time visitor needs, in that order: what is
-          this (hero) → what to eat right now → the free offer while interest is
-          highest → the thing nobody else has (must eats) → proof we know the
-          city (magazine) → a second chance at the offer → navigation → Remy and
-          FAQ. Selling packs moved off the home page. */}
+          this (hero) → what is around you → the day's pick → proof we know the
+          city (magazine) → the free offer → the thing nobody else has (must
+          eats) → navigation → Remy and FAQ. Selling packs moved off the home
+          page. */}
+        <MagazineGrid articles={initialData.magazine} locale={locale} />
         <StarterPackSignup locale={locale} />
         <HubMustEatsTeaser>
           <HomeDishStrip locale={locale} />
         </HubMustEatsTeaser>
       </HomeMapDataProvider>
-      <MagazineGrid articles={initialData.magazine} locale={locale} />
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />
       <HubFaq locale={locale} />

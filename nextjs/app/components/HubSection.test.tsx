@@ -58,7 +58,9 @@ const data: HomeData = {
     _id: 'r1',
     featuredOnDate: null,
   },
-  magazine: [],
+  // MagazineGrid renders nothing on an empty list, and the order assertions
+  // below need it on the page.
+  magazine: [{ title: 'Zehn Teller', slug: 'zehn-teller', image: null, kicker: 'Magazin' }],
   categoryNames: { pizza: 'Pizza' },
 };
 const map = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown as InitialMapData;
@@ -93,17 +95,31 @@ describe('HubSection home', () => {
     expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
   });
 
-  it("leads the day's pick with a heading of its own, above the nearby block", () => {
+  it("gives the day's pick a heading of its own", () => {
     const html = renderHome();
     // The pick used to be an unlabelled photo in the left half of a row, with
     // the only heading in the block sitting over the nearby cards beside it.
     const head = html.indexOf('Spot des Tages');
     expect(html.slice(head - 120, head)).toContain('hv-title');
-    // Same section, in this order: heading, the pick, then what's around you.
-    // (The HubNearby mock returns a string, so it lands HTML-escaped.)
     expect(head).toBeLessThan(html.indexOf('Gazzo'));
-    expect(html.indexOf('Gazzo')).toBeLessThan(html.indexOf('nearby'));
-    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('data-hub-starter'));
+  });
+
+  it('runs what is around you first, then the pick, the magazine, the signup', () => {
+    const html = renderHome();
+    // What's nearby costs the visitor one tap and answers with their own
+    // street, so it leads; the pick is the editorial answer to the same
+    // question. (The HubNearby mock returns a string, so it lands escaped.)
+    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Spot des Tages'));
+    expect(html.indexOf('Spot des Tages')).toBeLessThan(html.indexOf('Auf dem Teller'));
+    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('data-hub-starter'));
+    expect(html.indexOf('data-hub-starter')).toBeLessThan(html.indexOf('musteats'));
+  });
+
+  it("dates the pick, so 'des Tages' is something the visitor can see", () => {
+    const html = renderHome();
+    // Nothing on the page said the pick was new today — the heading claimed a
+    // daily rhythm with no evidence for it.
+    expect(html).toMatch(/<time[^>]+datetime="\d{4}-\d{2}-\d{2}"/i);
   });
 
   it('keeps the pick\'s name off the photo, where a bright image swallows it', () => {
@@ -145,6 +161,6 @@ describe('HubSection home', () => {
     const html = renderHome();
     expect(html).toContain('Gazzo');
     expect(html).toContain('Prenzlberg');
-    expect(html).toContain('Auf der Map ansehen');
+    expect(html).toContain('Zur Map');
   });
 });

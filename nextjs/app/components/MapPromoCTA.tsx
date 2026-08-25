@@ -123,6 +123,20 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
   return (
     <section className={styles.promo} aria-label={SLOGAN}>
       <div className={styles.copy}>
+        {/* Die Marke als Absender über dem Versprechen. Als Grafik, nicht als
+            gesetzter Text: die Wortmarke ist gezeichnet, jede Nachbildung in
+            Providence bleibt eine Näherung (dieselbe Regel wie auf den
+            Kategorie-Seiten). Die schwarze Kontur der Grafik trägt sie auf dem
+            gelben Grund — die creme Füllung allein hätte darauf zu wenig
+            Kontrast. Nicht `aria-hidden`: der Absender gehört vorgelesen. */}
+        <Image
+          src="/pics/eat-this-logo.webp?v=6"
+          alt="Eat This"
+          width={1660}
+          height={667}
+          sizes="min(46vw, 190px)"
+          className={styles.brandMark}
+        />
         <h2 className={`${styles.title} ${styles.titleRestaurant}`}>
           <span>The map for people</span> <span>who care about food.</span>
         </h2>

@@ -1,15 +1,7 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { useHubFilter, type HubFilter } from '@/lib/useHubFilter';
 import styles from './Bezirk.module.css';
 
 /**
@@ -39,12 +31,7 @@ export interface BezirkChip {
   count: number;
 }
 
-interface FilterState {
-  active: string | null;
-  select: (slug: string | null) => void;
-}
-
-const BezirkFilterContext = createContext<FilterState>({
+const BezirkFilterContext = createContext<HubFilter>({
   active: null,
   select: () => {},
 });
@@ -61,43 +48,7 @@ export function BezirkFilterProvider({
   slugs: string[];
   children: ReactNode;
 }) {
-  const [active, setActive] = useState<string | null>(null);
-  const known = useMemo(() => new Set(slugs), [slugs]);
-  const settled = useRef(false);
-
-  // Geteilte Links (?bezirk=neukoelln) gehen gefiltert auf. Bewusst erst nach
-  // dem Mount: so bleibt das SSR-Markup die vollständige Liste. Unbekannte
-  // Slugs werden ignoriert, sonst versteckte ein Tippfehler jede Zeile.
-  useEffect(() => {
-    const wanted = new URLSearchParams(window.location.search).get(QUERY_KEY);
-    if (wanted && known.has(wanted)) setActive(wanted);
-  }, [known]);
-
-  const select = useCallback((slug: string | null) => {
-    setActive(slug);
-    const url = new URL(window.location.href);
-    if (slug) url.searchParams.set(QUERY_KEY, slug);
-    else url.searchParams.delete(QUERY_KEY);
-    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
-  }, []);
-
-  // Beim Umschalten verschwinden Zeilen oberhalb des Blickfelds — ohne
-  // Korrektur steht man anschließend im Weißraum unter der Liste. Der erste
-  // Lauf wird übersprungen, damit ein Direktaufruf nicht sofort wegscrollt.
-  //
-  // Bewusst ohne `behavior`: der Vorgabewert `auto` übernimmt das CSS
-  // `scroll-behavior` — global `smooth`, und unter `prefers-reduced-motion`
-  // per `!important` auf `auto` zurückgesetzt (globals.css). Ein hier
-  // fest verdrahtetes `smooth` würde genau diese Regel aushebeln.
-  useEffect(() => {
-    if (!settled.current) {
-      settled.current = true;
-      return;
-    }
-    document.getElementById(BEZIRK_LIST_ID)?.scrollIntoView({ block: 'start' });
-  }, [active]);
-
-  const value = useMemo(() => ({ active, select }), [active, select]);
+  const value = useHubFilter({ queryKey: QUERY_KEY, slugs, anchorId: BEZIRK_LIST_ID });
 
   return <BezirkFilterContext.Provider value={value}>{children}</BezirkFilterContext.Provider>;
 }

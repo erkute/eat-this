@@ -28,6 +28,15 @@ import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sharedStyles from '../../bezirk/Bezirk.module.css';
 import styles from '../Kategorie.module.css';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
+import {
+  HubFilterProvider,
+  HubFilterBar,
+  HubFilterCard,
+  HubFilterGroup,
+  HubFilterUnfiltered,
+  SPOT_LIST_ID,
+  type HubFacet,
+} from '@/app/components/HubFilter';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
 import KategorieBoost from '@/app/components/KategorieBoost';
 
@@ -100,47 +109,49 @@ function RestaurantGrid({
           pickLocale(r.shortDescription, r.shortDescriptionEn, locale) ||
           pickLocale(r.tip, r.tipEn, locale);
         return (
-          <Link key={r._id} href={`/restaurant/${r.slug}`} className={sharedStyles.card}>
-            {r.photo && (
-              <div className={sharedStyles.cardPhoto}>
-                {/* Sanity already serves transformed WebP/AVIF. A compact
-                    three-width srcset avoids Next serialising its large
-                    global candidate list for every card on long pages. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={r.photo}
-                  alt={r.name}
-                  srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
-                  sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
-                  loading={i === leadPhotoIndex ? 'eager' : 'lazy'}
-                  fetchPriority={i === leadPhotoIndex ? 'high' : undefined}
-                  decoding="async"
-                />
-                {ranked && (
-                  <span className={sharedStyles.rankBadge} aria-hidden="true">
-                    {i + 1}
-                  </span>
-                )}
+          <HubFilterCard key={r._id} slugs={r.bezirk?.slug ? [r.bezirk.slug] : []}>
+            <Link href={`/restaurant/${r.slug}`} className={sharedStyles.card}>
+              {r.photo && (
+                <div className={sharedStyles.cardPhoto}>
+                  {/* Sanity already serves transformed WebP/AVIF. A compact
+                      three-width srcset avoids Next serialising its large
+                      global candidate list for every card on long pages. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={r.photo}
+                    alt={r.name}
+                    srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
+                    sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
+                    loading={i === leadPhotoIndex ? 'eager' : 'lazy'}
+                    fetchPriority={i === leadPhotoIndex ? 'high' : undefined}
+                    decoding="async"
+                  />
+                  {ranked && (
+                    <span className={sharedStyles.rankBadge} aria-hidden="true">
+                      {i + 1}
+                    </span>
+                  )}
+                </div>
+              )}
+              <div className={sharedStyles.cardBody}>
+                <h3 className={sharedStyles.cardName}>
+                  {/* Ohne Foto gibt es keinen Badge — dann trägt die Ziffer der Name. */}
+                  {ranked && !r.photo && <span className={sharedStyles.rankInline}>{i + 1}.</span>}
+                  {r.name}
+                </h3>
+                <div className={sharedStyles.cardMeta}>
+                  {r.cuisineType && (
+                    <span className={sharedStyles.chipYellow}>
+                      {localizedCuisine(r.cuisineType, locale)}
+                    </span>
+                  )}
+                  {r.district && <span className={styles.districtLabel}>{r.district}</span>}
+                  {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
+                </div>
+                {cardLine && <p className={sharedStyles.cardTip}>{cardLine}</p>}
               </div>
-            )}
-            <div className={sharedStyles.cardBody}>
-              <h3 className={sharedStyles.cardName}>
-                {/* Ohne Foto gibt es keinen Badge — dann trägt die Ziffer der Name. */}
-                {ranked && !r.photo && <span className={sharedStyles.rankInline}>{i + 1}.</span>}
-                {r.name}
-              </h3>
-              <div className={sharedStyles.cardMeta}>
-                {r.cuisineType && (
-                  <span className={sharedStyles.chipYellow}>
-                    {localizedCuisine(r.cuisineType, locale)}
-                  </span>
-                )}
-                {r.district && <span className={styles.districtLabel}>{r.district}</span>}
-                {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
-              </div>
-              {cardLine && <p className={sharedStyles.cardTip}>{cardLine}</p>}
-            </div>
-          </Link>
+            </Link>
+          </HubFilterCard>
         );
       })}
     </div>
@@ -215,7 +226,21 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   // Rangbehauptung, Schema und Seite dürfen sich nicht widersprechen.
   const orderedRestaurants = [...top, ...rest];
   const quickFacts = buildKategorieQuickFacts({ slug, label, restaurants, locale: loc });
-  const districtLinks = categoryDistrictLinks(restaurants);
+  // Ohne Limit: die Chip-Leiste braucht *jeden* vertretenen Bezirk, sonst wären
+  // Karten hinter keinem Chip erreichbar. Der Satz läuft hier andersherum als
+  // auf den Bezirksseiten — die Facette ist der Bezirk, benannt wird trotzdem
+  // „Kategorie in Bezirk".
+  const spotWord = (n: number) => (de ? (n === 1 ? 'Spot' : 'Spots') : n === 1 ? 'spot' : 'spots');
+  const districtFilters: HubFacet[] = categoryDistrictLinks(restaurants, Infinity).map((b) => ({
+    slug: b.slug,
+    label: b.label,
+    status: `${label} in ${b.label} · ${b.count} ${spotWord(b.count)}`,
+  }));
+  /** Die Bezirks-Slugs einer Teilliste — entscheidet, ob ihre Sektion beim
+   *  aktiven Filter überhaupt noch etwas zeigt. */
+  const districtSlugsIn = (list: RestaurantCard[]) => [
+    ...new Set(list.map((r) => r.bezirk?.slug).filter((s): s is string => Boolean(s))),
+  ];
   // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
   // Bestenliste über ihr — auseinanderlaufen können sie nicht mehr.
   const faqEntries = buildKategorieFAQEntries({
@@ -233,7 +258,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   ];
 
   const restaurantUrl = (rSlug: string) => `/restaurant/${rSlug}`;
-  const bezirkUrl = (bSlug: string) => `/bezirk/${bSlug}`;
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -351,78 +375,90 @@ export default async function KategorieDetailPage({ params }: PageProps) {
 
         <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
 
-        {districtLinks.length > 0 && (
-          <nav
-            className={sharedStyles.crossLinks}
-            aria-label={de ? `${label} nach Bezirk` : `${label} by district`}
-          >
-            <span className={sharedStyles.crossLinksHead}>
-              {de ? `${label} nach Bezirk:` : `${label} by district:`}
-            </span>
-            {districtLinks.map((b) => (
-              <Link key={b.slug} href={bezirkUrl(b.slug)} className={sharedStyles.crossLink}>
-                {b.label}
-              </Link>
-            ))}
-          </nav>
-        )}
+        <HubFilterProvider queryKey="bezirk" slugs={districtFilters.map((b) => b.slug)}>
+          {/* Spiegelbild der Kategorie-Leiste auf den Bezirksseiten. Bis
+              25.08.2026 stand hier eine Reihe Links auf die Bezirks-Hubs — sie
+              versprach „Frühstück in Mitte" und lieferte „alle Spots in Mitte",
+              von wo aus die Kategorie-Leiste wieder hierher zurückwies. */}
+          {districtFilters.length > 1 && (
+            <HubFilterBar
+              facets={districtFilters}
+              allLabel={de ? 'Alle' : 'All'}
+              allStatus={
+                de
+                  ? `Alle ${restaurants.length} Spots in Berlin`
+                  : `All ${restaurants.length} spots across Berlin`
+              }
+              groupLabel={de ? `${label} nach Bezirk filtern` : `Filter ${label} by district`}
+            />
+          )}
 
-        <section id="restaurants" className={sharedStyles.restaurantSection}>
-          <div className={sharedStyles.sectionHead}>
-            {/* Trägt die Ziel-Query im Klartext — die H1 darüber ist auf ein
-                einzelnes Display-Wort designt („LUNCH") und kann das nicht. */}
-            <h2>{buildCategorySectionHeading(slug, label, loc)}</h2>
-            {/* Die Marke steht hier als Logo, nicht als gesetzter Text — die
-                Wortmarke ist gezeichnet, jede Nachbildung in Providence bleibt
-                eine Näherung. `alt` trägt den Namen weiter, Vorleser und
-                Suchmaschinen lesen den Satz also unverändert. */}
-            <p>
-              {top.length > 0
-                ? de
-                  ? `Die ${top.length} besten, ausgewählt von `
-                  : `The top ${top.length}, picked by `
-                : de
-                  ? 'Kuratiert von '
-                  : 'Curated by '}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/pics/eat-this-logo.webp?v=6"
-                alt="Eat This"
-                className={styles.inlineLogo}
+          <HubFilterGroup slugs={districtSlugsIn(top.length > 0 ? top : rest)}>
+            <section id={SPOT_LIST_ID} className={sharedStyles.restaurantSection}>
+              <div className={sharedStyles.sectionHead}>
+                {/* Trägt die Ziel-Query im Klartext — die H1 darüber ist auf ein
+                    einzelnes Display-Wort designt („LUNCH") und kann das nicht. */}
+                <h2>{buildCategorySectionHeading(slug, label, loc)}</h2>
+                {/* Die Marke steht hier als Logo, nicht als gesetzter Text — die
+                    Wortmarke ist gezeichnet, jede Nachbildung in Providence bleibt
+                    eine Näherung. `alt` trägt den Namen weiter, Vorleser und
+                    Suchmaschinen lesen den Satz also unverändert. */}
+                {/* „Die 6 besten" zählt die ganze Kategorie. Sobald ein
+                    Bezirksfilter davon zwei übrig lässt, stimmt die Zahl nicht
+                    mehr — die Zeile fällt dann weg statt zu lügen. */}
+                <HubFilterUnfiltered>
+                  <p>
+                    {top.length > 0
+                      ? de
+                        ? `Die ${top.length} besten, ausgewählt von `
+                        : `The top ${top.length}, picked by `
+                      : de
+                        ? 'Kuratiert von '
+                        : 'Curated by '}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/pics/eat-this-logo.webp?v=6"
+                      alt="Eat This"
+                      className={styles.inlineLogo}
+                    />
+                  </p>
+                </HubFilterUnfiltered>
+              </div>
+
+              <RestaurantGrid
+                restaurants={top.length > 0 ? top : rest}
+                locale={loc}
+                ranked={top.length > 0}
+                // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
+                // ist das größte Bild im ersten Viewport und damit der LCP-
+                // Kandidat. (Das Seitenbild im JSON-LD ist es nicht, das ist die
+                // Pack-Card.)
+                eagerFirst
               />
-            </p>
-          </div>
+            </section>
+          </HubFilterGroup>
 
-          <RestaurantGrid
-            restaurants={top.length > 0 ? top : rest}
-            locale={loc}
-            ranked={top.length > 0}
-            // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
-            // ist das größte Bild im ersten Viewport und damit der LCP-
-            // Kandidat. (Das Seitenbild im JSON-LD ist es nicht, das ist die
-            // Pack-Card.)
-            eagerFirst
-          />
-        </section>
+          {/* Vollständiges Verzeichnis — nur als eigene Sektion, wenn oben eine
+              Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
+              der Crawl-Pfad zu den Restaurant-Detailseiten. */}
+          {top.length > 0 && rest.length > 0 && (
+            <HubFilterGroup slugs={districtSlugsIn(rest)}>
+              <section
+                id="alle"
+                className={`${sharedStyles.restaurantSection} ${sharedStyles.directorySection}`}
+              >
+                <div className={sharedStyles.sectionHead}>
+                  {/* Kein Unterzeilen-Text: Linie und Abstand darüber machen den
+                      Schnitt schon deutlich, und die Zeile stand rechts oben in
+                      der Luft. */}
+                  <h2>{buildCategoryDirectoryHeading(loc)}</h2>
+                </div>
 
-        {/* Vollständiges Verzeichnis — nur als eigene Sektion, wenn oben eine
-            Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
-            der Crawl-Pfad zu den Restaurant-Detailseiten. */}
-        {top.length > 0 && rest.length > 0 && (
-          <section
-            id="alle"
-            className={`${sharedStyles.restaurantSection} ${sharedStyles.directorySection}`}
-          >
-            <div className={sharedStyles.sectionHead}>
-              {/* Kein Unterzeilen-Text: Linie und Abstand darüber machen den
-                  Schnitt schon deutlich, und die Zeile stand rechts oben in
-                  der Luft. */}
-              <h2>{buildCategoryDirectoryHeading(loc)}</h2>
-            </div>
-
-            <RestaurantGrid restaurants={rest} locale={loc} />
-          </section>
-        )}
+                <RestaurantGrid restaurants={rest} locale={loc} />
+              </section>
+            </HubFilterGroup>
+          )}
+        </HubFilterProvider>
 
         <div className={sharedStyles.detailMapCta}>
           <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />

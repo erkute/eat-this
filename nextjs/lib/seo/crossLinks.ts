@@ -15,10 +15,14 @@ function rank(map: Map<string, CrossLink>, limit: number): CrossLink[] {
 
 /**
  * Distinct districts represented in a category's restaurant list, most-common
- * first. Links from the category hub into /bezirk/{slug}. Needs the bezirk
- * reference (slug), which only
+ * first. Needs the bezirk reference (slug), which only
  * restaurantsByCategoryQuery projects; restaurants with a plain district name
- * but no bezirk ref are skipped because they can't be linked.
+ * but no bezirk ref are skipped because they carry nothing to match on.
+ *
+ * Feeds the district chips on the category hub (`limit: Infinity` — a filter
+ * has to offer every represented district, or cards sit behind no chip at all).
+ * The default limit is for link rows, where the list is a recommendation
+ * rather than a complete set.
  */
 export function categoryDistrictLinks(
   restaurants: Array<Pick<RestaurantCard, 'bezirk' | 'district'>>,

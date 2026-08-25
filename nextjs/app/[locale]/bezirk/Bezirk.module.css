@@ -1381,3 +1381,51 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* ============================================================
+   KATEGORIE-FILTER auf der Bezirks-Detailseite
+   Chips aus derselben Familie wie der Bezirks-Filter des Index
+   (.filterRail/.filterChip weiter oben) — nur ohne `sticky`: die
+   Leiste steht mitten auf der Seite, ein mitlaufendes Band über
+   dem Hero wäre Chrome ohne Anlass.
+============================================================ */
+.categoryFilter {
+  margin: 0 0 clamp(24px, 3.5vw, 38px);
+}
+
+/* Hülle um eine Karte. `contents` löst die Box auf, damit die Karte ihr
+   eigenes Grid-Item bleibt — sonst säße zwischen .grid und .card ein Kasten,
+   der Spalten und Seitenverhältnis umwirft.
+
+   Die zweite Regel ist Pflicht, nicht Kosmetik: `display: contents` schlägt
+   den UA-Stil von [hidden] (`display: none`), das Attribut allein versteckt
+   also nichts. */
+.cardSlot {
+  display: contents;
+}
+
+.cardSlot[hidden] {
+  display: none;
+}
+
+/* Hülle des HubFilter-Providers. `contents`, damit sie im Seiten-Grid keine
+   eigene Box aufmacht — sie existiert nur als Träger für
+   `data-hub-filtered`. */
+.filterScope {
+  display: contents;
+}
+
+/* Im gefilterten Zustand fallen die Platzziffern weg.
+
+   Sie behaupten eine Rangfolge über die ganze Kategorie („die 6 besten
+   Frühstücks-Spots in Berlin"). Filtert man auf Mitte, bleiben davon Rang 2
+   und 3 übrig — eine Liste, die mit „2" beginnt und Lücken hat, liest sich als
+   Fehler, nicht als Auszug. Die Karten bleiben, ihre Rangbehauptung nicht.
+
+   Über CSS statt über eine Hülle, weil die Ziffern einzeln tief in den Karten
+   sitzen; die Zeile „Die N besten, ausgewählt von …" nimmt stattdessen
+   HubFilterUnfiltered aus dem Fluss. */
+[data-hub-filtered='true'] .rankBadge,
+[data-hub-filtered='true'] .rankInline {
+  display: none;
+}

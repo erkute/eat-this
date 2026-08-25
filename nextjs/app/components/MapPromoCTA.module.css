@@ -112,6 +112,31 @@
   transform: rotate(-4deg);
   filter: drop-shadow(0 14px 30px rgba(21, 18, 14, 0.28));
 }
+/* Die Wortmarke als Absender über der Headline. Bewusst deutlich kleiner als
+   der Titel: sie sagt, wer spricht, und soll ihm nicht die Stimme nehmen.
+
+   Auf diesem gelben Grund trägt die Marke über ihre Kontur, nicht über ihre
+   Füllung: gemessen kommt die creme Füllung (#F1EEE4) gegen --et-home-accent
+   auf 1,36:1, die schwarze Kontur auf 13,33:1 — und die macht 38 % der Grafik
+   aus. Das Logo ist deshalb hier lesbar, liest sich aber als Outline-Marke.
+   Wer den satten Look wie im SiteNav will, braucht eine dunkle Fläche
+   dahinter oder eine eigene Logo-Variante — nicht einfach mehr Größe.
+   `height: auto` gegen die width/height-Attribute, die next/image ins Markup
+   schreibt — ohne das erzwingen 1660×667 die volle Bannerbreite. Der Abstand
+   nach unten ist enger als `--et-rail-gap`, damit Marke und Headline als ein
+   Block lesen statt als zwei gestapelte Elemente. */
+.brandMark {
+  --mark-w: min(46vw, 190px);
+  /* Anteil transparenter Rand *in der Grafik selbst*, an der Bildkante
+     gemessen statt geschätzt: links 7,2 %, rechts 6,3 %. Links und rechts
+     fast gleich, deshalb steht die Marke zentriert von allein richtig — nur
+     linksbündig braucht es den Ausgleich unten. */
+  --mark-ink-inset: 0.072;
+  width: var(--mark-w);
+  height: auto;
+  margin-bottom: calc(var(--et-rail-gap) * -0.45);
+}
+
 .title {
   color: var(--et-home-red);
   font-family: var(--et-font-display);
@@ -179,6 +204,14 @@
     align-items: flex-start;
     gap: 16px;
     padding-bottom: 52px;
+  }
+  /* Optischer Randausgleich, nur hier: ab 720px setzt .copy linksbündig, und
+     dann steht zwar das Bild-Kästchen bündig mit Headline und Fliesstext — die
+     gezeichnete Wortmarke aber 13px weiter rechts, weil die transparente Luft
+     der Grafik mitzählt. Sichtbar als eingerückte Marke über bündigem Text.
+     Unter 720px ist alles zentriert, dort wäre der Zug nach links ein Fehler. */
+  .brandMark {
+    margin-left: calc(var(--mark-w) * var(--mark-ink-inset) * -1);
   }
   .title,
   .sub {

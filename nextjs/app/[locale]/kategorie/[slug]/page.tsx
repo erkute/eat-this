@@ -54,6 +54,18 @@ const PACK_OG_SLUGS = new Set([
 export const revalidate = 3600;
 
 /**
+ * Das Bild, das diese Seite nach außen vertritt — Pack-Card plus Wortmarke auf
+ * Markengelb. Eine Quelle für Open Graph *und* `primaryImageOfPage`: beide
+ * beschreiben dieselbe Sache, und solange sie auseinanderliefen, zeigte die
+ * Link-Vorschau das Pack und Googles Seitenbild ein beliebiges Restaurantfoto.
+ */
+function categorySocialImage(slug: string): string {
+  return PACK_OG_SLUGS.has(slug)
+    ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
+    : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
+}
+
+/**
  * Ein Kartenraster. `ranked` blendet die Platzziffer ein — nur die kuratierte
  * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht. `eagerFirst`
  * nimmt dem ersten Foto das Lazy-Loading: auf einer Seite ohne eigenes
@@ -155,9 +167,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     locale: loc,
   });
   const brandedTitle = buildBrandedTitle(title);
-  const image = PACK_OG_SLUGS.has(slug)
-    ? `${SITE_URL}/pics/og/og_${slug}.png?v=${OG_PACK_VERSION}`
-    : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
+  const image = categorySocialImage(slug);
   const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en');
   return {
     title: { absolute: brandedTitle },
@@ -224,12 +234,15 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
-      // Kein eigenes Bannerbild auf dieser Seite: das erste gelistete Foto
-      // ist das Leitbild — dasselbe, das oben eager lädt.
+      // Die Pack-Card, nicht das erste Restaurantfoto. Bis hierher war das
+      // Seitenbild ein beliebiger Spot aus der Liste — bei jedem Re-Crawl
+      // potenziell ein anderer, und keiner davon stellt die Kategorie dar.
+      // Dieselbe Grafik liegt schon auf Open Graph; die Seite vertritt sich
+      // damit überall gleich.
       ...buildWebPageNodes({
         pageUrl: localeUrl(locale, `/kategorie/${slug}`),
         locale: loc,
-        image: schemaImageUrl(orderedRestaurants.find((r) => r.photo)?.photo),
+        image: categorySocialImage(slug),
         caption: buildCategoryTitle(slug, label, loc),
       }),
       {
@@ -371,7 +384,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             locale={loc}
             ranked={top.length > 0}
             // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
-            // ist hier das Leitbild.
+            // ist das größte Bild im ersten Viewport und damit der LCP-
+            // Kandidat. (Das Seitenbild im JSON-LD ist es nicht, das ist die
+            // Pack-Card.)
             eagerFirst
           />
         </section>

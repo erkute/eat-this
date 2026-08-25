@@ -1,6 +1,11 @@
 import {CategoryCheckboxInput} from '../components/CategoryCheckboxInput'
 import {BezirkDropdownInput} from '../components/BezirkDropdownInput'
 
+// Spiegel von FIRST_PARTY_RESTAURANT_PHOTO_SLUGS in
+// nextjs/lib/sanity-image-presets.ts — Spots, deren Foto von uns selbst stammt
+// und deshalb ohne Credit-URL ausgespielt wird. Beim Ändern beide Stellen.
+const FIRST_PARTY_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar']
+
 export default {
   name: 'restaurant',
   title: 'Restaurant (Map)',
@@ -236,7 +241,7 @@ export default {
       title: 'Preisspanne',
       type: 'object',
       description:
-        'Wird beim Import aus Google Places gezogen und überall als "10–20 €" angezeigt. Manuell editieren wenn Places keine Daten hat.',
+        'Wird beim Import aus Google Places gezogen und überall als "10–20 €" angezeigt. Max darf leer bleiben — Google liefert für sein teuerstes Band nur einen Startpreis, das rendert dann als "ab 100 €". Manuell editieren wenn Places keine Daten hat.',
       options: { collapsible: true, collapsed: false },
       fields: [
         { name: 'min', title: 'Min', type: 'number' },
@@ -299,6 +304,28 @@ export default {
       title: 'Photo',
       type: 'image',
       options: { hotspot: true },
+      // Die Website spielt ein Restaurant-Foto NUR aus, wenn Credit UND
+      // Credit-URL zusammen gesetzt sind, ODER das Restaurant einen
+      // `instagramHandle` hat, ODER der Slug in der First-Party-Liste steht.
+      // Die Bedingung steht in nextjs/lib/sanity-image-presets.ts
+      // (`publishableRestaurantImageCondition`) — dort ist die Quelle der
+      // Wahrheit, hier die Kopie, damit das Studio es vor dem Speichern merkt.
+      //
+      // Ohne diese Prüfung ist der Fehler unsichtbar: das Bild liegt korrekt im
+      // Dataset, die CDN liefert es, und die Detailseite rendert trotzdem den
+      // `heroNoPhoto`-Header. Genau so ist es am 25.08.2026 bei Son Kitchen
+      // passiert, nachdem das Foto ersetzt und nur `credit` neu gesetzt wurde.
+      validation: Rule =>
+        Rule.custom((value, context) => {
+          if (!value || !value.asset) return true
+          if (value.credit && value.creditUrl) return true
+          const doc = context.document || {}
+          if (doc.instagramHandle) return true
+          if (FIRST_PARTY_PHOTO_SLUGS.includes(doc.slug && doc.slug.current)) return true
+          return value.credit
+            ? 'Credit ohne Credit-URL reicht nicht — die Website blendet das Foto dann komplett aus. Entweder Credit-URL ergänzen oder oben den Instagram-Handle setzen.'
+            : 'Ohne Credit + Credit-URL (oder einen Instagram-Handle am Restaurant) wird das Foto auf der Website nicht ausgespielt.'
+        }),
       fields: [
         {
           name: 'credit',
@@ -312,7 +339,7 @@ export default {
           title: 'Photo Credit URL',
           type: 'url',
           description:
-            'Optional: Profil-URL des Fotografen. Macht das Credit-Label klickbar.',
+            'Profil-URL des Fotografen — macht das Credit-Label klickbar. Zusammen mit dem Credit die Bedingung dafür, dass das Foto überhaupt erscheint (Ausnahme: Restaurant hat einen Instagram-Handle).',
         },
       ],
     },

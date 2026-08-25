@@ -210,7 +210,7 @@ export default function RestaurantDetail({
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null;
 
   const loc = locale === 'en' ? 'en' : 'de';
-  const priceLabel = formatPriceLabel(r);
+  const priceLabel = formatPriceLabel(r, loc);
   const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null;
 
   const websiteInfo = classifyWebsite(r.website);

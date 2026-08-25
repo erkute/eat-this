@@ -354,7 +354,7 @@ export async function searchSpots(
   const mapped = (rows ?? []).map(({ openingHours, priceRange: rawPrice, lat, lng, ...rest }) => {
     // priceRange is a {min,max,currency} object in Sanity — format it to the
     // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
-    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined });
+    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined }, locale);
     // Compute "open now" (Berlin time) so Remy can prioritise open spots and
     // the card can show a status badge. Null when there's no hours data.
     const hours = openingHours ?? [];

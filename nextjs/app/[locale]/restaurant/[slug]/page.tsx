@@ -83,7 +83,7 @@ function SiblingRow({
         {restaurants.map((s) => {
           const meta = [
             s.cuisineType ? localizedCuisine(s.cuisineType, locale) : null,
-            formatPriceLabel(s),
+            formatPriceLabel(s, locale),
           ].filter(Boolean);
           return (
             <IntlLink key={s._id} href={`/restaurant/${s.slug}`} className={styles.sibCard}>
@@ -153,17 +153,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Antwort-Versprechen aus den whatToOrder-Empfehlungen: schlägt die
   // beschreibenden Fallbacks, kuratierte seo.metaDescription gewinnt weiter.
   const orderDishes = (r.whatToOrder ?? []).map((i) => i.dish);
-  const orderPriceLabel = formatPriceLabel(r);
+  // Zwei Labels statt einem: seit offene Spannen erlaubt sind, ist das Label
+  // nicht mehr sprachneutral („ab 100 €" vs. „from 100 €").
   const orderPromiseDe = buildOrderPromiseDescription({
     name: r.name,
     dishes: orderDishes,
-    priceLabel: orderPriceLabel,
+    priceLabel: formatPriceLabel(r, 'de'),
     locale: 'de',
   });
   const orderPromiseEn = buildOrderPromiseDescription({
     name: r.name,
     dishes: orderDishes,
-    priceLabel: orderPriceLabel,
+    priceLabel: formatPriceLabel(r, 'en'),
     locale: 'en',
   });
 
@@ -278,7 +279,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     .filter((img) => imageAssetKey(img.full) !== heroAssetKey);
   const heroCreditHref = safeCreditUrl(r.photoCreditUrl);
 
-  const priceLabel = formatPriceLabel(r);
+  const priceLabel = formatPriceLabel(r, loc);
   const websiteInfo = classifyWebsite(r.website);
   const websiteUrl = websiteInfo?.url ?? null;
   const address = r.address;

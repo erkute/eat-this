@@ -5,8 +5,21 @@ describe('formatPriceLabel', () => {
   it('formats min and max with euro', () => {
     expect(formatPriceLabel({ priceRange: { min: 10, max: 20 } })).toBe('10–20 €');
   });
-  it('returns null when only min is set (no real range)', () => {
-    expect(formatPriceLabel({ priceRange: { min: 15 } })).toBeNull();
+  it('renders an open-ended range when only min is set', () => {
+    expect(formatPriceLabel({ priceRange: { min: 15 } })).toBe('ab 15 €');
+  });
+
+  it('renders an open-ended range for Google\'s top band', () => {
+    // Places sends `startPrice: 100` with no `endPrice` for its most
+    // expensive tier — that is how almost every fine-dining spot arrives.
+    expect(formatPriceLabel({ priceRange: { min: 100, currency: 'EUR' } })).toBe('ab 100 €');
+    expect(formatPriceLabel({ priceRange: { min: 100, currency: 'EUR' } }, 'en')).toBe(
+      'from 100 €'
+    );
+  });
+
+  it('keeps the closed range language-neutral', () => {
+    expect(formatPriceLabel({ priceRange: { min: 10, max: 20 } }, 'en')).toBe('10–20 €');
   });
   it('returns null when only max is set', () => {
     expect(formatPriceLabel({ priceRange: { max: 25 } })).toBeNull();

@@ -66,7 +66,7 @@ function RestaurantGrid({
   return (
     <div className={`${styles.grid} ${restaurants.length <= 2 ? styles.gridCompact : ''}`}>
       {restaurants.map((r, i) => {
-        const priceLabel = formatPriceLabel(r);
+        const priceLabel = formatPriceLabel(r, locale);
         const cardLine =
           pickLocale(r.shortDescription, r.shortDescriptionEn, locale) ||
           pickLocale(r.tip, r.tipEn, locale);

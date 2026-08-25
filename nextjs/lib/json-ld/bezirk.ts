@@ -85,7 +85,7 @@ export function buildBezirkJsonLd({
         name: `Restaurants in ${bezirk.name}`,
         numberOfItems: restaurants.length,
         itemListElement: restaurants.map((r, i) => {
-          const priceLabel = formatPriceLabel(r);
+          const priceLabel = formatPriceLabel(r, locale);
           return {
             '@type': 'ListItem',
             position: i + 1,

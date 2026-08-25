@@ -45,11 +45,20 @@ function isValidSanitySignature(
   const v1 = parts.v1;
   if (!t || !v1) return false;
 
-  const timestamp = Number(t);
-  if (!Number.isInteger(timestamp)) return false;
+  // `t` steht in MILLISEKUNDEN, nicht in Sekunden — sanity-io/webhook-toolkit
+  // setzt MINIMUM_TIMESTAMP auf 1609459200000, also 2021-01-01 in ms. Vorher
+  // verglich diese Prüfung `t` gegen `Date.now() / 1000`; die Differenz lag
+  // damit dauerhaft im Bereich von 1,7 Billionen und riss jede Toleranz. Auch
+  // das allein hätte den Hook für immer auf 401 gehalten, unabhängig von der
+  // Signaturkodierung darunter.
+  //
+  // Für den HMAC wird bewusst der ROHE String `t` verwendet, nicht die
+  // umgerechnete Zahl: signiert wird `${t}.${rawBody}` genau so, wie es über
+  // die Leitung kam.
+  const timestampMs = Number(t);
+  if (!Number.isInteger(timestampMs)) return false;
   const toleranceSeconds = num(process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS, 300);
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (Math.abs(nowSeconds - timestamp) > toleranceSeconds) return false;
+  if (Math.abs(Date.now() - timestampMs) > toleranceSeconds * 1000) return false;
 
   // base64url, NICHT hex. Sanity signiert nach Stripes Schema, kodiert die
   // Signatur aber base64url — sanity-io/webhook-toolkit, signature.ts:

@@ -51,10 +51,22 @@ function isValidSanitySignature(
   const nowSeconds = Math.floor(Date.now() / 1000);
   if (Math.abs(nowSeconds - timestamp) > toleranceSeconds) return false;
 
-  const expected = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
+  // base64url, NICHT hex. Sanity signiert nach Stripes Schema, kodiert die
+  // Signatur aber base64url — sanity-io/webhook-toolkit, signature.ts:
+  //   btoa(...).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  //
+  // Vorher stand hier `digest('hex')` und ein Vergleich über
+  // `Buffer.from(v1, 'hex')`. Auf einem base64url-String bricht die
+  // Hex-Auswertung beim ersten ungültigen Zeichen ab; die Längen stimmten nie
+  // überein und die Prüfung schlug IMMER fehl. Der Hook lieferte dadurch seit
+  // seiner Einrichtung ausnahmslos 401, und jede Content-Änderung hing bis zum
+  // Ablauf der ISR-Frist. Der zugehörige Test signierte ebenfalls hex und hat
+  // den Fehler mitgetragen — deshalb prüft er jetzt gegen die Kodierung, die
+  // wirklich über die Leitung geht.
+  const expected = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('base64url');
 
-  const a = Buffer.from(v1, 'hex');
-  const b = Buffer.from(expected, 'hex');
+  const a = Buffer.from(v1, 'utf8');
+  const b = Buffer.from(expected, 'utf8');
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
 }

@@ -52,34 +52,14 @@ export default defineType({
         'sortieren. Sie erscheinen als nummerierte Bestenliste über der A–Z-Liste. ' +
         'Leer lassen (oder unter 3 Einträge) = die Seite bleibt wie bisher rein alphabetisch.',
     }),
-    defineField({
-      name: 'homeImage',
-      title: 'Home Kategorie-Bild',
-      type: 'image',
-      description: 'Primäres Food-Bild für den Kategorien-Block auf der Startseite.',
-      options: {hotspot: true, accept: 'image/*'},
-    }),
-    defineField({
-      name: 'homeImages',
-      title: 'Weitere Home Food-Bilder',
-      type: 'array',
-      description: 'Zusätzliche Food-Bilder für spätere Varianten der Kategorie-Rail.',
-      of: [
-        {
-          type: 'image',
-          options: {hotspot: true, accept: 'image/*'},
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Alt Text',
-              type: 'string',
-            }),
-          ],
-        },
-      ],
-    }),
   ],
+  // Kein `media`: die Vorschau hing an `homeImage`, und das Feld gibt es nicht
+  // mehr. Es hielt die freigestellten Teller-Fotos und wurde von der App nie
+  // gelesen — einziger Treffer im Code war das Import-Skript, das es befüllt
+  // hat. Wo eine Kategorie wirklich ein Bild zeigt (Hub, Index, Boost, OG),
+  // kommt es aus `lib/categoryArt.ts` bzw. `public/pics/og/` und hat mit dem
+  // Dokument nichts zu tun.
   preview: {
-    select: {title: 'name', media: 'homeImage'},
+    select: {title: 'name'},
   },
 })

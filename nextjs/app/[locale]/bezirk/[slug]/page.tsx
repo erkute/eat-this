@@ -23,6 +23,7 @@ import {
   buildBezirkDirectoryHeading,
 } from '@/lib/bezirk-prose';
 import { rankCurated } from '@/lib/curated-ranking';
+import { bezirkCategoryLinks } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from '../Bezirk.module.css';
@@ -193,6 +194,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   // Kuratierte Bestenliste aus dem Studio; ohne Pflege (oder unter
   // MIN_CURATED) fällt `top` leer aus und die Seite bleibt rein alphabetisch.
   const { top, rest } = rankCurated(restaurants, b.topSpots);
+  const categoryLinks = bezirkCategoryLinks(restaurants, loc);
 
   const jsonLd = buildBezirkJsonLd({
     bezirk: b,
@@ -259,6 +261,24 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             </figure>
           )}
         </header>
+
+        {/* Spiegelbild der Bezirks-Leiste auf den Kategorie-Seiten. Dieselben
+            Klassen, damit beide Hub-Typen dieselbe Geste zeigen. */}
+        {categoryLinks.length > 0 && (
+          <nav
+            className={styles.crossLinks}
+            aria-label={de ? `Kategorien in ${b.name}` : `Categories in ${b.name}`}
+          >
+            <span className={styles.crossLinksHead}>
+              {de ? `In ${b.name} nach Kategorie:` : `${b.name} by category:`}
+            </span>
+            {categoryLinks.map((c) => (
+              <Link key={c.slug} href={`/kategorie/${c.slug}`} className={styles.crossLink}>
+                {c.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <section id="restaurants" className={styles.restaurantSection}>
           <div className={styles.sectionHead}>

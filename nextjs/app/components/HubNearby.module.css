@@ -5,19 +5,6 @@
   align-items: center;
 }
 
-/* Second movement of the home's "today" section: no chrome, no margin of its
-   own — the day's pick above it owns the gap. */
-.embedded {
-  min-width: 0;
-}
-
-/* One step under the red "Spot des Tages" that opens the section, so the two
-   read as one block with a lead and a follow-up rather than as two sections
-   that happen to touch. */
-:global(.homeV2) .titleEmbedded:global(.hv-title) {
-  font-size: clamp(24px, 2.4vw, 31px);
-}
-
 /* Some spots carry their tagline in the name field ("der Weinlobbyist -
    Restaurant&Weinbar"). Cap it at two lines so one long record cannot push
    the card's meta row around. */

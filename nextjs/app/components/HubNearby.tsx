@@ -20,10 +20,9 @@ interface Props {
   /** Rendered as the second movement of the home's "what should I eat now"
       block, under the day's pick: no section chrome of its own, and a heading
       one step below the red section title above it. */
-  embedded?: boolean;
 }
 
-export default function HubNearby({ locale = 'de', today, embedded = false }: Props) {
+export default function HubNearby({ locale = 'de', today }: Props) {
   const t = useTranslations('hub.nearby');
   const { initialMapData, live } = useHomeMapData();
   const { location, loading: locating, error: locError, request } = useUserLocationContext();
@@ -89,16 +88,16 @@ export default function HubNearby({ locale = 'de', today, embedded = false }: Pr
   return (
     <>
       <section
-        className={embedded ? styles.embedded : 'homeV2 hv-section hv-wrap'}
+        className="homeV2 hv-section hv-wrap"
         data-hub-nearby=""
       >
         {/* Heading, its own line of copy and the button that acts on it live in
             one block. Stacked on phones the button used to sit between the
             heading and the line explaining it, which put more space inside the
-            heading than above it — the section read as if it belonged to the
-            day's pick above. */}
+            heading than above it — the section read as if it belonged to
+            whatever sat above. */}
         <div className={`hv-head ${styles.head}`}>
-          <h2 className={`hv-title ${styles.title} ${embedded ? styles.titleEmbedded : ''}`}>
+          <h2 className={`hv-title ${styles.title}`}>
             <span className="hv-mk" aria-hidden="true" />
             {title}
           </h2>

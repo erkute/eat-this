@@ -84,7 +84,9 @@ const en = {
       // ask and has to name the action, afterwards it is the quiet way to
       // re-read a location that already exists.
       location: 'Locate',
-      locationRequest: 'Share my location',
+      // Short on purpose: the button sits under its own explaining line, and
+      // a full sentence made it the widest thing in the column.
+      locationRequest: 'Share',
       locating: 'Locating…',
       sub: 'A quick entry to the closest spots on the map.',
       subFallback: 'Share your location and Berlin sorts itself around you.',
@@ -540,7 +542,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       titleFallback: 'Was ist um dich?',
       locationAria: 'Mein Standort verwenden',
       location: 'Standort',
-      locationRequest: 'Standort freigeben',
+      // Kurz mit Absicht — siehe den englischen Zwilling.
+      locationRequest: 'Freigeben',
       locating: 'Ortet …',
       sub: 'Der schnelle Einstieg zu den nächsten Spots auf der Map.',
       subFallback: 'Gib deinen Standort frei — dann sortiert sich Berlin um dich herum.',

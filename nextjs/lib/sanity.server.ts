@@ -14,12 +14,13 @@ import {
   restaurantsByCategoryQuery,
   restaurantSiblingCandidatesQuery,
   allCategoriesQuery,
+  allCategoriesWithStatsQuery,
   categoryBySlugQuery,
   emailSpotsQuery,
   packContentsQuery,
 } from './queries';
 import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types';
-import type { CategoryDef } from './categories';
+import type { CategoryDef, CategoryWithStats } from './categories';
 import type { PackContents, PackContentsIndex } from './pack/packDetail';
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
@@ -180,6 +181,22 @@ export async function getRestaurantSiblingCandidates({
 export async function getAllCategories(): Promise<CategoryDef[]> {
   return client.fetch<CategoryDef[]>(
     allCategoriesQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['category', 'category-list'] } }
+  );
+}
+
+/**
+ * Kategorien mit Spot-Zahl und Beispielkarten — nur für den /kategorie-Index.
+ *
+ * `category-list` ist die Aggregations-Marke, die der Revalidate-Webhook auch
+ * bei jeder *Restaurant*-Publikation feuert (siehe api/revalidate/route.ts,
+ * case 'restaurant'). Genau das braucht diese Query: Anzahl und Beispielkarten
+ * ändern sich, sobald ein Restaurant die Kategorie wechselt oder schließt.
+ */
+export async function getAllCategoriesWithStats(): Promise<CategoryWithStats[]> {
+  return client.fetch<CategoryWithStats[]>(
+    allCategoriesWithStatsQuery,
     {},
     { next: { revalidate: 3600, tags: ['category', 'category-list'] } }
   );

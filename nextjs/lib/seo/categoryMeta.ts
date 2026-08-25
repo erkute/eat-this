@@ -15,7 +15,15 @@ type Loc = 'de' | 'en';
  */
 const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
   pizza: { de: 'Die beste Pizza in Berlin', en: 'The Best Pizza in Berlin' },
-  coffee: { de: 'Die besten Cafés in Berlin', en: 'The Best Cafés in Berlin' },
+  // Beide Titles nannten nur „Cafés" — das Wort, mit dem die Leute suchen,
+  // fehlte auf beiden Seiten. GSC 28 Tage bis 24.08.2026: DE „kaffee berlin"
+  // 42 Impr. auf Pos. 54,3 und „coffee berlin" 29 auf 63,1; EN „kaffee berlin"
+  // 10 auf 29,3, „coffee in berlin" 6 auf 24. „Kaffee"/„Coffee" stand nur in
+  // der H1 (Sanity-`name`), nie im Title.
+  coffee: {
+    de: 'Kaffee in Berlin: Die besten Cafés',
+    en: 'The Best Coffee & Cafés in Berlin',
+  },
   breakfast: {
     de: 'Frühstück & Brunch in Berlin: Die besten Spots',
     en: 'Breakfast & Brunch in Berlin: The Best Spots',
@@ -33,13 +41,20 @@ const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
     de: 'Fine Dining in Berlin: Die besten Restaurants',
     en: 'The Best Fine Dining Restaurants in Berlin',
   },
+  // Dieselbe Lücke wie bei `coffee`: die Aufzählung stand allein, der Oberbegriff
+  // fehlte. „fast food berlin" (8 Impr., Pos. 34,5), „berlin fast food" (8 auf
+  // 36,6) und „fastfood berlin" (4 auf 33) trafen einen Title ohne „Fast Food".
+  // Die Aufzählung bleibt dahinter — sie trägt Burger und Döner.
   'fast-food': {
-    de: 'Burger, Döner & Tacos in Berlin',
-    en: 'Burgers, Döner & Tacos in Berlin',
+    de: 'Fast Food in Berlin: Burger, Döner & Tacos',
+    en: 'Fast Food in Berlin: Burgers, Döner & Tacos',
   },
+  // „Dessert" ist der DE-Suchbegriff („dessert berlin" 6 Impr. auf Pos. 60,2,
+  // „desserts berlin" 3 auf 52), stand aber weder im Title noch in der H1 —
+  // die heißt nach Sanity „Süßes", und danach sucht niemand.
   sweets: {
-    de: 'Eis, Donuts & Patisserie in Berlin',
-    en: 'Ice Cream, Donuts & Pastry in Berlin',
+    de: 'Dessert in Berlin: Eis, Donuts & Patisserie',
+    en: 'Dessert in Berlin: Ice Cream, Donuts & Pastry',
   },
 };
 

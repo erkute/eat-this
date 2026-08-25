@@ -29,13 +29,10 @@
   /* Freiraum über jedem Sprungziel der Bezirksliste: fixierte Navigation plus,
      auf Mobil, die klebende Chip-Leiste (63px). Ab 761px klebt sie nicht mehr,
      dort bleibt nur die Navigation stehen (Override weiter unten). */
-  --bezirk-scroll-offset: calc(
-    var(--site-nav-h) + var(--staging-banner-h, 0px) + 79px
-  );
+  --bezirk-scroll-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 79px);
   max-width: 1180px;
   margin-inline: auto;
-  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px)
-    var(--page-pad) 48px;
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px) var(--page-pad) 48px;
   position: relative;
   overflow-x: clip;
 }
@@ -518,9 +515,17 @@
   color: var(--et-home-paper);
 }
 
+/* Die Bezirks-Chips liefen über `--f-display` in der Condensed-Familie und
+   landeten damit in chauncy-pro-1 — die einzige Stelle dieser Seiten in einer
+   dritten Schrift, direkt neben `.crossLinksHead` in Providence 700. Gleiche
+   Schrift wie Kopf, Küchen-Chip und Hero-Knopf; Größe, Rahmen und Polsterung
+   bleiben, damit die Reihe ihre Höhe behält. */
 .crossLink {
   border-color: var(--ink);
   color: var(--ink);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
 }
 
 .crossLink:hover {
@@ -671,7 +676,11 @@
   margin: 0;
   color: var(--et-home-red);
   font-family: var(--et-font-display);
-  font-size: clamp(34px, 5vw, 52px);
+  /* Runter von clamp(34px, 5vw, 52px). 52px standen gegen 22px Kartennamen
+     darunter — nach dem Verkleinern der Namen war die Sektionsüberschrift mehr
+     als doppelt so groß wie alles, was sie ankündigt. Die Staffelung bleibt
+     eindeutig: H1 96px, Sektion 38px, Kartenname 22px. */
+  font-size: clamp(30px, 3.4vw, 38px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.9;
@@ -735,7 +744,20 @@
   margin: 0 0 10px;
   color: var(--et-home-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(25px, 3vw, 36px);
+  /* Feste Größe, kein clamp() mit vw-Anteil. Das alte clamp(25px, 3vw, 36px)
+     skalierte mit dem Fenster, die Karte tut das aber nicht — sie wird in mehr
+     Spalten geteilt. Gemessen auf /kategorie/dinner: 375px Fenster → Karte
+     347px, 768px → 340px, 1200px → 328px. Die Karte ist auf Desktop also die
+     SCHMALSTE und bekam trotzdem 36px statt 25px; nur dort brachen Namen auf
+     zwei und drei Zeilen um.
+     22px, weil die reservierte zweite Zeile (min-height, weiter unten) mit der
+     Schriftgröße mitwächst: bei 36px waren das 70px Namensfläche, bei 22px noch
+     43px — der Leerraum unter einzeiligen Namen schrumpft entsprechend.
+     Nachgemessen über alle 224 Dinner-Spots auf der schmalsten Karte (328px):
+     36px → 166 einzeilig / 53 zweizeilig / 5 dreizeilig,
+     26px → 202 / 22 / 0,
+     22px → 214 / 10 / 0. */
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.98;
@@ -871,12 +893,34 @@
     align-items: end;
   }
 
+  /* Rechtsbündig, sobald der Kopf zweispaltig ist: die Zeile steht dann als
+     Gegengewicht am rechten Rand des Satzspiegels, gegenüber der linksbündigen
+     Überschrift. `margin-left: auto` schiebt den 32ch-Kasten selbst nach
+     rechts — `text-align` allein richtet nur den Text darin aus und ließe den
+     Kasten am linken Spaltenrand kleben.
+     Unterhalb 720px stapelt der Kopf einspaltig, dort bleibt es linksbündig. */
   .bezirkDetail .sectionHead p {
     padding-bottom: 5px;
+    margin-left: auto;
+    text-align: right;
   }
 
   .bezirkDetail .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Zwei Zeilen Namensfläche, auch wenn der Name nur eine braucht — damit Chip,
+     Preis und Beschreibungstext über eine Rasterzeile hinweg auf gleicher Höhe
+     stehen. Ohne das saß der Chip bei „Prometeo Authentic Pizza" eine Zeile
+     tiefer als beim einzeiligen Nachbarn.
+
+     Erst ab hier, weil das Raster darunter einspaltig ist: ohne Nachbarkarte
+     gibt es nichts auszurichten, und die reservierte Zeile wäre nur Leerraum.
+
+     `em` statt fester Pixel: die Zeilenhöhe ist 0.98, 2 × 0.98em wandert also
+     mit, falls die Schriftgröße einmal angefasst wird. */
+  .bezirkDetail .cardName {
+    min-height: 1.96em;
   }
 
   .bezirkDetail .faq {
@@ -1142,9 +1186,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 
 @media (min-width: 761px) {
   .page {
-    --bezirk-scroll-offset: calc(
-      var(--site-nav-h) + var(--staging-banner-h, 0px) + 16px
-    );
+    --bezirk-scroll-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 16px);
   }
 
   .filterSticky {

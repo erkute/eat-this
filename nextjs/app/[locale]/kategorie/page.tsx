@@ -2,24 +2,37 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { getAllCategories } from '@/lib/sanity.server';
+import { getAllCategoriesWithStats } from '@/lib/sanity.server';
 import { localizedCategoryBlurb, localizedCategoryName } from '@/lib/categories';
-import { categoryArt } from '@/lib/categoryArt';
+import { localizedCuisine } from '@/lib/cuisineLabels';
+import { normalizeName } from '@/lib/normalizeName';
+import { pickShelf } from '@/lib/curated-ranking';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import sharedStyles from '../bezirk/Bezirk.module.css';
 import styles from './Kategorie.module.css';
-
-const HERO_PACK_SLUGS = ['breakfast', 'pizza', 'drinks'] as const;
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
 export const revalidate = 3600;
+
+/**
+ * Bewusst ohne Zahl — anders als auf dem Bezirks-Index. Neun Knöpfe
+ * untereinander, die von „Alle 9" bis „Alle 224" springen, lesen sich als
+ * Rangliste: die große Kategorie gewinnt, obwohl die Zahl nur sagt, wie breit
+ * Berlin dort isst. Die Einzahl-Variante bleibt für den Fall, dass eine
+ * Kategorie auf einen Spot zusammenschrumpft.
+ */
+function moreLabel(count: number, de: boolean): string {
+  if (count === 1) return de ? 'Zum Spot' : 'See the spot';
+  return de ? 'Alle Spots ansehen' : 'See all spots';
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -56,7 +69,12 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
-  const categories = await getAllCategories();
+  // Leere Kategorien fliegen raus — dieselbe Regel wie auf dem Bezirks-Index:
+  // eine Zeile ohne Spots ist eine Sackgasse für Leser und dünner Inhalt für
+  // Google.
+  const categories = (await getAllCategoriesWithStats()).filter(
+    (c) => (c.restaurantCount ?? 0) > 0
+  );
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
@@ -103,105 +121,108 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={`${sharedStyles.page} ${styles.indexPage}`}>
-        <div className={styles.indexBreadcrumb}>
+        <div className={sharedStyles.breadcrumbWrap}>
           <Breadcrumbs
             items={breadcrumbItems}
             ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
           />
         </div>
 
+        {/* Der Hero war bis 24.08.2026 drei Booster-Pack-Tüten. Die sind
+            Produktfotos, keine Kategoriebilder — genau die Lesart „Shop", die
+            auf der Startseite schon aus der Kategorien-Rail geflogen ist (siehe
+            CategoriesRail.tsx). Hier trägt jetzt ebenfalls die Type. */}
         <header className={styles.indexHero}>
-          <div className={styles.heroCopy}>
-            <div className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</div>
-            <h1 className={styles.heroTitle}>{de ? 'Wonach ist dir?' : 'What are you craving?'}</h1>
-            <p className={styles.heroLead}>
-              {de
-                ? 'Wähle eine Richtung und entdecke unsere handverlesenen Berliner Spots.'
-                : 'Pick a direction and discover our hand-picked Berlin spots.'}
-            </p>
-          </div>
-
-          <div className={styles.heroPacks} aria-hidden="true">
-            {HERO_PACK_SLUGS.map((slug, index) => {
-              const art = categoryArt(slug);
-              return art ? (
-                <Image
-                  key={slug}
-                  src={art}
-                  alt=""
-                  width={420}
-                  height={630}
-                  // Three of these render above the fold with priority. Capped
-                  // at clamp(202px, 22vw, 318px) (Kategorie.module.css:100),
-                  // so retina was preloading 1080w apiece for a 318px slot.
-                  sizes="(max-width: 639px) 168px, (max-width: 959px) 212px, (max-width: 1440px) 22vw, 318px"
-                  priority
-                  className={`${styles.heroPack} ${styles[`heroPack${index + 1}`]}`}
-                />
-              ) : null;
-            })}
-          </div>
+          <h1 className={styles.indexTitle}>{de ? 'Wonach ist dir?' : 'What are you craving?'}</h1>
+          {/* Die Zahl kommt aus der Liste, nicht aus der Copy: sobald im Studio
+              eine Kategorie dazukommt oder leerläuft, stand hier sonst eine
+              falsche Behauptung. */}
+          <p className={styles.indexLead}>
+            {de
+              ? `${categories.length} Richtungen, ein Prinzip: nur Adressen, für die wir geradestehen. Such dir eine aus.`
+              : `${categories.length} directions, one rule: only addresses we vouch for. Take your pick.`}
+          </p>
         </header>
 
-        <section className={styles.catalog} aria-labelledby="category-catalog-title">
-          <div className={styles.catalogHead}>
-            <h2 id="category-catalog-title">{de ? 'Alle Kategorien' : 'All categories'}</h2>
-            <p>
-              {de
-                ? 'Jede Kategorie bringt ihren eigenen Booster Pack mit — mit neuen Spots und passenden Must Eats für deine Map.'
-                : 'Every category comes with its own Booster Pack — new spots and matching Must Eats for your map.'}
-            </p>
+        <section className={styles.categoriesBlock} aria-labelledby="category-catalog-title">
+          <div className={styles.categoriesIntro}>
+            <h2 id="category-catalog-title">{de ? 'Kategorie wählen' : 'Choose a category'}</h2>
           </div>
 
-          <div className={styles.categoryGrid}>
+          <div className={styles.categoryRows}>
             {categories.map((c) => {
+              // Kuratierte Spots führen das Regal an, aufgefüllt wird mit der
+              // alphabetischen Auswahl. Vier von neun Kategorien sind im Studio
+              // kuratiert; für die übrigen ist das Ergebnis exakt die
+              // alphabetische Auswahl.
+              const curated = (c.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
+              const spots = pickShelf(curated, c.exampleRestaurants, 4);
+              const count = c.restaurantCount ?? 0;
               const label = localizedCategoryName(c, loc);
               const blurb = localizedCategoryBlurb(c, loc);
-              const art = categoryArt(c.slug);
+
               return (
-                <Link
-                  key={c.slug}
-                  href={`/kategorie/${c.slug}`}
-                  className={styles.categoryCard}
-                  aria-label={de ? `${label} entdecken` : `Discover ${label}`}
-                >
-                  <span className={styles.artStage}>
-                    {art ? (
-                      <Image
-                        src={art}
-                        alt={`${label} Pack`}
-                        width={420}
-                        height={630}
-                        sizes="(max-width: 639px) 68vw, (max-width: 959px) 34vw, 240px"
-                        className={styles.packArt}
-                      />
-                    ) : (
-                      <span className={styles.artFallback}>{label}</span>
-                    )}
-                  </span>
-                  <span className={styles.cardCopy}>
-                    <span className={styles.categoryName}>{label}</span>
-                    {blurb && <span className={styles.categoryBlurb}>{blurb}</span>}
-                    <span className={styles.categoryCta}>
-                      {de ? 'Kategorie entdecken' : 'Discover category'}
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M4 10h11M10 5l5 5-5 5"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                  </span>
-                </Link>
+                <article key={c._id ?? c.slug} className={styles.categoryRow}>
+                  <h3 className={styles.categoryName}>
+                    <Link href={`/kategorie/${c.slug}`} className={styles.categoryLink}>
+                      {label}
+                    </Link>
+                  </h3>
+
+                  {blurb && <p className={styles.categoryBlurb}>{blurb}</p>}
+
+                  {spots.length > 0 && (
+                    <div className={sharedStyles.spotGrid}>
+                      {spots.map((restaurant) => {
+                        // Gleiche Karte wie auf dem Bezirks-Index: Küche als
+                        // Chip, Preisspanne daneben. Rund ein Viertel der Spots
+                        // hat keine gepflegte Spanne — dort fällt sie weg statt
+                        // als leere Hülse dazustehen.
+                        const priceLabel = formatPriceLabel(restaurant);
+                        return (
+                          <Link
+                            key={restaurant._id}
+                            href={`/restaurant/${restaurant.slug}`}
+                            className={sharedStyles.card}
+                          >
+                            {restaurant.photo && (
+                              <div className={sharedStyles.cardPhoto}>
+                                <Image
+                                  src={restaurant.photo}
+                                  alt=""
+                                  fill
+                                  sizes="(max-width: 1099px) 46vw, 248px"
+                                />
+                              </div>
+                            )}
+                            <div className={sharedStyles.cardBody}>
+                              <h4 className={sharedStyles.cardName}>
+                                {normalizeName(restaurant.name)}
+                              </h4>
+                              {(restaurant.cuisineType || priceLabel) && (
+                                <div className={sharedStyles.cardMeta}>
+                                  {restaurant.cuisineType && (
+                                    <span className={sharedStyles.chipYellow}>
+                                      {localizedCuisine(restaurant.cuisineType, loc)}
+                                    </span>
+                                  )}
+                                  {priceLabel && (
+                                    <span className={sharedStyles.price}>{priceLabel}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <Link href={`/kategorie/${c.slug}`} className={styles.categoryMore}>
+                    {moreLabel(count, de)}
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </article>
               );
             })}
           </div>

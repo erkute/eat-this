@@ -55,7 +55,21 @@ export function groqImageUrl(path: string, preset: ImagePresetName): string {
   return `${path}.asset->url + "${presetQuery(preset)}"`;
 }
 
-export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta'] as const;
+/**
+ * Eigene Fotos. Sie tragen keine `creditUrl`, weil es nichts zu verlinken gibt
+ * — die Bedingung unten verlangt Credit und URL aber nur *gemeinsam*, und ohne
+ * diese Liste fiele ein selbst fotografierter Spot durchs Raster.
+ *
+ * `sardinen-bar` stand bis 25.08.2026 nicht drin: `image.credit` sagt dort
+ * „Foto: Eat This", `creditUrl` und `instagramHandle` sind leer — die Karte
+ * rutschte auf /kategorie/dinner und /bezirk/mitte ohne Bild aus der Zeile.
+ * Einziger solcher Fall von 338 offenen Restaurants.
+ *
+ * `bar-basta` ist inzwischen redundant (es hat `instagramHandle: basta.berlin`
+ * und käme schon über den Instagram-Zweig durch), bleibt aber drin: das Foto
+ * ist unabhängig vom Handle unseres, und das Handle kann im Studio verschwinden.
+ */
+export const FIRST_PARTY_RESTAURANT_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar'] as const;
 
 function groqStringList(values: readonly string[]): string {
   return `[${values.map((value) => JSON.stringify(value)).join(', ')}]`;

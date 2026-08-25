@@ -355,14 +355,24 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             {/* Trägt die Ziel-Query im Klartext — die H1 darüber ist auf ein
                 einzelnes Display-Wort designt („LUNCH") und kann das nicht. */}
             <h2>{buildCategorySectionHeading(slug, label, loc)}</h2>
+            {/* Die Marke steht hier als Logo, nicht als gesetzter Text — die
+                Wortmarke ist gezeichnet, jede Nachbildung in Providence bleibt
+                eine Näherung. `alt` trägt den Namen weiter, Vorleser und
+                Suchmaschinen lesen den Satz also unverändert. */}
             <p>
               {top.length > 0
                 ? de
-                  ? `Die ${top.length} besten, ausgewählt von Eat This.`
-                  : `The top ${top.length}, picked by Eat This.`
+                  ? `Die ${top.length} besten, ausgewählt von `
+                  : `The top ${top.length}, picked by `
                 : de
-                  ? 'Kuratiert von Eat This.'
-                  : 'Curated by Eat This.'}
+                  ? 'Kuratiert von '
+                  : 'Curated by '}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/pics/eat-this-logo.webp?v=6"
+                alt="Eat This"
+                className={styles.inlineLogo}
+              />
             </p>
           </div>
 

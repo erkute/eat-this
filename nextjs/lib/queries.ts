@@ -295,6 +295,44 @@ export const allCategoriesQuery = `
   }
 `;
 
+// Kategorien für den /kategorie-Index — mit Anzahl und ein paar Beispiel-Spots.
+// Bewusst getrennt von `allCategoriesQuery`: die schlanke Variante speist die
+// Sitemap, llms.txt und die Nachbar-Chips der Detailseite, und die brauchen
+// keine vier Restaurantkarten pro Kategorie.
+//
+// Der Rückwärtsbezug läuft über `^._id in categories[]._ref` — dieselbe
+// Referenz-Beziehung wie in `restaurantsByCategoryQuery`, nur von der anderen
+// Seite gelesen.
+export const allCategoriesWithStatsQuery = `
+  *[_type == "category"] | order(coalesce(nameEn, name) asc) {
+    _id,
+    name,
+    nameEn,
+    "slug": slug.current,
+    description,
+    descriptionEn,
+    "restaurantCount": count(*[_type == "restaurant" && isOpen != false && ^._id in categories[]._ref]),
+    "exampleRestaurants": *[_type == "restaurant" && isOpen != false && ^._id in categories[]._ref && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
+      | order(coalesce(featured, false) desc, name asc)[0...4] {
+        _id,
+        name,
+        "slug": slug.current,
+        cuisineType,
+        priceRange,
+        "photo": ${publishableRestaurantImageUrl('image', 'card')}
+      },
+    "topSpotCards": topSpots[]->{
+      _id,
+      name,
+      "slug": slug.current,
+      cuisineType,
+      priceRange,
+      isOpen,
+      "photo": ${publishableRestaurantImageUrl('image', 'card')}
+    }
+  }
+`;
+
 // One category by slug — detail / hub page.
 //
 // `topSpots` is the editorially ordered best-of list (see

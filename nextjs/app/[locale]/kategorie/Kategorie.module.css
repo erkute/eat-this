@@ -8,253 +8,161 @@
   --category-muted: var(--et-home-muted);
 }
 
+/* ============================================================
+   KATEGORIE-INDEX (/kategorie)
+   Bis 24.08.2026 war das ein Raster aus neun Booster-Pack-Tüten: neun Namen,
+   neun Sätze, null Restaurants — also genau das, was die Kategorien-Rail auf
+   der Startseite schon bietet, nur mit sechs Bildschirmen Scrollweg. Die Seite
+   folgt jetzt dem Bezirks-Index: pro Kategorie Name, Anzahl, Beschreibung und
+   vier echte Spots. Die Karten selbst kommen als .spotGrid aus
+   Bezirk.module.css — dieselbe Kachel auf beiden Hubs, ein Regelblock.
+============================================================ */
 .indexPage {
-  max-width: none;
-  padding-inline: 0;
-}
-
-.indexHero,
-.catalog,
-.indexBreadcrumb {
-  width: min(100% - clamp(28px, 5vw, 72px), var(--et-wrap-max));
-  margin-inline: auto;
-}
-
-/* This hub is full-bleed, so the trail rides the hero's own column instead of
-   the page frame the bezirk/detail templates share. */
-.indexBreadcrumb {
+  /* Rahmen, Gutter und Nav-Offset kommen aus .page (Bezirk.module.css). */
   min-width: 0;
-  margin-bottom: clamp(16px, 2vw, 24px);
 }
 
 .indexHero {
   display: grid;
-  grid-template-columns: minmax(0, 0.88fr) minmax(360px, 0.92fr);
-  align-items: center;
-  gap: clamp(28px, 5vw, 72px);
-  min-height: clamp(520px, 66vw, 720px);
-  padding: clamp(28px, 5vw, 70px) 0 clamp(52px, 7vw, 92px);
+  gap: 18px;
+  justify-items: start;
+  margin: 0 0 clamp(38px, 6vw, 72px);
+  text-align: left;
 }
 
-.heroCopy {
-  max-width: 690px;
-}
-
-/* Providence statt System-Mono: das Label steht direkt über der Providence-
-   Headline und soll aus derselben Schrift kommen. */
-.kicker {
-  margin: 0 0 18px;
-  color: var(--category-red);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.heroTitle {
-  max-width: 8ch;
+.indexTitle {
+  max-width: 11ch;
   margin: 0;
   color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(62px, 8.8vw, 126px);
+  font-size: clamp(52px, 11vw, 92px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.82;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.86;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
-.heroLead {
-  max-width: 38ch;
-  margin: clamp(22px, 3vw, 34px) 0 0;
-  color: var(--category-muted);
-  font-family: var(--font-body, var(--font), sans-serif);
-  font-size: var(--et-type-lead);
-  line-height: var(--et-leading-copy);
-}
-
-.heroPacks {
-  position: relative;
-  place-self: center;
-  width: min(100%, 620px);
-  min-height: clamp(400px, 48vw, 600px);
-  isolation: isolate;
-}
-
-.heroPack {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: clamp(180px, 20vw, 286px);
-  height: auto;
-  filter: drop-shadow(0 24px 30px rgba(21, 18, 14, 0.24));
-  transform-origin: 50% 90%;
-}
-
-.heroPack1 {
-  z-index: 1;
-  transform: translate(-96%, -47%) rotate(-12deg);
-}
-
-.heroPack2 {
-  z-index: 3;
-  width: clamp(202px, 22vw, 318px);
-  transform: translate(-50%, -54%) rotate(1deg);
-}
-
-.heroPack3 {
-  z-index: 2;
-  transform: translate(-4%, -47%) rotate(12deg);
-}
-
-.catalog {
-  padding: clamp(28px, 5vw, 70px) 0 0;
-}
-
-.catalogHead {
-  display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(280px, 0.5fr);
-  align-items: end;
-  gap: clamp(20px, 5vw, 64px);
-  margin-bottom: clamp(36px, 6vw, 78px);
-}
-
-.catalogHead h2 {
-  max-width: 10ch;
-  margin: 0;
-  color: var(--category-red);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: var(--et-type-hero-compact);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.88;
-  text-transform: uppercase;
-}
-
-.catalogHead p {
-  max-width: 42ch;
+.indexLead {
+  max-width: 46ch;
   margin: 0;
   color: var(--category-muted);
   font-family: var(--font-body, var(--font), sans-serif);
-  font-size: var(--et-type-lead);
-  line-height: var(--et-leading-copy);
+  font-size: clamp(16px, 1.7vw, 19px);
+  line-height: 1.55;
 }
 
-.categoryGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(52px, 7vw, 96px) clamp(22px, 4vw, 54px);
+.categoriesBlock {
+  margin-bottom: clamp(40px, 6vw, 72px);
+  text-align: left;
 }
 
-.categoryCard {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  min-width: 0;
-  color: var(--category-ink);
-  text-decoration: none;
+.categoriesIntro {
+  margin-bottom: clamp(30px, 4.5vw, 52px);
 }
 
-.artStage {
-  display: grid;
-  place-items: center;
-  min-height: clamp(290px, 31vw, 430px);
-  padding: 4px 0 18px;
-  background: transparent;
-}
-
-.packArt {
-  display: block;
-  width: min(70%, 244px);
-  height: auto;
-  filter: drop-shadow(0 18px 22px rgba(21, 18, 14, 0.18));
-  transform: rotate(-2deg);
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.categoryCard:nth-child(even) .packArt {
-  transform: rotate(2deg);
-}
-
-.categoryCard:hover .packArt,
-.categoryCard:focus-visible .packArt {
-  transform: translateY(-7px) rotate(0);
-}
-
-.artFallback {
-  display: grid;
-  place-items: center;
-  width: min(74%, 244px);
-  aspect-ratio: var(--et-img-pack-ratio);
-  padding: 18px;
-  border-radius: var(--et-radius-photo);
-  background: var(--category-red);
-  color: var(--category-paper);
+/* Rot, nicht Ink: die Kategorie-Detailseiten setzen jede Sektionsüberschrift in
+   `--et-home-red` (52px, uppercase), und die Startseite tut es über `.hv-title`
+   ebenso. Die Ink-Variante stammt vom Bezirks-Index, von dem dieser Block
+   abgeschrieben ist — sie ist dort der Ausreißer, nicht hier die Regel. */
+.categoriesIntro h2 {
+  margin: 0;
+  color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 30px;
+  font-size: clamp(34px, 7vw, 52px);
   font-weight: 700;
-  line-height: 0.95;
-  text-align: center;
+  letter-spacing: var(--et-tracking-title);
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 
-.cardCopy {
+.categoryRows {
   display: grid;
-  align-content: start;
-  gap: 12px;
+  gap: clamp(52px, 7vw, 88px);
+}
+
+/* Grid-Kinder haben min-width: auto — ein langer Kategoriename schöbe die
+   Zeile sonst über die Seitenbreite hinaus. */
+.categoryRow {
   min-width: 0;
 }
 
 .categoryName {
-  color: var(--category-ink);
+  min-width: 0;
+  margin: 0 0 clamp(16px, 2.2vw, 24px);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(30px, 3.2vw, 46px);
+  font-size: clamp(24px, 3.6vw, 32px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.9;
-  overflow-wrap: anywhere;
+  letter-spacing: -0.025em;
+  line-height: 0.94;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
+.categoryLink {
+  color: var(--category-red);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.categoryLink:hover {
+  color: var(--category-ink);
+}
+
+/* Die Kategoriebeschreibung aus dem Studio trägt die Entscheidung — vier
+   Restaurantnamen sagen nicht, wofür eine Kategorie steht. */
 .categoryBlurb {
-  display: -webkit-box;
-  max-width: 42ch;
-  overflow: hidden;
+  max-width: 62ch;
+  margin: 0 0 clamp(20px, 2.6vw, 28px);
   color: var(--category-muted);
   font-family: var(--font-body, var(--font), sans-serif);
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.55;
 }
 
-.categoryCta {
+.categoryMore {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  justify-self: start;
-  gap: 8px;
-  min-height: 42px;
-  margin-top: 2px;
-  padding: 10px 14px 11px;
+  justify-content: center;
+  gap: 9px;
+  margin-top: clamp(18px, 2.4vw, 26px);
+  min-height: 40px;
+  padding: 9px 16px 10px;
+  border: 2px solid var(--category-ink);
   border-radius: var(--et-radius-control);
-  background: var(--category-red);
-  color: var(--category-paper);
+  background: transparent;
+  color: var(--category-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: var(--et-type-button);
   font-weight: 700;
   line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
   transition:
     background var(--et-motion-fast),
+    color var(--et-motion-fast),
     transform var(--et-motion-fast);
 }
 
-.categoryCard:hover .categoryCta,
-.categoryCard:focus-visible .categoryCta {
-  background: var(--category-ink);
-  transform: translateX(2px);
+.categoryMore span {
+  transition: transform 140ms ease;
 }
 
-.categoryCta svg {
-  flex: 0 0 auto;
+.categoryMore:hover {
+  background: var(--category-ink);
+  color: var(--category-paper);
+  transform: translateY(-2px);
+}
+
+.categoryMore:hover span {
+  transform: translateX(3px);
+}
+
+.categoryLink:focus-visible,
+.categoryMore:focus-visible {
+  outline: 3px solid var(--category-red);
+  outline-offset: 4px;
 }
 
 .detailPage {
@@ -278,6 +186,20 @@
   margin: 0 0 clamp(24px, 4vw, 46px);
   background: transparent;
   color: var(--category-ink);
+}
+
+/* „KATEGORIE" über der H1 der Detailseite. Stand ursprünglich im Index-Block,
+   weil beide Seiten einen Kicker hatten — der Index hat seinen beim Redesign am
+   24.08.2026 verloren, diese Regel gehört aber weiter der Detailseite. */
+.kicker {
+  margin: 0 0 18px;
+  color: var(--category-red);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .detailHeroCopy {
@@ -330,85 +252,42 @@
   line-height: 1.5;
 }
 
+/* Die Wortmarke mitten im Fließtext der Sektions-Unterzeile („Kuratiert von
+   ▮"). Höhe an der Versalhöhe der Zeile ausgerichtet statt an der Zeilenhöhe —
+   das Logo hat oben und unten Luft in der Grafik, an 1em wirkte es zu groß.
+   `translateY` setzt es auf die Grundlinie der Nachbarwörter. */
+.inlineLogo {
+  display: inline-block;
+  width: auto;
+  /* 1.25em ≈ 19px in der 15px-Zeile. Passt noch in die Zeilenhöhe (21,75px),
+     stört den Zeilenabstand also nicht, ist aber groß genug, dass die Wortmarke
+     lesbar bleibt — bei 0.95em waren es 35 × 14px und damit ein Fleck. */
+  height: 1.25em;
+  /* Die Grafik hat oben und unten transparente Luft; ohne Absenken schwebt die
+     Wortmarke über der Grundlinie der Nachbarwörter. */
+  vertical-align: -0.18em;
+}
+
+/* Der Bezirk in der Meta-Zeile der Karte. Lief bis 25.08.2026 in Monospace bei
+   10px/900 — zwischen dem Küchen-Chip (Providence 12px) und der Preisspanne
+   (Providence 13px) war er damit das einzige Fremdwort in der Zeile. Jetzt
+   dieselbe Schrift und Größe wie der Preis, nur ohne Chip-Fläche. */
 .districtLabel {
   color: var(--category-muted);
-  font-family: var(--et-font-mono);
-  font-size: 10px;
-  font-weight: 900;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
   line-height: 1.1;
 }
 
 @media (max-width: 959px) {
-  .indexHero,
-  .catalogHead {
-    grid-template-columns: 1fr;
-  }
-
-  .indexHero {
-    gap: 0;
-    min-height: 0;
-  }
-
-  .heroPacks {
-    order: -1;
-    width: min(100%, 540px);
-    min-height: 430px;
-  }
-
-  .categoryGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .detailHero {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 639px) {
-  .indexHero,
-  .catalog {
-    width: calc(100% - 28px);
-  }
-
-  .indexHero {
-    padding-top: 10px;
-  }
-
-  .heroTitle {
-    font-size: clamp(58px, 18vw, 86px);
-  }
-
-  .heroPacks {
-    width: min(100%, 340px);
-    min-height: 320px;
-  }
-
-  .heroPack {
-    width: clamp(112px, 39vw, 150px);
-  }
-
-  .heroPack2 {
-    width: clamp(126px, 43vw, 168px);
-  }
-
-  .catalogHead {
-    gap: 14px;
-    margin-bottom: 34px;
-  }
-
-  .categoryGrid {
-    grid-template-columns: 1fr;
-    gap: 56px;
-  }
-
-  .artStage {
-    min-height: 360px;
-  }
-
-  .packArt {
-    width: min(62vw, 230px);
-  }
-
   .categoryBlurb {
     font-size: 15px;
   }
@@ -431,15 +310,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .packArt,
-  .categoryCta {
+  .categoryLink,
+  .categoryMore,
+  .categoryMore span {
     transition: none;
   }
 
-  .categoryCard:hover .packArt,
-  .categoryCard:focus-visible .packArt,
-  .categoryCard:hover .categoryCta,
-  .categoryCard:focus-visible .categoryCta {
+  .categoryMore:hover {
     transform: none;
+  }
+
+  .categoryMore:hover span {
+    transform: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .indexTitle {
+    max-width: 13ch;
+    font-size: clamp(64px, 6.2vw, 86px);
+  }
+
+  .categoryName {
+    font-size: clamp(26px, 2.2vw, 34px);
   }
 }

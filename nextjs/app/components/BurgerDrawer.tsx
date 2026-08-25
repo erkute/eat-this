@@ -163,6 +163,14 @@ export default function BurgerDrawer() {
             <Link href="/must-eats" className="bd-nav-item">
               {t('burger.mustEats')}
             </Link>
+            {/* Der Kategorie-Hub stand bis 24.08.2026 in keinem Menü, keinem
+                Footer und keiner Rail — erreichbar war er nur über die
+                Brotkrume einer Kategorieseite, also erst, wenn man schon drin
+                war. Ergebnis: drei Aufrufe in vier Tagen, null Impressionen.
+                Hier ist der Eingang. */}
+            <Link href="/kategorie" className="bd-nav-item">
+              {t('burger.categories')}
+            </Link>
             {/* Remy lives in the home hub now. From other pages the burger
                 sends users back to
                 his "Frag Remy" section via HubHashScroll. */}

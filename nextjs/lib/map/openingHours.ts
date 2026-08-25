@@ -117,18 +117,22 @@ function parseDays(str: string): DayIndex[] {
   return result;
 }
 
-function parseTimeRange(str: string): { open: number; close: number } | null {
-  if (isClosedSlot(str)) return null;
+/**
+ * All time ranges in one slot. Editors type split shifts as a single string
+ * ("12:00-15:00,18:00-23:00"), so reading only the first match dropped the
+ * evening service — the badge said "closed" at dinner time and the JSON-LD
+ * reported lunch hours only. Returns [] for rest days and unparseable text.
+ */
+function parseTimeRanges(str: string): { open: number; close: number }[] {
+  if (isClosedSlot(str)) return [];
   const compact = str.toLowerCase().replace(/\s/g, '');
   if (/24(?:stunden?)?(?:geöffnet|offen)|24\/7/.test(compact)) {
-    return { open: 0, close: 24 * 60 };
+    return [{ open: 0, close: 24 * 60 }];
   }
-  const m = str.match(/(\d{1,2}):(\d{2})[–\-](\d{1,2}):(\d{2})/);
-  if (!m) return null;
-  return {
+  return [...str.matchAll(/(\d{1,2}):(\d{2})[–\-](\d{1,2}):(\d{2})/g)].map((m) => ({
     open: parseInt(m[1]) * 60 + parseInt(m[2]),
     close: parseInt(m[3]) * 60 + parseInt(m[4]),
-  };
+  }));
 }
 
 function fmt(totalMins: number): string {
@@ -165,7 +169,7 @@ interface OpeningHoursSpecification {
 /**
  * Maps the free-text opening-hours slots into schema.org
  * OpeningHoursSpecification entries for the Restaurant JSON-LD — reusing the
- * same `parseDays` / `parseTimeRange` the live "open now" badge relies on, so
+ * same `parseDays` / `parseTimeRanges` the live "open now" badge relies on, so
  * the structured data can never drift from what the site shows. Unparseable or
  * closed slots (no time range) are dropped; an empty result means "emit no
  * openingHoursSpecification at all" rather than a misleading partial one.
@@ -177,14 +181,15 @@ export function buildOpeningHoursSpec(
   const specs: OpeningHoursSpecification[] = [];
   for (const slot of openingHours) {
     const days = parseDays(slot.days);
-    const range = parseTimeRange(slot.hours);
-    if (days.length === 0 || !range) continue;
-    specs.push({
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: days.map((d) => SCHEMA_DAYS[d]),
-      opens: fmt(range.open),
-      closes: fmt(range.close),
-    });
+    if (days.length === 0) continue;
+    for (const range of parseTimeRanges(slot.hours)) {
+      specs.push({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: days.map((d) => SCHEMA_DAYS[d]),
+        opens: fmt(range.open),
+        closes: fmt(range.close),
+      });
+    }
   }
   return specs;
 }
@@ -211,37 +216,37 @@ export function getOpenStatus(
   // [open, 24:00) on day X and [00:00, close) on day X+1. Check both halves.
   for (const slot of openingHours) {
     const days = parseDays(slot.days);
-    const range = parseTimeRange(slot.hours);
-    if (!range) continue;
-    const isOvernight = range.close <= range.open;
+    for (const range of parseTimeRanges(slot.hours)) {
+      const isOvernight = range.close <= range.open;
 
-    if (!isOvernight) {
-      if (days.includes(today) && currentMin >= range.open && currentMin < range.close) {
-        const left = range.close - currentMin;
-        return {
-          isOpen: true,
-          label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
-          minutesUntilChange: left,
-        };
-      }
-    } else {
-      // Late-evening half: started today, runs past midnight.
-      if (days.includes(today) && currentMin >= range.open) {
-        const left = 24 * 60 - currentMin + range.close;
-        return {
-          isOpen: true,
-          label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
-          minutesUntilChange: left,
-        };
-      }
-      // Early-morning half: opened yesterday, still running today.
-      if (days.includes(yesterday) && currentMin < range.close) {
-        const left = range.close - currentMin;
-        return {
-          isOpen: true,
-          label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
-          minutesUntilChange: left,
-        };
+      if (!isOvernight) {
+        if (days.includes(today) && currentMin >= range.open && currentMin < range.close) {
+          const left = range.close - currentMin;
+          return {
+            isOpen: true,
+            label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
+            minutesUntilChange: left,
+          };
+        }
+      } else {
+        // Late-evening half: started today, runs past midnight.
+        if (days.includes(today) && currentMin >= range.open) {
+          const left = 24 * 60 - currentMin + range.close;
+          return {
+            isOpen: true,
+            label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
+            minutesUntilChange: left,
+          };
+        }
+        // Early-morning half: opened yesterday, still running today.
+        if (days.includes(yesterday) && currentMin < range.close) {
+          const left = range.close - currentMin;
+          return {
+            isOpen: true,
+            label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
+            minutesUntilChange: left,
+          };
+        }
       }
     }
   }
@@ -252,11 +257,11 @@ export function getOpenStatus(
     const day = ((today + offset) % 7) as DayIndex;
     for (const slot of openingHours) {
       if (!parseDays(slot.days).includes(day)) continue;
-      const range = parseTimeRange(slot.hours);
-      if (!range) continue;
-      if (offset === 0 && range.open <= currentMin) continue;
-      if (!next || range.open < next.openMin) {
-        next = { dayOffset: offset, openMin: range.open };
+      for (const range of parseTimeRanges(slot.hours)) {
+        if (offset === 0 && range.open <= currentMin) continue;
+        if (!next || range.open < next.openMin) {
+          next = { dayOffset: offset, openMin: range.open };
+        }
       }
     }
   }

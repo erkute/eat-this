@@ -27,7 +27,11 @@ import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
-import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from '@/lib/map/phoneSheetSnaps';
+import {
+  DETAIL_PEEK_DVH,
+  LIST_REST_VISIBLE_DVH,
+  resolveListReturn,
+} from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 import { searchRefitSpots, spotsCameraTarget } from '@/lib/map/cameraFit';
@@ -449,12 +453,14 @@ export default function MapSection({
       detailEntryPushedRef.current = false;
       if (detailClosedBySearchRef.current) {
         detailClosedBySearchRef.current = false;
+        listAnchorPendingRef.current = false;
         window.history.replaceState(window.history.state, '', next);
         return;
       }
       window.history.back();
       return;
     }
+    listAnchorPendingRef.current = false;
     if (next !== current) {
       window.history.replaceState(window.history.state, '', next);
     }
@@ -499,20 +505,56 @@ export default function MapSection({
     if (el) el.scrollTop = 0;
   }, [sheetView, category, bezirk, cuisine, openOnly, search, contentRef, sheetElRef]);
 
+  /* Which view handed us this render. Only a return FROM a detail may move the
+     list — the map's own first paint (list peeking under the map) and every
+     later re-run must leave the scroll exactly where it is. */
+  const listReturnFromRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
+  /* Set when the trip to the list still has to survive a history traversal —
+     consumed by the popstate handler further down. */
+  const listAnchorPendingRef = useRef(false);
+
   useLayoutEffect(() => {
+    const cameFromDetail = listReturnFromRef.current === 'detail';
+    listReturnFromRef.current = sheetView;
     if (sheetView !== 'list') return;
-    if (listScrollRef.current === 0) return;
+    const action = resolveListReturn(listScrollRef.current, cameFromDetail);
+    if (action === 'stay') return;
     if (isPhoneViewport()) {
+      if (action === 'toList') {
+        /* Opened from a marker on the map (or a deep link): there is no list
+           position to go back to, and the detail leaves the window at ~0 —
+           which in list geometry is the MAP stop. So the button labelled
+           "Liste" delivered the bare map, and the list had to be fished back
+           up by hand. Scroll to it instead. 'mid' is the anchor that matches
+           the snap state the close handlers already set on phones, so the
+           chrome and the scroll agree.
+
+           Unless a pushed detail entry is about to be popped (the URL sync
+           below): ScrollRestorer re-applies the popped entry's saved position
+           as part of that traversal, and for a spot opened from a marker that
+           position IS the map stop. Scrolling now would visibly bounce off it,
+           so the popstate handler does it instead — after the restorer has had
+           its turn. */
+        if (detailEntryPushedRef.current && !detailClosedBySearchRef.current) {
+          listAnchorPendingRef.current = true;
+          return;
+        }
+        scrollListToAnchor('mid');
+        return;
+      }
       /* Phone details start at the top of the in-flow document. Restore the
          list position before paint so closing does not flash a blank canvas
          into iOS Safari's browser-chrome backdrop. */
       window.scrollTo(0, listScrollRef.current);
       return;
     }
+    /* Tablet sheet / desktop panel show the list on close by themselves —
+       only the remembered scroll offset is theirs to restore. */
+    if (action !== 'restore') return;
     const el = contentRef.current;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
-  }, [sheetView, contentRef]);
+  }, [sheetView, contentRef, scrollListToAnchor]);
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return [];
@@ -1050,7 +1092,18 @@ export default function MapSection({
       const mustEatId = params.get('me');
       const detailOpen = sheetViewRef.current === 'detail';
       if (!slug && !mustEatId) {
-        if (!detailOpen) return;
+        if (!detailOpen) {
+          /* Tail end of a close we already ran: the list is on screen and this
+             is the detail entry being popped behind it. ScrollRestorer
+             (app/components/ScrollRestorer.tsx) restores the popped-to entry's
+             saved position inside this same dispatch — the map stop, for a spot
+             opened from a marker. rAF puts the trip to the list after it. */
+          if (listAnchorPendingRef.current) {
+            listAnchorPendingRef.current = false;
+            requestAnimationFrame(() => scrollListToAnchor('mid'));
+          }
+          return;
+        }
         detailEntryPushedRef.current = false;
         dismissDetailRef.current();
         return;
@@ -1060,7 +1113,7 @@ export default function MapSection({
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [isActive]);
+  }, [isActive, scrollListToAnchor]);
 
   const handleMapClick = useCallback(() => {
     const isMobile =

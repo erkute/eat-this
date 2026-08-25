@@ -135,3 +135,30 @@ export function resolveToggleMode(
   if (hasRememberedListY && scrollY <= splitStop + AT_STOP_PX) return 'toList';
   return null;
 }
+
+/** What the phone list does with its scroll position when a detail closes. */
+export type ListReturn = 'restore' | 'toList' | 'stay';
+
+/**
+ * Where the phone list lands when a detail hands the view back.
+ *
+ * Both phone views are window-scrolled documents, so "which view you get back"
+ * is nothing but a scroll offset — and closing a detail leaves the window
+ * wherever the article happened to be, which in list geometry is the MAP stop.
+ *
+ * - `restore`: a remembered position means the detail was opened from the list.
+ *   Put the user back on the row they left; that is the only place they expect.
+ * - `toList`: no remembered position means the detail was opened from a marker
+ *   on the map or from a deep link. Leaving the scroll alone dropped the user
+ *   on the bare map — from a button that says "Liste". Scroll to the list.
+ * - `stay`: not a return from a detail at all (first paint of the map, a filter
+ *   change). Nothing here may move the list.
+ *
+ * Deliberately the same answer for every way out of a detail — the X, a
+ * swipe-down dismiss and the back gesture all land on the list, because the
+ * detail is a place you leave TO somewhere, not a step you undo.
+ */
+export function resolveListReturn(rememberedY: number, cameFromDetail: boolean): ListReturn {
+  if (!cameFromDetail) return 'stay';
+  return rememberedY > 0 ? 'restore' : 'toList';
+}

@@ -134,7 +134,20 @@ export async function POST(req: NextRequest) {
       revalidateTag('bezirk');
       revalidateTag('category-list');
       revalidateTag('restaurant-siblings');
-      revalidated.push('tag:bezirk', 'tag:category-list', 'tag:restaurant-siblings');
+      // Und die Listen ÜBER alle Restaurants: der Spot-des-Tages-Kandidatenpool
+      // (lib/home/getHomeData.ts, lib/home/spotOfDay.server.ts) und die
+      // Mail-Spots hängen am blanken Tag `restaurant`. Das fehlte hier, und
+      // niemandem fiel es auf, solange die ISR-Frist bei einer Stunde lag.
+      // Seit sie 24 Stunden beträgt, wäre ein frisch gesetztes
+      // `featuredOnDate` bis zu einen Tag lang wirkungslos geblieben — der
+      // Spot des Tages ist genau die Fläche, für die Redaktion kuratiert.
+      revalidateTag('restaurant');
+      revalidated.push(
+        'tag:bezirk',
+        'tag:category-list',
+        'tag:restaurant-siblings',
+        'tag:restaurant'
+      );
       revalidateMapSurface(revalidated, true);
       revalidateMustEatSurface(revalidated);
       break;

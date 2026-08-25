@@ -194,3 +194,61 @@ describe('useMapFilters with the paywalled spots in', () => {
     expect(result.current.listRestaurants).toHaveLength(ROWS.length);
   });
 });
+
+/**
+ * The order of the list itself. It used to have none: it inherited the order
+ * the map payload was assembled in — curated spots, the round-robin district
+ * fill, and then whatever the home page surfaces, appended at the end. Tapping
+ * a dish on the home page therefore landed you on the very last row of 340
+ * when you closed it again.
+ */
+describe('useMapFilters list order', () => {
+  const ROW_ZOLA = spot({ name: 'Zola', mustEatCount: 0 });
+  const ROW_ADANA = spot({ name: 'Adana', mustEatCount: 0 });
+  const ROW_MUSTAFA = spot({ name: 'Mustafa', mustEatCount: 2 });
+  const LOCKED_BUNKER = spot({ name: 'Bunker', mustEatCount: 3 });
+
+  it('leads with the spots carrying Must Eats, then goes alphabetical', () => {
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [ROW_ZOLA, ROW_ADANA, ROW_MUSTAFA],
+        lockedRestaurants: [LOCKED_BUNKER],
+        location: null,
+      })
+    );
+
+    // Bunker is paywalled and still first: one list, one rule.
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual([
+      'Bunker',
+      'Mustafa',
+      'Adana',
+      'Zola',
+    ]);
+  });
+
+  it('does not park an appended spot at the end', () => {
+    // applyFreeSurface appends whatever the home page teases to the visible
+    // set. That is a build step, not a ranking, and must not reach the list.
+    const appended = spot({ name: 'Gazzo', mustEatCount: 1 });
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [ROW_ZOLA, ROW_ADANA, ROW_MUSTAFA, appended],
+        location: null,
+      })
+    );
+
+    expect(result.current.listRestaurants.at(-1)?.name).not.toBe('Gazzo');
+    expect(result.current.listRestaurants[1].name).toBe('Gazzo');
+  });
+
+  it('lets a location outrank everything', () => {
+    const near = spot({ name: 'Zola', lat: 52.5, lng: 13.4, mustEatCount: 0 });
+    const far = spot({ name: 'Mustafa', lat: 52.6, lng: 13.62, mustEatCount: 9 });
+    const { result } = renderHook(() =>
+      useMapFilters({ restaurants: [far, near], location: { lat: 52.5, lng: 13.4 } })
+    );
+
+    // Nine Must Eats do not beat standing in front of the door.
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
+  });
+});

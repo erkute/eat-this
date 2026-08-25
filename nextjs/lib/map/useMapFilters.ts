@@ -16,6 +16,29 @@ function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null;
 }
 
+/**
+ * The list's order when there is no location to sort by.
+ *
+ * Without this the list simply inherited the order the map payload was
+ * assembled in — curated spots, then the round-robin district fill, then
+ * whatever the home page surfaces appended at the end (applyFreeSurface). That
+ * last step is why tapping a dish on the home page and closing it again landed
+ * you on the very last row of 340: not a ranking anyone chose, a build order
+ * leaking into the UI.
+ *
+ * Must Eats first, because that is what the map is for — "we tell you what to
+ * eat" — and only 28 of 344 spots carry one, so it is a real distinction rather
+ * than a shuffle. Alphabetical underneath: nothing else in the payload ranks
+ * quality (the importer fills photo, tip and description for every spot), and a
+ * name at least makes the rest findable and keeps the order stable between two
+ * visits. Free and paywalled spots rank by the same rule; they are one list.
+ */
+function byMustEatsThenName(a: MapRestaurant, b: MapRestaurant): number {
+  const mustEats = (b.mustEatCount ?? 0) - (a.mustEatCount ?? 0);
+  if (mustEats !== 0) return mustEats;
+  return a.name.localeCompare(b.name, 'de');
+}
+
 function includesQuery(value: string | null | undefined, q: string): boolean {
   return Boolean(value?.toLowerCase().includes(q));
 }
@@ -219,14 +242,13 @@ export function useMapFilters({
      Splitting them into "yours" and "not yours" up here only ever produced
      surfaces that said 0 while the map underneath showed dots.
 
-     With a location the two sets interleave by distance like one list, which
-     is the whole claim: these are the spots around you. Without one they keep
-     their source order, free block first — there is no third thing to sort by
-     that would not reshuffle the free list for everyone. */
-  const listRestaurants = useMemo(
-    () => nearestFirst([...displayedRestaurants, ...displayedLockedRestaurants]),
-    [displayedRestaurants, displayedLockedRestaurants, nearestFirst]
-  );
+     A location outranks everything: the two sets interleave by distance like
+     one list, which is the whole claim of a map — these are the spots around
+     you. Without one, byMustEatsThenName decides. */
+  const listRestaurants = useMemo(() => {
+    const all = [...displayedRestaurants, ...displayedLockedRestaurants];
+    return location ? nearestFirst(all) : all.sort(byMustEatsThenName);
+  }, [displayedRestaurants, displayedLockedRestaurants, location, nearestFirst]);
 
   return {
     category,

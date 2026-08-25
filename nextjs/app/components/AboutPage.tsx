@@ -173,11 +173,16 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             {ledeText && <p className={styles.lede}>{ledeText}</p>}
           </div>
 
-          {/* The page opens in the first person — "I live in Berlin and love
-              trying new restaurants, cafés and bars." This is that sentence as
-              an object. It replaced a stack of phone-plus-cards that repeated
-              what the rails below already show one at a time; the person is
-              the only picture on this page that appears exactly once.
+          {/* The page speaks in the first person; this is that person as an
+              object. It replaced a stack of phone-plus-cards that repeated what
+              the rails below already show one at a time — the person is the
+              only picture on this page that appears exactly once.
+
+              Deliberately no quote from the lede here. It used to carry one,
+              and the lede is `staticPage` content in Sanity: it moved, the
+              quote stayed, and the next person rewrote the comment around a
+              sentence that was already gone too. What justifies the image is
+              the first-person voice, not any particular wording of it.
 
               Not decorative, so not aria-hidden: it is the subject of the page.
               It also arrives with its own drawn floor and cast shadow, which is

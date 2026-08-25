@@ -45,7 +45,7 @@ beforeEach(() => {
 describe('/api/revalidate', () => {
   it('accepts a fresh valid signature and revalidates the matching content', async () => {
     const raw = JSON.stringify({ _type: 'restaurant', slug: { current: 'test-spot' } })
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
@@ -64,7 +64,7 @@ describe('/api/revalidate', () => {
 
   it('rejects a correctly signed but stale webhook timestamp', async () => {
     const raw = JSON.stringify({ _type: 'restaurant', slug: { current: 'test-spot' } })
-    const staleTs = Math.floor(Date.now() / 1000) - 301
+    const staleTs = Date.now() - 301_000
 
     const res = await POST(mkReq(raw, signature(raw, staleTs)))
 
@@ -75,7 +75,7 @@ describe('/api/revalidate', () => {
 
   it('rejects a bad signature', async () => {
     const raw = JSON.stringify({ _type: 'restaurant' })
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts, 'wrong-secret')))
 
@@ -85,7 +85,7 @@ describe('/api/revalidate', () => {
 
   it('rejects invalid JSON after the signature passes', async () => {
     const raw = '{nope'
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
@@ -96,7 +96,7 @@ describe('/api/revalidate', () => {
 
   it('revalidates both localized map and must-eat pages for must-eat changes', async () => {
     const raw = JSON.stringify({ _type: 'mustEat' })
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
@@ -111,7 +111,7 @@ describe('/api/revalidate', () => {
 
   it('invalidates the free-surface cache and map pages for home-week changes', async () => {
     const raw = JSON.stringify({ _type: 'homeWeek' })
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
@@ -128,7 +128,7 @@ describe('/api/revalidate', () => {
       _type: 'newsArticle',
       slug: { current: 'new-guide' },
     })
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
@@ -167,7 +167,7 @@ describe('/api/revalidate: Signaturkodierung', () => {
   }
 
   it('akzeptiert genau die base64url-Signatur, die Sanity über die Leitung schickt', async () => {
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
 
     const res = await POST(mkReq(RAW, toolkitSignature(RAW, ts)))
 
@@ -176,12 +176,40 @@ describe('/api/revalidate: Signaturkodierung', () => {
   })
 
   it('weist dieselbe Signatur hex-kodiert ab — das war der Fehler', async () => {
-    const ts = Math.floor(Date.now() / 1000)
+    const ts = Date.now()
     const hex = crypto.createHmac('sha256', SECRET).update(`${ts}.${RAW}`).digest('hex')
 
     const res = await POST(mkReq(RAW, `t=${ts},v1=${hex}`))
 
     expect(res.status).toBe(401)
     expect(await res.json()).toEqual({ error: 'invalid_signature' })
+  })
+  it('weist einen Zeitstempel in Sekunden ab — das war der zweite Fehler', async () => {
+    // Sanity sendet `t` in Millisekunden (MINIMUM_TIMESTAMP im Toolkit ist
+    // 1609459200000). Die Route verglich ihn gegen `Date.now() / 1000`; die
+    // Differenz lag dauerhaft bei ~1,7 Billionen und riss jede Toleranz. Auch
+    // dieser Fehler allein hätte den Hook für immer auf 401 gehalten — und
+    // auch ihn hat die Suite mitgetragen, weil sie ebenfalls in Sekunden
+    // signierte.
+    const seconds = Math.floor(Date.now() / 1000)
+    const v1 = crypto
+      .createHmac('sha256', SECRET)
+      .update(`${seconds}.${RAW}`)
+      .digest('base64url')
+
+    const res = await POST(mkReq(RAW, `t=${seconds},v1=${v1}`))
+
+    expect(res.status).toBe(401)
+    expect(await res.json()).toEqual({ error: 'invalid_signature' })
+  })
+
+  it('akzeptiert das Trennzeichen mit Leerzeichen, das das Toolkit zulaesst', async () => {
+    // Toolkit-Regex: /^t=(\d+)[, ]+v1=([^, ]+)$/ — Komma ODER Komma+Leerzeichen.
+    const ts = Date.now()
+    const v1 = crypto.createHmac('sha256', SECRET).update(`${ts}.${RAW}`).digest('base64url')
+
+    const res = await POST(mkReq(RAW, `t=${ts}, v1=${v1}`))
+
+    expect(res.status).toBe(200)
   })
 })

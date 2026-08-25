@@ -41,8 +41,15 @@ export const OG_CARD_VERSION = 5;
  *
  * 2026-08-23: primaryImageOfPage, 1200 px JSON-LD images, eager lead photo,
  * max-image-preview:large across the catalogue, Berlin in the brand titles.
+ *
+ * 2026-08-25: the category hubs got their head keywords into the titles
+ * (Kaffee, Fast Food, Dessert), /kategorie became a hub of real spots instead
+ * of a list, restaurant pages gained an "Auch in:" nav linking back to their
+ * hubs, bezirk pages gained the same counter-direction, and the burger drawer
+ * carries a new entry on every page. Catalogue-wide by construction: the nav
+ * sits on all ~343 restaurant pages, the drawer on all of them.
  */
-export const TEMPLATE_REVISED = '2026-08-23';
+export const TEMPLATE_REVISED = '2026-08-25';
 
 // Adobe Fonts kit (Providence, chauncy, salted, moonblossom). [locale]/layout
 // loads it non-blocking via CRITICAL_BOOTSTRAP, but that script never runs on

@@ -81,6 +81,10 @@ interface MapBodyState {
   lockedMatchCount: number;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
+  /** Row the list points at once no detail is open — the spot that was just
+   *  closed. Keeps that row rendered past the windowed budget and marks it, so
+   *  closing a spot lands you next to it instead of somewhere in the list. */
+  listFocusId: string | null;
   selectedMustEat: MapMustEat | null;
   primaryMustEats: Map<string, MapMustEat>;
   unlockedIds: Set<string>;
@@ -168,6 +172,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setContentRef,
     setSheetRef,
     sheetView,
+    listFocusId,
     snap,
     dragging,
     displayedRestaurants,
@@ -724,7 +729,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   <RestaurantList
                     restaurants={displayedRestaurants}
                     userLocation={location}
-                    selectedId={selectedRestaurant?._id ?? null}
+                    selectedId={selectedRestaurant?._id ?? listFocusId}
                     uid={uid}
                     userTier={userTier}
                     onSelect={onRestaurantClick}

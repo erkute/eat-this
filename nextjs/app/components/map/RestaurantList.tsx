@@ -322,7 +322,9 @@ export default function RestaurantList({
   return (
     <>
       {freeRows.map((r, index) => (
-        <div key={r._id} className={styles.rcardSlot}>
+        /* data-list-row: how MapSection finds a row again — closing a detail
+           scrolls the list to the spot it was showing. */
+        <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
           <Item
             restaurant={r}
             isSelected={selectedId === r._id}
@@ -343,7 +345,7 @@ export default function RestaurantList({
           continue the list. Free rows stay on top because they are what the
           user can open today; ordering is the only weighting left. */}
       {lockedRows.map((r, index) => (
-        <div key={r._id} className={styles.rcardSlot}>
+        <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
           <Item
             restaurant={r}
             isSelected={selectedId === r._id}

@@ -31,6 +31,7 @@ import {
   DETAIL_PEEK_DVH,
   LIST_REST_VISIBLE_DVH,
   resolveListReturn,
+  rowRevealOffset,
 } from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
@@ -235,20 +236,58 @@ export default function MapSection({
      anchors. peek = the list's CSS resting overlap (scroll 0), mid ≈ 440px of
      list visible, full = list top parked 40px below the viewport top — same
      constants the tablet drag-sheet uses (MID_VISIBLE_PX / FULL_TOP_PX). */
-  const scrollListToAnchor = useCallback(
-    (target: 'peek' | 'mid' | 'full', behavior: ScrollBehavior = 'smooth') => {
+  const listAnchorY = useCallback(
+    (target: 'peek' | 'mid' | 'full'): number | null => {
       const el = sheetElRef.current;
-      if (!el) return;
+      if (!el) return null;
       const listTopDoc = el.getBoundingClientRect().top + window.scrollY;
       const h = window.innerHeight;
       // peek: desiredTop = h ⇒ target scroll ≤ 0 ⇒ clamps to 0 (CSS overlap).
       const desiredTop = target === 'peek' ? h : target === 'mid' ? Math.max(40, h - 440) : 40;
-      window.scrollTo({
-        top: Math.max(0, Math.round(listTopDoc - desiredTop)),
-        behavior,
-      });
+      return Math.max(0, Math.round(listTopDoc - desiredTop));
     },
     [sheetElRef]
+  );
+
+  const scrollListToAnchor = useCallback(
+    (target: 'peek' | 'mid' | 'full', behavior: ScrollBehavior = 'smooth') => {
+      const top = listAnchorY(target);
+      if (top == null) return;
+      window.scrollTo({ top, behavior });
+    },
+    [listAnchorY]
+  );
+
+  /* Put one specific row on screen — the spot whose detail just closed. Only
+     works while that row is rendered, which is what listFocusId below is for;
+     returns false when it is not (a locked spot the chip filter does not list,
+     a deep link into a spot the filter excludes) so the caller can fall back to
+     the plain list anchor. */
+  const scrollListToRow = useCallback(
+    (id: string | null): boolean => {
+      if (!id || typeof document === 'undefined') return false;
+      const row = document.querySelector<HTMLElement>(`[data-list-row="${id}"]`);
+      if (!row) return false;
+      if (isPhoneViewport()) {
+        const minY = listAnchorY('mid');
+        if (minY == null) return false;
+        const rowTopDoc = row.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+          top: rowRevealOffset(rowTopDoc, window.innerHeight, minY),
+          behavior: 'smooth',
+        });
+        return true;
+      }
+      /* Tablet sheet / desktop panel: same idea, but the list scrolls inside
+         its own port instead of the window. */
+      const port = contentRef.current;
+      if (!port) return false;
+      const offset =
+        row.getBoundingClientRect().top - port.getBoundingClientRect().top + port.scrollTop;
+      port.scrollTop = Math.max(0, Math.round(offset - port.clientHeight * 0.28));
+      return true;
+    },
+    [contentRef, listAnchorY]
   );
 
   const {
@@ -474,6 +513,15 @@ export default function MapSection({
      - Filter / sort changes reset it to 0 so a new filter always starts at
        the top of the new result set. */
   const listScrollRef = useRef(0);
+  /* The spot whose detail was closed last. Two jobs, both about the row rather
+     than the selection: RestaurantList keeps that row rendered even when it
+     sits past the windowed budget (it counts the "selection" into the budget),
+     and it is the row the list scrolls to. Not `selectedRestaurant` — closing
+     the detail drops the selection, and reviving it there would make every
+     "is a detail open?" check downstream lie. */
+  const [listFocusId, setListFocusId] = useState<string | null>(null);
+  const listFocusIdRef = useRef(listFocusId);
+  listFocusIdRef.current = listFocusId;
   const prevFiltersRef = useRef({ category, bezirk, cuisine, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
@@ -488,6 +536,9 @@ export default function MapSection({
       prev.search !== next.search;
     if (!filtersChanged) return;
     listScrollRef.current = 0;
+    /* A different result set: the row that was worth pointing at may not even
+       be in it any more. */
+    setListFocusId(null);
     if (isPhoneViewport()) {
       /* In-flow list: the new result set starts at the list top. If the user
          was scrolled deeper than that, park the window at the 'full' anchor
@@ -539,7 +590,7 @@ export default function MapSection({
           listAnchorPendingRef.current = true;
           return;
         }
-        scrollListToAnchor('mid');
+        if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
         return;
       }
       /* Phone details start at the top of the in-flow document. Restore the
@@ -548,13 +599,17 @@ export default function MapSection({
       window.scrollTo(0, listScrollRef.current);
       return;
     }
-    /* Tablet sheet / desktop panel show the list on close by themselves —
-       only the remembered scroll offset is theirs to restore. */
-    if (action !== 'restore') return;
+    /* Tablet sheet / desktop panel already show the list on close — but not
+       necessarily the spot that was just open, and a marker tap can open the
+       fortieth row. Same answer as on phones, in the panel's own scroller. */
+    if (action !== 'restore') {
+      scrollListToRow(listFocusIdRef.current);
+      return;
+    }
     const el = contentRef.current;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
-  }, [sheetView, contentRef, scrollListToAnchor]);
+  }, [sheetView, contentRef, scrollListToAnchor, scrollListToRow]);
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return [];
@@ -990,6 +1045,8 @@ export default function MapSection({
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant;
     setSelectedRestaurant(null);
+    // Where the list should come back to: the row of the spot being closed.
+    setListFocusId(r?._id ?? null);
     setSheetView('list');
     // If the user pushed the detail down to peek before tapping X, snap the
     // list back to 'mid' so the result set is actually readable. 'full' and
@@ -1034,7 +1091,10 @@ export default function MapSection({
       return;
     }
     // Closing a must-eat detail (reached from a restaurant detail or deep
-    // link) puts the user back on the restaurants list.
+    // link) puts the user back on the restaurants list — at the row of the
+    // restaurant the dish belongs to, which is the only spot on screen the
+    // must-eat was ever about.
+    setListFocusId(m?.restaurant._id ?? null);
     setSheetView('list');
     // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
     // phones always reset (stale 'full' would keep the full-snap UI state active).
@@ -1100,7 +1160,9 @@ export default function MapSection({
              opened from a marker. rAF puts the trip to the list after it. */
           if (listAnchorPendingRef.current) {
             listAnchorPendingRef.current = false;
-            requestAnimationFrame(() => scrollListToAnchor('mid'));
+            requestAnimationFrame(() => {
+              if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
+            });
           }
           return;
         }
@@ -1113,7 +1175,7 @@ export default function MapSection({
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [isActive, scrollListToAnchor]);
+  }, [isActive, scrollListToAnchor, scrollListToRow]);
 
   const handleMapClick = useCallback(() => {
     const isMobile =
@@ -1519,6 +1581,7 @@ export default function MapSection({
       onPageRestaurant={handlePageRestaurant}
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
+      listFocusId={listFocusId}
       selectedMustEat={selectedMustEat}
       primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}

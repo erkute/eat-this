@@ -4,6 +4,7 @@ import {
   LIST_REST_VISIBLE_DVH,
   resolveListReturn,
   resolveSnap,
+  rowRevealOffset,
   resolveToggleMode,
   snapOffsets,
 } from '../phoneSheetSnaps';
@@ -149,5 +150,31 @@ describe('resolveListReturn', () => {
     // First paint of the map: the list peeks under the map and stays there.
     expect(resolveListReturn(0, false)).toBe('stay');
     expect(resolveListReturn(1240, false)).toBe('stay');
+  });
+});
+
+describe('rowRevealOffset', () => {
+  const stops = snapOffsets('list', VH); // [0, 179, 585]
+  const midStop = stops[1];
+
+  it('parks the row a little above the middle of the screen', () => {
+    // Row 500px down the document: 500 − 38% of the viewport.
+    expect(rowRevealOffset(500 + VH * 0.38, VH, 0)).toBe(500);
+  });
+
+  it('never lands short of the stop the list was going to anyway', () => {
+    /* Landscape, 400px tall: the first row sits 368px into the document and
+       "a little above the middle" is only 216 — which would leave the list
+       lower than the plain trip to the list would have put it. The floor is
+       what stops the row from pulling the list back under the map. */
+    expect(rowRevealOffset(368, 400, 248)).toBe(248);
+  });
+
+  it('scrolls past the list stop for a row deep in the list', () => {
+    expect(rowRevealOffset(4000, VH, midStop)).toBeGreaterThan(midStop);
+  });
+
+  it('never returns a negative scroll', () => {
+    expect(rowRevealOffset(10, VH, 0)).toBe(0);
   });
 });

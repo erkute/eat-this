@@ -162,3 +162,20 @@ export function resolveListReturn(rememberedY: number, cameFromDetail: boolean):
   if (!cameFromDetail) return 'stay';
   return rememberedY > 0 ? 'restore' : 'toList';
 }
+
+/**
+ * Scroll offset that puts a list row on screen when a detail closes.
+ *
+ * Landing on "the list" is not the same as landing on the spot you were just
+ * reading: a marker tap can open the 40th row, and a list scrolled to its top
+ * has that row nowhere near the screen. So the row itself is the target.
+ *
+ * It lands a little above the middle — with list above it and list below it,
+ * which is what says "you are back in the list AT this spot" rather than "here
+ * is a spot". `minY` keeps the list from sliding back under the map for the
+ * first few rows: their natural position would be a scroll of almost nothing,
+ * i.e. the map stop again.
+ */
+export function rowRevealOffset(rowTopDoc: number, viewportH: number, minY: number): number {
+  return Math.max(0, minY, Math.round(rowTopDoc - viewportH * 0.38));
+}

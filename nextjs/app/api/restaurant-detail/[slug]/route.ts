@@ -40,6 +40,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   // the EN map texts still read German after a green rollout. Worst case is
   // now max-age + SWR = 10 minutes; the instant re-open inside a session,
   // which is the point of the header, is untouched.
+  // `s-maxage` and `public` do NOT arrive: App Hosting downgrades every
+  // response whose path the middleware matcher hits, stripping both and
+  // appending `private`. Measured on prod 25.08.2026 — this route is served as
+  // `max-age=300, stale-while-revalidate=300, private`, and `cdn-cache-status`
+  // is `miss` on every repeat. Only the browser cache is real here. Left in
+  // place because the intent is right and would take effect the moment
+  // `/api/*` leaves the matcher; not removed, so nobody re-derives it.
   return NextResponse.json(detail, {
     headers: {
       'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=300',

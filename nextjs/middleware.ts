@@ -10,6 +10,9 @@ const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
 const STAGING_AUTH_COOKIE = '__Host-eatthis_staging_auth';
 const STAGING_AUTH_COOKIE_MAX_AGE = 60 * 60 * 12;
 
+// Header und Env-Name der Lighthouse-Ausnahme, siehe isForeignLighthouse().
+const LHCI_BYPASS_HEADER = 'x-eat-this-lhci';
+
 // 410 body for permanently closed spots. No inline CSS (CSP forbids it) —
 // plain semantic HTML; crawlers read the 410 status, humans get a link home.
 const GONE_HTML = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Nicht mehr verfügbar – Eat This</title></head><body><h1>Dieser Spot ist dauerhaft geschlossen</h1><p>Die Seite gibt es nicht mehr. Entdecke andere Berliner Spots:</p><p><a href="https://www.eatthisdot.com/">Zur Startseite</a></p></body></html>`;
@@ -46,6 +49,52 @@ function constantTimeEqual(left: string, right: string): boolean {
     difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
   }
   return difference === 0;
+}
+
+// Seit dem 16.08.2026 grast ein fremder Dienst die ganze Seite mit Lighthouse
+// ab. Am 24.08. waren das 83 % aller Nicht-Asset-Requests: 755 Seitenaufrufe
+// auf 72 verschiedenen Pfaden pro Stunde, von rotierenden Azure-IPs. Jeder
+// dieser Pfade stößt nach Ablauf seiner ISR-Frist frische Sanity-Fetches an —
+// das ist der Grund, warum am selben Tag das Sanity-CDN-Kontingent kippte und
+// Startseite und /map mit 500 antworteten.
+//
+// robots.txt greift nicht: der UA deklariert sich nicht als Bot. Der einzige
+// verlässliche Marker ist das `Chrome-Lighthouse`-Suffix — das aber UNSERE
+// EIGENE Lighthouse-CI genauso trägt, und deren GitHub-Runner liegen auf
+// demselben Azure-Adressraum. UA-Filter und IP-Filter schließen also beide
+// unsere eigene Messung mit aus.
+//
+// Deshalb: alles mit diesem UA blocken, außer die Anfrage weist sich mit dem
+// gemeinsamen Secret aus, das .lighthouserc.json über `extraHeaders`
+// mitschickt. Fail-closed — ohne gesetztes Secret wird auch die eigene CI
+// abgewiesen. Das ist gewollt: sie schlägt dann laut fehl (429 im lhci-Log),
+// während ein Fail-open den Crawler still durchließe und der Ausfall sich zum
+// nächsten Monatswechsel wiederholte.
+function isForeignLighthouse(req: NextRequest): boolean {
+  const ua = req.headers.get('user-agent') ?? '';
+  if (!ua.includes('Chrome-Lighthouse')) return false;
+
+  const secret = process.env.LHCI_BYPASS_SECRET;
+  if (!secret) return true;
+
+  const presented = req.headers.get(LHCI_BYPASS_HEADER);
+  return !presented || !constantTimeEqual(presented, secret);
+}
+
+// 429 statt 403: benennt die Sperre als Ratenbegrenzung und gibt dem Aufrufer
+// ein Signal, das er auswerten kann. `no-store` ist hier nicht kosmetisch —
+// der App-Hosting-CDN cached pro URL, nicht pro User-Agent. Eine cachebare
+// Absage auf /kategorie/lunch bekämen sonst echte Besucher serviert.
+function lighthouseBlocked(): NextResponse {
+  return new NextResponse('Automated auditing traffic is not permitted here.', {
+    status: 429,
+    headers: {
+      'Retry-After': '86400',
+      'Cache-Control': 'no-store',
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Robots-Tag': 'noindex, nofollow',
+    },
+  });
 }
 
 function toBase64Url(bytes: ArrayBuffer): string {
@@ -124,6 +173,14 @@ export default async function middleware(req: NextRequest) {
       return basicAuthChallenge();
     }
     stagingCookieToSet = access.cookieToSet;
+  }
+
+  // Fremden Lighthouse-Verkehr abweisen, bevor irgendeine Route rendert — eine
+  // geblockte Anfrage löst keine ISR-Revalidierung und damit keinen
+  // Sanity-Fetch aus. Bewusst vor dem API-Durchlass: der Crawler führt JS aus
+  // und ruft auch /api/count und /monitoring auf.
+  if (isForeignLighthouse(req)) {
+    return lighthouseBlocked();
   }
 
   // API routes must pass through untouched after the staging gate. Page

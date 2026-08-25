@@ -117,4 +117,35 @@ jobs:
           exit 1
 
       - name: Run Lighthouse CI
-        run: lhci autorun
+        # Die Middleware weist seit dem 24.08.2026 jeden `Chrome-Lighthouse`-UA
+        # mit 429 ab — ein fremder Dienst grast damit die ganze Seite ab und hat
+        # das Sanity-CDN-Kontingent gesprengt. Unsere eigene Messung sendet
+        # denselben UA (Lighthouse setzt ihn selbst) und liegt als GitHub-Runner
+        # im selben Azure-Adressraum, ist also weder am UA noch an der IP von
+        # ihm zu unterscheiden. Der gemeinsame Header ist die Ausnahme; er steht
+        # bewusst hier und nicht in .lighthouserc.json, damit der Wert nicht im
+        # Repo landet.
+        #
+        # Fehlt das Secret, wird NICHT gemessen. Ohne Header bekäme lhci von
+        # jeder URL eine 429 und meldete eine kaputte Seite — eine Messung, die
+        # nur die eigene Sperre misst, ist schlimmer als keine. Der Schritt
+        # überspringt sich stattdessen mit einer Warnung, die im Lauf sichtbar
+        # steht, und nimmt sich zurück, sobald das Secret existiert:
+        #   firebase apphosting:secrets:set LHCI_BYPASS_SECRET --project eat-this-8a13b
+        #   gh secret set LHCI_BYPASS_SECRET
+        env:
+          LHCI_BYPASS_SECRET: ${{ secrets.LHCI_BYPASS_SECRET }}
+        run: |
+          if [ -z "${LHCI_BYPASS_SECRET}" ]; then
+            echo "::warning title=Lighthouse übersprungen::LHCI_BYPASS_SECRET fehlt. Die Middleware sperrt den Chrome-Lighthouse-UA (isForeignLighthouse in nextjs/middleware.ts); ohne den Ausnahme-Header misst lhci nur 429er. Secret anlegen, dann misst dieser Schritt wieder."
+            {
+              echo '### Lighthouse übersprungen'
+              echo ''
+              echo 'Das Repository-Secret `LHCI_BYPASS_SECRET` ist nicht gesetzt.'
+              echo 'Die Middleware sperrt fremden Lighthouse-Verkehr; unsere eigene'
+              echo 'Messung kommt nur mit dem Ausnahme-Header durch.'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          lhci autorun \
+            --collect.settings.extraHeaders="{\"x-eat-this-lhci\":\"${LHCI_BYPASS_SECRET}\"}"

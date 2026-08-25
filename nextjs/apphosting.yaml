@@ -118,28 +118,6 @@ env:
     availability:
       - BUILD
 
-  # Ausnahme für die eigene Lighthouse-CI. Die Middleware weist jeden
-  # `Chrome-Lighthouse`-User-Agent mit 429 ab (siehe isForeignLighthouse() in
-  # middleware.ts) — ein fremder Dienst grast damit die ganze Seite ab und
-  # sprengte am 24.08.2026 das Sanity-CDN-Kontingent. Unsere eigene Messung
-  # sendet denselben UA und läuft auf denselben Azure-IPs; sie kommt nur über
-  # diesen gemeinsamen Wert durch, den .github/workflows/lighthouse.yml als
-  # Header `x-eat-this-lhci` mitschickt.
-  #
-  # Absichtlich fail-closed: solange die Variable fehlt, blockt die Middleware
-  # auch die eigene CI, und der lhci-Schritt scheitert sichtbar mit 429. Ein
-  # Fail-open ließe stattdessen den Crawler still durch.
-  #
-  # Anlegen (danach dem App-Hosting-Backend Zugriff geben, wenn gefragt wird),
-  # erst DANN die beiden Zeilen darunter einkommentieren — ein `secret:` auf
-  # ein nicht existierendes Secret lässt den Rollout fehlschlagen:
-  #   firebase apphosting:secrets:set LHCI_BYPASS_SECRET --project eat-this-8a13b
-  # Derselbe Wert gehört als GitHub-Actions-Secret `LHCI_BYPASS_SECRET` ins Repo.
-  # - variable: LHCI_BYPASS_SECRET
-  #   secret: LHCI_BYPASS_SECRET
-  #   availability:
-  #     - RUNTIME
-
   # KI Buddy
   - variable: ANTHROPIC_API_KEY
     secret: ANTHROPIC_API_KEY

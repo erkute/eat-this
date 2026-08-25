@@ -60,8 +60,31 @@ const ROWS: MapRestaurant[] = [
   }),
 ] as MapRestaurant[];
 
+/* Behind the paywall: one more Peruvian in Wedding and two Italians in Mitte.
+   None of them are in ROWS — that is the point, they are what the free set
+   cannot show. */
+const LOCKED: MapRestaurant[] = [
+  spot({
+    bezirk: { name: 'Wedding' },
+    cuisineType: 'Peruvian',
+    categories: [{ name: 'Dinner', slug: 'dinner' }],
+  }),
+  spot({
+    bezirk: { name: 'Mitte' },
+    cuisineType: 'Italian',
+    categories: [{ name: 'Pizza', slug: 'pizza' }],
+  }),
+  spot({
+    bezirk: { name: 'Mitte' },
+    cuisineType: 'Italian',
+    categories: [{ name: 'Pizza', slug: 'pizza' }],
+  }),
+] as MapRestaurant[];
+
 function mount() {
-  return renderHook(() => useMapFilters({ restaurants: ROWS, location: null }));
+  return renderHook(() =>
+    useMapFilters({ restaurants: ROWS, lockedRestaurants: LOCKED, location: null })
+  );
 }
 
 describe('useMapFilters option counts', () => {
@@ -121,5 +144,56 @@ describe('useMapFilters option counts', () => {
     // chips give once it is cleared — which is what the paused chip rail says.
     expect(result.current.displayedRestaurants).toHaveLength(0);
     expect(result.current.optionCounts.byValue.bezirk.get('Mitte')).toBe(3);
+  });
+});
+
+/**
+ * The same counts over the paywalled set. Without them a picker row reading 0
+ * hid two different things — "there is nothing" and "everything there is sits
+ * in a pack" — and both led to the same dead list.
+ */
+describe('useMapFilters locked option counts', () => {
+  it('counts the locked set separately, never mixed into the free number', () => {
+    const { result } = mount();
+    const { byValue, lockedByValue } = result.current.optionCounts;
+
+    // Free Italians stay 2 — the two locked ones must not inflate the number
+    // the list is about to render.
+    expect(byValue.cuisine.get('Italian')).toBe(2);
+    expect(lockedByValue.cuisine.get('Italian')).toBe(2);
+  });
+
+  it('tells an offer from a dead end once a chip narrows the free set to nothing', () => {
+    const { result } = mount();
+    act(() => result.current.setBezirk('Mitte'));
+
+    const { byValue, lockedByValue } = result.current.optionCounts;
+    // Peruvian: no free spot in Mitte and no locked one either — nothing at
+    // all, which is the only case the picker refuses to open.
+    expect(byValue.cuisine.get('Peruvian')).toBeUndefined();
+    expect(lockedByValue.cuisine.get('Peruvian')).toBeUndefined();
+    // Wedding, on the other hand, holds a locked Peruvian.
+    act(() => result.current.setBezirk('Wedding'));
+    expect(result.current.optionCounts.byValue.cuisine.get('Peruvian')).toBe(1);
+  });
+
+  it('lifts the picker own chip on the locked side too', () => {
+    const { result } = mount();
+    act(() => result.current.setBezirk('Neukölln'));
+
+    // Same rule as the free counts: the Bezirk picker keeps every district's
+    // own locked total, or it could not offer a way out of Neukölln.
+    const { lockedByValue, lockedWithoutDimension } = result.current.optionCounts;
+    expect(lockedByValue.bezirk.get('Mitte')).toBe(2);
+    expect(lockedByValue.bezirk.get('Wedding')).toBe(1);
+    expect(lockedWithoutDimension.bezirk).toBe(3);
+  });
+
+  it('is empty for someone who owns the whole map', () => {
+    // allBerlin users get no locked set at all — every row is then either a
+    // real hit or a real dead end.
+    const { result } = renderHook(() => useMapFilters({ restaurants: ROWS, location: null }));
+    expect(result.current.optionCounts.lockedByValue.cuisine.size).toBe(0);
+    expect(result.current.optionCounts.lockedWithoutDimension.cuisine).toBe(0);
   });
 });

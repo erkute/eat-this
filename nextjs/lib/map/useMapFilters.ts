@@ -35,10 +35,59 @@ export type FilterDimension = 'category' | 'bezirk' | 'cuisine';
 
 /** How many spots each picker row would yield. `byValue` is keyed by the same
  *  value the picker passes back (category slug, district name, raw cuisine);
- *  `withoutDimension` is the "Alle …" reset row for that picker. */
+ *  `withoutDimension` is the "Alle …" reset row for that picker.
+ *
+ *  The locked pair carries the same counts over the paywalled set, and it is
+ *  what tells a dead end from an offer: a row with no free hits but three
+ *  locked ones is worth tapping — the list shows what is being held back and
+ *  names the price. Only a row with neither is nothing at all. */
 export interface MapOptionCounts {
   byValue: Record<FilterDimension, Map<string, number>>;
   withoutDimension: Record<FilterDimension, number>;
+  lockedByValue: Record<FilterDimension, Map<string, number>>;
+  lockedWithoutDimension: Record<FilterDimension, number>;
+}
+
+interface DimensionCounts {
+  byValue: Record<FilterDimension, Map<string, number>>;
+  withoutDimension: Record<FilterDimension, number>;
+}
+
+/* One pass over one set of spots. Runs twice — free and locked — so both
+   answers come out of the same rules; a second, hand-written locked counter is
+   exactly how the two numbers would drift apart. */
+function countOptions(list: MapRestaurant[], base: MapChipState): DimensionCounts {
+  const byValue: Record<FilterDimension, Map<string, number>> = {
+    category: new Map(),
+    bezirk: new Map(),
+    cuisine: new Map(),
+  };
+  const withoutDimension: Record<FilterDimension, number> = {
+    category: 0,
+    bezirk: 0,
+    cuisine: 0,
+  };
+  const bump = (into: Map<string, number>, key: string) => into.set(key, (into.get(key) ?? 0) + 1);
+
+  for (const r of list) {
+    // Each dimension is counted with its own chip lifted — otherwise every
+    // row but the active one reads 0.
+    if (matchesChips(r, { ...base, category: 'All' })) {
+      withoutDimension.category += 1;
+      for (const c of r.categories ?? []) if (c.slug) bump(byValue.category, c.slug);
+    }
+    if (matchesChips(r, { ...base, bezirk: null })) {
+      withoutDimension.bezirk += 1;
+      const d = districtOf(r);
+      if (d) bump(byValue.bezirk, d);
+    }
+    if (matchesChips(r, { ...base, cuisine: null })) {
+      withoutDimension.cuisine += 1;
+      const c = r.cuisineType?.trim();
+      if (c) bump(byValue.cuisine, c);
+    }
+  }
+  return { byValue, withoutDimension };
 }
 
 /** Pulled out of `filterRestaurant` so the same rules can answer a
@@ -129,46 +178,23 @@ export function useMapFilters({
      five spots still offered all 23 cuisines and eighteen of them were
      guaranteed zeroes with nothing saying so — you found out by tapping and
      landing on "Keine Spots".
-     
-     Counted over the free set only: that is the set the list renders for a
-     chip filter, so it is what the number has to predict. Search is left out
-     on purpose — a query overrides the chips (see above), and these counts
-     describe what the chips give once it is cleared. */
-  const optionCounts = useMemo<MapOptionCounts>(() => {
-    const byValue: Record<FilterDimension, Map<string, number>> = {
-      category: new Map(),
-      bezirk: new Map(),
-      cuisine: new Map(),
-    };
-    const withoutDimension: Record<FilterDimension, number> = {
-      category: 0,
-      bezirk: 0,
-      cuisine: 0,
-    };
-    const bump = (into: Map<string, number>, key: string) =>
-      into.set(key, (into.get(key) ?? 0) + 1);
 
+     Counted twice, free and locked. The free number is what the list renders
+     for a chip filter, so it is what the row has to predict; the locked one is
+     what separates "nothing here" from "everything here is in a pack". Search
+     is left out on purpose — a query overrides the chips (see above), and these
+     counts describe what the chips give once it is cleared. */
+  const optionCounts = useMemo<MapOptionCounts>(() => {
     const base = { category, bezirk, cuisine, openOnly };
-    for (const r of restaurants) {
-      // Each dimension is counted with its own chip lifted — otherwise every
-      // row but the active one reads 0.
-      if (matchesChips(r, { ...base, category: 'All' })) {
-        withoutDimension.category += 1;
-        for (const c of r.categories ?? []) if (c.slug) bump(byValue.category, c.slug);
-      }
-      if (matchesChips(r, { ...base, bezirk: null })) {
-        withoutDimension.bezirk += 1;
-        const d = districtOf(r);
-        if (d) bump(byValue.bezirk, d);
-      }
-      if (matchesChips(r, { ...base, cuisine: null })) {
-        withoutDimension.cuisine += 1;
-        const c = r.cuisineType?.trim();
-        if (c) bump(byValue.cuisine, c);
-      }
-    }
-    return { byValue, withoutDimension };
-  }, [restaurants, category, bezirk, cuisine, openOnly]);
+    const free = countOptions(restaurants, base);
+    const locked = countOptions(lockedRestaurants, base);
+    return {
+      byValue: free.byValue,
+      withoutDimension: free.withoutDimension,
+      lockedByValue: locked.byValue,
+      lockedWithoutDimension: locked.withoutDimension,
+    };
+  }, [restaurants, lockedRestaurants, category, bezirk, cuisine, openOnly]);
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant);

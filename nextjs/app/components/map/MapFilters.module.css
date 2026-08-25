@@ -621,18 +621,51 @@
   display: none;
 }
 
-/* Zeilen ohne Treffer. Die Zahl daneben ist die Antwort; das Dimmen macht die
-   Sackgassen erkennbar, bevor man sie antippt. Klickbar bleiben sie: aus einer
-   Null führt der Weg meist über einen ANDEREN Chip, und ein deaktivierter
-   Knopf kann das nicht sagen. */
-.pickerItemEmpty {
-  opacity: 0.42;
+/* Zeilen, hinter denen wirklich nichts steht — weder frei noch gesperrt. Sie
+   bleiben stehen (Weglassen sortiert den Picker zwischen zwei Öffnungen um,
+   und „Peruanisch: 0" ist eine echte Antwort), sind aber nicht mehr wählbar:
+   ein Tap führte auf eine Liste, die nur „0 Treffer" sagen konnte.
+
+   Erkennbar wird das nicht über Grau, sondern über die weggenommene Form. Jede
+   wählbare Zeile ist eine gefüllte Ink-Karte; diese hier verliert die Füllung
+   und steht als flacher Umriss da — ein anderer Zeilentyp, nicht dieselbe
+   Zeile im Nebel. Der Text bleibt lesbar, denn die Zahl daneben ist die
+   Begründung; Deko, die man nicht mehr entziffert, erklärt nichts. Cursor und
+   Hover bestätigen es beim Anfassen, und `disabled` nimmt die Zeile aus der
+   Tab-Reihenfolge. Der Weg aus einer Null führt über die „Alle"-Zeile ganz
+   oben oder einen anderen Chip — beide bleiben immer wählbar. */
+.pickerItemDead {
+  background: transparent;
+  color: rgba(21, 18, 14, 0.68);
+  box-shadow: inset 0 0 0 1.5px rgba(21, 18, 14, 0.16);
+  cursor: default;
 }
 
-@media (hover: hover) {
-  .pickerItemEmpty:hover {
-    opacity: 0.72;
-  }
+.pickerItemDead:hover,
+.pickerItemDead:focus-visible {
+  background: transparent;
+  color: rgba(21, 18, 14, 0.68);
+}
+
+.pickerItemDead .pickerItemSub {
+  opacity: 0.8;
+}
+
+/* Nichts Freies, aber die Paywall hält Treffer zurück: keine Sackgasse,
+   sondern ein Angebot. Bleibt die normale gefüllte Zeile — das Schloss vor der
+   Zahl sagt vorher, was einen erwartet, statt es hinter einem Tap zu
+   verstecken. */
+.pickerItemLocked .pickerItemSub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 1;
+}
+
+.pickerLock {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
 }
 
 .pickerItemLabel {
@@ -671,11 +704,6 @@
   opacity: 0.55;
 }
 
-/* Die gedimmte Zeile dimmt als Ganzes; ohne das hier läge die Zahl bei
-   0,42 x 0,62 und wäre kaum noch lesbar. */
-.pickerItemEmpty .pickerItemSub {
-  opacity: 1;
-}
 
 .pickerFooter {
   flex-shrink: 0;

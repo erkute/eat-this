@@ -1,9 +1,9 @@
 'use client';
-import { forwardRef, useMemo, useRef, useState, type Ref } from 'react';
+import { forwardRef, useCallback, useMemo, useRef, useState, type Ref } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { localizedCuisine } from '@/lib/cuisineLabels';
-import { abbreviateBezirk, type MapOptionCounts } from '@/lib/map';
+import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
@@ -61,24 +61,40 @@ export default function MapListHeader({
   const bezirkBtnRef = useRef<HTMLButtonElement>(null);
   const cuisineBtnRef = useRef<HTMLButtonElement>(null);
 
-  /* Every row carries what it would actually return. Rows that would return
-     nothing stay listed and stay clickable — hiding them makes the list jump
-     between openings, and "Peruvian: 0" is the answer the user came for. */
-  const withCount = (value: string, label: string, counts: Map<string, number>): PickerItem => {
-    const hits = counts.get(value) ?? 0;
-    return { value, label, sub: String(hits), empty: hits === 0 };
-  };
+  /* Every row carries what it would actually return, and the number decides
+     what kind of row it is. Three states, because "0" was hiding two very
+     different things:
+
+     - free hits          → the count, plain.
+     - only locked hits   → that count behind a padlock. Not a dead end: the
+                            list shows the spots the pack is holding and names
+                            the price, which is the whole reason the row exists.
+     - nothing either way → listed, but not pickable. Hiding it would reshuffle
+                            the picker between two openings and "Peruanisch: 0"
+                            is a real answer; leading someone to a list that can
+                            only say "0 Treffer" is not. */
+  const withCount = useCallback(
+    (value: string, label: string, dim: FilterDimension): PickerItem => {
+      const hits = optionCounts.byValue[dim].get(value) ?? 0;
+      const locked = optionCounts.lockedByValue[dim].get(value) ?? 0;
+      return {
+        value,
+        label,
+        sub: String(hits || locked),
+        lockedOnly: hits === 0 && locked > 0,
+        disabled: hits === 0 && locked === 0,
+      };
+    },
+    [optionCounts]
+  );
 
   const categoryItems: PickerItem[] = useMemo(
-    () =>
-      categories.map((c) =>
-        withCount(c.slug, localizedCategoryName(c, loc), optionCounts.byValue.category)
-      ),
-    [categories, loc, optionCounts]
+    () => categories.map((c) => withCount(c.slug, localizedCategoryName(c, loc), 'category')),
+    [categories, loc, withCount]
   );
   const bezirkItems: PickerItem[] = useMemo(
-    () => bezirkNames.map((n) => withCount(n, n, optionCounts.byValue.bezirk)),
-    [bezirkNames, optionCounts]
+    () => bezirkNames.map((n) => withCount(n, n, 'bezirk')),
+    [bezirkNames, withCount]
   );
   /* Wert bleibt der rohe Sanity-String — er ist die Filteridentität und steht
      so auch im `?cuisine=`-Parameter. Übersetzt wird nur das Label, genau wie
@@ -91,9 +107,9 @@ export default function MapListHeader({
   const cuisineItems: PickerItem[] = useMemo(
     () =>
       cuisineNames
-        .map((n) => withCount(n, localizedCuisine(n, loc), optionCounts.byValue.cuisine))
+        .map((n) => withCount(n, localizedCuisine(n, loc), 'cuisine'))
         .sort((a, b) => a.label.localeCompare(b.label, loc)),
-    [cuisineNames, loc, optionCounts]
+    [cuisineNames, loc, withCount]
   );
 
   const activeCategoryLabel = useMemo(() => {

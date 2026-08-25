@@ -19,8 +19,11 @@
 # Skipped automatically when no nextjs/ files changed in the push.
 # Override in an emergency: `git push --no-verify`. Use sparingly.
 #
-# Inspect the skip/build decision without paying for a build:
-#   PREPUSH_DRY_RUN=1 .git/hooks/pre-push origin <<'EOF'
+# Inspect the skip/build decision without paying for a build. Run THIS file,
+# not `.git/hooks/pre-push` — `core.hooksPath` points here, so a copy left in
+# `.git/hooks/` is dead weight that git never executes and testing it proves
+# nothing about the hook that actually runs:
+#   PREPUSH_DRY_RUN=1 .githooks/pre-push origin <<'EOF'
 #   refs/heads/x <local_sha> refs/heads/x 0000000000000000000000000000000000000000
 #   EOF
 
@@ -59,6 +62,13 @@ fi
 # Every failure path falls through to running the build. Stale remote-tracking
 # refs make more commits look new, which over-reports changed files — erring
 # toward a needless 30s, never toward a silent skip.
+#
+# That claim was false until 2026-08-25. `git diff <sha>..<sha>` exits 128 when
+# the remote's tip is an object this repo does not have — the remote moved and
+# we have not fetched yet — and the old `|| files=` turned that into an empty
+# file list, which is indistinguishable from "nothing under nextjs/ changed".
+# The build was skipped exactly when someone else had pushed, i.e. when a broken
+# build is most likely. A failed listing now means "build", not "skip".
 
 ZERO=0000000000000000000000000000000000000000
 
@@ -69,9 +79,11 @@ if [ -n "$remote" ]; then
     [ -z "$local_sha" ] && continue
     [ "$local_sha" = "$ZERO" ] && continue
     if [ "$remote_sha" = "$ZERO" ]; then
-      files="$(git log --format= --name-only "$local_sha" --not --remotes 2>/dev/null)" || files=
+      files="$(git log --format= --name-only "$local_sha" --not --remotes 2>/dev/null)" \
+        || { changed=1; break; }
     else
-      files="$(git diff --name-only "$remote_sha..$local_sha" 2>/dev/null)" || files=
+      files="$(git diff --name-only "$remote_sha..$local_sha" 2>/dev/null)" \
+        || { changed=1; break; }
     fi
     if printf '%s\n' "$files" | grep -q '^nextjs/'; then
       changed=1

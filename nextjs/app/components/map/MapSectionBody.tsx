@@ -265,7 +265,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* A locked dot opens the sheet like any other spot. It used to navigate
      straight to the pack page, which threw away the map, the filter and the
      search for what is usually a "what is this?" tap. */
-  const lockedMarkerLabel = locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
   const handleLockedClick = useCallback(
     (r: MapRestaurant) => {
       trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
@@ -414,7 +413,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selectedIsLocked={!!selectedRestaurant && lockedIdSet.has(selectedRestaurant._id)}
                 onRestaurantClick={handleMapRestaurantClick}
                 onLockedClick={handleLockedClick}
-                lockedLabel={lockedMarkerLabel}
                 location={location}
               />
             </div>

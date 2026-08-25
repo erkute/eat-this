@@ -53,7 +53,6 @@ interface MapCanvasLayerProps {
   selectedIsLocked: boolean;
   onRestaurantClick: (r: MapRestaurant) => void;
   onLockedClick: (r: MapRestaurant) => void;
-  lockedLabel: string;
   /** Accessible name for a group of free pins, e.g. "5 Spots …". */
   /** Accessible name for a group of locked dots. */
   location: UserLocation | null;
@@ -68,7 +67,6 @@ export default function MapCanvasLayer({
   selectedIsLocked,
   onRestaurantClick,
   onLockedClick,
-  lockedLabel,
   location,
 }: MapCanvasLayerProps) {
   /* `painted` gates the markers, `entering` only decides whether they arrive
@@ -173,7 +171,6 @@ export default function MapCanvasLayer({
             key={restaurant._id}
             restaurant={restaurant}
             onClick={onLockedClick}
-            label={lockedLabel}
           />
         ))}
       {painted && selectedRestaurant && selectedIsLocked && (
@@ -182,7 +179,6 @@ export default function MapCanvasLayer({
           restaurant={selectedRestaurant}
           isSelected
           onClick={onLockedClick}
-          label={lockedLabel}
         />
       )}
       {painted &&

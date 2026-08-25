@@ -5,16 +5,17 @@ import { describe, expect, it, vi } from 'vitest';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 
 /**
- * A picker row promises a result set. Before this, every row kept that promise
- * the same way — by being tappable — and a row reading 0 delivered a list that
- * could only say "keine Spots". Two of those zeroes were not the same thing:
+ * A picker row promises a result set, and every row used to keep that promise
+ * the same way: by being tappable. A row reading 0 then delivered a list that
+ * could only say "keine Spots" — the one thing nobody opened a filter for.
  *
- *   - nothing free, but the paywall holding matches → an offer, still tappable
- *   - nothing at all                                → a dead end, not tappable
+ * The counts include the paywalled spots (they stand in the list too), so a
+ * zero here means the catalogue has nothing, and the row stops leading
+ * anywhere.
  */
 const ITEMS: PickerItem[] = [
   { value: 'italian', label: 'Italienisch', sub: '4' },
-  { value: 'peruvian', label: 'Peruanisch', sub: '3', lockedOnly: true },
+  { value: 'peruvian', label: 'Peruanisch', sub: '3' },
   { value: 'georgian', label: 'Georgisch', sub: '0', disabled: true },
 ];
 
@@ -44,14 +45,12 @@ describe('MapFilterPickerSheet rows', () => {
     expect(dead.textContent).toContain('0');
   });
 
-  it('leaves a row that only the paywall is holding back tappable', () => {
+  it('leaves every row with something behind it tappable', () => {
     const onSelect = vi.fn();
     open({ onSelect });
-    const offer = screen.getByRole('button', { name: /Peruanisch/ }) as HTMLButtonElement;
-    expect(offer.disabled).toBe(false);
-    // The number it carries is the locked count — what the pack would add.
-    expect(offer.textContent).toContain('3');
-    offer.click();
+    const live = screen.getByRole('button', { name: /Peruanisch/ }) as HTMLButtonElement;
+    expect(live.disabled).toBe(false);
+    live.click();
     expect(onSelect).toHaveBeenCalledWith('peruvian');
   });
 

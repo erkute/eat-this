@@ -61,29 +61,15 @@ export default function MapListHeader({
   const bezirkBtnRef = useRef<HTMLButtonElement>(null);
   const cuisineBtnRef = useRef<HTMLButtonElement>(null);
 
-  /* Every row carries what it would actually return, and the number decides
-     what kind of row it is. Three states, because "0" was hiding two very
-     different things:
-
-     - free hits          → the count, plain.
-     - only locked hits   → that count behind a padlock. Not a dead end: the
-                            list shows the spots the pack is holding and names
-                            the price, which is the whole reason the row exists.
-     - nothing either way → listed, but not pickable. Hiding it would reshuffle
-                            the picker between two openings and "Peruanisch: 0"
-                            is a real answer; leading someone to a list that can
-                            only say "0 Treffer" is not. */
+  /* Every row carries what it would actually return — the whole catalogue,
+     paywalled spots included, because that is what the list renders. A zero is
+     therefore a real zero, and the row stops being pickable: it is listed
+     (hiding it reshuffles the picker between two openings, and "Peruanisch: 0"
+     is a real answer) but it cannot lead anywhere except an empty list. */
   const withCount = useCallback(
     (value: string, label: string, dim: FilterDimension): PickerItem => {
       const hits = optionCounts.byValue[dim].get(value) ?? 0;
-      const locked = optionCounts.lockedByValue[dim].get(value) ?? 0;
-      return {
-        value,
-        label,
-        sub: String(hits || locked),
-        lockedOnly: hits === 0 && locked > 0,
-        disabled: hits === 0 && locked === 0,
-      };
+      return { value, label, sub: String(hits), disabled: hits === 0 };
     },
     [optionCounts]
   );

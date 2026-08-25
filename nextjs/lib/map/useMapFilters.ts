@@ -5,8 +5,8 @@ import { haversineDistance } from './distance';
 
 interface Args {
   restaurants: MapRestaurant[];
-  /** Paywalled spots. Run through the same filter so the empty state can say
-   *  how many matches are held back and the map can dot them in. */
+  /** Paywalled spots. Run through the same filter as the free ones: they stand
+   *  in the list, they are counted by the pickers, and the map dots them in. */
   lockedRestaurants?: MapRestaurant[];
   mustEats?: MapMustEat[];
   location: { lat: number; lng: number } | null;
@@ -37,26 +37,15 @@ export type FilterDimension = 'category' | 'bezirk' | 'cuisine';
  *  value the picker passes back (category slug, district name, raw cuisine);
  *  `withoutDimension` is the "Alle …" reset row for that picker.
  *
- *  The locked pair carries the same counts over the paywalled set, and it is
- *  what tells a dead end from an offer: a row with no free hits but three
- *  locked ones is worth tapping — the list shows what is being held back and
- *  names the price. Only a row with neither is nothing at all. */
+ *  Counted over the WHOLE catalogue, locked spots included — they stand in the
+ *  list like any other row now, so a number that left them out would predict
+ *  the wrong list. What is left of a zero is a real zero. */
 export interface MapOptionCounts {
   byValue: Record<FilterDimension, Map<string, number>>;
   withoutDimension: Record<FilterDimension, number>;
-  lockedByValue: Record<FilterDimension, Map<string, number>>;
-  lockedWithoutDimension: Record<FilterDimension, number>;
 }
 
-interface DimensionCounts {
-  byValue: Record<FilterDimension, Map<string, number>>;
-  withoutDimension: Record<FilterDimension, number>;
-}
-
-/* One pass over one set of spots. Runs twice — free and locked — so both
-   answers come out of the same rules; a second, hand-written locked counter is
-   exactly how the two numbers would drift apart. */
-function countOptions(list: MapRestaurant[], base: MapChipState): DimensionCounts {
+function countOptions(list: MapRestaurant[], base: MapChipState): MapOptionCounts {
   const byValue: Record<FilterDimension, Map<string, number>> = {
     category: new Map(),
     bezirk: new Map(),
@@ -116,27 +105,39 @@ export function useMapFilters({
   const [cuisine, setCuisine] = useState<string | null>(null);
   const [openOnly, setOpenOnly] = useState(false);
 
-  // Distinct district names across the visible set — populates the Bezirk
+  /* Free and paywalled spots in one pile. Everything a picker offers and
+     everything it counts comes from here: the list shows both, so the filters
+     have to describe both. Built from the two sets rather than replacing them
+     — the map still draws them differently, and only this file knows they were
+     ever apart. */
+  const catalogue = useMemo(
+    () => [...restaurants, ...lockedRestaurants],
+    [restaurants, lockedRestaurants]
+  );
+
+  // Distinct district names across the catalogue — populates the Bezirk
   // picker. Sorted alphabetically (German collation).
   const bezirkNames = useMemo(() => {
     const set = new Set<string>();
-    for (const r of restaurants) {
+    for (const r of catalogue) {
       const d = districtOf(r);
       if (d) set.add(d);
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [restaurants]);
+  }, [catalogue]);
 
-  // Distinct cuisine values across the visible set — used to populate the
-  // Cuisine picker. Sorted alphabetically (German collation).
+  /* Distinct cuisine values across the catalogue — used to populate the Cuisine
+     picker. Sorted alphabetically (German collation). A cuisine that only
+     paywalled spots carry belongs in here: leaving it out did not just hide the
+     offer, it hid that the map has Georgian food at all. */
   const cuisineNames = useMemo(() => {
     const set = new Set<string>();
-    for (const r of restaurants) {
+    for (const r of catalogue) {
       const c = r.cuisineType?.trim();
       if (c) set.add(c);
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'));
-  }, [restaurants]);
+  }, [catalogue]);
 
   const dishIndexByRestaurantId = useMemo(() => {
     const index = new Map<string, string>();
@@ -179,43 +180,53 @@ export function useMapFilters({
      guaranteed zeroes with nothing saying so — you found out by tapping and
      landing on "Keine Spots".
 
-     Counted twice, free and locked. The free number is what the list renders
-     for a chip filter, so it is what the row has to predict; the locked one is
-     what separates "nothing here" from "everything here is in a pack". Search
-     is left out on purpose — a query overrides the chips (see above), and these
-     counts describe what the chips give once it is cleared. */
-  const optionCounts = useMemo<MapOptionCounts>(() => {
-    const base = { category, bezirk, cuisine, openOnly };
-    const free = countOptions(restaurants, base);
-    const locked = countOptions(lockedRestaurants, base);
-    return {
-      byValue: free.byValue,
-      withoutDimension: free.withoutDimension,
-      lockedByValue: locked.byValue,
-      lockedWithoutDimension: locked.withoutDimension,
-    };
-  }, [restaurants, lockedRestaurants, category, bezirk, cuisine, openOnly]);
+     Search is left out on purpose — a query overrides the chips (see above),
+     and these counts describe what the chips give once it is cleared. */
+  const optionCounts = useMemo<MapOptionCounts>(
+    () => countOptions(catalogue, { category, bezirk, cuisine, openOnly }),
+    [catalogue, category, bezirk, cuisine, openOnly]
+  );
 
-  const displayedRestaurants = useMemo(() => {
-    const filtered = restaurants.filter(filterRestaurant);
-    if (!location) return filtered;
-    return [...filtered].sort((a, b) => {
-      const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng);
-      const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng);
-      return aD - bD;
-    });
-  }, [restaurants, filterRestaurant, location]);
+  const nearestFirst = useCallback(
+    (list: MapRestaurant[]) => {
+      if (!location) return list;
+      return [...list].sort((a, b) => {
+        const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng);
+        const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng);
+        return aD - bD;
+      });
+    },
+    [location]
+  );
 
-  // The same filter applied to the locked rows. Two consumers, both uncapped:
-  // the empty state names how many matches the paywall is holding back, and
-  // the map draws each one as a muted dot so the locked catalogue is visible
-  // instead of simply absent. The list is never rendered as rows.
+  // Free matches. Feeds the map's own markers and the camera — the list has
+  // its own set below.
+  const displayedRestaurants = useMemo(
+    () => nearestFirst(restaurants.filter(filterRestaurant)),
+    [restaurants, filterRestaurant, nearestFirst]
+  );
+
+  // The same filter over the paywalled spots — the map draws each one as a
+  // muted dot, so the locked catalogue is visible instead of simply absent.
   const displayedLockedRestaurants = useMemo(
     () => lockedRestaurants.filter(filterRestaurant),
     [lockedRestaurants, filterRestaurant]
   );
 
-  const lockedMatchCount = displayedLockedRestaurants.length;
+  /* What the LIST renders: every match, locked ones among them (user decision
+     25.08.2026). A locked row looks and behaves like any other until it is
+     opened — the detail is where the paywall speaks, and it does that well.
+     Splitting them into "yours" and "not yours" up here only ever produced
+     surfaces that said 0 while the map underneath showed dots.
+
+     With a location the two sets interleave by distance like one list, which
+     is the whole claim: these are the spots around you. Without one they keep
+     their source order, free block first — there is no third thing to sort by
+     that would not reshuffle the free list for everyone. */
+  const listRestaurants = useMemo(
+    () => nearestFirst([...displayedRestaurants, ...displayedLockedRestaurants]),
+    [displayedRestaurants, displayedLockedRestaurants, nearestFirst]
+  );
 
   return {
     category,
@@ -233,6 +244,6 @@ export function useMapFilters({
     optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,
-    lockedMatchCount,
+    listRestaurants,
   };
 }

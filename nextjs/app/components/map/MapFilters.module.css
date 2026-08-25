@@ -651,23 +651,6 @@
   opacity: 0.8;
 }
 
-/* Nichts Freies, aber die Paywall hält Treffer zurück: keine Sackgasse,
-   sondern ein Angebot. Bleibt die normale gefüllte Zeile — das Schloss vor der
-   Zahl sagt vorher, was einen erwartet, statt es hinter einem Tap zu
-   verstecken. */
-.pickerItemLocked .pickerItemSub {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  opacity: 1;
-}
-
-.pickerLock {
-  flex-shrink: 0;
-  width: 11px;
-  height: 11px;
-}
-
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;

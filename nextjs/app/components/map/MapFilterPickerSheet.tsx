@@ -8,14 +8,10 @@ export interface PickerItem {
   label: string;
   /** Small muted text rendered right-aligned (e.g. result count). */
   sub?: string;
-  /** No free hits, but the paywall is holding some back — `sub` is that count.
-   *  Stays pickable and gets a padlock, so the row says what it leads to
-   *  before it is tapped. */
-  lockedOnly?: boolean;
-  /** Nothing behind this row at all, free or locked. Stays listed — hiding it
-   *  reshuffles the picker between openings, and "Peruanisch: 0" is the answer
-   *  someone came for — but it is not pickable, because the only thing it could
-   *  ever show is an empty list. */
+  /** Nothing behind this row, anywhere in the catalogue. Stays listed — hiding
+   *  it reshuffles the picker between openings, and "Peruanisch: 0" is the
+   *  answer someone came for — but it is not pickable, because the only thing
+   *  it could ever show is an empty list. */
   disabled?: boolean;
 }
 
@@ -215,7 +211,6 @@ export default function MapFilterPickerSheet({
                filter you are looking at, and a disabled button cannot take the
                focus this dialog hands to the current selection on open. */
             const dead = Boolean(item.disabled) && !active;
-            const offer = Boolean(item.lockedOnly) && !active;
             return (
               <button
                 key={item.value}
@@ -223,7 +218,7 @@ export default function MapFilterPickerSheet({
                 disabled={dead}
                 className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''} ${
                   dead ? styles.pickerItemDead : ''
-                } ${offer ? styles.pickerItemLocked : ''}`}
+                }`}
                 aria-current={active ? 'true' : undefined}
                 onClick={() => {
                   onSelect(item.value);
@@ -231,24 +226,7 @@ export default function MapFilterPickerSheet({
                 }}
               >
                 <span className={styles.pickerItemLabel}>{item.label}</span>
-                {item.sub && (
-                  <span className={styles.pickerItemSub}>
-                    {offer && (
-                      <svg
-                        className={styles.pickerLock}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.4"
-                        aria-hidden="true"
-                      >
-                        <rect x="4" y="10.5" width="16" height="10.5" rx="2.4" />
-                        <path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9" strokeLinecap="round" />
-                      </svg>
-                    )}
-                    {item.sub}
-                  </span>
-                )}
+                {item.sub && <span className={styles.pickerItemSub}>{item.sub}</span>}
               </button>
             );
           })}

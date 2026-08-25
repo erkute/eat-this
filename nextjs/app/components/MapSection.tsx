@@ -306,7 +306,7 @@ export default function MapSection({
     optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,
-    lockedMatchCount,
+    listRestaurants,
   } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
 
   const [searchOpen, setSearchOpen] = useState(false);
@@ -895,9 +895,9 @@ export default function MapSection({
   const pagerAdjacent = useMemo(
     () =>
       selectedRestaurant
-        ? resolveAdjacent(displayedRestaurants, selectedRestaurant._id)
+        ? resolveAdjacent(listRestaurants, selectedRestaurant._id)
         : { index: -1, prev: null, next: null },
-    [displayedRestaurants, selectedRestaurant]
+    [listRestaurants, selectedRestaurant]
   );
 
   // Warm the neighbours' detail fields while a detail pane is open, so a
@@ -1573,9 +1573,9 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
+      listRestaurants={listRestaurants}
       lockedIdSet={lockedIdSet}
       signupUnlockableIds={signupUnlockableIds}
-      lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}

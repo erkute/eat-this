@@ -171,6 +171,14 @@ export default function BurgerDrawer() {
             <Link href="/kategorie" className="bd-nav-item">
               {t('burger.categories')}
             </Link>
+            {/* Dasselbe für den Bezirks-Hub, gleiche Ursache, gleicher Tag: 20
+                Aufrufe in vier Tagen bei 3.115 Pageviews gesamt. Anders als bei
+                den Kategorien gibt es auf der Startseite keine Bezirks-Rail, an
+                deren Ende ein Chip passen würde — dieser Eintrag ist der ganze
+                Eingang. */}
+            <Link href="/bezirk" className="bd-nav-item">
+              {t('burger.districts')}
+            </Link>
             {/* Remy lives in the home hub now. From other pages the burger
                 sends users back to
                 his "Frag Remy" section via HubHashScroll. */}

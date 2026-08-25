@@ -14,6 +14,7 @@ import {
   type FreeSurfaceCard,
 } from './free-surface';
 import { client } from '@/lib/sanity';
+import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants';
 import type { MapRestaurant } from '@/lib/types';
 
 const fetchSpy = vi.mocked(client.fetch);
@@ -119,7 +120,9 @@ describe('getFreeSurfaceData', () => {
 
     expect(fetchSpy).toHaveBeenCalledTimes(3);
     for (const call of fetchSpy.mock.calls) {
-      expect(call[2]).toEqual({ next: { revalidate: 60, tags: ['free-surface'] } });
+      expect(call[2]).toEqual({
+        next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['free-surface'] },
+      });
     }
   });
 });

@@ -14,6 +14,7 @@ vi.mock('@/lib/queries', () => ({
 
 import { client } from '@/lib/sanity'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
+import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants'
 
 const fetchSpy = vi.mocked(client.fetch)
 
@@ -42,7 +43,7 @@ describe('getCachedMapData', () => {
       categories:  [{ slug: 'pizza' }],
     })
     expect(fetchSpy).toHaveBeenCalledTimes(3)
-    const cacheOptions = { next: { revalidate: 60, tags: ['map-data'] } }
+    const cacheOptions = { next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['map-data'] } }
     expect(fetchSpy).toHaveBeenCalledWith('RESTAURANTS', {}, cacheOptions)
     expect(fetchSpy).toHaveBeenCalledWith('MUSTEATS', {}, cacheOptions)
     expect(fetchSpy).toHaveBeenCalledWith('CATEGORIES', {}, cacheOptions)

@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing';
 import { hasEnContent } from '@/lib/i18n/pickLocale';
 import { isStaging } from '@/lib/env';
 import { GONE_SLUGS } from '@/lib/seo/legacyRedirects';
-import { TEMPLATE_REVISED } from '@/lib/constants';
+import { SANITY_REVALIDATE_SECONDS, TEMPLATE_REVISED } from '@/lib/constants';
 
 // Cache the generated sitemap for a day instead of rebuilding it (full Sanity
 // fetch of all restaurants/articles/bezirke) on every crawler hit. Content
@@ -72,24 +72,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
       `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && isOpen != false && isClosed != true] { "slug": slug.current, descriptionEn }`,
       {},
-      { next: { revalidate: 3600, tags: ['sitemap-restaurants'] } }
+      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
     client.fetch<{ slug: string; updatedAt: string; hasEnContent: boolean }[]>(
       `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt, "hasEnContent": defined(title) && count(content) > 0 }`,
       {},
-      { next: { revalidate: 3600, tags: ['sitemap-articles'] } }
+      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-articles'] } }
     ),
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
       // Districts without open spots 404 (bezirk/[slug]/page.tsx) — keep them
       // out of the sitemap too.
       `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]) > 0] { "slug": slug.current, descriptionEn }`,
       {},
-      { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } }
+      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-bezirke'] } }
     ),
     client.fetch<{ slug: string }[]>(
       `*[_type == "category" && defined(slug.current)] { "slug": slug.current }`,
       {},
-      { next: { revalidate: 3600, tags: ['sitemap-categories', 'category-list'] } }
+      {
+        next: {
+          revalidate: SANITY_REVALIDATE_SECONDS,
+          tags: ['sitemap-categories', 'category-list'],
+        },
+      }
     ),
   ]);
 

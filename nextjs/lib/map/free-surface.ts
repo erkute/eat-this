@@ -10,6 +10,7 @@
 import { normalizeName } from '@/lib/normalizeName';
 import type { MapRestaurant } from '@/lib/types';
 import { client } from '@/lib/sanity';
+import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants';
 
 export interface FreeSurfaceCard {
   _id: string;
@@ -108,8 +109,10 @@ const newsSpotIdsQuery = `*[_type == "newsArticle" && !(_id in path("drafts.**")
   "en": content[_type == "mustEatCard"].mustEatRef->restaurantRef._ref
 }`;
 
+// Fünf Minuten, siehe MAP_CACHE_OPTIONS in cached-sanity.ts. Der Webhook
+// invalidiert `free-surface` bei jeder Änderung gezielt.
 const FREE_SURFACE_CACHE_OPTIONS = {
-  next: { revalidate: 60, tags: ['free-surface'] },
+  next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['free-surface'] },
 };
 
 export async function getFreeSurfaceData(): Promise<FreeSurfaceData> {

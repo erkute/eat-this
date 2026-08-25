@@ -58,3 +58,40 @@ export function getAppUrl(): string {
     return SITE_URL;
   }
 }
+
+/**
+ * Wie lange ein aus Sanity geholter Datensatz als frisch gilt (Sekunden).
+ *
+ * 24 Stunden, nicht eine. Der alte Stundentakt bedeutete: rund 770
+ * vorgerenderte Seiten (343 Restaurants, 20 Bezirke, 9 Kategorien, 7 Artikel,
+ * 5 statische Seiten — jeweils DE und EN) durften sich jede Stunde neu aus
+ * Sanity versorgen, jede mit mehreren Fetches. Am 24.08.2026 war das
+ * API-CDN-Kontingent des Plans aufgebraucht, Startseite und /map antworteten
+ * mit 500 und jeder CI-Build brach mit 402 `plan_limit_reached` ab.
+ *
+ * Der Takt ist nicht der Weg, auf dem Inhalte live gehen — das ist der
+ * Sanity-Webhook auf /api/revalidate, der bei jeder Änderung gezielt die
+ * betroffenen Tags und Pfade invalidiert. Diese Frist ist nur das Netz
+ * darunter, für den Fall, dass ein Webhook verloren geht.
+ *
+ * Genau deshalb hängt an dieser Zahl eine Bedingung: **sie darf nur so lang
+ * sein, wie der Webhook wirklich funktioniert.** Fällt er aus, ist dieser Wert
+ * die einzige Frist, nach der Inhalte erscheinen — und aus einer Stunde
+ * Verzögerung wird ein Tag. Prüfen mit:
+ *
+ *   cd studio && SANITY_STUDIO_ENV=production SANITY_STUDIO_PROJECT_ID=ehwjnjr2 \
+ *     SANITY_STUDIO_DATASET=production ./node_modules/.bin/sanity hook logs "Next.js revalidate"
+ *
+ * Steht dort `failure`, gehört dieser Wert zurück auf 3600, bis der Hook
+ * wieder 200 liefert.
+ */
+export const SANITY_REVALIDATE_SECONDS = 86400;
+
+/**
+ * Frist für die Flächen, die pro Request frisch aussehen müssen: die Karte und
+ * die Startseite sind `force-dynamic`, ihre Sanity-Fetches sind das Einzige,
+ * was sie überhaupt cached hält. Fünf Minuten statt der früheren einen — bei
+ * einem Crawler, der die Karte im Minutentakt abruft, war die alte Frist ein
+ * Dauerabo auf frische Sanity-Anfragen.
+ */
+export const SANITY_LIVE_SURFACE_SECONDS = 300;

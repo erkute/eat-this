@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity';
+import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { getLatestNewsArticles } from '@/lib/sanity.server';
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay';
 
@@ -33,7 +34,6 @@ const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id 
   "sub": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription)
 }`;
 
-
 const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{
   "slug": slug.current,
   "name": select($locale == "en" => nameEn, name)
@@ -48,13 +48,13 @@ export async function getHomeData(
     client.fetch<HomeSpot[]>(
       spotCandidatesQuery,
       { locale },
-      { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }
+      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurant', 'mustEat'] } }
     ),
     getLatestNewsArticles(6),
     client.fetch<{ slug: string; name: string }[]>(
       categoryNamesQuery,
       { locale },
-      { next: { revalidate: 3600, tags: ['category'] } }
+      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['category'] } }
     ),
   ]);
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;

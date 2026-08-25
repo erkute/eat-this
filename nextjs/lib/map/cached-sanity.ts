@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity';
+import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants';
 import { mapRestaurantsQuery, mapMustEatsQuery } from './queries';
 import { allCategoriesQuery } from '@/lib/queries';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
@@ -10,8 +11,13 @@ interface CachedMapData {
   categories: CategoryDef[];
 }
 
+// Fünf Minuten statt einer. /map ist force-dynamic; diese Fetches sind das
+// Einzige, was die Fläche überhaupt cached hält, und bei einem Crawler, der die
+// Karte im Minutentakt abruft, war die alte Frist ein Dauerabo auf frische
+// Sanity-Anfragen. Der Webhook invalidiert `map-data` bei jeder Änderung
+// gezielt — die Frist ist nur das Netz darunter.
 const MAP_CACHE_OPTIONS = {
-  next: { revalidate: 60, tags: ['map-data'] },
+  next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['map-data'] },
 };
 
 export async function getCachedMapData(): Promise<CachedMapData> {

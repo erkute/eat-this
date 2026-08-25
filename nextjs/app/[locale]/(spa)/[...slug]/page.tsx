@@ -7,7 +7,11 @@ import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 
-export const revalidate = 3600;
+// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
+// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
+// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
+// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
+export const revalidate = 86400;
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string[] }>;

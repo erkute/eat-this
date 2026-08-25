@@ -26,7 +26,11 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export const revalidate = 3600;
+// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
+// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
+// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
+// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
+export const revalidate = 86400;
 
 /**
  * „Alle 45 Spots ansehen" — die Zahl gehört auf den Knopf, nicht daneben.

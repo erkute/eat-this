@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity';
+import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { pickSpotOfDay } from './pickSpotOfDay';
 
 // Same candidate filter as getHomeData's spotCandidatesQuery (open, non-draft)
@@ -23,7 +24,7 @@ export async function getSpotOfDayId(today: string): Promise<string | null> {
   const candidates = await client.fetch<Candidate[]>(
     spotOfDayCandidatesQuery,
     {},
-    { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurant', 'mustEat'] } }
   );
   return pickSpotOfDay(candidates, today)?._id ?? null;
 }

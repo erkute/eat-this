@@ -8,9 +8,11 @@ export interface PickerItem {
   label: string;
   /** Small muted text rendered right-aligned (e.g. result count). */
   sub?: string;
-  /** This row would return nothing. Still listed and still pickable — it is
-   *  dimmed so the dead ends are visible before they are tapped. */
-  empty?: boolean;
+  /** Nothing behind this row, anywhere in the catalogue. Stays listed — hiding
+   *  it reshuffles the picker between openings, and "Peruanisch: 0" is the
+   *  answer someone came for — but it is not pickable, because the only thing
+   *  it could ever show is an empty list. */
+  disabled?: boolean;
 }
 
 interface Props {
@@ -205,12 +207,17 @@ export default function MapFilterPickerSheet({
           )}
           {items.map((item) => {
             const active = item.value === selectedValue;
+            /* The active row is never dead, whatever its count says: it is the
+               filter you are looking at, and a disabled button cannot take the
+               focus this dialog hands to the current selection on open. */
+            const dead = Boolean(item.disabled) && !active;
             return (
               <button
                 key={item.value}
                 type="button"
+                disabled={dead}
                 className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''} ${
-                  item.empty && !active ? styles.pickerItemEmpty : ''
+                  dead ? styles.pickerItemDead : ''
                 }`}
                 aria-current={active ? 'true' : undefined}
                 onClick={() => {

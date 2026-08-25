@@ -27,9 +27,15 @@ import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
-import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from '@/lib/map/phoneSheetSnaps';
+import {
+  DETAIL_PEEK_DVH,
+  LIST_REST_VISIBLE_DVH,
+  resolveListReturn,
+  rowRevealOffset,
+} from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
+import { resolveDetailHistory } from '@/lib/map/detailHistory';
 import { searchRefitSpots, spotsCameraTarget } from '@/lib/map/cameraFit';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
@@ -47,6 +53,14 @@ const PIN_SAFE_TOP = 115;
    short enough that the move still reads as the answer to what was typed.
    Was 450 ms; taken down to 300 on 22.08.2026 because the wait read as lag. */
 const SEARCH_REFIT_DELAY_MS = 300;
+
+/* How long the list keeps re-aiming at the row a closed detail belongs to, and
+   how many frames it has to sit still before that counts as arrived. ~1s is
+   long enough for a list of 340 content-visibility rows to measure the part it
+   scrolled through, short enough that a row which never settles gives up before
+   it turns into a fight. */
+const ROW_REVEAL_MAX_FRAMES = 60;
+const ROW_REVEAL_SETTLED_FRAMES = 3;
 
 interface Props {
   isActive?: boolean;
@@ -231,20 +245,105 @@ export default function MapSection({
      anchors. peek = the list's CSS resting overlap (scroll 0), mid ≈ 440px of
      list visible, full = list top parked 40px below the viewport top — same
      constants the tablet drag-sheet uses (MID_VISIBLE_PX / FULL_TOP_PX). */
-  const scrollListToAnchor = useCallback(
-    (target: 'peek' | 'mid' | 'full', behavior: ScrollBehavior = 'smooth') => {
+  const listAnchorY = useCallback(
+    (target: 'peek' | 'mid' | 'full'): number | null => {
       const el = sheetElRef.current;
-      if (!el) return;
+      if (!el) return null;
       const listTopDoc = el.getBoundingClientRect().top + window.scrollY;
       const h = window.innerHeight;
       // peek: desiredTop = h ⇒ target scroll ≤ 0 ⇒ clamps to 0 (CSS overlap).
       const desiredTop = target === 'peek' ? h : target === 'mid' ? Math.max(40, h - 440) : 40;
-      window.scrollTo({
-        top: Math.max(0, Math.round(listTopDoc - desiredTop)),
-        behavior,
-      });
+      return Math.max(0, Math.round(listTopDoc - desiredTop));
     },
     [sheetElRef]
+  );
+
+  const scrollListToAnchor = useCallback(
+    (target: 'peek' | 'mid' | 'full', behavior: ScrollBehavior = 'smooth') => {
+      const top = listAnchorY(target);
+      if (top == null) return;
+      window.scrollTo({ top, behavior });
+    },
+    [listAnchorY]
+  );
+
+  /* Put one specific row on screen — the spot whose detail just closed. Only
+     works while that row is rendered, which is what listFocusId below is for;
+     returns false when it is not (a deep link into a spot the filter excludes)
+     so the caller can fall back to the plain list anchor.
+
+     Aimed for a few frames rather than once. The rows carry
+     `content-visibility: auto` (RestaurantList.module.css), so every row below
+     the fold is laid out from an ESTIMATE until it comes near the viewport: one
+     scrollTo aims into a document that has not measured itself yet and stops
+     short — the further down the row, the further short. Re-deriving the target
+     from the row itself until it stops moving is the same medicine
+     ScrollRestorer takes for the same illness on soft navs.
+
+     Instant rather than smooth, for the same reason it is over there: with
+     `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
+     frame restarts its own animation and never arrives. The list simply appears
+     already standing at the spot, which is the point. */
+  const rowRevealCancelRef = useRef<(() => void) | null>(null);
+  const scrollListToRow = useCallback(
+    (id: string | null): boolean => {
+      if (!id || typeof document === 'undefined') return false;
+      const findRow = () => document.querySelector<HTMLElement>(`[data-list-row="${id}"]`);
+      if (!findRow()) return false;
+
+      rowRevealCancelRef.current?.();
+      let frames = 0;
+      let settled = 0;
+      let raf = 0;
+      const cancel = () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener('wheel', cancel);
+        window.removeEventListener('touchstart', cancel);
+        rowRevealCancelRef.current = null;
+      };
+      rowRevealCancelRef.current = cancel;
+      /* The moment the user touches the list, it is theirs. */
+      window.addEventListener('wheel', cancel, { passive: true });
+      window.addEventListener('touchstart', cancel, { passive: true });
+
+      const tick = () => {
+        const row = findRow();
+        if (!row) return cancel();
+        /* Phones scroll the window (in-flow list), tablet and desktop the
+           panel's own port. */
+        const port = isPhoneViewport() ? null : contentRef.current;
+        let target: number;
+        let current: number;
+        if (port) {
+          const offset =
+            row.getBoundingClientRect().top - port.getBoundingClientRect().top + port.scrollTop;
+          target = Math.max(0, Math.round(offset - port.clientHeight * 0.28));
+          current = port.scrollTop;
+        } else {
+          if (!isPhoneViewport()) return cancel();
+          const minY = listAnchorY('mid');
+          if (minY == null) return cancel();
+          target = rowRevealOffset(
+            row.getBoundingClientRect().top + window.scrollY,
+            window.innerHeight,
+            minY
+          );
+          current = window.scrollY;
+        }
+        if (Math.abs(current - target) > 1) {
+          settled = 0;
+          if (port) port.scrollTop = target;
+          else window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+        } else if (++settled >= ROW_REVEAL_SETTLED_FRAMES) {
+          return cancel();
+        }
+        if (++frames >= ROW_REVEAL_MAX_FRAMES) return cancel();
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+      return true;
+    },
+    [contentRef, listAnchorY]
   );
 
   const {
@@ -263,7 +362,7 @@ export default function MapSection({
     optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,
-    lockedMatchCount,
+    listRestaurants,
   } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
 
   const [searchOpen, setSearchOpen] = useState(false);
@@ -385,14 +484,9 @@ export default function MapSection({
      deep-link consumer (useMapDeepLinks) no longer strips the params; its
      consumed-guards prevent same-session re-triggers.
 
-     Opening a detail from the list PUSHES that URL so the phone back gesture
-     closes the detail instead of leaving the map (which used to cost the user
-     their camera position and list scroll). Selecting another spot while the
-     detail is already open — pager swipes, marker taps — replaces instead, so
-     swiping through ten spots doesn't leave ten entries to back out of.
-     detailEntryPushedRef tracks whether the entry on top of the stack is ours
-     to unwind; a deep-linked or reloaded ?r= URL is somebody else's entry and
-     is only ever replaced. */
+     Which history operation each change takes lives in resolveDetailHistory;
+     detailEntryPushedRef is the one bit of state it needs — whether the entry
+     on top of the stack is ours to unwind. */
   const detailEntryPushedRef = useRef(false);
   /* Gesetzt, wenn eine Sucheingabe das Detail schließt (siehe
      handleSearchChange). Der normale Schließweg poppt unseren History-Eintrag,
@@ -430,34 +524,28 @@ export default function MapSection({
     }
     const next = urlWithParams(params);
     const current = currentUrl();
+    const closedBySearch = detailClosedBySearchRef.current;
+    const action = resolveDetailHistory({
+      detailOpen: sheetView === 'detail',
+      wasOpen: wasDetail,
+      urlChanged: next !== current,
+      pushed: detailEntryPushedRef.current,
+      closedBySearch,
+    });
 
-    if (sheetView === 'detail') {
-      if (next === current) return;
-      if (detailEntryPushedRef.current) {
-        window.history.replaceState(window.history.state, '', next);
-      } else {
-        window.history.pushState(window.history.state, '', next);
-        detailEntryPushedRef.current = true;
-      }
-      return;
-    }
-
-    /* Closed from the UI (X, swipe-down, must-eat → list). Pop the entry we
-       pushed rather than replacing it — otherwise the forward stack keeps a
-       detail the user just dismissed, and one back press would re-open it. */
-    if (detailEntryPushedRef.current) {
+    if (sheetView !== 'detail') {
       detailEntryPushedRef.current = false;
-      if (detailClosedBySearchRef.current) {
-        detailClosedBySearchRef.current = false;
-        window.history.replaceState(window.history.state, '', next);
-        return;
-      }
-      window.history.back();
-      return;
+      detailClosedBySearchRef.current = false;
+      /* Only a real traversal can undo the trip to the list — see the popstate
+         handler, which is where the scroll then happens. */
+      if (action !== 'back') listAnchorPendingRef.current = false;
+    } else if (action === 'push') {
+      detailEntryPushedRef.current = true;
     }
-    if (next !== current) {
-      window.history.replaceState(window.history.state, '', next);
-    }
+
+    if (action === 'push') window.history.pushState(window.history.state, '', next);
+    else if (action === 'replace') window.history.replaceState(window.history.state, '', next);
+    else if (action === 'back') window.history.back();
   }, [isActive, sheetView, selectedRestaurant?.slug, selectedMustEat?._id]);
 
   /* Scroll-restore for back-nav (list → detail → list):
@@ -468,6 +556,15 @@ export default function MapSection({
      - Filter / sort changes reset it to 0 so a new filter always starts at
        the top of the new result set. */
   const listScrollRef = useRef(0);
+  /* The spot whose detail was closed last. Two jobs, both about the row rather
+     than the selection: RestaurantList keeps that row rendered even when it
+     sits past the windowed budget (it counts the "selection" into the budget),
+     and it is the row the list scrolls to. Not `selectedRestaurant` — closing
+     the detail drops the selection, and reviving it there would make every
+     "is a detail open?" check downstream lie. */
+  const [listFocusId, setListFocusId] = useState<string | null>(null);
+  const listFocusIdRef = useRef(listFocusId);
+  listFocusIdRef.current = listFocusId;
   const prevFiltersRef = useRef({ category, bezirk, cuisine, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
@@ -482,6 +579,9 @@ export default function MapSection({
       prev.search !== next.search;
     if (!filtersChanged) return;
     listScrollRef.current = 0;
+    /* A different result set: the row that was worth pointing at may not even
+       be in it any more. */
+    setListFocusId(null);
     if (isPhoneViewport()) {
       /* In-flow list: the new result set starts at the list top. If the user
          was scrolled deeper than that, park the window at the 'full' anchor
@@ -499,20 +599,60 @@ export default function MapSection({
     if (el) el.scrollTop = 0;
   }, [sheetView, category, bezirk, cuisine, openOnly, search, contentRef, sheetElRef]);
 
+  /* Which view handed us this render. Only a return FROM a detail may move the
+     list — the map's own first paint (list peeking under the map) and every
+     later re-run must leave the scroll exactly where it is. */
+  const listReturnFromRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
+  /* Set when the trip to the list still has to survive a history traversal —
+     consumed by the popstate handler further down. */
+  const listAnchorPendingRef = useRef(false);
+
   useLayoutEffect(() => {
+    const cameFromDetail = listReturnFromRef.current === 'detail';
+    listReturnFromRef.current = sheetView;
     if (sheetView !== 'list') return;
-    if (listScrollRef.current === 0) return;
+    const action = resolveListReturn(listScrollRef.current, cameFromDetail);
+    if (action === 'stay') return;
     if (isPhoneViewport()) {
+      if (action === 'toList') {
+        /* Opened from a marker on the map (or a deep link): there is no list
+           position to go back to, and the detail leaves the window at ~0 —
+           which in list geometry is the MAP stop. So the button labelled
+           "Liste" delivered the bare map, and the list had to be fished back
+           up by hand. Scroll to it instead. 'mid' is the anchor that matches
+           the snap state the close handlers already set on phones, so the
+           chrome and the scroll agree.
+
+           Unless a pushed detail entry is about to be popped (the URL sync
+           below): ScrollRestorer re-applies the popped entry's saved position
+           as part of that traversal, and for a spot opened from a marker that
+           position IS the map stop. Scrolling now would visibly bounce off it,
+           so the popstate handler does it instead — after the restorer has had
+           its turn. */
+        if (detailEntryPushedRef.current && !detailClosedBySearchRef.current) {
+          listAnchorPendingRef.current = true;
+          return;
+        }
+        if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
+        return;
+      }
       /* Phone details start at the top of the in-flow document. Restore the
          list position before paint so closing does not flash a blank canvas
          into iOS Safari's browser-chrome backdrop. */
       window.scrollTo(0, listScrollRef.current);
       return;
     }
+    /* Tablet sheet / desktop panel already show the list on close — but not
+       necessarily the spot that was just open, and a marker tap can open the
+       fortieth row. Same answer as on phones, in the panel's own scroller. */
+    if (action !== 'restore') {
+      scrollListToRow(listFocusIdRef.current);
+      return;
+    }
     const el = contentRef.current;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
-  }, [sheetView, contentRef]);
+  }, [sheetView, contentRef, scrollListToAnchor, scrollListToRow]);
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return [];
@@ -798,9 +938,9 @@ export default function MapSection({
   const pagerAdjacent = useMemo(
     () =>
       selectedRestaurant
-        ? resolveAdjacent(displayedRestaurants, selectedRestaurant._id)
+        ? resolveAdjacent(listRestaurants, selectedRestaurant._id)
         : { index: -1, prev: null, next: null },
-    [displayedRestaurants, selectedRestaurant]
+    [listRestaurants, selectedRestaurant]
   );
 
   // Warm the neighbours' detail fields while a detail pane is open, so a
@@ -948,6 +1088,8 @@ export default function MapSection({
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant;
     setSelectedRestaurant(null);
+    // Where the list should come back to: the row of the spot being closed.
+    setListFocusId(r?._id ?? null);
     setSheetView('list');
     // If the user pushed the detail down to peek before tapping X, snap the
     // list back to 'mid' so the result set is actually readable. 'full' and
@@ -992,7 +1134,10 @@ export default function MapSection({
       return;
     }
     // Closing a must-eat detail (reached from a restaurant detail or deep
-    // link) puts the user back on the restaurants list.
+    // link) puts the user back on the restaurants list — at the row of the
+    // restaurant the dish belongs to, which is the only spot on screen the
+    // must-eat was ever about.
+    setListFocusId(m?.restaurant._id ?? null);
     setSheetView('list');
     // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
     // phones always reset (stale 'full' would keep the full-snap UI state active).
@@ -1050,7 +1195,20 @@ export default function MapSection({
       const mustEatId = params.get('me');
       const detailOpen = sheetViewRef.current === 'detail';
       if (!slug && !mustEatId) {
-        if (!detailOpen) return;
+        if (!detailOpen) {
+          /* Tail end of a close we already ran: the list is on screen and this
+             is the detail entry being popped behind it. ScrollRestorer
+             (app/components/ScrollRestorer.tsx) restores the popped-to entry's
+             saved position inside this same dispatch — the map stop, for a spot
+             opened from a marker. rAF puts the trip to the list after it. */
+          if (listAnchorPendingRef.current) {
+            listAnchorPendingRef.current = false;
+            requestAnimationFrame(() => {
+              if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
+            });
+          }
+          return;
+        }
         detailEntryPushedRef.current = false;
         dismissDetailRef.current();
         return;
@@ -1060,7 +1218,7 @@ export default function MapSection({
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [isActive]);
+  }, [isActive, scrollListToAnchor, scrollListToRow]);
 
   const handleMapClick = useCallback(() => {
     const isMobile =
@@ -1458,14 +1616,15 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
+      listRestaurants={listRestaurants}
       lockedIdSet={lockedIdSet}
       signupUnlockableIds={signupUnlockableIds}
-      lockedMatchCount={lockedMatchCount}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
+      listFocusId={listFocusId}
       selectedMustEat={selectedMustEat}
       primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}

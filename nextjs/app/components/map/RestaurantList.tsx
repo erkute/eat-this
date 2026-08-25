@@ -216,20 +216,13 @@ interface RestaurantListProps {
   unlockedIds: Set<string>;
   revealedMustEatIds: Set<string>;
   onResetFilters?: () => void;
-  /** Paywalled matches to render as rows, after the free ones. Non-empty only
-   *  while a search query is active: a query is someone naming a spot, and
-   *  answering "not found" for something that is in the catalogue — and whose
-   *  name is public on its district page anyway — is the bug this fixes. The
-   *  chip filters keep the quiet free-only list. */
-  lockedRestaurants?: MapRestaurant[];
-  /** Count of locked spots matching the active filter, for the empty state
-   *  headline. Independent of `lockedRestaurants`: the chip filters count them
-   *  without listing them. */
-  lockedMatchCount?: number;
-  /** What the active filter narrowed to (query, bezirk, cuisine or category),
-   *  for the empty-state headline. */
-  activeFilterLabel?: string | null;
-  /** Obergrenze der gerenderten Zeilen, gemeinsam über freie und gesperrte.
+  /** Which of the rows above the paywall is holding. Nothing about the row
+   *  says so — it looks and reads like every other one, and opening it is what
+   *  brings up the offer (user decision 25.08.2026). The flag is purely
+   *  behavioural: no must-eat peek and no detail prefetch, because either would
+   *  ship paid content for a spot nobody paid for. */
+  lockedIds: Set<string>;
+  /** Obergrenze der gerenderten Zeilen.
    *  Der Stand liegt bewusst im Elternteil: ein Sprung ins Detail hängt diese
    *  Liste aus, und der View-Toggle stellt beim Zurück die alte Scroll-Position
    *  wieder her — eine hier gehaltene Zahl würde auf 12 zurückfallen und die
@@ -241,7 +234,7 @@ interface RestaurantListProps {
 
 export default function RestaurantList({
   restaurants,
-  lockedRestaurants = [],
+  lockedIds,
   selectedId,
   uid,
   userTier,
@@ -250,8 +243,6 @@ export default function RestaurantList({
   unlockedIds,
   revealedMustEatIds,
   onResetFilters,
-  lockedMatchCount = 0,
-  activeFilterLabel,
   visibleRows,
   onNeedMoreRows,
 }: RestaurantListProps) {
@@ -268,16 +259,13 @@ export default function RestaurantList({
     return () => window.clearInterval(timer);
   }, []);
 
-  /* Ein gemeinsames Budget über beide Listen, in der Reihenfolge, in der sie
-     auch untereinander stehen: erst die freien Zeilen, dann die gesperrten.
-     Die Auswahl zählt immer dazu — ein von der Karte angetippter Spot muss als
-     aktive Zeile existieren, auch wenn er weit unten liegt. */
+  /* Die Auswahl zählt immer ins Budget — ein von der Karte angetippter Spot
+     muss als Zeile existieren, auch wenn er weit unten liegt, und nach dem
+     Schließen scrollt die Liste genau dorthin zurück. */
   const selectedIndex = selectedId ? restaurants.findIndex((r) => r._id === selectedId) : -1;
   const budget = Math.max(visibleRows, selectedIndex + 1);
-  const freeRows = restaurants.slice(0, budget);
-  const lockedRows = lockedRestaurants.slice(0, Math.max(0, budget - restaurants.length));
-  const hasMoreRows =
-    freeRows.length < restaurants.length || lockedRows.length < lockedRestaurants.length;
+  const rows = restaurants.slice(0, budget);
+  const hasMoreRows = rows.length < restaurants.length;
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -297,23 +285,11 @@ export default function RestaurantList({
 
   const allBerlinHref =
     locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
-  const districtsHref = locale === routing.defaultLocale ? '/bezirk' : `/${locale}/bezirk`;
 
-  // The empty state is for a filter that found NOTHING — neither free rows nor
-  // locked ones to list. A search that matches only locked spots no longer
-  // lands here: those rows are rendered below, which is the whole point of
-  // being able to search the grey spots. The chip filters still reach it with
-  // a locked count, because they don't list their locked matches.
-  if (restaurants.length === 0 && lockedRestaurants.length === 0)
-    return (
-      <MapListEmpty
-        onReset={onResetFilters}
-        lockedCount={userTier === 'allBerlin' ? 0 : lockedMatchCount}
-        filterLabel={activeFilterLabel}
-        packHref={allBerlinHref}
-        districtsHref={districtsHref}
-      />
-    );
+  /* Nothing matched — and now that the list carries the locked spots too, that
+     means nothing in the whole catalogue. No count to name, no offer to make:
+     the filter is simply too narrow. */
+  if (restaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />;
 
   // One calm upsell only: no blurred locked rows and no separate signup
   // banner. Guests get sign-in as a secondary text link inside this block.
@@ -321,41 +297,35 @@ export default function RestaurantList({
 
   return (
     <>
-      {freeRows.map((r, index) => (
-        <div key={r._id} className={styles.rcardSlot}>
-          <Item
-            restaurant={r}
-            isSelected={selectedId === r._id}
-            /* The first row already peeks above the fold at the sheet's resting
-               stop, so it is the map page's LCP candidate — lazy-loading it
-               made the browser discover it a round-trip late. */
-            priority={index === 0}
-            now={now}
-            // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
-            // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
-            // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
-            peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
-            onClick={onSelect}
-          />
-        </div>
-      ))}
-      {/* Locked hits last, and otherwise indistinguishable — they simply
-          continue the list. Free rows stay on top because they are what the
-          user can open today; ordering is the only weighting left. */}
-      {lockedRows.map((r, index) => (
-        <div key={r._id} className={styles.rcardSlot}>
-          <Item
-            restaurant={r}
-            isSelected={selectedId === r._id}
-            /* LCP candidate only when no free row sits above it. */
-            priority={restaurants.length === 0 && index === 0}
-            now={now}
-            peek={{ kind: 'none' }}
-            locked
-            onClick={onSelect}
-          />
-        </div>
-      ))}
+      {rows.map((r, index) => {
+        const locked = lockedIds.has(r._id);
+        return (
+          /* data-list-row: how MapSection finds a row again — closing a detail
+             scrolls the list to the spot it was showing. */
+          <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
+            <Item
+              restaurant={r}
+              isSelected={selectedId === r._id}
+              /* The first row already peeks above the fold at the sheet's
+                 resting stop, so it is the map page's LCP candidate —
+                 lazy-loading it made the browser discover it a round-trip
+                 late. */
+              priority={index === 0}
+              now={now}
+              // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
+              // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
+              // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
+              peek={
+                locked
+                  ? { kind: 'none' }
+                  : resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)
+              }
+              locked={locked}
+              onClick={onSelect}
+            />
+          </div>
+        );
+      })}
       {/* Messpunkt, keine Zeile: kommt er in Sichtweite, rendert die Liste die
           nächsten Karten. Steht hinter den gesperrten Zeilen, damit das
           gemeinsame Budget in der sichtbaren Reihenfolge aufgefüllt wird. */}

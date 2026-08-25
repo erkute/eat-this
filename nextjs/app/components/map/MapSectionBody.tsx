@@ -1,11 +1,10 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
-import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
-import { localizedCuisine } from '@/lib/cuisineLabels';
+import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
@@ -39,10 +38,6 @@ import sheetStyles from './MapSheet.module.css';
    in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
    hydrates immediately, with the heavy maplibre chunk streaming in behind a
    neutral placeholder. */
-/* Stable identity — a fresh [] every render would defeat RestaurantList's
-   memoised rows on every keystroke. */
-const EMPTY_LOCKED: MapRestaurant[] = [];
-
 const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
   ssr: false,
   loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
@@ -71,16 +66,22 @@ interface MapBodyState {
    *  rendered as blurred entries below the booster banner in the list. */
   /** Paywalled spots matching the active filter — drawn as muted dots. */
   displayedLockedRestaurants: MapRestaurant[];
+  /** What the list renders: every match in one order, paywalled spots among
+   *  them. The two sets above stay apart only for the map, which still draws
+   *  a locked spot as a muted dot. */
+  listRestaurants: MapRestaurant[];
   /** Unfiltered catalog size for the locked sheet's all-Berlin offer. */
   /** Locked spots that an account alone opens — see LockedDetail. Empty once
    *  signed in, so the sheet falls through to the pack offer. */
   signupUnlockableIds: Set<string>;
   /** Every paywalled id, so the sheet knows which detail to render. */
   lockedIdSet: Set<string>;
-  /** Uncapped locked-match count — see useMapFilters. */
-  lockedMatchCount: number;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
+  /** Row the list points at once no detail is open — the spot that was just
+   *  closed. Keeps that row rendered past the windowed budget and marks it, so
+   *  closing a spot lands you next to it instead of somewhere in the list. */
+  listFocusId: string | null;
   selectedMustEat: MapMustEat | null;
   primaryMustEats: Map<string, MapMustEat>;
   unlockedIds: Set<string>;
@@ -168,13 +169,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setContentRef,
     setSheetRef,
     sheetView,
+    listFocusId,
     snap,
     dragging,
     displayedRestaurants,
     displayedLockedRestaurants,
+    listRestaurants,
     signupUnlockableIds,
     lockedIdSet,
-    lockedMatchCount,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -243,7 +245,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const [listRows, setListRows] = useState(INITIAL_LIST_ROWS);
   useEffect(() => {
     setListRows(INITIAL_LIST_ROWS);
-  }, [displayedRestaurants, displayedLockedRestaurants]);
+  }, [listRestaurants]);
   const showMoreRows = useCallback(() => setListRows((n) => n + LIST_ROWS_PER_BATCH), []);
 
   const handleResetFilters = () => {
@@ -263,7 +265,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* A locked dot opens the sheet like any other spot. It used to navigate
      straight to the pack page, which threw away the map, the filter and the
      search for what is usually a "what is this?" tap. */
-  const lockedMarkerLabel = locale === 'en' ? 'Locked spot' : 'Gesperrter Spot';
   const handleLockedClick = useCallback(
     (r: MapRestaurant) => {
       trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
@@ -271,21 +272,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     },
     [onRestaurantClick]
   );
-  /* What the "0 free hits" headline is a zero *of*. Search wins because a query
-     overrides every other filter in useMapFilters; then the narrowest chip.
-     "Open now" alone yields no label — the count still carries the message. */
-  const emptyFilterLabel = useMemo(() => {
-    const q = search.trim();
-    if (q) return q;
-    if (bezirk) return bezirk;
-    if (cuisine) return localizedCuisine(cuisine, locale === 'en' ? 'en' : 'de');
-    if (category !== 'All') {
-      const def = categories.find((c) => c.slug === category);
-      return def ? localizedCategoryName(def, locale === 'en' ? 'en' : 'de') : null;
-    }
-    return null;
-  }, [search, bezirk, cuisine, category, categories, locale]);
-
   const rawLocationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
   /* The only non-error copy is the "searching" one, so this is exactly the
      transient state that used to flash. Errors stay immediate — they are the
@@ -427,7 +413,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selectedIsLocked={!!selectedRestaurant && lockedIdSet.has(selectedRestaurant._id)}
                 onRestaurantClick={handleMapRestaurantClick}
                 onLockedClick={handleLockedClick}
-                lockedLabel={lockedMarkerLabel}
                 location={location}
               />
             </div>
@@ -722,9 +707,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 />
                 <div ref={setContentRef} className={sheetStyles.listScroll}>
                   <RestaurantList
-                    restaurants={displayedRestaurants}
+                    restaurants={listRestaurants}
                     userLocation={location}
-                    selectedId={selectedRestaurant?._id ?? null}
+                    selectedId={selectedRestaurant?._id ?? listFocusId}
                     uid={uid}
                     userTier={userTier}
                     onSelect={onRestaurantClick}
@@ -732,13 +717,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
-                    /* Only a typed query lists its locked matches. A chip
-                       filter ("Pizza", "Neukölln") is browsing, and the list
-                       stays the quiet free-only surface it was designed as;
-                       a query is someone naming a spot and expecting it back. */
-                    lockedRestaurants={search.trim() ? displayedLockedRestaurants : EMPTY_LOCKED}
-                    lockedMatchCount={lockedMatchCount}
-                    activeFilterLabel={emptyFilterLabel}
+                    lockedIds={lockedIdSet}
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />

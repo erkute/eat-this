@@ -135,3 +135,47 @@ export function resolveToggleMode(
   if (hasRememberedListY && scrollY <= splitStop + AT_STOP_PX) return 'toList';
   return null;
 }
+
+/** What the phone list does with its scroll position when a detail closes. */
+export type ListReturn = 'restore' | 'toList' | 'stay';
+
+/**
+ * Where the phone list lands when a detail hands the view back.
+ *
+ * Both phone views are window-scrolled documents, so "which view you get back"
+ * is nothing but a scroll offset — and closing a detail leaves the window
+ * wherever the article happened to be, which in list geometry is the MAP stop.
+ *
+ * - `restore`: a remembered position means the detail was opened from the list.
+ *   Put the user back on the row they left; that is the only place they expect.
+ * - `toList`: no remembered position means the detail was opened from a marker
+ *   on the map or from a deep link. Leaving the scroll alone dropped the user
+ *   on the bare map — from a button that says "Liste". Scroll to the list.
+ * - `stay`: not a return from a detail at all (first paint of the map, a filter
+ *   change). Nothing here may move the list.
+ *
+ * Deliberately the same answer for every way out of a detail — the X, a
+ * swipe-down dismiss and the back gesture all land on the list, because the
+ * detail is a place you leave TO somewhere, not a step you undo.
+ */
+export function resolveListReturn(rememberedY: number, cameFromDetail: boolean): ListReturn {
+  if (!cameFromDetail) return 'stay';
+  return rememberedY > 0 ? 'restore' : 'toList';
+}
+
+/**
+ * Scroll offset that puts a list row on screen when a detail closes.
+ *
+ * Landing on "the list" is not the same as landing on the spot you were just
+ * reading: a marker tap can open the 40th row, and a list scrolled to its top
+ * has that row nowhere near the screen. So the row itself is the target.
+ *
+ * It lands a little above the middle — with list above it and list below it,
+ * which is what says "you are back in the list AT this spot" rather than "here
+ * is a spot". `minY` keeps the list from sliding back under the map for the
+ * first few rows: their natural position would be a scroll of almost nothing,
+ * i.e. the map stop again.
+ */
+export function rowRevealOffset(rowTopDoc: number, viewportH: number, minY: number): number {
+  return Math.max(0, minY, Math.round(rowTopDoc - viewportH * 0.38));
+}

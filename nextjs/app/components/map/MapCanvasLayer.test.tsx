@@ -33,6 +33,10 @@ vi.mock('./UserLocationMarker', () => ({ default: () => <div data-user-marker />
 
 import MapCanvasLayer from './MapCanvasLayer';
 
+/* A locked spot is drawn as a muted dot and named after the restaurant, same
+   as every pin — so what tells the two apart in here is the dot itself. */
+const lockedDots = () => document.querySelectorAll('[class*="pinLockedDot"]');
+
 function spot(id: string, over: Partial<MapRestaurant> = {}): MapRestaurant {
   return {
     _id: id,
@@ -70,7 +74,6 @@ function layer(
       selectedIsLocked={selectedIsLocked}
       onRestaurantClick={vi.fn()}
       onLockedClick={vi.fn()}
-      lockedLabel="Gesperrter Spot"
       location={null}
     />
   );
@@ -104,7 +107,6 @@ function layerWithRef(free: MapRestaurant[], locked: MapRestaurant[], ref: never
       selectedIsLocked={false}
       onRestaurantClick={vi.fn()}
       onLockedClick={vi.fn()}
-      lockedLabel="Gesperrter Spot"
       location={null}
     />
   );
@@ -133,7 +135,7 @@ describe('MapCanvasLayer viewport culling', () => {
     );
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(1);
+    expect(lockedDots()).toHaveLength(1);
   });
 
   it('keeps a spot just outside the edge, because the window is padded', async () => {
@@ -163,7 +165,8 @@ describe('MapCanvasLayer locked spots', () => {
     // fallback timer reveals them regardless.
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(3);
+    expect(lockedDots()).toHaveLength(3);
+    expect(screen.getAllByLabelText(/^locked-/)).toHaveLength(3);
     expect(screen.getAllByLabelText(/^free-/)).toHaveLength(2);
   });
 
@@ -174,20 +177,21 @@ describe('MapCanvasLayer locked spots', () => {
     // MapLibre stacks markers purely by DOM order — it sets no z-index — so
     // "locked first" is what keeps a free pin on top of the dots around it.
     const labels = screen.getAllByRole('button').map((el) => el.getAttribute('aria-label'));
-    expect(labels).toEqual(['Gesperrter Spot', 'Gesperrter Spot', 'free-1']);
+    expect(labels).toEqual(['locked-1', 'locked-2', 'free-1']);
   });
 
   it('does not hand an open locked spot the free-spot pin', async () => {
     // The "selected spot may sit outside the visible set" fallback exists for
-    // deep links. A locked selection is already drawn as its own dot, and the
-    // yellow pin would announce it as free at exactly the moment the sheet
-    // says it is not.
+    // deep links. A locked selection is already drawn as its own dot, and a
+    // second, yellow pin on the same coordinate would be a spot too many.
     const target = spot('locked-1');
     render(layer([spot('free-1')], [target], target, true));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(1);
-    expect(screen.queryAllByLabelText('locked-1')).toHaveLength(0);
+    const marker = screen.getAllByLabelText('locked-1');
+    expect(marker).toHaveLength(1);
+    expect(marker[0].querySelector('[class*="pinLockedDot"]')).toBeTruthy();
+    expect(lockedDots()).toHaveLength(1);
   });
 
   it('still gives a deep-linked free spot a pin when it is outside the set', async () => {
@@ -202,7 +206,7 @@ describe('MapCanvasLayer locked spots', () => {
     render(layer([spot('free-1')], []));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.queryAllByLabelText('Gesperrter Spot')).toHaveLength(0);
+    expect(lockedDots()).toHaveLength(0);
   });
 });
 
@@ -226,7 +230,8 @@ describe('MapCanvasLayer draws every spot on its own', () => {
     render(layer([], [spot('locked-1'), spot('locked-2'), spot('locked-3'), spot('locked-4')]));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(4);
+    expect(lockedDots()).toHaveLength(4);
+    expect(screen.getByLabelText('locked-4')).toBeTruthy();
   });
 
   it('draws the open spot once, not twice', async () => {
@@ -244,7 +249,8 @@ describe('MapCanvasLayer draws every spot on its own', () => {
     render(layer([], [spot('locked-1'), target, spot('locked-3')], target, true));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(screen.getAllByLabelText('Gesperrter Spot')).toHaveLength(3);
+    expect(lockedDots()).toHaveLength(3);
+    expect(screen.getAllByLabelText('locked-2')).toHaveLength(1);
   });
 
   it('still paints the dots before the pins where they overlap', async () => {
@@ -252,6 +258,6 @@ describe('MapCanvasLayer draws every spot on its own', () => {
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
     const labels = screen.getAllByRole('button').map((el) => el.getAttribute('aria-label'));
-    expect(labels).toEqual(['Gesperrter Spot', 'Gesperrter Spot', 'free-1', 'free-2']);
+    expect(labels).toEqual(['locked-1', 'locked-2', 'free-1', 'free-2']);
   });
 });

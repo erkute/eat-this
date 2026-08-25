@@ -9,7 +9,6 @@ interface LockedMarkerProps {
   /** The open sheet belongs to this dot — grow it so the tap is visible. */
   isSelected?: boolean;
   onClick: (restaurant: MapRestaurant) => void;
-  label: string;
 }
 
 /**
@@ -23,8 +22,13 @@ interface LockedMarkerProps {
  *
  * Tapping opens the sheet like any other spot; a group of dots zooms in
  * instead.
+ *
+ * Named after the spot, like every other marker. It used to announce itself as
+ * "Gesperrter Spot" — which made 194 markers share one name, and told a screen
+ * reader the one thing nothing else on the map says out loud: the paywall is
+ * the detail's business (user decision 25.08.2026).
  */
-function LockedMarker({ restaurant, isSelected = false, onClick, label }: LockedMarkerProps) {
+function LockedMarker({ restaurant, isSelected = false, onClick }: LockedMarkerProps) {
   return (
     <MarkerButton
       lat={restaurant.lat}
@@ -34,7 +38,7 @@ function LockedMarker({ restaurant, isSelected = false, onClick, label }: Locked
         isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot
       }
       className={isSelected ? `${styles.pinLocked} ${styles.pinLockedActive}` : styles.pinLocked}
-      label={label}
+      label={restaurant.name}
       onActivate={() => onClick(restaurant)}
     >
       <span className={styles.pinLockedDot} aria-hidden="true" />
@@ -49,6 +53,6 @@ export default memo(
     prev.isSelected === next.isSelected &&
     prev.restaurant.lat === next.restaurant.lat &&
     prev.restaurant.lng === next.restaurant.lng &&
-    prev.onClick === next.onClick &&
-    prev.label === next.label
+    prev.restaurant.name === next.restaurant.name &&
+    prev.onClick === next.onClick
 );

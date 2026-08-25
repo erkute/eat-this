@@ -37,6 +37,7 @@ function list() {
   return (
     <RestaurantList
       restaurants={[restaurant]}
+      lockedIds={new Set()}
       selectedId={null}
       uid={null}
       userTier="anon"

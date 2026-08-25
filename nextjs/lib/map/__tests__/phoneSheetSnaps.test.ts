@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   DETAIL_PEEK_DVH,
   LIST_REST_VISIBLE_DVH,
+  resolveListReturn,
   resolveSnap,
+  rowRevealOffset,
   resolveToggleMode,
   snapOffsets,
 } from '../phoneSheetSnaps';
@@ -124,5 +126,55 @@ describe('resolveToggleMode', () => {
   it('tolerates the few px an iOS rubber-band scroll lands off a stop', () => {
     expect(resolveToggleMode(offsets, -12, true)).toBe('toList');
     expect(resolveToggleMode(offsets, sheetStop - 12, false)).toBe('toMap');
+  });
+});
+
+describe('resolveListReturn', () => {
+  it('puts you back on the row you left when the detail came from the list', () => {
+    expect(resolveListReturn(1240, true)).toBe('restore');
+  });
+
+  it('brings up the list when the detail came from a pin on the map', () => {
+    /* No remembered position = opened from a marker or a deep link. The detail
+       leaves the window at ~0, which in list geometry is the map stop: closing
+       used to drop the user on the bare map from a button that says "Liste". */
+    expect(resolveListReturn(0, true)).toBe('toList');
+  });
+
+  it('treats the map stop as no position at all, not as a position of zero', () => {
+    // Tapping a pin captures scrollY 0 — the same value as "nothing remembered".
+    expect(resolveListReturn(0, true)).not.toBe('restore');
+  });
+
+  it('leaves the list alone when nothing was closed', () => {
+    // First paint of the map: the list peeks under the map and stays there.
+    expect(resolveListReturn(0, false)).toBe('stay');
+    expect(resolveListReturn(1240, false)).toBe('stay');
+  });
+});
+
+describe('rowRevealOffset', () => {
+  const stops = snapOffsets('list', VH); // [0, 179, 585]
+  const midStop = stops[1];
+
+  it('parks the row a little above the middle of the screen', () => {
+    // Row 500px down the document: 500 − 38% of the viewport.
+    expect(rowRevealOffset(500 + VH * 0.38, VH, 0)).toBe(500);
+  });
+
+  it('never lands short of the stop the list was going to anyway', () => {
+    /* Landscape, 400px tall: the first row sits 368px into the document and
+       "a little above the middle" is only 216 — which would leave the list
+       lower than the plain trip to the list would have put it. The floor is
+       what stops the row from pulling the list back under the map. */
+    expect(rowRevealOffset(368, 400, 248)).toBe(248);
+  });
+
+  it('scrolls past the list stop for a row deep in the list', () => {
+    expect(rowRevealOffset(4000, VH, midStop)).toBeGreaterThan(midStop);
+  });
+
+  it('never returns a negative scroll', () => {
+    expect(rowRevealOffset(10, VH, 0)).toBe(0);
   });
 });

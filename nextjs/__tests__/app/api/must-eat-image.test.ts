@@ -33,6 +33,9 @@ import {
   premiumAccessCookieName,
 } from '@/lib/must-eat/premium-access'
 
+const PUBLIC_CACHE = 'public, max-age=300, stale-while-revalidate=3600'
+const PRIVATE_CACHE = 'private, no-store'
+
 function request(cookie?: string, query = ''): NextRequest {
   return new NextRequest(`https://example.com/api/must-eat-image/m1${query}`, {
     headers: cookie ? { cookie } : undefined,
@@ -81,9 +84,62 @@ describe('/api/must-eat-image/[id]', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toBe('image/webp')
-    expect(response.headers.get('cache-control')).toBe('private, no-store')
+    // Aufgedeckt geht das Bild ohnehin an jeden anonymen Besucher — es zu
+    // verstecken kostete nur sechs Bucket-Runden pro Startseiten-Aufruf.
+    expect(response.headers.get('cache-control')).toBe(PUBLIC_CACHE)
     expect(file).toHaveBeenCalledWith('premium/must-eats/m1/hash.webp')
     expect(Buffer.from(await response.arrayBuffer()).toString()).toBe('private-image')
+  })
+
+  it('keeps a covered image out of every cache', async () => {
+    readPremiumSessionUid.mockResolvedValue('user-1')
+    const token = createPremiumAccessToken(['m1'], 'user-1')
+    const response = await GET(request(`${premiumAccessCookieName()}=${token}`), {
+      params: Promise.resolve({ id: 'm1' }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
+  })
+
+  /* Die Reihenfolge, für die es diesen Test gibt: eine Karte, die zugleich
+     aufgedeckt und in der Capability des Aufrufers ist, muss öffentlich
+     antworten. Mit der Cookie-Prüfung zuerst landete sie im no-store-Zweig —
+     und damit hing die Cachebarkeit derselben URL am Aufrufer. */
+  it('answers public for a card that is both revealed and in the capability', async () => {
+    getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+    readPremiumSessionUid.mockResolvedValue('user-1')
+    const token = createPremiumAccessToken(['m1'], 'user-1')
+
+    const response = await GET(request(`${premiumAccessCookieName()}=${token}`), {
+      params: Promise.resolve({ id: 'm1' }),
+    })
+
+    expect(response.headers.get('cache-control')).toBe(PUBLIC_CACHE)
+  })
+
+  /* Dieselbe Reihenfolge von der Kostenseite: ein aufgedecktes Bild ist ohne
+     Cookie erlaubt, also darf es nicht für verifySessionCookie zahlen. */
+  it('skips the session round-trip for a revealed image', async () => {
+    getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+    const token = createPremiumAccessToken(['m1'], 'user-1')
+
+    await GET(request(`${premiumAccessCookieName()}=${token}`), {
+      params: Promise.resolve({ id: 'm1' }),
+    })
+
+    expect(readPremiumSessionUid).not.toHaveBeenCalled()
+  })
+
+  it('does not let a failed asset fetch into a cache', async () => {
+    getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+    download.mockRejectedValue(new Error('bucket unreachable'))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const response = await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
+
+    expect(response.status).toBe(503)
+    expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
   })
 
   it('accepts a valid HttpOnly capability and rejects a tampered one', async () => {

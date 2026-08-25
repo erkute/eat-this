@@ -19,7 +19,10 @@ const SAFE_ID = /^[A-Za-z0-9._-]{1,128}$/;
 // Die Breite rastet auf eine feste Leiter ein, statt jede Zahl zu akzeptieren:
 // ein beliebiges `?w=` wäre ein CPU-Verstärker (jede neue Zahl ein neuer
 // sharp-Lauf, und die Antwort ist `no-store`, cacht also nichts ab).
-const ALLOWED_WIDTHS = [90, 180, 360, 720, 1200] as const;
+// 440 is the home teaser's 2x rung (208 px slot on a phone): without it that
+// case fell through to 720 and downloaded 63 kB for a 208 px card instead of
+// 28 kB. Add rungs deliberately — every new number is another sharp run.
+const ALLOWED_WIDTHS = [90, 180, 360, 440, 720, 1200] as const;
 
 function pickWidth(raw: string | null): number | null {
   const n = Number(raw);

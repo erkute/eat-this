@@ -35,6 +35,7 @@ import {
 } from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
+import { resolveDetailHistory } from '@/lib/map/detailHistory';
 import { searchRefitSpots, spotsCameraTarget } from '@/lib/map/cameraFit';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
@@ -52,6 +53,14 @@ const PIN_SAFE_TOP = 115;
    short enough that the move still reads as the answer to what was typed.
    Was 450 ms; taken down to 300 on 22.08.2026 because the wait read as lag. */
 const SEARCH_REFIT_DELAY_MS = 300;
+
+/* How long the list keeps re-aiming at the row a closed detail belongs to, and
+   how many frames it has to sit still before that counts as arrived. ~1s is
+   long enough for a list of 340 content-visibility rows to measure the part it
+   scrolled through, short enough that a row which never settles gives up before
+   it turns into a fight. */
+const ROW_REVEAL_MAX_FRAMES = 60;
+const ROW_REVEAL_SETTLED_FRAMES = 3;
 
 interface Props {
   isActive?: boolean;
@@ -260,31 +269,78 @@ export default function MapSection({
 
   /* Put one specific row on screen — the spot whose detail just closed. Only
      works while that row is rendered, which is what listFocusId below is for;
-     returns false when it is not (a locked spot the chip filter does not list,
-     a deep link into a spot the filter excludes) so the caller can fall back to
-     the plain list anchor. */
+     returns false when it is not (a deep link into a spot the filter excludes)
+     so the caller can fall back to the plain list anchor.
+
+     Aimed for a few frames rather than once. The rows carry
+     `content-visibility: auto` (RestaurantList.module.css), so every row below
+     the fold is laid out from an ESTIMATE until it comes near the viewport: one
+     scrollTo aims into a document that has not measured itself yet and stops
+     short — the further down the row, the further short. Re-deriving the target
+     from the row itself until it stops moving is the same medicine
+     ScrollRestorer takes for the same illness on soft navs.
+
+     Instant rather than smooth, for the same reason it is over there: with
+     `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
+     frame restarts its own animation and never arrives. The list simply appears
+     already standing at the spot, which is the point. */
+  const rowRevealCancelRef = useRef<(() => void) | null>(null);
   const scrollListToRow = useCallback(
     (id: string | null): boolean => {
       if (!id || typeof document === 'undefined') return false;
-      const row = document.querySelector<HTMLElement>(`[data-list-row="${id}"]`);
-      if (!row) return false;
-      if (isPhoneViewport()) {
-        const minY = listAnchorY('mid');
-        if (minY == null) return false;
-        const rowTopDoc = row.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({
-          top: rowRevealOffset(rowTopDoc, window.innerHeight, minY),
-          behavior: 'smooth',
-        });
-        return true;
-      }
-      /* Tablet sheet / desktop panel: same idea, but the list scrolls inside
-         its own port instead of the window. */
-      const port = contentRef.current;
-      if (!port) return false;
-      const offset =
-        row.getBoundingClientRect().top - port.getBoundingClientRect().top + port.scrollTop;
-      port.scrollTop = Math.max(0, Math.round(offset - port.clientHeight * 0.28));
+      const findRow = () => document.querySelector<HTMLElement>(`[data-list-row="${id}"]`);
+      if (!findRow()) return false;
+
+      rowRevealCancelRef.current?.();
+      let frames = 0;
+      let settled = 0;
+      let raf = 0;
+      const cancel = () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener('wheel', cancel);
+        window.removeEventListener('touchstart', cancel);
+        rowRevealCancelRef.current = null;
+      };
+      rowRevealCancelRef.current = cancel;
+      /* The moment the user touches the list, it is theirs. */
+      window.addEventListener('wheel', cancel, { passive: true });
+      window.addEventListener('touchstart', cancel, { passive: true });
+
+      const tick = () => {
+        const row = findRow();
+        if (!row) return cancel();
+        /* Phones scroll the window (in-flow list), tablet and desktop the
+           panel's own port. */
+        const port = isPhoneViewport() ? null : contentRef.current;
+        let target: number;
+        let current: number;
+        if (port) {
+          const offset =
+            row.getBoundingClientRect().top - port.getBoundingClientRect().top + port.scrollTop;
+          target = Math.max(0, Math.round(offset - port.clientHeight * 0.28));
+          current = port.scrollTop;
+        } else {
+          if (!isPhoneViewport()) return cancel();
+          const minY = listAnchorY('mid');
+          if (minY == null) return cancel();
+          target = rowRevealOffset(
+            row.getBoundingClientRect().top + window.scrollY,
+            window.innerHeight,
+            minY
+          );
+          current = window.scrollY;
+        }
+        if (Math.abs(current - target) > 1) {
+          settled = 0;
+          if (port) port.scrollTop = target;
+          else window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+        } else if (++settled >= ROW_REVEAL_SETTLED_FRAMES) {
+          return cancel();
+        }
+        if (++frames >= ROW_REVEAL_MAX_FRAMES) return cancel();
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
       return true;
     },
     [contentRef, listAnchorY]
@@ -428,14 +484,9 @@ export default function MapSection({
      deep-link consumer (useMapDeepLinks) no longer strips the params; its
      consumed-guards prevent same-session re-triggers.
 
-     Opening a detail from the list PUSHES that URL so the phone back gesture
-     closes the detail instead of leaving the map (which used to cost the user
-     their camera position and list scroll). Selecting another spot while the
-     detail is already open — pager swipes, marker taps — replaces instead, so
-     swiping through ten spots doesn't leave ten entries to back out of.
-     detailEntryPushedRef tracks whether the entry on top of the stack is ours
-     to unwind; a deep-linked or reloaded ?r= URL is somebody else's entry and
-     is only ever replaced. */
+     Which history operation each change takes lives in resolveDetailHistory;
+     detailEntryPushedRef is the one bit of state it needs — whether the entry
+     on top of the stack is ours to unwind. */
   const detailEntryPushedRef = useRef(false);
   /* Gesetzt, wenn eine Sucheingabe das Detail schließt (siehe
      handleSearchChange). Der normale Schließweg poppt unseren History-Eintrag,
@@ -473,36 +524,28 @@ export default function MapSection({
     }
     const next = urlWithParams(params);
     const current = currentUrl();
+    const closedBySearch = detailClosedBySearchRef.current;
+    const action = resolveDetailHistory({
+      detailOpen: sheetView === 'detail',
+      wasOpen: wasDetail,
+      urlChanged: next !== current,
+      pushed: detailEntryPushedRef.current,
+      closedBySearch,
+    });
 
-    if (sheetView === 'detail') {
-      if (next === current) return;
-      if (detailEntryPushedRef.current) {
-        window.history.replaceState(window.history.state, '', next);
-      } else {
-        window.history.pushState(window.history.state, '', next);
-        detailEntryPushedRef.current = true;
-      }
-      return;
-    }
-
-    /* Closed from the UI (X, swipe-down, must-eat → list). Pop the entry we
-       pushed rather than replacing it — otherwise the forward stack keeps a
-       detail the user just dismissed, and one back press would re-open it. */
-    if (detailEntryPushedRef.current) {
+    if (sheetView !== 'detail') {
       detailEntryPushedRef.current = false;
-      if (detailClosedBySearchRef.current) {
-        detailClosedBySearchRef.current = false;
-        listAnchorPendingRef.current = false;
-        window.history.replaceState(window.history.state, '', next);
-        return;
-      }
-      window.history.back();
-      return;
+      detailClosedBySearchRef.current = false;
+      /* Only a real traversal can undo the trip to the list — see the popstate
+         handler, which is where the scroll then happens. */
+      if (action !== 'back') listAnchorPendingRef.current = false;
+    } else if (action === 'push') {
+      detailEntryPushedRef.current = true;
     }
-    listAnchorPendingRef.current = false;
-    if (next !== current) {
-      window.history.replaceState(window.history.state, '', next);
-    }
+
+    if (action === 'push') window.history.pushState(window.history.state, '', next);
+    else if (action === 'replace') window.history.replaceState(window.history.state, '', next);
+    else if (action === 'back') window.history.back();
   }, [isActive, sheetView, selectedRestaurant?.slug, selectedMustEat?._id]);
 
   /* Scroll-restore for back-nav (list → detail → list):

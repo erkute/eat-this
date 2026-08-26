@@ -384,6 +384,27 @@ export const latestNewsArticlesQuery = `
   }
 `;
 
+// Ein Guide als Teaser — für den Querverweis von der Kategorieseite auf den
+// gleichnamigen Magazin-Artikel (siehe categoryGuideSlug in lib/seo/crossLinks).
+// Bewusst OHNE content/contentDe: articleBySlugQuery zieht den kompletten
+// Portable Text beider Sprachen, und der Hub braucht davon nichts als die
+// Überschrift. Die Sprache wird wie in staticPageBySlugQuery schon in GROQ
+// gewählt, damit die andere gar nicht erst in der RSC-Payload landet.
+export const guideTeaserBySlugQuery = `
+  *[_type == "newsArticle" && slug.current == $slug][0] {
+    "slug": slug.current,
+    "title": select(
+      $locale == "de" => coalesce(titleDe, title),
+      coalesce(title, titleDe)
+    ),
+    "excerpt": select(
+      $locale == "de" => coalesce(excerptDe, excerpt),
+      coalesce(excerpt, excerptDe)
+    ),
+    "noIndex": seo.noIndex == true
+  }
+`;
+
 // Must Eat cards for a specific restaurant — card-back teaser only.
 // Deliberately NO dish/photo: the teaser renders covered cards, and any
 // extra field would ship to every anon in the RSC payload of the public,

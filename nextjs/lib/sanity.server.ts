@@ -7,6 +7,7 @@ import {
   allArticleSlugsQuery,
   allNewsArticlesQuery,
   latestNewsArticlesQuery,
+  guideTeaserBySlugQuery,
   staticPageBySlugQuery,
   mustEatsByRestaurantQuery,
   allBezirkeWithStatsQuery,
@@ -226,6 +227,30 @@ export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] } }
+  );
+}
+
+export interface GuideTeaser {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  noIndex: boolean;
+}
+
+/**
+ * Überschrift und Anrisstext eines Guides, ohne seinen Fließtext. Der
+ * Revalidate-Tag ist derselbe, den /api/revalidate beim Publish eines Artikels
+ * feuert (`article:<slug>`) — der Querverweis auf der Kategorieseite zieht die
+ * neue Überschrift damit im selben Moment nach wie der Artikel selbst.
+ */
+export async function getGuideTeaser(
+  slug: string,
+  locale: 'de' | 'en'
+): Promise<GuideTeaser | null> {
+  return client.fetch<GuideTeaser | null>(
+    guideTeaserBySlugQuery,
+    { slug, locale },
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`] } }
   );
 }
 

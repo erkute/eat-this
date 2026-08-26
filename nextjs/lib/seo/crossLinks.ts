@@ -73,3 +73,37 @@ export function bezirkCategoryLinks(
   }
   return rank(tally, limit);
 }
+
+/**
+ * Die Kategorieseiten, denen ein Magazin-Guide dieselbe Frage beantwortet.
+ *
+ * Vorgeschichte: `/guides/beste-cafes-berlin` und `/kategorie/coffee` haben
+ * sich gegenseitig aus dem Index gedrängt (derselbe Fall wie bei den
+ * Bäckereien, siehe die Redirect-Liste in next.config.ts). Der `/guides/`-Pfad
+ * ist seitdem 308 auf die Kategorieseite — der gleichnamige Sanity-Artikel
+ * unter `/news/beste-cafes-berlin` lebt aber weiter und trägt praktisch
+ * denselben Titel wie der Hub.
+ *
+ * Ein Redirect wäre hier falsch: die beiden Seiten sind nicht dasselbe. Der Hub
+ * listet jeden Café-Spot, der Guide erzählt vierzehn davon aus. Was fehlte, war
+ * die Beziehung — der Hub verlinkte den Artikel mit keinem einzigen Wort,
+ * womit für Google zwei konkurrierende Antworten nebeneinander standen statt
+ * Übersicht und Vertiefung. Diese Zeile stellt sie her.
+ *
+ * Erweiterbar um jedes weitere Paar, das sich dieselbe Query teilt — eine
+ * Zeile pro Kategorie, der Guide muss publiziert sein.
+ */
+const CATEGORY_GUIDE: Record<string, string> = {
+  coffee: 'beste-cafes-berlin',
+};
+
+/**
+ * Der Guide-Slug zu einer Kategorie, oder `null` — die meisten haben keinen.
+ *
+ * `Object.hasOwn` statt eines schlichten Zugriffs: der Slug kommt aus der URL,
+ * und `/kategorie/constructor` würde sonst die geerbte Object-Methode treffen
+ * und einen Link auf `/news/function%20Object()` bauen.
+ */
+export function categoryGuideSlug(categorySlug: string): string | null {
+  return Object.hasOwn(CATEGORY_GUIDE, categorySlug) ? CATEGORY_GUIDE[categorySlug] : null;
+}

@@ -14,22 +14,46 @@ import type { Firestore } from 'firebase/firestore';
 import { isStaging } from '@/lib/env';
 import { assertFirebaseProjectBoundary, PRODUCTION_FIREBASE_PROJECT_ID } from './project-boundary';
 
-// authDomain: on production the auth helper (/__/auth/*) is reverse-proxied
-// through our own domain (see rewrites() in next.config.ts), so the popup is
-// SAME-origin — no COOP/storage-access breakage — and the Google consent
-// screen shows "Weiter zu eatthisdot.com" instead of the firebaseapp.com
-// project domain. (An earlier auth.eatthisdot.com subdomain attempt failed
-// because the credential return was still cross-origin; same-origin avoids
-// that entirely.)
+// authDomain: the auth helper (/__/auth/*) is reverse-proxied through our own
+// domain (see rewrites() in next.config.ts), so the popup is SAME-origin — no
+// COOP/storage-access breakage — and the Google consent screen shows our host
+// instead of the firebaseapp.com project domain. (An earlier
+// auth.eatthisdot.com subdomain attempt failed because the credential return
+// was still cross-origin; same-origin avoids that entirely.)
 //
-// Keep local dev on the Firebase domain: the Firebase Auth SDK builds helper
-// iframe URLs as https://{authDomain}/__/auth/iframe, so authDomain
-// "localhost:3000" points at https://localhost:3000 while next dev serves HTTP.
+// This used to apply to www.eatthisdot.com ALONE, and staging paid for it: it
+// initialises from App Hosting's auto-config, whose authDomain is
+// `eat-this-staging-8a13b.firebaseapp.com`, so its popup ran the very
+// cross-origin flow the paragraph above calls broken — it opened, did
+// something, and closed again without signing anyone in (user report,
+// 2026-08-26). The proxy was there all along: `/__/firebase/init.json` and
+// `/__/auth/iframe` both answer 200 through the staging host, and
+// `firebaseAuthProjectId` in next.config.ts already points it at the right
+// project. Only authDomain never used it.
+//
+// So the rule is now the deployment-wide one it should always have been: on
+// any host we serve ourselves, the auth domain IS that host.
+//
+// Local dev is the exception, and not a cosmetic one: the SDK builds helper
+// URLs as https://{authDomain}/__/auth/iframe, so "localhost:3000" would
+// resolve to https://localhost:3000 while `next dev` serves plain HTTP.
 const PROD_HOST = 'www.eatthisdot.com';
+const FALLBACK_AUTH_DOMAIN = 'eat-this-8a13b.firebaseapp.com';
+
+function isLocalHost(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+}
+
+/** The host serving this page, when it is one of ours; otherwise null. */
+export function sameOriginAuthDomain(): string | null {
+  if (typeof window === 'undefined') return null;
+  return isLocalHost(window.location.hostname) ? null : window.location.host;
+}
+
 const authDomain =
   typeof window !== 'undefined' && window.location.hostname === PROD_HOST
     ? window.location.host
-    : 'eat-this-8a13b.firebaseapp.com';
+    : FALLBACK_AUTH_DOMAIN;
 
 const productionFirebaseConfig = {
   apiKey: 'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
@@ -55,6 +79,9 @@ if (hasAnyExplicitFirebaseValue && !hasAllExplicitFirebaseValues) {
   throw new Error('Incomplete NEXT_PUBLIC_FIREBASE_* configuration');
 }
 
+/** Name of the second app instance that carries the corrected auth domain. */
+const SAME_ORIGIN_APP = 'same-origin-auth';
+
 const explicitFirebaseConfig = hasAllExplicitFirebaseValues
   ? {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -70,7 +97,7 @@ const explicitFirebaseConfig = hasAllExplicitFirebaseValues
 // App Hosting auto-populates no-argument Firebase JS initialization for its
 // associated web app. Staging deliberately uses that project-local config;
 // falling back to production there would silently reconnect Auth/Firestore.
-const app =
+const baseApp =
   getApps().length > 0
     ? getApps()[0]
     : explicitFirebaseConfig
@@ -78,6 +105,19 @@ const app =
       : isStaging
         ? initializeApp()
         : initializeApp(productionFirebaseConfig);
+
+/* Correct the auth domain to our own host wherever the base config points
+   somewhere else — which is exactly the App-Hosting auto-config case, i.e.
+   staging. Deliberately NOT a second copy of the staging keys in this repo:
+   whatever App Hosting injects stays authoritative, and only the one field
+   that breaks the popup is overridden. A named second app is the only way to
+   change an option after the fact; initialising one opens no connections. */
+const desiredAuthDomain = sameOriginAuthDomain();
+const app =
+  desiredAuthDomain && baseApp.options.authDomain !== desiredAuthDomain
+    ? (getApps().find((a) => a.name === SAME_ORIGIN_APP) ??
+      initializeApp({ ...baseApp.options, authDomain: desiredAuthDomain }, SAME_ORIGIN_APP))
+    : baseApp;
 
 assertFirebaseProjectBoundary({
   actualProjectId: app.options.projectId,

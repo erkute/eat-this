@@ -18,7 +18,7 @@ describe('SignInReward', () => {
 
   it('names the wait while the claim runs', () => {
     const { container } = render(<SignInReward working outcome={null} openSpotCount={106} />);
-    expect(container.textContent).toContain('Du wirst angemeldet');
+    expect(container.textContent).toContain('Wir schalten deine Spots frei');
   });
 
   it('leads with the number — that is what the sign-up was for', () => {
@@ -30,7 +30,8 @@ describe('SignInReward', () => {
     );
     rerender(<SignInReward working={false} outcome="granted" openSpotCount={151} />);
     expect(container.textContent).toContain('45');
-    expect(container.textContent).toContain('neue Spots auf deiner Map');
+    expect(container.textContent).toContain('neue Spots');
+    expect(container.textContent).toContain('Deine Map ist gewachsen');
     expect(container.textContent).toContain('Dein Spot ist dabei');
   });
 
@@ -66,6 +67,19 @@ describe('SignInReward', () => {
     expect(container.textContent).toContain('Du bist angemeldet');
   });
 
+  it('zeigt einen Countdown — ein Overlay, das von allein geht, muss das ankündigen', () => {
+    /* Sonst greift der Leser danach und es ist weg, oder er wartet auf etwas,
+       das längst entschieden ist. */
+    const { container, rerender } = render(
+      <SignInReward working outcome={null} openSpotCount={106} />
+    );
+    rerender(<SignInReward working={false} outcome="granted" openSpotCount={151} />);
+    const bar = container.querySelector('[class*="countdown"]') as HTMLElement | null;
+    expect(bar).not.toBeNull();
+    // Läuft genau so lange, wie die Meldung steht — eine Zahl, zwei Orte.
+    expect(bar!.style.animationDuration).toBe('5000ms');
+  });
+
   it('leaves the map alone again once it has been read', () => {
     vi.useFakeTimers();
     const { container, rerender } = render(
@@ -73,7 +87,7 @@ describe('SignInReward', () => {
     );
     rerender(<SignInReward working={false} outcome="granted" openSpotCount={151} />);
     act(() => {
-      vi.advanceTimersByTime(7000 + 10);
+      vi.advanceTimersByTime(5000 + 10);
     });
     act(() => {
       vi.advanceTimersByTime(240 + 10);

@@ -1,38 +1,46 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
 import styles from './SignInReward.module.css';
 
-/** How long the result stays before it slides back out. Generous: it lands on
- *  a page still settling after a full reload, and it carries the one number
- *  the whole sign-up was for. */
-const DONE_VISIBLE_MS = 7000;
+/** How long the result stays before it slides back out. The countdown bar in
+ *  the button drains over exactly this, so the reader can see it coming rather
+ *  than have it vanish mid-sentence. */
+const DONE_VISIBLE_MS = 5000;
 /** Must match the leaving keyframes — the card stays mounted while it goes. */
 const LEAVE_MS = 240;
 
 const copy = {
   de: {
-    working: 'Du wirst angemeldet',
-    workingBody: 'Wir schalten deine Spots frei.',
-    countLabel: (n: number) =>
-      n === 1 ? 'neuer Spot auf deiner Map' : 'neue Spots auf deiner Map',
+    working: 'Einen Moment',
+    workingBody: 'Wir schalten deine Spots frei',
+    kicker: 'Starter Pack eingelöst',
+    headline: 'Deine Map ist gewachsen',
+    countLabel: (n: number) => (n === 1 ? 'neuer Spot' : 'neue Spots'),
     grantedSpot: 'Dein Spot ist dabei',
+    packAlt: 'Eat This Starter Pack',
     donePlain: 'Du bist angemeldet',
     donePlainBody: 'Deine Map ist auf dem neuesten Stand.',
-    spentHead: 'Du bist angemeldet',
+    spentHead: 'Angemeldet',
+    spentHeadline: 'Dieser Spot bleibt zu',
     spentBody: 'Deinen Gratis-Spot hattest du schon eingelöst — dieser hier gehört zu einem Pack.',
     action: 'Weiter zur Map',
   },
   en: {
-    working: 'Signing you in',
-    workingBody: 'Unlocking your spots.',
-    countLabel: (n: number) => (n === 1 ? 'new spot on your map' : 'new spots on your map'),
+    working: 'One moment',
+    workingBody: 'Unlocking your spots',
+    kicker: 'Starter Pack claimed',
+    headline: 'Your map just grew',
+    countLabel: (n: number) => (n === 1 ? 'new spot' : 'new spots'),
     grantedSpot: 'Your spot is in there',
+    packAlt: 'Eat This Starter Pack',
     donePlain: "You're signed in",
     donePlainBody: 'Your map is up to date.',
-    spentHead: "You're signed in",
+    spentHead: 'Signed in',
+    spentHeadline: 'This spot stays shut',
     spentBody: 'You already used your free spot — this one belongs to a pack.',
     action: 'Back to the map',
   },
@@ -116,11 +124,24 @@ export default function SignInReward({ working, outcome, openSpotCount }: Props)
       role="status"
       aria-live="polite"
     >
-      <div className={`${styles.card}${leaving ? ` ${styles.cardLeaving}` : ''}`}>
+      <div className={`${styles.panel}${leaving ? ` ${styles.panelLeaving}` : ''}`}>
+        {/* Das Objekt, das der Leser gerade eingelöst hat — dasselbe Pack, das
+            ihm das gesperrte Sheet angeboten hat. Es überlappt die Oberkante,
+            damit das Panel wie etwas aussieht, das gerade ankommt. */}
+        <span className={styles.pack} aria-hidden="true">
+          <Image
+            className={styles.packImg}
+            src="/pics/booster/booster_free.webp"
+            alt=""
+            fill
+            sizes="92px"
+          />
+        </span>
+
         {!done && (
           <>
-            <p className={styles.headline}>{t.working}</p>
-            <p className={styles.body}>{t.workingBody}</p>
+            <span className={styles.kicker}>{t.working}</span>
+            <p className={styles.headline}>{t.workingBody}</p>
             <span className={styles.dots} aria-hidden="true">
               <span className={styles.dot} />
               <span className={styles.dot} />
@@ -131,13 +152,16 @@ export default function SignInReward({ working, outcome, openSpotCount }: Props)
 
         {done && outcome === 'spent' && (
           <>
-            <p className={styles.headline}>{t.spentHead}</p>
+            <span className={styles.kicker}>{t.spentHead}</span>
+            <p className={styles.headline}>{t.spentHeadline}</p>
             <p className={styles.body}>{t.spentBody}</p>
           </>
         )}
 
         {done && outcome !== 'spent' && gained > 0 && (
           <>
+            <span className={styles.kicker}>{t.kicker}</span>
+            <p className={styles.headline}>{t.headline}</p>
             <span className={styles.count}>{gained}</span>
             <span className={styles.countLabel}>{t.countLabel(gained)}</span>
             {outcome === 'granted' && <span className={styles.spotLine}>{t.grantedSpot}</span>}
@@ -146,15 +170,25 @@ export default function SignInReward({ working, outcome, openSpotCount }: Props)
 
         {done && outcome !== 'spent' && gained === 0 && (
           <>
+            <span className={styles.kicker}>{t.kicker}</span>
             <p className={styles.headline}>{t.donePlain}</p>
             <p className={styles.body}>{t.donePlainBody}</p>
           </>
         )}
 
         {done && (
-          <button type="button" className={styles.action} onClick={() => setPhase('leaving')}>
-            {t.action}
-          </button>
+          <div className={styles.actionWrap}>
+            <button type="button" className={styles.action} onClick={() => setPhase('leaving')}>
+              {t.action}
+            </button>
+            {/* Läuft genau so lange wie die Meldung steht — eine Zahl, zwei
+                Orte, deshalb aus derselben Konstante. */}
+            <span
+              className={styles.countdown}
+              style={{ animationDuration: `${DONE_VISIBLE_MS}ms` }}
+              aria-hidden="true"
+            />
+          </div>
         )}
       </div>
     </div>

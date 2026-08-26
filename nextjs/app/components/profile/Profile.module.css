@@ -685,3 +685,67 @@ main.page .foot {
     width: 100%;
   }
 }
+
+/* ── Berlin-Fortschritt ──────────────────────────────────────────────────────
+   Ink-Fläche mit gelber Zahl, dieselbe Sprache wie der Belohnungs-Screen nach
+   der Anmeldung. Die ganze Kachel ist der Link zur Map. */
+.city {
+  display: block;
+  padding: 22px 24px 24px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border-radius: 12px;
+  text-decoration: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+.cityKicker {
+  display: block;
+  font-family: var(--font-label, var(--font), system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--et-home-accent, #ffc600);
+}
+.cityNumbers {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 6px;
+}
+.cityOpen {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--et-home-accent, #ffc600);
+  font-variant-numeric: tabular-nums;
+}
+.cityTotal {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.cityBar {
+  display: block;
+  margin-top: 14px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+.cityBarFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--et-home-accent, #ffc600);
+}
+.cityCta {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--et-home-accent, #ffc600);
+  padding-bottom: 2px;
+}

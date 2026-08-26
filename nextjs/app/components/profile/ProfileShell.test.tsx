@@ -66,6 +66,7 @@ vi.mock('@/lib/firebase/useUserProfile', () => ({
   useUserProfile: () => ({ profile: { avatar: 1 }, setAvatar: vi.fn() }),
 }));
 vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
+vi.mock('./ProfileCityProgress', () => ({ default: () => <div>City progress</div> }));
 vi.mock('./ProfileAlbum', () => ({ default: () => <div>Profile album</div> }));
 vi.mock('./ProfilePacks', () => ({ default: () => <div>Profile packs</div> }));
 vi.mock('./AvatarPickerModal', () => ({ default: () => null }));

@@ -275,6 +275,26 @@ describe('unlock reveal', () => {
     }
   });
 
+  it('runs as a curtain down the page, not as one flash', () => {
+    /* Der erste Versuch deckelte den Versatz bei 170ms — fast alle Blöcke
+       kamen gleichzeitig, und das las sich als Flackern statt als Bewegung
+       (User, 26.08.2026). Jeder Block braucht seinen eigenen Platz in der
+       Reihe, sonst legt sich der Artikel nicht der Reihe nach frei. */
+    const delays: number[] = [];
+    for (const rule of rules) {
+      rule.walkDecls('animation-delay', (declaration) => {
+        delays.push(parseFloat(declaration.value));
+      });
+    }
+    expect(delays.length).toBeGreaterThanOrEqual(10);
+    // Streng monoton: kein zweiter Block teilt sich einen Zeitpunkt.
+    for (let i = 1; i < delays.length; i++) {
+      expect(delays[i]).toBeGreaterThan(delays[i - 1]);
+    }
+    // Und der Weg nach unten dauert länger als ein einzelner Wisch.
+    expect(delays[delays.length - 1]).toBeGreaterThan(700);
+  });
+
   it('holds still for readers who asked for less motion', () => {
     const reduced = rules.filter((r) => isInside(r, 'media', '(prefers-reduced-motion: reduce)'));
     expect(reduced.length).toBeGreaterThan(0);

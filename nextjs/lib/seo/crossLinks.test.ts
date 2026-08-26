@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bezirkCategoryLinks, categoryDistrictLinks } from './crossLinks';
+import { bezirkCategoryLinks, categoryDistrictLinks, categoryGuideSlug } from './crossLinks';
 import type { RestaurantCard } from '../types';
 
 function r(partial: Partial<RestaurantCard>): RestaurantCard {
@@ -67,5 +67,27 @@ describe('bezirkCategoryLinks', () => {
       }),
     ];
     expect(bezirkCategoryLinks(restaurants, 'de', 2)).toHaveLength(2);
+  });
+});
+
+describe('categoryGuideSlug', () => {
+  // Der Grund für die ganze Zuordnung: /kategorie/coffee und der Artikel
+  // trugen praktisch denselben Titel und verwiesen mit keinem Wort
+  // aufeinander. Fällt die Zeile weg, ist der Doppel-Intent zurück.
+  it('pairs the coffee hub with the cafés guide', () => {
+    expect(categoryGuideSlug('coffee')).toBe('beste-cafes-berlin');
+  });
+
+  it('returns null for categories without a guide', () => {
+    expect(categoryGuideSlug('pizza')).toBeNull();
+    expect(categoryGuideSlug('fast-food')).toBeNull();
+    expect(categoryGuideSlug('')).toBeNull();
+  });
+
+  // Ohne diesen Schutz liefert ein Slug wie "constructor" die Object-Methode
+  // und die Kategorieseite verlinkt auf /news/function%20Object().
+  it('does not fall through to Object.prototype members', () => {
+    expect(categoryGuideSlug('constructor')).toBeNull();
+    expect(categoryGuideSlug('toString')).toBeNull();
   });
 });

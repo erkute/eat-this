@@ -103,6 +103,7 @@ export default function MapSection({
     mustEats,
     categories,
     revealedMustEatIds,
+    dataUid,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -1665,6 +1666,8 @@ export default function MapSection({
       listRestaurants={listRestaurants}
       lockedIdSet={lockedIdSet}
       claimingSlug={claimingSlug}
+      mapKnowsViewer={uid !== null && dataUid === uid}
+      openSpotCount={restaurants.length}
       justUnlockedSlug={justUnlockedSlug}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}

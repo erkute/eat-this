@@ -246,6 +246,17 @@ describe('LockedDetail, visitor without an account', () => {
     expect(signupHtml(spot())).toContain('Testspot');
   });
 
+  it('waits for the map before it sells anything, even to a signed-in reader', () => {
+    /* signedIn heisst "die Karte weiss von diesem Konto", nicht "die uid ist
+       da". Zwischen beidem liegt ein Refetch, und in diesem Fenster sieht ein
+       gesperrter Spot gesperrt aus, weil noch niemand gefragt hat — ein Pack
+       dort verkauft auf einem Spot, den die nächste Antwort verschenkt.
+       Zweimal durch zwei verschiedene Löcher passiert (User, 26.08.2026). */
+    const out = signupHtml(spot());
+    expect(out).not.toContain('href="/packs"');
+    expect(out).toContain('Starter Pack');
+  });
+
   it('never shows a price to someone who has not even left an email', () => {
     /* The rule the 2026-08-26 change exists for: one rung at a time. Before it,
        the offer hung on the tier the spot sat in, so ~144 of ~194 grey dots put

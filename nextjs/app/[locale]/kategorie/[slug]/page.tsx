@@ -2,7 +2,12 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server';
+import {
+  getRestaurantsByCategory,
+  getCategoryBySlug,
+  getAllCategories,
+  getGuideTeaser,
+} from '@/lib/sanity.server';
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
@@ -14,7 +19,7 @@ import {
 import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
-import { categoryDistrictLinks } from '@/lib/seo/crossLinks';
+import { categoryDistrictLinks, categoryGuideSlug } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
 import { schemaImageUrl } from '@/lib/sanity-image-presets';
@@ -212,9 +217,11 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
 
-  const [c, restaurants] = await Promise.all([
+  const guideSlug = categoryGuideSlug(slug);
+  const [c, restaurants, guide] = await Promise.all([
     getCategoryBySlug(slug),
     getRestaurantsByCategory(slug),
+    guideSlug ? getGuideTeaser(guideSlug, loc) : null,
   ]);
   if (!c) notFound();
   const label = localizedCategoryName(c, loc);
@@ -459,6 +466,25 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             </HubFilterGroup>
           )}
         </HubFilterProvider>
+
+        {/* Der Guide zu dieser Kategorie. Steht hier unten bewusst NACH den
+            Listen: der Hub beantwortet „welche gibt es", der Artikel „welche
+            und warum" — die Reihenfolge auf der Seite bildet das ab. Vor allem
+            aber existierte die Verbindung überhaupt nicht, und ohne sie waren
+            Hub und Artikel für Google zwei Antworten auf dieselbe Frage.
+            `noIndex` schließt den Fall aus, dass wir auf etwas zeigen, das gar
+            nicht im Index stehen soll. Siehe categoryGuideSlug. */}
+        {guide && !guide.noIndex && (
+          <aside className={styles.guideCross}>
+            <p className={styles.guideCrossKicker}>
+              {de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
+            </p>
+            <h2 className={styles.guideCrossTitle}>
+              <Link href={`/news/${guide.slug}`}>{guide.title}</Link>
+            </h2>
+            {guide.excerpt && <p className={styles.guideCrossExcerpt}>{guide.excerpt}</p>}
+          </aside>
+        )}
 
         <div className={sharedStyles.detailMapCta}>
           <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />

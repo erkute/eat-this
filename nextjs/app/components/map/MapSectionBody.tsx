@@ -27,6 +27,7 @@ import MapSheetDetail from './MapSheetDetail';
 import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
 import MapDataNotice from './MapDataNotice';
+import SignInProgressBanner from './SignInProgressBanner';
 import MapViewToggle from './MapViewToggle';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
@@ -77,6 +78,15 @@ interface MapBodyState {
    *  useSignupSpotClaim. Keeps its sheet on the sign-up branch until the spot
    *  actually opens. */
   claimingSlug: string | null;
+  /** The map payload in hand was fetched for THIS signed-in viewer. False for
+   *  an anonymous viewer, and false in the gap between auth resolving and the
+   *  refetch landing — a gap in which every locked spot still looks locked
+   *  whether or not this viewer can open it. */
+  mapKnowsViewer: boolean;
+  /** Unfiltered number of spots this viewer can open — what the sign-in banner
+   *  counts, so the filter the reader happens to have on does not change the
+   *  number it reports. */
+  openSpotCount: number;
   /** Slug whose sheet should unroll rather than cut in — a sign-up just opened
    *  it while the reader was looking at it. */
   justUnlockedSlug: string | null;
@@ -181,6 +191,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     listRestaurants,
     lockedIdSet,
     claimingSlug,
+    mapKnowsViewer,
+    openSpotCount,
     justUnlockedSlug,
     restaurantMustEats,
     pagerPrev,
@@ -668,7 +680,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               lockedIdSet.has(selectedRestaurant._id) ? (
               <LockedDetail
                 restaurant={selectedRestaurant}
-                signedIn={uid !== null}
+                signedIn={mapKnowsViewer}
                 claimPending={claimingSlug === selectedRestaurant.slug}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}
@@ -737,6 +749,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               remembers survives a trip into a detail and back — see the
               component. */}
           <MapViewToggle sheetView={sheetView} filterKey={listFilterKey} />
+
+          {/* Sagt beim Rücksprung aus der Mail, was gerade passiert. Fixed und
+              über dem Sheet — siehe die Komponente. */}
+          <SignInProgressBanner working={claimingSlug !== null} openSpotCount={openSpotCount} />
 
           <MapDataNotice
             loading={mapDataLoading}

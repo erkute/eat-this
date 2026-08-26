@@ -40,6 +40,14 @@ interface MapData {
    *  the unlocked/locked split instead. */
   revealedMustEatIds: Set<string>;
   loading: boolean;
+  /** The uid the payload currently in hand was fetched FOR — null while it is
+   *  the anonymous view. It exists so a sheet can tell "this viewer is signed
+   *  in" apart from "the map already knows that", which are not the same
+   *  moment: auth resolves in a few hundred ms, the refetch behind it takes
+   *  longer, and in between every locked spot still looks locked to code that
+   *  only checks the uid. Selling a pack in that window means selling it on a
+   *  spot the very next payload may open (user report, 2026-08-26). */
+  dataUid: string | null;
   error: string | null;
   refetch: () => void;
   /** Swap a single must-eat in place — used after an on-site reveal, where the
@@ -77,6 +85,9 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   // With SSR data we're not loading on first paint. Otherwise show loading
   // until the fetch lands.
   const [loading, setLoading] = useState(!initialMapData);
+  /* Starts null: SSR ships the anonymous view, and the localStorage seed below
+     is the only thing that can hand us a signed-in payload before a fetch. */
+  const [dataUid, setDataUid] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Bump when refetch() is invoked to re-fire the fetch effect.
   const [tick, setTick] = useState(0);
@@ -104,6 +115,9 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     setCategories(cached.categories);
     setTotalCount(cached.totalCount);
     setRevealedMustEatIds(new Set<string>(cached.revealedMustEatIds ?? []));
+    // The cache only ever holds a signed-in payload, written under the uid it
+    // was fetched for — so it counts as current for exactly that uid.
+    setDataUid(uid ?? seedUidBeforeAuth());
     setLoading(false);
     // Mount-only: the seed is a one-shot first-paint optimisation.
   }, []);
@@ -154,6 +168,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         setCategories(next.categories);
         setTotalCount(next.totalCount);
         setRevealedMustEatIds(new Set<string>(next.revealedMustEatIds));
+        setDataUid(uid);
         // Cache the signed-in payload so the next visit / reload paints this tier instantly.
         if (uid) writeMapCache(uid, next);
       } catch (e) {
@@ -173,6 +188,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     totalCount,
     revealedMustEatIds,
     loading,
+    dataUid,
     error,
     refetch,
     mergeMustEat,

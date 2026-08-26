@@ -24,8 +24,11 @@ import lockedStyles from './LockedDetail.module.css';
 
 interface Props {
   restaurant: MapRestaurant;
-  /** Whether the viewer has an account. The only thing that decides which of
-   *  the two offers this sheet makes — see the header comment. */
+  /** Whether the MAP knows this viewer has an account — not merely whether the
+   *  uid has arrived. The two come apart for a second or two after every
+   *  sign-in, and in that gap this sheet cannot tell whether the spot under it
+   *  is one the account opens. Selling a pack there sells it on a spot the very
+   *  next payload may hand over for free. */
   signedIn: boolean;
   /** A sign-up claim for THIS spot is still in flight — the reader followed a
    *  magic link back onto it and the grant has not landed yet. Holds the sheet
@@ -87,6 +90,16 @@ interface Props {
  * worst possible moment. So the promise was made true instead: signing up from
  * a locked spot CLAIMS it, one spot per account, forever (see
  * app/api/claim-spot/route.ts). Every grey dot is now a spot an account opens.
+ *
+ * `signedIn` is deliberately NOT "the uid is here". A sign-in resolves in a
+ * few hundred ms; the map payload that knows what this account opens takes
+ * longer. Everything in between is a window where a locked spot looks locked
+ * simply because nobody has asked yet — and a pack banner flashed there twice,
+ * through two different holes (user reports, 2026-08-26). Rather than keep
+ * hunting the next hole, the condition now names what the pack offer actually
+ * requires: a map payload fetched FOR this viewer. Anything short of that
+ * falls back to the sign-up branch, which is never wrong — at worst it offers
+ * an account to someone who already has one, for the length of a refetch.
  *
  * Never both offers at once. A 2,99 € pack printed under a spot the reader can
  * have for free argues against itself, and the all-Berlin offer is already

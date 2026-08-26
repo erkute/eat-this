@@ -596,62 +596,105 @@ async function patchBezirkDraft(b: BezirkSource, g: BezirkGen): Promise<boolean>
   return true;
 }
 
+/** Raised for an API rejection that retrying cannot fix — exhausted credit, a
+ *  bad key, a revoked permission. Every remaining doc would fail identically,
+ *  and each one costs a billed Places lookup *before* the model is called, so
+ *  the run stops instead of burning the rest of the list. */
+class FatalApiError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FatalApiError';
+  }
+}
+
+const FATAL_API =
+  /credit balance is too low|authentication_error|permission_error|invalid x-api-key|invalid_api_key/i;
+
+interface Stats {
+  ok: number;
+  failed: number;
+}
+
+/** Logs one failure and decides whether the run can continue. */
+function noteFailure(stats: Stats, label: string, e: unknown): void {
+  stats.failed++;
+  const message = e instanceof Error ? e.message : String(e);
+  console.error(`  ✗ ${label}:`, message);
+  if (FATAL_API.test(message)) throw new FatalApiError(message);
+}
+
 async function main(): Promise<void> {
   const opts = parseArgs();
+  const stats: Stats = { ok: 0, failed: 0 };
   console.log(
     `[generate-de] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun} shortDesc=${opts.includeShortDesc} tip=${opts.includeTip}`
   );
 
-  if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
-    console.log(`[generate-de] restaurants needing description: ${docs.length}`);
-    for (const r of docs) {
-      try {
-        const places = await fetchPlaceContext(r);
-        const g = await generateRestaurant(r, places);
-        console.log(`  ✓ ${r.name} (${r._id})${places ? '' : '  [no Places match]'}`);
-        if (opts.dryRun) {
-          console.log(JSON.stringify(g, null, 2));
-        } else {
-          const wrote = await patchRestaurantDraft(r, g, opts);
-          console.log(
-            wrote
-              ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
-              : `    (skipped: nothing to set)`
-          );
+  try {
+    if (opts.type === 'restaurant' || opts.type === 'all') {
+      let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
+      if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+      console.log(`[generate-de] restaurants needing description: ${docs.length}`);
+      for (const r of docs) {
+        try {
+          const places = await fetchPlaceContext(r);
+          const g = await generateRestaurant(r, places);
+          stats.ok++;
+          console.log(`  ✓ ${r.name} (${r._id})${places ? '' : '  [no Places match]'}`);
+          if (opts.dryRun) {
+            console.log(JSON.stringify(g, null, 2));
+          } else {
+            const wrote = await patchRestaurantDraft(r, g, opts);
+            console.log(
+              wrote
+                ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
+                : `    (skipped: nothing to set)`
+            );
+          }
+          // Rate-limit gentle: 200ms between docs (~5 req/s, well under Places + Anthropic limits)
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        } catch (e) {
+          noteFailure(stats, `${r.name} (${r._id})`, e);
         }
-        // Rate-limit gentle: 200ms between docs (~5 req/s, well under Places + Anthropic limits)
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      } catch (e) {
-        console.error(`  ✗ ${r.name} (${r._id}):`, e instanceof Error ? e.message : e);
       }
     }
-  }
 
-  if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force });
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
-    console.log(`[generate-de] bezirke needing description: ${docs.length}`);
-    for (const b of docs) {
-      try {
-        const g = await generateBezirk(b);
-        console.log(`  ✓ ${b.name} (${b._id})`);
-        if (opts.dryRun) {
-          console.log(JSON.stringify(g, null, 2));
-        } else {
-          const wrote = await patchBezirkDraft(b, g);
-          console.log(
-            wrote
-              ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
-              : `    (skipped: nothing to set)`
-          );
+    if (opts.type === 'bezirk' || opts.type === 'all') {
+      let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force });
+      if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+      console.log(`[generate-de] bezirke needing description: ${docs.length}`);
+      for (const b of docs) {
+        try {
+          const g = await generateBezirk(b);
+          stats.ok++;
+          console.log(`  ✓ ${b.name} (${b._id})`);
+          if (opts.dryRun) {
+            console.log(JSON.stringify(g, null, 2));
+          } else {
+            const wrote = await patchBezirkDraft(b, g);
+            console.log(
+              wrote
+                ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
+                : `    (skipped: nothing to set)`
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        } catch (e) {
+          noteFailure(stats, `${b.name} (${b._id})`, e);
         }
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      } catch (e) {
-        console.error(`  ✗ ${b.name} (${b._id}):`, e instanceof Error ? e.message : e);
       }
     }
+  } catch (e) {
+    if (!(e instanceof FatalApiError)) throw e;
+    console.error(
+      `\n[generate-de] ABGEBROCHEN — die API lehnt jede weitere Anfrage genauso ab:\n  ${e.message}\n` +
+        '  Jedes verbleibende Dokument würde identisch scheitern, und jedes kostet vorher\n' +
+        '  einen abgerechneten Places-Aufruf. Nach dem Beheben denselben Befehl erneut starten —\n' +
+        '  fertige Dokumente werden übersprungen.'
+    );
+  } finally {
+    console.log(`\n[generate-de] geschrieben ${stats.ok} · fehlgeschlagen ${stats.failed}`);
+    if (stats.failed > 0) process.exitCode = 1;
   }
 }
 

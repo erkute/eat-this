@@ -173,7 +173,7 @@ const DAY_SHORT: Record<string, string> = {
   Sonntag: 'Sun',
 };
 
-interface DaySlot {
+export interface DaySlot {
   _key: string;
   _type: 'daySlot';
   days: string;
@@ -470,7 +470,39 @@ async function findBezirkRef(name: string, sanity: SanityClient): Promise<string
 /** Heuristic: Places types → category names matching the canonical EN
  *  identifier on the `category` documents. Returns names; the caller resolves
  *  them into reference objects via `lookupCategoryRefs`. */
-function inferCategories(types: string[] = []): string[] {
+/** True when any shift of any day covers `minutes` past midnight. Handles the
+ *  split shifts a kitchen actually keeps ("12:00-15:00,17:30-22:30") and the
+ *  after-midnight closings that Berlin is full of ("11:00-04:00"). */
+export function openAtMinute(slots: DaySlot[], minutes: number): boolean {
+  return slots.some((slot) =>
+    (slot.hours ?? '').split(',').some((span) => {
+      const m = span.trim().match(/^(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})$/);
+      if (!m) return false;
+      const from = Number(m[1]) * 60 + Number(m[2]);
+      let to = Number(m[3]) * 60 + Number(m[4]);
+      if (to <= from) to += 24 * 60; // closes after midnight
+      return minutes >= from && minutes <= to;
+    })
+  );
+}
+
+const LUNCH_MINUTE = 12 * 60 + 30;
+const DINNER_MINUTE = 19 * 60 + 30;
+
+/** Maps Google Places types onto our nine categories.
+ *
+ *  Two things this has to get right, both learned the hard way:
+ *
+ *  A plain `restaurant` type is common — 14 of 16 uncategorised spots from the
+ *  Mit-Vergnügen import carried nothing else. `/_restaurant$/` requires a
+ *  prefix like `chinese_restaurant` and silently skipped every one of them, so
+ *  they landed with no category at all and appeared on no category page.
+ *
+ *  Lunch and Dinner follow the OPENING HOURS, not the type: a spot is Lunch
+ *  when it is open at 12:30 and Dinner when it is open at 19:30 (see memory:
+ *  kategorie-regeln, where 65 spots lost a wrong `lunch`). With no hours
+ *  available we fall back to assigning both, which is what this did before. */
+function inferCategories(types: string[] = [], hours: DaySlot[] = []): string[] {
   const out = new Set<string>();
   // Fine Dining wins outright — the category excludes Lunch + Dinner by
   // convention (see memory: project-fine-dining-recategorization).
@@ -478,10 +510,22 @@ function inferCategories(types: string[] = []): string[] {
     out.add('Fine Dining');
     return [...out];
   }
+
+  const open = hours.filter((h) => h.hours && h.hours !== 'closed');
+  const addMealTimes = () => {
+    if (!open.length) {
+      out.add('Lunch');
+      out.add('Dinner');
+      return;
+    }
+    if (openAtMinute(open, LUNCH_MINUTE)) out.add('Lunch');
+    if (openAtMinute(open, DINNER_MINUTE)) out.add('Dinner');
+  };
+
   for (const t of types) {
     if (/^pizza_/.test(t)) {
-      out.add('Dinner');
       out.add('Pizza');
+      addMealTimes();
     } else if (t === 'cafe' || t === 'coffee_shop') {
       out.add('Breakfast');
       out.add('Coffee');
@@ -491,11 +535,14 @@ function inferCategories(types: string[] = []): string[] {
     } else if (t === 'ice_cream_shop' || t === 'dessert_shop' || t === 'dessert_restaurant') {
       out.add('Sweets');
     } else if (t === 'bar' || t === 'wine_bar') {
-      out.add('Dinner');
       out.add('Drinks');
-    } else if (/_restaurant$/.test(t)) {
-      out.add('Lunch');
-      out.add('Dinner');
+      addMealTimes();
+    } else if (t === 'meal_takeaway' || t === 'snack_bar' || t === 'fast_food_restaurant') {
+      // Imbiss / streetfood without table service.
+      out.add('Fast Food');
+      addMealTimes();
+    } else if (t === 'restaurant' || t === 'bistro' || /_restaurant$/.test(t)) {
+      addMealTimes();
     }
   }
   return [...out];
@@ -875,7 +922,12 @@ export async function runImportFromParsed(
     ? await importGalleryPhotos(place, slug, matchedName, photoAsset?.sourcePhotoName, sanity)
     : [];
 
-  const categoryNames = inferCategories(place.types);
+  // Parse the hours once here: inferCategories needs them to decide Lunch and
+  // Dinner, and buildDoc writes the same array onto the document.
+  const openingHours = place.regularOpeningHours?.weekdayDescriptions?.length
+    ? parseWeekdayDescriptions(place.regularOpeningHours.weekdayDescriptions)
+    : [];
+  const categoryNames = inferCategories(place.types, openingHours);
   const categoryRefs = await lookupCategoryRefs(categoryNames, sanity);
 
   const doc = buildDoc(parsed, place, canonicalUrl, {

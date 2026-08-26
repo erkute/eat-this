@@ -220,3 +220,64 @@ describe('MapDetails CSS contracts', () => {
     expect(supports.has('(-webkit-touch-callout: none)')).toBe(true);
   });
 });
+
+describe('unlock reveal', () => {
+  const rules: Rule[] = [];
+  root.walkRules((rule) => {
+    if (rule.selectors.some((s) => /\.detailV13Unlocked(?![\w-])/.test(s))) rules.push(rule);
+  });
+
+  /** Rules that actually START the animation — the `animation-delay` stagger
+   *  rules are excluded, they only shift a timing on elements that have one. */
+  function startsAnimation(rule: Rule): boolean {
+    let starts = false;
+    rule.walkDecls('animation', (declaration) => {
+      if (declaration.value !== 'none') starts = true;
+    });
+    return starts;
+  }
+
+  it('spares the hero — it is the same photo in both sheets and holds the moment together', () => {
+    /* If the hero unrolled too, the beat would read as "a new sheet opened".
+       Staying put is what makes it "this one carries on". */
+    const animated = rules.filter(startsAnimation);
+    expect(animated.length).toBeGreaterThan(0);
+    for (const rule of animated) {
+      for (const selector of rule.selectors) {
+        expect(selector).toContain(':not([data-detail-hero])');
+      }
+    }
+  });
+
+  it('moves by clip-path and translate, never by opacity', () => {
+    // Projektregel: keine Opacity-Fades für Ein-/Ausblend-Bewegung auf
+    // Brand-Flächen.
+    let frames = 0;
+    root.walkAtRules('keyframes', (at: AtRule) => {
+      if (!/rdUnroll/.test(at.params)) return;
+      frames++;
+      at.walkDecls((declaration) => {
+        expect(declaration.prop).not.toBe('opacity');
+        expect(['clip-path', 'transform']).toContain(declaration.prop);
+      });
+    });
+    expect(frames).toBe(1);
+  });
+
+  it('leaves no clip-path behind once it has played', () => {
+    /* `forwards`/`both` would keep clipping after the last frame and cut off
+       the gallery lightbox and everything else that overflows. */
+    for (const rule of rules.filter(startsAnimation)) {
+      rule.walkDecls('animation', (declaration) => {
+        expect(declaration.value).toContain('backwards');
+        expect(declaration.value).not.toMatch(/\bforwards\b|\bboth\b/);
+      });
+    }
+  });
+
+  it('holds still for readers who asked for less motion', () => {
+    const reduced = rules.filter((r) => isInside(r, 'media', '(prefers-reduced-motion: reduce)'));
+    expect(reduced.length).toBeGreaterThan(0);
+    expect(reduced.some((r) => r.toString().includes('animation: none'))).toBe(true);
+  });
+});

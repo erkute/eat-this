@@ -22,6 +22,11 @@ import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 
 loadEnv({ path: '.env.local' });
 
+import { newStats, noteFailure, reportFatal, finish } from './lib/api-failure';
+import { newUsage, recordUsage, reportUsage, SONNET_5 } from './lib/run-usage';
+
+const usage = newUsage();
+
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
@@ -511,7 +516,7 @@ export async function generateRestaurant(
       tools: RESEARCH_TOOLS,
       messages,
     });
-    recordUsage(msg.usage);
+    recordUsage(usage, msg.usage);
     // The web_search server loop can return `pause_turn` if it hits its internal
     // iteration cap before finishing — re-send the accumulated turn to resume.
     let guard = 0;
@@ -526,7 +531,7 @@ export async function generateRestaurant(
         tools: RESEARCH_TOOLS,
         messages,
       });
-      recordUsage(msg.usage);
+      recordUsage(usage, msg.usage);
     }
     return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen;
   };
@@ -631,71 +636,9 @@ async function patchBezirkDraft(b: BezirkSource, g: BezirkGen): Promise<boolean>
  *  bad key, a revoked permission. Every remaining doc would fail identically,
  *  and each one costs a billed Places lookup *before* the model is called, so
  *  the run stops instead of burning the rest of the list. */
-/** Running total of what this process actually spent, so the next estimate is
- *  a measurement rather than a guess. Sonnet 5 list prices: $2/$15 per MTok,
- *  cache reads at 0.1x input, 5-minute cache writes at 1.25x, web search at
- *  $10 per 1,000 searches. */
-const usage = { in: 0, cachedIn: 0, cacheWrite: 0, out: 0, searches: 0 };
-
-function recordUsage(u: {
-  input_tokens?: number;
-  output_tokens?: number;
-  cache_read_input_tokens?: number | null;
-  cache_creation_input_tokens?: number | null;
-  server_tool_use?: { web_search_requests?: number } | null;
-}): void {
-  usage.in += u.input_tokens ?? 0;
-  usage.out += u.output_tokens ?? 0;
-  usage.cachedIn += u.cache_read_input_tokens ?? 0;
-  usage.cacheWrite += u.cache_creation_input_tokens ?? 0;
-  usage.searches += u.server_tool_use?.web_search_requests ?? 0;
-}
-
-function reportUsage(docsDone: number): void {
-  const total =
-    (usage.in * 2) / 1e6 +
-    (usage.cachedIn * 0.2) / 1e6 +
-    (usage.cacheWrite * 2.5) / 1e6 +
-    (usage.out * 10) / 1e6 +
-    (usage.searches * 10) / 1000;
-  console.log(
-    `[generate-de] Verbrauch: ${usage.searches} Suchen · ` +
-      `${Math.round((usage.in + usage.cachedIn + usage.cacheWrite) / 1000)}k Input ` +
-      `(${Math.round(usage.cachedIn / 1000)}k aus dem Cache) · ` +
-      `${Math.round(usage.out / 1000)}k Output`
-  );
-  console.log(
-    `[generate-de] Kosten: $${total.toFixed(2)}` +
-      (docsDone > 0 ? ` · $${(total / docsDone).toFixed(3)} pro Dokument` : '')
-  );
-}
-
-class FatalApiError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'FatalApiError';
-  }
-}
-
-const FATAL_API =
-  /credit balance is too low|authentication_error|permission_error|invalid x-api-key|invalid_api_key/i;
-
-interface Stats {
-  ok: number;
-  failed: number;
-}
-
-/** Logs one failure and decides whether the run can continue. */
-function noteFailure(stats: Stats, label: string, e: unknown): void {
-  stats.failed++;
-  const message = e instanceof Error ? e.message : String(e);
-  console.error(`  ✗ ${label}:`, message);
-  if (FATAL_API.test(message)) throw new FatalApiError(message);
-}
-
 async function main(): Promise<void> {
   const opts = parseArgs();
-  const stats: Stats = { ok: 0, failed: 0 };
+  const stats = newStats();
   console.log(
     `[generate-de] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun} shortDesc=${opts.includeShortDesc} tip=${opts.includeTip}`
   );
@@ -759,17 +702,10 @@ async function main(): Promise<void> {
       }
     }
   } catch (e) {
-    if (!(e instanceof FatalApiError)) throw e;
-    console.error(
-      `\n[generate-de] ABGEBROCHEN — die API lehnt jede weitere Anfrage genauso ab:\n  ${e.message}\n` +
-        '  Jedes verbleibende Dokument würde identisch scheitern, und jedes kostet vorher\n' +
-        '  einen abgerechneten Places-Aufruf. Nach dem Beheben denselben Befehl erneut starten —\n' +
-        '  fertige Dokumente werden übersprungen.'
-    );
+    reportFatal('generate-de', e);
   } finally {
-    console.log(`\n[generate-de] geschrieben ${stats.ok} · fehlgeschlagen ${stats.failed}`);
-    reportUsage(stats.ok + stats.failed);
-    if (stats.failed > 0) process.exitCode = 1;
+    finish('generate-de', stats);
+    reportUsage('generate-de', usage, SONNET_5, stats.ok + stats.failed);
   }
 }
 

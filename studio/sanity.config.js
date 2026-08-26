@@ -32,6 +32,20 @@ export default defineConfig({
           "mustEat":     count(*[_type=="mustEat"     && !(_id in path("drafts.**"))]),
           "restaurantLive":  count(*[_type=="restaurant"  && !(_id in path("drafts.**"))]),
           "restaurantTotal": count(array::unique(*[_type=="restaurant" && defined(slug.current)].slug.current)),
+          // A draft whose published twin is missing has never gone live; one
+          // with a twin is an unpublished edit. string::split(id, "drafts.")[1]
+          // is the published id — restaurant ids are UUIDs, so nothing else in
+          // them can match the separator.
+          //
+          // These come back as ID LISTS, not counts, because the lists below
+          // need them as a plain _id-in-ids filter: Studio document lists run
+          // as listening queries, and those reject joins — a filter carrying
+          // this subquery silently shows nothing at all.
+          "restaurantDraftOnlyIds": *[_type=="restaurant" && _id in path("drafts.**")
+            && count(*[_id == string::split(^._id, "drafts.")[1]]) == 0]._id,
+          "restaurantEditedIds": *[_type=="restaurant" && _id in path("drafts.**")
+            && count(*[_id == string::split(^._id, "drafts.")[1]]) > 0]._id,
+          "restaurantNoImage": count(*[_type=="restaurant" && !defined(image.asset)]),
           "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
           "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))]),
           "homeWeek":    count(*[_type=="homeWeek"    && !(_id in path("drafts.**"))]),
@@ -62,7 +76,73 @@ export default defineConfig({
 
             // ── Other content types ───────────────────────────────────────
             S.documentTypeListItem('mustEat').title(label('🍽', 'Must-Eats', counts.mustEat)),
-            S.documentTypeListItem('restaurant').title(labelPair('📍', 'Restaurants', counts.restaurantLive, counts.restaurantTotal)),
+            S.listItem()
+              .id('restaurants')
+              .title(labelPair('📍', 'Restaurants', counts.restaurantLive, counts.restaurantTotal))
+              .child(
+                S.list()
+                  .title('Restaurants')
+                  .items([
+                    // Sanity's own list already folds a draft and its published
+                    // twin into one row with a draft badge — that is the "all"
+                    // view. The lists below deliberately do NOT fold, so a
+                    // filter really shows only that state.
+                    S.listItem()
+                      .id('restaurants-all')
+                      .title('Alle')
+                      .child(S.documentTypeList('restaurant').title('Alle Restaurants')),
+                    S.divider(),
+                    S.listItem()
+                      .id('restaurants-published')
+                      .title(`Veröffentlicht (${counts.restaurantLive ?? 0})`)
+                      .child(
+                        S.documentList()
+                          .id('restaurants-published-list')
+                          .title('Veröffentlicht')
+                          .schemaType('restaurant')
+                          .filter('_type == "restaurant" && !(_id in path("drafts.**"))')
+                          .defaultOrdering([{field: 'name', direction: 'asc'}])
+                      ),
+                    S.listItem()
+                      .id('restaurants-draft-only')
+                      .title(`Nur Entwurf (${counts.restaurantDraftOnlyIds?.length ?? 0})`)
+                      .child(
+                        S.documentList()
+                          .id('restaurants-draft-only-list')
+                          .title('Nur Entwurf — nie veröffentlicht')
+                          .schemaType('restaurant')
+                          .filter('_id in $ids')
+                          .params({ids: counts.restaurantDraftOnlyIds ?? []})
+                          .defaultOrdering([{field: 'name', direction: 'asc'}])
+                      ),
+                    S.listItem()
+                      .id('restaurants-edited')
+                      .title(`Unveröffentlichte Änderungen (${counts.restaurantEditedIds?.length ?? 0})`)
+                      .child(
+                        S.documentList()
+                          .id('restaurants-edited-list')
+                          .title('Veröffentlicht, mit offenen Änderungen')
+                          .schemaType('restaurant')
+                          .filter('_id in $ids')
+                          .params({ids: counts.restaurantEditedIds ?? []})
+                          .defaultOrdering([{field: 'name', direction: 'asc'}])
+                      ),
+                    S.divider(),
+                    // The publish gate needs an image; without one the detail
+                    // page renders the empty hero (lib/sanity-image-presets.ts).
+                    S.listItem()
+                      .id('restaurants-no-image')
+                      .title(`Ohne Bild (${counts.restaurantNoImage ?? 0})`)
+                      .child(
+                        S.documentList()
+                          .id('restaurants-no-image-list')
+                          .title('Ohne Bild')
+                          .schemaType('restaurant')
+                          .filter('_type == "restaurant" && !defined(image.asset)')
+                          .defaultOrdering([{field: 'name', direction: 'asc'}])
+                      ),
+                  ])
+              ),
             S.documentTypeListItem('bezirk').title(label('🏙', 'Bezirke', counts.bezirk)),
             S.documentTypeListItem('category').title(label('🏷', 'Kategorien', counts.category)),
 

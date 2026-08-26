@@ -1,5 +1,5 @@
 'use client';
-import { useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
+import { useEffect, useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
@@ -13,6 +13,7 @@ import { useAuth, useMagicLink } from '@/lib/auth';
 import { GoogleMark } from '@/app/components/GoogleMark';
 import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { claimSignupSpot } from '@/lib/map/claimSignupSpot';
+import { CLAIM_HOLD_TIMEOUT_MS } from '@/lib/map/useSignupSpotClaim';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useTranslation } from '@/lib/i18n';
@@ -125,6 +126,15 @@ export default function LockedDetail({
      component even mounts. */
   const [unlocking, setUnlocking] = useState(false);
   const awaitingSpot = unlocking || claimPending;
+
+  /* Safety net, same one the email rung has: the hold is released by the map
+     refetch unmounting this sheet, so a refetch that never lands would leave a
+     completed sign-up staring at its own form. */
+  useEffect(() => {
+    if (!unlocking) return;
+    const id = window.setTimeout(() => setUnlocking(false), CLAIM_HOLD_TIMEOUT_MS);
+    return () => window.clearTimeout(id);
+  }, [unlocking]);
   const loc = de ? 'de' : 'en';
   /* Same source and same fallback order as the unlocked sheet, so the cut
      lands in the middle of the very text that sheet would show. */

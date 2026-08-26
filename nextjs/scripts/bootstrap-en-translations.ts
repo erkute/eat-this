@@ -21,6 +21,9 @@ import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 loadEnv({ path: '.env.local' });
 
 import { newStats, noteFailure, reportFatal, finish } from './lib/api-failure';
+import { newUsage, recordUsage, reportUsage, SONNET_5 } from './lib/run-usage';
+
+const usage = newUsage();
 
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
@@ -33,6 +36,7 @@ interface CliOptions {
   limit: number | null;
   dryRun: boolean;
   draftsOnly: boolean;
+  onlyWithPhoto: boolean;
   force: boolean;
 }
 
@@ -43,12 +47,15 @@ function parseArgs(): CliOptions {
     limit: null,
     dryRun: false,
     draftsOnly: false,
+    onlyWithPhoto: false,
     force: false,
   };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--dry-run') {
       opts.dryRun = true;
+    } else if (arg === '--only-with-photo') {
+      opts.onlyWithPhoto = true;
     } else if (arg === '--drafts-only') {
       opts.draftsOnly = true;
     } else if (arg === '--force') {
@@ -111,11 +118,18 @@ interface BezirkSource {
 // Project all fields with {...} wildcard. createIfNotExists needs the full
 // published doc to clone; partial projections produced incomplete drafts that
 // would lose image/slug/openingHours/etc. on publish (see repair-draft-fields.ts).
-async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]> {
+async function fetchRestaurants(
+  draftsOnly: boolean,
+  onlyWithPhoto = false
+): Promise<RestaurantSource[]> {
+  // A spot without an image can't be published — the publish gate in
+  // lib/sanity-image-presets.ts closes and the detail page renders the empty
+  // hero. Generating for it now is work on stock.
+  const photoClause = onlyWithPhoto ? ' && defined(image.asset)' : '';
   return sanity.fetch(
     draftsOnly
-      ? `*[_type == "restaurant" && _id in path("drafts.**")]{...}`
-      : `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...}`
+      ? `*[_type == "restaurant" && _id in path("drafts.**")${photoClause}]{...}`
+      : `*[_type == "restaurant" && !(_id in path("drafts.**"))${photoClause}]{...}`
   );
 }
 
@@ -127,7 +141,10 @@ async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
   );
 }
 
-const TRANSLATION_MODEL = 'claude-sonnet-4-6';
+// Sonnet 5: newer and cheaper than 4.6 ($2/$10 vs $3/$15 per MTok). Thinking
+// counts against max_tokens on this model, so the budgets below are doubled
+// and effort stays low.
+const TRANSLATION_MODEL = 'claude-sonnet-5';
 
 const RESTAURANT_PROMPT = `You are translating restaurant content from German to English for "Eat This Berlin", a curated Berlin food guide.
 
@@ -196,7 +213,9 @@ export async function translateRestaurant(r: RestaurantSource): Promise<Restaura
   };
   const msg = await anthropic.messages.create({
     model: TRANSLATION_MODEL,
-    max_tokens: 2048,
+    max_tokens: 4096,
+    output_config: { effort: 'low' },
+    cache_control: { type: 'ephemeral' },
     system: RESTAURANT_PROMPT,
     messages: [
       {
@@ -205,6 +224,7 @@ export async function translateRestaurant(r: RestaurantSource): Promise<Restaura
       },
     ],
   });
+  recordUsage(usage, msg.usage);
   return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantTranslation;
 }
 
@@ -212,7 +232,9 @@ async function translateBezirk(b: BezirkSource): Promise<BezirkTranslation> {
   if (!b.description) return { descriptionEn: null };
   const msg = await anthropic.messages.create({
     model: TRANSLATION_MODEL,
-    max_tokens: 1024,
+    max_tokens: 2048,
+    output_config: { effort: 'low' },
+    cache_control: { type: 'ephemeral' },
     system: BEZIRK_PROMPT,
     messages: [
       {
@@ -221,6 +243,7 @@ async function translateBezirk(b: BezirkSource): Promise<BezirkTranslation> {
       },
     ],
   });
+  recordUsage(usage, msg.usage);
   return JSON.parse(extractJsonText(msg.content, b._id)) as BezirkTranslation;
 }
 
@@ -284,7 +307,7 @@ async function main(): Promise<void> {
 
   try {
     if (opts.type === 'restaurant' || opts.type === 'all') {
-      let docs = await fetchRestaurants(opts.draftsOnly);
+      let docs = await fetchRestaurants(opts.draftsOnly, opts.onlyWithPhoto);
       if (!opts.force) docs = docs.filter((r) => !hasEnDescription(r));
       if (opts.limit !== null) docs = docs.slice(0, opts.limit);
       console.log(`[bootstrap] restaurants needing translation: ${docs.length}`);
@@ -338,6 +361,7 @@ async function main(): Promise<void> {
     reportFatal('bootstrap', e);
   } finally {
     finish('bootstrap', stats);
+    reportUsage('bootstrap', usage, SONNET_5, stats.ok + stats.failed);
   }
 }
 

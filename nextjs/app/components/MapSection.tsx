@@ -163,8 +163,14 @@ export default function MapSection({
      inline in LockedDetail; the magic link can only carry the intent in its
      continue URL, so it arrives here as `?claim=1` and is cashed in on landing.
      The write wakes the entitlements listener below, which refetches the map —
-     the spot the link points at is then open by the time the reader looks. */
-  const claimingSlug = useSignupSpotClaim(uid);
+     the spot the link points at is then open by the time the reader looks.
+     The predicate is what tells the hook the wait is over: the claim POST
+     coming back is not the same event as the spot appearing. */
+  const isSpotOpen = useCallback(
+    (slug: string) => restaurants.some((restaurant) => restaurant.slug === slug),
+    [restaurants]
+  );
+  const claimingSlug = useSignupSpotClaim(uid, isSpotOpen);
 
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
@@ -859,6 +865,28 @@ export default function MapSection({
     () => new Set(lockedRestaurants.map((r) => r._id)),
     [lockedRestaurants]
   );
+
+  /* The moment a sign-up opens the spot the reader is looking at: it was in the
+     locked set a render ago and is not any more, with its sheet standing open.
+     The detail that replaces LockedDetail then unrolls instead of cutting in —
+     "und dann ist der Inhalt einfach plötzlich da" (User, 2026-08-26). Cleared
+     as soon as the selection moves on, so it plays once and not again on the
+     way back. */
+  const [justUnlockedSlug, setJustUnlockedSlug] = useState<string | null>(null);
+  const previouslyLockedRef = useRef(lockedIdSet);
+  useEffect(() => {
+    const wasLocked = previouslyLockedRef.current;
+    previouslyLockedRef.current = lockedIdSet;
+    if (!selectedRestaurant) return;
+    if (wasLocked.has(selectedRestaurant._id) && !lockedIdSet.has(selectedRestaurant._id)) {
+      setJustUnlockedSlug(selectedRestaurant.slug);
+    }
+  }, [lockedIdSet, selectedRestaurant]);
+  useEffect(() => {
+    if (justUnlockedSlug && selectedRestaurant?.slug !== justUnlockedSlug) {
+      setJustUnlockedSlug(null);
+    }
+  }, [justUnlockedSlug, selectedRestaurant]);
 
   /* A spot that unlocks while its own sheet is open — the sign-up claim, or a
      purchase — is still held here as the object the LOCKED payload shipped,
@@ -1637,6 +1665,7 @@ export default function MapSection({
       listRestaurants={listRestaurants}
       lockedIdSet={lockedIdSet}
       claimingSlug={claimingSlug}
+      justUnlockedSlug={justUnlockedSlug}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}

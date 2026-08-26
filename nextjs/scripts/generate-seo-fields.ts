@@ -23,11 +23,18 @@ import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 loadEnv({ path: '.env.local' });
 
 import { newStats, noteFailure, reportFatal, finish } from './lib/api-failure';
+import { newUsage, recordUsage, reportUsage, SONNET_5 } from './lib/run-usage';
+
+const usage = newUsage();
 
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
-const MODEL = 'claude-sonnet-4-6';
+// Sonnet 5: newer and cheaper than 4.6 ($2/$10 vs $3/$15 per MTok). It thinks
+// adaptively and thinking counts against max_tokens, so the budget below is
+// doubled and effort stays low — the same treatment that took the description
+// generator's truncation failures to zero.
+const MODEL = 'claude-sonnet-5';
 
 type DocType = 'restaurant' | 'bezirk';
 
@@ -36,6 +43,7 @@ interface CliOptions {
   limit: number | null;
   dryRun: boolean;
   draftsOnly: boolean;
+  onlyWithPhoto: boolean;
   force: boolean;
 }
 
@@ -46,12 +54,14 @@ function parseArgs(): CliOptions {
     limit: null,
     dryRun: false,
     draftsOnly: false,
+    onlyWithPhoto: false,
     force: false,
   };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--dry-run') opts.dryRun = true;
     else if (arg === '--drafts-only') opts.draftsOnly = true;
+    else if (arg === '--only-with-photo') opts.onlyWithPhoto = true;
     else if (arg === '--force') opts.force = true;
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10);
     else if (arg === '--type') {
@@ -133,11 +143,17 @@ interface BezirkSource {
 async function fetchRestaurants(opts: {
   draftsOnly: boolean;
   force: boolean;
+  onlyWithPhoto?: boolean;
 }): Promise<RestaurantSource[]> {
   const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)';
+  const onlyWithPhoto = opts.onlyWithPhoto ?? false;
+  // A spot without an image can't be published — the publish gate in
+  // lib/sanity-image-presets.ts closes and the detail page renders the empty
+  // hero. Generating for it now is work on stock.
+  const photoClause = onlyWithPhoto ? ' && defined(image.asset)' : '';
   if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "restaurant" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`
+      `*[_type == "restaurant" && _id in path("drafts.**")${seoClause}${photoClause}]{...} | order(name asc)`
     );
   }
   if (opts.force) {
@@ -261,6 +277,37 @@ const LENGTH_LIMITS: Array<[keyof SeoGen, number]> = [
   ['metaDescriptionEn', 160],
 ];
 
+/** How much text a clean sentence ending may cost over a plain word cut. */
+const SENTENCE_CUT_TOLERANCE = 25;
+
+/** Last-resort deterministic trim. The model lands within a few characters of
+ *  the limit but not reliably under it — 12 of 68 documents in one run
+ *  overshot by 1 to 5 characters. Throwing those away costs a whole document
+ *  plus the two API calls already spent on it, so cut instead: prefer the last
+ *  sentence end that still keeps most of the text, otherwise the last word
+ *  boundary, and drop trailing punctuation so the result ends cleanly. */
+export function trimToLimit(value: string, max: number): string {
+  if (value.length <= max) return value;
+  const cut = value.slice(0, max);
+
+  // The word boundary is the baseline: it keeps as much as possible.
+  const lastSpace = cut.lastIndexOf(' ');
+  const byWord = (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:–—-]+$/u, '');
+
+  // A sentence end reads better than a dangling fragment — but only take it
+  // when it costs little. A one-character overshoot must never throw away half
+  // a sentence, which a percentage-of-limit threshold would happily do.
+  const lastSentence = Math.max(
+    cut.lastIndexOf('. '),
+    cut.lastIndexOf('! '),
+    cut.lastIndexOf('? ')
+  );
+  if (lastSentence > 0 && byWord.length - (lastSentence + 1) <= SENTENCE_CUT_TOLERANCE) {
+    return cut.slice(0, lastSentence + 1);
+  }
+  return byWord;
+}
+
 function validateLengths(
   parsed: SeoGen,
   docId: string
@@ -301,10 +348,13 @@ async function generateSeoFromFacts(
     }
     const msg = await anthropic.messages.create({
       model: MODEL,
-      max_tokens: 1024,
+      max_tokens: 2048,
+      output_config: { effort: 'low' },
+      cache_control: { type: 'ephemeral' },
       system: systemPrompt,
       messages: [{ role: 'user', content }],
     });
+    recordUsage(usage, msg.usage);
     return JSON.parse(extractJsonText(msg.content, docId)) as SeoGen;
   };
 
@@ -338,7 +388,14 @@ async function generateSeoFromFacts(
     }
     validation = validateLengths(parsed, docId);
     if (!validation.ok) {
-      throw new Error(`length retry still failed for ${docId}: ${validation.offenders.join('; ')}`);
+      // Still over after the re-prompt — trim rather than discard the document.
+      for (const [key, max] of LENGTH_LIMITS) {
+        const v = parsed[key];
+        if (typeof v === 'string' && v.length > max) {
+          parsed[key] = trimToLimit(v, max);
+          console.warn(`     ${key}: ${v.length} → ${parsed[key].length} Zeichen hart gekürzt`);
+        }
+      }
     }
   }
 
@@ -418,7 +475,11 @@ async function main(): Promise<void> {
 
   try {
     if (opts.type === 'restaurant' || opts.type === 'all') {
-      let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
+      let docs = await fetchRestaurants({
+        draftsOnly: opts.draftsOnly,
+        force: opts.force,
+        onlyWithPhoto: opts.onlyWithPhoto,
+      });
       if (opts.limit !== null) docs = docs.slice(0, opts.limit);
       console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`);
       for (const r of docs) {
@@ -467,6 +528,7 @@ async function main(): Promise<void> {
     reportFatal('generate-seo', e);
   } finally {
     finish('generate-seo', stats);
+    reportUsage('generate-seo', usage, SONNET_5, stats.ok + stats.failed);
   }
 }
 

@@ -71,11 +71,12 @@ interface MapBodyState {
    *  a locked spot as a muted dot. */
   listRestaurants: MapRestaurant[];
   /** Unfiltered catalog size for the locked sheet's all-Berlin offer. */
-  /** Locked spots that an account alone opens — see LockedDetail. Empty once
-   *  signed in, so the sheet falls through to the pack offer. */
-  signupUnlockableIds: Set<string>;
   /** Every paywalled id, so the sheet knows which detail to render. */
   lockedIdSet: Set<string>;
+  /** Slug of the spot a returning magic link is still claiming — see
+   *  useSignupSpotClaim. Keeps its sheet on the sign-up branch until the spot
+   *  actually opens. */
+  claimingSlug: string | null;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
   /** Row the list points at once no detail is open — the spot that was just
@@ -175,8 +176,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     displayedRestaurants,
     displayedLockedRestaurants,
     listRestaurants,
-    signupUnlockableIds,
     lockedIdSet,
+    claimingSlug,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -663,7 +664,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               lockedIdSet.has(selectedRestaurant._id) ? (
               <LockedDetail
                 restaurant={selectedRestaurant}
-                unlocksWithAccount={signupUnlockableIds.has(selectedRestaurant._id)}
+                signedIn={uid !== null}
+                claimPending={claimingSlug === selectedRestaurant.slug}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}
               />

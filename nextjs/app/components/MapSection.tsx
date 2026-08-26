@@ -4,6 +4,7 @@ import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import {
   useMapData,
+  useSignupSpotClaim,
   useUserLocation,
   hasGeolocationPermission,
   useUnlockedMustEats,
@@ -102,7 +103,6 @@ export default function MapSection({
     mustEats,
     categories,
     revealedMustEatIds,
-    signupUnlockableIds,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -159,6 +159,12 @@ export default function MapSection({
   );
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid);
   const userTier = useUserTier(uid);
+  /* A sign-up that started on a locked spot claims that spot. Google does it
+     inline in LockedDetail; the magic link can only carry the intent in its
+     continue URL, so it arrives here as `?claim=1` and is cashed in on landing.
+     The write wakes the entitlements listener below, which refetches the map —
+     the spot the link points at is then open by the time the reader looks. */
+  const claimingSlug = useSignupSpotClaim(uid);
 
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
@@ -853,6 +859,18 @@ export default function MapSection({
     () => new Set(lockedRestaurants.map((r) => r._id)),
     [lockedRestaurants]
   );
+
+  /* A spot that unlocks while its own sheet is open — the sign-up claim, or a
+     purchase — is still held here as the object the LOCKED payload shipped,
+     and that one is stripped (stripLockedRestaurants drops priceRange). Swap
+     in the full record from the refetched set so the real detail that replaces
+     LockedDetail is complete, instead of quietly missing a row until the
+     reader closes and reopens it. */
+  useEffect(() => {
+    if (!selectedRestaurant) return;
+    const fresh = restaurants.find((r) => r._id === selectedRestaurant._id);
+    if (fresh && fresh !== selectedRestaurant) setSelectedRestaurant(fresh);
+  }, [restaurants, selectedRestaurant]);
 
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
@@ -1618,7 +1636,7 @@ export default function MapSection({
       displayedLockedRestaurants={displayedLockedRestaurants}
       listRestaurants={listRestaurants}
       lockedIdSet={lockedIdSet}
-      signupUnlockableIds={signupUnlockableIds}
+      claimingSlug={claimingSlug}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}

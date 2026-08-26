@@ -131,14 +131,13 @@ describe('/api/map-data — tier composition', () => {
     expect(json.mustEats.map((m: any) => m._id).sort()).toEqual(['m1', 'm2', 'm3'])
     expect(json.revealedMustEatIds).toContain('m1')
     expect(json.lockedRestaurants).toEqual([])
-    expect(json.signupUnlockableIds).toEqual([])
   })
 
-  it('anonymous: names the locked spots an account alone would open', async () => {
-    // 200 spots — big enough that both rungs bite: 100 free, 50 more with an
-    // account, 50 that still need a pack. The locked sheet decides which of
-    // its two offers to make from exactly this list, so a wrong one here is a
-    // sign-in button on a spot that signing in does not open.
+  it('anonymous: hands out exactly the anon tier, the rest locked', async () => {
+    // 200 spots — big enough that the rung bites: 100 free, 100 locked. The
+    // locked sheet no longer reads a per-spot list to choose its offer (an
+    // account claims whichever spot was tapped), so the tier size itself is
+    // the whole contract here.
     const restaurants = Array.from({ length: 200 }, (_, i) =>
       mkRestaurant(`r${String(i).padStart(3, '0')}`)
     )
@@ -160,17 +159,9 @@ describe('/api/map-data — tier composition', () => {
 
     expect(json.restaurants).toHaveLength(100)
     expect(json.lockedRestaurants).toHaveLength(100)
-    expect(json.signupUnlockableIds).toHaveLength(50)
-
-    // Every one of them is locked right now — advertising a spot the viewer
-    // can already open would be the same lie in the other direction.
-    const visible = new Set(json.restaurants.map((r: any) => r._id))
-    for (const id of json.signupUnlockableIds) {
-      expect(visible.has(id)).toBe(false)
-    }
   })
 
-  it('signed-in: has the signed tier already, so nothing is left to unlock by signing in', async () => {
+  it('signed-in: gets the signed tier, 150 in whole-map terms', async () => {
     const restaurants = Array.from({ length: 200 }, (_, i) =>
       mkRestaurant(`r${String(i).padStart(3, '0')}`)
     )
@@ -190,7 +181,7 @@ describe('/api/map-data — tier composition', () => {
     const res = await GET(mkReq('valid-token'))
     const json = await res.json()
     expect(json.restaurants).toHaveLength(150)
-    expect(json.signupUnlockableIds).toEqual([])
+    expect(json.lockedRestaurants).toHaveLength(50)
   })
 
   it('signed-in (no entitlements): returns anonSet ∪ signedSet', async () => {

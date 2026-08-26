@@ -91,7 +91,6 @@ beforeEach(() => {
     lockedRestaurants: [],
     mustEats: [MUST_EAT] as never[],
     revealedMustEatIds: new Set(),
-    signupUnlockableIds: new Set(),
   })
 })
 
@@ -126,7 +125,6 @@ describe('/api/must-eat-reveal', () => {
       lockedRestaurants: [{ _id: 'r1' }] as never[],
       mustEats: [],
       revealedMustEatIds: new Set(),
-      signupUnlockableIds: new Set(),
     })
 
     const res = await POST(mkReq({ mustEatId: 'm1' }))

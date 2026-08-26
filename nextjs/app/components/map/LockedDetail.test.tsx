@@ -35,23 +35,29 @@ function spot(over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant;
 }
 
+/** The sheet as a SIGNED-IN reader sees it: the account is spent, so what is
+ *  left to offer is a pack. */
 function html(r: MapRestaurant) {
   return renderToStaticMarkup(
     <LockedDetail
       restaurant={r}
-      unlocksWithAccount={false}
+      signedIn
+      claimPending={false}
       contentRef={null}
       onClose={() => {}}
     />
   );
 }
 
-/** The same spot, but sitting in the signed tier — an account opens it. */
+/** The same spot seen by a visitor WITHOUT an account. Since 2026-08-26 that
+ *  is every grey dot, not only the ones in the signed tier — signing up claims
+ *  the tapped spot, so the offer is true everywhere. */
 function signupHtml(r: MapRestaurant) {
   return renderToStaticMarkup(
     <LockedDetail
       restaurant={r}
-      unlocksWithAccount
+      signedIn={false}
+      claimPending={false}
       contentRef={null}
       onClose={() => {}}
     />
@@ -86,7 +92,7 @@ describe('LockedDetail story excerpt', () => {
     expect(html(spot())).toContain('Der Einzeiler.');
   });
 
-  it('shows it on the free tier too, above the signup', () => {
+  it('shows it above the signup as well, not only above the packs', () => {
     detail.current = { description: 'Japanische Küche am Potsdamer Platz.' };
     const out = signupHtml(spot());
     expect(out.indexOf('Japanische Küche')).toBeLessThan(out.indexOf('Starter Pack'));
@@ -193,7 +199,7 @@ describe('LockedDetail', () => {
   });
 });
 
-describe('LockedDetail, signed-tier spot', () => {
+describe('LockedDetail, visitor without an account', () => {
   it('offers the account instead of a pack', () => {
     const out = signupHtml(spot());
     // Leads with the tapped spot, but does not undersell the tier behind it.
@@ -238,5 +244,41 @@ describe('LockedDetail, signed-tier spot', () => {
 
   it('keeps naming the spot, exactly as the pack variant does', () => {
     expect(signupHtml(spot())).toContain('Testspot');
+  });
+
+  it('never shows a price to someone who has not even left an email', () => {
+    /* The rule the 2026-08-26 change exists for: one rung at a time. Before it,
+       the offer hung on the tier the spot sat in, so ~144 of ~194 grey dots put
+       a pack in front of an anonymous visitor. Now nothing does. */
+    const out = signupHtml(spot());
+    expect(out).not.toContain('href="/packs"');
+    expect(out).not.toContain('Packs ansehen');
+  });
+
+  it('holds the sign-up branch while a returning magic link claims the spot', () => {
+    /* The email rung signs the reader in on /welcome and drops them back on
+       this spot. For the beat between "signed in" and "spot actually open" the
+       sheet must not fall through to the pack offer — that is the price tag
+       landing on the very spot the mail just promised them. */
+    const out = renderToStaticMarkup(
+      <LockedDetail
+        restaurant={spot()}
+        signedIn
+        claimPending
+        contentRef={null}
+        onClose={() => {}}
+      />
+    );
+    expect(out).toContain('Starter Pack');
+    expect(out).toContain('Wir schliessen auf');
+    expect(out).not.toContain('href="/packs"');
+  });
+
+  it('makes the same offer on a spot far beyond the signed tier', () => {
+    /* Tier flags no longer reach this component at all — an account opens the
+       tapped spot either way, because signing up claims it. */
+    const out = signupHtml(spot({ _id: 'r-deep', slug: 'tief-im-katalog' }));
+    expect(out).toContain('Schaltet diesen Spot frei. Und viele weitere.');
+    expect(out).not.toContain('href="/packs"');
   });
 });

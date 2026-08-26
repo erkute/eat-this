@@ -7,11 +7,7 @@
 // still refetch on mount for their signed tier + entitlement-based unions.
 
 import { getCachedMapData } from './cached-sanity';
-import {
-  composeAnonRestaurants,
-  composeRevealedMustEats,
-  composeSignedRestaurants,
-} from './tier-composition';
+import { composeAnonRestaurants, composeRevealedMustEats } from './tier-composition';
 import { applySpotOfDayReveal } from './spotOfDayReveal';
 import { getFreeSurfaceData, applyFreeSurface } from './free-surface';
 import { stripCoveredMustEats } from './stripCoveredMustEats';
@@ -35,7 +31,6 @@ export interface InitialMapData {
    *  a locked sheet shows — sign-in for these, a pack for the rest. Ships in
    *  the anonymous payload because these spots' names are public anyway (the
    *  locked list already renders them). */
-  signupUnlockableIds: string[];
 }
 
 async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
@@ -70,11 +65,6 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
     revealedMustEatIds: revealedSet,
   });
 
-  // Against the post-gift visible set: today's spot of the day is open for
-  // everyone, so it must not also be sold as something an account unlocks.
-  const openNow = new Set(gifted.restaurants.map((r) => r._id));
-  const signedSet = composeSignedRestaurants(all, anonIds, mustEatCountByRestaurant);
-
   return {
     restaurants: gifted.restaurants,
     lockedRestaurants: stripLockedRestaurants(gifted.lockedRestaurants),
@@ -82,7 +72,6 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
     categories,
     totalCount: all.length,
     revealedMustEatIds: Array.from(gifted.revealedMustEatIds),
-    signupUnlockableIds: signedSet.map((r) => r._id).filter((id) => !openNow.has(id)),
   };
 }
 

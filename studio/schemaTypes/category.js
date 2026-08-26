@@ -45,7 +45,25 @@ export default defineType({
       name: 'topSpots',
       title: 'Top-Spots (kuratierte Reihenfolge)',
       type: 'array',
-      of: [{type: 'reference', to: [{type: 'restaurant'}]}],
+      of: [
+        {
+          type: 'reference',
+          to: [{type: 'restaurant'}],
+          options: {
+            // Nur Spots dieser Kategorie anbieten — und keine geschlossenen:
+            // die fliegen im Frontend ohnehin aus der Liste (GROQ filtert
+            // isOpen == false), im Picker wären sie stille Nieten.
+            filter: ({document}) => {
+              const categoryId = (document._id || '').replace(/^drafts\./, '')
+              if (!categoryId) return {filter: 'isOpen != false'}
+              return {
+                filter: '$categoryId in categories[]._ref && isOpen != false',
+                params: {categoryId},
+              }
+            },
+          },
+        },
+      ],
       validation: Rule => Rule.max(10).unique(),
       description:
         'Die besten Spots dieser Kategorie, in Reihenfolge — Platz 1 ganz oben, per Drag & Drop ' +

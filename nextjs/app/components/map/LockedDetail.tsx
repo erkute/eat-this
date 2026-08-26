@@ -12,6 +12,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { GoogleMark } from '@/app/components/GoogleMark';
 import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import { claimSignupSpot } from '@/lib/map/claimSignupSpot';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useTranslation } from '@/lib/i18n';
@@ -22,9 +23,14 @@ import lockedStyles from './LockedDetail.module.css';
 
 interface Props {
   restaurant: MapRestaurant;
-  /** This spot sits in the signed tier: an account alone opens it, no purchase.
-   *  Decides which of the two offers this sheet makes. */
-  unlocksWithAccount: boolean;
+  /** Whether the viewer has an account. The only thing that decides which of
+   *  the two offers this sheet makes — see the header comment. */
+  signedIn: boolean;
+  /** A sign-up claim for THIS spot is still in flight — the reader followed a
+   *  magic link back onto it and the grant has not landed yet. Holds the sheet
+   *  on the sign-up branch so the promised spot doesn't turn into a price tag
+   *  for the last second of the wait. */
+  claimPending: boolean;
   contentRef: Ref<HTMLDivElement | null>;
   onClose: () => void;
 }
@@ -61,17 +67,29 @@ interface Props {
  * and pointing a paying-curious visitor at "read this one for free" sells
  * against the pack sitting right above it (user decision, 2026-08-19).
  *
- * Which offer it makes depends on the tier the spot sits in. The map draws
- * both kinds as the same grey dot on purpose (user decision, 2026-08-23) —
- * three marker states would turn the map into a legend. So the distinction
- * lives here, where there is room to say it in words:
+ * Which offer it makes depends on one thing only: whether the reader has an
+ * account (user decision, 2026-08-26).
  *
- *   signed tier   → sign in, it's free, and it is THIS spot that opens
- *   beyond that   → the packs that contain it
+ *   no account → sign in, it's free, and it is THIS spot that opens
+ *   signed in  → the packs that contain it
  *
- * Never both. A 2,99 € pack printed under a spot the reader can have for free
- * argues against itself, and the all-Berlin offer is already standing at the
- * end of the list on every view of this map.
+ * It used to depend on the tier the spot sits in — the ~50 spots between rank
+ * 100 and 150 offered the account, everything beyond offered a pack. That put
+ * a price tag under three of every four grey dots an anonymous visitor tapped,
+ * and asked for money from someone who had not so much as left an email. The
+ * ladder now runs one rung at a time: nobody is asked to pay before they are
+ * asked to sign up.
+ *
+ * What made the old split necessary was the promise. "Schaltet diesen Spot
+ * frei" is false for a pack-tier spot, and the magic link lands the reader
+ * back on that very spot — still grey — which is a bait-and-switch at the
+ * worst possible moment. So the promise was made true instead: signing up from
+ * a locked spot CLAIMS it, one spot per account, forever (see
+ * app/api/claim-spot/route.ts). Every grey dot is now a spot an account opens.
+ *
+ * Never both offers at once. A 2,99 € pack printed under a spot the reader can
+ * have for free argues against itself, and the all-Berlin offer is already
+ * standing at the end of the list on every view of this map.
  *
  * The pack branch makes exactly ONE offer, and it is the packs as a whole:
  * their art, one sentence, one way to /packs. It went through two cards plus
@@ -82,7 +100,8 @@ interface Props {
  */
 export default function LockedDetail({
   restaurant: r,
-  unlocksWithAccount,
+  signedIn,
+  claimPending,
   contentRef,
   onClose,
 }: Props) {
@@ -96,6 +115,16 @@ export default function LockedDetail({
      Skelett, das eine Länge verspräche, die der Anschnitt bewusst offen
      lässt), damit "Noch verdeckt" und die Packs von Anfang an sitzen. */
   const { detail, loading } = useRestaurantDetail(r.slug);
+  /* Google signs in inside this sheet, so `signedIn` flips a beat BEFORE the
+     spot actually opens: the map refetch that rides the new uid still lists it
+     as locked (the claim has not been written yet), and the branch below would
+     drop the reader onto a pack offer for the spot they were just promised.
+     This holds the sign-up branch until the claim lands and the refetched map
+     unmounts the whole sheet. Reset only if the claim fails. `claimPending` is
+     the same hold for the email rung, where the wait starts before this
+     component even mounts. */
+  const [unlocking, setUnlocking] = useState(false);
+  const awaitingSpot = unlocking || claimPending;
   const loc = de ? 'de' : 'en';
   /* Same source and same fallback order as the unlocked sheet, so the cut
      lands in the middle of the very text that sheet would show. */
@@ -177,8 +206,14 @@ export default function LockedDetail({
               badge prices the offer, the kicker says the spot is still face
               down, and without it the free branch never said so at all. */}
           <p className={lockedStyles.kicker}>{t('map.lockedDetailKicker')}</p>
-          {unlocksWithAccount ? (
-            <SignupOffer restaurant={r} prefix={prefix} de={de} />
+          {!signedIn || awaitingSpot ? (
+            <SignupOffer
+              restaurant={r}
+              prefix={prefix}
+              de={de}
+              onUnlocking={setUnlocking}
+              claimPending={claimPending}
+            />
           ) : (
             packArt.length > 0 && (
               /* EIN Angebot, EIN Weg: die Packs. Hier stand zuletzt die Karte
@@ -245,6 +280,7 @@ const signupCopy = {
     sent: 'Check deine Mail',
     sentLead:
       'Wir haben dir den Link geschickt. Ein Klick, und du landest wieder hier — mit dem Spot offen.',
+    unlocking: 'Wir schliessen auf …',
     google: 'Mit Google anmelden',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emptyEmail: 'Bitte gib deine E-Mail ein.',
@@ -261,6 +297,7 @@ const signupCopy = {
     sending: 'Sending…',
     sent: 'Check your mail',
     sentLead: "We've sent your link. One click and you are back here, with the spot open.",
+    unlocking: 'Opening it up …',
     google: 'Sign in with Google',
     hint: 'We send you a sign-in link.',
     emptyEmail: 'Add your email first.',
@@ -284,6 +321,11 @@ const signupCopy = {
  * it from undershooting — an account opens roughly fifty more, so promising
  * only the tapped spot would sell the tier short.
  *
+ * "Schaltet diesen Spot frei" is a literal promise, and both rungs keep it by
+ * claiming the spot: Google inline once the popup resolves, email after the
+ * link returns (`claim=1` in the continue URL, picked up by useSignupSpotClaim
+ * on the map). One spot per account, forever — see app/api/claim-spot.
+ *
  * Same shape as the pack branch's line: same verb, same rhythm, and the only
  * thing that changes between the two rungs is how many spots come along. The
  * verb is `freischalten` because that is the word the rest of the app uses;
@@ -295,21 +337,31 @@ const signupCopy = {
  * the filter and the very spot the user just asked about. An inline sign-in
  * never opens the modal, so that redirect never fires.
  *
- * Google therefore needs no return trip at all — the uid changes, useMapData
- * refetches, the spot leaves the locked set, and this sheet is replaced by the
- * real detail underneath the user's finger.
+ * Google therefore needs no return trip at all — the popup resolves, the spot
+ * is claimed, the entitlement write wakes MapSection's `entitlements` listener,
+ * the map refetches, and this sheet is replaced by the real detail underneath
+ * the user's finger. The lead reads "Wir schliessen auf …" for that beat, so
+ * the wait is the spot opening rather than a form going quiet.
  *
  * Email cannot avoid the round trip through the inbox, so it carries the way
- * back in the continue URL: the map, with `?r=` re-opening this spot.
+ * back in the continue URL: the map, with `?r=` re-opening this spot and
+ * `claim=1` telling it to take the spot along.
  */
 function SignupOffer({
   restaurant: r,
   prefix,
   de,
+  onUnlocking,
+  claimPending,
 }: {
   restaurant: MapRestaurant;
   prefix: string;
   de: boolean;
+  /** Pins the sheet to this branch while Google's sign-in-then-claim runs —
+   *  see the `unlocking` state in LockedDetail. */
+  onUnlocking: (busy: boolean) => void;
+  /** Same wait, arriving from the inbox instead of from the Google popup. */
+  claimPending: boolean;
 }) {
   const t = signupCopy[de ? 'de' : 'en'];
   const { signInWithGoogle } = useAuth();
@@ -345,7 +397,7 @@ function SignupOffer({
     track('email_link');
     void sendLink(
       trimmed,
-      `${window.location.origin}${prefix}/map?r=${encodeURIComponent(r.slug)}`
+      `${window.location.origin}${prefix}/map?r=${encodeURIComponent(r.slug)}&claim=1`
     );
   };
 
@@ -353,13 +405,22 @@ function SignupOffer({
     if (googleBusy) return;
     track('google');
     setGoogleBusy(true);
+    onUnlocking(true);
     try {
       await signInWithGoogle();
-      // No state reset on success: the refetched map drops this spot from the
-      // locked set and unmounts this sheet.
     } catch {
       setGoogleBusy(false);
+      onUnlocking(false);
+      return;
     }
+    // Claim before the sheet is allowed to fall through: the refetch that
+    // rides the new uid still has this spot locked, and without the hold the
+    // reader would watch the promised spot turn into a pack offer.
+    if (await claimSignupSpot(r.slug)) return;
+    // Claim failed — the sign-in stands, so let the sheet resolve normally
+    // into the signed-in (pack) offer rather than stranding it here.
+    setGoogleBusy(false);
+    onUnlocking(false);
   };
 
   return (
@@ -383,7 +444,9 @@ function SignupOffer({
         <div className={lockedStyles.starterBody}>
           <span className={lockedStyles.starterKicker}>{t.kicker}</span>
           <p className={lockedStyles.starterTitle}>{t.title}</p>
-          <p className={lockedStyles.starterLead}>{sent ? t.sentLead : t.lead}</p>
+          <p className={lockedStyles.starterLead}>
+            {googleBusy || claimPending ? t.unlocking : sent ? t.sentLead : t.lead}
+          </p>
         </div>
       </div>
 

@@ -4,7 +4,11 @@
 import { getAdminFirestore } from './admin';
 
 export interface Entitlement {
-  type: 'category' | 'all-berlin';
+  // 'spot' is the single restaurant an account brings along at sign-up — not a
+  // purchase, and neither a category nor the whole city. It carries its grant
+  // in restaurantIds alone, which reduceEntitlements unions like any other.
+  // See app/api/claim-spot/route.ts.
+  type: 'category' | 'all-berlin' | 'spot';
   slug: string | null;
   restaurantIds: string[];
   mustEatIds: string[];

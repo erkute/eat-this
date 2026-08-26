@@ -22,6 +22,7 @@ export { abbreviateBezirk } from './abbreviateBezirk';
 
 // Data sources
 export { useMapData } from './useMapData';
+export { useSignupSpotClaim } from './useSignupSpotClaim';
 export { useUserLocation, hasGeolocationPermission } from './useUserLocation';
 export type { UserLocation } from './useUserLocation';
 export { useFavorites } from './useFavorites';

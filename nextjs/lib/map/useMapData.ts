@@ -39,10 +39,6 @@ interface MapData {
    *  non-interactive). Empty for signed-in users — their entitlements drive
    *  the unlocked/locked split instead. */
   revealedMustEatIds: Set<string>;
-  /** Locked spots an account alone would open. Empty once signed in — those
-   *  spots are simply visible then. The locked sheet reads this to decide
-   *  whether it offers sign-in or a pack. */
-  signupUnlockableIds: Set<string>;
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -78,9 +74,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   const [revealedMustEatIds, setRevealedMustEatIds] = useState<Set<string>>(
     () => new Set<string>(initialMapData?.revealedMustEatIds ?? [])
   );
-  const [signupUnlockableIds, setSignupUnlockableIds] = useState<Set<string>>(
-    () => new Set<string>(initialMapData?.signupUnlockableIds ?? [])
-  );
   // With SSR data we're not loading on first paint. Otherwise show loading
   // until the fetch lands.
   const [loading, setLoading] = useState(!initialMapData);
@@ -111,9 +104,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     setCategories(cached.categories);
     setTotalCount(cached.totalCount);
     setRevealedMustEatIds(new Set<string>(cached.revealedMustEatIds ?? []));
-    // The cache only ever holds a signed-in payload, and a signed-in viewer
-    // has the whole signed tier already — nothing left for sign-in to unlock.
-    setSignupUnlockableIds(new Set<string>());
     setLoading(false);
     // Mount-only: the seed is a one-shot first-paint optimisation.
   }, []);
@@ -164,7 +154,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         setCategories(next.categories);
         setTotalCount(next.totalCount);
         setRevealedMustEatIds(new Set<string>(next.revealedMustEatIds));
-        setSignupUnlockableIds(new Set<string>((json.signupUnlockableIds ?? []) as string[]));
         // Cache the signed-in payload so the next visit / reload paints this tier instantly.
         if (uid) writeMapCache(uid, next);
       } catch (e) {
@@ -183,7 +172,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     categories,
     totalCount,
     revealedMustEatIds,
-    signupUnlockableIds,
     loading,
     error,
     refetch,

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { claimSignupSpot, type ClaimOutcome } from './claimSignupSpot';
 
 /** How long the sheet waits for the map to catch up before it gives up and
@@ -16,44 +16,35 @@ function pendingSlugFromUrl(): string | null {
   return params.get('claim') === '1' ? params.get('r') : null;
 }
 
-/**
- * The email half of the sign-up claim.
- *
- * Google can claim the spot inline — the popup resolves and the uid is right
- * there. Email cannot: the sign-in completes on /welcome, in what is routinely
- * a different browser than the one that tapped the dot. The only thing that
- * survives that trip is the continue URL, so LockedDetail writes the intent
- * into it (`?r=<slug>&claim=1`) and this hook cashes it in on arrival.
- *
- * Returns the slug while the claim is outstanding, because the sheet standing
- * open on that spot must NOT fall through to its signed-in pack offer in the
- * meantime.
- *
- * "Outstanding" ends when the SPOT IS OPEN, not when the POST comes back. That
- * distinction is the whole point and the first version got it wrong: releasing
- * on the response left the entitlement write → Firestore listener → map
- * refetch → response round trip running with the hold already gone, so for a
- * second or two the reader watched a pack banner sit on the very spot the mail
- * had just promised them (user report, 2026-08-26). `isSpotOpen` is what the
- * map actually shows, so the hold now spans the real wait.
- *
- * The initial value is read from the URL rather than set in an effect, so the
- * flag is true from the first render on. Reading it in the effect left exactly
- * one frame — uid known, claim not yet registered — where the pack offer
- * rendered. It is SSR-safe (null on the server) and cannot mismatch during
- * hydration: at that point the viewer is not signed in yet, and the sheet
- * renders the sign-up branch either way.
- *
- * `claim` is stripped once the POST has fired; `r` deliberately stays, because
- * MapSection's URL sync owns that param and a refresh should still reopen the
- * spot.
- */
+function stripClaimParam(): void {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('claim') !== '1') return;
+  params.delete('claim');
+  const query = params.toString();
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${window.location.pathname}${query ? `?${query}` : ''}`
+  );
+}
+
 export interface SignupSpotClaim {
-  /** Set while the claim is outstanding — the sheet holds its sign-up branch. */
+  /** Set while the claim is outstanding — the sheet holds its sign-up branch
+   *  and SignInReward shows the wait. */
   claimingSlug: string | null;
-  /** How it went, once it is decided. Drives what the banner says: a granted
-   *  claim gets a count, a spent one gets the reason it did not come true. */
+  /** How it went, once it is decided. Drives what the reward screen says: a
+   *  granted claim gets a count, a spent one gets the reason it did not come
+   *  true. */
   outcome: ClaimOutcome | null;
+  /** Run the claim for a spot NOW — the Google path. The email path cannot use
+   *  this (its sign-in completes on /welcome, in another document); it goes
+   *  through the `?claim=1` URL marker instead. Both end up in the same state,
+   *  which is the point: the first version let Google claim inline inside
+   *  LockedDetail, past this hook — the spot opened, and the reward screen
+   *  never learned a sign-up had happened at all ("dachte da kommt ein Info
+   *  Screen", user 2026-08-26). One claim per mount; a second call is a no-op,
+   *  matching the server's one-claim-per-account rule. */
+  startClaim: (slug: string) => void;
 }
 
 export function useSignupSpotClaim(
@@ -63,45 +54,51 @@ export function useSignupSpotClaim(
   const [claimingSlug, setClaimingSlug] = useState<string | null>(pendingSlugFromUrl);
   const [outcome, setOutcome] = useState<ClaimOutcome | null>(null);
 
-  useEffect(() => {
-    if (!uid || !claimingSlug) return;
+  /* isSpotOpen changes identity with every map payload; going through a ref
+     keeps it out of every dependency list without going stale. */
+  const isSpotOpenRef = useRef(isSpotOpen);
+  isSpotOpenRef.current = isSpotOpen;
+
+  /* One claim per mount, whichever path gets there first. Without this, the
+     URL effect below would fire a SECOND POST after startClaim's — the server
+     would refuse it as already_claimed, and a granted outcome would be
+     clobbered into a spent one. */
+  const startedRef = useRef(false);
+
+  const startClaim = useCallback((slug: string) => {
+    if (startedRef.current) return;
+    startedRef.current = true;
     // Already open — an account this spot's tier covers, or a link used twice.
     // Spending the one claim on it would take it away from a spot that needs
     // it, and there is nothing to wait for either.
-    if (isSpotOpen(claimingSlug)) {
+    if (isSpotOpenRef.current(slug)) {
       setClaimingSlug(null);
       return;
     }
-    let active = true;
-    // The helper swallows its own failures, but the catch is not redundant:
-    // a rejection escaping it would surface as an unhandled rejection in a
-    // page the reader is mid-sign-in on.
-    void claimSignupSpot(claimingSlug)
+    setClaimingSlug(slug);
+    // The helper resolves its failures into 'failed'; the catch is for a
+    // rejection escaping it, which must not surface as unhandled mid-sign-in.
+    void claimSignupSpot(slug)
       .catch((): ClaimOutcome => 'failed')
       .then((result) => {
-        const params = new URLSearchParams(window.location.search);
-        params.delete('claim');
-        const query = params.toString();
-        window.history.replaceState(
-          window.history.state,
-          '',
-          `${window.location.pathname}${query ? `?${query}` : ''}`
-        );
-        if (!active) return;
+        stripClaimParam();
         setOutcome(result);
-        // Only a REFUSED claim releases here — nothing is coming, so holding
-        // the sheet would just delay an offer the reader can act on. A granted
-        // one keeps the hold until the map shows the spot (effect below).
+        // Only a claim that granted nothing releases here — nothing is coming,
+        // so holding the sheet would just delay an offer the reader can act
+        // on. A granted one keeps the hold until the map SHOWS the spot (the
+        // effect below): releasing on the POST left the write → listener →
+        // refetch round trip unguarded, and a pack banner sat on the promised
+        // spot for that stretch.
         if (result !== 'granted') setClaimingSlug(null);
       });
-    return () => {
-      active = false;
-    };
-    // isSpotOpen is deliberately not a dependency: it changes identity on every
-    // map payload, and re-running this would re-issue the POST. The guard above
-    // only has to be right at the moment the uid lands.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid, claimingSlug]);
+  }, []);
+
+  /* The email path: /welcome carried the intent back as `?claim=1`, and this
+     fires as soon as the uid lands. */
+  useEffect(() => {
+    if (!uid || !claimingSlug) return;
+    startClaim(claimingSlug);
+  }, [uid, claimingSlug, startClaim]);
 
   // The release: the spot the reader was promised is now on their map.
   useEffect(() => {
@@ -116,9 +113,9 @@ export function useSignupSpotClaim(
   }, [claimingSlug]);
 
   // Gated on the uid rather than reported raw: a logged-out visitor on a stale
-  // `claim=1` URL has no claim running, and would otherwise read "Wir
-  // schliessen auf …" on a sheet that is waiting for nothing. Deriving it here
-  // instead of clearing it in an effect is also what closes the frame gap —
-  // the flag turns true in the very render the uid lands in.
-  return { claimingSlug: uid ? claimingSlug : null, outcome };
+  // `claim=1` URL has no claim running, and would otherwise read a wait on a
+  // sheet that is waiting for nothing. Deriving it here instead of clearing it
+  // in an effect is also what closes the frame gap — the flag turns true in
+  // the very render the uid lands in.
+  return { claimingSlug: uid ? claimingSlug : null, outcome, startClaim };
 }

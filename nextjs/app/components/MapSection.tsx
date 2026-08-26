@@ -171,7 +171,7 @@ export default function MapSection({
     (slug: string) => restaurants.some((restaurant) => restaurant.slug === slug),
     [restaurants]
   );
-  const { claimingSlug, outcome: claimOutcome } = useSignupSpotClaim(uid, isSpotOpen);
+  const { claimingSlug, outcome: claimOutcome, startClaim } = useSignupSpotClaim(uid, isSpotOpen);
 
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
@@ -1667,6 +1667,7 @@ export default function MapSection({
       lockedIdSet={lockedIdSet}
       claimingSlug={claimingSlug}
       claimOutcome={claimOutcome}
+      onClaimSpot={startClaim}
       mapUid={dataUid}
       openSpotCount={restaurants.length}
       justUnlockedSlug={justUnlockedSlug}

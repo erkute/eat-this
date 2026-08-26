@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
+import { useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
@@ -12,9 +12,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { GoogleMark } from '@/app/components/GoogleMark';
 import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { claimSignupSpot } from '@/lib/map/claimSignupSpot';
 import { describeGoogleSignInError } from '@/lib/auth/googleSignInError';
-import { CLAIM_HOLD_TIMEOUT_MS } from '@/lib/map/useSignupSpotClaim';
 import type { LockedOffer } from '@/lib/map/lockedOffer';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
@@ -30,6 +28,11 @@ interface Props {
    *  vollständig in resolveLockedOffer — sie hier noch einmal aus Einzelteilen
    *  zusammenzusetzen war der Grund, warum derselbe Fehler dreimal auftrat. */
   offer: LockedOffer;
+  /** Claim the tapped spot — the shared path in useSignupSpotClaim. Called
+   *  after Google's popup resolves. The first version claimed inline here,
+   *  past the hook, and the reward screen never learned a sign-up had happened
+   *  ("dachte da kommt ein Info Screen", user 2026-08-26). */
+  onClaimSpot: () => void;
   contentRef: Ref<HTMLDivElement | null>;
   onClose: () => void;
 }
@@ -107,7 +110,13 @@ interface Props {
  * (user decision, 2026-08-24). Selection, sizes and prices live on the pack
  * page; this sheet only has to make him want the spot.
  */
-export default function LockedDetail({ restaurant: r, offer, contentRef, onClose }: Props) {
+export default function LockedDetail({
+  restaurant: r,
+  offer,
+  onClaimSpot,
+  contentRef,
+  onClose,
+}: Props) {
   const locale = useLocale();
   const { t } = useTranslation();
   const de = locale !== 'en';
@@ -118,25 +127,6 @@ export default function LockedDetail({ restaurant: r, offer, contentRef, onClose
      Skelett, das eine Länge verspräche, die der Anschnitt bewusst offen
      lässt), damit "Noch verdeckt" und die Packs von Anfang an sitzen. */
   const { detail, loading } = useRestaurantDetail(r.slug);
-  /* Google signs in inside this sheet, so `signedIn` flips a beat BEFORE the
-     spot actually opens: the map refetch that rides the new uid still lists it
-     as locked (the claim has not been written yet), and the branch below would
-     drop the reader onto a pack offer for the spot they were just promised.
-     This holds the sign-up branch until the claim lands and the refetched map
-     unmounts the whole sheet. Reset only if the claim fails. `claimPending` is
-     the same hold for the email rung, where the wait starts before this
-     component even mounts. */
-  const [unlocking, setUnlocking] = useState(false);
-  const showSignup = offer !== 'packs' || unlocking;
-
-  /* Safety net, same one the email rung has: the hold is released by the map
-     refetch unmounting this sheet, so a refetch that never lands would leave a
-     completed sign-up staring at its own form. */
-  useEffect(() => {
-    if (!unlocking) return;
-    const id = window.setTimeout(() => setUnlocking(false), CLAIM_HOLD_TIMEOUT_MS);
-    return () => window.clearTimeout(id);
-  }, [unlocking]);
   const loc = de ? 'de' : 'en';
   /* Same source and same fallback order as the unlocked sheet, so the cut
      lands in the middle of the very text that sheet would show. */
@@ -218,12 +208,12 @@ export default function LockedDetail({ restaurant: r, offer, contentRef, onClose
               badge prices the offer, the kicker says the spot is still face
               down, and without it the free branch never said so at all. */}
           <p className={lockedStyles.kicker}>{t('map.lockedDetailKicker')}</p>
-          {showSignup ? (
+          {offer !== 'packs' ? (
             <SignupOffer
               restaurant={r}
               prefix={prefix}
               de={de}
-              onUnlocking={setUnlocking}
+              onClaimSpot={onClaimSpot}
               claimPending={offer === 'claiming'}
             />
           ) : (
@@ -374,16 +364,15 @@ function SignupOffer({
   restaurant: r,
   prefix,
   de,
-  onUnlocking,
+  onClaimSpot,
   claimPending,
 }: {
   restaurant: MapRestaurant;
   prefix: string;
   de: boolean;
-  /** Pins the sheet to this branch while Google's sign-in-then-claim runs —
-   *  see the `unlocking` state in LockedDetail. */
-  onUnlocking: (busy: boolean) => void;
-  /** Same wait, arriving from the inbox instead of from the Google popup. */
+  /** Hands the claim to the shared hook once the popup has resolved. */
+  onClaimSpot: () => void;
+  /** The claim for THIS spot is running — email or Google, same wait. */
   claimPending: boolean;
 }) {
   const t = signupCopy[de ? 'de' : 'en'];
@@ -430,26 +419,22 @@ function SignupOffer({
     track('google');
     setGoogleError('');
     setGoogleBusy(true);
-    onUnlocking(true);
     try {
       await signInWithGoogle();
     } catch (error) {
       setGoogleBusy(false);
-      onUnlocking(false);
       /* Wer das Popup selbst zumacht, hat sich entschieden — dafür gibt es
          keine Meldung. Alles andere ist ein Fehler, und der muss auf den
          Schirm: vorher passierte hier sichtbar gar nichts. */
       if (!describeGoogleSignInError(error).benign) setGoogleError(t.googleFailed);
       return;
     }
-    // Claim before the sheet is allowed to fall through: the refetch that
-    // rides the new uid still has this spot locked, and without the hold the
-    // reader would watch the promised spot turn into a pack offer.
-    if (await claimSignupSpot(r.slug)) return;
-    // Claim failed — the sign-in stands, so let the sheet resolve normally
-    // into the signed-in (pack) offer rather than stranding it here.
-    setGoogleBusy(false);
-    onUnlocking(false);
+    // From here the shared hook owns everything: the hold on this sheet
+    // (offer becomes 'claiming' in the same render), the reward screen's
+    // wait-then-count, and the release once the map shows the spot. Claiming
+    // inline here instead was the bug: the spot opened and no screen ever
+    // said what just happened.
+    onClaimSpot();
   };
 
   return (

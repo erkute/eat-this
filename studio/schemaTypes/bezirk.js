@@ -35,7 +35,25 @@ export default defineType({
       name: 'topSpots',
       title: 'Top-Spots (kuratierte Reihenfolge)',
       type: 'array',
-      of: [{type: 'reference', to: [{type: 'restaurant'}]}],
+      of: [
+        {
+          type: 'reference',
+          to: [{type: 'restaurant'}],
+          options: {
+            // Nur Spots dieses Bezirks anbieten — und keine geschlossenen:
+            // die fliegen im Frontend ohnehin aus der Liste (GROQ filtert
+            // isOpen == false), im Picker wären sie stille Nieten.
+            filter: ({document}) => {
+              const bezirkId = (document._id || '').replace(/^drafts\./, '')
+              if (!bezirkId) return {filter: 'isOpen != false'}
+              return {
+                filter: 'bezirkRef._ref == $bezirkId && isOpen != false',
+                params: {bezirkId},
+              }
+            },
+          },
+        },
+      ],
       validation: Rule => Rule.max(10).unique(),
       description:
         'Die besten Spots dieses Bezirks, in Reihenfolge — Platz 1 ganz oben, per Drag & Drop ' +

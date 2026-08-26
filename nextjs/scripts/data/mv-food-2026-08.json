@@ -35,13 +35,6 @@
   "source": "https://mitvergnuegen.com/tipps/ankerklause-landwehrkanal/"
  },
  {
-  "name": "Atlantik Fischladen",
-  "lat": 52.495478,
-  "lng": 13.3608162,
-  "address": "Potsdamer Straße 166 , 10783 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/atlantik-fischladen/"
- },
- {
   "name": "Bagel Bro",
   "lat": 52.4937574,
   "lng": 13.4372373,
@@ -210,13 +203,6 @@
   "source": "https://mitvergnuegen.com/tipps/engelbecken-kreuzberg/"
  },
  {
-  "name": "Ergüns Fischbude",
-  "lat": 52.4417976,
-  "lng": 13.4589798,
-  "address": "Rudower Straße 27-29, 12351 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/fisch-essen-in-erguens-fischhuette/"
- },
- {
   "name": "Falafel Jakoub",
   "lat": 52.4876325,
   "lng": 13.4306484,
@@ -313,13 +299,6 @@
   "lng": 13.4220434,
   "address": "Hasenheide 10, 10967 Berlin",
   "source": "https://mitvergnuegen.com/tipps/hamy-cafe/"
- },
- {
-  "name": "Hannes Café Gatow",
-  "lat": 52.4845182,
-  "lng": 13.1816056,
-  "address": "Buchwaldzeile 49, 14089 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/hannes-cafe-gatow/"
  },
  {
   "name": "Hanuman Thai Curry House",
@@ -586,13 +565,6 @@
   "lng": 13.3763722,
   "address": "Neue Hochstraße 25, 13347 Berlin",
   "source": "https://mitvergnuegen.com/tipps/vegan-vegetarische-kueche-und-pizza-im-sotto-in-wedding/"
- },
- {
-  "name": "Syrtaki",
-  "lat": 52.5371771,
-  "lng": 13.60287,
-  "address": "Fritz-Lang-Straße 5, 12627 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/griechisch-essen-bei-syrtaki/"
  },
  {
   "name": "Sönmez Baklava",
@@ -945,13 +917,6 @@
   "source": "https://mitvergnuegen.com/tipps/der-kuchenladen/"
  },
  {
-  "name": "Dreikäsehoch",
-  "lat": 52.51062,
-  "lng": 13.28629,
-  "address": "Kaiserdamm 20, 14057 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/dreikaesehoch/"
- },
- {
   "name": "Frau Behrens Torten",
   "lat": 52.5017687,
   "lng": 13.3080603,
@@ -1001,13 +966,6 @@
   "source": "https://mitvergnuegen.com/tipps/mr-minsch/"
  },
  {
-  "name": "Paris Café Tegel",
-  "lat": 52.5895152,
-  "lng": 13.2825984,
-  "address": "Alt-Tegel 5, 13507 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/paris-cafe-tegel/"
- },
- {
   "name": "Princess Cheesecake",
   "lat": 52.52677,
   "lng": 13.39282,
@@ -1055,13 +1013,6 @@
   "lng": 13.3689919,
   "address": "Hochkirchstraße 10, 10829 Berlin",
   "source": "https://mitvergnuegen.com/tipps/brot-gut-schoeneberg/"
- },
- {
-  "name": "Brotgarten",
-  "lat": 52.5159,
-  "lng": 13.29227,
-  "address": "Seelingstraße 30, 14059 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/brotgarten/"
  },
  {
   "name": "Bäckerei Hacker",
@@ -1197,25 +1148,11 @@
   "source": "https://mitvergnuegen.com/tipps/eiscafe-surprise-weissensee/"
  },
  {
-  "name": "Florida Eiscafé",
-  "lat": 52.5305074,
-  "lng": 13.1960002,
-  "address": "Klosterstraße 15 ,13581 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/florida-eiscafe/"
- },
- {
   "name": "Fräulein Frost",
   "lat": 52.4920258,
   "lng": 13.4279276,
   "address": "Friedelstraße 39, 12047 Berlin",
   "source": "https://mitvergnuegen.com/tipps/fraeulein-frost/"
- },
- {
-  "name": "Gimme Gelato",
-  "lat": 52.512101,
-  "lng": 13.2941161,
-  "address": "Wundtstraße 15, 14059 Berlin",
-  "source": "https://mitvergnuegen.com/tipps/hausgemachtes-eis-bei-gimme-gelato-in-charlottenburg/"
  },
  {
   "name": "Natur Eis",

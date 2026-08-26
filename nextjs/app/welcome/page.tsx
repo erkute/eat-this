@@ -53,6 +53,26 @@ function emailFromContinueUrl(params: URLSearchParams): string {
   }
 }
 
+/**
+ * Ob dieser Login aus einem gesperrten Spot heraus gestartet wurde.
+ *
+ * Ein neues Konto muss vor der Weiterleitung noch durch Name und Avatar, und
+ * genau dort brach der Faden: der Leser wollte EINEN Spot, hat dafür seine
+ * Mail dagelassen, und steht plötzlich in einem Formular, das mit keinem Wort
+ * erwähnt, worauf das hinausläuft (User, 26.08.2026). Der Claim-Marker aus der
+ * Continue-URL ist das Einzige, was diesen Zusammenhang über den Posteingang
+ * gerettet hat — er trägt ihn hier eine Stufe weiter.
+ */
+function hasPendingSpotClaim(params: URLSearchParams): boolean {
+  const cu = params.get('continueUrl');
+  if (!cu) return false;
+  try {
+    return new URL(cu).searchParams.get('claim') === '1';
+  } catch {
+    return false;
+  }
+}
+
 type AvatarChoice = 1 | 2 | 3;
 
 // Named avatar tiles (mockup screen 14). The stored value is the number;
@@ -67,18 +87,18 @@ type State =
   | { kind: 'processing' }
   | { kind: 'success'; title: string; sub: string }
   | { kind: 'needs-email'; href: string }
-  | { kind: 'needs-identity'; user: User }
+  | { kind: 'needs-identity'; user: User; claimingSpot: boolean }
   | { kind: 'expired' }
   | { kind: 'error'; title: string; sub: string };
 
 // First sign-in ever (no display name yet) → identity onboarding before the
 // redirect; returning users go straight home. Shared by the silent path and
 // the needs-email fallback.
-function finishSignIn(user: User, setState: (s: State) => void) {
+function finishSignIn(user: User, setState: (s: State) => void, claimingSpot = false) {
   localStorage.removeItem('emailForSignIn');
   handoffEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
   if (!user.displayName) {
-    setState({ kind: 'needs-identity', user });
+    setState({ kind: 'needs-identity', user, claimingSpot });
     return;
   }
   hardRedirectAfterSignIn();
@@ -113,7 +133,7 @@ function AuthActionInner() {
         return;
       }
       signInWithEmailLink(auth, email, url)
-        .then((result) => finishSignIn(result.user, setState))
+        .then((result) => finishSignIn(result.user, setState, hasPendingSpotClaim(params)))
         .catch((err) => {
           console.warn('[welcome] signInWithEmailLink failed:', err);
           setState({ kind: 'expired' });
@@ -185,7 +205,9 @@ function AuthActionInner() {
 
           {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
 
-          {state.kind === 'needs-identity' && <IdentityForm user={state.user} />}
+          {state.kind === 'needs-identity' && (
+            <IdentityForm user={state.user} claimingSpot={state.claimingSpot} />
+          )}
 
           {state.kind === 'expired' && (
             <>
@@ -218,7 +240,7 @@ function AuthActionInner() {
 
 // First-sign-in onboarding: pick name + avatar once, then land on Home.
 // Shown to every new account (the sign-in itself already happened).
-function IdentityForm({ user }: { user: User }) {
+function IdentityForm({ user, claimingSpot }: { user: User; claimingSpot: boolean }) {
   const [name, setName] = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
   const [error, setError] = useState('');
@@ -264,6 +286,12 @@ function IdentityForm({ user }: { user: User }) {
       <p className={styles.sub}>
         Such dir Name und Avatar — beides siehst nur du im Profil, später nicht mehr änderbar.
       </p>
+      {/* Der Faden zurück zu dem einen Spot, für den das hier alles passiert.
+          Ohne ihn ist dieses Formular eine Unterbrechung ohne erkennbaren
+          Grund. */}
+      {claimingSpot && (
+        <p className={styles.sub}>Danach geht’s zurück auf deine Map — mit deinem Spot offen.</p>
+      )}
 
       <form onSubmit={submit} className={styles.form}>
         <div>

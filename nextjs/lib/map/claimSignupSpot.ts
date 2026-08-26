@@ -20,9 +20,19 @@ import { auth } from '@/lib/firebase/config';
  * spots; an error toast about the bonus one would be the only bad news on the
  * screen. The spot stays locked and keeps its (now signed-in) pack offer.
  */
-export async function claimSignupSpot(slug: string): Promise<boolean> {
+/**
+ * Why a claim did not grant anything.
+ *
+ * `spent` is the one worth telling the reader about: the account holds its one
+ * free spot already, so the sheet's offer — shown while signed out, when it
+ * cannot possibly know that — did not come true. Left unsaid it looks like the
+ * sign-in silently failed (user report, 2026-08-26).
+ */
+export type ClaimOutcome = 'granted' | 'spent' | 'failed';
+
+export async function claimSignupSpot(slug: string): Promise<ClaimOutcome> {
   const user = auth.currentUser;
-  if (!user) return false;
+  if (!user) return 'failed';
   try {
     const token = await user.getIdToken();
     const res = await fetch('/api/claim-spot', {
@@ -30,10 +40,11 @@ export async function claimSignupSpot(slug: string): Promise<boolean> {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ slug }),
     });
-    if (!res.ok) return false;
-    const json = (await res.json()) as { claimed?: boolean };
-    return json.claimed === true;
+    if (!res.ok) return 'failed';
+    const json = (await res.json()) as { claimed?: boolean; reason?: string };
+    if (json.claimed === true) return 'granted';
+    return json.reason === 'already_claimed' ? 'spent' : 'failed';
   } catch {
-    return false;
+    return 'failed';
   }
 }

@@ -1,0 +1,175 @@
+/* Der Moment, der die ganze Anmeldung rechtfertigt.
+
+   Farben über --et-home-* wie das LockedDetail nebenan. NICHT über --et-yellow:
+   das Token existiert, steht in dieser Fläche aber auf #fff, und die gelbe
+   Pille war damit weiß auf weiß — im Pane nachgemessen, nicht vermutet.
+   --et-ink und --et-paper gibt es hier gar nicht.
+
+   Das war erst ein Streifen am oberen Rand. Zwei Probleme, beide vom Nutzer
+   gemeldet (26.08.2026): er lag unter der Navbar (z-index 9999) und war damit
+   halb verdeckt — und selbst sichtbar war er viel zu klein für das, was er
+   sagt ("das kann ich gar nicht lesen, dass ich jetzt fünfzig Spots
+   freigeschaltet hab"). Eine Zahl, die den Unterschied zwischen vorher und
+   nachher benennt, gehört in die Mitte, nicht an die Kante. */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  /* Der Schleier fängt Blicke, keine Klicks — die Karte darunter bleibt
+     bedienbar. Das hier ist eine Meldung, kein Dialog. */
+  pointer-events: none;
+  background: rgba(21, 18, 14, 0.46);
+  animation: rewardVeil 260ms ease-out both;
+}
+.layerLeaving {
+  animation: rewardVeilOut 240ms ease-in both;
+}
+/* Der Schleier ist eine Abdunklung, kein ein-/ausblendendes Brand-Element —
+   dafür ist Opacity das richtige Werkzeug. Die Projektregel meint die Bewegung
+   von Markenflächen, und die macht die Karte darunter per transform. */
+@keyframes rewardVeil {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rewardVeilOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.card {
+  pointer-events: auto;
+  width: min(420px, 100%);
+  padding: 30px 28px 26px;
+  background: var(--et-home-paper, #fff);
+  color: var(--et-home-ink, #15120e);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(21, 18, 14, 0.34);
+  text-align: center;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  animation: rewardCard 420ms cubic-bezier(0.2, 0.9, 0.3, 1.08) both;
+}
+.cardLeaving {
+  animation: rewardCardOut 220ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+@keyframes rewardCard {
+  from {
+    transform: translateY(26px) scale(0.94);
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes rewardCardOut {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(18px) scale(0.96);
+  }
+}
+
+.count {
+  display: block;
+  font-size: clamp(64px, 22vw, 92px);
+  line-height: 0.92;
+  /* Eine Ziffernbreite: die Zahl zählt hoch, während die Karte still steht —
+     ohne tabular-nums ruckelt die Zeile bei jedem Schritt. */
+  font-variant-numeric: tabular-nums;
+}
+.countLabel {
+  display: block;
+  margin-top: 6px;
+  font-size: 19px;
+  line-height: 1.25;
+}
+.headline {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.25;
+}
+.body {
+  margin: 12px 0 0;
+  font-family: var(--font, system-ui, sans-serif);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.spotLine {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--et-home-accent, #ffc600);
+  font-size: 15px;
+}
+.action {
+  appearance: none;
+  cursor: pointer;
+  margin-top: 22px;
+  width: 100%;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Der Warte-Zustand ist dieselbe Karte, nur ohne Zahl — damit die Zahl in
+   dieselbe Fläche einschlägt, statt dass eine zweite Einblendung aufgeht. */
+.dots {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 16px;
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--et-home-ink, #15120e);
+  animation: rewardDot 900ms ease-in-out infinite;
+}
+.dot:nth-child(2) {
+  animation-delay: 150ms;
+}
+.dot:nth-child(3) {
+  animation-delay: 300ms;
+}
+@keyframes rewardDot {
+  0%,
+  100% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+/* Reduced Motion: die Meldung ist eine INFORMATION, sie darf nicht wegfallen —
+   nur ihre Bewegung. Sie steht dann einfach da. */
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .layerLeaving,
+  .card,
+  .cardLeaving {
+    animation: none;
+    transform: none;
+  }
+  .dot {
+    animation: none;
+    transform: scale(0.8);
+  }
+}

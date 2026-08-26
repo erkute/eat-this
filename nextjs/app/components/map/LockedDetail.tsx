@@ -295,7 +295,7 @@ const signupCopy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: 'Schaltet diesen Spot frei. Und viele weitere.',
+    lead: 'Dein erster Spot geht aufs Haus — dieser hier, plus rund fünfzig weitere.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
     submit: 'Starter Pack holen',
@@ -313,7 +313,7 @@ const signupCopy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: 'Unlocks this spot. And many more.',
+    lead: 'Your first spot is on us — this one, plus about fifty more.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',
     submit: 'Get the Starter Pack',
@@ -343,6 +343,15 @@ const signupCopy = {
  * the whole reason this beats the packs at this moment. The second half keeps
  * it from undershooting — an account opens roughly fifty more, so promising
  * only the tapped spot would sell the tier short.
+ *
+ * "ERSTER Spot" is doing real work in that line. The free spot is one per
+ * account, forever, and while the reader is signed out this sheet cannot know
+ * whether their account already spent it. An unconditional "schaltet diesen
+ * Spot frei" was therefore shown to everyone and true for most — someone who
+ * signed out and came back from a different grey dot got the promise and not
+ * the spot, with nothing said about it (user report, 2026-08-26). The word
+ * makes the sentence true in both cases; SignInReward says the rest out loud
+ * when the claim comes back spent.
  *
  * "Schaltet diesen Spot frei" is a literal promise, and both rungs keep it by
  * claiming the spot: Google inline once the popup resolves, email after the

@@ -92,6 +92,20 @@ describe('isOwnerPhoto', () => {
     expect(isOwnerPhoto('Five Elephant Kreuzberg', 'Five Elephant Kreuzberg')).toBe(true);
     expect(isOwnerPhoto('Albert Rossi', 'Albatross Bäckerei')).toBe(false);
   });
+
+  it('accepts an uploading profile that carries only part of the Places name', () => {
+    // Real attributions from the Mit-Vergnügen import, 26.08.2026 — all three
+    // were rejected while "every distinctive token" was required.
+    expect(isOwnerPhoto('Zeus Pizzeria – Friedrichshain', 'Zeus Pizza & Pide')).toBe(true);
+    expect(isOwnerPhoto("Allan's ABC", 'ABC - Allans Breakfast Club')).toBe(true);
+    expect(isOwnerPhoto('Ushido', 'Ushido - Japanese bbq')).toBe(true);
+  });
+
+  it('still rejects guests who share no strong token', () => {
+    expect(isOwnerPhoto('Jennifer Barteloni', '100 Brote')).toBe(false);
+    expect(isOwnerPhoto('Turist Ömer', 'annelies')).toBe(false);
+    expect(isOwnerPhoto('Audrey Taber', 'Bäckerei Hacker')).toBe(false);
+  });
 });
 
 describe('parseJudgments', () => {

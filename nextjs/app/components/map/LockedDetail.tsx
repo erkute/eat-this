@@ -13,6 +13,7 @@ import { useAuth, useMagicLink } from '@/lib/auth';
 import { GoogleMark } from '@/app/components/GoogleMark';
 import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { claimSignupSpot } from '@/lib/map/claimSignupSpot';
+import { describeGoogleSignInError } from '@/lib/auth/googleSignInError';
 import { CLAIM_HOLD_TIMEOUT_MS } from '@/lib/map/useSignupSpotClaim';
 import type { LockedOffer } from '@/lib/map/lockedOffer';
 import { pickLocale } from '@/lib/i18n/pickLocale';
@@ -293,6 +294,7 @@ const signupCopy = {
       'Wir haben dir den Link geschickt. Ein Klick, und du landest wieder hier — mit dem Spot offen.',
     unlocking: 'Wir schliessen auf …',
     google: 'Mit Google anmelden',
+    googleFailed: 'Das hat mit Google nicht geklappt. Nimm solange deine E-Mail.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emptyEmail: 'Bitte gib deine E-Mail ein.',
     invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
@@ -310,6 +312,7 @@ const signupCopy = {
     sentLead: "We've sent your link. One click and you are back here, with the spot open.",
     unlocking: 'Opening it up …',
     google: 'Sign in with Google',
+    googleFailed: "Google didn't work out. Use your email for now.",
     hint: 'We send you a sign-in link.',
     emptyEmail: 'Add your email first.',
     invalidEmail: 'That does not look like an email yet.',
@@ -391,7 +394,8 @@ function SignupOffer({
   const [email, setEmail] = useState('');
   const [validationError, setValidationError] = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
-  const feedback = validationError || errorMessage;
+  const [googleError, setGoogleError] = useState('');
+  const feedback = validationError || errorMessage || googleError;
   const sent = state === 'sent';
 
   const track = (method: 'email_link' | 'google') =>
@@ -424,13 +428,18 @@ function SignupOffer({
   const handleGoogle = async () => {
     if (googleBusy) return;
     track('google');
+    setGoogleError('');
     setGoogleBusy(true);
     onUnlocking(true);
     try {
       await signInWithGoogle();
-    } catch {
+    } catch (error) {
       setGoogleBusy(false);
       onUnlocking(false);
+      /* Wer das Popup selbst zumacht, hat sich entschieden — dafür gibt es
+         keine Meldung. Alles andere ist ein Fehler, und der muss auf den
+         Schirm: vorher passierte hier sichtbar gar nichts. */
+      if (!describeGoogleSignInError(error).benign) setGoogleError(t.googleFailed);
       return;
     }
     // Claim before the sheet is allowed to fall through: the refetch that

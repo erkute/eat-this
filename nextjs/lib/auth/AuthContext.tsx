@@ -11,6 +11,8 @@ import {
   deleteUser,
   type User,
 } from 'firebase/auth';
+import * as Sentry from '@sentry/nextjs';
+import { describeGoogleSignInError } from './googleSignInError';
 import { auth } from '@/lib/firebase/config';
 import { clearMapDataCaches, reconcileMapDataCacheIdentity } from '@/lib/map/map-data-cache';
 
@@ -90,10 +92,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── Auth operations ─────────────────────────────────────────────────────
 
   const signInWithGoogle = useCallback(async (): Promise<void> => {
-    // The resolver is passed here rather than baked into the auth instance:
-    // it drags in Google's gapi iframe, which must not load for visitors who
-    // never sign in (see lib/firebase/config.ts).
-    await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+    try {
+      // The resolver is passed here rather than baked into the auth instance:
+      // it drags in Google's gapi iframe, which must not load for visitors who
+      // never sign in (see lib/firebase/config.ts).
+      await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+    } catch (error) {
+      /* Reported HERE rather than in the two call sites, both of which used to
+         swallow it whole. A Google sign-in that fails silently is invisible
+         three times over: no message on screen, nothing in the console, nothing
+         in Sentry — which is how a broken popup on staging survived three
+         rounds of guessing (user, 2026-08-26). The code IS the diagnosis, so it
+         goes in as a tag rather than being buried in the message. */
+      const { code, benign } = describeGoogleSignInError(error);
+      if (!benign) {
+        Sentry.captureException(error, {
+          tags: { auth_flow: 'google_popup', auth_error_code: code },
+          extra: { authDomain: auth.app.options.authDomain, host: window.location.host },
+        });
+      }
+      throw error;
+    }
   }, []);
 
   const signOut = useCallback(async (): Promise<void> => {

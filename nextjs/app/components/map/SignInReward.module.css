@@ -1,0 +1,257 @@
+/* Der Moment, der die ganze Anmeldung rechtfertigt.
+
+   Zwei Fassungen sind hier gescheitert. Erst ein Streifen am oberen Rand: der
+   lag unter der Navbar (z-index 9999) und war halb verdeckt, und selbst
+   sichtbar zu klein für das, was er sagt. Dann eine weiße Box mit einer großen
+   Zahl darin — technisch sichtbar, aber „super hässlich" (User, 26.08.2026),
+   weil sie wie ein Fremdkörper aussah und nicht wie diese App.
+
+   Diese Fassung folgt der festgelegten Sprache: Ink-Fläche, weiße Type, EIN
+   gelber Akzent — dasselbe System wie Masthead, Burger und Footer. Dazu die
+   Providence in 700 UPPERCASE, ein moderater Radius, und das Starter-Pack als
+   Bild, weil der Leser genau dieses Objekt gerade eingelöst hat. Keine
+   Rahmen: Struktur kommt aus Weißraum und Type.
+
+   Farben über --et-home-*, wie das LockedDetail nebenan. NICHT über
+   --et-yellow: das Token existiert, steht in dieser Fläche aber auf #fff — die
+   gelbe Pille war damit weiß auf weiß. Im Browser nachgemessen. */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  /* Der Schleier fängt Blicke, keine Klicks — die Karte darunter bleibt
+     bedienbar. Das hier ist eine Meldung, kein Dialog. */
+  pointer-events: none;
+  background: rgba(21, 18, 14, 0.58);
+  animation: rewardVeil 260ms ease-out both;
+}
+.layerLeaving {
+  animation: rewardVeilOut 240ms ease-in both;
+}
+/* Der Schleier ist eine Abdunklung, kein ein-/ausblendendes Brand-Element —
+   dafür ist Opacity das richtige Werkzeug. Die Projektregel meint die Bewegung
+   von Markenflächen, und die macht das Panel darunter per transform. */
+@keyframes rewardVeil {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rewardVeilOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.panel {
+  pointer-events: auto;
+  position: relative;
+  width: min(430px, 100%);
+  padding: 26px 26px 24px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
+  border-radius: var(--et-radius-panel, 10px);
+  text-align: center;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  animation: rewardPanel 420ms cubic-bezier(0.2, 0.9, 0.3, 1.06) both;
+}
+.panelLeaving {
+  animation: rewardPanelOut 220ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+@keyframes rewardPanel {
+  from {
+    transform: translateY(24px) scale(0.95);
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes rewardPanelOut {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+/* Das Pack, leicht gekippt wie die Sticker-Pins auf der Karte — der Leser hat
+   genau dieses Objekt gerade eingelöst. */
+.pack {
+  position: relative;
+  display: block;
+  width: 92px;
+  height: 138px;
+  margin: -58px auto 12px;
+  transform: rotate(-5deg);
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
+}
+.packImg {
+  object-fit: contain;
+}
+
+.kicker {
+  display: block;
+  font-family: var(--font-label, var(--font), system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--et-home-accent, #ffc600);
+}
+
+.headline {
+  margin: 6px 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Die Zahl ist der Akzent — das einzige Gelb auf der Fläche, und der einzige
+   Grund, warum diese Einblendung überhaupt existiert. */
+.count {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(70px, 24vw, 104px);
+  font-weight: 700;
+  line-height: 0.86;
+  letter-spacing: -0.04em;
+  color: var(--et-home-accent, #ffc600);
+  /* Eine Ziffernbreite: die Zahl steht in einer Zeile, die sich nicht
+     verschieben darf, wenn sie zweistellig statt dreistellig ist. */
+  font-variant-numeric: tabular-nums;
+}
+.countLabel {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.body {
+  margin: 10px 0 0;
+  font-family: var(--font, system-ui, sans-serif);
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* Der eine Spot, um den es ging — gelb unterstrichen statt eingerahmt, wie die
+   Links auf der 404. */
+.spotLine {
+  display: inline-block;
+  margin-top: 12px;
+  padding-bottom: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: inset 0 -3px 0 var(--et-home-accent, #ffc600);
+}
+
+.action {
+  appearance: none;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: var(--et-radius-control, 8px);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+/* Der Countdown. Ein Overlay, das von allein geht, muss zeigen DASS es geht —
+   sonst greift der Leser danach und es ist weg, oder er wartet auf etwas, das
+   längst entschieden ist. Ein leerlaufender Balken an der Unterkante ist die
+   übliche Form dafür; scaleX statt width, damit er auf dem Compositor läuft.
+   Der Balken sitzt IM Button, weil der die Handlung trägt, die er abkürzt. */
+.actionWrap {
+  position: relative;
+  margin-top: 20px;
+  border-radius: var(--et-radius-control, 8px);
+  overflow: hidden;
+}
+.countdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  transform-origin: left center;
+  background: var(--et-home-ink, #15120e);
+  opacity: 0.32;
+  animation: rewardCountdown linear both;
+}
+@keyframes rewardCountdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Der Warte-Zustand ist dasselbe Panel ohne Zahl — damit die Zahl in dieselbe
+   Fläche einschlägt, statt dass eine zweite Einblendung aufgeht. */
+.dots {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 16px;
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--et-home-accent, #ffc600);
+  animation: rewardDot 900ms ease-in-out infinite;
+}
+.dot:nth-child(2) {
+  animation-delay: 150ms;
+}
+.dot:nth-child(3) {
+  animation-delay: 300ms;
+}
+@keyframes rewardDot {
+  0%,
+  100% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+/* Reduced Motion: die Meldung ist eine INFORMATION, sie darf nicht wegfallen —
+   nur ihre Bewegung. Sie steht dann einfach da. Die Kippung des Packs bleibt:
+   das ist Haltung, keine Bewegung. */
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .layerLeaving,
+  .panel,
+  .panelLeaving {
+    animation: none;
+    transform: none;
+  }
+  .dot {
+    animation: none;
+    transform: scale(0.8);
+  }
+  /* Der Countdown bleibt: er ist eine Information über Zeit, keine Zierde.
+     Ohne ihn verschwindet die Meldung für diese Leser unangekündigt. */
+}

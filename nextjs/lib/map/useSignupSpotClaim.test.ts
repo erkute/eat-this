@@ -16,7 +16,7 @@ const nothingOpen = () => false;
 const everythingOpen = () => true;
 
 beforeEach(() => {
-  claimSignupSpot.mockReset().mockResolvedValue(true);
+  claimSignupSpot.mockReset().mockResolvedValue('granted');
 });
 afterEach(() => at(''));
 
@@ -26,7 +26,7 @@ describe('useSignupSpotClaim', () => {
     const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
     // Reported from the very first render — the gap between "signed in" and
     // "claim registered" is where the pack offer used to flash.
-    expect(result.current).toBe('tief-im-katalog');
+    expect(result.current.claimingSlug).toBe('tief-im-katalog');
     await waitFor(() => expect(claimSignupSpot).toHaveBeenCalledWith('tief-im-katalog'));
   });
 
@@ -41,20 +41,30 @@ describe('useSignupSpotClaim', () => {
     await waitFor(() => expect(claimSignupSpot).toHaveBeenCalled());
     // POST is through — and the hold is still on, because the map has not
     // caught up yet.
-    expect(result.current).toBe('tief-im-katalog');
+    expect(result.current.claimingSlug).toBe('tief-im-katalog');
 
     open = true;
     rerender();
-    await waitFor(() => expect(result.current).toBeNull());
+    await waitFor(() => expect(result.current.claimingSlug).toBeNull());
+  });
+
+  it('reports WHY a claim came back empty, so the banner can say it', async () => {
+    /* Ein verbrauchter Gratis-Spot ist der Fall, den der Leser erklärt bekommen
+       muss: das Sheet hat ihm ausgeloggt einen Spot versprochen, den sein Konto
+       schon ausgegeben hatte (User, 26.08.2026). */
+    claimSignupSpot.mockResolvedValue('spent');
+    at('?r=tief-im-katalog&claim=1');
+    const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
+    await waitFor(() => expect(result.current.outcome).toBe('spent'));
   });
 
   it('lets go right away when the claim is refused', async () => {
     // Nothing is coming, so holding the sheet only delays an offer the reader
     // can actually act on.
-    claimSignupSpot.mockResolvedValue(false);
+    claimSignupSpot.mockResolvedValue('spent');
     at('?r=tief-im-katalog&claim=1');
     const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
-    await waitFor(() => expect(result.current).toBeNull());
+    await waitFor(() => expect(result.current.claimingSlug).toBeNull());
   });
 
   it('gives up after the timeout rather than stranding a completed sign-up', async () => {
@@ -62,11 +72,11 @@ describe('useSignupSpotClaim', () => {
     try {
       at('?r=tief-im-katalog&claim=1');
       const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
-      expect(result.current).toBe('tief-im-katalog');
+      expect(result.current.claimingSlug).toBe('tief-im-katalog');
       await act(async () => {
         vi.advanceTimersByTime(CLAIM_HOLD_TIMEOUT_MS + 10);
       });
-      expect(result.current).toBeNull();
+      expect(result.current.claimingSlug).toBeNull();
     } finally {
       vi.useRealTimers();
     }
@@ -76,7 +86,7 @@ describe('useSignupSpotClaim', () => {
     at('?r=schon-offen&claim=1');
     const { result } = renderHook(() => useSignupSpotClaim('u1', everythingOpen));
     expect(claimSignupSpot).not.toHaveBeenCalled();
-    expect(result.current).toBeNull();
+    expect(result.current.claimingSlug).toBeNull();
   });
 
   it('drops `claim` afterwards but leaves `r` for the URL sync to own', async () => {
@@ -90,14 +100,14 @@ describe('useSignupSpotClaim', () => {
     // than sit on "Wir schliessen auf …" waiting for something that never runs.
     at('?r=tief-im-katalog&claim=1');
     const { result } = renderHook(() => useSignupSpotClaim(null, nothingOpen));
-    expect(result.current).toBeNull();
+    expect(result.current.claimingSlug).toBeNull();
     expect(claimSignupSpot).not.toHaveBeenCalled();
   });
 
   it('ignores an ordinary deep link', () => {
     at('?r=tief-im-katalog');
     const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
-    expect(result.current).toBeNull();
+    expect(result.current.claimingSlug).toBeNull();
     expect(claimSignupSpot).not.toHaveBeenCalled();
   });
 
@@ -105,6 +115,6 @@ describe('useSignupSpotClaim', () => {
     claimSignupSpot.mockRejectedValue(new Error('offline'));
     at('?r=tief-im-katalog&claim=1');
     const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
-    await waitFor(() => expect(result.current).toBeNull());
+    await waitFor(() => expect(result.current.claimingSlug).toBeNull());
   });
 });

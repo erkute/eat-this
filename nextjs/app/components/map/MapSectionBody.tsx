@@ -4,6 +4,8 @@ import { useLocale } from 'next-intl';
 import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
+import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
+import { resolveLockedOffer } from '@/lib/map/lockedOffer';
 import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
@@ -27,7 +29,7 @@ import MapSheetDetail from './MapSheetDetail';
 import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
 import MapDataNotice from './MapDataNotice';
-import SignInProgressBanner from './SignInProgressBanner';
+import SignInReward from './SignInReward';
 import MapViewToggle from './MapViewToggle';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
@@ -78,11 +80,11 @@ interface MapBodyState {
    *  useSignupSpotClaim. Keeps its sheet on the sign-up branch until the spot
    *  actually opens. */
   claimingSlug: string | null;
-  /** The map payload in hand was fetched for THIS signed-in viewer. False for
-   *  an anonymous viewer, and false in the gap between auth resolving and the
-   *  refetch landing — a gap in which every locked spot still looks locked
-   *  whether or not this viewer can open it. */
-  mapKnowsViewer: boolean;
+  /** Wie der Claim ausging — entscheidet, was die Einblendung am Ende sagt. */
+  claimOutcome: ClaimOutcome | null;
+  /** Für WEN die Kartendaten in der Hand geholt wurden — nicht dasselbe wie
+   *  `uid`, siehe resolveLockedOffer. */
+  mapUid: string | null;
   /** Unfiltered number of spots this viewer can open — what the sign-in banner
    *  counts, so the filter the reader happens to have on does not change the
    *  number it reports. */
@@ -191,7 +193,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     listRestaurants,
     lockedIdSet,
     claimingSlug,
-    mapKnowsViewer,
+    claimOutcome,
+    mapUid,
     openSpotCount,
     justUnlockedSlug,
     restaurantMustEats,
@@ -680,8 +683,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               lockedIdSet.has(selectedRestaurant._id) ? (
               <LockedDetail
                 restaurant={selectedRestaurant}
-                signedIn={mapKnowsViewer}
-                claimPending={claimingSlug === selectedRestaurant.slug}
+                offer={resolveLockedOffer({
+                  uid,
+                  mapUid,
+                  claimingSlug,
+                  slug: selectedRestaurant.slug,
+                })}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}
               />
@@ -750,9 +757,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               component. */}
           <MapViewToggle sheetView={sheetView} filterKey={listFilterKey} />
 
-          {/* Sagt beim Rücksprung aus der Mail, was gerade passiert. Fixed und
-              über dem Sheet — siehe die Komponente. */}
-          <SignInProgressBanner working={claimingSlug !== null} openSpotCount={openSpotCount} />
+          {/* Sagt beim Rücksprung aus der Mail, was gerade passiert — und was
+              es wert war. Mitte statt Kante, siehe die Komponente. */}
+          <SignInReward
+            working={claimingSlug !== null}
+            outcome={claimOutcome}
+            openSpotCount={openSpotCount}
+          />
 
           <MapDataNotice
             loading={mapDataLoading}

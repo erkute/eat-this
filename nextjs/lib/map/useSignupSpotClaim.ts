@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { claimSignupSpot } from './claimSignupSpot';
+import { claimSignupSpot, type ClaimOutcome } from './claimSignupSpot';
 
 /** How long the sheet waits for the map to catch up before it gives up and
  *  resolves normally. Only a safety net — the refetch is usually a second or
@@ -48,11 +48,20 @@ function pendingSlugFromUrl(): string | null {
  * MapSection's URL sync owns that param and a refresh should still reopen the
  * spot.
  */
+export interface SignupSpotClaim {
+  /** Set while the claim is outstanding — the sheet holds its sign-up branch. */
+  claimingSlug: string | null;
+  /** How it went, once it is decided. Drives what the banner says: a granted
+   *  claim gets a count, a spent one gets the reason it did not come true. */
+  outcome: ClaimOutcome | null;
+}
+
 export function useSignupSpotClaim(
   uid: string | null,
   isSpotOpen: (slug: string) => boolean
-): string | null {
+): SignupSpotClaim {
   const [claimingSlug, setClaimingSlug] = useState<string | null>(pendingSlugFromUrl);
+  const [outcome, setOutcome] = useState<ClaimOutcome | null>(null);
 
   useEffect(() => {
     if (!uid || !claimingSlug) return;
@@ -68,8 +77,8 @@ export function useSignupSpotClaim(
     // a rejection escaping it would surface as an unhandled rejection in a
     // page the reader is mid-sign-in on.
     void claimSignupSpot(claimingSlug)
-      .catch(() => false)
-      .then((claimed) => {
+      .catch((): ClaimOutcome => 'failed')
+      .then((result) => {
         const params = new URLSearchParams(window.location.search);
         params.delete('claim');
         const query = params.toString();
@@ -78,10 +87,12 @@ export function useSignupSpotClaim(
           '',
           `${window.location.pathname}${query ? `?${query}` : ''}`
         );
+        if (!active) return;
+        setOutcome(result);
         // Only a REFUSED claim releases here — nothing is coming, so holding
         // the sheet would just delay an offer the reader can act on. A granted
         // one keeps the hold until the map shows the spot (effect below).
-        if (active && !claimed) setClaimingSlug(null);
+        if (result !== 'granted') setClaimingSlug(null);
       });
     return () => {
       active = false;
@@ -109,5 +120,5 @@ export function useSignupSpotClaim(
   // schliessen auf …" on a sheet that is waiting for nothing. Deriving it here
   // instead of clearing it in an effect is also what closes the frame gap —
   // the flag turns true in the very render the uid lands in.
-  return uid ? claimingSlug : null;
+  return { claimingSlug: uid ? claimingSlug : null, outcome };
 }

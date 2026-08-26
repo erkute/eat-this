@@ -35,17 +35,12 @@ function spot(over: Partial<MapRestaurant> = {}): MapRestaurant {
   } as MapRestaurant;
 }
 
-/** The sheet as a SIGNED-IN reader sees it: the account is spent, so what is
- *  left to offer is a pack. */
+/** Das Sheet, wenn feststeht, dass dieser Spot Geld kostet — angemeldet, Karte
+ *  aktuell, kein Claim unterwegs. Wann das gilt, entscheidet resolveLockedOffer;
+ *  hier interessiert nur, was dann zu sehen ist. */
 function html(r: MapRestaurant) {
   return renderToStaticMarkup(
-    <LockedDetail
-      restaurant={r}
-      signedIn
-      claimPending={false}
-      contentRef={null}
-      onClose={() => {}}
-    />
+    <LockedDetail restaurant={r} offer="packs" contentRef={null} onClose={() => {}} />
   );
 }
 
@@ -54,13 +49,7 @@ function html(r: MapRestaurant) {
  *  the tapped spot, so the offer is true everywhere. */
 function signupHtml(r: MapRestaurant) {
   return renderToStaticMarkup(
-    <LockedDetail
-      restaurant={r}
-      signedIn={false}
-      claimPending={false}
-      contentRef={null}
-      onClose={() => {}}
-    />
+    <LockedDetail restaurant={r} offer="signup" contentRef={null} onClose={() => {}} />
   );
 }
 
@@ -203,7 +192,7 @@ describe('LockedDetail, visitor without an account', () => {
   it('offers the account instead of a pack', () => {
     const out = signupHtml(spot());
     // Leads with the tapped spot, but does not undersell the tier behind it.
-    expect(out).toContain('Schaltet diesen Spot frei. Und viele weitere.');
+    expect(out).toContain('Dein erster Spot geht aufs Haus');
   });
 
   it('wears the same Starter Pack identity as the home page', () => {
@@ -272,13 +261,7 @@ describe('LockedDetail, visitor without an account', () => {
        sheet must not fall through to the pack offer — that is the price tag
        landing on the very spot the mail just promised them. */
     const out = renderToStaticMarkup(
-      <LockedDetail
-        restaurant={spot()}
-        signedIn
-        claimPending
-        contentRef={null}
-        onClose={() => {}}
-      />
+      <LockedDetail restaurant={spot()} offer="claiming" contentRef={null} onClose={() => {}} />
     );
     expect(out).toContain('Starter Pack');
     expect(out).toContain('Wir schliessen auf');
@@ -289,7 +272,7 @@ describe('LockedDetail, visitor without an account', () => {
     /* Tier flags no longer reach this component at all — an account opens the
        tapped spot either way, because signing up claims it. */
     const out = signupHtml(spot({ _id: 'r-deep', slug: 'tief-im-katalog' }));
-    expect(out).toContain('Schaltet diesen Spot frei. Und viele weitere.');
+    expect(out).toContain('Dein erster Spot geht aufs Haus');
     expect(out).not.toContain('href="/packs"');
   });
 });

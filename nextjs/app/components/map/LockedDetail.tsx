@@ -14,6 +14,7 @@ import { GoogleMark } from '@/app/components/GoogleMark';
 import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { claimSignupSpot } from '@/lib/map/claimSignupSpot';
 import { CLAIM_HOLD_TIMEOUT_MS } from '@/lib/map/useSignupSpotClaim';
+import type { LockedOffer } from '@/lib/map/lockedOffer';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useTranslation } from '@/lib/i18n';
@@ -24,17 +25,10 @@ import lockedStyles from './LockedDetail.module.css';
 
 interface Props {
   restaurant: MapRestaurant;
-  /** Whether the MAP knows this viewer has an account — not merely whether the
-   *  uid has arrived. The two come apart for a second or two after every
-   *  sign-in, and in that gap this sheet cannot tell whether the spot under it
-   *  is one the account opens. Selling a pack there sells it on a spot the very
-   *  next payload may hand over for free. */
-  signedIn: boolean;
-  /** A sign-up claim for THIS spot is still in flight — the reader followed a
-   *  magic link back onto it and the grant has not landed yet. Holds the sheet
-   *  on the sign-up branch so the promised spot doesn't turn into a price tag
-   *  for the last second of the wait. */
-  claimPending: boolean;
+  /** Welches der beiden Angebote dieses Sheet macht. Die Regel dahinter steht
+   *  vollständig in resolveLockedOffer — sie hier noch einmal aus Einzelteilen
+   *  zusammenzusetzen war der Grund, warum derselbe Fehler dreimal auftrat. */
+  offer: LockedOffer;
   contentRef: Ref<HTMLDivElement | null>;
   onClose: () => void;
 }
@@ -112,13 +106,7 @@ interface Props {
  * (user decision, 2026-08-24). Selection, sizes and prices live on the pack
  * page; this sheet only has to make him want the spot.
  */
-export default function LockedDetail({
-  restaurant: r,
-  signedIn,
-  claimPending,
-  contentRef,
-  onClose,
-}: Props) {
+export default function LockedDetail({ restaurant: r, offer, contentRef, onClose }: Props) {
   const locale = useLocale();
   const { t } = useTranslation();
   const de = locale !== 'en';
@@ -138,7 +126,7 @@ export default function LockedDetail({
      the same hold for the email rung, where the wait starts before this
      component even mounts. */
   const [unlocking, setUnlocking] = useState(false);
-  const awaitingSpot = unlocking || claimPending;
+  const showSignup = offer !== 'packs' || unlocking;
 
   /* Safety net, same one the email rung has: the hold is released by the map
      refetch unmounting this sheet, so a refetch that never lands would leave a
@@ -229,13 +217,13 @@ export default function LockedDetail({
               badge prices the offer, the kicker says the spot is still face
               down, and without it the free branch never said so at all. */}
           <p className={lockedStyles.kicker}>{t('map.lockedDetailKicker')}</p>
-          {!signedIn || awaitingSpot ? (
+          {showSignup ? (
             <SignupOffer
               restaurant={r}
               prefix={prefix}
               de={de}
               onUnlocking={setUnlocking}
-              claimPending={claimPending}
+              claimPending={offer === 'claiming'}
             />
           ) : (
             packArt.length > 0 && (
@@ -295,7 +283,7 @@ const signupCopy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: 'Schaltet diesen Spot frei. Und viele weitere.',
+    lead: 'Dein erster Spot geht aufs Haus — dieser hier, plus rund fünfzig weitere.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
     submit: 'Starter Pack holen',
@@ -313,7 +301,7 @@ const signupCopy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: 'Unlocks this spot. And many more.',
+    lead: 'Your first spot is on us — this one, plus about fifty more.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',
     submit: 'Get the Starter Pack',
@@ -343,6 +331,15 @@ const signupCopy = {
  * the whole reason this beats the packs at this moment. The second half keeps
  * it from undershooting — an account opens roughly fifty more, so promising
  * only the tapped spot would sell the tier short.
+ *
+ * "ERSTER Spot" is doing real work in that line. The free spot is one per
+ * account, forever, and while the reader is signed out this sheet cannot know
+ * whether their account already spent it. An unconditional "schaltet diesen
+ * Spot frei" was therefore shown to everyone and true for most — someone who
+ * signed out and came back from a different grey dot got the promise and not
+ * the spot, with nothing said about it (user report, 2026-08-26). The word
+ * makes the sentence true in both cases; SignInReward says the rest out loud
+ * when the claim comes back spent.
  *
  * "Schaltet diesen Spot frei" is a literal promise, and both rungs keep it by
  * claiming the spot: Google inline once the popup resolves, email after the

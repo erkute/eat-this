@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server';
-import { serializeJsonLd } from '@/lib/json-ld';
+import { serializeJsonLd, buildArticleSpotsItemList } from '@/lib/json-ld';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { INDEXABLE_ROBOTS, toOgLocale } from '@/lib/seo/metadata';
@@ -90,6 +90,15 @@ export default async function NewsArticlePage({ params }: PageProps) {
   const title = de ? a.titleDe || a.title : a.title;
   const excerpt = de ? a.excerptDe || a.excerpt : a.excerpt;
 
+  // Dieselbe Fassung, die NewsArticleShell rendert — sonst beschriebe die
+  // ItemList eine Liste, die auf dieser Seite gar nicht steht.
+  const renderedBlocks = (de ? a.contentDe : a.content) || a.content;
+  const spotsItemList = buildArticleSpotsItemList({
+    blocks: renderedBlocks,
+    locale,
+    name: title,
+  });
+
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
@@ -133,6 +142,8 @@ export default async function NewsArticlePage({ params }: PageProps) {
           },
         ],
       },
+      // Guides sind Listen. Artikel ohne spotCards bekommen keine ItemList.
+      ...(spotsItemList ? [spotsItemList] : []),
     ],
   });
 

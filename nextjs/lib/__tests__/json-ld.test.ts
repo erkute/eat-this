@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  buildArticleSpotsItemList,
   buildBezirkJsonLd,
   buildHomeJsonLd,
   buildRestaurantJsonLd,
@@ -7,7 +8,7 @@ import {
   serializeJsonLd,
 } from '../json-ld';
 import { schemaImageUrl } from '../sanity-image-presets';
-import type { Restaurant, RestaurantCard } from '../types';
+import type { Restaurant, RestaurantCard, SpotCardBlock } from '../types';
 
 describe('serializeJsonLd', () => {
   it('serializes a plain object to JSON string', () => {
@@ -221,5 +222,78 @@ describe('buildSiteJsonLd', () => {
     expect(deWebsite.alternateName).toBe('Eat This Berlin');
     expect(organization.description).toContain('Berlin');
     expect(buildSiteJsonLd('en')).not.toContain('SearchAction');
+  });
+});
+
+describe('buildArticleSpotsItemList', () => {
+  const spot = (over: Partial<SpotCardBlock> = {}) => ({
+    _type: 'spotCard',
+    restaurantName: 'Bandol sur mer',
+    restaurantSlug: 'bandol-sur-mer',
+    cuisineType: 'French',
+    restaurantPhoto: 'https://cdn.sanity.io/images/x/production/abc-1600x1200.jpg?w=800',
+    ...over,
+  });
+  const text = { _type: 'block', style: 'normal', children: [] };
+
+  it('builds an ItemList of Restaurants from the spotCards', () => {
+    const list = buildArticleSpotsItemList({
+      blocks: [text, spot(), text, spot({ restaurantName: 'Barra', restaurantSlug: 'barra' })],
+      locale: 'de',
+      name: 'Fine Dining in Berlin',
+    });
+    expect(list).toMatchObject({ '@type': 'ItemList', name: 'Fine Dining in Berlin', numberOfItems: 2 });
+    const items = (list as { itemListElement: Record<string, never>[] }).itemListElement;
+    expect(items).toHaveLength(2);
+    expect(items[0]).toMatchObject({ '@type': 'ListItem', position: 1 });
+    expect(items[1]).toMatchObject({ position: 2, item: { name: 'Barra' } });
+  });
+
+  // Die Reihenfolge des Artikels IST die Aussage — bei den Bezirks-Guides ist
+  // es die kuratierte topSpots-Reihenfolge. Alphabetisch sortieren würde eine
+  // andere Rangfolge behaupten als der Text daneben.
+  it('keeps the article order rather than sorting', () => {
+    const list = buildArticleSpotsItemList({
+      blocks: [
+        spot({ restaurantName: 'Zwiebelfisch', restaurantSlug: 'z' }),
+        spot({ restaurantName: 'Almi', restaurantSlug: 'a' }),
+      ],
+      locale: 'de',
+      name: 'Guide',
+    });
+    const items = (list as { itemListElement: { item: { name: string } }[] }).itemListElement;
+    expect(items.map((i) => i.item.name)).toEqual(['Zwiebelfisch', 'Almi']);
+  });
+
+  it('links restaurants under the rendered locale', () => {
+    const list = buildArticleSpotsItemList({ blocks: [spot()], locale: 'en', name: 'Guide' });
+    const items = (list as { itemListElement: { item: { url: string } }[] }).itemListElement;
+    expect(items[0].item.url).toContain('/en/restaurant/bandol-sur-mer');
+  });
+
+  // Eine leere ItemList wäre eine Behauptung über die Seite, die nicht stimmt.
+  it('returns null for articles without spotCards', () => {
+    expect(buildArticleSpotsItemList({ blocks: [text], locale: 'de', name: 'Meinung' })).toBeNull();
+    expect(buildArticleSpotsItemList({ blocks: undefined, locale: 'de', name: 'Meinung' })).toBeNull();
+  });
+
+  // Fotos sind upstream lizenz-gefiltert: fehlt eins, darf kein Key erscheinen.
+  it('omits the image when the photo is not publishable', () => {
+    const list = buildArticleSpotsItemList({
+      blocks: [spot({ restaurantPhoto: undefined })],
+      locale: 'de',
+      name: 'Guide',
+    });
+    const items = (list as { itemListElement: { item: Record<string, unknown> }[] }).itemListElement;
+    expect(items[0].item).not.toHaveProperty('image');
+  });
+
+  it('skips spotCards whose reference did not resolve', () => {
+    const list = buildArticleSpotsItemList({
+      blocks: [spot(), spot({ restaurantSlug: undefined, restaurantName: undefined })],
+      locale: 'de',
+      name: 'Guide',
+    });
+    expect(list).toMatchObject({ numberOfItems: 1 });
   });
 });

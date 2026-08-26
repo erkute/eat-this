@@ -1667,7 +1667,7 @@ export default function MapSection({
       lockedIdSet={lockedIdSet}
       claimingSlug={claimingSlug}
       claimOutcome={claimOutcome}
-      mapKnowsViewer={uid !== null && dataUid === uid}
+      mapUid={dataUid}
       openSpotCount={restaurants.length}
       justUnlockedSlug={justUnlockedSlug}
       pagerPrev={pagerAdjacent.prev}

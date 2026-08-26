@@ -5,6 +5,7 @@ import type { Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
+import { resolveLockedOffer } from '@/lib/map/lockedOffer';
 import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
@@ -81,11 +82,9 @@ interface MapBodyState {
   claimingSlug: string | null;
   /** Wie der Claim ausging — entscheidet, was die Einblendung am Ende sagt. */
   claimOutcome: ClaimOutcome | null;
-  /** The map payload in hand was fetched for THIS signed-in viewer. False for
-   *  an anonymous viewer, and false in the gap between auth resolving and the
-   *  refetch landing — a gap in which every locked spot still looks locked
-   *  whether or not this viewer can open it. */
-  mapKnowsViewer: boolean;
+  /** Für WEN die Kartendaten in der Hand geholt wurden — nicht dasselbe wie
+   *  `uid`, siehe resolveLockedOffer. */
+  mapUid: string | null;
   /** Unfiltered number of spots this viewer can open — what the sign-in banner
    *  counts, so the filter the reader happens to have on does not change the
    *  number it reports. */
@@ -195,7 +194,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     lockedIdSet,
     claimingSlug,
     claimOutcome,
-    mapKnowsViewer,
+    mapUid,
     openSpotCount,
     justUnlockedSlug,
     restaurantMustEats,
@@ -684,8 +683,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               lockedIdSet.has(selectedRestaurant._id) ? (
               <LockedDetail
                 restaurant={selectedRestaurant}
-                signedIn={mapKnowsViewer}
-                claimPending={claimingSlug === selectedRestaurant.slug}
+                offer={resolveLockedOffer({
+                  uid,
+                  mapUid,
+                  claimingSlug,
+                  slug: selectedRestaurant.slug,
+                })}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}
               />

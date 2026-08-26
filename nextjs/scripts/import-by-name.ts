@@ -6,6 +6,7 @@
  * Run from `nextjs/`:
  *   npx tsx scripts/import-by-name.ts "<name>" <lat> <lng>
  *   npx tsx scripts/import-by-name.ts "<name>" <lat> <lng> --dry-run
+ *   npx tsx scripts/import-by-name.ts "<name>" <lat> <lng> --no-gallery
  */
 import { config as loadEnv } from 'dotenv';
 loadEnv({ path: '.env.local' });
@@ -24,10 +25,13 @@ const sanity = createClient({
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const noGallery = args.includes('--no-gallery');
   const positional = args.filter((a) => !a.startsWith('--'));
   const [name, latStr, lngStr] = positional;
   if (!name || !latStr || !lngStr) {
-    console.error('Usage: npx tsx scripts/import-by-name.ts "<name>" <lat> <lng> [--dry-run]');
+    console.error(
+      'Usage: npx tsx scripts/import-by-name.ts "<name>" <lat> <lng> [--dry-run] [--no-gallery]'
+    );
     process.exit(1);
   }
   const lat = Number(latStr);
@@ -40,7 +44,10 @@ async function main() {
   console.log(`→ Search: "${name}" @ ${lat},${lng}`);
   let result;
   try {
-    result = await runImportFromParsed({ name, lat, lng }, fakeUrl, { uploadPhoto: !dryRun });
+    result = await runImportFromParsed({ name, lat, lng }, fakeUrl, {
+      uploadPhoto: !dryRun,
+      uploadGallery: !noGallery,
+    });
   } catch (err) {
     if (err instanceof ImportError) {
       console.error(`✗ ${err.message}`);

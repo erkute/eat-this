@@ -674,6 +674,15 @@ interface BuildContext {
   slug: string;
 }
 
+/** Google returns the locality either as "Berlin" or as "Berlin-Bezirk
+ *  Friedrichshain-Kreuzberg". Only the short form is used across the catalogue
+ *  (329 of 330 published spots), and the borough is already carried by
+ *  `district` / `bezirkRef` — so collapse the long form rather than let the
+ *  addresses drift apart. */
+export function normalizeAddress(address: string): string {
+  return address.replace(/\bBerlin-Bezirk\s+[^,]+/g, 'Berlin');
+}
+
 function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildContext) {
   const name = place.displayName?.text ?? parsed.name;
   const doc: { _id: string; _type: 'restaurant' } & Record<string, unknown> = {
@@ -688,7 +697,7 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
     mapsUrl: place.googleMapsUri ?? mapsUrl,
     googlePlaceId: place.id,
   };
-  if (place.formattedAddress) doc.address = place.formattedAddress;
+  if (place.formattedAddress) doc.address = normalizeAddress(place.formattedAddress);
   if (place.websiteUri) doc.website = place.websiteUri;
   if (place.internationalPhoneNumber) doc.phone = place.internationalPhoneNumber;
 

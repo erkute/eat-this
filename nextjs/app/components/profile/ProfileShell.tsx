@@ -12,6 +12,7 @@ import {
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
+import ProfileCityProgress from './ProfileCityProgress';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
@@ -177,6 +178,9 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             </div>
           </div>
         </header>
+
+        {/* Die eine Zahl zuerst: wie viel von Berlin schon offen ist. */}
+        <ProfileCityProgress uid={user.uid} />
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
           <ProfileAlbum

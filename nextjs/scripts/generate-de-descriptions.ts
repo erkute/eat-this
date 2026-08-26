@@ -8,6 +8,7 @@
  *   npx tsx scripts/generate-de-descriptions.ts --type all --limit 3 --dry-run
  *   npx tsx scripts/generate-de-descriptions.ts --type restaurant
  *   npx tsx scripts/generate-de-descriptions.ts --type bezirk
+ *   npx tsx scripts/generate-de-descriptions.ts --type restaurant --drafts-only --only-with-photo
  *
  * Required env (in nextjs/.env.local):
  *   ANTHROPIC_API_KEY
@@ -24,7 +25,13 @@ loadEnv({ path: '.env.local' });
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
-const TRANSLATION_MODEL = 'claude-sonnet-4-6';
+// Sonnet 5 is both newer and cheaper than Sonnet 4.6 ($2/$10 per MTok vs
+// $3/$15). It runs adaptive thinking by default, and thinking tokens count
+// against max_tokens — so the budgets below are raised to keep reasoning from
+// starving the JSON payload, which is exactly how the "No JSON text block"
+// failures happen. Effort stays low: this is structured extraction from
+// supplied facts, not a reasoning problem.
+const TRANSLATION_MODEL = 'claude-sonnet-5';
 
 type DocType = 'restaurant' | 'bezirk';
 
@@ -36,6 +43,7 @@ interface CliOptions {
   includeTip: boolean;
   draftsOnly: boolean;
   force: boolean;
+  onlyWithPhoto: boolean;
 }
 
 function parseArgs(): CliOptions {
@@ -48,12 +56,14 @@ function parseArgs(): CliOptions {
     includeTip: true,
     draftsOnly: false,
     force: false,
+    onlyWithPhoto: false,
   };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--dry-run') opts.dryRun = true;
     else if (arg === '--drafts-only') opts.draftsOnly = true;
     else if (arg === '--force') opts.force = true;
+    else if (arg === '--only-with-photo') opts.onlyWithPhoto = true;
     else if (arg === '--no-shortdesc') opts.includeShortDesc = false;
     else if (arg === '--no-tip') opts.includeTip = false;
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10);
@@ -135,11 +145,17 @@ interface BezirkSource {
 async function fetchRestaurants(opts: {
   draftsOnly: boolean;
   force: boolean;
+  onlyWithPhoto?: boolean;
 }): Promise<RestaurantSource[]> {
   const descClause = opts.force ? '' : ' && !defined(description)';
+  // A spot without an image can't be published anyway — the publish gate in
+  // lib/sanity-image-presets.ts closes and the detail page renders the empty
+  // hero. Generating prose for it now is work on stock, and every document
+  // costs a billed research cycle.
+  const photoClause = opts.onlyWithPhoto ? ' && defined(image.asset)' : '';
   if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "restaurant" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`
+      `*[_type == "restaurant" && _id in path("drafts.**")${descClause}${photoClause}]{...} | order(name asc)`
     );
   }
   // Non-drafts mode: in force-regen we want EVERY published restaurant; in
@@ -147,11 +163,11 @@ async function fetchRestaurants(opts: {
   // (live-doc empty but draft staged).
   if (opts.force) {
     return sanity.fetch(
-      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`
+      `*[_type == "restaurant" && !(_id in path("drafts.**"))${photoClause}]{...} | order(name asc)`
     );
   }
   return sanity.fetch(
-    `*[_type == "restaurant" && !(_id in path("drafts.**"))
+    `*[_type == "restaurant" && !(_id in path("drafts.**"))${photoClause}
         && !defined(description)
         && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`
   );
@@ -440,7 +456,10 @@ const RESEARCH_TOOLS = [
     type: 'web_search_20260209',
     name: 'web_search',
     allowed_domains: RESEARCH_DOMAINS,
-    max_uses: 5,
+    // Each search is billed at $10/1,000 AND its results join the context that
+    // every subsequent pause_turn re-sends — so this number drives cost twice.
+    // Three curated sources are plenty for a ~400-character description.
+    max_uses: 3,
   },
 ] as unknown as Anthropic.Messages.ToolUnion[];
 
@@ -480,11 +499,19 @@ export async function generateRestaurant(
     const messages: Anthropic.MessageParam[] = [{ role: 'user', content }];
     let msg = await anthropic.messages.create({
       model: TRANSLATION_MODEL,
-      max_tokens: 2048,
+      max_tokens: 4096,
+      output_config: { effort: 'low' },
+      // The system prompt is identical for every restaurant and the loop below
+      // re-sends the whole accumulated turn — including every search result —
+      // on each `pause_turn`. Without a breakpoint all of that is billed at
+      // full input price every time, which is what made a run over the catalogue
+      // cost multiples of the naive per-document estimate.
+      cache_control: { type: 'ephemeral' },
       system: RESTAURANT_PROMPT,
       tools: RESEARCH_TOOLS,
       messages,
     });
+    recordUsage(msg.usage);
     // The web_search server loop can return `pause_turn` if it hits its internal
     // iteration cap before finishing — re-send the accumulated turn to resume.
     let guard = 0;
@@ -492,11 +519,14 @@ export async function generateRestaurant(
       messages.push({ role: 'assistant', content: msg.content });
       msg = await anthropic.messages.create({
         model: TRANSLATION_MODEL,
-        max_tokens: 2048,
+        max_tokens: 4096,
+        output_config: { effort: 'low' },
+        cache_control: { type: 'ephemeral' },
         system: RESTAURANT_PROMPT,
         tools: RESEARCH_TOOLS,
         messages,
       });
+      recordUsage(msg.usage);
     }
     return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen;
   };
@@ -547,7 +577,8 @@ async function generateBezirk(b: BezirkSource): Promise<BezirkGen> {
   const userMsg = `Bezirk: ${b.name}\n\nSchreib eine kulinarisch fokussierte Beschreibung dieses Berliner Bezirks für "Eat This Berlin" Lesende, 200-300 Zeichen.`;
   const msg = await anthropic.messages.create({
     model: TRANSLATION_MODEL,
-    max_tokens: 512,
+    max_tokens: 2048,
+    output_config: { effort: 'low' },
     system: BEZIRK_PROMPT,
     messages: [{ role: 'user', content: userMsg }],
   });
@@ -600,6 +631,45 @@ async function patchBezirkDraft(b: BezirkSource, g: BezirkGen): Promise<boolean>
  *  bad key, a revoked permission. Every remaining doc would fail identically,
  *  and each one costs a billed Places lookup *before* the model is called, so
  *  the run stops instead of burning the rest of the list. */
+/** Running total of what this process actually spent, so the next estimate is
+ *  a measurement rather than a guess. Sonnet 5 list prices: $2/$15 per MTok,
+ *  cache reads at 0.1x input, 5-minute cache writes at 1.25x, web search at
+ *  $10 per 1,000 searches. */
+const usage = { in: 0, cachedIn: 0, cacheWrite: 0, out: 0, searches: 0 };
+
+function recordUsage(u: {
+  input_tokens?: number;
+  output_tokens?: number;
+  cache_read_input_tokens?: number | null;
+  cache_creation_input_tokens?: number | null;
+  server_tool_use?: { web_search_requests?: number } | null;
+}): void {
+  usage.in += u.input_tokens ?? 0;
+  usage.out += u.output_tokens ?? 0;
+  usage.cachedIn += u.cache_read_input_tokens ?? 0;
+  usage.cacheWrite += u.cache_creation_input_tokens ?? 0;
+  usage.searches += u.server_tool_use?.web_search_requests ?? 0;
+}
+
+function reportUsage(docsDone: number): void {
+  const total =
+    (usage.in * 2) / 1e6 +
+    (usage.cachedIn * 0.2) / 1e6 +
+    (usage.cacheWrite * 2.5) / 1e6 +
+    (usage.out * 10) / 1e6 +
+    (usage.searches * 10) / 1000;
+  console.log(
+    `[generate-de] Verbrauch: ${usage.searches} Suchen · ` +
+      `${Math.round((usage.in + usage.cachedIn + usage.cacheWrite) / 1000)}k Input ` +
+      `(${Math.round(usage.cachedIn / 1000)}k aus dem Cache) · ` +
+      `${Math.round(usage.out / 1000)}k Output`
+  );
+  console.log(
+    `[generate-de] Kosten: $${total.toFixed(2)}` +
+      (docsDone > 0 ? ` · $${(total / docsDone).toFixed(3)} pro Dokument` : '')
+  );
+}
+
 class FatalApiError extends Error {
   constructor(message: string) {
     super(message);
@@ -632,7 +702,11 @@ async function main(): Promise<void> {
 
   try {
     if (opts.type === 'restaurant' || opts.type === 'all') {
-      let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
+      let docs = await fetchRestaurants({
+        draftsOnly: opts.draftsOnly,
+        force: opts.force,
+        onlyWithPhoto: opts.onlyWithPhoto,
+      });
       if (opts.limit !== null) docs = docs.slice(0, opts.limit);
       console.log(`[generate-de] restaurants needing description: ${docs.length}`);
       for (const r of docs) {
@@ -694,6 +768,7 @@ async function main(): Promise<void> {
     );
   } finally {
     console.log(`\n[generate-de] geschrieben ${stats.ok} · fehlgeschlagen ${stats.failed}`);
+    reportUsage(stats.ok + stats.failed);
     if (stats.failed > 0) process.exitCode = 1;
   }
 }

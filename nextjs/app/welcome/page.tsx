@@ -85,6 +85,7 @@ const AVATARS: { id: AvatarChoice; label: string }[] = [
 
 type State =
   | { kind: 'processing' }
+  | { kind: 'confirm'; email: string; href: string; claimingSpot: boolean }
   | { kind: 'success'; title: string; sub: string }
   | { kind: 'needs-email'; href: string }
   | { kind: 'needs-identity'; user: User; claimingSpot: boolean }
@@ -132,12 +133,16 @@ function AuthActionInner() {
         setState({ kind: 'needs-email', href: url });
         return;
       }
-      signInWithEmailLink(auth, email, url)
-        .then((result) => finishSignIn(result.user, setState, hasPendingSpotClaim(params)))
-        .catch((err) => {
-          console.warn('[welcome] signInWithEmailLink failed:', err);
-          setState({ kind: 'expired' });
-        });
+      /* Der oobCode wird NICHT mehr beim Laden eingelöst. Er ist einmalig, und
+         Postfach-Scanner rendern diese Seite mit laufendem JavaScript: auf
+         Staging hat einer den Sign-in komplett selbst ausgeführt und den Code
+         verbrannt, bevor der Mensch klicken konnte — mal gewann der Scanner
+         das Rennen, mal der Mensch (26.08.2026, zweimal reproduziert, per
+         auth/invalid-action-code auf Sekunden frische Codes). Ein Klick ist
+         die Grenze, die ein Scanner nicht überschreitet; der Mensch zahlt
+         dafür einen Tap. Das needs-email-Formular hatte diese Grenze immer
+         schon, jetzt hat der Normalfall sie auch. */
+      setState({ kind: 'confirm', email, href: url, claimingSpot: hasPendingSpotClaim(params) });
       return;
     }
 
@@ -201,6 +206,15 @@ function AuthActionInner() {
               <h1 className={styles.title}>{state.title}</h1>
               <p className={styles.sub}>{state.sub}</p>
             </>
+          )}
+
+          {state.kind === 'confirm' && (
+            <ConfirmSignIn
+              email={state.email}
+              href={state.href}
+              claimingSpot={state.claimingSpot}
+              setState={setState}
+            />
           )}
 
           {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
@@ -348,6 +362,70 @@ function IdentityForm({ user, claimingSpot }: { user: User; claimingSpot: boolea
           )}
         </button>
       </form>
+    </>
+  );
+}
+
+/**
+ * Der eine Klick zwischen Link und Anmeldung.
+ *
+ * Er existiert für die Maschinen, nicht für die Menschen: Postfach-Scanner
+ * folgen dem Link und führen das JavaScript dieser Seite aus — der alte
+ * Auto-Sign-in beim Laden hat den einmaligen Code damit an den Scanner
+ * verloren, und der Mensch bekam "Dieser Link geht nicht mehr" für einen
+ * Link, den er nie benutzt hat. Ein Button klickt sich nicht von allein.
+ *
+ * Die Adresse steht gross auf dem Screen, weil der Klick eine echte Frage
+ * beantwortet: als WER melde ich mich hier an? Das ist derselbe Moment, den
+ * das needs-email-Formular für Fremd-Browser immer schon hatte — nur ohne
+ * Tippen. Nach dem Klick übernimmt der gelbe Splash, damit das Warten wie
+ * Ankommen aussieht und nicht wie ein hängendes Formular.
+ */
+function ConfirmSignIn({
+  email,
+  href,
+  claimingSpot,
+  setState,
+}: {
+  email: string;
+  href: string;
+  claimingSpot: boolean;
+  setState: (s: State) => void;
+}) {
+  const submit = () => {
+    setState({ kind: 'processing' });
+    signInWithEmailLink(auth, email, href)
+      .then((result) => finishSignIn(result.user, setState, claimingSpot))
+      .catch((err) => {
+        console.warn('[welcome] signInWithEmailLink failed:', err);
+        setState({ kind: 'expired' });
+      });
+  };
+
+  return (
+    <>
+      <p className={styles.kicker}>Ein Klick noch</p>
+      <h1 className={styles.title}>
+        Mach deine
+        <br />
+        Map auf
+      </h1>
+      <p className={styles.sub}>
+        Du meldest dich an als <strong>{email}</strong>.{claimingSpot && ' Dein Spot wartet schon.'}
+      </p>
+      <button type="button" className={styles.cta} onClick={submit}>
+        <span>Jetzt anmelden</span>
+        <svg
+          viewBox="0 0 24 24"
+          width={16}
+          height={16}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.6}
+        >
+          <path d="M5 12h14M13 5l7 7-7 7" />
+        </svg>
+      </button>
     </>
   );
 }

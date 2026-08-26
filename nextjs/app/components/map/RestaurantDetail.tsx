@@ -94,6 +94,9 @@ interface RestaurantDetailProps {
   nextRestaurant?: MapRestaurant | null;
   onPagePrev?: () => void;
   onPageNext?: () => void;
+  /** This sheet just replaced LockedDetail because a sign-up opened the spot.
+   *  Plays the unroll instead of cutting in — see .detailV13Unlocked. */
+  justUnlocked?: boolean;
 }
 
 export default function RestaurantDetail({
@@ -112,6 +115,7 @@ export default function RestaurantDetail({
   nextRestaurant,
   onPagePrev,
   onPageNext,
+  justUnlocked = false,
 }: RestaurantDetailProps) {
   const { t } = useTranslation();
   const locale = useLocale();
@@ -119,7 +123,6 @@ export default function RestaurantDetail({
   const { count: heartCount } = useHeartCount(restaurant._id);
   const scrollWrapRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-
 
   // The map list payload is now trimmed to hero/list fields; the editorial +
   // contact fields (address, phone, tip, description, …) load on demand when
@@ -296,7 +299,7 @@ export default function RestaurantDetail({
 
   return (
     <div
-      className={styles.detailV13}
+      className={`${styles.detailV13}${justUnlocked ? ` ${styles.detailV13Unlocked}` : ''}`}
       data-detail-root="restaurant"
       role="dialog"
       aria-label={r.name}

@@ -2,6 +2,12 @@
 import { useEffect, useState } from 'react';
 import { claimSignupSpot } from './claimSignupSpot';
 
+/** How long the sheet waits for the map to catch up before it gives up and
+ *  resolves normally. Only a safety net — the refetch is usually a second or
+ *  two — but without it a claim whose refetch never lands (offline, a dropped
+ *  listener) would strand the reader on a sign-up form they already completed. */
+export const CLAIM_HOLD_TIMEOUT_MS = 15_000;
+
 /** The slug the current URL asks to claim, or null. Read synchronously so the
  *  flag is already true on the first render — see below. */
 function pendingSlugFromUrl(): string | null {
@@ -21,33 +27,49 @@ function pendingSlugFromUrl(): string | null {
  *
  * Returns the slug while the claim is outstanding, because the sheet standing
  * open on that spot must NOT fall through to its signed-in pack offer in the
- * meantime. The window is real: auth resolves in a few hundred ms, the claim
- * and the refetch behind it take longer, and in between the reader would be
- * looking at a price tag on the very spot the mail just promised them.
+ * meantime.
  *
- * The initial value is read from the URL rather than set in the effect, so the
+ * "Outstanding" ends when the SPOT IS OPEN, not when the POST comes back. That
+ * distinction is the whole point and the first version got it wrong: releasing
+ * on the response left the entitlement write → Firestore listener → map
+ * refetch → response round trip running with the hold already gone, so for a
+ * second or two the reader watched a pack banner sit on the very spot the mail
+ * had just promised them (user report, 2026-08-26). `isSpotOpen` is what the
+ * map actually shows, so the hold now spans the real wait.
+ *
+ * The initial value is read from the URL rather than set in an effect, so the
  * flag is true from the first render on. Reading it in the effect left exactly
  * one frame — uid known, claim not yet registered — where the pack offer
  * rendered. It is SSR-safe (null on the server) and cannot mismatch during
  * hydration: at that point the viewer is not signed in yet, and the sheet
  * renders the sign-up branch either way.
  *
- * `claim` is stripped once it has fired; `r` deliberately stays, because
+ * `claim` is stripped once the POST has fired; `r` deliberately stays, because
  * MapSection's URL sync owns that param and a refresh should still reopen the
  * spot.
  */
-export function useSignupSpotClaim(uid: string | null): string | null {
+export function useSignupSpotClaim(
+  uid: string | null,
+  isSpotOpen: (slug: string) => boolean
+): string | null {
   const [claimingSlug, setClaimingSlug] = useState<string | null>(pendingSlugFromUrl);
 
   useEffect(() => {
     if (!uid || !claimingSlug) return;
+    // Already open — an account this spot's tier covers, or a link used twice.
+    // Spending the one claim on it would take it away from a spot that needs
+    // it, and there is nothing to wait for either.
+    if (isSpotOpen(claimingSlug)) {
+      setClaimingSlug(null);
+      return;
+    }
     let active = true;
     // The helper swallows its own failures, but the catch is not redundant:
-    // a rejection escaping .finally() would surface as an unhandled rejection
-    // in a page the reader is mid-sign-in on.
+    // a rejection escaping it would surface as an unhandled rejection in a
+    // page the reader is mid-sign-in on.
     void claimSignupSpot(claimingSlug)
       .catch(() => false)
-      .finally(() => {
+      .then((claimed) => {
         const params = new URLSearchParams(window.location.search);
         params.delete('claim');
         const query = params.toString();
@@ -56,17 +78,31 @@ export function useSignupSpotClaim(uid: string | null): string | null {
           '',
           `${window.location.pathname}${query ? `?${query}` : ''}`
         );
-        // Held until the write is through: the map refetch it triggers is what
-        // actually opens the spot, and dropping the flag before that would put
-        // the pack offer back on screen for the last stretch of the wait.
-        if (active) setClaimingSlug(null);
+        // Only a REFUSED claim releases here — nothing is coming, so holding
+        // the sheet would just delay an offer the reader can act on. A granted
+        // one keeps the hold until the map shows the spot (effect below).
+        if (active && !claimed) setClaimingSlug(null);
       });
     return () => {
       active = false;
     };
-    // Runs once the uid lands. claimingSlug only ever goes slug → null, and
-    // the null case is guarded above, so this cannot re-fire the claim.
+    // isSpotOpen is deliberately not a dependency: it changes identity on every
+    // map payload, and re-running this would re-issue the POST. The guard above
+    // only has to be right at the moment the uid lands.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, claimingSlug]);
+
+  // The release: the spot the reader was promised is now on their map.
+  useEffect(() => {
+    if (!claimingSlug) return;
+    if (isSpotOpen(claimingSlug)) setClaimingSlug(null);
+  }, [claimingSlug, isSpotOpen]);
+
+  useEffect(() => {
+    if (!claimingSlug) return;
+    const id = window.setTimeout(() => setClaimingSlug(null), CLAIM_HOLD_TIMEOUT_MS);
+    return () => window.clearTimeout(id);
+  }, [claimingSlug]);
 
   // Gated on the uid rather than reported raw: a logged-out visitor on a stale
   // `claim=1` URL has no claim running, and would otherwise read "Wir

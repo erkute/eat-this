@@ -77,6 +77,9 @@ interface MapBodyState {
    *  useSignupSpotClaim. Keeps its sheet on the sign-up branch until the spot
    *  actually opens. */
   claimingSlug: string | null;
+  /** Slug whose sheet should unroll rather than cut in — a sign-up just opened
+   *  it while the reader was looking at it. */
+  justUnlockedSlug: string | null;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
   /** Row the list points at once no detail is open — the spot that was just
@@ -178,6 +181,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     listRestaurants,
     lockedIdSet,
     claimingSlug,
+    justUnlockedSlug,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -678,6 +682,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 userLocation={location}
                 unlockedIds={unlockedIds}
                 restaurant={selectedRestaurant}
+                justUnlocked={justUnlockedSlug === selectedRestaurant.slug}
                 mustEats={restaurantMustEats}
                 revealedMustEatIds={revealedMustEatIds}
                 onClose={onRestaurantClose}

@@ -44,6 +44,8 @@ type RestaurantProps = CommonProps & {
   nextRestaurant: MapRestaurant | null;
   onPagePrev: () => void;
   onPageNext: () => void;
+  /** A sign-up just opened this spot under the reader's finger. */
+  justUnlocked: boolean;
 };
 
 type Props = MustEatProps | RestaurantProps;
@@ -94,6 +96,7 @@ export default function MapSheetDetail(props: Props) {
           nextRestaurant={props.nextRestaurant}
           onPagePrev={props.onPagePrev}
           onPageNext={props.onPageNext}
+          justUnlocked={props.justUnlocked}
         />
       )}
     </div>

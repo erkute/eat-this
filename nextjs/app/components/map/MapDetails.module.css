@@ -4079,8 +4079,7 @@
 @keyframes fdRevealReadyShake {
   0%,
   100% {
-    transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg)
-      translate3d(0, 0, 0);
+    transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg) translate3d(0, 0, 0);
   }
   12% {
     transform: rotate(-8.4deg) rotateY(-9deg) rotateX(1deg)
@@ -4333,7 +4332,6 @@
    space to the reveal guidance; give two-line restaurant names a complete
    line box above the CTA. */
 @media (min-width: 768px) and (max-width: 1023.98px) {
-
   .detailV13MustEat .detailV13Scroll {
     --me-rest-slot: 128px;
   }
@@ -4914,7 +4912,6 @@
    derselben Stelle. Schmalere Breiten behalten ihre kompakten Werte: dort ist
    der Platz knapp und die Proximity-Copy braucht ihn. */
 
-
 /* ── Desktop-Rail: größerer Kartenstapel ────────────────────────────────────
  * Der Stapel war kleiner, als der Platz hergab — nicht wegen der Deckel
  * (`--me-card-h` 316px, Breiten-Guard 68%), sondern wegen einer
@@ -5037,8 +5034,7 @@
        der Karte tat das nicht. Auf einem Gerät mit Notch rutschte das X damit
        auf die Karte statt über sie. Beide folgen jetzt demselben Offset. */
     padding-top: calc(
-      clamp(68px, 8dvh, 84px) + env(safe-area-inset-top, 0px) +
-        var(--map-visual-offset-top, 0px)
+      clamp(68px, 8dvh, 84px) + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px)
     );
     /* Die Phone-Regel hatte die Safe-Area verloren (padding-bottom: 18px).
        Ohne Dokument-Scroll gibt es keinen Puffer mehr darunter, also muss der
@@ -5206,5 +5202,55 @@
   .detailV13MustEat .detailV13Scroll > .fdRestInline {
     min-height: 138px;
     align-content: center;
+  }
+}
+
+/* ── Der Spot geht auf ───────────────────────────────────────────────────────
+   Wenn eine Anmeldung den offenen Spot freischaltet, tauscht das Sheet unter
+   dem Finger von LockedDetail auf dieses Detail. Vorher war das ein harter
+   Schnitt: der Inhalt war "einfach plötzlich da" (User, 2026-08-26).
+
+   Der Hero animiert bewusst NICHT. Er ist in beiden Sheets derselbe — dasselbe
+   Foto, derselbe Name, dieselben Tags — und stehenzubleiben ist genau das, was
+   den Moment zusammenhält: nicht "ein neues Sheet öffnet sich", sondern "dieses
+   hier geht weiter". Das Locked-Sheet schneidet den Text unter einer Maske ab;
+   hier rollt die Fortsetzung darunter hervor.
+
+   Kein Opacity-Fade — Projektregel für Ein-/Ausblend-Bewegung auf Brand-
+   Flächen. clip-path plus ein kurzer Weg nach oben macht dieselbe Bewegung,
+   ohne dass die Marke durchscheint.
+
+   fill-mode: backwards, nicht both: ein liegengebliebenes clip-path würde nach
+   der Animation weiter clippen und dem Galerie-Lightbox und allem anderen
+   Überstehenden den Weg abschneiden. So bleibt nach dem letzten Frame nichts
+   von der Animation übrig.
+
+   Der Stagger ist klein gehalten: die Blöcke sollen nacheinander kommen, aber
+   die Fortsetzung darf nicht wie eine Diashow wirken. */
+@keyframes rdUnroll {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-8px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+.detailV13Unlocked .detailV13Scroll > *:not([data-detail-hero]) {
+  animation: rdUnroll 460ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+}
+.detailV13Unlocked .detailV13Scroll > *:nth-child(3) {
+  animation-delay: 60ms;
+}
+.detailV13Unlocked .detailV13Scroll > *:nth-child(4) {
+  animation-delay: 120ms;
+}
+.detailV13Unlocked .detailV13Scroll > *:nth-child(n + 5) {
+  animation-delay: 170ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .detailV13Unlocked .detailV13Scroll > *:not([data-detail-hero]) {
+    animation: none;
   }
 }

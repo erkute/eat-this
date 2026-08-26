@@ -20,6 +20,8 @@ import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 // Next.js convention: secrets live in .env.local, not .env. Load explicitly.
 loadEnv({ path: '.env.local' });
 
+import { newStats, noteFailure, reportFatal, finish } from './lib/api-failure';
+
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
@@ -277,56 +279,65 @@ async function patchBezirkDraft(b: BezirkSource, t: BezirkTranslation): Promise<
 
 async function main(): Promise<void> {
   const opts = parseArgs();
+  const stats = newStats();
   console.log(`[bootstrap] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`);
 
-  if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants(opts.draftsOnly);
-    if (!opts.force) docs = docs.filter((r) => !hasEnDescription(r));
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
-    console.log(`[bootstrap] restaurants needing translation: ${docs.length}`);
-    for (const r of docs) {
-      try {
-        const t = await translateRestaurant(r);
-        console.log(`  ✓ ${r.name} (${r._id})`);
-        if (opts.dryRun) {
-          console.log(JSON.stringify(t, null, 2));
-        } else {
-          const wrote = await patchRestaurantDraft(r, t);
-          console.log(
-            wrote
-              ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
-              : `    (skipped: no EN fields to set)`
-          );
+  try {
+    if (opts.type === 'restaurant' || opts.type === 'all') {
+      let docs = await fetchRestaurants(opts.draftsOnly);
+      if (!opts.force) docs = docs.filter((r) => !hasEnDescription(r));
+      if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+      console.log(`[bootstrap] restaurants needing translation: ${docs.length}`);
+      for (const r of docs) {
+        try {
+          const t = await translateRestaurant(r);
+          stats.ok++;
+          console.log(`  ✓ ${r.name} (${r._id})`);
+          if (opts.dryRun) {
+            console.log(JSON.stringify(t, null, 2));
+          } else {
+            const wrote = await patchRestaurantDraft(r, t);
+            console.log(
+              wrote
+                ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
+                : `    (skipped: no EN fields to set)`
+            );
+          }
+        } catch (e) {
+          noteFailure(stats, `${r.name} (${r._id})`, e);
         }
-      } catch (e) {
-        console.error(`  ✗ ${r.name} (${r._id}):`, e);
       }
     }
-  }
 
-  if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke(opts.draftsOnly);
-    if (!opts.force) docs = docs.filter((b) => !hasEnDescription(b));
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
-    console.log(`[bootstrap] bezirke needing translation: ${docs.length}`);
-    for (const b of docs) {
-      try {
-        const t = await translateBezirk(b);
-        console.log(`  ✓ ${b.name} (${b._id})`);
-        if (opts.dryRun) {
-          console.log(JSON.stringify(t, null, 2));
-        } else {
-          const wrote = await patchBezirkDraft(b, t);
-          console.log(
-            wrote
-              ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
-              : `    (skipped: no description in source)`
-          );
+    if (opts.type === 'bezirk' || opts.type === 'all') {
+      let docs = await fetchBezirke(opts.draftsOnly);
+      if (!opts.force) docs = docs.filter((b) => !hasEnDescription(b));
+      if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+      console.log(`[bootstrap] bezirke needing translation: ${docs.length}`);
+      for (const b of docs) {
+        try {
+          const t = await translateBezirk(b);
+          stats.ok++;
+          console.log(`  ✓ ${b.name} (${b._id})`);
+          if (opts.dryRun) {
+            console.log(JSON.stringify(t, null, 2));
+          } else {
+            const wrote = await patchBezirkDraft(b, t);
+            console.log(
+              wrote
+                ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
+                : `    (skipped: no description in source)`
+            );
+          }
+        } catch (e) {
+          noteFailure(stats, `${b.name} (${b._id})`, e);
         }
-      } catch (e) {
-        console.error(`  ✗ ${b.name} (${b._id}):`, e);
       }
     }
+  } catch (e) {
+    reportFatal('bootstrap', e);
+  } finally {
+    finish('bootstrap', stats);
   }
 }
 

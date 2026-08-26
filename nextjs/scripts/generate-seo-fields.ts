@@ -22,6 +22,8 @@ import { extractJsonObjectTextFromBlocks } from './lib/extract-json';
 
 loadEnv({ path: '.env.local' });
 
+import { newStats, noteFailure, reportFatal, finish } from './lib/api-failure';
+
 const SANITY_PROJECT_ID = 'ehwjnjr2';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2024-01-01';
@@ -412,59 +414,60 @@ async function main(): Promise<void> {
     `[generate-seo] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`
   );
 
-  let ok = 0;
-  let failed = 0;
+  const stats = newStats();
 
-  if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
-    console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`);
-    for (const r of docs) {
-      try {
-        const g = await generateRestaurantSeo(r);
-        console.log(`  ✓ ${r.name} (${r._id})`);
-        logSeoOutput(g);
-        if (!opts.dryRun) {
-          await patchSeoDraft(r, 'restaurant', g);
-          console.log(
-            `     → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
-          );
+  try {
+    if (opts.type === 'restaurant' || opts.type === 'all') {
+      let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force });
+      if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+      console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`);
+      for (const r of docs) {
+        try {
+          const g = await generateRestaurantSeo(r);
+          console.log(`  ✓ ${r.name} (${r._id})`);
+          logSeoOutput(g);
+          if (!opts.dryRun) {
+            await patchSeoDraft(r, 'restaurant', g);
+            console.log(
+              `     → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`
+            );
+          }
+          stats.ok++;
+          // Gentle rate-limit: 200ms (~5 req/s, well under Anthropic limits).
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        } catch (e) {
+          noteFailure(stats, `${r.name} (${r._id})`, e);
         }
-        ok++;
-        // Gentle rate-limit: 200ms (~5 req/s, well under Anthropic limits).
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      } catch (e) {
-        console.error(`  ✗ ${r.name} (${r._id}):`, e instanceof Error ? e.message : e);
-        failed++;
       }
     }
-  }
 
-  if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force });
-    if (opts.limit !== null) docs = docs.slice(0, opts.limit);
-    console.log(`[generate-seo] bezirke needing seo fields: ${docs.length}`);
-    for (const b of docs) {
-      try {
-        const g = await generateBezirkSeo(b);
-        console.log(`  ✓ ${b.name} (${b._id})`);
-        logSeoOutput(g);
-        if (!opts.dryRun) {
-          await patchSeoDraft(b, 'bezirk', g);
-          console.log(
-            `     → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
-          );
+    if (opts.type === 'bezirk' || opts.type === 'all') {
+      let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force });
+      if (opts.limit !== null) docs = docs.slice(0, opts.limit);
+      console.log(`[generate-seo] bezirke needing seo fields: ${docs.length}`);
+      for (const b of docs) {
+        try {
+          const g = await generateBezirkSeo(b);
+          console.log(`  ✓ ${b.name} (${b._id})`);
+          logSeoOutput(g);
+          if (!opts.dryRun) {
+            await patchSeoDraft(b, 'bezirk', g);
+            console.log(
+              `     → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`
+            );
+          }
+          stats.ok++;
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        } catch (e) {
+          noteFailure(stats, `${b.name} (${b._id})`, e);
         }
-        ok++;
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      } catch (e) {
-        console.error(`  ✗ ${b.name} (${b._id}):`, e instanceof Error ? e.message : e);
-        failed++;
       }
     }
+  } catch (e) {
+    reportFatal('generate-seo', e);
+  } finally {
+    finish('generate-seo', stats);
   }
-
-  console.log(`[generate-seo] done — ok: ${ok}, failed: ${failed}`);
 }
 
 import { realpathSync } from 'node:fs';

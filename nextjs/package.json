@@ -16,6 +16,7 @@
     "sync:brand-font": "tsx scripts/sync-brand-font.mts",
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",
+    "import:batch": "tsx scripts/import-batch.ts",
     "embed:restaurants": "tsx scripts/embed-restaurants.ts",
     "content:backlog": "tsx scripts/content-backlog.ts",
     "premium:migrate": "tsx scripts/migrate-must-eats-private.ts",

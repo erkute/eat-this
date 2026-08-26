@@ -23,7 +23,6 @@ function mapData(): InitialMapData {
       'must-eat-6',
       'must-eat-8',
     ],
-    signupUnlockableIds: [],
   };
 }
 

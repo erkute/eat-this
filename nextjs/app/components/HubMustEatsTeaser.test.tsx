@@ -44,7 +44,6 @@ const data = (mustEats: MapMustEat[]): InitialMapData => ({
   categories: [],
   totalCount: 0,
   revealedMustEatIds: [],
-  signupUnlockableIds: [],
 });
 
 /** Helper: same as data() but with all must-eat ids in revealedMustEatIds */

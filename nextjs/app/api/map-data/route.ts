@@ -58,7 +58,6 @@ export async function GET(req: Request) {
       totalCount: all.length,
       lockedRestaurants: [],
       revealedMustEatIds: Array.from(allIds),
-      signupUnlockableIds: [],
     });
     res.headers.set('Cache-Control', 'private, no-store');
     setPremiumAccessCookie(res, allIds, uid);
@@ -89,8 +88,6 @@ export async function GET(req: Request) {
     // Otherwise purchased content reaches the browser but still renders as a
     // covered card because entitlements are not duplicated into reveal docs.
     revealedMustEatIds: Array.from(faceUpIds),
-    // Empty for every signed-in viewer — they already hold the signed tier.
-    signupUnlockableIds: Array.from(visible.signupUnlockableIds),
   });
   res.headers.set('Cache-Control', 'private, no-store');
   if (uid) {

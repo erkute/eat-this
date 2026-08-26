@@ -26,12 +26,6 @@ interface VisibleRestaurantsResult {
   lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   revealedMustEatIds: Set<string>;
-  /** Locked spots an account alone would open — the signed tier minus what
-   *  this viewer already sees. Always empty for a signed-in viewer, who has
-   *  them already. It exists so the locked sheet can tell its two kinds of
-   *  grey dot apart: "sign in and it's yours" is a promise that has to be
-   *  true for the spot actually tapped, and it is true for exactly these. */
-  signupUnlockableIds: Set<string>;
 }
 
 export async function composeVisibleRestaurants({
@@ -94,20 +88,10 @@ export async function composeVisibleRestaurants({
   const lockedRestaurants = all.filter((r) => !visibleIdSet.has(r._id));
 
   const spotId = await spotIdPromise;
-  const revealed = applySpotOfDayReveal(spotId, all, allMustEats, {
+  return applySpotOfDayReveal(spotId, all, allMustEats, {
     restaurants: visibleRestaurants,
     lockedRestaurants,
     mustEats: visibleMustEats,
     revealedMustEatIds: revealedSet,
   });
-
-  // Computed against the POST-reveal visible set: today's spot of the day is
-  // already open for everyone, so it must not also be advertised as something
-  // an account would unlock.
-  const openNow = new Set(revealed.restaurants.map((r) => r._id));
-  const signupUnlockableIds = uid
-    ? new Set<string>()
-    : new Set(signedSet.map((r) => r._id).filter((id) => !openNow.has(id)));
-
-  return { ...revealed, signupUnlockableIds };
 }

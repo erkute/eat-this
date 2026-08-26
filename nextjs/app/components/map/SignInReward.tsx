@@ -51,9 +51,16 @@ interface Props {
   working: boolean;
   /** How the claim went, once decided. */
   outcome: ClaimOutcome | null;
-  /** Spots the viewer can open right now. Sampled when the wait starts and
-   *  again when it ends, so the result can say what it was worth. */
+  /** Spots the viewer can open right now — the "after" side of the count. */
   openSpotCount: number;
+  /** Spots the last ANONYMOUS payload showed — the "before" side. Sampling
+   *  "before" when the wait began was a race: if the signed refetch landed
+   *  first, the sample was already the signed tier, and ~51 new spots showed
+   *  as "1 neuer Spot" (user, 2026-08-26). The anon payload is unambiguous —
+   *  it does not depend on which response lands when. Null when no anonymous
+   *  view was ever loaded (e.g. a cache-seeded signed session); the sampled
+   *  value then remains the fallback. */
+  baselineCount: number | null;
 }
 
 /**
@@ -81,7 +88,7 @@ interface Props {
  * message, not a dialog — the button is a courtesy for dismissing it early,
  * not a gate.
  */
-export default function SignInReward({ working, outcome, openSpotCount }: Props) {
+export default function SignInReward({ working, outcome, openSpotCount, baselineCount }: Props) {
   const locale = useLocale();
   const t = copy[locale === routing.defaultLocale ? 'de' : 'en'];
 
@@ -100,8 +107,9 @@ export default function SignInReward({ working, outcome, openSpotCount }: Props)
     // Only a wait that actually ran gets a result; this must not greet a reader
     // who simply opened the map.
     setPhase((current) => (current === 'working' ? 'done' : current));
-    setGained(countAtStart === null ? 0 : Math.max(0, openSpotCount - countAtStart));
-  }, [working, openSpotCount, countAtStart]);
+    const before = baselineCount ?? countAtStart;
+    setGained(before === null ? 0 : Math.max(0, openSpotCount - before));
+  }, [working, openSpotCount, countAtStart, baselineCount]);
 
   useEffect(() => {
     if (phase === 'done') {

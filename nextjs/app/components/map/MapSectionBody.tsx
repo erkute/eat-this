@@ -85,6 +85,9 @@ interface MapBodyState {
   /** Startet den Claim für einen Spot — der gemeinsame Weg für Google und
    *  Mail, siehe useSignupSpotClaim.startClaim. */
   onClaimSpot: (slug: string) => void;
+  /** Sichtbare Spots der letzten ANONYMEN Payload — die Vorher-Basis des
+   *  Belohnungs-Screens. Null, solange nie eine anonyme Sicht geladen war. */
+  anonSpotCount: number | null;
   /** Für WEN die Kartendaten in der Hand geholt wurden — nicht dasselbe wie
    *  `uid`, siehe resolveLockedOffer. */
   mapUid: string | null;
@@ -198,6 +201,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     claimingSlug,
     claimOutcome,
     onClaimSpot,
+    anonSpotCount,
     mapUid,
     openSpotCount,
     justUnlockedSlug,
@@ -768,6 +772,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             working={claimingSlug !== null}
             outcome={claimOutcome}
             openSpotCount={openSpotCount}
+            baselineCount={anonSpotCount}
           />
 
           <MapDataNotice

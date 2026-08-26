@@ -36,10 +36,15 @@ export default defineConfig({
           // with a twin is an unpublished edit. string::split(id, "drafts.")[1]
           // is the published id — restaurant ids are UUIDs, so nothing else in
           // them can match the separator.
-          "restaurantDraftOnly": count(*[_type=="restaurant" && _id in path("drafts.**")
-            && count(*[_id == string::split(^._id, "drafts.")[1]]) == 0]),
-          "restaurantEdited": count(*[_type=="restaurant" && _id in path("drafts.**")
-            && count(*[_id == string::split(^._id, "drafts.")[1]]) > 0]),
+          //
+          // These come back as ID LISTS, not counts, because the lists below
+          // need them as a plain _id-in-ids filter: Studio document lists run
+          // as listening queries, and those reject joins — a filter carrying
+          // this subquery silently shows nothing at all.
+          "restaurantDraftOnlyIds": *[_type=="restaurant" && _id in path("drafts.**")
+            && count(*[_id == string::split(^._id, "drafts.")[1]]) == 0]._id,
+          "restaurantEditedIds": *[_type=="restaurant" && _id in path("drafts.**")
+            && count(*[_id == string::split(^._id, "drafts.")[1]]) > 0]._id,
           "restaurantNoImage": count(*[_type=="restaurant" && !defined(image.asset)]),
           "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
           "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))]),
@@ -100,28 +105,26 @@ export default defineConfig({
                       ),
                     S.listItem()
                       .id('restaurants-draft-only')
-                      .title(`Nur Entwurf (${counts.restaurantDraftOnly ?? 0})`)
+                      .title(`Nur Entwurf (${counts.restaurantDraftOnlyIds?.length ?? 0})`)
                       .child(
                         S.documentList()
                           .id('restaurants-draft-only-list')
                           .title('Nur Entwurf — nie veröffentlicht')
                           .schemaType('restaurant')
-                          .filter(
-                            '_type == "restaurant" && _id in path("drafts.**") && count(*[_id == string::split(^._id, "drafts.")[1]]) == 0'
-                          )
+                          .filter('_id in $ids')
+                          .params({ids: counts.restaurantDraftOnlyIds ?? []})
                           .defaultOrdering([{field: 'name', direction: 'asc'}])
                       ),
                     S.listItem()
                       .id('restaurants-edited')
-                      .title(`Unveröffentlichte Änderungen (${counts.restaurantEdited ?? 0})`)
+                      .title(`Unveröffentlichte Änderungen (${counts.restaurantEditedIds?.length ?? 0})`)
                       .child(
                         S.documentList()
                           .id('restaurants-edited-list')
                           .title('Veröffentlicht, mit offenen Änderungen')
                           .schemaType('restaurant')
-                          .filter(
-                            '_type == "restaurant" && _id in path("drafts.**") && count(*[_id == string::split(^._id, "drafts.")[1]]) > 0'
-                          )
+                          .filter('_id in $ids')
+                          .params({ids: counts.restaurantEditedIds ?? []})
                           .defaultOrdering([{field: 'name', direction: 'asc'}])
                       ),
                     S.divider(),

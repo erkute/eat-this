@@ -102,6 +102,7 @@ export interface RestaurantSource {
   lat: number;
   lng: number;
   website?: string;
+  googlePlaceId?: string;
 }
 
 /** Cheap derivation of a €/€€/€€€/€€€€ symbol from the Places price range,
@@ -188,43 +189,59 @@ export interface PlaceContext {
   types?: string[];
 }
 
+/**
+ * Holt die Places-Fakten über `places/{id}` statt über `places:searchText`.
+ *
+ * Zwei Gründe. Erstens Geld: Google rechnet jeden Request nach dem teuersten
+ * Feld seiner Field-Mask ab, und `editorialSummary` ist Enterprise+Atmosphere.
+ * Als Text Search kostet das 40 $/1.000 bei 1.000 Freiaufrufen im Monat — ein
+ * Lauf über den Katalog schöpft die fast aus. Dieselbe Auskunft als Place
+ * Details kostet 25 $/1.000. Zweitens Treffsicherheit: die Suche nahm den
+ * besten Treffer im 300-m-Radius um die Koordinaten, was in dichten Kiezen
+ * das Nachbarlokal sein kann. Die `googlePlaceId` steht ohnehin im Dokument.
+ *
+ * Ohne `googlePlaceId` gibt es keinen Places-Kontext — der Generator kommt
+ * damit klar, `null` ist ein regulärer Rückgabewert. Auf eine Suche
+ * zurückzufallen wäre genau der teure Pfad, den diese Änderung abstellt.
+ */
 export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceContext | null> {
-  const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': GOOGLE_API_KEY,
-      // IMPORTANT: do NOT request `places.reviews`. Google user reviews are
-      // off-limits as a source for description / tip / shortDescription:
-      // they're third-party voices and our brand promise is "personally
-      // visited and curated" (see memory: feedback_curator_voice_no_third_party).
-      'X-Goog-FieldMask': [
-        'places.id',
-        'places.displayName',
-        'places.types',
-        'places.formattedAddress',
-        'places.websiteUri',
-        'places.editorialSummary',
-        'places.rating',
-        'places.userRatingCount',
-        'places.priceLevel',
-      ].join(','),
-    },
-    body: JSON.stringify({
-      textQuery: r.name,
-      languageCode: 'de',
-      locationBias: {
-        circle: { center: { latitude: r.lat, longitude: r.lng }, radius: 300 },
+  if (!r.googlePlaceId) {
+    console.warn(`      keine googlePlaceId — Places übersprungen`);
+    return null;
+  }
+  const res = await fetch(
+    `https://places.googleapis.com/v1/places/${encodeURIComponent(r.googlePlaceId)}?languageCode=de`,
+    {
+      headers: {
+        'X-Goog-Api-Key': GOOGLE_API_KEY,
+        // IMPORTANT: do NOT request `reviews`. Google user reviews are
+        // off-limits as a source for description / tip / shortDescription:
+        // they're third-party voices and our brand promise is "personally
+        // visited and curated" (see memory: feedback_curator_voice_no_third_party).
+        //
+        // Place Details nutzt die blanken Feldnamen, nicht das `places.`-Präfix
+        // der Suche.
+        'X-Goog-FieldMask': [
+          'id',
+          'displayName',
+          'types',
+          'formattedAddress',
+          'websiteUri',
+          'editorialSummary',
+          'rating',
+          'userRatingCount',
+          'priceLevel',
+        ].join(','),
       },
-    }),
-  });
+    }
+  );
   if (!res.ok) {
     console.warn(`      Places ${res.status}: ${await res.text()}`);
     return null;
   }
-  const data = (await res.json()) as { places?: Array<Record<string, unknown>> };
-  const place = data.places?.[0];
-  if (!place) return null;
+  // Place Details liefert das Objekt direkt, nicht in einer `places`-Liste.
+  const place = (await res.json()) as Record<string, unknown>;
+  if (!place?.id) return null;
 
   return {
     formattedAddress: place.formattedAddress as string | undefined,

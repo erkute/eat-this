@@ -3,8 +3,10 @@ import { describeGoogleSignInError } from './googleSignInError';
 
 describe('describeGoogleSignInError', () => {
   it('behandelt das Zumachen des Popups als Entscheidung, nicht als Fehler', () => {
-    // Sonst bekommt jemand eine rote Meldung dafür, dass er es sich anders
-    // überlegt hat — und Sentry einen Eintrag pro Sinneswandel.
+    /* `benign` steuert nur die MELDUNG auf dem Schirm. Gemeldet wird trotzdem
+       alles (siehe AuthContext) — auth/popup-closed-by-user ist auch das, was
+       eine gescheiterte Übergabe liefert, und die erste Fassung war dadurch
+       blind an genau der Stelle, an der ich hinsehen wollte. */
     for (const code of [
       'auth/popup-closed-by-user',
       'auth/cancelled-popup-request',

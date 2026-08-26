@@ -105,12 +105,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
          rounds of guessing (user, 2026-08-26). The code IS the diagnosis, so it
          goes in as a tag rather than being buried in the message. */
       const { code, benign } = describeGoogleSignInError(error);
-      if (!benign) {
-        Sentry.captureException(error, {
-          tags: { auth_flow: 'google_popup', auth_error_code: code },
-          extra: { authDomain: auth.app.options.authDomain, host: window.location.host },
-        });
-      }
+      /* IMMER melden, auch den Abbruch — nur leiser. `benign` entscheidet, ob
+         der Leser eine Meldung sieht, nicht ob wir eine bekommen: ein
+         zugegangenes Fenster sieht identisch aus, ob es der Leser war oder die
+         Übergabe. Genau diese Kopplung machte die vorige Fassung blind. */
+      Sentry.captureException(error, {
+        level: benign ? 'warning' : 'error',
+        tags: { auth_flow: 'google_popup', auth_error_code: code, auth_benign: String(benign) },
+        extra: {
+          authDomain: auth.app.options.authDomain,
+          appName: auth.app.name,
+          host: window.location.host,
+        },
+      });
+      // Auch in der Konsole, damit man es ohne Umweg über Sentry sieht.
+      console.warn('[auth] Google sign-in failed:', code, error);
       throw error;
     }
   }, []);

@@ -46,3 +46,7 @@ MAP_REDESIGN_HANDOFF.md
 
 # Sentry build plugin (.env.sentry-build-plugin already caught by .env* above)
 .sentryclirc
+
+# Batch-Import-Fortschritt (scripts/import-batch.ts) — lokal, nicht teilen
+scripts/data/*.state.json
+scripts/data/*.state.json.tmp

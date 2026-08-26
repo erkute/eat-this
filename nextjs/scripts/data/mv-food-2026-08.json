@@ -1,0 +1,1185 @@
+[
+ {
+  "name": "1990 Vegan Living",
+  "lat": 52.5102841,
+  "lng": 13.4586387,
+  "address": "Krossener Straße 19, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/1990-vegan-living/"
+ },
+ {
+  "name": "21 Gramm",
+  "lat": 52.4722043,
+  "lng": 13.4290381,
+  "address": "Hermannstraße 179, 12049 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/21-gramm-neukoelln/"
+ },
+ {
+  "name": "Adana Grillhaus Skalitzer Straße",
+  "lat": 52.4994513,
+  "lng": 13.4273898,
+  "address": "Skalitzer Str. 105, 10997 Berlin, Germany",
+  "source": "https://mitvergnuegen.com/tipps/fleisch-satt-im-adana-grillhaus-skalitzer-strasse/"
+ },
+ {
+  "name": "Alano Pizza",
+  "lat": 52.50526,
+  "lng": 13.3001299,
+  "address": "Windscheidstraße 20, 10627 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/alano-mini-pizza-stuttgarter-platz/"
+ },
+ {
+  "name": "Ankerklause",
+  "lat": 52.4955653,
+  "lng": 13.4211605,
+  "address": "Maybachufer 1, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/ankerklause-landwehrkanal/"
+ },
+ {
+  "name": "Bagel Bro",
+  "lat": 52.4937574,
+  "lng": 13.4372373,
+  "address": "Reichenberger Str. 104, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/in-der-sonne-mit-bagel-und-naturwein-von-bagel-bro-sitzen/"
+ },
+ {
+  "name": "Bagel, Coffee & Culture",
+  "lat": 52.4907648,
+  "lng": 13.3864113,
+  "address": "Mehringdamm 66, 10961 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/bagels-und-kaffee-bei-bagel-coffee-culture/"
+ },
+ {
+  "name": "Banh Mi Stable",
+  "lat": 52.5269419,
+  "lng": 13.408228,
+  "address": "Alte Schönhauser Straße 50, 10119 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/banh-mi-stable/"
+ },
+ {
+  "name": "Bar Raval",
+  "lat": 52.4980731,
+  "lng": 13.4365123,
+  "address": "Lübbener Straße 1, 10997",
+  "source": "https://mitvergnuegen.com/tipps/bar-raval/"
+ },
+ {
+  "name": "Benedict",
+  "lat": 52.5415672,
+  "lng": 13.421547,
+  "address": "Göhrener Straße 5, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/benedict-prenzlauer-berg/"
+ },
+ {
+  "name": "Berkis",
+  "lat": 52.4967186,
+  "lng": 13.3536972,
+  "address": "Winterfeldtstraße 45, 10781 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/berkis/"
+ },
+ {
+  "name": "Biergarten Südblock",
+  "lat": 52.4985783,
+  "lng": 13.4168038,
+  "address": "Admiralstraße 1-2, 10999",
+  "source": "https://mitvergnuegen.com/tipps/biergarten-suedblock/"
+ },
+ {
+  "name": "Brammibal's Donuts Neukölln",
+  "lat": 52.49475,
+  "lng": 13.4228,
+  "address": "Maybachufer 8, 12047 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/brammibals-donuts/"
+ },
+ {
+  "name": "Brammibal's Donuts Schöneberg",
+  "lat": 52.486205,
+  "lng": 13.3543279,
+  "address": "Hauptstraße 26, 10827 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/brammibals-donuts-schoeneberg/"
+ },
+ {
+  "name": "Burro Unchained",
+  "lat": 52.4749885,
+  "lng": 13.4239202,
+  "address": "Allerstraße 11, 12049 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/burro-unchained/"
+ },
+ {
+  "name": "Café Alma",
+  "lat": 52.4771436,
+  "lng": 13.4481036,
+  "address": "Hertzbergstraße 14, 12055 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-alma-neukoelln/"
+ },
+ {
+  "name": "Café am Neuen See",
+  "lat": 52.5104957,
+  "lng": 13.3447177,
+  "address": "Lichtensteinallee 2, 10787 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-am-neuen-see/"
+ },
+ {
+  "name": "Café Komine",
+  "lat": 52.49791,
+  "lng": 13.34162,
+  "address": "Welserstraße 13-15, 10777 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-komine-schoeneberg/"
+ },
+ {
+  "name": "Café Liebling",
+  "lat": 52.5421237,
+  "lng": 13.4208114,
+  "address": "Raumerstraße 36A, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-liebling/"
+ },
+ {
+  "name": "Cassambalis",
+  "lat": 52.5035009,
+  "lng": 13.3238972,
+  "address": "Grolmanstraße 35, 10623 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cassambalis-restaurant/"
+ },
+ {
+  "name": "Catbird",
+  "lat": 52.4865829,
+  "lng": 13.3548817,
+  "address": "Akazienstraße 28, 10823 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/catbird-schoeneberg/"
+ },
+ {
+  "name": "Chay Village",
+  "lat": 52.4898907,
+  "lng": 13.348769,
+  "address": "Eisenacher Straße 40, 10781 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/chay-village/"
+ },
+ {
+  "name": "Chungking Noodles",
+  "lat": 52.4973519,
+  "lng": 13.4232765,
+  "address": "Reichenberger Straße 35, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/chungking-noodles/"
+ },
+ {
+  "name": "Curry & Chili",
+  "lat": 52.55555,
+  "lng": 13.38349,
+  "address": "Osloer Straße 109, 13359 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/scharfe-currywurst-essen-bei-curry-chili/"
+ },
+ {
+  "name": "Daily Dumplings & Momos",
+  "lat": 52.5277071,
+  "lng": 13.3869866,
+  "address": "Chausseestraße 2, 10115 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/daily-dumplings-momos/"
+ },
+ {
+  "name": "Dilan Fladenbrot",
+  "lat": 52.4945013,
+  "lng": 13.4207623,
+  "address": "Kottbusser Damm 5-6, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/dilan-fladenbrot/"
+ },
+ {
+  "name": "Doen Doen Kebap",
+  "lat": 52.5097321,
+  "lng": 13.4558556,
+  "address": "Kopernikusstraße 17, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/veganer-doener-wie-das-berliner-original-bei-doen-doen-kebap/"
+ },
+ {
+  "name": "Dumplings Nian",
+  "lat": 52.5016521,
+  "lng": 13.4325054,
+  "address": "Eisenbahnstraße 4, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/bei-dumplings-nian-fuer-wenig-geld-richtig-gut-essen/"
+ },
+ {
+  "name": "Engelbecken Mitte",
+  "lat": 52.5063077,
+  "lng": 13.4185841,
+  "address": "Michaelkirchplatz 25, 10179 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/engelbecken-kreuzberg/"
+ },
+ {
+  "name": "Falafel Jakoub",
+  "lat": 52.4876325,
+  "lng": 13.4306484,
+  "address": "Weserstraße 14, 12047 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/orientalische-spezialitaeten-essen-bei-falafel-jakoub-in-neukoelln/"
+ },
+ {
+  "name": "Falco'Slice",
+  "lat": 52.4978891,
+  "lng": 13.441972,
+  "address": "Falckensteinstraße 33, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/riesige-pizzen-bei-falcoslice/"
+ },
+ {
+  "name": "File Asto Taverna",
+  "lat": 52.4955184,
+  "lng": 13.4312739,
+  "address": "Reichenberger Straße 125, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/file-asto-taverna/"
+ },
+ {
+  "name": "Fisch Borke",
+  "lat": 52.4429302,
+  "lng": 13.6767427,
+  "address": "Fürstenwalder Damm 848, 12589 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/sich-wie-im-urlaub-fuehlen-beim-sonnenuntergang-an-der-fisch-borke/"
+ },
+ {
+  "name": "Focacciando",
+  "lat": 52.5120703,
+  "lng": 13.4610546,
+  "address": "Boxhagener Str. 36, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/krasse-focaccia-sandwiches-wie-in-italien-essen-bei-focacciando/"
+ },
+ {
+  "name": "Fourty Years Kitchen",
+  "lat": 52.4923355,
+  "lng": 13.4183634,
+  "address": "Dieffenbachstraße 52, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/fourty-years-kitchen-dinner/"
+ },
+ {
+  "name": "Freischwimmer",
+  "lat": 52.49744,
+  "lng": 13.452179,
+  "address": "Vor dem Schlesischen Tor 2a, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/freischwimmer/"
+ },
+ {
+  "name": "Froindlichst",
+  "lat": 52.5331661,
+  "lng": 13.4232641,
+  "address": "Immanuelkirchstraße 31, 10405 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/ofenkaese-saftige-burger-und-bienenstich-veganes-comfy-food-im-froindlichst/"
+ },
+ {
+  "name": "Fu Li Lai",
+  "lat": 52.4505323,
+  "lng": 13.3215199,
+  "address": "Erlenstraße 19, 12167 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/chinesische-dumplings-essen-im-fu-li-lai-in-steglitz/"
+ },
+ {
+  "name": "Funky Fisch",
+  "lat": 52.5058893,
+  "lng": 13.3169731,
+  "address": "Kantstraße 135-136, 10625 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/funky-fisch-kantstrasse/"
+ },
+ {
+  "name": "Golda Delux",
+  "lat": 52.4977972,
+  "lng": 13.4135291,
+  "address": "Erkelenzdamm 45, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/golda-delux/"
+ },
+ {
+  "name": "Good Friends",
+  "lat": 52.50631,
+  "lng": 13.3182,
+  "address": "Kantstraße 30, 10623 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/peking-ente-essen-im-good-friends/"
+ },
+ {
+  "name": "Goodlyfe",
+  "lat": 52.5058528,
+  "lng": 13.4377889,
+  "address": "Mühlenstraße 61, 10243 Friedrichshain",
+  "source": "https://mitvergnuegen.com/tipps/goodlyfe-friedrichshain/"
+ },
+ {
+  "name": "Hamy Café",
+  "lat": 52.4873305,
+  "lng": 13.4220434,
+  "address": "Hasenheide 10, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/hamy-cafe/"
+ },
+ {
+  "name": "Hanuman Thai Curry House",
+  "lat": 52.4997,
+  "lng": 13.429691,
+  "address": "Skalitzer Str. 96, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/hanuman-thai-curry-house-kreuzberg/"
+ },
+ {
+  "name": "Happa",
+  "lat": 52.49961,
+  "lng": 13.44524,
+  "address": "Schlesische Straße 35a, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/happa-kreuzberg-vegan/"
+ },
+ {
+  "name": "Hasir Ocakbaşı",
+  "lat": 52.5010456,
+  "lng": 13.4193492,
+  "address": "Adalbertstraße 12, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/hasir-ocakbasi/"
+ },
+ {
+  "name": "Heimweh",
+  "lat": 52.4996841,
+  "lng": 13.4284767,
+  "address": "Skalitzer Str. 100, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/riesige-kumpir-und-toppings-so-viel-man-moechte-bei-heimweh/"
+ },
+ {
+  "name": "Herr Lindemann",
+  "lat": 52.4738068,
+  "lng": 13.4451552,
+  "address": "Richardplatz 16, 12055 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leckere-drinks-mit-heilender-wirkung-bei-herr-lindemann/"
+ },
+ {
+  "name": "häppies",
+  "lat": 52.5405752,
+  "lng": 13.4193122,
+  "address": "Dunckerstraße 2, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/germknoedel-mampfen-bei-haeppies/"
+ },
+ {
+  "name": "K36ab-Point",
+  "lat": 52.5242796,
+  "lng": 13.3335917,
+  "address": "Alt-Moabit 76, 10555 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/berlins-guenstigsten-doener-futtern-bei-k36ab-point-in-moabit/"
+ },
+ {
+  "name": "Kamala",
+  "lat": 52.5093849,
+  "lng": 13.4657889,
+  "address": "Boxhagener Straße 85, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/kamala-vegan-chinesisch/"
+ },
+ {
+  "name": "Kimchi Princess",
+  "lat": 52.4985892,
+  "lng": 13.4259203,
+  "address": "Skalitzer Straße 36, 10999",
+  "source": "https://mitvergnuegen.com/tipps/koreanisch-essen-kimchi-princess/"
+ },
+ {
+  "name": "Kirke Deli",
+  "lat": 52.4944711,
+  "lng": 13.416863,
+  "address": "Böckhstraße 50, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/kirke-deli-kreuzberg/"
+ },
+ {
+  "name": "Kollektiv La Stella Nera",
+  "lat": 52.4749679,
+  "lng": 13.4277766,
+  "address": "Leykestraße 18, 12053 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leckere-vegane-pizza-beim-kollektiv-la-stella-nera-futtern/"
+ },
+ {
+  "name": "Kreuzberger Weltlaterne",
+  "lat": 52.4970614,
+  "lng": 13.4177003,
+  "address": "Regina-Jonas-Straße 37, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/kreuzberger-weltlaterne/"
+ },
+ {
+  "name": "Lei's Küche",
+  "lat": 52.5496417,
+  "lng": 13.3513256,
+  "address": "Seestraße 41, 13353 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/authentisch-chinesisch-essen-bei-leis-kueche/"
+ },
+ {
+  "name": "Lia's Kitchen",
+  "lat": 52.4914244,
+  "lng": 13.4137897,
+  "address": "Urbanstraße 32, 10967 berlin",
+  "source": "https://mitvergnuegen.com/tipps/lias-kitchen/"
+ },
+ {
+  "name": "Lola Pizzaiola",
+  "lat": 52.5344101,
+  "lng": 13.4261691,
+  "address": "Winsstraße 21, 10405 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/bei-lola-pizzaiola-unzaehlige-stuecken-pizza-futtern/"
+ },
+ {
+  "name": "luuv Café",
+  "lat": 52.5443077,
+  "lng": 13.4219837,
+  "address": "Dunckerstraße 72, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/luuv-cafe-prenzlauer-berg/"
+ },
+ {
+  "name": "Maide Manti",
+  "lat": 52.5485032,
+  "lng": 13.3628895,
+  "address": "Schulstr.18, 13347 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/im-veganen-manti-himmel-schweben-bei-maide-manti/"
+ },
+ {
+  "name": "Meyan",
+  "lat": 52.4937001,
+  "lng": 13.3535005,
+  "address": "Goltzstraße 36, 10781 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/meyan/"
+ },
+ {
+  "name": "Mezem",
+  "lat": 52.5068693,
+  "lng": 13.3168637,
+  "address": "Schlüterstraße 19, 10625 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/mezem/"
+ },
+ {
+  "name": "Midye 47",
+  "lat": 52.488418,
+  "lng": 13.4246656,
+  "address": "Kottbusser Damm 36, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/muscheln-essen-im-streetfood-style-bei-midye-47/"
+ },
+ {
+  "name": "mom's",
+  "lat": 52.5156238,
+  "lng": 13.4607185,
+  "address": "Proskauer Straße 1, 10247 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/vegane-ente-und-andere-leckereien-bei-moms-schnabulieren/"
+ },
+ {
+  "name": "Muschelbar",
+  "lat": 52.5424004,
+  "lng": 13.4209875,
+  "address": "Dunckerstraße 10, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/muschel-bar-prenzlauer-berg/"
+ },
+ {
+  "name": "Nepal Momo",
+  "lat": 52.5036995,
+  "lng": 13.4472703,
+  "address": "Warschauer Straße 46, 10243 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/dumplings-vom-food-truck-nepal-momo-an-der-warschauer-futtern/"
+ },
+ {
+  "name": "Neue Republik Reger",
+  "lat": 52.49036,
+  "lng": 13.44909,
+  "address": "Bouchéstraße 79a, 12435 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/neue-republik-reger-vegan-burger-bio/"
+ },
+ {
+  "name": "nua.Rasa",
+  "lat": 52.5454661,
+  "lng": 13.414664,
+  "address": "Greifenhagener Str. 64, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/kaffeeroesterei-vegane-cheesecakes-und-bali-feeling-im-nua-rasa/"
+ },
+ {
+  "name": "Ormos",
+  "lat": 52.5545496,
+  "lng": 13.4610455,
+  "address": "Parkstraße 33a,  13086 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/ormos-griechisches-restaurant-weissensee/"
+ },
+ {
+  "name": "Oshione Bakery Friedrichshain",
+  "lat": 52.5104761,
+  "lng": 13.4683724,
+  "address": "Weichselstraße 25, 10247 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/oshione-bakery-friedrichshain/"
+ },
+ {
+  "name": "Pala Berlin",
+  "lat": 52.5468903,
+  "lng": 13.4126425,
+  "address": "Gaudystraße 1, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/pala-berlin-prenzlauer-berg/"
+ },
+ {
+  "name": "Parma",
+  "lat": 52.4995836,
+  "lng": 13.4399716,
+  "address": "Wrangelstraße 90, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/echte-neapolitanische-pizza-bei-parma/"
+ },
+ {
+  "name": "Pavillon am Ufer",
+  "lat": 52.4938964,
+  "lng": 13.428662,
+  "address": "Paul-Lincke-Ufer, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/aperol-spritz-aus-praktischen-schraubglaesern-am-pavillon-am-ufer/"
+ },
+ {
+  "name": "Peter Schlemihl",
+  "lat": 52.4875981,
+  "lng": 13.3907909,
+  "address": "Willibald-Alexis-Straße 25, 10965 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leckere-kaesespaetzle-bei-peter-schlemihl-futtern/"
+ },
+ {
+  "name": "Restaurant Z",
+  "lat": 52.4867568,
+  "lng": 13.3941321,
+  "address": "Friesenstraße 12, 10965 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/griechisch-mediterrane-kueche-im-restaurant-z/"
+ },
+ {
+  "name": "Rise's Delicacies",
+  "lat": 52.5331915,
+  "lng": 13.4000486,
+  "address": "Veteranenstraße 25, 10119 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/rises-delicacies/"
+ },
+ {
+  "name": "Sahara Imbiss",
+  "lat": 52.483303,
+  "lng": 13.4419915,
+  "address": "Wildenbruchstraße 85, 12045 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/sahara-imbiss/"
+ },
+ {
+  "name": "Shaniu's House of Noodles 2",
+  "lat": 52.5041116,
+  "lng": 13.3464042,
+  "address": "Kurfürstenstraße 79, 10787 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/shanius-house-of-noodles-hot-pot/"
+ },
+ {
+  "name": "Smooches",
+  "lat": 52.495535,
+  "lng": 13.4296144,
+  "address": "Reichenberger Straße 61a, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/smooches-kreuzberg/"
+ },
+ {
+  "name": "Smyrna Kuruyemis",
+  "lat": 52.50129,
+  "lng": 13.42005,
+  "address": "Oranienstraße 27, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/smyrna-kuruyemis/"
+ },
+ {
+  "name": "Sotto",
+  "lat": 52.5428492,
+  "lng": 13.3763722,
+  "address": "Neue Hochstraße 25, 13347 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/vegan-vegetarische-kueche-und-pizza-im-sotto-in-wedding/"
+ },
+ {
+  "name": "Sönmez Baklava",
+  "lat": 52.5003832,
+  "lng": 13.421268,
+  "address": "Oranienstraße 186, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/soenmez-baklava/"
+ },
+ {
+  "name": "Sùsù Vegan Food",
+  "lat": 52.5415211,
+  "lng": 13.41047,
+  "address": "Eberswalder Straße 29, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/susu-vegan-food-prenzlauer-berg/"
+ },
+ {
+  "name": "Taverna Amphipolis",
+  "lat": 52.5285158,
+  "lng": 13.3415827,
+  "address": "Wilhelmshavener Str. 6, 10551 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/taverna-amphipolis/"
+ },
+ {
+  "name": "The Juicery",
+  "lat": 52.5411,
+  "lng": 13.40525,
+  "address": "Eberswalder Str. 2, 10435 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/the-juicery/"
+ },
+ {
+  "name": "Tian Fu",
+  "lat": 52.4949303,
+  "lng": 13.3242512,
+  "address": "Uhlandstraße 142, 10719 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/tian-fu/"
+ },
+ {
+  "name": "Tianfuzius",
+  "lat": 52.4961224,
+  "lng": 13.340541,
+  "address": "Regensburger Straße 1, 10777 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/tianfuzius/"
+ },
+ {
+  "name": "Tilda",
+  "lat": 52.54276,
+  "lng": 13.41738,
+  "address": "Raumerstraße 7, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/fruehstuecken-und-uebernachten-bei-tilda/"
+ },
+ {
+  "name": "Tirelli's",
+  "lat": 52.48997,
+  "lng": 13.37784,
+  "address": "Kreuzbergstraße 29, 10965 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/tirellis-kreuzberg/"
+ },
+ {
+  "name": "Toca Rouge",
+  "lat": 52.52853,
+  "lng": 13.39181,
+  "address": "Torstraße 195, 10115 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/toca-rouge/"
+ },
+ {
+  "name": "Traumback",
+  "lat": 52.4802585,
+  "lng": 13.4390428,
+  "address": "Anzengruberstraße 6, 12043 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/hausgemachte-pizza-fuer-3-euro-essen-bei-traumback/"
+ },
+ {
+  "name": "Ushido Japanese BBQ",
+  "lat": 52.54208,
+  "lng": 13.41665,
+  "address": "Lychener Str. 18, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/bbq-auf-japanisch-bei-ushido-japanese-bbq/"
+ },
+ {
+  "name": "Van Loon",
+  "lat": 52.496499,
+  "lng": 13.405187,
+  "address": "An der Baerwaldbrücke, Carl-Herz-Ufer 5, 10961 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/van-loon/"
+ },
+ {
+  "name": "Veg'd",
+  "lat": 52.5131153,
+  "lng": 13.4561782,
+  "address": "Boxhagener Straße 21, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/vegane-burger-bowls-wraps-und-chili-bei-vegd/"
+ },
+ {
+  "name": "Vegane Fleischerei",
+  "lat": 52.53537,
+  "lng": 13.4060002,
+  "address": "Kastanienallee 40, 10119 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leberkaes-lyoner-und-pastrami-auf-pflanzenbasis-in-der-veganen-fleischerei/"
+ },
+ {
+  "name": "Vöner",
+  "lat": 52.5067259,
+  "lng": 13.4685995,
+  "address": "Boxhagener Str. 56, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/voener/"
+ },
+ {
+  "name": "Wen Cheng",
+  "lat": 52.5462791,
+  "lng": 13.4135482,
+  "address": "Schönhauser Allee 65, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/handgezogene-chinesische-nudeln-in-chili-oel-schluerfen-bei-wen-cheng/"
+ },
+ {
+  "name": "Witty's",
+  "lat": 52.5017886,
+  "lng": 13.3438852,
+  "address": "Wittenbergplatz 5, Berlin-Schöneberg",
+  "source": "https://mitvergnuegen.com/tipps/wittys-organic-food/"
+ },
+ {
+  "name": "Wok Show",
+  "lat": 52.5519873,
+  "lng": 13.4191856,
+  "address": "Greifenhagener Straße 31, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/jianbing-crepes-und-jiaozi-im-wok-show/"
+ },
+ {
+  "name": "Xin Chao",
+  "lat": 52.507745,
+  "lng": 13.3055557,
+  "address": "Pestalozzistraße 76A, 10627 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/xin-chao-charlottenburg/"
+ },
+ {
+  "name": "Yumcha Heroes",
+  "lat": 52.5311852,
+  "lng": 13.4027727,
+  "address": "Weinbergsweg 8, 10119 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/neonlicht-und-jede-menge-dim-sums-im-yumcha-heroes/"
+ },
+ {
+  "name": "Zenner Biergarten",
+  "lat": 52.48717,
+  "lng": 13.4775582,
+  "address": "Alt-Treptow 15-17, 12435 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/im-bier-und-weingarten-des-zenner-entspannen-trinken-und-eis-essen/"
+ },
+ {
+  "name": "Zero Stress Pizza",
+  "lat": 52.5004352,
+  "lng": 13.4318644,
+  "address": "Lausitzer Platz 10, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/pornokartoffel-und-hungry-pirate-im-pizzahimmel-bei-zero-stress-pizza-schweben/"
+ },
+ {
+  "name": "Zerö Kebap",
+  "lat": 52.5306135,
+  "lng": 13.4008294,
+  "address": "Brunnenstraße 5, 10119 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/freshe-und-vegane-doener-bei-zeroe-kebap/"
+ },
+ {
+  "name": "Zeus Pizza & Pide",
+  "lat": 52.5125039,
+  "lng": 13.4587708,
+  "address": "Boxhagenerstr. 29, Berlin",
+  "source": "https://mitvergnuegen.com/tipps/zeus-pizza-pide/"
+ },
+ {
+  "name": "Zola im Funkhaus",
+  "lat": 52.4800665,
+  "lng": 13.5003142,
+  "address": "Nalepastraße 18, 12459 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/pizza-essen-bei-zola-im-funkhaus/"
+ },
+ {
+  "name": "44 Brekkie",
+  "lat": 52.5097995,
+  "lng": 13.4581929,
+  "address": "Gabriel-Max-Straße 2, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/44-brekkie-friedrichshain/"
+ },
+ {
+  "name": "Allans Breakfast Club",
+  "lat": 52.5364616,
+  "lng": 13.4211149,
+  "address": "Rykestraße 13, 10405 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/allans-breakfast-club/"
+ },
+ {
+  "name": "Annelies",
+  "lat": 52.4983672,
+  "lng": 13.4349489,
+  "address": "Görlitzer Straße 68, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/fruehstuecken-und-kaffee-trinken-bei-annelies-in-kreuzberg/"
+ },
+ {
+  "name": "Big Bascha",
+  "lat": 52.5279618,
+  "lng": 13.3273972,
+  "address": "Huttenstraße 5, 10553 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/arabisch-fruehstuecken-im-big-bascha-in-moabit/"
+ },
+ {
+  "name": "Café Schröder",
+  "lat": 52.5303634,
+  "lng": 13.3922809,
+  "address": "Schröderstraße 15, 10115 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-schroeder-mitte/"
+ },
+ {
+  "name": "Fendrick's",
+  "lat": 52.4584177,
+  "lng": 13.321658,
+  "address": "Muthesiusstraße 1, 12163 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/auf-zwei-meter-hoehe-lecker-fruehstuecken-bei-fendricks/"
+ },
+ {
+  "name": "Frühstück 3000 Mitte",
+  "lat": 52.5030341,
+  "lng": 13.3945359,
+  "address": "Fromet-und-Moses-Mendelssohn-Platz 9, 10969 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/fruehstueck-3000-kreuzberg/"
+ },
+ {
+  "name": "Geist im Glas",
+  "lat": 52.4902325,
+  "lng": 13.4247332,
+  "address": "Lenaustraße 27, 12047 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/geist-im-glas-brunch-im-mirika/"
+ },
+ {
+  "name": "Horn",
+  "lat": 52.4944569,
+  "lng": 13.3823306,
+  "address": "Hornstraße 4, 10963 Berlin-Bezirk Friedrichshain-Kreuzberg",
+  "source": "https://mitvergnuegen.com/tipps/die-horn/"
+ },
+ {
+  "name": "Lotta Tagesbar",
+  "lat": 52.5078937,
+  "lng": 13.2978158,
+  "address": "Pestalozzistrasse 56 ,10627 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/lotta-tagesbar-charlottenburg/"
+ },
+ {
+  "name": "Love at first Bite",
+  "lat": 52.5340199,
+  "lng": 13.4158717,
+  "address": "Kollwitzstraße 42, 10405 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/suess-und-herzhaft-brunchen-bei-love-at-first-bite/"
+ },
+ {
+  "name": "Lue",
+  "lat": 52.531719,
+  "lng": 13.4319548,
+  "address": "Hufelandstraße 18, 10407 berlin",
+  "source": "https://mitvergnuegen.com/tipps/french-toast-creme-brulee-und-chicken-waffles-naschen-im-lue-in-prenzlauer-berg/"
+ },
+ {
+  "name": "Mana Food",
+  "lat": 52.5280896,
+  "lng": 13.3378758,
+  "address": "Bremer Straße 67, 10551 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/vegan-und-ayurvedisch-essen-im-mana-food/"
+ },
+ {
+  "name": "Silo Coffee",
+  "lat": 52.5100639,
+  "lng": 13.4584229,
+  "address": "Gabriel-Max-Straße 4, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/silo/"
+ },
+ {
+  "name": "Super Frühstück & Aperitivo",
+  "lat": 52.4820164,
+  "lng": 13.3301973,
+  "address": "Bundesallee 161, 10715 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/brunch-und-bubbles-im-super-fruehstueck-aperitivo-in-wilmdersdorf/"
+ },
+ {
+  "name": "Tucker Brunch Bar",
+  "lat": 52.5073642,
+  "lng": 13.4674563,
+  "address": "Wühlischstraße 1, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/brunchen-wie-in-australien-in-der-tucker-brunch-bar-in-friedrichshain/"
+ },
+ {
+  "name": "Windback Coffee",
+  "lat": 52.5054681,
+  "lng": 13.2993072,
+  "address": "Windscheidstraße 19, 10627 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/windback-coffee-charlottenburg/"
+ },
+ {
+  "name": "Altstadtcafé Köpenick",
+  "lat": 52.4462852,
+  "lng": 13.5746183,
+  "address": "Alt-Köpenick 16, 12555 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/altstadtcafe-coepenick/"
+ },
+ {
+  "name": "Barcomi's Kaffeerösterei",
+  "lat": 52.4889909,
+  "lng": 13.3934171,
+  "address": "Bergmannstraße 21, 10961 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/kaffee-kuchen-und-bagels-in-der-barcomi-kaffeeroesterei-in-kreuzberg/"
+ },
+ {
+  "name": "Café Baier",
+  "lat": 52.4596168,
+  "lng": 13.3229525,
+  "address": "Schlossstraße 26, 12163 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leckere-zeitreise-im-cafe-baier/"
+ },
+ {
+  "name": "Café Bistro 1900",
+  "lat": 52.5040213,
+  "lng": 13.3225094,
+  "address": "Knesebeckstraße 76, 10623 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/dinkel-streuselkuchen-essen-im-1900-cafe-bistro/"
+ },
+ {
+  "name": "Café Buchwald",
+  "lat": 52.52129,
+  "lng": 13.3475,
+  "address": "Bartningallee 29, 10557 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-buchwald/"
+ },
+ {
+  "name": "Café der Königlichen Gartenakademie",
+  "lat": 52.4563081,
+  "lng": 13.2998324,
+  "address": "Altensteinstraße 15a, 14195 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cafe-in-der-koeniglichen-gartenakademie/"
+ },
+ {
+  "name": "Café Neundrei",
+  "lat": 52.5231052,
+  "lng": 13.3998032,
+  "address": "Monbijouplatz 2, 10178 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/smoothies-kaffee-kuchen-und-croissants-im-cafe-neundrei/"
+ },
+ {
+  "name": "Der Kuchenladen",
+  "lat": 52.5057855,
+  "lng": 13.3182824,
+  "address": "Kantstraße 138, 10623 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/der-kuchenladen/"
+ },
+ {
+  "name": "Frau Behrens Torten",
+  "lat": 52.5017687,
+  "lng": 13.3080603,
+  "address": "Wilmersdorfer Straße 96, 10629 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/frau-behrens-torten/"
+ },
+ {
+  "name": "Göttlich",
+  "lat": 52.54202,
+  "lng": 13.35741,
+  "address": "Tegeler Straße 23, 13353 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/panini-und-kaffee-im-goettlich/"
+ },
+ {
+  "name": "Jubel Patisserie",
+  "lat": 52.5321,
+  "lng": 13.43033,
+  "address": "Hufelandstraße 10, 10407 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/wunderschoene-toertchen-bei-jubel-patisserie-bestaunen/"
+ },
+ {
+  "name": "Kuchenrausch",
+  "lat": 52.5127495,
+  "lng": 13.4574137,
+  "address": "Simon-Dach-Straße 1, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/kuchenrausch/"
+ },
+ {
+  "name": "Meuh",
+  "lat": 52.4832032,
+  "lng": 13.4291044,
+  "address": "Reuterstraße 13, 12053 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/omis-kuchen-und-geschmierte-broetchen-im-meuh/"
+ },
+ {
+  "name": "Milchmanns",
+  "lat": 52.5682069,
+  "lng": 13.4126319,
+  "address": "Berliner Straße 119, 13187 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/milchmanns-2/"
+ },
+ {
+  "name": "Mr. Minsch",
+  "lat": 52.49344,
+  "lng": 13.382,
+  "address": "Yorckstraße 15, 10965 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/mr-minsch/"
+ },
+ {
+  "name": "Princess Cheesecake",
+  "lat": 52.52677,
+  "lng": 13.39282,
+  "address": "Tucholskystraße 37, 10117 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/princess-cheesecake/"
+ },
+ {
+  "name": "Sowohl als auch",
+  "lat": 52.53837,
+  "lng": 13.42063,
+  "address": "Kollwitzstraße 88, 10435 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/sowohl-als-auch/"
+ },
+ {
+  "name": "Venue",
+  "lat": 52.4842025,
+  "lng": 13.4394755,
+  "address": "Weserstraße 172, 12045 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leckere-fruehstueckstapas-und-blumentapete-im-venue/"
+ },
+ {
+  "name": "100Brote",
+  "lat": 52.5327132,
+  "lng": 13.4296449,
+  "address": "Hufelandstrasse 2 10407 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/leckere-bio-brote-und-zimtschnecken-bei-100brote/"
+ },
+ {
+  "name": "Beumer & Lutum",
+  "lat": 52.4897881,
+  "lng": 13.4078838,
+  "address": "Körtestraße 36, 10967 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/beumer-lutum-koertestrasse-kreuzberg-berlin/"
+ },
+ {
+  "name": "Brammibal's Donuts Mitte",
+  "lat": 52.523637,
+  "lng": 13.409156,
+  "address": "Rosa-Luxemburg-Straße 5, 10178 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/vegane-donuts-naschen-bei-brammibals-donuts-in-mitte/"
+ },
+ {
+  "name": "Brot Gut",
+  "lat": 52.490675,
+  "lng": 13.3689919,
+  "address": "Hochkirchstraße 10, 10829 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/brot-gut-schoeneberg/"
+ },
+ {
+  "name": "Bäckerei Hacker",
+  "lat": 52.5464997,
+  "lng": 13.4188229,
+  "address": "Stargarder Straße 69, 10437 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/splitterbroetchen-essen-bei-der-baeckerei-hacker/"
+ },
+ {
+  "name": "Cinnamood",
+  "lat": 52.5237767,
+  "lng": 13.4001697,
+  "address": "Oranienburger Straße 8, 10178 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/cinnamood-berlin-mitte/"
+ },
+ {
+  "name": "Domberger Brot-Werk",
+  "lat": 52.523728,
+  "lng": 13.338261,
+  "address": "Essener Straße 11, 10555 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/domberger-brot-werk/"
+ },
+ {
+  "name": "Frea Bakery",
+  "lat": 52.5303291,
+  "lng": 13.3918404,
+  "address": "Gartenstraße 9, 10115 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/vegan-zero-waste-frea-bakery-mitte/"
+ },
+ {
+  "name": "Hansis Brot",
+  "lat": 52.5412027,
+  "lng": 13.3571961,
+  "address": "Kiautschoustraße 1, 13353 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/bei-hansis-brot-meisterliches-bio-brot-kaufen/"
+ },
+ {
+  "name": "Hey Schnecke",
+  "lat": 52.4952755,
+  "lng": 13.3422516,
+  "address": "Viktoria-Luise-Platz 11, 10777 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/saftige-zimtschnecken-mit-cremigem-topping-bei-hey-schnecke-verschlingen/"
+ },
+ {
+  "name": "Kantine der Nordischen Botschaften",
+  "lat": 52.5088427,
+  "lng": 13.3505523,
+  "address": "Rauchstraße 1, 10787 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/mittagspause-in-der-kantine-der-nordischen-botschaften/"
+ },
+ {
+  "name": "KEIT",
+  "lat": 52.5117187,
+  "lng": 13.4599934,
+  "address": "Grünberger Straße 75, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/handgemachte-brote-mit-regionalem-bio-mehl-bei-keit-kaufen/"
+ },
+ {
+  "name": "LA MAISON Paul-Lincke-Ufer",
+  "lat": 52.49343,
+  "lng": 13.4308599,
+  "address": "Paul-Lincke-Ufer 17, 10999 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/franzoesische-patisserie-schlemmen-im-la-maison/"
+ },
+ {
+  "name": "Lula am Markt",
+  "lat": 52.47226,
+  "lng": 13.3348,
+  "address": "Lauterstraße 14, 12159 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/saftige-sauerteig-laibe-aus-der-backstube-bei-lula-am-markt/"
+ },
+ {
+  "name": "Manufactum Brot & Butter",
+  "lat": 52.51109,
+  "lng": 13.32246,
+  "address": "Hardenbergstraße 4-5, 10623 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/koestliches-aus-der-backstube-bei-brotbutter/"
+ },
+ {
+  "name": "Oshione Bakery Kreuzberg",
+  "lat": 52.486089,
+  "lng": 13.3762884,
+  "address": "Katzbachstraße 25, 10965 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/glutenfreie-backwaren-in-der-oshione-bakery-shoppen/"
+ },
+ {
+  "name": "Sironi – Il Pane di Milano",
+  "lat": 52.50202,
+  "lng": 13.43186,
+  "address": "Eisenbahnstraße 42-43, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/sironi-il-pane-di-milano/"
+ },
+ {
+  "name": "Tobi Croissants",
+  "lat": 52.4910204,
+  "lng": 13.3254839,
+  "address": "Güntzelstraße 45, 10717 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/bei-tobi-croissants-allerlei-leckereien-schlemmen/"
+ },
+ {
+  "name": "Weichardt Brot",
+  "lat": 52.4859415,
+  "lng": 13.3263799,
+  "address": "Mehlitzstraße 7, 10715 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/weichardt-brot/"
+ },
+ {
+  "name": "Zeit für Brot",
+  "lat": 52.4988328,
+  "lng": 13.3120967,
+  "address": "Konstanzer Straße 1, 10707 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/zeit-fuer-brot/"
+ },
+ {
+  "name": "Eis Hennig",
+  "lat": 52.4387857,
+  "lng": 13.3883598,
+  "address": "Mariendorfer Damm 143, 12107 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/eis-hennig/"
+ },
+ {
+  "name": "Eiscafé Monheim",
+  "lat": 52.4851349,
+  "lng": 13.3201011,
+  "address": "Blissestraße 12, 10713 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/eiscafe-monheim/"
+ },
+ {
+  "name": "Eiscafé Surprise",
+  "lat": 52.5499392,
+  "lng": 13.4458289,
+  "address": "Langhansstraße 136, 13086 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/eiscafe-surprise-weissensee/"
+ },
+ {
+  "name": "Fräulein Frost",
+  "lat": 52.4920258,
+  "lng": 13.4279276,
+  "address": "Friedelstraße 39, 12047 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/fraeulein-frost/"
+ },
+ {
+  "name": "Natur Eis",
+  "lat": 52.5084165,
+  "lng": 13.459936,
+  "address": "Gärtnerstraße 2, 10245 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/natur-eis-friedrichshain/"
+ },
+ {
+  "name": "Süßfein",
+  "lat": 52.5357177,
+  "lng": 13.4189852,
+  "address": "Rykestraße 50, 10405 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/lecker-eis-essen-bei-suessfein/"
+ },
+ {
+  "name": "Tanne B",
+  "lat": 52.5010636,
+  "lng": 13.4310061,
+  "address": "Eisenbahnstraße 48, 10997 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/hausgemachtes-eis-bei-tanne-b/"
+ },
+ {
+  "name": "Viktoria Eis",
+  "lat": 52.4953906,
+  "lng": 13.3400354,
+  "address": "Motzstraße 58, 10777 Berlin",
+  "source": "https://mitvergnuegen.com/tipps/viktoria-eis-schoeneberg/"
+ }
+]

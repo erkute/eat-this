@@ -119,7 +119,16 @@ function distinctiveTokens(name: string): string[] {
  *  person's name. We match on the restaurant's DISTINCTIVE words so a business
  *  whose Google name varies the generic part still counts — "Albatross Bakery"
  *  matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
- *  name is entirely generic/short falls back to a whole-name containment check. */
+ *  name is entirely generic/short falls back to a whole-name containment check.
+ *
+ *  ONE strong token is enough, not all of them. The uploading Google profile
+ *  frequently carries a different name than the Places entry — "Zeus Pizza &
+ *  Pide" uploads as "Zeus Pizzeria – Friedrichshain", "ABC - Allans Breakfast
+ *  Club" as "Allan's ABC", "Ushido - Japanese bbq" as plain "Ushido". Requiring
+ *  every token rejected all three, and with them 13 genuine owner photos.
+ *  The trade-off is a guest whose display name happens to contain the brand
+ *  word ("Annabelle" for a spot called "Anna"); the 4-char floor keeps that
+ *  rare, and a wrong hero is a Studio correction, not a broken page. */
 export function isOwnerPhoto(
   displayName: string | null | undefined,
   restaurantName: string
@@ -129,8 +138,9 @@ export function isOwnerPhoto(
   const toks = distinctiveTokens(restaurantName);
   // A distinctive word of 4+ chars is a reliable brand signal — match on the
   // tokens so name variants (Bakery/Bäckerei, dropped suffixes) still count.
-  if (toks.some((t) => t.length >= 4)) {
-    return toks.every((t) => dn.includes(t));
+  const strong = toks.filter((t) => t.length >= 4);
+  if (strong.length) {
+    return strong.some((t) => dn.includes(t));
   }
   // Short / numeric / all-generic names ("963") — a substring would false-match
   // a guest who merely contains the token, so require the display to BE the name.

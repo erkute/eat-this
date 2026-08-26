@@ -8,6 +8,7 @@
  * Run from `nextjs/`:
  *   npx tsx scripts/import-from-url.ts <google-maps-url>
  *   npx tsx scripts/import-from-url.ts <google-maps-url> --dry-run
+ *   npx tsx scripts/import-from-url.ts <google-maps-url> --no-gallery
  *
  * Required env (in nextjs/.env.local):
  *   SANITY_API_WRITE_TOKEN  (Editor role)
@@ -673,6 +674,15 @@ interface BuildContext {
   slug: string;
 }
 
+/** Google returns the locality either as "Berlin" or as "Berlin-Bezirk
+ *  Friedrichshain-Kreuzberg". Only the short form is used across the catalogue
+ *  (329 of 330 published spots), and the borough is already carried by
+ *  `district` / `bezirkRef` — so collapse the long form rather than let the
+ *  addresses drift apart. */
+export function normalizeAddress(address: string): string {
+  return address.replace(/\bBerlin-Bezirk\s+[^,]+/g, 'Berlin');
+}
+
 function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildContext) {
   const name = place.displayName?.text ?? parsed.name;
   const doc: { _id: string; _type: 'restaurant' } & Record<string, unknown> = {
@@ -687,7 +697,7 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
     mapsUrl: place.googleMapsUri ?? mapsUrl,
     googlePlaceId: place.id,
   };
-  if (place.formattedAddress) doc.address = place.formattedAddress;
+  if (place.formattedAddress) doc.address = normalizeAddress(place.formattedAddress);
   if (place.websiteUri) doc.website = place.websiteUri;
   if (place.internationalPhoneNumber) doc.phone = place.internationalPhoneNumber;
 
@@ -747,7 +757,10 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
 export class ImportError extends Error {
   constructor(
     message: string,
-    public hint?: string
+    public hint?: string,
+    /** Set when the failure is a known, terminal outcome rather than a fault.
+     *  Batch callers use this to skip the entry on resume instead of retrying. */
+    public code?: 'duplicate'
   ) {
     super(message);
     this.name = 'ImportError';
@@ -757,6 +770,12 @@ export class ImportError extends Error {
 export interface RunImportOptions {
   /** When false, skip downloading + uploading the Places photo. Default true. */
   uploadPhoto?: boolean;
+  /** When false, import the hero photo but no gallery photos. Each gallery
+   *  photo is a separate billed Place Photo call, and the gallery only ever
+   *  renders on a published detail page — so bulk imports that will be curated
+   *  down should leave this off and backfill later via backfill-gallery.ts.
+   *  Ignored when uploadPhoto is false. Default true. */
+  uploadGallery?: boolean;
   /** When false, don't reject on a name collision. Default true. */
   duplicateCheck?: boolean;
   /** Authenticated client used for queries and asset uploads. Defaults to the CLI write token. */
@@ -811,6 +830,7 @@ export async function runImportFromParsed(
   }
 
   const uploadPhoto = opts.uploadPhoto !== false;
+  const uploadGallery = uploadPhoto && opts.uploadGallery !== false;
   const duplicateCheck = opts.duplicateCheck !== false;
 
   const place = await searchPlace(parsed);
@@ -838,7 +858,8 @@ export async function runImportFromParsed(
         `"${existing[0].name}" already exists in Sanity with the same Google Place ID (${existing[0]._id}).`,
         isDraft
           ? 'A draft for this place is already open — finish it in Studio.'
-          : 'Edit the existing document instead.'
+          : 'Edit the existing document instead.',
+        'duplicate'
       );
     }
   }
@@ -848,7 +869,7 @@ export async function runImportFromParsed(
 
   const slug = await uniqueSlug(slugify(matchedName), ortsteil, sanity);
   const photoAsset = uploadPhoto ? await importPhoto(place, slug, matchedName, sanity) : null;
-  const galleryAssets = uploadPhoto
+  const galleryAssets = uploadGallery
     ? await importGalleryPhotos(place, slug, matchedName, photoAsset?.sourcePhotoName, sanity)
     : [];
 
@@ -881,16 +902,19 @@ export async function runImportFromParsed(
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const noGallery = args.includes('--no-gallery');
   const url = args.find((a) => !a.startsWith('--'));
   if (!url) {
-    console.error('Usage: npx tsx scripts/import-from-url.ts <google-maps-url> [--dry-run]');
+    console.error(
+      'Usage: npx tsx scripts/import-from-url.ts <google-maps-url> [--dry-run] [--no-gallery]'
+    );
     process.exit(1);
   }
 
   console.log(`→ Resolving: ${url}`);
   let result: RunImportResult;
   try {
-    result = await runImport(url, { uploadPhoto: !dryRun });
+    result = await runImport(url, { uploadPhoto: !dryRun, uploadGallery: !noGallery });
   } catch (err) {
     if (err instanceof ImportError) {
       console.error(`✗ ${err.message}`);
@@ -915,6 +939,7 @@ async function main() {
   else console.log(`  photo:    none on Places`);
   const galleryCount = Array.isArray(result.doc.gallery) ? result.doc.gallery.length : 0;
   if (galleryCount) console.log(`  gallery:  ${galleryCount} photos uploaded`);
+  else if (noGallery && !dryRun) console.log('  gallery:  skipped (--no-gallery)');
 
   console.log(`\n→ Draft preview:\n${JSON.stringify(result.doc, null, 2)}\n`);
 

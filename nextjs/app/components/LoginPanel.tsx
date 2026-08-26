@@ -7,6 +7,7 @@ import { useAuth, useMagicLink } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { GoogleMark } from './GoogleMark';
+import { describeGoogleSignInError } from '@/lib/auth/googleSignInError';
 import styles from './LoginPanel.module.css';
 
 const SIGNIN_BOOSTER_PACKS = [
@@ -36,6 +37,7 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
 
   const [email, setEmail] = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [googleError, setGoogleError] = useState(false);
   const authMethod = useRef<'google' | null>(null);
   const emailInputId = useId();
 
@@ -56,11 +58,14 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
     authMethod.current = 'google';
     trackEvent('login_start', { method: 'google' });
     setGoogleBusy(true);
+    setGoogleError(false);
     try {
       await signInWithGoogle();
-    } catch {
+    } catch (error) {
       authMethod.current = null;
       setGoogleBusy(false);
+      // Abbruch durch den Leser bleibt stumm; alles andere hat er zu sehen.
+      if (!describeGoogleSignInError(error).benign) setGoogleError(true);
     }
   }, [signInWithGoogle]);
 
@@ -251,11 +256,11 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
               />
               <p
                 className={styles.error}
-                role={magicState === 'error' ? 'alert' : undefined}
+                role={magicState === 'error' || googleError ? 'alert' : undefined}
                 aria-live="polite"
-                aria-hidden={magicState !== 'error'}
+                aria-hidden={magicState !== 'error' && !googleError}
               >
-                {magicState === 'error' ? magicError : ''}
+                {magicState === 'error' ? magicError : googleError ? t('errGooglePopup') : ''}
               </p>
               <button
                 type="submit"

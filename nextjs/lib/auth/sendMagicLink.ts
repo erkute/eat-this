@@ -17,6 +17,43 @@ import { buildLoginText, buildSignupText } from '@/emails/magicLinkText';
 
 type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
+/**
+ * Rewrite the generated sign-in link so it lands on OUR /welcome — regardless
+ * of what the Firebase project's action URL says.
+ *
+ * The generated link is nothing but `<callbackUri>?<oobCode etc.>`, and
+ * /welcome validates the QUERY (isSignInWithEmailLink checks mode + oobCode),
+ * never the host. So the host is ours to choose — and it has to be, because
+ * the project setting cannot be relied on: staging's sat on the Firebase
+ * default (`…firebaseapp.com/__/auth/action`), whose handler silently
+ * forwards to the continue URL without ever signing anyone in — "ich komme
+ * auf die Staging-Seite, aber werde nicht eingeloggt" (user, 2026-08-26).
+ * Fixing the setting is closed off too: both the console and the admin API
+ * refuse with EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED, an anti-phishing restriction
+ * on the project. So the server owns the link now; the console setting is
+ * decoration. On production, whose callbackUri already points at
+ * www.eatthisdot.com/welcome, this rewrite is a no-op by construction.
+ *
+ * The target origin comes from the continue URL — already validated against
+ * the own-origin allow-list by every caller — so the link always lands on the
+ * same deployment that asked for it.
+ */
+export function rehostMagicLink(generated: string, continueUrl: string): string {
+  try {
+    const link = new URL(generated);
+    const target = new URL(continueUrl);
+    link.protocol = target.protocol;
+    link.host = target.host;
+    link.pathname = '/welcome';
+    return link.toString();
+  } catch {
+    // Non-absolute continueUrl — the same legacy fallback the `e`-param code
+    // above tolerates. A mail with Firebase's default handler still beats no
+    // mail at all.
+    return generated;
+  }
+}
+
 type SendMagicLinkResult = { ok: true } | { ok: false; error: SendMagicLinkError };
 
 export async function sendMagicLinkEmail(params: {
@@ -47,10 +84,13 @@ export async function sendMagicLinkEmail(params: {
 
   let magicLink: string;
   try {
-    magicLink = await getAdminAuth().generateSignInWithEmailLink(email, {
-      url: linkUrl,
-      handleCodeInApp: true,
-    });
+    magicLink = rehostMagicLink(
+      await getAdminAuth().generateSignInWithEmailLink(email, {
+        url: linkUrl,
+        handleCodeInApp: true,
+      }),
+      continueUrl
+    );
   } catch (err) {
     console.error('[sendMagicLink] generateSignInWithEmailLink failed:', err);
     return { ok: false, error: 'link-generation-failed' };

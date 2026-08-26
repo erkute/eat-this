@@ -171,7 +171,19 @@ export default function MapSection({
     (slug: string) => restaurants.some((restaurant) => restaurant.slug === slug),
     [restaurants]
   );
-  const { claimingSlug, outcome: claimOutcome } = useSignupSpotClaim(uid, isSpotOpen);
+  const { claimingSlug, outcome: claimOutcome, startClaim } = useSignupSpotClaim(uid, isSpotOpen);
+
+  /* Wie viele Spots die Karte VOR der Anmeldung zeigte. Der Belohnungs-Screen
+     rechnet "nachher minus vorher", und sein früheres Sampling beim Start des
+     Wartens war ein Wettrennen: kam der Signed-Refetch schneller, war "vorher"
+     schon die Signed-Stufe, und aus ~51 neuen Spots wurde "1 neuer Spot"
+     (User, 26.08.2026, Staging mit 464 Spots). Die letzte anonyme Payload ist
+     dagegen eindeutig — sie ändert sich nicht damit, wann welche Antwort
+     eintrifft. */
+  const [anonSpotCount, setAnonSpotCount] = useState<number | null>(null);
+  useEffect(() => {
+    if (dataUid === null) setAnonSpotCount(restaurants.length);
+  }, [dataUid, restaurants.length]);
 
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
@@ -1667,6 +1679,8 @@ export default function MapSection({
       lockedIdSet={lockedIdSet}
       claimingSlug={claimingSlug}
       claimOutcome={claimOutcome}
+      onClaimSpot={startClaim}
+      anonSpotCount={anonSpotCount}
       mapUid={dataUid}
       openSpotCount={restaurants.length}
       justUnlockedSlug={justUnlockedSlug}

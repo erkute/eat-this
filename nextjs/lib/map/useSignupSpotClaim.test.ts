@@ -118,3 +118,37 @@ describe('useSignupSpotClaim', () => {
     await waitFor(() => expect(result.current.claimingSlug).toBeNull());
   });
 });
+
+describe('startClaim — der Google-Weg', () => {
+  it('meldet den Claim demselben Zustand, den der Belohnungs-Screen liest', async () => {
+    /* Der Fehler, für den es startClaim gibt: Google claimte inline in
+       LockedDetail, am Hook vorbei — der Spot ging auf, und kein Screen sagte,
+       was gerade passiert war ("dachte da kommt ein Info Screen", User,
+       26.08.2026). */
+    at('');
+    const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
+    expect(result.current.claimingSlug).toBeNull();
+    act(() => result.current.startClaim('tief-im-katalog'));
+    expect(result.current.claimingSlug).toBe('tief-im-katalog');
+    await waitFor(() => expect(result.current.outcome).toBe('granted'));
+  });
+
+  it('feuert den POST nur einmal, auch wenn beide Wege anlaufen', async () => {
+    /* Sonst würde der URL-Effekt nach startClaim einen zweiten POST schicken,
+       der Server ihn als already_claimed ablehnen — und ein granted-Ausgang
+       würde zu spent umgeschrieben. */
+    at('?r=tief-im-katalog&claim=1');
+    const { result } = renderHook(() => useSignupSpotClaim('u1', nothingOpen));
+    act(() => result.current.startClaim('tief-im-katalog'));
+    await waitFor(() => expect(result.current.outcome).toBe('granted'));
+    expect(claimSignupSpot).toHaveBeenCalledTimes(1);
+  });
+
+  it('verbrennt den Claim nicht an einem Spot, der schon offen ist', () => {
+    at('');
+    const { result } = renderHook(() => useSignupSpotClaim('u1', everythingOpen));
+    act(() => result.current.startClaim('schon-offen'));
+    expect(claimSignupSpot).not.toHaveBeenCalled();
+    expect(result.current.claimingSlug).toBeNull();
+  });
+});

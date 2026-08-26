@@ -219,7 +219,6 @@ interface Place {
   websiteUri?: string;
   internationalPhoneNumber?: string;
   regularOpeningHours?: { weekdayDescriptions?: string[] };
-  editorialSummary?: { text: string };
   priceLevel?:
     | 'PRICE_LEVEL_FREE'
     | 'PRICE_LEVEL_INEXPENSIVE'
@@ -246,6 +245,17 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
   // they're third-party voices and our brand promise is "personally
   // visited and curated" (see memory: feedback_curator_voice_no_third_party).
   // If you add a field below, keep `places.reviews` out.
+  //
+  // `editorialSummary` is deliberately absent too. It used to fill
+  // `shortDescription` (and `description`, past 160 chars) verbatim, but
+  // Google returns it in English often enough — despite languageCode 'de' —
+  // that German fields ended up with English text, and the description
+  // generator never fixed them: it only writes fields that are still empty,
+  // and an import-set `description` drops the spot out of its target set
+  // entirely. Both fields belong to generate-de-descriptions.ts, which asks
+  // Places for the summary itself and writes German prose in our voice.
+  // Dropping it also takes the whole request down from Text Search
+  // Enterprise + Atmosphere (40 $/1.000) to Enterprise (35 $/1.000).
   const FIELDS = [
     'places.id',
     'places.displayName',
@@ -255,7 +265,6 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
     'places.websiteUri',
     'places.internationalPhoneNumber',
     'places.regularOpeningHours',
-    'places.editorialSummary',
     'places.priceLevel',
     'places.priceRange',
     'places.location',
@@ -704,13 +713,6 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   const cuisine = pickCuisine(place.types);
   if (cuisine) doc.cuisineType = cuisine;
 
-  if (place.editorialSummary?.text) {
-    const summary = place.editorialSummary.text;
-    doc.shortDescription = summary.slice(0, 160);
-    // The longer description field caps at 300 — only set when the summary
-    // adds something beyond the 160-char short version.
-    if (summary.length > 160) doc.description = summary.slice(0, 300);
-  }
   if (place.regularOpeningHours?.weekdayDescriptions?.length) {
     doc.openingHours = parseWeekdayDescriptions(place.regularOpeningHours.weekdayDescriptions);
   }

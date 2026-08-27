@@ -33,9 +33,10 @@ vi.mock('./UserLocationMarker', () => ({ default: () => <div data-user-marker />
 
 import MapCanvasLayer from './MapCanvasLayer';
 
-/* A locked spot is drawn as a muted dot and named after the restaurant, same
-   as every pin — so what tells the two apart in here is the dot itself. */
-const lockedDots = () => document.querySelectorAll('[class*="pinLockedDot"]');
+/* Ein gesperrter Spot trägt seit dem 27.08.2026 denselben Pin wie ein freier,
+   nur in Grau — und heißt wie das Restaurant, wie jeder Marker. Was die beiden
+   hier auseinanderhält, ist deshalb die Grau-Klasse, nicht mehr der Punkt. */
+const lockedPins = () => document.querySelectorAll('[class*="pinLogoLocked"]');
 
 function spot(id: string, over: Partial<MapRestaurant> = {}): MapRestaurant {
   return {
@@ -120,9 +121,7 @@ describe('MapCanvasLayer viewport culling', () => {
   const faraway = () => spot('faraway', { lat: 52.9, lng: 14.9 });
 
   it('skips spots outside the padded viewport', async () => {
-    render(
-      layerWithRef([nearby(), faraway()], [], mapRefWithBounds(13.3, 52.45, 13.5, 52.58))
-    );
+    render(layerWithRef([nearby(), faraway()], [], mapRefWithBounds(13.3, 52.45, 13.5, 52.58)));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
     expect(screen.getByLabelText('nearby')).toBeTruthy();
@@ -130,20 +129,16 @@ describe('MapCanvasLayer viewport culling', () => {
   });
 
   it('culls the locked dots on the same window', async () => {
-    render(
-      layerWithRef([], [nearby(), faraway()], mapRefWithBounds(13.3, 52.45, 13.5, 52.58))
-    );
+    render(layerWithRef([], [nearby(), faraway()], mapRefWithBounds(13.3, 52.45, 13.5, 52.58)));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(lockedDots()).toHaveLength(1);
+    expect(lockedPins()).toHaveLength(1);
   });
 
   it('keeps a spot just outside the edge, because the window is padded', async () => {
     // 0.6 of the span on each side: a 0.2° wide window reaches 0.12° further.
     const justOutside = spot('just-outside', { lat: 52.52, lng: 13.58 });
-    render(
-      layerWithRef([justOutside], [], mapRefWithBounds(13.3, 52.45, 13.5, 52.58))
-    );
+    render(layerWithRef([justOutside], [], mapRefWithBounds(13.3, 52.45, 13.5, 52.58)));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
     expect(screen.getByLabelText('just-outside')).toBeTruthy();
@@ -165,7 +160,7 @@ describe('MapCanvasLayer locked spots', () => {
     // fallback timer reveals them regardless.
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(lockedDots()).toHaveLength(3);
+    expect(lockedPins()).toHaveLength(3);
     expect(screen.getAllByLabelText(/^locked-/)).toHaveLength(3);
     expect(screen.getAllByLabelText(/^free-/)).toHaveLength(2);
   });
@@ -182,16 +177,17 @@ describe('MapCanvasLayer locked spots', () => {
 
   it('does not hand an open locked spot the free-spot pin', async () => {
     // The "selected spot may sit outside the visible set" fallback exists for
-    // deep links. A locked selection is already drawn as its own dot, and a
-    // second, yellow pin on the same coordinate would be a spot too many.
+    // deep links. Ein gesperrter Spot ist schon als grauer Pin gezeichnet, und
+    // ein zweiter, gelber auf derselben Koordinate wäre ein Spot zu viel.
     const target = spot('locked-1');
     render(layer([spot('free-1')], [target], target, true));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
     const marker = screen.getAllByLabelText('locked-1');
     expect(marker).toHaveLength(1);
-    expect(marker[0].querySelector('[class*="pinLockedDot"]')).toBeTruthy();
-    expect(lockedDots()).toHaveLength(1);
+    // Die Grau-Klasse sitzt am Knopf selbst, nicht in ihm.
+    expect(marker[0].className).toMatch(/pinLogoLocked/);
+    expect(lockedPins()).toHaveLength(1);
   });
 
   it('still gives a deep-linked free spot a pin when it is outside the set', async () => {
@@ -206,7 +202,7 @@ describe('MapCanvasLayer locked spots', () => {
     render(layer([spot('free-1')], []));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(lockedDots()).toHaveLength(0);
+    expect(lockedPins()).toHaveLength(0);
   });
 });
 
@@ -230,7 +226,7 @@ describe('MapCanvasLayer draws every spot on its own', () => {
     render(layer([], [spot('locked-1'), spot('locked-2'), spot('locked-3'), spot('locked-4')]));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(lockedDots()).toHaveLength(4);
+    expect(lockedPins()).toHaveLength(4);
     expect(screen.getByLabelText('locked-4')).toBeTruthy();
   });
 
@@ -249,7 +245,7 @@ describe('MapCanvasLayer draws every spot on its own', () => {
     render(layer([], [spot('locked-1'), target, spot('locked-3')], target, true));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(lockedDots()).toHaveLength(3);
+    expect(lockedPins()).toHaveLength(3);
     expect(screen.getAllByLabelText('locked-2')).toHaveLength(1);
   });
 

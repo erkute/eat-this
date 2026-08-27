@@ -59,19 +59,71 @@ function normalizeForCompare(text: string): string {
     .trim();
 }
 
+/** Share of `a` that also runs through `b`, in order — a longest-common-
+ *  subsequence ratio. Unlike a prefix test it survives the word an editor swaps
+ *  or the clause they drop when trimming a paragraph down to a teaser. */
+function orderedOverlap(a: string[], b: string[]): number {
+  if (!a.length) return 0;
+  const row = new Array<number>(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i++) {
+    let prevDiagonal = 0;
+    for (let j = 1; j <= b.length; j++) {
+      const above = row[j];
+      row[j] = a[i - 1] === b[j - 1] ? prevDiagonal + 1 : Math.max(row[j], row[j - 1]);
+      prevDiagonal = above;
+    }
+  }
+  return row[b.length] / a.length;
+}
+
+/** Everything up to the first full stop. A dash or a colon does not end a
+ *  sentence — plenty of our openings run "Berlin ohne X ist undenkbar – die
+ *  Stadt hat ...", and that whole clause is one thought. */
+function firstSentence(text: string): string {
+  return (text.match(/^[^.!?]+/) ?? [text])[0];
+}
+
+/** How much of the lede's opening sentence must run through the article's, and
+ *  how much of the first words must match when neither has a sentence to judge. */
+const SENTENCE_OVERLAP = 0.7;
+const LEDE_WINDOW = 10;
+const LEDE_OVERLAP = 0.8;
+
 /** The excerpt is authored as the article's opening line, so on most pieces it
  *  is word-for-word the first paragraph — printed as a bold lede and then again
- *  right below with a drop cap. When they overlap, the lede loses. */
+ *  right below with a drop cap. When they overlap, the lede loses.
+ *
+ *  On the Ich-Kolumnen the excerpt is usually that opening *rewritten*: a word
+ *  swapped, a sentence dropped, the paragraph after it stitched on. It reads
+ *  just as doubled, so past the exact match we ask the question a reader would:
+ *  does the lede open on the sentence the article opens on? Only the openings
+ *  are compared — further down, a teaser may quote the body and keep its lede. */
 function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): boolean {
   if (!excerpt.trim()) return false;
   const first = (blocks as TextBlock[]).find(
     (b) => b._type === 'block' && (b.style ?? 'normal') === 'normal' && blockText(b).trim()
   );
   if (!first) return false;
-  const opening = normalizeForCompare(blockText(first));
+  const openingText = blockText(first);
+  const opening = normalizeForCompare(openingText);
   const lede = normalizeForCompare(excerpt);
   if (!opening || !lede) return false;
-  return opening.startsWith(lede) || lede.startsWith(opening);
+  if (opening.startsWith(lede) || lede.startsWith(opening)) return true;
+
+  const ledeSentence = normalizeForCompare(firstSentence(excerpt)).split(' ');
+  // Under four words it is a fragment — "Kein Ranking." lines up with anything.
+  if (ledeSentence.length >= 4) {
+    const openingSentence = normalizeForCompare(firstSentence(openingText)).split(' ');
+    if (orderedOverlap(ledeSentence, openingSentence) >= SENTENCE_OVERLAP) return true;
+  }
+
+  // Fallback for a lede that opens on a fragment but copies on from there.
+  return (
+    orderedOverlap(
+      lede.split(' ').slice(0, LEDE_WINDOW),
+      opening.split(' ').slice(0, LEDE_WINDOW)
+    ) >= LEDE_OVERLAP
+  );
 }
 
 // Article detail — Chewy magazine feature. On desktop the piece runs as a

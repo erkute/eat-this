@@ -372,23 +372,48 @@
    is — the one door on the page that leads somewhere before the closer. It
    borrows the section grid so the text column stays on the same spine. */
 
+/* Eine eigene Fläche statt Text auf Weiß. Vorher stand der Abschnitt als
+   nackter Stapel zwischen den Fließtext-Blöcken und las sich wie deren
+   Fortsetzung — obwohl er das Einzige auf der Seite ist, das etwas von einem
+   will. Ruhiges Grau, nicht Tinte: der dunkle Kasten am Seitenfuß ist der
+   Hauptruf, und zwei schwarze Flächen teilen den Druck in zwei Hälften.
+
+   `overflow: hidden` ist tragend, nicht kosmetisch — Remys Illustration endet
+   unten mit einer harten, geraden Kante (es ist eine Büste). Frei schwebend
+   sah das nach einem Ladefehler aus. An der Panelkante angeschnitten liest es
+   sich, als lehnte er sich von unten herein. */
 .remySection {
+  position: relative;
   display: grid;
-  gap: clamp(24px, 3.4vw, 36px);
-  align-items: center;
+  gap: clamp(14px, 2vw, 20px);
   margin-top: clamp(46px, 6.5vw, 84px);
+  padding: clamp(24px, 3.4vw, 40px) clamp(20px, 3vw, 40px);
+  padding-bottom: clamp(96px, 26vw, 120px);
+  overflow: hidden;
+  background: var(--about-quiet);
+  border-radius: var(--et-radius-panel, 10px);
 }
 
+/* Ab 900px nebeneinander: dann trägt die Spalte den Text, und Remy braucht
+   keinen reservierten Streifen mehr unter der Kopie. */
 @media (min-width: 900px) {
   .remySection {
-    grid-template-columns: minmax(0, 60ch) 300px;
+    grid-template-columns: minmax(0, 58ch) 260px;
+    align-items: end;
     justify-content: space-between;
     gap: clamp(40px, 5vw, 72px);
+    padding-bottom: 0;
   }
 }
 
 .remyCopy {
   min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .remyCopy {
+    padding-bottom: clamp(24px, 3.4vw, 40px);
+  }
 }
 
 .remyTitle {
@@ -429,6 +454,14 @@
   transition: color 140ms ease;
 }
 
+/* Ein Pfeil, kein Button: der gelbe Knopf am Seitenfuß bleibt der eine Ruf,
+   den die Seite tut. Der Pfeil macht aus dem Link trotzdem sichtbar eine
+   Handlung statt einer Querverweis-Zeile. */
+.remyCta::after {
+  content: ' →';
+  text-decoration: none;
+}
+
 .remyCta:hover,
 .remyCta:focus-visible {
   color: var(--about-ink);
@@ -438,16 +471,28 @@
    small enough not to cover the screen, which left him looking like a
    footnote to his own section. */
 .remyArt {
+  position: absolute;
+  right: clamp(10px, 3vw, 26px);
+  bottom: -14px;
   display: block;
-  width: min(100%, 170px);
+  width: min(34vw, 132px);
   height: auto;
-  margin-inline: auto;
   transform: rotate(-3deg);
+  transform-origin: bottom center;
   transition: transform 140ms ease;
 }
 
+@media (min-width: 900px) {
+  .remyArt {
+    position: static;
+    width: min(100%, 200px);
+    margin-inline: auto;
+    margin-bottom: -18px;
+  }
+}
+
 .remySection:hover .remyArt {
-  transform: translateY(-4px) rotate(-5deg);
+  transform: translateY(-6px) rotate(-5deg);
 }
 
 /* ---------- figures ---------- */

@@ -54,14 +54,12 @@ const nextConfig: NextConfig = {
     // Local assets receive real responsive variants. Sanity URLs are valid
     // remote sources and are cached by the same optimizer; raw <img> call
     // sites use sanityImageLoader directly.
-    // Local next/image assets live below /pics plus the checkout logo set.
+    // Local next/image assets live below /pics and /buddy. The checkout logo
+    // set is gone from here on purpose: the payment marks are inline SVG now
+    // (app/components/PaymentMarks.tsx), which the optimizer never sees.
     // Omitting `search` keeps cache-bust queries such as card-back.webp?v=6
     // valid.
-    localPatterns: [
-      { pathname: '/pics/**' },
-      { pathname: '/buddy/**' },
-      { pathname: '/payment/**' },
-    ],
+    localPatterns: [{ pathname: '/pics/**' }, { pathname: '/buddy/**' }],
     remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
 

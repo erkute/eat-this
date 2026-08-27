@@ -19,6 +19,7 @@ import {
   formatBundleSavings,
 } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
+import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
 import styles from './PackDetail.module.css';
 
 interface PageProps {
@@ -73,13 +74,6 @@ const ALL_BERLIN_GRID: string[][] = [
 ];
 const ALL_BERLIN_UPSELL = ALL_BERLIN_GRID.flat();
 
-const PAYMENT_METHODS = [
-  { src: '/payment/apple-pay.webp', alt: { de: 'Apple Pay', en: 'Apple Pay' } },
-  { src: '/payment/paypal.webp', alt: { de: 'PayPal', en: 'PayPal' } },
-  { src: '/payment/klarna.webp', alt: { de: 'Klarna', en: 'Klarna' } },
-  { src: '/payment/credit-card.webp', alt: { de: 'Kreditkarte', en: 'Credit card' } },
-];
-
 export default async function PackDetailPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
@@ -101,11 +95,11 @@ export default async function PackDetailPage({ params }: PageProps) {
       : 'Something went wrong. Please try again.',
   };
   const paymentLogos = (
-    <div className={styles.paymentLogos} aria-label={de ? 'Zahlungsarten' : 'Payment methods'}>
-      {PAYMENT_METHODS.map((method) => (
-        <Image key={method.src} src={method.src} alt={method.alt[loc]} width={70} height={48} />
-      ))}
-    </div>
+    <PaymentMarks
+      height={32}
+      label={`${de ? 'Zahlungsarten' : 'Payment methods'}: ${PAYMENT_MARK_NAMES.join(', ')}`}
+      className={styles.paymentLogos}
+    />
   );
 
   // ── All-Berlin variant ──────────────────────────────────────────────

@@ -124,8 +124,7 @@ const en = {
     // The home teaser's lead. Names what a card is and why it is a card, in
     // that order — the row underneath is mostly face-down, so the second half
     // describes what the visitor is looking at.
-    teaserSub:
-      'One dish per spot that you have to order. A few cards are face-up — you reveal the rest on site.',
+    teaserSub: 'Dishes you have to order. A few cards are face-up — you reveal the rest on site.',
     teaserCta: 'All Must Eats',
   },
   news: {
@@ -221,11 +220,20 @@ const en = {
     // "Come closer", which is a lie to anyone already standing in the doorway:
     // the app does not know where they are, and never said so.
     locationNeeded: 'Where are you?',
-    enableLocation: 'Tap the card and share your location. At the spot it flips.',
+    // Answers the headline's question ("Where are you?") instead of only giving
+    // an instruction: without a fix the card cannot know when you're standing
+    // there, and that is the whole reason it asks.
+    // One step at a time: this state is about the location, nothing else. What
+    // happens after the fix is the next state's job ("Still face-down."), and
+    // saying it here made the visitor read past the one thing they must do.
+    enableLocation: 'Tap the card and allow your location.',
     locationBlocked: 'Location blocked',
-    locationBlockedHint: 'Allow it in your browser settings, then it works on site.',
+    locationBlockedHint: 'Allow your location in your browser settings.',
     proximityTapReveal: 'Tap it and see what to order here.',
-    proximityHint: 'Go to the spot, tap the card — then you know what to order.',
+    // Makes the card worth wanting instead of just explaining the rule: it names
+    // the prize first ("the one dish") and puts the condition second. Echoes the
+    // onboarding's "You gotta try this."
+    proximityHint: "A dish you have to try. Flip the card at the spot — then it's yours.",
     revealSaving: 'Going into your collection…',
     revealSavingHint: 'It flips in a second.',
     revealError: "That didn't work.",
@@ -521,7 +529,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
     teaserSub:
-      'Ein Gericht pro Spot, das du bestellen musst. Ein paar Karten liegen offen — den Rest deckst du vor Ort auf.',
+      'Gerichte, die du bestellen musst. Ein paar Karten liegen offen — den Rest deckst du vor Ort auf.',
     teaserCta: 'Alle Must-Eats',
   },
   news: {
@@ -607,14 +615,15 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     proximityHere: 'Du bist da.',
     proximityAway: 'Noch nicht aufgedeckt.',
     locationNeeded: 'Wo bist du?',
-    enableLocation: 'Tipp auf die Karte und gib deinen Standort frei. Am Spot dreht sie sich um.',
+    enableLocation: 'Tipp die Karte an und erlaube deinen Standort.',
     locationBlocked: 'Standort blockiert',
-    locationBlockedHint: "Erlaub ihn in den Browser-Einstellungen, dann geht's vor Ort.",
+    locationBlockedHint: 'Erlaube deinen Standort in den Browser-Einstellungen.',
     proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
     // Muss in den reservierten Copy-Slot passen (--me-mid-slot, 105px für den
     // Textteil): eine Zeile mehr, und der verdeckte Zustand steht 14px höher
     // als die Beschreibung der Nachbarkarte.
-    proximityHint: 'Geh zum Spot, tipp die Karte an — dann weißt du, was du bestellen musst.',
+    proximityHint:
+      'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
     revealSaving: 'Kommt in deine Sammlung …',
     revealSavingHint: 'Gleich dreht sie sich um.',
     revealError: 'Hat nicht geklappt.',

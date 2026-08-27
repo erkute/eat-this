@@ -11,12 +11,12 @@ vi.mock('next-intl', () => ({
     const copy: Record<string, string> = {
       mustEatAtAria: 'Must Eat bei {name}',
       proximityAway: 'Noch nicht aufgedeckt.',
-      proximityHint: 'Geh zum Spot, tipp die Karte an — dann weißt du, was du bestellen musst.',
+      proximityHint:
+        'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
       locationNeeded: 'Wo bist du?',
-      enableLocation:
-        'Tipp auf die Karte und gib deinen Standort frei. Am Spot dreht sie sich um.',
+      enableLocation: 'Tipp die Karte an und erlaube deinen Standort.',
       locationBlocked: 'Standort blockiert',
-      locationBlockedHint: "Erlaub ihn in den Browser-Einstellungen, dann geht's vor Ort.",
+      locationBlockedHint: 'Erlaube deinen Standort in den Browser-Einstellungen.',
       proximityHere: 'Du bist da.',
       proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
     };
@@ -101,7 +101,9 @@ describe('MustEatDetailMobile proximity states', () => {
 
     expect(screen.getByText('Noch nicht aufgedeckt.')).toBeTruthy();
     expect(
-      screen.getByText('Geh zum Spot, tipp die Karte an — dann weißt du, was du bestellen musst.')
+      screen.getByText(
+        'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.'
+      )
     ).toBeTruthy();
     // No figure anywhere in the block: the radius made it read as arithmetic,
     // and the remaining distance made the spot look far and like hard work.
@@ -123,9 +125,7 @@ describe('MustEatDetailMobile proximity states', () => {
     );
 
     expect(screen.getByText('Wo bist du?')).toBeTruthy();
-    expect(
-      screen.getByText('Tipp auf die Karte und gib deinen Standort frei. Am Spot dreht sie sich um.')
-    ).toBeTruthy();
+    expect(screen.getByText('Tipp die Karte an und erlaube deinen Standort.')).toBeTruthy();
     expect(screen.queryByText(/Komm auf/)).toBeNull();
     // The accessible name is all a screen reader gets, and the tap it labels
     // now opens the permission prompt — "Zu weit weg" would be a lie there.
@@ -154,9 +154,7 @@ describe('MustEatDetailMobile proximity states', () => {
 
     expect(screen.getByText('Standort blockiert')).toBeTruthy();
     expect(screen.getByLabelText('Standort blockiert')).toBeTruthy();
-    expect(
-      screen.getByText("Erlaub ihn in den Browser-Einstellungen, dann geht's vor Ort.")
-    ).toBeTruthy();
+    expect(screen.getByText('Erlaube deinen Standort in den Browser-Einstellungen.')).toBeTruthy();
     expect(
       container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed')
     ).toBe('blocked');

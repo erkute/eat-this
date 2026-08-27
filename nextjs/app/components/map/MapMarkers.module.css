@@ -98,17 +98,6 @@
   .pinLogoEnter {
     animation: none;
   }
-
-  /* The dot's hover/focus scale is movement, so it goes too. The colour
-     change stays — that is a state change, not motion. */
-  .pinLockedDot {
-    transition: background-color 0.16s ease;
-  }
-
-  .pinLocked:hover .pinLockedDot,
-  .pinLocked:focus-visible .pinLockedDot {
-    transform: none;
-  }
 }
 
 .pinLogoHasMust::after {
@@ -141,6 +130,39 @@
   display: block;
   object-fit: contain;
   pointer-events: none;
+}
+
+/* Der gesperrte Pin: dieselbe Form, dieselbe Größe, nur grau (User,
+   2026-08-27). Das Grau ist bewusst gedeckt-warm statt neutral — die
+   Kartenfläche (CartoDB Positron) ist fast weiß mit blassgrauen Straßen, ein
+   kaltes Grau verschwämme darin. Das Logo verliert seine Farbe mit, sonst
+   säße ein bunter Fleck in einer grauen Tüte. */
+.pinLogoLocked .pinLogoShape {
+  background: #b5b1a9;
+}
+
+/* Rund 60 % der Größe des gelben Pins (User, 2026-08-27). Bei gleicher Größe
+   standen an der Standardkamera auf einem 390px-Fenster 238 graue gegen 40
+   gelbe im Bild — die Marker überdeckten die Karte, und das Gewicht lag bei
+   den gesperrten statt bei den offenen Spots.
+   Verkleinert wird die ZEICHNUNG, nicht der Knopf: die 44px-Trefferfläche von
+   .pinLogo bleibt stehen, sonst wäre der Spot auf dem Telefon kaum noch zu
+   treffen. Ursprung unten mittig, also an der Spitze — der Pin zeigt weiter
+   genau auf seine Koordinate.
+   Der ausgewählte Pin ist ausgenommen: dessen Sheet steht offen, er darf in
+   voller Größe zeigen, wo man gerade ist. Zur alten Regel „der offene Spot
+   bleibt ein Punkt, ein Pin würde dort ‚dieser ist frei' heißen": das galt,
+   solange die FORM den Unterschied trug. Jetzt trägt ihn die Farbe — der
+   ausgewählte gesperrte Pin wächst, bleibt aber grau (gemessen am
+   gerenderten Pin: rgb(181, 177, 169) auch mit .pinLogoActive). */
+.pinLogoLocked:not(.pinLogoActive) .pinLogoShape {
+  transform: scale(0.6);
+  transform-origin: 50% 100%;
+}
+
+.pinLogoLocked .pinLogoShape img {
+  filter: grayscale(1);
+  opacity: 0.82;
 }
 
 .pinLogo:hover {
@@ -207,61 +229,4 @@
       filter: none;
     }
   }
-}
-
-/* Locked spot ------------------------------------------------------------
-   A paywalled spot, drawn as a dot rather than a pin. At the default camera
-   on a 375px viewport there are 15 free spots in view and 194 locked ones in
-   the same box; as 44px pins that is a closed carpet and the free spots
-   vanish into it. At 11px they read as density instead — which is the thing
-   that actually sells — and the yellow pins stay the only markers that look
-   like they open a spot.
-
-   The hit area is 28px, not the 44px the pins get. That is deliberate: 194
-   overlapping 44px targets would steal taps from the free pins sitting among
-   them, and every dot leads to the same place, so landing on a neighbour
-   costs nothing. Free pins also sit in a higher stacking band
-   (.markerRootFree), so where the two overlap the pin wins the tap.
- */
-.pinLocked {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
-}
-
-.pinLocked:focus-visible {
-  border-radius: 50%;
-  outline: 3px solid #ffc600;
-  outline-offset: 2px;
-}
-
-.pinLockedDot {
-  width: 11px;
-  height: 11px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
-  border-radius: 50%;
-  /* Reads on CartoDB Positron, which is near-white with pale grey roads. */
-  background: rgba(21, 18, 14, 0.42);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
-  transition:
-    transform 0.16s ease,
-    background-color 0.16s ease;
-}
-
-.pinLocked:hover .pinLockedDot,
-.pinLocked:focus-visible .pinLockedDot {
-  background: rgba(21, 18, 14, 0.72);
-  transform: scale(1.25);
-}
-
-/* The dot whose sheet is open. It stays a dot — promoting it to a pin would
-   read as "this one is free" at exactly the moment the sheet says it is not. */
-/* The open dot only darkens. It used to take a yellow ring and scale to 1.55,
-   which read as a second, louder marker sitting on top of the spot — and the
-   camera already flies to zoom 15 on selection, so the emphasis was doing work
-   nothing needed. */
-.pinLockedActive .pinLockedDot {
-  background: var(--et-home-ink, #15120e);
 }

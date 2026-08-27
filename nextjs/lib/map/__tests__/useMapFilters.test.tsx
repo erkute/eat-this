@@ -36,52 +36,52 @@ function spot(partial: Partial<MapRestaurant>): MapRestaurant {
 const ROWS: MapRestaurant[] = [
   spot({
     bezirk: { name: 'Mitte' },
-    cuisineType: 'Italian',
+    priceRange: { currency: 'EUR', min: 20, max: 30 },
     categories: [{ name: 'Pizza', slug: 'pizza' }],
   }),
   spot({
     bezirk: { name: 'Mitte' },
-    cuisineType: 'Italian',
+    priceRange: { currency: 'EUR', min: 20, max: 30 },
     categories: [{ name: 'Dinner', slug: 'dinner' }],
   }),
   spot({
     bezirk: { name: 'Mitte' },
-    cuisineType: 'Thai',
+    priceRange: { currency: 'EUR', min: 10, max: 20 },
     categories: [{ name: 'Dinner', slug: 'dinner' }],
   }),
   spot({
     bezirk: { name: 'Neukölln' },
-    cuisineType: 'Thai',
+    priceRange: { currency: 'EUR', min: 10, max: 20 },
     categories: [{ name: 'Pizza', slug: 'pizza' }],
   }),
   spot({
     bezirk: { name: 'Wedding' },
-    cuisineType: 'Peruvian',
+    priceRange: { currency: 'EUR', min: 5, max: 10 },
     categories: [{ name: 'Dinner', slug: 'dinner' }],
   }),
 ] as MapRestaurant[];
 
-/* Behind the paywall: one more Peruvian in Wedding, two Italians in Mitte —
-   and one Georgian, a cuisine the free set does not have at all. */
+/* Behind the paywall: one more cheap spot in Wedding, two 20-€-Spots in Mitte —
+   und einer ab 100 €, eine Preisstufe, die der freie Satz gar nicht hat. */
 const LOCKED: MapRestaurant[] = [
   spot({
     bezirk: { name: 'Wedding' },
-    cuisineType: 'Peruvian',
+    priceRange: { currency: 'EUR', min: 5, max: 10 },
     categories: [{ name: 'Dinner', slug: 'dinner' }],
   }),
   spot({
     bezirk: { name: 'Mitte' },
-    cuisineType: 'Italian',
+    priceRange: { currency: 'EUR', min: 20, max: 30 },
     categories: [{ name: 'Pizza', slug: 'pizza' }],
   }),
   spot({
     bezirk: { name: 'Mitte' },
-    cuisineType: 'Italian',
+    priceRange: { currency: 'EUR', min: 20, max: 30 },
     categories: [{ name: 'Pizza', slug: 'pizza' }],
   }),
   spot({
     bezirk: { name: 'Neukölln' },
-    cuisineType: 'Georgian',
+    priceRange: { currency: 'EUR', min: 100 },
     categories: [{ name: 'Dinner', slug: 'dinner' }],
   }),
 ] as MapRestaurant[];
@@ -100,7 +100,7 @@ describe('useMapFilters option counts', () => {
     // 5 free + 4 locked spots, counted as one catalogue.
     expect(byValue.bezirk.get('Mitte')).toBe(5);
     expect(byValue.bezirk.get('Neukölln')).toBe(2);
-    expect(byValue.cuisine.get('Italian')).toBe(4);
+    expect(byValue.price.get('20')).toBe(4);
     expect(byValue.category.get('dinner')).toBe(5);
     expect(withoutDimension.bezirk).toBe(9);
   });
@@ -110,12 +110,12 @@ describe('useMapFilters option counts', () => {
     act(() => result.current.setBezirk('Mitte'));
 
     const { byValue, withoutDimension } = result.current.optionCounts;
-    // Mitte holds four Italians and one Thai, and no Peruvian at all — the row
-    // that used to look identical to the rest.
-    expect(byValue.cuisine.get('Italian')).toBe(4);
-    expect(byValue.cuisine.get('Thai')).toBe(1);
-    expect(byValue.cuisine.get('Peruvian')).toBeUndefined();
-    expect(withoutDimension.cuisine).toBe(5);
+    // Mitte hält vier 20-€-Spots und einen 10-€-Spot, und gar nichts unter 10 —
+    // die Zeile, die früher aussah wie jede andere.
+    expect(byValue.price.get('20')).toBe(4);
+    expect(byValue.price.get('10')).toBe(1);
+    expect(byValue.price.get('u10')).toBeUndefined();
+    expect(withoutDimension.price).toBe(5);
   });
 
   it('lifts a pickers own chip so it can still be switched', () => {
@@ -136,10 +136,10 @@ describe('useMapFilters option counts', () => {
     act(() => result.current.setBezirk('Mitte'));
     act(() => result.current.setCategory('dinner'));
 
-    // Mitte + dinner = the Italian one and the Thai one.
+    // Mitte + Dinner = der 20-€-Spot und der 10-€-Spot.
     const { byValue } = result.current.optionCounts;
-    expect(byValue.cuisine.get('Italian')).toBe(1);
-    expect(byValue.cuisine.get('Thai')).toBe(1);
+    expect(byValue.price.get('20')).toBe(1);
+    expect(byValue.price.get('10')).toBe(1);
   });
 
   it('ignores the search box, which overrides the chips rather than narrowing them', () => {
@@ -160,28 +160,27 @@ describe('useMapFilters option counts', () => {
  * read 0 while the map underneath showed its dots.
  */
 describe('useMapFilters with the paywalled spots in', () => {
-  it('offers a cuisine that only locked spots carry', () => {
+  it('offers a price step that only locked spots carry', () => {
     const { result } = mount();
 
-    expect(result.current.cuisineNames).toContain('Georgian');
-    expect(result.current.optionCounts.byValue.cuisine.get('Georgian')).toBe(1);
+    expect(result.current.priceBucketIds).toContain('50');
+    expect(result.current.optionCounts.byValue.price.get('50')).toBe(1);
   });
 
   it('still knows a real zero when it sees one', () => {
     const { result } = mount();
     act(() => result.current.setBezirk('Mitte'));
 
-    // No Georgian in Mitte, free or locked: nothing to show, so the picker
-    // stops offering the row.
-    expect(result.current.optionCounts.byValue.cuisine.get('Georgian')).toBeUndefined();
+    // Nichts ab 100 € in Mitte, weder frei noch gesperrt: keine Zeile.
+    expect(result.current.optionCounts.byValue.price.get('50')).toBeUndefined();
   });
 
   it('hands the list every match and the map only the free ones', () => {
     const { result } = mount();
-    act(() => result.current.setCuisine('Peruvian'));
+    act(() => result.current.setPrice('u10'));
 
-    // One free Peruvian, one locked. The list shows both; the free set behind
-    // the map's own markers keeps just the one.
+    // Ein freier Spot unter 10 €, einer gesperrt. Die Liste zeigt beide; der
+    // freie Satz hinter den Markern behält den einen.
     expect(result.current.displayedRestaurants).toHaveLength(1);
     expect(result.current.displayedLockedRestaurants).toHaveLength(1);
     expect(result.current.listRestaurants).toHaveLength(2);
@@ -190,7 +189,7 @@ describe('useMapFilters with the paywalled spots in', () => {
   it('has nothing extra to show someone who owns the whole map', () => {
     const { result } = renderHook(() => useMapFilters({ restaurants: ROWS, location: null }));
 
-    expect(result.current.cuisineNames).not.toContain('Georgian');
+    expect(result.current.priceBucketIds).not.toContain('50');
     expect(result.current.listRestaurants).toHaveLength(ROWS.length);
   });
 });
@@ -250,5 +249,40 @@ describe('useMapFilters list order', () => {
 
     // Nine Must Eats do not beat standing in front of the door.
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
+  });
+});
+
+/**
+ * Die zwei Regeln, die den Chip-Rail am 27.08.2026 gekürzt haben: Bezirke erst
+ * ab fünf Spots, und ein Spot ohne gepflegten Preis fällt in keine Stufe.
+ */
+describe('useMapFilters, gekürzte Auswahllisten', () => {
+  it('bietet nur Bezirke mit mindestens fünf Spots an', () => {
+    const { result } = mount();
+
+    // Mitte hat fünf, Neukölln und Wedding je zwei.
+    expect(result.current.bezirkNames).toEqual(['Mitte']);
+    // Gezählt wird trotzdem über alle — die Spots verschwinden nicht.
+    expect(result.current.listRestaurants).toHaveLength(9);
+  });
+
+  it('steckt einen Spot ohne Preis in keine Stufe', () => {
+    const ohnePreis = spot({ bezirk: { name: 'Mitte' }, categories: [] });
+    const { result } = renderHook(() =>
+      useMapFilters({ restaurants: [...ROWS, ohnePreis], location: null })
+    );
+
+    const summe = [...result.current.optionCounts.byValue.price.values()].reduce(
+      (a, b) => a + b,
+      0
+    );
+    expect(summe).toBe(ROWS.length);
+    expect(result.current.listRestaurants).toHaveLength(ROWS.length + 1);
+  });
+
+  it('hält die Preisstufen in der Reihenfolge billig → teuer', () => {
+    const { result } = mount();
+
+    expect(result.current.priceBucketIds).toEqual(['u10', '10', '20', '50']);
   });
 });

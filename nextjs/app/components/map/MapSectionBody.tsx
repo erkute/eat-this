@@ -134,9 +134,9 @@ interface MapBodyFilterState {
   bezirk: string | null;
   bezirkNames: string[];
   onBezirkChange: (name: string | null) => void;
-  cuisine: string | null;
-  setCuisine: (c: string | null) => void;
-  cuisineNames: string[];
+  price: string | null;
+  setPrice: (id: string | null) => void;
+  priceBucketIds: string[];
   optionCounts: MapOptionCounts;
   openOnly: boolean;
   setOpenOnly: (v: boolean) => void;
@@ -228,9 +228,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     search,
     bezirk,
     bezirkNames,
-    cuisine,
-    setCuisine,
-    cuisineNames,
+    price,
+    setPrice,
+    priceBucketIds,
     optionCounts,
     openOnly,
     setOpenOnly,
@@ -262,7 +262,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
   /* Every input that reorders or re-scopes the list, in one string. The map
      toggle forgets its remembered scroll position whenever this changes. */
-  const listFilterKey = `${category}|${bezirk ?? ''}|${cuisine ?? ''}|${openOnly}|${search.trim()}`;
+  const listFilterKey = `${category}|${bezirk ?? ''}|${price ?? ''}|${openOnly}|${search.trim()}`;
 
   /* Wie viele Listenzeilen gerendert werden. Der Stand liegt hier und nicht in
      RestaurantList, weil ein Sprung ins Detail die Liste aushängt: der
@@ -279,7 +279,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const handleResetFilters = () => {
     setCategory('All');
     onBezirkChange(null);
-    setCuisine(null);
+    setPrice(null);
     setOpenOnly(false);
     onSearchChange('');
   };
@@ -734,9 +734,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   bezirkNames={bezirkNames}
                   bezirk={bezirk}
                   onBezirk={onBezirkChange}
-                  cuisineNames={cuisineNames}
-                  cuisine={cuisine}
-                  onCuisine={setCuisine}
+                  priceBucketIds={priceBucketIds}
+                  price={price}
+                  onPrice={setPrice}
                   optionCounts={optionCounts}
                   searchActive={Boolean(search.trim())}
                 />

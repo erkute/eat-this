@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import NewsArticleShare from './NewsArticleShare';
 import styles from './ArticleRail.module.css';
 
@@ -30,6 +30,20 @@ export function activeChapterId(
   return current;
 }
 
+/** Nur der Spot-Name, nicht die ganze Überschrift (User, 2026-08-27).
+ *
+ *  Die Kapitel heißen im Artikel „Kolo Coffee – Mikrorösterei mit
+ *  Wettkampf-Bohnen"; in der Leiste reicht „Kolo Coffee". Geschnitten wird am
+ *  ersten Gedankenstrich MIT Leerzeichen drumherum — ein Bindestrich ohne
+ *  Leerzeichen gehört zum Namen („Five Elephant Kreuzberg", „Jules Geisberg")
+ *  und bleibt stehen. Überschriften ohne Trenner („Fazit") bleiben ganz.
+ *
+ *  Pur und exportiert, damit die Regel im Test steht und nicht im Markup. */
+export function chapterShortLabel(text: string): string {
+  const cut = text.search(/\s+[–—-]\s+/);
+  return (cut === -1 ? text : text.slice(0, cut)).trim() || text.trim();
+}
+
 export interface Chapter {
   id: string;
   text: string;
@@ -56,7 +70,6 @@ export default function ArticleRail({
   shareExcerpt,
 }: Props) {
   const [activeId, setActiveId] = useState<string>(chapters[0]?.id ?? '');
-  const railRef = useRef<HTMLDivElement>(null);
   // A stable dependency: `chapters` is rebuilt on every parent render, so
   // depending on the array itself would tear the listeners down each time.
   const chapterKey = chapters.map((c) => c.id).join('|');
@@ -101,33 +114,6 @@ export default function ArticleRail({
     };
   }, [chapterKey]);
 
-  // Die Leiste dem Lesefortschritt nachführen.
-  //
-  // Seit sie ihre eigene Höhe hat und in sich scrollt, wandert das aktive
-  // Kapitel bei langen Guides aus ihrem Ausschnitt heraus — man las weiter und
-  // musste die Leiste von Hand nachziehen, um zu sehen, wo man steht.
-  //
-  // Bewusst über `scrollTop` statt `scrollIntoView`: letzteres scrollt JEDEN
-  // Vorfahren mit, hier also `.app-pages` — die Seite würde beim Lesen unter
-  // dem Finger wegspringen. So bewegt sich nur die Leiste.
-  useEffect(() => {
-    const rail = railRef.current;
-    if (!rail || rail.scrollHeight <= rail.clientHeight) return;
-    const item = rail.querySelector<HTMLElement>('[aria-current="true"]');
-    if (!item) return;
-
-    // Rand, damit das aktive Kapitel nicht auf der Kante klebt: man soll sehen,
-    // dass darüber und darunter noch etwas steht.
-    const edge = 28;
-    const railBox = rail.getBoundingClientRect();
-    const itemBox = item.getBoundingClientRect();
-    const above = railBox.top + edge - itemBox.top;
-    const below = itemBox.bottom - (railBox.bottom - edge);
-
-    if (above > 0) rail.scrollTop -= above;
-    else if (below > 0) rail.scrollTop += below;
-  }, [activeId]);
-
   if (!chapters.length) return null;
 
   // The page scrolls inside `.app-pages` on desktop, so a plain #hash does
@@ -143,7 +129,7 @@ export default function ArticleRail({
 
   return (
     <aside className={styles.rail} aria-label={label}>
-      <div className={styles.sticky} ref={railRef}>
+      <div className={styles.sticky}>
         <span className={styles.label}>{label}</span>
         <ol className={styles.list}>
           {chapters.map((c, i) => {
@@ -157,7 +143,11 @@ export default function ArticleRail({
                   onClick={(e) => jump(e, c.id)}
                 >
                   <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
-                  <span className={styles.text}>{c.text}</span>
+                  {/* Der volle Titel bleibt im title-Attribut: die Leiste zeigt
+                      den Namen, der Hover die ganze Überschrift. */}
+                  <span className={styles.text} title={c.text}>
+                    {chapterShortLabel(c.text)}
+                  </span>
                 </a>
               </li>
             );

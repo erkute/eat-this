@@ -21,7 +21,7 @@ interface Args extends MapFilterState {
   lockedRestaurants: MapRestaurant[];
   setCategory: (c: MapCategory) => void;
   setBezirk: (name: string | null) => void;
-  setCuisine: (c: string | null) => void;
+  setPrice: (id: string | null) => void;
   setSearch: (v: string) => void;
   setOpenOnly: (v: boolean) => void;
   /** The sheet is a peek by default; a URL that arrives pre-filtered should
@@ -35,7 +35,7 @@ interface Args extends MapFilterState {
  *
  * Inbound is the older half: `?cat=` and `?bezirk=` already arrive from the
  * kategorie, bezirk and guide pages, so their names and slug values are fixed.
- * `?cuisine=`, `?q=` and `?open=` are new, and every one of them is now also
+ * `?price=`, `?q=` and `?open=` are new, and every one of them is now also
  * WRITTEN when the user picks a filter in the UI — which is what makes a
  * filtered map shareable, bookmarkable and survivable across a reload.
  *
@@ -52,12 +52,12 @@ export function useMapFilterUrl({
   lockedRestaurants,
   category,
   bezirk,
-  cuisine,
+  price,
   search,
   openOnly,
   setCategory,
   setBezirk,
-  setCuisine,
+  setPrice,
   setSearch,
   setOpenOnly,
   sheetView,
@@ -75,7 +75,7 @@ export function useMapFilterUrl({
     const next = resolveMapFilterState(locationSearch, index);
     if (next.category !== category) setCategory(next.category);
     if (next.bezirk !== bezirk) setBezirk(next.bezirk);
-    if (next.cuisine !== cuisine) setCuisine(next.cuisine);
+    if (next.price !== price) setPrice(next.price);
     if (next.search !== search) setSearch(next.search);
     if (next.openOnly !== openOnly) setOpenOnly(next.openOnly);
     return next;
@@ -91,7 +91,8 @@ export function useMapFilterUrl({
   useEffect(() => {
     if (hydrated || !isActive) return;
     const params = new URLSearchParams(window.location.search);
-    const needsIndex = params.has('cat') || params.has('bezirk') || params.has('cuisine');
+    // ?price= trägt eine feste Stufen-ID und braucht die Zeilen nicht.
+    const needsIndex = params.has('cat') || params.has('bezirk');
     // Slug resolution needs the rows; q/open don't, so a URL carrying only
     // those applies immediately instead of waiting on a fetch.
     if (needsIndex && restaurants.length === 0 && lockedRestaurants.length === 0) return;
@@ -103,7 +104,7 @@ export function useMapFilterUrl({
   const pushedRef = useRef(false);
   useEffect(() => {
     if (!hydrated || !isActive) return;
-    const state: MapFilterState = { category, bezirk, cuisine, search, openOnly };
+    const state: MapFilterState = { category, bezirk, price, search, openOnly };
     const params = new URLSearchParams(window.location.search);
     writeMapFilterParams(params, state, index);
     const next = urlWithParams(params);
@@ -115,7 +116,7 @@ export function useMapFilterUrl({
       return;
     }
     window.history.replaceState(window.history.state, '', next);
-  }, [hydrated, isActive, category, bezirk, cuisine, search, openOnly, index]);
+  }, [hydrated, isActive, category, bezirk, price, search, openOnly, index]);
 
   useEffect(() => {
     if (!isActive) return;

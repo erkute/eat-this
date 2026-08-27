@@ -27,6 +27,14 @@ interface Props {
   anchorEl?: HTMLElement | null;
   /** Optional extra rows after the list — e.g. sort direction toggle. */
   footer?: ReactNode;
+  /** Desktop: die Liste klappt IN der Kopfzeile auf und schiebt die Ergebnisse
+   *  nach unten, statt als Popover darüber zu schweben (User, 2026-08-27).
+   *  Dann kein Portal, kein Backdrop, keine Ankerrechnung und keine
+   *  Fokusfalle — das ist kein Dialog mehr, sondern ein aufgeklappter Teil der
+   *  Leiste. Mobile bleibt das Bottom-Sheet: dort liegt die Leiste in einer
+   *  Sheet mit Schnappunkten, und ein Block, der sie von innen wachsen lässt,
+   *  verschiebt genau die Höhe, an der die Schnappunkte rechnen. */
+  inline?: boolean;
   /** Label for the "Alle …" reset row. Omit to skip the reset row. */
   allLabel?: string;
   /** Count for the reset row — hits with this picker's filter lifted. */
@@ -49,6 +57,7 @@ export default function MapFilterPickerSheet({
   onClose,
   anchorEl,
   footer,
+  inline = false,
   allLabel,
   allSub,
   closeAriaLabel,
@@ -124,6 +133,7 @@ export default function MapFilterPickerSheet({
         first.focus();
       }
     };
+    if (inline) return;
     sheetEl.addEventListener('keydown', onKey);
     return () => {
       sheetEl.removeEventListener('keydown', onKey);
@@ -132,11 +142,11 @@ export default function MapFilterPickerSheet({
       if (!opener || !document.contains(opener)) return;
       if (sheetEl.contains(document.activeElement)) opener.focus({ preventScroll: true });
     };
-  }, [sheetEl]);
+  }, [inline, sheetEl]);
 
   // Desktop popover positioning relative to the anchor chip.
   useEffect(() => {
-    if (!sheetEl || !anchorEl) return;
+    if (inline || !sheetEl || !anchorEl) return;
     const apply = () => {
       const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
       if (!isDesktop) {
@@ -165,74 +175,80 @@ export default function MapFilterPickerSheet({
       window.removeEventListener('resize', apply);
       window.removeEventListener('scroll', apply, true);
     };
-  }, [anchorEl, sheetEl]);
+  }, [anchorEl, inline, sheetEl]);
 
   if (typeof document === 'undefined') return null;
+
+  const sheet = (
+    <div
+      ref={setSheetEl}
+      className={`${styles.pickerSheet} ${inline ? styles.pickerSheetInline : ''}`}
+      role={inline ? 'group' : 'dialog'}
+      aria-modal={inline ? undefined : true}
+      aria-label={title}
+    >
+      <div className={styles.pickerHead}>
+        <span className={styles.pickerTitle}>{title}</span>
+        <button
+          type="button"
+          className={styles.pickerClose}
+          onClick={onClose}
+          aria-label={closeAriaLabel}
+        >
+          ×
+        </button>
+      </div>
+      <div className={styles.pickerList}>
+        {allLabel !== undefined && (
+          <button
+            type="button"
+            className={`${styles.pickerItem} ${selectedValue === null ? styles.pickerItemActive : ''}`}
+            aria-current={selectedValue === null ? 'true' : undefined}
+            onClick={() => {
+              onSelect(null);
+              onClose();
+            }}
+          >
+            <span className={styles.pickerItemLabel}>{allLabel}</span>
+            {allSub && <span className={styles.pickerItemSub}>{allSub}</span>}
+          </button>
+        )}
+        {items.map((item) => {
+          const active = item.value === selectedValue;
+          /* The active row is never dead, whatever its count says: it is the
+               filter you are looking at, and a disabled button cannot take the
+               focus this dialog hands to the current selection on open. */
+          const dead = Boolean(item.disabled) && !active;
+          return (
+            <button
+              key={item.value}
+              type="button"
+              disabled={dead}
+              className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''} ${
+                dead ? styles.pickerItemDead : ''
+              }`}
+              aria-current={active ? 'true' : undefined}
+              onClick={() => {
+                onSelect(item.value);
+                onClose();
+              }}
+            >
+              <span className={styles.pickerItemLabel}>{item.label}</span>
+              {item.sub && <span className={styles.pickerItemSub}>{item.sub}</span>}
+            </button>
+          );
+        })}
+      </div>
+      {footer && <div className={styles.pickerFooter}>{footer}</div>}
+    </div>
+  );
+
+  if (inline) return sheet;
 
   return createPortal(
     <>
       <div className={styles.pickerBackdrop} onClick={onClose} aria-hidden="true" />
-      <div
-        ref={setSheetEl}
-        className={styles.pickerSheet}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-      >
-        <div className={styles.pickerHead}>
-          <span className={styles.pickerTitle}>{title}</span>
-          <button
-            type="button"
-            className={styles.pickerClose}
-            onClick={onClose}
-            aria-label={closeAriaLabel}
-          >
-            ×
-          </button>
-        </div>
-        <div className={styles.pickerList}>
-          {allLabel !== undefined && (
-            <button
-              type="button"
-              className={`${styles.pickerItem} ${selectedValue === null ? styles.pickerItemActive : ''}`}
-              aria-current={selectedValue === null ? 'true' : undefined}
-              onClick={() => {
-                onSelect(null);
-                onClose();
-              }}
-            >
-              <span className={styles.pickerItemLabel}>{allLabel}</span>
-              {allSub && <span className={styles.pickerItemSub}>{allSub}</span>}
-            </button>
-          )}
-          {items.map((item) => {
-            const active = item.value === selectedValue;
-            /* The active row is never dead, whatever its count says: it is the
-               filter you are looking at, and a disabled button cannot take the
-               focus this dialog hands to the current selection on open. */
-            const dead = Boolean(item.disabled) && !active;
-            return (
-              <button
-                key={item.value}
-                type="button"
-                disabled={dead}
-                className={`${styles.pickerItem} ${active ? styles.pickerItemActive : ''} ${
-                  dead ? styles.pickerItemDead : ''
-                }`}
-                aria-current={active ? 'true' : undefined}
-                onClick={() => {
-                  onSelect(item.value);
-                  onClose();
-                }}
-              >
-                <span className={styles.pickerItemLabel}>{item.label}</span>
-                {item.sub && <span className={styles.pickerItemSub}>{item.sub}</span>}
-              </button>
-            );
-          })}
-        </div>
-        {footer && <div className={styles.pickerFooter}>{footer}</div>}
-      </div>
+      {sheet}
     </>,
     document.body
   );

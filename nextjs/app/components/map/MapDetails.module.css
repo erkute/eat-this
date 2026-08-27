@@ -2043,6 +2043,15 @@
   font-size: 15px;
   line-height: 1.55;
 }
+/* Im gesperrten Sheet bringt LockedDetail seine 18px Seitenrand schon mit; die
+   16px hier kamen obendrauf und rückten die Geschichte gegen Kicker und
+   Angebot ein — dieselbe Doppelung, die senkrecht 52px statt 30px ergab
+   (User, 2026-08-27). Oben und unten bleibt alles: die 18px sind der Abstand
+   unter dem Foto. */
+.detailV13:not(.detailV13MustEat) .rdBody[data-locked-excerpt] {
+  padding-right: 0;
+  padding-left: 0;
+}
 .detailV13:not(.detailV13MustEat) .rdStoryLead::first-letter,
 .detailV13:not(.detailV13MustEat) .rdSecH,
 .detailV13MustEat .fdName,
@@ -2124,7 +2133,7 @@
      dem die meisten sitzen. Der Deckel hält den großen Anschnitt auf hohen
      Fenstern, der Boden verhindert ein Briefmarken-Foto auf flachen. */
   .detailV13:not(.detailV13MustEat) .rdHero {
-    min-height: clamp(200px, 33dvh, 360px);
+    min-height: clamp(220px, 41dvh, 430px);
   }
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,
@@ -5127,4 +5136,37 @@
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact,
 .detailV13MustEat > .fdRestDock .fdV.fdVCompact {
   font-size: clamp(13.5px, 3.5vw, 16px);
+}
+/* ── Desktop-Panel: Maße fürs 379px-Panel, nicht fürs 1440px-Fenster ──────────
+   Auf dem Desktop ist diese Sheet keine Seite, sondern eine 379px breite
+   Spalte — Telefonbreite. Alles, was hier an vw hing, lief in seinen Deckel
+   und wurde am Fenster groß statt am Panel (User, 2026-08-27).
+   Gegen echte Werte gelegt: Apple Maps fährt in einem 380px-Panel Ortsname 22
+   und Meta-Zeilen 14 in SF Pro; The Infatuation steht mobil bei H1 40 und
+   Fließtext 15. Wir sitzen dazwischen — Providence läuft optisch kleiner als
+   eine Systemschrift, und der Name liegt auf einem Foto, nicht in einer Liste.
+   Der Fließtext bleibt bei 15px: das ist der untere Rand des Bandes, darunter
+   wird die Geschichte zur Bildunterschrift.
+   Der Block steht am Dateiende, weil .rdV und .rdActBtn ihre Werte weiter
+   unten setzen als der 1024px-Block oben — dort hätte er verloren. */
+@media (min-width: 1024px) {
+  .detailV13:not(.detailV13MustEat) .rdNameOv {
+    font-size: min(var(--rd-name-max, 40px), 40px);
+  }
+
+  .detailV13:not(.detailV13MustEat) .rdV,
+  .detailV13:not(.detailV13MustEat) .rdV a,
+  .detailV13:not(.detailV13MustEat) .rdHoursT {
+    font-size: 17px;
+  }
+
+  /* Eine CTA-Höhe für die ganze Sheet: der Aktionsknopf lag bei 46, das
+     Pack-Angebot direkt darunter bei 42. */
+  .detailV13:not(.detailV13MustEat) .rdActBtn {
+    min-height: 42px;
+  }
+
+  .detailV13:not(.detailV13MustEat) .packPromoTitle {
+    font-size: 30px;
+  }
 }

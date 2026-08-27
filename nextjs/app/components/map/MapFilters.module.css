@@ -501,6 +501,10 @@
   color: inherit;
 }
 
+/* line-height 1.35 wie bei den Zeilen darunter: bei 1 war die Zeile 15px hoch,
+   Providence braucht 17,7px, und `overflow: hidden` fürs Ellipsis hat dem „g"
+   in „Kategorie wählen" die Unterlänge abgeschnitten (User, 2026-08-27). Der
+   Kopf wächst nicht — er hat 36px Mindesthöhe, gebraucht werden 28. */
 .pickerTitle {
   min-width: 0;
   overflow: hidden;
@@ -508,7 +512,7 @@
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -651,6 +655,11 @@
   opacity: 0.8;
 }
 
+/* line-height 1.35, nicht 1.1: Providence hat bei 15px eine 7,3px tiefe
+   Unterlänge, die Zeile war aber nur 16,5px hoch — dem „g" in „Charlottenburg"
+   fehlten unten 1,2px, und `overflow: hidden` (das das Ellipsis trägt) hat sie
+   abgeschnitten (User, 2026-08-27). Die Zeile wächst dadurch nicht: 10px
+   Innenabstand + 20,25px + 10px bleiben unter den 42px Mindesthöhe. */
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;
@@ -660,7 +669,7 @@
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.1;
+  line-height: 1.35;
   text-transform: none;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -686,7 +695,6 @@
 .pickerItemActive .pickerItemSub {
   opacity: 0.55;
 }
-
 
 .pickerFooter {
   flex-shrink: 0;
@@ -747,4 +755,41 @@
     max-height: none;
     overflow-y: auto;
   }
+}
+
+/* ── Aufgeklappt statt schwebend ────────────────────────────────────────────
+   Die Auswahl steht in der Leiste und schiebt die Ergebnisse nach unten
+   (User, 2026-08-27), statt als Popover darüber zu hängen. Alles, was das
+   Popover ausmacht, fällt weg: feste Position samt Ankerrechnung, Schatten,
+   Dreieck, Einflug.
+
+   Bewusst OHNE Media Query, obwohl nur der Desktop so aufklappt: über den
+   Modus entscheidet `matchMedia` in MapListHeader, und wenn die Styles an
+   einem Breakpoint hängen statt an der Klasse, können beide auseinanderlaufen
+   — beim Verkleinern stand genau deshalb kurz eine Mischform da, ein
+   `role="group"` im Bottom-Sheet-Layout ohne Backdrop. Die Klasse kommt jetzt
+   nur, wenn der Modus gilt, und bringt ihr Aussehen selbst mit.
+
+   Steht am Ende der Sektion, also nach `.pickerSheet` und seiner
+   Desktop-Fassung: gleiche Spezifität, die Reihenfolge entscheidet. */
+.pickerSheetInline {
+  position: static;
+  width: auto;
+  max-height: none;
+  margin: 8px 0 2px;
+  box-shadow: none;
+  animation: none;
+}
+
+.pickerSheetInline::before {
+  content: none;
+}
+
+/* Zwei Spalten, nicht drei: die drei gelten dem 600px breiten Popover, die
+   aufgeklappte Liste ist so breit wie das Panel (379px). Bei drei Spalten
+   blieben ~115px pro Zeile, und „unter 10 €" brach zu „unter 1…" ab. */
+.pickerSheetInline .pickerList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-height: none;
+  overflow-y: auto;
 }

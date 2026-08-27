@@ -57,7 +57,7 @@
   color: var(--news-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 20px);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.6;
 }
 
@@ -200,7 +200,7 @@
   color: var(--news-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.35vw, 19px);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.38;
 }
 

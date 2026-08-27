@@ -100,6 +100,15 @@ const articleContentProjection = `{
       "district": coalesce(restaurantRef->district, restaurantRef->bezirkRef->name),
       "cuisineType": restaurantRef->cuisineType,
       "restaurantPhoto": ${publishableRestaurantImageUrl('restaurantRef->image', 'card', 'restaurantRef->slug.current', 'restaurantRef->instagramHandle')}
+    },
+    _type == "image" => {
+      _type,
+      _key,
+      alt,
+      caption,
+      "imageUrl": ${groqImageUrl('@', 'articleImage')},
+      "imageWidth": @.asset->metadata.dimensions.width,
+      "imageHeight": @.asset->metadata.dimensions.height
     }
   }`;
 
@@ -189,7 +198,6 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
   "bezirk": bezirkRef->{name},
   "photo": ${publishableRestaurantImageUrl('image', 'card')}
 }`;
-
 
 /**
  * Ein Fenster der alphabetischen Nachbarschaft im selben Bezirk — `'>'` liefert

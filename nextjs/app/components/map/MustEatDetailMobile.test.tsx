@@ -10,17 +10,15 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) => {
     const copy: Record<string, string> = {
       mustEatAtAria: 'Must Eat bei {name}',
-      proximityAway: 'Noch {distance}',
+      proximityAway: 'Noch nicht aufgedeckt.',
       proximityHint:
-        'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
-      locationNeeded: 'Standort freigeben',
-      enableLocation:
-        'Tipp auf die Karte und gib deinen Standort frei — dann siehst du, wie weit es noch ist.',
+        'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
+      locationNeeded: 'Wo bist du?',
+      enableLocation: 'Tipp die Karte an und erlaube deinen Standort.',
       locationBlocked: 'Standort blockiert',
-      locationBlockedHint:
-        'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.',
-      proximityHere: 'Jetzt aufdecken',
-      proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
+      locationBlockedHint: 'Erlaube deinen Standort in den Browser-Einstellungen.',
+      proximityHere: 'Du bist da.',
+      proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
     };
     return Object.entries(values ?? {}).reduce(
       (text, [name, value]) => text.replace(`{${name}}`, String(value)),
@@ -91,8 +89,8 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
 }
 
 describe('MustEatDetailMobile proximity states', () => {
-  it('shows localized kilometres and the real reveal radius for a covered card', () => {
-    render(
+  it('shows no distance at all and names what is under the card', () => {
+    const { container } = render(
       <MustEatDetailMobile
         mustEat={mustEat}
         isUnlocked={false}
@@ -101,10 +99,16 @@ describe('MustEatDetailMobile proximity states', () => {
       />
     );
 
-    expect(screen.getByText('Noch 2,4 km')).toBeTruthy();
+    expect(screen.getByText('Noch nicht aufgedeckt.')).toBeTruthy();
     expect(
-      screen.getByText('Komm auf 50 m an den Spot heran, dann kannst du das Must Eat aufdecken.')
+      screen.getByText(
+        'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.'
+      )
     ).toBeTruthy();
+    // No figure anywhere in the block: the radius made it read as arithmetic,
+    // and the remaining distance made the spot look far and like hard work.
+    expect(container.textContent).not.toMatch(/50\s?m/);
+    expect(container.textContent).not.toMatch(/2,4\s?km/);
   });
 
   /* Without a fix the card used to read "Komm näher" over a "come within 50 m"
@@ -120,16 +124,12 @@ describe('MustEatDetailMobile proximity states', () => {
       />
     );
 
-    expect(screen.getByText('Standort freigeben')).toBeTruthy();
-    expect(
-      screen.getByText(
-        'Tipp auf die Karte und gib deinen Standort frei — dann siehst du, wie weit es noch ist.'
-      )
-    ).toBeTruthy();
+    expect(screen.getByText('Wo bist du?')).toBeTruthy();
+    expect(screen.getByText('Tipp die Karte an und erlaube deinen Standort.')).toBeTruthy();
     expect(screen.queryByText(/Komm auf/)).toBeNull();
     // The accessible name is all a screen reader gets, and the tap it labels
     // now opens the permission prompt — "Zu weit weg" would be a lie there.
-    expect(screen.getByLabelText('Standort freigeben')).toBeTruthy();
+    expect(screen.getByLabelText('Wo bist du?')).toBeTruthy();
     expect(screen.queryByLabelText('Zu weit weg')).toBeNull();
     expect(
       container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed')
@@ -154,11 +154,7 @@ describe('MustEatDetailMobile proximity states', () => {
 
     expect(screen.getByText('Standort blockiert')).toBeTruthy();
     expect(screen.getByLabelText('Standort blockiert')).toBeTruthy();
-    expect(
-      screen.getByText(
-        'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.'
-      )
-    ).toBeTruthy();
+    expect(screen.getByText('Erlaube deinen Standort in den Browser-Einstellungen.')).toBeTruthy();
     expect(
       container.querySelector('[data-location-needed]')?.getAttribute('data-location-needed')
     ).toBe('blocked');
@@ -178,8 +174,8 @@ describe('MustEatDetailMobile proximity states', () => {
       />
     );
 
-    expect(screen.getByText('Jetzt aufdecken')).toBeTruthy();
-    expect(screen.getByText('Tipp auf die Karte und deck dein Must Eat auf.')).toBeTruthy();
+    expect(screen.getByText('Du bist da.')).toBeTruthy();
+    expect(screen.getByText('Tipp drauf und sieh, was du hier bestellen musst.')).toBeTruthy();
     expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
   });
 });

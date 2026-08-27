@@ -1,3 +1,11 @@
+/* MustEatsOnboarding — the three-slide explainer and its trigger.
+
+   The panel is chrome, not content, so it takes the chrome palette the
+   masthead, burger and footer already share: ink ground, white type, yellow as
+   the single accent. It used to be a white box with a black hairline on a
+   dimmed white page, which gave the card art (warm beige on white) almost no
+   separation and read as a stock tutorial modal rather than as this product. */
+
 .how {
   display: inline-flex;
   align-items: center;
@@ -6,27 +14,26 @@
   margin: clamp(22px, 3vw, 34px) 0 0;
   min-height: 46px;
   padding: 0 16px;
-  background: #15120e;
+  background: var(--et-home-ink, #15120e);
   border: 0;
-  border-radius: 0;
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1;
   text-transform: none;
-  color: #fff;
+  color: var(--et-home-inverse-text, #fff);
   cursor: pointer;
   transition:
     transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
     background-color 0.16s ease,
     color 0.16s ease;
 }
-.how:hover {
-  background: #fff;
-  color: #15120e;
-  outline: 2px solid #15120e;
-  outline-offset: -2px;
+.how:hover,
+.how:focus-visible {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
   transform: translateY(-2px);
 }
 .how:active {
@@ -39,7 +46,7 @@
   width: 18px;
   height: 18px;
   border: 1.5px solid currentColor;
-  border-radius: 0;
+  border-radius: 999px;
   background: transparent;
   color: inherit;
   font-family: var(--font-dm-sans, system-ui, sans-serif);
@@ -48,6 +55,7 @@
   line-height: 1;
 }
 
+/* ── Overlay ───────────────────────────────────────────────────────────────── */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -55,64 +63,128 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(21, 18, 14, 0.52);
+  background: rgba(21, 18, 14, 0.72);
+  backdrop-filter: blur(3px);
   padding: 16px;
 }
 
 .panel {
   position: relative;
-  width: min(92vw, 360px);
-  background: #fff;
-  border: 2px solid #15120e;
-  border-radius: 0;
-  padding: 40px 24px 24px;
+  width: min(94vw, 760px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  display: grid;
+  gap: clamp(20px, 3vw, 36px);
+  background: var(--et-home-ink, #15120e);
+  border: 0;
+  border-radius: 10px;
+  padding: clamp(26px, 4vw, 44px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  text-align: center;
-  animation: onbRise 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+  text-align: left;
+  animation: onbRise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Movement, never an opacity fade — brand rule for show/hide on brand surfaces. */
 @keyframes onbRise {
   from {
-    transform: translateY(110vh);
+    transform: translateY(28px) scale(0.97);
   }
   to {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* From tablet up the card sits beside the copy instead of on top of it: the
+   card is the subject, and stacked it pushed the headline and the button below
+   the fold on short laptop windows. */
+@media (min-width: 720px) {
+  .panel {
+    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
   }
 }
 
 .x {
   position: absolute;
   top: 8px;
-  right: 10px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 44px; /* full tap target — it used to be a 26px glyph with 4px padding */
+  height: 44px;
   background: none;
-  border: none;
-  font-size: 26px;
-  line-height: 1;
-  color: #15120e;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  color: var(--et-home-inverse-text, #fff);
   cursor: pointer;
-  padding: 4px;
+  transition: color 0.16s ease;
+}
+.x svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  fill: none;
+}
+.x:hover,
+.x:focus-visible {
+  color: var(--et-home-accent, #ffc600);
 }
 
-/* Demo card — same aspect as the freigestellt card art (1539×2115) */
+/* ── Demo card ─────────────────────────────────────────────────────────────── */
+/* Fixed aspect so the media column is exactly as tall on all three slides —
+   the pack art is a different shape from the card and used to resize the whole
+   panel under the visitor as they stepped through. */
 .cardBox {
   position: relative;
-  width: min(52vw, 190px);
-  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  width: min(52vw, 230px);
+  aspect-ratio: 1539 / 2115;
+  margin: 0 auto;
   perspective: 900px;
 }
+
+@media (min-width: 720px) {
+  .cardBox {
+    width: 100%;
+    margin: 0;
+    align-self: center;
+  }
+}
+
+.flipTap {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flipTap:hover,
+.flipTap:focus-visible {
+  transform: translateY(-4px) scale(1.02);
+}
+
 /* Booster pack as the hero of slide 3 — replaces the demo card. Same box, so
    it keeps the vertical rhythm; tilted a touch for that sticker-pack energy. */
 .packHero {
   display: block;
   width: 86%;
+  max-height: 100%;
   height: auto;
+  object-fit: contain;
   margin: 0 auto;
   transform: rotate(-4deg);
-  filter: drop-shadow(0 6px 14px rgba(10, 10, 10, 0.28));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   pointer-events: none;
 }
+
 .flipper {
   position: relative;
   width: 100%;
+  /* Same aspect as the freigestellt card art (1539×2115) */
   aspect-ratio: 1539 / 2115;
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
@@ -120,111 +192,214 @@
 .flipped {
   transform: rotateY(180deg);
 }
+/* The lift sits on the faces as a box-shadow, deliberately NOT as a
+   `filter: drop-shadow` on the flipper or any ancestor: a filter makes that
+   element a grouping element, which forces `transform-style: flat` on it. That
+   kills `backface-visibility` below, and the flipped card then shows its own
+   front mirrored instead of the card back. */
 .face {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
   backface-visibility: hidden;
 }
 .back {
   transform: rotateY(180deg);
 }
 
-/* Slide copy — section-head hierarchy: kicker, display headline, short body */
+/* ── Slide copy ────────────────────────────────────────────────────────────── */
+/* `.steps` takes the slack (margin-top:auto below), so the step rail and the
+   actions sit at the bottom of the column whatever the slide's copy length.
+   Otherwise the button moved between slides and the second click of three
+   landed next to it. The min-height holds the tallest slide's copy so the
+   panel itself is one size throughout — measured against the longest body
+   (the Booster-Pack one) at the narrowest column. */
+.copy {
+  display: flex;
+  flex-direction: column;
+  /* Measured against the tallest slide's copy at the narrowest column (the
+     three-line bodies); 15.5em left slide 2 sixteen pixels short and the panel
+     still resized under the visitor. */
+  min-height: 17em;
+}
+
+.slideCopy {
+  display: contents;
+}
+
 .kicker {
   font-family: var(--et-font-label, var(--et-font-mono), monospace);
   font-size: var(--et-type-kicker, 10px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #15120e;
-  margin: 0 0 8px;
+  color: var(--et-home-accent, #ffc600);
+  margin: 0 0 10px;
 }
+
 .title {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(34px, 9vw, 44px);
+  font-size: clamp(32px, 7vw, 46px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   line-height: 0.92;
   text-transform: uppercase;
-  color: #15120e;
-  margin: 0 0 12px;
+  color: var(--et-home-inverse-text, #fff);
+  margin: 0 0 14px;
 }
+
 .text {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(16px, 4.3vw, 18px);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.42;
-  color: #15120e;
-  margin: 0 0 16px;
-  min-height: 4.4em;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.76);
+  margin: 0 0 22px;
+  /* Holds the button still between slides of different copy length. Three
+     lines, not the 4.4em the centred layout needed — left-aligned copy at this
+     width wraps shorter, and the surplus showed as a gap above the button. */
+  min-height: 3em;
 }
 
-.dots {
+/* ── Step rail ─────────────────────────────────────────────────────────────── */
+/* margin-top:auto pools every slide's slack here, in one gap above the rail,
+   instead of scattering it between the headline and the body. */
+.steps {
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.dot {
-  width: 8px;
-  height: 8px;
-  border: 2px solid #15120e;
-  background: transparent;
-}
-.dotOn {
-  background: #15120e;
+  align-items: center;
+  gap: 14px;
+  margin: auto 0 20px;
+  padding: 0;
+  list-style: none;
 }
 
+.steps li {
+  display: flex;
+}
+
+/* Each segment jumps to its slide. They were decorative, which left closing
+   and reopening the whole dialog as the only way back to a previous step.
+   The button is the tap target; ::before draws the bar, so the target can be
+   comfortably tall without a fat rule on screen. */
+.step {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  cursor: pointer;
+  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.24);
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.step:hover::before {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.step:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 2px;
+}
+
+/* The active segment widens — progress, not just position. */
+.stepOn {
+  width: 46px;
+}
+
+.stepOn::before,
+.stepOn:hover::before {
+  background: var(--et-home-accent, #ffc600);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    transition: none;
+  }
+}
+
+/* ── Actions ───────────────────────────────────────────────────────────────── */
 .finalActions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: 10px;
 }
 
+/* Yellow is the accent and this is the one thing to press, so it finally does
+   the job it exists for. Ink-on-ink would have needed a border to be visible.
+   Rendered as a <button> on most slides and as an <a> in the guest offer, so it
+   has to carry the link resets too. */
 .next {
-  background: #15120e;
-  color: #fff;
-  border: 2px solid #15120e;
-  border-radius: 0;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-  padding: 13px 24px 14px;
-  cursor: pointer;
-}
-
-.packLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
-  padding: 13px 18px 14px;
-  background: #fff;
-  border: 2px solid #15120e;
-  border-radius: 0;
-  color: #15120e;
+  align-self: flex-start;
+  min-height: 48px;
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  border: 2px solid var(--et-home-accent, #ffc600);
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
   text-decoration: none;
+  padding: 13px 24px 14px;
+  cursor: pointer;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.packLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 13px 18px 14px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--et-radius-control, 7px);
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.16s ease;
 }
 
 .next:hover,
 .next:focus-visible,
 .packLink:hover,
 .packLink:focus-visible {
-  outline: 2px solid #15120e;
-  outline-offset: 2px;
+  transform: translateY(-2px);
+}
+.packLink:hover,
+.packLink:focus-visible {
+  border-color: var(--et-home-accent, #ffc600);
 }
 
 .packLink:active,
@@ -239,13 +414,25 @@
   .flipper {
     transition: none;
   }
-  .how {
+  .how,
+  .flipTap,
+  .next,
+  .packLink {
     transition:
       background-color 0.16s ease,
+      border-color 0.16s ease,
       color 0.16s ease;
   }
   .how:hover,
-  .how:active {
+  .how:active,
+  .flipTap:hover,
+  .flipTap:focus-visible,
+  .next:hover,
+  .next:focus-visible,
+  .next:active,
+  .packLink:hover,
+  .packLink:focus-visible,
+  .packLink:active {
     transform: none;
   }
 }

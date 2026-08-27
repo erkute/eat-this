@@ -3,10 +3,16 @@
    handle the shell; this file only covers component-specific sizing, the card
    tilt/lift variants, dish text, and the footer CTA row. */
 
-/* ── Lead line ─────────────────────────────────────────────────────────────── */
+/* ── Lead line + the "how does it work?" trigger ───────────────────────────── */
+/* The trigger brings its own top margin (MustEatsOnboarding.module.css), so the
+   gap to the rail belongs on the block, not on the lead. */
+.intro {
+  margin: 0 0 clamp(18px, 2.2vw, 28px);
+}
+
 .lead {
   max-width: 44ch;
-  margin: 0 0 clamp(18px, 2.2vw, 28px);
+  margin: 0;
   font-family: var(--font-providence);
   font-size: clamp(19px, 1.6vw, 25px);
   font-weight: 700;
@@ -164,6 +170,12 @@
 .dishLink:hover .dish,
 .dishLink:focus-visible .dish {
   color: var(--home-accent);
+}
+
+/* The card's state, standing where a dish name would. Same slot and type so the
+   row keeps one baseline; muted because it names a blank, not a dish. */
+.dishCovered {
+  color: rgba(21, 18, 14, 0.38);
 }
 
 .restaurantLink :global(.hv-sub) {

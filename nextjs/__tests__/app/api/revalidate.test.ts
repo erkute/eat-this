@@ -128,6 +128,43 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
   })
 
+  // Die echte Webhook-Projektion sendet `"slug": slug.current` — einen
+  // STRING (Hook-Log vom 27.08.2026: { _id, _type, slug: 'beste-burger-berlin' }).
+  // Die Route las nur `doc.slug?.current`; auf dieser Payload war der Slug
+  // damit immer undefined und keine slug-spezifische Revalidierung lief je.
+  // Die Objekt-Tests oben haben den Irrtum mitgetragen — dieser hier prüft
+  // die Form, die wirklich über die Leitung geht.
+  it('revalidates the article path when the webhook sends the slug as a plain string', async () => {
+    const raw = JSON.stringify({
+      _id: 'news-beste-burger-berlin',
+      _type: 'newsArticle',
+      slug: 'beste-burger-berlin',
+    })
+    const ts = Date.now()
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual(
+      expect.objectContaining({ ok: true, type: 'newsArticle', slug: 'beste-burger-berlin' })
+    )
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:beste-burger-berlin')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/news/beste-burger-berlin')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/news/beste-burger-berlin')
+  })
+
+  it('revalidates the restaurant path when the webhook sends the slug as a plain string', async () => {
+    const raw = JSON.stringify({ _id: 'x', _type: 'restaurant', slug: 'gully-burger' })
+    const ts = Date.now()
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:gully-burger')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/gully-burger')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/restaurant/gully-burger')
+  })
+
   it('revalidates must-eat pages when news changes the free surface', async () => {
     const raw = JSON.stringify({
       _type: 'newsArticle',

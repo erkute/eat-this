@@ -11,7 +11,6 @@ import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
 import CategoriesRail from './CategoriesRail';
-import HomeDishStrip from './HomeDishStrip';
 import MagazineGrid from './MagazineGrid';
 import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
@@ -186,9 +185,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           page. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
         <StarterPackSignup locale={locale} />
-        <HubMustEatsTeaser>
-          <HomeDishStrip locale={locale} />
-        </HubMustEatsTeaser>
+        <HubMustEatsTeaser />
       </HomeMapDataProvider>
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />

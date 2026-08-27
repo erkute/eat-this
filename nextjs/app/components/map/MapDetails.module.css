@@ -1,29 +1,3 @@
-/* ========== Inline layer toggle at the top of the sheet (Apple-style) ========
-   Sits below the handle, above the list content, so it lives inside the
-   sheet flow rather than floating over the map. Bidirectional layer switch
-   one tap away whenever the user is in list view. */
-/* Active segment — solid surface with crisp edge shadow (iOS segmented look). */
-/* ========== Bezirk dropdown (styled native select) ========== */
-/* ========== Open-now toggle chip ========== */
-/* (Old standalone-pill styles for .toolbarMobile .openChip / .select removed —
-   both now live inside the unified glass pill at the top of the file.) */
-/* Category filter row inside the sheet.
-   Mobile: editorial tab-strip between handle and list.
-   Desktop: pill chips below the black banner. */
-/* ========== Centered detail modal ==========
-   Mobile: vertikal + horizontal zentriert, Luft rundum für Tap-to-dismiss,
-   einspaltig (Bild oben, Info unten).
-   Desktop: breiter, zweispaltig (Bild+Meta links, Hours/Actions rechts). */
-/* Must Eat detail: tighter width — the card hero is ~220px and the rest is text,
-   so a narrower panel keeps attention on the card without big side whitespace. */
-/* Mobile: hide the floating overlay — detail lives inside the sheet instead. */
-/* X-button right-aligned in detail sheet header — equal padding above (where sheet edge ends)
-   and below (where the hero begins) so the close button feels balanced. */
-/* ── In-sheet detail: magazine-style hero + scrollable body ──
-   The sheet snaps peek/mid/full like the list. At mid the hero, name, status
-   and action row fit above the fold; pulling the handle up reveals the full
-   scrollable body (description, tip, address, hours, must-eats). Hero keeps
-   its real 4/3 aspect — no max-height clamp, no auto-shrink. */
 /* Restaurant detail in-sheet: own scroll. Mounted via .detailMount in
    MapSectionBody (overflow:hidden flex column). */
 .detailMount {
@@ -61,49 +35,6 @@
     max-height: calc(100dvh - var(--sheet-y, 0px) - 36px);
   }
 }
-/* Body container — Apple Maps / Spotify rhythm: tight blocks with breathing
-   room between major sections. The peek-header above already gives the name
-   its top-of-sheet padding, so the body starts at 4 px. */
-/* The two meta lines (Bezirk above, Categories + Price below) form a single
-   header-info block — pull them together so they read as one unit, not two
-   disconnected lines. The body's `gap: 10px` is right for the rhythm to the
-   status / travel / hero blocks that follow. */
-/* Description body keeps a slightly looser feel than the meta blocks. */
-/* Peek-visible header: name + 3 round action buttons. Pinned at the very
-   top of the sheet so when the user collapses to the peek snap (~68 px),
-   the restaurant name and the actions stay visible (Apple/Google Maps
-   pattern). Sits OUTSIDE the scroll body. */
-/* At the peek snap on mobile, only the handle + peek-header are visible —
-   the meta line, status line and everything below the name + icons get
-   hidden so the user sees a clean "name + actions" header strip. */
-/* Meta line: Bezirk · Kategorie1 · Kategorie2 · Preis. Flat magazine-dotted
-   text — same vocabulary as the row's `.rowMetaText`, scaled up. */
-/* Price reads as part of the magazine meta line — same neutral color as
-   the other tokens, no accent. */
-/* Travel-time row — Fuß / ÖPNV / Auto with rough estimates. Each item is a
-   tappable Google Maps deep-link with the matching travel mode preset. */
-/* ── Magazine body — generous rhythm, prose-style description, restrained
-   action links at the bottom (mirrors the restaurant detail page). */
-/* Insider tip — accent-orange left border (matches restaurant page .tip) */
-/* Live distance to the must-eat — accent-colored so the user spots the
-   number immediately ("Du bist 320 m entfernt..."). */
-/* Chevron-down indicator — replaces the handle pip when the detail sheet
-   is at full snap. Tap collapses to mid so the user sees name + category +
-   actions next to the map again. Sits in the handle area, NOT on the photo
-   (the photo card stays free of overlays — Google Maps pattern). */
-/* Pure icon — no pill, no border, no background. Centered horizontally
-   over the handle area so it reads as the sheet's primary "swipe me down"
-   affordance. Color is text-primary so it actually pops without button
-   chrome. */
-/* In-sheet heart inherits the base freigestellt treatment (white outline +
-   drop-shadow, accent fill when saved). No circle background. */
-/* ── Must Eat detail (in-sheet) ───────────────────────────────────────
-   Big & Bold layout: cream gradient hero with the freigestellte card-back
-   (white asset margin cropped via background-size: 118%) vibrating
-   continuously. Combined Card CTA at the bottom links to the restaurant. */
-/* At mid-snap on mobile, compress the hero so the meta line + travel-row
-   fit inside the visible body slice as the default — user sees Bezirk and
-   Walk/ÖPNV/Auto times without having to scroll. */
 /* Freigestellte card: white cream asset margin cropped via background-size > 100%.
    Single subtle shadow — not a layered stack — so it reads as ONE card. */
 .mustEatCardCanUnlock {
@@ -138,82 +69,6 @@
     transform: translate(0, 0) rotate(0);
   }
 }
-/* Prominent "you're close enough" banner shown in-body when canUnlock */
-/* Card flip container — matches locked card footprint exactly */
-/* Lock-state eyebrow shown above the hero — Apple-style: tight tracked
-   small-caps with the accent color so the lock context reads at a glance. */
-/* Locked-state info box — used by the desktop "So schaltest du es frei"
-   instructions. Small surface-bg pill, distinct from the more prominent
-   .detailTipBlock used for editorial insider tips. */
-/* Holographic iridescence — faint pink/cyan tint shift across the silver,
-   the way a foil wrapper picks up nearby colour. Mix-blend-overlay keeps
-   it subtle: the silver still reads as silver, just slightly alive. */
-/* Moving shine band — the bling. Sweeps across the entire banner every
-   ~5s like light catching foil at the right angle. White at high opacity
-   so it actually reads as a flash on the metallic surface. */
-/* CTA: solari-yellow pill with black text — same colour pair as the
-   landing's Best-Value ribbon (#F5C518 on #0a0a0a) and the Must-Eat card
-   back. Yellow on silver pops without competing with the iridescence,
-   and the black text stays sharp through the moving shine. */
-/* ── Booster fan: 3-card stacked composition. On hover all three packs
-   react — side packs lift slightly and rotate a touch more outward, the
-   front pack lifts higher with a small tilt. Hover motion stays vertical
-   (no horizontal spread) so the outer packs don't clip against the
-   banner's overflow:hidden edge. A slow diagonal shine sweeps across the
-   artwork to suggest premium product without being noisy. */
-/* Compact action row at the bottom of the must-eat detail body — same
-   visual language as .detailTravelRow (icon + text, no chrome) so the
-   secondary actions (Maps / Restaurant / All Must Eats) read as a row of
-   tap-throughs instead of three full-width buttons stealing space. */
-/* Custom Bezirk dropdown panel — portaled via fixed positioning so the
-   toolbar's overflow:hidden doesn't clip it. */
-/* ── List-variant booster — flat editorial panel, centered copy + CTA. */
-/* Image fan is hidden in the dir-divider layout */
-/* Big Chewy heading */
-/* Kicker — small uppercase Chewy above the heading via order */
-/* Inline arrow inside the CTA label (anon variant has no price-tag) */
-/* Flat editorial CTA */
-/* Actions float above the hours/tip/must-eats block */
-/* Modern pill-shaped action buttons — solid surface, subtle elevation, smooth lift on hover.
-   Replaces the heavy frosted glass with a cleaner card-button look (Google Maps-ish). */
-/* In-sheet scroll area — no dividers anywhere. Sections separated by bolder
-   labels and breathing room. Inspired by modern map detail panels: visual
-   hierarchy via type weight + space, not lines. */
-/* Promote section labels: prominent dark heading instead of muted all-caps */
-/* Back / close buttons in the sheet detail header row. */
-/* Restaurant name in detail header — truncate, centered. */
-/* ========== Restaurant detail: opening hours + categories + must-eats ========== */
-/* ========== Must Eat detail: full flipped card ========== */
-/* ── FilterDropdown ─────────────────────────────────────── */
-/* Portaled into document.body (same as BezirkFilter) so the sheet's
-   anchored to the right of the .listHeader (which is position: relative). */
-/* Apple-segmented Layer switch inside the filter dropdown — stretches the
-   full content width so the tap targets feel generous. */
-/* Toggle switch */
-/* ── CategoryFilter tab-bar variant ─────────────────────── */
-/* ── New mobile list header ──────────────────────────────── */
-/* Zone C — category chip row. Sits between the header drag zone and the
-   list scroll. No drag handler here — native horizontal scroll only. */
-/* Desktop: no drag handle above, so the icons need breathing room from the
-   panel top edge. */
-/* Sort indicator next to the count — text label of the active sort mode plus
-   an arrow that shows direction. Tap to flip direction; the dropdown still
-   handles mode switching. */
-/* Inline search inside list header — replaces the count row when active.
-   font-size: 16px is required to prevent iOS Safari from auto-zooming on focus. */
-/* Bezirk filter pill — appears top-left of the map when ?bezirk= is active.
-   Sits above the map canvas, below the MapLibre nav controls. */
-/* ===========================================================================
-   Map v2 — permanent layer toggle, filter chips, picker sheet, anon nudges
-   =========================================================================== */
-/* -------------------- Filter chip row (row 2 of the header) -------------------- */
-/* Mustard-sticker filter chips — same family as the booster CTA + must-eat
-   card-back: Saira caps, mustard fill. Active state = coral bg + cream text. */
-/* -------------------- Picker sheet (mobile) / popover (desktop) -------------------- */
-/* Desktop: anchored popover instead of bottom sheet. CSS vars set by the
-   component from the chip's getBoundingClientRect(). Backdrop becomes a
-   tap-shield with no tint. */
-/* -------------------- Anon unlock prompt (full-bleed soft modal) -------------------- */
 /* ==========================================================
    v13 Restaurant-Detail — MULTI editorial layout
    Utility bar / coral hero / photo strip / info strip /
@@ -246,42 +101,6 @@
 .detailV13Scroll::-webkit-scrollbar {
   width: 0;
 }
-/* Must-Eat-Detail mobile: viewport-füllendes Layout ohne Scrollen — siehe
-   den .detailV13MustEat-Block unter den .fd-* Regeln weiter unten.
-   Restaurant-Detail unverändert (kein .detailV13MustEat). */
-/* 1. Utility bar */
-/* 2. Hero panel — coral with mustard district pill + Saira name */
-/* Icons live on the sheet-handle bar above the hero now — no overlap, no
-   right-padding needed on the name. */
-/* Sheet-handle action strip — Share / Save / X icons that sit on the
-   same horizontal line as the swipe-pip, absolutely positioned over
-   the handle bar so they stay fixed during content scroll. Rendered
-   in MapSectionBody when a restaurant detail is open. The handle
-   itself gets bumped taller (see .list[data-view="detail"] .handle
-   below) so the icons aren't crammed into a 24px strip. */
-/* Desktop has no swipe handle and doesn't need a fixed icon strip —
-   on the rail the icons sit inline above the hero (rendered inside
-   RestaurantDetail behind the .heroActionsDesktop class). */
-/* Naked icon buttons — no circle, no border, no shadow. Just the cream
-   glyph on the coral hero with a subtle drop-shadow for legibility. */
-/* Handle-bar variant: tighter than the in-hero default but with enough
-   stroke weight that the glyphs read clearly without a chrome circle. */
-/* Desktop-only icon row — absolutely positioned inside the coral hero
-   so the icons sit ON the red field (not above it). Hidden on mobile,
-   where the same icons render on the sheet handle via .sheetHandleActions. */
-/* 3. Photo strip */
-/* 4. Info strip — coral "second movement" of the hero. Same coral
-   surface + cream type as the hero above; rows separated by thin
-   cream hairlines. Reads as one continuous editorial sheet from the
-   restaurant name down through the address. */
-/* Kelly green for the active open-status label — same green vocabulary as
-   the list row's open dot (#34a85a) so the "now open" signal reads at a
-   glance and matches the rest of the map's open-state language. */
-/* Inline icons inside the status lockup (used by the must-eat detail's
-   lock/unlock glyph). Default SVG renders at intrinsic size which would
-   blow up on icons authored at viewBox 24x24 — clamp to text height. */
-/* Pulse animations removed per user feedback — bling-bling was too loud
-   for the editorial layout. Static dot reads cleanly enough. */
 /* Must-eat detail uses the home palette, but reads like a modern card sheet:
    stacked card stage, warm paper content, compact controls, and no internal
    scrolling. Copy is clamped so the whole composition fits the viewport. */
@@ -292,7 +111,12 @@
      messen, also ab der OBERSTEN Karte. Hier definiert, damit sowohl der
      Scrollport (--me-card-air) als auch .fdHeroWrap sie sehen. */
   --me-fan-drop: 38px;
-  --fd-card-h: clamp(226px, 38dvh, 340px);
+  /* svh, nicht dvh: dvh ist der DYNAMISCHE Viewport und wächst, sobald die
+     Browserleiste beim ersten Scrollen/Tippen einklappt. Die Karte wurde dabei
+     13px höher, und weil die Spalte darunter fest sitzt, rutschte alles ab der
+     Überschrift mit — beim ersten Blättern sichtbar. svh ist der kleine,
+     stabile Viewport: einmal berechnet, bleibt er. */
+  --fd-card-h: clamp(226px, 38svh, 340px);
   --fd-title-size: clamp(32px, 9.2vw, 52px);
   align-content: stretch;
   overflow-x: hidden;
@@ -310,7 +134,7 @@
   align-items: flex-start;
   justify-content: center;
   margin: 0;
-  padding: clamp(16px, 3dvh, 28px) 8px clamp(10px, 1.6dvh, 16px);
+  padding: clamp(16px, 3svh, 28px) 8px clamp(10px, 1.6svh, 16px);
   perspective: 1000px;
 }
 .fdCardStack {
@@ -396,8 +220,8 @@
   flex-direction: column;
   position: relative;
   z-index: 3;
-  margin: clamp(22px, 3.4dvh, 34px) 0 0;
-  padding: 0 0 clamp(8px, 1.6dvh, 14px);
+  margin: clamp(22px, 3.4svh, 34px) 0 0;
+  padding: 0 0 clamp(8px, 1.6svh, 14px);
   border-bottom: 0;
 }
 .fdName {
@@ -421,13 +245,6 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-/* Covered: der Name bleibt im DOM, wird aber visuell ersetzt. */
-.fdNameBlur {
-  color: transparent;
-  filter: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
 /* Reveal: clip/mask motion instead of a direct text pop. */
 .fdNameUnblurring {
   filter: none;
@@ -436,14 +253,14 @@
 /* Beschreibung — kompakt geklemmt, damit die Detailkarte nicht scrollen muss. */
 .fdText {
   margin: 0;
-  padding: clamp(8px, 1.4dvh, 14px) 0 0;
+  padding: clamp(8px, 1.4svh, 14px) 0 0;
   font-family: var(--font-saira-condensed), 'Saira Condensed', var(--font);
   font-size: clamp(15px, 3.8vw, 18px);
   font-weight: 800;
   line-height: 1.16;
   letter-spacing: 0.01em;
   text-align: left;
-  min-height: calc(1.16em * 2 + clamp(8px, 1.4dvh, 14px));
+  min-height: calc(1.16em * 2 + clamp(8px, 1.4svh, 14px));
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -453,7 +270,7 @@
 /* Locked: Näherungs-Hinweis statt Beschreibung — großes „Du bist da!"
    bzw. Entfernung + Sub-Hinweis. */
 .fdProximity {
-  padding: clamp(8px, 1.4dvh, 14px) 0 0;
+  padding: clamp(8px, 1.4svh, 14px) 0 0;
   text-align: left;
 }
 .fdProximityHead {
@@ -568,21 +385,10 @@
 }
 @media (max-height: 740px) {
   .detailV13MustEat .detailV13Scroll {
-    --fd-card-h: clamp(196px, 32dvh, 260px);
+    --fd-card-h: clamp(196px, 32svh, 260px);
     --fd-title-size: clamp(28px, 8.2vw, 44px);
   }
 }
-/* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal
-   game). The unlocked dish view now uses the .fd-* family above. Sits
-   directly below the coral hero so the visual rhythm matches the
-   restaurant detail (coral → photo → info → prose). */
-/* Card + Verdeckt-Stempel teilen sich dieselbe Grid-Zelle, damit der
-   Stempel sich an der Card-Bottom-Right-Kante orientiert — unabhängig
-   von der Card-Größe (180 px Desktop, min(45vw, 200, 25dvh) Mobile). */
-/* Lock-Block — Verdeckt-Stempel + „Komm auf …"-Pitch + Body als EIN Block.
-   Coral-tinted Hintergrund mit coral border-left; der getiltete Stamp sitzt
-   als Eyebrow oben links, darunter Title + Body. Wirkt als zusammengehörige
-   editorial Einheit statt zwei lose Inseln. */
 /* Pack Promo — compact unlock panel in the restaurant detail sheet. */
 .packPromo {
   display: grid;
@@ -716,9 +522,6 @@
   /* Must-Eat detail shares the same readable, scrollable card system on
      desktop and mobile; the rail width is handled by the base component rules. */
 }
-/* -------------------- List-end closing CTA -------------------- */
-/* Locked-bezirk block — one calm All-Berlin pitch when a filtered district has
-   only locked spots. Replaces the divider + per-card badges + end-cap. */
 /* ============ Restaurant Detail (Chewy Screen 04) ============ */
 .rdHero {
   position: relative;
@@ -762,7 +565,6 @@
   width: 16px;
   height: 16px;
 }
-/* outline heart until hearted */
 /* filled coral when hearted */
 .rdHeartToggleCount {
   font-family: var(--f-display);
@@ -1737,7 +1539,6 @@
     grid-template-columns: 64px minmax(0, 1fr);
   }
 }
-/* Final map list/filter pass: sharp dropdown tabs, white polaroids, squared detail UI. */
 /* Feedback pass: no cream, no framed hero icons, tighter gallery, real buttons. */
 .rdHero .rdHeartToggle,
 .rdHero .rdCloseGlass {
@@ -2079,12 +1880,6 @@
 .fdProximityReady * {
   color: inherit;
 }
-/* Mobile filter rail: use the full device width without clipped/offscreen chips. */
-/* Filter rail: keep all controls inside the side panel instead of letting the
-   last chip disappear under the panel edge. */
-/* Filter picker: flat editorial panel matching the new map controls. */
-/* Restaurant card status badge: use the Home CTA font, not the mono utility
-   label treatment. */
 /* Final detail redesign: photo-led restaurant sheet + cleaner Must-Eat sheet. */
 .detailV13:not(.detailV13MustEat),
 .detailV13:not(.detailV13MustEat) .detailV13Scroll {
@@ -2546,11 +2341,6 @@
 .detailV13:not(.detailV13MustEat) .rdPagerBtnRight .rdPagerName {
   text-align: right;
 }
-/* Restaurant list: one All-Berlin poster instead of locked preview rows. */
-/* Map list empty state: Home-derived editorial note, not a system UI panel. */
-/* Filter chips: active long labels such as "Charlottenburg" need more room
-   than the default four equal columns, but the rail must still stay inside
-   the side panel. */
 /* Must-Eat detail redesign: one equal-size tactile deck at the top, with the
    current card sitting above identical back cards. Kept late in the file to
    own the many historic Must-Eat overrides above. */
@@ -2858,6 +2648,16 @@
   font-size: clamp(30px, 7.4vw, 46px);
   line-height: 0.88;
 }
+/* Der verdeckte Zustand eine Stufe leiser, auf JEDER Breite — die Basisregel
+   dafür (.fdProximityAway .fdProximityHead) wurde von der Zeile darüber
+   geschlagen, die eine Klasse mehr hat. In voller Größe brach "Noch nicht
+   aufgedeckt." auf zwei Zeilen: der Copy-Block maß 94px statt der reservierten
+   68px (Phone) bzw. 119px statt 105px (Desktop) und stand damit höher als die
+   Beschreibung der aufgedeckten Nachbarkarte — beim Blättern sprang der Text.
+   Das große Maß bleibt dem "Du bist da."-Moment, der es tragen soll. */
+.detailV13MustEat .fdProximityAway .fdProximityHead {
+  font-size: clamp(20px, 6.2vw, 31px);
+}
 /* Die Standort-Zustände ("Standort freigeben"/"Standort blockiert") sind eine
    Browser-Berechtigung, kein Produktmoment — in Dish-Name-Größe schrien sie
    wie das Gericht selbst. Eine Stufe leiser: groß bleibt dem Gericht und der
@@ -3098,14 +2898,6 @@
     padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
   }
 }
-/* Filter chips scroll sideways when selected labels outgrow the map panel.
-   This intentionally overrides the older equal-column squeeze pass above. */
-/* Filter bar should first read as a full-width control row, not a short
-   left-aligned cluster. Long active labels can still be clipped inside their
-   segment, but the default Category/Bezirk/Kueche/Open state fills the sheet. */
-/* ── Detail-Polish (User 2026-07-04, lokales Testing) ───────────────────── */
-/* Must-Eat-Karten-Peek in der Restaurant-Liste minimal höher — ragt jetzt
-   ein Stück über die Kartenoberkante hinaus statt bündig zu sitzen. */
 /* Etwas Luft über der "Must Eats"-Sektion im Restaurant-Detail — sie klebte
    direkt am Insider-Tipp-Banner. */
 .detailV13:not(.detailV13MustEat) .rdMustSection {
@@ -3290,7 +3082,6 @@
     padding-bottom: 28px;
   }
 }
-/* Open-state labels: green in the filter chip and restaurant list. */
 /* Map gallery: hero photo as the first Polaroid preview; zoom stays centered. */
 .detailV13:not(.detailV13MustEat) .rdGallery {
   width: max-content;
@@ -3341,8 +3132,6 @@
   outline: 3px solid var(--brand-action, #ef3108);
   outline-offset: 4px;
 }
-/* Map filter rail: keep the four equal mobile controls, but make them read as
-   buttons again instead of labels floating on the white sheet. */
 /* Map filter picker: editorial popover instead of a plain system list. */
 @media (min-width: 1024px) {
   .detailV13MustEat {
@@ -3843,7 +3632,11 @@
    share one position without ever sitting on top of the description. */
 .detailV13MustEat .fdMid {
   --me-name-copy-gap: 10px;
-  --me-name-slot: clamp(88px, 11dvh, 102px);
+  /* Hoch genug für zwei Zeilen in der größten Namensklasse (gemessen 100px bei
+     44px Schrift) — sonst steht der zweizeilige Fall über der festen
+     Track-Höhe und ragt in den Kartenfächer. svh statt dvh, damit die
+     Browserleiste nichts verschiebt. */
+  --me-name-slot: clamp(100px, 13svh, 108px);
   display: grid;
   grid-template-rows:
     var(--me-name-slot)
@@ -3866,69 +3659,6 @@
   display: block;
   max-height: 100%;
   overflow: hidden;
-}
-.detailV13MustEat .fdNameText.fdNameBlur {
-  box-sizing: border-box;
-  position: relative;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  max-width: 100%;
-  max-height: 100%;
-  height: 40px;
-  align-self: flex-end;
-  overflow: hidden;
-  color: transparent;
-  filter: none;
-  opacity: 1;
-  text-shadow: none;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-.detailV13MustEat .fdName:has(.fdNameBlur) {
-  overflow: hidden;
-}
-/* Der Text kommt aus dem DOM, nicht aus dem Stylesheet: hier stand 'VERDECKT'
-   hartkodiert, und auf /en las sich das Badge als einziges Element deutsch,
-   während der echte (per color: transparent verdeckte) Name daneben schon
-   "Face-down" hieß. `attr()` zieht die übersetzte Fassung aus dem
-   data-Attribut, das MustEatDetailMobile setzt. */
-.detailV13MustEat .fdNameText.fdNameBlur::before {
-  content: attr(data-covered);
-  position: absolute;
-  top: auto;
-  right: auto;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: fit-content;
-  height: 32px;
-  padding: 0 11px;
-  background:
-    linear-gradient(
-      110deg,
-      rgba(246, 196, 0, 0.22),
-      rgba(246, 196, 0, 0.08) 42%,
-      rgba(28, 37, 32, 0.08)
-    ),
-    color-mix(in srgb, var(--me-soft) 82%, #fff 18%);
-  border-radius: var(--et-radius-control, 7px);
-  color: color-mix(in srgb, var(--me-ink) 72%, transparent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(15px, 1.5vw, 18px);
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-  box-shadow: inset 0 0 0 1px rgba(28, 37, 32, 0.06);
-  filter: none;
-  transform: translateZ(0);
-  pointer-events: none;
-}
-.detailV13MustEat .fdNameText.fdNameBlur::after {
-  display: none;
 }
 .detailV13MustEat .fdNameText.fdNameUnblurring {
   position: relative;
@@ -4771,15 +4501,22 @@
    Oberlängen — lief damit gegen eine Kante: aus "Döner" wurde "Doner", nach
    demselben Muster wie "Komm näher" → "Komm naher".
 
-   Der verdeckte Zustand behält seine Kante: dort sitzt das VERDECKT-Badge im
-   Slot, und der Reveal-Sweep (.fdNameUnblurring::after) braucht die
-   Clip-Grenze. `:has(.fdNameBlur)` sticht diese Regel spezifitätsseitig
-   ohnehin aus, die bestehende Zeile weiter oben bleibt also gültig. */
+   Der verdeckte Zustand hat keine Sonderrolle mehr: dort steht jetzt die
+   Zustands-Kopfzeile im selben Track wie sonst der Gerichtsname, also gilt
+   dieselbe Regel für beide.
+
+   `overflow: visible` löst das Abschneiden — die HÖHE bleibt trotzdem fest.
+   Vorher stand hier `height: auto; max-height: none`, und damit maß sich der
+   Track an seinem Text: je nach Namenslänge griff eine andere Größenklasse und
+   eine zweite Zeile kam dazu, gemessen 88px ("Morning Bun"), 92px ("Biang
+   Biang Lamb") und 100px ("Tomate Slice"). Weil der Track über der Copy sitzt,
+   wanderte damit beim Blättern die halbe Ansicht. Fest plus sichtbar
+   überstehend: Unterlängen ragen heraus, das Layout steht. */
 .detailV13MustEat .fdName {
   flex: 0 0 auto;
-  height: auto;
+  height: var(--me-name-slot);
   min-height: var(--me-name-slot);
-  max-height: none;
+  max-height: var(--me-name-slot);
   overflow: visible;
 }
 
@@ -4900,18 +4637,6 @@
   text-overflow: ellipsis;
 }
 
-/* Verdeckter Name = 32px-Badge, kein zweizeiliger Gerichtsname. Der
-   768–1023.98px-Rail kollabiert den Slot dafür längst (46px, siehe oben), der
-   Desktop-Rail nie — dort standen 88–102px Grid um ein 32px-Badge herum. Das
-   ist die tote Fläche zwischen Kartenstapel und "KOMM NÄHER".
-
-   Am Desktop-Rail gilt das nicht mehr: dort liegen verdeckter und aufgedeckter
-   Zustand direkt hintereinander (Aufdecken, Blättern), und ein eigener
-   Namens-Slot ließ die Copy beim Wechsel um 40px springen. Beide Zustände
-   teilen sich hier denselben Slot — nur so sitzen Badge und Gerichtsname an
-   derselben Stelle. Schmalere Breiten behalten ihre kompakten Werte: dort ist
-   der Platz knapp und die Proximity-Copy braucht ihn. */
-
 /* ── Desktop-Rail: größerer Kartenstapel ────────────────────────────────────
  * Der Stapel war kleiner, als der Platz hergab — nicht wegen der Deckel
  * (`--me-card-h` 316px, Breiten-Guard 68%), sondern wegen einer
@@ -4923,14 +4648,11 @@
  * Abzug war nur Verlust. */
 @media (min-width: 1024px) {
   .detailV13MustEat .detailV13Scroll {
-    /* Nicht mehr allein aus dem Resttrack: `100%` ist die Höhe der
-       Hero-Zeile, und die wächst, seit der Textslot im verdeckten Zustand nur
-       noch seinen Inhalt misst — die Karte war verdeckt 362px und aufgedeckt
-       315px groß, sprang beim Blättern also sichtbar. Der dvh-Wert ist so
-       gewählt, dass er auch im engeren aufgedeckten Layout passt; damit ist er
-       in beiden Zuständen der kleinste Term und die Karte bleibt gleich groß.
-       `100%` bleibt als Sicherheitsnetz für flache Fenster. */
-    --me-card-h: min(100%, 37dvh, 380px);
+    /* Wie am Phone kleiner als der Platz hergibt: die Karte hängt unten im
+       Hero-Bereich, das Polster liegt unter ihr, sie wuchs also nach oben —
+       gemessen bis 15px ÜBER die Unterkante des Schließen-X. Was hier an Höhe
+       fehlt, wird oben zu Luft. */
+    --me-card-h: min(39svh, 390px);
   }
 
   .detailV13MustEat .fdCardStack {
@@ -4939,21 +4661,6 @@
   }
 }
 
-/* ── Verdeckt: der Slot misst den Text, nicht umgekehrt ─────────────────────
- *
- * Der Mittelteil stand auf einer festen Slot-Höhe (--me-mid-slot, 197px am
- * Desktop-Rail), und .fdProximity reservierte davon per min-height den ganzen
- * Copy-Anteil — 141px um zwei Zeilen "Tipp auf die Karte …". Weil der Slot
- * seinen Inhalt unten verankert (align-content: end), stand die Differenz als
- * Loch zwischen Text und Restaurant-Streifen.
- *
- * Inzwischen ist der Slot so bemessen, dass er den verdeckten Zustand fasst
- * (siehe --me-mid-slot weiter oben) — das Loch von damals kann nicht mehr
- * entstehen, und die Reservierung darf wieder gelten. Sie muss sogar: nur
- * wenn BEIDE Copy-Blöcke exakt den Rest des Slots füllen, beginnt der Text
- * verdeckt wie aufgedeckt an derselben Stelle und endet am selben Abstand
- * zum Restaurant-Streifen. Ohne sie stand der verdeckte Block 3-7px höher
- * als die Beschreibung. */
 /* Der Textblock behält in beiden Zuständen dieselbe Slot-Höhe — sonst wandern
    Karte und Streifen beim Aufdecken, weil die Geometrie zwingend ist:
    Kartenunterkante + Luft + Textblock + Gap = Streifenoberkante.
@@ -4986,14 +4693,6 @@
   }
 }
 
-/* Titel ohne Inhalt, aber mit Platz: in Reichweite soll kein VERDECKT-Badge
-   neben dem "Jetzt aufdecken"-Chip stehen — der Namens-Track muss trotzdem
-   stehen bleiben, sonst rückt die Copy in ihn hinein und sitzt anders als im
-   aufgedeckten Zustand. */
-.detailV13MustEat .fdName.fdNameVoid {
-  visibility: hidden;
-}
-
 /* ── Phone: gewischt wird, nicht getippt ────────────────────────────────────
  *
  * Der Pager war auf dem Phone doppelt gemoppelt: useSwipePager hängt ohnehin
@@ -5022,9 +4721,11 @@
   }
 
   .detailV13MustEat .detailV13Scroll {
-    /* Wie am Desktop-Rail: der dvh-Term hält die Karte in beiden Zuständen
-       gleich groß (verdeckt maß sie 379px, aufgedeckt 351px). */
-    --me-card-h: min(calc(100% - var(--me-card-gap)), 42dvh, 380px);
+    /* Etwas kleiner als der Platz hergibt: die Karte ist im Hero-Bereich unten
+       verankert und das Polster liegt komplett unter ihr, sie wuchs also nach
+       oben bis unter das Schließen-X (gemessen 21px Abstand). Was hier an Höhe
+       fehlt, wird oben zu Luft. */
+    --me-card-h: min(45svh, 380px);
     /* Nicht mehr an --me-card-w gekoppelt: der Stapel schrumpft jetzt mit
        seinem Platz, die Untergrenze muss also nur noch eine lesbare Karte
        tragen. */
@@ -5048,16 +4749,15 @@
     height: var(--me-card-h);
     max-height: var(--me-card-h);
   }
+
+  /* Die konstante Streifenhöhe gehört auf den STREIFEN, nicht auf den Namen —
+     eine reservierte zweite Namenszeile stünde bei kurzen Namen als leere
+     Fläche darunter. Das Maß selbst setzt der Restaurant-Layer am Dateiende. */
+  .detailV13MustEat .detailV13Scroll > .fdRestInline {
+    align-content: center;
+  }
 }
 
-/* ── Wisch-Hinweis: einmal zeigen, nie wieder ───────────────────────────────
- * Ohne Pager-Tasten muss die Geste sich selbst erklären. Beim allerersten
- * geöffneten Must Eat ruckt der Stapel einmal zur Seite und federt zurück —
- * translate, kein Fade (Projektregel für Brand-Flächen). Der Merker liegt in
- * localStorage, gesetzt in MustEatDetailMobile.tsx.
- *
- * Nur unter 768px: der Desktop-Rail behält seine Tasten und braucht nichts.
- */
 /* Bewegung in den ersten ~32 % des Takts, der Rest ist Ruhe. Dadurch wird aus
    der Endlosschleife ein wiederkehrender Stups (alle ~3,4 s) statt eines
    Dauerwackelns — das würde neben dem Aufdeck-Zittern zu Unruhe. */
@@ -5200,7 +4900,6 @@
      sammeln. Wächst ein Name darüber hinaus, schiebt `height: auto` den
      Streifen auf und der Kartentrack (1fr) gibt nach; geclippt wird nichts. */
   .detailV13MustEat .detailV13Scroll > .fdRestInline {
-    min-height: 138px;
     align-content: center;
   }
 }
@@ -5285,4 +4984,148 @@
   .detailV13Unlocked .detailV13Scroll > *:not([data-detail-hero]) {
     animation: none;
   }
+}
+
+/* ── Restaurant-Layer, neu ───────────────────────────────────────────────────
+ *
+ * Vorher eine graue Panel-Kachel: Foto-Thumbnail links, Name daneben, darunter
+ * eine schwarze Pille über die volle Breite. Sie war der schwerste Block im
+ * Sheet und stand als zweite "Karte" gegen die Must-Eat-Karte, um die es geht.
+ *
+ * Jetzt Markensprache: keine Fläche, eine Haarlinie als Trennung, Struktur aus
+ * Weißraum und Typo. Foto quadratisch, Name in Providence, die Aktion als
+ * kompakte Ink-Pille in Inhaltsbreite — alles auf EINER Zeile. Der Block ist
+ * damit rund 30px flacher; die gehen an die Karte darüber.
+ *
+ * Die Selektoren tragen `:has(.fdRestPhoto)` mit, weil die früheren Regeln das
+ * tun und den drei Kindern feste Grid-Plätze geben (die Pille lag in Zeile 2).
+ * Ohne dieselbe Spezifität gewinnt die alte Platzierung.
+ *
+ * `display` bleibt bewusst draußen: welche der beiden Varianten (inline im
+ * Scroll oder gedockt) sichtbar ist, entscheiden die Breakpoints weiter oben —
+ * wird es hier mitgesetzt, stehen beide gleichzeitig da. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto),
+.detailV13MustEat .detailV13Scroll > .fdRestInline,
+.detailV13MustEat > .fdRestDock:has(.fdRestPhoto),
+.detailV13MustEat > .fdRestDock {
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-rows: auto;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 0;
+  min-height: 92px;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: 14px 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(21, 18, 14, 0.12);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)),
+.detailV13MustEat > .fdRestDock:not(:has(.fdRestPhoto)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+/* Alles auf eine Zeile — die alten Regeln legten die Pille in eine zweite. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto,
+.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .fdRestPhoto {
+  grid-column: 1;
+  grid-row: 1;
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  min-height: 56px;
+  align-self: center;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: none;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestName,
+.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .fdRestName {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .ctaPill,
+.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .ctaPill {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline > .fdRestName,
+.detailV13MustEat > .fdRestDock > .fdRestName {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 0;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
+.detailV13MustEat > .fdRestDock .fdK {
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--me-muted);
+}
+
+/* Zwei Zeilen sind die Grenze, danach wird geklemmt — sonst trägt der Streifen
+   seine feste Höhe nicht. Der Tintenraum darunter verhindert, dass der Clip die
+   Unterlängen der Providence abrasiert. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
+.detailV13MustEat > .fdRestDock .fdV {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: 0;
+  max-height: calc(2 * 1.16em + 0.2em);
+  padding-bottom: 0.2em;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 4.4vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.16;
+  color: var(--me-ink);
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill,
+.detailV13MustEat > .fdRestDock .ctaPill {
+  width: auto;
+  min-width: 0;
+  height: 42px;
+  min-height: 42px;
+  align-self: center;
+  justify-self: end;
+  padding: 0 18px;
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Längenstufen für den Restaurantnamen — dieselbe Mechanik wie beim
+   Gerichtsnamen darüber, kein Sonderfall pro Lokal. Die Namensspalte ist rund
+   175px breit; in EINE Zeile passt "Saveur de Bánh Mì Schöneberg" auch klein
+   nicht. Die Stufen sorgen dafür, dass lange Namen in die zwei reservierten
+   Zeilen passen, statt vom line-clamp abgeschnitten zu werden. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong,
+.detailV13MustEat > .fdRestDock .fdV.fdVLong {
+  font-size: clamp(15px, 3.9vw, 18px);
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact,
+.detailV13MustEat > .fdRestDock .fdV.fdVCompact {
+  font-size: clamp(13.5px, 3.5vw, 16px);
 }

@@ -94,6 +94,94 @@ describe('NewsArticleShell', () => {
     expect(html).toContain('Fünf Läden, kein Ranking.');
   });
 
+  // Kolo: the excerpt keeps the first two sentences, drops the third and
+  // stitches the next paragraph on. Not a prefix of either one — but the reader
+  // sees the same opening twice.
+  it('drops a lede that only rewrites the opening', () => {
+    const excerpt =
+      'Ich trinke zwei Cappuccino am Tag. Einen morgens, einen mittags. ' +
+      'Und trotzdem hat mich neulich ein Laden in der Brunnenstraße kalt erwischt.';
+    const html = render(
+      [
+        para(
+          'Ich trinke zwei Cappuccino am Tag. Einen morgens, einen mittags. Dazwischen, ' +
+            'wenn der Tag es gut meint, ein Filterkaffee. Man kann also sagen: Ich habe Vergleichswerte.'
+        ),
+        para('Und trotzdem hat mich neulich ein Laden in der Brunnenstraße kalt erwischt.'),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).not.toContain('Einen morgens, einen mittags. Und trotzdem');
+  });
+
+  // Türkisch: the opening sentence is repeated word for word, then the teaser
+  // goes its own way. The dash does not end that sentence — the whole clause is
+  // one thought, and the lede sits inside it.
+  it("drops a lede that opens on the article's opening sentence", () => {
+    const excerpt =
+      'Berlin ohne türkische Küche ist nicht denkbar. Aber zwischen Döner-Buden und ' +
+      'Touristen-Grills gibt es Adressen, die das Handwerk wirklich ernst nehmen.';
+    const html = render(
+      [
+        para(
+          'Berlin ohne türkische Küche ist nicht denkbar – die Stadt hat den Döner im Brot ' +
+            'groß gemacht und isst ihn millionenfach.'
+        ),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).not.toContain('Aber zwischen Döner-Buden');
+  });
+
+  // Donuts EN: same sentence, two words swapped. Still the same opening.
+  it('drops a lede whose opening sentence was only reworded', () => {
+    const excerpt = "You know what a donut is before you've ever eaten one.";
+    const html = render(
+      [
+        para(
+          "You know the donut long before you've ever eaten one. Homer Simpson turned it into an icon."
+        ),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).not.toContain('You know what a donut is');
+  });
+
+  // Neukölln: the teaser lists what the paragraph lists, so they share plenty of
+  // words — but it opens on its own sentence and earns its place.
+  it("keeps a lede that shares the body's vocabulary but opens on its own", () => {
+    const excerpt =
+      'Zwei Michelin-Sterne in der Friedelstraße, ein Bib-Gourmand-Tresen in der ' +
+      'Okerstraße und Knödel im Reuterkiez: Kein Bezirk isst wie Neukölln.';
+    const html = render(
+      [
+        para(
+          'Kein Berliner Bezirk hat sich kulinarisch so bewegt wie Neukölln: Aus dem Viertel ' +
+            'der Spätis ist die dichteste Restaurant-Landschaft der Stadt geworden — mit zwei ' +
+            'Michelin-Sternen in der Friedelstraße und einem Bib-Gourmand-Tresen in der Okerstraße.'
+        ),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).toContain('Zwei Michelin-Sterne in der Friedelstraße');
+  });
+
+  // Only the openings are compared: a teaser may close on a phrase it borrows
+  // from further down the paragraph without losing the lede.
+  it('keeps a lede that opens differently but quotes the body later', () => {
+    const excerpt = 'Wir ranken keine Burger — das ist wie ein Ranking der eigenen Freunde.';
+    const html = render(
+      [
+        para(
+          'Jede Stadt hat ihre Glaubenskriege. Berlin streitet über Burger. Wir steigen aus: ' +
+            'Ein Burger-Ranking ist ungefähr so sinnvoll wie ein Ranking der eigenen Freunde.'
+        ),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).toContain('Wir ranken keine Burger');
+  });
+
   it('names each must-eat band after its restaurant so two never read alike', () => {
     const html = render([mustEat('Hasir'), mustEat('Bursa Uludağ Kebapçısı')]);
     expect(html).toContain('Hasir');

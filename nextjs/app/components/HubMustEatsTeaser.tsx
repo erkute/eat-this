@@ -13,20 +13,22 @@ import styles from './HubMustEatsTeaser.module.css';
 
 const TEASER_COUNT = 6;
 
-// Face-up cards sit between the face-down ones rather than leading the row:
+// Face-up cards sit between the face-down ones rather than leading the set:
 // the first tile poses the question and the second answers it. The row used to
 // be six face-up cards, which showed the reward without ever showing the
 // mechanic that earns it — the card frame then had no visible reason to exist.
+// These two positions also land in the middle column of each row once the
+// phone grid wraps six cards into 3×2.
 const FACE_UP_SLOTS = [1, 4] as const;
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 
 // Card art comes from /api/must-eat-image, not the Sanity CDN, so
 // `sanitySrcSet` silently returned undefined here: every tile downloaded the
-// 1200px original (~140 kB) into a slot that is at most 208 px wide, and the
+// 1200px original (~140 kB) into a slot a fraction of that wide, and the
 // `sizes` attribute below described a candidate list that did not exist. The
 // route resizes on demand, but only for widths on its own ladder — these three
-// are its rungs for 1x and 2x of the desktop (178 px) and phone (208 px) slot.
+// are its rungs for the 178 px card at 1x, 2x and 3x.
 // Measured 25.08.2026: 22 kB at w=360 against 142 kB for the original, at the
 // same TTFB.
 const CARD_WIDTHS = [180, 360, 440] as const;
@@ -88,8 +90,8 @@ export default function HubMustEatsTeaser() {
     [mustEats, faceUp]
   );
 
-  // A row with nothing face-up would leave the lead ("ein paar Karten liegen
-  // offen") describing a row that isn't there.
+  // Nothing face-up means six card backs and no example of what is under one —
+  // a section that asks visitors to collect something it never shows.
   if (!cards.some((c) => c.faceUp)) return null;
 
   return (
@@ -146,9 +148,12 @@ export default function HubMustEatsTeaser() {
                         className={styles.card}
                         src={`${m.image}?w=360&auto=format&q=80`}
                         srcSet={cardSrcSet(m.image)}
-                        // The tile is clamp(168px, 20vw, 208px) on the phone rail
-                        // and capped at 178px from 761px up.
-                        sizes="(min-width: 761px) 178px, 208px"
+                        // The card is capped at 178px (see .card in the CSS
+                        // module). Below the cap it fills its grid column:
+                        // the viewport minus the 16px wrap padding and two 8px
+                        // gutters, over three columns — ~109px on a 375px
+                        // phone. The two meet at 582px.
+                        sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"
                         alt={dish}
                         loading="lazy"
                         decoding="async"

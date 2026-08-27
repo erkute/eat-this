@@ -121,10 +121,13 @@ const en = {
     onbPacksCta: 'View Booster Packs',
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
-    // The home teaser's lead. Names what a card is and why it is a card, in
-    // that order — the row underneath is mostly face-down, so the second half
-    // describes what the visitor is looking at.
-    teaserSub: 'Dishes you have to order. A few cards are face-up — you reveal the rest on site.',
+    // The home teaser's lead. Three beats: what is on a card, how a face-down
+    // one opens, and that it stays yours afterwards. The old lead stopped after
+    // the reveal and never said the cards are a collection — "Sammlung" is what
+    // the reveal itself and the profile's deck already call it. The grid below
+    // shows how many are face-up, so the lead no longer counts them.
+    teaserSub:
+      'Collectible cards for dishes you have to order. You flip the face-down ones on site — then they are yours.',
     teaserCta: 'All Must Eats',
   },
   news: {
@@ -529,7 +532,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
     teaserSub:
-      'Gerichte, die du bestellen musst. Ein paar Karten liegen offen — den Rest deckst du vor Ort auf.',
+      'Sammelkarten mit Gerichten, die du bestellen musst. Verdeckte Karten deckst du vor Ort auf — dann gehören sie dir.',
     teaserCta: 'Alle Must-Eats',
   },
   news: {

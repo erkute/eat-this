@@ -9,7 +9,6 @@ import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
 import MapIntentLink from './MapIntentLink';
-import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -90,7 +89,6 @@ export default function NewsArticleShell({
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
   const chapters = extractHeadings(content);
-  const hubLink = articleHubLink(article.slug);
   const showLede = Boolean(excerpt) && !ledeDuplicatesOpening(excerpt, content);
   const minutes = Math.max(1, Math.round(countWords(content) / 200));
   const readingTime = de ? `${minutes} Min. Lesezeit` : `${minutes} min read`;
@@ -273,20 +271,6 @@ export default function NewsArticleShell({
                   renderSpotCard={renderSpotCard}
                 />
               </div>
-
-              {hubLink && (
-                <Link href={hubLink.href} className={styles.hubLink}>
-                  <span className={styles.hubLinkKicker}>
-                    {de ? 'Der ganze Katalog' : 'The full catalogue'}
-                  </span>
-                  <span className={styles.hubLinkLabel}>
-                    {articleHubLabel(hubLink, de ? 'de' : 'en')}
-                  </span>
-                  <span className={styles.hubLinkCta} aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              )}
 
               <div className={styles.shareRow}>
                 <NewsArticleShare

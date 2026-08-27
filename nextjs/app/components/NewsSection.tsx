@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
-import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
 import type { NewsArticle } from '@/lib/types';
 import styles from './NewsSection.module.css';
 
@@ -48,21 +47,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
     });
   };
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
-    { name: coverTitle },
-  ];
-
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
       <main id="news" className={styles.shell}>
         <header className={styles.hero}>
-          <div className={styles.breadcrumbWrap}>
-            <Breadcrumbs
-              items={breadcrumbItems}
-              ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-            />
-          </div>
           <div className={styles.heroCopy}>
             <h1 className={styles.heroTitle}>{coverTitle}</h1>
             <p className={styles.heroSub}>{coverSub}</p>

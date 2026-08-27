@@ -37,14 +37,6 @@
   overflow-x: clip;
 }
 
-/* Breadcrumb column — spans the full content measure, so it sits flush with
-   the hero underneath it. */
-.breadcrumbWrap {
-  width: 100%;
-  min-width: 0;
-  margin: 0 0 clamp(16px, 2vw, 24px);
-}
-
 /* ============================================================
    HERO BLOCK
 ============================================================ */

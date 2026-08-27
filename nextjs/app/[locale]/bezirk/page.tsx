@@ -11,7 +11,6 @@ import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
-import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import {
   BEZIRK_LIST_ID,
@@ -87,11 +86,6 @@ export default async function BezirkIndexPage({ params }: PageProps) {
     count: b.restaurantCount ?? 0,
   }));
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
-    { name: de ? 'Bezirke' : 'Districts' },
-  ];
-
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
@@ -132,13 +126,6 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
-
         <header className={`${styles.hero} ${styles.indexHero}`}>
           <h1 className={styles.h1}>{de ? 'Berlin nach Bezirk' : 'Berlin by district'}</h1>
           <p className={styles.sub}>

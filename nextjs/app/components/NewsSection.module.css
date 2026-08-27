@@ -29,10 +29,6 @@
   margin-bottom: clamp(34px, 5vw, 64px);
 }
 
-.breadcrumbWrap {
-  min-width: 0;
-}
-
 .heroCopy {
   display: grid;
   gap: clamp(12px, 1.8vw, 18px);

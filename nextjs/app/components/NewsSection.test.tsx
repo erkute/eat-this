@@ -42,7 +42,6 @@ vi.mock('@/i18n/navigation', () => ({
     </a>
   ),
 }));
-vi.mock('./Breadcrumbs', () => ({ default: () => <nav aria-label="Breadcrumb" /> }));
 vi.mock('./SiteFooter', () => ({ default: () => <footer role="contentinfo" /> }));
 
 import NewsSection from './NewsSection';

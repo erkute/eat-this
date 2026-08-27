@@ -37,12 +37,6 @@
   font-family: var(--f-body);
 }
 
-.breadcrumbWrap {
-  width: min(100%, 900px);
-  margin: 0 auto clamp(16px, 2vw, 24px);
-  min-width: 0;
-}
-
 @media (min-width: 720px) {
   .page {
     --page-pad: 32px;
@@ -915,14 +909,6 @@
      der Navbar auszugleichen — der Fehler sass aber im Seitenabstand selbst
      (64px-Konstante gegen 78px hohe Navbar) und ist dort behoben. Bleibt nur
      der engere Abstand nach unten zum Titelbild. */
-  /* 10px standen hier — die Brotkrumen klebten damit am Titelbild, während
-     nach oben zur Navleiste 24px Luft waren. Eine Zeile, die unten enger
-     sitzt als oben, liest sich als Beschriftung des Bildes statt als
-     Wegmarke der Seite. */
-  .breadcrumbWrap {
-    margin-bottom: 16px;
-  }
-
   .hero,
   .heroNoPhoto {
     gap: 14px;

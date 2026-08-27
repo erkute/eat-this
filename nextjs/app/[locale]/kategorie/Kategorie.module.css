@@ -171,14 +171,6 @@
   max-width: 1180px;
 }
 
-/* Spans the content measure, so the trail starts on the same line as the hero
-   below it instead of sitting 76px indented against it. */
-.breadcrumbWrap {
-  width: 100%;
-  min-width: 0;
-  margin: 0 0 clamp(16px, 2vw, 24px);
-}
-
 /* Kein schwarzer Kasten mehr. Der Aufmacher steht auf derselben weißen Fläche
    wie der Rest der Seite — die Struktur kommt aus Luft und Type, nicht aus
    einer Farbfläche, und die Copy fluchtet mit Brotkrume und Kartenraster. */
@@ -301,10 +293,6 @@
 
   .detailPage {
     padding-inline: 14px;
-  }
-
-  .breadcrumbWrap {
-    padding-block: 10px 0;
   }
 
   .detailHeroCopy {

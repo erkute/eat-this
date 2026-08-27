@@ -1,0 +1,61 @@
+/* Nachbar-Hubs am Seitenfuß. Textlinks in Pillenform, keine Karten: die Zeile
+   ist ein Ausgang, kein zweites Angebot — eine Kartenreihe am Seitenende hat
+   auf den Restaurantseiten schon einmal 500px für vier Bilder verbraucht, die
+   niemand wollte. */
+.wrap {
+  width: min(100%, 900px);
+  margin: clamp(44px, 7vw, 84px) auto clamp(40px, 6vw, 72px);
+}
+
+.heading {
+  margin: 0 0 14px;
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-label, var(--font-label), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-block;
+  padding: 6px 12px 7px;
+  border: 1.5px solid var(--et-home-ink, #15120e);
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  line-height: 1.16;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--et-home-red, #d9382a);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}

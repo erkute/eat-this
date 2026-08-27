@@ -32,7 +32,6 @@ import MapPromoCTA from '@/app/components/MapPromoCTA';
 import RestaurantRemySection from '@/app/components/RestaurantRemySection';
 import RemyDock from '@/app/components/buddy/RemyDock';
 import ShareButton from '@/app/components/ShareButton';
-import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import { Link as IntlLink } from '@/i18n/navigation';
 import {
   RouteIcon,
@@ -292,19 +291,9 @@ export default async function RestaurantPage({ params }: PageProps) {
     ) : null,
   ].filter(Boolean);
 
-  const homeLabel = de ? 'Start' : 'Home';
+  // Trägt nur noch das JSON-LD: die sichtbare Brotkrume ist weg, die
+  // BreadcrumbList im Graph bleibt.
   const districtsLabel = de ? 'Bezirke' : 'Districts';
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/', logo: 'eat-this' },
-    ...(r.bezirk?.slug && r.bezirk?.name
-      ? [
-          { name: districtsLabel, href: '/bezirk' },
-          { name: r.bezirk.name, href: `/bezirk/${r.bezirk.slug}` },
-        ]
-      : []),
-    { name: r.name },
-  ];
-
   const jsonLd = buildRestaurantJsonLd({
     restaurant: r,
     locale,
@@ -321,13 +310,6 @@ export default async function RestaurantPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
-
         <header className={r.photo ? styles.hero : styles.heroNoPhoto}>
           {r.photo ? (
             <figure className={styles.heroPhoto}>

@@ -28,7 +28,7 @@ import type { RestaurantCard } from '@/lib/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from '../Bezirk.module.css';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
-import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
+import HubSiblings from '@/app/components/HubSiblings';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -185,7 +185,15 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
 
-  const [b, restaurants] = await Promise.all([getBezirkBySlug(slug), getRestaurantsByBezirk(slug)]);
+  // `getAllBezirkeWithStats` läuft für diese Route schon in
+  // `generateStaticParams` — derselbe Aufruf trifft den Data-Cache-Eintrag und
+  // kostet keine zusätzliche Sanity-Anfrage (dasselbe Muster wie die OG-Route
+  // auf der Restaurant-Seite).
+  const [b, restaurants, alleBezirke] = await Promise.all([
+    getBezirkBySlug(slug),
+    getRestaurantsByBezirk(slug),
+    getAllBezirkeWithStats(),
+  ]);
   // A district without spots renders hero + FAQ around an empty grid —
   // dead end + thin content. 404 until the first spot is curated; the page
   // reappears automatically via ISR once a restaurant references the bezirk.
@@ -202,11 +210,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     '--district-title-size': `${Math.min(19, 150 / Math.max(b.name.length, 1))}cqi`,
   } as CSSProperties;
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
-    { name: de ? 'Bezirke' : 'Districts', href: '/bezirk' },
-    { name: b.name },
-  ];
+  // Nur Bezirke, die auch etwas zu zeigen haben — ein Link auf einen leeren
+  // Hub läuft in denselben notFound() wie diese Seite ihn oben wirft.
+  const nachbarBezirke = alleBezirke
+    .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
+    .map((x) => ({ slug: x.slug, label: x.name }));
 
   // Kuratierte Bestenliste aus dem Studio; ohne Pflege (oder unter
   // MIN_CURATED) fällt `top` leer aus und die Seite bleibt rein alphabetisch.
@@ -245,13 +253,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={`${styles.page} ${styles.bezirkDetail}`}>
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
-
         <header className={`${styles.hero} ${styles.detailHero}`}>
           <div className={styles.detailHeroCopy}>
             <h1 className={styles.h1} style={districtTitleStyle}>
@@ -354,6 +355,13 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         <div className={styles.detailMapCta}>
           <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
         </div>
+
+        <HubSiblings
+          items={nachbarBezirke}
+          base="/bezirk"
+          heading={de ? 'Auch in Berlin' : 'Elsewhere in Berlin'}
+          ariaLabel={de ? 'Weitere Bezirke' : 'More districts'}
+        />
 
         {faqEntries.length > 0 && (
           <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>

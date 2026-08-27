@@ -32,7 +32,7 @@ import { pickLocale } from '@/lib/i18n/pickLocale';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sharedStyles from '../../bezirk/Bezirk.module.css';
 import styles from '../Kategorie.module.css';
-import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
+import HubSiblings from '@/app/components/HubSiblings';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -218,10 +218,14 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const loc = de ? 'de' : 'en';
 
   const guideSlug = categoryGuideSlug(slug);
-  const [c, restaurants, guide] = await Promise.all([
+  // `getAllCategories` läuft für diese Route schon in `generateStaticParams`
+  // — derselbe Aufruf trifft den Data-Cache-Eintrag und kostet keine
+  // zusätzliche Sanity-Anfrage.
+  const [c, restaurants, guide, alleKategorien] = await Promise.all([
     getCategoryBySlug(slug),
     getRestaurantsByCategory(slug),
     guideSlug ? getGuideTeaser(guideSlug, loc) : null,
+    getAllCategories(),
   ]);
   if (!c) notFound();
   const label = localizedCategoryName(c, loc);
@@ -258,11 +262,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
     curated: top,
   });
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
-    { name: de ? 'Kategorien' : 'Categories', href: '/kategorie' },
-    { name: label },
-  ];
+  const nachbarKategorien = alleKategorien
+    .filter((x) => x.slug && x.slug !== slug)
+    .map((x) => ({ slug: x.slug, label: localizedCategoryName(x, loc) }));
 
   const restaurantUrl = (rSlug: string) => `/restaurant/${rSlug}`;
 
@@ -347,13 +349,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={`${sharedStyles.page} ${sharedStyles.bezirkDetail} ${styles.detailPage}`}>
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
-
         <header className={styles.detailHero}>
           <div className={styles.detailHeroCopy}>
             <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
@@ -489,6 +484,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         <div className={sharedStyles.detailMapCta}>
           <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
         </div>
+
+        <HubSiblings
+          items={nachbarKategorien}
+          base="/kategorie"
+          heading={de ? 'Andere Kategorien' : 'Other categories'}
+          ariaLabel={de ? 'Weitere Kategorien' : 'More categories'}
+        />
 
         {faqEntries.length > 0 && (
           <section className={sharedStyles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>

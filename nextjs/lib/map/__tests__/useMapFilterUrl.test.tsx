@@ -35,7 +35,7 @@ function renderSync(initialUrl: string, restaurants = rows) {
       ...state,
       setCategory: (c) => (state = { ...state, category: c }),
       setBezirk: (b) => (state = { ...state, bezirk: b }),
-      setCuisine: (c) => (state = { ...state, cuisine: c }),
+      setPrice: (id: string | null) => (state = { ...state, price: id }),
       setSearch: (s) => (state = { ...state, search: s }),
       setOpenOnly: (o) => (state = { ...state, openOnly: o }),
       sheetView: 'list',
@@ -76,8 +76,8 @@ describe('useMapFilterUrl', () => {
     const sync = renderSync('/map');
     sync.set({ category: 'pizza' });
     expect(window.location.search).toBe('?cat=pizza');
-    sync.set({ cuisine: 'Italian', openOnly: true });
-    expect(window.location.search).toBe('?cat=pizza&cuisine=Italian&open=1');
+    sync.set({ price: '20', openOnly: true });
+    expect(window.location.search).toBe('?cat=pizza&price=20&open=1');
   });
 
   it('pushes exactly one entry however many chips are changed', () => {
@@ -86,7 +86,7 @@ describe('useMapFilterUrl', () => {
     sync.set({ category: 'pizza' });
     expect(window.history.length).toBe(before + 1);
     sync.set({ bezirk: 'Mitte' });
-    sync.set({ cuisine: 'Italian' });
+    sync.set({ price: '20' });
     sync.set({ openOnly: true });
     expect(window.history.length).toBe(before + 1);
   });
@@ -123,7 +123,7 @@ describe('useMapFilterUrl', () => {
         ...state,
         setCategory: (c) => (state = { ...state, category: c }),
         setBezirk: (b) => (state = { ...state, bezirk: b }),
-        setCuisine: (c) => (state = { ...state, cuisine: c }),
+        setPrice: (id: string | null) => (state = { ...state, price: id }),
         setSearch: (s) => (state = { ...state, search: s }),
         setOpenOnly: (o) => (state = { ...state, openOnly: o }),
         sheetView: 'list',

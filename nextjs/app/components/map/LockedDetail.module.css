@@ -7,7 +7,11 @@
   --locked-excerpt-h: 210px;
   display: grid;
   gap: 10px;
-  padding: 20px 18px 26px;
+  /* Oben ohne: der Anriss bringt mit .rdBody seine eigenen 18px mit, und der
+     Hero setzt 12px darunter. Zusammen mit den 20px hier standen über der
+     Geschichte 52px statt der 30px, die die freigeschaltete Sheet zeigt —
+     eine Doppelung, die nur die gesperrten Spots trafen (User, 2026-08-27). */
+  padding: 0 18px 26px;
   background: var(--et-home-paper, #fff);
   color: var(--et-home-ink, #15120e);
 }
@@ -49,7 +53,7 @@
 .excerpt {
   position: relative;
   max-height: var(--locked-excerpt-h);
-  margin: 2px 0 4px;
+  margin: 0 0 4px;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
@@ -61,7 +65,7 @@
    sich bewusst nicht auf eine Länge fest. */
 .excerptReserve {
   height: var(--locked-excerpt-h);
-  margin: 2px 0 4px;
+  margin: 0 0 4px;
 }
 
 /* The body block's own bottom margin would leave a gap the mask fades into,
@@ -366,8 +370,9 @@
    the four-colour mark — because it IS that button, just in another room. It
    deliberately never inverts on hover: the login layer doesn't, and a fixed
    brand mark on an inverted ground looks like a mistake.
-   Set wider apart than the hint above it — the hint explains the mail, not this
-   button, and at equal spacing it read as a caption for whichever was nearer. */
+   Steht mit Abstand unter dem Formular: darüber lag früher eine Fußnote, die
+   den Abstand mitgebracht hat — ohne sie kleben sonst zwei Knöpfe aneinander,
+   die zwei verschiedene Wege sind (User, 2026-08-27). */
 .google {
   display: flex;
   align-items: center;
@@ -398,27 +403,13 @@
   background: var(--et-home-quiet, rgba(21, 18, 14, 0.05));
 }
 
-.hint,
+/* Eine Validierungsmeldung spricht in der Hausschrift — wie die Eingabe, die
+   sie korrigiert. */
 .error {
   display: block;
   width: 100%;
   margin-top: 7px;
   line-height: 1.4;
-}
-
-.hint {
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  font-family: var(--et-font-mono, ui-monospace, monospace);
-  /* Below the sheet's smallest step: a footnote about what happens next, not
-     part of the offer (user, 2026-08-23). The sent state repeats it in full
-     size ("Check deine Mail"), so nothing here is only readable at 9px. */
-  font-size: 9px;
-  letter-spacing: 0.01em;
-}
-
-/* Mono is the footnote voice; a validation message speaks in the brand face
-   like the copy it is correcting. */
-.error {
   color: var(--et-home-red, #e2261c);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13.5px;
@@ -521,9 +512,29 @@
     min-height: 110px;
   }
 
+  /* Das Angebot war auf dem Desktop der größte Block der Sheet und hat dem
+     Spot-Foto die Höhe weggenommen (User, 2026-08-27). Es gibt hier rund 35px
+     ab: das Pack auf die 74px, die die Angebotskarten nebenan schon fahren,
+     die Schaltflächen auf 44px (das Tap-Target bleibt), der Rest dünn aus
+     Innenabständen. Die Reihenfolge stimmt weiter — der Anriss darüber steht
+     auf seinem 110px-Boden, also landet jeder gesparte Pixel beim Foto. */
   .starter {
-    padding: 13px 13px 12px;
+    padding: 11px 13px 11px;
     text-align: left;
+  }
+
+  .starterArt {
+    width: 74px;
+  }
+
+  .starterTitle {
+    font-size: 21px;
+  }
+
+  .input,
+  .button,
+  .google {
+    min-height: 44px;
   }
 
   .starterHead {
@@ -544,11 +555,7 @@
   }
 
   .form {
-    margin-top: 10px;
-  }
-
-  .google {
-    margin-top: 12px;
+    margin-top: 8px;
   }
 
   .starterKicker {

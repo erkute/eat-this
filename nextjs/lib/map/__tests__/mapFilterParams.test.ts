@@ -19,6 +19,7 @@ const rows: MapRestaurant[] = [
     lng: 13.405,
     bezirk: { name: 'Mitte', slug: 'mitte' },
     cuisineType: 'Italian',
+    priceRange: { currency: 'EUR', min: 20, max: 30 },
     categories: [{ name: 'Pizza', slug: 'pizza' }],
     mustEatCount: 1,
   },
@@ -57,7 +58,9 @@ describe('resolveMapFilterState', () => {
     expect(resolveMapFilterState('?bezirk=MITTE', index).bezirk).toBe('Mitte');
     expect(resolveMapFilterState('?bezirk=lichtenberg', index).bezirk).toBeNull();
     expect(resolveMapFilterState('?cat=nope', index).category).toBe('All');
-    expect(resolveMapFilterState('?cuisine=italian', index).cuisine).toBe('Italian');
+    expect(resolveMapFilterState('?price=20', index).price).toBe('20');
+    // Eine Stufe, die es nicht gibt, fällt weg statt durchzurutschen.
+    expect(resolveMapFilterState('?price=teuer', index).price).toBeNull();
   });
 
   it('reads q verbatim and open only as 1', () => {
@@ -72,7 +75,7 @@ describe('writeMapFilterParams', () => {
     const state = {
       category: 'pizza',
       bezirk: 'Mitte',
-      cuisine: 'German / Fast Food',
+      price: '20',
       search: 'Ramen',
       openOnly: true,
     };

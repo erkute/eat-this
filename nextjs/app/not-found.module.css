@@ -279,3 +279,12 @@
     gap: 10px;
   }
 }
+
+/* Remys Gesicht auf der 500. Der Hero ist ein zentriertes Grid und bringt
+   seinen Abstand selbst mit — ein negativer Rand stand hier kurz und schob
+   die „500"-Marke 4px unter Remys Brust. Nur die Fehlerseite nutzt die
+   Klasse; die 404 bleibt wie sie ist. */
+.errorFace {
+  display: grid;
+  justify-items: center;
+}

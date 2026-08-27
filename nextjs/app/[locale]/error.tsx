@@ -11,6 +11,7 @@
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import BuddyAvatar from '../components/buddy/BuddyAvatar';
 import styles from '../not-found.module.css';
 
 const COPY = {
@@ -47,6 +48,17 @@ export default function LocaleError({
   return (
     <main className={styles.page} aria-labelledby="error-title">
       <section className={styles.hero}>
+        {/* Remy schaut, wie man schaut, wenn man sich verschluckt hat — der
+            O-Mund aus dem 'thinking'-Frame (User, 2026-08-27). Reines
+            Dekor: aria-hidden sitzt im Avatar selbst, die Überschrift trägt
+            die Aussage. BuddyAvatar statt eigenem <img>, weil es die Kopf-
+            Rahmung schon mitbringt; es hängt an nichts außer seinem eigenen
+            CSS-Modul und verletzt damit die Hausregel dieser Datei nicht,
+            dass die Fehlergrenze nichts mitschleppt, was selbst kaputt sein
+            könnte. */}
+        <div className={styles.errorFace}>
+          <BuddyAvatar mood="thinking" size={132} />
+        </div>
         <div className={styles.copy}>
           <div className={styles.codeBlock} aria-hidden="true">
             <span>500</span>

@@ -1,13 +1,15 @@
 import type { MapCategory, MapRestaurant } from '@/lib/types';
+import { isPriceBucketId } from './priceBuckets';
 
-/** The five map filters, in the shape useMapFilters holds them. `bezirk` and
- *  `cuisine` are display values (a district NAME, a raw cuisineType string);
- *  the URL carries the district's slug instead, so the params stay readable
- *  and match the ?bezirk= links the bezirk pages already emit. */
+/** The five map filters, in the shape useMapFilters holds them. `bezirk` is a
+ *  display value (a district NAME); the URL carries the district's slug
+ *  instead, so the params stay readable and match the ?bezirk= links the
+ *  bezirk pages already emit. `price` is a Preisstufen-ID („20"), die in
+ *  beiden Richtungen dieselbe ist. */
 export interface MapFilterState {
   category: MapCategory;
   bezirk: string | null;
-  cuisine: string | null;
+  price: string | null;
   search: string;
   openOnly: boolean;
 }
@@ -15,15 +17,19 @@ export interface MapFilterState {
 export const MAP_FILTER_DEFAULTS: MapFilterState = {
   category: 'All',
   bezirk: null,
-  cuisine: null,
+  price: null,
   search: '',
   openOnly: false,
 };
 
 /* `cat` and `bezirk` are pre-existing inbound params — the kategorie, bezirk
    and guide pages link into the map with them (MapPromoCTA). Their names and
-   slug values are therefore fixed; `cuisine`, `q` and `open` are new. */
-const MAP_FILTER_KEYS = ['cat', 'bezirk', 'cuisine', 'q', 'open'] as const;
+   slug values are therefore fixed; `price`, `q` and `open` are new.
+   `cuisine` stand hier bis zum 27.08.2026 und ist ersatzlos weg — der Filter
+   las ein ungeprüftes Freitextfeld aus. Alte Links mit ?cuisine= verlieren
+   still ihren Filter und zeigen die ganze Karte; das ist das Verhalten, das
+   ein unbekannter Parameter hier immer schon hatte. */
+const MAP_FILTER_KEYS = ['cat', 'bezirk', 'price', 'q', 'open'] as const;
 
 /** The current URL with `params` swapped in, path and hash untouched. Both map
  *  URL writers — the filters here and the ?r=/?me= detail sync in MapSection —
@@ -43,7 +49,7 @@ export function hasActiveChips(state: MapFilterState): boolean {
   return (
     state.category !== MAP_FILTER_DEFAULTS.category ||
     state.bezirk !== null ||
-    state.cuisine !== null ||
+    state.price !== null ||
     state.openOnly
   );
 }
@@ -58,7 +64,6 @@ export interface MapFilterIndex {
   bezirkNameBySlug: Map<string, string>;
   bezirkSlugByName: Map<string, string>;
   categorySlugByLower: Map<string, string>;
-  cuisineByLower: Map<string, string>;
 }
 
 export function buildMapFilterIndex(rows: MapRestaurant[][]): MapFilterIndex {
@@ -66,7 +71,6 @@ export function buildMapFilterIndex(rows: MapRestaurant[][]): MapFilterIndex {
     bezirkNameBySlug: new Map(),
     bezirkSlugByName: new Map(),
     categorySlugByLower: new Map(),
-    cuisineByLower: new Map(),
   };
   for (const set of rows) {
     for (const r of set) {
@@ -79,8 +83,6 @@ export function buildMapFilterIndex(rows: MapRestaurant[][]): MapFilterIndex {
       for (const c of r.categories ?? []) {
         if (c.slug) index.categorySlugByLower.set(c.slug.toLowerCase(), c.slug);
       }
-      const cuisine = r.cuisineType?.trim();
-      if (cuisine) index.cuisineByLower.set(cuisine.toLowerCase(), cuisine);
     }
   }
   return index;
@@ -107,11 +109,8 @@ export function resolveMapFilterState(search: string, index: MapFilterIndex): Ma
     if (name) state.bezirk = name;
   }
 
-  const cuisine = params.get('cuisine');
-  if (cuisine) {
-    const canonical = index.cuisineByLower.get(cuisine.toLowerCase());
-    if (canonical) state.cuisine = canonical;
-  }
+  const price = params.get('price');
+  if (price && isPriceBucketId(price)) state.price = price;
 
   state.search = params.get('q') ?? '';
   state.openOnly = params.get('open') === '1';
@@ -136,7 +135,7 @@ export function writeMapFilterParams(
     // out of the URL rather than producing a link that silently drops it.
     if (slug) params.set('bezirk', slug);
   }
-  if (state.cuisine) params.set('cuisine', state.cuisine);
+  if (state.price) params.set('price', state.price);
   if (state.search) params.set('q', state.search);
   if (state.openOnly) params.set('open', '1');
 }

@@ -1,6 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { MapRestaurant, MapCategory, MapMustEat } from '@/lib/types';
 import { getOpenStatus } from './openingHours';
+import { PRICE_BUCKETS, matchesPriceBucket, priceBucketOf } from './priceBuckets';
+
+/** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
+ *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
+const BEZIRK_MIN_SPOTS = 5;
 import { haversineDistance } from './distance';
 
 interface Args {
@@ -49,12 +54,13 @@ function includesQuery(value: string | null | undefined, q: string): boolean {
 export interface MapChipState {
   category: MapCategory;
   bezirk: string | null;
-  cuisine: string | null;
+  /** Eine Preisstufen-ID aus PRICE_BUCKETS, nicht der Preis selbst. */
+  price: string | null;
   openOnly: boolean;
 }
 
 /** A picker dimension, i.e. a chip whose value is chosen from a list. */
-export type FilterDimension = 'category' | 'bezirk' | 'cuisine';
+export type FilterDimension = 'category' | 'bezirk' | 'price';
 
 /** How many spots each picker row would yield. `byValue` is keyed by the same
  *  value the picker passes back (category slug, district name, raw cuisine);
@@ -72,12 +78,12 @@ function countOptions(list: MapRestaurant[], base: MapChipState): MapOptionCount
   const byValue: Record<FilterDimension, Map<string, number>> = {
     category: new Map(),
     bezirk: new Map(),
-    cuisine: new Map(),
+    price: new Map(),
   };
   const withoutDimension: Record<FilterDimension, number> = {
     category: 0,
     bezirk: 0,
-    cuisine: 0,
+    price: 0,
   };
   const bump = (into: Map<string, number>, key: string) => into.set(key, (into.get(key) ?? 0) + 1);
 
@@ -93,10 +99,10 @@ function countOptions(list: MapRestaurant[], base: MapChipState): MapOptionCount
       const d = districtOf(r);
       if (d) bump(byValue.bezirk, d);
     }
-    if (matchesChips(r, { ...base, cuisine: null })) {
-      withoutDimension.cuisine += 1;
-      const c = r.cuisineType?.trim();
-      if (c) bump(byValue.cuisine, c);
+    if (matchesChips(r, { ...base, price: null })) {
+      withoutDimension.price += 1;
+      const bucket = priceBucketOf(r);
+      if (bucket) bump(byValue.price, bucket);
     }
   }
   return { byValue, withoutDimension };
@@ -108,7 +114,7 @@ function countOptions(list: MapRestaurant[], base: MapChipState): MapOptionCount
 function matchesChips(r: MapRestaurant, s: MapChipState): boolean {
   if (s.category !== 'All' && !r.categories?.some((c) => c.slug === s.category)) return false;
   if (s.bezirk && districtOf(r) !== s.bezirk) return false;
-  if (s.cuisine && r.cuisineType !== s.cuisine) return false;
+  if (s.price && !matchesPriceBucket(r, s.price)) return false;
   if (s.openOnly) {
     if (!r.openingHours) return false;
     if (!getOpenStatus(r.openingHours).isOpen) return false;
@@ -125,7 +131,7 @@ export function useMapFilters({
   const [category, setCategory] = useState<MapCategory>('All');
   const [search, setSearch] = useState('');
   const [bezirk, setBezirk] = useState<string | null>(null);
-  const [cuisine, setCuisine] = useState<string | null>(null);
+  const [price, setPrice] = useState<string | null>(null);
   const [openOnly, setOpenOnly] = useState(false);
 
   /* Free and paywalled spots in one pile. Everything a picker offers and
@@ -138,28 +144,39 @@ export function useMapFilters({
     [restaurants, lockedRestaurants]
   );
 
-  // Distinct district names across the catalogue — populates the Bezirk
-  // picker. Sorted alphabetically (German collation).
+  /* Distinct district names across the catalogue — populates the Bezirk
+     picker. Sorted alphabetically (German collation).
+
+     Erst ab fünf Spots: die Liste stand auf 20 Werten, von denen die Hälfte
+     ein bis drei Treffer hatte (Friedenau 1, Treptow 1, Lichtenberg 2 …) —
+     eine Auswahl, die einen einzigen Spot zurückgibt, ist keine Auswahl
+     (User, 2026-08-27). Gezählt wird über den GESAMTEN Katalog, nicht über die
+     gerade gefilterte Menge: sonst käme und ginge Wedding, je nachdem, was
+     sonst noch aktiv ist. Die Spots selbst bleiben auf der Karte, in der Liste
+     und in der Suche — nur der Filter zeigt sie nicht mehr an. */
   const bezirkNames = useMemo(() => {
-    const set = new Set<string>();
+    const counts = new Map<string, number>();
     for (const r of catalogue) {
       const d = districtOf(r);
-      if (d) set.add(d);
+      if (d) counts.set(d, (counts.get(d) ?? 0) + 1);
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'));
+    return Array.from(counts.entries())
+      .filter(([, n]) => n >= BEZIRK_MIN_SPOTS)
+      .map(([name]) => name)
+      .sort((a, b) => a.localeCompare(b, 'de'));
   }, [catalogue]);
 
-  /* Distinct cuisine values across the catalogue — used to populate the Cuisine
-     picker. Sorted alphabetically (German collation). A cuisine that only
-     paywalled spots carry belongs in here: leaving it out did not just hide the
-     offer, it hid that the map has Georgian food at all. */
-  const cuisineNames = useMemo(() => {
-    const set = new Set<string>();
+  /* Die Preisstufen stehen in fester Reihenfolge (billig → teuer), nicht
+     alphabetisch: bei einer Skala ist die Reihenfolge die Information. Eine
+     Stufe, die im Katalog niemand trägt, fällt raus — anders als bei den
+     Küchen kann hier nichts „fehlen", was jemand gesucht hätte. */
+  const priceBucketIds = useMemo(() => {
+    const present = new Set<string>();
     for (const r of catalogue) {
-      const c = r.cuisineType?.trim();
-      if (c) set.add(c);
+      const bucket = priceBucketOf(r);
+      if (bucket) present.add(bucket);
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'));
+    return PRICE_BUCKETS.map((b) => b.id).filter((id) => present.has(id));
   }, [catalogue]);
 
   const dishIndexByRestaurantId = useMemo(() => {
@@ -192,9 +209,9 @@ export function useMapFilters({
           );
         return Boolean(hit);
       }
-      return matchesChips(r, { category, bezirk, cuisine, openOnly });
+      return matchesChips(r, { category, bezirk, price, openOnly });
     },
-    [category, bezirk, cuisine, openOnly, search, dishIndexByRestaurantId]
+    [category, bezirk, price, openOnly, search, dishIndexByRestaurantId]
   );
 
   /* What every picker row would actually yield, counted against the OTHER
@@ -206,8 +223,8 @@ export function useMapFilters({
      Search is left out on purpose — a query overrides the chips (see above),
      and these counts describe what the chips give once it is cleared. */
   const optionCounts = useMemo<MapOptionCounts>(
-    () => countOptions(catalogue, { category, bezirk, cuisine, openOnly }),
-    [catalogue, category, bezirk, cuisine, openOnly]
+    () => countOptions(catalogue, { category, bezirk, price, openOnly }),
+    [catalogue, category, bezirk, price, openOnly]
   );
 
   const nearestFirst = useCallback(
@@ -257,12 +274,12 @@ export function useMapFilters({
     setSearch,
     bezirk,
     setBezirk,
-    cuisine,
-    setCuisine,
+    price,
+    setPrice,
     openOnly,
     setOpenOnly,
     bezirkNames,
-    cuisineNames,
+    priceBucketIds,
     optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,

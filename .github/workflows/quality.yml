@@ -28,4 +28,10 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      # Gleiche Aufteilung wie in apphosting.yaml: der CI-Build zieht auf das
+      # API-Kontingent, damit das CDN-Kontingent den Besuchern gehört. CI baut
+      # bei jedem Push auf einen PR-Branch — das sind pro Lauf rund 610
+      # Sanity-Anfragen, die sonst neben dem echten Traffic lägen.
       - run: npm run build
+        env:
+          SANITY_USE_CDN: 'false'

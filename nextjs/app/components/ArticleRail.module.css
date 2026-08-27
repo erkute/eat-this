@@ -17,9 +17,14 @@
      jedes Kapitel ist ab der ersten Bildschirmseite erreichbar. */
   max-height: calc(100dvh - var(--rail-frame-top) - var(--rail-top) - 24px);
   overflow-y: auto;
-  /* Ist die Leiste zu Ende gescrollt, soll das Rad wieder den Artikel bewegen
-     und nicht in der Leiste hängenbleiben. */
-  overscroll-behavior: contain;
+  /* KEIN `overscroll-behavior: contain` hier. Das stand kurzzeitig drin, mit
+     der Begründung, das Rad solle am Ende der Leiste wieder den Artikel
+     bewegen — `contain` bewirkt aber genau das Gegenteil: es unterbindet das
+     Weiterreichen an den Nachbarn. Gemessen am 27.08.2026: Leiste am Anschlag,
+     echtes Wheel-Event darüber, danach steht `.app-pages` unverändert bei
+     12000 — der Scroll blieb hängen. Über der Leiste liegt links viel freie
+     Fläche; wer dort scrollt, hätte die Seite für eingefroren gehalten. Der
+     Standardwert `auto` reicht den Scroll durch, und das ist hier richtig. */
   scrollbar-width: thin;
   /* `scroll-behavior` steht global auf `smooth`. Für das Nachführen aus
      ArticleRail.tsx ist das falsch: die Leiste soll dem Lesefortschritt

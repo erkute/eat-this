@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const dmSans = DM_Sans({
+const sans = Inter({
   subsets: ['latin'],
-  variable: '--font-dm-sans',
+  variable: '--font-sans',
   display: 'swap',
 });
 
@@ -30,7 +30,7 @@ const PROVIDENCE_BOLD_WOFF2 =
 // same @font-face rules and --et-* tokens the rest of the site runs on.
 export default function AuthActionLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" data-scroll-behavior="smooth" className={dmSans.variable}>
+    <html lang="de" data-scroll-behavior="smooth" className={sans.variable}>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link

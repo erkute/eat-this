@@ -148,7 +148,7 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain('180w');
     expect(html).toContain('360w');
     expect(html).toContain('440w');
-    expect(html).toContain('sizes="(min-width: 761px) 178px, 208px"');
+    expect(html).toContain('sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"');
   });
 
   it('renders nothing when no card is face-up', () => {

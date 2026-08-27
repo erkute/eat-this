@@ -41,20 +41,9 @@
     overflow: visible;
   }
 
-  .item {
-    min-width: 0;
-    flex: none;
-  }
-
   .photo {
     min-height: clamp(140px, 12vw, 178px);
     padding: 0;
-  }
-
-  /* Cap the card itself, not just its slot: at six columns across a wide
-     viewport the artwork would otherwise keep growing with the container. */
-  .card {
-    max-width: 178px;
   }
 
   .dish {
@@ -69,7 +58,6 @@
 /* ── Card shell ────────────────────────────────────────────────────────────── */
 .item {
   min-width: 0;
-  flex: 0 0 clamp(168px, 20vw, 208px);
 }
 
 .cardShell {
@@ -102,6 +90,11 @@
 .card {
   display: block;
   width: 100%;
+  /* Cap the card itself, not just its slot: the artwork would otherwise keep
+     growing with its column — six across a wide desktop, three across an iPad
+     mini. Below ~582px the columns are narrower than this and the cap is
+     inert. Mirrored by the `sizes` attribute in HubMustEatsTeaser.tsx. */
+  max-width: 178px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 7px 10px rgba(21, 18, 14, 0.26));
@@ -208,21 +201,52 @@
   background: var(--et-home-red);
 }
 
-/* ── Mobile ────────────────────────────────────────────────────────────────── */
+/* ── Mobile: the same set, three across ──────────────────────────────────────
+   This was a swipeable rail here. At 375px it laid out 1242px of cards behind
+   a 375px window — one card back, a sliver of the next, and no scrollbar or
+   arrow to say the other four exist (see hv-rail's ::-webkit-scrollbar rule).
+   The section then read as a single covered card, which is the one thing it
+   must not be: the point is the mix, two face-up among four still covered, and
+   that there is a set to complete. A grid shows all six at once, the way the
+   desktop row already does and the way /must-eats lays its catalog out. */
 @media (max-width: 760px) {
-  .rail {
-    --rail-mobile-safe: var(--et-wrap-pad-mobile);
-    margin-left: calc(var(--et-wrap-pad-mobile) * -1);
-    margin-right: calc(var(--et-wrap-pad-mobile) * -1);
-    padding-left: var(--rail-mobile-safe);
-    padding-right: var(--rail-mobile-safe);
-    scroll-padding-inline: var(--rail-mobile-safe);
+  /* Same compound-selector trick as the desktop block above — it has to beat
+     .homeV2 .hv-rail (0,2,0), and overflow must land on `visible` or
+     overflow-y computes to auto and clips the card lift. */
+  :global(.homeV2) :global(.hv-rail).rail {
+    display: grid;
+    /* Three columns, so the six cards always land as a tidy 3×2 — four would
+       leave a ragged second row of two. Past ~582px the columns outgrow the
+       card cap and the artwork stays desktop-sized, centred in its column. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 8px;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  /* The tile is exactly as tall as its artwork now; the rail's min-height
+     would only pad each row. */
+  .photo {
+    min-height: 0;
   }
 }
 
 @media (max-width: 560px) {
-  .item {
-    flex-basis: min(52vw, 190px);
+  /* ~109px per card at 375px. At the rail's type sizes the caption block
+     outweighed the card above it. */
+  .meta {
+    padding-top: 10px;
+    gap: 2px;
+  }
+
+  .dish {
+    font-size: 15px;
+    line-height: 0.92;
+  }
+
+  .restaurantLink :global(.hv-sub) {
+    font-size: 12px;
+    line-height: 1.15;
   }
 
   .foot {

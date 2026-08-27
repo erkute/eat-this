@@ -1,5 +1,5 @@
 'use client';
-import { forwardRef, useCallback, useMemo, useRef, useState, type Ref } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type Ref } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
@@ -70,6 +70,19 @@ export default function MapListHeader({
   const categoryBtnRef = useRef<HTMLButtonElement>(null);
   const bezirkBtnRef = useRef<HTMLButtonElement>(null);
   const priceBtnRef = useRef<HTMLButtonElement>(null);
+
+  /* Ab Desktop klappt die Auswahl in der Leiste auf, statt über der Liste zu
+     schweben (User, 2026-08-27). Der Zustand startet auf false und wird erst
+     im Effekt gesetzt — das ist unkritisch, weil ein Picker ohnehin nie im
+     ersten Rendern offen ist. */
+  const [inlinePicker, setInlinePicker] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const apply = () => setInlinePicker(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
 
   /* Every row carries what it would actually return — the whole catalogue,
      paywalled spots included, because that is what the list renders. A zero is
@@ -168,6 +181,7 @@ export default function MapListHeader({
           onSelect={(v) => onCategoryChange((v ?? 'All') as MapCategory)}
           onClose={() => setOpenChip(null)}
           anchorEl={categoryBtnRef.current}
+          inline={inlinePicker}
           closeAriaLabel={t('map.searchClose')}
         />
       )}
@@ -181,6 +195,7 @@ export default function MapListHeader({
           onSelect={(v) => onBezirk(v)}
           onClose={() => setOpenChip(null)}
           anchorEl={bezirkBtnRef.current}
+          inline={inlinePicker}
           closeAriaLabel={t('map.searchClose')}
         />
       )}
@@ -194,6 +209,7 @@ export default function MapListHeader({
           onSelect={(v) => onPrice(v)}
           onClose={() => setOpenChip(null)}
           anchorEl={priceBtnRef.current}
+          inline={inlinePicker}
           closeAriaLabel={t('map.searchClose')}
         />
       )}

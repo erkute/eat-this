@@ -233,7 +233,6 @@ export default async function BezirkIndexPage({ params }: PageProps) {
 
                     <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
                       {moreLabel(count, de)}
-                      <span aria-hidden="true">→</span>
                     </Link>
                   </BezirkRow>
                 );

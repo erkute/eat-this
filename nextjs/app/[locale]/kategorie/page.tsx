@@ -224,7 +224,6 @@ export default async function KategorieIndexPage({ params }: PageProps) {
 
                   <Link href={`/kategorie/${c.slug}`} className={styles.categoryMore}>
                     {moreLabel(count, de)}
-                    <span aria-hidden="true">→</span>
                   </Link>
                 </article>
               );

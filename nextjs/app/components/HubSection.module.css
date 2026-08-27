@@ -428,17 +428,6 @@
   background: var(--et-home-red);
 }
 
-.spotCta::after {
-  content: '→';
-  font-size: 0.85em;
-  transition: transform 160ms ease;
-}
-
-.spotCard:hover .spotCta::after,
-.spotCard:focus-visible .spotCta::after {
-  transform: translateX(4px);
-}
-
 @media (max-width: 920px) {
   /* Stacked, every block is the full column width, so the only thing telling a
      visitor where one section ends and the next begins is the space between

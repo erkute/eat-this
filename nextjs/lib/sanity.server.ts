@@ -1,7 +1,6 @@
 import { client } from './sanity';
 import { SANITY_REVALIDATE_SECONDS } from './constants';
 import {
-  restaurantBySlugQuery,
   restaurantPageQuery,
   allRestaurantSlugsQuery,
   articleBySlugQuery,
@@ -23,14 +22,6 @@ import {
 import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types';
 import type { CategoryDef, CategoryWithStats } from './categories';
 import type { PackContents, PackContentsIndex } from './pack/packDetail';
-
-export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
-  return client.fetch<Restaurant | null>(
-    restaurantBySlugQuery,
-    { slug },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`restaurant:${slug}`] } }
-  );
-}
 
 export async function getAllRestaurantSlugs(): Promise<string[]> {
   const results = await client.fetch<{ slug: string }[]>(

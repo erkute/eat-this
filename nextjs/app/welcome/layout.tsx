@@ -1,17 +1,12 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import '../globals.css';
+import { sans } from '@/app/fonts';
 
 export const metadata: Metadata = {
   title: 'Anmeldung',
   robots: { index: false, follow: false },
 };
 
-const sans = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-});
 
 // The two Providence faces the page actually sets. globals.css declares them
 // via @font-face pointing straight at Adobe's font files; preloading here means

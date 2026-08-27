@@ -62,21 +62,10 @@
     background 160ms ease;
 }
 
-.allLink::after {
-  content: '→';
-  font-size: 0.85em;
-  transition: transform 160ms ease;
-}
-
 .allLink:hover,
 .allLink:focus-visible {
   color: var(--et-home-inverse-text);
   background: var(--et-home-ink);
-}
-
-.allLink:hover::after,
-.allLink:focus-visible::after {
-  transform: translateX(4px);
 }
 
 .grid {

@@ -454,14 +454,6 @@
   transition: color 140ms ease;
 }
 
-/* Ein Pfeil, kein Button: der gelbe Knopf am Seitenfuß bleibt der eine Ruf,
-   den die Seite tut. Der Pfeil macht aus dem Link trotzdem sichtbar eine
-   Handlung statt einer Querverweis-Zeile. */
-.remyCta::after {
-  content: ' →';
-  text-decoration: none;
-}
-
 .remyCta:hover,
 .remyCta:focus-visible {
   color: var(--about-ink);

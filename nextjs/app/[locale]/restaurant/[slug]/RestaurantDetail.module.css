@@ -3,6 +3,7 @@
   --detail-paper: var(--et-home-paper, #fff);
   --detail-quiet: var(--et-home-quiet, rgba(21, 18, 14, 0.045));
   --detail-red: var(--et-home-red, #d9382a);
+  --detail-accent: var(--et-home-accent, #ffc600);
   --detail-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
   --detail-line: var(--et-home-line, rgba(21, 18, 14, 0.14));
   --ink: var(--detail-ink);
@@ -340,7 +341,7 @@
   font-size: clamp(30px, 4.4vw, 52px);
   line-height: 0.92;
   text-transform: none;
-  background: var(--detail-red);
+  background: var(--detail-accent);
   border: 0;
   box-shadow: none;
   transform: rotate(-1deg);

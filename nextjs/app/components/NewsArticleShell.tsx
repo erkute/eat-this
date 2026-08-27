@@ -7,7 +7,6 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
-import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
 import MapIntentLink from './MapIntentLink';
 import styles from './NewsArticleShell.module.css';
 
@@ -189,14 +188,6 @@ export default function NewsArticleShell({
     );
   };
 
-  const homeLabel = de ? 'Start' : 'Home';
-  const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/', logo: 'eat-this' },
-    { name: newsLabel, href: '/news' },
-    { name: title },
-  ];
-
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const chaptersLabel = de ? 'Kapitel' : 'Chapters';
@@ -220,13 +211,13 @@ export default function NewsArticleShell({
       <main className={styles.article}>
         <article>
           <header className={styles.header}>
-            <div className={styles.breadcrumbWrap}>
-              <Breadcrumbs
-                items={breadcrumbItems}
-                ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-              />
-            </div>
-
+            {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
+                brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
+                — „/" und „/news" stehen im Burger, der auf jeder Seite
+                gerendert wird. Das BreadcrumbList-JSON-LD in
+                `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
+                also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
+                ohne. */}
             {article.imageUrl ? (
               <figure className={styles.heroWrap}>
                 <Image

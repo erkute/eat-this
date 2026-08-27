@@ -44,10 +44,6 @@ div.page {
   margin-bottom: clamp(28px, 4vw, 52px);
 }
 
-.breadcrumbWrap {
-  min-width: 0;
-}
-
 /* ---------------------------------------------------------------- hero --- */
 
 .heroWrap {
@@ -273,7 +269,7 @@ div.page {
   letter-spacing: 0;
   line-height: 0.96;
   text-transform: none;
-  background: var(--article-red);
+  background: var(--article-accent);
   border: 0;
   transform: rotate(-1deg);
 }
@@ -750,10 +746,6 @@ div.page {
   .header {
     gap: 10px;
     margin-bottom: 26px;
-  }
-
-  .breadcrumbWrap {
-    padding-block: 8px 0;
   }
 
   .heroWrap {

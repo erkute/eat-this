@@ -2,7 +2,6 @@
 import { forwardRef, useCallback, useMemo, useRef, useState, type Ref } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
-import { localizedCuisine } from '@/lib/cuisineLabels';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
@@ -22,9 +21,10 @@ interface Props {
   bezirk: string | null;
   onBezirk: (name: string | null) => void;
 
-  cuisineNames: string[];
-  cuisine: string | null;
-  onCuisine: (name: string | null) => void;
+  /** Preisstufen-IDs in fester Reihenfolge, billig → teuer. */
+  priceBucketIds: string[];
+  price: string | null;
+  onPrice: (id: string | null) => void;
 
   /** Hits behind every picker row, counted against the other chips. */
   optionCounts: MapOptionCounts;
@@ -35,7 +35,17 @@ interface Props {
   searchActive: boolean;
 }
 
-type ChipKind = 'category' | 'bezirk' | 'cuisine';
+type ChipKind = 'category' | 'bezirk' | 'price';
+
+/** Stufen-ID → Übersetzungsschlüssel. Die Grenzen stehen in PRICE_BUCKETS, die
+ *  Beschriftung hier: „10–20 €" liest sich besser als „10–19 €" und meint
+ *  dasselbe Band (User, 2026-08-27). */
+const PRICE_LABEL_KEYS: Record<string, string> = {
+  u10: 'map.priceUnder10',
+  '10': 'map.price10to20',
+  '20': 'map.price20to50',
+  '50': 'map.priceFrom50',
+};
 
 export default function MapListHeader({
   headerRef,
@@ -47,9 +57,9 @@ export default function MapListHeader({
   bezirkNames,
   bezirk,
   onBezirk,
-  cuisineNames,
-  cuisine,
-  onCuisine,
+  priceBucketIds,
+  price,
+  onPrice,
   optionCounts,
   searchActive,
 }: Props) {
@@ -59,7 +69,7 @@ export default function MapListHeader({
   const [openChip, setOpenChip] = useState<ChipKind | null>(null);
   const categoryBtnRef = useRef<HTMLButtonElement>(null);
   const bezirkBtnRef = useRef<HTMLButtonElement>(null);
-  const cuisineBtnRef = useRef<HTMLButtonElement>(null);
+  const priceBtnRef = useRef<HTMLButtonElement>(null);
 
   /* Every row carries what it would actually return — the whole catalogue,
      paywalled spots included, because that is what the list renders. A zero is
@@ -82,20 +92,11 @@ export default function MapListHeader({
     () => bezirkNames.map((n) => withCount(n, n, 'bezirk')),
     [bezirkNames, withCount]
   );
-  /* Wert bleibt der rohe Sanity-String — er ist die Filteridentität und steht
-     so auch im `?cuisine=`-Parameter. Übersetzt wird nur das Label, genau wie
-     bei den Kategorien eine Zeile höher.
-
-     Neu sortiert, und zwar nach dem Label: `cuisineNames` kommt alphabetisch
-     nach den englischen Rohwerten aus useMapFilters, und die laufen nicht
-     parallel zu den deutschen — „German/Deutsche Küche" und „Middle Eastern/
-     Orientalisch" landen sonst quer in der Liste. */
-  const cuisineItems: PickerItem[] = useMemo(
-    () =>
-      cuisineNames
-        .map((n) => withCount(n, localizedCuisine(n, loc), 'cuisine'))
-        .sort((a, b) => a.label.localeCompare(b.label, loc)),
-    [cuisineNames, loc, withCount]
+  /* NICHT nachsortiert, anders als die Küchen davor: eine Preisskala hat ihre
+     Reihenfolge schon, und alphabetisch stünde „ab 50 €" vorn. */
+  const priceItems: PickerItem[] = useMemo(
+    () => priceBucketIds.map((id) => withCount(id, t(PRICE_LABEL_KEYS[id] ?? id), 'price')),
+    [priceBucketIds, t, withCount]
   );
 
   const activeCategoryLabel = useMemo(() => {
@@ -106,7 +107,7 @@ export default function MapListHeader({
 
   /* Only worth saying when a chip actually holds a value — an untouched rail
      has nothing for the query to override. */
-  const chipsPaused = searchActive && Boolean(activeCategoryLabel || bezirk || cuisine || openOnly);
+  const chipsPaused = searchActive && Boolean(activeCategoryLabel || bezirk || price || openOnly);
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
@@ -132,15 +133,15 @@ export default function MapListHeader({
           clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipBezirk')}`}
           onClear={() => onBezirk(null)}
         />
-        {cuisineNames.length > 0 && (
+        {priceBucketIds.length > 0 && (
           <FilterChip
-            ref={cuisineBtnRef}
-            label={cuisine ? localizedCuisine(cuisine, loc) : t('map.filterChipCuisine')}
-            active={!!cuisine}
-            expanded={openChip === 'cuisine'}
-            onClick={() => setOpenChip((prev) => (prev === 'cuisine' ? null : 'cuisine'))}
-            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCuisine')}`}
-            onClear={() => onCuisine(null)}
+            ref={priceBtnRef}
+            label={price ? t(PRICE_LABEL_KEYS[price] ?? price) : t('map.filterChipPrice')}
+            active={!!price}
+            expanded={openChip === 'price'}
+            onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}
+            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipPrice')}`}
+            onClear={() => onPrice(null)}
           />
         )}
         <button
@@ -183,16 +184,16 @@ export default function MapListHeader({
           closeAriaLabel={t('map.searchClose')}
         />
       )}
-      {openChip === 'cuisine' && (
+      {openChip === 'price' && (
         <MapFilterPickerSheet
-          title={t('map.pickerCuisineTitle')}
-          items={cuisineItems}
-          selectedValue={cuisine}
+          title={t('map.pickerPriceTitle')}
+          items={priceItems}
+          selectedValue={price}
           allLabel={t('map.filterAll')}
-          allSub={String(optionCounts.withoutDimension.cuisine)}
-          onSelect={(v) => onCuisine(v)}
+          allSub={String(optionCounts.withoutDimension.price)}
+          onSelect={(v) => onPrice(v)}
           onClose={() => setOpenChip(null)}
-          anchorEl={cuisineBtnRef.current}
+          anchorEl={priceBtnRef.current}
           closeAriaLabel={t('map.searchClose')}
         />
       )}

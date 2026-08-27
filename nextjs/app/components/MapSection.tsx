@@ -378,12 +378,12 @@ export default function MapSection({
     setSearch,
     bezirk,
     setBezirk,
-    cuisine,
-    setCuisine,
+    price,
+    setPrice,
     openOnly,
     setOpenOnly,
     bezirkNames,
-    cuisineNames,
+    priceBucketIds,
     optionCounts,
     displayedRestaurants,
     displayedLockedRestaurants,
@@ -590,16 +590,16 @@ export default function MapSection({
   const [listFocusId, setListFocusId] = useState<string | null>(null);
   const listFocusIdRef = useRef(listFocusId);
   listFocusIdRef.current = listFocusId;
-  const prevFiltersRef = useRef({ category, bezirk, cuisine, openOnly, search });
+  const prevFiltersRef = useRef({ category, bezirk, price, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
     const prev = prevFiltersRef.current;
-    const next = { category, bezirk, cuisine, openOnly, search };
+    const next = { category, bezirk, price, openOnly, search };
     prevFiltersRef.current = next;
     const filtersChanged =
       prev.category !== next.category ||
       prev.bezirk !== next.bezirk ||
-      prev.cuisine !== next.cuisine ||
+      prev.price !== next.price ||
       prev.openOnly !== next.openOnly ||
       prev.search !== next.search;
     if (!filtersChanged) return;
@@ -622,7 +622,7 @@ export default function MapSection({
     }
     const el = contentRef.current;
     if (el) el.scrollTop = 0;
-  }, [sheetView, category, bezirk, cuisine, openOnly, search, contentRef, sheetElRef]);
+  }, [sheetView, category, bezirk, price, openOnly, search, contentRef, sheetElRef]);
 
   /* Which view handed us this render. Only a return FROM a detail may move the
      list — the map's own first paint (list peeking under the map) and every
@@ -1543,7 +1543,7 @@ export default function MapSection({
     if (selectedRestaurant || selectedMustEat) return;
     const free = displayedRestaurantsRef.current;
     fitCameraToSpots(free.length ? free : displayedLockedRestaurantsRef.current);
-  }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
+  }, [category, bezirk, price, openOnly, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
 
   /* Search refit — the reason a query for a locked spot used to read as "not
      found". The filter DOES match locked rows (useMapFilters runs both sets
@@ -1648,12 +1648,12 @@ export default function MapSection({
     lockedRestaurants,
     category,
     bezirk,
-    cuisine,
+    price,
     search,
     openOnly,
     setCategory,
     setBezirk,
-    setCuisine,
+    setPrice,
     setSearch,
     setOpenOnly,
     sheetView,
@@ -1710,9 +1710,9 @@ export default function MapSection({
       search={search}
       bezirk={bezirk}
       bezirkNames={bezirkNames}
-      cuisine={cuisine}
-      setCuisine={setCuisine}
-      cuisineNames={cuisineNames}
+      price={price}
+      setPrice={setPrice}
+      priceBucketIds={priceBucketIds}
       optionCounts={optionCounts}
       openOnly={openOnly}
       setOpenOnly={setOpenOnly}

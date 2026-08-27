@@ -1,15 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import ClientIntlProvider from './[locale]/ClientIntlProvider';
 import NotFoundAppFrame from './components/NotFoundAppFrame';
 import NotFoundContent from './components/NotFoundContent';
 import { translations } from '@/lib/i18n/translations';
+import { sans } from '@/app/fonts';
 
-const sans = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-sans',
-});
 const PROVIDENCE_REGULAR_WOFF2 =
   'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
 const PROVIDENCE_BOLD_WOFF2 =

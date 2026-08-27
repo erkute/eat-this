@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import sharp from 'sharp';
-import { getRestaurantBySlug } from '@/lib/sanity.server';
+import { getRestaurantPageData } from '@/lib/sanity.server';
 import { isValidSlug } from '@/lib/email/spotCard';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 
@@ -62,11 +62,16 @@ export async function GET(request: Request) {
     return new Response('invalid slug', { status: 400 });
   }
 
-  const r = await getRestaurantBySlug(slug);
-  if (!r) {
+  // Dieselbe Query wie die Restaurant-Seite, obwohl hier nur sechs Felder
+  // gebraucht werden: der Cache-Eintrag ist damit derselbe, und die OG-Route
+  // kostet keine eigene Sanity-Anfrage mehr. Zwei Queries für dasselbe
+  // Dokument wären zwei Einträge.
+  const page = await getRestaurantPageData(slug);
+  if (!page) {
     return new Response('not found', { status: 404 });
   }
 
+  const r = page.restaurant;
   const [{ saira, schoolbell }, logo] = await Promise.all([loadFonts(), loadLogo()]);
 
   const district = r.bezirk?.name ?? r.district ?? null;

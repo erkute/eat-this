@@ -7,7 +7,6 @@ vi.mock('../sanity', () => ({
 import { client } from '../sanity';
 import { SANITY_REVALIDATE_SECONDS } from '../constants';
 import {
-  getRestaurantBySlug,
   getAllRestaurantSlugs,
   getArticleBySlug,
   getAllArticleSlugs,
@@ -16,30 +15,6 @@ import {
 } from '../sanity.server';
 
 const mockFetch = vi.mocked(client.fetch);
-
-describe('getRestaurantBySlug', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('returns restaurant when found', async () => {
-    const mock = { _id: 'abc', name: 'Ramen Place', slug: 'ramen-place', lat: 52.5, lng: 13.4 };
-    mockFetch.mockResolvedValue(mock as never);
-
-    const result = await getRestaurantBySlug('ramen-place');
-    expect(result).toEqual(mock);
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('restaurant'),
-      { slug: 'ramen-place' },
-      expect.objectContaining({
-        next: expect.objectContaining({ revalidate: SANITY_REVALIDATE_SECONDS }),
-      })
-    );
-  });
-
-  it('returns null when not found', async () => {
-    mockFetch.mockResolvedValue(null as never);
-    expect(await getRestaurantBySlug('unknown')).toBeNull();
-  });
-});
 
 describe('getAllRestaurantSlugs', () => {
   it('returns flat array of strings', async () => {

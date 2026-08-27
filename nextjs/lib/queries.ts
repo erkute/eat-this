@@ -71,12 +71,6 @@ const RESTAURANT_DETAIL_FIELDS = `
     }
 `;
 
-/* Only the document. The OG-image route needs nothing else; the page uses
-   restaurantPageQuery below, which folds in Must-Eats and siblings. */
-export const restaurantBySlugQuery = `
-  *[_type == "restaurant" && slug.current == $slug][0] {${RESTAURANT_DETAIL_FIELDS}}
-`;
-
 export const allRestaurantSlugsQuery = `
   *[_type == "restaurant" && defined(slug.current)] {
     "slug": slug.current
@@ -198,6 +192,26 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
 
 
 /**
+ * Ein Fenster der alphabetischen Nachbarschaft im selben Bezirk — `'>'` liefert
+ * den Schwanz hinter dem aktuellen Restaurant, `'<'` den Umlauf davor.
+ *
+ * Bewusst begrenzt statt „ganzen Bezirk laden und im Code schneiden": ein Bezirk
+ * hat bis zu 60 Spots, angezeigt werden vier. Zwei Fenster zu je vier holen im
+ * schlechtesten Fall acht Dokumente statt sechzig.
+ *
+ * Als Funktion, nicht zweimal ausgeschrieben: die beiden unterscheiden sich in
+ * genau einem Zeichen. Nebeneinandergestellt kann jemand den einen Filter
+ * ändern und den anderen vergessen — und kein Test fängt das, weil erst beide
+ * zusammen ein vollständiges Fenster ergeben.
+ */
+const siblingWindow = (cmp: '>' | '<') => `*[
+      _type == "restaurant" && isOpen != false
+      && defined(^.bezirkRef._ref) && bezirkRef._ref == ^.bezirkRef._ref
+      && slug.current != ^.slug.current
+      && (name ${cmp} ^.name || (name == ^.name && slug.current ${cmp} ^.slug.current))
+    ] | order(name asc, slug.current asc)[0...$siblingLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}`;
+
+/**
  * Everything the restaurant page needs, in ONE round trip.
  *
  * It used to be three: the document, then — once its _id and bezirk were
@@ -214,8 +228,8 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
  *
  * `generateMetadata` and the page body must BOTH use this query — Next
  * dedupes identical fetches within a render, so two call sites of the same
- * query cost one request, whereas mixing this with restaurantBySlugQuery
- * would cost two.
+ * query cost one request, whereas two different queries for the same
+ * document would cost two.
  */
 export const restaurantPageQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {${RESTAURANT_DETAIL_FIELDS},
@@ -223,18 +237,8 @@ export const restaurantPageQuery = `
       _id,
       order
     },
-    "siblingsAfter": *[
-      _type == "restaurant" && isOpen != false
-      && defined(^.bezirkRef._ref) && bezirkRef._ref == ^.bezirkRef._ref
-      && slug.current != ^.slug.current
-      && (name > ^.name || (name == ^.name && slug.current > ^.slug.current))
-    ] | order(name asc, slug.current asc)[0...$siblingLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
-    "siblingsWrap": *[
-      _type == "restaurant" && isOpen != false
-      && defined(^.bezirkRef._ref) && bezirkRef._ref == ^.bezirkRef._ref
-      && slug.current != ^.slug.current
-      && (name < ^.name || (name == ^.name && slug.current < ^.slug.current))
-    ] | order(name asc, slug.current asc)[0...$siblingLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
+    "siblingsAfter": ${siblingWindow('>')},
+    "siblingsWrap": ${siblingWindow('<')}
   }
 `;
 

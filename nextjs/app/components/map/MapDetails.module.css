@@ -460,10 +460,6 @@
   align-items: center;
   gap: 5px;
 }
-.linkPromo::after {
-  content: '→';
-  font-weight: 700;
-}
 .linkPromo:hover {
   gap: 9px;
 }
@@ -2234,9 +2230,6 @@
   line-height: 1.25;
   text-decoration: none;
   text-transform: none;
-}
-.detailV13:not(.detailV13MustEat) .linkPromo::after {
-  content: none;
 }
 @media (max-width: 380px) {
   .detailV13:not(.detailV13MustEat) .packPromo {

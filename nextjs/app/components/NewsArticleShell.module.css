@@ -406,11 +406,6 @@ div.page {
   text-transform: none;
 }
 
-.mustEatCta::after {
-  content: '→';
-  transition: transform 140ms ease;
-}
-
 /* ------------------------------------------------------- inline spot ---- */
 
 .inlineSpot {
@@ -494,11 +489,6 @@ div.page {
   letter-spacing: 0;
   line-height: 1;
   text-transform: none;
-}
-
-.inlineSpotCta::after {
-  content: '→';
-  transition: transform 140ms ease;
 }
 
 /* ---------------------------------------------------------- hub link ---- */
@@ -678,11 +668,6 @@ div.page {
 
   a.mustEat:hover .mustEatPh img {
     transform: rotate(-2deg) translateY(-3px);
-  }
-
-  a.mustEat:hover .mustEatCta::after,
-  .inlineSpot:hover .inlineSpotCta::after {
-    transform: translateX(4px);
   }
 
   .relatedCard:hover .relatedPhoto img,

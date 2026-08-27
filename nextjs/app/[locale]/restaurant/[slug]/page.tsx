@@ -246,8 +246,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     }
     notFound();
   }
-  const { restaurant: r, mustEats } = page;
-  const siblingsBezirk = page.siblings;
+  const { restaurant: r, mustEats, siblings: siblingsBezirk } = page;
 
   const loc = locale === 'de' ? 'de' : 'en';
   const de = loc === 'de';

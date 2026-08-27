@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid_signature' }, { status: 401 });
   }
 
-  let doc: { _type?: string; slug?: { current?: string }; _id?: string } = {};
+  let doc: { _type?: string; slug?: string | { current?: string }; _id?: string } = {};
   try {
     doc = JSON.parse(rawBody);
   } catch {
@@ -101,7 +101,13 @@ export async function POST(req: NextRequest) {
   }
 
   const type = doc._type;
-  const slug = doc.slug?.current;
+  // Die Webhook-Projektion liefert `"slug": slug.current` — also einen
+  // STRING, kein Objekt. Ein reines `doc.slug?.current` ist auf dieser
+  // Payload immer undefined, und die slug-spezifische Revalidierung
+  // (article:<slug>, restaurant:<slug>, …) lief damit seit Einrichtung des
+  // Hooks kein einziges Mal; sichtbar wurde das nur nicht, weil Container-
+  // Neustarts den ISR-Cache ohnehin regelmäßig leerten.
+  const slug = typeof doc.slug === 'string' ? doc.slug : doc.slug?.current;
   const revalidated: string[] = [];
 
   switch (type) {

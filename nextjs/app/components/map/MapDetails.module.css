@@ -5128,3 +5128,36 @@
 .detailV13MustEat > .fdRestDock .fdV.fdVCompact {
   font-size: clamp(13.5px, 3.5vw, 16px);
 }
+/* ── Desktop-Panel: Maße fürs 379px-Panel, nicht fürs 1440px-Fenster ──────────
+   Auf dem Desktop ist diese Sheet keine Seite, sondern eine 379px breite
+   Spalte — Telefonbreite. Alles, was hier an vw hing, lief in seinen Deckel
+   und wurde am Fenster groß statt am Panel (User, 2026-08-27).
+   Gegen echte Werte gelegt: Apple Maps fährt in einem 380px-Panel Ortsname 22
+   und Meta-Zeilen 14 in SF Pro; The Infatuation steht mobil bei H1 40 und
+   Fließtext 15. Wir sitzen dazwischen — Providence läuft optisch kleiner als
+   eine Systemschrift, und der Name liegt auf einem Foto, nicht in einer Liste.
+   Der Fließtext bleibt bei 15px: das ist der untere Rand des Bandes, darunter
+   wird die Geschichte zur Bildunterschrift.
+   Der Block steht am Dateiende, weil .rdV und .rdActBtn ihre Werte weiter
+   unten setzen als der 1024px-Block oben — dort hätte er verloren. */
+@media (min-width: 1024px) {
+  .detailV13:not(.detailV13MustEat) .rdNameOv {
+    font-size: min(var(--rd-name-max, 40px), 40px);
+  }
+
+  .detailV13:not(.detailV13MustEat) .rdV,
+  .detailV13:not(.detailV13MustEat) .rdV a,
+  .detailV13:not(.detailV13MustEat) .rdHoursT {
+    font-size: 17px;
+  }
+
+  /* Eine CTA-Höhe für die ganze Sheet: der Aktionsknopf lag bei 46, das
+     Pack-Angebot direkt darunter bei 42. */
+  .detailV13:not(.detailV13MustEat) .rdActBtn {
+    min-height: 42px;
+  }
+
+  .detailV13:not(.detailV13MustEat) .packPromoTitle {
+    font-size: 30px;
+  }
+}

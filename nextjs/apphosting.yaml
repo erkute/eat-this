@@ -26,18 +26,6 @@ env:
       - BUILD
       - RUNTIME
 
-  # Am API-CDN vorbei. CDN und normale API ziehen auf GETRENNTE Kontingente,
-  # und das CDN-Kontingent des Plans war am 24.08.2026 aufgebraucht: die
-  # force-dynamic-Seiten (Startseite, /map) antworteten mit 500, und jeder
-  # Build brach mit 402 plan_limit_reached ab. Ohne CDN fehlt der Edge-Cache
-  # von Sanity — die App cached ohnehin selbst (ISR + Modul-Cache).
-  # Zurück auf CDN, sobald das Kontingent wieder trägt: Zeile entfernen.
-  - variable: SANITY_USE_CDN
-    value: 'false'
-    availability:
-      - BUILD
-      - RUNTIME
-
   # Fail-closed guard for App Hosting's injected Admin + browser SDK config.
   - variable: FIREBASE_EXPECTED_PROJECT_ID
     value: eat-this-8a13b

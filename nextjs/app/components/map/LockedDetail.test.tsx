@@ -204,7 +204,7 @@ describe('LockedDetail, visitor without an account', () => {
   it('offers the account instead of a pack', () => {
     const out = signupHtml(spot());
     // Leads with the tapped spot, but does not undersell the tier behind it.
-    expect(out).toContain('Dein erster Spot geht aufs Haus');
+    expect(out).toContain('Fünfzig Spots aufs Haus');
   });
 
   it('wears the same Starter Pack identity as the home page', () => {
@@ -290,7 +290,7 @@ describe('LockedDetail, visitor without an account', () => {
     /* Tier flags no longer reach this component at all — an account opens the
        tapped spot either way, because signing up claims it. */
     const out = signupHtml(spot({ _id: 'r-deep', slug: 'tief-im-katalog' }));
-    expect(out).toContain('Dein erster Spot geht aufs Haus');
+    expect(out).toContain('Fünfzig Spots aufs Haus');
     expect(out).not.toContain('href="/packs"');
   });
 });

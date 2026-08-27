@@ -276,7 +276,7 @@ const signupCopy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: 'Dein erster Spot geht aufs Haus — dieser hier, plus rund fünfzig weitere.',
+    lead: 'Fünfzig Spots aufs Haus, dieser hier inklusive.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
     submit: 'Starter Pack holen',
@@ -287,7 +287,6 @@ const signupCopy = {
     unlocking: 'Wir schliessen auf …',
     google: 'Mit Google anmelden',
     googleFailed: 'Das hat mit Google nicht geklappt. Nimm solange deine E-Mail.',
-    hint: 'Wir schicken dir einen Link zum Einloggen.',
     emptyEmail: 'Bitte gib deine E-Mail ein.',
     invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
     imgAlt: 'Eat This Starter Pack',
@@ -295,7 +294,7 @@ const signupCopy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: 'Your first spot is on us — this one, plus about fifty more.',
+    lead: 'Fifty spots on the house, this one included.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',
     submit: 'Get the Starter Pack',
@@ -305,7 +304,6 @@ const signupCopy = {
     unlocking: 'Opening it up …',
     google: 'Sign in with Google',
     googleFailed: "Google didn't work out. Use your email for now.",
-    hint: 'We send you a sign-in link.',
     emptyEmail: 'Add your email first.',
     invalidEmail: 'That does not look like an email yet.',
     imgAlt: 'Eat This Starter Pack',
@@ -492,12 +490,10 @@ function SignupOffer({
         </button>
       </form>
 
-      {feedback ? (
+      {feedback && (
         <span id={errorId} className={lockedStyles.error} role="alert">
           {feedback}
         </span>
-      ) : (
-        !sent && <span className={lockedStyles.hint}>{t.hint}</span>
       )}
 
       <button

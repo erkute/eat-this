@@ -370,8 +370,9 @@
    the four-colour mark — because it IS that button, just in another room. It
    deliberately never inverts on hover: the login layer doesn't, and a fixed
    brand mark on an inverted ground looks like a mistake.
-   Set wider apart than the hint above it — the hint explains the mail, not this
-   button, and at equal spacing it read as a caption for whichever was nearer. */
+   Steht mit Abstand unter dem Formular: darüber lag früher eine Fußnote, die
+   den Abstand mitgebracht hat — ohne sie kleben sonst zwei Knöpfe aneinander,
+   die zwei verschiedene Wege sind (User, 2026-08-27). */
 .google {
   display: flex;
   align-items: center;
@@ -402,27 +403,13 @@
   background: var(--et-home-quiet, rgba(21, 18, 14, 0.05));
 }
 
-.hint,
+/* Eine Validierungsmeldung spricht in der Hausschrift — wie die Eingabe, die
+   sie korrigiert. */
 .error {
   display: block;
   width: 100%;
   margin-top: 7px;
   line-height: 1.4;
-}
-
-.hint {
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  font-family: var(--et-font-mono, ui-monospace, monospace);
-  /* Below the sheet's smallest step: a footnote about what happens next, not
-     part of the offer (user, 2026-08-23). The sent state repeats it in full
-     size ("Check deine Mail"), so nothing here is only readable at 9px. */
-  font-size: 9px;
-  letter-spacing: 0.01em;
-}
-
-/* Mono is the footnote voice; a validation message speaks in the brand face
-   like the copy it is correcting. */
-.error {
   color: var(--et-home-red, #e2261c);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13.5px;

@@ -2043,6 +2043,15 @@
   font-size: 15px;
   line-height: 1.55;
 }
+/* Im gesperrten Sheet bringt LockedDetail seine 18px Seitenrand schon mit; die
+   16px hier kamen obendrauf und rückten die Geschichte gegen Kicker und
+   Angebot ein — dieselbe Doppelung, die senkrecht 52px statt 30px ergab
+   (User, 2026-08-27). Oben und unten bleibt alles: die 18px sind der Abstand
+   unter dem Foto. */
+.detailV13:not(.detailV13MustEat) .rdBody[data-locked-excerpt] {
+  padding-right: 0;
+  padding-left: 0;
+}
 .detailV13:not(.detailV13MustEat) .rdStoryLead::first-letter,
 .detailV13:not(.detailV13MustEat) .rdSecH,
 .detailV13MustEat .fdName,

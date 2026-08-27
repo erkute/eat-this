@@ -182,7 +182,9 @@ export default function LockedDetail({
           )}
           {storyText && (
             <div className={lockedStyles.excerpt} aria-hidden="false">
-              <div className={styles.rdBody}>
+              {/* Der Marker hängt die Seitenränder aus: LockedDetail setzt sie
+                  schon selbst, siehe MapDetails.module.css. */}
+              <div className={styles.rdBody} data-locked-excerpt>
                 {storyText.split('\n\n').map((para, idx) =>
                   idx === 0 && para.length > 0 ? (
                     <p

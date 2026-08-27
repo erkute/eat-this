@@ -7,7 +7,11 @@
   --locked-excerpt-h: 210px;
   display: grid;
   gap: 10px;
-  padding: 20px 18px 26px;
+  /* Oben ohne: der Anriss bringt mit .rdBody seine eigenen 18px mit, und der
+     Hero setzt 12px darunter. Zusammen mit den 20px hier standen über der
+     Geschichte 52px statt der 30px, die die freigeschaltete Sheet zeigt —
+     eine Doppelung, die nur die gesperrten Spots trafen (User, 2026-08-27). */
+  padding: 0 18px 26px;
   background: var(--et-home-paper, #fff);
   color: var(--et-home-ink, #15120e);
 }
@@ -49,7 +53,7 @@
 .excerpt {
   position: relative;
   max-height: var(--locked-excerpt-h);
-  margin: 2px 0 4px;
+  margin: 0 0 4px;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0) 100%);
@@ -61,7 +65,7 @@
    sich bewusst nicht auf eine Länge fest. */
 .excerptReserve {
   height: var(--locked-excerpt-h);
-  margin: 2px 0 4px;
+  margin: 0 0 4px;
 }
 
 /* The body block's own bottom margin would leave a gap the mask fades into,

@@ -10,14 +10,15 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) => {
     const copy: Record<string, string> = {
       mustEatAtAria: 'Must Eat bei {name}',
-      proximityAway: 'Noch {distance}',
-      proximityHint: 'Aufgedeckt wird vor Ort.',
+      proximityAway: 'Noch nicht aufgedeckt.',
+      proximityHint: 'Geh zum Spot, tipp die Karte an — dann weißt du, was du bestellen musst.',
       locationNeeded: 'Wo bist du?',
-      enableLocation: 'Tipp auf die Karte und gib deinen Standort frei.',
+      enableLocation:
+        'Tipp auf die Karte und gib deinen Standort frei. Am Spot dreht sie sich um.',
       locationBlocked: 'Standort blockiert',
       locationBlockedHint: "Erlaub ihn in den Browser-Einstellungen, dann geht's vor Ort.",
       proximityHere: 'Du bist da.',
-      proximityTapReveal: 'Tipp auf die Karte.',
+      proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
     };
     return Object.entries(values ?? {}).reduce(
       (text, [name, value]) => text.replace(`{${name}}`, String(value)),
@@ -88,7 +89,7 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
 }
 
 describe('MustEatDetailMobile proximity states', () => {
-  it('names the distance once and states the rule without a second number', () => {
+  it('shows no distance at all and names what is under the card', () => {
     const { container } = render(
       <MustEatDetailMobile
         mustEat={mustEat}
@@ -98,11 +99,14 @@ describe('MustEatDetailMobile proximity states', () => {
       />
     );
 
-    expect(screen.getByText('Noch 2,4 km')).toBeTruthy();
-    expect(screen.getByText('Aufgedeckt wird vor Ort.')).toBeTruthy();
-    // The sub used to repeat the unlock radius, so the block showed two figures
-    // at once ("Noch 2,4 km" over "50 m") and read as arithmetic.
+    expect(screen.getByText('Noch nicht aufgedeckt.')).toBeTruthy();
+    expect(
+      screen.getByText('Geh zum Spot, tipp die Karte an — dann weißt du, was du bestellen musst.')
+    ).toBeTruthy();
+    // No figure anywhere in the block: the radius made it read as arithmetic,
+    // and the remaining distance made the spot look far and like hard work.
     expect(container.textContent).not.toMatch(/50\s?m/);
+    expect(container.textContent).not.toMatch(/2,4\s?km/);
   });
 
   /* Without a fix the card used to read "Komm näher" over a "come within 50 m"
@@ -119,7 +123,9 @@ describe('MustEatDetailMobile proximity states', () => {
     );
 
     expect(screen.getByText('Wo bist du?')).toBeTruthy();
-    expect(screen.getByText('Tipp auf die Karte und gib deinen Standort frei.')).toBeTruthy();
+    expect(
+      screen.getByText('Tipp auf die Karte und gib deinen Standort frei. Am Spot dreht sie sich um.')
+    ).toBeTruthy();
     expect(screen.queryByText(/Komm auf/)).toBeNull();
     // The accessible name is all a screen reader gets, and the tap it labels
     // now opens the permission prompt — "Zu weit weg" would be a lie there.
@@ -171,7 +177,7 @@ describe('MustEatDetailMobile proximity states', () => {
     );
 
     expect(screen.getByText('Du bist da.')).toBeTruthy();
-    expect(screen.getByText('Tipp auf die Karte.')).toBeTruthy();
+    expect(screen.getByText('Tipp drauf und sieh, was du hier bestellen musst.')).toBeTruthy();
     expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
   });
 });

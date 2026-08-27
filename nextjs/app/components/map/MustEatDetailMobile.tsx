@@ -3,7 +3,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { MapMustEat } from '@/lib/types';
 import { Link } from '@/i18n/navigation';
-import { formatLocalizedDistance } from '@/lib/map';
 import { useTranslations } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
@@ -77,9 +76,6 @@ export default function MustEatDetailMobile({
   const open = isUnlocked && !revealOrigin;
   const nameRevealed = open && !nameBurning;
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered');
-  const dishNameWeight = dishName.replace(/\s+/g, '').length;
-  const dishNameSizeClass =
-    dishNameWeight > 22 ? styles.fdNameCompact : dishNameWeight > 12 ? styles.fdNameLong : '';
   const closeAction = onViewRestaurant ?? onClose;
   /* Verdeckte Nachbarn hießen beide "Verdeckt" — zwei gleich beschriftete
      Tasten, die nichts über ihr Ziel sagten. Geheim ist aber nur das GERICHT:
@@ -222,6 +218,40 @@ export default function MustEatDetailMobile({
       flushSync(() => page());
     }, 300);
   };
+
+  /* Die Kopfzeile des verdeckten Zustands sitzt IM Namens-Track, nicht darunter.
+     Der Track ist reserviert, damit beim Aufdecken nichts springt — verdeckt
+     stand dort aber nur der unsichtbar gestellte Gerichtsname, seit das
+     "Verdeckt"-Badge raus ist also eine leere Fläche von ~90px zwischen Karte
+     und Text. Jetzt füllt die Kopfzeile sie, in der Größe des Gerichtsnamens,
+     und beim Aufdecken wird sie schlicht vom Gericht ersetzt: gleicher Track,
+     gleiche Höhe, kein Sprung. Während der Reveal-Animation (nameBurning)
+     gehört der Track wieder dem Gericht, das dort aufscharft. */
+  const coverHead = unlocking
+    ? t('map.revealSaving')
+    : unlockError
+      ? t('map.revealError')
+      : canUnlock
+        ? tMap('proximityHere')
+        : distance !== null
+          ? tMap('proximityAway')
+          : locationDenied
+            ? tMap('locationBlocked')
+            : tMap('locationNeeded');
+  const headInNameSlot = !open && !nameBurning;
+  const slotText = headInNameSlot ? coverHead : dishName;
+  const slotWeight = slotText.replace(/\s+/g, '').length;
+  const slotSizeClass =
+    slotWeight > 22 ? styles.fdNameCompact : slotWeight > 12 ? styles.fdNameLong : '';
+
+  /* Der Restaurantname staffelt sich nach Länge, wie der Gerichtsname darüber —
+     nicht pro Lokal. Eine Regel für „Saveur de Bánh Mì Schöneberg" bräche beim
+     nächsten langen Namen wieder; die Spalte ist rund 175px breit, in eine
+     Zeile passt so ein Name auch klein nicht. Die Stufen sorgen dafür, dass er
+     in die zwei reservierten Zeilen passt, statt geklemmt zu werden. */
+  const restNameWeight = restaurantName.replace(/\s+/g, '').length;
+  const restNameSizeClass =
+    restNameWeight > 20 ? styles.fdVCompact : restNameWeight > 14 ? styles.fdVLong : '';
 
   return (
     <div
@@ -385,37 +415,25 @@ export default function MustEatDetailMobile({
             Näherungs-Hinweis (locked) hängen direkt unter der Karte; läuft der
             Text über, klemmt fdMid statt den fixen Footer zu verdrängen. */}
         <div className={`${styles.fdMid}${!open ? ` ${styles.fdMidLocked}` : ''}`}>
-          {/* Gericht-Name — unten im 2-Zeilen-Feld verankert, sitzt direkt über
-              der Beschreibung; eine 2. Zeile füllt nach oben → nichts darunter
-              springt. Locked: stark verschwommen (kein Stempel).
-
-              In Reichweite verschwindet der "Verdeckt"-Titel, BEHÄLT aber seinen
-              Platz (fdNameVoid → visibility: hidden): darunter steht schon der
-              "Jetzt aufdecken"-Chip, und zwei gleich laute Chips übereinander
-              sagten Zustand und Aufforderung durcheinander. Ausgehängt statt
-              versteckt rutschte die Copy jedoch in den Namens-Track hoch — und
-              genau dort sitzt aufgedeckt der Gerichtsname, der Text sprang also
-              beim Aufdecken um 40px. */}
-          {
-            <h1
-              className={`${styles.fdName}${dishNameSizeClass ? ` ${dishNameSizeClass}` : ''}${
-                !open && canUnlock ? ` ${styles.fdNameVoid}` : ''
-              }`}
-              aria-hidden={!open && canUnlock ? true : undefined}
-              aria-label={nameRevealed || (!open && canUnlock) ? undefined : t('mustEats.covered')}
-            >
+          {/* Ein Track für beides: verdeckt trägt er die Zustands-Kopfzeile,
+              aufgedeckt den Gerichtsnamen — in derselben Größe, unten im
+              2-Zeilen-Feld verankert, sodass eine zweite Zeile nach oben füllt
+              und nichts darunter springt. Vorher stand hier verdeckt der
+              unsichtbar gestellte Gerichtsname und die Kopfzeile eine Etage
+              tiefer; das ergab eine leere Fläche zwischen Karte und Text und
+              zwei konkurrierende Zustandsanzeigen. */}
+          <h1 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
+            {headInNameSlot ? (
+              <span className={styles.fdNameText}>{slotText}</span>
+            ) : (
               <span
-                className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
+                className={`${styles.fdNameText}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
                 aria-hidden={nameRevealed ? undefined : true}
-                /* Das Badge über dem verschwommenen Namen ist ein
-                   ::before-Pseudo — sein Text muss als Attribut hier hoch,
-                   sonst steht er unübersetzbar im Stylesheet. */
-                data-covered={t('mustEats.covered')}
               >
                 {dishName}
               </span>
-            </h1>
-          }
+            )}
+          </h1>
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
           {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
@@ -430,26 +448,15 @@ export default function MustEatDetailMobile({
               role={unlockError ? 'alert' : 'status'}
               aria-live="polite"
             >
-              <p className={styles.fdProximityHead}>
-                {unlocking
-                  ? t('map.revealSaving')
-                  : unlockError
-                    ? t('map.revealError')
-                    : canUnlock
-                      ? tMap('proximityHere')
-                      : distance !== null
-                        ? tMap('proximityAway', {
-                            distance: formatLocalizedDistance(distance, lang),
-                          })
-                        : locationDenied
-                          ? tMap('locationBlocked')
-                          : tMap('locationNeeded')}
-              </p>
-              {/* Kein Distanz-Balken mehr: die log-Skala von 10 km auf 50 m
-                  sagte niemandem etwas. Die Headline nennt die Distanz, der
-                  Satz darunter erklärt die Spielregel — mehr braucht es nicht.
-                  Und die Spielregel nennt den Radius nicht mehr: zwei Zahlen
-                  übereinander („Noch 8,2 km" / „50 m") waren die Verwirrung. */}
+              {/* Nur solange der Namens-Track dem aufscharfenden Gericht gehört
+                  — sonst steht die Kopfzeile oben im Track (siehe coverHead). */}
+              {!headInNameSlot && <p className={styles.fdProximityHead}>{coverHead}</p>}
+              {/* Hier steht keine Entfernung mehr — weder als Balken (die
+                  log-Skala von 10 km auf 50 m sagte niemandem etwas) noch als
+                  Zahl. „Noch 8,2 km" ließ den Spot weit und mühsam wirken und
+                  beantwortete die Frage nicht, die der Kartenrücken stellt.
+                  Wie weit es ist, zeigt die Map; diese zwei Zeilen sagen,
+                  warum die Karte zu ist und was darunter liegt. */}
               <p className={styles.fdProximitySub}>
                 {unlocking
                   ? t('map.revealSavingHint')
@@ -474,7 +481,9 @@ export default function MustEatDetailMobile({
           )}
           <div className={styles.fdRestName}>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
-            <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
+            <div className={`${styles.fdV}${restNameSizeClass ? ` ${restNameSizeClass}` : ''}`}>
+              {normalizeName(restaurantName)}
+            </div>
           </div>
           {onViewRestaurant ? (
             <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
@@ -494,7 +503,9 @@ export default function MustEatDetailMobile({
         )}
         <div className={styles.fdRestName}>
           <div className={styles.fdK}>{t('map.inRestaurant')}</div>
-          <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
+          <div className={`${styles.fdV}${restNameSizeClass ? ` ${restNameSizeClass}` : ''}`}>
+            {normalizeName(restaurantName)}
+          </div>
         </div>
         {onViewRestaurant ? (
           <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>

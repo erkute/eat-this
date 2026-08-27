@@ -215,7 +215,12 @@
   margin: 0;
   color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(52px, 8vw, 104px);
+  /* 104px war der größte Titel der ganzen Seite — das 2,6-fache dessen, was
+     Eater und Mit Vergnügen fahren (beide 40 auf 1512). 68 entspricht The
+     Infatuation, der display-freudigsten der gemessenen vier.
+     Untergrenze bleibt bei 56, damit der Sprung an der 700px-Grenze zum
+     Mobile-Wert unten (max 76) nicht größer wird als bisher. */
+  font-size: clamp(56px, 5.2vw, 68px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.84;

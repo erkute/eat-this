@@ -38,7 +38,10 @@
   margin: 0;
   color: var(--packs-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(58px, 7.5vw, 100px);
+  /* Wie beim Kategorie-Hub: 100px lagen weit über allem, was die gemessenen
+     Wettbewerber fahren. Untergrenze bleibt 58, damit die 700px-Grenze zum
+     Mobile-Wert unten sich nicht anders verhält als bisher. */
+  font-size: clamp(58px, 5.3vw, 68px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.84;

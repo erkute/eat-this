@@ -501,6 +501,10 @@
   color: inherit;
 }
 
+/* line-height 1.35 wie bei den Zeilen darunter: bei 1 war die Zeile 15px hoch,
+   Providence braucht 17,7px, und `overflow: hidden` fürs Ellipsis hat dem „g"
+   in „Kategorie wählen" die Unterlänge abgeschnitten (User, 2026-08-27). Der
+   Kopf wächst nicht — er hat 36px Mindesthöhe, gebraucht werden 28. */
 .pickerTitle {
   min-width: 0;
   overflow: hidden;
@@ -508,7 +512,7 @@
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

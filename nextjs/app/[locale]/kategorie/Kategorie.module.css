@@ -89,6 +89,52 @@
   min-width: 0;
 }
 
+/* Pack neben dem Namen. Zweispaltig statt Bild-über-Text: die Tüte ist hoch
+   (2:3), und neben einer einzeiligen Überschrift bliebe rechts daneben eine
+   leere Fläche in Packhöhe stehen. So trägt die rechte Spalte Name UND Anriss,
+   und die Zeile ist genau so hoch wie das Pack.
+   Das Bild ist Dekor, kein zweiter Einstieg — die Verlinkung bleibt allein am
+   Namen (User, 2026-08-27). */
+/* Pack links neben Name und Anriss (User, 2026-08-27).
+
+   Der Abstand nach unten hängt am Kopf, nicht am Anriss: das Pack ist höher
+   als der Textblock und bestimmt damit die Höhe der Zeile. Stand der Abstand
+   am Anriss, berührte das Pack das Karten-Grid (gemessen: 0px), während der
+   Text 37px darüber endete — der sichtbare Abstand war ein Rest, kein Wert.
+   Jetzt trägt ihn der Kopf als Block, und er ist überall derselbe. */
+.categoryHead {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.2vw, 26px);
+  min-width: 0;
+  margin-bottom: clamp(20px, 2.6vw, 28px);
+}
+
+.categoryHead .categoryBlurb {
+  margin-bottom: 0;
+}
+
+.categoryPack {
+  flex: 0 0 auto;
+  /* Fester Kasten mit `contain`, nicht nur eine feste Breite: die neun Packs
+     sind unterschiedlich geschnitten (Verhältnis 0,641 bei Pizza bis 0,685 bei
+     Kaffee). Bei fester Breite ergab das Höhen zwischen 123 und 131px — jede
+     Kategorie-Zeile stand ein paar Pixel anders, und in der Spalte sah man das
+     Wackeln (User, 2026-08-27). Jetzt ist der Kasten überall gleich, und die
+     Zeichnung sitzt unverzerrt darin. */
+  width: clamp(58px, 6vw, 84px);
+  aspect-ratio: 2 / 3;
+  height: auto;
+  object-fit: contain;
+  /* Wie im Angebot auf der Karte: ein weicher Bodenschatten, sonst sieht die
+     gerenderte Folientüte aufgeklebt aus. */
+  filter: drop-shadow(0 12px 20px rgba(21, 18, 14, 0.14));
+}
+
+.categoryHeadText {
+  min-width: 0;
+}
+
 .categoryName {
   min-width: 0;
   margin: 0 0 clamp(16px, 2.2vw, 24px);

@@ -48,6 +48,13 @@ export const OG_CARD_VERSION = 5;
  * hubs, bezirk pages gained the same counter-direction, and the burger drawer
  * carries a new entry on every page. Catalogue-wide by construction: the nav
  * sits on all ~343 restaurant pages, the drawer on all of them.
+ *
+ * 2026-08-27: die "Auch in:"-Leiste ist auf Wunsch wieder raus. Das Datum
+ * bleibt trotzdem auf dem 25.: lastmod soll einen Recrawl anstoßen, wenn es
+ * etwas Neues zu holen gibt — für eine Entfernung wäre das nur Crawl-Budget.
+ * Die Kategorie-Hubs hängen weiter an der Rail der Startseite, ihrem eigenen
+ * Index und dem Burger-Eintrag; verwaist ist keiner (siehe die Messung in
+ * hub-indexseiten-verwaist).
  */
 export const TEMPLATE_REVISED = '2026-08-25';
 

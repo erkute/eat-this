@@ -18,7 +18,6 @@ import {
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
 import { localizedCuisine } from '@/lib/cuisineLabels';
-import { localizedCategoryName } from '@/lib/categories';
 import { normalizeName } from '@/lib/normalizeName';
 import { shouldSkipDropCap } from '@/lib/dropCap';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -292,15 +291,6 @@ export default async function RestaurantPage({ params }: PageProps) {
       </span>
     ) : null,
   ].filter(Boolean);
-
-  // Die Kategorie-Hubs, in denen dieser Spot gelistet ist. `categories` kommt
-  // schon aus `restaurantBySlugQuery` (CATEGORY_PROJECTION) — es braucht keine
-  // zusätzliche Abfrage. Der Median liegt bei zwei Kategorien, das Maximum bei
-  // fünf; ohne Deckel wäre die Zeile in Ausreißern länger als ihre Nachbarn.
-  const hubLinks = (r.categories ?? [])
-    .filter((c) => c.slug)
-    .slice(0, 3)
-    .map((c) => ({ slug: c.slug, label: localizedCategoryName(c, loc) }));
 
   const homeLabel = de ? 'Start' : 'Home';
   const districtsLabel = de ? 'Bezirke' : 'Districts';
@@ -639,24 +629,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               locale={loc}
             />
           </section>
-        )}
-
-        {/* Die Gegenrichtung zu `categoryDistrictLinks` auf den Hubs: die
-            Kategorie-Seiten verlinken längst in die Bezirke, zurück kam von den
-            Restaurant-Seiten nichts. Textlinks, keine Karten — die Kartenzeile
-            ist oben aus gutem Grund raus, der Link an sich war nie das Problem. */}
-        {hubLinks.length > 0 && (
-          <nav
-            className={styles.hubLinks}
-            aria-label={de ? 'Kategorien dieses Spots' : 'Categories for this spot'}
-          >
-            <span className={styles.hubLinksHead}>{de ? 'Auch in:' : 'Also in:'}</span>
-            {hubLinks.map((c) => (
-              <IntlLink key={c.slug} href={`/kategorie/${c.slug}`} className={styles.hubLink}>
-                {c.label}
-              </IntlLink>
-            ))}
-          </nav>
         )}
 
         {/* Der zweite, erklärende Map-Ausgang — Bezirk und Kategorie haben ihn

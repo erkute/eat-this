@@ -2117,8 +2117,14 @@
   line-height: 1;
 }
 @media (min-width: 1024px) {
+  /* Am Fenster gemessen, nicht fix: 360px waren hier hart gesetzt und haben die
+     dvh-Regel der Basis überstimmt. Auf einem 1512×780-Fenster (MacBook mit
+     Browser-Chrome) schob das den „Starter Pack holen"-Knopf 11px unter die
+     Kante — das Angebot war genau auf dem Gerät nur nach Scrollen zu sehen, auf
+     dem die meisten sitzen. Der Deckel hält den großen Anschnitt auf hohen
+     Fenstern, der Boden verhindert ein Briefmarken-Foto auf flachen. */
   .detailV13:not(.detailV13MustEat) .rdHero {
-    min-height: 360px;
+    min-height: clamp(200px, 33dvh, 360px);
   }
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,

@@ -132,9 +132,16 @@
      fast gleich, deshalb steht die Marke zentriert von allein richtig — nur
      linksbündig braucht es den Ausgleich unten. */
   --mark-ink-inset: 0.072;
+  /* Unten misst derselbe durchsichtige Saum 9,6 % der Bildhöhe. Die Grafik ist
+     1660×667, rendert also `--mark-w × 0,402` hoch — der Streifen ist damit
+     `--mark-w × 0,0386` stark. Er stand als Luft zwischen Wortmarke und
+     Slogan, ohne dass eine CSS-Zahl ihn erklärte. */
+  --mark-ink-inset-b: calc(var(--mark-w) * 0.0386);
   width: var(--mark-w);
   height: auto;
-  margin-bottom: calc(var(--et-rail-gap) * -0.45);
+  /* Flex-Lücke und Saum ganz zurücknehmen, 4px echten Abstand stehen lassen —
+     die Wortmarke ist der Absender des Slogans, kein eigener Block. */
+  margin-bottom: calc((var(--et-rail-gap) + var(--mark-ink-inset-b) - 4px) * -1);
 }
 
 .title {

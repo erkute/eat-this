@@ -12,13 +12,19 @@ interface LockedMarkerProps {
 }
 
 /**
- * A paywalled spot, drawn as a small muted dot rather than a pin.
+ * Ein gesperrter Spot — derselbe Pin wie ein freier, nur in Grau (User,
+ * 2026-08-27).
  *
- * Measured at the default camera on a 375px viewport: 15 free spots are in
- * view and 194 locked ones fall in the same box. As 44px pins that is a closed
- * carpet — the free spots would disappear into it, which is the opposite of
- * the point. At ~11px they read as density ("this much is still in there")
- * while the yellow pins stay the only thing that looks tappable-to-a-spot.
+ * Vorher war es ein 11px-Punkt, und zwar mit Grund: an der Standardkamera auf
+ * einem 375px-Fenster stehen 15 freien Spots 194 gesperrte gegenüber. Als
+ * volle Pins ist das ein dichter Teppich, in dem die gelben weniger
+ * herausstechen. Die Entscheidung ist bewusst gefallen — ein grauer Pin sagt
+ * „hier ist auch ein Spot" deutlicher als ein Punkt, den man für eine
+ * Kartenmarkierung halten kann.
+ *
+ * Grau statt Gelb, das Logo entsättigt: die Form ist dieselbe, die Farbe trägt
+ * den Unterschied. Der Stapel bleibt richtig herum — freie Pins liegen über
+ * den grauen, weil nur sie `markerRootFree` (z-index 5) bekommen.
  *
  * Tapping opens the sheet like any other spot; a group of dots zooms in
  * instead.
@@ -33,15 +39,27 @@ function LockedMarker({ restaurant, isSelected = false, onClick }: LockedMarkerP
     <MarkerButton
       lat={restaurant.lat}
       lng={restaurant.lng}
-      anchor="center"
+      anchor="bottom"
       rootClassName={
         isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot
       }
-      className={isSelected ? `${styles.pinLocked} ${styles.pinLockedActive}` : styles.pinLocked}
+      className={[styles.pinLogo, styles.pinLogoLocked, isSelected && styles.pinLogoActive]
+        .filter(Boolean)
+        .join(' ')}
       label={restaurant.name}
       onActivate={() => onClick(restaurant)}
     >
-      <span className={styles.pinLockedDot} aria-hidden="true" />
+      <span className={styles.pinLogoShape} aria-hidden="true">
+        {/* Dieselbe 128px-Variante wie am freien Pin — gleiche Datei, gleicher
+            Cache-Eintrag. */}
+        <img
+          src="/pics/eat-this-square-sm.webp"
+          alt=""
+          width={128}
+          height={136}
+          draggable={false}
+        />
+      </span>
     </MarkerButton>
   );
 }

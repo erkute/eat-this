@@ -4,12 +4,14 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getAllCategoriesWithStats } from '@/lib/sanity.server';
 import { localizedCategoryBlurb, localizedCategoryName } from '@/lib/categories';
+import { categoryArt } from '@/lib/categoryArt';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import { pickShelf } from '@/lib/curated-ranking';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import sharedStyles from '../bezirk/Bezirk.module.css';
@@ -151,16 +153,37 @@ export default async function KategorieIndexPage({ params }: PageProps) {
               const count = c.restaurantCount ?? 0;
               const label = localizedCategoryName(c, loc);
               const blurb = localizedCategoryBlurb(c, loc);
+              /* Das Pack der Kategorie als Marke neben dem Namen — nur Bild,
+                 kein Link (User, 2026-08-27): die Packs liegen unter /packs,
+                 und ein zweites Ziel in derselben Zeile würde zwei
+                 verschiedene Versprechen machen. Zuordnung aus categoryArt,
+                 der kanonischen Quelle, die auch /packs, das Profil und die
+                 gesperrte Sheet lesen. */
+              const pack = categoryArt(c.slug);
 
               return (
                 <article key={c._id ?? c.slug} className={styles.categoryRow}>
-                  <h3 className={styles.categoryName}>
-                    <Link href={`/kategorie/${c.slug}`} className={styles.categoryLink}>
-                      {label}
-                    </Link>
-                  </h3>
+                  <div className={styles.categoryHead}>
+                    {pack && (
+                      <Image
+                        className={styles.categoryPack}
+                        src={pack}
+                        alt=""
+                        width={96}
+                        height={145}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <div className={styles.categoryHeadText}>
+                      <h3 className={styles.categoryName}>
+                        <Link href={`/kategorie/${c.slug}`} className={styles.categoryLink}>
+                          {label}
+                        </Link>
+                      </h3>
 
-                  {blurb && <p className={styles.categoryBlurb}>{blurb}</p>}
+                      {blurb && <p className={styles.categoryBlurb}>{blurb}</p>}
+                    </div>
+                  </div>
 
                   {spots.length > 0 && (
                     <div className={sharedStyles.spotGrid}>

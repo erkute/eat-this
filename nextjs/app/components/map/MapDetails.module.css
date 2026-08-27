@@ -2124,7 +2124,7 @@
      dem die meisten sitzen. Der Deckel hält den großen Anschnitt auf hohen
      Fenstern, der Boden verhindert ein Briefmarken-Foto auf flachen. */
   .detailV13:not(.detailV13MustEat) .rdHero {
-    min-height: clamp(200px, 33dvh, 360px);
+    min-height: clamp(220px, 41dvh, 430px);
   }
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,

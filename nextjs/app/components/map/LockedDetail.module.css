@@ -521,9 +521,29 @@
     min-height: 110px;
   }
 
+  /* Das Angebot war auf dem Desktop der größte Block der Sheet und hat dem
+     Spot-Foto die Höhe weggenommen (User, 2026-08-27). Es gibt hier rund 35px
+     ab: das Pack auf die 74px, die die Angebotskarten nebenan schon fahren,
+     die Schaltflächen auf 44px (das Tap-Target bleibt), der Rest dünn aus
+     Innenabständen. Die Reihenfolge stimmt weiter — der Anriss darüber steht
+     auf seinem 110px-Boden, also landet jeder gesparte Pixel beim Foto. */
   .starter {
-    padding: 13px 13px 12px;
+    padding: 11px 13px 11px;
     text-align: left;
+  }
+
+  .starterArt {
+    width: 74px;
+  }
+
+  .starterTitle {
+    font-size: 21px;
+  }
+
+  .input,
+  .button,
+  .google {
+    min-height: 44px;
   }
 
   .starterHead {
@@ -544,11 +564,7 @@
   }
 
   .form {
-    margin-top: 10px;
-  }
-
-  .google {
-    margin-top: 12px;
+    margin-top: 8px;
   }
 
   .starterKicker {

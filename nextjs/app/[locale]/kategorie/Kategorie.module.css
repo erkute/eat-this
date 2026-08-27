@@ -312,7 +312,8 @@
   }
 
   .detailTitle {
-    font-size: clamp(50px, 15vw, 76px);
+    /* Mobil gemessen 56px; Band der Wettbewerber ist dort 26–40. */
+    font-size: clamp(38px, 11vw, 46px);
   }
 }
 
@@ -335,7 +336,9 @@
 @media (min-width: 960px) {
   .indexTitle {
     max-width: 13ch;
-    font-size: clamp(64px, 6.2vw, 86px);
+    /* Der Index hatte einen eigenen Desktop-Override, der die Basisregel
+       überstimmte — gemessen 79px statt der gesetzten 60. */
+    font-size: clamp(48px, 4.4vw, 60px);
   }
 
   .categoryName {

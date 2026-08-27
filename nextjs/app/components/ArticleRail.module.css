@@ -21,6 +21,12 @@
      und nicht in der Leiste hängenbleiben. */
   overscroll-behavior: contain;
   scrollbar-width: thin;
+  /* `scroll-behavior` steht global auf `smooth`. Für das Nachführen aus
+     ArticleRail.tsx ist das falsch: die Leiste soll dem Lesefortschritt
+     unmittelbar folgen, nicht jeder Anpassung hinterheranimieren — sonst
+     schwimmt sie beim Scrollen sichtbar nach. Der Sprung beim Klick auf ein
+     Kapitel bleibt weich, der bewegt die Seite, nicht die Leiste. */
+  scroll-behavior: auto;
 
   --rail-top: clamp(88px, 10vh, 128px);
   /* Nicht das Fenster scrollt hier, sondern `.app-pages` — ab 768px steht dort

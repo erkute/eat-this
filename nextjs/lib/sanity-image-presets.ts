@@ -28,6 +28,8 @@ const IMAGE_PRESETS = {
   newsLead: { w: 1400, q: 80 },
   // Map list/marker thumbnail
   mapCard: { w: 600, q: 80 },
+  // Inline editorial photo in the article column (max 720px wide, 2x retina)
+  articleImage: { w: 1440, q: 80 },
   // Inline must-eat dish card inside an article
   articleDish: { w: 400, q: 80 },
   // The restaurant photo on an inline must-eat card

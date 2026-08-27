@@ -119,6 +119,18 @@ export interface SpotCardBlock {
   restaurantPhoto?: string;
 }
 
+// Inline editorial photo embedded in article Portable Text. The URL and
+// dimensions are resolved in articleBySlugQuery (articleImage preset).
+export interface ArticleImageBlock {
+  _type: 'image';
+  _key?: string;
+  alt?: string;
+  caption?: string;
+  imageUrl?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+}
+
 export interface NewsArticle {
   _id: string;
   slug: string;

@@ -415,6 +415,28 @@ div.page {
 
 /* ------------------------------------------------------- inline spot ---- */
 
+/* Inline editorial photo — same radius as the spot card, caption in the same
+   muted meta voice as the byline. The img keeps its intrinsic ratio; next/image
+   ships width/height so the column doesn't jump while it loads. */
+.inlineImage {
+  margin: clamp(30px, 5vw, 60px) 0;
+}
+
+.inlineImage img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.inlineImage figcaption {
+  margin-top: 8px;
+  color: var(--article-muted);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .inlineSpot {
   position: relative;
   display: block;

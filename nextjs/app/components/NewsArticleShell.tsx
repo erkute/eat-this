@@ -1,7 +1,13 @@
 import Image from 'next/image';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle, MustEatCardBlock, SpotCardBlock, PortableTextBlock } from '@/lib/types';
+import type {
+  NewsArticle,
+  MustEatCardBlock,
+  SpotCardBlock,
+  ArticleImageBlock,
+  PortableTextBlock,
+} from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
@@ -188,6 +194,25 @@ export default function NewsArticleShell({
     );
   };
 
+  // Inline editorial photo. The projection only resolves URL + dimensions for
+  // blocks that actually carry an asset, so a half-filled Studio block drops
+  // out here instead of rendering an empty frame.
+  const renderImage = (block: ArticleImageBlock) => {
+    if (!block.imageUrl) return null;
+    return (
+      <figure className={styles.inlineImage}>
+        <Image
+          src={block.imageUrl}
+          alt={block.alt || ''}
+          width={block.imageWidth || 1440}
+          height={block.imageHeight || 1080}
+          sizes="(max-width: 760px) 100vw, 720px"
+        />
+        {block.caption && <figcaption>{block.caption}</figcaption>}
+      </figure>
+    );
+  };
+
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const chaptersLabel = de ? 'Kapitel' : 'Chapters';
@@ -260,6 +285,7 @@ export default function NewsArticleShell({
                   blocks={content}
                   renderMustEatCard={renderMustEatCard}
                   renderSpotCard={renderSpotCard}
+                  renderImage={renderImage}
                 />
               </div>
 

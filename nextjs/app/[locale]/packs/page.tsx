@@ -9,6 +9,7 @@ import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
 import PackBuyButton from '../pack/[slug]/PackBuyButton';
+import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
 import styles from './PacksOverview.module.css';
 
 interface PageProps {
@@ -43,13 +44,6 @@ const allBerlin = CATALOG['all-berlin'];
 const heroArt = categoryPacks
   .map((pack) => (pack.slug ? categoryArt(pack.slug) : null))
   .filter((src): src is string => Boolean(src));
-
-const PAYMENT_LOGOS = [
-  { key: 'creditCard', label: 'Kreditkarte', src: '/payment/credit-card.webp' },
-  { key: 'applePay', label: 'Apple Pay', src: '/payment/apple-pay.webp' },
-  { key: 'paypal', label: 'PayPal', src: '/payment/paypal.webp' },
-  { key: 'klarna', label: 'Klarna', src: '/payment/klarna.webp' },
-] as const;
 
 const copy = {
   de: {
@@ -148,31 +142,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
               {...buyLabels(allBerlin, true)}
             />
             <p className={styles.savings}>{formatBundleSavings(loc)}</p>
-            <div
+            <PaymentMarks
+              height={24}
+              label={`${t.trust}: ${PAYMENT_MARK_NAMES.join(', ')}`}
               className={styles.payTrust}
-              aria-label={`${t.trust}: ${PAYMENT_LOGOS.map((logo) => logo.label).join(', ')}`}
-            >
-              <span className={styles.payMethods}>
-                {PAYMENT_LOGOS.map((logo) => (
-                  <span
-                    key={logo.key}
-                    className={styles.payLogo}
-                    aria-label={logo.label}
-                    title={logo.label}
-                  >
-                    <Image
-                      src={logo.src}
-                      alt=""
-                      width={70}
-                      height={48}
-                      loading="lazy"
-                      decoding="async"
-                      className={styles.payLogoImg}
-                    />
-                  </span>
-                ))}
-              </span>
-            </div>
+            />
           </div>
         </div>
 

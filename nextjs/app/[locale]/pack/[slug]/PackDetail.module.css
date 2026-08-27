@@ -207,13 +207,6 @@ button.cta {
   margin: 12px 0 0;
 }
 
-.paymentLogos img {
-  width: 70px;
-  height: 48px;
-  flex: 0 0 auto;
-  object-fit: contain;
-}
-
 .stage,
 .allStage {
   position: relative;

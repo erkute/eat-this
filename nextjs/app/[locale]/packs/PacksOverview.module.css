@@ -158,6 +158,10 @@
 }
 
 .payTrust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   width: min(100%, 430px);
   margin-top: 2px;
 }
@@ -180,29 +184,6 @@
 .heroDetailLink:focus-visible {
   color: var(--packs-ink);
   transform: translateX(2px);
-}
-
-.payMethods {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 7px;
-}
-
-.payLogo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 30px;
-}
-
-.payLogoImg {
-  display: block;
-  width: 44px;
-  height: auto;
-  border-radius: 4px;
-  box-shadow: 0 1px 0 rgba(21, 18, 14, 0.08);
 }
 
 .heroStage {

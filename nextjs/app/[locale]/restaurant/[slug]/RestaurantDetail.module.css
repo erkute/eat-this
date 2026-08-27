@@ -290,7 +290,11 @@
 }
 
 .story p {
-  max-width: 72ch;
+  /* 72ch ergeben bei 19px rund 936px — breiter als der 900px-Container, die
+     Grenze griff also nie und die Zeile lief auf 95 Zeichen. Gemessen fahren
+     Eater 64, Mit Vergnügen 66 und The Infatuation 80; 45–75 gilt als
+     angenehm. 700px sind hier ~74 Zeichen. */
+  max-width: 700px;
   margin: 0 0 1.2em;
 }
 

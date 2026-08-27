@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeChapterId, READING_LINE } from './ArticleRail';
+import { activeChapterId, READING_LINE, chapterShortLabel } from './ArticleRail';
 
 // Regression cover for the first version of the rail's scroll spy, which drove
 // the marker off IntersectionObserver crossings inside a 153px band and only
@@ -16,7 +16,9 @@ describe('activeChapterId', () => {
   });
 
   it('names the last heading that has passed the line', () => {
-    expect(activeChapterId(ids, at({ eins: -800, zwei: -200, drei: 600, vier: 1200 }))).toBe('zwei');
+    expect(activeChapterId(ids, at({ eins: -800, zwei: -200, drei: 600, vier: 1200 }))).toBe(
+      'zwei'
+    );
   });
 
   it('does not skip a chapter when the scroll step jumps clear over it', () => {
@@ -44,10 +46,36 @@ describe('activeChapterId', () => {
   it('skips a heading with no node instead of ending the scan there', () => {
     // A missing anchor used to be able to freeze the marker on everything
     // after it; the scan has to continue past the gap.
-    expect(activeChapterId(ids, at({ eins: -900, zwei: null, drei: -100, vier: 800 }))).toBe('drei');
+    expect(activeChapterId(ids, at({ eins: -900, zwei: null, drei: -100, vier: 800 }))).toBe(
+      'drei'
+    );
   });
 
   it('returns an empty id for an empty chapter list', () => {
     expect(activeChapterId([], () => null)).toBe('');
+  });
+});
+
+describe('chapterShortLabel', () => {
+  it('schneidet die Erklärung hinter dem Gedankenstrich ab', () => {
+    expect(chapterShortLabel('Kolo Coffee – Mikrorösterei mit Wettkampf-Bohnen')).toBe(
+      'Kolo Coffee'
+    );
+    expect(chapterShortLabel('BEN RAHIM — Ibrik im Sand, ohne Zucker')).toBe('BEN RAHIM');
+    expect(chapterShortLabel('Distrikt - All-Day-Breakfast an der Bergstraße')).toBe('Distrikt');
+  });
+
+  it('lässt einen Bindestrich im Namen selbst stehen', () => {
+    // Ohne Leerzeichen drumherum ist der Strich Teil des Namens.
+    expect(chapterShortLabel('Coffee-Bar Nummer 9')).toBe('Coffee-Bar Nummer 9');
+  });
+
+  it('lässt Überschriften ohne Trenner ganz', () => {
+    expect(chapterShortLabel('Fazit')).toBe('Fazit');
+  });
+
+  it('gibt nie einen leeren Namen zurück', () => {
+    // Eine Überschrift, die mit dem Trenner anfängt, hätte sonst nichts übrig.
+    expect(chapterShortLabel('– Nachtrag')).toBe('– Nachtrag');
   });
 });

@@ -74,15 +74,47 @@ describe('NewsSection images', () => {
 
     expect(html).toContain('src="https://cdn.sanity.io/lead.webp"');
     expect(html).toContain('src="https://cdn.sanity.io/latest.webp"');
-    expect(html.match(/sizes="\(max-width: 960px\) 46vw, 380px"/g)).toHaveLength(2);
+    // Der Aufmacher läuft unter 700px über beide Spalten und braucht deshalb
+    // einen eigenen sizes-Hinweis. Ohne den zöge der Browser die
+    // 46vw-Variante und skalierte sie auf die doppelte Breite hoch.
+    expect(html).toContain('sizes="(max-width: 700px) 92vw, (max-width: 960px) 46vw, 380px"');
+    expect(html.match(/sizes="\(max-width: 960px\) 46vw, 380px"/g)).toHaveLength(1);
     expect(html).toContain('data-priority="true"');
     expect(html.match(/data-priority=/g)).toHaveLength(1);
     expect(html).not.toContain('background-image');
   });
 });
 
+describe('NewsSection lead image', () => {
+  it('takes the larger source for the first tile only, and falls back when absent', () => {
+    const html = renderToStaticMarkup(
+      <NewsSection
+        articles={[
+          { ...articles[0], imageUrlLead: 'https://cdn.sanity.io/lead-1400.webp' },
+          { ...articles[1], imageUrlLead: 'https://cdn.sanity.io/latest-1400.webp' },
+        ]}
+        locale="de"
+      />
+    );
+
+    expect(html).toContain('src="https://cdn.sanity.io/lead-1400.webp"');
+    // Die zweite Kachel ist 165px breit — die grosse Quelle waere dort nur
+    // teurer, nicht schaerfer.
+    expect(html).toContain('src="https://cdn.sanity.io/latest.webp"');
+    expect(html).not.toContain('latest-1400.webp');
+  });
+
+  it('uses the normal source when the article has no larger one', () => {
+    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
+    expect(html).toContain('src="https://cdn.sanity.io/lead.webp"');
+  });
+});
+
 describe('NewsSection cards', () => {
-  it('lists every story as a tile — no separate lead treatment', () => {
+  // Der Aufmacher ist reine CSS-Sache (erste Kachel über beide Spalten unter
+  // 700px). Im Markup bleibt jede Story dieselbe Kachel — es gibt keinen
+  // Sonderbaum, den man getrennt pflegen müsste.
+  it('lists every story as the same tile — the lead differs only in CSS', () => {
     const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
 
     expect(html.match(/href="\/news\//g)).toHaveLength(2);

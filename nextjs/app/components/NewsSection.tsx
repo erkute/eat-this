@@ -79,12 +79,21 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       <span className={styles.photo}>
                         {a.imageUrl ? (
                           <Image
-                            src={a.imageUrl}
+                            src={(i === 0 && a.imageUrlLead) || a.imageUrl}
                             alt={a.alt || title}
                             fill
                             // Only the first tile is above the fold.
                             priority={i === 0}
-                            sizes="(max-width: 960px) 46vw, 380px"
+                            // Die erste Kachel ist unter 700px der Aufmacher
+                            // über beide Spalten. Ohne das hier zöge der
+                            // Browser die 46vw-Variante und skalierte sie auf
+                            // die doppelte Breite hoch — genau die Unschärfe,
+                            // die der Aufmacher vermeiden soll.
+                            sizes={
+                              i === 0
+                                ? '(max-width: 700px) 92vw, (max-width: 960px) 46vw, 380px'
+                                : '(max-width: 960px) 46vw, 380px'
+                            }
                             className={styles.imageFill}
                           />
                         ) : (

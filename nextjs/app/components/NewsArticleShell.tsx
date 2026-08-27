@@ -1,15 +1,19 @@
 import Image from 'next/image';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle, MustEatCardBlock, SpotCardBlock, PortableTextBlock } from '@/lib/types';
+import type {
+  NewsArticle,
+  MustEatCardBlock,
+  SpotCardBlock,
+  ArticleImageBlock,
+  PortableTextBlock,
+} from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
-import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
 import MapIntentLink from './MapIntentLink';
-import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -90,7 +94,6 @@ export default function NewsArticleShell({
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
   const chapters = extractHeadings(content);
-  const hubLink = articleHubLink(article.slug);
   const showLede = Boolean(excerpt) && !ledeDuplicatesOpening(excerpt, content);
   const minutes = Math.max(1, Math.round(countWords(content) / 200));
   const readingTime = de ? `${minutes} Min. Lesezeit` : `${minutes} min read`;
@@ -191,13 +194,24 @@ export default function NewsArticleShell({
     );
   };
 
-  const homeLabel = de ? 'Start' : 'Home';
-  const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/', logo: 'eat-this' },
-    { name: newsLabel, href: '/news' },
-    { name: title },
-  ];
+  // Inline editorial photo. The projection only resolves URL + dimensions for
+  // blocks that actually carry an asset, so a half-filled Studio block drops
+  // out here instead of rendering an empty frame.
+  const renderImage = (block: ArticleImageBlock) => {
+    if (!block.imageUrl) return null;
+    return (
+      <figure className={styles.inlineImage}>
+        <Image
+          src={block.imageUrl}
+          alt={block.alt || ''}
+          width={block.imageWidth || 1440}
+          height={block.imageHeight || 1080}
+          sizes="(max-width: 760px) 100vw, 720px"
+        />
+        {block.caption && <figcaption>{block.caption}</figcaption>}
+      </figure>
+    );
+  };
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
@@ -222,13 +236,13 @@ export default function NewsArticleShell({
       <main className={styles.article}>
         <article>
           <header className={styles.header}>
-            <div className={styles.breadcrumbWrap}>
-              <Breadcrumbs
-                items={breadcrumbItems}
-                ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-              />
-            </div>
-
+            {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
+                brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
+                — „/" und „/news" stehen im Burger, der auf jeder Seite
+                gerendert wird. Das BreadcrumbList-JSON-LD in
+                `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
+                also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
+                ohne. */}
             {article.imageUrl ? (
               <figure className={styles.heroWrap}>
                 <Image
@@ -271,22 +285,9 @@ export default function NewsArticleShell({
                   blocks={content}
                   renderMustEatCard={renderMustEatCard}
                   renderSpotCard={renderSpotCard}
+                  renderImage={renderImage}
                 />
               </div>
-
-              {hubLink && (
-                <Link href={hubLink.href} className={styles.hubLink}>
-                  <span className={styles.hubLinkKicker}>
-                    {de ? 'Der ganze Katalog' : 'The full catalogue'}
-                  </span>
-                  <span className={styles.hubLinkLabel}>
-                    {articleHubLabel(hubLink, de ? 'de' : 'en')}
-                  </span>
-                  <span className={styles.hubLinkCta} aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              )}
 
               <div className={styles.shareRow}>
                 <NewsArticleShare

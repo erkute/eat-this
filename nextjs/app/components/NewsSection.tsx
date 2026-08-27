@@ -1,9 +1,15 @@
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
-import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
 import type { NewsArticle } from '@/lib/types';
 import styles from './NewsSection.module.css';
+
+/* Das Raster ist zweispaltig; unter 700px läuft die erste Story als Aufmacher
+   über beide Spalten. Ohne den eigenen Hinweis zöge der Browser dort die
+   46vw-Variante und skalierte sie auf die doppelte Breite hoch — genau die
+   Unschärfe, die der Aufmacher vermeiden soll. */
+const GRID_SIZES = '(max-width: 960px) 46vw, 380px';
+const LEAD_SIZES = `(max-width: 700px) 92vw, ${GRID_SIZES}`;
 
 interface NewsSectionProps {
   articles: NewsArticle[];
@@ -41,21 +47,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
     });
   };
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: de ? 'Start' : 'Home', href: '/', logo: 'eat-this' },
-    { name: coverTitle },
-  ];
-
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
       <main id="news" className={styles.shell}>
         <header className={styles.hero}>
-          <div className={styles.breadcrumbWrap}>
-            <Breadcrumbs
-              items={breadcrumbItems}
-              ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-            />
-          </div>
           <div className={styles.heroCopy}>
             <h1 className={styles.heroTitle}>{coverTitle}</h1>
             <p className={styles.heroSub}>{coverSub}</p>
@@ -70,6 +65,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
             </div>
             <ul className={styles.grid} role="list">
               {articles.map((a, i) => {
+                const isLead = i === 0;
                 const title = articleTitle(a);
                 const kicker = articleKicker(a);
                 const date = formatDate(a.date);
@@ -79,12 +75,12 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       <span className={styles.photo}>
                         {a.imageUrl ? (
                           <Image
-                            src={a.imageUrl}
+                            src={(isLead && a.imageUrlLead) || a.imageUrl}
                             alt={a.alt || title}
                             fill
                             // Only the first tile is above the fold.
-                            priority={i === 0}
-                            sizes="(max-width: 960px) 46vw, 380px"
+                            priority={isLead}
+                            sizes={isLead ? LEAD_SIZES : GRID_SIZES}
                             className={styles.imageFill}
                           />
                         ) : (

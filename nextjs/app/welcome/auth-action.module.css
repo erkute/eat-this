@@ -16,7 +16,7 @@
   --w-quiet: var(--et-home-quiet, #f2f1ef);
   --w-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
   --w-display: var(--et-font-display, var(--font-providence), sans-serif);
-  --w-body: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  --w-body: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100dvh;
   color: var(--w-ink);
   font-family: var(--w-body);

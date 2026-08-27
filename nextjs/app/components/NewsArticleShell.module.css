@@ -8,10 +8,16 @@
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
-  --article-measure: 680px;
+  /* 660 statt 680: bei 18px Lauftext sind das ~73 Zeichen pro Zeile und damit
+     innerhalb der 45–75, die als angenehm gelten. Mit 680 waren es 76. */
+  --article-measure: 660px;
   min-height: 100%;
-  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
-  padding: 34px clamp(18px, 4vw, 54px) 0;
+  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert.
+     Oben 0: die 34px trugen die Brotkrume. Ohne sie klemmte ein weißer
+     Streifen zwischen der schwarzen SiteNav und dem dunklen Aufmacherfoto und
+     las sich als Fuge, nicht als Rand. Das Foto dockt jetzt an die Leiste an;
+     wer kein Foto hat, bekommt seinen Abstand an `.heroGridPlain`. */
+  padding: 0 clamp(18px, 4vw, 54px) 0;
   background: var(--article-paper);
   color: var(--article-ink);
 }
@@ -42,10 +48,6 @@ div.page {
   margin-bottom: clamp(28px, 4vw, 52px);
 }
 
-.breadcrumbWrap {
-  min-width: 0;
-}
-
 /* ---------------------------------------------------------------- hero --- */
 
 .heroWrap {
@@ -57,7 +59,10 @@ div.page {
   margin: 0;
   overflow: hidden;
   background: var(--article-ink);
-  border-radius: var(--et-radius-photo, 10px);
+  /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
+     unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
+     Andocken beseitigen soll. Unten bleibt der Radius. */
+  border-radius: 0 0 var(--et-radius-photo, 10px) var(--et-radius-photo, 10px);
 }
 
 .heroWrap::after {
@@ -82,6 +87,10 @@ div.page {
 .heroGridPlain {
   display: grid;
   align-items: flex-end;
+  /* Ohne Foto gibt es nichts zum Andocken — die Überschrift braucht den
+     Abstand zur Leiste, den `.page` oben abgegeben hat. Dieselben zwei Werte,
+     die dort standen: 34px ab Desktop, 24px darunter. */
+  margin-top: 34px;
   max-width: var(--article-measure);
 }
 
@@ -110,7 +119,10 @@ div.page {
   color: var(--article-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
-  font-size: clamp(38px, 5.6vw, 76px);
+  /* Gemessen gegen Eater und Mit Vergnügen (beide 40px auf 1512) und The
+     Infatuation (68px, die display-freudigste der vier): 76px lagen fast beim
+     Doppelten der Norm. 56px hält Markenpräsenz, ohne zu schreien. */
+  font-size: clamp(38px, 4.4vw, 56px);
   letter-spacing: -0.025em;
   line-height: var(--et-leading-title, 0.9);
   text-transform: uppercase;
@@ -180,8 +192,8 @@ div.page {
   color: var(--article-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 21px);
-  font-weight: 700;
-  line-height: 1.38;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 /* ------------------------------------------------------------- prose ---- */
@@ -189,7 +201,10 @@ div.page {
 .content {
   color: var(--article-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(17px, 1.25vw, 19px);
+  /* Untergrenze 18 statt 17: bei genau 1280px Fensterbreite fiel der Lauftext
+     auf 17px und die Zeile auf 80 Zeichen — beides am Rand. Die Wettbewerber
+     liegen alle bei 18px. */
+  font-size: clamp(18px, 1.3vw, 19px);
   line-height: 1.65;
 }
 
@@ -265,7 +280,7 @@ div.page {
   letter-spacing: 0;
   line-height: 0.96;
   text-transform: none;
-  background: var(--article-red);
+  background: var(--article-accent);
   border: 0;
   transform: rotate(-1deg);
 }
@@ -339,20 +354,20 @@ div.page {
   color: var(--article-ink);
   background: var(--article-accent);
   border-radius: 5px;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .mustEatMeta {
   color: var(--article-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -398,12 +413,29 @@ div.page {
   text-transform: none;
 }
 
-.mustEatCta::after {
-  content: '→';
-  transition: transform 140ms ease;
+/* ------------------------------------------------------- inline spot ---- */
+
+/* Inline editorial photo — same radius as the spot card, caption in the same
+   muted meta voice as the byline. The img keeps its intrinsic ratio; next/image
+   ships width/height so the column doesn't jump while it loads. */
+.inlineImage {
+  margin: clamp(30px, 5vw, 60px) 0;
 }
 
-/* ------------------------------------------------------- inline spot ---- */
+.inlineImage img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.inlineImage figcaption {
+  margin-top: 8px;
+  color: var(--article-muted);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 700;
+  line-height: 1.2;
+}
 
 .inlineSpot {
   position: relative;
@@ -442,12 +474,17 @@ div.page {
   justify-items: start;
 }
 
+/* Die drei Meta-Label des Artikels — Badge, Must-Eat-Zeile und diese hier —
+   liefen in Monospace 900. Das war der technischste Ton der ganzen Seite und
+   passte zu nichts sonst; Versalien plus Sperrung tragen die Label-Wirkung
+   auch in der Body-Schrift. Alle drei zusammen umgestellt, sonst stünden auf
+   derselben Seite zwei verschiedene Meta-Systeme nebeneinander. */
 .inlineSpotMeta {
   color: #fff;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   line-height: 1.15;
   text-transform: uppercase;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
@@ -483,57 +520,7 @@ div.page {
   text-transform: none;
 }
 
-.inlineSpotCta::after {
-  content: '→';
-  transition: transform 140ms ease;
-}
-
 /* ---------------------------------------------------------- hub link ---- */
-
-/* Artikel → Hub: der Katalog-Verweis unter dem Fließtext. Gelb wie die
-   Akzentfläche, damit er als redaktionelle Empfehlung liest, nicht als Ad. */
-.hubLink {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'kicker cta'
-    'label cta';
-  align-items: center;
-  gap: 2px 14px;
-  margin: clamp(26px, 4vw, 44px) 0 0;
-  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 24px);
-  background: var(--article-accent);
-  border-radius: var(--et-radius-photo, 10px);
-  color: var(--article-ink);
-  text-decoration: none;
-  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
-}
-
-.hubLink:hover {
-  transform: translateY(-2px);
-}
-
-.hubLinkKicker {
-  grid-area: kicker;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.65;
-}
-
-.hubLinkLabel {
-  grid-area: label;
-  font-weight: 700;
-  font-size: clamp(1rem, 1.6vw, 1.15rem);
-  line-height: 1.25;
-}
-
-.hubLinkCta {
-  grid-area: cta;
-  font-size: 1.4rem;
-  line-height: 1;
-}
 
 /* ------------------------------------------------------------- share ---- */
 
@@ -712,11 +699,6 @@ div.page {
     transform: rotate(-2deg) translateY(-3px);
   }
 
-  a.mustEat:hover .mustEatCta::after,
-  .inlineSpot:hover .inlineSpotCta::after {
-    transform: translateX(4px);
-  }
-
   .relatedCard:hover .relatedPhoto img,
   .relatedCard:focus-visible .relatedPhoto img {
     transform: scale(1.03);
@@ -776,8 +758,8 @@ div.page {
 }
 
 @media (max-width: 900px) {
-  .page {
-    padding-top: 24px;
+  .heroGridPlain {
+    margin-top: 24px;
   }
 
   .header {
@@ -797,10 +779,6 @@ div.page {
   .header {
     gap: 10px;
     margin-bottom: 26px;
-  }
-
-  .breadcrumbWrap {
-    padding-block: 8px 0;
   }
 
   .heroWrap {

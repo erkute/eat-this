@@ -214,7 +214,7 @@
   --collage-ink: var(--brand-action-deep);
   --collage-shadow: none;
 
-  --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-providence:
     'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
     sans-serif;
@@ -227,7 +227,9 @@
      project; Saira Condensed is loaded via next/font for the map. The legacy
      display families (Bungee/Ranchers/Knewave/Slackey/
      Archivo Black) were removed — their var names resolve via the html:root
-     remap below. DM Sans stays the body + eyebrow workhorse. */
+     remap below. Inter ist die Brot-und-Butter-Schrift für Fließtext und
+     Eyebrows — sie hat DM Sans am 27.08.2026 abgelöst: dieselbe Rolle, aber
+     eine höhere x-Höhe und engere Laufweite, also ruhiger im Absatz. */
   --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
   /* --font-script/--font-quote: zero consumers; their old dedicated faces are
      no longer loaded, so the tokens carry pure system fallbacks. */
@@ -264,13 +266,16 @@
   --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
 
-  --et-type-hero: clamp(44px, 6.5vw, 80px);
+  /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
+     auf 1280px. 80 lag über allen dreien. */
+  --et-type-hero: clamp(40px, 4.8vw, 62px);
   --et-type-hero-compact: clamp(42px, 6vw, 68px);
   --et-type-section-title: clamp(24px, 3.4vw, 42px);
   --et-type-editorial-title: clamp(34px, 4.8vw, 72px);
   --et-type-card-title: clamp(21px, 2.2vw, 32px);
   --et-type-kicker: 10px;
-  --et-type-body: clamp(12px, 1.1vw, 14px);
+  /* 12–14px war unter dem Band der Wettbewerber (15–18). */
+  --et-type-body: clamp(15px, 1.2vw, 17px);
   --et-type-lead: clamp(16px, 1.5vw, 21px);
   --et-type-caption: 11px;
   --et-type-chip: 12px;
@@ -279,7 +284,9 @@
   --et-leading-hero: 0.9;
   --et-leading-title: 0.92;
   --et-leading-tight: 0.95;
-  --et-leading-copy: 1.5;
+  /* Alle drei gemessenen Wettbewerber fahren ausnahmslos 1.6–1.7 im
+     Fließtext. 1.5 war der größte systematische Rückstand der Seite. */
+  --et-leading-copy: 1.6;
   --et-tracking-none: 0;
   --et-tracking-title: -0.02em;
   --et-tracking-label: 0.16em;

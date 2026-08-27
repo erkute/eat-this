@@ -1,7 +1,7 @@
 import { client } from './sanity';
 import { SANITY_REVALIDATE_SECONDS } from './constants';
 import {
-  restaurantBySlugQuery,
+  restaurantPageQuery,
   allRestaurantSlugsQuery,
   articleBySlugQuery,
   allArticleSlugsQuery,
@@ -9,12 +9,10 @@ import {
   latestNewsArticlesQuery,
   guideTeaserBySlugQuery,
   staticPageBySlugQuery,
-  mustEatsByRestaurantQuery,
   allBezirkeWithStatsQuery,
   bezirkBySlugQuery,
   restaurantsByBezirkQuery,
   restaurantsByCategoryQuery,
-  restaurantSiblingCandidatesQuery,
   allCategoriesQuery,
   allCategoriesWithStatsQuery,
   categoryBySlugQuery,
@@ -24,14 +22,6 @@ import {
 import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types';
 import type { CategoryDef, CategoryWithStats } from './categories';
 import type { PackContents, PackContentsIndex } from './pack/packDetail';
-
-export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
-  return client.fetch<Restaurant | null>(
-    restaurantBySlugQuery,
-    { slug },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`restaurant:${slug}`] } }
-  );
-}
 
 export async function getAllRestaurantSlugs(): Promise<string[]> {
   const results = await client.fetch<{ slug: string }[]>(
@@ -97,12 +87,65 @@ export interface MustEatPreview {
   order?: number;
 }
 
-export async function getMustEatsByRestaurant(restaurantId: string): Promise<MustEatPreview[]> {
-  return client.fetch<MustEatPreview[]>(
-    mustEatsByRestaurantQuery,
-    { restaurantId },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['mustEat'] } }
+/**
+ * Vier, nicht drei: das Raster ist auf Mobil zweispaltig und auf Desktop
+ * vierspaltig — eine Dreiergruppe lässt in beiden Fällen eine Karte allein in
+ * der letzten Zeile stehen. Gleiche Regel wie im Bezirks-Regal.
+ *
+ * Bewusst KEIN Parameter: der Wert geht als GROQ-Variable in die Query und ist
+ * damit Teil des Cache-Keys. Könnten Aufrufer ihn setzen, ergäben
+ * `generateMetadata` und der Seitenrumpf zwei verschiedene Einträge — also zwei
+ * Anfragen statt einer, und der ganze Sinn der Zusammenlegung wäre weg.
+ */
+const RESTAURANT_SIBLING_LIMIT = 4;
+
+interface RestaurantPageRow extends Restaurant {
+  mustEats?: MustEatPreview[];
+  siblingsAfter?: RestaurantCard[];
+  siblingsWrap?: RestaurantCard[];
+}
+
+export interface RestaurantPageData {
+  restaurant: Restaurant;
+  mustEats: MustEatPreview[];
+  siblings: RestaurantCard[];
+}
+
+/**
+ * Das Datenpaket der Restaurant-Seite in EINER Anfrage.
+ *
+ * Vorher waren es drei, und zwei davon konnten erst starten, wenn das Dokument
+ * da war (sie brauchten `_id` und den Bezirk) — also zwei Roundtrips
+ * hintereinander. Bei 932 vorgerenderten Restaurant-Seiten, die täglich
+ * revalidieren, sind das rund 930 vermeidbare Sanity-Anfragen pro Zyklus.
+ *
+ * Die Tags sind die Vereinigung der drei alten Sätze. `bezirk:<slug>` fehlt
+ * darin bewusst — den Slug kennt man vor dem Fetch nicht, und der Webhook
+ * feuert bei Bezirks-Publishes ohnehin `restaurant-siblings` (siehe
+ * api/revalidate/route.ts).
+ */
+export async function getRestaurantPageData(slug: string): Promise<RestaurantPageData | null> {
+  const row = await client.fetch<RestaurantPageRow | null>(
+    restaurantPageQuery,
+    { slug, siblingLimit: RESTAURANT_SIBLING_LIMIT },
+    {
+      next: {
+        revalidate: SANITY_REVALIDATE_SECONDS,
+        tags: [`restaurant:${slug}`, 'restaurant', 'mustEat', 'restaurant-siblings'],
+      },
+    }
   );
+  if (!row) return null;
+
+  const { mustEats, siblingsAfter, siblingsWrap, ...restaurant } = row;
+  return {
+    restaurant: restaurant as Restaurant,
+    mustEats: mustEats ?? [],
+    siblings: [...(siblingsAfter ?? []), ...(siblingsWrap ?? [])].slice(
+      0,
+      RESTAURANT_SIBLING_LIMIT
+    ),
+  };
 }
 
 export async function getAllBezirkeWithStats(): Promise<BezirkDoc[]> {
@@ -147,47 +190,6 @@ export async function getRestaurantsByCategory(categorySlug: string): Promise<Re
       },
     }
   );
-}
-
-interface RestaurantSiblingCandidates {
-  bezirk: RestaurantCard[];
-}
-
-interface RestaurantSiblingRows {
-  bezirkAfter: RestaurantCard[];
-  bezirkWrap: RestaurantCard[];
-}
-
-export async function getRestaurantSiblingCandidates({
-  selfSlug,
-  selfName,
-  bezirkSlug,
-  bezirkLimit = 3,
-}: {
-  selfSlug: string;
-  selfName: string;
-  bezirkSlug?: string;
-  bezirkLimit?: number;
-}): Promise<RestaurantSiblingCandidates> {
-  const rows = await client.fetch<RestaurantSiblingRows>(
-    restaurantSiblingCandidatesQuery,
-    {
-      selfSlug,
-      selfName,
-      bezirkSlug: bezirkSlug ?? '',
-      bezirkLimit,
-    },
-    {
-      next: {
-        revalidate: SANITY_REVALIDATE_SECONDS,
-        tags: ['restaurant-siblings', ...(bezirkSlug ? [`bezirk:${bezirkSlug}`] : [])],
-      },
-    }
-  );
-
-  return {
-    bezirk: [...(rows.bezirkAfter ?? []), ...(rows.bezirkWrap ?? [])].slice(0, bezirkLimit),
-  };
 }
 
 export async function getAllCategories(): Promise<CategoryDef[]> {

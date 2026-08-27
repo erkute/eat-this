@@ -4,11 +4,9 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import {
-  getRestaurantBySlug,
+  getRestaurantPageData,
   getAllRestaurantSlugs,
   getAllRestaurantsLite,
-  getMustEatsByRestaurant,
-  getRestaurantSiblingCandidates,
 } from '@/lib/sanity.server';
 import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects';
 import { buildRestaurantJsonLd } from '@/lib/json-ld';
@@ -20,7 +18,6 @@ import {
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
 import { localizedCuisine } from '@/lib/cuisineLabels';
-import { localizedCategoryName } from '@/lib/categories';
 import { normalizeName } from '@/lib/normalizeName';
 import { shouldSkipDropCap } from '@/lib/dropCap';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -35,7 +32,6 @@ import MapPromoCTA from '@/app/components/MapPromoCTA';
 import RestaurantRemySection from '@/app/components/RestaurantRemySection';
 import RemyDock from '@/app/components/buddy/RemyDock';
 import ShareButton from '@/app/components/ShareButton';
-import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs';
 import { Link as IntlLink } from '@/i18n/navigation';
 import {
   RouteIcon,
@@ -51,10 +47,9 @@ import styles from './RestaurantDetail.module.css';
 /**
  * Eine Empfehlungszeile am Seitenfuß: anklickbare Überschrift plus vier Karten.
  *
- * Die Überschrift war schon immer ein Link auf den Bezirks-Hub, sah aber wie
- * eine gewöhnliche Zeilenüberschrift aus. Der Pfeil macht daraus sichtbar den
- * Weg zur vollständigen Liste — dieselbe Geste wie „Alle Spots ansehen →" auf
- * dem Bezirks-Index.
+ * Die Überschrift ist ein Link auf den Bezirks-Hub — der Weg zur vollständigen
+ * Liste, dieselbe Geste wie „Alle Spots ansehen" auf dem Bezirks-Index.
+ * (Die Pfeile, die diese Geste mal markierten, sind site-weit raus.)
  *
  * Ein `showDistrict` stand hier, solange daneben eine Kategorie-Zeile lief:
  * deren Spots lagen über die ganze Stadt verteilt, und der Bezirk entschied,
@@ -144,8 +139,12 @@ export const revalidate = 86400;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const r = await getRestaurantBySlug(slug);
-  if (!r) return {};
+  // Dieselbe Query wie im Seitenrumpf, damit Next die beiden Aufrufe zu EINER
+  // Anfrage dedupliziert. Weicht eine der beiden Stellen ab, kostet die Seite
+  // sofort zwei Anfragen statt einer.
+  const page = await getRestaurantPageData(slug);
+  if (!page) return {};
+  const r = page.restaurant;
   const loc = locale === 'de' ? 'de' : 'en';
 
   const districtName = r.bezirk?.name ?? r.district ?? null;
@@ -234,8 +233,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const r = await getRestaurantBySlug(slug);
-  if (!r) {
+  const page = await getRestaurantPageData(slug);
+  if (!page) {
     // Post-rebuild slug migration: try to 301 an old/404 slug to its current
     // page before giving up. See lib/seo/legacyRedirects.ts.
     const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite());
@@ -244,21 +243,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     }
     notFound();
   }
-  // Vier, nicht drei: das Raster ist auf Mobil zweispaltig und auf Desktop
-  // vierspaltig — eine Dreiergruppe lässt in beiden Fällen eine Karte allein
-  // in der letzten Zeile stehen. Gleiche Regel wie im Bezirks-Regal.
-  const SIBLING_LIMIT = 4;
-  const [mustEats, siblingCandidates] = await Promise.all([
-    getMustEatsByRestaurant(r._id),
-    getRestaurantSiblingCandidates({
-      selfSlug: slug,
-      selfName: r.name,
-      bezirkSlug: r.bezirk?.slug,
-      bezirkLimit: SIBLING_LIMIT,
-    }),
-  ]);
-
-  const siblingsBezirk = siblingCandidates.bezirk;
+  const { restaurant: r, mustEats, siblings: siblingsBezirk } = page;
 
   const loc = locale === 'de' ? 'de' : 'en';
   const de = loc === 'de';
@@ -306,28 +291,9 @@ export default async function RestaurantPage({ params }: PageProps) {
     ) : null,
   ].filter(Boolean);
 
-  // Die Kategorie-Hubs, in denen dieser Spot gelistet ist. `categories` kommt
-  // schon aus `restaurantBySlugQuery` (CATEGORY_PROJECTION) — es braucht keine
-  // zusätzliche Abfrage. Der Median liegt bei zwei Kategorien, das Maximum bei
-  // fünf; ohne Deckel wäre die Zeile in Ausreißern länger als ihre Nachbarn.
-  const hubLinks = (r.categories ?? [])
-    .filter((c) => c.slug)
-    .slice(0, 3)
-    .map((c) => ({ slug: c.slug, label: localizedCategoryName(c, loc) }));
-
-  const homeLabel = de ? 'Start' : 'Home';
+  // Trägt nur noch das JSON-LD: die sichtbare Brotkrume ist weg, die
+  // BreadcrumbList im Graph bleibt.
   const districtsLabel = de ? 'Bezirke' : 'Districts';
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { name: homeLabel, href: '/', logo: 'eat-this' },
-    ...(r.bezirk?.slug && r.bezirk?.name
-      ? [
-          { name: districtsLabel, href: '/bezirk' },
-          { name: r.bezirk.name, href: `/bezirk/${r.bezirk.slug}` },
-        ]
-      : []),
-    { name: r.name },
-  ];
-
   const jsonLd = buildRestaurantJsonLd({
     restaurant: r,
     locale,
@@ -344,13 +310,6 @@ export default async function RestaurantPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
-
         <header className={r.photo ? styles.hero : styles.heroNoPhoto}>
           {r.photo ? (
             <figure className={styles.heroPhoto}>
@@ -652,24 +611,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               locale={loc}
             />
           </section>
-        )}
-
-        {/* Die Gegenrichtung zu `categoryDistrictLinks` auf den Hubs: die
-            Kategorie-Seiten verlinken längst in die Bezirke, zurück kam von den
-            Restaurant-Seiten nichts. Textlinks, keine Karten — die Kartenzeile
-            ist oben aus gutem Grund raus, der Link an sich war nie das Problem. */}
-        {hubLinks.length > 0 && (
-          <nav
-            className={styles.hubLinks}
-            aria-label={de ? 'Kategorien dieses Spots' : 'Categories for this spot'}
-          >
-            <span className={styles.hubLinksHead}>{de ? 'Auch in:' : 'Also in:'}</span>
-            {hubLinks.map((c) => (
-              <IntlLink key={c.slug} href={`/kategorie/${c.slug}`} className={styles.hubLink}>
-                {c.label}
-              </IntlLink>
-            ))}
-          </nav>
         )}
 
         {/* Der zweite, erklärende Map-Ausgang — Bezirk und Kategorie haben ihn

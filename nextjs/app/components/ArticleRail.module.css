@@ -6,10 +6,29 @@
 
 .sticky {
   position: sticky;
-  top: clamp(88px, 10vh, 128px);
+  top: var(--rail-top);
   display: grid;
   gap: 18px;
   justify-items: start;
+  /* Der längste Guide hat 18 Kapitel und war damit 1014px hoch — auf einem
+     900px-Fenster ragten 840px unter die Kante, die unteren Kapitel waren erst
+     nach dem Scrollen des Artikels erreichbar. Genau dann braucht man sie aber
+     nicht mehr. Die Leiste bekommt darum ihre eigene Höhe und scrollt in sich:
+     jedes Kapitel ist ab der ersten Bildschirmseite erreichbar. */
+  max-height: calc(100dvh - var(--rail-frame-top) - var(--rail-top) - 24px);
+  overflow-y: auto;
+  /* Ist die Leiste zu Ende gescrollt, soll das Rad wieder den Artikel bewegen
+     und nicht in der Leiste hängenbleiben. */
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+
+  --rail-top: clamp(88px, 10vh, 128px);
+  /* Nicht das Fenster scrollt hier, sondern `.app-pages` — ab 768px steht dort
+     `height: calc(100dvh - 74px)` (css/style.css, DESKTOP APP FRAME). Gegen
+     100dvh gerechnet wäre die Leiste um genau diese 74px zu hoch und liefe
+     unten wieder aus dem Bild. Nicht `--site-nav-h`: die Variable steht auf
+     78px, der App-Rahmen rechnet mit 74. */
+  --rail-frame-top: 74px;
 }
 
 .label {

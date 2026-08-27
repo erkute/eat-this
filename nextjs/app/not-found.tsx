@@ -1,15 +1,10 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
 import ClientIntlProvider from './[locale]/ClientIntlProvider';
 import NotFoundAppFrame from './components/NotFoundAppFrame';
 import NotFoundContent from './components/NotFoundContent';
 import { translations } from '@/lib/i18n/translations';
+import { sans } from '@/app/fonts';
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-dm-sans',
-});
 const PROVIDENCE_REGULAR_WOFF2 =
   'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
 const PROVIDENCE_BOLD_WOFF2 =
@@ -25,7 +20,7 @@ export const metadata: Metadata = {
 // layout is a pass-through.
 export default function NotFound() {
   return (
-    <html lang="de" className={dmSans.variable}>
+    <html lang="de" className={sans.variable}>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link

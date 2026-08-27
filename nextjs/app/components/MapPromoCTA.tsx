@@ -77,23 +77,6 @@ const pin = (
   </svg>
 );
 
-const arrow = (
-  <svg
-    width="28"
-    height="18"
-    viewBox="0 0 32 20"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M3 10 L24 10" />
-    <path d="M18 3 L27 10 L18 17" />
-  </svg>
-);
-
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
   const { sub } = getCopy(kind, name, locale);
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map';
@@ -115,7 +98,6 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
     return (
       <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={label}>
         <span>{label}</span>
-        {arrow}
       </MapIntentLink>
     );
   }
@@ -145,7 +127,6 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
             ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}
         <MapIntentLink href={mapHref} rel="nofollow" className={styles.cta}>
           <span>{ctaLabel}</span>
-          {arrow}
         </MapIntentLink>
       </div>
       {/* The map IS the product — a black slab of type sold it badly. The

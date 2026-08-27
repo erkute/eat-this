@@ -78,7 +78,10 @@
 }
 
 .title {
-  max-width: 20ch;
+  /* 22ch, nicht 20: „GESCHÄFTSBEDINGUNGEN" misst bei 52px 678px und hatte in
+     20ch (682px) vier Pixel Luft. Fällt Providence auf die Systemschrift
+     zurück, läuft das Wort über — es gibt keinen Umbruchpunkt darin. */
+  max-width: 22ch;
   margin: 0;
   color: var(--legal-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -88,7 +91,11 @@
   line-height: 0.94;
   text-transform: uppercase;
   text-wrap: balance;
-  hyphens: auto;
+  /* Keine automatische Silbentrennung: `auto` zerlegte „Allgemeine
+     Geschäftsbedingungen" zu „ALLGEMEINE GE-/SCHÄFTSBEDINGUNGEN". In
+     Versalien und Providence liest sich ein getrenntes Wort wie ein Fehler,
+     und die Zeile hat Platz — sie darf am Leerzeichen brechen. */
+  hyphens: manual;
 }
 
 .updated {

@@ -12,7 +12,6 @@ vi.mock('@/i18n/navigation', () => ({
   useRouter: () => ({ push: () => {}, prefetch: () => {} }),
 }));
 vi.mock('@/app/components/SiteFooter', () => ({ default: () => <footer role="contentinfo" /> }));
-vi.mock('@/app/components/Breadcrumbs', () => ({ default: () => <nav aria-label="Breadcrumb" /> }));
 
 import NewsArticleShell from '@/app/components/NewsArticleShell';
 

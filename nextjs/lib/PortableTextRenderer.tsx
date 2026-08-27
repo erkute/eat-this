@@ -1,5 +1,10 @@
 import { Fragment, type ReactNode } from 'react';
-import type { PortableTextBlock, MustEatCardBlock, SpotCardBlock } from './types';
+import type {
+  PortableTextBlock,
+  MustEatCardBlock,
+  SpotCardBlock,
+  ArticleImageBlock,
+} from './types';
 
 type Span = {
   _type?: string;
@@ -104,15 +109,18 @@ function slugifyHeading(text: string): string {
 // and inline marks (strong/em + link). Inline `mustEatCard` / `spotCard` blocks
 // are delegated to the optional `renderMustEatCard` / `renderSpotCard` render-
 // props (so this stays presentation-agnostic); callers that don't pass them
-// simply skip those blocks. Other unknown types skip.
+// simply skip those blocks. Inline `image` blocks work the same way via
+// `renderImage`. Other unknown types skip.
 export function PortableTextRenderer({
   blocks,
   renderMustEatCard,
   renderSpotCard,
+  renderImage,
 }: {
   blocks?: PortableTextBlock[];
   renderMustEatCard?: (block: MustEatCardBlock) => ReactNode;
   renderSpotCard?: (block: SpotCardBlock) => ReactNode;
+  renderImage?: (block: ArticleImageBlock) => ReactNode;
 }) {
   if (!blocks?.length) return null;
 
@@ -139,6 +147,12 @@ export function PortableTextRenderer({
       flushList();
       const card = renderSpotCard?.(raw as unknown as SpotCardBlock);
       if (card) out.push(<Fragment key={raw._key ?? out.length}>{card}</Fragment>);
+      continue;
+    }
+    if (raw._type === 'image') {
+      flushList();
+      const figure = renderImage?.(raw as unknown as ArticleImageBlock);
+      if (figure) out.push(<Fragment key={raw._key ?? out.length}>{figure}</Fragment>);
       continue;
     }
     if (raw._type !== 'block') {

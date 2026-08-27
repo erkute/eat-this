@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { DM_Sans } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
@@ -9,12 +8,8 @@ import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import { buildSiteJsonLd } from '@/lib/json-ld';
+import { sans } from '@/app/fonts';
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-dm-sans',
-});
 const PROVIDENCE_REGULAR_WOFF2 =
   'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
 const PROVIDENCE_BOLD_WOFF2 =
@@ -72,7 +67,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-scroll-behavior="smooth"
-      className={dmSans.variable}
+      className={sans.variable}
       suppressHydrationWarning
     >
       <head suppressHydrationWarning>

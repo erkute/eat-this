@@ -447,7 +447,7 @@
   white-space: nowrap;
 }
 .linkPromo {
-  /* Saira Condensed instead of the global DM Sans body face. */
+  /* Saira Condensed instead of the global Inter body face. */
   font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -459,10 +459,6 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-}
-.linkPromo::after {
-  content: '→';
-  font-weight: 700;
 }
 .linkPromo:hover {
   gap: 9px;
@@ -2043,7 +2039,7 @@
 .detailV13:not(.detailV13MustEat) .rdBody {
   padding: 18px 16px 6px;
   color: var(--et-home-ink, #15120e);
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 15px;
   line-height: 1.55;
 }
@@ -2121,8 +2117,14 @@
   line-height: 1;
 }
 @media (min-width: 1024px) {
+  /* Am Fenster gemessen, nicht fix: 360px waren hier hart gesetzt und haben die
+     dvh-Regel der Basis überstimmt. Auf einem 1512×780-Fenster (MacBook mit
+     Browser-Chrome) schob das den „Starter Pack holen"-Knopf 11px unter die
+     Kante — das Angebot war genau auf dem Gerät nur nach Scrollen zu sehen, auf
+     dem die meisten sitzen. Der Deckel hält den großen Anschnitt auf hohen
+     Fenstern, der Boden verhindert ein Briefmarken-Foto auf flachen. */
   .detailV13:not(.detailV13MustEat) .rdHero {
-    min-height: 360px;
+    min-height: clamp(200px, 33dvh, 360px);
   }
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,
@@ -2188,7 +2190,7 @@
   margin: 0;
   max-width: 30ch;
   color: rgba(21, 18, 14, 0.72);
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 14px;
   font-weight: 650;
   letter-spacing: 0;
@@ -2227,16 +2229,13 @@
 }
 .detailV13:not(.detailV13MustEat) .linkPromo {
   color: #15120e;
-  font-family: var(--font-body, var(--font-dm-sans, system-ui, sans-serif));
+  font-family: var(--font-body, var(--font-sans, system-ui, sans-serif));
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.25;
   text-decoration: none;
   text-transform: none;
-}
-.detailV13:not(.detailV13MustEat) .linkPromo::after {
-  content: none;
 }
 @media (max-width: 380px) {
   .detailV13:not(.detailV13MustEat) .packPromo {
@@ -2628,7 +2627,7 @@
 .detailV13MustEat .fdText {
   display: -webkit-box;
   color: var(--me-muted);
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: clamp(13px, 3.45vw, 16px);
   font-weight: 650;
   letter-spacing: 0;
@@ -2920,7 +2919,7 @@
 .detailV13:not(.detailV13MustEat) .rdK,
 .detailV13:not(.detailV13MustEat) .rdHoursD {
   color: rgba(21, 18, 14, 0.5);
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.1em;
@@ -2989,7 +2988,7 @@
   .detailV13:not(.detailV13MustEat) .rdK,
   .detailV13:not(.detailV13MustEat) .rdHoursD {
     color: rgba(21, 18, 14, 0.5);
-    font-family: var(--font-dm-sans, system-ui, sans-serif);
+    font-family: var(--font-sans, system-ui, sans-serif);
     font-size: 11px;
     font-weight: 850;
     letter-spacing: 0.1em;
@@ -4219,7 +4218,7 @@
 }
 
 .rdActProviderWord {
-  font-family: var(--font-dm-sans, var(--font), system-ui, sans-serif);
+  font-family: var(--font-sans, var(--font), system-ui, sans-serif);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;

@@ -19,8 +19,10 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   descriptionEn
 }`;
 
-export const restaurantBySlugQuery = `
-  *[_type == "restaurant" && slug.current == $slug][0] {
+/* The full detail projection. Shared so the restaurant page and the OG-image
+   route cannot drift apart, and so the page query below can wrap it without
+   restating 40 fields. */
+const RESTAURANT_DETAIL_FIELDS = `
     _id,
     name,
     "slug": slug.current,
@@ -67,7 +69,6 @@ export const restaurantBySlugQuery = `
       "ogImageUrl": ogImage.asset->url,
       noIndex
     }
-  }
 `;
 
 export const allRestaurantSlugsQuery = `
@@ -99,6 +100,15 @@ const articleContentProjection = `{
       "district": coalesce(restaurantRef->district, restaurantRef->bezirkRef->name),
       "cuisineType": restaurantRef->cuisineType,
       "restaurantPhoto": ${publishableRestaurantImageUrl('restaurantRef->image', 'card', 'restaurantRef->slug.current', 'restaurantRef->instagramHandle')}
+    },
+    _type == "image" => {
+      _type,
+      _key,
+      alt,
+      caption,
+      "imageUrl": ${groqImageUrl('@', 'articleImage')},
+      "imageWidth": @.asset->metadata.dimensions.width,
+      "imageHeight": @.asset->metadata.dimensions.height
     }
   }`;
 
@@ -189,26 +199,56 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
   "photo": ${publishableRestaurantImageUrl('image', 'card')}
 }`;
 
-// Bounded circular window immediately after the current restaurant in the same
-// alphabetical order the district listing uses. Fetches at most twice the
-// display limit (tail + wrap-around) instead of downloading the whole district.
-//
-// Die Kategorie-Hälfte stand hier bis 24.08.2026 daneben. Sie speiste eine
-// zweite Empfehlungszeile am Seitenende, die von einer Kreuzberg-Seite nach
-// Schöneberg und Charlottenburg schickte — rund 500px für Karten, deren
-// gemeinsamer Nenner „auch Lunch" war.
-export const restaurantSiblingCandidatesQuery = `{
-  "bezirkAfter": *[
-    _type == "restaurant" && isOpen != false && $bezirkSlug != ""
-    && bezirkRef->slug.current == $bezirkSlug && slug.current != $selfSlug
-    && (name > $selfName || (name == $selfName && slug.current > $selfSlug))
-  ] | order(name asc, slug.current asc)[0...$bezirkLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION},
-  "bezirkWrap": *[
-    _type == "restaurant" && isOpen != false && $bezirkSlug != ""
-    && bezirkRef->slug.current == $bezirkSlug && slug.current != $selfSlug
-    && (name < $selfName || (name == $selfName && slug.current < $selfSlug))
-  ] | order(name asc, slug.current asc)[0...$bezirkLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}
-}`;
+/**
+ * Ein Fenster der alphabetischen Nachbarschaft im selben Bezirk — `'>'` liefert
+ * den Schwanz hinter dem aktuellen Restaurant, `'<'` den Umlauf davor.
+ *
+ * Bewusst begrenzt statt „ganzen Bezirk laden und im Code schneiden": ein Bezirk
+ * hat bis zu 60 Spots, angezeigt werden vier. Zwei Fenster zu je vier holen im
+ * schlechtesten Fall acht Dokumente statt sechzig.
+ *
+ * Als Funktion, nicht zweimal ausgeschrieben: die beiden unterscheiden sich in
+ * genau einem Zeichen. Nebeneinandergestellt kann jemand den einen Filter
+ * ändern und den anderen vergessen — und kein Test fängt das, weil erst beide
+ * zusammen ein vollständiges Fenster ergeben.
+ */
+const siblingWindow = (cmp: '>' | '<') => `*[
+      _type == "restaurant" && isOpen != false
+      && defined(^.bezirkRef._ref) && bezirkRef._ref == ^.bezirkRef._ref
+      && slug.current != ^.slug.current
+      && (name ${cmp} ^.name || (name == ^.name && slug.current ${cmp} ^.slug.current))
+    ] | order(name asc, slug.current asc)[0...$siblingLimit] ${RESTAURANT_SIBLING_CARD_PROJECTION}`;
+
+/**
+ * Everything the restaurant page needs, in ONE round trip.
+ *
+ * It used to be three: the document, then — once its _id and bezirk were
+ * known — Must-Eats and siblings in parallel. That is two sequential
+ * round trips and three billed Sanity requests per slug. With 932
+ * prerendered restaurant pages revalidating daily, those two extra
+ * requests were ~930 avoidable calls per cycle, which is the single
+ * largest block of our quota.
+ *
+ * The sub-queries reach the parent document through `^`, so nothing has to
+ * be threaded in as a parameter. The sibling filter also compares
+ * `bezirkRef._ref` directly instead of joining through `bezirkRef->slug`,
+ * which drops a dereference per candidate.
+ *
+ * `generateMetadata` and the page body must BOTH use this query — Next
+ * dedupes identical fetches within a render, so two call sites of the same
+ * query cost one request, whereas two different queries for the same
+ * document would cost two.
+ */
+export const restaurantPageQuery = `
+  *[_type == "restaurant" && slug.current == $slug][0] {${RESTAURANT_DETAIL_FIELDS},
+    "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id] | order(order asc) {
+      _id,
+      order
+    },
+    "siblingsAfter": ${siblingWindow('>')},
+    "siblingsWrap": ${siblingWindow('<')}
+  }
+`;
 
 // Curated spots for the magic-link email: restaurant information only. Login
 // emails are not an entitlement boundary and therefore never embed premium
@@ -365,6 +405,7 @@ export const allNewsArticlesQuery = `
     categoryLabel, categoryLabelDe,
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
+    "imageUrlLead": ${groqImageUrl('image', 'newsLead')},
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe
   }
@@ -409,13 +450,6 @@ export const guideTeaserBySlugQuery = `
 // Deliberately NO dish/photo: the teaser renders covered cards, and any
 // extra field would ship to every anon in the RSC payload of the public,
 // indexed /restaurant/[slug] page (same leak class as the P1 map leak).
-export const mustEatsByRestaurantQuery = `
-  *[_type == "mustEat" && restaurantRef._ref == $restaurantId] | order(order asc) {
-    _id,
-    order
-  }
-`;
-
 // One localized static page. Selecting the active language in GROQ keeps the
 // other page documents and translation fields out of the RSC payload.
 export const staticPageBySlugQuery = `

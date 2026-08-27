@@ -3,6 +3,7 @@
   --detail-paper: var(--et-home-paper, #fff);
   --detail-quiet: var(--et-home-quiet, rgba(21, 18, 14, 0.045));
   --detail-red: var(--et-home-red, #d9382a);
+  --detail-accent: var(--et-home-accent, #ffc600);
   --detail-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
   --detail-line: var(--et-home-line, rgba(21, 18, 14, 0.14));
   --ink: var(--detail-ink);
@@ -34,12 +35,6 @@
   background: var(--detail-paper);
   color: var(--detail-ink);
   font-family: var(--f-body);
-}
-
-.breadcrumbWrap {
-  width: min(100%, 900px);
-  margin: 0 auto clamp(16px, 2vw, 24px);
-  min-width: 0;
 }
 
 @media (min-width: 720px) {
@@ -201,7 +196,7 @@
 .heroName {
   max-width: 18ch;
   color: #fff;
-  font-size: clamp(42px, 7.1vw, 86px);
+  font-size: clamp(38px, 4.9vw, 60px);
   line-height: 0.88;
   text-shadow: 0 3px 24px rgba(0, 0, 0, 0.34);
 }
@@ -290,7 +285,11 @@
 }
 
 .story p {
-  max-width: 72ch;
+  /* 72ch ergeben bei 19px rund 936px — breiter als der 900px-Container, die
+     Grenze griff also nie und die Zeile lief auf 95 Zeichen. Gemessen fahren
+     Eater 64, Mit Vergnügen 66 und The Infatuation 80; 45–75 gilt als
+     angenehm. 700px sind hier ~74 Zeichen. */
+  max-width: 700px;
   margin: 0 0 1.2em;
 }
 
@@ -336,7 +335,7 @@
   font-size: clamp(30px, 4.4vw, 52px);
   line-height: 0.92;
   text-transform: none;
-  background: var(--detail-red);
+  background: var(--detail-accent);
   border: 0;
   box-shadow: none;
   transform: rotate(-1deg);
@@ -910,14 +909,6 @@
      der Navbar auszugleichen — der Fehler sass aber im Seitenabstand selbst
      (64px-Konstante gegen 78px hohe Navbar) und ist dort behoben. Bleibt nur
      der engere Abstand nach unten zum Titelbild. */
-  /* 10px standen hier — die Brotkrumen klebten damit am Titelbild, während
-     nach oben zur Navleiste 24px Luft waren. Eine Zeile, die unten enger
-     sitzt als oben, liest sich als Beschriftung des Bildes statt als
-     Wegmarke der Seite. */
-  .breadcrumbWrap {
-    margin-bottom: 16px;
-  }
-
   .hero,
   .heroNoPhoto {
     gap: 14px;
@@ -955,7 +946,7 @@
 
   .heroName,
   .name {
-    font-size: clamp(42px, 12.4vw, 62px);
+    font-size: clamp(34px, 10.5vw, 44px);
   }
 
   .chip,
@@ -1096,57 +1087,3 @@
   text-transform: none;
 }
 
-/* Zeile mit den Kategorie-Hubs, zu denen dieser Spot gehört.
-   Bewusst Textlinks statt Karten: die alte Kategorie-Kartenzeile war rund
-   500px hoch und schickte von einer Kreuzberg-Seite in vier andere Bezirke —
-   sie ist deshalb raus (siehe Kommentar an der Bezirks-Zeile in page.tsx).
-   Was mit ihr verschwand, war der einzige Link von 340 Restaurant-Seiten
-   hinauf zu ihren Hubs. Eine einzeilige Leiste bringt den zurück, ohne die
-   Entscheidung von damals zurückzudrehen. */
-.hubLinks {
-  width: min(100%, 900px);
-  margin-inline: auto;
-  margin-top: clamp(-18px, -2vw, -8px);
-  margin-bottom: clamp(40px, 6vw, 72px);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.hubLinksHead {
-  margin-right: 2px;
-  color: var(--detail-ink);
-  font-family: var(--f-body);
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0.62;
-}
-
-.hubLink {
-  display: inline-block;
-  padding: 5px 11px 6px;
-  border: 1.5px solid var(--detail-ink);
-  color: var(--detail-ink);
-  font-family: var(--f-display);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  line-height: 1.16;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-
-.hubLink:hover,
-.hubLink:focus-visible {
-  background: var(--detail-ink);
-  color: var(--detail-paper);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hubLink {
-    transition: none;
-  }
-}

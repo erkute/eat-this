@@ -26,6 +26,25 @@ env:
       - BUILD
       - RUNTIME
 
+  # NUR für den Build am API-CDN vorbei — das ist NICHT der Nothebel vom
+  # 24.08.2026 (der stand auf BUILD+RUNTIME und ist mit PR #547 zu Recht raus).
+  # Hier geht es um Lastverteilung: CDN und normale API ziehen auf GETRENNTE
+  # Kontingente, und am 27.08.2026 waren beide leer — Produktion antwortete auf
+  # / und /map mit 500, jeder Prod-Build starb bei „Collecting page data".
+  #
+  # Der Build holt rund 610 Dokumente, fast alle slug-eindeutig. Für die bringt
+  # der Edge-Cache des CDN nichts, sie sind pro Build genau einmal dran. Sie
+  # dort abzurechnen verbraucht also Kontingent, das die echten Besucher
+  # brauchen. Laufzeit bleibt bewusst auf CDN: dort wiederholen sich Queries,
+  # da trägt der Edge-Cache.
+  #
+  # Wenn das hier jemand entfernt, laufen Build und Besucher wieder auf denselben
+  # Topf. Vorher prüfen, ob der Verbrauch das hergibt.
+  - variable: SANITY_USE_CDN
+    value: 'false'
+    availability:
+      - BUILD
+
   # Fail-closed guard for App Hosting's injected Admin + browser SDK config.
   - variable: FIREBASE_EXPECTED_PROJECT_ID
     value: eat-this-8a13b

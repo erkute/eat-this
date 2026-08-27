@@ -29,10 +29,6 @@
   margin-bottom: clamp(34px, 5vw, 64px);
 }
 
-.breadcrumbWrap {
-  min-width: 0;
-}
-
 .heroCopy {
   display: grid;
   gap: clamp(12px, 1.8vw, 18px);
@@ -43,7 +39,7 @@
   margin: 0;
   color: var(--news-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(46px, 7vw, 88px);
+  font-size: clamp(40px, 5vw, 64px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.86;
@@ -57,8 +53,8 @@
   color: var(--news-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 20px);
-  font-weight: 700;
-  line-height: 1.38;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 /* ----------------------------------------------------------- stories ---- */
@@ -104,7 +100,8 @@
 
 .card {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-width: 0;
   color: var(--news-ink);
@@ -118,6 +115,10 @@
   overflow: hidden;
   background: var(--news-soft);
   border-radius: var(--et-radius-photo, 10px);
+  /* Ohne Verlauf braucht die Kachel eine eigene Kante: freigestellte Motive auf
+     Weiß verschwimmen sonst randlos mit der Seite. Innen liegende Haarlinie
+     statt Rahmen, damit sie das Bild nicht beschneidet. */
+  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.09);
 }
 
 .photoFallback {
@@ -132,32 +133,34 @@
   transition: transform 220ms ease;
 }
 
-/* Legible type over any photo without an opacity fade on a brand surface. */
-.photo::after {
-  content: '';
-  position: absolute;
-  inset: 42% 0 0 0;
-  background: linear-gradient(to bottom, rgba(21, 18, 14, 0), rgba(21, 18, 14, 0.82));
-  pointer-events: none;
-}
+/* Der Text steht UNTER dem Foto, nicht darauf.
 
+   Übereinander gelegt kämpften beide gegeneinander: über einem unruhigen Motiv
+   braucht helle Schrift einen Verlauf, der Verlauf verdeckt das Foto, und je
+   länger die Überschrift desto weiter musste er hochgezogen werden. Auf den
+   schmalen Kacheln verlor man dadurch beides. Getrennt gewinnen beide — das
+   Foto bleibt unverdeckt, die Schrift steht auf Papier. */
 .text {
-  position: absolute;
-  inset: auto 0 0 0;
-  z-index: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  padding: clamp(12px, 1.5vw, 20px);
+  padding: clamp(10px, 0.9vw, 14px) 2px 0;
 }
 
+/* Marker statt Farbschrift: Gelb auf Weiß ist als Text nicht lesbar, als
+   Auszeichnungsfläche mit Tinte darauf dagegen kräftig — und es ist dieselbe
+   gelbe Markierung, die die Seite an anderer Stelle schon benutzt. */
 .kicker {
   display: block;
-  color: var(--news-yellow);
+  align-self: flex-start;
+  padding: 2px 7px 3px;
+  border-radius: 3px;
+  background: var(--news-yellow);
+  color: var(--news-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(14px, 1.2vw, 19px);
+  font-size: clamp(13px, 1vw, 15px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -166,13 +169,12 @@
 
 .title {
   display: block;
-  color: #fff;
+  color: var(--news-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(16px, 1.5vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.04;
-  text-shadow: var(--et-shadow-text-photo, 0 1px 8px rgba(0, 0, 0, 0.5));
+  line-height: 1.08;
   text-transform: none;
 }
 
@@ -181,13 +183,12 @@
 .date {
   display: block;
   margin-top: 2px;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--news-muted);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(12px, 0.95vw, 14px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
-  text-shadow: var(--et-shadow-text-photo, 0 1px 8px rgba(0, 0, 0, 0.5));
 }
 
 .empty {
@@ -195,7 +196,7 @@
   color: var(--news-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.35vw, 19px);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.38;
 }
 
@@ -249,34 +250,49 @@
   }
 
   /* Two columns, not a stack. Seven stories ran 4343px as full-width rows at
-     390px wide; the same seven as tiles measure 1800px. */
+     390px wide; the same seven as tiles measure 1800px.
+
+     Zeilen- und Spaltenabstand getrennt: seitlich hält 12px die Kacheln als
+     Paar zusammen, vertikal braucht es mehr. Seit der Text unter dem Foto
+     steht, endet jede Kachel mit dem Datum — bei 12px klebte das an der
+     nächsten Bildkante, und die Reihen liefen ineinander. */
   .grid {
-    gap: 12px;
+    gap: 30px 12px;
+  }
+
+  /* Die erste Story quer über beide Spalten. Zwanzig gleich große Kacheln
+     untereinander sind ein Archiv, kein Magazin — und in einer 165px-Spalte
+     ist kein Foto „schön groß". Der Aufmacher bekommt die volle Breite und ein
+     ruhigeres 3/2, das Raster darunter bleibt wie es ist. */
+  .grid > li:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .grid > li:first-child .photo {
+    aspect-ratio: 3 / 2;
+  }
+
+  .grid > li:first-child .title {
+    font-size: 21px;
   }
 
   .text {
     gap: 4px;
-    padding: 10px;
+    padding: 9px 1px 0;
   }
 
   .kicker {
-    font-size: 13px;
+    padding: 2px 6px 3px;
+    font-size: 12px;
   }
 
   .title {
-    font-size: 15px;
-    line-height: 1.06;
+    font-size: 16px;
+    line-height: 1.14;
   }
 
   .date {
-    margin-top: 1px;
+    margin-top: 2px;
     font-size: 11px;
-  }
-
-  /* Two-column tiles are short and the longest guide titles run six lines. With
-     kicker and date the worst case in the current set starts at 31% of the
-     card, so the scrim begins at 24% — headroom for one more line. */
-  .photo::after {
-    inset: 24% 0 0 0;
   }
 }

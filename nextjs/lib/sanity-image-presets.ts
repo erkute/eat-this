@@ -21,8 +21,15 @@ const IMAGE_PRESETS = {
   bezirkHero: { w: 1600, q: 85 },
   // Standard restaurant / article card photo
   card: { w: 800, q: 80 },
+  // Der Aufmacher der News-Übersicht. Unter 700px läuft die erste Story über
+  // beide Spalten (92vw), auf einem 3x-Handy sind das gut 1035 Gerätepixel —
+  // der geteilte `card`-Preset mit 800 reicht dafür nicht, und ihn global
+  // anzuheben verteuerte jede Liste der Seite.
+  newsLead: { w: 1400, q: 80 },
   // Map list/marker thumbnail
   mapCard: { w: 600, q: 80 },
+  // Inline editorial photo in the article column (max 720px wide, 2x retina)
+  articleImage: { w: 1440, q: 80 },
   // Inline must-eat dish card inside an article
   articleDish: { w: 400, q: 80 },
   // The restaurant photo on an inline must-eat card

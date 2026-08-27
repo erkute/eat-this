@@ -1,17 +1,12 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
 import '../globals.css';
+import { sans } from '@/app/fonts';
 
 export const metadata: Metadata = {
   title: 'Anmeldung',
   robots: { index: false, follow: false },
 };
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-});
 
 // The two Providence faces the page actually sets. globals.css declares them
 // via @font-face pointing straight at Adobe's font files; preloading here means
@@ -30,7 +25,7 @@ const PROVIDENCE_BOLD_WOFF2 =
 // same @font-face rules and --et-* tokens the rest of the site runs on.
 export default function AuthActionLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" data-scroll-behavior="smooth" className={dmSans.variable}>
+    <html lang="de" data-scroll-behavior="smooth" className={sans.variable}>
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link

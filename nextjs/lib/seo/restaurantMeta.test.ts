@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildCuratedRestaurantTitle,
-  buildOrderPromiseDescription,
   buildRestaurantTitle,
   truncateAtSentence,
 } from './restaurantMeta';
@@ -112,43 +111,5 @@ describe('buildCuratedRestaurantTitle', () => {
     expect(oderberger).toContain('Oderberger');
     expect(stargarder.length).toBeLessThanOrEqual(60);
     expect(oderberger.length).toBeLessThanOrEqual(60);
-  });
-});
-
-describe('buildOrderPromiseDescription', () => {
-  it('builds the DE answer-promise with dishes and price label', () => {
-    expect(
-      buildOrderPromiseDescription({
-        name: 'Boii Boii',
-        dishes: ['Pork Belly', 'Wolfsbarsch'],
-        priceLabel: '20–40 €',
-        locale: 'de',
-      })
-    ).toBe(
-      'Was bestellen bei Boii Boii? Pork Belly & Wolfsbarsch — unsere Empfehlungen mit Preisen (20–40 €), und ob sich der Besuch lohnt.'
-    );
-  });
-
-  it('builds the EN equivalent without a price label', () => {
-    expect(
-      buildOrderPromiseDescription({ name: 'Boii Boii', dishes: ['Pork Belly'], locale: 'en' })
-    ).toBe(
-      "What to order at Boii Boii? Pork Belly — our picks with prices, and whether it's worth the visit."
-    );
-  });
-
-  it('caps the dish list at three entries', () => {
-    const out = buildOrderPromiseDescription({
-      name: 'X',
-      dishes: ['A', 'B', 'C', 'D'],
-      locale: 'de',
-    });
-    expect(out).toContain('A, B & C');
-    expect(out).not.toContain('D');
-  });
-
-  it('returns null without dishes', () => {
-    expect(buildOrderPromiseDescription({ name: 'X', dishes: [], locale: 'de' })).toBeNull();
-    expect(buildOrderPromiseDescription({ name: 'X', dishes: ['  '], locale: 'de' })).toBeNull();
   });
 });

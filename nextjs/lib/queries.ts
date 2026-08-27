@@ -47,7 +47,6 @@ const RESTAURANT_DETAIL_FIELDS = `
     openingHours[] { days, hours },
     tip,
     tipEn,
-    whatToOrder[] { dish, note, noteEn, price },
     description,
     descriptionEn,
     "photo": ${publishableRestaurantImageUrl('image', 'detailHero')},
@@ -239,12 +238,44 @@ const siblingWindow = (cmp: '>' | '<') => `*[
  * query cost one request, whereas two different queries for the same
  * document would cost two.
  */
+/**
+ * Die Artikel, in denen dieser Spot vorkommt — für den „Wir waren da"-Block
+ * auf der Restaurant-Seite.
+ *
+ * Die Verbindung liegt schon in den Daten und braucht kein neues Feld: ein
+ * `spotCard`-Block im Artikel trägt eine `restaurantRef`. Deshalb wird sie
+ * rückwärts gelesen statt am Restaurant gepflegt — ein gepflegtes Feld müsste
+ * bei jedem neuen Artikel nachgezogen werden und wäre sofort veraltet.
+ *
+ * `mustEatCard` bleibt außen vor: kein einziges Restaurant wird ausschließlich
+ * darüber erwähnt (geprüft am 27.08.2026, 0 von 466), der Fall existiert also
+ * nur in der Theorie.
+ *
+ * Sortiert nach SPEZIFITÄT, nicht nach Datum: je weniger Spots ein Artikel
+ * nennt, desto mehr handelt er von diesem hier. Für Kolo heißt das Porträt (1
+ * Spot) vor Mitte-Guide (10) vor Café-Guide (17) — nach Datum stünde der Guide
+ * oben, der den Laden in einer Liste von siebzehn abhandelt.
+ */
+const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && defined(slug.current)
+    && (^._id in content[].restaurantRef._ref || ^._id in contentDe[].restaurantRef._ref)]
+    | order(count(coalesce(contentDe, content)[defined(restaurantRef)]) asc, date desc)[0...$articleLimit] {
+      _id,
+      "slug": slug.current,
+      "title": coalesce(title, titleDe),
+      titleDe,
+      categoryLabel, categoryLabelDe,
+      date,
+      "imageUrl": ${groqImageUrl('image', 'card')},
+      "alt": coalesce(image.alt, alt)
+    }`;
+
 export const restaurantPageQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {${RESTAURANT_DETAIL_FIELDS},
     "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id] | order(order asc) {
       _id,
       order
     },
+    ${articlesAboutRestaurant},
     "siblingsAfter": ${siblingWindow('>')},
     "siblingsWrap": ${siblingWindow('<')}
   }

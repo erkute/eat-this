@@ -12,8 +12,12 @@
      innerhalb der 45–75, die als angenehm gelten. Mit 680 waren es 76. */
   --article-measure: 660px;
   min-height: 100%;
-  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
-  padding: 34px clamp(18px, 4vw, 54px) 0;
+  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert.
+     Oben 0: die 34px trugen die Brotkrume. Ohne sie klemmte ein weißer
+     Streifen zwischen der schwarzen SiteNav und dem dunklen Aufmacherfoto und
+     las sich als Fuge, nicht als Rand. Das Foto dockt jetzt an die Leiste an;
+     wer kein Foto hat, bekommt seinen Abstand an `.heroGridPlain`. */
+  padding: 0 clamp(18px, 4vw, 54px) 0;
   background: var(--article-paper);
   color: var(--article-ink);
 }
@@ -55,7 +59,10 @@ div.page {
   margin: 0;
   overflow: hidden;
   background: var(--article-ink);
-  border-radius: var(--et-radius-photo, 10px);
+  /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
+     unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
+     Andocken beseitigen soll. Unten bleibt der Radius. */
+  border-radius: 0 0 var(--et-radius-photo, 10px) var(--et-radius-photo, 10px);
 }
 
 .heroWrap::after {
@@ -80,6 +87,10 @@ div.page {
 .heroGridPlain {
   display: grid;
   align-items: flex-end;
+  /* Ohne Foto gibt es nichts zum Andocken — die Überschrift braucht den
+     Abstand zur Leiste, den `.page` oben abgegeben hat. Dieselben zwei Werte,
+     die dort standen: 34px ab Desktop, 24px darunter. */
+  margin-top: 34px;
   max-width: var(--article-measure);
 }
 
@@ -725,8 +736,8 @@ div.page {
 }
 
 @media (max-width: 900px) {
-  .page {
-    padding-top: 24px;
+  .heroGridPlain {
+    margin-top: 24px;
   }
 
   .header {

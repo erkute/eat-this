@@ -9,7 +9,7 @@ import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { normalizeName } from '@/lib/normalizeName';
 import styles from './MapDetails.module.css';
-import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState';
+import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PagerArrowIcon } from './icons';
 
@@ -447,7 +447,9 @@ export default function MustEatDetailMobile({
               </p>
               {/* Kein Distanz-Balken mehr: die log-Skala von 10 km auf 50 m
                   sagte niemandem etwas. Die Headline nennt die Distanz, der
-                  Satz darunter erklärt die Spielregel — mehr braucht es nicht. */}
+                  Satz darunter erklärt die Spielregel — mehr braucht es nicht.
+                  Und die Spielregel nennt den Radius nicht mehr: zwei Zahlen
+                  übereinander („Noch 8,2 km" / „50 m") waren die Verwirrung. */}
               <p className={styles.fdProximitySub}>
                 {unlocking
                   ? t('map.revealSavingHint')
@@ -456,7 +458,7 @@ export default function MustEatDetailMobile({
                     : canUnlock
                       ? tMap('proximityTapReveal')
                       : distance !== null
-                        ? tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })
+                        ? tMap('proximityHint')
                         : locationDenied
                           ? tMap('locationBlockedHint')
                           : tMap('enableLocation')}

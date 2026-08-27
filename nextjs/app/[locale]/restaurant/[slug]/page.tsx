@@ -49,10 +49,9 @@ import styles from './RestaurantDetail.module.css';
 /**
  * Eine Empfehlungszeile am Seitenfuß: anklickbare Überschrift plus vier Karten.
  *
- * Die Überschrift war schon immer ein Link auf den Bezirks-Hub, sah aber wie
- * eine gewöhnliche Zeilenüberschrift aus. Der Pfeil macht daraus sichtbar den
- * Weg zur vollständigen Liste — dieselbe Geste wie „Alle Spots ansehen →" auf
- * dem Bezirks-Index.
+ * Die Überschrift ist ein Link auf den Bezirks-Hub — der Weg zur vollständigen
+ * Liste, dieselbe Geste wie „Alle Spots ansehen" auf dem Bezirks-Index.
+ * (Die Pfeile, die diese Geste mal markierten, sind site-weit raus.)
  *
  * Ein `showDistrict` stand hier, solange daneben eine Kategorie-Zeile lief:
  * deren Spots lagen über die ganze Stadt verteilt, und der Bezirk entschied,

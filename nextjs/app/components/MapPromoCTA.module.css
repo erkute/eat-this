@@ -182,9 +182,6 @@
 .cta:hover {
   transform: var(--et-hover-lift-sm);
 }
-.cta svg {
-  flex-shrink: 0;
-}
 
 @media (min-width: 720px) {
   .promo {
@@ -272,11 +269,6 @@
 }
 .chip:hover {
   transform: var(--et-hover-lift-sm);
-}
-.chip svg {
-  flex-shrink: 0;
-  width: 22px;
-  height: auto;
 }
 
 /* Poster CTA in brand yellow. The black slab read as a warning box — the same

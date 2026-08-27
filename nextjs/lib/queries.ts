@@ -365,6 +365,7 @@ export const allNewsArticlesQuery = `
     categoryLabel, categoryLabelDe,
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
+    "imageUrlLead": ${groqImageUrl('image', 'newsLead')},
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe
   }

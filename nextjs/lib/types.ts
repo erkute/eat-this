@@ -131,6 +131,8 @@ export interface NewsArticle {
   date: string;
   updatedAt?: string;
   imageUrl?: string;
+  /** Größere Quelle für den Aufmacher der Übersicht — siehe NewsSection. */
+  imageUrlLead?: string;
   alt?: string;
   excerpt?: string;
   excerptDe?: string;

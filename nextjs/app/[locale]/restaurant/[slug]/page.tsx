@@ -4,11 +4,9 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import {
-  getRestaurantBySlug,
+  getRestaurantPageData,
   getAllRestaurantSlugs,
   getAllRestaurantsLite,
-  getMustEatsByRestaurant,
-  getRestaurantSiblingCandidates,
 } from '@/lib/sanity.server';
 import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects';
 import { buildRestaurantJsonLd } from '@/lib/json-ld';
@@ -144,8 +142,12 @@ export const revalidate = 86400;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const r = await getRestaurantBySlug(slug);
-  if (!r) return {};
+  // Dieselbe Query wie im Seitenrumpf, damit Next die beiden Aufrufe zu EINER
+  // Anfrage dedupliziert. Weicht eine der beiden Stellen ab, kostet die Seite
+  // sofort zwei Anfragen statt einer.
+  const page = await getRestaurantPageData(slug);
+  if (!page) return {};
+  const r = page.restaurant;
   const loc = locale === 'de' ? 'de' : 'en';
 
   const districtName = r.bezirk?.name ?? r.district ?? null;
@@ -234,8 +236,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const r = await getRestaurantBySlug(slug);
-  if (!r) {
+  const page = await getRestaurantPageData(slug);
+  if (!page) {
     // Post-rebuild slug migration: try to 301 an old/404 slug to its current
     // page before giving up. See lib/seo/legacyRedirects.ts.
     const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite());
@@ -244,21 +246,8 @@ export default async function RestaurantPage({ params }: PageProps) {
     }
     notFound();
   }
-  // Vier, nicht drei: das Raster ist auf Mobil zweispaltig und auf Desktop
-  // vierspaltig — eine Dreiergruppe lässt in beiden Fällen eine Karte allein
-  // in der letzten Zeile stehen. Gleiche Regel wie im Bezirks-Regal.
-  const SIBLING_LIMIT = 4;
-  const [mustEats, siblingCandidates] = await Promise.all([
-    getMustEatsByRestaurant(r._id),
-    getRestaurantSiblingCandidates({
-      selfSlug: slug,
-      selfName: r.name,
-      bezirkSlug: r.bezirk?.slug,
-      bezirkLimit: SIBLING_LIMIT,
-    }),
-  ]);
-
-  const siblingsBezirk = siblingCandidates.bezirk;
+  const { restaurant: r, mustEats } = page;
+  const siblingsBezirk = page.siblings;
 
   const loc = locale === 'de' ? 'de' : 'en';
   const de = loc === 'de';

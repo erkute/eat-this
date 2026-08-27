@@ -5088,7 +5088,22 @@
 
 /* Zwei Zeilen sind die Grenze, danach wird geklemmt — sonst trägt der Streifen
    seine feste Höhe nicht. Der Tintenraum darunter verhindert, dass der Clip die
-   Unterlängen der Providence abrasiert. */
+   Unterlängen der Providence abrasiert.
+
+   Er war zu knapp: dieser Block steht als letzter im Cascade und hat die
+   Zeilenhöhe des Blocks darüber von 1.24 auf 1.16 gezogen, den Tintenraum aber
+   bei 0.2em gelassen. In em gerechnet — Inhaltsfläche der Providence 1.45em,
+   Grundlinie in der 1.16em-Zeile bei 0.805em, „g" 0.484em darunter, Tinte also
+   bis 1.289em, Kastenkante bei 1.36em — blieben 0.071em. Gemessen am 27.08.2026
+   in Chrome 151, lokal und auf www.eatthisdot.com, waren das 1,5–2,0px auf
+   1440×900, 1280×780 und 390×844: nicht abgeschnitten, aber innerhalb der
+   Pixelrundung. 0.3em macht 0.171em daraus (gemessen 2,8–3,7px) und liegt damit
+   über den 0.131em, die der 1.24er-Block vorher trug.
+
+   Padding statt mehr Zeilenhöhe: die Grundlinie bleibt liegen, die erste Zeile
+   rührt sich nicht, und der Kasten wächst nur einmal um das Delta statt zweimal.
+   Die max-height muss mitwandern, sonst frisst der Deckel den Raum wieder auf.
+   Der Streifen hält seine 92px trotzdem — die Luft dafür steht im Foto. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
 .detailV13MustEat > .fdRestDock .fdV {
   display: -webkit-box;
@@ -5097,8 +5112,8 @@
   line-clamp: 2;
   overflow: hidden;
   min-height: 0;
-  max-height: calc(2 * 1.16em + 0.2em);
-  padding-bottom: 0.2em;
+  max-height: calc(2 * 1.16em + 0.3em);
+  padding-bottom: 0.3em;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(17px, 4.4vw, 20px);
   font-weight: 700;

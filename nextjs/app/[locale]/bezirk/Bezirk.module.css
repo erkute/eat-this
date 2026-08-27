@@ -243,8 +243,8 @@
 }
 .cardTip {
   font-family: var(--f-body);
-  font-size: 14.5px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.6;
   color: var(--ink);
   margin: 0;
   opacity: 0.86;
@@ -396,7 +396,7 @@
   }
   .cardTip {
     font-size: 16px;
-    line-height: 1.55;
+    line-height: 1.6;
   }
   .cardMeta {
     margin-bottom: 14px;
@@ -567,7 +567,9 @@
   margin: 0;
   color: var(--et-home-red);
   font-family: var(--et-font-display);
-  font-size: clamp(24px, var(--district-title-size, 10cqi), 66px);
+  /* Der cqi-Wert skaliert mit dem Container und traf auf dem Handy 63px —
+     über dem Band der Wettbewerber (26–40 mobil, 40–64 Desktop). */
+  font-size: clamp(24px, var(--district-title-size, 8cqi), 60px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
@@ -583,7 +585,7 @@
   color: var(--et-home-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 20px);
-  line-height: 1.48;
+  line-height: 1.6;
 }
 
 .detailHeroActions {
@@ -982,7 +984,7 @@
 .page .indexHero .h1 {
   font-family: var(--et-font-display);
   max-width: 9ch;
-  font-size: clamp(52px, 11vw, 92px);
+  font-size: clamp(40px, 10vw, 46px);
   letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
   color: var(--ink);
@@ -1265,7 +1267,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
   color: var(--et-home-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(15px, 1.4vw, 17px);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .districtMore {
@@ -1368,7 +1370,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 @media (min-width: 960px) {
   .page .indexHero .h1 {
     max-width: 11.5ch;
-    font-size: clamp(64px, 6.2vw, 86px);
+    font-size: clamp(48px, 4.4vw, 60px);
   }
 
   .districtName {

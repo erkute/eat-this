@@ -43,7 +43,7 @@
   margin: 0;
   color: var(--news-red);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(46px, 7vw, 88px);
+  font-size: clamp(40px, 5vw, 64px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.86;
@@ -58,7 +58,7 @@
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 20px);
   font-weight: 700;
-  line-height: 1.38;
+  line-height: 1.6;
 }
 
 /* ----------------------------------------------------------- stories ---- */

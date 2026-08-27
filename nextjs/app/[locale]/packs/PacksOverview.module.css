@@ -361,9 +361,9 @@
 .desc {
   margin: 0;
   color: var(--packs-muted);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.42;
+  line-height: 1.6;
 }
 
 .packActions {
@@ -443,7 +443,7 @@
   }
 
   .heroTitle {
-    font-size: clamp(58px, 18vw, 86px);
+    font-size: clamp(40px, 11vw, 46px);
   }
 
   .heroLead {

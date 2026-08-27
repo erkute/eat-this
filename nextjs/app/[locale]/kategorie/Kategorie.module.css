@@ -35,7 +35,9 @@
   margin: 0;
   color: var(--category-red);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(52px, 11vw, 92px);
+  /* 92px war der zweitgrößte Titel der Seite. Band der Wettbewerber:
+     40–64 auf Desktop, 26–40 mobil. */
+  font-size: clamp(38px, 4.8vw, 60px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-title);
   line-height: 0.86;
@@ -49,7 +51,7 @@
   color: var(--category-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 19px);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .categoriesBlock {
@@ -117,7 +119,7 @@
   color: var(--category-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(15px, 1.4vw, 17px);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .categoryMore {
@@ -245,7 +247,7 @@
   color: var(--category-muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 20px);
-  line-height: 1.48;
+  line-height: 1.6;
 }
 
 .quickFacts {

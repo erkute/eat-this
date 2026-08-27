@@ -58,9 +58,10 @@
   padding: clamp(4px, 0.45vw, 6px) 10vw 20px 0;
   color: var(--home-ink);
   font-family: var(--font-body, var(--font), system-ui, sans-serif);
-  font-size: clamp(14px, 1.2vw, 16px);
+  /* 14px lagen unter dem Band der Wettbewerber (15–18px Fließtext). */
+  font-size: clamp(16px, 1.2vw, 17px);
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.6;
   opacity: 0.75;
 }
 

@@ -520,7 +520,7 @@ button.cta {
   }
 
   .name {
-    font-size: clamp(76px, 7vw, 96px);
+    font-size: clamp(52px, 4.8vw, 64px);
   }
 
   .kicker {
@@ -606,7 +606,7 @@ button.cta {
 
   .name {
     max-width: 100%;
-    font-size: clamp(54px, 18vw, 82px);
+    font-size: clamp(38px, 11vw, 46px);
   }
 
   .sub {

@@ -37,20 +37,28 @@ const me = (o: Partial<MapMustEat> = {}): MapMustEat => ({
   ...o,
 });
 
-const data = (mustEats: MapMustEat[]): InitialMapData => ({
+/** A covered card as the server hands it over: stripCoveredMustEats keeps the
+ *  id, the order and the restaurant, and withholds dish, image and price. */
+const covered = (id: string, name: string): MapMustEat => ({
+  _id: id,
+  restaurant: { _id: `r-${id}`, name, slug: `slug-${id}`, lat: 52.5, lng: 13.4 },
+});
+
+const data = (mustEats: MapMustEat[], revealedMustEatIds: string[] = []): InitialMapData => ({
   restaurants: [],
   lockedRestaurants: [],
   mustEats,
   categories: [],
   totalCount: 0,
-  revealedMustEatIds: [],
+  revealedMustEatIds,
 });
 
 /** Helper: same as data() but with all must-eat ids in revealedMustEatIds */
-const dataRevealed = (mustEats: MapMustEat[]): InitialMapData => ({
-  ...data(mustEats),
-  revealedMustEatIds: mustEats.map((m) => m._id),
-});
+const dataRevealed = (mustEats: MapMustEat[]): InitialMapData =>
+  data(
+    mustEats,
+    mustEats.map((m) => m._id)
+  );
 
 // useTranslation() pulls in next-intl's useRouter, which needs the app router
 // context mounted. The test never navigates — a stub is enough.
@@ -85,12 +93,23 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain('Must Eats');
   });
 
-  it('renders the title + lead + must-eats CTA via translations/copy', () => {
+  it('renders the title + lead + must-eats CTA via translations', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain(translations.de.mustEats.teaserTitle);
-    // Lead line is hardcoded design copy (not a translation key)
-    expect(html).toContain('Jedes Must Eat ist eine Karte');
+    expect(html).toContain(translations.de.mustEats.teaserSub);
     expect(html).toContain(translations.de.mustEats.teaserCta);
+  });
+
+  it('offers the onboarding explainer without opening it on the home page', () => {
+    const html = render(dataRevealed([me()]));
+    // The three-slide explainer used to be reachable only from the Must-Eats
+    // page, i.e. only past the CTA — so a visitor who bounced off this section
+    // for not understanding it never got the explanation. The trigger renders
+    // here; the dialog itself must not, or the home page opens with a modal.
+    // Substring, not the whole string: React escapes the apostrophe in
+    // "Wie funktioniert's?".
+    expect(html).toContain('Wie funktioniert');
+    expect(html).not.toContain('role="dialog"');
   });
 
   it('points the must-eats CTA at the full must-eats page', () => {
@@ -135,5 +154,36 @@ describe('HubMustEatsTeaser', () => {
   it('renders nothing when no card is face-up', () => {
     // revealedMustEatIds is empty → no face-up cards → section should be empty
     expect(render(data([me()]))).toBe('');
+  });
+
+  it('shows covered cards as card backs, with the restaurant but no dish', () => {
+    const html = render(data([me(), covered('m2', 'Ora'), covered('m3', 'Otto')], ['m1']));
+
+    // The card mechanic is only legible if the row shows both states — a row of
+    // six face-up cards reads as six framed photos, which is what made visitors
+    // ask why the dishes are on cards at all.
+    expect(html).toContain('/pics/card-back.webp');
+    expect(html).toContain('Ora');
+    expect(html).toContain('Otto');
+    expect(html).toContain(translations.de.mustEats.covered);
+    // The dish name is the paid content the server withheld; naming it here
+    // would give away the reveal.
+    expect(html).not.toContain('Dish m2');
+  });
+
+  it('sets a covered card up as a reveal, not as a dish', () => {
+    const html = render(data([me(), covered('m2', 'Ora')], ['m1']));
+
+    expect(html).toContain('href="/map?me=m2"');
+    expect(html).toContain('Verdecktes Must Eat bei Ora');
+  });
+
+  it('opens the row with a covered card so the face-up one answers it', () => {
+    const html = render(data([me(), covered('m2', 'Ora'), covered('m3', 'Otto')], ['m1']));
+
+    const backFirst = html.indexOf('/pics/card-back.webp');
+    const artFirst = html.indexOf('https://cdn.sanity.io/i.png');
+    expect(backFirst).toBeGreaterThan(-1);
+    expect(artFirst).toBeGreaterThan(backFirst);
   });
 });

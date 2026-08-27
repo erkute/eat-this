@@ -82,6 +82,9 @@ export default function StarterPackSignup({ locale }: Props) {
 
   return (
     <section
+      // Anchor target: the Must-Eats onboarding sends logged-out visitors here
+      // from its last slide (#hub-starter), same convention as #hub-fragremy.
+      id="hub-starter"
       className="homeV2 hv-section hv-wrap"
       data-hub-starter=""
       data-guest-only=""

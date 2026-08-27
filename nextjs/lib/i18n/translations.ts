@@ -130,12 +130,24 @@ const en = {
     onb3Title: 'Booster Packs.',
     onb3Body:
       'New spots come in Booster Packs — buy one to unlock fresh spots and Must Eats for your map.',
+    onbFlipAria: 'Flip the card',
+    // Last slide, logged-out variant. Selling a paid Booster Pack to someone
+    // without an account skips a rung: the free Starter Pack is the offer that
+    // actually applies to them.
+    onbStarterKicker: 'Free',
+    onbStarterTitle: 'Starter Pack.',
+    onbStarterBody: 'Sign up and unlock more spots and their Must Eats on your map. Free.',
+    onbStarterCta: 'Get the Starter Pack',
     onbNext: 'Next',
     onbStart: "Let's go",
     onbPacksCta: 'View Booster Packs',
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
-    teaserSub: "The dishes you can't miss in Berlin.",
+    // The home teaser's lead. Names what a card is and why it is a card, in
+    // that order — the row underneath is mostly face-down, so the second half
+    // describes what the visitor is looking at.
+    teaserSub:
+      'One dish per spot that you have to order. A few cards are face-up — you reveal the rest on site.',
     teaserCta: 'All Must Eats',
   },
   news: {
@@ -151,8 +163,9 @@ const en = {
     filterAll: 'All',
     myLocationAriaLabel: 'My location',
     // The locate control wears this until a position is shared. It talks the
-    // way the rest of the map does ("Come closer", "Reveal now") — a bare
-    // "Locate" would be a system control, not ours.
+    // way the rest of the map does ("You're here.", "Tap the card.") — a bare
+    // "Locate" would be a system control, not ours. The covered card's
+    // no-location state says the same thing, deliberately.
     locateInvite: 'Where are you?',
     restaurantsListAriaLabel: 'Restaurants nearby',
     open: 'Open',
@@ -180,9 +193,11 @@ const en = {
     dataError: 'The map data could not be loaded.',
     dataStale: 'Update failed. Showing older map data.',
     dataRetry: 'Retry',
+    // Accessible names for the covered card itself — the only thing a screen
+    // reader gets, so they name the state and the action rather than repeating
+    // the visible copy.
     tooFarToReveal: 'Too far to reveal',
-    revealHere: 'Reveal now. Tap the card to uncover your Must Eat.',
-    awayToUnlock: 'away \u2014 come within 200 m to unlock.',
+    revealHere: 'Reveal now. Tap the card.',
     viewRestaurant: 'View restaurant',
     mustEatLabel: 'Must Eat',
     unitsMin: 'min',
@@ -248,23 +263,25 @@ const en = {
     listEndSub: 'Nine Booster Packs with every spot and Must Eat, right on your map.',
     listEndCta: 'Unlock all Berlin',
     mustEatAtAria: 'Must Eat at {name}',
-    proximityHere: 'Reveal now',
+    // The covered card carries two lines: state on top, action below — and at
+    // most ONE number. The headline names the distance; the sub used to name
+    // the radius too ("get within 50 m"). "8.2 km to go" above "50 m" read as
+    // arithmetic, so the rule now stands without a figure.
+    proximityHere: "You're here.",
     proximityAway: '{distance} to go',
     // Shown on a covered card when there is no fix at all. It used to read
     // "Come closer", which is a lie to anyone already standing in the doorway:
     // the app does not know where they are, and never said so.
-    locationNeeded: 'Share your location',
-    enableLocation:
-      "Tap the card to share your location \u2014 then you'll see how far you still have to go.",
+    locationNeeded: 'Where are you?',
+    enableLocation: 'Tap the card and share your location.',
     locationBlocked: 'Location blocked',
-    locationBlockedHint:
-      'Allow location in your browser settings, then you can reveal Must Eats on site.',
-    proximityTapReveal: 'Tap the card to uncover your Must Eat.',
-    proximityHint: 'Get within {meters} m of the spot, then you can reveal the Must Eat.',
-    revealSaving: 'Saving your Must Eat…',
-    revealSavingHint: 'The card flips as soon as it is safely in your collection.',
-    revealError: 'Could not save this card.',
-    revealRetry: 'Tap the card to try again.',
+    locationBlockedHint: 'Allow it in your browser settings, then it works on site.',
+    proximityTapReveal: 'Tap the card.',
+    proximityHint: 'You reveal it on site.',
+    revealSaving: 'Going into your collection…',
+    revealSavingHint: 'It flips in a second.',
+    revealError: "That didn't work.",
+    revealRetry: 'Tap the card again.',
     revealAria: 'Reveal',
     addToDeckAria: 'Add to your deck',
   },
@@ -567,12 +584,19 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onb3Title: 'Booster Packs.',
     onb3Body:
       "Neue Spots gibt's in den Booster Packs — kauf eins und schalte frische Spots plus Must Eats für deine Map frei.",
+    onbFlipAria: 'Karte umdrehen',
+    onbStarterKicker: 'Gratis',
+    onbStarterTitle: 'Starter Pack.',
+    onbStarterBody:
+      'Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei. Kostenlos.',
+    onbStarterCta: 'Starter Pack holen',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
     onbPacksCta: 'Booster Packs ansehen',
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
-    teaserSub: 'Die Gerichte, die du nicht verpassen darfst.',
+    teaserSub:
+      'Ein Gericht pro Spot, das du bestellen musst. Ein paar Karten liegen offen — den Rest deckst du vor Ort auf.',
     teaserCta: 'Alle Must-Eats',
   },
   news: {
@@ -614,7 +638,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     dataRetry: 'Nochmal',
     tooFarToReveal: 'Zu weit weg',
     revealHere: 'Jetzt aufdecken. Tipp auf die Karte.',
-    awayToUnlock: 'entfernt \u2014 komm auf 200 m heran zum Aufdecken.',
     viewRestaurant: 'Restaurant ansehen',
     mustEatLabel: 'Must Eat',
     unitsMin: 'Min',
@@ -677,20 +700,23 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     listEndSub: 'Neun Booster Packs mit allen Spots und Must Eats direkt auf deiner Map.',
     listEndCta: 'Ganz Berlin holen',
     mustEatAtAria: 'Must Eat bei {name}',
-    proximityHere: 'Jetzt aufdecken',
+    // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
+    // Handlung — und höchstens EINE Zahl. Die Kopfzeile nennt die Entfernung,
+    // die Unterzeile nannte zusätzlich den Radius („komm auf 50 m heran").
+    // „Noch 8,2 km" über „50 m" las sich als Rechenaufgabe; die Spielregel
+    // steht jetzt ohne Zahl da.
+    proximityHere: 'Du bist da.',
     proximityAway: 'Noch {distance}',
-    locationNeeded: 'Standort freigeben',
-    enableLocation:
-      'Tipp auf die Karte und gib deinen Standort frei \u2014 dann siehst du, wie weit es noch ist.',
+    locationNeeded: 'Wo bist du?',
+    enableLocation: 'Tipp auf die Karte und gib deinen Standort frei.',
     locationBlocked: 'Standort blockiert',
-    locationBlockedHint:
-      'Erlaube den Standort in den Browser-Einstellungen, dann kannst du Must Eats vor Ort aufdecken.',
-    proximityTapReveal: 'Tipp auf die Karte und deck dein Must Eat auf.',
-    proximityHint: 'Komm auf {meters} m an den Spot heran, dann kannst du das Must Eat aufdecken.',
-    revealSaving: 'Dein Must Eat wird gespeichert …',
-    revealSavingHint: 'Die Karte dreht sich um, sobald sie sicher in deiner Sammlung ist.',
-    revealError: 'Die Karte konnte nicht gespeichert werden.',
-    revealRetry: 'Tipp auf die Karte, um es nochmal zu versuchen.',
+    locationBlockedHint: "Erlaub ihn in den Browser-Einstellungen, dann geht's vor Ort.",
+    proximityTapReveal: 'Tipp auf die Karte.',
+    proximityHint: 'Aufgedeckt wird vor Ort.',
+    revealSaving: 'Kommt in deine Sammlung …',
+    revealSavingHint: 'Gleich dreht sie sich um.',
+    revealError: 'Hat nicht geklappt.',
+    revealRetry: 'Tipp nochmal auf die Karte.',
     revealAria: 'Aufdecken',
     addToDeckAria: 'In dein Deck legen',
   },

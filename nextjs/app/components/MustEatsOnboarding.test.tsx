@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 
+// Keys pass through as their own name, which keeps assertions readable. The
+// step-rail labels are built inline from `lang`, so they come out as real text.
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ lang: 'de', t: (k: string) => k, setLang: () => {} }),
 }));
@@ -59,6 +61,10 @@ describe('MustEatsOnboarding', () => {
     expect(screen.getByText('mustEats.onb1Title')).toBeTruthy();
   });
 
+  /** The last slide renders both offers and CSS (html[data-auth]) picks one, so
+   *  in jsdom both are present — scope queries to the row under test. */
+  const row = (variant: 'guest' | 'auth') => screen.getByTestId(`onb-actions-${variant}`);
+
   it('steps through all three slides; last button closes and sets flag', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.onbNext'));
@@ -68,9 +74,61 @@ describe('MustEatsOnboarding', () => {
     expect(screen.getByText('mustEats.onb3Title')).toBeTruthy();
     expect(screen.getByText('mustEats.onb3Body')).toBeTruthy();
     expect(screen.getByText('mustEats.onbPacksCta').getAttribute('href')).toBe('/packs');
-    fireEvent.click(screen.getByText('mustEats.onbStart'));
+    fireEvent.click(screen.getByText('mustEats.onbStart', { selector: '[data-auth-only] button' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
+  });
+
+  it('pitches the free Starter Pack to logged-out visitors on the last slide', () => {
+    render(<MustEatsOnboarding initialMapData={DATA} />);
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+
+    // Both offers ship; html[data-auth] decides which one paints. Guests get the
+    // free pack — a paid Booster Pack is a rung that needs an account first.
+    const guest = row('guest');
+    expect(guest.textContent).toContain('mustEats.onbStarterCta');
+    expect(guest.querySelector('a')?.getAttribute('href')).toBe('/#hub-starter');
+    expect(screen.getByTestId('onb-starter-pack').getAttribute('src')).toContain(
+      '/pics/booster/booster_free.webp'
+    );
+
+    // …and the paid one stays for signed-in visitors.
+    expect(row('auth').textContent).toContain('mustEats.onbPacksCta');
+  });
+
+  it('gives the guest offer the primary slot and dismissing the secondary one', () => {
+    render(<MustEatsOnboarding initialMapData={DATA} />);
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+
+    const guest = row('guest');
+    // The free offer must not sit below "no thanks".
+    expect(guest.firstElementChild?.textContent).toBe('mustEats.onbStarterCta');
+    fireEvent.click(
+      screen.getByText('mustEats.onbStart', { selector: '[data-guest-only] button' })
+    );
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('steps back and forth by clicking the numbered rail', () => {
+    render(<MustEatsOnboarding initialMapData={DATA} />);
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    expect(screen.getByText('mustEats.onb3Title')).toBeTruthy();
+
+    // Was decorative, so the only way back used to be closing and reopening.
+    fireEvent.click(screen.getByLabelText('Zu Schritt 1 von 3'));
+    expect(screen.getByText('mustEats.onb1Title')).toBeTruthy();
+
+    fireEvent.click(screen.getByLabelText('Zu Schritt 2 von 3'));
+    expect(screen.getByText('mustEats.onb2Title')).toBeTruthy();
+  });
+
+  it('marks the current step on the rail', () => {
+    render(<MustEatsOnboarding initialMapData={DATA} />);
+    expect(screen.getByLabelText('Zu Schritt 1 von 3').getAttribute('aria-current')).toBe('step');
+    expect(screen.getByLabelText('Zu Schritt 2 von 3').getAttribute('aria-current')).toBeNull();
   });
 
   it('backdrop click closes the overlay', () => {
@@ -91,6 +149,45 @@ describe('MustEatsOnboarding', () => {
       '/pics/booster/booster.webp'
     );
     expect(screen.queryByTestId('onb-flipper')).toBeNull();
+  });
+
+  it('lets the visitor flip the card themselves on step 2, cancelling the auto-flip', () => {
+    vi.useFakeTimers();
+    try {
+      render(<MustEatsOnboarding initialMapData={DATA} />);
+      fireEvent.click(screen.getByText('mustEats.onbNext'));
+      const flipper = screen.getByTestId('onb-flipper');
+      expect(flipper.className).toContain('flipped');
+
+      // Tapping the card is the mechanic itself, so the card is the control.
+      act(() => {
+        fireEvent.click(screen.getByLabelText('mustEats.onbFlipAria'));
+      });
+      expect(flipper.className).not.toContain('flipped');
+
+      // The pending auto-flip must not fire afterwards and take the card back
+      // off the visitor.
+      act(() => {
+        vi.advanceTimersByTime(800);
+      });
+      expect(flipper.className).not.toContain('flipped');
+
+      act(() => {
+        fireEvent.click(screen.getByLabelText('mustEats.onbFlipAria'));
+      });
+      expect(flipper.className).toContain('flipped');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('offers no flip control outside step 2', () => {
+    render(<MustEatsOnboarding initialMapData={DATA} />);
+    expect(screen.queryByLabelText('mustEats.onbFlipAria')).toBeNull();
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    expect(screen.getByLabelText('mustEats.onbFlipAria')).toBeTruthy();
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    expect(screen.queryByLabelText('mustEats.onbFlipAria')).toBeNull();
   });
 
   it('step 2 shows the card back, then auto-flips open after the dwell', () => {

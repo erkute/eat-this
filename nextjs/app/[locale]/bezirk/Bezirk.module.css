@@ -797,12 +797,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Höhere Spezifität als `.cardTip` — diese Regel hat die Anhebung dort
+   überstimmt und lieferte weiter 14px/1.5 auf den Kategorie- und
+   Bezirks-Detailseiten. */
 .bezirkDetail .cardTip {
   margin: 0;
   color: var(--et-home-muted);
   font-family: var(--font-body, var(--font), sans-serif);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .detailMapCta {

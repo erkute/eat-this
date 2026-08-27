@@ -651,6 +651,11 @@
   opacity: 0.8;
 }
 
+/* line-height 1.35, nicht 1.1: Providence hat bei 15px eine 7,3px tiefe
+   Unterlänge, die Zeile war aber nur 16,5px hoch — dem „g" in „Charlottenburg"
+   fehlten unten 1,2px, und `overflow: hidden` (das das Ellipsis trägt) hat sie
+   abgeschnitten (User, 2026-08-27). Die Zeile wächst dadurch nicht: 10px
+   Innenabstand + 20,25px + 10px bleiben unter den 42px Mindesthöhe. */
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;
@@ -660,7 +665,7 @@
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.1;
+  line-height: 1.35;
   text-transform: none;
   text-overflow: ellipsis;
   white-space: nowrap;

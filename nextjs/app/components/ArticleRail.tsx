@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import NewsArticleShare from './NewsArticleShare';
 import styles from './ArticleRail.module.css';
 
@@ -56,6 +56,7 @@ export default function ArticleRail({
   shareExcerpt,
 }: Props) {
   const [activeId, setActiveId] = useState<string>(chapters[0]?.id ?? '');
+  const railRef = useRef<HTMLDivElement>(null);
   // A stable dependency: `chapters` is rebuilt on every parent render, so
   // depending on the array itself would tear the listeners down each time.
   const chapterKey = chapters.map((c) => c.id).join('|');
@@ -100,6 +101,33 @@ export default function ArticleRail({
     };
   }, [chapterKey]);
 
+  // Die Leiste dem Lesefortschritt nachführen.
+  //
+  // Seit sie ihre eigene Höhe hat und in sich scrollt, wandert das aktive
+  // Kapitel bei langen Guides aus ihrem Ausschnitt heraus — man las weiter und
+  // musste die Leiste von Hand nachziehen, um zu sehen, wo man steht.
+  //
+  // Bewusst über `scrollTop` statt `scrollIntoView`: letzteres scrollt JEDEN
+  // Vorfahren mit, hier also `.app-pages` — die Seite würde beim Lesen unter
+  // dem Finger wegspringen. So bewegt sich nur die Leiste.
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail || rail.scrollHeight <= rail.clientHeight) return;
+    const item = rail.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!item) return;
+
+    // Rand, damit das aktive Kapitel nicht auf der Kante klebt: man soll sehen,
+    // dass darüber und darunter noch etwas steht.
+    const edge = 28;
+    const railBox = rail.getBoundingClientRect();
+    const itemBox = item.getBoundingClientRect();
+    const above = railBox.top + edge - itemBox.top;
+    const below = itemBox.bottom - (railBox.bottom - edge);
+
+    if (above > 0) rail.scrollTop -= above;
+    else if (below > 0) rail.scrollTop += below;
+  }, [activeId]);
+
   if (!chapters.length) return null;
 
   // The page scrolls inside `.app-pages` on desktop, so a plain #hash does
@@ -115,7 +143,7 @@ export default function ArticleRail({
 
   return (
     <aside className={styles.rail} aria-label={label}>
-      <div className={styles.sticky}>
+      <div className={styles.sticky} ref={railRef}>
         <span className={styles.label}>{label}</span>
         <ol className={styles.list}>
           {chapters.map((c, i) => {

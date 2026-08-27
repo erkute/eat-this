@@ -59,9 +59,6 @@ const en = {
     newOnMap: {
       title: 'New on the map',
     },
-    dishPoster: {
-      title: 'This is what to eat?',
-    },
     fragRemy: {
       title: 'Ask Remy',
       headline: 'Remy knows the spots.',
@@ -91,25 +88,6 @@ const en = {
       sub: 'A quick entry to the closest spots on the map.',
       subFallback: 'Share your location and Berlin sorts itself around you.',
     },
-    welcomePack: {
-      cat: 'Booster Pack',
-      name: 'Welcome Pack',
-      desc: 'More curated spots with their Must Eats — right after you sign up.',
-      checkMail: 'Check your mail ✓',
-      emailPlaceholder: 'your@email.com',
-      emailAria: 'Email address',
-      sending: 'Sending…',
-      signUp: 'Sign up',
-    },
-  },
-  nav: {
-    searchAriaLabel: 'Search',
-    menuAriaLabel: 'Menu',
-    closeAriaLabel: 'Close',
-  },
-  musts: {
-    sectionLabel: 'Berlin',
-    subtitle: 'The dishes you can\u2019t leave Berlin without trying.',
   },
   mustEats: {
     filterAll: 'All',
@@ -146,19 +124,15 @@ const en = {
     // The home teaser's lead. Names what a card is and why it is a card, in
     // that order — the row underneath is mostly face-down, so the second half
     // describes what the visitor is looking at.
-    teaserSub:
-      'One dish per spot that you have to order. A few cards are face-up — you reveal the rest on site.',
+    teaserSub: 'Dishes you have to order. A few cards are face-up — you reveal the rest on site.',
     teaserCta: 'All Must Eats',
   },
   news: {
-    sectionLabel: 'Berlin',
     sectionTitle: 'Food News',
-    errorLoad: 'Could not load articles. Please try again later.',
     back: 'Back',
     more: 'More from Eat This',
   },
   map: {
-    searchPlaceholder: 'Restaurant, district, pizza\u2026',
     openNow: 'Open',
     filterAll: 'All',
     myLocationAriaLabel: 'My location',
@@ -171,23 +145,16 @@ const en = {
     open: 'Open',
     closed: 'Closed',
     reserve: 'Reserve',
-    restaurantOne: 'spot',
-    restaurantMany: 'spots',
     openingHours: 'Opening Hours',
     insiderTip: 'Insider Tip',
     photos: 'Photos',
-    mustEatsCount: 'Must Eats',
-    googleMaps: 'Google Maps',
     share: 'Share',
-    save: 'Save',
     address: 'Address',
     category: 'Category',
     price: 'Price',
     maps: 'Maps',
     opens: 'Opens',
     closes: 'Closes',
-    loadingTitle: 'Shuffling your cards',
-    loadingSub: 'Berlin loading',
     dataLoading: 'Loading map data…',
     dataRefreshing: 'Updating your map…',
     dataError: 'The map data could not be loaded.',
@@ -198,28 +165,14 @@ const en = {
     // the visible copy.
     tooFarToReveal: 'Too far to reveal',
     revealHere: 'Reveal now. Tap the card.',
-    viewRestaurant: 'View restaurant',
-    mustEatLabel: 'Must Eat',
     unitsMin: 'min',
     unitsH: 'h',
-    backToRestaurant: 'Back to restaurant',
-    sectionUnlocked: 'Unlocked',
-    sectionLocked: 'Not yet discovered',
-    lockedBadge: 'Locked',
-    lockedCardBadge: 'Unlock',
     boosterTitle: 'Hungry for more?',
     boosterDesc: 'More good spots. More Must Eats. Right on your map.',
     boosterCta: 'Unlock more',
-    boosterEyebrow: 'Booster',
-    boosterPriceTag: 'More picks',
-    boosterSecondary: 'See all boosters',
     starterTitle: 'More spots, more must eats',
-    starterSubline: 'Unlock them with the Welcome Pack when you sign up.',
     starterCta: 'Sign up',
-    spotsCountOne: 'Spot',
-    spotsCountMany: 'Spots',
     searchClose: 'Close search',
-    searchOpenAria: 'Search',
     viewToggleMap: 'Map',
     viewToggleList: 'List',
     filterChipCategory: 'Category',
@@ -231,8 +184,6 @@ const en = {
     pickerCategoryTitle: 'Pick a category',
     pickerBezirkTitle: 'Pick a district',
     pickerCuisineTitle: 'Pick a cuisine',
-    statusLabel: 'Status',
-    allHours: 'All hours',
     inRestaurant: 'In the restaurant',
     toSpot: 'To the spot',
     zoomCard: 'Zoom card',
@@ -240,13 +191,7 @@ const en = {
     pagerAria: 'Switch Must Eat',
     pagerPrev: 'Previous Must Eat',
     pagerNext: 'Next Must Eat',
-    inMaps: 'In Maps',
-    mapsApple: 'Apple Maps',
-    mapsGoogle: 'Google Maps',
-    tabStory: 'Story',
-    tabTipp: 'Tip',
     walkMinutes: 'on foot',
-    starterEyebrow: 'Spot locked',
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: 'Sign in — more spots and Must Eats are waiting for you.',
     starterPromoLogin: 'Already in? Sign in',
@@ -263,21 +208,32 @@ const en = {
     listEndSub: 'Nine Booster Packs with every spot and Must Eat, right on your map.',
     listEndCta: 'Unlock all Berlin',
     mustEatAtAria: 'Must Eat at {name}',
-    // The covered card carries two lines: state on top, action below — and at
-    // most ONE number. The headline names the distance; the sub used to name
-    // the radius too ("get within 50 m"). "8.2 km to go" above "50 m" read as
-    // arithmetic, so the rule now stands without a figure.
+    // The covered card carries two lines: state on top, action below — and no
+    // number at all. First "8.2 km to go" and "get within 50 m" stood on top of
+    // each other and read as arithmetic; then the distance stood alone and made
+    // the spot look far and like hard work, while the rule below it ("on site")
+    // never said what there was to win. The map shows how far it is; these two
+    // lines explain the card and name the prize.
     proximityHere: "You're here.",
-    proximityAway: '{distance} to go',
+    proximityAway: 'Still face-down.',
     // Shown on a covered card when there is no fix at all. It used to read
     // "Come closer", which is a lie to anyone already standing in the doorway:
     // the app does not know where they are, and never said so.
     locationNeeded: 'Where are you?',
-    enableLocation: 'Tap the card and share your location.',
+    // Answers the headline's question ("Where are you?") instead of only giving
+    // an instruction: without a fix the card cannot know when you're standing
+    // there, and that is the whole reason it asks.
+    // One step at a time: this state is about the location, nothing else. What
+    // happens after the fix is the next state's job ("Still face-down."), and
+    // saying it here made the visitor read past the one thing they must do.
+    enableLocation: 'Tap the card and allow your location.',
     locationBlocked: 'Location blocked',
-    locationBlockedHint: 'Allow it in your browser settings, then it works on site.',
-    proximityTapReveal: 'Tap the card.',
-    proximityHint: 'You reveal it on site.',
+    locationBlockedHint: 'Allow your location in your browser settings.',
+    proximityTapReveal: 'Tap it and see what to order here.',
+    // Makes the card worth wanting instead of just explaining the rule: it names
+    // the prize first ("the one dish") and puts the condition second. Echoes the
+    // onboarding's "You gotta try this."
+    proximityHint: "A dish you have to try. Flip the card at the spot — then it's yours.",
     revealSaving: 'Going into your collection…',
     revealSavingHint: 'It flips in a second.',
     revealError: "That didn't work.",
@@ -294,7 +250,6 @@ const en = {
   footer: {
     start: 'Start',
     news: 'News',
-    musts: 'Eat This',
     map: 'Map',
     signIn: 'Sign in',
     about: 'About',
@@ -327,9 +282,6 @@ const en = {
     heroTitle: 'Your Berlin HQ',
     heroLine: 'Eat · save · repeat',
     fieldAccount: 'Account',
-    avatarChoice1: 'Spot Scout',
-    avatarChoice2: 'Spice Diva',
-    avatarChoice3: 'Chef Slice',
     savedHeading: 'Saved Spots',
     cityKicker: 'Berlin',
     cityCount: 'of {total} spots on your map',
@@ -474,11 +426,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   a11y: {
     skip: 'Zum Inhalt springen',
   },
-  nav: {
-    searchAriaLabel: 'Suche',
-    menuAriaLabel: 'Menü',
-    closeAriaLabel: 'Schließen',
-  },
   hub: {
     hero: {
       claim: 'The map for people who care about food',
@@ -529,9 +476,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     newOnMap: {
       title: 'Neu auf der Map',
     },
-    dishPoster: {
-      title: 'Das willst du essen?',
-    },
     fragRemy: {
       title: 'Frag Remy',
       headline: 'Remy kennt die Spots.',
@@ -555,17 +499,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       sub: 'Der schnelle Einstieg zu den nächsten Spots auf der Map.',
       subFallback: 'Gib deinen Standort frei — dann sortiert sich Berlin um dich herum.',
     },
-    welcomePack: {
-      desc: 'Weitere kuratierte Spots samt Must Eats — direkt nach deiner Anmeldung.',
-      checkMail: 'Check deine Mail ✓',
-      emailPlaceholder: 'deine@email.com',
-      emailAria: 'E-Mail Adresse',
-      sending: 'Sende…',
-      signUp: 'Anmelden',
-    },
-  },
-  musts: {
-    subtitle: 'Die Gerichte, die du in Berlin nicht verpassen darfst.',
   },
   mustEats: {
     filterAll: 'Alle',
@@ -596,11 +529,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
     teaserSub:
-      'Ein Gericht pro Spot, das du bestellen musst. Ein paar Karten liegen offen — den Rest deckst du vor Ort auf.',
+      'Gerichte, die du bestellen musst. Ein paar Karten liegen offen — den Rest deckst du vor Ort auf.',
     teaserCta: 'Alle Must-Eats',
   },
   news: {
-    errorLoad: 'Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.',
     back: 'Zur\u00fcck',
     more: 'Mehr von Eat This',
   },
@@ -609,28 +541,20 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     myLocationAriaLabel: 'Mein Standort',
     locateInvite: 'Wo bist du?',
     restaurantsListAriaLabel: 'Restaurants in der N\u00e4he',
-    searchPlaceholder: 'Restaurant, Bezirk, Pizza\u2026',
     openNow: 'Offen',
     open: 'Ge\u00f6ffnet',
     closed: 'Geschlossen',
     reserve: 'Reservieren',
-    restaurantOne: 'Ort',
-    restaurantMany: 'Orte',
     openingHours: '\u00d6ffnungszeiten',
     insiderTip: 'Insider-Tipp',
     photos: 'Fotos',
-    mustEatsCount: 'Must Eats',
-    googleMaps: 'Google Maps',
     share: 'Teilen',
-    save: 'Speichern',
     address: 'Adresse',
     category: 'Kategorie',
     price: 'Preis',
     maps: 'Maps',
     opens: '\u00d6ffnet',
     closes: 'Schlie\u00dft',
-    loadingTitle: 'Die Karten werden gemischt',
-    loadingSub: 'Berlin l\u00e4dt',
     dataLoading: 'Kartendaten werden geladen …',
     dataRefreshing: 'Deine Map wird aktualisiert …',
     dataError: 'Die Kartendaten konnten nicht geladen werden.',
@@ -638,28 +562,14 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     dataRetry: 'Nochmal',
     tooFarToReveal: 'Zu weit weg',
     revealHere: 'Jetzt aufdecken. Tipp auf die Karte.',
-    viewRestaurant: 'Restaurant ansehen',
-    mustEatLabel: 'Must Eat',
     unitsMin: 'Min',
     unitsH: 'Std',
-    backToRestaurant: 'Zurück zum Restaurant',
-    sectionUnlocked: 'Freigeschaltet',
-    sectionLocked: 'Noch nicht entdeckt',
-    lockedBadge: 'Verschlossen',
-    lockedCardBadge: 'Freischalten',
     boosterTitle: 'Hunger auf mehr?',
     boosterDesc: 'Mehr gute Spots. Mehr Must Eats. Direkt auf deiner Map.',
     boosterCta: 'Mehr freischalten',
-    boosterEyebrow: 'Booster',
-    boosterPriceTag: 'Mehr Tipps',
-    boosterSecondary: 'Alle Booster ansehen',
     starterTitle: 'Mehr Spots, mehr Must Eats',
-    starterSubline: 'Mit dem Welcome Pack schaltest du sie frei — direkt beim Anmelden.',
     starterCta: 'Jetzt anmelden',
-    spotsCountOne: 'Spot',
-    spotsCountMany: 'Spots',
     searchClose: 'Suche schließen',
-    searchOpenAria: 'Suchen',
     viewToggleMap: 'Map',
     viewToggleList: 'Liste',
     filterChipCategory: 'Kategorie',
@@ -671,8 +581,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pickerCategoryTitle: 'Kategorie wählen',
     pickerBezirkTitle: 'Bezirk wählen',
     pickerCuisineTitle: 'Küche wählen',
-    statusLabel: 'Status',
-    allHours: 'Alle Zeiten',
     inRestaurant: 'Im Restaurant',
     toSpot: 'Zum Spot',
     zoomCard: 'Karte vergrößern',
@@ -680,13 +588,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerAria: 'Must Eat wechseln',
     pagerPrev: 'Vorheriges Must Eat',
     pagerNext: 'Nächstes Must Eat',
-    inMaps: 'In Maps',
-    mapsApple: 'Apple Maps',
-    mapsGoogle: 'Google Maps',
-    tabStory: 'Story',
-    tabTipp: 'Tipp',
     walkMinutes: 'zu Fuß',
-    starterEyebrow: 'Spot gesperrt',
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: 'Melde dich an — weitere Spots und Must Eats warten auf dich.',
     starterPromoLogin: 'Schon dabei? Einloggen',
@@ -701,18 +603,27 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     listEndCta: 'Ganz Berlin holen',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
-    // Handlung — und höchstens EINE Zahl. Die Kopfzeile nennt die Entfernung,
-    // die Unterzeile nannte zusätzlich den Radius („komm auf 50 m heran").
-    // „Noch 8,2 km" über „50 m" las sich als Rechenaufgabe; die Spielregel
-    // steht jetzt ohne Zahl da.
+    // Handlung — und gar keine Zahl mehr. Erst standen „Noch 8,2 km" und
+    // „komm auf 50 m heran" übereinander, was sich als Rechenaufgabe las;
+    // dann blieb die Entfernung allein stehen und ließ den Spot weit und
+    // mühsam wirken, während die Regel darunter („vor Ort") nicht sagte, was
+    // es überhaupt zu holen gibt. Wie weit es ist, zeigt die Map; diese zwei
+    // Zeilen erklären die Karte und nennen den Gewinn.
+    // Dieselbe Wendung, die die Restaurantseite schon benutzt
+    // (MustEatTeaserSection: „Noch nicht aufgedeckt."). „Nur vor Ort." las sich
+    // als Hausordnung statt als Einladung.
     proximityHere: 'Du bist da.',
-    proximityAway: 'Noch {distance}',
+    proximityAway: 'Noch nicht aufgedeckt.',
     locationNeeded: 'Wo bist du?',
-    enableLocation: 'Tipp auf die Karte und gib deinen Standort frei.',
+    enableLocation: 'Tipp die Karte an und erlaube deinen Standort.',
     locationBlocked: 'Standort blockiert',
-    locationBlockedHint: "Erlaub ihn in den Browser-Einstellungen, dann geht's vor Ort.",
-    proximityTapReveal: 'Tipp auf die Karte.',
-    proximityHint: 'Aufgedeckt wird vor Ort.',
+    locationBlockedHint: 'Erlaube deinen Standort in den Browser-Einstellungen.',
+    proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
+    // Muss in den reservierten Copy-Slot passen (--me-mid-slot, 105px für den
+    // Textteil): eine Zeile mehr, und der verdeckte Zustand steht 14px höher
+    // als die Beschreibung der Nachbarkarte.
+    proximityHint:
+      'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
     revealSaving: 'Kommt in deine Sammlung …',
     revealSavingHint: 'Gleich dreht sie sich um.',
     revealError: 'Hat nicht geklappt.',
@@ -763,9 +674,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     heroTitle: 'Deine Berlin-Zentrale',
     heroLine: 'Eat · save · repeat',
     fieldAccount: 'Account',
-    avatarChoice1: 'Spot Scout',
-    avatarChoice2: 'Spice Diva',
-    avatarChoice3: 'Chef Slice',
     savedHeading: 'Gespeicherte Spots',
     cityKicker: 'Berlin',
     cityCount: 'von {total} Spots auf deiner Map',

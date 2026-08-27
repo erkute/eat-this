@@ -54,13 +54,17 @@ describe('MustEatsSection', () => {
 
   it('renders the explanatory sub copy (de)', () => {
     const html = render();
-    expect(html).toContain('Unsere klare Empfehlung pro Spot');
+    expect(html).toContain('Unsere klare Empfehlung: die Gerichte');
+    // Ein Spot kann mehrere Must Eats haben (siehe mustEatCountByRestaurant in
+    // lib/map/server-initial-map-data.ts) — "pro Spot" war schlicht falsch.
+    expect(html).not.toContain('pro Spot');
     expect(html).toContain('den Rest deckst du vor Ort selbst auf.');
   });
 
   it('renders the explanatory sub copy (en)', () => {
     const html = render('en');
-    expect(html).toContain('Our clear pick for each spot');
+    expect(html).toContain('Our clear picks: the dishes');
+    expect(html).not.toContain('each spot');
     expect(html).toContain('you reveal the rest yourself, on site.');
   });
 

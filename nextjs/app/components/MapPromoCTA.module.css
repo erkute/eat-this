@@ -139,9 +139,11 @@
   --mark-ink-inset-b: calc(var(--mark-w) * 0.0386);
   width: var(--mark-w);
   height: auto;
-  /* Flex-Lücke und Saum ganz zurücknehmen, 4px echten Abstand stehen lassen —
-     die Wortmarke ist der Absender des Slogans, kein eigener Block. */
-  margin-bottom: calc((var(--et-rail-gap) + var(--mark-ink-inset-b) - 4px) * -1);
+  /* Flex-Lücke und Saum werden herausgerechnet, danach steht hier der echte
+     optische Abstand — die Zahl meint also Pixel zwischen Tinte und Tinte.
+     12px: bei 17 stand die Wortmarke als eigener Block über dem Slogan, bei 6
+     klebte sie daran. */
+  margin-bottom: calc((var(--et-rail-gap) + var(--mark-ink-inset-b) - 12px) * -1);
 }
 
 .title {

@@ -3322,9 +3322,6 @@
     font-size: clamp(19px, 1.85vw, 23px);
   }
 }
-.detailV13MustEat .fdRestDock {
-  display: none;
-}
 .detailV13MustEat .fdRestPhoto {
   display: block;
   flex: 0 0 auto;
@@ -3471,115 +3468,6 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-  }
-
-  .detailV13MustEat > .fdRestDock {
-    display: none;
-    position: absolute;
-    right: 0;
-    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
-    left: 0;
-    z-index: 19;
-    width: auto;
-    height: 86px;
-    min-height: 86px;
-    max-height: 86px;
-    margin: 0;
-    padding: 12px;
-    overflow: hidden;
-    transform: none;
-    transition: none;
-    animation: none;
-  }
-
-  .detailV13MustEat > .fdRestDock:has(.fdRestPhoto) .fdRestName {
-    left: 82px;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdRestPhoto {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 62px;
-    height: 62px;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdRestName {
-    position: absolute;
-    top: 12px;
-    right: 128px;
-    bottom: 12px;
-    left: 12px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 10px 44px;
-    justify-content: stretch;
-    align-content: start;
-    align-items: start;
-    align-self: start;
-    gap: 5px;
-    justify-items: start;
-    min-height: 0;
-    height: 59px;
-    max-height: 59px;
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdK {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: 10px;
-    margin: 0;
-    place-self: start stretch;
-    overflow: hidden;
-    font-family: var(
-      --et-font-mono,
-      var(--menu-mono),
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Consolas,
-      monospace
-    );
-    font-size: 10px;
-    font-weight: 850;
-    letter-spacing: 0.08em;
-    line-height: 1;
-    text-align: left;
-    text-transform: uppercase;
-    transform: none;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdV {
-    width: 100%;
-    max-width: 100%;
-    min-height: 0;
-    height: 44px;
-    max-height: 44px;
-    place-self: start stretch;
-    overflow: hidden;
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
-    font-size: clamp(21px, 2.05vw, 25px);
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 1;
-    text-align: left;
-  }
-
-  .detailV13MustEat > .fdRestDock .ctaPill {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    width: 104px;
-    min-width: 104px;
-    max-width: 104px;
-    height: 42px;
-    align-self: center;
-    justify-self: end;
-    transform: translateY(-50%);
-    transition: none;
   }
 
   [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat .detailV13Scroll {
@@ -3879,8 +3767,7 @@
     animation: none;
   }
 }
-.detailV13MustEat .fdRestInline .fdV,
-.detailV13MustEat > .fdRestDock .fdV {
+.detailV13MustEat .fdRestInline .fdV {
   display: block;
   -webkit-box-orient: initial;
   -webkit-line-clamp: unset;
@@ -4056,10 +3943,9 @@
 }
 
 /* The legacy Must-Eat kicker used translucent white from the former dark
-   card treatment. Both current restaurant panels are light, so keep the
-   small label on the canonical ink color in every responsive variant. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
-.detailV13MustEat > .fdRestDock .fdK {
+   card treatment. The current restaurant strip is light, so keep the small
+   label on the canonical ink color in every responsive variant. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
   color: var(--et-home-ink);
 }
 
@@ -4628,10 +4514,8 @@
    Das padding-bottom ist Tintenraum unter der letzten Zeile und steckt mit
    in der min-height, damit die Feldhöhe konstant bleibt. Der bekannte
    line-clamp-Nebeneffekt (Oberkante einer 3. Zeile lugt ins Padding) bleibt
-   theoretisch — 0.22em sind bei Providence' niedriger x-Höhe reines Leading.
-   Gilt für beide Varianten des Streifens (Inline im Panel + Dock). */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
-.detailV13MustEat > .fdRestDock .fdV {
+   theoretisch — 0.22em sind bei Providence' niedriger x-Höhe reines Leading. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -4848,8 +4732,7 @@
  * Höhen auf .fdV setzen; drei Klassen im Selektor schlagen sie. Der
  * `padding-bottom` ist Tintenraum unter der letzten Zeile: Providence malt
  * das "g" unter die Zeilenbox, und der line-clamp-Clip schnitt es ab. */
-.detailV13MustEat .fdRestInline .fdRestName .fdV,
-.detailV13MustEat .fdRestDock .fdRestName .fdV {
+.detailV13MustEat .fdRestInline .fdRestName .fdV {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -4872,8 +4755,7 @@
   align-self: center;
   align-content: center;
 }
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName,
-.detailV13MustEat > .fdRestDock .fdRestName {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
   grid-template-rows: auto auto;
   align-content: center;
 }
@@ -5009,13 +4891,10 @@
  * tun und den drei Kindern feste Grid-Plätze geben (die Pille lag in Zeile 2).
  * Ohne dieselbe Spezifität gewinnt die alte Platzierung.
  *
- * `display` bleibt bewusst draußen: welche der beiden Varianten (inline im
- * Scroll oder gedockt) sichtbar ist, entscheiden die Breakpoints weiter oben —
- * wird es hier mitgesetzt, stehen beide gleichzeitig da. */
+ * `display` kommt aus dem Block weiter oben, der den Streifen aufs Grid setzt —
+ * hier steht nur, wie das Grid aussieht. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto),
-.detailV13MustEat .detailV13Scroll > .fdRestInline,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto),
-.detailV13MustEat > .fdRestDock {
+.detailV13MustEat .detailV13Scroll > .fdRestInline {
   grid-template-columns: 56px minmax(0, 1fr) auto;
   grid-template-rows: auto;
   align-items: center;
@@ -5033,14 +4912,12 @@
   box-shadow: none;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)),
-.detailV13MustEat > .fdRestDock:not(:has(.fdRestPhoto)) {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)) {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
 /* Alles auf eine Zeile — die alten Regeln legten die Pille in eine zweite. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .fdRestPhoto {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto {
   grid-column: 1;
   grid-row: 1;
   width: 56px;
@@ -5053,20 +4930,17 @@
   box-shadow: none;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestName,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .fdRestName {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestName {
   grid-column: 2;
   grid-row: 1;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .ctaPill,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .ctaPill {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .ctaPill {
   grid-column: 3;
   grid-row: 1;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline > .fdRestName,
-.detailV13MustEat > .fdRestDock > .fdRestName {
+.detailV13MustEat .detailV13Scroll > .fdRestInline > .fdRestName {
   display: grid;
   grid-template-rows: auto auto;
   align-content: center;
@@ -5075,8 +4949,7 @@
   padding: 0;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
-.detailV13MustEat > .fdRestDock .fdK {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 10px;
   font-weight: 700;
@@ -5104,8 +4977,7 @@
    rührt sich nicht, und der Kasten wächst nur einmal um das Delta statt zweimal.
    Die max-height muss mitwandern, sonst frisst der Deckel den Raum wieder auf.
    Der Streifen hält seine 92px trotzdem — die Luft dafür steht im Foto. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
-.detailV13MustEat > .fdRestDock .fdV {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -5122,8 +4994,7 @@
   color: var(--me-ink);
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill,
-.detailV13MustEat > .fdRestDock .ctaPill {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
   width: auto;
   min-width: 0;
   height: 42px;
@@ -5143,13 +5014,11 @@
    175px breit; in EINE Zeile passt "Saveur de Bánh Mì Schöneberg" auch klein
    nicht. Die Stufen sorgen dafür, dass lange Namen in die zwei reservierten
    Zeilen passen, statt vom line-clamp abgeschnitten zu werden. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong,
-.detailV13MustEat > .fdRestDock .fdV.fdVLong {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong {
   font-size: clamp(15px, 3.9vw, 18px);
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact,
-.detailV13MustEat > .fdRestDock .fdV.fdVCompact {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact {
   font-size: clamp(13.5px, 3.5vw, 16px);
 }
 /* ── Desktop-Panel: Maße fürs 379px-Panel, nicht fürs 1440px-Fenster ──────────

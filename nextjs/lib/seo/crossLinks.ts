@@ -90,20 +90,55 @@ export function bezirkCategoryLinks(
  * womit für Google zwei konkurrierende Antworten nebeneinander standen statt
  * Übersicht und Vertiefung. Diese Zeile stellt sie her.
  *
- * Erweiterbar um jedes weitere Paar, das sich dieselbe Query teilt — eine
- * Zeile pro Kategorie, der Guide muss publiziert sein.
+ * Am 26.08.2026 sind vierzehn Guides dazugekommen, die dieselben Head-Terms
+ * bedienen wie bestehende Hubs — `coffee` war ab da nicht mehr der Sonderfall,
+ * sondern der einzige gepflegte Eintrag einer Liste, die zehn hätte haben
+ * müssen. Mehrere Guides pro Hub sind der Normalfall, nicht die Ausnahme:
+ * `sweets` nennt in seinem eigenen Title „Eis, Donuts & Patisserie" und hat
+ * für jedes davon einen. Die Reihenfolge folgt dieser Aufzählung.
  */
-const CATEGORY_GUIDE: Record<string, string> = {
-  coffee: 'beste-cafes-berlin',
+const CATEGORY_GUIDES: Record<string, readonly string[]> = {
+  coffee: ['beste-cafes-berlin'],
+  'fine-dining': ['fine-dining-berlin'],
+  breakfast: ['bester-brunch-berlin'],
+  drinks: ['beste-cocktailbars-berlin', 'beste-weinbars-berlin'],
+  sweets: ['beste-eisdielen-berlin', 'donuts-berlin', 'beste-baeckereien-berlin'],
+  'fast-food': ['beste-burger-berlin', 'drei-doener-berlin'],
 };
 
 /**
- * Der Guide-Slug zu einer Kategorie, oder `null` — die meisten haben keinen.
+ * Dieselbe Beziehung für die Bezirke. Sie fehlte ganz: die sechs Bezirks-Guides
+ * hingen allein an der `/news`-Liste, während ihr Hub sie mit keinem Wort
+ * nannte — dieselbe Konstellation aus zwei konkurrierenden Antworten, die es
+ * bei `coffee` schon einmal gab.
  *
+ * `essen-trinken-schoeneberg` bricht das Namensmuster der übrigen fünf; die
+ * Zuordnung läuft deshalb über diese Tabelle und nicht über den Slug.
+ */
+const BEZIRK_GUIDES: Record<string, readonly string[]> = {
+  mitte: ['restaurants-mitte'],
+  kreuzberg: ['restaurants-kreuzberg'],
+  neukoelln: ['restaurants-neukoelln'],
+  'prenzlauer-berg': ['restaurants-prenzlauer-berg'],
+  charlottenburg: ['restaurants-charlottenburg'],
+  schoeneberg: ['essen-trinken-schoeneberg'],
+};
+
+/**
  * `Object.hasOwn` statt eines schlichten Zugriffs: der Slug kommt aus der URL,
  * und `/kategorie/constructor` würde sonst die geerbte Object-Methode treffen
  * und einen Link auf `/news/function%20Object()` bauen.
  */
-export function categoryGuideSlug(categorySlug: string): string | null {
-  return Object.hasOwn(CATEGORY_GUIDE, categorySlug) ? CATEGORY_GUIDE[categorySlug] : null;
+function lookup(table: Record<string, readonly string[]>, slug: string): readonly string[] {
+  return Object.hasOwn(table, slug) ? table[slug] : [];
+}
+
+/** Die Guide-Slugs zu einer Kategorie — leer, wenn es keinen gibt. */
+export function categoryGuideSlugs(categorySlug: string): readonly string[] {
+  return lookup(CATEGORY_GUIDES, categorySlug);
+}
+
+/** Die Guide-Slugs zu einem Bezirk — leer, wenn es keinen gibt. */
+export function bezirkGuideSlugs(bezirkSlug: string): readonly string[] {
+  return lookup(BEZIRK_GUIDES, bezirkSlug);
 }

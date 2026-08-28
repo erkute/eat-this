@@ -1,5 +1,5 @@
 'use client';
-import { useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
+import { useEffect, useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
@@ -287,6 +287,8 @@ const signupCopy = {
     unlocking: 'Wir schliessen auf …',
     google: 'Mit Google anmelden',
     googleFailed: 'Das hat mit Google nicht geklappt. Nimm solange deine E-Mail.',
+    googleBlocked:
+      'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.',
     emptyEmail: 'Bitte gib deine E-Mail ein.',
     invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
     imgAlt: 'Eat This Starter Pack',
@@ -304,6 +306,7 @@ const signupCopy = {
     unlocking: 'Opening it up …',
     google: 'Sign in with Google',
     googleFailed: "Google didn't work out. Use your email for now.",
+    googleBlocked: 'Your browser blocked the Google window. Allow it, or use your email.',
     emptyEmail: 'Add your email first.',
     invalidEmail: 'That does not look like an email yet.',
     imgAlt: 'Eat This Starter Pack',
@@ -376,7 +379,7 @@ function SignupOffer({
   claimPending: boolean;
 }) {
   const t = signupCopy[de ? 'de' : 'en'];
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, prepareGoogleSignIn } = useAuth();
   const { sendLink, state, errorMessage, reset } = useMagicLink();
   const emailId = useId();
   const errorId = `${emailId}-error`;
@@ -386,6 +389,13 @@ function SignupOffer({
   const [googleError, setGoogleError] = useState('');
   const feedback = validationError || errorMessage || googleError;
   const sent = state === 'sent';
+
+  /* Firebases Popup-Helfer laden, während das Angebot noch gelesen wird —
+     sonst kommt der erste Klick auf Google nie am Fenster an
+     (siehe lib/auth/googlePopupWarmup.ts). */
+  useEffect(() => {
+    prepareGoogleSignIn();
+  }, [prepareGoogleSignIn]);
 
   const track = (method: 'email_link' | 'google') =>
     trackEvent('locked_spot_login_start', {
@@ -425,8 +435,11 @@ function SignupOffer({
       setGoogleBusy(false);
       /* Wer das Popup selbst zumacht, hat sich entschieden — dafür gibt es
          keine Meldung. Alles andere ist ein Fehler, und der muss auf den
-         Schirm: vorher passierte hier sichtbar gar nichts. */
-      if (!describeGoogleSignInError(error).benign) setGoogleError(t.googleFailed);
+         Schirm: vorher passierte hier sichtbar gar nichts. Ein vom Browser
+         geblocktes Fenster kriegt seine eigene Ansage — dagegen kann der Leser
+         etwas tun, „hat nicht geklappt" schickt ihn dagegen ins Leere. */
+      const { benign, blocked } = describeGoogleSignInError(error);
+      if (!benign) setGoogleError(blocked ? t.googleBlocked : t.googleFailed);
       return;
     }
     // From here the shared hook owns everything: the hold on this sheet

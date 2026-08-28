@@ -13,6 +13,7 @@ import {
 } from 'firebase/auth';
 import * as Sentry from '@sentry/nextjs';
 import { describeGoogleSignInError } from './googleSignInError';
+import { warmGooglePopup } from './googlePopupWarmup';
 import { auth } from '@/lib/firebase/config';
 import { clearMapDataCaches, reconcileMapDataCacheIdentity } from '@/lib/map/map-data-cache';
 
@@ -22,6 +23,12 @@ interface AuthContextValue {
   user: User | null;
   /** True while the initial auth state is being resolved from Firebase. */
   loading: boolean;
+  /**
+   * Lädt den Popup-Helfer vor. Aufrufen, sobald eine Anmelde-Oberfläche
+   * sichtbar wird — ohne das frisst der Popup-Blocker den ersten Klick
+   * (siehe googlePopupWarmup.ts).
+   */
+  prepareGoogleSignIn: () => void;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   updateDisplayName: (name: string) => Promise<void>;
@@ -91,6 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Auth operations ─────────────────────────────────────────────────────
 
+  const prepareGoogleSignIn = useCallback((): void => warmGooglePopup(), []);
+
   const signInWithGoogle = useCallback(async (): Promise<void> => {
     try {
       // The resolver is passed here rather than baked into the auth instance:
@@ -153,12 +162,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       loading,
+      prepareGoogleSignIn,
       signInWithGoogle,
       signOut,
       updateDisplayName,
       deleteAccount,
     }),
-    [user, loading, signInWithGoogle, signOut, updateDisplayName, deleteAccount]
+    [
+      user,
+      loading,
+      prepareGoogleSignIn,
+      signInWithGoogle,
+      signOut,
+      updateDisplayName,
+      deleteAccount,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { bezirkCategoryLinks, categoryDistrictLinks, categoryGuideSlug } from './crossLinks';
+import {
+  bezirkCategoryLinks,
+  bezirkGuideSlugs,
+  categoryDistrictLinks,
+  categoryGuideSlugs,
+} from './crossLinks';
 import type { RestaurantCard } from '../types';
 
 function r(partial: Partial<RestaurantCard>): RestaurantCard {
@@ -70,24 +75,57 @@ describe('bezirkCategoryLinks', () => {
   });
 });
 
-describe('categoryGuideSlug', () => {
+describe('categoryGuideSlugs', () => {
   // Der Grund für die ganze Zuordnung: /kategorie/coffee und der Artikel
   // trugen praktisch denselben Titel und verwiesen mit keinem Wort
   // aufeinander. Fällt die Zeile weg, ist der Doppel-Intent zurück.
   it('pairs the coffee hub with the cafés guide', () => {
-    expect(categoryGuideSlug('coffee')).toBe('beste-cafes-berlin');
+    expect(categoryGuideSlugs('coffee')).toEqual(['beste-cafes-berlin']);
   });
 
-  it('returns null for categories without a guide', () => {
-    expect(categoryGuideSlug('pizza')).toBeNull();
-    expect(categoryGuideSlug('fast-food')).toBeNull();
-    expect(categoryGuideSlug('')).toBeNull();
+  // Mehrere Guides je Hub sind der Normalfall: `sweets` nennt in seinem eigenen
+  // Title „Eis, Donuts & Patisserie" und hat für jedes davon einen. Ein 1:1-Feld
+  // hätte zwei davon unverlinkt gelassen.
+  it('keeps every guide that competes with the same hub', () => {
+    expect(categoryGuideSlugs('sweets')).toEqual([
+      'beste-eisdielen-berlin',
+      'donuts-berlin',
+      'beste-baeckereien-berlin',
+    ]);
+    expect(categoryGuideSlugs('fast-food')).toHaveLength(2);
+    expect(categoryGuideSlugs('drinks')).toHaveLength(2);
+  });
+
+  it('returns nothing for categories without a guide', () => {
+    expect(categoryGuideSlugs('pizza')).toEqual([]);
+    expect(categoryGuideSlugs('lunch')).toEqual([]);
+    expect(categoryGuideSlugs('')).toEqual([]);
   });
 
   // Ohne diesen Schutz liefert ein Slug wie "constructor" die Object-Methode
   // und die Kategorieseite verlinkt auf /news/function%20Object().
   it('does not fall through to Object.prototype members', () => {
-    expect(categoryGuideSlug('constructor')).toBeNull();
-    expect(categoryGuideSlug('toString')).toBeNull();
+    expect(categoryGuideSlugs('constructor')).toEqual([]);
+    expect(categoryGuideSlugs('toString')).toEqual([]);
+  });
+});
+
+describe('bezirkGuideSlugs', () => {
+  // Dieselbe Doppel-Antwort wie bei coffee, nur ungelöst: die sechs
+  // Bezirks-Guides hingen allein an der /news-Liste, ihr Hub nannte sie nicht.
+  it('pairs each district hub with its guide', () => {
+    expect(bezirkGuideSlugs('kreuzberg')).toEqual(['restaurants-kreuzberg']);
+    expect(bezirkGuideSlugs('mitte')).toEqual(['restaurants-mitte']);
+  });
+
+  // Der einzige Guide, dessen Slug nicht dem Muster `restaurants-<bezirk>`
+  // folgt — eine Ableitung aus dem Slug hätte ihn stillschweigend verfehlt.
+  it('handles the district whose guide breaks the naming pattern', () => {
+    expect(bezirkGuideSlugs('schoeneberg')).toEqual(['essen-trinken-schoeneberg']);
+  });
+
+  it('returns nothing for districts without a guide', () => {
+    expect(bezirkGuideSlugs('lichtenberg')).toEqual([]);
+    expect(bezirkGuideSlugs('constructor')).toEqual([]);
   });
 });

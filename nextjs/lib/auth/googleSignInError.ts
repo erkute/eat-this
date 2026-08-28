@@ -33,8 +33,10 @@ const BENIGN = new Set([
 export interface GoogleSignInFailure {
   /** Firebase-Fehlercode, z. B. `auth/unauthorized-domain`. */
   code: string;
-  /** Abbruch durch den Leser — keine Meldung, kein Sentry. */
+  /** Abbruch durch den Leser — keine rote Meldung (gemeldet wird trotzdem). */
   benign: boolean;
+  /** Der Browser hat das Fenster geblockt — dagegen hilft eine andere Ansage. */
+  blocked: boolean;
 }
 
 export function describeGoogleSignInError(error: unknown): GoogleSignInFailure {
@@ -44,5 +46,5 @@ export function describeGoogleSignInError(error: unknown): GoogleSignInFailure {
     typeof (error as { code?: unknown }).code === 'string'
       ? (error as { code: string }).code
       : 'unknown';
-  return { code, benign: BENIGN.has(code) };
+  return { code, benign: BENIGN.has(code), blocked: code === 'auth/popup-blocked' };
 }

@@ -12,7 +12,11 @@ describe('describeGoogleSignInError', () => {
       'auth/cancelled-popup-request',
       'auth/no-auth-event',
     ]) {
-      expect(describeGoogleSignInError({ code }), code).toEqual({ code, benign: true });
+      expect(describeGoogleSignInError({ code }), code).toEqual({
+        code,
+        benign: true,
+        blocked: false,
+      });
     }
   });
 
@@ -22,6 +26,17 @@ describe('describeGoogleSignInError', () => {
     expect(describeGoogleSignInError({ code: 'auth/unauthorized-domain' })).toEqual({
       code: 'auth/unauthorized-domain',
       benign: false,
+      blocked: false,
+    });
+  });
+
+  it('hebt das geblockte Fenster heraus', () => {
+    /* Der Leser kann hier selbst etwas tun — deshalb bekommt der Fall eine
+       eigene Ansage statt des allgemeinen „hat nicht geklappt". */
+    expect(describeGoogleSignInError({ code: 'auth/popup-blocked' })).toEqual({
+      code: 'auth/popup-blocked',
+      benign: false,
+      blocked: true,
     });
   });
 
@@ -29,7 +44,12 @@ describe('describeGoogleSignInError', () => {
     expect(describeGoogleSignInError(new Error('boom'))).toEqual({
       code: 'unknown',
       benign: false,
+      blocked: false,
     });
-    expect(describeGoogleSignInError(undefined)).toEqual({ code: 'unknown', benign: false });
+    expect(describeGoogleSignInError(undefined)).toEqual({
+      code: 'unknown',
+      benign: false,
+      blocked: false,
+    });
   });
 });

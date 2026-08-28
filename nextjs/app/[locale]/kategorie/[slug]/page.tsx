@@ -19,7 +19,7 @@ import {
 import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
-import { categoryDistrictLinks, categoryGuideSlug } from '@/lib/seo/crossLinks';
+import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
 import { schemaImageUrl } from '@/lib/sanity-image-presets';
@@ -33,6 +33,7 @@ import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sharedStyles from '../../bezirk/Bezirk.module.css';
 import styles from '../Kategorie.module.css';
 import HubSiblings from '@/app/components/HubSiblings';
+import GuideCrossLinks from '@/app/components/GuideCrossLinks';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -217,14 +218,14 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
 
-  const guideSlug = categoryGuideSlug(slug);
+  const guideSlugs = categoryGuideSlugs(slug);
   // `getAllCategories` läuft für diese Route schon in `generateStaticParams`
   // — derselbe Aufruf trifft den Data-Cache-Eintrag und kostet keine
   // zusätzliche Sanity-Anfrage.
-  const [c, restaurants, guide, alleKategorien] = await Promise.all([
+  const [c, restaurants, guides, alleKategorien] = await Promise.all([
     getCategoryBySlug(slug),
     getRestaurantsByCategory(slug),
-    guideSlug ? getGuideTeaser(guideSlug, loc) : null,
+    Promise.all(guideSlugs.map((s) => getGuideTeaser(s, loc))),
     getAllCategories(),
   ]);
   if (!c) notFound();
@@ -462,24 +463,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           )}
         </HubFilterProvider>
 
-        {/* Der Guide zu dieser Kategorie. Steht hier unten bewusst NACH den
-            Listen: der Hub beantwortet „welche gibt es", der Artikel „welche
-            und warum" — die Reihenfolge auf der Seite bildet das ab. Vor allem
-            aber existierte die Verbindung überhaupt nicht, und ohne sie waren
-            Hub und Artikel für Google zwei Antworten auf dieselbe Frage.
-            `noIndex` schließt den Fall aus, dass wir auf etwas zeigen, das gar
-            nicht im Index stehen soll. Siehe categoryGuideSlug. */}
-        {guide && !guide.noIndex && (
-          <aside className={styles.guideCross}>
-            <p className={styles.guideCrossKicker}>
-              {de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
-            </p>
-            <h2 className={styles.guideCrossTitle}>
-              <Link href={`/news/${guide.slug}`}>{guide.title}</Link>
-            </h2>
-            {guide.excerpt && <p className={styles.guideCrossExcerpt}>{guide.excerpt}</p>}
-          </aside>
-        )}
+        {/* Siehe categoryGuideSlugs — die Zuordnung Hub → Guide. */}
+        <GuideCrossLinks guides={guides} locale={loc} />
 
         <div className={sharedStyles.detailMapCta}>
           <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />

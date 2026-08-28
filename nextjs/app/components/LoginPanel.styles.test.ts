@@ -108,8 +108,17 @@ describe('LoginPanel.module.css — der Anmelde-Ladezustand', () => {
   /* Der Marker zieht unter dem Satz durch, statt die Schrift selbst
      umzufärben: Gelb auf Weiss wäre kaum zu lesen, Ink auf Gelb ist es. */
   it('legt den Marker unter den Satz, ohne die Schrift umzufärben', () => {
-    expect(effective('.signingInSweep', 'background')).toBe('var(--et-home-accent)');
+    expect(effective('.signingInMark', 'background')).toBe('var(--et-home-accent)');
     expect(effective('.signingInSweep', 'color')).toBe('var(--login-ink)');
+  });
+
+  /* Der Satz bricht im Panel auf zwei Zeilen. Sitzt der Grund auf dem Kasten
+     statt am Text, liegt er als durchgehendes Rechteck über beiden Zeilen und
+     schneidet senkrecht mitten durchs Wort — genau so stand es kurz in
+     Produktion. Ohne clone wäre es wieder so. */
+  it('gibt jeder Zeile ihren eigenen, textbreiten Grund', () => {
+    expect(effective('.signingInMark', 'box-decoration-break')).toBe('clone');
+    expect(effective('.signingInSweep', 'background')).toBeUndefined();
   });
 
   it('zieht den Marker per clip-path durch', () => {

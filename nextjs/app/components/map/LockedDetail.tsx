@@ -430,7 +430,14 @@ function SignupOffer({
     setGoogleError('');
     setGoogleBusy(true);
     try {
-      await signInWithGoogle();
+      /* Wird das Popup geblockt, schaltet der Aufruf auf den Redirect-Weg um —
+         und der kehrt zu genau dieser Adresse zurueck. Sie traegt denselben
+         Claim-Marker wie der Magic-Link weiter unten, damit der Spot auch dann
+         eingeloest wird, wenn dieser Code-Pfad die Rueckkehr gar nicht mehr
+         erlebt: die Seite navigiert vorher weg. */
+      await signInWithGoogle({
+        returnTo: `${prefix}/map?r=${encodeURIComponent(r.slug)}&claim=1`,
+      });
     } catch (error) {
       setGoogleBusy(false);
       /* Wer das Popup selbst zumacht, hat sich entschieden — dafür gibt es

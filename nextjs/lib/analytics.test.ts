@@ -248,6 +248,63 @@ describe('consent-free counting', () => {
     ]);
   });
 
+  /* Die Vorgaengerseite ist die halbe Antwort auf "wo gehen die Leute raus":
+   * Ausstiege(P) = Aufrufe(P) - Fortsetzungen(P). Sie kommt aus dem Referrer
+   * bzw. dem Routenwechsel — nie aus einer Sitzungskennung. */
+  describe('Vorgaengerseite fuer die Ausstiegsrechnung', () => {
+    function setReferrer(value: string) {
+      Object.defineProperty(document, 'referrer', { value, configurable: true });
+    }
+
+    it('nimmt bei harter Navigation den eigenen Referrer als Vorgaenger', async () => {
+      setReferrer('https://www.eatthisdot.com/kategorie/lunch');
+
+      countView();
+
+      expect((await sent()).from).toBe('/kategorie/lunch');
+    });
+
+    it('schickt keinen Vorgaenger, wenn der Besuch von aussen kommt', async () => {
+      setReferrer('https://www.google.com/search?q=beste+pizza+berlin');
+
+      countView();
+
+      // Fremde Herkunft heisst Einstieg — es gibt nichts fortzusetzen.
+      expect(await sent()).not.toHaveProperty('from');
+    });
+
+    it('schickt gar keinen Vorgaenger ohne Referrer', async () => {
+      setReferrer('');
+
+      countView();
+
+      expect(await sent()).not.toHaveProperty('from');
+    });
+
+    it('kettet Routenwechsel innerhalb eines Dokuments', async () => {
+      setReferrer('');
+
+      countView(); // /bezirk/kreuzberg — Einstieg
+      window.history.replaceState({}, '', '/restaurant/gemello');
+      countView();
+      window.history.replaceState({}, '', '/restaurant/bari');
+      countView();
+
+      expect(await sent(0)).not.toHaveProperty('from');
+      expect((await sent(1)).from).toBe('/bezirk/kreuzberg');
+      expect((await sent(2)).from).toBe('/restaurant/gemello');
+    });
+
+    it('verknuepft nichts mit einer Person — keine Kennung im Beacon', async () => {
+      setReferrer('https://www.eatthisdot.com/kategorie/lunch');
+
+      countView();
+
+      // Der ganze Entwurf haengt daran: Aufruf und Vorgaenger, sonst nichts.
+      expect(Object.keys(await sent()).sort()).toEqual(['from', 'path', 'referrer']);
+    });
+  });
+
   it('fans a tracked event out to the counter without consent', async () => {
     trackEvent('map_opened', { tier: 'anon' });
 

@@ -36,8 +36,11 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
   } = useMagicLink();
 
   const [email, setEmail] = useState('');
-  const [googleBusy, setGoogleBusy] = useState(false);
-  const [googleError, setGoogleError] = useState<'blocked' | 'failed' | null>(null);
+  /* Drei Phasen statt eines Schalters: 'leaving' haelt das Panel so lange,
+     wie es zum Zurueckfahren braucht. Vorher sprang es auf einen Schlag weg,
+     und ein selbst zugeklicktes Google-Fenster sah aus wie ein Aussetzer. */
+  const [googlePhase, setGooglePhase] = useState<'idle' | 'busy' | 'leaving'>('idle');
+  const [googleNote, setGoogleNote] = useState<'cancelled' | 'blocked' | 'failed' | null>(null);
   const authMethod = useRef<'google' | null>(null);
   const emailInputId = useId();
 
@@ -62,18 +65,37 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
   const handleGoogle = useCallback(async () => {
     authMethod.current = 'google';
     trackEvent('login_start', { method: 'google' });
-    setGoogleBusy(true);
-    setGoogleError(null);
+    setGooglePhase('busy');
+    setGoogleNote(null);
     try {
       await signInWithGoogle();
     } catch (error) {
       authMethod.current = null;
-      setGoogleBusy(false);
-      // Abbruch durch den Leser bleibt stumm; alles andere hat er zu sehen.
+      setGooglePhase('leaving');
+      /* Auch der Abbruch bekommt jetzt eine Zeile — nur eine ruhige. Firebase
+         meldet ein zugeklicktes Fenster und eine gescheiterte Uebergabe mit
+         demselben Code (siehe googleSignInError.ts); wer danach stumm wieder
+         vor dem Knopf stand, wusste nicht, ob er selbst schuld war. */
       const { benign, blocked } = describeGoogleSignInError(error);
-      if (!benign) setGoogleError(blocked ? 'blocked' : 'failed');
+      setGoogleNote(benign ? 'cancelled' : blocked ? 'blocked' : 'failed');
     }
   }, [signInWithGoogle]);
+
+  // Das Panel raeumt sich nach seiner Ausfahrt selbst ab.
+  useEffect(() => {
+    if (googlePhase !== 'leaving') return;
+    const timer = window.setTimeout(() => setGooglePhase('idle'), 260);
+    return () => window.clearTimeout(timer);
+  }, [googlePhase]);
+
+  const noteKey =
+    googleNote === 'blocked'
+      ? 'auth.errGooglePopupBlocked'
+      : googleNote === 'failed'
+        ? 'auth.errGooglePopup'
+        : googleNote === 'cancelled'
+          ? 'auth.googleCancelled'
+          : null;
 
   const agbHref = locale === routing.defaultLocale ? '/agb' : `/${locale}/agb`;
   const dsHref = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
@@ -261,23 +283,21 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
                 onChange={(e) => setEmail(e.target.value)}
               />
               <p
-                className={styles.error}
-                role={magicState === 'error' || googleError ? 'alert' : undefined}
+                className={[styles.error, googleNote === 'cancelled' ? styles.errorQuiet : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                role={
+                  magicState === 'error' || (googleNote && googleNote !== 'cancelled')
+                    ? 'alert'
+                    : undefined
+                }
                 aria-live="polite"
-                aria-hidden={magicState !== 'error' && !googleError}
+                aria-hidden={magicState !== 'error' && !googleNote}
               >
-                {magicState === 'error'
-                  ? magicError
-                  : /* Mit `auth.`-Praefix, sonst findet next-intl den Text nicht
-                       und schreibt dem Leser den Schluessel selbst hin — genau
-                       das stand da (Nutzer, 28.08.2026). */
-                    googleError
-                    ? t(
-                        googleError === 'blocked'
-                          ? 'auth.errGooglePopupBlocked'
-                          : 'auth.errGooglePopup'
-                      )
-                    : ''}
+                {/* Die Schluessel tragen ihr `auth.`-Praefix: ohne findet
+                    next-intl den Text nicht und schreibt dem Leser den
+                    Schluessel selbst hin (Nutzer, 28.08.2026). */}
+                {magicState === 'error' ? magicError : noteKey ? t(noteKey) : ''}
               </p>
               <button
                 type="submit"
@@ -307,7 +327,7 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
               type="button"
               className={styles.ctaGoogle}
               onClick={handleGoogle}
-              disabled={googleBusy}
+              disabled={googlePhase === 'busy'}
             >
               <GoogleMark />
               <span>{t(googleKey)}</span>
@@ -328,10 +348,24 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
         </div>
       )}
 
-      {(googleBusy || (!loading && user)) && (
-        <div className={styles.loadingOverlay} role="status" aria-live="polite">
+      {(googlePhase !== 'idle' || (!loading && user)) && (
+        <div
+          className={[
+            styles.loadingOverlay,
+            googlePhase === 'leaving' ? styles.loadingOverlayLeaving : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          role={googlePhase === 'leaving' ? undefined : 'status'}
+          aria-live="polite"
+          aria-hidden={googlePhase === 'leaving' ? true : undefined}
+        >
           <div className={styles.loadingPanel}>
-            <div className={styles.spinner} aria-hidden="true" />
+            <div className={styles.hop} aria-hidden="true">
+              <span className={styles.hopBlock} />
+              <span className={styles.hopBlock} />
+              <span className={styles.hopBlock} />
+            </div>
             <p>{t('modals.login.googleSigningIn')}</p>
           </div>
         </div>

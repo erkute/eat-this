@@ -367,7 +367,7 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
             <p className={styles.signingIn}>
               <span>{t('modals.login.googleSigningIn')}</span>
               <span className={styles.signingInSweep} aria-hidden="true">
-                {t('modals.login.googleSigningIn')}
+                <span className={styles.signingInMark}>{t('modals.login.googleSigningIn')}</span>
               </span>
             </p>
           </div>

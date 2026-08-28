@@ -243,7 +243,10 @@ div.page {
    schwarze Katalog-Karte, zwei dunkle Kaesten uebereinander haetten dem
    Schlusswort genau die Sonderstellung genommen, die es bekommen soll. */
 .content [data-block='conclusion'] {
-  margin: clamp(38px, 5vw, 66px) 0 0;
+  /* Mehr Luft als vor einer Kapitelueberschrift (clamp(38px, 5vw, 66px)): der
+     Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
+     las er sich wie ein dreizehntes Kapitel, das zufaellig anders aussieht. */
+  margin: clamp(58px, 7.5vw, 100px) 0 0;
   scroll-margin-top: 104px;
 }
 

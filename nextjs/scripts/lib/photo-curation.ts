@@ -6,6 +6,20 @@
  */
 import Anthropic from '@anthropic-ai/sdk';
 
+/**
+ * Breite, mit der Fotos bei der Places Photo API abgeholt werden.
+ *
+ * Stand 28.08.2026 lagen dadurch 138 von 466 Hero-Fotos unter 1200px und 323
+ * von 685 Galeriebildern — zu wenig fuer die 900px breite Bildspalte der
+ * Detailseite, die auf einem 2x-Schirm 1800 Geraetepixel will. Die API gibt
+ * bis 4800px her und rechnet pro Anfrage ab, nicht pro Pixel: breiter zu
+ * ziehen kostet beim Import nichts, nur Sanity-Speicher.
+ *
+ * Aendert nur, was ab jetzt importiert wird — Bestandsfotos bleiben so klein,
+ * wie sie geholt wurden, und brauchen einen Nachimport.
+ */
+export const PLACES_PHOTO_MAX_WIDTH_PX = 2400;
+
 /** Thrown when Haiku judging can't run at all (no credits / bad auth). Batch
  *  callers should abort rather than write un-judged fallback galleries. */
 export class HaikuUnavailableError extends Error {

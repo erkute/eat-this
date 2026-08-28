@@ -6,8 +6,11 @@ import { presetQuery, groqImageUrl, sanitySrcSet } from './sanity-image-presets'
 // emitted URL changes — which is exactly what must not happen silently.
 
 describe('presetQuery — frozen against the pre-refactor strings', () => {
-  it('detailHero → w=1200 q=85', () => {
-    expect(presetQuery('detailHero')).toBe('?w=1200&auto=format&q=85');
+  it('detailHero → w=1600 q=85', () => {
+    expect(presetQuery('detailHero')).toBe('?w=1600&auto=format&q=85');
+  });
+  it('sheetHero → w=1200 q=85', () => {
+    expect(presetQuery('sheetHero')).toBe('?w=1200&auto=format&q=85');
   });
   it('bezirkHero → w=1600 q=85', () => {
     expect(presetQuery('bezirkHero')).toBe('?w=1600&auto=format&q=85');
@@ -49,7 +52,7 @@ describe('sanitySrcSet', () => {
 describe('groqImageUrl', () => {
   it('prefixes the dereference path and appends asset->url + query', () => {
     expect(groqImageUrl('image', 'detailHero')).toBe(
-      'image.asset->url + "?w=1200&auto=format&q=85"'
+      'image.asset->url + "?w=1600&auto=format&q=85"'
     );
     expect(groqImageUrl('mustEatRef->restaurantRef->image', 'articleDishRestaurant')).toBe(
       'mustEatRef->restaurantRef->image.asset->url + "?w=500&auto=format&q=75"'

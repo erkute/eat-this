@@ -17,7 +17,7 @@
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';
 import { randomUUID } from 'node:crypto';
-import { isOwnerPhoto } from './lib/photo-curation';
+import { isOwnerPhoto, PLACES_PHOTO_MAX_WIDTH_PX } from './lib/photo-curation';
 import { filterBySlugs } from './lib/content-backlog';
 
 loadEnv({ path: '.env.local' });
@@ -97,7 +97,7 @@ async function uploadPhoto(
   if (!credit || !creditUrl) return null;
 
   try {
-    const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1600&key=${GOOGLE_API_KEY}`;
+    const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=${PLACES_PHOTO_MAX_WIDTH_PX}&key=${GOOGLE_API_KEY}`;
     const res = await fetch(url, { redirect: 'follow' });
     if (!res.ok) {
       console.warn(`  photo fetch ${res.status} — skipping ${suffix}`);

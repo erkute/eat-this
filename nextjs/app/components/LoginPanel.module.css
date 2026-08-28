@@ -356,14 +356,26 @@
   top: 0;
   left: 0;
   width: 100%;
-  padding: 0 0.14em;
-  margin: 0 -0.14em;
   color: var(--login-ink);
-  background: var(--et-home-accent);
   /* Ausgangslage ist "nichts sichtbar": faellt die Animation aus — reduzierte
      Bewegung, alte Engine —, bleibt schlicht der Ink-Satz stehen. */
   clip-path: inset(0 100% 0 0);
   animation: loginSweep 1700ms cubic-bezier(0.45, 0, 0.35, 1) infinite;
+}
+
+/* Der gelbe Grund sitzt am Inline-Text, nicht am Kasten darum. Der Satz bricht
+   im Panel auf zwei Zeilen, und als Flaeche auf dem Kasten lag er als
+   durchgehendes Rechteck ueber beiden — er schnitt senkrecht mitten durch
+   "ANGEMELDET" und liess neben der kuerzeren Zeile Gelb stehen, wo kein Text
+   ist. Erst in Produktion gesehen (28.08.2026); in der Vorschau lief der Satz
+   einzeilig, dort fiel es nicht auf. box-decoration-break gibt jeder Zeile
+   ihren eigenen, textbreiten Grund. */
+.signingInMark {
+  padding: 0 0.14em;
+  margin: 0 -0.14em;
+  background: var(--et-home-accent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 @keyframes loginSweep {
@@ -371,12 +383,20 @@
     clip-path: inset(0 100% 0 0);
   }
 
-  45% {
+  40% {
     clip-path: inset(0 0 0 0);
   }
 
   58% {
     clip-path: inset(0 0 0 0);
+  }
+
+  /* Kurz hinauslaufen, dann Pause. Der Sprung von hier zurueck auf 0% zeigt in
+     beiden Zustaenden nichts, die Schleife schliesst sich also unsichtbar —
+     ein langsamer Auslauf liess dagegen einen einzelnen gelben Rest am
+     laengeren Wort stehen. */
+  76% {
+    clip-path: inset(0 0 0 100%);
   }
 
   100% {

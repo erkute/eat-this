@@ -30,7 +30,11 @@
   --page-pad: 22px;
   max-width: 1180px;
   margin-inline: auto;
-  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px) var(--page-pad) 0;
+  /* Exakt die Höhe der Leiste, kein Zuschlag: der Aufmacher soll sie berühren.
+     Die 24/32px Luft davor ließen einen weißen Streifen zwischen schwarzer
+     Leiste und Bild stehen. `.heroNoPhoto` bringt einen eigenen Hintergrund
+     mit, dort schließt der Block genauso bündig an. */
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--page-pad) 0;
   overflow-x: clip;
   background: var(--detail-paper);
   color: var(--detail-ink);
@@ -40,7 +44,7 @@
 @media (min-width: 720px) {
   .page {
     --page-pad: 32px;
-    padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 32px);
+    padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
   }
 }
 
@@ -160,16 +164,6 @@
 
 .heroName,
 .name,
-.orderDish,
-.sibName,
-.sibRowHead,
-.pullQuote {
-  font-family: var(--f-display);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title, 0);
-  text-transform: uppercase;
-}
-
 .heroName,
 .name {
   max-width: 12ch;
@@ -432,9 +426,10 @@
   margin-bottom: clamp(36px, 6vw, 78px);
 }
 
-/* Spots without a whatToOrder list (most of them) left the right half of the
-   row blank next to a narrow tip column. Alone, the tip takes the full width
-   and reads as a pull-quote instead of a leftover. */
+/* Seit „Was bestellen?" raus ist, steht im Raster immer nur der Insider-Tipp —
+   die Regel greift also durchgehend. Sie bleibt als `:only-child` stehen, weil
+   das Raster weiter für einen zweiten Block ausgelegt ist; kommt nie einer
+   dazu, kann es zur einspaltigen Regel zusammenfallen. */
 .editorialGrid > :only-child {
   grid-column: 1 / -1;
 }
@@ -443,8 +438,8 @@
   padding: clamp(24px, 3.4vw, 34px);
 }
 
-/* Ohne "Was bestellen?" daneben stand der Tipp allein auf der Spalte und wurde
-   mit 44px auf 52px Polster zum Plakat. Er ist ein Hinweis, keine Schlagzeile. */
+/* Allein auf der Spalte wurde der Tipp mit 44px auf 52px Polster zum Plakat.
+   Er ist ein Hinweis, keine Schlagzeile. */
 .tipp:only-child .tippText {
   max-width: 34ch;
   font-size: clamp(19px, 2vw, 26px);
@@ -452,11 +447,6 @@
 }
 
 .tipp,
-.order {
-  min-width: 0;
-  padding: clamp(22px, 4vw, 36px);
-}
-
 .tipp {
   display: grid;
   background: var(--detail-red);
@@ -483,76 +473,11 @@
   line-height: 1.25;
 }
 
-.order {
-  background: var(--detail-quiet);
-}
-
 .sibRowHead {
   margin: 0 0 clamp(18px, 3vw, 30px);
   color: var(--detail-red);
   font-size: clamp(18px, 4vw, 30px);
   line-height: var(--et-leading-title, 0.9);
-}
-
-.orderList {
-  display: grid;
-  gap: 14px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Grid items default to min-width:auto, so a single unbreakable dish name
-   ("Sauerteigcroissant" at 9vw) sets the track's min-content width and pushes
-   the whole row past the viewport, where the card clips it. min-width:0 lets
-   the track win; the wrap rules below then break the word instead. */
-.orderItem {
-  min-width: 0;
-  padding: 0;
-}
-
-.orderTop {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  align-items: baseline;
-}
-
-/* Von clamp(28px, 4vw, 46px) heruntergenommen: 46px gegen eine 14px-Notiz war
-   ein Sprung, den die Notiz nicht überlebt — und sie trägt die Information.
-   Der längste Gerichtsname im Bestand („Panko-knuspriger Blumenkohl mit Amba",
-   36 Zeichen) brauchte bei 46px drei Zeilen in der Spalte, jetzt zwei. */
-.orderDish {
-  color: var(--detail-ink);
-  font-size: clamp(26px, 3.2vw, 38px);
-  line-height: var(--et-leading-title, 0.92);
-  hyphens: auto;
-  overflow-wrap: anywhere;
-}
-
-.orderPrice {
-  color: var(--detail-muted);
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1.35;
-  text-transform: uppercase;
-}
-
-/* 15px statt 14px und dichter am Gericht: die Notiz sagt, warum man das Gericht
-   nimmt, und war als grauer 14px-Satz unter einer 46px-Zeile das Kleingedruckte
-   einer Überschrift. */
-.orderNote {
-  max-width: 58ch;
-  margin: 5px 0 0;
-  color: var(--detail-muted);
-  font-family: var(--f-body);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.5;
-  text-transform: none;
 }
 
 /* Basis ist das Telefon: ein Fakt pro Zeile, Label über dem Wert. Ab 901px
@@ -789,7 +714,7 @@
 
 /* Grid items default to min-width:auto, so one unbreakable name at 38px
    ("Sticks'n'Sushi", "Berlinburger International") set the track's min-content
-   width and ran straight out of the card. Same trap as .orderItem above. */
+   width and ran straight out of the card. */
 /* `hyphens: auto` stand hier und trennte „Five Elephant Schwedter" zu
    „FIVE ELE-PHANT SCHWEDTER" — ein Eigenname, den kein Wörterbuch trennen
    sollte, in einer Versal-Displayschrift, wo die Trennfuge doppelt auffällt.
@@ -994,17 +919,7 @@
   }
 
   .tipp,
-  .order {
-    padding: 22px 18px;
-  }
-
-  /* Deckel bei 34px statt 42px, sonst wäre das Gericht auf dem Telefon größer
-     als auf dem Desktop. */
-  .orderDish {
-    font-size: clamp(22px, 8vw, 34px);
-  }
-
-  /* Exactly two per row; a trailing odd button takes the full width. */
+      /* Exactly two per row; a trailing odd button takes the full width. */
   .act,
   .actPrimary,
   .actStrong {

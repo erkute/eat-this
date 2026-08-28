@@ -13,7 +13,6 @@ import { buildRestaurantJsonLd } from '@/lib/json-ld';
 import {
   buildCuratedRestaurantTitle,
   buildRestaurantTitle,
-  buildOrderPromiseDescription,
   truncateAtSentence,
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
@@ -28,6 +27,7 @@ import { splitDescriptionForMagazine } from '@/lib/restaurant-prose';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
+import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
 import RestaurantRemySection from '@/app/components/RestaurantRemySection';
 import RemyDock from '@/app/components/buddy/RemyDock';
@@ -149,34 +149,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const districtName = r.bezirk?.name ?? r.district ?? null;
 
-  // Antwort-Versprechen aus den whatToOrder-Empfehlungen: schlägt die
-  // beschreibenden Fallbacks, kuratierte seo.metaDescription gewinnt weiter.
-  const orderDishes = (r.whatToOrder ?? []).map((i) => i.dish);
-  // Zwei Labels statt einem: seit offene Spannen erlaubt sind, ist das Label
-  // nicht mehr sprachneutral („ab 100 €" vs. „from 100 €").
-  const orderPromiseDe = buildOrderPromiseDescription({
-    name: r.name,
-    dishes: orderDishes,
-    priceLabel: formatPriceLabel(r, 'de'),
-    locale: 'de',
-  });
-  const orderPromiseEn = buildOrderPromiseDescription({
-    name: r.name,
-    dishes: orderDishes,
-    priceLabel: formatPriceLabel(r, 'en'),
-    locale: 'en',
-  });
-
   const description = truncateAtSentence(
     pickLocale(
       r.seo?.metaDescription ||
-        orderPromiseDe ||
         r.shortDescription ||
         r.tip ||
         r.description ||
         `${r.name} in Berlin${districtName ? `, ${districtName}` : ''}.`,
       r.seo?.metaDescriptionEn ||
-        orderPromiseEn ||
         r.shortDescriptionEn ||
         r.tipEn ||
         r.descriptionEn ||
@@ -243,7 +223,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     }
     notFound();
   }
-  const { restaurant: r, mustEats, siblings: siblingsBezirk } = page;
+  const { restaurant: r, mustEats, articles, siblings: siblingsBezirk } = page;
 
   const loc = locale === 'de' ? 'de' : 'en';
   const de = loc === 'de';
@@ -254,7 +234,6 @@ export default async function RestaurantPage({ params }: PageProps) {
   const displayName = normalizeName(r.name);
   const magazine = splitDescriptionForMagazine(description);
   const lede = magazine?.lede || description;
-  const orderItems = (r.whatToOrder ?? []).filter((i) => i?.dish?.trim());
   const heroAssetKey = imageAssetKey(r.photo);
   // The hero photo is NOT a gallery item. It used to be prepended here, which
   // showed the same picture twice on every spot that has no extra gallery
@@ -418,37 +397,12 @@ export default async function RestaurantPage({ params }: PageProps) {
           </section>
         )}
 
-        {(tipText || orderItems.length > 0) && (
+        {tipText && (
           <div className={styles.editorialGrid}>
-            {tipText && (
-              <aside className={styles.tipp}>
-                <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
-                <p className={styles.tippText}>{tipText}</p>
-              </aside>
-            )}
-
-            {orderItems.length > 0 && (
-              <section
-                className={styles.order}
-                aria-label={de ? 'Was bestellen?' : 'What to order?'}
-              >
-                <h2 className={styles.orderHead}>{de ? 'Was bestellen?' : 'What to order?'}</h2>
-                <ul className={styles.orderList}>
-                  {orderItems.map((item) => {
-                    const note = pickLocale(item.note, item.noteEn, loc);
-                    return (
-                      <li key={item.dish} className={styles.orderItem}>
-                        <div className={styles.orderTop}>
-                          <span className={styles.orderDish}>{item.dish}</span>
-                          {item.price && <span className={styles.orderPrice}>{item.price}</span>}
-                        </div>
-                        {note && <p className={styles.orderNote}>{note}</p>}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            )}
+            <aside className={styles.tipp}>
+              <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
+              <p className={styles.tippText}>{tipText}</p>
+            </aside>
           </div>
         )}
 
@@ -591,6 +545,10 @@ export default async function RestaurantPage({ params }: PageProps) {
             <MustEatTeaserSection mustEats={mustEats} locale={loc} />
           </div>
         )}
+
+        {/* Vor der Bezirks-Zeile: ein Text über genau diesen Laden ist
+            spezifischer als vier weitere Spots aus demselben Bezirk. */}
+        <RestaurantArticlesSection articles={articles} locale={loc} />
 
         {/* Nur noch die Bezirks-Zeile. Die Kategorie-Zeile darunter schickte von
             einer Kreuzberg-Seite nach Schöneberg, Prenzlauer Berg,

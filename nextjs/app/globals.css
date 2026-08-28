@@ -263,7 +263,7 @@
 
   --et-font-display: var(--font-providence);
   --et-font-label: var(--font-providence);
-  --et-font-mono: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --et-font-mono: var(--menu-mono, var(--font));
   --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
 
   /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
@@ -334,7 +334,14 @@
   --menu-cream: #fff;
   --menu-cream-2: #fff;
   --menu-ink: #15120e;
-  --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* Kein Monospace mehr. Die Schrift saß auf rund dreißig Label- und
+     Meta-Zeilen (Spot-Karten, Kicker, Fußzeile, Must-Eat-Augenbraue) und war
+     dort schlecht lesbar — 11px, versal, mit Sperrung. Ausgetauscht wird an
+     der Definition statt an den Fundstellen: die Variablennamen bleiben, damit
+     der Eingriff eine Stelle groß ist und nicht dreißig. Echtes Monospace
+     braucht die Seite nirgends — kein Code, keine Tabellenziffern hängen
+     daran. */
+  --menu-mono: var(--font);
   --menu-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
   --menu-brush: var(--font-display);
 

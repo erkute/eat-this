@@ -112,15 +112,55 @@ describe('getRestaurantPageData', () => {
     expect(mockFetch).toHaveBeenCalledOnce();
     const [query, params, options] = mockFetch.mock.calls[0];
     expect(query).toContain('"mustEats"');
+    expect(query).toContain('"articles"');
     expect(query).toContain('"siblingsAfter"');
     expect(query).toContain('"siblingsWrap"');
-    expect(params).toEqual({ slug: 'ramen-place', siblingLimit: 4 });
+    expect(params).toEqual({ slug: 'ramen-place', siblingLimit: 4, articleLimit: 3 });
     expect(options).toMatchObject({
       next: {
         revalidate: SANITY_REVALIDATE_SECONDS,
-        tags: ['restaurant:ramen-place', 'restaurant', 'mustEat', 'restaurant-siblings'],
+        // `newsArticle` gehört dazu, seit die Seite den „Im Magazin"-Block
+        // trägt: ein neuer Artikel ändert ihn auf jeder darin verlinkten
+        // Restaurant-Seite, ohne dass das Restaurant selbst angefasst wird.
+        tags: [
+          'restaurant:ramen-place',
+          'restaurant',
+          'mustEat',
+          'newsArticle',
+          'restaurant-siblings',
+        ],
       },
     });
+  });
+
+  // Die Artikel kommen aus derselben Anfrage — ein zweiter Roundtrip pro Seite
+  // wäre bei 932 vorgerenderten Seiten genau das, was die Zusammenlegung
+  // vermeiden sollte.
+  it('reads the articles from the same request and sorts them by specificity', async () => {
+    mockFetch.mockResolvedValue({
+      ...row,
+      articles: [
+        { _id: 'a1', slug: 'kolo-coffee-berlin', title: 'Kolo' },
+        { _id: 'a2', slug: 'beste-cafes-berlin', title: 'Cafés' },
+      ],
+    } as never);
+
+    const result = await getRestaurantPageData('ramen-place');
+
+    expect(mockFetch).toHaveBeenCalledOnce();
+    expect(result?.articles.map((a) => a.slug)).toEqual([
+      'kolo-coffee-berlin',
+      'beste-cafes-berlin',
+    ]);
+    const [query] = mockFetch.mock.calls[0];
+    // Je weniger Spots ein Artikel nennt, desto mehr handelt er von diesem.
+    expect(query).toContain('order(count(coalesce(contentDe, content)[defined(restaurantRef)]) asc');
+  });
+
+  it('falls back to an empty article list', async () => {
+    mockFetch.mockResolvedValue(row as never);
+    const result = await getRestaurantPageData('ramen-place');
+    expect(result?.articles).toEqual([]);
   });
 
   // Die Kategorie-Hälfte der Sibling-Abfrage ist am 24.08.2026 mit der zweiten

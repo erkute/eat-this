@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildCuratedRestaurantTitle,
-  buildOrderPromiseDescription,
   buildRestaurantTitle,
   truncateAtSentence,
 } from './restaurantMeta';
@@ -10,19 +9,19 @@ describe('buildRestaurantTitle', () => {
   it('builds the full DE pattern', () => {
     expect(
       buildRestaurantTitle({ name: 'Sofi', cuisineType: 'Bakery', district: 'Mitte', locale: 'de' })
-    ).toBe('Sofi – Bäckerei in Berlin-Mitte | EAT THIS');
+    ).toBe('Sofi – Bäckerei in Berlin-Mitte');
   });
 
   it('uses the raw cuisine value on EN', () => {
     expect(
       buildRestaurantTitle({ name: 'Sofi', cuisineType: 'Bakery', district: 'Mitte', locale: 'en' })
-    ).toBe('Sofi – Bakery in Berlin-Mitte | EAT THIS');
+    ).toBe('Sofi – Bakery in Berlin-Mitte');
   });
 
   it('falls back to "in Berlin" without district', () => {
     expect(
       buildRestaurantTitle({ name: 'Sofi', cuisineType: 'Bakery', district: null, locale: 'de' })
-    ).toBe('Sofi – Bäckerei in Berlin | EAT THIS');
+    ).toBe('Sofi – Bäckerei in Berlin');
   });
 
   it('avoids double Berlin when the name contains it', () => {
@@ -33,7 +32,7 @@ describe('buildRestaurantTitle', () => {
         district: 'Mitte',
         locale: 'de',
       })
-    ).toBe('136 Berlin Restaurant – Peruanisch in Mitte | EAT THIS');
+    ).toBe('136 Berlin Restaurant – Peruanisch in Mitte');
   });
 
   it('falls back to the unique name when cuisine and location exceed the budget', () => {
@@ -43,20 +42,20 @@ describe('buildRestaurantTitle', () => {
       district: 'Prenzlauer Berg',
       locale: 'de',
     });
-    expect(t).toBe('Der Weinlobbyist Restaurant & Weinbar | EAT THIS');
+    expect(t).toBe('Der Weinlobbyist Restaurant & Weinbar');
     expect(t.length).toBeLessThanOrEqual(60);
   });
 
   it('passes unknown cuisine values through', () => {
     expect(
       buildRestaurantTitle({ name: 'X', cuisineType: 'Fusion', district: 'Mitte', locale: 'de' })
-    ).toBe('X – Fusion in Berlin-Mitte | EAT THIS');
+    ).toBe('X – Fusion in Berlin-Mitte');
   });
 
   it('handles missing cuisine and district', () => {
     expect(
       buildRestaurantTitle({ name: 'Sofi', cuisineType: null, district: null, locale: 'de' })
-    ).toBe('Sofi – in Berlin | EAT THIS');
+    ).toBe('Sofi – in Berlin');
   });
 });
 
@@ -115,40 +114,35 @@ describe('buildCuratedRestaurantTitle', () => {
   });
 });
 
-describe('buildOrderPromiseDescription', () => {
-  it('builds the DE answer-promise with dishes and price label', () => {
-    expect(
-      buildOrderPromiseDescription({
-        name: 'Boii Boii',
-        dishes: ['Pork Belly', 'Wolfsbarsch'],
-        priceLabel: '20–40 €',
-        locale: 'de',
-      })
-    ).toBe(
-      'Was bestellen bei Boii Boii? Pork Belly & Wolfsbarsch — unsere Empfehlungen mit Preisen (20–40 €), und ob sich der Besuch lohnt.'
+describe('title budget without the brand suffix', () => {
+  // Genau die Titel, die vorher mitten im Satz gekappt wurden: 51 bzw. 55
+  // Zeichen lagen über den 49, die das Suffix übrig ließ — und weg war der
+  // Bezirk, also das Standort-Keyword, für das die Seite ranken soll.
+  it('keeps a curated title that the brand suffix used to cut', () => {
+    const t = buildCuratedRestaurantTitle(
+      'Long March Canteen — Chinesische Tapas in Kreuzberg',
+      'Long March Canteen'
     );
+    expect(t).toBe('Long March Canteen — Chinesische Tapas in Kreuzberg');
+    expect(t).not.toContain('…');
   });
 
-  it('builds the EN equivalent without a price label', () => {
-    expect(
-      buildOrderPromiseDescription({ name: 'Boii Boii', dishes: ['Pork Belly'], locale: 'en' })
-    ).toBe(
-      "What to order at Boii Boii? Pork Belly — our picks with prices, and whether it's worth the visit."
+  it('still truncates beyond 60 characters', () => {
+    const t = buildCuratedRestaurantTitle(
+      'Gorilla Bäckerei — Bakery auf dem EUREF-Campus in Berlin-Schöneberg',
+      'Gorilla Bäckerei'
     );
+    expect(t).toMatch(/…$/);
+    expect(t.length).toBeLessThanOrEqual(60);
   });
 
-  it('caps the dish list at three entries', () => {
-    const out = buildOrderPromiseDescription({
-      name: 'X',
-      dishes: ['A', 'B', 'C', 'D'],
+  it('leaves no brand suffix on the built title either', () => {
+    const t = buildRestaurantTitle({
+      name: 'Sofi',
+      cuisineType: 'Bakery',
+      district: 'Mitte',
       locale: 'de',
     });
-    expect(out).toContain('A, B & C');
-    expect(out).not.toContain('D');
-  });
-
-  it('returns null without dishes', () => {
-    expect(buildOrderPromiseDescription({ name: 'X', dishes: [], locale: 'de' })).toBeNull();
-    expect(buildOrderPromiseDescription({ name: 'X', dishes: ['  '], locale: 'de' })).toBeNull();
+    expect(t).toBe('Sofi – Bäckerei in Berlin-Mitte');
   });
 });

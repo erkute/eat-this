@@ -32,13 +32,6 @@ interface PriceRange {
 }
 
 /** Editorial "Was bestellen?" recommendation (2–4 per restaurant). */
-interface WhatToOrderItem {
-  dish: string;
-  note?: string;
-  noteEn?: string;
-  price?: string;
-}
-
 interface RestaurantGalleryImage {
   _key: string;
   thumb?: string;
@@ -68,7 +61,6 @@ export interface Restaurant {
   openingHours?: OpeningHourSlot[];
   tip?: string;
   tipEn?: string;
-  whatToOrder?: WhatToOrderItem[];
   shortDescription?: string;
   shortDescriptionEn?: string;
   description?: string;
@@ -151,6 +143,19 @@ export interface NewsArticle {
   content?: PortableTextBlock[];
   contentDe?: PortableTextBlock[];
   seo?: NewsArticleSeo;
+}
+
+/** Artikel-Karte für den „Wir waren da"-Block der Restaurant-Seite. */
+export interface RestaurantArticleCard {
+  _id: string;
+  slug: string;
+  title: string;
+  titleDe?: string;
+  categoryLabel?: string;
+  categoryLabelDe?: string;
+  date?: string;
+  imageUrl?: string;
+  alt?: string;
 }
 
 export interface StaticPageDoc {

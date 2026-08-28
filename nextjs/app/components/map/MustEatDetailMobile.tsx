@@ -496,27 +496,6 @@ export default function MustEatDetailMobile({
           )}
         </div>
       </div>
-
-      <div className={`${styles.fdRest} ${styles.fdRestDock}`}>
-        {restaurantPhoto && (
-          <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
-        )}
-        <div className={styles.fdRestName}>
-          <div className={styles.fdK}>{t('map.inRestaurant')}</div>
-          <div className={`${styles.fdV}${restNameSizeClass ? ` ${restNameSizeClass}` : ''}`}>
-            {normalizeName(restaurantName)}
-          </div>
-        </div>
-        {onViewRestaurant ? (
-          <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
-            {t('map.toSpot')}
-          </button>
-        ) : (
-          <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.ctaPill}>
-            {t('map.toSpot')}
-          </Link>
-        )}
-      </div>
     </div>
   );
 }

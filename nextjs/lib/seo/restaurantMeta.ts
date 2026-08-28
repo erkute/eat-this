@@ -1,7 +1,7 @@
 import { localizedCuisine } from '../cuisineLabels';
 import {
-  buildBrandedTitle,
-  METADATA_TITLE_TEXT_MAX,
+  buildPlainTitle,
+  METADATA_TITLE_MAX,
   truncateMetadataDescription,
 } from './metadata-text';
 
@@ -10,6 +10,16 @@ import {
  * Edge-Cases: Name enthält "Berlin" → kein Doppel-Berlin; über Budget →
  * Label fällt weg, Standort-Keyword bleibt. Sanity `seo.metaTitle`
  * überschreibt den Builder im Aufrufer.
+ *
+ * Ohne Marken-Suffix, aus demselben Grund wie auf den Bezirksseiten (siehe
+ * `buildPlainTitle`): die 11 Zeichen kosteten hier mehr als sie brachten.
+ * Gemessen am 27.08.2026 über alle 466 kuratierten Titel — 166 der deutschen
+ * und 162 der englischen lagen über den verbleibenden 49 Zeichen und wurden
+ * mitten im Satz gekappt, und gekappt wurde die zweite Hälfte: der Bezirk.
+ * "Long March Canteen — Chinesische Tapas in…" verlor sein Standort-Keyword,
+ * "KEIT Friedrichshain – Sauerteigbäckerei mit…" seine Spezialität. Mit den
+ * vollen 60 Zeichen bleiben zwei DE- und ein EN-Titel übrig. Der Median liegt
+ * bei 47 Zeichen: die Titel sind für 60 geschrieben, nicht für 49.
  */
 export function buildRestaurantTitle(opts: {
   name: string;
@@ -35,9 +45,8 @@ export function buildRestaurantTitle(opts: {
     district ? (nameHasBerlin ? district : `Berlin-${district}`) : place
   );
   const candidates = label ? [full, locationOnly, name] : [full, name];
-  const selected =
-    candidates.find((candidate) => candidate.length <= METADATA_TITLE_TEXT_MAX) ?? name;
-  return buildBrandedTitle(selected);
+  const selected = candidates.find((candidate) => candidate.length <= METADATA_TITLE_MAX) ?? name;
+  return buildPlainTitle(selected);
 }
 
 /**
@@ -48,7 +57,7 @@ export function buildRestaurantTitle(opts: {
 export function buildCuratedRestaurantTitle(title: string, name: string): string {
   const cleanTitle = title.trim().replace(/\s+/g, ' ');
   const separator = cleanTitle.match(/\s(?:—|–|-)\s|:\s/);
-  if (!separator?.index) return buildBrandedTitle(cleanTitle);
+  if (!separator?.index) return buildPlainTitle(cleanTitle);
 
   const lead = cleanTitle.slice(0, separator.index);
   const normalizedLead = lead.toLocaleLowerCase('de');
@@ -56,38 +65,7 @@ export function buildCuratedRestaurantTitle(title: string, name: string): string
   const qualified = normalizedName.startsWith(`${normalizedLead} `)
     ? `${name.trim()}${cleanTitle.slice(separator.index)}`
     : cleanTitle;
-  return buildBrandedTitle(qualified);
-}
-
-/**
- * Antwort-Versprechen-Description für Seiten mit gepflegten `whatToOrder`-
- * Empfehlungen: bedient die „karte/speisekarte"-Suchintention direkt im
- * Snippet („Was bestellen? Was kostet's?") statt nur zu beschreiben.
- * Kuratierte `seo.metaDescription` überschreibt den Builder im Aufrufer.
- * Null ohne Gerichte.
- */
-export function buildOrderPromiseDescription(opts: {
-  name: string;
-  dishes: string[];
-  priceLabel?: string | null;
-  locale: 'de' | 'en';
-}): string | null {
-  const { name, priceLabel, locale } = opts;
-  const dishes = opts.dishes
-    .map((d) => d.trim())
-    .filter(Boolean)
-    .slice(0, 3);
-  if (dishes.length === 0) return null;
-
-  const dishList =
-    dishes.length === 1
-      ? dishes[0]!
-      : `${dishes.slice(0, -1).join(', ')} & ${dishes[dishes.length - 1]}`;
-  const price = priceLabel ? ` (${priceLabel})` : '';
-
-  return locale === 'de'
-    ? `Was bestellen bei ${name}? ${dishList} — unsere Empfehlungen mit Preisen${price}, und ob sich der Besuch lohnt.`
-    : `What to order at ${name}? ${dishList} — our picks with prices${price}, and whether it's worth the visit.`;
+  return buildPlainTitle(qualified);
 }
 
 /**

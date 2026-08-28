@@ -7,6 +7,7 @@ import ReferralToastListener from '@/app/components/ReferralToastListener';
 import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
+import CookieConsent from '@/app/components/CookieConsent';
 import { buildSiteJsonLd } from '@/lib/json-ld';
 import { sans } from '@/app/fonts';
 
@@ -103,6 +104,14 @@ export default async function LocaleLayout({
           <NotificationToast />
           <ScrollRestorer />
           <AnalyticsPageViews />
+          {/* Auf JEDER Locale-Route, nicht nur im SPA-Layout — dort hing der
+              Dialog bis 28.08.2026, und /restaurant, /kategorie, /bezirk,
+              /packs, /profile und /checkout liegen daneben. Auf 35 % der
+              Seitenaufrufe wurde also nie gefragt, und das sind genau die
+              Seiten, auf denen die Google-Suche landet: GA konnte dort nie
+              laden. Muss innerhalb von ClientIntlProvider stehen — der Dialog
+              zieht seine Texte über next-intl. Styles dazu in globals.css. */}
+          <CookieConsent />
           {children}
           {modal}
         </ClientIntlProvider>

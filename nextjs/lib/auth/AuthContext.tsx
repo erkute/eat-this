@@ -3,8 +3,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   browserPopupRedirectResolver,
+  getRedirectResult,
   onIdTokenChanged,
   signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
   updateProfile,
@@ -29,7 +31,13 @@ interface AuthContextValue {
    * (siehe googlePopupWarmup.ts).
    */
   prepareGoogleSignIn: () => void;
-  signInWithGoogle: () => Promise<void>;
+  /**
+   * Meldet mit Google an. Wird das Popup vom Browser geblockt, schaltet der
+   * Aufruf selbsttätig auf den Redirect-Weg um — dann kehrt der Leser über
+   * `returnTo` zurück (Vorgabe: die aktuelle Adresse), und diese Promise löst
+   * nie auf, weil die Seite vorher navigiert.
+   */
+  signInWithGoogle: (options?: { returnTo?: string }) => Promise<void>;
   signOut: () => Promise<void>;
   updateDisplayName: (name: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -96,28 +104,89 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  /* Holt das Ergebnis des Redirect-Wegs ab. Unsere Auth-Instanz kann das nicht
+     von selbst: sie ist ohne Popup-/Redirect-Resolver initialisiert (siehe
+     lib/firebase/config.ts), also muss er hier mitgegeben werden.
+
+     Fuer alle anderen Besucher kostet der Aufruf nichts: getRedirectResult
+     liest zuerst den sessionStorage-Marker und laedt Googles Iframe nur, wenn
+     wirklich eine Anmeldung unterwegs ist. Die Zusage des Cookie-Banners —
+     Google Sign-In laedt nur, wenn man es nutzt — bleibt damit unberuehrt. */
+  useEffect(() => {
+    void getRedirectResult(auth, browserPopupRedirectResolver).catch((error: unknown) => {
+      const { code, benign } = describeGoogleSignInError(error);
+      Sentry.captureException(error, {
+        level: benign ? 'warning' : 'error',
+        tags: { auth_flow: 'google_redirect', auth_error_code: code },
+      });
+      console.warn('[auth] Google redirect result failed:', code, error);
+    });
+  }, []);
+
   // ─── Auth operations ─────────────────────────────────────────────────────
 
   const prepareGoogleSignIn = useCallback((): void => warmGooglePopup(), []);
 
-  const signInWithGoogle = useCallback(async (): Promise<void> => {
+  const signInWithGoogle = useCallback(async (options?: { returnTo?: string }): Promise<void> => {
     try {
       // The resolver is passed here rather than baked into the auth instance:
       // it drags in Google's gapi iframe, which must not load for visitors who
       // never sign in (see lib/firebase/config.ts).
       await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+      return;
     } catch (error) {
       /* Reported HERE rather than in the two call sites, both of which used to
-         swallow it whole. A Google sign-in that fails silently is invisible
-         three times over: no message on screen, nothing in the console, nothing
-         in Sentry — which is how a broken popup on staging survived three
-         rounds of guessing (user, 2026-08-26). The code IS the diagnosis, so it
-         goes in as a tag rather than being buried in the message. */
-      const { code, benign } = describeGoogleSignInError(error);
+           swallow it whole. A Google sign-in that fails silently is invisible
+           three times over: no message on screen, nothing in the console, nothing
+           in Sentry — which is how a broken popup on staging survived three
+           rounds of guessing (user, 2026-08-26). The code IS the diagnosis, so it
+           goes in as a tag rather than being buried in the message. */
+      const { code, benign, blocked } = describeGoogleSignInError(error);
+
+      if (blocked) {
+        /* Der Browser hat das Fenster nicht aufgehen lassen. Auf iOS Safari
+             ist das der Normalfall, solange Googles Iframe-Helfer beim Tippen
+             noch laedt: Safari erlaubt `window.open` nur im Klick-Task, und
+             `signInWithPopup` wartet vorher auf diesen Helfer. Auf dem Handy
+             dauert das — einmal ist er dort sogar ganz im Netz gescheitert
+             (auth/network-request-failed, 28.08.2026). Das Vorwaermen
+             (googlePopupWarmup.ts) verkuerzt die Wartezeit, aber es garantiert
+             sie nicht weg.
+
+             Eine Navigation braucht keine Nutzer-Aktivierung und traegt
+             deshalb auch dann noch. Der Leser muss dafuer kein zweites Mal
+             tippen: wir schalten hier selbst um. */
+        Sentry.captureMessage('Google-Popup geblockt — Wechsel auf Redirect', {
+          level: 'info',
+          tags: { auth_flow: 'google_popup', auth_error_code: code, auth_fallback: 'redirect' },
+          extra: { host: window.location.host },
+        });
+        /* Der Redirect kehrt zur AKTUELLEN Adresse zurueck. Wer von einem
+             gesperrten Spot kommt, braucht dort `?r=<slug>&claim=1` — denselben
+             Marker, den der Magic-Link-Weg hinterlaesst und den
+             useSignupSpotClaim beim Landen einloest. Ohne ihn faende die
+             Rueckkehr zwar ein angemeldetes Konto vor, aber niemanden mehr,
+             der den Spot einloest. */
+        if (options?.returnTo) window.history.replaceState(null, '', options.returnTo);
+        try {
+          await signInWithRedirect(auth, googleProvider, browserPopupRedirectResolver);
+          return;
+        } catch (redirectError) {
+          const { code: redirectCode } = describeGoogleSignInError(redirectError);
+          Sentry.captureException(redirectError, {
+            level: 'error',
+            tags: { auth_flow: 'google_redirect', auth_error_code: redirectCode },
+            extra: { authDomain: auth.app.options.authDomain, host: window.location.host },
+          });
+          console.warn('[auth] Google redirect failed:', redirectCode, redirectError);
+          throw redirectError;
+        }
+      }
+
       /* IMMER melden, auch den Abbruch — nur leiser. `benign` entscheidet, ob
-         der Leser eine Meldung sieht, nicht ob wir eine bekommen: ein
-         zugegangenes Fenster sieht identisch aus, ob es der Leser war oder die
-         Übergabe. Genau diese Kopplung machte die vorige Fassung blind. */
+           der Leser eine Meldung sieht, nicht ob wir eine bekommen: ein
+           zugegangenes Fenster sieht identisch aus, ob es der Leser war oder die
+           Übergabe. Genau diese Kopplung machte die vorige Fassung blind. */
       Sentry.captureException(error, {
         level: benign ? 'warning' : 'error',
         tags: { auth_flow: 'google_popup', auth_error_code: code, auth_benign: String(benign) },

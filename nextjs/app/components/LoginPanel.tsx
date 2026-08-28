@@ -26,7 +26,7 @@ interface LoginPanelProps {
 // drifted a redesign behind the modal everyone actually sees.
 export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps) {
   const { t } = useTranslation();
-  const { user, loading, signInWithGoogle } = useAuth();
+  const { user, loading, signInWithGoogle, prepareGoogleSignIn } = useAuth();
   const locale = useLocale();
   const {
     sendLink,
@@ -37,13 +37,18 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
 
   const [email, setEmail] = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
-  const [googleError, setGoogleError] = useState(false);
+  const [googleError, setGoogleError] = useState<'blocked' | 'failed' | null>(null);
   const authMethod = useRef<'google' | null>(null);
   const emailInputId = useId();
 
   useEffect(() => {
     trackEvent('login_view', { surface: 'modal', context: 'general' });
-  }, []);
+    /* Solange hier noch gelesen wird, lädt Firebase seinen Popup-Helfer.
+       Ohne diesen Vorlauf war der erste Klick auf Google immer verloren:
+       `signInWithPopup` holt den Helfer erst nach dem Klick, und danach
+       blockt der Browser das Fenster (siehe googlePopupWarmup.ts). */
+    prepareGoogleSignIn();
+  }, [prepareGoogleSignIn]);
 
   useEffect(() => {
     if (!user || authMethod.current !== 'google') return;
@@ -58,14 +63,15 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
     authMethod.current = 'google';
     trackEvent('login_start', { method: 'google' });
     setGoogleBusy(true);
-    setGoogleError(false);
+    setGoogleError(null);
     try {
       await signInWithGoogle();
     } catch (error) {
       authMethod.current = null;
       setGoogleBusy(false);
       // Abbruch durch den Leser bleibt stumm; alles andere hat er zu sehen.
-      if (!describeGoogleSignInError(error).benign) setGoogleError(true);
+      const { benign, blocked } = describeGoogleSignInError(error);
+      if (!benign) setGoogleError(blocked ? 'blocked' : 'failed');
     }
   }, [signInWithGoogle]);
 
@@ -260,7 +266,18 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
                 aria-live="polite"
                 aria-hidden={magicState !== 'error' && !googleError}
               >
-                {magicState === 'error' ? magicError : googleError ? t('errGooglePopup') : ''}
+                {magicState === 'error'
+                  ? magicError
+                  : /* Mit `auth.`-Praefix, sonst findet next-intl den Text nicht
+                       und schreibt dem Leser den Schluessel selbst hin — genau
+                       das stand da (Nutzer, 28.08.2026). */
+                    googleError
+                    ? t(
+                        googleError === 'blocked'
+                          ? 'auth.errGooglePopupBlocked'
+                          : 'auth.errGooglePopup'
+                      )
+                    : ''}
               </p>
               <button
                 type="submit"

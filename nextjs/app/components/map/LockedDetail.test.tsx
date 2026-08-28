@@ -15,7 +15,7 @@ vi.mock('@/lib/map/useRestaurantDetail', () => ({
   useRestaurantDetail: () => ({ detail: detail.current, loading: false }),
 }));
 vi.mock('@/lib/auth', () => ({
-  useAuth: () => ({ signInWithGoogle: vi.fn() }),
+  useAuth: () => ({ signInWithGoogle: vi.fn(), prepareGoogleSignIn: vi.fn() }),
   useMagicLink: () => ({ sendLink: vi.fn(), state: 'idle', errorMessage: '', reset: vi.fn() }),
 }));
 

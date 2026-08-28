@@ -270,73 +270,14 @@
 
 .story,
 .gallery,
-.editorialZone,
+.tipp,
+.factsHead,
+.facts,
+.acts,
 .siblings,
 .rail {
   width: min(100%, 900px);
   margin-inline: auto;
-}
-
-/* Editorial-Strecke: Text links im Lesemaß, Spot-Karte rechts als
-   Randspalte — Zeitungsaufbau. Beide Spalten und alle Module darunter
-   teilen dieselbe linke Achse; unter 901px fällt das Raster zu einer
-   Spalte zusammen (Text, Tipp, dann Karte). */
-.editorialZone {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(30px, 5vw, 48px);
-  align-items: start;
-  margin-bottom: clamp(38px, 7vw, 86px);
-}
-
-@media (min-width: 901px) {
-  .editorialZone {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    column-gap: clamp(36px, 4.5vw, 56px);
-  }
-}
-
-.article {
-  display: grid;
-  gap: clamp(28px, 4.5vw, 48px);
-  align-content: start;
-  min-width: 0;
-}
-
-/* Die Spot-Karte: alles Praktische als EIN angeheftetes Objekt in der
-   Karten-Sprache der Marke — Ink-Rahmen, gepunktete Zeilen, gelber
-   Klebestreifen über der Oberkante. */
-.spotCard {
-  position: relative;
-  padding: 26px 20px 18px;
-  background: var(--detail-paper);
-  border: 2px solid var(--detail-ink);
-}
-
-.spotCard::before {
-  content: '';
-  position: absolute;
-  top: -11px;
-  left: 50%;
-  width: 96px;
-  height: 22px;
-  background: var(--detail-accent);
-  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.18);
-  transform: translateX(-50%) rotate(-2.4deg);
-}
-
-/* Nur für Screenreader: die dt-Labels von Adresse und Öffnungszeiten —
-   sichtbar erklären sich beide Werte selbst, das Karten-H2 trägt den Titel. */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 /* Must-Eats, map promo and FAQ bring their own full-bleed margins from the
@@ -347,8 +288,7 @@
 }
 
 .story {
-  /* Abstände innerhalb der Editorial-Strecke regelt das .article-Raster. */
-  margin-bottom: 0;
+  margin-bottom: clamp(40px, 6vw, 76px);
   color: var(--detail-ink);
   font-size: clamp(17px, 1.35vw, 19px);
   line-height: 1.65;
@@ -489,37 +429,36 @@
   text-decoration: none;
 }
 
-/* Der Tipp steht in der Artikelspalte hinter dem Text — die frühere
-   editorialGrid-Hülle (zweispaltig für den entfernten Bestell-Block, seit
-   dessen Abgang immer einspaltig) ist mit dem Zonen-Umbau weg. */
+/* Der Insider-Tipp als Randnotiz: kein roter Kasten mehr, sondern die
+   Handschrift der Marke, rot und groß, direkt auf dem Blatt — als hätte die
+   Redaktion quer über die Seite geschrieben. Das Mono-Label darüber ist
+   dieselbe Eyebrow-Grammatik wie beim Must-Eat-Kopf. */
 .tipp {
   display: grid;
-  /* Gleiche rechte Kante wie die Textabsätze (700px-Lesemaß) — der Block
-     soll in der Artikelspalte stehen, nicht über sie hinausragen. */
-  max-width: 700px;
-  padding: clamp(24px, 3.4vw, 34px);
-  background: var(--detail-red);
-  color: var(--detail-paper);
+  margin-bottom: clamp(48px, 7vw, 92px);
 }
 
 .tippLabel {
-  margin-bottom: 12px;
-  color: inherit;
+  margin-bottom: 14px;
+  color: var(--detail-ink);
   font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .tippText {
-  max-width: 34ch;
+  max-width: 26ch;
   margin: 0;
-  color: inherit;
-  font-size: clamp(19px, 2vw, 26px);
-  font-weight: 800;
-  line-height: 1.18;
+  color: var(--detail-red);
+  font-family: var(--f-display);
+  font-size: clamp(24px, 3.2vw, 40px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.16;
+  text-wrap: balance;
 }
 
 /* Gleiche Kopfzeile wie „Im Magazin" (.head in RestaurantArticlesSection):
@@ -534,48 +473,48 @@
   text-transform: uppercase;
 }
 
-/* Kartentitel — zugleich die H2 des Local-Kerns in der Seiten-Outline. */
+/* Kopf des Fakten-Registers — gleiche Grammatik wie „Im Magazin" und
+   „Weitere in {Bezirk}", zugleich die H2 des Local-Kerns in der Outline. */
 .factsHead {
-  margin: 0 0 4px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--detail-ink);
-  color: var(--detail-ink);
+  /* Longhands, nicht `margin:` — die Kurzform setzte margin-inline auf 0 und
+     überschrieb das zentrierende `auto` aus der Spaltenregel oben. */
+  margin-block: 0 clamp(18px, 3vw, 30px);
+  color: var(--detail-red);
   font-family: var(--f-display);
-  font-size: 15px;
+  font-size: clamp(18px, 4vw, 30px);
   font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.25;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title, 0.9);
   text-transform: uppercase;
 }
 
+/* Das Register: harte Linien über die volle Spalte, winzige Mono-Labels,
+   Werte in Kreidetafel-Größe. Öffnet mit einer 3px-Ink-Linie, die Zeilen
+   trennen sich mit 1px — keine Kästen, keine Flächen. */
 .facts {
-  margin: 0;
+  /* margin-block statt `margin: 0` — Kurzform würde das zentrierende
+     margin-inline aus der Spaltenregel kippen (siehe .factsHead). */
+  margin-block: 0;
+  border-top: 3px solid var(--detail-ink);
 }
 
-/* Karteikarten-Zeilen: gepunktete Linien statt grauer Slabs. */
 .factsRow {
   display: grid;
-  align-content: start;
-  gap: 5px;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 8px 32px;
+  align-items: baseline;
   min-height: 0;
-  padding: 13px 0;
-  border-bottom: 1px dotted var(--detail-line);
-}
-
-/* Die letzte Zeile grenzt an die Ink-Linie der Aktionszeile — keine
-   gepunktete Linie direkt über einer durchgezogenen. */
-.factsRow:last-child {
-  border-bottom: 0;
-  padding-bottom: 4px;
+  padding: clamp(16px, 2.2vw, 22px) 0;
+  border-bottom: 1px solid var(--detail-line);
 }
 
 .factsKey {
   color: var(--detail-red);
-  font-family: var(--f-display);
-  font-size: 13px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.25;
+  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1.6;
   text-transform: uppercase;
 }
 
@@ -584,17 +523,17 @@
 .hours {
   color: var(--detail-ink);
   font-family: var(--f-display);
-  font-size: 19px;
+  font-size: clamp(21px, 2.4vw, 30px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.34;
+  line-height: 1.3;
 }
 
-/* Tag/Zeit-Paare in einer Zeile — in der schmalen Karte wie auf Mobil. */
+/* Tag/Zeit-Paare nebeneinander, Tage in Ruhe, Zeiten in Ink. */
 .hours {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  gap: 5px 12px;
+  gap: 6px 20px;
   align-items: baseline;
 }
 
@@ -618,16 +557,14 @@
   color: var(--detail-ink);
 }
 
-/* Aktionszeile am Kartenfuß, mit Ink-Linie vom Faktenteil getrennt. In der
-   300px-Randspalte stapeln die Knöpfe von selbst (flex-basis 200px + grow),
-   auf Mobil läuft die Karte voll und die Zeile bricht zweispaltig um. */
+/* Aktionszeile unter dem Register. Jeder Knopf wächst, damit eine
+   umgebrochene letzte Zeile die volle Breite füllt. */
 .acts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 2px solid var(--detail-ink);
+  gap: 10px;
+  margin-top: clamp(22px, 3vw, 30px);
+  margin-bottom: clamp(48px, 8vw, 96px);
 }
 
 /* Base tier — outlined, so a row of five secondary actions reads as a light
@@ -973,8 +910,14 @@
     flex-basis: calc(100% - 16px);
   }
 
-  .tipp,
-      /* Exactly two per row; a trailing odd button takes the full width. */
+  /* Register auf dem Telefon: Label über dem Wert, Linienführung bleibt. */
+  .factsRow {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 14px 0;
+  }
+
+  /* Exactly two per row; a trailing odd button takes the full width. */
   .act,
   .actPrimary,
   .actStrong {

@@ -382,190 +382,27 @@ export default async function RestaurantPage({ params }: PageProps) {
           </div>
         </header>
 
-        {/* Editorial-Strecke unter der Datumszeile: links der Text im
-            Lesemaß, rechts die Spot-Karte mit allem Praktischen — Zeitungs-
-            aufbau statt Kastenstapel. Beide Spalten hängen an derselben
-            linken Achse wie alle Module darunter; auf Mobil fällt das Raster
-            zu einer Spalte zusammen (Text, Tipp, dann Karte). */}
-        <div className={styles.editorialZone}>
-          <div className={styles.article}>
-            {description && (
-              <article className={styles.story}>
-                <p className={`${styles.lede} ${shouldSkipDropCap(lede) ? styles.ledePlain : ''}`}>
-                  {lede}
-                </p>
-                {magazine?.paragraphsBefore.map((p, i) => (
-                  <p key={`bf-${i}`}>{p}</p>
-                ))}
-                {magazine?.midQuote && (
-                  <blockquote className={styles.pullQuote}>{magazine.midQuote}</blockquote>
-                )}
-                {magazine?.paragraphsAfter.map((p, i) => (
-                  <p key={`af-${i}`}>{p}</p>
-                ))}
-              </article>
+        {/* Die Strecke unterm Aufmacher läuft als EIN Blatt: Text, Bildstrecke,
+            die rote Randnotiz der Redaktion, dann das Fakten-Register — alles
+            auf derselben linken Achse, ohne Kästen. Laut sind nur zwei
+            Typo-Momente: der Tipp in der Handschrift und die Registerwerte in
+            Kreidetafel-Größe. */}
+        {description && (
+          <article className={styles.story}>
+            <p className={`${styles.lede} ${shouldSkipDropCap(lede) ? styles.ledePlain : ''}`}>
+              {lede}
+            </p>
+            {magazine?.paragraphsBefore.map((p, i) => (
+              <p key={`bf-${i}`}>{p}</p>
+            ))}
+            {magazine?.midQuote && (
+              <blockquote className={styles.pullQuote}>{magazine.midQuote}</blockquote>
             )}
-
-            {tipText && (
-              <aside className={styles.tipp}>
-                <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
-                <p className={styles.tippText}>{tipText}</p>
-              </aside>
-            )}
-          </div>
-
-          {/* Die Spot-Karte: Adresse, Zeiten, Preis, Kategorien und Aktionen
-              als EIN angeheftetes Objekt — Karteikarte mit Klebestreifen, die
-              Karten-Sprache der Marke statt dreier grauer Slabs plus
-              Buttonzeile. Adresse und Zeiten brauchen kein sichtbares Label
-              (man sieht, was sie sind — die dt bleiben für Screenreader);
-              Preis und Gut für behalten ihres. */}
-          <aside className={styles.spotCard}>
-            {(address || (r.openingHours && r.openingHours.length > 0) || priceLabel) && (
-              <h2 className={styles.factsHead}>
-                {de ? 'Adresse & Öffnungszeiten' : 'Address & hours'}
-              </h2>
-            )}
-            <dl className={styles.facts}>
-              {address && (
-                <div className={styles.factsRow}>
-                  <dt className={styles.srOnly}>{de ? 'Adresse' : 'Address'}</dt>
-                  <dd className={styles.factsVal}>
-                    {(() => {
-                      const idx = address.indexOf(',');
-                      const lines =
-                        idx === -1 ? (
-                          address
-                        ) : (
-                          <>
-                            {address.slice(0, idx).trim()}
-                            <br />
-                            {address.slice(idx + 1).trim()}
-                          </>
-                        );
-                      if (!mapsHref) return lines;
-                      return (
-                        <a
-                          className={styles.factsLink}
-                          href={mapsHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {lines}
-                        </a>
-                      );
-                    })()}
-                  </dd>
-                </div>
-              )}
-              {r.openingHours && r.openingHours.length > 0 && (
-                <div className={styles.factsRow}>
-                  <dt className={styles.srOnly}>{de ? 'Öffnungszeiten' : 'Hours'}</dt>
-                  <dd className={`${styles.factsVal} ${styles.hours}`}>
-                    {r.openingHours.map((slot, i) => [
-                      <span key={`d-${i}`} className={styles.hoursDay}>
-                        {localizeOpeningDays(slot.days, loc)}
-                      </span>,
-                      <span key={`t-${i}`} className={styles.hoursTime}>
-                        {localizeOpeningHours(slot.hours, loc)}
-                      </span>,
-                    ])}
-                  </dd>
-                </div>
-              )}
-              {priceLabel && (
-                <div className={styles.factsRow}>
-                  <dt className={styles.factsKey}>{de ? 'Preis' : 'Price'}</dt>
-                  <dd className={styles.factsVal}>{priceLabel}</dd>
-                </div>
-              )}
-              {categoryLinks.length > 0 && (
-                <div className={styles.factsRow}>
-                  <dt className={styles.factsKey}>{de ? 'Gut für' : 'Good for'}</dt>
-                  <dd className={styles.factsVal}>
-                    {categoryLinks.map((c, i) => (
-                      <Fragment key={c.slug}>
-                        {i > 0 && <span aria-hidden="true"> · </span>}
-                        <IntlLink href={`/kategorie/${c.slug}`} className={styles.factsLink}>
-                          {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
-                        </IntlLink>
-                      </Fragment>
-                    ))}
-                  </dd>
-                </div>
-              )}
-            </dl>
-
-            {/* Drei Gewichte wie gehabt: hingehen (rot), Tisch buchen
-                (schwarz), Rest umrandet. In der Karte stapeln die Knöpfe auf
-                Desktop untereinander, auf Mobil laufen sie zweispaltig.
-                „Auf der Map öffnen" steht bewusst nicht hier — die Map hat
-                die Pille oben und das Plakat unten. Teilen sitzt an dritter
-                Stelle, nicht zuletzt: der letzte Slot einer umgebrochenen
-                Zeile streckt sich auf volle Breite. */}
-            <div className={styles.acts}>
-              {mapsHref && (
-                <a
-                  className={`${styles.act} ${styles.actPrimary}`}
-                  href={mapsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <RouteIcon />
-                  <span>{de ? 'Route' : 'Directions'}</span>
-                </a>
-              )}
-              {r.reservationUrl && (
-                <a
-                  className={`${styles.act} ${styles.actStrong}`}
-                  href={r.reservationUrl}
-                  target="_blank"
-                  rel="noopener nofollow noreferrer"
-                >
-                  <ReserveIcon />
-                  <span>{de ? 'Reservieren' : 'Reserve'}</span>
-                </a>
-              )}
-              <ShareButton
-                title={r.name}
-                slug={slug}
-                contentType="restaurant"
-                className={styles.act}
-                label={de ? 'Teilen' : 'Share'}
-                copiedLabel={de ? 'Kopiert' : 'Copied'}
-                icon={<ShareIcon />}
-              />
-              {telHref && (
-                <a className={styles.act} href={telHref}>
-                  <PhoneIcon />
-                  <span>{de ? 'Anrufen' : 'Call'}</span>
-                </a>
-              )}
-              {websiteUrl && (
-                <a
-                  className={styles.act}
-                  href={websiteUrl}
-                  target="_blank"
-                  rel="noopener nofollow noreferrer"
-                >
-                  <WebsiteIcon />
-                  <span>Website</span>
-                </a>
-              )}
-              {r.menuUrl && (
-                <a
-                  className={styles.act}
-                  href={r.menuUrl}
-                  target="_blank"
-                  rel="noopener nofollow noreferrer"
-                >
-                  <MenuCardIcon />
-                  <span>{de ? 'Speisekarte' : 'Menu'}</span>
-                </a>
-              )}
-            </div>
-          </aside>
-        </div>
+            {magazine?.paragraphsAfter.map((p, i) => (
+              <p key={`af-${i}`}>{p}</p>
+            ))}
+          </article>
+        )}
 
         {galleryImages.length > 0 && (
           <section className={styles.gallery} aria-label={de ? 'Galerie' : 'Gallery'}>
@@ -598,6 +435,161 @@ export default async function RestaurantPage({ params }: PageProps) {
             })}
           </section>
         )}
+
+        {/* Der Insider-Tipp als Randnotiz statt roter Kasten: kleines
+            Mono-Label, darunter der Satz in der Handschrift der Marke, rot,
+            groß — als hätte die Redaktion ihn quer über das Blatt geschrieben. */}
+        {tipText && (
+          <aside className={styles.tipp}>
+            <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
+            <p className={styles.tippText}>{tipText}</p>
+          </aside>
+        )}
+
+        {/* Das Fakten-Register: harte Linien, winzige Mono-Labels, Werte in
+            Kreidetafel-Größe — die Kreidetafel aus SOFIs Hof als Typografie.
+            Die H2 bleibt der Local-Anker der Seiten-Outline. */}
+        {(address || (r.openingHours && r.openingHours.length > 0) || priceLabel) && (
+          <h2 className={styles.factsHead}>
+            {de ? 'Adresse & Öffnungszeiten' : 'Address & hours'}
+          </h2>
+        )}
+        <dl className={styles.facts}>
+          {address && (
+            <div className={styles.factsRow}>
+              <dt className={styles.factsKey}>{de ? 'Adresse' : 'Address'}</dt>
+              <dd className={styles.factsVal}>
+                {(() => {
+                  const idx = address.indexOf(',');
+                  const lines =
+                    idx === -1 ? (
+                      address
+                    ) : (
+                      <>
+                        {address.slice(0, idx).trim()}
+                        <br />
+                        {address.slice(idx + 1).trim()}
+                      </>
+                    );
+                  if (!mapsHref) return lines;
+                  return (
+                    <a
+                      className={styles.factsLink}
+                      href={mapsHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {lines}
+                    </a>
+                  );
+                })()}
+              </dd>
+            </div>
+          )}
+          {r.openingHours && r.openingHours.length > 0 && (
+            <div className={styles.factsRow}>
+              <dt className={styles.factsKey}>{de ? 'Öffnungszeiten' : 'Hours'}</dt>
+              <dd className={`${styles.factsVal} ${styles.hours}`}>
+                {r.openingHours.map((slot, i) => [
+                  <span key={`d-${i}`} className={styles.hoursDay}>
+                    {localizeOpeningDays(slot.days, loc)}
+                  </span>,
+                  <span key={`t-${i}`} className={styles.hoursTime}>
+                    {localizeOpeningHours(slot.hours, loc)}
+                  </span>,
+                ])}
+              </dd>
+            </div>
+          )}
+          {priceLabel && (
+            <div className={styles.factsRow}>
+              <dt className={styles.factsKey}>{de ? 'Preis' : 'Price'}</dt>
+              <dd className={styles.factsVal}>{priceLabel}</dd>
+            </div>
+          )}
+          {categoryLinks.length > 0 && (
+            <div className={styles.factsRow}>
+              <dt className={styles.factsKey}>{de ? 'Gut für' : 'Good for'}</dt>
+              <dd className={styles.factsVal}>
+                {categoryLinks.map((c, i) => (
+                  <Fragment key={c.slug}>
+                    {i > 0 && <span aria-hidden="true"> · </span>}
+                    <IntlLink href={`/kategorie/${c.slug}`} className={styles.factsLink}>
+                      {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
+                    </IntlLink>
+                  </Fragment>
+                ))}
+              </dd>
+            </div>
+          )}
+        </dl>
+
+        {/* Drei Gewichte wie gehabt: hingehen (rot), Tisch buchen (schwarz),
+            Rest umrandet. Teilen sitzt an dritter Stelle, nicht zuletzt: der
+            letzte Slot einer umgebrochenen Zeile streckt sich auf volle
+            Breite. „Auf der Map öffnen" steht bewusst nicht hier — die Map
+            hat die Pille oben und das Plakat unten. */}
+        <div className={styles.acts}>
+          {mapsHref && (
+            <a
+              className={`${styles.act} ${styles.actPrimary}`}
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <RouteIcon />
+              <span>{de ? 'Route' : 'Directions'}</span>
+            </a>
+          )}
+          {r.reservationUrl && (
+            <a
+              className={`${styles.act} ${styles.actStrong}`}
+              href={r.reservationUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
+              <ReserveIcon />
+              <span>{de ? 'Reservieren' : 'Reserve'}</span>
+            </a>
+          )}
+          <ShareButton
+            title={r.name}
+            slug={slug}
+            contentType="restaurant"
+            className={styles.act}
+            label={de ? 'Teilen' : 'Share'}
+            copiedLabel={de ? 'Kopiert' : 'Copied'}
+            icon={<ShareIcon />}
+          />
+          {telHref && (
+            <a className={styles.act} href={telHref}>
+              <PhoneIcon />
+              <span>{de ? 'Anrufen' : 'Call'}</span>
+            </a>
+          )}
+          {websiteUrl && (
+            <a
+              className={styles.act}
+              href={websiteUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
+              <WebsiteIcon />
+              <span>Website</span>
+            </a>
+          )}
+          {r.menuUrl && (
+            <a
+              className={styles.act}
+              href={r.menuUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+            >
+              <MenuCardIcon />
+              <span>{de ? 'Speisekarte' : 'Menu'}</span>
+            </a>
+          )}
+        </div>
 
         {/* Must Eats vor Remy: beide beantworten „und jetzt?", aber die Karten
             sind der konkretere, produkteigene nächste Klick — n kuratierte

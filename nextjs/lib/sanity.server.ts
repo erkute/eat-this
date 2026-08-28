@@ -19,7 +19,14 @@ import {
   emailSpotsQuery,
   packContentsQuery,
 } from './queries';
-import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types';
+import type {
+  Restaurant,
+  NewsArticle,
+  StaticPageDoc,
+  BezirkDoc,
+  RestaurantCard,
+  RestaurantArticleCard,
+} from './types';
 import type { CategoryDef, CategoryWithStats } from './categories';
 import type { PackContents, PackContentsIndex } from './pack/packDetail';
 
@@ -98,9 +105,13 @@ export interface MustEatPreview {
  * Anfragen statt einer, und der ganze Sinn der Zusammenlegung wäre weg.
  */
 const RESTAURANT_SIBLING_LIMIT = 4;
+// Drei reichen: darüber wiederholen sich die Hub-Guides, in denen der Spot nur
+// einer von vielen ist — siehe die Sortierung in `articlesAboutRestaurant`.
+const RESTAURANT_ARTICLE_LIMIT = 3;
 
 interface RestaurantPageRow extends Restaurant {
   mustEats?: MustEatPreview[];
+  articles?: RestaurantArticleCard[];
   siblingsAfter?: RestaurantCard[];
   siblingsWrap?: RestaurantCard[];
 }
@@ -108,6 +119,7 @@ interface RestaurantPageRow extends Restaurant {
 export interface RestaurantPageData {
   restaurant: Restaurant;
   mustEats: MustEatPreview[];
+  articles: RestaurantArticleCard[];
   siblings: RestaurantCard[];
 }
 
@@ -127,20 +139,34 @@ export interface RestaurantPageData {
 export async function getRestaurantPageData(slug: string): Promise<RestaurantPageData | null> {
   const row = await client.fetch<RestaurantPageRow | null>(
     restaurantPageQuery,
-    { slug, siblingLimit: RESTAURANT_SIBLING_LIMIT },
+    {
+      slug,
+      siblingLimit: RESTAURANT_SIBLING_LIMIT,
+      articleLimit: RESTAURANT_ARTICLE_LIMIT,
+    },
     {
       next: {
         revalidate: SANITY_REVALIDATE_SECONDS,
-        tags: [`restaurant:${slug}`, 'restaurant', 'mustEat', 'restaurant-siblings'],
+        // `newsArticle`, weil ein neuer oder umgeschriebener Artikel den
+        // „Wir waren da"-Block auf JEDER darin verlinkten Restaurant-Seite
+        // ändert — ohne den Tag bliebe er bis zum Revalidate-Intervall leer.
+        tags: [
+          `restaurant:${slug}`,
+          'restaurant',
+          'mustEat',
+          'newsArticle',
+          'restaurant-siblings',
+        ],
       },
     }
   );
   if (!row) return null;
 
-  const { mustEats, siblingsAfter, siblingsWrap, ...restaurant } = row;
+  const { mustEats, articles, siblingsAfter, siblingsWrap, ...restaurant } = row;
   return {
     restaurant: restaurant as Restaurant,
     mustEats: mustEats ?? [],
+    articles: articles ?? [],
     siblings: [...(siblingsAfter ?? []), ...(siblingsWrap ?? [])].slice(
       0,
       RESTAURANT_SIBLING_LIMIT

@@ -23,7 +23,11 @@
      `64px + env(safe-area-inset-top)` für die fixe SiteNav (css/style.css).
      Ein zweiter Inset schob den Kicker auf Notch-Geräten um weitere ~59px
      nach unten. */
-  padding: 24px clamp(18px, 4vw, 54px) 0;
+  /* Waagerecht exakt die Werte der SiteNav (`clamp(12px, 3vw, 32px)`), damit
+     Titel und „MAP" auf derselben Kante stehen. Vorher lief die Seite auf
+     `clamp(18px, 4vw, 54px)` und rückte damit immer weiter ein als die Leiste
+     darüber — 7px Versatz bei 640, 16px bei 1200. */
+  padding: 24px clamp(12px, 3vw, 32px) 0;
   background: var(--legal-paper);
   color: var(--legal-ink);
 }

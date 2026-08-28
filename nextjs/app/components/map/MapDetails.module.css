@@ -317,17 +317,6 @@
   text-transform: uppercase;
   margin: 0 0 5px;
 }
-.fdV {
-  font-family: var(--font-display);
-  font-size: clamp(22px, 5.7vw, 31px);
-  line-height: 0.92;
-  /* 2 Zeilen reserviert, Name unten verankert → konstante Footer-Höhe. */
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-}
 /* Zum-Spot — gelbe, leicht getiltete Sticker-Pille mit hartem Offset-Schatten,
    am unteren Rand der Footer-Leiste verankert. */
 .ctaPill {
@@ -950,7 +939,6 @@
 }
 .fdName,
 .fdProximityHead,
-.fdV,
 .fdClose {
   color: var(--brand-ink);
 }
@@ -1154,9 +1142,6 @@
 .fdProximityHead {
   font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
   font-weight: 400;
-}
-.detailV13MustEat .fdRest .fdV {
-  color: currentColor;
 }
 .detailV13MustEat .fdRest .fdK {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -1517,10 +1502,6 @@
 .fdRest .fdK {
   color: color-mix(in srgb, var(--brand-ink) 58%, transparent);
 }
-.fdRest .fdV {
-  color: var(--brand-ink);
-  min-height: 28px;
-}
 .ctaPill {
   width: auto;
   min-width: 92px;
@@ -1832,7 +1813,6 @@
 .rdK,
 .rdV,
 .fdK,
-.fdV,
 .fdText,
 .fdProximitySub {
   color: var(--et-home-muted);
@@ -2113,17 +2093,11 @@
   line-height: 0.92;
 }
 .detailV13MustEat .fdText,
-.detailV13MustEat .fdProximitySub,
-.detailV13MustEat .fdRest .fdV,
-.detailV13MustEat .fdRest .fdV a {
+.detailV13MustEat .fdProximitySub {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1.3;
-}
-.detailV13MustEat .fdRest .fdV {
-  font-size: clamp(24px, 6vw, 34px);
-  line-height: 1;
 }
 @media (min-width: 1024px) {
   /* Am Fenster gemessen, nicht fix: 360px waren hier hart gesetzt und haben die
@@ -2717,14 +2691,6 @@
   line-height: 1;
   text-transform: uppercase;
 }
-.detailV13MustEat .fdV {
-  color: var(--me-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(20px, 4.8vw, 28px);
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 0.92;
-}
 .detailV13MustEat .ctaPill {
   min-width: 104px;
   width: auto;
@@ -2826,15 +2792,6 @@
     line-height: 1.22;
   }
 
-  .detailV13MustEat .fdV {
-    font-size: clamp(20px, 2.2vw, 27px);
-    line-height: 1;
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
 }
 /* ══════════════════════════════════════════════════════════════════════
    IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
@@ -3264,21 +3221,6 @@
     height: 58px;
   }
 
-  .detailV13MustEat .fdRest .fdV {
-    display: -webkit-box;
-    min-height: 2em;
-    height: 2em;
-    overflow: hidden;
-    max-height: 2em;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
-
-  .detailV13MustEat .fdRestInline .fdV {
-    font-size: clamp(21px, 2.05vw, 25px);
-    line-height: 1;
-  }
 }
 @media (min-width: 1024px) and (max-height: 760px) {
   .detailV13MustEat .detailV13Scroll {
@@ -3318,12 +3260,6 @@
     height: 54px;
   }
 
-  .detailV13MustEat .fdRestInline .fdV {
-    font-size: clamp(19px, 1.85vw, 23px);
-  }
-}
-.detailV13MustEat .fdRestDock {
-  display: none;
 }
 .detailV13MustEat .fdRestPhoto {
   display: block;
@@ -3458,128 +3394,6 @@
     line-height: 1;
     text-align: left;
     text-transform: uppercase;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-    width: 100%;
-    max-width: 100%;
-    min-height: 0;
-    overflow: hidden;
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
-    letter-spacing: 0;
-    text-align: left;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
-
-  .detailV13MustEat > .fdRestDock {
-    display: none;
-    position: absolute;
-    right: 0;
-    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
-    left: 0;
-    z-index: 19;
-    width: auto;
-    height: 86px;
-    min-height: 86px;
-    max-height: 86px;
-    margin: 0;
-    padding: 12px;
-    overflow: hidden;
-    transform: none;
-    transition: none;
-    animation: none;
-  }
-
-  .detailV13MustEat > .fdRestDock:has(.fdRestPhoto) .fdRestName {
-    left: 82px;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdRestPhoto {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 62px;
-    height: 62px;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdRestName {
-    position: absolute;
-    top: 12px;
-    right: 128px;
-    bottom: 12px;
-    left: 12px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 10px 44px;
-    justify-content: stretch;
-    align-content: start;
-    align-items: start;
-    align-self: start;
-    gap: 5px;
-    justify-items: start;
-    min-height: 0;
-    height: 59px;
-    max-height: 59px;
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdK {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: 10px;
-    margin: 0;
-    place-self: start stretch;
-    overflow: hidden;
-    font-family: var(
-      --et-font-mono,
-      var(--menu-mono),
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Consolas,
-      monospace
-    );
-    font-size: 10px;
-    font-weight: 850;
-    letter-spacing: 0.08em;
-    line-height: 1;
-    text-align: left;
-    text-transform: uppercase;
-    transform: none;
-  }
-
-  .detailV13MustEat > .fdRestDock .fdV {
-    width: 100%;
-    max-width: 100%;
-    min-height: 0;
-    height: 44px;
-    max-height: 44px;
-    place-self: start stretch;
-    overflow: hidden;
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
-    font-size: clamp(21px, 2.05vw, 25px);
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 1;
-    text-align: left;
-  }
-
-  .detailV13MustEat > .fdRestDock .ctaPill {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    width: 104px;
-    min-width: 104px;
-    max-width: 104px;
-    height: 42px;
-    align-self: center;
-    justify-self: end;
-    transform: translateY(-50%);
-    transition: none;
   }
 
   [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat .detailV13Scroll {
@@ -3879,17 +3693,6 @@
     animation: none;
   }
 }
-.detailV13MustEat .fdRestInline .fdV,
-.detailV13MustEat > .fdRestDock .fdV {
-  display: block;
-  -webkit-box-orient: initial;
-  -webkit-line-clamp: unset;
-  line-clamp: unset;
-  overflow: hidden;
-  padding-bottom: 0.18em;
-  text-overflow: clip;
-  white-space: normal;
-}
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
     --me-content-gap: clamp(22px, 2.8dvh, 28px);
@@ -3966,24 +3769,15 @@
   line-height: 1;
   text-align: left;
 }
+/* Nur Breite und Ausrichtung — Schriftgrößen, Zeilenhöhe, Tintenraum und der
+   Zweizeilen-Deckel stehen im Block am Dateiende. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-  display: block;
   width: 100%;
   inline-size: 100%;
   min-inline-size: 100%;
   max-inline-size: 100%;
   justify-self: stretch;
   place-self: stretch;
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  overflow: hidden;
-  padding-bottom: 0.16em;
-  font-size: clamp(16px, 1.45vw, 19px);
-  font-weight: 650;
-  line-height: 1.08;
-  text-overflow: clip;
-  white-space: normal;
   text-align: left;
 }
 .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
@@ -4016,11 +3810,6 @@
     height: 80px;
   }
 
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-    font-size: clamp(16px, 4.2vw, 18px);
-    line-height: 1.08;
-  }
-
   .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
     height: 36px;
     min-height: 36px;
@@ -4045,10 +3834,6 @@
     height: 66px;
   }
 
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-    font-size: clamp(15px, 4vw, 17px);
-  }
-
   .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
     height: 34px;
     min-height: 34px;
@@ -4056,10 +3841,9 @@
 }
 
 /* The legacy Must-Eat kicker used translucent white from the former dark
-   card treatment. Both current restaurant panels are light, so keep the
-   small label on the canonical ink color in every responsive variant. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
-.detailV13MustEat > .fdRestDock .fdK {
+   card treatment. The current restaurant strip is light, so keep the small
+   label on the canonical ink color in every responsive variant. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
   color: var(--et-home-ink);
 }
 
@@ -4586,63 +4370,17 @@
   overflow: visible;
 }
 
+/* Das Restaurant-Feld ändert seine Höhe nicht mit dem Namen — aber ohne eine
+   reservierte Leerzeile: die konstante Streifenhöhe kommt vom Foto, das höher
+   ist als zwei Namenszeilen. Der Name wird über `align-items: center` des
+   Streifens mittig daneben gesetzt, einzeilig wie zweizeilig. Eine min-height
+   auf .fdV hätte bei "SOFI" eine sichtbar leere zweite Zeile hinterlassen,
+   ohne für die Höhe nötig zu sein. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
   height: auto;
   min-height: 0;
   max-height: none;
   overflow: visible;
-}
-
-/* Wenn gekürzt werden muss, dann ehrlich: zwei volle Zeilen plus Ellipse,
-   nicht eine halbe. `height: auto` ist der Unterschied — vorher stand hier
-   eine 38px-Box um 45px Text.
-   Die Unterlängen trägt jetzt die Zeilenhöhe (1.24 statt 1.08 + 0.16em
-   padding-bottom). Das Padding musste weg: bei -webkit-line-clamp liegt es
-   INNERHALB des Clips, trägt also nicht die Unterlänge der letzten Zeile,
-   sondern gibt der übernächsten Zeile genau so viel Platz, dass ihre
-   Oberkante unter der Ellipse hervorschaut. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  padding-bottom: 0;
-  overflow: hidden;
-  line-height: 1.24;
-  text-overflow: ellipsis;
-}
-
-/* Das Restaurant-Feld ändert seine Höhe nicht mit dem Namen — aber ohne eine
-   reservierte Leerzeile: die konstante Streifenhöhe kommt vom 96px-Foto, das
-   höher ist als zwei Namenszeilen (gemessen 47px). Der Name wird über
-   `align-items: center` des Streifens mittig daneben gesetzt, einzeilig wie
-   zweizeilig. Eine min-height auf .fdV hätte bei "SOFI" eine sichtbar leere
-   zweite Zeile hinterlassen, ohne für die Höhe nötig zu sein.
-
-   Unterlängen: Providence malt das "g" UNTER die Zeilenbox hinaus — bei
-   scrollHeight == clientHeight schneidet der overflow-Clip (Pflicht für
-   line-clamp) trotzdem die Tinte ab, mehr line-height allein hilft nicht.
-   Das padding-bottom ist Tintenraum unter der letzten Zeile und steckt mit
-   in der min-height, damit die Feldhöhe konstant bleibt. Der bekannte
-   line-clamp-Nebeneffekt (Oberkante einer 3. Zeile lugt ins Padding) bleibt
-   theoretisch — 0.22em sind bei Providence' niedriger x-Höhe reines Leading.
-   Gilt für beide Varianten des Streifens (Inline im Panel + Dock). */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
-.detailV13MustEat > .fdRestDock .fdV {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  line-height: 1.24;
-  padding-bottom: 0.22em;
-  text-overflow: ellipsis;
 }
 
 /* ── Desktop-Rail: größerer Kartenstapel ────────────────────────────────────
@@ -4834,34 +4572,6 @@
   line-height: 1.28;
 }
 
-/* ── Restaurant-Streifen: feste Höhe, egal wie lang die Namen sind ──────────
- *
- * Der Streifen sprang beim Blättern: "SOFI" einzeilig, "Hokey Pokey
- * Stargarder" zweizeilig — gemessen 175px vs 186px zwischen zwei Nachbarn.
- * Statt den Streifen zu clippen (das war der alte Bug: abrasierte
- * Unterlängen) deckelt der Name bei zwei Zeilen — ohne sie zu RESERVIEREN:
- * die konstante Streifenhöhe kommt vom 96px-Foto, das höher ist als zwei
- * Zeilen (gemessen 47px). Eine feste Höhe hier hinterließ bei "Slice Society"
- * eine sichtbar leere zweite Zeile, ohne für die Höhe nötig zu sein.
- *
- * Steht am Dateiende, weil frühere Blöcke `display: flow-root` und eigene
- * Höhen auf .fdV setzen; drei Klassen im Selektor schlagen sie. Der
- * `padding-bottom` ist Tintenraum unter der letzten Zeile: Providence malt
- * das "g" unter die Zeilenbox, und der line-clamp-Clip schnitt es ab. */
-.detailV13MustEat .fdRestInline .fdRestName .fdV,
-.detailV13MustEat .fdRestDock .fdRestName .fdV {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  line-height: 1.24;
-  padding-bottom: 0.22em;
-  height: auto;
-  min-height: 0;
-  max-height: calc(2 * 1.24em + 0.22em);
-  text-overflow: ellipsis;
-}
 /* Der Namens-Block wird an seinem Inhalt gemessen, nicht am Platz: sein
    zweiter Track stand auf `minmax(0, 1fr)`, in dem sich .fdV auf die volle
    Zeilenhöhe streckte — bei "Slice Society" waren das 47px um eine 33px-Zeile,
@@ -4872,8 +4582,7 @@
   align-self: center;
   align-content: center;
 }
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName,
-.detailV13MustEat > .fdRestDock .fdRestName {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
   grid-template-rows: auto auto;
   align-content: center;
 }
@@ -5009,13 +4718,10 @@
  * tun und den drei Kindern feste Grid-Plätze geben (die Pille lag in Zeile 2).
  * Ohne dieselbe Spezifität gewinnt die alte Platzierung.
  *
- * `display` bleibt bewusst draußen: welche der beiden Varianten (inline im
- * Scroll oder gedockt) sichtbar ist, entscheiden die Breakpoints weiter oben —
- * wird es hier mitgesetzt, stehen beide gleichzeitig da. */
+ * `display` kommt aus dem Block weiter oben, der den Streifen aufs Grid setzt —
+ * hier steht nur, wie das Grid aussieht. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto),
-.detailV13MustEat .detailV13Scroll > .fdRestInline,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto),
-.detailV13MustEat > .fdRestDock {
+.detailV13MustEat .detailV13Scroll > .fdRestInline {
   grid-template-columns: 56px minmax(0, 1fr) auto;
   grid-template-rows: auto;
   align-items: center;
@@ -5033,14 +4739,12 @@
   box-shadow: none;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)),
-.detailV13MustEat > .fdRestDock:not(:has(.fdRestPhoto)) {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)) {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
 /* Alles auf eine Zeile — die alten Regeln legten die Pille in eine zweite. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .fdRestPhoto {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto {
   grid-column: 1;
   grid-row: 1;
   width: 56px;
@@ -5053,20 +4757,17 @@
   box-shadow: none;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestName,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .fdRestName {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestName {
   grid-column: 2;
   grid-row: 1;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .ctaPill,
-.detailV13MustEat > .fdRestDock:has(.fdRestPhoto) > .ctaPill {
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .ctaPill {
   grid-column: 3;
   grid-row: 1;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline > .fdRestName,
-.detailV13MustEat > .fdRestDock > .fdRestName {
+.detailV13MustEat .detailV13Scroll > .fdRestInline > .fdRestName {
   display: grid;
   grid-template-rows: auto auto;
   align-content: center;
@@ -5075,8 +4776,7 @@
   padding: 0;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK,
-.detailV13MustEat > .fdRestDock .fdK {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 10px;
   font-weight: 700;
@@ -5088,17 +4788,30 @@
 
 /* Zwei Zeilen sind die Grenze, danach wird geklemmt — sonst trägt der Streifen
    seine feste Höhe nicht. Der Tintenraum darunter verhindert, dass der Clip die
-   Unterlängen der Providence abrasiert. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV,
-.detailV13MustEat > .fdRestDock .fdV {
+   Unterlängen der Providence abrasiert.
+
+   Er war zu knapp bemessen: 0.2em gegen eine 1.16er Zeile. In em gerechnet —
+   Inhaltsfläche der Providence 1.45em, Grundlinie in der 1.16em-Zeile bei
+   0.805em, „g" 0.484em darunter, Tinte also bis 1.289em, Kastenkante bei
+   1.36em — blieben 0.071em. Gemessen am 27.08.2026 in Chrome 151, lokal und auf
+   www.eatthisdot.com, waren das 1,5–2,0px auf 1440×900, 1280×780 und 390×844:
+   nicht abgeschnitten, aber innerhalb der Pixelrundung. 0.3em macht 0.171em
+   daraus, gemessen 2,8–3,7px.
+
+   Padding statt mehr Zeilenhöhe: die Grundlinie bleibt liegen, die erste Zeile
+   rührt sich nicht, und der Kasten wächst nur einmal um das Delta statt zweimal.
+   Die max-height muss mitwandern, sonst frisst der Deckel den Raum wieder auf.
+   Der Streifen hält seine 92px trotzdem — die Luft dafür steht im Foto. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
   min-height: 0;
-  max-height: calc(2 * 1.16em + 0.2em);
-  padding-bottom: 0.2em;
+  max-height: calc(2 * 1.16em + 0.3em);
+  padding-bottom: 0.3em;
+  text-overflow: ellipsis;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(17px, 4.4vw, 20px);
   font-weight: 700;
@@ -5107,8 +4820,7 @@
   color: var(--me-ink);
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill,
-.detailV13MustEat > .fdRestDock .ctaPill {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
   width: auto;
   min-width: 0;
   height: 42px;
@@ -5128,13 +4840,11 @@
    175px breit; in EINE Zeile passt "Saveur de Bánh Mì Schöneberg" auch klein
    nicht. Die Stufen sorgen dafür, dass lange Namen in die zwei reservierten
    Zeilen passen, statt vom line-clamp abgeschnitten zu werden. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong,
-.detailV13MustEat > .fdRestDock .fdV.fdVLong {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong {
   font-size: clamp(15px, 3.9vw, 18px);
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact,
-.detailV13MustEat > .fdRestDock .fdV.fdVCompact {
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact {
   font-size: clamp(13.5px, 3.5vw, 16px);
 }
 /* ── Desktop-Panel: Maße fürs 379px-Panel, nicht fürs 1440px-Fenster ──────────

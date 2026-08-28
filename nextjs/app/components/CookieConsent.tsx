@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
-import { getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
+import { countEvent, getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
 import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
@@ -194,6 +194,13 @@ export default function CookieConsent() {
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   const open = useCallback(() => {
+    /* Die Frage, die vorher niemand beantworten konnte: WIE OFT wird gefragt?
+     * Ohne sie ist die Zustimmungsquote nur der Anteil an den Antwortenden —
+     * wer den Dialog sieht und einfach geht, taucht nirgends auf, und ein
+     * Rueckgang von 70 % auf 37 % (Aug 2026) ist nicht von "mehr Abbrecher"
+     * zu unterscheiden. Bewusst countEvent statt trackEvent: das hier ist
+     * consent-freie Messung und gehoert nicht zusaetzlich zu Google. */
+    countEvent('consent_gate_shown');
     setClosed(false);
     // Two frames: mount at the off-screen transform, then transition in. One
     // frame is not enough — the style would be coalesced with the insertion
@@ -262,6 +269,10 @@ export default function CookieConsent() {
   const handleAccept = () => {
     writeConsent('accepted');
     recordConsent('accepted', lang);
+    // Gegenstueck zu consent_gate_shown: erst beide zusammen ergeben die
+    // Abbruchquote am Dialog. Der Nachweis in consent_records bleibt davon
+    // unberuehrt — der ist Rechtsdokument, das hier ist Messung.
+    countEvent('consent_accepted');
     setShow(false);
     setExpanded(false);
     setTimeout(() => {
@@ -281,6 +292,7 @@ export default function CookieConsent() {
     const gaWasLoaded = !!(window as Window & { __gaLoaded?: boolean }).__gaLoaded;
     writeConsent('declined');
     recordConsent('declined', lang);
+    countEvent('consent_declined');
     setShow(false);
     setExpanded(false);
     // Consent withdrawn while GA was already running this session (reopened via

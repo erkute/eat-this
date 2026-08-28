@@ -13,7 +13,13 @@ interface AnalyticsWindow extends Window {
 
 const GA_ID = 'G-8EWFYGPNTT';
 const HANDOFF_KEY = 'eatthis_analytics_handoff';
-const SENSITIVE_QUERY_PARAMS = ['session_id'];
+/* Was niemals in einer Analytics-URL stehen darf. `session_id` kam von Stripe.
+ * Der Rest ab hier ist der Firebase-Action-Link auf /welcome: `oobCode` ist ein
+ * einlösbares Anmelde-Token — landete es im `page_location`, läge ein
+ * Login-Code in Googles Berichten. Seit /welcome mitgezählt wird (28.08.2026)
+ * ist das keine Theorie mehr. `continueUrl` trägt zusätzlich das Ziel des
+ * Logins, inklusive beanspruchtem Spot. */
+const SENSITIVE_QUERY_PARAMS = ['session_id', 'oobCode', 'apiKey', 'continueUrl', 'email'];
 
 export function getAnalyticsPageLocation(href: string): {
   pageLocation: string;
@@ -42,6 +48,32 @@ function hasConsent(): boolean {
   } catch {
     return false;
   }
+}
+
+/* Nur diese beiden Hosts sind die Seite. Alles andere — localhost, LAN-IPs,
+ * beide Staging-Backends — schrieb bis 28.08.2026 in dieselbe GA-Property:
+ * 59 % aller Sitzungen ueber 90 Tage waren gar keine Besucher, und am 27.08.
+ * erzeugte localhost allein doppelt so viele Seitenaufrufe wie die Produktion.
+ * /api/count hatte diesen Riegel von Anfang an, GA nicht.
+ *
+ * Der Host ist die ganze Pruefung, und zwar bewusst: NODE_ENV waere hier
+ * wirkungslos, weil Staging einen Produktions-Build faehrt — dort ist
+ * NODE_ENV === 'production'. Umgekehrt deckt der Host auch die Entwicklung ab,
+ * egal ob sie unter localhost, 127.0.0.1 oder einer LAN-Adresse laeuft. Eine
+ * zusaetzliche NODE_ENV-Abfrage haette also nichts gefangen, was hier nicht
+ * schon haengenbleibt. */
+const ANALYTICS_HOSTS = new Set(['www.eatthisdot.com', 'eatthisdot.com']);
+
+export function isAnalyticsHost(hostname: string): boolean {
+  return ANALYTICS_HOSTS.has(hostname);
+}
+
+/* Die Bedingung fuer ALLES, was Richtung Google geht — nicht nur fuers Laden.
+ * Sonst fuellt sich auf Staging die Warteschlange in trackEvent unbegrenzt:
+ * Zustimmung liegt vor, gtag kommt aber nie. */
+function gaEnabled(): boolean {
+  if (!hasConsent()) return false;
+  return typeof window !== 'undefined' && isAnalyticsHost(window.location.hostname);
 }
 
 /* ── Consent-free counting ───────────────────────────────────────────────────
@@ -80,11 +112,30 @@ function sendCount(payload: Record<string, string>): void {
   }
 }
 
+/* document.referrer ist fuer die Lebensdauer EINES Dokuments konstant — bei
+ * jedem Routenwechsel mitzuschicken hat die Herkunft nicht oefter gemessen,
+ * sondern dieselbe Herkunft mehrfach gezaehlt. Wer ueber Google auf der Karte
+ * landet und zwanzig Spots durchklickt, erzeugte zwanzig "Google-Verweise":
+ * 253 gezaehlte Google-Referrer gegen 83 echte Suchklicks in denselben acht
+ * Tagen (Aug 2026). Modulweite Variable, weil genau das die Lebensdauer eines
+ * Dokuments ist: harte Navigation laedt das Modul neu, Soft-Navigation nicht. */
+let referrerSent = false;
+
 /** Count a page view. The path only — never the query string, which carries
  *  session ids and search terms we have no use for. */
 export function countView(): void {
   if (typeof window === 'undefined') return;
-  sendCount({ path: window.location.pathname, referrer: document.referrer });
+  const payload: Record<string, string> = { path: window.location.pathname };
+  if (!referrerSent) {
+    referrerSent = true;
+    payload.referrer = document.referrer;
+  }
+  sendCount(payload);
+}
+
+/** Nur fuer Tests: den Dokument-Zustand zuruecksetzen. */
+export function resetReferrerSentForTests(): void {
+  referrerSent = false;
 }
 
 /** Count one named event. `page_view` is deliberately not accepted here — it
@@ -103,7 +154,7 @@ export function countEvent(name: string): void {
 export function trackEvent(name: string, params?: AnalyticsParams): void {
   countEvent(name);
   const w = analyticsWindow();
-  if (!w || !hasConsent()) return;
+  if (!w || !gaEnabled()) return;
   if (w.gtag) {
     w.gtag('event', name, params ?? {});
     return;
@@ -115,7 +166,7 @@ export function trackEvent(name: string, params?: AnalyticsParams): void {
 /** Flush events queued between an accepted consent state and gtag loading. */
 export function flushAnalyticsQueue(): void {
   const w = analyticsWindow();
-  if (!w?.gtag || !hasConsent()) return;
+  if (!w?.gtag || !gaEnabled()) return;
   const pending = w.__eatThisAnalyticsQueue ?? [];
   w.__eatThisAnalyticsQueue = [];
   for (const event of pending) w.gtag('event', event.name, event.params ?? {});
@@ -123,7 +174,7 @@ export function flushAnalyticsQueue(): void {
 
 function flushHandoffEvents(): void {
   const w = analyticsWindow();
-  if (!w?.gtag || !hasConsent()) return;
+  if (!w?.gtag || !gaEnabled()) return;
   try {
     const raw = window.sessionStorage.getItem(HANDOFF_KEY);
     window.sessionStorage.removeItem(HANDOFF_KEY);
@@ -138,7 +189,7 @@ function flushHandoffEvents(): void {
 /** Persist a consented event across a hard navigation, then send it on the
  * destination route once analytics initializes. */
 export function handoffEvent(name: string, params?: AnalyticsParams): void {
-  if (typeof window === 'undefined' || !hasConsent()) return;
+  if (typeof window === 'undefined' || !gaEnabled()) return;
   try {
     const raw = window.sessionStorage.getItem(HANDOFF_KEY);
     const events = raw
@@ -155,7 +206,7 @@ export function handoffEvent(name: string, params?: AnalyticsParams): void {
  * not auto-send pageviews; AnalyticsPageViews owns initial + soft-nav views. */
 export function loadAnalytics(): void {
   const w = analyticsWindow();
-  if (!w || !hasConsent() || w.__gaLoaded) return;
+  if (!w || !gaEnabled() || w.__gaLoaded) return;
   w.__gaLoaded = true;
 
   const script = document.createElement('script');

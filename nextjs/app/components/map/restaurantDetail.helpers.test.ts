@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatPriceLabel, splitStatusLabel, classifyWebsite } from './restaurantDetail.helpers';
+import { formatPriceLabel, classifyWebsite } from './restaurantDetail.helpers';
 
 describe('formatPriceLabel', () => {
   it('formats min and max with euro', () => {
@@ -9,7 +9,7 @@ describe('formatPriceLabel', () => {
     expect(formatPriceLabel({ priceRange: { min: 15 } })).toBe('ab 15 €');
   });
 
-  it('renders an open-ended range for Google\'s top band', () => {
+  it("renders an open-ended range for Google's top band", () => {
     // Places sends `startPrice: 100` with no `endPrice` for its most
     // expensive tier — that is how almost every fine-dining spot arrives.
     expect(formatPriceLabel({ priceRange: { min: 100, currency: 'EUR' } })).toBe('ab 100 €');
@@ -26,21 +26,6 @@ describe('formatPriceLabel', () => {
   });
   it('returns null when no priceRange', () => {
     expect(formatPriceLabel({})).toBeNull();
-  });
-});
-
-describe('splitStatusLabel', () => {
-  it('splits on " · "', () => {
-    expect(splitStatusLabel('Geöffnet · schließt 22:00')).toEqual({
-      main: 'Geöffnet',
-      sub: 'schließt 22:00',
-    });
-  });
-  it('returns sub: "" when no separator', () => {
-    expect(splitStatusLabel('Geschlossen')).toEqual({ main: 'Geschlossen', sub: '' });
-  });
-  it('returns undefined main for empty input', () => {
-    expect(splitStatusLabel('')).toEqual({ main: undefined, sub: '' });
   });
 });
 

@@ -21,19 +21,24 @@
 
 /* ── Header ──────────────────────────────────────────────────────────── */
 
+/* Gleicher Kopf-zu-Inhalt-Abstand wie „Im Magazin" und „Weitere in {Bezirk}"
+   (clamp(18px, 3vw, 30px)) — die 28px hier waren ein eigener Wert ohne
+   Grund. */
 .head {
-  margin: 0 0 28px;
+  margin: 0 0 clamp(18px, 3vw, 30px);
   max-width: 38em;
 }
 
+/* Markenschrift statt Mono, und größer — der Mono-Kicker war der
+   Fremdkörper über der Providence-Headline (Nutzer-Review 28.08.). */
 .eyebrow {
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
   color: var(--text-primary, #000);
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   line-height: 1;
 }
 
@@ -49,11 +54,13 @@
   text-wrap: balance;
 }
 
+/* Die Handlungsaufforderung in der Markenschrift, nicht im Body-Font — sie
+   gehört zur Ansage darüber, nicht zum Fließtext der Seite. */
 .body {
-  font-family: var(--font-body, var(--font), system-ui, sans-serif);
-  font-size: clamp(16px, 1.5vw, 18px);
-  line-height: 1.35;
-  font-weight: 400;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.3;
+  font-weight: 700;
   color: var(--text-secondary, #2a2218);
   margin: 0;
   max-width: 36ch;
@@ -66,9 +73,6 @@
   .heading {
     font-size: clamp(30px, 3.2vw, 44px);
   }
-  .body {
-    font-size: 16px;
-  }
 }
 
 /* ── Card grid — trading-card scatter ────────────────────────────────── */
@@ -76,10 +80,12 @@
 .grid {
   list-style: none;
   margin: 0;
-  /* Padding 0 — section's outer margin already handles horizontal inset.
-     Previously had 8/12px extra padding which pushed cards further in
-     than neighbouring content. */
-  padding: 14px 0 28px;
+  /* Seitlich 0 — der äußere Rand der Section setzt den Einzug. Oben/unten
+     nur so viel, wie die gekippten und wippenden Karten über ihre Boxen
+     hinausragen; die 28px unten addierten sich sonst zum Seitenrhythmus und
+     rissen unter den Karten ein sichtbar größeres Loch als zwischen allen
+     anderen Modulen (gemessen 148 statt 112). */
+  padding: 10px 0 12px;
   display: grid;
   /* Mobile: 3-up so the row reads as "spread on the table" instead of
      "stacked vertically". */
@@ -101,18 +107,59 @@
     justify-content: start;
     justify-items: start;
     gap: 28px 24px;
-    padding: 20px 0 36px;
+    /* Wie in der Basisregel: nur Luft für Kippung und Wippen, den Abstand
+       zum nächsten Modul setzt der Seitenrhythmus. */
+    padding: 12px 0 14px;
   }
 }
 
 /* Wrapper carries the tilt + breathing-room. The card-back is shown in
    full (cream border is part of the design) — no shadow, no frame, just
    the asset on its own. */
+/* Die Karten atmen leicht, damit man sieht, dass sie anfassbar sind: eine
+   Beschriftung („Aufdecken") war zu laut fürs Kartenbild, ein starres Bild
+   las sich als Deko. Die Bewegung läuft um den Ruhewinkel `--tilt` herum, ist
+   unter einem Grad und pro Karte um `--wobble-delay` versetzt, damit die
+   Reihe nicht im Gleichschritt pumpt. Nur Transform, kein Opacity-Fade. */
 .cardWrap {
   width: 100%;
   max-width: 160px;
   transform: rotate(var(--tilt, 0deg));
   transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: mustEatWobble 3.2s ease-in-out var(--wobble-delay, 0s) infinite;
+}
+
+@keyframes mustEatWobble {
+  0%,
+  100% {
+    transform: rotate(var(--tilt, 0deg));
+  }
+  35% {
+    transform: rotate(calc(var(--tilt, 0deg) - 0.9deg)) translateY(-2px);
+  }
+  70% {
+    transform: rotate(calc(var(--tilt, 0deg) + 0.8deg)) translateY(1px);
+  }
+}
+
+/* Beim Zeigen und beim Klick-Shake hört das Wippen auf — sonst kämpfen zwei
+   Animationen um dieselbe Transform-Eigenschaft. */
+.cardWrap:hover,
+.cardWrap:focus-within,
+.cardWrap:has(.cardShake) {
+  animation: none;
+}
+
+/* globals.css neutralisiert bei `prefers-reduced-motion` bereits jede
+   Animation site-weit (`*` mit animation-duration: .01ms !important). Diese
+   Regel ist damit genau genommen doppelt — sie bleibt, weil sie die Absicht
+   dort festhält, wo die Animation steht, und `animation: none` den Namen
+   löscht statt die Dauer auf 0.01ms zu drücken. Gemessen greifen beide
+   Selektoren auf `.cardWrap`. */
+@media (prefers-reduced-motion: reduce) {
+  .cardWrap {
+    animation: none;
+  }
 }
 
 .cardWrap:hover {

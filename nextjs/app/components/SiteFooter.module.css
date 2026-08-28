@@ -14,7 +14,9 @@
   color: var(--footer-ink);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  /* Markenschrift im ganzen Footer — Mono und die Impact-Kondensierte waren
+     zwei Fremdschriften in einem Block (Nutzer-Markierungen 28.08.). */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   text-align: center;
   overflow: hidden;
 }
@@ -50,13 +52,21 @@
   filter: none;
 }
 
-.tagImg {
-  display: block;
-  width: min(40vw, 170px);
-  height: auto;
-  margin-top: -9px;
-  margin-inline: auto;
-  filter: invert(1);
+/* Der Claim unter dem Logo — Markenschrift, eng an das Wortbild gesetzt.
+   Der negative Vorlauf zieht ihn an die Unterkante des Logos: dessen Grafik
+   bringt transparenten Rand mit, und die Zeilenbox des Textes hat über den
+   Versalien selbst noch Luft. Beides zusammen ließ die Zeile abgesetzt wirken,
+   obwohl der gemessene Abstand nur 2px betrug. In em, damit der Zug mit dem
+   Schriftgrad mitwächst statt bei 15px wieder aufzureißen. */
+.tagline {
+  margin: -0.62em auto 0;
+  color: var(--footer-ink);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(11px, 2.9vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .remyLink {
@@ -74,7 +84,7 @@
   border-radius: 0;
   box-shadow: none;
   text-decoration: none;
-  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   padding: 0;
   text-align: center;
   overflow: visible;
@@ -101,10 +111,10 @@
 }
 
 .remyLink span {
-  font-family: var(--menu-condensed);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   padding-bottom: 7px;
-  font-size: clamp(22px, 6vw, 32px);
-  line-height: 0.86;
+  font-size: clamp(20px, 5.2vw, 28px);
+  line-height: 0.9;
   letter-spacing: 0;
   text-transform: uppercase;
   text-align: center;
@@ -122,10 +132,10 @@
 }
 
 .linksKicker {
-  font-family: var(--menu-mono);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--footer-accent);
 }
@@ -138,9 +148,9 @@
   padding: 0;
   border: 0;
   background: transparent;
-  font-family: var(--menu-condensed);
-  font-size: clamp(26px, 3.7vw, 40px);
-  line-height: 0.86;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(23px, 3.2vw, 34px);
+  line-height: 0.9;
   text-transform: uppercase;
   color: var(--footer-paper);
   text-decoration: none;
@@ -190,10 +200,11 @@
   border: 0;
   color: var(--footer-ink);
   text-decoration: none;
-  font-family: var(--menu-mono);
-  font-size: clamp(11px, 2.8vw, 13px);
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  /* Markenschrift statt Mono — Nutzer-Markierung 28.08.: „nimm meine font". */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(12px, 2.9vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   line-height: 1.1;
   text-transform: uppercase;
   text-align: center;
@@ -224,17 +235,20 @@
   gap: 8px;
   align-items: center;
   justify-items: center;
-  font-family: var(--menu-mono);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  /* Markenschrift statt Mono — Nutzer-Markierung 28.08. */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   line-height: 1.25;
   text-transform: uppercase;
 }
 
 .copy {
   color: var(--footer-ink);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  /* Markenschrift statt Mono — Nutzer-Markierung 28.08. Erbt sonst nur die
+     Größe von .meta; die eigene family-Zeile war der letzte Mono-Rest. */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
 }
 
 .lang {
@@ -247,7 +261,8 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-family: var(--menu-mono);
+  /* Markenschrift statt Mono — Nutzer-Markierung 28.08. */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -300,9 +315,9 @@
     width: min(31vw, 320px);
   }
 
-  .tagImg {
-    width: min(19vw, 210px);
-    margin-top: -14px;
+  .tagline {
+    font-size: 15px;
+    letter-spacing: 0.1em;
   }
 
   .remyLink {
@@ -329,4 +344,3 @@
     padding-inline: 80px;
   }
 }
-

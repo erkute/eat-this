@@ -31,12 +31,13 @@ const h2 = (text: string): PortableTextBlock =>
     children: [{ _type: 'span', text }],
   }) as unknown as PortableTextBlock;
 
-const mustEat = (restaurantName: string): PortableTextBlock =>
+const mustEat = (restaurantName: string, restaurantSlug?: string): PortableTextBlock =>
   ({
     _type: 'mustEatCard',
     _key: `me-${restaurantName}`,
     mustEatId: `id-${restaurantName}`,
     restaurantName,
+    restaurantSlug,
     district: 'Schöneberg',
   }) as unknown as PortableTextBlock;
 
@@ -187,7 +188,15 @@ describe('NewsArticleShell', () => {
     expect(html).toContain('Hasir');
     // normalizeName strips the diacritics the display font can't render.
     expect(html).toContain('Bursa Uludag Kebapcisi');
-    expect(html).toContain('href="/map?me=id-Hasir"');
+  });
+
+  // Das Band zeigt auf die Spot-Seite, nicht mehr auf ?me= — dorthin führt im
+  // selben Artikel bereits die Spot-Karte, beide landeten also am selben Ort.
+  // Von der Spot-Seite kommt man weiter zur Karte: ihr Must-Eat-Teaser
+  // deeplinkt auf genau dieses Gericht.
+  it('links a must-eat band to the spot page, and to the overview without a slug', () => {
+    expect(render([mustEat('Hasir', 'hasir')])).toContain('href="/restaurant/hasir"');
+    expect(render([mustEat('Hasir')])).toContain('href="/must-eats"');
   });
 
   it('sends the spot card to the map, not to the restaurant page', () => {

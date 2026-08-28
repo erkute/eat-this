@@ -194,6 +194,85 @@ export function buildOpeningHoursSpec(
   return specs;
 }
 
+/**
+ * Eine Date, deren lokale Zugriffe (getDay/getHours/…) die Berliner Wanduhr
+ * zeigen — unabhängig davon, in welcher Zone der Prozess oder das Gerät läuft.
+ * Der Server rechnet in UTC, Besucher sitzen irgendwo; der Zustand eines
+ * Berliner Ladens folgt aber der Uhr an seiner Tür.
+ *
+ * Wohnt hier, weil `getOpenStatus` der einzige Konsument ist und beide Aufrufer
+ * — die serverseitige Remy-Retrieval und der Zustands-Chip auf der Spot-Seite —
+ * sonst je eine eigene Kopie hielten, die auseinanderlaufen kann, ohne dass ein
+ * Test es merkt.
+ */
+/**
+ * Die sichtbaren Wörter des Offen-Zustands, an einer Stelle.
+ *
+ * Drei Aufrufer erzeugen diesen Zustand: das Map-Sheet und die Map-Liste über
+ * next-intl (`t('map.open')` …), die Remy-Retrieval auf dem Server und der
+ * Zustands-Chip der Spot-Seite. Die beiden letzten haben keinen
+ * next-intl-Kontext und hielten je eine eigene Kopie — dabei war die
+ * Retrieval auf „Offen" stehengeblieben, während überall sonst „Geöffnet"
+ * stand. Diese Konstante ist die Quelle für alles ohne i18n-Kontext;
+ * `openingHours.labels.test.ts` hält sie mit `lib/i18n/translations.ts`
+ * synchron, damit die Fassungen nicht wieder auseinanderlaufen.
+ */
+export const OPEN_STATUS_LABELS = {
+  de: { open: 'Geöffnet', closed: 'Geschlossen', opens: 'Öffnet', closes: 'Schließt' },
+  en: { open: 'Open', closed: 'Closed', opens: 'Opens', closes: 'Closes' },
+} as const;
+
+/**
+ * „bis" / „till" für die Kurzform der Zustands-Chips. Steht bewusst neben
+ * OPEN_STATUS_LABELS statt darin: die vier Wörter oben spiegeln
+ * `translations.map`, dieses hier hat dort kein Gegenstück — es stand im
+ * Map-Sheet hart im Template.
+ */
+const CHIP_TILL = { de: 'bis', en: 'till' } as const;
+
+/**
+ * Der kurze Zustandstext für einen Chip: „Geöffnet bis 18:30",
+ * „Geschlossen · Öffnet 12:00" — oder null, wenn keine Zeiten gepflegt sind.
+ *
+ * Kapselt, was das Map-Sheet bisher im Template zusammenbaute (inklusive des
+ * Regex, der die Uhrzeit aus dem eigenen Label zurückholt) und was der
+ * Zustands-Chip der Spot-Seite ein zweites Mal gebraucht hätte. Beide zeigen
+ * denselben Zustand; sie sollen ihn auch gleich formulieren.
+ *
+ * Der Chip nennt bei geschlossenen Läden die nächste Öffnungszeit — das
+ * Map-Sheet ließ sie bisher weg und sagte nur „Geschlossen". Wer vor der Tür
+ * steht, will genau diese Zahl.
+ */
+export function formatOpenStateChip(
+  openingHours: OpeningHourSlot[] | undefined,
+  locale: 'de' | 'en',
+  now: Date = berlinNow()
+): { text: string; isOpen: boolean } | null {
+  if (!openingHours || openingHours.length === 0) return null;
+  const L = OPEN_STATUS_LABELS[locale];
+  const status = getOpenStatus(openingHours, now, L);
+  if (!status.label) return null;
+  const time = status.label.match(/(\d{1,2}:\d{2})/)?.[1] ?? null;
+  if (status.isOpen) {
+    return { text: time ? `${L.open} ${CHIP_TILL[locale]} ${time}` : L.open, isOpen: true };
+  }
+  return { text: time ? `${L.closed} · ${L.opens} ${time}` : L.closed, isOpen: false };
+}
+
+export function berlinNow(base: Date = new Date()): Date {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  }).formatToParts(base);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
+  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'));
+}
+
 export function getOpenStatus(
   openingHours: OpeningHourSlot[],
   now: Date = new Date(),

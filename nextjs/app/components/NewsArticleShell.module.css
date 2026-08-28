@@ -341,36 +341,23 @@ div.page {
   gap: 7px;
 }
 
-.mustEatKicker {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 10px;
-}
 
+/* Markenschrift statt Body-Font — der Kicker war der einzige Fremdsatz im
+   Block (Nutzer-Review 28.08.). */
 .mustEatTag {
   display: inline-block;
-  padding: 4px 7px 5px;
+  padding: 4px 8px 5px;
   color: var(--article-ink);
   background: var(--article-accent);
   border-radius: 5px;
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 10.5px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   line-height: 1;
   text-transform: uppercase;
 }
 
-.mustEatMeta {
-  color: var(--article-muted);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
 
 .mustEat .mustEatName {
   max-width: 18ch;
@@ -384,34 +371,18 @@ div.page {
   text-transform: none;
 }
 
+/* Der Satz trägt den Block jetzt allein — er ersetzt Meta-Zeile und
+   Knopf, steht deshalb in der Markenschrift und etwas größer. */
 .mustEat .mustEatDesc {
-  max-width: 40ch;
+  max-width: 34ch;
   margin: 0;
-  color: var(--article-muted);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(14px, 1.1vw, 16px);
-  font-weight: 600;
-  line-height: 1.35;
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(15px, 1.2vw, 17px);
+  font-weight: 700;
+  line-height: 1.3;
 }
 
-.mustEatCta {
-  display: inline-flex;
-  width: max-content;
-  align-items: center;
-  gap: 8px;
-  margin-top: 5px;
-  min-height: 38px;
-  padding: 10px 15px 11px;
-  background: var(--article-ink);
-  color: var(--article-paper);
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-}
 
 /* ------------------------------------------------------- inline spot ---- */
 
@@ -524,47 +495,63 @@ div.page {
 
 /* Artikel → Hub: der Katalog-Verweis unter dem Fließtext. Gelb wie die
    Akzentfläche, damit er als redaktionelle Empfehlung liest, nicht als Ad. */
+/* Der Ausgang am Artikelende: Booster-Pack der Kategorie, daneben die Ansage
+   in der Markenschrift, auf Ink statt auf dem gelben Akzent. Vorher war das
+   ein Kasten in Akzentfarbe mit Body-Font und einem Pfeil rechts — der Pfeil
+   ist weg, weil die ganze Fläche der Knopf ist, und die gelbe Fläche
+   konkurrierte am Seitenende mit dem Map-Plakat.
+   Bezirks-Hubs bringen kein Pack mit; `auto` fällt dann auf null zusammen und
+   die Zeile trägt allein. */
 .hubLink {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'kicker cta'
-    'label cta';
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 2px 14px;
+  column-gap: clamp(14px, 2vw, 22px);
+  row-gap: 2px;
   margin: clamp(26px, 4vw, 44px) 0 0;
-  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 24px);
-  background: var(--article-accent);
+  padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
+  background: var(--et-home-ink, #15120e);
   border-radius: var(--et-radius-photo, 10px);
-  color: var(--article-ink);
+  color: var(--et-home-paper, #fff);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
-.hubLink:hover {
-  transform: translateY(-2px);
+.hubLinkPack {
+  grid-row: 1 / span 2;
+  width: clamp(56px, 7vw, 72px);
+  height: auto;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .hubLinkKicker {
-  grid-area: kicker;
-  font-size: 0.72rem;
+  grid-column: 2;
+  color: var(--et-home-accent, #ffc600);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
   text-transform: uppercase;
-  opacity: 0.65;
 }
 
 .hubLinkLabel {
-  grid-area: label;
+  grid-column: 2;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
-  font-size: clamp(1rem, 1.6vw, 1.15rem);
-  line-height: 1.25;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  line-height: 1.15;
 }
 
-.hubLinkCta {
-  grid-area: cta;
-  font-size: 1.4rem;
-  line-height: 1;
+@media (hover: hover) {
+  .hubLink:hover {
+    transform: translateY(-2px);
+  }
+
+  .hubLink:hover .hubLinkPack {
+    transform: translateY(-3px) rotate(-2deg);
+  }
 }
 
 /* ------------------------------------------------------------- share ---- */
@@ -775,13 +762,18 @@ div.page {
   /* Prose keeps the measure; the visual blocks take the whole column and so
      step out past the text — the wide space to the right of the paragraphs is
      the point, not an accident. */
+  /* Alles im Textfluss folgt der Lesebreite — nicht nur die Textknoten.
+     Vorher zählte diese Regel p/h2/h3/ul/ol einzeln auf, und jeder Blocktyp,
+     der später dazukam, fehlte darin: Artikelbilder, Spot-Karten,
+     Must-Eat-Bänder und der Katalog-Ausgang liefen über die vollen 896px der
+     Spalte, während der Text daneben bei 660px endete — gemessen 236px
+     Überhang nach rechts (User, 28.08.). Als `> *` erbt jeder künftige Block
+     die Breite, statt dass jemand daran denken muss. */
   .byline,
   .lede,
-  .content > p,
-  .content > h2,
-  .content > h3,
-  .content > ul,
-  .content > ol {
+  .content > *,
+  .hubLink,
+  .shareRow {
     max-width: var(--article-measure);
   }
 

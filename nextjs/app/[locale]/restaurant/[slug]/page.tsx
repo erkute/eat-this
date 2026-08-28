@@ -257,15 +257,16 @@ export default async function RestaurantPage({ params }: PageProps) {
   // Kategorien sind Discovery-Hubs (Frühstück, Süßes …). Seit die
   // Kategorie-Karten-Zeile am Seitenende weg ist (874c330, dort als Kosten
   // offen protokolliert), war das der einzige Seitentyp ohne Weg zu seinen
-  // Hubs — die „Gut für"-Zeile im Faktenblock stellt den Link wieder her,
+  // Hubs — die „Mehr davon"-Zeile auf der Tafel stellt den Link wieder her,
   // als Eigenschaft des Spots statt als Karten-Stapel.
   const categoryLinks = (r.categories ?? []).filter(
     (c): c is typeof c & { slug: string; name: string } => Boolean(c?.slug && c?.name)
   );
+  // Adresse, Route-Knopf und Pille zeigen alle hierhin. Google Maps ist von
+  // dieser Seite bewusst verschwunden (Nutzer-Entscheidung 28.08.); wer es
+  // zurückholt, nimmt wie das Map-Sheet eine name+address-Suche statt der
+  // gepflegten `mapsUrl` — die kann veraltet sein, die Suche trifft immer.
   const mapHref = `/map?r=${slug}`;
-  // Same derivation as the map sheet: a name+address search always resolves to
-  // a result, whereas the curated mapsUrl can be stale. This page had neither —
-  // its only Google-Maps links were photo credits.
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
 
   // Rendered inside the hero photo (or next to the name when there is none).

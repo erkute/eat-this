@@ -194,6 +194,31 @@ export function buildOpeningHoursSpec(
   return specs;
 }
 
+/**
+ * Eine Date, deren lokale Zugriffe (getDay/getHours/…) die Berliner Wanduhr
+ * zeigen — unabhängig davon, in welcher Zone der Prozess oder das Gerät läuft.
+ * Der Server rechnet in UTC, Besucher sitzen irgendwo; der Zustand eines
+ * Berliner Ladens folgt aber der Uhr an seiner Tür.
+ *
+ * Wohnt hier, weil `getOpenStatus` der einzige Konsument ist und beide Aufrufer
+ * — die serverseitige Remy-Retrieval und der Zustands-Chip auf der Spot-Seite —
+ * sonst je eine eigene Kopie hielten, die auseinanderlaufen kann, ohne dass ein
+ * Test es merkt.
+ */
+export function berlinNow(base: Date = new Date()): Date {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  }).formatToParts(base);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
+  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'));
+}
+
 export function getOpenStatus(
   openingHours: OpeningHourSlot[],
   now: Date = new Date(),

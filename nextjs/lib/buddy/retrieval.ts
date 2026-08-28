@@ -1,7 +1,7 @@
 // nextjs/lib/buddy/retrieval.ts
 import { client as sanityClient } from '@/lib/sanity';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
-import { getOpenStatus } from '@/lib/map/openingHours';
+import { berlinNow, getOpenStatus } from '@/lib/map/openingHours';
 import { distanceKm, distanceLabel, type LatLng } from './geo';
 import type { OpeningHourSlot } from '@/lib/types';
 import type { Locale, SpotCandidate, ArticleResult } from './types';
@@ -37,22 +37,6 @@ const SPOTS_PROJECTION = `{
   "categorySlugs": categories[defined(@->_id)]->slug.current, // pack-teaser vote (server-internal)
   "image": ${groqImageUrl('image', 'buddyThumb')}
 }`;
-
-// Server runs in UTC; build a Date whose local accessors (getDay/getHours/…)
-// reflect Europe/Berlin so getOpenStatus reads the right wall-clock time.
-function berlinNow(base: Date): Date {
-  const p = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-  }).formatToParts(base);
-  const get = (t: string) => Number(p.find((x) => x.type === t)?.value);
-  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'));
-}
 
 const OPEN_LABELS: Record<Locale, { open: string; closed: string; opens: string; closes: string }> =
   {

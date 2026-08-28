@@ -150,6 +150,12 @@
   animation: none;
 }
 
+/* globals.css neutralisiert bei `prefers-reduced-motion` bereits jede
+   Animation site-weit (`*` mit animation-duration: .01ms !important). Diese
+   Regel ist damit genau genommen doppelt — sie bleibt, weil sie die Absicht
+   dort festhält, wo die Animation steht, und `animation: none` den Namen
+   löscht statt die Dauer auf 0.01ms zu drücken. Gemessen greifen beide
+   Selektoren auf `.cardWrap`. */
 @media (prefers-reduced-motion: reduce) {
   .cardWrap {
     animation: none;

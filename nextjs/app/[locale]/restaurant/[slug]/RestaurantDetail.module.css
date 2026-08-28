@@ -93,6 +93,18 @@
   margin-top: var(--flow-mod);
 }
 
+/* Remy und das Magazin bringen aus ihren eigenen Modulen ein margin-bottom mit
+   (64px bzw. 58px). Die Nullstellung oben erreicht sie nicht: `.page > *` und
+   ihr eigenes `.section` haben dieselbe Spezifität (0,1,0), und in welcher
+   Reihenfolge zwei CSS-Module geladen werden, ist nicht festgelegt. Gemessen
+   behielten beide ihren Wert; unsichtbar blieb das nur, weil `.page` ein
+   Block-Container ist und die Margins kollabieren — max(64, 96) = 96. Sobald
+   `.page` einmal flex oder grid würde, stünden dort 160px. Diese Regel
+   gewinnt über die Spezifität (0,1,1) statt über die Ladereihenfolge. */
+.page > section {
+  margin-bottom: 0;
+}
+
 .hero,
 .heroNoPhoto {
   width: min(100%, 900px);
@@ -321,9 +333,14 @@
 .story p {
   /* Volle Spaltenbreite wie Tafel, Karten und Empfehlungen — die 700px-Grenze
      ließ den Text auf Desktop 200px vor der gemeinsamen rechten Kante enden,
-     was als Fehlausrichtung gelesen wurde (Review 28.08.). Damit die Zeile
-     dabei nicht zu lang wird, steigt der Grad unten auf bis zu 21px: 900px bei
-     21px sind rund 76 Zeichen — im Band von The Infatuation (80). */
+     was als Fehlausrichtung gelesen wurde (Review 28.08.).
+
+     Die Zeilenlänge bleibt trotzdem im Rahmen, weil der Grad unten auf bis zu
+     21px steigt: 900px bei 21px sind rund 76 Zeichen. Zum Vergleich die
+     gemessenen Werte der Wettbewerber, die vorher an dieser Stelle standen:
+     Eater 64, Mit Vergnügen 66, The Infatuation 80; 45–75 gilt als angenehm.
+     Wer den Grad hier wieder senkt, muss die Breite mitziehen — bei 19px
+     liefen dieselben 900px auf 95 Zeichen hinaus. */
   margin: 0 0 1.2em;
 }
 
@@ -505,6 +522,10 @@
   border-radius: var(--et-radius-photo, 18px);
 }
 
+/* `auto-fit` statt fester Spalten, weil jede Angabe einzeln fehlen darf:
+   Adresse, Zeiten, Preis und Kategorien sind alle optional. Bei zwei
+   gepflegten Fakten werden es zwei Spalten, bei einem eine — ohne Lücke, wo
+   eine feste Spaltenzahl ein leeres Feld stehen ließe. */
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

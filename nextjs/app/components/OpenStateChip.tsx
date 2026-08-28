@@ -11,30 +11,13 @@
 // statischen Bezirk/Küche-Chips.
 
 import { useEffect, useState } from 'react';
-import { getOpenStatus } from '@/lib/map/openingHours';
+import { berlinNow, getOpenStatus } from '@/lib/map/openingHours';
 import type { OpeningHourSlot } from '@/lib/types';
 import styles from './OpenStateChip.module.css';
 
 interface Props {
   openingHours: OpeningHourSlot[];
   locale: 'de' | 'en';
-}
-
-// Server und Besucher können in beliebigen Zeitzonen stehen; der Zustand eines
-// Berliner Ladens folgt der Berliner Wanduhr. Gleiche Ableitung wie
-// `berlinNow` in lib/buddy/retrieval.ts — dort serverseitig, hier im Client.
-function berlinNow(): Date {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-  }).formatToParts(new Date());
-  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
-  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'));
 }
 
 export default function OpenStateChip({ openingHours, locale }: Props) {

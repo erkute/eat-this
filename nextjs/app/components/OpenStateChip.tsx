@@ -11,7 +11,7 @@
 // statischen Bezirk/Küche-Chips.
 
 import { useEffect, useState } from 'react';
-import { berlinNow, getOpenStatus } from '@/lib/map/openingHours';
+import { formatOpenStateChip } from '@/lib/map/openingHours';
 import type { OpeningHourSlot } from '@/lib/types';
 import styles from './OpenStateChip.module.css';
 
@@ -26,14 +26,8 @@ export default function OpenStateChip({ openingHours, locale }: Props) {
 
   useEffect(() => {
     if (openingHours.length === 0) return;
-    const s = getOpenStatus(
-      openingHours,
-      berlinNow(),
-      de
-        ? { open: 'Geöffnet', closed: 'Geschlossen', opens: 'öffnet', closes: 'bis' }
-        : { open: 'Open', closed: 'Closed', opens: 'opens', closes: 'till' }
-    );
-    if (s.label) setStatus({ text: s.label, isOpen: s.isOpen });
+    const s = formatOpenStateChip(openingHours, de ? 'de' : 'en');
+    if (s) setStatus(s);
   }, [openingHours, de]);
 
   if (!status) return null;

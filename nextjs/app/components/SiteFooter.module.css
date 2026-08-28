@@ -52,13 +52,16 @@
   filter: none;
 }
 
-.tagImg {
-  display: block;
-  width: min(40vw, 170px);
-  height: auto;
-  margin-top: -9px;
-  margin-inline: auto;
-  filter: invert(1);
+/* Der Claim unter dem Logo — Markenschrift, eng an das Wortbild gesetzt. */
+.tagline {
+  margin: 2px auto 0;
+  color: var(--footer-ink);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(11px, 2.9vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .remyLink {
@@ -105,7 +108,7 @@
 .remyLink span {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   padding-bottom: 7px;
-  font-size: clamp(22px, 6vw, 32px);
+  font-size: clamp(20px, 5.2vw, 28px);
   line-height: 0.9;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -141,7 +144,7 @@
   border: 0;
   background: transparent;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(26px, 3.7vw, 40px);
+  font-size: clamp(23px, 3.2vw, 34px);
   line-height: 0.9;
   text-transform: uppercase;
   color: var(--footer-paper);
@@ -307,9 +310,9 @@
     width: min(31vw, 320px);
   }
 
-  .tagImg {
-    width: min(19vw, 210px);
-    margin-top: -14px;
+  .tagline {
+    font-size: 15px;
+    letter-spacing: 0.1em;
   }
 
   .remyLink {

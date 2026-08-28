@@ -27,16 +27,11 @@ export default function SiteFooter() {
               className={styles.megaImg}
             />
           </h2>
-          <Image
-            src="/pics/slogan.webp?v=3"
-            alt="we tell you what to eat."
-            width={1029}
-            height={145}
-            sizes="min(40vw, 170px)"
-            loading="lazy"
-            decoding="async"
-            className={styles.tagImg}
-          />
+          {/* Echter Text statt des früheren slogan.webp: das Bild war in einer
+              kondensierten Fremdschrift gesetzt und stach damit aus dem
+              Providence-Footer heraus. Als Text ist der Claim außerdem
+              auswählbar, skaliert mit und spart einen Bild-Request. */}
+          <p className={styles.tagline}>we tell you what to eat.</p>
         </div>
 
         <Link href="/#hub-fragremy" className={styles.remyLink}>

@@ -1,7 +1,7 @@
 // nextjs/lib/buddy/retrieval.ts
 import { client as sanityClient } from '@/lib/sanity';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
-import { berlinNow, getOpenStatus } from '@/lib/map/openingHours';
+import { OPEN_STATUS_LABELS, berlinNow, getOpenStatus } from '@/lib/map/openingHours';
 import { distanceKm, distanceLabel, type LatLng } from './geo';
 import type { OpeningHourSlot } from '@/lib/types';
 import type { Locale, SpotCandidate, ArticleResult } from './types';
@@ -37,12 +37,6 @@ const SPOTS_PROJECTION = `{
   "categorySlugs": categories[defined(@->_id)]->slug.current, // pack-teaser vote (server-internal)
   "image": ${groqImageUrl('image', 'buddyThumb')}
 }`;
-
-const OPEN_LABELS: Record<Locale, { open: string; closed: string; opens: string; closes: string }> =
-  {
-    de: { open: 'Offen', closed: 'Geschlossen', opens: 'öffnet', closes: 'bis' },
-    en: { open: 'Open', closed: 'Closed', opens: 'opens', closes: 'till' },
-  };
 
 export function buildSpotsQuery(limit: number): string {
   const n = clamp(limit, 1, 40);
@@ -331,7 +325,7 @@ export async function searchSpots(
   const params = buildSpotsParams(filters, locale, resolvedSlug);
   const rows = (await client.fetch(query, params)) as RawSpotRow[];
   const now = berlinNow(deps.now ?? new Date());
-  const labels = OPEN_LABELS[locale];
+  const labels = OPEN_STATUS_LABELS[locale];
   const userGeo = filters.userGeo;
   // Drop openingHours/coords + the raw price object from the payload; keep only
   // the derived label/status so the streamed spots stay lean.

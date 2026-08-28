@@ -502,6 +502,24 @@
   text-wrap: balance;
 }
 
+/* Der Link in der Kopfzeile. `styles.sibRowHeadLink` stand seit jeher im TSX,
+   ohne dass es die Regel dazu gab — sichtbar wurde das nie, weil style.css
+   `a { color: inherit; text-decoration: none }` global setzt und damit zufällig
+   dasselbe tat. Zufällig heißt: die Zeile hatte keinen Hover-Zustand, und wer
+   den globalen Default ändert, ändert unbemerkt diese Überschrift mit. Gleiche
+   Fassung wie `.headLink` im Magazin-Modul. */
+.sibRowHeadLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sibRowHeadLink:hover,
+.sibRowHeadLink:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
 /* Gleiche Kopfzeile wie „Im Magazin" (.head in RestaurantArticlesSection):
    Markenschrift, rot, Versalien — eine Grammatik für alle Modul-Köpfe. */
 .sibRowHead {

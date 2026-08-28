@@ -17,7 +17,7 @@ export {
   formatLocalizedDistance,
   formatWalkingTime,
 } from './distance';
-export { getOpenStatus } from './openingHours';
+export { formatOpenStateChip, getOpenStatus } from './openingHours';
 export { abbreviateBezirk } from './abbreviateBezirk';
 
 // Data sources

@@ -190,10 +190,11 @@
   border: 0;
   color: var(--footer-ink);
   text-decoration: none;
-  font-family: var(--menu-mono);
-  font-size: clamp(11px, 2.8vw, 13px);
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  /* Markenschrift statt Mono — Nutzer-Markierung 28.08.: „nimm meine font". */
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(12px, 2.9vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   line-height: 1.1;
   text-transform: uppercase;
   text-align: center;
@@ -329,4 +330,3 @@
     padding-inline: 80px;
   }
 }
-

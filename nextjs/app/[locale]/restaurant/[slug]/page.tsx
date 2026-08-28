@@ -26,7 +26,7 @@ import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaura
 import { splitDescriptionForMagazine } from '@/lib/restaurant-prose';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
-import RestaurantSnapshot from '@/app/components/RestaurantSnapshot';
+import OpenStateChip from '@/app/components/OpenStateChip';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
@@ -244,9 +244,6 @@ export default async function RestaurantPage({ params }: PageProps) {
   const websiteInfo = classifyWebsite(r.website);
   const websiteUrl = websiteInfo?.url ?? null;
   const address = r.address;
-  // Nur Straße + Hausnummer für die Zustands-Zeile; die volle Adresse steht im
-  // Faktenblock. Gleiche Komma-Trennung wie dort.
-  const street = address ? (address.split(',')[0]?.trim() ?? null) : null;
   const cuisineLabel = r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null;
   const districtName = r.bezirk?.name ?? r.district ?? null;
   // Beschreibender Alt-Text statt des bloßen Namens — „SOFI" sagt einem
@@ -284,6 +281,13 @@ export default async function RestaurantPage({ params }: PageProps) {
       <span key="cuisine" className={styles.chipAlt}>
         {localizedCuisine(r.cuisineType, loc)}
       </span>
+    ) : null,
+    // Live-Zustand als dritter Chip — grün/rot wie auf dem Map-Sheet. Kommt
+    // clientseitig nach dem Mount (die Seite ist statisch, ein gebautes
+    // „Geöffnet" wäre tagelang falsch) und beantwortet die größte gemessene
+    // Brand-Intention („uhrzeit") direkt im Bild.
+    (r.openingHours?.length ?? 0) > 0 ? (
+      <OpenStateChip key="state" openingHours={r.openingHours ?? []} locale={loc} />
     ) : null,
   ].filter(Boolean);
 
@@ -357,21 +361,11 @@ export default async function RestaurantPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Datumszeile wie im Zeitungskopf: links der berechnete Zustand
-              („Geöffnet · bis 18:30 · …" — die meistgemessenen
-              Brand-Intentionen in Sekunde eins), rechts die Map-Pill, darunter
-              die Ink-Linie, an der die redaktionelle Strecke beginnt. Erst die
-              Antwort, dann das Produkt: für SERP-Besucher, die Eat This nicht
-              kennen, war „Auf der Map öffnen" als ERSTE Zeile ein Angebot
-              ohne Kontext. */}
-          <div className={styles.dateline}>
-            <RestaurantSnapshot
-              openingHours={r.openingHours ?? []}
-              priceLabel={priceLabel}
-              street={street}
-              mapsHref={mapsHref}
-              locale={loc}
-            />
+          {/* Die Map-Pill steht frei unterm Bild — der Zustand wohnt jetzt
+              als Chip im Aufmacher, Preis und Adresse nur noch auf der
+              Tafel unten. Keine Linie, keine Zeile: erst das Bild samt
+              Antwort, dann das Produkt. */}
+          <div className={styles.heroMapLine}>
             <MapPromoCTA
               kind="restaurant"
               name={displayName}
@@ -446,149 +440,153 @@ export default async function RestaurantPage({ params }: PageProps) {
           </aside>
         )}
 
-        {/* Das Fakten-Register: harte Linien, winzige Mono-Labels, Werte in
-            Kreidetafel-Größe — die Kreidetafel aus SOFIs Hof als Typografie.
-            Die H2 bleibt der Local-Anker der Seiten-Outline. */}
+        {/* Die Tafel: alles Praktische auf einer Ink-Fläche — dieselbe
+            dunkle Flächensprache wie Magazin-Karten, Nav und Footer, und
+            zugleich SOFIs Kreidetafel als Interface. Gelbe Labels, weiße
+            Werte in der Handschrift, die Aktionen direkt darauf. Die H2
+            darüber bleibt der Local-Anker der Seiten-Outline. */}
         {(address || (r.openingHours && r.openingHours.length > 0) || priceLabel) && (
           <h2 className={styles.factsHead}>
             {de ? 'Adresse & Öffnungszeiten' : 'Address & hours'}
           </h2>
         )}
-        <dl className={styles.facts}>
-          {address && (
-            <div className={styles.factsRow}>
-              <dt className={styles.factsKey}>{de ? 'Adresse' : 'Address'}</dt>
-              <dd className={styles.factsVal}>
-                {(() => {
-                  const idx = address.indexOf(',');
-                  const lines =
-                    idx === -1 ? (
-                      address
-                    ) : (
-                      <>
-                        {address.slice(0, idx).trim()}
-                        <br />
-                        {address.slice(idx + 1).trim()}
-                      </>
+        <div className={styles.board}>
+          <dl className={styles.facts}>
+            {address && (
+              <div className={styles.factsRow}>
+                <dt className={styles.factsKey}>{de ? 'Adresse' : 'Address'}</dt>
+                <dd className={styles.factsVal}>
+                  {(() => {
+                    const idx = address.indexOf(',');
+                    const lines =
+                      idx === -1 ? (
+                        address
+                      ) : (
+                        <>
+                          {address.slice(0, idx).trim()}
+                          <br />
+                          {address.slice(idx + 1).trim()}
+                        </>
+                      );
+                    if (!mapsHref) return lines;
+                    return (
+                      <a
+                        className={styles.factsLink}
+                        href={mapsHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {lines}
+                      </a>
                     );
-                  if (!mapsHref) return lines;
-                  return (
-                    <a
-                      className={styles.factsLink}
-                      href={mapsHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {lines}
-                    </a>
-                  );
-                })()}
-              </dd>
-            </div>
-          )}
-          {r.openingHours && r.openingHours.length > 0 && (
-            <div className={styles.factsRow}>
-              <dt className={styles.factsKey}>{de ? 'Öffnungszeiten' : 'Hours'}</dt>
-              <dd className={`${styles.factsVal} ${styles.hours}`}>
-                {r.openingHours.map((slot, i) => [
-                  <span key={`d-${i}`} className={styles.hoursDay}>
-                    {localizeOpeningDays(slot.days, loc)}
-                  </span>,
-                  <span key={`t-${i}`} className={styles.hoursTime}>
-                    {localizeOpeningHours(slot.hours, loc)}
-                  </span>,
-                ])}
-              </dd>
-            </div>
-          )}
-          {priceLabel && (
-            <div className={styles.factsRow}>
-              <dt className={styles.factsKey}>{de ? 'Preis' : 'Price'}</dt>
-              <dd className={styles.factsVal}>{priceLabel}</dd>
-            </div>
-          )}
-          {categoryLinks.length > 0 && (
-            <div className={styles.factsRow}>
-              <dt className={styles.factsKey}>{de ? 'Gut für' : 'Good for'}</dt>
-              <dd className={styles.factsVal}>
-                {categoryLinks.map((c, i) => (
-                  <Fragment key={c.slug}>
-                    {i > 0 && <span aria-hidden="true"> · </span>}
-                    <IntlLink href={`/kategorie/${c.slug}`} className={styles.factsLink}>
-                      {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
-                    </IntlLink>
-                  </Fragment>
-                ))}
-              </dd>
-            </div>
-          )}
-        </dl>
+                  })()}
+                </dd>
+              </div>
+            )}
+            {r.openingHours && r.openingHours.length > 0 && (
+              <div className={styles.factsRow}>
+                <dt className={styles.factsKey}>{de ? 'Öffnungszeiten' : 'Hours'}</dt>
+                <dd className={`${styles.factsVal} ${styles.hours}`}>
+                  {r.openingHours.map((slot, i) => [
+                    <span key={`d-${i}`} className={styles.hoursDay}>
+                      {localizeOpeningDays(slot.days, loc)}
+                    </span>,
+                    <span key={`t-${i}`} className={styles.hoursTime}>
+                      {localizeOpeningHours(slot.hours, loc)}
+                    </span>,
+                  ])}
+                </dd>
+              </div>
+            )}
+            {priceLabel && (
+              <div className={styles.factsRow}>
+                <dt className={styles.factsKey}>{de ? 'Preis' : 'Price'}</dt>
+                <dd className={styles.factsVal}>{priceLabel}</dd>
+              </div>
+            )}
+            {categoryLinks.length > 0 && (
+              <div className={styles.factsRow}>
+                <dt className={styles.factsKey}>{de ? 'Gut für' : 'Good for'}</dt>
+                <dd className={styles.factsVal}>
+                  {categoryLinks.map((c, i) => (
+                    <Fragment key={c.slug}>
+                      {i > 0 && <span aria-hidden="true"> · </span>}
+                      <IntlLink href={`/kategorie/${c.slug}`} className={styles.factsLink}>
+                        {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
+                      </IntlLink>
+                    </Fragment>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
 
-        {/* Drei Gewichte wie gehabt: hingehen (rot), Tisch buchen (schwarz),
+          {/* Drei Gewichte wie gehabt: hingehen (rot), Tisch buchen (schwarz),
             Rest umrandet. Teilen sitzt an dritter Stelle, nicht zuletzt: der
             letzte Slot einer umgebrochenen Zeile streckt sich auf volle
             Breite. „Auf der Map öffnen" steht bewusst nicht hier — die Map
             hat die Pille oben und das Plakat unten. */}
-        <div className={styles.acts}>
-          {mapsHref && (
-            <a
-              className={`${styles.act} ${styles.actPrimary}`}
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <RouteIcon />
-              <span>{de ? 'Route' : 'Directions'}</span>
-            </a>
-          )}
-          {r.reservationUrl && (
-            <a
-              className={`${styles.act} ${styles.actStrong}`}
-              href={r.reservationUrl}
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-            >
-              <ReserveIcon />
-              <span>{de ? 'Reservieren' : 'Reserve'}</span>
-            </a>
-          )}
-          <ShareButton
-            title={r.name}
-            slug={slug}
-            contentType="restaurant"
-            className={styles.act}
-            label={de ? 'Teilen' : 'Share'}
-            copiedLabel={de ? 'Kopiert' : 'Copied'}
-            icon={<ShareIcon />}
-          />
-          {telHref && (
-            <a className={styles.act} href={telHref}>
-              <PhoneIcon />
-              <span>{de ? 'Anrufen' : 'Call'}</span>
-            </a>
-          )}
-          {websiteUrl && (
-            <a
+          <div className={styles.acts}>
+            {mapsHref && (
+              <a
+                className={`${styles.act} ${styles.actPrimary}`}
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <RouteIcon />
+                <span>{de ? 'Route' : 'Directions'}</span>
+              </a>
+            )}
+            {r.reservationUrl && (
+              <a
+                className={`${styles.act} ${styles.actStrong}`}
+                href={r.reservationUrl}
+                target="_blank"
+                rel="noopener nofollow noreferrer"
+              >
+                <ReserveIcon />
+                <span>{de ? 'Reservieren' : 'Reserve'}</span>
+              </a>
+            )}
+            <ShareButton
+              title={r.name}
+              slug={slug}
+              contentType="restaurant"
               className={styles.act}
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-            >
-              <WebsiteIcon />
-              <span>Website</span>
-            </a>
-          )}
-          {r.menuUrl && (
-            <a
-              className={styles.act}
-              href={r.menuUrl}
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-            >
-              <MenuCardIcon />
-              <span>{de ? 'Speisekarte' : 'Menu'}</span>
-            </a>
-          )}
+              label={de ? 'Teilen' : 'Share'}
+              copiedLabel={de ? 'Kopiert' : 'Copied'}
+              icon={<ShareIcon />}
+            />
+            {telHref && (
+              <a className={styles.act} href={telHref}>
+                <PhoneIcon />
+                <span>{de ? 'Anrufen' : 'Call'}</span>
+              </a>
+            )}
+            {websiteUrl && (
+              <a
+                className={styles.act}
+                href={websiteUrl}
+                target="_blank"
+                rel="noopener nofollow noreferrer"
+              >
+                <WebsiteIcon />
+                <span>Website</span>
+              </a>
+            )}
+            {r.menuUrl && (
+              <a
+                className={styles.act}
+                href={r.menuUrl}
+                target="_blank"
+                rel="noopener nofollow noreferrer"
+              >
+                <MenuCardIcon />
+                <span>{de ? 'Speisekarte' : 'Menu'}</span>
+              </a>
+            )}
+          </div>
         </div>
 
         {/* Must Eats vor Remy: beide beantworten „und jetzt?", aber die Karten

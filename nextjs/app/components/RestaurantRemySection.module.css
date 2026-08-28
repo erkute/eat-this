@@ -123,7 +123,9 @@
   border-radius: var(--et-radius-control, 12px);
   background: var(--remy-paper);
   color: var(--remy-ink);
-  font-family: var(--font-body, var(--font), system-ui, sans-serif);
+  /* Markenschrift wie Chips und Senden-Knopf daneben — der Body-Font war
+     der einzige Fremdkörper in der Remy-Zeile. */
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 15px;
   font-weight: 600;
   padding: 12px 14px;

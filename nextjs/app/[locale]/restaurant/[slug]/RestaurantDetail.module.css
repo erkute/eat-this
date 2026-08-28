@@ -154,10 +154,21 @@
   text-decoration: none;
 }
 
-/* Early map entry point, directly under the opener. */
-.heroMapLine {
-  width: min(100%, 900px);
-  margin-inline: auto;
+/* Datumszeile unter dem Aufmacher — Zustands-Zeile links, Map-Pille rechts,
+   darunter die Ink-Linie, an der die redaktionelle Strecke beginnt. Auf
+   schmalen Screens bricht die Pille unter die Zeile, die Linie bleibt. */
+.dateline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-bottom: clamp(14px, 2vw, 20px);
+  border-bottom: 3px solid var(--detail-ink);
+}
+
+.dateline > p {
+  min-width: 0;
 }
 
 .heroOverlay {
@@ -259,15 +270,73 @@
 
 .story,
 .gallery,
-.editorialGrid,
-.factsHead,
-.facts,
-.factsFoot,
-.acts,
+.editorialZone,
 .siblings,
 .rail {
   width: min(100%, 900px);
   margin-inline: auto;
+}
+
+/* Editorial-Strecke: Text links im Lesemaß, Spot-Karte rechts als
+   Randspalte — Zeitungsaufbau. Beide Spalten und alle Module darunter
+   teilen dieselbe linke Achse; unter 901px fällt das Raster zu einer
+   Spalte zusammen (Text, Tipp, dann Karte). */
+.editorialZone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(30px, 5vw, 48px);
+  align-items: start;
+  margin-bottom: clamp(38px, 7vw, 86px);
+}
+
+@media (min-width: 901px) {
+  .editorialZone {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    column-gap: clamp(36px, 4.5vw, 56px);
+  }
+}
+
+.article {
+  display: grid;
+  gap: clamp(28px, 4.5vw, 48px);
+  align-content: start;
+  min-width: 0;
+}
+
+/* Die Spot-Karte: alles Praktische als EIN angeheftetes Objekt in der
+   Karten-Sprache der Marke — Ink-Rahmen, gepunktete Zeilen, gelber
+   Klebestreifen über der Oberkante. */
+.spotCard {
+  position: relative;
+  padding: 26px 20px 18px;
+  background: var(--detail-paper);
+  border: 2px solid var(--detail-ink);
+}
+
+.spotCard::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 96px;
+  height: 22px;
+  background: var(--detail-accent);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.18);
+  transform: translateX(-50%) rotate(-2.4deg);
+}
+
+/* Nur für Screenreader: die dt-Labels von Adresse und Öffnungszeiten —
+   sichtbar erklären sich beide Werte selbst, das Karten-H2 trägt den Titel. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Must-Eats, map promo and FAQ bring their own full-bleed margins from the
@@ -278,7 +347,8 @@
 }
 
 .story {
-  margin-bottom: clamp(34px, 6vw, 74px);
+  /* Abstände innerhalb der Editorial-Strecke regelt das .article-Raster. */
+  margin-bottom: 0;
   color: var(--detail-ink);
   font-size: clamp(17px, 1.35vw, 19px);
   line-height: 1.65;
@@ -419,42 +489,15 @@
   text-decoration: none;
 }
 
-/* `align-items: start`, nicht `stretch`: der Tipp ist drei Zeilen lang, die
-   Bestellliste daneben füllt 500px und mehr. Gestreckt erbte die rote Fläche
-   deren Höhe und stand zu zwei Dritteln leer — bei 940px, wo die Spalte am
-   schmalsten und die Liste am höchsten ist, waren es 356px rotes Nichts über
-   vier Zeilen Text. Der Block soll so hoch sein wie sein Inhalt. */
-.editorialGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: clamp(18px, 3vw, 34px);
-  align-items: start;
-  margin-bottom: clamp(36px, 6vw, 78px);
-}
-
-/* Seit „Was bestellen?" raus ist, steht im Raster immer nur der Insider-Tipp —
-   die Regel greift also durchgehend. Sie bleibt als `:only-child` stehen, weil
-   das Raster weiter für einen zweiten Block ausgelegt ist; kommt nie einer
-   dazu, kann es zur einspaltigen Regel zusammenfallen. */
-.editorialGrid > :only-child {
-  grid-column: 1 / -1;
-}
-
-.tipp:only-child {
-  padding: clamp(24px, 3.4vw, 34px);
-}
-
-/* Allein auf der Spalte wurde der Tipp mit 44px auf 52px Polster zum Plakat.
-   Er ist ein Hinweis, keine Schlagzeile. */
-.tipp:only-child .tippText {
-  max-width: 34ch;
-  font-size: clamp(19px, 2vw, 26px);
-  line-height: 1.18;
-}
-
-.tipp,
+/* Der Tipp steht in der Artikelspalte hinter dem Text — die frühere
+   editorialGrid-Hülle (zweispaltig für den entfernten Bestell-Block, seit
+   dessen Abgang immer einspaltig) ist mit dem Zonen-Umbau weg. */
 .tipp {
   display: grid;
+  /* Gleiche rechte Kante wie die Textabsätze (700px-Lesemaß) — der Block
+     soll in der Artikelspalte stehen, nicht über sie hinausragen. */
+  max-width: 700px;
+  padding: clamp(24px, 3.4vw, 34px);
   background: var(--detail-red);
   color: var(--detail-paper);
 }
@@ -471,60 +514,59 @@
 }
 
 .tippText {
-  max-width: 32ch;
+  max-width: 34ch;
   margin: 0;
   color: inherit;
-  font-size: clamp(18px, 1.8vw, 23px);
+  font-size: clamp(19px, 2vw, 26px);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.18;
 }
 
+/* Gleiche Kopfzeile wie „Im Magazin" (.head in RestaurantArticlesSection):
+   Markenschrift, rot, Versalien — eine Grammatik für alle Modul-Köpfe. */
 .sibRowHead {
   margin: 0 0 clamp(18px, 3vw, 30px);
   color: var(--detail-red);
+  font-family: var(--f-display);
+  font-weight: 700;
   font-size: clamp(18px, 4vw, 30px);
   line-height: var(--et-leading-title, 0.9);
+  text-transform: uppercase;
 }
 
-/* Überschrift über dem Faktenblock — dieselbe Stimme wie die
-   Empfehlungszeilen (.sibRowHead), damit „Adresse & Öffnungszeiten" als
-   Abschnitt lesbar wird, ohne ein neues typografisches Register zu öffnen. */
+/* Kartentitel — zugleich die H2 des Local-Kerns in der Seiten-Outline. */
 .factsHead {
-  margin-top: 0;
-  margin-bottom: clamp(14px, 2.4vw, 24px);
-  color: var(--detail-red);
-  font-size: clamp(18px, 4vw, 30px);
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title, 0.9);
+  margin: 0 0 4px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--detail-ink);
+  color: var(--detail-ink);
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
 
-/* Basis ist das Telefon: ein Fakt pro Zeile, Label über dem Wert. Ab 901px
-   stehen die Slabs nebeneinander — siehe unten. */
 .facts {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  /* Der Abstand zum nächsten Block hängt an .factsFoot: die E-E-A-T-Zeile
-     rendert unbedingt direkt unter dem Raster und soll dicht daran sitzen. */
-  margin-bottom: 12px;
+  margin: 0;
 }
 
-/* E-E-A-T-Fußnote: besucht, unabhängig, unbezahlt — ein Satz, kein Badge. */
-.factsFoot {
-  margin-top: 0;
-  margin-bottom: clamp(28px, 5vw, 58px);
-  color: var(--detail-muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
+/* Karteikarten-Zeilen: gepunktete Linien statt grauer Slabs. */
 .factsRow {
   display: grid;
   align-content: start;
-  gap: 6px;
+  gap: 5px;
   min-height: 0;
-  padding: 18px;
-  background: var(--detail-quiet);
+  padding: 13px 0;
+  border-bottom: 1px dotted var(--detail-line);
+}
+
+/* Die letzte Zeile grenzt an die Ink-Linie der Aktionszeile — keine
+   gepunktete Linie direkt über einer durchgezogenen. */
+.factsRow:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
 }
 
 .factsKey {
@@ -542,16 +584,18 @@
 .hours {
   color: var(--detail-ink);
   font-family: var(--f-display);
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.34;
 }
 
+/* Tag/Zeit-Paare in einer Zeile — in der schmalen Karte wie auf Mobil. */
 .hours {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 5px 12px;
+  align-items: baseline;
 }
 
 .factsLink {
@@ -574,36 +618,16 @@
   color: var(--detail-ink);
 }
 
-/* Die Fakten hatten kein Desktop-Layout: `.facts`, `.factsRow` und `.hours`
-   standen auf `1fr`, und die 900er-Query setzte exakt dieselben Werte noch
-   einmal — eine Leiche aus einer früheren zweispaltigen Fassung. Sichtbar war
-   das als drei graue Bänder über die volle 900px-Spalte, in denen „PREIS /
-   10–20 €" 900x80px für acht Zeichen belegte.
-
-   Drei Slabs nebeneinander statt untereinander; `auto-fit` deckt ab, dass
-   Adresse, Zeiten und Preis einzeln fehlen dürfen — bei zwei Fakten werden es
-   zwei Spalten, bei einem eine. Und die Zeiten laufen als Tag/Uhrzeit-Paar in
-   eine Zeile statt in zwei, sonst braucht ein Laden mit zwei Zeitfenstern hier
-   vier Zeilen. */
-@media (min-width: 901px) {
-  .facts {
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  }
-
-  .hours {
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 6px 14px;
-    align-items: baseline;
-  }
-}
-
-/* Every button grows, so a wrapped last line still spans the full width —
-   no more short black buttons trailing off to the left. */
+/* Aktionszeile am Kartenfuß, mit Ink-Linie vom Faktenteil getrennt. In der
+   300px-Randspalte stapeln die Knöpfe von selbst (flex-basis 200px + grow),
+   auf Mobil läuft die Karte voll und die Zeile bricht zweispaltig um. */
 .acts {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: clamp(38px, 7vw, 86px);
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid var(--detail-ink);
 }
 
 /* Base tier — outlined, so a row of five secondary actions reads as a light
@@ -787,10 +811,13 @@
    überhaupt in Frage kommt. */
 .sibMeta {
   color: #ff5a4e;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  /* Markenschrift statt Mono — gleiche Stimme wie Chips und Foto-Credit.
+     Tracking wie beim Credit (0.03em), das Mono-0.08em riss Providence
+     auseinander; 900 gibt es in der Schrift nicht, 700 ist ihr Fettschnitt. */
+  font-family: var(--f-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   line-height: 1.35;
   text-transform: uppercase;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
@@ -839,10 +866,6 @@
 @media (max-width: 900px) {
   .heroPhoto {
     min-height: clamp(460px, 78vw, 620px);
-  }
-
-  .editorialGrid {
-    grid-template-columns: 1fr;
   }
 
   .gallery {

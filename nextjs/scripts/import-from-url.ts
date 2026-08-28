@@ -18,7 +18,7 @@ import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';
 import type { SanityClient } from '@sanity/client';
 import { randomUUID } from 'node:crypto';
-import { isOwnerPhoto } from './lib/photo-curation';
+import { isOwnerPhoto, PLACES_PHOTO_MAX_WIDTH_PX } from './lib/photo-curation';
 
 loadEnv({ path: '.env.local' });
 
@@ -622,7 +622,7 @@ async function importPhoto(
 
   const photo = ownerPhotos[0];
   try {
-    const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1600&key=${GOOGLE_API_KEY}`;
+    const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=${PLACES_PHOTO_MAX_WIDTH_PX}&key=${GOOGLE_API_KEY}`;
     const res = await fetch(url, { redirect: 'follow' });
     if (!res.ok) {
       console.warn(`  photo fetch ${res.status} — skipping image`);
@@ -671,7 +671,7 @@ export async function importGalleryPhotos(
   const out: GalleryAsset[] = [];
   for (const photo of candidates) {
     try {
-      const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1600&key=${GOOGLE_API_KEY}`;
+      const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=${PLACES_PHOTO_MAX_WIDTH_PX}&key=${GOOGLE_API_KEY}`;
       const res = await fetch(url, { redirect: 'follow' });
       if (!res.ok) {
         console.warn(`  gallery photo ${out.length + 1} fetch ${res.status} — skipping`);

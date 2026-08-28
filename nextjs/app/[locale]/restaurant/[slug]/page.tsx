@@ -321,6 +321,12 @@ export default async function RestaurantPage({ params }: PageProps) {
                 // gedeckelt — die 1180 stammten vom Seitenrahmen und luden
                 // auf Desktop eine Stufe zu groß.
                 sizes="(max-width: 760px) 100vw, 900px"
+                /* 80 statt der Voreinstellung 75. Gemessen an einem
+                   1600px-Foto: q=80 kostet 26% mehr Bytes und bringt 1,1 dB,
+                   q=85 kostet 55% fuer 2,0 dB. Der Hero ist das LCP-Element
+                   dieser Seite, deshalb der guenstigere Punkt der Kurve —
+                   die Galerie unten darf teurer sein. */
+                quality={80}
                 className={styles.heroImg}
               />
               <div className={styles.heroGradient} />
@@ -404,12 +410,30 @@ export default async function RestaurantPage({ params }: PageProps) {
               return (
                 <figure key={img._key} className={styles.galleryItem}>
                   <Image
-                    src={img.thumb ?? img.full ?? ''}
+                    /* `thumb` ist der 400x300-Streifen des Map-Sheets. Hier
+                       steht dasselbe Bild bis zu 900px breit — auf einem
+                       Retina-Schirm 1800 Geraetepixel aus einer 400px-Quelle,
+                       und genau so sah es auch aus. `full` (1200px) kommt in
+                       derselben Projektion mit und kostet keine Abfrage. */
+                    src={img.full ?? img.thumb ?? ''}
                     alt={img.alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 1}`}
                     fill
+                    /* Drei Layouts, drei Groessen: unter 700px ein Scroller
+                       (78% der Breite, allein 92vw), darunter zwei Spalten mit
+                       breitem Aufmacher, ab 900px das 1,35fr/1fr-Raster in der
+                       900px-Spalte. Das alte `560px` galt fuer keines davon —
+                       ein einzelnes Bild rendert 900px breit. */
                     sizes={
-                      i === 0 ? '(max-width: 700px) 82vw, 560px' : '(max-width: 700px) 68vw, 280px'
+                      galleryImages.length === 1
+                        ? '(max-width: 900px) 92vw, 900px'
+                        : i === 0
+                          ? '(max-width: 700px) 78vw, (max-width: 900px) 92vw, 520px'
+                          : '(max-width: 700px) 78vw, (max-width: 900px) 46vw, 380px'
                     }
+                    /* Laedt lazy und steht unter dem Falz — hier zaehlt das
+                       Bild mehr als die Ladezeit, also der obere Punkt der
+                       Kurve (siehe Hero). */
+                    quality={85}
                     className={styles.galleryImg}
                   />
                   {img.credit && (

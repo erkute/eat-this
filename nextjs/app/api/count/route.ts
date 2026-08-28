@@ -35,12 +35,27 @@ const EVENTS = new Set([
   'begin_checkout',
   'checkout_already_owned',
   'checkout_error',
+  // Der Trichter am Cookie-Dialog. `consent_gate_shown` ist der Nenner, der
+  // bis 28.08.2026 fehlte: ohne ihn ist die Zustimmungsquote nur der Anteil an
+  // den Antwortenden, und wer den Dialog sieht und geht, taucht nirgends auf.
+  // Der Nachweis in consent_records bleibt davon unberuehrt — Rechtsdokument
+  // dort, Messung hier.
+  'consent_accepted',
+  'consent_declined',
+  'consent_gate_shown',
+  'locked_spot_login_start',
   'locked_spot_opened',
   'locked_spot_pack_clicked',
+  // `login` kommt aus welcome/page.tsx und fiel vorher doppelt durch: die
+  // Route war ungetrackt UND der Name stand nicht in dieser Liste.
+  'login',
   'login_link_sent',
   'login_start',
   'login_view',
+  'map_location_invite_accepted',
+  'map_location_invite_shown',
   'map_opened',
+  'map_view_toggle',
   'must_eat_opened',
   'must_eat_reveal_attempt',
   'purchase',
@@ -136,27 +151,40 @@ export async function POST(request: Request) {
   if (!limit.allowed) return new NextResponse(null, { status: 429 });
 
   const db = getAdminFirestore();
-  const seen = db.collection('analytics_seen').doc(hash);
-
-  // `create` throws when the doc exists, which is exactly the question being
-  // asked: is this the first time today? Cheaper than a read plus a write, and
-  // atomic across instances.
-  let firstToday = false;
-  try {
-    await seen.create({ expiresAt: Timestamp.fromMillis(Date.now() + SEEN_TTL_MS) });
-    firstToday = true;
-  } catch {
-    firstToday = false;
-  }
-
   const inc = FieldValue.increment(1);
   const update: Record<string, unknown> = { day };
+
   if (event) {
     update.events = { [event]: inc };
   } else {
+    // `create` throws when the doc exists, which is exactly the question being
+    // asked: is this the first time today? Cheaper than a read plus a write, and
+    // atomic across instances.
+    //
+    // Steht bewusst NUR im Seitenaufruf-Zweig: wer den Platz beansprucht, muss
+    // ihn auch verbuchen koennen. Lag das davor, konnte ein Ereignis, das vor
+    // dem ersten Seitenaufruf eintrifft, `firstToday` aufbrauchen — gezaehlt
+    // wurde es dann nirgends, und der Besucher fehlte im Tagesstand.
+    const seen = db.collection('analytics_seen').doc(hash);
+    let firstToday = false;
+    try {
+      await seen.create({ expiresAt: Timestamp.fromMillis(Date.now() + SEEN_TTL_MS) });
+      firstToday = true;
+    } catch {
+      firstToday = false;
+    }
+
     update.pageviews = inc;
     update.paths = { [path]: inc };
-    if (firstToday) update.visitors = inc;
+    if (firstToday) {
+      update.visitors = inc;
+      // Die Einstiegsseite — der erste gezaehlte Aufruf eines Besuchers an
+      // diesem Tag. GA4 hat so einen Bericht, sieht aber genau die Seiten
+      // nicht, auf denen die Suche landet; `paths` allein kann Einstieg und
+      // Durchklick nicht trennen. Erst hiermit ist "wo kommen die Leute rein"
+      // fuer ALLE Besucher beantwortbar statt nur fuer die Zustimmenden.
+      update.entryPaths = { [path]: inc };
+    }
     const host = referrerHost(body.referrer);
     if (host) update.referrers = { [host]: inc };
   }

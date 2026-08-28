@@ -1,12 +1,17 @@
 // @vitest-environment jsdom
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+// GA laeuft seit 28.08.2026 nur noch auf dem Produktions-Host — unter dem
+// jsdom-Standard (localhost) wuerde hier nichts mehr laden, und zwar zu Recht.
+// @vitest-environment-options { "url": "https://www.eatthisdot.com/" }
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   countEvent,
   countView,
   getAnalyticsPageLocation,
   handoffEvent,
+  isAnalyticsHost,
   loadAnalytics,
   flushAnalyticsQueue,
+  resetReferrerSentForTests,
   trackEvent,
   trackEventOnce,
 } from './analytics';
@@ -64,6 +69,69 @@ describe('analytics consent gate', () => {
     expect(gtag).toBeDefined();
     expect(sessionStorage.getItem('eatthis_analytics_handoff')).toBeNull();
     expect(appendChild).toHaveBeenCalled();
+    // Ohne das Zuruecknehmen liefert ein spaeteres vi.spyOn auf dieselbe
+    // Methode denselben Mock zurueck — inklusive dieses Aufrufs. Ein Test, der
+    // "wurde nicht aufgerufen" prueft, schlaegt dann wegen dieser Zeile fehl.
+    appendChild.mockRestore();
+  });
+});
+
+/* Bis 28.08.2026 lud GA auf jedem Host. Ergebnis: 59 % aller Sitzungen ueber
+ * 90 Tage kamen aus der Entwicklung oder vom Staging, und jede ungefilterte
+ * GA-Zahl — auch jede im GA4-Webinterface — war damit falsch. */
+describe('GA laeuft nur auf dem Produktions-Host', () => {
+  it.each([
+    ['www.eatthisdot.com', true],
+    ['eatthisdot.com', true],
+    ['localhost', false],
+    ['127.0.0.1', false],
+    ['192.168.178.49', false],
+    ['eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app', false],
+  ])('%s -> %s', (host, expected) => {
+    expect(isAnalyticsHost(host)).toBe(expected);
+  });
+
+  beforeEach(() => {
+    // gtag und die Warteschlange ueberleben sonst aus dem Block darueber.
+    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
+    delete (window as Window & { gtag?: unknown }).gtag;
+    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
+  });
+
+  // stubGlobal statt spyOn(window,'location'): jsdoms location ist nicht
+  // ersetzbar, und ein Spy darauf laesst sich nicht sauber zuruecknehmen — er
+  // friert die URL fuer alle folgenden Tests der Datei auf '/' ein.
+  afterEach(() => vi.unstubAllGlobals());
+
+  function onHost(hostname: string) {
+    vi.stubGlobal('location', { ...window.location, hostname });
+  }
+
+  it('laedt kein GA auf einem fremden Host, auch mit Zustimmung', () => {
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
+    const appendChild = vi.spyOn(document.head, 'appendChild');
+    // Staging faehrt einen Produktions-Build; nur der Host unterscheidet.
+    onHost('eat-this-staging--eat-this-staging-8a13b.us-central1.hosted.app');
+
+    loadAnalytics();
+
+    expect(appendChild, 'kein gtag-Skript auf Staging').not.toHaveBeenCalled();
+    expect((window as Window & { gtag?: unknown }).gtag).toBeUndefined();
+    appendChild.mockRestore();
+  });
+
+  it('sammelt auf einem fremden Host auch keine Warteschlange an', () => {
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
+    onHost('localhost');
+
+    trackEvent('map_opened');
+    trackEvent('map_opened');
+
+    // Ohne diesen Riegel waechst die Queue auf Staging unbegrenzt: Zustimmung
+    // liegt vor, gtag kommt nie.
+    expect(
+      (window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue
+    ).toBeUndefined();
   });
 });
 
@@ -78,6 +146,24 @@ describe('getAnalyticsPageLocation', () => {
       pagePath: '/checkout/success?utm_source=stripe',
     });
   });
+
+  /* /welcome wird seit 28.08.2026 mitgezaehlt, und die Route traegt den
+   * Firebase-Action-Link in der URL. `oobCode` ist ein einloesbares
+   * Anmelde-Token: stuende es im page_location, laege ein Login-Code in
+   * Googles Berichten. */
+  it('entfernt den Magic-Link-Code aus der /welcome-URL', () => {
+    const { pageLocation, pagePath } = getAnalyticsPageLocation(
+      'https://www.eatthisdot.com/welcome?mode=signIn&oobCode=AbC_secret123' +
+        '&apiKey=AIzaSyKEY&continueUrl=https%3A%2F%2Fwww.eatthisdot.com%2F%3Fme%3Dspot1&lang=de'
+    );
+
+    for (const secret of ['AbC_secret123', 'AIzaSyKEY', 'me%3Dspot1']) {
+      expect(pageLocation, `${secret} darf nicht zu Google`).not.toContain(secret);
+      expect(pagePath, `${secret} darf nicht zu Google`).not.toContain(secret);
+    }
+    // Was harmlos ist, bleibt stehen — sonst verliert der Bericht den Kontext.
+    expect(pagePath).toBe('/welcome?mode=signIn&lang=de');
+  });
 });
 
 /* The consent-free counter. Its whole value is that it does NOT depend on the
@@ -91,6 +177,9 @@ describe('consent-free counting', () => {
     beacon = vi.fn(() => true);
     vi.stubGlobal('navigator', { ...navigator, sendBeacon: beacon });
     window.history.replaceState({}, '', '/bezirk/kreuzberg');
+    // Der Referrer wird nur einmal pro Dokument geschickt; jeder Test faengt
+    // ein frisches Dokument an.
+    resetReferrerSentForTests();
   });
 
   // jsdom's Blob has no .text(), so read it the long way.
@@ -130,6 +219,33 @@ describe('consent-free counting', () => {
     const body = await sent();
     expect(body.path).toBe('/checkout/success');
     expect(JSON.stringify(body)).not.toContain('cs_live_secret');
+  });
+
+  /* document.referrer ist fuer ein Dokument konstant. Ihn bei jedem
+   * Routenwechsel mitzuschicken hat dieselbe Herkunft mehrfach gezaehlt:
+   * 253 gezaehlte Google-Verweise gegen 83 echte Suchklicks (Aug 2026). */
+  it('schickt den Referrer nur beim ersten Aufruf eines Dokuments', async () => {
+    Object.defineProperty(document, 'referrer', {
+      value: 'https://www.google.com/search?q=beste+pizza+berlin',
+      configurable: true,
+    });
+
+    countView();
+    window.history.replaceState({}, '', '/restaurant/gemello');
+    countView();
+    window.history.replaceState({}, '', '/restaurant/bari');
+    countView();
+
+    expect(beacon).toHaveBeenCalledTimes(3);
+    expect((await sent(0)).referrer).toBe('https://www.google.com/search?q=beste+pizza+berlin');
+    expect(await sent(1), 'zweiter Aufruf ohne Referrer').not.toHaveProperty('referrer');
+    expect(await sent(2), 'dritter Aufruf ohne Referrer').not.toHaveProperty('referrer');
+    // Die Pfade zaehlen weiterhin alle drei mit.
+    expect([(await sent(0)).path, (await sent(1)).path, (await sent(2)).path]).toEqual([
+      '/bezirk/kreuzberg',
+      '/restaurant/gemello',
+      '/restaurant/bari',
+    ]);
   });
 
   it('fans a tracked event out to the counter without consent', async () => {

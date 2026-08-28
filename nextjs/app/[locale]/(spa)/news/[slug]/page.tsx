@@ -103,7 +103,14 @@ export default async function NewsArticlePage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'NewsArticle',
+        // `Article`, nicht `NewsArticle`: Unter /news liegen immergrüne Guides
+        // („Die 10 besten Bäckereien in Berlin") und Kolumnen, keine Meldungen.
+        // `NewsArticle` behauptet Aktualität — einen Anlass, ein Datum, das
+        // etwas bedeutet — und macht dieselbe Zusage Richtung Top Stories und
+        // Google News, für die diese Seite weder angemeldet ist noch eine
+        // Erscheinungsfrequenz hat. `Article` beschreibt sie richtig; die
+        // ItemList darunter trägt ohnehin die Substanz eines Listen-Guides.
+        '@type': 'Article',
         headline: title,
         description: excerpt,
         image: a.imageUrl,

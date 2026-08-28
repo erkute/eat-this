@@ -8,7 +8,6 @@ import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
-import CookieConsent from '@/app/components/CookieConsent';
 import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy';
 import BridgeAuth from './BridgeAuth';
 
@@ -83,7 +82,6 @@ export default async function SPALayout({
               <span id="main-content" tabIndex={-1} />
               {children}
             </div>
-            <CookieConsent />
             <BuddyWidget />
           </UserLocationProvider>
         </LoginModalProvider>

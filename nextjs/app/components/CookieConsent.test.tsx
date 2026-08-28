@@ -4,11 +4,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const analytics = vi.hoisted(() => ({
   load: vi.fn(),
+  count: vi.fn(),
 }));
 
 vi.mock('@/lib/analytics', () => ({
   loadAnalytics: analytics.load,
   trackEvent: vi.fn(),
+  countEvent: analytics.count,
   getAnalyticsPageLocation: () => ({ pageLocation: 'https://x/', pagePath: '/' }),
 }));
 

@@ -733,10 +733,15 @@
   box-shadow: inset 0 0 0 2px var(--detail-red);
 }
 
-/* "Book a table" — committal, but not the default move. */
+/* "Book a table" — committal, but not the default move. Die Ink-Fläche, die
+   dieser Knopf früher trug, war auf der Ink-Tafel schwarz auf schwarz: sichtbar
+   blieb nur die weisse Schrift, der Knopf selbst verschwand (der Ring erbte
+   ebenfalls Ink). Rot gehört dem Weg zur Map, also trägt das Buchen Gelb —
+   lauter als die weissen Knöpfe daneben, leiser als der rote. */
 .actStrong {
-  background: var(--detail-ink);
-  color: var(--detail-paper);
+  background: var(--detail-accent);
+  color: var(--detail-ink);
+  box-shadow: inset 0 0 0 2px var(--detail-accent);
 }
 
 .siblings {
@@ -883,10 +888,14 @@
     color: var(--detail-paper);
   }
 
-  /* Auf der Tafel wäre Ink-auf-Ink unsichtbar — dort hovern die Knöpfe gelb. */
+  /* Auf der Tafel wäre Ink-auf-Ink unsichtbar — der Ring aus Papier hält die
+     Form. Gelb kommt hier nicht mehr in Frage: das trägt jetzt „Reservieren"
+     im Ruhezustand, und ein Hover, der einen Knopf wie einen anderen aussehen
+     lässt, verwischt die Stufen. */
   .board .act:hover {
-    background: var(--detail-accent);
-    color: var(--detail-ink);
+    background: var(--detail-ink);
+    color: var(--detail-paper);
+    box-shadow: inset 0 0 0 2px var(--detail-paper);
   }
 
   .actStrong:hover {
@@ -1081,6 +1090,28 @@
 
   .sibMeta {
     font-size: 10px;
+  }
+}
+
+/* Unter rund 420px Fensterbreite bleibt einer halbspaltigen Zelle kein Platz
+   mehr für ein deutsches Verb: bei 375px sind es 137px Knopf, davon 92px für
+   den Text — „RESERVIEREN" braucht bei 16px aber 112px und wurde zu
+   „RESERVIER…" gekürzt, ebenso „SPEISEKARTE". Kleinerer Grad, engere
+   Innenabstände und ein 15px-Icon geben 102px gegen 98px Bedarf frei. */
+@media (max-width: 430px) {
+  .act,
+  .actPrimary,
+  .actStrong {
+    gap: 6px;
+    padding-inline: 7px;
+    font-size: 14px;
+  }
+
+  .act svg,
+  .actPrimary svg,
+  .actStrong svg {
+    width: 15px;
+    height: 15px;
   }
 }
 

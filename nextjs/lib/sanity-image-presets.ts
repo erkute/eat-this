@@ -15,8 +15,20 @@ interface Preset {
 }
 
 const IMAGE_PRESETS = {
-  // Restaurant + article hero (detail pages)
-  detailHero: { w: 1200, q: 85 },
+  // Restaurant + article hero (detail pages) und die Galerie-Vollansicht.
+  // 1600 statt 1200, weil die Bildspalte der Detailseite 900px breit ist —
+  // auf einem 2x-Schirm also 1800 Geraetepixel. 1200 hiess dort ein Viertel
+  // Aufloesung zu wenig, und 1600 ist ohnehin die Obergrenze, mit der die
+  // Import-Skripte Fotos ziehen: mehr liegt bei den Bestandsfotos nicht.
+  // Kostet mobil nichts — was ausgeliefert wird, entscheidet next/image
+  // anhand von `sizes`, nicht die Breite der Quelle.
+  detailHero: { w: 1600, q: 85 },
+  // Der Hero des Map-Sheets. Bleibt bei 1200, obwohl das Sheet dieselbe
+  // Restaurant-Abfrage fuettert wie die Detailseite: dort haengt das Bild in
+  // einem `background-image` ohne srcset, wird also in voller Breite geladen —
+  // auch auf dem Handy, wo das Sheet keine 500px breit ist. `detailHero` darf
+  // deshalb nicht fuer beide gelten.
+  sheetHero: { w: 1200, q: 85 },
   // Bezirk hero (wider crop)
   bezirkHero: { w: 1600, q: 85 },
   // Standard restaurant / article card photo

@@ -57,7 +57,7 @@ export const restaurantMapDetailQuery = `
     descriptionEn,
     shortDescription,
     shortDescriptionEn,
-    "photo": ${publishableRestaurantImageUrl('image', 'detailHero')},
+    "photo": ${publishableRestaurantImageUrl('image', 'sheetHero')},
     "photoCredit": ${restaurantPhotoCredit('image')},
     "photoCreditUrl": ${restaurantPhotoCreditUrl('image')},
     "gallery": gallery[]{

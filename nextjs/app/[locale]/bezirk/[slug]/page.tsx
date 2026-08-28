@@ -8,6 +8,7 @@ import {
   getBezirkBySlug,
   getRestaurantsByBezirk,
   getAllBezirkeWithStats,
+  getGuideTeaser,
 } from '@/lib/sanity.server';
 import { buildBezirkJsonLd } from '@/lib/json-ld';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
@@ -23,12 +24,13 @@ import {
   buildBezirkDirectoryHeading,
 } from '@/lib/bezirk-prose';
 import { rankCurated } from '@/lib/curated-ranking';
-import { bezirkCategoryLinks } from '@/lib/seo/crossLinks';
+import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from '../Bezirk.module.css';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
 import HubSiblings from '@/app/components/HubSiblings';
+import GuideCrossLinks from '@/app/components/GuideCrossLinks';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -189,10 +191,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   // `generateStaticParams` — derselbe Aufruf trifft den Data-Cache-Eintrag und
   // kostet keine zusätzliche Sanity-Anfrage (dasselbe Muster wie die OG-Route
   // auf der Restaurant-Seite).
-  const [b, restaurants, alleBezirke] = await Promise.all([
+  const [b, restaurants, alleBezirke, guides] = await Promise.all([
     getBezirkBySlug(slug),
     getRestaurantsByBezirk(slug),
     getAllBezirkeWithStats(),
+    Promise.all(bezirkGuideSlugs(slug).map((s) => getGuideTeaser(s, loc))),
   ]);
   // A district without spots renders hero + FAQ around an empty grid —
   // dead end + thin content. 404 until the first spot is curated; the page
@@ -351,6 +354,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             )}
           </section>
         </HubFilterProvider>
+
+        {/* Siehe bezirkGuideSlugs — die Zuordnung Hub → Guide. */}
+        <GuideCrossLinks guides={guides} locale={loc} />
 
         <div className={styles.detailMapCta}>
           <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />

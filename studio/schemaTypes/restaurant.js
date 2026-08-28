@@ -430,7 +430,7 @@ export default {
       title: 'Was bestellen? (Empfehlungen)',
       type: 'array',
       description:
-        '2–4 konkrete Gerichte mit Ein-Satz-Begründung für den „Was bestellen?"-Block auf der Detail-Seite. Bedient die „karte/speisekarte"-Suchintention und landet als FAQ im JSON-LD. Redaktionell, kein Ersatz für Must-Eats.',
+        '2–4 konkrete Gerichte für den „Was bestellen?"-Block auf der Detail-Seite. Nur der Gerichtsname, keine Begründung — der Block listet die Gerichte, er erklärt sie nicht. Bedient die „karte/speisekarte"-Suchintention und landet als FAQ im JSON-LD. Redaktionell, kein Ersatz für Must-Eats.',
       validation: Rule => Rule.max(4),
       of: [
         {
@@ -442,20 +442,6 @@ export default {
               title: 'Gericht',
               type: 'string',
               validation: Rule => Rule.required(),
-            },
-            {
-              name: 'note',
-              title: 'Begründung (1 Satz)',
-              type: 'string',
-              description: 'Warum bestellen? Z.B. „Knusprig, fettig, perfekt — das Signature Dish."',
-              validation: Rule => Rule.max(160),
-            },
-            {
-              name: 'noteEn',
-              title: 'Begründung (EN)',
-              type: 'string',
-              description: 'Optional EN override. Leave empty to fall back to German.',
-              validation: Rule => Rule.max(160),
             },
             {
               name: 'price',

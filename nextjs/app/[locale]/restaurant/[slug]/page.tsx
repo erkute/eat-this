@@ -434,18 +434,14 @@ export default async function RestaurantPage({ params }: PageProps) {
               >
                 <h2 className={styles.orderHead}>{de ? 'Was bestellen?' : 'What to order?'}</h2>
                 <ul className={styles.orderList}>
-                  {orderItems.map((item) => {
-                    const note = pickLocale(item.note, item.noteEn, loc);
-                    return (
-                      <li key={item.dish} className={styles.orderItem}>
-                        <div className={styles.orderTop}>
-                          <span className={styles.orderDish}>{item.dish}</span>
-                          {item.price && <span className={styles.orderPrice}>{item.price}</span>}
-                        </div>
-                        {note && <p className={styles.orderNote}>{note}</p>}
-                      </li>
-                    );
-                  })}
+                  {orderItems.map((item) => (
+                    <li key={item.dish} className={styles.orderItem}>
+                      <div className={styles.orderTop}>
+                        <span className={styles.orderDish}>{item.dish}</span>
+                        {item.price && <span className={styles.orderPrice}>{item.price}</span>}
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </section>
             )}

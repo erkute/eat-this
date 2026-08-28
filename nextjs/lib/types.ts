@@ -34,8 +34,6 @@ interface PriceRange {
 /** Editorial "Was bestellen?" recommendation (2–4 per restaurant). */
 interface WhatToOrderItem {
   dish: string;
-  note?: string;
-  noteEn?: string;
   price?: string;
 }
 

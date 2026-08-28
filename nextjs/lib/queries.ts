@@ -47,7 +47,7 @@ const RESTAURANT_DETAIL_FIELDS = `
     openingHours[] { days, hours },
     tip,
     tipEn,
-    whatToOrder[] { dish, note, noteEn, price },
+    whatToOrder[] { dish, price },
     description,
     descriptionEn,
     "photo": ${publishableRestaurantImageUrl('image', 'detailHero')},

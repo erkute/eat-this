@@ -494,9 +494,23 @@
   line-height: var(--et-leading-title, 0.9);
 }
 
+/* `.orderHead` wurde im JSX referenziert, war hier aber nie definiert — die
+   Überschrift rendert dadurch klassenlos und ohne Abstand. Solange die Notizen
+   unter jedem Gericht standen, fiel das nicht auf; jetzt klebte „Was bestellen?"
+   direkt auf dem ersten Gericht, während zwischen den Gerichten 24px stehen. */
+.orderHead {
+  margin: 0 0 clamp(18px, 2.4vw, 26px);
+}
+
+/* 24px statt 14px, seit die Begründung unter dem Gericht weg ist: die trennte
+   die Einträge vorher optisch. Ohne sie steht Gerichtsname direkt auf
+   Gerichtsname, und bei line-height 0.92 war der Abstand zwischen zwei
+   Gerichten (53px) kaum größer als der zwischen zwei Zeilen desselben Namens
+   (39px) — ein dreizeiliger Name las sich als drei Gerichte. 24px bringt das
+   Verhältnis auf 1,62. */
 .orderList {
   display: grid;
-  gap: 14px;
+  gap: 24px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -518,13 +532,16 @@
   align-items: baseline;
 }
 
-/* Von clamp(28px, 4vw, 46px) heruntergenommen: 46px gegen eine 14px-Notiz war
-   ein Sprung, den die Notiz nicht überlebt — und sie trägt die Information.
-   Der längste Gerichtsname im Bestand („Panko-knuspriger Blumenkohl mit Amba",
-   36 Zeichen) brauchte bei 46px drei Zeilen in der Spalte, jetzt zwei. */
+/* Der Block listet nur noch Gerichtsnamen, ohne Begründung darunter. Die
+   frühere Deckelung auf 38px war Rücksicht auf die 15px-Notiz — ohne sie darf
+   das Gericht die Zeile wieder allein tragen, also zurück auf 42px.
+   Zur Zeilenzahl steht hier bewusst nichts: die Spalte ist bei 404px gedeckelt,
+   und der längste Name im Bestand („Panko-knuspriger Blumenkohl mit Amba")
+   bricht darin von 34px bis 46px durchgehend dreizeilig — gemessen, nicht
+   geschätzt. Die Schriftgröße kauft dort keine Zeile zurück. */
 .orderDish {
   color: var(--detail-ink);
-  font-size: clamp(26px, 3.2vw, 38px);
+  font-size: clamp(26px, 3.6vw, 42px);
   line-height: var(--et-leading-title, 0.92);
   hyphens: auto;
   overflow-wrap: anywhere;
@@ -538,21 +555,6 @@
   letter-spacing: 0.08em;
   line-height: 1.35;
   text-transform: uppercase;
-}
-
-/* 15px statt 14px und dichter am Gericht: die Notiz sagt, warum man das Gericht
-   nimmt, und war als grauer 14px-Satz unter einer 46px-Zeile das Kleingedruckte
-   einer Überschrift. */
-.orderNote {
-  max-width: 58ch;
-  margin: 5px 0 0;
-  color: var(--detail-muted);
-  font-family: var(--f-body);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.5;
-  text-transform: none;
 }
 
 /* Basis ist das Telefon: ein Fakt pro Zeile, Label über dem Wert. Ab 901px
@@ -1086,4 +1088,3 @@
   letter-spacing: 0;
   text-transform: none;
 }
-

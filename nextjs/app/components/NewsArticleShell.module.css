@@ -186,14 +186,25 @@ div.page {
   margin-right: 12px;
 }
 
+/* Der Vorspann trug denselben Schnitt wie der Fliesstext und war auf Mobil
+   ganze 0,7px groesser (17,7 gegen 17) — als eigene Ebene las ihn niemand.
+   Die Groesse allein kann das nicht tragen, solange die Lesespalte schmal
+   ist; das Gewicht schon. 600 statt 700: bei 18-21px wird Inter im Bold
+   blockig, und direkt darunter steht bereits die rote Initiale des ersten
+   Absatzes. */
 .lede {
-  max-width: 46ch;
+  /* Keine eigene Lesebreite: die 46ch waren bei 1000px 516px breit, waehrend
+     Byline und Fliesstext daneben die vollen 720px der Spalte nutzten — 204px
+     Versatz, der als Fehlausrichtung gelesen wird (User, 28.08.), genau wie
+     seinerzeit bei `.story` auf der Spot-Seite. Ab 1080px setzt der Block
+     weiter unten ohnehin `--article-measure` fuer alle Textknoten. */
+  max-width: none;
   margin: 0 0 clamp(22px, 3vw, 34px);
   color: var(--article-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 21px);
-  font-weight: 400;
-  line-height: 1.6;
+  font-weight: 600;
+  line-height: 1.55;
 }
 
 /* ------------------------------------------------------------- prose ---- */
@@ -220,6 +231,38 @@ div.page {
   font-weight: 700;
   font-size: 3.6em;
   line-height: 0.74;
+}
+
+/* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
+   41px-Providence-Zeile wie „Distrikt" oder „Bar Basta", obwohl es kein Kapitel
+   ist, sondern der Schluss. Jetzt kippt die Hierarchie: die Ueberschrift wird
+   zum gelben Etikett (dieselbe Marke wie der Kategorie-Chip und das
+   Kapitel-Label der Leiste), und der Satz darunter traegt das Gewicht.
+
+   Bewusst keine dunkle Flaeche: direkt unter dem Fazit sitzt bereits die
+   schwarze Katalog-Karte, zwei dunkle Kaesten uebereinander haetten dem
+   Schlusswort genau die Sonderstellung genommen, die es bekommen soll. */
+.content [data-block='conclusion'] {
+  margin: clamp(38px, 5vw, 66px) 0 0;
+  scroll-margin-top: 104px;
+}
+
+.content [data-block='conclusion-label'] {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 7px 12px 8px;
+  background: var(--article-accent);
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
+  font-size: clamp(19px, 1.5vw, 21px);
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .content h2,
@@ -254,7 +297,10 @@ div.page {
   font-weight: 800;
 }
 
-.content a:not(.inlineSpot):not(.mustEat) {
+/* Die beiden Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name
+   auf dem Foto, Knopf darunter) — die gelbe Fließtext-Unterstreichung würde
+   beide zerlegen. */
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.mustEat) {
   color: var(--article-ink);
   font-weight: 800;
   text-decoration: underline;
@@ -263,7 +309,7 @@ div.page {
   text-underline-offset: 3px;
 }
 
-.content a:not(.inlineSpot):not(.mustEat):hover {
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.mustEat):hover {
   text-decoration-color: var(--article-red);
 }
 
@@ -341,7 +387,6 @@ div.page {
   gap: 7px;
 }
 
-
 /* Markenschrift statt Body-Font — der Kicker war der einzige Fremdsatz im
    Block (Nutzer-Review 28.08.). */
 .mustEatTag {
@@ -357,7 +402,6 @@ div.page {
   line-height: 1;
   text-transform: uppercase;
 }
-
 
 .mustEat .mustEatName {
   max-width: 18ch;
@@ -382,7 +426,6 @@ div.page {
   font-weight: 700;
   line-height: 1.3;
 }
-
 
 /* ------------------------------------------------------- inline spot ---- */
 
@@ -409,6 +452,8 @@ div.page {
 }
 
 .inlineSpot {
+  --spot-inset: clamp(16px, 2.4vw, 26px);
+
   position: relative;
   display: block;
   min-height: clamp(320px, 40vw, 460px);
@@ -436,9 +481,9 @@ div.page {
 
 .inlineSpotFoot {
   position: absolute;
-  right: clamp(16px, 2.4vw, 26px);
-  bottom: clamp(16px, 2.4vw, 26px);
-  left: clamp(16px, 2.4vw, 26px);
+  right: var(--spot-inset);
+  bottom: var(--spot-inset);
+  left: var(--spot-inset);
   z-index: 1;
   display: grid;
   gap: 10px;
@@ -474,7 +519,33 @@ div.page {
   text-transform: none;
 }
 
+/* Der Name ist der gefolgte Link auf die Spot-Seite. Sein ::after spannt die
+   ganze Karte als Trefferfläche auf: seitlich und unten um den Foot-Abstand
+   hinaus, nach oben weit über die Karte — `overflow: hidden` auf .inlineSpot
+   schneidet den Überstand ab, deshalb braucht die Höhe keinen echten Wert. */
+.inlineSpotNameLink {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
+}
+.inlineSpotNameLink::after {
+  content: '';
+  position: absolute;
+  top: -100em;
+  right: calc(-1 * var(--spot-inset));
+  bottom: calc(-1 * var(--spot-inset));
+  left: calc(-1 * var(--spot-inset));
+}
+.inlineSpotNameLink:focus-visible::after {
+  outline: 2px solid var(--article-red);
+  outline-offset: -6px;
+}
+
+/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht klickbar. */
 .inlineSpotCta {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -488,6 +559,8 @@ div.page {
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
+  /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
+  text-decoration: none;
   text-transform: none;
 }
 
@@ -715,7 +788,7 @@ div.page {
 /* ------------------------------------------------------------ states ---- */
 
 .mustEat:focus-visible,
-.inlineSpot:focus-visible,
+.inlineSpotCta:focus-visible,
 .relatedCard:focus-visible,
 .shareBtn:focus-visible {
   outline: 2px solid var(--article-red);

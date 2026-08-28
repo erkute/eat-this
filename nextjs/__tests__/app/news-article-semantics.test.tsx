@@ -67,12 +67,13 @@ describe('NewsArticleShell semantics', () => {
     expect(html.match(/<main\b/g)).toHaveLength(1);
     expect(html).toMatch(/<main\b[^>]*><article>/);
     expect(html).toContain('<h1');
-    // Die Spot-Karte zielt bewusst auf die Map, nicht auf die Restaurantseite:
-    // ein Tap auf ein Restaurant im Artikel soll den Spot öffnen wie in der App.
-    // Kehrt die Entscheidung aus 1a199751 (fix(seo): strengthen canonical
-    // internal links) für diese eine Karte um. Das nofollow prüft der
-    // Shell-Test – der Link-Mock hier reicht nur href und className durch.
+    // Die Spot-Karte trägt beide Ziele: der Name verlinkt gefolgt auf die
+    // Spot-Seite (sonst geben die Guides ihre Relevanz an keine Restaurantseite
+    // weiter – Google rankte dann den Guide für Marken-Queries einzelner
+    // Spots), der Knopf öffnet weiter die Map wie ein Tap in der App. Das
+    // nofollow auf dem Map-Link prüft der Shell-Test – der Link-Mock hier
+    // reicht nur href und className durch.
+    expect(html).toContain('href="/restaurant/sofi"');
     expect(html).toContain('href="/map?r=sofi"');
-    expect(html).not.toContain('/restaurant/sofi');
   });
 });

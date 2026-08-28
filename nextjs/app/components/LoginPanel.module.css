@@ -198,6 +198,13 @@
   text-transform: uppercase;
 }
 
+/* Wer das Google-Fenster selbst zumacht, hat nichts falsch gemacht: dieselbe
+   Zeile, aber in Ink statt im Rot einer echten Stoerung. Muss nach .error
+   stehen — gleiche Spezifitaet, spaetere Regel gewinnt. */
+.errorQuiet {
+  color: var(--login-ink);
+}
+
 .toLabel {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 10px;
@@ -260,18 +267,71 @@
   z-index: 30;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.92);
+  /* Kein Opacity-Fade auf einer Markenflaeche: die Deckflaeche zieht per
+     clip-path auf, das Panel kommt per translate hinterher. Beim Abbruch
+     laeuft beides rueckwaerts — vorher verschwand das Overlay schlagartig,
+     und ein zugeklicktes Google-Fenster sah aus wie ein Aussetzer. */
+  animation: loginVeilIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.loadingOverlayLeaving {
+  animation: loginVeilOut 240ms cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+
+@keyframes loginVeilIn {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes loginVeilOut {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
 }
 
 .loadingPanel {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   justify-items: center;
   min-width: min(280px, calc(100% - 36px));
-  padding: 22px 24px;
+  padding: 26px 28px;
   color: var(--login-ink);
   background: var(--login-paper);
   border: 3px solid var(--login-ink);
+  /* Versetzter Vollton statt Weichzeichner — dieselbe Print-Kante wie die
+     uebrigen Flaechen der Marke. */
+  box-shadow: 10px 10px 0 var(--et-home-accent);
+  animation: loginPanelIn 280ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.loadingOverlayLeaving .loadingPanel {
+  animation: loginPanelOut 220ms cubic-bezier(0.4, 0, 0.7, 1) both;
+}
+
+@keyframes loginPanelIn {
+  from {
+    transform: translateY(20px) scale(0.94);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes loginPanelOut {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(16px) scale(0.96);
+  }
 }
 
 .loadingPanel p {
@@ -285,23 +345,47 @@
   text-transform: uppercase;
 }
 
-.spinner {
-  width: 34px;
-  height: 34px;
-  border: 3px solid rgba(21, 18, 14, 0.18);
-  border-top-color: var(--login-ink);
-  border-radius: 50%;
-  animation: loginSpin 0.8s linear infinite;
+/* Drei Bloecke, die als Welle springen. Der Kreisspinner davor war die eine
+   Stelle im Panel, die aussah wie von der Stange. */
+.hop {
+  display: flex;
+  gap: 9px;
 }
 
-@keyframes loginSpin {
-  to {
-    transform: rotate(360deg);
+.hopBlock {
+  width: 13px;
+  height: 13px;
+  background: var(--login-ink);
+  animation: loginHop 660ms cubic-bezier(0.33, 0, 0.3, 1) infinite;
+}
+
+.hopBlock:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.hopBlock:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes loginHop {
+  0%,
+  55%,
+  100% {
+    transform: translateY(0);
+  }
+
+  28% {
+    transform: translateY(-13px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
+  /* Nichts springt und nichts faehrt — der Satz im Panel traegt die Auskunft. */
+  .loadingOverlay,
+  .loadingOverlayLeaving,
+  .loadingPanel,
+  .loadingOverlayLeaving .loadingPanel,
+  .hopBlock {
     animation: none;
   }
 }

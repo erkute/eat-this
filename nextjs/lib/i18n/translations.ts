@@ -332,6 +332,7 @@ const en = {
     errGeneric: 'Something went wrong. Please try again.',
     errGooglePopup: "Google didn't work out. Use your email for now.",
     errGooglePopupBlocked: 'Your browser blocked the Google window. Allow it, or use your email.',
+    googleCancelled: 'Cancelled. Try again, or use your email.',
     errService: 'Service error — please try again later.',
     errNetwork: 'Network error — please try again.',
   },
@@ -731,6 +732,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     errGooglePopup: 'Das hat mit Google nicht geklappt. Nimm solange deine E-Mail.',
     errGooglePopupBlocked:
       'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.',
+    googleCancelled: 'Abgebrochen. Versuch es nochmal oder nimm deine E-Mail.',
     errService: 'Service-Fehler \u2013 bitte sp\u00e4ter nochmal versuchen.',
     errNetwork: 'Netzwerkfehler \u2013 bitte erneut versuchen.',
   },

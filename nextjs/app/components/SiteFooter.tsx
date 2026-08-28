@@ -31,7 +31,7 @@ export default function SiteFooter() {
               kondensierten Fremdschrift gesetzt und stach damit aus dem
               Providence-Footer heraus. Als Text ist der Claim außerdem
               auswählbar, skaliert mit und spart einen Bild-Request. */}
-          <p className={styles.tagline}>we tell you what to eat.</p>
+          <p className={styles.tagline}>we tell you what to eat</p>
         </div>
 
         <Link href="/#hub-fragremy" className={styles.remyLink}>

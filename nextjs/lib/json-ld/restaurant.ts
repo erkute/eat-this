@@ -84,8 +84,9 @@ export function buildRestaurantJsonLd({
         servesCuisine: r.cuisineType || undefined,
         url: selfUrl,
         hasMap: r.mapsUrl,
-        // Official menu URL — schema.org Restaurant.hasMenu accepts a URL;
-        // pairs with the on-page "Was bestellen?" block.
+        // Official menu URL — schema.org Restaurant.hasMenu accepts a URL.
+        // Steht für sich: der „Was bestellen?"-Block, auf den der Kommentar
+        // hier verwies, ist von der Detailseite entfernt worden.
         ...(r.menuUrl && { hasMenu: r.menuUrl }),
         // schema.org allows a reservation URL here, not just a boolean —
         // richer signal for crawlers when we have one.

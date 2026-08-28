@@ -68,14 +68,3 @@ export function formatPriceLabel(
   }
   return `${r.min}–${r.max} ${cur}`;
 }
-
-/**
- * Split the open-status label "Geöffnet · schließt 22:00" into the
- * colored main word and the muted suffix the UI renders separately.
- * Empty input → main: undefined.
- */
-export function splitStatusLabel(label: string): { main: string | undefined; sub: string } {
-  if (!label) return { main: undefined, sub: '' };
-  const [main, ...rest] = label.split(' · ');
-  return { main, sub: rest.join(' · ') };
-}

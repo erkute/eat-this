@@ -1,0 +1,33 @@
+/* Zustands-Chip im Restaurant-Aufmacher. Basis-Maße wie die Bezirk/Küche-
+ * Chips der Seite (.chip/.chipAlt in RestaurantDetail.module.css), Farben wie
+ * die rdTagOpen/rdTagClosed-Chips des Map-Sheets — eine Codierung überall. */
+
+.chip {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px 8px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-transform: uppercase;
+}
+
+.open {
+  background: #1f8f4d;
+  color: #fff;
+}
+
+.closed {
+  background: #d9382a;
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .chip {
+    padding: 7px 10px 8px;
+  }
+}

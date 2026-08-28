@@ -16,6 +16,7 @@ import {
   __resetNameIndexCache,
 } from './retrieval';
 import type { ArticleResult } from './types';
+import { OPEN_STATUS_LABELS } from '@/lib/map/openingHours';
 
 describe('buildSpotsQuery', () => {
   it('inlines a clamped limit and selects the projection fields', () => {
@@ -174,7 +175,11 @@ describe('searchSpots', () => {
     expect(out[0].name).toBe('Standard Serif');
     expect(out[0].priceRange).toBe('10–20 €');
     expect(out[0].openNow).toBe(true);
-    expect(out[0].openLabel).toContain('Offen');
+    // Wörtlich gegen die geteilte Konstante, nicht gegen ein abgetipptes
+    // Literal: dieser Test trug bis zuletzt „Offen", während Map und Spot-Seite
+    // längst „Geöffnet" zeigten, und hat die Abweichung dadurch mitgetragen
+    // statt sie zu melden.
+    expect(out[0].openLabel).toContain(OPEN_STATUS_LABELS.de.open);
     expect(calls).toHaveLength(1);
     expect(calls[0].query).toContain('_type == "restaurant"');
     expect(calls[0].params).toMatchObject({ cuisine: '*Pizza*', bezirk: '*Mitte*', locale: 'de' });

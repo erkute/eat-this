@@ -2,6 +2,11 @@
    Block nicht wie ein Fremdkörper wirkt. Unterschied zur Spot-Karte: ein
    Kicker über der Zeile sagt, dass hier ein Text wartet und kein Laden. */
 .row {
+  /* Gleiche 900px-Spalte wie alle anderen Module der Restaurant-Seite — der
+     Block lief als einziger über die volle Containerbreite (gemessen 1052px
+     bei x=194 statt 900 bei x=270) und brach die gemeinsame Achse. */
+  width: min(100%, 900px);
+  margin-inline: auto;
   margin-bottom: clamp(34px, 5vw, 58px);
 }
 
@@ -103,9 +108,13 @@
   text-wrap: balance;
 }
 
+/* Markenschrift statt geerbtem Mono/Body — Nutzer-Markierung 28.08. */
 .date {
-  font-size: 12px;
-  opacity: 0.78;
+  font-family: var(--f-display, var(--et-font-display, var(--font-providence), sans-serif));
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.72;
 }
 
 .card:focus-visible {

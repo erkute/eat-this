@@ -23,6 +23,21 @@
   --brand-ink: var(--detail-ink);
   --brand-paper: var(--detail-paper);
   --brand-action: var(--detail-red);
+  /* Ein Rhythmus für die ganze Seite, zwei Stufen. Vorher trugen acht
+     Elemente je eigene margin-bottom-Werte; gemessen ergab das auf Desktop
+     78/76/92/96/64/64/96/126px — und die Modulwechsel (64) standen enger als
+     die Absätze innerhalb der Lesestrecke (76–92), also genau verkehrt herum.
+     `--flow` trennt, was zusammen gelesen wird (Aufmacher, Text, Tipp,
+     Tafel), `--flow-mod` trennt die Module darunter voneinander.
+
+     Zu den Zahlen: Startseite und Bezirksseite fahren zwischen ihren Modulen
+     115px bzw. 84–118px, das Band der Marke liegt also dort. Diese Seite
+     bleibt mit 96px knapp darunter, weil sie gelesen und nicht gescannt wird:
+     ihre Module sind textlastig, wo die Startseite ganzseitige Bildblöcke
+     trennt. Enger als 84 sollte es nicht werden, sonst verliert der
+     Modulwechsel gegen die Absätze innerhalb der Lesestrecke. */
+  --flow: clamp(32px, 4.6vw, 60px);
+  --flow-mod: clamp(48px, 7.2vw, 96px);
   min-height: 100vh;
   min-height: 100dvh;
   /* Shared page frame — same max-width, top offset and gutter as
@@ -54,10 +69,46 @@
   }
 }
 
+/* Der Seitenrhythmus. Einzige Quelle für die vertikalen Abstände zwischen den
+   Blöcken — die Blöcke selbst bringen keine eigenen mehr mit. Die
+   Fremdkomponenten (Must-Eat-Teaser, Remy, Magazin) tragen ihre Margins in
+   ihren eigenen Modulen; die werden hier zuerst genullt und dann neu gesetzt,
+   deshalb steht diese Regel vor den beiden darunter. */
+.page > *,
+.page > .rail > * {
+  margin-block: 0;
+}
+
+/* Grundstufe: was zusammen gelesen wird — Aufmacher, Text, Tipp, Tafel. */
+.page > * + * {
+  margin-top: var(--flow);
+}
+
+/* Modulstufe für alles ab den Must-Eats. Adressiert die Module einzeln statt
+   über eine Geschwisterkette ab `.rail`: Must-Eats haben nur 28 der 510 Spots,
+   ohne sie fiele die Kette aus und der ganze Rest stünde auf der Grundstufe. */
+.page > .rail,
+.page > section,
+.page > .detailMapCta {
+  margin-top: var(--flow-mod);
+}
+
+/* Remy und das Magazin bringen aus ihren eigenen Modulen ein margin-bottom mit
+   (64px bzw. 58px). Die Nullstellung oben erreicht sie nicht: `.page > *` und
+   ihr eigenes `.section` haben dieselbe Spezifität (0,1,0), und in welcher
+   Reihenfolge zwei CSS-Module geladen werden, ist nicht festgelegt. Gemessen
+   behielten beide ihren Wert; unsichtbar blieb das nur, weil `.page` ein
+   Block-Container ist und die Margins kollabieren — max(64, 96) = 96. Sobald
+   `.page` einmal flex oder grid würde, stünden dort 160px. Diese Regel
+   gewinnt über die Spezifität (0,1,1) statt über die Ladereihenfolge. */
+.page > section {
+  margin-bottom: 0;
+}
+
 .hero,
 .heroNoPhoto {
   width: min(100%, 900px);
-  margin: 0 auto clamp(36px, 6vw, 78px);
+  margin: 0 auto;
   display: grid;
   gap: clamp(14px, 2vw, 22px);
 }
@@ -74,7 +125,13 @@
 .heroPhoto {
   position: relative;
   width: min(100%, 900px);
-  min-height: clamp(520px, 68vw, 720px);
+  /* Der 72vh-Deckel ist der Desktop-Fix für den 3-Sekunden-Test: mit fixen
+     720px füllte das Foto bei 1440×900 den kompletten ersten Viewport und
+     Name + Chips klebten an der Unterkante (H1 gemessen bei 709px von 756px
+     sichtbarer Höhe). Gedeckelt bleiben Name, Zustands-Zeile und Map-Pill im
+     ersten Viewport. Die Mobile-Queries unten überschreiben min-height
+     ohnehin, der Deckel wirkt also nur oberhalb von 900px Breite. */
+  min-height: min(clamp(520px, 68vw, 720px), 72vh);
   margin: 0 auto;
   overflow: hidden;
   background: var(--detail-ink);
@@ -148,10 +205,9 @@
   text-decoration: none;
 }
 
-/* Early map entry point, directly under the opener. */
+/* Die Map-Pille steht frei unterm Aufmacher — ohne Zeile, ohne Linie. */
 .heroMapLine {
-  width: min(100%, 900px);
-  margin-inline: auto;
+  display: flex;
 }
 
 .heroOverlay {
@@ -169,6 +225,10 @@
   max-width: 12ch;
   margin: 0;
   color: var(--detail-red);
+  /* Markenschrift statt geerbtem Body-Font: Leading (--et-leading-title) und
+     Tracking (-0.025em) dieses Blocks sind die Providence-Titelwerte aus
+     .hv-title — nur die font-family fehlte. */
+  font-family: var(--f-display);
   font-size: clamp(54px, 9vw, 126px);
   line-height: var(--et-leading-title, 0.86);
   /* `anywhere`, nicht `break-word`: nur `anywhere` zählt in die
@@ -249,19 +309,12 @@
 
 .story,
 .gallery,
-.editorialGrid,
-.facts,
-.acts,
+.tipp,
+.board,
 .siblings,
 .rail {
   width: min(100%, 900px);
   margin-inline: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .quickAddress {
-    transition: none;
-  }
 }
 
 /* Must-Eats, map promo and FAQ bring their own full-bleed margins from the
@@ -272,18 +325,22 @@
 }
 
 .story {
-  margin-bottom: clamp(34px, 6vw, 74px);
   color: var(--detail-ink);
-  font-size: clamp(17px, 1.35vw, 19px);
+  font-size: clamp(17px, 1.5vw, 21px);
   line-height: 1.65;
 }
 
 .story p {
-  /* 72ch ergeben bei 19px rund 936px — breiter als der 900px-Container, die
-     Grenze griff also nie und die Zeile lief auf 95 Zeichen. Gemessen fahren
-     Eater 64, Mit Vergnügen 66 und The Infatuation 80; 45–75 gilt als
-     angenehm. 700px sind hier ~74 Zeichen. */
-  max-width: 700px;
+  /* Volle Spaltenbreite wie Tafel, Karten und Empfehlungen — die 700px-Grenze
+     ließ den Text auf Desktop 200px vor der gemeinsamen rechten Kante enden,
+     was als Fehlausrichtung gelesen wurde (Review 28.08.).
+
+     Die Zeilenlänge bleibt trotzdem im Rahmen, weil der Grad unten auf bis zu
+     21px steigt: 900px bei 21px sind rund 76 Zeichen. Zum Vergleich die
+     gemessenen Werte der Wettbewerber, die vorher an dieser Stelle standen:
+     Eater 64, Mit Vergnügen 66, The Infatuation 80; 45–75 gilt als angenehm.
+     Wer den Grad hier wieder senkt, muss die Breite mitziehen — bei 19px
+     liefen dieselben 900px auf 95 Zeichen hinaus. */
   margin: 0 0 1.2em;
 }
 
@@ -355,7 +412,6 @@
      and simply overflowed its 250px track, straight over the Insider Tip. */
   grid-auto-rows: minmax(clamp(170px, 21vw, 250px), auto);
   gap: clamp(10px, 1.8vw, 16px);
-  margin-bottom: clamp(38px, 7vw, 82px);
 }
 
 .galleryItem {
@@ -400,10 +456,12 @@
   padding: 4px 7px 5px;
   background: rgba(13, 10, 7, 0.52);
   color: #fff;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  /* Gleiche Schrift und Maße wie der Foto-Credit im Aufmacher (.heroCredit) —
+     der Mono-Satz war hier der letzte Rest einer anderen Grammatik. */
+  font-family: var(--f-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   line-height: 1.25;
   text-transform: uppercase;
 }
@@ -413,116 +471,174 @@
   text-decoration: none;
 }
 
-/* `align-items: start`, nicht `stretch`: der Tipp ist drei Zeilen lang, die
-   Bestellliste daneben füllt 500px und mehr. Gestreckt erbte die rote Fläche
-   deren Höhe und stand zu zwei Dritteln leer — bei 940px, wo die Spalte am
-   schmalsten und die Liste am höchsten ist, waren es 356px rotes Nichts über
-   vier Zeilen Text. Der Block soll so hoch sein wie sein Inhalt. */
-.editorialGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: clamp(18px, 3vw, 34px);
-  align-items: start;
-  margin-bottom: clamp(36px, 6vw, 78px);
-}
-
-/* Seit „Was bestellen?" raus ist, steht im Raster immer nur der Insider-Tipp —
-   die Regel greift also durchgehend. Sie bleibt als `:only-child` stehen, weil
-   das Raster weiter für einen zweiten Block ausgelegt ist; kommt nie einer
-   dazu, kann es zur einspaltigen Regel zusammenfallen. */
-.editorialGrid > :only-child {
-  grid-column: 1 / -1;
-}
-
-.tipp:only-child {
-  padding: clamp(24px, 3.4vw, 34px);
-}
-
-/* Allein auf der Spalte wurde der Tipp mit 44px auf 52px Polster zum Plakat.
-   Er ist ein Hinweis, keine Schlagzeile. */
-.tipp:only-child .tippText {
-  max-width: 34ch;
-  font-size: clamp(19px, 2vw, 26px);
-  line-height: 1.18;
-}
-
-.tipp,
+/* Der Insider-Tipp als Randnotiz: kein roter Kasten mehr, sondern die
+   Handschrift der Marke, rot und groß, direkt auf dem Blatt — als hätte die
+   Redaktion quer über die Seite geschrieben. Das Mono-Label darüber ist
+   dieselbe Eyebrow-Grammatik wie beim Must-Eat-Kopf. */
 .tipp {
   display: grid;
-  background: var(--detail-red);
-  color: var(--detail-paper);
 }
 
 .tippLabel {
-  margin-bottom: 12px;
-  color: inherit;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+  color: var(--detail-ink);
+  font-family: var(--f-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .tippText {
-  max-width: 32ch;
+  max-width: 26ch;
   margin: 0;
-  color: inherit;
-  font-size: clamp(18px, 1.8vw, 23px);
-  font-weight: 800;
-  line-height: 1.25;
+  color: var(--detail-red);
+  font-family: var(--f-display);
+  font-size: clamp(24px, 3.2vw, 40px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.16;
+  text-wrap: balance;
 }
 
+/* Der Link in der Kopfzeile. `styles.sibRowHeadLink` stand seit jeher im TSX,
+   ohne dass es die Regel dazu gab — sichtbar wurde das nie, weil style.css
+   `a { color: inherit; text-decoration: none }` global setzt und damit zufällig
+   dasselbe tat. Zufällig heißt: die Zeile hatte keinen Hover-Zustand, und wer
+   den globalen Default ändert, ändert unbemerkt diese Überschrift mit. Gleiche
+   Fassung wie `.headLink` im Magazin-Modul. */
+.sibRowHeadLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sibRowHeadLink:hover,
+.sibRowHeadLink:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* Gleiche Kopfzeile wie „Im Magazin" (.head in RestaurantArticlesSection):
+   Markenschrift, rot, Versalien — eine Grammatik für alle Modul-Köpfe. */
 .sibRowHead {
   margin: 0 0 clamp(18px, 3vw, 30px);
   color: var(--detail-red);
+  font-family: var(--f-display);
+  font-weight: 700;
   font-size: clamp(18px, 4vw, 30px);
   line-height: var(--et-leading-title, 0.9);
+  text-transform: uppercase;
 }
 
-/* Basis ist das Telefon: ein Fakt pro Zeile, Label über dem Wert. Ab 901px
-   stehen die drei Slabs nebeneinander — siehe unten. */
+/* Die Tafel: Ink-Fläche wie Magazin-Karten, Nav und Footer — SOFIs
+   Kreidetafel als Interface. Trägt Fakten und Aktionen als EIN Objekt. */
+.board {
+  padding: clamp(24px, 3.6vw, 44px);
+  background: var(--detail-ink);
+  border-radius: var(--et-radius-photo, 18px);
+}
+
+/* `auto-fit` statt fester Spalten, weil jede Angabe einzeln fehlen darf:
+   Adresse, Zeiten, Preis und Kategorien sind alle optional. Bei zwei
+   gepflegten Fakten werden es zwei Spalten, bei einem eine — ohne Lücke, wo
+   eine feste Spaltenzahl ein leeres Feld stehen ließe. */
 .facts {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-bottom: clamp(28px, 5vw, 58px);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(20px, 3vw, 30px) clamp(28px, 4vw, 56px);
+  margin-block: 0;
 }
 
 .factsRow {
   display: grid;
   align-content: start;
-  gap: 6px;
+  gap: 8px;
   min-height: 0;
-  padding: 18px;
-  background: var(--detail-quiet);
 }
 
+/* Gelbe Kreide-Labels auf der Tafel. */
 .factsKey {
-  color: var(--detail-red);
+  color: var(--detail-accent);
   font-family: var(--f-display);
-  font-size: 13px;
-  font-weight: 750;
-  letter-spacing: 0;
-  line-height: 1.25;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
   text-transform: uppercase;
 }
 
+/* Die „Läuft unter"-Zeile trägt die Booster-Packs der Kategorien. Sie bleibt
+   in ihrer Spur statt über die volle Tafel zu spannen: über beide Spalten
+   gezogen ließ sie neben dem Preis ein leeres Viertel stehen. Zwei Packs
+   passen nebeneinander in eine Spur, mehr brechen um. */
+.packRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 2vw, 24px);
+  margin-top: 4px;
+}
+
+.packLink {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 96px;
+  color: var(--detail-paper);
+  text-decoration: none;
+}
+
+.packArt {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.packName {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+@media (hover: hover) {
+  .packLink:hover .packArt,
+  .packLink:focus-visible .packArt {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+
+  .packLink:hover .packName,
+  .packLink:focus-visible .packName {
+    color: var(--detail-accent);
+  }
+}
+
+.packLink:focus-visible {
+  outline: 2px solid var(--detail-accent);
+  outline-offset: 4px;
+}
+
+/* Weiße Kreide-Werte. */
 .factsVal,
 .factsVal a,
 .hours {
-  color: var(--detail-ink);
+  color: var(--detail-paper);
   font-family: var(--f-display);
-  font-size: 20px;
+  font-size: clamp(20px, 2.2vw, 26px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.34;
+  line-height: 1.3;
 }
 
+/* Tag/Zeit-Paare nebeneinander, Tage in Ruhe, Zeiten in Ink. */
 .hours {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 20px;
+  align-items: baseline;
 }
 
 .factsLink {
@@ -534,47 +650,26 @@
 
 .factsLink:hover,
 .factsLink:focus-visible {
-  color: var(--detail-red);
+  color: var(--detail-accent);
 }
 
 .hoursDay {
-  color: var(--detail-muted);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .hoursTime {
-  color: var(--detail-ink);
+  color: var(--detail-paper);
 }
 
-/* Die Fakten hatten kein Desktop-Layout: `.facts`, `.factsRow` und `.hours`
-   standen auf `1fr`, und die 900er-Query setzte exakt dieselben Werte noch
-   einmal — eine Leiche aus einer früheren zweispaltigen Fassung. Sichtbar war
-   das als drei graue Bänder über die volle 900px-Spalte, in denen „PREIS /
-   10–20 €" 900x80px für acht Zeichen belegte.
-
-   Drei Slabs nebeneinander statt untereinander; `auto-fit` deckt ab, dass
-   Adresse, Zeiten und Preis einzeln fehlen dürfen — bei zwei Fakten werden es
-   zwei Spalten, bei einem eine. Und die Zeiten laufen als Tag/Uhrzeit-Paar in
-   eine Zeile statt in zwei, sonst braucht ein Laden mit zwei Zeitfenstern hier
-   vier Zeilen. */
-@media (min-width: 901px) {
-  .facts {
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  }
-
-  .hours {
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 6px 14px;
-    align-items: baseline;
-  }
-}
-
-/* Every button grows, so a wrapped last line still spans the full width —
-   no more short black buttons trailing off to the left. */
+/* Aktionszeile direkt auf der Tafel. Jeder Knopf wächst, damit eine
+   umgebrochene letzte Zeile die volle Breite füllt; die hellen Knöpfe
+   (Paper-Fläche, Ink-Ring) leuchten auf der Ink-Fläche von selbst. */
 .acts {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: clamp(38px, 7vw, 86px);
+  margin-top: clamp(24px, 3.4vw, 36px);
+  margin-bottom: 0;
 }
 
 /* Base tier — outlined, so a row of five secondary actions reads as a light
@@ -645,8 +740,8 @@
 }
 
 .siblings {
-  margin-top: clamp(50px, 8vw, 96px);
-  margin-bottom: clamp(68px, 10vw, 126px);
+  /* Abstände regelt der Seitenrhythmus (.page > * + *). */
+  margin-block: 0;
 }
 
 .sibRow {
@@ -734,6 +829,9 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
+  /* Markenschrift — der Kommentar unten rechnet längst mit der Displayschrift
+     (Zeilenbox 0.94, Unterlängen-Reserve 0.28em), nur die Deklaration fehlte. */
+  font-family: var(--f-display);
   /* Die Zeilenhöhe der Displayschrift (0.94) ist kleiner als ihre Glyphen:
      gemessen 15px Zeilenbox gegen 19px Inhalt. Mit `overflow: hidden` schnitte
      das die Unterlängen ab — „Jules Geisberg" verlöre die Bögen von g und J.
@@ -754,11 +852,17 @@
    Preisklasse sah. Genau die beiden Angaben entscheiden, ob eine Empfehlung
    überhaupt in Frage kommt. */
 .sibMeta {
-  color: #ff5a4e;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  /* Gelb statt Rot: auf dem abgedunkelten Foto war das Rot kaum lesbar
+     (Nutzer-Review 28.08.), Gelb ist die zweite Markenfarbe und hält den
+     Kontrast auf jedem Bild. */
+  color: var(--detail-accent);
+  /* Markenschrift statt Mono — gleiche Stimme wie Chips und Foto-Credit.
+     Tracking wie beim Credit (0.03em), das Mono-0.08em riss Providence
+     auseinander; 900 gibt es in der Schrift nicht, 700 ist ihr Fettschnitt. */
+  font-family: var(--f-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   line-height: 1.35;
   text-transform: uppercase;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
@@ -777,6 +881,12 @@
   .act:hover {
     background: var(--detail-ink);
     color: var(--detail-paper);
+  }
+
+  /* Auf der Tafel wäre Ink-auf-Ink unsichtbar — dort hovern die Knöpfe gelb. */
+  .board .act:hover {
+    background: var(--detail-accent);
+    color: var(--detail-ink);
   }
 
   .actStrong:hover {
@@ -804,13 +914,16 @@
   outline-offset: 4px;
 }
 
+/* Roter Fokusring säuft auf der Ink-Tafel ab — dort übernimmt Gelb. */
+.board .act:focus-visible,
+.board .actPrimary:focus-visible,
+.board .actStrong:focus-visible {
+  outline-color: var(--detail-accent);
+}
+
 @media (max-width: 900px) {
   .heroPhoto {
     min-height: clamp(460px, 78vw, 620px);
-  }
-
-  .editorialGrid {
-    grid-template-columns: 1fr;
   }
 
   .gallery {
@@ -918,8 +1031,7 @@
     flex-basis: calc(100% - 16px);
   }
 
-  .tipp,
-      /* Exactly two per row; a trailing odd button takes the full width. */
+  /* Exactly two per row; a trailing odd button takes the full width. */
   .act,
   .actPrimary,
   .actStrong {
@@ -979,11 +1091,10 @@
 .detailMapCta {
   width: min(100%, 900px);
   margin-inline: auto;
-  margin-top: clamp(48px, 7vw, 96px);
   /* `.page` hat padding-bottom: 0 — als letztes Element der Seite stiess das
      gelbe Poster sonst mit 0px direkt auf den schwarzen Footer. Auf Bezirk und
      Kategorie fällt das nicht auf, weil dort noch die FAQ folgt. */
-  margin-bottom: clamp(56px, 8vw, 104px);
+  margin-bottom: var(--flow-mod);
 }
 
 .detailMapCta > section {
@@ -1001,4 +1112,3 @@
   letter-spacing: 0;
   text-transform: none;
 }
-

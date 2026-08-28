@@ -7,7 +7,7 @@ import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
   abbreviateBezirk,
   formatWalkingTime,
-  getOpenStatus,
+  formatOpenStateChip,
   haversineDistance,
   type UserLocation,
   type UserTier,
@@ -28,7 +28,7 @@ import {
 } from '../actionIcons';
 import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
-import { classifyWebsite, formatPriceLabel, splitStatusLabel } from './restaurantDetail.helpers';
+import { classifyWebsite, formatPriceLabel } from './restaurantDetail.helpers';
 import { normalizeName } from '@/lib/normalizeName';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
@@ -147,24 +147,13 @@ export default function RestaurantDetail({
     transformRef: heroRef,
   });
 
-  const status = r.openingHours
-    ? getOpenStatus(r.openingHours, new Date(), {
-        open: t('map.open'),
-        closed: t('map.closed'),
-        opens: t('map.opens'),
-        closes: t('map.closes'),
-        unitH: t('map.unitsH'),
-        unitMin: t('map.unitsMin'),
-      })
-    : { isOpen: false, label: '', minutesUntilChange: null };
-  const { sub: statusSub } = splitStatusLabel(status.label);
+  // Gleiche Kurzform wie der Zustands-Chip der Spot-Seite. Vorher stand hier
+  // ein getOpenStatus-Aufruf mit sechs übersetzten Labels, dessen Ergebnis nur
+  // noch zerlegt wurde, um die Uhrzeit per Regex zurückzuholen — Formulierung
+  // und Griff wären auf der Spot-Seite ein zweites Mal entstanden.
+  const openState = formatOpenStateChip(r.openingHours, locale === 'en' ? 'en' : 'de');
   const hasHours = !!(r.openingHours && r.openingHours.length > 0);
-  const closeTime = status.isOpen ? (statusSub.match(/(\d{1,2}:\d{2})/)?.[1] ?? null) : null;
-  const openTag = status.isOpen
-    ? closeTime
-      ? `${t('map.open')} ${locale === 'en' ? 'till' : 'bis'} ${closeTime}`
-      : t('map.open')
-    : t('map.closed');
+  const openTag = openState?.text ?? t('map.closed');
 
   // Scale the hero name down for long single words so they fit on one line
   // (no ugly mid-word break). Upper bound ≈ usableWidth / (longestWord · 0.62).
@@ -358,7 +347,7 @@ export default function RestaurantDetail({
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
               {hasHours && (
                 <span
-                  className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}
+                  className={`${styles.rdTagAlt} ${openState?.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}
                 >
                   {openTag}
                 </span>

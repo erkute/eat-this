@@ -21,8 +21,11 @@
 
 /* ── Header ──────────────────────────────────────────────────────────── */
 
+/* Gleicher Kopf-zu-Inhalt-Abstand wie „Im Magazin" und „Weitere in {Bezirk}"
+   (clamp(18px, 3vw, 30px)) — die 28px hier waren ein eigener Wert ohne
+   Grund. */
 .head {
-  margin: 0 0 28px;
+  margin: 0 0 clamp(18px, 3vw, 30px);
   max-width: 38em;
 }
 
@@ -77,10 +80,12 @@
 .grid {
   list-style: none;
   margin: 0;
-  /* Padding 0 — section's outer margin already handles horizontal inset.
-     Previously had 8/12px extra padding which pushed cards further in
-     than neighbouring content. */
-  padding: 14px 0 28px;
+  /* Seitlich 0 — der äußere Rand der Section setzt den Einzug. Oben/unten
+     nur so viel, wie die gekippten und wippenden Karten über ihre Boxen
+     hinausragen; die 28px unten addierten sich sonst zum Seitenrhythmus und
+     rissen unter den Karten ein sichtbar größeres Loch als zwischen allen
+     anderen Modulen (gemessen 148 statt 112). */
+  padding: 10px 0 12px;
   display: grid;
   /* Mobile: 3-up so the row reads as "spread on the table" instead of
      "stacked vertically". */
@@ -102,7 +107,9 @@
     justify-content: start;
     justify-items: start;
     gap: 28px 24px;
-    padding: 20px 0 36px;
+    /* Wie in der Basisregel: nur Luft für Kippung und Wippen, den Abstand
+       zum nächsten Modul setzt der Seitenrhythmus. */
+    padding: 12px 0 14px;
   }
 }
 

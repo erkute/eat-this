@@ -23,6 +23,14 @@
   --brand-ink: var(--detail-ink);
   --brand-paper: var(--detail-paper);
   --brand-action: var(--detail-red);
+  /* Ein Rhythmus für die ganze Seite, zwei Stufen. Vorher trugen acht
+     Elemente je eigene margin-bottom-Werte; gemessen ergab das auf Desktop
+     78/76/92/96/64/64/96/126px — und die Modulwechsel (64) standen enger als
+     die Absätze innerhalb der Lesestrecke (76–92), also genau verkehrt herum.
+     `--flow` trennt, was zusammen gelesen wird (Aufmacher, Text, Tipp,
+     Tafel), `--flow-mod` trennt die Module darunter voneinander. */
+  --flow: clamp(36px, 5.5vw, 72px);
+  --flow-mod: clamp(56px, 8.5vw, 112px);
   min-height: 100vh;
   min-height: 100dvh;
   /* Shared page frame — same max-width, top offset and gutter as
@@ -54,10 +62,34 @@
   }
 }
 
+/* Der Seitenrhythmus. Einzige Quelle für die vertikalen Abstände zwischen den
+   Blöcken — die Blöcke selbst bringen keine eigenen mehr mit. Die
+   Fremdkomponenten (Must-Eat-Teaser, Remy, Magazin) tragen ihre Margins in
+   ihren eigenen Modulen; die werden hier zuerst genullt und dann neu gesetzt,
+   deshalb steht diese Regel vor den beiden darunter. */
+.page > *,
+.page > .rail > * {
+  margin-block: 0;
+}
+
+/* Grundstufe: was zusammen gelesen wird — Aufmacher, Text, Tipp, Tafel. */
+.page > * + * {
+  margin-top: var(--flow);
+}
+
+/* Modulstufe für alles ab den Must-Eats. Adressiert die Module einzeln statt
+   über eine Geschwisterkette ab `.rail`: Must-Eats haben nur 28 der 510 Spots,
+   ohne sie fiele die Kette aus und der ganze Rest stünde auf der Grundstufe. */
+.page > .rail,
+.page > section,
+.page > .detailMapCta {
+  margin-top: var(--flow-mod);
+}
+
 .hero,
 .heroNoPhoto {
   width: min(100%, 900px);
-  margin: 0 auto clamp(36px, 6vw, 78px);
+  margin: 0 auto;
   display: grid;
   gap: clamp(14px, 2vw, 22px);
 }
@@ -274,7 +306,6 @@
 }
 
 .story {
-  margin-bottom: clamp(40px, 6vw, 76px);
   color: var(--detail-ink);
   font-size: clamp(17px, 1.5vw, 21px);
   line-height: 1.65;
@@ -357,7 +388,6 @@
      and simply overflowed its 250px track, straight over the Insider Tip. */
   grid-auto-rows: minmax(clamp(170px, 21vw, 250px), auto);
   gap: clamp(10px, 1.8vw, 16px);
-  margin-bottom: clamp(38px, 7vw, 82px);
 }
 
 .galleryItem {
@@ -423,7 +453,6 @@
    dieselbe Eyebrow-Grammatik wie beim Must-Eat-Kopf. */
 .tipp {
   display: grid;
-  margin-bottom: clamp(48px, 7vw, 92px);
 }
 
 .tippLabel {
@@ -467,7 +496,6 @@
   padding: clamp(24px, 3.6vw, 44px);
   background: var(--detail-ink);
   border-radius: var(--et-radius-photo, 18px);
-  margin-bottom: clamp(48px, 8vw, 96px);
 }
 
 .facts {
@@ -666,8 +694,8 @@
 }
 
 .siblings {
-  margin-top: clamp(50px, 8vw, 96px);
-  margin-bottom: clamp(68px, 10vw, 126px);
+  /* Abstände regelt der Seitenrhythmus (.page > * + *). */
+  margin-block: 0;
 }
 
 .sibRow {
@@ -1017,11 +1045,10 @@
 .detailMapCta {
   width: min(100%, 900px);
   margin-inline: auto;
-  margin-top: clamp(48px, 7vw, 96px);
   /* `.page` hat padding-bottom: 0 — als letztes Element der Seite stiess das
      gelbe Poster sonst mit 0px direkt auf den schwarzen Footer. Auf Bezirk und
      Kategorie fällt das nicht auf, weil dort noch die FAQ folgt. */
-  margin-bottom: clamp(56px, 8vw, 104px);
+  margin-bottom: var(--flow-mod);
 }
 
 .detailMapCta > section {

@@ -233,6 +233,38 @@ div.page {
   line-height: 0.74;
 }
 
+/* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
+   41px-Providence-Zeile wie „Distrikt" oder „Bar Basta", obwohl es kein Kapitel
+   ist, sondern der Schluss. Jetzt kippt die Hierarchie: die Ueberschrift wird
+   zum gelben Etikett (dieselbe Marke wie der Kategorie-Chip und das
+   Kapitel-Label der Leiste), und der Satz darunter traegt das Gewicht.
+
+   Bewusst keine dunkle Flaeche: direkt unter dem Fazit sitzt bereits die
+   schwarze Katalog-Karte, zwei dunkle Kaesten uebereinander haetten dem
+   Schlusswort genau die Sonderstellung genommen, die es bekommen soll. */
+.content [data-block='conclusion'] {
+  margin: clamp(38px, 5vw, 66px) 0 0;
+  scroll-margin-top: 104px;
+}
+
+.content [data-block='conclusion-label'] {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 7px 12px 8px;
+  background: var(--article-accent);
+  color: var(--article-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
+  font-size: clamp(19px, 1.5vw, 21px);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 .content h2,
 .content h3 {
   max-width: 24ch;

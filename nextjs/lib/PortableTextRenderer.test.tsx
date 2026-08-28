@@ -167,3 +167,57 @@ describe('extractHeadings', () => {
     expect(extractHeadings(undefined)).toEqual([]);
   });
 });
+
+describe('PortableTextRenderer conclusion blocks', () => {
+  const block = (style: string, text: string, key = 'k-' + text): PortableTextBlock =>
+    ({
+      _type: 'block',
+      _key: key,
+      style,
+      markDefs: [],
+      children: [span(text)],
+    }) as unknown as PortableTextBlock;
+
+  it('wraps the heading and everything after it into one block', () => {
+    const html = render([
+      block('h2', 'Kapitel'),
+      block('normal', 'Kapiteltext'),
+      block('conclusion', 'Fazit'),
+      block('normal', 'Erster Schlusssatz'),
+      block('normal', 'Zweiter Schlusssatz'),
+    ]);
+    const aside = html.match(/<aside[^>]*data-block="conclusion"[^>]*>([\s\S]*?)<\/aside>/);
+    expect(aside).not.toBeNull();
+    expect(aside![1]).toContain('Erster Schlusssatz');
+    expect(aside![1]).toContain('Zweiter Schlusssatz');
+    // Der Kapiteltext davor gehört NICHT dazu.
+    expect(aside![1]).not.toContain('Kapiteltext');
+  });
+
+  it('turns the heading into the label and keeps its anchor id', () => {
+    const html = render([block('conclusion', 'Fazit'), block('normal', 'Schluss')]);
+    expect(html).toContain('id="fazit"');
+    expect(html).toMatch(/<p data-block="conclusion-label">(<span>)?Fazit/);
+    // Keine zweite Überschrift daneben.
+    expect(html).not.toContain('<h2');
+  });
+
+  it('closes at the next heading instead of swallowing the rest', () => {
+    const html = render([
+      block('conclusion', 'Fazit'),
+      block('normal', 'Schluss'),
+      block('h2', 'Doch noch ein Kapitel'),
+      block('normal', 'Nachtext'),
+    ]);
+    const aside = html.match(/<aside[^>]*>([\s\S]*?)<\/aside>/)!;
+    expect(aside[1]).toContain('Schluss');
+    expect(aside[1]).not.toContain('Nachtext');
+    expect(html.indexOf('</aside>')).toBeLessThan(html.indexOf('Doch noch ein Kapitel'));
+  });
+
+  it('lists the conclusion in the chapter rail', () => {
+    const heads = extractHeadings([block('h2', 'Kapitel'), block('conclusion', 'Fazit')]);
+    expect(heads.map((h) => h.text)).toEqual(['Kapitel', 'Fazit']);
+    expect(heads[1].id).toBe('fazit');
+  });
+});

@@ -128,10 +128,30 @@ export function PortableTextRenderer({
   let listTag: 'ol' | 'ul' | null = null;
   let listItems: ReactNode[] = [];
 
+  // Ein Fazit ist keine weitere Kapitelüberschrift, sondern der Schluss des
+  // Textes — die Überschrift wird zum Etikett, und die Absätze darunter gehören
+  // in denselben Block statt als Geschwister daneben. Solange einer offen ist,
+  // laufen alle Knoten in seinen Körper; die nächste Überschrift schliesst ihn.
+  let conclusion: { id: string; label: ReactNode; body: ReactNode[] } | null = null;
+  const sink = () => (conclusion ? conclusion.body : out);
+
+  const flushConclusion = () => {
+    if (!conclusion) return;
+    const done = conclusion;
+    conclusion = null;
+    out.push(
+      <aside key={`conclusion-${out.length}`} id={done.id} data-block="conclusion">
+        <p data-block="conclusion-label">{done.label}</p>
+        {done.body}
+      </aside>
+    );
+  };
+
   const flushList = () => {
     if (!listTag) return;
     const Tag = listTag;
-    out.push(<Tag key={`list-${out.length}`}>{listItems}</Tag>);
+    const target = sink();
+    target.push(<Tag key={`list-${target.length}`}>{listItems}</Tag>);
     listTag = null;
     listItems = [];
   };
@@ -140,19 +160,19 @@ export function PortableTextRenderer({
     if (raw._type === 'mustEatCard') {
       flushList();
       const card = renderMustEatCard?.(raw as unknown as MustEatCardBlock);
-      if (card) out.push(<Fragment key={raw._key ?? out.length}>{card}</Fragment>);
+      if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);
       continue;
     }
     if (raw._type === 'spotCard') {
       flushList();
       const card = renderSpotCard?.(raw as unknown as SpotCardBlock);
-      if (card) out.push(<Fragment key={raw._key ?? out.length}>{card}</Fragment>);
+      if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);
       continue;
     }
     if (raw._type === 'image') {
       flushList();
       const figure = renderImage?.(raw as unknown as ArticleImageBlock);
-      if (figure) out.push(<Fragment key={raw._key ?? out.length}>{figure}</Fragment>);
+      if (figure) sink().push(<Fragment key={raw._key ?? sink().length}>{figure}</Fragment>);
       continue;
     }
     if (raw._type !== 'block') {
@@ -174,25 +194,37 @@ export function PortableTextRenderer({
 
     flushList();
     const style = raw.style ?? 'normal';
-    const key = raw._key ?? out.length;
+    if (style === 'conclusion') {
+      flushConclusion();
+      conclusion = {
+        id: slugifyHeading(headingText(raw.children)),
+        label: renderChildren(raw.children, raw.markDefs),
+        body: [],
+      };
+      continue;
+    }
+    if (style === 'h2' || style === 'h3') flushConclusion();
+    const target = sink();
+    const key = raw._key ?? target.length;
     if (style === 'h2')
-      out.push(
+      target.push(
         <h2 key={key} id={slugifyHeading(headingText(raw.children))}>
           {renderChildren(raw.children, raw.markDefs)}
         </h2>
       );
     else if (style === 'h3')
-      out.push(
+      target.push(
         <h3 key={key} id={slugifyHeading(headingText(raw.children))}>
           {renderChildren(raw.children, raw.markDefs)}
         </h3>
       );
     else if (style === 'blockquote')
-      out.push(<blockquote key={key}>{renderChildren(raw.children, raw.markDefs)}</blockquote>);
-    else out.push(<p key={key}>{renderChildren(raw.children, raw.markDefs)}</p>);
+      target.push(<blockquote key={key}>{renderChildren(raw.children, raw.markDefs)}</blockquote>);
+    else target.push(<p key={key}>{renderChildren(raw.children, raw.markDefs)}</p>);
   }
 
   flushList();
+  flushConclusion();
   return <>{out}</>;
 }
 
@@ -204,7 +236,10 @@ export function extractHeadings(blocks?: PortableTextBlock[]): { id: string; tex
   const seen = new Set<string>();
   const out: { id: string; text: string }[] = [];
   for (const raw of blocks as Block[]) {
-    if (raw._type !== 'block' || raw.style !== 'h2' || raw.listItem) continue;
+    // 'conclusion' zaehlt mit: die Ueberschrift verschwindet nicht, sie wird zum
+    // Etikett des Schlussblocks — und traegt dieselbe Ankerkennung.
+    if (raw._type !== 'block' || raw.listItem) continue;
+    if (raw.style !== 'h2' && raw.style !== 'conclusion') continue;
     const text = headingText(raw.children).trim();
     const id = slugifyHeading(text);
     if (!text || !id || seen.has(id)) continue;

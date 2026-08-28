@@ -14,6 +14,10 @@ const contentBlocks = [
       {title: 'Überschrift H2', value: 'h2'},
       {title: 'Überschrift H3', value: 'h3'},
       {title: 'Zitat', value: 'blockquote'},
+      // Der Schluss des Artikels. Kein h2: die Zeile wird zum Etikett eines
+      // eigenen Blocks, und die Absätze darunter gehören sichtbar dazu. Auf
+      // die Überschrift anwenden, nicht auf den Fließtext.
+      {title: 'Fazit', value: 'conclusion'},
     ],
     marks: {
       decorators: [

@@ -95,6 +95,46 @@ describe('POST /api/count', () => {
     expect(write?.referrers).toEqual({ www_google_com: { __inc: 1 } });
   });
 
+  /* Ausstiege(P) = paths[P] - continuations[P]. Die Fortsetzung ist alles, was
+   * dafuer gebraucht wird — es wird nie ein Aufruf mit einer Person verknuepft,
+   * und visitorHash bleibt von den besuchten Seiten getrennt. */
+  describe('Fortsetzungen fuer die Ausstiegsrechnung', () => {
+    it('zaehlt die Vorgaengerseite als Fortsetzung', async () => {
+      await POST(request({ path: '/restaurant/bari', from: '/kategorie/lunch' }));
+
+      const write = dayWrite();
+      expect(write?.paths).toEqual({ '/restaurant/bari': { __inc: 1 } });
+      expect(write?.continuations).toEqual({ '/kategorie/lunch': { __inc: 1 } });
+    });
+
+    it('zaehlt ohne Vorgaenger keine Fortsetzung', async () => {
+      await POST(request({ path: '/kategorie/lunch' }));
+
+      // Ein Einstieg setzt nichts fort — sonst waere die Rechnung um eins daneben.
+      expect(dayWrite()).not.toHaveProperty('continuations');
+    });
+
+    it('verwirft einen Vorgaenger, der keine Route dieser Seite ist', async () => {
+      await POST(request({ path: '/', from: '/wp-admin/install.php?x=1' }));
+
+      expect(dayWrite()).not.toHaveProperty('continuations');
+    });
+
+    it('nimmt den Selbstbezug an — ein erneuter Aufruf setzt den Besuch fort', async () => {
+      await POST(request({ path: '/map', from: '/map' }));
+
+      expect(dayWrite()?.continuations).toEqual({ '/map': { __inc: 1 } });
+    });
+
+    it('zaehlt bei einem Ereignis keine Fortsetzung', async () => {
+      await POST(request({ path: '/map', from: '/', event: 'map_opened' }));
+
+      const write = dayWrite();
+      expect(write?.events).toEqual({ map_opened: { __inc: 1 } });
+      expect(write).not.toHaveProperty('continuations');
+    });
+  });
+
   it('counts a first-of-day visitor once, and not on the second view', async () => {
     await POST(request({ path: '/' }));
     expect(dayWrite()?.visitors, 'first view of the day is a visitor').toEqual({ __inc: 1 });

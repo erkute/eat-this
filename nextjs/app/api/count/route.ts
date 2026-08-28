@@ -81,7 +81,7 @@ const SEEN_TTL_MS = 2 * DAY_MS;
 
 const RATE_LIMITS = { perMinute: 90, perDay: 3000 };
 
-type Body = { path?: unknown; referrer?: unknown; event?: unknown };
+type Body = { path?: unknown; referrer?: unknown; event?: unknown; from?: unknown };
 
 /** Only the host, never the full referring URL - the path someone came from can
  *  carry their search terms, and we have no use for those. */
@@ -185,6 +185,19 @@ export async function POST(request: Request) {
       // fuer ALLE Besucher beantwortbar statt nur fuer die Zustimmenden.
       update.entryPaths = { [path]: inc };
     }
+    // Die Seite, von der dieser Aufruf kam. Daraus ergibt sich die
+    // Ausstiegsseite rein rechnerisch — Ausstiege(P) = paths[P] -
+    // continuations[P] — ohne dass je ein Aufruf mit einer Person verknuepft
+    // wird. Siehe previousInternalPath() in lib/analytics.ts; dort steht auch,
+    // warum es keine Sitzungskennung ist.
+    //
+    // Genauigkeit: ein harter Reload behaelt den urspruenglichen Referrer, gilt
+    // also NICHT als Fortsetzung, und bfcache liefert nicht immer einen
+    // frischen. Ausstiege werden dadurch eher ueberschaetzt. Fuer "welche Seite
+    // verliert Leute" reicht das; als absolute Zahl nicht zitieren.
+    const from = pathKey(body.from);
+    if (from) update.continuations = { [from]: inc };
+
     const host = referrerHost(body.referrer);
     if (host) update.referrers = { [host]: inc };
   }

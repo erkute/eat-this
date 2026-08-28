@@ -121,21 +121,58 @@ function sendCount(payload: Record<string, string>): void {
  * Dokuments ist: harte Navigation laedt das Modul neu, Soft-Navigation nicht. */
 let referrerSent = false;
 
+/* Die Seite, von der dieser Aufruf kommt — Grundlage der Ausstiegszaehlung.
+ *
+ * Jeder Aufruf endet auf genau zwei Arten: es folgt ein weiterer interner
+ * Aufruf, oder der Besuch endet hier. Daraus faellt die Ausstiegsseite ohne
+ * jede Sitzungsverfolgung heraus:
+ *
+ *     Ausstiege(P) = Aufrufe(P) - Fortsetzungen(P)
+ *
+ * Genau deshalb NICHT ueber eine Sitzungskennung: visitorHash.ts haelt
+ * ausdruecklich fest, dass der Hash "never stored next to the page someone
+ * looked at" wird. Ein Sitzungs-Token am analytics_seen-Dokument haette genau
+ * das getan. Hier wird nie ein Aufruf mit einer Person verknuepft — was
+ * nebenbei das NAT-Problem erledigt: hinter einem Carrier-NAT teilen sich viele
+ * Menschen einen visitorHash, und jede hash-basierte Sitzungsbildung wuerde
+ * deren Wege zu einem Unsinnspfad verschmelzen. */
+let lastCountedPath: string | null = null;
+
+function previousInternalPath(): string | null {
+  // Innerhalb eines Dokuments (SPA-Routenwechsel) wissen wir es selbst.
+  if (lastCountedPath !== null) return lastCountedPath;
+  // Erster Aufruf dieses Dokuments: bei harter Navigation innerhalb der Seite
+  // steht der Vorgaenger im Referrer. Fremde Herkunft heisst Einstieg und
+  // damit keine Fortsetzung.
+  try {
+    if (!document.referrer) return null;
+    const url = new URL(document.referrer);
+    return url.origin === window.location.origin ? url.pathname : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Count a page view. The path only — never the query string, which carries
  *  session ids and search terms we have no use for. */
 export function countView(): void {
   if (typeof window === 'undefined') return;
-  const payload: Record<string, string> = { path: window.location.pathname };
+  const path = window.location.pathname;
+  const payload: Record<string, string> = { path };
+  const from = previousInternalPath();
+  if (from) payload.from = from;
   if (!referrerSent) {
     referrerSent = true;
     payload.referrer = document.referrer;
   }
+  lastCountedPath = path;
   sendCount(payload);
 }
 
 /** Nur fuer Tests: den Dokument-Zustand zuruecksetzen. */
 export function resetReferrerSentForTests(): void {
   referrerSent = false;
+  lastCountedPath = null;
 }
 
 /** Count one named event. `page_view` is deliberately not accepted here — it

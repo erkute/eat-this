@@ -361,12 +361,15 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
           aria-hidden={googlePhase === 'leaving' ? true : undefined}
         >
           <div className={styles.loadingPanel}>
-            <div className={styles.hop} aria-hidden="true">
-              <span className={styles.hopBlock} />
-              <span className={styles.hopBlock} />
-              <span className={styles.hopBlock} />
-            </div>
-            <p>{t('modals.login.googleSigningIn')}</p>
+            {/* Zweimal derselbe Satz: der untere traegt ihn, der obere ist die
+                gelb hinterlegte Kopie, die per clip-path durchzieht. Die Kopie
+                bleibt vor Screenreadern verborgen, sonst stuende er doppelt. */}
+            <p className={styles.signingIn}>
+              <span>{t('modals.login.googleSigningIn')}</span>
+              <span className={styles.signingInSweep} aria-hidden="true">
+                {t('modals.login.googleSigningIn')}
+              </span>
+            </p>
           </div>
         </div>
       )}

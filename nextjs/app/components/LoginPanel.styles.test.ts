@@ -54,7 +54,13 @@ describe('LoginPanel.module.css — der Anmelde-Ladezustand', () => {
      translate/scale/clip-path, nie über Opacity. Das Panel ist eine solche
      Fläche — weisses Papier, Ink-Rahmen, Providence. */
   it('bewegt Deckfläche und Panel ohne Opacity', () => {
-    for (const name of ['loginVeilIn', 'loginVeilOut', 'loginPanelIn', 'loginPanelOut']) {
+    for (const name of [
+      'loginVeilIn',
+      'loginVeilOut',
+      'loginPanelIn',
+      'loginPanelOut',
+      'loginSweep',
+    ]) {
       expect(keyframeProps(name), name).not.toContain('opacity');
       expect(keyframeProps(name).length, name).toBeGreaterThan(0);
     }
@@ -91,7 +97,7 @@ describe('LoginPanel.module.css — der Anmelde-Ladezustand', () => {
         });
       });
     });
-    for (const selector of ['.loadingOverlay', '.loadingPanel', '.hopBlock']) {
+    for (const selector of ['.loadingOverlay', '.loadingPanel', '.signingInSweep']) {
       expect(
         abgeschaltet.map((s) => s.trim()),
         selector
@@ -99,8 +105,21 @@ describe('LoginPanel.module.css — der Anmelde-Ladezustand', () => {
     }
   });
 
-  it('führt die drei Blöcke versetzt, damit eine Welle daraus wird', () => {
-    expect(effective('.hopBlock:nth-child(2)', 'animation-delay')).toBeDefined();
-    expect(effective('.hopBlock:nth-child(3)', 'animation-delay')).toBeDefined();
+  /* Der Marker zieht unter dem Satz durch, statt die Schrift selbst
+     umzufärben: Gelb auf Weiss wäre kaum zu lesen, Ink auf Gelb ist es. */
+  it('legt den Marker unter den Satz, ohne die Schrift umzufärben', () => {
+    expect(effective('.signingInSweep', 'background')).toBe('var(--et-home-accent)');
+    expect(effective('.signingInSweep', 'color')).toBe('var(--login-ink)');
+  });
+
+  it('zieht den Marker per clip-path durch', () => {
+    expect(keyframeProps('loginSweep')).toContain('clip-path');
+  });
+
+  /* Der wichtigste der drei: Ausgangslage ist "nichts sichtbar". Fällt die
+     Animation aus — reduzierte Bewegung, alte Engine —, bleibt der Ink-Satz
+     stehen statt eines gelben Balkens quer über der Schrift. */
+  it('startet unsichtbar, damit ohne Animation kein Balken stehenbleibt', () => {
+    expect(effective('.signingInSweep', 'clip-path')).toBe('inset(0 100% 0 0)');
   });
 });

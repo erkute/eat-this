@@ -55,15 +55,17 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const t = de
     ? {
         eyebrow: 'Must Eats',
-        body: 'Noch verdeckt — deck sie auf der Map auf.',
+        // Der Hinweis sagt jetzt, was zu TUN ist: dass die verdeckten Karten
+        // anklickbar sind, war nicht erkennbar (Nutzer-Review 28.08.).
+        body: 'Tipp eine Karte an — sie deckt sich auf der Map auf.',
         ariaList: 'Must Eats aufdecken',
-        ariaCard: 'Auf der Map aufdecken',
+        ariaCard: 'Karte auf der Map aufdecken',
       }
     : {
         eyebrow: 'Must Eats',
-        body: 'Still face-down — reveal them on the map.',
+        body: 'Tap a card — it flips open on the map.',
         ariaList: 'Reveal Must Eats',
-        ariaCard: 'Reveal on the map',
+        ariaCard: 'Reveal this card on the map',
       };
 
   return (
@@ -81,7 +83,13 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
           <li
             key={m._id}
             className={styles.cardWrap}
-            style={{ ['--tilt' as string]: `${TILTS[i % TILTS.length]}deg` } as CSSProperties}
+            style={
+              {
+                ['--tilt' as string]: `${TILTS[i % TILTS.length]}deg`,
+                // Versetzt, damit die Reihe nicht im Gleichschritt wippt.
+                ['--wobble-delay' as string]: `${(i % 4) * 0.42}s`,
+              } as CSSProperties
+            }
           >
             <button
               type="button"

@@ -17,6 +17,7 @@ import {
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
 import { localizedCuisine } from '@/lib/cuisineLabels';
+import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import { shouldSkipDropCap } from '@/lib/dropCap';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -265,9 +266,6 @@ export default async function RestaurantPage({ params }: PageProps) {
   // Same derivation as the map sheet: a name+address search always resolves to
   // a result, whereas the curated mapsUrl can be stale. This page had neither —
   // its only Google-Maps links were photo credits.
-  const mapsHref = address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
-    : (r.mapsUrl ?? null);
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
 
   // Rendered inside the hero photo (or next to the name when there is none).
@@ -445,11 +443,6 @@ export default async function RestaurantPage({ params }: PageProps) {
             zugleich SOFIs Kreidetafel als Interface. Gelbe Labels, weiße
             Werte in der Handschrift, die Aktionen direkt darauf. Die H2
             darüber bleibt der Local-Anker der Seiten-Outline. */}
-        {(address || (r.openingHours && r.openingHours.length > 0) || priceLabel) && (
-          <h2 className={styles.factsHead}>
-            {de ? 'Adresse & Öffnungszeiten' : 'Address & hours'}
-          </h2>
-        )}
         <div className={styles.board}>
           <dl className={styles.facts}>
             {address && (
@@ -468,16 +461,13 @@ export default async function RestaurantPage({ params }: PageProps) {
                           {address.slice(idx + 1).trim()}
                         </>
                       );
-                    if (!mapsHref) return lines;
+                    // Die Adresse führt auf UNSERE Map, nicht zu Google
+                    // (Nutzer-Entscheidung 28.08.): der Spot öffnet dort
+                    // direkt, statt den Besucher aus dem Produkt zu schicken.
                     return (
-                      <a
-                        className={styles.factsLink}
-                        href={mapsHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <IntlLink className={styles.factsLink} href={mapHref}>
                         {lines}
-                      </a>
+                      </IntlLink>
                     );
                   })()}
                 </dd>
@@ -506,16 +496,41 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
             {categoryLinks.length > 0 && (
               <div className={styles.factsRow}>
-                <dt className={styles.factsKey}>{de ? 'Gut für' : 'Good for'}</dt>
+                {/* Weder „Gut für" (Ratgeber-Floskel) noch „Läuft unter"
+                  (Archiv-Ton) — beide vom Nutzer verworfen. „Mehr davon" sagt,
+                  was der Klick bringt: weitere Spots dieser Art. */}
+                <dt className={styles.factsKey}>{de ? 'Mehr davon' : 'More like this'}</dt>
                 <dd className={styles.factsVal}>
-                  {categoryLinks.map((c, i) => (
-                    <Fragment key={c.slug}>
-                      {i > 0 && <span aria-hidden="true"> · </span>}
-                      <IntlLink href={`/kategorie/${c.slug}`} className={styles.factsLink}>
-                        {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
-                      </IntlLink>
-                    </Fragment>
-                  ))}
+                  {/* Die Booster-Packs der Kategorien statt einer Textliste —
+                      dieselbe Art wie auf /packs und in Remys Teaser. Der Name
+                      steht unter dem Bild, damit eine Kategorie ohne Art
+                      (unbekannter Slug) dieselbe Zeile ergibt, nur ohne
+                      Karte. */}
+                  <span className={styles.packRow}>
+                    {categoryLinks.map((c) => {
+                      const art = categoryArt(c.slug);
+                      return (
+                        <IntlLink
+                          key={c.slug}
+                          href={`/kategorie/${c.slug}`}
+                          className={styles.packLink}
+                        >
+                          {art && (
+                            <Image
+                              src={art}
+                              alt=""
+                              width={96}
+                              height={134}
+                              className={styles.packArt}
+                            />
+                          )}
+                          <span className={styles.packName}>
+                            {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
+                          </span>
+                        </IntlLink>
+                      );
+                    })}
+                  </span>
                 </dd>
               </div>
             )}
@@ -524,20 +539,15 @@ export default async function RestaurantPage({ params }: PageProps) {
           {/* Drei Gewichte wie gehabt: hingehen (rot), Tisch buchen (schwarz),
             Rest umrandet. Teilen sitzt an dritter Stelle, nicht zuletzt: der
             letzte Slot einer umgebrochenen Zeile streckt sich auf volle
-            Breite. „Auf der Map öffnen" steht bewusst nicht hier — die Map
-            hat die Pille oben und das Plakat unten. */}
+            Breite. */}
           <div className={styles.acts}>
-            {mapsHref && (
-              <a
-                className={`${styles.act} ${styles.actPrimary}`}
-                href={mapsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <RouteIcon />
-                <span>{de ? 'Route' : 'Directions'}</span>
-              </a>
-            )}
+            {/* Führt auf die Eat-This-Map statt zu Google Maps: die Route
+                nach draußen war der einzige Knopf, der aus dem Produkt
+                hinausführte, und den Weg gibt die Map selbst her. */}
+            <IntlLink className={`${styles.act} ${styles.actPrimary}`} href={mapHref}>
+              <RouteIcon />
+              <span>{de ? 'Auf der Map' : 'On the map'}</span>
+            </IntlLink>
             {r.reservationUrl && (
               <a
                 className={`${styles.act} ${styles.actStrong}`}

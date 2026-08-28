@@ -108,9 +108,13 @@
   text-wrap: balance;
 }
 
+/* Markenschrift statt geerbtem Mono/Body — Nutzer-Markierung 28.08. */
 .date {
-  font-size: 12px;
-  opacity: 0.78;
+  font-family: var(--f-display, var(--et-font-display, var(--font-providence), sans-serif));
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.72;
 }
 
 .card:focus-visible {

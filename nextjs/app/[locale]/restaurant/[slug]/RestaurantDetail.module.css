@@ -259,7 +259,6 @@
 .story,
 .gallery,
 .tipp,
-.factsHead,
 .board,
 .siblings,
 .rail {
@@ -277,16 +276,16 @@
 .story {
   margin-bottom: clamp(40px, 6vw, 76px);
   color: var(--detail-ink);
-  font-size: clamp(17px, 1.35vw, 19px);
+  font-size: clamp(17px, 1.5vw, 21px);
   line-height: 1.65;
 }
 
 .story p {
-  /* 72ch ergeben bei 19px rund 936px — breiter als der 900px-Container, die
-     Grenze griff also nie und die Zeile lief auf 95 Zeichen. Gemessen fahren
-     Eater 64, Mit Vergnügen 66 und The Infatuation 80; 45–75 gilt als
-     angenehm. 700px sind hier ~74 Zeichen. */
-  max-width: 700px;
+  /* Volle Spaltenbreite wie Tafel, Karten und Empfehlungen — die 700px-Grenze
+     ließ den Text auf Desktop 200px vor der gemeinsamen rechten Kante enden,
+     was als Fehlausrichtung gelesen wurde (Review 28.08.). Damit die Zeile
+     dabei nicht zu lang wird, steigt der Grad unten auf bis zu 21px: 900px bei
+     21px sind rund 76 Zeichen — im Band von The Infatuation (80). */
   margin: 0 0 1.2em;
 }
 
@@ -403,10 +402,12 @@
   padding: 4px 7px 5px;
   background: rgba(13, 10, 7, 0.52);
   color: #fff;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  /* Gleiche Schrift und Maße wie der Foto-Credit im Aufmacher (.heroCredit) —
+     der Mono-Satz war hier der letzte Rest einer anderen Grammatik. */
+  font-family: var(--f-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   line-height: 1.25;
   text-transform: uppercase;
 }
@@ -460,21 +461,6 @@
   text-transform: uppercase;
 }
 
-/* Kopf des Fakten-Registers — gleiche Grammatik wie „Im Magazin" und
-   „Weitere in {Bezirk}", zugleich die H2 des Local-Kerns in der Outline. */
-.factsHead {
-  /* Longhands, nicht `margin:` — die Kurzform setzte margin-inline auf 0 und
-     überschrieb das zentrierende `auto` aus der Spaltenregel oben. */
-  margin-block: 0 clamp(18px, 3vw, 30px);
-  color: var(--detail-red);
-  font-family: var(--f-display);
-  font-size: clamp(18px, 4vw, 30px);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title, 0.9);
-  text-transform: uppercase;
-}
-
 /* Die Tafel: Ink-Fläche wie Magazin-Karten, Nav und Footer — SOFIs
    Kreidetafel als Interface. Trägt Fakten und Aktionen als EIN Objekt. */
 .board {
@@ -507,6 +493,58 @@
   letter-spacing: 0.03em;
   line-height: 1.3;
   text-transform: uppercase;
+}
+
+/* Die „Läuft unter"-Zeile trägt die Booster-Packs der Kategorien. Sie bleibt
+   in ihrer Spur statt über die volle Tafel zu spannen: über beide Spalten
+   gezogen ließ sie neben dem Preis ein leeres Viertel stehen. Zwei Packs
+   passen nebeneinander in eine Spur, mehr brechen um. */
+.packRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 2vw, 24px);
+  margin-top: 4px;
+}
+
+.packLink {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 96px;
+  color: var(--detail-paper);
+  text-decoration: none;
+}
+
+.packArt {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.packName {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+@media (hover: hover) {
+  .packLink:hover .packArt,
+  .packLink:focus-visible .packArt {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+
+  .packLink:hover .packName,
+  .packLink:focus-visible .packName {
+    color: var(--detail-accent);
+  }
+}
+
+.packLink:focus-visible {
+  outline: 2px solid var(--detail-accent);
+  outline-offset: 4px;
 }
 
 /* Weiße Kreide-Werte. */
@@ -740,7 +778,10 @@
    Preisklasse sah. Genau die beiden Angaben entscheiden, ob eine Empfehlung
    überhaupt in Frage kommt. */
 .sibMeta {
-  color: #ff5a4e;
+  /* Gelb statt Rot: auf dem abgedunkelten Foto war das Rot kaum lesbar
+     (Nutzer-Review 28.08.), Gelb ist die zweite Markenfarbe und hält den
+     Kontrast auf jedem Bild. */
+  color: var(--detail-accent);
   /* Markenschrift statt Mono — gleiche Stimme wie Chips und Foto-Credit.
      Tracking wie beim Credit (0.03em), das Mono-0.08em riss Providence
      auseinander; 900 gibt es in der Schrift nicht, 700 ist ihr Fettschnitt. */

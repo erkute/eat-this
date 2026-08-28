@@ -74,7 +74,13 @@
 .heroPhoto {
   position: relative;
   width: min(100%, 900px);
-  min-height: clamp(520px, 68vw, 720px);
+  /* Der 72vh-Deckel ist der Desktop-Fix für den 3-Sekunden-Test: mit fixen
+     720px füllte das Foto bei 1440×900 den kompletten ersten Viewport und
+     Name + Chips klebten an der Unterkante (H1 gemessen bei 709px von 756px
+     sichtbarer Höhe). Gedeckelt bleiben Name, Zustands-Zeile und Map-Pill im
+     ersten Viewport. Die Mobile-Queries unten überschreiben min-height
+     ohnehin, der Deckel wirkt also nur oberhalb von 900px Breite. */
+  min-height: min(clamp(520px, 68vw, 720px), 72vh);
   margin: 0 auto;
   overflow: hidden;
   background: var(--detail-ink);
@@ -250,18 +256,14 @@
 .story,
 .gallery,
 .editorialGrid,
+.factsHead,
 .facts,
+.factsFoot,
 .acts,
 .siblings,
 .rail {
   width: min(100%, 900px);
   margin-inline: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .quickAddress {
-    transition: none;
-  }
 }
 
 /* Must-Eats, map promo and FAQ bring their own full-bleed margins from the
@@ -480,13 +482,36 @@
   line-height: var(--et-leading-title, 0.9);
 }
 
+/* Überschrift über dem Faktenblock — dieselbe Stimme wie die
+   Empfehlungszeilen (.sibRowHead), damit „Adresse & Öffnungszeiten" als
+   Abschnitt lesbar wird, ohne ein neues typografisches Register zu öffnen. */
+.factsHead {
+  margin-top: 0;
+  margin-bottom: clamp(14px, 2.4vw, 24px);
+  color: var(--detail-red);
+  font-size: clamp(18px, 4vw, 30px);
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title, 0.9);
+}
+
 /* Basis ist das Telefon: ein Fakt pro Zeile, Label über dem Wert. Ab 901px
-   stehen die drei Slabs nebeneinander — siehe unten. */
+   stehen die Slabs nebeneinander — siehe unten. */
 .facts {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
+  /* Der Abstand zum nächsten Block hängt an .factsFoot: die E-E-A-T-Zeile
+     rendert unbedingt direkt unter dem Raster und soll dicht daran sitzen. */
+  margin-bottom: 12px;
+}
+
+/* E-E-A-T-Fußnote: besucht, unabhängig, unbezahlt — ein Satz, kein Badge. */
+.factsFoot {
+  margin-top: 0;
   margin-bottom: clamp(28px, 5vw, 58px);
+  color: var(--detail-muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .factsRow {
@@ -1001,4 +1026,3 @@
   letter-spacing: 0;
   text-transform: none;
 }
-

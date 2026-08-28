@@ -1,0 +1,48 @@
+/* Zustands-Zeile unter dem Restaurant-Aufmacher. Eine stille Textzeile im
+ * Duktus der Fakten-Labels (Display-Caps), kein Kasten und keine Icons: der
+ * Aufmacher soll weiter mit Bild und Name sprechen, die Zeile antwortet nur.
+ * Die Custom Properties kommen von .page der Detailseite und haben dieselben
+ * Fallbacks wie dort. */
+
+.line {
+  margin: 0;
+  color: var(--detail-ink, #15120e);
+  font-family: var(--f-display, var(--et-font-display, var(--font-providence), sans-serif));
+  font-size: clamp(14px, 1.3vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.segment {
+  white-space: nowrap;
+}
+
+.sep {
+  color: var(--detail-muted, rgba(21, 18, 14, 0.62));
+}
+
+/* Der Offen-Zustand erscheint erst nach dem Mount (siehe Komponente). Offen
+ * bleibt Ink wie der Rest der Zeile; nur „Geschlossen · öffnet …" warnt in
+ * Rot — dieselbe Farblogik wie die Zustands-Chips auf der Map. */
+.closed {
+  color: var(--detail-red, #d9382a);
+}
+
+.open {
+  color: inherit;
+}
+
+.streetLink {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: color 140ms ease;
+}
+
+.streetLink:hover,
+.streetLink:focus-visible {
+  color: var(--detail-red, #d9382a);
+}

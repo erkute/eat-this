@@ -25,34 +25,54 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
 
   const handleClick = (id: string) => {
     setShakingId(id);
-    // Brief shake before flying out so the click registers visually,
-    // then route to the map — that's where the cards get revealed.
+    // Brief shake before flying out so the click registers visually, then
+    // deep-link to exactly THIS card on the map (?me= is the same param the
+    // inline article cards use). The generic '/map' that stood here dropped
+    // the click on the map's list view — the card the user tapped never
+    // opened, and finding it again meant scrolling the whole catalog.
     window.setTimeout(() => {
-      router.push('/map');
+      router.push(`/map?me=${id}`);
     }, 280);
   };
+
+  // „Zwei Gerichte haben es auf unsere Karten geschafft." — die Anzahl ist die
+  // Nachricht dieses Blocks. Für SERP-Besucher, die Eat This nicht kennen, war
+  // „Noch nicht aufgedeckt." als einzige Ansage ein Rätsel ohne Kontext; jetzt
+  // erklärt die Zeile, WAS verdeckt ist, und der Rätsel-Satz wird Unterzeile.
+  const count = mustEats.length;
+  const words = de
+    ? ['Ein', 'Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs']
+    : ['One', 'Two', 'Three', 'Four', 'Five', 'Six'];
+  const countWord = count <= words.length ? words[count - 1] : String(count);
+  const heading = de
+    ? count === 1
+      ? 'Ein Gericht hat es auf unsere Karten geschafft.'
+      : `${countWord} Gerichte haben es auf unsere Karten geschafft.`
+    : count === 1
+      ? 'One dish made it onto our cards.'
+      : `${countWord} dishes made it onto our cards.`;
 
   const t = de
     ? {
         eyebrow: 'Must Eats',
-        heading: 'Noch nicht aufgedeckt.',
-        body: 'Deck sie auf der Map auf.',
+        body: 'Noch verdeckt — deck sie auf der Map auf.',
         ariaList: 'Must Eats aufdecken',
-        ariaCard: 'Zur Map',
+        ariaCard: 'Auf der Map aufdecken',
       }
     : {
         eyebrow: 'Must Eats',
-        heading: 'Still face-down.',
-        body: 'Reveal them on the map.',
+        body: 'Still face-down — reveal them on the map.',
         ariaList: 'Reveal Must Eats',
-        ariaCard: 'Open the map',
+        ariaCard: 'Reveal on the map',
       };
 
   return (
     <section className={styles.section} aria-label={t.ariaList}>
       <header className={styles.head}>
-        <p className={styles.eyebrow}>{t.eyebrow}</p>
-        <h2 className={styles.heading}>{t.heading}</h2>
+        {/* Die H2 trägt jetzt den Abschnittsnamen (vorher stand er als
+            blindes <p> davor und die Outline bestand aus dem Rätsel-Satz). */}
+        <h2 className={styles.eyebrow}>{t.eyebrow}</h2>
+        <p className={styles.heading}>{heading}</p>
         <p className={styles.body}>{t.body}</p>
       </header>
 

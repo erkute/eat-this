@@ -26,6 +26,7 @@ import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaura
 import { splitDescriptionForMagazine } from '@/lib/restaurant-prose';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import HeartButton from '@/app/components/HeartButton';
+import RestaurantSnapshot from '@/app/components/RestaurantSnapshot';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSection';
 import MapPromoCTA from '@/app/components/MapPromoCTA';
@@ -156,11 +157,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         r.tip ||
         r.description ||
         `${r.name} in Berlin${districtName ? `, ${districtName}` : ''}.`,
-      r.seo?.metaDescriptionEn ||
-        r.shortDescriptionEn ||
-        r.tipEn ||
-        r.descriptionEn ||
-        undefined,
+      r.seo?.metaDescriptionEn || r.shortDescriptionEn || r.tipEn || r.descriptionEn || undefined,
       loc
     ) ?? ''
   );
@@ -247,6 +244,26 @@ export default async function RestaurantPage({ params }: PageProps) {
   const websiteInfo = classifyWebsite(r.website);
   const websiteUrl = websiteInfo?.url ?? null;
   const address = r.address;
+  // Nur Straße + Hausnummer für die Zustands-Zeile; die volle Adresse steht im
+  // Faktenblock. Gleiche Komma-Trennung wie dort.
+  const street = address ? (address.split(',')[0]?.trim() ?? null) : null;
+  const cuisineLabel = r.cuisineType ? localizedCuisine(r.cuisineType, loc) : null;
+  const districtName = r.bezirk?.name ?? r.district ?? null;
+  // Beschreibender Alt-Text statt des bloßen Namens — „SOFI" sagt einem
+  // Screenreader (und der Bilder-SERP) nichts über das Bild. Mehr weiß die
+  // Ausgabeschicht ohne kuratierten Alt nicht; das Muster entspricht dem
+  // Title-Builder.
+  const heroAlt = cuisineLabel
+    ? `${displayName} – ${cuisineLabel} in ${districtName ? `Berlin-${districtName}` : 'Berlin'}`
+    : displayName;
+  // Kategorien sind Discovery-Hubs (Frühstück, Süßes …). Seit die
+  // Kategorie-Karten-Zeile am Seitenende weg ist (874c330, dort als Kosten
+  // offen protokolliert), war das der einzige Seitentyp ohne Weg zu seinen
+  // Hubs — die „Gut für"-Zeile im Faktenblock stellt den Link wieder her,
+  // als Eigenschaft des Spots statt als Karten-Stapel.
+  const categoryLinks = (r.categories ?? []).filter(
+    (c): c is typeof c & { slug: string; name: string } => Boolean(c?.slug && c?.name)
+  );
   const mapHref = `/map?r=${slug}`;
   // Same derivation as the map sheet: a name+address search always resolves to
   // a result, whereas the curated mapsUrl can be stale. This page had neither —
@@ -294,10 +311,13 @@ export default async function RestaurantPage({ params }: PageProps) {
             <figure className={styles.heroPhoto}>
               <Image
                 src={r.photo}
-                alt={r.name}
+                alt={heroAlt}
                 fill
                 priority
-                sizes="(max-width: 760px) 100vw, 1180px"
+                // 900px, nicht 1180: .heroPhoto ist auf min(100%, 900px)
+                // gedeckelt — die 1180 stammten vom Seitenrahmen und luden
+                // auf Desktop eine Stufe zu groß.
+                sizes="(max-width: 760px) 100vw, 900px"
                 className={styles.heroImg}
               />
               <div className={styles.heroGradient} />
@@ -336,6 +356,20 @@ export default async function RestaurantPage({ params }: PageProps) {
               {heroTags.length > 0 && <div className={styles.heroTags}>{heroTags}</div>}
             </div>
           )}
+
+          {/* Zustand vor Produkt: „Geöffnet · bis 18:30 · 10–20 € · Straße"
+              beantwortet die meistgemessenen Brand-Intentionen (Uhrzeit,
+              vor der Tür stehen) in Sekunde eins. Erst danach darf die
+              Map-Pill verkaufen — für SERP-Besucher, die Eat This nicht
+              kennen, war „Auf der Map öffnen" als ERSTE Zeile ein Angebot
+              ohne Kontext. */}
+          <RestaurantSnapshot
+            openingHours={r.openingHours ?? []}
+            priceLabel={priceLabel}
+            street={street}
+            mapsHref={mapsHref}
+            locale={loc}
+          />
 
           <div className={styles.heroMapLine}>
             <MapPromoCTA
@@ -406,6 +440,15 @@ export default async function RestaurantPage({ params }: PageProps) {
           </div>
         )}
 
+        {/* Sichtbare H2 über den Fakten: die Outline der Seite bestand bisher
+            nur aus den Modul-Überschriften weiter unten — der Local-Kern
+            (Adresse, Zeiten) hatte keine. Natürlich formuliert, kein
+            Keyword-Anbau; für Leser ist es die Sprungmarke beim Scannen. */}
+        {(address || (r.openingHours && r.openingHours.length > 0) || priceLabel) && (
+          <h2 className={styles.factsHead}>
+            {de ? 'Adresse & Öffnungszeiten' : 'Address & hours'}
+          </h2>
+        )}
         <dl className={styles.facts}>
           {address && (
             <div className={styles.factsRow}>
@@ -459,7 +502,35 @@ export default async function RestaurantPage({ params }: PageProps) {
               <dd className={styles.factsVal}>{priceLabel}</dd>
             </div>
           )}
+          {categoryLinks.length > 0 && (
+            <div className={styles.factsRow}>
+              <dt className={styles.factsKey}>{de ? 'Gut für' : 'Good for'}</dt>
+              <dd className={styles.factsVal}>
+                {categoryLinks.map((c, i) => (
+                  <Fragment key={c.slug}>
+                    {i > 0 && <span aria-hidden="true"> · </span>}
+                    <IntlLink href={`/kategorie/${c.slug}`} className={styles.factsLink}>
+                      {loc === 'de' ? c.name : (c.nameEn ?? c.name)}
+                    </IntlLink>
+                  </Fragment>
+                ))}
+              </dd>
+            </div>
+          )}
         </dl>
+
+        {/* E-E-A-T in einem Satz, als Fußnote statt Badge: das ist das
+            Argument, das Eat This von Verzeichnis-Treffern trennt, und es
+            stand bisher nirgends auf der Seite. Ein „Zuletzt geprüft"-Datum
+            folgt erst, wenn es ein redaktionell gepflegtes Feld dafür gibt —
+            _updatedAt wäre eine technische Lüge. Steht außerhalb der <dl>
+            (nur dt/dd-Gruppen sind dort konform); den Abstand zum nächsten
+            Block trägt deshalb diese Zeile, nicht das Faktenraster. */}
+        <p className={styles.factsFoot}>
+          {de
+            ? 'Von Eat This besucht und unabhängig ausgewählt — keine bezahlte Platzierung.'
+            : 'Visited and independently selected by Eat This — no paid placements.'}
+        </p>
 
         {/* One wrapping row where every item grows, so the last line fills the
             width instead of trailing off half-empty. Six identical black slabs
@@ -533,18 +604,21 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Remy steht zwischen den Fakten zum Spot und dem, was es sonst noch
-            gibt: wer bis hier gelesen hat, kennt den Laden — die offene Frage
-            ist jetzt „und was heißt das für mich?". Die Chips sind auf genau
-            diesen Spot gebunden (der Slug geht mit, der Server löst den Namen
-            auf); das Chat-Widget lädt erst mit der ersten Frage. */}
-        <RestaurantRemySection locale={loc} name={displayName} bezirk={r.bezirk?.name} />
-
+        {/* Must Eats vor Remy: beide beantworten „und jetzt?", aber die Karten
+            sind der konkretere, produkteigene nächste Klick — n kuratierte
+            Antworten mit Deeplink auf genau diese Karte. Remy folgt als
+            offener Kanal für alles, was Seite und Karten nicht beantworten. */}
         {mustEats.length > 0 && (
           <div className={styles.rail}>
             <MustEatTeaserSection mustEats={mustEats} locale={loc} />
           </div>
         )}
+
+        {/* Remy: wer bis hier gelesen hat, kennt den Laden — die offene Frage
+            ist jetzt „und was heißt das für mich?". Die Chips sind auf genau
+            diesen Spot gebunden (der Slug geht mit, der Server löst den Namen
+            auf); das Chat-Widget lädt erst mit der ersten Frage. */}
+        <RestaurantRemySection locale={loc} name={displayName} bezirk={r.bezirk?.name} />
 
         {/* Vor der Bezirks-Zeile: ein Text über genau diesen Laden ist
             spezifischer als vier weitere Spots aus demselben Bezirk. */}

@@ -16,6 +16,33 @@ interface BuildRestaurantJsonLdArgs {
   districtsLabel: string;
 }
 
+// cuisineType mischt zwei Sorten Werte: echte Küchen ("Japanese", "Italian")
+// und Betriebstypen ("Bakery", "Wine Bar"). Für die Betriebstypen ist
+// `@type: Restaurant` + `servesCuisine: "Bakery"` doppelt schief — eine
+// Bäckerei ist kein Restaurant, und „Bakery" ist keine Küche. schema.org hat
+// für alle den passenden FoodEstablishment-Subtyp; die Küchen-Werte bleiben
+// Restaurant mit servesCuisine.
+const VENUE_SCHEMA_TYPES: Record<string, string> = {
+  Bakery: 'Bakery',
+  Bar: 'BarOrPub',
+  'Wine Bar': 'BarOrPub',
+  Café: 'CafeOrCoffeeShop',
+  Coffee: 'CafeOrCoffeeShop',
+  'Ice Cream': 'IceCreamShop',
+  'German / Fast Food': 'FastFoodRestaurant',
+};
+
+function schemaTypeFor(cuisineType: string | undefined): string {
+  return (cuisineType && VENUE_SCHEMA_TYPES[cuisineType]) || 'Restaurant';
+}
+
+function servesCuisineFor(cuisineType: string | undefined): string | undefined {
+  if (!cuisineType) return undefined;
+  // Der Imbiss ist der einzige Mischwert: Typ FastFoodRestaurant, Küche German.
+  if (cuisineType === 'German / Fast Food') return 'German';
+  return VENUE_SCHEMA_TYPES[cuisineType] ? undefined : cuisineType;
+}
+
 function buildPostalAddress(address: string): Record<string, string> {
   const clean = address.trim().replace(/,?\s*Deutschland$/i, '');
   const parts = clean
@@ -73,15 +100,19 @@ export function buildRestaurantJsonLd({
         caption: r.name,
       }),
       {
-        '@type': 'Restaurant',
+        '@type': schemaTypeFor(r.cuisineType),
+        // Das Fragment bleibt für alle Subtypen `#restaurant`: die @id ist die
+        // stabile Entitäts-Adresse, an der DE/EN-Seiten hängen — sie folgt
+        // nicht dem Typ.
         '@id': `${selfUrl}#restaurant`,
         name: r.name,
         description,
         inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         image: r.photo,
         priceRange: formatPriceLabel(r, locale) || undefined,
-        // Explicit cuisine data, not discovery categories such as Breakfast.
-        servesCuisine: r.cuisineType || undefined,
+        // Explicit cuisine data, not discovery categories such as Breakfast —
+        // and only for actual cuisines; venue types carry it in @type instead.
+        servesCuisine: servesCuisineFor(r.cuisineType),
         url: selfUrl,
         hasMap: r.mapsUrl,
         // Official menu URL — schema.org Restaurant.hasMenu accepts a URL.

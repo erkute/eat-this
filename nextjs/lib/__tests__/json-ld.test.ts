@@ -79,6 +79,26 @@ describe('buildRestaurantJsonLd', () => {
     expect(restaurant.servesCuisine).toBe('Thai');
   });
 
+  it('maps venue-type cuisineTypes to their LocalBusiness subtype without servesCuisine', () => {
+    const graph = build({ ...baseRestaurant, cuisineType: 'Bakery' });
+    const bakery = graph['@graph'].find((n: { '@type': string }) => n['@type'] === 'Bakery');
+    // Eine Bäckerei ist kein Restaurant, und "Bakery" ist keine Küche — der
+    // Betriebstyp wandert in @type, servesCuisine entfällt.
+    expect(bakery).toBeDefined();
+    expect(bakery).not.toHaveProperty('servesCuisine');
+    // Die Entitäts-Adresse bleibt typunabhängig stabil.
+    expect(bakery['@id']).toContain('#restaurant');
+  });
+
+  it('keeps the Imbiss as FastFoodRestaurant with German cuisine', () => {
+    const graph = build({ ...baseRestaurant, cuisineType: 'German / Fast Food' });
+    const imbiss = graph['@graph'].find(
+      (n: { '@type': string }) => n['@type'] === 'FastFoodRestaurant'
+    );
+    expect(imbiss).toBeDefined();
+    expect(imbiss.servesCuisine).toBe('German');
+  });
+
   it('splits a Berlin address into structured postal fields', () => {
     const graph = build({
       ...baseRestaurant,
@@ -242,7 +262,11 @@ describe('buildArticleSpotsItemList', () => {
       locale: 'de',
       name: 'Fine Dining in Berlin',
     });
-    expect(list).toMatchObject({ '@type': 'ItemList', name: 'Fine Dining in Berlin', numberOfItems: 2 });
+    expect(list).toMatchObject({
+      '@type': 'ItemList',
+      name: 'Fine Dining in Berlin',
+      numberOfItems: 2,
+    });
     const items = (list as { itemListElement: Record<string, never>[] }).itemListElement;
     expect(items).toHaveLength(2);
     expect(items[0]).toMatchObject({ '@type': 'ListItem', position: 1 });
@@ -274,7 +298,9 @@ describe('buildArticleSpotsItemList', () => {
   // Eine leere ItemList wäre eine Behauptung über die Seite, die nicht stimmt.
   it('returns null for articles without spotCards', () => {
     expect(buildArticleSpotsItemList({ blocks: [text], locale: 'de', name: 'Meinung' })).toBeNull();
-    expect(buildArticleSpotsItemList({ blocks: undefined, locale: 'de', name: 'Meinung' })).toBeNull();
+    expect(
+      buildArticleSpotsItemList({ blocks: undefined, locale: 'de', name: 'Meinung' })
+    ).toBeNull();
   });
 
   // Fotos sind upstream lizenz-gefiltert: fehlt eins, darf kein Key erscheinen.
@@ -284,7 +310,8 @@ describe('buildArticleSpotsItemList', () => {
       locale: 'de',
       name: 'Guide',
     });
-    const items = (list as { itemListElement: { item: Record<string, unknown> }[] }).itemListElement;
+    const items = (list as { itemListElement: { item: Record<string, unknown> }[] })
+      .itemListElement;
     expect(items[0].item).not.toHaveProperty('image');
   });
 

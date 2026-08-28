@@ -547,7 +547,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                 hinausführte, und den Weg gibt die Map selbst her. */}
             <IntlLink className={`${styles.act} ${styles.actPrimary}`} href={mapHref}>
               <RouteIcon />
-              <span>{de ? 'Auf der Map' : 'On the map'}</span>
+              <span>{de ? 'Zur Map' : 'On the map'}</span>
             </IntlLink>
             {r.reservationUrl && (
               <a

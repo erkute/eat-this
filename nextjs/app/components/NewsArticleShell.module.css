@@ -186,14 +186,25 @@ div.page {
   margin-right: 12px;
 }
 
+/* Der Vorspann trug denselben Schnitt wie der Fliesstext und war auf Mobil
+   ganze 0,7px groesser (17,7 gegen 17) — als eigene Ebene las ihn niemand.
+   Die Groesse allein kann das nicht tragen, solange die Lesespalte schmal
+   ist; das Gewicht schon. 600 statt 700: bei 18-21px wird Inter im Bold
+   blockig, und direkt darunter steht bereits die rote Initiale des ersten
+   Absatzes. */
 .lede {
-  max-width: 46ch;
+  /* Keine eigene Lesebreite: die 46ch waren bei 1000px 516px breit, waehrend
+     Byline und Fliesstext daneben die vollen 720px der Spalte nutzten — 204px
+     Versatz, der als Fehlausrichtung gelesen wird (User, 28.08.), genau wie
+     seinerzeit bei `.story` auf der Spot-Seite. Ab 1080px setzt der Block
+     weiter unten ohnehin `--article-measure` fuer alle Textknoten. */
+  max-width: none;
   margin: 0 0 clamp(22px, 3vw, 34px);
   color: var(--article-ink);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 21px);
-  font-weight: 400;
-  line-height: 1.6;
+  font-weight: 600;
+  line-height: 1.55;
 }
 
 /* ------------------------------------------------------------- prose ---- */

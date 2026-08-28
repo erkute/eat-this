@@ -199,13 +199,22 @@ describe('NewsArticleShell', () => {
     expect(render([mustEat('Hasir')])).toContain('href="/must-eats"');
   });
 
-  it('sends the spot card to the map, not to the restaurant page', () => {
+  // Zwei Ziele, zwei Aufgaben: der Name vererbt Link-Equity an die Spot-Seite,
+  // der Knopf öffnet weiter die Map wie ein Tap in der App.
+  it('links the spot name to the spot page and keeps the map button', () => {
     const html = render([spot('Spumante', 'spumante')]);
+    expect(html).toContain('href="/restaurant/spumante"');
     expect(html).toContain('href="/map?r=spumante"');
-    expect(html).not.toContain('/restaurant/spumante');
     expect(html).toContain('Auf die Map');
-    // Die Map ist noindex – der indexierbare Artikel vererbt kein Link-Equity.
-    expect(html).toContain('rel="nofollow"');
+  });
+
+  it('nofollows only the map link, never the spot-page link', () => {
+    const html = render([spot('Spumante', 'spumante')]);
+    // Die Map ist noindex – dorthin vererbt der indexierbare Artikel nichts.
+    expect(html).toMatch(/<a[^>]*href="\/map\?r=spumante"[^>]*rel="nofollow"/);
+    // Die Spot-Seite ist der eigentliche Empfänger und muss gefolgt bleiben.
+    const nameLink = html.match(/<a[^>]*href="\/restaurant\/spumante"[^>]*>/)?.[0] ?? '';
+    expect(nameLink).not.toContain('nofollow');
   });
 
   it('lists the h2 chapters in the rail', () => {

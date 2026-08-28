@@ -297,7 +297,10 @@ div.page {
   font-weight: 800;
 }
 
-.content a:not(.inlineSpot):not(.mustEat) {
+/* Die beiden Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name
+   auf dem Foto, Knopf darunter) — die gelbe Fließtext-Unterstreichung würde
+   beide zerlegen. */
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.mustEat) {
   color: var(--article-ink);
   font-weight: 800;
   text-decoration: underline;
@@ -306,7 +309,7 @@ div.page {
   text-underline-offset: 3px;
 }
 
-.content a:not(.inlineSpot):not(.mustEat):hover {
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.mustEat):hover {
   text-decoration-color: var(--article-red);
 }
 
@@ -384,7 +387,6 @@ div.page {
   gap: 7px;
 }
 
-
 /* Markenschrift statt Body-Font — der Kicker war der einzige Fremdsatz im
    Block (Nutzer-Review 28.08.). */
 .mustEatTag {
@@ -400,7 +402,6 @@ div.page {
   line-height: 1;
   text-transform: uppercase;
 }
-
 
 .mustEat .mustEatName {
   max-width: 18ch;
@@ -425,7 +426,6 @@ div.page {
   font-weight: 700;
   line-height: 1.3;
 }
-
 
 /* ------------------------------------------------------- inline spot ---- */
 
@@ -452,6 +452,8 @@ div.page {
 }
 
 .inlineSpot {
+  --spot-inset: clamp(16px, 2.4vw, 26px);
+
   position: relative;
   display: block;
   min-height: clamp(320px, 40vw, 460px);
@@ -479,9 +481,9 @@ div.page {
 
 .inlineSpotFoot {
   position: absolute;
-  right: clamp(16px, 2.4vw, 26px);
-  bottom: clamp(16px, 2.4vw, 26px);
-  left: clamp(16px, 2.4vw, 26px);
+  right: var(--spot-inset);
+  bottom: var(--spot-inset);
+  left: var(--spot-inset);
   z-index: 1;
   display: grid;
   gap: 10px;
@@ -517,7 +519,33 @@ div.page {
   text-transform: none;
 }
 
+/* Der Name ist der gefolgte Link auf die Spot-Seite. Sein ::after spannt die
+   ganze Karte als Trefferfläche auf: seitlich und unten um den Foot-Abstand
+   hinaus, nach oben weit über die Karte — `overflow: hidden` auf .inlineSpot
+   schneidet den Überstand ab, deshalb braucht die Höhe keinen echten Wert. */
+.inlineSpotNameLink {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
+}
+.inlineSpotNameLink::after {
+  content: '';
+  position: absolute;
+  top: -100em;
+  right: calc(-1 * var(--spot-inset));
+  bottom: calc(-1 * var(--spot-inset));
+  left: calc(-1 * var(--spot-inset));
+}
+.inlineSpotNameLink:focus-visible::after {
+  outline: 2px solid var(--article-red);
+  outline-offset: -6px;
+}
+
+/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht klickbar. */
 .inlineSpotCta {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -531,6 +559,8 @@ div.page {
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
+  /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
+  text-decoration: none;
   text-transform: none;
 }
 
@@ -758,7 +788,7 @@ div.page {
 /* ------------------------------------------------------------ states ---- */
 
 .mustEat:focus-visible,
-.inlineSpot:focus-visible,
+.inlineSpotCta:focus-visible,
 .relatedCard:focus-visible,
 .shareBtn:focus-visible {
   outline: 2px solid var(--article-red);

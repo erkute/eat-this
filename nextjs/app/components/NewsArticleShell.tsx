@@ -214,9 +214,16 @@ export default function NewsArticleShell({
     );
   };
 
-  // The spot card is the in-article tap on a restaurant: it opens the spot on
-  // the map (?r=<slug>), not the restaurant page — same intent as a tap in the
-  // app. nofollow because the map is noindex (see isMapLink in the renderer).
+  // Die Spot-Karte trägt zwei Ziele, weil sie zwei Aufgaben hat. Der Name ist
+  // ein **gefolgter** Link auf die Spot-Seite: die Guides sammeln die
+  // thematische Relevanz für „beste X in Berlin" ein, und ohne diesen Link
+  // gaben sie nichts davon an die Restaurantseiten weiter — Google rankte
+  // deshalb den Guide für Marken-Queries einzelner Spots („taktil bakery",
+  // „hokey pokey mauerpark") statt der Seite, die dem Laden gehört. Sein
+  // ::after spannt sich über die ganze Karte, damit die Fläche tapbar bleibt;
+  // `overflow: hidden` auf .inlineSpot beschneidet den Überstand.
+  // Der Map-Deeplink bleibt als Knopf darüber (z-index) erhalten — weiter
+  // nofollow, weil die Map noindex ist (siehe isMapLink im Renderer).
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);
@@ -229,23 +236,32 @@ export default function NewsArticleShell({
     const cta = de ? 'Auf die Map' : 'To the map';
 
     return (
-      <MapIntentLink
-        href={`/map?r=${block.restaurantSlug}`}
-        rel="nofollow"
+      <span
         className={styles.inlineSpot}
         style={
           block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined
         }
-        aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
       >
         <span className={styles.inlineSpotFoot}>
           {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
-          <span className={styles.inlineSpotName}>{restName}</span>
-          <span className={styles.inlineSpotCta}>
-            <span>{cta}</span>
+          <span className={styles.inlineSpotName}>
+            <Link
+              href={`/restaurant/${block.restaurantSlug}`}
+              className={styles.inlineSpotNameLink}
+            >
+              {restName}
+            </Link>
           </span>
+          <MapIntentLink
+            href={`/map?r=${block.restaurantSlug}`}
+            rel="nofollow"
+            className={styles.inlineSpotCta}
+            aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
+          >
+            <span>{cta}</span>
+          </MapIntentLink>
         </span>
-      </MapIntentLink>
+      </span>
     );
   };
 

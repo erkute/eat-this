@@ -31,7 +31,6 @@ interface PriceRange {
   currency?: string;
 }
 
-/** Editorial "Was bestellen?" recommendation (2–4 per restaurant). */
 interface RestaurantGalleryImage {
   _key: string;
   thumb?: string;

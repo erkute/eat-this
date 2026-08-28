@@ -28,9 +28,16 @@
      78/76/92/96/64/64/96/126px — und die Modulwechsel (64) standen enger als
      die Absätze innerhalb der Lesestrecke (76–92), also genau verkehrt herum.
      `--flow` trennt, was zusammen gelesen wird (Aufmacher, Text, Tipp,
-     Tafel), `--flow-mod` trennt die Module darunter voneinander. */
-  --flow: clamp(36px, 5.5vw, 72px);
-  --flow-mod: clamp(56px, 8.5vw, 112px);
+     Tafel), `--flow-mod` trennt die Module darunter voneinander.
+
+     Zu den Zahlen: Startseite und Bezirksseite fahren zwischen ihren Modulen
+     115px bzw. 84–118px, das Band der Marke liegt also dort. Diese Seite
+     bleibt mit 96px knapp darunter, weil sie gelesen und nicht gescannt wird:
+     ihre Module sind textlastig, wo die Startseite ganzseitige Bildblöcke
+     trennt. Enger als 84 sollte es nicht werden, sonst verliert der
+     Modulwechsel gegen die Absätze innerhalb der Lesestrecke. */
+  --flow: clamp(32px, 4.6vw, 60px);
+  --flow-mod: clamp(48px, 7.2vw, 96px);
   min-height: 100vh;
   min-height: 100dvh;
   /* Shared page frame — same max-width, top offset and gutter as

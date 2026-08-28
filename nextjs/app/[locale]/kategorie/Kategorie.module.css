@@ -337,6 +337,41 @@
     font-size: 15px;
   }
 
+  /* Auf dem Telefon steht der Beschreibungstext unter Pack und Name statt
+     neben dem Pack.
+     Gemessen bei 390px: neben dem Pack bleiben dem Text rund 290px, und alle
+     neun Beschreibungen liefen dreizeilig, „Fast Food" und „Pizza" sogar
+     vierzeilig. Der Textblock wurde damit 137–164px hoch gegen 126px Pack —
+     bei `align-items: center` begann die Überschrift dann 5 bis 19px ÜBER der
+     Packoberkante, und das Pack schwamm in der Mitte (User, 28.08.).
+     Die Schrift zu verkleinern hilft dagegen nicht: `max-width: 62ch` wächst
+     und schrumpft mit dem Schriftgrad, die Zeilenzahl bleibt deshalb gleich.
+     Über die volle Zeilenbreite sind es zwei Zeilen (sieben von neun), und
+     Pack und Name stehen sauber nebeneinander.
+     `display: contents` löst den Textcontainer auf, damit Name und Text
+     eigene Rasterzellen bekommen — sonst müsste das Markup dafür umgebaut
+     werden. */
+  .categoryHead {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 12px;
+  }
+
+  .categoryHeadText {
+    display: contents;
+  }
+
+  .categoryName {
+    grid-column: 2;
+    margin-bottom: 0;
+  }
+
+  .categoryHead .categoryBlurb {
+    grid-column: 1 / -1;
+  }
+
   .detailPage {
     padding-inline: 14px;
   }

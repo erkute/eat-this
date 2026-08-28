@@ -9,6 +9,7 @@ import type {
   PortableTextBlock,
 } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
+import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
@@ -148,6 +149,10 @@ export default function NewsArticleShell({
   const dateFormatted = formatDate(article.date, locale);
   const chapters = extractHeadings(content);
   const hubLink = articleHubLink(article.slug);
+  // Nur Kategorie-Hubs haben ein Booster-Pack; Bezirke nicht.
+  const hubPack = hubLink?.href.startsWith('/kategorie/')
+    ? categoryArt(hubLink.href.replace('/kategorie/', ''))
+    : null;
   const showLede = Boolean(excerpt) && !ledeDuplicatesOpening(excerpt, content);
   const minutes = Math.max(1, Math.round(countWords(content) / 200));
   const readingTime = de ? `${minutes} Min. Lesezeit` : `${minutes} min read`;
@@ -162,20 +167,19 @@ export default function NewsArticleShell({
   // mirroring an in-app tap.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
-    // "Must Eat" lives in the kicker only — the CTA uses the canonical map
-    // wording so the label doesn't repeat itself.
-    const ctaLabel = de ? 'Auf die Map' : 'To the map';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
     const heading = restName || (de ? 'Das Must Eat' : 'The Must Eat');
-    const description = de
-      ? 'Das Gericht bleibt verdeckt, bis du es auf der Map aufdeckst.'
-      : 'The dish stays covered until you reveal it on the map.';
-    const kickerMeta = [
-      block.district,
-      block.cuisineType ? localizedCuisine(block.cuisineType, de ? 'de' : 'en') : null,
-    ]
-      .filter(Boolean)
-      .join(' · ');
+    // Dieselbe Ansage wie auf der Spot-Seite („… hat es auf unsere Karten
+    // geschafft"), damit der Block wiedererkennbar ist. Bezirk und Küche
+    // standen hier vorher als Meta-Zeile — sie wiederholten, was der Artikel
+    // ringsum ohnehin erzählt, und machten aus dem Teaser eine Datenzeile.
+    const description = restName
+      ? de
+        ? `Ein Gericht hat es bei ${restName} auf unsere Karten geschafft.`
+        : `One dish here made it onto our cards.`
+      : de
+        ? 'Ein Gericht hat es auf unsere Karten geschafft.'
+        : 'One dish made it onto our cards.';
     const inner = (
       <>
         <div className={styles.mustEatPh}>
@@ -183,33 +187,30 @@ export default function NewsArticleShell({
           <img src="/pics/card-back.webp?v=7" alt="" />
         </div>
         <div className={styles.mustEatBody}>
-          <span className={styles.mustEatKicker}>
-            <span className={styles.mustEatTag}>Must Eat</span>
-            {kickerMeta && <span className={styles.mustEatMeta}>{kickerMeta}</span>}
-          </span>
+          <span className={styles.mustEatTag}>Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
           <p className={styles.mustEatDesc}>{description}</p>
-          <span className={styles.mustEatCta}>
-            <span>{ctaLabel}</span>
-          </span>
         </div>
       </>
     );
-    return block.mustEatId ? (
-      <MapIntentLink
-        href={`/map?me=${block.mustEatId}`}
-        rel="nofollow"
+    // Ziel ist die Spot-Seite, nicht mehr der Map-Deeplink. Auf die Map führt
+    // im selben Artikel schon die Spot-Karte (?r=<slug>) — beide Blöcke landeten
+    // also am selben Ort. Über die Spot-Seite kommt man weiterhin zur Karte:
+    // ihr Must-Eat-Teaser deeplinkt auf genau dieses Gericht. Ohne bekannten
+    // Slug bleibt die Must-Eat-Übersicht.
+    const href = block.restaurantSlug ? `/restaurant/${block.restaurantSlug}` : '/must-eats';
+    return (
+      <Link
+        href={href}
         className={styles.mustEat}
         aria-label={
           de
-            ? `Must Eat${restName ? ` bei ${restName}` : ''} auf der Map aufdecken`
-            : `Reveal the Must Eat${restName ? ` at ${restName}` : ''} on the map`
+            ? `Must Eat${restName ? ` bei ${restName}` : ''} ansehen`
+            : `See the Must Eat${restName ? ` at ${restName}` : ''}`
         }
       >
         {inner}
-      </MapIntentLink>
-    ) : (
-      <div className={styles.mustEat}>{inner}</div>
+      </Link>
     );
   };
 
@@ -343,20 +344,10 @@ export default function NewsArticleShell({
                 />
               </div>
 
-              {hubLink && (
-                <Link href={hubLink.href} className={styles.hubLink}>
-                  <span className={styles.hubLinkKicker}>
-                    {de ? 'Der ganze Katalog' : 'The full catalogue'}
-                  </span>
-                  <span className={styles.hubLinkLabel}>
-                    {articleHubLabel(hubLink, de ? 'de' : 'en')}
-                  </span>
-                  <span className={styles.hubLinkCta} aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              )}
-
+              {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
+                  darunter: Teilen bezieht sich auf den gelesenen Artikel und
+                  gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
+                  damit der letzte Schritt der Seite. */}
               <div className={styles.shareRow}>
                 <NewsArticleShare
                   title={title}
@@ -366,6 +357,31 @@ export default function NewsArticleShell({
                   className={styles.shareBtn}
                 />
               </div>
+
+              {hubLink && (
+                <Link href={hubLink.href} className={styles.hubLink}>
+                  {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
+                      davor — dieselbe Art wie auf /packs und in der
+                      „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
+                      keine Art; dort trägt die Zeile allein. Der Pfeil, der
+                      hier stand, ist weg: die Fläche ist der Knopf. */}
+                  {hubPack && (
+                    <Image
+                      src={hubPack}
+                      alt=""
+                      width={72}
+                      height={101}
+                      className={styles.hubLinkPack}
+                    />
+                  )}
+                  <span className={styles.hubLinkKicker}>
+                    {de ? 'Der ganze Katalog' : 'The full catalogue'}
+                  </span>
+                  <span className={styles.hubLinkLabel}>
+                    {articleHubLabel(hubLink, de ? 'de' : 'en')}
+                  </span>
+                </Link>
+              )}
             </div>
           </div>
 

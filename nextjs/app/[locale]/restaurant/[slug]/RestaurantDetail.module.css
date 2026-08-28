@@ -175,6 +175,10 @@
   max-width: 12ch;
   margin: 0;
   color: var(--detail-red);
+  /* Markenschrift statt geerbtem Body-Font: Leading (--et-leading-title) und
+     Tracking (-0.025em) dieses Blocks sind die Providence-Titelwerte aus
+     .hv-title — nur die font-family fehlte. */
+  font-family: var(--f-display);
   font-size: clamp(54px, 9vw, 126px);
   line-height: var(--et-leading-title, 0.86);
   /* `anywhere`, nicht `break-word`: nur `anywhere` zählt in die
@@ -759,6 +763,9 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
+  /* Markenschrift — der Kommentar unten rechnet längst mit der Displayschrift
+     (Zeilenbox 0.94, Unterlängen-Reserve 0.28em), nur die Deklaration fehlte. */
+  font-family: var(--f-display);
   /* Die Zeilenhöhe der Displayschrift (0.94) ist kleiner als ihre Glyphen:
      gemessen 15px Zeilenbox gegen 19px Inhalt. Mit `overflow: hidden` schnitte
      das die Unterlängen ab — „Jules Geisberg" verlöre die Bögen von g und J.

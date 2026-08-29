@@ -30,22 +30,16 @@ const DAY_MAP: Record<string, DayIndex> = {
   saturday: 6,
 };
 
-// Indexed to match DayIndex (0 = Sunday).
-const DAY_LABELS = {
+/**
+ * Die Tageskürzel, indiziert wie DayIndex (0 = Sonntag). Tragen zwei Sachen:
+ * die Tageskürzel in der Öffnungszeiten-Tabelle und den Wochentag im
+ * Zustandstext („Geschlossen · Öffnet So 12:00"). Eine Liste für beides —
+ * derselbe Tag darf nicht an einer Stelle „So" und an der anderen „Sonntag"
+ * heißen.
+ */
+export const DAY_LABELS = {
   de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
   en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-} as const;
-
-/**
- * Ausgeschriebene Wochentage für den Zustandstext, gleich indiziert
- * (0 = Sonntag). Bewusst getrennt von DAY_LABELS: die Kürzel oben stehen in
- * der Öffnungszeiten-Tabelle, wo die Spalte schmal ist und der Kontext den Tag
- * schon nennt. Im Zustandstext steht der Tag mitten im Satz — „Öffnet Sonntag
- * 12:00" liest sich, „Öffnet So 12:00" stolpert.
- */
-export const WEEKDAY_LABELS = {
-  de: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-  en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 } as const;
 
 /**
@@ -158,7 +152,7 @@ interface OpenStatusLabels {
   closes?: string;
   unitH?: string;
   unitMin?: string;
-  /** Ausgeschriebene Wochentage, 0 = Sonntag — siehe WEEKDAY_LABELS. */
+  /** Tageskürzel, 0 = Sonntag — siehe DAY_LABELS. */
   days?: readonly string[];
 }
 
@@ -255,7 +249,7 @@ const CHIP_TILL = { de: 'bis', en: 'till' } as const;
  *
  * Der Chip nennt bei geschlossenen Läden die nächste Öffnungszeit — das
  * Map-Sheet ließ sie bisher weg und sagte nur „Geschlossen". Wer vor der Tür
- * steht, will genau diese Zahl. Fällt sie nicht auf heute, steht der Wochentag
+ * steht, will genau diese Zahl. Fällt sie nicht auf heute, steht der Tag
  * davor: „Öffnet 12:00" an einem geschlossenen Samstag las sich, als ginge es
  * gleich los, gemeint war der Sonntag.
  */
@@ -265,7 +259,7 @@ export function formatOpenStateChip(
   now: Date = berlinNow()
 ): { text: string; isOpen: boolean } | null {
   if (!openingHours || openingHours.length === 0) return null;
-  const L = { ...OPEN_STATUS_LABELS[locale], days: WEEKDAY_LABELS[locale] };
+  const L = { ...OPEN_STATUS_LABELS[locale], days: DAY_LABELS[locale] };
   const status = getOpenStatus(openingHours, now, L);
   if (!status.label) return null;
   const time = status.changeAt;
@@ -303,7 +297,7 @@ export function getOpenStatus(
     closes: l.closes ?? 'Closes',
     unitH: l.unitH ?? 'h',
     unitMin: l.unitMin ?? 'min',
-    days: l.days ?? WEEKDAY_LABELS.en,
+    days: l.days ?? DAY_LABELS.en,
   };
   const today = now.getDay() as DayIndex;
   const yesterday = ((today + 6) % 7) as DayIndex;
@@ -384,7 +378,7 @@ export function getOpenStatus(
   const openAt = fmt(next.openMin);
   // Eine nackte Uhrzeit liest sich als „gleich": „Geschlossen · Öffnet 12:00"
   // hieß an einem Ruhetag den Sonntag um zwölf, nicht heute. Ab dem ersten Tag
-  // Abstand nennt das Label den Wochentag mit.
+  // Abstand nennt das Label den Tag mit.
   const nextOpenDay = next.dayOffset === 0 ? null : (L.days[(today + next.dayOffset) % 7] ?? null);
 
   return {

@@ -5,7 +5,7 @@ import {
   getOpenStatus,
   buildOpeningHoursSpec,
   formatOpenStateChip,
-  WEEKDAY_LABELS,
+  DAY_LABELS,
 } from './openingHours';
 import type { OpeningHourSlot } from '../types';
 
@@ -143,43 +143,43 @@ describe('getOpenStatus', () => {
 
   // Eine nackte Uhrzeit hinter „Geschlossen" liest sich als „gleich geht's
   // los" — an einem Ruhetag war damit aber der nächste Öffnungstag gemeint.
-  it('names the weekday when the next opening is not today', () => {
+  it('names the day when the next opening is not today', () => {
     expect(getOpenStatus(weekdaySlot, SUNDAY)).toMatchObject({
       isOpen: false,
-      label: 'Closed · Opens Monday 12:00',
+      label: 'Closed · Opens Mon 12:00',
       changeAt: '12:00',
-      nextOpenDay: 'Monday',
+      nextOpenDay: 'Mon',
     });
   });
 
-  it('leaves the weekday out when the shop still opens today', () => {
+  it('leaves the day out when the shop still opens today', () => {
     expect(getOpenStatus(weekdaySlot, MON_11AM)).toMatchObject({
       label: 'Closed · Opens 12:00',
       nextOpenDay: null,
     });
   });
 
-  it('names the weekday after the last shift of the day', () => {
+  it('names the day after the last shift of the day', () => {
     const { label } = getOpenStatus(weekdaySlot, MON_11PM);
-    expect(label).toBe('Closed · Opens Tuesday 12:00');
+    expect(label).toBe('Closed · Opens Tue 12:00');
   });
 
-  it('counts the weekday forward across the week, not from a fixed day', () => {
+  it('counts the day forward across the week, not from a fixed day', () => {
     // Freitag nach Feierabend, Sa/So Ruhetag: der nächste Slot ist der Montag.
     const fridayLate = new Date('2026-04-24T22:30:00');
     expect(getOpenStatus(weekdaySlot, fridayLate)).toMatchObject({
-      label: 'Closed · Opens Monday 12:00',
-      nextOpenDay: 'Monday',
+      label: 'Closed · Opens Mon 12:00',
+      nextOpenDay: 'Mon',
     });
   });
 
-  it('takes the weekday names from the caller so German pages stay German', () => {
+  it('takes the day names from the caller so German pages stay German', () => {
     const { label } = getOpenStatus(weekdaySlot, SUNDAY, {
       closed: 'Geschlossen',
       opens: 'Öffnet',
-      days: WEEKDAY_LABELS.de,
+      days: DAY_LABELS.de,
     });
-    expect(label).toBe('Geschlossen · Öffnet Montag 12:00');
+    expect(label).toBe('Geschlossen · Öffnet Mo 12:00');
   });
 
   it('says nothing but closed when no slot is parseable', () => {
@@ -202,7 +202,7 @@ describe('formatOpenStateChip', () => {
 
   it('names the day when the next opening is not today', () => {
     const chip = formatOpenStateChip(satClosed, 'de', new Date('2026-08-29T19:00:00'));
-    expect(chip).toEqual({ text: 'Geschlossen · Öffnet Sonntag 12:00', isOpen: false });
+    expect(chip).toEqual({ text: 'Geschlossen · Öffnet So 12:00', isOpen: false });
   });
 
   it('keeps the bare time when the shop opens later today', () => {
@@ -212,7 +212,7 @@ describe('formatOpenStateChip', () => {
 
   it('translates the day for the English page', () => {
     const chip = formatOpenStateChip(satClosed, 'en', new Date('2026-08-29T19:00:00'));
-    expect(chip).toEqual({ text: 'Closed · Opens Sunday 12:00', isOpen: false });
+    expect(chip).toEqual({ text: 'Closed · Opens Sun 12:00', isOpen: false });
   });
 
   it('still shows the closing time while open', () => {

@@ -29,6 +29,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
+import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
 import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
 import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 
@@ -45,18 +46,29 @@ export default function BridgeAuth() {
   // magic-link return) lands the user in their profile — the same destination
   // the /login page uses. BridgeAuth owns the modal lifecycle, so it owns this
   // redirect rather than relying on the soon-to-unmount LoginPanel's effect.
+  //
+  // Gehalten wird vorher: der Wartescreen (AuthScreen) haengt im Panel, also
+  // an genau diesem Modal. Schliesst es in derselben Runde, in der Firebase
+  // den Nutzer meldet, ist der Screen weg, bevor er gelesen ist — beim
+  // Google-Popup bekommt er sowieso erst nach dem Popup-Fenster seinen
+  // Auftritt. Deshalb schliesst und leitet erst dieser Timer weiter, und
+  // nicht mehr der Sync-Effekt darunter.
   useEffect(() => {
     if (loading || !user || !loginOpen) return;
-    try {
-      sessionStorage.setItem(
-        TOAST_HANDOFF_KEY,
-        locale === 'de' ? 'Du bist angemeldet' : "You're signed in"
-      );
-    } catch {
-      /* private mode */
-    }
-    router.replace('/');
-  }, [user, loading, loginOpen, router, locale]);
+    const timer = window.setTimeout(() => {
+      try {
+        sessionStorage.setItem(
+          TOAST_HANDOFF_KEY,
+          locale === 'de' ? 'Du bist angemeldet' : "You're signed in"
+        );
+      } catch {
+        /* private mode */
+      }
+      closeLogin();
+      router.replace('/');
+    }, AUTH_SCREEN_HOLD_MS);
+    return () => window.clearTimeout(timer);
+  }, [user, loading, loginOpen, router, locale, closeLogin]);
 
   // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the
   // overlay (single owner — a second snapshot-restore lock here raced with
@@ -86,8 +98,9 @@ export default function BridgeAuth() {
           JSON.stringify({ n: firstName, u: user.uid, ...(avatar ? { a: avatar } : {}) })
         );
       } catch {}
-      // Close the modal if the user just signed in.
-      closeLogin();
+      // Das Schliessen liegt im Effekt darueber — es faellt mit der
+      // Weiterleitung zusammen und wartet mit ihr die Haltezeit des
+      // Wartescreens ab.
     } else {
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');
@@ -96,7 +109,7 @@ export default function BridgeAuth() {
         localStorage.removeItem('_authHint');
       } catch {}
     }
-  }, [user, loading, t, closeLogin]);
+  }, [user, loading, t]);
 
   return loginOpen
     ? createPortal(

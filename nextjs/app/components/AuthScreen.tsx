@@ -8,6 +8,21 @@ import styles from './AuthScreen.module.css';
 const CARD_BACK = '/pics/card-back.webp?v=7';
 const CARD_FRONT = '/pics/card-front.webp';
 
+/**
+ * Wie lange der Screen mindestens stehen bleibt, bevor die Seite ihn wegnimmt.
+ *
+ * An- und Abmelden selbst dauern Millisekunden. Ohne diese Haltezeit war der
+ * Screen wieder weg, bevor man ihn gelesen hatte (Nutzer, 29.08.2026) — beim
+ * Abmelden reisst ProfileAuthGuard die Seite weg, sobald Firebase `null`
+ * meldet, beim Anmelden schliesst BridgeAuth in derselben Runde das Modal, an
+ * dem der Screen haengt.
+ *
+ * 2200ms sind der Aufgang (420ms) plus ein voller Faecher-Durchlauf (1700ms):
+ * die Karten stehen beim Schnitt wieder in ihrer Ausgangslage. Eine Zahl fuer
+ * beide Richtungen — sie sollen sich gleich anfuehlen.
+ */
+export const AUTH_SCREEN_HOLD_MS = 2200;
+
 interface Props {
   /** 'in' meldet an, 'out' meldet ab — Kicker, Zeile und Fächerrichtung folgen. */
   mode: 'in' | 'out';

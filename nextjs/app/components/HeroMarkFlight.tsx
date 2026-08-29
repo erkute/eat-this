@@ -40,6 +40,8 @@ export default function HeroMarkFlight() {
 
     let flyer: HTMLImageElement | null = null;
     let ticking = false;
+    /** Ist die Marke im Header angekommen? Dann übernimmt dort das echte Bild. */
+    let landed = false;
     let geo: {
       startX: number;
       startY: number;
@@ -57,8 +59,9 @@ export default function HeroMarkFlight() {
       flyer?.remove();
       flyer = null;
       geo = null;
-      heroMark()?.classList.remove(styles.markPlaceholder);
+      landed = false;
       document.documentElement.removeAttribute('data-hero-flight');
+      document.documentElement.removeAttribute('data-hero-landed');
       document.documentElement.removeAttribute('data-nav-hold');
     };
 
@@ -104,6 +107,20 @@ export default function HeroMarkFlight() {
       flyer.style.width = `${geo.startW}px`;
       flyer.style.transform = `translate3d(${x}px, ${ty}px, 0) scale(${s})`;
 
+      // Ankunft: ab hier übernimmt wieder das eingebaute Header-Bild, und der
+      // Flieger tritt ab. Sonst bliebe er als `position: fixed`-Element am body
+      // im Logoplatz kleben, während der Header beim Weiterscrollen nach oben
+      // wegklappt — die Marke stünde dann allein über der Seite. Beide zeigen
+      // dieselbe Datei in derselben gemessenen Größe an derselben Stelle, der
+      // Tausch ist im selben Frame also nicht zu sehen. Scrollt jemand wieder
+      // hoch, geht der Platz genauso zurück an den Flieger.
+      if (p >= 1 !== landed) {
+        landed = p >= 1;
+        flyer.style.visibility = landed ? 'hidden' : '';
+        if (landed) document.documentElement.setAttribute('data-hero-landed', 'on');
+        else document.documentElement.removeAttribute('data-hero-landed');
+      }
+
       // Der Header darf erst danach wegklappen. SiteNav liest das Attribut.
       if (y > NAV_HOLD) {
         document.documentElement.removeAttribute('data-nav-hold');
@@ -137,7 +154,10 @@ export default function HeroMarkFlight() {
         teardown();
         return;
       }
-      mark.classList.add(styles.markPlaceholder);
+      // Das Original tritt zurück, sobald das Attribut steht — die Regel dazu
+      // steht in HubSection.module.css. Bewusst nicht über eine Klasse an
+      // diesem Element: HubHeroCopy rendert neu, wenn `useAuth` fertig ist,
+      // und React schreibt `className` dabei frisch.
       document.documentElement.setAttribute('data-hero-flight', 'on');
       draw();
     };

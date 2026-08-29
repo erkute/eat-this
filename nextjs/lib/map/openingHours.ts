@@ -37,6 +37,18 @@ const DAY_LABELS = {
 } as const;
 
 /**
+ * Ausgeschriebene Wochentage für den Zustandstext, gleich indiziert
+ * (0 = Sonntag). Bewusst getrennt von DAY_LABELS: die Kürzel oben stehen in
+ * der Öffnungszeiten-Tabelle, wo die Spalte schmal ist und der Kontext den Tag
+ * schon nennt. Im Zustandstext steht der Tag mitten im Satz — „Öffnet Sonntag
+ * 12:00" liest sich, „Öffnet So 12:00" stolpert.
+ */
+export const WEEKDAY_LABELS = {
+  de: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+  en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+} as const;
+
+/**
  * `days` is free text an editor typed into Sanity ("Mon-Thu", "Mo–So",
  * "Wed,Thu,Sun "), so the German page was showing English abbreviations.
  * Tokens that map to a weekday get the locale's label; anything unrecognised
@@ -146,6 +158,8 @@ interface OpenStatusLabels {
   closes?: string;
   unitH?: string;
   unitMin?: string;
+  /** Ausgeschriebene Wochentage, 0 = Sonntag — siehe WEEKDAY_LABELS. */
+  days?: readonly string[];
 }
 
 // schema.org dayOfWeek names, indexed to match DayIndex (0 = Sunday).
@@ -241,7 +255,9 @@ const CHIP_TILL = { de: 'bis', en: 'till' } as const;
  *
  * Der Chip nennt bei geschlossenen Läden die nächste Öffnungszeit — das
  * Map-Sheet ließ sie bisher weg und sagte nur „Geschlossen". Wer vor der Tür
- * steht, will genau diese Zahl.
+ * steht, will genau diese Zahl. Fällt sie nicht auf heute, steht der Wochentag
+ * davor: „Öffnet 12:00" an einem geschlossenen Samstag las sich, als ginge es
+ * gleich los, gemeint war der Sonntag.
  */
 export function formatOpenStateChip(
   openingHours: OpeningHourSlot[] | undefined,
@@ -249,14 +265,16 @@ export function formatOpenStateChip(
   now: Date = berlinNow()
 ): { text: string; isOpen: boolean } | null {
   if (!openingHours || openingHours.length === 0) return null;
-  const L = OPEN_STATUS_LABELS[locale];
+  const L = { ...OPEN_STATUS_LABELS[locale], days: WEEKDAY_LABELS[locale] };
   const status = getOpenStatus(openingHours, now, L);
   if (!status.label) return null;
-  const time = status.label.match(/(\d{1,2}:\d{2})/)?.[1] ?? null;
+  const time = status.changeAt;
   if (status.isOpen) {
     return { text: time ? `${L.open} ${CHIP_TILL[locale]} ${time}` : L.open, isOpen: true };
   }
-  return { text: time ? `${L.closed} · ${L.opens} ${time}` : L.closed, isOpen: false };
+  if (!time) return { text: L.closed, isOpen: false };
+  const when = status.nextOpenDay ? `${status.nextOpenDay} ${time}` : time;
+  return { text: `${L.closed} · ${L.opens} ${when}`, isOpen: false };
 }
 
 export function berlinNow(base: Date = new Date()): Date {
@@ -285,6 +303,7 @@ export function getOpenStatus(
     closes: l.closes ?? 'Closes',
     unitH: l.unitH ?? 'h',
     unitMin: l.unitMin ?? 'min',
+    days: l.days ?? WEEKDAY_LABELS.en,
   };
   const today = now.getDay() as DayIndex;
   const yesterday = ((today + 6) % 7) as DayIndex;
@@ -305,6 +324,8 @@ export function getOpenStatus(
             isOpen: true,
             label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
             minutesUntilChange: left,
+            changeAt: fmt(range.close),
+            nextOpenDay: null,
           };
         }
       } else {
@@ -315,6 +336,8 @@ export function getOpenStatus(
             isOpen: true,
             label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
             minutesUntilChange: left,
+            changeAt: fmt(range.close),
+            nextOpenDay: null,
           };
         }
         // Early-morning half: opened yesterday, still running today.
@@ -324,6 +347,8 @@ export function getOpenStatus(
             isOpen: true,
             label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
             minutesUntilChange: left,
+            changeAt: fmt(range.close),
+            nextOpenDay: null,
           };
         }
       }
@@ -346,14 +371,27 @@ export function getOpenStatus(
   }
 
   if (!next) {
-    return { isOpen: false, label: L.closed, minutesUntilChange: null };
+    return {
+      isOpen: false,
+      label: L.closed,
+      minutesUntilChange: null,
+      changeAt: null,
+      nextOpenDay: null,
+    };
   }
 
   const minutesUntil = next.dayOffset * 24 * 60 + next.openMin - currentMin;
+  const openAt = fmt(next.openMin);
+  // Eine nackte Uhrzeit liest sich als „gleich": „Geschlossen · Öffnet 12:00"
+  // hieß an einem Ruhetag den Sonntag um zwölf, nicht heute. Ab dem ersten Tag
+  // Abstand nennt das Label den Wochentag mit.
+  const nextOpenDay = next.dayOffset === 0 ? null : (L.days[(today + next.dayOffset) % 7] ?? null);
 
   return {
     isOpen: false,
-    label: `${L.closed} · ${L.opens} ${fmt(next.openMin)}`,
+    label: `${L.closed} · ${L.opens} ${nextOpenDay ? `${nextOpenDay} ` : ''}${openAt}`,
     minutesUntilChange: minutesUntil,
+    changeAt: openAt,
+    nextOpenDay,
   };
 }

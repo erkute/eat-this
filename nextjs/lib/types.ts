@@ -291,4 +291,16 @@ export interface OpenStatus {
   isOpen: boolean;
   label: string;
   minutesUntilChange: number | null;
+  /**
+   * Uhrzeit des nächsten Wechsels („12:00") — Schließzeit, wenn offen, sonst
+   * die nächste Öffnungszeit. Null, wenn gar keine Zeit ermittelbar war.
+   * Chips bauen ihre Kurzform daraus, statt sie aus `label` zurückzuparsen.
+   */
+  changeAt: string | null;
+  /**
+   * Ausgeschriebener Wochentag der nächsten Öffnung — nur gesetzt, wenn sie
+   * nicht mehr heute ist. Steht schon in `label`; separat, damit die Kurzform
+   * ihn nicht verliert.
+   */
+  nextOpenDay: string | null;
 }

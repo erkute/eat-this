@@ -19,6 +19,7 @@ import { formatPackPrice } from '@/lib/pack/packDetail';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import { WEEKDAY_LABELS } from '@/lib/map/openingHours';
 import { useLoginModal } from '@/lib/auth';
 import MapListEmpty from './MapListEmpty';
 import styles from './RestaurantList.module.css';
@@ -84,6 +85,11 @@ const Item = memo(
       closes: t('map.closes'),
       unitH: t('map.unitsH'),
       unitMin: t('map.unitsMin'),
+      // Die Wochentage haben in `translations.map` kein Gegenstück — sie
+      // stehen beim Öffnungszeiten-Code (direkt importiert, nicht über den
+      // Barrel: eine Konstante, die kein Test stubben will), damit der
+      // Zustandstext dieselben Wörter nennt wie Map-Sheet, Spot-Seite und Remy.
+      days: WEEKDAY_LABELS[loc],
     };
     const status: OpenStatus | null =
       now && restaurant.openingHours

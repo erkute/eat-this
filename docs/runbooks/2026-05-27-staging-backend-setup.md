@@ -63,10 +63,10 @@ Then reference these in `apphosting.yaml` for the staging backend — see step 4
 The single `nextjs/apphosting.yaml` applies to all backends by default. To override per backend, App Hosting reads `apphosting.<backend-id>.yaml` if present. Create:
 
 ```bash
-cp nextjs/apphosting.yaml nextjs/apphosting.eat-this-staging.yaml
+cp nextjs/apphosting.yaml nextjs/apphosting.staging.yaml
 ```
 
-Edit `nextjs/apphosting.eat-this-staging.yaml`:
+Edit `nextjs/apphosting.staging.yaml`:
 
 - Change `NEXT_PUBLIC_ENV` value from `production` to `staging`
 - Replace `secret: STRIPE_SECRET_KEY` with `secret: STRIPE_SECRET_KEY_STAGING` (test mode key)
@@ -86,7 +86,7 @@ Edit `nextjs/apphosting.eat-this-staging.yaml`:
 Commit:
 
 ```bash
-git add nextjs/apphosting.eat-this-staging.yaml
+git add nextjs/apphosting.staging.yaml
 git commit -m "infra(apphosting): staging backend overrides"
 git push origin staging
 ```
@@ -110,7 +110,7 @@ firebase apphosting:secrets:set STRIPE_WEBHOOK_SECRET_STAGING --data-file=- <<<"
 firebase apphosting:secrets:grantaccess STRIPE_WEBHOOK_SECRET_STAGING --backend eat-this-staging
 ```
 
-Update `nextjs/apphosting.eat-this-staging.yaml` to reference `STRIPE_WEBHOOK_SECRET_STAGING` instead of `STRIPE_WEBHOOK_SECRET`. Commit + push staging → new rollout.
+Update `nextjs/apphosting.staging.yaml` to reference `STRIPE_WEBHOOK_SECRET_STAGING` instead of `STRIPE_WEBHOOK_SECRET`. Commit + push staging → new rollout.
 
 ## 6. Smoke test the Basic Auth gate
 

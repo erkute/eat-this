@@ -160,8 +160,8 @@ function pickCuisine(types: string[] = []): string | null {
 }
 
 // Convert Places weekdayDescriptions (localized German) to Sanity daySlot[],
-// grouping consecutive same-hours days into ranges. Same logic as
-// scripts/enrich-new-restaurants.mjs.
+// grouping consecutive same-hours days into ranges. Einzige Stelle mit dieser
+// Umrechnung — wer sie kopiert, hat zwei Wahrheiten.
 const DAY_ORDER = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
 const DAY_SHORT: Record<string, string> = {
   Montag: 'Mon',

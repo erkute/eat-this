@@ -88,7 +88,7 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1044,
-    partner: { src: '/pics/card-front.webp', width: 760, height: 1045, tilt: 7 },
+    partner: { src: '/pics/card-front.webp?v=2', width: 760, height: 1044, tilt: 7 },
     // The pair spans the rail; each card lands near 62% of it. On the dark
     // ground the cards are the brightest thing on the page, and brightness
     // reads as size — hence narrower than the plate on white.

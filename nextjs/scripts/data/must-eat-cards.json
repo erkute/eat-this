@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Restaurant und Gericht stehen nur hier, damit die Zuordnung ohne Sanity nachprüfbar bleibt. Drafts stehen mit drin: 023 und 024 warten noch auf ihr Publish, ihr Bild haengt trotzdem hier.",
+  "cards": [
+    {
+      "order": 1,
+      "file": "Main.png",
+      "spot": "Saveur de Bánh Mì",
+      "dish": "Banh Mi Vegan"
+    },
+    {
+      "order": 2,
+      "file": "Main-22.png",
+      "spot": "SOFI",
+      "dish": "Breakfast Plate"
+    },
+    {
+      "order": 3,
+      "file": "Main-21.png",
+      "spot": "ALL IN.",
+      "dish": "Single Burger"
+    },
+    {
+      "order": 4,
+      "file": "Main-20.png",
+      "spot": "Atelier Dough",
+      "dish": "Donut"
+    },
+    {
+      "order": 5,
+      "file": "Main-19.png",
+      "spot": "AERA Charlottenburg",
+      "dish": "Grilled Cheese"
+    },
+    {
+      "order": 6,
+      "file": "Main-18.png",
+      "spot": "Romeo's Sandwiches",
+      "dish": "Sandwich"
+    },
+    {
+      "order": 7,
+      "file": "Main-17.png",
+      "spot": "Kitten Deli",
+      "dish": "Sabich"
+    },
+    {
+      "order": 8,
+      "file": "Main-16.png",
+      "spot": "Schüsseldienst",
+      "dish": "Rinder Schaufel"
+    },
+    {
+      "order": 9,
+      "file": "Main-15.png",
+      "spot": "Hasir",
+      "dish": "Döner"
+    },
+    {
+      "order": 10,
+      "file": "Main-14.png",
+      "spot": "Jones Ice Cream",
+      "dish": "Cookies"
+    },
+    {
+      "order": 11,
+      "file": "Main-1.png",
+      "spot": "Bar Basta",
+      "dish": "ODB Sandwich"
+    },
+    {
+      "order": 12,
+      "file": "Main-13.png",
+      "spot": "Jules Geisberg",
+      "dish": "Cappuccino"
+    },
+    {
+      "order": 13,
+      "file": "Main-12.png",
+      "spot": "SOFI",
+      "dish": "Morning Bun"
+    },
+    {
+      "order": 14,
+      "file": "Main-11.png",
+      "spot": "Gazzo",
+      "dish": "Pizza Aubergine"
+    },
+    {
+      "order": 15,
+      "file": "Main-10.png",
+      "spot": "Slice Society",
+      "dish": "Tomate Slice"
+    },
+    {
+      "order": 16,
+      "file": "Main-9.png",
+      "spot": "Hokey Pokey Stargarder",
+      "dish": "Ice Cream"
+    },
+    {
+      "order": 17,
+      "file": "Main-8.png",
+      "spot": "Bubar Crepes und Galettes",
+      "dish": "Galette"
+    },
+    {
+      "order": 18,
+      "file": "Main-7.png",
+      "spot": "GEMELLO",
+      "dish": "Pizza"
+    },
+    {
+      "order": 19,
+      "file": "Main-6.png",
+      "spot": "Wen Cheng 1",
+      "dish": "Biang Biang Lamb"
+    },
+    {
+      "order": 20,
+      "file": "Main-5.png",
+      "spot": "Bar Basta",
+      "dish": "Spicy Thai Sausage"
+    },
+    {
+      "order": 21,
+      "file": "Main-4.png",
+      "spot": "Bursa Uludağ Kebapçısı",
+      "dish": "Döner"
+    },
+    {
+      "order": 22,
+      "file": "Main-3.png",
+      "spot": "Crapulix",
+      "dish": "Croissant"
+    },
+    {
+      "order": 23,
+      "file": "Main-2.png",
+      "spot": "Tacos el Rey",
+      "dish": "Chorizo Verde"
+    },
+    {
+      "order": 24,
+      "file": "Main-23.png",
+      "spot": "EIVGI´S Orientalische Hausmannskost",
+      "dish": "Falafel Teller"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import { useTranslation } from '@/lib/i18n';
 import styles from './AuthScreen.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
-const CARD_FRONT = '/pics/card-front.webp';
+const CARD_FRONT = '/pics/card-front.webp?v=2';
 
 /**
  * Wie lange der Screen mindestens stehen bleibt, bevor die Seite ihn wegnimmt.

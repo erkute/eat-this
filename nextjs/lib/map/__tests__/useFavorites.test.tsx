@@ -102,6 +102,26 @@ describe('useFavorites uid isolation', () => {
     );
   });
 
+  /* Der Tap eines Ausgeloggten ging vorher verloren: Modal auf, und danach
+     stand derselbe Mensch vor demselben leeren Herz. Jetzt wartet die Absicht
+     auf das Konto — im sessionStorage fuer den Google-Weg, am Modal fuer die
+     Continue-URL des Magic-Links. */
+  it('merkt sich das Herz eines Ausgeloggten und gibt es dem Login mit', async () => {
+    window.sessionStorage.clear();
+    const { result } = renderHook(() => useFavorites(null));
+
+    await act(async () => {
+      await result.current.toggle({ _id: 'restaurant-a', name: 'Spot A' });
+    });
+
+    expect(mocks.openLoginModal).toHaveBeenCalledWith('signin', {
+      heartRestaurantId: 'restaurant-a',
+    });
+    expect(JSON.parse(window.sessionStorage.getItem('eatthis_pending_heart') ?? '{}').id).toBe(
+      'restaurant-a'
+    );
+  });
+
   it('ignores a previous uid read that resolves after an account switch', async () => {
     let resolveFirst:
       | ((value: { docs: Array<{ id: string; data: () => object }> }) => void)

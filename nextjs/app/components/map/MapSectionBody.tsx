@@ -375,6 +375,41 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
   }, [locationStatusKey]);
 
+  /* Die Standort-Meldung geht durch die zentrale Info-Karte, nicht mehr durch
+     eine eigene Leiste am unteren Rand. Zwei Infoflaechen auf einem Schirm
+     waren eine zu viel: die Leiste sass unter dem Sheet-Griff, die Toasts
+     daneben, und welche der beiden gerade sprach, war Zufall. Der
+     Zustandsautomat bleibt hier — er kennt die Nachfrist, den Selbstabgang
+     und das Weggeklickte; die Karte zeigt nur.
+     `duration: 0`, weil genau dieser Automat das Abraeumen besitzt. */
+  const locationNoticeCopy =
+    showLocationStatus && !mapDataLoading && !mapDataError ? locationStatus.copy : null;
+  useEffect(() => {
+    if (!locationNoticeCopy) return;
+    /* Der Rueckgabewert raeumt genau diese Meldung ab und laesst eine
+       inzwischen nachgerueckte stehen. */
+    return window.showNotice?.({
+      tone: locationStatus.isError ? 'warning' : 'info',
+      icon: 'pin',
+      eyebrow: locale === 'en' ? 'Location' : 'Standort',
+      title: locationNoticeCopy,
+      action: locationStatus.canRetry
+        ? { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleLocationRetry }
+        : undefined,
+      /* Nur die Fehler bekommen einen Wegklick-Knopf. Das Suchen raeumt sich
+         selbst ab, sobald der Standort da ist. */
+      onDismiss: locationStatus.isError ? handleDismissLocationStatus : undefined,
+      duration: 0,
+    });
+  }, [
+    locationNoticeCopy,
+    locationStatus.isError,
+    locationStatus.canRetry,
+    locale,
+    handleLocationRetry,
+    handleDismissLocationStatus,
+  ]);
+
   /* In-flow phone sheet: the sticky header rests below the iOS status-bar/
      notch zone (top: env(safe-area-inset-top), see MapFilters.module.css).
      That zone deliberately stays uncapped so Safari can sample the scrolling
@@ -782,34 +817,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             onRetry={onRetryMapData}
           />
 
-          {!mapDataLoading && !mapDataError && showLocationStatus && (
-            <div
-              className={`${controlStyles.mapStatusLayer} ${locationStatus.isError ? controlStyles.mapStatusLayerError : ''}`}
-              role={locationStatus.isError ? 'alert' : 'status'}
-            >
-              <span className={controlStyles.mapStatusText}>{locationStatus.copy}</span>
-              {locationStatus.isError && locationStatus.canRetry && (
-                <button
-                  type="button"
-                  className={controlStyles.mapStatusAction}
-                  onClick={handleLocationRetry}
-                  disabled={locateLoading}
-                >
-                  {locale === 'en' ? 'Retry' : 'Nochmal'}
-                </button>
-              )}
-              <button
-                type="button"
-                className={controlStyles.mapStatusDismiss}
-                onClick={handleDismissLocationStatus}
-                aria-label={
-                  locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'
-                }
-              >
-                ×
-              </button>
-            </div>
-          )}
+          {/* Die Standort-Meldung selbst haengt in der zentralen Info-Karte
+              (NotificationToast) — hier steht nur noch der Automat, der sie
+              fuettert (siehe oben). */}
         </div>
       </div>
     </main>

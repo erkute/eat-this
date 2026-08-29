@@ -574,15 +574,6 @@
   cursor: pointer;
 }
 
-.mapStatusDismiss {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0;
-  cursor: pointer;
-}
-
 .mapStatusLayer,
 .mapStatusLayerError {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -592,12 +583,6 @@
 }
 
 .mapStatusAction {
-  box-shadow: none;
-}
-
-.mapStatusDismiss {
-  background: transparent;
-  border: 0;
   box-shadow: none;
 }
 
@@ -903,10 +888,6 @@
   box-shadow: none;
 }
 
-.mapStatusLayerError {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-}
-
 .mapStatusText {
   min-width: 0;
   color: inherit;
@@ -936,23 +917,8 @@
   text-transform: none;
 }
 
-.mapStatusDismiss {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  color: currentColor;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-}
-
 .mapStatusAction:hover,
-.mapStatusAction:focus-visible,
-.mapStatusDismiss:hover,
-.mapStatusDismiss:focus-visible {
+.mapStatusAction:focus-visible {
   color: var(--et-home-accent, #ffc600);
   outline: 0;
 }

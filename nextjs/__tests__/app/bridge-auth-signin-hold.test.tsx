@@ -6,15 +6,21 @@ const state = vi.hoisted(() => ({
   user: null as { uid: string; displayName: string; email: string } | null,
   loading: false,
   loginOpen: false,
+  intent: null as { heartRestaurantId?: string } | null,
   close: vi.fn(),
-  replace: vi.fn(),
+  useRouter: vi.fn(() => ({ replace: vi.fn(), push: vi.fn() })),
 }));
 
 vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
-vi.mock('@/i18n/navigation', () => ({ useRouter: () => ({ replace: state.replace }) }));
+vi.mock('@/i18n/navigation', () => ({ useRouter: state.useRouter }));
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: state.user, loading: state.loading }),
-  useLoginModal: () => ({ isOpen: state.loginOpen, mode: 'starter', close: state.close }),
+  useLoginModal: () => ({
+    isOpen: state.loginOpen,
+    mode: 'starter',
+    intent: state.intent,
+    close: state.close,
+  }),
 }));
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ lang: 'de', t: (key: string) => key, setLang: vi.fn() }),
@@ -26,16 +32,19 @@ vi.mock('next/dynamic', () => ({ default: () => () => <div>Login panel</div> }))
 
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
-import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
+
+const showNotification = vi.fn();
 
 beforeEach(() => {
   vi.useFakeTimers();
   state.user = { uid: 'user-1', displayName: 'Food Fan', email: 'food@example.com' };
   state.loading = false;
   state.loginOpen = true;
+  state.intent = null;
   state.close.mockClear();
-  state.replace.mockClear();
-  sessionStorage.clear();
+  state.useRouter.mockClear();
+  showNotification.mockClear();
+  window.showNotification = showNotification;
 });
 
 afterEach(() => {
@@ -48,39 +57,54 @@ afterEach(() => {
    Screen weg, bevor er gelesen war — beim Google-Popup bekommt er ueberhaupt
    erst nach dem Popup-Fenster seinen Auftritt (Nutzer, 29.08.2026). */
 describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
-  it('laesst Modal und Weiterleitung die Haltezeit des Wartescreens abwarten', () => {
+  it('laesst Modal und Bestaetigung die Haltezeit des Wartescreens abwarten', () => {
     render(<BridgeAuth />);
 
     expect(state.close).not.toHaveBeenCalled();
-    expect(state.replace).not.toHaveBeenCalled();
+    expect(showNotification).not.toHaveBeenCalled();
 
     act(() => {
       vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS - 1);
     });
     expect(state.close).not.toHaveBeenCalled();
-    expect(state.replace).not.toHaveBeenCalled();
+    expect(showNotification).not.toHaveBeenCalled();
 
     act(() => {
       vi.advanceTimersByTime(1);
     });
     expect(state.close).toHaveBeenCalledOnce();
-    expect(state.replace).toHaveBeenCalledWith('/');
-    expect(sessionStorage.getItem(TOAST_HANDOFF_KEY)).toBe('Du bist angemeldet');
+    expect(showNotification).toHaveBeenCalledWith('Du bist angemeldet');
   });
 
-  /* Die Bestaetigung wird erst mit der Weiterleitung hinterlegt: wer waehrend
-     der Haltezeit abbricht, soll sie nicht beim naechsten Seitenaufruf
-     nachgereicht bekommen. */
-  it('hinterlegt die Bestaetigung nicht schon beim Anmelden', () => {
+  /* Wer auf einem Spot stand und sich dort anmeldete, landete vorher auf der
+     Startseite. Es wird nichts mehr weitergeleitet — das Modal liegt ueber der
+     Seite, die gemeint ist. */
+  it('bleibt auf der Seite, auf der der Login angefangen hat', () => {
+    render(<BridgeAuth />);
+    act(() => {
+      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS);
+    });
+
+    // Kein Router, keine Weiterleitung: schon der Griff zum Router waere die
+    // Rueckkehr des Sprungs auf die Startseite.
+    expect(state.useRouter).not.toHaveBeenCalled();
+  });
+
+  /* Wartet ein Herz auf den Login, sagt dessen eigene Bestaetigung mehr — zwei
+     Meldungen hintereinander wuerden einander wegdruecken. */
+  it('ueberlaesst die Meldung dem eingeloesten Herz', () => {
+    state.intent = { heartRestaurantId: 'restaurant-1' };
     render(<BridgeAuth />);
 
     act(() => {
-      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS - 1);
+      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS);
     });
-    expect(sessionStorage.getItem(TOAST_HANDOFF_KEY)).toBeNull();
+
+    expect(state.close).toHaveBeenCalledOnce();
+    expect(showNotification).not.toHaveBeenCalled();
   });
 
-  it('leitet nicht weiter, wenn das Modal waehrend der Haltezeit zugeht', () => {
+  it('meldet nicht, wenn das Modal waehrend der Haltezeit zugeht', () => {
     const { rerender } = render(<BridgeAuth />);
 
     state.loginOpen = false;
@@ -89,7 +113,6 @@ describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
     act(() => {
       vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS * 2);
     });
-    expect(state.replace).not.toHaveBeenCalled();
-    expect(sessionStorage.getItem(TOAST_HANDOFF_KEY)).toBeNull();
+    expect(showNotification).not.toHaveBeenCalled();
   });
 });

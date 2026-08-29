@@ -96,8 +96,8 @@ export default function MapListHeader({
     () => bezirkNames.map((n) => withCount(n, n, 'bezirk')),
     [bezirkNames, withCount]
   );
-  /* NICHT nachsortiert, anders als die Küchen davor: eine Preisskala hat ihre
-     Reihenfolge schon, und alphabetisch stünde „ab 50 €" vorn. */
+  /* NICHT nachsortiert: eine Preisskala hat ihre Reihenfolge schon, und
+     alphabetisch stünde „ab 100 €" vorn. */
   const priceItems: PickerItem[] = useMemo(
     () => priceBucketIds.map((id) => withCount(id, t(priceBucketLabelKey(id)), 'price')),
     [priceBucketIds, t, withCount]
@@ -115,7 +115,7 @@ export default function MapListHeader({
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
-      {/* Chip rail — Kategorie · Bezirk · Küche · Jetzt offen. */}
+      {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
       <div className={`${styles.filterChipRow} ${chipsPaused ? styles.filterChipRowPaused : ''}`}>
         <FilterChip
           ref={categoryBtnRef}

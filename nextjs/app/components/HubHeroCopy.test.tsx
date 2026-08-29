@@ -53,7 +53,11 @@ describe('HubHeroCopy', () => {
 
   it('renders the reference copy for signed-out visitors', () => {
     const html = render();
-    expect(html).toContain('Was du essen solltest.');
+    // Die Wortmarke steht jetzt dort, wo „Was du essen solltest." stand — die
+    // Zeile sagte dasselbe wie die Headline direkt darunter. `data-hero-mark`
+    // ist zugleich der Anker, an dem HeroMarkFlight sie findet.
+    expect(html).toContain('data-hero-mark');
+    expect(html).not.toContain('Was du essen solltest.');
     expect(html).toContain('We tell you');
     // One CTA only — the nearby prompt lives in the Nearby section now.
     expect(html).toContain('Map öffnen');

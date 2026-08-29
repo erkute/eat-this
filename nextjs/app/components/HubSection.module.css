@@ -19,7 +19,10 @@
   --home-section-gap: clamp(104px, 8vw, 128px);
   width: 100%;
   min-height: 100svh;
-  padding-top: var(--et-page-top);
+  /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
+     bringt seinen Abstand selbst mit. Ein Polster hier hinterließe einen
+     weißen Streifen zwischen Navigation und Gelb. */
+  padding-top: 0;
   color: var(--home-ink);
   background: var(--home-paper);
   font-family: var(--et-font-mono);
@@ -27,8 +30,36 @@
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
+/* Der Aufmacher ist eine gelbe Fläche über die volle Breite. Die Wortmarke
+   braucht einen farbigen Grund — auf Weiß steht sie nur herum —, und beim
+   Laden soll die Startseite Marke zeigen statt Layout.
+   Die Höhe rechnet gegen 74px und nicht gegen volle dvh: ab 768px scrollt
+   nicht das Fenster, sondern `.app-pages`, und das sitzt 74px unter der
+   Oberkante (css/style.css, DESKTOP APP FRAME). Mit vollem dvh wäre die
+   Fläche um genau diese Navhöhe zu hoch und liefe unten aus dem Bild.
+   Die Navigation ist ihrerseits 78px hoch, überlappt die oberen vier Pixel
+   des Gelbs also — gewollt, so kann dazwischen kein weißer Spalt aufreißen. */
 .hero {
   margin-top: 0;
+  display: flex;
+  align-items: center;
+  min-height: calc(100dvh - 74px);
+  background: var(--et-home-accent);
+}
+
+.heroInner {
+  width: 100%;
+}
+
+/* Die Wortmarke trägt links 120px von 1660px transparenten Rand (7,23 %).
+   Ohne Ausgleich stünde sie sichtbar eingerückt gegenüber der Headline und
+   allem anderen in der Spalte. Der Faktor ist am Asset gemessen; wird das
+   Logo je neu exportiert, muss er nachgemessen werden. */
+.heroMark {
+  --hero-mark-w: clamp(240px, 23vw, 330px);
+  width: var(--hero-mark-w);
+  height: auto;
+  margin: 0 0 clamp(20px, 2vw, 28px) calc(var(--hero-mark-w) * -0.0723);
 }
 
 /* The one exception is the block after the hero: the drop-shadow of the tilted
@@ -74,12 +105,14 @@
   align-items: flex-start;
   font-family: var(--font-providence);
   font-weight: 700;
-  color: var(--et-home-red);
+  /* Ink statt Rot: Rot auf Gelb flimmert. Die Section-Titel weiter unten
+     stehen weiter auf Weiß und bleiben rot — hier ist der Grund ein anderer. */
+  color: var(--et-home-ink);
   text-transform: uppercase;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-hero);
   font-size: clamp(46px, 4.9vw, 64px);
-  margin: 12px 0 0;
+  margin: 0;
 }
 
 .heroHeadline span {
@@ -149,7 +182,11 @@
   position: relative;
   justify-self: end;
   display: block;
-  width: clamp(300px, 30vw, 396px);
+  /* Über die Höhe gedeckelt, nicht über die Breite: auf der bildschirmhohen
+     Fläche muss das Paar vollständig innerhalb des Gelbs bleiben, und bei
+     einer Breitenvorgabe läuft es auf flachen Fenstern unten heraus. */
+  height: min(70vh, 660px);
+  width: auto;
   /* Mockups are 855×1736 (0.493). Sized by height and heavily overlapped, the
      stacked pair needs ~0.74 of its height in width. Driving them off the
      container width instead blows them past the box on narrow screens. */
@@ -439,7 +476,9 @@
 
   .heroGrid {
     grid-template-columns: 1fr;
-    gap: clamp(28px, 5vw, 40px);
+    /* Der Abstand trennt hier Aufruf und Produktbild, nicht zwei Spalten:
+       bei 28px klebten die Telefone am Button. */
+    gap: clamp(46px, 9vw, 68px);
   }
 
   .heroHeadline {
@@ -453,6 +492,7 @@
   }
 
   .heroPhones {
+    height: auto;
     width: min(100%, 320px);
     justify-self: center;
     margin-top: 8px;
@@ -465,6 +505,7 @@
   .spotCard {
     grid-template-columns: minmax(0, 1fr);
   }
+
 
   /* Stacked, the photo bleeds both ways and drops its corners: full width is
      the only thing left that separates the lead from the rail of cards under
@@ -494,5 +535,47 @@
 
   .spotSub {
     max-width: none;
+  }
+}
+
+/* ── Aufmacher auf dem Telefon ───────────────────────────────────────────────
+   Unter 768px scrollt das Fenster selbst und `.app-pages` hält den Platz für
+   die Navigation schon frei — die Fläche startet also unter der Leiste und
+   füllt bewusst *nicht* den Bildschirm. Bildschirmhoch wäre hier die komplette
+   erste Seite Farbe, bevor ein einziger Spot zu sehen ist. */
+@media (max-width: 767px) {
+  .hero {
+    display: block;
+    min-height: 0;
+    padding: 26px 0 38px;
+  }
+
+  /* Zentriert: gestapelt sitzt die Wortmarke sonst links und die Telefone
+     mittig, und nichts steht auf einer Kante. */
+  .heroCopy {
+    align-items: center;
+    text-align: center;
+  }
+
+  .heroHeadline {
+    align-items: center;
+  }
+
+  .heroMark {
+    --hero-mark-w: min(62vw, 250px);
+    /* Zentriert braucht es den Kantenausgleich nicht — der transparente Rand
+       ist links wie rechts fast gleich (120 zu 104 von 1660). */
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .heroLead {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .heroActions {
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }

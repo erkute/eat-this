@@ -3,7 +3,8 @@
 **Last updated:** 2026-06-14
 
 This is the parking lot for features brainstormed but not in scope for the
-[Guest+20 Migration](../superpowers/specs/2026-05-27-staging-and-migration-design.md).
+Guest+20 Migration (design spec deleted 2026-08-29 — the migration shipped;
+`git log -- docs/specs/2026-05-27-staging-and-migration-design.md` has it).
 Each section is one epic. When work begins on an epic, a dedicated design spec
 gets written and the epic gets cross-linked from here.
 

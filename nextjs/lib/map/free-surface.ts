@@ -1,8 +1,7 @@
 // nextjs/lib/map/free-surface.ts
 //
 // "Free surface": jeder Spot, den die Home/News-Oberfläche anteasert, ist auf
-// der Map ohne Login sichtbar (User-Entscheidung 2026-06-05, siehe
-// docs/superpowers/specs/2026-06-05-free-surface-home-map-design.md).
+// der Map ohne Login sichtbar (User-Entscheidung 2026-06-05).
 // Single Source of Truth für BEIDE Konsumenten:
 //   - /api/map-data + getInitialAnonMapData (Sichtbarkeits-Union)
 // → Home und Free-Map können per Konstruktion nicht driften.

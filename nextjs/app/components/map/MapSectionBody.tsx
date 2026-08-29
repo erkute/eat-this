@@ -700,6 +700,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onClaimSpot={() => onClaimSpot(selectedRestaurant.slug)}
                 contentRef={setContentRef}
                 onClose={onRestaurantClose}
+                prevRestaurant={pagerPrev}
+                nextRestaurant={pagerNext}
+                onPagePrev={() => onPageRestaurant('prev')}
+                onPageNext={() => onPageRestaurant('next')}
               />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail

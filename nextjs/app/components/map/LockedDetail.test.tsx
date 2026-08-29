@@ -19,7 +19,10 @@ vi.mock('@/lib/auth', () => ({
   useMagicLink: () => ({ sendLink: vi.fn(), state: 'idle', errorMessage: '', reset: vi.fn() }),
 }));
 
+vi.mock('./useSwipePager', () => ({ useSwipePager: vi.fn() }));
+
 import LockedDetail from './LockedDetail';
+import { useSwipePager } from './useSwipePager';
 
 function spot(over: Partial<MapRestaurant> = {}): MapRestaurant {
   return {
@@ -292,5 +295,58 @@ describe('LockedDetail, visitor without an account', () => {
     const out = signupHtml(spot({ _id: 'r-deep', slug: 'tief-im-katalog' }));
     expect(out).toContain('Fünfzig Spots aufs Haus');
     expect(out).not.toContain('href="/packs"');
+  });
+});
+
+/* Der Pager der Liste läuft über alle Treffer, gesperrte eingeschlossen — nur
+   hing er bisher allein an der offenen Sheet, also endete jedes Wischen auf dem
+   ersten grauen Punkt (User, 2026-08-29). */
+describe('LockedDetail swipe paging', () => {
+  function swipeOptions(over: Partial<Parameters<typeof LockedDetail>[0]> = {}) {
+    vi.mocked(useSwipePager).mockClear();
+    renderToStaticMarkup(
+      <LockedDetail
+        restaurant={spot()}
+        offer="packs"
+        onClaimSpot={() => {}}
+        contentRef={null}
+        onClose={() => {}}
+        {...over}
+      />
+    );
+    return vi.mocked(useSwipePager).mock.calls.at(-1)![1];
+  }
+
+  it('pages on to the neighbours the list hands it', () => {
+    const opts = swipeOptions({
+      prevRestaurant: spot({ _id: 'r0', slug: 'davor' }),
+      nextRestaurant: spot({ _id: 'r2', slug: 'danach' }),
+    });
+    expect(opts.hasPrev).toBe(true);
+    expect(opts.hasNext).toBe(true);
+  });
+
+  it('rubber-bands at the ends of the list, like every other sheet', () => {
+    const opts = swipeOptions();
+    expect(opts.hasPrev).toBe(false);
+    expect(opts.hasNext).toBe(false);
+  });
+
+  it('holds still while a claim is in flight', () => {
+    /* Die Anmeldung gilt genau diesem Spot, und der Belohnungsschirm wartet
+       darauf, dass er aufgeht — währenddessen weiterzublättern würde beides
+       auseinanderreißen. */
+    const opts = swipeOptions({
+      offer: 'claiming',
+      prevRestaurant: spot({ _id: 'r0', slug: 'davor' }),
+      nextRestaurant: spot({ _id: 'r2', slug: 'danach' }),
+    });
+    expect(opts.hasPrev).toBe(false);
+    expect(opts.hasNext).toBe(false);
+  });
+
+  it('looks the incoming card up in the document — the neighbour is often the other sheet', () => {
+    const opts = swipeOptions({ nextRestaurant: spot({ _id: 'r2', slug: 'danach' }) });
+    expect(opts.entrySelector).toBe('[data-detail-hero]');
   });
 });

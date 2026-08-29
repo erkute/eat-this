@@ -118,4 +118,55 @@ if ! npm run build:isolated --silent >/tmp/eat-this-prepush-build.log 2>&1; then
 fi
 
 echo "✓ pre-push: build clean."
+
+# Aufraeumen: der Standalone-Build schreibt im Worktree NEBEN sein Ziel.
+#
+# `output: 'standalone'` kopiert jede getracete Datei nach
+# <distDir>/standalone/<Pfad relativ zu outputFileTracingRoot>. Die Root ist
+# `nextjs/` (next.config.ts). Im Haupt-Checkout liegt node_modules darunter,
+# also bleibt alles im Build-Verzeichnis.
+#
+# Im Worktree ist `nextjs/node_modules` ein Symlink in den Haupt-Checkout
+# (scripts/worktree.sh). Next loest ihn beim Tracing auf, bekommt einen
+# Realpfad ausserhalb der Root, und der relative Pfad klettert heraus:
+#
+#   ../../../../Eat This Neu/nextjs/node_modules/next/dist/server/next-server.js
+#
+# Auf `<worktree>/nextjs/.next-verify/standalone/` addiert landen rund 300 KB
+# Server-Bundle neben dem Worktree — bei einem Branchnamen mit Schraegstrich
+# (`claude/foo` → `eat-this-worktrees/claude/foo`) sogar eine Ebene darueber,
+# wo `git worktree remove` sie nie wieder anfasst. Zwei solche Halden lagen am
+# 29.08.2026 herum, die aelteste zwei Tage.
+#
+# Der Build darf das nicht lassen — er soll genau der sein, den Firebase
+# faehrt. Also raeumt der Hook hinterher. Er wirft nur weg, was der Build
+# angelegt hat (siehe die Struktur-Pruefung), und ein Fehlschlag bricht den
+# Push nie ab.
+if [ "$(git rev-parse --absolute-git-dir)" != "$(cd "$(git rev-parse --git-common-dir)" && pwd)" ]; then
+  node -e '
+    const fs = require("fs"), path = require("path");
+    const app = process.argv[1];
+    const nm = path.join(app, "node_modules");
+    let real;
+    try { real = fs.realpathSync(nm); } catch { process.exit(0); }
+    const parts = path.relative(app, real).split(path.sep);
+    const ups = parts.filter((p) => p === "..").length;
+    // Kein Symlink nach draussen → nichts klettert, nichts zu tun.
+    if (!ups) process.exit(0);
+    // Die Ausreisser-Wurzel: so weit hoch wie der relative Pfad klettert,
+    // plus sein erstes echtes Segment. Der distDir-Name ist egal, nur seine
+    // Tiefe zaehlt — `.next` und `.next-verify` liegen beide eine Ebene tief.
+    const escaped = path.join(app, ".next-verify", "standalone", ...parts.slice(0, ups + 1));
+    if (!fs.existsSync(escaped)) process.exit(0);
+    // Nur die eine Form wegwerfen, die der Build erzeugt: <root>/nextjs/node_modules
+    // und sonst nichts. Alles andere ist fremd und bleibt stehen.
+    const top = fs.readdirSync(escaped);
+    if (top.length !== 1 || top[0] !== "nextjs") process.exit(0);
+    const sub = fs.readdirSync(path.join(escaped, "nextjs"));
+    if (sub.length !== 1 || sub[0] !== "node_modules") process.exit(0);
+    fs.rmSync(escaped, { recursive: true, force: true });
+    console.log("  aufgeraeumt: " + escaped);
+  ' "$NEXTJS_DIR" || true
+fi
+
 exit 0

@@ -7,7 +7,7 @@
 //
 // Run:  npm run build:email-art
 //
-// Output: nextjs/public/pics/email/<id>.png plus emails/art.generated.json,
+// Output: nextjs/public/pics/email/<id>.png plus emails/art.generated.ts,
 // which carries the trimmed 1x dimensions so the templates never hardcode a
 // width that drifts when the copy changes.
 //

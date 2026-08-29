@@ -11,6 +11,7 @@ import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } fr
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
   getLocatingCopy,
+  getLocationNoticeCopy,
   getLocationStatus,
   LOCATING_MIN_VISIBLE_MS,
   LOCATING_SHOW_DELAY_MS,
@@ -382,29 +383,41 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      Zustandsautomat bleibt hier — er kennt die Nachfrist, den Selbstabgang
      und das Weggeklickte; die Karte zeigt nur.
      `duration: 0`, weil genau dieser Automat das Abraeumen besitzt. */
-  const locationNoticeCopy =
-    showLocationStatus && !mapDataLoading && !mapDataError ? locationStatus.copy : null;
+  const noticeCopy =
+    showLocationStatus && !mapDataLoading && !mapDataError
+      ? getLocationNoticeCopy(locale, locatingVisible ? null : locationError, locatingVisible)
+      : null;
+  /* Ueber die einzelnen Zeilen statt ueber das Objekt: das entsteht bei jedem
+     Rendern neu und wuerde die Meldung sonst dauernd neu aufziehen. */
+  const noticeEyebrow = noticeCopy?.eyebrow ?? null;
+  const noticeTitle = noticeCopy?.title ?? null;
+  const noticeDetail = noticeCopy?.detail ?? null;
+  const noticeIsError = locationStatus.isError;
+  const noticeCanRetry = locationStatus.canRetry;
   useEffect(() => {
-    if (!locationNoticeCopy) return;
+    if (!noticeTitle || !noticeEyebrow) return;
     /* Der Rueckgabewert raeumt genau diese Meldung ab und laesst eine
        inzwischen nachgerueckte stehen. */
     return window.showNotice?.({
-      tone: locationStatus.isError ? 'warning' : 'info',
+      tone: noticeIsError ? 'warning' : 'info',
       icon: 'pin',
-      eyebrow: locale === 'en' ? 'Location' : 'Standort',
-      title: locationNoticeCopy,
-      action: locationStatus.canRetry
+      eyebrow: noticeEyebrow,
+      title: noticeTitle,
+      detail: noticeDetail ?? undefined,
+      action: noticeCanRetry
         ? { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleLocationRetry }
         : undefined,
       /* Nur die Fehler bekommen einen Wegklick-Knopf. Das Suchen raeumt sich
          selbst ab, sobald der Standort da ist. */
-      onDismiss: locationStatus.isError ? handleDismissLocationStatus : undefined,
+      onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
       duration: 0,
     });
   }, [
-    locationNoticeCopy,
-    locationStatus.isError,
-    locationStatus.canRetry,
+    noticeEyebrow,
+    noticeTitle,
+    noticeDetail,
+    noticeIsError,
+    noticeCanRetry,
     locale,
     handleLocationRetry,
     handleDismissLocationStatus,

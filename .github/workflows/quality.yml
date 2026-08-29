@@ -28,10 +28,50 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
-      # Gleiche Aufteilung wie in apphosting.yaml: der CI-Build zieht auf das
-      # API-Kontingent, damit das CDN-Kontingent den Besuchern gehört. CI baut
-      # bei jedem Push auf einen PR-Branch — das sind pro Lauf rund 610
-      # Sanity-Anfragen, die sonst neben dem echten Traffic lägen.
+
+      # Der teuerste Schritt dieses Workflows ist nicht CPU, sondern Sanity.
+      #
+      # Ein kalter `next build` zieht 952 Anfragen aus dem PRODUKTIONS-Dataset
+      # (hier ist kein SANITY_PROJECT_ID gesetzt, `lib/sanity.ts` fällt also auf
+      # `ehwjnjr2`/`production` zurück) — 1.083 vorgerenderte Seiten aus 466
+      # Restaurants, 22 Artikeln, 20 Bezirken, 9 Kategorien und 5 statischen
+      # Seiten, plus die Doppelabrufe der parallelen Prerender-Worker. Am
+      # 29.08.2026 direkt gemessen, nicht geschätzt.
+      #
+      # Bei rund 50 grünen Läufen am Tag sind das ~1,5 Mio. Anfragen im Monat.
+      # Die Quote liegt bei 250.000 (API) bzw. 1.000.000 (CDN). Genau daran ist
+      # am 24.08.2026 das CDN- und am 27.08.2026 das API-Kontingent gerissen:
+      # nicht am Besucherverkehr, sondern an diesem Schritt.
+      #
+      # Next legt jede dieser Antworten in `.next/cache/fetch-cache` ab (24 h
+      # Frist, `SANITY_REVALIDATE_SECONDS`). Nimmt man nur dieses Verzeichnis
+      # zwischen den Läufen mit, baut CI vollständig durch, ohne Sanity auch
+      # nur einmal anzufassen — gemessen: 952 Anfragen kalt, 0 mit
+      # restauriertem Cache, bei identischen 1.083 erzeugten Seiten.
+      #
+      # Der Cache darf hier veralten: dieser Build ist ein CODE-Gate. Der Build,
+      # der wirklich ausliefert, läuft bei App Hosting und immer kalt.
+      - name: Sanity-Fetch-Cache holen
+        uses: actions/cache/restore@v4
+        with:
+          # `path` ist repo-relativ — `defaults.run.working-directory` gilt nur
+          # für `run`-Schritte, nicht für Action-Eingaben.
+          path: nextjs/.next/cache/fetch-cache
+          # Der exakte Key trifft absichtlich nie (`run_id` ist pro Lauf neu),
+          # der Treffer kommt über `restore-keys`: der zuletzt gesicherte Stand.
+          key: sanity-fetch-cache-${{ github.run_id }}
+          restore-keys: sanity-fetch-cache-
+
       - run: npm run build
-        env:
-          SANITY_USE_CDN: 'false'
+
+      # Nur auf `staging` sichern. Ein Cache aus einem PR-Lauf ist auf genau
+      # diesen PR beschränkt und für keinen anderen Branch lesbar — er würde nur
+      # den 10-GB-Speicher der Repo-Caches füllen und ältere, nützliche Einträge
+      # verdrängen. Umgekehrt liest ein PR-Lauf den Stand seines Basis-Branches,
+      # bekommt den staging-Cache also mit.
+      - name: Sanity-Fetch-Cache sichern
+        if: github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: nextjs/.next/cache/fetch-cache
+          key: sanity-fetch-cache-${{ github.run_id }}

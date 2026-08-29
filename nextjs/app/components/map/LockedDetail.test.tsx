@@ -347,7 +347,6 @@ describe('LockedDetail swipe paging', () => {
 
   it('looks the incoming card up in the document — the neighbour is often the other sheet', () => {
     const opts = swipeOptions({ nextRestaurant: spot({ _id: 'r2', slug: 'danach' }) });
-    expect(opts.flushPage).toBe(true);
     expect(opts.entrySelector).toBe('[data-detail-hero]');
   });
 });

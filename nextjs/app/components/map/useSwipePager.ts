@@ -16,13 +16,9 @@ interface SwipePagerOptions {
    *  spot pages onto a locked one and back, and React has nulled the outgoing
    *  ref by then, so the entry animation would land on a detached node and the
    *  new sheet would cut in. The selector is re-resolved against the document
-   *  instead. Only meaningful together with `flushPage`: without the flush the
-   *  new pane does not exist yet at that moment. */
+   *  instead, and it implies `flushPage`: the incoming pane has to exist before
+   *  the entry transform can be put on it. */
   entrySelector?: string;
-  /** Called after the current pane/card has left, right before data swaps. */
-  onPageOut?: (dir: 'prev' | 'next') => void;
-  /** Defaults to true. Set false for surfaces that should only slide out. */
-  animateIn?: boolean;
   /** Force the page state swap before the entry transform is applied. */
   flushPage?: boolean;
 }
@@ -120,18 +116,12 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         setTransition(target, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)');
         setTransform(target, `translateX(${outX}px)`);
         window.setTimeout(() => {
-          optsRef.current.onPageOut?.(dir);
           const page = () => {
             if (dir === 'next') optsRef.current.onNext?.();
             else optsRef.current.onPrev?.();
           };
-          if (optsRef.current.flushPage) flushSync(page);
+          if (optsRef.current.flushPage || optsRef.current.entrySelector) flushSync(page);
           else page();
-          if (optsRef.current.animateIn === false) {
-            target.style.setProperty('transition', 'none', 'important');
-            target.style.removeProperty('transform');
-            return;
-          }
           // Place the freshly-swapped content on the opposite edge, then in.
           const nextTarget = enteringEl();
           nextTarget.style.setProperty('transition', 'none', 'important');

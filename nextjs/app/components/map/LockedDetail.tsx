@@ -186,10 +186,9 @@ export default function LockedDetail({
     hasPrev: !!prevRestaurant && !claiming,
     hasNext: !!nextRestaurant && !claiming,
     transformRef: heroRef,
-    // Der Nachbar kann eine ANDERE Sheet sein (offener Spot). Deshalb den Tausch
-    // synchron erzwingen und die einfahrende Karte danach im Dokument suchen —
-    // sonst fährt drüben nichts ein, es steht nur plötzlich da.
-    flushPage: true,
+    // Der Nachbar kann eine ANDERE Sheet sein (offener Spot). Deshalb wird die
+    // einfahrende Karte im Dokument gesucht — sonst fährt drüben nichts ein,
+    // es steht nur plötzlich da.
     entrySelector: '[data-detail-hero]',
   });
 

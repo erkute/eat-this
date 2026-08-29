@@ -147,9 +147,8 @@ export default function RestaurantDetail({
     transformRef: heroRef,
     // Der Nachbar kann ein gesperrter Spot sein — dann rendert nicht mehr diese
     // Komponente, sondern LockedDetail, und heroRef ist im Moment der Einfahrt
-    // leer. Der Tausch läuft deshalb synchron, und die einfahrende Karte wird
-    // im Dokument gesucht statt über den Ref, der sie nicht mehr kennt.
-    flushPage: true,
+    // leer. Die einfahrende Karte wird deshalb im Dokument gesucht statt über
+    // den Ref, der sie nicht mehr kennt.
     entrySelector: '[data-detail-hero]',
   });
 

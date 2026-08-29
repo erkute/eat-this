@@ -61,14 +61,23 @@
 
 /* Breitenverteilung. Ein inaktiver Chip trägt ein festes Wort ("Bezirk") und
    teilt sich die Reihe zu gleichen Teilen; ein aktiver trägt den gewählten Wert
-   und wächst auf dessen Breite. Ohne den 44px-Boden — dasselbe Maß wie das
-   Tap-Target der Chips — frisst ein langer Wert die ganze Reihe und die
-   Nachbarn fallen auf ihr eigenes Padding zusammen. Darüber gewinnt der Wert:
-   zwei lange Werte auf einem 360px-Telefon kürzen "Kategorie" und "Geöffnet",
-   nicht den Bezirk und die Küche, die jemand ausgewählt hat. */
+   und wächst auf dessen Breite.
+
+   Der Boden ist die eigene Beschriftung, nicht mehr 44px: bei "Bezirk:
+   Friedrichshain" blieben "Kategorie" 46px Textbreite von 57 gebrauchten, und
+   der Chip las sich als "Kategori" (User, 29.08.2026). Ein Chip, dessen Wort
+   nicht mehr hineinpasst, ist kein Filter mehr, sondern ein Rätsel — deshalb
+   gibt keiner sein Wort her. Was die Reihe darüber hinaus schuldet, tragen
+   jetzt die aktiven Chips: sie dürfen bis auf null schrumpfen und enden im
+   Ellipsis (siehe Label-Block). Wer „Friedrichshain" gewählt hat, erkennt es
+   auch als „Friedrichsh…"; „Kategori" dagegen war nichts mehr.
+
+   Kein `flex-wrap`: eine zweite Zeile probiert (29.08.2026) sah aus wie ein
+   Fehler — der Umbruch schob „Geöffnet" allein auf eine volle Breite von
+   355px, und die Leiste sprang beim Filtern um 50px in der Höhe. */
 .filterChipRow .filterChipWrap:not(:has(.filterChipActive)):not(:has(.filterChipOpenActive)) {
   flex: 1 1 0;
-  min-width: 44px;
+  min-width: min-content;
 }
 
 /* ABSICHTLICH BEIBEHALTEN: der Geoeffnet-Toggle behaelt sein Viertel der Reihe
@@ -82,7 +91,7 @@
 
 .filterChipRow.filterChipRow
   > button.filterChip.filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  min-width: 44px;
+  min-width: min-content;
 }
 
 .filterChipRow .filterChipWrap:has(.filterChipActive),

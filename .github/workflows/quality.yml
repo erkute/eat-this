@@ -3,8 +3,16 @@ name: Quality
 on:
   pull_request:
     branches: [main, staging]
+  # `main` ist hier nicht als Gate drin — der Code hat den Gang über den PR
+  # schon hinter sich. Es geht um den Fetch-Cache weiter unten: Actions lässt
+  # einen Lauf nur die Caches seines EIGENEN Refs, seines Basis-Branches und
+  # des Default-Branches lesen. Ohne einen Lauf auf `main` gibt es dort keinen
+  # Cache, und jeder `staging → main`-PR baut kalt — am 29.08.2026 genau so
+  # beobachtet („Cache not found for input keys: sanity-fetch-cache-…").
+  # Ein Cache auf dem Default-Branch ist dagegen von jedem Branch aus lesbar
+  # und schließt die Lücke für alle Lauf-Arten auf einmal.
   push:
-    branches: [staging]
+    branches: [main, staging]
 
 concurrency:
   group: quality-${{ github.ref }}
@@ -64,11 +72,14 @@ jobs:
 
       - run: npm run build
 
-      # Nur auf `staging` sichern. Ein Cache aus einem PR-Lauf ist auf genau
-      # diesen PR beschränkt und für keinen anderen Branch lesbar — er würde nur
-      # den 10-GB-Speicher der Repo-Caches füllen und ältere, nützliche Einträge
-      # verdrängen. Umgekehrt liest ein PR-Lauf den Stand seines Basis-Branches,
-      # bekommt den staging-Cache also mit.
+      # Nur auf einem Push sichern, also auf `staging` und `main`. Ein Cache aus
+      # einem PR-Lauf ist auf genau diesen PR beschränkt und für keinen anderen
+      # Branch lesbar — er würde nur den 10-GB-Speicher der Repo-Caches füllen
+      # und ältere, nützliche Einträge verdrängen.
+      #
+      # Die beiden Stände decken zusammen jede Lauf-Art ab: PRs nach `staging`
+      # lesen den staging-Stand (ihr Basis-Branch), `staging → main`-PRs und
+      # alles andere den main-Stand (Default-Branch, von überall lesbar).
       - name: Sanity-Fetch-Cache sichern
         if: github.event_name == 'push'
         uses: actions/cache/save@v4

@@ -92,7 +92,13 @@ merge won; "loved-by-N" being a public signal is acceptable because the heart
 
 ---
 
-## Sharing Spots
+## 🚧 Sharing Spots — teils gebaut (Stand 29.08.2026)
+
+Der Teilen-Knopf existiert seit PR #348 als `app/components/ShareButton.tsx`
+(Web Share API, Analytics-Event) und sitzt auf beiden Detail-Oberflächen.
+**Nicht** gebaut ist der Referral-Teil unten: geteilte Spot-Links tragen keinen
+`?ref=`. Den Parameter kennt nur der Einladungslink im Profil
+(`ProfileInvite.tsx`), und der zeigt auf die Startseite, nicht auf einen Spot.
 
 **Concept**
 - Tap "share" on a spot → native share sheet (Web Share API)

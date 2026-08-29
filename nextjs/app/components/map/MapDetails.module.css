@@ -2791,7 +2791,6 @@
     font-size: 16px;
     line-height: 1.22;
   }
-
 }
 /* ══════════════════════════════════════════════════════════════════════
    IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
@@ -3220,7 +3219,6 @@
     width: 58px;
     height: 58px;
   }
-
 }
 @media (min-width: 1024px) and (max-height: 760px) {
   .detailV13MustEat .detailV13Scroll {
@@ -3259,7 +3257,6 @@
     width: 54px;
     height: 54px;
   }
-
 }
 .detailV13MustEat .fdRestPhoto {
   display: block;

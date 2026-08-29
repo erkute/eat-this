@@ -8,7 +8,6 @@
   --footer-accent: #ffc600;
   --footer-shadow: #15120e;
   --footer-hover: var(--footer-accent);
-  --footer-instagram: #c13584;
   --footer-bg: #15120e;
   background: var(--footer-bg);
   color: var(--footer-ink);

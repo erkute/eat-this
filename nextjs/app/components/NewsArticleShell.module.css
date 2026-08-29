@@ -4,7 +4,6 @@
   --article-accent: var(--et-home-accent, #ffc600);
   --article-paper: var(--et-home-paper, #fff);
   --article-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
-  --article-line: var(--et-home-line, rgba(21, 18, 14, 0.16));
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */

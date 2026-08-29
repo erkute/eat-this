@@ -7,11 +7,8 @@
   --text-primary: var(--ink);
   --text-secondary: var(--et-home-muted);
   --text-muted: var(--muted);
-  --surface-bg: var(--cream);
   --surface-card: var(--cream);
   --border-subtle: var(--et-home-line);
-  --border-strong: var(--ink);
-  --accent: var(--yellow);
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -382,8 +379,6 @@
 .page {
   --ink: var(--et-home-ink);
   --cream: var(--et-home-paper);
-  --cream-deep: var(--et-home-quiet);
-  --yellow: var(--et-home-accent);
   --muted: var(--et-home-muted);
   --f-display: var(--et-font-condensed);
   --f-body: var(--font);

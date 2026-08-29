@@ -11,6 +11,14 @@ interface SwipePagerOptions {
   hasNext: boolean;
   /** Optional element to animate while the root still owns the gesture. */
   transformRef?: RefObject<HTMLElement | null>;
+  /** Where to find the INCOMING card once the page has swapped. A ref cannot
+   *  carry across a swap that exchanges one component for another — an open
+   *  spot pages onto a locked one and back, and React has nulled the outgoing
+   *  ref by then, so the entry animation would land on a detached node and the
+   *  new sheet would cut in. The selector is re-resolved against the document
+   *  instead. Only meaningful together with `flushPage`: without the flush the
+   *  new pane does not exist yet at that moment. */
+  entrySelector?: string;
   /** Called after the current pane/card has left, right before data swaps. */
   onPageOut?: (dir: 'prev' | 'next') => void;
   /** Defaults to true. Set false for surfaces that should only slide out. */
@@ -33,6 +41,13 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     const el = ref.current;
     if (!el) return;
     const animatedEl = () => optsRef.current.transformRef?.current ?? el;
+    /* The pane that comes in is not always the one that went out (see
+       `entrySelector`), so the incoming card is looked up fresh. */
+    const enteringEl = () => {
+      const sel = optsRef.current.entrySelector;
+      const found = sel ? document.querySelector<HTMLElement>(sel) : null;
+      return found ?? animatedEl();
+    };
     const setTransform = (target: HTMLElement, value: string) =>
       target.style.setProperty('transform', value, 'important');
     const setTransition = (target: HTMLElement, value: string) =>
@@ -118,7 +133,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
             return;
           }
           // Place the freshly-swapped content on the opposite edge, then in.
-          const nextTarget = animatedEl();
+          const nextTarget = enteringEl();
           nextTarget.style.setProperty('transition', 'none', 'important');
           setTransform(nextTarget, `translateX(${-outX}px)`);
           void nextTarget.offsetWidth; // force reflow so the next transition animates

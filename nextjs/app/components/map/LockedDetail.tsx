@@ -1,5 +1,13 @@
 'use client';
-import { useEffect, useId, useState, type CSSProperties, type FormEvent, type Ref } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type Ref,
+} from 'react';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
@@ -19,6 +27,7 @@ import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useTranslation } from '@/lib/i18n';
 import { trackEvent } from '@/lib/analytics';
 import { CloseIcon } from './icons';
+import { useSwipePager } from './useSwipePager';
 import styles from './MapDetails.module.css';
 import lockedStyles from './LockedDetail.module.css';
 
@@ -35,6 +44,12 @@ interface Props {
   onClaimSpot: () => void;
   contentRef: Ref<HTMLDivElement | null>;
   onClose: () => void;
+  /** Nachbarn in derselben gefilterten Liste, aus der die offene Sheet ihren
+   *  Pager speist — ein gesperrter Spot ist eine Station auf demselben Weg. */
+  prevRestaurant?: MapRestaurant | null;
+  nextRestaurant?: MapRestaurant | null;
+  onPagePrev?: () => void;
+  onPageNext?: () => void;
 }
 
 /**
@@ -99,6 +114,13 @@ interface Props {
  * falls back to the sign-up branch, which is never wrong — at worst it offers
  * an account to someone who already has one, for the length of a refetch.
  *
+ * Es wischt wie jede andere Sheet. Der Pager der Liste läuft über ALLE Treffer,
+ * gesperrte eingeschlossen (siehe listRestaurants) — nur hing er bisher an der
+ * offenen Sheet, also endete jedes Wischen auf dem ersten grauen Punkt (User,
+ * 2026-08-29). Ein gesperrter Spot ist aber genau die Station, an der man
+ * weiterblättern will: „was ist das denn?" — „aha" — weiter. Dass die Sheet
+ * dort eine Paywall zeigt, ändert nichts an ihrer Stellung in der Liste.
+ *
  * Never both offers at once. A 2,99 € pack printed under a spot the reader can
  * have for free argues against itself, and the all-Berlin offer is already
  * standing at the end of the list on every view of this map.
@@ -116,6 +138,10 @@ export default function LockedDetail({
   onClaimSpot,
   contentRef,
   onClose,
+  prevRestaurant,
+  nextRestaurant,
+  onPagePrev,
+  onPageNext,
 }: Props) {
   const locale = useLocale();
   const { t } = useTranslation();
@@ -146,8 +172,30 @@ export default function LockedDetail({
     .filter((src): src is string => Boolean(src));
   const heroStyle = r.photo ? ({ backgroundImage: `url(${r.photo})` } as CSSProperties) : undefined;
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  /* Dieselbe Geste wie in RestaurantDetail, mit denselben Nachbarn: es wandert
+     das Foto, nicht die ganze Sheet — sonst klappen Anriss und Angebot beim
+     Ziehen seitlich weg. Während ein Claim läuft, wird nicht geblättert: die
+     Anmeldung gilt genau diesem Spot, und der Belohnungsschirm wartet darauf,
+     dass er aufgeht. */
+  const claiming = offer === 'claiming';
+  useSwipePager(rootRef, {
+    onPrev: onPagePrev,
+    onNext: onPageNext,
+    hasPrev: !!prevRestaurant && !claiming,
+    hasNext: !!nextRestaurant && !claiming,
+    transformRef: heroRef,
+    // Der Nachbar kann eine ANDERE Sheet sein (offener Spot). Deshalb den Tausch
+    // synchron erzwingen und die einfahrende Karte danach im Dokument suchen —
+    // sonst fährt drüben nichts ein, es steht nur plötzlich da.
+    flushPage: true,
+    entrySelector: '[data-detail-hero]',
+  });
+
   return (
     <div
+      ref={rootRef}
       className={styles.detailV13}
       data-detail-root="locked"
       role="dialog"
@@ -158,7 +206,7 @@ export default function LockedDetail({
         data-detail-scroll
         ref={contentRef}
       >
-        <header className={styles.rdHero} data-detail-hero style={heroStyle}>
+        <header className={styles.rdHero} data-detail-hero style={heroStyle} ref={heroRef}>
           <button
             type="button"
             className={styles.rdCloseGlass}

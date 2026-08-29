@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 
 import { useSwipePager } from '../useSwipePager';
@@ -52,5 +52,59 @@ describe('useSwipePager — horizontal-scroll opt-out', () => {
     const { container, plain } = mount();
     horizontalDrag(plain, plain);
     expect(container.style.transform).toContain('translateX');
+  });
+});
+
+/* Auf der Map liegen zwei verschiedene Sheets in derselben Reihe: der offene
+   Spot und der gesperrte. Wischt man von einem auf den anderen, tauscht React
+   die ganze Komponente aus — der Ref, der die abfahrende Karte trug, ist dann
+   leer, und die einfahrende Karte stünde ohne Animation einfach da. Deshalb
+   sucht der Pager sie nach dem Tausch im Dokument. */
+describe('useSwipePager — page onto a different component', () => {
+  it('animates the card that came in, not the one that went out', () => {
+    vi.useFakeTimers();
+    try {
+      const container = document.createElement('div');
+      const oldCard = document.createElement('header');
+      oldCard.setAttribute('data-detail-hero', '');
+      container.appendChild(oldCard);
+      document.body.appendChild(container);
+
+      const cardRef = { current: oldCard as HTMLElement | null };
+      const newCard = document.createElement('header');
+      newCard.setAttribute('data-detail-hero', '');
+
+      renderHook(() =>
+        useSwipePager(
+          { current: container },
+          {
+            // Was React beim Komponententausch tut: alte Karte raus, neue rein,
+            // Ref leer.
+            onNext: () => {
+              oldCard.remove();
+              container.appendChild(newCard);
+              cardRef.current = null;
+            },
+            hasPrev: false,
+            hasNext: true,
+            transformRef: cardRef,
+            entrySelector: '[data-detail-hero]',
+          }
+        )
+      );
+
+      firePointer('pointerdown', oldCard, 200, 100);
+      firePointer('pointermove', oldCard, 100, 100);
+      firePointer('pointerup', oldCard, 100, 100);
+      expect(oldCard.style.transform).toContain('translateX(-');
+
+      vi.advanceTimersByTime(300); // Ausfahrt vorbei → Tausch + Einfahrt setzen
+      expect(newCard.style.transform).toBe(`translateX(${window.innerWidth}px)`);
+
+      vi.advanceTimersToNextFrame(); // rAF startet die Einfahrt
+      expect(newCard.style.transform).toBe('translateX(0)');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

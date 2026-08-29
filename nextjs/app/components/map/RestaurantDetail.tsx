@@ -145,6 +145,12 @@ export default function RestaurantDetail({
     // ("das Bild lässt sich nach links/rechts bewegen", User 2026-07-04). The
     // hero is the "card" that pages; the article underneath swaps in place.
     transformRef: heroRef,
+    // Der Nachbar kann ein gesperrter Spot sein — dann rendert nicht mehr diese
+    // Komponente, sondern LockedDetail, und heroRef ist im Moment der Einfahrt
+    // leer. Der Tausch läuft deshalb synchron, und die einfahrende Karte wird
+    // im Dokument gesucht statt über den Ref, der sie nicht mehr kennt.
+    flushPage: true,
+    entrySelector: '[data-detail-hero]',
   });
 
   // Gleiche Kurzform wie der Zustands-Chip der Spot-Seite. Vorher stand hier

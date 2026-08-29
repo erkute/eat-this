@@ -60,6 +60,15 @@ describe('AuthScreen.module.css — die Wartescreens fürs An- und Abmelden', ()
     expect(exact('.closing img:nth-child(1)', 'animation')).toContain('authCloseA');
   });
 
+  /* Die Punkte am Kicker sind die einzige Bewegung in der Schrift. Sie
+     erscheinen über `scale`: Ein- und Ausblenden läuft auf Markenflächen nie
+     über Transparenz. */
+  it('blendet die Punkte über scale ein, nicht über Opacity', () => {
+    expect(keyframeProps('authDot')).toContain('transform');
+    expect(keyframeProps('authDot')).not.toContain('opacity');
+    expect(exact('.dots i:nth-child(2)', 'animation-delay')).toBeDefined();
+  });
+
   it('lässt bei reduzierter Bewegung nichts fächern, ziehen oder fahren', () => {
     let abgeschaltet: string[] = [];
     root.walkAtRules('media', (at: AtRule) => {
@@ -70,7 +79,7 @@ describe('AuthScreen.module.css — die Wartescreens fürs An- und Abmelden', ()
         });
       });
     });
-    for (const selector of ['.veil', '.panel', '.stack img']) {
+    for (const selector of ['.veil', '.panel', '.stack img', '.dots i']) {
       expect(
         abgeschaltet.map((s) => s.trim()),
         selector

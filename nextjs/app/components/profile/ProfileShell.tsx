@@ -233,7 +233,24 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                 /* private mode */
               }
               setSigningOut(true);
-              void signOut();
+              void signOut().catch(() => {
+                /* clearPremiumAccess wirft bei einem fehlgeschlagenen Request —
+                   AuthContext reicht den Fehler bewusst an den Aufrufer durch.
+                   Ohne diesen Zweig bliebe der Wartescreen als fixed-Layer ueber
+                   der Seite stehen, ohne Schliessweg: angemeldet, aber vom
+                   eigenen Profil ausgesperrt.
+
+                   Die geparkte Bestaetigung muss mit weg. Sie wurde oben fuer
+                   den Reload hinterlegt, der jetzt nicht kommt — sonst meldet
+                   der naechste Seitenaufruf "Du bist abgemeldet", waehrend die
+                   Anmeldung steht. */
+                setSigningOut(false);
+                try {
+                  sessionStorage.removeItem(TOAST_HANDOFF_KEY);
+                } catch {
+                  /* private mode */
+                }
+              });
             }}
           >
             {t('signOut')}

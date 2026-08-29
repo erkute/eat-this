@@ -69,17 +69,38 @@ jobs:
           check_page "https://www.eatthisdot.com/"    || true
           check_page "https://www.eatthisdot.com/map" || true
 
-          # Solange SANITY_USE_CDN=false in apphosting.yaml steht, läuft die App
-          # bewusst am CDN vorbei. Ein 402 auf dem CDN ist dann der ERWARTETE
-          # Zustand und kein Vorfall — sonst meldete dieser Job im Zehnminuten-
-          # takt einen Ausfall, den wir längst umschifft haben. Wird die Zeile
-          # entfernt, zählt ein CDN-402 wieder als Vorfall. Der Job folgt damit
-          # der Konfiguration statt einer Kopie davon.
-          if grep -qE "^\s*value:\s*'false'" <(grep -A2 'variable: SANITY_USE_CDN' nextjs/apphosting.yaml); then
-            cdn_is_bypassed=1
-            echo "INFO CDN-Nothebel ist gezogen (SANITY_USE_CDN=false) — CDN-Kontingent wird nur berichtet, nicht gemeldet."
-          else
-            cdn_is_bypassed=0
+          # Läuft die LAUFZEIT gerade am CDN vorbei? Dann ist ein 402 auf dem
+          # CDN der erwartete Zustand und kein Vorfall — sonst meldete dieser
+          # Job im Zehnminutentakt einen Ausfall, den wir längst umschifft
+          # haben. Der Job folgt damit der Konfiguration statt einer Kopie
+          # davon.
+          #
+          # Es reicht NICHT, `value: 'false'` zu finden: bis 29.08.2026 stand
+          # die Variable auf `availability: [BUILD]`, die Laufzeit lief also
+          # sehr wohl aufs CDN — ein echter CDN-Ausfall wäre stumm geblieben.
+          # Nötig ist beides: der Wert `false` UND eine `availability`, die die
+          # RUNTIME einschließt. Fehlt `availability` ganz, sind laut
+          # App-Hosting-Doku beide Phasen gemeint.
+          #
+          # `grep -A<n>` taugt dafür nicht — die feste Zeilenzahl schneidet die
+          # `availability`-Liste ab und liest sich dann wie „nur BUILD". Also
+          # den ganzen Listeneintrag herausschneiden und darin nachsehen.
+          cdn_is_bypassed=$(awk '
+            # Blockanfang: der Listeneintrag dieser Variable.
+            /^[[:space:]]*-[[:space:]]*variable:[[:space:]]*SANITY_USE_CDN[[:space:]]*$/ { inblock = 1; next }
+            # Blockende: der nächste Listeneintrag. Ein `- BUILD` unter
+            # `availability:` ist keiner, deshalb muss `variable:` dranstehen.
+            inblock && /^[[:space:]]*-[[:space:]]*variable:/ { inblock = 0 }
+            inblock {
+              if ($0 ~ /^[[:space:]]*value:/ && $0 ~ /false/)          is_false = 1
+              if ($0 ~ /^[[:space:]]*availability:[[:space:]]*$/)      has_list = 1
+              if ($0 ~ /^[[:space:]]*-[[:space:]]*RUNTIME[[:space:]]*$/) has_runtime = 1
+            }
+            END { print (is_false && (has_runtime || !has_list)) ? 1 : 0 }
+          ' nextjs/apphosting.yaml)
+
+          if [ "$cdn_is_bypassed" = "1" ]; then
+            echo "INFO CDN-Nothebel ist für die Laufzeit gezogen (SANITY_USE_CDN=false) — CDN-Kontingent wird nur berichtet, nicht gemeldet."
           fi
 
           # CDN und normale API ziehen auf GETRENNTE Kontingente — genau daran
@@ -149,9 +170,11 @@ jobs:
               printf 'Der Uptime-Job hat einen Ausfall festgestellt.\n\n'
               printf '%s\n' "$DETAILS"
               printf '[Lauf ansehen](%s)\n\n' "$RUN_URL"
-              printf 'Bei `plan_limit_reached` auf dem API-CDN ist `SANITY_USE_CDN=false` in\n'
-              printf '`nextjs/apphosting.yaml` und `.github/workflows/quality.yml` der Nothebel —\n'
-              printf 'CDN und normale API ziehen auf getrennte Kontingente.\n'
+              printf 'Bei `plan_limit_reached` auf dem API-CDN ist der Nothebel\n'
+              printf '`SANITY_USE_CDN: value: %s` in `nextjs/apphosting.yaml`, mit\n' "'false'"
+              printf '`availability: [BUILD, RUNTIME]` — CDN und normale API ziehen auf getrennte\n'
+              printf 'Kontingente (1.000.000 gegen 250.000). Der kleine Topf traegt den Live-\n'
+              printf 'Verkehr nur kurz: am 27.08.2026 war er nach drei Tagen ebenfalls leer.\n'
             } > "$RUNNER_TEMP/uptime-issue.md"
             gh issue create \
               --title "Produktion gestört: $(date -u '+%Y-%m-%d %H:%M UTC')" \

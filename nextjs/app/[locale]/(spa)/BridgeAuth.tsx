@@ -14,6 +14,10 @@
  *
  * SiteNav does not open the modal — it has no login affordance at all.
  *
+ * useFavorites reicht zusaetzlich eine Absicht mit (`heartRestaurantId`): das
+ * Herz, das der Tap vergeben wollte. LoginPanel haengt sie an die
+ * Continue-URL des Magic-Links, pendingHeart loest sie ein.
+ *
  * - localStorage._authHint: read by the inline CRITICAL_BOOTSTRAP in
  *   [locale]/layout.tsx only to set html[data-auth] before paint. The
  *   bootstrap never changes React-owned text, because the hint may be stale.
@@ -25,12 +29,10 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
-import { useRouter } from '@/i18n/navigation';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
-import { TOAST_HANDOFF_KEY } from '@/app/components/NotificationToast';
 import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 
 const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
@@ -38,37 +40,41 @@ const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: f
 export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
-  const { isOpen: loginOpen, mode: loginMode, close: closeLogin } = useLoginModal();
-  const router = useRouter();
+  const {
+    isOpen: loginOpen,
+    mode: loginMode,
+    intent: loginIntent,
+    close: closeLogin,
+  } = useLoginModal();
   const locale = useLocale();
 
-  // A sign-in that completes while the modal is open (Google popup or
-  // magic-link return) lands the user in their profile — the same destination
-  // the /login page uses. BridgeAuth owns the modal lifecycle, so it owns this
-  // redirect rather than relying on the soon-to-unmount LoginPanel's effect.
+  // Ein Login, der waehrend des offenen Modals durchgeht (Google-Popup),
+  // bleibt jetzt auf der Seite stehen, auf der er angefangen hat. Vorher
+  // sprang er auf die Startseite: wer auf einem Spot stand und sich dort
+  // anmeldete, musste den Spot danach wieder suchen (Nutzer, 29.08.2026). Das
+  // Modal liegt UEBER der Seite, die gemeint ist — also reicht Zumachen. Der
+  // Mail-Weg fuehrt ueber die Continue-URL an dieselbe Stelle zurueck (siehe
+  // lib/auth/loginContinueUrl.ts).
   //
   // Gehalten wird vorher: der Wartescreen (AuthScreen) haengt im Panel, also
   // an genau diesem Modal. Schliesst es in derselben Runde, in der Firebase
   // den Nutzer meldet, ist der Screen weg, bevor er gelesen ist — beim
   // Google-Popup bekommt er sowieso erst nach dem Popup-Fenster seinen
-  // Auftritt. Deshalb schliesst und leitet erst dieser Timer weiter, und
-  // nicht mehr der Sync-Effekt darunter.
+  // Auftritt. Deshalb raeumt erst dieser Timer ab.
+  const heartPending = Boolean(loginIntent?.heartRestaurantId);
   useEffect(() => {
     if (loading || !user || !loginOpen) return;
     const timer = window.setTimeout(() => {
-      try {
-        sessionStorage.setItem(
-          TOAST_HANDOFF_KEY,
-          locale === 'de' ? 'Du bist angemeldet' : "You're signed in"
-        );
-      } catch {
-        /* private mode */
-      }
       closeLogin();
-      router.replace('/');
+      /* Wartete hier ein Herz, sagt dessen eigene Bestaetigung ("Spot
+         gespeichert", siehe pendingHeart) mehr als "Du bist angemeldet" —
+         und zwei Meldungen hintereinander wuerden einander wegdruecken. */
+      if (!heartPending) {
+        window.showNotification?.(locale === 'de' ? 'Du bist angemeldet' : "You're signed in");
+      }
     }, AUTH_SCREEN_HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [user, loading, loginOpen, router, locale, closeLogin]);
+  }, [user, loading, loginOpen, locale, closeLogin, heartPending]);
 
   // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the
   // overlay (single owner — a second snapshot-restore lock here raced with

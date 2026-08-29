@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useId, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth, useMagicLink } from '@/lib/auth';
+import { useAuth, useMagicLink, useLoginModal } from '@/lib/auth';
+import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { GoogleMark } from './GoogleMark';
@@ -29,12 +30,19 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle, prepareGoogleSignIn } = useAuth();
   const locale = useLocale();
+  const { intent } = useLoginModal();
   const {
     sendLink,
     state: magicState,
     errorMessage: magicError,
     reset: magicReset,
   } = useMagicLink();
+
+  /* Der Link fuehrt dorthin zurueck, wo der Login angefangen hat — nicht auf
+     die Startseite. Diese Seite hier IST der Ort: das Modal liegt ueber ihr.
+     Wird erst beim Absenden gelesen, damit `window` nicht beim Rendern
+     gebraucht wird. */
+  const continueUrl = useCallback(() => buildLoginContinueUrl(window.location, intent), [intent]);
 
   const [email, setEmail] = useState('');
   /* Drei Phasen statt eines Schalters: 'leaving' haelt das Panel so lange,
@@ -188,7 +196,11 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
               </div>
 
               <div className={styles.actions}>
-                <button type="button" className={styles.ctaPrimary} onClick={() => sendLink(email)}>
+                <button
+                  type="button"
+                  className={styles.ctaPrimary}
+                  onClick={() => sendLink(email, continueUrl())}
+                >
                   <span>{t('modals.login.resendBtn')}</span>
                   <svg
                     viewBox="0 0 24 24"
@@ -267,7 +279,7 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
               noValidate
               onSubmit={(e) => {
                 e.preventDefault();
-                sendLink(email);
+                sendLink(email, continueUrl());
               }}
             >
               <label className={styles.fieldLabelSr} htmlFor={emailInputId}>

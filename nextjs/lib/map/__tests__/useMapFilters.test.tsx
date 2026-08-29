@@ -163,8 +163,8 @@ describe('useMapFilters with the paywalled spots in', () => {
   it('offers a price step that only locked spots carry', () => {
     const { result } = mount();
 
-    expect(result.current.priceBucketIds).toContain('50');
-    expect(result.current.optionCounts.byValue.price.get('50')).toBe(1);
+    expect(result.current.priceBucketIds).toContain('100');
+    expect(result.current.optionCounts.byValue.price.get('100')).toBe(1);
   });
 
   it('still knows a real zero when it sees one', () => {
@@ -172,7 +172,7 @@ describe('useMapFilters with the paywalled spots in', () => {
     act(() => result.current.setBezirk('Mitte'));
 
     // Nichts ab 100 € in Mitte, weder frei noch gesperrt: keine Zeile.
-    expect(result.current.optionCounts.byValue.price.get('50')).toBeUndefined();
+    expect(result.current.optionCounts.byValue.price.get('100')).toBeUndefined();
   });
 
   it('hands the list every match and the map only the free ones', () => {
@@ -189,7 +189,7 @@ describe('useMapFilters with the paywalled spots in', () => {
   it('has nothing extra to show someone who owns the whole map', () => {
     const { result } = renderHook(() => useMapFilters({ restaurants: ROWS, location: null }));
 
-    expect(result.current.priceBucketIds).not.toContain('50');
+    expect(result.current.priceBucketIds).not.toContain('100');
     expect(result.current.listRestaurants).toHaveLength(ROWS.length);
   });
 });
@@ -283,6 +283,6 @@ describe('useMapFilters, gekürzte Auswahllisten', () => {
   it('hält die Preisstufen in der Reihenfolge billig → teuer', () => {
     const { result } = mount();
 
-    expect(result.current.priceBucketIds).toEqual(['u10', '10', '20', '50']);
+    expect(result.current.priceBucketIds).toEqual(['u10', '10', '20', '100']);
   });
 });

@@ -3,6 +3,7 @@ import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type Ref
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
+import { priceBucketLabelKey } from '@/lib/map/priceBuckets';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
@@ -36,16 +37,6 @@ interface Props {
 }
 
 type ChipKind = 'category' | 'bezirk' | 'price';
-
-/** Stufen-ID → Übersetzungsschlüssel. Die Grenzen stehen in PRICE_BUCKETS, die
- *  Beschriftung hier: „10–20 €" liest sich besser als „10–19 €" und meint
- *  dasselbe Band (User, 2026-08-27). */
-const PRICE_LABEL_KEYS: Record<string, string> = {
-  u10: 'map.priceUnder10',
-  '10': 'map.price10to20',
-  '20': 'map.price20to50',
-  '50': 'map.priceFrom50',
-};
 
 export default function MapListHeader({
   headerRef,
@@ -108,7 +99,7 @@ export default function MapListHeader({
   /* NICHT nachsortiert, anders als die Küchen davor: eine Preisskala hat ihre
      Reihenfolge schon, und alphabetisch stünde „ab 50 €" vorn. */
   const priceItems: PickerItem[] = useMemo(
-    () => priceBucketIds.map((id) => withCount(id, t(PRICE_LABEL_KEYS[id] ?? id), 'price')),
+    () => priceBucketIds.map((id) => withCount(id, t(priceBucketLabelKey(id)), 'price')),
     [priceBucketIds, t, withCount]
   );
 
@@ -149,7 +140,7 @@ export default function MapListHeader({
         {priceBucketIds.length > 0 && (
           <FilterChip
             ref={priceBtnRef}
-            label={price ? t(PRICE_LABEL_KEYS[price] ?? price) : t('map.filterChipPrice')}
+            label={price ? t(priceBucketLabelKey(price)) : t('map.filterChipPrice')}
             active={!!price}
             expanded={openChip === 'price'}
             onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}

@@ -395,12 +395,18 @@
   letter-spacing: 0;
   text-transform: none;
 }
+/* line-height 1.5, nicht 1.1: Providence hat eine sehr tiefe Unterlänge — bei
+   11px steht die Tinte des „g" 5,3px unter der Grundlinie, eine 12,1px-Zeile
+   bietet darunter nur 4,1px. Zusammen mit dem `overflow: hidden`, das der Chip
+   fürs Ellipsis braucht, war „Steglitz" unten angeschnitten (User,
+   29.08.2026). Ein Pixel kommt aus dem Polster zurück, damit der Sticker seine
+   Höhe behält. */
 .rcardMetaChip,
 .rcardMetaCategory {
   min-height: 28px;
-  padding: 7px 11px;
+  padding: 6px 11px;
   font-size: 11px;
-  line-height: 1.1;
+  line-height: 1.5;
 }
 .rcard {
   overflow: visible;

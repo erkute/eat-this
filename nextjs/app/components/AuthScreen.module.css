@@ -1,0 +1,294 @@
+/* Der Wartescreen fuers An- und Abmelden.
+
+   Er spricht die Sprache des Must-Eat-Onboardings, nicht die des Login-Modals:
+   Ink-Grund, gelber Mono-Kicker, Providence in Versalien. Das weisse Panel
+   davor war Fremdkoerper — die Anmeldung endet in einem Kartenspiel, also soll
+   der Moment davor auch danach aussehen. Werte eins zu eins aus
+   MustEatsOnboarding.module.css. */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 10030; /* ueber dem Onboarding (10020), das hier nie gleichzeitig laeuft */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(21, 18, 14, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.panel {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  width: min(94vw, 560px);
+  padding: clamp(26px, 4vw, 40px);
+  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-home-ink, #15120e);
+  border-radius: 10px;
+  text-align: left;
+  /* Bewegung, nie ein Opacity-Fade — Brand-Regel fuer Markenflaechen. */
+  animation: authRise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 520px) {
+  .panel {
+    /* Breiter als der Stapel: der Faecher greift beim Aufgehen weit aus. */
+    grid-template-columns: minmax(0, 148px) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+@keyframes authRise {
+  from {
+    transform: translateY(28px) scale(0.97);
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Der Abbruch faehrt dieselbe Bewegung rueckwaerts, statt wegzublinken. */
+.leaving {
+  animation: authVeilOut 240ms cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+
+.leaving .panel {
+  animation: authSink 220ms cubic-bezier(0.4, 0, 0.7, 1) both;
+}
+
+@keyframes authVeilOut {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+@keyframes authSink {
+  from {
+    transform: none;
+  }
+
+  to {
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+.kicker {
+  margin: 0 0 10px;
+  font-family: var(--et-font-label, var(--et-font-mono), monospace);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--et-home-accent, #ffc600);
+}
+
+/* Drei Punkte am Kicker — die einzige Bewegung in der Schrift, und zwar an
+   der kleinen Nebenzeile statt an der Headline. Sie erscheinen ueber `scale`,
+   nicht ueber Opacity: Ein- und Ausblenden laeuft auf Markenflaechen nie ueber
+   Transparenz. Gleiche Laufzeit wie der Faecher, damit nichts gegeneinander
+   tickt. */
+.dots {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 6px;
+  vertical-align: 0.1em;
+}
+
+.dots i {
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  transform: scale(0);
+  animation: authDot 1700ms cubic-bezier(0.3, 0, 0.3, 1) infinite;
+}
+
+.dots i:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.dots i:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+@keyframes authDot {
+  0%,
+  10% {
+    transform: scale(0);
+  }
+
+  24%,
+  60% {
+    transform: scale(1);
+  }
+
+  74%,
+  100% {
+    transform: scale(0);
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(30px, 6vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+/* ── Der Stapel ───────────────────────────────────────────────────────────── */
+
+.art {
+  display: grid;
+  place-items: center;
+}
+
+.stack {
+  position: relative;
+  width: min(34vw, 100px);
+  /* Dieselbe Proportion wie die freigestellte Kartengrafik (1539x2115). */
+  aspect-ratio: 1539 / 2115;
+}
+
+.stack img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.45));
+}
+
+.stack img:nth-child(1) {
+  transform: rotate(-9deg) translate(-7px, 4px);
+}
+
+.stack img:nth-child(2) {
+  transform: rotate(-3deg) translate(-2px, 2px);
+}
+
+.stack img:nth-child(3) {
+  transform: rotate(4deg);
+}
+
+/* Der Stapel erzaehlt die Richtung mit: beim Anmelden faechert er weit auf,
+   beim Abmelden faellt derselbe weite Faecher vollstaendig zusammen —
+   deckungsgleich, aus drei mach eine. Gleiche Amplitude in beide Richtungen,
+   sonst wirkt das Abmelden neben dem Anmelden kraftlos. Gleiche Laufzeit wie
+   der Marker, damit Schrift und Karten im selben Takt atmen. */
+.opening img:nth-child(1) {
+  animation: authFanA 1700ms cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+.opening img:nth-child(2) {
+  animation: authFanB 1700ms cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+.opening img:nth-child(3) {
+  animation: authFanC 1700ms cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+.closing img:nth-child(1) {
+  animation: authCloseA 1700ms cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+.closing img:nth-child(2) {
+  animation: authCloseB 1700ms cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+.closing img:nth-child(3) {
+  animation: authCloseC 1700ms cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+@keyframes authFanA {
+  0%,
+  100% {
+    transform: rotate(-4deg) translate(-2px, 2px);
+  }
+
+  45%,
+  62% {
+    transform: rotate(-20deg) translate(-20px, 6px);
+  }
+}
+
+@keyframes authFanB {
+  0%,
+  100% {
+    transform: rotate(-2deg) translate(-1px, 1px);
+  }
+
+  45%,
+  62% {
+    transform: rotate(-3deg) translate(-2px, 1px);
+  }
+}
+
+@keyframes authFanC {
+  0%,
+  100% {
+    transform: rotate(1deg);
+  }
+
+  45%,
+  62% {
+    transform: rotate(14deg) translate(19px, -3px);
+  }
+}
+
+@keyframes authCloseA {
+  0%,
+  100% {
+    transform: rotate(-20deg) translate(-20px, 6px);
+  }
+
+  45%,
+  62% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+}
+
+@keyframes authCloseB {
+  0%,
+  100% {
+    transform: rotate(-3deg) translate(-2px, 1px);
+  }
+
+  45%,
+  62% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+}
+
+@keyframes authCloseC {
+  0%,
+  100% {
+    transform: rotate(14deg) translate(19px, -3px);
+  }
+
+  45%,
+  62% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Nichts faechert, nichts zieht, nichts faehrt — Kicker und Zeile tragen
+     die Auskunft dann allein. */
+  .veil,
+  .leaving,
+  .panel,
+  .leaving .panel,
+  .dots i,
+  .stack img {
+    animation: none;
+  }
+}

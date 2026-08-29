@@ -194,7 +194,6 @@ export default function MustEatDetailMobile({
     hasPrev: !!prevMustEat,
     hasNext: !!nextMustEat,
     transformRef: topCardRef,
-    animateIn: true,
     flushPage: true,
   });
 

@@ -1,8 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { auth, getDb } from '@/lib/firebase/config';
 import { useLoginModal } from '@/lib/auth';
+import { rememberPendingHeart, settlePendingHeart } from './pendingHeart';
 
 interface FavoriteEntry {
   restaurantId: string;
@@ -80,6 +81,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
   // instantly on first paint instead of waiting on auth-resolve + the Firestore
   // read. The live getDocs reconciles + refreshes the cache right after.
   const [state, setState] = useState<FavoritesState>(() => emptyState(uid, !!uid));
+  /* Die Sprache haengt nicht am Ladeeffekt — sie beschriftet nur die Meldung
+     des eingeloesten Herzens. Ueber einen Ref, damit ein Sprachwechsel nicht
+     die Favoritenliste neu liest. */
+  const localeRef = useRef(locale);
+  localeRef.current = locale;
 
   useEffect(() => {
     if (!uid) {
@@ -121,6 +127,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     let active = true;
     void (async () => {
       try {
+        /* Erst das Herz von vor dem Login einloesen, dann lesen: umgekehrt
+           kaeme die Liste vom Stand vor dem Schreiben zurueck, und der gerade
+           vergebene Spot waere im ersten Bild wieder leer. */
+        await settlePendingHeart(uid, localeRef.current);
+        if (!active) return;
         const [{ collection, getDocs }, db] = await Promise.all([
           import('firebase/firestore'),
           getDb(),
@@ -162,7 +173,12 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
   const toggle = useCallback(
     async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
       if (!uid || !auth.currentUser) {
-        openLoginModal('signin');
+        /* Der Tap geht nicht verloren: er wartet auf das Konto und wird
+           eingeloest, sobald eines da ist (siehe pendingHeart). Das Modal
+           bekommt dieselbe Absicht mit, damit sie auch den Umweg ueber den
+           Posteingang uebersteht. */
+        rememberPendingHeart(r._id);
+        openLoginModal('signin', { heartRestaurantId: r._id });
         return;
       }
       // The heart write goes through /api/heart (Admin SDK), which is the single

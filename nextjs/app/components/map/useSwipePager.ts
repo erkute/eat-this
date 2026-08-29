@@ -11,10 +11,14 @@ interface SwipePagerOptions {
   hasNext: boolean;
   /** Optional element to animate while the root still owns the gesture. */
   transformRef?: RefObject<HTMLElement | null>;
-  /** Called after the current pane/card has left, right before data swaps. */
-  onPageOut?: (dir: 'prev' | 'next') => void;
-  /** Defaults to true. Set false for surfaces that should only slide out. */
-  animateIn?: boolean;
+  /** Where to find the INCOMING card once the page has swapped. A ref cannot
+   *  carry across a swap that exchanges one component for another — an open
+   *  spot pages onto a locked one and back, and React has nulled the outgoing
+   *  ref by then, so the entry animation would land on a detached node and the
+   *  new sheet would cut in. The selector is re-resolved against the document
+   *  instead, and it implies `flushPage`: the incoming pane has to exist before
+   *  the entry transform can be put on it. */
+  entrySelector?: string;
   /** Force the page state swap before the entry transform is applied. */
   flushPage?: boolean;
 }
@@ -33,6 +37,13 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     const el = ref.current;
     if (!el) return;
     const animatedEl = () => optsRef.current.transformRef?.current ?? el;
+    /* The pane that comes in is not always the one that went out (see
+       `entrySelector`), so the incoming card is looked up fresh. */
+    const enteringEl = () => {
+      const sel = optsRef.current.entrySelector;
+      const found = sel ? document.querySelector<HTMLElement>(sel) : null;
+      return found ?? animatedEl();
+    };
     const setTransform = (target: HTMLElement, value: string) =>
       target.style.setProperty('transform', value, 'important');
     const setTransition = (target: HTMLElement, value: string) =>
@@ -105,20 +116,14 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         setTransition(target, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)');
         setTransform(target, `translateX(${outX}px)`);
         window.setTimeout(() => {
-          optsRef.current.onPageOut?.(dir);
           const page = () => {
             if (dir === 'next') optsRef.current.onNext?.();
             else optsRef.current.onPrev?.();
           };
-          if (optsRef.current.flushPage) flushSync(page);
+          if (optsRef.current.flushPage || optsRef.current.entrySelector) flushSync(page);
           else page();
-          if (optsRef.current.animateIn === false) {
-            target.style.setProperty('transition', 'none', 'important');
-            target.style.removeProperty('transform');
-            return;
-          }
           // Place the freshly-swapped content on the opposite edge, then in.
-          const nextTarget = animatedEl();
+          const nextTarget = enteringEl();
           nextTarget.style.setProperty('transition', 'none', 'important');
           setTransform(nextTarget, `translateX(${-outX}px)`);
           void nextTarget.offsetWidth; // force reflow so the next transition animates

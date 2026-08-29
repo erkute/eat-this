@@ -3,28 +3,65 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from '@/lib/i18n';
 
-declare global {
-  interface Window {
-    showNotification?: (msg: string, duration?: number) => void;
-  }
-}
+/**
+ * Die eine Infoflaeche der App.
+ *
+ * Jede kleine Rueckmeldung laeuft hier durch — Spot gespeichert, Spot
+ * entfernt, Standort nicht gefunden, angemeldet, freigeschaltet. Sie steht
+ * mittig und im Zuschnitt des Onboarding-Panels (Styles in globals.css);
+ * vorher lagen zwei getrennte Leisten am unteren Rand, und auf dem Handy
+ * verschwanden beide unter dem Sheet.
+ *
+ * Zwei Eingaenge:
+ *   window.showNotification(text)  — der kurze Weg fuer eine fertige Zeile.
+ *     Der Text wird hier in Augenbraue/Titel/Detail uebersetzt
+ *     (buildToastCopy), damit die Aufrufer nichts ueber die Karte wissen
+ *     muessen.
+ *   window.showNotice(notice)      — die volle Karte mit Aktion und
+ *     Wegklicken, fuer Meldungen, auf die man antworten koennen muss (die
+ *     Standort-Meldungen der Karte). `null` nimmt sie wieder weg.
+ */
 
-type ToastTone = 'success' | 'warning' | 'error' | 'info';
+export type NoticeTone = 'success' | 'warning' | 'error' | 'info';
+export type NoticeIcon = 'heart' | 'pin' | 'alert' | 'check' | 'spark';
 
-interface ToastCopy {
-  tone: ToastTone;
+export interface Notice {
+  tone: NoticeTone;
+  icon: NoticeIcon;
   eyebrow: string;
   title: string;
   detail?: string;
-  icon: 'heart' | 'pin' | 'alert' | 'check' | 'spark';
+  /** Ein Knopf, der die Meldung beantwortet — z. B. „Nochmal" nach einem
+   *  fehlgeschlagenen Standort. */
+  action?: { label: string; onClick: () => void };
+  /** Wegklicken. Nur gesetzt, wenn der Aufrufer wissen will, dass es passiert
+   *  ist — sonst geht die Karte von allein. */
+  onDismiss?: () => void;
+  /** Millisekunden bis zum Selbstabgang; 0 laesst sie stehen. */
+  duration?: number;
 }
+
+declare global {
+  interface Window {
+    showNotification?: (msg: string, duration?: number) => void;
+    /**
+     * Zeigt eine Karte. Der Rueckgabewert nimmt GENAU DIESE Karte wieder weg
+     * und laesst eine inzwischen nachgerueckte in Ruhe — sonst raeumte der
+     * Selbstabgang einer Standort-Meldung die Bestaetigung ab, die kurz
+     * vorher an ihre Stelle getreten ist. `null` raeumt bedingungslos.
+     */
+    showNotice?: (notice: Notice | null) => (() => void) | void;
+  }
+}
+
+const DEFAULT_DURATION_MS = 3000;
 
 // sessionStorage handoff: a message stored under this key (e.g. by the
 // profile logout button, whose sign-out triggers a hard navigation to '/')
 // is toasted once on the next page load, then cleared.
 export const TOAST_HANDOFF_KEY = 'eatthis_toast';
 
-function buildToastCopy(message: string, lang: string): ToastCopy {
+function buildToastCopy(message: string, lang: string): Notice {
   const text = message.trim();
   const lower = text.toLowerCase();
   const english = lang === 'en';
@@ -80,12 +117,14 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
           tone: 'success',
           eyebrow: 'Spot',
           title: 'Saved',
+          detail: 'It is on your map — and in your profile.',
           icon: 'heart',
         }
       : {
           tone: 'success',
           eyebrow: 'Spot',
           title: 'Gespeichert',
+          detail: 'Liegt jetzt auf deiner Map — und im Profil.',
           icon: 'heart',
         };
   }
@@ -150,13 +189,15 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
       ? {
           tone: 'success',
           eyebrow: 'Login',
-          title: 'Signed in',
+          title: "You're in",
+          detail: 'Right where you left off.',
           icon: 'check',
         }
       : {
           tone: 'success',
           eyebrow: 'Login',
-          title: 'Angemeldet',
+          title: 'Du bist drin',
+          detail: 'Genau da, wo du aufgehört hast.',
           icon: 'check',
         };
   }
@@ -181,13 +222,13 @@ function buildToastCopy(message: string, lang: string): ToastCopy {
 
   return {
     tone: 'info',
-    eyebrow: english ? 'Eat This' : 'Eat This',
+    eyebrow: 'Eat This',
     title: text,
     icon: 'spark',
   };
 }
 
-function ToastIcon({ icon }: { icon: ToastCopy['icon'] }) {
+function ToastIcon({ icon }: { icon: NoticeIcon }) {
   if (icon === 'heart') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -229,26 +270,54 @@ function ToastIcon({ icon }: { icon: ToastCopy['icon'] }) {
 
 export default function NotificationToast() {
   const { lang } = useTranslation();
-  const [text, setText] = useState('');
+  const [notice, setNotice] = useState<Notice | null>(null);
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /* Welche Meldung gerade DRAN ist — im Gegensatz zu `notice`, das seinen
+     Inhalt ueber das Ausfahren hinaus behaelt (sonst faehrt eine leere Karte
+     heraus). Daran haengt, ob ein spaeter Aufraeumer noch zustaendig ist. */
+  const activeRef = useRef<Notice | null>(null);
 
-  const show = useCallback((message: string, duration = 3000) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setText(message);
+  const present = useCallback((next: Notice | null): (() => void) | void => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    activeRef.current = next;
+    if (!next) {
+      setVisible(false);
+      return;
+    }
+    setNotice(next);
     setVisible(true);
-    timerRef.current = setTimeout(() => setVisible(false), duration);
+    if (next.duration !== 0) {
+      timerRef.current = setTimeout(() => {
+        if (activeRef.current === next) activeRef.current = null;
+        setVisible(false);
+      }, next.duration ?? DEFAULT_DURATION_MS);
+    }
+    return () => {
+      if (activeRef.current !== next) return;
+      activeRef.current = null;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      setVisible(false);
+    };
   }, []);
 
   useEffect(() => {
-    window.showNotification = show;
+    window.showNotice = present;
+    window.showNotification = (message: string, duration = DEFAULT_DURATION_MS) =>
+      present({ ...buildToastCopy(message, lang), duration });
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [show]);
+  }, [present, lang]);
 
   // Pick up a handoff message left by the previous page (survives the hard
-  // navigation). Small delay so the slide-in transition plays after paint.
+  // navigation). Small delay so the reveal plays after paint.
   useEffect(() => {
     let msg: string | null = null;
     try {
@@ -258,27 +327,59 @@ export default function NotificationToast() {
       /* private mode */
     }
     if (!msg) return;
-    const t = setTimeout(() => show(msg as string, 3500), 600);
+    const handoff = msg;
+    const t = setTimeout(() => present({ ...buildToastCopy(handoff, lang), duration: 3500 }), 600);
     return () => clearTimeout(t);
-  }, [show]);
+  }, [present, lang]);
 
-  const copy = buildToastCopy(text, lang);
+  const dismiss = useCallback(() => {
+    notice?.onDismiss?.();
+    present(null);
+  }, [notice, present]);
 
+  /* Die Huelle bleibt immer im Dokument: sie ist der aria-live-Bereich, und
+     der Uebergang braucht einen Rahmen im geschlossenen Zustand, bevor `show`
+     dazukommt. Zugeklappt (clip-path) ist sie nicht zu sehen. */
   return (
     <div
       className={`notification${visible ? ' show' : ''}`}
-      data-tone={copy.tone}
+      data-tone={notice?.tone ?? 'info'}
       aria-live="polite"
       aria-atomic="true"
     >
       <span className="notification-mark">
-        <ToastIcon icon={copy.icon} />
+        <ToastIcon icon={notice?.icon ?? 'spark'} />
       </span>
       <span className="notification-copy">
-        <span className="notification-eyebrow">{copy.eyebrow}</span>
-        <span className="notification-title">{copy.title}</span>
-        {copy.detail && <span className="notification-detail">{copy.detail}</span>}
+        <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
+        <span className="notification-title">{notice?.title ?? ''}</span>
+        {notice?.detail && <span className="notification-detail">{notice.detail}</span>}
       </span>
+      {/* Nur solange die Karte offen ist: zugeklappt waeren die Knoepfe zwar
+          unsichtbar, aber weiter antippbar per Tastatur — ein Fokus, der ins
+          Nichts springt. */}
+      {visible && notice && (notice.action || notice.onDismiss) && (
+        <span className="notification-actions">
+          {notice.action && (
+            <button
+              type="button"
+              className="notification-action"
+              onClick={() => {
+                const run = notice.action?.onClick;
+                present(null);
+                run?.();
+              }}
+            >
+              {notice.action.label}
+            </button>
+          )}
+          {notice.onDismiss && (
+            <button type="button" className="notification-dismiss" onClick={dismiss}>
+              {lang === 'en' ? 'Got it' : 'Alles klar'}
+            </button>
+          )}
+        </span>
+      )}
     </div>
   );
 }

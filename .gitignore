@@ -46,6 +46,11 @@ studio/.sanity/
 # Rive working assets (PNG/.riv source) — not shipped
 rive-src/
 
+# Kartenbilder der Premium-Must-Eats — Eingabeordner für
+# scripts/replace-must-eat-cards.ts (--cards ../CARDS). Die Karten selbst sind
+# Produktionsdaten in Firestore + Cloud Storage, kein Deploy-Artefakt.
+/CARDS/
+
 # Lizenzierte Desktop-Schrift — nur lokal, aus ihr entstehen die E-Mail-PNGs
 # (npm run sync:brand-font). Die Schrift selbst gehört nicht ins Repo.
 nextjs/assets/fonts/Providence*

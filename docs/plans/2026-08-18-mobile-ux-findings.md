@@ -67,8 +67,10 @@ stillschweigend nicht gegriffen. Nach jedem Merge also nachsehen, ob überhaupt
 etwas gelaufen ist, statt es anzunehmen.
 
 **`smoke-tested` gilt für diese drei aber NICHT** — der funktionale Smoke hinter
-dem Basic-Auth-Gate steht aus, er braucht die Zugangsdaten aus
-`docs/runbooks/2026-05-27-staging-backend-setup.md`. Nicht mit dem Rollout
+dem Basic-Auth-Gate steht aus, er braucht die Zugangsdaten aus dem Secret
+Manager (`STAGING_BASIC_AUTH_USER` / `_PASS`, Verdrahtung in
+`docs/runbooks/2026-05-27-staging-backend-setup.md`; im Repo steht kein
+Klartext). Nicht mit dem Rollout
 verwechseln: der ist bewiesen, das Verhalten der Seite ist es nicht.
 
 **Die Falle war wieder die Warteschlange, exakt wie im Skill beschrieben.** Zwei

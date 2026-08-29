@@ -724,6 +724,22 @@
   .pickerSheet::before {
     content: none;
   }
+
+  /* Zwei Spalten, wie im aufgeklappten Panel und aus demselben Grund: die elf
+     Bezirke plus "Alle" brauchten einspaltig 591px in einer 470px hohen Liste,
+     drei Zeilen standen also unter der Kante (User, 29.08.2026). Zweispaltig
+     sind es sechs Zeilen und 297px — die ganze Auswahl steht auf einmal da,
+     auch auf einem 667px-Telefon. `overflow-y: auto` bleibt als Ventil, falls
+     eine Liste doch einmal über den Deckel hinauswächst. */
+  .pickerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Zwei Pixel weniger Polster je Seite: „Prenzlauer Berg" ist der längste
+     Wert im Katalog und braucht in der halbierten Spalte jeden davon. */
+  .pickerItem {
+    padding: 10px 10px;
+  }
 }
 
 /* ── Desktop: am Chip verankertes Popover ──────────────────────────────────── */

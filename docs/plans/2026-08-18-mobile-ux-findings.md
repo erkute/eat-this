@@ -86,8 +86,25 @@ der Backend-Zeitstempel schon frisch war und trotzdem den falschen Commit meinte
 Mehrere davon haben Reste hinterlassen — siehe die Notizen unter dem jeweiligen
 Punkt.
 
-Alles Folgende ist offen. Reihenfolge = mein Vorschlag nach Wirkung pro Aufwand,
-nicht bindend.
+Reihenfolge = mein Vorschlag nach Wirkung pro Aufwand, nicht bindend. Der
+Status steht beim jeweiligen Punkt — „Alles Folgende ist offen" stimmte nur am
+18.08.
+
+**Durchgang 29.08.2026.** Jeder Punkt ohne Erledigt-Vermerk gegen den Code
+geprüft, nicht gegen die eigene Selbstauskunft. Geändert hat sich:
+
+- **2.2** war als „in PR #362 (offen)" notiert — der PR ist am 19.08. gemergt.
+- **3.1** ist erledigt: `lib/cuisineLabels.ts` übersetzt alle 33 `cuisineType`-
+  Werte, und die beanstandete Küchen-**Liste** existiert nicht mehr.
+- **2.5** bleibt inhaltlich stehen, betrifft aber keinen Filter mehr: `c290a8e`
+  hat Küche durch Preis ersetzt. Der Rest ist Kuratierung, nicht Code.
+- **4.4** ist halb erledigt — `/kategorie` und `/bezirk` stehen seit dem 25.08.
+  im Burger-Menü; die fehlende Suche ist der Rest.
+
+Unverändert offen und hier nicht wiederholt: 1.4 (Clustering, Design-Frage),
+3.2–3.4, 3.6, 4.2, 4.3 und der P5-Block. 3.5 („CROSSAINT") ist mit dem neuen
+Kartensatz vom 29.08. wahrscheinlich weg, aber der Text steckt in der Grafik —
+das entscheidet ein Blick auf die Karte, kein grep.
 
 ---
 
@@ -298,7 +315,7 @@ Albatross Bäckerei`.
 
 9 × 2,99 € = 26,91 € gegen All Berlin 20 €. Rund 26 % Ersparnis, steht nirgends.
 
-**In PR #362** (offen, CI grün). Eine Zeile unter allen drei
+**Erledigt in PR #362** (gemergt 19.08.2026). Eine Zeile unter allen drei
 All-Berlin-CTAs — `/packs`-Hero, `/pack/all-berlin` und der Upsell-Block auf
 jeder Kategorie-Pack-Seite, also dort, wo jemand kurz davor ist, 2,99 € für einen
 von neun zu zahlen: „Einzeln 26,91 € · du sparst 6,91 € (25 %)".
@@ -375,6 +392,10 @@ Ein „Burgers"-Filter mit einem Ergebnis lässt das Produkt kleiner wirken als 
 ist. Free-Tier auf ~5 Spots pro Küche anheben wäre die einfache Variante.
 
 **Der Vorschlag oben war nicht ausführbar — halb erledigt in PR #365.**
+**Nachtrag 29.08.2026:** Den Küchen-Filter gibt es nicht mehr — `c290a8e` hat
+die Chip-Leiste auf Kategorie · Bezirk · Preis · Jetzt offen umgestellt. Die
+lange Fahne unten bleibt trotzdem gültig, sie ist ein Kuratierungsproblem und
+kein Filterproblem: 23 Must Eats auf 339 Restaurants.
 
 Das Free-Tier war keine Auswahl, sondern der komplette Vorrat. Gemessen gegen
 Produktion: **23 Must-Eat-Dokumente auf 20 Restaurants**, bei 339 im Katalog
@@ -430,6 +451,14 @@ Anzeige-Mapping plus Aufräumen im Datensatz.
 Bakery, Bar, Burgers, Café, Chinese, Coffee, European, Fine Dining, French,
 German / Fast Food, Ice Cream, Italian, Turkish, Vietnamese, Wine Bar.
 Ebenso die Tags auf Detailseiten: „JAPANESE", „BAKERY", „VIETNAMESE".
+
+**Erledigt, in zwei Schritten.** `lib/cuisineLabels.ts` (24.08.2026) übersetzt
+alle 33 kanonischen `cuisineType`-Werte für die DE-Seiten; die EN-Seiten nehmen
+weiter den Rohwert. Verbraucht wird die Tabelle auf Restaurant-, Bezirks- und
+Kategorieseiten, im Map-Sheet und im gesperrten Sheet. Die **Liste** aus dem
+Fund gibt es gar nicht mehr: `c290a8e` hat den Küchen-Filter durch den
+Preisfilter ersetzt. Kommt ein neuer `cuisineType` nach Sanity, steht er
+deutsch-seitig roh da — dann gehört eine Zeile in die Tabelle.
 
 ### 3.2 Taxonomie unsauber
 
@@ -533,6 +562,10 @@ Es fehlen: **Entfernung, Preisniveau, und das eine Gericht** — der Claim ist
 Weder Startseite noch Burger-Menü haben eine Suche. Menü führt MAP, MUST EATS,
 FRAG REMY, AUF DEM TELLER, BOOSTER PACKS, ÜBER UNS — kein Einstieg in die
 `/bezirk/*`-Seiten, die frei sind.
+
+**Halb erledigt (25.08.2026).** `BurgerDrawer.tsx` führt jetzt `/kategorie` und
+`/bezirk`; die Hub-Indexseiten sind damit erreichbar. Eine Suche im Menü oder
+auf der Startseite gibt es weiterhin nicht — das ist der Rest dieses Punkts.
 
 ### 4.5 Breadcrumb wird abgeschnitten
 

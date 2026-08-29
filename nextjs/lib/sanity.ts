@@ -23,10 +23,18 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion: '2024-01-01',
-  // CDN and plain API draw on SEPARATE plan quotas. `SANITY_USE_CDN=false`
-  // is the escape hatch when the CDN quota is exhausted (first hit 24.08.2026:
-  // plan_limit_reached → local dev and fresh ISR revalidates failed) — flip it
-  // per environment without a code change. Default stays CDN.
+  // CDN and plain API draw on SEPARATE plan quotas: 1.000.000 vs. 250.000
+  // requests, and overage costs $1 per 250.000 vs. $1 per 25.000. The CDN is
+  // therefore the default everywhere — four times the room at a tenth of the
+  // price — and `SANITY_USE_CDN=false` stays purely as the escape hatch for
+  // the day the CDN quota is the one that gives out (24.08.2026:
+  // plan_limit_reached → local dev and fresh ISR revalidates failed). Flip it
+  // per environment, no code change.
+  //
+  // Do not pull that lever site-wide again without checking the numbers first:
+  // on 27.08.2026 it moved the whole live traffic onto the smaller meter and
+  // emptied it in three days. The real driver was never the traffic — it was
+  // ~50 CI builds a day at 952 requests each, see .github/workflows/quality.yml.
   useCdn: process.env.SANITY_USE_CDN !== 'false',
   perspective: 'published',
   token: process.env.SANITY_API_READ_TOKEN,

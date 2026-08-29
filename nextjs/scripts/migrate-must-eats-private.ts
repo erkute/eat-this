@@ -7,6 +7,7 @@
  *   npx tsx scripts/migrate-must-eats-private.ts purge --apply \
  *     --confirm-source <project>/<dataset> --manifest <ignored-json>
  *   npx tsx scripts/migrate-must-eats-private.ts verify --manifest <ignored-json>
+ *   npx tsx scripts/migrate-must-eats-private.ts refresh-manifest --manifest <ignored-json>
  *
  * The manifest contains document IDs, hashes and legacy public asset URLs but
  * never premium prose or credentials. It belongs under .private/ (gitignored).
@@ -565,6 +566,55 @@ async function verify(): Promise<void> {
   );
 }
 
+/**
+ * Schreibt die `entries` des Manifests auf den heutigen Bestand um.
+ *
+ * Das Manifest ist die Erwartung, gegen die `verify` prueft — es entsteht bei
+ * der Migration und veraltet, sobald eine Karte dazukommt oder wegfaellt.
+ * Genau dann meldet `verify` "backfill is incomplete", und das liest sich wie
+ * ein kaputter Store, obwohl nur die Liste alt ist. Firestore ist hier die
+ * Wahrheit; die Legacy-Felder aus der Sanity-Migration bleiben erhalten, wo es
+ * sie gibt, und fehlen bei Karten, die nie durch die Migration gingen.
+ */
+async function refreshManifest(): Promise<void> {
+  const manifestPath = requiredArg('--manifest');
+  const manifest = await loadManifest(manifestPath);
+  const app = initializeTarget(manifest.targetFirebaseProject, manifest.targetStorageBucket);
+  const snapshot = await getFirestore(app).collection(COLLECTION).get();
+  const previous = new Map(manifest.entries.map((entry) => [entry.id, entry]));
+
+  const entries: ManifestEntry[] = snapshot.docs.map((document) => {
+    const data = document.data();
+    const before = previous.get(document.id);
+    return {
+      id: document.id,
+      restaurantId: data.restaurantId,
+      legacyAssetId: before?.legacyAssetId ?? '',
+      legacyAssetUrl: before?.legacyAssetUrl ?? '',
+      privateObjectPath: data.imageObjectPath,
+      imageSha256: data.imageSha256,
+      recordSha256: data.recordSha256 ?? storedRecordSha256(data),
+    };
+  });
+  entries.sort((a, b) => a.id.localeCompare(b.id));
+
+  const added = entries.filter((entry) => !previous.has(entry.id)).map((entry) => entry.id);
+  const removed = [...previous.keys()].filter(
+    (id) => !entries.some((entry) => entry.id === id)
+  );
+  await saveManifest(manifestPath, { ...manifest, entries });
+  console.log(
+    JSON.stringify({
+      command: 'refresh-manifest',
+      status: 'complete',
+      documents: entries.length,
+      added,
+      removed,
+      manifest: manifestPath,
+    })
+  );
+}
+
 async function main() {
   const envFile = arg('--env-file') ?? '.env.local';
   loadEnv({ path: envFile, quiet: true });
@@ -573,8 +623,9 @@ async function main() {
   if (command === 'export-metadata') return exportMetadata();
   if (command === 'purge') return purge();
   if (command === 'verify') return verify();
+  if (command === 'refresh-manifest') return refreshManifest();
   throw new Error(
-    'Usage: migrate-must-eats-private.ts <backfill|export-metadata|purge|verify> [options]'
+    'Usage: migrate-must-eats-private.ts <backfill|export-metadata|purge|verify|refresh-manifest> [options]'
   );
 }
 

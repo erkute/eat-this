@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 const state = vi.hoisted(() => ({
   authLoading: false,
@@ -17,6 +17,7 @@ const state = vi.hoisted(() => ({
     categories: Array<{ name: string }>;
   }>,
   refetch: vi.fn(),
+  signOut: vi.fn(() => Promise.resolve()),
 }));
 
 const copy: Record<string, string> = {
@@ -47,8 +48,15 @@ vi.mock('@/lib/auth', () => ({
   useAuth: () => ({
     user: state.user,
     loading: state.authLoading,
-    signOut: vi.fn(),
+    signOut: state.signOut,
   }),
+}));
+// Der echte AuthScreen zieht ueber useTranslation den next-intl-Router mit;
+// hier zaehlt nur, dass er da ist. AUTH_SCREEN_HOLD_MS bleibt echt — die
+// Haltezeit ist der Gegenstand des Tests.
+vi.mock('../AuthScreen', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../AuthScreen')>()),
+  default: ({ mode }: { mode: 'in' | 'out' }) => <div data-testid="auth-screen">{mode}</div>,
 }));
 vi.mock('@/lib/map', () => ({
   useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
@@ -73,6 +81,7 @@ vi.mock('./AvatarPickerModal', () => ({ default: () => null }));
 vi.mock('../SiteFooter', () => ({ default: () => <footer>Footer</footer> }));
 
 import ProfileShell from './ProfileShell';
+import { AUTH_SCREEN_HOLD_MS } from '../AuthScreen';
 
 beforeEach(() => {
   state.authLoading = false;
@@ -81,9 +90,14 @@ beforeEach(() => {
   state.mapError = null;
   state.restaurants = [];
   state.refetch.mockReset();
+  state.signOut.mockClear();
+  sessionStorage.clear();
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('ProfileShell map-data states', () => {
   it('does not render false zero counts while the first profile payload is loading', () => {
@@ -113,5 +127,53 @@ describe('ProfileShell map-data states', () => {
 
     expect(screen.getByRole('alert').textContent).toContain('Showing your last saved collection');
     expect(screen.getByText('Saved Spots')).toBeTruthy();
+  });
+});
+
+describe('ProfileShell sign-out', () => {
+  /* Ohne Haltezeit war der Abmelde-Screen wieder weg, bevor man ihn gelesen
+     hatte: Firebase ist in Millisekunden fertig, und dann nimmt
+     ProfileAuthGuard diesen Baum samt Screen aus dem DOM (Nutzer,
+     29.08.2026). Deshalb erst der Screen, dann das Abmelden. */
+  it('shows the sign-out screen first and signs out only after the hold', () => {
+    vi.useFakeTimers();
+
+    render(<ProfileShell publicFaceUpIds={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+
+    expect(screen.getByTestId('auth-screen').textContent).toBe('out');
+    expect(state.signOut).not.toHaveBeenCalled();
+
+    act(() => {
+      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS - 1);
+    });
+    expect(state.signOut).not.toHaveBeenCalled();
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(state.signOut).toHaveBeenCalledOnce();
+    expect(screen.getByTestId('auth-screen')).toBeTruthy();
+  });
+
+  /* Der Screen liegt als fixed-Layer ohne Schliessweg ueber der Seite — ein
+     gescheitertes Abmelden muss ihn wieder abraeumen, sonst ist man
+     angemeldet, aber vom eigenen Profil ausgesperrt. */
+  it('takes the screen and the parked toast back when signing out fails', async () => {
+    vi.useFakeTimers();
+    state.signOut.mockImplementation(() => Promise.reject(new Error('network')));
+
+    render(<ProfileShell publicFaceUpIds={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    /* Waehrend der Haltezeit liegt noch nichts bereit — ein zwischendurch
+       geschlossener Tab soll nicht "Du bist abgemeldet" nachreichen. */
+    expect(sessionStorage.getItem('eatthis_toast')).toBeNull();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(AUTH_SCREEN_HOLD_MS);
+    });
+
+    expect(screen.queryByTestId('auth-screen')).toBeNull();
+    expect(sessionStorage.getItem('eatthis_toast')).toBeNull();
   });
 });

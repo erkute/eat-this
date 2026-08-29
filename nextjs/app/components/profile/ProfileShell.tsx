@@ -16,7 +16,7 @@ import ProfileCityProgress from './ProfileCityProgress';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
-import AuthScreen from '../AuthScreen';
+import AuthScreen, { AUTH_SCREEN_HOLD_MS } from '../AuthScreen';
 import AvatarPickerModal from './AvatarPickerModal';
 import SiteFooter from '../SiteFooter';
 import styles from './Profile.module.css';
@@ -111,7 +111,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           </div>
         </main>
         <SiteFooter />
-        {signingOut && <AuthScreen mode="out" />}
       </>
     );
   }
@@ -124,6 +123,53 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx) return;
     await setAvatar(choice);
+  }
+
+  /**
+   * Abmelden mit sichtbarem Wartescreen.
+   *
+   * Erst halten, dann abmelden — nicht umgekehrt. Sobald Firebase `user` auf
+   * null setzt, nimmt ProfileAuthGuard diesen Baum aus dem DOM, und mit ihm den
+   * Screen; das Abmelden selbst ist in Millisekunden durch. Der Screen war
+   * darum weg, bevor man ihn gelesen hatte (Nutzer, 29.08.2026).
+   */
+  function handleSignOut() {
+    setSigningOut(true);
+    /* Der Timer wird beim Unmount bewusst nicht abgeraeumt: wer waehrend der
+       Haltezeit per Back-Taste rausgeht, hat das Abmelden trotzdem verlangt. */
+    window.setTimeout(() => {
+      /* Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
+         confirmation so the toast shows after the reload. Erst hier, nicht
+         schon beim Klick: sonst laege sie die ganze Haltezeit ueber bereit und
+         ein zwischendurch geschlossener Tab meldete beim naechsten Aufruf
+         "Du bist abgemeldet", waehrend die Anmeldung steht. */
+      try {
+        sessionStorage.setItem(
+          TOAST_HANDOFF_KEY,
+          locale === 'de' ? 'Du bist abgemeldet' : "You're signed out"
+        );
+      } catch {
+        /* private mode */
+      }
+      void signOut().catch(() => {
+        /* clearPremiumAccess wirft bei einem fehlgeschlagenen Request —
+           AuthContext reicht den Fehler bewusst an den Aufrufer durch.
+           Ohne diesen Zweig bliebe der Wartescreen als fixed-Layer ueber
+           der Seite stehen, ohne Schliessweg: angemeldet, aber vom
+           eigenen Profil ausgesperrt.
+
+           Die geparkte Bestaetigung muss mit weg. Sie wurde eben fuer
+           den Reload hinterlegt, der jetzt nicht kommt — sonst meldet
+           der naechste Seitenaufruf "Du bist abgemeldet", waehrend die
+           Anmeldung steht. */
+        setSigningOut(false);
+        try {
+          sessionStorage.removeItem(TOAST_HANDOFF_KEY);
+        } catch {
+          /* private mode */
+        }
+      });
+    }, AUTH_SCREEN_HOLD_MS);
   }
 
   return (
@@ -218,41 +264,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           <span className={styles.footAccount}>
             {t('fieldAccount')}: {accountLabel}
           </span>
-          <button
-            type="button"
-            className={styles.logout}
-            onClick={() => {
-              // Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
-              // confirmation so the toast shows after the reload.
-              try {
-                sessionStorage.setItem(
-                  TOAST_HANDOFF_KEY,
-                  locale === 'de' ? 'Du bist abgemeldet' : "You're signed out"
-                );
-              } catch {
-                /* private mode */
-              }
-              setSigningOut(true);
-              void signOut().catch(() => {
-                /* clearPremiumAccess wirft bei einem fehlgeschlagenen Request —
-                   AuthContext reicht den Fehler bewusst an den Aufrufer durch.
-                   Ohne diesen Zweig bliebe der Wartescreen als fixed-Layer ueber
-                   der Seite stehen, ohne Schliessweg: angemeldet, aber vom
-                   eigenen Profil ausgesperrt.
-
-                   Die geparkte Bestaetigung muss mit weg. Sie wurde oben fuer
-                   den Reload hinterlegt, der jetzt nicht kommt — sonst meldet
-                   der naechste Seitenaufruf "Du bist abgemeldet", waehrend die
-                   Anmeldung steht. */
-                setSigningOut(false);
-                try {
-                  sessionStorage.removeItem(TOAST_HANDOFF_KEY);
-                } catch {
-                  /* private mode */
-                }
-              });
-            }}
-          >
+          <button type="button" className={styles.logout} onClick={handleSignOut}>
             {t('signOut')}
           </button>
         </div>
@@ -265,6 +277,10 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           onClose={() => setPickerOpen(false)}
         />
       )}
+      {/* Hier, nicht im Fehler-Zweig: der Abmelden-Knopf steht in genau diesem
+          Baum. Im Zweig ohne Kartendaten gibt es ihn nicht, dort konnte
+          `signingOut` also nie wahr werden — der Screen war unerreichbar. */}
+      {signingOut && <AuthScreen mode="out" />}
     </>
   );
 }

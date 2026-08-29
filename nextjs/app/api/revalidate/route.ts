@@ -27,6 +27,18 @@ function revalidateMustEatSurface(revalidated: string[]): void {
   revalidated.push('path:/must-eats', 'path:/en/must-eats');
 }
 
+// Die Pack-Karten versprechen Zahlen: „Alle N Must Eats", „N Spots". Die
+// stammen aus packContentsQuery, das drei Dokumenttypen zaehlt — restaurant,
+// mustEat und category. Ohne diesen Aufruf haengen sie an ihrem eigenen
+// 24-Stunden-Timer: eine frisch publizierte Karte war einen Tag lang auf
+// /packs nicht mitgezaehlt, waehrend Map und Restaurantseite sie schon zeigten.
+function revalidatePackContents(revalidated: string[]): void {
+  revalidateTag('pack-contents');
+  revalidatePath('/packs');
+  revalidatePath('/en/packs');
+  revalidated.push('tag:pack-contents', 'path:/packs', 'path:/en/packs');
+}
+
 // Sanity signs every webhook with header "sanity-webhook-signature"
 // in the form "t=<unix-seconds>,v1=<hex-hmac>". The HMAC is computed over
 // `${t}.${rawBody}` using the shared secret.
@@ -156,6 +168,7 @@ export async function POST(req: NextRequest) {
       );
       revalidateMapSurface(revalidated, true);
       revalidateMustEatSurface(revalidated);
+      revalidatePackContents(revalidated);
       break;
     case 'bezirk':
       revalidateTag('bezirk');
@@ -201,12 +214,14 @@ export async function POST(req: NextRequest) {
         revalidated.push(`tag:category:${slug}`, `path:/kategorie/${slug}`);
       }
       revalidateMapSurface(revalidated);
+      revalidatePackContents(revalidated);
       break;
     case 'mustEat':
       revalidateTag('mustEat');
       revalidated.push('tag:mustEat');
       revalidateMapSurface(revalidated, true);
       revalidateMustEatSurface(revalidated);
+      revalidatePackContents(revalidated);
       break;
     case 'homeWeek':
       revalidateMapSurface(revalidated, true);

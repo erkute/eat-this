@@ -114,6 +114,23 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
   })
 
+  // Die Pack-Karten nennen Zahlen („Alle N Must Eats"). Ohne diesen Tag hingen
+  // sie an ihrem 24-Stunden-Timer und widersprachen einen Tag lang der Map.
+  it.each(['mustEat', 'restaurant', 'category'])(
+    'invalidates the pack counts for %s changes',
+    async (type) => {
+      const raw = JSON.stringify({ _type: type })
+      const ts = Date.now()
+
+      const res = await POST(mkReq(raw, signature(raw, ts)))
+
+      expect(res.status).toBe(200)
+      expect(mocks.revalidateTag).toHaveBeenCalledWith('pack-contents')
+      expect(mocks.revalidatePath).toHaveBeenCalledWith('/packs')
+      expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/packs')
+    }
+  )
+
   it('invalidates the free-surface cache and map pages for home-week changes', async () => {
     const raw = JSON.stringify({ _type: 'homeWeek' })
     const ts = Date.now()

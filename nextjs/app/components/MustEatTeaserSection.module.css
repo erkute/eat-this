@@ -166,15 +166,15 @@
   transform: rotate(0) translate(-2px, -3px);
 }
 
+/* Ein <a> auf /map?me=<id>, kein <button>: die Karte hat ein echtes Ziel, das
+   sich in einem neuen Tab öffnen lässt und im HTML steht. `text-decoration`
+   und `color` setzt globals.css für jedes a bereits zurück. */
 .card {
   position: relative;
   display: block;
   width: 100%;
   /* Card-back asset aspect ratio (760×1076 — yellow-frame swirl design). */
   aspect-ratio: 760 / 1076;
-  background: transparent;
-  border: 0;
-  padding: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }

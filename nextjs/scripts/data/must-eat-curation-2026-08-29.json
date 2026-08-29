@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "note": "Kartenset vom 29.08.2026. `add` legt den Sanity-Draft plus den Firestore-Datensatz an, `retire` nimmt ein Must-Eat aus Sanity und Firestore. descriptionEn ist der Wortlaut von der Karte, description die Übersetzung davon. Preis kennt die Karte nicht — leer wie bei 20 der 23 Bestandskarten. `retire` raeumt zusaetzlich die sieben Drafts vom 14.06.2026 ab, die kein Pendant im Kartenset haben — danach kennt Sanity genau die 24 Karten.",
+  "add": [
+    {
+      "id": "must-eat-tacos-el-rey-chorizo-verde",
+      "order": 23,
+      "restaurantId": "restaurant-tacos-el-rey",
+      "revealedForAnon": false,
+      "file": "Main-2.png",
+      "dish": "Chorizo Verde",
+      "description": "Hausgemachte grüne Chorizo (Schwein), karamellisierte Zwiebeln",
+      "descriptionEn": "Homemade green chorizo (pork), caramelized onions",
+      "price": ""
+    },
+    {
+      "id": "must-eat-eivgis-falafel-teller",
+      "order": 24,
+      "restaurantId": "82a1c915-c301-42df-9703-5c85626cf739",
+      "revealedForAnon": false,
+      "file": "Main-23.png",
+      "dish": "Falafel Teller",
+      "description": "Falafel, Hummus, Kichererbsen, Salat, Gurke, Rotkohl, Tahini, frische Kräuter",
+      "descriptionEn": "Falafel, hummus, chickpeas, lettuce, cucumber, red cabbage, tahini, fresh herbs",
+      "price": ""
+    }
+  ],
+  "retire": [
+    {
+      "id": "df07024e-a28a-47ac-a7a8-d29dd293faf5",
+      "note": "Babka & Krantz — Babka, order 23. Im neuen Kartenset nicht enthalten."
+    },
+    {
+      "id": "must-eat-tacos-el-rey-birria-taco",
+      "note": "Tacos el Rey — Birria Taco, order 24. Draft vom 14.06.2026, nicht im Kartenset."
+    },
+    {
+      "id": "must-eat-aviv-030-sabich-pita",
+      "note": "AVIV 030 — Sabich Pita, order 25. Draft vom 14.06.2026, nicht im Kartenset."
+    },
+    {
+      "id": "must-eat-concierge-coffee-schoeneberg-matcha-latte",
+      "note": "Concierge Coffee Schöneberg — Matcha Latte, order 26. Draft vom 14.06.2026, nicht im Kartenset."
+    },
+    {
+      "id": "must-eat-buya-ramen-factory-crispy-duck-ramen",
+      "note": "Buya Ramen Factory — Crispy Duck Ramen, order 27. Draft vom 14.06.2026, nicht im Kartenset."
+    },
+    {
+      "id": "must-eat-berlin-burger-international-el-gordonita",
+      "note": "Berlin Burger International — El Gordonita, order 28. Draft vom 14.06.2026, nicht im Kartenset."
+    },
+    {
+      "id": "must-eat-trattoria-senza-carbonara",
+      "note": "Trattoria Senza — Carbonara, order 29. Draft vom 14.06.2026, nicht im Kartenset."
+    },
+    {
+      "id": "must-eat-wen-cheng-goerlitzer-biang-biang-aubergine",
+      "note": "Wen Cheng Görlitzer — Biang-Biang mit Aubergine, order 30. Draft vom 14.06.2026, nicht im Kartenset."
+    }
+  ]
+}

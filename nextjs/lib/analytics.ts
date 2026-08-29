@@ -224,9 +224,21 @@ function flushHandoffEvents(): void {
 }
 
 /** Persist a consented event across a hard navigation, then send it on the
- * destination route once analytics initializes. */
+ * destination route once analytics initializes.
+ *
+ * The consent-free counter fires FIRST and unconditionally, exactly as in
+ * `trackEvent` — and it does NOT ride the handoff: `sendCount` uses
+ * `sendBeacon`, which survives the hard navigation that follows, so the count
+ * belongs on the page that produced it. Only the GA half needs the detour.
+ *
+ * Without this line the magic-link completion (`login` / `sign_up` from
+ * welcome/page.tsx) was invisible to the counter: the `!gaEnabled()` guard sat
+ * above everything, so the main way into an account was counted for consenters
+ * only — the exact blind spot this counter exists to close. */
 export function handoffEvent(name: string, params?: AnalyticsParams): void {
-  if (typeof window === 'undefined' || !gaEnabled()) return;
+  if (typeof window === 'undefined') return;
+  countEvent(name);
+  if (!gaEnabled()) return;
   try {
     const raw = window.sessionStorage.getItem(HANDOFF_KEY);
     const events = raw

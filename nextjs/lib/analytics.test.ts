@@ -334,6 +334,36 @@ describe('consent-free counting', () => {
     getItem.mockRestore();
   });
 
+  /* Der Magic-Link-Abschluss (welcome/page.tsx) laeuft ueber handoffEvent,
+   * weil danach eine harte Navigation folgt und GA erst auf der Zielseite
+   * laedt. Bis 29.08.2026 stand `!gaEnabled()` dort VOR allem anderen — der
+   * Hauptweg in ein Konto war damit nur fuer Zustimmende sichtbar, also fuer
+   * die Minderheit, deretwegen dieser Zaehler ueberhaupt existiert. */
+  it.each([
+    ['no answer yet', ''],
+    ['declined', `cookieConsent=declined.${CONSENT_VERSION}; Path=/`],
+  ])('counts a handed-off sign_up when consent is %s', async (_label, cookie) => {
+    if (cookie) document.cookie = cookie;
+
+    handoffEvent('sign_up', { method: 'email_link' });
+
+    expect(beacon).toHaveBeenCalledTimes(1);
+    expect(beacon.mock.calls[0][0]).toBe('/api/count');
+    expect((await sent()).event).toBe('sign_up');
+  });
+
+  /* Der Zaehler faehrt NICHT im Handoff mit: sendBeacon ueberlebt die
+   * Navigation, ein zweites Zaehlen auf der Zielseite waere eine Dopplung. */
+  it('does not put the count into the handoff storage', () => {
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
+
+    handoffEvent('login', { method: 'email_link' });
+
+    const stored = JSON.parse(sessionStorage.getItem('eatthis_analytics_handoff') ?? '[]');
+    expect(stored).toHaveLength(1);
+    expect(beacon).toHaveBeenCalledTimes(1);
+  });
+
   it('stays silent when the browser has no sendBeacon and no fetch', () => {
     vi.stubGlobal('navigator', { ...navigator, sendBeacon: undefined });
     vi.stubGlobal('fetch', () => {

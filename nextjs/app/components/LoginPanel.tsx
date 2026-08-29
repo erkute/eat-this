@@ -7,6 +7,7 @@ import { useAuth, useMagicLink } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { GoogleMark } from './GoogleMark';
+import AuthScreen from './AuthScreen';
 import { describeGoogleSignInError } from '@/lib/auth/googleSignInError';
 import styles from './LoginPanel.module.css';
 
@@ -348,30 +349,11 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
         </div>
       )}
 
+      {/* Der Wartescreen liegt als Portal ueber der Seite, nicht im Modal:
+          Abmelden hat kein Modal, und beide Richtungen sollen gleich
+          aussehen (siehe AuthScreen). */}
       {(googlePhase !== 'idle' || (!loading && user)) && (
-        <div
-          className={[
-            styles.loadingOverlay,
-            googlePhase === 'leaving' ? styles.loadingOverlayLeaving : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          role={googlePhase === 'leaving' ? undefined : 'status'}
-          aria-live="polite"
-          aria-hidden={googlePhase === 'leaving' ? true : undefined}
-        >
-          <div className={styles.loadingPanel}>
-            {/* Zweimal derselbe Satz: der untere traegt ihn, der obere ist die
-                gelb hinterlegte Kopie, die per clip-path durchzieht. Die Kopie
-                bleibt vor Screenreadern verborgen, sonst stuende er doppelt. */}
-            <p className={styles.signingIn}>
-              <span>{t('modals.login.googleSigningIn')}</span>
-              <span className={styles.signingInSweep} aria-hidden="true">
-                <span className={styles.signingInMark}>{t('modals.login.googleSigningIn')}</span>
-              </span>
-            </p>
-          </div>
-        </div>
+        <AuthScreen mode="in" leaving={googlePhase === 'leaving'} />
       )}
     </div>
   );

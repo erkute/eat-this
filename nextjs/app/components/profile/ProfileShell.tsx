@@ -16,6 +16,7 @@ import ProfileCityProgress from './ProfileCityProgress';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
+import AuthScreen from '../AuthScreen';
 import AvatarPickerModal from './AvatarPickerModal';
 import SiteFooter from '../SiteFooter';
 import styles from './Profile.module.css';
@@ -35,6 +36,9 @@ interface Props {
 // just turned over, then their spots, their packs, and the invite.
 export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading: authLoading, signOut } = useAuth();
+  /* Das Abmelden hatte bisher keinen sichtbaren Zustand: das Profil verschwand
+     wortlos, und der Toast meldete es erst nach dem Reload nach. */
+  const [signingOut, setSigningOut] = useState(false);
   const locale = useLocale();
   const t = useTranslations('profile');
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -107,6 +111,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           </div>
         </main>
         <SiteFooter />
+        {signingOut && <AuthScreen mode="out" />}
       </>
     );
   }
@@ -227,6 +232,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               } catch {
                 /* private mode */
               }
+              setSigningOut(true);
               void signOut();
             }}
           >

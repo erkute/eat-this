@@ -1,9 +1,10 @@
 'use client';
 
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, MouseEvent, useState } from 'react';
 import Image from 'next/image';
 import type { MustEatPreview } from '@/lib/sanity.server';
 import { useRouter } from '@/i18n/navigation';
+import MapIntentLink from './MapIntentLink';
 import styles from './MustEatTeaserSection.module.css';
 
 interface Props {
@@ -23,16 +24,25 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   if (mustEats.length === 0) return null;
   const de = locale === 'de';
 
-  const handleClick = (id: string) => {
+  // Die Karte IST ein Link auf `/map?me=<id>` — das Ziel ist die Detailansicht
+  // genau dieser Karte (?me= ist derselbe Parameter, den die Artikel benutzen).
+  // Das generische '/map', das hier mal stand, ließ den Klick auf der Listen-
+  // ansicht liegen: die angetippte Karte ging nie auf.
+  //
+  // Der Handler übernimmt nur den einfachen Linksklick, um vorher kurz zu
+  // wackeln. Alles andere bleibt beim Browser — Cmd/Strg für einen neuen Tab,
+  // Shift für ein neues Fenster, Mittelklick (der löst gar kein `click` aus).
+  // Als <button> gab es das alles nicht, und im HTML stand überhaupt kein Ziel.
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
     setShakingId(id);
-    // Brief shake before flying out so the click registers visually, then
-    // deep-link to exactly THIS card on the map (?me= is the same param the
-    // inline article cards use). The generic '/map' that stood here dropped
-    // the click on the map's list view — the card the user tapped never
-    // opened, and finding it again meant scrolling the whole catalog.
-    window.setTimeout(() => {
-      router.push(`/map?me=${id}`);
-    }, 280);
+    // Ohne Animation gibt es nichts abzuwarten: bei `prefers-reduced-motion`
+    // neutralisiert globals.css das Wackeln, die Pause wäre reines Nichtstun.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const go = () => router.push(`/map?me=${id}`);
+    if (reduced) go();
+    else window.setTimeout(go, 280);
   };
 
   // „Zwei Gerichte haben es auf unsere Karten geschafft." — die Anzahl ist die
@@ -91,10 +101,10 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
               } as CSSProperties
             }
           >
-            <button
-              type="button"
+            <MapIntentLink
+              href={`/map?me=${m._id}`}
               className={`${styles.card} ${shakingId === m._id ? styles.cardShake : ''}`}
-              onClick={() => handleClick(m._id)}
+              onClick={(event) => handleClick(event, m._id)}
               aria-label={t.ariaCard}
             >
               <Image
@@ -105,7 +115,7 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
                 className={styles.cardBack}
                 aria-hidden="true"
               />
-            </button>
+            </MapIntentLink>
           </li>
         ))}
       </ul>

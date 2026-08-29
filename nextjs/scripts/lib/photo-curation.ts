@@ -202,16 +202,6 @@ export function selectGalleryPhotos(
   return picked.map((jd) => jd.index);
 }
 
-/** German alt-text label per category, used for gallery image alt fields. */
-export const CATEGORY_LABEL_DE: Record<PhotoJudgment['category'], string> = {
-  food: 'Gericht',
-  interior: 'Innenraum',
-  exterior: 'Außenansicht',
-  drink: 'Getränk',
-  menu: 'Speisekarte',
-  unusable: 'Foto',
-};
-
 const VALID_CATEGORIES = new Set(['food', 'interior', 'exterior', 'drink', 'menu', 'unusable']);
 
 /** Tolerant JSON extraction for the model reply: accepts bare arrays or

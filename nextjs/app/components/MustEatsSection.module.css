@@ -145,8 +145,6 @@
 .page {
   --must-ink: var(--et-home-ink, #15120e);
   --must-paper: #fff;
-  --must-muted: rgba(21, 18, 14, 0.64);
-  --must-line: rgba(21, 18, 14, 0.18);
   min-height: 100%;
   display: flow-root;
   background: var(--must-paper);

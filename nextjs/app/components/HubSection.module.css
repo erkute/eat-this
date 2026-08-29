@@ -2,8 +2,6 @@
   --home-ink: var(--et-home-ink);
   --home-paper: var(--et-home-paper);
   --home-muted: var(--et-home-muted);
-  --home-line: var(--et-home-line);
-  --home-gutter: var(--et-wrap-pad);
   /* Section titles: same curve as the global token, higher floor. At 24px the
      mobile headings sat barely above the 19px lead and nothing announced that
      a new section had started. Above ~880px this resolves identically. */

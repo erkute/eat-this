@@ -12,13 +12,6 @@
   will-change: transform;
 }
 
-/* Solange die Marke fliegt, hält das Original im Aufmacher nur noch den Platz
-   frei. `visibility` statt `display`, damit die Spalte ihre Höhe behält und
-   nichts springt. Den zugänglichen Namen trägt in diesem Zustand der Flieger. */
-.markPlaceholder {
-  visibility: hidden;
-}
-
 @media (min-width: 768px) {
   .flyer {
     display: none;

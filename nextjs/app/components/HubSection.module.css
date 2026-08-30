@@ -60,6 +60,17 @@
   margin: 0 0 clamp(20px, 2vw, 28px) calc(var(--hero-mark-w) * -0.0723);
 }
 
+/* Solange die Marke fliegt, hält das Original hier nur noch den Platz frei.
+   Das muss über das Attribut laufen und darf keine Klasse sein, die jemand
+   nachträglich anhängt: HubHeroCopy hängt an `useAuth`, und sobald der
+   Anmeldezustand steht, rendert React neu und schreibt `className` frisch —
+   eine imperativ gesetzte Klasse ist in dem Moment weg, und dann stehen zwei
+   Wortmarken gleichzeitig auf der Seite. Genau das war der Fehler.
+   `visibility` statt `display`, damit die Spalte ihre Höhe behält. */
+:global(html[data-hero-flight='on']) .heroMark {
+  visibility: hidden;
+}
+
 /* The one exception is the block after the hero: the drop-shadow of the tilted
    phones paints ~8px past the hero's box, so an equal-looking gap has to be a
    slightly larger one. */
@@ -503,7 +514,6 @@
   .spotCard {
     grid-template-columns: minmax(0, 1fr);
   }
-
 
   /* Stacked, the photo bleeds both ways and drops its corners: full width is
      the only thing left that separates the lead from the rail of cards under

@@ -263,6 +263,13 @@
   --et-rail-gap: 14px;
   --et-control-gap: 8px;
 
+  /* Der Vorhang hinter JEDEM Zoom (Must-Eat-Karte, Galerie-Foto). Als Token,
+     weil die beiden Lightboxen genau hier auseinandergelaufen waren — 0.22
+     gegen 0.44 — und der Nutzer die Regel als EINE gemeint hat: „wenn ich
+     was zoome, muss der Hintergrund verdeckt sein" (30.08.2026). */
+  --et-zoom-scrim: rgba(20, 19, 17, 0.62);
+  --et-zoom-scrim-blur: blur(12px) saturate(1);
+
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
   --et-radius-pill: 999px;

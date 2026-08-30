@@ -3894,7 +3894,10 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  padding: 2px 14px 20px;
+  /* Kein Seitenrand: die Zeile sitzt IN der .rdFacts-Tafel (RestaurantDetail
+     .tsx), die polstert schon, und ihr 22px-Grid-Gap trennt die Knoepfe von
+     der letzten Faktenzeile. */
+  padding: 2px 0 0;
 }
 
 /* Fill the last row instead of leaving a half-width button next to a hole.
@@ -3956,11 +3959,13 @@
   box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
 }
 
-/* "Reservieren" — committal, so it gets the ink fill and the full width. */
+/* "Reservieren" — committal, volle Breite. Gelb, nicht Ink: die Zeile steht
+   auf der Ink-Tafel, dort waere Ink auf Ink unsichtbar geblieben (gleiche
+   Entscheidung wie `.actStrong` auf der Tafel der Spot-Seite). */
 .detailV13:not(.detailV13MustEat) .rdActStrong {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
 }
 
 .rdActReserve {
@@ -4021,15 +4026,21 @@
    the ink one — already filled — swaps to red. Hovering red into red would
    have left the primary button with nothing but the lift. */
 @media (hover: hover) {
+  /* Ink-Fuellung, aber Ring in Papier: auf der Ink-Tafel waere ein Ink-Ring
+     unsichtbar, der Papier-Ring haelt die Form (wie `.board .act:hover` auf
+     der Spot-Seite). */
   .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
     transform: translateY(-1px);
     background: var(--et-home-ink, #15120e);
     color: var(--et-home-paper, #fff);
-    box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
   }
 
+  /* Der gelbe Knopf ist schon gefuellt — er wechselt auf Rot, sonst haette er
+     ausser dem Lift keine Hover-Antwort. */
   .detailV13:not(.detailV13MustEat) .rdActStrong:hover {
     background: var(--et-home-red, #d9382a);
+    color: var(--et-home-paper, #fff);
     box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
   }
 }
@@ -4038,8 +4049,9 @@
   transform: translateY(0);
 }
 
+/* Gelb statt Rot: der rote Ring saeuft auf der Ink-Tafel ab. */
 .detailV13:not(.detailV13MustEat) .rdActBtn:focus-visible {
-  outline: 2px solid var(--et-home-red, #d9382a);
+  outline: 2px solid var(--et-home-accent, #ffc600);
   outline-offset: 2px;
 }
 
@@ -4982,44 +4994,4 @@
   .detailV13:not(.detailV13MustEat) .rdHoursD {
     font-size: 17px;
   }
-}
-
-/* ============ Aktionen auf der Tafel ============
-   Die Knöpfe sind in RestaurantDetail.tsx in die .rdFacts-Tafel gezogen —
-   Fakten und Aktionen als EIN Objekt, wie `.board` der Spot-Seite. Das eigene
-   Randpolster der Zeile entfällt: die Tafel polstert schon, und das Grid-gap
-   der Tafel (22px) trennt die Knöpfe von der letzten Faktenzeile. */
-.detailV13:not(.detailV13MustEat) .rdFacts .rdActs {
-  padding: 2px 0 0;
-}
-
-/* „Reservieren" trug Ink — auf der Ink-Tafel unsichtbar, nur die weiße Schrift
-   blieb. Gelb, wie `.actStrong` auf der Tafel der Spot-Seite: lauter als die
-   Papier-Knöpfe, leiser als der rote. */
-.detailV13:not(.detailV13MustEat) .rdFacts .rdActStrong {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
-}
-
-/* Der Standard-Hover füllt mit Ink — auf der Tafel wäre Ink-auf-Ink unsichtbar.
-   Der Ring aus Papier hält die Form (gleiches Rezept wie `.board .act:hover`
-   der Spot-Seite); der gelbe Knopf hovert weiter nach Rot. */
-@media (hover: hover) {
-  .detailV13:not(.detailV13MustEat) .rdFacts .rdActBtn:hover {
-    background: var(--et-home-ink, #15120e);
-    color: var(--et-home-paper, #fff);
-    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
-  }
-
-  .detailV13:not(.detailV13MustEat) .rdFacts .rdActStrong:hover {
-    background: var(--et-home-red, #d9382a);
-    color: var(--et-home-paper, #fff);
-    box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
-  }
-}
-
-/* Roter Fokusring säuft auf der Ink-Tafel ab — dort übernimmt Gelb. */
-.detailV13:not(.detailV13MustEat) .rdFacts .rdActBtn:focus-visible {
-  outline-color: var(--et-home-accent, #ffc600);
 }

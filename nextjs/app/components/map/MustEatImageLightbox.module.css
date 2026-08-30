@@ -20,15 +20,12 @@
   position: fixed;
   inset: 0;
   z-index: 0;
-  /* 0.62 statt 0.22: beim Zoom soll die Karte die Buehne haben, die Map und
-     das Sheet dahinter treten ab. blur(12px) statt 2: die 2px waren auf den
-     ruhigen Zonen (Sheet-Kopf, Restaurant-Zeile) unsichtbar — Text blieb
-     lesbar scharf, nur die Karte in der Mitte wirkte verwischt (Nutzer-
-     Screenshot, 30.08.2026). Der Backdrop steht, waehrend er sichtbar ist —
-     der Blur animiert nie, darum traegt ihn auch iOS. */
-  background: rgba(20, 19, 17, 0.62);
-  -webkit-backdrop-filter: blur(12px) saturate(1);
-  backdrop-filter: blur(12px) saturate(1);
+  /* Ein Vorhang fuer jeden Zoom — Werte in globals.css, damit die beiden
+     Lightboxen nicht wieder auseinanderlaufen. Der Backdrop steht, waehrend
+     er sichtbar ist; der Blur animiert nie, darum traegt ihn auch iOS. */
+  background: var(--et-zoom-scrim, rgba(20, 19, 17, 0.62));
+  -webkit-backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
+  backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
 }
 
 .card {

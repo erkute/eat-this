@@ -2,36 +2,6 @@
 
 const BURGER_CANVAS_COLOR = '#15120e';
 let focusBeforeDrawer: HTMLElement | null = null;
-let settleCleanup: (() => void) | null = null;
-
-/* Die Wort-Kaskade (CSS: `.bd-settled`) startet erst, wenn die Tür steht.
-   Der Öffnungs-Frame trägt schon den lockBody-Reflow, den Canvas-Tint und
-   den ersten Panel-Raster — acht gleichzeitig anlaufende Animationen
-   obendrauf waren das Ruckeln (Performance-Trace, 30.08.2026). Das
-   transitionend des Panels ist der Taktgeber; der Timeout fängt den Fall,
-   dass es nie feuert (z. B. Panel schon an Ort und Stelle). */
-function disarmSettle() {
-  settleCleanup?.();
-  settleCleanup = null;
-}
-
-function armSettle(drawer: HTMLElement) {
-  disarmSettle();
-  const panel = drawer.querySelector<HTMLElement>('.burger-drawer-panel');
-  const settle = () => {
-    disarmSettle();
-    drawer.classList.add('bd-settled');
-  };
-  const onEnd = (event: TransitionEvent) => {
-    if (event.target === panel && event.propertyName === 'transform') settle();
-  };
-  const timer = window.setTimeout(settle, 420);
-  panel?.addEventListener('transitionend', onEnd);
-  settleCleanup = () => {
-    window.clearTimeout(timer);
-    panel?.removeEventListener('transitionend', onEnd);
-  };
-}
 
 function tintMobileCanvasForDrawer() {
   if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
@@ -97,7 +67,6 @@ export function openBurgerDrawer() {
   if (!drawer || drawer.classList.contains('active')) return;
 
   focusBeforeDrawer = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  lockBody();
   drawer.hidden = false;
   drawer.removeAttribute('inert');
   drawer.removeAttribute('aria-hidden');
@@ -105,9 +74,17 @@ export function openBurgerDrawer() {
   // Record the off-canvas panel state after leaving display:none so adding
   // .active below still animates the opening transform.
   void drawer.offsetWidth;
+  // Bewegung SOFORT: Tür und Wörter starten im Klick-Frame (Nutzer,
+  // 30.08.2026 — jede Verzögerung fühlt sich zäh an). Was diesen Frame
+  // vorher teuer machte, war nicht die Animation, sondern lockBody():
+  // `position: fixed` auf den Body ist ein Reflow der ganzen Seite, dazu
+  // der Canvas-Tint. Das läuft jetzt einen Frame SPÄTER — da laufen Tür
+  // und Wörter schon im Compositor und merken davon nichts. Ein Frame
+  // ohne Scroll-Sperre ist unkritisch: die Sperre hält die sichtbare
+  // Position ohnehin identisch (top: -scrollY).
   drawer.classList.add('active');
-  armSettle(drawer);
   window.requestAnimationFrame(() => {
+    lockBody();
     document.getElementById('burgerClose')?.focus({ preventScroll: true });
   });
 }
@@ -117,9 +94,7 @@ export function closeBurgerDrawer(restoreScroll = true) {
   if (!drawer?.classList.contains('active')) return;
 
   const openBtn = document.getElementById('burgerBtn');
-  disarmSettle();
   drawer.classList.remove('active');
-  drawer.classList.remove('bd-settled');
   drawer.setAttribute('aria-hidden', 'true');
   drawer.setAttribute('inert', '');
   openBtn?.setAttribute('aria-expanded', 'false');

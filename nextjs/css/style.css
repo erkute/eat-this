@@ -428,53 +428,49 @@ body {
    vertikaler Masken). Jedes Wort fliegt mit leichtem Dreh um seine
    Lesekante und federt über die Ruhelage minimal hinaus (Bezier-Overshoot).
 
-   Performance-Architektur aus dem Trace vom 30.08.2026, unverändert:
-   vor `.bd-settled` (burgerDrawerState.ts, nach dem transitionend des
-   Panels) existiert nur ein STATISCHER Off-Panel-Transform — im teuren
-   Öffnungs-Frame läuft keine Animations-Maschinerie. `backwards` statt
+   Alles startet im KLICK-Frame — kein Warten auf die gelandete Tür, das
+   fühlte sich zäh an. Bezahlbar ist das, weil burgerDrawerState.ts die
+   teure Arbeit dieses Frames (lockBody = Seiten-Reflow, Canvas-Tint) um
+   einen Frame nach HINTEN schiebt, und weil die Drawer-Links kein
+   Prefetch mehr auslösen (siehe Trace-Notiz im Commit). `backwards` statt
    `both`: nach der Landung gilt wieder der Basiszustand (transform: none),
    damit der Hover-Slide der Wörter nicht von einer ewigen Fill-Mode
-   überdeckt wird. Das erfordert die `:not(.bd-settled)`-Klammer am
-   statischen Zustand, sonst spränge das Wort nach dem Flug wieder raus. */
+   überdeckt wird; während des Versatzes hält `backwards` den Off-Panel-
+   Zustand, ein statischer Startzustand ist dafür nicht nötig. */
 .burger-drawer.active .bd-nav-item:not(.bd-cta) {
   transform-origin: left center;
-}
-.burger-drawer.active:not(.bd-settled) .bd-nav-item:not(.bd-cta) {
-  transform: translateX(108%) rotate(var(--bd-fly-rot, 1.5deg));
-}
-.burger-drawer.bd-settled .bd-nav-item:not(.bd-cta) {
   animation: bdWordDeal 0.38s cubic-bezier(0.18, 0.9, 0.22, 1.06) backwards;
-  animation-delay: 0.02s; /* Map — das erste geworfene Wort */
+  animation-delay: 0s; /* Map fliegt im Klick-Frame los */
   --bd-fly-rot: 1.6deg;
 }
 /* Die Drehung wechselt die Seite, damit der Stapel organisch fällt statt
    uniform zu klappen; die Delays takten die Welle. */
 .burger-drawer.active .bd-nav-item:nth-child(3) {
-  animation-delay: 0.055s;
+  animation-delay: 0.035s;
   --bd-fly-rot: -1.4deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(4) {
-  animation-delay: 0.09s;
+  animation-delay: 0.07s;
   --bd-fly-rot: 1.2deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(5) {
-  animation-delay: 0.125s;
+  animation-delay: 0.105s;
   --bd-fly-rot: -1.6deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(6) {
-  animation-delay: 0.16s;
+  animation-delay: 0.14s;
   --bd-fly-rot: 1.3deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(7) {
-  animation-delay: 0.195s;
+  animation-delay: 0.175s;
   --bd-fly-rot: -1.2deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(8) {
-  animation-delay: 0.23s;
+  animation-delay: 0.21s;
   --bd-fly-rot: 1.5deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(9) {
-  animation-delay: 0.265s;
+  animation-delay: 0.245s;
   --bd-fly-rot: -1.3deg;
 }
 @keyframes bdWordDeal {

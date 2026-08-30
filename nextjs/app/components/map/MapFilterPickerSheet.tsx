@@ -69,12 +69,39 @@ export default function MapFilterPickerSheet({
   // never re-ran after mounted flipped — leaving the desktop popover at 0,0.
   const [sheetEl, setSheetEl] = useState<HTMLDivElement | null>(null);
 
-  // Outside-click / Escape close.
+  /* Außenklick / Escape schließen.
+
+     Die ganze Chip-Zeile ist ausgenommen, nicht nur der eigene Chip: JEDER
+     Chip entscheidet in seinem eigenen `onClick` selbst, was offen sein soll
+     (nochmal derselbe = zu, ein anderer = umschalten). Käme hier zuerst ein
+     `onClose`, würde der Klick danach denselben Chip wieder aufziehen — die
+     Leiste ginge beim zweiten Tippen nicht zu. Mit dem eigenen Chip allein war
+     das schon abgedeckt; die Zeile deckt zusätzlich alles ab, was zwischen den
+     Chips liegt (Abstände, das Zurücksetzen-Kreuz) und auf Geräten, die erst
+     `touchstart` und viel später `click` liefern, dazwischenfunkt. */
   useEffect(() => {
     const onPointer = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node;
       if (sheetEl && sheetEl.contains(target)) return;
       if (anchorEl && anchorEl.contains(target)) return;
+      if (target instanceof Element && target.closest('[data-filter-chip-row]')) return;
+      /* Der erste Tipp nach draußen schließt — und sonst nichts. Geschlossen
+         wird beim `pointerdown`, der `click` kommt erst danach: bis dahin ist
+         der Backdrop unmontiert, und der Klick schlug auf die Karte darunter
+         durch und öffnete einen Spot. Deshalb wird genau dieser eine folgende
+         Klick in der Capture-Phase geschluckt.
+
+         Der Abfänger hängt bewusst NICHT am Effekt-Cleanup: der läuft beim
+         Schließen sofort, also lange bevor der Klick eintrifft. `once` räumt
+         ihn nach dem Schlucken weg, der Timer für den Fall, dass gar kein
+         Klick folgt (nach einem Tipp, aus dem ein Scrollen wurde) — sonst
+         fräße er irgendwann den nächsten echten Klick. */
+      const swallow = (ev: Event) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+      };
+      document.addEventListener('click', swallow, { capture: true, once: true });
+      window.setTimeout(() => document.removeEventListener('click', swallow, true), 400);
       onClose();
     };
     const onKey = (e: KeyboardEvent) => {

@@ -2,6 +2,36 @@
 
 const BURGER_CANVAS_COLOR = '#15120e';
 let focusBeforeDrawer: HTMLElement | null = null;
+let settleCleanup: (() => void) | null = null;
+
+/* Die Wort-Kaskade (CSS: `.bd-settled`) startet erst, wenn die Tür steht.
+   Der Öffnungs-Frame trägt schon den lockBody-Reflow, den Canvas-Tint und
+   den ersten Panel-Raster — acht gleichzeitig anlaufende Animationen
+   obendrauf waren das Ruckeln (Performance-Trace, 30.08.2026). Das
+   transitionend des Panels ist der Taktgeber; der Timeout fängt den Fall,
+   dass es nie feuert (z. B. Panel schon an Ort und Stelle). */
+function disarmSettle() {
+  settleCleanup?.();
+  settleCleanup = null;
+}
+
+function armSettle(drawer: HTMLElement) {
+  disarmSettle();
+  const panel = drawer.querySelector<HTMLElement>('.burger-drawer-panel');
+  const settle = () => {
+    disarmSettle();
+    drawer.classList.add('bd-settled');
+  };
+  const onEnd = (event: TransitionEvent) => {
+    if (event.target === panel && event.propertyName === 'transform') settle();
+  };
+  const timer = window.setTimeout(settle, 420);
+  panel?.addEventListener('transitionend', onEnd);
+  settleCleanup = () => {
+    window.clearTimeout(timer);
+    panel?.removeEventListener('transitionend', onEnd);
+  };
+}
 
 function tintMobileCanvasForDrawer() {
   if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
@@ -76,6 +106,7 @@ export function openBurgerDrawer() {
   // .active below still animates the opening transform.
   void drawer.offsetWidth;
   drawer.classList.add('active');
+  armSettle(drawer);
   window.requestAnimationFrame(() => {
     document.getElementById('burgerClose')?.focus({ preventScroll: true });
   });
@@ -86,7 +117,9 @@ export function closeBurgerDrawer(restoreScroll = true) {
   if (!drawer?.classList.contains('active')) return;
 
   const openBtn = document.getElementById('burgerBtn');
+  disarmSettle();
   drawer.classList.remove('active');
+  drawer.classList.remove('bd-settled');
   drawer.setAttribute('aria-hidden', 'true');
   drawer.setAttribute('inert', '');
   openBtn?.setAttribute('aria-expanded', 'false');

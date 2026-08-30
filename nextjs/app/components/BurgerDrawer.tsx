@@ -125,6 +125,7 @@ export default function BurgerDrawer() {
           </div>
 
           <Link
+            prefetch={false}
             href="/"
             className="bd-logo"
             aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
@@ -143,8 +144,13 @@ export default function BurgerDrawer() {
             />
           </Link>
 
+          {/* prefetch={false} auf ALLEN Drawer-Links: beim Öffnen werden 13
+              Links gleichzeitig sichtbar, und Nexts Viewport-Prefetcher holte
+              alle Routen mitten in der Tür-Animation — im Trace ~86ms
+              Main-Thread-Arbeit während der Fahrt (30.08.2026). Die Menü-
+              Navigation lädt stattdessen beim Tap. */}
           <nav className="bd-nav" aria-label="Primary">
-            <MapIntentLink href="/map" className="bd-nav-item">
+            <MapIntentLink prefetch={false} href="/map" className="bd-nav-item">
               {t('burger.map')}
             </MapIntentLink>
             {/* Profile/login is a primary action, not footer furniture. Keep it
@@ -160,7 +166,7 @@ export default function BurgerDrawer() {
                 {user ? t('burger.profile') : t('burger.signIn')}
               </span>
             </button>
-            <Link href="/must-eats" className="bd-nav-item">
+            <Link prefetch={false} href="/must-eats" className="bd-nav-item">
               {t('burger.mustEats')}
             </Link>
             {/* Der Kategorie-Hub stand bis 24.08.2026 in keinem Menü, keinem
@@ -168,7 +174,7 @@ export default function BurgerDrawer() {
                 Brotkrume einer Kategorieseite, also erst, wenn man schon drin
                 war. Ergebnis: drei Aufrufe in vier Tagen, null Impressionen.
                 Hier ist der Eingang. */}
-            <Link href="/kategorie" className="bd-nav-item">
+            <Link prefetch={false} href="/kategorie" className="bd-nav-item">
               {t('burger.categories')}
             </Link>
             {/* Dasselbe für den Bezirks-Hub, gleiche Ursache, gleicher Tag: 20
@@ -176,37 +182,42 @@ export default function BurgerDrawer() {
                 den Kategorien gibt es auf der Startseite keine Bezirks-Rail, an
                 deren Ende ein Chip passen würde — dieser Eintrag ist der ganze
                 Eingang. */}
-            <Link href="/bezirk" className="bd-nav-item">
+            <Link prefetch={false} href="/bezirk" className="bd-nav-item">
               {t('burger.districts')}
             </Link>
             {/* Remy lives in the home hub now. From other pages the burger
                 sends users back to
                 his "Frag Remy" section via HubHashScroll. */}
-            <Link href="/#hub-fragremy" className="bd-nav-item">
+            <Link prefetch={false} href="/#hub-fragremy" className="bd-nav-item">
               {t('burger.fragRemy')}
             </Link>
-            <Link href="/news" className="bd-nav-item">
+            <Link prefetch={false} href="/news" className="bd-nav-item">
               {t('burger.aufDemTeller')}
             </Link>
-            <Link href="/packs" className="bd-nav-item">
+            <Link prefetch={false} href="/packs" className="bd-nav-item">
               {t('burger.boosterPacks')}
             </Link>
-            <Link href="/about" className="bd-nav-item">
+            <Link prefetch={false} href="/about" className="bd-nav-item">
               {t('burger.about')}
             </Link>
           </nav>
 
           <div className="bd-foot bd-legal-dock">
-            <Link href="/impressum" className="bd-foot-link" id="openImpressum">
+            <Link prefetch={false} href="/impressum" className="bd-foot-link" id="openImpressum">
               {t('burger.impressum')}
             </Link>
-            <Link href="/datenschutz" className="bd-foot-link" id="openDatenschutzFromBurger">
+            <Link
+              prefetch={false}
+              href="/datenschutz"
+              className="bd-foot-link"
+              id="openDatenschutzFromBurger"
+            >
               {t('modals.datenschutz.title')}
             </Link>
-            <Link href="/agb" className="bd-foot-link" id="openAgbFromBurger">
+            <Link prefetch={false} href="/agb" className="bd-foot-link" id="openAgbFromBurger">
               {t('modals.agb.title')}
             </Link>
-            <Link href="/contact" className="bd-foot-link" id="openContact">
+            <Link prefetch={false} href="/contact" className="bd-foot-link" id="openContact">
               {t('burger.contact')}
             </Link>
           </div>

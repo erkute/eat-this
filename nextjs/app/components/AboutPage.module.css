@@ -78,14 +78,18 @@
   text-wrap: balance;
 }
 
+/* Der erste Absatz spricht in der Markenschrift, nicht im Fliesstext — er ist
+   Teil der Anrede, nicht des Berichts (Nutzer, 30.08.2026). Providence gibt es
+   nur in 400 und 700; 400 traegt einen Absatz, 700 schreit. line-height bleibt
+   ueber 1.2: darunter kappt die Unterlaenge (siehe Memory). */
 .lede {
-  max-width: 34ch;
+  max-width: 30ch;
   margin: clamp(20px, 2.6vw, 28px) 0 0;
   color: var(--about-ink);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(18px, 1.7vw, 22px);
-  font-weight: 500;
-  line-height: 1.6;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(21px, 2vw, 26px);
+  font-weight: 400;
+  line-height: 1.42;
   text-wrap: pretty;
 }
 

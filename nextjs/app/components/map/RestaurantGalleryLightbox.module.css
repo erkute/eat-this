@@ -142,9 +142,11 @@
   height: 100dvh;
   min-height: 100lvh;
   z-index: 0;
-  background: rgba(20, 19, 17, 0.44);
-  -webkit-backdrop-filter: blur(1px) saturate(1);
-  backdrop-filter: blur(1px) saturate(1);
+  /* 0.62 statt 0.44: gleiche Zoom-Regel wie die Must-Eat-Karte — der
+     Hintergrund tritt richtig ab, nicht nur halb. */
+  background: rgba(20, 19, 17, 0.62);
+  -webkit-backdrop-filter: blur(2px) saturate(1);
+  backdrop-filter: blur(2px) saturate(1);
 }
 .galleryLbStage {
   z-index: 1;

@@ -418,30 +418,44 @@ body {
   text-underline-offset: 3px;
 }
 
-/* Entrance stagger — items translate in (no opacity fades, per brand rule) */
+/* Entrance stagger — items translate in (no opacity fades, per brand rule).
+   Every word animates, footer links included, and nothing starts before
+   ~0.05s: das Panel selbst fährt 0.34s ein, und ein Item, dessen Versatz
+   währenddessen abläuft, geht in der Panel-Bewegung unter — so sah es aus,
+   als würden nur die späten vier animieren (Nutzer, 30.08.2026).
+   Die Delays folgen der SICHTBAREN Reihenfolge: der CTA (Anmelden/Profil)
+   steht per `order: -1` oben, ist im DOM aber das zweite Kind. */
 .burger-drawer.active .bd-nav-item {
   animation: bdItemIn 0.32s cubic-bezier(0.18, 0.86, 0.26, 1) both;
+  animation-delay: 0.09s; /* Karte — visuell an zweiter Stelle */
 }
 .burger-drawer.active .bd-nav-item:nth-child(2) {
-  animation-delay: 0.03s;
+  animation-delay: 0.05s; /* CTA — visuell zuoberst */
 }
 .burger-drawer.active .bd-nav-item:nth-child(3) {
-  animation-delay: 0.06s;
+  animation-delay: 0.13s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(4) {
-  animation-delay: 0.09s;
+  animation-delay: 0.17s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(5) {
-  animation-delay: 0.12s;
+  animation-delay: 0.21s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(6) {
-  animation-delay: 0.15s;
+  animation-delay: 0.25s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(7) {
-  animation-delay: 0.18s;
+  animation-delay: 0.29s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(8) {
-  animation-delay: 0.21s;
+  animation-delay: 0.33s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(9) {
+  animation-delay: 0.37s;
+}
+.burger-drawer.active .bd-foot-link {
+  animation: bdItemIn 0.32s cubic-bezier(0.18, 0.86, 0.26, 1) both;
+  animation-delay: 0.42s;
 }
 @keyframes bdItemIn {
   from {
@@ -457,9 +471,6 @@ body {
   .burger-drawer-panel {
     width: 100vw;
     box-shadow: none;
-  }
-  .burger-drawer.active .bd-nav-item {
-    animation: none;
   }
   .bd-scroller {
     padding: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) 16px

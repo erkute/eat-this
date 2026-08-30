@@ -419,39 +419,44 @@ body {
 }
 
 /* Entrance stagger — items translate in (no opacity fades, per brand rule).
-   Nur die Nav-Wörter Map bis Über uns laufen; der CTA (oben) und die
-   Legal-Links (unten) stehen still — sie rahmen die Bewegung, statt sie
-   mitzumachen (Nutzer, 30.08.2026). Nichts startet vor ~0.05s: das Panel
-   selbst fährt 0.34s ein, und ein Versatz, der währenddessen abläuft, geht
-   in der Panel-Bewegung unter.
-   `will-change` gibt jedem laufenden Item seine eigene Compositor-Ebene:
-   ohne sie rastert das Panel (contain: paint) bei acht gleichzeitig
-   laufenden Providence-Zeilen jeden Frame neu — das war das Ruckeln. */
+   Nur die Nav-Wörter Map bis Über uns laufen; CTA (oben) und Legal-Links
+   (unten) rahmen die Bewegung, statt sie mitzumachen.
+
+   ERST die Tür, DANN die Wörter: das Öffnen selbst ist der teuerste Frame —
+   lockBody() legt den Body auf position:fixed (Seiten-Reflow), der Canvas
+   wird getintet (Seiten-Repaint), und das Panel wird zum ersten Mal
+   gerastert. Liefen die Wort-Animationen gleichzeitig mit dem 0.34s-Slide,
+   stotterte genau dieses Fenster (Nutzer, 30.08.2026). Darum startet kein
+   Wort vor 0.36s: während der Fahrt stehen alle per `both`-Fill fertig
+   versetzt im Panel-Layer (kein Rasterkost), und die Kaskade läuft erst,
+   wenn das Panel steht und der Compositor nichts anderes mehr zu tun hat.
+   Kein `will-change`: die Ebenen entstehen pro Wort beim Animationsstart —
+   nach der Landung, über 0.28s verteilt — statt alle acht im ohnehin
+   schweren Öffnungs-Frame. */
 .burger-drawer.active .bd-nav-item:not(.bd-cta) {
-  animation: bdItemIn 0.32s cubic-bezier(0.18, 0.86, 0.26, 1) both;
-  animation-delay: 0.05s; /* Map — das erste bewegte Wort */
-  will-change: transform;
+  animation: bdItemIn 0.3s cubic-bezier(0.18, 0.86, 0.26, 1) both;
+  animation-delay: 0.36s; /* Map — das erste Wort, direkt nach der Landung */
 }
 .burger-drawer.active .bd-nav-item:nth-child(3) {
-  animation-delay: 0.09s;
+  animation-delay: 0.4s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(4) {
-  animation-delay: 0.13s;
+  animation-delay: 0.44s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(5) {
-  animation-delay: 0.17s;
+  animation-delay: 0.48s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(6) {
-  animation-delay: 0.21s;
+  animation-delay: 0.52s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(7) {
-  animation-delay: 0.25s;
+  animation-delay: 0.56s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(8) {
-  animation-delay: 0.29s;
+  animation-delay: 0.6s;
 }
 .burger-drawer.active .bd-nav-item:nth-child(9) {
-  animation-delay: 0.33s;
+  animation-delay: 0.64s;
 }
 @keyframes bdItemIn {
   from {

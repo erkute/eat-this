@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
-import { getLocationStatus } from '@/lib/map/locationStatus';
+import { getLocationNoticeCopy, getLocationStatus } from '@/lib/map/locationStatus';
 import { normalizeName } from '@/lib/normalizeName';
 import { nearestRestaurants, rotatingRestaurants } from '@/lib/home/nearby';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
@@ -54,6 +54,80 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   const activeLocation = mounted ? location : null;
   const count = 4;
 
+  const showLocationStatus = Boolean(
+    mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
+  );
+  const showLocationSuccess = Boolean(mounted && locationSuccessKey && !showLocationStatus);
+  const handleLocate = useCallback(async () => {
+    setDismissedLocationStatusKey(null);
+    setLocationSuccessKey(0);
+    const nextLocation = await request();
+    if (nextLocation) setLocationSuccessKey(Date.now());
+  }, [request]);
+  const handleDismissLocationStatus = useCallback(() => {
+    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
+  }, [locationStatusKey]);
+
+  /* Die Standort-Meldung laeuft durch die zentrale Info-Karte, genau wie die
+     der Karte (MapSectionBody). Vorher stand hier eine eigene Leiste am
+     unteren Bildrand — auf der langen Startseite lag sie meist ausserhalb des
+     Blicks, waehrend der Knopf, den sie beantwortet, oben im Aufmacher sitzt.
+     Der Zustandsautomat bleibt hier, die Karte zeigt nur; `duration: 0`, weil
+     dieser Automat das Abraeumen besitzt. */
+  const successCopy =
+    locale === 'en'
+      ? {
+          eyebrow: 'Location',
+          title: 'Location locked',
+          detail: 'Berlin is sorting around you.',
+        }
+      : {
+          eyebrow: 'Standort',
+          title: 'Standort sitzt',
+          detail: 'Berlin sortiert sich um dich herum.',
+        };
+  const noticeCopy = showLocationSuccess
+    ? successCopy
+    : showLocationStatus
+      ? getLocationNoticeCopy(locale, locating ? null : locError, locating)
+      : null;
+  /* Ueber die einzelnen Zeilen statt ueber das Objekt: das entsteht bei jedem
+     Rendern neu und wuerde die Meldung sonst dauernd neu aufziehen. */
+  const noticeEyebrow = noticeCopy?.eyebrow ?? null;
+  const noticeTitle = noticeCopy?.title ?? null;
+  const noticeDetail = noticeCopy?.detail ?? null;
+  const noticeIsError = Boolean(locationStatus.isError && !showLocationSuccess);
+  const noticeCanRetry = Boolean(locationStatus.canRetry && !showLocationSuccess);
+  useEffect(() => {
+    if (!noticeTitle || !noticeEyebrow) return;
+    /* Der Rueckgabewert raeumt genau diese Meldung ab und laesst eine
+       inzwischen nachgerueckte stehen. */
+    return window.showNotice?.({
+      tone: noticeIsError ? 'warning' : showLocationSuccess ? 'success' : 'info',
+      icon: noticeIsError ? 'pin' : showLocationSuccess ? 'check' : 'pin',
+      eyebrow: noticeEyebrow,
+      title: noticeTitle,
+      detail: noticeDetail ?? undefined,
+      action: noticeCanRetry
+        ? { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleLocate }
+        : undefined,
+      /* Nur die Fehler bekommen einen Wegklick-Knopf; der Erfolg raeumt sich
+         nach seiner eigenen Frist selbst ab. */
+      onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
+      duration: 0,
+    });
+  }, [
+    noticeEyebrow,
+    noticeTitle,
+    noticeDetail,
+    noticeIsError,
+    noticeCanRetry,
+    showLocationSuccess,
+    locale,
+    handleLocate,
+    handleDismissLocationStatus,
+  ]);
+
   // With a grant: genuinely nearest. Without: a daily rotation across Berlin
   // rather than the same four spots around a Mitte centroid the visitor never
   // asked for.
@@ -67,30 +141,9 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   // question never asked — the silent resume only runs on an existing grant —
   // which leaves `activeLocation` as the only honest split there is.
   const title = activeLocation ? t('title') : t('titleFallback');
-  const showLocationStatus = Boolean(
-    mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
-  );
-  const showLocationSuccess = Boolean(mounted && locationSuccessKey && !showLocationStatus);
-  const locationSuccessCopy =
-    locale === 'en'
-      ? 'Location locked. Berlin is sorting around you.'
-      : 'Standort sitzt. Berlin sortiert sich um dich herum.';
-  const handleLocate = async () => {
-    setDismissedLocationStatusKey(null);
-    setLocationSuccessKey(0);
-    const nextLocation = await request();
-    if (nextLocation) setLocationSuccessKey(Date.now());
-  };
-  const handleDismissLocationStatus = () => {
-    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
-  };
 
   return (
-    <>
-      <section
-        className="homeV2 hv-section hv-wrap"
-        data-hub-nearby=""
-      >
+    <section className="homeV2 hv-section hv-wrap" data-hub-nearby="">
         {/* Heading, its own line of copy and the button that acts on it live in
             one block. Stacked on phones the button used to sit between the
             heading and the line explaining it, which put more space inside the
@@ -172,34 +225,5 @@ export default function HubNearby({ locale = 'de', today }: Props) {
         </div>
       </section>
 
-      {(showLocationStatus || showLocationSuccess) && (
-        <div
-          className={`${styles.locationLayer} ${locationStatus.isError ? styles.locationLayerError : ''} ${showLocationSuccess ? styles.locationLayerSuccess : ''}`}
-          role={locationStatus.isError ? 'alert' : 'status'}
-        >
-          <span className={styles.locationText}>
-            {showLocationSuccess ? locationSuccessCopy : locationStatus.copy}
-          </span>
-          {locationStatus.isError && (
-            <button
-              type="button"
-              className={styles.locationAction}
-              onClick={handleLocate}
-              disabled={locating}
-            >
-              {locale === 'en' ? 'Retry' : 'Nochmal'}
-            </button>
-          )}
-          <button
-            type="button"
-            className={styles.locationDismiss}
-            onClick={handleDismissLocationStatus}
-            aria-label={locale === 'en' ? 'Dismiss location notice' : 'Standort-Hinweis ausblenden'}
-          >
-            ×
-          </button>
-        </div>
-      )}
-    </>
   );
 }

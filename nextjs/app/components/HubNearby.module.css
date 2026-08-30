@@ -108,9 +108,15 @@
   text-shadow: var(--et-shadow-text-photo);
 }
 
+/* Providence's descender reaches far below a 0.95 line, and the two-line clamp
+   above brings `overflow: hidden` with it — the g in "Bagel Bro" was sliced off
+   at 20px by 4.7px. The ink room goes in as padding and comes straight back out
+   of `bottom`, so the box only grows downward into the clip and the name stays
+   on the exact baseline it sat on before. */
 :global(.homeV2) .card :global(.hv-cap) {
-  bottom: clamp(30px, 3.4vw, 38px);
+  bottom: calc(clamp(30px, 3.4vw, 38px) - 0.3em);
   margin: 0;
+  padding-bottom: 0.3em;
   font-size: clamp(20px, 2vw, 26px);
   line-height: 0.95;
 }
@@ -224,91 +230,6 @@
   line-height: 0.95;
   text-transform: none;
   color: rgba(21, 18, 14, 0.72);
-}
-
-/* ── Global location layer (same interaction pattern as the map notice) ───── */
-.locationLayer {
-  position: fixed;
-  right: 16px;
-  bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 24px));
-  left: 16px;
-  z-index: 120;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  width: min(360px, calc(100vw - 32px));
-  min-height: 38px;
-  margin-inline: auto;
-  padding: 8px 10px;
-  color: var(--et-home-inverse-text, #fff);
-  background: var(--et-home-ink, #15120e);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  pointer-events: auto;
-}
-
-.locationLayerError {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-}
-
-.locationLayerSuccess {
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-accent, #ffc600);
-}
-
-.locationAction {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.locationText {
-  min-width: 0;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.08;
-}
-
-.locationAction,
-.locationDismiss {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  color: inherit;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-}
-
-.locationAction {
-  min-height: 24px;
-  padding-inline: 6px;
-}
-
-.locationDismiss {
-  width: 24px;
-  height: 24px;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.locationAction:hover,
-.locationAction:focus-visible,
-.locationDismiss:hover,
-.locationDismiss:focus-visible {
-  color: var(--et-home-accent, #ffc600);
-  outline: 0;
 }
 
 /* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */

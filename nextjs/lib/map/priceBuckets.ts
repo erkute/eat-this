@@ -15,11 +15,15 @@ import type { MapRestaurant } from '@/lib/types';
  * pro Laden eine eigene Spanne, keine gemeinsamen Bänder — 28 verschiedene
  * Kombinationen im Katalog, von 1–10 über 20–80 bis 40–100 — und die teuerste
  * Gruppe ist nach oben offen (49 Spots tragen `{min: 100}` ohne Maximum).
- * Deshalb heißt der Picker „Einstiegspreis wählen": „20–40 €" bedeutet, der
- * Einstieg liegt zwischen 20 und 40 €, und das stimmt dann für jeden Spot der
- * Stufe. Ohne diesen Titel las sich dieselbe Zeile als Spanne des Ladens, und
- * das war für 67 von 149 Spots der alten „20–50 €" falsch — ein 40–100-€-Laden
- * stand dort neben einem mit 20–30 € (User, 2026-08-29).
+ * „20–40 €" heißt also: der EINSTIEG liegt zwischen 20 und 40 €, und das
+ * stimmt dann für jeden Spot der Stufe. Der Picker trug das eine Weile im
+ * Titel („Einstiegspreis wählen"), seit dem 30.08.2026 heißt er auf Wunsch
+ * nur noch „Preis wählen". Damit ist die Lesart wieder offen: dieselbe Zeile
+ * kann als Spanne des Ladens gelesen werden, und das wäre für 67 von 149
+ * Spots der alten Stufe „20–50 €" falsch — ein 40–100-€-Laden stand dort
+ * neben einem mit 20–30 € (User, 2026-08-29). Die Zahlen hier bleiben davon
+ * unberührt; wer die Verwechslung wieder ausschließen will, tut es über die
+ * Beschriftung, nicht über den Schnitt.
  *
  * Die Grenzen liegen auf echten Werten: Einstiegspreise gibt es nur als
  * 1, 10, 20, 30, 40, 50, 60 und 100, keine Grenze schneidet also mitten durch

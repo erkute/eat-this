@@ -1360,8 +1360,10 @@
 }
 .rdTippText {
   margin: 0;
-  font-size: 14.5px;
-  line-height: 1.48;
+  /* 13px, nicht 14.5: der Tipp ist eine Randnotiz neben der Story (15px),
+     nicht ihr zweiter Absatz (Nutzer, 30.08.2026). */
+  font-size: 13px;
+  line-height: 1.5;
 }
 .rdFacts {
   display: grid;
@@ -4983,4 +4985,44 @@
   .detailV13:not(.detailV13MustEat) .rdHoursD {
     font-size: 17px;
   }
+}
+
+/* ============ Aktionen auf der Tafel ============
+   Die Knöpfe sind in RestaurantDetail.tsx in die .rdFacts-Tafel gezogen —
+   Fakten und Aktionen als EIN Objekt, wie `.board` der Spot-Seite. Das eigene
+   Randpolster der Zeile entfällt: die Tafel polstert schon, und das Grid-gap
+   der Tafel (22px) trennt die Knöpfe von der letzten Faktenzeile. */
+.detailV13:not(.detailV13MustEat) .rdFacts .rdActs {
+  padding: 2px 0 0;
+}
+
+/* „Reservieren" trug Ink — auf der Ink-Tafel unsichtbar, nur die weiße Schrift
+   blieb. Gelb, wie `.actStrong` auf der Tafel der Spot-Seite: lauter als die
+   Papier-Knöpfe, leiser als der rote. */
+.detailV13:not(.detailV13MustEat) .rdFacts .rdActStrong {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+}
+
+/* Der Standard-Hover füllt mit Ink — auf der Tafel wäre Ink-auf-Ink unsichtbar.
+   Der Ring aus Papier hält die Form (gleiches Rezept wie `.board .act:hover`
+   der Spot-Seite); der gelbe Knopf hovert weiter nach Rot. */
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .rdFacts .rdActBtn:hover {
+    background: var(--et-home-ink, #15120e);
+    color: var(--et-home-paper, #fff);
+    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
+  }
+
+  .detailV13:not(.detailV13MustEat) .rdFacts .rdActStrong:hover {
+    background: var(--et-home-red, #d9382a);
+    color: var(--et-home-paper, #fff);
+    box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+  }
+}
+
+/* Roter Fokusring säuft auf der Ink-Tafel ab — dort übernimmt Gelb. */
+.detailV13:not(.detailV13MustEat) .rdFacts .rdActBtn:focus-visible {
+  outline-color: var(--et-home-accent, #ffc600);
 }

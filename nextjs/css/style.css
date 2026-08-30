@@ -443,38 +443,38 @@ body {
   transform: translateX(108%) rotate(var(--bd-fly-rot, 1.5deg));
 }
 .burger-drawer.bd-settled .bd-nav-item:not(.bd-cta) {
-  animation: bdWordDeal 0.5s cubic-bezier(0.18, 0.9, 0.22, 1.06) backwards;
+  animation: bdWordDeal 0.38s cubic-bezier(0.18, 0.9, 0.22, 1.06) backwards;
   animation-delay: 0.02s; /* Map — das erste geworfene Wort */
   --bd-fly-rot: 1.6deg;
 }
 /* Die Drehung wechselt die Seite, damit der Stapel organisch fällt statt
    uniform zu klappen; die Delays takten die Welle. */
 .burger-drawer.active .bd-nav-item:nth-child(3) {
-  animation-delay: 0.07s;
+  animation-delay: 0.055s;
   --bd-fly-rot: -1.4deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(4) {
-  animation-delay: 0.12s;
+  animation-delay: 0.09s;
   --bd-fly-rot: 1.2deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(5) {
-  animation-delay: 0.17s;
+  animation-delay: 0.125s;
   --bd-fly-rot: -1.6deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(6) {
-  animation-delay: 0.22s;
+  animation-delay: 0.16s;
   --bd-fly-rot: 1.3deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(7) {
-  animation-delay: 0.27s;
+  animation-delay: 0.195s;
   --bd-fly-rot: -1.2deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(8) {
-  animation-delay: 0.32s;
+  animation-delay: 0.23s;
   --bd-fly-rot: 1.5deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(9) {
-  animation-delay: 0.37s;
+  animation-delay: 0.265s;
   --bd-fly-rot: -1.3deg;
 }
 @keyframes bdWordDeal {

@@ -1,11 +1,8 @@
 /* Collection — one open field of Must-Eat cards, no category dividers. */
 
 .panel {
-  --album-paper: var(--profile-paper, var(--et-home-paper, #fff));
   --album-ink: var(--profile-ink, var(--et-home-ink, #15120e));
   --album-muted: var(--profile-muted, rgba(21, 18, 14, 0.64));
-  --album-line: var(--profile-line, rgba(21, 18, 14, 0.2));
-  --album-quiet: var(--profile-quiet, var(--et-home-quiet, #f2f1ef));
   --album-red: var(--profile-red, var(--et-home-red, #d9382a));
   --album-display: var(--et-font-display, sans-serif);
   position: relative;

@@ -17,7 +17,6 @@
   --avatar-quiet: var(--et-home-quiet, #f2f1ef);
   --avatar-red: var(--et-home-red, #d9382a);
   --avatar-display: var(--et-font-display, var(--font-providence), sans-serif);
-  --avatar-mono: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   position: relative;
   display: grid;
   gap: clamp(20px, 3vw, 30px);

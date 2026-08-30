@@ -540,7 +540,6 @@
   --login-ink: #fff;
   --login-accent: var(--home-accent, #ffc600);
   --login-muted: rgba(255, 255, 255, 0.7);
-  --login-line: rgba(255, 255, 255, 0.18);
   --login-control: min(100%, 380px);
 
   width: min(1080px, calc(100vw - 28px));

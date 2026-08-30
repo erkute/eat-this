@@ -40,15 +40,10 @@ ul,ol{list-style:none}
   --home-paper: var(--et-home-paper);
   --home-ink: var(--et-home-ink);
   --home-accent: var(--et-home-accent);
-  --home-photo-rest: var(--et-home-photo-rest);
-  --home-quiet: var(--et-home-quiet);
   --home-rule: var(--et-home-rule);
   --home-muted: var(--et-home-muted);
-  --home-line: var(--et-home-line);
-  --home-radius-photo: var(--et-radius-photo);
   --home-radius-btn: var(--et-radius-control);
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 body {
   font-family: var(--font);
@@ -82,7 +77,6 @@ body {
 /* ============================================
    APP FOOTER NAVIGATION (Mobile)
    ============================================ */
-
 
 @media (max-width: 767px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for

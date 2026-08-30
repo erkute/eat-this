@@ -217,3 +217,17 @@
     height: clamp(36px, 11vw, 46px);
   }
 }
+
+/* Solange die Wortmarke aus dem Aufmacher unterwegs in den Header ist, besetzt
+   sie dessen Logoplatz — das eingebaute Bild stünde sonst doppelt. Gesetzt wird
+   das Attribut von HeroMarkFlight, also nur auf der Startseite und nur unter
+   768px. `visibility` statt `display`, damit der Slot seine Maße behält: der
+   Flieger misst sich genau an ihnen aus. */
+/* … aber nur, solange die Marke unterwegs ist. Ist sie angekommen
+   (`data-hero-landed`), übernimmt wieder das eingebaute Bild — und nur so
+   fährt die Marke mit dem Header nach oben weg, wenn der beim Weiterscrollen
+   wegklappt. Der Flieger ist `position: fixed` am body und würde allein
+   stehen bleiben. */
+:global(html[data-hero-flight='on']:not([data-hero-landed])) .logoImg {
+  visibility: hidden;
+}

@@ -2,7 +2,6 @@
   --packs-paper: var(--et-home-paper, #fff);
   --packs-ink: var(--et-home-ink, #15120e);
   --packs-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  --packs-line: var(--et-home-line, rgba(21, 18, 14, 0.18));
   --packs-quiet: var(--et-home-quiet, #f2f1ef);
   --packs-accent: var(--et-home-accent, #ffc600);
   --packs-red: var(--et-home-red, #d9382a);

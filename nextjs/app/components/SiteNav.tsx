@@ -85,7 +85,14 @@ export default function SiteNav() {
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
       const delta = y - lastY;
 
-      if (!media.matches || y < 36) {
+      // Auf der Startseite fliegt die Wortmarke beim Scrollen in den Header
+      // (HeroMarkFlight setzt `data-nav-hold`, solange das läuft). Klappte die
+      // Leiste dabei wie sonst nach 36px weg, würde die Marke im selben Moment
+      // mit verschwinden, in dem sie ankommt. Andere Seiten setzen das
+      // Attribut nie und verhalten sich unverändert.
+      const hold = document.documentElement.hasAttribute('data-nav-hold');
+
+      if (!media.matches || y < 36 || hold) {
         show();
       } else if (delta > 6) {
         hide();
@@ -133,7 +140,11 @@ export default function SiteNav() {
         </div>
         {/* Center: Logo */}
         <div className={styles.home}>
-          <Link href="/" className={styles.logo} aria-label="Eat This — Start">
+          {/* `data-nav-logo` ist der Landepunkt der fliegenden Wortmarke
+              (HeroMarkFlight misst diesen Slot aus). Der Link bleibt
+              zugänglich — er trägt seinen Namen über aria-label —, nur das
+              Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
+          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
               src="/pics/eat-this-logo.webp?v=6"
               alt="Eat This"

@@ -1885,6 +1885,11 @@
 .detailV13:not(.detailV13MustEat) .rdOverlay {
   inset: auto 14px 18px;
 }
+/* Der Name steht in Providence, und deren Unterlänge reicht weit unter die
+   Zeilenbox: bei 50px hängt das g der Tinte nach 10,7px unter dem Kasten. Von
+   den 18px, die zwischen Name und Tag-Zeile deklariert sind (8 + 10), blieben
+   sichtbar 6,6px — das g stand praktisch auf den Labels. Der Kasten bekommt
+   den Tintenraum als Marge dazu; die Grundlinie bleibt, wo sie ist. */
 .detailV13:not(.detailV13MustEat) .rdNameOv {
   color: #fff;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -1892,6 +1897,7 @@
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: 0;
+  margin-bottom: 18px;
   text-transform: none;
   text-shadow: none;
 }
@@ -2912,8 +2918,6 @@
 }
 @media (max-width: 767.98px) {
   .detailV13:not(.detailV13MustEat) .rdFacts {
-    margin: 32px 22px 34px;
-    padding: 16px 2px 18px;
     grid-template-columns: 1fr;
   }
 
@@ -4085,15 +4089,18 @@
    Everything else in the sheet is about the spot you opened; this block is
    not. It is set apart by SURFACE, not by an outline: the action row directly
    above is a grid of ringed buttons, so another frame here just stacks
-   borders. The warm panel tint is the same "there is more behind this" yellow
-   the map list uses for its pack banner.
+   borders. Die Fläche ist die ruhige Tonfläche, auf der derselbe Starter Pack
+   schon auf der Startseite steht (StarterPackSignup): ein Produkt, ein
+   Untergrund. Das cremige Gelb davor war der einzige Ort der App, der es
+   trug — es las sich als drittes Beige neben Papier und Marke, und der
+   ink-Knopf darin verlor auf dem warmen Ton an Kante.
    The copy speaks the sheet's own voice too — display face for the pitch and
    the sign-in link, the action-row button treatment for the CTA. */
 .detailV13:not(.detailV13MustEat) .packPromo {
   position: relative;
   margin: 30px 14px 32px;
   padding: clamp(22px, 5vw, 24px) clamp(14px, 4vw, 18px) clamp(20px, 4.5vw, 22px);
-  background: var(--et-home-panel-warm, #fff4cc);
+  background: var(--et-home-quiet, #f2f1ef);
   border: 0;
   border-radius: var(--et-radius-photo, 10px);
   overflow: visible;
@@ -4918,8 +4925,12 @@
    Schichten davor. */
 .detailV13:not(.detailV13MustEat) .rdFacts {
   gap: 22px;
-  margin: 30px 22px 32px;
-  padding: 24px 20px 26px;
+  /* 14px Seitenrand und 18px Polster wie bei Insider-Tipp, Must Eats, Pager und
+     Starter Pack: die Tafel stand mit 22/20 als einziger Block der Sheet weiter
+     innen, dadurch war sie schmaler als der gelbe Block direkt darunter und ihr
+     Text sprang gegenüber allem anderen um zwei Pixel ein. */
+  margin: 30px 14px 32px;
+  padding: 24px 18px 26px;
   background: var(--et-home-ink, #15120e);
   border: 0;
   border-radius: var(--et-radius-photo, 10px);

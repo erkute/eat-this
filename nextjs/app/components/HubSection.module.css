@@ -99,12 +99,19 @@
   justify-content: center;
 }
 
+/* Der Gruß stand ohne jeden Abstand auf der Headline: zwischen Marke und Gruß
+   liegen 29px, zwischen Headline und Lead 38px, dazwischen war es auf 1512px
+   minus 3,5px — das y von „Hey" lief in das D von „DEINE". Providence bringt
+   das mit, weil beide Zeilen ihre Tinte über die Zeilenbox hinausschieben
+   (Gruß line-height 1, Headline 0.9). Der Abstand ist deshalb bewusst knapper
+   gesetzt als er aussieht: 18px Marge werden zu rund 14px sichtbarer Luft. */
 .page .heroKicker:global(.hv-kicker) {
   font-family: var(--font-providence);
   font-size: clamp(17px, 2.2vw, 24px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-none);
   line-height: 1;
+  margin-bottom: clamp(10px, 1.2vw, 18px);
   text-transform: none;
 }
 

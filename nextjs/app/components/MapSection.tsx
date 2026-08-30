@@ -485,11 +485,19 @@ export default function MapSection({
     if (typeof window === 'undefined') return;
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
     if (isPhoneViewport()) {
-      /* In-flow detail takeover: every fresh selection (open + pager swap)
-         starts at the top of the window-scrolled document. Snap state is
-         meaningless here — the hook is inert (SheetConfig.inflow). */
+      /* In-flow detail takeover: ein frisch GEÖFFNETES Detail startet oben im
+         fensterscrollenden Dokument. Snap state is meaningless here — the hook
+         is inert (SheetConfig.inflow).
+
+         Ein Blätterschritt (prev/next, geklickt oder gewischt) tut das
+         ausdrücklich nicht: er kommt ohne Snap-Wunsch an, und ein Sprung auf 0
+         parkt den Leser wieder auf der Karte über dem Sheet — nach jedem
+         Nachbarn müsste er sich erst wieder herunterscrollen. Das Fenster
+         bleibt deshalb stehen, wie es die Tablet-Fassung darunter seit jeher
+         hält. */
+      const opened = pendingDetailSnapRef.current !== null;
       pendingDetailSnapRef.current = null;
-      window.scrollTo(0, 0);
+      if (opened) window.scrollTo(0, 0);
       return;
     }
     const requested = pendingDetailSnapRef.current;

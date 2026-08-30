@@ -1,7 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import styles from './MapControls.module.css';
 
 interface Props {
   loading: boolean;
@@ -10,32 +10,40 @@ interface Props {
   onRetry: () => void;
 }
 
-/** Persistent map-payload status. Cached/SSR rows remain usable on refresh
- * failures, but are explicitly labelled as stale instead of looking current. */
+/**
+ * Persistent map-payload status. Cached/SSR rows remain usable on refresh
+ * failures, but are explicitly labelled as stale instead of looking current.
+ *
+ * Die Meldung hat keine eigene Fläche: sie läuft durch die zentrale Info-Karte
+ * (NotificationToast, mittig im Onboarding-Zuschnitt), wie die Standort-Meldung
+ * von Karte und Startseite auch. Vorher war das eine kleine Leiste am unteren
+ * Bildrand — auf dem Telefon unter dem Sheet, und die dritte Infofläche auf
+ * einem Schirm. `duration: 0`: die Meldung steht, solange der Zustand steht,
+ * und der Rückgabewert räumt genau sie wieder ab.
+ */
 export default function MapDataNotice({ loading, error, hasData, onRetry }: Props) {
   const t = useTranslations('map');
-  if (!loading && !error) return null;
+  const state = error ? (hasData ? 'stale' : 'error') : loading ? (hasData ? 'refreshing' : 'loading') : null;
 
-  const copy = error
-    ? hasData
-      ? t('dataStale')
-      : t('dataError')
-    : hasData
-      ? t('dataRefreshing')
-      : t('dataLoading');
+  useEffect(() => {
+    if (!state) return;
+    const isError = state === 'error' || state === 'stale';
+    const key = {
+      loading: 'dataLoading',
+      refreshing: 'dataRefreshing',
+      error: 'dataError',
+      stale: 'dataStale',
+    }[state];
+    return window.showNotice?.({
+      tone: isError ? 'warning' : 'info',
+      icon: isError ? 'alert' : 'spark',
+      eyebrow: t('dataEyebrow'),
+      title: t(`${key}Title`),
+      detail: t(`${key}Detail`),
+      action: isError ? { label: t('dataRetry'), onClick: onRetry } : undefined,
+      duration: 0,
+    });
+  }, [state, onRetry, t]);
 
-  return (
-    <div
-      className={`${styles.mapStatusLayer}${error ? ` ${styles.mapStatusLayerError}` : ''}`}
-      role={error ? 'alert' : 'status'}
-      aria-live="polite"
-    >
-      <span className={styles.mapStatusText}>{copy}</span>
-      {error && (
-        <button type="button" className={styles.mapStatusAction} onClick={onRetry}>
-          {t('dataRetry')}
-        </button>
-      )}
-    </div>
-  );
+  return null;
 }

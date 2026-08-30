@@ -165,12 +165,6 @@ function Viewer({
         </svg>
       </button>
 
-      {count > 1 && (
-        <span className={styles.galleryLbCounter}>
-          {page + 1} / {count}
-        </span>
-      )}
-
       <div className={styles.galleryLbStage}>
         <AnimatePresence custom={dir} initial={false} mode="sync">
           <motion.div
@@ -216,11 +210,15 @@ function Viewer({
         </AnimatePresence>
       </div>
 
+      {/* Pfeile und Zählstand stehen als eine Leiste unter dem Abzug: seitliche
+          Pfeile auf halber Höhe lagen genau im Wischweg und waren auf Touch
+          deshalb ganz abgeschaltet — damit gab es am Telefon keinen Hinweis
+          darauf, dass überhaupt weitere Fotos folgen. */}
       {count > 1 && (
-        <>
+        <div className={styles.galleryLbNav} onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
-            className={`${styles.galleryLbArrow} ${styles.galleryLbArrowPrev}`}
+            className={styles.galleryLbArrow}
             aria-label="Vorheriges Foto"
             disabled={page === 0}
             onClick={(e) => {
@@ -230,9 +228,12 @@ function Viewer({
           >
             <Chevron dir="left" />
           </button>
+          <span className={styles.galleryLbCounter}>
+            {page + 1} / {count}
+          </span>
           <button
             type="button"
-            className={`${styles.galleryLbArrow} ${styles.galleryLbArrowNext}`}
+            className={styles.galleryLbArrow}
             aria-label="Nächstes Foto"
             disabled={page === count - 1}
             onClick={(e) => {
@@ -242,7 +243,7 @@ function Viewer({
           >
             <Chevron dir="right" />
           </button>
-        </>
+        </div>
       )}
     </motion.div>
   );

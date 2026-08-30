@@ -82,3 +82,69 @@
     }
   }
 }
+
+/* ── Blätter-Leiste ───────────────────────────────────────────────────────────
+   Wortgleich zur Foto-Galerie (RestaurantGalleryLightbox): ein Pfeil links,
+   der Stand in der Mitte, ein Pfeil rechts, fix über dem Vorhang. Zwei Zooms
+   in derselben App sollen sich gleich blättern lassen. */
+.nav {
+  position: fixed;
+  left: 50%;
+  bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+  cursor: default;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+
+.navBtn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.navBtn:disabled {
+  /* Am Anfang und am Ende bleibt der Knopf stehen und wird still — sonst
+     rutscht der Zählstand aus der Mitte. */
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+  cursor: default;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: #d9382a;
+  color: #fff;
+}
+
+.counter {
+  display: grid;
+  place-items: center;
+  min-width: 68px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  white-space: nowrap;
+}

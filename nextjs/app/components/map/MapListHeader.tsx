@@ -116,7 +116,10 @@ export default function MapListHeader({
   return (
     <div ref={headerRef} className={styles.listHeader}>
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
-      <div className={`${styles.filterChipRow} ${chipsPaused ? styles.filterChipRowPaused : ''}`}>
+      <div
+        className={`${styles.filterChipRow} ${chipsPaused ? styles.filterChipRowPaused : ''}`}
+        data-filter-chip-row=""
+      >
         <FilterChip
           ref={categoryBtnRef}
           label={activeCategoryLabel ?? t('map.filterChipCategory')}

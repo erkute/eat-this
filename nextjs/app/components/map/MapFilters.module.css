@@ -802,8 +802,28 @@
   width: auto;
   max-height: none;
   margin: 8px 0 2px;
+  /* Aufgeklappt steht die Liste IM weißen Panel, nicht über der Karte: sie ist
+     kein eigenes Objekt, das dort aufliegt, sondern die Fortsetzung der
+     Chip-Zeile. Deshalb gar keine Fläche — die Haarlinie davor las sich als
+     aufgezeichneter Kasten, eine getönte Wanne als grauer Fremdkörper auf
+     Weiß, und beide brachten eine Rundung mit, die es hier nicht zu runden
+     gibt. Getrennt wird über Abstand; die Kanten machen die Knöpfe selbst,
+     die auf derselben Linie stehen wie die Chips darüber. Der Seitenrand ist
+     der der Chip-Zeile (12px), sonst stehen Titel und Knöpfe 12px weiter
+     links als die Chips, aus denen sie kommen. */
+  padding: 0 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   box-shadow: none;
   animation: none;
+}
+
+/* Titelzeile bündig zu den Knöpfen darunter — das 8px-Polster stammte vom
+   Popover, das eine eigene Fläche hat. */
+.pickerSheetInline .pickerHead {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .pickerSheetInline::before {

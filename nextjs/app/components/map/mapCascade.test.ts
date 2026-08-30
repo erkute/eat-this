@@ -209,18 +209,15 @@ describe('MapControls cascade', () => {
     }
   });
 
-  it('does not let the status toast overlap the locate FAB on phones', () => {
-    // Both are positioned off the sheet's top edge. The toast used to land on
-    // the exact band the FAB occupies, at z-index 120 over 6 — hiding and
-    // blocking the control its own copy tells you to press.
+  it('floats the locate FAB off the sheet edge on phones', () => {
+    /* Dieser Test sicherte die FAB gegen die Status-Leiste ab, die auf
+       derselben Bandbreite lag und sie verdeckte. Die Leiste gibt es nicht
+       mehr: die Meldung steht seit dem 30.08.2026 mittig in der zentralen
+       Info-Karte (MapDataNotice → window.showNotice) und kann den Knopf
+       nicht mehr treffen. Was zu sichern bleibt, ist die Lage der FAB. */
     const phone = '(max-width: 767.98px)';
-    const fabBottom = effective(CONTROLS, 'fab', 'bottom', phone);
-    const toastShift = effective(CONTROLS, 'mapStatusLayer', 'transform', phone);
 
-    expect(fabBottom).toContain('14px');
-    // Clearing the FAB needs its 44px height + the 14px it floats above the
-    // sheet + breathing room; 70px is what the stylesheet reserves.
-    expect(toastShift).toContain('70px');
+    expect(effective(CONTROLS, 'fab', 'bottom', phone)).toContain('14px');
   });
 });
 

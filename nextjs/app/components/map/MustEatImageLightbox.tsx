@@ -1,7 +1,14 @@
 'use client';
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import {
+  motion,
+  useAnimationControls,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 import styles from './MustEatImageLightbox.module.css';
 
 export interface MustEatImageLightboxProps {
@@ -20,6 +27,16 @@ export interface MustEatImageLightboxProps {
   // the origin visible until this fires so a cold chunk load cannot leave an
   // empty slot.
   onOpenReady?: () => void;
+  /* Blättern im geöffneten Zoom. Ohne diese Felder bleibt der Zoom, was er
+     war: eine Karte, Tippen schließt. Der Aufrufer besitzt die Reihenfolge —
+     er kennt seine Liste UND die Slots im Raster, aus denen die Karte
+     zurückfliegt. */
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  /** Zählstand für die Leiste, 1-basiert. */
+  position?: { index: number; count: number };
 }
 
 interface InnerProps {
@@ -29,7 +46,30 @@ interface InnerProps {
   open: boolean;
   onClose: () => void;
   onClosed: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  position?: { index: number; count: number };
 }
+
+function Chevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+    </svg>
+  );
+}
+
+const SWIPE_PX = 60;
 
 // Mirrors profile/ProfileDeck.ExpandedOverlay almost line-for-line so the
 // two zoom interactions feel identical: open from origin → settle in centre
@@ -42,7 +82,13 @@ const Inner = memo(function Inner({
   open,
   onClose,
   onClosed,
+  onPrev,
+  onNext,
+  hasPrev = false,
+  hasNext = false,
+  position,
 }: InnerProps) {
+  const canPage = Boolean(onPrev || onNext);
   const cardAspect = originRect.width / originRect.height;
   const maxW = Math.min(420, window.innerWidth * 0.88);
   const maxH = window.innerHeight * 0.78;
@@ -87,6 +133,24 @@ const Inner = memo(function Inner({
   }, []);
 
   const [closing, setClosing] = useState(false);
+  /* Der Zoom schliesst auf Tippen — ein Wisch darf das nicht ausloesen.
+     Gemerkt wird der Anfasspunkt, und ob die letzte Geste ein Wisch war:
+     nach einem Zeiger-Wisch feuert der Browser trotzdem noch ein `click`. */
+  const downRef = useRef<{ x: number; y: number } | null>(null);
+  const swipedRef = useRef(false);
+  const dirRef = useRef(1);
+  const page = useCallback(
+    (d: number) => {
+      if (d < 0 && hasPrev) {
+        dirRef.current = -1;
+        onPrev?.();
+      } else if (d > 0 && hasNext) {
+        dirRef.current = 1;
+        onNext?.();
+      }
+    },
+    [hasPrev, hasNext, onPrev, onNext]
+  );
   // Flatten the pointer/gyro 3D-tilt before flying back — the springs would
   // otherwise hold the last tilt through the exit and the card lands skewed
   // against the flat origin card.
@@ -134,14 +198,88 @@ const Inner = memo(function Inner({
     };
   }, []);
 
-  // Escape closes.
+  /* ── Der Wurf ───────────────────────────────────────────────────────────────
+     Geblättert wird wie in einem Deck: die liegende Karte wird schräg zur
+     Seite weggezogen, dann kommt die nächste aus der Gegenrichtung
+     hereingeflogen und federt gerade. Das Bild hinkt der Auswahl deshalb um
+     die Dauer des Abgangs hinterher — `shown` ist der Stand, der wirklich auf
+     dem Tisch liegt, `imageUrl` der, der hinsoll.
+
+     Der Wurf sitzt auf dem Clip, nicht auf der Karte: die Karte trägt die
+     Fly-In/Fly-Back-Geometrie und die beiden Kipp-Federn, und zwei
+     Animationen auf einem `transform` schlagen sich. Der Clip hat kein
+     eigenes Overflow über sich, die Karte darf also aus ihrem Kasten
+     herausfliegen. */
+  /* Der Wurf haengt am PLATZ im Stapel, nicht am Bild: alle verdeckten Karten
+     tragen dieselbe Rueckseite, zwei davon hintereinander haetten sonst
+     denselben `src` — und die Karte blieb einfach stehen. */
+  const pageKey = position ? String(position.index) : imageUrl;
+  const [shown, setShown] = useState({ imageUrl, alt, key: pageKey });
+  const dealControls = useAnimationControls();
+  /* Der globale `prefers-reduced-motion`-Reset in globals.css setzt nur
+     CSS-Transitions und -Animationen still; eine framer-motion-Sequenz läuft
+     davon unbeirrt weiter. Für den Wurf gilt deshalb dieselbe Abfrage wie im
+     Reveal-Overlay nebenan: wer keine Bewegung will, bekommt den Kartentausch
+     ohne Flug. */
+  const reducedMotion = useReducedMotion();
+  useEffect(() => {
+    if (pageKey === shown.key) return;
+    if (reducedMotion) {
+      setShown({ imageUrl, alt, key: pageKey });
+      dealControls.set({ x: 0, rotateZ: 0, scale: 1 });
+      return;
+    }
+    let cancelled = false;
+    const dir = dirRef.current;
+    void (async () => {
+      await dealControls.start({
+        x: dir >= 0 ? '-62%' : '62%',
+        rotateZ: dir >= 0 ? -9 : 9,
+        scale: 0.86,
+        transition: { duration: 0.19, ease: [0.4, 0, 1, 1] },
+      });
+      if (cancelled) return;
+      setShown({ imageUrl, alt, key: pageKey });
+      dealControls.set({
+        x: dir >= 0 ? '62%' : '-62%',
+        rotateZ: dir >= 0 ? 9 : -9,
+        scale: 0.86,
+      });
+      /* Bewusst KEINE Feder für den Einflug. Federn erben die Geschwindigkeit
+         der vorigen Animation, und die zeigte gerade mit voller Wucht nach
+         draußen: gemessen schoss die Karte dadurch auf x −2100px und drehte
+         sich um 140°, bevor sie nach ~900ms zurückfand. Eine Kurve mit
+         leichtem Überschwung (y > 1 im zweiten Griff) landet dieselbe Geste
+         deterministisch. */
+      await dealControls.start({
+        x: 0,
+        rotateZ: 0,
+        scale: 1,
+        transition: { duration: 0.42, ease: [0.17, 1.06, 0.34, 1] },
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pageKey, imageUrl, alt, shown.key, dealControls, reducedMotion]);
+  /* Beim Zumachen fliegt die KARTE zurück in ihren Slot — ein Wurf, der genau
+     dann noch unterwegs ist, würde sie schräg und versetzt landen lassen. */
+  useEffect(() => {
+    if (open) return;
+    dealControls.stop();
+    dealControls.set({ x: 0, rotateZ: 0, scale: 1 });
+  }, [open, dealControls]);
+
+  // Escape closes; die Pfeiltasten blättern, wenn es etwas zu blättern gibt.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') handleClose();
+      else if (canPage && e.key === 'ArrowLeft') page(-1);
+      else if (canPage && e.key === 'ArrowRight') page(1);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [handleClose]);
+  }, [handleClose, canPage, page]);
 
   return (
     <motion.div
@@ -196,10 +334,32 @@ const Inner = memo(function Inner({
         }}
         onClick={(e) => {
           e.stopPropagation();
+          if (swipedRef.current) {
+            swipedRef.current = false;
+            return;
+          }
           handleClose();
+        }}
+        onPointerDown={(e) => {
+          downRef.current = { x: e.clientX, y: e.clientY };
+          swipedRef.current = false;
         }}
         onPointerUp={(e) => {
           e.stopPropagation();
+          const down = downRef.current;
+          downRef.current = null;
+          if (canPage && down) {
+            const dx = e.clientX - down.x;
+            const dy = e.clientY - down.y;
+            /* Waagerecht und weit genug: blättern statt schliessen. Die
+               Achsensperre verhindert, dass ein Daumen, der die Karte nur
+               kippt, versehentlich weiterblättert. */
+            if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) {
+              swipedRef.current = true;
+              page(dx < 0 ? 1 : -1);
+              return;
+            }
+          }
           handleClose();
         }}
         onPointerMove={handlePointerMove}
@@ -208,11 +368,55 @@ const Inner = memo(function Inner({
         {/* Inner clip wrapper keeps the sheen's drifting gradient inside
             the card's rounded shape — without it the sheen leaks past
             the right edge at strong rotateY tilts. */}
-        <div className={styles.clip} style={{ width: overlayW }}>
-          <img src={imageUrl} alt={alt} className={styles.image} />
+        <motion.div
+          className={styles.clip}
+          style={{ width: overlayW }}
+          animate={dealControls}
+        >
+          <img src={shown.imageUrl} alt={shown.alt} className={styles.image} />
           <motion.div className={styles.sheen} style={{ x: sheenX }} aria-hidden="true" />
-        </div>
+        </motion.div>
       </motion.div>
+
+      {/* Dieselbe Leiste wie in der Foto-Galerie: ein Pfeil, der Stand, ein
+          Pfeil. Sie schluckt ihre eigenen Klicks — der Vorhang darunter
+          schliesst den Zoom. */}
+      {canPage && position && position.count > 1 && (
+        <div
+          className={styles.nav}
+          onClick={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            className={styles.navBtn}
+            aria-label="Vorherige Karte"
+            disabled={!hasPrev}
+            onClick={(e) => {
+              e.stopPropagation();
+              page(-1);
+            }}
+          >
+            <Chevron dir="left" />
+          </button>
+          <span className={styles.counter}>
+            {position.index} / {position.count}
+          </span>
+          <button
+            type="button"
+            className={styles.navBtn}
+            aria-label="Nächste Karte"
+            disabled={!hasNext}
+            onClick={(e) => {
+              e.stopPropagation();
+              page(1);
+            }}
+          >
+            <Chevron dir="right" />
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 });
@@ -224,6 +428,11 @@ export default function MustEatImageLightbox({
   onClose,
   onExitComplete,
   onOpenReady,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
+  position,
 }: MustEatImageLightboxProps) {
   const [mounted, setMounted] = useState(false);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -271,6 +480,11 @@ export default function MustEatImageLightbox({
         alt={rendered.alt}
         originRect={rendered.originRect}
         open={rendered.open}
+        onPrev={onPrev}
+        onNext={onNext}
+        hasPrev={hasPrev}
+        hasNext={hasNext}
+        position={position}
         onClose={onClose}
         onClosed={() => {
           setRendered(null);

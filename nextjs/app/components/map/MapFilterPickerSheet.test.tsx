@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 
@@ -68,5 +68,40 @@ describe('MapFilterPickerSheet rows', () => {
     open();
     const reset = screen.getByRole('button', { name: /Alle/ }) as HTMLButtonElement;
     expect(reset.disabled).toBe(false);
+  });
+});
+
+/**
+ * Der Chip schaltet die Leiste selbst um (auf == zu). Schließt der
+ * Außenklick-Wächter vorher, zieht derselbe Klick sie danach wieder auf —
+ * die Leiste ginge beim zweiten Tippen nie zu. Deshalb ist die ganze
+ * Chip-Zeile von ihm ausgenommen, nicht nur der eigene Chip.
+ */
+describe('MapFilterPickerSheet: Außenklick', () => {
+  it('lässt die Chip-Zeile in Ruhe — sonst öffnet der zweite Klick neu', () => {
+    const row = document.createElement('div');
+    row.setAttribute('data-filter-chip-row', '');
+    const chip = document.createElement('button');
+    row.appendChild(chip);
+    document.body.appendChild(row);
+    const onClose = vi.fn();
+    open({ onClose });
+
+    fireEvent.mouseDown(chip);
+
+    expect(onClose).not.toHaveBeenCalled();
+    row.remove();
+  });
+
+  it('schließt weiterhin bei einem Klick irgendwo sonst', () => {
+    const elsewhere = document.createElement('div');
+    document.body.appendChild(elsewhere);
+    const onClose = vi.fn();
+    open({ onClose });
+
+    fireEvent.mouseDown(elsewhere);
+
+    expect(onClose).toHaveBeenCalled();
+    elsewhere.remove();
   });
 });

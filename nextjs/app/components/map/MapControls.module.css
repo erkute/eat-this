@@ -71,7 +71,15 @@
 }
 
 .fab {
-  position: absolute;
+  /* `fixed`, nicht `absolute`: der Knopf hing bis eben IM Kartenfenster
+     (`.mapWrap`, sticky) und war damit in dessen `isolation: isolate`
+     eingesperrt — die Liste (z-index 4) legte sich darüber, sobald sie auch
+     nur ein Stück hochkam. Jetzt steht er als Geschwister der Liste im DOM;
+     dort ist sein Bezugsrahmen aber das ganze, scrollhohe Layout, und
+     `absolute` schöbe ihn ans Seitenende. Am Viewport festgemacht bleibt er
+     genau da, wo ihn das sticky Kartenfenster hatte. Ab 1024px wieder
+     absolut — siehe den `right`-Block weiter unten. */
+  position: fixed;
   /* Mobile: bottom-right, riding the top edge of the sheet. The +14 px
      offset puts it just above the sheet so it stays touchable at every
      snap. Clamped at 420px (= MID_VISIBLE_PX in useBottomSheet): past mid
@@ -97,6 +105,7 @@
 
 @media (min-width: 1024px) {
   .fab {
+    position: absolute;
     bottom: 12px;
     top: auto;
   }
@@ -134,9 +143,14 @@
 
 .fabIcon {
   fill: none;
-  stroke-width: 2;
+  /* Strichstaerke wie beim Burger daneben (4px auf 22px Breite): 3 im
+     24er-Viewport, auf 22px gerendert = 2,75px. */
+  stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
+  /* Der Burger sitzt schief, die Lupe auch — der Standort kippt in die
+     Gegenrichtung, damit die drei nicht wie eine Reihe wirken. */
+  transform: rotate(3deg);
 }
 
 .mapSearchToolbar {
@@ -284,9 +298,17 @@
 
 .mapSearchIcon,
 .fabIcon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   stroke: currentColor;
+}
+
+.mapSearchIcon {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-4deg);
 }
 
 .mapSearchIcon,
@@ -559,33 +581,30 @@
 }
 
 @media (min-width: 1024px) {
+  /* Der Knopf gehört an die rechte Kante der KARTE, nicht des Fensters. Seit
+     er als Geschwister der Liste im Raster hängt (statt im Kartenfenster, wo
+     ihn dessen `isolation` unter die Liste sperrte), ist sein Bezugsrahmen das
+     ganze `.body`-Raster — die Panelspalte muss er selbst abziehen. Dieselbe
+     Variable, aus der die Spalte gebaut ist. Steht bewusst in DIESEM Block:
+     `right` wird für `.fab` dreimal gesetzt, und hier entscheidet die
+     Reihenfolge (siehe Dateikopf). */
   .fab {
+    right: calc(var(--map-desktop-panel-width, 0px) + 14px);
+    transition:
+      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      right 0.3s ease;
+  }
+
+  /* Eingeklapptes Panel = 0px-Spalte, dann steht er an der Fensterkante. */
+  :global([data-map-body][data-panel-hidden='true']) .fab {
     right: 14px;
   }
 }
 
-.mapStatusLayer {
-  position: absolute;
-  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.mapStatusAction {
-  appearance: none;
-  cursor: pointer;
-}
-
-.mapStatusLayer,
-.mapStatusLayerError {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.mapStatusAction {
-  box-shadow: none;
-}
-
+/* Die offene Suchleiste spricht dieselbe Sprache wie die Filter-Chips und die
+   Info-Tafel: Ink-Fläche, weiße Schrift. Vorher war sie ein weißer Balken mit
+   einem roten Ring — der Ring war das einzige Element dieser Art in der App,
+   und Rot heißt hier „kaputt", nicht „aktiv". */
 .mapSearchToolbar {
   top: calc(14px + env(safe-area-inset-top, 0px));
   left: 14px;
@@ -594,9 +613,9 @@
   min-height: 40px;
   height: 40px;
   gap: 8px;
-  padding: 0 8px 0 13px;
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
+  padding: 0 10px 0 13px;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
@@ -661,9 +680,22 @@
   outline: 0;
 }
 
+/* Weder Ring noch Rahmen, und kein Gelb: der Fokus ist ein Streifen an der
+   linken Innenkante in der Schriftfarbe der Leiste. Ganz weglassen geht nicht —
+   auf der Ink-Fläche ist der Fokus sonst unsichtbar, und die Leiste hebt die
+   generische Fokus-Kontur aus globals.css für ihr Eingabefeld selbst auf
+   (`.mapSearchToolbar .mapSearchInput:focus-visible { outline: 0 }`). */
 .mapSearchToolbar:has(.mapSearchInput:focus-visible) {
-  outline: 2px solid var(--et-home-red);
-  outline-offset: 2px;
+  outline: 0;
+  box-shadow: none;
+}
+
+.mapSearchToolbar:has(.mapSearchInput:focus-visible)::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: currentColor;
 }
 
 .mapSearchClear {
@@ -740,55 +772,6 @@
   transform: rotate(-7deg) scale(0.92);
 }
 
-.mapStatusLayer,
-.mapStatusLayerError {
-  top: auto;
-  right: auto;
-  bottom: calc(
-    var(--sheet-visible-px, 0px) + max(92px, calc(env(safe-area-inset-bottom, 0px) + 78px))
-  );
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 120;
-  pointer-events: auto;
-}
-
-@media (min-width: 1024px) {
-  .mapStatusLayer,
-  .mapStatusLayerError {
-    bottom: 24px;
-    left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
-  }
-}
-
-:global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayer,
-:global([data-map-body][data-map-view='detail']) .mapStatusLayer {
-  position: fixed;
-  top: auto;
-  left: 50%;
-  bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 24px));
-  width: min(360px, calc(100vw - 32px));
-  transform: translateX(-50%);
-  pointer-events: auto;
-  z-index: 120;
-}
-
-@media (min-width: 1024px) {
-  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayer,
-  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapStatusLayerError,
-  :global([data-map-body][data-map-view='detail']) .mapStatusLayer,
-  :global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
-    left: calc((100vw - var(--map-desktop-panel-width, 360px)) / 2);
-    width: min(360px, calc(100vw - var(--map-desktop-panel-width, 360px) - 32px));
-  }
-
-  :global([data-map-body][data-panel-hidden='true']) .mapStatusLayer,
-  :global([data-map-body][data-panel-hidden='true']) .mapStatusLayerError {
-    left: 50%;
-    width: min(360px, calc(100vw - 32px));
-  }
-}
-
 @media (max-width: 767.98px) {
   .fab {
     bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
@@ -818,20 +801,6 @@
   .mapSearchToolbar {
     position: fixed;
     top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
-  }
-
-  .mapStatusLayer,
-  .mapStatusLayerError {
-    position: absolute;
-    top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh));
-    bottom: auto;
-    left: 50%;
-    /* Park ABOVE the locate FAB instead of on top of it. The FAB (.fab in this
-       same block) floats 14px over the sheet and is 44px tall, so the toast has
-       to clear 58px plus its own 12px of breathing room. They used to occupy
-       the same band with the toast at z-index 120 — which hid, and made
-       untappable, the very control the message tells you to use. */
-    transform: translate(-50%, calc(-100% - 70px));
   }
 }
 
@@ -864,63 +833,6 @@
     visibility: hidden;
     pointer-events: none;
   }
-
-  :global([data-map-body][data-map-view='detail']) .mapStatusLayer,
-  :global([data-map-body][data-map-view='detail']) .mapStatusLayerError {
-    display: none;
-  }
-}
-
-.mapStatusLayer,
-.mapStatusLayerError {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  width: min(360px, calc(100vw - 32px));
-  min-height: 38px;
-  margin-inline: auto;
-  padding: 8px 10px;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-}
-
-.mapStatusText {
-  min-width: 0;
-  color: inherit;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.08;
-  overflow: visible;
-  text-overflow: clip;
-  text-transform: none;
-  white-space: normal;
-}
-
-.mapStatusAction {
-  min-height: 24px;
-  padding: 0 6px;
-  background: transparent;
-  color: inherit;
-  border: 0;
-  border-radius: 0;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-}
-
-.mapStatusAction:hover,
-.mapStatusAction:focus-visible {
-  color: var(--et-home-accent, #ffc600);
-  outline: 0;
 }
 
 /* ── Locate-Control: der Einladungs-Zustand ────────────────────────────────
@@ -1014,5 +926,34 @@
 @media (prefers-reduced-motion: reduce) {
   .fabLabel {
     transition: none;
+  }
+}
+
+/* Der Standort-Knopf reitet auf der Oberkante der Liste: kommt sie hoch,
+   wandert er mit, statt sich darunter zu verstecken oder auf ihr zu liegen.
+   Den Wert rechnet MapSectionBody pro Frame (die Kante haengt auf Telefonen an
+   der Scrollposition, davon weiss CSS nichts) und legt ihn als
+   `--locate-bottom` an den Karten-Koerper. Die Transition ist der Unterschied
+   zwischen Mitwandern und Kleben: der Wert springt pro Frame, der Knopf zieht
+   weich hinterher. Steht am Dateiende, weil `bottom` fuer `.fab` weiter oben
+   mehrfach gesetzt wird und hier die Reihenfolge entscheidet. */
+@media (max-width: 1023.98px) {
+  .fab {
+    bottom: var(--locate-bottom, calc(var(--phone-list-sheet-visible, 28dvh) + 14px));
+    /* KEINE Transition auf `bottom`: der Knopf soll exakt so schnell laufen wie
+       die Liste, an deren Kante er sitzt. Eine weiche Nachführung sah aus, als
+       würde er der Liste hinterherhinken — jeder Frame setzt den Wert neu, und
+       genau dieser Wert soll auch gelten. Das `transform` behält seine
+       Transition: das ist der Abgang, keine Fahrt. */
+    transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* Ganz oben ist Schluss: kurz bevor der Knopf den Burger erreicht, gleitet
+     er seitlich raus — dieselbe Geste, mit der er beim Wechsel in die
+     Detailansicht geht. Beim Herunterziehen der Liste kommt er auf demselben
+     Weg zurück. */
+  :global([data-map-body][data-locate-gone='true']) .fab {
+    transform: translateX(calc(100% + 18px));
+    pointer-events: none;
   }
 }

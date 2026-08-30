@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
-import type { Ref, RefObject } from 'react';
+import type { CSSProperties, Ref, RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
@@ -431,6 +431,75 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
      Runs in BOTH views. It used to be list-only, so search and burger left the
      screen at a different scroll position in the detail than in the list. */
+  /* Der Standort-Knopf reitet auf der Oberkante der Liste — er wandert mit,
+     wenn sie hochkommt, statt sich darunter zu verstecken (das tat er, solange
+     er im isolierten Kartenfenster hing) oder auf ihr zu liegen.
+
+     Gerechnet wird hier, nicht in CSS: auf Telefonen liegt die Liste im Fluss,
+     ihre Oberkante hängt an der Scrollposition, und davon weiß ein Stylesheet
+     nichts. Nach oben gedeckelt, damit er nicht in Lupe und Burger läuft.
+     Dass er nicht KLEBT, macht der Nachlauf in der CSS-Transition: der Wert
+     springt pro Frame, der Knopf zieht weich hinterher. */
+  const [locateBottom, setLocateBottom] = useState<number | null>(null);
+  const [locateGone, setLocateGone] = useState(false);
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) {
+      setLocateBottom(null);
+      setLocateGone(false);
+      return;
+    }
+    let frame = 0;
+    let lastTop: number | null = null;
+    let settle = 0;
+    /* Wie weit die Listenkante zwischen zwei Frames wandern darf, bevor der
+       Knopf aufgibt. Das Scrollen läuft auf dem Compositor, seine Position
+       kommt aus JS auf dem Hauptthread — bei einem schnellen Wisch ist sie
+       Frames zu spät, und die Liste überholt ihn. Dagegen hilft kein größerer
+       Abstand: ein Fling schiebt pro Frame dreistellige Pixelwerte. Also
+       weicht er ab hier zur Seite (dieselbe Geste wie am Burger) und kommt
+       zurück, sobald der Wisch steht. 10px/Frame ≈ 600px/s — deutlich über
+       allem, was ein bewusster Wisch erreicht. */
+    const MAX_STEP_PX = 10;
+    const measure = () => {
+      frame = 0;
+      const sheet = document.querySelector<HTMLElement>('[data-map-sheet]');
+      const fab = document.querySelector<HTMLElement>('[data-locate-fab]');
+      if (!sheet || !fab) return;
+      const sheetTop = sheet.getBoundingClientRect().top;
+      const step = lastTop === null ? 0 : Math.abs(sheetTop - lastTop);
+      lastTop = sheetTop;
+      const wanted = Math.max(0, window.innerHeight - sheetTop + 14);
+      /* Die Fahrt wird nicht gedeckelt — der Knopf verschwindet, kurz bevor er
+         den Burger erreicht, statt darunter zu parken. Die Linie liest sich
+         aus dem Burger selbst, damit sie nicht wegdriftet, wenn der umzieht. */
+      const burger = document.querySelector<HTMLElement>('[data-map-burger]');
+      const vanishTop = (burger ? burger.getBoundingClientRect().bottom : 58) + 14;
+      setLocateBottom(Math.round(wanted));
+      setLocateGone(
+        window.innerHeight - wanted - fab.offsetHeight < vanishTop || step > MAX_STEP_PX
+      );
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(measure);
+      /* Nach dem letzten Scroll-Ereignis einmal ohne Schrittweite nachrechnen:
+         steht der Wisch, gehört der Knopf zurück an die Kante. */
+      window.clearTimeout(settle);
+      settle = window.setTimeout(() => {
+        lastTop = null;
+        measure();
+      }, 140);
+    };
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [sheetView, snap]);
+
   const stuckSentinelRef = useRef<HTMLDivElement | null>(null);
   const [headerStuck, setHeaderStuck] = useState(false);
   useEffect(() => {
@@ -477,6 +546,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           }
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
           data-header-stuck={headerStuck ? 'true' : undefined}
+          data-locate-gone={locateGone ? 'true' : undefined}
+          style={
+            locateBottom == null
+              ? undefined
+              : ({ '--locate-bottom': `${locateBottom}px` } as CSSProperties)
+          }
         >
           <div className={styles.mapWrap} data-map-canvas="">
             <div className={styles.liveMapLayer} data-live-map-layer="">
@@ -503,20 +578,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Gezeichnet wie der Burger daneben: dicke Striche mit runden
+                    Enden und leicht gekippt. Der Ring bleibt geschlossen — ein
+                    offener Bogen sah aus, als wäre ein Stück herausgebissen. */}
                 <svg className={controlStyles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle
-                    cx="10.8"
-                    cy="10.8"
-                    r="5.9"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.1"
-                  />
+                  <circle cx="10.7" cy="10.7" r="6.1" fill="none" stroke="currentColor" />
                   <path
-                    d="M15.2 15.2 20 20"
+                    d="M15.3 15.4 20.2 20.3"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2.2"
                     strokeLinecap="round"
                   />
                 </svg>
@@ -570,67 +640,71 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 }}
                 aria-label={searchLabel}
               >
+                {/* Gezeichnet wie der Burger daneben: dicke Striche mit runden
+                    Enden und leicht gekippt. Der Ring bleibt geschlossen — ein
+                    offener Bogen sah aus, als wäre ein Stück herausgebissen. */}
                 <svg className={controlStyles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle
-                    cx="10.8"
-                    cy="10.8"
-                    r="5.9"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.1"
-                  />
+                  <circle cx="10.7" cy="10.7" r="6.1" fill="none" stroke="currentColor" />
                   <path
-                    d="M15.2 15.2 20 20"
+                    d="M15.3 15.4 20.2 20.3"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2.2"
                     strokeLinecap="round"
                   />
                 </svg>
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={handleLocateMe}
-              disabled={locateLoading}
-              /* In the invite state the accessible name IS the visible label —
-                 anything else leaves a screen reader hearing one control and
-                 everyone else reading another. */
-              aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
-              className={controlStyles.fab}
-              data-invite={showLocateInvite ? '' : undefined}
-            >
-              <svg
-                className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="6.8" fill="none" stroke="currentColor" strokeWidth="2" />
-                <circle cx="12" cy="12" r="2" fill="currentColor" />
-                <path
-                  d="M12 3.8v2.2M12 18v2.2M3.8 12h2.2M18 12h2.2"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              {/* Always mounted so the label can collapse back out on the way
-                  down, not just unfold on the way in. */}
-              <span className={controlStyles.fabLabel} aria-hidden="true">
-                <span>{locateInviteLabel}</span>
-              </span>
-            </button>
-
             {/* Desktop floating modals removed — both mobile and desktop now
                 render the detail in the side panel / bottom sheet so the
                 selected marker stays visible on the map. */}
           </div>
 
+          {/* Der Standort-Knopf steht bewusst AUSSERHALB von `.mapWrap`.
+              Der Wrapper trägt `isolation: isolate` (damit der Standort-Marker
+              mit z-index 1000 im Kartenfenster bleibt) — darin kann kein
+              z-index nach draußen wirken, und die Liste (z-index 4) legte sich
+              über den Knopf, sobald sie auch nur ein Stück hochkam. Als
+              Geschwister der Liste gewinnt seine 6 gegen ihre 4. */}
+            <button
+            type="button"
+            onClick={handleLocateMe}
+            disabled={locateLoading}
+            /* In the invite state the accessible name IS the visible label —
+               anything else leaves a screen reader hearing one control and
+               everyone else reading another. */
+            aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
+            className={controlStyles.fab}
+            data-locate-fab=""
+            data-invite={showLocateInvite ? '' : undefined}
+          >
+            <svg
+              className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
+                  dicker Punkt, vier kurze Striche mit runden Enden. */}
+              <circle cx="12" cy="12" r="6.3" fill="none" stroke="currentColor" />
+              <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" />
+              <path
+                d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+              />
+            </svg>
+            {/* Always mounted so the label can collapse back out on the way
+                down, not just unfold on the way in. */}
+            <span className={controlStyles.fabLabel} aria-hidden="true">
+              <span>{locateInviteLabel}</span>
+            </span>
+          </button>
+
           <button
             type="button"
             className={controlStyles.mapBurger}
+            data-map-burger=""
             onClick={openBurgerMenu}
             aria-label="Menu"
           >

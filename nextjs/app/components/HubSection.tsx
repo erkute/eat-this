@@ -6,6 +6,7 @@ import sanityImageLoader from '@/lib/sanityImageLoader';
 import HubFaq from './HubFaq';
 import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
+import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
@@ -75,47 +76,53 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
     <main className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
       <HubHashScroll />
 
-      <section className={`hv-wrap ${styles.hero}`} aria-label={t.heroLabel}>
-        <div className={styles.heroGrid}>
-          <HubHeroCopy locale={locale} />
-          {/* The product itself, not a mood shot: the map a visitor is about to
+      {/* Die gelbe Fläche läuft von Kante zu Kante, der Inhalt bleibt im
+          Satzspiegel — deshalb sitzt `hv-wrap` innen und nicht auf der
+          Section. */}
+      <section className={styles.hero} aria-label={t.heroLabel}>
+        <div className={`hv-wrap ${styles.heroInner}`}>
+          <div className={styles.heroGrid}>
+            <HubHeroCopy locale={locale} />
+            {/* The product itself, not a mood shot: the map a visitor is about to
               open, with a spot page staggered behind it. Both mockups are
               cutouts on transparent ground so they float on the white home. */}
-          <MapIntentLink
-            href="/map"
-            rel="nofollow"
-            className={styles.heroPhones}
-            aria-label={t.heroPhonesLabel}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={styles.phoneBack}
-              src="/pics/home-phones/phone-restaurant-480.webp"
-              srcSet={phoneSrcSet('phone-restaurant')}
-              sizes={PHONE_SIZES}
-              alt=""
-              width={855}
-              height={1736}
-              loading="lazy"
-              decoding="async"
-            />
-            {/* LCP element — the map phone is what the hero is actually about. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={styles.phoneFront}
-              src="/pics/home-phones/phone-map-480.webp"
-              srcSet={phoneSrcSet('phone-map')}
-              sizes={PHONE_SIZES}
-              alt={t.heroPhonesLabel}
-              width={855}
-              height={1736}
-              loading="eager"
-              decoding="async"
-              fetchPriority="high"
-            />
-          </MapIntentLink>
+            <MapIntentLink
+              href="/map"
+              rel="nofollow"
+              className={styles.heroPhones}
+              aria-label={t.heroPhonesLabel}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.phoneBack}
+                src="/pics/home-phones/phone-restaurant-480.webp"
+                srcSet={phoneSrcSet('phone-restaurant')}
+                sizes={PHONE_SIZES}
+                alt=""
+                width={855}
+                height={1736}
+                loading="lazy"
+                decoding="async"
+              />
+              {/* LCP element — the map phone is what the hero is actually about. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.phoneFront}
+                src="/pics/home-phones/phone-map-480.webp"
+                srcSet={phoneSrcSet('phone-map')}
+                sizes={PHONE_SIZES}
+                alt={t.heroPhonesLabel}
+                width={855}
+                height={1736}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </MapIntentLink>
+          </div>
         </div>
       </section>
+      <HeroMarkFlight />
 
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor

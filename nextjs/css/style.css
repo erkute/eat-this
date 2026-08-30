@@ -40,15 +40,10 @@ ul,ol{list-style:none}
   --home-paper: var(--et-home-paper);
   --home-ink: var(--et-home-ink);
   --home-accent: var(--et-home-accent);
-  --home-photo-rest: var(--et-home-photo-rest);
-  --home-quiet: var(--et-home-quiet);
   --home-rule: var(--et-home-rule);
   --home-muted: var(--et-home-muted);
-  --home-line: var(--et-home-line);
-  --home-radius-photo: var(--et-radius-photo);
   --home-radius-btn: var(--et-radius-control);
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 body {
   font-family: var(--font);
@@ -82,7 +77,6 @@ body {
 /* ============================================
    APP FOOTER NAVIGATION (Mobile)
    ============================================ */
-
 
 @media (max-width: 767px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for
@@ -424,34 +418,67 @@ body {
   text-underline-offset: 3px;
 }
 
-/* Entrance stagger — items translate in (no opacity fades, per brand rule) */
-.burger-drawer.active .bd-nav-item {
-  animation: bdItemIn 0.32s cubic-bezier(0.18, 0.86, 0.26, 1) both;
+/* Entrance — die Wörter werden auf die Tafel GEWORFEN (no opacity fades,
+   per brand rule: reine transform-Bewegung).
+
+   Choreografie: die Tür kommt LEER an (CTA, Logo und Footer stehen schon),
+   dann schießt Wort für Wort von rechts durch die Panelkante herein — die
+   `contain: paint`-Klammer des Panels clippt, die Kante ist also eine
+   Gratis-Maske ohne overflow-Wrapper (und ohne die Unterlängen-Falle
+   vertikaler Masken). Jedes Wort fliegt mit leichtem Dreh um seine
+   Lesekante und federt über die Ruhelage minimal hinaus (Bezier-Overshoot).
+
+   Alles startet im KLICK-Frame — kein Warten auf die gelandete Tür, das
+   fühlte sich zäh an. Bezahlbar ist das, weil burgerDrawerState.ts die
+   teure Arbeit dieses Frames (lockBody = Seiten-Reflow, Canvas-Tint) um
+   einen Frame nach HINTEN schiebt, und weil die Drawer-Links kein
+   Prefetch mehr auslösen (siehe Trace-Notiz im Commit). `backwards` statt
+   `both`: nach der Landung gilt wieder der Basiszustand (transform: none),
+   damit der Hover-Slide der Wörter nicht von einer ewigen Fill-Mode
+   überdeckt wird; während des Versatzes hält `backwards` den Off-Panel-
+   Zustand, ein statischer Startzustand ist dafür nicht nötig. */
+.burger-drawer.active .bd-nav-item:not(.bd-cta) {
+  transform-origin: left center;
+  animation: bdWordDeal 0.38s cubic-bezier(0.18, 0.9, 0.22, 1.06) backwards;
+  animation-delay: 0s; /* Map fliegt im Klick-Frame los */
+  --bd-fly-rot: 1.6deg;
 }
-.burger-drawer.active .bd-nav-item:nth-child(2) {
-  animation-delay: 0.03s;
-}
+/* Die Drehung wechselt die Seite, damit der Stapel organisch fällt statt
+   uniform zu klappen; die Delays takten die Welle. */
 .burger-drawer.active .bd-nav-item:nth-child(3) {
-  animation-delay: 0.06s;
+  animation-delay: 0.035s;
+  --bd-fly-rot: -1.4deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(4) {
-  animation-delay: 0.09s;
+  animation-delay: 0.07s;
+  --bd-fly-rot: 1.2deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(5) {
-  animation-delay: 0.12s;
+  animation-delay: 0.105s;
+  --bd-fly-rot: -1.6deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(6) {
-  animation-delay: 0.15s;
+  animation-delay: 0.14s;
+  --bd-fly-rot: 1.3deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(7) {
-  animation-delay: 0.18s;
+  animation-delay: 0.175s;
+  --bd-fly-rot: -1.2deg;
 }
 .burger-drawer.active .bd-nav-item:nth-child(8) {
   animation-delay: 0.21s;
+  --bd-fly-rot: 1.5deg;
 }
-@keyframes bdItemIn {
+.burger-drawer.active .bd-nav-item:nth-child(9) {
+  animation-delay: 0.245s;
+  --bd-fly-rot: -1.3deg;
+}
+@keyframes bdWordDeal {
   from {
-    transform: translateX(26px);
+    transform: translateX(108%) rotate(var(--bd-fly-rot, 1.5deg));
+  }
+  to {
+    transform: none;
   }
 }
 
@@ -463,9 +490,6 @@ body {
   .burger-drawer-panel {
     width: 100vw;
     box-shadow: none;
-  }
-  .burger-drawer.active .bd-nav-item {
-    animation: none;
   }
   .bd-scroller {
     padding: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) 16px

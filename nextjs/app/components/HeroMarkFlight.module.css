@@ -1,0 +1,19 @@
+/* Die fliegende Wortmarke. Sie liegt über allem, auch über der Navigation —
+   sie soll ja sichtbar in deren Logoplatz einschweben und dort liegen bleiben.
+   `pointer-events: none`, damit der Header-Link darunter klickbar bleibt. */
+.flyer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  height: auto;
+  transform-origin: 0 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .flyer {
+    display: none;
+  }
+}

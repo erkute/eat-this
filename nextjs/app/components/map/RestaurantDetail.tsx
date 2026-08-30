@@ -548,110 +548,111 @@ export default function RestaurantDetail({
               </span>
             </div>
           )}
-        </div>
 
-        {/* ACTIONS — same icon'd button system as the public /restaurant/[slug]
-            page, so a spot looks the same wherever you meet it. Three weights:
-            book a table (ink, full width, carries the booking provider),
-            go there (red), everything else outlined. Phone and website live
-            here as buttons instead of as rows in the facts list above. */}
-        <div className={styles.rdActs}>
-          {r.reservationUrl && (
-            <a
-              className={`${styles.rdActBtn} ${styles.rdActStrong} ${styles.rdActReserve}`}
-              href={r.reservationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent('restaurant_reservation_clicked', {
-                  restaurant_id: r._id,
-                  restaurant_slug: r.slug,
-                  provider: reservationProvider ?? 'other',
-                })
-              }
-            >
-              <span className={styles.rdActLabel}>
-                <ReserveIcon />
-                <span>{t('map.reserve')}</span>
-              </span>
-              {reservationProvider && (
-                <span className={styles.rdActProvider}>
-                  {reservationProvider === 'OpenTable' && (
-                    <span className={styles.rdActProviderMark} aria-hidden="true">
-                      ot
-                    </span>
-                  )}
-                  <span className={styles.rdActProviderWord}>{reservationProvider}</span>
+          {/* ACTIONS — same icon'd button system as the public /restaurant/[slug]
+              page, so a spot looks the same wherever you meet it. They sit ON
+              the ink board with the facts, one object like the spot page's
+              Tafel. Three weights: book a table (accent — ink on ink would
+              vanish here), go there (red), everything else paper. Phone and
+              website live here as buttons instead of as rows above. */}
+          <div className={styles.rdActs}>
+            {r.reservationUrl && (
+              <a
+                className={`${styles.rdActBtn} ${styles.rdActStrong} ${styles.rdActReserve}`}
+                href={r.reservationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackEvent('restaurant_reservation_clicked', {
+                    restaurant_id: r._id,
+                    restaurant_slug: r.slug,
+                    provider: reservationProvider ?? 'other',
+                  })
+                }
+              >
+                <span className={styles.rdActLabel}>
+                  <ReserveIcon />
+                  <span>{t('map.reserve')}</span>
                 </span>
-              )}
-            </a>
-          )}
-          {mapsHref && (
-            <a
-              className={`${styles.rdActBtn} ${styles.rdActPrimary}`}
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent('restaurant_maps_clicked', {
-                  restaurant_id: r._id,
-                  restaurant_slug: r.slug,
-                })
-              }
-            >
-              <RouteIcon />
-              <span>{t('map.maps')}</span>
-            </a>
-          )}
-          <ShareButton
-            title={r.name}
-            slug={r.slug}
-            contentType="restaurant"
-            className={styles.rdActBtn}
-            label={t('map.share')}
-            copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
-            icon={<ShareIcon />}
-          />
-          {r.phone && (
-            <a className={styles.rdActBtn} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
-              <PhoneIcon />
-              <span>{locale === 'en' ? 'Call' : 'Anrufen'}</span>
-            </a>
-          )}
-          {websiteInfo?.kind === 'web' && (
-            <a
+                {reservationProvider && (
+                  <span className={styles.rdActProvider}>
+                    {reservationProvider === 'OpenTable' && (
+                      <span className={styles.rdActProviderMark} aria-hidden="true">
+                        ot
+                      </span>
+                    )}
+                    <span className={styles.rdActProviderWord}>{reservationProvider}</span>
+                  </span>
+                )}
+              </a>
+            )}
+            {mapsHref && (
+              <a
+                className={`${styles.rdActBtn} ${styles.rdActPrimary}`}
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  trackEvent('restaurant_maps_clicked', {
+                    restaurant_id: r._id,
+                    restaurant_slug: r.slug,
+                  })
+                }
+              >
+                <RouteIcon />
+                <span>{t('map.maps')}</span>
+              </a>
+            )}
+            <ShareButton
+              title={r.name}
+              slug={r.slug}
+              contentType="restaurant"
               className={styles.rdActBtn}
-              href={websiteInfo.url}
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-            >
-              <WebsiteIcon />
-              <span>Website</span>
-            </a>
-          )}
-          {r.menuUrl && (
-            <a
-              className={styles.rdActBtn}
-              href={r.menuUrl}
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-              onClick={() =>
-                trackEvent('restaurant_menu_clicked', {
-                  restaurant_id: r._id,
-                  restaurant_slug: r.slug,
-                })
-              }
-            >
-              <MenuCardIcon />
-              <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
-            </a>
-          )}
+              label={t('map.share')}
+              copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
+              icon={<ShareIcon />}
+            />
+            {r.phone && (
+              <a className={styles.rdActBtn} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
+                <PhoneIcon />
+                <span>{locale === 'en' ? 'Call' : 'Anrufen'}</span>
+              </a>
+            )}
+            {websiteInfo?.kind === 'web' && (
+              <a
+                className={styles.rdActBtn}
+                href={websiteInfo.url}
+                target="_blank"
+                rel="noopener nofollow noreferrer"
+              >
+                <WebsiteIcon />
+                <span>Website</span>
+              </a>
+            )}
+            {r.menuUrl && (
+              <a
+                className={styles.rdActBtn}
+                href={r.menuUrl}
+                target="_blank"
+                rel="noopener nofollow noreferrer"
+                onClick={() =>
+                  trackEvent('restaurant_menu_clicked', {
+                    restaurant_id: r._id,
+                    restaurant_slug: r.slug,
+                  })
+                }
+              >
+                <MenuCardIcon />
+                <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
+              </a>
+            )}
+          </div>
         </div>
 
         {/* PACK PROMO — anon + starter only, qualitative (no counts/prices).
-            Set apart by colour, not by an outline: the action row right above
-            it is already a grid of ringed buttons, and a second frame under
-            those read as clutter. */}
+            Set apart by colour, not by an outline: the ink board right above
+            it already frames the facts and actions, and a second frame under
+            it read as clutter. */}
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">

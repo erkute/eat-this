@@ -1360,8 +1360,10 @@
 }
 .rdTippText {
   margin: 0;
-  font-size: 14.5px;
-  line-height: 1.48;
+  /* 13px, nicht 14.5: der Tipp ist eine Randnotiz neben der Story (15px),
+     nicht ihr zweiter Absatz (Nutzer, 30.08.2026). */
+  font-size: 13px;
+  line-height: 1.5;
 }
 .rdFacts {
   display: grid;
@@ -2312,12 +2314,19 @@
     padding: 14px 0;
   }
 }
+/* line-height 1.55, nicht 1: der Name traegt `overflow: hidden` fuer die
+   Ellipse, und Providence haengt sehr tief — bei 13px fehlten dem g in
+   „Zum Heiligen Teufel" 2,29px, der Bogen war abgeschnitten (Nutzer,
+   30.08.2026). 1.3 reicht NICHT: gemessen blieben davon 0,11px Luft, und
+   WebKit rechnet rund 0,4px knapper als Chromium — dort waere es wieder
+   negativ. 1.55 laesst 1,4px stehen. Die Zeile ist einzeilig und
+   flex-zentriert, die Hoehe aendert sich dadurch nicht. */
 .detailV13:not(.detailV13MustEat) .rdPagerName {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(13px, 2.8vw, 14px);
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.55;
   text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .rdPagerBtnRight .rdPagerName {
@@ -2791,7 +2800,6 @@
     font-size: 16px;
     line-height: 1.22;
   }
-
 }
 /* ══════════════════════════════════════════════════════════════════════
    IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
@@ -3220,7 +3228,6 @@
     width: 58px;
     height: 58px;
   }
-
 }
 @media (min-width: 1024px) and (max-height: 760px) {
   .detailV13MustEat .detailV13Scroll {
@@ -3259,7 +3266,6 @@
     width: 54px;
     height: 54px;
   }
-
 }
 .detailV13MustEat .fdRestPhoto {
   display: block;
@@ -3895,7 +3901,10 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  padding: 2px 14px 20px;
+  /* Kein Seitenrand: die Zeile sitzt IN der .rdFacts-Tafel (RestaurantDetail
+     .tsx), die polstert schon, und ihr 22px-Grid-Gap trennt die Knoepfe von
+     der letzten Faktenzeile. */
+  padding: 2px 0 0;
 }
 
 /* Fill the last row instead of leaving a half-width button next to a hole.
@@ -3924,7 +3933,11 @@
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
+  /* 1.55 statt 1: das Label traegt `overflow: hidden` (Ellipse), und darunter
+     braucht Providence Platz. Heute hat kein Label eine Unterlaenge, die Falle
+     stand aber scharf — dieselbe Ursache wie beim Pager-Namen daneben. Die
+     Knopfhoehe haengt an min-height, nicht an der Zeile. */
+  line-height: 1.55;
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
@@ -3957,11 +3970,13 @@
   box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
 }
 
-/* "Reservieren" — committal, so it gets the ink fill and the full width. */
+/* "Reservieren" — committal, volle Breite. Gelb, nicht Ink: die Zeile steht
+   auf der Ink-Tafel, dort waere Ink auf Ink unsichtbar geblieben (gleiche
+   Entscheidung wie `.actStrong` auf der Tafel der Spot-Seite). */
 .detailV13:not(.detailV13MustEat) .rdActStrong {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
 }
 
 .rdActReserve {
@@ -4022,15 +4037,21 @@
    the ink one — already filled — swaps to red. Hovering red into red would
    have left the primary button with nothing but the lift. */
 @media (hover: hover) {
+  /* Ink-Fuellung, aber Ring in Papier: auf der Ink-Tafel waere ein Ink-Ring
+     unsichtbar, der Papier-Ring haelt die Form (wie `.board .act:hover` auf
+     der Spot-Seite). */
   .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
     transform: translateY(-1px);
     background: var(--et-home-ink, #15120e);
     color: var(--et-home-paper, #fff);
-    box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
   }
 
+  /* Der gelbe Knopf ist schon gefuellt — er wechselt auf Rot, sonst haette er
+     ausser dem Lift keine Hover-Antwort. */
   .detailV13:not(.detailV13MustEat) .rdActStrong:hover {
     background: var(--et-home-red, #d9382a);
+    color: var(--et-home-paper, #fff);
     box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
   }
 }
@@ -4039,8 +4060,9 @@
   transform: translateY(0);
 }
 
+/* Gelb statt Rot: der rote Ring saeuft auf der Ink-Tafel ab. */
 .detailV13:not(.detailV13MustEat) .rdActBtn:focus-visible {
-  outline: 2px solid var(--et-home-red, #d9382a);
+  outline: 2px solid var(--et-home-accent, #ffc600);
   outline-offset: 2px;
 }
 
@@ -4984,3 +5006,50 @@
     font-size: 17px;
   }
 }
+
+/* ============ Insider-Tipp ============
+   Der Tipp ist die einzige Stimme im Sheet, die nicht beschreibt, sondern
+   raet. Er trug bisher eine graue Mono-Eyebrow — die Sprache von vor der
+   Tafel. Jetzt spricht er wie die Tafel darunter: gelbes Providence-Label
+   mit dem Marken-Quadrat (dasselbe Zeichen wie die Kicker der Startseite),
+   weisser Satz auf Ink. Damit stehen Tipp und Tafel als zwei Objekte
+   derselben Familie untereinander, statt als zwei Entwuerfe.
+   Der Satz bleibt im Fliesstext: Providence traegt auf 13px keinen Absatz
+   (siehe Tipp-Groesse, Nutzer 30.08.2026). */
+.detailV13:not(.detailV13MustEat) .rdTipp {
+  display: grid;
+  gap: 10px;
+  padding: 18px 18px 20px;
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.detailV13:not(.detailV13MustEat) .rdTippLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--et-home-accent, #ffc600);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+/* Das Marken-Quadrat als Merkzeichen — `flex: 0 0 auto`, damit es bei einem
+   umbrechenden Label nicht zum Strich zusammenfaellt. */
+.detailV13:not(.detailV13MustEat) .rdTippLabel::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent, #ffc600);
+}
+
+.detailV13:not(.detailV13MustEat) .rdTippText {
+  color: var(--et-home-paper, #fff);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+

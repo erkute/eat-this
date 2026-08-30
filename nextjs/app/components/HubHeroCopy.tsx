@@ -13,10 +13,33 @@ type Variant = 'guest' | 'auth';
 
 // The one-line explainer a first-time visitor needs: what this is, which city,
 // and the Must-Eat hook.
+// Zwei Sätze statt Gedankenstrich: gestapelt fiel der Strich auf den Anfang
+// der zweiten Zeile und stand dort wie ein Spiegelstrich.
 const LEAD = {
-  de: 'Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir gleich, was du bestellen musst.',
-  en: "The best places in Berlin on one map — and at selected spots we'll tell you exactly what to order.",
+  de: 'Die besten Orte Berlins auf einer Map. Für ausgewählte Spots sagen wir dir gleich, was du bestellen musst.',
+  en: "The best places in Berlin on one map. At selected spots we'll tell you exactly what to order.",
 } as const;
+
+// Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen
+// Logoplatz frei, bis sie beim Scrollen dort ankommt (HeroMarkFlight). Die
+// Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
+const MARK = { src: '/pics/eat-this-logo.webp?v=6', width: 1660, height: 667 } as const;
+
+function HeroMark() {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className={styles.heroMark}
+      data-hero-mark=""
+      src={MARK.src}
+      width={MARK.width}
+      height={MARK.height}
+      alt="Eat This"
+      decoding="async"
+      fetchPriority="high"
+    />
+  );
+}
 
 // Signed-in visitors get a line of their own rather than a gap where the
 // explainer sits — the hero should have the same shape either way.
@@ -24,7 +47,6 @@ const LEAD_AUTH = {
   de: 'Deine freigeschalteten Spots und Must Eats warten auf der Map.',
   en: 'Your unlocked spots and Must Eats are waiting on the map.',
 } as const;
-
 
 interface HeroCopyProps extends Props {
   firstName: string | null;
@@ -47,15 +69,15 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
 
   return (
     <div className={styles.heroCopy}>
-      <span className={`hv-kicker ${styles.heroKicker}`}>
-        {signedIn
-          ? firstName
-            ? `Hey ${firstName}`
-            : 'Hey'
-          : de
-            ? 'Was du essen solltest.'
-            : 'What you should eat.'}
-      </span>
+      <HeroMark />
+      {/* Der Gruß bleibt, die Gästezeile nicht: „Was du essen solltest." sagte
+          dasselbe wie die Headline darunter, und über der Wortmarke wurde die
+          Spalte damit dreistöckig. */}
+      {signedIn ? (
+        <span className={`hv-kicker ${styles.heroKicker}`}>
+          {firstName ? `Hey ${firstName}` : 'Hey'}
+        </span>
+      ) : null}
       <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
         <span>{headline[0]}</span>
         <span>{headline[1]}</span>
@@ -91,9 +113,9 @@ function LoadingHeroCopy({ locale }: Props) {
 
   return (
     <div className={styles.heroCopy}>
-      <span className={`hv-kicker ${styles.heroKicker}`}>
-        <span data-guest-only="">{de ? 'Was du essen solltest.' : 'What you should eat.'}</span>
-        <span data-auth-only="">Hey</span>
+      <HeroMark />
+      <span className={`hv-kicker ${styles.heroKicker}`} data-auth-only="">
+        Hey
       </span>
       <h1 className={styles.heroHeadline}>
         <span data-guest-only="">

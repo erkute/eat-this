@@ -1,11 +1,47 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, type ComponentProps } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
+
+/* Ein Menü-Link, der erst auf Absicht lädt.
+ *
+ * `prefetch={false}` allein war zu teuer erkauft: es nimmt zwar den
+ * Prefetch-Sturm beim Öffnen weg (Nexts Viewport-Prefetcher holte alle 13
+ * Routen mitten in der Tür-Animation, ~86ms Main-Thread), kostet aber die
+ * erste Menü-Navigation spürbar — gemessen am 30.08.2026 unter Slow 4G:
+ * 1205ms kalt gegen 637ms warm.
+ *
+ * Beides geht: kein Prefetch, solange das Wort nur sichtbar ist, aber einer,
+ * sobald der Finger daraufliegt. Derselbe Handgriff wie in MapIntentLink —
+ * Pointer-Down kommt gut 100ms vor dem Klick, und der Prefetch läuft dann in
+ * einem Frame, in dem nichts animiert.
+ */
+function DrawerLink({ href, children, ...props }: ComponentProps<typeof Link>) {
+  const router = useRouter();
+  const preload = useCallback(() => {
+    /* Der Hash gehört nicht in den Prefetch: `/#hub-fragremy` und `/` sind
+       dieselbe Route, aber nur die zweite Form kennt der Router. */
+    const target = typeof href === 'string' ? href.split('#')[0] || '/' : null;
+    if (target) (router.prefetch as (target: string) => void)(target);
+  }, [href, router]);
+
+  return (
+    <Link
+      {...props}
+      href={href}
+      prefetch={false}
+      onPointerEnter={preload}
+      onPointerDown={preload}
+      onFocus={preload}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
@@ -124,7 +160,7 @@ export default function BurgerDrawer() {
             </div>
           </div>
 
-          <Link
+          <DrawerLink
             href="/"
             className="bd-logo"
             aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
@@ -141,10 +177,13 @@ export default function BurgerDrawer() {
               loading="lazy"
               decoding="async"
             />
-          </Link>
+          </DrawerLink>
 
+          {/* Alle Einträge sind DrawerLinks: kein Prefetch beim Sichtbarwerden
+              (das war der Sturm während der Tür-Animation), dafür einer, sobald
+              der Finger auf dem Wort liegt — siehe DrawerLink oben. */}
           <nav className="bd-nav" aria-label="Primary">
-            <MapIntentLink href="/map" className="bd-nav-item">
+            <MapIntentLink prefetch={false} href="/map" className="bd-nav-item">
               {t('burger.map')}
             </MapIntentLink>
             {/* Profile/login is a primary action, not footer furniture. Keep it
@@ -160,55 +199,55 @@ export default function BurgerDrawer() {
                 {user ? t('burger.profile') : t('burger.signIn')}
               </span>
             </button>
-            <Link href="/must-eats" className="bd-nav-item">
+            <DrawerLink href="/must-eats" className="bd-nav-item">
               {t('burger.mustEats')}
-            </Link>
+            </DrawerLink>
             {/* Der Kategorie-Hub stand bis 24.08.2026 in keinem Menü, keinem
                 Footer und keiner Rail — erreichbar war er nur über die
                 Brotkrume einer Kategorieseite, also erst, wenn man schon drin
                 war. Ergebnis: drei Aufrufe in vier Tagen, null Impressionen.
                 Hier ist der Eingang. */}
-            <Link href="/kategorie" className="bd-nav-item">
+            <DrawerLink href="/kategorie" className="bd-nav-item">
               {t('burger.categories')}
-            </Link>
+            </DrawerLink>
             {/* Dasselbe für den Bezirks-Hub, gleiche Ursache, gleicher Tag: 20
                 Aufrufe in vier Tagen bei 3.115 Pageviews gesamt. Anders als bei
                 den Kategorien gibt es auf der Startseite keine Bezirks-Rail, an
                 deren Ende ein Chip passen würde — dieser Eintrag ist der ganze
                 Eingang. */}
-            <Link href="/bezirk" className="bd-nav-item">
+            <DrawerLink href="/bezirk" className="bd-nav-item">
               {t('burger.districts')}
-            </Link>
+            </DrawerLink>
             {/* Remy lives in the home hub now. From other pages the burger
                 sends users back to
                 his "Frag Remy" section via HubHashScroll. */}
-            <Link href="/#hub-fragremy" className="bd-nav-item">
+            <DrawerLink href="/#hub-fragremy" className="bd-nav-item">
               {t('burger.fragRemy')}
-            </Link>
-            <Link href="/news" className="bd-nav-item">
+            </DrawerLink>
+            <DrawerLink href="/news" className="bd-nav-item">
               {t('burger.aufDemTeller')}
-            </Link>
-            <Link href="/packs" className="bd-nav-item">
+            </DrawerLink>
+            <DrawerLink href="/packs" className="bd-nav-item">
               {t('burger.boosterPacks')}
-            </Link>
-            <Link href="/about" className="bd-nav-item">
+            </DrawerLink>
+            <DrawerLink href="/about" className="bd-nav-item">
               {t('burger.about')}
-            </Link>
+            </DrawerLink>
           </nav>
 
           <div className="bd-foot bd-legal-dock">
-            <Link href="/impressum" className="bd-foot-link" id="openImpressum">
+            <DrawerLink href="/impressum" className="bd-foot-link" id="openImpressum">
               {t('burger.impressum')}
-            </Link>
-            <Link href="/datenschutz" className="bd-foot-link" id="openDatenschutzFromBurger">
+            </DrawerLink>
+            <DrawerLink href="/datenschutz" className="bd-foot-link" id="openDatenschutzFromBurger">
               {t('modals.datenschutz.title')}
-            </Link>
-            <Link href="/agb" className="bd-foot-link" id="openAgbFromBurger">
+            </DrawerLink>
+            <DrawerLink href="/agb" className="bd-foot-link" id="openAgbFromBurger">
               {t('modals.agb.title')}
-            </Link>
-            <Link href="/contact" className="bd-foot-link" id="openContact">
+            </DrawerLink>
+            <DrawerLink href="/contact" className="bd-foot-link" id="openContact">
               {t('burger.contact')}
-            </Link>
+            </DrawerLink>
           </div>
         </div>
       </div>

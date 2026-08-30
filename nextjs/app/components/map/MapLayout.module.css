@@ -1,14 +1,11 @@
 /* Map page geometry, canvas host and MapLibre attribution. */
 
 .shell {
-  --map-pill-radius: var(--et-radius-pill);
   --map-motion: var(--et-motion-base);
   --map-collage-red: #ef3108;
   --map-collage-paper: #f8f6f1;
   --map-collage-ink: #2b211c;
-  --map-surface: var(--et-home-paper);
   --map-action: var(--et-home-red);
-  --map-control-shadow: none;
   background: var(--et-home-paper);
   color: var(--et-home-ink);
   display: flex;

@@ -440,8 +440,13 @@
   font-weight: 650;
 }
 
+/* Der Platzhalter spricht die Schrift des Modals; was man dann TIPPT, bleibt
+   im Fliesstext — eine echte Adresse in Providence waere schwerer zu
+   kontrollieren (Nutzer, 30.08.2026). */
 .frameModal .input::placeholder {
-  font: inherit;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 17px;
+  font-weight: 400;
 }
 
 .frameModal .error {
@@ -535,7 +540,6 @@
   --login-ink: #fff;
   --login-accent: var(--home-accent, #ffc600);
   --login-muted: rgba(255, 255, 255, 0.7);
-  --login-line: rgba(255, 255, 255, 0.18);
   --login-control: min(100%, 380px);
 
   width: min(1080px, calc(100vw - 28px));

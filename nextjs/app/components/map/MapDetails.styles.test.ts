@@ -202,6 +202,48 @@ describe('MapDetails CSS contracts', () => {
     expect(shortRules).toContainEqual(expect.objectContaining({ '--me-mid-slot': '196px' }));
   });
 
+  it('klemmt die x-Achse des Telefon-Spot-Details ab', () => {
+    /* Das Blaettern schiebt den Hero per translateX um eine volle
+       Viewport-Breite. Die Telefonfassung des Spot-Details laeuft bewusst im
+       Dokumentfluss (kein innerer Scrollport) — ohne Klemme in x wird das
+       DOKUMENT waehrend der Bewegung doppelt so breit, iOS Safari zieht die
+       Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf.
+       Gemessen bei 375px Viewport: scrollWidth und innerWidth sprangen
+       375 -> 750. Eine Kurzform `overflow: visible` hat die Klemme schon
+       einmal mitgerissen — deshalb steht hier der EFFEKTIVE Endwert. */
+    const phone = '(max-width: 767.98px)';
+    let x: string | undefined;
+    let y: string | undefined;
+
+    root.walkRules((rule) => {
+      if (!isInside(rule, 'media', phone)) return;
+      const hits = rule.selectors.some((selector) => {
+        // Ohne die :not()-Klammern lesen: die scharf gestellten Selektoren
+        // heissen `.detailV13:not(.detailV13MustEat) .detailV13Scroll` — das
+        // MustEat DARIN ist die Ausnahme, nicht das Ziel.
+        const bare = selector.replace(/:not\([^)]*\)/g, '');
+        return /\.detailV13Scroll(?![\w-])/.test(bare) && !/MustEat(?![\w-])/.test(bare);
+      });
+      if (!hits) return;
+      for (const node of rule.nodes) {
+        if (node.type !== 'decl') continue;
+        if (node.prop === 'overflow') {
+          const [first, second] = postcss.list.space(node.value);
+          x = first;
+          y = second ?? first;
+        }
+        if (node.prop === 'overflow-x') x = node.value;
+        if (node.prop === 'overflow-y') y = node.value;
+      }
+    });
+
+    expect(x, 'keine overflow-Deklaration fuer den Telefon-Scrollport gefunden').toBeDefined();
+    expect(['clip', 'hidden']).toContain(x);
+    // `clip` statt `hidden`, und y bleibt sichtbar: nur so bleibt der
+    // Dokumentfluss erhalten, an dem die iOS-URL-Leisten-Frostung haengt.
+    expect(y).toBe('visible');
+  });
+
   it('retains the responsive and Safari detail contracts', () => {
     const media = new Set<string>();
     const supports = new Set<string>();

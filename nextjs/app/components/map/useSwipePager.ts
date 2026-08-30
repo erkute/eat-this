@@ -28,7 +28,13 @@ interface SwipePagerOptions {
    vertical sheet-drag / content scroll: the first significant move decides
    the axis; only a clearly-horizontal gesture pages (and preventDefault's).
    Touch-only — mouse drags bail (desktop uses the pager arrows). No opacity
-   fades (project rule): the page transition is a translate. */
+   fades (project rule): the page transition is a translate.
+
+   ACHTUNG beim Einbau: die Karte wird um eine volle Viewport-Breite
+   verschoben. Ein Vorfahr MUSS die x-Achse klemmen (`overflow-x: clip`),
+   sonst waechst das Dokument waehrend der Bewegung um diese Breite. Auf dem
+   Desktop faellt das nicht auf (`.app-pages` klemmt dort ohnehin), auf iOS
+   Safari zieht es die ganze Seite klein und beim Loslassen wieder gross. */
 export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePagerOptions) {
   const optsRef = useRef(opts);
   optsRef.current = opts;

@@ -3042,11 +3042,22 @@
     margin-bottom: 0;
   }
 
+  /* `overflow: visible` als Kurzform stand hier einmal und hat die x-Achse der
+     Regel weiter oben mitgerissen. Das Blaettern schiebt den Hero per
+     translateX um eine volle Viewport-Breite — ohne Klemme in x wuchs damit
+     das DOKUMENT auf 750px (gemessen bei 375px Viewport), und mit ihm die
+     Layout-Viewport-Breite: `innerWidth` sprang 375 -> 750, iOS Safari zog die
+     Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf. Genau
+     das "klein ziehen und wieder gross werden" waehrend des Wisches. Die
+     y-Achse bleibt `visible` — der Telefon-Detailfluss ist Absicht (siehe
+     Kommentar am Blockanfang), nur `clip` in x hält den Fluss und macht keinen
+     Scroll-Container auf (anders als `hidden`). */
   [data-map-sheet][data-view='detail'] .detailMount:not(.detailMountMustEat),
   [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
   [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
     width: auto;
-    overflow: visible;
+    overflow-x: clip;
+    overflow-y: visible;
   }
 
   /* iOS URL-bar frosting for the phone detail: MapLibre is constrained to the
@@ -5063,4 +5074,3 @@
   font-weight: 500;
   line-height: 1.55;
 }
-

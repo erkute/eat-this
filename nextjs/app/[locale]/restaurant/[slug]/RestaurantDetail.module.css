@@ -471,31 +471,58 @@
    Handschrift der Marke, rot und groß, direkt auf dem Blatt — als hätte die
    Redaktion quer über die Seite geschrieben. Das Mono-Label darüber ist
    dieselbe Eyebrow-Grammatik wie beim Must-Eat-Kopf. */
+/* Der Tipp war hier roter Fliesstext ohne Objekt — dieselbe Sache sah auf der
+   Karte (Ink-Karte) und auf der Seite (loses Rot) wie zwei verschiedene Dinge
+   aus, und direkt darunter beginnt die Ink-Tafel, gegen die das Rot ankaempfte
+   (Nutzer, 30.08.2026). Jetzt tragen beide Flaechen dasselbe Objekt: Ink,
+   gelbes Label mit Marken-Quadrat, weisser Satz. Der Tipp wird damit zum
+   kleinen Geschwister der Tafel, statt sie zu ueberschreien. */
 .tipp {
   display: grid;
+  gap: 12px;
+  padding: clamp(22px, 3vw, 34px) clamp(20px, 3vw, 34px) clamp(24px, 3.2vw, 36px);
+  background: var(--detail-ink);
+  border-radius: var(--et-radius-photo, 18px);
 }
 
 .tippLabel {
-  margin-bottom: 14px;
-  color: var(--detail-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 0;
+  color: var(--detail-accent);
   font-family: var(--f-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  line-height: 1;
+  line-height: 1.3;
   text-transform: uppercase;
 }
 
+/* Dasselbe Merkzeichen wie im Karten-Sheet und in den Kickern der Startseite. */
+.tippLabel::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  background: var(--detail-accent);
+}
+
+/* Weiss statt Rot und deutlich kleiner: auf der Ink-Flaeche traegt die
+   Handschrift auch leise, und 40px roter Satz nahmen dem Foto darueber und
+   der Tafel darunter die Luft. line-height 1.35 statt 1.16 — Providence
+   haengt tief, und mehrzeilig standen die Unterlaengen fast auf der naechsten
+   Zeile. */
 .tippText {
-  max-width: 26ch;
+  max-width: 34ch;
   margin: 0;
-  color: var(--detail-red);
+  color: var(--detail-paper);
   font-family: var(--f-display);
-  font-size: clamp(24px, 3.2vw, 40px);
+  font-size: clamp(20px, 2.2vw, 26px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.16;
-  text-wrap: balance;
+  line-height: 1.35;
+  text-wrap: pretty;
 }
 
 /* Der Link in der Kopfzeile. `styles.sibRowHeadLink` stand seit jeher im TSX,
@@ -695,7 +722,12 @@
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
+  /* 1.55 statt 1: die Label-Spans tragen `overflow: hidden`, und Providence
+     haengt tief — bei 18px fehlten einer Unterlaenge 3,71px. 1.3 reicht hier
+     nicht (gemessen: immer noch -0,81px), 1.55 laesst 1,4px stehen. Gemessen
+     30.08.2026, gleiche Ursache wie im Karten-Sheet. Die Knopfhoehe kommt aus
+     min-height, die Zeile aendert sie nicht. */
+  line-height: 1.55;
   text-decoration: none;
   text-transform: uppercase;
   transition:

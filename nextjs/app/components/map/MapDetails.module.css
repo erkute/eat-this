@@ -2314,12 +2314,19 @@
     padding: 14px 0;
   }
 }
+/* line-height 1.55, nicht 1: der Name traegt `overflow: hidden` fuer die
+   Ellipse, und Providence haengt sehr tief — bei 13px fehlten dem g in
+   „Zum Heiligen Teufel" 2,29px, der Bogen war abgeschnitten (Nutzer,
+   30.08.2026). 1.3 reicht NICHT: gemessen blieben davon 0,11px Luft, und
+   WebKit rechnet rund 0,4px knapper als Chromium — dort waere es wieder
+   negativ. 1.55 laesst 1,4px stehen. Die Zeile ist einzeilig und
+   flex-zentriert, die Hoehe aendert sich dadurch nicht. */
 .detailV13:not(.detailV13MustEat) .rdPagerName {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(13px, 2.8vw, 14px);
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.55;
   text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .rdPagerBtnRight .rdPagerName {
@@ -3926,7 +3933,11 @@
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
+  /* 1.55 statt 1: das Label traegt `overflow: hidden` (Ellipse), und darunter
+     braucht Providence Platz. Heute hat kein Label eine Unterlaenge, die Falle
+     stand aber scharf — dieselbe Ursache wie beim Pager-Namen daneben. Die
+     Knopfhoehe haengt an min-height, nicht an der Zeile. */
+  line-height: 1.55;
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
@@ -4995,3 +5006,50 @@
     font-size: 17px;
   }
 }
+
+/* ============ Insider-Tipp ============
+   Der Tipp ist die einzige Stimme im Sheet, die nicht beschreibt, sondern
+   raet. Er trug bisher eine graue Mono-Eyebrow — die Sprache von vor der
+   Tafel. Jetzt spricht er wie die Tafel darunter: gelbes Providence-Label
+   mit dem Marken-Quadrat (dasselbe Zeichen wie die Kicker der Startseite),
+   weisser Satz auf Ink. Damit stehen Tipp und Tafel als zwei Objekte
+   derselben Familie untereinander, statt als zwei Entwuerfe.
+   Der Satz bleibt im Fliesstext: Providence traegt auf 13px keinen Absatz
+   (siehe Tipp-Groesse, Nutzer 30.08.2026). */
+.detailV13:not(.detailV13MustEat) .rdTipp {
+  display: grid;
+  gap: 10px;
+  padding: 18px 18px 20px;
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.detailV13:not(.detailV13MustEat) .rdTippLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--et-home-accent, #ffc600);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+/* Das Marken-Quadrat als Merkzeichen — `flex: 0 0 auto`, damit es bei einem
+   umbrechenden Label nicht zum Strich zusammenfaellt. */
+.detailV13:not(.detailV13MustEat) .rdTippLabel::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent, #ffc600);
+}
+
+.detailV13:not(.detailV13MustEat) .rdTippText {
+  color: var(--et-home-paper, #fff);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+

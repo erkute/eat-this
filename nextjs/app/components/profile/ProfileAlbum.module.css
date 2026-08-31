@@ -1,4 +1,5 @@
-/* Collection — one open field of Must-Eat cards, no category dividers. */
+/* Collection — Must-Eat-Karten in Bezirks-Abschnitten. Der Trenner ist eine
+   Zeile, keine zweite Ueberschrift: Label, Zaehler, Haarlinie bis zur Kante. */
 
 .panel {
   --album-ink: var(--profile-ink, var(--et-home-ink, #15120e));
@@ -45,10 +46,93 @@ div.panel .head {
   line-height: 0.75;
 }
 
+/* Zwei Spalten Bezirke ab Desktop. Untereinander liess eine Gruppe mit zwei
+   Karten sechs Spalten leer — dieselbe tote rechte Haelfte, nur jetzt pro
+   Bezirk, und das Deck war dadurch doppelt so hoch wie vorher. Mehrspaltig
+   fliessen die Abschnitte ineinander: gemessen 1290 px statt 2784.
+   `columns` und nicht ein Grid aus Gruppen, weil ein Grid die Zeilenhoehe an
+   der laengsten Gruppe ausrichtet und unter der kuerzeren eine Kartenreihe
+   Luft stehen laesst. */
+.groups {
+  columns: 2;
+  column-gap: clamp(28px, 3.4vw, 56px);
+}
+
+.group {
+  display: grid;
+  gap: clamp(12px, 1.6vw, 18px);
+  /* Ein Bezirk gehoert in eine Spalte — sonst reisst der Umbruch die
+     Ueberschrift von ihren Karten. */
+  break-inside: avoid;
+  margin-bottom: clamp(24px, 3vw, 40px);
+}
+
+/* Der letzte Abschnitt jeder Spalte braucht den Abstand nicht — er steht
+   sonst als Luft unter der kuerzeren Spalte. */
+.group:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .groups {
+    columns: 1;
+  }
+}
+
+/* Ein Abschnittstrenner, keine Ueberschrift zweiter Ordnung: die Haarlinie
+   traegt die Zeile bis zur rechten Kante, damit die Bezirke das Feld
+   gliedern statt es in sieben Ueberschriften zu zerlegen. */
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.groupName {
+  color: var(--album-ink);
+  font-family: var(--album-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.groupCount {
+  flex: 0 0 auto;
+  color: var(--album-muted);
+  font-family: var(--album-display);
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* Die eingesammelte Zahl ist die Nachricht, der Nenner nur der Rahmen. */
+.groupCount strong {
+  color: var(--album-ink);
+  font-weight: 700;
+}
+
+.groupRule {
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: 24px;
+  background: var(--et-home-rule, #e4e1dc);
+}
+
+/* 132er Spur, nicht 180. In Bezirke geteilt bricht jede Gruppe ihre eigene
+   Zeile an, und eine Gruppe mit zwei Karten liess in einem Sechs-Spalten-Feld
+   vier Spalten leer: gemessen wuchs das Deck durch die Gruppierung von 1385
+   auf 2784 px, vier zusaetzliche halbleere Kartenreihen. Bei acht Spalten
+   passt jede der sieben Gruppen in EINE Zeile. 140 px ist ohnehin schon die
+   Kartenbreite, die diese Seite ab Tablet faehrt. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: clamp(12px, 2vw, 20px);
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: clamp(10px, 1.4vw, 16px);
   align-items: start;
 }
 
@@ -110,7 +194,7 @@ div.panel .head {
 
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
   }
 }
 

@@ -1,25 +1,25 @@
 import { describe, it, expect } from 'vitest';
 import { buildAlbum } from './mustEatAlbum';
 
-const me = (id: string, cat: string, dish: string, withImage = false) =>
+const me = (id: string, district: string, dish: string, withImage = false) =>
   ({
     _id: id,
     dish,
     ...(withImage ? { image: `${id}.jpg` } : {}),
-    restaurant: { name: 'R', slug: 'r', district: 'X', categories: [{ name: cat }] },
+    restaurant: { name: 'R', slug: 'r', district },
   }) as any;
 
 const all = [
-  me('b', 'Fast Food', 'Döner'),
-  me('a', 'Frühstück', 'Croissant'),
-  me('c', 'Fast Food', 'Burger'),
+  me('b', 'Kreuzberg', 'Döner'),
+  me('a', 'Mitte', 'Croissant'),
+  me('c', 'Kreuzberg', 'Burger'),
 ];
 
 describe('buildAlbum', () => {
-  it('groups into category pages, alphabetical by category', () => {
-    expect(buildAlbum(all, new Set()).map((p) => p.category)).toEqual(['Fast Food', 'Frühstück']);
+  it('groups into district sections, alphabetical by district', () => {
+    expect(buildAlbum(all, new Set()).map((p) => p.group)).toEqual(['Kreuzberg', 'Mitte']);
   });
-  it('assigns stable global 1-based numbers in (category, id) order', () => {
+  it('assigns stable global 1-based numbers in (group, id) order', () => {
     const pages = buildAlbum(all, new Set());
     expect(pages[0].slots.map((s) => [s.no, s.id])).toEqual([
       [1, 'b'],
@@ -37,7 +37,7 @@ describe('buildAlbum', () => {
     expect(burger.mustEat).toBeNull();
   });
   it('treats cards with delivered image data as collected', () => {
-    const pages = buildAlbum([me('paid', 'Fast Food', 'Burger', true)], new Set());
+    const pages = buildAlbum([me('paid', 'Kreuzberg', 'Burger', true)], new Set());
     expect(pages[0].slots[0].collected).toBe(true);
     expect(pages[0].slots[0].mustEat?.dish).toBe('Burger');
   });

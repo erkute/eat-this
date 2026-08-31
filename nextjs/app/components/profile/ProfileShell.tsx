@@ -27,6 +27,11 @@ interface Props {
   publicFaceUpIds: string[];
 }
 
+/* Wenn ein Spot keinen Bezirk gepflegt hat, faellt seine Karte nicht raus —
+   sie sammelt sich unter der Stadt. Kein uebersetzter Text: der Name ist in
+   beiden Sprachen derselbe. */
+const FALLBACK_DISTRICT = 'Berlin';
+
 // The profile speaks the home's visual language: one white page, the homeV2
 // element vocabulary (hv-wrap / hv-section / hv-head / hv-title / hv-rail),
 // photos straight on the paper. No dossier panels, no polaroid, no menu dots —
@@ -81,10 +86,15 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)),
     [mustEats, ownedRestaurantIds]
   );
-  // MapMustEat.restaurant has no categories, so join through the owned
-  // restaurants (which carry categories) to give the album its page groups.
-  const catByRest = useMemo(
-    () => new Map(ownedRestaurants.map((r) => [r._id, r.categories?.[0]?.name ?? 'Sonstige'])),
+  // Die Sammlung gruppiert nach Bezirk. MapMustEat.restaurant traegt zwar ein
+  // freies `district`, aber nicht das kuratierte `bezirk`-Objekt — der Join
+  // ueber die eigenen Restaurants holt beides und nimmt das gepflegte zuerst,
+  // damit „Prenzlauer Berg" nicht neben „Prenzlauer-Berg" steht.
+  const districtByRest = useMemo(
+    () =>
+      new Map(
+        ownedRestaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
+      ),
     [ownedRestaurants]
   );
 
@@ -242,7 +252,9 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
-            categoryOf={(m) => catByRest.get(m.restaurant._id) ?? 'Sonstige'}
+            groupOf={(m) =>
+              districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
+            }
           />
         </section>
 

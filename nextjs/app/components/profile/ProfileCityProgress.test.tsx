@@ -2,8 +2,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 
-const mapData = { restaurants: [] as unknown[], totalCount: 0, loading: false };
-vi.mock('@/lib/map', () => ({ useMapData: () => mapData }));
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, vars?: Record<string, unknown>) =>
     key === 'cityCount' ? `von ${vars?.total} Spots auf deiner Map` : key,
@@ -18,10 +16,7 @@ import ProfileCityProgress from './ProfileCityProgress';
 
 describe('ProfileCityProgress', () => {
   it('nennt die Zahl und wohin sie führt', () => {
-    mapData.restaurants = new Array(154);
-    mapData.totalCount = 464;
-    mapData.loading = false;
-    const { container } = render(<ProfileCityProgress uid="u1" />);
+    const { container } = render(<ProfileCityProgress open={154} total={464} />);
     expect(container.textContent).toContain('154');
     expect(container.textContent).toContain('von 464 Spots auf deiner Map');
     expect(container.querySelector('a')?.getAttribute('href')).toBe('/map');
@@ -30,11 +25,10 @@ describe('ProfileCityProgress', () => {
     expect(fill.style.width).toBe('33%');
   });
 
+  /* Die Bank rendert weiter, dieser Block nicht: eine Null von 0 waere keine
+     Zahl, sondern eine Luecke, die gleich von der echten ersetzt wuerde. */
   it('zeigt lieber nichts als eine Null, die gleich ersetzt würde', () => {
-    mapData.restaurants = [];
-    mapData.totalCount = 0;
-    mapData.loading = true;
-    const { container } = render(<ProfileCityProgress uid="u1" />);
+    const { container } = render(<ProfileCityProgress open={0} total={0} />);
     expect(container.textContent).toBe('');
   });
 });

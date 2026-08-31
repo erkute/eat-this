@@ -55,6 +55,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     restaurants: ownedRestaurants,
     mustEats,
     revealedMustEatIds,
+    totalCount,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -195,43 +196,47 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         {/* No counters here on purpose: a raw spot tally is a receipt, not a
             profile — and the product deliberately doesn't state its numbers.
             The only count that stays is the deck's own progress. */}
+        {/* Die Ink-Bank: Figur, Name und die Berlin-Zahl in EINER Fläche.
+            Vorher waren das zwei Abschnitte über rund 900 px, mit ~700 px
+            Weiß dazwischen — die Sammlung, wegen der man die Seite öffnet,
+            begann unter der Falz. Und es zog die beiden Farbflächen der
+            Seite zusammen: die Ink-Fläche stand ganz oben allein, die gelbe
+            Einladen-Fläche ganz unten. */}
         <header className="hv-wrap">
-          <div className={styles.heroGrid}>
-            <div className={styles.heroCopy}>
-              <p className="hv-kicker">
+          <div className={styles.bank}>
+            <div className={styles.bankCopy}>
+              <p className={styles.bankKicker}>
                 <span className="hv-mk" aria-hidden="true" />
                 {t('heroKicker')}
               </p>
-              <h1 className={styles.heroName}>{firstName}</h1>
-              <p className={styles.heroLine}>{t('heroLine')}</p>
+              <h1 className={styles.bankName}>{firstName}</h1>
             </div>
 
             {/* The character is the one thing on this page that is purely the
-                user's, so it gets the room the home gives its phone mockups:
-                cut out, straight on the white, no frame. */}
-            <div className={styles.heroCharacter}>
+                user's, so it keeps the room the home gives its phone mockups:
+                cut out, no frame — jetzt auf der Tafel statt auf dem Papier. */}
+            <div className={styles.bankCharacter}>
               <button
                 type="button"
-                className={styles.heroAvatar}
+                className={styles.bankAvatar}
                 onClick={() => setPickerOpen(true)}
                 aria-label={t('changeAvatar')}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  className={styles.heroAvatarImg}
+                  className={styles.bankAvatarImg}
                   src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                   alt=""
                 />
               </button>
-              <button type="button" className={styles.heroEdit} onClick={() => setPickerOpen(true)}>
+              <button type="button" className={styles.bankEdit} onClick={() => setPickerOpen(true)}>
                 {t('changeAvatar')}
               </button>
             </div>
+
+            <ProfileCityProgress open={ownedRestaurants.length} total={totalCount} />
           </div>
         </header>
-
-        {/* Die eine Zahl zuerst: wie viel von Berlin schon offen ist. */}
-        <ProfileCityProgress uid={user.uid} />
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
           <ProfileAlbum

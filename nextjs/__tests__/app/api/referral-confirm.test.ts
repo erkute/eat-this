@@ -34,7 +34,7 @@ import { POST } from '@/app/api/referral/confirm/route'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 import { resolveEntitlements } from '@/lib/firebase/entitlements'
 import { TIER_TARGETS } from '@/lib/map/tier-composition'
-import { MAX_REFERRALS_PER_INVITER } from '@/lib/referral/constants'
+import { ACCOUNT_FRESHNESS_MS, MAX_REFERRALS_PER_INVITER } from '@/lib/referral/constants'
 
 const INVITER = 'i'.repeat(28)
 const FRIEND  = 'f'.repeat(28)
@@ -130,16 +130,35 @@ describe('/api/referral/confirm', () => {
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
-  it('not a new account → no write, clears cookie', async () => {
-    primeHappyPath()
+  // Alter aus der Konstante ableiten, nicht als Literal: das Fenster ist ein
+  // Produktwert (es umschliesst das Identitaets-Formular auf /welcome) und
+  // wurde schon einmal verschoben. Ein hartes "60 Minuten" stand danach genau
+  // auf der Grenze und behauptete das Gegenteil von dem, was es prueft.
+  function agedFriend(ms: number) {
     mockGetUser.mockImplementation(async (uid: string) =>
       uid === FRIEND
-        ? { email: 'friend@x.com', metadata: { creationTime: new Date(Date.now() - 60 * 60 * 1000).toISOString() } }
+        ? { email: 'friend@x.com', metadata: { creationTime: new Date(Date.now() - ms).toISOString() } }
         : { email: 'inviter@x.com', metadata: { creationTime: new Date().toISOString() } },
     )
+  }
+
+  it('not a new account → no write, clears cookie', async () => {
+    primeHappyPath()
+    agedFriend(ACCOUNT_FRESHNESS_MS + 60_000)
     const res = await POST(mkReq(INVITER))
     expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
+  })
+
+  // Zwischen Kontoerstellung und Confirm liegt fuer jedes neue Konto das
+  // Identitaets-Formular auf /welcome. Wer dort das Telefon weglegt, darf die
+  // Einladung nicht verlieren — genau daran starb sie vorher still.
+  it('account still inside the window → both sides written', async () => {
+    primeHappyPath()
+    agedFriend(ACCOUNT_FRESHNESS_MS - 60_000)
+    const res = await POST(mkReq(INVITER))
+    expect(res.status).toBe(200)
+    expect(mockTransactionSet).toHaveBeenCalled()
   })
 
   it('idempotent repeat (friend already invited-by) → no write, clears cookie', async () => {

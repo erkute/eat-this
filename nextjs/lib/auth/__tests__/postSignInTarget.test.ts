@@ -27,6 +27,17 @@ describe('postSignInTarget', () => {
     expect(target(`?continueUrl=${cu}`)).toBe('/map?r=vox');
   });
 
+  it('keeps the referrer the mail carried, unlike the email carrier', () => {
+    // Gegenstueck zu `e`: der Einladende MUSS die Landung ueberleben. Auf
+    // `/?ref=<uid>` setzt die Middleware den pending_referrer-Cookie ein
+    // zweites Mal — in dem Browser, in dem die Anmeldung tatsaechlich
+    // abgeschlossen wurde. Ohne diesen Parameter blieb der Cookie im ersten
+    // Browser zurueck und die Einladung war lautlos weg.
+    const inviter = 'i'.repeat(28);
+    const cu = encodeURIComponent(`${ORIGIN}/?e=someone%40example.com&ref=${inviter}`);
+    expect(target(`?continueUrl=${cu}`)).toBe(`/?ref=${inviter}`);
+  });
+
   it('refuses a foreign origin', () => {
     const cu = encodeURIComponent('https://evil.example/steal');
     expect(target(`?continueUrl=${cu}`)).toBe('/');

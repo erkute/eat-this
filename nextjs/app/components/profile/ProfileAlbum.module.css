@@ -1,4 +1,5 @@
-/* Collection — one open field of Must-Eat cards, no category dividers. */
+/* Collection — Must-Eat-Karten in Bezirks-Abschnitten. Der Trenner ist eine
+   Zeile, keine zweite Ueberschrift: Label, Zaehler, Haarlinie bis zur Kante. */
 
 .panel {
   --album-ink: var(--profile-ink, var(--et-home-ink, #15120e));
@@ -13,25 +14,19 @@
   background: transparent;
 }
 
-/* hv-head aligns on the baseline; the count chip is a box, so centre it.
-   Element-qualified (0,2,1) so it outweighs .homeV2 .hv-head regardless of
-   stylesheet order — see the note in Profile.module.css. */
-div.panel .head {
-  align-items: center;
-}
-
+/* Der Zaehler war eine gelbe Kachel mit Radius — das einzige Kaestchen auf
+   einer Seite, die sonst aus Typografie und Haarlinien besteht, und in
+   derselben Zeile wie eine rote Ueberschrift. Jetzt ist er Schrift: die Zahl
+   traegt, die Bildzeile erklaert. Gleiche Form wie auf der geteilten
+   Deck-Seite, damit die beiden dieselbe Zahl gleich anschreiben. */
 .count {
   flex: 0 0 auto;
   display: flex;
   align-items: baseline;
   gap: 8px;
-  min-height: 38px;
-  padding: 7px 10px;
   color: var(--album-ink);
-  background: var(--profile-accent, #ffc600);
-  border-radius: var(--profile-radius, 7px);
   font-family: var(--et-font-display);
-  font-size: clamp(10px, 0.9vw, 12px);
+  font-size: clamp(11px, 0.95vw, 13px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1.1;
@@ -41,14 +36,97 @@ div.panel .head {
 .count strong {
   font-family: var(--album-display);
   font-size: clamp(24px, 2.2vw, 32px);
-  letter-spacing: 0;
-  line-height: 0.75;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Zwei Spalten Bezirke ab Desktop, und zwar als Raster aus Gruppen — nicht
+   mehr als `columns`. Der Textspalten-Fluss war zwar kompakt, aber die beiden
+   Spalten liefen ausser Takt: „Kreuzberg" stand links auf der Hoehe, auf der
+   rechts noch die zweite Kartenreihe von Prenzlauer Berg lief. Sieben
+   Ueberschriften auf sieben verschiedenen Hoehen lasen sich als kaputt, nicht
+   als kompakt (Nutzer, 31.08.2026: „total unsauber ausgerichtet").
+
+   Ein Raster richtet die Zeilenhoehe an der laengeren der beiden Gruppen aus
+   und laesst unter der kuerzeren Luft. Die ist der Preis, und sie ist der
+   bessere Fehler: ausgerichtete Luft liest sich als Absicht, verschobene
+   Ueberschriften als Panne. Die Hoehe bleibt dabei fast dieselbe, weil sich
+   die Paare ohnehin meist gleich hoch treffen. */
+.groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(24px, 3vw, 40px) clamp(28px, 3.4vw, 56px);
+}
+
+.group {
+  display: grid;
+  gap: clamp(12px, 1.6vw, 18px);
+  align-content: start;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Ein Abschnittstrenner, keine Ueberschrift zweiter Ordnung: die Haarlinie
+   traegt die Zeile bis zur rechten Kante, damit die Bezirke das Feld
+   gliedern statt es in sieben Ueberschriften zu zerlegen. */
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.groupName {
+  color: var(--album-ink);
+  font-family: var(--album-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.groupCount {
+  flex: 0 0 auto;
+  color: var(--album-muted);
+  font-family: var(--album-display);
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* Die eingesammelte Zahl ist die Nachricht, der Nenner nur der Rahmen. */
+.groupCount strong {
+  color: var(--album-ink);
+  font-weight: 700;
+}
+
+.groupRule {
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: 24px;
+  background: var(--et-home-rule, #e4e1dc);
+}
+
+/* 132er Spur, nicht 180. In Bezirke geteilt bricht jede Gruppe ihre eigene
+   Zeile an, und eine Gruppe mit zwei Karten liess in einem Sechs-Spalten-Feld
+   vier Spalten leer: gemessen wuchs das Deck durch die Gruppierung von 1385
+   auf 2784 px, vier zusaetzliche halbleere Kartenreihen. Bei acht Spalten
+   passt jede der sieben Gruppen in EINE Zeile. 140 px ist ohnehin schon die
+   Kartenbreite, die diese Seite ab Tablet faehrt. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: clamp(12px, 2vw, 20px);
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: clamp(10px, 1.4vw, 16px);
   align-items: start;
 }
 
@@ -110,7 +188,7 @@ div.panel .head {
 
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
   }
 }
 
@@ -119,11 +197,6 @@ div.panel .head {
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
-  }
-
-  .count {
-    min-height: 34px;
-    padding: 6px 9px;
   }
 
   .grid {

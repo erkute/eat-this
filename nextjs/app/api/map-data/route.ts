@@ -58,6 +58,15 @@ export async function GET(req: Request) {
       totalCount: all.length,
       lockedRestaurants: [],
       revealedMustEatIds: Array.from(allIds),
+      // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang haengt
+      // an ADMIN_EMAILS plus verifizierter Adresse (isAdminToken) — beides
+      // server-only —, und das Konto, das ihn nutzt, hat weder einen
+      // admin-Claim noch ein Entitlement-Dokument. Das Profil las bisher nur
+      // users/<uid>/entitlements und zeigte deshalb „466 von 466 Spots" ueber
+      // zehn verschlossenen Packs: zwei Wahrheiten auf einem Bildschirm.
+      // WARUM nicht, sondern nur DASS alles offen ist — mehr braucht die
+      // Oberflaeche nicht, und der Grund geht sie nichts an.
+      fullCatalog: true,
     });
     res.headers.set('Cache-Control', 'private, no-store');
     setPremiumAccessCookie(res, allIds, uid);
@@ -75,6 +84,13 @@ export async function GET(req: Request) {
   // Face-up for THIS viewer: curated/spot-of-day reveals ∪ on-site unlocks ∪
   // purchased must-eat grants. Everything else ships stripped — covered cards
   // render only the card-back, so the paid fields must not leave the server.
+  //
+  // ZWEITER AUFRUFER: lib/profile/publicDeck.server.ts leitet dieselbe Menge
+  // fuer die oeffentliche Deck-Seite ab — inklusive des Admin-Zweigs weiter
+  // oben. Wer hier eine vierte Quelle ergaenzt, muss sie dort mitziehen, sonst
+  // meldet das geteilte Deck weniger als das eigene Profil. Genau so ist der
+  // Admin-Zweig schon einmal auseinandergelaufen (0 von 24 statt 24 von 24).
+  // Kein Test haelt die beiden zusammen — siehe Review vom 31.08.2026.
   const faceUpIds = new Set([...visible.revealedMustEatIds, ...unlockedIds, ...ent.mustEatIds]);
   const hydratedMustEats = await hydrateAuthorizedMustEats(visible.mustEats, faceUpIds);
 
@@ -88,6 +104,8 @@ export async function GET(req: Request) {
     // Otherwise purchased content reaches the browser but still renders as a
     // covered card because entitlements are not duplicated into reveal docs.
     revealedMustEatIds: Array.from(faceUpIds),
+    // Hier immer false: der Zweig oben faengt Admin UND all-berlin ab.
+    fullCatalog: false,
   });
   res.headers.set('Cache-Control', 'private, no-store');
   if (uid) {

@@ -1,0 +1,100 @@
+/* Das geteilte Deck. Nur was die Profilseite nicht schon hat — Tafel,
+   Abschnitte und die gelbe Flaeche kommen aus Profile.module.css, damit die
+   beiden Seiten eine Sprache sprechen und nicht zwei, die sich aehneln. */
+
+/* Die Seite haengt an keiner Anmeldung und hat deshalb keinen Ladezustand,
+   der die Hoehe haelt: ohne das hier steht der Footer auf kurzen Decks
+   mitten im Bild. */
+.page {
+  min-height: 100svh;
+}
+
+/* Wie der Deck-Zaehler im eigenen Profil, nur ohne dessen gelbe Kachel: hier
+   ist die Zahl kein Fortschritt, den man weitertreibt, sondern eine Angabe. */
+.count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--et-font-display);
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.count strong {
+  font-size: clamp(24px, 2.4vw, 32px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: clamp(18px, 2.4vw, 30px) clamp(24px, 3vw, 48px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group {
+  min-width: 0;
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.groupName {
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.groupCount {
+  flex: 0 0 auto;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.groupCount strong {
+  color: var(--et-home-ink, #15120e);
+  font-weight: 700;
+}
+
+/* Derselbe Balken wie der Berlin-Fortschritt auf der Tafel, nur auf Papier:
+   dort Gelb auf Ink, hier Ink auf dem stillen Grau der Seite. */
+.groupBar {
+  display: block;
+  height: 6px;
+  margin-top: 10px;
+  background: var(--et-home-quiet, #f2f1ef);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.groupBarFill {
+  display: block;
+  height: 100%;
+  background: var(--et-home-accent, #ffc600);
+  border-radius: inherit;
+}
+
+/* Wie im eigenen Deck (ProfileAlbum): auf schmalen Schirmen steht die Zahl
+   unter der Ueberschrift statt daneben — nebeneinander bricht „Das Deck"
+   zweizeilig um und die Zeile darunter laeuft in die Ueberschrift. */
+@media (max-width: 520px) {
+  .head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+}

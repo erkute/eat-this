@@ -8,11 +8,6 @@ import type { MapMustEat } from '@/lib/types';
 import styles from './Profile.module.css';
 
 const MAX_CARDS = 8;
-// Below this the section is not a strip, it is one lonely card under a
-// full-width heading — and a single reveal from months ago does not read as
-// "zuletzt" either. The deck above already shows every card that is face-up,
-// so nothing is lost by staying quiet.
-const MIN_CARDS = 3;
 
 /** Coarse "vor 3 Tagen" without pulling in a date library. */
 function relativeDay(locale: string, then: number, now: number): string {
@@ -30,7 +25,16 @@ function relativeDay(locale: string, then: number, now: number): string {
  * place — the deck above only ever shows a state. `unlockedAt` was already
  * being written on every reveal and never read.
  *
- * Renders nothing until there are MIN_CARDS of them.
+ * Ab der ERSTEN Karte, nicht ab der dritten. Die Schwelle stand hier, weil
+ * eine einzelne Karte unter einer Ueberschrift ueber die volle Breite
+ * verloren aussah — und liess damit ausgerechnet die Neuen ohne den einen
+ * Abschnitt, der die Seite lebendig macht. Repariert ist die Form, nicht die
+ * Schwelle: das Datum steht ueber der Karte und alle Eintraege haengen an
+ * einer Linie ueber die volle Breite. Mit einem Eintrag liest sich das als
+ * Zeitleiste, die gerade anfaengt, nicht als Loch.
+ *
+ * Bei null Aufdeckungen bleibt der Abschnitt weg — da ist nichts zu zeigen,
+ * und der Anstupser dafuer gehoert in ein „naechster Zug"-Modul.
  */
 export default function ProfileRecentReveals({
   mustEats,
@@ -55,16 +59,22 @@ export default function ProfileRecentReveals({
     );
   }, [mustEats, unlockedAt, locale]);
 
-  if (recent.length < MIN_CARDS) return null;
+  if (recent.length === 0) return null;
 
   return (
     <section className={`hv-section hv-wrap ${styles.section}`}>
       <div className={`hv-head ${styles.head}`}>
         <h2 className="hv-title">{t('recentHeading')}</h2>
       </div>
-      <ul className={`hv-rail ${styles.recentRail}`}>
+      {/* Die Linie traegt den Abschnitt ueber die volle Breite, auch wenn
+          nur ein Eintrag daran haengt. Dasselbe Mittel wie die
+          Bezirks-Trenner im Deck darueber. */}
+      <ol className={`hv-rail ${styles.recentRail}`}>
         {recent.map(({ mustEat, when }) => (
           <li key={mustEat._id} className={styles.recentItem}>
+            {/* Das Datum steht jetzt oben, nicht als Anhaengsel hinter dem
+                Lokal: es ist die Achse, an der die Reihe haengt. */}
+            <p className={styles.recentWhen}>{when}</p>
             <MapIntentLink
               href={`/map?r=${encodeURIComponent(mustEat.restaurant.slug)}`}
               rel="nofollow"
@@ -76,13 +86,10 @@ export default function ProfileRecentReveals({
               <img src={mustEat.image} alt="" loading="lazy" decoding="async" />
             </MapIntentLink>
             <p className={styles.recentDish}>{mustEat.dish}</p>
-            <p className={styles.recentMeta}>
-              {normalizeName(mustEat.restaurant.name)}
-              <span> · {when}</span>
-            </p>
+            <p className={styles.recentMeta}>{normalizeName(mustEat.restaurant.name)}</p>
           </li>
         ))}
-      </ul>
+      </ol>
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { checkRateLimit, clientIp } from '@/lib/rateLimit';
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink';
 import { isStaging } from '@/lib/env';
+import { REFERRER_COOKIE, UID_SHAPE } from '@/lib/referral/constants';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,60 @@ function sanitizeContinueUrl(raw: string | undefined, origin: string, fallback: 
   if (allowedOrigins.has(candidate.origin)) return candidate.toString();
   if (/^https?:\/\/localhost(:\d+)?$/.test(candidate.origin)) return candidate.toString();
   return fallback;
+}
+
+/** Ein einzelner Cookie aus dem rohen Header. Kein NextRequest hier: die
+ *  Route nimmt ein blankes `Request` entgegen, und das soll sie auch. */
+function readCookie(header: string | null, name: string): string | null {
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    if (part.slice(0, eq).trim() !== name) continue;
+    try {
+      return decodeURIComponent(part.slice(eq + 1).trim());
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Den Einladenden mit in die Continue-URL legen.
+ *
+ * Der `pending_referrer`-Cookie liegt in dem Browser, der den Einladungslink
+ * angeklickt hat. Die Anmeldung schliesst aber routinemaessig in einem
+ * ANDEREN ab — die Gmail-App reicht den Link an ihren eigenen Webview weiter.
+ * Dort gibt es keinen Cookie, /api/referral/confirm findet keinen Einladenden
+ * und legt still auf: die Einladung war weg, ohne dass irgendwo ein Fehler
+ * stand. Beide Seiten gingen leer aus, beide ohne Meldung.
+ *
+ * Die Continue-URL ist der einzige Traeger, der den Posteingang ueberlebt.
+ * Die Mailadresse (`e`, sendMagicLink) und der Spot-Claim (`claim`,
+ * loginContinueUrl) fahren aus genau diesem Grund schon dort mit, und
+ * postSignInTarget beschreibt den Browser-Sprung ausdruecklich — nur der
+ * Einladende sass noch im Cookie fest.
+ *
+ * Der Parameter ist `ref`, derselbe, den die Einladung selbst benutzt: beim
+ * Landen greift die Middleware erneut und setzt den Cookie ein zweites Mal,
+ * diesmal im richtigen Browser. Alles dahinter bleibt unveraendert.
+ *
+ * Ein vom Client mitgeschickter `ref` wird verworfen, nicht ergaenzt. Er
+ * oeffnete nichts, was ein Aufruf von `/?ref=<uid>` nicht auch oeffnet — aber
+ * die Quelle ist hier der Cookie, nicht der Request-Body.
+ */
+function withReferrer(continueUrl: string, cookieHeader: string | null): string {
+  let url: URL;
+  try {
+    url = new URL(continueUrl);
+  } catch {
+    return continueUrl;
+  }
+  url.searchParams.delete('ref');
+  const referrer = readCookie(cookieHeader, REFERRER_COOKIE);
+  if (referrer && UID_SHAPE.test(referrer)) url.searchParams.set('ref', referrer);
+  return url.toString();
 }
 
 export async function POST(request: Request) {
@@ -61,8 +116,12 @@ export async function POST(request: Request) {
     'https://www.eatthisdot.com';
 
   // /welcome owns the post-sign-in destination (Home) — the continue URL is
-  // only Firebase's required link target plus the `e` email carrier param.
-  const continueUrl = sanitizeContinueUrl(body.continueUrl, origin, `${origin}/`);
+  // only Firebase's required link target plus the carrier params: `e` for the
+  // email address and `ref` for the inviter.
+  const continueUrl = withReferrer(
+    sanitizeContinueUrl(body.continueUrl, origin, `${origin}/`),
+    request.headers.get('cookie')
+  );
 
   // Static /pics/email assets are intentionally outside the staging Basic
   // Auth matcher. Keep staging mail on its own host; never fall back to the

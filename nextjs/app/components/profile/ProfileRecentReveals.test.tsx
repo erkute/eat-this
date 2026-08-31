@@ -36,22 +36,31 @@ const ALL = Array.from({ length: 6 }, (_, i) => mustEat(i));
 afterEach(cleanup);
 
 describe('ProfileRecentReveals', () => {
-  it('stays quiet below three reveals — one card under a full-width heading is not a strip', () => {
-    for (const count of [0, 1, 2]) {
-      const { container } = render(
-        <ProfileRecentReveals mustEats={ALL} unlockedAt={revealedAt(count)} />
-      );
-      expect(container.querySelector('section'), `${count} reveals`).toBeNull();
-      cleanup();
-    }
+  /* Die Schwelle von drei Karten liess ausgerechnet die Neuen ohne den einen
+     Abschnitt, der die Seite lebendig macht. Sie ist weg — die Form traegt
+     jetzt auch einen Eintrag: Linie ueber die volle Breite, Datum obenauf. */
+  it('zeigt die Zeitleiste schon ab der ersten Aufdeckung', () => {
+    const { container } = render(
+      <ProfileRecentReveals mustEats={ALL} unlockedAt={revealedAt(1)} />
+    );
+
+    expect(container.querySelector('section')).not.toBeNull();
+    expect(container.querySelectorAll('li')).toHaveLength(1);
   });
 
-  it('renders once three cards have a reveal moment', () => {
+  it('bleibt still, solange nichts aufgedeckt ist', () => {
+    const { container } = render(
+      <ProfileRecentReveals mustEats={ALL} unlockedAt={revealedAt(0)} />
+    );
+
+    expect(container.querySelector('section')).toBeNull();
+  });
+
+  it('renders one entry per revealed card', () => {
     const { container } = render(
       <ProfileRecentReveals mustEats={ALL} unlockedAt={revealedAt(3)} />
     );
 
-    expect(container.querySelector('section')).not.toBeNull();
     expect(container.querySelectorAll('li')).toHaveLength(3);
   });
 
@@ -62,14 +71,17 @@ describe('ProfileRecentReveals', () => {
       <ProfileRecentReveals mustEats={ALL} unlockedAt={new Map([['me-0', 1_700_000_000_000]])} />
     );
 
-    expect(container.querySelector('section')).toBeNull();
+    expect(container.querySelectorAll('li')).toHaveLength(1);
+    expect([...container.querySelectorAll('li p')].map((p) => p.textContent)).toContain('Dish 0');
   });
 
   it('shows the newest reveal first', () => {
     const { container } = render(
       <ProfileRecentReveals mustEats={ALL} unlockedAt={revealedAt(4)} />
     );
-    const dishes = [...container.querySelectorAll('li p:first-of-type')].map((p) => p.textContent);
+    const dishes = [...container.querySelectorAll('li')].map(
+      (li) => li.querySelectorAll('p')[1]?.textContent
+    );
 
     expect(dishes[0]).toBe('Dish 0');
     expect(dishes.at(-1)).toBe('Dish 3');

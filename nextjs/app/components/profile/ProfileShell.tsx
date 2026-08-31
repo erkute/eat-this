@@ -9,10 +9,12 @@ import {
   useUserProfile,
   type AvatarChoice,
 } from '@/lib/firebase/useUserProfile';
+import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
 import ProfileCityProgress from './ProfileCityProgress';
+import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
@@ -55,6 +57,8 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     restaurants: ownedRestaurants,
     mustEats,
     revealedMustEatIds,
+    totalCount,
+    fullCatalog,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -80,10 +84,15 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)),
     [mustEats, ownedRestaurantIds]
   );
-  // MapMustEat.restaurant has no categories, so join through the owned
-  // restaurants (which carry categories) to give the album its page groups.
-  const catByRest = useMemo(
-    () => new Map(ownedRestaurants.map((r) => [r._id, r.categories?.[0]?.name ?? 'Sonstige'])),
+  // Die Sammlung gruppiert nach Bezirk. MapMustEat.restaurant traegt zwar ein
+  // freies `district`, aber nicht das kuratierte `bezirk`-Objekt — der Join
+  // ueber die eigenen Restaurants holt beides und nimmt das gepflegte zuerst,
+  // damit „Prenzlauer Berg" nicht neben „Prenzlauer-Berg" steht.
+  const districtByRest = useMemo(
+    () =>
+      new Map(
+        ownedRestaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
+      ),
     [ownedRestaurants]
   );
 
@@ -195,49 +204,80 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         {/* No counters here on purpose: a raw spot tally is a receipt, not a
             profile — and the product deliberately doesn't state its numbers.
             The only count that stays is the deck's own progress. */}
+        {/* Die Ink-Bank: Figur, Name und die Berlin-Zahl in EINER Fläche.
+            Vorher waren das zwei Abschnitte über rund 900 px, mit ~700 px
+            Weiß dazwischen — die Sammlung, wegen der man die Seite öffnet,
+            begann unter der Falz. Und es zog die beiden Farbflächen der
+            Seite zusammen: die Ink-Fläche stand ganz oben allein, die gelbe
+            Einladen-Fläche ganz unten. */}
         <header className="hv-wrap">
-          <div className={styles.heroGrid}>
-            <div className={styles.heroCopy}>
-              <p className="hv-kicker">
+          <div className={styles.bank}>
+            <div className={styles.bankCopy}>
+              <p className={styles.bankKicker}>
                 <span className="hv-mk" aria-hidden="true" />
                 {t('heroKicker')}
               </p>
-              <h1 className={styles.heroName}>{firstName}</h1>
-              <p className={styles.heroLine}>{t('heroLine')}</p>
+              <h1 className={styles.bankName}>{firstName}</h1>
             </div>
 
             {/* The character is the one thing on this page that is purely the
-                user's, so it gets the room the home gives its phone mockups:
-                cut out, straight on the white, no frame. */}
-            <div className={styles.heroCharacter}>
+                user's, so it keeps the room the home gives its phone mockups:
+                cut out, no frame — jetzt auf der Tafel statt auf dem Papier.
+
+                EIN Knopf, nicht zwei. Figur und Beschriftung waren zwei
+                Controls mit demselben Ziel und demselben Namen — fuer eine
+                Screenreader-Liste zweimal „Charakter aendern" hintereinander.
+                Die Beschriftung haengte ausserdem als Unterzeile unter einer
+                288 px hohen Figur (Nutzer, 31.08.2026: „muss das direkt unter
+                die Figur?"). Jetzt sitzt das Zeichen AUF der Figur, wie das
+                Kreuz auf den gespeicherten Spots, und die Spalte ist wieder
+                nur der Charakter. */}
+            <div className={styles.bankCharacter}>
               <button
                 type="button"
-                className={styles.heroAvatar}
+                className={styles.bankAvatar}
                 onClick={() => setPickerOpen(true)}
                 aria-label={t('changeAvatar')}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  className={styles.heroAvatarImg}
+                  className={styles.bankAvatarImg}
                   src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                   alt=""
                 />
-              </button>
-              <button type="button" className={styles.heroEdit} onClick={() => setPickerOpen(true)}>
-                {t('changeAvatar')}
+                {/* Ein Wort in der Beschriftungs-Schrift der Tafel, nicht
+                    noch ein Gegenstand: „Berlin" und „Erstes Must Eat"
+                    stehen genauso da. Kurz, weil die Spalte auf dem Telefon
+                    nur 125 px breit ist — den ganzen Satz traegt das
+                    aria-label des Knopfes. */}
+                <span className={styles.bankAvatarLabel} aria-hidden="true">
+                  {t('changeAvatarShort')}
+                </span>
               </button>
             </div>
+
+            <ProfileCityProgress open={ownedRestaurants.length} total={totalCount} />
           </div>
         </header>
-
-        {/* Die eine Zahl zuerst: wie viel von Berlin schon offen ist. */}
-        <ProfileCityProgress uid={user.uid} />
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
-            categoryOf={(m) => catByRest.get(m.restaurant._id) ?? 'Sonstige'}
+            groupOf={(m) =>
+              districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
+            }
+            /* Der einzige Zug nach vorn auf dieser Seite — und er handelt vom
+               Deck, steht also im Deck. In der Ink-Tafel des Kopfes war er ein
+               Untermieter zwischen Name und Berlin-Zahl. */
+            nextMove={
+              <ProfileNextMove
+                mustEats={ownedMustEats}
+                faceUpIds={unlockedIds}
+                districtByRest={districtByRest}
+                hasRevealed={unlockedAt.size > 0}
+              />
+            }
           />
         </section>
 
@@ -251,7 +291,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         </section>
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfilePacks uid={user.uid} />
+          <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
         </section>
 
         <section className={`hv-section hv-wrap ${styles.section}`}>

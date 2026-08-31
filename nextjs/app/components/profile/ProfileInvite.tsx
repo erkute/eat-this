@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import ShareButton from '../ShareButton';
+import { useReferralCount } from '@/lib/firebase/useReferralCount';
 import { SITE_URL } from '@/lib/constants';
 import styles from './Profile.module.css';
 
@@ -10,22 +11,42 @@ import styles from './Profile.module.css';
 // (middleware captures ?ref=<uid> → /api/referral/confirm awards both sides)
 // but had no front door anywhere in the app. This is it.
 //
+// Geteilt wird seit 31.08.2026 das eigene Deck, nicht mehr die Startseite.
+// Ein nackter Link auf `/` mit angehaengtem ?ref war eine Bitte: „mach das
+// hier auch mit". /deck/<uid> zeigt erst, wie viel von Berlin auf dieser Map
+// liegt — die Einladung ist der Nebeneffekt. Das `?ref` bleibt derselbe
+// Parameter an derselben Middleware, nur an einer URL, die fuer sich etwas
+// hergibt.
+//
 // The bonus size is deliberately absent from the copy — see the no-spot-counts
-// note on REFERRAL_BONUS_SIZE.
+// note on REFERRAL_BONUS_SIZE. Die Zahl der Eingeladenen ist etwas anderes:
+// sie zählt keine Spots, sondern beantwortet die einzige Frage, die der Kasten
+// bisher offen ließ — ist überhaupt je jemand über meinen Link gekommen?
 export default function ProfileInvite({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const locale = useLocale();
+  const joined = useReferralCount(uid);
   // Same origin the user is on, so an invite copied from staging stays on
   // staging. SSR has no origin; the canonical host is the honest fallback.
   const [origin, setOrigin] = useState(SITE_URL);
   useEffect(() => setOrigin(window.location.origin), []);
-  const inviteUrl = `${origin}${locale === 'en' ? '/en' : '/'}?ref=${uid}`;
+  const inviteUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}?ref=${uid}`;
 
   return (
     <div className={styles.invite}>
-      <div className={styles.inviteCopy}>
+      {/* Traegt keine Klasse: die Huelle ist nur die erste Grid-Spalte, und
+          `.inviteCopy` gab es im Modul nie — React rendert dafuer stumm gar
+          kein class-Attribut. */}
+      <div>
         <h2 className={styles.inviteTitle}>{t('inviteHeading')}</h2>
         <p className={styles.inviteLine}>{t('inviteLine')}</p>
+        {/* Erst ab der ersten Anmeldung. „Noch niemand" wäre eine Bilanz, die
+            keiner sehen will, und der Satz darüber erklärt den Handel schon. */}
+        {joined !== null && joined > 0 && (
+          <p className={styles.inviteJoined}>
+            {joined === 1 ? t('inviteJoinedOne') : t('inviteJoinedMany', { count: joined })}
+          </p>
+        )}
       </div>
       <div className={styles.inviteAction}>
         <span className={styles.inviteUrl} title={inviteUrl}>

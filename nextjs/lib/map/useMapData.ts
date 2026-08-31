@@ -34,6 +34,11 @@ interface MapData {
   /** Total restaurant count in Sanity — independent of trial cap / entitlements.
    *  Surfaced so the sheet-count-mini reads catalog size, not filtered result. */
   totalCount: number;
+  /** Ob diesem Konto der ganze Katalog offensteht — Admin oder all-berlin.
+   *  Kommt vom Server, weil der Client es nicht entscheiden kann: der
+   *  Admin-Zugang haengt an ADMIN_EMAILS plus verifizierter Adresse, und das
+   *  Konto, das ihn nutzt, hat weder Claim noch Entitlement-Dokument. */
+  fullCatalog: boolean;
   /** Must-eat IDs that are pre-revealed for anonymous visitors (face-up card).
    *  All other must-eats on visible restaurants render as coveredAnon (blurred,
    *  non-interactive). Empty for signed-in users — their entitlements drive
@@ -79,6 +84,8 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   const [mustEats, setMustEats] = useState<MapMustEat[]>(initialMapData?.mustEats ?? []);
   const [categories, setCategories] = useState<CategoryDef[]>(initialMapData?.categories ?? []);
   const [totalCount, setTotalCount] = useState(initialMapData?.totalCount ?? 0);
+  // Nie aus dem SSR-Anon-View: der kennt kein Konto.
+  const [fullCatalog, setFullCatalog] = useState(false);
   const [revealedMustEatIds, setRevealedMustEatIds] = useState<Set<string>>(
     () => new Set<string>(initialMapData?.revealedMustEatIds ?? [])
   );
@@ -114,6 +121,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     setMustEats(cached.mustEats);
     setCategories(cached.categories);
     setTotalCount(cached.totalCount);
+    setFullCatalog(cached.fullCatalog === true);
     setRevealedMustEatIds(new Set<string>(cached.revealedMustEatIds ?? []));
     // The cache only ever holds a signed-in payload, written under the uid it
     // was fetched for — so it counts as current for exactly that uid.
@@ -161,12 +169,14 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
           categories: json.categories ?? [],
           totalCount: json.totalCount ?? 0,
           revealedMustEatIds: (json.revealedMustEatIds ?? []) as string[],
+          fullCatalog: json.fullCatalog === true,
         };
         setRestaurants(next.restaurants);
         setLockedRestaurants(next.lockedRestaurants);
         setMustEats(next.mustEats);
         setCategories(next.categories);
         setTotalCount(next.totalCount);
+        setFullCatalog(next.fullCatalog === true);
         setRevealedMustEatIds(new Set<string>(next.revealedMustEatIds));
         setDataUid(uid);
         // Cache the signed-in payload so the next visit / reload paints this tier instantly.
@@ -186,6 +196,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     mustEats,
     categories,
     totalCount,
+    fullCatalog,
     revealedMustEatIds,
     loading,
     dataUid,

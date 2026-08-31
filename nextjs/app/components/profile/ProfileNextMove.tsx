@@ -31,12 +31,13 @@ interface Props {
  * Sitzt IN der Ink-Bank, als letzte Bank unter dem Berlin-Fortschritt, und
  * nicht als eigener Abschnitt darunter: ein Abschnitt kostet den vollen
  * Abschnitts-Abstand und haette die Sammlung wieder unter die Falz geschoben,
- * die der Kopf-Umbau gerade freigeraeumt hat. Dieselbe Form wie der
- * Fortschritt darueber — Haarlinie, gelbes Label links, Weg raus rechts.
+ * die der Kopf-Umbau gerade freigeraeumt hat. Dieselbe Haarlinie und dasselbe
+ * gelbe Label wie der Fortschritt darueber — nur traegt diese Bank als
+ * einzige einen Knopf, weil sie als einzige etwas nach vorn bewegt.
  *
  * Uebernimmt dabei den Anstupser, den „Zuletzt aufgedeckt" bei null
  * Aufdeckungen schuldig blieb: wer noch nie eine Karte umgedreht hat, liest
- * hier zuerst, dass Karten vor Ort aufgehen.
+ * hier zuerst, dass man Karten vor Ort aufdeckt.
  */
 export default function ProfileNextMove({
   mustEats,
@@ -80,17 +81,19 @@ export default function ProfileNextMove({
       ? t('moveFirstNear', { district: move.district, distance })
       : t('moveFirst', { district: move.district });
 
+  /* Label, Satz, Knopf — in dieser Reihenfolge und alle auf derselben linken
+     Kante. Der Knopf stand vorher am rechten Ende der Label-Zeile und damit
+     zwischen allem: nicht beim Label, nicht bei seinem Satz, dafuer fast auf
+     einer Linie mit „Charakter aendern", das zur Figur gehoert (Nutzer,
+     31.08.2026: „nicht gut platziert"). Ein Knopf gehoert unter das, was er
+     tut. */
   const body = (
     <>
-      <span className={styles.moveTop}>
-        <span className={styles.moveLabel}>
-          {hasRevealed ? t('moveLabel') : t('moveFirstLabel')}
-        </span>
-        <span className={styles.moveCta}>
-          {canLocate ? (loading ? getLocatingCopy(locale) : t('moveLocateCta')) : t('moveCta')}
-        </span>
-      </span>
+      <span className={styles.moveLabel}>{hasRevealed ? t('moveLabel') : t('moveFirstLabel')}</span>
       <span className={styles.moveLine}>{line}</span>
+      <span className={styles.moveCta}>
+        {canLocate ? (loading ? getLocatingCopy(locale) : t('moveLocateCta')) : t('moveCta')}
+      </span>
     </>
   );
 

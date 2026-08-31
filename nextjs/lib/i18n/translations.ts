@@ -233,9 +233,9 @@ const en = {
     deckCount: 'of {total} Must Eats revealed',
     empty: 'No spots on this map yet.',
     ctaHeading: 'Open your own map',
-    ctaLine: 'Berlin in Must Eats — the cards open on site. Start with your own spots.',
+    ctaLine: 'Berlin in Must Eats, revealed on site. Start with your own spots.',
     ctaLineNamed:
-      '{name} collects Berlin in Must Eats — the cards open on site. Start with your own spots.',
+      '{name} collects Berlin in Must Eats, revealed on site. Start with your own spots.',
     cta: 'Start now',
   },
   profile: {
@@ -263,16 +263,16 @@ const en = {
     albumGroupProgress: '{group}: {done} of {total} revealed',
     recentHeading: 'Just revealed',
     moveLabel: 'Your next move',
-    moveFirstLabel: 'Your first card',
+    moveFirstLabel: 'Your first Must Eat',
     moveCta: 'On the map',
     moveLocateCta: 'Share location',
     moveCovered:
       '{count, plural, one {# Must Eat still face-down in {district}.} other {# Must Eats still face-down in {district}.}}',
     moveCoveredNear:
       '{count, plural, one {# Must Eat still face-down in {district} — {distance} from here.} other {# Must Eats still face-down in {district} — the nearest {distance} from here.}}',
-    moveFirst: 'Cards are revealed on site. The first one is waiting in {district}.',
+    moveFirst: 'Must Eats are revealed on site. The first one is waiting in {district}.',
     moveFirstNear:
-      'Cards are revealed on site. The first one is {distance} from here, in {district}.',
+      'Must Eats are revealed on site. The first one is {distance} from here, in {district}.',
     packsHeading: 'My Packs',
     packsMore: 'View Booster Packs',
     inviteHeading: 'Show your deck',
@@ -592,10 +592,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     deckCount: 'von {total} Must Eats aufgedeckt',
     empty: 'Auf dieser Map liegen noch keine Spots.',
     ctaHeading: 'Mach deine eigene Map auf',
-    ctaLine:
-      'Berlin in Must Eats — die Karten gehen vor Ort auf. Fang mit deinen eigenen Spots an.',
+    ctaLine: 'Berlin in Must Eats, aufgedeckt vor Ort. Fang mit deinen eigenen Spots an.',
     ctaLineNamed:
-      '{name} sammelt Berlin in Must Eats — die Karten gehen vor Ort auf. Fang mit deinen eigenen Spots an.',
+      '{name} sammelt Berlin in Must Eats, aufgedeckt vor Ort. Fang mit deinen eigenen Spots an.',
     cta: 'Jetzt starten',
   },
   profile: {
@@ -624,16 +623,16 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chster Zug',
-    moveFirstLabel: 'Erste Karte',
+    moveFirstLabel: 'Erstes Must Eat',
     moveCta: 'Auf der Map',
     moveLocateCta: 'Standort freigeben',
     moveCovered:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt.} other {Noch # Must Eats in {district} verdeckt.}}',
     moveCoveredNear:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt \u2014 {distance} von hier.} other {Noch # Must Eats in {district} verdeckt \u2014 das n\u00e4chste {distance} von hier.}}',
-    moveFirst: 'Karten deckst du vor Ort auf. Die erste wartet in {district}.',
+    moveFirst: 'Must Eats deckst du vor Ort auf. Das erste wartet in {district}.',
     moveFirstNear:
-      'Karten deckst du vor Ort auf. Die erste liegt {distance} von hier, in {district}.',
+      'Must Eats deckst du vor Ort auf. Das erste liegt {distance} von hier, in {district}.',
     packsHeading: 'Meine Packs',
     packsMore: 'Booster Packs ansehen',
     inviteHeading: 'Zeig dein Deck',

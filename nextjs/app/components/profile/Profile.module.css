@@ -339,15 +339,8 @@ main.page .head {
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
-/* Label links, Weg raus rechts — dieselbe Zeile wie im Fortschritt. */
-.moveTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .moveLabel {
+  display: block;
   color: var(--profile-accent);
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 11px;
@@ -356,27 +349,32 @@ main.page .head {
   text-transform: uppercase;
 }
 
-/* Dieselbe Behandlung wie der Weg zur Map darueber — sonst haette die Tafel
-   zwei Wege raus in zwei verschiedenen Formen. Hier ist der Knopf je nach
-   Zustand wirklich einer (Standort freigeben) oder ein Link (Auf der Map);
-   umso besser, dass beide gleich aussehen. */
+/* Der einzige Knopf, der auf dieser Tafel etwas nach vorn bewegt — also
+   gefuellt und nicht umrandet. Gelb auf Ink ist hier die einzige Fuellung,
+   die traegt: Rot auf dieser Flaeche traegt nicht (s. .bankEdit), und Ink
+   auf Ink waere unsichtbar.
+
+   Unter dem Satz, linksbuendig mit allem anderen der Textspalte. */
 .moveCta {
-  flex: 0 0 auto;
-  padding: 7px 14px;
-  color: var(--profile-accent);
-  border: 2px solid var(--profile-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: clamp(14px, 1.6vw, 18px);
+  padding: 0 20px;
+  color: var(--profile-ink);
+  background: var(--profile-accent);
   border-radius: var(--profile-radius);
   font-size: 13px;
   font-weight: 700;
-  transition:
-    color var(--profile-motion),
-    background-color var(--profile-motion);
+  transition: background-color var(--profile-motion);
 }
 
+/* Weiss statt Rot: Rot auf Ink ist die eine Kombination, die diese Flaeche
+   nicht traegt. */
 .move:hover .moveCta,
 .move:focus-visible .moveCta {
-  color: var(--profile-ink);
-  background: var(--profile-accent);
+  background: var(--profile-inverse);
 }
 
 .move:focus-visible {

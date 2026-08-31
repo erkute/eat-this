@@ -59,7 +59,7 @@ vi.mock('../AuthScreen', async (importOriginal) => ({
   default: ({ mode }: { mode: 'in' | 'out' }) => <div data-testid="auth-screen">{mode}</div>,
 }));
 vi.mock('@/lib/map', () => ({
-  useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
+  useUnlockedMustEats: () => ({ unlockedIds: new Set<string>(), unlockedAt: new Map() }),
   useMapData: () => ({
     restaurants: state.restaurants,
     mustEats: [],
@@ -75,6 +75,9 @@ vi.mock('@/lib/firebase/useUserProfile', () => ({
 }));
 vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
 vi.mock('./ProfileCityProgress', () => ({ default: () => <div>City progress</div> }));
+/* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
+   seines Providers, und dieser Test rendert die Shell blank. */
+vi.mock('./ProfileNextMove', () => ({ default: () => <div>Next move</div> }));
 vi.mock('./ProfileAlbum', () => ({ default: () => <div>Profile album</div> }));
 vi.mock('./ProfilePacks', () => ({ default: () => <div>Profile packs</div> }));
 vi.mock('./AvatarPickerModal', () => ({ default: () => null }));

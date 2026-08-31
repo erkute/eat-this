@@ -125,9 +125,14 @@ main.page .head {
 .bank {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  /* Der naechste Zug bleibt in der Textspalte, nicht ueber die volle
+     Breite: sonst enden die beiden gelben Wege raus („Zur Map",
+     „Standort freigeben") auf zwei verschiedenen rechten Kanten. Drei
+     Informationszeilen, ein Mass. */
   grid-template-areas:
     'copy figure'
-    'city figure';
+    'city figure'
+    'move figure';
   /* Zeilenabstand 0: der Fortschritt bringt seinen eigenen Trennstrich
      mit, und fehlt er (totalCount 0), soll keine leere Zeile bleiben. */
   gap: 0 clamp(20px, 3vw, 48px);
@@ -327,6 +332,83 @@ main.page .head {
   height: 100%;
   background: var(--profile-accent);
   border-radius: inherit;
+}
+
+/* ── naechster Zug ──────────────────────────────────────── */
+
+/* Die zweite Bank der Tafel, unter dem Fortschritt und in derselben Form:
+   Haarlinie, gelbes Label links, Weg raus rechts. Ein eigener Abschnitt
+   haette den vollen Abschnitts-Abstand gekostet und die Sammlung wieder
+   unter die Falz geschoben — genau das, was der Kopf-Umbau geraeumt hat.
+
+   Ganze Flaeche klickbar wie der Fortschritt darueber: der Satz IST die
+   Handlung, ein Knopf daneben waere ein zweiter Schritt. Je nach Zustand
+   ein Link auf die Karte oder ein Knopf fuer den Standort — darum die
+   Zuruecksetzer, die ein <button> von seinem Browser-Aussehen befreien. */
+.move {
+  grid-area: move;
+  align-self: start;
+  display: block;
+  width: 100%;
+  margin-top: clamp(14px, 1.8vw, 20px);
+  padding: clamp(13px, 1.6vw, 18px) 0 0;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+
+/* Label links, Weg raus rechts — dieselbe Zeile wie im Fortschritt. */
+.moveTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.moveLabel {
+  color: var(--profile-accent);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.moveCta {
+  flex: 0 0 auto;
+  padding-bottom: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--profile-accent);
+}
+
+.move:hover .moveCta,
+.move:focus-visible .moveCta {
+  color: var(--profile-accent);
+}
+
+.move:focus-visible {
+  outline: 3px solid var(--profile-accent);
+  outline-offset: 4px;
+  border-radius: var(--profile-radius);
+}
+
+/* Der Satz traegt die Auskunft und bleibt weiss: Label und Weg raus sind in
+   dieser Zeile schon gelb, ein drittes Gelb machte aus einem Satz eine
+   Ansammlung von Auszeichnungen. */
+.moveLine {
+  display: block;
+  max-width: 56ch;
+  margin-top: 8px;
+  font-size: clamp(15px, 1.35vw, 19px);
+  font-weight: 400;
+  line-height: 1.28;
 }
 
 /* ── recently revealed ──────────────────────────────────── */
@@ -766,7 +848,9 @@ main.page .foot {
   font-family: var(--et-font-display);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
-  transition: color var(--profile-motion), border-color var(--profile-motion);
+  transition:
+    color var(--profile-motion),
+    border-color var(--profile-motion);
 }
 
 /* Der unterstrichene Text ist 28 px hoch — als Tippziel zu klein, der
@@ -811,7 +895,8 @@ main.page .foot {
     grid-template-areas:
       'copy figure'
       'edit figure'
-      'city city';
+      'city city'
+      'move move';
     gap: 0 16px;
     padding: 20px;
   }

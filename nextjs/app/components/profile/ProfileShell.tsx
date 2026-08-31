@@ -9,10 +9,12 @@ import {
   useUserProfile,
   type AvatarChoice,
 } from '@/lib/firebase/useUserProfile';
+import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
 import ProfileCityProgress from './ProfileCityProgress';
+import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
@@ -26,11 +28,6 @@ interface Props {
    *  face-up cards stay face-up in the collection too. */
   publicFaceUpIds: string[];
 }
-
-/* Wenn ein Spot keinen Bezirk gepflegt hat, faellt seine Karte nicht raus —
-   sie sammelt sich unter der Stadt. Kein uebersetzter Text: der Name ist in
-   beiden Sprachen derselbe. */
-const FALLBACK_DISTRICT = 'Berlin';
 
 // The profile speaks the home's visual language: one white page, the homeV2
 // element vocabulary (hv-wrap / hv-section / hv-head / hv-title / hv-rail),
@@ -246,6 +243,16 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             </div>
 
             <ProfileCityProgress open={ownedRestaurants.length} total={totalCount} />
+
+            {/* Der einzige Zug nach vorn auf dieser Seite. Er steht in der
+                Bank und nicht als eigener Abschnitt darunter, damit die
+                Sammlung ueber der Falz bleibt. */}
+            <ProfileNextMove
+              mustEats={ownedMustEats}
+              faceUpIds={unlockedIds}
+              districtByRest={districtByRest}
+              hasRevealed={unlockedAt.size > 0}
+            />
           </div>
         </header>
 

@@ -247,6 +247,16 @@ const en = {
     albumCount: 'of {total} Must Eats',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     recentHeading: 'Just revealed',
+    moveLabel: 'Your next move',
+    moveFirstLabel: 'Your first card',
+    moveCta: 'On the map',
+    moveLocateCta: 'Share location',
+    moveCovered:
+      '{count, plural, one {# Must Eat still face-down in {district}.} other {# Must Eats still face-down in {district}.}}',
+    moveCoveredNear:
+      '{count, plural, one {# Must Eat still face-down in {district} — {distance} from here.} other {# Must Eats still face-down in {district} — the nearest {distance} from here.}}',
+    moveFirst: 'Cards open on site. The next one is waiting in {district}.',
+    moveFirstNear: 'Cards open on site. The next one is {distance} from here, in {district}.',
     packsHeading: 'My Packs',
     packsRemaining: '{count, plural, one {# pack still closed} other {# packs still closed}}',
     inviteHeading: 'Invite friends',
@@ -582,6 +592,16 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumCount: 'von {total} Must Eats',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     recentHeading: 'Zuletzt aufgedeckt',
+    moveLabel: 'N\u00e4chster Zug',
+    moveFirstLabel: 'Erste Karte',
+    moveCta: 'Auf der Map',
+    moveLocateCta: 'Standort freigeben',
+    moveCovered:
+      '{count, plural, one {Noch # Must Eat in {district} verdeckt.} other {Noch # Must Eats in {district} verdeckt.}}',
+    moveCoveredNear:
+      '{count, plural, one {Noch # Must Eat in {district} verdeckt \u2014 {distance} von hier.} other {Noch # Must Eats in {district} verdeckt \u2014 das n\u00e4chste {distance} von hier.}}',
+    moveFirst: 'Karten gehen vor Ort auf. Die n\u00e4chste wartet in {district}.',
+    moveFirstNear: 'Karten gehen vor Ort auf. Die n\u00e4chste liegt {distance} von hier, in {district}.',
     packsHeading: 'Meine Packs',
     packsRemaining: '{count, plural, one {Noch # Pack offen} other {Noch # Packs offen}}',
     inviteHeading: 'Freunde einladen',

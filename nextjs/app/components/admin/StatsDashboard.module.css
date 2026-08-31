@@ -1,0 +1,371 @@
+/* Internes Zahlenbrett. Marke nur im Kopf (Providence, Ink, Gelb) — darunter
+ * zählt Lesbarkeit: Inter, viel Weiß, tabellarische Ziffern.
+ * Light-only wie die ganze App, kein prefers-color-scheme. */
+
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+  color: var(--brand-ink, #15120e);
+  font-family: var(--font), sans-serif;
+}
+
+/* ── Kopf ─────────────────────────────────────────────────────────────── */
+
+.head {
+  margin-bottom: 26px;
+  padding-bottom: 18px;
+  border-bottom: 3px solid var(--brand-ink, #15120e);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-providence), var(--font), sans-serif;
+  font-size: clamp(38px, 7vw, 60px);
+  font-weight: 700;
+  text-transform: uppercase;
+  /* Großzügig, damit Providence die Unterlängen behält. */
+  line-height: 1.32;
+}
+
+.sub {
+  margin: 2px 0 0;
+  font-size: 15px;
+}
+
+.ranges {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.range,
+.rangeOn {
+  padding: 7px 15px;
+  border: 2px solid var(--brand-ink, #15120e);
+  background: #fff;
+  color: var(--brand-ink, #15120e);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.range:hover {
+  background: #ffc600;
+}
+
+.rangeOn {
+  background: var(--brand-ink, #15120e);
+  color: #fff;
+}
+
+/* ── Rumpf ────────────────────────────────────────────────────────────── */
+
+.body {
+  display: grid;
+  gap: 22px;
+}
+
+/* Nachladen: die alten Zahlen bleiben stehen und treten zurück, statt die
+   Seite leer zu räumen. Farbe, keine Bewegung. */
+.bodyStale {
+  display: grid;
+  gap: 22px;
+  color: #6f6a63;
+}
+
+.notice,
+.error {
+  padding: 14px 16px;
+  border: 2px solid var(--brand-ink, #15120e);
+  font-size: 15px;
+}
+
+.error {
+  border-color: #d9382a;
+  color: #d9382a;
+}
+
+/* ── Kennzahlen ───────────────────────────────────────────────────────── */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  padding: 16px 18px;
+  background: #ffc600;
+  border: 2px solid var(--brand-ink, #15120e);
+}
+
+.tileValue {
+  display: block;
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.tileLabel {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Karten ───────────────────────────────────────────────────────────── */
+
+.card {
+  padding: 18px 20px 20px;
+  border: 2px solid var(--brand-ink, #15120e);
+  background: #fff;
+}
+
+.cardTitle {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.big {
+  margin: 0;
+  font-size: 46px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.note {
+  margin: 8px 0 0;
+  max-width: 74ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #55504a;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+/* ── Verlauf ──────────────────────────────────────────────────────────── */
+
+.trend {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  overflow-x: auto;
+}
+
+.trendCol {
+  flex: 1 1 0;
+  min-width: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.trendBars {
+  position: relative;
+  width: 100%;
+  height: 132px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.trendViews,
+.trendVisitors {
+  width: 46%;
+  min-height: 2px;
+}
+
+.trendViews {
+  background: #ffc600;
+  border: 1px solid var(--brand-ink, #15120e);
+}
+
+.trendVisitors {
+  background: var(--brand-ink, #15120e);
+}
+
+.trendDay {
+  font-size: 10px;
+  white-space: nowrap;
+  color: #55504a;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #55504a;
+}
+
+.keyViews,
+.keyVisitors {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+}
+
+.keyViews {
+  background: #ffc600;
+  border: 1px solid var(--brand-ink, #15120e);
+}
+
+.keyVisitors {
+  margin-left: 14px;
+  background: var(--brand-ink, #15120e);
+}
+
+/* ── Trichter ─────────────────────────────────────────────────────────── */
+
+.funnels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.funnelTitle {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 1fr 82px 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+
+.stepLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stepBarWrap,
+.rankBarWrap {
+  height: 10px;
+  background: #efece6;
+  border: 1px solid var(--brand-ink, #15120e);
+}
+
+.stepBar,
+.rankBar {
+  display: block;
+  height: 100%;
+  background: #ffc600;
+}
+
+/* Null bleibt sichtbar null — ein leerer Balken ist der Befund, nicht ein
+   fehlender Wert. */
+.stepBarEmpty {
+  display: block;
+  height: 100%;
+  width: 0;
+}
+
+.stepValue,
+.rankValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ── Ranglisten ───────────────────────────────────────────────────────── */
+
+.rank {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rankRow {
+  display: grid;
+  grid-template-columns: 1fr 70px 58px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #e7e3dc;
+  font-size: 13px;
+}
+
+.rankRow:last-child {
+  border-bottom: 0;
+}
+
+/* Ereignisliste: zwei Spalten statt drei. */
+.rank .rankRow:has(.rankKey + .rankValue) {
+  grid-template-columns: 1fr 58px;
+}
+
+.rankKey {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Tabelle ──────────────────────────────────────────────────────────── */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  text-align: right;
+  padding: 4px 6px;
+  border-bottom: 2px solid var(--brand-ink, #15120e);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table th:first-child {
+  text-align: left;
+}
+
+.table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #e7e3dc;
+}
+
+.cellKey {
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellNum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .step {
+    grid-template-columns: 1fr 52px 46px;
+  }
+
+  .rankRow {
+    grid-template-columns: 1fr 52px 46px;
+  }
+}

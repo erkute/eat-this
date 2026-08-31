@@ -192,18 +192,23 @@ main.page .head {
 /* Das Zeichen sitzt auf der Figur statt als Unterzeile daran — dieselbe
    Idee wie das Kreuz auf einem gespeicherten Spot. Unten rechts, weil die
    drei Charaktere dort ihren leeren Sockel haben; oben halten alle drei
-   etwas in die Hoehe. */
+   etwas in die Hoehe.
+
+   Kein Kreis darum: der Stift ist selbst Pixel-Art mit schwarzer Kontur und
+   steht auf Ink fuer sich. Ein weisser Grund waere ein Fremdkoerper auf einer
+   Tafel, die sonst nur Schrift und Figur traegt.
+
+   56 px, nicht die 26 des frueheren Icons: die Grafik ist 30 Pixel breit,
+   darunter ist der Stift ein Splitter (nachgemessen auf Ink). `pixelated`
+   haelt die Kanten hart — sonst verwischt der Browser beim Skalieren genau
+   das, was Pixel-Art ausmacht. */
 .bankAvatarBadge {
   position: absolute;
-  right: -6px;
-  bottom: 6px;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  color: var(--profile-ink);
-  background: var(--profile-accent);
-  border-radius: 50%;
+  right: -10px;
+  bottom: 2px;
+  width: clamp(40px, 4vw, 56px);
+  height: auto;
+  image-rendering: pixelated;
   transition: transform var(--profile-motion);
 }
 

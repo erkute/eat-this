@@ -245,20 +245,8 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                   src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                   alt=""
                 />
-                <span className={styles.bankAvatarBadge} aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
-                  </svg>
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className={styles.bankAvatarBadge} src="/pics/pencil.webp?v=1" alt="" />
               </button>
             </div>
 

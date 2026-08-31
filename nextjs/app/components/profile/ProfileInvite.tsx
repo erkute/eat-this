@@ -27,7 +27,10 @@ export default function ProfileInvite({ uid }: { uid: string }) {
 
   return (
     <div className={styles.invite}>
-      <div className={styles.inviteCopy}>
+      {/* Traegt keine Klasse: die Huelle ist nur die erste Grid-Spalte, und
+          `.inviteCopy` gab es im Modul nie — React rendert dafuer stumm gar
+          kein class-Attribut. */}
+      <div>
         <h2 className={styles.inviteTitle}>{t('inviteHeading')}</h2>
         <p className={styles.inviteLine}>{t('inviteLine')}</p>
         {/* Erst ab der ersten Anmeldung. „Noch niemand" wäre eine Bilanz, die

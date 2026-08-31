@@ -19,6 +19,15 @@
   background: var(--et-home-paper, #fff);
 }
 
+/* Wo die Seite mit der Konto-Zeile endet, bringt die Zeile ihr eigenes
+   Polster mit. Sonst standen darunter noch einmal bis zu 104 px Weiss, und
+   die Zeile schwebte zwischen Einladen-Flaeche und schwarzem Footer, statt
+   die Seite zu schliessen. Der Fehlerzweig rendert keinen Fuss und behaelt
+   sein Polster — darum `:has()` und keine feste Annahme. */
+main.page:has(.foot) {
+  padding-bottom: 0;
+}
+
 .section {
   min-width: 0;
 }
@@ -617,13 +626,18 @@ main.page .head {
 /* ── invite ─────────────────────────────────────────────── */
 
 /* The one yellow field on the page. Everything else earns attention from
-   photography, so the single thing with no picture gets the accent. */
+   photography, so the single thing with no picture gets the accent.
+
+   Dicht gepackt, nicht ausgebreitet: seit die Packs als Trophaeen-Reihe
+   darueber stehen, ist das hier der letzte Block vor dem Fuss. Auf voller
+   Breite, in Kapitel-Schriftgroesse und mit 44 px Polster war er der
+   lauteste der Seite — lauter als das Deck, wegen dem man sie oeffnet. */
 .invite {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(20px, 3vw, 48px);
+  gap: clamp(16px, 2vw, 32px);
   align-items: center;
-  padding: clamp(24px, 3.4vw, 44px);
+  padding: clamp(20px, 2.2vw, 30px);
   background: var(--profile-accent);
   border-radius: var(--et-radius-photo, 10px);
 }
@@ -632,7 +646,7 @@ main.page .head {
   margin: 0;
   color: var(--profile-ink);
   font-family: var(--et-font-display);
-  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
+  font-size: clamp(22px, 2.4vw, 32px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title, 0.92);
@@ -672,6 +686,7 @@ main.page .head {
 
 .inviteUrl {
   overflow: hidden;
+  max-width: 260px;
   color: color-mix(in srgb, var(--profile-ink) 72%, transparent);
   font-family: var(--et-font-mono);
   font-size: 12px;
@@ -712,12 +727,19 @@ main.page .head {
   border-top: 1px solid var(--et-home-rule, #e4e1dc);
 }
 
-/* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands. At
-   least a full section gap: the foot follows the filled invite panel, so
-   anything tighter reads as part of it rather than as the page closing. */
+/* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands —
+   und zwar mit Longhands: das `padding: 0 var(--et-wrap-pad)` der Huelle
+   traegt den seitlichen Rand, ein Shorthand hier wuerde ihn mitnehmen.
+
+   Kein voller Abschnitts-Abstand mehr. Mit 116 px darueber und 104 px
+   darunter stand die Konto-Zeile freischwebend zwischen der gelben Flaeche
+   und dem schwarzen Footer und las sich als eigener Abschnitt, den sie nicht
+   ist. Jetzt haengt sie unter dem letzten Inhalt und setzt sich auf den
+   Footer — das Leiseste der Seite an ihrer leisesten Stelle. */
 main.page .foot {
-  margin-top: var(--et-section-gap, clamp(72px, 8vw, 128px));
-  padding-top: clamp(28px, 3vw, 40px);
+  margin-top: clamp(36px, 4vw, 56px);
+  padding-top: clamp(18px, 2vw, 24px);
+  padding-bottom: clamp(28px, 3vw, 40px);
 }
 
 .footAccount {
@@ -727,27 +749,39 @@ main.page .foot {
   overflow-wrap: anywhere;
 }
 
+/* Der umrandete Knopf las sich als Handlungsaufruf — auf der einen Seite,
+   die niemand oeffnet, um sich abzumelden. Stattdessen die leise Variante,
+   die diese Seite schon kennt: unterstrichener Text wie „Charakter aendern"
+   auf der Ink-Bank, nur in Ink auf Papier. Rot beim Hover wie die uebrigen
+   Textlinks der Seite. */
 .logout {
-  min-height: 40px;
-  padding: 0 18px;
+  position: relative;
+  padding: 4px 0 3px;
   color: var(--profile-ink);
   background: transparent;
   border: 0;
-  border-radius: var(--profile-radius);
-  box-shadow: inset 0 0 0 2px var(--profile-ink);
+  border-bottom: 2px solid var(--profile-ink);
+  border-radius: 0;
   cursor: pointer;
   font-family: var(--et-font-display);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
-  transition:
-    color var(--profile-motion),
-    background-color var(--profile-motion);
+  transition: color var(--profile-motion), border-color var(--profile-motion);
+}
+
+/* Der unterstrichene Text ist 28 px hoch — als Tippziel zu klein, der
+   umrandete Knopf davor war 40. Die Trefferflaeche waechst unsichtbar auf
+   48 px, der Strich bleibt am Text: mehr Padding wuerde ihn mitschieben. */
+.logout::after {
+  content: '';
+  position: absolute;
+  inset: -10px -8px;
 }
 
 .logout:hover,
 .logout:focus-visible {
-  color: var(--profile-inverse);
-  background: var(--profile-ink);
+  color: var(--profile-red);
+  border-bottom-color: var(--profile-red);
 }
 
 /* ── narrow ─────────────────────────────────────────────── */
@@ -841,12 +875,11 @@ main.page .foot {
 }
 
 @media (max-width: 420px) {
+  /* Untereinander, aber linksbuendig: ein unterstrichener Text ueber die
+     volle Breite waere eine Linie quer durch die Seite. */
   .foot {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
-  }
-
-  .logout {
-    width: 100%;
+    gap: 12px;
   }
 }

@@ -10,6 +10,10 @@ import styles from './Profile.module.css';
  * wo Berlin steht und wie viel Spots man schon freigeschaltet hat, von wie
  * vielen").
  *
+ * Gelbe Zahl auf Ink — dieselbe Sprache wie der Belohnungs-Screen nach der
+ * Anmeldung, absichtlich: dort wächst die Zahl, hier steht sie. Wer die
+ * Farbgebung hier ändert, löst den Bezug zwischen den beiden Bildschirmen.
+ *
  * Sitzt seit 31.08.2026 IN der Ink-Bank des Kopfes statt als eigener
  * Abschnitt darunter: Figur, Name und diese Zahl beantworten dieselbe Frage
  * („wer bin ich, wo stehe ich"), standen dafür aber zwei Bildschirme

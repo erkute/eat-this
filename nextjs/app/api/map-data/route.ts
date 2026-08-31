@@ -84,6 +84,13 @@ export async function GET(req: Request) {
   // Face-up for THIS viewer: curated/spot-of-day reveals ∪ on-site unlocks ∪
   // purchased must-eat grants. Everything else ships stripped — covered cards
   // render only the card-back, so the paid fields must not leave the server.
+  //
+  // ZWEITER AUFRUFER: lib/profile/publicDeck.server.ts leitet dieselbe Menge
+  // fuer die oeffentliche Deck-Seite ab — inklusive des Admin-Zweigs weiter
+  // oben. Wer hier eine vierte Quelle ergaenzt, muss sie dort mitziehen, sonst
+  // meldet das geteilte Deck weniger als das eigene Profil. Genau so ist der
+  // Admin-Zweig schon einmal auseinandergelaufen (0 von 24 statt 24 von 24).
+  // Kein Test haelt die beiden zusammen — siehe Review vom 31.08.2026.
   const faceUpIds = new Set([...visible.revealedMustEatIds, ...unlockedIds, ...ent.mustEatIds]);
   const hydratedMustEats = await hydrateAuthorizedMustEats(visible.mustEats, faceUpIds);
 

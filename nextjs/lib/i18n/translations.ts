@@ -233,9 +233,9 @@ const en = {
     deckCount: 'of {total} Must Eats revealed',
     empty: 'No spots on this map yet.',
     ctaHeading: 'Open your own map',
-    ctaLine: 'Berlin in Must Eats, revealed on site. Start with your own spots.',
+    ctaLine: 'Every spot has its Must Eat. You reveal them on site.',
     ctaLineNamed:
-      '{name} collects Berlin in Must Eats, revealed on site. Start with your own spots.',
+      '{name} is already collecting. Every spot has its Must Eat — you reveal them on site.',
     cta: 'Start now',
   },
   profile: {
@@ -593,9 +593,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     deckCount: 'von {total} Must Eats aufgedeckt',
     empty: 'Auf dieser Map liegen noch keine Spots.',
     ctaHeading: 'Mach deine eigene Map auf',
-    ctaLine: 'Berlin in Must Eats, aufgedeckt vor Ort. Fang mit deinen eigenen Spots an.',
-    ctaLineNamed:
-      '{name} sammelt Berlin in Must Eats, aufgedeckt vor Ort. Fang mit deinen eigenen Spots an.',
+    ctaLine: 'Jeder Spot hat sein Must Eat. Aufgedeckt wird vor Ort.',
+    ctaLineNamed: '{name} sammelt schon. Jeder Spot hat sein Must Eat — aufgedeckt wird vor Ort.',
     cta: 'Jetzt starten',
   },
   profile: {

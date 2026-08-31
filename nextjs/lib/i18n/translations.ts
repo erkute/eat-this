@@ -248,9 +248,7 @@ const en = {
     albumGroupProgress: '{group}: {done} of {total} revealed',
     recentHeading: 'Just revealed',
     packsHeading: 'My Packs',
-    packsCta: 'All Booster Packs',
-    packStatusOwned: 'opened',
-    packStatusLocked: 'Open',
+    packsRemaining: '{count, plural, one {# pack still closed} other {# packs still closed}}',
     inviteHeading: 'Invite friends',
     inviteLine:
       'Send the link to someone you like eating with. You both get new spots on your map.',
@@ -583,9 +581,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     recentHeading: 'Zuletzt aufgedeckt',
     packsHeading: 'Meine Packs',
-    packsCta: 'Alle Booster Packs',
-    packStatusOwned: 'ge\u00f6ffnet',
-    packStatusLocked: '\u00d6ffnen',
+    packsRemaining: '{count, plural, one {Noch # Pack offen} other {Noch # Packs offen}}',
     inviteHeading: 'Freunde einladen',
     inviteLine:
       'Schick den Link an jemanden, mit dem du gern essen gehst. Ihr bekommt beide neue Spots auf eure Map.',

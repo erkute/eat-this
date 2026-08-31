@@ -61,6 +61,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     mustEats,
     revealedMustEatIds,
     totalCount,
+    fullCatalog,
     loading: mapDataLoading,
     error: mapDataError,
     refetch: refetchMapData,
@@ -268,7 +269,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         </section>
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfilePacks uid={user.uid} />
+          <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
         </section>
 
         <section className={`hv-section hv-wrap ${styles.section}`}>

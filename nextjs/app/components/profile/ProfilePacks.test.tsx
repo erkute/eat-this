@@ -5,7 +5,8 @@ import { cleanup, render } from '@testing-library/react';
 const state = vi.hoisted(() => ({ owned: new Set<string>() as Set<string> | null }));
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, vars?: Record<string, unknown>) =>
+    key === 'packsRemaining' ? `Noch ${vars?.count} Packs offen` : key,
 }));
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => state.owned,
@@ -52,27 +53,51 @@ afterEach(() => {
 
 describe('ProfilePacks artwork delivery', () => {
   it('uses lazy responsive Next images with a stable asset version', () => {
-    const { container } = render(<ProfilePacks uid="user-1" />);
+    const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
     const images = [...container.querySelectorAll('img')];
 
-    expect(images.length).toBe(10);
+    // Nur das Welcome Pack ist offen — die zehn Kaufkarten sind weg.
+    expect(images.length).toBe(1);
     for (const image of images) {
       expect(image.getAttribute('src')).toMatch(/\/pics\/booster\/.+\.webp\?v=1$/);
-      expect(image.getAttribute('width')).toBe('166');
-      expect(image.getAttribute('height')).toBe('190');
-      expect(image.getAttribute('sizes')).toBe('(max-width: 760px) 136px, 166px');
+      expect(image.getAttribute('width')).toBe('96');
+      expect(image.getAttribute('height')).toBe('139');
+      expect(image.getAttribute('sizes')).toBe('(max-width: 760px) 72px, 96px');
       expect(image.getAttribute('loading')).toBe('lazy');
     }
   });
 
   it('does not render owned packs as locked while ownership is unresolved', () => {
     state.owned = null;
-    const { container, getByRole } = render(<ProfilePacks uid="user-1" />);
+    const { container, getByRole } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
 
     expect(getByRole('status').textContent).toBe('dataLoading');
-    // The section head's "see all packs" link is not a pack — only individual
-    // /pack/<slug> links would mean we guessed at ownership.
-    expect(container.querySelectorAll('a[href^="/pack/"]')).toHaveLength(0);
+    expect(container.querySelectorAll('a[href^="/pack"]')).toHaveLength(0);
     expect(container.querySelectorAll('img')).toHaveLength(0);
+  });
+});
+
+describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
+  /* Der Laden stand vorher IM Profil: zehn Kaufknoepfe unter einer
+     Ueberschrift, die „Meine Packs" heisst. */
+  it('nennt die fehlenden Packs in einer Zeile statt in zehn Kaufkarten', () => {
+    state.owned = new Set(['category-pizza']);
+    const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
+
+    expect(container.querySelectorAll('img')).toHaveLength(2);
+    const more = container.querySelector('a[href="/packs"]');
+    expect(more?.textContent).toBe('Noch 8 Packs offen');
+  });
+
+  /* Der Widerspruch, wegen dem fullCatalog ueberhaupt existiert: oben stand
+     „466 von 466 Spots", darunter zehn verschlossene Packs. Ein Admin-Konto
+     hat weder Claim noch Entitlement-Dokument — useOwnedEntitlements kann das
+     also nicht wissen. */
+  it('zeigt alles offen, wenn der Server den ganzen Katalog meldet', () => {
+    state.owned = new Set<string>();
+    const { container } = render(<ProfilePacks uid="user-1" fullCatalog />);
+
+    expect(container.querySelectorAll('img')).toHaveLength(10);
+    expect(container.querySelector('a[href="/packs"]')).toBeNull();
   });
 });

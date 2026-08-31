@@ -10,6 +10,10 @@ export interface CachedMapData {
   categories: CategoryDef[];
   totalCount: number;
   revealedMustEatIds: string[];
+  /** Ob diesem Konto der ganze Katalog offensteht (Admin oder all-berlin).
+   *  Aeltere Caches haben das Feld nicht — dann gilt false, bis der Refetch
+   *  die Wahrheit nachliefert. */
+  fullCatalog?: boolean;
 }
 
 const CURRENT_CACHE_PREFIX = 'eatthis_mapdata_v3_';

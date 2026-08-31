@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
-import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
-import { selectInitialMustEatsData } from '@/lib/map/initial-surface-data';
+import { getMustEatsCatalogData } from '@/lib/map/server-initial-map-data';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -61,11 +60,10 @@ export default async function MustEatsPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [{ default: MustEatsSection }, fullInitialMapData] = await Promise.all([
+  const [{ default: MustEatsSection }, initialMapData] = await Promise.all([
     import('@/app/components/MustEatsSection'),
-    getInitialAnonMapData(),
+    getMustEatsCatalogData(),
   ]);
-  const initialMapData = selectInitialMustEatsData(fullInitialMapData);
 
   return <MustEatsSection initialMapData={initialMapData} locale={locale as 'de' | 'en'} />;
 }

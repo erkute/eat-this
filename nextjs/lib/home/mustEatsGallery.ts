@@ -1,7 +1,5 @@
 import type { MapMustEat } from '@/lib/types';
 
-export type MustEatFilter = 'all' | 'open' | 'locked';
-
 export interface TeaserCard {
   mustEat: MapMustEat;
   faceUp: boolean;
@@ -38,17 +36,6 @@ export function composeTeaserCards(
   }
 
   return row;
-}
-
-/** Apply the gallery filter chip. 'all' returns the input list as-is. */
-export function filterMustEats(
-  mustEats: MapMustEat[],
-  unlockedIds: Set<string>,
-  filter: MustEatFilter
-): MapMustEat[] {
-  if (filter === 'all') return mustEats;
-  const wantOpen = filter === 'open';
-  return mustEats.filter((m) => unlockedIds.has(m._id) === wantOpen);
 }
 
 /** Pick the demo card for the Must-Eats onboarding overlay: the first

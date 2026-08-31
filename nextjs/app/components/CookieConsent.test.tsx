@@ -25,11 +25,11 @@ vi.mock('@/lib/i18n', () => ({
     lang: 'de',
     t: (key: string) =>
       ({
-        'cookie.title': 'Dürfen wir mitzählen?',
+        'cookie.title': 'Cookies',
         'cookie.text': 'Cookie-Text',
-        'cookie.moreInfo': 'Was genau wird gespeichert?',
-        'cookie.decline': 'Nein, danke',
-        'cookie.accept': 'Ja, gerne',
+        'cookie.moreInfo': 'Details anzeigen',
+        'cookie.decline': 'Ablehnen',
+        'cookie.accept': 'Akzeptieren',
         'footer.datenschutz': 'Datenschutz',
         'burger.impressum': 'Impressum',
       })[key] ?? key,
@@ -46,7 +46,7 @@ function clearCookies() {
   }
 }
 
-const gate = () => screen.queryByRole('dialog', { name: 'Dürfen wir mitzählen?' });
+const gate = () => screen.queryByRole('dialog', { name: 'Cookies' });
 
 /** The gate mounts at once but transitions in over two frames. */
 function openGate() {
@@ -150,7 +150,7 @@ describe('CookieConsent', () => {
     render(<CookieConsent />);
     await openGate();
 
-    const trigger = () => screen.getByRole('button', { name: 'Was genau wird gespeichert?' });
+    const trigger = () => screen.getByRole('button', { name: 'Details anzeigen' });
     fireEvent.click(trigger());
     expect(trigger().getAttribute('aria-expanded')).toBe('true');
 
@@ -164,7 +164,7 @@ describe('CookieConsent', () => {
     render(<CookieConsent />);
     await openGate();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Ja, gerne' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Akzeptieren' }));
 
     expect(readConsent()).toBe('accepted');
     await waitFor(() => {
@@ -176,7 +176,7 @@ describe('CookieConsent', () => {
     render(<CookieConsent />);
     await openGate();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Nein, danke' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ablehnen' }));
 
     expect(readConsent()).toBe('declined');
     expect(analytics.load).not.toHaveBeenCalled();
@@ -209,5 +209,26 @@ describe('CookieConsent', () => {
     const { renderToStaticMarkup } = await import('react-dom/server');
 
     expect(renderToStaticMarkup(<CookieConsent />)).toBe('');
+  });
+});
+
+describe('CookieConsent — der Detailbereich nennt die eigene Zählung', () => {
+  /**
+   * Im Kurztext hat der Zähler nichts verloren: über ihn wird nicht
+   * abgestimmt. Verschweigen darf ihn der Dialog aber auch nicht — bis
+   * Version 3 stand dort „Dürfen wir mitzählen?", während `/api/count` längst
+   * jeden Besucher zählte. Wer ablehnte, hielt sich für nicht gezählt.
+   */
+  it('erklärt unter „Details anzeigen“, dass ohne Cookie weitergezählt wird', async () => {
+    render(<CookieConsent />);
+    await openGate();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Details anzeigen' }));
+
+    const panel = document.getElementById('cookieInfoPanel');
+    expect(panel?.textContent).toMatch(/Läuft immer/);
+    expect(panel?.textContent).toMatch(/läuft auch weiter, wenn du unten .?Ablehnen.? wählst/);
+    // Und die entscheidende Eigenschaft, die ihn einwilligungsfrei macht.
+    expect(panel?.textContent).toMatch(/kein Cookie bei dir/);
   });
 });

@@ -45,10 +45,58 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
   };
 }
 
-/** The public Must-Eats catalog never reads restaurant or category payloads. */
-export function selectInitialMustEatsData(data: InitialMapData): InitialMustEatsData {
+/**
+ * The public Must-Eats catalog: EVERY must-eat in the catalog, in a fixed
+ * order, with only the anon face-up set carrying its dish content.
+ *
+ * The map ships a must-eat only when its spot is inside the free tier, which
+ * left /must-eats showing an arbitrary subset — the page whose whole job is
+ * the complete deck. `catalog` is the full Sanity list; cards the anon payload
+ * already carries keep their (authorized, hydrated) version, the rest join as
+ * metadata-only. Nothing new is published: a covered card is id + order +
+ * restaurant ref after `stripCoveredMustEats`, and the restaurant names are
+ * public on the map's locked list already.
+ *
+ * Order is the deck order: face-up first by card number, then the covered ones
+ * by restaurant name. The face-up cards are the product shots, so they belong
+ * together — interleaved with the backs they read as a broken checkerboard.
+ */
+export function selectMustEatsCatalog(
+  data: InitialMapData,
+  catalog: MapMustEat[]
+): InitialMustEatsData {
+  const faceUp = new Set(data.revealedMustEatIds);
+  const authorized = new Map(data.mustEats.map((m) => [m._id, m]));
+  const complete = catalog.map((m) => authorized.get(m._id) ?? m);
+
   return {
-    mustEats: data.mustEats,
+    mustEats: [
+      ...complete.filter((m) => faceUp.has(m._id)).sort(byCardNumber),
+      ...complete
+        .filter((m) => !faceUp.has(m._id))
+        .sort(byRestaurantName)
+        .map(trimCoveredSpot),
+    ],
     revealedMustEatIds: data.revealedMustEatIds,
   };
+}
+
+/** A covered card renders its spot's NAME and nothing else, so that is all its
+ *  restaurant ref keeps here. `mapMustEatsQuery` also projects `address` and
+ *  `photo`, and this page reaches spots the map leaves out entirely — without
+ *  the trim, widening the catalog would publish the street address of a spot
+ *  that is still behind the paywall. */
+function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
+  const { _id, name, slug, lat, lng } = mustEat.restaurant;
+  return { ...mustEat, restaurant: { _id, name, slug, lat, lng } };
+}
+
+function byCardNumber(a: MapMustEat, b: MapMustEat): number {
+  const diff = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
+  return diff !== 0 ? diff : a._id.localeCompare(b._id);
+}
+
+function byRestaurantName(a: MapMustEat, b: MapMustEat): number {
+  const diff = a.restaurant.name.localeCompare(b.restaurant.name, 'de');
+  return diff !== 0 ? diff : a._id.localeCompare(b._id);
 }

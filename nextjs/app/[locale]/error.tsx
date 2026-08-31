@@ -46,7 +46,7 @@ export default function LocaleError({
   const copy = COPY[locale];
 
   return (
-    <main className={styles.page} aria-labelledby="error-title">
+    <main className={`${styles.page} ${styles.errorPage}`} aria-labelledby="error-title">
       <section className={styles.hero}>
         {/* Remy schaut, wie man schaut, wenn man sich verschluckt hat — der
             O-Mund aus dem 'thinking'-Frame (User, 2026-08-27). Reines

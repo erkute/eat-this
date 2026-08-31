@@ -25,8 +25,12 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
     ],
   },
   {
+    h: 'Läuft immer: unsere eigene Zählung',
+    p: 'Wir zählen Seitenaufrufe selbst, und dafür fragen wir nicht — es liegt kein Cookie bei dir und wir lesen nichts von deinem Gerät. Aus deiner IP und deinem Browser entsteht eine Prüfsumme, die täglich wechselt und nach zwei Tagen gelöscht wird; sie sagt uns nur, ob zwei Aufrufe am selben Tag von derselben Person kamen. Über den Tag hinaus ist damit niemand wiedererkennbar, und deine IP speichern wir nie im Klartext. Das läuft auch weiter, wenn du unten „Ablehnen" wählst — deshalb steht es hier.',
+  },
+  {
     h: 'Statistik (nur bei Akzeptieren)',
-    p: 'Google Analytics 4 (Google Ireland Ltd.) — Seitenaufrufe, grobe Geräte-Infos und eine zufällige Kennung, die in einem Cookie liegt. Kein Name, keine E-Mail, keine genaue Position, aber es ist keine Anonymisierung: über die Kennung sind deine Aufrufe innerhalb dieser Seite verknüpfbar. Die Daten werden bei Google verarbeitet, auch in den USA. Lädt erst nach deinem Klick auf „Ja, gerne"; bei „Nein, danke" wird nichts davon geladen und die Kennung entsteht gar nicht erst.',
+    p: 'Google Analytics 4 (Google Ireland Ltd.) — Seitenaufrufe, grobe Geräte-Infos und eine zufällige Kennung, die in einem Cookie liegt. Kein Name, keine E-Mail, keine genaue Position, aber es ist keine Anonymisierung: über die Kennung sind deine Aufrufe innerhalb dieser Seite verknüpfbar. Die Daten werden bei Google verarbeitet, auch in den USA. Lädt erst nach deinem Klick auf „Akzeptieren"; bei „Ablehnen" wird nichts davon geladen und die Kennung entsteht gar nicht erst.',
   },
   {
     h: 'Drittanbieter',
@@ -70,8 +74,12 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
     ],
   },
   {
+    h: 'Always on: our own count',
+    p: 'We count page views ourselves, and we do not ask for that — no cookie is stored on your device and we read nothing from it. Your IP and browser are turned into a checksum that changes daily and is deleted after two days; it only tells us whether two page views on the same day came from the same person. Beyond that day nobody is recognisable, and we never store your IP in the clear. This keeps running even if you choose "Decline" below — which is why it is listed here.',
+  },
+  {
     h: 'Analytics (only if you accept)',
-    p: 'Google Analytics 4 (Google Ireland Ltd.) — page views, basic device info and a random identifier stored in a cookie. No name, no email, no precise location — but it is not anonymisation: that identifier links your visits within this site. The data is processed by Google, including in the US. Loaded only after you say yes; "No, thanks" means none of it loads and the identifier is never created.',
+    p: 'Google Analytics 4 (Google Ireland Ltd.) — page views, basic device info and a random identifier stored in a cookie. No name, no email, no precise location — but it is not anonymisation: that identifier links your visits within this site. The data is processed by Google, including in the US. Loaded only after you click "Accept"; "Decline" means none of it loads and the identifier is never created.',
   },
   {
     h: 'Third-party services',

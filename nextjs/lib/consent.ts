@@ -37,8 +37,21 @@ export const CONSENT_ID_COOKIE = 'consentId';
  * ran on every page load and both see the visitor's IP; only the dialog had
  * stayed quiet about them, so answers to version 2 were given to an
  * incomplete list.
+ *
+ * 4 corrects what the question claimed to be about. Versions 2 and 3 asked
+ * "Dürfen wir mitzählen?" while /api/count had been counting every visitor
+ * since 21.08.2026 regardless of the answer — and the dialog listed that
+ * counter nowhere, not even under "Notwendig". Anyone choosing "Nein, danke"
+ * was left believing they had opted out of being counted. They had not; they
+ * had declined Google Analytics, which is a different and much smaller thing.
+ *
+ * The purposes themselves did not change. What changed is that the dialog now
+ * names the consent-free counter, says it keeps running either way, and asks
+ * only about what the answer actually governs: the one thing GA adds on top
+ * (returning visitors and time on site). Consent given to the old wording was
+ * given to a false premise, so it does not carry over.
  */
-export const CONSENT_VERSION = 3;
+export const CONSENT_VERSION = 4;
 
 export type ConsentValue = 'accepted' | 'declined';
 

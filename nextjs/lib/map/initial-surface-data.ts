@@ -57,9 +57,14 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
  * restaurant ref after `stripCoveredMustEats`, and the restaurant names are
  * public on the map's locked list already.
  *
- * Order is the deck order: face-up first by card number, then the covered ones
- * by restaurant name. The face-up cards are the product shots, so they belong
+ * Order is the deck order, and within both bands that is the card number —
+ * the figure printed bottom-right on every card, which is what a reader sorts
+ * a deck by. Face-up first: those are the product shots, so they belong
  * together — interleaved with the backs they read as a broken checkerboard.
+ * The covered band used to run alphabetically by spot, which put a new card
+ * somewhere in the middle of the wall instead of at the end where its number
+ * says it belongs. The alphabetical spot list under that band is sorted
+ * where it is rendered (MustEatsGallery), not by this order.
  */
 export function selectMustEatsCatalog(
   data: InitialMapData,
@@ -74,7 +79,7 @@ export function selectMustEatsCatalog(
       ...complete.filter((m) => faceUp.has(m._id)).sort(byCardNumber),
       ...complete
         .filter((m) => !faceUp.has(m._id))
-        .sort(byRestaurantName)
+        .sort(byCardNumber)
         .map(trimCoveredSpot),
     ],
     revealedMustEatIds: data.revealedMustEatIds,
@@ -93,10 +98,5 @@ function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
 
 function byCardNumber(a: MapMustEat, b: MapMustEat): number {
   const diff = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
-  return diff !== 0 ? diff : a._id.localeCompare(b._id);
-}
-
-function byRestaurantName(a: MapMustEat, b: MapMustEat): number {
-  const diff = a.restaurant.name.localeCompare(b.restaurant.name, 'de');
   return diff !== 0 ? diff : a._id.localeCompare(b._id);
 }

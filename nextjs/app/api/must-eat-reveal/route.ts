@@ -3,7 +3,7 @@ import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { getFreeSurfaceData } from '@/lib/map/free-surface';
-import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server';
+import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds, unlockMustEat } from '@/lib/firebase/unlockedMustEats.server';
 import { checkRateLimit } from '@/lib/buddy/rateLimit';
 import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
@@ -78,28 +78,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'unknown must-eat' }, { status: 404 });
   }
 
-  let accessIds: Set<string>;
-  if (ent.isAdmin || ent.hasAllBerlin) {
-    accessIds = new Set(allMustEats.map((candidate) => candidate._id));
-  } else {
-    const visible = await composeVisibleRestaurants({
-      all,
-      allMustEats,
-      ent,
-      uid,
-      freeRestaurantIds: freeSurface.restaurantIds,
-    });
-    const visibleRestaurantIds = new Set(visible.restaurants.map((r) => r._id));
+  /* Dieselbe Ableitung wie /api/map-data und die oeffentliche Deck-Seite.
+     Hier stand die Formel als DRITTE Kopie — mit demselben Admin-Zweig und
+     demselben Dreier-Verbund, nur um `mustEatId` erweitert. */
+  const surface = await composeAccountSurface({
+    all,
+    allMustEats,
+    ent,
+    uid,
+    freeRestaurantIds: freeSurface.restaurantIds,
+    unlockedIds,
+  });
+
+  /* Wer den ganzen Katalog hat, kommt an jeden Spot; fuer alle anderen muss
+     der Spot ueberhaupt auf ihrer Map liegen, bevor sie dort aufdecken. */
+  if (!surface.fullCatalog) {
+    const visibleRestaurantIds = new Set(surface.restaurants.map((r) => r._id));
     if (!visibleRestaurantIds.has(mustEat.restaurant._id)) {
       return NextResponse.json({ error: 'must-eat not available' }, { status: 403 });
     }
-    accessIds = new Set([
-      ...visible.revealedMustEatIds,
-      ...unlockedIds,
-      ...ent.mustEatIds,
-      mustEatId,
-    ]);
   }
+
+  /* Die gerade aufgedeckte Karte kommt dazu — im Admin-Zweig liegt sie
+     ohnehin schon drin. */
+  const accessIds = new Set([...surface.faceUpIds, mustEatId]);
 
   const [hydratedMustEat] = await hydrateAuthorizedMustEats([mustEat], new Set([mustEatId]));
   await unlockMustEat(uid, mustEat);

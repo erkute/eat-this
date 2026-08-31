@@ -95,3 +95,78 @@ export async function composeVisibleRestaurants({
     revealedMustEatIds: revealedSet,
   });
 }
+
+/** Was ein Konto sieht — die eine Ableitung, die alle Aufrufer teilen. */
+export interface AccountSurface {
+  restaurants: MapRestaurant[];
+  lockedRestaurants: MapRestaurant[];
+  mustEats: MapMustEat[];
+  /** Die Karten, die fuer dieses Konto offen liegen. */
+  faceUpIds: Set<string>;
+  /** Admin oder All-Berlin: ganzer Katalog, alles offen. */
+  fullCatalog: boolean;
+}
+
+/**
+ * Die Definition von „was gehoert diesem Konto und was liegt offen" — an genau
+ * EINER Stelle.
+ *
+ * Sie stand bis zum 31.08.2026 zweimal da: in /api/map-data (fuer die Karte und
+ * das eigene Profil) und in lib/profile/publicDeck.server.ts (fuer das geteilte
+ * Deck). Beide Kopien mussten dieselbe Antwort geben, und kein Test hielt sie
+ * zusammen — der Deck-Test mockte `composeVisibleRestaurants` und baute die
+ * Mengen selbst.
+ *
+ * Sie sind auch prompt auseinandergelaufen: der Admin-Zweig fehlte in der
+ * zweiten Kopie, das geteilte Deck meldete „0 von 24", waehrend das Profil
+ * desselben Kontos „24 von 24" zeigte. Der Fehler war still — er faellt nur
+ * auf, wenn jemand beide Flaechen nebeneinander haelt.
+ *
+ * Wer hier eine vierte Quelle offener Karten ergaenzt, ergaenzt sie damit
+ * ueberall. Das ist der ganze Zweck.
+ */
+export async function composeAccountSurface({
+  all,
+  allMustEats,
+  ent,
+  uid,
+  freeRestaurantIds,
+  unlockedIds,
+  today,
+}: ComposeVisibleRestaurantsArgs & {
+  /** Aufdeckungen vor Ort aus users/{uid}/unlockedMustEats. */
+  unlockedIds: ReadonlySet<string>;
+}): Promise<AccountSurface> {
+  /* Admin und All-Berlin sehen den ganzen Katalog, und zwar offen. Ein leeres
+     Face-up-Set waere hier still falsch: `isAlbumMustEatCollected` faellt dann
+     auf das Bild zurueck, und das haengt an einer Hydration, die nicht jeder
+     Aufrufer macht. */
+  if (ent.isAdmin || ent.hasAllBerlin) {
+    return {
+      restaurants: all,
+      lockedRestaurants: [],
+      mustEats: allMustEats,
+      faceUpIds: new Set(allMustEats.map((m) => m._id)),
+      fullCatalog: true,
+    };
+  }
+
+  const visible = await composeVisibleRestaurants({
+    all,
+    allMustEats,
+    ent,
+    uid,
+    freeRestaurantIds,
+    today,
+  });
+
+  return {
+    restaurants: visible.restaurants,
+    lockedRestaurants: visible.lockedRestaurants,
+    mustEats: visible.mustEats,
+    /* Offen fuer dieses Konto: kuratierte Aufdeckungen und Spot-des-Tages,
+       eigene Aufdeckungen vor Ort, gekaufte Karten. */
+    faceUpIds: new Set([...visible.revealedMustEatIds, ...unlockedIds, ...ent.mustEatIds]),
+    fullCatalog: false,
+  };
+}

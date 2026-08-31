@@ -3,7 +3,7 @@ import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { getFreeSurfaceData } from '@/lib/map/free-surface';
-import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server';
+import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { stripCoveredMustEats } from '@/lib/map/stripCoveredMustEats';
 import { stripLockedRestaurants } from '@/lib/map/stripLockedRestaurant';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
@@ -43,21 +43,32 @@ export async function GET(req: Request) {
       Promise.all([getCachedMapData(), getFreeSurfaceData()]),
     ]);
 
+  // Wer was sieht, entscheidet composeAccountSurface — dieselbe Ableitung, die
+  // auch die oeffentliche Deck-Seite benutzt. Diese Route formt daraus nur noch
+  // die Antwort.
+  const surface = await composeAccountSurface({
+    all,
+    allMustEats,
+    ent,
+    uid,
+    freeRestaurantIds: freeSurface.restaurantIds,
+    unlockedIds,
+  });
+
   // Admin / all-berlin: full catalog, no filter, no reveal signal (signed
   // & paid users get individual reveals via Firestore unlockedMustEats).
-  if (ent.isAdmin || ent.hasAllBerlin) {
+  if (surface.fullCatalog) {
     if (!uid) {
       return NextResponse.json({ error: 'auth required' }, { status: 401 });
     }
-    const allIds = new Set(allMustEats.map((mustEat) => mustEat._id));
-    const hydratedMustEats = await hydrateAuthorizedMustEats(allMustEats, allIds);
+    const hydratedMustEats = await hydrateAuthorizedMustEats(surface.mustEats, surface.faceUpIds);
     const res = NextResponse.json({
-      restaurants: all,
+      restaurants: surface.restaurants,
       mustEats: hydratedMustEats,
       categories,
       totalCount: all.length,
       lockedRestaurants: [],
-      revealedMustEatIds: Array.from(allIds),
+      revealedMustEatIds: Array.from(surface.faceUpIds),
       // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang haengt
       // an ADMIN_EMAILS plus verifizierter Adresse (isAdminToken) — beides
       // server-only —, und das Konto, das ihn nutzt, hat weder einen
@@ -69,47 +80,31 @@ export async function GET(req: Request) {
       fullCatalog: true,
     });
     res.headers.set('Cache-Control', 'private, no-store');
-    setPremiumAccessCookie(res, allIds, uid);
+    setPremiumAccessCookie(res, surface.faceUpIds, uid);
     return res;
   }
 
-  const visible = await composeVisibleRestaurants({
-    all,
-    allMustEats,
-    ent,
-    uid,
-    freeRestaurantIds: freeSurface.restaurantIds,
-  });
-
-  // Face-up for THIS viewer: curated/spot-of-day reveals ∪ on-site unlocks ∪
-  // purchased must-eat grants. Everything else ships stripped — covered cards
-  // render only the card-back, so the paid fields must not leave the server.
-  //
-  // ZWEITER AUFRUFER: lib/profile/publicDeck.server.ts leitet dieselbe Menge
-  // fuer die oeffentliche Deck-Seite ab — inklusive des Admin-Zweigs weiter
-  // oben. Wer hier eine vierte Quelle ergaenzt, muss sie dort mitziehen, sonst
-  // meldet das geteilte Deck weniger als das eigene Profil. Genau so ist der
-  // Admin-Zweig schon einmal auseinandergelaufen (0 von 24 statt 24 von 24).
-  // Kein Test haelt die beiden zusammen — siehe Review vom 31.08.2026.
-  const faceUpIds = new Set([...visible.revealedMustEatIds, ...unlockedIds, ...ent.mustEatIds]);
-  const hydratedMustEats = await hydrateAuthorizedMustEats(visible.mustEats, faceUpIds);
+  // Alles, was nicht offen liegt, geht gestrippt raus — verdeckte Karten
+  // rendern nur den Kartenruecken, die bezahlten Felder duerfen den Server
+  // nicht verlassen.
+  const hydratedMustEats = await hydrateAuthorizedMustEats(surface.mustEats, surface.faceUpIds);
 
   const res = NextResponse.json({
-    restaurants: visible.restaurants,
-    mustEats: stripCoveredMustEats(hydratedMustEats, faceUpIds),
+    restaurants: surface.restaurants,
+    mustEats: stripCoveredMustEats(hydratedMustEats, surface.faceUpIds),
     categories,
     totalCount: all.length,
-    lockedRestaurants: stripLockedRestaurants(visible.lockedRestaurants),
+    lockedRestaurants: stripLockedRestaurants(surface.lockedRestaurants),
     // Client face-up state must be identical to the IDs hydrated above.
     // Otherwise purchased content reaches the browser but still renders as a
     // covered card because entitlements are not duplicated into reveal docs.
-    revealedMustEatIds: Array.from(faceUpIds),
+    revealedMustEatIds: Array.from(surface.faceUpIds),
     // Hier immer false: der Zweig oben faengt Admin UND all-berlin ab.
     fullCatalog: false,
   });
   res.headers.set('Cache-Control', 'private, no-store');
   if (uid) {
-    setPremiumAccessCookie(res, faceUpIds, uid);
+    setPremiumAccessCookie(res, surface.faceUpIds, uid);
   } else {
     clearPremiumAccessCookie(res);
   }

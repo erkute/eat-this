@@ -193,12 +193,15 @@ main.page .head {
    Charaktere haben verschiedene Seitenverhaeltnisse (202x251, 186x282,
    188x277), bei fester Breite waere die Bank also je nach Charakter
    unterschiedlich hoch — und die Figurenspalte muss auf die Hoehe der
-   Textspalte passen, sonst steht in der Tafel totes Ink, egal ob man den
-   Text oben, unten oder mittig ausrichtet. 200 + Knopf ≈ 234 px, der
-   Textblock daneben misst 233. */
+   Textspalte passen, sonst steht in der Tafel totes Ink.
+
+   Die 200 px von frueher passten zu einer Tafel von 325 px. Seit der
+   naechste Zug dazugekommen ist, misst sie 469, und eine 200-px-Figur
+   schwamm darin (Nutzer, 31.08.2026: „der Charakter wirkt so alleine
+   rechts"). Sie waechst jetzt mit: 20vw sind bei 1440 px rund 288. */
 .bankAvatarImg {
   display: block;
-  height: clamp(128px, 14vw, 200px);
+  height: clamp(150px, 20vw, 300px);
   width: auto;
   /* Auf Ink traegt der alte Ink-Schatten nichts — er war fuer weisses
      Papier gerechnet. Derselbe Wert wie die Pack-Art auf der Tafel. */
@@ -902,44 +905,25 @@ main.page .foot {
   /* Figur bleibt neben dem Namen, der Fortschritt legt sich unter beide:
      eine Bank, die auf 360 px nicht in eine Saeule zerfaellt.
 
-     „Charakter aendern" wandert dabei unter den Namen. Unter der Figur
-     brach der Text in der 109-px-Spalte auf zwei Zeilen um und machte den
-     rechten Stapel 193 px hoch — gegen 61 px Text links standen so 132 px
-     leeres Ink ueber dem Namen. Der Knopf ist hier ein Grid-Kind (die
-     Huelle loest sich per display:contents auf), damit er die Spalte
-     wechseln kann, ohne dass das Markup zwei Varianten braucht. */
+     „Charakter aendern" stand hier eine Zeit lang unter dem NAMEN, weil es
+     unter der damals 128 px schmalen Figur (103 px breit) zweizeilig umbrach.
+     Es hing dort aber am Namen statt an der Figur und las sich als dessen
+     Unterzeile (Nutzer, 31.08.2026: „sieht komisch aus unter dem Namen").
+     Jetzt ist die Figur 155 px hoch und damit 125 px breit — der Knopf misst
+     112 und passt einzeilig darunter. Er steht wieder bei dem, was er
+     aendert, und das Markup braucht keine zweite Variante. */
   .bank {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'copy figure'
-      'edit figure'
       'city city'
       'move move';
     gap: 0 16px;
     padding: 20px;
   }
 
-  .bankCharacter {
-    display: contents;
-  }
-
-  /* Auf der schmalen Bank stehen Name und „Charakter aendern" direkt
-     untereinander — sie gehoeren zusammen. Der Rest der Figurenhoehe legt
-     sich als Luft ueber und unter das Paar. */
-  .bankCopy {
-    align-self: end;
-  }
-
-  .bankAvatar {
-    grid-area: figure;
-    align-self: center;
-  }
-
-  .bankEdit {
-    grid-area: edit;
-    align-self: start;
-    justify-self: start;
-    margin-top: 10px;
+  .bankAvatarImg {
+    height: 155px;
   }
 
   .bankName {

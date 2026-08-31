@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
@@ -65,8 +66,15 @@ function avatarOf(value: unknown): 1 | 2 | 3 {
  * `null` heisst „gibt es nicht" und fuehrt zu 404 — dieselbe Antwort fuer eine
  * kaputte uid wie fuer eine, die es nicht gibt, damit die Seite nicht zum
  * Melder wird, welche Konten existieren.
+ *
+ * In `cache()` gewickelt, weil die Seite sie ZWEIMAL pro Anfrage braucht:
+ * einmal in `generateMetadata` fuer den Titel, einmal beim Rendern. Ohne die
+ * Memoisierung kostete jeder Aufruf der Deck-Seite zwei Auth-Abfragen und
+ * zwei Firestore-Runden fuer dieselbe Antwort. `cache()` gilt genau eine
+ * Anfrage lang — kein Zustand ueber Anfragen hinweg, also auch keine
+ * veralteten Zahlen und keine Daten, die zwischen Besuchern lecken koennten.
  */
-export async function getPublicDeck(uid: string): Promise<PublicDeck | null> {
+export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | null> => {
   if (!UID_SHAPE.test(uid)) return null;
 
   /* Achtung beim Lesen des ausgelieferten HTML im Dev-Server: React serialisiert
@@ -149,4 +157,4 @@ export async function getPublicDeck(uid: string): Promise<PublicDeck | null> {
     total: ownedMustEats.length,
     groups,
   };
-}
+});

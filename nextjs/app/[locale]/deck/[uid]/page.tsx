@@ -76,9 +76,7 @@ export default async function DeckPage({ params }: PageProps) {
           {/* Dieselbe Tafelzeile wie im eigenen Profil, nur ohne Weg zur Map:
               die gehoert dem Besitzer, nicht dem Besucher. */}
           <div className={styles.city}>
-            <span className={styles.cityTop}>
-              <span className={styles.cityKicker}>{t('cityKicker')}</span>
-            </span>
+            <span className={styles.cityKicker}>{t('cityKicker')}</span>
             <span className={styles.cityNumbers}>
               <span className={styles.cityOpen}>{data.spotsOpen}</span>
               <span className={styles.cityTotal}>{t('cityCount', { total: data.spotsTotal })}</span>

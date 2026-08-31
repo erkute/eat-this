@@ -190,9 +190,7 @@ main.page .head {
 }
 
 /* Ein Wort in derselben Schrift wie „Berlin" und „Erstes Must Eat" — die
-   Tafel beschriftet ihre Baender so, und die Figur ist eins davon. Ueber der
-   Figur, damit beide Spalten mit einer gelben Zeile anfangen; darunter hing
-   es (Nutzer, 31.08.2026).
+   Tafel beschriftet ihre Baender so, und die Figur ist eins davon.
 
    Kein Gegenstand mehr an dieser Stelle. Ein Stift-Icon war entweder zu
    klein zum Erkennen oder, gross genug, ein zweiter Blickfang neben dem
@@ -200,7 +198,7 @@ main.page .head {
    zwei Dinge gleichzeitig. Jetzt bewegt sich nur die Figur. */
 .bankAvatarLabel {
   display: block;
-  margin-bottom: 10px;
+  margin-top: 10px;
   color: var(--profile-accent);
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 11px;
@@ -226,21 +224,13 @@ main.page .head {
   /* Auf Ink traegt der alte Ink-Schatten nichts — er war fuer weisses
      Papier gerechnet. Derselbe Wert wie die Pack-Art auf der Tafel. */
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-  transition: transform 260ms ease;
 }
 
-.bankAvatar:hover .bankAvatarImg,
-.bankAvatar:focus-visible .bankAvatarImg {
-  transform: translateY(-6px) rotate(-2deg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bankAvatar:hover .bankAvatarImg,
-  .bankAvatar:focus-visible .bankAvatarImg {
-    transform: none;
-  }
-}
-
+/* Kein Hover auf der Figur (Nutzer, 31.08.2026). Sie hob sich beim
+   Ueberfahren an und kippte leicht — auf einer Seite, die sonst nur den
+   Fokus-Ring und Farbwechsel als Rueckmeldung kennt, war sie das einzige
+   Element, das sich bewegt. Der Tastatur-Fokus behaelt seinen Ring: der ist
+   keine Zierde, sondern der einzige Hinweis fuer alle, die nicht zeigen. */
 .bankAvatar:focus-visible {
   outline: 3px solid var(--profile-accent);
   outline-offset: 3px;
@@ -924,6 +914,13 @@ main.page .foot {
 
   .bankAvatarImg {
     height: 155px;
+  }
+
+  /* Oben links, nicht auf halber Hoehe: `align-self: end` richtet den Namen
+     auf dem Desktop an der Haarlinie darunter aus — neben einer 155-px-Figur
+     schob es „Dein Profil" in die Mitte der Karte (Nutzer, 31.08.2026). */
+  .bankCopy {
+    align-self: start;
   }
 
   .bankName {

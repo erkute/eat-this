@@ -252,6 +252,8 @@ const en = {
     inviteHeading: 'Invite friends',
     inviteLine:
       'Send the link to someone you like eating with. You both get new spots on your map.',
+    inviteJoinedOne: '1 friend joined through your link',
+    inviteJoinedMany: '{count} friends joined through your link',
     inviteCta: 'Share link',
     inviteCopied: 'Link copied',
     inviteShareTitle: 'Join me on the Eat This map',
@@ -585,6 +587,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteHeading: 'Freunde einladen',
     inviteLine:
       'Schick den Link an jemanden, mit dem du gern essen gehst. Ihr bekommt beide neue Spots auf eure Map.',
+    inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
+    inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
     inviteCta: 'Link teilen',
     inviteCopied: 'Link kopiert',
     inviteShareTitle: 'Komm mit auf die Eat This Map',

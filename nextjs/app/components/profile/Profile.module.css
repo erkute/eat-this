@@ -649,6 +649,20 @@ main.page .head {
   line-height: 1.25;
 }
 
+/* Der Beleg, dass der Link je etwas bewirkt hat. Ink auf Gelb wie die
+   Auszeichnung darueber, nur eine Stufe kleiner und fett — er soll gelesen,
+   nicht gerufen werden. */
+.inviteJoined {
+  margin: 10px 0 0;
+  color: var(--profile-ink);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .inviteAction {
   display: grid;
   justify-items: stretch;

@@ -257,16 +257,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             </div>
 
             <ProfileCityProgress open={ownedRestaurants.length} total={totalCount} />
-
-            {/* Der einzige Zug nach vorn auf dieser Seite. Er steht in der
-                Bank und nicht als eigener Abschnitt darunter, damit die
-                Sammlung ueber der Falz bleibt. */}
-            <ProfileNextMove
-              mustEats={ownedMustEats}
-              faceUpIds={unlockedIds}
-              districtByRest={districtByRest}
-              hasRevealed={unlockedAt.size > 0}
-            />
           </div>
         </header>
 
@@ -276,6 +266,17 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             faceUpIds={unlockedIds}
             groupOf={(m) =>
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
+            }
+            /* Der einzige Zug nach vorn auf dieser Seite — und er handelt vom
+               Deck, steht also im Deck. In der Ink-Tafel des Kopfes war er ein
+               Untermieter zwischen Name und Berlin-Zahl. */
+            nextMove={
+              <ProfileNextMove
+                mustEats={ownedMustEats}
+                faceUpIds={unlockedIds}
+                districtByRest={districtByRest}
+                hasRevealed={unlockedAt.size > 0}
+              />
             }
           />
         </section>

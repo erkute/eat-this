@@ -13,6 +13,11 @@ interface Props {
   mustEats: MapMustEat[];
   faceUpIds: Set<string>;
   groupOf: (m: MapMustEat) => string;
+  /** Der naechste Zug — steht als Einleitung zwischen Ueberschrift und
+   *  Bezirken. Als Slot und nicht fest verdrahtet, weil er seinen eigenen
+   *  Standort- und Kartenzustand mitbringt und das Album davon nichts
+   *  wissen muss. */
+  nextMove?: React.ReactNode;
 }
 
 // Collection — Must-Eat cards in district sections. Collected slots show the
@@ -25,7 +30,7 @@ interface Props {
 // ist — die Frage, mit der man auf diese Seite kommt. Nach Bezirk und nicht
 // nach Kategorie, weil Kategorien 1:1 die Booster Packs sind: die Sammlung
 // waere damit ein zweites Schaufenster geworden, direkt ueber dem echten.
-export default function ProfileAlbum({ mustEats, faceUpIds, groupOf }: Props) {
+export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, nextMove }: Props) {
   const t = useTranslations('profile');
   const groups = useMemo(
     () => buildAlbum(mustEats, faceUpIds, groupOf),
@@ -64,6 +69,8 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf }: Props) {
           </span>
         )}
       </div>
+
+      {nextMove}
 
       {slots.length === 0 ? (
         <p className={styles.emptyText}>{t('emptyMustEats')}</p>

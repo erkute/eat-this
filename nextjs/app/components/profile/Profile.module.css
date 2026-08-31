@@ -125,14 +125,9 @@ main.page .head {
 .bank {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  /* Der naechste Zug bleibt in der Textspalte, nicht ueber die volle
-     Breite: sonst enden die beiden gelben Wege raus („Zur Map",
-     „Standort freigeben") auf zwei verschiedenen rechten Kanten. Drei
-     Informationszeilen, ein Mass. */
   grid-template-areas:
     'copy figure'
-    'city figure'
-    'move figure';
+    'city figure';
   /* Zeilenabstand 0: der Fortschritt bringt seinen eigenen Trennstrich
      mit, und fehlt er (totalCount 0), soll keine leere Zeile bleiben. */
   gap: 0 clamp(20px, 3vw, 48px);
@@ -213,13 +208,14 @@ main.page .head {
    unterschiedlich hoch — und die Figurenspalte muss auf die Hoehe der
    Textspalte passen, sonst steht in der Tafel totes Ink.
 
-   Die 200 px von frueher passten zu einer Tafel von 325 px. Seit der
-   naechste Zug dazugekommen ist, misst sie 469, und eine 200-px-Figur
-   schwamm darin (Nutzer, 31.08.2026: „der Charakter wirkt so alleine
-   rechts"). Sie waechst jetzt mit: 20vw sind bei 1440 px rund 288. */
+   Das Mass folgt der Textspalte daneben, und die misst seit dem Auszug des
+   naechsten Zugs wieder rund 230 px (Kicker, Name, Berlin-Block). Figur plus
+   Beschriftung landen mit 14,5vw bei etwa 225 — vorher, als der naechste Zug
+   die Tafel auf 469 px zog, waren es 20vw. Zu gross ist so schlimm wie zu
+   klein: bei 288 px stand links unter dem Balken 155 px totes Ink. */
 .bankAvatarImg {
   display: block;
-  height: clamp(150px, 20vw, 300px);
+  height: clamp(140px, 14.5vw, 215px);
   width: auto;
   /* Auf Ink traegt der alte Ink-Schatten nichts — er war fuer weisses
      Papier gerechnet. Derselbe Wert wie die Pack-Art auf der Tafel. */
@@ -238,14 +234,20 @@ main.page .head {
 
 /* Der Berlin-Fortschritt, jetzt Teil der Tafel statt eigener Kachel — und
    seit 31.08.2026 eine reine Angabe: kein Link, kein Knopf. Warum, steht in
-   ProfileCityProgress. */
+   ProfileCityProgress.
+
+   Auf breiten Schirmen ohne Trennlinie, nur mit Abstand. Die Figur steht
+   ueber beide Zeilen, der Block also nur in der linken Spalte — die Linie
+   lief damit auf die Figur zu und brach 43 px davor ab, auf Kniehoehe
+   (Nutzer, 31.08.2026: „haesslich, gerade Desktop"). Ueber die volle Breite
+   waere sie durch die Figur gelaufen. Auf schmal liegt der Block ohnehin
+   ueber die ganze Karte, dort traegt die Linie und bleibt (s.u.). */
 .city {
   grid-area: city;
   align-self: start;
   display: block;
-  margin-top: clamp(18px, 2.4vw, 26px);
-  padding-top: clamp(15px, 1.8vw, 20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  margin-top: clamp(22px, 2.6vw, 30px);
+  padding-top: clamp(4px, 0.6vw, 8px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
@@ -305,36 +307,27 @@ main.page .head {
 
 /* ── naechster Zug ──────────────────────────────────────── */
 
-/* Die zweite Bank der Tafel, unter dem Fortschritt und in derselben Form:
-   Haarlinie, gelbes Label links, Weg raus rechts. Ein eigener Abschnitt
-   haette den vollen Abschnitts-Abstand gekostet und die Sammlung wieder
-   unter die Falz geschoben — genau das, was der Kopf-Umbau geraeumt hat.
+/* Die Einleitung des Decks: zwischen „Dein Deck" und den Bezirken. Vorher
+   die dritte Bank der Ink-Tafel — dort oben war er ein Untermieter zwischen
+   Name und Berlin-Zahl, obwohl er vom Deck handelt (Nutzer, 31.08.2026).
 
-   Ganze Flaeche klickbar wie der Fortschritt darueber: der Satz IST die
-   Handlung, ein Knopf daneben waere ein zweiter Schritt. Je nach Zustand
-   ein Link auf die Karte oder ein Knopf fuer den Standort — darum die
-   Zuruecksetzer, die ein <button> von seinem Browser-Aussehen befreien. */
+   Die Haarlinie liegt UNTER dem Block, nicht darüber: oben steht schon die
+   Abschnitts-Ueberschrift, und zwei Linien kurz hintereinander machen aus
+   einer Einleitung einen eigenen Abschnitt. */
 .move {
-  grid-area: move;
-  align-self: start;
-  display: block;
-  width: 100%;
-  margin-top: clamp(14px, 1.8vw, 20px);
-  padding: clamp(13px, 1.6vw, 18px) 0 0;
-  color: inherit;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 0;
-  cursor: pointer;
-  text-decoration: none;
+  margin-bottom: clamp(20px, 2.6vw, 30px);
+  padding-bottom: clamp(18px, 2.2vw, 26px);
+  border-bottom: 1px solid var(--et-home-rule, #e4e1dc);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
+/* Rot, nicht Ink: die Bezirksnamen darunter sind Ink-Versalien, und in
+   derselben Farbe waere das hier eine achte Bezirkszeile. Rot ist auf Papier
+   die Stimme der Abschnitte — „Dein Deck" steht direkt darueber in derselben
+   Farbe, nur gross. */
 .moveLabel {
-  display: block;
-  color: var(--profile-accent);
+  margin: 0;
+  color: var(--profile-red);
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 11px;
   font-weight: 700;
@@ -342,12 +335,18 @@ main.page .head {
   text-transform: uppercase;
 }
 
-/* Der einzige Knopf, der auf dieser Tafel etwas nach vorn bewegt — also
-   gefuellt und nicht umrandet. Gelb auf Ink ist hier die einzige Fuellung,
-   die traegt: Rot auf dieser Flaeche traegt nicht, und Ink
-   auf Ink waere unsichtbar.
+.moveLine {
+  max-width: 56ch;
+  margin: 8px 0 0;
+  color: var(--profile-ink);
+  font-size: clamp(15px, 1.35vw, 19px);
+  font-weight: 400;
+  line-height: 1.28;
+}
 
-   Unter dem Satz, linksbuendig mit allem anderen der Textspalte. */
+/* Der einzige gefuellte Knopf auf Papier — er ist die eine Handlung, die
+   nach vorn geht. Gelb mit Ink darauf; beim Hover dreht sich das um, wie bei
+   „Abmelden" und „Booster Packs ansehen", nur andersherum begonnen. */
 .moveCta {
   display: inline-flex;
   align-items: center;
@@ -357,35 +356,22 @@ main.page .head {
   padding: 0 20px;
   color: var(--profile-ink);
   background: var(--profile-accent);
+  border: 0;
   border-radius: var(--profile-radius);
-  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: var(--et-type-button, 13px);
   font-weight: 700;
-  transition: background-color var(--profile-motion);
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion);
 }
 
-/* Weiss statt Rot: Rot auf Ink ist die eine Kombination, die diese Flaeche
-   nicht traegt. */
-.move:hover .moveCta,
-.move:focus-visible .moveCta {
-  background: var(--profile-inverse);
-}
-
-.move:focus-visible {
-  outline: 3px solid var(--profile-accent);
-  outline-offset: 4px;
-  border-radius: var(--profile-radius);
-}
-
-/* Der Satz traegt die Auskunft und bleibt weiss: Label und Weg raus sind in
-   dieser Zeile schon gelb, ein drittes Gelb machte aus einem Satz eine
-   Ansammlung von Auszeichnungen. */
-.moveLine {
-  display: block;
-  max-width: 56ch;
-  margin-top: 8px;
-  font-size: clamp(15px, 1.35vw, 19px);
-  font-weight: 400;
-  line-height: 1.28;
+.moveCta:hover,
+.moveCta:focus-visible {
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
 }
 
 /* ── recently revealed ──────────────────────────────────── */
@@ -906,14 +892,20 @@ main.page .foot {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'copy figure'
-      'city city'
-      'move move';
+      'city city';
     gap: 0 16px;
     padding: 20px;
   }
 
   .bankAvatarImg {
     height: 155px;
+  }
+
+  /* Hier traegt die Linie: der Block liegt ueber die volle Kartenbreite,
+     die Figur steht darueber statt daneben. */
+  .city {
+    padding-top: clamp(15px, 1.8vw, 20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
   }
 
   /* Oben links, nicht auf halber Hoehe: `align-self: end` richtet den Namen

@@ -21,23 +21,27 @@ interface Props {
 }
 
 /**
- * Der naechste Zug: welche verdeckte Karte drankommt und wie weit sie weg ist.
+ * Der naechste Zug: welches verdeckte Must Eat drankommt und wie weit es weg ist.
  *
  * Das Profil kannte bisher nur Zustaende — wie viel gehoert dir, was hast du
  * aufgedeckt, was liegt noch verdeckt. Alles davon in der Vergangenheitsform.
  * Das Produkt hat Standort, Karte und Fortschritt; die Seite, die einem den
  * Fortschritt zeigt, hatte davon nichts und endete deshalb im Nichts.
  *
- * Sitzt IN der Ink-Bank, als letzte Bank unter dem Berlin-Fortschritt, und
- * nicht als eigener Abschnitt darunter: ein Abschnitt kostet den vollen
- * Abschnitts-Abstand und haette die Sammlung wieder unter die Falz geschoben,
- * die der Kopf-Umbau gerade freigeraeumt hat. Dieselbe Haarlinie und dasselbe
- * gelbe Label wie der Fortschritt darueber — nur traegt diese Bank als
- * einzige einen Knopf, weil sie als einzige etwas nach vorn bewegt.
+ * Sitzt seit 31.08.2026 IM Deck, als Einleitung zwischen der Ueberschrift und
+ * den Bezirken — nicht mehr in der Ink-Tafel des Kopfes. Er handelt vom Deck
+ * und war dort oben ein Untermieter (Nutzer: „sollte das nicht runter zum
+ * Deck?"). Als Teil des Abschnitts kostet er keinen zusaetzlichen
+ * Abschnitts-Abstand.
+ *
+ * Nicht mehr eine grosse klickbare Flaeche, sondern Text plus Knopf. Als
+ * Flaeche war der ganze Block ein Control, und sein zugaenglicher Name damit
+ * sein gesamter Inhalt: „Erstes Must EatMust Eats deckst du vor Ort auf. Das
+ * erste liegt 478 m von hier, in Kreuzberg.Standort freigeben".
  *
  * Uebernimmt dabei den Anstupser, den „Zuletzt aufgedeckt" bei null
- * Aufdeckungen schuldig blieb: wer noch nie eine Karte umgedreht hat, liest
- * hier zuerst, dass man Karten vor Ort aufdeckt.
+ * Aufdeckungen schuldig blieb: wer noch nie eines umgedreht hat, liest hier
+ * zuerst, dass man Must Eats vor Ort aufdeckt.
  */
 export default function ProfileNextMove({
   mustEats,
@@ -81,40 +85,31 @@ export default function ProfileNextMove({
       ? t('moveFirstNear', { district: move.district, distance })
       : t('moveFirst', { district: move.district });
 
-  /* Label, Satz, Knopf — in dieser Reihenfolge und alle auf derselben linken
-     Kante. Der Knopf stand vorher am rechten Ende der Label-Zeile und damit
-     zwischen allem: nicht beim Label, nicht bei seinem Satz, dafuer fast auf
-     einer Linie mit „Charakter aendern", das zur Figur gehoert (Nutzer,
-     31.08.2026: „nicht gut platziert"). Ein Knopf gehoert unter das, was er
-     tut. */
-  const body = (
-    <>
-      <span className={styles.moveLabel}>{hasRevealed ? t('moveLabel') : t('moveFirstLabel')}</span>
-      <span className={styles.moveLine}>{line}</span>
-      <span className={styles.moveCta}>
-        {canLocate ? (loading ? getLocatingCopy(locale) : t('moveLocateCta')) : t('moveCta')}
-      </span>
-    </>
-  );
+  const label = hasRevealed ? t('moveLabel') : t('moveFirstLabel');
+  const cta = canLocate ? (loading ? getLocatingCopy(locale) : t('moveLocateCta')) : t('moveCta');
 
-  if (canLocate) {
-    return (
-      <button type="button" className={styles.move} onClick={() => void request()}>
-        {body}
-      </button>
-    );
-  }
-
-  /* Auf die Karte selbst, nicht nur auf ihren Spot: ein Spot traegt mehrere
-     Must Eats, und `?me=` oeffnet genau die gemeinte — auch verdeckt, denn
-     die Huelle einer verdeckten Karte liegt in denselben Kartendaten. */
   return (
-    <MapIntentLink
-      href={`/map?me=${encodeURIComponent(move.target._id)}`}
-      rel="nofollow"
-      className={styles.move}
-    >
-      {body}
-    </MapIntentLink>
+    <div className={styles.move}>
+      <p className={styles.moveLabel}>{label}</p>
+      <p className={styles.moveLine}>{line}</p>
+      {canLocate ? (
+        /* Ohne Standort ist das Freigeben der Schritt — er macht aus einem
+           Bezirk eine Entfernung. */
+        <button type="button" className={styles.moveCta} onClick={() => void request()}>
+          {cta}
+        </button>
+      ) : (
+        /* Auf das Must Eat selbst, nicht nur auf seinen Spot: ein Spot traegt
+           mehrere, und `?me=` oeffnet genau das gemeinte — auch verdeckt, denn
+           die Huelle einer verdeckten Karte liegt in denselben Kartendaten. */
+        <MapIntentLink
+          href={`/map?me=${encodeURIComponent(move.target._id)}`}
+          rel="nofollow"
+          className={styles.moveCta}
+        >
+          {cta}
+        </MapIntentLink>
+      )}
+    </div>
   );
 }

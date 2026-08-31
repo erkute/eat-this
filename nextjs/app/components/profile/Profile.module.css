@@ -19,6 +19,15 @@
   background: var(--et-home-paper, #fff);
 }
 
+/* Wo die Seite mit der Konto-Zeile endet, bringt die Zeile ihr eigenes
+   Polster mit. Sonst standen darunter noch einmal bis zu 104 px Weiss, und
+   die Zeile schwebte zwischen Einladen-Flaeche und schwarzem Footer, statt
+   die Seite zu schliessen. Der Fehlerzweig rendert keinen Fuss und behaelt
+   sein Polster — darum `:has()` und keine feste Annahme. */
+main.page:has(.foot) {
+  padding-bottom: 0;
+}
+
 .section {
   min-width: 0;
 }
@@ -106,24 +115,51 @@ main.page .head {
   outline-offset: 3px;
 }
 
-/* ── head: name + character ─────────────────────────────── */
+/* ── Ink-Bank: Figur, Name, Berlin-Fortschritt ──────────────
+   Eine Tafel statt zweier Abschnitte. Dieselbe Ink-Sprache wie die
+   Fakten-Tafel der Spot-Seite und das Karten-Sheet: Ink-Fläche,
+   Radius --et-radius-photo, gelbe Labels in Versalien, weiße Werte.
+   Der Figur bleibt die rechte Spalte — sie ist der Grund, dass die
+   rechte Hälfte hier oben nicht leer steht. */
 
-.heroGrid {
+.bank {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(24px, 4vw, 56px);
-  align-items: center;
+  grid-template-areas:
+    'copy figure'
+    'city figure';
+  /* Zeilenabstand 0: der Fortschritt bringt seinen eigenen Trennstrich
+     mit, und fehlt er (totalCount 0), soll keine leere Zeile bleiben. */
+  gap: 0 clamp(20px, 3vw, 48px);
+  padding: clamp(22px, 3.2vw, 40px) clamp(24px, 3.4vw, 44px);
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
+  border-radius: var(--et-radius-photo, 10px);
 }
 
-.heroCopy {
+.bankCopy {
+  grid-area: copy;
+  align-self: end;
   min-width: 0;
 }
 
-.heroName {
-  margin: 12px 0 0;
-  color: var(--et-home-red, #d9382a);
+/* hv-kicker faerbt sich in Ink — auf der Tafel waere das unsichtbar. Das
+   gelbe Marken-Quadrat davor kommt weiter aus .hv-mk. */
+.bankKicker {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--et-font-label);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  text-transform: uppercase;
+}
+
+.bankName {
+  margin: 10px 0 0;
+  color: var(--profile-inverse);
   font-family: var(--et-font-display);
-  font-size: clamp(48px, 8vw, 104px);
+  font-size: clamp(40px, 6.2vw, 84px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-hero, 0.9);
@@ -131,74 +167,238 @@ main.page .head {
   overflow-wrap: anywhere;
 }
 
-.heroLine {
-  margin: clamp(12px, 1.4vw, 18px) 0 0;
-  color: var(--profile-muted);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-.heroCharacter {
+.bankCharacter {
+  grid-area: figure;
+  align-self: center;
   display: grid;
   justify-items: center;
-  gap: 10px;
 }
 
-/* Cut out on the white like the home's phone mockups — no card, no frame. */
-.heroAvatar {
+/* Cut out on the board like the home's phone mockups — no card, no frame. */
+.bankAvatar {
+  position: relative;
   display: block;
-  width: clamp(150px, 20vw, 250px);
   padding: 0;
   background: transparent;
   border: 0;
   cursor: pointer;
 }
 
-.heroAvatarImg {
+/* Ein Wort in derselben Schrift wie „Berlin" und „Erstes Must Eat" — die
+   Tafel beschriftet ihre Baender so, und die Figur ist eins davon.
+
+   Kein Gegenstand mehr an dieser Stelle. Ein Stift-Icon war entweder zu
+   klein zum Erkennen oder, gross genug, ein zweiter Blickfang neben dem
+   Charakter — und er bewegte sich beim Hover zusaetzlich zur Figur, also
+   zwei Dinge gleichzeitig. Jetzt bewegt sich nur die Figur. */
+.bankAvatarLabel {
   display: block;
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 16px 26px rgba(21, 18, 14, 0.18));
-  transition: transform 260ms ease;
+  margin-top: 10px;
+  color: var(--profile-accent);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.heroAvatar:hover .heroAvatarImg,
-.heroAvatar:focus-visible .heroAvatarImg {
-  transform: translateY(-6px) rotate(-2deg);
+/* Ueber die HOEHE bemessen, nicht ueber die Breite. Zwei Gruende: die drei
+   Charaktere haben verschiedene Seitenverhaeltnisse (202x251, 186x282,
+   188x277), bei fester Breite waere die Bank also je nach Charakter
+   unterschiedlich hoch — und die Figurenspalte muss auf die Hoehe der
+   Textspalte passen, sonst steht in der Tafel totes Ink.
+
+   Das Mass folgt der Textspalte daneben, und die misst seit dem Auszug des
+   naechsten Zugs wieder rund 230 px (Kicker, Name, Berlin-Block). Figur plus
+   Beschriftung landen mit 14,5vw bei etwa 225 — vorher, als der naechste Zug
+   die Tafel auf 469 px zog, waren es 20vw. Zu gross ist so schlimm wie zu
+   klein: bei 288 px stand links unter dem Balken 155 px totes Ink. */
+.bankAvatarImg {
+  display: block;
+  height: clamp(140px, 14.5vw, 215px);
+  width: auto;
+  /* Auf Ink traegt der alte Ink-Schatten nichts — er war fuer weisses
+     Papier gerechnet. Derselbe Wert wie die Pack-Art auf der Tafel. */
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .heroAvatar:hover .heroAvatarImg,
-  .heroAvatar:focus-visible .heroAvatarImg {
-    transform: none;
-  }
+/* Kein Hover auf der Figur (Nutzer, 31.08.2026). Sie hob sich beim
+   Ueberfahren an und kippte leicht — auf einer Seite, die sonst nur den
+   Fokus-Ring und Farbwechsel als Rueckmeldung kennt, war sie das einzige
+   Element, das sich bewegt. Der Tastatur-Fokus behaelt seinen Ring: der ist
+   keine Zierde, sondern der einzige Hinweis fuer alle, die nicht zeigen. */
+.bankAvatar:focus-visible {
+  outline: 3px solid var(--profile-accent);
+  outline-offset: 3px;
 }
 
-.heroEdit {
-  padding: 4px 0 3px;
+/* Der Berlin-Fortschritt, jetzt Teil der Tafel statt eigener Kachel — und
+   seit 31.08.2026 eine reine Angabe: kein Link, kein Knopf. Warum, steht in
+   ProfileCityProgress.
+
+   Auf breiten Schirmen ohne Trennlinie, nur mit Abstand. Die Figur steht
+   ueber beide Zeilen, der Block also nur in der linken Spalte — die Linie
+   lief damit auf die Figur zu und brach 43 px davor ab, auf Kniehoehe
+   (Nutzer, 31.08.2026: „haesslich, gerade Desktop"). Ueber die volle Breite
+   waere sie durch die Figur gelaufen. Auf schmal liegt der Block ohnehin
+   ueber die ganze Karte, dort traegt die Linie und bleibt (s.u.). */
+.city {
+  grid-area: city;
+  align-self: start;
+  display: block;
+  margin-top: clamp(22px, 2.6vw, 30px);
+  padding-top: clamp(4px, 0.6vw, 8px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+
+.cityKicker {
+  margin: 0;
+  color: var(--profile-accent);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cityNumbers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 6px 0 0;
+}
+
+.cityOpen {
+  color: var(--profile-accent);
+  font-size: clamp(36px, 3.4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fliesstext statt Versalien: fett und in Grossbuchstaben stand die Bildzeile
+   auf derselben Lautstaerke wie die 46-px-Zahl davor, und die Zeile las sich
+   als ein Wort — „466VON466SPOTSAUFDEINERMAP". Jetzt traegt die Zahl, und der
+   Satz daneben erklaert sie. */
+.cityTotal {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.cityBar {
+  display: block;
+  height: 6px;
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.cityBarFill {
+  display: block;
+  height: 100%;
+  background: var(--profile-accent);
+  border-radius: inherit;
+}
+
+/* ── naechster Zug ──────────────────────────────────────── */
+
+/* Die Einleitung des Decks: zwischen „Dein Deck" und den Bezirken. Vorher
+   die dritte Bank der Ink-Tafel — dort oben war er ein Untermieter zwischen
+   Name und Berlin-Zahl, obwohl er vom Deck handelt (Nutzer, 31.08.2026).
+
+   Die Haarlinie liegt UNTER dem Block: sie trennt ihn von der Ueberschrift
+   „Dein Deck", die darauf folgt. Darueber braeuchte er keine — da liegt
+   schon der volle Abschnitts-Abstand zur Tafel. */
+.move {
+  margin-bottom: clamp(24px, 3vw, 36px);
+  padding-bottom: clamp(20px, 2.4vw, 28px);
+  border-bottom: 1px solid var(--et-home-rule, #e4e1dc);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+
+/* Rot, nicht Ink: die Bezirksnamen darunter sind Ink-Versalien, und in
+   derselben Farbe waere das hier eine achte Bezirkszeile. Rot ist auf Papier
+   die Stimme der Abschnitte — „Dein Deck" steht direkt darueber in derselben
+   Farbe, nur gross. */
+.moveLabel {
+  margin: 0;
+  color: var(--profile-red);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.moveLine {
+  max-width: 56ch;
+  margin: 8px 0 0;
   color: var(--profile-ink);
-  background: transparent;
+  font-size: clamp(15px, 1.35vw, 19px);
+  font-weight: 400;
+  line-height: 1.28;
+}
+
+/* Der einzige gefuellte Knopf auf Papier — er ist die eine Handlung, die
+   nach vorn geht. Gelb mit Ink darauf; beim Hover dreht sich das um, wie bei
+   „Abmelden" und „Booster Packs ansehen", nur andersherum begonnen. */
+.moveCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: clamp(14px, 1.6vw, 18px);
+  padding: 0 20px;
+  color: var(--profile-ink);
+  background: var(--profile-accent);
   border: 0;
-  border-bottom: 2px solid var(--profile-accent);
+  border-radius: var(--profile-radius);
   cursor: pointer;
-  font-family: var(--et-font-display);
+  text-decoration: none;
+  font-family: inherit;
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion);
 }
 
-.heroEdit:hover,
-.heroEdit:focus-visible {
-  color: var(--profile-red);
+.moveCta:hover,
+.moveCta:focus-visible {
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
 }
 
 /* ── recently revealed ──────────────────────────────────── */
 
+/* Die Zeitleiste: eine Linie ueber die volle Breite, die Eintraege haengen
+   daran. Sie ist der Grund, dass der Abschnitt ab der ERSTEN Karte rendern
+   kann — vorher stand dort eine einzelne Karte unter einer Ueberschrift ueber
+   1200 px, und die Schwelle von drei Karten liess ausgerechnet die Neuen ohne
+   den Abschnitt. Dasselbe Mittel wie die Bezirks-Trenner im Deck. */
 .recentRail {
   margin: 0;
+  padding-top: clamp(16px, 2vw, 22px);
   padding-left: 0;
+  border-top: 1px solid var(--et-home-rule, #e4e1dc);
   list-style: none;
+}
+
+/* Das Datum ist die Achse, nicht ein Anhaengsel hinter dem Lokalnamen. */
+.recentWhen {
+  margin: 0 0 8px;
+  color: var(--profile-muted);
+  font-family: var(--et-font-label);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .recentItem {
@@ -372,24 +572,43 @@ main.page .head {
   background: var(--profile-red);
 }
 
-/* A written line under the spot, not a form field. */
+/* A written line under the spot, not a form field.
+
+   Eine Stufe groesser als vorher (13-15 px): die Notiz war der kleinste Text
+   des Abschnitts und gleichzeitig der einzige, der vom Nutzer selbst stammt.
+   Sie sitzt jetzt zwischen dem Bezirk (13 px) und dem Namen auf der Karte.
+
+   Die Hoehe setzt SpotNote, nicht das Stylesheet — `rows` deckelte eine
+   180-Zeichen-Notiz bei zwei Zeilen. `overflow-y: hidden` haelt den
+   Scrollbalken weg, den es damit nicht mehr braucht; die 2 px unten sind
+   Platz fuer die Unterlaengen der letzten Zeile, die eine auf scrollHeight
+   gesetzte Hoehe sonst knapp abschneidet. */
 .spotNote {
   display: block;
   width: 100%;
   margin-top: 9px;
-  padding: 0;
+  padding: 0 0 2px;
+  overflow-y: hidden;
   resize: none;
   color: var(--profile-ink);
   background: transparent;
   border: 0;
   font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.05vw, 15px);
+  font-size: clamp(14px, 1.2vw, 17px);
   font-weight: 400;
-  line-height: 1.28;
+  line-height: 1.32;
 }
 
+/* Deutlich leiser als eine geschriebene Notiz: ueber einer Reihe Karten soll
+   auf einen Blick zu sehen sein, welche davon eigene Worte tragen. */
 .spotNote::placeholder {
-  color: color-mix(in srgb, var(--profile-muted) 62%, transparent);
+  color: color-mix(in srgb, var(--profile-muted) 52%, transparent);
+  font-size: 13px;
+}
+
+/* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
+.spotNote:hover {
+  box-shadow: 0 1px 0 var(--et-home-rule, #e4e1dc);
 }
 
 .spotNote:focus-visible {
@@ -417,95 +636,90 @@ main.page .head {
   text-decoration: none;
 }
 
-/* ── packs ──────────────────────────────────────────────── */
+/* ── packs: Trophaeenreihe ──────────────────────────────────
+   Kein Rail und kein Raster aus Kaufkarten mehr. Was hier stand, waren elf
+   190-px-Packs, zehn davon mit schwarzem Kaufknopf — der lauteste Block der
+   Seite zeigte fremdes Inventar. Jetzt: nur der Besitz, klein, umbrechend. */
 
-main.page .packs {
-  gap: clamp(18px, 2.4vw, 32px);
+.trophies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 1.6vw, 20px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* Der hv-rail ist die Mobile-Form: gewischt, eine Karte nach der anderen.
-   Auf Desktop ist dieselbe Menge eine geschlossene, gleichrangige Liste, die
-   man am Stück überblicken will ("was hab ich, was fehlt mir") - und im Rail
-   laegen rund fuenf Packs hinter einer ausgeblendeten Scrollbar, ohne Pfeile
-   und ohne Anschnitt. Ab Tablet deshalb umbrechendes Grid statt Schublade. */
-@media (min-width: 761px) {
-  main.page .packs {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(166px, 1fr));
-    overflow: visible;
-    scroll-snap-type: none;
-    justify-items: center;
-    padding-bottom: 0;
-  }
-
-  /* Karte fuellt ihre Spalte, bleibt aber bei der Rail-Breite gedeckelt. */
-  main.page .pack {
-    width: 100%;
-    max-width: 166px;
-  }
-}
-
-.pack {
+/* 96 px, nicht 110: bei 110 passten die zehn Packs eines vollstaendigen
+   Kontos nicht mehr in eine Zeile und „Sweets" stand allein in der zweiten.
+   Eine Trophaeenreihe ist eine Reihe. */
+.trophy {
   display: grid;
-  grid-template-rows: 190px auto auto;
-  align-items: start;
   justify-items: center;
-  gap: 8px;
-  width: clamp(136px, 14vw, 166px);
+  gap: 6px;
+  width: clamp(72px, 7vw, 96px);
   color: var(--profile-ink);
   text-align: center;
-  text-decoration: none;
-  transition: transform var(--profile-motion);
 }
 
-.pack img {
+.trophy img {
   width: 100%;
-  height: 190px;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 18px rgba(21, 18, 14, 0.18));
+  height: auto;
+  filter: drop-shadow(0 8px 14px rgba(21, 18, 14, 0.16));
 }
 
-.pack:hover,
-.pack:focus-visible {
-  transform: translateY(-4px);
-}
-
-.packName {
+.trophyName {
   font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.3vw, 18px);
+  font-size: clamp(12px, 1vw, 14px);
   font-weight: 700;
-  line-height: 1.12;
+  line-height: 1.14;
 }
 
-.packStatus {
-  color: var(--profile-muted);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-caption, 11px);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-}
-
-.packButton {
+/* Der eine Knopf, der vom Laden uebrig bleibt — in derselben Form wie
+   „Abmelden": umrandet, gefuellt beim Hover. Umrandet und nicht gefuellt,
+   weil der Laden hier ein Angebot ist und keine Aufforderung; das Profil
+   zeigt Besitz. */
+.packsMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: clamp(20px, 2.4vw, 28px);
+  padding: 0 20px;
+  color: var(--profile-ink);
+  background: transparent;
+  border: 2px solid var(--profile-ink);
+  border-radius: var(--profile-radius);
   text-decoration: none;
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion);
 }
 
-.packLocked img,
-.packLocked .packName {
-  opacity: 0.5;
-  filter: grayscale(0.3);
+.packsMore:hover,
+.packsMore:focus-visible {
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
 }
 
 /* ── invite ─────────────────────────────────────────────── */
 
 /* The one yellow field on the page. Everything else earns attention from
-   photography, so the single thing with no picture gets the accent. */
+   photography, so the single thing with no picture gets the accent.
+
+   Dicht gepackt, nicht ausgebreitet: seit die Packs als Trophaeen-Reihe
+   darueber stehen, ist das hier der letzte Block vor dem Fuss. Auf voller
+   Breite, in Kapitel-Schriftgroesse und mit 44 px Polster war er der
+   lauteste der Seite — lauter als das Deck, wegen dem man sie oeffnet. */
 .invite {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(20px, 3vw, 48px);
+  gap: clamp(16px, 2vw, 32px);
   align-items: center;
-  padding: clamp(24px, 3.4vw, 44px);
+  padding: clamp(20px, 2.2vw, 30px);
   background: var(--profile-accent);
   border-radius: var(--et-radius-photo, 10px);
 }
@@ -514,7 +728,7 @@ main.page .packs {
   margin: 0;
   color: var(--profile-ink);
   font-family: var(--et-font-display);
-  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
+  font-size: clamp(22px, 2.4vw, 32px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title, 0.92);
@@ -554,6 +768,7 @@ main.page .packs {
 
 .inviteUrl {
   overflow: hidden;
+  max-width: 260px;
   color: color-mix(in srgb, var(--profile-ink) 72%, transparent);
   font-family: var(--et-font-mono);
   font-size: 12px;
@@ -594,12 +809,19 @@ main.page .packs {
   border-top: 1px solid var(--et-home-rule, #e4e1dc);
 }
 
-/* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands. At
-   least a full section gap: the foot follows the filled invite panel, so
-   anything tighter reads as part of it rather than as the page closing. */
+/* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands —
+   und zwar mit Longhands: das `padding: 0 var(--et-wrap-pad)` der Huelle
+   traegt den seitlichen Rand, ein Shorthand hier wuerde ihn mitnehmen.
+
+   Kein voller Abschnitts-Abstand mehr. Mit 116 px darueber und 104 px
+   darunter stand die Konto-Zeile freischwebend zwischen der gelben Flaeche
+   und dem schwarzen Footer und las sich als eigener Abschnitt, den sie nicht
+   ist. Jetzt haengt sie unter dem letzten Inhalt und setzt sich auf den
+   Footer — das Leiseste der Seite an ihrer leisesten Stelle. */
 main.page .foot {
-  margin-top: var(--et-section-gap, clamp(72px, 8vw, 128px));
-  padding-top: clamp(28px, 3vw, 40px);
+  margin-top: clamp(36px, 4vw, 56px);
+  padding-top: clamp(18px, 2vw, 24px);
+  padding-bottom: clamp(28px, 3vw, 40px);
 }
 
 .footAccount {
@@ -609,14 +831,25 @@ main.page .foot {
   overflow-wrap: anywhere;
 }
 
+/* Wieder ein umrandeter Knopf (Nutzer, 31.08.2026). Als unterstrichener Text
+   war er leiser, aber inzwischen fuehrt die Seite drei Wege in genau dieser
+   Knopfform — „Zur Map", der naechste Zug, „Deck teilen" —, und das Abmelden
+   war das einzige, was wie ein Link aussah. Dieselbe Logik wie auf der Tafel:
+   umrandet, gefuellt beim Hover. Nur eben Ink auf Papier statt Gelb auf Ink.
+
+   44 statt der frueheren 40 px: damit stimmt die Trefferflaeche aus dem
+   Polster selbst, und der ::after-Trick, den der Textlink dafuer brauchte,
+   faellt ersatzlos weg. */
 .logout {
-  min-height: 40px;
-  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
   color: var(--profile-ink);
   background: transparent;
-  border: 0;
+  border: 2px solid var(--profile-ink);
   border-radius: var(--profile-radius);
-  box-shadow: inset 0 0 0 2px var(--profile-ink);
   cursor: pointer;
   font-family: var(--et-font-display);
   font-size: var(--et-type-button, 13px);
@@ -645,21 +878,49 @@ main.page .foot {
     padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 20px);
   }
 
-  .heroGrid {
-    grid-template-columns: minmax(0, 1fr) clamp(112px, 30vw, 150px);
-    gap: 16px;
+  /* Figur bleibt neben dem Namen, der Fortschritt legt sich unter beide:
+     eine Bank, die auf 360 px nicht in eine Saeule zerfaellt.
+
+     „Charakter aendern" stand hier eine Zeit lang unter dem NAMEN, weil es
+     unter der damals 128 px schmalen Figur (103 px breit) zweizeilig umbrach.
+     Es hing dort aber am Namen statt an der Figur und las sich als dessen
+     Unterzeile (Nutzer, 31.08.2026: „sieht komisch aus unter dem Namen").
+     Jetzt ist die Figur 155 px hoch und damit 125 px breit — der Knopf misst
+     112 und passt einzeilig darunter. Er steht wieder bei dem, was er
+     aendert, und das Markup braucht keine zweite Variante. */
+  .bank {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'copy figure'
+      'city city';
+    gap: 0 16px;
+    padding: 20px;
   }
 
-  .heroAvatar {
-    width: 100%;
+  .bankAvatarImg {
+    height: 155px;
   }
 
-  .heroName {
-    font-size: clamp(38px, 11vw, 60px);
+  /* Hier traegt die Linie: der Block liegt ueber die volle Kartenbreite,
+     die Figur steht darueber statt daneben. */
+  .city {
+    padding-top: clamp(15px, 1.8vw, 20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
   }
 
-  .heroLine {
-    font-size: 16px;
+  /* Oben links, nicht auf halber Hoehe: `align-self: end` richtet den Namen
+     auf dem Desktop an der Haarlinie darunter aus — neben einer 155-px-Figur
+     schob es „Dein Profil" in die Mitte der Karte (Nutzer, 31.08.2026). */
+  .bankCopy {
+    align-self: start;
+  }
+
+  .bankName {
+    font-size: clamp(34px, 10vw, 56px);
+  }
+
+  .cityOpen {
+    font-size: 38px;
   }
 
   .spotsCards {
@@ -690,76 +951,11 @@ main.page .foot {
 }
 
 @media (max-width: 420px) {
+  /* Untereinander, aber linksbuendig: ein Knopf ueber die volle Breite waere
+     am Fuss der Seite lauter als alles darueber. */
   .foot {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
+    gap: 14px;
   }
-
-  .logout {
-    width: 100%;
-  }
-}
-
-/* ── Berlin-Fortschritt ──────────────────────────────────────────────────────
-   Ink-Fläche mit gelber Zahl, dieselbe Sprache wie der Belohnungs-Screen nach
-   der Anmeldung. Die ganze Kachel ist der Link zur Map. */
-.city {
-  display: block;
-  padding: 22px 24px 24px;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
-  border-radius: 12px;
-  text-decoration: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-}
-.cityKicker {
-  display: block;
-  font-family: var(--font-label, var(--font), system-ui, sans-serif);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--et-home-accent, #ffc600);
-}
-.cityNumbers {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-top: 6px;
-}
-.cityOpen {
-  font-size: 44px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--et-home-accent, #ffc600);
-  font-variant-numeric: tabular-nums;
-}
-.cityTotal {
-  font-size: 15px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-}
-.cityBar {
-  display: block;
-  margin-top: 14px;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  overflow: hidden;
-}
-.cityBarFill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--et-home-accent, #ffc600);
-}
-.cityCta {
-  display: inline-block;
-  margin-top: 14px;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--et-home-accent, #ffc600);
-  padding-bottom: 2px;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from '@/app/components/MapIntentLink';
@@ -95,8 +95,18 @@ export default function ProfileSpots({
   );
 }
 
-// The note is the most personal thing on the page, so it reads as a written
-// line under the spot — not as a grey form field with a label above it.
+/**
+ * Die Notiz ist das Persoenlichste auf dieser Seite — und war das Einzige,
+ * das nicht ganz zu sehen war. Das Feld nahm 180 Zeichen an und zeigte zwei
+ * Zeilen (`rows={value ? 2 : 1}`): eine volle Notiz brach mitten im Satz ab,
+ * ohne Auslassung, ohne Scrollbalken, ohne irgendein Zeichen, dass da noch
+ * etwas steht. Wer den Rest lesen wollte, musste ins Feld klicken und
+ * blaettern.
+ *
+ * Jetzt waechst das Feld mit seinem Inhalt. Es bleibt ein <textarea>, damit
+ * das Schreiben ohne Moduswechsel geht — der Zeilenumbruch ist der einzige
+ * Unterschied zu vorher, und er ist der ganze Punkt.
+ */
 function SpotNote({
   initialNote,
   label,
@@ -113,11 +123,24 @@ function SpotNote({
   const [value, setValue] = useState(initialNote);
   const [lastSaved, setLastSaved] = useState(initialNote);
   const [saving, setSaving] = useState(false);
+  const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setValue(initialNote);
     setLastSaved(initialNote);
   }, [initialNote]);
+
+  /* Auf die eigene Hoehe wachsen: erst zurueck auf `auto`, sonst kennt
+     scrollHeight nur den bisherigen Stand und das Feld schrumpft beim
+     Loeschen nie wieder. Vor dem Zeichnen, damit eine lange Notiz nicht
+     erst zweizeilig erscheint und dann aufspringt — die Notizen haengen an
+     Firestore und rendern ohnehin nie auf dem Server. */
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
 
   async function save() {
     const next = value.trim();
@@ -136,10 +159,11 @@ function SpotNote({
 
   return (
     <textarea
+      ref={ref}
       className={styles.spotNote}
       value={value}
       aria-label={label}
-      rows={value ? 2 : 1}
+      rows={1}
       maxLength={180}
       placeholder={placeholder}
       onChange={(e) => setValue(e.currentTarget.value)}

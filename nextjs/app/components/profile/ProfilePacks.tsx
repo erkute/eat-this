@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
 import { CATALOG, allPackIds } from '@/lib/stripe-catalog';
-import { packUrlSlug } from '@/lib/pack/packDetail';
 import { categoryArt } from '@/lib/categoryArt';
 import styles from './Profile.module.css';
 
@@ -22,29 +21,35 @@ function PackArt({ src }: { src: string }) {
     <Image
       src={versionedPackArt(src)}
       alt=""
-      width={166}
-      height={190}
-      sizes="(max-width: 760px) 136px, 166px"
+      width={96}
+      height={139}
+      sizes="(max-width: 760px) 72px, 96px"
       loading="lazy"
     />
   );
 }
 
-// Opened packs first, locked ones behind them. Locked cards link as a whole so
-// the pack art is tappable. On mobile a swipeable rail like the home's category
-// rail; from tablet up the same set wraps into a grid (see Profile.module.css) —
-// the list is closed and every pack equally ranked, so it wants to be scanned
-// whole rather than scrolled past.
-export default function ProfilePacks({ uid }: { uid: string }) {
+/**
+ * Was diesem Konto gehoert — eine Trophaeenreihe, kein Laden.
+ *
+ * Hier standen elf Packs, zehn davon mit schwarzem „Öffnen"-Kaufknopf: der
+ * lauteste und farbigste Block der Seite zeigte zu neunzig Prozent fremdes
+ * Inventar. Der Besitz gehoert ins Profil, der Laden nicht — was noch fehlt,
+ * steht als EINE Zeile darunter und fuehrt nach /packs.
+ *
+ * `fullCatalog` kommt von oben und nicht aus useOwnedEntitlements: der Hook
+ * liest nur users/<uid>/entitlements und kennt damit weder den Admin-Zugang
+ * noch dessen Quelle (ADMIN_EMAILS plus verifizierte Adresse, server-only).
+ * Auf einem Admin-Konto stand deshalb „466 von 466 Spots auf deiner Map" und
+ * gleich darunter zehn verschlossene Packs.
+ */
+export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCatalog: boolean }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
 
   const head = (
     <div className={`hv-head ${styles.head}`}>
       <h2 className="hv-title">{t('packsHeading')}</h2>
-      <Link href="/packs" className="hv-link-underline">
-        {t('packsCta')}
-      </Link>
     </div>
   );
 
@@ -59,49 +64,41 @@ export default function ProfilePacks({ uid }: { uid: string }) {
     );
   }
 
-  const ownedSet = owned;
-  const allBerlinOwned = ownedSet.has('all-berlin');
+  const allOpen = fullCatalog || owned.has('all-berlin');
   const boosters = allPackIds()
     .map((id) => CATALOG[id])
     .filter((p): p is NonNullable<typeof p> => !!p && p.type === 'category');
 
-  const openedBoosters = boosters.filter((p) => allBerlinOwned || ownedSet.has(p.packId));
-  const lockedBoosters = boosters.filter((p) => !allBerlinOwned && !ownedSet.has(p.packId));
+  const opened = boosters.filter((p) => allOpen || owned.has(p.packId));
+  const remaining = boosters.length - opened.length;
 
   return (
     <>
       {head}
-      <div className={`hv-rail ${styles.packs}`}>
-        <div className={`${styles.pack} ${styles.packOwned}`}>
+      <ul className={styles.trophies}>
+        {/* Das Welcome Pack hat jedes Konto — es eroeffnet die Reihe. */}
+        <li className={styles.trophy}>
           <PackArt src={WELCOME_ART} />
-          <span className={styles.packName}>Welcome Pack</span>
-          <span className={styles.packStatus}>{t('packStatusOwned')}</span>
-        </div>
-        {openedBoosters.map((p) => {
-          const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
-          return (
-            <div key={p.packId} className={`${styles.pack} ${styles.packOwned}`}>
-              <PackArt src={art} />
-              <span className={styles.packName}>{p.displayName}</span>
-              <span className={styles.packStatus}>{t('packStatusOwned')}</span>
-            </div>
-          );
-        })}
-        {lockedBoosters.map((p) => {
-          const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
-          return (
-            <Link
-              key={p.packId}
-              href={`/pack/${packUrlSlug(p)}`}
-              className={`${styles.pack} ${styles.packLocked}`}
-            >
-              <PackArt src={art} />
-              <span className={styles.packName}>{p.displayName}</span>
-              <span className={`hv-btn ${styles.packButton}`}>{t('packStatusLocked')}</span>
-            </Link>
-          );
-        })}
-      </div>
+          <span className={styles.trophyName}>Welcome Pack</span>
+        </li>
+        {opened.map((p) => (
+          <li key={p.packId} className={styles.trophy}>
+            <PackArt src={p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART} />
+            <span className={styles.trophyName}>{p.displayName}</span>
+          </li>
+        ))}
+      </ul>
+      {/* Ein Knopf statt zehn Kaufkarten. Wer alles hat, sieht ihn nicht --
+          dass er ueberhaupt dasteht, ist die Auskunft „es gibt noch mehr".
+          Ohne Zahl: „Noch 9 Packs offen" hiess gemeint „neun stehen noch
+          aus", las sich ueber einer Reihe GEOEFFNETER Packs aber als „neun
+          sind offen" -- also genau verkehrt herum. Und eine Zahl kann falsch
+          werden, waehrend der Weg zum Sortiment immer stimmt. */}
+      {remaining > 0 && (
+        <Link href="/packs" className={styles.packsMore}>
+          {t('packsMore')}
+        </Link>
+      )}
     </>
   );
 }

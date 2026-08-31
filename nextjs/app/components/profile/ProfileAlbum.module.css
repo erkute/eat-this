@@ -14,25 +14,19 @@
   background: transparent;
 }
 
-/* hv-head aligns on the baseline; the count chip is a box, so centre it.
-   Element-qualified (0,2,1) so it outweighs .homeV2 .hv-head regardless of
-   stylesheet order — see the note in Profile.module.css. */
-div.panel .head {
-  align-items: center;
-}
-
+/* Der Zaehler war eine gelbe Kachel mit Radius — das einzige Kaestchen auf
+   einer Seite, die sonst aus Typografie und Haarlinien besteht, und in
+   derselben Zeile wie eine rote Ueberschrift. Jetzt ist er Schrift: die Zahl
+   traegt, die Bildzeile erklaert. Gleiche Form wie auf der geteilten
+   Deck-Seite, damit die beiden dieselbe Zahl gleich anschreiben. */
 .count {
   flex: 0 0 auto;
   display: flex;
   align-items: baseline;
   gap: 8px;
-  min-height: 38px;
-  padding: 7px 10px;
   color: var(--album-ink);
-  background: var(--profile-accent, #ffc600);
-  border-radius: var(--profile-radius, 7px);
   font-family: var(--et-font-display);
-  font-size: clamp(10px, 0.9vw, 12px);
+  font-size: clamp(11px, 0.95vw, 13px);
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1.1;
@@ -42,40 +36,40 @@ div.panel .head {
 .count strong {
   font-family: var(--album-display);
   font-size: clamp(24px, 2.2vw, 32px);
-  letter-spacing: 0;
-  line-height: 0.75;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Zwei Spalten Bezirke ab Desktop. Untereinander liess eine Gruppe mit zwei
-   Karten sechs Spalten leer — dieselbe tote rechte Haelfte, nur jetzt pro
-   Bezirk, und das Deck war dadurch doppelt so hoch wie vorher. Mehrspaltig
-   fliessen die Abschnitte ineinander: gemessen 1290 px statt 2784.
-   `columns` und nicht ein Grid aus Gruppen, weil ein Grid die Zeilenhoehe an
-   der laengsten Gruppe ausrichtet und unter der kuerzeren eine Kartenreihe
-   Luft stehen laesst. */
+/* Zwei Spalten Bezirke ab Desktop, und zwar als Raster aus Gruppen — nicht
+   mehr als `columns`. Der Textspalten-Fluss war zwar kompakt, aber die beiden
+   Spalten liefen ausser Takt: „Kreuzberg" stand links auf der Hoehe, auf der
+   rechts noch die zweite Kartenreihe von Prenzlauer Berg lief. Sieben
+   Ueberschriften auf sieben verschiedenen Hoehen lasen sich als kaputt, nicht
+   als kompakt (Nutzer, 31.08.2026: „total unsauber ausgerichtet").
+
+   Ein Raster richtet die Zeilenhoehe an der laengeren der beiden Gruppen aus
+   und laesst unter der kuerzeren Luft. Die ist der Preis, und sie ist der
+   bessere Fehler: ausgerichtete Luft liest sich als Absicht, verschobene
+   Ueberschriften als Panne. Die Hoehe bleibt dabei fast dieselbe, weil sich
+   die Paare ohnehin meist gleich hoch treffen. */
 .groups {
-  columns: 2;
-  column-gap: clamp(28px, 3.4vw, 56px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(24px, 3vw, 40px) clamp(28px, 3.4vw, 56px);
 }
 
 .group {
   display: grid;
   gap: clamp(12px, 1.6vw, 18px);
-  /* Ein Bezirk gehoert in eine Spalte — sonst reisst der Umbruch die
-     Ueberschrift von ihren Karten. */
-  break-inside: avoid;
-  margin-bottom: clamp(24px, 3vw, 40px);
-}
-
-/* Der letzte Abschnitt jeder Spalte braucht den Abstand nicht — er steht
-   sonst als Luft unter der kuerzeren Spalte. */
-.group:last-child {
-  margin-bottom: 0;
+  align-content: start;
+  min-width: 0;
 }
 
 @media (max-width: 900px) {
   .groups {
-    columns: 1;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -203,11 +197,6 @@ div.panel .head {
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
-  }
-
-  .count {
-    min-height: 34px;
-    padding: 6px 9px;
   }
 
   .grid {

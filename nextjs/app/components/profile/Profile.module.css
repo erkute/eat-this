@@ -290,26 +290,43 @@ main.page .head {
   font-variant-numeric: tabular-nums;
 }
 
+/* Fliesstext statt Versalien: fett und in Grossbuchstaben stand die Bildzeile
+   auf derselben Lautstaerke wie die 46-px-Zahl davor, und die Zeile las sich
+   als ein Wort — „466VON466SPOTSAUFDEINERMAP". Jetzt traegt die Zahl, und der
+   Satz daneben erklaert sie. */
 .cityTotal {
+  color: rgba(255, 255, 255, 0.72);
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 /* Der Weg raus sitzt am rechten Rand derselben Zeile — eine gesparte Zeile
-   gegenueber dem alten Stapel Kicker/Zahl/Balken/Link. */
+   gegenueber dem alten Stapel Kicker/Zahl/Balken/Link.
+
+   Ohne Unterstrich: auf 14 px Text war der 2-px-Balken so breit wie das Wort
+   und die VIERTE gelbe Flaeche derselben Zeile — neben dem Label, der Zahl
+   und dem Fortschrittsbalken direkt darunter. Dazu sah er aus wie
+   „Charakter aendern" zwei Zeilen darueber, das aber ein Knopf ist und keine
+   Verlinkung. Der Pfeil sagt dasselbe leiser; die ganze Flaeche ist ohnehin
+   der Link, das hier ist nur sein Zeichen. */
 .cityCta {
   flex: 0 0 auto;
-  padding-bottom: 2px;
-  font-size: 14px;
+  color: var(--profile-accent);
+  font-size: 13px;
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--profile-accent);
 }
 
-.city:hover .cityCta,
-.city:focus-visible .cityCta {
-  color: var(--profile-accent);
+.cityCta::after {
+  content: '\2192';
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform var(--profile-motion);
+}
+
+.city:hover .cityCta::after,
+.city:focus-visible .cityCta::after {
+  transform: translateX(3px);
 }
 
 .city:focus-visible {
@@ -380,17 +397,25 @@ main.page .head {
   text-transform: uppercase;
 }
 
+/* Dieselbe Behandlung wie der Weg zur Map darueber — sonst haette die Tafel
+   zwei Wege raus in zwei verschiedenen Formen. */
 .moveCta {
   flex: 0 0 auto;
-  padding-bottom: 2px;
-  font-size: 14px;
+  color: var(--profile-accent);
+  font-size: 13px;
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--profile-accent);
 }
 
-.move:hover .moveCta,
-.move:focus-visible .moveCta {
-  color: var(--profile-accent);
+.moveCta::after {
+  content: '\2192';
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform var(--profile-motion);
+}
+
+.move:hover .moveCta::after,
+.move:focus-visible .moveCta::after {
+  transform: translateX(3px);
 }
 
 .move:focus-visible {

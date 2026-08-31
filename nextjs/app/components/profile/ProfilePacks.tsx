@@ -88,10 +88,15 @@ export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCa
           </li>
         ))}
       </ul>
-      {/* Eine Zeile statt zehn Kaufknoepfen. Wer alles hat, sieht sie nicht. */}
+      {/* Ein Knopf statt zehn Kaufkarten. Wer alles hat, sieht ihn nicht --
+          dass er ueberhaupt dasteht, ist die Auskunft „es gibt noch mehr".
+          Ohne Zahl: „Noch 9 Packs offen" hiess gemeint „neun stehen noch
+          aus", las sich ueber einer Reihe GEOEFFNETER Packs aber als „neun
+          sind offen" -- also genau verkehrt herum. Und eine Zahl kann falsch
+          werden, waehrend der Weg zum Sortiment immer stimmt. */}
       {remaining > 0 && (
-        <Link href="/packs" className={`hv-link-underline ${styles.packsMore}`}>
-          {t('packsRemaining', { count: remaining })}
+        <Link href="/packs" className={styles.packsMore}>
+          {t('packsMore')}
         </Link>
       )}
     </>

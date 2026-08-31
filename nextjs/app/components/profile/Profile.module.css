@@ -243,7 +243,9 @@ main.page .head {
   outline-offset: 3px;
 }
 
-/* Der Berlin-Fortschritt, jetzt Teil der Tafel statt eigener Kachel. */
+/* Der Berlin-Fortschritt, jetzt Teil der Tafel statt eigener Kachel — und
+   seit 31.08.2026 eine reine Angabe: kein Link, kein Knopf. Warum, steht in
+   ProfileCityProgress. */
 .city {
   grid-area: city;
   align-self: start;
@@ -251,22 +253,11 @@ main.page .head {
   margin-top: clamp(18px, 2.4vw, 26px);
   padding-top: clamp(15px, 1.8vw, 20px);
   border-top: 1px solid rgba(255, 255, 255, 0.16);
-  color: inherit;
-  text-decoration: none;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
-/* Label links, Weg raus rechts — eine Zeile statt zweier. Zentriert und
-   nicht auf der Grundlinie: der Weg raus ist ein Kasten mit Polster, und
-   ein Kasten haengt auf einer Baseline schief. */
-.cityTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .cityKicker {
+  margin: 0;
   color: var(--profile-accent);
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 11px;
@@ -280,7 +271,7 @@ main.page .head {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 10px;
-  margin-top: 6px;
+  margin: 6px 0 0;
 }
 
 .cityOpen {
@@ -301,45 +292,6 @@ main.page .head {
   font-size: 15px;
   font-weight: 400;
   letter-spacing: 0;
-}
-
-/* Der Weg raus sitzt am rechten Rand derselben Zeile — eine gesparte Zeile
-   gegenueber dem alten Stapel Kicker/Zahl/Balken/Link.
-
-   Als umrandeter Knopf, nicht als unterstrichener Text: der Unterstrich sah
-   aus wie „Charakter aendern" zwei Zeilen darueber, das aber ein Knopf ist
-   und keine Verlinkung, und ein blosser Pfeil las sich zu leise fuer den
-   einzigen Weg zum Produkt (Nutzer, 31.08.2026: „das sollte doch ein Button
-   sein"). Umrandet und nicht gefuellt, weil direkt darunter schon eine
-   massive gelbe Flaeche liegt — der Fortschrittsbalken. Gefuellt wird er
-   beim Hover.
-
-   Bleibt ein <span>: die ganze Zeile IST der Link auf /map, und ein
-   <button> darin waere weder gueltiges HTML noch die richtige Rolle — das
-   hier navigiert, es handelt nicht. */
-.cityCta {
-  flex: 0 0 auto;
-  padding: 7px 14px;
-  color: var(--profile-accent);
-  border: 2px solid var(--profile-accent);
-  border-radius: var(--profile-radius);
-  font-size: 13px;
-  font-weight: 700;
-  transition:
-    color var(--profile-motion),
-    background-color var(--profile-motion);
-}
-
-.city:hover .cityCta,
-.city:focus-visible .cityCta {
-  color: var(--profile-ink);
-  background: var(--profile-accent);
-}
-
-.city:focus-visible {
-  outline: 3px solid var(--profile-accent);
-  outline-offset: 4px;
-  border-radius: var(--profile-radius);
 }
 
 .cityBar {
@@ -746,16 +698,34 @@ main.page .head {
   line-height: 1.14;
 }
 
-/* Die eine Zeile, die vom Laden uebrig bleibt. */
+/* Der eine Knopf, der vom Laden uebrig bleibt — in derselben Form wie
+   „Abmelden": umrandet, gefuellt beim Hover. Umrandet und nicht gefuellt,
+   weil der Laden hier ein Angebot ist und keine Aufforderung; das Profil
+   zeigt Besitz. */
 .packsMore {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   margin-top: clamp(20px, 2.4vw, 28px);
+  padding: 0 20px;
+  color: var(--profile-ink);
+  background: transparent;
+  border: 2px solid var(--profile-ink);
+  border-radius: var(--profile-radius);
   text-decoration: none;
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button, 13px);
+  font-weight: 700;
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion);
 }
 
 .packsMore:hover,
 .packsMore:focus-visible {
-  color: var(--profile-red);
+  color: var(--profile-inverse);
+  background: var(--profile-ink);
 }
 
 /* ── invite ─────────────────────────────────────────────── */

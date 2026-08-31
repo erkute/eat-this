@@ -249,7 +249,6 @@ const en = {
     savedHeading: 'Saved Spots',
     cityKicker: 'Berlin',
     cityCount: 'of {total} spots on your map',
-    cityCta: 'To the map',
     emptySpots: 'Nothing saved yet. Tap a spot on the map and hit the heart — it lands here.',
     toMap: 'To the map',
     removeSaved: 'Remove {name} from saved',
@@ -271,10 +270,11 @@ const en = {
       '{count, plural, one {# Must Eat still face-down in {district}.} other {# Must Eats still face-down in {district}.}}',
     moveCoveredNear:
       '{count, plural, one {# Must Eat still face-down in {district} — {distance} from here.} other {# Must Eats still face-down in {district} — the nearest {distance} from here.}}',
-    moveFirst: 'Cards open on site. The next one is waiting in {district}.',
-    moveFirstNear: 'Cards open on site. The next one is {distance} from here, in {district}.',
+    moveFirst: 'Cards are revealed on site. The first one is waiting in {district}.',
+    moveFirstNear:
+      'Cards are revealed on site. The first one is {distance} from here, in {district}.',
     packsHeading: 'My Packs',
-    packsRemaining: '{count, plural, one {# pack still closed} other {# packs still closed}}',
+    packsMore: 'View Booster Packs',
     inviteHeading: 'Show your deck',
     inviteLine: 'Send it to someone you like eating with. You both get new spots on your map.',
     inviteJoinedOne: '1 friend joined through your link',
@@ -609,7 +609,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     savedHeading: 'Gespeicherte Spots',
     cityKicker: 'Berlin',
     cityCount: 'von {total} Spots auf deiner Map',
-    cityCta: 'Zur Map',
     emptySpots:
       'Noch nichts gespeichert. Tipp auf der Map einen Spot an und dr\u00fcck aufs Herz — er landet hier.',
     toMap: 'Zur Map',
@@ -632,11 +631,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{count, plural, one {Noch # Must Eat in {district} verdeckt.} other {Noch # Must Eats in {district} verdeckt.}}',
     moveCoveredNear:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt \u2014 {distance} von hier.} other {Noch # Must Eats in {district} verdeckt \u2014 das n\u00e4chste {distance} von hier.}}',
-    moveFirst: 'Karten gehen vor Ort auf. Die n\u00e4chste wartet in {district}.',
+    moveFirst: 'Karten deckst du vor Ort auf. Die erste wartet in {district}.',
     moveFirstNear:
-      'Karten gehen vor Ort auf. Die n\u00e4chste liegt {distance} von hier, in {district}.',
+      'Karten deckst du vor Ort auf. Die erste liegt {distance} von hier, in {district}.',
     packsHeading: 'Meine Packs',
-    packsRemaining: '{count, plural, one {Noch # Pack offen} other {Noch # Packs offen}}',
+    packsMore: 'Booster Packs ansehen',
     inviteHeading: 'Zeig dein Deck',
     inviteLine:
       'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide neue Spots auf eure Map.',

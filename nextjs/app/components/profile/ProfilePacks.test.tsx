@@ -5,8 +5,7 @@ import { cleanup, render } from '@testing-library/react';
 const state = vi.hoisted(() => ({ owned: new Set<string>() as Set<string> | null }));
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string, vars?: Record<string, unknown>) =>
-    key === 'packsRemaining' ? `Noch ${vars?.count} Packs offen` : key,
+  useTranslations: () => (key: string) => (key === 'packsMore' ? 'Booster Packs ansehen' : key),
 }));
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => state.owned,
@@ -80,13 +79,31 @@ describe('ProfilePacks artwork delivery', () => {
 describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
   /* Der Laden stand vorher IM Profil: zehn Kaufknoepfe unter einer
      Ueberschrift, die „Meine Packs" heisst. */
-  it('nennt die fehlenden Packs in einer Zeile statt in zehn Kaufkarten', () => {
+  it('fuehrt zum Sortiment mit EINEM Knopf statt zehn Kaufkarten', () => {
     state.owned = new Set(['category-pizza']);
     const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
 
     expect(container.querySelectorAll('img')).toHaveLength(2);
     const more = container.querySelector('a[href="/packs"]');
-    expect(more?.textContent).toBe('Noch 8 Packs offen');
+    expect(more?.textContent).toBe('Booster Packs ansehen');
+  });
+
+  /* „Noch 9 Packs offen" hiess gemeint „neun stehen noch aus", stand aber
+     ueber einer Reihe GEOEFFNETER Packs und las sich damit als „neun sind
+     offen" — genau verkehrt herum (Nutzer, 31.08.2026). Der Knopf sagt jetzt,
+     wohin er fuehrt, und das stimmt bei jedem Besitzstand. */
+  it('sagt dasselbe, egal wie viel schon jemandem gehoert', () => {
+    state.owned = new Set<string>();
+    const nichts = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
+    const a = nichts.container.querySelector('a[href="/packs"]')?.textContent;
+    cleanup();
+
+    state.owned = new Set(['category-pizza', 'category-coffee']);
+    const zwei = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
+    const b = zwei.container.querySelector('a[href="/packs"]')?.textContent;
+
+    expect(a).toBe('Booster Packs ansehen');
+    expect(b).toBe(a);
   });
 
   /* Der Widerspruch, wegen dem fullCatalog ueberhaupt existiert: oben stand

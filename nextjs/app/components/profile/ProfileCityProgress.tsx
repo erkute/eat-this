@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import MapIntentLink from '@/app/components/MapIntentLink';
 import styles from './Profile.module.css';
 
 /**
@@ -16,6 +15,17 @@ import styles from './Profile.module.css';
  * („wer bin ich, wo stehe ich"), standen dafür aber zwei Bildschirme
  * auseinander — und die Ink-Fläche war die einzige weit oben, die gelbe
  * Einladen-Fläche die einzige ganz unten.
+ *
+ * Kein Weg zur Map mehr an dieser Zeile (Nutzer, 31.08.2026: „muss es hier
+ * sein?"). Der Knopf sass am rechten Rand der Textspalte und damit direkt
+ * unter der Figur, las sich also als deren Zubehoer statt als Ausgang der
+ * Berlin-Zeile. Und er war der dritte Weg zur Map auf einem Bildschirm: die
+ * SiteNav fuehrt oben links dauerhaft hin, der naechste Zug direkt darunter
+ * fuehrt sogar auf eine bestimmte Karte.
+ *
+ * Was bleibt, ist eine Angabe. Die Tafel hat damit genau zwei Knoepfe, und
+ * jeder haengt an dem, worauf er wirkt: „Charakter aendern" an der Figur,
+ * der naechste Zug an seinem Satz. Eine Zahl braucht keinen.
  *
  * Die Zahlen kommen von oben, nicht mehr aus einem eigenen useMapData:
  * ProfileShell hält denselben Hook ohnehin, der zweite Aufruf war ein zweiter
@@ -34,25 +44,18 @@ export default function ProfileCityProgress({ open, total }: { open: number; tot
   if (total === 0) return null;
 
   return (
-    <MapIntentLink href="/map" className={styles.city} rel="nofollow">
-      {/* Der Weg raus sitzt neben dem Label, nicht unter dem Balken: unter
-          dem Balken standen zwei gelbe Linien uebereinander — sein
-          Unterstrich und der Balken selbst — und auf schmalen Schirmen
-          kostete er die Zeile, die der Kopf gerade eingespart hatte. */}
-      <span className={styles.cityTop}>
-        <span className={styles.cityKicker}>{t('cityKicker')}</span>
-        <span className={styles.cityCta}>{t('cityCta')}</span>
-      </span>
-      <span className={styles.cityNumbers}>
+    <div className={styles.city}>
+      <p className={styles.cityKicker}>{t('cityKicker')}</p>
+      <p className={styles.cityNumbers}>
         <span className={styles.cityOpen}>{open}</span>
         <span className={styles.cityTotal}>{t('cityCount', { total })}</span>
-      </span>
+      </p>
       {/* Balken statt Prozentzahl: die Fläche sagt „da ist noch Stadt übrig"
           deutlicher als jede Ziffer — und sie ist der stille Verkäufer für
           die Packs, ohne hier eines zu nennen. */}
       <span className={styles.cityBar} aria-hidden="true">
         <span className={styles.cityBarFill} style={{ width: `${pct}%` }} />
       </span>
-    </MapIntentLink>
+    </div>
   );
 }

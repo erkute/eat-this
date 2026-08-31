@@ -11,6 +11,13 @@ import styles from './Profile.module.css';
 // (middleware captures ?ref=<uid> → /api/referral/confirm awards both sides)
 // but had no front door anywhere in the app. This is it.
 //
+// Geteilt wird seit 31.08.2026 das eigene Deck, nicht mehr die Startseite.
+// Ein nackter Link auf `/` mit angehaengtem ?ref war eine Bitte: „mach das
+// hier auch mit". /deck/<uid> zeigt erst, wie viel von Berlin auf dieser Map
+// liegt — die Einladung ist der Nebeneffekt. Das `?ref` bleibt derselbe
+// Parameter an derselben Middleware, nur an einer URL, die fuer sich etwas
+// hergibt.
+//
 // The bonus size is deliberately absent from the copy — see the no-spot-counts
 // note on REFERRAL_BONUS_SIZE. Die Zahl der Eingeladenen ist etwas anderes:
 // sie zählt keine Spots, sondern beantwortet die einzige Frage, die der Kasten
@@ -23,7 +30,7 @@ export default function ProfileInvite({ uid }: { uid: string }) {
   // staging. SSR has no origin; the canonical host is the honest fallback.
   const [origin, setOrigin] = useState(SITE_URL);
   useEffect(() => setOrigin(window.location.origin), []);
-  const inviteUrl = `${origin}${locale === 'en' ? '/en' : '/'}?ref=${uid}`;
+  const inviteUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}?ref=${uid}`;
 
   return (
     <div className={styles.invite}>

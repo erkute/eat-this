@@ -55,7 +55,19 @@ describe('ProfileInvite', () => {
     const { container } = render(<ProfileInvite uid={UID} />);
     // Staging darf keine Einladung auf die Live-Domain schicken.
     expect(container.querySelector('button')?.getAttribute('data-url')).toBe(
-      `${window.location.origin}/?ref=${UID}`
+      `${window.location.origin}/deck/${UID}?ref=${UID}`
     );
+  });
+
+  /* Geteilt wird das eigene Deck, nicht die Startseite: ein nackter Link auf
+     `/` war eine Bitte, das Deck zeigt erst etwas her. Das `?ref` muss dabei
+     dranbleiben — es ist der einzige Grund, dass aus dem Angeben eine
+     Werbung wird, und die Middleware nimmt es auf jeder Route entgegen. */
+  it('zeigt auf das eigene Deck und behaelt den Referral-Parameter', () => {
+    const { container } = render(<ProfileInvite uid={UID} />);
+    const url = container.querySelector('button')?.getAttribute('data-url') ?? '';
+
+    expect(new URL(url).pathname).toBe(`/deck/${UID}`);
+    expect(new URL(url).searchParams.get('ref')).toBe(UID);
   });
 });

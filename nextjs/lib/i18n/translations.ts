@@ -281,11 +281,11 @@ const en = {
     errNetwork: 'Network error — please try again.',
   },
   cookie: {
-    title: 'Mind if we count?',
-    text: "We're a small team in Berlin and we'd love to know which restaurants people actually care about. For that, Google Analytics sets a cookie and counts page views — no name, no email, but it does run through Google's servers. Necessary storage stays on so the site works.",
-    moreInfo: 'What exactly gets stored?',
-    accept: 'Sure, go ahead',
-    decline: 'No, thanks',
+    title: 'Cookies',
+    text: "We use Google Analytics to understand how our site is used. This sets a cookie and sends data to Google.",
+    moreInfo: 'Show details',
+    accept: 'Accept',
+    decline: 'Decline',
   },
   modals: {
     agb: {
@@ -549,11 +549,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     signIn: 'Anmelden',
   },
   cookie: {
-    title: 'Dürfen wir mitzählen?',
-    text: 'Wir sind ein kleines Team in Berlin und würden gern sehen, welche Restaurants euch wirklich interessieren. Dafür setzt Google Analytics ein Cookie und zählt Seitenaufrufe — ohne Namen, ohne E-Mail, aber über Googles Server. Notwendiges bleibt an, damit die Seite funktioniert.',
-    moreInfo: 'Was genau wird gespeichert?',
-    accept: 'Ja, gerne',
-    decline: 'Nein, danke',
+    title: 'Cookies',
+    text: 'Wir nutzen Google Analytics, um zu verstehen, wie unsere Seite genutzt wird. Dafür wird ein Cookie gesetzt und Daten an Google übermittelt.',
+    moreInfo: 'Details anzeigen',
+    accept: 'Akzeptieren',
+    decline: 'Ablehnen',
   },
   profile: {
     heroKicker: 'Dein Profil',

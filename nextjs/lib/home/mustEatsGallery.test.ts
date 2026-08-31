@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
-import { composeTeaserCards, filterMustEats, pickOnboardingDemoCard } from './mustEatsGallery';
+import { composeTeaserCards, pickOnboardingDemoCard } from './mustEatsGallery';
 
 function makeMustEat(id: string, name = 'Spot'): MapMustEat {
   return {
@@ -16,23 +16,6 @@ function makeMustEat(id: string, name = 'Spot'): MapMustEat {
     },
   };
 }
-
-describe('filterMustEats', () => {
-  const list = [makeMustEat('a'), makeMustEat('b'), makeMustEat('c')];
-  const unlocked = new Set(['b']);
-
-  it("'all' returns the full list unchanged", () => {
-    expect(filterMustEats(list, unlocked, 'all')).toBe(list);
-  });
-
-  it("'open' returns only unlocked must-eats", () => {
-    expect(filterMustEats(list, unlocked, 'open').map((m) => m._id)).toEqual(['b']);
-  });
-
-  it("'locked' returns only locked must-eats, preserving order", () => {
-    expect(filterMustEats(list, unlocked, 'locked').map((m) => m._id)).toEqual(['a', 'c']);
-  });
-});
 
 describe('composeTeaserCards', () => {
   const list = ['a', 'b', 'c', 'd', 'e', 'f'].map((id) => makeMustEat(id));

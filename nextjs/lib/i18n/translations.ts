@@ -41,12 +41,9 @@ const en = {
     },
   },
   mustEats: {
-    filterAll: 'All',
-    filterOpen: 'Face-up',
-    filterLocked: 'Face-down',
     // "Covered" wie auf der Pack-Seite — dieselbe Sache hieß dort schon so.
-    // Das Filter-Paar darüber bleibt Face-up/Face-down: es beschreibt die
-    // Kartenlage als Filterkategorie und funktioniert nur als Paar.
+    // Nur noch als Alt-Text der verdeckten Karte; die drei Filter-Chips
+    // (Alle/Offen/Verdeckt) sind mit dem Zwei-Band-Layout weggefallen.
     covered: 'Covered',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eat?',
@@ -395,9 +392,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
   },
   mustEats: {
-    filterAll: 'Alle',
-    filterOpen: 'Offen',
-    filterLocked: 'Verdeckt',
     covered: 'Verdeckt',
     howItWorks: "Wie funktioniert's?",
     onb1Kicker: 'Must Eat?',

@@ -11,6 +11,7 @@ import { composeAnonRestaurants, composeRevealedMustEats } from './tier-composit
 import { applySpotOfDayReveal } from './spotOfDayReveal';
 import { getFreeSurfaceData, applyFreeSurface } from './free-surface';
 import { stripCoveredMustEats } from './stripCoveredMustEats';
+import { selectMustEatsCatalog, type InitialMustEatsData } from './initial-surface-data';
 import { stripLockedRestaurants } from './stripLockedRestaurant';
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server';
 import { unstable_cache } from 'next/cache';
@@ -101,6 +102,32 @@ const readPublicMustEatContent = unstable_cache(
 export async function getPublicMustEatIds(): Promise<Set<string>> {
   const data = await composeInitialAnonMapMetadata();
   return new Set(data.revealedMustEatIds);
+}
+
+/**
+ * Payload for the public /must-eats catalog — the complete deck.
+ *
+ * `getInitialAnonMapData()` decides which cards are face-up (curated anon set
+ * + spot-of-day gift) and hydrates only those; the raw Sanity list supplies the
+ * rest, which the map drops because their spot sits outside the free tier. The
+ * merge lives in `selectMustEatsCatalog` so the authorization decision stays
+ * where it is — here — and only the ordering is pure.
+ */
+export async function getMustEatsCatalogData(): Promise<InitialMustEatsData> {
+  const [anon, { mustEats: catalog }] = await Promise.all([
+    getInitialAnonMapData(),
+    getCachedMapData(),
+  ]);
+  const merged = selectMustEatsCatalog(anon, catalog);
+
+  return {
+    ...merged,
+    // The cards joining from `catalog` never passed the anon strip. They carry
+    // no paid fields today (mapMustEatsQuery does not select them), but the
+    // guard is what makes that a property of this function rather than of a
+    // query somewhere else.
+    mustEats: stripCoveredMustEats(merged.mustEats, new Set(anon.revealedMustEatIds)),
+  };
 }
 
 export async function getInitialAnonMapData(): Promise<InitialMapData> {

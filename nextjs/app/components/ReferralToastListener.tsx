@@ -5,19 +5,26 @@ import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
 
-// Fire the confirm POST at most once per browser session — gesetzt erst,
-// wenn der Server geantwortet hat (siehe unten).
-const SESSION_KEY = 'referralConfirmFired';
+// Einmal pro Browser-Session UND Konto — gesetzt erst, wenn der Server
+// geantwortet hat (siehe unten).
+//
+// Der Riegel haengt am uid, nicht bloss an der Session: sessionStorage
+// ueberlebt den Kontowechsel im selben Tab. Wer dort erst als A angemeldet
+// war und sich dann als B neu anmeldet, trug den Riegel von A schon —
+// Bs Einladung wurde nie bestaetigt. Beim Testlauf am 31.08.2026 genau so
+// passiert: kein einziger Aufruf im Server-Log, und nichts, was darauf
+// hingewiesen haette.
+const sessionKey = (uid: string) => `referralConfirmFired:${uid}`;
 
 /** sessionStorage kann im privaten Modus werfen; eine fehlende Notiz kostet
  *  hoechstens einen zusaetzlichen No-op-Request. */
-function sessionFlag(): { seen: boolean; mark: () => void } {
+function sessionFlag(uid: string): { seen: boolean; mark: () => void } {
   try {
     return {
-      seen: sessionStorage.getItem(SESSION_KEY) !== null,
+      seen: sessionStorage.getItem(sessionKey(uid)) !== null,
       mark: () => {
         try {
-          sessionStorage.setItem(SESSION_KEY, '1');
+          sessionStorage.setItem(sessionKey(uid), '1');
         } catch {
           /* private mode */
         }
@@ -42,7 +49,7 @@ export default function ReferralToastListener() {
     let inFlight = false;
     return onAuthStateChanged(auth, async (user) => {
       if (!user || inFlight) return;
-      const flag = sessionFlag();
+      const flag = sessionFlag(user.uid);
       if (flag.seen) return;
       inFlight = true;
       try {

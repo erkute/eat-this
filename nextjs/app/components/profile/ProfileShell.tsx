@@ -222,7 +222,16 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
             {/* The character is the one thing on this page that is purely the
                 user's, so it keeps the room the home gives its phone mockups:
-                cut out, no frame — jetzt auf der Tafel statt auf dem Papier. */}
+                cut out, no frame — jetzt auf der Tafel statt auf dem Papier.
+
+                EIN Knopf, nicht zwei. Figur und Beschriftung waren zwei
+                Controls mit demselben Ziel und demselben Namen — fuer eine
+                Screenreader-Liste zweimal „Charakter aendern" hintereinander.
+                Die Beschriftung haengte ausserdem als Unterzeile unter einer
+                288 px hohen Figur (Nutzer, 31.08.2026: „muss das direkt unter
+                die Figur?"). Jetzt sitzt das Zeichen AUF der Figur, wie das
+                Kreuz auf den gespeicherten Spots, und die Spalte ist wieder
+                nur der Charakter. */}
             <div className={styles.bankCharacter}>
               <button
                 type="button"
@@ -236,9 +245,20 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                   src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                   alt=""
                 />
-              </button>
-              <button type="button" className={styles.bankEdit} onClick={() => setPickerOpen(true)}>
-                {t('changeAvatar')}
+                <span className={styles.bankAvatarBadge} aria-hidden="true">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+                  </svg>
+                </span>
               </button>
             </div>
 

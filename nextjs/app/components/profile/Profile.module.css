@@ -177,16 +177,46 @@ main.page .head {
   align-self: center;
   display: grid;
   justify-items: center;
-  gap: 10px;
 }
 
 /* Cut out on the board like the home's phone mockups — no card, no frame. */
 .bankAvatar {
+  position: relative;
   display: block;
   padding: 0;
   background: transparent;
   border: 0;
   cursor: pointer;
+}
+
+/* Das Zeichen sitzt auf der Figur statt als Unterzeile daran — dieselbe
+   Idee wie das Kreuz auf einem gespeicherten Spot. Unten rechts, weil die
+   drei Charaktere dort ihren leeren Sockel haben; oben halten alle drei
+   etwas in die Hoehe. */
+.bankAvatarBadge {
+  position: absolute;
+  right: -6px;
+  bottom: 6px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--profile-ink);
+  background: var(--profile-accent);
+  border-radius: 50%;
+  transition: transform var(--profile-motion);
+}
+
+.bankAvatar:hover .bankAvatarBadge,
+.bankAvatar:focus-visible .bankAvatarBadge {
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bankAvatar:hover .bankAvatarBadge,
+  .bankAvatar:focus-visible .bankAvatarBadge {
+    transform: none;
+  }
 }
 
 /* Ueber die HOEHE bemessen, nicht ueber die Breite. Zwei Gruende: die drei
@@ -221,27 +251,7 @@ main.page .head {
   }
 }
 
-.bankEdit {
-  padding: 4px 0 3px;
-  color: var(--profile-inverse);
-  background: transparent;
-  border: 0;
-  border-bottom: 2px solid var(--profile-accent);
-  cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-}
-
-/* Gelb, nicht Rot: Rot auf Ink ist die eine Farbkombination, die auf dieser
-   Flaeche nicht traegt. */
-.bankEdit:hover,
-.bankEdit:focus-visible {
-  color: var(--profile-accent);
-}
-
-.bankAvatar:focus-visible,
-.bankEdit:focus-visible {
+.bankAvatar:focus-visible {
   outline: 3px solid var(--profile-accent);
   outline-offset: 3px;
 }
@@ -354,7 +364,7 @@ main.page .head {
 
 /* Der einzige Knopf, der auf dieser Tafel etwas nach vorn bewegt — also
    gefuellt und nicht umrandet. Gelb auf Ink ist hier die einzige Fuellung,
-   die traegt: Rot auf dieser Flaeche traegt nicht (s. .bankEdit), und Ink
+   die traegt: Rot auf dieser Flaeche traegt nicht, und Ink
    auf Ink waere unsichtbar.
 
    Unter dem Satz, linksbuendig mit allem anderen der Textspalte. */

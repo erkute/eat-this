@@ -63,16 +63,45 @@ describe('summarize', () => {
     ]);
   });
 
-  it('berechnet die Zustimmungsquote gegen die gezeigten Dialoge', () => {
+  it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', () => {
+    // Der Dialog blockiert und erscheint je Besucher mehrfach. Gegen die
+    // Einblendungen gerechnet faellt die Quote um ein Vielfaches zu niedrig
+    // aus — sie beantwortet dann „wie oft wird geklickt", nicht „wie viele
+    // Menschen stimmen zu".
     const result = summarize(docs());
 
-    expect(result.consent).toEqual({ shown: 30, accepted: 3, declined: 0, rate: 0.1 });
+    expect(result.consent).toEqual({
+      shown: 30,
+      accepted: 3,
+      declined: 0,
+      visitors: 30, // beide Tage tragen den Dialog: 20 + 10
+      days: 2,
+      rate: 0.1,
+      ratePerView: 0.1,
+      viewsPerVisitor: 1,
+    });
+  });
+
+  it('nimmt als Nenner nur die Besucher der Tage, die den Dialog zählen', () => {
+    // `consent_gate_shown` gibt es erst seit dem 28.08.2026. Zaehlte der Tag
+    // davor mit, stuenden Zaehler und Nenner auf verschiedenen Zeitraeumen —
+    // dieselbe Falle wie bei den Ausstiegen.
+    const result = summarize([
+      { day: '2026-08-27', visitors: 500 },
+      { day: '2026-08-28', visitors: 100, events: { consent_gate_shown: 300, consent_accepted: 20 } },
+    ]);
+
+    expect(result.consent.visitors).toBe(100);
+    expect(result.consent.days).toBe(1);
+    expect(result.consent.rate).toBe(0.2);
+    expect(result.consent.viewsPerVisitor).toBe(3);
   });
 
   it('liefert keine Zustimmungsquote ohne Nenner', () => {
     const result = summarize([{ day: '2026-08-28', events: { consent_accepted: 4 } }]);
 
     expect(result.consent.rate).toBeNull();
+    expect(result.consent.ratePerView).toBeNull();
   });
 
   it('behält Trichterstufen mit dem Wert null', () => {

@@ -217,6 +217,7 @@ function Trend({ data }: { data: StatsSummary }) {
 
 function Consent({ data }: { data: StatsSummary }) {
   const { consent } = data;
+  const silent = consent.visitors - consent.accepted - consent.declined;
   return (
     <section className={styles.card}>
       <h2 className={styles.cardTitle}>Cookie-Dialog</h2>
@@ -226,10 +227,22 @@ function Consent({ data }: { data: StatsSummary }) {
         <>
           <p className={styles.big}>{percent(consent.rate)}</p>
           <p className={styles.note}>
-            {NUMBER.format(consent.accepted)} Zustimmungen und{' '}
-            {NUMBER.format(consent.declined)} Ablehnungen auf{' '}
-            {NUMBER.format(consent.shown)} gezeigte Dialoge. Genau diesen Anteil sieht Google
-            Analytics — der Rest wird nur hier gezählt.
+            der Besucher stimmen zu — {NUMBER.format(consent.accepted)} von{' '}
+            {NUMBER.format(consent.visitors)}. Dazu {NUMBER.format(consent.declined)} Ablehnungen;{' '}
+            {NUMBER.format(Math.max(0, silent))} antworten gar nicht. Genau die Zustimmenden sieht
+            Google Analytics — alle anderen werden nur hier gezählt.
+          </p>
+          <p className={styles.note}>
+            Der Dialog erschien {NUMBER.format(consent.shown)} Mal, also{' '}
+            {consent.viewsPerVisitor === null
+              ? '—'
+              : consent.viewsPerVisitor.toFixed(1).replace('.', ',')}{' '}
+            Mal je Besucher: er blockiert und kommt bei jedem Seitenaufruf wieder, bis jemand
+            antwortet. Gegen die Einblendungen gerechnet wären es{' '}
+            {consent.ratePerView === null ? '—' : percent(consent.ratePerView)} — dieselbe
+            Wirklichkeit, nur durch den falschen Nenner geteilt. Grundlage sind{' '}
+            {NUMBER.format(consent.days)} von {NUMBER.format(data.totals.days)} Tagen; gezählt wird
+            der Dialog erst seit dem 28.08.2026.
           </p>
         </>
       )}

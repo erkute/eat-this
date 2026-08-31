@@ -66,9 +66,37 @@ export interface StatsSummary {
    */
   exitDays: number;
   funnels: Funnel[];
-  /** Zustimmungsquote am Cookie-Dialog. `rate` ist null, wenn der Dialog in
-   *  keinem Tag gezählt wurde — dann gibt es keinen Nenner. */
-  consent: { shown: number; accepted: number; declined: number; rate: number | null };
+  /**
+   * Der Cookie-Dialog. Zwei Nenner, weil zwei verschiedene Fragen dahinter
+   * stehen — und weil der naheliegende der falsche ist.
+   *
+   * `shown` zaehlt ERSCHEINUNGEN, nicht gefragte Menschen: der Dialog
+   * blockiert (kein Escape, kein Aussenklick, siehe CookieConsent.tsx) und
+   * erscheint bei jedem Seitenaufruf erneut, solange niemand geantwortet hat
+   * — gemessen 3,3 Mal je Besucher. Eine Quote gegen `shown` beantwortet
+   * darum „wie oft wird auf eine Einblendung geklickt", nicht „wie viele
+   * Menschen stimmen zu", und faellt um rund zwei Drittel zu niedrig aus.
+   *
+   * `visitors` sind die Besucher **der Tage, die den Dialog ueberhaupt
+   * zaehlen** — `consent_gate_shown` gibt es erst seit dem 28.08.2026.
+   * Dieselbe Falle wie bei den Ausstiegen: ueber alle Tage gerechnet stuenden
+   * Zaehler und Nenner auf verschiedenen Zeitraeumen.
+   */
+  consent: {
+    shown: number;
+    accepted: number;
+    declined: number;
+    /** Besucher der Tage mit gezaehltem Dialog. */
+    visitors: number;
+    /** Tage, die den Dialog zaehlen. */
+    days: number;
+    /** Zustimmungen je Besucher — die Antwort auf „wie viele Menschen". */
+    rate: number | null;
+    /** Zustimmungen je Einblendung — deutlich niedriger, siehe oben. */
+    ratePerView: number | null;
+    /** Einblendungen je Besucher. Ueber 1 heisst: mehrfach gefragt. */
+    viewsPerVisitor: number | null;
+  };
 }
 
 /**
@@ -134,6 +162,10 @@ export function summarize(docs: DailyDoc[]): StatsSummary {
   const days: DayPoint[] = [];
   let pageviews = 0;
   let visitors = 0;
+  // Getrennt gezaehlt, damit die Zustimmungsquote denselben Zeitraum trifft
+  // wie ihr Zaehler — `consent_gate_shown` gibt es erst seit dem 28.08.2026.
+  let consentVisitors = 0;
+  let consentDays = 0;
 
   for (const doc of sorted) {
     const pv = num(doc.pageviews);
@@ -151,6 +183,11 @@ export function summarize(docs: DailyDoc[]): StatsSummary {
       exitDays += 1;
       addInto(exitViews, doc.paths);
       addInto(exitContinued, doc.continuations);
+    }
+
+    if (num(doc.events?.consent_gate_shown) > 0) {
+      consentDays += 1;
+      consentVisitors += vis;
     }
   }
 
@@ -177,6 +214,8 @@ export function summarize(docs: DailyDoc[]): StatsSummary {
 
   const eventCount = (key: string): number => events.get(key) ?? 0;
   const shown = eventCount('consent_gate_shown');
+  const accepted = eventCount('consent_accepted');
+  const declined = eventCount('consent_declined');
 
   return {
     days,
@@ -223,9 +262,13 @@ export function summarize(docs: DailyDoc[]): StatsSummary {
     ],
     consent: {
       shown,
-      accepted: eventCount('consent_accepted'),
-      declined: eventCount('consent_declined'),
-      rate: shown > 0 ? eventCount('consent_accepted') / shown : null,
+      accepted,
+      declined,
+      visitors: consentVisitors,
+      days: consentDays,
+      rate: consentVisitors > 0 ? accepted / consentVisitors : null,
+      ratePerView: shown > 0 ? accepted / shown : null,
+      viewsPerVisitor: consentVisitors > 0 ? shown / consentVisitors : null,
     },
   };
 }

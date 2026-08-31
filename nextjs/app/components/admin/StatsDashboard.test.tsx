@@ -47,7 +47,16 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
         ],
       },
     ],
-    consent: { shown: 1137, accepted: 56, declined: 43, rate: 56 / 1137 },
+    consent: {
+      shown: 1139,
+      accepted: 57,
+      declined: 44,
+      visitors: 346,
+      days: 4,
+      rate: 57 / 346,
+      ratePerView: 57 / 1139,
+      viewsPerVisitor: 1139 / 346,
+    },
     ...overrides,
   };
 }
@@ -96,12 +105,17 @@ describe('StatsDashboard', () => {
     });
   });
 
-  it('zeigt die Zustimmungsquote als Anteil der gezeigten Dialoge', async () => {
+  it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', async () => {
+    // Der Dialog blockiert und erscheint je Besucher mehrfach (hier 3,3 Mal).
+    // Gegen die Einblendungen gerechnet stuenden hier 5,0 % statt 16,5 % —
+    // dieselbe Wirklichkeit, durch den falschen Nenner geteilt.
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
 
-    await waitFor(() => expect(screen.getByText('4,9 %')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('16,5 %')).toBeTruthy());
+    expect(screen.getByText(/5,0 %/)).toBeTruthy();
+    expect(screen.getByText(/3,3 Mal je Besucher/)).toBeTruthy();
   });
 
   it('zeigt eine Trichterstufe mit dem Wert null, statt sie zu verschweigen', async () => {
@@ -120,8 +134,10 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
 
+    // „4 von 11" steht jetzt auch im Consent-Block — hier gezielt die
+    // Ausstiegs-Fussnote greifen.
     await waitFor(() => expect(screen.getByText(/Gerechnet über/)).toBeTruthy());
-    expect(screen.getByText(/4 von 11/)).toBeTruthy();
+    expect(screen.getByText(/Gerechnet über/).textContent).toContain('4 von 11');
   });
 
   it('erklärt die 404 der Route als fehlenden Zugriff, nicht als Fehler', async () => {

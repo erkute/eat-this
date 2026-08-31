@@ -15,7 +15,16 @@ export const UID_SHAPE = /^[a-zA-Z0-9]{20,40}$/;
 
 // New-account freshness window (ms). Only friend accounts created within this
 // window of the confirm call reward the inviter.
-export const ACCOUNT_FRESHNESS_MS = 10 * 60 * 1000;
+//
+// Eine Stunde, nicht zehn Minuten: zwischen der Kontoerstellung
+// (signInWithEmailLink) und dem Confirm-Aufruf liegt fuer JEDES neue Konto das
+// Identitaets-Formular auf /welcome — Name eintippen, Charakter aussuchen. Wer
+// sich dabei Zeit laesst oder das Telefon weglegt, war nach zehn Minuten
+// draussen, und die Route vergab still nichts. Das Fenster ist nicht der
+// Farming-Schutz, das ist MAX_REFERRALS_PER_INVITER; es verhindert nur, dass
+// ein LANGE bestehendes Konto nachtraeglich noch jemanden belohnt. Dafuer ist
+// eine Stunde genauso eindeutig wie zehn Minuten.
+export const ACCOUNT_FRESHNESS_MS = 60 * 60 * 1000;
 
 // Anti-farming cap: max successful referrals an inviter is REWARDED for. Each
 // awarded referral grants real map entitlements and the inviter's bonus pool

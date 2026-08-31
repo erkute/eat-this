@@ -239,14 +239,22 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                 onClick={() => setPickerOpen(true)}
                 aria-label={t('changeAvatar')}
               >
+                {/* Ein Wort in der Beschriftungs-Schrift der Tafel, nicht
+                    noch ein Gegenstand: „Berlin" und „Erstes Must Eat"
+                    stehen genauso da. Ueber der Figur statt darunter, damit
+                    beide Spalten mit einer gelben Zeile anfangen und nichts
+                    unter der Figur haengt. Kurz, weil die Spalte auf dem
+                    Telefon nur 125 px breit ist — den ganzen Satz traegt
+                    das aria-label des Knopfes. */}
+                <span className={styles.bankAvatarLabel} aria-hidden="true">
+                  {t('changeAvatarShort')}
+                </span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={styles.bankAvatarImg}
                   src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                   alt=""
                 />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={styles.bankAvatarBadge} src="/pics/pencil.webp?v=1" alt="" />
               </button>
             </div>
 

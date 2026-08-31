@@ -311,12 +311,12 @@ main.page .head {
    die dritte Bank der Ink-Tafel — dort oben war er ein Untermieter zwischen
    Name und Berlin-Zahl, obwohl er vom Deck handelt (Nutzer, 31.08.2026).
 
-   Die Haarlinie liegt UNTER dem Block, nicht darüber: oben steht schon die
-   Abschnitts-Ueberschrift, und zwei Linien kurz hintereinander machen aus
-   einer Einleitung einen eigenen Abschnitt. */
+   Die Haarlinie liegt UNTER dem Block: sie trennt ihn von der Ueberschrift
+   „Dein Deck", die darauf folgt. Darueber braeuchte er keine — da liegt
+   schon der volle Abschnitts-Abstand zur Tafel. */
 .move {
-  margin-bottom: clamp(20px, 2.6vw, 30px);
-  padding-bottom: clamp(18px, 2.2vw, 26px);
+  margin-bottom: clamp(24px, 3vw, 36px);
+  padding-bottom: clamp(20px, 2.4vw, 28px);
   border-bottom: 1px solid var(--et-home-rule, #e4e1dc);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }

@@ -60,6 +60,11 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, nextMove }:
 
   return (
     <div className={styles.panel}>
+      {/* Vor der Ueberschrift, nicht dazwischen: erst was zu tun ist, dann
+          was da ist. Zwischen Ueberschrift und Bezirken schob sich der Block
+          zwischen einen Abschnittstitel und seinen Inhalt. */}
+      {nextMove}
+
       <div className={`hv-head ${styles.head}`}>
         <h2 className="hv-title">{t('albumHeading')}</h2>
         {slots.length > 0 && (
@@ -69,8 +74,6 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, nextMove }:
           </span>
         )}
       </div>
-
-      {nextMove}
 
       {slots.length === 0 ? (
         <p className={styles.emptyText}>{t('emptyMustEats')}</p>

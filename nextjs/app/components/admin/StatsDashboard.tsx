@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { auth } from '@/lib/firebase/config';
-import type { Entry, ExitEntry, StatsSummary } from '@/lib/admin/stats.server';
+import type { Delta, Entry, ExitEntry, Mover, StatsSummary } from '@/lib/admin/stats.server';
 import styles from './StatsDashboard.module.css';
 
 /**
@@ -59,6 +59,8 @@ function labelFor(key: string): string {
 function percent(value: number): string {
   return `${(value * 100).toFixed(1).replace('.', ',')} %`;
 }
+
+const WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
 /** Tagesbeschriftung „28.08." — der Verlauf braucht kein Jahr. */
 function shortDay(day: string): string {
@@ -141,10 +143,22 @@ export default function StatsDashboard() {
 
       {data && (
         <div className={loading ? styles.bodyStale : styles.body}>
+          <Yesterday data={data} />
           <Headline data={data} />
-          <Trend data={data} />
+          <Trend
+            title="Besucher"
+            points={data.days.map((d) => ({ day: d.day, value: d.visitors }))}
+            today={data.today?.day}
+          />
+          <Trend
+            title="Seitenaufrufe"
+            points={data.days.map((d) => ({ day: d.day, value: d.pageviews }))}
+            today={data.today?.day}
+          />
+          <Weekdays data={data} />
           <Consent data={data} />
           <Funnels data={data} />
+          <Movers data={data} />
           <Exits data={data} />
           <div className={styles.columns}>
             <Ranking title="Einstiegsseiten" rows={data.entryPaths} empty="Noch nicht erfasst." />
@@ -159,59 +173,225 @@ export default function StatsDashboard() {
 }
 
 function Headline({ data }: { data: StatsSummary }) {
-  const { totals } = data;
+  const { totals, period } = data;
   const perDay = totals.days > 0 ? Math.round(totals.visitors / totals.days) : 0;
   return (
-    <section className={styles.tiles}>
-      <Tile value={NUMBER.format(totals.visitors)} label="Besucher" />
-      <Tile value={NUMBER.format(totals.pageviews)} label="Seitenaufrufe" />
-      <Tile value={NUMBER.format(perDay)} label="Besucher je Tag" />
-      <Tile value={NUMBER.format(totals.days)} label="Tage erfasst" />
-    </section>
+    <>
+      <section className={styles.tiles}>
+        <Tile
+          value={NUMBER.format(totals.visitors)}
+          label="Besucher"
+          delta={period?.visitors ?? null}
+        />
+        <Tile
+          value={NUMBER.format(totals.pageviews)}
+          label="Seitenaufrufe"
+          delta={period?.pageviews ?? null}
+        />
+        <Tile value={NUMBER.format(perDay)} label="Besucher je Tag" />
+        <Tile value={NUMBER.format(totals.days)} label="Tage erfasst" />
+      </section>
+      {period && (
+        <p className={styles.note}>
+          Die Pfeile vergleichen den Schnitt <strong>je Tag</strong> mit der Periode davor —{' '}
+          {NUMBER.format(period.daysNow)} gemessene Tage gegen {NUMBER.format(period.days)}.
+          {period.days !== period.daysNow &&
+            ' Die Perioden sind kalendarisch gleich lang; dass unterschiedlich viele Tage Daten tragen, gleicht der Tagesschnitt aus.'}
+        </p>
+      )}
+    </>
   );
 }
 
-function Tile({ value, label }: { value: string; label: string }) {
+function Tile({ value, label, delta }: { value: string; label: string; delta?: Delta | null }) {
   return (
     <div className={styles.tile}>
       <strong className={styles.tileValue}>{value}</strong>
       <span className={styles.tileLabel}>{label}</span>
+      {delta && delta.change !== null && (
+        <span className={styles.tileDelta}>
+          {Math.abs(delta.change) < 0.005 ? '±' : delta.change > 0 ? '▲' : '▼'}{' '}
+          {percent(Math.abs(delta.change))}
+        </span>
+      )}
     </div>
   );
 }
 
-function Trend({ data }: { data: StatsSummary }) {
-  const peak = Math.max(1, ...data.days.map((d) => d.pageviews));
+/** Eine Kennziffer im Vergleich: „▲ 12 %" mit Bezug. */
+function Change({ delta, label }: { delta: Delta; label: string }) {
+  if (delta.change === null) {
+    return (
+      <span className={styles.changeFlat}>
+        {label}: {NUMBER.format(delta.before)} → {NUMBER.format(delta.now)}
+      </span>
+    );
+  }
+  const up = delta.change > 0;
+  const flat = Math.abs(delta.change) < 0.005;
+  return (
+    <span className={flat ? styles.changeFlat : up ? styles.changeUp : styles.changeDown}>
+      {flat ? '±' : up ? '▲' : '▼'} {percent(Math.abs(delta.change))}
+      <span className={styles.changeLabel}>
+        {' '}
+        {label} ({NUMBER.format(delta.before)})
+      </span>
+    </span>
+  );
+}
+
+/** Der jüngste abgeschlossene Tag — die Zahl für den Morgenkaffee. Der
+ *  laufende Tag steht bewusst nur als Randnotiz daneben: er ist unvollständig
+ *  und sähe als Hauptzahl jeden Morgen wie ein Absturz aus. */
+function Yesterday({ data }: { data: StatsSummary }) {
+  const { latest, today } = data;
+  if (!latest.day) return null;
   return (
     <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Verlauf</h2>
+      <h2 className={styles.cardTitle}>
+        {WEEKDAYS[new Date(`${latest.day.day}T12:00:00Z`).getUTCDay()]}, {shortDay(latest.day.day)}
+      </h2>
+      <p className={styles.big}>{NUMBER.format(latest.day.visitors)}</p>
+      <p className={styles.note}>
+        Besucher, {NUMBER.format(latest.day.pageviews)} Seitenaufrufe — der letzte volle Tag.
+      </p>
+      <div className={styles.changes}>
+        {latest.vsPrevDay && <Change delta={latest.vsPrevDay.visitors} label="zum Vortag" />}
+        {latest.vsSameWeekday && (
+          <Change delta={latest.vsSameWeekday.visitors} label="zum selben Wochentag" />
+        )}
+      </div>
+      {today && (
+        <p className={styles.note}>
+          Heute stehen bisher {NUMBER.format(today.visitors)} Besucher und{' '}
+          {NUMBER.format(today.pageviews)} Aufrufe — der Tag läuft noch, die Zahl wächst.
+        </p>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Ein Verlauf, eine Größe, eine Skala.
+ *
+ * Vorher lagen Besucher und Aufrufe in einem Diagramm auf gemeinsamer Skala —
+ * bei 1.470 Aufrufen gegen 163 Besucher war die Besucherreihe ein Strich am
+ * Boden, also genau die Zahl unlesbar, auf die es ankommt.
+ */
+function Trend({
+  title,
+  points,
+  today,
+}: {
+  title: string;
+  points: { day: string; value: number }[];
+  today?: string;
+}) {
+  const peak = Math.max(1, ...points.map((p) => p.value));
+  return (
+    <section className={styles.card}>
+      <h2 className={styles.cardTitle}>{title}</h2>
       <div className={styles.trend} role="list">
-        {data.days.map((point) => (
+        {points.map((point) => (
           <div
             key={point.day}
             className={styles.trendCol}
             role="listitem"
-            title={`${shortDay(point.day)} — ${NUMBER.format(point.visitors)} Besucher, ${NUMBER.format(point.pageviews)} Aufrufe`}
+            title={`${shortDay(point.day)} — ${NUMBER.format(point.value)}${point.day === today ? ' (läuft noch)' : ''}`}
           >
+            <span className={styles.trendValue}>{NUMBER.format(point.value)}</span>
             <div className={styles.trendBars}>
               <span
-                className={styles.trendViews}
-                style={{ height: `${(point.pageviews / peak) * 100}%` }}
-              />
-              <span
-                className={styles.trendVisitors}
-                style={{ height: `${(point.visitors / peak) * 100}%` }}
+                className={point.day === today ? styles.trendBarToday : styles.trendBar}
+                style={{ height: `${(point.value / peak) * 100}%` }}
               />
             </div>
             <span className={styles.trendDay}>{shortDay(point.day)}</span>
           </div>
         ))}
       </div>
-      <p className={styles.legend}>
-        <span className={styles.keyViews} /> Seitenaufrufe
-        <span className={styles.keyVisitors} /> Besucher
+      {today && points.some((p) => p.day === today) && (
+        <p className={styles.note}>Der letzte Balken ist der laufende Tag und noch nicht fertig.</p>
+      )}
+    </section>
+  );
+}
+
+/** Wann Menschen wirklich kommen. Beantwortet die Frage, die sonst jeden
+ *  Sonntag neu gestellt wird: ist das ein Einbruch oder der Wochenrhythmus? */
+function Weekdays({ data }: { data: StatsSummary }) {
+  if (data.weekdays.length < 2) return null;
+  const avg = (w: { visitors: number; days: number }) => (w.days > 0 ? w.visitors / w.days : 0);
+  const peak = Math.max(1, ...data.weekdays.map(avg));
+  // Montag zuerst — Date zählt ab Sonntag, gelesen wird die Woche anders.
+  const ordered = [...data.weekdays].sort(
+    (a, b) => ((a.index + 6) % 7) - ((b.index + 6) % 7)
+  );
+  return (
+    <section className={styles.card}>
+      <h2 className={styles.cardTitle}>Nach Wochentag</h2>
+      <ol className={styles.rank}>
+        {ordered.map((day) => (
+          <li key={day.index} className={styles.rankRow}>
+            <span className={styles.rankKey}>{WEEKDAYS[day.index]}</span>
+            <span className={styles.rankBarWrap}>
+              <span className={styles.rankBar} style={{ width: `${(avg(day) / peak) * 100}%` }} />
+            </span>
+            <span className={styles.rankValue}>{Math.round(avg(day))}</span>
+          </li>
+        ))}
+      </ol>
+      <p className={styles.note}>
+        Besucher im Schnitt je Wochentag, über die abgeschlossenen Tage des Zeitraums. Der laufende
+        Tag zählt nicht mit.
       </p>
     </section>
+  );
+}
+
+/** Was sich gegenüber der Vorperiode bewegt hat — in beide Richtungen. Ein
+ *  Wegbruch ist so interessant wie ein Anstieg, und beide gehen in reinen
+ *  Bestenlisten unter. */
+function Movers({ data }: { data: StatsSummary }) {
+  const { paths, referrers } = data.movers;
+  if (!data.period || (paths.length === 0 && referrers.length === 0)) return null;
+  return (
+    <section className={styles.card}>
+      <h2 className={styles.cardTitle}>Veränderungen zur Vorperiode</h2>
+      <div className={styles.columns}>
+        <MoverList title="Seiten" rows={paths} />
+        <MoverList title="Herkunft" rows={referrers} />
+      </div>
+      <p className={styles.note}>
+        Absolute Zahlen gegen die {NUMBER.format(data.period.days)} gemessenen Tage davor
+        {data.period.days !== data.period.daysNow
+          ? ` — die tragen weniger Tage als die ${NUMBER.format(data.period.daysNow)} hier, die Differenzen fallen also zu hoch aus.`
+          : '.'}
+      </p>
+    </section>
+  );
+}
+
+function MoverList({ title, rows }: { title: string; rows: Mover[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <div>
+      <h3 className={styles.funnelTitle}>{title}</h3>
+      <ol className={styles.rank}>
+        {rows.map((row) => (
+          <li key={row.key} className={styles.rankRow}>
+            <span className={styles.rankKey} title={row.key}>
+              {row.key}
+            </span>
+            <span className={row.diff > 0 ? styles.moverUp : styles.moverDown}>
+              {row.diff > 0 ? '+' : '−'}
+              {NUMBER.format(Math.abs(row.diff))}
+            </span>
+            <span className={styles.rankValue}>{NUMBER.format(row.now)}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 

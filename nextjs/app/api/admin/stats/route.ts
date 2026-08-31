@@ -58,18 +58,24 @@ export async function GET(request: Request) {
   }
 
   const days = parseDays(new URL(request.url).searchParams.get('days'));
+  const today = berlinDay();
+  const windowStart = sinceDay(days, today);
 
+  // Doppelt so weit zurück wie angefragt: die zweite Hälfte ist der gewählte
+  // Zeitraum, die erste die gleich lange Periode davor, gegen die verglichen
+  // wird. Ein Dokument pro Tag — auch bei 365 Tagen sind das zwei kleine
+  // Seiten, keine Abfrage, die sich zu teilen lohnte.
+  //
   // Bereichsfilter über die Dokument-ID — die IST der Tag (YYYY-MM-DD,
   // lexikografisch = chronologisch). Ein `orderBy(documentId, 'desc')` wäre
   // naheliegender, verlangt aber einen zusammengesetzten Index; ein reiner
-  // Bereichsfilter auf `__name__` kommt ohne aus. Sortiert wird ohnehin in
-  // summarize(), und die Datenmenge ist ein Dokument pro Tag.
+  // Bereichsfilter auf `__name__` kommt ohne aus.
   const snapshot = await getAdminFirestore()
     .collection('analytics_daily')
-    .where(FieldPath.documentId(), '>=', sinceDay(days, berlinDay()))
+    .where(FieldPath.documentId(), '>=', sinceDay(days * 2, today))
     .get();
 
-  const docs: DailyDoc[] = snapshot.docs.map((doc) => ({
+  const all: DailyDoc[] = snapshot.docs.map((doc) => ({
     ...(doc.data() as Omit<DailyDoc, 'day'>),
     // Das Feld `day` steht zwar in jedem Dokument, die ID ist aber die Quelle,
     // nach der geschnitten wurde — sonst könnten Zeitraum und Beschriftung
@@ -77,5 +83,8 @@ export async function GET(request: Request) {
     day: doc.id,
   }));
 
-  return NextResponse.json(summarize(docs), { headers: NO_STORE });
+  const current = all.filter((doc) => doc.day >= windowStart);
+  const previous = all.filter((doc) => doc.day < windowStart);
+
+  return NextResponse.json(summarize(current, previous, today), { headers: NO_STORE });
 }

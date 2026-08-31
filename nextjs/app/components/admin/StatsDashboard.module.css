@@ -184,51 +184,10 @@
   gap: 2px;
 }
 
-.trendViews,
-.trendVisitors {
-  width: 46%;
-  min-height: 2px;
-}
-
-.trendViews {
-  background: #ffc600;
-  border: 1px solid var(--brand-ink, #15120e);
-}
-
-.trendVisitors {
-  background: var(--brand-ink, #15120e);
-}
-
 .trendDay {
   font-size: 10px;
   white-space: nowrap;
   color: #55504a;
-}
-
-.legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 12px 0 0;
-  font-size: 13px;
-  color: #55504a;
-}
-
-.keyViews,
-.keyVisitors {
-  width: 12px;
-  height: 12px;
-  display: inline-block;
-}
-
-.keyViews {
-  background: #ffc600;
-  border: 1px solid var(--brand-ink, #15120e);
-}
-
-.keyVisitors {
-  margin-left: 14px;
-  background: var(--brand-ink, #15120e);
 }
 
 /* ── Trichter ─────────────────────────────────────────────────────────── */
@@ -237,6 +196,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 22px;
+}
+
+/* Eine Trichter-Spalte. Stand als `styles.funnel` im Markup, war hier aber nie
+   definiert — CSS-Module liefern dann `undefined`, und der Kasten fiel still
+   auf das Grid zurueck. `min-width: 0` ist der Grund, warum es sie braucht:
+   ohne sie sprengt eine lange Beschriftung die Spalte. */
+.funnel {
+  min-width: 0;
 }
 
 .funnelTitle {
@@ -368,4 +335,93 @@
   .rankRow {
     grid-template-columns: 1fr 52px 46px;
   }
+}
+
+/* ── Vergleiche ───────────────────────────────────────────────────────── */
+
+.tileDelta {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.changes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 10px;
+}
+
+.changeUp,
+.changeDown,
+.changeFlat {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Gruen und Rot stehen hier fuer Richtung, nicht fuer gut und schlecht — die
+   Zahl daneben nennt immer den Bezug, damit ein Pfeil allein nichts behauptet.
+   Dieselben Toene wie die Zustands-Chips der Spot-Seite. */
+.changeUp {
+  color: #1f8f4d;
+}
+
+.changeDown {
+  color: #d9382a;
+}
+
+.changeFlat {
+  color: #55504a;
+}
+
+.changeLabel {
+  font-weight: 400;
+  color: #55504a;
+}
+
+.moverUp,
+.moverDown {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.moverUp {
+  color: #1f8f4d;
+}
+
+.moverDown {
+  color: #d9382a;
+}
+
+/* Zahl ueber dem Balken: der Verlauf soll ablesbar sein, ohne zu zielen. */
+.trendValue {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: #55504a;
+  white-space: nowrap;
+}
+
+.trendBar,
+.trendBarToday {
+  width: 68%;
+  min-height: 2px;
+  border: 1px solid var(--brand-ink, #15120e);
+}
+
+.trendBar {
+  background: #ffc600;
+}
+
+/* Der laufende Tag ist unvollstaendig — schraffiert statt voll, damit er nicht
+   als Einbruch gelesen wird. */
+.trendBarToday {
+  background: repeating-linear-gradient(
+    45deg,
+    #ffc600 0 4px,
+    #fff 4px 8px
+  );
 }

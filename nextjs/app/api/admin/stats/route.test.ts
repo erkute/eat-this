@@ -134,23 +134,46 @@ describe('GET /api/admin/stats', () => {
     expect(body.days[0].day).toBe('2026-08-28');
   });
 
-  it('fragt einen Datumsbereich ab, nicht die letzten N Dokumente', async () => {
+  it('holt doppelt so weit zurück wie angefragt — für den Vorperiodenvergleich', async () => {
     // Ein `limit(N)` griffe an Tagen ohne Aufrufe weiter zurück als gedacht,
-    // weil der Zähler dann gar kein Dokument anlegt.
+    // weil der Zähler dann gar kein Dokument anlegt. Und die erste Hälfte des
+    // Bereichs ist die Periode, gegen die verglichen wird.
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=7'));
 
-    expect(mocks.where).toHaveBeenLastCalledWith('>=', '2026-08-25');
+    // 14 Tage zurück: 7 für das Fenster, 7 für den Vergleich davor.
+    expect(mocks.where).toHaveBeenLastCalledWith('>=', '2026-08-18');
+  });
+
+  it('teilt die Dokumente in Zeitraum und Vorperiode', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
+    mocks.where.mockResolvedValue(
+      snapshot([
+        { id: '2026-08-20', data: { visitors: 10 } }, // vor dem Fenster
+        { id: '2026-08-30', data: { visitors: 40 } }, // im Fenster (ab 25.08.)
+      ])
+    );
+
+    const body = await (await GET(request({ authorization: 'Bearer abc' }, '?days=7'))).json();
+
+    expect(body.totals.visitors).toBe(40);
+    // Je Tag gerechnet — hier trägt jede Periode genau einen Tag.
+    expect(body.period).toEqual({
+      visitors: { now: 40, before: 10, change: 3 },
+      pageviews: { now: 0, before: 0, change: null },
+      days: 1,
+      daysNow: 1,
+    });
   });
 
   it('deckelt den days-Parameter und fällt bei Unsinn auf 30 zurück', async () => {
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=99999'));
-    expect(windowStart()).toBe('2025-09-01'); // 365 Tage
+    expect(windowStart()).toBe('2024-09-01'); // 2 × 365 Tage
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=schwurbel'));
-    expect(windowStart()).toBe('2026-08-02'); // 30 Tage
+    expect(windowStart()).toBe('2026-07-03'); // 2 × 30 Tage
   });
 });

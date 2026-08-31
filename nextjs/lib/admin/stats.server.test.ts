@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sinceDay, summarize, type DailyDoc } from './stats.server';
+import { sinceDay, summarize, weekdayOf, type DailyDoc } from './stats.server';
 
 /** Zwei Tage aus der Zeit vor `continuations` plus zwei danach — genau die
  *  Mischung, die im Katalog wirklich liegt (Feld erst seit 28.08.2026). */
@@ -155,5 +155,132 @@ describe('sinceDay', () => {
     // Mitternacht käme hier ein Tag zu viel oder zu wenig heraus.
     expect(sinceDay(2, '2026-10-26')).toBe('2026-10-25');
     expect(sinceDay(7, '2026-03-30')).toBe('2026-03-24');
+  });
+});
+
+describe('summarize — Vergleiche für den Morgenblick', () => {
+  const woche = (): DailyDoc[] => [
+    { day: '2026-08-24', visitors: 70, pageviews: 700 }, // Mo
+    { day: '2026-08-25', visitors: 80, pageviews: 800 }, // Di
+    { day: '2026-08-30', visitors: 90, pageviews: 900 }, // So
+    { day: '2026-08-31', visitors: 20, pageviews: 200 }, // Mo, heute
+  ];
+
+  it('trennt den laufenden Tag vom jüngsten abgeschlossenen', () => {
+    // Ein halber Tag als Hauptzahl sähe jeden Morgen wie ein Absturz aus.
+    const result = summarize(woche(), [], '2026-08-31');
+
+    expect(result.latest.day).toEqual({ day: '2026-08-30', visitors: 90, pageviews: 900 });
+    expect(result.today).toEqual({ day: '2026-08-31', visitors: 20, pageviews: 200 });
+  });
+
+  it('nimmt ohne heutigen Tag den letzten vorhandenen', () => {
+    const result = summarize(woche(), [], '2026-09-05');
+
+    expect(result.latest.day?.day).toBe('2026-08-31');
+    expect(result.today).toBeNull();
+  });
+
+  it('vergleicht mit dem Vortag und mit demselben Wochentag', () => {
+    const docs: DailyDoc[] = [
+      { day: '2026-08-23', visitors: 60 }, // So, eine Woche vorher
+      { day: '2026-08-29', visitors: 50 }, // Sa, Vortag
+      { day: '2026-08-30', visitors: 90 }, // So, der Tag
+    ];
+    const result = summarize(docs, [], '2026-08-31');
+
+    expect(result.latest.vsPrevDay?.visitors).toEqual({ now: 90, before: 50, change: 0.8 });
+    expect(result.latest.vsSameWeekday?.visitors).toEqual({ now: 90, before: 60, change: 0.5 });
+  });
+
+  it('lässt den Vergleich weg, wenn der Bezugstag fehlt', () => {
+    const result = summarize([{ day: '2026-08-30', visitors: 90 }], [], '2026-08-31');
+
+    expect(result.latest.vsPrevDay).toBeNull();
+    expect(result.latest.vsSameWeekday).toBeNull();
+  });
+
+  it('vergleicht den Zeitraum mit der Periode davor', () => {
+    const result = summarize(
+      [{ day: '2026-08-30', visitors: 90, pageviews: 900 }],
+      [{ day: '2026-08-29', visitors: 60, pageviews: 600 }],
+      '2026-08-31'
+    );
+
+    expect(result.period).toEqual({
+      visitors: { now: 90, before: 60, change: 0.5 },
+      pageviews: { now: 900, before: 600, change: 0.5 },
+      days: 1,
+      daysNow: 1,
+    });
+  });
+
+  it('vergleicht je Tag, nicht in Summen', () => {
+    // Der Fall, der wirklich vorkommt: das Fenster ist kalendarisch gleich
+    // lang, aber der Zaehler lief in der Vorperiode erst ab der Haelfte. In
+    // Summen gerechnet stuenden hier +100 %, obwohl sich nichts bewegt hat.
+    const result = summarize(
+      [
+        { day: '2026-08-29', visitors: 100 },
+        { day: '2026-08-30', visitors: 100 },
+      ],
+      [{ day: '2026-08-24', visitors: 100 }],
+      '2026-08-31'
+    );
+
+    expect(result.period).toEqual({
+      visitors: { now: 100, before: 100, change: 0 },
+      pageviews: { now: 0, before: 0, change: null },
+      days: 1,
+      daysNow: 2,
+    });
+  });
+
+  it('behauptet keine Steigerung, wenn es vorher nichts gab', () => {
+    // 0 auf 5 ist kein "+500 %", sondern ein Neuanfang.
+    const result = summarize(
+      [{ day: '2026-08-30', visitors: 5 }],
+      [{ day: '2026-08-29', visitors: 0 }],
+      '2026-08-31'
+    );
+
+    expect(result.period?.visitors.change).toBeNull();
+    expect(result.period?.visitors.now).toBe(5);
+  });
+
+  it('lässt den Zeitraumvergleich ohne Vorperiode ganz weg', () => {
+    expect(summarize(woche(), [], '2026-08-31').period).toBeNull();
+  });
+
+  it('mittelt Besucher je Wochentag, ohne den laufenden Tag', () => {
+    // Der Montag hat zwei Tage im Fenster (24.08. und heute) — nur der
+    // abgeschlossene darf zählen, sonst zieht ein halber Tag den Schnitt runter.
+    const montag = summarize(woche(), [], '2026-08-31').weekdays.find((w) => w.index === 1);
+
+    expect(montag).toEqual({ index: 1, visitors: 70, pageviews: 700, days: 1 });
+  });
+
+  it('nennt Gewinner und Verlierer gegenüber der Vorperiode', () => {
+    const result = summarize(
+      [{ day: '2026-08-30', paths: { '/map': 100, '/neu': 40 }, referrers: { a_com: 5 } }],
+      [{ day: '2026-08-29', paths: { '/map': 160, '/weg': 30 }, referrers: { a_com: 20 } }],
+      '2026-08-31'
+    );
+
+    expect(result.movers.paths).toEqual([
+      { key: '/map', now: 100, before: 160, diff: -60 },
+      { key: '/neu', now: 40, before: 0, diff: 40 },
+      { key: '/weg', now: 0, before: 30, diff: -30 },
+    ]);
+    // Hosts kommen auch hier mit Punkten zurück, nicht mit Unterstrichen.
+    expect(result.movers.referrers[0]).toEqual({ key: 'a.com', now: 5, before: 20, diff: -15 });
+  });
+});
+
+describe('weekdayOf', () => {
+  it('bestimmt den Wochentag zeitzonenfest', () => {
+    expect(weekdayOf('2026-08-31')).toBe(1); // Montag
+    expect(weekdayOf('2026-08-30')).toBe(0); // Sonntag
+    expect(weekdayOf('2026-10-25')).toBe(0); // Zeitumstellung, trotzdem Sonntag
   });
 });

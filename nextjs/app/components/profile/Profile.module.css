@@ -609,24 +609,43 @@ main.page .head {
   background: var(--profile-red);
 }
 
-/* A written line under the spot, not a form field. */
+/* A written line under the spot, not a form field.
+
+   Eine Stufe groesser als vorher (13-15 px): die Notiz war der kleinste Text
+   des Abschnitts und gleichzeitig der einzige, der vom Nutzer selbst stammt.
+   Sie sitzt jetzt zwischen dem Bezirk (13 px) und dem Namen auf der Karte.
+
+   Die Hoehe setzt SpotNote, nicht das Stylesheet — `rows` deckelte eine
+   180-Zeichen-Notiz bei zwei Zeilen. `overflow-y: hidden` haelt den
+   Scrollbalken weg, den es damit nicht mehr braucht; die 2 px unten sind
+   Platz fuer die Unterlaengen der letzten Zeile, die eine auf scrollHeight
+   gesetzte Hoehe sonst knapp abschneidet. */
 .spotNote {
   display: block;
   width: 100%;
   margin-top: 9px;
-  padding: 0;
+  padding: 0 0 2px;
+  overflow-y: hidden;
   resize: none;
   color: var(--profile-ink);
   background: transparent;
   border: 0;
   font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.05vw, 15px);
+  font-size: clamp(14px, 1.2vw, 17px);
   font-weight: 400;
-  line-height: 1.28;
+  line-height: 1.32;
 }
 
+/* Deutlich leiser als eine geschriebene Notiz: ueber einer Reihe Karten soll
+   auf einen Blick zu sehen sein, welche davon eigene Worte tragen. */
 .spotNote::placeholder {
-  color: color-mix(in srgb, var(--profile-muted) 62%, transparent);
+  color: color-mix(in srgb, var(--profile-muted) 52%, transparent);
+  font-size: 13px;
+}
+
+/* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
+.spotNote:hover {
+  box-shadow: 0 1px 0 var(--et-home-rule, #e4e1dc);
 }
 
 .spotNote:focus-visible {

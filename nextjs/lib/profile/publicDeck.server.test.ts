@@ -17,6 +17,7 @@ const state = vi.hoisted(() => ({
     hasAllBerlin: false,
     mustEatIds: new Set<string>(),
     restaurantIds: new Set<string>(),
+    categorySlugs: new Set<string>(),
   },
   visibleRestaurants: [] as MapRestaurant[],
   visibleMustEats: [] as MapMustEat[],
@@ -49,11 +50,20 @@ vi.mock('@/lib/map/cached-sanity', () => ({
 vi.mock('@/lib/map/free-surface', () => ({
   getFreeSurfaceData: async () => ({ restaurantIds: new Set<string>() }),
 }));
+/* Gemockt wird die GRENZE, nicht mehr die Formel: `composeAccountSurface` ist
+   seit dem 31.08.2026 die eine Stelle, an der „was sieht dieses Konto"
+   definiert ist — /api/map-data benutzt dieselbe. Vorher stand die Formel hier
+   ein zweites Mal, und der Admin-Zweig fehlte darin; dieser Test konnte das
+   nicht merken, weil er die Mengen selbst baute.
+   Die Ableitung selbst hat jetzt ihren eigenen Test:
+   lib/map/__tests__/account-surface.test.ts. */
 vi.mock('@/lib/map/visible-restaurants.server', () => ({
-  composeVisibleRestaurants: async () => ({
+  composeAccountSurface: async () => ({
     restaurants: state.visibleRestaurants,
+    lockedRestaurants: [],
     mustEats: state.visibleMustEats,
-    revealedMustEatIds: state.revealed,
+    faceUpIds: new Set([...state.revealed, ...state.unlocked, ...state.ent.mustEatIds]),
+    fullCatalog: state.ent.isAdmin || state.ent.hasAllBerlin,
   }),
 }));
 
@@ -118,6 +128,7 @@ afterEach(() => {
     hasAllBerlin: false,
     mustEatIds: new Set(),
     restaurantIds: new Set(),
+    categorySlugs: new Set(),
   };
   state.visibleRestaurants = [];
   state.visibleMustEats = [];
@@ -209,6 +220,10 @@ describe('getPublicDeck', () => {
      Profil 24 von 24 zeigt. */
   it('zeigt beim Admin-Konto alles offen, so wie es sein eigenes Profil tut', async () => {
     state.ent = { ...state.ent, isAdmin: true, hasAllBerlin: true };
+    // Was composeAccountSurface im Admin-Zweig liefert: ganzer Katalog, alles offen.
+    state.visibleRestaurants = ALL_RESTAURANTS;
+    state.visibleMustEats = ALL_MUST_EATS;
+    state.revealed = new Set(ALL_MUST_EATS.map((m) => m._id));
 
     const deck = await getPublicDeck(OK_UID);
 

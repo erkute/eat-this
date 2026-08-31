@@ -4,7 +4,7 @@ import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { getFreeSurfaceData } from '@/lib/map/free-surface';
-import { composeVisibleRestaurants } from '@/lib/map/visible-restaurants.server';
+import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { UID_SHAPE } from '@/lib/referral/constants';
 import { isAlbumMustEatCollected } from './mustEatAlbum';
 import { FALLBACK_DISTRICT } from './nextMove';
@@ -109,44 +109,31 @@ export async function getPublicDeck(uid: string): Promise<PublicDeck | null> {
       .catch(() => null),
   ]);
 
-  /* Der Admin-/All-Berlin-Weg wie in /api/map-data: ganzer Katalog, und ALLE
-     Karten offen. Ein leeres Set waere hier still falsch — `isAlbumMustEatCollected`
-     faellt sonst auf `m.image` zurueck, und das Bild haengt an einer Hydration,
-     die diese Seite bewusst nie aufruft. Das Deck haette dann 0 von 24 gemeldet,
-     waehrend das eigene Profil 24 von 24 zeigt. */
-  const visible =
-    ent.isAdmin || ent.hasAllBerlin
-      ? {
-          restaurants: all,
-          mustEats: allMustEats,
-          revealedMustEatIds: new Set(allMustEats.map((m) => m._id)),
-        }
-      : await composeVisibleRestaurants({
-          all,
-          allMustEats,
-          ent,
-          uid,
-          freeRestaurantIds: freeSurface.restaurantIds,
-        });
-
-  /* Wortgleich die Formel des eigenen Profils (ProfileShell): oeffentliche
-     Aufdeckungen, eigene Aufdeckungen, gekaufte. Bewusst inklusive der
-     Gratis-Karten, obwohl die niemand verdient hat — sonst nennt das eigene
-     Profil eine andere Zahl als die Seite, die man gerade herumgeschickt hat. */
-  const faceUpIds = new Set([...visible.revealedMustEatIds, ...unlockedIds, ...ent.mustEatIds]);
+  /* Dieselbe Ableitung wie /api/map-data — eine Funktion, nicht zwei Kopien.
+     Bis zum 31.08.2026 stand die Formel hier ein zweites Mal, und der
+     Admin-Zweig fehlte: das geteilte Deck meldete „0 von 24", waehrend das
+     Profil desselben Kontos „24 von 24" zeigte. */
+  const surface = await composeAccountSurface({
+    all,
+    allMustEats,
+    ent,
+    uid,
+    freeRestaurantIds: freeSurface.restaurantIds,
+    unlockedIds,
+  });
 
   const districtByRest = new Map(
-    visible.restaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
+    surface.restaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
   );
-  const ownedIds = new Set(visible.restaurants.map((r) => r._id));
-  const ownedMustEats = visible.mustEats.filter((m) => ownedIds.has(m.restaurant._id));
+  const ownedIds = new Set(surface.restaurants.map((r) => r._id));
+  const ownedMustEats = surface.mustEats.filter((m) => ownedIds.has(m.restaurant._id));
 
   const byDistrict = new Map<string, PublicDeckGroup>();
   for (const m of ownedMustEats) {
     const district = districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT;
     const group = byDistrict.get(district) ?? { district, done: 0, total: 0 };
     group.total += 1;
-    if (isAlbumMustEatCollected(m, faceUpIds)) group.done += 1;
+    if (isAlbumMustEatCollected(m, surface.faceUpIds)) group.done += 1;
     byDistrict.set(district, group);
   }
   const groups = [...byDistrict.values()].sort((a, b) =>
@@ -156,7 +143,7 @@ export async function getPublicDeck(uid: string): Promise<PublicDeck | null> {
   return {
     name: firstNameOf(account.displayName),
     avatar: avatarOf(profileSnap?.data()?.avatar),
-    spotsOpen: visible.restaurants.length,
+    spotsOpen: surface.restaurants.length,
     spotsTotal: all.length,
     revealed: groups.reduce((n, g) => n + g.done, 0),
     total: ownedMustEats.length,

@@ -322,10 +322,29 @@ main.page .head {
 
 /* ── recently revealed ──────────────────────────────────── */
 
+/* Die Zeitleiste: eine Linie ueber die volle Breite, die Eintraege haengen
+   daran. Sie ist der Grund, dass der Abschnitt ab der ERSTEN Karte rendern
+   kann — vorher stand dort eine einzelne Karte unter einer Ueberschrift ueber
+   1200 px, und die Schwelle von drei Karten liess ausgerechnet die Neuen ohne
+   den Abschnitt. Dasselbe Mittel wie die Bezirks-Trenner im Deck. */
 .recentRail {
   margin: 0;
+  padding-top: clamp(16px, 2vw, 22px);
   padding-left: 0;
+  border-top: 1px solid var(--et-home-rule, #e4e1dc);
   list-style: none;
+}
+
+/* Das Datum ist die Achse, nicht ein Anhaengsel hinter dem Lokalnamen. */
+.recentWhen {
+  margin: 0 0 8px;
+  color: var(--profile-muted);
+  font-family: var(--et-font-label);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .recentItem {

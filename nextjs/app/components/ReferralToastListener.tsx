@@ -5,8 +5,28 @@ import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
 
-// Fire the confirm POST at most once per browser session.
+// Fire the confirm POST at most once per browser session — gesetzt erst,
+// wenn der Server geantwortet hat (siehe unten).
 const SESSION_KEY = 'referralConfirmFired';
+
+/** sessionStorage kann im privaten Modus werfen; eine fehlende Notiz kostet
+ *  hoechstens einen zusaetzlichen No-op-Request. */
+function sessionFlag(): { seen: boolean; mark: () => void } {
+  try {
+    return {
+      seen: sessionStorage.getItem(SESSION_KEY) !== null,
+      mark: () => {
+        try {
+          sessionStorage.setItem(SESSION_KEY, '1');
+        } catch {
+          /* private mode */
+        }
+      },
+    };
+  } catch {
+    return { seen: false, mark: () => {} };
+  }
+}
 
 export default function ReferralToastListener() {
   const { lang } = useTranslation();
@@ -16,10 +36,15 @@ export default function ReferralToastListener() {
   // Confirm on authed load. The HttpOnly cookie travels automatically; the
   // server no-ops cheaply when there's no pending referral.
   useEffect(() => {
+    // onAuthStateChanged feuert auch bei Token-Refreshes. Die Route ist zwar
+    // idempotent (deterministisches Freundes-Dokument in einer Transaktion),
+    // aber zwei gleichzeitige Fluege waeren trotzdem zwei Fluege.
+    let inFlight = false;
     return onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      if (sessionStorage.getItem(SESSION_KEY)) return;
-      sessionStorage.setItem(SESSION_KEY, '1');
+      if (!user || inFlight) return;
+      const flag = sessionFlag();
+      if (flag.seen) return;
+      inFlight = true;
       try {
         const idToken = await user.getIdToken();
         await fetch('/api/referral/confirm', {
@@ -27,8 +52,18 @@ export default function ReferralToastListener() {
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ idToken }),
         });
+        /* Der Riegel faellt ERST hier. Er lag vorher vor dem Request: ein
+           einziger Netzwerkfehler verbrannte damit den einzigen Versuch
+           dieser Browser-Session, und der Nachholversuch kam erst in der
+           naechsten — da war das Konto aelter als ACCOUNT_FRESHNESS_MS, die
+           Route raeumte den Cookie ab und vergab nichts. Ein abgebrochener
+           Request kostete die Einladung endgueltig, ohne Meldung. */
+        flag.mark();
       } catch {
-        // Silent — retries next session.
+        // Netzwerkfehler: Riegel bleibt offen, der naechste Auth-Wechsel oder
+        // Seitenaufruf versucht es erneut.
+      } finally {
+        inFlight = false;
       }
     });
   }, []);

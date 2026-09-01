@@ -537,7 +537,11 @@ body {
 .homeV2 .hv-photo img{object-fit:var(--et-img-photo-fit)}
 .homeV2 .hv-cap{font-family:var(--et-font-display);font-weight:700;font-size:clamp(14px,1.1vw,16px);margin-top:var(--et-control-gap);color:var(--et-home-ink)}
 .homeV2 .hv-sub{font-family:var(--et-font-display);font-weight:400;font-size:var(--et-type-caption);color:var(--et-home-muted)}
-.homeV2 .hv-btn{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-button);padding:11px 18px;border-radius:var(--et-radius-control);display:inline-block;background:var(--et-home-ink);color:var(--et-home-inverse-text);border:none;cursor:pointer}
+.homeV2 .hv-btn{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-button);padding:11px 24px;border-radius:999px;display:inline-block;background:var(--et-home-ink);color:var(--et-home-inverse-text);border:none;cursor:pointer;transition:transform var(--et-motion-fast),background-color var(--et-motion-fast)}
+.homeV2 .hv-btn:hover,.homeV2 .hv-btn:focus-visible{transform:translateY(-2px)}
+.homeV2 .hv-btn:active{transform:translateY(1px)}
+.homeV2 .hv-chip{transition:transform var(--et-motion-fast),background-color var(--et-motion-fast)}
+.homeV2 .hv-chip:active{transform:translateY(1px)}
 .homeV2 .hv-link-underline{font-weight:700;font-size:var(--et-type-button);color:var(--et-home-ink);border-bottom:2px solid var(--et-home-accent);padding-bottom:2px}
 .homeV2 .hv-chip{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-chip);padding:9px 15px;border-radius:var(--et-radius-control);background:var(--et-home-quiet);color:var(--et-home-ink);border:none;cursor:pointer}
 @media (max-width:760px){

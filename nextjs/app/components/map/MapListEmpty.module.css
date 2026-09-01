@@ -120,6 +120,12 @@
   background: var(--et-home-accent, #ffc600);
   transform: translateX(-3px);
 }
+
+/* Der Hover schiebt zur Seite, der Druck nach unten — auf dem Telefon gibt es
+   keinen Hover, und ohne das hier passierte beim Antippen sichtbar nichts. */
+.esBtnPrimary:active {
+  transform: translateY(1px);
+}
 @media (min-width: 1024px) {
   .esBlock {
     margin: 16px 16px 24px;

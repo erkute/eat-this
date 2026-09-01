@@ -226,7 +226,10 @@
   color: #fff;
   background: var(--remy-stage-red);
   border: none;
-  border-radius: var(--home-radius-btn);
+  /* Vollrund wie jeder andere .hv-btn der Startseite (css/style.css). Mit
+     `--home-radius-btn` (7px) war er nach der Umstellung der einzige eckige
+     Knopf auf der Seite. */
+  border-radius: 999px;
   text-align: center;
   box-shadow: 0 10px 20px rgba(217, 56, 42, 0.22);
 }

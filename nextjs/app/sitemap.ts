@@ -18,7 +18,11 @@ export const revalidate = 86400;
 // would send a conflicting signal, so they're omitted.
 // `''` (root) is the Hub home page — `index,follow`, self-canonical — so it
 // leads the sitemap at top priority.
-const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about'] as const;
+// `/map` is the product itself and, seit dem 01.09.2026, indexierbar (vorher
+// `noindex,follow`, deshalb stand es hier nicht). Es steht direkt hinter der
+// Startseite: die beiden sind die einzigen Seiten, die für sich die ganze
+// Stadt beanspruchen.
+const STATIC_PATHS = ['', '/map', '/news', '/bezirk', '/kategorie', '/about'] as const;
 
 function withAlternates(
   path: string,
@@ -100,9 +104,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticEntries = STATIC_PATHS.map((p) => {
     const priority =
-      p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5;
+      p === '' || p === '/map'
+        ? 1.0
+        : p === '/news' || p === '/bezirk' || p === '/kategorie'
+          ? 0.7
+          : 0.5;
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
-      p === '' ? 'daily' : p === '/news' ? 'weekly' : 'monthly';
+      p === '' || p === '/map' ? 'daily' : p === '/news' ? 'weekly' : 'monthly';
     return withAlternates(p, TEMPLATE_REVISED, priority, changeFrequency);
   });
 

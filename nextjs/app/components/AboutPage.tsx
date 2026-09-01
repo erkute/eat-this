@@ -117,7 +117,7 @@ const COPY = {
     remyCta: 'Remy fragen',
     ctaTitle: 'Hungrig geworden?',
     ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
-    ctaMap: 'Zur Map',
+    ctaMap: 'Zur Berlin Food Map',
   },
   en: {
     remyTitle: 'Ask Remy',
@@ -125,7 +125,7 @@ const COPY = {
     remyCta: 'Ask Remy',
     ctaTitle: 'Hungry yet?',
     ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',
-    ctaMap: 'Open the map',
+    ctaMap: 'Open the Berlin food map',
   },
 } as const;
 

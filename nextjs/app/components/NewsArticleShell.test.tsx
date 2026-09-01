@@ -210,7 +210,7 @@ describe('NewsArticleShell', () => {
 
   it('nofollows only the map link, never the spot-page link', () => {
     const html = render([spot('Spumante', 'spumante')]);
-    // Die Map ist noindex – dorthin vererbt der indexierbare Artikel nichts.
+    // Der Deeplink trägt eine Query — die zählt die Search Console sonst einzeln auf.
     expect(html).toMatch(/<a[^>]*href="\/map\?r=spumante"[^>]*rel="nofollow"/);
     // Die Spot-Seite ist der eigentliche Empfänger und muss gefolgt bleiben.
     const nameLink = html.match(/<a[^>]*href="\/restaurant\/spumante"[^>]*>/)?.[0] ?? '';

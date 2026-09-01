@@ -25,6 +25,16 @@ const LEAD = {
 // Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
 const MARK = { src: '/pics/eat-this-logo.webp?v=6', width: 1660, height: 667 } as const;
 
+/* Nur der Name, kein Verb. Der Knopf daneben heißt „Dein Profil" — auch ein
+   Nomen —, und ein Linkziel zu benennen ist die bessere Beschriftung, als eine
+   Handlung anzukündigen, die aus dem Kontext ohnehin klar ist. Nebenbei ist der
+   Ankertext damit exakt der Begriff, für den /map ranken soll.
+
+   In beiden Sprachen identisch: „Berlin Food Map" ist ein Eigenname, kein
+   übersetzbarer Satz — deshalb eine Konstante statt dreier Ternaries an den
+   drei Stellen, an denen der Hero sie rendert (Gast, geladen, FOUC-Variante). */
+const HERO_MAP_LABEL = 'Berlin Food Map';
+
 function HeroMark() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -84,8 +94,8 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
       </h1>
       <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
       <div className={styles.heroActions}>
-        <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
-          {de ? 'Map öffnen' : 'Open map'}
+        <MapIntentLink href="/map" className="hv-btn">
+          {HERO_MAP_LABEL}
         </MapIntentLink>
         {signedIn ? (
           <Link
@@ -135,13 +145,13 @@ function LoadingHeroCopy({ locale }: Props) {
       </p>
       <div className={styles.heroActions}>
         <span className={styles.heroActionVariant} data-guest-only="">
-          <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
-            {de ? 'Map öffnen' : 'Open map'}
+          <MapIntentLink href="/map" className="hv-btn">
+            {HERO_MAP_LABEL}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
-          <MapIntentLink href="/map" rel="nofollow" className="hv-btn">
-            {de ? 'Map öffnen' : 'Open map'}
+          <MapIntentLink href="/map" className="hv-btn">
+            {HERO_MAP_LABEL}
           </MapIntentLink>
           <Link
             href="/profile"

@@ -8,7 +8,8 @@ interface Props {
   kind: Kind;
   /** Restaurant / Bezirk / Kategorie name for {name} interpolation. */
   name: string;
-  /** Locale-relative deep-link to the (paywall-gated, noindex) /map route. */
+  /** Locale-relative deep-link into /map — immer mit Query (`?r=`, `?bezirk=`,
+   *  `?cat=`), deshalb tragen alle drei Varianten unten rel="nofollow". */
   mapHref: string;
   locale: 'de' | 'en';
   variant?: 'block' | 'chip' | 'band';
@@ -123,8 +124,12 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
           <span>The map for people</span> <span>who care about food.</span>
         </h2>
         <p className={styles.sub}>{sub}</p>
-        {/* rel="nofollow" — /map is noindex; without it Google enumerates every
-            ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}
+        {/* rel="nofollow" bleibt, aber nicht mehr wegen `noindex`: /map ist seit
+            dem 01.09.2026 indexierbar und die Landingpage für „Berlin Food Map".
+            Der Grund ist jetzt allein die Aufzählung — `mapHref` trägt hier immer
+            eine Query, und ohne nofollow listet die Search Console jede
+            ?r=/?bezirk=/?cat=-Variante einzeln auf. Die FOLGBAREN Links auf das
+            blanke /map stehen im Hero der Startseite und auf /about. */}
         <MapIntentLink href={mapHref} rel="nofollow" className={styles.cta}>
           <span>{ctaLabel}</span>
         </MapIntentLink>

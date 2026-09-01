@@ -308,7 +308,11 @@
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transform: rotate(-4deg);
+  /* EINE Kippung für beide Lupen. Die Basis stand auf -4°, der eingeklappte
+     Knopf überschrieb sie mit einem eigenen Wert — dieselbe Zeichnung zeigte
+     also je nach Zustand in eine andere Richtung, und beim Aufklappen sprang
+     sie sichtbar. Der Wert gehört hierher, wo ihn beide erben. */
+  transform: rotate(-14deg);
 }
 
 .mapSearchIcon,
@@ -331,6 +335,14 @@
   color: var(--brand-paper);
   transform: translate(1px, 1px);
   box-shadow: none;
+}
+
+/* Burger und Panel-Griff waren die letzten Flächen der Karte ohne Antwort auf
+   den Druck — Lupe und Standort-Knopf daneben hatten sie längst. Dieselbe
+   Verschiebung, damit die Reihe sich gleich anfühlt. */
+.mapBurger:active,
+.panelToggle:active {
+  transform: translate(1px, 1px);
 }
 
 .mapSearchBtn,
@@ -609,9 +621,14 @@
   top: calc(14px + env(safe-area-inset-top, 0px));
   left: 14px;
   right: auto;
-  width: min(430px, calc(100vw - 84px));
-  min-height: 40px;
-  height: 40px;
+  /* 430px stießen auf dem Desktop in die zentrierte H1 (Leiste bis 444px,
+     Titel ab 431px). Der Titel weicht beim Aufklappen zwar aus (siehe
+     MapIntro.module.css), aber die Leiste braucht auch ohne ihn keine 430. */
+  width: min(392px, calc(100vw - 84px));
+  /* Gleiche Höhe wie der Knopf, den sie ersetzt — beide sitzen auf top:14px,
+     also teilen sie sich damit die Mittellinie mit Burger und Titel (36px). */
+  min-height: 44px;
+  height: 44px;
   gap: 8px;
   padding: 0 10px 0 13px;
   background: var(--et-home-ink, #15120e);
@@ -720,8 +737,6 @@
 @media (max-width: 520px) {
   .mapSearchToolbar {
     width: calc(100vw - 78px);
-    min-height: 38px;
-    height: 38px;
     padding-left: 12px;
   }
 
@@ -756,7 +771,6 @@
   stroke-width: 2.75px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transform: rotate(-7deg);
   transform-origin: 50% 50%;
 }
 
@@ -769,7 +783,7 @@
 }
 
 .mapSearchBtn:active .mapSearchIcon {
-  transform: rotate(-7deg) scale(0.92);
+  transform: rotate(-14deg) scale(0.92);
 }
 
 @media (max-width: 767.98px) {

@@ -243,7 +243,24 @@ export default function NewsArticleShell({
         }
       >
         <span className={styles.inlineSpotFoot}>
-          {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
+          {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
+              Karte selbst führt auf die Map — ohne diesen Link gäben die
+              Guides ihre Relevanz an keine einzige Restaurantseite weiter.
+              Kein Ausfallrisiko: alle 177 in Artikeln referenzierten Spots
+              haben einen Bezirk, `meta` ist also nie leer. */}
+          {meta && (
+            <span className={styles.inlineSpotMeta}>
+              <Link
+                href={`/restaurant/${block.restaurantSlug}`}
+                className={styles.inlineSpotMetaLink}
+                aria-label={
+                  de ? `${restName}: Spot-Seite öffnen` : `Open the spot page for ${restName}`
+                }
+              >
+                {meta}
+              </Link>
+            </span>
+          )}
           <span className={styles.inlineSpotName}>
             <MapIntentLink
               href={`/map?r=${block.restaurantSlug}`}

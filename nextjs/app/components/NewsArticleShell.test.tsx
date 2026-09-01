@@ -199,22 +199,29 @@ describe('NewsArticleShell', () => {
     expect(render([mustEat('Hasir')])).toContain('href="/must-eats"');
   });
 
-  // Ein Ziel, zwei Anfasser: Die Karte sieht aus wie ein Element, also darf
-  // sie nicht je nach Trefferfläche woanders hinführen. Name und Knopf öffnen
-  // beide die Map — vorher landete der Name auf der Spot-Seite, was niemand
-  // erwartet, der auf eine Karte mit „Auf die Map“ tippt.
+  // Die Kartenfläche hat ein Ziel: die Map. Vorher führte der Name auf die
+  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Auf die Map“ heißt,
+  // ist das für niemanden vorhersehbar, zumal die Trefferfläche des Namens
+  // über die ganze Karte reicht.
   it('sends both the spot name and the map button to the map', () => {
     const html = render([spot('Spumante', 'spumante')]);
-    expect(html).not.toContain('href="/restaurant/spumante"');
     expect(html.match(/href="\/map\?r=spumante"/g)).toHaveLength(2);
     expect(html).toContain('Auf die Map');
+  });
+
+  // Der gefolgte Link auf die Spot-Seite sitzt jetzt auf der Meta-Zeile. Ohne
+  // ihn gäben die Guides ihre Relevanz an keine einzige Restaurantseite weiter
+  // — Google rankte dann den Guide für Marken-Queries einzelner Spots.
+  it('keeps a followed spot-page link on the meta line', () => {
+    const html = render([spot('Spumante', 'spumante')]);
+    const metaLink = html.match(/<a[^>]*href="\/restaurant\/spumante"[^>]*>/)?.[0] ?? '';
+    expect(metaLink).not.toBe('');
+    expect(metaLink).not.toContain('nofollow');
   });
 
   it('nofollows both map links — the map is noindex', () => {
     const html = render([spot('Spumante', 'spumante')]);
     // Die Map ist noindex, dorthin vererbt der indexierbare Artikel nichts.
-    // Preis dieser Entscheidung: die Guides verlinken Restaurantseiten damit
-    // nur noch über die Must-Eat-Bande, nicht mehr über die Spot-Karten.
     const mapLinks = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*>/g) ?? [];
     expect(mapLinks).toHaveLength(2);
     for (const link of mapLinks) expect(link).toContain('nofollow');

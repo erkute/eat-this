@@ -494,17 +494,18 @@ div.page {
   justify-items: start;
 }
 
-/* Die drei Meta-Label des Artikels — Badge, Must-Eat-Zeile und diese hier —
-   liefen in Monospace 900. Das war der technischste Ton der ganzen Seite und
-   passte zu nichts sonst; Versalien plus Sperrung tragen die Label-Wirkung
-   auch in der Body-Schrift. Alle drei zusammen umgestellt, sonst stünden auf
-   derselben Seite zwei verschiedene Meta-Systeme nebeneinander. */
+/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence, 12px,
+   0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
+   auf der Body-Schrift lief — die übrigen vier (Hero, Must-Eat-Tag, Hub-
+   Kicker, Related-Heading) stehen längst auf Providence. Der Kommentar, der
+   hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
+   die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
   color: #fff;
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 10.5px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   line-height: 1.15;
   text-transform: uppercase;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
@@ -519,17 +520,19 @@ div.page {
 .inlineSpotMetaLink {
   position: relative;
   z-index: 2;
-  color: inherit;
+  /* Das Brand-Gelb statt einer Unterstreichung: Die Zeile steht allein auf
+     ihrer Höhe, es gibt also keinen Fließtext, von dem sie sich absetzen
+     müsste — Farbe allein trägt den Link-Hinweis hier. Ein reiner
+     Hover-Hinweis käme nicht in Frage: auf Mobil gibt es kein Hover, und
+     Mobil ist rund die Hälfte der Aufrufe. */
+  color: var(--article-accent);
   font: inherit;
   letter-spacing: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--article-accent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 .inlineSpotMetaLink:hover {
-  text-decoration-color: var(--article-red);
+  color: var(--article-red);
 }
 
 .inlineSpotMetaLink:focus-visible {

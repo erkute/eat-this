@@ -245,12 +245,13 @@ export default function NewsArticleShell({
         <span className={styles.inlineSpotFoot}>
           {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
           <span className={styles.inlineSpotName}>
-            <Link
-              href={`/restaurant/${block.restaurantSlug}`}
+            <MapIntentLink
+              href={`/map?r=${block.restaurantSlug}`}
+              rel="nofollow"
               className={styles.inlineSpotNameLink}
             >
               {restName}
-            </Link>
+            </MapIntentLink>
           </span>
           <MapIntentLink
             href={`/map?r=${block.restaurantSlug}`}

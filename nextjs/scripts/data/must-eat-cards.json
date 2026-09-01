@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Restaurant und Gericht stehen nur hier, damit die Zuordnung ohne Sanity nachprüfbar bleibt. Drafts stehen mit drin: 023 und 024 warten noch auf ihr Publish, ihr Bild haengt trotzdem hier.",
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Restaurant und Gericht stehen nur hier, damit die Zuordnung ohne Sanity nachpruefbar bleibt. 025 und 026 sind die Karten vom 31.08.2026 — sie stehen hier, sobald ihr Motiv im Ordner liegt, auch solange ihr Sanity-Dokument noch Draft ist.",
   "cards": [
     {
       "order": 1,
@@ -145,6 +145,18 @@
       "file": "Main-23.png",
       "spot": "EIVGI´S",
       "dish": "Falafel Teller"
+    },
+    {
+      "order": 25,
+      "file": "Main1-25.png",
+      "spot": "Knödelwirtschaft SÜD",
+      "dish": "Rindergulasch mit Knödel"
+    },
+    {
+      "order": 26,
+      "file": "Main-24.png",
+      "spot": "Zur Bratpfanne",
+      "dish": "Currywurst"
     }
   ]
 }

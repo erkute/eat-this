@@ -36,9 +36,16 @@ export function buildAlbum(
   faceUpIds: Set<string>,
   groupOf: (m: MapMustEat) => string = defaultGroupOf
 ): AlbumGroup[] {
+  /* Innerhalb einer Gruppe entscheidet die Kartennummer — die Zahl unten
+     rechts auf jeder Karte. Der Rueckfall war bis zum 31.08.2026 die
+     Dokument-ID: stabil, aber willkuerlich, und die Sammlung ist die eine
+     Flaeche, auf der jemand diese Zahlen wirklich liest. `_id` bleibt als
+     letzter Notnagel, damit ein Must-Eat ohne `order` trotzdem fest liegt. */
   const sorted = [...all].sort((a, b) => {
     const c = groupOf(a).localeCompare(groupOf(b), 'de');
-    return c !== 0 ? c : a._id.localeCompare(b._id);
+    if (c !== 0) return c;
+    const n = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
+    return n !== 0 ? n : a._id.localeCompare(b._id);
   });
   const groups: AlbumGroup[] = [];
   sorted.forEach((m, i) => {

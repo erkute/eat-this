@@ -51,7 +51,8 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   // of dish photography), the card backs belong together (a wall of sealed
   // cards reads as "there is a lot more in here" — interleaved with the dish
   // art the same backs read as a broken checkerboard).
-  // The catalog arrives pre-ordered face-up first, so the bands keep that order.
+  // The catalog arrives pre-ordered — face-up first, both bands by card
+  // number — so the bands keep that order.
   const open = useMemo(
     () => initialMapData.mustEats.filter((m) => faceUp.has(m._id)),
     [initialMapData, faceUp]
@@ -70,12 +71,16 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   // The covered cards carry no dish, but their spot is public — the map's
   // locked list already names it. Spelled out under the wall of backs, the
   // names are the strongest piece of advertising on the page.
+  //
+  // Sorted here rather than inherited from the band: the cards run in card
+  // number order, and a run of spot names in that order reads as shuffled.
+  // A name list is scanned for one name, so it goes alphabetically.
   const coveredSpots = useMemo(() => {
     const names: string[] = [];
     for (const m of covered) {
       if (!names.includes(m.restaurant.name)) names.push(m.restaurant.name);
     }
-    return names;
+    return names.sort((a, b) => a.localeCompare(b, 'de'));
   }, [covered]);
 
   /* Die Slots im Raster — aus ihnen fliegt die Karte heraus und in sie fliegt

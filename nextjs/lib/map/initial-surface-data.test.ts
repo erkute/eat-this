@@ -132,9 +132,11 @@ describe('initial surface data selectors', () => {
     expect(selected.mustEats[1].restaurant.name).toBe('Spot 2');
   });
 
-  it('orders face-up cards first, then the covered ones by spot name', () => {
+  it('orders face-up cards first, then the covered ones — both by card number', () => {
     const data = mapData();
     data.revealedMustEatIds = ['must-eat-3', 'must-eat-1'];
+    // `order` runs opposite to both the id and the spot name, so a pass here
+    // can only come from reading the card number.
     const catalog = data.mustEats.map((m, index) => ({
       ...m,
       order: 100 - index,
@@ -146,7 +148,8 @@ describe('initial surface data selectors', () => {
 
     // Face-up first, by card number (must-eat-3 has the lower `order`).
     expect(ids.slice(0, 2)).toEqual(['must-eat-3', 'must-eat-1']);
-    // Then the covered ones alphabetically by spot: a=9, b=8, … skipping 3/1.
+    // Then the covered ones, also by card number: highest index = lowest
+    // `order`, counting back and skipping the two face-up ones.
     expect(ids.slice(2)).toEqual([
       'must-eat-9',
       'must-eat-8',
@@ -155,6 +158,23 @@ describe('initial surface data selectors', () => {
       'must-eat-5',
       'must-eat-4',
       'must-eat-2',
+    ]);
+  });
+
+  it('puts a covered card without an order at the end of its band', () => {
+    const data = mapData();
+    data.revealedMustEatIds = [];
+    const catalog = data.mustEats.slice(0, 3).map((m, index) => ({
+      ...m,
+      ...(index === 0 ? {} : { order: 3 - index }),
+    }));
+
+    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog }, catalog);
+
+    expect(selected.mustEats.map(({ _id }) => _id)).toEqual([
+      'must-eat-3',
+      'must-eat-2',
+      'must-eat-1',
     ]);
   });
 });

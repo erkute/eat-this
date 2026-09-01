@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "note": "Zwei Karten vom 31.08.2026, Nummer 025 und 026 — der Stapel waechst von 24 auf 26. descriptionEn ist der Wortlaut von der Karte, description die Uebersetzung davon; Preis kennt keine der beiden Karten, leer wie bei 22 der 24 Bestandskarten. revealedForAnon bleibt false: neue Karten liegen verdeckt und werden vor Ort aufgedeckt. `retire` ist leer, es faellt nichts weg.",
+  "add": [
+    {
+      "id": "must-eat-knoedelwirtschaft-sued-rindergulasch",
+      "order": 25,
+      "restaurantId": "f442e1b4-2883-4cf8-bea2-6d30908b30c9",
+      "revealedForAnon": false,
+      "file": "Main1-25.png",
+      "dish": "Rindergulasch mit Knödel",
+      "description": "Rindergulasch mit zwei Knödeln nach Wahl und einem kleinen Beilagensalat.",
+      "descriptionEn": "Beef Goulash with two dumplings of your choice and a small side salad.",
+      "price": ""
+    },
+    {
+      "id": "must-eat-zur-bratpfanne-currywurst",
+      "order": 26,
+      "restaurantId": "b2071f30-0330-4920-8bb0-4b9d71683215",
+      "revealedForAnon": false,
+      "file": "Main-24.png",
+      "dish": "Currywurst",
+      "description": "Currywurst auf Berliner Art mit hausgemachtem Ketchup und Currypulver. Am besten mit Pommes und Mayo.",
+      "descriptionEn": "Berlin-style currywurst with house-made ketchup and curry powder. Best with fries and mayo.",
+      "price": ""
+    }
+  ],
+  "retire": []
+}

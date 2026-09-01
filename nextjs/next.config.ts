@@ -184,6 +184,21 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
       ]),
+      // /news/markthalle9 war ein Sanity-Artikel, der gelöscht wurde — die URL
+      // liefert seither 404, sammelt in der Search Console aber weiter
+      // Impressionen (8 in 90 Tagen, Ø-Position 14). Die Markthalle Neun liegt
+      // in Kreuzberg; der Bezirks-Guide ist die nächstliegende Antwort auf
+      // dieselbe Frage. Kein eigener Spot in Sanity, auf den es zeigen könnte.
+      {
+        source: '/news/markthalle9',
+        destination: '/news/restaurants-kreuzberg',
+        permanent: true,
+      },
+      {
+        source: '/en/news/markthalle9',
+        destination: '/en/news/restaurants-kreuzberg',
+        permanent: true,
+      },
     ];
   },
 };

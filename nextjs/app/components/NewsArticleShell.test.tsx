@@ -199,22 +199,32 @@ describe('NewsArticleShell', () => {
     expect(render([mustEat('Hasir')])).toContain('href="/must-eats"');
   });
 
-  // Zwei Ziele, zwei Aufgaben: der Name vererbt Link-Equity an die Spot-Seite,
-  // der Knopf öffnet weiter die Map wie ein Tap in der App.
-  it('links the spot name to the spot page and keeps the map button', () => {
+  // Die Kartenfläche hat ein Ziel: die Map. Vorher führte der Name auf die
+  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Auf die Map“ heißt,
+  // ist das für niemanden vorhersehbar, zumal die Trefferfläche des Namens
+  // über die ganze Karte reicht.
+  it('sends both the spot name and the map button to the map', () => {
     const html = render([spot('Spumante', 'spumante')]);
-    expect(html).toContain('href="/restaurant/spumante"');
-    expect(html).toContain('href="/map?r=spumante"');
+    expect(html.match(/href="\/map\?r=spumante"/g)).toHaveLength(2);
     expect(html).toContain('Auf die Map');
   });
 
-  it('nofollows only the map link, never the spot-page link', () => {
+  // Der gefolgte Link auf die Spot-Seite sitzt jetzt auf der Meta-Zeile. Ohne
+  // ihn gäben die Guides ihre Relevanz an keine einzige Restaurantseite weiter
+  // — Google rankte dann den Guide für Marken-Queries einzelner Spots.
+  it('keeps a followed spot-page link on the meta line', () => {
     const html = render([spot('Spumante', 'spumante')]);
-    // Die Map ist noindex – dorthin vererbt der indexierbare Artikel nichts.
-    expect(html).toMatch(/<a[^>]*href="\/map\?r=spumante"[^>]*rel="nofollow"/);
-    // Die Spot-Seite ist der eigentliche Empfänger und muss gefolgt bleiben.
-    const nameLink = html.match(/<a[^>]*href="\/restaurant\/spumante"[^>]*>/)?.[0] ?? '';
-    expect(nameLink).not.toContain('nofollow');
+    const metaLink = html.match(/<a[^>]*href="\/restaurant\/spumante"[^>]*>/)?.[0] ?? '';
+    expect(metaLink).not.toBe('');
+    expect(metaLink).not.toContain('nofollow');
+  });
+
+  it('nofollows both map links — the map is noindex', () => {
+    const html = render([spot('Spumante', 'spumante')]);
+    // Die Map ist noindex, dorthin vererbt der indexierbare Artikel nichts.
+    const mapLinks = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*>/g) ?? [];
+    expect(mapLinks).toHaveLength(2);
+    for (const link of mapLinks) expect(link).toContain('nofollow');
   });
 
   it('lists the h2 chapters in the rail', () => {

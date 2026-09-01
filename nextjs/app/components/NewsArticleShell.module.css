@@ -299,10 +299,11 @@ div.page {
   font-weight: 800;
 }
 
-/* Die beiden Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name
-   auf dem Foto, Knopf darunter) — die gelbe Fließtext-Unterstreichung würde
-   beide zerlegen. */
-.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.mustEat) {
+/* Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name auf
+   dem Foto, Knopf darunter, Meta-Zeile als Versalien-Label) — die gelbe
+   Fließtext-Unterstreichung würde alle drei zerlegen, und ihr `--article-ink`
+   wäre auf dem Foto ohnehin unlesbar. */
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
   color: var(--article-ink);
   font-weight: 800;
   text-decoration: underline;
@@ -311,7 +312,8 @@ div.page {
   text-underline-offset: 3px;
 }
 
-.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.mustEat):hover {
+.content
+  a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
   text-decoration-color: var(--article-red);
 }
 
@@ -506,6 +508,33 @@ div.page {
   line-height: 1.15;
   text-transform: uppercase;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+}
+
+/* Die Meta-Zeile ist der einzige gefolgte Link der Karte — die Karte selbst
+   führt auf die noindex-Map. Zwei Dinge muss sie dafür tun: über der
+   kartenweiten Trefferfläche von .inlineSpotNameLink::after liegen (sonst
+   fängt die den Klick ab, derselbe Grund wie beim Map-Knopf), und sichtbar
+   nach Link aussehen — ein reiner SEO-Link, den niemand als Link erkennt,
+   wäre eine Falle für Klickende und für Google. */
+.inlineSpotMetaLink {
+  position: relative;
+  z-index: 2;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--article-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.inlineSpotMetaLink:hover {
+  text-decoration-color: var(--article-red);
+}
+
+.inlineSpotMetaLink:focus-visible {
+  outline: 2px solid var(--article-red);
+  outline-offset: 3px;
 }
 
 .inlineSpotName {

@@ -688,8 +688,21 @@
   line-height: 1;
 }
 .rdTippText {
-  font-family: var(--font);
+  /* Providence wie jeder andere Wert der Ink-Tafel. Der Tipp lief als
+     EINZIGES Feld darin auf Inter (`var(--font)`) — Label gezeichnet, Text
+     gesetzt, und der Bruch fiel genau dort auf, wo der Blick hängen bleibt.
+     Die Größe steht NICHT hier — `.detailV13:not(.detailV13MustEat)
+     .rdTippText` weiter unten ist spezifischer und gewinnt jeden Wert an
+     dieser Stelle. */
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
+/* Eine Öffnungsspanne bricht nie in sich selbst. Die Zelle trägt
+   `overflow-wrap: anywhere` (gegen überlange Freitexte aus Sanity), und das
+   zerlegte bei Bar Basta die Samstags-Doppelschicht mitten in der Uhrzeit. */
+.rdHoursSpan {
+  white-space: nowrap;
+}
+
 .rdRow {
   display: grid;
   grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
@@ -1423,6 +1436,21 @@
   color: var(--brand-ink);
   font-size: 30px;
   line-height: 0.9;
+}
+
+/* Ein Satz unter der Überschrift, der sagt, was ein Must Eat überhaupt ist.
+   Ohne ihn standen dort vier Karten und ein Hauswort. Bewusst leise: Providence
+   wie die Überschrift, aber klein und in der gedämpften Farbe — es ist eine
+   Erklärung, keine zweite Ansage. */
+.rdMustSub {
+  max-width: 34ch;
+  margin: 6px 0 0;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  /* Nicht unter 1.3 — sonst kappt Providence ihre Unterlängen. */
+  line-height: 1.4;
 }
 .rdMustGrid {
   display: grid;
@@ -5070,7 +5098,10 @@
 
 .detailV13:not(.detailV13MustEat) .rdTippText {
   color: var(--et-home-paper, #fff);
-  font-size: 13px;
+  /* 14, nicht 13: seit der Tipp auf Providence läuft statt auf Inter, baut
+     dieselbe Zahl optisch kleiner. Randnotiz soll er bleiben (siehe den
+     13px-Kommentar oben) — Kleingedrucktes nicht. */
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.55;
 }

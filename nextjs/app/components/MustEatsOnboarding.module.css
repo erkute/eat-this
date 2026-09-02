@@ -80,7 +80,7 @@
   border-radius: 10px;
   padding: clamp(26px, 4vw, 44px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  text-align: left;
+  text-align: center;
   animation: onbRise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -213,22 +213,41 @@
 
 /* ── Slide copy ────────────────────────────────────────────────────────────── */
 /* `.steps` takes the slack (margin-top:auto below), so the step rail and the
-   actions sit at the bottom of the column whatever the slide's copy length.
-   Otherwise the button moved between slides and the second click of three
-   landed next to it. The min-height holds the tallest slide's copy so the
-   panel itself is one size throughout — measured against the longest body
-   (the Booster-Pack one) at the narrowest column. */
+   actions sit at the bottom of the column whatever the slide's copy length. */
 .copy {
   display: flex;
   flex-direction: column;
-  /* Measured against the tallest slide's copy at the narrowest column (the
-     three-line bodies); 15.5em left slide 2 sixteen pixels short and the panel
-     still resized under the visitor. */
-  min-height: 17em;
+  align-items: center;
+}
+
+/* All three slides share one grid cell, so the stack is always as tall as the
+   tallest of them and the panel keeps one size across every "weiter". This
+   replaced a pair of hand-measured min-heights (17em here, 3em on `.text`)
+   that only ever held for one copy length at one column width — at 375px the
+   panel still stepped 35px between slide 1 and slide 2. */
+.slideStack {
+  display: grid;
+  width: 100%;
+  /* The gap to the rail lives here, not as a bottom margin on `.text`: inside
+     the slide it would sit in the centred box and pull the copy off-centre. */
+  margin-bottom: 22px;
 }
 
 .slideCopy {
-  display: contents;
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* The cell is as tall as the longest slide, so the shorter ones sit centred
+     in it rather than leaving their slack as one hole above the step rail. */
+  justify-content: center;
+  /* visibility, not opacity: it also takes the inactive slides out of the
+     a11y tree and out of the tab order. */
+  visibility: hidden;
+}
+
+.slideOn {
+  visibility: visible;
 }
 
 .kicker {
@@ -259,11 +278,7 @@
   letter-spacing: 0;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.76);
-  margin: 0 0 22px;
-  /* Holds the button still between slides of different copy length. Three
-     lines, not the 4.4em the centred layout needed — left-aligned copy at this
-     width wraps shorter, and the surplus showed as a gap above the button. */
-  min-height: 3em;
+  margin: 0;
 }
 
 /* ── Step rail ─────────────────────────────────────────────────────────────── */
@@ -272,6 +287,7 @@
 .steps {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 14px;
   margin: auto 0 20px;
   padding: 0;
@@ -337,11 +353,26 @@
 }
 
 /* ── Actions ───────────────────────────────────────────────────────────────── */
-.finalActions {
+/* Same one-cell stack as the slides: the last slide carries two buttons where
+   the others carry one, and on a narrow column that row wraps — a height
+   difference that would otherwise land on the visitor at the last "weiter". */
+.actionStack {
+  display: grid;
+  width: 100%;
+}
+
+.actionRow {
+  grid-area: 1 / 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  visibility: hidden;
+}
+
+.actionRowOn {
+  visibility: visible;
 }
 
 /* Yellow is the accent and this is the one thing to press, so it finally does
@@ -352,7 +383,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;
   min-height: 48px;
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);

@@ -142,6 +142,26 @@ echo "✓ pre-push: build clean."
 # faehrt. Also raeumt der Hook hinterher. Er wirft nur weg, was der Build
 # angelegt hat (siehe die Struktur-Pruefung), und ein Fehlschlag bricht den
 # Push nie ab.
+#
+# Wie weit der Pfad klettert, haengt davon ab, WO der Worktree liegt — und
+# genau daran ist die Pruefung bis 02.09.2026 gescheitert:
+#
+#   ausserhalb des Repos (scripts/worktree.sh, ../eat-this-worktrees/claude/foo)
+#     → der Pfad steigt ueber die Repo-Wurzel hinaus, erstes echtes Segment
+#       ist deren Verzeichnisname, Halde: <…>/claude/Eat This Neu/nextjs/node_modules
+#
+#   innerhalb des Repos (Harness, .claude/worktrees/<name>)
+#     → der Pfad steigt nur bis zur Repo-Wurzel, erstes echtes Segment ist
+#       schon `nextjs`, Halde: .claude/worktrees/nextjs/node_modules
+#
+# `escaped` zeigt in beiden Faellen korrekt auf die Halden-Wurzel. Die
+# Struktur-Pruefung darunter war aber fix zweistufig auf den ersten Fall
+# geschrieben (erst ["nextjs"], dann ["node_modules"]) und traf im zweiten
+# nie zu: dort liegt unter `escaped` direkt ["node_modules"]. Der Hook stieg
+# also still aus, meldete "build clean" ohne die "aufgeraeumt:"-Zeile, und die
+# Halde blieb liegen — nachgewiesen am 02.09.2026 mit 264 KB in
+# `.claude/worktrees/nextjs`. Die Pruefung laeuft jetzt den Rest des relativen
+# Pfades ab, statt eine feste Tiefe anzunehmen.
 if [ "$(git rev-parse --absolute-git-dir)" != "$(cd "$(git rev-parse --git-common-dir)" && pwd)" ]; then
   node -e '
     const fs = require("fs"), path = require("path");
@@ -158,12 +178,18 @@ if [ "$(git rev-parse --absolute-git-dir)" != "$(cd "$(git rev-parse --git-commo
     // Tiefe zaehlt — `.next` und `.next-verify` liegen beide eine Ebene tief.
     const escaped = path.join(app, ".next-verify", "standalone", ...parts.slice(0, ups + 1));
     if (!fs.existsSync(escaped)) process.exit(0);
-    // Nur die eine Form wegwerfen, die der Build erzeugt: <root>/nextjs/node_modules
-    // und sonst nichts. Alles andere ist fremd und bleibt stehen.
-    const top = fs.readdirSync(escaped);
-    if (top.length !== 1 || top[0] !== "nextjs") process.exit(0);
-    const sub = fs.readdirSync(path.join(escaped, "nextjs"));
-    if (sub.length !== 1 || sub[0] !== "node_modules") process.exit(0);
+    // Nie das echte Projekt anfassen, falls die Arithmetik je danebenliegt.
+    if (escaped === app || escaped === path.dirname(real)) process.exit(0);
+    // Nur die eine Form wegwerfen, die der Build erzeugt: ab `escaped` fuehrt
+    // genau ein Pfad weiter, und der ist der Rest des relativen Pfades bis
+    // `node_modules`. Wie viele Stufen das sind, sagt der Pfad selbst — eine
+    // feste Tiefe anzunehmen war der Fehler. Alles andere ist fremd und bleibt.
+    let cur = escaped;
+    for (const seg of parts.slice(ups + 1)) {
+      const entries = fs.readdirSync(cur);
+      if (entries.length !== 1 || entries[0] !== seg) process.exit(0);
+      cur = path.join(cur, seg);
+    }
     fs.rmSync(escaped, { recursive: true, force: true });
     console.log("  aufgeraeumt: " + escaped);
   ' "$NEXTJS_DIR" || true

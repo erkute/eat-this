@@ -11,8 +11,30 @@ import type {
 import { BUDDY_TOOLS } from './tools';
 import { buildSystemPrompt } from './prompt';
 import { pickPackForSpots, buildPackTeaser } from './packTeaser';
+import type { PackDef } from '@/lib/stripe-catalog';
 import { isNearbyIntent } from './nearbyIntent';
 import type { SpotFilters, ArticleQuery } from './retrieval';
+
+/** Der Besitz eines Kontos, wie ihn resolveEntitlements liefert. */
+export interface OwnedPacks {
+  /** Admin oder All-Berlin — dem Konto steht der ganze Katalog offen. */
+  fullCatalog: boolean;
+  categorySlugs: ReadonlySet<string>;
+}
+
+/**
+ * Das Widget filterte bis zum 02.09.2026 selbst, über den Entitlement-Listener
+ * — und der kennt den Admin-Zugang nicht (ADMIN_EMAILS plus verifizierte
+ * Adresse, server-only, null Dokumente unter users/<uid>/entitlements). Remy
+ * bot dem eigenen Admin-Konto darum Packs an, die ihm längst offenstanden.
+ * Hier, wo das Token verifiziert ist, ist die Frage in einer Zeile beantwortet,
+ * und eine Karte, die nie gesendet wird, muss der Client auch nicht verstecken.
+ */
+function ownsPack(owned: OwnedPacks | undefined, pack: PackDef): boolean {
+  if (!owned) return false;
+  if (owned.fullCatalog) return true;
+  return pack.slug !== null && owned.categorySlugs.has(pack.slug);
+}
 
 interface LlmToolUse {
   id: string;
@@ -53,6 +75,9 @@ export async function* runBuddyTurn(
     locale: Locale;
     geo?: { lat: number; lng: number };
     page?: BuddyPageContext;
+    /** Was dieses Konto schon hat — die Route leitet es aus dem verifizierten
+     *  Token ab. Fehlt es, fragt ein Gast, und jedes Pack darf. */
+    owned?: OwnedPacks;
   },
   deps: OrchestratorDeps,
   options: { signal?: AbortSignal } = {}
@@ -128,7 +153,7 @@ export async function* runBuddyTurn(
           typeof tu.input.cuisine === 'string' && tu.input.cuisine.trim().length > 0;
         if (!packSent && explicitCuisine) {
           const pack = pickPackForSpots(rawSpots, tu.input.cuisine as string);
-          if (pack) {
+          if (pack && !ownsPack(input.owned, pack)) {
             packSent = true;
             yield { type: 'pack', value: buildPackTeaser(pack, input.locale) };
           }

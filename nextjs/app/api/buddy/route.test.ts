@@ -19,6 +19,16 @@ vi.mock('@/lib/buddy/orchestrator', () => ({
   runBuddyTurn: mocks.runBuddyTurn,
 }));
 vi.mock('@/lib/buddy/retrieval', () => ({ searchSpots: vi.fn(), searchArticles: vi.fn() }));
+const account = vi.hoisted(() => ({
+  verifyIdToken: vi.fn(),
+  resolveEntitlements: vi.fn(),
+}));
+vi.mock('@/lib/firebase/admin', () => ({
+  getAdminAuth: () => ({ verifyIdToken: account.verifyIdToken }),
+}));
+vi.mock('@/lib/firebase/entitlements', () => ({
+  resolveEntitlements: account.resolveEntitlements,
+}));
 vi.mock('@/lib/map/cached-sanity', () => ({
   getCachedMapData: vi.fn(async () => ({
     restaurants: [{ _id: 'r1', name: 'BARI', slug: 'bari' }],
@@ -113,6 +123,71 @@ describe('POST /api/buddy', () => {
     await res.text();
     expect(mocks.runBuddyTurn).toHaveBeenCalledWith(
       expect.objectContaining({ page: { type: 'restaurant', slug: 'bari', name: 'BARI' } }),
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
+  it('derives owned packs from a verified token and passes none for guests', async () => {
+    vi.mocked(checkRateLimit).mockResolvedValue({
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    });
+    const body = { sessionId: 's1', messages: [{ role: 'user', content: 'hi' }], locale: 'de' };
+
+    // Gast: kein Token, kein Besitz — jedes Pack darf.
+    await (await POST(req(body))).text();
+    expect(account.verifyIdToken).not.toHaveBeenCalled();
+    expect(mocks.runBuddyTurn).toHaveBeenLastCalledWith(
+      expect.objectContaining({ owned: undefined }),
+      expect.anything(),
+      expect.anything()
+    );
+
+    // Admin-Konto: null Entitlement-Dokumente, aber isAdmin — der ganze
+    // Katalog steht offen, und nur der Server weiß das.
+    account.verifyIdToken.mockResolvedValue({
+      uid: 'u1',
+      email: 'admin@example.com',
+      email_verified: true,
+    });
+    account.resolveEntitlements.mockResolvedValue({
+      isAdmin: true,
+      hasAllBerlin: false,
+      categorySlugs: new Set(['pizza']),
+      restaurantIds: new Set(),
+      mustEatIds: new Set(),
+    });
+    const signed = new Request('http://localhost/api/buddy', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer tok' },
+      body: JSON.stringify(body),
+    });
+    await (await POST(signed)).text();
+    expect(account.verifyIdToken).toHaveBeenCalledWith('tok');
+    expect(account.resolveEntitlements).toHaveBeenCalledWith('u1', {
+      email: 'admin@example.com',
+      emailVerified: true,
+      admin: false,
+    });
+    expect(mocks.runBuddyTurn).toHaveBeenLastCalledWith(
+      expect.objectContaining({ owned: { fullCatalog: true, categorySlugs: new Set(['pizza']) } }),
+      expect.anything(),
+      expect.anything()
+    );
+
+    // Ungültiges Token: der Chat bleibt erreichbar, nur der Besitz fehlt.
+    account.verifyIdToken.mockRejectedValue(new Error('expired'));
+    const stale = new Request('http://localhost/api/buddy', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer old' },
+      body: JSON.stringify(body),
+    });
+    const res = await POST(stale);
+    expect(res.status).toBe(200);
+    await res.text();
+    expect(mocks.runBuddyTurn).toHaveBeenLastCalledWith(
+      expect.objectContaining({ owned: undefined }),
       expect.anything(),
       expect.anything()
     );

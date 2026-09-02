@@ -12,9 +12,6 @@ vi.mock('@/lib/map/useFavorites', () => ({
 vi.mock('@/lib/map/UserLocationContext', () => ({
   useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
 }));
-vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
-  useOwnedEntitlements: () => new Set<string>(),
-}));
 
 import BuddyWidget from './BuddyWidget';
 

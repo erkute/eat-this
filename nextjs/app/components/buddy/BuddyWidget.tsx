@@ -16,7 +16,6 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
-import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
 import { HeartIcon } from '@/app/components/map/icons';
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
@@ -373,16 +372,10 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   const { user } = useAuth();
   const { favoriteIds, toggle: toggleFav } = useFavorites(user?.uid ?? null);
 
-  // Booster-Pack teaser: at most ONE card per conversation, and never for a
-  // pack the user already owns (or anything when they own All Berlin). For a
-  // signed-in user we wait for the ownership snapshot (null = loading) instead
-  // of flashing a card at a buyer and yanking it away.
-  const ownedPacks = useOwnedEntitlements(user?.uid ?? null);
-  const packVisible = (p: PackTeaser) =>
-    user ? ownedPacks !== null && !ownedPacks.has(p.packId) && !ownedPacks.has('all-berlin') : true;
-  const firstPackIdx = messages.findIndex(
-    (m) => m.role === 'assistant' && m.pack && packVisible(m.pack)
-  );
+  // Booster-Pack teaser: at most ONE card per conversation. Ob das Konto das
+  // Pack schon hat, entscheidet die Route am verifizierten Token — was hier
+  // ankommt, darf gezeigt werden.
+  const firstPackIdx = messages.findIndex((m) => m.role === 'assistant' && m.pack);
   const onSaveSpot = useCallback(
     (s: SpotCandidate) => {
       void toggleFav({

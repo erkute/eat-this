@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 // nextjs/app/components/buddy/BuddyWidget.pack.test.tsx
 // Booster-Pack teaser card: rendered once per conversation under the first
-// matching answer, hidden for owners of the pack (or All Berlin).
+// matching answer. Ob das Konto das Pack schon hat, entscheidet die Route am
+// verifizierten Token — was hier ankommt, wird gezeigt.
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
@@ -13,10 +14,6 @@ const auth: { user: { uid: string } | null } = { user: null };
 vi.mock('@/lib/auth', () => ({ useAuth: () => auth }));
 vi.mock('@/lib/map/useFavorites', () => ({
   useFavorites: () => ({ favoriteIds: new Set<string>(), toggle: vi.fn() }),
-}));
-const owned: { value: Set<string> | null } = { value: new Set() };
-vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
-  useOwnedEntitlements: () => owned.value,
 }));
 vi.mock('@/lib/map/UserLocationContext', () => ({
   useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
@@ -53,7 +50,6 @@ import BuddyWidget from './BuddyWidget';
 afterEach(() => {
   cleanup();
   auth.user = null;
-  owned.value = new Set();
 });
 
 const PIZZA_PACK: PackTeaser = {
@@ -117,30 +113,15 @@ describe('BuddyWidget pack teaser', () => {
     expect(packCards()[0].getAttribute('data-buddy-pack')).toBe('category-pizza');
   });
 
-  it('hides the card when the signed-in user owns the pack', () => {
+  it('shows a card the server sent even for a signed-in user', () => {
+    // Der Client wartet auf keinen Entitlement-Snapshot mehr: eine Karte, die
+    // das Konto nicht sehen soll, verlässt den Server gar nicht erst.
     auth.user = { uid: 'u1' };
-    owned.value = new Set(['category-pizza']);
     chat.messages = [
       { role: 'user', content: 'pizza?' },
       { role: 'assistant', content: 'Da hab ich was.', pack: PIZZA_PACK },
     ];
     renderOpenWidget();
-    expect(packCards()).toHaveLength(0);
-  });
-
-  it('hides the card for All-Berlin owners and while ownership is loading', () => {
-    auth.user = { uid: 'u1' };
-    owned.value = new Set(['all-berlin']);
-    chat.messages = [
-      { role: 'user', content: 'pizza?' },
-      { role: 'assistant', content: 'Da hab ich was.', pack: PIZZA_PACK },
-    ];
-    renderOpenWidget();
-    expect(packCards()).toHaveLength(0);
-
-    cleanup();
-    owned.value = null; // snapshot still loading
-    renderOpenWidget();
-    expect(packCards()).toHaveLength(0);
+    expect(packCards()).toHaveLength(1);
   });
 });

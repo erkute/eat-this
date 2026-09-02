@@ -148,6 +148,44 @@ describe('NewsArticleShell', () => {
     expect(html).not.toContain('You know what a donut is');
   });
 
+  // Pizza: the article opens on a short sentence, and the lede welds it to the
+  // next one. From the lede's side that is a small overlap — but the article's
+  // opening sentence sits at the lede's start word for word.
+  it("drops a lede that welds the article's short opening sentence to the next", () => {
+    const excerpt =
+      'Berlin hat kein Pizza-Problem, sondern das gegenteilige: es gibt verdammt viel gute Pizza. ' +
+      'Fünf Pizzerien für fünf verschiedene Überzeugungen — von Sauerteig bis NY-Slice.';
+    const html = render(
+      [
+        para(
+          'Berlin hat kein Pizza-Problem. Berlin hat inzwischen eher das gegenteilige Problem: ' +
+            'Es gibt verdammt viel gute Pizza.'
+        ),
+        para('Vor ein paar Jahren reichte ein Holzofen aus Neapel.'),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).not.toContain('Fünf Pizzerien für fünf');
+  });
+
+  // Fine Dining: the lede opens on its own words and only closes on the
+  // article's opening sentence, after a colon of its own. That is a lede.
+  it("keeps a lede that closes on the article's opening sentence", () => {
+    const excerpt =
+      'Ein Stern über eng gestellten Tischen, ein Menü ohne Pfeffer und Olivenöl, ein Grill ' +
+      'als ganzes Konzept: Berlins Spitzenküche hat aufgehört, sich zu benehmen.';
+    const html = render(
+      [
+        para(
+          'Berlins Spitzenküche hat aufgehört, sich zu benehmen. Das Haus mit Stern und grünem ' +
+            'Stern an der Torstraße stellt seine Tische eng und ohne Decken.'
+        ),
+      ],
+      { excerptDe: excerpt, excerpt }
+    );
+    expect(html).toContain('Ein Stern über eng gestellten Tischen');
+  });
+
   // Neukölln: the teaser lists what the paragraph lists, so they share plenty of
   // words — but it opens on its own sentence and earns its place.
   it("keeps a lede that shares the body's vocabulary but opens on its own", () => {

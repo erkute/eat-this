@@ -32,11 +32,20 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
+/** All three slides are always mounted — they share one grid cell so the panel
+ *  keeps one size across every "weiter" — so a title being *present* proves
+ *  nothing. Only the active one carries `slideOn`. The last step has two active
+ *  blocks (guest / signed-in) and CSS picks one, hence a list. */
+const activeTitles = () =>
+  [...screen.getByRole('dialog').querySelectorAll('h2')]
+    .filter((h) => h.parentElement!.className.includes('slideOn'))
+    .map((h) => h.textContent);
+
 describe('MustEatsOnboarding', () => {
   it('opens on first visit (no localStorage flag)', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByText('mustEats.onb1Title')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb1Title']);
     expect(screen.getByText('mustEats.onb1Kicker')).toBeTruthy();
   });
 
@@ -58,7 +67,7 @@ describe('MustEatsOnboarding', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.howItWorks'));
     expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByText('mustEats.onb1Title')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb1Title']);
   });
 
   /** The last slide renders both offers and CSS (html[data-auth]) picks one, so
@@ -68,11 +77,9 @@ describe('MustEatsOnboarding', () => {
   it('steps through all three slides; last button closes and sets flag', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.onbNext'));
-    expect(screen.getByText('mustEats.onb2Title')).toBeTruthy();
-    expect(screen.getByText('mustEats.onb2Body')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb2Title']);
     fireEvent.click(screen.getByText('mustEats.onbNext'));
-    expect(screen.getByText('mustEats.onb3Title')).toBeTruthy();
-    expect(screen.getByText('mustEats.onb3Body')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb3Title', 'mustEats.onbStarterTitle']);
     expect(screen.getByText('mustEats.onbPacksCta').getAttribute('href')).toBe('/packs');
     fireEvent.click(screen.getByText('mustEats.onbStart', { selector: '[data-auth-only] button' }));
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -115,14 +122,14 @@ describe('MustEatsOnboarding', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbNext'));
-    expect(screen.getByText('mustEats.onb3Title')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb3Title', 'mustEats.onbStarterTitle']);
 
     // Was decorative, so the only way back used to be closing and reopening.
     fireEvent.click(screen.getByLabelText('Zu Schritt 1 von 3'));
-    expect(screen.getByText('mustEats.onb1Title')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb1Title']);
 
     fireEvent.click(screen.getByLabelText('Zu Schritt 2 von 3'));
-    expect(screen.getByText('mustEats.onb2Title')).toBeTruthy();
+    expect(activeTitles()).toEqual(['mustEats.onb2Title']);
   });
 
   it('marks the current step on the rail', () => {

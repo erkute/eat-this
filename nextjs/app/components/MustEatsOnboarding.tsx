@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from '@/lib/i18n';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
@@ -162,11 +162,15 @@ export default function MustEatsOnboarding({ initialMapData, autoOpen = true }: 
   }, [open, close]);
 
   const last = step === SLIDES.length - 1;
-  const slide = SLIDES[step];
   const packsHref = lang === 'en' ? '/en/packs' : '/packs';
   // The home's Starter-Pack section carries this id; same-page it scrolls, from
   // /must-eats it navigates home and HubHashScroll settles the position.
   const starterHref = lang === 'en' ? '/en#hub-starter' : '/#hub-starter';
+
+  const slideClass = (i: number) =>
+    i === step ? `${styles.slideCopy} ${styles.slideOn}` : styles.slideCopy;
+  const rowClass = (on: boolean) =>
+    on ? `${styles.actionRow} ${styles.actionRowOn}` : styles.actionRow;
 
   const flipper = (
     <div
@@ -256,26 +260,39 @@ export default function MustEatsOnboarding({ initialMapData, autoOpen = true }: 
               </div>
 
               <div className={styles.copy}>
-                {last ? (
-                  <>
-                    <div className={styles.slideCopy} data-auth-only="">
-                      <p className={styles.kicker}>{t('mustEats.onb3Kicker')}</p>
-                      <h2 className={styles.title}>{t('mustEats.onb3Title')}</h2>
-                      <p className={styles.text}>{t('mustEats.onb3Body')}</p>
-                    </div>
-                    <div className={styles.slideCopy} data-guest-only="">
-                      <p className={styles.kicker}>{t('mustEats.onbStarterKicker')}</p>
-                      <h2 className={styles.title}>{t('mustEats.onbStarterTitle')}</h2>
-                      <p className={styles.text}>{t('mustEats.onbStarterBody')}</p>
-                    </div>
-                  </>
-                ) : (
-                  <div className={styles.slideCopy}>
-                    <p className={styles.kicker}>{t(slide.kicker)}</p>
-                    <h2 className={styles.title}>{t(slide.title)}</h2>
-                    <p className={styles.text}>{t(slide.body)}</p>
-                  </div>
-                )}
+                {/* Every slide is in the DOM at once, stacked into one grid
+                    cell, with the inactive ones held at visibility:hidden. The
+                    cell is therefore always as tall as the tallest slide, so
+                    the panel keeps one size from the first "weiter" to the
+                    last — without a min-height guessed against one particular
+                    copy length, language or column width, which is what used
+                    to let the panel resize under the visitor. visibility also
+                    keeps the inactive slides out of the a11y tree and out of
+                    the tab order, unlike a plain opacity hold. */}
+                <div className={styles.slideStack}>
+                  {SLIDES.map((s, i) =>
+                    i === SLIDES.length - 1 ? (
+                      <Fragment key={s.title}>
+                        <div className={slideClass(i)} data-auth-only="">
+                          <p className={styles.kicker}>{t('mustEats.onb3Kicker')}</p>
+                          <h2 className={styles.title}>{t('mustEats.onb3Title')}</h2>
+                          <p className={styles.text}>{t('mustEats.onb3Body')}</p>
+                        </div>
+                        <div className={slideClass(i)} data-guest-only="">
+                          <p className={styles.kicker}>{t('mustEats.onbStarterKicker')}</p>
+                          <h2 className={styles.title}>{t('mustEats.onbStarterTitle')}</h2>
+                          <p className={styles.text}>{t('mustEats.onbStarterBody')}</p>
+                        </div>
+                      </Fragment>
+                    ) : (
+                      <div key={s.title} className={slideClass(i)}>
+                        <p className={styles.kicker}>{t(s.kicker)}</p>
+                        <h2 className={styles.title}>{t(s.title)}</h2>
+                        <p className={styles.text}>{t(s.body)}</p>
+                      </div>
+                    )
+                  )}
+                </div>
 
                 {/* A segmented bar rather than carousel dots: the active
                     segment widens, so it shows progress instead of just saying
@@ -305,41 +322,43 @@ export default function MustEatsOnboarding({ initialMapData, autoOpen = true }: 
                   ))}
                 </ol>
 
-                {last ? (
-                  <>
-                    <div
-                      className={styles.finalActions}
-                      data-testid="onb-actions-auth"
-                      data-auth-only=""
+                {/* The actions stack for the same reason: the last slide
+                    carries two buttons where the others carry one, and on a
+                    narrow column that row wraps — a height difference that
+                    would land on the visitor exactly at the last "weiter". */}
+                <div className={styles.actionStack}>
+                  <div className={rowClass(!last)}>
+                    <button
+                      type="button"
+                      className={styles.next}
+                      // Clamped because the row is only hidden, not unmounted:
+                      // nothing in the UI can reach it on the last slide, but a
+                      // step past the end would blank every slide in the stack.
+                      onClick={() => setStep((s) => Math.min(s + 1, SLIDES.length - 1))}
                     >
-                      <button type="button" className={styles.next} onClick={close}>
-                        {t('mustEats.onbStart')}
-                      </button>
-                      <a className={styles.packLink} href={packsHref} onClick={close}>
-                        {t('mustEats.onbPacksCta')}
-                      </a>
-                    </div>
-                    {/* For a guest the free pack outranks dismissing, so it takes
-                        the primary slot — the paid Booster Packs are a rung up
-                        that only makes sense once there is an account. */}
-                    <div
-                      className={styles.finalActions}
-                      data-testid="onb-actions-guest"
-                      data-guest-only=""
-                    >
-                      <a className={styles.next} href={starterHref} onClick={close}>
-                        {t('mustEats.onbStarterCta')}
-                      </a>
-                      <button type="button" className={styles.packLink} onClick={close}>
-                        {t('mustEats.onbStart')}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <button type="button" className={styles.next} onClick={() => setStep(step + 1)}>
-                    {t('mustEats.onbNext')}
-                  </button>
-                )}
+                      {t('mustEats.onbNext')}
+                    </button>
+                  </div>
+                  <div className={rowClass(last)} data-testid="onb-actions-auth" data-auth-only="">
+                    <button type="button" className={styles.next} onClick={close}>
+                      {t('mustEats.onbStart')}
+                    </button>
+                    <a className={styles.packLink} href={packsHref} onClick={close}>
+                      {t('mustEats.onbPacksCta')}
+                    </a>
+                  </div>
+                  {/* For a guest the free pack outranks dismissing, so it takes
+                      the primary slot — the paid Booster Packs are a rung up
+                      that only makes sense once there is an account. */}
+                  <div className={rowClass(last)} data-testid="onb-actions-guest" data-guest-only="">
+                    <a className={styles.next} href={starterHref} onClick={close}>
+                      {t('mustEats.onbStarterCta')}
+                    </a>
+                    <button type="button" className={styles.packLink} onClick={close}>
+                      {t('mustEats.onbStart')}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>,

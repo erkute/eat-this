@@ -30,7 +30,8 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       { day: '2026-08-30', pageviews: 372, visitors: 91 },
       { day: '2026-08-31', pageviews: 127, visitors: 19 },
     ],
-    totals: { pageviews: 8629, visitors: 1147, days: 11 },
+    totals: { pageviews: 8629, visitors: 1147, days: 11, closedDays: 10 },
+    accounts: null,
     latest: {
       day: { day: '2026-08-30', pageviews: 372, visitors: 91 },
       vsPrevDay: {
@@ -243,5 +244,105 @@ describe('StatsDashboard', () => {
 
     await waitFor(() => expect(screen.getByText('Cookie-Dialog')).toBeTruthy());
     expect(screen.queryByText('Veränderungen zur Vorperiode')).toBeNull();
+  });
+
+  it('zeigt die Konten aus Firebase Auth mit Käufen und Checkout-Versuchen', async () => {
+    vi.stubGlobal(
+      'fetch',
+      respondWith(
+        summary({
+          accounts: {
+            total: 6,
+            newInWindow: 4,
+            activeInWindow: 2,
+            google: 4,
+            email: 2,
+            withFavorites: 3,
+            purchases: { total: 4, inWindow: 0 },
+            checkouts: { inWindow: 5, open: 5 },
+          },
+        })
+      )
+    );
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Konten')).toBeTruthy());
+    expect(screen.getByText('Konten gesamt').previousElementSibling?.textContent).toBe('6');
+    expect(screen.getByText('Aktiv im Zeitraum').previousElementSibling?.textContent).toBe('2');
+    expect(screen.getByText(/5 Stripe-Sitzungen angelegt, davon 5 nie abgeschlossen/)).toBeTruthy();
+  });
+
+  it('lässt die Konten-Karte weg, wenn die Route keine liefert', async () => {
+    vi.stubGlobal('fetch', respondWith(summary({ accounts: null })));
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Die Reise')).toBeTruthy());
+    expect(screen.queryByText('Konten gesamt')).toBeNull();
+  });
+
+  it('rechnet den Tagesschnitt ohne den laufenden Tag', async () => {
+    // 1.147 Besucher, davon 19 heute, über 10 volle Tage: 113 — nicht 104
+    // über elf, als wäre der halbe Tag ein ganzer.
+    vi.stubGlobal('fetch', respondWith(summary()));
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Besucher je vollem Tag')).toBeTruthy());
+    expect(screen.getByText('Besucher je vollem Tag').previousElementSibling?.textContent).toBe(
+      '113'
+    );
+  });
+
+  it('setzt jede Stufe der Reise ins Verhältnis zu den Besuchern', async () => {
+    vi.stubGlobal(
+      'fetch',
+      respondWith(
+        summary({
+          // Die Ereignisliste nennt dieselben Namen — hier zaehlt nur die Reise.
+          events: [],
+          funnels: [
+            {
+              label: 'Die ganze Reise',
+              steps: [
+                { key: 'visitors', count: 1147 },
+                { key: 'map_opened', count: 1469 },
+                { key: 'view_item', count: 595 },
+                { key: 'purchase', count: 0 },
+              ],
+            },
+          ],
+        })
+      )
+    );
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Karte geöffnet')).toBeTruthy());
+    // 1.469 auf 1.147 Besucher: 128 je 100 — Ereignisse, keine Personen.
+    const karte = screen.getByText('Karte geöffnet').closest('div');
+    expect(karte?.textContent).toContain('128');
+    // 595 auf 1.147: 52 je 100. Keine Quote gegen die Stufe davor — /packs
+    // feuert `view_item` an jeden, der die Seite direkt oeffnet.
+    expect(screen.getByText('Pack-Angebot gesehen').closest('div')?.textContent).toContain('52');
+    // `view_item` feuert auf der Pack-Seite, nicht am Spot — so hiess es vorher.
+    expect(screen.queryByText('Spot-Detail gesehen')).toBeNull();
+  });
+
+  it('bietet an, den eigenen Browser aus den Zahlen zu nehmen', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
+    document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
+
+    render(<StatsDashboard />);
+
+    const knopf = await screen.findByRole('button', { name: 'Nicht mitzählen' });
+    fireEvent.click(knopf);
+
+    expect(document.cookie).toContain('eatthis_nocount=1');
+    expect(screen.getByText(/wird nicht mitgezählt/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Wieder mitzählen' }));
+    expect(document.cookie).not.toContain('eatthis_nocount=1');
   });
 });

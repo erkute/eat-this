@@ -93,9 +93,31 @@ function gaEnabled(): boolean {
  */
 const COUNT_ENDPOINT = '/api/count';
 
+/* Der User-Agent faehrt im Body mit, obwohl er im Header steht — weil er dort
+ * nie ankommt. Die App-Hosting-Edge ersetzt UA und Aufrufer-IP, bevor Cloud
+ * Run die Anfrage sieht (belegt 25.08.2026, siehe
+ * lib/analytics/botFilter.ts). Der Bot-Filter der Route lief dadurch in
+ * Produktion ins Leere: am 01.09.2026 kam rund ein Drittel aller Beacons von
+ * Bingbot, Baidu-Render und einem Azure-Crawler mit Lighthouse-Kennung — alle
+ * als Besucher gezaehlt. Live-Beweis: `curl -A curl/8.0` mit uebergrossem Body
+ * bekam 413 statt 204, der Filter hatte den UA also nie gesehen.
+ *
+ * Das ist derselbe String, den der Browser ohnehin in jeder Anfrage sendet —
+ * kein Zugriff auf Speicher, kein Fingerprint, nichts, was der Header nicht
+ * schon traegt. Gekuerzt, damit der Beacon unter dem Groessenlimit der Route
+ * bleibt. */
+const UA_MAX = 300;
+
+function userAgent(): string | undefined {
+  if (typeof navigator === 'undefined' || typeof navigator.userAgent !== 'string') return undefined;
+  const ua = navigator.userAgent.trim();
+  return ua ? ua.slice(0, UA_MAX) : undefined;
+}
+
 function sendCount(payload: Record<string, string>): void {
   if (typeof window === 'undefined') return;
-  const body = JSON.stringify(payload);
+  const ua = userAgent();
+  const body = JSON.stringify(ua ? { ...payload, ua } : payload);
   try {
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       navigator.sendBeacon(COUNT_ENDPOINT, new Blob([body], { type: 'application/json' }));
@@ -153,6 +175,14 @@ function previousInternalPath(): string | null {
   }
 }
 
+function referrerOrigin(): string {
+  try {
+    return document.referrer ? new URL(document.referrer).origin : '';
+  } catch {
+    return '';
+  }
+}
+
 /** Count a page view. The path only — never the query string, which carries
  *  session ids and search terms we have no use for. */
 export function countView(): void {
@@ -163,7 +193,10 @@ export function countView(): void {
   if (from) payload.from = from;
   if (!referrerSent) {
     referrerSent = true;
-    payload.referrer = document.referrer;
+    // Nur der Ursprung: die Route liest ohnehin nur den Host, der Pfad einer
+    // Suchseite traegt Suchbegriffe — und eine lange Verweis-URL sprengte das
+    // Groessenlimit der Route, womit der ganze Aufruf ungezaehlt blieb.
+    payload.referrer = referrerOrigin();
   }
   lastCountedPath = path;
   sendCount(payload);

@@ -214,11 +214,19 @@
 
 .step {
   display: grid;
-  grid-template-columns: 1fr 82px 52px;
+  /* Beschriftung | Balken | Zahl | je 100 Besucher */
+  grid-template-columns: 1fr 82px 52px 38px;
   align-items: center;
   gap: 8px;
   padding: 3px 0;
   font-size: 13px;
+}
+
+.stepShare {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #55504a;
+  white-space: nowrap;
 }
 
 .stepLabel {
@@ -329,7 +337,7 @@
 
 @media (max-width: 640px) {
   .step {
-    grid-template-columns: 1fr 52px 46px;
+    grid-template-columns: 1fr 48px 46px 34px;
   }
 
   .rankRow {
@@ -424,4 +432,27 @@
     #ffc600 0 4px,
     #fff 4px 8px
   );
+}
+
+/* ── Eigener Browser ──────────────────────────────────────────────────── */
+
+.optOut {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: #55504a;
+}
+
+.optOutButton {
+  padding: 3px 10px;
+  border: 2px solid var(--brand-ink, #15120e);
+  background: #fff;
+  color: var(--brand-ink, #15120e);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.optOutButton:hover {
+  background: #ffc600;
 }

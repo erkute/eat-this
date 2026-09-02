@@ -92,6 +92,24 @@ export function PagerArrowIcon() {
   );
 }
 
+// Standort-Pin für den „Standort freigeben"-Chip der verdeckten Must-Eat-Karte.
+export function PinIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 21.5c-4.3-4.4-6.5-8.1-6.5-11A6.5 6.5 0 0 1 18.5 10.5c0 2.9-2.2 6.6-6.5 11z" />
+      <circle cx="12" cy="10.3" r="2.3" />
+    </svg>
+  );
+}
+
 // Heart — outline when empty, filled when hearted. A "heart" is a saved spot
 // (see docs/specs/2026-06-09-hearts-design.md); this replaced the bookmark on
 // the detail surfaces so the icon matches the public "geherzt von N" wording.

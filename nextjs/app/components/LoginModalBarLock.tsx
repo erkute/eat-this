@@ -1,27 +1,8 @@
 'use client';
 import { useEffect } from 'react';
+import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
 const LOGIN_MOBILE_CANVAS_COLOR = '#15120e';
-
-type StyleSnapshot = {
-  priority: string;
-  value: string;
-};
-
-function snapshotStyle(style: CSSStyleDeclaration, prop: string): StyleSnapshot {
-  return {
-    priority: style.getPropertyPriority(prop),
-    value: style.getPropertyValue(prop),
-  };
-}
-
-function restoreStyle(style: CSSStyleDeclaration, prop: string, snapshot: StyleSnapshot) {
-  if (snapshot.value) {
-    style.setProperty(prop, snapshot.value, snapshot.priority);
-  } else {
-    style.removeProperty(prop);
-  }
-}
 
 /**
  * iOS bottom-URL-bar fix for the login modal (mobile only).

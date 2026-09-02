@@ -1,13 +1,18 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useLoginModal } from '@/lib/auth';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
+import { LOCATION_ERROR_VISIBLE_MS, getLocationNoticeCopy } from '@/lib/map/locationStatus';
 import MustEatRevealOverlay from './MustEatRevealOverlay';
 import LazyMustEatImageLightbox from './LazyMustEatImageLightbox';
 import MustEatDetailMobile from './MustEatDetailMobile';
+import MustEatSheetBarLock from './MustEatSheetBarLock';
 import { useMustEatDetailState } from './useMustEatDetailState';
+
+const CARD_BACK = '/pics/card-back.webp?v=7';
 
 interface MustEatDetailProps {
   mustEat: MapMustEat;
@@ -27,6 +32,8 @@ interface MustEatDetailProps {
   nextUnlocked?: boolean;
   onPagePrev?: () => void;
   onPageNext?: () => void;
+  /** Stand im globalen Stapel, 1-basiert — der Zoom zeigt ihn als Zähler. */
+  position?: { index: number; count: number };
   uid?: string | null;
 }
 
@@ -45,8 +52,28 @@ export default function MustEatDetail({
   nextUnlocked,
   onPagePrev,
   onPageNext,
+  position,
   uid,
 }: MustEatDetailProps) {
+  const tMustEats = useTranslations('mustEats');
+  const locale = useLocale();
+  /* „Standort blockiert" ist keine Zeile der Karte, sondern eine Meldung — in
+     derselben Karte, mit denselben Worten, die Map und Startseite für eine
+     verweigerte Berechtigung zeigen (Nutzer, 02.09.2026: „soll eine Meldung
+     sein wie auf der Startseite"). Der Automat der Map schweigt im Detail
+     (MapSectionBody: sheetView !== 'detail'), also spricht hier der Tipp auf
+     die Karte. Selbstabgang wie dort; „Alles klar" räumt früher ab. */
+  const handleLocationBlocked = useCallback(() => {
+    const copy = getLocationNoticeCopy(locale, 'denied', false);
+    if (!copy) return;
+    window.showNotice?.({
+      tone: 'warning',
+      icon: 'pin',
+      ...copy,
+      onDismiss: () => {},
+      duration: LOCATION_ERROR_VISIBLE_MS,
+    });
+  }, [locale]);
   // Demo flag (?revealdemo): show the card face-down and let a tap play the
   // reveal fly-animation regardless of distance/auth. Loading the map once
   // with ?revealdemo latches it into sessionStorage so it survives in-app
@@ -82,6 +109,7 @@ export default function MustEatDetail({
     demo,
     locationError,
     onRequestLocation,
+    onLocationBlocked: handleLocationBlocked,
   });
   // In demo the card stays face-down until the reveal animation finishes, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.
@@ -124,6 +152,9 @@ export default function MustEatDetail({
 
   return (
     <>
+      {/* Browserleisten auf dem Telefon so dunkel wie das Sheet — solange es
+          offen ist (siehe MustEatSheetBarLock). */}
+      <MustEatSheetBarLock />
       <MustEatDetailMobile
         mustEat={visibleMustEat}
         isUnlocked={effectiveUnlocked}
@@ -136,6 +167,7 @@ export default function MustEatDetail({
         nextUnlocked={nextUnlocked}
         onPagePrev={onPagePrev}
         onPageNext={onPageNext}
+        position={position}
         state={state}
       />
       {r && (
@@ -143,7 +175,7 @@ export default function MustEatDetail({
           // Covered cards arrive stripped; the reveal response merges the real
           // image in well before the ~800 ms flip exposes the card face. Until
           // then the overlay shows the card-back it animates anyway.
-          imageUrl={visibleMustEat.image ?? '/pics/card-back.webp?v=7'}
+          imageUrl={visibleMustEat.image ?? CARD_BACK}
           alt={visibleMustEat.dish ?? ''}
           originRect={r}
           // Fly back onto the card's own slot and land face-up there (instead
@@ -160,16 +192,29 @@ export default function MustEatDetail({
           }}
         />
       )}
+      {/* Der Zoom blättert durch denselben Stapel wie das Detail darunter —
+          Wisch, Pfeile, Zähler wie in der Foto-Galerie. Der Zoom öffnet nur
+          auf einer aufgedeckten Karte (handleCardZoom), unterwegs darf er aber
+          auf einer verdeckten landen: die zeigt ihren Rücken, so wie die
+          /must-eats-Galerie ihre verdeckten Karten im Zoom zeigt. Ein
+          aufgedecktes Bild ohne Quelle (Datensatz gerade im Nachladen) bleibt
+          null — die Lightbox hält dann das letzte Bild, statt kurz den Rücken
+          zu zeigen. */}
       <LazyMustEatImageLightbox
         active={Boolean(state.zoomRect || state.zoomActive)}
-        imageUrl={visibleMustEat.image ?? null}
-        alt={visibleMustEat.dish ?? ''}
+        imageUrl={effectiveUnlocked ? (visibleMustEat.image ?? null) : CARD_BACK}
+        alt={effectiveUnlocked ? (visibleMustEat.dish ?? '') : tMustEats('covered')}
         originRect={state.zoomRect}
         onClose={state.handleZoomClose}
         onOpenReady={state.handleZoomReady}
         // Origin-Karte erst wieder einblenden, wenn der Fly-Back-Klon
         // unmountet — sonst sieht man sie doppelt während des Zooms.
         onExitComplete={state.handleZoomExitComplete}
+        onPrev={onPagePrev}
+        onNext={onPageNext}
+        hasPrev={Boolean(prevMustEat)}
+        hasNext={Boolean(nextMustEat)}
+        position={position}
       />
     </>
   );

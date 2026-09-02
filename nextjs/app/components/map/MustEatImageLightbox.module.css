@@ -9,6 +9,10 @@
   cursor: zoom-out;
   perspective: 1100px;
   perspective-origin: 50% 45%;
+  /* Der Wisch zum Blaettern haengt am Vorhang (siehe handlePointerUp) — der
+     Browser darf die Geste also nirgends als Scroll oder Pan beanspruchen,
+     sonst kommt auf iOS ein pointercancel statt des pointerup. */
+  touch-action: none;
 }
 
 /* Keep the returning card above the map sheet but below the fixed navbar. */

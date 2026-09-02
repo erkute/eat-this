@@ -1070,6 +1070,15 @@ export default function MapSection({
         : { index: -1, prev: null, next: null },
     [mustEats, selectedMustEat]
   );
+  /* Zählstand für den Zoom („3 / 25") — memoisiert, weil die Lightbox ihn als
+     Objekt bekommt und ihr Inneres darauf memoisiert ist. */
+  const mustEatPagerPosition = useMemo(
+    () =>
+      mustEatPagerAdjacent.index >= 0
+        ? { index: mustEatPagerAdjacent.index + 1, count: mustEats.length }
+        : undefined,
+    [mustEatPagerAdjacent.index, mustEats.length]
+  );
 
   const handlePageMustEat = useCallback(
     (dir: 'prev' | 'next') => {
@@ -1752,6 +1761,7 @@ export default function MapSection({
       onMustEatClose={handleMustEatClose}
       mustEatPagerPrev={mustEatPagerAdjacent.prev}
       mustEatPagerNext={mustEatPagerAdjacent.next}
+      mustEatPagerPosition={mustEatPagerPosition}
       onPageMustEat={handlePageMustEat}
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onUnlock={handleUnlock}

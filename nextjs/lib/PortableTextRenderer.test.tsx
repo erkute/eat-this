@@ -69,6 +69,12 @@ describe('PortableTextRenderer links', () => {
     expect(html).toContain('rel="nofollow"');
   });
 
+  it('does NOT nofollow the plain /map link — only its parameterised deep-links', () => {
+    const html = render([para([span('Karte', ['l1'])], [link('l1', '/map')])]);
+    expect(html).toContain('href="/map"');
+    expect(html).not.toContain('rel=');
+  });
+
   it('does NOT mark a regular internal link as nofollow', () => {
     const html = render([para([span('Spot', ['l1'])], [link('l1', '/restaurant/sofi')])]);
     expect(html).toContain('href="/restaurant/sofi"');

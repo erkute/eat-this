@@ -421,7 +421,8 @@ export default function MustEatDetailMobile({
               unsichtbar gestellte Gerichtsname und die Kopfzeile eine Etage
               tiefer; das ergab eine leere Fläche zwischen Karte und Text und
               zwei konkurrierende Zustandsanzeigen. */}
-          <h1 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
+          {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
+          <h2 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
             {headInNameSlot ? (
               <span className={styles.fdNameText}>{slotText}</span>
             ) : (
@@ -432,7 +433,7 @@ export default function MustEatDetailMobile({
                 {dishName}
               </span>
             )}
-          </h1>
+          </h2>
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
           {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}

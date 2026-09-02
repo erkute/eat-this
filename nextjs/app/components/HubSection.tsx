@@ -24,18 +24,25 @@ interface Props {
   locale: 'de' | 'en';
 }
 
+// `heroPhonesLabel` ist der Ankertext des größten internen Links der Seite —
+// die Telefone im Hero sind eine reine Bildstrecke, also ist das aria-label
+// alles, was ein Crawler daran liest. Es sagt jetzt, wohin der Link führt
+// ("Berlin Food Map"), statt zu beschreiben, was auf dem Bild zu sehen ist —
+// dafür ist `heroPhonesAlt` da, das vorher denselben String doppelt benutzte.
 const copy = {
   de: {
     spotDay: 'Spot des Tages',
     spotCta: 'Zur Map',
     heroLabel: 'Eat This — die Food-Map für Berlin',
-    heroPhonesLabel: 'Die Eat This Map auf dem Handy',
+    heroPhonesLabel: 'Berlin Food Map öffnen',
+    heroPhonesAlt: 'Die Eat This Berlin Food Map auf dem Handy',
   },
   en: {
     spotDay: 'Spot of the day',
     spotCta: 'To the map',
     heroLabel: 'Eat This — the food map for Berlin',
-    heroPhonesLabel: 'The Eat This map on your phone',
+    heroPhonesLabel: 'Open the Berlin food map',
+    heroPhonesAlt: 'The Eat This Berlin food map on a phone',
   },
 };
 
@@ -86,9 +93,13 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             {/* The product itself, not a mood shot: the map a visitor is about to
               open, with a spot page staggered behind it. Both mockups are
               cutouts on transparent ground so they float on the white home. */}
+            {/* Kein rel="nofollow" mehr: das trug die Seite, solange /map
+              `noindex` war. Seit dem 01.09.2026 ist die Karte die Landingpage
+              für "Berlin Food Map" — sie braucht diesen Link. Die
+              PARAMETRISIERTEN Deep-Links (`?r=`, `?bezirk=`, `?cat=`) behalten
+              ihr nofollow, siehe MapPromoCTA. */}
             <MapIntentLink
               href="/map"
-              rel="nofollow"
               className={styles.heroPhones}
               aria-label={t.heroPhonesLabel}
             >
@@ -111,7 +122,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 src="/pics/home-phones/phone-map-480.webp"
                 srcSet={phoneSrcSet('phone-map')}
                 sizes={PHONE_SIZES}
-                alt={t.heroPhonesLabel}
+                alt={t.heroPhonesAlt}
                 width={855}
                 height={1736}
                 loading="eager"

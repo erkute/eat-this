@@ -223,7 +223,9 @@ export default function NewsArticleShell({
   // ::after spannt sich über die ganze Karte, damit die Fläche tapbar bleibt;
   // `overflow: hidden` auf .inlineSpot beschneidet den Überstand.
   // Der Map-Deeplink bleibt als Knopf darüber (z-index) erhalten — weiter
-  // nofollow, weil die Map noindex ist (siehe isMapLink im Renderer).
+  // nofollow, weil er eine Query trägt (`?r=`) und die Search Console sonst
+  // jede Variante einzeln aufzählt. Die Map selbst ist seit dem 01.09.2026
+  // indexierbar; das blanke /map darf gefolgt werden (siehe isMapLink).
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);

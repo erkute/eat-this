@@ -3,12 +3,14 @@ import {
   buildArticleSpotsItemList,
   buildBezirkJsonLd,
   buildHomeJsonLd,
+  buildMapJsonLd,
   buildRestaurantJsonLd,
   buildSiteJsonLd,
   serializeJsonLd,
 } from '../json-ld';
 import { schemaImageUrl } from '../sanity-image-presets';
-import type { Restaurant, RestaurantCard, SpotCardBlock } from '../types';
+import { getMapSeoCopy } from '../map/mapSeoCopy';
+import type { MapRestaurant, Restaurant, RestaurantCard, SpotCardBlock } from '../types';
 
 describe('serializeJsonLd', () => {
   it('serializes a plain object to JSON string', () => {
@@ -221,6 +223,92 @@ describe('buildHomeJsonLd', () => {
     const page = graph().find((node: { '@type': string }) => node['@type'] === 'WebPage');
     expect(page.image).toEqual([{ '@id': wide['@id'] }, { '@id': square['@id'] }]);
     expect(page.primaryImageOfPage).toEqual({ '@id': wide['@id'] });
+  });
+});
+
+describe('buildMapJsonLd', () => {
+  const spot = (over: Partial<MapRestaurant> = {}): MapRestaurant => ({
+    _id: 'r1',
+    _createdAt: '2026-01-01',
+    name: 'Bar Basta',
+    slug: 'bar-basta',
+    isClosed: false,
+    lat: 52.5,
+    lng: 13.4,
+    mustEatCount: 1,
+    bezirk: { name: 'Mitte' },
+    cuisineType: 'European',
+    photo: 'https://cdn.sanity.io/images/x/production/abc-800x600.png?w=800',
+    ...over,
+  });
+  const build = (restaurants: MapRestaurant[] = [spot()], locale: 'de' | 'en' = 'de') =>
+    JSON.parse(
+      buildMapJsonLd({
+        locale,
+        faqs: getMapSeoCopy(locale).faqs,
+        listName: 'Restaurants auf der Berlin Food Map',
+        restaurants,
+      })
+    )['@graph'];
+  const node = (graph: { '@type': string }[], type: string) =>
+    graph.find((n) => n['@type'] === type) as never;
+
+  it('self-identifies as the /map page and hangs off the site-wide WebSite node', () => {
+    const page = node(build(), 'WebPage') as unknown as Record<string, unknown>;
+    expect(page.url).toBe('https://www.eatthisdot.com/map');
+    expect(page['@id']).toBe('https://www.eatthisdot.com/map#webpage');
+    expect(page.isPartOf).toEqual({ '@id': 'https://www.eatthisdot.com/#website' });
+    expect((node(build([], 'en'), 'WebPage') as unknown as Record<string, unknown>).url).toBe(
+      'https://www.eatthisdot.com/en/map'
+    );
+  });
+
+  it('mirrors the FAQ the page actually renders, word for word', () => {
+    const faq = node(build(), 'FAQPage') as unknown as {
+      mainEntity: { name: string; acceptedAnswer: { text: string } }[];
+    };
+    expect(faq.mainEntity.map((q) => q.name)).toEqual(getMapSeoCopy('de').faqs.map((f) => f.q));
+    expect(faq.mainEntity.map((q) => q.acceptedAnswer.text)).toEqual(
+      getMapSeoCopy('de').faqs.map((f) => f.a)
+    );
+  });
+
+  it('lists only the spots it was handed, and calls the order unordered', () => {
+    const list = node(build([spot(), spot({ _id: 'r2', name: 'SOFI', slug: 'sofi' })]), 'ItemList');
+    const l = list as unknown as {
+      numberOfItems: number;
+      itemListOrder: string;
+      itemListElement: { item: { url: string } }[];
+    };
+    expect(l.numberOfItems).toBe(2);
+    expect(l.itemListOrder).toBe('https://schema.org/ItemListUnordered');
+    expect(l.itemListElement.map((e) => e.item.url)).toEqual([
+      'https://www.eatthisdot.com/restaurant/bar-basta',
+      'https://www.eatthisdot.com/restaurant/sofi',
+    ]);
+  });
+
+  it('claims nothing it cannot show: no photo key without a publishable photo', () => {
+    const list = node(build([spot({ photo: undefined })]), 'ItemList') as unknown as {
+      itemListElement: { item: Record<string, unknown> }[];
+    };
+    expect(list.itemListElement[0].item).not.toHaveProperty('image');
+  });
+
+  it('invents no ratings, reviews or prices', () => {
+    const raw = buildMapJsonLd({
+      locale: 'de',
+      faqs: getMapSeoCopy('de').faqs,
+      listName: 'x',
+      restaurants: [spot()],
+    });
+    for (const key of ['aggregateRating', 'review', 'ratingValue', 'offers', 'priceRange']) {
+      expect(raw).not.toContain(key);
+    }
+  });
+
+  it('drops the ItemList entirely when the list is empty', () => {
+    expect(build([]).some((n: { '@type': string }) => n['@type'] === 'ItemList')).toBe(false);
   });
 });
 

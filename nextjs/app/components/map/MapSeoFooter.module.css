@@ -1,0 +1,109 @@
+/* Map SEO Footer — redaktioneller Abbinder + FAQ am Listenende.
+   Isolated map subsystem.
+
+   Zurückhaltend gehalten: keine Fläche, kein Rahmen, kein Kasten. Der Block
+   soll wie das Ende eines Textes wirken und nicht wie ein zweites Angebot neben
+   dem All-Berlin-Banner, das direkt darüber steht. Die einzige Trennung nach
+   oben ist eine Haarlinie. */
+
+/* Keine Trennlinie nach oben: darüber steht die unterstrichene Zeile "Schon
+   dabei? Einloggen", und zwei waagerechte Striche direkt übereinander sahen
+   nach Fehler aus (User, 01.09.2026). Den Abstand macht jetzt der Weißraum —
+   das ist ohnehin die Regel des Hauses: Struktur aus Luft und Type, keine
+   Rahmen. Die Haarlinien unter den FAQ-Zeilen bleiben, die trennen Zeilen
+   voneinander und nicht zwei Blöcke. */
+.block {
+  margin: 34px 0 calc(24px + env(safe-area-inset-bottom, 0px));
+  color: var(--et-home-ink, #15120e);
+}
+
+.heading {
+  max-width: 26ch;
+  margin: 0 0 10px;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  /* Providence kappt ihre Unterlängen unter ~1.2 — die Überschrift steht in
+     Gemischtschrift, also bleibt sie über der Grenze. */
+  line-height: 1.24;
+  text-wrap: balance;
+}
+
+.text {
+  max-width: 62ch;
+  margin: 0 0 10px;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.faqHeading {
+  margin: 18px 0 2px;
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-label, var(--font-label), sans-serif);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+}
+
+.faqItem {
+  border-bottom: 1px solid rgba(21, 18, 14, 0.12);
+}
+
+.faqQuestion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding-block: 11px;
+  cursor: pointer;
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  list-style: none;
+}
+
+.faqQuestion::-webkit-details-marker {
+  display: none;
+}
+
+.faqQuestion::after {
+  content: '+';
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.faqItem[open] .faqQuestion::after {
+  content: '−';
+}
+
+.faqAnswer {
+  max-width: 62ch;
+  margin: 0;
+  padding: 0 0 12px;
+  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .heading {
+    font-size: 22px;
+  }
+}

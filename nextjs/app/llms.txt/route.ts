@@ -44,11 +44,11 @@ export async function GET(): Promise<Response> {
   const lines = [
     '# Eat This Berlin',
     '',
-    '> Kuratierte Restaurant-Empfehlungen für Berlin — pro Restaurant das eine Gericht, das du bestellen musst ("Must Eat"), mit Karte, Bezirks- und Kategorie-Guides sowie einem Food-Magazin. Deutsch unter eatthisdot.com, Englisch unter eatthisdot.com/en.',
+    '> Kuratierte Restaurant-Empfehlungen für Berlin — und pro Spot, was du dort bestellen solltest ("Must Eats"), mit Karte, Bezirks- und Kategorie-Guides sowie einem Food-Magazin. Deutsch unter eatthisdot.com, Englisch unter eatthisdot.com/en.',
     '',
     '## Haupt-Einstiege',
     link('Startseite — Hub', '/'),
-    link('Karte aller Spots', '/map'),
+    link('Berlin Food Map — alle Spots', '/map'),
     link('Bezirke', '/bezirk'),
     link('Kategorien', '/kategorie'),
     link('Magazin / News', '/news'),

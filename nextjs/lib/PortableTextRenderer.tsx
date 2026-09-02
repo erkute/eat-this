@@ -29,12 +29,19 @@ function normalizeDisplayText(text: string): string {
   return text.replace(/AMATŌ/g, 'AMATO').replace(/Amatō/g, 'Amato').replace(/amatō/g, 'amato');
 }
 
-/** Internal deep-link to the (noindex) map view, e.g. `/map?r=sofi` or
- *  `/en/map?r=sofi`. Such links get rel="nofollow" so the indexable article
- *  doesn't bleed link equity into the map — same policy as the spot cards and
- *  Hub tiles (see feedback_seo_nofollow_into_noindex). */
+/** Ein PARAMETRISIERTER Deep-Link in die Kartenansicht, z. B. `/map?r=sofi`
+ *  oder `/en/map?me=…`. Diese bekommen rel="nofollow".
+ *
+ *  Der Grund war früher „/map ist noindex" — das stimmt seit dem 01.09.2026
+ *  nicht mehr, die Karte ist die Landingpage für „Berlin Food Map". Geblieben
+ *  ist der zweite Grund, und der trägt allein: jede Kombination aus `?r=`,
+ *  `?me=`, `?bezirk=` und `?cat=` ist eine eigene URL, die auf dieselbe Seite
+ *  kanonisiert. Ohne nofollow zählt die Search Console sie einzeln auf.
+ *
+ *  Das blanke `/map` ist deshalb bewusst ausgenommen: ein Guide, der im
+ *  Fließtext auf die Karte verweist, soll das auch tun dürfen. */
 function isMapLink(href: string): boolean {
-  return /^\/(?:[a-z]{2}\/)?map(?:[/?#]|$)/.test(href);
+  return /^\/(?:[a-z]{2}\/)?map\?/.test(href);
 }
 
 function renderLink(def: LinkDef, node: ReactNode): ReactNode {

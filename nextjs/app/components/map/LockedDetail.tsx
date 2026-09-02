@@ -215,7 +215,8 @@ export default function LockedDetail({
             <CloseIcon />
           </button>
           <div className={styles.rdOverlay}>
-            <h1 className={styles.rdNameOv}>{normalizeName(r.name)}</h1>
+            {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
+            <h2 className={styles.rdNameOv}>{normalizeName(r.name)}</h2>
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}

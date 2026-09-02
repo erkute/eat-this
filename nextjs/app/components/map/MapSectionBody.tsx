@@ -25,10 +25,14 @@ import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
 import dynamic from 'next/dynamic';
-import RestaurantList, { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from './RestaurantList';
+import RestaurantList from './RestaurantList';
+import { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from '@/lib/map/listWindow';
 import MapSheetDetail from './MapSheetDetail';
 import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
+import MapIntro from './MapIntro';
+import { SearchGlassIcon } from './icons';
+import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
 import SignInReward from './SignInReward';
 import MapViewToggle from './MapViewToggle';
@@ -526,7 +530,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       data-map-snap={snap}
       data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
     >
-      <h1 className={styles.srOnly}>{locale === 'en' ? 'Eat This map' : 'Eat This Karte'}</h1>
+      {/* Die H1 der Seite steht in MapIntro, über der Karte. Sie lag bis zum
+          01.09.2026 als `srOnly` hier: unsichtbar, und im Detail-Zustand stand
+          sie neben der H1 des geöffneten Spots — zwei H1 auf einer Seite.
+          Seitdem tragen die Detail-Panels h2, und die einzige H1 gehört der
+          Kartenseite selbst. */}
       <div className={styles.shell} data-map-shell="" data-map-view={sheetView}>
         {/* The body data attributes slide the floating search toolbar + burger
             chip off-screen at full/detail states (see MapControls.module.css). */}
@@ -546,6 +554,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           }
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
           data-header-stuck={headerStuck ? 'true' : undefined}
+          /* Die aufgeklappte Suchleiste liegt in derselben Zeile wie der
+             Titel. Statt sie zu kürzen, bis sie irgendwo gerade so vorbeikommt,
+             tritt der Titel zur Seite — siehe MapIntro.module.css. */
+          data-search-open={searchOpen || search ? '' : undefined}
           data-locate-gone={locateGone ? 'true' : undefined}
           style={
             locateBottom == null
@@ -554,6 +566,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           }
         >
           <div className={styles.mapWrap} data-map-canvas="">
+            {/* Die H1 der Seite schwebt über der Karte, in derselben Sprache
+                wie Suche und Burger daneben: Ink-Type mit weißem Halo, keine
+                Fläche. Sie stand bis zum 01.09.2026 im Listen-Panel und war
+                dort auf dem Desktop dauerhaft sichtbar, ohne je wegzuscrollen
+                (User). Hier kostet sie der Liste keinen Pixel. */}
+            <MapIntro locale={locale} />
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer
                 mapRef={mapRef}
@@ -578,18 +596,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Gezeichnet wie der Burger daneben: dicke Striche mit runden
-                    Enden und leicht gekippt. Der Ring bleibt geschlossen — ein
-                    offener Bogen sah aus, als wäre ein Stück herausgebissen. */}
-                <svg className={controlStyles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10.7" cy="10.7" r="6.1" fill="none" stroke="currentColor" />
-                  <path
-                    d="M15.3 15.4 20.2 20.3"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <SearchGlassIcon className={controlStyles.mapSearchIcon} />
                 <input
                   type="search"
                   name="map-search"
@@ -613,19 +620,22 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   }}
                   aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
                 >
+                  {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
+                      Handschrift wie die Lupe links daneben und die drei
+                      Burger-Balken (19/22/15px). Als exaktes, symmetrisches
+                      Kreuz war es das einzige konstruierte Zeichen in der
+                      Reihe. */}
                   <svg
-                    width="14"
-                    height="14"
+                    width="15"
+                    height="15"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
                     strokeLinecap="round"
-                    strokeLinejoin="round"
                     aria-hidden="true"
                   >
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
+                    <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
                   </svg>
                 </button>
               </div>
@@ -640,18 +650,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 }}
                 aria-label={searchLabel}
               >
-                {/* Gezeichnet wie der Burger daneben: dicke Striche mit runden
-                    Enden und leicht gekippt. Der Ring bleibt geschlossen — ein
-                    offener Bogen sah aus, als wäre ein Stück herausgebissen. */}
-                <svg className={controlStyles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10.7" cy="10.7" r="6.1" fill="none" stroke="currentColor" />
-                  <path
-                    d="M15.3 15.4 20.2 20.3"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <SearchGlassIcon className={controlStyles.mapSearchIcon} />
               </button>
             )}
 
@@ -666,7 +665,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               z-index nach draußen wirken, und die Liste (z-index 4) legte sich
               über den Knopf, sobald sie auch nur ein Stück hochkam. Als
               Geschwister der Liste gewinnt seine 6 gegen ihre 4. */}
-            <button
+          <button
             type="button"
             onClick={handleLocateMe}
             disabled={locateLoading}
@@ -684,11 +683,27 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               aria-hidden="true"
             >
               {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
-                  dicker Punkt, vier kurze Striche mit runden Enden. */}
-              <circle cx="12" cy="12" r="6.3" fill="none" stroke="currentColor" />
-              <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" />
+                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
+                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
+                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
+                  keine exakte Scheibe, und die vier Striche sind
+                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
+                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
               <path
-                d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6"
+                d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+              />
+              <path
+                d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
+                fill="currentColor"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
                 fill="none"
                 stroke="currentColor"
                 strokeLinecap="round"
@@ -755,6 +770,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             data-view={sheetView}
             data-dragging={dragging ? 'true' : undefined}
             data-header-stuck={headerStuck ? 'true' : undefined}
+            /* Die aufgeklappte Suchleiste liegt in derselben Zeile wie der
+             Titel. Statt sie zu kürzen, bis sie irgendwo gerade so vorbeikommt,
+             tritt der Titel zur Seite — siehe MapIntro.module.css. */
+            data-search-open={searchOpen || search ? '' : undefined}
             data-detail-kind={
               sheetView === 'detail'
                 ? selectedMustEat
@@ -882,6 +901,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />
+                  <MapSeoFooter locale={locale} />
                 </div>
               </>
             )}

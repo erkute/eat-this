@@ -1,0 +1,122 @@
+/* Map Intro — die H1 der Seite, schwebend über der Karte. Isolated map subsystem.
+
+   Dieselbe Sprache wie Suche und Burger daneben (MapControls.module.css): Ink
+   auf der Karte, keine Fläche, keine Pille, Lesbarkeit über einen weißen Halo.
+   Als Text statt als Icon ist `text-shadow` das richtige Werkzeug dafür — die
+   drop-shadow-Kette dort hängt an SVG-Pfaden.
+
+   Steht mittig zwischen den beiden Knöpfen und auf deren Höhe, also in einer
+   Reihe: dieselbe Aufteilung wie die Masthead-Zeile der übrigen Seiten (links
+   eine Aktion, mittig die Marke, rechts das Menü). Auf dem Telefon deckt das
+   Sheet sie ab, sobald es hochgezogen wird — es ist die höhere Ebene
+   (.list, z-index 4) und .mapWrap isoliert seinen eigenen Stapel. */
+
+.intro {
+  position: absolute;
+  z-index: 2;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  /* Muss `translate` bleiben, nicht `margin: auto`: der Rückzug unten
+     überschreibt `transform` komplett und müsste die Zentrierung sonst
+     verlieren. */
+  transform: translateX(-50%);
+  /* Bleibt zwischen den beiden 44px-Knöpfen, auch auf dem schmalsten Telefon. */
+  max-width: calc(100% - 132px);
+  /* Dasselbe 44px-Band wie Lupe und Burger, und darin zentriert: die drei
+     teilen sich damit eine Mittellinie (gemessen bei 36px ab Oberkante). Mit
+     `top` allein saß der Titel 10px zu hoch — Providence ist nur ~23px hoch,
+     die Knöpfe sind 44 bzw. 47. */
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--et-home-ink, #15120e);
+  text-align: center;
+  /* Die Karte darunter bleibt greifbar: der Titel ist Beschriftung, kein
+     Bedienelement. Ohne das schluckte er Drags am oberen Kartenrand. */
+  pointer-events: none;
+  /* Zieht mit denselben Werten weg wie Suche und Burger — siehe unten. */
+  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  /* Eine Zeile. „BERLIN FOOD / MAP" ließ ein Wort allein stehen; die Marke
+     stapelt Headlines zwar (Hero: „WE TELL YOU / WHAT TO EAT"), aber dann in
+     zwei tragfähigen Hälften, nicht mit einem Waisenwort. */
+  white-space: nowrap;
+  /* Vier Lagen, nicht drei: die Zeile läuft über gelbe Pins, und mit dem
+     kurzen Halo allein rieb sich der Text an deren Kanten. */
+  text-shadow:
+    0 0 3px #fff,
+    0 0 6px #fff,
+    0 0 12px #fff,
+    0 0 20px rgba(255, 255, 255, 0.85);
+}
+
+/* Die aufgeklappte Suchleiste teilt sich die Zeile mit dem Titel und ist auf
+   dem Desktop breiter als der Platz links davon. Dann geht der Titel — nach
+   oben, in dieselbe Richtung, in die auf dieser Seite alles abtritt. Kein
+   Opacity-Fade: für Ein- und Ausblend-BEWEGUNG auf Markenflächen ist der
+   ausdrücklich nicht vorgesehen.
+
+   Höhere Spezifität als die Basisregel (zwei Attribute + Klasse), also gilt sie
+   unabhängig von der Reihenfolge — und in jeder Breite, weil die Leiste auf dem
+   Telefon dieselbe Ecke belegt. */
+:global([data-map-body][data-search-open]) .intro {
+  transform: translate(-50%, calc(-100% - 80px));
+}
+
+/* Unter 1024px hängen Suche, Burger und Toolbar am VIEWPORT, nicht an der
+   Kartenfläche (`position: fixed`, siehe MapControls.module.css): iOS schiebt
+   fixe Elemente beim Einklappen der URL-Leiste, ein absolutes Kind der stickyen
+   Karte folgt dem nicht — und die drei drifteten auseinander. Der Titel steht in
+   derselben Reihe, also braucht er dasselbe Modell, `--map-visual-offset-top`
+   eingeschlossen (MapSection veröffentlicht den Wert bei jedem
+   visualViewport-Ereignis neu). Der Offset MUSS auf `top` landen und nicht auf
+   `transform` — `transform` gehört dem Rückzug.
+
+   Dass .intro in .mapWrap liegt, bleibt trotzdem richtig: Telefon + Must-Eat-
+   Detail blendet `.mapWrap` per `visibility: hidden` aus, und der Titel geht
+   damit von selbst mit — genau wie der Suchknopf. */
+@media (max-width: 1023.98px) {
+  .intro {
+    position: fixed;
+    top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
+  }
+
+  /* Ein Auslöser, eine Richtung — derselbe wie bei den drei Knöpfen. Die
+     Zentrierung muss mitgeschrieben werden, sonst springt der Titel beim
+     Rückzug nach links. */
+  :global([data-map-body][data-header-stuck='true']) .intro {
+    transform: translate(-50%, calc(-100% - 80px));
+  }
+}
+
+/* Tablet trägt zusätzlich den view-getriebenen Rückzug: sein Sheet ist ein
+   transformiertes Drag-Sheet, an dem es keine Scrollposition zum Abgreifen
+   gibt. Ab 1024px bleibt der Titel stehen — dort tun das die Knöpfe auch. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .intro,
+  :global([data-map-body][data-map-view='detail']) .intro {
+    transform: translate(-50%, calc(-100% - 80px));
+  }
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    transition: none;
+  }
+}

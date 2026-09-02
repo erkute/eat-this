@@ -219,9 +219,11 @@ describe('NewsArticleShell', () => {
     expect(metaLink).not.toContain('nofollow');
   });
 
-  it('nofollows both map links — the map is noindex', () => {
+  it('nofollows both map links — they carry a query', () => {
     const html = render([spot('Spumante', 'spumante')]);
-    // Die Map ist noindex, dorthin vererbt der indexierbare Artikel nichts.
+    // Nicht mehr, weil die Map noindex wäre — sie ist seit dem 01.09.2026
+    // indexierbar. Beide Links tragen `?r=`, und jede Query-Variante zählt die
+    // Search Console sonst einzeln auf.
     const mapLinks = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*>/g) ?? [];
     expect(mapLinks).toHaveLength(2);
     for (const link of mapLinks) expect(link).toContain('nofollow');

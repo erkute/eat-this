@@ -11,6 +11,8 @@ const moduleNames = [
   'MapDetails.module.css',
   'MapFilters.module.css',
   'MapListEmpty.module.css',
+  'MapIntro.module.css',
+  'MapSeoFooter.module.css',
   'MapViewToggle.module.css',
   'RestaurantList.module.css',
   'RestaurantGalleryLightbox.module.css',
@@ -99,7 +101,6 @@ describe('Map CSS architecture', () => {
       'mapLoading',
       'mapWrap',
       'shell',
-      'srOnly',
     ]);
     expect(localClasses('MapSheet.module.css')).toEqual([
       'handle',

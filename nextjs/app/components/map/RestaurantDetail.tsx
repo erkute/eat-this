@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { useMemo, useRef } from 'react';
+import { Fragment, useMemo, useRef } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -10,6 +10,7 @@ import {
   formatOpenStateChip,
   haversineDistance,
   type UserLocation,
+  showsPackPromos,
   type UserTier,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
@@ -270,7 +271,7 @@ export default function RestaurantDetail({
 
   const backLabel = locale === 'en' ? 'List' : 'Liste';
 
-  const showBooster = userTier !== 'allBerlin';
+  const showBooster = showsPackPromos(userTier);
   const isAnon = !uid;
   const boosterHref = locale === routing.defaultLocale ? '/packs' : `/${locale}/packs`;
   const openStarterLogin = () => {
@@ -341,12 +342,16 @@ export default function RestaurantDetail({
             </button>
           )}
           <div className={styles.rdOverlay}>
-            <h1
+            {/* h2, nicht h1: die H1 der Seite ist „Berlin Food Map" und
+                schwebt über der Karte (MapIntro) — die URL bleibt /map, das
+                Detail ist ein Panel darin. Bis zum 01.09.2026 standen hier
+                zwei H1 nebeneinander. */}
+            <h2
               className={styles.rdNameOv}
               style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}
             >
               {displayName}
-            </h1>
+            </h2>
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
@@ -472,6 +477,13 @@ export default function RestaurantDetail({
           <section className={styles.rdMustSection}>
             <div className={styles.rdMustHead}>
               <h2 className={styles.rdSecH}>Must Eats</h2>
+              {/* „Must Eat" ist ein Hauswort — wer zum ersten Mal auf der Karte
+                  landet, sieht hier nur Karten und keine Erklärung.
+
+                  Der Satz nennt bewusst KEINE Anzahl: ein Spot kann mehrere
+                  Must Eats haben (Bar Basta hat zwei), und „das eine Gericht"
+                  wäre unter der Überschrift schlicht falsch. */}
+              <p className={styles.rdMustSub}>{t('map.mustEatsExplainer')}</p>
             </div>
             <ol className={styles.rdMustGrid}>
               {mustEats.slice(0, 4).map((m) => (
@@ -519,8 +531,23 @@ export default function RestaurantDetail({
                     <span className={styles.rdHoursD}>
                       {localizeOpeningDays(slot.days, locale)}
                     </span>
+                    {/* Geteilte Schichten („10:00-15:00, 18:00-01:00") kamen als
+                        EIN String an, und `overflow-wrap: anywhere` auf der Zelle
+                        durfte deshalb mitten in einer Uhrzeit umbrechen —
+                        „18:00-" / „01:00". Jede Spanne bekommt ihre eigene,
+                        unbrechbare Box; gebrochen wird nur noch am Komma. */}
                     <span className={styles.rdHoursT}>
-                      {localizeOpeningHours(slot.hours, locale)}
+                      {localizeOpeningHours(slot.hours, locale)
+                        .split(/,\s*/)
+                        .map((range, j, all) => (
+                          <Fragment key={j}>
+                            {j > 0 ? ' ' : null}
+                            <span className={styles.rdHoursSpan}>
+                              {range}
+                              {j < all.length - 1 ? ',' : ''}
+                            </span>
+                          </Fragment>
+                        ))}
                     </span>
                   </div>
                 ))}

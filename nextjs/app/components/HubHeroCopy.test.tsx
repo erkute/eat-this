@@ -60,7 +60,10 @@ describe('HubHeroCopy', () => {
     expect(html).not.toContain('Was du essen solltest.');
     expect(html).toContain('We tell you');
     // One CTA only — the nearby prompt lives in the Nearby section now.
-    expect(html).toContain('Map öffnen');
+    // Beschriftet mit dem Namen des Ziels, ohne Verb: der Knopf daneben heißt
+    // „Dein Profil" und ist auch eins.
+    expect(html).toContain('Berlin Food Map');
+    expect(html).not.toContain('Map öffnen');
     expect(html).not.toContain('Was ist um mich?');
     expect(html).not.toContain('Deine Map');
   });

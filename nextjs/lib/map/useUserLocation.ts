@@ -84,12 +84,50 @@ interface UseUserLocationResult {
   loading: boolean;
   error: UserLocationError | null;
   request: (options?: RequestOptions) => Promise<LocationRequestResult>;
+  /**
+   * Keep `location` moving. Returns the stop function.
+   *
+   * `request` is a single fix, and the first fix a phone hands out is the
+   * cheap one — the last known position, or a Wi-Fi/cell estimate a few
+   * hundred metres off. The map stored that once and never asked again, so
+   * someone who opened the map on the way and then walked INTO the spot was
+   * still measured against the position from the U-Bahn: "too far", with no
+   * tap that would refresh it (the card only asks while there is NO fix, and
+   * the locate button just flies to the stale one). Watching lets the phone
+   * hand over the GPS fix as soon as it has one and follow the visitor to the
+   * door.
+   *
+   * Silent by design: a watcher error must not raise the status toast — the
+   * visitor did not ask right now — and it never touches `loading`. Only
+   * start it once this origin already holds the permission (a `location` on
+   * hand proves that); watchPosition would otherwise raise the system dialog
+   * out of nowhere, see hasGeolocationPermission.
+   */
+  watch: () => () => void;
 }
 
 export function useUserLocation(): UseUserLocationResult {
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<UserLocationError | null>(null);
+
+  const watch = useCallback((): (() => void) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation?.watchPosition) {
+      return () => {};
+    }
+    const id = navigator.geolocation.watchPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => {
+        /* A denial that arrives here is only possible when the grant was
+           revoked in the meantime; keep the last fix, the next deliberate
+           request will report the error itself. */
+      },
+      { enableHighAccuracy: true, maximumAge: 0 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, []);
 
   const request = useCallback((options?: RequestOptions): Promise<LocationRequestResult> => {
     const silent = options?.silent === true;
@@ -125,5 +163,5 @@ export function useUserLocation(): UseUserLocationResult {
     });
   }, []);
 
-  return { location, loading, error, request };
+  return { location, loading, error, request, watch };
 }

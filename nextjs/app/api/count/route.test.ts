@@ -185,6 +185,73 @@ describe('POST /api/count', () => {
     expect(mocks.set).not.toHaveBeenCalled();
   });
 
+  /* Die App-Hosting-Edge ersetzt den User-Agent-Header, bevor die Anfrage den
+   * Origin erreicht — der Header ist in Produktion immer harmlos. Was der
+   * Browser wirklich ist, steht darum im Body (lib/analytics.ts). Live-Beweis
+   * vom 02.09.2026: `curl -A curl/8.0` mit uebergrossem Body bekam 413 statt
+   * 204, der Filter hatte den UA also nie gesehen — und Bingbot, Baidu-Render
+   * und der Azure-Crawler standen als Besucher in der Tafel. */
+  describe('User-Agent aus dem Body', () => {
+    it('erkennt den Bot am Body-UA, auch wenn der Header harmlos ist', async () => {
+      const res = await POST(
+        request({
+          path: '/',
+          ua: 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0)',
+        })
+      );
+
+      expect(res.status).toBe(204);
+      expect(mocks.set).not.toHaveBeenCalled();
+    });
+
+    it('erkennt den Azure-Crawler an Body-UA plus IP', async () => {
+      await POST(
+        request(
+          {
+            path: '/',
+            ua: 'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 Chrome/136.0.0.0 Mobile Safari/537.36 Chrome-Lighthouse',
+          },
+          { 'x-forwarded-for': '20.61.4.9, 10.0.0.1, 10.0.0.2' }
+        )
+      );
+
+      expect(mocks.set).not.toHaveBeenCalled();
+    });
+
+    it('bildet den Besucher-Hash aus dem Body-UA — zwei Geräte hinter einer IP sind zwei Besucher', async () => {
+      await POST(request({ path: '/', ua: 'Mozilla/5.0 (iPhone) Safari' }));
+      await POST(request({ path: '/', ua: 'Mozilla/5.0 (Macintosh) Chrome' }));
+
+      const hashes = mocks.create.mock.calls.map(([, id]) => id);
+      expect(hashes).toHaveLength(2);
+      expect(hashes[0]).not.toBe(hashes[1]);
+    });
+
+    it('fällt ohne Body-UA auf den Header zurück', async () => {
+      await POST(request({ path: '/', ua: '   ' }, { 'user-agent': 'Googlebot/2.1' }));
+      expect(mocks.set).not.toHaveBeenCalled();
+    });
+  });
+
+  /* Das Zahlenbrett zaehlte seinen einzigen Leser: /admin/stats stand mit 67
+   * Aufrufen in der eigenen Ausstiegstabelle. */
+  it.each(['/admin/stats', '/en/admin/stats', '/admin'])(
+    'zählt interne Werkzeuge nicht: %s',
+    async (path) => {
+      const res = await POST(request({ path }));
+      expect(res.status).toBe(204);
+      expect(mocks.set).not.toHaveBeenCalled();
+    }
+  );
+
+  it('respektiert das Opt-out-Cookie des Betreibers wie GPC', async () => {
+    const res = await POST(request({ path: '/' }, { cookie: 'cookieConsent=x; eatthis_nocount=1' }));
+
+    expect(res.status).toBe(204);
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
   /* Scanners send an ordinary browser UA, so only the path shape catches them
    * here — a 404 never reaches this endpoint to be filtered by status. */
   it.each(['/wp-admin/install.php', '/../../etc/passwd', '/a?b=c', '/UPPER', '/a/b/c/d/e/f/g'])(

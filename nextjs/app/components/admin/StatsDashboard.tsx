@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { auth } from '@/lib/firebase/config';
-import type { Delta, Entry, ExitEntry, Mover, StatsSummary } from '@/lib/admin/stats.server';
+import {
+  FULL_DAY_FIELDS_SINCE,
+  type Delta,
+  type Entry,
+  type ExitEntry,
+  type Funnel as FunnelData,
+  type Mover,
+  type StatsSummary,
+} from '@/lib/admin/stats.server';
+import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
 import styles from './StatsDashboard.module.css';
 
 /**
@@ -20,6 +29,16 @@ const RANGES = [
   { days: 90, label: '90 Tage' },
 ] as const;
 
+/**
+ * Der Tag, seit dem der Bot-Filter wirklich greift. Bis dahin ersetzte die
+ * App-Hosting-Edge den User-Agent, und Bingbot, Baidu-Render und ein
+ * Azure-Crawler mit Lighthouse-Kennung zaehlten als Besucher — am 01.09.2026
+ * rund ein Drittel aller Beacons (Edge-Log). Seitdem schickt der Browser den
+ * User-Agent im Beacon mit (lib/analytics.ts). Muss auf den Rollout-Tag
+ * zeigen, sonst luegt die Fussnote.
+ */
+const BOT_FILTER_LIVE_SINCE = '02.09.2026';
+
 const EVENT_LABELS: Record<string, string> = {
   begin_checkout: 'Kauf begonnen',
   checkout_already_owned: 'Kauf: schon im Besitz',
@@ -30,7 +49,9 @@ const EVENT_LABELS: Record<string, string> = {
   locked_spot_login_start: 'Gesperrter Spot: Anmeldung begonnen',
   locked_spot_opened: 'Gesperrter Spot geöffnet',
   locked_spot_pack_clicked: 'Gesperrter Spot: Pack geklickt',
-  login: 'Angemeldet',
+  login: 'Angemeldet (bestehendes Konto)',
+  signed_in: 'Angemeldet oder Konto angelegt',
+  visitors: 'Besucher',
   login_link_sent: 'Magic Link verschickt',
   login_start: 'Anmeldung begonnen',
   login_view: 'Anmeldeseite gesehen',
@@ -47,7 +68,9 @@ const EVENT_LABELS: Record<string, string> = {
   restaurant_reservation_clicked: 'Reservierung geklickt',
   share: 'Geteilt',
   sign_up: 'Konto angelegt',
-  view_item: 'Spot-Detail gesehen',
+  // GA-Ecommerce-Name: feuert je Pack-Angebot, sobald es im Bild ist — auf
+  // /packs also mehrfach je Aufruf. Nicht der Spot, wie es vorher hiess.
+  view_item: 'Pack-Angebot gesehen',
 };
 
 const NUMBER = new Intl.NumberFormat('de-DE');
@@ -136,6 +159,7 @@ export default function StatsDashboard() {
             </button>
           ))}
         </div>
+        <NoCountToggle />
       </header>
 
       {error && <p className={styles.error}>{error}</p>}
@@ -145,6 +169,7 @@ export default function StatsDashboard() {
         <div className={loading ? styles.bodyStale : styles.body}>
           <Yesterday data={data} />
           <Headline data={data} />
+          <AccountsCard data={data} />
           <Trend
             title="Besucher"
             points={data.days.map((d) => ({ day: d.day, value: d.visitors }))}
@@ -174,7 +199,10 @@ export default function StatsDashboard() {
 
 function Headline({ data }: { data: StatsSummary }) {
   const { totals, period } = data;
-  const perDay = totals.days > 0 ? Math.round(totals.visitors / totals.days) : 0;
+  // Ohne den laufenden Tag: der stand morgens als ganzer Tag im Nenner und
+  // drueckte den Schnitt, ohne dass irgendwer weggeblieben waere.
+  const closedVisitors = totals.visitors - (data.today?.visitors ?? 0);
+  const perDay = totals.closedDays > 0 ? Math.round(closedVisitors / totals.closedDays) : 0;
   return (
     <>
       <section className={styles.tiles}>
@@ -188,17 +216,24 @@ function Headline({ data }: { data: StatsSummary }) {
           label="Seitenaufrufe"
           delta={period?.pageviews ?? null}
         />
-        <Tile value={NUMBER.format(perDay)} label="Besucher je Tag" />
+        <Tile value={NUMBER.format(perDay)} label="Besucher je vollem Tag" />
         <Tile value={NUMBER.format(totals.days)} label="Tage erfasst" />
       </section>
       {period && (
         <p className={styles.note}>
-          Die Pfeile vergleichen den Schnitt <strong>je Tag</strong> mit der Periode davor —{' '}
-          {NUMBER.format(period.daysNow)} gemessene Tage gegen {NUMBER.format(period.days)}.
+          Die Pfeile vergleichen den Schnitt <strong>je vollem Tag</strong> mit der Periode davor
+          — {NUMBER.format(period.daysNow)} abgeschlossene Tage gegen {NUMBER.format(period.days)}
+          ; der laufende Tag bleibt draußen.
           {period.days !== period.daysNow &&
             ' Die Perioden sind kalendarisch gleich lang; dass unterschiedlich viele Tage Daten tragen, gleicht der Tagesschnitt aus.'}
         </p>
       )}
+      <p className={styles.note}>
+        Bis zum {BOT_FILTER_LIVE_SINCE} sah der Zähler keinen User-Agent — die Edge ersetzt ihn —
+        und zählte Bingbot, Baidu und einen Azure-Crawler mit Lighthouse-Kennung als Besucher,
+        zuletzt rund ein Drittel aller Beacons. Zahlen davor sind entsprechend zu hoch; die fünf
+        Lighthouse-Seiten (Startseite, Karte, News, Engelbecken, Pizza-Hub) am stärksten.
+      </p>
     </>
   );
 }
@@ -408,9 +443,10 @@ function Consent({ data }: { data: StatsSummary }) {
           <p className={styles.big}>{percent(consent.rate)}</p>
           <p className={styles.note}>
             der Besucher stimmen zu — {NUMBER.format(consent.accepted)} von{' '}
-            {NUMBER.format(consent.visitors)}. Dazu {NUMBER.format(consent.declined)} Ablehnungen;{' '}
-            {NUMBER.format(Math.max(0, silent))} antworten gar nicht. Genau die Zustimmenden sieht
-            Google Analytics — alle anderen werden nur hier gezählt.
+            {NUMBER.format(consent.visitors)}. Dazu {NUMBER.format(consent.declined)} Ablehnungen;
+            die übrigen {NUMBER.format(Math.max(0, silent))} hatten schon früher geantwortet, sind
+            Bots oder gingen ohne Antwort — auseinanderhalten kann der Zähler das nicht. Genau die
+            Zustimmenden sieht Google Analytics — alle anderen werden nur hier gezählt.
           </p>
           <p className={styles.note}>
             Der Dialog erschien {NUMBER.format(consent.shown)} Mal, also{' '}
@@ -421,8 +457,8 @@ function Consent({ data }: { data: StatsSummary }) {
             antwortet. Gegen die Einblendungen gerechnet wären es{' '}
             {consent.ratePerView === null ? '—' : percent(consent.ratePerView)} — dieselbe
             Wirklichkeit, nur durch den falschen Nenner geteilt. Grundlage sind{' '}
-            {NUMBER.format(consent.days)} von {NUMBER.format(data.totals.days)} Tagen; gezählt wird
-            der Dialog erst seit dem 28.08.2026.
+            {NUMBER.format(consent.days)} von {NUMBER.format(data.totals.days)} Tagen; der Dialog
+            wird erst seit dem {shortDay(FULL_DAY_FIELDS_SINCE)}2026 ganztägig gezählt.
           </p>
         </>
       )}
@@ -433,30 +469,119 @@ function Consent({ data }: { data: StatsSummary }) {
 function Funnels({ data }: { data: StatsSummary }) {
   return (
     <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Trichter</h2>
+      <h2 className={styles.cardTitle}>Die Reise</h2>
       <div className={styles.funnels}>
-        {data.funnels.map((funnel) => {
-          const start = funnel.steps[0]?.count ?? 0;
-          return (
-            <div key={funnel.label} className={styles.funnel}>
-              <h3 className={styles.funnelTitle}>{funnel.label}</h3>
-              {funnel.steps.map((step) => (
-                <div key={step.key} className={styles.step}>
-                  <span className={styles.stepLabel}>{labelFor(step.key)}</span>
-                  <span className={styles.stepBarWrap}>
-                    <span
-                      className={step.count === 0 ? styles.stepBarEmpty : styles.stepBar}
-                      style={{ width: start > 0 ? `${(step.count / start) * 100}%` : '0%' }}
-                    />
-                  </span>
-                  <span className={styles.stepValue}>{NUMBER.format(step.count)}</span>
-                </div>
-              ))}
-            </div>
-          );
-        })}
+        {data.funnels.map((funnel) => (
+          <FunnelColumn key={funnel.label} funnel={funnel} visitors={data.totals.visitors} />
+        ))}
       </div>
+      <p className={styles.note}>
+        Ereignisse, keine Personen: wer die Karte dreimal öffnet, zählt dreimal, und der Zähler
+        kennt bewusst niemanden wieder. „je 100“ setzt jede Stufe ins Verhältnis zu den{' '}
+        {NUMBER.format(data.totals.visitors)} Besuchern des Zeitraums — über 100 heißt: öfter als
+        einmal je Besucher. Ein echter Personen-Trichter wäre erst mit Sitzungen messbar, und die
+        gibt es hier absichtlich nicht.
+      </p>
     </section>
+  );
+}
+
+/** Eine Trichter-Spalte. Der Balken hängt an den Besuchern, nicht an der
+ *  ersten Stufe — sonst sähe „Konto" mit 100 Anmeldeseiten so voll aus wie
+ *  die Reise mit 1.400 Besuchern. */
+function FunnelColumn({ funnel, visitors }: { funnel: FunnelData; visitors: number }) {
+  return (
+    <div className={styles.funnel}>
+      <h3 className={styles.funnelTitle}>{funnel.label}</h3>
+      {funnel.steps.map((step) => {
+        // Bewusst KEINE Quote gegen die Stufe davor: die Reise ist keine
+        // strenge Kette. /packs feuert `view_item` je Pack an jeden, der die
+        // Seite direkt oeffnet — gegen „Pack geklickt" gerechnet stuenden
+        // dort 4.500 %. Der einzige Nenner, der ueberall stimmt, sind die
+        // Besucher.
+        const share = visitors > 0 ? step.count / visitors : 0;
+        return (
+          <div key={step.key} className={styles.step}>
+            <span className={styles.stepLabel} title={labelFor(step.key)}>
+              {labelFor(step.key)}
+            </span>
+            <span className={styles.stepBarWrap}>
+              <span
+                className={step.count === 0 ? styles.stepBarEmpty : styles.stepBar}
+                style={{ width: `${Math.min(1, share) * 100}%` }}
+              />
+            </span>
+            <span className={styles.stepValue}>{NUMBER.format(step.count)}</span>
+            <span className={styles.stepShare} title="je 100 Besucher">
+              {step.key === 'visitors' ? '' : NUMBER.format(Math.round(share * 100))}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Konten sind eine andere Welt als Besucher: Firebase Auth statt Zähler,
+ * Personen statt Ereignisse. Deshalb eine eigene Karte mit eigener Quelle
+ * statt einer Kachel zwischen den Besucherzahlen.
+ */
+function AccountsCard({ data }: { data: StatsSummary }) {
+  const a = data.accounts;
+  if (!a) return null;
+  return (
+    <section className={styles.card}>
+      <h2 className={styles.cardTitle}>Konten</h2>
+      <section className={styles.tiles}>
+        <Tile value={NUMBER.format(a.total)} label="Konten gesamt" />
+        <Tile value={NUMBER.format(a.newInWindow)} label="Neu im Zeitraum" />
+        <Tile value={NUMBER.format(a.activeInWindow)} label="Aktiv im Zeitraum" />
+        <Tile
+          value={NUMBER.format(a.purchases.inWindow)}
+          label={`Käufe im Zeitraum · ${NUMBER.format(a.purchases.total)} insgesamt`}
+        />
+      </section>
+      <p className={styles.note}>
+        Aus Firebase Auth, ohne das Admin-Konto. „Aktiv“ heißt: die App hat im Zeitraum ein
+        Anmelde-Token erneuert — die Anmeldung selbst hält Monate, das Token nur eine Stunde, also
+        ist das die Spur einer geöffneten Seite mit Konto. {NUMBER.format(a.google)} über Google,{' '}
+        {NUMBER.format(a.email)} über Magic Link; {NUMBER.format(a.withFavorites)} haben Spots
+        gespeichert. Käufe sind bezahlte Stripe-Entitlements; im Zeitraum wurden{' '}
+        {NUMBER.format(a.checkouts.inWindow)} Stripe-Sitzungen angelegt, davon{' '}
+        {NUMBER.format(a.checkouts.open)} nie abgeschlossen.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Der eigene Browser gehört nicht in die Zahlen. Das Cookie liest die
+ * Zähl-Route wie GPC; gesetzt wird es nur hier, auf Knopfdruck — der Zähler
+ * selbst bleibt speicherfrei (lib/analytics/noCount.ts).
+ */
+function NoCountToggle() {
+  const [off, setOff] = useState<boolean | null>(null);
+  useEffect(() => {
+    setOff(hasNoCountCookie(document.cookie));
+  }, []);
+  if (off === null) return null;
+  const toggle = () => {
+    // Kein `Secure`: localhost ist http und verschluckt das Cookie sonst still.
+    document.cookie = off
+      ? `${NO_COUNT_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
+      : `${NO_COUNT_COOKIE}=1; Max-Age=31536000; Path=/; SameSite=Lax`;
+    setOff(!off);
+  };
+  return (
+    <p className={styles.optOut}>
+      {off
+        ? 'Dieser Browser wird nicht mitgezählt.'
+        : 'Dieser Browser zählt mit — jeder eigene Klick landet in den Zahlen.'}{' '}
+      <button type="button" className={styles.optOutButton} onClick={toggle}>
+        {off ? 'Wieder mitzählen' : 'Nicht mitzählen'}
+      </button>
+    </p>
   );
 }
 

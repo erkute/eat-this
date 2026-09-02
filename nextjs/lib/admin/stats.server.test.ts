@@ -1,20 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { sinceDay, summarize, weekdayOf, type DailyDoc } from './stats.server';
+import {
+  sinceDay,
+  summarize,
+  summarizeAccounts,
+  weekdayOf,
+  type AccountRecord,
+  type DailyDoc,
+} from './stats.server';
 
-/** Zwei Tage aus der Zeit vor `continuations` plus zwei danach — genau die
- *  Mischung, die im Katalog wirklich liegt (Feld erst seit 28.08.2026). */
+/** Der Rollout-Tag der neuen Felder plus der erste volle Tag danach — genau
+ *  die Mischung, die im Katalog wirklich liegt: der 28.08.2026 traegt
+ *  `continuations` und den Dialog, aber nur fuer den Abend. */
 function docs(): DailyDoc[] {
   return [
     {
-      day: '2026-08-27',
+      day: '2026-08-28',
       pageviews: 100,
       visitors: 20,
       paths: { '/': 60, '/map': 40 },
+      continuations: { '/': 2 },
       referrers: { www_google_com: 5 },
       events: { map_opened: 10, consent_gate_shown: 20, consent_accepted: 1 },
     },
     {
-      day: '2026-08-28',
+      day: '2026-08-29',
       pageviews: 50,
       visitors: 10,
       paths: { '/': 30, '/map': 20 },
@@ -30,15 +39,16 @@ describe('summarize', () => {
   it('summiert Aufrufe und Besucher und sortiert die Tage aufsteigend', () => {
     const result = summarize([docs()[1], docs()[0]]);
 
-    expect(result.days.map((d) => d.day)).toEqual(['2026-08-27', '2026-08-28']);
-    expect(result.totals).toEqual({ pageviews: 150, visitors: 30, days: 2 });
+    expect(result.days.map((d) => d.day)).toEqual(['2026-08-28', '2026-08-29']);
+    expect(result.totals).toEqual({ pageviews: 150, visitors: 30, days: 2, closedDays: 2 });
   });
 
-  it('rechnet Ausstiege NUR über Tage mit continuations', () => {
+  it('rechnet Ausstiege NUR über volle Tage mit continuations', () => {
     const result = summarize(docs());
 
-    // Der 27. trägt keine continuations. Zählte er mit, wären es 90 Aufrufe
-    // für "/" und 65 Ausstiege — beides falsch.
+    // Der 28. trägt continuations — aber nur für den Abend, das Feld ging an
+    // diesem Tag live. Zählte er mit, wären es 90 Aufrufe für "/" und 63
+    // Ausstiege: jeder Aufruf des Vormittags sähe wie ein Ausstieg aus.
     expect(result.exitDays).toBe(1);
     const home = result.exits.find((e) => e.key === '/');
     expect(home).toEqual({ key: '/', views: 30, continued: 25, exits: 5, rate: 5 / 30 });
@@ -48,7 +58,7 @@ describe('summarize', () => {
     // Mehr Fortsetzungen als Aufrufe: möglich, wenn die Fortsetzung am
     // Folgetag verbucht wird, ihr Aufruf aber vor dem Fenster liegt.
     const result = summarize([
-      { day: '2026-08-28', paths: { '/map': 3 }, continuations: { '/map': 9 } },
+      { day: '2026-08-29', paths: { '/map': 3 }, continuations: { '/map': 9 } },
     ]);
 
     expect(result.exits[0]).toMatchObject({ key: '/map', exits: 0, rate: 0 });
@@ -70,25 +80,29 @@ describe('summarize', () => {
     // Menschen stimmen zu".
     const result = summarize(docs());
 
+    // Nur der 29.: der 28. zaehlte den Dialog erst ab dem Abend, seine 20
+    // Besucher waren groesstenteils nie gefragt.
     expect(result.consent).toEqual({
-      shown: 30,
-      accepted: 3,
+      shown: 10,
+      accepted: 2,
       declined: 0,
-      visitors: 30, // beide Tage tragen den Dialog: 20 + 10
-      days: 2,
-      rate: 0.1,
-      ratePerView: 0.1,
+      visitors: 10,
+      days: 1,
+      rate: 0.2,
+      ratePerView: 0.2,
       viewsPerVisitor: 1,
     });
   });
 
-  it('nimmt als Nenner nur die Besucher der Tage, die den Dialog zählen', () => {
-    // `consent_gate_shown` gibt es erst seit dem 28.08.2026. Zaehlte der Tag
-    // davor mit, stuenden Zaehler und Nenner auf verschiedenen Zeitraeumen —
-    // dieselbe Falle wie bei den Ausstiegen.
+  it('nimmt als Nenner nur die Besucher der Tage, die den Dialog ganztägig zählen', () => {
+    // `consent_gate_shown` gibt es erst seit dem Abend des 28.08.2026. Zaehlte
+    // ein Tag davor oder der halbe Rollout-Tag mit, stuenden Zaehler und
+    // Nenner auf verschiedenen Zeitraeumen — dieselbe Falle wie bei den
+    // Ausstiegen.
     const result = summarize([
       { day: '2026-08-27', visitors: 500 },
-      { day: '2026-08-28', visitors: 100, events: { consent_gate_shown: 300, consent_accepted: 20 } },
+      { day: '2026-08-28', visitors: 400, events: { consent_gate_shown: 30, consent_accepted: 1 } },
+      { day: '2026-08-29', visitors: 100, events: { consent_gate_shown: 300, consent_accepted: 20 } },
     ]);
 
     expect(result.consent.visitors).toBe(100);
@@ -98,24 +112,42 @@ describe('summarize', () => {
   });
 
   it('liefert keine Zustimmungsquote ohne Nenner', () => {
-    const result = summarize([{ day: '2026-08-28', events: { consent_accepted: 4 } }]);
+    const result = summarize([{ day: '2026-08-29', events: { consent_accepted: 4 } }]);
 
     expect(result.consent.rate).toBeNull();
     expect(result.consent.ratePerView).toBeNull();
   });
 
-  it('behält Trichterstufen mit dem Wert null', () => {
-    // Der Kauftrichter endet real bei purchase=0. Eine Stufe wegzulassen,
-    // weil sie leer ist, versteckt genau den Befund.
-    const kauf = summarize(docs()).funnels.find((f) => f.label === 'Kauf');
+  it('führt die Reise vom Besucher bis zum Kauf und behält leere Stufen', () => {
+    // Die Reise endet real bei purchase=0. Eine Stufe wegzulassen, weil sie
+    // leer ist, versteckt genau den Befund. Und der Bezug sind die Besucher —
+    // die erste Stufe ist keine Ereigniszahl.
+    const reise = summarize(docs()).funnels.find((f) => f.label === 'Die ganze Reise');
 
-    expect(kauf?.steps.map((s) => s.key)).toEqual([
+    expect(reise?.steps.map((s) => s.key)).toEqual([
+      'visitors',
+      'map_opened',
+      'restaurant_opened',
+      'must_eat_opened',
+      'must_eat_reveal_attempt',
       'locked_spot_opened',
       'locked_spot_pack_clicked',
+      'view_item',
       'begin_checkout',
       'purchase',
     ]);
-    expect(kauf?.steps.every((s) => s.count === 0)).toBe(true);
+    expect(reise?.steps[0]).toEqual({ key: 'visitors', count: 30 });
+    expect(reise?.steps[1]).toEqual({ key: 'map_opened', count: 15 });
+    expect(reise?.steps.at(-1)).toEqual({ key: 'purchase', count: 0 });
+  });
+
+  it('zählt Magic Link und Google als eine Anmelde-Stufe', () => {
+    const konto = summarize([
+      { day: '2026-08-29', events: { login_view: 10, login: 3, sign_up: 2 } },
+    ]).funnels.find((f) => f.label === 'Konto');
+
+    expect(konto?.steps.find((s) => s.key === 'signed_in')?.count).toBe(5);
+    expect(konto?.steps.find((s) => s.key === 'sign_up')?.count).toBe(2);
   });
 
   it('übersteht fehlende und unbrauchbare Zählfelder', () => {
@@ -124,14 +156,15 @@ describe('summarize', () => {
       { day: '2026-08-30', pageviews: Number.NaN, paths: { '/': Number.NaN, '/map': 2 } },
     ]);
 
-    expect(result.totals).toEqual({ pageviews: 0, visitors: 0, days: 2 });
+    expect(result.totals).toEqual({ pageviews: 0, visitors: 0, days: 2, closedDays: 2 });
     expect(result.paths).toEqual([{ key: '/map', count: 2 }]);
   });
 
   it('gibt für eine leere Sammlung eine leere Auswertung zurück', () => {
     const result = summarize([]);
 
-    expect(result.totals).toEqual({ pageviews: 0, visitors: 0, days: 0 });
+    expect(result.totals).toEqual({ pageviews: 0, visitors: 0, days: 0, closedDays: 0 });
+    expect(result.accounts).toBeNull();
     expect(result.exits).toEqual([]);
     expect(result.consent.rate).toBeNull();
   });
@@ -193,6 +226,18 @@ describe('summarize — Vergleiche für den Morgenblick', () => {
     expect(result.latest.vsSameWeekday?.visitors).toEqual({ now: 90, before: 60, change: 0.5 });
   });
 
+  it('findet denselben Wochentag auch in der Vorperiode', () => {
+    // Bei „7 Tage" liegt die Vorwoche immer ausserhalb des Fensters — der
+    // Vergleich fiel dort still weg, obwohl die Route den Tag geladen hatte.
+    const result = summarize(
+      [{ day: '2026-08-30', visitors: 90 }],
+      [{ day: '2026-08-23', visitors: 60 }],
+      '2026-08-31'
+    );
+
+    expect(result.latest.vsSameWeekday?.visitors).toEqual({ now: 90, before: 60, change: 0.5 });
+  });
+
   it('lässt den Vergleich weg, wenn der Bezugstag fehlt', () => {
     const result = summarize([{ day: '2026-08-30', visitors: 90 }], [], '2026-08-31');
 
@@ -234,6 +279,24 @@ describe('summarize — Vergleiche für den Morgenblick', () => {
       days: 1,
       daysNow: 2,
     });
+  });
+
+  it('nimmt den laufenden Tag nicht in den Tagesschnitt', () => {
+    // Um neun Uhr morgens stand der halbe Tag als ganzer im Nenner und zog
+    // den Schnitt um ein Zehntel nach unten — ohne dass jemand weggeblieben
+    // waere.
+    const result = summarize(
+      [
+        { day: '2026-08-30', visitors: 100 },
+        { day: '2026-08-31', visitors: 10 },
+      ],
+      [{ day: '2026-08-29', visitors: 100 }],
+      '2026-08-31'
+    );
+
+    expect(result.period?.visitors).toEqual({ now: 100, before: 100, change: 0 });
+    expect(result.period?.daysNow).toBe(1);
+    expect(result.totals.closedDays).toBe(1);
   });
 
   it('behauptet keine Steigerung, wenn es vorher nichts gab', () => {
@@ -282,5 +345,60 @@ describe('weekdayOf', () => {
     expect(weekdayOf('2026-08-31')).toBe(1); // Montag
     expect(weekdayOf('2026-08-30')).toBe(0); // Sonntag
     expect(weekdayOf('2026-10-25')).toBe(0); // Zeitumstellung, trotzdem Sonntag
+  });
+});
+
+describe('summarizeAccounts', () => {
+  const konto = (over: Partial<AccountRecord> = {}): AccountRecord => ({
+    createdDay: '2026-08-01',
+    lastActiveDay: '2026-08-01',
+    provider: 'email',
+    favorites: 0,
+    ...over,
+  });
+
+  it('zählt neue und aktive Konten im Zeitraum', () => {
+    const result = summarizeAccounts(
+      [
+        konto({ createdDay: '2026-08-29', lastActiveDay: '2026-08-29', provider: 'google' }),
+        konto({ lastActiveDay: '2026-08-30', favorites: 3 }),
+        konto({ lastActiveDay: null }),
+      ],
+      [],
+      [],
+      '2026-08-25'
+    );
+
+    expect(result).toMatchObject({
+      total: 3,
+      newInWindow: 1,
+      activeInWindow: 2,
+      google: 1,
+      email: 2,
+      withFavorites: 1,
+    });
+  });
+
+  it('zählt als Kauf nur, was Stripe bezahlt hat', () => {
+    // Die Sammlung ist voller Seed-Daten (starter/manual) und Gratis-Spots
+    // bei der Anmeldung — ein Kauf ist nur, wofuer Geld floss.
+    const result = summarizeAccounts(
+      [],
+      [
+        { day: '2026-05-13', source: 'stripe' },
+        { day: '2026-08-30', source: 'stripe' },
+        { day: '2026-08-30', source: 'signup' },
+        { day: '2026-08-30', source: 'manual' },
+      ],
+      [
+        { day: '2026-08-30', status: 'open' },
+        { day: '2026-08-30', status: 'completed' },
+        { day: '2026-08-01', status: 'open' },
+      ],
+      '2026-08-25'
+    );
+
+    expect(result.purchases).toEqual({ total: 2, inWindow: 1 });
+    expect(result.checkouts).toEqual({ inWindow: 2, open: 1 });
   });
 });

@@ -69,13 +69,74 @@ export interface Weekday {
 
 export interface Funnel {
   label: string;
+  /**
+   * Alles Ereignisse, keine Personen: wer die Karte dreimal oeffnet, zaehlt
+   * dreimal. Der Zaehler kennt bewusst keine Person (visitorHash.ts), ein
+   * echter Personen-Trichter ist damit nicht messbar. Die erste Stufe der
+   * Reise sind die Besucher — als Bezug, nicht als Ereignis.
+   */
   steps: { key: string; count: number }[];
 }
+
+/** Ein Konto, wie Firebase Auth es kennt — ohne Adresse, ohne uid. */
+export interface AccountRecord {
+  /** Kalendertag der Anlage (Berlin). */
+  createdDay: string;
+  /**
+   * Der letzte Tag, an dem das Konto ein ID-Token erneuert hat — `lastRefreshTime`
+   * in Firebase Auth. Eine bessere Naeherung fuer „hat die App benutzt" als
+   * `lastSignInTime`: die Anmeldung haelt Monate, das Token laeuft stuendlich
+   * ab und wird nur erneuert, solange die Seite offen ist.
+   */
+  lastActiveDay: string | null;
+  provider: 'google' | 'email';
+  /** Gespeicherte Spots. */
+  favorites: number;
+}
+
+export interface PurchaseRecord {
+  day: string;
+  /** stripe = bezahlt; signup = Gratis-Spot bei der Anmeldung; manual = von Hand. */
+  source: string;
+}
+
+export interface CheckoutRecord {
+  day: string;
+  /** `open`, solange Stripe keinen Abschluss gemeldet hat. */
+  status: string;
+}
+
+export interface Accounts {
+  total: number;
+  newInWindow: number;
+  /** Konten mit Token-Erneuerung im Zeitraum, siehe AccountRecord.lastActiveDay. */
+  activeInWindow: number;
+  google: number;
+  email: number;
+  withFavorites: number;
+  /** Bezahlte Kaeufe (Stripe). */
+  purchases: { total: number; inWindow: number };
+  /** Angelegte Stripe-Sitzungen im Zeitraum, davon nie abgeschlossen. */
+  checkouts: { inWindow: number; open: number };
+}
+
+/**
+ * Der erste Tag, an dem `entryPaths`, `continuations` und der Cookie-Dialog
+ * den GANZEN Tag gezaehlt wurden. Der Rollout kam am Abend des 28.08.2026: der
+ * Tag traegt 19 Fortsetzungen auf 874 Aufrufe und 127 Einblendungen bei 111
+ * Besuchern. Halb gezaehlt macht er jeden Aufruf des Vormittags zum Ausstieg
+ * und jeden Besucher zum Nicht-Antworter — darum faellt er raus, obwohl er die
+ * Felder traegt.
+ */
+export const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 
 export interface StatsSummary {
   /** Chronologisch aufsteigend — so wird der Verlauf gezeichnet. */
   days: DayPoint[];
-  totals: { pageviews: number; visitors: number; days: number };
+  /** `closedDays` laesst den laufenden Tag weg — fuer alles, was „je Tag" rechnet. */
+  totals: { pageviews: number; visitors: number; days: number; closedDays: number };
+  /** Aus Firebase Auth und Firestore, nicht aus dem Zaehler; ohne Admin-Konten. */
+  accounts: Accounts | null;
   /**
    * Der jüngste abgeschlossene Tag — beim Morgenkaffee die Zahl, die zählt.
    * `today` steht getrennt daneben, weil ein laufender Tag naturgemäß niedrig
@@ -257,7 +318,8 @@ function movers(now: Map<string, number>, before: Map<string, number>, limit = 6
 export function summarize(
   docs: DailyDoc[],
   before: DailyDoc[] = [],
-  today = ''
+  today = '',
+  accounts: Accounts | null = null
 ): StatsSummary {
   const sorted = [...docs].sort((a, b) => a.day.localeCompare(b.day));
 
@@ -279,6 +341,11 @@ export function summarize(
   // wie ihr Zaehler — `consent_gate_shown` gibt es erst seit dem 28.08.2026.
   let consentVisitors = 0;
   let consentDays = 0;
+  // Zaehler und Nenner aus denselben Tagen — die Ereignisliste zeigt weiter
+  // alles, die Quote nicht.
+  let consentShown = 0;
+  let consentAccepted = 0;
+  let consentDeclined = 0;
 
   for (const doc of sorted) {
     const pv = num(doc.pageviews);
@@ -292,15 +359,20 @@ export function summarize(
     addInto(referrers, doc.referrers);
     addInto(events, doc.events);
 
-    if (doc.continuations) {
+    const fullDay = doc.day >= FULL_DAY_FIELDS_SINCE;
+
+    if (fullDay && doc.continuations) {
       exitDays += 1;
       addInto(exitViews, doc.paths);
       addInto(exitContinued, doc.continuations);
     }
 
-    if (num(doc.events?.consent_gate_shown) > 0) {
+    if (fullDay && num(doc.events?.consent_gate_shown) > 0) {
       consentDays += 1;
       consentVisitors += vis;
+      consentShown += num(doc.events?.consent_gate_shown);
+      consentAccepted += num(doc.events?.consent_accepted);
+      consentDeclined += num(doc.events?.consent_declined);
     }
   }
 
@@ -318,7 +390,16 @@ export function summarize(
   const todayPoint = today ? (days.find((d) => d.day === today) ?? null) : null;
   const closed = days.filter((d) => d.day !== today);
   const latestDay = closed.at(-1) ?? null;
-  const pointAt = (day: string): DayPoint | undefined => days.find((d) => d.day === day);
+  // Auch in der Vorperiode suchen: bei „7 Tage" liegt derselbe Wochentag der
+  // Vorwoche immer ausserhalb des Fensters, und der Vergleich fiel still weg.
+  const pointAt = (day: string): DayPoint | undefined =>
+    days.find((d) => d.day === day) ??
+    before
+      .filter((doc) => doc.day === day)
+      .map((doc) => ({ day: doc.day, pageviews: num(doc.pageviews), visitors: num(doc.visitors) }))
+      .at(0);
+  const closedVisitors = closed.reduce((total, d) => total + d.visitors, 0);
+  const closedPageviews = closed.reduce((total, d) => total + d.pageviews, 0);
   const prevDay = latestDay ? pointAt(dayBefore(latestDay.day)) : undefined;
   const sameWeekday = latestDay ? pointAt(dayBefore(latestDay.day, 7)) : undefined;
 
@@ -359,13 +440,14 @@ export function summarize(
     .slice(0, TOP_N);
 
   const eventCount = (key: string): number => events.get(key) ?? 0;
-  const shown = eventCount('consent_gate_shown');
-  const accepted = eventCount('consent_accepted');
-  const declined = eventCount('consent_declined');
+  const shown = consentShown;
+  const accepted = consentAccepted;
+  const declined = consentDeclined;
 
   return {
     days,
-    totals: { pageviews, visitors, days: sorted.length },
+    totals: { pageviews, visitors, days: sorted.length, closedDays: closed.length },
+    accounts,
     latest: {
       day: latestDay,
       vsPrevDay:
@@ -385,19 +467,21 @@ export function summarize(
     },
     today: todayPoint,
     period:
-      before.length && sorted.length
+      before.length && closed.length
         ? {
-            // Je Tag, nicht in Summen — siehe die Begruendung am Typ.
+            // Je Tag, nicht in Summen — siehe die Begruendung am Typ. Und nur
+            // abgeschlossene Tage: der laufende zog den Schnitt morgens um
+            // ein Zehntel nach unten, als waere er ein ganzer Tag gewesen.
             visitors: delta(
-              visitors / sorted.length,
+              closedVisitors / closed.length,
               sumField(before, 'visitors') / before.length
             ),
             pageviews: delta(
-              pageviews / sorted.length,
+              closedPageviews / closed.length,
               sumField(before, 'pageviews') / before.length
             ),
             days: before.length,
-            daysNow: sorted.length,
+            daysNow: closed.length,
           }
         : null,
     weekdays: [...weekdayBuckets.values()].sort((a, b) => a.index - b.index),
@@ -422,28 +506,32 @@ export function summarize(
     exitDays,
     funnels: [
       {
-        label: 'Entdecken',
+        // Die ganze Reise in einer Spalte, vom Besucher bis zum Kauf. Die
+        // Reihenfolge ist die des Produkts: Karte, Spot, Must Eat, dann die
+        // Bezahlschranke (gesperrter Spot → Pack → Pack-Seite → Checkout).
+        label: 'Die ganze Reise',
         steps: [
+          { key: 'visitors', count: visitors },
           { key: 'map_opened', count: eventCount('map_opened') },
           { key: 'restaurant_opened', count: eventCount('restaurant_opened') },
           { key: 'must_eat_opened', count: eventCount('must_eat_opened') },
-        ],
-      },
-      {
-        label: 'Kauf',
-        steps: [
+          { key: 'must_eat_reveal_attempt', count: eventCount('must_eat_reveal_attempt') },
           { key: 'locked_spot_opened', count: eventCount('locked_spot_opened') },
           { key: 'locked_spot_pack_clicked', count: eventCount('locked_spot_pack_clicked') },
+          { key: 'view_item', count: eventCount('view_item') },
           { key: 'begin_checkout', count: eventCount('begin_checkout') },
           { key: 'purchase', count: eventCount('purchase') },
         ],
       },
       {
-        label: 'Anmeldung',
+        label: 'Konto',
         steps: [
           { key: 'login_view', count: eventCount('login_view') },
           { key: 'login_start', count: eventCount('login_start') },
           { key: 'login_link_sent', count: eventCount('login_link_sent') },
+          // Beide Abschluesse zusammen: Magic Link und Google, bestehendes
+          // Konto und neues. `sign_up` allein darunter, als Teilmenge.
+          { key: 'signed_in', count: eventCount('login') + eventCount('sign_up') },
           { key: 'sign_up', count: eventCount('sign_up') },
         ],
       },
@@ -458,5 +546,34 @@ export function summarize(
       ratePerView: shown > 0 ? accepted / shown : null,
       viewsPerVisitor: consentVisitors > 0 ? shown / consentVisitors : null,
     },
+  };
+}
+
+/**
+ * Konten, Kaeufe und Checkout-Versuche im Zeitraum. Die Rohdaten holt die
+ * Route (Firebase Auth, Firestore); hier wird nur gezaehlt, damit die Regeln
+ * — was „aktiv" heisst, was ein Kauf ist — ohne Emulator testbar bleiben.
+ *
+ * Admin-Konten muessen schon draussen sein: der Betreiber ist sonst jeden Tag
+ * das „aktive" Konto.
+ */
+export function summarizeAccounts(
+  accounts: AccountRecord[],
+  purchases: PurchaseRecord[],
+  checkouts: CheckoutRecord[],
+  windowStart: string
+): Accounts {
+  const paid = purchases.filter((p) => p.source === 'stripe');
+  const inWindow = checkouts.filter((c) => c.day >= windowStart);
+  return {
+    total: accounts.length,
+    newInWindow: accounts.filter((a) => a.createdDay >= windowStart).length,
+    activeInWindow: accounts.filter((a) => a.lastActiveDay !== null && a.lastActiveDay >= windowStart)
+      .length,
+    google: accounts.filter((a) => a.provider === 'google').length,
+    email: accounts.filter((a) => a.provider === 'email').length,
+    withFavorites: accounts.filter((a) => a.favorites > 0).length,
+    purchases: { total: paid.length, inWindow: paid.filter((p) => p.day >= windowStart).length },
+    checkouts: { inWindow: inWindow.length, open: inWindow.filter((c) => c.status === 'open').length },
   };
 }

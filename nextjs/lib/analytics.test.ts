@@ -17,6 +17,10 @@ import {
 } from './analytics';
 import { CONSENT_VERSION } from './consent';
 
+/* `{ ...navigator }` verliert `userAgent` — der Getter liegt auf dem Prototyp.
+ * Der Zaehler schickt ihn im Beacon mit, also muss der Stub ihn tragen. */
+const TEST_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/136.0.0.0 Safari/537.36';
+
 describe('analytics consent gate', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -26,7 +30,7 @@ describe('analytics consent gate', () => {
     document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
     delete (window as Window & { gtag?: unknown }).gtag;
     delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
-    vi.stubGlobal('navigator', { ...navigator, sendBeacon: vi.fn(() => true) });
+    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: vi.fn(() => true) });
   });
 
   it('drops events before consent', () => {
@@ -175,7 +179,7 @@ describe('consent-free counting', () => {
   beforeEach(() => {
     document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
     beacon = vi.fn(() => true);
-    vi.stubGlobal('navigator', { ...navigator, sendBeacon: beacon });
+    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: beacon });
     window.history.replaceState({}, '', '/bezirk/kreuzberg');
     // Der Referrer wird nur einmal pro Dokument geschickt; jeder Test faengt
     // ein frisches Dokument an.
@@ -237,7 +241,9 @@ describe('consent-free counting', () => {
     countView();
 
     expect(beacon).toHaveBeenCalledTimes(3);
-    expect((await sent(0)).referrer).toBe('https://www.google.com/search?q=beste+pizza+berlin');
+    // Nur der Ursprung: der Pfad einer Suchseite traegt Suchbegriffe, und die
+    // Route liest ohnehin nur den Host.
+    expect((await sent(0)).referrer).toBe('https://www.google.com');
     expect(await sent(1), 'zweiter Aufruf ohne Referrer').not.toHaveProperty('referrer');
     expect(await sent(2), 'dritter Aufruf ohne Referrer').not.toHaveProperty('referrer');
     // Die Pfade zaehlen weiterhin alle drei mit.
@@ -301,7 +307,7 @@ describe('consent-free counting', () => {
       countView();
 
       // Der ganze Entwurf haengt daran: Aufruf und Vorgaenger, sonst nichts.
-      expect(Object.keys(await sent()).sort()).toEqual(['from', 'path', 'referrer']);
+      expect(Object.keys(await sent()).sort()).toEqual(['from', 'path', 'referrer', 'ua']);
     });
   });
 
@@ -317,6 +323,18 @@ describe('consent-free counting', () => {
   it('refuses page_view as an event name', () => {
     countEvent('page_view');
     expect(beacon).not.toHaveBeenCalled();
+  });
+
+  /* Die App-Hosting-Edge ersetzt den User-Agent-Header, bevor die Anfrage
+   * den Origin erreicht — der Bot-Filter der Route lief in Produktion ins
+   * Leere. Darum faehrt der UA im Body mit: derselbe String, den der Browser
+   * ohnehin in jeder Anfrage sendet. */
+  it('schickt den User-Agent im Body mit', async () => {
+    countView();
+    countEvent('map_opened');
+
+    expect((await sent(0)).ua).toBe(navigator.userAgent);
+    expect((await sent(1)).ua).toBe(navigator.userAgent);
   });
 
   it('never touches storage', () => {
@@ -365,7 +383,7 @@ describe('consent-free counting', () => {
   });
 
   it('stays silent when the browser has no sendBeacon and no fetch', () => {
-    vi.stubGlobal('navigator', { ...navigator, sendBeacon: undefined });
+    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: undefined });
     vi.stubGlobal('fetch', () => {
       throw new Error('no fetch here');
     });

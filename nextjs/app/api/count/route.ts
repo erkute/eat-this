@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { isAutomated } from '@/lib/analytics/botFilter';
+import { hasNoCountCookie } from '@/lib/analytics/noCount';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
 import { checkRateLimit } from '@/lib/buddy/rateLimit';
 
@@ -72,7 +73,12 @@ const EVENTS = new Set([
  *  for /wp-admin and friends - in the edge logs those arrive with a perfectly
  *  ordinary browser UA, so the UA filter never sees them. */
 const PATH = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/?){0,4}$/;
+/** Interne Werkzeuge zaehlen nicht: /admin/stats stand mit 67 Aufrufen in der
+ *  eigenen Ausstiegstabelle — das Zahlenbrett zaehlte seinen einzigen Leser. */
+const INTERNAL_PATH = /^(?:\/[a-z]{2})?\/admin(?:\/|$)/;
 const MAX_BODY = 1024;
+/** Laenger ist kein Browser. */
+const UA_MAX = 300;
 const DAY_MS = 86_400_000;
 
 /** Two days, not one: a visit just before midnight must still dedupe against
@@ -81,7 +87,20 @@ const SEEN_TTL_MS = 2 * DAY_MS;
 
 const RATE_LIMITS = { perMinute: 90, perDay: 3000 };
 
-type Body = { path?: unknown; referrer?: unknown; event?: unknown; from?: unknown };
+type Body = { path?: unknown; referrer?: unknown; event?: unknown; from?: unknown; ua?: unknown };
+
+/**
+ * Der User-Agent aus dem Body, nicht aus dem Header — der Header ist hier
+ * wertlos. Die App-Hosting-Edge ersetzt ihn, bevor die Anfrage den Origin
+ * erreicht (siehe lib/analytics.ts, `userAgent()`): `isAutomated` sah in
+ * Produktion nie einen Bot und liess Bingbot, Baidu-Render und den
+ * Azure-Crawler als Besucher durch. Der Header bleibt als Rueckfall fuer
+ * Umgebungen, die ihn durchreichen (Staging-Build lokal, Tests).
+ */
+function userAgentOf(body: Body, header: string | null): string | null {
+  if (typeof body.ua === 'string' && body.ua.trim()) return body.ua.slice(0, UA_MAX);
+  return header;
+}
 
 /** Only the host, never the full referring URL - the path someone came from can
  *  carry their search terms, and we have no use for those. */
@@ -101,7 +120,7 @@ function referrerHost(raw: unknown): string | null {
 function pathKey(raw: unknown): string | null {
   if (typeof raw !== 'string' || !raw.startsWith('/') || raw.length > 120) return null;
   const path = raw.length > 1 ? raw.replace(/\/+$/, '') : '/';
-  if (!PATH.test(path)) return null;
+  if (!PATH.test(path) || INTERNAL_PATH.test(path)) return null;
   return path.replace(/\./g, '_');
 }
 
@@ -112,13 +131,16 @@ export async function POST(request: Request) {
   const gpc = request.headers.get('sec-gpc');
   const dnt = request.headers.get('dnt');
   if (gpc === '1' || dnt === '1') return new NextResponse(null, { status: 204 });
+  // Der eigene Browser des Betreibers, per Knopf in /admin/stats abgemeldet —
+  // dieselbe Wirkung wie GPC, nur ohne Browser-Erweiterung.
+  if (hasNoCountCookie(request.headers.get('cookie'))) {
+    return new NextResponse(null, { status: 204 });
+  }
 
-  const userAgent = request.headers.get('user-agent');
   const ip = clientIpFromXff(
     request.headers.get('x-forwarded-for'),
     request.headers.get('x-real-ip')
   );
-  if (isAutomated(userAgent, ip)) return new NextResponse(null, { status: 204 });
   if (!ip) return new NextResponse(null, { status: 204 });
 
   const raw = await request.text();
@@ -129,6 +151,9 @@ export async function POST(request: Request) {
   } catch {
     return new NextResponse(null, { status: 400 });
   }
+
+  const userAgent = userAgentOf(body, request.headers.get('user-agent'));
+  if (isAutomated(userAgent, ip)) return new NextResponse(null, { status: 204 });
 
   const path = pathKey(body.path);
   if (!path) return new NextResponse(null, { status: 204 });

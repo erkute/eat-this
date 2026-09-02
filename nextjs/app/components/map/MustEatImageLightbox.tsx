@@ -135,9 +135,40 @@ const Inner = memo(function Inner({
   const [closing, setClosing] = useState(false);
   /* Der Zoom schliesst auf Tippen — ein Wisch darf das nicht ausloesen.
      Gemerkt wird der Anfasspunkt, und ob die letzte Geste ein Wisch war:
-     nach einem Zeiger-Wisch feuert der Browser trotzdem noch ein `click`. */
+     nach einem Zeiger-Wisch feuert der Browser trotzdem noch ein `click`.
+
+     Die Geste haengt am VORHANG, nicht an der Karte: auf dem Telefon fasst der
+     Daumen beim Wischen oft neben die Karte, und ein Wisch, der auf dem
+     Vorhang beginnt, muss genauso blaettern (Nutzer, 02.09.2026). Das `click`
+     der Karte steigt ohnehin zum Vorhang auf — ein Handler fuer beides. */
   const downRef = useRef<{ x: number; y: number } | null>(null);
   const swipedRef = useRef(false);
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    downRef.current = { x: e.clientX, y: e.clientY };
+    swipedRef.current = false;
+  };
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const down = downRef.current;
+    downRef.current = null;
+    if (!canPage || !down) return;
+    const dx = e.clientX - down.x;
+    const dy = e.clientY - down.y;
+    /* Waagerecht und weit genug: blaettern statt schliessen. Die Achsensperre
+       verhindert, dass ein Daumen, der die Karte nur kippt, versehentlich
+       weiterblaettert. Am Stapelende blaettert `page` nicht — der Wisch bleibt
+       trotzdem ein Wisch und schliesst nichts. */
+    if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) {
+      swipedRef.current = true;
+      page(dx < 0 ? 1 : -1);
+    }
+  };
+  const handleWrapperClick = () => {
+    if (swipedRef.current) {
+      swipedRef.current = false;
+      return;
+    }
+    handleClose();
+  };
   const dirRef = useRef(1);
   const page = useCallback(
     (d: number) => {
@@ -285,7 +316,9 @@ const Inner = memo(function Inner({
     <motion.div
       ref={dialogRef}
       className={closing ? `${styles.wrapper} ${styles.closing}` : styles.wrapper}
-      onClick={handleClose}
+      onClick={handleWrapperClick}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
       role="dialog"
       aria-modal="true"
       aria-label={alt || 'Must Eat'}
@@ -332,47 +365,13 @@ const Inner = memo(function Inner({
           rotateY: rotateYSpring,
           transformStyle: 'preserve-3d',
         }}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (swipedRef.current) {
-            swipedRef.current = false;
-            return;
-          }
-          handleClose();
-        }}
-        onPointerDown={(e) => {
-          downRef.current = { x: e.clientX, y: e.clientY };
-          swipedRef.current = false;
-        }}
-        onPointerUp={(e) => {
-          e.stopPropagation();
-          const down = downRef.current;
-          downRef.current = null;
-          if (canPage && down) {
-            const dx = e.clientX - down.x;
-            const dy = e.clientY - down.y;
-            /* Waagerecht und weit genug: blättern statt schliessen. Die
-               Achsensperre verhindert, dass ein Daumen, der die Karte nur
-               kippt, versehentlich weiterblättert. */
-            if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) {
-              swipedRef.current = true;
-              page(dx < 0 ? 1 : -1);
-              return;
-            }
-          }
-          handleClose();
-        }}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
         {/* Inner clip wrapper keeps the sheen's drifting gradient inside
             the card's rounded shape — without it the sheen leaks past
             the right edge at strong rotateY tilts. */}
-        <motion.div
-          className={styles.clip}
-          style={{ width: overlayW }}
-          animate={dealControls}
-        >
+        <motion.div className={styles.clip} style={{ width: overlayW }} animate={dealControls}>
           <img src={shown.imageUrl} alt={shown.alt} className={styles.image} />
           <motion.div className={styles.sheen} style={{ x: sheenX }} aria-hidden="true" />
         </motion.div>

@@ -172,20 +172,15 @@ const en = {
     // never said what there was to win. The map shows how far it is; these two
     // lines explain the card and name the prize.
     proximityHere: "You're here.",
-    proximityAway: 'Still face-down.',
-    // Shown on a covered card when there is no fix at all. It used to read
-    // "Come closer", which is a lie to anyone already standing in the doorway:
-    // the app does not know where they are, and never said so.
-    locationNeeded: 'Where are you?',
-    // Answers the headline's question ("Where are you?") instead of only giving
-    // an instruction: without a fix the card cannot know when you're standing
-    // there, and that is the whole reason it asks.
-    // One step at a time: this state is about the location, nothing else. What
-    // happens after the fix is the next state's job ("Still face-down."), and
-    // saying it here made the visitor read past the one thing they must do.
-    enableLocation: 'Tap the card and allow your location.',
+    proximityAway: 'Still face-down',
+    // The location states live in their own chip under the dish line, not in
+    // the dish line itself: the line belongs to the dish, the chip to the
+    // browser permission. Without a fix the chip is the button that asks.
+    locationAllow: 'Allow location',
+    // Screen-reader name of the covered card only: visibly, a denied permission
+    // is a notice in the central toast (lib/map/locationStatus.ts), the same
+    // one the map and the home page show.
     locationBlocked: 'Location blocked',
-    locationBlockedHint: 'Allow your location in your browser settings.',
     proximityTapReveal: 'Tap it and see what to order here.',
     // Makes the card worth wanting instead of just explaining the rule: it names
     // the prize first ("the one dish") and puts the condition second. Echoes the
@@ -536,11 +531,15 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     // (MustEatTeaserSection: „Noch nicht aufgedeckt."). „Nur vor Ort." las sich
     // als Hausordnung statt als Einladung.
     proximityHere: 'Du bist da.',
-    proximityAway: 'Noch nicht aufgedeckt.',
-    locationNeeded: 'Wo bist du?',
-    enableLocation: 'Tipp die Karte an und erlaube deinen Standort.',
+    proximityAway: 'Noch nicht aufgedeckt',
+    // Die Standort-Zustände stehen nicht mehr in der Gerichtszeile, sondern als
+    // eigener Chip darunter: die Zeile gehört dem Gericht, der Chip der
+    // Browser-Berechtigung. Ohne Fix ist der Chip die Taste, die fragt.
+    locationAllow: 'Standort freigeben',
+    // Nur noch der Name der verdeckten Karte fürs Screenreader-Ohr: sichtbar
+    // ist der verweigerte Standort eine Meldung der zentralen Info-Karte
+    // (lib/map/locationStatus.ts), wie auf Map und Startseite.
     locationBlocked: 'Standort blockiert',
-    locationBlockedHint: 'Erlaube deinen Standort in den Browser-Einstellungen.',
     proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
     // Muss in den reservierten Copy-Slot passen (--me-mid-slot, 105px für den
     // Textteil): eine Zeile mehr, und der verdeckte Zustand steht 14px höher

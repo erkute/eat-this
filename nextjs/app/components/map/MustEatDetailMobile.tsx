@@ -10,11 +10,13 @@ import { normalizeName } from '@/lib/normalizeName';
 import styles from './MapDetails.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
-import { CloseIcon, PagerArrowIcon } from './icons';
+import { CloseIcon, PagerArrowIcon, PinIcon } from './icons';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
-/* Gesetzt, sobald jemand einmal gewischt hat — danach kommt der Wisch-Hinweis
-   nie wieder, auch nicht in einer neuen Session. */
+/* Gesetzt, sobald jemand in DIESER Sitzung gewischt hat — danach ruht der
+   Wisch-Hinweis bis zum nächsten Besuch. Er stand in localStorage und kam nie
+   wieder; wer die Geste einmal probiert hatte, sah auf dem Telefon danach kein
+   Zeichen mehr, dass es weitergeht (Nutzer, 02.09.2026). */
 const SWIPE_HINT_KEY = 'et:me-swipe-hint';
 const SWIPE_HINT_DONE = 'done';
 
@@ -35,6 +37,8 @@ interface Props {
   nextUnlocked?: boolean;
   onPagePrev?: () => void;
   onPageNext?: () => void;
+  /** Stand im Stapel, 1-basiert — steht hinter dem Kicker („3 / 25"). */
+  position?: { index: number; count: number };
   state: MustEatDetailState;
 }
 
@@ -52,6 +56,7 @@ export default function MustEatDetailMobile({
   nextUnlocked,
   onPagePrev,
   onPageNext,
+  position,
   state,
 }: Props) {
   const { t, lang } = useTranslation();
@@ -59,10 +64,10 @@ export default function MustEatDetailMobile({
   const tMap = useTranslations('map');
   const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang);
   const {
-    distance,
     canUnlock,
     needsLocation,
     locationDenied,
+    requestLocation,
     vibrateIntensity,
     tapping,
     unlocking,
@@ -163,7 +168,7 @@ export default function MustEatDetailMobile({
   const [hasSwiped, setHasSwiped] = useState(false);
   useEffect(() => {
     try {
-      if (window.localStorage.getItem(SWIPE_HINT_KEY) === SWIPE_HINT_DONE) setHasSwiped(true);
+      if (window.sessionStorage.getItem(SWIPE_HINT_KEY) === SWIPE_HINT_DONE) setHasSwiped(true);
     } catch {
       /* Private Mode o. ä. — dann bleibt es beim Hinweis. */
     }
@@ -171,7 +176,7 @@ export default function MustEatDetailMobile({
   const markSwiped = () => {
     setHasSwiped(true);
     try {
-      window.localStorage.setItem(SWIPE_HINT_KEY, SWIPE_HINT_DONE);
+      window.sessionStorage.setItem(SWIPE_HINT_KEY, SWIPE_HINT_DONE);
     } catch {
       /* ignore */
     }
@@ -225,32 +230,71 @@ export default function MustEatDetailMobile({
      und Text. Jetzt füllt die Kopfzeile sie, in der Größe des Gerichtsnamens,
      und beim Aufdecken wird sie schlicht vom Gericht ersetzt: gleicher Track,
      gleiche Höhe, kein Sprung. Während der Reveal-Animation (nameBurning)
-     gehört der Track wieder dem Gericht, das dort aufscharft. */
+     gehört der Track wieder dem Gericht, das dort aufscharft.
+
+     Der Track gehört dabei dem GERICHT — auch ohne Standort-Fix. „Wo bist du?"
+     und „Standort blockiert" standen hier in Gerichtsgröße und lasen sich wie
+     der Name eines Gerichts (Nutzer, 02.09.2026). Eine Browser-Berechtigung ist
+     aber kein Produktmoment: die Zeile sagt jetzt in jedem verdeckten Zustand,
+     was unter der Karte liegt, und der Standort steht darunter als eigener
+     Chip (siehe .fdLocation). */
   const coverHead = unlocking
     ? t('map.revealSaving')
     : unlockError
       ? t('map.revealError')
       : canUnlock
         ? tMap('proximityHere')
-        : distance !== null
-          ? tMap('proximityAway')
-          : locationDenied
-            ? tMap('locationBlocked')
-            : tMap('locationNeeded');
+        : tMap('proximityAway');
+  /* Ohne Fix trägt die Copy-Zeile nur den Chip — ein Schritt pro Zustand.
+     Der Satz, der die Karte erklärt („Ein Gericht, das du probieren musst …"),
+     kommt, sobald die App weiß, wo der Besucher ist.
+
+     Verweigert ist KEIN eigener Zustand der Karte: sie liest sich wie jede
+     verdeckte Karte, und erst der Tipp darauf sagt, was fehlt — als Meldung in
+     der zentralen Info-Karte, wie auf Map und Startseite (siehe
+     onLocationBlocked in MustEatDetail). Ein stiller „Standort blockiert"-Chip
+     mit Hinweis darunter stand hier kurz und wurde als Fremdkörper abgelehnt
+     (Nutzer, 02.09.2026). */
+  const coverSub = unlocking
+    ? t('map.revealSavingHint')
+    : unlockError
+      ? t('map.revealRetry')
+      : canUnlock
+        ? tMap('proximityTapReveal')
+        : needsLocation && !locationDenied
+          ? null
+          : tMap('proximityHint');
+  const showLocationChip = needsLocation && !locationDenied && !unlocking && !unlockError;
+  const kicker = mustEat.restaurant.district
+    ? `Must Eat · ${mustEat.restaurant.district}`
+    : 'Must Eat';
   const headInNameSlot = !open && !nameBurning;
   const slotText = headInNameSlot ? coverHead : dishName;
   const slotWeight = slotText.replace(/\s+/g, '').length;
+  /* Die Stufe hängt auch am LÄNGSTEN WORT, nicht nur an der Zeichenzahl: ein
+     Wort bricht nicht, und „RINDERGULASCH" (13 Versalien) war in der Grundgröße
+     breiter als der Rail — die Zeile stand links an und ragte rechts heraus,
+     die zweite Zeile mittig darunter (Nutzer, 02.09.2026: „nicht mittig
+     zentriert"). Ab 11 Buchstaben eine Stufe kleiner, ab 14 zwei. */
+  const longestWord = Math.max(...slotText.split(/\s+/).map((word) => word.length));
   const slotSizeClass =
-    slotWeight > 22 ? styles.fdNameCompact : slotWeight > 12 ? styles.fdNameLong : '';
+    slotWeight > 22 || longestWord > 13
+      ? styles.fdNameCompact
+      : slotWeight > 12 || longestWord > 10
+        ? styles.fdNameLong
+        : '';
 
   /* Der Restaurantname staffelt sich nach Länge, wie der Gerichtsname darüber —
      nicht pro Lokal. Eine Regel für „Saveur de Bánh Mì Schöneberg" bräche beim
      nächsten langen Namen wieder; die Spalte ist rund 175px breit, in eine
      Zeile passt so ein Name auch klein nicht. Die Stufen sorgen dafür, dass er
      in die zwei reservierten Zeilen passt, statt geklemmt zu werden. */
+  /* Stufen für EINE Zeile: die Spalte misst rund 250px (Telefon) bzw. 237px
+     (Rail); „Bursa Uludağ Kebapçısı" (20 Zeichen) braucht bei 17px 195 — die
+     Stufen greifen erst bei wirklich langen Namen. */
   const restNameWeight = restaurantName.replace(/\s+/g, '').length;
   const restNameSizeClass =
-    restNameWeight > 20 ? styles.fdVCompact : restNameWeight > 14 ? styles.fdVLong : '';
+    restNameWeight > 22 ? styles.fdVCompact : restNameWeight > 16 ? styles.fdVLong : '';
 
   return (
     <div
@@ -352,11 +396,15 @@ export default function MustEatDetailMobile({
                         : needsLocation
                           ? locationDenied
                             ? tMap('locationBlocked')
-                            : tMap('locationNeeded')
+                            : tMap('locationAllow')
                           : t('map.tooFarToReveal')
                   }
+                  /* Auch die verdeckte Karte verschwindet während des Zooms:
+                     der Zoom blättert inzwischen weiter, und landet er auf einer
+                     verdeckten Karte, läge sonst deren Rücken doppelt da —
+                     Zoom-Klon plus Slot-Karte. */
                   style={{
-                    ...(revealOrigin ? { visibility: 'hidden' } : {}),
+                    ...(revealOrigin || state.zoomActive ? { visibility: 'hidden' } : {}),
                     ['--vibrate-intensity' as string]: tapping
                       ? '2.4'
                       : vibrateIntensity.toFixed(3),
@@ -366,39 +414,6 @@ export default function MustEatDetailMobile({
                 </button>
               )}
             </div>
-            {/* Blättern direkt an der Karte: zwei runde Pfeile auf den
-                Kartenkanten statt einer Buttonleiste unter dem Panel — die
-                Karte ist das Objekt, durch das geblättert wird. Nur ab 768px
-                sichtbar; auf dem Phone wird gewischt. Die Namen der Nachbarn
-                tragen die aria-Labels, nicht mehr die Fläche. */}
-            {(prevMustEat || nextMustEat) && (
-              <nav className={styles.fdPager} data-detail-pager aria-label={t('map.pagerAria')}>
-                <button
-                  type="button"
-                  className={styles.fdPagerPrev}
-                  disabled={!prevMustEat}
-                  onClick={() => pageWithCard('prev')}
-                  aria-label={
-                    previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
-                  }
-                >
-                  <span className={styles.fdPagerArrow}>
-                    <PagerArrowIcon />
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  className={styles.fdPagerNext}
-                  disabled={!nextMustEat}
-                  onClick={() => pageWithCard('next')}
-                  aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
-                >
-                  <span className={styles.fdPagerArrow}>
-                    <PagerArrowIcon />
-                  </span>
-                </button>
-              </nav>
-            )}
           </div>
           {/* Textfassung desselben Hinweises — sichtbar NUR bei
               prefers-reduced-motion, wo der Nudge nicht laufen darf. Absolut
@@ -421,19 +436,74 @@ export default function MustEatDetailMobile({
               unsichtbar gestellte Gerichtsname und die Kopfzeile eine Etage
               tiefer; das ergab eine leere Fläche zwischen Karte und Text und
               zwei konkurrierende Zustandsanzeigen. */}
-          {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
-          <h2 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
-            {headInNameSlot ? (
-              <span className={styles.fdNameText}>{slotText}</span>
-            ) : (
-              <span
-                className={`${styles.fdNameText}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
-                aria-hidden={nameRevealed ? undefined : true}
-              >
-                {dishName}
-              </span>
+          {/* Kicker und Gerichtsname als ein Kopf, wie im Onboarding jede Folie
+              (Kicker → Titel → Text). Der Kicker nennt den Bezirk: die eine
+              Angabe, die verdeckt wie aufgedeckt gilt und nicht schon im
+              Restaurant-Streifen steht. */}
+          <div className={styles.fdHead}>
+            {/* Der Zählstand in eigener Zeile über dem Kicker („1 / 23") — hinter
+                dem Kicker stand er als Anhängsel, der Nutzer wollte ihn
+                zentriert für sich (02.09.2026). Auf dem Telefon ist er neben dem
+                Nudge das Zeichen, dass der Stapel weitergeht. */}
+            {position && position.count > 1 && (
+              <p className={styles.fdKickerCount}>
+                {position.index} / {position.count}
+              </p>
             )}
-          </h2>
+            {/* Der Kicker ist die Blätter-Zeile: „‹ MUST EAT · BEZIRK ›". Die
+                Pfeile standen an den Kartenkanten — auf dem Telefon geht das
+                nicht auf: nah an der Karte kleben sie an ihr, weiter weg
+                kleben sie am Bildschirmrand, und jede Spur neben der Karte
+                kostet Kartenbreite (Nutzer, 02.09.2026, drei Runden). Bei der
+                Schrift sind sie in jeder Breite gleich weit von allem, und die
+                Karte nimmt die ganze Höhe. Die Namen der Nachbarn tragen die
+                aria-Labels. `data-detail-pager` misst useMapSheet weiter. */}
+            <div
+              className={styles.fdKickerRow}
+              data-detail-pager
+              role={prevMustEat || nextMustEat ? 'group' : undefined}
+              aria-label={prevMustEat || nextMustEat ? t('map.pagerAria') : undefined}
+            >
+              {(prevMustEat || nextMustEat) && (
+                <button
+                  type="button"
+                  className={styles.fdPagerPrev}
+                  disabled={!prevMustEat}
+                  onClick={() => pageWithCard('prev')}
+                  aria-label={
+                    previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
+                  }
+                >
+                  <PagerArrowIcon />
+                </button>
+              )}
+              <p className={styles.fdKicker}>{kicker}</p>
+              {(prevMustEat || nextMustEat) && (
+                <button
+                  type="button"
+                  className={styles.fdPagerNext}
+                  disabled={!nextMustEat}
+                  onClick={() => pageWithCard('next')}
+                  aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
+                >
+                  <PagerArrowIcon />
+                </button>
+              )}
+            </div>
+            {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
+            <h2 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
+              {headInNameSlot ? (
+                <span className={styles.fdNameText}>{slotText}</span>
+              ) : (
+                <span
+                  className={`${styles.fdNameText}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
+                  aria-hidden={nameRevealed ? undefined : true}
+                >
+                  {dishName}
+                </span>
+              )}
+            </h2>
+          </div>
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
           {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
@@ -442,9 +512,6 @@ export default function MustEatDetailMobile({
           {!open && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
-              data-location-needed={
-                needsLocation ? (locationDenied ? 'blocked' : 'ask') : undefined
-              }
               role={unlockError ? 'alert' : 'status'}
               aria-live="polite"
             >
@@ -455,46 +522,80 @@ export default function MustEatDetailMobile({
                   log-Skala von 10 km auf 50 m sagte niemandem etwas) noch als
                   Zahl. „Noch 8,2 km" ließ den Spot weit und mühsam wirken und
                   beantwortete die Frage nicht, die der Kartenrücken stellt.
-                  Wie weit es ist, zeigt die Map; diese zwei Zeilen sagen,
-                  warum die Karte zu ist und was darunter liegt. */}
-              <p className={styles.fdProximitySub}>
-                {unlocking
-                  ? t('map.revealSavingHint')
-                  : unlockError
-                    ? t('map.revealRetry')
-                    : canUnlock
-                      ? tMap('proximityTapReveal')
-                      : distance !== null
-                        ? tMap('proximityHint')
-                        : locationDenied
-                          ? tMap('locationBlockedHint')
-                          : tMap('enableLocation')}
-              </p>
+                  Wie weit es ist, zeigt die Map; diese Zeile sagt, was unter
+                  der Karte liegt. */}
+              {coverSub && <p className={styles.fdProximitySub}>{coverSub}</p>}
+              {/* Der Standort als eigenes Objekt: eine Taste, solange man den
+                  Browser noch fragen darf. Der Kartentipp fragt weiterhin mit —
+                  die Taste macht nur sichtbar, dass es etwas zu tun gibt. */}
+              {showLocationChip && (
+                <div className={styles.fdLocation} data-location-needed="ask">
+                  <button
+                    type="button"
+                    className={styles.fdLocationChip}
+                    onClick={requestLocation ?? undefined}
+                  >
+                    <PinIcon />
+                    <span>{tMap('locationAllow')}</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
-        <div className={`${styles.fdRest} ${styles.fdRestInline}`}>
-          {restaurantPhoto && (
-            <img className={styles.fdRestPhoto} src={restaurantPhoto} alt="" aria-hidden="true" />
-          )}
-          <div className={styles.fdRestName}>
-            <div className={styles.fdK}>{t('map.inRestaurant')}</div>
-            <div className={`${styles.fdV}${restNameSizeClass ? ` ${restNameSizeClass}` : ''}`}>
-              {normalizeName(restaurantName)}
-            </div>
-          </div>
-          {onViewRestaurant ? (
-            <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
-              {t('map.toSpot')}
+        {/* Restaurant-Zeile: die GANZE Zeile ist der Weg zum Spot — Foto, Label,
+            Name, sonst nichts; dass sie ein Knopf ist, sagt ihr Ring (CSS).
+            Vorher stand rechts eine „Zum Spot"-Pille; sie nahm der Namensspalte
+            100px, und lange Namen brachen („Knödelwirt-/schaft SÜD", Nutzer
+            02.09.2026). Danach ein Pfeilkreis („mag den Pfeil nicht"), dann das
+            Wort „Zum Spot" („braucht man das?") — beides wieder raus. Der Name
+            bleibt einzeilig (Stufen unten, Ellipse als letztes Mittel), damit
+            die Zeile in jeder Karte gleich hoch ist: mit einem zweizeiligen
+            Namen war sie 9px höher und der Kartenstapel sprang beim Blättern.
+            Screenreader hören weiter „Zum Spot: <Name>". */}
+        {(() => {
+          const rowContent = (
+            <>
+              {restaurantPhoto && (
+                <img
+                  className={styles.fdRestPhoto}
+                  src={restaurantPhoto}
+                  alt=""
+                  aria-hidden="true"
+                />
+              )}
+              <span className={styles.fdRestName}>
+                <span className={styles.fdK}>{t('map.inRestaurant')}</span>
+                <span
+                  className={`${styles.fdV}${restNameSizeClass ? ` ${restNameSizeClass}` : ''}`}
+                >
+                  {normalizeName(restaurantName)}
+                </span>
+              </span>
+            </>
+          );
+          const rowClass = `${styles.fdRest} ${styles.fdRestInline}`;
+          const rowLabel = `${t('map.toSpot')}: ${normalizeName(restaurantName)}`;
+          return onViewRestaurant ? (
+            <button
+              type="button"
+              className={rowClass}
+              onClick={onViewRestaurant}
+              aria-label={rowLabel}
+            >
+              {rowContent}
             </button>
           ) : (
-            <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.ctaPill}>
-              {t('map.toSpot')}
+            <Link
+              href={`/restaurant/${mustEat.restaurant.slug}`}
+              className={rowClass}
+              aria-label={rowLabel}
+            >
+              {rowContent}
             </Link>
-          )}
-        </div>
+          );
+        })()}
       </div>
     </div>
   );

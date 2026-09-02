@@ -317,27 +317,6 @@
   text-transform: uppercase;
   margin: 0 0 5px;
 }
-/* Zum-Spot — gelbe, leicht getiltete Sticker-Pille mit hartem Offset-Schatten,
-   am unteren Rand der Footer-Leiste verankert. */
-.ctaPill {
-  flex: 0 0 auto;
-  max-width: 48%;
-  justify-content: center;
-  align-self: center;
-  margin: 0;
-  appearance: none;
-  line-height: 1;
-  padding: 0 11px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-  transform: none;
-  transition:
-    transform var(--map-motion),
-    background-color var(--map-motion);
-}
 /* X — nackter cremefarbener Glyph oben rechts. */
 .fdClose {
   position: absolute;
@@ -366,10 +345,6 @@
     align-items: center;
     flex-direction: row;
     gap: 12px;
-  }
-  .detailV13MustEat .ctaPill {
-    width: auto;
-    align-self: center;
   }
 }
 @media (max-height: 740px) {
@@ -958,7 +933,6 @@
 .rdCloseGlass,
 .rdPagerBtn,
 .btnPackPromo,
-.ctaPill,
 .fdClose {
   box-shadow: none;
   filter: none;
@@ -968,7 +942,6 @@
   .rdCloseGlass:hover,
   .rdPagerBtn:hover,
   .btnPackPromo:hover,
-  .ctaPill:hover,
   .fdClose:hover {
     box-shadow: none;
     filter: none;
@@ -1159,9 +1132,6 @@
 .detailV13MustEat .fdRest .fdK {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   color: rgba(255, 255, 255, 0.66);
-}
-.ctaPill {
-  font-size: 20px;
 }
 /* Restaurant detail refresh — bolder map sheet, sharper controls, clearer info hierarchy. */
 .rdHero {
@@ -1532,11 +1502,6 @@
 .fdRest .fdK {
   color: color-mix(in srgb, var(--brand-ink) 58%, transparent);
 }
-.ctaPill {
-  width: auto;
-  min-width: 92px;
-  height: 36px;
-}
 @media (max-width: 420px) {
   .rdMustGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1652,14 +1617,12 @@
 .rdRowHours > .rdK {
   padding-right: 8px;
 }
-.btnPackPromo,
-.ctaPill {
+.btnPackPromo {
   min-height: 48px;
   border: 0;
   text-decoration: none;
 }
-.btnPackPromo:hover,
-.ctaPill:hover {
+.btnPackPromo:hover {
   transform: translateY(-1px);
   background: #c42f24;
   color: #fff;
@@ -1813,7 +1776,6 @@
   color: var(--et-home-ink);
 }
 .btnPackPromo,
-.ctaPill,
 .fdClose {
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -1827,8 +1789,7 @@
   color: var(--et-home-ink);
   border: 2px solid var(--et-home-ink);
 }
-.btnPackPromo,
-.ctaPill {
+.btnPackPromo {
   background: var(--et-home-ink);
   color: var(--et-home-paper);
   border-color: var(--et-home-ink);
@@ -2038,8 +1999,7 @@
   display: none;
 }
 .detailV13:not(.detailV13MustEat) .rdPagerBtn,
-.detailV13:not(.detailV13MustEat) .btnPackPromo,
-.detailV13MustEat .ctaPill {
+.detailV13:not(.detailV13MustEat) .btnPackPromo {
   min-height: 40px;
   border: 0;
   border-radius: 0;
@@ -2485,104 +2445,6 @@
      Frame der Bewegung — das ist der sichtbare Ruckler am Animationsstart. */
   will-change: transform;
 }
-/* ── Pager: dezente Chevrons neben der Karte ────────────────────────────────
- *
- * Die Buttonleiste am Panelende ist weg — geblättert wird am Objekt selbst,
- * wie in Bild-Galerien üblich: zwei nackte, halbtransparente Winkel in den
- * Seitenräumen neben der Karte, bei Hover volle Tinte. Kein Kreis, keine
- * Fläche, kein Gelb. Die Namen der Nachbarn tragen die aria-Labels.
- *
- * Sitzt im Markup IM .fdCardStack (position: relative), damit die Pfeile der
- * Kartenhöhe folgen. pointer-events: none auf dem nav, damit die Fläche
- * dazwischen weiter der Karte gehört (Tap = aufdecken/zoomen).
- *
- * Nur ab 768px — auf dem Phone wird gewischt (siehe "Phone: gewischt wird,
- * nicht getippt"). */
-.detailV13MustEat .fdPager {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  display: none;
-  pointer-events: none;
-}
-@media (min-width: 768px) {
-  .detailV13MustEat .fdPager {
-    display: block;
-  }
-}
-.detailV13MustEat .fdPagerPrev,
-.detailV13MustEat .fdPagerNext {
-  pointer-events: auto;
-  position: absolute;
-  /* Der Fächer hängt gemessene 38px unter die Top-Karte — seine Mitte liegt
-     also 19px tiefer. Daran zentrieren, nicht an der Top-Karte. */
-  top: calc(50% + 19px);
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 56px;
-  margin: 0;
-  padding: 0;
-  appearance: none;
-  cursor: pointer;
-  color: var(--me-ink);
-  opacity: 0.38;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  transform: translateY(-50%);
-  transition:
-    opacity 0.15s ease-out,
-    transform 0.15s ease-out;
-}
-/* Symmetrisch um den FÄCHER, nicht um die Top-Karte: auf Pfeilhöhe gemessen
-   liegt die rechte Fächerkante 30px hinter der Top-Karte (Überhang der
-   untersten Karte), links deckungsgleich. Beide Pfeile halten je 4px Luft zu
-   ihrer Kante — nah genug, dass sie zur Karte gehören, ohne in ihre
-   Tap-Fläche zu ragen. Mit dem left: -15px des Stapels steht das Ensemble
-   Pfeil–Fächer–Pfeil mittig. */
-.detailV13MustEat .fdPagerPrev {
-  left: -36px;
-}
-.detailV13MustEat .fdPagerNext {
-  right: -78px;
-}
-.detailV13MustEat .fdPagerArrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  color: currentColor;
-}
-.detailV13MustEat .fdPagerArrow svg {
-  display: block;
-  width: 26px;
-  height: 26px;
-}
-.detailV13MustEat .fdPagerNext .fdPagerArrow svg {
-  transform: scaleX(-1);
-}
-.detailV13MustEat .fdPagerPrev:disabled,
-.detailV13MustEat .fdPagerNext:disabled {
-  visibility: hidden;
-  cursor: default;
-}
-.detailV13MustEat .fdPagerPrev:focus-visible,
-.detailV13MustEat .fdPagerNext:focus-visible {
-  opacity: 1;
-}
-@media (hover: hover) {
-  .detailV13MustEat .fdPagerPrev:hover {
-    opacity: 1;
-    transform: translateY(-50%) translateX(-2px);
-  }
-
-  .detailV13MustEat .fdPagerNext:hover {
-    opacity: 1;
-    transform: translateY(-50%) translateX(2px);
-  }
-}
 .detailV13MustEat .fdHero {
   appearance: none;
   display: block;
@@ -2733,32 +2595,6 @@
   letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
-}
-.detailV13MustEat .ctaPill {
-  min-width: 104px;
-  width: auto;
-  max-width: 44vw;
-  height: 42px;
-  padding: 11px 16px;
-  color: var(--et-home-inverse-text, #fff);
-  background: var(--et-home-ink, #15120e);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-  transform: none;
-}
-.detailV13MustEat .ctaPill:hover,
-.detailV13MustEat .ctaPill:focus-visible {
-  color: var(--et-home-ink, #15120e);
-  background: var(--me-accent);
-  transform: translateX(2px);
-  box-shadow: none;
 }
 /* Beide Tasten gleich hell: die dunkle "Weiter"-Taste sah aus wie ein
    Primär-CTA und stand als zweite schwarze Pille direkt unter "Zum Spot".
@@ -3829,17 +3665,6 @@
   place-self: stretch;
   text-align: left;
 }
-.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
-  grid-column: 2;
-  grid-row: 2;
-  justify-self: stretch;
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  height: 38px;
-  min-height: 38px;
-  padding: 10px 14px;
-}
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
     --me-rest-slot: 116px;
@@ -3857,11 +3682,6 @@
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
     width: 80px;
     height: 80px;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
-    height: 36px;
-    min-height: 36px;
   }
 }
 @media (max-width: 380px), (max-height: 740px) {
@@ -3881,11 +3701,6 @@
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
     width: 66px;
     height: 66px;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
-    height: 34px;
-    min-height: 34px;
   }
 }
 
@@ -4830,11 +4645,6 @@
   grid-row: 1;
 }
 
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .ctaPill {
-  grid-column: 3;
-  grid-row: 1;
-}
-
 .detailV13MustEat .detailV13Scroll > .fdRestInline > .fdRestName {
   display: grid;
   grid-template-rows: auto auto;
@@ -4886,21 +4696,6 @@
   letter-spacing: 0;
   line-height: 1.16;
   color: var(--me-ink);
-}
-
-.detailV13MustEat .detailV13Scroll > .fdRestInline .ctaPill {
-  width: auto;
-  min-width: 0;
-  height: 42px;
-  min-height: 42px;
-  align-self: center;
-  justify-self: end;
-  padding: 0 18px;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 /* Längenstufen für den Restaurantnamen — dieselbe Mechanik wie beim
@@ -5104,4 +4899,583 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 1.55;
+}
+
+/* ── Must-Eat-Sheet: Ink-Panel wie das Onboarding ────────────────────────────
+   Das Sheet war die einzige Must-Eat-Fläche auf Papier. Das Onboarding
+   (MustEatsOnboarding.module.css), das denselben Kartenstapel erklärt, steht
+   auf Ink: dunkler Grund, weiße Providence-Versalien, gelber Kicker, gelber
+   Knopf, Karte mit Schlagschatten, alles auf einer Mittelachse. Beide zeigen
+   dieselbe Karte, also bekommen sie dieselbe Bühne (Nutzer, 02.09.2026: „mach
+   mehr wie das Must-Eat-Onboarding").
+
+   Umgesetzt über die Tokens des Blocks bei 2372: --me-ink ist die Schriftfarbe,
+   --me-paper der Grund, --me-muted der Fließtext, --me-soft die Fläche der
+   Restaurant-Zeile. Rund vierzig Regeln hängen daran und kippen mit — nur die
+   Stellen mit fest verdrahtetem Ink (Label und Knopf der Restaurant-Zeile,
+   der gelbe Kopf des „Du bist da."-Moments) stehen darunter einzeln. Steht am
+   Dateiende: die Papier-Fassung ist über die ganze Datei verteilt, nur von
+   hier gewinnt sie ohne !important. */
+.detailV13MustEat,
+.detailV13MustEat .detailV13Scroll {
+  --me-ink: var(--et-home-inverse-text, #fff);
+  --me-paper: var(--et-home-ink, #15120e);
+  --me-muted: rgba(255, 255, 255, 0.76);
+  --me-soft: rgba(255, 255, 255, 0.07);
+  background: var(--me-paper);
+  color: var(--me-ink);
+}
+
+/* Das X wie im Onboarding (.x): weiß, gelb bei Hover. */
+.detailV13MustEat .fdClose:hover,
+.detailV13MustEat .fdClose:focus-visible {
+  color: var(--me-accent);
+}
+
+/* Der Stapel hebt sich mit dem Schatten des Onboarding-Flippers vom Grund ab
+   (dort `.face`). Ein box-shadow auf dem Kasten, kein filter: drop-shadow —
+   der macht auf Touch-WebKit aus einer Alpha-WebP eine rechteckige
+   Schattenplatte (siehe MustEatImageLightbox.module.css). Der Schatten sitzt
+   auf dem Knopf, nicht auf seinem Bild: der Knopf klemmt (overflow: hidden)
+   und hätte den Schatten des Bildes abgeschnitten. */
+.detailV13MustEat .fdHero,
+.detailV13MustEat .fdStackCard {
+  border-radius: 12px;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Kicker + Gerichtsname bilden EIN Objekt im Namens-Slot: der Kicker hängt
+   direkt über der ersten Zeile und wandert mit ihr, statt oben im Slot zu
+   schweben, wenn der Name nur eine Zeile hat. Der Slot wird um die Höhe des
+   Kickers größer, der Kartenstapel darunter (--me-card-h) gibt sie ab — die
+   Copy-Zeile bleibt, wo sie war. */
+.detailV13MustEat .fdHead {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  height: calc(var(--me-name-slot) + 18px);
+  min-height: calc(var(--me-name-slot) + 18px);
+  max-height: calc(var(--me-name-slot) + 18px);
+  overflow: visible;
+}
+
+/* Gelb, klein, Versalien: das Zeichen, unter dem im Onboarding jede Folie
+   steht (.kicker). Hier nennt es den Bezirk — die eine Angabe, die verdeckt
+   wie aufgedeckt gilt und nicht schon im Restaurant-Streifen steht. */
+.detailV13MustEat .fdKicker {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--me-accent);
+  font-family: var(--et-font-label, var(--et-font-mono), monospace);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.detailV13MustEat .fdName {
+  flex: 0 0 auto;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  text-align: center;
+}
+
+/* Titel und Fließtext in der Fassung des Onboardings (.title / .text). */
+.detailV13MustEat .fdName,
+.detailV13MustEat .fdNameText,
+.detailV13MustEat .fdProximityHead {
+  color: var(--me-ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.detailV13MustEat .fdText,
+.detailV13MustEat .fdProximitySub {
+  width: 100%;
+  color: var(--me-muted);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.detailV13MustEat .fdProximity {
+  width: 100%;
+  text-align: center;
+}
+
+/* Der gelbe Kopf des „Du bist da."-Moments (Block bei 3584) las seine
+   Schriftfarbe aus --me-ink — das ist jetzt Weiß, auf Gelb unlesbar. */
+.detailV13MustEat .fdProximityReady .fdProximityHead {
+  color: var(--et-home-ink, #15120e);
+}
+
+/* Mittig wie das Onboarding: Karte, Kicker, Titel, Text auf einer Achse. Die
+   Phone-Regel bei 4503 legt den Slack per space-between zwischen Kopf und
+   Copy — das bleibt, weil der Kopf (fdHead) jetzt den Kicker mitträgt. */
+.detailV13MustEat .fdMid,
+.detailV13MustEat .fdMid.fdMidLocked {
+  align-items: center;
+}
+
+/* Die Karte gibt die 18px des Kickers ab (siehe .fdHead); sie ist auf dem
+   Phone und im Rail höhengesteuert (4542 / 4469), nur hier kleiner.
+
+   Der Phone-Slot der Mittelzeile wächst mit dem Kopf: die Zeile muss den
+   GRÖSSTEN Zustand tragen (gleiche Lehre wie beim 3634er-Block), und das ist
+   die dreizeilig geklemmte Beschreibung (15px × 1.4 × 3 = 63px) — der
+   verweigerte Standort ist seit dem Toast kein eigener Zustand mehr. */
+@media (max-width: 1023.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    /* Kopf (Namens-Slot 88–96 + 18 Kicker) + 9 Gap + 63 Copy = 178–186. */
+    --me-mid-slot: clamp(180px, 22dvh, 188px);
+    /* Der Rail hat 16px Luft über dem Streifen (3161), das Phone hatte KEINE:
+       --me-content-gap war unter 1024px nie definiert, der margin-top des
+       Streifens (4437) löste sich zu 0 auf, und die Luft kam nur aus dem
+       Slack der Copy-Zeile — je nach Textlänge 0 bis 35px. Jetzt fest. */
+    --me-content-gap: var(--me-flow-gap);
+  }
+}
+
+@media (max-width: 380px), (max-height: 740px) {
+  .detailV13MustEat .detailV13Scroll {
+    /* Namens-Slot 74–84 + 18 + 7 + 63. */
+    --me-mid-slot: clamp(164px, 24dvh, 172px);
+  }
+}
+
+/* 46svh statt 42: die Karte hing mit 43px Luft unter dem Schließen-X, der
+   Nutzer wollte sie auf dem Telefon größer (02.09.2026). Sie ist unten
+   verankert und wächst nach oben — bei 812px von 341 auf 373px, die Oberkante
+   bleibt 29px unter dem X. */
+/* Die Karte auf dem Telefon: so hoch wie die Spalte hergibt, aus dem Budget
+   gerechnet statt geraten. Safari legt das Sheet auf den KLEINEN Viewport
+   (URL-Leiste sichtbar; iPhone 16 Pro ≈ 774pt, nicht 874), und mit 46svh stand
+   die Karte dort schon am Schließen-X — „nicht größer geworden" (Nutzer,
+   02.09.2026). Alles Feste unter ihr ist im Endblock „Telefon: Budget" auf
+   382px gestrafft; der Rest ist Karte. Kein Breitendeckel mehr: auf dem Telefon
+   gibt es keine Pfeile neben der Karte. */
+@media (max-width: 767.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    --me-card-h: min(430px, calc(100svh - 396px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .detailV13MustEat .detailV13Scroll {
+    --me-card-h: min(37svh, 370px);
+  }
+}
+
+/* ── Restaurant-Streifen auf Ink ─────────────────────────────────────────────
+   Eine Stufe heller als der Grund (--me-soft), gelbes Label in der
+   Kicker-Fassung, weißer Name, der Knopf gelb wie „Weiter" im Onboarding
+   (.next). Die Selektorliste mit :has() ist nötig, weil der Block
+   „Restaurant-Layer, neu" seine `background: transparent` mit genau dieser
+   Spezifität setzt.
+
+   Derselbe Block hat die Zeile als RANDLOSE Typo-Zeile gebaut — `padding:
+   14px 0 0`, Foto und Knopf bündig zur Textkante, nur eine Haarlinie darüber.
+   Auf einer Fläche mit Rundung klebten Foto und Knopf damit an der Kante
+   (Nutzer, 02.09.2026). Ein Panel braucht Innenabstand: 12px ringsum.
+
+   Die ganze Zeile ist der Knopf (button bzw. Link in MustEatDetailMobile),
+   rechts ein gelber Pfeil statt der „Zum Spot"-Pille: die Pille nahm der
+   Namensspalte 100px, lange Namen brachen („Knödelwirt-/schaft SÜD"), und ein
+   zweizeiliger Name machte die Zeile 9px höher — der Kartenstapel sprang beim
+   Blättern (Rail, 02.09.2026). Jetzt hat der Name auf 343px 191px, im Rail
+   179px, bleibt einzeilig und die Zeile in jeder Karte 80px. */
+/* Die Fläche, wie sie der Nutzer haben will (02.09.2026, vierte Runde): das
+   helle Panel (--me-soft) mit Foto, Label und Name — ohne Pfeil, ohne „Zum
+   Spot", ohne Ring. Ein Ring als Zweit-Tasten-Zeichen stand kurz und wurde
+   abgelehnt („das davor war besser"). Die Zeile ist trotzdem als Ganzes der
+   Knopf (button bzw. Link); Hover hellt die Fläche auf, mehr Zeichen braucht
+   sie nicht. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto),
+.detailV13MustEat .detailV13Scroll > .fdRestInline {
+  grid-template-columns: 56px minmax(0, 1fr);
+  width: 100%;
+  min-height: 80px;
+  /* Luft über der Zeile — fest, nicht über --me-content-gap: der Block
+     „Restaurant-Layer, neu" setzt `margin: 0`, die Variable kam nie an
+     (gemessen 0px, 02.09.2026). */
+  margin-top: 14px;
+  padding: 12px;
+  appearance: none;
+  border: 0;
+  border-top: 0;
+  border-radius: var(--et-radius-photo, 10px);
+  color: var(--me-ink);
+  background: var(--me-soft);
+  box-shadow: none;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.16s ease;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (hover: hover) {
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:hover {
+    background: rgba(255, 255, 255, 0.11);
+    transform: translateY(-2px);
+  }
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline:active {
+  transform: translateY(1px);
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline:focus-visible {
+  outline: 2px solid var(--me-accent);
+  outline-offset: 2px;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
+  color: var(--me-accent);
+  font-family: var(--et-font-label, var(--et-font-mono), monospace);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Einzeilig, mit Ellipse als letztem Mittel — die Stufen (fdVLong ab 15,
+   fdVCompact ab 21 Zeichen) sorgen dafür, dass sie praktisch nie greift. Feste
+   Pixel statt vw: der Rail ist 379px breit, aber `4.4vw` maß am 1440er-Fenster
+   und gab dort 20px, mehr als am Telefon (siehe „Desktop-Panel: Maße fürs
+   379px-Panel"). Kein Zweizeilen-Deckel mehr, also auch kein Tintenraum-Padding
+   darunter; die Zeilenhöhe 1.3 trägt die Unterlänge. */
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
+  display: block;
+  max-height: none;
+  padding-bottom: 0;
+  overflow: hidden;
+  color: var(--me-ink);
+  font-size: 17px;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong {
+  font-size: 15px;
+}
+
+.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact {
+  font-size: 13px;
+}
+
+/* Gerichtsname im Rail: feste Pixel statt vw, aus demselben Grund. Die
+   vw-Stufen (3.4 / 3.1 / 2.4vw) gaben bei 1512px 44 / 42 / 34px — GRÖSSER als
+   am Telefon bei 343px Textbreite. „RINDERGULASCH" maß bei 42px 344px in einem
+   331px-Rail: die Zeile stand links an und ragte rechts heraus, nur die zweite
+   war mittig. Mit 33px sind es 270px. */
+@media (min-width: 1024px) {
+  .detailV13MustEat .fdName {
+    font-size: 36px;
+    line-height: 1.08;
+  }
+
+  .detailV13MustEat .fdNameLong {
+    font-size: 33px;
+    line-height: 1.08;
+  }
+
+  .detailV13MustEat .fdNameCompact {
+    font-size: 28px;
+    line-height: 1.1;
+  }
+}
+
+/* ── Standort-Chip der verdeckten Karte ──────────────────────────────────────
+   „Wo bist du?" und „Standort blockiert" standen in der Gerichtszeile, in
+   Gerichtsgröße — eine Browser-Berechtigung, die sich wie der Name eines
+   Gerichts las (Nutzer, 02.09.2026). Die Zeile gehört jetzt dem Gericht
+   („Noch nicht aufgedeckt."), der Standort sitzt darunter als eigenes Objekt
+   in der Copy-Zeile: eine Taste mit Pin, solange man den Browser noch fragen
+   darf; gedimmt und ohne Taste, sobald er Nein gesagt hat — dann sagt der
+   Hinweis darunter, wo es noch geht. Die Fassung ist der zweite Knopf des
+   Onboardings (.packLink): transparent, weißer Ring, gelb bei Hover. Der Ring
+   ist ein inset-Schatten, damit Taste und Status dieselbe Box haben. */
+.detailV13MustEat .fdLocation {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.detailV13MustEat .fdLocationChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 16px 0 13px;
+  appearance: none;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: transparent;
+  color: var(--me-ink);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  /* 1.55 statt 1: Providence braucht Platz unter der Zeile, sonst kappt der
+     Kasten das g (siehe .rdActBtn). Die Höhe kommt aus min-height. */
+  line-height: 1.55;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.16s ease;
+}
+
+.detailV13MustEat .fdLocationChip svg {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+
+@media (hover: hover) {
+  .detailV13MustEat button.fdLocationChip:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 0 2px var(--me-accent);
+  }
+}
+
+.detailV13MustEat button.fdLocationChip:active {
+  transform: translateY(1px);
+}
+
+.detailV13MustEat .fdLocationChip:focus-visible {
+  outline: 2px solid var(--me-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailV13MustEat .fdLocationChip,
+  .detailV13MustEat .detailV13Scroll > .fdRestInline {
+    transition: none;
+  }
+
+  .detailV13MustEat button.fdLocationChip:hover,
+  .detailV13MustEat button.fdLocationChip:active,
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:hover,
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:active {
+    transform: none;
+  }
+}
+
+/* ── Blättern am Kicker: „‹ MUST EAT · BEZIRK ›" ──────────────────────────────
+   Die Winkel standen an den Kartenkanten (Rail: -36/-78px). Auf dem Telefon
+   ging das dreimal nicht auf (02.09.2026): nah an der Karte klebten sie an ihr,
+   am Bildschirmrand waren sie „zu weit weg", und jede Spur neben der Karte
+   kostete Kartenbreite. Beim Kicker sind sie in jeder Breite gleich weit von
+   allem, und die Karte nimmt die ganze Höhe. Ein Platz, ein Markup — auch im
+   Rail; die Kanten-Fassung ist raus. Deaktivierte Winkel bleiben als Box
+   stehen (visibility), damit der Kicker nicht wandert. */
+.detailV13MustEat .fdKickerRow {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.detailV13MustEat .fdPagerPrev,
+.detailV13MustEat .fdPagerNext {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--me-ink);
+  opacity: 0.72;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+
+.detailV13MustEat .fdPagerPrev svg,
+.detailV13MustEat .fdPagerNext svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.detailV13MustEat .fdPagerNext svg {
+  transform: scaleX(-1);
+}
+
+.detailV13MustEat .fdPagerPrev:disabled,
+.detailV13MustEat .fdPagerNext:disabled {
+  visibility: hidden;
+  cursor: default;
+}
+
+.detailV13MustEat .fdPagerPrev:focus-visible,
+.detailV13MustEat .fdPagerNext:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--me-accent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .detailV13MustEat .fdPagerPrev:hover {
+    opacity: 1;
+    transform: translateX(-2px);
+  }
+
+  .detailV13MustEat .fdPagerNext:hover {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailV13MustEat .fdPagerPrev,
+  .detailV13MustEat .fdPagerNext {
+    transition: none;
+  }
+
+  .detailV13MustEat .fdPagerPrev:hover,
+  .detailV13MustEat .fdPagerNext:hover {
+    transform: none;
+  }
+}
+
+/* ── Telefon: Budget ─────────────────────────────────────────────────────────
+   Was unter der Karte fest ist, gemessen am kleinen Safari-Viewport (URL-Leiste
+   sichtbar) — jede Zeile hier ist Kartenhöhe. Zusammen 396px, siehe
+   --me-card-h oben:
+     62  Polster oben (das X endet bei 58)
+     22  Luft unter der Karte + 38 Fächerüberhang
+    176  Mittelteil (Kopf 84 + 18 Kicker, 9 Gap, Copy 3 Zeilen 63, 2 Reserve)
+     14  Luft über der Restaurant-Zeile (margin-top der Zeile)
+     72  Restaurant-Zeile (Foto 48)
+     12  Polster unten (+ Safe-Area, die zahlt der Viewport)
+   Die Beschreibung klemmt auf zwei Zeilen — die dritte war die Ausnahme, die
+   allen Karten 20px Höhe kostete. */
+@media (max-width: 767.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    --me-card-gap: 22px;
+    /* Der Mittelteil hält die Reserve selbst (min-height), die Copy darunter
+       misst sich nur noch an ihrem Text (siehe .fdText unten). */
+    --me-mid-slot: 176px;
+    --me-content-gap: 10px;
+    padding-top: calc(62px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .detailV13MustEat .fdMid {
+    --me-name-slot: 84px;
+  }
+
+  /* Zwei Zeilen — und der Block ist genau so hoch. Vorher hielt er als
+     Copy-Slot 55px bei 42px Text: der Clamp setzte die Ellipse in Zeile 2,
+     aber die dritte Zeile lugte in den 13px darunter hervor, und die
+     Restaurant-Zeile lag direkt auf ihr („kaum Platz unter der Beschreibung",
+     Biang Biang Lamb, 02.09.2026). Die Reserve hält jetzt der Mittelteil
+     (min-height 166 = Kopf 102 + 9 + 55); der Slack sammelt sich unter der
+     Copy, über der Restaurant-Zeile. */
+  /* Drei Zeilen, ganz — keine Ellipse („nicht mit … brechen", 02.09.2026).
+     Die längste Beschreibung im Stapel hat 104 Zeichen, das sind auf 343px drei
+     Zeilen; der Mittelteil reserviert sie (176 = Kopf 102 + 9 + 63 + 2). Eine
+     längere würde den Mittelteil wachsen lassen statt abzubrechen. Der Block
+     misst sich an seinem Text — eine 55px-Reserve am Block selbst ließ die
+     dritte Zeile unter der Ellipse hervorlugen (Biang Biang Lamb). */
+  .detailV13MustEat .fdText {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .detailV13MustEat .fdProximity,
+  .detailV13MustEat .fdMidLocked .fdProximity {
+    min-height: 0;
+  }
+
+  .detailV13MustEat .fdMid,
+  .detailV13MustEat .fdMid.fdMidLocked {
+    justify-content: flex-start;
+  }
+
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto),
+  .detailV13MustEat .detailV13Scroll > .fdRestInline {
+    grid-template-columns: 48px minmax(0, 1fr);
+    min-height: 72px;
+  }
+
+  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) > .fdRestPhoto {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
+}
+
+/* Telefon: keine Pfeile — gewischt wird (Nutzer, 02.09.2026: „nimm die Pfeile
+   raus, aber man muss erkennen, dass man swipen kann"). Erkennbar machen es
+   der Wisch-Nudge der obersten Karte (fdTopCardHint, jetzt pro Sitzung statt
+   für immer) und der Zählstand im Kicker. Im Rail bleiben die Winkel. */
+@media (max-width: 767.98px) {
+  .detailV13MustEat .fdPagerPrev,
+  .detailV13MustEat .fdPagerNext {
+    display: none;
+  }
+}
+
+/* „1 / 23" in eigener Zeile über dem Kicker — zentriert, gedimmt, in der
+   Kicker-Fassung. Hinter dem Kicker las er sich als Anhängsel (Nutzer,
+   02.09.2026). Die Zeile kostet 12px + 6px im Kopf; ein zweizeiliger Name ragt
+   dann bis 20px in die Luft unter dem Fächer, die 60px trägt das. */
+.detailV13MustEat .fdKickerCount {
+  flex: 0 0 auto;
+  margin: 0 0 6px;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--et-font-label, var(--et-font-mono), monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Die Polster des Sheets setzt der Block bei „[data-map-sheet][data-view=
+   'detail'] .detailMountMustEat" über die Sheet-Attribute (Spezifität 0,5,0)
+   auf 70 und 18 — die Werte oben im Budget-Block kamen dagegen nicht an
+   (gemessen 70/18). Dieselbe Klammer, damit 62 und 12 wirklich gelten. */
+@media (max-width: 767.98px) {
+  [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat .detailV13Scroll {
+    padding-top: calc(62px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
 }

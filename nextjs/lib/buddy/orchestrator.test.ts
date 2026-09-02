@@ -138,6 +138,61 @@ describe('runBuddyTurn', () => {
     }
   });
 
+  it('sends no pack teaser to an account that already owns it, or the whole catalog', async () => {
+    // Das Widget filterte bis zum 02.09.2026 am Entitlement-Listener, der den
+    // Admin-Zugang nicht kennt — Remy bot dem Admin-Konto Packs an, die ihm
+    // offenstanden. Jetzt fällt die Karte schon hier weg.
+    const pizzaSpot = (id: string): SpotCandidate => ({
+      _id: id,
+      name: id,
+      slug: id,
+      cuisineType: 'Pizza',
+      bezirk: null,
+      shortDescription: null,
+      tip: null,
+      priceRange: null,
+      mapsUrl: null,
+      image: null,
+      openNow: null,
+      openLabel: null,
+      distanceLabel: null,
+      categorySlugs: ['pizza'],
+    });
+    const run = (
+      owned: { fullCatalog: boolean; categorySlugs: ReadonlySet<string> } | undefined
+    ) => {
+      const turns = [
+        turnOf(
+          [''],
+          [{ id: 'tu1', name: 'search_spots', input: { cuisine: 'pizza', vibe_query: 'pizza' } }]
+        ),
+        turnOf(['Fertig.']),
+      ];
+      let i = 0;
+      const llm: LlmClient = { runTurn: () => turns[i++] };
+      return collect(
+        runBuddyTurn(
+          { messages: [{ role: 'user', content: 'pizza?' }], locale: 'de', owned },
+          {
+            llm,
+            searchSpots: async () => [pizzaSpot('a'), pizzaSpot('b'), pizzaSpot('c')],
+            searchArticles: async () => [],
+          }
+        )
+      );
+    };
+    const packsIn = (events: BuddyStreamEvent[]) => events.filter((e) => e.type === 'pack');
+
+    expect(packsIn(await run(undefined))).toHaveLength(1); // Gast
+    expect(
+      packsIn(await run({ fullCatalog: false, categorySlugs: new Set(['coffee']) }))
+    ).toHaveLength(1); // anderes Pack
+    expect(
+      packsIn(await run({ fullCatalog: false, categorySlugs: new Set(['pizza']) }))
+    ).toHaveLength(0); // dieses Pack
+    expect(packsIn(await run({ fullCatalog: true, categorySlugs: new Set() }))).toHaveLength(0); // Admin / All Berlin
+  });
+
   it('passes the cuisine as intent so the asked-for pack beats generic majority tags', async () => {
     // breakfast cafés also carry the near-universal lunch ref — the teaser
     // must follow the user's "frühstück", not the lunch majority

@@ -10,6 +10,7 @@ import type {
   Locale,
 } from '@/lib/buddy/types';
 import { sanitizeLinks } from '@/lib/buddy/stream';
+import { auth } from '@/lib/firebase/config';
 
 export function parseNdjsonLines(buffer: string, onEvent: (e: BuddyStreamEvent) => void): string {
   const parts = buffer.split('\n');
@@ -82,9 +83,15 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         });
 
       try {
+        /* Das Token sagt der Route, was dieses Konto schon hat — sie schickt
+           dann kein Pack, das ihm offensteht. Ohne Konto fragt ein Gast. */
+        const headers: Record<string, string> = { 'content-type': 'application/json' };
+        if (auth.currentUser) {
+          headers.authorization = `Bearer ${await auth.currentUser.getIdToken()}`;
+        }
         const res = await fetch('/api/buddy', {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          headers,
           body: JSON.stringify({
             sessionId: getSessionId(),
             locale,

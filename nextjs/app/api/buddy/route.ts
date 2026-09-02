@@ -3,7 +3,9 @@ import { createHash } from 'node:crypto';
 import * as Sentry from '@sentry/nextjs';
 import { NextResponse } from 'next/server';
 import { checkRateLimit, sessionLimitsFromEnv, ipLimitsFromEnv } from '@/lib/buddy/rateLimit';
-import { createAnthropicLlmClient, runBuddyTurn } from '@/lib/buddy/orchestrator';
+import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
+import { getAdminAuth } from '@/lib/firebase/admin';
+import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { searchSpots, searchArticles } from '@/lib/buddy/retrieval';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { encodeBuddyEvent } from '@/lib/buddy/stream';
@@ -95,6 +97,28 @@ async function resolvePageContext(
   }
 }
 
+// Was das Konto schon besitzt, damit Remy es nicht anbietet. Dieselbe
+// Ableitung wie /api/map-data: verifiziertes Token → resolveEntitlements, und
+// nur dort ist der Admin-Zugang sichtbar. Ohne Token oder mit ungültigem Token
+// fragt ein Gast — jedes Pack darf, der Chat bleibt in jedem Fall erreichbar.
+async function resolveOwnedPacks(request: Request): Promise<OwnedPacks | undefined> {
+  const header = request.headers.get('authorization');
+  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return undefined;
+  try {
+    const decoded = await getAdminAuth().verifyIdToken(token);
+    const ent = await resolveEntitlements(decoded.uid, {
+      email: decoded.email ?? null,
+      emailVerified: decoded.email_verified === true,
+      admin: decoded.admin === true,
+    });
+    return { fullCatalog: ent.isAdmin || ent.hasAllBerlin, categorySlugs: ent.categorySlugs };
+  } catch (error) {
+    Sentry.captureException(error, { tags: { source: 'buddy-owned-packs' } });
+    return undefined;
+  }
+}
+
 // Hashed before use so no raw IP is ever stored (rate-limit bucketing only).
 // IP-hop selection (which x-forwarded-for hop is the real client) lives in
 // lib/clientIp — route files can't carry extra exports.
@@ -141,7 +165,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }
 
-  const page = await resolvePageContext(parsed.pageSlug);
+  const [page, owned] = await Promise.all([
+    resolvePageContext(parsed.pageSlug),
+    resolveOwnedPacks(request),
+  ]);
   const llm = createAnthropicLlmClient();
   const encoder = new TextEncoder();
   const abortController = new AbortController();
@@ -152,7 +179,7 @@ export async function POST(request: Request) {
     async start(controller) {
       try {
         for await (const event of runBuddyTurn(
-          { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo, page },
+          { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo, page, owned },
           { llm, searchSpots, searchArticles },
           { signal: abortController.signal }
         )) {

@@ -14,6 +14,7 @@ import {
   useMapDeepLinks,
   useMapFilterUrl,
   useUserTier,
+  freshestMustEat,
   buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
 } from '@/lib/map';
@@ -1048,6 +1049,17 @@ export default function MapSection({
     },
     [pagerAdjacent, getFlyPadding]
   );
+
+  /* Das geöffnete Must Eat folgt der frischesten Payload. Der Deep-Link greift
+     den Datensatz, den die Seite beim ersten Effekt-Durchlauf hat — und der
+     führt verdeckte Karten gestrippt. Ohne diesen Abgleich blieb das Detail
+     bei „Verdeckt" mit Kartenrücken, während `isUnlocked` längst offen sagte
+     (siehe freshestMustEat). */
+  useEffect(() => {
+    if (!selectedMustEat) return;
+    const fresh = freshestMustEat(mustEats, selectedMustEat);
+    if (fresh !== selectedMustEat) setSelectedMustEat(fresh);
+  }, [mustEats, selectedMustEat]);
 
   // Global must-eat pager: neighbours within the FULL must-eat list (no
   // filtering — the layer/list is gone). Paging swaps the selection in place.

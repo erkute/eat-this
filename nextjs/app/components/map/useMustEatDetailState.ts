@@ -33,6 +33,10 @@ interface Args {
   locationError?: UserLocationError | null;
   /** Ask for the position — the same call the locate FAB fires. */
   onRequestLocation?: () => void;
+  /** The browser has said no. Asking again is dead UI, so the tap raises the
+   *  same notice the map and the home page show for a denied permission
+   *  (NotificationToast) — the card itself stays a card. */
+  onLocationBlocked?: () => void;
 }
 
 export function useMustEatDetailState({
@@ -44,6 +48,7 @@ export function useMustEatDetailState({
   demo,
   locationError,
   onRequestLocation,
+  onLocationBlocked,
 }: Args) {
   const distance = userLocation
     ? haversineDistance(
@@ -75,6 +80,24 @@ export function useMustEatDetailState({
     : distance === null
       ? 0.18
       : Math.max(0.18, Math.min(1, 1 - distance / 500));
+
+  /* No fix, and nothing standing in the way of asking for one. This card is
+     not "too far" — the app does not know where the visitor is, and the
+     shake it used to answer with told them nothing. Asking is a deliberate
+     gesture (the card tap or the chip under it): the payoff is on screen and
+     the ask is unmistakable, which is what keeps a first-paint prompt (and
+     the permanent "Don't Allow" it collects) off the map. Null once the
+     browser has said no — re-asking is dead UI then. */
+  const canRequestLocation = needsLocation && !locationDenied && Boolean(onRequestLocation);
+  const requestLocation = useCallback(() => {
+    trackEvent('must_eat_reveal_attempt', {
+      must_eat_id: mustEat._id,
+      restaurant_id: mustEat.restaurant._id,
+      result: 'location_requested',
+      distance_meters: -1,
+    });
+    onRequestLocation?.();
+  }, [mustEat._id, mustEat.restaurant._id, onRequestLocation]);
 
   const [tapping, setTapping] = useState(false);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
@@ -145,20 +168,8 @@ export function useMustEatDetailState({
       onRequireLogin();
       return;
     }
-    /* No fix, and nothing standing in the way of asking for one. This card is
-       not "too far" — the app does not know where the visitor is, and the
-       shake it used to answer with told them nothing. A tap here is exactly
-       the deliberate gesture the permission prompt wants: the payoff is on
-       screen and the ask is unmistakable, which is what keeps a first-paint
-       prompt (and the permanent "Don't Allow" it collects) off the map. */
-    if (needsLocation && !locationDenied && onRequestLocation) {
-      trackEvent('must_eat_reveal_attempt', {
-        must_eat_id: mustEat._id,
-        restaurant_id: mustEat.restaurant._id,
-        result: 'location_requested',
-        distance_meters: -1,
-      });
-      onRequestLocation();
+    if (canRequestLocation) {
+      requestLocation();
       return;
     }
     trackEvent('must_eat_reveal_attempt', {
@@ -167,6 +178,9 @@ export function useMustEatDetailState({
       result: distance === null ? 'location_missing' : 'too_far',
       distance_meters: distance === null ? -1 : Math.round(distance),
     });
+    /* Denied: the shake alone said "no" without saying why. The notice names
+       the blocker and the one place that can still change it. */
+    if (locationDenied) onLocationBlocked?.();
     setTapping(true);
     window.setTimeout(() => setTapping(false), 600);
   };
@@ -199,6 +213,9 @@ export function useMustEatDetailState({
     canUnlock,
     needsLocation,
     locationDenied,
+    /** The chip's handler — null once asking is pointless (denied, or no way
+     *  to ask), so the chip renders as a plain status then. */
+    requestLocation: canRequestLocation ? requestLocation : null,
     vibrateIntensity,
     tapping,
     unlocking,

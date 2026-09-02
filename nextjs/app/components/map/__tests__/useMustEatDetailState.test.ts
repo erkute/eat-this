@@ -378,3 +378,70 @@ describe('useMustEatDetailState — lazy zoom lifecycle', () => {
     expect(result.current.zoomActive).toBe(false);
   });
 });
+
+/* Verweigert ist kein Zustand der Karte, sondern eine Meldung: der Tipp fragt
+   nicht erneut (das kann nur der Browser), sondern ruft den Aufrufer, der die
+   zentrale Info-Karte füttert. Die Taste „Standort freigeben" gibt es dann
+   nicht mehr (requestLocation null). */
+describe('useMustEatDetailState — denied location', () => {
+  beforeEach(() => {
+    vi.mocked(trackEvent).mockClear();
+  });
+
+  it('offers the location chip only while the browser can still be asked', () => {
+    const onRequestLocation = vi.fn();
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: mkMustEat(),
+        userLocation: null,
+        onUnlock: vi.fn().mockResolvedValue(true),
+        isAuthed: false,
+        onRequestLocation,
+      })
+    );
+
+    expect(result.current.needsLocation).toBe(true);
+    expect(result.current.locationDenied).toBe(false);
+    expect(result.current.requestLocation).toBeTypeOf('function');
+
+    act(() => {
+      result.current.requestLocation?.();
+    });
+    expect(onRequestLocation).toHaveBeenCalledOnce();
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'location_requested' })
+    );
+  });
+
+  it('raises the blocked notice instead of re-asking once the permission was denied', async () => {
+    const onRequestLocation = vi.fn();
+    const onLocationBlocked = vi.fn();
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: mkMustEat(),
+        userLocation: null,
+        onUnlock: vi.fn().mockResolvedValue(true),
+        isAuthed: false,
+        locationError: 'denied',
+        onRequestLocation,
+        onLocationBlocked,
+      })
+    );
+
+    expect(result.current.locationDenied).toBe(true);
+    expect(result.current.requestLocation).toBeNull();
+
+    await act(async () => {
+      await result.current.handleCardClick(mkEvent());
+    });
+
+    expect(onLocationBlocked).toHaveBeenCalledOnce();
+    expect(onRequestLocation).not.toHaveBeenCalled();
+    expect(result.current.tapping).toBe(true);
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'location_missing' })
+    );
+  });
+});

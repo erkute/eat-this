@@ -85,9 +85,11 @@ function firstSentence(text: string): string {
   return (text.match(/^[^.!?]+/) ?? [text])[0];
 }
 
-/** How much of the lede's opening sentence must run through the article's, and
- *  how much of the first words must match when neither has a sentence to judge. */
+/** How much of one opening sentence must run through the other, how far into
+ *  the lede the article's opening sentence may reach, and how much of the first
+ *  words must match when neither has a sentence to judge. */
 const SENTENCE_OVERLAP = 0.7;
+const OPENING_REACH = 1.5;
 const LEDE_WINDOW = 10;
 const LEDE_OVERLAP = 0.8;
 
@@ -113,10 +115,23 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   if (opening.startsWith(lede) || lede.startsWith(opening)) return true;
 
   const ledeSentence = normalizeForCompare(firstSentence(excerpt)).split(' ');
+  const openingSentence = normalizeForCompare(firstSentence(openingText)).split(' ');
   // Under four words it is a fragment — "Kein Ranking." lines up with anything.
   if (ledeSentence.length >= 4) {
-    const openingSentence = normalizeForCompare(firstSentence(openingText)).split(' ');
     if (orderedOverlap(ledeSentence, openingSentence) >= SENTENCE_OVERLAP) return true;
+  }
+  // The same question from the article's side. Pizza opens on a short sentence
+  // and its lede welds that sentence to the next one — "Berlin hat kein
+  // Pizza-Problem. Berlin hat inzwischen eher das gegenteilige Problem …"
+  // became "Berlin hat kein Pizza-Problem, sondern das gegenteilige …". Measured
+  // from the lede's long sentence the overlap is small; measured from the
+  // article's short one it is complete. Only the lede's start is searched, at
+  // most half again as long as the sentence looked for: Fine Dining's lede
+  // *closes* on the article's opening sentence after a colon of its own, and
+  // that lede opens on its own words.
+  if (openingSentence.length >= 4) {
+    const ledeStart = ledeSentence.slice(0, Math.ceil(openingSentence.length * OPENING_REACH));
+    if (orderedOverlap(openingSentence, ledeStart) >= SENTENCE_OVERLAP) return true;
   }
 
   // Fallback for a lede that opens on a fragment but copies on from there.

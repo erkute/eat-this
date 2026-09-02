@@ -42,5 +42,5 @@ export type { SheetView } from './useMapSheet';
 export { useMapDeepLinks } from './useMapDeepLinks';
 
 // Entitlement tier (drives anon/starter/all-Berlin promotion surfaces)
-export { useUserTier, showsPackPromos } from './useUserTier';
-export type { UserTier } from './useUserTier';
+export { useUserTier, resolveUserTier, showsPackPromos } from './useUserTier';
+export type { UserTier, MapSurface } from './useUserTier';

@@ -103,6 +103,7 @@ export default function MapSection({
     mustEats,
     categories,
     revealedMustEatIds,
+    fullCatalog,
     dataUid,
     loading: mapDataLoading,
     error: mapDataError,
@@ -159,7 +160,10 @@ export default function MapSection({
     [uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds]
   );
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid);
-  const userTier = useUserTier(uid);
+  /* Der Server entscheidet mit: `fullCatalog` kennt den Admin-Zugang, den der
+     Entitlement-Listener nie sieht — und bis Auth durch ist, ist niemand ein
+     Gast (siehe resolveUserTier). */
+  const userTier = useUserTier(uid, { fullCatalog, dataUid, authLoading });
   /* A sign-up that started on a locked spot claims that spot. Google does it
      inline in LockedDetail; the magic link can only carry the intent in its
      continue URL, so it arrives here as `?claim=1` and is cashed in on landing.

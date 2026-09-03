@@ -12,7 +12,8 @@
 
 .head {
   margin: 0 0 clamp(18px, 3vw, 30px);
-  color: var(--detail-red);
+  /* Papier auf dem Ink-Grund der Spot-Seite — Rot kaeme dort auf 2,9:1. */
+  color: var(--detail-fg, #fff);
   font-family: var(--f-display);
   font-weight: 700;
   font-size: clamp(18px, 4vw, 30px);
@@ -118,7 +119,7 @@
 }
 
 .card:focus-visible {
-  outline: 2px solid var(--detail-red);
+  outline: 2px solid var(--detail-accent, #ffc600);
   outline-offset: 4px;
 }
 
@@ -140,12 +141,4 @@
   .card {
     min-height: 230px;
   }
-}
-
-/* Auf dem Ink-Grund der Spot-Seite: Rot kommt dort auf rund 2,9:1 und ist als
-   Ueberschrift nicht lesbar — Papier ist die Versalienfarbe jeder dunklen
-   Flaeche der Marke. Gebunden an das Seiten-Attribut statt an eine Klasse,
-   weil CSS-Module-Hashes von aussen nicht greifbar sind. */
-:global(html[data-active-page='restaurant']) .headLink {
-  color: var(--et-home-inverse-text, #fff);
 }

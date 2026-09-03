@@ -3,18 +3,20 @@
 
    Die Linie oben zitiert .faq (Bezirk.module.css) — beide sind Nachspann,
    nicht Inhalt, und sollen sich als dieselbe Sorte Block lesen. Tokens direkt
-   aus --et-home-*, wie in HubSiblings: der Block hängt an zwei Seiten mit
-   unterschiedlichen lokalen Variablennamen.
+   aus --et-home-* / --et-ink-*, wie in HubSiblings: der Block hängt an zwei
+   Seiten mit unterschiedlichen lokalen Variablennamen. Auf dem Ink-Grund
+   (seit 03.09.2026) ist die Linie Weiss 14 %, der Titel Papier mit gelber
+   Unterstreichung.
    ============================================================ */
 .wrap {
-  border-top: 2px solid var(--et-home-ink);
+  border-top: 2px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
   margin-top: clamp(28px, 4vw, 44px);
   padding-top: clamp(16px, 2vw, 22px);
 }
 
 .kicker {
   margin: 0;
-  color: var(--et-home-muted);
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: 13px;
   font-weight: 600;
@@ -40,27 +42,27 @@
    Titel von normalem Text nicht zu unterscheiden — bei einem Block, der
    ausschließlich existiert, um auf den Guide zu zeigen, der ganze Zweck. */
 .title a {
-  color: var(--et-home-ink);
+  color: var(--et-home-inverse-text, #fff);
   text-decoration: underline;
-  text-decoration-color: var(--et-home-red);
+  text-decoration-color: var(--et-home-accent, #ffc600);
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
   transition: color var(--et-motion-fast);
 }
 
 .title a:hover {
-  color: var(--et-home-red);
+  color: var(--et-home-accent, #ffc600);
 }
 
 .title a:focus-visible {
-  outline: 3px solid var(--et-home-red);
+  outline: 3px solid var(--et-home-accent, #ffc600);
   outline-offset: 4px;
 }
 
 .excerpt {
   max-width: 58ch;
   margin: 10px 0 0;
-  color: var(--et-home-muted);
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(15px, 1.6vw, 17px);
   line-height: 1.5;

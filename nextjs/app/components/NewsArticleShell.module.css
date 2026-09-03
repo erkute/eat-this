@@ -1,9 +1,17 @@
+/* Seit 03.09.2026 steht der Artikel auf durchgehendem Ink wie Startseite und
+   Spot-Seite: `--article-ink` bleibt die dunkle Farbe und ist der GRUND,
+   `--article-fg` ist die Schrift darauf, Muted ist eine Weiss-Stufe. Was ein
+   eigenes Objekt ist (Must-Eat-Band, Katalog-Ausgang), traegt die leise
+   Stufe; Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1) — die Initiale
+   und die aktive Kapitelmarke sind Gelb. */
 .page {
   --article-ink: var(--et-home-ink, #15120e);
+  --article-fg: var(--et-home-inverse-text, #fff);
   --article-red: var(--et-home-red, #d9382a);
   --article-accent: var(--et-home-accent, #ffc600);
   --article-paper: var(--et-home-paper, #fff);
-  --article-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
+  --article-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --article-quiet: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
@@ -17,8 +25,8 @@
      las sich als Fuge, nicht als Rand. Das Foto dockt jetzt an die Leiste an;
      wer kein Foto hat, bekommt seinen Abstand an `.heroGridPlain`. */
   padding: 0 clamp(18px, 4vw, 54px) 0;
-  background: var(--article-paper);
-  color: var(--article-ink);
+  background: var(--article-ink);
+  color: var(--article-fg);
 }
 
 /* `.app-page` (css/style.css) pairs overflow-x:hidden with overflow-y:visible
@@ -115,7 +123,7 @@ div.page {
 .heroTitle {
   max-width: 16ch;
   margin: 0;
-  color: var(--article-red);
+  color: var(--article-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
   /* Gemessen gegen Eater und Mit Vergnügen (beide 40px auf 1512) und The
@@ -199,7 +207,7 @@ div.page {
      weiter unten ohnehin `--article-measure` fuer alle Textknoten. */
   max-width: none;
   margin: 0 0 clamp(22px, 3vw, 34px);
-  color: var(--article-ink);
+  color: var(--article-fg);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 21px);
   font-weight: 600;
@@ -209,7 +217,7 @@ div.page {
 /* ------------------------------------------------------------- prose ---- */
 
 .content {
-  color: var(--article-ink);
+  color: var(--article-fg);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   /* Untergrenze 18 statt 17: bei genau 1280px Fensterbreite fiel der Lauftext
      auf 17px und die Zeile auf 80 Zeichen — beides am Rand. Die Wettbewerber
@@ -225,7 +233,7 @@ div.page {
 .content > p:first-of-type::first-letter {
   float: left;
   margin: 0.04em 0.1em 0 0;
-  color: var(--article-red);
+  color: var(--article-accent);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
   font-size: 3.6em;
@@ -271,7 +279,7 @@ div.page {
 .content h3 {
   max-width: 24ch;
   margin: clamp(38px, 5vw, 66px) 0 14px;
-  color: var(--article-ink);
+  color: var(--article-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
   font-size: clamp(27px, 3.2vw, 44px);
@@ -304,7 +312,7 @@ div.page {
    Fließtext-Unterstreichung würde alle drei zerlegen, und ihr `--article-ink`
    wäre auf dem Foto ohnehin unlesbar. */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
-  color: var(--article-ink);
+  color: var(--article-fg);
   font-weight: 800;
   text-decoration: underline;
   text-decoration-color: var(--article-accent);
@@ -314,7 +322,7 @@ div.page {
 
 .content
   a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
-  text-decoration-color: var(--article-red);
+  color: var(--article-accent);
 }
 
 .content blockquote {
@@ -361,9 +369,9 @@ div.page {
   gap: clamp(16px, 2.2vw, 26px);
   margin: clamp(30px, 4.5vw, 56px) 0;
   padding: clamp(16px, 2vw, 22px);
-  background: var(--et-home-quiet, #f2f1ef);
+  background: var(--article-quiet);
   border-radius: var(--et-radius-photo, 10px);
-  color: var(--article-ink);
+  color: var(--article-fg);
   text-align: left;
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
@@ -410,7 +418,7 @@ div.page {
 .mustEat .mustEatName {
   max-width: 18ch;
   margin: 0;
-  color: var(--article-ink);
+  color: var(--article-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(22px, 2.1vw, 30px);
   font-weight: 700;
@@ -424,7 +432,7 @@ div.page {
 .mustEat .mustEatDesc {
   max-width: 34ch;
   margin: 0;
-  color: var(--article-ink);
+  color: var(--article-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
@@ -532,11 +540,11 @@ div.page {
 }
 
 .inlineSpotMetaLink:hover {
-  color: var(--article-red);
+  color: var(--article-paper);
 }
 
 .inlineSpotMetaLink:focus-visible {
-  outline: 2px solid var(--article-red);
+  outline: 2px solid var(--article-accent);
   outline-offset: 3px;
 }
 
@@ -572,7 +580,7 @@ div.page {
   left: calc(-1 * var(--spot-inset));
 }
 .inlineSpotNameLink:focus-visible::after {
-  outline: 2px solid var(--article-red);
+  outline: 2px solid var(--article-accent);
   outline-offset: -6px;
 }
 
@@ -617,9 +625,9 @@ div.page {
   row-gap: 2px;
   margin: clamp(26px, 4vw, 44px) 0 0;
   padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
-  background: var(--et-home-ink, #15120e);
+  background: var(--article-quiet);
   border-radius: var(--et-radius-photo, 10px);
-  color: var(--et-home-paper, #fff);
+  color: var(--et-home-inverse-text, #fff);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
@@ -677,8 +685,8 @@ div.page {
   padding: 8px 13px 9px;
   border: 0;
   border-radius: var(--et-radius-control, 7px);
-  background: var(--et-home-quiet, #f2f1ef);
-  color: var(--article-ink);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--article-fg);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 15px;
   font-weight: 700;
@@ -729,7 +737,7 @@ div.page {
 
 .relatedHeading {
   margin: 0;
-  color: var(--article-red);
+  color: var(--article-fg);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(28px, 3.4vw, 42px);
   font-weight: 700;
@@ -757,7 +765,7 @@ div.page {
   display: block;
   width: 100%;
   min-width: 0;
-  color: var(--article-ink);
+  color: var(--article-fg);
   text-decoration: none;
 }
 
@@ -766,8 +774,9 @@ div.page {
   display: block;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: var(--et-home-photo-rest, #eceae6);
+  background: var(--article-quiet);
   border-radius: var(--et-radius-photo, 10px);
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .relatedPhoto img {
@@ -825,7 +834,7 @@ div.page {
 .inlineSpotCta:focus-visible,
 .relatedCard:focus-visible,
 .shareBtn:focus-visible {
-  outline: 2px solid var(--article-red);
+  outline: 2px solid var(--article-accent);
   outline-offset: 4px;
 }
 
@@ -846,6 +855,7 @@ div.page {
   .shareBtn:hover,
   .shareBtn:focus-visible {
     background: var(--article-accent);
+    color: var(--article-ink);
   }
 }
 

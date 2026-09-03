@@ -1,25 +1,31 @@
-/* Pack-Detailseiten. Der Hero ist eine Ink-Tafel mit dem Pack als Star —
-   dieselbe Fläche wie das Must-Eat-Onboarding und die Fakten-Tafel der
-   Spot-Seite: Ink, gelber Kicker, weiße Versalien, gelber Knopf. Darunter auf
-   Weiß die Liste „Drin im Pack" und die All-Berlin-Tafel (AllBerlinBoard).
-   Die Pack-Bilder sind Ausschnitte und stehen nie auf einer eckigen Fläche. */
+/* Pack-Detailseiten. Der Hero ist die Tafel mit dem Pack als Star — dasselbe
+   Objekt wie die All-Berlin-Tafel: gelber Kicker, weiße Versalien, gelber
+   Knopf. Darunter die Liste „Drin im Pack" und die All-Berlin-Tafel
+   (AllBerlinBoard). Die Pack-Bilder sind Ausschnitte und stehen nie auf einer
+   eckigen Fläche.
+   Seit 03.09.2026 steht die Seite auf durchgehendem Ink: `--pack-ink` ist
+   der GRUND, `--pack-fg` die Schrift darauf, Muted/Linien/stille Fläche sind
+   Weiss-Stufen. Die beiden Tafeln (Hero, All Berlin) sind Angebote — also
+   Objekte — und tragen die leise Stufe; die Liste steht auf dem Grund. */
 
 .page {
   --pack-paper: var(--et-home-paper, #fff);
   --pack-ink: var(--et-home-ink, #15120e);
+  --pack-fg: var(--et-home-inverse-text, #fff);
   --pack-accent: var(--et-home-accent, #ffc600);
   --pack-red: var(--et-home-red, #d9382a);
-  --pack-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  --pack-quiet: var(--et-home-quiet, #f2f1ef);
-  --pack-rule: var(--et-home-rule, #e4e1dc);
+  --pack-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --pack-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --pack-quiet: rgba(255, 255, 255, 0.12);
+  --pack-rule: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   --pack-soft: rgba(255, 255, 255, 0.76);
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
   padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px))
     var(--et-wrap-pad-mobile, 16px) clamp(48px, 7vw, 96px);
-  background: var(--pack-paper);
-  color: var(--pack-ink);
+  background: var(--pack-ink);
+  color: var(--pack-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
@@ -37,7 +43,7 @@
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
   padding: clamp(24px, 4vw, 56px);
-  background: var(--pack-ink);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--pack-paper);
   border-radius: var(--et-radius-photo, 10px);
 }
@@ -172,7 +178,7 @@
   filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
 }
 
-/* ── Abschnitte auf Weiß ───────────────────────────────────────────────── */
+/* ── Abschnitte auf dem Grund ─────────────────────────────────────────── */
 
 .section {
   padding-top: clamp(56px, 7vw, 104px);
@@ -194,7 +200,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: var(--pack-red);
+  color: var(--pack-fg);
   font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -237,15 +243,15 @@
   border-bottom: 1px solid var(--pack-rule);
 }
 
-/* Rang-Badge wie auf den Bezirks- und Kategorieseiten: Ink, tabellarische
-   Ziffern in der Marken-Schrift. */
+/* Rang-Badge: eine helle Stufe auf dem Grund, tabellarische Ziffern in der
+   Marken-Schrift. Ink auf Ink waere unsichtbar. */
 .num {
   display: grid;
   place-items: center;
   width: 36px;
   height: 36px;
-  background: var(--pack-ink);
-  color: var(--pack-paper);
+  background: var(--pack-quiet);
+  color: var(--pack-fg);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
@@ -255,7 +261,7 @@
 
 .rn {
   min-width: 0;
-  color: var(--pack-ink);
+  color: var(--pack-fg);
   font-size: clamp(22px, 2.6vw, 34px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -273,8 +279,8 @@
 }
 
 .rowLocked .num {
-  background: var(--pack-quiet);
-  color: var(--pack-muted);
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  color: var(--pack-dim);
 }
 
 /* Der verdeckte Name: ein Redaktionsbalken auf ruhiger Fläche, mit dem Wort
@@ -287,7 +293,7 @@
   height: 0.85em;
   padding: 0 12px;
   background: var(--pack-quiet);
-  color: var(--pack-muted);
+  color: var(--pack-dim);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;

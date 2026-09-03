@@ -49,7 +49,9 @@
   line-height: var(--et-leading-title, 0.9);
   letter-spacing: -0.025em;
   text-transform: uppercase;
-  color: var(--et-home-red);
+  /* Papier, nicht Rot: die Spot-Seite steht auf Ink, und Rot kommt dort auf
+     rund 2,9:1. */
+  color: var(--et-home-inverse-text, #fff);
   margin: 0 0 12px;
   text-wrap: balance;
 }
@@ -220,12 +222,4 @@
      feedback_musteat_cards_freigestellt). Box ratio matches the asset so
      contain fills cleanly without letterboxing. */
   object-fit: contain;
-}
-
-/* Auf dem Ink-Grund der Spot-Seite: Rot kommt dort auf rund 2,9:1 und ist als
-   Ueberschrift nicht lesbar — Papier ist die Versalienfarbe jeder dunklen
-   Flaeche der Marke. Gebunden an das Seiten-Attribut statt an eine Klasse,
-   weil CSS-Module-Hashes von aussen nicht greifbar sind. */
-:global(html[data-active-page='restaurant']) .heading {
-  color: var(--et-home-inverse-text, #fff);
 }

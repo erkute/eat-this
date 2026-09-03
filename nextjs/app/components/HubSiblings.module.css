@@ -1,7 +1,11 @@
 /* Nachbar-Hubs am Seitenfuß. Textlinks in Pillenform, keine Karten: die Zeile
    ist ein Ausgang, kein zweites Angebot — eine Kartenreihe am Seitenende hat
    auf den Restaurantseiten schon einmal 500px für vier Bilder verbraucht, die
-   niemand wollte. */
+   niemand wollte.
+   Auf dem Ink-Grund, den seit 03.09.2026 alle drei Seiten tragen, die den
+   Block rendern (Spot, Bezirk, Kategorie): Papier als Versalienfarbe, die
+   Links als Ringe in Weiss 28 %, gedrückt Gelb. Rot kommt auf Ink auf rund
+   2,9:1 und ist als Überschrift nicht lesbar. */
 .wrap {
   width: min(100%, 900px);
   margin: clamp(44px, 7vw, 84px) auto clamp(40px, 6vw, 72px);
@@ -9,7 +13,7 @@
 
 .heading {
   margin: 0 0 14px;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
   font-family: var(--et-font-label, var(--font-label), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -30,8 +34,8 @@
 .link {
   display: inline-block;
   padding: 6px 12px 7px;
-  border: 1.5px solid var(--et-home-ink, #15120e);
-  color: var(--et-home-ink, #15120e);
+  border: 1.5px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  color: var(--et-home-inverse-text, #fff);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
   letter-spacing: 0.1em;
@@ -40,17 +44,19 @@
   text-transform: uppercase;
   transition:
     background 0.15s ease,
+    border-color 0.15s ease,
     color 0.15s ease;
 }
 
 .link:hover,
 .link:focus-visible {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-paper, #fff);
+  background: var(--et-home-accent, #ffc600);
+  border-color: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--et-home-red, #d9382a);
+  outline: 2px solid var(--et-home-accent, #ffc600);
   outline-offset: 3px;
 }
 
@@ -58,23 +64,4 @@
   .link {
     transition: none;
   }
-}
-
-/* Auf dem Ink-Grund der Spot-Seite: Rot kommt dort auf rund 2,9:1 und ist als
-   Ueberschrift nicht lesbar — Papier ist die Versalienfarbe jeder dunklen
-   Flaeche der Marke. Gebunden an das Seiten-Attribut statt an eine Klasse,
-   weil CSS-Module-Hashes von aussen nicht greifbar sind. */
-:global(html[data-active-page='restaurant']) .heading {
-  color: var(--et-home-inverse-text, #fff);
-}
-
-:global(html[data-active-page='restaurant']) .link {
-  border-color: rgba(255, 255, 255, 0.28);
-  color: var(--et-home-inverse-text, #fff);
-}
-
-:global(html[data-active-page='restaurant']) .link:hover {
-  background: var(--et-home-accent, #ffc600);
-  border-color: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
 }

@@ -44,6 +44,7 @@ describe('GuideCrossLinks.module.css — Querverweis auf den Magazin-Guide', () 
   it('draws its colours from the shared home tokens, not a page-local set', () => {
     const css = readFileSync(cssPath, 'utf8');
     expect(css).not.toMatch(/var\(--category-/);
-    expect(css).toMatch(/var\(--et-home-ink/);
+    expect(css).toMatch(/var\(--et-home-/);
+    expect(css).toMatch(/var\(--et-ink-/);
   });
 });

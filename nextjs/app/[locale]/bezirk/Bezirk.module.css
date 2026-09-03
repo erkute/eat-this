@@ -5,10 +5,10 @@
      HubMapCTA, MustEatTeaserSection, DetailPageOutro) render in the
      Home paper palette. */
   --text-primary: var(--ink);
-  --text-secondary: var(--et-home-muted);
+  --text-secondary: var(--muted);
   --text-muted: var(--muted);
   --surface-card: var(--cream);
-  --border-subtle: var(--et-home-line);
+  --border-subtle: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -52,7 +52,7 @@
   line-height: 1;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--et-home-red);
+  color: var(--ink);
   /* Chewy is far wider/rounder than the old Anton — smaller max + a touch
      more top margin so long names (FRIEDRICHSHAIN) don't overflow and the
      umlaut dots (SÜSSES, KÖPENICK) clear the kicker line above. */
@@ -96,7 +96,7 @@
   font-family: var(--f-display);
   font-size: clamp(28px, 7.5vw, 44px);
   line-height: 1.1;
-  color: var(--et-home-red);
+  color: var(--ink);
   letter-spacing: -0.025em;
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -206,7 +206,7 @@
   margin-top: 24px;
 }
 .faqRow {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
   padding: 0;
 }
 .faqRow summary {
@@ -375,14 +375,22 @@
 @supports (-webkit-touch-callout: none) {
 }
 
-/* Final Home consolidation for district/category index and detail grids. */
+/* Final Home consolidation for district/category index and detail grids.
+   Seit 03.09.2026 auf durchgehendem Ink wie Startseite und Spot-Seite:
+   `--ink` ist die SCHRIFT (Papier), `--cream` der Grund (Ink), `--muted`
+   eine Weiss-Stufe — die alten Namen bleiben, weil rund sechzig Regeln
+   dieser Datei und Kategorie.module.css sie lesen. Die Tafeln (Index-Kopf,
+   Detail-Kopf) loesen sich ueber die `--et-board-*`-Tokens aus globals.css in
+   den Grund auf; die Karten sind Foto mit Sheet-Schatten und Text auf dem
+   Grund, wie die Nearby-Kacheln der Startseite. */
 .page {
-  --ink: var(--et-home-ink);
-  --cream: var(--et-home-paper);
-  --muted: var(--et-home-muted);
+  --ink: var(--et-home-inverse-text);
+  --cream: var(--et-home-ink);
+  --muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --f-display: var(--et-font-condensed);
   --f-body: var(--font);
-  background: var(--et-home-paper);
+  background: var(--et-home-ink);
+  color: var(--ink);
 }
 
 .hero,
@@ -438,7 +446,7 @@
 
 .cardPhoto {
   border-radius: var(--et-radius-photo);
-  background: var(--et-home-red);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .cardBody {
@@ -467,7 +475,7 @@
   border: 0;
   border-radius: var(--et-radius-photo);
   background: transparent;
-  color: var(--et-home-ink);
+  color: var(--ink);
   transform: none;
 }
 
@@ -482,7 +490,7 @@
 
 .bezirkDetail .detailHero .h1 {
   margin: 0;
-  color: var(--et-home-red);
+  color: var(--ink);
   font-family: var(--et-font-display);
   /* Der cqi-Wert skaliert mit dem Container und traf auf dem Handy 63px —
      über dem Band der Wettbewerber (26–40 mobil, 40–64 Desktop). */
@@ -499,7 +507,7 @@
 .detailHeroDescription {
   max-width: 48ch;
   margin: clamp(20px, 3vw, 30px) 0 0;
-  color: var(--et-home-muted);
+  color: var(--muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 20px);
   line-height: 1.6;
@@ -534,8 +542,8 @@
 }
 
 .detailHeroActions > a:first-child {
-  background: var(--et-home-red);
-  color: var(--et-home-paper);
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
 }
 
 .detailHeroActions > a:hover {
@@ -547,7 +555,7 @@
   min-width: 0;
   min-height: 0;
   margin: 0;
-  background: var(--et-home-photo-rest);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .detailHeroImage {
@@ -559,7 +567,8 @@
   /* Ohne die schwarze Fläche darunter braucht das Bild seine eigene Rundung —
      vorher schnitt sie der Kasten. */
   border-radius: var(--et-radius-photo);
-  background: var(--et-home-photo-rest);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .detailHeroImage img {
@@ -576,7 +585,7 @@
 .directorySection {
   margin-top: clamp(52px, 7vw, 90px);
   padding-top: clamp(30px, 4vw, 48px);
-  border-top: 2px solid var(--et-home-line);
+  border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
 }
 
 .directorySection .sectionHead {
@@ -593,7 +602,7 @@
 .bezirkDetail .sectionHead h2 {
   max-width: 14ch;
   margin: 0;
-  color: var(--et-home-red);
+  color: var(--ink);
   font-family: var(--et-font-display);
   /* Runter von clamp(34px, 5vw, 52px). 52px standen gegen 22px Kartennamen
      darunter — nach dem Verkleinern der Namen war die Sektionsüberschrift mehr
@@ -609,7 +618,7 @@
 .bezirkDetail .sectionHead p {
   max-width: 32ch;
   margin: 0;
-  color: var(--et-home-muted);
+  color: var(--muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: 15px;
   line-height: 1.45;
@@ -626,7 +635,7 @@
   min-width: 0;
   border: 0;
   background: transparent;
-  color: var(--et-home-ink);
+  color: var(--ink);
   transform: none;
   transition: transform var(--et-motion-card);
 }
@@ -640,7 +649,7 @@
 .spotGrid .cardPhoto {
   aspect-ratio: var(--et-img-restaurant-ratio);
   border-radius: var(--et-radius-photo);
-  background: var(--et-home-photo-rest);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .bezirkDetail .cardPhoto img,
@@ -661,7 +670,7 @@
 .bezirkDetail .cardName,
 .spotGrid .cardName {
   margin: 0 0 10px;
-  color: var(--et-home-ink);
+  color: var(--ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   /* Feste Größe, kein clamp() mit vw-Anteil. Das alte clamp(25px, 3vw, 36px)
      skalierte mit dem Fenster, die Karte tut das aber nicht — sie wird in mehr
@@ -706,7 +715,7 @@
 
 .bezirkDetail .price,
 .spotGrid .price {
-  color: var(--et-home-muted);
+  color: var(--muted);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -719,7 +728,7 @@
    Bezirks-Detailseiten. */
 .bezirkDetail .cardTip {
   margin: 0;
-  color: var(--et-home-muted);
+  color: var(--muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: 16px;
   line-height: 1.6;
@@ -745,11 +754,11 @@
   text-transform: none;
 }
 
-/* Die FAQ der Hub-Seiten — randlose Haarlinien-Zeilen auf Weiß, dasselbe
-   Objekt wie die FAQ der Startseite (HubFaq): roter Titel mit gelbem
-   Marken-Quadrat, Fragen in Providence, Plus in Ink. Vorher ein grauer Kasten
-   mit weißen Zeilen und roten Plus-Knöpfen — eine dritte FAQ-Fassung neben
-   Startseite und Restaurant. */
+/* Die FAQ der Hub-Seiten — randlose Haarlinien-Zeilen auf dem Grund, dasselbe
+   Objekt wie die FAQ der Startseite (HubFaq): Papier-Titel mit gelbem
+   Marken-Quadrat, Fragen in Providence, Plus in Gelb, Linien Weiss 14 %.
+   Vorher ein grauer Kasten mit weißen Zeilen und roten Plus-Knöpfen — eine
+   dritte FAQ-Fassung neben Startseite und Restaurant. */
 .bezirkDetail .faq {
   display: block;
   margin: clamp(64px, 9vw, 118px) 0 0;
@@ -765,7 +774,7 @@
   gap: 10px;
   max-width: none;
   margin: 0 0 clamp(14px, 2vw, 22px);
-  color: var(--et-home-red);
+  color: var(--ink);
   font-family: var(--et-font-display);
   font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   font-weight: 700;
@@ -793,13 +802,13 @@
 .bezirkDetail .faqRow {
   padding: 0;
   border: 0;
-  border-top: 1px solid rgba(21, 18, 14, 0.14);
+  border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
   border-radius: 0;
   background: transparent;
 }
 
 .bezirkDetail .faqRow:last-child {
-  border-bottom: 1px solid rgba(21, 18, 14, 0.14);
+  border-bottom: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
 }
 
 .bezirkDetail .faqRow summary {
@@ -809,7 +818,7 @@
 }
 
 .bezirkDetail .faqQ {
-  color: var(--et-home-ink);
+  color: var(--ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(15px, 2vw, 17px);
   font-weight: 700;
@@ -822,19 +831,18 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--et-home-ink);
+  color: var(--et-home-accent);
 }
 
 .bezirkDetail .faqA {
   max-width: 72ch;
   margin: 0;
   padding: 4px 0 20px;
-  color: var(--et-home-ink);
+  color: var(--muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.2vw, 17px);
   font-weight: 500;
   line-height: 1.6;
-  opacity: 0.75;
 }
 
 @media (min-width: 720px) {
@@ -972,7 +980,7 @@
 
 .rankInline {
   margin-right: 7px;
-  color: var(--et-home-red);
+  color: var(--et-home-accent);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1020,8 +1028,8 @@
   margin-inline: calc(var(--page-pad) * -1);
   margin-bottom: clamp(30px, 4.5vw, 52px);
   padding: 10px var(--page-pad);
-  background: var(--et-home-paper);
-  border-bottom: 1px solid var(--et-home-rule);
+  background: var(--et-home-ink);
+  border-bottom: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
 }
 
 /* Mobil ein Rail mit Anschnitt an der Blattkante, ab Tablet ein Umbruch:
@@ -1077,7 +1085,7 @@
 }
 
 .filterChip:focus-visible {
-  outline: 3px solid var(--et-home-red);
+  outline: 3px solid var(--et-home-accent);
   outline-offset: 3px;
 }
 
@@ -1168,13 +1176,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 }
 
 .districtLink {
-  color: var(--et-home-red);
+  color: var(--ink);
   text-decoration: none;
   transition: color 140ms ease;
 }
 
 .districtLink:hover {
-  color: var(--et-home-ink);
+  color: var(--et-home-accent);
 }
 
 /* Die Bezirksbeschreibung aus dem Studio — auf dem Index bisher ungenutzt.
@@ -1183,7 +1191,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 .districtBlurb {
   max-width: 62ch;
   margin: 0 0 clamp(20px, 2.6vw, 28px);
-  color: var(--et-home-muted);
+  color: var(--muted);
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(15px, 1.4vw, 17px);
   line-height: 1.6;
@@ -1263,7 +1271,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 .districtLink:focus-visible,
 .districtMore:focus-visible,
 .spotGrid .card:focus-visible {
-  outline: 3px solid var(--et-home-red);
+  outline: 3px solid var(--et-home-accent);
   outline-offset: 4px;
 }
 
@@ -1352,12 +1360,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 }
 
 /* ============================================================
-   INK-TAFELN (03.09.2026) — Bezirks- und Kategorie-Hubs sprechen dieselbe
-   Sprache wie Startseite, /packs und /must-eats: der Kopf ist eine Ink-Tafel,
-   jede Restaurant-Karte eine Ink-Kachel (Foto oben, Ink-Leiste darunter mit
-   weißem Namen und gelber Küchen-Zeile — dasselbe Objekt wie die Nearby- und
-   Magazin-Kacheln der Startseite). Am Dateiende, damit die Regeln oben ohne
-   höhere Spezifität überstimmt werden.
+   INK-GRUND (03.09.2026) — Bezirks- und Kategorie-Hubs sprechen dieselbe
+   Sprache wie Startseite und Spot-Seite: die Seite ist der Grund, der Kopf
+   steht als Type darauf (die Tafel-Tokens halten die Kasten-Optik als
+   Fallback bereit), jede Restaurant-Karte ist Foto mit Sheet-Schatten und
+   Text direkt auf dem Grund — dasselbe Objekt wie die Nearby- und Magazin-
+   Kacheln der Startseite. Eine Ink-Kachel auf Ink waere unsichtbar. Am
+   Dateiende, damit die Regeln oben ohne höhere Spezifität überstimmt werden.
 ============================================================ */
 
 /* ── Karten ── */
@@ -1365,16 +1374,17 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 .spotGrid .card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   border: 0;
-  border-radius: var(--et-radius-photo);
-  background: var(--et-home-ink);
+  border-radius: 0;
+  background: transparent;
   color: var(--et-home-inverse-text);
 }
 
 .bezirkDetail .cardPhoto,
 .spotGrid .cardPhoto {
-  border-radius: 0;
+  border-radius: var(--et-radius-photo);
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .bezirkDetail .cardBody,
@@ -1382,7 +1392,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  padding: 14px 16px 18px;
+  padding: 14px 0 0;
 }
 
 .bezirkDetail .cardName,
@@ -1435,9 +1445,10 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 /* ── Kopf der Bezirks-Detailseite ── */
 .bezirkDetail .detailHero {
   gap: clamp(20px, 4vw, 48px);
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--et-home-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--et-home-ink));
   color: var(--et-home-inverse-text);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 .bezirkDetail .detailHeroCopy {
@@ -1485,10 +1496,10 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 
 /* ── Kopf des Bezirks-Index ── */
 .page .indexHero {
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--et-home-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--et-home-ink));
   color: var(--et-home-inverse-text);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 /* Eine Zeile („eine Zeile Headlines"): kein `max-width: 9ch` mehr, die Größe
@@ -1510,7 +1521,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 @media (max-width: 639px) {
   .bezirkDetail .detailHero,
   .page .indexHero {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 
   .bezirkDetail .detailHeroActions > a:first-child {
@@ -1519,9 +1530,11 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 }
 
 /* ── Filter-Chips (Bezirks-Index, Kategorie- und Bezirks-Detail) ──
-   Gefüllte Ink-Chips statt Umriss auf Weiß: die Leiste ist die Wahl und muss
-   ins Auge fallen („mach den Filter besser und sichtbarer"). Der gedrückte
-   Chip kippt auf Gelb, die Zahl steht in Gelb auf Ink und in Ink auf Gelb. */
+   Ringe in Weiss 28 % auf dem Ink-Grund, wie die Fragen im Remy-Panel: die
+   Leiste ist die Wahl und muss ins Auge fallen („mach den Filter besser und
+   sichtbarer") — gefuellte Ink-Chips waeren auf Ink unsichtbar. Hover gelber
+   Rand, der gedrückte Chip kippt auf Gelb. Eine Fassung fuer Index und
+   Detailseiten. */
 /* Nur noch für Vorleser: die sichtbare Zählzeile „19 Bezirke · 467 Spots"
    wollte niemand lesen („brauche die Info nicht"); als role="status" sagt sie
    dem Screenreader weiter, was der Filter gerade zeigt. */
@@ -1544,18 +1557,25 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
   padding: 0 16px;
   border: 0;
   border-radius: var(--et-radius-control);
-  background: var(--et-home-ink);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--et-ink-ring, rgba(255, 255, 255, 0.28));
   color: var(--et-home-inverse-text);
   font-size: clamp(14px, 1.2vw, 16px);
+  transition:
+    background var(--et-motion-fast),
+    box-shadow var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
 
 .filterChip:hover {
-  background: var(--et-home-accent);
-  color: var(--et-home-ink);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--et-home-accent);
+  color: var(--et-home-accent);
 }
 
 .filterChip[aria-pressed='true'] {
   background: var(--et-home-accent);
+  box-shadow: none;
   color: var(--et-home-ink);
 }
 
@@ -1590,66 +1610,34 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
   hyphens: auto;
 }
 
-/* ── Bezirks-Index: Kopf und Filter sind EINE Tafel ──
-   Oben Titel und Text, unten die Chips als Ringe auf Ink, keine Lücke — „mach
-   den oberen Part besser und stimmiger zusammen". Das Markup bleibt: die
+/* ── Bezirks-Index: Kopf und Filter sind EIN Block ──
+   Oben Titel und Text, direkt darunter die Chips, keine Lücke — „mach den
+   oberen Part besser und stimmiger zusammen". Das Markup bleibt getrennt: die
    Leiste muss direktes Kind des hohen Abschnitts sein, damit `sticky` auf dem
-   Telefon greift; die Tafel wird deshalb aus zwei Nachbarn zusammengesetzt
-   (Kopf ohne unteren Radius, Leiste ohne oberen). */
+   Telefon greift. Seit die Seite selbst der Grund ist, braucht der Block
+   keine eigene Flaeche mehr — die Leiste behaelt Ink nur als Deckfarbe,
+   damit beim Kleben nichts durch sie hindurchscrollt. */
 .page .indexHero {
   gap: 14px;
   margin-bottom: 0;
   padding-bottom: clamp(18px, 2.4vw, 28px);
-  border-radius: var(--et-radius-photo) var(--et-radius-photo) 0 0;
 }
 
 .page .filterSticky {
   margin-inline: 0;
   margin-bottom: clamp(30px, 4.5vw, 52px);
-  padding: 0 clamp(24px, 4vw, 56px) clamp(24px, 4vw, 56px);
+  padding: 0;
   background: var(--et-home-ink);
   border-bottom: 0;
-  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
 }
 
-/* Ringe auf Ink, wie die Fragen im Remy-Panel: weißer 28-%-Rand, gedrückt
-   Gelb gefüllt, Hover gelber Rand. Die gefüllten Ink-Chips gehören den
-   Detailseiten, wo die Leiste auf Weiß steht. */
-.page .filterSticky .filterChip {
-  background: transparent;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
-  color: var(--et-home-inverse-text);
-}
-
-.page .filterSticky .filterChip:hover {
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--et-home-accent);
-  color: var(--et-home-accent);
-}
-
-.page .filterSticky .filterChip[aria-pressed='true'] {
-  background: var(--et-home-accent);
-  box-shadow: none;
-  color: var(--et-home-ink);
-}
-
-/* Telefon: die Tafel läuft wie der Startseiten-Hero von Kante zu Kante —
-   so ist die klebende Leiste ein Ink-Streifen über die volle Breite und
-   nichts läuft seitlich an ihr vorbei. */
+/* Telefon: die klebende Leiste läuft von Kante zu Kante — so ist sie ein
+   Ink-Streifen über die volle Breite und nichts läuft seitlich an ihr
+   vorbei. */
 @media (max-width: 760px) {
-  /* Schließt direkt an die Ink-Navigation an — ohne den weißen Streifen, den
-     das Kopfpolster der Seite (24px) sonst dazwischen ließ. */
-  .page .indexHero {
-    margin-top: -24px;
-    margin-inline: calc(var(--page-pad) * -1);
-    padding: 28px var(--page-pad) 14px;
-    border-radius: 0;
-  }
-
   .page .filterSticky {
     margin-inline: calc(var(--page-pad) * -1);
     padding: 0 var(--page-pad) 16px;
-    border-radius: 0;
   }
 }
 
@@ -1684,17 +1672,18 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 }
 
 /* ── Bezirke deutlich getrennt ──
-   Jeder Bezirk beginnt an einer Ink-Linie mit Luft darüber und darunter, und
-   der Name trägt das gelbe Marken-Quadrat wie jeder Abschnittstitel der
-   Startseite — „mach so, dass die Bezirke besser abgetrennt sind". Vorher
-   trennte nur ein Abstand, und neunzehn Blöcke liefen ineinander. */
+   Jeder Bezirk beginnt an einer Haarlinie (Weiss 14 %) mit Luft darüber und
+   darunter, und der Name trägt das gelbe Marken-Quadrat wie jeder
+   Abschnittstitel der Startseite — „mach so, dass die Bezirke besser
+   abgetrennt sind". Vorher trennte nur ein Abstand, und neunzehn Blöcke
+   liefen ineinander. */
 .page .districtRows {
   gap: 0;
 }
 
 .page .districtRow {
   padding: clamp(28px, 4vw, 44px) 0 clamp(40px, 5.5vw, 64px);
-  border-top: 2px solid var(--et-home-ink);
+  border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
 }
 
 .page .districtRow:first-child {

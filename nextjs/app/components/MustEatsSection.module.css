@@ -1,11 +1,16 @@
 /* /must-eats — the public Must-Eats catalog.
  *
- * The page advertises the cards; it is not a tool for sorting them. So: four
- * ink boards in a stack (the same board /packs and the pack pages open with) —
- * the head states the deck in numbers, the face-up cards lie as a solid block
- * of dish photography, the sealed ones smaller and denser underneath, and the
+ * The page advertises the cards; it is not a tool for sorting them. So: the
+ * head states the deck in numbers, the face-up cards lie as a solid block of
+ * dish photography, the sealed ones smaller and denser underneath, and the
  * closer points at the map. Cards on ink carry the same shadow as in the
  * Must-Eat sheet; on white they had none and the page read as a catalog.
+ *
+ * Seit 03.09.2026 steht die Seite auf durchgehendem Ink wie Startseite und
+ * Spot-Seite: die vier Tafeln des Stapels loesen sich in den Grund auf
+ * (`--et-board-*` aus globals.css, mit Fallback auf die Tafel-Werte), getrennt
+ * wird durch Raum. Nur der Schluss — das Angebot, also ein Objekt — behaelt
+ * eine Flaeche, eine Stufe heller als der Grund.
  *
  * Written as a single pass on purpose. The previous file was four redesigns
  * stacked on top of each other (`.head` declared five times, `.grid` three),
@@ -16,19 +21,20 @@
   --must-ink: var(--et-home-ink, #15120e);
   --must-paper: #fff;
   --must-red: var(--et-home-red, #d9382a);
-  --must-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  /* Die Ink-Tafeln oben und unten: Papier, Gelb und die weiche Weiß-Stufe. */
+  --must-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  /* Papier, Gelb und die weiche Weiß-Stufe auf dem Ink-Grund. */
   --must-white: var(--et-home-inverse-text, #fff);
   --must-accent: var(--et-home-accent, #ffc600);
   --must-soft: rgba(255, 255, 255, 0.76);
-  /* Die Luft zwischen den Tafeln — dieselbe wie zwischen Tafel und Inhalt
-     auf /packs. */
-  --must-gutter: clamp(16px, 2.5vw, 32px);
+  /* Der Abschnittsabstand: seit die Tafeln aufgeloest sind, trennt nur noch
+     Raum — dieselbe Fuge wie zwischen den Abschnitten der Startseite. */
+  --must-gutter: clamp(56px, 7vw, 96px);
 
   min-height: 100%;
   display: flow-root;
-  background: var(--must-paper);
-  color: var(--must-ink);
+  overflow-x: clip;
+  background: var(--must-ink);
+  color: var(--must-white);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
@@ -49,22 +55,21 @@
 
 /* ---------------------------------------------------------------- head --- */
 
-/* Die Kopf-Tafel: dasselbe Objekt wie die All-Berlin-Tafel auf /packs —
-   Ink-Fläche mit Radius, gelber Kicker, weiße Versalien, gelbe Labels unter
-   den weißen Zahlen, ein gelber Knopf, der Fächer rechts (auf dem Telefon
-   oben). Vorher stand der Kopf auf Weiß unter einer Haarlinie, mit rotem
-   Titel wie ein Abschnitt und den Karten ohne Grund, auf dem sie liegen. */
+/* Der Kopf: gelber Kicker, weiße Versalien, gelbe Labels unter den weißen
+   Zahlen, ein gelber Knopf, der Fächer rechts (auf dem Telefon oben). Auf
+   dem Grund, nicht mehr als Tafel — die Tokens lesen mit Fallback, die
+   Tafel-Optik ist eine Zeile weit entfernt. `overflow` ist offen, damit die
+   Schatten des Fächers nicht an der Kante enden; die Seite klippt quer. */
 .head {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
   margin-top: clamp(16px, 2.5vw, 32px);
-  padding: clamp(24px, 4vw, 56px);
-  overflow: hidden;
-  background: var(--must-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--must-ink));
   color: var(--must-white);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-board-radius, var(--et-radius-photo, 10px));
 }
 
 .headCopy {
@@ -279,13 +284,14 @@
 
 /* --------------------------------------------------------------- bands --- */
 
-/* Jedes Band ist eine eigene Tafel im Stapel. */
+/* Jedes Band ist ein Abschnitt auf dem Grund; die Tafel-Tokens halten die
+   Kasten-Optik als Fallback bereit. */
 .band {
   margin-top: var(--must-gutter);
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--must-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--must-ink));
   color: var(--must-white);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-board-radius, var(--et-radius-photo, 10px));
 }
 
 .bandHead {
@@ -416,9 +422,11 @@
 
 /* --------------------------------------------------------------- close --- */
 
-/* Der Schluss ist eine Ink-Tafel — dasselbe Objekt wie die All-Berlin-Tafel
-   auf /packs und der Pack-Hero: Ink-Fläche mit Radius, gelber Kicker, weiße
-   Versalien, ein gelber Knopf, die Tüte als Star. Vorher stand der Block auf
+/* Der Schluss ist die eine Tafel, die bleibt — dasselbe Objekt wie die
+   All-Berlin-Tafel auf /packs und der Pack-Hero: gelber Kicker, weiße
+   Versalien, ein gelber Knopf, die Tüte als Star. Er ist das Angebot der
+   Seite, also ein Objekt, und traegt die leise Stufe; als Ink auf Ink waere
+   er nur eine Tuete, die irgendwo im Dunkel liegt. Vorher stand der Block auf
    Weiß unter einer Haarlinie, die Tüte lag allein am rechten Rand und fehlte
    auf dem Telefon ganz. Als Tafel gehören Text und Tüte zusammen, und auf dem
    Telefon steht die Tüte oben statt zu verschwinden. */
@@ -435,9 +443,9 @@
   margin-top: var(--must-gutter);
   margin-bottom: clamp(48px, 7vw, 96px);
   padding: clamp(24px, 4vw, 56px);
-  /* Der weiche Schatten der Tüte endet an der Tafelkante, nicht auf dem Weiß. */
+  /* Der weiche Schatten der Tüte endet an der Tafelkante. */
   overflow: hidden;
-  background: var(--close-ink);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--close-paper);
   border-radius: var(--et-radius-photo, 10px);
 }
@@ -612,7 +620,7 @@
 
   .head,
   .band {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 
   .sub {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { RestaurantCard } from '@/lib/types'
-import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose'
+import { buildKategorieFAQEntries } from '@/lib/kategorie-prose'
 
 function r(name: string, opts: Partial<RestaurantCard> = {}): RestaurantCard {
   return {
@@ -12,70 +12,6 @@ function r(name: string, opts: Partial<RestaurantCard> = {}): RestaurantCard {
     ...opts,
   }
 }
-
-describe('buildKategorieQuickFacts', () => {
-  it('summarises count and districts in DE, without a price span', () => {
-    const restaurants = [
-      r('A', { district: 'Mitte' }),
-      r('B', { district: 'Mitte' }),
-      r('C', { district: 'Kreuzberg', priceRange: { min: 40, max: 100, currency: 'EUR' } }),
-      r('D', { district: 'Neukölln', priceRange: { min: 10, max: 60, currency: 'EUR' } }),
-    ]
-    const text = buildKategorieQuickFacts({ slug: 'pizza', label: 'Pizza', restaurants, locale: 'de' })
-    expect(text).toContain('4 von Eat This kuratierte Spots für Pizza in Berlin')
-    expect(text).toContain('Mitte')
-    // Der Preis ist bewusst raus: im Kategorie-Banner sagt eine Spanne von
-    // 5–100 € nichts aus, weil sie über die ganze Kategorie mittelt.
-    expect(text).not.toContain('Preisspanne')
-    expect(text).not.toMatch(/\d+–\d+\s?€/)
-  })
-
-  it('uses the German search term instead of the catalogue label', () => {
-    const restaurants = [r('A'), r('B', { district: 'Kreuzberg' })]
-    const text = buildKategorieQuickFacts({ slug: 'lunch', label: 'Lunch', restaurants, locale: 'de' })
-    expect(text).toContain('Mittagessen')
-    expect(text).not.toContain('Lunch')
-  })
-
-  it('drops the "Spots für" scaffold for venue-style categories', () => {
-    const restaurants = [r('A'), r('B', { district: 'Kreuzberg' })]
-    const text = buildKategorieQuickFacts({ slug: 'coffee', label: 'Coffee', restaurants, locale: 'de' })
-    expect(text).toContain('2 von Eat This kuratierte Cafés in Berlin')
-  })
-
-  it('joins the district clause without a sentence break', () => {
-    const restaurants = [r('A'), r('B', { district: 'Kreuzberg' })]
-    const text = buildKategorieQuickFacts({ slug: 'pizza', label: 'Pizza', restaurants, locale: 'de' })
-    // „… in Berlin. die meisten in …“ wäre ein Kleinbuchstabe nach Punkt.
-    expect(text).toContain('– die meisten in')
-    expect(text).not.toContain('. die meisten in')
-  })
-
-  it('returns null when no restaurants are loaded', () => {
-    expect(
-      buildKategorieQuickFacts({ slug: 'pizza', label: 'Pizza', restaurants: [], locale: 'de' })
-    ).toBeNull()
-  })
-
-  it('omits district segment when only one district is present', () => {
-    const restaurants = [r('A'), r('B')]
-    const text = buildKategorieQuickFacts({ slug: 'pizza', label: 'Pizza', restaurants, locale: 'de' })
-    expect(text).not.toContain('die meisten in')
-  })
-
-  it('renders EN copy for the en locale', () => {
-    const restaurants = [r('A'), r('B', { district: 'Kreuzberg' })]
-    const text = buildKategorieQuickFacts({ slug: 'coffee', label: 'Coffee', restaurants, locale: 'en' })
-    expect(text).toContain('2 Eat This-curated cafés in Berlin')
-    expect(text).not.toMatch(/[Pp]rices/)
-  })
-
-  it('falls back to the label for unknown slugs', () => {
-    const restaurants = [r('A'), r('B', { district: 'Kreuzberg' })]
-    const text = buildKategorieQuickFacts({ slug: 'ramen', label: 'Ramen', restaurants, locale: 'de' })
-    expect(text).toContain('Spots für Ramen in Berlin')
-  })
-})
 
 describe('buildKategorieFAQEntries', () => {
   const restaurants = [

@@ -1,12 +1,23 @@
 .section {
   position: relative;
-  background: var(--et-home-paper);
-  box-shadow: 0 0 0 100vmax var(--et-home-paper);
-  clip-path: inset(0 -100vmax);
-  /* No vertical padding of its own: the band is the same paper as the page, so
-     padding here read as nothing but extra gap on top of the section margin —
-     44-62px above and 48-72px below, which made this the one block on the home
-     page that floated further from its neighbours than every other. */
+}
+
+/* Die Tafel — dieselbe Fläche wie Starter Pack, Must Eats und Remy. */
+.board {
+  --mag-ink: var(--et-home-ink, #15120e);
+  --mag-paper: var(--et-home-inverse-text, #fff);
+  --mag-accent: var(--et-home-accent, #ffc600);
+  --mag-soft: rgba(255, 255, 255, 0.76);
+
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--mag-ink);
+  color: var(--mag-paper);
+  border-radius: var(--et-radius-photo);
+}
+
+/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
+.section .board :global(.hv-title) {
+  color: var(--mag-paper);
 }
 
 .section .head:global(.hv-head) {
@@ -26,11 +37,11 @@
   white-space: nowrap;
 }
 
-/* Der stille Kicker über dem Titel — Mono-Label wie `hv-kicker` überall. */
+/* Der Kicker als gelbe Kreide-Zeile, wie auf jeder Tafel. */
 .section .eyebrow:global(.hv-kicker) {
   grid-column: 1 / -1;
   width: max-content;
-  color: var(--et-home-muted);
+  color: var(--mag-accent);
 }
 
 .foot {
@@ -38,16 +49,16 @@
   margin-top: clamp(18px, 2.4vw, 26px);
 }
 
-/* Gefüllter Ink-Knopf mit gelbem Hover, wie „Alle Spots ansehen" auf den
-   Hubs und die Kategorie-Kacheln darunter. */
+/* Gelb wie jeder Weiterweg der Site („Zur Map", „Alle Must-Eats"), Hover
+   kippt auf Ink — dieselbe Form wie „Alle Spots ansehen" auf den Hubs. */
 .allLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 52px;
   padding: 0 24px;
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
   border-radius: var(--et-radius-control);
   font-family: var(--font-providence);
   font-size: clamp(15px, 1.2vw, 17px);
@@ -64,8 +75,8 @@
 
 .allLink:hover,
 .allLink:focus-visible {
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
   transform: translateY(-2px);
 }
 
@@ -84,9 +95,9 @@
   min-width: 0;
 }
 
-/* Die Kachel: Foto oben, Ink-Leiste darunter — dasselbe Objekt wie die
-   Nearby-Karten und die „Weiter auf dem Teller"-Kacheln am Artikelende.
-   Vorher lag der Text über einem Verlauf auf dem Foto. */
+/* Auf der Tafel trägt die Kachel keine eigene Fläche mehr: das Foto steht
+   frei mit dem Sheet-Schatten, der Text liegt direkt auf der Tafel. Eine
+   Ink-Kachel auf Ink wäre unsichtbar. */
 .card {
   position: relative;
   min-width: 0;
@@ -94,10 +105,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  background: var(--et-home-ink);
-  color: var(--et-home-inverse-text);
+  color: var(--mag-paper);
   text-decoration: none;
 }
 
@@ -105,9 +113,9 @@
   flex: 0 0 auto;
   aspect-ratio: 4 / 3;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--et-radius-photo);
   background: var(--et-home-photo-rest);
-  box-shadow: none;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 }
 
 /* Replaces what next/image's `fill` used to do: cover the 4/5 box. */
@@ -134,13 +142,13 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  padding: clamp(14px, 1.5vw, 20px) clamp(14px, 1.5vw, 20px) clamp(16px, 1.7vw, 22px);
+  padding: clamp(14px, 1.5vw, 18px) 0 0;
 }
 
 /* Die Rubrik als gelbe Kreide-Zeile, wie der Kicker auf jeder Tafel. */
 .kicker {
   display: block;
-  color: var(--et-home-accent);
+  color: var(--mag-accent);
   font-family: var(--font-providence);
   font-size: 11px;
   font-weight: 700;
@@ -151,7 +159,7 @@
 
 .title {
   display: block;
-  color: var(--et-home-inverse-text);
+  color: var(--mag-paper);
   font-family: var(--font-providence);
   font-size: clamp(19px, 1.5vw, 23px);
   font-weight: 700;
@@ -174,12 +182,17 @@
 
 .card:hover .kicker,
 .card:focus-visible .kicker {
-  color: var(--et-home-accent);
+  color: var(--mag-accent);
+}
+
+.card:hover .photo:global(.hv-photo),
+.card:focus-visible .photo:global(.hv-photo) {
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5);
 }
 
 .card:focus-visible,
 .allLink:focus-visible {
-  outline: 2px solid var(--et-home-accent);
+  outline: 2px solid var(--mag-accent);
   outline-offset: 4px;
 }
 
@@ -205,8 +218,13 @@
     width: 100%;
   }
 
+  .board {
+    padding: 22px 18px 24px;
+  }
+
   /* Swipeable rail instead of a full-width stack — same cards, a fifth of
-     the page height. Bleeds to both edges so the next card peeks in. */
+     the page height. Bleeds an die Tafelkanten, damit die nächste Karte
+     hereinschaut; das Polster der Tafel ist hier die Spur. */
   .grid {
     display: flex;
     grid-template-columns: none;
@@ -214,11 +232,11 @@
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    margin-left: calc(var(--et-wrap-pad-mobile) * -1);
-    margin-right: calc(var(--et-wrap-pad-mobile) * -1);
-    padding-left: var(--et-wrap-pad-mobile);
-    padding-right: var(--et-wrap-pad-mobile);
-    scroll-padding-inline: var(--et-wrap-pad-mobile);
+    margin-left: -18px;
+    margin-right: -18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    scroll-padding-inline: 18px;
   }
 
   .grid::-webkit-scrollbar {
@@ -233,5 +251,14 @@
   .title {
     font-size: 20px;
     line-height: 1.05;
+  }
+}
+
+/* iOS rendert Filter-Schatten auf vielen Ausschnitt-Bildern spürbar zäh; ein
+   box-shadow ist dort günstig, bleibt also. Nur die Hover-Verstärkung entfällt
+   auf Touch, wo es keinen Hover gibt. */
+@media (hover: none) {
+  .card:hover .photo:global(.hv-photo) {
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
   }
 }

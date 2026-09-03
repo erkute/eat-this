@@ -75,15 +75,11 @@
   visibility: hidden;
 }
 
-/* The one exception is the block after the hero: the drop-shadow of the tilted
-   phones paints ~8px past the hero's box, so an equal-looking gap has to be a
-   slightly larger one. */
+/* Ein Abstand für jede Grenze der Seite. Die Ausnahme nach dem Aufmacher
+   (+8px für den überstehenden Schatten der gekippten Telefone) ist weg: der
+   Hero ist eine Fläche mit `overflow: hidden`, es steht nichts mehr über. */
 .page :global(.hv-section) {
   margin-top: var(--home-section-gap);
-}
-
-.page .hero + :global(.hv-section) {
-  margin-top: calc(var(--home-section-gap) + 8px);
 }
 
 .heroGrid {

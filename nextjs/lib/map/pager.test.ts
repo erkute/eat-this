@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveAdjacent } from './pager';
+import { resolveAdjacent, resolvePagerAdjacent } from './pager';
 
 type R = { _id: string };
 const list: R[] = [{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }];
@@ -30,5 +30,26 @@ describe('resolveAdjacent', () => {
   it('handles an empty list', () => {
     const r = resolveAdjacent([], 'a');
     expect(r).toEqual({ index: -1, prev: null, next: null });
+  });
+});
+
+describe('resolvePagerAdjacent', () => {
+  const full: R[] = [{ _id: 'a' }, { _id: 'p1' }, { _id: 'b' }, { _id: 'p2' }, { _id: 'c' }];
+  const pizza: R[] = [{ _id: 'p1' }, { _id: 'p2' }];
+
+  it('pages through the frozen search results, not the refilled full list', () => {
+    const r = resolvePagerAdjacent(pizza, full, 'p1');
+    expect(r.prev).toBeNull();
+    expect(r.next?._id).toBe('p2');
+  });
+  it('falls back to the live list when the spot is not in the snapshot', () => {
+    const r = resolvePagerAdjacent(pizza, full, 'b');
+    expect(r.prev?._id).toBe('p1');
+    expect(r.next?._id).toBe('p2');
+  });
+  it('uses the live list without a snapshot', () => {
+    const r = resolvePagerAdjacent(null, full, 'a');
+    expect(r.index).toBe(0);
+    expect(r.next?._id).toBe('p1');
   });
 });

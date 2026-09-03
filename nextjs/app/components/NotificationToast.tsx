@@ -337,6 +337,10 @@ export default function NotificationToast() {
     present(null);
   }, [notice, present]);
 
+  /* Mit Knoepfen ist die Karte ein Dialog und faengt Taps ab (globals.css,
+     `[data-interactive]`); ohne bleibt sie durchlaessig zur Karte. */
+  const interactive = visible && Boolean(notice && (notice.action || notice.onDismiss));
+
   /* Die Huelle bleibt immer im Dokument: sie ist der aria-live-Bereich, und
      der Uebergang braucht einen Rahmen im geschlossenen Zustand, bevor `show`
      dazukommt. Zugeklappt (clip-path) ist sie nicht zu sehen. */
@@ -344,6 +348,7 @@ export default function NotificationToast() {
     <div
       className={`notification${visible ? ' show' : ''}`}
       data-tone={notice?.tone ?? 'info'}
+      data-interactive={interactive ? '' : undefined}
       aria-live="polite"
       aria-atomic="true"
     >

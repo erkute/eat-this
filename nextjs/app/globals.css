@@ -686,12 +686,20 @@ html[data-auth='1'] [data-guest-only] {
   line-height: 1.35;
   color: var(--toast-muted);
 }
-/* Knoepfe nur, wo es welche gibt — der Standard-Hinweis geht von allein. */
+/* Solange die Karte Knoepfe hat, faengt sie Taps ab: wer sie wegtippen will,
+   soll nicht den Marker dahinter treffen (Ansage 03.09.2026, „dahinter nichts
+   geklickt wird"). Der reine Hinweis ohne Knoepfe bleibt durchlaessig. */
+.notification.show[data-interactive] {
+  pointer-events: auto;
+}
+/* Knoepfe nur, wo es welche gibt — der Standard-Hinweis geht von allein.
+   Rechtsbuendig: „Alles klar" steht am rechten Rand, wo der Daumen hin will. */
 .notification-actions {
   grid-column: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   margin-top: 12px;
   pointer-events: auto;

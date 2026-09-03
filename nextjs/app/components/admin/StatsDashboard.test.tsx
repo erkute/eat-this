@@ -136,14 +136,14 @@ describe('StatsDashboard', () => {
   it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', async () => {
     // Der Dialog blockiert und erscheint je Besucher mehrfach (hier 3,3 Mal).
     // Gegen die Einblendungen gerechnet stuenden hier 5,0 % statt 16,5 % —
-    // dieselbe Wirklichkeit, durch den falschen Nenner geteilt.
+    // die Quote je Einblendung wird bewusst nicht mehr gezeigt.
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
 
     await waitFor(() => expect(screen.getByText('16,5 %')).toBeTruthy());
-    expect(screen.getByText(/5,0 %/)).toBeTruthy();
-    expect(screen.getByText(/3,3 Mal je Besucher/)).toBeTruthy();
+    expect(screen.queryByText(/5,0 %/)).toBeNull();
+    expect(screen.getByText(/lehnen ab/)).toBeTruthy();
   });
 
   it('zeigt eine Trichterstufe mit dem Wert null, statt sie zu verschweigen', async () => {
@@ -164,8 +164,8 @@ describe('StatsDashboard', () => {
 
     // „4 von 11" steht jetzt auch im Consent-Block — hier gezielt die
     // Ausstiegs-Fussnote greifen.
-    await waitFor(() => expect(screen.getByText(/Gerechnet über/)).toBeTruthy());
-    expect(screen.getByText(/Gerechnet über/).textContent).toContain('4 von 11');
+    await waitFor(() => expect(screen.getByText(/^Über /)).toBeTruthy());
+    expect(screen.getByText(/^Über /).textContent).toContain('4 von 11');
   });
 
   it('erklärt die 404 der Route als fehlenden Zugriff, nicht als Fehler', async () => {
@@ -200,7 +200,7 @@ describe('StatsDashboard', () => {
     // Die Hauptzahl des Blocks, nicht der gleichnamige Balkenwert im Verlauf.
     const karte = screen.getByText('Sonntag, 30.08.').closest('section');
     expect(karte?.querySelector('p')?.textContent).toBe('91');
-    expect(screen.getByText(/Heute stehen bisher 19 Besucher/)).toBeTruthy();
+    expect(screen.getByText(/Heute bisher 19 Besucher/)).toBeTruthy();
   });
 
   it('zeigt die Richtung gegen Vortag und gegen denselben Wochentag', async () => {
@@ -272,7 +272,7 @@ describe('StatsDashboard', () => {
     await waitFor(() => expect(screen.getByText('Konten')).toBeTruthy());
     expect(screen.getByText('Konten gesamt').previousElementSibling?.textContent).toBe('6');
     expect(screen.getByText('Aktiv im Zeitraum').previousElementSibling?.textContent).toBe('2');
-    expect(screen.getByText(/5 Stripe-Sitzungen angelegt, davon 5 nie abgeschlossen/)).toBeTruthy();
+    expect(screen.getByText(/5 Stripe-Sitzungen im Zeitraum, 5 offen/)).toBeTruthy();
   });
 
   it('zeigt aktive Nutzer in festen Fenstern neben dem Bestand', async () => {

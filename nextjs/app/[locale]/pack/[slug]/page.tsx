@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { CATALOG } from '@/lib/stripe-catalog';
-import { Link } from '@/i18n/navigation';
 import { getRestaurantsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
@@ -15,10 +14,9 @@ import {
   packUrlSlug,
   formatPackPrice,
   buildPackTeaser,
-  formatPackContents,
-  formatBundleSavings,
 } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
+import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
 import styles from './PackDetail.module.css';
 
@@ -32,30 +30,27 @@ interface PageProps {
 // statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
 export const revalidate = 86400;
 
+// Nur die Kategorie-Packs haben eine Seite. All Berlin ist die Tafel auf
+// /packs plus die „Was drin ist"-Sheet — /pack/all-berlin gibt es nicht mehr.
+const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
+
 export async function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
-    Object.values(CATALOG).map((p) => ({ locale, slug: packUrlSlug(p) }))
+    categoryPacks.map((p) => ({ locale, slug: packUrlSlug(p) }))
   );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const pack = resolvePackByUrlSlug(slug);
-  if (!pack) return {};
+  if (!pack || pack.type !== 'category' || !pack.slug) return {};
   const de = locale === 'de';
-  const category =
-    pack.type === 'category' && pack.slug ? await getCategoryBySlug(pack.slug) : null;
+  const category = await getCategoryBySlug(pack.slug);
   const packTitleName = category
     ? localizedCategoryName(category, de ? 'de' : 'en')
     : pack.displayName;
-  const title =
-    pack.type === 'all-berlin'
-      ? de
-        ? 'All Berlin — alle Packs'
-        : 'All Berlin — every pack'
-      : `${packTitleName} Booster Pack`;
   return {
-    title: { absolute: buildBrandedTitle(title) },
+    title: { absolute: buildBrandedTitle(`${packTitleName} Booster Pack`) },
     description: pack.description[de ? 'de' : 'en'],
     // Conversion page reached from the app — keep it out of the index so it
     // doesn't cannibalise the /kategorie SEO pages, but let links be followed.
@@ -66,96 +61,49 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Ordered 3×3 grid for the All-Berlin fan.
-const ALL_BERLIN_GRID: string[][] = [
-  ['breakfast', 'fine-dining', 'pizza'],
-  ['coffee', 'drinks', 'lunch'],
-  ['dinner', 'sweets', 'fast-food'],
-];
-const ALL_BERLIN_UPSELL = ALL_BERLIN_GRID.flat();
+const copy = {
+  de: {
+    kicker: 'Booster Pack',
+    pack: 'Pack',
+    cta: 'Jetzt freischalten',
+    pending: 'Weiter zu Stripe …',
+    owned: 'Zur Map',
+    error: 'Da ging was schief. Versuch es nochmal.',
+    payment: 'Zahlungsarten',
+    inside: 'Drin im Pack',
+    insideLead:
+      'Drei Spots zeigen wir. Der Rest bleibt verdeckt, bis der Pack auf deiner Map liegt.',
+    covered: 'Verdeckt',
+    more: 'Weitere Spots',
+    moreWhere: 'Auf der Live-Map',
+    map: '/map',
+  },
+  en: {
+    kicker: 'Booster Pack',
+    pack: 'Pack',
+    cta: 'Unlock now',
+    pending: 'Going to Stripe …',
+    owned: 'Open map',
+    error: 'Something went wrong. Please try again.',
+    payment: 'Payment methods',
+    inside: 'Inside the pack',
+    insideLead: 'We show three spots. The rest stays covered until the pack is on your map.',
+    covered: 'Covered',
+    more: 'More spots',
+    moreWhere: 'On the live map',
+    map: '/en/map',
+  },
+} as const;
 
 export default async function PackDetailPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const de = locale === 'de';
-  const loc: 'de' | 'en' = de ? 'de' : 'en';
+  const loc: 'de' | 'en' = locale === 'de' ? 'de' : 'en';
+  const t = copy[loc];
 
   const pack = resolvePackByUrlSlug(slug);
-  if (!pack) notFound();
-
-  const mapHref = de ? '/map' : `/${locale}/map`;
-  const priceLabel = formatPackPrice(pack.amountCents);
-  const buyLabels = {
-    label: `${de ? 'Jetzt freischalten' : 'Unlock now'} · ${priceLabel}`,
-    pendingLabel: de ? 'Weiter zu Stripe …' : 'Going to Stripe …',
-    ownedLabel: de ? 'Zur Map' : 'Open map',
-    ownedHref: mapHref,
-    errorLabel: de
-      ? 'Da ging was schief. Versuch es nochmal.'
-      : 'Something went wrong. Please try again.',
-  };
-  const paymentLogos = (
-    <PaymentMarks
-      height={32}
-      label={`${de ? 'Zahlungsarten' : 'Payment methods'}: ${PAYMENT_MARK_NAMES.join(', ')}`}
-      className={styles.paymentLogos}
-    />
-  );
-
-  // ── All-Berlin variant ──────────────────────────────────────────────
-  if (pack.type === 'all-berlin') {
-    const { allBerlin } = await getPackContents();
-    return (
-      <main className={styles.page}>
-        <div className={styles.inner}>
-          <section className={`${styles.hero} ${styles.heroAll}`}>
-            <div className={styles.copy}>
-              <div className={`${styles.kicker} ${styles.allKicker}`}>
-                {de ? 'Alles auf einmal · alle Packs' : 'Everything at once · every pack'}
-              </div>
-              <h1 className={`${styles.name} ${styles.allName}`}>
-                All
-                <br />
-                <span className={styles.y}>Berlin</span>
-              </h1>
-              <p className={styles.contents}>{formatPackContents(allBerlin, loc)}</p>
-              <p className={styles.sub}>{pack.description[loc]}</p>
-
-              <PackBuyButton
-                packId={pack.packId}
-                packName={pack.displayName}
-                amountCents={pack.amountCents}
-                locale={loc}
-                {...buyLabels}
-              />
-              <p className={styles.savings}>{formatBundleSavings(loc)}</p>
-              {paymentLogos}
-            </div>
-
-            <div className={styles.allStage} aria-hidden="true">
-              <div className={styles.allStack}>
-                {ALL_BERLIN_GRID.map((rowSlugs, i) => (
-                  <div
-                    key={i}
-                    className={`${styles.allRow} ${i === 0 ? styles.allRowTop : i === 1 ? styles.allRowMid : styles.allRowBottom}`}
-                  >
-                    {rowSlugs.map((s) => {
-                      const art = categoryArt(s);
-                      // eslint-disable-next-line @next/next/no-img-element
-                      return art ? <img key={s} src={art} alt="" loading="lazy" /> : null;
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  // ── Category pack variant ───────────────────────────────────────────
-  const categorySlug = pack.slug as string;
+  if (!pack || pack.type !== 'category' || !pack.slug) notFound();
+  const categorySlug = pack.slug;
   const [category, restaurants, packContents] = await Promise.all([
     getCategoryBySlug(categorySlug),
     getRestaurantsByCategory(categorySlug),
@@ -163,115 +111,114 @@ export default async function PackDetailPage({ params }: PageProps) {
   ]);
   const teaser = buildPackTeaser(restaurants);
   const contents = packContents.byCategory[categorySlug];
-  // Rows the teaser names or covers; everything past them is what "und mehr"
-  // has to sell, and it only sells if it says how many.
+  // Rows the teaser names or covers; everything past them is the "more" row.
+  // It deliberately never says how many — see formatPackContents.
   const teased = teaser.revealed.length + teaser.locked.length;
   const more = contents ? contents.spots - teased : 0;
   const art = categoryArt(categorySlug);
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
-  const allBerlinHref = '/pack/all-berlin';
-  // Never spell the bundle price out here — it was hardcoded as 20 € and
-  // survived the drop to 9,99 € on this one CTA.
-  const allBerlinPrice = formatPackPrice(CATALOG['all-berlin'].amountCents);
 
   return (
     <main className={styles.page}>
       <div className={styles.inner}>
         <section className={styles.hero}>
           <div className={styles.copy}>
-            <div className={styles.kicker}>Booster Pack</div>
+            <p className={styles.kicker}>{t.kicker}</p>
             <h1 className={styles.name}>
-              <span>{heroName}</span> <span className={styles.nameLine}>Pack</span>
+              {heroName}
+              <br />
+              {t.pack}
             </h1>
+            <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
             <p className={styles.sub}>{pack.description[loc]}</p>
 
-            <PackBuyButton
-              packId={pack.packId}
-              packName={pack.displayName}
-              amountCents={pack.amountCents}
-              locale={loc}
-              {...buyLabels}
-            />
-            {paymentLogos}
+            <div className={styles.actions}>
+              <PackBuyButton
+                packId={pack.packId}
+                packName={pack.displayName}
+                amountCents={pack.amountCents}
+                locale={loc}
+                className={styles.cta}
+                errorClassName={styles.ctaError}
+                label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
+                pendingLabel={t.pending}
+                ownedLabel={t.owned}
+                ownedHref={t.map}
+                errorLabel={t.error}
+              />
+              <PaymentMarks
+                height={24}
+                label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
+                className={styles.paymentLogos}
+              />
+            </div>
           </div>
 
           {art && (
             <div className={styles.stage}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={art} alt={`${heroName} Pack`} className={styles.packArt} />
+              <Image
+                src={art}
+                alt={`${heroName} ${t.pack}`}
+                width={420}
+                height={656}
+                sizes="(max-width: 759px) 66vw, 400px"
+                priority
+                className={styles.packArt}
+              />
             </div>
           )}
         </section>
 
-        <section className={styles.contentGrid}>
-          {teaser.revealed.length > 0 && (
-            <div className={styles.panel}>
-              <div className={styles.insideLabel}>{de ? 'Drin im Pack' : 'Inside the pack'}</div>
-              <div className={styles.list}>
-                {teaser.revealed.map((r, i) => (
-                  <div key={`r${i}`} className={styles.row}>
-                    <div className={styles.thumb}>{String(i + 1).padStart(2, '0')}</div>
-                    <span className={styles.rn}>{r.name}</span>
-                    {r.district && <span className={styles.mn}>{r.district}</span>}
-                  </div>
-                ))}
-                {teaser.locked.map((l, i) => (
-                  <div key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
-                    <div className={styles.thumb}>
-                      {String(teaser.revealed.length + i + 1).padStart(2, '0')}
-                    </div>
-                    <span className={styles.rn}>{de ? 'Verdeckt' : 'Covered'}</span>
-                    {l.district && <span className={styles.mn}>{l.district}</span>}
-                  </div>
-                ))}
-                {more > 0 && (
-                  <div className={`${styles.row} ${styles.rowLocked}`}>
-                    <div className={styles.thumb}>+</div>
-                    <span className={styles.rn}>{de ? 'Weitere Spots' : 'More spots'}</span>
-                    <span className={styles.mn}>{de ? 'Live-Map' : 'Live map'}</span>
-                  </div>
-                )}
-              </div>
+        {teaser.revealed.length > 0 && (
+          <section className={styles.section} aria-labelledby="pack-inside-title">
+            <div className={styles.sectionHead}>
+              <h2 id="pack-inside-title" className={styles.sectionTitle}>
+                <span className={styles.mk} aria-hidden="true" />
+                {t.inside}
+              </h2>
+              <p className={styles.sectionLead}>{t.insideLead}</p>
             </div>
-          )}
 
-          <div className={styles.upsell}>
-            <Link href={allBerlinHref}>
-              <span className={styles.upsellArt} aria-hidden="true">
-                {ALL_BERLIN_UPSELL.map((s) => {
-                  const boosterArt = categoryArt(s);
-                  return boosterArt ? (
-                    <Image
-                      key={s}
-                      src={boosterArt}
-                      alt=""
-                      width={70}
-                      height={108}
-                      // Renders WIDER than its width prop: 96px below 760px,
-                      // 132px above (PackDetail.module.css:552, :642). The
-                      // x-descriptor srcset topped out at 256w, which is short
-                      // of 132px on retina — this makes it sharp, not smaller.
-                      sizes="(max-width: 760px) 96px, 132px"
-                      className={styles.upsellPack}
-                    />
-                  ) : null;
-                })}
-              </span>
-              <span className={styles.upsellCopy}>
-                <span className={styles.upsellKicker}>
-                  {de ? 'Lieber alles auf einmal' : 'Rather everything at once'}
-                </span>
-                <span className={styles.upsellMain}>All Berlin</span>
-                <span className={styles.upsellCta}>
-                  {de
-                    ? `Alle Packs freischalten · ${allBerlinPrice}`
-                    : `Unlock every pack · ${allBerlinPrice}`}
-                </span>
-                <span className={styles.upsellSavings}>{formatBundleSavings(loc)}</span>
-              </span>
-            </Link>
-          </div>
-        </section>
+            <ol className={styles.list}>
+              {teaser.revealed.map((r, i) => (
+                <li key={`r${i}`} className={styles.row}>
+                  <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
+                  <span className={styles.rn}>{r.name}</span>
+                  {r.district && <span className={styles.mn}>{r.district}</span>}
+                </li>
+              ))}
+              {teaser.locked.map((l, i) => (
+                <li key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
+                  <span className={styles.num}>
+                    {String(teaser.revealed.length + i + 1).padStart(2, '0')}
+                  </span>
+                  <span className={styles.rn}>
+                    <span className={`${styles.covered} ${i % 2 ? styles.coveredLong : ''}`}>
+                      {t.covered}
+                    </span>
+                  </span>
+                  {l.district && <span className={styles.mn}>{l.district}</span>}
+                </li>
+              ))}
+              {more > 0 && (
+                <li className={`${styles.row} ${styles.rowLocked}`}>
+                  <span className={styles.num}>+</span>
+                  <span className={`${styles.rn} ${styles.rnMore}`}>{t.more}</span>
+                  <span className={styles.mn}>{t.moreWhere}</span>
+                </li>
+              )}
+            </ol>
+          </section>
+        )}
+
+        <div className={styles.upsell}>
+          <AllBerlinBoard
+            locale={loc}
+            contents={packContents.allBerlin}
+            variant="upsell"
+            headingLevel="h2"
+          />
+        </div>
       </div>
     </main>
   );

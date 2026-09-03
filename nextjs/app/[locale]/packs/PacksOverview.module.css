@@ -1,101 +1,179 @@
+/* /packs — der Laden. Die Seite beginnt direkt mit der All-Berlin-Tafel
+   (AllBerlinBoard, dort sitzt die H1); darunter die neun Kategorie-Packs
+   randlos auf Weiß. Keine grauen Kacheln, kein Aufmacher, der die Tafel nur
+   wiederholt. */
+
 .page {
   --packs-paper: var(--et-home-paper, #fff);
   --packs-ink: var(--et-home-ink, #15120e);
   --packs-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  --packs-quiet: var(--et-home-quiet, #f2f1ef);
   --packs-accent: var(--et-home-accent, #ffc600);
   --packs-red: var(--et-home-red, #d9382a);
+  --packs-rule: var(--et-home-rule, #e4e1dc);
   min-height: 100%;
   overflow-x: clip;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(24px, 4vw, 52px)) 0
+  padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px)) 0
     clamp(64px, 8vw, 120px);
   background: var(--packs-paper);
   color: var(--packs-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
-.hero,
-.catalog {
+.wrap {
   width: min(100% - clamp(28px, 5vw, 72px), var(--et-wrap-max, 1360px));
   margin: 0 auto;
+  padding-top: clamp(16px, 3vw, 40px);
 }
 
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.82fr);
+/* Das gelbe 9px-Quadrat der Startseiten-Kicker. */
+.mk {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--packs-accent);
+}
+
+/* ── Kategorie-Packs ───────────────────────────────────────────────────── */
+
+.catalog {
+  padding-top: clamp(56px, 7vw, 104px);
+}
+
+.catalogHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px 32px;
+  margin-bottom: clamp(26px, 3.4vw, 44px);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--packs-rule);
+}
+
+.sectionTitle {
+  display: flex;
   align-items: center;
-  gap: clamp(28px, 5vw, 72px);
-  padding-bottom: clamp(36px, 6vw, 78px);
-}
-
-.heroCopy {
-  max-width: 680px;
-}
-
-.heroTitle {
-  max-width: 8ch;
+  gap: 10px;
   margin: 0;
   color: var(--packs-red);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  /* Wie beim Kategorie-Hub: 100px lagen weit über allem, was die gemessenen
-     Wettbewerber fahren. Untergrenze bleibt 58, damit die 700px-Grenze zum
-     Mobile-Wert unten sich nicht anders verhält als bisher. */
-  font-size: clamp(58px, 5.3vw, 68px);
+  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 0.84;
+  line-height: var(--et-leading-title, 0.92);
   text-transform: uppercase;
 }
 
-.heroLead {
-  max-width: 42ch;
-  margin: clamp(18px, 3vw, 30px) 0 0;
+.sectionLead {
+  margin: 0;
   color: var(--packs-muted);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: var(--et-type-body, clamp(15px, 1.2vw, 17px));
   font-weight: 400;
-  letter-spacing: 0;
-  line-height: var(--et-leading-copy, 1.5);
+  line-height: 1.4;
 }
 
-.includeList {
+.grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  max-width: 640px;
-  margin: clamp(22px, 3vw, 34px) 0 0;
+  gap: clamp(40px, 5vw, 64px) clamp(20px, 3vw, 40px);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.includeList li {
-  min-height: 46px;
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  background: var(--packs-quiet);
+/* Kachel = Link oben, Knopf unten. Die Kacheln einer Reihe sind gleich hoch,
+   und der Link bekommt den Rest — so steht der Knopf in jeder Reihe auf
+   derselben Linie, egal ob die Spectrum-Zeile ein- oder zweizeilig läuft. */
+.tile {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Die ganze Kachel ist der Weg zur Detailseite — Pack, Name und Zeile in
+   einem Link, ohne „Details"-Textlink daneben. Die Fläche selbst ist die
+   Affordanz; der Pack hebt sich beim Hover, der Name wird rot. */
+.tileLink {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
   color: var(--packs-ink);
-  font-size: var(--et-type-button, 13px);
+  text-decoration: none;
+}
+
+.tileLink:focus-visible {
+  outline: 2px solid var(--packs-accent);
+  outline-offset: 6px;
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+/* Der Pack steht frei auf Weiß, mit Schatten — nie auf einer Fläche. */
+.art {
+  display: block;
+  width: min(66%, 220px);
+  height: auto;
+  margin: 6% 0 10%;
+  filter: drop-shadow(0 16px 22px rgba(21, 18, 14, 0.2));
+  transform: rotate(-3deg);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tile:nth-child(3n + 2) .art {
+  transform: rotate(2deg);
+}
+
+.tile:nth-child(3n) .art {
+  transform: rotate(-1deg);
+}
+
+.tileLink:hover .art,
+.tileLink:focus-visible .art {
+  transform: translateY(-6px) rotate(-5deg) scale(1.03);
+}
+
+.tileName {
+  display: block;
+  color: var(--packs-ink);
+  font-size: clamp(26px, 2.6vw, 36px);
   font-weight: 700;
-  line-height: 1.12;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  transition: color var(--et-motion-fast, 140ms ease);
 }
 
-.heroActions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: clamp(24px, 4vw, 38px);
+.tileLink:hover .tileName,
+.tileLink:focus-visible .tileName {
+  color: var(--packs-red);
 }
 
-.buyButton {
-  display: flex;
+/* Die Spectrum-Zeile ist die Headline des Packs — „Holzofen. Pinsa. NY-Slice." */
+.spectrum {
+  display: block;
+  color: var(--packs-muted);
+  font-size: var(--et-type-body, clamp(15px, 1.2vw, 17px));
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Ink-Knopf, bei Hover gelb — wie der „Wie geht das?"-Knopf der Must Eats. */
+.buy {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: min(100%, 520px);
-  min-height: 48px;
-  margin: 14px 0 12px;
-  padding: 0 18px;
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 0 20px;
+  background: var(--packs-ink);
   color: var(--packs-paper);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
@@ -104,381 +182,79 @@
   text-decoration: none;
   text-transform: none;
   white-space: nowrap;
-  background: var(--packs-ink);
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
   cursor: pointer;
   transition:
     transform var(--et-motion-fast, 140ms ease),
-    background-color var(--et-motion-fast, 140ms ease);
+    background-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
 }
 
-.buyButton:hover,
-.buyButton:focus-visible {
+.buy:hover,
+.buy:focus-visible {
+  background: var(--packs-accent);
+  color: var(--packs-ink);
   transform: translateY(-2px);
 }
 
-.buyButton:active {
+.buy:active {
   transform: translateY(0);
 }
 
-.heroBuyButton {
-  width: min(100%, 430px);
-  min-height: 54px;
-  padding: 0 18px 0 22px;
-  color: var(--packs-ink);
-  font-size: clamp(16px, 1.4vw, 19px);
-  line-height: 0.95;
-  background: var(--packs-accent);
-}
-
-.buyButton:disabled {
+.buy:disabled {
   cursor: wait;
   transform: none;
 }
 
 .buyError {
-  flex-basis: 100%;
-  width: min(100%, 520px);
-  margin: 0;
-  color: var(--et-home-red, #d9382a);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  margin: 8px 0 0;
+  color: var(--packs-red);
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.35;
 }
 
-/* Same line as the pack detail hero, in the hero's action column. */
-.savings {
-  width: min(100%, 520px);
-  margin: 0;
-  color: var(--packs-ink);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.payTrust {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  width: min(100%, 430px);
-  margin-top: 2px;
-}
-
-.heroDetailLink {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 0;
-  color: var(--packs-muted);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-  transition:
-    color var(--et-motion-fast, 140ms ease),
-    transform var(--et-motion-fast, 140ms ease);
-}
-
-.heroDetailLink:hover,
-.heroDetailLink:focus-visible {
-  color: var(--packs-ink);
-  transform: translateX(2px);
-}
-
-.heroStage {
-  position: relative;
-  place-self: center;
-  width: min(100%, 640px);
-  min-height: clamp(390px, 39vw, 540px);
-  isolation: isolate;
-}
-
-.heroPack {
-  position: absolute;
-  width: clamp(124px, 13vw, 190px);
-  height: auto;
-  filter: drop-shadow(0 20px 28px rgba(21, 18, 14, 0.2));
-  transform-origin: 50% 92%;
-}
-
-.heroPack1 {
-  z-index: 4;
-  left: 18%;
-  top: 38%;
-  transform: translate(-50%, -50%) rotate(-14deg);
-}
-
-.heroPack2 {
-  z-index: 5;
-  left: 34%;
-  top: 30%;
-  transform: translate(-50%, -50%) rotate(-8deg);
-}
-
-.heroPack3 {
-  z-index: 6;
-  left: 50%;
-  top: 27%;
-  transform: translate(-50%, -50%) rotate(0deg);
-}
-
-.heroPack4 {
-  z-index: 5;
-  left: 66%;
-  top: 30%;
-  transform: translate(-50%, -50%) rotate(8deg);
-}
-
-.heroPack5 {
-  z-index: 4;
-  left: 82%;
-  top: 38%;
-  transform: translate(-50%, -50%) rotate(14deg);
-}
-
-.heroPack6 {
-  z-index: 7;
-  left: 28%;
-  top: 76%;
-  transform: translate(-50%, -50%) rotate(-8deg);
-}
-
-.heroPack7 {
-  z-index: 8;
-  left: 43%;
-  top: 74%;
-  transform: translate(-50%, -50%) rotate(-3deg);
-}
-
-.heroPack8 {
-  z-index: 9;
-  left: 59%;
-  top: 74%;
-  transform: translate(-50%, -50%) rotate(3deg);
-}
-
-.heroPack9 {
-  z-index: 10;
-  left: 74%;
-  top: 76%;
-  transform: translate(-50%, -50%) rotate(8deg);
-}
-
-.catalog {
-  padding-top: clamp(34px, 6vw, 78px);
-}
-
-.catalogHead {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(280px, 0.62fr);
-  gap: clamp(20px, 5vw, 64px);
-  align-items: flex-end;
-  margin-bottom: clamp(22px, 4vw, 42px);
-}
-
-.catalogHead h2 {
-  margin: 0;
-  color: var(--packs-red);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: var(--et-type-hero-compact, clamp(42px, 6vw, 68px));
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.9;
-  text-transform: uppercase;
-}
-
-.catalogHead p {
-  max-width: 38ch;
-  margin: 0;
-  color: var(--packs-muted);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
-  line-height: var(--et-leading-copy, 1.5);
-}
-
-.packGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(18px, 2vw, 28px);
-}
-
-.packTile {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-width: 0;
-  padding: clamp(16px, 2vw, 22px);
-  background: var(--packs-quiet);
-}
-
-.packArtLink {
-  display: grid;
-  place-items: center;
-  min-height: clamp(190px, 22vw, 300px);
-  color: inherit;
-}
-
-.packArt {
-  display: block;
-  width: min(72%, 210px);
-  height: auto;
-  filter: drop-shadow(0 12px 18px rgba(21, 18, 14, 0.18));
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.packArtLink:hover .packArt,
-.packArtLink:focus-visible .packArt {
-  transform: translateY(-4px) rotate(-2deg);
-}
-
-.packInfo {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  padding-top: clamp(14px, 2vw, 24px);
-}
-
-.packName {
-  margin: 0;
-  color: var(--packs-ink);
-  font-size: clamp(27px, 3.2vw, 42px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.9;
-  text-transform: uppercase;
-}
-
-.spectrum {
-  margin: 0;
-  color: var(--packs-ink);
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.18;
-}
-
-.desc {
-  margin: 0;
-  color: var(--packs-muted);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.6;
-}
-
-.packActions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.detailLink {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 0;
-  color: var(--packs-muted);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-  transition:
-    color var(--et-motion-fast, 140ms ease),
-    transform var(--et-motion-fast, 140ms ease);
-}
-
-.detailLink:hover,
-.detailLink:focus-visible {
-  color: var(--packs-ink);
-  transform: translateX(2px);
-}
-
 @media (max-width: 980px) {
-  .hero,
-  .catalogHead {
-    grid-template-columns: 1fr;
-  }
-
-  .heroStage {
-    order: -1;
-    width: min(100%, 480px);
-    min-height: 340px;
-    margin-bottom: clamp(10px, 3vw, 18px);
-  }
-
-  .packGrid {
+  .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 560px) {
-  .page {
-    padding-top: calc(72px + env(safe-area-inset-top, 0px) + 18px);
-  }
-
-  .hero,
-  .catalog {
+@media (max-width: 559px) {
+  .wrap {
     width: calc(100% - 28px);
   }
 
-  .hero {
-    gap: 10px;
-    padding-bottom: 34px;
+  .catalog {
+    padding-top: 48px;
   }
 
-  .heroStage {
-    width: min(100%, 330px);
-    min-height: 274px;
-    margin-bottom: 16px;
+  .grid {
+    gap: 32px 14px;
   }
 
-  .heroPack {
-    width: clamp(70px, 22vw, 92px);
+  .art {
+    width: min(78%, 150px);
   }
 
-  .heroBuyButton,
-  .payTrust {
+  .tileName {
+    font-size: 22px;
+  }
+
+  .spectrum {
+    font-size: 13px;
+  }
+
+  .buy {
     width: 100%;
+    margin-top: 12px;
   }
+}
 
-  .heroTitle {
-    font-size: clamp(40px, 11vw, 46px);
-  }
-
-  .heroLead {
-    font-size: 16px;
-  }
-
-  .includeList {
-    grid-template-columns: 1fr;
-  }
-
-  .catalogHead {
-    gap: 12px;
-  }
-
-  .catalogHead h2 {
-    font-size: clamp(40px, 13vw, 62px);
-  }
-
-  .packGrid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .packTile {
-    padding: 16px;
-  }
-
-  .packArtLink {
-    min-height: 216px;
-  }
-
-  .packArt {
-    width: min(58%, 178px);
-  }
-
-  .packActions {
-    align-items: flex-start;
+/* iOS rendert Filter-Schatten auf neun Ausschnitt-Bildern spürbar zäh. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .art {
+      filter: none;
+    }
   }
 }

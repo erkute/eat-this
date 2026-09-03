@@ -153,7 +153,7 @@ export async function POST(request: Request) {
   }
 
   const userAgent = userAgentOf(body, request.headers.get('user-agent'));
-  if (isAutomated(userAgent, ip)) return new NextResponse(null, { status: 204 });
+  if (isAutomated(userAgent)) return new NextResponse(null, { status: 204 });
 
   const path = pathKey(body.path);
   if (!path) return new NextResponse(null, { status: 204 });

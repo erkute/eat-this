@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { auth } from '@/lib/firebase/config';
 import {
-  FULL_DAY_FIELDS_SINCE,
   type Delta,
   type Entry,
   type ExitEntry,
@@ -12,6 +11,7 @@ import {
   type Mover,
   type StatsSummary,
 } from '@/lib/admin/stats.server';
+import type { SearchRow, SearchSummary } from '@/lib/admin/searchConsole';
 import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
 import styles from './StatsDashboard.module.css';
 
@@ -38,6 +38,16 @@ const RANGES = [
  * zeigen, sonst luegt die Fussnote.
  */
 const BOT_FILTER_LIVE_SINCE = '02.09.2026';
+
+/**
+ * Der zweite Schnitt: bis hierher zaehlte die EIGENE Lighthouse-CI mit. Sie
+ * laeuft bei jedem Push und PR nach main, drei Durchgaenge auf fuenf Seiten,
+ * und Lighthouse 12 sendet seinen Telefon-UA ohne die Kennung
+ * „Chrome-Lighthouse" — der Filter sah einen normalen Browser (belegt am
+ * 03.09.2026, lib/analytics/botFilter.ts). Muss auf den Rollout-Tag des
+ * Filters zeigen.
+ */
+const LIGHTHOUSE_FILTER_LIVE_SINCE = '04.09.2026';
 
 const EVENT_LABELS: Record<string, string> = {
   begin_checkout: 'Kauf begonnen',
@@ -143,9 +153,7 @@ export default function StatsDashboard() {
     <main className={styles.page}>
       <header className={styles.head}>
         <h1 className={styles.title}>Zahlen</h1>
-        <p className={styles.sub}>
-          Einwilligungsfreier Zähler — jeder Besuch, nicht nur die Zustimmenden.
-        </p>
+        <p className={styles.sub}>Alle Besuche, ohne Cookie-Zustimmung.</p>
         <div className={styles.ranges}>
           {RANGES.map((range) => (
             <button
@@ -170,6 +178,7 @@ export default function StatsDashboard() {
           <Yesterday data={data} />
           <Headline data={data} />
           <AccountsCard data={data} />
+          <SearchCard data={data} />
           <Trend
             title="Besucher"
             points={data.days.map((d) => ({ day: d.day, value: d.visitors }))}
@@ -221,19 +230,10 @@ function Headline({ data }: { data: StatsSummary }) {
       </section>
       {period && (
         <p className={styles.note}>
-          Die Pfeile vergleichen den Schnitt <strong>je vollem Tag</strong> mit der Periode davor
-          — {NUMBER.format(period.daysNow)} abgeschlossene Tage gegen {NUMBER.format(period.days)}
-          ; der laufende Tag bleibt draußen.
-          {period.days !== period.daysNow &&
-            ' Die Perioden sind kalendarisch gleich lang; dass unterschiedlich viele Tage Daten tragen, gleicht der Tagesschnitt aus.'}
+          Pfeile: Schnitt je vollem Tag gegen die Periode davor. Bis {BOT_FILTER_LIVE_SINCE} zählten
+          Bots mit, bis {LIGHTHOUSE_FILTER_LIVE_SINCE} die eigene Lighthouse-CI.
         </p>
       )}
-      <p className={styles.note}>
-        Bis zum {BOT_FILTER_LIVE_SINCE} sah der Zähler keinen User-Agent — die Edge ersetzt ihn —
-        und zählte Bingbot, Baidu und einen Azure-Crawler mit Lighthouse-Kennung als Besucher,
-        zuletzt rund ein Drittel aller Beacons. Zahlen davor sind entsprechend zu hoch; die fünf
-        Lighthouse-Seiten (Startseite, Karte, News, Engelbecken, Pizza-Hub) am stärksten.
-      </p>
     </>
   );
 }
@@ -288,7 +288,7 @@ function Yesterday({ data }: { data: StatsSummary }) {
       </h2>
       <p className={styles.big}>{NUMBER.format(latest.day.visitors)}</p>
       <p className={styles.note}>
-        Besucher, {NUMBER.format(latest.day.pageviews)} Seitenaufrufe — der letzte volle Tag.
+        Besucher, {NUMBER.format(latest.day.pageviews)} Seitenaufrufe.
       </p>
       <div className={styles.changes}>
         {latest.vsPrevDay && <Change delta={latest.vsPrevDay.visitors} label="zum Vortag" />}
@@ -298,8 +298,8 @@ function Yesterday({ data }: { data: StatsSummary }) {
       </div>
       {today && (
         <p className={styles.note}>
-          Heute stehen bisher {NUMBER.format(today.visitors)} Besucher und{' '}
-          {NUMBER.format(today.pageviews)} Aufrufe — der Tag läuft noch, die Zahl wächst.
+          Heute bisher {NUMBER.format(today.visitors)} Besucher, {NUMBER.format(today.pageviews)}{' '}
+          Aufrufe.
         </p>
       )}
     </section>
@@ -345,9 +345,6 @@ function Trend({
           </div>
         ))}
       </div>
-      {today && points.some((p) => p.day === today) && (
-        <p className={styles.note}>Der letzte Balken ist der laufende Tag und noch nicht fertig.</p>
-      )}
     </section>
   );
 }
@@ -376,10 +373,7 @@ function Weekdays({ data }: { data: StatsSummary }) {
           </li>
         ))}
       </ol>
-      <p className={styles.note}>
-        Besucher im Schnitt je Wochentag, über die abgeschlossenen Tage des Zeitraums. Der laufende
-        Tag zählt nicht mit.
-      </p>
+      <p className={styles.note}>Besucher im Schnitt je Wochentag.</p>
     </section>
   );
 }
@@ -397,12 +391,6 @@ function Movers({ data }: { data: StatsSummary }) {
         <MoverList title="Seiten" rows={paths} />
         <MoverList title="Herkunft" rows={referrers} />
       </div>
-      <p className={styles.note}>
-        Absolute Zahlen gegen die {NUMBER.format(data.period.days)} gemessenen Tage davor
-        {data.period.days !== data.period.daysNow
-          ? ` — die tragen weniger Tage als die ${NUMBER.format(data.period.daysNow)} hier, die Differenzen fallen also zu hoch aus.`
-          : '.'}
-      </p>
     </section>
   );
 }
@@ -443,22 +431,9 @@ function Consent({ data }: { data: StatsSummary }) {
           <p className={styles.big}>{percent(consent.rate)}</p>
           <p className={styles.note}>
             der Besucher stimmen zu — {NUMBER.format(consent.accepted)} von{' '}
-            {NUMBER.format(consent.visitors)}. Dazu {NUMBER.format(consent.declined)} Ablehnungen;
-            die übrigen {NUMBER.format(Math.max(0, silent))} hatten schon früher geantwortet, sind
-            Bots oder gingen ohne Antwort — auseinanderhalten kann der Zähler das nicht. Genau die
-            Zustimmenden sieht Google Analytics — alle anderen werden nur hier gezählt.
-          </p>
-          <p className={styles.note}>
-            Der Dialog erschien {NUMBER.format(consent.shown)} Mal, also{' '}
-            {consent.viewsPerVisitor === null
-              ? '—'
-              : consent.viewsPerVisitor.toFixed(1).replace('.', ',')}{' '}
-            Mal je Besucher: er blockiert und kommt bei jedem Seitenaufruf wieder, bis jemand
-            antwortet. Gegen die Einblendungen gerechnet wären es{' '}
-            {consent.ratePerView === null ? '—' : percent(consent.ratePerView)} — dieselbe
-            Wirklichkeit, nur durch den falschen Nenner geteilt. Grundlage sind{' '}
-            {NUMBER.format(consent.days)} von {NUMBER.format(data.totals.days)} Tagen; der Dialog
-            wird erst seit dem {shortDay(FULL_DAY_FIELDS_SINCE)}2026 ganztägig gezählt.
+            {NUMBER.format(consent.visitors)}, {NUMBER.format(consent.declined)} lehnen ab,{' '}
+            {NUMBER.format(Math.max(0, silent))} antworten nicht. Nur die Zustimmenden sieht Google
+            Analytics.
           </p>
         </>
       )}
@@ -475,13 +450,7 @@ function Funnels({ data }: { data: StatsSummary }) {
           <FunnelColumn key={funnel.label} funnel={funnel} visitors={data.totals.visitors} />
         ))}
       </div>
-      <p className={styles.note}>
-        Ereignisse, keine Personen: wer die Karte dreimal öffnet, zählt dreimal, und der Zähler
-        kennt bewusst niemanden wieder. „je 100“ setzt jede Stufe ins Verhältnis zu den{' '}
-        {NUMBER.format(data.totals.visitors)} Besuchern des Zeitraums — über 100 heißt: öfter als
-        einmal je Besucher. Ein echter Personen-Trichter wäre erst mit Sitzungen messbar, und die
-        gibt es hier absichtlich nicht.
-      </p>
+      <p className={styles.note}>Ereignisse, rechte Spalte je 100 Besucher.</p>
     </section>
   );
 }
@@ -533,6 +502,13 @@ function AccountsCard({ data }: { data: StatsSummary }) {
   return (
     <section className={styles.card}>
       <h2 className={styles.cardTitle}>Konten</h2>
+      <h3 className={styles.funnelTitle}>Aktive Nutzer</h3>
+      <section className={styles.tiles}>
+        <Tile value={NUMBER.format(a.active.day)} label="Heute" />
+        <Tile value={NUMBER.format(a.active.week)} label="Letzte 7 Tage" />
+        <Tile value={NUMBER.format(a.active.month)} label="Letzte 30 Tage" />
+      </section>
+      <h3 className={styles.funnelTitle}>Bestand</h3>
       <section className={styles.tiles}>
         <Tile value={NUMBER.format(a.total)} label="Konten gesamt" />
         <Tile value={NUMBER.format(a.newInWindow)} label="Neu im Zeitraum" />
@@ -543,15 +519,144 @@ function AccountsCard({ data }: { data: StatsSummary }) {
         />
       </section>
       <p className={styles.note}>
-        Aus Firebase Auth, ohne das Admin-Konto. „Aktiv“ heißt: die App hat im Zeitraum ein
-        Anmelde-Token erneuert — die Anmeldung selbst hält Monate, das Token nur eine Stunde, also
-        ist das die Spur einer geöffneten Seite mit Konto. {NUMBER.format(a.google)} über Google,{' '}
-        {NUMBER.format(a.email)} über Magic Link; {NUMBER.format(a.withFavorites)} haben Spots
-        gespeichert. Käufe sind bezahlte Stripe-Entitlements; im Zeitraum wurden{' '}
-        {NUMBER.format(a.checkouts.inWindow)} Stripe-Sitzungen angelegt, davon{' '}
-        {NUMBER.format(a.checkouts.open)} nie abgeschlossen.
+        {NUMBER.format(a.google)} über Google, {NUMBER.format(a.email)} über Magic Link,{' '}
+        {NUMBER.format(a.withFavorites)} mit gespeicherten Spots. {NUMBER.format(a.checkouts.inWindow)}{' '}
+        Stripe-Sitzungen im Zeitraum, {NUMBER.format(a.checkouts.open)} offen.
       </p>
     </section>
+  );
+}
+
+/** Prozent mit einer Stelle, für CTR — „0,6 %" statt „0.0056". */
+function ctr(value: number): string {
+  return percent(value);
+}
+
+function position(value: number): string {
+  return value > 0 ? value.toFixed(1).replace('.', ',') : '—';
+}
+
+/**
+ * Die Google-Suche. Andere Quelle, andere Menschen: die Search Console zählt
+ * Suchergebnisse, nicht Besuche, und ihre Zahlen kommen zwei bis drei Tage
+ * nach dem Tag. Deshalb eine eigene Karte mit eigener Beschriftung — und mit
+ * einem ehrlichen Zustand, wenn der Zugang fehlt, statt einer leeren Tabelle.
+ */
+function SearchCard({ data }: { data: StatsSummary }) {
+  const search = data.search;
+  if (!search) return null;
+  if (!search.ok) {
+    return (
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>Google-Suche</h2>
+        {search.reason === 'no-access' ? (
+          <p className={styles.note}>
+            Kein Zugriff. In der Search Console unter „Nutzer und Berechtigungen“{' '}
+            <code className={styles.code}>{search.identity ?? '(unbekannt)'}</code> als Nutzer
+            eintragen.
+          </p>
+        ) : (
+          <p className={styles.note}>Search Console antwortet nicht: {search.message}</p>
+        )}
+      </section>
+    );
+  }
+  const s: SearchSummary = search.data;
+  const { totals, before } = s;
+  return (
+    <section className={styles.card}>
+      <h2 className={styles.cardTitle}>Google-Suche</h2>
+      <section className={styles.tiles}>
+        <Tile
+          value={NUMBER.format(totals.clicks)}
+          label="Klicks"
+          delta={before ? { now: totals.clicks, before: before.clicks, change: change(totals.clicks, before.clicks) } : null}
+        />
+        <Tile
+          value={NUMBER.format(totals.impressions)}
+          label="Impressionen"
+          delta={
+            before
+              ? {
+                  now: totals.impressions,
+                  before: before.impressions,
+                  change: change(totals.impressions, before.impressions),
+                }
+              : null
+          }
+        />
+        <Tile value={ctr(totals.ctr)} label={before ? `Klickrate · vorher ${ctr(before.ctr)}` : 'Klickrate'} />
+        <Tile
+          value={position(totals.position)}
+          label={before ? `Position · vorher ${position(before.position)}` : 'Position'}
+        />
+      </section>
+      <p className={styles.note}>
+        {shortDay(s.range.start)} bis {shortDay(s.range.end)}, Pfeile gegen die{' '}
+        {NUMBER.format(s.range.days)} Tage davor. Die letzten zwei bis drei Tage liefert Google
+        nachträglich.
+      </p>
+      <Trend
+        title="Klicks aus der Suche"
+        points={s.days.map((d) => ({ day: d.day, value: d.clicks }))}
+      />
+      <div className={styles.columns}>
+        <SearchTable
+          title="Welche Suche funktioniert"
+          rows={s.queries}
+          empty="Noch keine Klicks aus der Suche."
+        />
+        <SearchTable title="Welche Seite gefunden wird" rows={s.pages} empty="Noch keine Klicks." />
+      </div>
+      <SearchTable
+        title="Fast oben — oft gezeigt, selten geklickt"
+        rows={s.opportunities}
+        empty="Nichts zwischen Position 4 und 20 mit nennenswerten Impressionen."
+      />
+      <p className={styles.note}>Position 4 bis 20, mindestens 30 Impressionen.</p>
+    </section>
+  );
+}
+
+function change(now: number, before: number): number | null {
+  return before > 0 ? (now - before) / before : null;
+}
+
+function SearchTable({ title, rows, empty }: { title: string; rows: SearchRow[]; empty: string }) {
+  return (
+    <div>
+      <h3 className={styles.funnelTitle}>{title}</h3>
+      {rows.length === 0 ? (
+        <p className={styles.note}>{empty}</p>
+      ) : (
+        <div className={styles.scroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th scope="col">Suche</th>
+                <th scope="col">Klicks</th>
+                <th scope="col">Impr.</th>
+                <th scope="col">CTR</th>
+                <th scope="col">Pos.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.key}>
+                  <td className={styles.cellKey} title={row.key}>
+                    {row.key}
+                  </td>
+                  <td className={styles.cellNum}>{NUMBER.format(row.clicks)}</td>
+                  <td className={styles.cellNum}>{NUMBER.format(row.impressions)}</td>
+                  <td className={styles.cellNum}>{ctr(row.ctr)}</td>
+                  <td className={styles.cellNum}>{position(row.position)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -590,10 +695,7 @@ function Exits({ data }: { data: StatsSummary }) {
     <section className={styles.card}>
       <h2 className={styles.cardTitle}>Wo Besuche enden</h2>
       {data.exits.length === 0 ? (
-        <p className={styles.note}>
-          Für diesen Zeitraum liegen keine Fortsetzungen vor — das Feld wird erst seit dem
-          28.08.2026 geschrieben.
-        </p>
+        <p className={styles.note}>Für diesen Zeitraum nicht erfasst.</p>
       ) : (
         <>
           <table className={styles.table}>
@@ -619,9 +721,7 @@ function Exits({ data }: { data: StatsSummary }) {
             </tbody>
           </table>
           <p className={styles.note}>
-            Gerechnet über {NUMBER.format(data.exitDays)} von {NUMBER.format(data.totals.days)}{' '}
-            Tagen. Ein harter Neuladen zählt nicht als Fortsetzung, die Quote ist darum eher zu
-            hoch als zu niedrig.
+            Über {NUMBER.format(data.exitDays)} von {NUMBER.format(data.totals.days)} Tagen.
           </p>
         </>
       )}

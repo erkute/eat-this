@@ -366,7 +366,8 @@ describe('summarizeAccounts', () => {
       ],
       [],
       [],
-      '2026-08-25'
+      '2026-08-25',
+      '2026-08-30'
     );
 
     expect(result).toMatchObject({
@@ -377,6 +378,28 @@ describe('summarizeAccounts', () => {
       email: 2,
       withFavorites: 1,
     });
+  });
+
+  it('zählt aktive Nutzer in festen Fenstern — heute, 7 und 30 Tage — unabhängig vom Zeitraum', () => {
+    // Gewaehlt sind 90 Tage (Fensterstart 02.06.), die festen Fenster
+    // bleiben davon unberuehrt: heute ist der 30.08.
+    const result = summarizeAccounts(
+      [
+        konto({ lastActiveDay: '2026-08-30' }),
+        konto({ lastActiveDay: '2026-08-24' }),
+        konto({ lastActiveDay: '2026-08-23' }),
+        konto({ lastActiveDay: '2026-08-01' }),
+        konto({ lastActiveDay: '2026-07-31' }),
+        konto({ lastActiveDay: null }),
+      ],
+      [],
+      [],
+      '2026-06-02',
+      '2026-08-30'
+    );
+
+    expect(result.active).toEqual({ day: 1, week: 2, month: 4 });
+    expect(result.activeInWindow).toBe(5);
   });
 
   it('zählt als Kauf nur, was Stripe bezahlt hat', () => {
@@ -395,7 +418,8 @@ describe('summarizeAccounts', () => {
         { day: '2026-08-30', status: 'completed' },
         { day: '2026-08-01', status: 'open' },
       ],
-      '2026-08-25'
+      '2026-08-25',
+      '2026-08-30'
     );
 
     expect(result.purchases).toEqual({ total: 2, inWindow: 1 });

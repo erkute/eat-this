@@ -6,15 +6,13 @@
      mobile headings sat barely above the 19px lead and nothing announced that
      a new section had started. Above ~880px this resolves identically. */
   --et-type-section-title: clamp(30px, 3.4vw, 42px);
-  /* One rhythm for every boundary on the page, including the last one down to
-     the footer (HubFaq's margin-bottom). Sections used to carry their own
-     values and drifted apart by up to 50px.
-     The floor is the mobile value, not a smaller number: at clamp(64px, …) the
-     home ran 69px between sections at 1280px while the mobile block below sat
-     at 104px — desktop was the *tighter* layout, and crossing 920px jumped 40px
-     in one step. It was also well under the site's own --et-section-gap
-     (~102px at 1280), which every other page uses. */
-  --home-section-gap: clamp(104px, 8vw, 128px);
+  /* Eine Fuge fuer jede Grenze der Seite, bis hinunter zum Footer (HubFaq
+     traegt sie als margin-bottom). Seit jeder Abschnitt eine Tafel ist, ist
+     die Kante die Grenze — und Kanten stehen enger als lose Textbloecke.
+     Gemessen war das vorher der Fehler: aussen ueberall 104px, innen aber
+     zwischen 104 und 206px, weil das Polster der Tafeln unsichtbar mitzaehlte
+     (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
+  --home-section-gap: clamp(24px, 2.5vw, 32px);
   width: 100%;
   min-height: 100svh;
   /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
@@ -289,31 +287,18 @@
    Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
    der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
 .spot {
-  display: block;
-  /* How far the photo reaches past .hv-wrap's gutter. Side by side it reaches
-     nowhere: the photo shares its left edge with the heading above it and the
-     cards below, like every other element on the page. Reaching for the paper's
-     edge only worked up to --et-wrap-max — past that the page is centred and
-     the photo stopped in a white margin that grew with the window (40px at
-     1440, 280px at 1920), which read as a misaligned photo rather than a bleed.
-     Stacked (≤920px) it does run out to the edge, and there the wrap's own
-     gutter is the distance — that one swaps to the mobile value at 760px, so
-     the bleed needs its own switch and cannot ride on the 920px one. */
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--home-ink);
+  color: var(--et-home-inverse-text);
+  border-radius: var(--et-radius-photo);
+  /* Kein Anschnitt mehr: das Foto liegt IN der Tafel, ihre Kante ist der
+     Rand. Frueher lief es auf dem Telefon bis zur Blattkante, weil nichts
+     sonst den Aufmacher von der Kartenreihe darunter trennte. */
   --spot-bleed: 0px;
 }
 
-@media (max-width: 920px) {
-  .spot {
-    --spot-bleed: var(--et-wrap-pad);
-  }
-}
-
-/* Order matters: this has to overwrite the 920px value above, and both blocks
-   match at 700px with the same specificity. */
-@media (max-width: 760px) {
-  .spot {
-    --spot-bleed: var(--et-wrap-pad-mobile);
-  }
+.page .spot :global(.hv-title) {
+  color: var(--et-home-inverse-text);
 }
 
 .page .spotHead:global(.hv-head) {
@@ -342,19 +327,19 @@
   font-size: clamp(14px, 1.15vw, 17px);
   letter-spacing: 0;
   line-height: 1;
-  color: var(--home-muted);
+  color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
 }
 
 .spotCard {
   display: grid;
-  /* Twelve tracks so the photo and the copy can share two of them: side by
-     side with a gap they were two objects that happened to be near each other.
-     Overlapping, the copy is a layer on top of the photo and the two read as
-     one thing. No column gap for the same reason. */
+  /* Foto und Copy nebeneinander, ohne Ueberlappung: die Ebene auf dem Foto
+     war noetig, solange beide auf Weiss standen — auf der Tafel traegt der
+     Grund den Text, und eine Ink-Ebene auf Ink waere unsichtbar. */
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
-  color: var(--home-ink);
+  gap: clamp(20px, 3vw, 40px);
+  color: var(--et-home-inverse-text);
   text-decoration: none;
 }
 
@@ -366,7 +351,7 @@
    together or not at all: at (0,3,0) here and (0,2,0) below, the base rule
    would outrank its own media override and take the stacked bleed with it. */
 .page .spotCard .spotPhoto {
-  grid-column: 1 / 10;
+  grid-column: 1 / 8;
   grid-row: 1;
   position: relative;
   display: block;
@@ -376,9 +361,10 @@
      inside the column it has nothing to continue into. */
   width: calc(100% + var(--spot-bleed));
   margin-left: calc(-1 * var(--spot-bleed));
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3;
   border-radius: var(--et-radius-photo);
   overflow: hidden;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 }
 
 .spotImage {
@@ -396,28 +382,20 @@
 }
 
 .spotCard:focus-visible {
-  outline: 3px solid var(--et-home-red);
+  outline: 3px solid var(--et-home-accent);
   outline-offset: 8px;
   border-radius: var(--et-radius-photo);
 }
 
 .spotBody {
-  grid-column: 7 / 13;
+  grid-column: 8 / 13;
   grid-row: 1;
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
-  padding: clamp(26px, 2.9vw, 44px);
-  background: var(--home-ink);
-  color: var(--et-home-inverse-text);
-  border-radius: var(--et-radius-photo);
 }
 
-/* A candidate without an image has nothing to lie on top of — the board takes
-   the full width and stands on its own. */
 .spotCardTextOnly .spotBody {
   grid-column: 1 / 13;
 }
@@ -488,22 +466,7 @@
   background: var(--et-home-inverse-text);
 }
 
-/* Zwei Tafeln direkt hintereinander (Starter Pack, Must Eats) stehen mit der
-   kleinen Luft der Tafel-Stapel zusammen, nicht mit dem Abschnittsabstand —
-   sonst liest sich die weiße Lücke wie ein fehlender Abschnitt. */
-.page :global([data-hub-starter]) + :global([data-hub-must-eats]) {
-  margin-top: clamp(16px, 2.5vw, 32px);
-}
-
 @media (max-width: 920px) {
-  /* Stacked, every block is the full column width, so the only thing telling a
-     visitor where one section ends and the next begins is the space between
-     them — it has to be clearly more than any gap inside a section. Same value
-     the clamp above floors at, so nothing jumps at the breakpoint. */
-  .page {
-    --home-section-gap: 104px;
-  }
-
   .heroGrid {
     grid-template-columns: 1fr;
     /* Der Abstand trennt hier Aufruf und Produktbild, nicht zwei Spalten:
@@ -534,32 +497,22 @@
 
   .spotCard {
     grid-template-columns: minmax(0, 1fr);
+    gap: clamp(16px, 3vw, 24px);
   }
 
-  /* Stacked, the photo bleeds both ways and drops its corners: full width is
-     the only thing left that separates the lead from the rail of cards under
-     it, and rounded corners on an edge-to-edge photo just look like a mistake.
-     `.page` for the same reason as the base rule — and to keep both at the
-     same specificity, so source order still decides between them. */
   .page .spotCard .spotPhoto {
     grid-column: 1;
-    width: calc(100% + 2 * var(--spot-bleed));
+    width: 100%;
     aspect-ratio: 4 / 3;
-    border-radius: 0;
   }
 
-  /* The same layer move turned 90°: the panel sits in the gutter and rides up
-     over the bottom of a photo that runs edge to edge. */
   .spotBody {
     grid-column: 1;
     grid-row: 2;
-    margin-top: clamp(-56px, -6vw, -32px);
-    padding: clamp(22px, 5vw, 30px);
   }
 
   .spotCardTextOnly .spotBody {
     grid-row: 1;
-    margin-top: 0;
   }
 
   .spotCta {

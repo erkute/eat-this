@@ -1,8 +1,33 @@
-/* Neun Ink-Kacheln im Raster — dasselbe Objekt wie die „Weiter auf dem
-   Teller"-Kacheln am Artikelende: Ink-Fläche mit Radius, weiße Versalien,
-   bei Hover kippt die Kachel auf Gelb. Vorher Umriss-Chips in einer Zeile;
-   als Kacheln tragen die Kategorien so viel Gewicht wie die Fotos darüber,
-   ohne Pack-Kunst, die hier als Shop gelesen wurde. */
+/* ── Ink-Tafel ──
+   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
+   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
+   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
+   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
+   der Tafeln zaehlte unsichtbar mit. */
+.board {
+  --board-ink: var(--et-home-ink, #15120e);
+  --board-paper: var(--et-home-inverse-text, #fff);
+  --board-accent: var(--et-home-accent, #ffc600);
+  --board-soft: rgba(255, 255, 255, 0.76);
+
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--board-ink);
+  color: var(--board-paper);
+  border-radius: var(--et-radius-photo);
+}
+
+:global(.homeV2) .board :global(.hv-title) {
+  color: var(--board-paper);
+}
+
+@media (max-width: 760px) {
+  .board {
+    padding: 22px 18px 24px;
+  }
+}
+/* Neun Kacheln im Raster. Auf der Tafel sind sie Ringe — weisser 28-%-Rand,
+   bei Hover gelb gefuellt, wie die Fragen im Remy-Panel. Eine Ink-Kachel auf
+   Ink waere unsichtbar. */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -16,10 +41,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: clamp(84px, 8vw, 112px);
+  min-height: clamp(76px, 7vw, 100px);
   padding: 0 clamp(18px, 2vw, 26px);
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--board-paper, #fff);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
   border-radius: var(--et-radius-photo);
   font-family: var(--font-providence);
   font-size: clamp(22px, 2.2vw, 30px);
@@ -40,14 +66,15 @@
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
-  background: var(--et-home-accent);
+  background: var(--board-accent, #ffc600);
   transition: background 160ms ease;
 }
 
 .chip:hover,
 .chip:focus-visible {
   color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  background: var(--board-accent, #ffc600);
+  box-shadow: none;
   outline: 0;
   transform: translateY(-2px);
 }
@@ -58,7 +85,7 @@
 }
 
 .chip:focus-visible {
-  outline: 2px solid var(--et-home-accent);
+  outline: 2px solid var(--board-accent, #ffc600);
   outline-offset: 3px;
 }
 

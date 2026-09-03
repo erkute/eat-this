@@ -1,4 +1,32 @@
-/* HubNearby — homeV2 vocabulary. */
+/* HubNearby — homeV2 vocabulary, seit 03.09.2026 als Ink-Tafel. */
+
+/* ── Ink-Tafel ──
+   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
+   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
+   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
+   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
+   der Tafeln zaehlte unsichtbar mit. */
+.board {
+  --board-ink: var(--et-home-ink, #15120e);
+  --board-paper: var(--et-home-inverse-text, #fff);
+  --board-accent: var(--et-home-accent, #ffc600);
+  --board-soft: rgba(255, 255, 255, 0.76);
+
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--board-ink);
+  color: var(--board-paper);
+  border-radius: var(--et-radius-photo);
+}
+
+:global(.homeV2) .board :global(.hv-title) {
+  color: var(--board-paper);
+}
+
+@media (max-width: 760px) {
+  .board {
+    padding: 22px 18px 24px;
+  }
+}
 
 .title {
   display: inline-flex;
@@ -76,19 +104,16 @@
   vertical-align: 0;
 }
 
-/* ── Rail card: Foto oben, Ink-Leiste darunter ─────────────────────────────
-   Dasselbe Objekt wie die Restaurant-Zeile im Must-Eat-Sheet und die
-   Magazin-Kacheln: das Foto steht frei, Name und Zeile stehen auf einer
-   Ink-Leiste unter dem Bild statt als Schrift über einem Verlauf. */
+/* ── Rail card ──
+   Auf der Tafel traegt die Kachel keine eigene Flaeche: das Foto steht frei
+   mit dem Sheet-Schatten, Name und Zeile liegen darunter auf der Tafel. Eine
+   Ink-Kachel auf Ink waere unsichtbar. */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
   flex: 0 0 clamp(240px, 24vw, 300px);
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--board-paper, #fff);
 }
 
 :global(.homeV2) .card:hover .photo img,
@@ -106,8 +131,8 @@
    padding so the g in "Bagel Bro" keeps its tail. */
 :global(.homeV2) .card :global(.hv-cap) {
   margin: 0;
-  padding: 12px 14px 0.3em;
-  color: var(--et-home-inverse-text);
+  padding: 14px 0 0.3em;
+  color: var(--board-paper, #fff);
   font-size: clamp(18px, 1.6vw, 22px);
   line-height: 1.05;
 }
@@ -115,8 +140,8 @@
 /* Die Zeile in Gelb, wie die Kreide-Labels auf jeder Tafel. */
 :global(.homeV2) .card :global(.hv-sub) {
   margin: 0;
-  padding: 2px 14px 14px;
-  color: var(--et-home-accent);
+  padding: 4px 0 0;
+  color: var(--board-accent, #ffc600);
   font-family: var(--font-providence);
   font-size: 11px;
   font-weight: 700;
@@ -129,7 +154,8 @@
   position: relative;
   aspect-ratio: 4 / 3;
   height: auto;
-  border-radius: 0;
+  border-radius: var(--et-radius-photo);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 }
 
 /* Replaces what next/image's `fill` used to do: cover the 4/3 box. The
@@ -153,6 +179,7 @@
   min-height: 44px;
   margin-right: -8px;
   padding: 0 8px;
+  color: var(--board-paper, #fff);
   background: none;
   border: none;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -184,13 +211,13 @@
 
 .locBtn[data-primary]:hover:not(:disabled),
 .locBtn[data-primary]:focus-visible:not(:disabled) {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-ink);
+  background: var(--board-paper, #fff);
 }
 
 .locBtn:hover:not(:disabled),
 .locBtn:focus-visible:not(:disabled) {
-  color: var(--et-home-red);
+  color: var(--board-accent, #ffc600);
   outline: 0;
 }
 
@@ -213,12 +240,12 @@
 .sub {
   margin: 0;
   font-family: var(--font-providence);
-  font-size: clamp(17px, 1.55vw, 22px);
-  font-weight: 700;
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 0.95;
+  line-height: var(--et-leading-copy, 1.5);
   text-transform: none;
-  color: rgba(21, 18, 14, 0.72);
+  color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
 /* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */

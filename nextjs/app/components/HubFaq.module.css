@@ -6,17 +6,46 @@
   margin-bottom: var(--home-section-gap);
 }
 
+/* ── Ink-Tafel ──
+   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
+   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
+   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
+   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
+   der Tafeln zaehlte unsichtbar mit. */
+.board {
+  --board-ink: var(--et-home-ink, #15120e);
+  --board-paper: var(--et-home-inverse-text, #fff);
+  --board-accent: var(--et-home-accent, #ffc600);
+  --board-soft: rgba(255, 255, 255, 0.76);
+
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--board-ink);
+  color: var(--board-paper);
+  border-radius: var(--et-radius-photo);
+}
+
+:global(.homeV2) .board :global(.hv-title) {
+  color: var(--board-paper);
+}
+
+@media (max-width: 760px) {
+  .board {
+    padding: 22px 18px 24px;
+  }
+}
+
 .list {
   display: flex;
   flex-direction: column;
 }
 
+/* Haarlinien in Weiss 16 % statt der Ink-Linie der weissen Flaeche. */
 .item {
-  border-top: 1px solid var(--home-rule);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .item:last-child {
-  border-bottom: 1px solid var(--home-rule);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .question {
@@ -31,7 +60,7 @@
   font-size: clamp(15px, 2vw, 17px);
   font-weight: 700;
   line-height: 1.25;
-  color: var(--home-ink);
+  color: var(--board-paper, #fff);
   list-style: none;
 }
 
@@ -41,7 +70,7 @@
 
 .question::after {
   content: '+';
-  color: var(--home-ink);
+  color: var(--board-accent, #ffc600);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 18px;
   font-weight: 700;
@@ -56,13 +85,12 @@
   max-width: 72ch;
   margin: 0;
   padding: clamp(4px, 0.45vw, 6px) 10vw 20px 0;
-  color: var(--home-ink);
+  color: var(--board-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--font-body, var(--font), system-ui, sans-serif);
   /* 14px lagen unter dem Band der Wettbewerber (15–18px Fließtext). */
   font-size: clamp(16px, 1.2vw, 17px);
   font-weight: 500;
   line-height: 1.6;
-  opacity: 0.75;
 }
 
 @media (max-width: 560px) {

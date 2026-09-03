@@ -5283,14 +5283,24 @@
   }
 }
 
-/* ── Blättern am Kicker: „‹ MUST EAT · BEZIRK ›" ──────────────────────────────
-   Die Winkel standen an den Kartenkanten (Rail: -36/-78px). Auf dem Telefon
-   ging das dreimal nicht auf (02.09.2026): nah an der Karte klebten sie an ihr,
-   am Bildschirmrand waren sie „zu weit weg", und jede Spur neben der Karte
-   kostete Kartenbreite. Beim Kicker sind sie in jeder Breite gleich weit von
-   allem, und die Karte nimmt die ganze Höhe. Ein Platz, ein Markup — auch im
-   Rail; die Kanten-Fassung ist raus. Deaktivierte Winkel bleiben als Box
-   stehen (visibility), damit der Kicker nicht wandert. */
+/* ── Blättern an der Karte ────────────────────────────────────────────────────
+   Die Winkel sitzen im Stapel (.fdCardStack) und stehen ab 768px absolut an den
+   Kanten der obersten Karte, auf halber Höhe. Sie standen kurz neben dem
+   Kicker („‹ MUST EAT · BEZIRK ›", 02.09.2026) — auf Ansage zurück an die
+   Karte (03.09.2026: „die Pfeile auf Desktop neben den Karten"). Auf dem
+   Telefon gibt es keine Winkel, dort wird gewischt (siehe unten); dort scheiterte
+   die Kanten-Fassung dreimal, weil jede Spur neben der Karte Kartenbreite
+   kostete. Im Tablet-Sheet ist neben der Karte Platz; im Rail (379px) kauft
+   ihn die Karte: Silhouette = Karte + 42px Fächerüberhang (unterste Karte,
+   translate + Rotation, gemessen), mittig über `left: -21px`. Bei 242px Karte
+   blieben je 47px Spur — ein 22px-Glyph stand darin 11px vor der Karte, „viel
+   zu nah" (03.09.2026). Jetzt hat die Spur 60px (--me-lane), die Karte im
+   Rail also 217px statt 242: 12px Rand, 22px Glyph, 26px Luft zur Silhouette,
+   beidseitig gleich. Wer die Karte im Rail größer will, muss die Spur opfern.
+
+   Die Winkel messen ab Kartenkante (--me-arrow-gap, Tastenrand zur Karte;
+   rechts plus den Fächerüberhang), damit sie im Tablet-Sheet und im Rail
+   gleich weit von der Silhouette stehen. */
 .detailV13MustEat .fdKickerRow {
   display: flex;
   flex: 0 0 auto;
@@ -5335,6 +5345,48 @@
 .detailV13MustEat .fdPagerNext:disabled {
   visibility: hidden;
   cursor: default;
+}
+
+@media (min-width: 768px) {
+  .detailV13MustEat .fdCardStack {
+    /* Tastenrand → Kartenkante; der Glyph (22px in 44px) steht 11px weiter
+       innen, also 26px vor der Silhouette. */
+    --me-arrow-gap: 15px;
+    --me-fan-overhang: 42px;
+  }
+
+  .detailV13MustEat .fdPagerPrev,
+  .detailV13MustEat .fdPagerNext {
+    position: absolute;
+    top: 50%;
+    /* `translate` statt `transform`: den nutzt der Hover-Schub (±2px). */
+    translate: 0 -50%;
+    /* Über den Fächerkarten (absolut, ohne z-index) — die Taste darf nicht
+       unter einer schräg hängenden Karte liegen. */
+    z-index: 2;
+  }
+
+  .detailV13MustEat .fdPagerPrev {
+    right: calc(100% + var(--me-arrow-gap));
+  }
+
+  .detailV13MustEat .fdPagerNext {
+    left: calc(100% + var(--me-fan-overhang) + var(--me-arrow-gap));
+  }
+}
+
+@media (min-width: 1024px) {
+  .detailV13MustEat .fdCardStack {
+    --me-lane: 60px;
+    /* Der Stapel liegt in .fdHeroWrap (Rail minus 2 × 24px Polster). Karte =
+       Rail − 2 Spuren − Fächer = Wrap + 48 − 120 − 42. Die Höhe folgt der
+       Kartenproportion; die Rail-Regeln oben setzen sie sonst aus --me-card-h
+       und machen die Karte damit wieder 242px breit. */
+    width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
+    max-width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
+    height: auto;
+    max-height: none;
+  }
 }
 
 .detailV13MustEat .fdPagerPrev:focus-visible,

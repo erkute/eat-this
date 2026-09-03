@@ -417,6 +417,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
          selbst ab, sobald der Standort da ist. */
       onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
       duration: 0,
+      /* Scrim nur, wo eine Antwort faellig ist: die Fehler tragen Knoepfe und
+         warten. Das Suchen geht von allein — die Karte laeuft unter ihm
+         weiter, und iOS 26 faerbt seine Leisten nach dem Scrim (globals.css,
+         .notification-layer). */
+      layer: noticeIsError,
     });
   }, [
     noticeEyebrow,

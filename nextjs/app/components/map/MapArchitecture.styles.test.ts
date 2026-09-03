@@ -177,6 +177,27 @@ describe('Map CSS architecture', () => {
     expect(layout).not.toContain("html:has(.shell [data-map-sheet][data-detail-kind='must-eat'])");
   });
 
+  /* iOS 26 Safari faerbt seine Leisten nach der background-color des obersten
+     fixierten oder sticky Elements an der Viewport-Kante und ignoriert
+     theme-color. Auf dem Telefon ist das der sticky Karten-Wrapper, an beiden
+     Kanten — transparent hiess Systemgrau. Deckend bleibt er. */
+  it('paints the phone map wrapper opaque so iOS 26 tints its bars from it', () => {
+    const wrapRules = declarationsInMedia(
+      'MapLayout.module.css',
+      '.mapWrap',
+      '(max-width: 767.98px)'
+    );
+
+    expect(wrapRules).toEqual([
+      expect.objectContaining({
+        position: 'sticky',
+        top: '0',
+        height: '100dvh',
+        'background-color': 'var(--et-home-paper, #fff)',
+      }),
+    ]);
+  });
+
   it('keeps the phone detail map live but bounded to the visible peek', () => {
     const section = readFileSync(
       fileURLToPath(new URL('../MapSection.tsx', import.meta.url)),

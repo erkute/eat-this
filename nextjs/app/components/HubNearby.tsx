@@ -115,6 +115,11 @@ export default function HubNearby({ locale = 'de', today }: Props) {
          nach seiner eigenen Frist selbst ab. */
       onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
       duration: 0,
+      /* Scrim nur, wo eine Antwort faellig ist: die Fehler tragen Knoepfe und
+         warten. „Wir suchen dich" und „Standort sitzt" gehen von allein — die
+         Seite laeuft unter ihnen weiter, und iOS 26 faerbt seine Leisten nach
+         dem Scrim (globals.css, .notification-layer). */
+      layer: noticeIsError,
     });
   }, [
     noticeEyebrow,

@@ -115,6 +115,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
          nach seiner eigenen Frist selbst ab. */
       onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
       duration: 0,
+      layer: true,
     });
   }, [
     noticeEyebrow,

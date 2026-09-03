@@ -595,20 +595,46 @@ html[data-auth='1'] [data-guest-only] {
    Mitte, ein kurzer Scale traegt die Bewegung. Die Karte selbst nimmt keine
    Klicks (pointer-events: none) — nur ihre Knoepfe holen sie sich zurueck,
    sonst laege sie als unsichtbare Platte ueber der Karte. */
+/* Die Vollbild-Huelle zentriert die Karte im Viewport. Ohne `data-layer` ist
+   sie durchlaessig — nur die Karte faengt Tipps — damit die kurzen
+   Bestaetigungen die Seite nicht anhalten. Mit `data-layer` (Standort) liegt
+   ein Scrim darunter, der jeden Tipp neben der Karte schluckt; der faerbt sich
+   ueber background-color ein, nicht ueber Opacity (Markenregel). */
+.notification-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: max(20px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px))
+    max(20px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+.notification-layer.show[data-layer] {
+  pointer-events: auto;
+}
+.notification-scrim {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(21, 18, 14, 0);
+  /* Kein Scrollen der Seite durch den Scrim hindurch (iOS Safari). */
+  touch-action: none;
+  transition: background-color 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.notification-layer.show[data-layer] .notification-scrim {
+  background-color: rgba(21, 18, 14, 0.5);
+}
 .notification {
   --toast-surface: var(--et-home-ink, #15120e);
   --toast-ink: var(--et-home-inverse-text, #fff);
   --toast-muted: rgba(255, 255, 255, 0.76);
   --toast-accent: var(--et-home-accent, #ffc600);
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 10000;
+  position: relative;
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
   align-items: start;
   gap: 14px;
-  width: min(332px, calc(100vw - 40px));
+  width: min(332px, 100%);
   padding: 20px 22px 22px;
   color: var(--toast-ink);
   text-align: left;
@@ -617,14 +643,18 @@ html[data-auth='1'] [data-guest-only] {
   border-radius: var(--et-radius-photo, 10px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
   pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.94);
+  transform: scale(0.94);
   clip-path: inset(50% 0 50% 0 round var(--et-radius-photo, 10px));
   transition:
     transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
     clip-path 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* Offen faengt die Karte selbst jeden Tipp — vorher lief nur die Knopfzeile
+   auf pointer-events:auto, und ein Tipp auf die Kartenflaeche landete auf dem
+   Hero-Knopf dahinter. */
 .notification.show {
-  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  transform: scale(1);
   clip-path: inset(0 0 0 0 round var(--et-radius-photo, 10px));
 }
 /* Rot ist im Brand die Farbe fuer "kaputt" und sonst nichts — Warnungen
@@ -688,13 +718,13 @@ html[data-auth='1'] [data-guest-only] {
 }
 /* Knoepfe nur, wo es welche gibt — der Standard-Hinweis geht von allein. */
 .notification-actions {
-  grid-column: 2;
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   margin-top: 12px;
-  pointer-events: auto;
 }
 .notification-action,
 .notification-dismiss {

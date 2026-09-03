@@ -417,6 +417,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
          selbst ab, sobald der Standort da ist. */
       onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
       duration: 0,
+      layer: true,
     });
   }, [
     noticeEyebrow,

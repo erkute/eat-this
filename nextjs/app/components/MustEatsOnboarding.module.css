@@ -40,6 +40,35 @@
   transform: translateY(0);
 }
 
+/* Auf der Ink-Tafel: Ring statt Füllung, wie der Standort-Chip im Must-Eat-
+   Sheet — weißer 28-%-Rand, bei Hover gelb. Maße wie der gelbe Tafel-Knopf
+   daneben, damit beide auf einer Linie stehen. */
+.howInk {
+  margin: 0;
+  min-height: 56px;
+  padding: 0 26px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  color: var(--et-home-inverse-text, #fff);
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 700;
+  transition:
+    transform var(--et-motion-fast, 140ms ease),
+    border-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
+}
+.howInk:hover,
+.howInk:focus-visible {
+  background: transparent;
+  border-color: var(--et-home-accent, #ffc600);
+  color: var(--et-home-accent, #ffc600);
+  transform: translateY(-2px);
+}
+.howInk:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 3px;
+}
+
 .howBadge {
   display: inline-grid;
   place-items: center;

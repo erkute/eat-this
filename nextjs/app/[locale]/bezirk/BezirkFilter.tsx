@@ -54,8 +54,10 @@ export function BezirkFilterProvider({
 }
 
 /**
- * Zählzeile plus Chip-Leiste. Beides liegt als Geschwister direkt im hohen
- * Abschnitt — `position: sticky` klebt nur innerhalb des eigenen Elternteils,
+ * Zählzeile plus Chip-Leiste. Die Zählzeile ist seit 03.09.2026 nur noch für
+ * Vorleser da (`.filterStatus` ist visuell versteckt) — „brauche die Info
+ * nicht" —, und die Chips tragen keine Zahlen mehr („keine Zahlen").
+ * Beides liegt als Geschwister direkt im hohen Abschnitt — `position: sticky` klebt nur innerhalb des eigenen Elternteils,
  * ein gemeinsamer Wrapper um beide wäre genauso hoch wie die Leiste selbst und
  * damit wirkungslos.
  */
@@ -123,7 +125,6 @@ export function BezirkFilterBar({
               onClick={() => select(active === d.slug ? null : d.slug)}
             >
               {d.name}
-              <span className={styles.filterChipCount}>{d.count}</span>
             </button>
           ))}
         </div>

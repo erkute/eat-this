@@ -601,37 +601,39 @@ html[data-auth='1'] [data-guest-only] {
    darunter, der jeden Tipp neben der Karte schluckt; der faerbt sich ueber
    background-color ein, nicht ueber Opacity (Markenregel).
 
-   Zugeklappt ist die Huelle NICHT fixiert: iOS 26 Safari ignoriert
-   `theme-color` und faerbt seine Leisten nach der background-color des
-   obersten fixierten Elements an der Viewport-Kante — und zaehlt dabei auch
-   Unsichtbares mit (opacity 0, pointer-events none, sogar Hoehe 0, auf dem
-   iPhone am 03.09.2026 so gesehen). Eine transparente fixierte Huelle, die
-   auf jeder Seite dauerhaft im DOM steht, machte die untere URL-Leiste
-   site-weit grau statt durchscheinend. Deshalb: in Ruhe `position: static`
-   mit Hoehe 0 und overflow hidden (die Karte bleibt als aria-live-Bereich im
-   Dokument), fixiert erst mit `data-open` — das NotificationToast beim
-   Oeffnen setzt und nach dem Ausfahren wieder nimmt, damit die Karte waehrend
-   des Uebergangs nicht in den Dokumentfluss springt. Offen ohne Scrim ist die
-   Huelle eine Linie ohne Hoehe auf halber Viewport-Hoehe; `place-content:
-   center` haengt die Karte mittig darueber — dieselbe Mitte wie im offenen
-   Layer, dessen vertikales Padding deshalb symmetrisch ist. */
+   Zugeklappt ist die Huelle `display: none`, nicht bloss unsichtbar oder
+   unfixiert. iOS 26 Safari faerbt seine Leisten nach dem obersten fixierten
+   Element an der Viewport-Kante (WebKit LocalFrameView::fixedContainerEdges)
+   — und Page::updateFixedContainerEdges BEHAELT die zuletzt gefundene Farbe,
+   solange das letzte Container-Element noch einen Renderer hat und sichtbar
+   ist. Nach dem Standort-Layer mit Scrim blieb die untere URL-Leiste deshalb
+   grau, obwohl die Huelle laengst nicht mehr fixiert war (am iPhone
+   03.09.2026). Ohne Renderer faellt die Farbe weg. Fixiert und sichtbar wird
+   die Huelle erst mit `data-open`, das NotificationToast beim Oeffnen setzt
+   und 400 ms nach dem Ausfahren wieder nimmt. Den Uebergang aus dem
+   zugeklappten Zustand liefert @starting-style (unten), weil es vor dem
+   Oeffnen keinen gerenderten Ausgangszustand mehr gibt. Die aria-live-Region
+   liegt getrennt in .notification-live, damit sie nie display: none ist.
+
+   Offen ohne Scrim ist die Huelle eine Linie ohne Hoehe auf halber
+   Viewport-Hoehe; `place-content: center` haengt die Karte mittig darueber —
+   dieselbe Mitte wie im offenen Layer, dessen vertikales Padding deshalb
+   symmetrisch ist. */
 .notification-layer {
-  position: static;
-  z-index: 10000;
-  display: grid;
-  place-content: center;
-  place-items: center;
-  height: 0;
-  overflow: hidden;
-  padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
-  pointer-events: none;
+  display: none;
 }
 .notification-layer[data-open] {
   position: fixed;
   top: 50%;
   right: 0;
   left: 0;
-  overflow: visible;
+  z-index: 10000;
+  display: grid;
+  place-content: center;
+  place-items: center;
+  height: 0;
+  padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
+  pointer-events: none;
 }
 .notification-layer.show[data-layer] {
   --notification-layer-pad-y: max(
@@ -644,6 +646,17 @@ html[data-auth='1'] [data-guest-only] {
   padding-top: var(--notification-layer-pad-y);
   padding-bottom: var(--notification-layer-pad-y);
   pointer-events: auto;
+}
+/* Fuer Screenreader: immer im Dokument, nie display: none. Traegt den Text
+   der Karte, solange sie offen ist. */
+.notification-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .notification-scrim {
   position: absolute;
@@ -688,6 +701,15 @@ html[data-auth='1'] [data-guest-only] {
   pointer-events: auto;
   transform: scale(1);
   clip-path: inset(0 0 0 0 round var(--et-radius-photo, 10px));
+}
+/* Der Ausgangszustand des Aufziehens: die Huelle kommt aus display: none,
+   also gibt es keinen gerenderten Vorher-Wert, von dem der Uebergang starten
+   koennte. */
+@starting-style {
+  .notification.show {
+    transform: scale(0.94);
+    clip-path: inset(50% 0 50% 0 round var(--et-radius-photo, 10px));
+  }
 }
 /* Rot ist im Brand die Farbe fuer "kaputt" und sonst nichts — Warnungen
    (Standort nicht gefunden) bleiben deshalb beim gelben Akzent. */

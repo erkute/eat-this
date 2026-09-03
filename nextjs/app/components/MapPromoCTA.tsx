@@ -109,9 +109,9 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
         {/* Die Marke als Absender über dem Versprechen. Als Grafik, nicht als
             gesetzter Text: die Wortmarke ist gezeichnet, jede Nachbildung in
             Providence bleibt eine Näherung (dieselbe Regel wie auf den
-            Kategorie-Seiten). Die schwarze Kontur der Grafik trägt sie auf dem
-            gelben Grund — die creme Füllung allein hätte darauf zu wenig
-            Kontrast. Nicht `aria-hidden`: der Absender gehört vorgelesen. */}
+            Kategorie-Seiten). Auf der Ink-Tafel trägt sie über ihre creme
+            Füllung, wie im SiteNav. Nicht `aria-hidden`: der Absender gehört
+            vorgelesen. */}
         <Image
           src="/pics/eat-this-logo.webp?v=6"
           alt="Eat This"
@@ -134,9 +134,8 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
           <span>{ctaLabel}</span>
         </MapIntentLink>
       </div>
-      {/* The map IS the product — a black slab of type sold it badly. The
-          device shot bleeds off the bottom edge so the banner reads as a
-          window into the app rather than a poster about it.
+      {/* The map IS the product. The device shot bleeds off the bottom edge so
+          the board reads as a window into the app rather than a poster about it.
           Zwei Geräte statt einem, dieselbe Staffelung wie im Hero der
           Startseite: die Map vorn, eine Spot-Seite dahinter. Ein einzelnes
           Telefon zeigt nur die Karte — das Paar zeigt, dass hinter jedem Pin

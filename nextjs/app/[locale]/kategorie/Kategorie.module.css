@@ -412,3 +412,131 @@
     font-size: clamp(26px, 2.2vw, 34px);
   }
 }
+
+/* ============================================================
+   INK-TAFELN (03.09.2026) — die Köpfe beider Kategorie-Seiten sind Ink-Tafeln
+   wie auf Startseite, /packs und /must-eats: gelber Kicker, weiße Versalien,
+   „in Berlin" als gelbe Kreide-Zeile, weicher Text, gelber Knopf (der Knopf
+   selbst kommt aus Bezirk.module.css, `.bezirkDetail .detailHeroActions`).
+   Die Doppelklasse hebt die Spezifität über `.bezirkDetail .detailHero` aus
+   dem geteilten Stylesheet — die Ladereihenfolge zweier CSS-Module ist nicht
+   festgelegt, Spezifität schon.
+============================================================ */
+.detailPage.detailPage .detailHero {
+  margin: 0 0 clamp(16px, 2.5vw, 32px);
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--category-ink);
+  color: var(--et-home-inverse-text);
+  border-radius: var(--et-radius-photo);
+}
+
+.detailPage.detailPage .detailHeroCopy {
+  padding: 0;
+}
+
+.detailPage.detailPage .kicker {
+  color: var(--et-home-accent);
+  font-size: 12px;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.3;
+}
+
+.detailPage.detailPage .detailTitle {
+  color: var(--et-home-inverse-text);
+}
+
+.detailPage.detailPage .detailTitleSuffix {
+  color: var(--et-home-accent);
+}
+
+.detailPage.detailPage .detailLead {
+  color: rgba(255, 255, 255, 0.76);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  line-height: var(--et-leading-copy, 1.5);
+}
+
+.detailPage.detailPage .quickFacts {
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Der Bezirk in der Meta-Zeile der Ink-Kachel. */
+.detailPage.detailPage .districtLabel {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+}
+
+/* ── Kopf des Kategorie-Index ── */
+.indexPage.indexPage .indexHero {
+  gap: 14px;
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--category-ink);
+  color: var(--et-home-inverse-text);
+  border-radius: var(--et-radius-photo);
+}
+
+/* Eine Zeile wie auf dem Bezirks-Index: „Wonach ist dir?" trägt 7vw. */
+.indexPage.indexPage .indexTitle {
+  max-width: none;
+  color: var(--et-home-inverse-text);
+  font-size: clamp(26px, 7vw, 60px);
+  white-space: nowrap;
+}
+
+.indexPage.indexPage .indexLead {
+  color: rgba(255, 255, 255, 0.76);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  line-height: var(--et-leading-copy, 1.5);
+}
+
+@media (max-width: 639px) {
+  .detailPage.detailPage .detailHero,
+  .indexPage.indexPage .indexHero {
+    padding: 22px 18px 24px;
+  }
+}
+
+/* Derselbe gefüllte Ink-Knopf wie „Alle Spots ansehen" auf dem Bezirks-Index. */
+.indexPage.indexPage .categoryMore {
+  min-height: 52px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  background: var(--category-ink);
+  color: var(--et-home-inverse-text);
+  font-size: clamp(15px, 1.2vw, 17px);
+}
+
+.indexPage.indexPage .categoryMore:hover,
+.indexPage.indexPage .categoryMore:focus-visible {
+  background: var(--et-home-accent);
+  color: var(--category-ink);
+  transform: translateY(-2px);
+}
+
+.indexPage.indexPage .categoryMore:focus-visible {
+  outline: 2px solid var(--et-home-accent);
+  outline-offset: 3px;
+}
+
+/* Dieselbe Trennung wie auf dem Bezirks-Index: Ink-Linie und Luft zwischen
+   den Kategorien. Das Quadrat entfällt, weil hier das Pack neben dem Namen
+   steht. */
+.indexPage.indexPage .categoryRows {
+  gap: 0;
+}
+
+.indexPage.indexPage .categoryRow {
+  padding: clamp(28px, 4vw, 44px) 0 clamp(40px, 5.5vw, 64px);
+  border-top: 2px solid var(--category-ink);
+}
+
+.indexPage.indexPage .categoryRow:first-child {
+  padding-top: 0;
+  border-top: 0;
+}

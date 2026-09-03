@@ -1,9 +1,11 @@
 /* /must-eats — the public Must-Eats catalog.
  *
- * The page advertises the cards; it is not a tool for sorting them. So: one
- * white surface, the head states the deck in numbers, then two bands — the
- * face-up cards as a solid block of dish photography, the sealed ones smaller
- * and denser underneath — and a closing line that points at the map.
+ * The page advertises the cards; it is not a tool for sorting them. So: four
+ * ink boards in a stack (the same board /packs and the pack pages open with) —
+ * the head states the deck in numbers, the face-up cards lie as a solid block
+ * of dish photography, the sealed ones smaller and denser underneath, and the
+ * closer points at the map. Cards on ink carry the same shadow as in the
+ * Must-Eat sheet; on white they had none and the page read as a catalog.
  *
  * Written as a single pass on purpose. The previous file was four redesigns
  * stacked on top of each other (`.head` declared five times, `.grid` three),
@@ -15,6 +17,13 @@
   --must-paper: #fff;
   --must-red: var(--et-home-red, #d9382a);
   --must-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  /* Die Ink-Tafeln oben und unten: Papier, Gelb und die weiche Weiß-Stufe. */
+  --must-white: var(--et-home-inverse-text, #fff);
+  --must-accent: var(--et-home-accent, #ffc600);
+  --must-soft: rgba(255, 255, 255, 0.76);
+  /* Die Luft zwischen den Tafeln — dieselbe wie zwischen Tafel und Inhalt
+     auf /packs. */
+  --must-gutter: clamp(16px, 2.5vw, 32px);
 
   min-height: 100%;
   display: flow-root;
@@ -40,43 +49,41 @@
 
 /* ---------------------------------------------------------------- head --- */
 
+/* Die Kopf-Tafel: dasselbe Objekt wie die All-Berlin-Tafel auf /packs —
+   Ink-Fläche mit Radius, gelber Kicker, weiße Versalien, gelbe Labels unter
+   den weißen Zahlen, ein gelber Knopf, der Fächer rechts (auf dem Telefon
+   oben). Vorher stand der Kopf auf Weiß unter einer Haarlinie, mit rotem
+   Titel wie ein Abschnitt und den Karten ohne Grund, auf dem sie liegen. */
 .head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: var(--et-grid-gap, clamp(24px, 4vw, 56px));
-  margin-top: var(--et-page-top, clamp(40px, 5vw, 72px));
-  padding-bottom: clamp(32px, 4vw, 54px);
-  border-bottom: 2px solid var(--must-ink);
+  gap: clamp(16px, 4vw, 56px);
+  margin-top: clamp(16px, 2.5vw, 32px);
+  padding: clamp(24px, 4vw, 56px);
+  overflow: hidden;
+  background: var(--must-ink);
+  color: var(--must-white);
+  border-radius: var(--et-radius-photo, 10px);
 }
 
 .headCopy {
-  max-width: 690px;
+  min-width: 0;
+  max-width: 640px;
 }
 
+/* Auf Ink ist der Kicker die gelbe Kreide-Zeile, wie auf allen Tafeln — ohne
+   das Marken-Quadrat der weißen Abschnitte. */
 .kicker,
-.closeK,
 .bandKicker {
-  margin: 0 0 14px;
-  color: var(--must-ink);
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  margin: 0 0 clamp(14px, 1.6vw, 22px);
+  color: var(--must-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.3;
   text-transform: uppercase;
-}
-
-.kicker::before,
-.closeK::before,
-.bandKicker::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--et-control-gap, 8px);
-  background: var(--et-home-accent, #ffc600);
-  vertical-align: 0;
 }
 
 .title,
@@ -92,8 +99,9 @@
 
 .title {
   max-width: 10ch;
-  font-size: var(--et-type-hero, clamp(44px, 6.5vw, 80px));
-  line-height: var(--et-leading-hero, 0.9);
+  color: var(--must-white);
+  font-size: clamp(52px, 6.4vw, 92px);
+  line-height: 0.86;
 }
 
 .sub,
@@ -108,18 +116,19 @@
 }
 
 .sub {
-  max-width: 46ch;
-  margin: clamp(20px, 2.5vw, 30px) 0 0;
+  max-width: 44ch;
+  margin: clamp(12px, 1.6vw, 18px) 0 0;
+  color: var(--must-soft);
 }
 
 /* The deck stated as three numbers. This is the advertisement: a visitor knows
-   the size and the shape of the collection before reading any body copy. */
+   the size and the shape of the collection before reading any body copy. On
+   the board the numbers are white chalk, the labels the yellow kind. */
 .stats {
   display: flex;
   flex-wrap: wrap;
   gap: clamp(20px, 3vw, 46px);
-  /* No bottom margin: the onboarding trigger below brings its own 34px. */
-  margin: clamp(22px, 2.8vw, 34px) 0 0;
+  margin: clamp(18px, 2.4vw, 28px) 0 0;
 }
 
 .stat {
@@ -127,12 +136,12 @@
   /* dt (the label) is first in the DOM so the <dl> stays a term/description
      pair; reversing here puts the number on top where it belongs visually. */
   flex-direction: column-reverse;
-  gap: 4px;
+  gap: 6px;
 }
 
 .statValue {
   margin: 0;
-  color: var(--must-ink);
+  color: var(--must-white);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(30px, 3.6vw, 46px);
   font-weight: 700;
@@ -141,43 +150,55 @@
 }
 
 .statLabel {
-  color: var(--must-muted);
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  color: var(--must-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1;
   text-transform: uppercase;
 }
 
+.headActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(12px, 1.4vw, 16px);
+  margin-top: clamp(22px, 3vw, 34px);
+}
+
 .heroDeck {
   position: relative;
-  min-height: clamp(280px, 32vw, 430px);
+  min-height: clamp(300px, 34vw, 460px);
   align-self: stretch;
 }
 
 .heroCard {
   position: absolute;
-  width: clamp(138px, 17vw, 230px);
+  width: clamp(150px, 18vw, 240px);
   aspect-ratio: 1539 / 2115;
   background: transparent;
 }
 
+/* Auf Ink liegen die Karten mit demselben Schatten wie im Must-Eat-Sheet und
+   im Pack-Fächer; auf Weiß hatten sie keinen. */
 .heroCard img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .heroCard1 {
-  right: 8%;
+  right: 10%;
   bottom: 0;
   z-index: 3;
   transform: rotate(5deg);
 }
 
 .heroCard2 {
-  right: 40%;
+  right: 42%;
   bottom: 8%;
   z-index: 2;
   transform: rotate(-7deg);
@@ -185,15 +206,86 @@
 
 .heroCard3 {
   right: 0;
-  bottom: 28%;
+  bottom: 30%;
   z-index: 1;
   transform: rotate(10deg);
 }
 
+@media (min-width: 760px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
+  }
+}
+
+@media (max-width: 759px) {
+  .headCopy {
+    max-width: none;
+  }
+
+  .heroDeck {
+    order: -1;
+    min-height: 236px;
+  }
+
+  /* Mittig auf der Tafel statt rechts angeschlagen: die vordere Karte in der
+     Mitte, die beiden anderen links und rechts dahinter. */
+  .heroCard {
+    width: clamp(112px, 34vw, 150px);
+  }
+
+  .heroCard1 {
+    left: 50%;
+    right: auto;
+    bottom: 0;
+    transform: translateX(-50%) rotate(3deg);
+  }
+
+  .heroCard2 {
+    left: 6%;
+    right: auto;
+    bottom: 10%;
+    transform: rotate(-9deg);
+  }
+
+  .heroCard3 {
+    right: 6%;
+    bottom: 12%;
+    transform: rotate(9deg);
+  }
+
+  .title {
+    font-size: clamp(44px, 13vw, 56px);
+  }
+
+  .headActions {
+    display: grid;
+    gap: 10px;
+  }
+
+  .headActions > * {
+    width: 100%;
+  }
+}
+
+/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .heroCard img,
+    .ph img {
+      filter: none;
+    }
+  }
+}
+
 /* --------------------------------------------------------------- bands --- */
 
+/* Jedes Band ist eine eigene Tafel im Stapel. */
 .band {
-  padding-top: clamp(40px, 5.5vw, 78px);
+  margin-top: var(--must-gutter);
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--must-ink);
+  color: var(--must-white);
+  border-radius: var(--et-radius-photo, 10px);
 }
 
 .bandHead {
@@ -202,6 +294,7 @@
 }
 
 .bandTitle {
+  color: var(--must-white);
   font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   line-height: var(--et-leading-title, 0.92);
 }
@@ -209,6 +302,7 @@
 .bandBody {
   max-width: 52ch;
   margin: 14px 0 0;
+  color: var(--must-soft);
   font-size: clamp(15px, 1.25vw, 18px);
 }
 
@@ -286,11 +380,13 @@
   background: transparent;
 }
 
+/* Auf Ink liegen die Karten mit demselben Schatten wie im Must-Eat-Sheet. */
 .ph img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 /* The spots whose card is still face-down. Public information — the map's
@@ -298,7 +394,7 @@
 .spotList {
   max-width: 74ch;
   margin: clamp(20px, 2.6vw, 32px) auto 0;
-  color: var(--must-muted);
+  color: var(--must-soft);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(14px, 1.1vw, 17px);
   font-weight: 400;
@@ -309,36 +405,72 @@
 .spotListLabel {
   display: block;
   margin-bottom: 8px;
-  color: var(--must-ink);
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  color: var(--must-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1;
   text-transform: uppercase;
 }
 
 /* --------------------------------------------------------------- close --- */
 
+/* Der Schluss ist eine Ink-Tafel — dasselbe Objekt wie die All-Berlin-Tafel
+   auf /packs und der Pack-Hero: Ink-Fläche mit Radius, gelber Kicker, weiße
+   Versalien, ein gelber Knopf, die Tüte als Star. Vorher stand der Block auf
+   Weiß unter einer Haarlinie, die Tüte lag allein am rechten Rand und fehlte
+   auf dem Telefon ganz. Als Tafel gehören Text und Tüte zusammen, und auf dem
+   Telefon steht die Tüte oben statt zu verschwinden. */
 .close {
+  --close-ink: var(--must-ink);
+  --close-paper: var(--must-white);
+  --close-accent: var(--must-accent);
+  --close-soft: var(--must-soft);
+
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.28fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: clamp(20px, 4vw, 56px);
-  margin-top: clamp(56px, 8vw, 104px);
+  gap: clamp(16px, 4vw, 56px);
+  margin-top: var(--must-gutter);
   margin-bottom: clamp(48px, 7vw, 96px);
-  padding-top: clamp(28px, 4vw, 48px);
-  border-top: 2px solid var(--must-ink);
+  padding: clamp(24px, 4vw, 56px);
+  /* Der weiche Schatten der Tüte endet an der Tafelkante, nicht auf dem Weiß. */
+  overflow: hidden;
+  background: var(--close-ink);
+  color: var(--close-paper);
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.closeCopy {
+  min-width: 0;
+  max-width: 640px;
+}
+
+/* Gelbe Kreide-Zeile wie auf den anderen Tafeln — ohne das Marken-Quadrat der
+   weißen Kicker, das auf Ink neben gelber Schrift doppelt wäre. */
+.closeK {
+  margin: 0 0 clamp(14px, 1.6vw, 22px);
+  color: var(--close-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 
 .closeTitle {
-  font-size: clamp(34px, 4.6vw, 62px);
-  line-height: 0.9;
+  color: var(--close-paper);
+  font-size: clamp(44px, 5.6vw, 80px);
+  line-height: 0.86;
 }
 
 .closeBody {
-  max-width: 48ch;
-  margin: 14px 0 0;
-  font-size: clamp(16px, 1.35vw, 19px);
+  max-width: 42ch;
+  margin: clamp(12px, 1.6vw, 18px) 0 0;
+  color: var(--close-soft);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
 }
 
 .closeActions {
@@ -346,17 +478,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: clamp(12px, 1.4vw, 16px);
-  margin-top: clamp(18px, 2.4vw, 26px);
+  margin-top: clamp(22px, 3vw, 34px);
 }
 
+.headCta,
 .closeCta,
 .closeSecondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
+  min-height: 56px;
   padding: 0 26px;
-  border: 0;
   border-radius: var(--et-radius-control, 7px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(16px, 1.4vw, 19px);
@@ -364,79 +496,108 @@
   line-height: 1;
   text-decoration: none;
   transition:
-    background 0.16s ease,
-    color 0.16s ease,
-    transform 0.16s ease;
+    background-color var(--et-motion-fast, 140ms ease),
+    border-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease),
+    transform var(--et-motion-fast, 140ms ease);
 }
 
+/* Auf Ink wird der Hauptknopf gelb — Ink auf Ink verschwände. Hover: Papier.
+   Derselbe Knopf oben auf der Kopf-Tafel und unten auf der Schluss-Tafel. */
+.headCta,
 .closeCta {
-  background: var(--must-red);
-  color: var(--must-paper);
+  background: var(--must-accent);
+  color: var(--must-ink);
+  border: 2px solid var(--must-accent);
 }
 
+.headCta:hover,
+.headCta:focus-visible,
 .closeCta:hover,
 .closeCta:focus-visible {
-  background: #b92d23;
-  color: var(--must-paper);
-  transform: translateY(-1px);
+  background: var(--close-paper);
+  border-color: var(--close-paper);
+  color: var(--close-ink);
+  transform: translateY(-2px);
 }
 
-/* Ink, like the hero's "Wie funktioniert's?" — so the page carries exactly two
-   buttons: red for the move it wants, ink for the side door. Each hovers into
-   its own accent, which keeps them apart without a third colour. */
+/* Die Seitentür als Ring, wie der Standort-Chip im Must-Eat-Sheet: weißer
+   28-%-Rand, bei Hover gelb. So trägt die Tafel genau einen gefüllten Knopf. */
 .closeSecondary {
-  background: var(--must-ink);
-  color: var(--must-paper);
+  background: transparent;
+  color: var(--close-paper);
+  border: 2px solid rgba(255, 255, 255, 0.28);
 }
 
 .closeSecondary:hover,
 .closeSecondary:focus-visible {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--must-ink);
-  transform: translateY(-1px);
+  border-color: var(--close-accent);
+  color: var(--close-accent);
+  transform: translateY(-2px);
+}
+
+.headCta:focus-visible,
+.closeCta:focus-visible,
+.closeSecondary:focus-visible {
+  outline: 2px solid var(--close-accent);
+  outline-offset: 3px;
 }
 
 .packShot {
-  justify-self: end;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(6px, 2vw, 24px) 0;
 }
 
-/* One bag, and small: it is a signpost to the packs, not the closing image.
-   At the old size it out-shouted the ten dish cards the page exists for. */
+/* Kleiner als der Star des Pack-Heros (400px): hier ist die Tüte der Wegweiser
+   zu den Packs, nicht das Angebot selbst — und der Schatten muss innerhalb der
+   Tafel bleiben (18px Versatz + 28px Weichzeichner gegen 56px Polster). */
 .packShot img {
   display: block;
-  width: min(100%, 200px);
+  width: min(100%, 300px);
   height: auto;
-  transform: rotate(-7deg);
-  filter: drop-shadow(0 18px 24px rgba(21, 18, 14, 0.18));
+  transform: rotate(-5deg);
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
+}
+
+@media (min-width: 760px) {
+  .close {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.5fr);
+  }
+}
+
+@media (max-width: 759px) {
+  .closeCopy {
+    max-width: none;
+  }
+
+  /* Die Tüte steht oben, wie der Fächer der All-Berlin-Tafel auf dem Telefon. */
+  .packShot {
+    order: -1;
+    padding: 6px 0 0;
+  }
+
+  .packShot img {
+    width: min(56vw, 260px);
+  }
+
+  .closeTitle {
+    font-size: clamp(40px, 12vw, 54px);
+  }
+}
+
+/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .packShot img {
+      filter: none;
+    }
+  }
 }
 
 /* --------------------------------------------------------------- narrow -- */
-
-@media (max-width: 900px) {
-  .head,
-  .close {
-    grid-template-columns: 1fr;
-  }
-
-  .heroDeck {
-    order: -1;
-    min-height: 230px;
-  }
-
-  .title {
-    font-size: var(--et-type-hero-compact, clamp(42px, 6vw, 68px));
-  }
-
-  /* No bag here. Stacked into a single column it either led the closing block —
-     the old nine-pack billboard's mistake in miniature, pack art as the last
-     thing before the footer — or sat in a row of its own with a screenful of
-     empty beside it. On the phone the closer is the two buttons; the packs
-     link carries the offer on its own. Decorative and aria-hidden, so nothing
-     is withheld from anyone. */
-  .packShot {
-    display: none;
-  }
-}
 
 @media (max-width: 560px) {
   .head,
@@ -446,35 +607,12 @@
   }
 
   .head {
-    margin-top: 28px;
-    padding-bottom: 30px;
+    margin-top: 14px;
   }
 
-  .heroDeck {
-    margin-top: 24px;
-    min-height: 196px;
-  }
-
-  .heroCard {
-    width: clamp(104px, 33vw, 148px);
-  }
-
-  .heroCard1 {
-    right: 15%;
-    bottom: 0;
-    transform: rotate(3deg);
-  }
-
-  .heroCard2 {
-    right: 34%;
-    bottom: 6%;
-    transform: rotate(-8deg);
-  }
-
-  .heroCard3 {
-    right: 3%;
-    bottom: 16%;
-    transform: rotate(9deg);
+  .head,
+  .band {
+    padding: 22px 18px 24px;
   }
 
   .sub {
@@ -496,14 +634,25 @@
     flex: 0 0 calc((100% - 3 * var(--dense-gap) - 1px) / 4);
   }
 
+  .close {
+    padding: 22px 18px 24px;
+  }
+
   .closeBody {
     max-width: 36ch;
     font-size: 16px;
   }
 
+  .closeActions {
+    display: grid;
+    gap: 10px;
+  }
+
+  .headCta,
   .closeCta,
   .closeSecondary {
-    min-height: 46px;
+    width: 100%;
+    min-height: 50px;
     padding: 0 18px;
     font-size: 16px;
   }

@@ -80,6 +80,27 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(layer().hasAttribute('data-open')).toBe(false);
   });
 
+  /* Die Huelle ist zugeklappt display: none — die Ansage fuer Screenreader
+     kommt deshalb aus einer eigenen, immer gerenderten Live-Region. */
+  it('sagt die Karte in einer eigenen Live-Region an und leert sie danach', () => {
+    render(<NotificationToast />);
+    const live = () => document.querySelector('.notification-live') as HTMLElement;
+
+    expect(live().getAttribute('aria-live')).toBe('polite');
+    expect(live().textContent).toBe('');
+    expect(card().hasAttribute('aria-live')).toBe(false);
+
+    act(() => {
+      window.showNotification?.('Spot gespeichert');
+    });
+    expect(live().textContent).toContain('Gespeichert');
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(live().textContent).toBe('');
+  });
+
   it('gibt der Standort-Meldung Knoepfe und laesst sie stehen', () => {
     render(<NotificationToast />);
     const retry = vi.fn();

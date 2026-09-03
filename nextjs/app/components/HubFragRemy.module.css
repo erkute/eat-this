@@ -1,4 +1,7 @@
-/* HubFragRemy — homeV2 restyled into one compact Remy stage. */
+/* HubFragRemy — homeV2 restyled into one compact Remy stage. Seit 03.09.2026
+   als Ink-Tafel: dieselbe Fläche wie Footer (wo Remy längst auf Ink steht),
+   Must-Eat-Tafeln und Booster-Tafeln. Das mintgrüne Panel (#eaf2ed) war die
+   einzige Farbe der Site außerhalb von Weiß, Ink, Gelb und Rot. */
 
 .section {
   /* Anchor target (#hub-fragremy): clear the fixed navbar. */
@@ -8,9 +11,10 @@
 /* ── body: one compact Remy stage ── */
 .body {
   --remy-stage-ink: #15120e;
-  --remy-stage-red: #d9382a;
   --remy-stage-paper: #fff;
-  --remy-stage-soft: #eaf2ed;
+  --remy-stage-accent: var(--et-home-accent, #ffc600);
+  --remy-stage-soft: rgba(255, 255, 255, 0.76);
+  --remy-stage-ring: rgba(255, 255, 255, 0.28);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -22,13 +26,10 @@
   align-items: start;
   overflow: hidden;
   padding: clamp(22px, 4vw, 46px);
-  color: var(--remy-stage-ink);
-  background: var(--remy-stage-soft);
+  color: var(--remy-stage-paper);
+  background: var(--remy-stage-ink);
   border: none;
-  border-radius: var(--home-radius-btn);
-  box-shadow:
-    0 24px 70px rgba(21, 18, 14, 0.14),
-    0 8px 24px rgba(21, 18, 14, 0.08);
+  border-radius: var(--et-radius-photo, 10px);
 }
 
 .ask {
@@ -44,8 +45,11 @@
   margin-bottom: 0;
 }
 
+/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier,
+   wie auf jeder Tafel. */
 .body .panelHead :global(.hv-title) {
   max-width: 790px;
+  color: var(--remy-stage-paper);
   font-size: clamp(44px, 8vw, 96px);
   line-height: 0.88;
 }
@@ -144,7 +148,7 @@
   font-size: clamp(19px, 1.85vw, 27px);
   font-weight: 700;
   line-height: 1.16;
-  color: var(--remy-stage-ink);
+  color: var(--remy-stage-soft);
 }
 
 /* ── actions: quick answers + chat input ── */
@@ -161,58 +165,64 @@
   gap: 8px;
 }
 
-/* Chip hover: accent yellow tint (state change, not motion — allowed) */
+/* Ringe, wie der Standort-Chip im Must-Eat-Sheet: weißer 28-%-Rand, bei
+   Hover gelb (state change, not motion — allowed). */
 .body .chip:global(.hv-chip):hover,
 .body .chip:global(.hv-chip):focus-visible {
-  background: var(--remy-stage-red);
-  color: #fff;
+  background: transparent;
+  border-color: var(--remy-stage-accent);
+  color: var(--remy-stage-accent);
 }
 
 .body .chip:global(.hv-chip) {
-  background: var(--remy-stage-paper);
-  color: var(--remy-stage-ink);
-  border: none;
-  border-radius: 0;
-  box-shadow: 0 8px 18px rgba(21, 18, 14, 0.1);
+  background: transparent;
+  color: var(--remy-stage-paper);
+  border: 2px solid var(--remy-stage-ring);
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
 }
 
 .chip:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.56);
+  outline: 2px solid var(--remy-stage-accent);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
-/* ── free-text input row ── */
+/* ── free-text input row ──
+   Feld und Knopf nebeneinander wie auf der Starter-Pack-Tafel: weißes Feld,
+   gelber Knopf, beide gleich hoch und mit derselben Rundung. Vorher saß eine
+   runde Pille in einem weißen Kasten — „Button passt nicht zum Feld". */
 .chatin {
   display: flex;
   gap: 10px;
-  align-items: center;
-  padding: 7px;
-  background: var(--remy-stage-paper);
+  align-items: stretch;
+  padding: 0;
+  background: transparent;
   border: none;
-  border-radius: var(--home-radius-btn);
-  box-shadow: 0 14px 32px rgba(21, 18, 14, 0.12);
 }
 
+/* Papier auf Ink: das weiße Feld liest sich als Eingabe. */
 .input {
   flex: 1;
   min-width: 0;
+  min-height: 52px;
   border: none;
-  border-radius: var(--home-radius-btn);
-  padding: 13px 14px;
+  border-radius: var(--et-radius-control, 7px);
+  padding: 0 14px;
   font-family: var(--font-providence);
   font-size: 16px;
   font-weight: 700;
   color: var(--remy-stage-ink);
-  background: transparent;
+  background: var(--remy-stage-paper);
 }
 
 .input::placeholder {
-  color: rgba(21, 18, 14, 0.58);
+  color: rgba(21, 18, 14, 0.55);
 }
 
 .input:focus-visible {
-  outline: none;
-  background: rgba(255, 216, 77, 0.14);
+  outline: 2px solid var(--remy-stage-accent);
+  outline-offset: 2px;
 }
 
 .body .send:global(.hv-btn) {
@@ -221,27 +231,28 @@
   flex: 0 0 auto;
   min-width: 62px;
   width: auto;
-  min-height: 48px;
-  padding: 0 18px;
-  color: #fff;
-  background: var(--remy-stage-red);
+  min-height: 52px;
+  padding: 0 22px;
+  color: var(--remy-stage-ink);
+  background: var(--remy-stage-accent);
   border: none;
-  /* Vollrund wie jeder andere .hv-btn der Startseite (css/style.css). Mit
-     `--home-radius-btn` (7px) war er nach der Umstellung der einzige eckige
-     Knopf auf der Seite. */
-  border-radius: 999px;
+  /* Eckig wie das Feld daneben und jeder Tafel-Knopf — die runde Pille
+     gehört den weißen Abschnitten. */
+  border-radius: var(--et-radius-control, 7px);
   text-align: center;
-  box-shadow: 0 10px 20px rgba(217, 56, 42, 0.22);
+  box-shadow: none;
 }
 
+/* Gelb auf Ink, Hover Papier — wie jeder Tafel-Knopf. */
 .body .send:global(.hv-btn):hover {
-  color: #fff;
-  background: var(--remy-stage-ink);
+  color: var(--remy-stage-ink);
+  background: var(--remy-stage-paper);
 }
 
 .body .send:global(.hv-btn):focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.56);
+  outline: 2px solid var(--remy-stage-accent);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 /* ── desktop: copy left, big Remy right ── */
@@ -276,14 +287,6 @@
 }
 
 @media (max-width: 520px) {
-  .body {
-    box-shadow: 0 18px 46px rgba(21, 18, 14, 0.14);
-  }
-
-  .chatin {
-    align-items: stretch;
-  }
-
   .body .send:global(.hv-btn) {
     min-width: 78px;
   }

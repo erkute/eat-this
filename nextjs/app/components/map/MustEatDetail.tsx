@@ -72,6 +72,7 @@ export default function MustEatDetail({
       ...copy,
       onDismiss: () => {},
       duration: LOCATION_ERROR_VISIBLE_MS,
+      layer: true,
     });
   }, [locale]);
   // Demo flag (?revealdemo): show the card face-down and let a tap play the

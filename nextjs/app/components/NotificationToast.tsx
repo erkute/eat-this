@@ -39,6 +39,13 @@ export interface Notice {
   onDismiss?: () => void;
   /** Millisekunden bis zum Selbstabgang; 0 laesst sie stehen. */
   duration?: number;
+  /** Als Layer ueber der Seite: ein Scrim legt sich unter die Karte, faengt
+   *  jeden Tipp daneben ab und raeumt sie damit weg. Fuer Meldungen, die eine
+   *  laufende Handlung begleiten (die Standort-Abfrage) — ein Tipp auf die
+   *  Karte oder daneben darf dann nichts in der Seite ausloesen. Die kurzen
+   *  Bestaetigungen (Spot gespeichert) bleiben ohne: die Seite darf unter
+   *  ihnen weiterlaufen. */
+  layer?: boolean;
 }
 
 declare global {
@@ -337,49 +344,79 @@ export default function NotificationToast() {
     present(null);
   }, [notice, present]);
 
-  /* Die Huelle bleibt immer im Dokument: sie ist der aria-live-Bereich, und
-     der Uebergang braucht einen Rahmen im geschlossenen Zustand, bevor `show`
-     dazukommt. Zugeklappt (clip-path) ist sie nicht zu sehen. */
+  const isLayer = Boolean(visible && notice?.layer);
+
+  /* Escape raeumt den Layer ab wie ein Tipp daneben. Nur den Layer: eine
+     Bestaetigung ohne Scrim geht von allein und faengt keine Tasten ab. */
+  useEffect(() => {
+    if (!isLayer) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') dismiss();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isLayer, dismiss]);
+
+  /* Die Huelle bleibt immer im Dokument: die Karte ist der aria-live-Bereich,
+     und der Uebergang braucht einen Rahmen im geschlossenen Zustand, bevor
+     `show` dazukommt. Zugeklappt (clip-path) ist sie nicht zu sehen.
+
+     Die Vollbild-Huelle zentriert die Karte ueber das Grid statt ueber
+     top/left 50 % plus translate — so haengt die Mitte an nichts ausser dem
+     Viewport. Ohne `data-layer` laesst die Huelle jeden Tipp durch, nur die
+     Karte selbst faengt ihn; mit Scrim schluckt sie alles daneben. */
   return (
     <div
-      className={`notification${visible ? ' show' : ''}`}
-      data-tone={notice?.tone ?? 'info'}
-      aria-live="polite"
-      aria-atomic="true"
+      className={`notification-layer${visible ? ' show' : ''}`}
+      data-layer={isLayer ? '' : undefined}
     >
-      <span className="notification-mark">
-        <ToastIcon icon={notice?.icon ?? 'spark'} />
-      </span>
-      <span className="notification-copy">
-        <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
-        <span className="notification-title">{notice?.title ?? ''}</span>
-        {notice?.detail && <span className="notification-detail">{notice.detail}</span>}
-      </span>
-      {/* Nur solange die Karte offen ist: zugeklappt waeren die Knoepfe zwar
-          unsichtbar, aber weiter antippbar per Tastatur — ein Fokus, der ins
-          Nichts springt. */}
-      {visible && notice && (notice.action || notice.onDismiss) && (
-        <span className="notification-actions">
-          {notice.action && (
-            <button
-              type="button"
-              className="notification-action"
-              onClick={() => {
-                const run = notice.action?.onClick;
-                present(null);
-                run?.();
-              }}
-            >
-              {notice.action.label}
-            </button>
-          )}
-          {notice.onDismiss && (
-            <button type="button" className="notification-dismiss" onClick={dismiss}>
-              {lang === 'en' ? 'Got it' : 'Alles klar'}
-            </button>
-          )}
-        </span>
+      {isLayer && (
+        // Kein Knopf: die Karte traegt ihre Knoepfe selbst, der Scrim ist nur
+        // die Flaeche, auf der ein Tipp NICHT in die Seite faellt.
+        <div className="notification-scrim" onClick={dismiss} aria-hidden="true" />
       )}
+      <div
+        className={`notification${visible ? ' show' : ''}`}
+        data-tone={notice?.tone ?? 'info'}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <span className="notification-mark">
+          <ToastIcon icon={notice?.icon ?? 'spark'} />
+        </span>
+        <span className="notification-copy">
+          <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
+          <span className="notification-title">{notice?.title ?? ''}</span>
+          {notice?.detail && <span className="notification-detail">{notice.detail}</span>}
+        </span>
+        {/* Nur solange die Karte offen ist: zugeklappt waeren die Knoepfe zwar
+            unsichtbar, aber weiter antippbar per Tastatur — ein Fokus, der ins
+            Nichts springt.
+            Reihenfolge: erst „Alles klar", dann die Aktion — die Knoepfe sitzen
+            rechtsbuendig, und der gelbe Primaerknopf gehoert ganz nach rechts. */}
+        {visible && notice && (notice.action || notice.onDismiss) && (
+          <span className="notification-actions">
+            {notice.onDismiss && (
+              <button type="button" className="notification-dismiss" onClick={dismiss}>
+                {lang === 'en' ? 'Got it' : 'Alles klar'}
+              </button>
+            )}
+            {notice.action && (
+              <button
+                type="button"
+                className="notification-action"
+                onClick={() => {
+                  const run = notice.action?.onClick;
+                  present(null);
+                  run?.();
+                }}
+              >
+                {notice.action.label}
+              </button>
+            )}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

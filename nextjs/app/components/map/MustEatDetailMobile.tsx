@@ -507,7 +507,11 @@ export default function MustEatDetailMobile({
           </div>
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
-          {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
+          {open && localizedDescription && (
+            <p className={`${styles.fdText}${nameBurning ? ` ${styles.fdTextRevealing}` : ''}`}>
+              {localizedDescription}
+            </p>
+          )}
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. */}
           {!open && (

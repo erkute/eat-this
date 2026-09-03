@@ -245,10 +245,10 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-/* Reveal: clip/mask motion instead of a direct text pop. */
+/* Reveal: der Name blendet ruhig ein (siehe fdNameCalmReveal im Must-Eat-Block). */
 .fdNameUnblurring {
   filter: none;
-  animation: fdNameMagicReveal 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
+  animation: fdNameCalmReveal 0.9s ease-out both;
 }
 /* Beschreibung — kompakt geklemmt, damit die Detailkarte nicht scrollen muss. */
 .fdText {
@@ -3367,53 +3367,35 @@
   max-height: 100%;
   overflow: hidden;
 }
+/* Nach dem Aufdecken: Name und Beschreibung blenden ruhig ein. Vorher lief
+   hier ein Wisch von links (clip-path mit Drehung) plus ein gelb-weißer
+   Glanzstreifen über den Namen — „gib dem eine ruhige Anblendung" (Nutzer,
+   03.09.2026). Jetzt: Deckkraft von 0 auf 1 mit 6px Hub aus der Tiefe, ohne
+   Schleifen, ohne Glanz; die Beschreibung folgt dem Namen um 160ms. Bewusst
+   eine Ausnahme von „keine Opacity-Fades auf Brand-Flächen": hier ist die
+   Ruhe das Ziel, deshalb Deckkraft plus Hub statt Deckkraft allein. */
 .detailV13MustEat .fdNameText.fdNameUnblurring {
   position: relative;
   color: var(--me-ink);
   filter: none;
-  transform-origin: 0 100%;
-  animation: fdNameMagicReveal 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
+  animation: fdNameCalmReveal 0.9s ease-out both;
 }
-.detailV13MustEat .fdNameText.fdNameUnblurring::after {
-  content: '';
-  position: absolute;
-  inset: 0 -8px 0 0;
-  background: linear-gradient(
-    100deg,
-    transparent 0 34%,
-    rgba(246, 196, 0, 0.58) 48%,
-    rgba(255, 255, 255, 0.82) 54%,
-    transparent 68%
-  );
-  mix-blend-mode: screen;
-  pointer-events: none;
-  animation: fdNameMagicSweep 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
+.detailV13MustEat .fdText.fdTextRevealing {
+  animation: fdNameCalmReveal 0.9s ease-out 0.16s both;
 }
-@keyframes fdNameMagicReveal {
+@keyframes fdNameCalmReveal {
   0% {
-    clip-path: inset(0 100% 0 0);
-    transform: translateY(12px) rotate(-0.6deg);
-  }
-  42% {
-    clip-path: inset(0 24% 0 0);
-    transform: translateY(4px) rotate(-0.18deg);
+    opacity: 0;
+    transform: translateY(6px);
   }
   100% {
-    clip-path: inset(0 0 0 0);
-    transform: translateY(0) rotate(0);
-  }
-}
-@keyframes fdNameMagicSweep {
-  0% {
-    transform: translateX(-110%);
-  }
-  100% {
-    transform: translateX(110%);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .detailV13MustEat .fdNameText.fdNameUnblurring,
-  .detailV13MustEat .fdNameText.fdNameUnblurring::after {
+  .detailV13MustEat .fdText.fdTextRevealing {
     animation: none;
   }
 }
@@ -3587,14 +3569,6 @@
   .detailV13MustEat .detailV13Scroll {
     --me-content-gap: 18px;
   }
-}
-.detailV13MustEat .fdNameText.fdNameUnblurring {
-  animation-duration: 1.8s;
-  animation-timing-function: cubic-bezier(0.16, 0.82, 0.18, 1);
-}
-.detailV13MustEat .fdNameText.fdNameUnblurring::after {
-  animation-duration: 1.8s;
-  animation-timing-function: cubic-bezier(0.16, 0.82, 0.18, 1);
 }
 .detailV13MustEat .detailV13Scroll {
   --me-rest-slot: clamp(124px, 15dvh, 136px);

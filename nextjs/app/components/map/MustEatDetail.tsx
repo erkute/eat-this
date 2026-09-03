@@ -185,10 +185,11 @@ export default function MustEatDetail({
           onDone={() => {
             state.handleRevealDone();
             if (demo) setDemoRevealed(true);
-            // Card has landed → the blurred dish name slowly sharpens into
-            // focus (0.2s delay + 1.9s unblur, see .fdNameUnblurring).
+            // Card has landed → dish name and description fade in calmly
+            // (0.9s, the description 0.16s behind — see .fdNameUnblurring and
+            // .fdTextRevealing). The class comes off once both have settled.
             setStampBurning(true);
-            window.setTimeout(() => setStampBurning(false), 2350);
+            window.setTimeout(() => setStampBurning(false), 1300);
           }}
         />
       )}

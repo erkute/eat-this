@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
+import type { PaddingOptions } from 'maplibre-gl';
 import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import {
@@ -34,6 +35,8 @@ import {
   LIST_REST_VISIBLE_DVH,
   resolveListReturn,
   rowRevealOffset,
+  rowRevealTop,
+  type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
@@ -314,10 +317,14 @@ export default function MapSection({
      Instant rather than smooth, for the same reason it is over there: with
      `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
      frame restarts its own animation and never arrives. The list simply appears
-     already standing at the spot, which is the point. */
+     already standing at the spot, which is the point.
+
+     `rememberedTop` is where the row sat on screen when it was tapped (see
+     listRowTopRef): with it the row comes back to that place — clamped so it
+     is fully visible — instead of to the generic "a little above the middle". */
   const rowRevealCancelRef = useRef<(() => void) | null>(null);
   const scrollListToRow = useCallback(
-    (id: string | null): boolean => {
+    (id: string | null, rememberedTop?: number | null): boolean => {
       if (!id || typeof document === 'undefined') return false;
       const findRow = () => document.querySelector<HTMLElement>(`[data-list-row="${id}"]`);
       if (!findRow()) return false;
@@ -348,7 +355,7 @@ export default function MapSection({
         if (port) {
           const offset =
             row.getBoundingClientRect().top - port.getBoundingClientRect().top + port.scrollTop;
-          target = Math.max(0, Math.round(offset - port.clientHeight * 0.28));
+          target = Math.max(0, Math.round(offset - rowRevealTop(port.clientHeight, rememberedTop)));
           current = port.scrollTop;
         } else {
           if (!isPhoneViewport()) return cancel();
@@ -357,7 +364,8 @@ export default function MapSection({
           target = rowRevealOffset(
             row.getBoundingClientRect().top + window.scrollY,
             window.innerHeight,
-            minY
+            minY,
+            rememberedTop
           );
           current = window.scrollY;
         }
@@ -605,6 +613,29 @@ export default function MapSection({
      - Filter / sort changes reset it to 0 so a new filter always starts at
        the top of the new result set. */
   const listScrollRef = useRef(0);
+  /* Where the tapped row sat on screen (viewport top on phones, port top on
+     tablet/desktop) when its detail opened. The raw scroll offset alone is not
+     enough to put it back: rows below the fold carry `content-visibility:
+     auto` and are laid out from estimates until measured, and the list can be
+     re-sorted (a position fix arrives) while the detail is open — restoring
+     the old scrollY then lands somewhere else, often with the row clamped to
+     the very bottom of the screen. The row itself is the anchor; this is only
+     where on screen it belongs. */
+  const listRowTopRef = useRef<number | null>(null);
+  /* Where the open detail came from. A marker tap hands the map back on close —
+     camera and all — a list row hands the list back. Set on a fresh open only:
+     paging inside the detail and the must-eat ↔ restaurant hop keep the origin
+     of the detail they grew out of. */
+  const detailOriginRef = useRef<DetailOrigin>('list');
+  /* The camera a marker tap interrupted, restored when that detail closes. */
+  const cameraBeforeDetailRef = useRef<{
+    center: { lng: number; lat: number };
+    zoom: number;
+    padding: PaddingOptions;
+  } | null>(null);
+  /* Desktop: a marker tap unfolds a hidden panel to show the detail. Closing
+     it folds the panel back, so the map is as it was. */
+  const panelHiddenBeforeDetailRef = useRef(false);
   /* The spot whose detail was closed last. Two jobs, both about the row rather
      than the selection: RestaurantList keeps that row rendered even when it
      sits past the windowed budget (it counts the "selection" into the budget),
@@ -660,8 +691,22 @@ export default function MapSection({
     const cameFromDetail = listReturnFromRef.current === 'detail';
     listReturnFromRef.current = sheetView;
     if (sheetView !== 'list') return;
-    const action = resolveListReturn(listScrollRef.current, cameFromDetail);
+    const action = resolveListReturn(
+      listScrollRef.current,
+      cameFromDetail,
+      detailOriginRef.current
+    );
     if (action === 'stay') return;
+    if (action === 'toMap') {
+      /* Back to the map the spot was tapped on. Phones: the in-flow detail may
+         have been scrolled, and in list geometry any scroll > 0 is the list
+         coming up — park the window at the map stop before paint. Tablet snap
+         and desktop panel are handled in handleRestaurantClose; the camera
+         flies back there too. */
+      listAnchorPendingRef.current = false;
+      if (isPhoneViewport()) window.scrollTo(0, 0);
+      return;
+    }
     if (isPhoneViewport()) {
       if (action === 'toList') {
         /* Opened from a marker on the map (or a deep link): there is no list
@@ -687,7 +732,11 @@ export default function MapSection({
       }
       /* Phone details start at the top of the in-flow document. Restore the
          list position before paint so closing does not flash a blank canvas
-         into iOS Safari's browser-chrome backdrop. */
+         into iOS Safari's browser-chrome backdrop. The row is the anchor
+         (scrollListToRow's first pass runs synchronously, so this too lands
+         before paint); the raw offset is only the fallback for a row the
+         list no longer renders. */
+      if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
       window.scrollTo(0, listScrollRef.current);
       return;
     }
@@ -698,6 +747,7 @@ export default function MapSection({
       scrollListToRow(listFocusIdRef.current);
       return;
     }
+    if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
     const el = contentRef.current;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
@@ -733,6 +783,34 @@ export default function MapSection({
       right: 20,
     };
   }, []);
+
+  /* Camera a marker-opened detail hands back on close — consumed by the
+     effect below once the phone canvas is back to full height. */
+  const pendingCameraRestoreRef = useRef<{
+    center: { lng: number; lat: number };
+    zoom: number;
+    padding?: PaddingOptions;
+  } | null>(null);
+  useLayoutEffect(() => {
+    if (!isActive || sheetView !== 'list') return;
+    const camera = pendingCameraRestoreRef.current;
+    if (!camera) return;
+    pendingCameraRestoreRef.current = null;
+    return pollUntilMapReady({
+      mapRef,
+      onReady: (map) => {
+        /* Measure the restored 100dvh canvas first, or the flight is planned
+           against the detail strip's transform. */
+        map.resize();
+        map.flyTo({
+          center: [camera.center.lng, camera.center.lat],
+          zoom: camera.zoom,
+          padding: camera.padding ?? getFlyPaddingRef.current('peek'),
+          duration: 350,
+        });
+      },
+    });
+  }, [isActive, sheetView]);
 
   const selectedRestaurantId = selectedRestaurant?._id;
   const selectedRestaurantLng = selectedRestaurant?.lng;
@@ -938,8 +1016,27 @@ export default function MapSection({
   }, [restaurants, selectedRestaurant]);
 
   const handleRestaurantClick = useCallback(
-    (r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
+    (r: MapRestaurant, origin: DetailOrigin = 'list') => {
       userInteractedRef.current = true;
+      if (sheetView === 'list') {
+        detailOriginRef.current = origin;
+        panelHiddenBeforeDetailRef.current = desktopPanelHidden;
+        /* The camera as the user left it, before any open-fly or the phone
+           canvas resize moves it. Padding is part of it: MapLibre's centre is
+           the centre of the padded viewport. */
+        const map = origin === 'map' ? mapRef.current : null;
+        cameraBeforeDetailRef.current = map
+          ? { center: map.getCenter(), zoom: map.getZoom(), padding: map.getPadding() }
+          : null;
+        const row =
+          origin === 'list' && typeof document !== 'undefined'
+            ? document.querySelector<HTMLElement>(`[data-list-row="${r._id}"]`)
+            : null;
+        listRowTopRef.current = row
+          ? row.getBoundingClientRect().top -
+            (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
+          : null;
+      }
       setDesktopPanelHidden(false);
       trackEvent('restaurant_opened', {
         restaurant_id: r._id,
@@ -1015,6 +1112,7 @@ export default function MapSection({
       sheetView,
       contentRef,
       displayedRestaurants.length,
+      desktopPanelHidden,
     ]
   );
 
@@ -1140,6 +1238,19 @@ export default function MapSection({
         listScrollRef.current = isPhoneViewport()
           ? window.scrollY
           : (contentRef.current?.scrollTop ?? 0);
+        /* A must-eat opens from a list row's peek — closing it lands on the
+           row of the restaurant the dish belongs to. */
+        detailOriginRef.current = 'list';
+        panelHiddenBeforeDetailRef.current = desktopPanelHidden;
+        cameraBeforeDetailRef.current = null;
+        const row =
+          typeof document !== 'undefined'
+            ? document.querySelector<HTMLElement>(`[data-list-row="${m.restaurant._id}"]`)
+            : null;
+        listRowTopRef.current = row
+          ? row.getBoundingClientRect().top -
+            (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
+          : null;
       }
       // Selecting a search result accepts it — clear the query so the list
       // shows the full result set again when the user returns to it.
@@ -1190,6 +1301,7 @@ export default function MapSection({
       setSnap,
       sheetView,
       contentRef,
+      desktopPanelHidden,
     ]
   );
 
@@ -1199,6 +1311,42 @@ export default function MapSection({
     // Where the list should come back to: the row of the spot being closed.
     setListFocusId(r?._id ?? null);
     setSheetView('list');
+    if (detailOriginRef.current === 'map') {
+      /* Opened from a marker: hand the MAP back, as it was. The list drops to
+         its resting peek (tablet snap; phones scroll to the map stop in the
+         layout effect above), a desktop panel that was folded away folds
+         away again, and the camera flies back to where the tap interrupted
+         it. Without the saved camera (map not ready at the tap) the spot
+         itself is the next best centre. */
+      const isPhone = isPhoneViewport();
+      const nextSnap: typeof snap = isPhone ? 'mid' : 'peek';
+      if (nextSnap !== snap) setSnap(nextSnap);
+      if (!isPhone) reapplySnap(nextSnap);
+      setDesktopPanelHidden(panelHiddenBeforeDetailRef.current);
+      const camera = cameraBeforeDetailRef.current;
+      cameraBeforeDetailRef.current = null;
+      if (isPhone) {
+        /* The phone canvas is still the 50dvh detail strip at this point —
+           a flight with the full-height padding on it overshoots to a
+           Brandenburg-wide zoom. The layout effect below flies once the
+           canvas has its list height back (same choreography as opening). */
+        pendingCameraRestoreRef.current = camera ?? (r ? { center: r, zoom: 15 } : null);
+        return;
+      }
+      if (mapRef.current) {
+        if (camera) {
+          mapRef.current.flyTo({ ...camera, duration: 350 });
+        } else if (r) {
+          mapRef.current.flyTo({
+            center: [r.lng, r.lat],
+            zoom: 15,
+            duration: 350,
+            padding: getFlyPadding(nextSnap),
+          });
+        }
+      }
+      return;
+    }
     // If the user pushed the detail down to peek before tapping X, snap the
     // list back to 'mid' so the result set is actually readable. 'full' and
     // 'mid' are preserved as deliberate user positions. PHONES: the snap
@@ -1216,7 +1364,7 @@ export default function MapSection({
         padding: getFlyPadding(nextSnap),
       });
     }
-  }, [selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap]);
+  }, [selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap, reapplySnap]);
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return;
@@ -1598,20 +1746,25 @@ export default function MapSection({
      handleBezirkChange safe to strip: a district with no free spots still
      flies somewhere, and it now flies to its actual (locked) spots rather than
      to an averaged centroid. */
-  const didFirstFilterRefitRef = useRef(false);
   const displayedRestaurantsRef = useRef(displayedRestaurants);
   displayedRestaurantsRef.current = displayedRestaurants;
   const displayedLockedRestaurantsRef = useRef(displayedLockedRestaurants);
   displayedLockedRestaurantsRef.current = displayedLockedRestaurants;
+  /* The filter set the camera was last fitted to. The effect also re-runs when
+     a detail opens or closes (it has to, to skip the open one), and until
+     03.09.2026 every CLOSE counted as a filter change: the whole catalogue was
+     framed again, Brandenburg-wide, over whatever the close handler had just
+     flown to. Only a filter that differs from the last fitted one refits —
+     on the change itself, or on close if it changed while a detail was open. */
+  const filterKey = `${category}|${bezirk ?? ''}|${price ?? ''}|${openOnly}`;
+  const lastFittedFilterKeyRef = useRef(filterKey);
   useEffect(() => {
-    if (!didFirstFilterRefitRef.current) {
-      didFirstFilterRefitRef.current = true;
-      return;
-    }
     if (selectedRestaurant || selectedMustEat) return;
+    if (filterKey === lastFittedFilterKeyRef.current) return;
+    lastFittedFilterKeyRef.current = filterKey;
     const free = displayedRestaurantsRef.current;
     fitCameraToSpots(free.length ? free : displayedLockedRestaurantsRef.current);
-  }, [category, bezirk, price, openOnly, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
+  }, [filterKey, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
 
   /* Search refit — the reason a query for a locked spot used to read as "not
      found". The filter DOES match locked rows (useMapFilters runs both sets
@@ -1758,6 +1911,7 @@ export default function MapSection({
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       listFocusId={listFocusId}
+      detailOrigin={sheetView === 'detail' ? detailOriginRef.current : 'list'}
       selectedMustEat={selectedMustEat}
       primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}

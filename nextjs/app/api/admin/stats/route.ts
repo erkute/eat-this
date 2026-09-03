@@ -11,6 +11,7 @@ import {
   type DailyDoc,
   type PurchaseRecord,
 } from '@/lib/admin/stats.server';
+import { loadSearch } from '@/lib/admin/searchConsole.server';
 import { berlinDay } from '@/lib/analytics/visitorHash';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { isAdminEmail, isAdminToken } from '@/lib/firebase/entitlements';
@@ -60,7 +61,12 @@ function dayOf(value: string | Timestamp | undefined | null): string | null {
  * Alles hier ist klein (einstellige Kontenzahl, zweistellige Dokumente) und
  * wird bei jedem Aufruf frisch gelesen; ein Cache waere mehr Code als Nutzen.
  */
-async function loadAccounts(auth: Auth, db: Firestore, windowStart: string): Promise<Accounts> {
+async function loadAccounts(
+  auth: Auth,
+  db: Firestore,
+  windowStart: string,
+  today: string
+): Promise<Accounts> {
   const accountByUid = new Map<string, AccountRecord>();
   let pageToken: string | undefined;
   do {
@@ -103,7 +109,7 @@ async function loadAccounts(auth: Auth, db: Firestore, windowStart: string): Pro
     return { day: dayOf(data.createdAt) ?? '', status: data.status ?? 'open' };
   });
 
-  return summarizeAccounts([...accountByUid.values()], purchases, checkouts, windowStart);
+  return summarizeAccounts([...accountByUid.values()], purchases, checkouts, windowStart, today);
 }
 
 export async function GET(request: Request) {
@@ -144,13 +150,18 @@ export async function GET(request: Request) {
   // lexikografisch = chronologisch). Ein `orderBy(documentId, 'desc')` wäre
   // naheliegender, verlangt aber einen zusammengesetzten Index; ein reiner
   // Bereichsfilter auf `__name__` kommt ohne aus.
+  //
+  // Die Search Console laeuft nebenher und darf scheitern: ihre Antwort ist
+  // entweder Zahlen oder der Grund (fehlende Freigabe des Dienstkontos), nie
+  // ein 500 fuer das ganze Brett.
   const db = getAdminFirestore();
-  const [snapshot, accounts] = await Promise.all([
+  const [snapshot, accounts, search] = await Promise.all([
     db
       .collection('analytics_daily')
       .where(FieldPath.documentId(), '>=', sinceDay(days * 2, today))
       .get(),
-    loadAccounts(getAdminAuth(), db, windowStart),
+    loadAccounts(getAdminAuth(), db, windowStart, today),
+    loadSearch(days, today),
   ]);
 
   const all: DailyDoc[] = snapshot.docs.map((doc) => ({
@@ -164,5 +175,7 @@ export async function GET(request: Request) {
   const current = all.filter((doc) => doc.day >= windowStart);
   const previous = all.filter((doc) => doc.day < windowStart);
 
-  return NextResponse.json(summarize(current, previous, today, accounts), { headers: NO_STORE });
+  return NextResponse.json(summarize(current, previous, today, accounts, search), {
+    headers: NO_STORE,
+  });
 }

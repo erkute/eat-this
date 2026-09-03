@@ -12,6 +12,7 @@ import {
   type Mover,
   type StatsSummary,
 } from '@/lib/admin/stats.server';
+import type { SearchRow, SearchSummary } from '@/lib/admin/searchConsole';
 import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
 import styles from './StatsDashboard.module.css';
 
@@ -38,6 +39,16 @@ const RANGES = [
  * zeigen, sonst luegt die Fussnote.
  */
 const BOT_FILTER_LIVE_SINCE = '02.09.2026';
+
+/**
+ * Der zweite Schnitt: bis hierher zaehlte die EIGENE Lighthouse-CI mit. Sie
+ * laeuft bei jedem Push und PR nach main, drei Durchgaenge auf fuenf Seiten,
+ * und Lighthouse 12 sendet seinen Telefon-UA ohne die Kennung
+ * „Chrome-Lighthouse" — der Filter sah einen normalen Browser (belegt am
+ * 03.09.2026, lib/analytics/botFilter.ts). Muss auf den Rollout-Tag des
+ * Filters zeigen.
+ */
+const LIGHTHOUSE_FILTER_LIVE_SINCE = '04.09.2026';
 
 const EVENT_LABELS: Record<string, string> = {
   begin_checkout: 'Kauf begonnen',
@@ -170,6 +181,7 @@ export default function StatsDashboard() {
           <Yesterday data={data} />
           <Headline data={data} />
           <AccountsCard data={data} />
+          <SearchCard data={data} />
           <Trend
             title="Besucher"
             points={data.days.map((d) => ({ day: d.day, value: d.visitors }))}
@@ -230,9 +242,11 @@ function Headline({ data }: { data: StatsSummary }) {
       )}
       <p className={styles.note}>
         Bis zum {BOT_FILTER_LIVE_SINCE} sah der Zähler keinen User-Agent — die Edge ersetzt ihn —
-        und zählte Bingbot, Baidu und einen Azure-Crawler mit Lighthouse-Kennung als Besucher,
-        zuletzt rund ein Drittel aller Beacons. Zahlen davor sind entsprechend zu hoch; die fünf
-        Lighthouse-Seiten (Startseite, Karte, News, Engelbecken, Pizza-Hub) am stärksten.
+        und zählte Bingbot, Baidu und Lighthouse als Besucher, zuletzt rund ein Drittel aller
+        Beacons. Bis zum {LIGHTHOUSE_FILTER_LIVE_SINCE} lief außerdem die eigene Lighthouse-CI mit
+        (bei jedem Push nach main, rund 30 Aufrufe je Seite und Tag). Zahlen davor sind entsprechend
+        zu hoch; die fünf Lighthouse-Seiten (Startseite, Karte, News, Engelbecken, Pizza-Hub) am
+        stärksten, die Besucherzahl kaum.
       </p>
     </>
   );
@@ -533,6 +547,17 @@ function AccountsCard({ data }: { data: StatsSummary }) {
   return (
     <section className={styles.card}>
       <h2 className={styles.cardTitle}>Konten</h2>
+      <h3 className={styles.funnelTitle}>Aktive Nutzer</h3>
+      <section className={styles.tiles}>
+        <Tile value={NUMBER.format(a.active.day)} label="Heute" />
+        <Tile value={NUMBER.format(a.active.week)} label="Letzte 7 Tage" />
+        <Tile value={NUMBER.format(a.active.month)} label="Letzte 30 Tage" />
+      </section>
+      <p className={styles.note}>
+        Konten, deren App im jeweiligen Fenster ein Anmelde-Token erneuert hat — feste Fenster,
+        unabhängig vom gewählten Zeitraum oben, damit die Zahl beim Umschalten nicht mitwandert.
+      </p>
+      <h3 className={styles.funnelTitle}>Bestand</h3>
       <section className={styles.tiles}>
         <Tile value={NUMBER.format(a.total)} label="Konten gesamt" />
         <Tile value={NUMBER.format(a.newInWindow)} label="Neu im Zeitraum" />
@@ -552,6 +577,148 @@ function AccountsCard({ data }: { data: StatsSummary }) {
         {NUMBER.format(a.checkouts.open)} nie abgeschlossen.
       </p>
     </section>
+  );
+}
+
+/** Prozent mit einer Stelle, für CTR — „0,6 %" statt „0.0056". */
+function ctr(value: number): string {
+  return percent(value);
+}
+
+function position(value: number): string {
+  return value > 0 ? value.toFixed(1).replace('.', ',') : '—';
+}
+
+/**
+ * Die Google-Suche. Andere Quelle, andere Menschen: die Search Console zählt
+ * Suchergebnisse, nicht Besuche, und ihre Zahlen kommen zwei bis drei Tage
+ * nach dem Tag. Deshalb eine eigene Karte mit eigener Beschriftung — und mit
+ * einem ehrlichen Zustand, wenn der Zugang fehlt, statt einer leeren Tabelle.
+ */
+function SearchCard({ data }: { data: StatsSummary }) {
+  const search = data.search;
+  if (!search) return null;
+  if (!search.ok) {
+    return (
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>Google-Suche</h2>
+        {search.reason === 'no-access' ? (
+          <p className={styles.note}>
+            Die Search Console lässt das Dienstkonto nicht hinein. In der Search Console unter
+            „Einstellungen → Nutzer und Berechtigungen“ die Adresse{' '}
+            <code className={styles.code}>{search.identity ?? '(unbekannt)'}</code> als Nutzer
+            der Property eatthisdot.com eintragen — danach erscheinen die Zahlen beim nächsten
+            Laden.
+          </p>
+        ) : (
+          <p className={styles.note}>
+            Die Search Console hat nicht geantwortet: {search.message}
+          </p>
+        )}
+      </section>
+    );
+  }
+  const s: SearchSummary = search.data;
+  const { totals, before } = s;
+  return (
+    <section className={styles.card}>
+      <h2 className={styles.cardTitle}>Google-Suche</h2>
+      <section className={styles.tiles}>
+        <Tile
+          value={NUMBER.format(totals.clicks)}
+          label="Klicks"
+          delta={before ? { now: totals.clicks, before: before.clicks, change: change(totals.clicks, before.clicks) } : null}
+        />
+        <Tile
+          value={NUMBER.format(totals.impressions)}
+          label="Impressionen"
+          delta={
+            before
+              ? {
+                  now: totals.impressions,
+                  before: before.impressions,
+                  change: change(totals.impressions, before.impressions),
+                }
+              : null
+          }
+        />
+        <Tile value={ctr(totals.ctr)} label={before ? `Klickrate · vorher ${ctr(before.ctr)}` : 'Klickrate'} />
+        <Tile
+          value={position(totals.position)}
+          label={before ? `Position · vorher ${position(before.position)}` : 'Position'}
+        />
+      </section>
+      <p className={styles.note}>
+        Search Console, {shortDay(s.range.start)} bis {shortDay(s.range.end)}; die Pfeile
+        vergleichen mit den {NUMBER.format(s.range.days)} Tagen davor. Google liefert die letzten
+        zwei bis drei Tage erst nachträglich — das Ende des Verlaufs ist immer zu niedrig. Position
+        ist nach Impressionen gewichtet, 1 ist ganz oben.
+      </p>
+      <Trend
+        title="Klicks aus der Suche"
+        points={s.days.map((d) => ({ day: d.day, value: d.clicks }))}
+      />
+      <div className={styles.columns}>
+        <SearchTable
+          title="Welche Suche funktioniert"
+          rows={s.queries}
+          empty="Noch keine Klicks aus der Suche."
+        />
+        <SearchTable title="Welche Seite gefunden wird" rows={s.pages} empty="Noch keine Klicks." />
+      </div>
+      <SearchTable
+        title="Fast oben — oft gezeigt, selten geklickt"
+        rows={s.opportunities}
+        empty="Nichts zwischen Position 4 und 20 mit nennenswerten Impressionen."
+      />
+      <p className={styles.note}>
+        „Fast oben“ sind Anfragen auf Position 4 bis 20 mit mindestens 30 Impressionen, nach
+        Impressionen sortiert: dort entscheidet der Titel im Suchergebnis, ob geklickt wird. Ganz
+        oben ist nichts mehr zu holen, jenseits von 20 sieht die Seite niemand.
+      </p>
+    </section>
+  );
+}
+
+function change(now: number, before: number): number | null {
+  return before > 0 ? (now - before) / before : null;
+}
+
+function SearchTable({ title, rows, empty }: { title: string; rows: SearchRow[]; empty: string }) {
+  return (
+    <div>
+      <h3 className={styles.funnelTitle}>{title}</h3>
+      {rows.length === 0 ? (
+        <p className={styles.note}>{empty}</p>
+      ) : (
+        <div className={styles.scroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th scope="col">Suche</th>
+                <th scope="col">Klicks</th>
+                <th scope="col">Impr.</th>
+                <th scope="col">CTR</th>
+                <th scope="col">Pos.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.key}>
+                  <td className={styles.cellKey} title={row.key}>
+                    {row.key}
+                  </td>
+                  <td className={styles.cellNum}>{NUMBER.format(row.clicks)}</td>
+                  <td className={styles.cellNum}>{NUMBER.format(row.impressions)}</td>
+                  <td className={styles.cellNum}>{ctr(row.ctr)}</td>
+                  <td className={styles.cellNum}>{position(row.position)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
 

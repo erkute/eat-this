@@ -162,16 +162,17 @@ describe('POST /api/count', () => {
     expect(mocks.create).not.toHaveBeenCalled();
   });
 
-  /* The Azure crawler executes JavaScript, so it reaches this endpoint exactly
-   * like a browser. Unfiltered it was ~2500 hits a day and rising. */
-  it('drops the disguised Azure crawler', async () => {
+  /* Lighthouse executes JavaScript, so it reaches this endpoint exactly like
+   * a browser - our own CI on every push to main, from whatever address the
+   * runner happens to have. */
+  it('drops Lighthouse from any address', async () => {
     const res = await POST(
       request(
         { path: '/' },
         {
           'user-agent':
             'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36',
-          'x-forwarded-for': '20.61.4.9, 10.0.0.1, 10.0.0.2',
+          'x-forwarded-for': '84.13.22.9, 10.0.0.1, 10.0.0.2',
         }
       )
     );
@@ -204,15 +205,12 @@ describe('POST /api/count', () => {
       expect(mocks.set).not.toHaveBeenCalled();
     });
 
-    it('erkennt den Azure-Crawler an Body-UA plus IP', async () => {
+    it('erkennt Lighthouse am Body-UA, auch ohne die Kennung „Chrome-Lighthouse"', async () => {
       await POST(
-        request(
-          {
-            path: '/',
-            ua: 'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 Chrome/136.0.0.0 Mobile Safari/537.36 Chrome-Lighthouse',
-          },
-          { 'x-forwarded-for': '20.61.4.9, 10.0.0.1, 10.0.0.2' }
-        )
+        request({
+          path: '/',
+          ua: 'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 Chrome/136.0.0.0 Mobile Safari/537.36',
+        })
       );
 
       expect(mocks.set).not.toHaveBeenCalled();

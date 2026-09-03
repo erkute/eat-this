@@ -106,6 +106,94 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(screen.getByText('Gespeichert')).toBeTruthy();
   });
 
+  /* Standort-Meldungen liegen als Layer ueber der Seite: ein Tipp daneben
+     darf nichts in der Seite ausloesen, sondern raeumt die Karte weg. */
+  it('legt der Layer-Meldung einen Scrim unter, der sie beim Tipp abraeumt', () => {
+    render(<NotificationToast />);
+    const onDismiss = vi.fn();
+
+    act(() => {
+      window.showNotice?.({
+        tone: 'warning',
+        icon: 'pin',
+        eyebrow: 'Standort',
+        title: 'Blockiert',
+        onDismiss,
+        duration: 0,
+        layer: true,
+      });
+    });
+
+    const layer = document.querySelector('.notification-layer') as HTMLElement;
+    expect(layer.hasAttribute('data-layer')).toBe(true);
+    const scrim = document.querySelector('.notification-scrim') as HTMLElement;
+    expect(scrim).toBeTruthy();
+
+    act(() => {
+      scrim.click();
+    });
+    expect(onDismiss).toHaveBeenCalledOnce();
+    expect(card().className).not.toContain('show');
+    expect(layer.hasAttribute('data-layer')).toBe(false);
+  });
+
+  it('laesst die kurze Bestaetigung ohne Scrim durch', () => {
+    render(<NotificationToast />);
+
+    act(() => {
+      window.showNotification?.('Spot gespeichert');
+    });
+
+    expect(document.querySelector('.notification-scrim')).toBeNull();
+    expect(document.querySelector('.notification-layer')?.hasAttribute('data-layer')).toBe(false);
+  });
+
+  /* Rechtsbuendig sitzt der Primaerknopf ganz rechts — also als letzter. */
+  it('stellt „Alles klar" vor die Aktion', () => {
+    render(<NotificationToast />);
+
+    act(() => {
+      window.showNotice?.({
+        tone: 'warning',
+        icon: 'pin',
+        eyebrow: 'Standort',
+        title: 'Blockiert',
+        action: { label: 'Nochmal', onClick: vi.fn() },
+        onDismiss: vi.fn(),
+        duration: 0,
+        layer: true,
+      });
+    });
+
+    const labels = Array.from(document.querySelectorAll('.notification-actions button')).map(
+      (b) => b.textContent
+    );
+    expect(labels).toEqual(['Alles klar', 'Nochmal']);
+  });
+
+  it('raeumt den Layer mit Escape ab', () => {
+    render(<NotificationToast />);
+    const onDismiss = vi.fn();
+
+    act(() => {
+      window.showNotice?.({
+        tone: 'info',
+        icon: 'pin',
+        eyebrow: 'Standort',
+        title: 'Wir suchen dich',
+        onDismiss,
+        duration: 0,
+        layer: true,
+      });
+    });
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+
+    expect(onDismiss).toHaveBeenCalledOnce();
+    expect(card().className).not.toContain('show');
+  });
+
   it('reicht eine ueber den Seitenwechsel hinterlegte Meldung nach', () => {
     sessionStorage.setItem('eatthis_toast', 'Du bist angemeldet');
     render(<NotificationToast />);

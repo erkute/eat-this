@@ -112,11 +112,13 @@ describe('CSS architecture contracts', () => {
     // iOS 26 Safari faerbt seine Leisten nach dem obersten fixierten Element,
     // das eine Viewport-Kante beruehrt (>= 80 % breit, >= 3 px hoch) — und
     // ignoriert theme-color. Die Meldungs-Huelle steht auf jeder Seite im DOM,
-    // zugeklappt darf sie deshalb nicht fixiert sein — auch Hoehe 0 zaehlt
-    // Safari mit; fixiert erst mit data-open, Vollbild erst mit dem Scrim.
-    expect(noticeLayer.get('position')).toEqual(['static']);
-    expect(noticeLayer.get('height')).toEqual(['0']);
+    // und behaelt die Farbe, solange der letzte Container einen Renderer hat.
+    // Zugeklappt ist die Huelle deshalb display: none; fixiert erst mit
+    // data-open, Vollbild erst mit dem Scrim.
+    expect(noticeLayer.get('display')).toEqual(['none']);
+    expect(noticeLayer.get('position')).toBeUndefined();
     expect(noticeLayerOpen.get('position')).toEqual(['fixed']);
+    expect(noticeLayerOpen.get('height')).toEqual(['0']);
     expect(noticeLayerOpen.get('inset')).toBeUndefined();
     expect(noticeLayerOpen.get('bottom')).toBeUndefined();
     expect(noticeLayerScrim.get('inset')).toEqual(['0']);

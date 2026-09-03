@@ -281,10 +281,10 @@ export default function NotificationToast() {
   const { lang } = useTranslation();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [visible, setVisible] = useState(false);
-  /* Ob die Huelle fixiert ist. Sie wird es im selben Render wie `show`, damit
-     der Uebergang aus dem zugeklappten Zustand laeuft, und bleibt es bis das
-     Ausfahren durch ist — erst dann darf sie zurueck in den Dokumentfluss
-     (globals.css: iOS 26 zaehlt jede fixierte Huelle fuer seine Leisten). */
+  /* Ob die Huelle gerendert und fixiert ist. Sie wird es im selben Render wie
+     `show` und bleibt es, bis das Ausfahren durch ist — erst dann geht sie auf
+     display: none (globals.css: iOS 26 behaelt die Leistenfarbe des letzten
+     fixierten Containers, solange der noch einen Renderer hat). */
   const [open, setOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /* Welche Meldung gerade DRAN ist — im Gegensatz zu `notice`, das seinen
@@ -371,67 +371,71 @@ export default function NotificationToast() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isLayer, dismiss]);
 
-  /* Die Huelle bleibt immer im Dokument: die Karte ist der aria-live-Bereich,
-     und der Uebergang braucht einen Rahmen im geschlossenen Zustand, bevor
-     `show` dazukommt. Zugeklappt (clip-path) ist sie nicht zu sehen.
+  /* Die Huelle bleibt im Dokument, ist zugeklappt aber display: none (siehe
+     globals.css). Deshalb liegt der aria-live-Bereich getrennt daneben, immer
+     gerendert; die Karte selbst ist nur noch Bild.
 
      Die Vollbild-Huelle zentriert die Karte ueber das Grid statt ueber
      top/left 50 % plus translate — so haengt die Mitte an nichts ausser dem
      Viewport. Ohne `data-layer` laesst die Huelle jeden Tipp durch, nur die
      Karte selbst faengt ihn; mit Scrim schluckt sie alles daneben. */
+  const liveText =
+    visible && notice
+      ? [notice.eyebrow, notice.title, notice.detail].filter(Boolean).join('. ')
+      : '';
   return (
-    <div
-      className={`notification-layer${visible ? ' show' : ''}`}
-      data-open={open ? '' : undefined}
-      data-layer={isLayer ? '' : undefined}
-    >
-      {isLayer && (
-        // Kein Knopf: die Karte traegt ihre Knoepfe selbst, der Scrim ist nur
-        // die Flaeche, auf der ein Tipp NICHT in die Seite faellt.
-        <div className="notification-scrim" onClick={dismiss} aria-hidden="true" />
-      )}
+    <>
+      <div className="notification-live" aria-live="polite" aria-atomic="true">
+        {liveText}
+      </div>
       <div
-        className={`notification${visible ? ' show' : ''}`}
-        data-tone={notice?.tone ?? 'info'}
-        aria-live="polite"
-        aria-atomic="true"
+        className={`notification-layer${visible ? ' show' : ''}`}
+        data-open={open ? '' : undefined}
+        data-layer={isLayer ? '' : undefined}
       >
-        <span className="notification-mark">
-          <ToastIcon icon={notice?.icon ?? 'spark'} />
-        </span>
-        <span className="notification-copy">
-          <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
-          <span className="notification-title">{notice?.title ?? ''}</span>
-          {notice?.detail && <span className="notification-detail">{notice.detail}</span>}
-        </span>
-        {/* Nur solange die Karte offen ist: zugeklappt waeren die Knoepfe zwar
+        {isLayer && (
+          // Kein Knopf: die Karte traegt ihre Knoepfe selbst, der Scrim ist nur
+          // die Flaeche, auf der ein Tipp NICHT in die Seite faellt.
+          <div className="notification-scrim" onClick={dismiss} aria-hidden="true" />
+        )}
+        <div className={`notification${visible ? ' show' : ''}`} data-tone={notice?.tone ?? 'info'}>
+          <span className="notification-mark">
+            <ToastIcon icon={notice?.icon ?? 'spark'} />
+          </span>
+          <span className="notification-copy">
+            <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
+            <span className="notification-title">{notice?.title ?? ''}</span>
+            {notice?.detail && <span className="notification-detail">{notice.detail}</span>}
+          </span>
+          {/* Nur solange die Karte offen ist: zugeklappt waeren die Knoepfe zwar
             unsichtbar, aber weiter antippbar per Tastatur — ein Fokus, der ins
             Nichts springt.
             Reihenfolge: erst „Alles klar", dann die Aktion — die Knoepfe sitzen
             rechtsbuendig, und der gelbe Primaerknopf gehoert ganz nach rechts. */}
-        {visible && notice && (notice.action || notice.onDismiss) && (
-          <span className="notification-actions">
-            {notice.onDismiss && (
-              <button type="button" className="notification-dismiss" onClick={dismiss}>
-                {lang === 'en' ? 'Got it' : 'Alles klar'}
-              </button>
-            )}
-            {notice.action && (
-              <button
-                type="button"
-                className="notification-action"
-                onClick={() => {
-                  const run = notice.action?.onClick;
-                  present(null);
-                  run?.();
-                }}
-              >
-                {notice.action.label}
-              </button>
-            )}
-          </span>
-        )}
+          {visible && notice && (notice.action || notice.onDismiss) && (
+            <span className="notification-actions">
+              {notice.onDismiss && (
+                <button type="button" className="notification-dismiss" onClick={dismiss}>
+                  {lang === 'en' ? 'Got it' : 'Alles klar'}
+                </button>
+              )}
+              {notice.action && (
+                <button
+                  type="button"
+                  className="notification-action"
+                  onClick={() => {
+                    const run = notice.action?.onClick;
+                    present(null);
+                    run?.();
+                  }}
+                >
+                  {notice.action.label}
+                </button>
+              )}
+            </span>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

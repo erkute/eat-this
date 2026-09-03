@@ -149,6 +149,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
 
   return (
     <section className="homeV2 hv-section hv-wrap" data-hub-nearby="">
+      <div className={styles.board}>
         {/* Heading, its own line of copy and the button that acts on it live in
             one block. Stacked on phones the button used to sit between the
             heading and the line explaining it, which put more space inside the
@@ -228,7 +229,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
             );
           })}
         </div>
-      </section>
-
+      </div>
+    </section>
   );
 }

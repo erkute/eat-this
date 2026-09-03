@@ -9,10 +9,10 @@
   --teaser-accent: var(--et-home-accent, #ffc600);
   --teaser-soft: rgba(255, 255, 255, 0.76);
 
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--teaser-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--teaser-ink));
   color: var(--teaser-paper);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 /* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
@@ -254,6 +254,10 @@
   outline-offset: 3px;
 }
 
+:global(.homeV2) .foot .cta:global(.hv-btn):active {
+  transform: translateY(1px);
+}
+
 /* ── Mobile: the same set, three across ──────────────────────────────────────
    This was a swipeable rail here. At 375px it laid out 1242px of cards behind
    a 375px window — one card back, a sliver of the next, and no scrollbar or
@@ -303,7 +307,7 @@
   }
 
   .board {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 
   .foot {

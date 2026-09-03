@@ -1,6 +1,7 @@
 .indexPage,
 .detailPage {
   --category-paper: var(--et-home-paper);
+  --category-inverse: var(--et-home-inverse-text);
   --category-ink: var(--et-home-ink);
   --category-red: var(--et-home-red);
   --category-muted: var(--et-home-muted);
@@ -501,22 +502,26 @@
   }
 }
 
-/* Derselbe gefüllte Ink-Knopf wie „Alle Spots ansehen" auf dem Bezirks-Index. */
+/* Derselbe gelbe Knopf wie „Alle Spots ansehen" auf dem Bezirks-Index. */
 .indexPage.indexPage .categoryMore {
   min-height: 52px;
   padding: 0 24px;
   border: 0;
   border-radius: var(--et-radius-control);
-  background: var(--category-ink);
-  color: var(--et-home-inverse-text);
+  background: var(--et-home-accent);
+  color: var(--category-ink);
   font-size: clamp(15px, 1.2vw, 17px);
 }
 
 .indexPage.indexPage .categoryMore:hover,
 .indexPage.indexPage .categoryMore:focus-visible {
-  background: var(--et-home-accent);
+  background: var(--category-paper);
   color: var(--category-ink);
   transform: translateY(-2px);
+}
+
+.indexPage.indexPage .categoryMore:active {
+  transform: translateY(1px);
 }
 
 .indexPage.indexPage .categoryMore:focus-visible {

@@ -1,4 +1,32 @@
-/* HubNearby — homeV2 vocabulary. */
+/* HubNearby — homeV2 vocabulary, seit 03.09.2026 als Ink-Tafel. */
+
+/* ── Ink-Tafel ──
+   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
+   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
+   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
+   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
+   der Tafeln zaehlte unsichtbar mit. */
+.board {
+  --board-ink: var(--et-home-ink, #15120e);
+  --board-paper: var(--et-home-inverse-text, #fff);
+  --board-accent: var(--et-home-accent, #ffc600);
+  --board-soft: rgba(255, 255, 255, 0.76);
+
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--board-ink));
+  color: var(--board-paper);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
+}
+
+:global(.homeV2) .board :global(.hv-title) {
+  color: var(--board-paper);
+}
+
+@media (max-width: 760px) {
+  .board {
+    padding: var(--et-board-pad, 22px 18px 24px);
+  }
+}
 
 .title {
   display: inline-flex;
@@ -16,21 +44,25 @@
   overflow: hidden;
 }
 
-/* Title and locate button share the top row, the line that explains them runs
-   under both. A grid, not the shared .hv-head flex row: on phones the sub line
-   has to move above the button, and only named areas can reorder it. */
+/* Der Knopf steht bei dem Satz, der ihn erklaert („Gib deinen Standort frei"
+   — „Freigeben"), nicht am rechten Rand der Zeile darueber. Dort sass er auf
+   1280px rund tausend Pixel von seiner Begruendung entfernt und las sich wie
+   ein Werkzeug der Seite statt wie die Antwort auf diesen Satz (Ansage
+   03.09.2026). */
 :global(.homeV2) .head:global(.hv-head) {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto auto;
   grid-template-areas:
-    'title action'
-    'sub sub';
-  align-items: baseline;
-  column-gap: 16px;
+    'title title'
+    'sub action';
+  justify-content: start;
+  justify-items: start;
+  align-items: center;
+  column-gap: clamp(12px, 1.4vw, 18px);
   row-gap: var(--et-head-gap);
   /* The sub line used to carry this as its own margin-bottom; it now sits
      inside the head, so the head owns the distance down to the rail. */
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 :global(.homeV2) .head .title {
@@ -43,12 +75,12 @@
 
 :global(.homeV2) .head .locBtn {
   grid-area: action;
-  justify-self: end;
+  justify-self: start;
 }
 
-/* Stacked: ask, explain, then the button — in that order. Side by side the
-   button collided with the wrapping title anyway. */
-@media (max-width: 560px) {
+/* Gestapelt, sobald Satz und Knopf nicht mehr nebeneinander passen: erst die
+   Frage, dann die Erklaerung, dann der Knopf. */
+@media (max-width: 700px) {
   :global(.homeV2) .head:global(.hv-head) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -58,17 +90,6 @@
     align-items: start;
     row-gap: 12px;
   }
-
-  /* In the head row the button pulls its right padding back so the label ends
-     flush with the column; stacked at the left it has to pull the left one. */
-  :global(.homeV2) .head .locBtn {
-    justify-self: start;
-    margin: 4px 0 0 -8px;
-  }
-
-  :global(.homeV2) .head .locBtn[data-primary] {
-    margin-left: 0;
-  }
 }
 
 .title :global(.hv-mk) {
@@ -76,19 +97,16 @@
   vertical-align: 0;
 }
 
-/* ── Rail card: Foto oben, Ink-Leiste darunter ─────────────────────────────
-   Dasselbe Objekt wie die Restaurant-Zeile im Must-Eat-Sheet und die
-   Magazin-Kacheln: das Foto steht frei, Name und Zeile stehen auf einer
-   Ink-Leiste unter dem Bild statt als Schrift über einem Verlauf. */
+/* ── Rail card ──
+   Auf der Tafel traegt die Kachel keine eigene Flaeche: das Foto steht frei
+   mit dem Sheet-Schatten, Name und Zeile liegen darunter auf der Tafel. Eine
+   Ink-Kachel auf Ink waere unsichtbar. */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
   flex: 0 0 clamp(240px, 24vw, 300px);
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--board-paper, #fff);
 }
 
 :global(.homeV2) .card:hover .photo img,
@@ -106,8 +124,8 @@
    padding so the g in "Bagel Bro" keeps its tail. */
 :global(.homeV2) .card :global(.hv-cap) {
   margin: 0;
-  padding: 12px 14px 0.3em;
-  color: var(--et-home-inverse-text);
+  padding: 14px 0 0.3em;
+  color: var(--board-paper, #fff);
   font-size: clamp(18px, 1.6vw, 22px);
   line-height: 1.05;
 }
@@ -115,8 +133,8 @@
 /* Die Zeile in Gelb, wie die Kreide-Labels auf jeder Tafel. */
 :global(.homeV2) .card :global(.hv-sub) {
   margin: 0;
-  padding: 2px 14px 14px;
-  color: var(--et-home-accent);
+  padding: 4px 0 0;
+  color: var(--board-accent, #ffc600);
   font-family: var(--font-providence);
   font-size: 11px;
   font-weight: 700;
@@ -129,7 +147,8 @@
   position: relative;
   aspect-ratio: 4 / 3;
   height: auto;
-  border-radius: 0;
+  border-radius: var(--et-radius-photo);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 }
 
 /* Replaces what next/image's `fill` used to do: cover the 4/3 box. The
@@ -153,6 +172,7 @@
   min-height: 44px;
   margin-right: -8px;
   padding: 0 8px;
+  color: var(--board-paper, #fff);
   background: none;
   border: none;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
@@ -168,29 +188,30 @@
   cursor: wait;
 }
 
-/* Until a location is granted, this button is the entire point of the section
-   — nothing below it is really about the visitor until it is pressed. Ink
-   would make it the fourth dark button on a white page and it read as a
-   utility toggle; brand yellow is the page's "this is live" colour (marker
-   squares, the CTA underline) and nothing else in the column carries it as a
-   surface. */
+/* Solange kein Standort da ist, ist dieser Knopf der Sinn des Abschnitts —
+   aber als gelbe Flaeche war er der lauteste Punkt der Seite und sass weit
+   weg von seinem Satz. Jetzt ein Ring neben dem Satz, wie die Fragen im
+   Remy-Panel: sichtbar, aber leise. Gelb wird er beim Beruehren. */
 .locBtn[data-primary] {
   margin-right: 0;
-  padding: 0 16px;
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--board-paper, #fff);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
   border-radius: var(--et-radius-control);
 }
 
 .locBtn[data-primary]:hover:not(:disabled),
 .locBtn[data-primary]:focus-visible:not(:disabled) {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-ink);
+  background: var(--board-accent, #ffc600);
+  box-shadow: none;
 }
 
 .locBtn:hover:not(:disabled),
 .locBtn:focus-visible:not(:disabled) {
-  color: var(--et-home-red);
+  color: var(--board-accent, #ffc600);
   outline: 0;
 }
 
@@ -213,12 +234,12 @@
 .sub {
   margin: 0;
   font-family: var(--font-providence);
-  font-size: clamp(17px, 1.55vw, 22px);
-  font-weight: 700;
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 0.95;
+  line-height: var(--et-leading-copy, 1.5);
   text-transform: none;
-  color: rgba(21, 18, 14, 0.72);
+  color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
 /* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */

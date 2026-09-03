@@ -1653,24 +1653,29 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
   }
 }
 
-/* „Alle Spots ansehen" als gefüllter Ink-Knopf mit gelbem Hover — wie die
-   Kategorie-Kacheln der Startseite. Der Umriss-Knopf passte zu nichts mehr,
-   sobald Karten und Chips Ink wurden („auch Button passt nicht zum Rest"). */
+/* „Alle Spots ansehen" gelb wie jeder Weiterweg der Site, Hover kippt auf
+   Ink. Der Umriss-Knopf passte zu nichts mehr, sobald Karten und Chips Ink
+   wurden („auch Button passt nicht zum Rest"); Ink-gefüllt war er kurz, bis
+   die Frage kam, ob er nicht gelb sein sollte wie die anderen. */
 .page .districtMore {
   min-height: 52px;
   padding: 0 24px;
   border: 0;
   border-radius: var(--et-radius-control);
-  background: var(--et-home-ink);
-  color: var(--et-home-inverse-text);
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
   font-size: clamp(15px, 1.2vw, 17px);
 }
 
 .page .districtMore:hover,
 .page .districtMore:focus-visible {
-  background: var(--et-home-accent);
+  background: var(--et-home-paper);
   color: var(--et-home-ink);
   transform: translateY(-2px);
+}
+
+.page .districtMore:active {
+  transform: translateY(1px);
 }
 
 .page .districtMore:focus-visible {

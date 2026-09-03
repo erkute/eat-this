@@ -1,6 +1,8 @@
-/* Die All-Berlin-Tafel. Ink-Fläche mit Radius wie Fakten-Tafel und
-   Must-Eat-Sheet; gelb sind Kicker, Inhaltszeile, Aufzählungsquadrate und der
-   Knopf — sonst nichts. Der Fächer liegt rechts, auf dem Telefon oben. */
+/* Die All-Berlin-Tafel. Gelb sind Kicker, Inhaltszeile, Aufzählungsquadrate
+   und der Knopf — sonst nichts. Der Fächer liegt rechts, auf dem Telefon oben.
+   Seit /packs und die Pack-Seiten auf Ink stehen (03.09.2026), ist die Fläche
+   die leise Stufe statt Ink: das Angebot ist ein Objekt und muss sich vom
+   Grund abheben — als Ink auf Ink wäre nur der Fächer geblieben. */
 
 .board {
   --board-ink: var(--et-home-ink, #15120e);
@@ -14,7 +16,7 @@
   align-items: center;
   gap: clamp(20px, 4vw, 48px);
   padding: clamp(24px, 4vw, 56px);
-  background: var(--board-ink);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--board-paper);
   border-radius: var(--et-radius-photo, 10px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);

@@ -260,10 +260,15 @@
   transform: var(--et-hover-lift-sm);
 }
 
-/* Die Tafel-Tokens: Ink, Papier, Gelb und die weiche Weiß-Stufe — dieselben
-   wie auf AllBerlinBoard und MustEatsSection. */
+/* Die Tafel-Tokens: Papier, Gelb und die weiche Weiß-Stufe — dieselben wie
+   auf AllBerlinBoard und MustEatsSection. Der Grund ist seit 03.09.2026 die
+   leise Stufe, nicht Ink: alle drei Seiten, die das Poster rendern (Spot,
+   Bezirk, Kategorie), stehen selbst auf Ink, und eine Ink-Tafel auf Ink
+   wäre nur ein Fächer aus Telefonen, der irgendwo im Dunkel schwebt. Das
+   Poster ist ein Angebot, also ein Objekt — und Objekte heben sich eine
+   Spur vom Grund ab. */
 .promo {
-  --promo-bg: var(--et-home-ink);
+  --promo-bg: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   --promo-fg: var(--et-home-inverse-text, #fff);
   --promo-accent: var(--et-home-accent);
   --promo-soft: rgba(255, 255, 255, 0.76);

@@ -1,8 +1,9 @@
-/* Die Bestätigung nach dem Kauf — eine Ink-Tafel wie die Pack-Tafeln, von
-   denen der Besucher gerade kommt: Ink-Fläche mit Radius, gelber Kicker, weiße
-   Versalien, weicher Fließtext, ein gelber Knopf. Vorher eine schräg gestellte
-   weiße Karte mit rotem Titel und roter Pille — die einzige gekippte Fläche
-   der Site. */
+/* Die Bestätigung nach dem Kauf — dieselbe Tafel wie die Pack-Tafeln, von
+   denen der Besucher gerade kommt: gelber Kicker, weiße Versalien, weicher
+   Fließtext, ein gelber Knopf. Die Seite steht seit 03.09.2026 auf Ink
+   (globals.css malt den Rahmen), die Tafel traegt die leise Stufe — als Ink
+   auf Ink waere sie unsichtbar. Vorher eine schräg gestellte weiße Karte mit
+   rotem Titel und roter Pille — die einzige gekippte Fläche der Site. */
 .page {
   --conversion-ink: var(--et-home-ink, #15120e);
   --conversion-paper: var(--et-home-inverse-text, #fff);
@@ -29,7 +30,7 @@
   align-items: center;
   gap: 14px;
   padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
-  background: var(--conversion-ink);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--conversion-paper);
   border-radius: var(--et-radius-photo, 10px);
   text-align: center;

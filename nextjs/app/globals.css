@@ -222,6 +222,17 @@
   --et-home-inverse-text: #fff;
   --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  /* Die Weiss-Stufen auf dem Ink-Grund. Seit 03.09.2026 stehen alle
+     Inhaltsseiten auf durchgehendem Ink (siehe die Rahmen-Regel weiter
+     unten); Text, Linien und die eine Flaeche, die sich abheben darf, sind
+     dann keine Grautoene mehr, sondern Weiss in fuenf Staerken. Eine Quelle
+     fuer alle Module — vorher stand jede Zahl in jedem Modul noch einmal. */
+  --et-ink-soft: rgba(255, 255, 255, 0.76);
+  --et-ink-dim: rgba(255, 255, 255, 0.55);
+  --et-ink-ring: rgba(255, 255, 255, 0.28);
+  --et-ink-line: rgba(255, 255, 255, 0.14);
+  --et-ink-quiet: rgba(255, 255, 255, 0.055);
+  --et-ink-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 
   --et-font-display: var(--font-providence);
   --et-font-label: var(--font-providence);
@@ -432,14 +443,78 @@ html[data-active-page='start'] [data-hub] .homeV2 {
 }
 /* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
    hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
-   Die Spot-Seite steht seit 03.09.2026 auf demselben Grund. */
+   Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
+   ist die Wahrheit darueber, welche das sind. Nicht dabei: die Map (ein
+   Werkzeug, kein Blatt), die 404, der Badge-Generator und die Admin-Zahlen.
+   Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
+   weil `main` in layout.css auf transparent liegt und das Blatt sonst beim
+   Ueberscrollen weiss durchschaut. */
 html[data-active-page='start'],
 html[data-active-page='start'] body,
 html[data-active-page='start'] .app-pages,
 html[data-active-page='restaurant'],
 html[data-active-page='restaurant'] body,
-html[data-active-page='restaurant'] .app-pages {
+html[data-active-page='restaurant'] .app-pages,
+html[data-active-page='bezirk'],
+html[data-active-page='bezirk'] body,
+html[data-active-page='bezirk'] .app-pages,
+html[data-active-page='kategorie'],
+html[data-active-page='kategorie'] body,
+html[data-active-page='kategorie'] .app-pages,
+html[data-active-page='must-eats'],
+html[data-active-page='must-eats'] body,
+html[data-active-page='must-eats'] .app-pages,
+html[data-active-page='packs'],
+html[data-active-page='packs'] body,
+html[data-active-page='packs'] .app-pages,
+html[data-active-page='pack'],
+html[data-active-page='pack'] body,
+html[data-active-page='pack'] .app-pages,
+html[data-active-page='news'],
+html[data-active-page='news'] body,
+html[data-active-page='news'] .app-pages,
+html[data-active-page='news-article'],
+html[data-active-page='news-article'] body,
+html[data-active-page='news-article'] .app-pages,
+html[data-active-page='about'],
+html[data-active-page='about'] body,
+html[data-active-page='about'] .app-pages,
+html[data-active-page='contact'],
+html[data-active-page='contact'] body,
+html[data-active-page='contact'] .app-pages,
+html[data-active-page='impressum'],
+html[data-active-page='impressum'] body,
+html[data-active-page='impressum'] .app-pages,
+html[data-active-page='datenschutz'],
+html[data-active-page='datenschutz'] body,
+html[data-active-page='datenschutz'] .app-pages,
+html[data-active-page='agb'],
+html[data-active-page='agb'] body,
+html[data-active-page='agb'] .app-pages,
+html[data-active-page='profile'],
+html[data-active-page='profile'] body,
+html[data-active-page='profile'] .app-pages,
+html[data-active-page='deck'],
+html[data-active-page='deck'] body,
+html[data-active-page='deck'] .app-pages,
+html[data-active-page='checkout'],
+html[data-active-page='checkout'] body,
+html[data-active-page='checkout'] .app-pages {
   background: var(--et-home-ink);
+}
+/* Auf dem Ink-Grund loest sich jede Tafel auf: der Grund IST die Tafel.
+   Die Module lesen die drei Tokens mit Fallback auf ihre Tafel-Werte
+   (`padding: var(--et-board-pad, …)`), die Kasten-Optik ist also eine Zeile
+   weit entfernt. Was ein eigenes OBJEKT ist — Angebote, Formulare, Remy,
+   Fakten mit Knoepfen — bekommt stattdessen die leise Stufe, eine Spur
+   heller als der Grund; Inhalt steht auf dem Grund. Beides gilt fuer die
+   ganze Site, deshalb steht es hier und nicht in jedem Seitenmodul. */
+:root {
+  --et-board-pad: 0px;
+  --et-board-bg: transparent;
+  --et-board-radius: 0;
+  --et-board-quiet: var(--et-ink-quiet);
+  --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
 }
 /* Sitewide Providence collage language. The map remains a purpose-built
    full-screen tool; every content page gets the paper/print treatment. */

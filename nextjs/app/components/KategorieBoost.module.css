@@ -1,9 +1,11 @@
-/* Der passende Booster unter dem Aufmacher der Kategorie-Seite — als
-   Ink-Tafel, dasselbe Objekt wie die All-Berlin-Tafel auf /packs (Upsell-
-   Fassung): Ink-Fläche mit Radius, gelber Kicker, weißer Name, gelbe Editor-
-   Zeile, ein gelber Knopf mit dem Preis im Label, das Pack als Star links.
-   Vorher eine graue Papierfläche mit rotem Titel und schwarzem Knopf — halbe
-   Tafel, die zu keiner anderen Fläche der Site passte. */
+/* Der passende Booster unter dem Aufmacher der Kategorie-Seite — dasselbe
+   Objekt wie die All-Berlin-Tafel auf /packs (Upsell-Fassung): gelber Kicker,
+   weißer Name, gelbe Editor-Zeile, ein gelber Knopf mit dem Preis im Label,
+   das Pack als Star links. Seit die Seite selbst auf Ink steht (03.09.2026),
+   trägt die Tafel die leise Stufe — eine Spur heller als der Grund: sie ist
+   ein Angebot, also ein eigenes Objekt, und als Ink auf Ink wäre sie
+   unsichtbar gewesen. Vorher eine graue Papierfläche mit rotem Titel und
+   schwarzem Knopf — halbe Tafel, die zu keiner anderen Fläche passte. */
 .boost {
   --boost-ink: var(--et-home-ink, #15120e);
   --boost-paper: var(--et-home-inverse-text, #fff);
@@ -19,7 +21,7 @@
   padding: clamp(22px, 3.2vw, 40px);
   overflow: hidden;
   border-radius: var(--et-radius-photo);
-  background: var(--boost-ink);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--boost-paper);
 }
 

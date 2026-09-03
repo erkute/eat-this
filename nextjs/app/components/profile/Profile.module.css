@@ -1,12 +1,21 @@
 /* Profile — the home's page, logged in.
    Layout only: the element vocabulary (hv-wrap/-section/-head/-title/-rail/
    -photo/-btn) comes from the homeV2 block in css/style.css, so the two pages
-   stay one system instead of two that resemble each other. */
+   stay one system instead of two that resemble each other.
+   Seit 03.09.2026 auf demselben durchgehenden Ink-Grund wie die Startseite:
+   `--profile-ink` bleibt die dunkle Farbe und ist der GRUND, `--profile-fg`
+   die Schrift darauf, Muted und Linien sind Weiss-Stufen. Die Bank (Figur,
+   Name, Berlin-Zahl) ist das eine Objekt oben und traegt die leise Stufe;
+   das Einladen-Feld bleibt die eine gelbe Flaeche. Die geteilte Deck-Seite
+   (/deck) liest dieselben Regeln. */
 
 .page {
   --profile-ink: var(--et-home-ink, #15120e);
-  --profile-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  --profile-quiet: var(--et-home-quiet, #f2f1ef);
+  --profile-fg: var(--et-home-inverse-text, #fff);
+  --profile-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --profile-quiet: rgba(255, 255, 255, 0.12);
+  --profile-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  --profile-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
   --profile-accent: var(--et-home-accent, #ffc600);
   --profile-red: var(--et-home-red, #d9382a);
   --profile-inverse: var(--et-home-inverse-text, #fff);
@@ -15,8 +24,48 @@
   min-height: 100svh;
   padding: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 24px) 0
     clamp(56px, 8vw, 104px);
+}
+
+/* Grund und Schrift mit dem Element qualifiziert: `.homeV2` (css/style.css)
+   malt Papier mit demselben Rang (0,1,0), und in Produktion laedt das
+   Stylesheet NACH den Modulen — mit `.page` allein gewaenne dort das Weiss. */
+main.page {
+  color: var(--profile-fg);
+  background: var(--profile-ink);
+}
+
+/* Das geteilte Vokabular faerbt fuer Papier (roter Titel, Ink-Kicker, Ink-
+   Knopf). Auf dem Grund: Papier-Versalien, weiche Kicker, gelber Knopf mit
+   Hover auf Papier — dieselbe Uebersetzung wie auf der Startseite. */
+main.page :global(.hv-title) {
+  color: var(--profile-fg);
+}
+
+main.page :global(.hv-kicker) {
+  color: var(--profile-muted);
+}
+
+main.page :global(.hv-cap) {
+  color: var(--profile-fg);
+}
+
+main.page :global(.hv-sub) {
+  color: var(--profile-muted);
+}
+
+main.page :global(.hv-link-underline) {
+  color: var(--profile-fg);
+}
+
+main.page :global(.hv-btn) {
+  background: var(--profile-accent);
   color: var(--profile-ink);
-  background: var(--et-home-paper, #fff);
+}
+
+main.page :global(.hv-btn):hover,
+main.page :global(.hv-btn):focus-visible {
+  background: var(--profile-inverse);
+  color: var(--profile-ink);
 }
 
 /* Wo die Seite mit der Konto-Zeile endet, bringt die Zeile ihr eigenes
@@ -54,8 +103,8 @@ main.page .head {
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--profile-quiet);
-  border-top-color: var(--profile-red);
+  border: 3px solid var(--profile-line);
+  border-top-color: var(--profile-accent);
   border-radius: 50%;
   animation: profileSpin 0.7s linear infinite;
 }
@@ -81,7 +130,7 @@ main.page .head {
   margin-bottom: 24px;
   padding: 12px 16px;
   color: var(--profile-inverse);
-  background: var(--profile-ink);
+  background: var(--profile-quiet);
   border-radius: var(--profile-radius);
 }
 
@@ -115,12 +164,13 @@ main.page .head {
   outline-offset: 3px;
 }
 
-/* ── Ink-Bank: Figur, Name, Berlin-Fortschritt ──────────────
-   Eine Tafel statt zweier Abschnitte. Dieselbe Ink-Sprache wie die
-   Fakten-Tafel der Spot-Seite und das Karten-Sheet: Ink-Fläche,
-   Radius --et-radius-photo, gelbe Labels in Versalien, weiße Werte.
-   Der Figur bleibt die rechte Spalte — sie ist der Grund, dass die
-   rechte Hälfte hier oben nicht leer steht. */
+/* ── Die Bank: Figur, Name, Berlin-Fortschritt ──────────────
+   Eine Tafel statt zweier Abschnitte. Dieselbe Sprache wie die
+   Fakten-Tafel der Spot-Seite und das Karten-Sheet: Radius
+   --et-radius-photo, gelbe Labels in Versalien, weiße Werte — auf der
+   leisen Stufe, weil die Bank ein Objekt ist und als Ink auf Ink
+   unsichtbar waere. Der Figur bleibt die rechte Spalte — sie ist der
+   Grund, dass die rechte Hälfte hier oben nicht leer steht. */
 
 .bank {
   display: grid;
@@ -133,7 +183,7 @@ main.page .head {
   gap: 0 clamp(20px, 3vw, 48px);
   padding: clamp(22px, 3.2vw, 40px) clamp(24px, 3.4vw, 44px);
   color: var(--profile-inverse);
-  background: var(--profile-ink);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   border-radius: var(--et-radius-photo, 10px);
 }
 
@@ -317,17 +367,16 @@ main.page .head {
 .move {
   margin-bottom: clamp(24px, 3vw, 36px);
   padding-bottom: clamp(20px, 2.4vw, 28px);
-  border-bottom: 1px solid var(--et-home-rule, #e4e1dc);
+  border-bottom: 1px solid var(--profile-line);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
-/* Rot, nicht Ink: die Bezirksnamen darunter sind Ink-Versalien, und in
-   derselben Farbe waere das hier eine achte Bezirkszeile. Rot ist auf Papier
-   die Stimme der Abschnitte — „Dein Deck" steht direkt darueber in derselben
-   Farbe, nur gross. */
+/* Gelb, nicht Papier: die Bezirksnamen darunter sind Papier-Versalien, und in
+   derselben Farbe waere das hier eine achte Bezirkszeile. Gelb ist auf Ink die
+   Kreide-Zeile jeder Tafel. */
 .moveLabel {
   margin: 0;
-  color: var(--profile-red);
+  color: var(--profile-accent);
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 11px;
   font-weight: 700;
@@ -338,15 +387,15 @@ main.page .head {
 .moveLine {
   max-width: 56ch;
   margin: 8px 0 0;
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   font-size: clamp(15px, 1.35vw, 19px);
   font-weight: 400;
   line-height: 1.28;
 }
 
-/* Der einzige gefuellte Knopf auf Papier — er ist die eine Handlung, die
-   nach vorn geht. Gelb mit Ink darauf; beim Hover dreht sich das um, wie bei
-   „Abmelden" und „Booster Packs ansehen", nur andersherum begonnen. */
+/* Der einzige gefuellte Knopf der Seite — er ist die eine Handlung, die
+   nach vorn geht. Gelb mit Ink darauf; Hover geht auf Papier, nie auf Ink
+   (auf dem dunklen Grund verschwaende er). */
 .moveCta {
   display: inline-flex;
   align-items: center;
@@ -370,8 +419,12 @@ main.page .head {
 
 .moveCta:hover,
 .moveCta:focus-visible {
-  color: var(--profile-inverse);
-  background: var(--profile-ink);
+  color: var(--profile-ink);
+  background: var(--profile-inverse);
+}
+
+.moveCta:active {
+  transform: translateY(1px);
 }
 
 /* ── recently revealed ──────────────────────────────────── */
@@ -385,7 +438,7 @@ main.page .head {
   margin: 0;
   padding-top: clamp(16px, 2vw, 22px);
   padding-left: 0;
-  border-top: 1px solid var(--et-home-rule, #e4e1dc);
+  border-top: 1px solid var(--profile-line);
   list-style: none;
 }
 
@@ -444,7 +497,7 @@ main.page .head {
   aspect-ratio: 1539 / 2115;
   border-radius: var(--profile-radius);
   overflow: hidden;
-  filter: drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   transition: transform var(--profile-motion);
 }
 
@@ -462,7 +515,7 @@ main.page .head {
 
 .recentDish {
   margin: 12px 0 0;
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   font-family: var(--et-font-display);
   font-size: clamp(14px, 1.1vw, 16px);
   font-weight: 700;
@@ -590,7 +643,7 @@ main.page .head {
   padding: 0 0 2px;
   overflow-y: hidden;
   resize: none;
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   background: transparent;
   border: 0;
   font-family: var(--et-font-display);
@@ -608,7 +661,7 @@ main.page .head {
 
 /* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
 .spotNote:hover {
-  box-shadow: 0 1px 0 var(--et-home-rule, #e4e1dc);
+  box-shadow: 0 1px 0 var(--profile-ring);
 }
 
 .spotNote:focus-visible {
@@ -658,14 +711,14 @@ main.page .head {
   justify-items: center;
   gap: 6px;
   width: clamp(72px, 7vw, 96px);
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   text-align: center;
 }
 
 .trophy img {
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 8px 14px rgba(21, 18, 14, 0.16));
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
 }
 
 .trophyName {
@@ -676,9 +729,9 @@ main.page .head {
 }
 
 /* Der eine Knopf, der vom Laden uebrig bleibt — in derselben Form wie
-   „Abmelden": umrandet, gefuellt beim Hover. Umrandet und nicht gefuellt,
-   weil der Laden hier ein Angebot ist und keine Aufforderung; das Profil
-   zeigt Besitz. */
+   „Abmelden": ein Ring in Weiss 28 %, gelb gefuellt beim Hover. Ring und
+   nicht Flaeche, weil der Laden hier ein Angebot ist und keine Aufforderung;
+   das Profil zeigt Besitz. */
 .packsMore {
   display: inline-flex;
   align-items: center;
@@ -686,9 +739,9 @@ main.page .head {
   min-height: 44px;
   margin-top: clamp(20px, 2.4vw, 28px);
   padding: 0 20px;
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   background: transparent;
-  border: 2px solid var(--profile-ink);
+  border: 2px solid var(--profile-ring);
   border-radius: var(--profile-radius);
   text-decoration: none;
   font-family: var(--et-font-display);
@@ -696,13 +749,15 @@ main.page .head {
   font-weight: 700;
   transition:
     color var(--profile-motion),
+    border-color var(--profile-motion),
     background-color var(--profile-motion);
 }
 
 .packsMore:hover,
 .packsMore:focus-visible {
-  color: var(--profile-inverse);
-  background: var(--profile-ink);
+  color: var(--profile-ink);
+  background: var(--profile-accent);
+  border-color: var(--profile-accent);
 }
 
 /* ── invite ─────────────────────────────────────────────── */
@@ -806,7 +861,7 @@ main.page .head {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-top: 1px solid var(--et-home-rule, #e4e1dc);
+  border-top: 1px solid var(--profile-line);
 }
 
 /* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands —
@@ -835,7 +890,7 @@ main.page .foot {
    war er leiser, aber inzwischen fuehrt die Seite drei Wege in genau dieser
    Knopfform — „Zur Map", der naechste Zug, „Deck teilen" —, und das Abmelden
    war das einzige, was wie ein Link aussah. Dieselbe Logik wie auf der Tafel:
-   umrandet, gefuellt beim Hover. Nur eben Ink auf Papier statt Gelb auf Ink.
+   ein Ring in Weiss 28 %, gelb gefuellt beim Hover.
 
    44 statt der frueheren 40 px: damit stimmt die Trefferflaeche aus dem
    Polster selbst, und der ::after-Trick, den der Textlink dafuer brauchte,
@@ -846,9 +901,9 @@ main.page .foot {
   justify-content: center;
   min-height: 44px;
   padding: 0 20px;
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   background: transparent;
-  border: 2px solid var(--profile-ink);
+  border: 2px solid var(--profile-ring);
   border-radius: var(--profile-radius);
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -856,13 +911,15 @@ main.page .foot {
   font-weight: 700;
   transition:
     color var(--profile-motion),
+    border-color var(--profile-motion),
     background-color var(--profile-motion);
 }
 
 .logout:hover,
 .logout:focus-visible {
-  color: var(--profile-inverse);
-  background: var(--profile-ink);
+  color: var(--profile-ink);
+  background: var(--profile-accent);
+  border-color: var(--profile-accent);
 }
 
 /* ── narrow ─────────────────────────────────────────────── */

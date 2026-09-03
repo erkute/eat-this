@@ -70,7 +70,7 @@
   grid-template-columns: 20px minmax(0, 1fr);
   gap: 8px;
   padding: 3px 0;
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   text-decoration: none;
   transition:
     color 140ms ease,
@@ -114,11 +114,11 @@
 }
 
 .itemActive {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-home-accent, #ffc600);
 }
 
 .itemActive .num {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-home-accent, #ffc600);
 }
 
 .share {
@@ -130,8 +130,8 @@
   padding: 6px 10px 7px;
   border: 0;
   border-radius: var(--et-radius-control, 7px);
-  background: var(--et-home-quiet, #f2f1ef);
-  color: var(--et-home-ink, #15120e);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--et-home-inverse-text, #fff);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 14px;
   font-weight: 700;
@@ -157,18 +157,19 @@
 
 .item:focus-visible,
 .share:focus-visible {
-  outline: 2px solid var(--et-home-red, #d9382a);
+  outline: 2px solid var(--et-home-accent, #ffc600);
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .item:hover {
-    color: var(--et-home-ink, #15120e);
+    color: var(--et-home-inverse-text, #fff);
     transform: translateX(2px);
   }
 
   .share:hover {
     background: var(--et-home-accent, #ffc600);
+    color: var(--et-home-ink, #15120e);
   }
 }
 

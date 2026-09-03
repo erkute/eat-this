@@ -1,13 +1,18 @@
+/* Seit 03.09.2026 steht der Magazin-Index auf durchgehendem Ink wie die
+   Startseite: `--news-ink` ist der GRUND, `--news-fg` die Schrift darauf, die
+   Kacheln sind Foto mit Sheet-Schatten und Text direkt auf dem Grund —
+   dasselbe Objekt wie die Magazin-Kacheln der Startseite (MagazineGrid). */
 .page {
   --news-ink: var(--et-home-ink, #15120e);
-  --news-paper: var(--et-home-paper, #fff);
-  --news-soft: var(--et-home-quiet, #f2f1ef);
+  --news-fg: var(--et-home-inverse-text, #fff);
+  --news-soft: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   --news-red: var(--et-home-red, #d9382a);
   --news-yellow: var(--et-home-accent, #ffc600);
-  --news-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
+  --news-muted: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --news-copy: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   min-height: 100%;
-  background: var(--news-paper);
-  color: var(--news-ink);
+  background: var(--news-ink);
+  color: var(--news-fg);
 }
 
 .page > :global(footer[role='contentinfo']) {
@@ -37,7 +42,7 @@
 .heroTitle {
   max-width: 9ch;
   margin: 0;
-  color: var(--news-red);
+  color: var(--news-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(40px, 5vw, 64px);
   font-weight: 700;
@@ -50,7 +55,7 @@
 .heroSub {
   max-width: 52ch;
   margin: 0;
-  color: var(--news-ink);
+  color: var(--news-copy);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.45vw, 20px);
   font-weight: 400;
@@ -75,7 +80,7 @@
 
 .sectionHead h2 {
   margin: 0;
-  color: var(--news-red);
+  color: var(--news-fg);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(28px, 3.4vw, 42px);
   font-weight: 700;
@@ -104,7 +109,7 @@
   flex-direction: column;
   width: 100%;
   min-width: 0;
-  color: var(--news-ink);
+  color: var(--news-fg);
   text-decoration: none;
 }
 
@@ -115,10 +120,9 @@
   overflow: hidden;
   background: var(--news-soft);
   border-radius: var(--et-radius-photo, 10px);
-  /* Ohne Verlauf braucht die Kachel eine eigene Kante: freigestellte Motive auf
-     Weiß verschwimmen sonst randlos mit der Seite. Innen liegende Haarlinie
-     statt Rahmen, damit sie das Bild nicht beschneidet. */
-  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.09);
+  /* Das Foto liegt mit dem Sheet-Schatten auf dem Grund — wie die Kacheln der
+     Startseite. */
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .photoFallback {
@@ -149,27 +153,23 @@
   padding: clamp(10px, 0.9vw, 14px) 2px 0;
 }
 
-/* Marker statt Farbschrift: Gelb auf Weiß ist als Text nicht lesbar, als
-   Auszeichnungsfläche mit Tinte darauf dagegen kräftig — und es ist dieselbe
-   gelbe Markierung, die die Seite an anderer Stelle schon benutzt. */
+/* Die Rubrik als gelbe Kreide-Zeile ueber der Headline — auf Ink traegt Gelb
+   als Schrift, die Marker-Flaeche war fuer Papier gedacht. */
 .kicker {
   display: block;
   align-self: flex-start;
-  padding: 2px 7px 3px;
-  border-radius: 3px;
-  background: var(--news-yellow);
-  color: var(--news-ink);
+  color: var(--news-yellow);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .title {
   display: block;
-  color: var(--news-ink);
+  color: var(--news-fg);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(16px, 1.5vw, 24px);
   font-weight: 700;
@@ -193,7 +193,7 @@
 
 .empty {
   margin: 28px 0 0;
-  color: var(--news-ink);
+  color: var(--news-fg);
   font-family: var(--font-body, var(--font, system-ui, sans-serif));
   font-size: clamp(17px, 1.35vw, 19px);
   font-weight: 400;
@@ -201,7 +201,7 @@
 }
 
 .card:focus-visible {
-  outline: 2px solid var(--news-red);
+  outline: 2px solid var(--news-yellow);
   outline-offset: 4px;
 }
 
@@ -279,11 +279,6 @@
   .text {
     gap: 4px;
     padding: 9px 1px 0;
-  }
-
-  .kicker {
-    padding: 2px 6px 3px;
-    font-size: 12px;
   }
 
   .title {

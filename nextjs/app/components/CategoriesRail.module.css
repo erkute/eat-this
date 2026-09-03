@@ -1,36 +1,73 @@
-/* Neun Ink-Kacheln im Raster — dasselbe Objekt wie die „Weiter auf dem
-   Teller"-Kacheln am Artikelende: Ink-Fläche mit Radius, weiße Versalien,
-   bei Hover kippt die Kachel auf Gelb. Vorher Umriss-Chips in einer Zeile;
-   als Kacheln tragen die Kategorien so viel Gewicht wie die Fotos darüber,
-   ohne Pack-Kunst, die hier als Shop gelesen wurde. */
+/* ── Ink-Tafel ──
+   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
+   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
+   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
+   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
+   der Tafeln zaehlte unsichtbar mit. */
+.board {
+  --board-ink: var(--et-home-ink, #15120e);
+  --board-paper: var(--et-home-inverse-text, #fff);
+  --board-accent: var(--et-home-accent, #ffc600);
+  --board-soft: rgba(255, 255, 255, 0.76);
+
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--board-ink));
+  color: var(--board-paper);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
+}
+
+:global(.homeV2) .board :global(.hv-title) {
+  color: var(--board-paper);
+}
+
+@media (max-width: 760px) {
+  .board {
+    padding: var(--et-board-pad, 22px 18px 24px);
+  }
+}
+/* Neun Kategorien als typografischer Index, nicht als Kaestchen-Raster: auf
+   dem durchgehenden Grund waren neun gleiche Ringe genauso monoton wie die
+   Kaesten davor. Jetzt traegt die Type — gross, in Spalten, jede Zeile mit dem
+   gelben Marken-Quadrat. Beim Beruehren geht die Zeile auf Gelb.
+   Bewusst OHNE Pack-Kunst: die Tueten sind Produktfotos, und neun davon in
+   einer Reihe lasen die Seite als Shop (deshalb sind sie am 24.08.2026 hier
+   rausgeflogen). */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(10px, 1.2vw, 16px);
+  column-gap: clamp(20px, 3vw, 44px);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.grid > li {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Die oberste Zeile jeder Spalte traegt keine Linie: drei Striche
+   nebeneinander direkt unter der Ueberschrift lasen sich als Tabellenkopf. */
+.grid > li:nth-child(-n + 3) {
+  border-top: 0;
 }
 
 .chip {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: clamp(84px, 8vw, 112px);
-  padding: 0 clamp(18px, 2vw, 26px);
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
-  border-radius: var(--et-radius-photo);
+  min-height: clamp(58px, 5vw, 74px);
+  padding: 0;
+  color: var(--board-paper, #fff);
+  background: transparent;
   font-family: var(--font-providence);
-  font-size: clamp(22px, 2.2vw, 30px);
+  font-size: clamp(20px, 2.4vw, 32px);
   font-weight: 700;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
   transition:
     color 160ms ease,
-    background 160ms ease,
     transform 160ms ease;
 }
 
@@ -40,35 +77,40 @@
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
-  background: var(--et-home-accent);
-  transition: background 160ms ease;
+  background: var(--board-accent, #ffc600);
+  transition: transform 160ms ease;
 }
 
 .chip:hover,
 .chip:focus-visible {
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  color: var(--board-accent, #ffc600);
   outline: 0;
-  transform: translateY(-2px);
+  transform: translateX(4px);
 }
 
 .chip:hover::before,
 .chip:focus-visible::before {
-  background: var(--et-home-ink);
+  transform: scale(1.35);
+}
+
+.chip:active {
+  transform: translateX(4px) translateY(1px);
 }
 
 .chip:focus-visible {
-  outline: 2px solid var(--et-home-accent);
-  outline-offset: 3px;
+  outline: 2px solid var(--board-accent, #ffc600);
+  outline-offset: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chip {
+  .chip,
+  .chip::before {
     transition: none;
   }
 
   .chip:hover,
-  .chip:focus-visible {
+  .chip:focus-visible,
+  .chip:active {
     transform: none;
   }
 }
@@ -76,12 +118,19 @@
 @media (max-width: 760px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    column-gap: 20px;
+  }
+
+  .grid > li:nth-child(-n + 3) {
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .grid > li:nth-child(-n + 2) {
+    border-top: 0;
   }
 
   .chip {
-    min-height: 72px;
-    padding: 0 16px;
+    min-height: 54px;
     font-size: 19px;
   }
 }

@@ -39,54 +39,70 @@ export default function MagazineGrid({ articles, locale }: Props) {
       className={`homeV2 hv-section hv-wrap ${styles.section}`}
       aria-label={locale === 'en' ? 'Magazine' : 'Magazin'}
     >
-      {/* Derselbe Kopf wie jeder Abschnitt auf Weiß: gelbes Marken-Quadrat, roter
-          Titel. Die gelbe „Magazin"-Pille war die einzige gefüllte Gelbfläche
-          in einem Kicker. */}
-      <div className={`hv-head ${styles.head}`}>
-        <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
-        <h2 className="hv-title">
-          <span className="hv-mk" aria-hidden="true" />
-          {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
-        </h2>
-        <Link href="/news" className={styles.allLink}>
-          {labels.all}
-        </Link>
-      </div>
+      {/* Eine Ink-Tafel wie Starter Pack und Must Eats: der Abschnitt war
+          zwischen zwei Tafeln der einzige lose Block auf Weiß und las sich
+          nicht als eigenes Ding. Die Kacheln tragen darin keine eigene Fläche
+          mehr — Foto mit Schatten, Text direkt auf der Tafel. */}
+      <div className={styles.board}>
+        <div className={`hv-head ${styles.head}`}>
+          <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
+          <h2 className="hv-title">
+            <span className="hv-mk" aria-hidden="true" />
+            {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
+          </h2>
+        </div>
 
-      <ul className={styles.grid} role="list">
-        {list.map((a) => (
-          <li key={a.slug}>
-            <Link href={`/news/${a.slug}`} className={styles.card}>
-              <span className={`hv-photo ${styles.photo}`}>
-                {a.image && (
-                  // Same detour as HubNearby had: `a.image` is already a Sanity
-                  // URL, so /_next/image re-optimised an optimised file on
-                  // Cloud Run. Sanity serves the responsive variants itself.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className={styles.photoImg}
-                    src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
-                    srcSet={sanitySrcSet(a.image, [480, 800, 1200])}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    sizes="(max-width:760px) 92vw, 33vw"
-                  />
-                )}
-              </span>
-              <span className={styles.text}>
-                {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
-                <span className={styles.title}>{a.title}</span>
-                {formatDate(a.date, locale) && (
-                  <time className={styles.date} dateTime={a.date ?? undefined}>
-                    {formatDate(a.date, locale)}
-                  </time>
-                )}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+        <ul className={styles.grid} role="list">
+          {list.map((a) => (
+            <li key={a.slug}>
+              <Link href={`/news/${a.slug}`} className={styles.card}>
+                <span className={`hv-photo ${styles.photo}`}>
+                  {a.image && (
+                    // Same detour as HubNearby had: `a.image` is already a Sanity
+                    // URL, so /_next/image re-optimised an optimised file on
+                    // Cloud Run. Sanity serves the responsive variants itself.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className={styles.photoImg}
+                      src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
+                      srcSet={sanitySrcSet(a.image, [480, 800, 1200])}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(max-width:760px) 92vw, 33vw"
+                    />
+                  )}
+                </span>
+                {/* Rubrik und Datum stehen als eine Meta-Zeile ÜBER der
+                    Headline — darunter las sich das Datum wie ein Nachsatz zum
+                    Titel statt wie seine Einordnung (Ansage 03.09.2026). */}
+                <span className={styles.text}>
+                  {(a.kicker || formatDate(a.date, locale)) && (
+                    <span className={styles.meta}>
+                      {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
+                      {formatDate(a.date, locale) && (
+                        <time className={styles.date} dateTime={a.date ?? undefined}>
+                          {formatDate(a.date, locale)}
+                        </time>
+                      )}
+                    </span>
+                  )}
+                  <span className={styles.title}>{a.title}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {/* Unter den Kacheln wie „Alle Spots ansehen" und „Alle Must-Eats" —
+          im Kopf war es der einzige Ausgang der Seite, der vor seinem Inhalt
+          stand („der Button muss doch eher runter"). */}
+        <div className={styles.foot}>
+          <Link href="/news" className={styles.allLink}>
+            {labels.all}
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

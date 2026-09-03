@@ -52,6 +52,34 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(card().className).not.toContain('show');
   });
 
+  /* iOS 26 Safari faerbt seine Leisten nach jeder fixierten Huelle an der
+     Viewport-Kante, auch einer unsichtbaren. Fixiert (data-open) ist die
+     Huelle deshalb nur, solange eine Karte offen ist oder gerade ausfaehrt. */
+  it('fixiert die Huelle nur, solange die Karte offen ist oder ausfaehrt', () => {
+    render(<NotificationToast />);
+    const layer = () => document.querySelector('.notification-layer') as HTMLElement;
+
+    expect(layer().hasAttribute('data-open')).toBe(false);
+
+    act(() => {
+      window.showNotification?.('Spot gespeichert');
+    });
+    expect(layer().hasAttribute('data-open')).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    // Ausgefahren wird noch: die Huelle bleibt fixiert, bis der Uebergang
+    // durch ist, sonst spraenge die Karte in den Dokumentfluss.
+    expect(card().className).not.toContain('show');
+    expect(layer().hasAttribute('data-open')).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+    expect(layer().hasAttribute('data-open')).toBe(false);
+  });
+
   it('gibt der Standort-Meldung Knoepfe und laesst sie stehen', () => {
     render(<NotificationToast />);
     const retry = vi.fn();

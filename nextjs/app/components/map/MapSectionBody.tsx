@@ -8,6 +8,7 @@ import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
 import { resolveLockedOffer } from '@/lib/map/lockedOffer';
 import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
+import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
   getLocatingCopy,
@@ -109,6 +110,8 @@ interface MapBodyState {
    *  closed. Keeps that row rendered past the windowed budget and marks it, so
    *  closing a spot lands you next to it instead of somewhere in the list. */
   listFocusId: string | null;
+  /** Where the open detail came from — its close button says where it goes. */
+  detailOrigin: DetailOrigin;
   selectedMustEat: MapMustEat | null;
   primaryMustEats: Map<string, MapMustEat>;
   unlockedIds: Set<string>;
@@ -198,6 +201,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setSheetRef,
     sheetView,
     listFocusId,
+    detailOrigin,
     snap,
     dragging,
     displayedRestaurants,
@@ -278,9 +282,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      die Seite wäre kürzer als die Position, auf die zurückgesprungen wird.
      Ein neuer Filter ist dagegen eine neue Liste und fängt oben an. */
   const [listRows, setListRows] = useState(INITIAL_LIST_ROWS);
+  /* Keyed on the FILTER, not on the list array: that array is also rebuilt
+     when a position fix re-sorts it or the catalogue refetches after sign-in —
+     both happen with a detail open. Falling back to 12 rows then made the
+     list shorter than the position it was about to return to, and the row the
+     user came from ended up clamped to the bottom of the screen. */
   useEffect(() => {
     setListRows(INITIAL_LIST_ROWS);
-  }, [listRestaurants]);
+  }, [listFilterKey]);
   const showMoreRows = useCallback(() => setListRows((n) => n + LIST_ROWS_PER_BATCH), []);
 
   const handleResetFilters = () => {
@@ -331,7 +340,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      here any more — that would collapse the greeting the instant the fix
      arrives, which for a cached fix is a frame or two. */
   const locateLabel = useLocationInvite(location !== null);
-  const showLocateInvite = locateLabel !== null && isActive && !locationError && !locateLoading;
+  /* Im Detail bleibt der Knopf das nackte Icon: die Plakette war für die Karte
+     ohne Standortfreigabe gedacht, im 50dvh-Streifen über dem Detail nimmt sie
+     ein Drittel der Kartenbreite (User, 03.09.2026). */
+  const showLocateInvite =
+    locateLabel !== null && isActive && !locationError && !locateLoading && sheetView !== 'detail';
   /* Only an unanswered permission is a funnel step. A greeting is shown to
      someone who has nothing left to decide, so counting it would pad the
      denominator with returning visitors. */
@@ -867,6 +880,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 mustEats={restaurantMustEats}
                 revealedMustEatIds={revealedMustEatIds}
                 onClose={onRestaurantClose}
+                closeTarget={detailOrigin}
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}

@@ -3,6 +3,7 @@ import { type Ref } from 'react';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { UserLocation, UserTier } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
+import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import RestaurantDetail from './RestaurantDetail';
 import MustEatDetail from './MustEatDetail';
 import styles from './MapDetails.module.css';
@@ -39,6 +40,8 @@ type RestaurantProps = CommonProps & {
   mustEats: MapMustEat[];
   revealedMustEatIds: Set<string>;
   onClose: () => void;
+  /** Where closing lands — the close button's accessible name says so. */
+  closeTarget: DetailOrigin;
   onMustEatClick: (m: MapMustEat) => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
@@ -92,6 +95,7 @@ export default function MapSheetDetail(props: Props) {
           uid={props.uid}
           userTier={props.userTier}
           onClose={props.onClose}
+          closeTarget={props.closeTarget}
           onMustEatClick={props.onMustEatClick}
           isFavorite={props.isFavorite}
           onToggleFavorite={props.onToggleFavorite}

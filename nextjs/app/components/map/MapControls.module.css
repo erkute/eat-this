@@ -126,18 +126,15 @@
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-:global([data-map-body][data-map-view='detail']) .fab {
-  transform: translateX(calc(100% + 18px));
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
-    visibility 0s 0.24s;
-}
-
-@media (min-width: 1024px) {
-  :global([data-map-body][data-map-view='detail']) .fab {
-    visibility: visible;
+/* Der Standort-Knopf bleibt im Detail stehen (User, 03.09.2026). Bis dahin
+   glitt er beim Öffnen seitlich raus — die Karte über dem Detail ist aber
+   weiter eine echte, schwenkbare Karte, und wer sie nutzt, will sich darauf
+   auch orten. Er reitet wie in der Liste auf der Oberkante des Sheets
+   (`--locate-bottom`, siehe MapSectionBody). Nur das Must-Eat-Detail auf dem
+   Telefon versteckt seine Karte ganz — dort geht er mit. */
+@media (max-width: 767.98px) {
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .fab {
+    display: none;
   }
 }
 
@@ -239,8 +236,7 @@
 @media (min-width: 1024px) {
   :global([data-map-body][data-map-view='detail']) .mapSearchBtn,
   :global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
-  :global([data-map-body][data-map-view='detail']) .mapBurger,
-  :global([data-map-body][data-map-view='detail']) .fab {
+  :global([data-map-body][data-map-view='detail']) .mapBurger {
     transform: none;
     pointer-events: auto;
   }
@@ -789,9 +785,6 @@
 @media (max-width: 767.98px) {
   .fab {
     bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
-  }
-  :global([data-map-body][data-map-view='detail']) .fab {
-    display: none;
   }
   /* All three top-corner controls hang off the viewport, not off the map
      surface. The search button used to stay `absolute` inside .mapWrap while

@@ -5,6 +5,8 @@ import {
   resolveListReturn,
   resolveSnap,
   rowRevealOffset,
+  rowRevealTop,
+  ROW_RETURN_MAX_TOP_RATIO,
   resolveToggleMode,
   snapOffsets,
 } from '../phoneSheetSnaps';
@@ -151,6 +153,38 @@ describe('resolveListReturn', () => {
     expect(resolveListReturn(0, false)).toBe('stay');
     expect(resolveListReturn(1240, false)).toBe('stay');
   });
+
+  it('hands the map back when the detail was opened from a marker', () => {
+    /* The user was on the map, tapped a pin, closed the spot — the map is where
+       they were. Not the list, whatever the scroll says. */
+    expect(resolveListReturn(0, true, 'map')).toBe('toMap');
+    expect(resolveListReturn(1240, true, 'map')).toBe('toMap');
+  });
+
+  it('keeps the origin out of it when nothing was closed', () => {
+    expect(resolveListReturn(0, false, 'map')).toBe('stay');
+  });
+});
+
+describe('rowRevealTop', () => {
+  it('puts the row back where it was tapped', () => {
+    expect(rowRevealTop(VH, 300)).toBe(300);
+  });
+
+  it('never lets the returning row sit at the bottom edge', () => {
+    // Tapped with its top at 780 of 812: it comes back fully on screen instead.
+    expect(rowRevealTop(VH, 780)).toBe(VH * ROW_RETURN_MAX_TOP_RATIO);
+  });
+
+  it('falls back to a little above the middle without a memory', () => {
+    expect(rowRevealTop(VH, null)).toBeCloseTo(VH * 0.38);
+    expect(rowRevealTop(VH, undefined)).toBeCloseTo(VH * 0.38);
+    expect(rowRevealTop(VH, Number.NaN)).toBeCloseTo(VH * 0.38);
+  });
+
+  it('clamps a negative memory to the top', () => {
+    expect(rowRevealTop(VH, -40)).toBe(0);
+  });
 });
 
 describe('rowRevealOffset', () => {
@@ -176,5 +210,14 @@ describe('rowRevealOffset', () => {
 
   it('never returns a negative scroll', () => {
     expect(rowRevealOffset(10, VH, 0)).toBe(0);
+  });
+
+  it('uses the remembered on-screen position when there is one', () => {
+    // Row 900px down the document, tapped with its top 300px below the viewport top.
+    expect(rowRevealOffset(900, VH, 0, 300)).toBe(600);
+  });
+
+  it('still honours the list stop with a remembered position', () => {
+    expect(rowRevealOffset(400, VH, midStop, 300)).toBe(midStop);
   });
 });

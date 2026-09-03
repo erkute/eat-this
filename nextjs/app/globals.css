@@ -431,10 +431,14 @@ html[data-active-page='start'] [data-hub] .homeV2 {
   color: inherit;
 }
 /* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
-   hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor. */
+   hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
+   Die Spot-Seite steht seit 03.09.2026 auf demselben Grund. */
 html[data-active-page='start'],
 html[data-active-page='start'] body,
-html[data-active-page='start'] .app-pages {
+html[data-active-page='start'] .app-pages,
+html[data-active-page='restaurant'],
+html[data-active-page='restaurant'] body,
+html[data-active-page='restaurant'] .app-pages {
   background: var(--et-home-ink);
 }
 /* Sitewide Providence collage language. The map remains a purpose-built

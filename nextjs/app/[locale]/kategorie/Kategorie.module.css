@@ -1,10 +1,15 @@
+/* Seit 03.09.2026 auf durchgehendem Ink wie Startseite und Spot-Seite (den
+   Grund malt `.page` aus Bezirk.module.css): `--category-fg` ist die Schrift,
+   `--category-ink` bleibt die dunkle Farbe fuer Schrift auf Gelb, Muted ist
+   eine Weiss-Stufe. Rot ist auf Ink als Titelfarbe raus (rund 2,9:1). */
 .indexPage,
 .detailPage {
   --category-paper: var(--et-home-paper);
   --category-inverse: var(--et-home-inverse-text);
+  --category-fg: var(--et-home-inverse-text);
   --category-ink: var(--et-home-ink);
   --category-red: var(--et-home-red);
-  --category-muted: var(--et-home-muted);
+  --category-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
 }
 
 /* ============================================================
@@ -32,7 +37,7 @@
 .indexTitle {
   max-width: 11ch;
   margin: 0;
-  color: var(--category-red);
+  color: var(--category-fg);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   /* 92px war der zweitgrößte Titel der Seite. Band der Wettbewerber:
      40–64 auf Desktop, 26–40 mobil. */
@@ -62,13 +67,10 @@
   margin-bottom: clamp(30px, 4.5vw, 52px);
 }
 
-/* Rot, nicht Ink: die Kategorie-Detailseiten setzen jede Sektionsüberschrift in
-   `--et-home-red` (52px, uppercase), und die Startseite tut es über `.hv-title`
-   ebenso. Die Ink-Variante stammt vom Bezirks-Index, von dem dieser Block
-   abgeschrieben ist — sie ist dort der Ausreißer, nicht hier die Regel. */
+/* Papier-Versalien wie jeder Abschnittstitel auf dem Ink-Grund. */
 .categoriesIntro h2 {
   margin: 0;
-  color: var(--category-red);
+  color: var(--category-fg);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: clamp(34px, 7vw, 52px);
   font-weight: 700;
@@ -125,9 +127,9 @@
   aspect-ratio: 2 / 3;
   height: auto;
   object-fit: contain;
-  /* Wie im Angebot auf der Karte: ein weicher Bodenschatten, sonst sieht die
+  /* Wie im Angebot auf der Karte: der Sheet-Schatten, sonst sieht die
      gerenderte Folientüte aufgeklebt aus. */
-  filter: drop-shadow(0 12px 20px rgba(21, 18, 14, 0.14));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .categoryHeadText {
@@ -147,13 +149,13 @@
 }
 
 .categoryLink {
-  color: var(--category-red);
+  color: var(--category-fg);
   text-decoration: none;
   transition: color 140ms ease;
 }
 
 .categoryLink:hover {
-  color: var(--category-ink);
+  color: var(--et-home-accent);
 }
 
 /* Die Kategoriebeschreibung aus dem Studio trägt die Entscheidung — vier
@@ -208,7 +210,7 @@
 
 .categoryLink:focus-visible,
 .categoryMore:focus-visible {
-  outline: 3px solid var(--category-red);
+  outline: 3px solid var(--et-home-accent);
   outline-offset: 4px;
 }
 
@@ -224,7 +226,7 @@
   align-items: stretch;
   margin: 0 0 clamp(24px, 4vw, 46px);
   background: transparent;
-  color: var(--category-ink);
+  color: var(--category-fg);
 }
 
 /* „KATEGORIE" über der H1 der Detailseite. Stand ursprünglich im Index-Block,
@@ -232,7 +234,7 @@
    24.08.2026 verloren, diese Regel gehört aber weiter der Detailseite. */
 .kicker {
   margin: 0 0 18px;
-  color: var(--category-red);
+  color: var(--et-home-accent);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -252,7 +254,7 @@
 .detailTitle {
   max-width: 9ch;
   margin: 0;
-  color: var(--category-red);
+  color: var(--category-fg);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   /* 104px war der größte Titel der ganzen Seite — das 2,6-fache dessen, was
      Eater und Mit Vergnügen fahren (beide 40 auf 1512). 68 entspricht The
@@ -285,15 +287,6 @@
   font-family: var(--font-body, var(--font), sans-serif);
   font-size: clamp(16px, 1.7vw, 20px);
   line-height: 1.6;
-}
-
-.quickFacts {
-  max-width: 46ch;
-  margin: 12px 0 0;
-  color: var(--et-home-muted-soft);
-  font-family: var(--font-body, var(--font), sans-serif);
-  font-size: 14px;
-  line-height: 1.5;
 }
 
 /* Die Wortmarke mitten im Fließtext der Sektions-Unterzeile („Kuratiert von
@@ -415,20 +408,21 @@
 }
 
 /* ============================================================
-   INK-TAFELN (03.09.2026) — die Köpfe beider Kategorie-Seiten sind Ink-Tafeln
-   wie auf Startseite, /packs und /must-eats: gelber Kicker, weiße Versalien,
-   „in Berlin" als gelbe Kreide-Zeile, weicher Text, gelber Knopf (der Knopf
-   selbst kommt aus Bezirk.module.css, `.bezirkDetail .detailHeroActions`).
-   Die Doppelklasse hebt die Spezifität über `.bezirkDetail .detailHero` aus
-   dem geteilten Stylesheet — die Ladereihenfolge zweier CSS-Module ist nicht
-   festgelegt, Spezifität schon.
+   INK-GRUND (03.09.2026) — die Köpfe beider Kategorie-Seiten stehen als Type
+   auf dem Grund, wie auf Startseite und Spot-Seite: gelber Kicker, weiße
+   Versalien, „in Berlin" als gelbe Kreide-Zeile, weicher Text, gelber Knopf
+   (der Knopf selbst kommt aus Bezirk.module.css, `.bezirkDetail
+   .detailHeroActions`). Die Tafel-Tokens aus globals.css halten die
+   Kasten-Optik als Fallback bereit. Die Doppelklasse hebt die Spezifität über
+   `.bezirkDetail .detailHero` aus dem geteilten Stylesheet — die
+   Ladereihenfolge zweier CSS-Module ist nicht festgelegt, Spezifität schon.
 ============================================================ */
 .detailPage.detailPage .detailHero {
   margin: 0 0 clamp(16px, 2.5vw, 32px);
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--category-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--category-ink));
   color: var(--et-home-inverse-text);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 .detailPage.detailPage .detailHeroCopy {
@@ -457,14 +451,6 @@
   line-height: var(--et-leading-copy, 1.5);
 }
 
-.detailPage.detailPage .quickFacts {
-  color: rgba(255, 255, 255, 0.55);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
 /* Der Bezirk in der Meta-Zeile der Ink-Kachel. */
 .detailPage.detailPage .districtLabel {
   color: rgba(255, 255, 255, 0.55);
@@ -474,10 +460,10 @@
 /* ── Kopf des Kategorie-Index ── */
 .indexPage.indexPage .indexHero {
   gap: 14px;
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--category-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--category-ink));
   color: var(--et-home-inverse-text);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 /* Eine Zeile wie auf dem Bezirks-Index: „Wonach ist dir?" trägt 7vw. */
@@ -498,7 +484,7 @@
 @media (max-width: 639px) {
   .detailPage.detailPage .detailHero,
   .indexPage.indexPage .indexHero {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 }
 
@@ -529,16 +515,16 @@
   outline-offset: 3px;
 }
 
-/* Dieselbe Trennung wie auf dem Bezirks-Index: Ink-Linie und Luft zwischen
-   den Kategorien. Das Quadrat entfällt, weil hier das Pack neben dem Namen
-   steht. */
+/* Dieselbe Trennung wie auf dem Bezirks-Index: Haarlinie (Weiss 14 %) und
+   Luft zwischen den Kategorien. Das Quadrat entfällt, weil hier das Pack
+   neben dem Namen steht. */
 .indexPage.indexPage .categoryRows {
   gap: 0;
 }
 
 .indexPage.indexPage .categoryRow {
   padding: clamp(28px, 4vw, 44px) 0 clamp(40px, 5.5vw, 64px);
-  border-top: 2px solid var(--category-ink);
+  border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
 }
 
 .indexPage.indexPage .categoryRow:first-child {

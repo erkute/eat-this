@@ -2,8 +2,8 @@
    Zeile, keine zweite Ueberschrift: Label, Zaehler, Haarlinie bis zur Kante. */
 
 .panel {
-  --album-ink: var(--profile-ink, var(--et-home-ink, #15120e));
-  --album-muted: var(--profile-muted, rgba(21, 18, 14, 0.64));
+  --album-ink: var(--profile-fg, var(--et-home-inverse-text, #fff));
+  --album-muted: var(--profile-muted, rgba(255, 255, 255, 0.76));
   --album-red: var(--profile-red, var(--et-home-red, #d9382a));
   --album-display: var(--et-font-display, sans-serif);
   position: relative;
@@ -114,7 +114,7 @@
   flex: 1 1 auto;
   height: 1px;
   min-width: 24px;
-  background: var(--et-home-rule, #e4e1dc);
+  background: var(--profile-line, rgba(255, 255, 255, 0.14));
 }
 
 /* 132er Spur, nicht 180. In Bezirke geteilt bricht jede Gruppe ihre eigene
@@ -140,7 +140,7 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
-  filter: drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   transition:
     transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 180ms ease;
@@ -153,8 +153,8 @@
 }
 
 .slot:focus-visible {
-  filter: drop-shadow(0 10px 18px rgba(21, 18, 14, 0.1))
-    drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-red) 42%, transparent));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45))
+    drop-shadow(0 0 0 3px color-mix(in srgb, var(--profile-accent, #ffc600) 70%, transparent));
 }
 
 .empty .backImg {

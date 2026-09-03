@@ -18,7 +18,7 @@ import {
 } from '@/lib/seo/categoryMeta';
 import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
-import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose';
+import { buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
@@ -237,7 +237,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   // Anzeigereihenfolge = JSON-LD-Reihenfolge: `position` ist eine
   // Rangbehauptung, Schema und Seite dürfen sich nicht widersprechen.
   const orderedRestaurants = [...top, ...rest];
-  const quickFacts = buildKategorieQuickFacts({ slug, label, restaurants, locale: loc });
   // Ohne Limit: die Chip-Leiste braucht *jeden* vertretenen Bezirk, sonst wären
   // Karten hinter keinem Chip erreichbar. Der Satz läuft hier andersherum als
   // auf den Bezirksseiten — die Facette ist der Bezirk, benannt wird trotzdem
@@ -363,7 +362,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             <p className={styles.detailLead}>
               {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
             </p>
-            {quickFacts && <p className={styles.quickFacts}>{quickFacts}</p>}
             <div className={sharedStyles.detailHeroActions}>
               <MapPromoCTA
                 variant="chip"

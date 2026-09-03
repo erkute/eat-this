@@ -58,7 +58,7 @@
 
 .groupCount {
   flex: 0 0 auto;
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 400;
@@ -66,17 +66,17 @@
 }
 
 .groupCount strong {
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-inverse-text, #fff);
   font-weight: 700;
 }
 
-/* Derselbe Balken wie der Berlin-Fortschritt auf der Tafel, nur auf Papier:
-   dort Gelb auf Ink, hier Ink auf dem stillen Grau der Seite. */
+/* Derselbe Balken wie der Berlin-Fortschritt auf der Tafel: Gelb auf einer
+   Weiss-Stufe des Ink-Grunds. */
 .groupBar {
   display: block;
   height: 6px;
   margin-top: 10px;
-  background: var(--et-home-quiet, #f2f1ef);
+  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   border-radius: 999px;
   overflow: hidden;
 }

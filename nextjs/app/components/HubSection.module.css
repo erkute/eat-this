@@ -4,19 +4,10 @@
      kein Aufbau: der Kasten ist ein starkes Signal, und wenn ihn jeder
      Abschnitt traegt, sagt er nichts mehr. Jetzt ist die ganze Seite der
      Grund; getrennt wird durch Raum, Type und die Fotos, die aus dem Dunkel
-     leuchten. Die drei Tokens schalten jede Tafel der Seite um — mit ihren
-     Fallbacks (siehe die `.board`-Regeln der Module) waere die Kasten-Optik
-     eine Zeile weit entfernt. */
-  --et-board-pad: 0px;
-  --et-board-bg: transparent;
-  --et-board-radius: 0;
-  /* Die leise Stufe fuer Bloecke, die ein eigenes Objekt sind (Starter Pack,
-     Must Eats, Remy). Ganz ohne Flaeche waren sie vom Grund nicht mehr zu
-     unterscheiden — „alles schwarz" (03.09.2026). Eine Stufe heller trennt,
-     ohne dass die Seite wieder ein Katalog aus Kaesten wird. */
-  --et-board-quiet: rgba(255, 255, 255, 0.055);
-  --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
-
+     leuchten. Die Tafel-Tokens (`--et-board-pad/-bg/-radius`) und die leise
+     Stufe (`--et-board-quiet`) stehen seit 03.09.2026 in globals.css — der
+     Grund gilt site-weit, nicht nur hier; die `.board`-Regeln der Module
+     lesen sie mit Fallback auf ihre Tafel-Werte. */
   --home-ink: var(--et-home-ink);
   --home-paper: var(--et-home-paper);
   --home-muted: var(--et-home-muted);

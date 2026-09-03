@@ -84,41 +84,6 @@ function pickShowcase(restaurants: RestaurantCard[], limit = 5): RestaurantCard[
   return pool.slice(0, limit).map((x) => x.r);
 }
 
-/** One-line factual summary that sits below the kategorie header. */
-export function buildKategorieQuickFacts({
-  slug,
-  label,
-  restaurants,
-  locale,
-}: KategorieContext): string | null {
-  const count = restaurants.length;
-  if (count === 0) return null;
-  const de = locale === 'de';
-  const { term, kind } = categorySearchTerm(slug, label, locale);
-  const districts = districtBreakdown(restaurants);
-
-  // Erstes und zweites Segment hängen an einem Gedankenstrich, sonst entsteht
-  // „… in Berlin. die meisten in Mitte“ — Kleinbuchstabe nach Punkt.
-  const head = de
-    ? kind === 'venue'
-      ? `${count} von Eat This kuratierte ${term} in Berlin`
-      : `${count} von Eat This kuratierte Spots für ${term} in Berlin`
-    : kind === 'venue'
-      ? `${count} Eat This-curated ${term} in Berlin`
-      : `${count} Eat This-curated ${term} spots in Berlin`;
-
-  const top = districts
-    .slice(0, 3)
-    .map((d) => d.name)
-    .join(', ');
-  const lead =
-    districts.length > 1
-      ? `${head} – ${de ? `die meisten in ${top}` : `most of them in ${top}`}`
-      : head;
-
-  return `${lead}.`;
-}
-
 /** FAQ entries derived from the category's restaurant list. */
 export function buildKategorieFAQEntries({
   slug,

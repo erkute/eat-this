@@ -331,7 +331,40 @@ export default function MustEatDetailMobile({
             via CSS, tap-to-zoom). Locked: card-back (flach + Wackeln, tap to
             reveal in range — flach bleibt wichtig für die Reveal-Fly-Origin). */}
         <div className={styles.fdHeroWrap} data-detail-hero>
-          <div className={styles.fdCardStack}>
+          {/* Die Blätter-Winkel gehören zum Stapel: ab 768px stehen sie neben
+              der Karte (absolut an ihren Kanten, siehe MapDetails.module.css
+              „Blättern an der Karte"), auf dem Telefon gibt es keine — dort
+              wird gewischt. Der Stapel ist deshalb die Gruppe fürs
+              Screenreader-Ohr; die Namen der Nachbarn tragen die aria-Labels. */}
+          <div
+            className={styles.fdCardStack}
+            role={prevMustEat || nextMustEat ? 'group' : undefined}
+            aria-label={prevMustEat || nextMustEat ? t('map.pagerAria') : undefined}
+          >
+            {(prevMustEat || nextMustEat) && (
+              <button
+                type="button"
+                className={styles.fdPagerPrev}
+                disabled={!prevMustEat}
+                onClick={() => pageWithCard('prev')}
+                aria-label={
+                  previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
+                }
+              >
+                <PagerArrowIcon />
+              </button>
+            )}
+            {(prevMustEat || nextMustEat) && (
+              <button
+                type="button"
+                className={styles.fdPagerNext}
+                disabled={!nextMustEat}
+                onClick={() => pageWithCard('next')}
+                aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
+              >
+                <PagerArrowIcon />
+              </button>
+            )}
             <img
               className={`${styles.fdStackCard} ${styles.fdStackCardOne}`}
               src={CARD_BACK}
@@ -450,45 +483,13 @@ export default function MustEatDetailMobile({
                 {position.index} / {position.count}
               </p>
             )}
-            {/* Der Kicker ist die Blätter-Zeile: „‹ MUST EAT · BEZIRK ›". Die
-                Pfeile standen an den Kartenkanten — auf dem Telefon geht das
-                nicht auf: nah an der Karte kleben sie an ihr, weiter weg
-                kleben sie am Bildschirmrand, und jede Spur neben der Karte
-                kostet Kartenbreite (Nutzer, 02.09.2026, drei Runden). Bei der
-                Schrift sind sie in jeder Breite gleich weit von allem, und die
-                Karte nimmt die ganze Höhe. Die Namen der Nachbarn tragen die
-                aria-Labels. `data-detail-pager` misst useMapSheet weiter. */}
-            <div
-              className={styles.fdKickerRow}
-              data-detail-pager
-              role={prevMustEat || nextMustEat ? 'group' : undefined}
-              aria-label={prevMustEat || nextMustEat ? t('map.pagerAria') : undefined}
-            >
-              {(prevMustEat || nextMustEat) && (
-                <button
-                  type="button"
-                  className={styles.fdPagerPrev}
-                  disabled={!prevMustEat}
-                  onClick={() => pageWithCard('prev')}
-                  aria-label={
-                    previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
-                  }
-                >
-                  <PagerArrowIcon />
-                </button>
-              )}
+            {/* Der Kicker: „MUST EAT · BEZIRK". Die Winkel standen kurz hier
+                neben der Schrift (02.09.2026), seit dem 03.09. wieder an der
+                Karte — im Rail und im Tablet-Sheet ist neben ihr Platz, und
+                geblättert wird die Karte, nicht der Kicker.
+                `data-detail-pager` misst useMapSheet weiter. */}
+            <div className={styles.fdKickerRow} data-detail-pager>
               <p className={styles.fdKicker}>{kicker}</p>
-              {(prevMustEat || nextMustEat) && (
-                <button
-                  type="button"
-                  className={styles.fdPagerNext}
-                  disabled={!nextMustEat}
-                  onClick={() => pageWithCard('next')}
-                  aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
-                >
-                  <PagerArrowIcon />
-                </button>
-              )}
             </div>
             {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
             <h2 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
@@ -506,7 +507,11 @@ export default function MustEatDetailMobile({
           </div>
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
-          {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
+          {open && localizedDescription && (
+            <p className={`${styles.fdText}${nameBurning ? ` ${styles.fdTextRevealing}` : ''}`}>
+              {localizedDescription}
+            </p>
+          )}
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. */}
           {!open && (

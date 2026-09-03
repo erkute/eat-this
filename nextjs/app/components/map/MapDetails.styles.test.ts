@@ -71,8 +71,7 @@ describe('MapDetails CSS contracts', () => {
     const expected = [
       'mustEatTapShake',
       'rdSkelShimmer',
-      'fdNameMagicReveal',
-      'fdNameMagicSweep',
+      'fdNameCalmReveal',
       'fdRevealReadyShake',
       'fdSwipeNudge',
     ];
@@ -102,12 +101,38 @@ describe('MapDetails CSS contracts', () => {
     expect(hasAnimationNone('.fdHeroLocked.mustEatCardTapping')).toBe(true);
     expect(hasAnimationNone('.fdHeroLocked.mustEatCardCanUnlock')).toBe(true);
     expect(hasAnimationNone('.fdNameText.fdNameUnblurring')).toBe(true);
-    expect(hasAnimationNone('.fdNameText.fdNameUnblurring::after')).toBe(true);
+    expect(hasAnimationNone('.fdText.fdTextRevealing')).toBe(true);
     expect(hasAnimationNone('.rdBodySkel span')).toBe(true);
     // Der einmalige Wisch-Nudge ersetzt auf dem Phone die Pager-Tasten. Bei
     // reduzierter Bewegung darf er nicht laufen — dort tritt die Textfassung
     // (.fdSwipeHint) an seine Stelle.
     expect(hasAnimationNone('.fdTopCardHint')).toBe(true);
+  });
+
+  /* Die Blätter-Winkel stehen ab 768px an den Kartenkanten (absolut im
+     Stapel), auf dem Telefon gibt es sie nicht. Beides war schon einmal
+     anders und wurde je auf Ansage zurückgedreht — hier steht der Stand vom
+     03.09.2026 fest. */
+  it('pins the Must Eat pager arrows to the card edges from tablet up, hides them on phones', () => {
+    for (const arrow of ['fdPagerPrev', 'fdPagerNext']) {
+      let absolute = false;
+      let hiddenOnPhone = false;
+      root.walkRules((rule) => {
+        if (!rule.selectors.some((s) => s.includes(`.${arrow}`))) return;
+        if (isInside(rule, 'media', '(min-width: 768px)')) {
+          rule.walkDecls('position', (d) => {
+            if (d.value === 'absolute') absolute = true;
+          });
+        }
+        if (isInside(rule, 'media', '(max-width: 767.98px)')) {
+          rule.walkDecls('display', (d) => {
+            if (d.value === 'none') hiddenOnPhone = true;
+          });
+        }
+      });
+      expect(absolute, `${arrow} absolute from 768px`).toBe(true);
+      expect(hiddenOnPhone, `${arrow} hidden below 768px`).toBe(true);
+    }
   });
 
   it('keeps the in-range Must Eat card shake fast and high-amplitude', () => {

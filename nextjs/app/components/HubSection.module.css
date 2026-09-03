@@ -28,21 +28,25 @@
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
-/* Der Aufmacher ist eine gelbe Fläche über die volle Breite. Die Wortmarke
-   braucht einen farbigen Grund — auf Weiß steht sie nur herum —, und beim
-   Laden soll die Startseite Marke zeigen statt Layout.
+/* Der Aufmacher ist eine Ink-Fläche über die volle Breite — „komplett
+   schwarz": sie schließt ohne Rand und Rundung an die Ink-Navigation an, der
+   erste Bildschirm ist eine Fläche. Darauf die Wortmarke in Creme wie im
+   Header, weiße Versalien, gelber Knopf, die Telefone mit schwarzem Schatten.
+   Vorher eine gelbe Fläche; seit die Site überall Tafeln spricht, war sie
+   die letzte gelbe Vollfläche.
    Die Höhe rechnet gegen 74px und nicht gegen volle dvh: ab 768px scrollt
    nicht das Fenster, sondern `.app-pages`, und das sitzt 74px unter der
    Oberkante (css/style.css, DESKTOP APP FRAME). Mit vollem dvh wäre die
-   Fläche um genau diese Navhöhe zu hoch und liefe unten aus dem Bild.
-   Die Navigation ist ihrerseits 78px hoch, überlappt die oberen vier Pixel
-   des Gelbs also — gewollt, so kann dazwischen kein weißer Spalt aufreißen. */
+   Fläche um genau diese Navhöhe zu hoch und liefe unten aus dem Bild. */
 .hero {
   margin-top: 0;
   display: flex;
   align-items: center;
   min-height: calc(100dvh - 74px);
-  background: var(--et-home-accent);
+  padding: clamp(24px, 4vw, 56px) 0;
+  overflow: hidden;
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
 }
 
 .heroInner {
@@ -106,6 +110,7 @@
    (Gruß line-height 1, Headline 0.9). Der Abstand ist deshalb bewusst knapper
    gesetzt als er aussieht: 18px Marge werden zu rund 14px sichtbarer Luft. */
 .page .heroKicker:global(.hv-kicker) {
+  color: var(--et-home-accent);
   font-family: var(--font-providence);
   font-size: clamp(17px, 2.2vw, 24px);
   font-weight: 700;
@@ -121,9 +126,9 @@
   align-items: flex-start;
   font-family: var(--font-providence);
   font-weight: 700;
-  /* Ink statt Rot: Rot auf Gelb flimmert. Die Section-Titel weiter unten
-     stehen weiter auf Weiß und bleiben rot — hier ist der Grund ein anderer. */
-  color: var(--et-home-ink);
+  /* Papier auf Ink, wie die Versalien jeder Tafel. Die Section-Titel weiter
+     unten stehen auf Weiß und bleiben rot. */
+  color: var(--et-home-inverse-text);
   text-transform: uppercase;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-hero);
@@ -139,14 +144,14 @@
 /* One-line explainer under the headline, set in the brand face like the
    kicker above it. */
 .heroLead {
-  max-width: 26em;
+  max-width: 30em;
   margin: clamp(16px, 1.8vw, 22px) 0 0;
-  color: var(--home-ink);
+  color: rgba(255, 255, 255, 0.76);
   font-family: var(--font-providence);
-  font-size: clamp(19px, 1.55vw, 23px);
-  font-weight: 700;
+  font-size: var(--et-type-lead, clamp(17px, 1.5vw, 21px));
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.18;
+  line-height: var(--et-leading-copy, 1.5);
 }
 
 .heroActions {
@@ -162,37 +167,51 @@
   align-items: center;
 }
 
+/* Gelb auf Ink, eckig wie jeder Tafel-Knopf — die runde `.hv-btn`-Pille
+   gehört den weißen Abschnitten. Hover: Papier. */
 .page .heroActions :global(.hv-btn) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 24px;
-  font-size: clamp(15px, 1.25vw, 18px);
+  min-height: 56px;
+  padding: 0 26px;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+  font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1;
 }
 
 .page .heroActions :global(.hv-btn):hover,
 .page .heroActions :global(.hv-btn):focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-red);
+  color: var(--et-home-ink);
+  background: var(--et-home-inverse-text);
 }
 
-/* Two device cutouts, the map phone in front and slightly lower, the spot page
-   peeking out behind it. No frame, no shadow box — they are already rendered
-   with their own hardware edges and sit straight on the white. */
+.page .heroActions :global(.hv-btn):focus-visible {
+  outline: 2px solid var(--et-home-accent);
+  outline-offset: 3px;
+}
+
+/* Die Seitentür als Ring, wie der Standort-Chip im Must-Eat-Sheet: weißer
+   28-%-Rand, bei Hover gelb. */
 .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
-  color: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
   background: transparent;
-  box-shadow: inset 0 0 0 2px var(--et-home-ink);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
   text-decoration: none;
 }
 
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover,
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-accent);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--et-home-accent);
 }
+
+/* Two device cutouts, the map phone in front and slightly lower, the spot page
+   peeking out behind it. No frame, no shadow box — they are already rendered
+   with their own hardware edges; on ink they carry the sheet's black shadow. */
 
 .heroPhones {
   position: relative;
@@ -225,7 +244,7 @@
   height: 94%;
   width: auto;
   transform: rotate(-5deg);
-  filter: drop-shadow(0 20px 32px rgba(21, 18, 14, 0.2));
+  filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.5));
 }
 
 .phoneBack {
@@ -234,7 +253,7 @@
   height: 88%;
   width: auto;
   transform: rotate(6deg);
-  filter: drop-shadow(0 16px 26px rgba(21, 18, 14, 0.14));
+  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45));
 }
 
 .heroPhones:hover .phoneFront,
@@ -260,7 +279,7 @@
 }
 
 .heroPhones:focus-visible {
-  outline: 3px solid var(--et-home-red);
+  outline: 3px solid var(--et-home-accent);
   outline-offset: 8px;
   border-radius: var(--et-radius-photo);
 }
@@ -270,7 +289,9 @@
    two floating objects on white, and visibly less designed than the four cards
    that followed it. Now the copy holds the right column as a layer on the
    photo — one object, and unmistakably the section's lead rather than an
-   oversized card. */
+   oversized card. Seit 03.09.2026 ist die Ebene eine Ink-Tafel: gelber
+   Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
+   der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
 .spot {
   display: block;
   /* How far the photo reaches past .hv-wrap's gutter. Side by side it reaches
@@ -394,37 +415,30 @@
   align-items: flex-start;
   min-width: 0;
   padding: clamp(26px, 2.9vw, 44px);
-  background: var(--home-paper);
+  background: var(--home-ink);
+  color: var(--et-home-inverse-text);
   border-radius: var(--et-radius-photo);
-  /* A layer only reads as a layer if it casts something. Long and soft, so the
-     panel lifts off the photo instead of turning into a boxed-in card. */
-  box-shadow:
-    0 30px 60px -34px rgba(21, 18, 14, 0.55),
-    0 3px 10px -6px rgba(21, 18, 14, 0.14);
 }
 
-/* A candidate without an image has nothing to lie on top of — no panel, no
-   shadow, and the copy takes the full width. */
+/* A candidate without an image has nothing to lie on top of — the board takes
+   the full width and stands on its own. */
 .spotCardTextOnly .spotBody {
   grid-column: 1 / 13;
-  padding: 0;
-  background: none;
-  box-shadow: none;
 }
 
-/* The district is the quiet line above the name, not a spaced-out micro-label
-   — at 10px with 0.16em tracking it read as a system tag. */
+/* Der Bezirk als gelbe Kreide-Zeile, wie der Kicker auf jeder Tafel. */
 .page .spotBody .spotKicker:global(.hv-kicker) {
   font-family: var(--font-providence);
-  font-size: clamp(15px, 1.3vw, 19px);
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-  color: var(--home-muted);
+  font-size: 12px;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--et-home-accent);
 }
 
 .spotName {
   margin-top: clamp(10px, 1.2vw, 15px);
+  color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
   font-weight: 700;
   font-size: clamp(34px, 3.4vw, 54px);
@@ -444,7 +458,7 @@
 .spotSub {
   max-width: 36ch;
   margin-top: clamp(12px, 1.3vw, 18px);
-  color: var(--home-ink);
+  color: rgba(255, 255, 255, 0.76);
   font-family: var(--font-providence);
   font-size: clamp(17px, 1.4vw, 20px);
   font-weight: 400;
@@ -452,33 +466,37 @@
   line-height: 1.45;
 }
 
-/* The underlined "Auf der Map ansehen" was a four-word label pretending to be
-   a control. On its own panel the block can carry the site's real primary
-   shape, and the label only has to name the destination. */
+/* Gelb auf Ink, wie jeder Tafel-Knopf — Ink auf Ink verschwände. Hover:
+   Papier. */
 .spotCta {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  min-height: 46px;
+  min-height: 52px;
   margin-top: clamp(20px, 2.2vw, 30px);
-  padding: 0 22px;
+  padding: 0 24px;
   border-radius: var(--et-radius-control);
-  background: var(--home-ink);
-  color: var(--et-home-inverse-text);
+  background: var(--et-home-accent);
+  color: var(--home-ink);
   font-family: var(--font-providence);
-  font-size: clamp(15px, 1.2vw, 17px);
+  font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: none;
   transition: background 160ms ease;
 }
 
-/* Same hover the hero's button carries, so the two dark buttons on the page
-   behave alike. */
 .spotCard:hover .spotCta,
 .spotCard:focus-visible .spotCta {
-  background: var(--et-home-red);
+  background: var(--et-home-inverse-text);
+}
+
+/* Zwei Tafeln direkt hintereinander (Starter Pack, Must Eats) stehen mit der
+   kleinen Luft der Tafel-Stapel zusammen, nicht mit dem Abschnittsabstand —
+   sonst liest sich die weiße Lücke wie ein fehlender Abschnitt. */
+.page :global([data-hub-starter]) + :global([data-hub-must-eats]) {
+  margin-top: clamp(16px, 2.5vw, 32px);
 }
 
 @media (max-width: 920px) {
@@ -548,16 +566,35 @@
     margin-top: 0;
   }
 
+  .spotCta {
+    width: 100%;
+    justify-content: center;
+  }
+
   .spotSub {
     max-width: none;
   }
 }
 
+/* Die Abschnittstitel bleiben auf dem Telefon einzeilig („eine Zeile die
+   Headlines"): die Größe folgt der Breite, bis 30px erreicht sind. „Worauf
+   hast du Lust?" ist der längste; bei 375px trägt ihn 6.4vw. Remys Titel
+   bricht bewusst in zwei Zeilen — er setzt sie selbst. */
+@media (max-width: 560px) {
+  .page {
+    --et-type-section-title: clamp(20px, 6.4vw, 30px);
+  }
+
+  .page :global(.hv-title) {
+    white-space: nowrap;
+  }
+}
+
 /* ── Aufmacher auf dem Telefon ───────────────────────────────────────────────
    Unter 768px scrollt das Fenster selbst und `.app-pages` hält den Platz für
-   die Navigation schon frei — die Fläche startet also unter der Leiste und
+   die Navigation schon frei — die Tafel startet also unter der Leiste und
    füllt bewusst *nicht* den Bildschirm. Bildschirmhoch wäre hier die komplette
-   erste Seite Farbe, bevor ein einziger Spot zu sehen ist. */
+   erste Seite Ink, bevor ein einziger Spot zu sehen ist. */
 @media (max-width: 767px) {
   .hero {
     display: block;

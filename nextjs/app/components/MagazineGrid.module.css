@@ -18,25 +18,19 @@
   text-align: left;
 }
 
+/* Dieselbe Größe wie jeder Abschnittstitel — die Sondergröße (38–56px) ließ
+   „Auf dem Teller" als Einzigen auf dem Telefon umbrechen. */
 .section .head :global(.hv-title) {
   max-width: none;
-  font-size: clamp(38px, 3.6vw, 56px);
-  line-height: 0.86;
   text-align: left;
+  white-space: nowrap;
 }
 
-.eyebrow {
+/* Der stille Kicker über dem Titel — Mono-Label wie `hv-kicker` überall. */
+.section .eyebrow:global(.hv-kicker) {
   grid-column: 1 / -1;
   width: max-content;
-  padding: 7px 10px 8px;
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
-  border-radius: var(--et-radius-control);
-  font-family: var(--font-providence);
-  font-size: clamp(16px, 1.4vw, 20px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
+  color: var(--et-home-muted);
 }
 
 .allLink {
@@ -83,31 +77,30 @@
   min-width: 0;
 }
 
+/* Die Kachel: Foto oben, Ink-Leiste darunter — dasselbe Objekt wie die
+   Nearby-Karten und die „Weiter auf dem Teller"-Kacheln am Artikelende.
+   Vorher lag der Text über einem Verlauf auf dem Foto. */
 .card {
   position: relative;
   min-width: 0;
   width: 100%;
   height: 100%;
-  display: block;
-  color: var(--et-home-ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--et-radius-photo);
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
   text-decoration: none;
 }
 
 .section .photo:global(.hv-photo) {
-  aspect-ratio: 4 / 5;
+  flex: 0 0 auto;
+  aspect-ratio: 4 / 3;
   border: 0;
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
   background: var(--et-home-photo-rest);
   box-shadow: none;
-}
-
-/* Legible type over any photo, without an opacity fade on a brand surface. */
-.section .photo:global(.hv-photo)::after {
-  content: '';
-  position: absolute;
-  inset: 42% 0 0 0;
-  background: linear-gradient(to bottom, rgba(21, 18, 14, 0), rgba(21, 18, 14, 0.82));
-  pointer-events: none;
 }
 
 /* Replaces what next/image's `fill` used to do: cover the 4/5 box. */
@@ -128,37 +121,48 @@
 }
 
 .text {
-  position: absolute;
-  inset: auto 0 0 0;
-  z-index: 1;
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  padding: clamp(14px, 1.5vw, 20px);
+  gap: 8px;
+  padding: clamp(14px, 1.5vw, 20px) clamp(14px, 1.5vw, 20px) clamp(16px, 1.7vw, 22px);
 }
 
+/* Die Rubrik als gelbe Kreide-Zeile, wie der Kicker auf jeder Tafel. */
 .kicker {
   display: block;
   color: var(--et-home-accent);
   font-family: var(--font-providence);
-  font-size: clamp(16px, 1.35vw, 21px);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .title {
   display: block;
   color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
-  font-size: clamp(20px, 1.5vw, 24px);
+  font-size: clamp(19px, 1.5vw, 23px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.02;
-  text-shadow: var(--et-shadow-text-photo);
+  line-height: 1.05;
+}
+
+/* Das Datum als stille Zeile unter dem Titel, wie auf dem Magazin-Index. */
+.date {
+  display: block;
+  margin-top: auto;
+  padding-top: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-providence);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
 }
 
 .card:hover .kicker,
@@ -168,7 +172,7 @@
 
 .card:focus-visible,
 .allLink:focus-visible {
-  outline: 2px solid var(--et-home-red);
+  outline: 2px solid var(--et-home-accent);
   outline-offset: 4px;
 }
 
@@ -184,11 +188,6 @@
     align-items: start;
     gap: 12px;
     margin-bottom: 30px;
-  }
-
-  .section .head :global(.hv-title) {
-    font-size: clamp(38px, 12vw, 54px);
-    line-height: 0.84;
   }
 
   .eyebrow {
@@ -225,7 +224,7 @@
   }
 
   .title {
-    font-size: clamp(22px, 6vw, 28px);
-    line-height: 0.95;
+    font-size: 20px;
+    line-height: 1.05;
   }
 }

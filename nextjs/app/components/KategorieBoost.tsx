@@ -37,21 +37,12 @@ export default function KategorieBoost({ categorySlug, categoryName, locale }: P
         <div className={styles.kicker}>{de ? 'Der passende Booster' : 'The matching booster'}</div>
         <h2 className={styles.title}>{categoryName} Pack</h2>
         <div className={styles.spectrum}>{pack.spectrum[locale]}</div>
-        <div className={styles.priceRow}>
-          <span className={styles.price}>{priceLabel}</span>
-          <Link href={`/pack/${categorySlug}`} className={styles.cta}>
-            <span>{de ? 'Pack ansehen' : 'View pack'}</span>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path
-                d="M4 10h11M10 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
-        </div>
+        {/* Ein Ausgang, ein Knopf, Preis im Label — wie „All Berlin
+            freischalten · 9,99 €" auf der All-Berlin-Tafel. Der Pfeil ist weg:
+            die Fläche selbst ist die Affordanz. */}
+        <Link href={`/pack/${categorySlug}`} className={styles.cta}>
+          {de ? 'Pack ansehen' : 'View pack'} · {priceLabel}
+        </Link>
       </div>
     </aside>
   );

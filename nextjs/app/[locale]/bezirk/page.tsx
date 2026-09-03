@@ -38,7 +38,10 @@ export const revalidate = 86400;
  */
 function moreLabel(count: number, de: boolean): string {
   if (count === 1) return de ? 'Zum Spot' : 'See the spot';
-  return de ? `Alle ${count} Spots ansehen` : `See all ${count} spots`;
+  // Keine Zahl im Label mehr („keine Zahlen") — der Parameter bleibt, damit
+  // der Aufruf mit dem Kategorie-Index gleich bleibt.
+  void count;
+  return de ? 'Alle Spots ansehen' : 'See all spots';
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -140,10 +143,9 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           aria-label={de ? 'Alle Bezirke' : 'All districts'}
         >
           <BezirkFilterProvider slugs={chips.map((c) => c.slug)}>
-            <div className={styles.districtsIntro}>
-              <h2>{de ? 'Bezirk wählen' : 'Choose a district'}</h2>
-            </div>
-
+            {/* Keine Zwischenüberschrift „Bezirk wählen" mehr: die H1 sagt
+                „Berlin nach Bezirk", und die Chips darunter SIND die Wahl —
+                „da steht zweimal Bezirk". */}
             <BezirkFilterBar districts={chips} locale={loc} />
 
             <div className={styles.districtRows} id={BEZIRK_LIST_ID}>

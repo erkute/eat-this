@@ -1,29 +1,30 @@
-/* Wrapping list of type chips — no rail, no scroll, no artwork. Nine
-   categories fit in two or three rows and the whole section stays under
-   300px on every width. */
+/* Neun Ink-Kacheln im Raster — dasselbe Objekt wie die „Weiter auf dem
+   Teller"-Kacheln am Artikelende: Ink-Fläche mit Radius, weiße Versalien,
+   bei Hover kippt die Kachel auf Gelb. Vorher Umriss-Chips in einer Zeile;
+   als Kacheln tragen die Kategorien so viel Gewicht wie die Fotos darüber,
+   ohne Pack-Kunst, die hier als Shop gelesen wurde. */
 .grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(9px, 1vw, 13px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 1.2vw, 16px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 52px;
-  padding: 0 clamp(16px, 1.6vw, 22px);
-  color: var(--et-home-ink);
-  background: var(--et-home-paper);
-  box-shadow: inset 0 0 0 2px var(--et-home-ink);
-  border-radius: var(--et-radius-control);
+  gap: 12px;
+  min-height: clamp(84px, 8vw, 112px);
+  padding: 0 clamp(18px, 2vw, 26px);
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
+  border-radius: var(--et-radius-photo);
   font-family: var(--font-providence);
-  font-size: clamp(19px, 1.9vw, 27px);
+  font-size: clamp(22px, 2.2vw, 30px);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -0.015em;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
@@ -33,18 +34,32 @@
     transform 160ms ease;
 }
 
+/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel. */
+.chip::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent);
+  transition: background 160ms ease;
+}
+
 .chip:hover,
 .chip:focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
   outline: 0;
   transform: translateY(-2px);
 }
 
+.chip:hover::before,
+.chip:focus-visible::before {
+  background: var(--et-home-ink);
+}
+
 .chip:focus-visible {
-  box-shadow:
-    inset 0 0 0 2px var(--et-home-ink),
-    0 0 0 3px var(--et-home-red);
+  outline: 2px solid var(--et-home-accent);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -59,9 +74,14 @@
 }
 
 @media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
   .chip {
-    min-height: 46px;
-    padding: 0 15px;
+    min-height: 72px;
+    padding: 0 16px;
     font-size: 19px;
   }
 }

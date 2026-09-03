@@ -221,3 +221,11 @@
      contain fills cleanly without letterboxing. */
   object-fit: contain;
 }
+
+/* Auf dem Ink-Grund der Spot-Seite: Rot kommt dort auf rund 2,9:1 und ist als
+   Ueberschrift nicht lesbar — Papier ist die Versalienfarbe jeder dunklen
+   Flaeche der Marke. Gebunden an das Seiten-Attribut statt an eine Klasse,
+   weil CSS-Module-Hashes von aussen nicht greifbar sind. */
+:global(html[data-active-page='restaurant']) .heading {
+  color: var(--et-home-inverse-text, #fff);
+}

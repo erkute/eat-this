@@ -36,6 +36,7 @@ const COPY = {
       'Alle Spots und ihre Must Eats liegen auf der Map. Mit einem Booster Pack schaltest du weitere frei. Und es kommen immer wieder neue dazu.',
     closeCta: 'Zur Map',
     closeSecondary: 'Booster Packs ansehen',
+    headCta: 'Zur Map',
   },
   en: {
     kicker: 'In Berlin',
@@ -46,8 +47,7 @@ const COPY = {
     statCovered: 'on site',
     openKicker: 'Must Eat?',
     openTitle: 'Not just where you eat. What.',
-    openBody:
-      'Must Eats are the dishes you should not miss. Go there, flip them and collect them.',
+    openBody: 'Must Eats are the dishes you should not miss. Go there, flip them and collect them.',
     coveredKicker: 'Still face-down',
     coveredTitle: (n: number) => `${n} are waiting on site.`,
     coveredBody: 'You flip these cards at the spot. Then they are yours.',
@@ -58,6 +58,7 @@ const COPY = {
       'Every spot and its Must Eats live on the map. A Booster Pack unlocks more. And new ones keep coming.',
     closeCta: 'To the map',
     closeSecondary: 'See Booster Packs',
+    headCta: 'To the map',
   },
 } as const;
 
@@ -65,7 +66,9 @@ const CARD_BACK = '/pics/card-back.webp?v=7';
 // One bag, not the full nine-pack fan. The page advertises the Must Eats; a
 // wall of pack art at the end made the last impression "shop" instead of
 // "these dishes", and the same offer is already on slide 3 of the onboarding
-// and in the burger menu. The link stays, the billboard goes.
+// and in the burger menu. The bag is the star of the closing ink board, on the
+// phone above the copy — it used to be hidden there and sat alone at the far
+// right on desktop.
 const PACK_ART = '/pics/booster/booster.webp';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
@@ -110,7 +113,14 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
             ))}
           </dl>
 
-          <MustEatsOnboarding initialMapData={initialMapData} />
+          {/* Gelb ist der Weg zur Map, der Ring erklärt das Spiel. Beide auf
+              einer Linie, wie Knopf und „Was drin ist" auf der All-Berlin-Tafel. */}
+          <div className={styles.headActions}>
+            <a href={mapHref} className={styles.headCta}>
+              {c.headCta}
+            </a>
+            <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
+          </div>
         </div>
 
         <div className={styles.heroDeck} aria-hidden="true">

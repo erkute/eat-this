@@ -50,17 +50,23 @@ describe('Aufmacher der Startseite', () => {
     expect(minHeight).toContain('74px');
   });
 
-  it('ist gelb und stellt seinen Inhalt mittig', () => {
-    expect(base('hero', 'background')).toBe('var(--et-home-accent)');
+  /**
+   * Seit 03.09.2026 „komplett schwarz": eine Ink-Fläche über die volle
+   * Breite, ohne Rand und Rundung — nicht mehr die gelbe Vollfläche und auch
+   * keine eingerückte Tafel. Gelb ist der Knopf.
+   */
+  it('ist eine schwarze Vollfläche und stellt seinen Inhalt mittig', () => {
+    expect(base('hero', 'background')).toBe('var(--et-home-ink)');
+    expect(base('hero', 'border-radius')).toBeUndefined();
     expect(base('hero', 'align-items')).toBe('center');
   });
 
   /**
-   * Rot auf Gelb flimmert. Die Section-Titel weiter unten stehen weiter auf
-   * Weiß und dürfen rot bleiben — diese eine Headline nicht.
+   * Papier auf Ink, wie die Versalien jeder Tafel. Die Section-Titel weiter
+   * unten stehen auf Weiß und dürfen rot bleiben — diese eine Headline nicht.
    */
-  it('setzt die Headline in Ink, nicht in Rot', () => {
-    expect(base('heroHeadline', 'color')).toBe('var(--et-home-ink)');
+  it('setzt die Headline in Papier, nicht in Rot', () => {
+    expect(base('heroHeadline', 'color')).toBe('var(--et-home-inverse-text)');
   });
 
   /**

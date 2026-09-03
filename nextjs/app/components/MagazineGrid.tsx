@@ -15,6 +15,18 @@ interface Props {
 // signal at a fifth of the height.
 const CARD_COUNT = 3;
 
+// Dasselbe Format wie der Magazin-Index (NewsSection): „1. September 2026".
+function formatDate(iso: string | null | undefined, locale: 'de' | 'en'): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
   const list = articles.slice(0, CARD_COUNT);
@@ -27,9 +39,15 @@ export default function MagazineGrid({ articles, locale }: Props) {
       className={`homeV2 hv-section hv-wrap ${styles.section}`}
       aria-label={locale === 'en' ? 'Magazine' : 'Magazin'}
     >
+      {/* Derselbe Kopf wie jeder Abschnitt auf Weiß: gelbes Marken-Quadrat, roter
+          Titel. Die gelbe „Magazin"-Pille war die einzige gefüllte Gelbfläche
+          in einem Kicker. */}
       <div className={`hv-head ${styles.head}`}>
-        <span className={styles.eyebrow}>{labels.kicker}</span>
-        <h2 className="hv-title">{locale === 'en' ? 'On the plate' : 'Auf dem Teller'}</h2>
+        <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
+        <h2 className="hv-title">
+          <span className="hv-mk" aria-hidden="true" />
+          {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
+        </h2>
         <Link href="/news" className={styles.allLink}>
           {labels.all}
         </Link>
@@ -59,6 +77,11 @@ export default function MagazineGrid({ articles, locale }: Props) {
               <span className={styles.text}>
                 {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
                 <span className={styles.title}>{a.title}</span>
+                {formatDate(a.date, locale) && (
+                  <time className={styles.date} dateTime={a.date ?? undefined}>
+                    {formatDate(a.date, locale)}
+                  </time>
+                )}
               </span>
             </Link>
           </li>

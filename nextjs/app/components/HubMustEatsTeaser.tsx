@@ -96,117 +96,122 @@ export default function HubMustEatsTeaser() {
 
   return (
     <section className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
-      <div className="hv-head">
-        <h2 className="hv-title">
-          <span className="hv-mk" aria-hidden="true" />
-          {t('mustEats.teaserTitle')}
-        </h2>
-      </div>
+      {/* Eine Ink-Tafel wie die Kartenbänder auf /must-eats: die Karten liegen
+          mit Schatten auf Ink, der Titel ist weiß, die Knöpfe gelb und Ring. */}
+      <div className={styles.board}>
+        <div className="hv-head">
+          <h2 className="hv-title">
+            <span className="hv-mk" aria-hidden="true" />
+            {t('mustEats.teaserTitle')}
+          </h2>
+        </div>
 
-      <div className={styles.intro}>
-        <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
-        {/* The same three-slide explainer the Must-Eats page opens on first
-            visit, trigger-only here. Until now it lived exclusively behind the
-            CTA below, so a visitor who bounced off this section because they
-            didn't understand it never reached the thing that explains it. */}
-        <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} />
-      </div>
+        <div className={styles.intro}>
+          <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
+        </div>
 
-      <ul className={`hv-rail ${styles.rail}`} role="list">
-        {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
-          const restaurant = normalizeName(m.restaurant.name);
-          const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
-          // A covered card carries no dish name — the server strips it (see
-          // stripCoveredMustEats), and naming it would give away the reveal.
-          // Its restaurant is the hook: it says where the secret is.
-          const cardAria = isFaceUp
-            ? `${dish} ${mustEatAria}`
-            : lang === 'de'
-              ? `Verdecktes Must Eat bei ${restaurant} — auf der Map aufdecken`
-              : `Face-down Must Eat at ${restaurant} — reveal it on the map`;
+        <ul className={`hv-rail ${styles.rail}`} role="list">
+          {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
+            const restaurant = normalizeName(m.restaurant.name);
+            const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
+            // A covered card carries no dish name — the server strips it (see
+            // stripCoveredMustEats), and naming it would give away the reveal.
+            // Its restaurant is the hook: it says where the secret is.
+            const cardAria = isFaceUp
+              ? `${dish} ${mustEatAria}`
+              : lang === 'de'
+                ? `Verdecktes Must Eat bei ${restaurant} — auf der Map aufdecken`
+                : `Face-down Must Eat at ${restaurant} — reveal it on the map`;
 
-          return (
-            <li key={m._id} className={styles.item}>
-              <article className={styles.cardShell}>
-                {/* Deep-link into the map: ?me= opens the must-eat detail —
+            return (
+              <li key={m._id} className={styles.item}>
+                <article className={styles.cardShell}>
+                  {/* Deep-link into the map: ?me= opens the must-eat detail —
                     face-up as the card, face-down with the reveal affordance. */}
-                <MapIntentLink
-                  href={`/map?me=${m._id}`}
-                  className={styles.cardLink}
-                  aria-label={cardAria}
-                >
-                  <span className={styles.photo}>
-                    {/* Server-rendered with native lazy loading rather than
+                  <MapIntentLink
+                    href={`/map?me=${m._id}`}
+                    className={styles.cardLink}
+                    aria-label={cardAria}
+                  >
+                    <span className={styles.photo}>
+                      {/* Server-rendered with native lazy loading rather than
                       mounted by an IntersectionObserver after hydration. The
                       observer kept the images off the initial payload, which
                       `loading="lazy"` does by itself — but it also made every
                       card wait for the JS bundle and hydration first, on the
                       section furthest down the page. */}
-                    {isFaceUp && m.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        className={styles.card}
-                        src={`${m.image}?w=360&auto=format&q=80`}
-                        srcSet={cardSrcSet(m.image)}
-                        // The card is capped at 178px (see .card in the CSS
-                        // module). Below the cap it fills its grid column:
-                        // the viewport minus the 16px wrap padding and two 8px
-                        // gutters, over three columns — ~109px on a 375px
-                        // phone. The two meet at 582px.
-                        sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"
-                        alt={dish}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      // One shared asset across every face-down tile, so the
-                      // row costs a single request. Same 760×1044 aspect as the
-                      // card art, which keeps the tiles the same height.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        className={styles.card}
-                        src={CARD_BACK}
-                        alt=""
-                        width={760}
-                        height={1044}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
-                  </span>
-                </MapIntentLink>
-                <span className={styles.meta}>
-                  {isFaceUp ? (
-                    <MapIntentLink
-                      href={`/map?me=${m._id}`}
-                      className={styles.dishLink}
-                      aria-label={cardAria}
-                    >
-                      <span className={styles.dish}>{dish}</span>
-                    </MapIntentLink>
-                  ) : (
-                    <span className={`${styles.dish} ${styles.dishCovered}`}>
-                      {t('mustEats.covered')}
+                      {isFaceUp && m.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className={styles.card}
+                          src={`${m.image}?w=360&auto=format&q=80`}
+                          srcSet={cardSrcSet(m.image)}
+                          // The card is capped at 178px (see .card in the CSS
+                          // module). Below the cap it fills its grid column:
+                          // the viewport minus the 16px wrap padding and two 8px
+                          // gutters, over three columns — ~109px on a 375px
+                          // phone. The two meet at 582px.
+                          sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"
+                          alt={dish}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        // One shared asset across every face-down tile, so the
+                        // row costs a single request. Same 760×1044 aspect as the
+                        // card art, which keeps the tiles the same height.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className={styles.card}
+                          src={CARD_BACK}
+                          alt=""
+                          width={760}
+                          height={1044}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
                     </span>
-                  )}
-                  <Link
-                    href={`/restaurant/${m.restaurant.slug}`}
-                    className={styles.restaurantLink}
-                    aria-label={`${restaurant} ${restaurantAria}`}
-                  >
-                    <span className="hv-sub">{restaurant}</span>
-                  </Link>
-                </span>
-              </article>
-            </li>
-          );
-        })}
-      </ul>
+                  </MapIntentLink>
+                  <span className={styles.meta}>
+                    {isFaceUp ? (
+                      <MapIntentLink
+                        href={`/map?me=${m._id}`}
+                        className={styles.dishLink}
+                        aria-label={cardAria}
+                      >
+                        <span className={styles.dish}>{dish}</span>
+                      </MapIntentLink>
+                    ) : (
+                      <span className={`${styles.dish} ${styles.dishCovered}`}>
+                        {t('mustEats.covered')}
+                      </span>
+                    )}
+                    <Link
+                      href={`/restaurant/${m.restaurant.slug}`}
+                      className={styles.restaurantLink}
+                      aria-label={`${restaurant} ${restaurantAria}`}
+                    >
+                      <span className="hv-sub">{restaurant}</span>
+                    </Link>
+                  </span>
+                </article>
+              </li>
+            );
+          })}
+        </ul>
 
-      <div className={styles.foot}>
-        <MapIntentLink href="/must-eats" className="hv-btn">
-          {t('mustEats.teaserCta')}
-        </MapIntentLink>
+        {/* Gelb ist der Weg zu allen Must Eats, der Ring erklärt das Spiel —
+            dieselbe Reihe wie auf der Kopf-Tafel von /must-eats. The explainer
+            used to live exclusively behind the CTA, so a visitor who bounced
+            off this section because they didn't understand it never reached
+            the thing that explains it. */}
+        <div className={styles.foot}>
+          <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
+            {t('mustEats.teaserCta')}
+          </MapIntentLink>
+          <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
+        </div>
       </div>
     </section>
   );

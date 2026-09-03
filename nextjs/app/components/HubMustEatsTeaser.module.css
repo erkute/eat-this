@@ -1,25 +1,40 @@
-/* HubMustEatsTeaser — homeV2 vocabulary.
-   Global hv-section/hv-wrap/hv-head/hv-title/hv-rail/hv-photo/hv-sub/hv-btn
-   handle the shell; this file only covers component-specific sizing, the card
-   tilt/lift variants, dish text, and the footer CTA row. */
+/* HubMustEatsTeaser — homeV2 vocabulary, seit 03.09.2026 als Ink-Tafel wie
+   die Kartenbänder auf /must-eats. Global hv-section/hv-wrap/hv-head/
+   hv-title/hv-rail/hv-btn handle the shell; this file covers the board, the
+   card tilt/lift variants, dish text, and the footer CTA row. */
 
-/* ── Lead line + the "how does it work?" trigger ───────────────────────────── */
-/* The trigger brings its own top margin (MustEatsOnboarding.module.css), so the
-   gap to the rail belongs on the block, not on the lead. */
+.board {
+  --teaser-ink: var(--et-home-ink, #15120e);
+  --teaser-paper: var(--et-home-inverse-text, #fff);
+  --teaser-accent: var(--et-home-accent, #ffc600);
+  --teaser-soft: rgba(255, 255, 255, 0.76);
+
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--teaser-ink);
+  color: var(--teaser-paper);
+  border-radius: var(--et-radius-photo);
+}
+
+/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
+:global(.homeV2) .board :global(.hv-title) {
+  color: var(--teaser-paper);
+}
+
+/* ── Lead line ─────────────────────────────────────────────────────────────── */
 .intro {
   margin: 0 0 clamp(18px, 2.2vw, 28px);
 }
 
 .lead {
-  max-width: 44ch;
+  max-width: 52ch;
   margin: 0;
   font-family: var(--font-providence);
-  font-size: clamp(19px, 1.6vw, 25px);
-  font-weight: 700;
+  font-size: clamp(16px, 1.35vw, 19px);
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 0.98;
+  line-height: 1.5;
   text-transform: none;
-  color: rgba(21, 18, 14, 0.78);
+  color: var(--teaser-soft);
 }
 
 /* ── Rail override: grid instead of flex scroll on wide screens ────────────── */
@@ -46,8 +61,11 @@
     padding: 0;
   }
 
+  /* 15px statt 17: „Rindergulasch" passt so ohne Trennung in die
+     160px-Spalte, der Name bleibt zweizeilig („nur 2 Zeilen, also Font
+     kleiner"). */
   .dish {
-    font-size: clamp(15px, 1.32vw, 19px);
+    font-size: clamp(13px, 1.1vw, 15px);
   }
 
   .restaurantLink :global(.hv-sub) {
@@ -65,7 +83,7 @@
   display: grid;
   grid-template-rows: auto auto;
   min-height: 100%;
-  color: var(--home-ink, #15120e);
+  color: var(--teaser-paper);
   background: transparent;
   border: 0;
   text-decoration: none;
@@ -84,9 +102,9 @@
   padding: 0;
 }
 
-/* These are collectible cards, so they should read as physical objects: a
-   shadow that lifts them off the paper and a small alternating tilt, as if a
-   hand had laid them down. Straightening on hover is the reward. */
+/* These are collectible cards, so they should read as physical objects: the
+   Must-Eat-sheet shadow that lifts them off the ink and a small alternating
+   tilt, as if a hand had laid them down. Straightening on hover is the reward. */
 .card {
   display: block;
   width: 100%;
@@ -97,7 +115,7 @@
   max-width: 178px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 7px 10px rgba(21, 18, 14, 0.26));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   transform: rotate(-2.4deg);
   transition:
     transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1),
@@ -117,7 +135,7 @@
 .cardLink:hover .card,
 .cardLink:focus-visible .card {
   transform: rotate(0deg) translateY(-8px) scale(1.04);
-  filter: drop-shadow(0 12px 16px rgba(21, 18, 14, 0.3));
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -147,32 +165,47 @@
 .restaurantLink {
   display: grid;
   width: fit-content;
+  max-width: 100%;
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
 
+/* `overflow-wrap: anywhere`: ein Wort wie „Rindergulasch" ist breiter als
+   eine Sechser-Spalte (und erst recht als eine Dreier-Spalte am Telefon) und
+   lief in die Nachbarkarte — „Rindergulasch mit Knödel" und „Chorizo" standen
+   ineinander. Nur `anywhere` zählt zur Mindestbreite und hält die Spalte. */
 .dish {
   font-family: var(--font-providence);
   font-size: clamp(17px, 1.7vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.88;
+  line-height: 0.92;
   text-transform: uppercase;
+  /* Erst trennen, wo die Sprache es erlaubt („Rinder-gulasch"), und nur wenn
+     auch das nicht reicht irgendwo. */
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.restaurantLink :global(.hv-sub) {
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .dishLink:hover .dish,
 .dishLink:focus-visible .dish {
-  color: var(--home-accent);
+  color: var(--teaser-accent);
 }
 
 /* The card's state, standing where a dish name would. Same slot and type so the
    row keeps one baseline; muted because it names a blank, not a dish. */
 .dishCovered {
-  color: rgba(21, 18, 14, 0.38);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .restaurantLink :global(.hv-sub) {
-  color: rgba(21, 18, 14, 0.62);
+  color: rgba(255, 255, 255, 0.62);
   font-family: var(--font-providence);
   font-size: clamp(13px, 1.15vw, 15px);
   font-weight: 700;
@@ -183,22 +216,42 @@
 
 .restaurantLink:hover :global(.hv-sub),
 .restaurantLink:focus-visible :global(.hv-sub) {
-  color: var(--et-home-red);
+  color: var(--teaser-accent);
 }
 
-/* ── Footer row: the all-must-eats CTA ───────────────────────────────────── */
+/* ── Footer row: gelber Knopf zu allen Must Eats, Ring fürs Onboarding ────── */
 .foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(10px, 2vw, 18px);
+  gap: clamp(12px, 1.4vw, 16px);
   margin-top: clamp(8px, 1.5vw, 16px);
 }
 
-.foot :global(.hv-btn):hover,
-.foot :global(.hv-btn):focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-red);
+/* Gelb auf Ink, eckig wie jeder Tafel-Knopf — die runde `.hv-btn`-Pille
+   gehört der weißen Seite. Hover: Papier. */
+:global(.homeV2) .foot .cta:global(.hv-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 26px;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--teaser-accent);
+  color: var(--teaser-ink);
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1;
+}
+
+:global(.homeV2) .foot .cta:global(.hv-btn):hover,
+:global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
+  color: var(--teaser-ink);
+  background: var(--teaser-paper);
+}
+
+:global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
+  outline: 2px solid var(--teaser-accent);
+  outline-offset: 3px;
 }
 
 /* ── Mobile: the same set, three across ──────────────────────────────────────
@@ -240,8 +293,8 @@
   }
 
   .dish {
-    font-size: 15px;
-    line-height: 0.92;
+    font-size: 13px;
+    line-height: 0.95;
   }
 
   .restaurantLink :global(.hv-sub) {
@@ -249,13 +302,28 @@
     line-height: 1.15;
   }
 
-  .foot {
-    flex-direction: column;
-    align-items: stretch;
+  .board {
+    padding: 22px 18px 24px;
   }
 
-  .foot :global(.hv-btn) {
+  .foot {
+    display: grid;
+    gap: 10px;
+  }
+
+  .foot > * {
+    width: 100%;
     text-align: center;
     justify-content: center;
+  }
+}
+
+/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .card,
+    .cardShell:hover .card {
+      filter: none;
+    }
   }
 }

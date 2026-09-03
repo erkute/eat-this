@@ -181,6 +181,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+/** Erster Satz samt Satzzeichen; ohne Satzzeichen der ganze Text. */
+function firstSentence(text: string): string {
+  const match = text.match(/^.*?[.!?](?=\s|$)/);
+  return (match ? match[0] : text).trim();
+}
+
 export default async function BezirkDetailPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
@@ -203,6 +209,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   if (!b || restaurants.length === 0) notFound();
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc);
+  // Nur der erste Satz auf der Kopf-Tafel („zu viel Info"): der ganze
+  // Absatz steht auf dem Bezirks-Index, hier trägt ein Satz die Ansage.
+  const heroLede = bezirkDescription ? firstSentence(bezirkDescription) : '';
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc });
   // Only the district's own picture. Falling back to a restaurant photo put a
   // spot in the banner that the grid below lists again — and captioned it,
@@ -269,7 +278,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               {b.name}
             </h1>
             <p className={styles.detailHeroDescription}>
-              {bezirkDescription ||
+              {heroLede ||
                 (de ? `Die besten Restaurants in ${b.name}` : `The best restaurants in ${b.name}`)}
             </p>
             <div className={styles.detailHeroActions}>

@@ -38,6 +38,9 @@ interface Props {
    *  flag is shared, so explaining it here means the catalog page won't
    *  explain it again. */
   autoOpen?: boolean;
+  /** `ink`: der Auslöser steht auf einer Ink-Tafel (Kopf der Must-Eats-Seite)
+   *  und wird zum Ring — Ink auf Ink verschwände. Default: Ink-Knopf auf Weiß. */
+  tone?: 'paper' | 'ink';
 }
 
 // First-visit onboarding for the Must-Eats page: 3 steps around a demo card
@@ -45,7 +48,11 @@ interface Props {
 // dismiss), re-openable any time via the "how does it work?" trigger link
 // this component renders inline. SSR renders only the trigger — `open` flips
 // in an effect, so there is no hydration mismatch and no portal on the server.
-export default function MustEatsOnboarding({ initialMapData, autoOpen = true }: Props) {
+export default function MustEatsOnboarding({
+  initialMapData,
+  autoOpen = true,
+  tone = 'paper',
+}: Props) {
   const { lang, t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -186,7 +193,11 @@ export default function MustEatsOnboarding({ initialMapData, autoOpen = true }: 
 
   return (
     <>
-      <button type="button" className={styles.how} onClick={reopen}>
+      <button
+        type="button"
+        className={tone === 'ink' ? `${styles.how} ${styles.howInk}` : styles.how}
+        onClick={reopen}
+      >
         <span className={styles.howBadge} aria-hidden="true">
           ?
         </span>
@@ -350,7 +361,11 @@ export default function MustEatsOnboarding({ initialMapData, autoOpen = true }: 
                   {/* For a guest the free pack outranks dismissing, so it takes
                       the primary slot — the paid Booster Packs are a rung up
                       that only makes sense once there is an account. */}
-                  <div className={rowClass(last)} data-testid="onb-actions-guest" data-guest-only="">
+                  <div
+                    className={rowClass(last)}
+                    data-testid="onb-actions-guest"
+                    data-guest-only=""
+                  >
                     <a className={styles.next} href={starterHref} onClick={close}>
                       {t('mustEats.onbStarterCta')}
                     </a>

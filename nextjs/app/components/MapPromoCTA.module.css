@@ -1,4 +1,8 @@
-/* Map-Promo final-CTA — theme-pinned banner at the bottom of SEO detail pages.
+/* Map-Promo final-CTA — die Ink-Tafel am Ende der SEO-Detailseiten, dasselbe
+   Objekt wie die All-Berlin-Tafel auf /packs und die Kopf-Tafel der
+   Must-Eats: Ink-Fläche mit Radius, weiße Versalien, ein gelber Knopf, die
+   Telefone als Star. Vorher ein gelbes Poster mit rotem Titel — die einzige
+   gelbe Vollfläche der Site, nachdem die Startseite ihre abgelegt hatte.
    It deliberately does not inherit --ink/--cream from parent pages; restaurant
    and article shells flip those tokens for their own surfaces. */
 .promo {
@@ -8,43 +12,15 @@
   color: var(--promo-fg);
   margin: 40px 0 0;
   padding: 44px 22px 0;
-  border-top: 2px solid var(--promo-fg);
-  border-bottom: 2px solid var(--promo-fg);
+  border-radius: var(--et-radius-photo, 10px);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   text-align: center;
   gap: 26px;
 }
-.promo::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 9px;
-  background: var(--promo-accent);
-  z-index: 2;
-}
-/* Warm halo behind the device so the black slab stops reading as a void. */
-.promo::after {
-  content: '';
-  position: absolute;
-  right: -12%;
-  bottom: -30%;
-  z-index: 0;
-  width: min(110%, 760px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.72),
-    rgba(255, 255, 255, 0.24) 46%,
-    transparent 70%
-  );
-  pointer-events: none;
-}
 .copy {
   position: relative;
-  /* Above the device glow — the halo must not wash over the CTA. */
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -104,23 +80,20 @@
   position: relative;
   z-index: 1;
   transform: rotate(2deg);
-  filter: drop-shadow(0 18px 38px rgba(21, 18, 14, 0.34));
+  filter: drop-shadow(0 18px 38px rgba(0, 0, 0, 0.5));
 }
 .shotBack {
   z-index: 0;
   margin-right: var(--shot-overlap);
   transform: rotate(-4deg);
-  filter: drop-shadow(0 14px 30px rgba(21, 18, 14, 0.28));
+  filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.45));
 }
 /* Die Wortmarke als Absender über der Headline. Bewusst deutlich kleiner als
    der Titel: sie sagt, wer spricht, und soll ihm nicht die Stimme nehmen.
 
-   Auf diesem gelben Grund trägt die Marke über ihre Kontur, nicht über ihre
-   Füllung: gemessen kommt die creme Füllung (#F1EEE4) gegen --et-home-accent
-   auf 1,36:1, die schwarze Kontur auf 13,33:1 — und die macht 38 % der Grafik
-   aus. Das Logo ist deshalb hier lesbar, liest sich aber als Outline-Marke.
-   Wer den satten Look wie im SiteNav will, braucht eine dunkle Fläche
-   dahinter oder eine eigene Logo-Variante — nicht einfach mehr Größe.
+   Auf Ink trägt die Marke über ihre creme Füllung, wie im SiteNav und im
+   Footer — der satte Look, den das gelbe Poster nie hatte (dort kam die
+   Füllung auf 1,36:1 und nur die Kontur hielt das Logo lesbar).
    `height: auto` gegen die width/height-Attribute, die next/image ins Markup
    schreibt — ohne das erzwingen 1660×667 die volle Bannerbreite. Der Abstand
    nach unten ist enger als `--et-rail-gap`, damit Marke und Headline als ein
@@ -147,7 +120,7 @@
 }
 
 .title {
-  color: var(--et-home-red);
+  color: var(--promo-fg);
   font-family: var(--et-font-display);
   font-size: clamp(30px, 8vw, 46px);
   line-height: 1.1;
@@ -166,30 +139,42 @@
   white-space: nowrap;
 }
 .sub {
-  font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.5;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  line-height: var(--et-leading-copy, 1.5);
   margin: 0;
-  max-width: 36ch;
-  color: var(--promo-fg);
-  opacity: 0.78;
+  max-width: 40ch;
+  color: var(--promo-soft);
 }
+/* Gelb auf Ink, wie jeder Tafel-Knopf — Ink auf Ink verschwände. Hover: Papier. */
 .cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  min-height: 56px;
   margin-top: 6px;
-  font-family: var(--et-font-display);
-  font-size: 20px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  padding: 0 26px;
+  border-radius: var(--et-radius-control, 7px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
   line-height: 1;
-  padding: 15px 24px 16px;
   text-decoration: none;
-  transition: transform var(--et-motion-fast);
+  transition:
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
 }
-.cta:hover {
-  transform: var(--et-hover-lift-sm);
+.cta:hover,
+.cta:focus-visible {
+  background: var(--promo-fg);
+  transform: translateY(-2px);
+}
+.cta:focus-visible {
+  outline: 2px solid var(--promo-accent);
+  outline-offset: 3px;
 }
 
 @media (min-width: 720px) {
@@ -233,12 +218,7 @@
     font-size: clamp(32px, 3vw, 36px);
   }
   .sub {
-    font-size: 16px;
     max-width: 40ch;
-  }
-  .cta {
-    font-size: 21px;
-    padding: 15px 26px 16px;
   }
   .shot {
     width: min(100%, 348px);
@@ -280,22 +260,31 @@
   transform: var(--et-hover-lift-sm);
 }
 
-/* Poster CTA in brand yellow. The black slab read as a warning box — the same
-   poster on paper-yellow with a red rule reads as an invitation, and the light
-   app screenshot sits in it instead of glowing out of a void. */
+/* Die Tafel-Tokens: Ink, Papier, Gelb und die weiche Weiß-Stufe — dieselben
+   wie auf AllBerlinBoard und MustEatsSection. */
 .promo {
-  --promo-bg: var(--et-home-accent);
-  --promo-fg: var(--et-home-ink);
-  --promo-accent: var(--et-home-red);
-  --promo-accent-fg: var(--et-home-paper);
+  --promo-bg: var(--et-home-ink);
+  --promo-fg: var(--et-home-inverse-text, #fff);
+  --promo-accent: var(--et-home-accent);
+  --promo-soft: rgba(255, 255, 255, 0.76);
 
   border: 0;
 }
 
 .cta {
-  background: var(--et-home-ink);
-  color: var(--promo-accent-fg);
+  background: var(--promo-accent);
+  color: var(--et-home-ink);
   border: 0;
+}
+
+/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .shotImg,
+    .shotBack {
+      filter: none;
+    }
+  }
 }
 
 /* Frühe Map-CTA unter dem Opener der Restaurantseite.

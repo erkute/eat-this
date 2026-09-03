@@ -16,6 +16,8 @@ export interface HubArticle {
   slug: string;
   image: string | null;
   kicker: string | null;
+  /** ISO-Datum der Veröffentlichung — die Kachel nennt es wie der Magazin-Index. */
+  date?: string | null;
 }
 
 export interface HomeData {
@@ -66,6 +68,7 @@ export async function getHomeData(
     slug: a.slug,
     image: a.imageUrl ?? null,
     kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
+    date: a.date ?? null,
   }));
   const categoryNames: Record<string, string> = Object.fromEntries(
     (catNameRows ?? []).map((r) => [r.slug, r.name])

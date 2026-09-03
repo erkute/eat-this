@@ -745,68 +745,96 @@
   text-transform: none;
 }
 
+/* Die FAQ der Hub-Seiten — randlose Haarlinien-Zeilen auf Weiß, dasselbe
+   Objekt wie die FAQ der Startseite (HubFaq): roter Titel mit gelbem
+   Marken-Quadrat, Fragen in Providence, Plus in Ink. Vorher ein grauer Kasten
+   mit weißen Zeilen und roten Plus-Knöpfen — eine dritte FAQ-Fassung neben
+   Startseite und Restaurant. */
 .bezirkDetail .faq {
-  display: grid;
-  gap: clamp(24px, 4vw, 44px);
+  display: block;
   margin: clamp(64px, 9vw, 118px) 0 0;
-  padding: clamp(24px, 5vw, 56px);
+  padding: 0;
   border: 0;
-  border-radius: var(--et-radius-photo);
-  background: var(--et-home-quiet);
+  border-radius: 0;
+  background: transparent;
 }
 
 .faqTitle {
-  max-width: 10ch;
-  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: none;
+  margin: 0 0 clamp(14px, 2vw, 22px);
   color: var(--et-home-red);
   font-family: var(--et-font-display);
-  font-size: clamp(32px, 4.4vw, 46px);
+  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.92;
   text-transform: uppercase;
 }
 
+/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel. */
+.faqTitle::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent);
+}
+
 .faqList {
-  display: grid;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  gap: 0;
 }
 
 .bezirkDetail .faqRow {
-  padding: 0 16px;
+  padding: 0;
   border: 0;
-  border-radius: var(--et-radius-control);
-  background: var(--et-home-paper);
+  border-top: 1px solid rgba(21, 18, 14, 0.14);
+  border-radius: 0;
+  background: transparent;
+}
+
+.bezirkDetail .faqRow:last-child {
+  border-bottom: 1px solid rgba(21, 18, 14, 0.14);
 }
 
 .bezirkDetail .faqRow summary {
   align-items: center;
-  padding: 16px 0;
+  min-height: clamp(52px, 4.5vw, 68px);
+  padding: 10px 0;
 }
 
 .bezirkDetail .faqQ {
   color: var(--et-home-ink);
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 17px;
+  font-size: clamp(15px, 2vw, 17px);
   font-weight: 700;
   line-height: 1.25;
 }
 
 .bezirkDetail .faqPlus {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  background: var(--et-home-red);
-  color: var(--et-home-paper);
+  border-radius: 0;
+  background: transparent;
+  color: var(--et-home-ink);
 }
 
 .bezirkDetail .faqA {
-  margin: 0 0 18px;
-  color: var(--et-home-muted);
+  max-width: 72ch;
+  margin: 0;
+  padding: 4px 0 20px;
+  color: var(--et-home-ink);
   font-family: var(--font-body, var(--font), sans-serif);
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: clamp(16px, 1.2vw, 17px);
+  font-weight: 500;
+  line-height: 1.6;
+  opacity: 0.75;
 }
 
 @media (min-width: 720px) {
@@ -843,11 +871,6 @@
      mit, falls die Schriftgröße einmal angefasst wird. */
   .bezirkDetail .cardName {
     min-height: 1.96em;
-  }
-
-  .bezirkDetail .faq {
-    grid-template-columns: minmax(190px, 0.58fr) minmax(0, 1fr);
-    align-items: start;
   }
 }
 
@@ -920,21 +943,6 @@
 .districtsBlock {
   margin-bottom: clamp(40px, 6vw, 72px);
   text-align: left;
-}
-
-.districtsIntro {
-  margin-bottom: clamp(30px, 4.5vw, 52px);
-}
-
-.page .districtsBlock .districtsIntro h2 {
-  font-family: var(--et-font-display);
-  font-size: clamp(34px, 7vw, 52px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.9;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0;
 }
 
 /* ============================================================
@@ -1066,15 +1074,6 @@
   border-color: var(--et-home-ink);
   background: var(--et-home-ink);
   color: var(--et-home-paper);
-}
-
-.filterChipCount {
-  color: var(--et-home-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.filterChip[aria-pressed='true'] .filterChipCount {
-  color: var(--et-home-accent);
 }
 
 .filterChip:focus-visible {
@@ -1350,4 +1349,364 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 [data-hub-filtered='true'] .rankBadge,
 [data-hub-filtered='true'] .rankInline {
   display: none;
+}
+
+/* ============================================================
+   INK-TAFELN (03.09.2026) — Bezirks- und Kategorie-Hubs sprechen dieselbe
+   Sprache wie Startseite, /packs und /must-eats: der Kopf ist eine Ink-Tafel,
+   jede Restaurant-Karte eine Ink-Kachel (Foto oben, Ink-Leiste darunter mit
+   weißem Namen und gelber Küchen-Zeile — dasselbe Objekt wie die Nearby- und
+   Magazin-Kacheln der Startseite). Am Dateiende, damit die Regeln oben ohne
+   höhere Spezifität überstimmt werden.
+============================================================ */
+
+/* ── Karten ── */
+.bezirkDetail .card,
+.spotGrid .card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--et-radius-photo);
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
+}
+
+.bezirkDetail .cardPhoto,
+.spotGrid .cardPhoto {
+  border-radius: 0;
+}
+
+.bezirkDetail .cardBody,
+.spotGrid .cardBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 14px 16px 18px;
+}
+
+.bezirkDetail .cardName,
+.spotGrid .cardName {
+  margin: 0 0 8px;
+  color: var(--et-home-inverse-text);
+  font-size: 20px;
+  line-height: 1.02;
+}
+
+.bezirkDetail .cardMeta,
+.spotGrid .cardMeta {
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* Die Küche als gelbe Kreide-Zeile statt roter Pille. */
+.bezirkDetail .chipYellow,
+.spotGrid .chipYellow {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--et-home-accent);
+  font-size: 11px;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.bezirkDetail .price,
+.spotGrid .price {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+}
+
+.bezirkDetail .cardTip {
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.bezirkDetail .rankInline {
+  color: var(--et-home-accent);
+}
+
+.bezirkDetail .grid {
+  gap: clamp(20px, 2.5vw, 30px) clamp(16px, 2vw, 24px);
+}
+
+/* ── Kopf der Bezirks-Detailseite ── */
+.bezirkDetail .detailHero {
+  gap: clamp(20px, 4vw, 48px);
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
+}
+
+.bezirkDetail .detailHeroCopy {
+  padding: 0;
+}
+
+.bezirkDetail .detailHero .h1 {
+  color: var(--et-home-inverse-text);
+}
+
+.bezirkDetail .detailHero .h1Lead {
+  color: var(--et-home-accent);
+}
+
+.bezirkDetail .detailHeroDescription {
+  color: rgba(255, 255, 255, 0.76);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  line-height: var(--et-leading-copy, 1.5);
+}
+
+/* Gelb auf Ink, eckig, in Tafel-Maßen — die rote Pille gehörte der weißen
+   Fläche. Hover: Papier. */
+.bezirkDetail .detailHeroActions > a:first-child {
+  min-height: 56px;
+  padding: 0 26px;
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+  font-size: clamp(16px, 1.4vw, 19px);
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+}
+
+.bezirkDetail .detailHeroActions > a:first-child:hover,
+.bezirkDetail .detailHeroActions > a:first-child:focus-visible {
+  background: var(--et-home-inverse-text);
+  color: var(--et-home-ink);
+}
+
+.bezirkDetail .detailHeroActions > a:focus-visible {
+  outline: 2px solid var(--et-home-accent);
+  outline-offset: 3px;
+}
+
+/* ── Kopf des Bezirks-Index ── */
+.page .indexHero {
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
+  border-radius: var(--et-radius-photo);
+}
+
+/* Eine Zeile („eine Zeile Headlines"): kein `max-width: 9ch` mehr, die Größe
+   folgt der Breite — „Berlin nach Bezirk" trägt bei 375px 6.4vw. */
+.page .indexHero .h1 {
+  max-width: none;
+  color: var(--et-home-inverse-text);
+  font-size: clamp(24px, 6.4vw, 56px);
+  white-space: nowrap;
+}
+
+.page .indexHero .sub {
+  color: rgba(255, 255, 255, 0.76);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  line-height: var(--et-leading-copy, 1.5);
+}
+
+@media (max-width: 639px) {
+  .bezirkDetail .detailHero,
+  .page .indexHero {
+    padding: 22px 18px 24px;
+  }
+
+  .bezirkDetail .detailHeroActions > a:first-child {
+    width: 100%;
+  }
+}
+
+/* ── Filter-Chips (Bezirks-Index, Kategorie- und Bezirks-Detail) ──
+   Gefüllte Ink-Chips statt Umriss auf Weiß: die Leiste ist die Wahl und muss
+   ins Auge fallen („mach den Filter besser und sichtbarer"). Der gedrückte
+   Chip kippt auf Gelb, die Zahl steht in Gelb auf Ink und in Ink auf Gelb. */
+/* Nur noch für Vorleser: die sichtbare Zählzeile „19 Bezirke · 467 Spots"
+   wollte niemand lesen („brauche die Info nicht"); als role="status" sagt sie
+   dem Screenreader weiter, was der Filter gerade zeigt. */
+.filterStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.filterRail {
+  gap: 10px;
+}
+
+.filterChip {
+  min-height: 46px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
+  font-size: clamp(14px, 1.2vw, 16px);
+}
+
+.filterChip:hover {
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+}
+
+.filterChip[aria-pressed='true'] {
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+}
+
+.filterChip:focus-visible {
+  outline: 2px solid var(--et-home-accent);
+  outline-offset: 3px;
+}
+
+/* Ab Tablet stehen alle Chips im Umbruch — als geschlossene Menge, nicht als
+   angeschnittenes Rail. */
+@media (min-width: 761px) {
+  .filterRail {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+/* Abschnittstitel der Detailseiten laufen über die Breite, nicht in einer
+   14ch-Spalte — „Die besten Spots in Prenzlauer Berg" stand sonst vierzeilig. */
+.bezirkDetail .sectionHead h2 {
+  max-width: none;
+}
+
+/* Erst trennen, wo die Sprache es erlaubt („Charlotten-burg"), und nur wenn
+   auch das nicht reicht irgendwo — auf der Zweier-Spalte des Telefons brach
+   „AERA Charlottenburg" sonst mitten im Wort. */
+.bezirkDetail .cardName,
+.spotGrid .cardName {
+  hyphens: auto;
+}
+
+/* ── Bezirks-Index: Kopf und Filter sind EINE Tafel ──
+   Oben Titel und Text, unten die Chips als Ringe auf Ink, keine Lücke — „mach
+   den oberen Part besser und stimmiger zusammen". Das Markup bleibt: die
+   Leiste muss direktes Kind des hohen Abschnitts sein, damit `sticky` auf dem
+   Telefon greift; die Tafel wird deshalb aus zwei Nachbarn zusammengesetzt
+   (Kopf ohne unteren Radius, Leiste ohne oberen). */
+.page .indexHero {
+  gap: 14px;
+  margin-bottom: 0;
+  padding-bottom: clamp(18px, 2.4vw, 28px);
+  border-radius: var(--et-radius-photo) var(--et-radius-photo) 0 0;
+}
+
+.page .filterSticky {
+  margin-inline: 0;
+  margin-bottom: clamp(30px, 4.5vw, 52px);
+  padding: 0 clamp(24px, 4vw, 56px) clamp(24px, 4vw, 56px);
+  background: var(--et-home-ink);
+  border-bottom: 0;
+  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
+}
+
+/* Ringe auf Ink, wie die Fragen im Remy-Panel: weißer 28-%-Rand, gedrückt
+   Gelb gefüllt, Hover gelber Rand. Die gefüllten Ink-Chips gehören den
+   Detailseiten, wo die Leiste auf Weiß steht. */
+.page .filterSticky .filterChip {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+  color: var(--et-home-inverse-text);
+}
+
+.page .filterSticky .filterChip:hover {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--et-home-accent);
+  color: var(--et-home-accent);
+}
+
+.page .filterSticky .filterChip[aria-pressed='true'] {
+  background: var(--et-home-accent);
+  box-shadow: none;
+  color: var(--et-home-ink);
+}
+
+/* Telefon: die Tafel läuft wie der Startseiten-Hero von Kante zu Kante —
+   so ist die klebende Leiste ein Ink-Streifen über die volle Breite und
+   nichts läuft seitlich an ihr vorbei. */
+@media (max-width: 760px) {
+  /* Schließt direkt an die Ink-Navigation an — ohne den weißen Streifen, den
+     das Kopfpolster der Seite (24px) sonst dazwischen ließ. */
+  .page .indexHero {
+    margin-top: -24px;
+    margin-inline: calc(var(--page-pad) * -1);
+    padding: 28px var(--page-pad) 14px;
+    border-radius: 0;
+  }
+
+  .page .filterSticky {
+    margin-inline: calc(var(--page-pad) * -1);
+    padding: 0 var(--page-pad) 16px;
+    border-radius: 0;
+  }
+}
+
+/* „Alle Spots ansehen" als gefüllter Ink-Knopf mit gelbem Hover — wie die
+   Kategorie-Kacheln der Startseite. Der Umriss-Knopf passte zu nichts mehr,
+   sobald Karten und Chips Ink wurden („auch Button passt nicht zum Rest"). */
+.page .districtMore {
+  min-height: 52px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
+  font-size: clamp(15px, 1.2vw, 17px);
+}
+
+.page .districtMore:hover,
+.page .districtMore:focus-visible {
+  background: var(--et-home-accent);
+  color: var(--et-home-ink);
+  transform: translateY(-2px);
+}
+
+.page .districtMore:focus-visible {
+  outline: 2px solid var(--et-home-accent);
+  outline-offset: 3px;
+}
+
+/* ── Bezirke deutlich getrennt ──
+   Jeder Bezirk beginnt an einer Ink-Linie mit Luft darüber und darunter, und
+   der Name trägt das gelbe Marken-Quadrat wie jeder Abschnittstitel der
+   Startseite — „mach so, dass die Bezirke besser abgetrennt sind". Vorher
+   trennte nur ein Abstand, und neunzehn Blöcke liefen ineinander. */
+.page .districtRows {
+  gap: 0;
+}
+
+.page .districtRow {
+  padding: clamp(28px, 4vw, 44px) 0 clamp(40px, 5.5vw, 64px);
+  border-top: 2px solid var(--et-home-ink);
+}
+
+.page .districtRow:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.page .districtName {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page .districtName::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent);
 }

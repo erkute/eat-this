@@ -212,6 +212,14 @@
     top: 0;
     height: 100dvh;
     z-index: 0;
+    /* Deckend, nicht transparent: iOS 26 Safari ignoriert theme-color und
+       faerbt seine Leisten nach der background-color des obersten fixierten
+       oder sticky Elements, das eine Viewport-Kante beruehrt — auf dem
+       Telefon ist das dieser Wrapper, an beiden Kanten. Transparent hiess
+       Systemgrau ueber Karte und Liste. Das Papier der Liste, damit die
+       Leisten so hell bleiben, wie sie vor iOS 26 ueber dem weissen Dokument
+       waren; sichtbar ist die Farbe nie, die Karte deckt den Wrapper. */
+    background-color: var(--et-home-paper, #fff);
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
     /* Same anchoring as the list: the map stays put and the sheet slides over

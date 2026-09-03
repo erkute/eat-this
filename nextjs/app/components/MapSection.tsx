@@ -2,7 +2,7 @@
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import type { PaddingOptions } from 'maplibre-gl';
 import type { MapRef } from 'react-map-gl/maplibre';
-import type { MapRestaurant, MapMustEat } from '@/lib/types';
+import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import {
   useMapData,
   useSignupSpotClaim,
@@ -1551,23 +1551,55 @@ export default function MapSection({
      effect below one commit later, and its `fitBounds` cancels whatever is in
      the air; the centroid index has been dead weight ever since. One camera
      owner is enough, and fitting the actual matches beats an average of them. */
+  /* A picked filter shows its result set: the list comes up to 'mid' if it is
+     resting lower than that. Until 03.09.2026 only the Bezirk chip did this —
+     after "Pizza" the map flew to the matches while the list stayed peeking at
+     the bottom with one cropped row, and nothing said there were 33 of them.
+     A list already higher than 'mid' stays where the user put it. */
+  const revealListForFilter = useCallback(() => {
+    if (sheetView !== 'list') return;
+    if (isPhoneViewport()) {
+      const el = sheetElRef.current;
+      if (el && window.innerHeight - el.getBoundingClientRect().top < 440) {
+        scrollListToAnchor('mid');
+      }
+      return;
+    }
+    if (snapRef.current === 'peek') setSnap('mid');
+  }, [sheetView, setSnap, sheetElRef, scrollListToAnchor]);
+
   const handleBezirkChange = useCallback(
     (name: string | null) => {
       userInteractedRef.current = true;
       setBezirk(name);
-      // Reopen the list when a bezirk is picked so the user sees the filtered results.
-      if (sheetView === 'list') {
-        if (isPhoneViewport()) {
-          const el = sheetElRef.current;
-          if (el && window.innerHeight - el.getBoundingClientRect().top < 440) {
-            scrollListToAnchor('mid');
-          }
-        } else {
-          setSnap('mid');
-        }
-      }
+      revealListForFilter();
     },
-    [sheetView, setSnap, setBezirk, sheetElRef, scrollListToAnchor]
+    [setBezirk, revealListForFilter]
+  );
+  const handleCategoryChange = useCallback(
+    (c: MapCategory) => {
+      userInteractedRef.current = true;
+      setCategory(c);
+      /* 'All' is a reset, not a result set worth surfacing. */
+      if (c !== 'All') revealListForFilter();
+    },
+    [setCategory, revealListForFilter]
+  );
+  const handlePriceChange = useCallback(
+    (id: string | null) => {
+      userInteractedRef.current = true;
+      setPrice(id);
+      if (id !== null) revealListForFilter();
+    },
+    [setPrice, revealListForFilter]
+  );
+  const handleOpenOnlyChange = useCallback(
+    (v: boolean) => {
+      userInteractedRef.current = true;
+      setOpenOnly(v);
+      if (v) revealListForFilter();
+    },
+    [setOpenOnly, revealListForFilter]
   );
 
   const handleUnlock = useCallback(async () => {
@@ -1928,16 +1960,16 @@ export default function MapSection({
       }
       categories={categories}
       category={category}
-      setCategory={setCategory}
+      setCategory={handleCategoryChange}
       search={search}
       bezirk={bezirk}
       bezirkNames={bezirkNames}
       price={price}
-      setPrice={setPrice}
+      setPrice={handlePriceChange}
       priceBucketIds={priceBucketIds}
       optionCounts={optionCounts}
       openOnly={openOnly}
-      setOpenOnly={setOpenOnly}
+      setOpenOnly={handleOpenOnlyChange}
       searchOpen={searchOpen}
       setSearchOpen={setSearchOpen}
       onSearchOpen={handleSearchOpen}

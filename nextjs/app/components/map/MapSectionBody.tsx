@@ -340,7 +340,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      here any more — that would collapse the greeting the instant the fix
      arrives, which for a cached fix is a frame or two. */
   const locateLabel = useLocationInvite(location !== null);
-  const showLocateInvite = locateLabel !== null && isActive && !locationError && !locateLoading;
+  /* Im Detail bleibt der Knopf das nackte Icon: die Plakette war für die Karte
+     ohne Standortfreigabe gedacht, im 50dvh-Streifen über dem Detail nimmt sie
+     ein Drittel der Kartenbreite (User, 03.09.2026). */
+  const showLocateInvite =
+    locateLabel !== null && isActive && !locationError && !locateLoading && sheetView !== 'detail';
   /* Only an unanswered permission is a funnel step. A greeting is shown to
      someone who has nothing left to decide, so counting it would pad the
      denominator with returning visitors. */

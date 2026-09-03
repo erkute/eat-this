@@ -5,15 +5,21 @@ const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
 const IPHONE =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
-const AZURE_CRAWLER =
+/** What a real Android phone sends since Chrome 110: model reduced to "K". */
+const ANDROID =
+  'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36';
+/* Lighthouse 12's emulated phone, exactly as it arrives - no "Chrome-Lighthouse"
+ * suffix. Verified 03.09.2026 against a local echo page and in the edge log. */
+const LIGHTHOUSE =
   'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36';
 
 describe('isAutomated', () => {
   it.each([
-    ['a desktop browser', CHROME, '84.13.22.9'],
-    ['a phone browser', IPHONE, '2a02:3100::1'],
-  ])('counts %s', (_label, ua, ip) => {
-    expect(isAutomated(ua, ip)).toBe(false);
+    ['a desktop browser', CHROME],
+    ['a phone browser', IPHONE],
+    ['a current Android browser', ANDROID],
+  ])('counts %s', (_label, ua) => {
+    expect(isAutomated(ua)).toBe(false);
   });
 
   it.each([
@@ -23,46 +29,31 @@ describe('isAutomated', () => {
     'Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)',
     'GPTBot/1.2',
     'curl/8.4.0',
+    'DuckAssistBot/1.2; (+http://duckduckgo.com/duckassistbot.html)',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36',
   ])('drops the declared crawler %s', (ua) => {
-    expect(isAutomated(ua, '35.204.169.245')).toBe(true);
+    expect(isAutomated(ua)).toBe(true);
   });
 
   it('drops an empty user agent', () => {
-    expect(isAutomated('', '84.13.22.9')).toBe(true);
-    expect(isAutomated(null, '84.13.22.9')).toBe(true);
+    expect(isAutomated('')).toBe(true);
+    expect(isAutomated(null)).toBe(true);
   });
 
-  /* The disguised crawler is the whole reason this file is not a one-line UA
-   * regex: it runs JavaScript, so it reaches /api/count like a real browser
-   * would, and on 19.08.2026 it was already 2533 requests a day. */
-  describe('the Azure render crawler', () => {
-    it.each([
-      '20.61.4.9',
-      '4.223.11.2',
-      '40.87.1.1',
-      '52.166.9.9',
-      '57.152.3.4',
-      '64.236.7.8',
-      '135.119.2.3',
-      '168.62.9.9',
-      '172.183.4.5',
-    ])('drops its faked UA from %s', (ip) => {
-      expect(isAutomated(AZURE_CRAWLER, ip)).toBe(true);
+  /* Lighthouse runs JavaScript, so it reaches /api/count exactly like a
+   * browser. Our own CI alone is 36 loads per URL on a busy day; unfiltered
+   * they stood in the dashboard as the five most-read pages. */
+  describe('Lighthouse', () => {
+    it('drops the emulated phone regardless of the address it comes from', () => {
+      expect(isAutomated(LIGHTHOUSE)).toBe(true);
     });
 
-    /* Both halves have to match. A real person on that phone must still be
-     * counted, and something else hosted on Azure is not this crawler. */
-    it('keeps a real moto g power owner on a normal network', () => {
-      expect(isAutomated(AZURE_CRAWLER, '84.13.22.9')).toBe(false);
+    it('still drops the older string that carried the marker', () => {
+      expect(isAutomated(`${LIGHTHOUSE} Chrome-Lighthouse`)).toBe(true);
     });
 
-    it('keeps an ordinary browser on an Azure address', () => {
-      expect(isAutomated(CHROME, '20.61.4.9')).toBe(false);
-    });
-
-    it('is not fooled by a similar prefix outside the ranges', () => {
-      expect(isAutomated(AZURE_CRAWLER, '201.61.4.9')).toBe(false);
-      expect(isAutomated(AZURE_CRAWLER, '172.16.4.5')).toBe(false);
+    it('does not mistake the reduced Android UA for it', () => {
+      expect(isAutomated(ANDROID)).toBe(false);
     });
   });
 });

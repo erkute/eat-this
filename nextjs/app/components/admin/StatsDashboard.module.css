@@ -456,3 +456,22 @@
 .optOutButton:hover {
   background: #ffc600;
 }
+
+/* ── Google-Suche ─────────────────────────────────────────────────────── */
+
+/* Fuenf Spalten passen auf dem Telefon nicht nebeneinander — die Tabelle
+   scrollt in ihrem Kasten, nie die Seite. */
+.scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  padding: 1px 5px;
+  background: #f3f0ea;
+  border-radius: 4px;
+  user-select: all;
+  word-break: break-all;
+}

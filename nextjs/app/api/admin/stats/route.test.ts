@@ -26,6 +26,11 @@ vi.mock('firebase-admin/firestore', () => ({
   FieldPath: { documentId: () => '__name__' },
 }));
 
+vi.mock('@/lib/admin/searchConsole.server', () => ({
+  loadSearch: () =>
+    Promise.resolve({ ok: false, reason: 'no-access', identity: 'sa@test', message: '403' }),
+}));
+
 vi.mock('@/lib/analytics/visitorHash', () => ({
   // Ohne Argument „heute"; mit Datum der Kalendertag des Datums — so liest
   // die Route auch Anlage- und Kaufzeitpunkte damit.
@@ -244,6 +249,7 @@ describe('GET /api/admin/stats', () => {
       total: 2,
       newInWindow: 1,
       activeInWindow: 1,
+      active: { day: 0, week: 1, month: 1 },
       google: 1,
       email: 1,
       withFavorites: 1,

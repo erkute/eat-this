@@ -32,6 +32,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     ],
     totals: { pageviews: 8629, visitors: 1147, days: 11, closedDays: 10 },
     accounts: null,
+    search: null,
     latest: {
       day: { day: '2026-08-30', pageviews: 372, visitors: 91 },
       vsPrevDay: {
@@ -135,14 +136,14 @@ describe('StatsDashboard', () => {
   it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', async () => {
     // Der Dialog blockiert und erscheint je Besucher mehrfach (hier 3,3 Mal).
     // Gegen die Einblendungen gerechnet stuenden hier 5,0 % statt 16,5 % —
-    // dieselbe Wirklichkeit, durch den falschen Nenner geteilt.
+    // die Quote je Einblendung wird bewusst nicht mehr gezeigt.
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
 
     await waitFor(() => expect(screen.getByText('16,5 %')).toBeTruthy());
-    expect(screen.getByText(/5,0 %/)).toBeTruthy();
-    expect(screen.getByText(/3,3 Mal je Besucher/)).toBeTruthy();
+    expect(screen.queryByText(/5,0 %/)).toBeNull();
+    expect(screen.getByText(/lehnen ab/)).toBeTruthy();
   });
 
   it('zeigt eine Trichterstufe mit dem Wert null, statt sie zu verschweigen', async () => {
@@ -163,8 +164,8 @@ describe('StatsDashboard', () => {
 
     // „4 von 11" steht jetzt auch im Consent-Block — hier gezielt die
     // Ausstiegs-Fussnote greifen.
-    await waitFor(() => expect(screen.getByText(/Gerechnet über/)).toBeTruthy());
-    expect(screen.getByText(/Gerechnet über/).textContent).toContain('4 von 11');
+    await waitFor(() => expect(screen.getByText(/^Über /)).toBeTruthy());
+    expect(screen.getByText(/^Über /).textContent).toContain('4 von 11');
   });
 
   it('erklärt die 404 der Route als fehlenden Zugriff, nicht als Fehler', async () => {
@@ -199,7 +200,7 @@ describe('StatsDashboard', () => {
     // Die Hauptzahl des Blocks, nicht der gleichnamige Balkenwert im Verlauf.
     const karte = screen.getByText('Sonntag, 30.08.').closest('section');
     expect(karte?.querySelector('p')?.textContent).toBe('91');
-    expect(screen.getByText(/Heute stehen bisher 19 Besucher/)).toBeTruthy();
+    expect(screen.getByText(/Heute bisher 19 Besucher/)).toBeTruthy();
   });
 
   it('zeigt die Richtung gegen Vortag und gegen denselben Wochentag', async () => {
@@ -255,6 +256,7 @@ describe('StatsDashboard', () => {
             total: 6,
             newInWindow: 4,
             activeInWindow: 2,
+            active: { day: 1, week: 2, month: 3 },
             google: 4,
             email: 2,
             withFavorites: 3,
@@ -270,7 +272,108 @@ describe('StatsDashboard', () => {
     await waitFor(() => expect(screen.getByText('Konten')).toBeTruthy());
     expect(screen.getByText('Konten gesamt').previousElementSibling?.textContent).toBe('6');
     expect(screen.getByText('Aktiv im Zeitraum').previousElementSibling?.textContent).toBe('2');
-    expect(screen.getByText(/5 Stripe-Sitzungen angelegt, davon 5 nie abgeschlossen/)).toBeTruthy();
+    expect(screen.getByText(/5 Stripe-Sitzungen im Zeitraum, 5 offen/)).toBeTruthy();
+  });
+
+  it('zeigt aktive Nutzer in festen Fenstern neben dem Bestand', async () => {
+    vi.stubGlobal(
+      'fetch',
+      respondWith(
+        summary({
+          accounts: {
+            total: 6,
+            newInWindow: 4,
+            activeInWindow: 2,
+            active: { day: 1, week: 2, month: 3 },
+            google: 4,
+            email: 2,
+            withFavorites: 3,
+            purchases: { total: 4, inWindow: 0 },
+            checkouts: { inWindow: 5, open: 5 },
+          },
+        })
+      )
+    );
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Aktive Nutzer')).toBeTruthy());
+    expect(screen.getByText('Heute').previousElementSibling?.textContent).toBe('1');
+    expect(screen.getByText('Letzte 7 Tage').previousElementSibling?.textContent).toBe('2');
+    expect(screen.getByText('Letzte 30 Tage').previousElementSibling?.textContent).toBe('3');
+  });
+
+  it('zeigt die Google-Suche mit Anfragen, Seiten und den Chancen', async () => {
+    vi.stubGlobal(
+      'fetch',
+      respondWith(
+        summary({
+          search: {
+            ok: true,
+            data: {
+              property: 'sc-domain:eatthisdot.com',
+              range: { start: '2026-08-06', end: '2026-09-02', days: 28 },
+              totals: { clicks: 303, impressions: 54472, ctr: 0.0056, position: 12.9 },
+              before: { clicks: 195, impressions: 29732, ctr: 0.0066, position: 11.7 },
+              days: [
+                { day: '2026-09-01', clicks: 24, impressions: 4242 },
+                { day: '2026-09-02', clicks: 23, impressions: 4225 },
+              ],
+              queries: [
+                { key: 'bari berlin menu', clicks: 9, impressions: 106, ctr: 0.0849, position: 5.2 },
+              ],
+              pages: [
+                { key: '/en/kategorie/lunch', clicks: 24, impressions: 2650, ctr: 0.0091, position: 10.3 },
+              ],
+              opportunities: [
+                { key: 'gemello berlin', clicks: 2, impressions: 983, ctr: 0.002, position: 6.7 },
+              ],
+              fetchedAt: '2026-09-03T20:00:00.000Z',
+            },
+          },
+        })
+      )
+    );
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Google-Suche')).toBeTruthy());
+    // „Klicks" steht auch als Spaltenkopf in den Tabellen — die Kachel kommt zuerst.
+    expect(screen.getAllByText('Klicks')[0].previousElementSibling?.textContent).toBe('303');
+    expect(screen.getByText('Impressionen').previousElementSibling?.textContent).toBe('54.472');
+    expect(screen.getByText('Klickrate · vorher 0,7 %').previousElementSibling?.textContent).toBe(
+      '0,6 %'
+    );
+    expect(screen.getByText('Position · vorher 11,7').previousElementSibling?.textContent).toBe(
+      '12,9'
+    );
+    expect(screen.getByText('bari berlin menu')).toBeTruthy();
+    expect(screen.getByText('/en/kategorie/lunch')).toBeTruthy();
+    expect(screen.getByText('gemello berlin')).toBeTruthy();
+  });
+
+  it('nennt bei fehlendem Zugang das Dienstkonto, das freizuschalten ist', async () => {
+    vi.stubGlobal(
+      'fetch',
+      respondWith(
+        summary({
+          search: {
+            ok: false,
+            reason: 'no-access',
+            identity: 'firebase-app-hosting-compute@eat-this-8a13b.iam.gserviceaccount.com',
+            message: 'The caller does not have permission',
+          },
+        })
+      )
+    );
+
+    render(<StatsDashboard />);
+
+    await waitFor(() => expect(screen.getByText('Google-Suche')).toBeTruthy());
+    expect(
+      screen.getByText('firebase-app-hosting-compute@eat-this-8a13b.iam.gserviceaccount.com')
+    ).toBeTruthy();
+    expect(screen.queryByText('Klicks')).toBeNull();
   });
 
   it('lässt die Konten-Karte weg, wenn die Route keine liefert', async () => {

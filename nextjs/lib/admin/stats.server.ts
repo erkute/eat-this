@@ -8,6 +8,8 @@
  * vor dem 28.08.2026 nicht gibt; Referrer-Hosts mit ersetzten Punkten).
  */
 
+import type { SearchResult } from '@/lib/admin/searchConsole';
+
 /** Ein Tagesdokument, so wie der Zähler es schreibt. Alle Zählfelder sind
  *  optional: ein Tag, an dem nur Ereignisse ankamen, trägt keine `pageviews`. */
 export interface DailyDoc {
@@ -111,6 +113,14 @@ export interface Accounts {
   newInWindow: number;
   /** Konten mit Token-Erneuerung im Zeitraum, siehe AccountRecord.lastActiveDay. */
   activeInWindow: number;
+  /**
+   * Aktive Nutzer in festen Fenstern, unabhaengig vom gewaehlten Zeitraum —
+   * heute, die letzten 7 und die letzten 30 Tage, jeweils einschliesslich
+   * heute. „Aktiv" heisst wie oben: die App hat ein Token erneuert. Feste
+   * Fenster, damit die Zahl beim Umschalten von 7 auf 90 Tage nicht mitwandert
+   * und sich mit dem letzten Blick vergleichen laesst.
+   */
+  active: { day: number; week: number; month: number };
   google: number;
   email: number;
   withFavorites: number;
@@ -133,6 +143,12 @@ export const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 export interface StatsSummary {
   /** Chronologisch aufsteigend — so wird der Verlauf gezeichnet. */
   days: DayPoint[];
+  /**
+   * Die Google-Suche, aus der Search Console — oder der Grund, warum sie
+   * fehlt (lib/admin/searchConsole.ts). null, wenn die Route sie nicht
+   * angefragt hat.
+   */
+  search: SearchResult | null;
   /** `closedDays` laesst den laufenden Tag weg — fuer alles, was „je Tag" rechnet. */
   totals: { pageviews: number; visitors: number; days: number; closedDays: number };
   /** Aus Firebase Auth und Firestore, nicht aus dem Zaehler; ohne Admin-Konten. */
@@ -319,7 +335,8 @@ export function summarize(
   docs: DailyDoc[],
   before: DailyDoc[] = [],
   today = '',
-  accounts: Accounts | null = null
+  accounts: Accounts | null = null,
+  search: SearchResult | null = null
 ): StatsSummary {
   const sorted = [...docs].sort((a, b) => a.day.localeCompare(b.day));
 
@@ -446,6 +463,7 @@ export function summarize(
 
   return {
     days,
+    search,
     totals: { pageviews, visitors, days: sorted.length, closedDays: closed.length },
     accounts,
     latest: {
@@ -561,15 +579,22 @@ export function summarizeAccounts(
   accounts: AccountRecord[],
   purchases: PurchaseRecord[],
   checkouts: CheckoutRecord[],
-  windowStart: string
+  windowStart: string,
+  today: string
 ): Accounts {
   const paid = purchases.filter((p) => p.source === 'stripe');
   const inWindow = checkouts.filter((c) => c.day >= windowStart);
+  const activeSince = (start: string): number =>
+    accounts.filter((a) => a.lastActiveDay !== null && a.lastActiveDay >= start).length;
   return {
     total: accounts.length,
     newInWindow: accounts.filter((a) => a.createdDay >= windowStart).length,
-    activeInWindow: accounts.filter((a) => a.lastActiveDay !== null && a.lastActiveDay >= windowStart)
-      .length,
+    activeInWindow: activeSince(windowStart),
+    active: {
+      day: activeSince(today),
+      week: activeSince(sinceDay(7, today)),
+      month: activeSince(sinceDay(30, today)),
+    },
     google: accounts.filter((a) => a.provider === 'google').length,
     email: accounts.filter((a) => a.provider === 'email').length,
     withFavorites: accounts.filter((a) => a.favorites > 0).length,

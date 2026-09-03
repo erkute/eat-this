@@ -137,7 +137,10 @@ export function resolveToggleMode(
 }
 
 /** What the phone list does with its scroll position when a detail closes. */
-export type ListReturn = 'restore' | 'toList' | 'stay';
+export type ListReturn = 'restore' | 'toList' | 'toMap' | 'stay';
+
+/** Where a detail was opened from — decides where closing it lands. */
+export type DetailOrigin = 'list' | 'map';
 
 /**
  * Where the phone list lands when a detail hands the view back.
@@ -148,18 +151,26 @@ export type ListReturn = 'restore' | 'toList' | 'stay';
  *
  * - `restore`: a remembered position means the detail was opened from the list.
  *   Put the user back on the row they left; that is the only place they expect.
- * - `toList`: no remembered position means the detail was opened from a marker
- *   on the map or from a deep link. Leaving the scroll alone dropped the user
- *   on the bare map — from a button that says "Liste". Scroll to the list.
+ * - `toMap`: the detail was opened from a marker on the map. The map is where
+ *   the user was, so the map is where closing puts them back — list peeking at
+ *   the bottom, camera where they left it (user decision 03.09.2026).
+ * - `toList`: no remembered position and not a marker tap means a deep link.
+ *   Leaving the scroll alone dropped the user on the bare map — from a button
+ *   that says "Liste". Scroll to the list.
  * - `stay`: not a return from a detail at all (first paint of the map, a filter
  *   change). Nothing here may move the list.
  *
  * Deliberately the same answer for every way out of a detail — the X, a
- * swipe-down dismiss and the back gesture all land on the list, because the
- * detail is a place you leave TO somewhere, not a step you undo.
+ * swipe-down dismiss and the back gesture all land in the same place, because
+ * the detail is a place you leave TO somewhere, not a step you undo.
  */
-export function resolveListReturn(rememberedY: number, cameFromDetail: boolean): ListReturn {
+export function resolveListReturn(
+  rememberedY: number,
+  cameFromDetail: boolean,
+  origin: DetailOrigin = 'list'
+): ListReturn {
   if (!cameFromDetail) return 'stay';
+  if (origin === 'map') return 'toMap';
   return rememberedY > 0 ? 'restore' : 'toList';
 }
 
@@ -176,6 +187,32 @@ export function resolveListReturn(rememberedY: number, cameFromDetail: boolean):
  * first few rows: their natural position would be a scroll of almost nothing,
  * i.e. the map stop again.
  */
-export function rowRevealOffset(rowTopDoc: number, viewportH: number, minY: number): number {
-  return Math.max(0, minY, Math.round(rowTopDoc - viewportH * 0.38));
+export function rowRevealOffset(
+  rowTopDoc: number,
+  viewportH: number,
+  minY: number,
+  rememberedTop?: number | null
+): number {
+  return Math.max(0, minY, Math.round(rowTopDoc - rowRevealTop(viewportH, rememberedTop)));
+}
+
+/* Upper bound for where a returning row may sit: its top at 62% of the height
+   leaves the whole card on screen. A row tapped at the very bottom edge would
+   otherwise come back at the very bottom edge — technically "where you left
+   it", but it reads as the list having lost your place (user, 03.09.2026). */
+export const ROW_RETURN_MAX_TOP_RATIO = 0.62;
+/* Where a row lands when nothing is remembered: a little above the middle. */
+export const ROW_REVEAL_TOP_RATIO = 0.38;
+
+/**
+ * How far from the top of the viewport (or the panel's port) the returning row
+ * should sit. A remembered offset — the row's own position when it was tapped —
+ * wins, clamped so the row is always fully on screen; without one the row
+ * lands a little above the middle.
+ */
+export function rowRevealTop(viewportH: number, rememberedTop?: number | null): number {
+  if (rememberedTop == null || !Number.isFinite(rememberedTop)) {
+    return viewportH * ROW_REVEAL_TOP_RATIO;
+  }
+  return Math.min(Math.max(0, rememberedTop), viewportH * ROW_RETURN_MAX_TOP_RATIO);
 }

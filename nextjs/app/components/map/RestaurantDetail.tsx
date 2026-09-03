@@ -18,6 +18,7 @@ import { pickLocale } from '@/lib/i18n/pickLocale';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import styles from './MapDetails.module.css';
+import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import { HeartIcon, CloseIcon } from './icons';
 import {
   RouteIcon,
@@ -88,6 +89,9 @@ interface RestaurantDetailProps {
   uid: string | null;
   userTier: UserTier;
   onClose: () => void;
+  /** Where the X lands: the list row the spot was opened from, or the map
+   *  the marker was tapped on. Only the accessible name changes. */
+  closeTarget?: DetailOrigin;
   onMustEatClick: (m: MapMustEat) => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
@@ -109,6 +113,7 @@ export default function RestaurantDetail({
   uid,
   userTier,
   onClose,
+  closeTarget = 'list',
   onMustEatClick,
   isFavorite,
   onToggleFavorite,
@@ -269,7 +274,14 @@ export default function RestaurantDetail({
     } catch {}
   }
 
-  const backLabel = locale === 'en' ? 'List' : 'Liste';
+  const backLabel =
+    closeTarget === 'map'
+      ? locale === 'en'
+        ? 'Map'
+        : 'Karte'
+      : locale === 'en'
+        ? 'List'
+        : 'Liste';
 
   const showBooster = showsPackPromos(userTier);
   const isAnon = !uid;

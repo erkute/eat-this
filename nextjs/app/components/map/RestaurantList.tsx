@@ -281,8 +281,8 @@ export default function RestaurantList({
     return () => io.disconnect();
   }, [onNeedMoreRows, hasMoreRows, budget]);
 
-  const allBerlinHref =
-    locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`;
+  // /pack/all-berlin gibt es nicht mehr; die All-Berlin-Tafel steht auf /packs oben.
+  const allBerlinHref = locale === routing.defaultLocale ? '/packs' : `/${locale}/packs`;
 
   /* Nothing matched — and now that the list carries the locked spots too, that
      means nothing in the whole catalogue. No count to name, no offer to make:

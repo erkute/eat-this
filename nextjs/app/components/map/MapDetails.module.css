@@ -245,10 +245,10 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-/* Reveal: clip/mask motion instead of a direct text pop. */
+/* Reveal: der Name blendet ruhig ein (siehe fdNameCalmReveal im Must-Eat-Block). */
 .fdNameUnblurring {
   filter: none;
-  animation: fdNameMagicReveal 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
+  animation: fdNameCalmReveal 0.9s ease-out both;
 }
 /* Beschreibung — kompakt geklemmt, damit die Detailkarte nicht scrollen muss. */
 .fdText {
@@ -3367,53 +3367,35 @@
   max-height: 100%;
   overflow: hidden;
 }
+/* Nach dem Aufdecken: Name und Beschreibung blenden ruhig ein. Vorher lief
+   hier ein Wisch von links (clip-path mit Drehung) plus ein gelb-weißer
+   Glanzstreifen über den Namen — „gib dem eine ruhige Anblendung" (Nutzer,
+   03.09.2026). Jetzt: Deckkraft von 0 auf 1 mit 6px Hub aus der Tiefe, ohne
+   Schleifen, ohne Glanz; die Beschreibung folgt dem Namen um 160ms. Bewusst
+   eine Ausnahme von „keine Opacity-Fades auf Brand-Flächen": hier ist die
+   Ruhe das Ziel, deshalb Deckkraft plus Hub statt Deckkraft allein. */
 .detailV13MustEat .fdNameText.fdNameUnblurring {
   position: relative;
   color: var(--me-ink);
   filter: none;
-  transform-origin: 0 100%;
-  animation: fdNameMagicReveal 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
+  animation: fdNameCalmReveal 0.9s ease-out both;
 }
-.detailV13MustEat .fdNameText.fdNameUnblurring::after {
-  content: '';
-  position: absolute;
-  inset: 0 -8px 0 0;
-  background: linear-gradient(
-    100deg,
-    transparent 0 34%,
-    rgba(246, 196, 0, 0.58) 48%,
-    rgba(255, 255, 255, 0.82) 54%,
-    transparent 68%
-  );
-  mix-blend-mode: screen;
-  pointer-events: none;
-  animation: fdNameMagicSweep 1.15s cubic-bezier(0.18, 0.84, 0.18, 1) both;
+.detailV13MustEat .fdText.fdTextRevealing {
+  animation: fdNameCalmReveal 0.9s ease-out 0.16s both;
 }
-@keyframes fdNameMagicReveal {
+@keyframes fdNameCalmReveal {
   0% {
-    clip-path: inset(0 100% 0 0);
-    transform: translateY(12px) rotate(-0.6deg);
-  }
-  42% {
-    clip-path: inset(0 24% 0 0);
-    transform: translateY(4px) rotate(-0.18deg);
+    opacity: 0;
+    transform: translateY(6px);
   }
   100% {
-    clip-path: inset(0 0 0 0);
-    transform: translateY(0) rotate(0);
-  }
-}
-@keyframes fdNameMagicSweep {
-  0% {
-    transform: translateX(-110%);
-  }
-  100% {
-    transform: translateX(110%);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .detailV13MustEat .fdNameText.fdNameUnblurring,
-  .detailV13MustEat .fdNameText.fdNameUnblurring::after {
+  .detailV13MustEat .fdText.fdTextRevealing {
     animation: none;
   }
 }
@@ -3587,14 +3569,6 @@
   .detailV13MustEat .detailV13Scroll {
     --me-content-gap: 18px;
   }
-}
-.detailV13MustEat .fdNameText.fdNameUnblurring {
-  animation-duration: 1.8s;
-  animation-timing-function: cubic-bezier(0.16, 0.82, 0.18, 1);
-}
-.detailV13MustEat .fdNameText.fdNameUnblurring::after {
-  animation-duration: 1.8s;
-  animation-timing-function: cubic-bezier(0.16, 0.82, 0.18, 1);
 }
 .detailV13MustEat .detailV13Scroll {
   --me-rest-slot: clamp(124px, 15dvh, 136px);
@@ -5283,14 +5257,24 @@
   }
 }
 
-/* ── Blättern am Kicker: „‹ MUST EAT · BEZIRK ›" ──────────────────────────────
-   Die Winkel standen an den Kartenkanten (Rail: -36/-78px). Auf dem Telefon
-   ging das dreimal nicht auf (02.09.2026): nah an der Karte klebten sie an ihr,
-   am Bildschirmrand waren sie „zu weit weg", und jede Spur neben der Karte
-   kostete Kartenbreite. Beim Kicker sind sie in jeder Breite gleich weit von
-   allem, und die Karte nimmt die ganze Höhe. Ein Platz, ein Markup — auch im
-   Rail; die Kanten-Fassung ist raus. Deaktivierte Winkel bleiben als Box
-   stehen (visibility), damit der Kicker nicht wandert. */
+/* ── Blättern an der Karte ────────────────────────────────────────────────────
+   Die Winkel sitzen im Stapel (.fdCardStack) und stehen ab 768px absolut an den
+   Kanten der obersten Karte, auf halber Höhe. Sie standen kurz neben dem
+   Kicker („‹ MUST EAT · BEZIRK ›", 02.09.2026) — auf Ansage zurück an die
+   Karte (03.09.2026: „die Pfeile auf Desktop neben den Karten"). Auf dem
+   Telefon gibt es keine Winkel, dort wird gewischt (siehe unten); dort scheiterte
+   die Kanten-Fassung dreimal, weil jede Spur neben der Karte Kartenbreite
+   kostete. Im Tablet-Sheet ist neben der Karte Platz; im Rail (379px) kauft
+   ihn die Karte: Silhouette = Karte + 42px Fächerüberhang (unterste Karte,
+   translate + Rotation, gemessen), mittig über `left: -21px`. Bei 242px Karte
+   blieben je 47px Spur — ein 22px-Glyph stand darin 11px vor der Karte, „viel
+   zu nah" (03.09.2026). Jetzt hat die Spur 60px (--me-lane), die Karte im
+   Rail also 217px statt 242: 12px Rand, 22px Glyph, 26px Luft zur Silhouette,
+   beidseitig gleich. Wer die Karte im Rail größer will, muss die Spur opfern.
+
+   Die Winkel messen ab Kartenkante (--me-arrow-gap, Tastenrand zur Karte;
+   rechts plus den Fächerüberhang), damit sie im Tablet-Sheet und im Rail
+   gleich weit von der Silhouette stehen. */
 .detailV13MustEat .fdKickerRow {
   display: flex;
   flex: 0 0 auto;
@@ -5335,6 +5319,48 @@
 .detailV13MustEat .fdPagerNext:disabled {
   visibility: hidden;
   cursor: default;
+}
+
+@media (min-width: 768px) {
+  .detailV13MustEat .fdCardStack {
+    /* Tastenrand → Kartenkante; der Glyph (22px in 44px) steht 11px weiter
+       innen, also 26px vor der Silhouette. */
+    --me-arrow-gap: 15px;
+    --me-fan-overhang: 42px;
+  }
+
+  .detailV13MustEat .fdPagerPrev,
+  .detailV13MustEat .fdPagerNext {
+    position: absolute;
+    top: 50%;
+    /* `translate` statt `transform`: den nutzt der Hover-Schub (±2px). */
+    translate: 0 -50%;
+    /* Über den Fächerkarten (absolut, ohne z-index) — die Taste darf nicht
+       unter einer schräg hängenden Karte liegen. */
+    z-index: 2;
+  }
+
+  .detailV13MustEat .fdPagerPrev {
+    right: calc(100% + var(--me-arrow-gap));
+  }
+
+  .detailV13MustEat .fdPagerNext {
+    left: calc(100% + var(--me-fan-overhang) + var(--me-arrow-gap));
+  }
+}
+
+@media (min-width: 1024px) {
+  .detailV13MustEat .fdCardStack {
+    --me-lane: 60px;
+    /* Der Stapel liegt in .fdHeroWrap (Rail minus 2 × 24px Polster). Karte =
+       Rail − 2 Spuren − Fächer = Wrap + 48 − 120 − 42. Die Höhe folgt der
+       Kartenproportion; die Rail-Regeln oben setzen sie sonst aus --me-card-h
+       und machen die Karte damit wieder 242px breit. */
+    width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
+    max-width: calc(100% + 48px - 2 * var(--me-lane) - var(--me-fan-overhang));
+    height: auto;
+    max-height: none;
+  }
 }
 
 .detailV13MustEat .fdPagerPrev:focus-visible,

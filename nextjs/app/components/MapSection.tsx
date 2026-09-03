@@ -134,6 +134,7 @@ export default function MapSection({
     loading: locating,
     error: locationError,
     request: requestLocation,
+    watch: watchLocation,
   } = useUserLocation();
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid);
   // Free-and-open map: anon visitors see exactly the server-revealed set
@@ -1421,6 +1422,25 @@ export default function MapSection({
     }
     return false;
   }, [selectedMustEat, uid, unlock, mergeMustEat]);
+
+  /* Follow the visitor while a COVERED card is open. The 50 m gate compares
+     against `location`, and `location` was one fix, taken when the map came
+     up — on the way there, from a cold cell estimate. Whoever then stood in
+     the doorway was still "too far" against that stale point, with nothing
+     on the card that would take a new one. The watcher keeps the fix current
+     for exactly as long as it matters: it starts when a covered detail is
+     selected and stops when the card opens, closes, or the map goes inactive.
+     Gated on an existing fix: that is the proof the origin holds the
+     permission, so watchPosition raises no dialog (the one thing the map is
+     built to never do unprompted — see hasGeolocationPermission). Keyed on
+     WHETHER there is a fix, not on the fix itself, so its own updates do not
+     restart it. */
+  const coveredMustEatOpen = !!selectedMustEat && !unlockedIds.has(selectedMustEat._id);
+  const hasLocationFix = location !== null;
+  useEffect(() => {
+    if (!isActive || !coveredMustEatOpen || !hasLocationFix) return;
+    return watchLocation();
+  }, [isActive, coveredMustEatOpen, hasLocationFix, watchLocation]);
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;

@@ -362,15 +362,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             <p className={styles.detailLead}>
               {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
             </p>
-            <div className={sharedStyles.detailHeroActions}>
-              <MapPromoCTA
-                variant="chip"
-                kind="kategorie"
-                name={label}
-                mapHref={`/map?cat=${slug}`}
-                locale={loc}
-              />
-            </div>
           </div>
         </header>
 

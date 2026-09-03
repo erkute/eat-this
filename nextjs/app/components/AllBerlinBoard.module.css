@@ -1,0 +1,286 @@
+/* Die All-Berlin-Tafel. Ink-Fläche mit Radius wie Fakten-Tafel und
+   Must-Eat-Sheet; gelb sind Kicker, Inhaltszeile, Aufzählungsquadrate und der
+   Knopf — sonst nichts. Der Fächer liegt rechts, auf dem Telefon oben. */
+
+.board {
+  --board-ink: var(--et-home-ink, #15120e);
+  --board-paper: var(--et-home-inverse-text, #fff);
+  --board-accent: var(--et-home-accent, #ffc600);
+  --board-soft: rgba(255, 255, 255, 0.76);
+  --board-quiet: rgba(255, 255, 255, 0.55);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 48px);
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--board-ink);
+  color: var(--board-paper);
+  border-radius: var(--et-radius-photo, 10px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.kicker {
+  margin: 0 0 clamp(14px, 1.6vw, 22px);
+  color: var(--board-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--board-paper);
+  font-size: clamp(52px, 6.4vw, 92px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+/* „467 Spots · 26 Must Eats" — die gelbe Kreide-Zeile unter dem Namen. */
+.contents {
+  margin: clamp(14px, 1.8vw, 22px) 0 0;
+  color: var(--board-accent);
+  font-size: clamp(18px, 2vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 44ch;
+  margin: clamp(12px, 1.6vw, 18px) 0 0;
+  color: var(--board-soft);
+  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-weight: 400;
+  line-height: var(--et-leading-copy, 1.5);
+}
+
+.boardUpsell .lead {
+  color: var(--board-paper);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.facts {
+  display: grid;
+  gap: 8px;
+  margin: clamp(18px, 2.4vw, 28px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--board-paper);
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Dasselbe gelbe Marken-Quadrat wie vor den Kickern der Startseite. */
+.facts li::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  background: var(--board-accent);
+}
+
+.actions {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  margin-top: clamp(22px, 3vw, 34px);
+}
+
+/* Auf Ink wird der Kaufknopf gelb — Ink auf Ink verschwände. Hover: Papier. */
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 460px);
+  min-height: 56px;
+  padding: 0 22px;
+  background: var(--board-accent);
+  color: var(--board-ink);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  cursor: pointer;
+  transition:
+    transform var(--et-motion-fast, 140ms ease),
+    background-color var(--et-motion-fast, 140ms ease);
+}
+
+.cta:hover,
+.cta:focus-visible {
+  background: var(--board-paper);
+  transform: translateY(-2px);
+}
+
+.cta:active {
+  transform: translateY(0);
+}
+
+.cta:disabled {
+  cursor: wait;
+  transform: none;
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--board-accent);
+  outline-offset: 3px;
+}
+
+.ctaError {
+  margin: 0;
+  color: var(--board-accent);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.savings {
+  margin: 0;
+  color: var(--board-quiet);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.pay {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ── Fächer ────────────────────────────────────────────────────────────── */
+
+.stage {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.fan {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 520px);
+  padding: 4% 6% 3%;
+}
+
+.boardUpsell .fan {
+  width: min(100%, 400px);
+}
+
+.fanPack {
+  position: relative;
+  width: 118%;
+  max-width: none;
+  height: auto;
+  margin: 0 -9%;
+  transform-origin: 50% 90%;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+}
+
+/* Die Reihen zwei und drei rücken hoch: die Packs liegen aufeinander wie auf
+   dem Ladentisch, nicht in einem Raster. Der mittlere Pack jeder Reihe steht
+   vorn, die Mitte des Fächers ganz vorn. */
+.fanPack:nth-child(n + 4) {
+  margin-top: -22%;
+}
+
+.fanPack:nth-child(1) {
+  z-index: 2;
+  transform: rotate(-10deg) translateY(4%);
+}
+.fanPack:nth-child(2) {
+  z-index: 3;
+  transform: rotate(0deg) translateY(-2%);
+}
+.fanPack:nth-child(3) {
+  z-index: 2;
+  transform: rotate(10deg) translateY(4%);
+}
+.fanPack:nth-child(4) {
+  z-index: 4;
+  transform: rotate(-7deg) translateY(2%);
+}
+.fanPack:nth-child(5) {
+  z-index: 9;
+  transform: rotate(2deg) translateY(-3%) scale(1.06);
+}
+.fanPack:nth-child(6) {
+  z-index: 4;
+  transform: rotate(8deg) translateY(2%);
+}
+.fanPack:nth-child(7) {
+  z-index: 5;
+  transform: rotate(-9deg) translateY(3%);
+}
+.fanPack:nth-child(8) {
+  z-index: 8;
+  transform: rotate(1deg);
+}
+.fanPack:nth-child(9) {
+  z-index: 5;
+  transform: rotate(9deg) translateY(3%);
+}
+
+@media (min-width: 760px) {
+  .boardHero {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.92fr);
+  }
+
+  .boardUpsell {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr);
+  }
+}
+
+@media (max-width: 759px) {
+  .stage {
+    order: -1;
+  }
+
+  .fan {
+    width: min(100%, 320px);
+  }
+
+  .title {
+    font-size: clamp(44px, 13vw, 56px);
+  }
+
+  .cta {
+    width: 100%;
+  }
+}
+
+/* iOS rendert Filter-Schatten auf neun Ausschnitt-Bildern spürbar zäh. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .fanPack {
+      filter: none;
+    }
+  }
+}

@@ -1,23 +1,32 @@
+/* Seit 03.09.2026 steht die Spot-Seite auf durchgehendem Ink-Grund, wie die
+   Startseite: der Grund ist die Flaeche, getrennt wird durch Raum, Type und
+   die Fotos. Vorher standen vier Ink-Tafeln (Tipp, Fakten, Remy, Map-Poster)
+   auf Weiss — dieselbe Mischung, die auf der Startseite nicht getragen hat.
+   `--detail-ink` bleibt die dunkle Farbe, ist jetzt aber der GRUND;
+   `--detail-fg` ist die Schrift darauf. */
 .page {
   --detail-ink: var(--et-home-ink, #15120e);
   --detail-paper: var(--et-home-paper, #fff);
-  --detail-quiet: var(--et-home-quiet, rgba(21, 18, 14, 0.045));
+  --detail-fg: var(--et-home-inverse-text, #fff);
+  /* Eine Stufe heller als der Grund — fuer die wenigen Flaechen, die sich
+     abheben muessen (Insider-Tipp, Remy). */
+  --detail-quiet: rgba(255, 255, 255, 0.055);
   --detail-red: var(--et-home-red, #d9382a);
   --detail-accent: var(--et-home-accent, #ffc600);
-  --detail-muted: var(--et-home-muted, rgba(21, 18, 14, 0.62));
-  --detail-line: var(--et-home-line, rgba(21, 18, 14, 0.14));
-  --ink: var(--detail-ink);
-  --cream: var(--detail-paper);
+  --detail-muted: rgba(255, 255, 255, 0.76);
+  --detail-line: rgba(255, 255, 255, 0.14);
+  --ink: var(--detail-fg);
+  --cream: var(--detail-ink);
   --muted: var(--detail-muted);
   --f-display: var(--et-font-display, var(--font-providence), sans-serif);
   --f-body: var(--font-body, var(--font), system-ui, sans-serif);
-  --text-primary: var(--detail-ink);
-  --text-secondary: var(--detail-ink);
+  --text-primary: var(--detail-fg);
+  --text-secondary: var(--detail-fg);
   --text-muted: var(--detail-muted);
-  --surface-card: var(--detail-paper);
+  --surface-card: var(--detail-quiet);
   --border-subtle: var(--detail-line);
-  --brand-ink: var(--detail-ink);
-  --brand-paper: var(--detail-paper);
+  --brand-ink: var(--detail-fg);
+  --brand-paper: var(--detail-ink);
   --brand-action: var(--detail-red);
   /* Ein Rhythmus für die ganze Seite, zwei Stufen. Vorher trugen acht
      Elemente je eigene margin-bottom-Werte; gemessen ergab das auf Desktop
@@ -47,8 +56,8 @@
      mit, dort schließt der Block genauso bündig an. */
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--page-pad) 0;
   overflow-x: clip;
-  background: var(--detail-paper);
-  color: var(--detail-ink);
+  background: var(--detail-ink);
+  color: var(--detail-fg);
   font-family: var(--f-body);
 }
 
@@ -220,7 +229,7 @@
 .name {
   max-width: 12ch;
   margin: 0;
-  color: var(--detail-red);
+  color: var(--detail-fg);
   /* Markenschrift statt geerbtem Body-Font: Leading (--et-leading-title) und
      Tracking (-0.025em) dieses Blocks sind die Providence-Titelwerte aus
      .hv-title — nur die font-family fehlte. */
@@ -279,7 +288,7 @@
   justify-content: center;
   padding: 7px 12px 8px;
   background: var(--detail-quiet);
-  color: var(--detail-ink);
+  color: var(--detail-fg);
   font-family: var(--f-display);
   font-size: 15px;
   font-weight: 700;
@@ -321,7 +330,7 @@
 }
 
 .story {
-  color: var(--detail-ink);
+  color: var(--detail-fg);
   font-size: clamp(17px, 1.5vw, 21px);
   line-height: 1.65;
 }
@@ -341,7 +350,7 @@
 }
 
 .lede {
-  color: var(--detail-ink);
+  color: var(--detail-fg);
   font-size: clamp(19px, 1.7vw, 24px);
   font-weight: 750;
   line-height: 1.32;
@@ -350,7 +359,7 @@
 .lede::first-letter {
   float: left;
   margin: 0.06em 0.12em 0 0;
-  color: var(--detail-red);
+  color: var(--detail-fg);
   font-family: var(--f-display);
   font-size: 4.1em;
   line-height: 0.68;
@@ -378,7 +387,7 @@
   width: min(100%, 18ch);
   margin: clamp(38px, 7vw, 78px) 0;
   padding: clamp(22px, 3.2vw, 34px) clamp(24px, 4vw, 40px);
-  color: var(--detail-ink);
+  color: var(--detail-fg);
   font-size: clamp(30px, 4.4vw, 52px);
   line-height: 0.92;
   text-transform: none;
@@ -477,11 +486,14 @@
    (Nutzer, 30.08.2026). Jetzt tragen beide Flaechen dasselbe Objekt: Ink,
    gelbes Label mit Marken-Quadrat, weisser Satz. Der Tipp wird damit zum
    kleinen Geschwister der Tafel, statt sie zu ueberschreien. */
+/* Auf dem Ink-Grund kann der Tipp keine Ink-Flaeche mehr sein — er waere
+   unsichtbar. Eine Stufe heller reicht: er liest sich als Randnotiz auf dem
+   Blatt, nicht als Kasten. */
 .tipp {
   display: grid;
   gap: 12px;
   padding: clamp(22px, 3vw, 34px) clamp(20px, 3vw, 34px) clamp(24px, 3.2vw, 36px);
-  background: var(--detail-ink);
+  background: var(--detail-quiet);
   border-radius: var(--et-radius-photo, 18px);
 }
 
@@ -547,7 +559,7 @@
    Markenschrift, rot, Versalien — eine Grammatik für alle Modul-Köpfe. */
 .sibRowHead {
   margin: 0 0 clamp(18px, 3vw, 30px);
-  color: var(--detail-red);
+  color: var(--detail-fg);
   font-family: var(--f-display);
   font-weight: 700;
   font-size: clamp(18px, 4vw, 30px);
@@ -555,18 +567,26 @@
   text-transform: uppercase;
 }
 
-/* Die Tafel: Ink-Fläche wie Magazin-Karten, Nav und Footer — SOFIs
-   Kreidetafel als Interface. Trägt Fakten und Aktionen als EIN Objekt. */
+/* Die Tafel loest sich auf: der Grund IST die Tafel. Was sie als Objekt
+   zusammenhielt — Fakten und Aktionen an einem Ort — leisten jetzt Haarlinie
+   und Raum. Ein Ink-Kasten auf Ink waere nur eine unsichtbare Kante. */
 .board {
-  padding: clamp(24px, 3.6vw, 44px);
-  background: var(--detail-ink);
-  border-radius: var(--et-radius-photo, 18px);
+  padding: clamp(24px, 3.6vw, 44px) 0 0;
+  border-top: 1px solid var(--detail-line);
 }
 
 /* `auto-fit` statt fester Spalten, weil jede Angabe einzeln fehlen darf:
    Adresse, Zeiten, Preis und Kategorien sind alle optional. Bei zwei
    gepflegten Fakten werden es zwei Spalten, bei einem eine — ohne Lücke, wo
    eine feste Spaltenzahl ein leeres Feld stehen ließe. */
+/* Ohne das Polster der Tafel ist die Zeile breiter und traegt drei Spalten
+   statt zwei — dann steht „Mehr davon" in einer 263px-Spur und die Packs
+   brechen 2+1 um. Der Block bekommt deshalb eine eigene Zeile ueber die
+   volle Breite. */
+.facts .factsRow:has(.packRow) {
+  grid-column: 1 / -1;
+}
+
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -712,11 +732,11 @@
   justify-content: center;
   gap: 9px;
   padding: 13px 16px 14px;
-  background: var(--detail-paper);
-  color: var(--detail-ink);
+  background: transparent;
+  color: var(--detail-fg);
   border: 0;
   border-radius: var(--et-radius-control, 0);
-  box-shadow: inset 0 0 0 2px var(--detail-ink);
+  box-shadow: inset 0 0 0 2px var(--detail-line);
   cursor: pointer;
   font-family: var(--f-display);
   font-size: 18px;
@@ -754,11 +774,26 @@
   white-space: nowrap;
 }
 
-/* "Go there" — the one thing a hungry visitor does next. */
+/* "Go there" — the one thing a hungry visitor does next. Auf dem Ink-Grund
+   ist das Gelb, wie jeder Weiterweg der Marke; Rot war dort die einzige
+   Flaeche, die aus der Reihe fiel. Hover geht auf Papier, nie auf Ink. */
 .actPrimary {
-  background: var(--detail-red);
-  color: var(--detail-paper);
-  box-shadow: inset 0 0 0 2px var(--detail-red);
+  background: var(--detail-accent);
+  color: var(--detail-ink);
+  box-shadow: inset 0 0 0 2px var(--detail-accent);
+}
+
+.actPrimary:hover,
+.actPrimary:focus-visible {
+  background: var(--detail-paper);
+  color: var(--detail-ink);
+  box-shadow: inset 0 0 0 2px var(--detail-paper);
+}
+
+.act:active,
+.actPrimary:active,
+.actStrong:active {
+  transform: translateY(1px);
 }
 
 /* "Book a table" — committal, but not the default move. Die Ink-Fläche, die
@@ -767,8 +802,8 @@
    ebenfalls Ink). Rot gehört dem Weg zur Map, also trägt das Buchen Gelb —
    lauter als die weissen Knöpfe daneben, leiser als der rote. */
 .actStrong {
-  background: var(--detail-accent);
-  color: var(--detail-ink);
+  background: transparent;
+  color: var(--detail-fg);
   box-shadow: inset 0 0 0 2px var(--detail-accent);
 }
 
@@ -798,7 +833,7 @@
   min-height: 290px;
   overflow: hidden;
   background: var(--detail-ink);
-  color: var(--detail-ink);
+  color: var(--detail-fg);
   text-decoration: none;
 }
 

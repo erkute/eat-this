@@ -601,27 +601,37 @@ html[data-auth='1'] [data-guest-only] {
    darunter, der jeden Tipp neben der Karte schluckt; der faerbt sich ueber
    background-color ein, nicht ueber Opacity (Markenregel).
 
-   Zugeklappt ist die Huelle eine Linie ohne Hoehe auf halber Viewport-Hoehe,
-   KEINE Vollbild-Flaeche: iOS 26 Safari ignoriert `theme-color` und faerbt
-   seine Leisten nach der background-color des obersten fixierten Elements,
-   das mindestens 80 % breit und 3 px hoch ist und eine Viewport-Kante
-   beruehrt. Eine transparente Vollbild-Huelle, die auf jeder Seite dauerhaft
-   im DOM steht, machte die untere URL-Leiste site-weit grau statt
-   durchscheinend. Mit `place-content: center` haengt die Karte mittig ueber
-   der Null-Hoehen-Linie — dieselbe Mitte wie im offenen Layer, dessen
-   vertikales Padding deshalb symmetrisch ist. */
+   Zugeklappt ist die Huelle NICHT fixiert: iOS 26 Safari ignoriert
+   `theme-color` und faerbt seine Leisten nach der background-color des
+   obersten fixierten Elements an der Viewport-Kante — und zaehlt dabei auch
+   Unsichtbares mit (opacity 0, pointer-events none, sogar Hoehe 0, auf dem
+   iPhone am 03.09.2026 so gesehen). Eine transparente fixierte Huelle, die
+   auf jeder Seite dauerhaft im DOM steht, machte die untere URL-Leiste
+   site-weit grau statt durchscheinend. Deshalb: in Ruhe `position: static`
+   mit Hoehe 0 und overflow hidden (die Karte bleibt als aria-live-Bereich im
+   Dokument), fixiert erst mit `data-open` — das NotificationToast beim
+   Oeffnen setzt und nach dem Ausfahren wieder nimmt, damit die Karte waehrend
+   des Uebergangs nicht in den Dokumentfluss springt. Offen ohne Scrim ist die
+   Huelle eine Linie ohne Hoehe auf halber Viewport-Hoehe; `place-content:
+   center` haengt die Karte mittig darueber — dieselbe Mitte wie im offenen
+   Layer, dessen vertikales Padding deshalb symmetrisch ist. */
 .notification-layer {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  left: 0;
+  position: static;
   z-index: 10000;
   display: grid;
   place-content: center;
   place-items: center;
   height: 0;
+  overflow: hidden;
   padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
   pointer-events: none;
+}
+.notification-layer[data-open] {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  left: 0;
+  overflow: visible;
 }
 .notification-layer.show[data-layer] {
   --notification-layer-pad-y: max(

@@ -62,6 +62,8 @@ declare global {
 }
 
 const DEFAULT_DURATION_MS = 3000;
+/* Laenger als der 340-ms-Uebergang der Karte (globals.css). */
+const LAYER_RELEASE_MS = 400;
 
 // sessionStorage handoff: a message stored under this key (e.g. by the
 // profile logout button, whose sign-out triggers a hard navigation to '/')
@@ -279,6 +281,11 @@ export default function NotificationToast() {
   const { lang } = useTranslation();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [visible, setVisible] = useState(false);
+  /* Ob die Huelle fixiert ist. Sie wird es im selben Render wie `show`, damit
+     der Uebergang aus dem zugeklappten Zustand laeuft, und bleibt es bis das
+     Ausfahren durch ist — erst dann darf sie zurueck in den Dokumentfluss
+     (globals.css: iOS 26 zaehlt jede fixierte Huelle fuer seine Leisten). */
+  const [open, setOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /* Welche Meldung gerade DRAN ist — im Gegensatz zu `notice`, das seinen
      Inhalt ueber das Ausfahren hinaus behaelt (sonst faehrt eine leere Karte
@@ -296,6 +303,7 @@ export default function NotificationToast() {
       return;
     }
     setNotice(next);
+    setOpen(true);
     setVisible(true);
     if (next.duration !== 0) {
       timerRef.current = setTimeout(() => {
@@ -344,6 +352,12 @@ export default function NotificationToast() {
     present(null);
   }, [notice, present]);
 
+  useEffect(() => {
+    if (visible) return;
+    const t = setTimeout(() => setOpen(false), LAYER_RELEASE_MS);
+    return () => clearTimeout(t);
+  }, [visible]);
+
   const isLayer = Boolean(visible && notice?.layer);
 
   /* Escape raeumt den Layer ab wie ein Tipp daneben. Nur den Layer: eine
@@ -368,6 +382,7 @@ export default function NotificationToast() {
   return (
     <div
       className={`notification-layer${visible ? ' show' : ''}`}
+      data-open={open ? '' : undefined}
       data-layer={isLayer ? '' : undefined}
     >
       {isLayer && (

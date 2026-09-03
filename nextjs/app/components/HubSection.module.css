@@ -1,4 +1,16 @@
 .page {
+  /* ── Durchgehender Ink-Grund statt einzelner Tafeln ──
+     Neun gleich grosse schwarze Rechtecke untereinander sind ein Katalog,
+     kein Aufbau: der Kasten ist ein starkes Signal, und wenn ihn jeder
+     Abschnitt traegt, sagt er nichts mehr. Jetzt ist die ganze Seite der
+     Grund; getrennt wird durch Raum, Type und die Fotos, die aus dem Dunkel
+     leuchten. Die drei Tokens schalten jede Tafel der Seite um — mit ihren
+     Fallbacks (siehe die `.board`-Regeln der Module) waere die Kasten-Optik
+     eine Zeile weit entfernt. */
+  --et-board-pad: 0px;
+  --et-board-bg: transparent;
+  --et-board-radius: 0;
+
   --home-ink: var(--et-home-ink);
   --home-paper: var(--et-home-paper);
   --home-muted: var(--et-home-muted);
@@ -12,17 +24,23 @@
      Gemessen war das vorher der Fehler: aussen ueberall 104px, innen aber
      zwischen 104 und 206px, weil das Polster der Tafeln unsichtbar mitzaehlte
      (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
-  --home-section-gap: clamp(24px, 2.5vw, 32px);
+  --home-section-gap: clamp(72px, 7vw, 104px);
   width: 100%;
   min-height: 100svh;
   /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
      bringt seinen Abstand selbst mit. Ein Polster hier hinterließe einen
      weißen Streifen zwischen Navigation und Gelb. */
   padding-top: 0;
-  color: var(--home-ink);
-  background: var(--home-paper);
   font-family: var(--et-font-mono);
   letter-spacing: var(--et-tracking-none);
+}
+
+/* Doppelte Klasse, weil `.homeV2` in css/style.css denselben Rang hat (0,1,0)
+   und spaeter geladen wird — mit einfacher Klasse gewinnt dort das Weiss.
+   Siehe die Notiz zu Modul-vs-Stylesheet-Reihenfolge. */
+:global(.homeV2).page {
+  color: var(--et-home-inverse-text);
+  background: var(--home-ink);
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
@@ -43,7 +61,6 @@
   min-height: calc(100dvh - 74px);
   padding: clamp(24px, 4vw, 56px) 0;
   overflow: hidden;
-  background: var(--et-home-ink);
   color: var(--et-home-inverse-text);
 }
 
@@ -187,6 +204,10 @@
   outline-offset: 3px;
 }
 
+.page .heroActions :global(.hv-btn):active {
+  transform: translateY(1px);
+}
+
 /* Die Seitentür als Ring, wie der Standort-Chip im Must-Eat-Sheet: weißer
    28-%-Rand, bei Hover gelb. */
 .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
@@ -287,10 +308,10 @@
    Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
    der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
 .spot {
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--home-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--home-ink));
   color: var(--et-home-inverse-text);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
   /* Kein Anschnitt mehr: das Foto liegt IN der Tafel, ihre Kante ist der
      Rand. Frueher lief es auf dem Telefon bis zur Blattkante, weil nichts
      sonst den Aufmacher von der Kartenreihe darunter trennte. */
@@ -464,6 +485,10 @@
 .spotCard:hover .spotCta,
 .spotCard:focus-visible .spotCta {
   background: var(--et-home-inverse-text);
+}
+
+.spotCard:active .spotCta {
+  transform: translateY(1px);
 }
 
 @media (max-width: 920px) {

@@ -11,20 +11,25 @@ import styles from './HeroMarkFlight.module.css';
  * streichen, gibt es sie nur einmal — sie wandert beim Scrollen von unten nach
  * oben und wird dabei auf Headergröße klein.
  *
- * Nur unter 768px. Darüber scrollt `.app-pages` statt des Fensters, der
- * Aufmacher füllt den Bildschirm und die Marke steht groß im Gelb; dort gibt
- * es nichts zu transportieren.
+ * Auf jeder Breite. Bis 767px scrollt das Fenster, darüber `.app-pages` —
+ * beides läuft hier über denselben Weg, der Container wird gesucht statt
+ * angenommen. Auf Desktop stand die Marke sonst gross im Aufmacher, während
+ * der Header dieselbe Form noch einmal trug: zwei gleiche Zeichen auf einem
+ * Bildschirm (Ansage 03.09.2026).
  *
  * Die Strecke ist bewusst ein fester Scrollweg und nicht der geometrische
  * Abstand: der ist auf dem Telefon rund 80px kurz, und eine Bewegung, die nach
- * 80px Scrollen vorbei ist, sieht aus wie ein Ruckeln statt wie ein Flug. Der
- * Landepunkt bleibt exakt der Logoplatz des Headers.
+ * 80px Scrollen vorbei ist, sieht aus wie ein Ruckeln statt wie ein Flug. Auf
+ * Desktop ist die Marke gut doppelt so gross und braucht entsprechend mehr
+ * Weg, sonst ist der Flug vorbei, bevor das Auge ihn aufnimmt. Der Landepunkt
+ * bleibt exakt der Logoplatz des Headers.
  */
-const TRAVEL = 240;
+const TRAVEL_MOBILE = 240;
+const TRAVEL_DESKTOP = 420;
 
 /* Der Header verschwindet erst deutlich hinter der Landung — vorher wäre die
    Marke gerade angekommen und würde im selben Moment mit weggeschoben. */
-const NAV_HOLD = TRAVEL + 360;
+const NAV_HOLD_EXTRA = 360;
 
 /* Sanft an beiden Enden. easeOutCubic war zu kopflastig: bei halbem Scrollweg
    stand die Marke schon zu 87 % oben und der Rest der Strecke passierte
@@ -37,6 +42,20 @@ export default function HeroMarkFlight() {
   useEffect(() => {
     const mobile = window.matchMedia('(max-width: 767px)');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (css/style.css,
+       DESKTOP APP FRAME). Der Container wird gesucht statt angenommen: auf dem
+       Telefon steht er im Fluss und scrollt gar nicht, dann bleibt das
+       Fenster. */
+    const scroller = (): HTMLElement | null => {
+      const el = document.querySelector<HTMLElement>('.app-pages');
+      return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
+    };
+    const scrollTop = () => {
+      const el = scroller();
+      return el ? el.scrollTop : window.scrollY;
+    };
+    const travel = () => (mobile.matches ? TRAVEL_MOBILE : TRAVEL_DESKTOP);
 
     let flyer: HTMLImageElement | null = null;
     let ticking = false;
@@ -82,7 +101,7 @@ export default function HeroMarkFlight() {
 
       return {
         startX: m.left,
-        startY: m.top + window.scrollY,
+        startY: m.top + scrollTop(),
         endX: n.left,
         endY: n.top, // Der Header ist fixed — das ist bereits Viewport-Koordinate.
         startW: m.width,
@@ -94,8 +113,8 @@ export default function HeroMarkFlight() {
       ticking = false;
       if (!geo || !flyer) return;
 
-      const y = Math.max(0, window.scrollY);
-      const p = Math.min(1, y / TRAVEL);
+      const y = Math.max(0, scrollTop());
+      const p = Math.min(1, y / travel());
       const e = ease(p);
 
       // Blendet von „scrollt mit der Seite" nach „klebt im Header".
@@ -122,7 +141,7 @@ export default function HeroMarkFlight() {
       }
 
       // Der Header darf erst danach wegklappen. SiteNav liest das Attribut.
-      if (y > NAV_HOLD) {
+      if (y > travel() + NAV_HOLD_EXTRA) {
         document.documentElement.removeAttribute('data-nav-hold');
       } else {
         document.documentElement.setAttribute('data-nav-hold', 'on');
@@ -137,7 +156,7 @@ export default function HeroMarkFlight() {
 
     const setup = () => {
       teardown();
-      if (!mobile.matches || calm.matches) return;
+      if (calm.matches) return;
 
       const mark = heroMark();
       if (!mark) return;
@@ -180,7 +199,11 @@ export default function HeroMarkFlight() {
     };
 
     start();
+    /* Beide Quellen: welche von beiden wirklich scrollt, entscheidet die
+       Breite — und sie kann sich waehrend der Sitzung aendern. */
     window.addEventListener('scroll', onScroll, { passive: true });
+    const container = document.querySelector<HTMLElement>('.app-pages');
+    container?.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', remeasure);
     window.addEventListener('orientationchange', remeasure);
     mobile.addEventListener('change', setup);
@@ -188,6 +211,7 @@ export default function HeroMarkFlight() {
 
     return () => {
       window.removeEventListener('scroll', onScroll);
+      container?.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', remeasure);
       window.removeEventListener('orientationchange', remeasure);
       mobile.removeEventListener('change', setup);

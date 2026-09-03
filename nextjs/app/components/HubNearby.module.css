@@ -12,10 +12,10 @@
   --board-accent: var(--et-home-accent, #ffc600);
   --board-soft: rgba(255, 255, 255, 0.76);
 
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--board-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--board-ink));
   color: var(--board-paper);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 :global(.homeV2) .board :global(.hv-title) {
@@ -24,7 +24,7 @@
 
 @media (max-width: 760px) {
   .board {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 }
 
@@ -44,21 +44,25 @@
   overflow: hidden;
 }
 
-/* Title and locate button share the top row, the line that explains them runs
-   under both. A grid, not the shared .hv-head flex row: on phones the sub line
-   has to move above the button, and only named areas can reorder it. */
+/* Der Knopf steht bei dem Satz, der ihn erklaert („Gib deinen Standort frei"
+   — „Freigeben"), nicht am rechten Rand der Zeile darueber. Dort sass er auf
+   1280px rund tausend Pixel von seiner Begruendung entfernt und las sich wie
+   ein Werkzeug der Seite statt wie die Antwort auf diesen Satz (Ansage
+   03.09.2026). */
 :global(.homeV2) .head:global(.hv-head) {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto auto;
   grid-template-areas:
-    'title action'
-    'sub sub';
-  align-items: baseline;
-  column-gap: 16px;
+    'title title'
+    'sub action';
+  justify-content: start;
+  justify-items: start;
+  align-items: center;
+  column-gap: clamp(12px, 1.4vw, 18px);
   row-gap: var(--et-head-gap);
   /* The sub line used to carry this as its own margin-bottom; it now sits
      inside the head, so the head owns the distance down to the rail. */
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 :global(.homeV2) .head .title {
@@ -71,12 +75,12 @@
 
 :global(.homeV2) .head .locBtn {
   grid-area: action;
-  justify-self: end;
+  justify-self: start;
 }
 
-/* Stacked: ask, explain, then the button — in that order. Side by side the
-   button collided with the wrapping title anyway. */
-@media (max-width: 560px) {
+/* Gestapelt, sobald Satz und Knopf nicht mehr nebeneinander passen: erst die
+   Frage, dann die Erklaerung, dann der Knopf. */
+@media (max-width: 700px) {
   :global(.homeV2) .head:global(.hv-head) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -85,17 +89,6 @@
       'action';
     align-items: start;
     row-gap: 12px;
-  }
-
-  /* In the head row the button pulls its right padding back so the label ends
-     flush with the column; stacked at the left it has to pull the left one. */
-  :global(.homeV2) .head .locBtn {
-    justify-self: start;
-    margin: 4px 0 0 -8px;
-  }
-
-  :global(.homeV2) .head .locBtn[data-primary] {
-    margin-left: 0;
   }
 }
 
@@ -195,24 +188,25 @@
   cursor: wait;
 }
 
-/* Until a location is granted, this button is the entire point of the section
-   — nothing below it is really about the visitor until it is pressed. Ink
-   would make it the fourth dark button on a white page and it read as a
-   utility toggle; brand yellow is the page's "this is live" colour (marker
-   squares, the CTA underline) and nothing else in the column carries it as a
-   surface. */
+/* Solange kein Standort da ist, ist dieser Knopf der Sinn des Abschnitts —
+   aber als gelbe Flaeche war er der lauteste Punkt der Seite und sass weit
+   weg von seinem Satz. Jetzt ein Ring neben dem Satz, wie die Fragen im
+   Remy-Panel: sichtbar, aber leise. Gelb wird er beim Beruehren. */
 .locBtn[data-primary] {
   margin-right: 0;
-  padding: 0 16px;
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--board-paper, #fff);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
   border-radius: var(--et-radius-control);
 }
 
 .locBtn[data-primary]:hover:not(:disabled),
 .locBtn[data-primary]:focus-visible:not(:disabled) {
   color: var(--et-home-ink);
-  background: var(--board-paper, #fff);
+  background: var(--board-accent, #ffc600);
+  box-shadow: none;
 }
 
 .locBtn:hover:not(:disabled),

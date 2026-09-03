@@ -51,14 +51,28 @@ describe('Aufmacher der Startseite', () => {
   });
 
   /**
-   * Seit 03.09.2026 „komplett schwarz": eine Ink-Fläche über die volle
-   * Breite, ohne Rand und Rundung — nicht mehr die gelbe Vollfläche und auch
-   * keine eingerückte Tafel. Gelb ist der Knopf.
+   * Seit 03.09.2026 „komplett schwarz", und seit dem Abend trägt den Grund
+   * die ganze Seite: der Aufmacher hat deshalb KEINE eigene Fläche mehr —
+   * eine hätte dieselbe Farbe und wäre nur eine Kante, die nichts trennt.
+   * Gelb ist der Knopf.
    */
-  it('ist eine schwarze Vollfläche und stellt seinen Inhalt mittig', () => {
-    expect(base('hero', 'background')).toBe('var(--et-home-ink)');
+  it('steht auf dem Ink-Grund der Seite statt auf einer eigenen Fläche', () => {
+    expect(base('hero', 'background')).toBeUndefined();
     expect(base('hero', 'border-radius')).toBeUndefined();
     expect(base('hero', 'align-items')).toBe('center');
+    // Den Grund trägt die Seite selbst — nur Regeln, deren Selektor AUF
+    // `.page` endet, meinen sie; `base()` fände sonst auch die Knöpfe darin.
+    // Die Doppelklasse schlägt `.homeV2` aus css/style.css, das sonst Papier
+    // malen würde.
+    let pageBackground: string | undefined;
+    root.walkRules((rule) => {
+      if (rule.parent?.type === 'atrule') return;
+      if (!rule.selectors.some((selector) => /\.page$/.test(selector.trim()))) return;
+      rule.walkDecls('background', (declaration) => {
+        pageBackground = declaration.value;
+      });
+    });
+    expect(pageBackground).toBe('var(--home-ink)');
   });
 
   /**

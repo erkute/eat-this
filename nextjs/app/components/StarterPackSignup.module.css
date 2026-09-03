@@ -13,11 +13,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(24px, 4vw, 56px);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
   overflow: hidden;
-  background: var(--starter-ink);
+  background: var(--et-board-bg, var(--starter-ink));
   color: var(--starter-paper);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
   text-align: center;
 }
 
@@ -145,6 +145,10 @@
   outline-offset: 3px;
 }
 
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 .hint,
 .error {
   display: block;
@@ -185,62 +189,25 @@
   white-space: nowrap;
 }
 
-/* Desktop has width to spare and no height to waste: pack left, Kicker,
-   Titel und Copy als EINE Spalte daneben — wie auf der Schluss-Tafel von
-   /must-eats. Als Flex-Zeile standen Titel und Copy in zwei getrennten
-   Spalten und lasen sich als zwei Blöcke. Mobile keeps the centred stack. */
+/* Zentriert auf jeder Breite: die Tüte oben, darunter Kicker, Titel, Copy und
+   das Formular auf einer Mittelachse. Das ist die übliche Form für einen
+   Anmelde-Block — er wirbt, er erzählt nicht —, und links angeschlagen stand
+   er als einziger Abschnitt schief in der Spalte (Ansage 03.09.2026,
+   „das Starter Pack muss zentriert sein"). */
 @media (min-width: 761px) {
   .inner {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      'art head'
-      'art body';
-    align-items: center;
-    column-gap: clamp(30px, 4vw, 64px);
-    row-gap: 0;
-    text-align: left;
+    padding-block: clamp(34px, 4vw, 56px);
   }
 
   .art {
-    grid-area: art;
-    align-self: center;
-    margin: 0 clamp(6px, 1.5vw, 24px);
-  }
-
-  .head {
-    grid-area: head;
-    align-self: end;
-  }
-
-  .body {
-    grid-area: body;
-    align-self: start;
-    max-width: 560px;
-  }
-
-  .head,
-  .body {
-    align-items: flex-start;
-    width: auto;
-  }
-
-  :global(.homeV2) .title:global(.hv-title) {
-    text-align: left;
-  }
-
-  .form {
-    justify-content: flex-start;
-  }
-
-  .input {
-    text-align: left;
+    width: clamp(170px, 16vw, 220px);
+    margin-bottom: clamp(18px, 2vw, 26px);
   }
 }
 
 @media (max-width: 760px) {
   .inner {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 
   .art {

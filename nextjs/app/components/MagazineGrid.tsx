@@ -73,14 +73,21 @@ export default function MagazineGrid({ articles, locale }: Props) {
                     />
                   )}
                 </span>
+                {/* Rubrik und Datum stehen als eine Meta-Zeile ÜBER der
+                    Headline — darunter las sich das Datum wie ein Nachsatz zum
+                    Titel statt wie seine Einordnung (Ansage 03.09.2026). */}
                 <span className={styles.text}>
-                  {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
-                  <span className={styles.title}>{a.title}</span>
-                  {formatDate(a.date, locale) && (
-                    <time className={styles.date} dateTime={a.date ?? undefined}>
-                      {formatDate(a.date, locale)}
-                    </time>
+                  {(a.kicker || formatDate(a.date, locale)) && (
+                    <span className={styles.meta}>
+                      {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
+                      {formatDate(a.date, locale) && (
+                        <time className={styles.date} dateTime={a.date ?? undefined}>
+                          {formatDate(a.date, locale)}
+                        </time>
+                      )}
+                    </span>
                   )}
+                  <span className={styles.title}>{a.title}</span>
                 </span>
               </Link>
             </li>

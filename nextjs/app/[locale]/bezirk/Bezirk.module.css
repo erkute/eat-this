@@ -1669,9 +1669,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .filterSticky {
 
 .page .districtMore:hover,
 .page .districtMore:focus-visible {
-  background: var(--et-home-ink);
-  color: var(--et-home-inverse-text);
+  background: var(--et-home-paper);
+  color: var(--et-home-ink);
   transform: translateY(-2px);
+}
+
+.page .districtMore:active {
+  transform: translateY(1px);
 }
 
 .page .districtMore:focus-visible {

@@ -415,10 +415,27 @@ html[data-active-page='start'] body {
 [data-hub] {
   background: var(--et-yellow);
 }
-/* Home uses a light cassette-table surface; black is reserved for rails,
-   outlines, and media frames rather than the page background. */
+/* Die Startseite steht seit 03.09.2026 auf durchgehendem Ink: der Grund ist
+   die Flaeche, getrennt wird durch Raum, Type und die Fotos. Die Regel gehoert
+   hierher und nicht ins Modul — sie traegt (0,3,1) und schlaegt jede
+   Modul-Klasse. */
 html[data-active-page='start'] [data-hub] {
-  background: var(--food-paper);
+  background: var(--et-home-ink);
+}
+/* Jeder Abschnitt traegt selbst `homeV2`, und die Klasse malt in style.css
+   Papier — auf dem Ink-Grund waeren das weisse Baender quer durch die Seite,
+   mit weisser Schrift darauf. Die Abschnitte holen sich Grund und Farbe
+   deshalb vom Elternteil. */
+html[data-active-page='start'] [data-hub] .homeV2 {
+  background: transparent;
+  color: inherit;
+}
+/* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
+   hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor. */
+html[data-active-page='start'],
+html[data-active-page='start'] body,
+html[data-active-page='start'] .app-pages {
+  background: var(--et-home-ink);
 }
 /* Sitewide Providence collage language. The map remains a purpose-built
    full-screen tool; every content page gets the paper/print treatment. */

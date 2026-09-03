@@ -1,6 +1,7 @@
 .indexPage,
 .detailPage {
   --category-paper: var(--et-home-paper);
+  --category-inverse: var(--et-home-inverse-text);
   --category-ink: var(--et-home-ink);
   --category-red: var(--et-home-red);
   --category-muted: var(--et-home-muted);
@@ -514,9 +515,13 @@
 
 .indexPage.indexPage .categoryMore:hover,
 .indexPage.indexPage .categoryMore:focus-visible {
-  background: var(--category-ink);
-  color: var(--et-home-inverse-text);
+  background: var(--category-paper);
+  color: var(--category-ink);
   transform: translateY(-2px);
+}
+
+.indexPage.indexPage .categoryMore:active {
+  transform: translateY(1px);
 }
 
 .indexPage.indexPage .categoryMore:focus-visible {

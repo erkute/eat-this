@@ -18,10 +18,10 @@
   --board-accent: var(--et-home-accent, #ffc600);
   --board-soft: rgba(255, 255, 255, 0.76);
 
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--board-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--board-ink));
   color: var(--board-paper);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 :global(.homeV2) .board :global(.hv-title) {
@@ -30,22 +30,33 @@
 
 @media (max-width: 760px) {
   .board {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 }
 
+/* Ohne Trennlinien: auf dem Ink-Grund reicht Raum, und die letzte Linie stand
+   als Strich quer ueber der Seite direkt vor dem Footer (Ansage 03.09.2026).
+   Jede Frage ist ein eigener Block mit Luft darum. */
 .list {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
-/* Haarlinien in Weiss 16 % statt der Ink-Linie der weissen Flaeche. */
 .item {
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  transition: background-color 160ms ease;
 }
 
-.item:last-child {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+/* Die geoeffnete Frage bekommt eine leichte Flaeche — sie sagt, welche
+   Antwort gerade sichtbar ist, ohne dass eine Linie quer laufen muss. */
+.item[open] {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.item:hover:not([open]) {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .question {
@@ -54,7 +65,7 @@
   gap: 16px;
   align-items: center;
   min-height: clamp(52px, 4.5vw, 68px);
-  padding-block: 10px;
+  padding: 10px clamp(12px, 1.4vw, 18px);
   cursor: pointer;
   font-family: var(--font-providence);
   font-size: clamp(15px, 2vw, 17px);
@@ -84,7 +95,7 @@
 .answer {
   max-width: 72ch;
   margin: 0;
-  padding: clamp(4px, 0.45vw, 6px) 10vw 20px 0;
+  padding: clamp(4px, 0.45vw, 6px) clamp(12px, 1.4vw, 18px) 18px;
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--font-body, var(--font), system-ui, sans-serif);
   /* 14px lagen unter dem Band der Wettbewerber (15–18px Fließtext). */
@@ -101,9 +112,8 @@
   }
 
   .answer {
-    padding-right: 0;
     padding-top: 4px;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
     font-size: 14px;
   }
 }

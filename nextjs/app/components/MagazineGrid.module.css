@@ -9,10 +9,10 @@
   --mag-accent: var(--et-home-accent, #ffc600);
   --mag-soft: rgba(255, 255, 255, 0.76);
 
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--mag-ink);
+  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-bg, var(--mag-ink));
   color: var(--mag-paper);
-  border-radius: var(--et-radius-photo);
+  border-radius: var(--et-board-radius, var(--et-radius-photo));
 }
 
 /* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
@@ -73,11 +73,18 @@
     transform 160ms ease;
 }
 
+/* Hover geht auf Papier, nicht auf Ink: auf dem dunklen Grund verschwand der
+   Knopf beim Beruehren im Hintergrund. Gilt fuer jeden gelben Knopf der
+   Seite. Der Druck sitzt tiefer, damit sich der Klick anfuehlt. */
 .allLink:hover,
 .allLink:focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-ink);
+  background: var(--mag-paper);
   transform: translateY(-2px);
+}
+
+.allLink:active {
+  transform: translateY(1px);
 }
 
 .grid {
@@ -167,14 +174,19 @@
   line-height: 1.05;
 }
 
-/* Das Datum als stille Zeile unter dem Titel, wie auf dem Magazin-Index. */
+/* Rubrik und Datum als eine Zeile über der Headline. Das gelbe Label führt,
+   das Datum steht still dahinter. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
 .date {
-  display: block;
-  margin-top: auto;
-  padding-top: 6px;
   color: rgba(255, 255, 255, 0.55);
   font-family: var(--font-providence);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.2;
@@ -219,12 +231,14 @@
   }
 
   .board {
-    padding: 22px 18px 24px;
+    padding: var(--et-board-pad, 22px 18px 24px);
   }
 
   /* Swipeable rail instead of a full-width stack — same cards, a fifth of
-     the page height. Bleeds an die Tafelkanten, damit die nächste Karte
-     hereinschaut; das Polster der Tafel ist hier die Spur. */
+     the page height. Bleeds bis an die Blattkante, damit die nächste Karte
+     hereinschaut. Der Wert MUSS der Gutter von `hv-wrap` sein: mit einer
+     eigenen Zahl (18px gegen 16px) stand die Seite 4px über und liess sich
+     seitlich schieben. */
   .grid {
     display: flex;
     grid-template-columns: none;
@@ -232,11 +246,11 @@
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    margin-left: -18px;
-    margin-right: -18px;
-    padding-left: 18px;
-    padding-right: 18px;
-    scroll-padding-inline: 18px;
+    margin-left: calc(var(--et-wrap-pad-mobile) * -1);
+    margin-right: calc(var(--et-wrap-pad-mobile) * -1);
+    padding-left: var(--et-wrap-pad-mobile);
+    padding-right: var(--et-wrap-pad-mobile);
+    scroll-padding-inline: var(--et-wrap-pad-mobile);
   }
 
   .grid::-webkit-scrollbar {

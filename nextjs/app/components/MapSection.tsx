@@ -22,7 +22,7 @@ import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import MapSectionBody from './map/MapSectionBody';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
-import { resolveAdjacent } from '@/lib/map/pager';
+import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
@@ -397,6 +397,16 @@ export default function MapSection({
   } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
 
   const [searchOpen, setSearchOpen] = useState(false);
+  /* Die Liste, aus der ein Detail geöffnet wurde, eingefroren für den Pager.
+     Das Öffnen leert die Suche (siehe handleRestaurantClick), und damit
+     sprang `listRestaurants` sofort auf den vollen Datensatz zurück: wer
+     „Pizza" suchte, das erste Ergebnis öffnete und weiterblätterte, landete
+     beim Nachbarn aus der ungefilterten Liste statt beim zweiten Treffer.
+     Jeder Öffnungsweg läuft durch handleRestaurantClick und setzt den
+     Schnappschuss neu; Blättern lässt ihn stehen. */
+  const [pagerList, setPagerList] = useState<MapRestaurant[] | null>(null);
+  const listRestaurantsRef = useRef(listRestaurants);
+  listRestaurantsRef.current = listRestaurants;
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
   const [desktopPanelHidden, setDesktopPanelHidden] = useState(false);
@@ -952,6 +962,9 @@ export default function MapSection({
           ? window.scrollY
           : (contentRef.current?.scrollTop ?? 0);
       }
+      // Freeze the list the user is browsing before the query is cleared —
+      // the pager walks this snapshot, not the refilled full list.
+      setPagerList(listRestaurantsRef.current);
       // Selecting a search result implicitly accepts it — clear the query so
       // when the user later goes back to "alle Must Eats" or the list, they
       // see the full data set, not the still-filtered subset.
@@ -1005,15 +1018,17 @@ export default function MapSection({
     ]
   );
 
-  // Pager: neighbours of the open restaurant within the filtered list the
-  // user is browsing (same order as the list view). Paging swaps the
-  // selection in place — no list↔detail view switch (already in detail).
+  // Pager: neighbours of the open restaurant within the list the user was
+  // browsing when the detail opened (same order as the list view). Falls
+  // back to the live list only if the snapshot doesn't hold the spot (it
+  // was refetched away, or the detail opened without a click). Paging swaps
+  // the selection in place — no list↔detail view switch (already in detail).
   const pagerAdjacent = useMemo(
     () =>
       selectedRestaurant
-        ? resolveAdjacent(listRestaurants, selectedRestaurant._id)
+        ? resolvePagerAdjacent(pagerList, listRestaurants, selectedRestaurant._id)
         : { index: -1, prev: null, next: null },
-    [listRestaurants, selectedRestaurant]
+    [pagerList, listRestaurants, selectedRestaurant]
   );
 
   // Warm the neighbours' detail fields while a detail pane is open, so a

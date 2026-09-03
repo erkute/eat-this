@@ -13,11 +13,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
+  padding: var(--et-board-quiet-pad, var(--et-board-pad, clamp(24px, 4vw, 56px)));
   overflow: hidden;
-  background: var(--et-board-bg, var(--starter-ink));
+  background: var(--et-board-quiet, var(--et-board-bg, var(--starter-ink)));
   color: var(--starter-paper);
-  border-radius: var(--et-board-radius, var(--et-radius-photo));
+  border-radius: var(--et-radius-photo);
   text-align: center;
 }
 

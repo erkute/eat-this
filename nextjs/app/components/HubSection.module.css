@@ -10,6 +10,12 @@
   --et-board-pad: 0px;
   --et-board-bg: transparent;
   --et-board-radius: 0;
+  /* Die leise Stufe fuer Bloecke, die ein eigenes Objekt sind (Starter Pack,
+     Must Eats, Remy). Ganz ohne Flaeche waren sie vom Grund nicht mehr zu
+     unterscheiden — „alles schwarz" (03.09.2026). Eine Stufe heller trennt,
+     ohne dass die Seite wieder ein Katalog aus Kaesten wird. */
+  --et-board-quiet: rgba(255, 255, 255, 0.055);
+  --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
 
   --home-ink: var(--et-home-ink);
   --home-paper: var(--et-home-paper);

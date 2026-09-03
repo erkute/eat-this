@@ -29,9 +29,9 @@
      Seite gesetzt. Remy ist kein Inhalt, sondern ein Gegenueber; auf dem
      durchgehenden Grund ging er unter (Ansage 03.09.2026). Eine Stufe heller
      als der Grund reicht: es liest sich als Layer, ohne ein Kasten zu sein. */
-  padding: clamp(22px, 4vw, 46px);
+  padding: var(--et-board-quiet-pad, clamp(22px, 4vw, 46px));
   color: var(--remy-stage-paper);
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   border: none;
   border-radius: var(--et-radius-photo, 10px);
 }

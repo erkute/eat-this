@@ -567,12 +567,15 @@
   text-transform: uppercase;
 }
 
-/* Die Tafel loest sich auf: der Grund IST die Tafel. Was sie als Objekt
-   zusammenhielt — Fakten und Aktionen an einem Ort — leisten jetzt Haarlinie
-   und Raum. Ein Ink-Kasten auf Ink waere nur eine unsichtbare Kante. */
+/* Die Tafel bleibt ein Objekt — nur leise. Ganz aufgeloest (nur Haarlinie)
+   war sie vom Grund nicht mehr zu unterscheiden: „diese ganzen Adress-Dings
+   mit den Buttons kann man nicht unterscheiden" (03.09.2026). Eine Stufe
+   heller als der Grund reicht; ein Ink-Kasten auf Ink waere unsichtbar
+   gewesen, ein weisser waere der Katalog von vorher. */
 .board {
-  padding: clamp(24px, 3.6vw, 44px) 0 0;
-  border-top: 1px solid var(--detail-line);
+  padding: clamp(24px, 3.6vw, 44px);
+  background: var(--detail-quiet);
+  border-radius: var(--et-radius-photo, 18px);
 }
 
 /* `auto-fit` statt fester Spalten, weil jede Angabe einzeln fehlen darf:
@@ -736,7 +739,7 @@
   color: var(--detail-fg);
   border: 0;
   border-radius: var(--et-radius-control, 0);
-  box-shadow: inset 0 0 0 2px var(--detail-line);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
   cursor: pointer;
   font-family: var(--f-display);
   font-size: 18px;

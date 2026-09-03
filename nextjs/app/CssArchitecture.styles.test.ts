@@ -99,7 +99,8 @@ describe('CSS architecture contracts', () => {
     const burger = declarationsFor(root, '.burger-drawer[hidden]');
     const mapPage = declarationsFor(root, ".app-page[data-page='map']");
     const noticeLayer = declarationsFor(root, '.notification-layer');
-    const noticeLayerOpen = declarationsFor(root, '.notification-layer.show[data-layer]');
+    const noticeLayerOpen = declarationsFor(root, '.notification-layer[data-open]');
+    const noticeLayerScrim = declarationsFor(root, '.notification-layer.show[data-layer]');
     const source = root.toString();
 
     expect(html.get('background-color')).toBeTruthy();
@@ -111,12 +112,14 @@ describe('CSS architecture contracts', () => {
     // iOS 26 Safari faerbt seine Leisten nach dem obersten fixierten Element,
     // das eine Viewport-Kante beruehrt (>= 80 % breit, >= 3 px hoch) — und
     // ignoriert theme-color. Die Meldungs-Huelle steht auf jeder Seite im DOM,
-    // zugeklappt darf sie deshalb keine Hoehe haben; Vollbild wird sie erst
-    // mit dem Scrim.
+    // zugeklappt darf sie deshalb nicht fixiert sein — auch Hoehe 0 zaehlt
+    // Safari mit; fixiert erst mit data-open, Vollbild erst mit dem Scrim.
+    expect(noticeLayer.get('position')).toEqual(['static']);
     expect(noticeLayer.get('height')).toEqual(['0']);
-    expect(noticeLayer.get('inset')).toBeUndefined();
-    expect(noticeLayer.get('bottom')).toBeUndefined();
-    expect(noticeLayerOpen.get('inset')).toEqual(['0']);
+    expect(noticeLayerOpen.get('position')).toEqual(['fixed']);
+    expect(noticeLayerOpen.get('inset')).toBeUndefined();
+    expect(noticeLayerOpen.get('bottom')).toBeUndefined();
+    expect(noticeLayerScrim.get('inset')).toEqual(['0']);
 
     expect(readFileSync(stylePath, 'utf8')).toContain('.app-page:has([data-site-footer])');
     expect(readFileSync(siteFooterPath, 'utf8')).toContain('data-site-footer');

@@ -48,9 +48,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
         </h2>
-        <Link href="/news" className={styles.allLink}>
-          {labels.all}
-        </Link>
       </div>
 
       <ul className={styles.grid} role="list">
@@ -87,6 +84,15 @@ export default function MagazineGrid({ articles, locale }: Props) {
           </li>
         ))}
       </ul>
+
+      {/* Unter den Kacheln wie „Alle Spots ansehen" und „Alle Must-Eats" —
+          im Kopf war es der einzige Ausgang der Seite, der vor seinem Inhalt
+          stand („der Button muss doch eher runter"). */}
+      <div className={styles.foot}>
+        <Link href="/news" className={styles.allLink}>
+          {labels.all}
+        </Link>
+      </div>
     </section>
   );
 }

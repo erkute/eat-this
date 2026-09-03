@@ -11,9 +11,9 @@
 
 .section .head:global(.hv-head) {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: end;
-  gap: var(--et-head-gap) clamp(24px, 4vw, 54px);
+  gap: var(--et-head-gap);
   margin-bottom: clamp(26px, 2.6vw, 38px);
   text-align: left;
 }
@@ -33,19 +33,24 @@
   color: var(--et-home-muted);
 }
 
+.foot {
+  display: flex;
+  margin-top: clamp(18px, 2.4vw, 26px);
+}
+
+/* Gefüllter Ink-Knopf mit gelbem Hover, wie „Alle Spots ansehen" auf den
+   Hubs und die Kategorie-Kacheln darunter. */
 .allLink {
-  align-self: end;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 46px;
-  padding: 0 18px;
-  color: var(--et-home-ink);
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--et-home-ink);
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 24px;
+  color: var(--et-home-inverse-text);
+  background: var(--et-home-ink);
   border-radius: var(--et-radius-control);
   font-family: var(--font-providence);
-  font-size: clamp(16px, 1.35vw, 20px);
+  font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -53,13 +58,15 @@
   white-space: nowrap;
   transition:
     color 160ms ease,
-    background 160ms ease;
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .allLink:hover,
 .allLink:focus-visible {
-  color: var(--et-home-inverse-text);
-  background: var(--et-home-ink);
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
+  transform: translateY(-2px);
 }
 
 .grid {
@@ -195,7 +202,7 @@
   }
 
   .allLink {
-    width: max-content;
+    width: 100%;
   }
 
   /* Swipeable rail instead of a full-width stack — same cards, a fifth of

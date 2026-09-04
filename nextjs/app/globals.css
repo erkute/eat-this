@@ -1408,3 +1408,36 @@ html[data-auth='1'] [data-guest-only] {
     line-height: 1.35;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Druckzustand: jeder Knopf geht beim Drücken nach unten.
+
+   Bis 04.09.2026 kam die Rückmeldung auf dem Telefon versehentlich aus
+   `:hover` — der klebt auf Touch nach der Berührung. Seit die Hover-Stile
+   hinter `(hover: hover)` liegen, war das weg, und viele Knöpfe hatten gar
+   keine Rückmeldung mehr: die Filterzeilen hatten nie eine, und rund ein
+   Dutzend Knöpfe trug `:active { transform: translateY(0) }` — das war die
+   RÜCKKEHR aus einem Hover-Lift, ohne Hover also eine Anweisung, sich nicht
+   zu bewegen.
+
+   Bewusst die eigenständige `translate`-Eigenschaft statt `transform`: sie
+   VERRECHNET sich mit vorhandenen transform-Werten, statt sie zu überschreiben.
+   Ein `transform: rotate(-4deg)` (Pins), `translate(-50%, -50%)` (zentrierte
+   Ebenen) oder ein Hover-Lift bleibt damit stehen. Mit `transform` hätte eine
+   pauschale Regel genau die Elemente zerlegt, die schon eins tragen.
+   Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
+   dieselbe Bewegung wie vorher.
+
+   1px, weil das die Hausgeste ist (`.hv-btn`, `.hv-chip` und rund zwanzig
+   weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
+
+   `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
+   Deaktivierte Knöpfe bleiben stehen — ein Druck, der nichts auslöst, darf auch
+   nicht so aussehen. */
+button:not(:disabled):active,
+summary:active,
+[role='button']:not([aria-disabled='true']):active,
+.hv-btn:active,
+.hv-chip:active {
+  translate: 0 1px;
+}

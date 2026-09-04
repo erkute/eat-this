@@ -652,8 +652,14 @@
     color 120ms ease;
 }
 
+/* Weiss 14 % als Hervorhebung — Fokus, Hover und Druck teilen sie sich.
+   Vorher stand hier `rgba(21, 18, 14, 0.86)`, eine Ink-Fuellung aus der Zeit
+   vor dem Ink-Umbau der Map: auf dem hellen Sheet von damals war das die
+   Hervorhebung, auf dem dunklen von heute ist sie gemessen ΔL* 0,0 — also
+   nichts. Fokus und Hover waren damit seit dem Umbau unsichtbar, und der
+   Druckzustand hat den Fehler zuerst geerbt. Weiss 14 % ergibt ΔL* 15,9. */
 .pickerItem:focus-visible {
-  background: rgba(21, 18, 14, 0.86);
+  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   color: var(--et-home-inverse-text, #fff);
   outline: 0;
   transform: none;
@@ -661,11 +667,21 @@
 
 @media (hover: hover) {
   .pickerItem:hover {
-    background: rgba(21, 18, 14, 0.86);
+    background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
     color: var(--et-home-inverse-text, #fff);
     outline: 0;
     transform: none;
   }
+}
+
+/* Druck: dieselbe Füllung wie Hover und Fokus. Auf einer Zeile über die ganze
+   Breite ist die Füllung die einzige Rückmeldung, die man wirklich sieht — die
+   1px Absenkung aus globals.css gehen darin unter. Ungesperrt, denn genau auf
+   dem Telefon ist sie die einzige, die es gibt. */
+.pickerItem:active {
+  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  color: var(--et-home-inverse-text, #fff);
+  outline: 0;
 }
 
 /* Ausgewählte Zeile: Akzentfüllung mit Ink-Text. Vorher rendete sie mit
@@ -693,6 +709,18 @@
     text-shadow: none;
     transform: none;
   }
+}
+
+/* Die gewählte Zeile bleibt beim Drücken gelb — sonst schlüge die Ink-Füllung
+   oben durch (`.pickerItem:active` ist spezifischer als `.pickerItemActive`)
+   und die Auswahl sähe für einen Moment aus wie eine gewöhnliche Zeile. */
+.pickerItemActive:active {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  border-color: var(--et-home-accent, #ffc600);
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
 }
 
 .pickerItemActive::after {

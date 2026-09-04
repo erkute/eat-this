@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
-import type { MapRef } from 'react-map-gl/maplibre';
+import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import MapCanvas from './MapCanvas';
@@ -45,6 +45,7 @@ const VIEWPORT_MARGIN = 0.6;
 interface MapCanvasLayerProps {
   mapRef: RefObject<MapRef | null>;
   onMapClick: () => void;
+  onMoveEnd: (e: ViewStateChangeEvent) => void;
   displayedRestaurants: MapRestaurant[];
   /** Paywalled spots matching the active filter — drawn as muted dots. */
   displayedLockedRestaurants: MapRestaurant[];
@@ -61,6 +62,7 @@ interface MapCanvasLayerProps {
 export default function MapCanvasLayer({
   mapRef,
   onMapClick,
+  onMoveEnd,
   displayedRestaurants,
   displayedLockedRestaurants,
   selectedRestaurant,
@@ -157,6 +159,7 @@ export default function MapCanvasLayer({
     <MapCanvas
       ref={mapRef}
       onMapClick={onMapClick}
+      onMoveEnd={onMoveEnd}
       onFirstPaint={reveal}
     >
       {/* Locked dots first, so the free pins that follow paint on top and win

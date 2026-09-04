@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import type { PaddingOptions } from 'maplibre-gl';
-import type { MapRef } from 'react-map-gl/maplibre';
+import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import {
   useMapData,
@@ -42,6 +42,7 @@ import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 import { resolveDetailHistory } from '@/lib/map/detailHistory';
 import { searchRefitSpots, spotsCameraTarget } from '@/lib/map/cameraFit';
+import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
    ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
@@ -301,10 +302,12 @@ export default function MapSection({
     [listAnchorY]
   );
 
-  /* Put one specific row on screen — the spot whose detail just closed. Only
-     works while that row is rendered, which is what listFocusId below is for;
-     returns false when it is not (a deep link into a spot the filter excludes)
-     so the caller can fall back to the plain list anchor.
+  /* Put one specific row on screen — the spot whose detail just closed, when
+     that detail was opened FROM the list. Only works while that row is
+     rendered, which is what listFocusId below is for; returns false when it
+     is not (the filter changed underneath) so the caller can fall back to the
+     raw scroll offset. A deep link never comes here: its row was never on
+     screen, so closing lands at the top of the list instead.
 
      Aimed for a few frames rather than once. The rows carry
      `content-visibility: auto` (RestaurantList.module.css), so every row below
@@ -385,6 +388,13 @@ export default function MapSection({
     [contentRef, listAnchorY]
   );
 
+  /* Where the map is looking, once the user has moved it — the list sorts by
+     distance to this point from then on (lib/map/listCenter.ts). Null until
+     the first drag, pinch or marker tap, so the first paint keeps the curated
+     order. `listFollowsMapRef` is the "from then on": it never goes back. */
+  const [listCenter, setListCenter] = useState<ListCenter | null>(null);
+  const listFollowsMapRef = useRef(false);
+
   const {
     category,
     setCategory,
@@ -402,7 +412,7 @@ export default function MapSection({
     displayedRestaurants,
     displayedLockedRestaurants,
     listRestaurants,
-  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location });
+  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location, listCenter });
 
   const [searchOpen, setSearchOpen] = useState(false);
   /* Die Liste, aus der ein Detail geöffnet wurde, eingefroren für den Pager.
@@ -709,13 +719,20 @@ export default function MapSection({
     }
     if (isPhoneViewport()) {
       if (action === 'toList') {
-        /* Opened from a marker on the map (or a deep link): there is no list
-           position to go back to, and the detail leaves the window at ~0 —
-           which in list geometry is the MAP stop. So the button labelled
-           "Liste" delivered the bare map, and the list had to be fished back
-           up by hand. Scroll to it instead. 'mid' is the anchor that matches
-           the snap state the close handlers already set on phones, so the
-           chrome and the scroll agree.
+        /* Opened from a deep link (the home page's must-eat cards, a hub or
+           article link): there is no list position to go back to, and the
+           detail leaves the window at ~0 — which in list geometry is the MAP
+           stop. So the button labelled "Liste" delivered the bare map, and the
+           list had to be fished back up by hand. Scroll to it instead. 'mid'
+           is the anchor that matches the snap state the close handlers already
+           set on phones, so the chrome and the scroll agree.
+
+           To the TOP of the list, not to the spot's row: the row was never on
+           screen, so there is no place to come back to — and aiming at it
+           dropped a visitor from the home page deep into the list with the
+           spot as its last line, everything else above them (user, 04.09.2026).
+           Instant, like the restore below: the list simply stands there when
+           the detail is gone.
 
            Unless a pushed detail entry is about to be popped (the URL sync
            below): ScrollRestorer re-applies the popped entry's saved position
@@ -727,7 +744,7 @@ export default function MapSection({
           listAnchorPendingRef.current = true;
           return;
         }
-        if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
+        scrollListToAnchor('mid', 'instant');
         return;
       }
       /* Phone details start at the top of the in-flow document. Restore the
@@ -740,15 +757,16 @@ export default function MapSection({
       window.scrollTo(0, listScrollRef.current);
       return;
     }
-    /* Tablet sheet / desktop panel already show the list on close — but not
-       necessarily the spot that was just open, and a marker tap can open the
-       fortieth row. Same answer as on phones, in the panel's own scroller. */
+    /* Tablet sheet / desktop panel already show the list on close — but the
+       panel's own scroller may still stand wherever the detail left it. Deep
+       link: the top of the list, same reasoning as on phones. Otherwise the
+       row that was tapped. */
+    const el = contentRef.current;
     if (action !== 'restore') {
-      scrollListToRow(listFocusIdRef.current);
+      if (el) el.scrollTop = 0;
       return;
     }
     if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
-    const el = contentRef.current;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
   }, [sheetView, contentRef, scrollListToAnchor, scrollListToRow]);
@@ -1018,6 +1036,10 @@ export default function MapSection({
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: DetailOrigin = 'list') => {
       userInteractedRef.current = true;
+      /* A marker tap is the user pointing at the map: from here on the list
+         follows it, and the camera's return flight on close is the move that
+         first sorts it around the spot (see handleMapMoveEnd). */
+      if (origin === 'map') listFollowsMapRef.current = true;
       if (sheetView === 'list') {
         detailOriginRef.current = origin;
         panelHiddenBeforeDetailRef.current = desktopPanelHidden;
@@ -1308,8 +1330,11 @@ export default function MapSection({
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant;
     setSelectedRestaurant(null);
-    // Where the list should come back to: the row of the spot being closed.
-    setListFocusId(r?._id ?? null);
+    /* Where the list should come back to: the row of the spot being closed —
+       when it was opened FROM a row. A marker tap hands the map back instead,
+       and a focus row there only made the list render every row down to the
+       spot (88 of 88 for a Kreuzberg pin) without ever scrolling to it. */
+    setListFocusId(detailOriginRef.current === 'map' ? null : (r?._id ?? null));
     setSheetView('list');
     if (detailOriginRef.current === 'map') {
       /* Opened from a marker: hand the MAP back, as it was. The list drops to
@@ -1392,8 +1417,9 @@ export default function MapSection({
     // Closing a must-eat detail (reached from a restaurant detail or deep
     // link) puts the user back on the restaurants list — at the row of the
     // restaurant the dish belongs to, which is the only spot on screen the
-    // must-eat was ever about.
-    setListFocusId(m?.restaurant._id ?? null);
+    // must-eat was ever about. Unless the chain began at a marker: then the
+    // map comes back and no row is the target (see handleRestaurantClose).
+    setListFocusId(detailOriginRef.current === 'map' ? null : (m?.restaurant._id ?? null));
     setSheetView('list');
     // Same nudge as handleRestaurantClose: peek → mid so the list is usable;
     // phones always reset (stale 'full' would keep the full-snap UI state active).
@@ -1459,9 +1485,7 @@ export default function MapSection({
              opened from a marker. rAF puts the trip to the list after it. */
           if (listAnchorPendingRef.current) {
             listAnchorPendingRef.current = false;
-            requestAnimationFrame(() => {
-              if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
-            });
+            requestAnimationFrame(() => scrollListToAnchor('mid'));
           }
           return;
         }
@@ -1474,7 +1498,40 @@ export default function MapSection({
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [isActive, scrollListToAnchor, scrollListToRow]);
+  }, [isActive, scrollListToAnchor]);
+
+  /* The camera came to rest. Decide whether the list re-anchors to where the
+     map now looks — a user gesture always does, a flight only once the list
+     follows and only while the list is what the sheet shows. The same centre
+     twice is not a change: MapLibre reports the last frame of a flight with
+     float noise, and every new centre costs a list render. */
+  const handleMapMoveEnd = useCallback((e: ViewStateChangeEvent) => {
+    const userGesture = e.originalEvent != null;
+    if (userGesture) userInteractedRef.current = true;
+    const follows = listFollowsMove({
+      userGesture,
+      following: listFollowsMapRef.current,
+      detailOpen: sheetViewRef.current === 'detail',
+    });
+    if (!follows) return;
+    listFollowsMapRef.current = true;
+    const next = { lat: e.viewState.latitude, lng: e.viewState.longitude };
+    setListCenter((prev) => (sameCenter(prev, next) ? prev : next));
+  }, []);
+
+  /* A re-sorted list starts over: the rows under the old scroll offset are
+     other rows now. Tablet and desktop scroll their panel to the top, the way
+     a map app's results do when the map moves. Phones are left alone — the map
+     is only draggable while the list sits at its resting stop below it, and
+     that IS the top of the list. The focus row goes with it: it belonged to
+     the old order. */
+  useEffect(() => {
+    if (!listCenter || sheetViewRef.current !== 'list') return;
+    setListFocusId(null);
+    if (isPhoneViewport()) return;
+    const el = contentRef.current;
+    if (el) el.scrollTop = 0;
+  }, [listCenter, contentRef]);
 
   const handleMapClick = useCallback(() => {
     const isMobile =
@@ -1974,6 +2031,7 @@ export default function MapSection({
       setSearchOpen={setSearchOpen}
       onSearchOpen={handleSearchOpen}
       onMapClick={handleMapClick}
+      onMapMoveEnd={handleMapMoveEnd}
       onRestaurantClick={handleRestaurantClick}
       onMustEatClick={handleMustEatClick}
       onLocateMe={handleLocateMe}

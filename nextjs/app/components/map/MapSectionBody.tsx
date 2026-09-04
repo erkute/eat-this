@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import type { CSSProperties, Ref, RefObject } from 'react';
-import type { MapRef } from 'react-map-gl/maplibre';
+import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
 import { resolveLockedOffer } from '@/lib/map/lockedOffer';
@@ -153,6 +153,7 @@ interface MapBodyFilterState {
 /* Map / sheet event handlers (everything not filter-related). */
 interface MapBodyHandlers {
   onMapClick: () => void;
+  onMapMoveEnd: (e: ViewStateChangeEvent) => void;
   onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void;
   onMustEatClick: (m: MapMustEat) => void;
   pagerPrev: MapRestaurant | null;
@@ -248,6 +249,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setSearchOpen,
     onSearchOpen,
     onMapClick,
+    onMapMoveEnd,
     onRestaurantClick,
     onMustEatClick,
     onLocateMe,
@@ -596,6 +598,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <MapCanvasLayer
                 mapRef={mapRef}
                 onMapClick={onMapClick}
+                onMoveEnd={onMapMoveEnd}
                 displayedRestaurants={displayedRestaurants}
                 displayedLockedRestaurants={displayedLockedRestaurants}
                 selectedRestaurant={selectedRestaurant}
@@ -912,8 +915,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     restaurants={listRestaurants}
                     userLocation={location}
                     selectedId={selectedRestaurant?._id ?? listFocusId}
-                    uid={uid}
-                    userTier={userTier}
                     onSelect={onRestaurantClick}
                     primaryMustEats={primaryMustEats}
                     unlockedIds={unlockedIds}

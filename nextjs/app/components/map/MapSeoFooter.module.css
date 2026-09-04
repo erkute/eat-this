@@ -2,14 +2,10 @@
    Isolated map subsystem.
 
    Zurückhaltend gehalten: keine Fläche, kein Rahmen, kein Kasten. Der Block
-   soll wie das Ende eines Textes wirken und nicht wie ein zweites Angebot neben
-   dem All-Berlin-Banner, das direkt darüber steht. Die einzige Trennung nach
-   oben ist eine Haarlinie. */
-
-/* Keine Trennlinie nach oben: darüber steht die unterstrichene Zeile "Schon
-   dabei? Einloggen", und zwei waagerechte Striche direkt übereinander sahen
-   nach Fehler aus (User, 01.09.2026). Den Abstand macht jetzt der Weißraum —
-   das ist ohnehin die Regel des Hauses: Struktur aus Luft und Type, keine
+   soll wie das Ende eines Textes wirken, nicht wie ein Angebot — er folgt
+   direkt auf die letzte Zeile der Liste (das All-Berlin-Banner davor ist seit
+   04.09.2026 weg). Keine Trennlinie nach oben: den Abstand macht der Weißraum,
+   das ist ohnehin die Regel des Hauses — Struktur aus Luft und Type, keine
    Rahmen. Die Haarlinien unter den FAQ-Zeilen bleiben, die trennen Zeilen
    voneinander und nicht zwei Blöcke. */
 .block {

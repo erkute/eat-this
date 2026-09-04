@@ -118,6 +118,13 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
               Punktestand AUF der Spielerkarte gehoert er dagegen jemandem —
               so wie die Zahl auf einer Sammelkarte ihrem Spieler gehoert. */}
           <h1 className="hv-title">{t('albumHeading')}</h1>
+          {/* Wie das Spiel geht, in einem Satz — derselbe, der seit dem
+              04.09.2026 auf dem geteilten Deck steht (Nutzer, 05.09.2026:
+              „das ist eine sehr gute Info, die brauch ich auf jeden Fall auch
+              fuers normale Profil"). Er nimmt dem naechsten Zug darunter die
+              Erklaerarbeit ab: der sagt jetzt nur noch, WO die naechste Karte
+              liegt. */}
+          <p className={styles.howTo}>{t('howTo')}</p>
           {/* Der Punktestand steht sichtbar auf der Spielerkarte, und der ist
               ein Zahlenpaar in einem Knopf, dessen Name „Charakter aendern"
               lautet — vorgelesen wird er also nie. Hier bleibt er als Satz. */}
@@ -135,11 +142,20 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
             er schaltet. */}
         {nextMove && <div className={styles.mastheadMove}>{nextMove}</div>}
 
-        {/* Die Bezirke als Reiter, nicht als Ueberschriften: hier stehen
-            sie vollstaendig nebeneinander und tragen ihren Zaehler mit.
-            „Fehlende" ist ein Schalter und kein achter Reiter — er
-            schneidet quer durch jeden Bezirk. */}
-        {groups.length > 1 && (
+      </div>
+
+      {/* Eine eigene Zeile ueber dem Raster, ueber die volle Breite — nicht
+          mehr in der Spalte neben der Spielerkarte (Nutzer, 05.09.2026: „die
+          Filter muessen auf Desktop eine Zeile runter, ueber die Must Eats,
+          dann hast du mehr Platz fuer den Slogan und fuer das naechste Must
+          Eat"). Sie schalten das Raster darunter, also stehen sie direkt
+          darueber und nicht neben der Figur.
+
+          Die Bezirke als Reiter, nicht als Ueberschriften: hier stehen sie
+          vollstaendig nebeneinander und tragen ihren Zaehler mit. „Fehlende"
+          ist ein Schalter und kein achter Reiter — er schneidet quer durch
+          jeden Bezirk. */}
+      {groups.length > 1 && (
           <div className={styles.filters} role="group" aria-label={t('albumFilterLabel')}>
             <button
               type="button"
@@ -183,9 +199,8 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
                 </button>
               );
             })}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {allSlots.length === 0 ? (
         <p className={styles.emptyText}>{t('emptyMustEats')}</p>

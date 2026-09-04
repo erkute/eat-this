@@ -24,44 +24,23 @@
 
 /* ── Kopfzeile: Spielerkarte + Titel + Reiter ─────────────── */
 
-/* Reihenfolge seit dem Abend des 04.09.2026: Titel, naechster Zug, Reiter —
-   und dann das Raster. Die Reiter filtern das Raster, also stehen sie direkt
-   darueber; dazwischen stand bis dahin der naechste Zug (Nutzer: „das darf
-   nicht zwischen dem Filter und den Must Eats sein"), und auf dem Desktop
-   klebte er ausserdem mit 20 px unter den Bezirks-Pillen. Jetzt liegt er
-   zwischen Ueberschrift und Reitern, mit eigenem Abstand nach beiden Seiten. */
+/* Zwei Felder, mehr nicht: Spielerkarte links, Ueberschrift + Slogan +
+   naechster Zug rechts. Die Reiterleiste ist am 05.09.2026 aus diesem Raster
+   ausgezogen und steht als eigene Zeile ueber dem Kartenraster (Nutzer: „die
+   Filter muessen auf Desktop eine Zeile runter, ueber die Must Eats, dann
+   hast du mehr Platz fuer den Slogan und fuer das naechste Must Eat"). */
 .masthead {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas:
     'card head'
-    'card move'
-    'card filters';
-  /* Die letzte Zeile nimmt den Rest. Ohne das verteilt das Raster die
-     Ueberhoehe der Karte (sie spannt ueber alle drei Zeilen) gleichmaessig
-     auf alle drei — gemessen 121/130/54 px statt auto/auto/Rest, und
-     zwischen „Dein Deck" und der Reiterleiste stand ein Loch von 60 px.
-     `align-content` hilft dagegen nicht: es richtet den ganzen Block aus,
-     nicht die Zeilen untereinander. */
-  grid-template-rows: auto auto 1fr;
-  /* Zeilenabstand kleiner als Spaltenabstand: Titel, Reiter und naechster
-     Zug gehoeren zusammen, die Karte steht daneben. */
+    'card move';
+  /* Die zweite Zeile nimmt den Rest, damit der naechste Zug am Fuss der Karte
+     sitzt statt in der Mitte einer gleichmaessig verteilten Ueberhoehe. */
+  grid-template-rows: auto 1fr;
   align-items: start;
+  margin-bottom: clamp(18px, 2.4vw, 28px);
   gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
-}
-
-/* Die Reiter sitzen am Fuss ihrer Zeile, also so dicht wie moeglich am
-   Raster, das sie schalten — die Zeile ist die hohe (1fr), weil die Karte
-   ueber alle drei spannt. */
-.masthead > .filters {
-  align-self: end;
-}
-
-/* Der naechste Zug bekommt Luft nach unten: er ist eine Auskunft, die Reiter
-   darunter sind ein Bedienelement. Ohne den Abstand las sich die Pille
-   „Standort freigeben" wie ein achter Bezirks-Reiter. */
-.masthead > .mastheadMove {
-  padding-bottom: clamp(6px, 1vw, 12px);
 }
 
 .masthead > .player {
@@ -73,29 +52,30 @@
   min-width: 0;
 }
 
-.masthead > .filters {
-  grid-area: filters;
-}
-
 .masthead > .mastheadMove {
   grid-area: move;
+  align-self: end;
   min-width: 0;
 }
 
-/* Der naechste Zug bringt seinen eigenen Trennstrich mit (Profile.module.css)
-   — in der Kopfzeile steht darunter aber gleich das Raster, und eine zweite
-   Linie ueber den Karten waere eine Linie zu viel.
+/* Der Slogan: wie das Spiel geht, in einem Satz. Derselbe, der auf dem
+   geteilten Deck steht — er nimmt dem naechsten Zug darunter die
+   Erklaerarbeit ab. */
+.howTo {
+  max-width: 46ch;
+  margin: 10px 0 0;
+  color: var(--album-muted);
+  font-family: var(--album-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 400;
+  line-height: 1.35;
+}
 
-   Mit `.masthead` qualifiziert (0,2,0): `.mastheadMove > *` allein haette
-   denselben Rang wie `.move` (0,1,0), und die beiden liegen in VERSCHIEDENEN
-   Modulen. Bei Gleichstand entscheidet die Ladereihenfolge, und die ist
-   zwischen dev und dem Produktionsbuild nicht dieselbe — genau die Falle,
-   die dieses Projekt schon zweimal hatte. Ein Rang mehr entscheidet es
-   unabhaengig davon. */
-.masthead .mastheadMove > * {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: 0;
+/* `hv-head` ist eine Zeile mit zwei Enden; hier stapeln sich Titel und
+   Slogan, also eine Spalte. */
+.head {
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -540,27 +520,33 @@ div.player {
 @media (max-width: 640px) {
   /* Auf dem Telefon steht die Spielerkarte neben dem Titel, nicht darueber:
      nebeneinander kostet der Kopf rund 200 px statt 380, und die erste
-     Kartenreihe liegt wieder ueber der Falz. Reiter und naechster Zug laufen
-     darunter ueber die volle Breite — in der schmalen Spalte neben der Karte
-     waeren die Reiter sieben Zeilen hoch. */
-  /* Der naechste Zug steht NEBEN der Karte, nicht darunter (Nutzer,
-     04.09.2026: „links ist der Avatar und rechts steht halt nur ,Dein Deck' —
-     so viel schwarzer Freiraum daneben"). Die Spalte rechts der Karte war
-     240 px hoch und trug eine 40 px hohe Ueberschrift; jetzt fuellt der Zug
-     sie, und die Seite wird dabei kuerzer statt laenger. Die Reiter bleiben
-     unten ueber die volle Breite — sie gehoeren an das Raster. */
+     Kartenreihe liegt wieder ueber der Falz.
+
+     Neben der Karte stehen Ueberschrift und Slogan — der fuellt die Spalte,
+     die vorher schwarz war (Nutzer, 05.09.2026). Der naechste Zug laeuft
+     darunter ueber die volle Breite, als EINE Zeile: in der schmalen Spalte
+     war er vier Zeilen hoch, und genau das war zu viel Text an der falschen
+     Stelle („das muss doch irgendwie darunter, als eine Zeile auf mobile"). */
   .masthead {
     grid-template-areas:
       'card head'
-      'card move'
-      'filters filters';
-    grid-template-rows: auto 1fr auto;
-    gap: 12px 16px;
+      'move move';
+    grid-template-rows: auto auto;
+    gap: 14px 16px;
+  }
+
+  /* Unten buendig mit der Spielerkarte, oben Luft (Nutzer, 05.09.2026: „das
+     soll ein bisschen weiter unten stehen und mit dem Profilbild unten
+     abschliessen, dass oben ein bisschen Raum ist"). Am oberen Rand
+     ausgerichtet fing der Titel auf Kopfhoehe der Figur an und der Slogan
+     endete auf halber Karte — zwei Spalten, die nirgends zusammenkamen.
+     An der Unterkante teilen sie sich eine Linie. */
+  .masthead > .head {
+    align-self: end;
   }
 
   .masthead > .mastheadMove {
     align-self: start;
-    padding-bottom: 4px;
   }
 
   .player {
@@ -568,9 +554,12 @@ div.player {
   }
 
   .head {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
+    gap: 0;
+  }
+
+  .howTo {
+    margin-top: 8px;
+    font-size: 13px;
   }
 
   /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf

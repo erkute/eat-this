@@ -237,7 +237,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                 mustEats={ownedMustEats}
                 faceUpIds={unlockedIds}
                 districtByRest={districtByRest}
-                hasRevealed={unlockedAt.size > 0}
               />
             }
           />

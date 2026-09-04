@@ -255,6 +255,9 @@ const en = {
     emptyMustEats:
       'No Must Eats in your collection yet. Open a Booster Pack and reveal them on site.',
     albumHeading: 'Your deck',
+    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
+       Wer sie hier aendert, aendert sie dort mit. */
+    howTo: 'Every card sits at a spot in Berlin. Stand in front of it, tap the card, and it flips.',
     albumCount: 'of {total} Must Eats',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
@@ -265,13 +268,11 @@ const en = {
     recentHeading: 'Just revealed',
     moveLabel: 'Your next Must Eat',
     moveLocateCta: 'Share location',
+    moveLocateShort: 'Location',
     moveCovered:
       '{count, plural, one {# Must Eat still face-down in {district}.} other {# Must Eats still face-down in {district}.}}',
     moveCoveredNear:
       '{count, plural, one {# Must Eat still face-down in {district} — {distance} from here.} other {# Must Eats still face-down in {district} — the nearest {distance} from here.}}',
-    moveFirst: 'Must Eats are revealed on site. The next one is waiting in {district}.',
-    moveFirstNear:
-      'Must Eats are revealed on site. The next one is {distance} from here, in {district}.',
     packsHeading: 'My Packs',
     packsMore: 'View Booster Packs',
     inviteHeading: 'Show your deck',
@@ -630,6 +631,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyMustEats:
       'Noch keine Must Eats in deiner Sammlung. \u00d6ffne ein Booster Pack und geh vor Ort aufdecken.',
     albumHeading: 'Dein Deck',
+    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
+       Wer sie hier aendert, aendert sie dort mit. */
+    howTo: 'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um.',
     albumCount: 'von {total} Must Eats',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',
@@ -640,13 +644,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chstes Must Eat',
     moveLocateCta: 'Standort freigeben',
+    moveLocateShort: 'Standort',
     moveCovered:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt.} other {Noch # Must Eats in {district} verdeckt.}}',
     moveCoveredNear:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt \u2014 {distance} von hier.} other {Noch # Must Eats in {district} verdeckt \u2014 das n\u00e4chste {distance} von hier.}}',
-    moveFirst: 'Must Eats deckst du vor Ort auf. Das n\u00e4chste wartet in {district}.',
-    moveFirstNear:
-      'Must Eats deckst du vor Ort auf. Das n\u00e4chste liegt {distance} von hier, in {district}.',
     packsHeading: 'Meine Packs',
     packsMore: 'Booster Packs ansehen',
     inviteHeading: 'Zeig dein Deck',

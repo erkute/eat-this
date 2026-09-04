@@ -110,6 +110,13 @@ const nextConfig: NextConfig = {
         headers: immutableAssetHeaders,
       },
       {
+        // Der eigene Basemap-Style (siehe scripts/build-basemap-style.mts).
+        // Die Middleware fasst ihn nicht an — ihr Matcher schliesst alles mit
+        // Punkt im Pfad aus —, die CDN-Antwort bleibt also cachebar.
+        source: '/basemap/:path*',
+        headers: immutableAssetHeaders,
+      },
+      {
         source: '/:path*',
         headers: [
           // Required for Firebase signInWithPopup to poll popup.closed without console warnings.

@@ -12,8 +12,9 @@ interface LockedMarkerProps {
 }
 
 /**
- * Ein gesperrter Spot — derselbe Pin wie ein freier, nur in Grau (User,
- * 2026-08-27).
+ * Ein gesperrter Spot — derselbe Pin wie ein freier, nur in Rot (User,
+ * 2026-09-04; davor Grau, das auf dem dunklen Basemap-Grund die hellste
+ * Fläche der Karte war).
  *
  * Vorher war es ein 11px-Punkt, und zwar mit Grund: an der Standardkamera auf
  * einem 375px-Fenster stehen 15 freien Spots 194 gesperrte gegenüber. Als
@@ -22,9 +23,10 @@ interface LockedMarkerProps {
  * „hier ist auch ein Spot" deutlicher als ein Punkt, den man für eine
  * Kartenmarkierung halten kann.
  *
- * Grau statt Gelb, das Logo entsättigt: die Form ist dieselbe, die Farbe trägt
- * den Unterschied. Der Stapel bleibt richtig herum — freie Pins liegen über
- * den grauen, weil nur sie `markerRootFree` (z-index 5) bekommen.
+ * Rot statt Gelb bei sonst gleichem Pin: die Form ist dieselbe, das Logo ist
+ * dasselbe, allein die Füllung trägt den Unterschied. Der Stapel bleibt
+ * richtig herum — freie Pins liegen über den roten, weil nur sie
+ * `markerRootFree` (z-index 5) bekommen.
  *
  * Tapping opens the sheet like any other spot; a group of dots zooms in
  * instead.

@@ -6,7 +6,11 @@ import Map, {
   type ViewStateChangeEvent,
 } from 'react-map-gl/maplibre';
 
-const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+/* Dark Matter, unveraendert wie CARTO ihn ausliefert. Sein eigener Grund ist
+   #0e0e0e — dieselbe Farbe steht als `--map-basemap-ground` hinter dem Canvas,
+   damit der Ladezustand nicht aufblitzt. Wer den Style tauscht, zieht die
+   Farbe mit. */
+const BASEMAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
 const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 };
 
@@ -71,7 +75,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
         ref={ref}
         initialViewState={BERLIN}
         style={{ width: '100%', height: '100%' }}
-        mapStyle={LIGHT_STYLE}
+        mapStyle={BASEMAP_STYLE}
         attributionControl={false}
         onClick={() => onMapClick?.()}
         onMoveEnd={onMoveEnd}

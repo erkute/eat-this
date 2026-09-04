@@ -538,7 +538,10 @@
 .panelToggle,
 .mapSearchClear {
   background: transparent;
-  color: #15120e;
+  /* Papier seit 04.09.2026: die Glyphen stehen auf der dunklen Karte. Vorher
+     Ink mit weissem Halo — beides musste zusammen kippen, sonst steht entweder
+     Ink auf Ink oder Weiss leuchtet auf Weiss. */
+  color: var(--et-home-paper, #fff);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -558,7 +561,8 @@
 .mapSearchClear:hover,
 .mapSearchClear:focus-visible {
   background: transparent;
-  color: #d9382a;
+  /* Gelb statt Rot: derselbe Hover wie ueberall auf dem Ink-Grund. */
+  color: var(--et-home-accent, #ffc600);
   border: 0;
   box-shadow: none;
 }
@@ -573,19 +577,27 @@
 /* Free-standing icons: halo ─────────────────────────────────────────────────
    These three sit straight on the tiles (the button plates were removed
    2026-06-04), so a yellow pin sliding underneath — which happens on every
-   filter refit — left them unreadable. A white halo cuts them out of whatever
-   is behind without bringing the plate back. Stacked tight shadows rather than
-   one wide blur: a tight ring reads as a cut-out, a wide one as a glow.
+   filter refit — left them unreadable. Ein Halo schneidet sie aus dem aus, was
+   dahinter liegt, ohne die Platte zurueckzuholen. Eng gestapelte Schatten statt
+   eines breiten Weichzeichners: ein enger Ring liest sich als Ausschnitt, ein
+   breiter als Leuchten.
+
+   Der Halo ist seit 04.09.2026 INK, nicht mehr Weiss. Auf der hellen Karte
+   trennte Weiss die damals dunklen Glyphen vom Untergrund. Seit die Karte
+   dunkel ist, sind die Glyphen selbst weiss — weisser Halo um weisse Glyphe
+   war ein Leuchtfleck (User: „die icons leuchten so komisch"). Ink dreht die
+   Trennung um und leistet dasselbe: gegen einen gelben Pin darunter steht
+   jetzt der dunkle Ring.
 
    Deliberately NOT applied to `.mapSearchToolbar .mapSearchIcon` — the
-   expanded toolbar has its own white fill and needs no halo. Declared after
+   expanded toolbar has its own fill and needs no halo. Declared after
    the `filter: none` resets above, which is what this file needs to make an
    icon filter stick at all. */
 .mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
-  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 3px #fff)
-    drop-shadow(0 1px 2px rgba(21, 18, 14, 0.18));
+  filter: drop-shadow(0 0 1.5px var(--et-home-ink, #15120e))
+    drop-shadow(0 0 3px var(--et-home-ink, #15120e)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
 }
 
 @media (min-width: 1024px) {
@@ -753,7 +765,7 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -773,7 +785,7 @@
 .mapSearchBtn:hover,
 .mapSearchBtn:focus-visible {
   background: transparent;
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-home-accent, #ffc600);
   border: 0;
   box-shadow: none;
 }

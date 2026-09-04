@@ -22,9 +22,7 @@ const state = vi.hoisted(() => ({
 
 const copy: Record<string, string> = {
   dataLoading: 'Loading your profile',
-  dataRefreshing: 'Updating your collection',
   dataError: 'Your collection could not be loaded',
-  dataStale: 'Showing your last saved collection',
   dataRetry: 'Retry',
   profileTitle: 'Profile',
   heroKicker: 'Your collection',
@@ -74,7 +72,6 @@ vi.mock('@/lib/firebase/useUserProfile', () => ({
   useUserProfile: () => ({ profile: { avatar: 1 }, setAvatar: vi.fn() }),
 }));
 vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
-vi.mock('./ProfileCityProgress', () => ({ default: () => <div>City progress</div> }));
 /* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
    seines Providers, und dieser Test rendert die Shell blank. */
 vi.mock('./ProfileNextMove', () => ({ default: () => <div>Next move</div> }));
@@ -122,13 +119,30 @@ describe('ProfileShell map-data states', () => {
     expect(state.refetch).toHaveBeenCalledOnce();
   });
 
-  it('keeps cached profile content visible but clearly marks it stale', () => {
+  /* Der veraltete Stand meldet sich seit 04.09.2026 ueber die zentrale
+     Info-Karte (`window.showNotice`), nicht mehr als Balken IM Fluss: der
+     schob beim Erscheinen die ganze Seite nach unten, waehrend man sie ansah
+     (Nutzer, 04.09.2026). Der Test haelt beides fest — die Meldung geht
+     hinaus, und im Markup steht dafuer nichts mehr. */
+  it('meldet veraltete Daten ueber die Info-Karte, nicht im Seitenfluss', () => {
     state.mapError = 'HTTP 500';
     state.restaurants = [{ _id: 'r-1', slug: 'cached-spot', categories: [] }];
+    const showNotice = vi.fn();
+    window.showNotice = showNotice;
 
     render(<ProfileShell publicFaceUpIds={[]} />);
 
-    expect(screen.getByRole('alert').textContent).toContain('Showing your last saved collection');
+    expect(showNotice).toHaveBeenCalledOnce();
+    const notice = showNotice.mock.calls[0][0];
+    expect(notice.tone).toBe('warning');
+    /* Sie bleibt stehen, solange der Zustand steht — und traegt den Weg
+       heraus. */
+    expect(notice.duration).toBe(0);
+    expect(notice.action?.label).toBe('Retry');
+    notice.action.onClick();
+    expect(state.refetch).toHaveBeenCalledOnce();
+
+    expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.getByText('Saved Spots')).toBeTruthy();
   });
 });

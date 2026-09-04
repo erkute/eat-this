@@ -11,6 +11,13 @@ interface AlbumSlot {
   id: string;
   collected: boolean;
   mustEat: MapMustEat | null;
+  /** Das Lokal, in dem diese Karte liegt — auch bei verdeckten Plaetzen.
+   *  `mustEat` ist dort bewusst null (kein Gericht, kein Bild), aber Name
+   *  und Slug des Spots sind keine bezahlten Angaben: beide stehen auf der
+   *  Map. Ohne sie waere ein leerer Album-Platz nur ein Loch statt einer
+   *  Aufgabe — und ohne Weg dorthin. */
+  where: string | null;
+  slug: string | null;
 }
 
 /** Ein Abschnitt der Sammlung — bisher nach Kategorie, seit 31.08.2026 nach
@@ -56,6 +63,8 @@ export function buildAlbum(
       id: m._id,
       collected,
       mustEat: collected ? m : null,
+      where: m.restaurant?.name ?? null,
+      slug: m.restaurant?.slug ?? null,
     };
     const last = groups[groups.length - 1];
     if (last && last.group === name) last.slots.push(slot);

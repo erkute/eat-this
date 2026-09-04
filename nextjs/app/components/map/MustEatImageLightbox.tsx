@@ -37,6 +37,12 @@ export interface MustEatImageLightboxProps {
   hasNext?: boolean;
   /** Zählstand für die Leiste, 1-basiert. */
   position?: { index: number; count: number };
+  /* Ein Ausgang unter der Karte — als Slot, damit diese Komponente nicht
+     weiss, wohin. Der Zoom war bis zum 04.09.2026 eine Sackgasse: eine
+     verdeckte Karte zeigte ihre Rueckseite gross, und der einzige Weg
+     weiter war Zumachen (Nutzer, 04.09.2026). Wer den Slot fuellt,
+     entscheidet auch, wann er erscheint. */
+  action?: React.ReactNode;
 }
 
 interface InnerProps {
@@ -51,6 +57,7 @@ interface InnerProps {
   hasPrev?: boolean;
   hasNext?: boolean;
   position?: { index: number; count: number };
+  action?: React.ReactNode;
 }
 
 function Chevron({ dir }: { dir: 'left' | 'right' }) {
@@ -87,6 +94,7 @@ const Inner = memo(function Inner({
   hasPrev = false,
   hasNext = false,
   position,
+  action,
 }: InnerProps) {
   const canPage = Boolean(onPrev || onNext);
   const cardAspect = originRect.width / originRect.height;
@@ -377,6 +385,21 @@ const Inner = memo(function Inner({
         </motion.div>
       </motion.div>
 
+      {/* Der Ausgang, wenn der Aufrufer einen mitgibt. Wie die Blaetterleiste
+          schluckt er seine eigenen Zeiger-Ereignisse: der Vorhang darunter
+          schliesst den Zoom, und ein Wisch, der auf dem Knopf beginnt, darf
+          nicht blaettern. */}
+      {action && (
+        <div
+          className={styles.action}
+          onClick={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          {action}
+        </div>
+      )}
+
       {/* Dieselbe Leiste wie in der Foto-Galerie: ein Pfeil, der Stand, ein
           Pfeil. Sie schluckt ihre eigenen Klicks — der Vorhang darunter
           schliesst den Zoom. */}
@@ -432,6 +455,7 @@ export default function MustEatImageLightbox({
   hasPrev,
   hasNext,
   position,
+  action,
 }: MustEatImageLightboxProps) {
   const [mounted, setMounted] = useState(false);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -484,6 +508,7 @@ export default function MustEatImageLightbox({
         hasPrev={hasPrev}
         hasNext={hasNext}
         position={position}
+        action={action}
         onClose={onClose}
         onClosed={() => {
           setRendered(null);

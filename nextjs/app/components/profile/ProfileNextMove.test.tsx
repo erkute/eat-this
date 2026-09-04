@@ -84,11 +84,17 @@ describe('ProfileNextMove', () => {
 
   /* Der Anstupser, den „Zuletzt aufgedeckt" bei null Aufdeckungen schuldig
      bleibt: wer noch nie eine Karte umgedreht hat, muss erst erfahren, dass
-     Karten vor Ort aufgehen — nicht, wie viele noch verdeckt sind. */
+     Karten vor Ort aufgehen — nicht, wie viele noch verdeckt sind.
+
+     Die UEBERSCHRIFT unterscheidet dabei nicht mehr: sie hiess fuer Neue
+     „Erstes Must Eat", und das war schlicht falsch — die zehn oeffentlich
+     aufgedeckten Karten liegen von Anfang an offen im Deck (Nutzer,
+     04.09.2026). Was hier steht, ist immer das naechste. Nur der Satz
+     darunter erklaert weiter. */
   it('erklaert Neuen zuerst, dass Karten vor Ort aufgehen', () => {
     const { container } = renderMove({ hasRevealed: false });
 
-    expect(container.textContent).toContain('moveFirstLabel');
+    expect(container.textContent).toContain('moveLabel');
     expect(container.textContent).toContain('moveFirst:');
     expect(container.textContent).not.toContain('moveCovered');
   });
@@ -121,20 +127,35 @@ describe('ProfileNextMove', () => {
   });
 
   /* In den Browser-Einstellungen abgelehnt: der Knopf bewirkt dort nichts
-     mehr, also fuehrt der Weg wieder auf die Map. */
-  it('schickt auf die Map, wenn der Standort abgelehnt wurde', () => {
+     mehr — dann bleibt gar keiner stehen, denn der Weg auf die Map liegt
+     seit 04.09.2026 in der Karte selbst. */
+  it('laesst den Knopf weg, wenn der Standort abgelehnt wurde', () => {
     location.error = 'denied';
-    const { container } = renderMove();
+    renderMove();
 
     expect(screen.queryByRole('button')).toBeNull();
-    expect(container.querySelector('[data-href]')?.getAttribute('data-href')).toBe('/map?me=a');
   });
 
-  it('zeigt mit Standort auf genau die naechste Karte', () => {
-    location.value = HERE;
-    const { container } = renderMove();
+  /* Der einzige Weg aus diesem Block heraus, in beiden Standort-Zustaenden:
+     die Karte. Der zweite Knopf daneben ist entfallen (Nutzer, 04.09.2026:
+     „das kann jetzt weg, weil man ja auf die Karte klicken und landen
+     kann") — er fuehrte auf dasselbe Ziel.
 
-    expect(container.querySelector('[data-href]')?.getAttribute('data-href')).toBe('/map?me=a');
+     Auf den SPOT, nicht auf `?me=<id>`: ein Spot traegt mehrere Karten, und
+     wer hier steht, will wissen, wo er hin muss. Dieselbe Wahl wie im Zoom
+     des Albums. */
+  it('macht die Karte zum Weg auf den Spot — mit und ohne Standort', () => {
+    const { container } = renderMove();
+    expect(container.querySelector('[data-href]')?.getAttribute('data-href')).toBe(
+      '/map?r=spot-a'
+    );
+
+    cleanup();
+    location.value = HERE;
+    const withLocation = renderMove().container;
+    expect(withLocation.querySelector('[data-href]')?.getAttribute('data-href')).toBe(
+      '/map?r=spot-a'
+    );
   });
 
   it('sagt waehrend der Standortsuche, dass gesucht wird', () => {

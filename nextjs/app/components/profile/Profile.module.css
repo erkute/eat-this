@@ -87,6 +87,16 @@ main.page:has(.foot) {
   min-width: 0;
 }
 
+/* Der erste Abschnitt ist jetzt der Seitenanfang — vorher stand darueber die
+   Ink-Bank. `hv-section` bringt 115 px Abstand mit, gedacht als Luft ZWISCHEN
+   zwei Abschnitten; ueber dem ersten kamen sie zu den 96 px Kopfpolster der
+   Seite dazu, und die Spielerkarte fing bei 211 px an. Element-qualifiziert,
+   weil `.homeV2 .hv-section` (css/style.css) denselben Rang hat und in
+   Produktion NACH den Modulen laedt. */
+main.page .firstSection {
+  margin-top: clamp(8px, 1.4vw, 18px);
+}
+
 /* hv-head/hv-wrap/hv-rail are two-class selectors (.homeV2 .hv-*). Matching
    that weight with `.page .foo` is NOT enough: at equal specificity the later
    stylesheet wins, and the order differs between dev and production — in the
@@ -170,196 +180,10 @@ main.page .head {
   outline-offset: 3px;
 }
 
-/* ── Die Bank: Figur, Name, Berlin-Fortschritt ──────────────
-   Eine Tafel statt zweier Abschnitte. Dieselbe Sprache wie die
-   Fakten-Tafel der Spot-Seite und das Karten-Sheet: Radius
-   --et-radius-photo, gelbe Labels in Versalien, weiße Werte — auf der
-   leisen Stufe, weil die Bank ein Objekt ist und als Ink auf Ink
-   unsichtbar waere. Der Figur bleibt die rechte Spalte — sie ist der
-   Grund, dass die rechte Hälfte hier oben nicht leer steht. */
-
-.bank {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'copy figure'
-    'city figure';
-  /* Zeilenabstand 0: der Fortschritt bringt seinen eigenen Trennstrich
-     mit, und fehlt er (totalCount 0), soll keine leere Zeile bleiben. */
-  gap: 0 clamp(20px, 3vw, 48px);
-  padding: clamp(22px, 3.2vw, 40px) clamp(24px, 3.4vw, 44px);
-  color: var(--profile-inverse);
-  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
-  border-radius: var(--et-radius-photo, 10px);
-}
-
-.bankCopy {
-  grid-area: copy;
-  align-self: end;
-  min-width: 0;
-}
-
-/* hv-kicker faerbt sich in Ink — auf der Tafel waere das unsichtbar. Das
-   gelbe Marken-Quadrat davor kommt weiter aus .hv-mk. */
-.bankKicker {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-family: var(--et-font-label);
-  font-size: var(--et-type-kicker, 10px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-label, 0.16em);
-  text-transform: uppercase;
-}
-
-.bankName {
-  margin: 10px 0 0;
-  color: var(--profile-inverse);
-  font-family: var(--et-font-display);
-  font-size: clamp(40px, 6.2vw, 84px);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-hero, 0.9);
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-
-.bankCharacter {
-  grid-area: figure;
-  align-self: center;
-  display: grid;
-  justify-items: center;
-}
-
-/* Cut out on the board like the home's phone mockups — no card, no frame. */
-.bankAvatar {
-  position: relative;
-  display: block;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-}
-
-/* Ein Wort in derselben Schrift wie „Berlin" und „Erstes Must Eat" — die
-   Tafel beschriftet ihre Baender so, und die Figur ist eins davon.
-
-   Kein Gegenstand mehr an dieser Stelle. Ein Stift-Icon war entweder zu
-   klein zum Erkennen oder, gross genug, ein zweiter Blickfang neben dem
-   Charakter — und er bewegte sich beim Hover zusaetzlich zur Figur, also
-   zwei Dinge gleichzeitig. Jetzt bewegt sich nur die Figur. */
-.bankAvatarLabel {
-  display: block;
-  margin-top: 10px;
-  color: var(--profile-accent);
-  font-family: var(--et-font-label, var(--font-providence), sans-serif);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-/* Ueber die HOEHE bemessen, nicht ueber die Breite. Zwei Gruende: die drei
-   Charaktere haben verschiedene Seitenverhaeltnisse (202x251, 186x282,
-   188x277), bei fester Breite waere die Bank also je nach Charakter
-   unterschiedlich hoch — und die Figurenspalte muss auf die Hoehe der
-   Textspalte passen, sonst steht in der Tafel totes Ink.
-
-   Das Mass folgt der Textspalte daneben, und die misst seit dem Auszug des
-   naechsten Zugs wieder rund 230 px (Kicker, Name, Berlin-Block). Figur plus
-   Beschriftung landen mit 14,5vw bei etwa 225 — vorher, als der naechste Zug
-   die Tafel auf 469 px zog, waren es 20vw. Zu gross ist so schlimm wie zu
-   klein: bei 288 px stand links unter dem Balken 155 px totes Ink. */
-.bankAvatarImg {
-  display: block;
-  height: clamp(140px, 14.5vw, 215px);
-  width: auto;
-  /* Auf Ink traegt der alte Ink-Schatten nichts — er war fuer weisses
-     Papier gerechnet. Derselbe Wert wie die Pack-Art auf der Tafel. */
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-}
-
-/* Kein Hover auf der Figur (Nutzer, 31.08.2026). Sie hob sich beim
-   Ueberfahren an und kippte leicht — auf einer Seite, die sonst nur den
-   Fokus-Ring und Farbwechsel als Rueckmeldung kennt, war sie das einzige
-   Element, das sich bewegt. Der Tastatur-Fokus behaelt seinen Ring: der ist
-   keine Zierde, sondern der einzige Hinweis fuer alle, die nicht zeigen. */
-.bankAvatar:focus-visible {
-  outline: 3px solid var(--profile-accent);
-  outline-offset: 3px;
-}
-
-/* Der Berlin-Fortschritt, jetzt Teil der Tafel statt eigener Kachel — und
-   seit 31.08.2026 eine reine Angabe: kein Link, kein Knopf. Warum, steht in
-   ProfileCityProgress.
-
-   Auf breiten Schirmen ohne Trennlinie, nur mit Abstand. Die Figur steht
-   ueber beide Zeilen, der Block also nur in der linken Spalte — die Linie
-   lief damit auf die Figur zu und brach 43 px davor ab, auf Kniehoehe
-   (Nutzer, 31.08.2026: „haesslich, gerade Desktop"). Ueber die volle Breite
-   waere sie durch die Figur gelaufen. Auf schmal liegt der Block ohnehin
-   ueber die ganze Karte, dort traegt die Linie und bleibt (s.u.). */
-.city {
-  grid-area: city;
-  align-self: start;
-  display: block;
-  margin-top: clamp(22px, 2.6vw, 30px);
-  padding-top: clamp(4px, 0.6vw, 8px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-}
-
-.cityKicker {
-  margin: 0;
-  color: var(--profile-accent);
-  font-family: var(--et-font-label, var(--font-providence), sans-serif);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.cityNumbers {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
-  margin: 6px 0 0;
-}
-
-.cityOpen {
-  color: var(--profile-accent);
-  font-size: clamp(36px, 3.4vw, 46px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Fliesstext statt Versalien: fett und in Grossbuchstaben stand die Bildzeile
-   auf derselben Lautstaerke wie die 46-px-Zahl davor, und die Zeile las sich
-   als ein Wort — „466VON466SPOTSAUFDEINERMAP". Jetzt traegt die Zahl, und der
-   Satz daneben erklaert sie. */
-.cityTotal {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-.cityBar {
-  display: block;
-  height: 6px;
-  margin-top: 14px;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.cityBarFill {
-  display: block;
-  height: 100%;
-  background: var(--profile-accent);
-  border-radius: inherit;
-}
+/* Die Ink-Bank (Figur, Name, Berlin-Zahl) ist am 04.09.2026 entfallen — die
+   drei Angaben stehen jetzt auf der Spielerkarte in der Kopfzeile des Albums
+   (ProfilePlayerCard + ProfileAlbum.module.css). Mit ihr sind .bank*, .city*
+   und ProfileCityProgress weg. */
 
 /* ── naechster Zug ──────────────────────────────────────── */
 
@@ -370,11 +194,33 @@ main.page .head {
    Die Haarlinie liegt UNTER dem Block: sie trennt ihn von der Ueberschrift
    „Dein Deck", die darauf folgt. Darueber braeuchte er keine — da liegt
    schon der volle Abschnitts-Abstand zur Tafel. */
+/* Seit 04.09.2026 zweispaltig: die verdeckte Karte links, der Satz und der
+   Knopf rechts. Die Karte macht aus „noch 3 in Kreuzberg verdeckt" ein Ziel
+   zum Ansehen. `align-items: center`, damit ein einzeiliger Satz nicht an
+   der Oberkante einer 96 px hohen Karte klebt. */
 .move {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.8vw, 20px);
   margin-bottom: clamp(24px, 3vw, 36px);
   padding-bottom: clamp(20px, 2.4vw, 28px);
   border-bottom: 1px solid var(--profile-line);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+
+/* Klein genug, dass sie den Abschnitt einleitet statt ihn anzufuehren: die
+   Karten im Album darunter sind 126 px breit, diese misst 68. */
+.moveCard {
+  flex: 0 0 auto;
+  width: clamp(56px, 6vw, 72px);
+  aspect-ratio: 1539 / 2115;
+  object-fit: contain;
+  border-radius: 5px;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+}
+
+.moveCopy {
+  min-width: 0;
 }
 
 /* Gelb, nicht Papier: die Bezirksnamen darunter sind Papier-Versalien, und in
@@ -981,51 +827,6 @@ main.page .foot {
 @media (max-width: 760px) {
   .page {
     padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 20px);
-  }
-
-  /* Figur bleibt neben dem Namen, der Fortschritt legt sich unter beide:
-     eine Bank, die auf 360 px nicht in eine Saeule zerfaellt.
-
-     „Charakter aendern" stand hier eine Zeit lang unter dem NAMEN, weil es
-     unter der damals 128 px schmalen Figur (103 px breit) zweizeilig umbrach.
-     Es hing dort aber am Namen statt an der Figur und las sich als dessen
-     Unterzeile (Nutzer, 31.08.2026: „sieht komisch aus unter dem Namen").
-     Jetzt ist die Figur 155 px hoch und damit 125 px breit — der Knopf misst
-     112 und passt einzeilig darunter. Er steht wieder bei dem, was er
-     aendert, und das Markup braucht keine zweite Variante. */
-  .bank {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'copy figure'
-      'city city';
-    gap: 0 16px;
-    padding: 20px;
-  }
-
-  .bankAvatarImg {
-    height: 155px;
-  }
-
-  /* Hier traegt die Linie: der Block liegt ueber die volle Kartenbreite,
-     die Figur steht darueber statt daneben. */
-  .city {
-    padding-top: clamp(15px, 1.8vw, 20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-  }
-
-  /* Oben links, nicht auf halber Hoehe: `align-self: end` richtet den Namen
-     auf dem Desktop an der Haarlinie darunter aus — neben einer 155-px-Figur
-     schob es „Dein Profil" in die Mitte der Karte (Nutzer, 31.08.2026). */
-  .bankCopy {
-    align-self: start;
-  }
-
-  .bankName {
-    font-size: clamp(34px, 10vw, 56px);
-  }
-
-  .cityOpen {
-    font-size: 38px;
   }
 
   .spotsCards {

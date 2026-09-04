@@ -11,9 +11,10 @@ import {
 } from '@/lib/firebase/useUserProfile';
 import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
+import MapDataNotice from '../map/MapDataNotice';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
-import ProfileCityProgress from './ProfileCityProgress';
+import ProfilePlayerCard from './ProfilePlayerCard';
 import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
@@ -57,7 +58,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     restaurants: ownedRestaurants,
     mustEats,
     revealedMustEatIds,
-    totalCount,
     fullCatalog,
     loading: mapDataLoading,
     error: mapDataError,
@@ -184,88 +184,57 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   return (
     <>
       <main className={`homeV2 ${styles.page}`} data-menu>
-        {(mapDataLoading || mapDataError) && (
-          <div className="hv-wrap">
-            <div
-              className={`${styles.dataNotice}${mapDataError ? ` ${styles.dataNoticeError}` : ''}`}
-              role={mapDataError ? 'alert' : 'status'}
-              aria-live="polite"
-            >
-              <p>{mapDataError ? t('dataStale') : t('dataRefreshing')}</p>
-              {mapDataError && (
-                <button type="button" className={styles.dataNoticeAction} onClick={refetchMapData}>
-                  {t('dataRetry')}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Meldungen liegen ueber der Seite, nicht in ihr (Nutzer, 04.09.2026:
+            „keine Meldungen mehr oben oder unten im Bild, sondern als Layer,
+            wie wir das sonst haben"). Hier stand ein Balken im Fluss, der beim
+            Erscheinen die ganze Seite nach unten schob — die Sammlung sprang,
+            waehrend man sie ansah.
+
+            Dieselbe Komponente wie auf der Map, nicht eine zweite mit
+            derselben Aufgabe: sie kennt die vier Zustaende schon (laedt,
+            aktualisiert, Fehler, veraltet), waehlt Ton und Zeichen und haengt
+            den Wiederholen-Knopf an. Die Texte liegen im `map`-Namespace, und
+            das ist ehrlich — es sind dieselben Kartendaten, dieselbe
+            /api/map-data-Antwort.
+
+            Nur im Normalfall: der Zweig ganz ohne Kartendaten rendert weiter
+            oben seine eigene Seite, und dort IST die Meldung der Inhalt, kein
+            Balken ueber einem. */}
+        <MapDataNotice
+          loading={mapDataLoading}
+          error={mapDataError}
+          hasData={hasMapData}
+          onRetry={refetchMapData}
+        />
 
         {/* No counters here on purpose: a raw spot tally is a receipt, not a
             profile — and the product deliberately doesn't state its numbers.
             The only count that stays is the deck's own progress. */}
-        {/* Die Ink-Bank: Figur, Name und die Berlin-Zahl in EINER Fläche.
-            Vorher waren das zwei Abschnitte über rund 900 px, mit ~700 px
-            Weiß dazwischen — die Sammlung, wegen der man die Seite öffnet,
-            begann unter der Falz. Und es zog die beiden Farbflächen der
-            Seite zusammen: die Ink-Fläche stand ganz oben allein, die gelbe
-            Einladen-Fläche ganz unten. */}
-        <header className="hv-wrap">
-          <div className={styles.bank}>
-            <div className={styles.bankCopy}>
-              <p className={styles.bankKicker}>
-                <span className="hv-mk" aria-hidden="true" />
-                {t('heroKicker')}
-              </p>
-              <h1 className={styles.bankName}>{firstName}</h1>
-            </div>
+        {/* Kein eigener Seitenkopf mehr (Prototyp, 04.09.2026). Die Ink-Bank
+            war 315 px hoch (Desktop 1440) und trug drei Angaben: Kicker,
+            Name, Berlin-Zahl, dazu die Figur als Gegenstand in der rechten
+            Ecke. Auf dem Telefon frass sie 43 % des ersten Bildschirms, und
+            die Sammlung — der Grund, diese Seite zu oeffnen — fing darunter
+            an (Nutzer, 04.09.2026: „viel zu gross", „der Avatar ist nicht
+            richtig geil eingesetzt").
 
-            {/* The character is the one thing on this page that is purely the
-                user's, so it keeps the room the home gives its phone mockups:
-                cut out, no frame — jetzt auf der Tafel statt auf dem Papier.
-
-                EIN Knopf, nicht zwei. Figur und Beschriftung waren zwei
-                Controls mit demselben Ziel und demselben Namen — fuer eine
-                Screenreader-Liste zweimal „Charakter aendern" hintereinander.
-                Die Beschriftung haengte ausserdem als Unterzeile unter einer
-                288 px hohen Figur (Nutzer, 31.08.2026: „muss das direkt unter
-                die Figur?"). Jetzt sitzt das Zeichen AUF der Figur, wie das
-                Kreuz auf den gespeicherten Spots, und die Spalte ist wieder
-                nur der Charakter. */}
-            <div className={styles.bankCharacter}>
-              <button
-                type="button"
-                className={styles.bankAvatar}
-                onClick={() => setPickerOpen(true)}
-                aria-label={t('changeAvatar')}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.bankAvatarImg}
-                  src={`/pics/avatar/${avatarIdx}.webp?v=3`}
-                  alt=""
-                />
-                {/* Ein Wort in der Beschriftungs-Schrift der Tafel, nicht
-                    noch ein Gegenstand: „Berlin" und „Erstes Must Eat"
-                    stehen genauso da. Kurz, weil die Spalte auf dem Telefon
-                    nur 125 px breit ist — den ganzen Satz traegt das
-                    aria-label des Knopfes. */}
-                <span className={styles.bankAvatarLabel} aria-hidden="true">
-                  {t('changeAvatarShort')}
-                </span>
-              </button>
-            </div>
-
-            <ProfileCityProgress open={ownedRestaurants.length} total={totalCount} />
-          </div>
-        </header>
-
-        <section className={`hv-section hv-wrap ${styles.section}`}>
+            Alle drei Angaben stehen jetzt AUF der Spielerkarte, im Format
+            jeder Must-Eat-Karte, und die steht in der Kopfzeile des Albums.
+            Der Charakter ist damit selbst eine Karte statt Zierrat neben
+            einer Ueberschrift. */}
+        <section className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}>
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
             groupOf={(m) =>
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
+            }
+            playerCard={
+              <ProfilePlayerCard
+                name={firstName}
+                avatarIdx={avatarIdx}
+                onPick={() => setPickerOpen(true)}
+              />
             }
             /* Der einzige Zug nach vorn auf dieser Seite — und er handelt vom
                Deck, steht also im Deck. In der Ink-Tafel des Kopfes war er ein

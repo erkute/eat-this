@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './MapFilters.module.css';
 
@@ -25,8 +25,6 @@ interface Props {
   onClose: () => void;
   /** Anchor element so desktop renders as anchored popover (instead of bottom sheet). */
   anchorEl?: HTMLElement | null;
-  /** Optional extra rows after the list — e.g. sort direction toggle. */
-  footer?: ReactNode;
   /** Desktop: die Liste klappt IN der Kopfzeile auf und schiebt die Ergebnisse
    *  nach unten, statt als Popover darüber zu schweben (User, 2026-08-27).
    *  Dann kein Portal, kein Backdrop, keine Ankerrechnung und keine
@@ -56,7 +54,6 @@ export default function MapFilterPickerSheet({
   onSelect,
   onClose,
   anchorEl,
-  footer,
   inline = false,
   allLabel,
   allSub,
@@ -266,7 +263,6 @@ export default function MapFilterPickerSheet({
           );
         })}
       </div>
-      {footer && <div className={styles.pickerFooter}>{footer}</div>}
     </div>
   );
 

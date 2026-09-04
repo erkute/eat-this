@@ -56,7 +56,6 @@ async (page) => {
       list.appendChild(item);
     }
     sheet.appendChild(list);
-    sheet.appendChild(mk("div", ["pickerFooter"], "Zurücksetzen"));
     pickerRoot.appendChild(backdrop);
     pickerRoot.appendChild(sheet);
     document.body.appendChild(pickerRoot);

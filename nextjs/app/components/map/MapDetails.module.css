@@ -5699,13 +5699,21 @@
   }
 }
 
-/* Die Galerie-Polaroids hatten einen weissen Rand. Auf Ink waeren sie die
-   hellste Flaeche der ganzen Seite und zoegen mehr Blick als die Fotos darin —
-   deshalb die leise Stufe, wie jedes andere Objekt auf dem Grund. Das Foto
-   selbst bleibt unangetastet. */
+/* Die Galerie-Polaroids tragen wieder einen WEISSEN Rand (User, 04.09.2026:
+   „wie ein Polaroid"). Beim Ink-Umbau standen sie hier auf der leisen Stufe
+   (Weiss 5,5 %), mit der Begruendung, ein weisser Rand waere die hellste
+   Flaeche der Seite und zoege mehr Blick als die Fotos darin. Auf dem dunklen
+   Grund war das Ergebnis aber ein SCHWARZER Rahmen — und ein Polaroid ohne
+   weissen Rand ist keins mehr. Der Einwand von damals bleibt richtig und ist
+   jetzt der Preis: die Abzuege sind die hellsten Flaechen im Detail. Genau so
+   bestellt.
+
+   Die Geometrie war immer schon Polaroid und bleibt, wie sie ist: 8px rundum,
+   34px unten (auf schmalen Telefonen 7/23) — der breite Fuss ist das, was den
+   Abzug als Abzug lesbar macht. Das Foto selbst bleibt unangetastet. */
 .detailV13:not(.detailV13MustEat) .rdGalleryThumb,
 .detailV13:not(.detailV13MustEat) .rdGalleryThumb:first-child {
-  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  background: var(--et-home-paper, #fff);
 }
 
 /* Die letzten drei roten Hover-Zustaende. Rot bleibt der Marke als Flaeche,
@@ -5744,15 +5752,18 @@
 .detailV13:not(.detailV13MustEat) .rdMustGrid,
 .detailV13:not(.detailV13MustEat) .rdMustGrid li,
 .detailV13:not(.detailV13MustEat) .medish,
-.detailV13:not(.detailV13MustEat) .medishPh,
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb {
+.detailV13:not(.detailV13MustEat) .medishPh {
   color: var(--et-home-paper, #fff);
 }
 
-/* Die Zaehlung „01/02" auf dem Polaroid — die leise Stufe, nicht die volle. */
-.detailV13:not(.detailV13MustEat) .rdGalleryNum {
-  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-}
+/* Der Galerie-Abzug steht hier bewusst NICHT mehr: seit sein Rand wieder
+   weiss ist (siehe weiter unten), waere weisse Schrift darauf unsichtbar.
+   Genau das ist passiert — die Zaehlung „01/02" stand auf Weiss 55 % und kam
+   auf Kontrast 1,0 heraus, sichtbar blieb nur der Nenner, weil der schon
+   immer Ink war. Der Abzug faellt damit auf seine Grundregeln zurueck: Ink
+   42 % fuer den Zaehler, Ink 28 % fuer den Nenner.
+   Merksatz aus derselben Sache beim Kartentitel: Flaeche und Schrift muessen
+   ZUSAMMEN kippen, sonst steht eine von beiden auf sich selbst. */
 
 /* Der Fliesstext liest sich wie die Bezirks-Beschreibung (User, 04.09.2026:
    „die liest sich am besten"). Uebernommen werden Schrift und STAERKE, nicht

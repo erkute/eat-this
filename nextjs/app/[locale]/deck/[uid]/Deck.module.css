@@ -1,6 +1,8 @@
-/* Das geteilte Deck. Nur was die Profilseite nicht schon hat — Tafel,
-   Abschnitte und die gelbe Flaeche kommen aus Profile.module.css, damit die
-   beiden Seiten eine Sprache sprechen und nicht zwei, die sich aehneln. */
+/* Das geteilte Deck. Abschnitte, Leerzeile und die gelbe Einladen-Flaeche
+   kommen weiter aus Profile.module.css, damit die beiden Seiten eine Sprache
+   sprechen und nicht zwei, die sich aehneln. Die Tafel im Kopf steht seit
+   dem 04.09.2026 hier: das Profil hat seinen Seitenkopf an dem Tag
+   abgeschafft (siehe .bank unten). */
 
 /* Die Seite haengt an keiner Anmeldung und hat deshalb keinen Ladezustand,
    der die Hoehe haelt: ohne das hier steht der Footer auf kurzen Decks
@@ -96,5 +98,194 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+/* ── Die Bank: Figur, Name, Berlin-Stand ────────────────────
+   Stand bis zum 04.09.2026 in Profile.module.css und kam von dort. An dem
+   Tag wurde das eigene Profil ein Sammelalbum, sein Seitenkopf entfiel, und
+   mit ihm `.bank*` und `.city*` — die diese Seite mitbenutzte. Die Regeln
+   verschwanden, die Zugriffe blieben: React laesst `className={undefined}`
+   stumm weg, also stand hier ein blanker h1, eine Figur in ihrer
+   Originalgroesse und ein Fortschrittsbalken, den `display: inline` auf null
+   Hoehe zog. Deshalb liegen sie jetzt bei der Seite, die sie noch braucht.
+
+   Die Berlin-Zahl ist auf dem eigenen Profil bewusst entfallen (sie war dort
+   der stille Verkaeufer fuer die Packs). Hier bleibt sie: dem Besucher ist
+   nichts zu verkaufen, und wie viel von der Stadt auf dieser Map liegt, ist
+   der Grund, aus dem man einen Deck-Link ueberhaupt verschickt.
+
+   Eine Tafel auf der leisen Stufe, wie die Fakten-Tafel der Spot-Seite —
+   Ink auf Ink waere unsichtbar. Der Figur gehoert die rechte Spalte ueber
+   beide Zeilen; ohne sie stuende die rechte Haelfte hier oben leer. */
+.bank {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'copy figure'
+    'city figure';
+  /* Zeilenabstand 0: der Berlin-Stand bringt seinen eigenen Abstand mit, und
+     faellt er weg (spotsTotal 0), bleibt keine leere Zeile stehen. */
+  gap: 0 clamp(20px, 3vw, 48px);
+  padding: clamp(22px, 3.2vw, 40px) clamp(24px, 3.4vw, 44px);
+  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
+  border-radius: var(--et-radius-photo, 10px);
+}
+
+.bankCopy {
+  grid-area: copy;
+  align-self: end;
+  min-width: 0;
+}
+
+/* `hv-kicker` faerbt sich in Ink — auf der Tafel waere das unsichtbar. Das
+   gelbe Marken-Quadrat davor kommt weiter aus `.hv-mk`. */
+.bankKicker {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--et-font-label);
+  font-size: var(--et-type-kicker, 10px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-label, 0.16em);
+  text-transform: uppercase;
+}
+
+/* `overflow-wrap: anywhere`, weil der Name aus einem fremden Google-Konto
+   kommt: ein langes Wort ohne Trennstelle sprengt sonst die Tafel. */
+.bankName {
+  margin: 10px 0 0;
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display);
+  font-size: clamp(40px, 6.2vw, 84px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-hero, 0.9);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.bankCharacter {
+  grid-area: figure;
+  align-self: center;
+  display: grid;
+  justify-items: center;
+}
+
+/* Ueber die HOEHE bemessen, nicht ueber die Breite: die drei Charaktere haben
+   verschiedene Seitenverhaeltnisse (202x251, 186x282, 188x277), bei fester
+   Breite waere die Tafel also je nach Figur unterschiedlich hoch. */
+.bankAvatarImg {
+  display: block;
+  height: clamp(140px, 14.5vw, 215px);
+  width: auto;
+  /* Auf Ink traegt der Ink-Schatten nichts — derselbe Wert wie die Pack-Art
+     auf der Tafel. */
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+}
+
+/* Auf breiten Schirmen ohne Trennlinie, nur mit Abstand: die Figur steht
+   ueber beide Zeilen, der Block also nur in der linken Spalte — eine Linie
+   liefe auf die Figur zu und braeche auf Kniehoehe davor ab. Schmal liegt er
+   ueber die ganze Tafel, dort traegt sie (s.u.). */
+.city {
+  grid-area: city;
+  align-self: start;
+  display: block;
+  margin-top: clamp(22px, 2.6vw, 30px);
+  padding-top: clamp(4px, 0.6vw, 8px);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+}
+
+.cityKicker {
+  display: block;
+  margin: 0;
+  color: var(--et-home-accent, #ffc600);
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cityNumbers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 6px 0 0;
+}
+
+.cityOpen {
+  color: var(--et-home-accent, #ffc600);
+  font-size: clamp(36px, 3.4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fliesstext statt Versalien: fett und in Grossbuchstaben stand die Bildzeile
+   auf derselben Lautstaerke wie die Zahl davor, und die Zeile las sich als
+   ein Wort — „466VON466SPOTSAUFDIESERMAP". Jetzt traegt die Zahl, und der
+   Satz daneben erklaert sie. */
+.cityTotal {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.cityBar {
+  display: block;
+  height: 6px;
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.cityBarFill {
+  display: block;
+  height: 100%;
+  background: var(--et-home-accent, #ffc600);
+  border-radius: inherit;
+}
+
+@media (max-width: 760px) {
+  /* Figur bleibt neben dem Namen, der Berlin-Stand legt sich unter beide:
+     eine Tafel, die auf 360 px nicht in eine Saeule zerfaellt. */
+  .bank {
+    grid-template-areas:
+      'copy figure'
+      'city city';
+    gap: 0 16px;
+    padding: 20px;
+  }
+
+  .bankAvatarImg {
+    height: 155px;
+  }
+
+  /* Oben links, nicht auf halber Hoehe: `align-self: end` richtet den Namen
+     breit an der Kante darunter aus — neben einer 155-px-Figur schoebe es
+     ihn in die Mitte der Tafel. */
+  .bankCopy {
+    align-self: start;
+  }
+
+  .bankName {
+    font-size: clamp(34px, 10vw, 56px);
+  }
+
+  /* Hier traegt die Linie: der Block liegt ueber die volle Tafelbreite, die
+     Figur steht darueber statt daneben. */
+  .city {
+    padding-top: clamp(15px, 1.8vw, 20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .cityOpen {
+    font-size: 38px;
   }
 }

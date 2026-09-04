@@ -35,15 +35,24 @@
      auf L* 32 und den Weisstext darauf auf 8,6:1. Zum Nachjustieren nur diese
      Zahl drehen — 74 % waere L* 38, 46 % waere L* 26. */
   --et-offer-red: color-mix(in srgb, var(--et-home-red, #d9382a) 60%, #15120e);
-  /* Zwei Site-Tokens, hier auf die Ink-Seite gedreht. Sie sind semantisch —
-     „leise Flaeche" und „gedaempfte Schrift" — und kippen deshalb mit dem
-     Grund, statt an jeder der zehn Stellen in vier Modulen einzeln zu
+  /* Drei Site-Tokens, hier auf die Ink-Seite gedreht. Sie sind semantisch —
+     „leise Flaeche", „gedaempfte Schrift", „leise Linie" — und kippen deshalb
+     mit dem Grund, statt an jeder der zehn Stellen in vier Modulen einzeln zu
      stehen (MapDetails, LockedDetail, MapListEmpty, MapSeoFooter).
      NICHT dasselbe mit --et-home-ink/-paper machen: die beiden benennen
      konkrete Farben, keine Rollen, und werden auf der Map in beiden
-     Richtungen gelesen. */
+     Richtungen gelesen.
+
+     --border-subtle kam am 04.09.2026 dazu: es zeigt site-weit auf
+     --gray-100, und das ist #15120e — auf dem Ink-Grund also exakt der Grund
+     selbst (dL* 0,00). Live betroffen war die linke Kante des Desktop-Panels
+     (MapSheet), die damit schlicht nicht da war. Die zweite Fundstelle,
+     .pickerFooter in MapFilters, wird derzeit nie gerendert (kein Aufrufer
+     gibt dem Picker-Sheet ein `footer`-Prop) — sie ist mitrepariert, aber
+     ungeprueft. Bezirk.module.css dreht dasselbe Token auf dieselbe Weise. */
   --et-home-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   --et-home-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --border-subtle: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   background: var(--et-home-ink);
   color: var(--et-home-paper);
   display: flex;

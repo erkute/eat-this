@@ -149,7 +149,7 @@
 }
 .rcardMetaChip + .rcardMetaChip::before {
   margin: 0 7px;
-  color: rgba(21, 18, 14, 0.45);
+  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
 }
 .openPill {
   box-shadow: none;
@@ -240,11 +240,40 @@
 }
 .rcardName {
   color: #fff;
+  /* Providence haengt weit unter die Grundlinie: gemessen bei 30px sind das
+     0,484em Unterlaenge gegen 0,684em Versalhoehe und 0,447em x-Hoehe.
+
+     Daraus folgt die Zeilenhoehe. `0.94` war enger als die Schrift hoch ist —
+     das g von „Hugos" fiel in das „Dining" darunter (User, 04.09.2026).
+     Kollisionsfrei ueber einem GROSSBUCHSTABEN waeren erst 1,168 (0,484 +
+     0,684), aber so weit aufgezogen standen zweizeilige Namen „uebelst mit
+     Abstand" da — die zweite Ansage desselben Tages, und sie wiegt schwerer:
+     der Fall tritt nur ein, wenn eine Versalie DIREKT unter einer Unterlaenge
+     steht.
+
+     1.1 ist der Kompromiss und gemessen, nicht geraten:
+       ueber Kleinbuchstaben   +5,1px Luft  (der haeufige Fall, auch „Hugos")
+       ueber einer Versalie    −2px         (streift, kracht nicht)
+     Wer hier hochgeht, kauft den seltenen Fall mit Luft in JEDER Zeile.
+
+     Das Polster darunter ist eine zweite, getrennte Sache: auch bei 1.1 ragt
+     die Tinte der letzten Zeile unter die Zeilenbox, und `.rcardMeta` bringt
+     nur 9px mit. Es steht HIER und in em, nicht als groesserer margin an
+     `.rcardMeta`: dort waere em die 9px der Mono-Zeile statt der Schriftgrad
+     des Namens, und der Name skaliert ueber drei Stufen (clamp, Desktop,
+     380px). Gemessen bleiben damit 8,1px bis zu den Chips. */
+  padding-bottom: 0.12em;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(30px, 7vw, 38px);
+  /* Kleiner seit 04.09.2026 (User: „mach die font der spots kleiner"). Die
+     Stufen sind gemeinsam runter, damit das Verhaeltnis zwischen Telefon,
+     Rail und Desktop bleibt. Nebeneffekt, der hilft: der Name hat kein
+     line-clamp, und „Five Elephant Neue Nationalgalerie" belegte bei 38px drei
+     Zeilen — der Ink-Verlauf darunter reicht bis 72 % Kartenhoehe und traegt
+     das jetzt mit Luft. */
+  font-size: clamp(25px, 6vw, 32px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.94;
+  line-height: 1.1;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
 }
 .rcardMeta {
@@ -300,12 +329,12 @@
 }
 @media (min-width: 1024px) {
   .rcardName {
-    font-size: 34px;
+    font-size: 29px;
   }
 }
 @media (max-width: 380px) {
   .rcardName {
-    font-size: clamp(27px, 8vw, 32px);
+    font-size: clamp(23px, 6.8vw, 27px);
   }
 
   .rcardBody {
@@ -383,11 +412,16 @@
 .rcardMetaChip > span:last-child {
   color: inherit;
 }
+/* Ringe statt gefuellter Pillen, wie die Chips der Hubs seit 03.09.2026. Sie
+   sitzen im Ink-Verlauf am unteren Kartenrand (`.rcard::after`), deshalb
+   traegt weisse Schrift dort auch ueber einem hellen Foto. Gefuellt waeren sie
+   auf der ansonsten ink-farbenen Liste die hellste Flaeche im Bild und zoegen
+   mehr Blick als der Name darueber. */
 .rcardMetaChip,
 .rcardMetaCategory {
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
-  border: 0;
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);

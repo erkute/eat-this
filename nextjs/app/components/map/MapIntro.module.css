@@ -1,7 +1,8 @@
 /* Map Intro — die H1 der Seite, schwebend über der Karte. Isolated map subsystem.
 
-   Dieselbe Sprache wie Suche und Burger daneben (MapControls.module.css): Ink
-   auf der Karte, keine Fläche, keine Pille, Lesbarkeit über einen weißen Halo.
+   Dieselbe Sprache wie Suche und Burger daneben (MapControls.module.css):
+   Papier auf der dunklen Karte, keine Fläche, keine Pille, Lesbarkeit über
+   einen Ink-Halo.
    Als Text statt als Icon ist `text-shadow` das richtige Werkzeug dafür — die
    drop-shadow-Kette dort hängt an SVG-Pfaden.
 
@@ -30,7 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   text-align: center;
   /* Die Karte darunter bleibt greifbar: der Titel ist Beschriftung, kein
      Bedienelement. Ohne das schluckte er Drags am oberen Kartenrand. */
@@ -42,7 +43,10 @@
 .title {
   margin: 0;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 19px;
+  /* Kleiner seit 04.09.2026 (User: „mach Berlin Food map noch kleiner die
+     schrift"). Der Titel ist die H1 der Seite, aber auf der Karte ist er
+     Beschriftung — die Spots tragen den Blick, nicht die Zeile darueber. */
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
@@ -52,25 +56,53 @@
      zwei tragfähigen Hälften, nicht mit einem Waisenwort. */
   white-space: nowrap;
   /* Vier Lagen, nicht drei: die Zeile läuft über gelbe Pins, und mit dem
-     kurzen Halo allein rieb sich der Text an deren Kanten. */
+     kurzen Halo allein rieb sich der Text an deren Kanten.
+
+     Der Halo ist seit 04.09.2026 Ink. Er war Weiss, solange die Karte hell und
+     die Schrift dunkel war. Auf der dunklen Karte ist die Schrift weiss — ein
+     weisser Halo um weisse Buchstaben war ein Leuchtfleck, kein Ausschnitt
+     (User: „die icons leuchten so komisch"). */
   text-shadow:
-    0 0 3px #fff,
-    0 0 6px #fff,
-    0 0 12px #fff,
-    0 0 20px rgba(255, 255, 255, 0.85);
+    0 0 3px var(--et-home-ink, #15120e),
+    0 0 6px var(--et-home-ink, #15120e),
+    0 0 12px var(--et-home-ink, #15120e),
+    0 0 20px rgba(0, 0, 0, 0.85);
 }
 
-/* Die aufgeklappte Suchleiste teilt sich die Zeile mit dem Titel und ist auf
-   dem Desktop breiter als der Platz links davon. Dann geht der Titel — nach
-   oben, in dieselbe Richtung, in die auf dieser Seite alles abtritt. Kein
-   Opacity-Fade: für Ein- und Ausblend-BEWEGUNG auf Markenflächen ist der
-   ausdrücklich nicht vorgesehen.
+/* Die aufgeklappte Suchleiste teilt sich die Zeile mit dem Titel. Unter 1024px
+   belegt sie fast die ganze Breite, dort geht der Titel — nach oben, in
+   dieselbe Richtung, in die auf dieser Seite alles abtritt. Kein Opacity-Fade:
+   für Ein- und Ausblend-BEWEGUNG auf Markenflächen ist der ausdrücklich nicht
+   vorgesehen.
 
    Höhere Spezifität als die Basisregel (zwei Attribute + Klasse), also gilt sie
-   unabhängig von der Reihenfolge — und in jeder Breite, weil die Leiste auf dem
-   Telefon dieselbe Ecke belegt. */
-:global([data-map-body][data-search-open]) .intro {
-  transform: translate(-50%, calc(-100% - 80px));
+   unabhängig von der Reihenfolge. */
+@media (max-width: 1023.98px) {
+  :global([data-map-body][data-search-open]) .intro {
+    transform: translate(-50%, calc(-100% - 80px));
+  }
+}
+
+/* Ab 1024px BLEIBT der Titel stehen (User, 04.09.2026: „auf desktop soll
+   berlin food map schrift bleiben wenn man auf die suche klickt") — er rückt
+   nur zur Seite, statt abzutreten.
+
+   Warum nicht einfach stehen lassen: er ist auf der KARTENFLÄCHE zentriert,
+   nicht im Fenster, und die Leiste beginnt bei 14px. Gemessen bei 1280 mit
+   offenem Panel — Karte 900 breit, Titel 370–530, Leiste 14–406: 36px
+   Überlappung. Bei 1024 ist die Karte nur 644 breit und der Titel läge
+   vollständig unter der Leiste.
+
+   Er zentriert sich deshalb im Band RECHTS der Leiste, zwischen deren Kante
+   und dem Burger. Beide sind fest vermaßt (Leiste 392 ab left:14, Burger 47
+   breit an right:14), also ist die Verschiebung eine Konstante und keine
+   Messung: (392 − 47) / 2 = 172px. Wer die Leistenbreite in
+   MapControls.module.css ändert, rechnet hier nach — bei 1024px bleiben dem
+   Titel sonst keine 9px Luft zum Burger. */
+@media (min-width: 1024px) {
+  :global([data-map-body][data-search-open]) .intro {
+    transform: translate(calc(-50% + 172px), 0);
+  }
 }
 
 /* Unter 1024px hängen Suche, Burger und Toolbar am VIEWPORT, nicht an der
@@ -111,7 +143,7 @@
 
 @media (min-width: 768px) {
   .title {
-    font-size: 21px;
+    font-size: 17px;
   }
 }
 

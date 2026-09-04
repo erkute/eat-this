@@ -5505,3 +5505,212 @@
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Ink-Grund fuer das Restaurant-Detail (04.09.2026)
+
+   Die Map steht seit diesem Tag auf demselben Ink wie der Rest der Seite. Das
+   Detail war die letzte grosse helle Flaeche darin. Sein Grund kommt aus
+   `--map-collage-paper` (MapLayout), das bereits auf Ink zeigt — hier stehen
+   nur die Stellen, die ihre Farbe als Literal tragen und deshalb nicht
+   mitgekippt sind.
+
+   Warum am Dateiende und in derselben Klammer `.detailV13:not(
+   .detailV13MustEat)`: die Datei definiert dieselben Klassen bis zu acht Mal,
+   die letzte Regel gewinnt. Gleiche Spezifitaet, spaetere Quellposition —
+   innerhalb EINER Datei ist das verlaesslich, anders als zwischen zwei
+   Stylesheets.
+
+   Das Must-Eat-Sheet (.detailV13MustEat) ist ausgenommen: es ist seit dem
+   02.09.2026 eigenstaendig ink und hat seine eigenen --me-*-Tokens.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Aktions-Knoepfe: waren Papier mit Ink-Ring. Auf Ink ist das die hellste
+   Flaeche im Sheet — also die Fassung, die die Site seit dem 03.09.2026
+   ueberall benutzt: Ring in Weiss 28 %, Fuellung leer, Hover gelb. */
+.detailV13:not(.detailV13MustEat) .rdActBtn {
+  background: transparent;
+  color: var(--et-home-paper, #fff);
+  box-shadow: inset 0 0 0 2px var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+}
+
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
+    background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+    color: var(--et-home-accent, #ffc600);
+    box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+  }
+}
+
+/* „Hinbringen" bleibt der eine gefuellte Knopf, nur gelb statt rot: Rot traegt
+   auf Ink rund 2,9:1 und faellt als Flaeche mit Schrift durch. */
+.detailV13:not(.detailV13MustEat) .rdActPrimary {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+}
+
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .rdActPrimary:hover {
+    background: var(--et-home-paper, #fff);
+    color: var(--et-home-ink, #15120e);
+    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
+  }
+}
+
+/* Bezirks- und Kuechen-Plakette: gefuellte Papierpillen -> Ringe, dieselbe
+   Fassung wie die Filter-Chips daneben. */
+.detailV13:not(.detailV13MustEat) .rdTag,
+.detailV13:not(.detailV13MustEat) .rdTagAlt {
+  background: transparent;
+  color: var(--et-home-paper, #fff);
+  border: 1px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+}
+
+/* Der Blaetterbalken unter dem Kopf trug eine eigene Papierflaeche. Auf dem
+   Grund braucht er keine — eine Haarlinie haelt ihn ab. */
+.detailV13:not(.detailV13MustEat) .rdPager {
+  background: transparent;
+  color: var(--et-home-paper, #fff);
+}
+
+/* Fliesstext und Zwischentitel. Die Initiale und die Titel sind gelb (ueber
+   --map-collage-red, das in MapLayout auf den Akzent zeigt); der Lauftext ist
+   Papier, die Unterzeile eine Stufe leiser. */
+.detailV13:not(.detailV13MustEat) .rdStoryLead,
+.detailV13:not(.detailV13MustEat) .rdStory,
+.detailV13:not(.detailV13MustEat) .rdStory p {
+  color: var(--et-home-paper, #fff);
+}
+
+.detailV13:not(.detailV13MustEat) .rdSecH,
+.detailV13:not(.detailV13MustEat) .rdGalleryHead .rdSecH,
+.detailV13:not(.detailV13MustEat) .rdMustHead .rdSecH {
+  color: var(--et-home-accent, #ffc600);
+}
+
+.detailV13:not(.detailV13MustEat) .rdMustSub {
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+}
+
+/* Das Pack-Angebot traegt die Farbe des Produkts, nicht die leise Stufe
+   (04.09.2026). Es zeigt dasselbe Starter Pack wie das Sheet eines verdeckten
+   Spots, also sieht es auch gleich aus — `--et-offer-red` steht in
+   MapLayout.module.css und gilt fuer beide. Vorher war es hier eine neutrale
+   leise Flaeche und dort rot; dasselbe Angebot sah an zwei Stellen
+   verschieden aus. */
+.detailV13:not(.detailV13MustEat) .packPromo {
+  background: var(--et-offer-red, #8b291f);
+}
+
+.detailV13:not(.detailV13MustEat) .packPromoTitle {
+  color: var(--et-home-paper, #fff);
+}
+
+.detailV13:not(.detailV13MustEat) .packPromoBody {
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+}
+
+/* Der Knopf im Angebot war Ink auf hellem Angebot — auf Ink unsichtbar. */
+.detailV13:not(.detailV13MustEat) .btnPackPromo {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+}
+
+/* Der Zweitweg unter dem Knopf: Papier, nicht Gelb. Auf der roten Flaeche ist
+   Gelb die Farbe des KNOPFS — ein gelber Link daneben nimmt ihm die Rolle. */
+.detailV13:not(.detailV13MustEat) .linkPromo {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Der Grund des Sheets selbst. Drei Regeln haben ihn vorher hell gemalt:
+   `.detailV13, .detailV13Scroll` (Zeile ~1772), der Redesign-Block
+   (~1849) und — mit Abstand am schwersten — der Phone-Block bei
+   `[data-map-sheet][data-view='detail']` (~2880, Spezifitaet 0,5,0).
+   Deshalb hier BEIDE Fassungen: die schlanke fuer Desktop, die
+   attributgefuehrte fuer das Telefon. Gleiches Gewicht, spaetere Zeile. */
+.detailV13:not(.detailV13MustEat),
+.detailV13:not(.detailV13MustEat) .detailV13Scroll {
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
+}
+
+[data-map-sheet][data-view='detail'] .detailMount,
+[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
+[data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
+  background: var(--et-home-ink, #15120e);
+}
+
+.detailV13:not(.detailV13MustEat) .rdBody {
+  color: var(--et-home-paper, #fff);
+}
+
+/* Der Blaettern-Knopf war Ink auf Papier. Auf Ink faellt die Fuellung weg und
+   der Ring traegt ihn — dieselbe Fassung wie die Aktionsknoepfe darunter. */
+.detailV13:not(.detailV13MustEat) .rdPagerBtn {
+  background: transparent;
+  color: var(--et-home-paper, #fff);
+  box-shadow: inset 0 0 0 2px var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+}
+
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .rdPagerBtn:hover {
+    color: var(--et-home-accent, #ffc600);
+    box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+  }
+}
+
+/* Die Galerie-Polaroids hatten einen weissen Rand. Auf Ink waeren sie die
+   hellste Flaeche der ganzen Seite und zoegen mehr Blick als die Fotos darin —
+   deshalb die leise Stufe, wie jedes andere Objekt auf dem Grund. Das Foto
+   selbst bleibt unangetastet. */
+.detailV13:not(.detailV13MustEat) .rdGalleryThumb,
+.detailV13:not(.detailV13MustEat) .rdGalleryThumb:first-child {
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+}
+
+/* Die letzten drei roten Hover-Zustaende. Rot bleibt der Marke als Flaeche,
+   aber nicht dort, wo im selben Moment Schrift darauf steht. */
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .btnPackPromo:hover {
+    background: var(--et-home-paper, #fff);
+    color: var(--et-home-ink, #15120e);
+  }
+
+  .detailV13:not(.detailV13MustEat) .linkPromo:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
+}
+
+/* Die Initiale des Aufmachers. Sie steht in `::first-letter`, also in einem
+   Pseudo-Element — eine Messung ueber `getComputedStyle(el).color` sieht sie
+   nicht, und genau so ist sie beim ersten Durchgang durchgerutscht und stand
+   Ink auf Ink. Gelb, wie die Initiale auf den Inhaltsseiten seit 03.09.2026.
+   `.rdStoryLeadPlain` bleibt ausgenommen: dort ist der Anfangsbuchstabe ein
+   blosser Strich und erbt bewusst die Textfarbe (siehe lib/dropCap.ts). */
+.detailV13:not(.detailV13MustEat) .rdStoryLead::first-letter {
+  color: var(--et-home-accent, #ffc600);
+}
+
+.detailV13:not(.detailV13MustEat) .rdStoryLead.rdStoryLeadPlain::first-letter {
+  color: inherit;
+}
+
+/* Must-Eats-Block und Galerie. Beide Flaechen sind durchsichtig und standen
+   damit direkt auf dem Grund, ihre Schrift war aber noch Ink — unsichtbar.
+   Die Farbe steht am Abschnitt, nicht an jedem Kind: Titel, Karten und
+   Bildunterschriften erben sie. */
+.detailV13:not(.detailV13MustEat) .rdMustSection,
+.detailV13:not(.detailV13MustEat) .rdMustHead,
+.detailV13:not(.detailV13MustEat) .rdMustGrid,
+.detailV13:not(.detailV13MustEat) .rdMustGrid li,
+.detailV13:not(.detailV13MustEat) .medish,
+.detailV13:not(.detailV13MustEat) .medishPh,
+.detailV13:not(.detailV13MustEat) .rdGalleryThumb {
+  color: var(--et-home-paper, #fff);
+}
+
+/* Die Zaehlung „01/02" auf dem Polaroid — die leise Stufe, nicht die volle. */
+.detailV13:not(.detailV13MustEat) .rdGalleryNum {
+  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+}

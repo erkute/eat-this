@@ -132,13 +132,18 @@
   pointer-events: none;
 }
 
-/* Der gesperrte Pin: dieselbe Form, dieselbe Größe, nur grau (User,
-   2026-08-27). Das Grau ist bewusst gedeckt-warm statt neutral — die
-   Kartenfläche (CartoDB Positron) ist fast weiß mit blassgrauen Straßen, ein
-   kaltes Grau verschwämme darin. Das Logo verliert seine Farbe mit, sonst
-   säße ein bunter Fleck in einer grauen Tüte. */
+/* Der gesperrte Pin: dieselbe Form, dieselbe Größe, nur rot (User,
+   2026-09-04). Vorher gedeckt-warmes Grau #b5b1a9 — das war für die alte
+   helle Grundkarte (CartoDB Positron) gewählt, in der ein kaltes Grau
+   verschwommen wäre. Auf dem dunklen Grund kippte dasselbe Grau ins
+   Gegenteil: es war die HELLSTE Fläche der Karte und zog mehr Blick als die
+   gelben Pins, die den Inhalt tragen.
+   Rot ist der dritte Ton der Marke und auf Ink als FLÄCHE unbedenklich — die
+   2,9:1, an denen Rot site-weit als Schriftfarbe gescheitert ist, gelten für
+   Text, nicht für einen gefüllten Pin.
+   Das Logo darin bleibt unangetastet — siehe den Block weiter unten. */
 .pinLogoLocked .pinLogoShape {
-  background: #b5b1a9;
+  background: var(--et-home-red, #d9382a);
 }
 
 /* Rund 60 % der Größe des gelben Pins (User, 2026-08-27). Bei gleicher Größe
@@ -153,17 +158,27 @@
    voller Größe zeigen, wo man gerade ist. Zur alten Regel „der offene Spot
    bleibt ein Punkt, ein Pin würde dort ‚dieser ist frei' heißen": das galt,
    solange die FORM den Unterschied trug. Jetzt trägt ihn die Farbe — der
-   ausgewählte gesperrte Pin wächst, bleibt aber grau (gemessen am
-   gerenderten Pin: rgb(181, 177, 169) auch mit .pinLogoActive). */
+   ausgewählte gesperrte Pin wächst, bleibt aber rot — .pinLogoActive ändert
+   nur Größe und Schatten, nie die Füllung. */
 .pinLogoLocked:not(.pinLogoActive) .pinLogoShape {
   transform: scale(0.6);
   transform-origin: 50% 100%;
 }
 
-.pinLogoLocked .pinLogoShape img {
-  filter: grayscale(1);
-  opacity: 0.82;
-}
+/* Gar kein Filter: der gesperrte Pin traegt DASSELBE Logo wie der freie, nur
+   auf rotem statt gelbem Grund (User, 04.09.2026: „das iDIS-Logo ist nicht das
+   aus den gelben Icons").
+
+   Zwei Fassungen davor waren falsch, beide aus derselben Fehlannahme, das Logo
+   haenge farblich am Pin. Tut es nicht: die Datei ist schwarze Zeichnung auf
+   einem hellen Feld (gemessen an eat-this-square-sm.webp — 47 % Creme, 33 %
+   Schwarz, Rest Transparenz). Sie bringt ihren eigenen Kontrast mit und liest
+   sich auf Rot genauso wie auf Gelb.
+   - `grayscale(1)` (bis 03.09.2026) entsaettigte nur, liess die Buchstaben
+     aber stehen — war auf Grau stimmig, auf Rot nur blass.
+   - `brightness(0) invert(1)` machte JEDEN deckenden Pixel weiss, also auch
+     die schwarze Zeichnung. Uebrig blieb eine weisse Silhouette ohne
+     Buchstaben. */
 
 .pinLogo:hover {
   transform: rotate(3deg) translateY(-3px) scale(1.12);

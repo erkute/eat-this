@@ -180,7 +180,12 @@ describe('Map CSS architecture', () => {
   /* iOS 26 Safari faerbt seine Leisten nach der background-color des obersten
      fixierten oder sticky Elements an der Viewport-Kante und ignoriert
      theme-color. Auf dem Telefon ist das der sticky Karten-Wrapper, an beiden
-     Kanten — transparent hiess Systemgrau. Deckend bleibt er. */
+     Kanten — transparent hiess Systemgrau. Deckend bleibt er.
+
+     Seit 04.09.2026 in Ink statt Papier: die Map steht auf demselben Grund wie
+     der Rest der Seite, also sollen die Leisten dunkel werden. Was der Test
+     festhaelt, ist unveraendert die DECKUNG — eine transparente Fassung faellt
+     hier durch, egal in welcher Farbe. */
   it('paints the phone map wrapper opaque so iOS 26 tints its bars from it', () => {
     const wrapRules = declarationsInMedia(
       'MapLayout.module.css',
@@ -193,7 +198,7 @@ describe('Map CSS architecture', () => {
         position: 'sticky',
         top: '0',
         height: '100dvh',
-        'background-color': 'var(--et-home-paper, #fff)',
+        'background-color': 'var(--et-home-ink, #15120e)',
       }),
     ]);
   });
@@ -278,8 +283,8 @@ describe('Map CSS architecture', () => {
     );
     /* Scoped to data-view='list': `data-header-stuck` is shared with the detail
        now (it drives the floating search/burger in both views), but the detail's
-       top edge is a photo hero — a paper-coloured cap over it would read as a
-       stray white stripe. */
+       top edge is a photo hero — a cap over it would read as a stray stripe in
+       the sheet colour, egal ob Papier oder Ink. */
     const capRules = declarationsInMedia(
       'MapSheet.module.css',
       ".list[data-view='list'][data-header-stuck='true']::before",
@@ -308,7 +313,10 @@ describe('Map CSS architecture', () => {
         position: 'fixed',
         top: '0',
         height: 'env(safe-area-inset-top, 0px)',
-        background: 'var(--et-home-paper, #fff)',
+        /* Ink seit 04.09.2026, als die Map auf den durchgehenden Ink-Grund
+           gezogen ist. Die Kappe muss die Farbe des Sheets tragen, das sie
+           fortsetzt — vorher war beides Papier. */
+        background: 'var(--et-home-ink, #15120e)',
       }),
     ]);
   });

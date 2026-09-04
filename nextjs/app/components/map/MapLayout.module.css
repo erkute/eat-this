@@ -1,13 +1,51 @@
 /* Map page geometry, canvas host and MapLibre attribution. */
 
+/* Die Map steht seit 04.09.2026 auf demselben Ink-Grund wie der Rest der
+   Seite. Die vier `--map-collage-*`-Tokens behalten ihre Namen, weil rund ein
+   Dutzend Regeln in vier Modulen sie liest — sie zeigen jetzt nur woandershin.
+   Wer hier etwas aufhellt, hellt die halbe Map auf. */
 .shell {
   --map-motion: var(--et-motion-base);
-  --map-collage-red: #ef3108;
-  --map-collage-paper: #f8f6f1;
-  --map-collage-ink: #2b211c;
-  --map-action: var(--et-home-red);
-  background: var(--et-home-paper);
-  color: var(--et-home-ink);
+  /* War #ef3108 als Schriftfarbe fuer Kicker und Zwischentitel im Detail.
+     Rot kommt auf Ink auf rund 2,9:1 und ist als Text nicht lesbar — dieselbe
+     Entscheidung wie site-weit am 03.09.2026. Rot bleibt der Marke als
+     FLAECHE erhalten, etwa am gesperrten Pin. */
+  --map-collage-red: var(--et-home-accent, #ffc600);
+  /* War #f8f6f1 und traegt die Flaeche des Detail-Sheets. */
+  --map-collage-paper: var(--et-home-ink, #15120e);
+  /* War #2b211c und umrandet die aktive Karte in der Liste. Ein dunkler Ring
+     auf dunklem Grund ist unsichtbar, also Papier. */
+  --map-collage-ink: var(--et-home-paper, #fff);
+  /* Der Grund, auf dem die Kacheln landen. Exakt die Hintergrundfarbe des
+     Basemap-Styles (Dark Matter, `background-color: #0e0e0e`), damit beim
+     Laden nichts aufblitzt. Eine Spur dunkler als der Seiten-Ink #15120e —
+     das ist Absicht: die Karte ist eine eigene Flaeche, kein Blatt. */
+  --map-basemap-ground: #0e0e0e;
+  /* Fokusring. Gelb statt Rot, aus demselben Kontrastgrund. */
+  --map-action: var(--et-home-accent, #ffc600);
+  /* Die Flaeche des Starter-Pack-Angebots — an ZWEI Stellen: im Sheet eines
+     verdeckten Spots (LockedDetail `.starter`) und als Hinweis im Detail eines
+     freien Spots (MapDetails `.packPromo`). Beide zeigen dasselbe Produkt, also
+     tragen sie dieselbe Farbe, und die steht deshalb hier statt zweimal dort.
+
+     Abgeleitet vom Marken-Rot, nicht daneben erfunden: der Farbton ist exakt
+     der des verdeckten Pins, nur die Helligkeit geht runter. Als Pin ist
+     #d9382a klein und soll leuchten; als halbe Bildschirmflaeche auf Ink
+     blendet dasselbe Rot (L* 49,2 gegen L* 5,6 des Grundes). 60 % bringen es
+     auf L* 32 und den Weisstext darauf auf 8,6:1. Zum Nachjustieren nur diese
+     Zahl drehen — 74 % waere L* 38, 46 % waere L* 26. */
+  --et-offer-red: color-mix(in srgb, var(--et-home-red, #d9382a) 60%, #15120e);
+  /* Zwei Site-Tokens, hier auf die Ink-Seite gedreht. Sie sind semantisch —
+     „leise Flaeche" und „gedaempfte Schrift" — und kippen deshalb mit dem
+     Grund, statt an jeder der zehn Stellen in vier Modulen einzeln zu
+     stehen (MapDetails, LockedDetail, MapListEmpty, MapSeoFooter).
+     NICHT dasselbe mit --et-home-ink/-paper machen: die beiden benennen
+     konkrete Farben, keine Rollen, und werden auf der Map in beiden
+     Richtungen gelesen. */
+  --et-home-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --et-home-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  background: var(--et-home-ink);
+  color: var(--et-home-paper);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -72,18 +110,21 @@
 .mapLoading {
   position: absolute;
   inset: 0;
-  background-color: var(--map-collage-paper);
+  background-color: var(--map-basemap-ground);
   background-image: none;
 }
 
+/* Auf dem dunklen Basemap-Grund. Die Nennung von CARTO und OpenStreetMap ist
+   die Gegenleistung fuer die freie Nutzung und muss lesbar bleiben — deshalb
+   umgefaerbt statt abgedunkelt. */
 .mapWrap :global(.maplibregl-ctrl-attrib) {
   font-size: 10px;
-  background: var(--surface-overlay);
-  color: var(--text-muted);
+  background: rgba(14, 14, 14, 0.82);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .mapWrap :global(.maplibregl-ctrl-attrib a) {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 @media (max-width: 1023.98px) {
@@ -125,7 +166,7 @@
 }
 
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show) {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(14, 14, 14, 0.94);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
   backdrop-filter: blur(14px) saturate(1.4);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -216,10 +257,11 @@
        faerbt seine Leisten nach der background-color des obersten fixierten
        oder sticky Elements, das eine Viewport-Kante beruehrt — auf dem
        Telefon ist das dieser Wrapper, an beiden Kanten. Transparent hiess
-       Systemgrau ueber Karte und Liste. Das Papier der Liste, damit die
-       Leisten so hell bleiben, wie sie vor iOS 26 ueber dem weissen Dokument
-       waren; sichtbar ist die Farbe nie, die Karte deckt den Wrapper. */
-    background-color: var(--et-home-paper, #fff);
+       Systemgrau ueber Karte und Liste. Seit 04.09.2026 der Ink der Liste
+       statt ihres frueheren Papiers: die Leisten sollen jetzt dunkel sein,
+       nicht hell. Sichtbar ist die Farbe nie, die Karte deckt den Wrapper —
+       sie faerbt ausschliesslich die Safari-Leisten. */
+    background-color: var(--et-home-ink, #15120e);
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
     /* Same anchoring as the list: the map stays put and the sheet slides over
@@ -248,13 +290,13 @@
 @media (max-width: 767.98px) {
   .shell[data-map-view='detail'],
   .shell[data-map-view='detail'] .body[data-map-view='detail'] {
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
   }
 
   html:has(.body[data-map-view='detail']),
   body:has(.body[data-map-view='detail']),
   html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
   body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
   }
 }

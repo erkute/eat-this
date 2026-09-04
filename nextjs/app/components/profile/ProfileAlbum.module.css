@@ -17,7 +17,10 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: clamp(22px, 3vw, 34px);
+  /* Der Grundabstand zwischen den Baendern der Seite. Kopfzeile und naechster
+     Zug legen je noch etwas drauf, damit die Reiterleiste am DICHTESTEN am
+     Raster steht — sie schaltet es, alles andere steht daneben. */
+  gap: clamp(18px, 2.2vw, 22px);
   color: var(--album-ink);
   background: transparent;
 }
@@ -32,14 +35,13 @@
 .masthead {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas:
-    'card head'
-    'card move';
-  /* Die zweite Zeile nimmt den Rest, damit der naechste Zug am Fuss der Karte
-     sitzt statt in der Mitte einer gleichmaessig verteilten Ueberhoehe. */
-  grid-template-rows: auto 1fr;
-  align-items: start;
-  margin-bottom: clamp(18px, 2.4vw, 28px);
+  grid-template-areas: 'card head';
+  /* Titel und Slogan mittig zur Figur: die Karte ist 256 px hoch, das Paar
+     rund 90 — oben angeschlagen liess es 160 px Loch unter sich, unten
+     angeschlagen ebenso viel darueber. Auf der Mittelachse liest sich das
+     Paar als Beschriftung der Karte neben sich. */
+  align-items: center;
+  margin-bottom: clamp(8px, 1vw, 12px);
   gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
 }
 
@@ -52,10 +54,13 @@
   min-width: 0;
 }
 
-.masthead > .mastheadMove {
-  grid-area: move;
-  align-self: end;
+/* Der naechste Zug steht nicht mehr IM Kopfraster, sondern als eigene Zeile
+   darunter — siehe ProfileAlbum.tsx. Was bleibt, ist sein Abstand nach unten:
+   darunter folgt die Reiterleiste, und die soll als eigenes Bedienelement
+   lesbar bleiben. */
+.albumMove {
   min-width: 0;
+  margin-bottom: clamp(8px, 1vw, 12px);
 }
 
 /* Der Slogan: wie das Spiel geht, in einem Satz. Derselbe, der auf dem
@@ -528,10 +533,6 @@ div.player {
      war er vier Zeilen hoch, und genau das war zu viel Text an der falschen
      Stelle („das muss doch irgendwie darunter, als eine Zeile auf mobile"). */
   .masthead {
-    grid-template-areas:
-      'card head'
-      'move move';
-    grid-template-rows: auto auto;
     gap: 14px 16px;
   }
 
@@ -543,10 +544,6 @@ div.player {
      An der Unterkante teilen sie sich eine Linie. */
   .masthead > .head {
     align-self: end;
-  }
-
-  .masthead > .mastheadMove {
-    align-self: start;
   }
 
   .player {

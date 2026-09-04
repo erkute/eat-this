@@ -135,14 +135,21 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
           )}
         </div>
 
-        {/* Zwischen Titel und Reitern, nicht zwischen Reitern und Raster
-            (Nutzer, 04.09.2026: „das darf nicht zwischen dem Filter und den
-            Must Eats sein"). Die Bezirke filtern das Raster darunter — was
-            zwischen ihnen und ihm steht, trennt einen Schalter von dem, was
-            er schaltet. */}
-        {nextMove && <div className={styles.mastheadMove}>{nextMove}</div>}
-
       </div>
+
+      {/* Eigene Zeile ueber die volle Breite, zwischen Kopfzeile und Reitern.
+          In der Spalte neben der Spielerkarte fing sein Text bei 380 px an —
+          die Ueberschrift bei 322, Karte, Reiter und Raster bei 96. Drei
+          linke Kanten auf einer Seite, und die dritte gehoerte ausgerechnet
+          der Zeile, die dazwischen lag (Nutzer, 05.09.2026: „nicht schoen
+          ausgerichtet zu dem Rest"). Jetzt sind es zwei: der Block aus Karte
+          und Titel, und darunter alles an derselben Kante — dieselbe
+          Anordnung, die auf dem Telefon ohnehin schon steht.
+
+          Weiterhin NICHT zwischen Reitern und Raster (Nutzer, 04.09.2026):
+          die Bezirke filtern das Raster, und was dazwischen steht, trennt
+          einen Schalter von dem, was er schaltet. */}
+      {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
 
       {/* Eine eigene Zeile ueber dem Raster, ueber die volle Breite — nicht
           mehr in der Spalte neben der Spielerkarte (Nutzer, 05.09.2026: „die

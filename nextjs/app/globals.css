@@ -1441,3 +1441,26 @@ summary:active,
 .hv-chip:active {
   translate: 0 1px;
 }
+
+/* Kacheln drücken sich, statt zu nicken.
+
+   Die Regel darüber trifft nur Knöpfe. Die grossen Kacheln sind Links —
+   Restaurant, Spot des Tages, Magazin, Must-Eat-Karte, die Hero-Telefone —
+   und hatten damit auf dem Telefon gar keine Rückmeldung: ihre Antwort auf
+   eine Berührung war ein Hover, und der liegt seit 04.09.2026 hinter
+   `(hover: hover)`. Gemeldet als „ich klicke ein Restaurant an und es
+   passiert nichts".
+
+   1px wäre an einer 358x533-Kachel nicht zu sehen, deshalb eine eigene
+   Geste: die Kachel geht als Ganzes eine Spur zurück. Der Wert steht hier,
+   angewandt wird er in dem Modul, das den Hover der Kachel ohnehin
+   beschreibt — über die eigenständige `scale`-Eigenschaft, aus demselben
+   Grund wie `translate` oben: sie verrechnet sich mit einem vorhandenen
+   `transform` (gekippte Karten), statt es zu überschreiben.
+
+   Text-Links bekommen keine Bewegung, sondern den Farbwechsel, den ihr
+   Hover schon kennt — eine Zeile im Fliesstext, die beim Antippen springt,
+   liest sich als Fehler. */
+:root {
+  --et-press-tile: 0.985;
+}

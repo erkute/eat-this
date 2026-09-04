@@ -124,6 +124,13 @@
   outline-offset: 3px;
 }
 
+/* Druckzustand: die Kachel ist ein Link, die pauschale Knopf-Regel in
+   globals.css trifft sie also nicht — auf dem Telefon war ein Tippen auf ein
+   Restaurant ohne jede Antwort. Siehe `--et-press-tile`. */
+.card:active {
+  scale: var(--et-press-tile, 0.985);
+}
+
 /* Providence's descender reaches far below a tight line, and the two-line
    clamp above brings `overflow: hidden` with it — the ink room goes in as
    padding so the g in "Bagel Bro" keeps its tail. */

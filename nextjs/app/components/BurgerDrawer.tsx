@@ -54,7 +54,10 @@ export default function BurgerDrawer() {
     if (node && !node.classList.contains('active')) node.setAttribute('inert', '');
   }, []);
 
-  const closeBurger = useCallback((restoreScroll: boolean = true) => {
+  // `restoreScroll` bewusst ohne Vorgabewert: die Antwort ist an jeder
+  // Aufrufstelle eine andere, und ein Default hat hier schon einmal die
+  // falsche gewählt (siehe onPanelClick).
+  const closeBurger = useCallback((restoreScroll: boolean) => {
     closeBurgerDrawer(restoreScroll);
   }, []);
 
@@ -95,7 +98,11 @@ export default function BurgerDrawer() {
   }, [closeBurger]);
 
   const handleLoginBtn = useCallback(() => {
-    closeBurger(true);
+    // Scrollposition zurückfahren darf nur, wer auf der Seite bleibt: nicht
+    // angemeldet öffnet sich das Login-Modal über der aktuellen Seite,
+    // angemeldet geht es weiter nach /profile — und dort wäre der Restore
+    // dieselbe Falle wie bei den Menü-Links unten.
+    closeBurger(!user);
     if (!user) {
       openLogin();
       return;
@@ -105,9 +112,23 @@ export default function BurgerDrawer() {
 
   // Event-delegated close: any anchor click bubbles up; we dispatch the close
   // event so same-route navigation also closes the drawer.
+  //
+  // Bewusst `false`: ein Link führt weg, die Zielseite beginnt oben. Der
+  // Default `true` schrieb hier die Scrollposition der ALTEN Seite auf die
+  // neue. Unter 768px sperrt der Drawer den Body per `position: fixed` und
+  // führt beim Schließen `window.scrollTo(0, storedY)` nach — mit global
+  // `scroll-behavior: smooth` eine sekundenlange Animation. Nexts eigenes
+  // Scroll-nach-oben prüft genau einmal, ob der Seitenkopf im Viewport
+  // steht; solange die Animation noch bei y=0 steht, sagt die Prüfung ja,
+  // Next steigt aus, und die Animation trug den Leser danach auf die alte
+  // Position. Live gemessen am 04.09.2026: /kategorie (y=1500) → /packs
+  // landete bei 1500, /kategorie → /bezirk dagegen oben — ein Rennen, das
+  // je nach Zielseite anders ausging. Der `pathname`-Effekt oben, der `false`
+  // übergibt, rettet das nicht: da ist der Drawer längst zu und
+  // closeBurgerDrawer steigt sofort wieder aus.
   const onPanelClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if ((e.target as HTMLElement).closest('a')) closeBurger();
+      if ((e.target as HTMLElement).closest('a')) closeBurger(false);
     },
     [closeBurger]
   );

@@ -225,15 +225,13 @@ const en = {
     anonymous: 'This deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
-    cityKicker: 'Berlin',
-    cityCount: 'of {total} spots on this map',
     deckHeading: 'The deck',
-    deckCount: 'of {total} Must Eats revealed',
-    empty: 'No spots on this map yet.',
+    deckHeadingNamed: "{name}'s deck",
+    howTo: 'Every card sits at a spot in Berlin. Stand in front of it, tap the card, and it flips.',
+    empty: 'No cards on this map yet.',
     ctaHeading: 'Open your own map',
-    ctaLine: 'Every spot has its Must Eat. You reveal them on site.',
-    ctaLineNamed:
-      '{name} is already collecting. Every spot has its Must Eat — you reveal them on site.',
+    ctaLine: 'Your own cards are waiting all over Berlin.',
+    ctaLineNamed: '{name} is already collecting. Your own cards are waiting all over Berlin.',
     cta: 'Start now',
   },
   profile: {
@@ -593,18 +591,21 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     decline: 'Ablehnen',
   },
   deck: {
-    kicker: 'Ein Deck bei Eat This',
     anonymous: 'Dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
-    cityKicker: 'Berlin',
-    cityCount: 'von {total} Spots auf dieser Map',
     deckHeading: 'Das Deck',
-    deckCount: 'von {total} Must Eats aufgedeckt',
-    empty: 'Auf dieser Map liegen noch keine Spots.',
+    deckHeadingNamed: '{name}s Deck',
+    /* Der Handgriff, nicht die Regel: „Aufgedeckt wird vor Ort" sagte, DASS
+       etwas passiert, aber nicht, was man tut (Nutzer, 04.09.2026). Dieselben
+       Worte, die die Karte auf der Map selbst benutzt. */
+    howTo: 'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um.',
+    empty: 'Auf dieser Map liegen noch keine Karten.',
     ctaHeading: 'Mach deine eigene Map auf',
-    ctaLine: 'Jeder Spot hat sein Must Eat. Aufgedeckt wird vor Ort.',
-    ctaLineNamed: '{name} sammelt schon. Jeder Spot hat sein Must Eat — aufgedeckt wird vor Ort.',
+    /* Nicht mehr „Jeder Spot hat sein Must Eat" — das stimmt nicht, laengst
+       nicht jeder traegt eine Karte (Nutzer, 04.09.2026). */
+    ctaLine: 'Deine eigenen Karten warten \u00fcberall in Berlin.',
+    ctaLineNamed: '{name} sammelt schon. Deine eigenen Karten warten \u00fcberall in Berlin.',
     cta: 'Jetzt starten',
   },
   profile: {

@@ -16,13 +16,8 @@
 .masthead {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas:
-    'card head'
-    'card city';
-  /* Die zweite Zeile nimmt den Rest, damit die Berlin-Zahl am Fuss der Karte
-     sitzt statt in der Mitte einer aufgeteilten Ueberhoehe zu schweben. */
-  grid-template-rows: auto 1fr;
-  align-items: start;
+  grid-template-areas: 'card head';
+  align-items: center;
   gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
   margin-bottom: clamp(26px, 3.4vw, 44px);
 }
@@ -42,72 +37,93 @@
   justify-items: start;
 }
 
-.masthead > .city {
-  grid-area: city;
-  align-self: end;
-  min-width: 0;
-}
-
-/* „Ein Deck bei Eat This" — die Zeile, die sagt, wo man gelandet ist. Sie
-   steht ueber der Ueberschrift, nicht darunter: wer ueber einen geteilten
-   Link kommt, kennt die Marke noch nicht. */
-.kicker {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0 0 6px;
+/* Wie das Spiel geht, in einem Satz unter der Ueberschrift. Kein Kicker mehr
+   darueber: dort steht jetzt der Name, und die Marke sagt das Logo in der
+   Leiste. */
+.howTo {
+  max-width: 46ch;
+  margin: 8px 0 0;
   color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1.2;
-  text-transform: uppercase;
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 400;
+  line-height: 1.35;
 }
 
-.city {
+/* Die Karten
+   Bis zum 04.09.2026 zeigte diese Seite nur Balken je Bezirk, in der Annahme,
+   eine Wand gleicher Kartenruecken zeige nichts. Sie zeigte damit gar keine
+   Karte, auf einer Seite, deren ganzer Zweck ist, ein Deck herzuzeigen
+   (Nutzer, 04.09.2026).
+
+   Dasselbe Raster und dieselben Zustaende wie im eigenen Album, damit
+   Besitzer und Besucher dasselbe Bild vor sich haben. */
+.cards {
   display: grid;
-  gap: 9px;
-  max-width: 34ch;
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+  align-items: start;
+  margin: 0 0 clamp(30px, 4vw, 52px);
+  padding: 0;
+  list-style: none;
 }
 
-/* Die Zahl traegt, der Rest der Zeile erklaert — dieselbe Rollenteilung wie
-   auf den Bezirks-Zeilen darunter. */
-.cityLine {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+.slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1539 / 2115;
+  overflow: hidden;
+  border-radius: 7px;
+}
+
+.slot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Die gesammelte Karte liegt AUF dem Album: Schlagschatten. */
+.slotOpen {
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+}
+
+/* Eine aufgedeckte Karte, die der Besucher nicht sehen darf, liegt verdeckt
+   da — und eine Wand aus Rueckseiten in voller Leuchtkraft uebertoent die
+   Gerichte daneben, um die es geht. Ein Hauch dunkler, mehr nicht: sie bleibt
+   eine Karte, fuehrt aber nicht.
+
+   Statisch, kein Ein-/Ausblenden — die Brand-Regel gegen Opacity-Fades
+   betrifft Bewegung, nicht Faerbung. */
+.slotBack img {
+  filter: brightness(0.78) saturate(0.92);
+}
+
+/* Der leere Platz liegt IM Album: eingelassener Schatten, gestrichelte Kante,
+   die Rueckseite nur als Wasserzeichen darunter. */
+.slotEmpty {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
+}
+
+.slotEmpty img {
+  position: absolute;
+  inset: 0;
+  opacity: 0.13;
+}
+
+.slotNo {
+  position: relative;
+  color: var(--et-home-inverse-text, #fff);
   font-family: var(--et-font-display);
-  font-size: clamp(12px, 1.1vw, 14px);
+  font-size: clamp(26px, 3vw, 38px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.cityLine strong {
-  color: var(--et-home-accent, #ffc600);
-  font-size: clamp(26px, 2.6vw, 36px);
   letter-spacing: -0.02em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-}
-
-/* Derselbe Balken wie die Bezirks-Staende darunter, nur laenger. */
-.cityBar {
-  display: block;
-  height: 6px;
-  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.cityBarFill {
-  display: block;
-  height: 100%;
-  background: var(--et-home-accent, #ffc600);
-  border-radius: inherit;
+  opacity: 0.72;
 }
 
 .groups {
@@ -174,13 +190,18 @@
    Ueberschrift, die Berlin-Zahl laeuft darunter ueber die volle Breite. */
 @media (max-width: 640px) {
   .masthead {
-    grid-template-areas:
-      'card head'
-      'city city';
+    align-items: start;
     gap: 16px;
   }
 
-  .city {
-    max-width: none;
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

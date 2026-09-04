@@ -22,6 +22,9 @@ const state = vi.hoisted(() => ({
   visibleRestaurants: [] as MapRestaurant[],
   visibleMustEats: [] as MapMustEat[],
   revealed: new Set<string>(),
+  /* Der kuratierte Anon-Satz plus Spot des Tages — genau die Karten, die
+     /api/must-eat-image ohne Cookie ausliefert. */
+  publicMustEatIds: new Set<string>(),
 }));
 
 vi.mock('server-only', () => ({}));
@@ -49,6 +52,9 @@ vi.mock('@/lib/map/cached-sanity', () => ({
 }));
 vi.mock('@/lib/map/free-surface', () => ({
   getFreeSurfaceData: async () => ({ restaurantIds: new Set<string>() }),
+}));
+vi.mock('@/lib/map/server-initial-map-data', () => ({
+  getPublicMustEatIds: async () => state.publicMustEatIds,
 }));
 /* Gemockt wird die GRENZE, nicht mehr die Formel: `composeAccountSurface` ist
    seit dem 31.08.2026 die eine Stelle, an der „was sieht dieses Konto"
@@ -133,6 +139,7 @@ afterEach(() => {
   state.visibleRestaurants = [];
   state.visibleMustEats = [];
   state.revealed = new Set();
+  state.publicMustEatIds = new Set();
 });
 
 const OK_UID = 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423';
@@ -153,10 +160,11 @@ describe('getPublicDeck', () => {
       'groups',
       'name',
       'revealed',
-      'spotsOpen',
-      'spotsTotal',
+      'slots',
       'total',
     ]);
+    // Und pro Platz genau drei Angaben — Nummer, Stand, Bild.
+    expect(Object.keys(deck?.slots[0] ?? {}).sort()).toEqual(['collected', 'image', 'no']);
   });
 
   it('traegt weder E-Mail noch Foto-URL noch ein Gericht nach draussen', async () => {
@@ -171,11 +179,58 @@ describe('getPublicDeck', () => {
     expect(serialized).not.toContain('geheim@example.com');
     expect(serialized).not.toContain('googleusercontent');
     expect(serialized).not.toContain('Chorizo');
-    expect(serialized).not.toContain('must-eat-image');
     expect(serialized).not.toContain('9,50');
     // Auch keine Spot-Namen oder -Slugs: wo jemand isst, geht niemanden an.
     expect(serialized).not.toContain('spot-r1');
     expect(serialized).not.toContain('Spot r1');
+  });
+
+  /* Die Karten sind seit dem 04.09.2026 zu sehen — aber nur die, die ohnehin
+     jeder Anonyme sehen darf. Ein Bild fuer eine aufgedeckte Karte AUSSERHALB
+     dieses Satzes waere der bezahlte Teil des Produkts, verschenkt an jeden
+     mit einem geteilten Link. */
+  it('zeigt ein Bild nur fuer Karten, die auch ohne Anmeldung offen liegen', async () => {
+    state.visibleRestaurants = ALL_RESTAURANTS;
+    state.visibleMustEats = ALL_MUST_EATS;
+    // m1 und m2 sind aufgedeckt, aber nur m1 gehoert zum oeffentlichen Satz.
+    state.revealed = new Set(['m1', 'm2']);
+    state.publicMustEatIds = new Set(['m1']);
+
+    const deck = await getPublicDeck(OK_UID);
+
+    expect(deck?.slots.filter((s) => s.image).length).toBe(1);
+    expect(deck?.slots.find((s) => s.image)?.image).toBe('/api/must-eat-image/m1');
+    // m2 ist aufgedeckt und bleibt trotzdem eine Rueckseite.
+    expect(deck?.slots.filter((s) => s.collected && !s.image).length).toBe(1);
+  });
+
+  /* Eine verdeckte Karte bekommt nie ein Bild, auch wenn sie im
+     oeffentlichen Satz steht: sichtbar ist sie erst, wenn ihr Besitzer sie
+     umgedreht hat. */
+  it('gibt einer verdeckten Karte kein Bild, auch aus dem oeffentlichen Satz', async () => {
+    state.visibleRestaurants = ALL_RESTAURANTS;
+    state.visibleMustEats = ALL_MUST_EATS;
+    state.revealed = new Set();
+    state.publicMustEatIds = new Set(['m1', 'm2', 'm3', 'm4']);
+
+    const deck = await getPublicDeck(OK_UID);
+
+    expect(deck?.slots.every((s) => s.image === null)).toBe(true);
+  });
+
+  /* Die Nummer auf dem Platz ist die Nummer auf der Karte, dreistellig — und
+     sie muss dieselbe sein wie im eigenen Deck, sonst traegt eine Karte auf
+     zwei Seiten zwei Zahlen. Darum baut beides `buildAlbum`. */
+  it('nummeriert die Plaetze wie das eigene Deck und legt sie in Kartenreihenfolge', async () => {
+    state.visibleRestaurants = ALL_RESTAURANTS;
+    state.visibleMustEats = [
+      { ...mustEat('m4', 'r3'), order: 12 },
+      { ...mustEat('m1', 'r1'), order: 3 },
+    ];
+
+    const deck = await getPublicDeck(OK_UID);
+
+    expect(deck?.slots.map((s) => s.no)).toEqual(['003', '012']);
   });
 
   /* Das eigene Profil faellt fuer den Vornamen auf die E-Mail zurueck
@@ -227,7 +282,7 @@ describe('getPublicDeck', () => {
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.spotsOpen).toBe(3);
+    expect(deck?.slots.length).toBe(4);
     expect(deck?.revealed).toBe(4);
     expect(deck?.total).toBe(4);
   });

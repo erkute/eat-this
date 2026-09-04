@@ -313,6 +313,15 @@ main.page .head {
     max-width: none;
   }
 
+  /* Eigene Zeile: in einer 220 px schmalen Spalte blieb hinter der
+     Beschriftung genau ein Wort stehen („NÄCHSTES MUST EAT  Must"), und der
+     Satz fing in der zweiten Zeile mitten im Wort wieder an. */
+  .moveLabel {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 3px;
+  }
+
   .moveCta {
     grid-column: 1 / -1;
     justify-self: start;

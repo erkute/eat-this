@@ -7,7 +7,8 @@ import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { getFreeSurfaceData } from '@/lib/map/free-surface';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { UID_SHAPE } from '@/lib/referral/constants';
-import { isAlbumMustEatCollected } from './mustEatAlbum';
+import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
+import { buildAlbum } from './mustEatAlbum';
 import { FALLBACK_DISTRICT } from './nextMove';
 
 /** Ein Bezirk der oeffentlichen Ansicht — Name und Staende, sonst nichts. */
@@ -15,6 +16,31 @@ export interface PublicDeckGroup {
   district: string;
   done: number;
   total: number;
+}
+
+/**
+ * Ein Platz im geteilten Deck — die Karte, so weit sie oeffentlich sein darf.
+ *
+ * Bis zum 04.09.2026 gab es diese Ebene nicht: die Seite zeigte nur Balken je
+ * Bezirk, in der Annahme, eine Wand gleicher Kartenruecken zeige nichts. Sie
+ * zeigte damit gar keine Karte (Nutzer: „wenn man sein Deck zeigt, dann muss
+ * man die Karten zeigen").
+ *
+ * `image` traegt NUR Karten, die ohnehin jedem anonymen Besucher offen liegen
+ * — dieselbe Menge, die `/api/must-eat-image` ohne Cookie ausliefert
+ * (`getPublicMustEatIds`, der kuratierte Anon-Satz plus Spot des Tages). Jede
+ * andere aufgedeckte Karte kommt hier als Rueckseite: `collected: true`, aber
+ * kein Bild. Wer diese Grenze verschiebt, verschenkt den bezahlten Teil des
+ * Produkts an jeden, der einen geteilten Link hat.
+ *
+ * Kein Gericht, kein Lokal, keine Beschreibung — die Nummer steht ohnehin auf
+ * der Karte, und wer die Nummer kennt, weiss davon nichts.
+ */
+export interface PublicDeckSlot {
+  /** Die Nummer unten rechts auf der Karte, dreistellig. */
+  no: string | null;
+  collected: boolean;
+  image: string | null;
 }
 
 /**
@@ -29,10 +55,10 @@ export interface PublicDeck {
   /** Vorname aus dem Anzeigenamen. Null, wenn das Konto keinen gepflegt hat. */
   name: string | null;
   avatar: 1 | 2 | 3;
-  spotsOpen: number;
-  spotsTotal: number;
   revealed: number;
   total: number;
+  /** Alle Plaetze in Kartenreihenfolge — 001, 002, 003 …, wie im eigenen Deck. */
+  slots: PublicDeckSlot[];
   groups: PublicDeckGroup[];
 }
 
@@ -106,6 +132,7 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
     unlockedIds,
     [{ restaurants: all, mustEats: allMustEats }, freeSurface],
     profileSnap,
+    publicMustEatIds,
   ] = await Promise.all([
     resolveEntitlements(uid, identity),
     getUnlockedMustEatIds(uid),
@@ -115,6 +142,7 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
       .doc(uid)
       .get()
       .catch(() => null),
+    getPublicMustEatIds(),
   ]);
 
   /* Dieselbe Ableitung wie /api/map-data — eine Funktion, nicht zwei Kopien.
@@ -136,25 +164,37 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   const ownedIds = new Set(surface.restaurants.map((r) => r._id));
   const ownedMustEats = surface.mustEats.filter((m) => ownedIds.has(m.restaurant._id));
 
-  const byDistrict = new Map<string, PublicDeckGroup>();
-  for (const m of ownedMustEats) {
-    const district = districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT;
-    const group = byDistrict.get(district) ?? { district, done: 0, total: 0 };
-    group.total += 1;
-    if (isAlbumMustEatCollected(m, surface.faceUpIds)) group.done += 1;
-    byDistrict.set(district, group);
-  }
-  const groups = [...byDistrict.values()].sort((a, b) =>
-    a.district.localeCompare(b.district, 'de')
+  /* Dieselbe Funktion wie im eigenen Deck, nicht eine zweite Rechnung
+     daneben: Reihenfolge und Nummerierung muessen zwischen /profile und
+     /deck/<uid> uebereinstimmen, sonst traegt dieselbe Karte zwei Zahlen. */
+  const album = buildAlbum(
+    ownedMustEats,
+    surface.faceUpIds,
+    (m) => districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT
   );
+
+  const slots: PublicDeckSlot[] = album.slots.map((slot) => ({
+    no: slot.no,
+    collected: slot.collected,
+    /* Nur der oeffentliche Satz bekommt ein Bild — siehe PublicDeckSlot. */
+    image:
+      slot.collected && publicMustEatIds.has(slot.id)
+        ? `/api/must-eat-image/${encodeURIComponent(slot.id)}`
+        : null,
+  }));
+
+  const groups = album.groups.map((g) => ({
+    district: g.group,
+    done: g.slots.filter((s) => s.collected).length,
+    total: g.slots.length,
+  }));
 
   return {
     name: firstNameOf(account.displayName),
     avatar: avatarOf(profileSnap?.data()?.avatar),
-    spotsOpen: surface.restaurants.length,
-    spotsTotal: all.length,
-    revealed: groups.reduce((n, g) => n + g.done, 0),
-    total: ownedMustEats.length,
+    revealed: slots.filter((s) => s.collected).length,
+    total: slots.length,
+    slots,
     groups,
   };
 });

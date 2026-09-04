@@ -164,6 +164,14 @@
   }
 }
 
+/* Druckzustand: beides sind Links, die pauschale Knopf-Regel in globals.css
+   trifft sie also nicht. Eigenständiges `translate`, damit die Kippung aus
+   `transform` stehen bleibt. */
+.socialLink:active,
+.remyLink:active {
+  translate: 0 1px;
+}
+
 .remyLink:focus-visible img {
   transform: translateY(-4px) rotate(-2deg);
 }
@@ -241,6 +249,13 @@
     background: transparent;
     color: var(--home-accent, #ffc600);
   }
+}
+
+/* Kleine Zeilen in einer Reihe: der Farbwechsel ist die Rückmeldung, eine
+   Bewegung würde die ganze Zeile umbrechen lassen. */
+.legalLink:active {
+  background: transparent;
+  color: var(--home-accent, #ffc600);
 }
 
 .legalBtn {

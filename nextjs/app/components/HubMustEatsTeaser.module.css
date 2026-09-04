@@ -144,6 +144,16 @@
   }
 }
 
+/* Druckzustand: die Karte ist ein Link, die pauschale Knopf-Regel in
+   globals.css trifft sie also nicht. Nicht `--et-press-tile` (0.985): am
+   Telefon ist eine Karte 114px breit, 1,5 % davon sind 1,7px und damit nichts.
+   Eine Sammelkarte ist ohnehin ein Gegenstand — sie darf sich unter dem Finger
+   spürbar in die Tafel drücken. Eigenständiges `scale`, damit die Kippung aus
+   `transform` stehen bleibt. */
+.cardLink:active .card {
+  scale: 0.94;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card,
   .item:nth-child(even) .card,
@@ -214,6 +224,12 @@
   }
 }
 
+/* Text-Links bewegen sich nicht, sie färben sich — derselbe Wechsel, den ihr
+   Hover kennt, nur eben auch für einen Finger. */
+.dishLink:active .dish {
+  color: var(--teaser-accent);
+}
+
 /* The card's state, standing where a dish name would. Same slot and type so the
    row keeps one baseline; muted because it names a blank, not a dish. */
 .dishCovered {
@@ -238,6 +254,10 @@
   .restaurantLink:hover :global(.hv-sub) {
     color: var(--teaser-accent);
   }
+}
+
+.restaurantLink:active :global(.hv-sub) {
+  color: var(--teaser-accent);
 }
 
 /* ── Footer row: gelber Knopf zu allen Must Eats, Ring fürs Onboarding ────── */

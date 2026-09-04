@@ -328,6 +328,13 @@
   border-radius: var(--et-radius-photo);
 }
 
+/* Druckzustand: der grösste Link der Seite hatte keinen. Die Telefone spreizen
+   sich auf Hover, auf dem Telefon gibt es keinen — also drückt sich die ganze
+   Gruppe. Siehe `--et-press-tile` in globals.css. */
+.heroPhones:active {
+  scale: var(--et-press-tile, 0.985);
+}
+
 /* ── Spot des Tages ─────────────────────────────────────────────────────────
    The pick used to be a rounded 16/9 box with a text column parked next to it:
    two floating objects on white, and visibly less designed than the four cards
@@ -524,6 +531,13 @@
   .spotCard:hover .spotCta {
     background: var(--et-home-inverse-text);
   }
+}
+
+/* Der Knopf allein reichte nicht: er sitzt am unteren Ende einer 358x533-Kachel
+   und bewegt sich um 1px — wer die Kachel oben am Foto antippt, sah nichts.
+   Jetzt drückt sich die Kachel, der Knopf nickt weiter mit. */
+.spotCard:active {
+  scale: var(--et-press-tile, 0.985);
 }
 
 .spotCard:active .spotCta {

@@ -13,7 +13,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--et-board-quiet-pad, var(--et-board-pad, clamp(24px, 4vw, 56px)));
+  /* Nur `--et-board-quiet-pad` lesen, nie `--et-board-pad`: das zweite Token
+     ist seit dem Ink-Umbau `0px` und löst die Tafeln auf, die auf dem Grund
+     stehen. Eine leise Stufe ist aber ein OBJEKT — ohne Rand endet die Fläche
+     an der Knopfkante. Genau das stand hier bis 04.09.2026 in einer
+     `max-width: 760px`-Regel und schnitt die Tüte oben ab. */
+  padding: var(--et-board-quiet-pad, clamp(24px, 4vw, 56px));
   overflow: hidden;
   background: var(--et-board-quiet, var(--et-board-bg, var(--starter-ink)));
   color: var(--starter-paper);
@@ -211,9 +216,21 @@
   }
 }
 
+/* Am Telefon eine randlose Bahn statt eines gerundeten Kastens. Ein Kasten,
+   der nur 16px vom Bildschirmrand entfernt steht, liest sich als Rahmen und
+   nimmt dem Formular noch einmal 2x22px: Feld und Knopf standen damit
+   schmaler als jeder andere Abschnitt der Seite. Als Bahn ist die leise Stufe
+   ein Halt auf der Seite, kein Kasten in der Spalte.
+
+   Die negative Rinne ist exakt die von `hv-wrap` (`--et-wrap-pad-mobile`,
+   dieselbe 760px-Grenze) — keine `vw`-Rechnung, die an einer Scrollleiste
+   überläuft. Der Innenabstand übernimmt sie wieder, der Inhalt steht also auf
+   derselben Satzkante wie der Rest der Seite. */
 @media (max-width: 760px) {
   .inner {
-    padding: var(--et-board-pad, 22px 18px 24px);
+    margin-inline: calc(-1 * var(--et-wrap-pad-mobile, 16px));
+    padding: 30px var(--et-wrap-pad-mobile, 16px) 32px;
+    border-radius: 0;
   }
 
   .art {

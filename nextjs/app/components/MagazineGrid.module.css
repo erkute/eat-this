@@ -229,6 +229,12 @@
   outline-offset: 4px;
 }
 
+/* Druckzustand: die Kachel ist ein Link, die pauschale Knopf-Regel in
+   globals.css trifft sie also nicht. Siehe `--et-press-tile`. */
+.card:active {
+  scale: var(--et-press-tile, 0.985);
+}
+
 @media (max-width: 960px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

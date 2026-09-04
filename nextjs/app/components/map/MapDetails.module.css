@@ -4606,10 +4606,15 @@
  * eine schwarze Pille über die volle Breite. Sie war der schwerste Block im
  * Sheet und stand als zweite "Karte" gegen die Must-Eat-Karte, um die es geht.
  *
- * Jetzt Markensprache: keine Fläche, eine Haarlinie als Trennung, Struktur aus
- * Weißraum und Typo. Foto quadratisch, Name in Providence, die Aktion als
- * kompakte Ink-Pille in Inhaltsbreite — alles auf EINER Zeile. Der Block ist
- * damit rund 30px flacher; die gehen an die Karte darüber.
+ * Jetzt Markensprache: keine Fläche, Struktur aus Weißraum und Typo. Foto
+ * quadratisch, Name in Providence, die Aktion als kompakte Ink-Pille in
+ * Inhaltsbreite — alles auf EINER Zeile. Der Block ist damit rund 30px
+ * flacher; die gehen an die Karte darüber.
+ *
+ * ACHTUNG: Der Block "Restaurant-Streifen auf Ink" weiter unten trägt dieselbe
+ * Selektorliste und steht später — Fläche, Rand, Rundung und Innenabstand
+ * kommen von dort. Was hier dazu steht, ist bereits überschrieben; eine
+ * Haarlinie hat dieser Block deshalb nie gezeichnet.
  *
  * Die Selektoren tragen `:has(.fdRestPhoto)` mit, weil die früheren Regeln das
  * tun und den drei Kindern feste Grid-Plätze geben (die Pille lag in Zeile 2).
@@ -4631,7 +4636,6 @@
   padding: 14px 0 0;
   background: transparent;
   border: 0;
-  border-top: 1px solid rgba(21, 18, 14, 0.12);
   border-radius: 0;
   box-shadow: none;
 }

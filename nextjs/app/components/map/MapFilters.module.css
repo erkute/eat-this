@@ -805,12 +805,6 @@
   opacity: 0.55;
 }
 
-.pickerFooter {
-  flex-shrink: 0;
-  padding: 8px 14px;
-  border-top: 1px solid var(--border-subtle);
-}
-
 /* ── Mobile: eingerücktes Bottom-Sheet ─────────────────────────────────────── */
 @media (max-width: 1023.98px) {
   .pickerSheet {

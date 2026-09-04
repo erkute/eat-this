@@ -48,11 +48,18 @@
   cursor: pointer;
 }
 
-.close:hover,
 .close:focus-visible {
   color: var(--login-paper);
   background: var(--login-ink);
   outline: none;
+}
+
+@media (hover: hover) {
+  .close:hover {
+    color: var(--login-paper);
+    background: var(--login-ink);
+    outline: none;
+  }
 }
 
 .modalSimple {
@@ -322,9 +329,14 @@
   transform: none;
 }
 
-.frameModal .close:hover,
 .frameModal .close:focus-visible {
   outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .frameModal .close:hover {
+    outline-offset: 2px;
+  }
 }
 
 .modalSimple {
@@ -564,12 +576,20 @@
   font-size: 30px;
 }
 
-.frameModal .close:hover,
 .frameModal .close:focus-visible {
   color: var(--home-ink, #15120e);
   background: var(--login-accent);
   outline: 0;
   transform: translateY(-1px);
+}
+
+@media (hover: hover) {
+  .frameModal .close:hover {
+    color: var(--home-ink, #15120e);
+    background: var(--login-accent);
+    outline: 0;
+    transform: translateY(-1px);
+  }
 }
 
 .modalSimple {
@@ -675,16 +695,28 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.frameModal .ctaPrimary:hover,
 .frameModal .ctaPrimary:focus-visible {
   color: var(--home-ink, #15120e);
   background: #fff;
 }
 
-.frameModal .ctaGoogle:hover,
+@media (hover: hover) {
+  .frameModal .ctaPrimary:hover {
+    color: var(--home-ink, #15120e);
+    background: #fff;
+  }
+}
+
 .frameModal .ctaGoogle:focus-visible {
   color: var(--home-ink, #15120e);
   background: var(--login-accent);
+}
+
+@media (hover: hover) {
+  .frameModal .ctaGoogle:hover {
+    color: var(--home-ink, #15120e);
+    background: var(--login-accent);
+  }
 }
 
 .frameModal .or {
@@ -1122,11 +1154,18 @@
   border-radius: var(--et-radius-control, 7px);
 }
 
-.frameSent .textlink:hover,
 .frameSent .textlink:focus-visible {
   color: var(--home-ink, #15120e);
   background: var(--login-accent);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .frameSent .textlink:hover {
+    color: var(--home-ink, #15120e);
+    background: var(--login-accent);
+    outline: 0;
+  }
 }
 
 @media (max-width: 767.98px) {

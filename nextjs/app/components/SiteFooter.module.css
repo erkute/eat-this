@@ -157,27 +157,47 @@
   transform: rotate(1deg);
 }
 
-.socialLink:hover,
-.remyLink:hover {
-  transform: translateY(-3px) rotate(0.8deg);
+@media (hover: hover) {
+  .socialLink:hover,
+  .remyLink:hover {
+    transform: translateY(-3px) rotate(0.8deg);
+  }
 }
 
-.remyLink:hover img,
 .remyLink:focus-visible img {
   transform: translateY(-4px) rotate(-2deg);
 }
 
-.remyLink:hover::after,
+@media (hover: hover) {
+  .remyLink:hover img {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+}
+
 .remyLink:focus-visible::after {
   content: none;
 }
 
-.remyLink:hover,
+@media (hover: hover) {
+  .remyLink:hover::after {
+    content: none;
+  }
+}
+
 .remyLink:focus-visible {
   color: var(--footer-hover);
   background: transparent;
   box-shadow: none;
   outline: 0;
+}
+
+@media (hover: hover) {
+  .remyLink:hover {
+    color: var(--footer-hover);
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+  }
 }
 
 .legal {
@@ -216,9 +236,11 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
-.legalLink:hover {
-  background: transparent;
-  color: var(--home-accent, #ffc600);
+@media (hover: hover) {
+  .legalLink:hover {
+    background: transparent;
+    color: var(--home-accent, #ffc600);
+  }
 }
 
 .legalBtn {
@@ -288,10 +310,16 @@
   color: var(--footer-accent);
 }
 
-.langBtn:hover,
 .langBtn:focus-visible {
   color: var(--home-accent, #ffc600);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .langBtn:hover {
+    color: var(--home-accent, #ffc600);
+    outline: 0;
+  }
 }
 
 .langSep {

@@ -165,12 +165,19 @@
   border: 1px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
 }
 
-.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):hover,
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):focus-visible,
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive)[aria-expanded='true'] {
   background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   color: var(--et-home-inverse-text, #fff);
   border-color: var(--et-home-accent, #ffc600);
+}
+
+@media (hover: hover) {
+  .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):hover {
+    background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+    color: var(--et-home-inverse-text, #fff);
+    border-color: var(--et-home-accent, #ffc600);
+  }
 }
 
 .filterChip:active {
@@ -188,12 +195,19 @@
    vorbeikommt statt darunter durchzulaufen — der Chip wächst um dieselben 20px
    mit, weil er sich nach seinem Inhalt bemisst. */
 .filterChipRow .filterChipActive,
-.filterChipRow .filterChipActive:hover,
 .filterChipRow .filterChipActive:focus-visible {
   padding-inline: 20px;
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
   border: 1px solid var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .filterChipRow .filterChipActive:hover {
+    padding-inline: 20px;
+    background: var(--et-home-accent, #ffc600);
+    color: var(--et-home-ink, #15120e);
+    border: 1px solid var(--et-home-accent, #ffc600);
+  }
 }
 
 /* ABSICHTLICH BEIBEHALTEN: solange seine Auswahlliste offen ist, faellt ein
@@ -221,13 +235,20 @@
   border: 0;
 }
 
-.filterChipRow .filterChipOpenActive:hover,
 .filterChipRow .filterChipOpenActive:focus-visible,
-.filterChipRow .filterChip[aria-pressed='true']:hover,
 .filterChipRow .filterChip[aria-pressed='true']:focus-visible {
   background: #176f3c;
   color: #fff;
   border: 0;
+}
+
+@media (hover: hover) {
+  .filterChipRow .filterChipOpenActive:hover,
+  .filterChipRow .filterChip[aria-pressed='true']:hover {
+    background: #176f3c;
+    color: #fff;
+    border: 0;
+  }
 }
 
 /* ── Chips, die eine laufende Suche überstimmt ────────────────────────────────
@@ -236,13 +257,19 @@
    lief. Sie fallen auf die Ink-Füllung zurück, behalten aber eine Akzent-Kontur,
    damit die mit einem Wert auffindbar (und löschbar) bleiben. */
 .filterChipRow.filterChipRowPaused .filterChipActive,
-.filterChipRow.filterChipRowPaused .filterChipActive:hover,
 .filterChipRow.filterChipRowPaused .filterChipActive:focus-visible,
 .filterChipRow.filterChipRowPaused .filterChipOpenActive,
 .filterChipRow.filterChipRowPaused .filterChip[aria-pressed='true'] {
   background: transparent;
   color: var(--et-home-inverse-text, #fff);
   border: 1px solid var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .filterChipRow.filterChipRowPaused .filterChipActive:hover {
+    background: transparent;
+    color: var(--et-home-inverse-text, #fff);
+    border: 1px solid var(--et-home-accent, #ffc600);
+  }
 }
 
 /* ── Label ─────────────────────────────────────────────────────────────────────
@@ -350,11 +377,18 @@
   stroke-linecap: round;
 }
 
-.filterChipClear:hover,
 .filterChipClear:focus-visible {
   background: var(--et-home-red, #d9382a);
   color: #fff;
   outline: 0;
+}
+
+@media (hover: hover) {
+  .filterChipClear:hover {
+    background: var(--et-home-red, #d9382a);
+    color: #fff;
+    outline: 0;
+  }
 }
 
 .filterChipClear:active {
@@ -550,11 +584,18 @@
   cursor: pointer;
 }
 
-.pickerClose:hover,
 .pickerClose:focus-visible {
   background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   color: var(--et-home-accent, #ffc600);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .pickerClose:hover {
+    background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+    color: var(--et-home-accent, #ffc600);
+    outline: 0;
+  }
 }
 
 /* `min-height: 0` ist der Flexbox-Overflow-Trick: ohne ihn weigert sich das
@@ -611,12 +652,36 @@
     color 120ms ease;
 }
 
-.pickerItem:hover,
+/* Weiss 14 % als Hervorhebung — Fokus, Hover und Druck teilen sie sich.
+   Vorher stand hier `rgba(21, 18, 14, 0.86)`, eine Ink-Fuellung aus der Zeit
+   vor dem Ink-Umbau der Map: auf dem hellen Sheet von damals war das die
+   Hervorhebung, auf dem dunklen von heute ist sie gemessen ΔL* 0,0 — also
+   nichts. Fokus und Hover waren damit seit dem Umbau unsichtbar, und der
+   Druckzustand hat den Fehler zuerst geerbt. Weiss 14 % ergibt ΔL* 15,9. */
 .pickerItem:focus-visible {
-  background: rgba(21, 18, 14, 0.86);
+  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   color: var(--et-home-inverse-text, #fff);
   outline: 0;
   transform: none;
+}
+
+@media (hover: hover) {
+  .pickerItem:hover {
+    background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    color: var(--et-home-inverse-text, #fff);
+    outline: 0;
+    transform: none;
+  }
+}
+
+/* Druck: dieselbe Füllung wie Hover und Fokus. Auf einer Zeile über die ganze
+   Breite ist die Füllung die einzige Rückmeldung, die man wirklich sieht — die
+   1px Absenkung aus globals.css gehen darin unter. Ungesperrt, denn genau auf
+   dem Telefon ist sie die einzige, die es gibt. */
+.pickerItem:active {
+  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  color: var(--et-home-inverse-text, #fff);
+  outline: 0;
 }
 
 /* Ausgewählte Zeile: Akzentfüllung mit Ink-Text. Vorher rendete sie mit
@@ -625,7 +690,6 @@
    wurde weiter unten nochmal gesetzt. Man konnte nicht sehen, was man gewählt
    hatte. */
 .pickerItemActive,
-.pickerItemActive:hover,
 .pickerItemActive:focus-visible {
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
@@ -634,6 +698,29 @@
   filter: none;
   text-shadow: none;
   transform: none;
+}
+@media (hover: hover) {
+  .pickerItemActive:hover {
+    background: var(--et-home-accent, #ffc600);
+    color: var(--et-home-ink, #15120e);
+    border-color: var(--et-home-accent, #ffc600);
+    box-shadow: none;
+    filter: none;
+    text-shadow: none;
+    transform: none;
+  }
+}
+
+/* Die gewählte Zeile bleibt beim Drücken gelb — sonst schlüge die Ink-Füllung
+   oben durch (`.pickerItem:active` ist spezifischer als `.pickerItemActive`)
+   und die Auswahl sähe für einen Moment aus wie eine gewöhnliche Zeile. */
+.pickerItemActive:active {
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  border-color: var(--et-home-accent, #ffc600);
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
 }
 
 .pickerItemActive::after {
@@ -661,10 +748,16 @@
   cursor: default;
 }
 
-.pickerItemDead:hover,
 .pickerItemDead:focus-visible {
   background: transparent;
   color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+}
+
+@media (hover: hover) {
+  .pickerItemDead:hover {
+    background: transparent;
+    color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  }
 }
 
 .pickerItemDead .pickerItemSub {

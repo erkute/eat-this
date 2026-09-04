@@ -3,7 +3,13 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
+vi.mock('next-intl', () => ({
+  useLocale: () => 'de',
+  // Der Leerzustand nennt die Suchanfrage beim Namen und braucht dafuer
+  // Platzhalter — die kann nur next-intls `t`, nicht der aus lib/i18n.
+  useTranslations: (ns: string) => (key: string, werte?: Record<string, string>) =>
+    werte ? `${ns}.${key}:${Object.values(werte).join(',')}` : `${ns}.${key}`,
+}));
 vi.mock('@/lib/i18n', () => ({ useTranslation: () => ({ lang: 'de', t: (key: string) => key }) }));
 vi.mock('@/lib/map', () => ({
   abbreviateBezirk: (value: string | null) => value,
@@ -47,6 +53,27 @@ describe('MapListEmpty', () => {
     expect(screen.getByRole('status').textContent).toContain('map.emptyTitle');
     screen.getByRole('button', { name: 'map.emptyReset' }).click();
     expect(onReset).toHaveBeenCalled();
+  });
+
+  /* Zwei Zustaende, zwei Texte. Wer nur etwas eingetippt hat, will seinen
+     Suchbegriff loswerden und nicht „Filter zuruecksetzen" angeboten
+     bekommen — und ohne die Anfrage im Text bleibt offen, ob man sich
+     vertippt hat oder ob es das wirklich nicht gibt. */
+  it('nennt die Suchanfrage beim Namen und bietet an, sie zu loeschen', () => {
+    render(<MapListEmpty onReset={vi.fn()} query="banh mi" />);
+
+    const text = screen.getByRole('status').textContent ?? '';
+    expect(text).toContain('map.emptyKickerSearch');
+    expect(text).toContain('banh mi');
+    expect(screen.getByRole('button', { name: 'map.emptyResetSearch' })).toBeTruthy();
+  });
+
+  it('spricht ohne Suchanfrage von den Filtern', () => {
+    render(<MapListEmpty onReset={vi.fn()} query="   " />);
+
+    const text = screen.getByRole('status').textContent ?? '';
+    expect(text).toContain('map.emptyKickerFilter');
+    expect(screen.getByRole('button', { name: 'map.emptyReset' })).toBeTruthy();
   });
 
   it('sells nothing from an empty screen', () => {

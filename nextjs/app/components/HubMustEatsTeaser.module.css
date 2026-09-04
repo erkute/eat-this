@@ -130,12 +130,18 @@
   transform: rotate(-1deg);
 }
 
-.cardShell:hover .card,
 .cardShell:focus-within .card,
-.cardLink:hover .card,
 .cardLink:focus-visible .card {
   transform: rotate(0deg) translateY(-8px) scale(1.04);
   filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
+}
+
+@media (hover: hover) {
+  .cardShell:hover .card,
+  .cardLink:hover .card {
+    transform: rotate(0deg) translateY(-8px) scale(1.04);
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -145,11 +151,16 @@
     transform: none;
   }
 
-  .cardShell:hover .card,
   .cardShell:focus-within .card,
-  .cardLink:hover .card,
   .cardLink:focus-visible .card {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .cardShell:hover .card,
+    .cardLink:hover .card {
+      transform: none;
+    }
   }
 }
 
@@ -193,9 +204,14 @@
   overflow-wrap: anywhere;
 }
 
-.dishLink:hover .dish,
 .dishLink:focus-visible .dish {
   color: var(--teaser-accent);
+}
+
+@media (hover: hover) {
+  .dishLink:hover .dish {
+    color: var(--teaser-accent);
+  }
 }
 
 /* The card's state, standing where a dish name would. Same slot and type so the
@@ -214,9 +230,14 @@
   text-transform: none;
 }
 
-.restaurantLink:hover :global(.hv-sub),
 .restaurantLink:focus-visible :global(.hv-sub) {
   color: var(--teaser-accent);
+}
+
+@media (hover: hover) {
+  .restaurantLink:hover :global(.hv-sub) {
+    color: var(--teaser-accent);
+  }
 }
 
 /* ── Footer row: gelber Knopf zu allen Must Eats, Ring fürs Onboarding ────── */
@@ -243,10 +264,16 @@
   line-height: 1;
 }
 
-:global(.homeV2) .foot .cta:global(.hv-btn):hover,
 :global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
   color: var(--teaser-ink);
   background: var(--teaser-paper);
+}
+
+@media (hover: hover) {
+  :global(.homeV2) .foot .cta:global(.hv-btn):hover {
+    color: var(--teaser-ink);
+    background: var(--teaser-paper);
+  }
 }
 
 :global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
@@ -325,9 +352,13 @@
 /* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
 @supports (-webkit-touch-callout: none) {
   @media (pointer: coarse) {
-    .card,
-    .cardShell:hover .card {
+    .card {
       filter: none;
+    }
+    @media (hover: hover) {
+      .cardShell:hover .card {
+        filter: none;
+      }
     }
   }
 }

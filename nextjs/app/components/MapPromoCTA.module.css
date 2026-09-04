@@ -167,10 +167,15 @@
     transform var(--et-motion-fast),
     background-color var(--et-motion-fast);
 }
-.cta:hover,
 .cta:focus-visible {
   background: var(--promo-fg);
   transform: translateY(-2px);
+}
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--promo-fg);
+    transform: translateY(-2px);
+  }
 }
 .cta:focus-visible {
   outline: 2px solid var(--promo-accent);
@@ -256,8 +261,10 @@
   text-decoration: none;
   transition: transform var(--et-motion-fast);
 }
-.chip:hover {
-  transform: var(--et-hover-lift-sm);
+@media (hover: hover) {
+  .chip:hover {
+    transform: var(--et-hover-lift-sm);
+  }
 }
 
 /* Die Tafel-Tokens: Papier, Gelb und die weiche Weiß-Stufe — dieselben wie

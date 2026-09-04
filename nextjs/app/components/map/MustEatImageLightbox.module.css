@@ -131,9 +131,11 @@
   cursor: default;
 }
 
-.navBtn:hover:not(:disabled) {
-  background: #d9382a;
-  color: #fff;
+@media (hover: hover) {
+  .navBtn:hover:not(:disabled) {
+    background: #d9382a;
+    color: #fff;
+  }
 }
 
 .counter {

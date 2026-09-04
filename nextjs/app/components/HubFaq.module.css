@@ -55,8 +55,10 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.item:hover:not([open]) {
-  background: rgba(255, 255, 255, 0.03);
+@media (hover: hover) {
+  .item:hover:not([open]) {
+    background: rgba(255, 255, 255, 0.03);
+  }
 }
 
 .question {

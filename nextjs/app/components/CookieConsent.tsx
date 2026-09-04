@@ -36,7 +36,10 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
     h: 'Drittanbieter',
     p: 'Diese Dienste werden eingebunden, setzen aber keine Tracking-Cookies bei dir:',
     list: [
-      { strong: 'Carto / MapLibre', text: ' — Kartenkacheln für die Food Map' },
+      {
+        strong: 'OpenFreeMap',
+        text: ' — die Kartenkacheln und Kartenschriften der Food Map; der Server sieht dabei deine IP',
+      },
       {
         strong: 'Adobe Fonts (Typekit)',
         text: ' — die Schriften der Seite; sie kommen von Adobes Servern, die dabei deine IP sehen',
@@ -85,7 +88,10 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
     h: 'Third-party services',
     p: "These are loaded by the page but don't drop tracking cookies on you:",
     list: [
-      { strong: 'Carto / MapLibre', text: ' — map tiles for the Food Map' },
+      {
+        strong: 'OpenFreeMap',
+        text: " — the Food Map's map tiles and map labels; the server sees your IP in the process",
+      },
       {
         strong: 'Adobe Fonts (Typekit)',
         text: " — the site's typefaces; they come from Adobe's servers, which see your IP in the process",

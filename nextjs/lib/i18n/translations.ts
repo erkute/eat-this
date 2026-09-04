@@ -152,10 +152,16 @@ const en = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: 'Sign in — more spots and Must Eats are waiting for you.',
     starterPromoLogin: 'Already in? Sign in',
-    emptyTitle: 'No spots.',
-    emptyBody: 'Loosen a filter or try a different area.',
-    emptyKicker: 'Nothing found',
+    /* Two states, two texts. The kicker names WHICH of them you are in, the
+       heading is the same either way, and the button says what it clears —
+       "Reset filters" was wrong for someone who had only typed something. */
+    emptyTitle: 'Nothing here.',
+    emptyKickerSearch: 'Your search',
+    emptyKickerFilter: 'Your filters',
+    emptyBodySearch: 'Nothing matches “{query}”. Try a name, a cuisine or a district.',
+    emptyBodyFilter: 'Together these leave nothing. Loosen one — or start over.',
     emptyReset: 'Reset filters',
+    emptyResetSearch: 'Clear search',
     // Card metaphor, matching the reveal mechanic. The map list no longer has a
     // locked variant of its own — every match is a row, and this is the one
     // place that names the state.
@@ -506,10 +512,19 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: 'Melde dich an — weitere Spots und Must Eats warten auf dich.',
     starterPromoLogin: 'Schon dabei? Einloggen',
-    emptyTitle: 'Keine Spots.',
-    emptyBody: 'Filter lockern oder andere Gegend probieren.',
-    emptyKicker: 'Nichts gefunden',
+    /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
+       zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
+       bot „Filter zurücksetzen" auch dem an, der gar keinen Filter gesetzt,
+       sondern nur etwas eingetippt hatte. Der Kicker benennt jetzt, worin man
+       steckt, und der Suchtext nennt die Anfrage beim Namen — sonst bleibt
+       offen, ob man sich vertippt hat oder ob es das wirklich nicht gibt. */
+    emptyTitle: 'Nichts dabei.',
+    emptyKickerSearch: 'Deine Suche',
+    emptyKickerFilter: 'Deine Filter',
+    emptyBodySearch: 'Zu „{query}" haben wir nichts. Probier einen Namen, eine Küche oder einen Bezirk.',
+    emptyBodyFilter: 'Zusammen lassen sie nichts übrig. Lockere einen — oder fang neu an.',
     emptyReset: 'Filter zurücksetzen',
+    emptyResetSearch: 'Suche löschen',
     lockedDetailKicker: 'Noch verdeckt',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die

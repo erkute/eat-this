@@ -30,11 +30,17 @@
     background-color 0.16s ease,
     color 0.16s ease;
 }
-.how:hover,
 .how:focus-visible {
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
   transform: translateY(-2px);
+}
+@media (hover: hover) {
+  .how:hover {
+    background: var(--et-home-accent, #ffc600);
+    color: var(--et-home-ink, #15120e);
+    transform: translateY(-2px);
+  }
 }
 .how:active {
   transform: translateY(0);
@@ -57,12 +63,19 @@
     border-color var(--et-motion-fast, 140ms ease),
     color var(--et-motion-fast, 140ms ease);
 }
-.howInk:hover,
 .howInk:focus-visible {
   background: transparent;
   border-color: var(--et-home-accent, #ffc600);
   color: var(--et-home-accent, #ffc600);
   transform: translateY(-2px);
+}
+@media (hover: hover) {
+  .howInk:hover {
+    background: transparent;
+    border-color: var(--et-home-accent, #ffc600);
+    color: var(--et-home-accent, #ffc600);
+    transform: translateY(-2px);
+  }
 }
 .howInk:focus-visible {
   outline: 2px solid var(--et-home-accent, #ffc600);
@@ -155,9 +168,13 @@
   stroke-linecap: round;
   fill: none;
 }
-.x:hover,
 .x:focus-visible {
   color: var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .x:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 
 /* ── Demo card ─────────────────────────────────────────────────────────────── */
@@ -191,9 +208,13 @@
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.flipTap:hover,
 .flipTap:focus-visible {
   transform: translateY(-4px) scale(1.02);
+}
+@media (hover: hover) {
+  .flipTap:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
 }
 
 /* Booster pack as the hero of slide 3 — replaces the demo card. Same box, so
@@ -356,8 +377,10 @@
   transition: background-color 0.2s ease;
 }
 
-.step:hover::before {
-  background: rgba(255, 255, 255, 0.55);
+@media (hover: hover) {
+  .step:hover::before {
+    background: rgba(255, 255, 255, 0.55);
+  }
 }
 
 .step:focus-visible {
@@ -370,9 +393,14 @@
   width: 46px;
 }
 
-.stepOn::before,
-.stepOn:hover::before {
+.stepOn::before {
   background: var(--et-home-accent, #ffc600);
+}
+
+@media (hover: hover) {
+  .stepOn:hover::before {
+    background: var(--et-home-accent, #ffc600);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -450,15 +478,24 @@
     border-color 0.16s ease;
 }
 
-.next:hover,
 .next:focus-visible,
-.packLink:hover,
 .packLink:focus-visible {
   transform: translateY(-2px);
 }
-.packLink:hover,
+
+@media (hover: hover) {
+  .next:hover,
+  .packLink:hover {
+    transform: translateY(-2px);
+  }
+}
 .packLink:focus-visible {
   border-color: var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .packLink:hover {
+    border-color: var(--et-home-accent, #ffc600);
+  }
 }
 
 .packLink:active,
@@ -482,17 +519,21 @@
       border-color 0.16s ease,
       color 0.16s ease;
   }
-  .how:hover,
   .how:active,
-  .flipTap:hover,
   .flipTap:focus-visible,
-  .next:hover,
   .next:focus-visible,
   .next:active,
-  .packLink:hover,
   .packLink:focus-visible,
   .packLink:active {
     transform: none;
+  }
+  @media (hover: hover) {
+    .how:hover,
+    .flipTap:hover,
+    .next:hover,
+    .packLink:hover {
+      transform: none;
+    }
   }
 }
 

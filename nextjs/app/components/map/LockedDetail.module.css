@@ -100,12 +100,20 @@
     box-shadow var(--et-motion-fast, 140ms ease);
 }
 
-.offer:hover,
 .offer:focus-visible {
   transform: translateY(-2px);
   box-shadow:
     0 2px 3px rgba(21, 18, 14, 0.12),
     0 14px 26px rgba(21, 18, 14, 0.16);
+}
+
+@media (hover: hover) {
+  .offer:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 3px rgba(21, 18, 14, 0.12),
+      0 14px 26px rgba(21, 18, 14, 0.16);
+  }
 }
 
 .offerText {
@@ -362,8 +370,10 @@
   font-weight: 400;
 }
 
-.input:hover {
-  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.4);
+@media (hover: hover) {
+  .input:hover {
+    box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.4);
+  }
 }
 
 .input:focus-visible,
@@ -386,9 +396,14 @@
   cursor: default;
 }
 
-.button:hover:not(:disabled),
 .button:focus-visible:not(:disabled) {
   background: var(--et-home-paper, #fff);
+}
+
+@media (hover: hover) {
+  .button:hover:not(:disabled) {
+    background: var(--et-home-paper, #fff);
+  }
 }
 
 /* Not on the home page: the map is the one place where signing in opens the
@@ -433,9 +448,14 @@
   opacity: 0.55;
 }
 
-.google:hover:not(:disabled),
 .google:focus-visible:not(:disabled) {
   background: #2a2a2c;
+}
+
+@media (hover: hover) {
+  .google:hover:not(:disabled) {
+    background: #2a2a2c;
+  }
 }
 
 /* Eine Validierungsmeldung spricht in der Hausschrift — wie die Eingabe, die
@@ -624,9 +644,14 @@
   transition: background var(--et-motion-fast, 140ms ease);
 }
 
-.offer:hover .offerCta,
 .offer:focus-visible .offerCta {
   background: var(--et-home-paper, #fff);
+}
+
+@media (hover: hover) {
+  .offer:hover .offerCta {
+    background: var(--et-home-paper, #fff);
+  }
 }
 
 /* Die Pille darf kleiner sein als das Produkt, das sie verkauft (User,

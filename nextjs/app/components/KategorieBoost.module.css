@@ -42,8 +42,10 @@
   transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.boost:hover .posterImg {
-  transform: translateY(-6px) rotate(2deg);
+@media (hover: hover) {
+  .boost:hover .posterImg {
+    transform: translateY(-6px) rotate(2deg);
+  }
 }
 
 .body {
@@ -111,10 +113,16 @@
     background-color var(--et-motion-fast);
 }
 
-.cta:hover,
 .cta:focus-visible {
   background: var(--boost-paper);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--boost-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .cta:focus-visible {

@@ -62,10 +62,16 @@ main.page :global(.hv-btn) {
   color: var(--profile-ink);
 }
 
-main.page :global(.hv-btn):hover,
 main.page :global(.hv-btn):focus-visible {
   background: var(--profile-inverse);
   color: var(--profile-ink);
+}
+
+@media (hover: hover) {
+  main.page :global(.hv-btn):hover {
+    background: var(--profile-inverse);
+    color: var(--profile-ink);
+  }
 }
 
 /* Wo die Seite mit der Konto-Zeile endet, bringt die Zeile ihr eigenes
@@ -417,10 +423,16 @@ main.page .head {
     background-color var(--profile-motion);
 }
 
-.moveCta:hover,
 .moveCta:focus-visible {
   color: var(--profile-ink);
   background: var(--profile-inverse);
+}
+
+@media (hover: hover) {
+  .moveCta:hover {
+    color: var(--profile-ink);
+    background: var(--profile-inverse);
+  }
 }
 
 .moveCta:active {
@@ -501,9 +513,14 @@ main.page .head {
   transition: transform var(--profile-motion);
 }
 
-.recentCard:hover,
 .recentCard:focus-visible {
   transform: translateY(-4px) rotate(-1deg);
+}
+
+@media (hover: hover) {
+  .recentCard:hover {
+    transform: translateY(-4px) rotate(-1deg);
+  }
 }
 
 .recentCard img {
@@ -551,9 +568,14 @@ main.page .head {
   transition: transform var(--profile-motion);
 }
 
-.spotCard:hover,
 .spotCard:focus-visible {
   transform: translateY(-4px);
+}
+
+@media (hover: hover) {
+  .spotCard:hover {
+    transform: translateY(-4px);
+  }
 }
 
 .spotImg {
@@ -620,9 +642,14 @@ main.page .head {
   transition: background-color var(--profile-motion);
 }
 
-.spotRemove:hover,
 .spotRemove:focus-visible {
   background: var(--profile-red);
+}
+
+@media (hover: hover) {
+  .spotRemove:hover {
+    background: var(--profile-red);
+  }
 }
 
 /* A written line under the spot, not a form field.
@@ -660,8 +687,10 @@ main.page .head {
 }
 
 /* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
-.spotNote:hover {
-  box-shadow: 0 1px 0 var(--profile-ring);
+@media (hover: hover) {
+  .spotNote:hover {
+    box-shadow: 0 1px 0 var(--profile-ring);
+  }
 }
 
 .spotNote:focus-visible {
@@ -753,11 +782,18 @@ main.page .head {
     background-color var(--profile-motion);
 }
 
-.packsMore:hover,
 .packsMore:focus-visible {
   color: var(--profile-ink);
   background: var(--profile-accent);
   border-color: var(--profile-accent);
+}
+
+@media (hover: hover) {
+  .packsMore:hover {
+    color: var(--profile-ink);
+    background: var(--profile-accent);
+    border-color: var(--profile-accent);
+  }
 }
 
 /* ── invite ─────────────────────────────────────────────── */
@@ -848,9 +884,14 @@ main.page .head {
   transition: background-color var(--profile-motion);
 }
 
-.inviteButton:hover,
 .inviteButton:focus-visible {
   background: var(--profile-red);
+}
+
+@media (hover: hover) {
+  .inviteButton:hover {
+    background: var(--profile-red);
+  }
 }
 
 /* ── foot ───────────────────────────────────────────────── */
@@ -915,11 +956,18 @@ main.page .foot {
     background-color var(--profile-motion);
 }
 
-.logout:hover,
 .logout:focus-visible {
   color: var(--profile-ink);
   background: var(--profile-accent);
   border-color: var(--profile-accent);
+}
+
+@media (hover: hover) {
+  .logout:hover {
+    color: var(--profile-ink);
+    background: var(--profile-accent);
+    border-color: var(--profile-accent);
+  }
 }
 
 /* ── narrow ─────────────────────────────────────────────── */

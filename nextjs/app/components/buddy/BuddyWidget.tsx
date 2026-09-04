@@ -498,19 +498,16 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, closePanel]);
 
-  // Click/tap anywhere outside the panel closes it — standard overlay
-  // behaviour, relevant on desktop where the page stays visible next to the
-  // panel (mobile is near-fullscreen, so outside barely exists). pointerdown
-  // (not click) so a drag that starts inside and ends outside doesn't close.
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: Event) => {
-      const panel = panelRef.current;
-      if (panel && e.target instanceof Node && !panel.contains(e.target)) closePanel();
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [open, closePanel]);
+  /* Wegtippen schließt — das macht der Vorhang selbst, siehe `onClick` am
+     `.scrim` im Markup. Er liegt `fixed; inset: 0` über der ganzen Seite, der
+     Klick landet also auf ihm und ist damit verbraucht.
+
+     Vorher hing das an einem `pointerdown` auf `document`, ohne jede Sicherung.
+     Damit war das Panel weg, bevor der Klick kam, und der traf, was darunter
+     lag — auf jeder Seite, denn Remy ist überall. Ein `click` auf dem Vorhang
+     erfüllt nebenbei auch den Grund, aus dem hier `pointerdown` stand: eine
+     Wischgeste, die innen beginnt und außen endet, erzeugt gar keinen Klick
+     auf dem Vorhang und schließt deshalb nicht. */
 
   // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
   // `send` self-guards against empty text and concurrent streams.
@@ -569,7 +566,7 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     <>
       {open && (
         <>
-          <div className={styles.scrim} aria-hidden="true" />
+          <div className={styles.scrim} onClick={closePanel} aria-hidden="true" />
           <div
             ref={panelRef}
             id="buddy-panel"

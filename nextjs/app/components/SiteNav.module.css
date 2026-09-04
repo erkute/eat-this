@@ -86,13 +86,21 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.control:hover,
 .control:active,
 .control:focus-visible {
   color: #fff;
   background: transparent;
   box-shadow: none;
   transform: none;
+}
+
+@media (hover: hover) {
+  .control:hover {
+    color: #fff;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
 }
 
 .control:focus-visible {
@@ -129,15 +137,22 @@
   text-transform: uppercase;
 }
 
-.control:hover .mapWord,
 .control:active .mapWord,
 .control:focus-visible .mapWord,
-.control:hover .menuWord,
 .control:active .menuWord,
 .control:focus-visible .menuWord {
   color: #fff;
   text-shadow: none;
   animation: navHorrorShiver 220ms steps(2, end);
+}
+
+@media (hover: hover) {
+  .control:hover .mapWord,
+  .control:hover .menuWord {
+    color: #fff;
+    text-shadow: none;
+    animation: navHorrorShiver 220ms steps(2, end);
+  }
 }
 
 @media (min-width: 1024px) {

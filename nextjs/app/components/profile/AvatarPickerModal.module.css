@@ -76,11 +76,18 @@
     color var(--et-motion-card, 180ms ease);
 }
 
-.x:hover,
 .x:focus-visible {
   color: var(--et-home-inverse-text, #fff);
   background: var(--avatar-red);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .x:hover {
+    color: var(--et-home-inverse-text, #fff);
+    background: var(--avatar-red);
+    transform: translateY(-2px);
+  }
 }
 
 .head {
@@ -143,10 +150,16 @@
     box-shadow var(--et-motion-card, 180ms ease);
 }
 
-.char:hover,
 .char:focus-visible {
   transform: translateY(-4px) rotate(-0.5deg);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .char:hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+    outline: 0;
+  }
 }
 
 .char img {
@@ -197,10 +210,16 @@
     background-color var(--et-motion-card, 180ms ease);
 }
 
-.apply:hover,
 .apply:focus-visible {
   background: var(--avatar-red);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .apply:hover {
+    background: var(--avatar-red);
+    transform: translateY(-2px);
+  }
 }
 
 .apply:disabled {

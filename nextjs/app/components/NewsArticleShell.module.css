@@ -320,9 +320,11 @@ div.page {
   text-underline-offset: 3px;
 }
 
-.content
-  a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
-  color: var(--article-accent);
+@media (hover: hover) {
+  .content
+    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
+    color: var(--article-accent);
+  }
 }
 
 .content blockquote {
@@ -539,8 +541,10 @@ div.page {
   text-decoration: none;
 }
 
-.inlineSpotMetaLink:hover {
-  color: var(--article-paper);
+@media (hover: hover) {
+  .inlineSpotMetaLink:hover {
+    color: var(--article-paper);
+  }
 }
 
 .inlineSpotMetaLink:focus-visible {

@@ -110,10 +110,16 @@
     color 120ms ease;
 }
 
-.chip:hover,
 .chip:focus-visible {
   border-color: var(--remy-accent);
   color: var(--remy-accent);
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--remy-accent);
+    color: var(--remy-accent);
+  }
 }
 
 .form {
@@ -159,9 +165,13 @@
 }
 
 /* Gelb auf Ink, Hover Papier — wie jeder Tafel-Knopf. */
-.send:hover,
 .send:focus-visible {
   background: var(--remy-paper);
+}
+@media (hover: hover) {
+  .send:hover {
+    background: var(--remy-paper);
+  }
 }
 
 .chip:focus-visible,

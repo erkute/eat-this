@@ -227,7 +227,8 @@ const en = {
     metaTitleNamed: "{name}'s deck on Eat This",
     deckHeading: 'The deck',
     deckHeadingNamed: "{name}'s deck",
-    howTo: 'Every card sits at a spot in Berlin. Stand in front of it, tap the card, and it flips.',
+    howTo:
+      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
     empty: 'No cards on this map yet.',
     ctaHeading: 'Open your own map',
     ctaLine: 'Your own cards are waiting all over Berlin.',
@@ -257,7 +258,8 @@ const en = {
     albumHeading: 'Your deck',
     /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
        Wer sie hier aendert, aendert sie dort mit. */
-    howTo: 'Every card sits at a spot in Berlin. Stand in front of it, tap the card, and it flips.',
+    howTo:
+      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
     albumCount: 'of {total} Must Eats',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
@@ -600,7 +602,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     /* Der Handgriff, nicht die Regel: „Aufgedeckt wird vor Ort" sagte, DASS
        etwas passiert, aber nicht, was man tut (Nutzer, 04.09.2026). Dieselben
        Worte, die die Karte auf der Map selbst benutzt. */
-    howTo: 'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um.',
+    howTo:
+      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
     empty: 'Auf dieser Map liegen noch keine Karten.',
     ctaHeading: 'Mach deine eigene Map auf',
     /* Nicht mehr „Jeder Spot hat sein Must Eat" — das stimmt nicht, laengst
@@ -633,7 +636,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumHeading: 'Dein Deck',
     /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
        Wer sie hier aendert, aendert sie dort mit. */
-    howTo: 'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um.',
+    howTo:
+      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
     albumCount: 'von {total} Must Eats',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',

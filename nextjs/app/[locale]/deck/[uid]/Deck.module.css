@@ -42,6 +42,9 @@
    Leiste. */
 .howTo {
   max-width: 46ch;
+  /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
+     Wo der Browser es nicht kennt, aendert sich nichts. */
+  text-wrap: pretty;
   margin: 8px 0 0;
   color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--et-font-display);

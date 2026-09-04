@@ -68,6 +68,9 @@
    Erklaerarbeit ab. */
 .howTo {
   max-width: 46ch;
+  /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
+     Wo der Browser es nicht kennt, aendert sich nichts. */
+  text-wrap: pretty;
   margin: 10px 0 0;
   color: var(--album-muted);
   font-family: var(--album-display);

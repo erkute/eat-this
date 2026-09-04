@@ -108,24 +108,6 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
 
   return (
     <div className={styles.move}>
-      {/* Die Karte, um die es geht — verdeckt, also ihre Rueckseite. Sie IST
-          der Weg: seit 04.09.2026 gibt es keinen „Auf der Map"-Knopf mehr
-          daneben (Nutzer: „das kann jetzt weg, weil man ja auf die Karte
-          klicken und landen kann"). Vorher war sie nur Dekoration, und der
-          Block hatte zwei Ausgaenge fuer dasselbe Ziel.
-
-          Auf den SPOT, nicht auf das Must Eat — dieselbe Wahl wie im Zoom des
-          Albums: ein Spot traegt mehrere Karten, und wer hier steht, will
-          wissen, wo er hin muss. */}
-      <MapIntentLink
-        href={`/map?r=${encodeURIComponent(move.target.restaurant.slug)}`}
-        rel="nofollow"
-        className={styles.moveCard}
-        aria-label={t('albumToSpot', { name: normalizeName(move.target.restaurant.name) })}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={CARD_BACK} alt="" />
-      </MapIntentLink>
       <p className={styles.moveLine}>
         {/* Die Beschriftung laeuft im Satz mit, nicht als eigene Zeile
             darueber: sie sagt, worum es geht, und kostet so keine Hoehe. */}
@@ -147,7 +129,7 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
           Standort ist das Freigeben der Schritt — er macht aus einem Bezirk
           eine Entfernung. Ist der Standort da oder in den Browser-
           Einstellungen abgelehnt, steht hier nichts mehr; der Weg auf die
-          Map liegt in der Karte links. */}
+          Map liegt in der Karte rechts. */}
       {canLocate && (
         <button type="button" className={styles.moveCta} onClick={() => void request()}>
           {/* Dieselbe Teilung wie beim Satz: „Standort freigeben" sprengt auf
@@ -157,6 +139,30 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
           <span className={styles.moveShort}>{ctaShort}</span>
         </button>
       )}
+      {/* Die Karte, um die es geht — verdeckt, also ihre Rueckseite. Sie IST
+          der Weg: seit 04.09.2026 gibt es keinen „Auf der Map"-Knopf mehr
+          daneben (Nutzer: „das kann jetzt weg, weil man ja auf die Karte
+          klicken und landen kann"). Vorher war sie nur Dekoration, und der
+          Block hatte zwei Ausgaenge fuer dasselbe Ziel.
+
+          Am RECHTEN Ende der Zeile, seit 05.09.2026 (Nutzer: „mach mal die
+          Karte auf die rechte Seite, das macht mehr Sinn"). Links stand sie
+          dem Text vor: die Zeile fing damit 56 px weiter innen an als
+          Ueberschrift, Reiter und Raster. Jetzt schliesst sie die Zeile ab,
+          und der Text beginnt an derselben Kante wie alles darunter.
+
+          Auf den SPOT, nicht auf das Must Eat — dieselbe Wahl wie im Zoom des
+          Albums: ein Spot traegt mehrere Karten, und wer hier steht, will
+          wissen, wo er hin muss. */}
+      <MapIntentLink
+        href={`/map?r=${encodeURIComponent(move.target.restaurant.slug)}`}
+        rel="nofollow"
+        className={styles.moveCard}
+        aria-label={t('albumToSpot', { name: normalizeName(move.target.restaurant.name) })}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={CARD_BACK} alt="" />
+      </MapIntentLink>
     </div>
   );
 }

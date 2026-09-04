@@ -69,6 +69,7 @@ function layer(
     <MapCanvasLayer
       mapRef={{ current: null }}
       onMapClick={vi.fn()}
+      onMoveEnd={vi.fn()}
       displayedRestaurants={free}
       displayedLockedRestaurants={locked}
       selectedRestaurant={selected}
@@ -102,6 +103,7 @@ function layerWithRef(free: MapRestaurant[], locked: MapRestaurant[], ref: never
     <MapCanvasLayer
       mapRef={ref}
       onMapClick={vi.fn()}
+      onMoveEnd={vi.fn()}
       displayedRestaurants={free}
       displayedLockedRestaurants={locked}
       selectedRestaurant={null}

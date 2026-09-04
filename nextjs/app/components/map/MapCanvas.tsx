@@ -1,6 +1,10 @@
 'use client';
 import { forwardRef, useEffect } from 'react';
-import Map, { AttributionControl, type MapRef } from 'react-map-gl/maplibre';
+import Map, {
+  AttributionControl,
+  type MapRef,
+  type ViewStateChangeEvent,
+} from 'react-map-gl/maplibre';
 
 const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
@@ -15,11 +19,14 @@ interface MapCanvasProps {
      never arrive, the caller still has to reveal them rather than sit on an
      empty map. */
   onFirstPaint?: () => void;
+  /* The camera came to rest. `originalEvent` is set for a user gesture and
+     undefined for a flight — the list uses that to decide whether to follow. */
+  onMoveEnd?: (e: ViewStateChangeEvent) => void;
   children?: React.ReactNode;
 }
 
 const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
-  ({ onMapClick, onFirstPaint, children }, ref) => {
+  ({ onMapClick, onFirstPaint, onMoveEnd, children }, ref) => {
     // MapLibre opens the compact attribution by default on mount. Collapse it
     // so only the small ⓘ button stays visible until the user taps it. Then
     // observe attribute changes for ~3 s after we find the element, undoing
@@ -67,6 +74,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
         mapStyle={LIGHT_STYLE}
         attributionControl={false}
         onClick={() => onMapClick?.()}
+        onMoveEnd={onMoveEnd}
         onLoad={() => onFirstPaint?.()}
         onError={() => onFirstPaint?.()}
       >

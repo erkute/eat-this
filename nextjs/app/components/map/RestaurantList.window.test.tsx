@@ -5,11 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
 vi.mock('@/lib/i18n', () => ({ useTranslation: () => ({ lang: 'de', t: (key: string) => key }) }));
-vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: vi.fn() }) }));
 vi.mock('@/lib/map', () => ({
-  // Echte Logik, kein Stub: die Tests behaupten etwas darüber, WANN das
-  // All-Berlin-Banner steht — mit einem Stub prüften sie den Stub.
-  showsPackPromos: (tier: string) => tier === 'anon' || tier === 'starter',
   abbreviateBezirk: (value: string | null) => value,
   getOpenStatus: () => null,
   resolvePeek: () => ({ kind: 'none' }),
@@ -62,8 +58,6 @@ function list(props: Partial<React.ComponentProps<typeof RestaurantList>> = {}) 
       restaurants={spots(40)}
       lockedIds={new Set()}
       selectedId={null}
-      uid={null}
-      userTier="allBerlin"
       onSelect={vi.fn()}
       primaryMustEats={new Map()}
       unlockedIds={new Set()}

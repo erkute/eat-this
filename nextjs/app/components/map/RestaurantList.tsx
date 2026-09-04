@@ -1,39 +1,21 @@
 'use client';
 import { memo, useEffect, useRef, useState } from 'react';
-import { useLocale } from 'next-intl';
-import { routing } from '@/i18n/routing';
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types';
 import {
   abbreviateBezirk,
   getOpenStatus,
   resolvePeek,
   type UserLocation,
-  showsPackPromos,
-  type UserTier,
   type Peek,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName } from '@/lib/categories';
-import { categoryArt } from '@/lib/categoryArt';
-import { CATALOG } from '@/lib/stripe-catalog';
-import { formatPackPrice } from '@/lib/pack/packDetail';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { DAY_LABELS } from '@/lib/map/openingHours';
-import { useLoginModal } from '@/lib/auth';
 import MapListEmpty from './MapListEmpty';
 import styles from './RestaurantList.module.css';
-
-/* All-Berlin has no art of its own, so the banner fans out every category pack
-   the way /packs and the locked-spot sheet do — nine bags say "everything" in a
-   way one generic bag cannot. */
-const ALL_BERLIN_ART = Object.values(CATALOG)
-  .filter((pack) => pack.type === 'category' && pack.slug)
-  .map((pack) => categoryArt(pack.slug as string))
-  .filter((src): src is string => Boolean(src));
-
-const ALL_BERLIN_PRICE = formatPackPrice(CATALOG['all-berlin'].amountCents);
 
 interface ItemProps {
   restaurant: MapRestaurant;
@@ -207,8 +189,6 @@ interface RestaurantListProps {
   restaurants: MapRestaurant[];
   userLocation: UserLocation | null;
   selectedId: string | null;
-  uid: string | null;
-  userTier: UserTier;
   onSelect: (r: MapRestaurant) => void;
   primaryMustEats: Map<string, MapMustEat>;
   unlockedIds: Set<string>;
@@ -234,8 +214,6 @@ export default function RestaurantList({
   restaurants,
   lockedIds,
   selectedId,
-  uid,
-  userTier,
   onSelect,
   primaryMustEats,
   unlockedIds,
@@ -244,10 +222,6 @@ export default function RestaurantList({
   visibleRows,
   onNeedMoreRows,
 }: RestaurantListProps) {
-  const locale = useLocale();
-  const { t } = useTranslation();
-  const { open: openLoginModal } = useLoginModal();
-  const openSigninLogin = () => openLoginModal('signin');
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -281,17 +255,10 @@ export default function RestaurantList({
     return () => io.disconnect();
   }, [onNeedMoreRows, hasMoreRows, budget]);
 
-  // /pack/all-berlin gibt es nicht mehr; die All-Berlin-Tafel steht auf /packs oben.
-  const allBerlinHref = locale === routing.defaultLocale ? '/packs' : `/${locale}/packs`;
-
   /* Nothing matched — and now that the list carries the locked spots too, that
      means nothing in the whole catalogue. No count to name, no offer to make:
      the filter is simply too narrow. */
   if (restaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />;
-
-  // One calm upsell only: no blurred locked rows and no separate signup
-  // banner. Guests get sign-in as a secondary text link inside this block.
-  const showAllBerlinBanner = showsPackPromos(userTier);
 
   return (
     <>
@@ -328,50 +295,6 @@ export default function RestaurantList({
           nächsten Karten. Steht hinter den gesperrten Zeilen, damit das
           gemeinsame Budget in der sichtbaren Reihenfolge aufgefüllt wird. */}
       {hasMoreRows && <div ref={sentinelRef} className={styles.moreSentinel} aria-hidden="true" />}
-      {showAllBerlinBanner && (
-        <div className={styles.listEnd}>
-          <a href={allBerlinHref} className={styles.listEndOffer}>
-            <p className={styles.listEndKicker}>{t('map.listEndKicker')}</p>
-            <span className={styles.listEndPrice}>{ALL_BERLIN_PRICE}</span>
-            <span className={styles.listEndFan} aria-hidden="true">
-              {ALL_BERLIN_ART.map((src) => (
-                <img
-                  key={src}
-                  className={styles.listEndPack}
-                  src={src}
-                  alt=""
-                  width={420}
-                  height={630}
-                  loading="lazy"
-                  decoding="async"
-                  draggable={false}
-                />
-              ))}
-            </span>
-            <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
-            <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
-            <span className={styles.listEndCta}>
-              <span>{t('map.listEndCta')}</span>
-              <svg
-                viewBox="0 0 14 10"
-                width="15"
-                height="11"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
-              >
-                <path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-          </a>
-          {!uid && (
-            <button type="button" className={styles.listEndSecondary} onClick={openSigninLogin}>
-              {t('map.starterPromoLogin')}
-            </button>
-          )}
-        </div>
-      )}
     </>
   );
 }

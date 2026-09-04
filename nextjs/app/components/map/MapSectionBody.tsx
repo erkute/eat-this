@@ -912,8 +912,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     restaurants={listRestaurants}
                     userLocation={location}
                     selectedId={selectedRestaurant?._id ?? listFocusId}
-                    uid={uid}
-                    userTier={userTier}
                     onSelect={onRestaurantClick}
                     primaryMustEats={primaryMustEats}
                     unlockedIds={unlockedIds}

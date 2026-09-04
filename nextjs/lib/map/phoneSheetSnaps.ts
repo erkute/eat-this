@@ -156,7 +156,9 @@ export type DetailOrigin = 'list' | 'map';
  *   the bottom, camera where they left it (user decision 03.09.2026).
  * - `toList`: no remembered position and not a marker tap means a deep link.
  *   Leaving the scroll alone dropped the user on the bare map — from a button
- *   that says "Liste". Scroll to the list.
+ *   that says "Liste". Scroll to the TOP of the list — not to the spot's row,
+ *   which was never on screen and, aimed at, left the visitor deep in the list
+ *   with everything else above them (user, 04.09.2026).
  * - `stay`: not a return from a detail at all (first paint of the map, a filter
  *   change). Nothing here may move the list.
  *

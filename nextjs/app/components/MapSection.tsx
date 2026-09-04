@@ -301,10 +301,12 @@ export default function MapSection({
     [listAnchorY]
   );
 
-  /* Put one specific row on screen — the spot whose detail just closed. Only
-     works while that row is rendered, which is what listFocusId below is for;
-     returns false when it is not (a deep link into a spot the filter excludes)
-     so the caller can fall back to the plain list anchor.
+  /* Put one specific row on screen — the spot whose detail just closed, when
+     that detail was opened FROM the list. Only works while that row is
+     rendered, which is what listFocusId below is for; returns false when it
+     is not (the filter changed underneath) so the caller can fall back to the
+     raw scroll offset. A deep link never comes here: its row was never on
+     screen, so closing lands at the top of the list instead.
 
      Aimed for a few frames rather than once. The rows carry
      `content-visibility: auto` (RestaurantList.module.css), so every row below
@@ -709,13 +711,20 @@ export default function MapSection({
     }
     if (isPhoneViewport()) {
       if (action === 'toList') {
-        /* Opened from a marker on the map (or a deep link): there is no list
-           position to go back to, and the detail leaves the window at ~0 —
-           which in list geometry is the MAP stop. So the button labelled
-           "Liste" delivered the bare map, and the list had to be fished back
-           up by hand. Scroll to it instead. 'mid' is the anchor that matches
-           the snap state the close handlers already set on phones, so the
-           chrome and the scroll agree.
+        /* Opened from a deep link (the home page's must-eat cards, a hub or
+           article link): there is no list position to go back to, and the
+           detail leaves the window at ~0 — which in list geometry is the MAP
+           stop. So the button labelled "Liste" delivered the bare map, and the
+           list had to be fished back up by hand. Scroll to it instead. 'mid'
+           is the anchor that matches the snap state the close handlers already
+           set on phones, so the chrome and the scroll agree.
+
+           To the TOP of the list, not to the spot's row: the row was never on
+           screen, so there is no place to come back to — and aiming at it
+           dropped a visitor from the home page deep into the list with the
+           spot as its last line, everything else above them (user, 04.09.2026).
+           Instant, like the restore below: the list simply stands there when
+           the detail is gone.
 
            Unless a pushed detail entry is about to be popped (the URL sync
            below): ScrollRestorer re-applies the popped entry's saved position
@@ -727,7 +736,7 @@ export default function MapSection({
           listAnchorPendingRef.current = true;
           return;
         }
-        if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
+        scrollListToAnchor('mid', 'instant');
         return;
       }
       /* Phone details start at the top of the in-flow document. Restore the
@@ -740,15 +749,16 @@ export default function MapSection({
       window.scrollTo(0, listScrollRef.current);
       return;
     }
-    /* Tablet sheet / desktop panel already show the list on close — but not
-       necessarily the spot that was just open, and a marker tap can open the
-       fortieth row. Same answer as on phones, in the panel's own scroller. */
+    /* Tablet sheet / desktop panel already show the list on close — but the
+       panel's own scroller may still stand wherever the detail left it. Deep
+       link: the top of the list, same reasoning as on phones. Otherwise the
+       row that was tapped. */
+    const el = contentRef.current;
     if (action !== 'restore') {
-      scrollListToRow(listFocusIdRef.current);
+      if (el) el.scrollTop = 0;
       return;
     }
     if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
-    const el = contentRef.current;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
   }, [sheetView, contentRef, scrollListToAnchor, scrollListToRow]);
@@ -1459,9 +1469,7 @@ export default function MapSection({
              opened from a marker. rAF puts the trip to the list after it. */
           if (listAnchorPendingRef.current) {
             listAnchorPendingRef.current = false;
-            requestAnimationFrame(() => {
-              if (!scrollListToRow(listFocusIdRef.current)) scrollListToAnchor('mid');
-            });
+            requestAnimationFrame(() => scrollListToAnchor('mid'));
           }
           return;
         }
@@ -1474,7 +1482,7 @@ export default function MapSection({
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [isActive, scrollListToAnchor, scrollListToRow]);
+  }, [isActive, scrollListToAnchor]);
 
   const handleMapClick = useCallback(() => {
     const isMobile =

@@ -160,10 +160,6 @@ const en = {
     // locked variant of its own — every match is a row, and this is the one
     // place that names the state.
     lockedDetailKicker: 'Still face down',
-    listEndKicker: 'All Berlin',
-    listEndTitle: 'Unlock all of Berlin',
-    listEndSub: 'Nine Booster Packs with every spot and Must Eat, right on your map.',
-    listEndCta: 'Unlock all Berlin',
     mustEatAtAria: 'Must Eat at {name}',
     // The covered card carries two lines: state on top, action below — and no
     // number at all. First "8.2 km to go" and "get within 50 m" stood on top of
@@ -515,10 +511,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyKicker: 'Nichts gefunden',
     emptyReset: 'Filter zurücksetzen',
     lockedDetailKicker: 'Noch verdeckt',
-    listEndKicker: 'All Berlin',
-    listEndTitle: 'Schalt dir ganz Berlin frei',
-    listEndSub: 'Neun Booster Packs mit allen Spots und Must Eats direkt auf deiner Map.',
-    listEndCta: 'Ganz Berlin holen',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
     // Handlung — und gar keine Zahl mehr. Erst standen „Noch 8,2 km" und

@@ -195,58 +195,61 @@ function AuthActionInner() {
           <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.logoMark} />
         </div>
 
-        <div className={styles.content}>
-          {state.kind === 'success' && (
-            <>
-              <div className={styles.checkmark} aria-hidden>
-                <svg viewBox="0 0 24 24">
-                  <polyline points="5 13 9 17 19 7" />
-                </svg>
-              </div>
-              <h1 className={styles.title}>{state.title}</h1>
-              <p className={styles.sub}>{state.sub}</p>
-            </>
-          )}
+        {/* Die Zustaende liegen direkt im Panel. Sie standen bis hierher in
+            einem Kasten mit `styles.content` — eine Klasse, die es seit dem
+            Umbau auf die Bildsprache der Startseite nicht mehr gibt; ihre
+            Abstaende tragen jetzt die Elemente selbst (`.title`, `.sub`,
+            `.kicker`, `.form`). Der Kasten war damit nur noch Verschachtelung. */}
+        {state.kind === 'success' && (
+          <>
+            <div className={styles.checkmark} aria-hidden>
+              <svg viewBox="0 0 24 24">
+                <polyline points="5 13 9 17 19 7" />
+              </svg>
+            </div>
+            <h1 className={styles.title}>{state.title}</h1>
+            <p className={styles.sub}>{state.sub}</p>
+          </>
+        )}
 
-          {state.kind === 'confirm' && (
-            <ConfirmSignIn
-              email={state.email}
-              href={state.href}
-              claimingSpot={state.claimingSpot}
-              setState={setState}
-            />
-          )}
+        {state.kind === 'confirm' && (
+          <ConfirmSignIn
+            email={state.email}
+            href={state.href}
+            claimingSpot={state.claimingSpot}
+            setState={setState}
+          />
+        )}
 
-          {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
+        {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
 
-          {state.kind === 'needs-identity' && (
-            <IdentityForm user={state.user} claimingSpot={state.claimingSpot} />
-          )}
+        {state.kind === 'needs-identity' && (
+          <IdentityForm user={state.user} claimingSpot={state.claimingSpot} />
+        )}
 
-          {state.kind === 'expired' && (
-            <>
-              <p className={styles.kicker}>Sackgasse</p>
-              <h1 className={styles.title}>Dieser Link geht nicht mehr</h1>
-              <p className={styles.sub}>
-                Er ist abgelaufen oder wurde bereits verwendet. Starte den Login einfach noch einmal
-                von der Startseite.
-              </p>
-              <Link href="/" className={styles.cta}>
-                Zur Startseite
-              </Link>
-            </>
-          )}
+        {state.kind === 'expired' && (
+          <>
+            <p className={styles.kicker}>Sackgasse</p>
+            <h1 className={styles.title}>Dieser Link geht nicht mehr</h1>
+            <p className={styles.sub}>
+              Er ist abgelaufen oder wurde bereits verwendet. Starte den Login einfach noch einmal
+              von der Startseite.
+            </p>
+            <Link href="/" className={styles.cta}>
+              Zur Startseite
+            </Link>
+          </>
+        )}
 
-          {state.kind === 'error' && (
-            <>
-              <h1 className={styles.title}>{state.title}</h1>
-              <p className={styles.sub}>{state.sub}</p>
-              <Link href="/" className={styles.cta}>
-                Zur Startseite
-              </Link>
-            </>
-          )}
-        </div>
+        {state.kind === 'error' && (
+          <>
+            <h1 className={styles.title}>{state.title}</h1>
+            <p className={styles.sub}>{state.sub}</p>
+            <Link href="/" className={styles.cta}>
+              Zur Startseite
+            </Link>
+          </>
+        )}
       </div>
     </main>
   );

@@ -2,7 +2,13 @@
 // Difference that matters: MapFilterPickerSheet portals to document.body, so
 // its probe mounts there and NOT inside [data-map-body], or the
 // :global([data-map-body]...) contexts resolve differently than they do live.
-// 15 of MapFilters' 20 classes are absent from the DOM until a picker opens.
+// Of the module's 23 classes only 5 are in the DOM with the map at rest; an
+// open picker brings that to 15. The remaining 8 need a probe either way: six
+// chip states (active, clear, long label, open-filter active, paused note,
+// paused row), the dead picker row, and whichever sheet mode the viewport
+// does not build — pickerBackdrop is absent on desktop (the picker is inline
+// there, no portal), pickerSheetInline on the phone. Counted the way this
+// sweep counts, at 390 and 1440, 2026-09-04.
 
 async (page) => {
   const WIDTHS = [320, 360, 400, 520, 600, 768, 1023, 1024, 1440];

@@ -114,7 +114,10 @@
 
 @media (max-width: 1023.98px) {
   .list {
-    border-top: 1px solid rgba(23, 26, 23, 0.12);
+    /* Die Kante, an der das Sheet auf die Karte trifft. Sie stand auf der
+       Papier-Linie (dunkel auf hell); auf dem Ink-Grund war sie mit dL* 0,34
+       nicht mehr da. Dieselbe Linie wie beim Detail-Sheet weiter unten. */
+    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     box-shadow: none;

@@ -52,8 +52,12 @@
   flex-direction: column;
 }
 
+/* Die Trennlinie zwischen zwei Fragen. Ink auf Ink war sie unsichtbar (dL*
+   0,00) — die Flaeche wurde beim Umbau gedreht, die Linie darauf nicht. Der
+   Text daneben (.faqQuestion) war korrekt mitgegangen, deshalb fiel nur die
+   Gliederung weg und nicht der Inhalt. */
 .faqItem {
-  border-bottom: 1px solid rgba(21, 18, 14, 0.12);
+  border-bottom: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
 }
 
 .faqQuestion {

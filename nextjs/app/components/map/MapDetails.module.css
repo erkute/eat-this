@@ -4058,11 +4058,23 @@
   scroll-padding-inline: 14px;
 }
 
+/* Die Zaehlung steht auf dem weissen Polaroid-Fuss — und trug bis zum
+   04.09.2026 noch die Werte von VOR dem Ink-Umbau: 0,42 und 0,28 Ink auf
+   Weiss sind 2,76:1 und 1,88:1. Auf der kurz dunklen Fassung des Abzugs war
+   das kein Problem; mit dem weissen Rand kamen die alten Zahlen zurueck und
+   der Nenner war praktisch weg. Jetzt 0,78/0,58 — nachgemessen 9,38:1 und
+   4,56:1, beide ueber AA fuer 12px, und der Abstand zwischen Zaehler und
+   Nenner bleibt erhalten.
+
+   NICHT auf --et-home-muted umstellen: MapLayout dreht dieses Token auf der
+   Map auf die Ink-Seite (weiss 76 %), und das waere hier Weiss auf Weiss.
+   Auf einer Papierflaeche innerhalb der Map muss die Ink-Farbe ausgeschrieben
+   dastehen. */
 .rdGalleryNum {
   position: absolute;
   right: 12px;
   bottom: 10px;
-  color: rgba(21, 18, 14, 0.42);
+  color: rgba(21, 18, 14, 0.78);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 12px;
   font-weight: 700;
@@ -4071,7 +4083,7 @@
 }
 
 .rdGalleryNumTotal {
-  color: rgba(21, 18, 14, 0.28);
+  color: rgba(21, 18, 14, 0.58);
   font-style: normal;
 }
 

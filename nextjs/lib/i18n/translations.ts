@@ -225,15 +225,14 @@ const en = {
     anonymous: 'This deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
-    cityKicker: 'Berlin',
-    cityCount: 'of {total} spots on this map',
     deckHeading: 'The deck',
-    deckCount: 'of {total} Must Eats revealed',
-    empty: 'No spots on this map yet.',
+    deckHeadingNamed: "{name}'s deck",
+    howTo:
+      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
+    empty: 'No cards on this map yet.',
     ctaHeading: 'Open your own map',
-    ctaLine: 'Every spot has its Must Eat. You reveal them on site.',
-    ctaLineNamed:
-      '{name} is already collecting. Every spot has its Must Eat — you reveal them on site.',
+    ctaLine: 'Your own cards are waiting all over Berlin.',
+    ctaLineNamed: '{name} is already collecting. Your own cards are waiting all over Berlin.',
     cta: 'Start now',
   },
   profile: {
@@ -257,6 +256,10 @@ const en = {
     emptyMustEats:
       'No Must Eats in your collection yet. Open a Booster Pack and reveal them on site.',
     albumHeading: 'Your deck',
+    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
+       Wer sie hier aendert, aendert sie dort mit. */
+    howTo:
+      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
     albumCount: 'of {total} Must Eats',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
@@ -267,19 +270,18 @@ const en = {
     recentHeading: 'Just revealed',
     moveLabel: 'Your next Must Eat',
     moveLocateCta: 'Share location',
+    moveLocateShort: 'Location',
     moveCovered:
       '{count, plural, one {# Must Eat still face-down in {district}.} other {# Must Eats still face-down in {district}.}}',
     moveCoveredNear:
       '{count, plural, one {# Must Eat still face-down in {district} — {distance} from here.} other {# Must Eats still face-down in {district} — the nearest {distance} from here.}}',
-    moveFirst: 'Must Eats are revealed on site. The next one is waiting in {district}.',
-    moveFirstNear:
-      'Must Eats are revealed on site. The next one is {distance} from here, in {district}.',
     packsHeading: 'My Packs',
     packsMore: 'View Booster Packs',
     inviteHeading: 'Show your deck',
     inviteLine: 'Send it to someone you like eating with. You both get new spots on your map.',
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
+    invitePreview: 'Preview',
     inviteCta: 'Share deck',
     inviteCopied: 'Link copied',
     inviteShareTitle: 'My deck on the Eat This map',
@@ -592,18 +594,22 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     decline: 'Ablehnen',
   },
   deck: {
-    kicker: 'Ein Deck bei Eat This',
     anonymous: 'Dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
-    cityKicker: 'Berlin',
-    cityCount: 'von {total} Spots auf dieser Map',
     deckHeading: 'Das Deck',
-    deckCount: 'von {total} Must Eats aufgedeckt',
-    empty: 'Auf dieser Map liegen noch keine Spots.',
+    deckHeadingNamed: '{name}s Deck',
+    /* Der Handgriff, nicht die Regel: „Aufgedeckt wird vor Ort" sagte, DASS
+       etwas passiert, aber nicht, was man tut (Nutzer, 04.09.2026). Dieselben
+       Worte, die die Karte auf der Map selbst benutzt. */
+    howTo:
+      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
+    empty: 'Auf dieser Map liegen noch keine Karten.',
     ctaHeading: 'Mach deine eigene Map auf',
-    ctaLine: 'Jeder Spot hat sein Must Eat. Aufgedeckt wird vor Ort.',
-    ctaLineNamed: '{name} sammelt schon. Jeder Spot hat sein Must Eat — aufgedeckt wird vor Ort.',
+    /* Nicht mehr „Jeder Spot hat sein Must Eat" — das stimmt nicht, laengst
+       nicht jeder traegt eine Karte (Nutzer, 04.09.2026). */
+    ctaLine: 'Deine eigenen Karten warten \u00fcberall in Berlin.',
+    ctaLineNamed: '{name} sammelt schon. Deine eigenen Karten warten \u00fcberall in Berlin.',
     cta: 'Jetzt starten',
   },
   profile: {
@@ -628,6 +634,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyMustEats:
       'Noch keine Must Eats in deiner Sammlung. \u00d6ffne ein Booster Pack und geh vor Ort aufdecken.',
     albumHeading: 'Dein Deck',
+    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
+       Wer sie hier aendert, aendert sie dort mit. */
+    howTo:
+      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
     albumCount: 'von {total} Must Eats',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',
@@ -638,13 +648,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chstes Must Eat',
     moveLocateCta: 'Standort freigeben',
+    moveLocateShort: 'Standort',
     moveCovered:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt.} other {Noch # Must Eats in {district} verdeckt.}}',
     moveCoveredNear:
       '{count, plural, one {Noch # Must Eat in {district} verdeckt \u2014 {distance} von hier.} other {Noch # Must Eats in {district} verdeckt \u2014 das n\u00e4chste {distance} von hier.}}',
-    moveFirst: 'Must Eats deckst du vor Ort auf. Das n\u00e4chste wartet in {district}.',
-    moveFirstNear:
-      'Must Eats deckst du vor Ort auf. Das n\u00e4chste liegt {distance} von hier, in {district}.',
     packsHeading: 'Meine Packs',
     packsMore: 'Booster Packs ansehen',
     inviteHeading: 'Zeig dein Deck',
@@ -652,6 +660,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide neue Spots auf eure Map.',
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
+    invitePreview: 'Ansehen',
     inviteCta: 'Deck teilen',
     inviteCopied: 'Link kopiert',
     inviteShareTitle: 'Mein Deck auf der Eat This Map',

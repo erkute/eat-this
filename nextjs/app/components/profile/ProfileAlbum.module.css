@@ -17,30 +17,31 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: clamp(22px, 3vw, 34px);
+  /* Der Grundabstand zwischen den Baendern der Seite. Kopfzeile und naechster
+     Zug legen je noch etwas drauf, damit die Reiterleiste am DICHTESTEN am
+     Raster steht — sie schaltet es, alles andere steht daneben. */
+  gap: clamp(18px, 2.2vw, 22px);
   color: var(--album-ink);
   background: transparent;
 }
 
 /* ── Kopfzeile: Spielerkarte + Titel + Reiter ─────────────── */
 
+/* Zwei Felder, mehr nicht: Spielerkarte links, Ueberschrift + Slogan +
+   naechster Zug rechts. Die Reiterleiste ist am 05.09.2026 aus diesem Raster
+   ausgezogen und steht als eigene Zeile ueber dem Kartenraster (Nutzer: „die
+   Filter muessen auf Desktop eine Zeile runter, ueber die Must Eats, dann
+   hast du mehr Platz fuer den Slogan und fuer das naechste Must Eat"). */
 .masthead {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas:
-    'card head'
-    'card filters'
-    'card move';
-  /* Die letzte Zeile nimmt den Rest. Ohne das verteilt das Raster die
-     Ueberhoehe der Karte (sie spannt ueber alle drei Zeilen) gleichmaessig
-     auf alle drei — gemessen 121/130/54 px statt auto/auto/Rest, und
-     zwischen „Dein Deck" und der Reiterleiste stand ein Loch von 60 px.
-     `align-content` hilft dagegen nicht: es richtet den ganzen Block aus,
-     nicht die Zeilen untereinander. */
-  grid-template-rows: auto auto 1fr;
-  /* Zeilenabstand kleiner als Spaltenabstand: Titel, Reiter und naechster
-     Zug gehoeren zusammen, die Karte steht daneben. */
-  align-items: start;
+  grid-template-areas: 'card head';
+  /* Titel und Slogan mittig zur Figur: die Karte ist 256 px hoch, das Paar
+     rund 90 — oben angeschlagen liess es 160 px Loch unter sich, unten
+     angeschlagen ebenso viel darueber. Auf der Mittelachse liest sich das
+     Paar als Beschriftung der Karte neben sich. */
+  align-items: center;
+  margin-bottom: clamp(8px, 1vw, 12px);
   gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
 }
 
@@ -53,29 +54,36 @@
   min-width: 0;
 }
 
-.masthead > .filters {
-  grid-area: filters;
-}
-
-.masthead > .mastheadMove {
-  grid-area: move;
+/* Der naechste Zug steht nicht mehr IM Kopfraster, sondern als eigene Zeile
+   darunter — siehe ProfileAlbum.tsx. Was bleibt, ist sein Abstand nach unten:
+   darunter folgt die Reiterleiste, und die soll als eigenes Bedienelement
+   lesbar bleiben. */
+.albumMove {
   min-width: 0;
+  margin-bottom: clamp(8px, 1vw, 12px);
 }
 
-/* Der naechste Zug bringt seinen eigenen Trennstrich mit (Profile.module.css)
-   — in der Kopfzeile steht darunter aber gleich das Raster, und eine zweite
-   Linie ueber den Karten waere eine Linie zu viel.
+/* Der Slogan: wie das Spiel geht, in einem Satz. Derselbe, der auf dem
+   geteilten Deck steht — er nimmt dem naechsten Zug darunter die
+   Erklaerarbeit ab. */
+.howTo {
+  max-width: 46ch;
+  /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
+     Wo der Browser es nicht kennt, aendert sich nichts. */
+  text-wrap: pretty;
+  margin: 10px 0 0;
+  color: var(--album-muted);
+  font-family: var(--album-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 400;
+  line-height: 1.35;
+}
 
-   Mit `.masthead` qualifiziert (0,2,0): `.mastheadMove > *` allein haette
-   denselben Rang wie `.move` (0,1,0), und die beiden liegen in VERSCHIEDENEN
-   Modulen. Bei Gleichstand entscheidet die Ladereihenfolge, und die ist
-   zwischen dev und dem Produktionsbuild nicht dieselbe — genau die Falle,
-   die dieses Projekt schon zweimal hatte. Ein Rang mehr entscheidet es
-   unabhaengig davon. */
-.masthead .mastheadMove > * {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: 0;
+/* `hv-head` ist eine Zeile mit zwei Enden; hier stapeln sich Titel und
+   Slogan, also eine Spalte. */
+.head {
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -84,14 +92,26 @@
    Tafel ueber die volle Seite. */
 
 .player {
+  /* Die Karte traegt ihr Vokabular selbst: sie steht auch auf dem geteilten
+     Deck (/deck/<uid>), und dort gibt es kein `.panel` darum herum, das
+     diese Token setzt. Ein `var()` ohne Wert waere dort ungueltig — die
+     gelbe Zahl faerbte sich still nicht mehr. */
+  --album-accent: var(--profile-accent, var(--et-home-accent, #ffc600));
+  --album-display: var(--et-font-display, sans-serif);
   display: grid;
-  gap: 8px;
   width: clamp(132px, 15vw, 186px);
   padding: 0;
   background: transparent;
   border: 0;
   cursor: pointer;
   font: inherit;
+  text-align: initial;
+}
+
+/* Auf dem geteilten Deck ist die Karte kein Knopf (kein `onPick`) — dort
+   rendert sie als `div`, und ein `div` hat keinen Zeiger noetig. */
+div.player {
+  cursor: default;
 }
 
 /* Zwei Zeilen statt einer Flaeche mit aufgelegtem Zeichen: die Figur steht
@@ -109,7 +129,7 @@
      einer 117 px schmalen Karte. */
   container-type: inline-size;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto auto;
   aspect-ratio: 1539 / 2115;
   overflow: hidden;
   padding: 7px;
@@ -145,26 +165,44 @@
    „WE TELL YOU…" ragte links daneben heraus. Das sah kaputt aus, nicht
    gestaltet. */
 .playerField {
-  display: grid;
+  /* Anker fuer das absolut gesetzte Bild — siehe .playerImg. */
+  position: relative;
   overflow: hidden;
   min-height: 0;
-  /* Unten ein Rest Luft, damit die Figur auf der Linie STEHT statt auf
-     ihr zu kleben. */
-  padding: 8px 8px 3px;
   background: color-mix(in srgb, #c8a06a 13%, #fff);
   border: 1.5px solid color-mix(in srgb, var(--et-home-ink, #15120e) 55%, transparent);
   border-radius: 4px;
 }
 
+/* Absolut gesetzt, nicht im Fluss — und das ist keine Kosmetik.
+   `height: 100%` an einem Bild IM Raster loeste sich nicht auf: die Zeile
+   ist `minmax(0, 1fr)`, ihre Hoehe steht also erst nach dem Layout fest, und
+   fuer die Prozentangabe gilt sie als unbestimmt. Chrome fiel damit auf die
+   Eigenhoehe des Bildes zurueck — gemessen 194 px in einem 169 px hohen
+   Feld. `object-fit: contain` hatte nichts mehr zu tun (die Box trug schon
+   das Seitenverhaeltnis der Datei), und `overflow: hidden` schnitt die
+   unteren 25 px weg: den Sockel und die Fuesse der Figur.
+
+   Genau das war zu sehen (Nutzer, 04.09.2026: „ich will die Charaktere gut
+   erkennbar mit Fuessen haben") — und es traf jede Figur anders stark, weil
+   der Zuschnitt vom Seitenverhaeltnis der Einzeldatei abhing.
+
+   Absolut positioniert ist der Bezug der Prozentangabe der Polsterkasten des
+   Feldes, und der ist bestimmt. Das Innenpolster sitzt am Bild selbst: bei
+   einem ersetzten Element fuellt `object-fit` den INHALTS-Kasten, das
+   Polster wirkt also als Luft um die Figur — unten ein Rest weniger, damit
+   sie auf der Linie STEHT statt auf ihr zu kleben. */
 .playerImg {
+  position: absolute;
+  inset: 0;
   display: block;
-  /* Die drei Figuren haben verschiedene Seitenverhaeltnisse (202x251,
-     186x282, 188x277) — `contain` in einem Feld fester Hoehe stellt alle
-     drei gleich hoch. `bottom` laesst sie auf der Feldkante STEHEN statt in
-     der Mitte zu schweben: alle drei sind mit Sockel gezeichnet. */
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
+  padding: 8px 8px 3px;
   object-fit: contain;
+  /* `bottom` laesst die Figur auf der Feldkante STEHEN statt in der Mitte zu
+     schweben: alle drei sind mit Sockel gezeichnet. */
   object-position: bottom;
 }
 
@@ -183,7 +221,7 @@
    Desktop verloren klein. */
 .playerName {
   margin: 0;
-  padding: 6px 2px 1px;
+  padding: 6px 2px 3px;
   color: var(--profile-ink, #15120e);
   font-family: var(--album-display);
   font-size: clamp(13px, 13cqw, 21px);
@@ -201,50 +239,49 @@
   text-overflow: ellipsis;
 }
 
-/* Das Zeichen zum Aendern steht UNTER der Karte, leise und rechtsbuendig
-   (Nutzer, 04.09.2026). Zentriert las es sich als zweite Bildunterschrift
-   unter dem Namen — zwei mittige Zeilen untereinander, von denen nur die
-   obere zur Karte gehoert. An der rechten Kante ist es, was es ist: eine
-   Randnotiz zum Knopf. */
-.playerEdit {
-  color: var(--album-muted);
-  font-family: var(--et-font-label, sans-serif);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  text-align: right;
-  text-transform: uppercase;
-}
+/* Der Punktestand am Fuss der Karte — die Zahl, die vorher als grosse
+   Ziffer am rechten Rand der Kopfzeile stand. Ein Ink-Streifen mit gelber
+   Zahl: dieselbe Sprache wie der Belohnungs-Screen nach der Anmeldung, wo
+   diese Zahl waechst. Auf einer Sammelkarte steht der Wert unten, nicht
+   zwei Spalten daneben.
 
-@media (hover: hover) {
-  .player:hover .playerEdit {
-    color: var(--album-accent);
-  }
-}
-
-/* ── Zaehler in der Kopfzeile ─────────────────────────────── */
-
-.count {
-  flex: 0 0 auto;
+   Der Streifen laeuft bis an die Innenkante des Kartenrands, weil er die
+   Fusszeile IST und keine Kachel darin. */
+.playerScore {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  color: var(--album-ink);
-  font-family: var(--et-font-display);
-  font-size: clamp(11px, 0.95vw, 13px);
+  justify-content: center;
+  gap: 1px;
+  padding: 4px 6px 3px;
+  background: var(--profile-ink, #15120e);
+  border-radius: 3px;
+  font-family: var(--album-display);
+  font-size: clamp(11px, 10cqw, 15px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1.1;
-  text-transform: uppercase;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
 }
 
-.count strong {
-  font-family: var(--album-display);
-  font-size: clamp(24px, 2.2vw, 32px);
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+.playerScore strong {
+  color: var(--album-accent);
+  font-weight: 700;
+}
+
+.playerScoreTotal {
+  color: color-mix(in srgb, var(--et-home-inverse-text, #fff) 62%, transparent);
+  font-weight: 400;
+}
+
+/* Der Zaehler steht seit dem 04.09.2026 auf der Spielerkarte (.playerScore).
+   Was hier bleibt, ist sein Satz fuer Screenreader: die Karte ist ein Knopf
+   mit dem Namen „Charakter aendern", ihr Inhalt wird also nie vorgelesen. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* ── Reiterleiste: die Bezirke ────────────────────────────── */
@@ -491,15 +528,25 @@
 @media (max-width: 640px) {
   /* Auf dem Telefon steht die Spielerkarte neben dem Titel, nicht darueber:
      nebeneinander kostet der Kopf rund 200 px statt 380, und die erste
-     Kartenreihe liegt wieder ueber der Falz. Reiter und naechster Zug laufen
-     darunter ueber die volle Breite — in der schmalen Spalte neben der Karte
-     waeren die Reiter sieben Zeilen hoch. */
+     Kartenreihe liegt wieder ueber der Falz.
+
+     Neben der Karte stehen Ueberschrift und Slogan — der fuellt die Spalte,
+     die vorher schwarz war (Nutzer, 05.09.2026). Der naechste Zug laeuft
+     darunter ueber die volle Breite, als EINE Zeile: in der schmalen Spalte
+     war er vier Zeilen hoch, und genau das war zu viel Text an der falschen
+     Stelle („das muss doch irgendwie darunter, als eine Zeile auf mobile"). */
   .masthead {
-    grid-template-areas:
-      'card head'
-      'filters filters'
-      'move move';
-    gap: 16px;
+    gap: 14px 16px;
+  }
+
+  /* Unten buendig mit der Spielerkarte, oben Luft (Nutzer, 05.09.2026: „das
+     soll ein bisschen weiter unten stehen und mit dem Profilbild unten
+     abschliessen, dass oben ein bisschen Raum ist"). Am oberen Rand
+     ausgerichtet fing der Titel auf Kopfhoehe der Figur an und der Slogan
+     endete auf halber Karte — zwei Spalten, die nirgends zusammenkamen.
+     An der Unterkante teilen sie sich eine Linie. */
+  .masthead > .head {
+    align-self: end;
   }
 
   .player {
@@ -507,9 +554,12 @@
   }
 
   .head {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
+    gap: 0;
+  }
+
+  .howTo {
+    margin-top: 8px;
+    font-size: 13px;
   }
 
   /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf

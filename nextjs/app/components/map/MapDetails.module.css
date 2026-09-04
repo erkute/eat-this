@@ -5714,3 +5714,25 @@
 .detailV13:not(.detailV13MustEat) .rdGalleryNum {
   color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
 }
+
+/* Der Fliesstext liest sich wie die Bezirks-Beschreibung (User, 04.09.2026:
+   „die liest sich am besten"). Uebernommen werden Schrift und STAERKE, nicht
+   die Groesse:
+
+   `.rdBody` stand auf `font-weight: 560` — eine halbfette Stufe, die den
+   Absatz auf der schmalen Sheet-Spalte kompakt aussehen liess, aber schwerer
+   zu lesen ist als der normale Schnitt. Die Bezirks-Beschreibung
+   (`Bezirk.module.css .districtBlurb`) laesst die Stärke offen, steht also
+   auf 400, und nimmt Zeilenhoehe 1.6.
+
+   Die Groesse dort ist `clamp(15px, 1.4vw, 17px)` und wird NICHT uebernommen:
+   vw misst am Fenster, nicht an der Spalte. Auf einem 1280er-Desktop kaeme
+   der Absatz damit auf 17px — in einer 380px breiten Sheet-Spalte. Dieselbe
+   Falle wie bei den Must-Eat-Namen im Rail. 15px bleiben. */
+.detailV13:not(.detailV13MustEat) .rdBody,
+.detailV13:not(.detailV13MustEat) .rdBody p,
+.detailV13:not(.detailV13MustEat) .rdStoryLead {
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-weight: 400;
+  line-height: 1.6;
+}

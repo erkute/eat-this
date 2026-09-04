@@ -11,6 +11,7 @@ import {
 } from '@/lib/firebase/useUserProfile';
 import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
+import MapDataNotice from '../map/MapDataNotice';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
 import ProfilePlayerCard from './ProfilePlayerCard';
@@ -183,22 +184,28 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   return (
     <>
       <main className={`homeV2 ${styles.page}`} data-menu>
-        {(mapDataLoading || mapDataError) && (
-          <div className="hv-wrap">
-            <div
-              className={`${styles.dataNotice}${mapDataError ? ` ${styles.dataNoticeError}` : ''}`}
-              role={mapDataError ? 'alert' : 'status'}
-              aria-live="polite"
-            >
-              <p>{mapDataError ? t('dataStale') : t('dataRefreshing')}</p>
-              {mapDataError && (
-                <button type="button" className={styles.dataNoticeAction} onClick={refetchMapData}>
-                  {t('dataRetry')}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Meldungen liegen ueber der Seite, nicht in ihr (Nutzer, 04.09.2026:
+            „keine Meldungen mehr oben oder unten im Bild, sondern als Layer,
+            wie wir das sonst haben"). Hier stand ein Balken im Fluss, der beim
+            Erscheinen die ganze Seite nach unten schob — die Sammlung sprang,
+            waehrend man sie ansah.
+
+            Dieselbe Komponente wie auf der Map, nicht eine zweite mit
+            derselben Aufgabe: sie kennt die vier Zustaende schon (laedt,
+            aktualisiert, Fehler, veraltet), waehlt Ton und Zeichen und haengt
+            den Wiederholen-Knopf an. Die Texte liegen im `map`-Namespace, und
+            das ist ehrlich — es sind dieselben Kartendaten, dieselbe
+            /api/map-data-Antwort.
+
+            Nur im Normalfall: der Zweig ganz ohne Kartendaten rendert weiter
+            oben seine eigene Seite, und dort IST die Meldung der Inhalt, kein
+            Balken ueber einem. */}
+        <MapDataNotice
+          loading={mapDataLoading}
+          error={mapDataError}
+          hasData={hasMapData}
+          onRetry={refetchMapData}
+        />
 
         {/* No counters here on purpose: a raw spot tally is a receipt, not a
             profile — and the product deliberately doesn't state its numbers.

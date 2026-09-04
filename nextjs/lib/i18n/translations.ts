@@ -290,9 +290,7 @@ const en = {
     avatarApply: 'Apply',
     signOut: 'Sign out',
     dataLoading: 'Loading your profile…',
-    dataRefreshing: 'Updating your collection…',
     dataError: 'Your collection could not be loaded.',
-    dataStale: 'Update failed. Showing your last saved collection.',
     dataRetry: 'Retry',
   },
   auth: {
@@ -664,9 +662,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     avatarApply: '\u00dcbernehmen',
     signOut: 'Abmelden',
     dataLoading: 'Dein Profil wird geladen …',
-    dataRefreshing: 'Deine Sammlung wird aktualisiert …',
     dataError: 'Deine Sammlung konnte nicht geladen werden.',
-    dataStale: 'Aktualisierung fehlgeschlagen. Du siehst deine zuletzt gespeicherte Sammlung.',
     dataRetry: 'Nochmal',
   },
   auth: {

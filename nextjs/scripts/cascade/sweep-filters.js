@@ -1,8 +1,34 @@
 // MapFilters variant of sweep-controls.js — read that file's header first.
-// Difference that matters: MapFilterPickerSheet portals to document.body, so
-// its probe mounts there and NOT inside [data-map-body], or the
-// :global([data-map-body]...) contexts resolve differently than they do live.
-// 15 of MapFilters' 20 classes are absent from the DOM until a picker opens.
+// Difference that matters — but not for the reason this header used to give.
+// Below 1024 MapFilterPickerSheet portals to document.body, so its probe
+// mounts there, which is exactly where the live sheet sits. Mounting an
+// identical clone inside [data-map-body] instead moves 615 of 25 707 cells,
+// and every one of them is an inherited custom property (--map-*,
+// --et-home-muted, --border-subtle and 12 more); no normal property moves.
+// MapFilters reads none of those 15 tokens, and PROPS below lists no custom
+// properties at all, so the sweep cannot see the difference either way. The
+// ":global([data-map-body]...) contexts" the old sentence blamed are not the
+// mechanism: this module ships zero such rules. MapControls does — that is
+// where the sentence was copied from.
+//
+// KNOWN WRONG at 1024 and 1440. There the picker is inline (matchMedia
+// '(min-width: 1024px)' in MapListHeader): it renders into .listHeader inside
+// [data-map-body], in normal flow, without portal or backdrop. The
+// body-mounted probe is 1440px wide where the live sheet is 379px — 223
+// normal-property cells differ, width and grid-template-columns among them,
+// and both are in PROPS. Until the probe follows the mode, the picker rows of
+// this sweep are only trustworthy below 1024.
+//
+// Measured 2026-09-04 in the default [data-map-body] state; the other 23
+// states were not re-measured for mount sensitivity.
+//
+// Of the module's 23 classes only 5 are in the DOM with the map at rest; an
+// open picker brings that to 15. The remaining 8 need a probe either way: six
+// chip states (active, clear, long label, open-filter active, paused note,
+// paused row), the dead picker row, and whichever sheet mode the viewport
+// does not build — pickerBackdrop is absent on desktop (the picker is inline
+// there, no portal), pickerSheetInline on the phone. Counted the way this
+// sweep counts, at 390 and 1440, 2026-09-04.
 
 async (page) => {
   const WIDTHS = [320, 360, 400, 520, 600, 768, 1023, 1024, 1440];
@@ -38,8 +64,9 @@ async (page) => {
       return el;
     };
 
-    // The picker is portalled to document.body, NOT into [data-map-body] — mount
-    // its probe where the real one lives or the :global contexts differ.
+    // Below 1024 the live sheet is portalled to document.body, so the probe goes
+    // there. At 1024 and up the live one is inline in .listHeader instead — see
+    // the KNOWN WRONG paragraph in the header before trusting those two widths.
     const pickerRoot = document.createElement("div");
     pickerRoot.setAttribute("data-probe", "");
     const backdrop = mk("div", ["pickerBackdrop"]);
@@ -56,7 +83,6 @@ async (page) => {
       list.appendChild(item);
     }
     sheet.appendChild(list);
-    sheet.appendChild(mk("div", ["pickerFooter"], "Zurücksetzen"));
     pickerRoot.appendChild(backdrop);
     pickerRoot.appendChild(sheet);
     document.body.appendChild(pickerRoot);

@@ -191,79 +191,90 @@ main.page .head {
    die dritte Bank der Ink-Tafel — dort oben war er ein Untermieter zwischen
    Name und Berlin-Zahl, obwohl er vom Deck handelt (Nutzer, 31.08.2026).
 
-   Die Haarlinie liegt UNTER dem Block: sie trennt ihn von der Ueberschrift
-   „Dein Deck", die darauf folgt. Darueber braeuchte er keine — da liegt
-   schon der volle Abschnitts-Abstand zur Tafel. */
-/* Seit 04.09.2026 zweispaltig: die verdeckte Karte links, der Satz und der
-   Knopf rechts. Die Karte macht aus „noch 3 in Kreuzberg verdeckt" ein Ziel
-   zum Ansehen. `align-items: center`, damit ein einzeiliger Satz nicht an
-   der Oberkante einer 96 px hohen Karte klebt. */
+   Eine Zeile, kein Kasten (Nutzer, 04.09.2026: „uebelst dick geloest ... das
+   muss kleiner sein, einfach nur mit nem Standort"). Kicker, Satz und ein
+   gefuellter 44-px-Knopf untereinander kosteten 110 px Hoehe fuer eine
+   Auskunft — mehr als eine Kartenreihe im Deck darunter.
+
+   Jetzt laufen Karte, Beschriftung, Satz und Standort-Freigabe in EINER
+   Zeile, umbruchfaehig. Keine Trennlinie mehr: die Zeile steht zwischen
+   Ueberschrift und Reiterleiste, und eine Haarlinie mittendrin haette den
+   Kopf in zwei Haelften geschnitten. */
 .move {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: clamp(14px, 1.8vw, 20px);
-  margin-bottom: clamp(24px, 3vw, 36px);
-  padding-bottom: clamp(20px, 2.4vw, 28px);
-  border-bottom: 1px solid var(--profile-line);
+  gap: 8px clamp(10px, 1.2vw, 14px);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
 }
 
-/* Klein genug, dass sie den Abschnitt einleitet statt ihn anzufuehren: die
-   Karten im Album darunter sind 126 px breit, diese misst 68. */
+/* Klein genug, dass sie den Satz begleitet statt ihn anzufuehren: die Karten
+   im Album darunter sind 126 px breit, diese misst 40. */
 .moveCard {
   flex: 0 0 auto;
-  width: clamp(56px, 6vw, 72px);
+  width: clamp(34px, 3.2vw, 42px);
   aspect-ratio: 1539 / 2115;
   object-fit: contain;
-  border-radius: 5px;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
-}
-
-.moveCopy {
-  min-width: 0;
+  border-radius: 4px;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45));
 }
 
 /* Gelb, nicht Papier: die Bezirksnamen darunter sind Papier-Versalien, und in
    derselben Farbe waere das hier eine achte Bezirkszeile. Gelb ist auf Ink die
-   Kreide-Zeile jeder Tafel. */
+   Kreide-Zeile jeder Tafel. Im Satz mitlaufend, mit einem festen Abstand
+   dahinter — als eigene Zeile kostete die Beschriftung 26 px. */
 .moveLabel {
-  margin: 0;
+  margin-right: 9px;
   color: var(--profile-accent);
   font-family: var(--et-font-label, var(--font-providence), sans-serif);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
+/* Waechst mit, aber nie ueber die eigene Zeilenbreite hinaus.
+   `flex: 0 1 auto` allein hiess: die Grundbreite ist die volle Zeile, und auf
+   dem Telefon rutschte der Satz damit unter die Karte — die stand dann allein
+   auf einer eigenen Zeile. Mit einer kleinen Grundbreite bleibt er neben ihr.
+   `max-width: max-content` deckelt das Wachstum an der einzeiligen Breite,
+   sonst schoebe der Rest der Zeile die Standort-Pille an den rechten Rand,
+   300 px vom Satz entfernt, zu dem sie gehoert. */
 .moveLine {
-  max-width: 56ch;
-  margin: 8px 0 0;
+  flex: 1 1 12ch;
+  min-width: 0;
+  max-width: max-content;
+  margin: 0;
   color: var(--profile-fg);
-  font-size: clamp(15px, 1.35vw, 19px);
+  font-size: clamp(14px, 1.15vw, 17px);
   font-weight: 400;
-  line-height: 1.28;
+  line-height: 1.3;
 }
 
-/* Der einzige gefuellte Knopf der Seite — er ist die eine Handlung, die
-   nach vorn geht. Gelb mit Ink darauf; Hover geht auf Papier, nie auf Ink
-   (auf dem dunklen Grund verschwaende er). */
+/* Eine Pille in der Groesse der Bezirks-Reiter darunter, kein gefuellter
+   44-px-Knopf mehr: er war der lauteste Knopf der Seite fuer den leisesten
+   Schritt. Gelber Rand statt gelber Flaeche — gefuellt saehe er aus wie ein
+   aktiver Reiter. */
 .moveCta {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  margin-top: clamp(14px, 1.6vw, 18px);
-  padding: 0 20px;
-  color: var(--profile-ink);
-  background: var(--profile-accent);
-  border: 0;
-  border-radius: var(--profile-radius);
+  min-height: 34px;
+  padding: 0 14px;
+  color: var(--profile-accent);
+  background: transparent;
+  border: 1px solid var(--profile-accent);
+  border-radius: 999px;
   cursor: pointer;
   text-decoration: none;
   font-family: inherit;
-  font-size: var(--et-type-button, 13px);
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  text-transform: uppercase;
+  white-space: nowrap;
   transition:
     color var(--profile-motion),
     background-color var(--profile-motion);
@@ -271,18 +282,41 @@ main.page .head {
 
 .moveCta:focus-visible {
   color: var(--profile-ink);
-  background: var(--profile-inverse);
+  background: var(--profile-accent);
+  outline: 0;
 }
 
 @media (hover: hover) {
   .moveCta:hover {
     color: var(--profile-ink);
-    background: var(--profile-inverse);
+    background: var(--profile-accent);
   }
 }
 
 .moveCta:active {
   transform: translateY(1px);
+}
+
+/* Auf dem Telefon reicht die Zeile nicht fuer drei Dinge: mit der Pille
+   daneben blieben dem Satz 120 px und er lief auf vier Zeilen. Als Raster
+   stehen Karte und Satz nebeneinander, die Freigabe darunter — linksbuendig,
+   nicht ueber die volle Breite, sonst waere sie wieder der lauteste Knopf. */
+@media (max-width: 640px) {
+  .move {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px 12px;
+    align-items: center;
+  }
+
+  .moveLine {
+    max-width: none;
+  }
+
+  .moveCta {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
 }
 
 /* ── recently revealed ──────────────────────────────────── */
@@ -647,25 +681,36 @@ main.page .head {
 /* The one yellow field on the page. Everything else earns attention from
    photography, so the single thing with no picture gets the accent.
 
-   Dicht gepackt, nicht ausgebreitet: seit die Packs als Trophaeen-Reihe
-   darueber stehen, ist das hier der letzte Block vor dem Fuss. Auf voller
-   Breite, in Kapitel-Schriftgroesse und mit 44 px Polster war er der
-   lauteste der Seite — lauter als das Deck, wegen dem man sie oeffnet. */
+   Seit dem Abend des 04.09.2026 steht sie DIREKT unter dem Deck und ist
+   dabei auf eine Zeile zusammengezogen (Nutzer: „ist der Knopf da unten
+   irgendwie versteckt? Vielleicht muss der kleiner sein, unter dem Deck").
+   Als voller Block am Seitenende war sie beides zugleich — zu laut fuer
+   ihren Platz und zu weit weg von dem, was sie teilt.
+
+   Eine Zeile, kein Kasten: Titel und Satz links, die Vorschau und der Knopf
+   rechts. Die Flaeche bleibt gelb, weil sie die einzige Handlung der Seite
+   ist, die nach aussen geht. */
 .invite {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(16px, 2vw, 32px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px clamp(16px, 2vw, 28px);
   align-items: center;
-  padding: clamp(20px, 2.2vw, 30px);
+  justify-content: space-between;
+  padding: clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 24px);
   background: var(--profile-accent);
   border-radius: var(--et-radius-photo, 10px);
+}
+
+.inviteCopy {
+  flex: 1 1 22ch;
+  min-width: 0;
 }
 
 .inviteTitle {
   margin: 0;
   color: var(--profile-ink);
   font-family: var(--et-font-display);
-  font-size: clamp(22px, 2.4vw, 32px);
+  font-size: clamp(19px, 1.9vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title, 0.92);
@@ -673,23 +718,23 @@ main.page .head {
 }
 
 .inviteLine {
-  max-width: 44ch;
-  margin: 12px 0 0;
+  max-width: 48ch;
+  margin: 7px 0 0;
   color: var(--profile-ink);
   font-family: var(--et-font-display);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: clamp(13px, 1.15vw, 16px);
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 /* Der Beleg, dass der Link je etwas bewirkt hat. Ink auf Gelb wie die
    Auszeichnung darueber, nur eine Stufe kleiner und fett — er soll gelesen,
    nicht gerufen werden. */
 .inviteJoined {
-  margin: 10px 0 0;
+  margin: 7px 0 0;
   color: var(--profile-ink);
   font-family: var(--et-font-display);
-  font-size: var(--et-type-button, 13px);
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.2;
@@ -697,28 +742,43 @@ main.page .head {
 }
 
 .inviteAction {
-  display: grid;
-  justify-items: stretch;
-  gap: 10px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.2vw, 16px);
   min-width: 0;
 }
 
-.inviteUrl {
-  overflow: hidden;
-  max-width: 260px;
-  color: color-mix(in srgb, var(--profile-ink) 72%, transparent);
-  font-family: var(--et-font-mono);
+/* Statt der nackten URL: der Weg auf die Seite, die der andere zu sehen
+   bekommt. Die URL stand hier als abgeschnittene Zeile
+   („www.eatthisdot.com/deck/Z2IJ8CJs…") und war weder lesbar noch anklickbar
+   — sie beantwortete die eine Frage nicht, die vor dem Teilen aufkommt: was
+   sieht der ueberhaupt? */
+.invitePreview {
+  color: color-mix(in srgb, var(--profile-ink) 76%, transparent);
+  font-family: var(--et-font-display);
   font-size: 12px;
-  text-overflow: ellipsis;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-decoration: underline;
+  text-transform: uppercase;
+  text-underline-offset: 3px;
   white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .invitePreview:hover {
+    color: var(--profile-ink);
+  }
 }
 
 .inviteButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0 22px;
+  min-height: 42px;
+  padding: 0 20px;
   color: var(--profile-inverse);
   background: var(--profile-ink);
   border: 0;
@@ -727,6 +787,7 @@ main.page .head {
   font-family: var(--et-font-display);
   font-size: var(--et-type-button, 13px);
   font-weight: 700;
+  white-space: nowrap;
   transition: background-color var(--profile-motion);
 }
 
@@ -838,21 +899,15 @@ main.page .foot {
     aspect-ratio: 1 / 1;
   }
 
+  /* Auf dem Telefon liegt die Handlung unter dem Satz, nicht daneben — und
+     der Knopf nimmt die Breite, die Vorschau bleibt daneben stehen. */
   .invite {
-    grid-template-columns: 1fr;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .inviteAction {
-    justify-items: start;
-  }
-
-  .inviteUrl {
-    max-width: 100%;
-  }
-
-  .inviteButton {
-    width: 100%;
+    flex: 1 1 100%;
+    justify-content: space-between;
   }
 }
 

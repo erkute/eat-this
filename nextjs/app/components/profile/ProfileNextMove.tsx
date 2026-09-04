@@ -55,6 +55,14 @@ interface Props {
  * selbst aufgedeckt hat (Nutzer, 04.09.2026). „Das erste" war schlicht
  * falsch: die zehn oeffentlich aufgedeckten Karten liegen von Anfang an
  * offen im Deck. Was hier steht, ist immer das NAECHSTE.
+ *
+ * Eine Zeile, kein Kasten (Nutzer, 04.09.2026: „uebelst dick geloest, das
+ * muss kleiner sein, einfach nur mit nem Standort"). Er stand mit
+ * Kicker-Zeile, Satz und gefuelltem Knopf untereinander auf 110 px — mehr
+ * Hoehe als eine Kartenreihe, fuer eine Auskunft. Jetzt laufen Karte,
+ * Beschriftung, Satz und die Standort-Freigabe in EINER Zeile, und die
+ * Freigabe ist eine Pille in der Groesse der Bezirks-Reiter darunter statt
+ * des lautesten Knopfes der Seite.
  */
 export default function ProfileNextMove({
   mustEats,
@@ -123,20 +131,22 @@ export default function ProfileNextMove({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={CARD_BACK} alt="" />
       </MapIntentLink>
-      <div className={styles.moveCopy}>
-        <p className={styles.moveLabel}>{label}</p>
-        <p className={styles.moveLine}>{line}</p>
-        {/* Nur noch EIN Knopf, und nur dort, wo er etwas bewirkt: ohne
-            Standort ist das Freigeben der Schritt — er macht aus einem Bezirk
-            eine Entfernung. Ist der Standort da oder in den Browser-
-            Einstellungen abgelehnt, steht hier nichts mehr; der Weg auf die
-            Map liegt in der Karte links. */}
-        {canLocate && (
-          <button type="button" className={styles.moveCta} onClick={() => void request()}>
-            {cta}
-          </button>
-        )}
-      </div>
+      <p className={styles.moveLine}>
+        {/* Die Beschriftung laeuft im Satz mit, nicht als eigene Zeile
+            darueber: sie sagt, worum es geht, und kostet so keine Hoehe. */}
+        <span className={styles.moveLabel}>{label}</span>
+        {line}
+      </p>
+      {/* Nur noch EIN Knopf, und nur dort, wo er etwas bewirkt: ohne
+          Standort ist das Freigeben der Schritt — er macht aus einem Bezirk
+          eine Entfernung. Ist der Standort da oder in den Browser-
+          Einstellungen abgelehnt, steht hier nichts mehr; der Weg auf die
+          Map liegt in der Karte links. */}
+      {canLocate && (
+        <button type="button" className={styles.moveCta} onClick={() => void request()}>
+          {cta}
+        </button>
+      )}
     </div>
   );
 }

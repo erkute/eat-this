@@ -14,7 +14,6 @@ import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import MapDataNotice from '../map/MapDataNotice';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
-import ProfilePlayerCard from './ProfilePlayerCard';
 import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
@@ -229,13 +228,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             groupOf={(m) =>
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
             }
-            playerCard={
-              <ProfilePlayerCard
-                name={firstName}
-                avatarIdx={avatarIdx}
-                onPick={() => setPickerOpen(true)}
-              />
-            }
+            player={{ name: firstName, avatarIdx, onPick: () => setPickerOpen(true) }}
             /* Der einzige Zug nach vorn auf dieser Seite — und er handelt vom
                Deck, steht also im Deck. In der Ink-Tafel des Kopfes war er ein
                Untermieter zwischen Name und Berlin-Zahl. */
@@ -250,6 +243,16 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           />
         </section>
 
+        {/* Direkt unter dem Deck, nicht am Seitenende (Nutzer, 04.09.2026:
+            „ist der Knopf da unten irgendwie versteckt? Vielleicht muss der
+            kleiner sein, unter dem Deck"). Geteilt wird das Deck — die
+            Aufforderung dazu stand vier Bildschirme davon entfernt, hinter
+            den gespeicherten Spots und den Packs, und war der letzte Block
+            vor dem Fuss. */}
+        <section className={`hv-section hv-wrap ${styles.section}`}>
+          <ProfileInvite uid={user.uid} />
+        </section>
+
         <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
@@ -261,10 +264,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
         <section className={`hv-section hv-wrap ${styles.section}`}>
           <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
-        </section>
-
-        <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfileInvite uid={user.uid} />
         </section>
 
         {/* Account chrome belongs at the bottom, quiet: it is the one thing

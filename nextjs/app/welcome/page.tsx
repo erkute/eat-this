@@ -338,7 +338,7 @@ function IdentityForm({ user, claimingSpot }: { user: User; claimingSpot: boolea
             >
               <span className={styles.avatarPh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${id}.webp?v=3`} alt="" />
+                <img src={`/pics/avatar/${id}.webp?v=4`} alt="" />
               </span>
               <span className={styles.avatarName}>{label}</span>
             </button>

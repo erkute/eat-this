@@ -6,7 +6,12 @@ import styles from './ProfileAlbum.module.css';
 interface Props {
   name: string;
   avatarIdx: number;
-  onPick: () => void;
+  /** Der Punktestand auf der Karte: aufgedeckt von wie vielen. */
+  done: number;
+  total: number;
+  /** Fehlt auf dem geteilten Deck — dort aendert niemand etwas, und die
+   *  Karte ist dann kein Knopf, sondern ein Bild. */
+  onPick?: () => void;
 }
 
 /**
@@ -28,38 +33,44 @@ interface Props {
  * Gerichtnamen im Raster daneben; auf der Karte ist er das, was er ist —
  * ihre Beschriftung, wie der Spielername auf einer Sammelkarte.
  *
- * Die Berlin-Zahl ist ganz entfallen (Nutzer, 04.09.2026: „vielleicht
- * nimmst du die komplett raus"). Sie war der einzige Ort im Produkt, an
- * dem stand, wie viel von der Stadt diesem Konto gehoert — wer sie
- * zurueckholt, holt auch den stillen Verkaeufer fuer die Packs zurueck.
+ * Seit dem Abend des 04.09.2026 traegt sie auch den Punktestand. Er stand
+ * vorher als grosse Zahl am rechten Rand der Kopfzeile und sagte dasselbe wie
+ * die Reiter darunter (Nutzer: „macht das dort oben Sinn, neben dem
+ * Profil?"). Gelbe Zahl auf Ink — dieselbe Sprache wie der Belohnungs-Screen
+ * nach der Anmeldung, wo sie waechst. Wer die Farbe hier aendert, loest den
+ * Bezug zwischen den beiden Bildschirmen.
  *
- * Sie stand hier auf ausdruecklichen Wunsch (26.08.2026: „ein kleiner
- * Reiter, wo Berlin steht und wie viel Spots man schon freigeschaltet hat,
- * von wie vielen") — dieser Wunsch ist mit dem 04.09.2026 ueberholt, nicht
- * vergessen. Wer sie wieder aufnimmt: die gelbe Zahl auf Ink war bewusst
- * dieselbe Sprache wie der Belohnungs-Screen nach der Anmeldung, dort
- * waechst sie, hier stand sie. Der Bezug geht verloren, wenn man sie in
- * einer anderen Farbe zurueckbringt.
+ * Kein „Aendern"-Zeichen mehr unter der Karte (Nutzer, 04.09.2026: „wenn man
+ * auf den Charakter klickt, kann man ihn ja waehlen — den Knopf brauchst du
+ * gar nicht"). Es war die Beschriftung eines Knopfes, der schon eine Figur
+ * ist; der zugaengliche Name des Knopfes sagt es weiter.
  */
-export default function ProfilePlayerCard({ name, avatarIdx, onPick }: Props) {
+export default function ProfilePlayerCard({ name, avatarIdx, done, total, onPick }: Props) {
   const t = useTranslations('profile');
+
+  const inner = (
+    <span className={styles.playerFrame}>
+      {/* Das Bildfeld mit der Ink-Linie — die Figur bekommt einen Rahmen,
+          die Karte selbst bleibt Papier. */}
+      <span className={styles.playerField}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={styles.playerImg} src={`/pics/avatar/${avatarIdx}.webp?v=4`} alt="" />
+      </span>
+      <span className={styles.playerName}>{name}</span>
+      {total > 0 && (
+        <span className={styles.playerScore}>
+          <strong>{done}</strong>
+          <span className={styles.playerScoreTotal}>/{total}</span>
+        </span>
+      )}
+    </span>
+  );
+
+  if (!onPick) return <div className={styles.player}>{inner}</div>;
 
   return (
     <button type="button" className={styles.player} onClick={onPick} aria-label={t('changeAvatar')}>
-      <span className={styles.playerFrame}>
-        {/* Das Bildfeld mit der Ink-Linie — die Figur bekommt einen Rahmen,
-            die Karte selbst bleibt Papier. */}
-        <span className={styles.playerField}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.playerImg} src={`/pics/avatar/${avatarIdx}.webp?v=3`} alt="" />
-        </span>
-        <span className={styles.playerName}>{name}</span>
-      </span>
-      {/* Unter der Karte, leise: das Zeichen gehoert zum Knopf, nicht zur
-          Karte. Auf der Karte lag es vorher auf dem Fuss der Figur. */}
-      <span className={styles.playerEdit} aria-hidden="true">
-        {t('changeAvatarShort')}
-      </span>
+      {inner}
     </button>
   );
 }

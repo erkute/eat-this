@@ -30,14 +30,12 @@ export default function ProfileInvite({ uid }: { uid: string }) {
   // staging. SSR has no origin; the canonical host is the honest fallback.
   const [origin, setOrigin] = useState(SITE_URL);
   useEffect(() => setOrigin(window.location.origin), []);
-  const inviteUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}?ref=${uid}`;
+  const deckUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}`;
+  const inviteUrl = `${deckUrl}?ref=${uid}`;
 
   return (
     <div className={styles.invite}>
-      {/* Traegt keine Klasse: die Huelle ist nur die erste Grid-Spalte, und
-          `.inviteCopy` gab es im Modul nie — React rendert dafuer stumm gar
-          kein class-Attribut. */}
-      <div>
+      <div className={styles.inviteCopy}>
         <h2 className={styles.inviteTitle}>{t('inviteHeading')}</h2>
         <p className={styles.inviteLine}>{t('inviteLine')}</p>
         {/* Erst ab der ersten Anmeldung. „Noch niemand" wäre eine Bilanz, die
@@ -49,9 +47,23 @@ export default function ProfileInvite({ uid }: { uid: string }) {
         )}
       </div>
       <div className={styles.inviteAction}>
-        <span className={styles.inviteUrl} title={inviteUrl}>
-          {inviteUrl.replace(/^https?:\/\//, '')}
-        </span>
+        {/* Statt der nackten URL, die hier als abgeschnittene Zeile stand:
+            der Weg auf die Seite selbst. Wer sein Deck herumschickt, will
+            vorher wissen, was der andere zu sehen bekommt — und diese Seite
+            ist der Grund, dass es sich zu teilen lohnt. Ohne `?ref`: sich
+            selbst wirbt niemand.
+
+            Ein einfaches `a`, kein `Link`: /deck/<uid> ist `force-dynamic`
+            und traegt fuer den Besitzer nichts, was ein Prefetch ersparen
+            wuerde. */}
+        <a
+          className={styles.invitePreview}
+          href={deckUrl}
+          target="_blank"
+          rel="noreferrer nofollow"
+        >
+          {t('invitePreview')}
+        </a>
         <ShareButton
           className={styles.inviteButton}
           url={inviteUrl}

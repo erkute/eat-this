@@ -194,9 +194,14 @@
   transition: color 140ms ease;
 }
 
-.tocLink:hover,
 .tocLink:focus-visible {
   color: var(--legal-accent);
+}
+
+@media (hover: hover) {
+  .tocLink:hover {
+    color: var(--legal-accent);
+  }
 }
 
 .tocNum {
@@ -316,9 +321,14 @@
   transition: color 140ms ease;
 }
 
-.body a:hover,
 .body a:focus-visible {
   color: var(--legal-fg);
+}
+
+@media (hover: hover) {
+  .body a:hover {
+    color: var(--legal-fg);
+  }
 }
 
 /* Blockquote reads as an aside here — the tilted red sticker from the story

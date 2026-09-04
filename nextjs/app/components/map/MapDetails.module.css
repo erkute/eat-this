@@ -424,8 +424,10 @@
   align-items: center;
   gap: 5px;
 }
-.linkPromo:hover {
-  gap: 9px;
+@media (hover: hover) {
+  .linkPromo:hover {
+    gap: 9px;
+  }
 }
 /* Desktop sized-ups (rail variant) */
 @media (min-width: 1024px) {
@@ -913,12 +915,14 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-.btnPackPromo:hover {
-  background: var(--brand-action);
-  color: var(--brand-paper);
-  border-color: var(--brand-ink);
-  transform: translate(-1px, -1px);
-  box-shadow: none;
+@media (hover: hover) {
+  .btnPackPromo:hover {
+    background: var(--brand-action);
+    color: var(--brand-paper);
+    border-color: var(--brand-ink);
+    transform: translate(-1px, -1px);
+    box-shadow: none;
+  }
 }
 .fdMid {
   color: var(--brand-ink);
@@ -956,9 +960,11 @@
 .packPromo::before {
   content: none;
 }
-.packPromo:hover .packPromoSingleCard {
-  transform: rotate(-2deg) translateY(-2px);
-  filter: none;
+@media (hover: hover) {
+  .packPromo:hover .packPromoSingleCard {
+    transform: rotate(-2deg) translateY(-2px);
+    filter: none;
+  }
 }
 .packPromoTitle {
   margin-bottom: 8px;
@@ -975,8 +981,10 @@
 .btnPackPromo {
   filter: none;
 }
-.btnPackPromo:hover {
-  border-color: var(--brand-ink);
+@media (hover: hover) {
+  .btnPackPromo:hover {
+    border-color: var(--brand-ink);
+  }
 }
 .btnPackPromoLbl {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
@@ -990,9 +998,11 @@
   font-size: 11.5px;
   font-weight: 900;
 }
-.linkPromo:hover {
-  color: var(--brand-action);
-  border-bottom-color: transparent;
+@media (hover: hover) {
+  .linkPromo:hover {
+    color: var(--brand-action);
+    border-bottom-color: transparent;
+  }
 }
 @media (max-width: 380px) {
   .packPromo {
@@ -1462,8 +1472,10 @@
   font-size: 28px;
   line-height: 0.9;
 }
-.btnPackPromo:hover {
-  box-shadow: none;
+@media (hover: hover) {
+  .btnPackPromo:hover {
+    box-shadow: none;
+  }
 }
 /* Must-eat detail: keep controls stable and remove heavy stripes. */
 .detailV13MustEat .detailV13Scroll {
@@ -1622,10 +1634,12 @@
   border: 0;
   text-decoration: none;
 }
-.btnPackPromo:hover {
-  transform: translateY(-1px);
-  background: #c42f24;
-  color: #fff;
+@media (hover: hover) {
+  .btnPackPromo:hover {
+    transform: translateY(-1px);
+    background: #c42f24;
+    color: #fff;
+  }
 }
 .rdMustSection {
   margin: 14px 14px 18px;
@@ -1766,9 +1780,13 @@
   border: 0;
 }
 /* Filter/card correction: no helper words, no picker chrome, stronger photo cards. */
-.detailV13MustEat .fdClose:hover,
 .detailV13MustEat .fdClose:focus-visible {
   box-shadow: none;
+}
+@media (hover: hover) {
+  .detailV13MustEat .fdClose:hover {
+    box-shadow: none;
+  }
 }
 .detailV13,
 .detailV13Scroll {
@@ -2106,11 +2124,13 @@
     min-height: clamp(220px, 41dvh, 430px);
   }
 }
-.detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,
-.detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass:hover {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle:hover,
+  .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass:hover {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
 }
 .detailV13:not(.detailV13MustEat) .btnPackPromo {
   padding: 0 18px;
@@ -2359,11 +2379,17 @@
   border: 0;
   border-radius: 0;
 }
-.detailV13MustEat .fdClose:hover,
 .detailV13MustEat .fdClose:focus-visible {
   color: var(--me-ink);
   background: transparent;
   transform: translateY(-1px);
+}
+@media (hover: hover) {
+  .detailV13MustEat .fdClose:hover {
+    color: var(--me-ink);
+    background: transparent;
+    transform: translateY(-1px);
+  }
 }
 .detailV13MustEat .fdHeroWrap {
   position: relative;
@@ -3990,8 +4016,10 @@
   white-space: nowrap;
 }
 
-.detailV13:not(.detailV13MustEat) .linkPromo:hover {
-  color: var(--et-home-red, #d9382a);
+@media (hover: hover) {
+  .detailV13:not(.detailV13MustEat) .linkPromo:hover {
+    color: var(--et-home-red, #d9382a);
+  }
 }
 
 /* ============ Gallery strip ============
@@ -4901,9 +4929,13 @@
 }
 
 /* Das X wie im Onboarding (.x): weiß, gelb bei Hover. */
-.detailV13MustEat .fdClose:hover,
 .detailV13MustEat .fdClose:focus-visible {
   color: var(--me-accent);
+}
+@media (hover: hover) {
+  .detailV13MustEat .fdClose:hover {
+    color: var(--me-accent);
+  }
 }
 
 /* Der Stapel hebt sich mit dem Schatten des Onboarding-Flippers vom Grund ab
@@ -5249,11 +5281,16 @@
     transition: none;
   }
 
-  .detailV13MustEat button.fdLocationChip:hover,
   .detailV13MustEat button.fdLocationChip:active,
-  .detailV13MustEat .detailV13Scroll > .fdRestInline:hover,
   .detailV13MustEat .detailV13Scroll > .fdRestInline:active {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .detailV13MustEat button.fdLocationChip:hover,
+    .detailV13MustEat .detailV13Scroll > .fdRestInline:hover {
+      transform: none;
+    }
   }
 }
 
@@ -5388,9 +5425,11 @@
     transition: none;
   }
 
-  .detailV13MustEat .fdPagerPrev:hover,
-  .detailV13MustEat .fdPagerNext:hover {
-    transform: none;
+  @media (hover: hover) {
+    .detailV13MustEat .fdPagerPrev:hover,
+    .detailV13MustEat .fdPagerNext:hover {
+      transform: none;
+    }
   }
 }
 

@@ -171,11 +171,17 @@
 
 /* Ringe, wie der Standort-Chip im Must-Eat-Sheet: weißer 28-%-Rand, bei
    Hover gelb (state change, not motion — allowed). */
-.body .chip:global(.hv-chip):hover,
 .body .chip:global(.hv-chip):focus-visible {
   background: transparent;
   border-color: var(--remy-stage-accent);
   color: var(--remy-stage-accent);
+}
+@media (hover: hover) {
+  .body .chip:global(.hv-chip):hover {
+    background: transparent;
+    border-color: var(--remy-stage-accent);
+    color: var(--remy-stage-accent);
+  }
 }
 
 .body .chip:global(.hv-chip) {
@@ -248,9 +254,11 @@
 }
 
 /* Gelb auf Ink, Hover Papier — wie jeder Tafel-Knopf. */
-.body .send:global(.hv-btn):hover {
-  color: var(--remy-stage-ink);
-  background: var(--remy-stage-paper);
+@media (hover: hover) {
+  .body .send:global(.hv-btn):hover {
+    color: var(--remy-stage-ink);
+    background: var(--remy-stage-paper);
+  }
 }
 
 .body .send:global(.hv-btn):focus-visible {

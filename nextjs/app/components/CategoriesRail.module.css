@@ -81,16 +81,28 @@
   transition: transform 160ms ease;
 }
 
-.chip:hover,
 .chip:focus-visible {
   color: var(--board-accent, #ffc600);
   outline: 0;
   transform: translateX(4px);
 }
 
-.chip:hover::before,
+@media (hover: hover) {
+  .chip:hover {
+    color: var(--board-accent, #ffc600);
+    outline: 0;
+    transform: translateX(4px);
+  }
+}
+
 .chip:focus-visible::before {
   transform: scale(1.35);
+}
+
+@media (hover: hover) {
+  .chip:hover::before {
+    transform: scale(1.35);
+  }
 }
 
 .chip:active {
@@ -108,10 +120,15 @@
     transition: none;
   }
 
-  .chip:hover,
   .chip:focus-visible,
   .chip:active {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .chip:hover {
+      transform: none;
+    }
   }
 }
 

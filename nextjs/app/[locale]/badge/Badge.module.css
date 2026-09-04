@@ -110,8 +110,10 @@
   transition: background 0.15s ease;
 }
 
-.copyBtn:hover {
-  background: var(--brand-red-hover, #7e1f0f);
+@media (hover: hover) {
+  .copyBtn:hover {
+    background: var(--brand-red-hover, #7e1f0f);
+  }
 }
 
 .hint {

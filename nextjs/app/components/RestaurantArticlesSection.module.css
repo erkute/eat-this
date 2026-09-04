@@ -27,8 +27,10 @@
   text-decoration: none;
 }
 
-.headLink:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .headLink:hover {
+    text-decoration: underline;
+  }
 }
 
 /* Drei Spuren statt der vier der Spot-Zeile: eine Schlagzeile braucht mehr

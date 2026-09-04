@@ -146,10 +146,14 @@
 
 /* Beim Zeigen und beim Klick-Shake hört das Wippen auf — sonst kämpfen zwei
    Animationen um dieselbe Transform-Eigenschaft. */
-.cardWrap:hover,
 .cardWrap:focus-within,
 .cardWrap:has(.cardShake) {
   animation: none;
+}
+@media (hover: hover) {
+  .cardWrap:hover {
+    animation: none;
+  }
 }
 
 /* globals.css neutralisiert bei `prefers-reduced-motion` bereits jede
@@ -164,8 +168,10 @@
   }
 }
 
-.cardWrap:hover {
-  transform: rotate(0) translate(-2px, -3px);
+@media (hover: hover) {
+  .cardWrap:hover {
+    transform: rotate(0) translate(-2px, -3px);
+  }
 }
 
 /* Ein <a> auf /map?me=<id>, kein <button>: die Karte hat ein echtes Ziel, das

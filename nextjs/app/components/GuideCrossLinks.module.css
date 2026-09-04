@@ -50,8 +50,10 @@
   transition: color var(--et-motion-fast);
 }
 
-.title a:hover {
-  color: var(--et-home-accent, #ffc600);
+@media (hover: hover) {
+  .title a:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 
 .title a:focus-visible {

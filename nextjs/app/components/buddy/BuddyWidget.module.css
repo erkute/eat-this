@@ -120,10 +120,12 @@
     color 0.12s ease;
 }
 
-.close:hover {
-  color: #fff;
-  background: var(--buddy-red);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .close:hover {
+    color: #fff;
+    background: var(--buddy-red);
+    transform: translateY(-1px);
+  }
 }
 
 .close:focus-visible {
@@ -239,12 +241,20 @@
   text-align: left;
 }
 
-.chip:hover,
 .chip:focus-visible {
   color: #fff;
   background: var(--buddy-red);
   box-shadow: 0 0 0 rgba(21, 18, 14, 0);
   transform: translate(2px, 2px);
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    color: #fff;
+    background: var(--buddy-red);
+    box-shadow: 0 0 0 rgba(21, 18, 14, 0);
+    transform: translate(2px, 2px);
+  }
 }
 
 .chipNear {
@@ -256,12 +266,20 @@
   background: var(--buddy-yellow);
 }
 
-.chipNear:hover,
 .chipNear:focus-visible {
   color: #fff;
   background: var(--buddy-red);
   box-shadow: 0 0 0 rgba(21, 18, 14, 0);
   transform: translate(2px, 2px);
+}
+
+@media (hover: hover) {
+  .chipNear:hover {
+    color: #fff;
+    background: var(--buddy-red);
+    box-shadow: 0 0 0 rgba(21, 18, 14, 0);
+    transform: translate(2px, 2px);
+  }
 }
 
 .chipNear:disabled {
@@ -324,16 +342,20 @@
   background: var(--buddy-paper);
 }
 
-.spotCard:hover,
-.articleCard:hover,
-.packCard:hover {
-  background: #fff;
-  box-shadow: 0 0 0 rgba(21, 18, 14, 0);
-  transform: translate(2px, 2px);
+@media (hover: hover) {
+  .spotCard:hover,
+  .articleCard:hover,
+  .packCard:hover {
+    background: #fff;
+    box-shadow: 0 0 0 rgba(21, 18, 14, 0);
+    transform: translate(2px, 2px);
+  }
 }
 
-.spotCard:hover {
-  background: #fff;
+@media (hover: hover) {
+  .spotCard:hover {
+    background: #fff;
+  }
 }
 
 .spotSave {
@@ -365,9 +387,11 @@
   color: currentColor;
 }
 
-.spotSave:hover {
-  color: var(--buddy-red);
-  background: rgba(217, 56, 42, 0.1);
+@media (hover: hover) {
+  .spotSave:hover {
+    color: var(--buddy-red);
+    background: rgba(217, 56, 42, 0.1);
+  }
 }
 
 .spotSave[data-saved='true'] {
@@ -506,11 +530,18 @@
     transform 0.12s ease;
 }
 
-.spotCardLink:hover .spotCta,
 .spotCardLink:focus-visible .spotCta {
   color: var(--buddy-paper);
   background: var(--buddy-red);
   transform: translateY(-1px);
+}
+
+@media (hover: hover) {
+  .spotCardLink:hover .spotCta {
+    color: var(--buddy-paper);
+    background: var(--buddy-red);
+    transform: translateY(-1px);
+  }
 }
 
 .spotCardLink:focus-visible {
@@ -635,11 +666,13 @@
     box-shadow 0.1s ease;
 }
 
-.send:hover:not(:disabled) {
-  color: #fff;
-  background: var(--buddy-ink);
-  box-shadow: 0 0 0 var(--buddy-ink);
-  transform: translate(3px, 3px);
+@media (hover: hover) {
+  .send:hover:not(:disabled) {
+    color: #fff;
+    background: var(--buddy-ink);
+    box-shadow: 0 0 0 var(--buddy-ink);
+    transform: translate(3px, 3px);
+  }
 }
 
 .send:active:not(:disabled) {
@@ -693,9 +726,14 @@
     transition: none;
   }
 
-  .spotCardLink:hover .spotCta,
   .spotCardLink:focus-visible .spotCta {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .spotCardLink:hover .spotCta {
+      transform: none;
+    }
   }
 }
 

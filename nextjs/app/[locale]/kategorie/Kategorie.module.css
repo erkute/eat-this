@@ -154,8 +154,10 @@
   transition: color 140ms ease;
 }
 
-.categoryLink:hover {
-  color: var(--et-home-accent);
+@media (hover: hover) {
+  .categoryLink:hover {
+    color: var(--et-home-accent);
+  }
 }
 
 /* Die Kategoriebeschreibung aus dem Studio trägt die Entscheidung — vier
@@ -198,14 +200,18 @@
   transition: transform 140ms ease;
 }
 
-.categoryMore:hover {
-  background: var(--category-ink);
-  color: var(--category-paper);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .categoryMore:hover {
+    background: var(--category-ink);
+    color: var(--category-paper);
+    transform: translateY(-2px);
+  }
 }
 
-.categoryMore:hover span {
-  transform: translateX(3px);
+@media (hover: hover) {
+  .categoryMore:hover span {
+    transform: translateX(3px);
+  }
 }
 
 .categoryLink:focus-visible,
@@ -385,12 +391,16 @@
     transition: none;
   }
 
-  .categoryMore:hover {
-    transform: none;
+  @media (hover: hover) {
+    .categoryMore:hover {
+      transform: none;
+    }
   }
 
-  .categoryMore:hover span {
-    transform: none;
+  @media (hover: hover) {
+    .categoryMore:hover span {
+      transform: none;
+    }
   }
 }
 
@@ -499,11 +509,18 @@
   font-size: clamp(15px, 1.2vw, 17px);
 }
 
-.indexPage.indexPage .categoryMore:hover,
 .indexPage.indexPage .categoryMore:focus-visible {
   background: var(--category-paper);
   color: var(--category-ink);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .indexPage.indexPage .categoryMore:hover {
+    background: var(--category-paper);
+    color: var(--category-ink);
+    transform: translateY(-2px);
+  }
 }
 
 .indexPage.indexPage .categoryMore:active {

@@ -133,10 +133,16 @@
     background-color var(--et-motion-fast, 140ms ease);
 }
 
-.cta:hover,
 .cta:focus-visible {
   background: var(--board-paper);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--board-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .cta:active {

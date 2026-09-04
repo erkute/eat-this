@@ -127,10 +127,16 @@
     background-color var(--et-motion-fast, 140ms ease);
 }
 
-.cta:hover,
 .cta:focus-visible {
   background: var(--pack-paper);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--pack-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .cta:active {

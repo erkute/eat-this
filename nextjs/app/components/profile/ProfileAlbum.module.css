@@ -146,10 +146,16 @@
     filter 180ms ease;
 }
 
-.slot:hover,
 .slot:focus-visible {
   transform: translateY(-6px) rotate(-1deg);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .slot:hover {
+    transform: translateY(-6px) rotate(-1deg);
+    outline: 0;
+  }
 }
 
 .slot:focus-visible {

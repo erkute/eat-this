@@ -924,15 +924,23 @@ html[data-auth='1'] [data-guest-only] {
   color: var(--toast-ink);
   border: 2px solid rgba(255, 255, 255, 0.28);
 }
-.notification-action:hover,
 .notification-action:focus-visible,
-.notification-dismiss:hover,
 .notification-dismiss:focus-visible {
   transform: translateY(-2px);
 }
-.notification-dismiss:hover,
+@media (hover: hover) {
+  .notification-action:hover,
+  .notification-dismiss:hover {
+    transform: translateY(-2px);
+  }
+}
 .notification-dismiss:focus-visible {
   border-color: var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .notification-dismiss:hover {
+    border-color: var(--et-home-accent, #ffc600);
+  }
 }
 .notification-action:active,
 .notification-dismiss:active {
@@ -1108,9 +1116,13 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration-color: var(--et-home-accent, #ffc600);
   text-transform: none;
 }
-.cookie-info-trigger:hover,
 .cookie-info-trigger:focus-visible {
   color: var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .cookie-info-trigger:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 /* Accept is the primary answer, decline the secondary one: filled against
    outlined. What must NOT differ is everything the law looks at — same box,
@@ -1153,12 +1165,19 @@ html[data-auth='1'] [data-guest-only] {
   background: var(--et-home-accent, #ffc600);
   box-shadow: 0 8px 22px rgba(255, 198, 0, 0.26);
 }
-.cookie-btn-accept:hover,
 .cookie-btn-accept:focus-visible {
   color: var(--et-home-inverse-text, #fff);
   background: var(--et-home-red, #d9382a);
   box-shadow: 0 8px 22px rgba(217, 56, 42, 0.3);
   transform: translateY(-1px);
+}
+@media (hover: hover) {
+  .cookie-btn-accept:hover {
+    color: var(--et-home-inverse-text, #fff);
+    background: var(--et-home-red, #d9382a);
+    box-shadow: 0 8px 22px rgba(217, 56, 42, 0.3);
+    transform: translateY(-1px);
+  }
 }
 .cookie-btn-accept:active {
   transform: translateY(0);
@@ -1168,12 +1187,19 @@ html[data-auth='1'] [data-guest-only] {
   background: transparent;
   border-color: rgba(255, 255, 255, 0.38);
 }
-.cookie-btn-decline:hover,
 .cookie-btn-decline:focus-visible {
   color: var(--et-home-paper, #fff);
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.62);
   transform: translateY(-1px);
+}
+@media (hover: hover) {
+  .cookie-btn-decline:hover {
+    color: var(--et-home-paper, #fff);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.62);
+    transform: translateY(-1px);
+  }
 }
 .cookie-btn-decline:active {
   transform: translateY(0);
@@ -1194,9 +1220,13 @@ html[data-auth='1'] [data-guest-only] {
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
 }
-.cookie-legal a:hover,
 .cookie-legal a:focus-visible {
   color: var(--et-home-accent, #ffc600);
+}
+@media (hover: hover) {
+  .cookie-legal a:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 @media (max-width: 640px) {
   /* Bottom-anchored on phones so both answers sit in the thumb zone — but

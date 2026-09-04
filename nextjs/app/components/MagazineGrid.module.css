@@ -76,11 +76,17 @@
 /* Hover geht auf Papier, nicht auf Ink: auf dem dunklen Grund verschwand der
    Knopf beim Beruehren im Hintergrund. Gilt fuer jeden gelben Knopf der
    Seite. Der Druck sitzt tiefer, damit sich der Klick anfuehlt. */
-.allLink:hover,
 .allLink:focus-visible {
   color: var(--et-home-ink);
   background: var(--mag-paper);
   transform: translateY(-2px);
+}
+@media (hover: hover) {
+  .allLink:hover {
+    color: var(--et-home-ink);
+    background: var(--mag-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .allLink:active {
@@ -137,9 +143,14 @@
   transition: transform 220ms ease;
 }
 
-.card:hover .photo:global(.hv-photo) :global(img),
 .card:focus-visible .photo:global(.hv-photo) :global(img) {
   transform: scale(1.03);
+}
+
+@media (hover: hover) {
+  .card:hover .photo:global(.hv-photo) :global(img) {
+    transform: scale(1.03);
+  }
 }
 
 .text {
@@ -192,14 +203,24 @@
   line-height: 1.2;
 }
 
-.card:hover .kicker,
 .card:focus-visible .kicker {
   color: var(--mag-accent);
 }
 
-.card:hover .photo:global(.hv-photo),
+@media (hover: hover) {
+  .card:hover .kicker {
+    color: var(--mag-accent);
+  }
+}
+
 .card:focus-visible .photo:global(.hv-photo) {
   box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5);
+}
+
+@media (hover: hover) {
+  .card:hover .photo:global(.hv-photo) {
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5);
+  }
 }
 
 .card:focus-visible,

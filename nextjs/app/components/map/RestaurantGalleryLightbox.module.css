@@ -58,9 +58,11 @@
 .galleryLbCredit {
   border-radius: 999px;
 }
-.galleryLbArrow:hover {
-  background: #d9382a;
-  color: #fff;
+@media (hover: hover) {
+  .galleryLbArrow:hover {
+    background: #d9382a;
+    color: #fff;
+  }
 }
 .galleryLbCredit {
   background: #fff;
@@ -120,11 +122,17 @@
   box-shadow: none;
   cursor: pointer;
 }
-.galleryLbClose:hover,
 .galleryLbClose:focus-visible {
   color: var(--et-home-red, #d9382a);
   outline: 2px solid currentColor;
   outline-offset: 2px;
+}
+@media (hover: hover) {
+  .galleryLbClose:hover {
+    color: var(--et-home-red, #d9382a);
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
 }
 .galleryLbClose svg {
   width: 22px;

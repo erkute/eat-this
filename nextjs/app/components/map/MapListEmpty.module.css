@@ -114,11 +114,17 @@
     background-color var(--et-motion-fast, 140ms ease),
     color var(--et-motion-fast, 140ms ease);
 }
-.esBtnPrimary:hover,
 .esBtnPrimary:focus-visible {
   color: var(--et-home-ink, #15120e);
   background: var(--et-home-paper, #fff);
   transform: translateX(-3px);
+}
+@media (hover: hover) {
+  .esBtnPrimary:hover {
+    color: var(--et-home-ink, #15120e);
+    background: var(--et-home-paper, #fff);
+    transform: translateX(-3px);
+  }
 }
 
 /* Der Hover schiebt zur Seite, der Druck nach unten — auf dem Telefon gibt es

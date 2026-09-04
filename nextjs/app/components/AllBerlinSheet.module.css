@@ -19,9 +19,14 @@
   transition: color var(--et-motion-fast, 140ms ease);
 }
 
-.trigger:hover,
 .trigger:focus-visible {
   color: var(--et-home-accent, #ffc600);
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 
 .trigger:focus-visible {
@@ -92,9 +97,14 @@
   fill: none;
 }
 
-.x:hover,
 .x:focus-visible {
   color: var(--et-home-accent, #ffc600);
+}
+
+@media (hover: hover) {
+  .x:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 
 .kicker {
@@ -160,9 +170,14 @@
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.pack:hover .art,
 .pack:focus-visible .art {
   transform: translateY(-4px) rotate(-3deg);
+}
+
+@media (hover: hover) {
+  .pack:hover .art {
+    transform: translateY(-4px) rotate(-3deg);
+  }
 }
 
 .pack:focus-visible {
@@ -180,8 +195,10 @@
   transition: color var(--et-motion-fast, 140ms ease);
 }
 
-.pack:hover .name {
-  color: var(--et-home-accent, #ffc600);
+@media (hover: hover) {
+  .pack:hover .name {
+    color: var(--et-home-accent, #ffc600);
+  }
 }
 
 .actions {
@@ -218,10 +235,16 @@
     background-color var(--et-motion-fast, 140ms ease);
 }
 
-.cta:hover,
 .cta:focus-visible {
   background: var(--et-home-inverse-text, #fff);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--et-home-inverse-text, #fff);
+    transform: translateY(-2px);
+  }
 }
 
 .cta:active {

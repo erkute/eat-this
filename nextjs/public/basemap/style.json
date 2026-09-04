@@ -9,11 +9,10 @@
   "sources": {
     "carto": {
       "type": "vector",
-      "url": "https://tiles.basemaps.cartocdn.com/vector/carto.streets/v1/tiles.json"
+      "url": "https://tiles.openfreemap.org/planet"
     }
   },
-  "sprite": "https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/sprite",
-  "glyphs": "https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf",
+  "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",
@@ -4141,11 +4140,7 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Regular Italic",
-          "Open Sans Italic",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Italic"
         ],
         "symbol-placement": "line",
         "symbol-spacing": 300,
@@ -4243,11 +4238,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Medium Italic",
-          "Open Sans Italic",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Italic"
         ],
         "text-line-height": 1.2,
         "text-padding": 2,
@@ -4293,11 +4284,7 @@
         "symbol-placement": "point",
         "text-size": 12,
         "text-font": [
-          "Montserrat Medium Italic",
-          "Open Sans Italic",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Italic"
         ],
         "text-line-height": 1.2,
         "text-padding": 2,
@@ -4377,11 +4364,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Regular Italic",
-          "Open Sans Italic",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Italic"
         ],
         "text-line-height": 1.2,
         "text-padding": 2,
@@ -4453,11 +4436,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Regular Italic",
-          "Open Sans Italic",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Italic"
         ],
         "symbol-spacing": 350,
         "text-pitch-alignment": "auto",
@@ -4505,11 +4484,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ],
         "text-size": {
           "stops": [
@@ -4590,11 +4565,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ],
         "text-size": {
           "stops": [
@@ -4683,11 +4654,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -4765,11 +4732,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -4845,11 +4808,7 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -4921,11 +4880,7 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -5013,11 +4968,7 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -5058,11 +5009,7 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-transform": "uppercase",
         "text-size": 14,
@@ -5111,11 +5058,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -5203,11 +5146,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -5275,14 +5214,9 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": 12,
-        "icon-image": "circle-11",
         "icon-offset": [
           16,
           5
@@ -5327,14 +5261,9 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": 12,
-        "icon-image": "circle-11",
         "icon-offset": [
           16,
           5
@@ -5379,14 +5308,9 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": 12,
-        "icon-image": "circle-11",
         "icon-offset": [
           16,
           5
@@ -5431,14 +5355,9 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": 12,
-        "icon-image": "circle-11",
         "icon-offset": [
           16,
           5
@@ -5478,14 +5397,9 @@
       "layout": {
         "text-field": "{name_en}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": 12,
-        "icon-image": "circle-11",
         "icon-offset": [
           16,
           5
@@ -5532,11 +5446,7 @@
       "layout": {
         "text-field": "{name}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -5579,11 +5489,7 @@
       "layout": {
         "text-field": "{name}",
         "text-font": [
-          "Montserrat Medium",
-          "Open Sans Bold",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Bold"
         ],
         "text-size": {
           "stops": [
@@ -5627,11 +5533,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ],
         "text-size": 9,
         "text-field": "{name}",
@@ -5665,11 +5567,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ],
         "text-size": {
           "stops": [
@@ -5717,11 +5615,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ],
         "text-size": {
           "stops": [
@@ -5797,11 +5691,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ],
         "text-size": {
           "stops": [
@@ -5881,11 +5771,7 @@
           ]
         },
         "text-font": [
-          "Montserrat Regular",
-          "Open Sans Regular",
-          "Noto Sans Regular",
-          "HanWangHeiLight Regular",
-          "NanumBarunGothic Regular"
+          "Noto Sans Regular"
         ]
       },
       "paint": {

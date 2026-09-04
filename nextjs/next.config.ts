@@ -65,7 +65,7 @@ const nextConfig: NextConfig = {
 
   async headers() {
     // Content-Security-Policy shipped in REPORT-ONLY first: it breaks nothing
-    // but surfaces violations so we can validate the allowlist (CARTO map
+    // but surfaces violations so we can validate the allowlist (OpenFreeMap
     // tiles, Firebase Auth, Stripe Checkout, GA) on staging before flipping to
     // an enforcing `Content-Security-Policy`. 'unsafe-inline' on script-src is
     // required by the synchronous CRITICAL_BOOTSTRAP and the gtag shim (no
@@ -81,9 +81,9 @@ const nextConfig: NextConfig = {
       // @font-face rules live in app/globals.css. Only the font FILES are
       // still fetched from Adobe, which font-src below covers.
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://cdn.sanity.io https://*.cartocdn.com https://*.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "img-src 'self' data: blob: https://cdn.sanity.io https://*.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com",
       "font-src 'self' data: https://use.typekit.net",
-      "connect-src 'self' https://cdn.sanity.io https://*.cartocdn.com https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com https://www.google-analytics.com https://*.analytics.google.com",
+      "connect-src 'self' https://cdn.sanity.io https://tiles.openfreemap.org https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com https://www.google-analytics.com https://*.analytics.google.com",
       "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
@@ -110,11 +110,19 @@ const nextConfig: NextConfig = {
         headers: immutableAssetHeaders,
       },
       {
-        // Der eigene Basemap-Style (siehe scripts/build-basemap-style.mts).
+        // Der Kartenstyle (siehe scripts/build-basemap-style.mts).
         // Die Middleware fasst ihn nicht an — ihr Matcher schliesst alles mit
         // Punkt im Pfad aus —, die CDN-Antwort bleibt also cachebar.
+        // Bewusst NICHT `immutable`: die Dateinamen tragen keine Version, und
+        // eine Karte, die sich zweimal im Jahr aendert, braucht kein
+        // Cache-Busting, das jemand von Hand pflegen muesste.
         source: '/basemap/:path*',
-        headers: immutableAssetHeaders,
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          },
+        ],
       },
       {
         source: '/:path*',

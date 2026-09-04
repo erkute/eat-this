@@ -24,7 +24,23 @@
  * Lesehilfe: auf einer Karte ohne Beschriftung erkennt man Spree und
  * Landwehrkanal an der Farbe. WATER_CHROMA dämpft sie nur, statt sie zu drehen.
  *
- * Aufruf: npm run build:basemap  (danach public/basemap/style.json committen)
+ * Der zweite Zweck des Skripts ist die Unabhängigkeit von CARTO. Die Vorlage
+ * holt Kacheln, Schriften und Sprite von `cartocdn.com`; CARTO verlangt seit
+ * Ende August 2026 bei den Rasterkarten API-Schlüssel und schreibt, sie
+ * könnten die Pflicht ausweiten. Wir liefen dort ohne Schlüssel auf einem
+ * Endpunkt, der uns jederzeit weggezogen werden konnte. Deshalb zeigen jetzt:
+ *   Kacheln  → OpenFreeMap (kein Schlüssel, kommerziell erlaubt, dieselbe
+ *              OpenMapTiles-Struktur — alle 14 source-layer der Vorlage sind
+ *              dort vorhanden, gemessen). Und weil OpenFreeMap denselben
+ *              Datensatz auch zum Selbsthosten herausgibt, ist das kein
+ *              Umzug in die nächste Abhängigkeit, sondern der Schritt davor.
+ *   Schriften → OpenFreeMap. Dort gibt es nur Noto Sans, also übersetzt
+ *              FONT_STACKS die vier Montserrat-Stapel der Vorlage.
+ *   Sprite   → ersatzlos raus, siehe DROP_ICONS.
+ * Damit ist kein cartocdn.com-Aufruf mehr im Spiel; übrig bleibt der Style
+ * selbst, und der liegt im Repo.
+ *
+ * Aufruf: npm run build:basemap  (die erzeugten Dateien mitcommitten)
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -52,6 +68,43 @@ const WATER_LAYERS = /^(water|waterway|watername_)/;
 /* Unterhalb dieser Buntheit ist ein Wert praktisch neutral und wird nicht
    angefasst — sonst schöbe das Skript Rundungsrauschen in reine Grautöne. */
 const NEUTRAL_C = 1.2;
+
+/* Kachelquelle. Die TileJSON-Adresse statt fester Kachel-URLs, weil
+   OpenFreeMap den Datenstand im Pfad führt (…/planet/20260830_080001_pt/…) —
+   über die TileJSON folgen wir dem Stand, ohne dass jemand eine Zahl pflegt.
+   Von dort kommt auch die Attribution, die MapLibre unten links zeigt. */
+const TILES_URL = 'https://tiles.openfreemap.org/planet';
+
+const GLYPHS_URL = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+
+/* Die Vorlage setzt fünf Schriften pro Stapel (Montserrat, Open Sans, zwei
+   CJK-Fallbacks). Jeder Stapel ist eine eigene Anfrage von ~48 KB, und
+   OpenFreeMap führt ohnehin nur Noto Sans. Übersetzt wird deshalb auf drei
+   einzelne Schnitte — dieselbe Zahl Anfragen wie vorher, aber ohne Fallbacks,
+   die für Berliner Beschriftung nie zum Zug kommen.
+   Die Hierarchie bleibt: was in der Vorlage Medium war (BERLIN, Parks), wird
+   Bold; was Regular war (Straßennamen, Ortsteile), bleibt Regular; Gewässer
+   behalten ihre Kursive — das ist Kartenkonvention, nicht Zierde. */
+const FONT_STACKS: Record<string, string> = {
+  'Montserrat Medium': 'Noto Sans Bold',
+  'Montserrat Regular': 'Noto Sans Regular',
+  'Montserrat Medium Italic': 'Noto Sans Italic',
+  'Montserrat Regular Italic': 'Noto Sans Italic',
+};
+
+/* Die Vorlage kennt genau ein Icon: einen Punkt hinter Städtenamen, in fünf
+   Layern zwischen Zoom 4 und 8. Auf einer Berliner Karte ist das der Zoom, auf
+   dem halb Europa im Bild steht — der Punkt neben „Hamburg" ist dort Zierde.
+   Er fliegt deshalb ganz raus, statt ein eigenes Sprite dafür zu hosten.
+   Der eigentliche Auslöser war MapLibre: sein `parseUrl` verlangt für `sprite`
+   eine Adresse MIT Protokoll, eine wurzelrelative wie `/basemap/sprite` wirft
+   intern und wird still verschluckt — die Karte lädt, das Sprite nie. Eine
+   absolute Adresse kennen wir zur Bauzeit nicht (lokal, Staging und Produktion
+   sind drei), also müsste sie zur Laufzeit gesetzt werden. Für fünf Punkte auf
+   Kontinent-Zoom ist das zu viel Apparat.
+   Achtung, falls hier je ein Icon zurückkommt: dann gilt genau dieses Problem
+   wieder, und ein Test „lädt die Karte?" beantwortet es NICHT. */
+const DROP_ICONS = true;
 
 // ---------------------------------------------------------------- Farbmathe
 // sRGB ↔ CIE Lab (D65, 2°). Bewusst ohne Abhängigkeit: das Skript soll auch
@@ -191,12 +244,31 @@ for (const layer of style.layers) {
      dort würde die Suche nach Farbstrings nichts finden und im Zweifel einen
      Icon-Namen zerlegen. */
   if (layer.paint) layer.paint = mapColors(layer.paint, layer.id, isWater);
+
+  if (DROP_ICONS && layer.layout?.['icon-image']) delete layer.layout['icon-image'];
+
+  const stack = layer.layout?.['text-font'];
+  if (Array.isArray(stack) && typeof stack[0] === 'string') {
+    const mapped = FONT_STACKS[stack[0]];
+    if (!mapped) throw new Error(`Unbekannter Schriftstapel: ${stack[0]} (${layer.id})`);
+    layer.layout['text-font'] = [mapped];
+  }
 }
+
+/* Alle drei Fremdadressen der Vorlage umhängen. Der Quellname `carto` bleibt
+   stehen: jede der 93 Layer-Definitionen verweist darauf, und ein Umbenennen
+   brächte nichts ausser einem grösseren Diff. */
+const sourceIds = Object.keys(style.sources);
+if (sourceIds.length !== 1) throw new Error(`Erwartet genau eine Quelle, gefunden: ${sourceIds}`);
+style.sources[sourceIds[0]].url = TILES_URL;
+style.glyphs = GLYPHS_URL;
+delete style.sprite;
 
 writeFileSync(OUT, `${JSON.stringify(style, null, 2)}\n`);
 
 const uniq = new Map<string, string>();
 for (const c of changes) uniq.set(c.from, c.to);
 console.log(`${OUT.split('/nextjs/')[1]}: ${changes.length} Farbwerte umgefärbt`);
+console.log(`Kacheln ${TILES_URL}\nSchriften ${GLYPHS_URL}\nSprite: keins (Icons entfernt)`);
 console.log(`Ink-Winkel ${((INK_HUE * 180) / Math.PI).toFixed(1)}°, Straßen ×${ROAD_CHROMA}, Wasser ×${WATER_CHROMA}\n`);
 for (const [from, to] of uniq) console.log(`  ${from.padEnd(24)} → ${to}`);

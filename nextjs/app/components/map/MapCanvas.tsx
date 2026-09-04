@@ -6,17 +6,15 @@ import Map, {
   type ViewStateChangeEvent,
 } from 'react-map-gl/maplibre';
 
-/* Dark Matter, aber aus dem eigenen Haus: `public/basemap/style.json` wird von
-   `npm run build:basemap` aus CARTOs Vorlage erzeugt und dabei entblaut (das
-   Straßennetz stand in einem Blauviolett, das zu nichts in der Marke gehört).
-   Die KACHELN kommen weiter von CARTO — der Style verweist auf ihr TileJSON,
-   von dort stammt auch die Attribution.
+/* Der eigene Style: `public/basemap/style.json` wird von `npm run build:basemap`
+   aus CARTOs Dark-Matter-Vorlage erzeugt — entblaut (das Straßennetz stand in
+   einem Blauviolett, das zu nichts in der Marke gehört) und von cartocdn.com
+   gelöst. Kacheln und Schriften kommen von OpenFreeMap, das Sprite aus dem
+   eigenen Haus; die Attribution liefert OpenFreeMaps TileJSON.
    Der Grund des Styles ist #0e0e0e — dieselbe Farbe steht als
    `--map-basemap-ground` hinter dem Canvas, damit der Ladezustand nicht
-   aufblitzt. Wer den Style tauscht, zieht die Farbe mit.
-   `?v=` bricht den Cache: die Datei liegt unter `immutable` (next.config.ts),
-   nach jedem `build:basemap` mit sichtbarer Änderung also hochzählen. */
-const BASEMAP_STYLE = '/basemap/style.json?v=1';
+   aufblitzt. Wer den Style tauscht, zieht die Farbe mit. */
+const BASEMAP_STYLE = '/basemap/style.json';
 
 const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 };
 

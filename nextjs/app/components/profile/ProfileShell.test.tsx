@@ -74,7 +74,6 @@ vi.mock('@/lib/firebase/useUserProfile', () => ({
   useUserProfile: () => ({ profile: { avatar: 1 }, setAvatar: vi.fn() }),
 }));
 vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
-vi.mock('./ProfileCityProgress', () => ({ default: () => <div>City progress</div> }));
 /* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
    seines Providers, und dieser Test rendert die Shell blank. */
 vi.mock('./ProfileNextMove', () => ({ default: () => <div>Next move</div> }));

@@ -4,11 +4,14 @@ import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { formatLocalizedDistance } from '@/lib/map/distance';
+import { normalizeName } from '@/lib/normalizeName';
 import { getLocatingCopy } from '@/lib/map/locationStatus';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { FALLBACK_DISTRICT, pickNextMove } from '@/lib/profile/nextMove';
 import type { MapMustEat } from '@/lib/types';
 import styles from './Profile.module.css';
+
+const CARD_BACK = '/pics/card-back.webp?v=7';
 
 interface Props {
   /** Die eigenen Must Eats — dieselbe Liste, die das Deck zeigt. */
@@ -42,6 +45,16 @@ interface Props {
  * Uebernimmt dabei den Anstupser, den „Zuletzt aufgedeckt" bei null
  * Aufdeckungen schuldig blieb: wer noch nie eines umgedreht hat, liest hier
  * zuerst, dass man Must Eats vor Ort aufdeckt.
+ *
+ * Seit 04.09.2026 mit der Karte selbst, verdeckt, klein: der Block sagte bis
+ * dahin „Noch 3 Must Eats in Kreuzberg verdeckt" und zeigte nichts davon.
+ * Die Rueckseite daneben macht aus der Auskunft ein Ziel — dasselbe Bild,
+ * das im Album auf seinen Platz wartet.
+ *
+ * Und er heisst nicht mehr „Erstes Must Eat", wenn dieses Konto noch nichts
+ * selbst aufgedeckt hat (Nutzer, 04.09.2026). „Das erste" war schlicht
+ * falsch: die zehn oeffentlich aufgedeckten Karten liegen von Anfang an
+ * offen im Deck. Was hier steht, ist immer das NAECHSTE.
  */
 export default function ProfileNextMove({
   mustEats,
@@ -85,31 +98,45 @@ export default function ProfileNextMove({
       ? t('moveFirstNear', { district: move.district, distance })
       : t('moveFirst', { district: move.district });
 
-  const label = hasRevealed ? t('moveLabel') : t('moveFirstLabel');
-  const cta = canLocate ? (loading ? getLocatingCopy(locale) : t('moveLocateCta')) : t('moveCta');
+  const label = t('moveLabel');
+  /* Nur noch die Standort-Beschriftung: „Auf der Map" ist mit dem zweiten
+     Knopf entfallen, den Weg traegt jetzt die Karte. */
+  const cta = loading ? getLocatingCopy(locale) : t('moveLocateCta');
 
   return (
     <div className={styles.move}>
-      <p className={styles.moveLabel}>{label}</p>
-      <p className={styles.moveLine}>{line}</p>
-      {canLocate ? (
-        /* Ohne Standort ist das Freigeben der Schritt — er macht aus einem
-           Bezirk eine Entfernung. */
-        <button type="button" className={styles.moveCta} onClick={() => void request()}>
-          {cta}
-        </button>
-      ) : (
-        /* Auf das Must Eat selbst, nicht nur auf seinen Spot: ein Spot traegt
-           mehrere, und `?me=` oeffnet genau das gemeinte — auch verdeckt, denn
-           die Huelle einer verdeckten Karte liegt in denselben Kartendaten. */
-        <MapIntentLink
-          href={`/map?me=${encodeURIComponent(move.target._id)}`}
-          rel="nofollow"
-          className={styles.moveCta}
-        >
-          {cta}
-        </MapIntentLink>
-      )}
+      {/* Die Karte, um die es geht — verdeckt, also ihre Rueckseite. Sie IST
+          der Weg: seit 04.09.2026 gibt es keinen „Auf der Map"-Knopf mehr
+          daneben (Nutzer: „das kann jetzt weg, weil man ja auf die Karte
+          klicken und landen kann"). Vorher war sie nur Dekoration, und der
+          Block hatte zwei Ausgaenge fuer dasselbe Ziel.
+
+          Auf den SPOT, nicht auf das Must Eat — dieselbe Wahl wie im Zoom des
+          Albums: ein Spot traegt mehrere Karten, und wer hier steht, will
+          wissen, wo er hin muss. */}
+      <MapIntentLink
+        href={`/map?r=${encodeURIComponent(move.target.restaurant.slug)}`}
+        rel="nofollow"
+        className={styles.moveCard}
+        aria-label={t('albumToSpot', { name: normalizeName(move.target.restaurant.name) })}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={CARD_BACK} alt="" />
+      </MapIntentLink>
+      <div className={styles.moveCopy}>
+        <p className={styles.moveLabel}>{label}</p>
+        <p className={styles.moveLine}>{line}</p>
+        {/* Nur noch EIN Knopf, und nur dort, wo er etwas bewirkt: ohne
+            Standort ist das Freigeben der Schritt — er macht aus einem Bezirk
+            eine Entfernung. Ist der Standort da oder in den Browser-
+            Einstellungen abgelehnt, steht hier nichts mehr; der Weg auf die
+            Map liegt in der Karte links. */}
+        {canLocate && (
+          <button type="button" className={styles.moveCta} onClick={() => void request()}>
+            {cta}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

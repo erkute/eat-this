@@ -1,24 +1,230 @@
-/* Collection — Must-Eat-Karten in Bezirks-Abschnitten. Der Trenner ist eine
-   Zeile, keine zweite Ueberschrift: Label, Zaehler, Haarlinie bis zur Kante. */
+/* Die Sammlung als Album — Prototyp, 04.09.2026.
+
+   Drei Aenderungen gegenueber dem Stand davor:
+   1. Der Seitenkopf ist eine Karte geworden (.player) und sitzt in der
+      Kopfzeile des Albums statt als eigene Tafel darueber.
+   2. Die Bezirke sind aus dem Raster in eine Reiterleiste gewandert
+      (.filters) — das Raster laeuft durch, ohne angebrochene Zeilen.
+   3. Leerer Platz und gesammelte Karte unterscheiden sich haptisch: der
+      Platz liegt IM Album, die Karte DARAUF. */
 
 .panel {
   --album-ink: var(--profile-fg, var(--et-home-inverse-text, #fff));
   --album-muted: var(--profile-muted, rgba(255, 255, 255, 0.76));
   --album-red: var(--profile-red, var(--et-home-red, #d9382a));
+  --album-accent: var(--profile-accent, var(--et-home-accent, #ffc600));
   --album-display: var(--et-font-display, sans-serif);
   position: relative;
   z-index: 1;
   display: grid;
-  gap: clamp(18px, 3vw, 30px);
+  gap: clamp(22px, 3vw, 34px);
   color: var(--album-ink);
   background: transparent;
 }
 
-/* Der Zaehler war eine gelbe Kachel mit Radius — das einzige Kaestchen auf
-   einer Seite, die sonst aus Typografie und Haarlinien besteht, und in
-   derselben Zeile wie eine rote Ueberschrift. Jetzt ist er Schrift: die Zahl
-   traegt, die Bildzeile erklaert. Gleiche Form wie auf der geteilten
-   Deck-Seite, damit die beiden dieselbe Zahl gleich anschreiben. */
+/* ── Kopfzeile: Spielerkarte + Titel + Reiter ─────────────── */
+
+.masthead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'card head'
+    'card filters'
+    'card move';
+  /* Die letzte Zeile nimmt den Rest. Ohne das verteilt das Raster die
+     Ueberhoehe der Karte (sie spannt ueber alle drei Zeilen) gleichmaessig
+     auf alle drei — gemessen 121/130/54 px statt auto/auto/Rest, und
+     zwischen „Dein Deck" und der Reiterleiste stand ein Loch von 60 px.
+     `align-content` hilft dagegen nicht: es richtet den ganzen Block aus,
+     nicht die Zeilen untereinander. */
+  grid-template-rows: auto auto 1fr;
+  /* Zeilenabstand kleiner als Spaltenabstand: Titel, Reiter und naechster
+     Zug gehoeren zusammen, die Karte steht daneben. */
+  align-items: start;
+  gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
+}
+
+.masthead > .player {
+  grid-area: card;
+}
+
+.masthead > .head {
+  grid-area: head;
+  min-width: 0;
+}
+
+.masthead > .filters {
+  grid-area: filters;
+}
+
+.masthead > .mastheadMove {
+  grid-area: move;
+  min-width: 0;
+}
+
+/* Der naechste Zug bringt seinen eigenen Trennstrich mit (Profile.module.css)
+   — in der Kopfzeile steht darunter aber gleich das Raster, und eine zweite
+   Linie ueber den Karten waere eine Linie zu viel.
+
+   Mit `.masthead` qualifiziert (0,2,0): `.mastheadMove > *` allein haette
+   denselben Rang wie `.move` (0,1,0), und die beiden liegen in VERSCHIEDENEN
+   Modulen. Bei Gleichstand entscheidet die Ladereihenfolge, und die ist
+   zwischen dev und dem Produktionsbuild nicht dieselbe — genau die Falle,
+   die dieses Projekt schon zweimal hatte. Ein Rang mehr entscheidet es
+   unabhaengig davon. */
+.masthead .mastheadMove > * {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* ── Die Spielerkarte ─────────────────────────────────────
+   Dasselbe Seitenverhaeltnis wie jede Must-Eat-Karte. Sie ist der ganze
+   Seitenkopf: Figur und Name in der Breite einer Karte statt in einer
+   Tafel ueber die volle Seite. */
+
+.player {
+  display: grid;
+  gap: 8px;
+  width: clamp(132px, 15vw, 186px);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* Zwei Zeilen statt einer Flaeche mit aufgelegtem Zeichen: die Figur steht
+   oben, der Name hat eine eigene Zeile darunter. Als absolut positioniertes
+   Zeichen lag „Aendern" auf 132 px Kartenbreite auf dem Fuss der Figur
+   (Nutzer, 04.09.2026: „das beruehrt den Avatar") — auf dem Desktop ging es
+   knapp auf, weil dort 186 px zur Verfuegung stehen. Eine echte Fusszeile
+   kann auf keiner Breite kollidieren, und die Must-Eat-Karten daneben haben
+   ihre Beschriftungszone unten ebenso. */
+.playerFrame {
+  /* Der Container fuer die Namensgroesse unten. Er muss am RAHMEN haengen,
+     nicht am Namen selbst: `cqw` misst immer den naechsten Vorfahren-
+     Container, ein Element ist nie sein eigener. Am Namen gesetzt fiel die
+     Einheit still auf den Viewport zurueck — gemessen 21 px Schrift auf
+     einer 117 px schmalen Karte. */
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  aspect-ratio: 1539 / 2115;
+  overflow: hidden;
+  padding: 7px;
+  /* Papier, nicht Gelb (Nutzer, 04.09.2026: „zu aggressiv"). Drei Anlaeufe
+     bis hierher, und die beiden davor waren beide falsch aus demselben
+     Grund — sie haben um Aufmerksamkeit mit dem Raster konkurriert, das
+     sie anfuehren soll. Ink las sich wie die leeren Plaetze darunter,
+     Vollgelb wie eine 27. Speisekarte: mehrere Must-Eat-Karten sind selbst
+     gelb, und Gelb ist hier ausserdem die Farbe der Labels und des einen
+     Knopfes.
+
+     Weiss ist die Grundfarbe der Marke und im ganzen Album die einzige
+     Flaeche, die sonst niemand hat. Die Figur ist ohnehin fuer hellen
+     Grund gezeichnet — auf der Startseite steht sie genauso. Der Rahmen
+     liegt jetzt INNEN um das Bildfeld statt bunt aussen herum: das ist der
+     Griff jeder gedruckten Sammelkarte, und er kostet keine Signalfarbe. */
+  background: var(--et-home-paper, #fff);
+  border-radius: 7px;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+}
+
+/* Das Bildfeld: eine feine Linie, die der Figur einen Rahmen gibt. Ein
+   AEUSSERER Rahmen waere auf dem dunklen Seitengrund unsichtbar — die weisse
+   Flaeche ist dort schon die Kante.
+
+   Der Grund ist ein warmer Sandton, kein kaltes Grau: die Figuren sind in
+   Hauttoenen und Rot gezeichnet, und auf Neutralgrau lagen sie wie
+   ausgeschnitten da. Die Linie steht bei 55 % Ink statt 82 — bei voller
+   Deckung war sie ein Trauerrand um die Figur.
+
+   Ausprobiert und verworfen: das Rueckseiten-Motiv als Grund. Der
+   Markenschriftzug liegt dort mittig und wurde von der Figur zerschnitten,
+   „WE TELL YOU…" ragte links daneben heraus. Das sah kaputt aus, nicht
+   gestaltet. */
+.playerField {
+  display: grid;
+  overflow: hidden;
+  min-height: 0;
+  /* Unten ein Rest Luft, damit die Figur auf der Linie STEHT statt auf
+     ihr zu kleben. */
+  padding: 8px 8px 3px;
+  background: color-mix(in srgb, #c8a06a 13%, #fff);
+  border: 1.5px solid color-mix(in srgb, var(--et-home-ink, #15120e) 55%, transparent);
+  border-radius: 4px;
+}
+
+.playerImg {
+  display: block;
+  /* Die drei Figuren haben verschiedene Seitenverhaeltnisse (202x251,
+     186x282, 188x277) — `contain` in einem Feld fester Hoehe stellt alle
+     drei gleich hoch. `bottom` laesst sie auf der Feldkante STEHEN statt in
+     der Mitte zu schweben: alle drei sind mit Sockel gezeichnet. */
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+}
+
+/* Die Beschriftung der Karte, wie der Spielername auf einer Sammelkarte.
+   Unter der Karte war der Name eine Bildunterschrift und stand damit auf
+   derselben Stufe wie die Gerichtnamen im Raster daneben.
+
+   Ohne Trennstrich (Nutzer, 04.09.2026): auf der gelben Flaeche zerschnitt
+   die Linie die Karte in zwei Haelften, statt eine Fusszeile abzusetzen —
+   der Abstand allein traegt das.
+
+   Die Schriftgroesse folgt der Kartenbreite (cqw), nicht dem Fenster: eine
+   132 px schmale Karte auf dem Telefon und eine 186 px breite auf dem
+   Desktop sollen ihren Namen gleich gross ANTEILIG tragen. Ohne
+   Container-Query waere „Konstantin" auf dem Telefon zweizeilig und auf dem
+   Desktop verloren klein. */
+.playerName {
+  margin: 0;
+  padding: 6px 2px 1px;
+  color: var(--profile-ink, #15120e);
+  font-family: var(--album-display);
+  font-size: clamp(13px, 13cqw, 21px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  /* Providence haengt unter die Grundlinie: unter 1.2 kappt der Clip der
+     Karte das g. */
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  /* Ein langer Name bricht nicht um — er wird gestaucht wie auf einer
+     echten Karte. Zwei Zeilen wuerden die Figur darueber verkleinern. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Das Zeichen zum Aendern steht UNTER der Karte, leise und rechtsbuendig
+   (Nutzer, 04.09.2026). Zentriert las es sich als zweite Bildunterschrift
+   unter dem Namen — zwei mittige Zeilen untereinander, von denen nur die
+   obere zur Karte gehoert. An der rechten Kante ist es, was es ist: eine
+   Randnotiz zum Knopf. */
+.playerEdit {
+  color: var(--album-muted);
+  font-family: var(--et-font-label, sans-serif);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) {
+  .player:hover .playerEdit {
+    color: var(--album-accent);
+  }
+}
+
+/* ── Zaehler in der Kopfzeile ─────────────────────────────── */
+
 .count {
   flex: 0 0 auto;
   display: flex;
@@ -41,92 +247,114 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Zwei Spalten Bezirke ab Desktop, und zwar als Raster aus Gruppen — nicht
-   mehr als `columns`. Der Textspalten-Fluss war zwar kompakt, aber die beiden
-   Spalten liefen ausser Takt: „Kreuzberg" stand links auf der Hoehe, auf der
-   rechts noch die zweite Kartenreihe von Prenzlauer Berg lief. Sieben
-   Ueberschriften auf sieben verschiedenen Hoehen lasen sich als kaputt, nicht
-   als kompakt (Nutzer, 31.08.2026: „total unsauber ausgerichtet").
+/* ── Reiterleiste: die Bezirke ────────────────────────────── */
 
-   Ein Raster richtet die Zeilenhoehe an der laengeren der beiden Gruppen aus
-   und laesst unter der kuerzeren Luft. Die ist der Preis, und sie ist der
-   bessere Fehler: ausgerichtete Luft liest sich als Absicht, verschobene
-   Ueberschriften als Panne. Die Hoehe bleibt dabei fast dieselbe, weil sich
-   die Paare ohnehin meist gleich hoch treffen. */
-.groups {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: clamp(24px, 3vw, 40px) clamp(28px, 3.4vw, 56px);
-}
-
-.group {
-  display: grid;
-  gap: clamp(12px, 1.6vw, 18px);
-  align-content: start;
-  min-width: 0;
-}
-
-@media (max-width: 900px) {
-  .groups {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* Ein Abschnittstrenner, keine Ueberschrift zweiter Ordnung: die Haarlinie
-   traegt die Zeile bis zur rechten Kante, damit die Bezirke das Feld
-   gliedern statt es in sieben Ueberschriften zu zerlegen. */
-.groupHead {
+.filters {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-weight: 400;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.groupName {
-  color: var(--album-ink);
+/* `align-items: center` statt `baseline` (Nutzer, 04.09.2026: „die sind
+   irgendwo zu weit links oben"). Auf der Grundlinie ausgerichtet haengt das
+   Paar aus Name und Zaehler an der Unterkante der Schrift — und Providence
+   laesst ueber ihren Versalien deutlich mehr Luft als darunter, also sass
+   die Zeile sichtbar zu hoch in der Pille. Zentriert misst der Browser die
+   ganze Zeilenbox und stellt sie mittig. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 5px 14px;
+  color: var(--album-muted);
+  background: transparent;
+  border: 1px solid var(--profile-line, rgba(255, 255, 255, 0.14));
+  border-radius: 999px;
+  cursor: pointer;
   font-family: var(--album-display);
-  font-size: clamp(14px, 1.2vw, 17px);
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1.2;
   text-transform: uppercase;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
 }
 
-.groupCount {
-  flex: 0 0 auto;
-  color: var(--album-muted);
-  font-family: var(--album-display);
-  font-size: clamp(13px, 1.1vw, 15px);
+/* Der Name traegt, der Zaehler erklaert — dieselbe Rollenteilung wie beim
+   grossen Zaehler in der Kopfzeile. Ohne eigene Regel rendert React fuer
+   `styles.chipName` gar kein class-Attribut: CSS Modules kennen nur, was im
+   Stylesheet steht, und das faellt nirgends auf ausser hier. */
+.chipName {
+  white-space: nowrap;
+}
+
+.chipCount {
+  color: inherit;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  opacity: 0.72;
 }
 
-/* Die eingesammelte Zahl ist die Nachricht, der Nenner nur der Rahmen. */
-.groupCount strong {
-  color: var(--album-ink);
-  font-weight: 700;
+@media (hover: hover) {
+  .chip:hover {
+    color: var(--album-ink);
+    border-color: var(--profile-ring, rgba(255, 255, 255, 0.28));
+  }
 }
 
-.groupRule {
-  flex: 1 1 auto;
-  height: 1px;
-  min-width: 24px;
+.chip:focus-visible {
+  outline: 3px solid var(--album-accent);
+  outline-offset: 2px;
+}
+
+/* Der gewaehlte Reiter ist gelb gefuellt — dieselbe Umkehr wie jeder
+   aktive Zustand auf Ink. */
+.chip[aria-pressed='true'] {
+  color: var(--profile-ink, #15120e);
+  background: var(--album-accent);
+  border-color: var(--album-accent);
+}
+
+.chip[aria-pressed='true'] .chipCount {
+  opacity: 0.65;
+}
+
+/* „Fehlende" schneidet quer durch alle Bezirke und steht darum direkt hinter
+   „Alle", nicht am Ende der Leiste: an `margin-left: auto` sprang er je nach
+   Zeilenumbruch mal ans Ende der ersten, mal ans Ende der zweiten Zeile. Die
+   Haarlinie davor trennt Schalter von Reitern. */
+.chipMissing {
+  position: relative;
+  margin-left: 9px;
+}
+
+.chipMissing::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: -9px;
+  width: 1px;
   background: var(--profile-line, rgba(255, 255, 255, 0.14));
 }
 
-/* 132er Spur, nicht 180. In Bezirke geteilt bricht jede Gruppe ihre eigene
-   Zeile an, und eine Gruppe mit zwei Karten liess in einem Sechs-Spalten-Feld
-   vier Spalten leer: gemessen wuchs das Deck durch die Gruppierung von 1385
-   auf 2784 px, vier zusaetzliche halbleere Kartenreihen. Bei acht Spalten
-   passt jede der sieben Gruppen in EINE Zeile. 140 px ist ohnehin schon die
-   Kartenbreite, die diese Seite ab Tablet faehrt. */
+.chipMissing[aria-pressed='true'] {
+  color: var(--album-ink);
+  background: var(--album-red);
+  border-color: var(--album-red);
+}
+
+/* ── Das Raster ───────────────────────────────────────────── */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
-  gap: clamp(10px, 1.4vw, 16px);
+  gap: clamp(12px, 1.6vw, 20px);
   align-items: start;
 }
 
@@ -140,39 +368,15 @@
   border-radius: 7px;
   cursor: pointer;
   font: inherit;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   transition:
     transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 180ms ease;
 }
 
-.slot:focus-visible {
-  transform: translateY(-6px) rotate(-1deg);
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .slot:hover {
-    transform: translateY(-6px) rotate(-1deg);
-    outline: 0;
-  }
-}
-
-.slot:focus-visible {
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45))
-    drop-shadow(0 0 0 3px color-mix(in srgb, var(--profile-accent, #ffc600) 70%, transparent));
-}
-
-.empty .backImg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
+/* Die gesammelte Karte liegt AUF dem Album: Schlagschatten, und beim
+   Anfassen hebt sie sich. */
 .filled {
-  border: 0;
-  cursor: pointer;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .filled .img {
@@ -180,6 +384,90 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+@media (hover: hover) {
+  .filled:hover {
+    transform: translateY(-6px) rotate(-1deg);
+  }
+}
+
+.filled:focus-visible {
+  transform: translateY(-6px) rotate(-1deg);
+  outline: 0;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45))
+    drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-accent) 70%, transparent));
+}
+
+/* Der leere Platz liegt IM Album: eingelassener Schatten statt Schlagschatten,
+   gestrichelte Kante, und er hebt sich beim Anfassen NICHT — da liegt nichts,
+   was man anheben koennte. */
+.empty {
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
+}
+
+@media (hover: hover) {
+  .empty:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.empty:focus-visible {
+  outline: 3px solid var(--album-accent);
+  outline-offset: 2px;
+}
+
+/* Die Rueckseite bleibt als Wasserzeichen: der Platz gehoert zur Marke,
+   ist aber sichtbar leer. Bei 0.28 lag der Markenschriftzug genau hinter der
+   Platznummer und schluckte sie — 0.13 laesst das Muster stehen und die
+   Zahl lesbar werden. */
+.empty .backImg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.13;
+}
+
+/* Die Nummer ist die Beschriftung des Platzes, wie im Panini-Album. */
+.slotNo {
+  position: relative;
+  color: var(--album-ink);
+  font-family: var(--album-display);
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+}
+
+.slotWhere {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  left: 8px;
+  color: var(--album-ink);
+  font-family: var(--et-font-label, sans-serif);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0.62;
+  /* Zwei Zeilen genuegen fuer „Restaurant Tim Raue" — was laenger ist,
+     bricht sauber ab statt den Platz zu sprengen. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .emptyText {
@@ -192,17 +480,62 @@
   line-height: var(--et-leading-copy, 1.5);
 }
 
+/* ── schmal ───────────────────────────────────────────────── */
+
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
+  /* Auf dem Telefon steht die Spielerkarte neben dem Titel, nicht darueber:
+     nebeneinander kostet der Kopf rund 200 px statt 380, und die erste
+     Kartenreihe liegt wieder ueber der Falz. Reiter und naechster Zug laufen
+     darunter ueber die volle Breite — in der schmalen Spalte neben der Karte
+     waeren die Reiter sieben Zeilen hoch. */
+  .masthead {
+    grid-template-areas:
+      'card head'
+      'filters filters'
+      'move move';
+    gap: 16px;
+  }
+
+  .player {
+    width: clamp(108px, 30vw, 132px);
+  }
+
   .head {
     align-items: flex-start;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+  }
+
+  /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf
+     390 px vier Zeilen Reiter ueber der ersten Karte. Die negativen Raender
+     lassen sie an den Bildschirmkanten anfangen und enden, damit die Zeile
+     als Band lesbar ist und nicht als abgeschnittene Liste. */
+  .filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(var(--et-gutter, 20px) * -1);
+    padding: 2px var(--et-gutter, 20px);
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .chipMissing {
+    margin-left: 0;
   }
 
   .grid {

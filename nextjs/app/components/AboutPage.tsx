@@ -166,7 +166,11 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
     <main className={styles.page} data-page="about" id="staticPageAbout">
       <div className={styles.inner}>
         <header className={styles.hero}>
-          <div className={styles.heroCopy}>
+          {/* Klassenlos mit Absicht: der Kasten fasst Titel und Lede zu EINER
+              Rasterzelle zusammen, damit die Figur die zweite bekommt. Er
+              traegt keinen eigenen Stil — `styles.heroCopy` stand hier
+              jahrelang, ohne dass es die Klasse je gab. */}
+          <div>
             <h1 className={styles.title} id="staticPageAbout-title">
               {doc.title || ''}
             </h1>
@@ -363,7 +367,9 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             loading="lazy"
             className={styles.ctaPhone}
           />
-          <div className={styles.ctaCopy}>
+          {/* Wie im Hero: nur die zweite Rasterzelle neben dem Telefon,
+              ohne eigenen Stil. */}
+          <div>
             <h2 className={styles.ctaTitle}>{copy.ctaTitle}</h2>
             <p className={styles.ctaText}>{copy.ctaText}</p>
             <div className={styles.ctaRow}>

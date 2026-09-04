@@ -91,35 +91,38 @@ export default async function DeckPage({ params }: PageProps) {
   return (
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
       <header className="hv-wrap">
-        <div className={styles.bank}>
-          <div className={styles.bankCopy}>
-            <p className={styles.bankKicker}>
+        <div className={deck.bank}>
+          <div className={deck.bankCopy}>
+            <p className={deck.bankKicker}>
               <span className="hv-mk" aria-hidden="true" />
               {t('kicker')}
             </p>
-            <h1 className={styles.bankName}>{data.name ?? t('anonymous')}</h1>
+            <h1 className={deck.bankName}>{data.name ?? t('anonymous')}</h1>
           </div>
 
-          <div className={styles.bankCharacter}>
-            {/* Kein Knopf wie im eigenen Profil: hier aendert niemand etwas. */}
+          <div className={deck.bankCharacter}>
+            {/* Ein Bild, kein Knopf: die Figur des eigenen Profils oeffnet den
+                Charakter-Wechsel, hier aendert niemand etwas. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              className={styles.bankAvatarImg}
+              className={deck.bankAvatarImg}
               src={`/pics/avatar/${data.avatar}.webp?v=3`}
               alt=""
             />
           </div>
 
-          {/* Dieselbe Tafelzeile wie im eigenen Profil, nur ohne Weg zur Map:
-              die gehoert dem Besitzer, nicht dem Besucher. */}
-          <div className={styles.city}>
-            <span className={styles.cityKicker}>{t('cityKicker')}</span>
-            <span className={styles.cityNumbers}>
-              <span className={styles.cityOpen}>{data.spotsOpen}</span>
-              <span className={styles.cityTotal}>{t('cityCount', { total: data.spotsTotal })}</span>
+          {/* Wie viel von der Stadt auf dieser Map liegt — die Angabe, wegen
+              der man einen Deck-Link ueberhaupt verschickt. Auf dem eigenen
+              Profil ist sie am 04.09.2026 entfallen, weil sie dort still fuer
+              Packs warb; einem Besucher ist nichts zu verkaufen. */}
+          <div className={deck.city}>
+            <span className={deck.cityKicker}>{t('cityKicker')}</span>
+            <span className={deck.cityNumbers}>
+              <span className={deck.cityOpen}>{data.spotsOpen}</span>
+              <span className={deck.cityTotal}>{t('cityCount', { total: data.spotsTotal })}</span>
             </span>
-            <span className={styles.cityBar} aria-hidden="true">
-              <span className={styles.cityBarFill} style={{ width: `${pct}%` }} />
+            <span className={deck.cityBar} aria-hidden="true">
+              <span className={deck.cityBarFill} style={{ width: `${pct}%` }} />
             </span>
           </div>
         </div>

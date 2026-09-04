@@ -3,6 +3,7 @@ import { relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss, { type Declaration, type Root, type Rule } from 'postcss';
 import { describe, expect, it } from 'vitest';
+import { auditCssModules, formatFinding } from '../scripts/lib/css-module-classes';
 
 const appDir = fileURLToPath(new URL('./', import.meta.url));
 const nextDir = resolve(appDir, '..');
@@ -64,6 +65,24 @@ function declarationsFor(root: Root, selector: string) {
 }
 
 describe('CSS architecture contracts', () => {
+  /**
+   * Ein CSS-Modul ist zur Laufzeit nur ein Objekt. Greift eine Komponente auf
+   * einen Schluessel zu, den das Stylesheet nicht mehr exportiert, kommt
+   * `undefined` zurueck — und React laesst `className={undefined}` stumm ganz
+   * weg. Kein Fehler, keine Warnung, nur ein Element ohne Stil.
+   *
+   * Genau so verlor die geteilte Deck-Seite am 04.09.2026 ihre Kopfzeile: das
+   * Profil raeumte `.bank*` und `.city*` aus Profile.module.css, /deck las sie
+   * mit, und nichts schlug an. Deshalb steht der Abgleich hier und nicht nur
+   * als Skript (`npm run audit:css-modules`).
+   */
+  it('leaves no CSS-module class referenced that the stylesheet does not export', () => {
+    const dead = auditCssModules(nextDir)
+      .filter((finding) => finding.kind === 'missing')
+      .map(formatFinding);
+    expect(dead).toEqual([]);
+  });
+
   it('allows !important only for the documented reduced-motion override', () => {
     const important: string[] = [];
 

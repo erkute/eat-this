@@ -12,8 +12,8 @@
      Geschichte 52px statt der 30px, die die freigeschaltete Sheet zeigt —
      eine Doppelung, die nur die gesperrten Spots trafen (User, 2026-08-27). */
   padding: 0 18px 26px;
-  background: var(--et-home-paper, #fff);
-  color: var(--et-home-ink, #15120e);
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
 }
 
 .kicker {
@@ -38,7 +38,10 @@
   display: inline-block;
   width: 11px;
   height: 11px;
-  background: var(--et-home-accent, #ffc600);
+  /* Rot wie der gesperrte Pin auf der Karte (04.09.2026). Beide sagen
+     dasselbe: „noch verdeckt". Vorher gelb — das ist die Farbe der FREIEN
+     Spots und sagte hier das Gegenteil. */
+  background: var(--et-home-red, #d9382a);
   flex: 0 0 auto;
 }
 
@@ -87,11 +90,9 @@
   gap: 10px;
   padding: 16px 12px 14px;
   border-radius: 10px;
-  background: var(--et-home-paper, #fff);
-  color: var(--et-home-ink, #15120e);
-  box-shadow:
-    0 1px 2px rgba(21, 18, 14, 0.1),
-    0 8px 18px rgba(21, 18, 14, 0.1);
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  color: var(--et-home-paper, #fff);
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
   text-decoration: none;
   overflow: hidden;
   transition:
@@ -192,7 +193,28 @@
   margin-top: 4px;
   padding: 16px 14px 15px;
   border-radius: 10px;
-  background: var(--et-home-quiet, rgba(21, 18, 14, 0.05));
+  /* Volle rote Flaeche (User, 04.09.2026: „waere es nicht besser, wenn das
+     ganze Ding rot waere?" — nach einer ersten, nur getoenten Fassung, die die
+     Zuordnung zu schwach machte). Auf der Karte sind die verdeckten Spots rot;
+     dieses Angebot ist das, was sie aufmacht, und hier ist die Verbindung
+     unuebersehbar statt angedeutet.
+
+     Der Einwand gegen die volle Flaeche — sie sei der lauteste Block der
+     Seite — traegt an DIESER Stelle nicht: der Block steht nur im Sheet eines
+     verdeckten Spots, und dort ist das Angebot die Hauptsache, nicht die
+     Nebensache. Auf einer Flaeche mit Pins waere die Abwaegung eine andere.
+
+     Deutlich tiefer als das reine Marken-Rot, und zwar ABGELEITET statt neu
+     erfunden: als kleine Flaeche (Pin, Plakette) sitzt #d9382a auf Papier oder
+     als Punkt, hier deckt es einen halben Bildschirm auf Ink. L* 49,2 gegen
+     L* 5,6 des Grundes ist ein Sprung von 44 Punkten — dasselbe Rot, das auf
+     Weiss ruhig wirkt, blendet auf Ink.
+
+     Die Helligkeit steht als `--et-offer-red` in MapLayout.module.css, weil
+     der Hinweis im Detail eines FREIEN Spots (MapDetails `.packPromo`)
+     dasselbe Produkt zeigt und dieselbe Flaeche tragen muss. Dort steht auch,
+     wie die Zahl zustande kam. */
+  background: var(--et-offer-red, #8b291f);
   text-align: left;
 }
 
@@ -204,7 +226,9 @@
   flex: 0 0 auto;
   width: 88px;
   aspect-ratio: 2 / 3;
-  filter: drop-shadow(0 12px 20px rgba(21, 18, 14, 0.14));
+  /* Auf dem roten Grund traegt der alte 0.14-Ink-Schatten nicht mehr — die
+     Packung sass wie aufgeklebt. */
+  filter: drop-shadow(0 12px 20px rgba(21, 18, 14, 0.3));
 }
 
 .starterArt img {
@@ -240,8 +264,10 @@
   margin-bottom: 7px;
   padding: 4px 8px 5px;
   border-radius: var(--et-radius-control, 8px);
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-red, #e2261c);
+  /* Auf der roten Karte umgedreht: Papier mit roter Schrift. Rot auf Rot
+     waere weg, und Gelb haette „frei" gesagt — die Farbe der offenen Spots. */
+  background: var(--et-home-paper, #fff);
+  color: var(--et-home-red, #d9382a);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -250,7 +276,10 @@
 
 .starterTitle {
   margin: 0;
-  color: var(--et-home-red, #e2261c);
+  /* Papier, nicht Gelb: „Gratis" daneben ist gelb und der Knopf darunter auch.
+     Drei Gelbs in einem Block konkurrieren; so traegt das Badge den Reiz und
+     der Knopf die Aktion, der Titel benennt nur. */
+  color: var(--et-home-paper, #fff);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 24px;
   font-weight: 700;
@@ -262,7 +291,9 @@
 .starterLead {
   max-width: 26em;
   margin: 6px 0 0;
-  color: var(--et-home-ink, #15120e);
+  /* Eine Stufe leiser als der Produktname darueber — sonst stehen Titel und
+     Versprechen gleich laut nebeneinander. */
+  color: rgba(255, 255, 255, 0.82);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13.5px;
   font-weight: 700;
@@ -297,14 +328,27 @@
 /* A field, not a third button. It used to carry the same 2px ink outline as
    the Google button below it, which made the panel read as three near-identical
    bars stacked up — and the one you type into looked like the one you press.
-   Hairline border, left-aligned text, and the weight goes to the CTA instead. */
+   Hairline border, left-aligned text, and the weight goes to the CTA instead.
+
+   Auf Ink ist das Feld HELL (User, 04.09.2026: „email feld sollte hell sein
+   oder?"). Kurz stand es auf derselben leisen Stufe wie die Karte, auf der es
+   liegt — damit hatte es ueberhaupt keine Kante mehr und las sich als Luecke,
+   nicht als Feld. Sein Ring war zusaetzlich Ink auf Ink, also unsichtbar.
+   Eine Papierflaeche sagt „hier schreibst du rein", und sie ist im Block das
+   einzige Papier: die Knoepfe darunter tragen Gelb und Weiss, das Feld traegt
+   die Schreibflaeche. */
 .input {
   flex: 1 1 100%;
   min-width: 0;
   padding: 0 14px;
   color: var(--et-home-ink, #15120e);
-  background: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.24);
+  /* Warmes Papier statt Reinweiss: der Google-Knopf zwei Zeilen tiefer MUSS
+     reinweiss sein (Markenvorgabe), und zwei identische weisse Balken mit dem
+     gelben Knopf dazwischen lasen sich als Sandwich. Der Unterschied ist klein,
+     aber er trennt die Flaeche, auf die man schreibt, von der, die man
+     drueckt. */
+  background: #f7f5f1;
+  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.18);
   /* 16px keeps iOS Safari from zooming the whole sheet on focus — the one
      value that does NOT scale down with the rest. */
   font-size: 16px;
@@ -314,26 +358,26 @@
 }
 
 .input::placeholder {
-  color: rgba(21, 18, 14, 0.42);
+  color: rgba(21, 18, 14, 0.5);
   font-weight: 400;
 }
 
 .input:hover {
-  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(21, 18, 14, 0.4);
 }
 
 .input:focus-visible,
 .input:focus {
   box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
-  outline: 3px solid var(--et-home-red, #e2261c);
+  outline: 3px solid var(--et-home-accent, #ffc600);
   outline-offset: 2px;
 }
 
 .button {
   flex: 1 1 100%;
   padding: 0 20px;
-  color: var(--et-home-inverse-text, #fff);
-  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-ink, #15120e);
+  background: var(--et-home-accent, #ffc600);
   font-size: 14px;
   cursor: pointer;
 }
@@ -344,7 +388,7 @@
 
 .button:hover:not(:disabled),
 .button:focus-visible:not(:disabled) {
-  background: var(--et-home-red, #e2261c);
+  background: var(--et-home-paper, #fff);
 }
 
 /* Not on the home page: the map is the one place where signing in opens the
@@ -364,9 +408,17 @@
   width: 100%;
   margin-top: 14px;
   padding: 0 18px;
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  /* Googles DUNKLE Variante, nicht die weisse (04.09.2026). Die Vorgabe
+     kennt drei Themes — Light, Neutral, Dark — und schreibt fuer Dark die
+     Fuellung #131314 vor; das farbige G darf auf hellem, dunklem oder
+     neutralem Grund stehen, nur nicht auf einer bunten Eigenbau-Flaeche.
+     Auf der roten Karte war die weisse Fassung der groesste helle Balken
+     und schloss den Kasten mit seinem unwichtigsten Element ab.
+     Zur Prominenz-Regel: sie vergleicht Google mit ANDEREN Drittanbieter-
+     Anmeldungen (Apple, Facebook). Davon gibt es hier keine — die
+     E-Mail-Strecke daneben ist unsere eigene. */
+  color: var(--et-home-paper, #fff);
+  background: #131314;
   font-size: 14px;
   cursor: pointer;
   transition: background var(--et-motion-fast, 140ms ease);
@@ -383,7 +435,7 @@
 
 .google:hover:not(:disabled),
 .google:focus-visible:not(:disabled) {
-  background: var(--et-home-quiet, rgba(21, 18, 14, 0.05));
+  background: #2a2a2c;
 }
 
 /* Eine Validierungsmeldung spricht in der Hausschrift — wie die Eingabe, die
@@ -393,7 +445,7 @@
   width: 100%;
   margin-top: 7px;
   line-height: 1.4;
-  color: var(--et-home-red, #e2261c);
+  color: var(--et-home-accent, #ffc600);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13.5px;
   font-weight: 700;
@@ -561,8 +613,8 @@
   margin-top: 8px;
   padding: 12px 18px 11px;
   border-radius: 999px;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -574,7 +626,7 @@
 
 .offer:hover .offerCta,
 .offer:focus-visible .offerCta {
-  background: var(--et-home-red, #e2261c);
+  background: var(--et-home-paper, #fff);
 }
 
 /* Die Pille darf kleiner sein als das Produkt, das sie verkauft (User,

@@ -444,8 +444,9 @@ html[data-active-page='start'] [data-hub] .homeV2 {
 /* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
    hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
    Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
-   ist die Wahrheit darueber, welche das sind. Nicht dabei: die Map (ein
-   Werkzeug, kein Blatt), die 404, der Badge-Generator und die Admin-Zahlen.
+   ist die Wahrheit darueber, welche das sind. Seit 04.09.2026 ist die Map
+   dabei: sie bleibt ein Werkzeug, aber ein Werkzeug in derselben Farbe.
+   Nicht dabei: die 404, der Badge-Generator und die Admin-Zahlen.
    Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
    weil `main` in layout.css auf transparent liegt und das Blatt sonst beim
    Ueberscrollen weiss durchschaut. */
@@ -499,7 +500,10 @@ html[data-active-page='deck'] body,
 html[data-active-page='deck'] .app-pages,
 html[data-active-page='checkout'],
 html[data-active-page='checkout'] body,
-html[data-active-page='checkout'] .app-pages {
+html[data-active-page='checkout'] .app-pages,
+html[data-active-page='map'],
+html[data-active-page='map'] body,
+html[data-active-page='map'] .app-pages {
   background: var(--et-home-ink);
 }
 /* Auf dem Ink-Grund loest sich jede Tafel auf: der Grund IST die Tafel.
@@ -516,11 +520,25 @@ html[data-active-page='checkout'] .app-pages {
   --et-board-quiet: var(--et-ink-quiet);
   --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
 }
-/* Sitewide Providence collage language. The map remains a purpose-built
-   full-screen tool; every content page gets the paper/print treatment. */
+/* Sitewide Providence collage language. */
 html:not([data-active-page='map']) .app-pages,
 html:not([data-active-page='map']) main,
 html:not([data-active-page='map']) .app-page {
+  background-color: transparent;
+}
+/* Die Map war von der Regel darueber ausgenommen, weil sie als Werkzeug ihren
+   eigenen hellen Grund trug. Seit 04.09.2026 steht sie auf Ink, also muss
+   `main` auch dort durchlaessig sein — sonst bleibt das weisse Blatt aus
+   style.css zwischen dem Ink von html/body und der Shell stehen und blitzt an
+   jeder Kante durch, die die Shell nicht deckt.
+   Eigener Block statt Streichung des `:not(...)`: die Ausgangsregel wiegt
+   (0,1,2), ohne den Guard waere sie auf (0,0,1) gefallen und haette gegen
+   `main` aus style.css nur noch ueber die Ladereihenfolge gewonnen — die im
+   Dev-Server anders ausfaellt als in Produktion. Dieser Block wiegt genauso
+   viel wie der erste. */
+html[data-active-page='map'] .app-pages,
+html[data-active-page='map'] main,
+html[data-active-page='map'] .app-page {
   background-color: transparent;
 }
 
@@ -641,16 +659,19 @@ html[data-auth='1'] [data-guest-only] {
     z-index: 9995;
   }
 
+  /* Ink seit 04.09.2026. Diese beiden Blocks faerben auf dem Telefon die
+     Safari-Leisten (iOS 26 liest die background-color der Kante, nicht
+     theme-color) — sie waren Papier, solange die Map hell war. */
   html:has(.app-page[data-page='map'].active),
   body:has(.app-page[data-page='map'].active) {
-    background: #fff;
+    background: var(--et-home-ink, #15120e);
   }
 
   html:has(.app-page[data-page='map'][data-map-view='detail']),
   body:has(.app-page[data-page='map'][data-map-view='detail']),
   html:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'],
   body:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'] {
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
   }
 }
 

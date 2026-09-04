@@ -26,7 +26,7 @@
   width: 100%;
   max-width: 100%;
   padding: 12px 12px 8px;
-  background: #fff;
+  background: var(--et-home-ink, #15120e);
   overflow-x: hidden;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
@@ -154,18 +154,23 @@
   overflow: visible;
 }
 
-/* ── Chip: inaktiv ─────────────────────────────────────────────────────────── */
+/* ── Chip: inaktiv ───────────────────────────────────────────────────────────
+   Auf dem Ink-Grund ist ein Ink-Chip unsichtbar. Deshalb dieselbe Fassung wie
+   site-weit seit 03.09.2026: ein Ring in Weiss 28 %, der bei Hover gelb wird.
+   Die Fuellung bleibt leer — was gesetzt ist, traegt Farbe, was offen ist,
+   traegt nur eine Kontur. */
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: var(--et-home-ink, #15120e);
+  background: transparent;
   color: var(--et-home-inverse-text, #fff);
-  border: 1px solid var(--et-home-ink, #15120e);
+  border: 1px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
 }
 
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):hover,
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):focus-visible,
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive)[aria-expanded='true'] {
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   color: var(--et-home-inverse-text, #fff);
+  border-color: var(--et-home-accent, #ffc600);
 }
 
 .filterChip:active {
@@ -201,7 +206,7 @@
    derselben Wirkung, und gilt bewusst fuer JEDEN Chip: auch der gruene Toggle
    wird aufgeklappt dunkel. */
 .filterChipRow .filterChip[aria-expanded='true'] {
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   color: var(--et-home-inverse-text, #fff);
 }
 
@@ -235,7 +240,7 @@
 .filterChipRow.filterChipRowPaused .filterChipActive:focus-visible,
 .filterChipRow.filterChipRowPaused .filterChipOpenActive,
 .filterChipRow.filterChipRowPaused .filterChip[aria-pressed='true'] {
-  background: var(--et-home-ink, #15120e);
+  background: transparent;
   color: var(--et-home-inverse-text, #fff);
   border: 1px solid var(--et-home-accent, #ffc600);
 }
@@ -381,7 +386,7 @@
        Scrollposition und ließ über den Chips totes Weiß stehen. */
     top: env(safe-area-inset-top, 0px);
     z-index: 3;
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
     will-change: transform;
     transform: translateZ(0);
   }
@@ -475,11 +480,11 @@
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
   padding: 8px;
-  background: var(--et-home-paper, #fff);
-  color: var(--et-home-ink, #15120e);
-  border: 1px solid rgba(21, 18, 14, 0.14);
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
+  border: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
   border-radius: var(--et-radius-control, 7px);
-  box-shadow: 0 18px 38px rgba(21, 18, 14, 0.16);
+  box-shadow: var(--et-ink-shadow, 0 18px 38px rgba(0, 0, 0, 0.45));
   animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
 }
 
@@ -492,7 +497,7 @@
   left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px));
   width: 14px;
   height: 14px;
-  background: var(--et-home-paper, #fff);
+  background: var(--et-home-ink, #15120e);
   border-left: 1px solid rgba(21, 18, 14, 0.14);
   border-top: 1px solid rgba(21, 18, 14, 0.14);
   transform: rotate(45deg);
@@ -547,8 +552,8 @@
 
 .pickerClose:hover,
 .pickerClose:focus-visible {
-  background: rgba(21, 18, 14, 0.08);
-  color: var(--et-home-ink, #15120e);
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  color: var(--et-home-accent, #ffc600);
   outline: 0;
 }
 
@@ -585,11 +590,13 @@
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
-  background: var(--et-home-ink, #15120e);
+  /* Auf dem Ink-Grund traegt der Ring, nicht die Fuellung — dieselbe Fassung
+     wie die Chips, aus denen diese Liste aufklappt. */
+  background: transparent;
   color: var(--et-home-inverse-text, #fff);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
-  box-shadow: none;
+  box-shadow: inset 0 0 0 1.5px var(--et-ink-ring, rgba(255, 255, 255, 0.28));
   appearance: none;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 15px;
@@ -649,15 +656,15 @@
    oben oder einen anderen Chip — beide bleiben immer wählbar. */
 .pickerItemDead {
   background: transparent;
-  color: rgba(21, 18, 14, 0.68);
-  box-shadow: inset 0 0 0 1.5px rgba(21, 18, 14, 0.16);
+  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  box-shadow: inset 0 0 0 1.5px var(--et-ink-line, rgba(255, 255, 255, 0.14));
   cursor: default;
 }
 
 .pickerItemDead:hover,
 .pickerItemDead:focus-visible {
   background: transparent;
-  color: rgba(21, 18, 14, 0.68);
+  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
 }
 
 .pickerItemDead .pickerItemSub {

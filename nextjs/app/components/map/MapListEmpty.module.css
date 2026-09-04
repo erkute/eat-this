@@ -22,9 +22,9 @@
   margin: 14px 14px 22px;
   padding: 22px 18px 18px;
   overflow: hidden;
-  background: var(--et-home-paper, #fff);
-  color: var(--et-home-ink, #15120e);
-  border: 1.5px solid var(--et-home-ink, #15120e);
+  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  color: var(--et-home-paper, #fff);
+  border: 1.5px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
   text-align: left;
@@ -98,8 +98,8 @@
   justify-content: center;
   text-align: center;
   text-decoration: none;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
@@ -117,7 +117,7 @@
 .esBtnPrimary:hover,
 .esBtnPrimary:focus-visible {
   color: var(--et-home-ink, #15120e);
-  background: var(--et-home-accent, #ffc600);
+  background: var(--et-home-paper, #fff);
   transform: translateX(-3px);
 }
 

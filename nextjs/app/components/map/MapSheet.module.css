@@ -8,8 +8,8 @@
 }
 
 .list {
-  background: #ffffff;
-  color: #15120e;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -142,7 +142,7 @@
 
 /* One colour for both views — list and detail read as the same control. */
 .handle::before {
-  background: #15120e;
+  background: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
 }
 
 @media (max-width: 1023.98px) {
@@ -174,7 +174,7 @@
        html .list design-pass rules — unchanged from the drag-sheet look. */
   }
   .list[data-view='list'] {
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
   }
   /* Cap over the status-bar band, ONLY while the filter header is stuck.
      Installed to the home screen the page owns that band, so rows would
@@ -195,7 +195,7 @@
     left: 0;
     right: 0;
     height: env(safe-area-inset-top, 0px);
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
     z-index: 5;
   }
   .handle {
@@ -257,9 +257,9 @@
     will-change: auto;
     z-index: 6;
     border-radius: 0;
-    border-top: 1px solid rgba(21, 18, 14, 0.16);
+    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
     overflow: visible;
-    background: var(--et-home-paper, #fff);
+    background: var(--et-home-ink, #15120e);
     display: block;
     padding-bottom: 0;
   }

@@ -114,10 +114,23 @@
   background-image: none;
 }
 
-/* Auf dem dunklen Basemap-Grund. Die Nennung von CARTO und OpenStreetMap ist
-   die Gegenleistung fuer die freie Nutzung und muss lesbar bleiben — deshalb
-   umgefaerbt statt abgedunkelt. */
-.mapWrap :global(.maplibregl-ctrl-attrib) {
+/* Auf dem dunklen Basemap-Grund. Die Nennung von OpenStreetMap und den
+   Kachel-Anbietern ist die Gegenleistung fuer die freie Nutzung und muss
+   lesbar bleiben — deshalb umgefaerbt statt abgedunkelt.
+ *
+ * Die zweite Zeile im Selektor ist kein Zierrat: MapLibre setzt in seinem
+ * eigenen Stylesheet `@media screen { .maplibregl-ctrl-attrib.maplibregl-compact
+ * { color: #000 } }`. Das sind zwei Klassen — (0,2,0) —, genau so viel wie
+ * `.mapWrap .maplibregl-ctrl-attrib`, und maplibre-gl.css laedt spaeter. Bei
+ * Gleichstand gewinnt also SEIN Schwarz, und der Fliesstext ZWISCHEN den Links
+ * stand unsichtbar auf dem Ink-Grund (gemessen Kontrast 1,09). Die Links
+ * selbst waren nie betroffen, die haben ihre eigene Regel — deshalb ist es nie
+ * jemandem aufgefallen: sichtbar blieben „OpenFreeMap" und „OpenStreetMap",
+ * weg war das „Data from" dazwischen (und bei CARTO davor das
+ * „contributors"). Mit der Compact-Klasse im Selektor sind wir bei (0,3,0)
+ * und gewinnen. */
+.mapWrap :global(.maplibregl-ctrl-attrib),
+.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact) {
   font-size: 10px;
   background: rgba(14, 14, 14, 0.82);
   color: rgba(255, 255, 255, 0.62);

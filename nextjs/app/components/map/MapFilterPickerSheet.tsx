@@ -69,53 +69,53 @@ export default function MapFilterPickerSheet({
   // never re-ran after mounted flipped — leaving the desktop popover at 0,0.
   const [sheetEl, setSheetEl] = useState<HTMLDivElement | null>(null);
 
-  /* Außenklick / Escape schließen.
-
-     Die ganze Chip-Zeile ist ausgenommen, nicht nur der eigene Chip: JEDER
-     Chip entscheidet in seinem eigenen `onClick` selbst, was offen sein soll
-     (nochmal derselbe = zu, ein anderer = umschalten). Käme hier zuerst ein
-     `onClose`, würde der Klick danach denselben Chip wieder aufziehen — die
-     Leiste ginge beim zweiten Tippen nicht zu. Mit dem eigenen Chip allein war
-     das schon abgedeckt; die Zeile deckt zusätzlich alles ab, was zwischen den
-     Chips liegt (Abstände, das Zurücksetzen-Kreuz) und auf Geräten, die erst
-     `touchstart` und viel später `click` liefern, dazwischenfunkt. */
   useEffect(() => {
-    const onPointer = (e: MouseEvent | TouchEvent) => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  /* Außenklick — NUR für die eingeklappte Desktop-Variante.
+   *
+   * Als Bottom-Sheet liegt ein Backdrop über allem, und der schließt über
+   * seinen eigenen `onClick` (siehe unten im Markup). Das ist der ganze Trick:
+   * der wegtippende Klick landet AUF dem Backdrop und ist damit verbraucht —
+   * er kann gar nichts darunter treffen.
+   *
+   * Vorher hing das an `touchstart`/`mousedown`. Damit war das Sheet schon weg,
+   * bevor der Klick überhaupt kam, und der schlug auf die Karte durch und
+   * öffnete einen Spot. Dagegen stand ein Abfänger, der genau den nächsten
+   * Klick schluckte — mit einer Frist von 400 ms. Ein bedächtiger Tipp ist
+   * länger: mit 600 ms Finger auf demselben Punkt ging reproduzierbar
+   * `?r=bonanza-coffee-heroes` auf. Nicht die Frist verlängern — ein
+   * Down-Ereignis ist hier grundsätzlich das falsche Signal.
+   *
+   * Die eingeklappte Variante (ab 1024px) hat keinen Backdrop, sie braucht
+   * deshalb einen Wächter. `click` statt `mousedown` aus demselben Grund: beim
+   * Zuklappen fließt die Leiste um, und ein auf `mousedown` geschlossener
+   * Picker schickt den Klick an das Element, das NACH dem Umfließen dort liegt.
+   *
+   * Die ganze Chip-Zeile bleibt ausgenommen, nicht nur der eigene Chip: JEDER
+   * Chip entscheidet in seinem eigenen `onClick` selbst, was offen sein soll
+   * (nochmal derselbe = zu, ein anderer = umschalten). Käme hier zuerst ein
+   * `onClose`, zöge der Klick danach denselben Chip wieder auf — die Leiste
+   * ginge beim zweiten Tippen nicht zu. Das deckt zugleich den Klick ab, der
+   * den Picker gerade geöffnet hat: React hängt diesen Wächter noch während
+   * dessen Lauf ein, er sähe ihn also selbst. */
+  useEffect(() => {
+    if (!inline) return;
+    const onClick = (e: MouseEvent) => {
       const target = e.target as Node;
       if (sheetEl && sheetEl.contains(target)) return;
       if (anchorEl && anchorEl.contains(target)) return;
       if (target instanceof Element && target.closest('[data-filter-chip-row]')) return;
-      /* Der erste Tipp nach draußen schließt — und sonst nichts. Geschlossen
-         wird beim `pointerdown`, der `click` kommt erst danach: bis dahin ist
-         der Backdrop unmontiert, und der Klick schlug auf die Karte darunter
-         durch und öffnete einen Spot. Deshalb wird genau dieser eine folgende
-         Klick in der Capture-Phase geschluckt.
-
-         Der Abfänger hängt bewusst NICHT am Effekt-Cleanup: der läuft beim
-         Schließen sofort, also lange bevor der Klick eintrifft. `once` räumt
-         ihn nach dem Schlucken weg, der Timer für den Fall, dass gar kein
-         Klick folgt (nach einem Tipp, aus dem ein Scrollen wurde) — sonst
-         fräße er irgendwann den nächsten echten Klick. */
-      const swallow = (ev: Event) => {
-        ev.stopPropagation();
-        ev.preventDefault();
-      };
-      document.addEventListener('click', swallow, { capture: true, once: true });
-      window.setTimeout(() => document.removeEventListener('click', swallow, true), 400);
       onClose();
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('mousedown', onPointer);
-    document.addEventListener('touchstart', onPointer);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onPointer);
-      document.removeEventListener('touchstart', onPointer);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [onClose, anchorEl, sheetEl]);
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [inline, onClose, anchorEl, sheetEl]);
 
   // Prevent the map-sheet's drag handler from absorbing touches that start
   // inside the picker — otherwise scrolling a long bezirk list collapses

@@ -76,6 +76,10 @@ describe('MapFilterPickerSheet rows', () => {
  * Außenklick-Wächter vorher, zieht derselbe Klick sie danach wieder auf —
  * die Leiste ginge beim zweiten Tippen nie zu. Deshalb ist die ganze
  * Chip-Zeile von ihm ausgenommen, nicht nur der eigene Chip.
+ *
+ * Der Wächter gilt nur noch für die eingeklappte Desktop-Variante: als
+ * Bottom-Sheet liegt ein Backdrop über allem, und der schließt über seinen
+ * eigenen Klick (siehe „wegtippen" weiter unten).
  */
 describe('MapFilterPickerSheet: Außenklick', () => {
   it('lässt die Chip-Zeile in Ruhe — sonst öffnet der zweite Klick neu', () => {
@@ -85,9 +89,9 @@ describe('MapFilterPickerSheet: Außenklick', () => {
     row.appendChild(chip);
     document.body.appendChild(row);
     const onClose = vi.fn();
-    open({ onClose });
+    open({ onClose, inline: true });
 
-    fireEvent.mouseDown(chip);
+    fireEvent.click(chip);
 
     expect(onClose).not.toHaveBeenCalled();
     row.remove();
@@ -97,11 +101,57 @@ describe('MapFilterPickerSheet: Außenklick', () => {
     const elsewhere = document.createElement('div');
     document.body.appendChild(elsewhere);
     const onClose = vi.fn();
-    open({ onClose });
+    open({ onClose, inline: true });
 
-    fireEvent.mouseDown(elsewhere);
+    fireEvent.click(elsewhere);
 
     expect(onClose).toHaveBeenCalled();
     elsewhere.remove();
+  });
+});
+
+/**
+ * Wegtippen darf nie auf der Karte darunter ankommen.
+ *
+ * Das Sheet schloss auf `touchstart`/`mousedown` an `document`. Damit war der
+ * Backdrop weg, bevor der Klick kam — der Klick landete auf der Karte und
+ * oeffnete einen Spot. Dagegen stand ein Abfaenger, der genau den naechsten
+ * Klick schluckte, mit einer Frist von 400 ms. Ein bedaechtiger Tipp ist
+ * laenger: mit 600 ms Finger auf demselben Punkt ging reproduzierbar ein
+ * fremder Spot auf.
+ *
+ * Jetzt nimmt der Backdrop den Klick selbst an — damit ist der Tipp
+ * verbraucht und es gibt gar kein Zeitfenster mehr. Diese Tests halten beide
+ * Haelften fest.
+ */
+describe('MapFilterPickerSheet wegtippen', () => {
+  const backdrop = (container: HTMLElement) =>
+    container.ownerDocument.body.querySelector('[aria-hidden="true"]') as HTMLElement;
+
+  it('schliesst, wenn der Backdrop geklickt wird', () => {
+    const onClose = vi.fn();
+    const { container } = open({ onClose });
+    fireEvent.click(backdrop(container));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('schliesst NICHT schon beim Aufsetzen des Fingers', () => {
+    const onClose = vi.fn();
+    const { container } = open({ onClose });
+    const el = backdrop(container);
+    fireEvent.touchStart(el);
+    fireEvent.mouseDown(el);
+    fireEvent.pointerDown(el);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('haelt auch den Aussenklick der eingeklappten Desktop-Variante auf click fest', () => {
+    const onClose = vi.fn();
+    open({ onClose, inline: true });
+    fireEvent.mouseDown(document.body);
+    fireEvent.touchStart(document.body);
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.click(document.body);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

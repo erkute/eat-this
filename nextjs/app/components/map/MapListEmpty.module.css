@@ -29,16 +29,11 @@
   box-shadow: none;
   text-align: left;
 }
-.esBlock::before {
-  content: '';
-  position: absolute;
-  top: 20px;
-  right: 18px;
-  width: 54px;
-  height: 8px;
-  background: var(--et-home-accent, #ffc600);
-  border-radius: 999px;
-}
+/* Der gelbe Balken oben rechts ist raus. Mit gelbem Kicker und gelbem Knopf
+   waere er der dritte Akzent auf einer Flaeche von 22px Hoehe Text — das
+   9px-Quadrat vor dem Kicker traegt die Marke hier allein, wie in jedem
+   anderen Kicker der Seite. Damit darf die Ueberschrift auch wieder ueber die
+   volle Breite laufen. */
 .esKicker {
   display: inline-flex;
   align-items: center;
@@ -46,7 +41,10 @@
   width: fit-content;
   margin: 0;
   padding: 0;
-  color: var(--et-home-ink, #15120e);
+  /* War Ink auf einer Ink-Flaeche: gemessen Kontrast 1,14, also unsichtbar.
+     Ein Rest aus der Zeit, als dieser Block auf Papier stand. Gelb ist die
+     Farbe, die jeder andere Kicker auf einer Ink-Tafel traegt. */
+  color: var(--et-home-accent, #ffc600);
   border: 0;
   font-family: var(--et-font-label, var(--font-label), sans-serif);
   font-size: var(--et-type-kicker, 10px);
@@ -64,9 +62,11 @@
   flex: 0 0 auto;
 }
 .esHeading {
-  max-width: calc(100% - 64px);
   margin: 8px 0 0;
-  color: var(--et-home-ink, #15120e);
+  /* Ebenfalls Ink auf Ink, Kontrast 1,14 — die Ueberschrift war schlicht nicht
+     da. Sichtbar blieben nur Unterzeile und Knopf, und deshalb konnte man
+     diesen Zustand benutzen, ohne je gelesen zu haben, wie er heisst. */
+  color: var(--et-home-paper, #fff);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 32px;
   font-weight: 700;

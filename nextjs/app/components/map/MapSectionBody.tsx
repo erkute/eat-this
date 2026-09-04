@@ -927,6 +927,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
+                    searchQuery={search}
                     lockedIds={lockedIdSet}
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}

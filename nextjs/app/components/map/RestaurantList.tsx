@@ -194,6 +194,9 @@ interface RestaurantListProps {
   unlockedIds: Set<string>;
   revealedMustEatIds: Set<string>;
   onResetFilters?: () => void;
+  /** Die laufende Suchanfrage. Nur fuer den Leerzustand: der nennt sie beim
+   *  Namen, statt pauschal „nichts gefunden" zu sagen. */
+  searchQuery?: string;
   /** Which of the rows above the paywall is holding. Nothing about the row
    *  says so — it looks and reads like every other one, and opening it is what
    *  brings up the offer (user decision 25.08.2026). The flag is purely
@@ -219,6 +222,7 @@ export default function RestaurantList({
   unlockedIds,
   revealedMustEatIds,
   onResetFilters,
+  searchQuery,
   visibleRows,
   onNeedMoreRows,
 }: RestaurantListProps) {
@@ -258,7 +262,8 @@ export default function RestaurantList({
   /* Nothing matched — and now that the list carries the locked spots too, that
      means nothing in the whole catalogue. No count to name, no offer to make:
      the filter is simply too narrow. */
-  if (restaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />;
+  if (restaurants.length === 0)
+    return <MapListEmpty onReset={onResetFilters} query={searchQuery} />;
 
   return (
     <>

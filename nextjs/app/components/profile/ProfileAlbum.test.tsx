@@ -26,6 +26,8 @@ vi.mock('@/app/components/MapIntentLink', () => ({
 
 import ProfileAlbum from './ProfileAlbum';
 
+const player = { name: 'Ersan', avatarIdx: 1, onPick: () => {} };
+
 afterEach(cleanup);
 
 describe('ProfileAlbum', () => {
@@ -46,7 +48,12 @@ describe('ProfileAlbum', () => {
     ];
 
     const { container } = render(
-      <ProfileAlbum mustEats={mustEats} faceUpIds={new Set(['m1'])} groupOf={() => 'Mitte'} />
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['m1'])}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
     );
 
     const image = container.querySelector<HTMLImageElement>('img[src="/api/must-eat-image/m1"]');
@@ -58,16 +65,17 @@ describe('ProfileAlbum', () => {
      in sieben angebrochene Zeilen. Jetzt sind sie Reiter — die Gruppierung
      lebt in der Filterleiste weiter, nicht mehr im Rost. */
   it('stellt die Bezirke als Reiter mit eigenem Zaehler und filtert danach', () => {
-    const at = (id: string, district: string, open: boolean): MapMustEat => ({
+    const at = (id: string, district: string, open: boolean, order: number): MapMustEat => ({
       _id: id,
       dish: id,
+      order,
       ...(open ? { image: `/api/must-eat-image/${id}` } : {}),
       restaurant: { _id: `r-${id}`, name: 'R', slug: 'r', lat: 0, lng: 0, district },
     });
     const mustEats = [
-      at('a', 'Kreuzberg', true),
-      at('b', 'Kreuzberg', false),
-      at('c', 'Mitte', false),
+      at('a', 'Kreuzberg', true, 5),
+      at('b', 'Kreuzberg', false, 12),
+      at('c', 'Mitte', false, 7),
     ];
 
     render(
@@ -75,6 +83,7 @@ describe('ProfileAlbum', () => {
         mustEats={mustEats}
         faceUpIds={new Set(['a'])}
         groupOf={(m) => m.restaurant.district ?? 'Berlin'}
+        player={player}
       />
     );
 
@@ -83,15 +92,15 @@ describe('ProfileAlbum', () => {
     const kreuzberg = screen.getByRole('button', { name: 'Kreuzberg: 1 von 2 aufgedeckt' });
     expect(screen.getByRole('button', { name: 'Mitte: 0 von 1 aufgedeckt' })).toBeTruthy();
 
-    /* Die Nummer der verdeckten Karte zaehlt ueber alle Bezirke durch, nicht
-       innerhalb der Gruppe — sonst gaebe es drei Karten „Nummer 1". */
-    expect(screen.getByLabelText('lockedSubhead 3')).toBeTruthy();
+    /* Die Nummer ist die der KARTE (`order`), dreistellig wie im Druck —
+       nicht die laufende Position im Raster. */
+    expect(screen.getByLabelText('lockedSubhead — 007')).toBeTruthy();
 
     fireEvent.click(kreuzberg);
     expect(kreuzberg.getAttribute('aria-pressed')).toBe('true');
-    /* Karte 3 liegt in Mitte und ist mit dem Kreuzberg-Reiter aus dem Rost. */
-    expect(screen.queryByLabelText('lockedSubhead 3')).toBeNull();
-    expect(screen.getByLabelText('lockedSubhead 2')).toBeTruthy();
+    /* Karte 007 liegt in Mitte und ist mit dem Kreuzberg-Reiter aus dem Rost. */
+    expect(screen.queryByLabelText('lockedSubhead — 007')).toBeNull();
+    expect(screen.getByLabelText('lockedSubhead — 012')).toBeTruthy();
   });
 
   /* Ein leerer Platz ohne Beschriftung ist ein Loch; mit dem Lokal darauf ist
@@ -100,15 +109,21 @@ describe('ProfileAlbum', () => {
   it('beschriftet den leeren Platz mit Nummer und Lokal', () => {
     const covered: MapMustEat = {
       _id: 'm2',
+      order: 26,
       restaurant: { _id: 'r2', name: 'Cafe Kranzler', slug: 'kranzler', lat: 0, lng: 0 },
     };
 
     const { container } = render(
-      <ProfileAlbum mustEats={[covered]} faceUpIds={new Set()} groupOf={() => 'Mitte'} />
+      <ProfileAlbum
+        mustEats={[covered]}
+        faceUpIds={new Set()}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
     );
 
-    const slot = screen.getByLabelText('lockedSubhead 1');
-    expect(slot.textContent).toContain('1');
+    const slot = screen.getByLabelText('lockedSubhead — 026');
+    expect(slot.textContent).toContain('026');
     expect(slot.textContent).toContain('Cafe Kranzler');
     /* Und weiterhin kein Gericht, kein Bild der Karte: nur die Rueckseite. */
     expect(container.querySelector('img[src^="/api/must-eat-image"]')).toBeNull();
@@ -122,26 +137,38 @@ describe('ProfileAlbum', () => {
   it('fuehrt aus dem Zoom einer verdeckten Karte zum Spot, aus einer offenen nicht', () => {
     const covered: MapMustEat = {
       _id: 'm3',
+      order: 4,
       restaurant: { _id: 'r3', name: 'Atelier Dough', slug: 'atelier-dough', lat: 0, lng: 0 },
     };
     const open: MapMustEat = {
       _id: 'm4',
       dish: 'Donut',
+      order: 17,
       image: '/api/must-eat-image/m4',
       restaurant: { _id: 'r4', name: 'Bubar', slug: 'bubar', lat: 0, lng: 0 },
     };
 
     render(
-      <ProfileAlbum mustEats={[covered, open]} faceUpIds={new Set(['m4'])} groupOf={() => 'Mitte'} />
+      <ProfileAlbum
+        mustEats={[covered, open]}
+        faceUpIds={new Set(['m4'])}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
     );
 
-    fireEvent.click(screen.getByLabelText('lockedSubhead 1'));
+    fireEvent.click(screen.getByLabelText('lockedSubhead — 004'));
     const exit = screen.getByRole('link', { name: 'Zu Atelier Dough' });
     expect(exit.getAttribute('href')).toBe('/map?r=atelier-dough');
 
     cleanup();
     render(
-      <ProfileAlbum mustEats={[covered, open]} faceUpIds={new Set(['m4'])} groupOf={() => 'Mitte'} />
+      <ProfileAlbum
+        mustEats={[covered, open]}
+        faceUpIds={new Set(['m4'])}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
     );
     fireEvent.click(screen.getByLabelText('Donut'));
     expect(screen.getByTestId('zoom').querySelector('a')).toBeNull();

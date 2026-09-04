@@ -56,13 +56,12 @@ const DISTRICTS = new Map([
   ['r-c', 'Kreuzberg'],
 ]);
 
-function renderMove(opts: { mustEats?: MapMustEat[]; hasRevealed?: boolean } = {}) {
+function renderMove(opts: { mustEats?: MapMustEat[] } = {}) {
   return render(
     <ProfileNextMove
       mustEats={opts.mustEats ?? [mustEat('a'), mustEat('b'), mustEat('c')]}
       faceUpIds={new Set<string>()}
       districtByRest={DISTRICTS}
-      hasRevealed={opts.hasRevealed ?? true}
     />
   );
 }
@@ -82,29 +81,27 @@ describe('ProfileNextMove', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  /* Der Anstupser, den „Zuletzt aufgedeckt" bei null Aufdeckungen schuldig
-     bleibt: wer noch nie eine Karte umgedreht hat, muss erst erfahren, dass
-     Karten vor Ort aufgehen — nicht, wie viele noch verdeckt sind.
-
-     Die UEBERSCHRIFT unterscheidet dabei nicht mehr: sie hiess fuer Neue
-     „Erstes Must Eat", und das war schlicht falsch — die zehn oeffentlich
-     aufgedeckten Karten liegen von Anfang an offen im Deck (Nutzer,
-     04.09.2026). Was hier steht, ist immer das naechste. Nur der Satz
-     darunter erklaert weiter. */
-  it('erklaert Neuen zuerst, dass Karten vor Ort aufgehen', () => {
-    const { container } = renderMove({ hasRevealed: false });
-
-    expect(container.textContent).toContain('moveLabel');
-    expect(container.textContent).toContain('moveFirst:');
-    expect(container.textContent).not.toContain('moveCovered');
-  });
-
-  it('zaehlt fuer alle anderen die verdeckten Karten des Bezirks', () => {
+  /* Eine Fassung fuer alle, seit der Slogan ueber dem Deck steht
+     (05.09.2026). Fuer Konten ohne eigene Aufdeckung stand hier bis dahin
+     „Must Eats deckst du vor Ort auf. Das naechste wartet in Mitte" — und
+     genau das sagt der Slogan zwei Zeilen darueber jetzt besser. Die Zahl der
+     verdeckten Karten sagt er nicht, also bleibt sie hier. */
+  it('zaehlt die verdeckten Karten des Bezirks', () => {
     const { container } = renderMove();
 
     expect(container.textContent).toContain('moveLabel');
     expect(container.textContent).toContain('"count":3');
     expect(container.textContent).toContain('"district":"Kreuzberg"');
+  });
+
+  /* Auf dem Telefon zeigt die Zeile nur, WO die naechste Karte liegt — der
+     lange Satz waere dort vier Zeilen hoch. Beide Fassungen stehen im DOM,
+     die Auswahl trifft eine Media Query; das kann ein jsdom-Test nicht sehen,
+     also prueft er nur, dass die kurze ueberhaupt da ist. */
+  it('haelt neben dem Satz eine Kurzfassung fuer schmale Schirme bereit', () => {
+    const { container } = renderMove();
+
+    expect(container.textContent).toContain('Kreuzberg');
   });
 
   it('nennt die Entfernung, sobald der Standort da ist', () => {

@@ -7,7 +7,14 @@
 import type { MapMustEat } from '@/lib/types';
 
 interface AlbumSlot {
-  no: number;
+  /** Die Nummer, die unten rechts auf der Karte steht — `order` aus Sanity,
+   *  dreistellig wie im Druck. Bis zum 04.09.2026 stand hier die laufende
+   *  Position im Album, und die stimmte mit keiner einzigen Karte ueberein:
+   *  Platz 1 trug die 1, die Karte darin die 005 (Nutzer, 04.09.2026). Ein
+   *  leerer Platz mit erfundener Nummer ist schlimmer als einer ohne — er
+   *  schickt einen mit der falschen Zahl auf die Suche. Null, wo ein
+   *  Dokument keine `order` traegt. */
+  no: string | null;
   id: string;
   collected: boolean;
   mustEat: MapMustEat | null;
@@ -20,11 +27,20 @@ interface AlbumSlot {
   slug: string | null;
 }
 
-/** Ein Abschnitt der Sammlung — bisher nach Kategorie, seit 31.08.2026 nach
- *  Bezirk. Wer die Gruppen stellt, entscheidet der Aufrufer über `groupOf`. */
+/** Ein Bezirk — seit 04.09.2026 nur noch die Reiterleiste, nicht mehr ein
+ *  eigener Abschnitt im Raster. Wer die Gruppen stellt, entscheidet der
+ *  Aufrufer über `groupOf`. */
 interface AlbumGroup {
   group: string;
   slots: AlbumSlot[];
+}
+
+interface Album {
+  /** Alle Plaetze in Kartenreihenfolge — 001, 002, 003 …, wie der Stapel
+   *  selbst. Das Raster laeuft durch, die Bezirke filtern nur. */
+  slots: AlbumSlot[];
+  /** Dieselben Plaetze nach Bezirk, alphabetisch, fuer die Reiterleiste. */
+  groups: AlbumGroup[];
 }
 
 /* MapMustEat.restaurant traegt ein district — das reicht als Rueckfall, wenn
@@ -42,33 +58,40 @@ export function buildAlbum(
   all: MapMustEat[],
   faceUpIds: Set<string>,
   groupOf: (m: MapMustEat) => string = defaultGroupOf
-): AlbumGroup[] {
-  /* Innerhalb einer Gruppe entscheidet die Kartennummer — die Zahl unten
-     rechts auf jeder Karte. Der Rueckfall war bis zum 31.08.2026 die
-     Dokument-ID: stabil, aber willkuerlich, und die Sammlung ist die eine
-     Flaeche, auf der jemand diese Zahlen wirklich liest. `_id` bleibt als
-     letzter Notnagel, damit ein Must-Eat ohne `order` trotzdem fest liegt. */
+): Album {
+  /* Nach der Kartennummer, nicht nach Bezirk. Solange die Bezirke eigene
+     Abschnitte hatten, musste die Sortierung sie zusammenhalten; seit sie
+     Reiter sind, ist das Raster EIN Stapel — und ein Stapel liegt in seiner
+     eigenen Reihenfolge. `_id` bleibt der letzte Notnagel, damit ein
+     Must-Eat ohne `order` trotzdem fest liegt. */
   const sorted = [...all].sort((a, b) => {
-    const c = groupOf(a).localeCompare(groupOf(b), 'de');
-    if (c !== 0) return c;
     const n = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
     return n !== 0 ? n : a._id.localeCompare(b._id);
   });
-  const groups: AlbumGroup[] = [];
-  sorted.forEach((m, i) => {
-    const name = groupOf(m);
+
+  const slots: AlbumSlot[] = sorted.map((m) => {
     const collected = isAlbumMustEatCollected(m, faceUpIds);
-    const slot: AlbumSlot = {
-      no: i + 1,
+    return {
+      no: m.order == null ? null : String(m.order).padStart(3, '0'),
       id: m._id,
       collected,
       mustEat: collected ? m : null,
       where: m.restaurant?.name ?? null,
       slug: m.restaurant?.slug ?? null,
     };
-    const last = groups[groups.length - 1];
-    if (last && last.group === name) last.slots.push(slot);
-    else groups.push({ group: name, slots: [slot] });
   });
-  return groups;
+
+  const byGroup = new Map<string, AlbumSlot[]>();
+  sorted.forEach((m, i) => {
+    const name = groupOf(m);
+    const bucket = byGroup.get(name);
+    if (bucket) bucket.push(slots[i]);
+    else byGroup.set(name, [slots[i]]);
+  });
+
+  const groups = [...byGroup.entries()]
+    .map(([group, groupSlots]) => ({ group, slots: groupSlots }))
+    .sort((a, b) => a.group.localeCompare(b.group, 'de'));
+
+  return { slots, groups };
 }

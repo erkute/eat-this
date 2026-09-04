@@ -98,15 +98,28 @@
   padding-right: 38px;
 }
 
+/* Eine Zeile, wo Platz ist — und lesbarer Durchschuss, wo keiner ist
+   (Nutzer, 04.09.2026: „das Waehlen ist sehr nah am Charakter, die beiden
+   Woerter sind zu nah beieinander; vielleicht nur ein Einzeiler").
+
+   Bei 53 px brauchte „CHARAKTER WÄHLEN" 577 px in einem 494 px breiten Kopf,
+   brach also immer um — und `line-height: 0.82` liess die zweite Zeile mit
+   43 px Durchschuss unter eine 53 px hohe Versalzeile rutschen. Zwei Woerter,
+   die sich beruehren.
+
+   35 px traegt beide Sprachen einzeilig (gemessen: „CHARAKTER WÄHLEN" 10,89 em
+   = 381 px, „CHOOSE YOUR CHARACTER" 13,51 em = 473 px, beide unter 494). Auf
+   dem Telefon bricht Englisch weiter um — dort haelt der Durchschuss von 0,95
+   die Zeilen auseinander. */
 .title {
   max-width: 520px;
   margin: 0;
   color: var(--avatar-ink);
   font-family: var(--avatar-display);
-  font-size: clamp(40px, 5vw, 53px);
+  font-size: clamp(28px, 5.2vw, 35px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.82;
+  line-height: 0.95;
   text-transform: uppercase;
 }
 

@@ -16,6 +16,10 @@ interface Args {
   lockedRestaurants?: MapRestaurant[];
   mustEats?: MapMustEat[];
   location: { lat: number; lng: number } | null;
+  /** Where the map is looking, once the user has moved it (see listCenter.ts).
+   *  Orders the LIST only — the markers and the camera fits keep working from
+   *  the visitor's position. */
+  listCenter?: { lat: number; lng: number } | null;
 }
 
 function districtOf(r: MapRestaurant): string | null {
@@ -105,6 +109,7 @@ export function useMapFilters({
   lockedRestaurants = [],
   mustEats = [],
   location,
+  listCenter = null,
 }: Args) {
   const [category, setCategory] = useState<MapCategory>('All');
   const [search, setSearch] = useState('');
@@ -205,16 +210,20 @@ export function useMapFilters({
     [catalogue, category, bezirk, price, openOnly]
   );
 
-  const nearestFirst = useCallback(
-    (list: MapRestaurant[]) => {
-      if (!location) return list;
+  const nearestTo = useCallback(
+    (list: MapRestaurant[], anchor: { lat: number; lng: number } | null) => {
+      if (!anchor) return list;
       return [...list].sort((a, b) => {
-        const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng);
-        const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng);
+        const aD = haversineDistance(anchor.lat, anchor.lng, a.lat, a.lng);
+        const bD = haversineDistance(anchor.lat, anchor.lng, b.lat, b.lng);
         return aD - bD;
       });
     },
-    [location]
+    []
+  );
+  const nearestFirst = useCallback(
+    (list: MapRestaurant[]) => nearestTo(list, location),
+    [nearestTo, location]
   );
 
   // Free matches. Feeds the map's own markers and the camera — the list has
@@ -237,13 +246,16 @@ export function useMapFilters({
      Splitting them into "yours" and "not yours" up here only ever produced
      surfaces that said 0 while the map underneath showed dots.
 
-     A location outranks everything: the two sets interleave by distance like
-     one list, which is the whole claim of a map — these are the spots around
-     you. Without one, byMustEatsThenName decides. */
+     A place outranks everything: the two sets interleave by distance like one
+     list, which is the whole claim of a map — these are the spots around HERE.
+     "Here" is the map's centre once the user has moved the map (listCenter),
+     and the visitor's own position until then. Without either,
+     byMustEatsThenName decides. */
   const listRestaurants = useMemo(() => {
     const all = [...displayedRestaurants, ...displayedLockedRestaurants];
-    return location ? nearestFirst(all) : all.sort(byMustEatsThenName);
-  }, [displayedRestaurants, displayedLockedRestaurants, location, nearestFirst]);
+    const anchor = listCenter ?? location;
+    return anchor ? nearestTo(all, anchor) : all.sort(byMustEatsThenName);
+  }, [displayedRestaurants, displayedLockedRestaurants, listCenter, location, nearestTo]);
 
   return {
     category,

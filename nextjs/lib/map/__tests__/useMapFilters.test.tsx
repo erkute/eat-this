@@ -250,6 +250,23 @@ describe('useMapFilters list order', () => {
     // Nine Must Eats do not beat standing in front of the door.
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
   });
+
+  it('lets the map centre outrank the visitor once the map has been moved', () => {
+    const nearMe = spot({ name: 'Zola', lat: 52.5, lng: 13.4, mustEatCount: 0 });
+    const nearMap = spot({ name: 'Mustafa', lat: 52.6, lng: 13.62, mustEatCount: 0 });
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [nearMe, nearMap],
+        location: { lat: 52.5, lng: 13.4 },
+        listCenter: { lat: 52.6, lng: 13.62 },
+      })
+    );
+
+    // The list says what the map shows, not where the phone is.
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Mustafa', 'Zola']);
+    // The markers' own order still works from the visitor.
+    expect(result.current.displayedRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
+  });
 });
 
 /**

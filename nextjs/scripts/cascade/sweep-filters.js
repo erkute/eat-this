@@ -11,13 +11,22 @@
 // mechanism: this module ships zero such rules. MapControls does — that is
 // where the sentence was copied from.
 //
-// KNOWN WRONG at 1024 and 1440. There the picker is inline (matchMedia
-// '(min-width: 1024px)' in MapListHeader): it renders into .listHeader inside
-// [data-map-body], in normal flow, without portal or backdrop. The
-// body-mounted probe is 1440px wide where the live sheet is 379px — 223
-// normal-property cells differ, width and grid-template-columns among them,
-// and both are in PROPS. Until the probe follows the mode, the picker rows of
-// this sweep are only trustworthy below 1024.
+// At 1024 and up the picker is inline instead (matchMedia
+// '(min-width: 1024px)' in MapListHeader): it renders as the last child of
+// .listHeader, in normal flow, carrying pickerSheetInline, no portal and no
+// backdrop. The probe follows that split since 2026-09-04.
+//
+// Before it did, the probe sat at document.body WITHOUT pickerSheetInline, so
+// at 1024 and 1440 it fell on the anchored-popover rules in the
+// @media (min-width: 1024px) block — 600px wide, three list columns — and
+// reported those as the desktop picker. Those declarations still match the
+// live sheet, but .pickerSheetInline overrides them (position:static, width,
+// columns, and the rest), so what the probe reported is a look nothing has
+// worn since 2026-08-27: live it is 379px with two columns. Both
+// versions re-run across all nine widths and all 24 states: identical below
+// 1024 (7 x 41 496 cells, 0 differences), 1176 cells moved at 1024 and again
+// at 1440. Snapshots from before that date cannot be diffed against later
+// ones at those two widths. meta.pickerMount records which side a run used.
 //
 // Measured 2026-09-04 in the default [data-map-body] state; the other 23
 // states were not re-measured for mount sensitivity.
@@ -64,13 +73,32 @@ async (page) => {
       return el;
     };
 
-    // Below 1024 the live sheet is portalled to document.body, so the probe goes
-    // there. At 1024 and up the live one is inline in .listHeader instead — see
-    // the KNOWN WRONG paragraph in the header before trusting those two widths.
-    const pickerRoot = document.createElement("div");
-    pickerRoot.setAttribute("data-probe", "");
-    const backdrop = mk("div", ["pickerBackdrop"]);
-    const sheet = mk("div", ["pickerSheet"]);
+    // The picker probe goes where the live sheet renders AT THIS WIDTH — the
+    // harness runs once per viewport, so the mode is decided here, not once.
+    //
+    // Below 1024: MapFilterPickerSheet portals to document.body, backdrop and
+    // sheet as siblings. At 1024 and up MapListHeader passes inline={true}
+    // (matchMedia '(min-width: 1024px)') and the sheet renders as the last
+    // child of .listHeader — normal flow, carrying pickerSheetInline, with no
+    // portal and no backdrop.
+    //
+    // Mounting it at document.body regardless, and without pickerSheetInline,
+    // measured the anchored popover instead: 600px and three list columns
+    // where the live sheet is 379px and two. width and grid-template-columns
+    // are both in PROPS, so every picker row at 1024 and 1440 described the
+    // overridden popover look instead of the sheet that actually renders.
+    //
+    // No wrapper element: .listHeader is a flex column, and a plain div around
+    // the sheet would become the flex item and resolve the sheet's width
+    // against itself. Each probe root carries data-probe directly, which is
+    // also what the cleanup above removes.
+    const inline = matchMedia("(min-width: 1024px)").matches;
+    const headerCls = local("listHeader");
+    const header = headerCls ? document.querySelector("." + CSS.escape(headerCls)) : null;
+    const pickerHost = inline && header ? header : document.body;
+
+    const sheet = mk("div", inline ? ["pickerSheet", "pickerSheetInline"] : ["pickerSheet"]);
+    sheet.setAttribute("data-probe", "");
     const head = mk("div", ["pickerHead"]);
     head.appendChild(mk("span", ["pickerTitle"], "Bezirk"));
     head.appendChild(mk("button", ["pickerClose"], "×"));
@@ -83,9 +111,17 @@ async (page) => {
       list.appendChild(item);
     }
     sheet.appendChild(list);
-    pickerRoot.appendChild(backdrop);
-    pickerRoot.appendChild(sheet);
-    document.body.appendChild(pickerRoot);
+
+    // The backdrop belongs to the portalled variant only — inline renders none,
+    // so above 1024 pickerBackdrop has no target and lands in meta.missing.
+    // pickerSheetInline does the same below 1024. That is the point: neither
+    // can occur at those widths, so a value measured there would be fiction.
+    if (!inline) {
+      const backdrop = mk("div", ["pickerBackdrop"]);
+      backdrop.setAttribute("data-probe", "");
+      document.body.appendChild(backdrop);
+    }
+    pickerHost.appendChild(sheet);
 
     // Chip modifier classes: mount extra chips in the real chip row so the
     // active/long/clear variants are exercised in their true context.
@@ -141,6 +177,7 @@ async (page) => {
       innerWidth: window.innerWidth,
       visibility: document.visibilityState,
       mqAtMeasure: mq(),
+      pickerMount: inline ? (header ? "listHeader (inline)" : "body — .listHeader NICHT gefunden") : "body (portal)",
       targets: targets.map((t) => t.cls + (t.probe ? " (probe)" : "")),
       missing: [...hashed]
         .map((h) => h.slice(prefix.length).replace(/__.*$/, ""))

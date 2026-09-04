@@ -7,6 +7,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getPublicDeck } from '@/lib/profile/publicDeck.server';
 import styles from '@/app/components/profile/Profile.module.css';
+import ProfilePlayerCard from '@/app/components/profile/ProfilePlayerCard';
 import deck from './Deck.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -90,50 +91,46 @@ export default async function DeckPage({ params }: PageProps) {
 
   return (
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
-      <header className="hv-wrap">
-        <div className={styles.bank}>
-          <div className={styles.bankCopy}>
-            <p className={styles.bankKicker}>
+      {/* Derselbe Kopf wie im eigenen Profil: Spielerkarte neben der
+          Ueberschrift. Hier stand bis zum 04.09.2026 eine Ink-Tafel aus
+          `.bank*` und `.city*` — die Klassen sind mit dem Profil-Umbau am
+          selben Tag aus Profile.module.css verschwunden, und React rendert
+          fuer ein unbekanntes CSS-Modul-Kuerzel stumm gar kein
+          class-Attribut. Die Seite, auf der jeder geteilte Link landet, lief
+          seitdem ohne einen einzigen ihrer Stile: die Figur 250 px hoch und
+          rahmenlos, „Berlin467von 467 Spots" in einer Zeile. */}
+      <section className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}>
+        <div className={deck.masthead}>
+          <ProfilePlayerCard
+            name={data.name ?? t('anonymous')}
+            avatarIdx={data.avatar}
+            done={data.revealed}
+            total={data.total}
+          />
+
+          {/* Kein `hv-head`: das Vokabular stellt Titel und Zaehler auf die
+              beiden Enden einer Zeile, und hier stuende „Das Deck" damit am
+              rechten Bildrand, den Kicker 1000 px daneben. */}
+          <div className={deck.headCopy}>
+            <p className={deck.kicker}>
               <span className="hv-mk" aria-hidden="true" />
               {t('kicker')}
             </p>
-            <h1 className={styles.bankName}>{data.name ?? t('anonymous')}</h1>
+            <h1 className="hv-title">{t('deckHeading')}</h1>
           </div>
 
-          <div className={styles.bankCharacter}>
-            {/* Kein Knopf wie im eigenen Profil: hier aendert niemand etwas. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={styles.bankAvatarImg}
-              src={`/pics/avatar/${data.avatar}.webp?v=3`}
-              alt=""
-            />
-          </div>
-
-          {/* Dieselbe Tafelzeile wie im eigenen Profil, nur ohne Weg zur Map:
-              die gehoert dem Besitzer, nicht dem Besucher. */}
-          <div className={styles.city}>
-            <span className={styles.cityKicker}>{t('cityKicker')}</span>
-            <span className={styles.cityNumbers}>
-              <span className={styles.cityOpen}>{data.spotsOpen}</span>
-              <span className={styles.cityTotal}>{t('cityCount', { total: data.spotsTotal })}</span>
+          {/* Wie viel von Berlin auf dieser Map liegt — die Angabe, wegen der
+              die Seite ueberhaupt herumgereicht wird. Ohne Weg zur Map: die
+              gehoert dem Besitzer, nicht dem Besucher. */}
+          <div className={deck.city}>
+            <span className={deck.cityLine}>
+              <strong>{data.spotsOpen}</strong>
+              {t('cityCount', { total: data.spotsTotal })}
             </span>
-            <span className={styles.cityBar} aria-hidden="true">
-              <span className={styles.cityBarFill} style={{ width: `${pct}%` }} />
+            <span className={deck.cityBar} aria-hidden="true">
+              <span className={deck.cityBarFill} style={{ width: `${pct}%` }} />
             </span>
           </div>
-        </div>
-      </header>
-
-      <section className={`hv-section hv-wrap ${styles.section}`}>
-        <div className={`hv-head ${styles.head} ${deck.head}`}>
-          <h2 className="hv-title">{t('deckHeading')}</h2>
-          {data.total > 0 && (
-            <span className={deck.count}>
-              <strong>{data.revealed}</strong>
-              <span>{t('deckCount', { total: data.total })}</span>
-            </span>
-          )}
         </div>
 
         {data.groups.length === 0 ? (
@@ -167,7 +164,7 @@ export default async function DeckPage({ params }: PageProps) {
           schon hier ist, hat das Cookie von der Middleware bekommen. */}
       <section className={`hv-section hv-wrap ${styles.section}`}>
         <div className={styles.invite}>
-          <div>
+          <div className={styles.inviteCopy}>
             <h2 className={styles.inviteTitle}>{t('ctaHeading')}</h2>
             <p className={styles.inviteLine}>
               {data.name ? t('ctaLineNamed', { name: data.name }) : t('ctaLine')}

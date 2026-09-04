@@ -9,23 +9,105 @@
   min-height: 100svh;
 }
 
-/* Wie der Deck-Zaehler im eigenen Profil, nur ohne dessen gelbe Kachel: hier
-   ist die Zahl kein Fortschritt, den man weitertreibt, sondern eine Angabe. */
-.count {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
+/* Der Kopf: Spielerkarte, Ueberschrift, Berlin-Zahl — dasselbe Raster wie im
+   eigenen Profil (ProfileAlbum.module.css .masthead), damit die beiden Seiten
+   eine Sprache sprechen und nicht zwei, die sich aehneln. Hier ohne
+   Reiterleiste und ohne naechsten Zug: beides gehoert dem Besitzer. */
+.masthead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'card head'
+    'card city';
+  /* Die zweite Zeile nimmt den Rest, damit die Berlin-Zahl am Fuss der Karte
+     sitzt statt in der Mitte einer aufgeteilten Ueberhoehe zu schweben. */
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
+  margin-bottom: clamp(26px, 3.4vw, 44px);
+}
+
+.masthead > :first-child {
+  grid-area: card;
+}
+
+.masthead > .headCopy {
+  grid-area: head;
+  min-width: 0;
+}
+
+.headCopy {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+.masthead > .city {
+  grid-area: city;
+  align-self: end;
+  min-width: 0;
+}
+
+/* „Ein Deck bei Eat This" — die Zeile, die sagt, wo man gelandet ist. Sie
+   steht ueber der Ueberschrift, nicht darunter: wer ueber einen geteilten
+   Link kommt, kennt die Marke noch nicht. */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 6px;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   font-family: var(--et-font-display);
-  font-size: clamp(12px, 1.1vw, 14px);
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
-.count strong {
-  font-size: clamp(24px, 2.4vw, 32px);
+.city {
+  display: grid;
+  gap: 9px;
+  max-width: 34ch;
+}
+
+/* Die Zahl traegt, der Rest der Zeile erklaert — dieselbe Rollenteilung wie
+   auf den Bezirks-Zeilen darunter. */
+.cityLine {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--et-font-display);
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.cityLine strong {
+  color: var(--et-home-accent, #ffc600);
+  font-size: clamp(26px, 2.6vw, 36px);
   letter-spacing: -0.02em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+}
+
+/* Derselbe Balken wie die Bezirks-Staende darunter, nur laenger. */
+.cityBar {
+  display: block;
+  height: 6px;
+  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.cityBarFill {
+  display: block;
+  height: 100%;
+  background: var(--et-home-accent, #ffc600);
+  border-radius: inherit;
 }
 
 .groups {
@@ -88,13 +170,17 @@
   border-radius: inherit;
 }
 
-/* Wie im eigenen Deck (ProfileAlbum): auf schmalen Schirmen steht die Zahl
-   unter der Ueberschrift statt daneben — nebeneinander bricht „Das Deck"
-   zweizeilig um und die Zeile darunter laeuft in die Ueberschrift. */
-@media (max-width: 520px) {
-  .head {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
+/* Wie im eigenen Deck: auf dem Telefon steht die Spielerkarte neben der
+   Ueberschrift, die Berlin-Zahl laeuft darunter ueber die volle Breite. */
+@media (max-width: 640px) {
+  .masthead {
+    grid-template-areas:
+      'card head'
+      'city city';
+    gap: 16px;
+  }
+
+  .city {
+    max-width: none;
   }
 }

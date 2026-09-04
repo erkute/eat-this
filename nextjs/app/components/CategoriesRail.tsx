@@ -34,8 +34,13 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
         <ul className={styles.grid} role="list">
           {entries.map(([slug, name]) => (
             <li key={slug}>
+              {/* Der Name steht als Text direkt in der Zeile: `.chip` ist ein
+                  Flex-Container, ein Textknoten darin ist ein anonymes
+                  Flex-Element und richtet sich genauso aus wie ein <span>.
+                  Der <span> hier trug `styles.chipLabel` — eine Klasse, die es
+                  in CategoriesRail.module.css nie gab. */}
               <Link href={`/kategorie/${slug}`} className={styles.chip}>
-                <span className={styles.chipLabel}>{name}</span>
+                {name}
               </Link>
             </li>
           ))}

@@ -4,10 +4,9 @@
    stay one system instead of two that resemble each other.
    Seit 03.09.2026 auf demselben durchgehenden Ink-Grund wie die Startseite:
    `--profile-ink` bleibt die dunkle Farbe und ist der GRUND, `--profile-fg`
-   die Schrift darauf, Muted und Linien sind Weiss-Stufen. Die Bank (Figur,
-   Name, Berlin-Zahl) ist das eine Objekt oben und traegt die leise Stufe;
-   das Einladen-Feld bleibt die eine gelbe Flaeche. Die geteilte Deck-Seite
-   (/deck) liest dieselben Regeln. */
+   die Schrift darauf, Muted und Linien sind Weiss-Stufen. Das Einladen-Feld
+   ist die eine gelbe Flaeche. Die geteilte Deck-Seite (/deck) liest diese
+   Regeln mit — was nur sie braucht, steht in ihrem eigenen Deck.module.css. */
 
 .page {
   --profile-ink: var(--et-home-ink, #15120e);
@@ -183,7 +182,13 @@ main.page .head {
 /* Die Ink-Bank (Figur, Name, Berlin-Zahl) ist am 04.09.2026 entfallen — die
    drei Angaben stehen jetzt auf der Spielerkarte in der Kopfzeile des Albums
    (ProfilePlayerCard + ProfileAlbum.module.css). Mit ihr sind .bank*, .city*
-   und ProfileCityProgress weg. */
+   und ProfileCityProgress weg.
+
+   Die geteilte Deck-Seite las beide Gruppen mit und stand nach dem Umbau
+   ohne Kopfzeilen-Stile da — ohne Fehlermeldung, denn React laesst
+   `className={undefined}` stumm weg. Die Regeln liegen jetzt in
+   app/[locale]/deck/[uid]/Deck.module.css. Wer hier wieder etwas
+   herausnimmt: `npm run audit:css-modules` sagt, wer es noch anfasst. */
 
 /* ── naechster Zug ──────────────────────────────────────── */
 

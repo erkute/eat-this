@@ -226,9 +226,14 @@
   transition: color 140ms ease;
 }
 
-.body a:hover,
 .body a:focus-visible {
   color: var(--about-fg);
+}
+
+@media (hover: hover) {
+  .body a:hover {
+    color: var(--about-fg);
+  }
 }
 
 /* The taped red sticker stays — it is the one loud thing on the page and it
@@ -321,9 +326,14 @@
   color: var(--about-accent);
 }
 
-.band .body a:hover,
 .band .body a:focus-visible {
   color: var(--about-paper);
+}
+
+@media (hover: hover) {
+  .band .body a:hover {
+    color: var(--about-paper);
+  }
 }
 
 .band .caption {
@@ -464,9 +474,14 @@
   transition: color 140ms ease;
 }
 
-.remyCta:hover,
 .remyCta:focus-visible {
   color: var(--about-fg);
+}
+
+@media (hover: hover) {
+  .remyCta:hover {
+    color: var(--about-fg);
+  }
 }
 
 /* Alone in the rail now, and bigger for it — beside a phone he had to stay
@@ -493,8 +508,10 @@
   }
 }
 
-.remySection:hover .remyArt {
-  transform: translateY(-6px) rotate(-5deg);
+@media (hover: hover) {
+  .remySection:hover .remyArt {
+    transform: translateY(-6px) rotate(-5deg);
+  }
 }
 
 /* ---------- figures ---------- */
@@ -652,11 +669,18 @@
     transform 140ms ease;
 }
 
-.ctaPrimary:hover,
 .ctaPrimary:focus-visible {
   background: var(--about-paper);
   border-color: var(--about-paper);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .ctaPrimary:hover {
+    background: var(--about-paper);
+    border-color: var(--about-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .ctaPrimary:active {

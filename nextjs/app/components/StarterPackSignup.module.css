@@ -134,10 +134,16 @@
   cursor: default;
 }
 
-.button:hover:not(:disabled),
 .button:focus-visible:not(:disabled) {
   background: var(--starter-paper);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .button:hover:not(:disabled) {
+    background: var(--starter-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .button:focus-visible {

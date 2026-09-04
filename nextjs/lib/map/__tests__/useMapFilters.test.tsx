@@ -303,3 +303,76 @@ describe('useMapFilters, gekürzte Auswahllisten', () => {
     expect(result.current.priceBucketIds).toEqual(['u10', '10', '20', '100']);
   });
 });
+
+/**
+ * Was man tippt, ist nicht, was in Sanity steht.
+ *
+ * Zwei gemeldete Fehlschlaege, zwei verschiedene Ursachen:
+ * - „banh mi" fand „Saveur de Bánh Mì" nicht. `includes` vergleicht Zeichen
+ *   fuer Zeichen, und `a` ist nicht `á`.
+ * - „vietnamesisch" fand keinen der acht vietnamesischen Spots. Der
+ *   `cuisineType` steht ENGLISCH in Sanity; das deutsche Label, das man auf
+ *   der Karte liest und deshalb auch eintippt, kannte die Suche nicht.
+ */
+describe('useMapFilters Suche', () => {
+  const SUCHZEILEN: MapRestaurant[] = [
+    spot({ name: 'Saveur de Bánh Mì Mitte', cuisineType: 'Vietnamese' }),
+    spot({ name: 'Monsieur Vuong', cuisineType: 'Vietnamese' }),
+    spot({
+      name: "KuchenRausch's Feinbäckerei",
+      cuisineType: 'Bakery',
+      address: 'Kastanienallee 12',
+      bezirk: { name: 'Prenzlauer Berg' },
+    }),
+    spot({ name: 'Zur Bratpfanne', cuisineType: 'German / Fast Food' }),
+    spot({ name: 'Osteria Numero 1', cuisineType: 'Italian', bezirk: { name: 'Neukölln' } }),
+  ];
+  const suche = (q: string) => {
+    const { result } = renderHook(() =>
+      useMapFilters({ restaurants: SUCHZEILEN, location: null })
+    );
+    act(() => result.current.setSearch(q));
+    return result.current.displayedRestaurants.map((r) => r.name);
+  };
+
+  it('findet Bánh Mì, auch ohne die Akzente zu tippen', () => {
+    expect(suche('banh mi')).toEqual(['Saveur de Bánh Mì Mitte']);
+  });
+
+  it('findet es auch andersherum — Akzente getippt, ohne im Namen', () => {
+    // „Neukölln" ist im Datensatz mit Umlaut geschrieben; wer ihn tippt, muss
+    // ihn genauso finden wie wer ihn weglaesst.
+    expect(suche('neukolln')).toEqual(['Osteria Numero 1']);
+    expect(suche('neukölln')).toEqual(['Osteria Numero 1']);
+  });
+
+  it('findet die Kueche unter ihrem deutschen Namen', () => {
+    expect(suche('vietnamesisch').sort()).toEqual(
+      ['Monsieur Vuong', 'Saveur de Bánh Mì Mitte'].sort()
+    );
+  });
+
+  it('findet sie weiterhin unter dem englischen Rohwert', () => {
+    expect(suche('vietnamese').sort()).toEqual(
+      ['Monsieur Vuong', 'Saveur de Bánh Mì Mitte'].sort()
+    );
+  });
+
+  it('findet die Strasse — sie liegt ohnehin im Kartenpayload', () => {
+    expect(suche('kastanienallee')).toEqual(["KuchenRausch's Feinbäckerei"]);
+  });
+
+  it('findet den Bezirk auch in der Kurzform, die auf den Aufklebern steht', () => {
+    expect(suche("p'berg")).toEqual(["KuchenRausch's Feinbäckerei"]);
+    expect(suche('prenzlauer')).toEqual(["KuchenRausch's Feinbäckerei"]);
+  });
+
+  it('stolpert nicht ueber den Apostroph im Namen', () => {
+    // Welches der vier Apostroph-Zeichen im Namen steht, sieht man ihm nicht an.
+    expect(suche('kuchenrauschs')).toEqual(["KuchenRausch's Feinbäckerei"]);
+  });
+
+  it('erfindet nichts dazu', () => {
+    expect(suche('koreanisch')).toEqual([]);
+  });
+});

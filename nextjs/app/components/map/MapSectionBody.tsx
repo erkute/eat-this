@@ -154,7 +154,11 @@ interface MapBodyFilterState {
 interface MapBodyHandlers {
   onMapClick: () => void;
   onMapMoveEnd: (e: ViewStateChangeEvent) => void;
-  onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void;
+  /* Meldet zurueck, OB der Spot aufgegangen ist. Bei offener Sheet raeumt der
+     erste Tipp auf die Karte nur weg und waehlt nichts aus (siehe
+     mapTapOnlyDismisses in MapSection) — der gesperrte Pin darf dann auch
+     keinen Oeffnungs-Treffer melden. */
+  onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => boolean | void;
   onMustEatClick: (m: MapMustEat) => void;
   pagerPrev: MapRestaurant | null;
   pagerNext: MapRestaurant | null;
@@ -313,8 +317,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      search for what is usually a "what is this?" tap. */
   const handleLockedClick = useCallback(
     (r: MapRestaurant) => {
+      /* Erst oeffnen, dann zaehlen. Andersherum meldete der Trichter auch die
+         Tipps, die gar keinen Spot aufmachen — seit der erste Tipp bei offener
+         Sheet nur wegraeumt, ist das kein Randfall mehr. */
+      if (onRestaurantClick(r, 'map') === false) return;
       trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
-      onRestaurantClick(r, 'map');
     },
     [onRestaurantClick]
   );
@@ -920,6 +927,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
+                    searchQuery={search}
                     lockedIds={lockedIdSet}
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}

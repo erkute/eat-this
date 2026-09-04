@@ -270,12 +270,19 @@ body {
   color: rgba(255, 255, 255, 0.55);
 }
 .bd-lang-btn.on,
-.bd-lang-btn:hover,
 .bd-lang-btn:focus-visible {
   color: var(--home-accent, #ffc600);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
+}
+@media (hover: hover) {
+  .bd-lang-btn:hover {
+    color: var(--home-accent, #ffc600);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
 }
 .bd-lang-sep {
   color: rgba(255, 255, 255, 0.3);
@@ -305,11 +312,17 @@ body {
     background-color 0.15s ease,
     color 0.15s ease;
 }
-.burger-drawer-close:hover,
 .burger-drawer-close:focus-visible {
   background: var(--home-accent, #ffc600);
   color: var(--home-ink, #15120e);
   outline: 0;
+}
+@media (hover: hover) {
+  .burger-drawer-close:hover {
+    background: var(--home-accent, #ffc600);
+    color: var(--home-ink, #15120e);
+    outline: 0;
+  }
 }
 
 /* Logo — cream wordmark, centered on the ink sheet */
@@ -322,10 +335,15 @@ body {
   transform: translateY(-4px);
   transition: transform 0.15s ease;
 }
-.bd-logo:hover,
 .bd-logo:focus-visible {
   outline: 0;
   transform: translateY(-7px);
+}
+@media (hover: hover) {
+  .bd-logo:hover {
+    outline: 0;
+    transform: translateY(-7px);
+  }
 }
 .bd-logo img {
   display: block;
@@ -364,12 +382,19 @@ body {
     color 0.15s ease,
     transform 0.15s ease;
 }
-.bd-nav-item:hover,
 .bd-nav-item:focus-visible {
   background: rgba(255, 255, 255, 0.08);
   color: var(--home-accent, #ffc600);
   outline: 0;
   transform: translateX(-6px);
+}
+@media (hover: hover) {
+  .bd-nav-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--home-accent, #ffc600);
+    outline: 0;
+    transform: translateX(-6px);
+  }
 }
 /* Anmelden / Profil — THE single accent button, pinned above the nav */
 .bd-nav-item.bd-cta {
@@ -378,11 +403,17 @@ body {
   background: var(--home-accent, #ffc600);
   color: var(--home-ink, #15120e);
 }
-.bd-nav-item.bd-cta:hover,
 .bd-nav-item.bd-cta:focus-visible {
   background: #fff;
   color: var(--home-ink, #15120e);
   transform: translateX(-6px);
+}
+@media (hover: hover) {
+  .bd-nav-item.bd-cta:hover {
+    background: #fff;
+    color: var(--home-ink, #15120e);
+    transform: translateX(-6px);
+  }
 }
 
 /* Legal dock — quiet centered text links, yellow underline on hover */
@@ -409,13 +440,21 @@ body {
   text-transform: uppercase;
   text-decoration: none;
 }
-.bd-foot-link:hover,
 .bd-foot-link:focus-visible {
   color: #fff;
   text-decoration: underline;
   text-decoration-color: var(--home-accent, #ffc600);
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
+}
+@media (hover: hover) {
+  .bd-foot-link:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-decoration-color: var(--home-accent, #ffc600);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
 }
 
 /* Entrance — die Wörter werden auf die Tafel GEWORFEN (no opacity fades,
@@ -538,7 +577,10 @@ body {
 .homeV2 .hv-cap{font-family:var(--et-font-display);font-weight:700;font-size:clamp(14px,1.1vw,16px);margin-top:var(--et-control-gap);color:var(--et-home-ink)}
 .homeV2 .hv-sub{font-family:var(--et-font-display);font-weight:400;font-size:var(--et-type-caption);color:var(--et-home-muted)}
 .homeV2 .hv-btn{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-button);padding:11px 24px;border-radius:999px;display:inline-block;background:var(--et-home-ink);color:var(--et-home-inverse-text);border:none;cursor:pointer;transition:transform var(--et-motion-fast),background-color var(--et-motion-fast)}
-.homeV2 .hv-btn:hover,.homeV2 .hv-btn:focus-visible{transform:translateY(-2px)}
+.homeV2 .hv-btn:focus-visible{transform:translateY(-2px)}
+@media (hover: hover) {
+  .homeV2 .hv-btn:hover{transform:translateY(-2px)}
+}
 .homeV2 .hv-btn:active{transform:translateY(1px)}
 .homeV2 .hv-chip{transition:transform var(--et-motion-fast),background-color var(--et-motion-fast)}
 .homeV2 .hv-chip:active{transform:translateY(1px)}

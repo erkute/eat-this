@@ -548,11 +548,18 @@
   text-decoration: none;
 }
 
-.sibRowHeadLink:hover,
 .sibRowHeadLink:focus-visible {
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .sibRowHeadLink:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
 }
 
 /* Gleiche Kopfzeile wie „Im Magazin" (.head in RestaurantArticlesSection):
@@ -694,9 +701,14 @@
   transition: color 140ms ease;
 }
 
-.factsLink:hover,
 .factsLink:focus-visible {
   color: var(--detail-accent);
+}
+
+@media (hover: hover) {
+  .factsLink:hover {
+    color: var(--detail-accent);
+  }
 }
 
 .hoursDay {
@@ -786,11 +798,18 @@
   box-shadow: inset 0 0 0 2px var(--detail-accent);
 }
 
-.actPrimary:hover,
 .actPrimary:focus-visible {
   background: var(--detail-paper);
   color: var(--detail-ink);
   box-shadow: inset 0 0 0 2px var(--detail-paper);
+}
+
+@media (hover: hover) {
+  .actPrimary:hover {
+    background: var(--detail-paper);
+    color: var(--detail-ink);
+    box-shadow: inset 0 0 0 2px var(--detail-paper);
+  }
 }
 
 .act:active,

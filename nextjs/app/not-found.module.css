@@ -186,18 +186,32 @@
   text-transform: uppercase;
 }
 
-.primaryCta:hover,
 .primaryCta:focus-visible {
   background: var(--nf-accent);
   color: var(--nf-ink);
   outline: 0;
 }
 
-.secondaryCta:hover,
+@media (hover: hover) {
+  .primaryCta:hover {
+    background: var(--nf-accent);
+    color: var(--nf-ink);
+    outline: 0;
+  }
+}
+
 .secondaryCta:focus-visible {
   background: var(--nf-accent);
   border-color: var(--nf-ink);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .secondaryCta:hover {
+    background: var(--nf-accent);
+    border-color: var(--nf-ink);
+    outline: 0;
+  }
 }
 
 /* The error boundary renders its retry CTA as a <button> — strip the UA
@@ -250,10 +264,16 @@
   text-transform: uppercase;
 }
 
-.moreLink:hover,
 .moreLink:focus-visible {
   background: var(--nf-accent);
   outline: 0;
+}
+
+@media (hover: hover) {
+  .moreLink:hover {
+    background: var(--nf-accent);
+    outline: 0;
+  }
 }
 
 @media (max-width: 820px) {

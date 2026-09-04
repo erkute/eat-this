@@ -48,11 +48,18 @@
     color 0.15s ease;
 }
 
-.link:hover,
 .link:focus-visible {
   background: var(--et-home-accent, #ffc600);
   border-color: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    background: var(--et-home-accent, #ffc600);
+    border-color: var(--et-home-accent, #ffc600);
+    color: var(--et-home-ink, #15120e);
+  }
 }
 
 .link:focus-visible {

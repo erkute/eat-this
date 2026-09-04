@@ -105,10 +105,16 @@
     transform var(--conversion-motion);
 }
 
-.cta:hover,
 .cta:focus-visible {
   background: var(--conversion-paper);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--conversion-paper);
+    transform: translateY(-2px);
+  }
 }
 
 .cta:focus-visible {

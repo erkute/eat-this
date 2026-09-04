@@ -374,9 +374,14 @@
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.medish:hover,
 .medish:focus-visible {
   transform: translateY(-3px);
+}
+
+@media (hover: hover) {
+  .medish:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .ph {
@@ -519,14 +524,22 @@
   border: 2px solid var(--must-accent);
 }
 
-.headCta:hover,
 .headCta:focus-visible,
-.closeCta:hover,
 .closeCta:focus-visible {
   background: var(--close-paper);
   border-color: var(--close-paper);
   color: var(--close-ink);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .headCta:hover,
+  .closeCta:hover {
+    background: var(--close-paper);
+    border-color: var(--close-paper);
+    color: var(--close-ink);
+    transform: translateY(-2px);
+  }
 }
 
 /* Die Seitentür als Ring, wie der Standort-Chip im Must-Eat-Sheet: weißer
@@ -537,11 +550,18 @@
   border: 2px solid rgba(255, 255, 255, 0.28);
 }
 
-.closeSecondary:hover,
 .closeSecondary:focus-visible {
   border-color: var(--close-accent);
   color: var(--close-accent);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .closeSecondary:hover {
+    border-color: var(--close-accent);
+    color: var(--close-accent);
+    transform: translateY(-2px);
+  }
 }
 
 .headCta:focus-visible,

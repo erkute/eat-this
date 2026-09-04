@@ -187,8 +187,10 @@
   flex: 0 0 auto;
 }
 
-.mapSearchClear:hover {
-  opacity: 0.7;
+@media (hover: hover) {
+  .mapSearchClear:hover {
+    opacity: 0.7;
+  }
 }
 
 /* Tablet keeps the view-driven retreat (its sheet is a transformed drag-sheet,
@@ -452,10 +454,12 @@
   filter: none;
 }
 
-.mapSearchBtn:hover,
-.mapBurger:hover,
-.fab:hover {
-  filter: none;
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+  .mapBurger:hover,
+  .fab:hover {
+    filter: none;
+  }
 }
 
 .mapBurgerLines,
@@ -476,9 +480,14 @@
   filter: none;
 }
 
-.mapSearchBtn:hover,
 .mapSearchBtn:focus-visible {
   transform: translateY(-1px);
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .mapSearchBtn .mapSearchIcon {
@@ -550,21 +559,30 @@
   backdrop-filter: none;
 }
 
-.mapSearchBtn:hover,
 .mapSearchBtn:focus-visible,
-.mapBurger:hover,
 .mapBurger:focus-visible,
-.fab:hover,
 .fab:focus-visible,
-.panelToggle:hover,
 .panelToggle:focus-visible,
-.mapSearchClear:hover,
 .mapSearchClear:focus-visible {
   background: transparent;
   /* Gelb statt Rot: derselbe Hover wie ueberall auf dem Ink-Grund. */
   color: var(--et-home-accent, #ffc600);
   border: 0;
   box-shadow: none;
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+  .mapBurger:hover,
+  .fab:hover,
+  .panelToggle:hover,
+  .mapSearchClear:hover {
+    background: transparent;
+    /* Gelb statt Rot: derselbe Hover wie ueberall auf dem Ink-Grund. */
+    color: var(--et-home-accent, #ffc600);
+    border: 0;
+    box-shadow: none;
+  }
 }
 
 .mapSearchBtn .mapSearchIcon,
@@ -735,11 +753,18 @@
   box-shadow: none;
 }
 
-.mapSearchClear:hover,
 .mapSearchClear:focus-visible {
   background: transparent;
   color: currentColor;
   outline: 0;
+}
+
+@media (hover: hover) {
+  .mapSearchClear:hover {
+    background: transparent;
+    color: currentColor;
+    outline: 0;
+  }
 }
 
 @media (max-width: 520px) {
@@ -782,12 +807,20 @@
   transform-origin: 50% 50%;
 }
 
-.mapSearchBtn:hover,
 .mapSearchBtn:focus-visible {
   background: transparent;
   color: var(--et-home-accent, #ffc600);
   border: 0;
   box-shadow: none;
+}
+
+@media (hover: hover) {
+  .mapSearchBtn:hover {
+    background: transparent;
+    color: var(--et-home-accent, #ffc600);
+    border: 0;
+    box-shadow: none;
+  }
 }
 
 .mapSearchBtn:active .mapSearchIcon {

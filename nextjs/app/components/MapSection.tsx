@@ -302,6 +302,49 @@ export default function MapSection({
     [listAnchorY]
   );
 
+  /* Die Sheet aus dem Weg räumen — das, was ein Tipp auf die Karte tut.
+     Für die Detailansicht heißt das „auf peek einklappen" (Name plus die drei
+     runden Icons bleiben stehen, die Auswahl auch), für die Telefon-Liste der
+     Rücksprung auf ihre Ruhelage. Steht hier, weil es zwei Aufrufer hat:
+     handleMapClick weiter unten und die Marker-Sperre in
+     handleRestaurantClick / handleMustEatClick. */
+  const collapseSheetToPeek = useCallback(() => {
+    if (isPhoneViewport() && sheetView === 'list') {
+      scrollListToAnchor('peek');
+      return;
+    }
+    if (snap !== 'peek') {
+      setSnap('peek');
+      reapplySnap('peek');
+    }
+  }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor]);
+
+  /* Der erste Tipp auf die Karte räumt nur weg (User, 04.09.2026).
+     Steht eine Detailansicht offen und liegt sie noch über der Karte, dann
+     wählt ein Tipp auf die Karte KEINEN Spot aus — egal, ob er zufällig einen
+     Pin trifft. Er klappt nur ein. Erst der zweite Tipp wählt wieder.
+
+     Der Grund: bei offener Sheet gibt es auf der Karte keinen Vorhang. Die
+     Fläche, auf die man zum Wegtippen zielt, IST die Karte, und dort stehen
+     rund 400 Pins — ein Wegtipp traf regelmäßig einen davon und öffnete einen
+     fremden Spot.
+
+     Zwei Grenzen, damit die Sperre nicht mehr frisst als sie soll: nur auf
+     Mobil (auf dem Desktop liegt die Sheet neben der Karte, nicht darüber und
+     verdeckt nichts), und nur solange die Sheet NICHT schon auf peek steht —
+     ist sie bereits eingeklappt, liegt nichts mehr im Weg und ein Pin-Tipp
+     meint wieder den Pin. Listenzeilen sind nie betroffen, die kommen mit
+     origin === 'list'. */
+  const mapTapOnlyDismisses = useCallback(
+    (origin: DetailOrigin) =>
+      origin === 'map' &&
+      sheetView === 'detail' &&
+      snap !== 'peek' &&
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 1023.98px)').matches,
+    [sheetView, snap]
+  );
+
   /* Put one specific row on screen — the spot whose detail just closed, when
      that detail was opened FROM the list. Only works while that row is
      rendered, which is what listFocusId below is for; returns false when it
@@ -1035,6 +1078,10 @@ export default function MapSection({
 
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: DetailOrigin = 'list') => {
+      if (mapTapOnlyDismisses(origin)) {
+        collapseSheetToPeek();
+        return false;
+      }
       userInteractedRef.current = true;
       /* A marker tap is the user pointing at the map: from here on the list
          follows it, and the camera's return flight on close is the move that
@@ -1124,8 +1171,11 @@ export default function MapSection({
             : getFlyPadding(isMobile ? 'full' : undefined),
         });
       }
+      return true;
     },
     [
+      mapTapOnlyDismisses,
+      collapseSheetToPeek,
       getFlyPadding,
       phoneDetailFlyPadding,
       setSearch,
@@ -1542,17 +1592,8 @@ export default function MapSection({
        icons; for the list, peek shows the count + filter strip. The detail
        selection itself is preserved — the user can drag the sheet back up
        to keep reading without re-opening anything. */
-    if (isPhoneViewport() && sheetView === 'list') {
-      // In-flow phone list: "collapse to peek" = scroll the window back to
-      // the list's resting overlap.
-      scrollListToAnchor('peek');
-      return;
-    }
-    if (snap !== 'peek') {
-      setSnap('peek');
-      reapplySnap('peek');
-    }
-  }, [snap, setSnap, reapplySnap, sheetView, scrollListToAnchor]);
+    collapseSheetToPeek();
+  }, [collapseSheetToPeek]);
 
   /* Opening search moves NOTHING. It used to surface the list — an instant
      ~204px window scroll on phones, a peek→mid snap on tablets — on the

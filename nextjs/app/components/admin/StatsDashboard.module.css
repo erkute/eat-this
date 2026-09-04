@@ -51,8 +51,10 @@
   cursor: pointer;
 }
 
-.range:hover {
-  background: #ffc600;
+@media (hover: hover) {
+  .range:hover {
+    background: #ffc600;
+  }
 }
 
 .rangeOn {
@@ -427,11 +429,7 @@
 /* Der laufende Tag ist unvollstaendig — schraffiert statt voll, damit er nicht
    als Einbruch gelesen wird. */
 .trendBarToday {
-  background: repeating-linear-gradient(
-    45deg,
-    #ffc600 0 4px,
-    #fff 4px 8px
-  );
+  background: repeating-linear-gradient(45deg, #ffc600 0 4px, #fff 4px 8px);
 }
 
 /* ── Eigener Browser ──────────────────────────────────────────────────── */
@@ -453,8 +451,10 @@
   cursor: pointer;
 }
 
-.optOutButton:hover {
-  background: #ffc600;
+@media (hover: hover) {
+  .optOutButton:hover {
+    background: #ffc600;
+  }
 }
 
 /* ── Google-Suche ─────────────────────────────────────────────────────── */

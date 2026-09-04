@@ -190,10 +190,16 @@
   line-height: 1;
 }
 
-.page .heroActions :global(.hv-btn):hover,
 .page .heroActions :global(.hv-btn):focus-visible {
   color: var(--et-home-ink);
   background: var(--et-home-inverse-text);
+}
+
+@media (hover: hover) {
+  .page .heroActions :global(.hv-btn):hover {
+    color: var(--et-home-ink);
+    background: var(--et-home-inverse-text);
+  }
 }
 
 .page .heroActions :global(.hv-btn):focus-visible {
@@ -214,11 +220,18 @@
   text-decoration: none;
 }
 
-.page .heroActions .heroSecondaryBtn:global(.hv-btn):hover,
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
   color: var(--et-home-accent);
   background: transparent;
   box-shadow: inset 0 0 0 2px var(--et-home-accent);
+}
+
+@media (hover: hover) {
+  .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover {
+    color: var(--et-home-accent);
+    background: transparent;
+    box-shadow: inset 0 0 0 2px var(--et-home-accent);
+  }
 }
 
 /* Two device cutouts, the map phone in front and slightly lower, the spot page
@@ -268,25 +281,44 @@
   filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45));
 }
 
-.heroPhones:hover .phoneFront,
 .heroPhones:focus-visible .phoneFront {
   transform: rotate(-3deg) translateY(-8px);
 }
 
-.heroPhones:hover .phoneBack,
+@media (hover: hover) {
+  .heroPhones:hover .phoneFront {
+    transform: rotate(-3deg) translateY(-8px);
+  }
+}
+
 .heroPhones:focus-visible .phoneBack {
   transform: rotate(4deg) translateY(-4px);
 }
 
+@media (hover: hover) {
+  .heroPhones:hover .phoneBack {
+    transform: rotate(4deg) translateY(-4px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .heroPhones:hover .phoneFront,
   .heroPhones:focus-visible .phoneFront {
     transform: rotate(-5deg);
   }
+  @media (hover: hover) {
+    .heroPhones:hover .phoneFront {
+      transform: rotate(-5deg);
+    }
+  }
 
-  .heroPhones:hover .phoneBack,
   .heroPhones:focus-visible .phoneBack {
     transform: rotate(6deg);
+  }
+
+  @media (hover: hover) {
+    .heroPhones:hover .phoneBack {
+      transform: rotate(6deg);
+    }
   }
 }
 
@@ -394,9 +426,14 @@
   transition: transform 260ms ease;
 }
 
-.spotCard:hover .spotImage,
 .spotCard:focus-visible .spotImage {
   transform: scale(1.03);
+}
+
+@media (hover: hover) {
+  .spotCard:hover .spotImage {
+    transform: scale(1.03);
+  }
 }
 
 .spotCard:focus-visible {
@@ -479,9 +516,14 @@
   transition: background 160ms ease;
 }
 
-.spotCard:hover .spotCta,
 .spotCard:focus-visible .spotCta {
   background: var(--et-home-inverse-text);
+}
+
+@media (hover: hover) {
+  .spotCard:hover .spotCta {
+    background: var(--et-home-inverse-text);
+  }
 }
 
 .spotCard:active .spotCta {

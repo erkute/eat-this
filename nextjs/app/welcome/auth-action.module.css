@@ -236,8 +236,10 @@
     background-color 140ms ease;
 }
 
-.avatar:hover {
-  transform: translateY(-3px);
+@media (hover: hover) {
+  .avatar:hover {
+    transform: translateY(-3px);
+  }
 }
 
 /* Die gewählte Karte hebt sich an und bekommt den Ink-Rahmen — Bewegung
@@ -316,8 +318,10 @@
   transition: transform 140ms ease;
 }
 
-.cta:hover:not(:disabled) {
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .cta:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
 }
 
 .cta:disabled {

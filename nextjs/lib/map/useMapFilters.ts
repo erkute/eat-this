@@ -3,6 +3,8 @@ import type { MapRestaurant, MapCategory, MapMustEat } from '@/lib/types';
 import { getOpenStatus } from './openingHours';
 import { PRICE_BUCKETS, matchesPriceBucket, priceBucketOf } from './priceBuckets';
 import { byMustEatsThenName } from './listOrder';
+import { CUISINE_LABELS_DE } from '@/lib/cuisineLabels';
+import { abbreviateBezirk } from './abbreviateBezirk';
 
 /** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
  *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
@@ -26,8 +28,29 @@ function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null;
 }
 
+/* Kleinschreibung reicht für eine Suche über Restaurantnamen nicht.
+ * „banh mi" fand die beiden „Saveur de Bánh Mì" nicht, weil `includes` Zeichen
+ * für Zeichen vergleicht und `a` nicht `á` ist. Dasselbe trifft Döner, Café,
+ * Türkisch, Neukölln — also fast alles, was man hier tippt.
+ *
+ * NFD zerlegt jeden Buchstaben in Grundzeichen plus Akzent, danach fliegen die
+ * Akzente raus. Das wirkt auf BEIDEN Seiten: „Türkisch" getippt findet
+ * „Turkisch" geschrieben und umgekehrt. */
+export function normalizeForSearch(value: string | null | undefined): string {
+  return (value ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    /* Apostrophe fliegen mit raus, in allen vier Schreibweisen, die im
+       Bestand vorkommen. „KuchenRausch's", „EIVGI´S" und die Kurzform
+       „P'berg" tippt niemand mit dem richtigen Zeichen — und welches das
+       richtige ist, weiss man dem Namen nicht an. */
+    .replace(/['\u2019\u02bc\u00b4`]/g, '');
+}
+
 function includesQuery(value: string | null | undefined, q: string): boolean {
-  return Boolean(value?.toLowerCase().includes(q));
+  if (!value) return false;
+  return normalizeForSearch(value).includes(q);
 }
 
 /** The three pickable filters plus the open-now toggle — everything the chip
@@ -168,7 +191,7 @@ export function useMapFilters({
       const restaurantId = mustEat.restaurant?._id;
       const dish = mustEat.dish?.trim();
       if (!restaurantId || !dish) continue;
-      index.set(restaurantId, `${index.get(restaurantId) ?? ''} ${dish.toLowerCase()}`);
+      index.set(restaurantId, `${index.get(restaurantId) ?? ''} ${normalizeForSearch(dish)}`);
     }
     return index;
   }, [mustEats]);
@@ -178,13 +201,25 @@ export function useMapFilters({
   // selection.
   const filterRestaurant = useCallback(
     (r: MapRestaurant): boolean => {
-      const q = search.trim().toLowerCase();
+      const q = normalizeForSearch(search.trim());
       if (q) {
         const dishIndex = dishIndexByRestaurantId.get(r._id) ?? '';
         const hit =
           includesQuery(r.name, q) ||
           includesQuery(districtOf(r), q) ||
+          /* „P'berg" steht so auf den Aufklebern der Liste — wer es liest,
+             tippt es auch. */
+          includesQuery(abbreviateBezirk(districtOf(r)), q) ||
+          /* Die Strasse. Sie liegt ohnehin im Kartenpayload, kostet hier also
+             nichts, und „Kastanienallee" ist eine Suche wie jede andere. */
+          includesQuery(r.address, q) ||
           includesQuery(r.cuisineType, q) ||
+          /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
+             deutschen Seiten liest man aber das Label („Vietnamesisch") — und
+             genau das tippt man dann auch. Ohne diese Zeile fand „vietnamesisch"
+             keinen der acht vietnamesischen Spots. Beide Formen zählen, damit
+             die Suche in beiden Sprachen dasselbe findet. */
+          (r.cuisineType ? includesQuery(CUISINE_LABELS_DE[r.cuisineType], q) : false) ||
           dishIndex.includes(q) ||
           r.categories?.some(
             (c) =>

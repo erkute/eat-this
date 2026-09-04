@@ -146,7 +146,7 @@
   background: var(--et-home-red, #d9382a);
 }
 
-/* Rund 60 % der Größe des gelben Pins (User, 2026-08-27). Bei gleicher Größe
+/* Die Hälfte der Größe des gelben Pins. Bei gleicher Größe
    standen an der Standardkamera auf einem 390px-Fenster 238 graue gegen 40
    gelbe im Bild — die Marker überdeckten die Karte, und das Gewicht lag bei
    den gesperrten statt bei den offenen Spots.
@@ -159,9 +159,17 @@
    bleibt ein Punkt, ein Pin würde dort ‚dieser ist frei' heißen": das galt,
    solange die FORM den Unterschied trug. Jetzt trägt ihn die Farbe — der
    ausgewählte gesperrte Pin wächst, bleibt aber rot — .pinLogoActive ändert
-   nur Größe und Schatten, nie die Füllung. */
+   nur Größe und Schatten, nie die Füllung.
+
+   Von 0.6 auf 0.5 (User, 04.09.2026). Seit die gesperrten Pins rot statt grau
+   sind, tragen sie weiter als vorher, und auf rund vier verdeckte kommt ein
+   freier — das Gewicht des Bildes lag damit bei dem, was man NICHT hat.
+   Gemessen an der Standardkamera auf 1280px: rote Fläche zu gelber war 0,74,
+   bei 0.5 ist sie 0,56. Nach unten ist 0.42 die Grenze (0,41) — dort zerfällt
+   das Logo im roten Pin zu Brei und die Marker lesen sich als anonyme Punkte.
+   Die Farbe blieb dabei unangetastet: der leisere Hebel ist die Größe. */
 .pinLogoLocked:not(.pinLogoActive) .pinLogoShape {
-  transform: scale(0.6);
+  transform: scale(0.5);
   transform-origin: 50% 100%;
 }
 
@@ -180,8 +188,10 @@
      die schwarze Zeichnung. Uebrig blieb eine weisse Silhouette ohne
      Buchstaben. */
 
-.pinLogo:hover {
-  transform: rotate(3deg) translateY(-3px) scale(1.12);
+@media (hover: hover) {
+  .pinLogo:hover {
+    transform: rotate(3deg) translateY(-3px) scale(1.12);
+  }
 }
 
 .pinLogoActive {
@@ -201,8 +211,10 @@
   height: 76%;
 }
 
-.pinLogoActive:hover {
-  transform: rotate(-2deg) translateY(-4px) scale(1.06);
+@media (hover: hover) {
+  .pinLogoActive:hover {
+    transform: rotate(-2deg) translateY(-4px) scale(1.06);
+  }
 }
 
 .pinLogoActive.pinLogoHasMust::after {

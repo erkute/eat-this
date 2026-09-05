@@ -52,13 +52,69 @@
      ran a layout animation on every mounted marker at once. */
   transition:
     transform 0.16s ease,
-    filter 0.16s ease;
+    filter 0.24s ease,
+    opacity 0.24s ease;
 }
 
 .pinLogo:focus-visible {
   border-radius: 50%;
   outline: 3px solid #ffc600;
   outline-offset: 4px;
+}
+
+/* Zurückgetretener Pin ------------------------------------------------------
+   Steht eine Detailansicht offen, treten alle anderen Spots zurück, damit auf
+   der Karte lesbar bleibt, um welchen es geht — und man um ihn herumschauen
+   kann, ohne ihn in 400 gleich hellen Pins zu verlieren.
+
+   Zur Opacity-Regel aus CLAUDE.md: die verbietet Opacity für Ein- und
+   Ausblend-BEWEGUNG auf Marken-Flächen. Das hier ist keine Bewegung, sondern
+   ein Zustand wie ein Hover-State — der Pin verschwindet nicht, er wird leise.
+   Deshalb auch kein Verschieben oder Schrumpfen: ein Pin, der sich bewegt,
+   zeigt nicht mehr genau auf seine Koordinate, und die Karte würde bei jedem
+   Öffnen einmal in sich zusammenzucken.
+
+   0.3 ist die Grenze nach unten: darunter verlieren die roten Pins auf dem
+   Ink-Grund den Kontrast und die Karte wirkt leer statt fokussiert. Die
+   Entsättigung nimmt zusätzlich das Gelb heraus, das sonst auch bei niedriger
+   Deckkraft noch als Farbe zieht.
+
+   Angeklickt werden dürfen sie weiter — wer beim Stöbern einen Nachbarn
+   entdeckt, soll ihn öffnen können. Auf Zeigergeräten kommt er beim Hovern
+   fast ganz zurück, damit man vor dem Klick sieht, was man trifft, und mit
+   der Tastatur beim Fokussieren ganz.
+
+   Zur Abwägung, die dahinter steckt: bei 0.3 steht ein gelber Pin auf dem
+   Ink-Grund noch bei 1,8:1, ein roter bei 1,4:1 — unter den 3:1, die WCAG
+   1.4.11 für bedeutungstragende Bedienelemente verlangt. Sie sind es hier
+   bewusst: während eine Detailansicht offen ist, sind die anderen Spots
+   Hintergrund wie die Seite hinter einem Dialog, und der eine Spot, um den es
+   geht, steht bei 11,8:1. Damit daran trotzdem niemand hängenbleibt, kommt
+   jeder Pin bei Fokus oder Hover zurück, bevor man ihn treffen muss. */
+.pinLogoDim {
+  opacity: 0.3;
+  filter: saturate(0.5);
+}
+
+/* Wer sich mit der Tastatur über die Karte bewegt, sieht sonst nur den
+   Fokusring und darin ein Gespenst. */
+.pinLogoDim:focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
+.pinLogoDim .pinLogoShape,
+.pinLogoDim.pinLogoHasMust::after {
+  /* Der Schlagschatten ist das, was einen Pin von der Karte abhebt. Ohne ihn
+     liegt der zurückgetretene Pin flach auf dem Grund statt darüber. */
+  filter: none;
+}
+
+@media (hover: hover) {
+  .pinLogoDim:hover {
+    opacity: 0.9;
+    filter: none;
+  }
 }
 
 /* First-load drop-in ----------------------------------------------------

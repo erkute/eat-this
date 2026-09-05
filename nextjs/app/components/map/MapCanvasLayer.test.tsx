@@ -30,6 +30,9 @@ vi.mock('./MapCanvas', () => {
   return { default: MapCanvasStub };
 });
 vi.mock('./UserLocationMarker', () => ({ default: () => <div data-user-marker /> }));
+/* Die Bahnhofs-Ebene wird im Canvas gezeichnet, nicht im DOM — hier steht sie
+   nur im Weg, weil sie MapLibre-Kontext braucht, den der Stub oben nicht hat. */
+vi.mock('./TransitLayer', () => ({ default: () => null }));
 
 import MapCanvasLayer from './MapCanvasLayer';
 
@@ -63,7 +66,8 @@ function layer(
   free: MapRestaurant[],
   locked: MapRestaurant[],
   selected: MapRestaurant | null = null,
-  selectedIsLocked = false
+  selectedIsLocked = false,
+  focusedRestaurantId: string | null = selected?._id ?? null
 ) {
   return (
     <MapCanvasLayer
@@ -76,6 +80,7 @@ function layer(
       selectedIsLocked={selectedIsLocked}
       onRestaurantClick={vi.fn()}
       onLockedClick={vi.fn()}
+      focusedRestaurantId={focusedRestaurantId}
       location={null}
     />
   );
@@ -110,6 +115,7 @@ function layerWithRef(free: MapRestaurant[], locked: MapRestaurant[], ref: never
       selectedIsLocked={false}
       onRestaurantClick={vi.fn()}
       onLockedClick={vi.fn()}
+      focusedRestaurantId={null}
       location={null}
     />
   );
@@ -257,5 +263,49 @@ describe('MapCanvasLayer draws every spot on its own', () => {
 
     const labels = screen.getAllByRole('button').map((el) => el.getAttribute('aria-label'));
     expect(labels).toEqual(['locked-1', 'locked-2', 'free-1', 'free-2']);
+  });
+});
+
+/* Steht eine Detailansicht offen, tritt der Rest der Karte zurück — sonst
+   verschwindet der eine Spot, um den es geht, zwischen 400 gleich hellen
+   Pins, und genau darin sollte man sich umsehen können. */
+describe('MapCanvasLayer dims everything but the open spot', () => {
+  const dimmed = () => document.querySelectorAll('[class*="pinLogoDim"]');
+
+  it('leaves every pin at full strength while no detail is open', async () => {
+    render(layer(spread('free-1', 'free-2'), spread('locked-1')));
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(dimmed()).toHaveLength(0);
+  });
+
+  it('dims the others but never the open spot', async () => {
+    const target = spot('free-2');
+    render(layer([spot('free-1'), target, spot('free-3')], [spot('locked-1')], target, false));
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    // free-1, free-3 und der gesperrte Spot — der offene bleibt hell.
+    expect(dimmed()).toHaveLength(3);
+    expect(screen.getByLabelText('free-2').className).not.toMatch(/pinLogoDim/);
+  });
+
+  it('dims around an open locked spot as well', async () => {
+    const target = spot('locked-1');
+    render(layer([spot('free-1')], [target, spot('locked-2')], target, true));
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(dimmed()).toHaveLength(2);
+    expect(screen.getByLabelText('locked-1').className).not.toMatch(/pinLogoDim/);
+  });
+
+  /* Ein offenes Must Eat setzt `selectedRestaurant` auf null (siehe
+     handleMustEatClick), gehört aber zu einem Spot — auf der Karte ist das
+     derselbe Punkt, und der muss stehen bleiben. */
+  it('keeps the must-eat spot lit when nothing is selected', async () => {
+    render(layer(spread('free-1', 'free-2'), [], null, false, 'free-2'));
+    await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
+
+    expect(dimmed()).toHaveLength(1);
+    expect(screen.getByLabelText('free-2').className).not.toMatch(/pinLogoDim/);
   });
 });

@@ -612,6 +612,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selectedIsLocked={!!selectedRestaurant && lockedIdSet.has(selectedRestaurant._id)}
                 onRestaurantClick={handleMapRestaurantClick}
                 onLockedClick={handleLockedClick}
+                /* Der Spot, um den es gerade geht. Beim Must-Eat-Detail ist
+                   `selectedRestaurant` null (siehe handleMustEatClick), das
+                   Gericht gehört aber zu einem Spot — auf der Karte ist das
+                   derselbe Punkt, also tritt auch dort der Rest zurück. */
+                focusedRestaurantId={
+                  selectedRestaurant?._id ?? selectedMustEat?.restaurant._id ?? null
+                }
                 location={location}
               />
             </div>

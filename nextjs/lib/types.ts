@@ -44,6 +44,10 @@ export interface Restaurant {
   _id: string;
   name: string;
   slug: string;
+  /** Dauerhaft geschlossen. Die Detailseite rendert weiter, geht aber auf
+   *  `noindex,follow`, und `liveRestaurant()` haelt den Spot aus jeder Liste
+   *  und aus der Sitemap heraus. */
+  isClosed?: boolean;
   district?: string;
   cuisineType?: string;
   address?: string;
@@ -199,12 +203,10 @@ export interface BezirkDoc {
    * lead with them; `bezirkBySlugQuery` projects only the slugs, because the
    * detail page already loads every restaurant of the district.
    */
-  topSpotCards?: (Pick<
+  topSpotCards?: Pick<
     RestaurantCard,
     '_id' | 'name' | 'slug' | 'cuisineType' | 'priceRange' | 'photo'
-  > & {
-    isOpen?: boolean;
-  })[];
+  >[];
   topSpots?: string[];
 }
 
@@ -230,7 +232,6 @@ export interface MapRestaurant {
   _createdAt: string;
   name: string;
   slug: string;
-  isClosed: boolean;
   district?: string;
   bezirk?: { name: string; slug?: string };
   address?: string;

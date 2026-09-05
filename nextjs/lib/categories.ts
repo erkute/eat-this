@@ -40,10 +40,10 @@ export interface CategoryWithStats extends CategoryDef {
    * Kuratierte Bestenliste in redaktioneller Reihenfolge (`category.topSpots`
    * im Studio), als aufgelöste Karten — das Regal soll damit anfangen dürfen.
    */
-  topSpotCards?: (Pick<
+  topSpotCards?: Pick<
     RestaurantCard,
     '_id' | 'name' | 'slug' | 'cuisineType' | 'priceRange' | 'photo'
-  > & { isOpen?: boolean })[];
+  >[];
 }
 
 /** DE/EN display label for a category, falling back to the other locale when one is missing. */

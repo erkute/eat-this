@@ -148,7 +148,7 @@ export default async function KategorieIndexPage({ params }: PageProps) {
               // alphabetischen Auswahl. Vier von neun Kategorien sind im Studio
               // kuratiert; für die übrigen ist das Ergebnis exakt die
               // alphabetische Auswahl.
-              const curated = (c.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
+              const curated = (c.topSpotCards ?? []).filter((r) => r.photo);
               const spots = pickShelf(curated, c.exampleRestaurants, 4);
               const count = c.restaurantCount ?? 0;
               const label = localizedCategoryName(c, loc);

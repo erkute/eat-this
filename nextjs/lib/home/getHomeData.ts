@@ -26,7 +26,7 @@ export interface HomeData {
   categoryNames: Record<string, string>;
 }
 
-const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
+const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && isClosed != true && !(_id in path("drafts.**"))]{
   _id,
   "name": name,
   "slug": slug.current,

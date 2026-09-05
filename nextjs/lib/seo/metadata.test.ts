@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildHreflangAlternates, toOgLocale } from './metadata';
+import { INDEXABLE_ROBOTS, buildHreflangAlternates, restaurantRobots, toOgLocale } from './metadata';
 
 // SITE_URL is https://www.eatthisdot.com (lib/constants). These assertions pin
 // the exact strings the pages emitted before the refactor.
@@ -57,5 +57,23 @@ describe('toOgLocale', () => {
   it('maps app locales to og:locale values', () => {
     expect(toOgLocale('de')).toBe('de_DE');
     expect(toOgLocale('en')).toBe('en_US');
+  });
+});
+
+describe('restaurantRobots', () => {
+  it('laesst einen offenen Spot indexieren, mit Bild- und Snippet-Erlaubnis', () => {
+    expect(restaurantRobots({})).toBe(INDEXABLE_ROBOTS);
+    expect(restaurantRobots({ isClosed: false })).toBe(INDEXABLE_ROBOTS);
+  });
+
+  it('nimmt einen dauerhaft geschlossenen Spot aus dem Index, folgt aber weiter', () => {
+    // Kein `nofollow`: die Seite verlinkt Nachbarn und Bezirk, und die
+    // Sitemap laesst den Spot ohnehin weg — beide Signale sagen jetzt dasselbe.
+    expect(restaurantRobots({ isClosed: true })).toBe('noindex,follow');
+  });
+
+  it('laesst `seo.noIndex` vorgehen — die bewusste Entscheidung schlaegt den Zustand', () => {
+    expect(restaurantRobots({ seo: { noIndex: true }, isClosed: true })).toBe('noindex,nofollow');
+    expect(restaurantRobots({ seo: { noIndex: true } })).toBe('noindex,nofollow');
   });
 });

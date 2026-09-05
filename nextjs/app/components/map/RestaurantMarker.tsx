@@ -7,6 +7,9 @@ import styles from './MapMarkers.module.css';
 interface RestaurantMarkerProps {
   restaurant: MapRestaurant;
   isSelected: boolean;
+  /** Eine Detailansicht steht offen und meint einen anderen Spot — dieser
+   *  hier tritt zurück. Bleibt sichtbar und anklickbar, nur leiser. */
+  isDimmed?: boolean;
   onClick: (restaurant: MapRestaurant) => void;
   /** Milliseconds to hold this pin back during the first-load drop-in, or
    *  `null` outside that window — a pin that mounts later (filter change)
@@ -17,6 +20,7 @@ interface RestaurantMarkerProps {
 function RestaurantMarker({
   restaurant,
   isSelected,
+  isDimmed = false,
   onClick,
   enterDelayMs = null,
 }: RestaurantMarkerProps) {
@@ -36,6 +40,7 @@ function RestaurantMarker({
         styles.pinLogo,
         isSelected && styles.pinLogoActive,
         restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
+        isDimmed && styles.pinLogoDim,
         enterDelayMs !== null && styles.pinLogoEnter,
       ]
         .filter(Boolean)
@@ -77,6 +82,7 @@ export default memo(
     prev.restaurant.lat === next.restaurant.lat &&
     prev.restaurant.lng === next.restaurant.lng &&
     prev.isSelected === next.isSelected &&
+    prev.isDimmed === next.isDimmed &&
     prev.onClick === next.onClick &&
     prev.enterDelayMs === next.enterDelayMs
 );

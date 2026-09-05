@@ -86,8 +86,8 @@ describe('MapPromoCTA', () => {
     // black slab of type — regressing to a text-only CTA should fail here.
     // Zwei Geräte: die Map vorn, eine Spot-Seite dahinter. Fällt eines weg,
     // ist die Staffelung kaputt und der Banner zeigt nur noch die halbe Idee.
-    expect(html).toContain('phone-map.webp');
-    expect(html).toContain('phone-restaurant.webp');
+    expect(html).toContain('phone-map-ink.webp');
+    expect(html).toContain('phone-restaurant-ink.webp');
   });
 
   it('band variant is the home-page button: label, deep-link, no section heading', () => {

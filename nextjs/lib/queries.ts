@@ -6,6 +6,7 @@ import {
   restaurantPhotoCredit,
   restaurantPhotoCreditUrl,
 } from './sanity-image-presets';
+import { liveRestaurant } from './sanity-filters';
 // Category projection. The string→ref migration finished in 2026-06 (verified
 // 2026-07: 0 of 343 restaurants carry legacy string entries), so all entries
 // are references. The `defined(@->_id)` filter stays as a guard against
@@ -146,7 +147,7 @@ export const allArticleSlugsQuery = `
 
 // Restaurants filtered by Bezirk slug
 export const restaurantsByBezirkQuery = `
-  *[_type == "restaurant" && isOpen != false && bezirkRef->slug.current == $bezirkSlug] | order(name asc) {
+  *[_type == "restaurant" && ${liveRestaurant()} && bezirkRef->slug.current == $bezirkSlug] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
@@ -167,7 +168,7 @@ export const restaurantsByBezirkQuery = `
 // Restaurants filtered by category slug (reference match — the legacy
 // string dual-shape was removed after the 2026-06 migration completed).
 export const restaurantsByCategoryQuery = `
-  *[_type == "restaurant" && isOpen != false
+  *[_type == "restaurant" && ${liveRestaurant()}
     && $categorySlug in categories[]->slug.current
   ] | order(name asc) {
     _id,
@@ -212,7 +213,7 @@ const RESTAURANT_SIBLING_CARD_PROJECTION = `{
  * zusammen ein vollständiges Fenster ergeben.
  */
 const siblingWindow = (cmp: '>' | '<') => `*[
-      _type == "restaurant" && isOpen != false
+      _type == "restaurant" && ${liveRestaurant()}
       && defined(^.bezirkRef._ref) && bezirkRef._ref == ^.bezirkRef._ref
       && slug.current != ^.slug.current
       && (name ${cmp} ^.name || (name == ^.name && slug.current ${cmp} ^.slug.current))
@@ -285,7 +286,7 @@ export const restaurantPageQuery = `
 // emails are not an entitlement boundary and therefore never embed premium
 // Must-Eat text or images.
 export const emailSpotsQuery = `
-  *[_type == "restaurant" && isOpen != false
+  *[_type == "restaurant" && ${liveRestaurant()}
     && defined(slug.current) && defined(image.asset) && (${publishableRestaurantImageCondition('image')})
     && count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) > 0]
     | order(coalesce(featured, false) desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
@@ -307,8 +308,8 @@ export const allBezirkeWithStatsQuery = `
     description,
     descriptionEn,
     "imageUrl": ${groqImageUrl('image', 'card')},
-    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]),
-    "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
+    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]),
+    "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()} && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
       | order(coalesce(featured, false) desc, name asc)[0...4] {
         _id,
         name,
@@ -319,13 +320,12 @@ export const allBezirkeWithStatsQuery = `
         shortDescriptionEn,
         "photo": ${publishableRestaurantImageUrl('image', 'card')}
       },
-    "topSpotCards": topSpots[]->{
+    "topSpotCards": topSpots[${liveRestaurant('@->')}]->{
       _id,
       name,
       "slug": slug.current,
       cuisineType,
       priceRange,
-      isOpen,
       "photo": ${publishableRestaurantImageUrl('image', 'card')}
     }
   }
@@ -382,8 +382,8 @@ export const allCategoriesWithStatsQuery = `
     "slug": slug.current,
     description,
     descriptionEn,
-    "restaurantCount": count(*[_type == "restaurant" && isOpen != false && ^._id in categories[]._ref]),
-    "exampleRestaurants": *[_type == "restaurant" && isOpen != false && ^._id in categories[]._ref && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
+    "restaurantCount": count(*[_type == "restaurant" && ${liveRestaurant()} && ^._id in categories[]._ref]),
+    "exampleRestaurants": *[_type == "restaurant" && ${liveRestaurant()} && ^._id in categories[]._ref && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
       | order(coalesce(featured, false) desc, name asc)[0...4] {
         _id,
         name,
@@ -392,13 +392,12 @@ export const allCategoriesWithStatsQuery = `
         priceRange,
         "photo": ${publishableRestaurantImageUrl('image', 'card')}
       },
-    "topSpotCards": topSpots[]->{
+    "topSpotCards": topSpots[${liveRestaurant('@->')}]->{
       _id,
       name,
       "slug": slug.current,
       cuisineType,
       priceRange,
-      isOpen,
       "photo": ${publishableRestaurantImageUrl('image', 'card')}
     }
   }
@@ -500,24 +499,26 @@ export const staticPageBySlugQuery = `
 /**
  * How much a Booster Pack actually contains, for every pack at once.
  *
- * The filters MUST stay identical to `mapRestaurantsQuery` (`isOpen != false`)
- * and to `isRestaurantVisible` (a category pack unlocks every restaurant
- * carrying that category), or the number on the pack card promises spots the
- * map never shows. Must Eats inherit their restaurant's `isOpen` for the same
- * reason: they only become visible with the restaurant they hang off.
+ * Der Katalogfilter kommt aus `liveRestaurant()` — dieselbe Quelle wie
+ * `mapRestaurantsQuery`, damit die Zahl auf der Pack-Karte keine Spots
+ * verspricht, die die Karte nie zeigt. (Bis zum 05.09.2026 stand hier die
+ * Bitte, beide Filter von Hand gleich zu halten; genau das war schiefgegangen.)
+ * Dazu `isRestaurantVisible`: ein Kategorie-Pack schaltet jedes Restaurant mit
+ * dieser Kategorie frei. Must Eats erben den Zustand ihres Restaurants — sie
+ * werden nur mit dem Laden sichtbar, an dem sie hängen.
  */
 export const packContentsQuery = `
   {
     "categories": *[_type == "category" && defined(slug.current)] {
       "slug": slug.current,
-      "spots": count(*[_type == "restaurant" && isOpen != false
+      "spots": count(*[_type == "restaurant" && ${liveRestaurant()}
         && ^.slug.current in categories[]->slug.current]),
-      "mustEats": count(*[_type == "mustEat" && restaurantRef->isOpen != false
+      "mustEats": count(*[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}
         && ^.slug.current in restaurantRef->categories[]->slug.current])
     },
     "allBerlin": {
-      "spots": count(*[_type == "restaurant" && isOpen != false]),
-      "mustEats": count(*[_type == "mustEat" && restaurantRef->isOpen != false])
+      "spots": count(*[_type == "restaurant" && ${liveRestaurant()}]),
+      "mustEats": count(*[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}])
     }
   }
 `;

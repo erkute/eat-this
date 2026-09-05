@@ -14,7 +14,6 @@ const rows: MapRestaurant[] = [
     _createdAt: '2026-01-01T00:00:00Z',
     name: 'Slice Society',
     slug: 'slice-society',
-    isClosed: false,
     lat: 52.52,
     lng: 13.405,
     bezirk: { name: 'Mitte', slug: 'mitte' },
@@ -28,7 +27,6 @@ const rows: MapRestaurant[] = [
     _createdAt: '2026-01-01T00:00:00Z',
     name: 'Nameless',
     slug: 'nameless',
-    isClosed: false,
     lat: 52.49,
     lng: 13.42,
     // No slug — the district cannot round-trip through the URL.

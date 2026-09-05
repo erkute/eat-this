@@ -5,7 +5,7 @@ import { pickSpotOfDay } from './pickSpotOfDay';
 // Same candidate filter as getHomeData's spotCandidatesQuery (open, non-draft)
 // so the id resolved here is ALWAYS the same spot the hub hero shows — the map
 // must free-reveal exactly that one, not a different pick.
-const spotOfDayCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
+const spotOfDayCandidatesQuery = `*[_type == "restaurant" && isOpen == true && isClosed != true && !(_id in path("drafts.**"))]{
   _id,
   featuredOnDate
 }`;

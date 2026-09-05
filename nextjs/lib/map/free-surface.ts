@@ -89,7 +89,7 @@ export function applyFreeSurface(
 
 // Pool größer als der Anzeige-Count, damit der Brand-Dedupe Filialen
 // wegwerfen kann und trotzdem 6 Karten übrig bleiben.
-const newOnMapPoolQuery = `*[_type == "restaurant" && isOpen == true && defined(image) && !(_id in path("drafts.**"))] | order(_createdAt desc)[0...12]{
+const newOnMapPoolQuery = `*[_type == "restaurant" && isOpen == true && isClosed != true && defined(image) && !(_id in path("drafts.**"))] | order(_createdAt desc)[0...12]{
   _id,
   "name": name,
   "slug": slug.current,

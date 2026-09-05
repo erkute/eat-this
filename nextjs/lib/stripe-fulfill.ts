@@ -7,6 +7,7 @@ import { client as sanity } from './sanity';
 import { getPack } from './stripe-catalog';
 import type { Entitlement } from './firebase/entitlements';
 import { FieldValue, type WithFieldValue } from 'firebase-admin/firestore';
+import { liveRestaurant } from './sanity-filters';
 
 // For guest Stripe purchases: resolve the buyer's email (collected by
 // Stripe Hosted Checkout) to a Firebase Auth uid. If the user doesn't
@@ -49,7 +50,7 @@ async function categoryEntitlementPayload(
   slug: string
 ): Promise<{ mustEatIds: string[]; restaurantIds: string[] }> {
   const rows = await sanity.fetch<{ _id: string; rid: string | null }[]>(
-    `*[_type == "mustEat" && defined(restaurantRef._ref) && restaurantRef->isOpen != false && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
+    `*[_type == "mustEat" && defined(restaurantRef._ref) && ${liveRestaurant('restaurantRef->')} && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
     { slug }
   );
   const mustEatIds = rows.map((r) => r._id);

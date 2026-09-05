@@ -37,7 +37,6 @@ const restaurant: MapRestaurant = {
   _createdAt: '2026-01-01T00:00:00Z',
   name: 'Test Spot',
   slug: 'test-spot',
-  isClosed: false,
   lat: 52.5,
   lng: 13.4,
   mustEatCount: 0,

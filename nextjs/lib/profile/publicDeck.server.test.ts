@@ -79,7 +79,6 @@ function restaurant(id: string, district: string): MapRestaurant {
     _createdAt: '2026-01-01',
     name: `Spot ${id}`,
     slug: `spot-${id}`,
-    isClosed: false,
     bezirk: { name: district },
     lat: 52.5,
     lng: 13.4,

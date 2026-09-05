@@ -106,8 +106,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneBack}
-                src="/pics/home-phones/phone-restaurant-480.webp"
-                srcSet={phoneSrcSet('phone-restaurant')}
+                src="/pics/home-phones/phone-restaurant-ink-480.webp"
+                srcSet={phoneSrcSet('phone-restaurant-ink')}
                 sizes={PHONE_SIZES}
                 alt=""
                 width={855}
@@ -119,8 +119,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneFront}
-                src="/pics/home-phones/phone-map-480.webp"
-                srcSet={phoneSrcSet('phone-map')}
+                src="/pics/home-phones/phone-map-ink-480.webp"
+                srcSet={phoneSrcSet('phone-map-ink')}
                 sizes={PHONE_SIZES}
                 alt={t.heroPhonesAlt}
                 width={855}

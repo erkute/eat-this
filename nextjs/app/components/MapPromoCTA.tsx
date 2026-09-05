@@ -142,7 +142,7 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
           noch etwas liegt. */}
       <div className={styles.shot} aria-hidden="true">
         <Image
-          src="/pics/home-phones/phone-restaurant.webp"
+          src="/pics/home-phones/phone-restaurant-ink.webp"
           alt=""
           width={855}
           height={1736}
@@ -150,7 +150,7 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
           className={styles.shotBack}
         />
         <Image
-          src="/pics/home-phones/phone-map.webp"
+          src="/pics/home-phones/phone-map-ink.webp"
           alt=""
           width={855}
           height={1736}

@@ -61,14 +61,14 @@ interface Phone {
 // Reihenfolge = Stapelreihenfolge: phoneBack zuerst, phoneFront darüber.
 const PHONES: Phone[] = [
   {
-    file: 'phone-restaurant',
+    file: 'phone-restaurant-ink',
     heightPct: 0.82,
     rotate: 6,
     anchor: 'top-right',
     shadow: { blur: 26, opacity: 0.14, dy: 16 },
   },
   {
-    file: 'phone-map',
+    file: 'phone-map-ink',
     heightPct: 0.86,
     rotate: -5,
     anchor: 'bottom-left',

@@ -47,9 +47,10 @@ const nextConfig: NextConfig = {
     // <Image> ships its original file (including multi-megabyte Sanity PNGs)
     // and loses its responsive srcset in production.
     unoptimized: false,
-    // Sanity asset URLs are immutable and first-party images are versioned
-    // when replaced. A day is still conservative while avoiding repeated
-    // optimizer work at the App Hosting edge.
+    // Sanity asset URLs are immutable. Eigene Bilder sind es NICHT — sie
+    // werden unter gleichem Namen ersetzt, siehe `replaceableAssetHeaders`
+    // in `headers()`. Der Optimierer erbt deren Spanne und nimmt diesen Wert
+    // als Untergrenze: ein Tag, statt bei jedem Abruf neu zu rechnen.
     minimumCacheTTL: 86400,
     // Local assets receive real responsive variants. Sanity URLs are valid
     // remote sources and are cached by the same optimizer; raw <img> call
@@ -88,8 +89,32 @@ const nextConfig: NextConfig = {
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
     ].join('; ');
+    // Nur fuer Dateien, deren URL sich aendert, wenn sich ihr Inhalt aendert:
+    // `/css/` haengt `CSS_VERSION` als Query an, Schriften werden nicht
+    // ersetzt, sondern kommen unter neuem Namen dazu.
     const immutableAssetHeaders = [
       { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+    ];
+
+    // Bilder, die unter GLEICHEM Namen ersetzt werden. Dieselbe Rechnung wie
+    // beim Kartenstyle unten, und sie ist am 05.09.2026 teuer gelernt worden:
+    // die Telefone im Hero der Startseite wurden ausgetauscht, lagen als neue
+    // Bytes auf prod (byte-verglichen) — und jeder Browser, der die Seite
+    // schon einmal geladen hatte, zeigte weiter die alten. `immutable` heisst,
+    // dass nicht einmal ein Reload revalidiert, und die Dateinamen tragen
+    // keine Version. Ein Jahr lang.
+    //
+    // Der naheliegende Gegenzug waere ein `?v=`-Token an jeder Aufrufstelle
+    // gewesen — drei fuer die Telefone allein, und beim naechsten Bild denkt
+    // wieder jemand nicht daran. Eine Stunde Frische kostet stattdessen ein
+    // paar bedingte Anfragen, die mit 304 ohne Rumpf zurueckkommen, und
+    // `stale-while-revalidate` haelt die Wartezeit bei null.
+    //
+    // Der Bild-Optimierer erbt diese Spanne fuer `<Image>`-Aufrufe, mit
+    // `minimumCacheTTL` (ein Tag) als Untergrenze — `/about` und die Hubs
+    // heilen darum in einem Tag statt in einer Stunde, aber sie heilen.
+    const replaceableAssetHeaders = [
+      { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
     ];
 
     return [
@@ -99,11 +124,11 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/pics/:path*',
-        headers: immutableAssetHeaders,
+        headers: replaceableAssetHeaders,
       },
       {
         source: '/buddy/:path*',
-        headers: immutableAssetHeaders,
+        headers: replaceableAssetHeaders,
       },
       {
         source: '/fonts/:path*',

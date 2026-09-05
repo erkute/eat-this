@@ -54,7 +54,7 @@ type Figure = {
    sheet. */
 const FIGURES: (Figure | null)[] = [
   {
-    src: '/pics/home-phones/phone-map-600.webp',
+    src: '/pics/home-phones/phone-map-ink-600.webp',
     width: 600,
     height: 1219,
     // 600x1219 is a tall object: anything wider than this and the phone runs
@@ -355,7 +355,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             with a picture. */}
         <aside className={styles.cta}>
           <Image
-            src="/pics/home-phones/phone-restaurant-600.webp"
+            src="/pics/home-phones/phone-restaurant-ink-600.webp"
             alt={
               de
                 ? 'Die Eat-This-App zeigt die Detailseite eines Berliner Spots'

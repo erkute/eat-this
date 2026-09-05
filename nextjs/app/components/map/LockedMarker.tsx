@@ -8,6 +8,9 @@ interface LockedMarkerProps {
   restaurant: MapRestaurant;
   /** The open sheet belongs to this dot — grow it so the tap is visible. */
   isSelected?: boolean;
+  /** Eine Detailansicht steht offen und meint einen anderen Spot — dieser
+   *  hier tritt zurück. Bleibt sichtbar und anklickbar, nur leiser. */
+  isDimmed?: boolean;
   onClick: (restaurant: MapRestaurant) => void;
 }
 
@@ -36,7 +39,12 @@ interface LockedMarkerProps {
  * reader the one thing nothing else on the map says out loud: the paywall is
  * the detail's business (user decision 25.08.2026).
  */
-function LockedMarker({ restaurant, isSelected = false, onClick }: LockedMarkerProps) {
+function LockedMarker({
+  restaurant,
+  isSelected = false,
+  isDimmed = false,
+  onClick,
+}: LockedMarkerProps) {
   return (
     <MarkerButton
       lat={restaurant.lat}
@@ -45,7 +53,12 @@ function LockedMarker({ restaurant, isSelected = false, onClick }: LockedMarkerP
       rootClassName={
         isSelected ? `${styles.markerRoot} ${styles.markerRootActive}` : styles.markerRoot
       }
-      className={[styles.pinLogo, styles.pinLogoLocked, isSelected && styles.pinLogoActive]
+      className={[
+        styles.pinLogo,
+        styles.pinLogoLocked,
+        isSelected && styles.pinLogoActive,
+        isDimmed && styles.pinLogoDim,
+      ]
         .filter(Boolean)
         .join(' ')}
       label={restaurant.name}
@@ -71,6 +84,7 @@ export default memo(
   (prev, next) =>
     prev.restaurant._id === next.restaurant._id &&
     prev.isSelected === next.isSelected &&
+    prev.isDimmed === next.isDimmed &&
     prev.restaurant.lat === next.restaurant.lat &&
     prev.restaurant.lng === next.restaurant.lng &&
     prev.restaurant.name === next.restaurant.name &&

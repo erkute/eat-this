@@ -11,6 +11,7 @@
     "build": "npm run build:css && next build && cp -r public/. .next/standalone/public/",
     "build:isolated": "npm run build:css && NEXT_DIST_DIR=.next-verify next build && cp -r public/. .next-verify/standalone/public/",
     "build:basemap": "tsx scripts/build-basemap-style.mts",
+    "build:transit-stations": "tsx scripts/build-transit-stations.mts",
     "build:email-art": "tsx scripts/build-email-art.mts",
     "build:email-spots": "tsx scripts/build-email-spots.mts",
     "build:email-phones": "tsx scripts/build-email-phones.mts",

@@ -8,6 +8,7 @@ import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
 import LockedMarker from './LockedMarker';
 import UserLocationMarker from './UserLocationMarker';
+import TransitLayer from './TransitLayer';
 
 /* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
    so on a cold load the yellow markers hung on white until the vector tiles
@@ -56,6 +57,11 @@ interface MapCanvasLayerProps {
   onLockedClick: (r: MapRestaurant) => void;
   /** Accessible name for a group of free pins, e.g. "5 Spots …". */
   /** Accessible name for a group of locked dots. */
+  /** Der Spot, um den es gerade geht — offene Detailansicht oder offenes
+   *  Must Eat. Ist er gesetzt, treten alle anderen Pins zurück, damit auf der
+   *  Karte sichtbar bleibt, welcher gemeint ist. `null` heißt: keine
+   *  Detailansicht offen, alle Pins stehen gleich. */
+  focusedRestaurantId: string | null;
   location: UserLocation | null;
 }
 
@@ -69,6 +75,7 @@ export default function MapCanvasLayer({
   selectedIsLocked,
   onRestaurantClick,
   onLockedClick,
+  focusedRestaurantId,
   location,
 }: MapCanvasLayerProps) {
   /* `painted` gates the markers, `entering` only decides whether they arrive
@@ -97,6 +104,20 @@ export default function MapCanvasLayer({
   }, [entering]);
 
   const selectedId = selectedRestaurant?._id ?? null;
+
+  /* Steht eine Detailansicht offen, tritt alles zurück, was nicht der Spot
+     darin ist. Der Zweck ist nicht Dekoration: sobald 400 gleich helle Pins
+     im Bild stehen, ist der eine, um den es geht, nicht mehr zu finden — und
+     genau das braucht man, um auf der Karte herumzuschauen, wo er liegt.
+     Sichtbar bleiben sie trotzdem, und anklickbar auch; sie sind nur leiser.
+
+     Die Ausnahme zur Opacity-Regel aus CLAUDE.md gilt hier: verboten sind
+     Opacity-Fades als Ein- und Ausblend-BEWEGUNG. Das hier ist ein Zustand
+     wie ein Hover-State — die Pins verschwinden nicht, sie treten zurück. */
+  const isDimmed = useCallback(
+    (r: MapRestaurant) => focusedRestaurantId !== null && r._id !== focusedRestaurantId,
+    [focusedRestaurantId]
+  );
 
   /* Culling window, refreshed when the camera settles. `null` until the map
      reports in — everything renders then, which is also the fallback if the
@@ -162,6 +183,11 @@ export default function MapCanvasLayer({
       onMoveEnd={onMoveEnd}
       onFirstPaint={reveal}
     >
+      {/* Die U- und S-Bahnhöfe. Immer an, nicht erst bei offener
+          Detailansicht: sie sind auch beim Stöbern die Antwort auf „wo ist
+          das?", und ein Netz, das erst beim Auswählen erscheint, müsste bei
+          jedem Auswählen neu gelesen werden. */}
+      <TransitLayer />
       {/* Locked dots first, so the free pins that follow paint on top and win
           the tap wherever the two overlap. DOM order alone does not hold that
           up, though — a marker appends itself to the canvas container when it
@@ -173,6 +199,7 @@ export default function MapCanvasLayer({
           <LockedMarker
             key={restaurant._id}
             restaurant={restaurant}
+            isDimmed={isDimmed(restaurant)}
             onClick={onLockedClick}
           />
         ))}
@@ -190,6 +217,7 @@ export default function MapCanvasLayer({
             key={restaurant._id}
             restaurant={restaurant}
             isSelected={false}
+            isDimmed={isDimmed(restaurant)}
             onClick={onRestaurantClick}
             enterDelayMs={entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null}
           />

@@ -154,7 +154,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
                 // alphabetischen Auswahl. Die Karte ist ganz Foto, also fliegt
                 // raus, was kein publizierbares Bild hat — sonst stünde da ein
                 // schwarzes Rechteck.
-                const curated = (b.topSpotCards ?? []).filter((r) => r.isOpen !== false && r.photo);
+                const curated = (b.topSpotCards ?? []).filter((r) => r.photo);
                 const spots = pickShelf(curated, b.exampleRestaurants, 4);
                 const count = b.restaurantCount ?? 0;
                 const blurb = pickLocale(b.description, b.descriptionEn, loc);

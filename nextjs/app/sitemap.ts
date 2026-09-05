@@ -6,6 +6,7 @@ import { hasEnContent } from '@/lib/i18n/pickLocale';
 import { isStaging } from '@/lib/env';
 import { GONE_SLUGS } from '@/lib/seo/legacyRedirects';
 import { SANITY_REVALIDATE_SECONDS, TEMPLATE_REVISED } from '@/lib/constants';
+import { liveRestaurant } from '@/lib/sanity-filters';
 
 // Cache the generated sitemap for a day instead of rebuilding it (full Sanity
 // fetch of all restaurants/articles/bezirke) on every crawler hit. Content
@@ -74,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
-      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && isOpen != false && isClosed != true] { "slug": slug.current, descriptionEn }`,
+      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()}] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
@@ -86,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
       // Districts without open spots 404 (bezirk/[slug]/page.tsx) — keep them
       // out of the sitemap too.
-      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]) > 0] { "slug": slug.current, descriptionEn }`,
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-bezirke'] } }
     ),

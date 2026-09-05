@@ -26,6 +26,25 @@ export const INDEXABLE_ROBOTS =
   'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 
 /**
+ * Die robots-Zeile einer Spot-Seite. Drei Zustaende, und die Reihenfolge ist
+ * keine Geschmacksfrage:
+ *
+ * 1. `seo.noIndex` aus Sanity — jemand hat die Seite bewusst versteckt, das
+ *    schlaegt alles andere und nimmt auch die Links mit (`nofollow`).
+ * 2. `isClosed` — der Laden macht nicht mehr auf. Raus aus dem Index, aber
+ *    `follow`: die Seite verlinkt Nachbarn und den Bezirk, und eingehende
+ *    Links sollen nicht ins Leere laufen. Bis zum 05.09.2026 fehlte dieser
+ *    Zweig, waehrend die Sitemap den Spot laengst aussortierte — Google
+ *    indexierte ihn trotzdem und zeigte ihn wie eine Empfehlung.
+ * 3. Sonst die Site-Direktive samt Bild- und Snippet-Erlaubnis.
+ */
+export function restaurantRobots(r: { seo?: { noIndex?: boolean }; isClosed?: boolean }): string {
+  if (r.seo?.noIndex) return 'noindex,nofollow';
+  if (r.isClosed) return 'noindex,follow';
+  return INDEXABLE_ROBOTS;
+}
+
+/**
  * Builds the `alternates.canonical` + `alternates.languages` block that every
  * page's `generateMetadata` needs.
  *

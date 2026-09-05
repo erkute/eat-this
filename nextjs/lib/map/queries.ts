@@ -4,6 +4,7 @@ import {
   restaurantPhotoCredit,
   restaurantPhotoCreditUrl,
 } from '@/lib/sanity-image-presets';
+import { liveRestaurant } from '../sanity-filters';
 // Category projection — only resolves reference entries. See lib/queries.ts.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,
@@ -19,12 +20,11 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
 // catalog's contact data no longer ships up-front for every locked spot.
 // `openingHours` MUST stay — the list + marker render the open-now badge.
 export const mapRestaurantsQuery = `
-  *[_type == "restaurant" && isOpen != false] {
+  *[_type == "restaurant" && ${liveRestaurant()}] {
     _id,
     _createdAt,
     name,
     "slug": slug.current,
-    isClosed,
     district,
     "bezirk": bezirkRef->{ name, "slug": slug.current },
     ${CATEGORY_PROJECTION},

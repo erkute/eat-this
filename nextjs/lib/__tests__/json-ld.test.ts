@@ -232,7 +232,6 @@ describe('buildMapJsonLd', () => {
     _createdAt: '2026-01-01',
     name: 'Bar Basta',
     slug: 'bar-basta',
-    isClosed: false,
     lat: 52.5,
     lng: 13.4,
     mustEatCount: 1,

@@ -15,7 +15,6 @@ function restaurant(id: string, mustEatCount = 1): MapRestaurant {
     _createdAt: '2026-01-01',
     name: `Spot ${id}`,
     slug: `spot-${id}`,
-    isClosed: false,
     lat: 52.5,
     lng: 13.4,
     mustEatCount,

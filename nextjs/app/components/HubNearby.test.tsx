@@ -75,7 +75,6 @@ const restaurant = (o: Partial<MapRestaurant> = {}): MapRestaurant => ({
   _createdAt: '2024-01-01',
   name: 'Bar Basta',
   slug: 'bar-basta',
-  isClosed: false,
   lat: 52.52,
   lng: 13.405,
   mustEatCount: 0,

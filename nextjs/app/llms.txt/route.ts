@@ -1,6 +1,7 @@
 import { client } from '@/lib/sanity';
 import { localeUrl } from '@/lib/locale-url';
 import { isStaging } from '@/lib/env';
+import { liveRestaurant } from '@/lib/sanity-filters';
 
 // llms.txt — a curated, machine-readable map of the site for AI answer engines
 // (ChatGPT, Perplexity, …). The content depth (Was-bestellen blocks, FAQs) is
@@ -28,7 +29,7 @@ export async function GET(): Promise<Response> {
       { next: { revalidate: 86400, tags: ['category-list'] } }
     ),
     client.fetch<NamedSlug[]>(
-      `*[_type == "bezirk" && defined(slug.current) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]) > 0] | order(name asc) { "slug": slug.current, name }`,
+      `*[_type == "bezirk" && defined(slug.current) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] | order(name asc) { "slug": slug.current, name }`,
       {},
       { next: { revalidate: 86400, tags: ['sitemap-bezirke'] } }
     ),

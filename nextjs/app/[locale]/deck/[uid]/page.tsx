@@ -71,17 +71,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * steht, ist in `PublicDeck` aufgezaehlt, und was dort fehlt, verlaesst den
  * Server nicht (siehe publicDeck.server.ts).
  *
- * DREI SCHRITTE, in dieser Reihenfolge (06.09.2026):
+ * DIE ERKLAERUNG STEHT ZWEIMAL, und das ist der Punkt (06.09.2026):
  *
- *   1. Was Eat This ist. Wer diesen Link bekommt, kennt weder Marke noch
- *      Spiel — ein Freund hat ihm etwas geschickt, mehr weiss er nicht. Bis
- *      zum 06.09.2026 stand die Erklaerung ganz unten, hinter der Kartenwand;
- *      oben stand nur der Handgriff. Nutzer: „man muss ja erst mal irgendwie
- *      das Produkt kennen, und dann kommt: hey, dein Freund ist auch dabei."
- *   2. Wer dahintersteckt und wie weit er ist — Spielerkarte, der Stand als
- *      Satz, die Kartenwand, die Bezirke.
+ *   1. Das Deck. Ueberschrift, EIN Satz, was Eat This ist, der Stand des
+ *      Besitzers — dann sofort die Karten. Wer den Link bekommt, will
+ *      zuerst sehen, was ihm geschickt wurde.
+ *   2. Was Eat This ist, ausfuehrlich: Kartenpaar und die drei Schritte.
  *   3. Mach mit. Die Anmeldung steht auf der Seite, nicht hinter einem Knopf,
  *      der woandershin fuehrt.
+ *
+ * Zwei Anlaeufe waren falsch, und zwar in beide Richtungen: die Erklaerung
+ * ganz unten wurde nie gelesen, die ganze Erklaerung ganz oben schob das Deck
+ * aus dem ersten Bildschirm. Nutzer: „was ist Eat This muss unter dem Deck,
+ * oder etwas ueber und etwas unter dem Deck an Infos."
  *
  * Die Einladung braucht dafuer keine eigene Mechanik: der Link, den das
  * Profil teilt, traegt `?ref=<uid>`, und die Middleware nimmt den Parameter
@@ -116,58 +118,14 @@ export default async function DeckPage({ params }: PageProps) {
 
   return (
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
-      {/* ── 1. Was das hier ist ─────────────────────────────────
-          Der Kicker sagt, WESSEN Deck das ist, die Ueberschrift stellt die
-          Frage, die der Besucher wirklich hat. Beides gehoert zusammen: ohne
-          den Namen liest sich die Seite wie eine Werbeseite, die jemand
-          faelschlich geschickt hat; ohne die Frage bleibt „Ersans Deck" ein
-          Wort ohne Gegenstand. */}
+      {/* ── 1. Das Deck ─────────────────────────────────────────
+          Der Punktestand „10/25" stand bis zum 06.09.2026 auf der Figur. Er
+          ist jetzt ein Satz und steht da, wo er hingehoert: neben der Person,
+          um die es geht — hinter dem einen Satz, der sagt, worum es
+          ueberhaupt geht. */}
       <section
-        className={`hv-section hv-wrap ${styles.section} ${styles.firstSection} ${deck.explain}`}
+        className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}
       >
-        <div className={deck.explainHead}>
-          <span className={deck.label}>
-            {data.name ? t('sharedDeckNamed', { name: data.name }) : t('sharedDeck')}
-          </span>
-          <h1 className="hv-title">{t('explainTitle')}</h1>
-          <p className={deck.explainLead}>{t('explainLead')}</p>
-        </div>
-
-        {/* Das Paar sagt den Satz, den kein Einzelbild sagen kann: manche
-            liegen offen, manche verdeckt. Dieselben zwei Karten stehen aus
-            demselben Grund auf /about. Kein `loading="lazy"`: sie stehen im
-            ersten Bildschirm und sind dort das einzige Bild. */}
-        <div className={deck.pair}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={deck.pairBack} src={CARD_BACK} alt={t('cardsAlt')} decoding="async" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className={deck.pairFront}
-            src={CARD_FRONT}
-            alt=""
-            aria-hidden="true"
-            decoding="async"
-          />
-        </div>
-
-        {/* Die Worte kommen aus dem Must-Eats-Onboarding (mustEats.onb*) und
-            von /about — nicht eine dritte Fassung derselben Erklaerung. */}
-        <ol className={deck.steps}>
-          {steps.map((step) => (
-            <li className={deck.step} key={step.kicker}>
-              <span className={deck.label}>{step.kicker}</span>
-              <span className={deck.stepTitle}>{step.title}</span>
-              <span className={deck.stepBody}>{step.body}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* ── 2. Und dein Freund ist schon dabei ──────────────────
-          Die Spielerkarte stand bis zum 06.09.2026 ganz oben, mit dem
-          Punktestand „10/25" auf der Figur. Der Stand ist jetzt ein Satz und
-          steht da, wo er hingehoert: neben der Person, um die es geht. */}
-      <section className={`hv-section hv-wrap ${styles.section}`}>
         <div className={deck.masthead}>
           <ProfilePlayerCard name={data.name ?? t('anonymous')} avatarIdx={data.avatar} />
 
@@ -175,9 +133,16 @@ export default async function DeckPage({ params }: PageProps) {
               beiden Enden einer Zeile, und hier stuende die Ueberschrift damit
               am rechten Bildrand, der Kicker 1000 px daneben. */}
           <div className={deck.headCopy}>
-            <h2 className="hv-title">
+            {/* Der Name gehoert in die Ueberschrift (Nutzer, 04.09.2026: „da
+                muss halt der Name stehen"). Wer einen geteilten Link oeffnet,
+                will zuerst wissen, WESSEN Deck er ansieht. */}
+            <h1 className="hv-title">
               {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
-            </h2>
+            </h1>
+            {/* Ein Satz Produkt, ein Satz Stand — mehr braucht es nicht, um
+                die Karten darunter zu verstehen. Alles Weitere steht in der
+                Tafel unter dem Deck. */}
+            <p className={deck.intro}>{t('intro')}</p>
             <p className={deck.howTo}>
               {data.name ? t('standNamed', { name: data.name, ...stand }) : t('stand', stand)}
             </p>
@@ -239,6 +204,51 @@ export default async function DeckPage({ params }: PageProps) {
             </ul>
           </>
         )}
+      </section>
+
+      {/* ── 2. Was Eat This ist, ausfuehrlich ────────────────
+          Kartenpaar und die drei Schritte. Die Worte kommen aus dem
+          Must-Eats-Onboarding (mustEats.onb*) und von /about — nicht eine
+          dritte Fassung derselben Erklaerung. */}
+      <section className={`hv-section hv-wrap ${styles.section} ${deck.explain}`}>
+        <div className={deck.explainHead}>
+          <span className={deck.label}>{t('explainKicker')}</span>
+          <h2 className="hv-title">{t('explainTitle')}</h2>
+          <p className={deck.explainLead}>{t('explainLead')}</p>
+        </div>
+
+        {/* Das Paar sagt den Satz, den kein Einzelbild sagen kann: manche
+            liegen offen, manche verdeckt. Dieselben zwei Karten stehen aus
+            demselben Grund auf /about. */}
+        <div className={deck.pair}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={deck.pairBack}
+            src={CARD_BACK}
+            alt={t('cardsAlt')}
+            loading="lazy"
+            decoding="async"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={deck.pairFront}
+            src={CARD_FRONT}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <ol className={deck.steps}>
+          {steps.map((step) => (
+            <li className={deck.step} key={step.kicker}>
+              <span className={deck.label}>{step.kicker}</span>
+              <span className={deck.stepTitle}>{step.title}</span>
+              <span className={deck.stepBody}>{step.body}</span>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* ── 3. Mach mit ─────────────────────────────────────────

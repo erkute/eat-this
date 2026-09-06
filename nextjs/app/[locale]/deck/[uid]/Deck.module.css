@@ -37,9 +37,20 @@
   justify-items: start;
 }
 
-/* Wie das Spiel geht, in einem Satz unter der Ueberschrift. Kein Kicker mehr
-   darueber: dort steht jetzt der Name, und die Marke sagt das Logo in der
-   Leiste. */
+/* Der eine Satz Produkt ueber dem Deck: was Eat This ist. Er fuehrt, der
+   Stand darunter folgt — also Papier statt Weiss-Stufe. */
+.intro {
+  max-width: 48ch;
+  text-wrap: pretty;
+  margin: 8px 0 0;
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display);
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Der Stand des Besitzers, eine Zeile unter dem Satz darueber. */
 .howTo {
   max-width: 46ch;
   /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
@@ -162,10 +173,10 @@
 }
 
 /* ── Was Eat This ist ──────────────────────────────────────
-   Der Seitenanfang, seit 06.09.2026: erst das Produkt, dann der Freund, dann
-   der Knopf. Kopf und Kartenpaar nebeneinander, die drei Schritte darunter
-   ueber die volle Breite; auf dem Telefon untereinander in derselben
-   Reihenfolge. */
+   Die Tafel UNTER dem Deck. Ueber dem Deck steht nur der eine Satz (.intro);
+   hier steht, wie das Spiel geht. Kopf und Kartenpaar nebeneinander, die drei
+   Schritte darunter ueber die volle Breite; auf dem Telefon untereinander in
+   derselben Reihenfolge. */
 .explain {
   display: grid;
   gap: clamp(22px, 3vw, 36px);

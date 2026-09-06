@@ -224,13 +224,14 @@ const en = {
     anonymous: 'this deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
-    /* Der Kicker ganz oben: wessen Deck das ist. Die Ueberschrift daneben
-       gehoert seit dem 06.09.2026 dem Produkt, nicht dem Namen. */
-    sharedDeckNamed: "{name}'s deck",
-    sharedDeck: 'A shared deck',
+    /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
+       unter dem Deck. */
+    intro:
+      'Eat This is a map of Berlin spots we actually recommend. Every Must Eat is a collectible card \u2014 and it only flips on site.',
+    explainKicker: 'New here?',
     explainTitle: 'What is Eat This?',
     explainLead:
-      'A map of Berlin spots we actually recommend \u2014 some with a Michelin star, some tiny places you would never find without a tip. And the best dishes come as collectible cards.',
+      'Some spots carry a Michelin star, some are tiny places you would never find without a tip. What they have in common: we would recommend them ourselves.',
     step1Kicker: 'Must Eat',
     step1Title: 'You have to try this.',
     step1Body:
@@ -241,7 +242,7 @@ const en = {
       'Some cards lie face up, some face down. A face-down one only flips on site \u2014 one tap while you stand in front of the spot.',
     step3Kicker: 'Your deck',
     step3Title: "And then it's yours.",
-    step3Body: 'Every card you flip joins your deck. That is how the deck below was built.',
+    step3Body: 'Every card you flip joins your deck. That is how the deck above was built.',
     cardsAlt: 'Two Eat This cards side by side, one face down and one face up',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
@@ -636,19 +637,20 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     anonymous: 'dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
-    /* Der Kicker ganz oben: WESSEN Deck das ist. Die Ueberschrift daneben
-       gehoert seit dem 06.09.2026 dem Produkt.
+    /* Ueber dem Deck: was das hier ist, in einem Atemzug — mehr braucht es
+       nicht, um die Kartenwand darunter zu verstehen. Der ausfuehrliche Teil
+       steht UNTER dem Deck (Nutzer, 06.09.2026: „was ist Eat This muss unter
+       dem Deck, oder etwas ueber und etwas unter dem Deck an Infos").
 
-       Bis dahin fing die Seite mit „Ersans Deck" an und erklaerte Eat This
-       erst ganz unten. Wer den Link bekommt, kennt aber weder Marke noch
-       Spiel (Nutzer, 06.09.2026: „man muss ja erst mal irgendwie das Produkt
-       kennen, und dann kommt: hey, dein Freund ist auch dabei"). Also erst
-       das Produkt, dann der Freund, dann der Knopf. */
-    sharedDeckNamed: 'Das Deck von {name}',
-    sharedDeck: 'Ein geteiltes Deck',
+       Davor stand die ganze Erklaerung ueber dem Deck und schob es aus dem
+       ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
+       Beides war zu viel von einer Seite. */
+    intro:
+      'Eat This ist eine Map mit Berliner Spots, die wir wirklich empfehlen. Jedes Must Eat ist eine Sammelkarte \u2014 und aufgedeckt wird sie vor Ort.',
+    explainKicker: 'Neu hier?',
     explainTitle: 'Was ist Eat This?',
     explainLead:
-      'Eine Map mit Berliner Spots, die wir wirklich empfehlen \u2014 manche mit Michelin-Stern, manche kleine L\u00e4den, die man ohne Tipp nie findet. Und zu den besten Gerichten gibt es eine Sammelkarte.',
+      'Manche Spots tragen einen Michelin-Stern, manche sind kleine L\u00e4den, die man ohne Tipp nie findet. Was sie verbindet: wir w\u00fcrden sie selbst empfehlen.',
     step1Kicker: 'Must Eat',
     step1Title: 'Musst du probieren.',
     step1Body:
@@ -660,7 +662,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     step3Kicker: 'Dein Deck',
     step3Title: 'Und sie geh\u00f6rt dir.',
     step3Body:
-      'Jede aufgedeckte Karte wandert in dein Deck. Genau so ist das Deck hier unten entstanden.',
+      'Jede aufgedeckte Karte wandert in dein Deck. Genau so ist das Deck hier oben entstanden.',
     cardsAlt:
       'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der R\u00fcckseite nach oben, eine aufgedeckt',
     deckHeadingNamed: '{name}s Deck',

@@ -16,7 +16,7 @@ export interface PackDef {
    *  verbatim (it is the Stripe Hosted Checkout body). ACHTUNG: aendert sich
    *  der Text hier, muss er im Stripe-Dashboard nachgezogen werden, sonst
    *  verspricht die Kassenseite etwas anderes als die Pack-Seite.
-   *  Der Weg dorthin: `npx tsx scripts/sync-stripe-descriptions.ts`. */
+   *  Der Weg dorthin: `npx tsx scripts/sync-stripe-catalog.ts`. */
   description: PackCopy;
   spectrum: PackCopy; // tight declarative line — rendered as the Booster card headline (period-separated, Editor-Pick voice)
   amountCents: number; // for sanity checks + receipts

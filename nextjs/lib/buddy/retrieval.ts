@@ -280,6 +280,16 @@ interface RetrievalDeps {
 }
 
 const SPOTS_LIMIT = 30;
+/**
+ * Drei statt frueher fuenf. Die Treffer sind nach Punkten sortiert, der
+ * Schwanz ist also der schwaechste Teil — bei „Was macht Berliner Kaffee
+ * besonders" stand auf Platz fuenf ein Schoeneberg-Guide (0,48: ueber der
+ * Schwelle, aber kein Kaffee-Text). Unter einer Chat-Antwort sind drei Karten
+ * ohnehin genug. Die Schwelle bleibt, wo sie gemessen wurde: sie liegt
+ * mittig in der Luecke zwischen passend und fremd, ein hoeherer Wert haette
+ * die schwaecheren echten Treffer mitgenommen.
+ */
+const ARTICLES_LIMIT = 3;
 export const MIN_SEMANTIC_CANDIDATES = 8;
 
 // The raw row before priceRange/openingHours/coords are collapsed to display values.
@@ -385,15 +395,44 @@ export interface ArticleQuery {
   query: string;
 }
 
-const ARTICLES_QUERY = `*[
-  _type == "newsArticle"
-  && defined(slug.current)
-  && (coalesce(titleDe, title) match $q || coalesce(excerptDe, excerpt) match $q || pt::text(content) match $q)
-] | order(date desc) [0...5] {
+const ARTICLE_PROJECTION = `{
   "title": select($locale == "en" => coalesce(title, titleDe), coalesce(titleDe, title)),
   "slug": slug.current,
   "excerpt": select($locale == "en" => coalesce(excerpt, excerptDe), coalesce(excerptDe, excerpt))
 }`;
+
+/**
+ * Rueckfallweg, wenn die semantische Suche nicht verfuegbar ist — kein Key,
+ * kein Index, oder Voyage bremst (der Free-Tier laesst 3 Anfragen pro Minute).
+ *
+ * Er sucht bewusst nach EINZELNEN Wortstaemmen, nicht nach der ganzen Frage.
+ * Ein `match "*Was macht Berliner Kaffee besonders*"` trifft nie — genau daran
+ * war das Werkzeug vorher tot. Mit bis zu drei Tokens aus der Frage bleibt
+ * wenigstens ein grober Treffer moeglich, wenn das Ranking gerade ausfaellt.
+ */
+const ARTICLES_KEYWORD_QUERY = `*[
+  _type == "newsArticle"
+  && defined(slug.current)
+  && count([$t1, $t2, $t3][@ != null && (
+       coalesce(titleDe, title) match @ ||
+       coalesce(excerptDe, excerpt) match @ ||
+       pt::text(coalesce(contentDe, content)) match @
+     )]) > 0
+] | order(date desc) [0...${ARTICLES_LIMIT}] ${ARTICLE_PROJECTION}`;
+
+const ARTICLES_BY_SLUG_QUERY = `*[
+  _type == "newsArticle" && slug.current in $slugs
+] ${ARTICLE_PROJECTION}`;
+
+/**
+ * Ab hier zaehlt ein Artikel als Treffer. An echten Anfragen kalibriert
+ * (06.09.2026): thematisch passende Fragen landeten bei 0,52–0,67, fremde
+ * ("Wie repariere ich mein Fahrrad", "Wetter morgen in Hamburg") bei hoechstens
+ * 0,28. Ohne Schwelle liefe jede Frage in fuenf Karten, auch die, zu der wir
+ * nichts geschrieben haben — und Remy verweist dann im Text auf einen Guide,
+ * der nicht zur Frage passt.
+ */
+export const ARTICLE_MIN_SCORE = 0.45;
 
 export async function searchArticles(
   input: ArticleQuery,
@@ -402,7 +441,33 @@ export async function searchArticles(
 ): Promise<ArticleResult[]> {
   const client = deps.client ?? (sanityClient as unknown as SanityLike);
   const term = input.query.trim();
-  const q = term.length > 0 ? `*${term}*` : '*';
-  const rows = (await client.fetch(ARTICLES_QUERY, { q, locale })) as ArticleResult[];
+
+  // Der semantische Weg ist hier der Hauptweg, nicht die Kuer: das Werkzeug
+  // bekommt vom Modell eine Formulierung, kein Stichwort.
+  const ranked = await semanticRank(term, 'articles');
+  if (ranked) {
+    const slugs = ranked
+      .filter((r) => r.score >= ARTICLE_MIN_SCORE)
+      .slice(0, ARTICLES_LIMIT)
+      .map((r) => r.slug);
+    // Nichts ueber der Schwelle ist eine vollstaendige Antwort: zu dieser Frage
+    // haben wir nichts geschrieben. Lieber keine Karte als eine unpassende.
+    if (slugs.length === 0) return [];
+    const rows = (await client.fetch(ARTICLES_BY_SLUG_QUERY, { slugs, locale })) as ArticleResult[];
+    // GROQ gibt Dokumentreihenfolge zurueck — die Rangfolge wieder herstellen.
+    const order = new Map(slugs.map((slug, i) => [slug, i]));
+    return (rows ?? []).sort(
+      (a, b) => (order.get(a.slug) ?? Infinity) - (order.get(b.slug) ?? Infinity)
+    );
+  }
+
+  const [t1, t2, t3] = vibeTokens(term);
+  if (!t1) return [];
+  const rows = (await client.fetch(ARTICLES_KEYWORD_QUERY, {
+    t1,
+    t2,
+    t3,
+    locale,
+  })) as ArticleResult[];
   return rows ?? [];
 }

@@ -1,11 +1,18 @@
-// Semantic ranking signal for the buddy. The restaurant catalog is embedded at
-// build time (scripts/embed-restaurants.ts → restaurant-embeddings.json); at
-// request time we embed the user's vibe query and cosine-rank the catalog.
+// Semantische Suche fuer Remy. Beide Bestaende sind vorab eingebettet
+// (scripts/embed-restaurants.ts, scripts/embed-articles.ts); zur Laufzeit wird
+// die Anfrage eingebettet und per Kosinus dagegen gerankt.
 //
-// This is a *ranking signal layered over* the existing GROQ keyword search, not
-// a replacement — searchSpots still filters; the semantic scores reorder. On any
-// failure (no key, 429, missing index) it returns null and the caller falls back
-// to keyword order unchanged.
+// Die beiden Aufrufer benutzen dasselbe Ranking verschieden, und der
+// Unterschied ist beabsichtigt:
+//
+//   - Spots: ein Signal UEBER der GROQ-Suche. searchSpots filtert weiter, die
+//     Punkte sortieren nur um.
+//   - Artikel: das Ranking IST die Suche. Das dortige GROQ-`match` traf bei
+//     einer ausformulierten Frage nie (gemessen 0 Treffer), taugte als Gate
+//     also nicht — es ist jetzt nur noch der Rueckfallweg.
+//
+// Bei jedem Fehler (kein Key, 429, fehlender Index) kommt null zurueck, und
+// der Aufrufer bleibt bei seiner Keyword-Reihenfolge.
 import { embed, cosine } from './voyage';
 
 interface EmbeddingsFile {
@@ -15,7 +22,17 @@ interface EmbeddingsFile {
   vectors: Record<string, number[]>;
 }
 
-let indexPromise: Promise<EmbeddingsFile | null> | null = null;
+/** Welcher Index gefragt ist. Die Spezifizierer stehen als Literale da, damit
+ *  der Bundler sie findet — ein aus einer Variable gebauter Pfad wuerde zur
+ *  Laufzeit ins Leere greifen. */
+export type SemanticIndexName = 'restaurants' | 'articles';
+
+const LOADERS: Record<SemanticIndexName, () => Promise<{ default: unknown }>> = {
+  restaurants: () => import('./restaurant-embeddings.json'),
+  articles: () => import('./article-embeddings.json'),
+};
+
+const indexPromises: Partial<Record<SemanticIndexName, Promise<EmbeddingsFile | null>>> = {};
 
 interface SemanticScore {
   slug: string;
@@ -23,14 +40,14 @@ interface SemanticScore {
 }
 
 /** True when an embeddings index is present (build-time asset was generated). */
-async function getSemanticIndex(): Promise<EmbeddingsFile | null> {
-  indexPromise ??= import('./restaurant-embeddings.json')
+async function getSemanticIndex(which: SemanticIndexName): Promise<EmbeddingsFile | null> {
+  indexPromises[which] ??= LOADERS[which]()
     .then((mod) => {
       const index = mod.default as EmbeddingsFile;
       return index?.vectors && Object.keys(index.vectors).length > 0 ? index : null;
     })
     .catch(() => null);
-  return indexPromise;
+  return indexPromises[which]!;
 }
 
 /**
@@ -38,10 +55,13 @@ async function getSemanticIndex(): Promise<EmbeddingsFile | null> {
  * or null when semantic search is unavailable (no key, no index, API error) so
  * the caller keeps the keyword ordering.
  */
-export async function semanticRank(query: string): Promise<SemanticScore[] | null> {
+export async function semanticRank(
+  query: string,
+  which: SemanticIndexName = 'restaurants'
+): Promise<SemanticScore[] | null> {
   const q = query.trim();
   if (q.length < 3 || !process.env.VOYAGE_API_KEY) return null;
-  const index = await getSemanticIndex();
+  const index = await getSemanticIndex(which);
   if (!index) return null;
   let qvec: number[];
   try {

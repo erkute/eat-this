@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/og/restaurant': ['./assets/fonts/**/*'],
     '/api/og/badge': ['./assets/fonts/**/*'],
+    // Die Deck-Share-Karte liest dieselben Schriften. Die Bilder (Figur,
+    // Kartenrücken) liegen unter `public/` und wandern ohnehin mit.
+    '/api/og/deck': ['./assets/fonts/**/*'],
   },
 
   images: {

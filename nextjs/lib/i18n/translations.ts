@@ -224,14 +224,20 @@ const en = {
     anonymous: 'this deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
+    /* Der Satz, der in WhatsApp unter der Vorschaukarte steht. Er muss die
+       Frage „warum schickt der mir das" beantworten, bevor jemand klickt. */
+    metaDescription:
+      '{done} of {total} cards flipped. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
+    metaDescriptionNamed:
+      '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
        unter dem Deck. */
     intro:
-      'Eat This is a map of Berlin spots we actually recommend. Every Must Eat is a collectible card \u2014 and it only flips on site.',
+      'The map knows over a hundred spots in Berlin. And because discovering beats searching, every Must Eat is a card \u2014 some lie face up, some face down.',
     explainKicker: 'New here?',
     explainTitle: 'What is Eat This?',
     explainLead:
-      'Some spots carry a Michelin star, some are tiny places you would never find without a tip. What they have in common: we would recommend them ourselves.',
+      'Every spot is picked on purpose. Some carry a Michelin star, others are small hidden places you would probably never have found without a recommendation. If somewhere is on the map, it is worth the trip.',
     step1Kicker: 'Must Eat',
     step1Title: 'You have to try this.',
     step1Body:
@@ -653,6 +659,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     anonymous: 'dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
+    metaDescription:
+      '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
+    metaDescriptionNamed:
+      '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     /* Ueber dem Deck: was das hier ist, in einem Atemzug — mehr braucht es
        nicht, um die Kartenwand darunter zu verstehen. Der ausfuehrliche Teil
        steht UNTER dem Deck (Nutzer, 06.09.2026: „was ist Eat This muss unter
@@ -662,11 +672,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
        Beides war zu viel von einer Seite. */
     intro:
-      'Eat This ist eine Map mit Berliner Spots, die wir wirklich empfehlen. Jedes Must Eat ist eine Sammelkarte \u2014 und aufgedeckt wird sie vor Ort.',
+      'Die Map kennt \u00fcber hundert Spots in Berlin. Und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte \u2014 manche liegen offen, manche verdeckt.',
     explainKicker: 'Neu hier?',
     explainTitle: 'Was ist Eat This?',
     explainLead:
-      'Manche Spots tragen einen Michelin-Stern, manche sind kleine L\u00e4den, die man ohne Tipp nie findet. Was sie verbindet: wir w\u00fcrden sie selbst empfehlen.',
+      'Jeder Spot ist bewusst ausgew\u00e4hlt. Manche tragen einen Michelin-Stern, andere sind kleine Hidden Places, die man ohne Empfehlung vermutlich nie entdeckt h\u00e4tte. Wenn ein Ort auf der Map steht, ist er einen Besuch wert.',
     step1Kicker: 'Must Eat',
     step1Title: 'Musst du probieren.',
     step1Body:

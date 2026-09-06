@@ -167,8 +167,8 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.ink,
             }}
           >
-            Ganz Berlin liegt schon auf deiner Map. Dein Starter Pack legt dir Must-Eat-Karten
-            dazu ins Album — und jede weitere drehst du vor Ort selbst um. Kostenlos.
+            Ganz Berlin liegt schon auf deiner Map. Dein Starter Pack legt dir 20 Must-Eat-Karten
+            ins Album — zehn offen, zehn drehst du vor Ort selbst um. Kostenlos.
           </Text>
         </Section>
       </Section>

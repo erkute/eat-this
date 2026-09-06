@@ -27,13 +27,14 @@ import type { MapMustEat } from '@/lib/types';
  * Spot-Paywall waren. Seit sie das Produkt sind, waren zehn von 26 ein
  * Schaufenster mit 38 % des Sortiments darin.
  *
- * Drei reichen für die Frage, die das Schaufenster beantwortet: was IST eine
- * Karte. Wächst der Stapel auf die geplanten 100+, darf die Zahl mitwachsen —
- * sie ist absolut, nicht anteilig, also verwässert sie sonst von allein.
+ * Fünf ohne Konto (Betreiber, 06.09.2026) — genug, um zu zeigen, was eine
+ * Karte IST, und wenig genug, dass die Anmeldung noch etwas zu bieten hat.
+ * Sie ist absolut, nicht anteilig: wächst der Stapel auf die geplanten 100+,
+ * verwässert sie von allein, und das ist gewollt.
  *
- * Der Spot des Tages kommt täglich als vierte dazu und ist flüchtig.
+ * Der Spot des Tages kommt täglich als sechste dazu und ist flüchtig.
  */
-export const REVEALED_TARGET = 3;
+export const REVEALED_TARGET = 5;
 
 /**
  * Die öffentlich aufgedeckten Karten — höchstens eine pro Spot.

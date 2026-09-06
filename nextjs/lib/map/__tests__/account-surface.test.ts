@@ -41,14 +41,15 @@ function mustEat(id: string, restaurantId: string): MapMustEat {
 const IDS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 const ALL = IDS.map((n) => restaurant(`r${n}`));
 const ALL_MUST_EATS = IDS.map((n) => mustEat(`m${n}`, `r${n}`));
-/** Die zwei, die das Schaufenster nicht mehr fasst (stabile _id-Ordnung). */
-const COVERED = ['m11', 'm12'];
+/** Was das Schaufenster nicht mehr fasst (stabile _id-Ordnung). */
+const COVERED = ['m06', 'm07', 'm08', 'm09', 'm10', 'm11', 'm12'];
 
 const EMPTY_ENT = {
   isAdmin: false,
   hasAllBerlin: false,
   categorySlugs: new Set<string>(),
   mustEatIds: new Set<string>(),
+  coveredMustEatIds: new Set<string>(),
 };
 
 function compose(over: Record<string, unknown> = {}) {
@@ -69,20 +70,37 @@ function compose(over: Record<string, unknown> = {}) {
    zusammen. Jetzt gibt es nur noch eine Definition, und hier steht sie fest. */
 describe('composeAccountSurface', () => {
   /* Die eine Zeile, an der der ganze Umbau vom 06.09.2026 haengt: es gibt
-     keine gesperrten Spots mehr, fuer niemanden. */
-  it('gibt jedem den ganzen Katalog — auch ohne Konto', async () => {
+     keine gesperrten SPOTS mehr, fuer niemanden. Gestaffelt ist nur der
+     Kartenstapel. */
+  it('gibt jedem jeden Spot — auch ohne Konto', async () => {
     const s = await compose();
 
     expect(s.restaurants).toHaveLength(ALL.length);
-    expect(s.mustEats).toHaveLength(ALL_MUST_EATS.length);
     expect(s.fullCatalog).toBe(false);
   });
 
-  it('deckt ohne Konto genau das Schaufenster auf, nicht den Stapel', async () => {
+  /* Ohne Konto ist der Stapel das Schaufenster und sonst nichts — kein
+     Kartenruecken, an dem sich ablesen liesse, wie viel noch fehlt. Was es zu
+     holen gibt, sagt die Anmeldung. */
+  it('zeigt ohne Konto nur das Schaufenster, und das ganz offen', async () => {
     const s = await compose();
 
     expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
+    expect(s.mustEats).toHaveLength(REVEALED_TARGET);
     for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
+  });
+
+  /* Das Starter Pack: was es verdeckt vergibt, ist SICHTBAR (Ruecken im
+     Album), aber nicht offen. Genau dieser Unterschied traegt die halbe
+     Mechanik — ohne ihn waere die verdeckte Haelfte unsichtbar und wertlos. */
+  it('zeigt verdeckt vergebene Karten als Ruecken, nicht als offen', async () => {
+    const s = await compose({
+      ent: { ...EMPTY_ENT, coveredMustEatIds: new Set(['m11', 'm12']) },
+    });
+
+    expect(s.mustEats.map((m) => m._id)).toContain('m11');
+    expect(s.faceUpIds.has('m11')).toBe(false);
+    expect(s.mustEats).toHaveLength(REVEALED_TARGET + 2);
   });
 
   it('gibt dem Admin den ganzen Katalog, und zwar offen', async () => {

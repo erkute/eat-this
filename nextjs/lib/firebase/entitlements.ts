@@ -10,7 +10,12 @@ export interface Entitlement {
    *  vereinigt. Siehe app/api/starter-pack/route.ts. */
   type: 'category' | 'all-berlin' | 'starter';
   slug: string | null;
+  /** Karten, die offen liegen. */
   mustEatIds: string[];
+  /** Karten, die dem Konto gehoeren, aber verdeckt bleiben — sie stehen im
+   *  Album als Ruecken und gehen vor Ort auf. Nur das Starter Pack vergibt
+   *  welche; ein Kauf legt alles offen hin. */
+  coveredMustEatIds?: string[];
   purchasedAt: FirebaseFirestore.Timestamp;
   stripeSessionId: string | null;
   source: 'stripe' | 'manual' | 'signup';
@@ -25,6 +30,9 @@ interface ResolvedEntitlements {
   categorySlugs: Set<string>;
   /** Einzelkarten: der Kauf-Schnappschuss und die Karten aus Einladungen. */
   mustEatIds: Set<string>;
+  /** Karten, die zum Konto gehoeren, aber verdeckt bleiben (Starter Pack).
+   *  Sie sind SICHTBAR — als Ruecken —, aber nicht offen. */
+  coveredMustEatIds: Set<string>;
 }
 
 const EMPTY_RESOLVED = (): ResolvedEntitlements => ({
@@ -32,6 +40,7 @@ const EMPTY_RESOLVED = (): ResolvedEntitlements => ({
   hasAllBerlin: false,
   categorySlugs: new Set(),
   mustEatIds: new Set(),
+  coveredMustEatIds: new Set(),
 });
 
 // Pure reducer — exported separately so it's testable without mocking Firestore.
@@ -49,6 +58,7 @@ export function reduceEntitlements(
       out.categorySlugs.add(data.slug);
     }
     for (const id of data.mustEatIds ?? []) out.mustEatIds.add(id);
+    for (const id of data.coveredMustEatIds ?? []) out.coveredMustEatIds.add(id);
   }
   for (const b of bonuses) {
     for (const id of b.mustEatIds ?? []) out.mustEatIds.add(id);

@@ -71,6 +71,7 @@ const baseEnt = {
   hasAllBerlin: false,
   categorySlugs: new Set<string>(),
   mustEatIds: new Set<string>(),
+  coveredMustEatIds: new Set<string>(),
 }
 
 beforeEach(() => {
@@ -130,14 +131,19 @@ describe('/api/map-data — welche Karten offen liegen', () => {
 
     const json = await (await GET(mkReq(null))).json()
 
-    expect(json.mustEats).toHaveLength(ids.length)
+    /* Ohne Konto IST der Stapel das Schaufenster: kein Kartenruecken, an dem
+       sich ablesen liesse, wie viel noch fehlt. Das Deck ist seit dem
+       06.09.2026 gestaffelt — 5 ohne Konto, +20 mit, der Rest gegen Geld. */
+    expect(json.mustEats).toHaveLength(REVEALED_TARGET)
     expect(json.revealedMustEatIds).toHaveLength(REVEALED_TARGET)
   })
 
-  it('anonymous: covered cards carry no dish/image/price/description, revealed ones stay full', async () => {
+  /* Eine verdeckte Karte gibt es seit der Deck-Staffelung nur fuer ein Konto,
+     das sie besitzt — das Starter Pack vergibt zehn davon. Die bezahlten
+     Felder duerfen den Server trotzdem nicht verlassen: sichtbar heisst
+     „Ruecken im Album", nicht „offen". */
+  it('covered cards carry no dish/image/price/description, revealed ones stay full', async () => {
     const restaurants = [mkRestaurant('a1'), mkRestaurant('a2')]
-    // One face-up per spot max (composeRevealedMustEats) — the second card on
-    // a2 is guaranteed covered.
     const mustEats = [
       mkMustEat('m1', 'a1', { revealedForAnon: true }),
       mkMustEat('m2', 'a2', { revealedForAnon: true }),
@@ -148,9 +154,12 @@ describe('/api/map-data — welche Karten offen liegen', () => {
       mustEats: mustEats as any,
       categories: [],
     })
-    vi.mocked(resolveEntitlements).mockResolvedValue(baseEnt)
+    vi.mocked(resolveEntitlements).mockResolvedValue({
+      ...baseEnt,
+      coveredMustEatIds: new Set(['m2b']),
+    })
 
-    const json = await (await GET(mkReq(null))).json()
+    const json = await (await GET(mkReq('valid-token'))).json()
 
     const revealed = json.mustEats.find((m: any) => m._id === 'm1')
     expect(revealed.dish).toBe('Dish m1')
@@ -184,6 +193,9 @@ describe('/api/map-data — welche Karten offen liegen', () => {
     vi.mocked(resolveEntitlements).mockResolvedValue({
       ...baseEnt,
       mustEatIds: new Set(['m2b']),
+      // Sichtbar, aber verdeckt — sonst waere m3b gar nicht in der Nutzlast
+      // und die Behauptung „bleibt verdeckt" nicht pruefbar.
+      coveredMustEatIds: new Set(['m3b']),
     })
     vi.mocked(getUnlockedMustEatIds).mockResolvedValueOnce(new Set(['m1b']))
 

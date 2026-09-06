@@ -27,15 +27,16 @@ interface Props {
  * 06.09.2026 geaendert. Es versprach Spots, und die gibt es seither gratis;
  * jetzt legt es Must-Eat-Karten ins Album (siehe app/api/starter-pack).
  *
- * Die Zahl steht bewusst nicht dabei: das Produkt nennt seine Zahlen nicht
- * (Betreiber, 06.09.2026) — dieselbe Regel, unter der die Berlin-Zahl vom
- * Profil verschwand und die Pack-Seiten ihre Kartenzahl verschweigen.
+ * Die Zwanzig steht bewusst DA (Betreiber, 06.09.2026): sie ist das Angebot,
+ * und ein Gratis-Angebot ohne Größe ist keins. Die gekauften Packs
+ * verschweigen ihre Zahl weiterhin — dort ist die Überraschung Teil der Ware,
+ * hier ist die Zahl der Grund, das Formular auszufüllen.
  */
 const copy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: 'Ganz Berlin liegt schon auf deiner Map. Das Starter Pack legt dir Must-Eat-Karten ins Album — jede weitere drehst du vor Ort selbst um.',
+    lead: 'Ganz Berlin liegt schon auf deiner Map. Das Starter Pack legt dir 20 Must-Eat-Karten ins Album — zehn offen, zehn drehst du vor Ort selbst um.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
@@ -50,7 +51,7 @@ const copy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: 'All of Berlin is already on your map. The Starter Pack drops Must-Eat cards into your album — every other one you turn over on site yourself.',
+    lead: 'All of Berlin is already on your map. The Starter Pack drops 20 Must-Eat cards into your album — ten face up, ten you turn over on site yourself.',
     hint: 'We send you a sign-in link.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',

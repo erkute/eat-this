@@ -10,7 +10,7 @@ type Entitlements = Awaited<ReturnType<typeof resolveEntitlements>>;
 export interface AccountSurface {
   restaurants: MapRestaurant[];
   mustEats: MapMustEat[];
-  /** Die Karten, die für dieses Konto offen liegen. */
+  /** Die Karten, die für dieses Konto offen liegen. Teilmenge von `mustEats`. */
   faceUpIds: Set<string>;
   /** Admin oder All-Berlin: jede Karte offen. */
   fullCatalog: boolean;
@@ -85,5 +85,20 @@ export async function composeAccountSurface({
     for (const m of allMustEats) if (owned.has(m.restaurant._id)) faceUpIds.add(m._id);
   }
 
-  return { restaurants: all, mustEats: allMustEats, faceUpIds, fullCatalog: false };
+  /* Das Deck ist gestaffelt (Betreiber, 06.09.2026): ohne Konto fünf Karten,
+     mit Konto zwanzig — zehn offen, zehn als Rücken —, der Rest gegen Geld.
+     Sichtbar heißt „liegt im Stapel", nicht „liegt offen": die verdeckten
+     Karten des Starter Packs stehen mit Nummer und Lokal im Album und gehen
+     vor Ort auf.
+
+     Die Spots sind davon unberührt, die liegen für jeden frei. Gestaffelt ist
+     nur, wie viel vom KARTENSTAPEL jemand überhaupt sieht. */
+  const visibleIds = new Set<string>([...faceUpIds, ...ent.coveredMustEatIds]);
+
+  return {
+    restaurants: all,
+    mustEats: allMustEats.filter((m) => visibleIds.has(m._id)),
+    faceUpIds,
+    fullCatalog: false,
+  };
 }

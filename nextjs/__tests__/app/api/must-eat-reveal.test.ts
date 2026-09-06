@@ -87,6 +87,7 @@ beforeEach(() => {
     hasAllBerlin: false,
     categorySlugs: new Set(),
     mustEatIds: new Set(),
+    coveredMustEatIds: new Set(),
   });
   vi.mocked(composeAccountSurface).mockResolvedValue({
     restaurants: [{ _id: 'r1' }] as never[],

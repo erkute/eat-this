@@ -34,9 +34,12 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
     getSpotOfDayId(today),
   ]);
 
-  // Jeder Spot, jede Karte — nur eben die meisten Karten verdeckt. Offen liegt
-  // das kuratierte Schaufenster plus der Spot des Tages, und der ist flüchtig:
-  // pro Anfrage aus `today` gerechnet, morgen steht ein anderer da.
+  // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL dagegen sieht ein
+  // Besucher ohne Konto nur das Schaufenster plus den Spot des Tages, und der
+  // ist flüchtig: pro Anfrage aus `today` gerechnet, morgen steht ein anderer
+  // da. Dieselbe Staffelung wie in composeAccountSurface — die SSR-Nutzlast
+  // und der spätere Fetch müssen dasselbe meinen, sonst springt die Karte beim
+  // Hydrieren.
   const revealedMustEatIds = new Set([
     ...composeRevealedMustEats(allMustEats),
     ...spotOfDayMustEatIds(spotId, allMustEats),
@@ -44,7 +47,7 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
 
   return {
     restaurants: all,
-    mustEats: allMustEats,
+    mustEats: allMustEats.filter((m) => revealedMustEatIds.has(m._id)),
     categories,
     totalCount: all.length,
     revealedMustEatIds: Array.from(revealedMustEatIds),
@@ -80,22 +83,36 @@ export async function getPublicMustEatIds(): Promise<Set<string>> {
 }
 
 /**
- * Payload for the public /must-eats catalog — the complete deck.
+ * Payload für den öffentlichen /must-eats-Katalog — der GANZE Stapel.
  *
- * `getInitialAnonMapData()` decides which cards are face-up (curated shop
- * window + spot-of-day gift) and hydrates only those; `selectMustEatsCatalog`
- * puts the deck in card-number order. The authorization decision stays here,
- * the ordering stays pure.
+ * Bewusst ungestaffelt, als einzige Fläche. Die Map und das Album zeigen, was
+ * jemandem gehört; diese Seite zeigt, was es GIBT — eine Wand aus
+ * Kartenrücken, aus der ein paar Motive herausstechen. Gestaffelt wäre sie
+ * für einen Fremden fünf Karten und sonst nichts, und damit hätte die Seite,
+ * die für den Stapel wirbt, den Stapel nicht mehr.
+ *
+ * Verraten wird dabei nichts: eine verdeckte Karte trägt hier weder Gericht
+ * noch Bild (stripCoveredMustEats) noch ihren Spot (trimCoveredSpot). Was
+ * bleibt, ist ihre Nummer — und die steht ohnehin auf jeder Karte.
+ *
+ * `getInitialAnonMapData()` entscheidet, welche Karten offen liegen, und
+ * hydriert nur die; der Rest kommt als bloße Metadaten aus dem Katalog dazu.
  */
 export async function getMustEatsCatalogData(): Promise<InitialMustEatsData> {
-  const anon = await getInitialAnonMapData();
-  const ordered = selectMustEatsCatalog(anon);
+  const [anon, { mustEats: catalog }] = await Promise.all([
+    getInitialAnonMapData(),
+    getCachedMapData(),
+  ]);
+  const faceUp = new Set(anon.revealedMustEatIds);
+  const hydrated = new Map(anon.mustEats.map((m) => [m._id, m]));
+  const complete = catalog.map((m) => hydrated.get(m._id) ?? m);
+  const ordered = selectMustEatsCatalog({ ...anon, mustEats: complete });
 
   return {
     ...ordered,
     // The strip is what makes "covered cards carry no paid fields" a property
     // of this function rather than of a query somewhere else.
-    mustEats: stripCoveredMustEats(ordered.mustEats, new Set(anon.revealedMustEatIds)),
+    mustEats: stripCoveredMustEats(ordered.mustEats, faceUp),
   };
 }
 

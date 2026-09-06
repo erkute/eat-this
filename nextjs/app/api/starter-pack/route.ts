@@ -7,7 +7,12 @@ import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { resolveEntitlements, type Entitlement } from '@/lib/firebase/entitlements';
 import { sampleN } from '@/lib/referral/pools';
-import { STARTER_PACK_CARDS, STARTER_PACK_DOC_ID, starterPackPool } from '@/lib/starter-pack';
+import {
+  STARTER_PACK_CARDS,
+  STARTER_PACK_DOC_ID,
+  splitStarterPack,
+  starterPackPool,
+} from '@/lib/starter-pack';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,6 +31,12 @@ export const dynamic = 'force-dynamic';
  * Schaufenster und der Spot des Tages sind kein Geschenk. Zufällig gezogen,
  * damit zwei Konten nicht denselben Stapel bekommen — ein Album, das bei jedem
  * gleich aussieht, ist keine Sammlung.
+ *
+ * Die Hälfte kommt verdeckt. Ein Pack, das alles sofort zeigt, ist zu Ende,
+ * bevor es angefangen hat; die verdeckten stehen mit Nummer und Lokal im
+ * Album und gehen vor Ort auf. Welche der beiden Hälften eine Karte erwischt,
+ * entscheidet dieselbe Ziehung — `sampleN` mischt, der Schnitt liegt einfach
+ * in der Mitte.
  */
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization');
@@ -66,18 +77,23 @@ export async function POST(req: Request) {
     getUnlockedMustEatIds(uid),
   ]);
 
-  /* Dieselbe Ableitung wie überall: was diesem Konto schon offen liegt. */
+  /* Was das Konto schon sieht, wird nicht noch einmal vergeben: das
+     öffentliche Schaufenster, gekaufte Karten, eigene Aufdeckungen. Ein Pack
+     aus Karten, die der Beschenkte längst hat, ist um diese Karten kleiner. */
   const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
+  const alreadyHas = new Set([...surface.faceUpIds, ...ent.coveredMustEatIds]);
   const pool = starterPackPool(
     allMustEats.map((m) => m._id),
-    surface.faceUpIds
+    alreadyHas
   );
-  const mustEatIds = sampleN(pool, STARTER_PACK_CARDS);
+  const drawn = sampleN(pool, STARTER_PACK_CARDS);
+  const { faceUp: mustEatIds, covered: coveredMustEatIds } = splitStarterPack(drawn);
 
   const doc: WithFieldValue<Entitlement> = {
     type: 'starter',
     slug: null,
     mustEatIds,
+    coveredMustEatIds,
     purchasedAt: FieldValue.serverTimestamp(),
     stripeSessionId: null,
     source: 'signup',
@@ -93,5 +109,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'write_failed' }, { status: 500 });
   }
 
-  return NextResponse.json({ granted: true, count: mustEatIds.length });
+  return NextResponse.json({
+    granted: true,
+    count: drawn.length,
+    faceUp: mustEatIds.length,
+  });
 }

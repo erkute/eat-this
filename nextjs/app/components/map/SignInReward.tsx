@@ -16,14 +16,14 @@ const copy = {
   de: {
     kicker: 'Starter Pack eingelöst',
     headline: 'Karten liegen im Album',
-    body: 'Dein Starter Pack ist da. Jede weitere Karte drehst du vor Ort selbst um — steh vor dem Laden, tipp sie an.',
+    body: '20 Karten liegen jetzt in deinem Album — zehn offen, zehn verdeckt. Die drehst du vor Ort um: steh vor dem Laden, tipp sie an.',
     cardAlt: 'Eat This Starter Pack',
     action: 'Weiter zur Map',
   },
   en: {
     kicker: 'Starter Pack claimed',
     headline: 'Cards in your album',
-    body: 'Your Starter Pack has landed. Every other card you turn over on site yourself — stand at the spot, tap it.',
+    body: '20 cards just landed in your album — ten face up, ten covered. Those you turn over on site: stand at the spot, tap the card.',
     cardAlt: 'Eat This Starter Pack',
     action: 'Back to the map',
   },

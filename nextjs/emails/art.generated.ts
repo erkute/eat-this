@@ -32,12 +32,12 @@ export const ART = {
     "alt": "WILLKOMMEN ZURÜCK",
     "version": "6408414f"
   },
-  "titleAlbum": {
-    "id": "title-album",
-    "width": 175,
-    "height": 22,
-    "alt": "DEIN ALBUM",
-    "version": "2ff4e5e6"
+  "titleStarterPack": {
+    "id": "title-starter-pack",
+    "width": 210,
+    "height": 23,
+    "alt": "STARTER PACK",
+    "version": "fd7fe63e"
   },
   "sloganInverse": {
     "id": "slogan-inverse",

@@ -85,7 +85,7 @@ describe('MustEatsOnboarding', () => {
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
   });
 
-  it('pitches the free album to logged-out visitors on the last slide', () => {
+  it('pitches the free Starter Pack to logged-out visitors on the last slide', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbNext'));
@@ -96,7 +96,7 @@ describe('MustEatsOnboarding', () => {
     expect(guest.textContent).toContain('mustEats.onbStarterCta');
     expect(guest.querySelector('a')?.getAttribute('href')).toBe('/#hub-starter');
     expect(screen.getByTestId('onb-starter-pack').getAttribute('src')).toContain(
-      '/pics/card-back.webp'
+      '/pics/booster/booster_free.webp'
     );
 
     // …and the paid one stays for signed-in visitors.

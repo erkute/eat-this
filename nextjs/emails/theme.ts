@@ -16,7 +16,7 @@ export const COLOR = {
   accent: '#ffc600',
   /** --et-home-red — headlines and section titles, exactly as on home. */
   red: '#d9382a',
-  /** --et-home-quiet — the panel grey behind the album section on home. */
+  /** --et-home-quiet — the panel grey behind Starter Pack on home. */
   quiet: '#f2f1ef',
   /** --et-home-rule */
   rule: '#e4e1dc',
@@ -47,7 +47,7 @@ export const LAYOUT = {
 
 /**
  * Haengt als ?v= an den Bildern unter public/pics/email, die KEIN Generator
- * erzeugt (Logo, Kartenrücken) und die daher keinen Inhalts-Hash im
+ * erzeugt (Logo, Starter-Pack-Artwork) und die daher keinen Inhalts-Hash im
  * Manifest tragen. Bei jeder Aenderung an einer dieser Dateien hochzaehlen.
  *
  * Ohne Version liefert Gmails Bild-Proxy eine einmal geholte URL dauerhaft aus

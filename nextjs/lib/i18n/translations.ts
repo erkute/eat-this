@@ -58,12 +58,12 @@ const en = {
       'Every spot in Berlin is already on your map. A Booster Pack turns cards over without the walk.',
     onbFlipAria: 'Flip the card',
     // Last slide, logged-out variant. Selling a paid Booster Pack to someone
-    // without an account skips a rung: the free album is the offer that
+    // without an account skips a rung: the free Starter Pack is the offer that
     // actually applies to them.
     onbStarterKicker: 'Free',
-    onbStarterTitle: 'Your album.',
-    onbStarterBody: 'Sign up and every card you turn over on site stays in your album. Free.',
-    onbStarterCta: 'Start your album',
+    onbStarterTitle: 'Starter Pack.',
+    onbStarterBody: 'Sign up and the Starter Pack drops Must-Eat cards into your album. Free.',
+    onbStarterCta: 'Get the Starter Pack',
     onbNext: 'Next',
     onbStart: "Let's go",
     onbPacksCta: 'View Booster Packs',
@@ -149,8 +149,8 @@ const en = {
     pagerPrev: 'Previous Must Eat',
     pagerNext: 'Next Must Eat',
     walkMinutes: 'on foot',
-    starterPromoTitle: 'Your album',
-    starterPromoBody: 'Sign in — then the cards you turn over stay with you.',
+    starterPromoTitle: 'Starter Pack',
+    starterPromoBody: 'Sign in — the Starter Pack has Must-Eat cards waiting for you.',
     starterPromoLogin: 'Already in? Sign in',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
@@ -252,23 +252,23 @@ const en = {
     stand:
       '{done} of {total} cards are flipped. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
     empty: 'No cards on this map yet.',
-    /* Dieselbe Tafel wie der Album-Abschnitt der Startseite, also auch
+    /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
        dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
        ein Freund daneben. */
     joinKicker: 'Free',
-    joinTitle: 'Your album',
+    joinTitle: 'Starter Pack',
     joinLead: '{name} is already collecting. Start your own deck\u00a0\u2014 free.',
     joinLeadAnon: 'Start your own deck\u00a0\u2014 free.',
     joinSentLead: "We've sent your link. One click and you're in.",
     joinHint: 'We send you a sign-in link.',
     joinEmailLabel: 'Email address',
     joinEmailPlaceholder: 'your@email.com',
-    joinCta: 'Start your album',
+    joinCta: 'Get the Starter Pack',
     joinSending: 'Sending\u2026',
     joinSent: 'Check your mail',
     joinEmptyEmail: 'Add your email first.',
     joinInvalidEmail: 'That does not look like an email yet.',
-    joinArtAlt: 'Eat This collectible card, face down',
+    joinArtAlt: 'Eat This Starter Pack',
     browse: 'Just looking? Open the Berlin Food Map',
     ctaHeadingIn: 'Back to your own deck',
     ctaLineIn: 'Your cards are waiting all over Berlin.',
@@ -376,9 +376,9 @@ const en = {
       dividerOr: 'or',
       resendBtn: 'Resend mail',
       backBtn: 'Back',
-      heroH1: 'Your album',
-      heroSub: 'Every card you turn over on site stays in it.',
-      modalBenefitLead: 'An album of your own — and every card you turn over stays in it.',
+      heroH1: 'Starter Pack',
+      heroSub: 'Must-Eat cards for your album, and every other one you turn over on site.',
+      modalBenefitLead: 'The Starter Pack is waiting: Must-Eat cards for your album.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
       signinBoosterLead: 'Your album is waiting. Pick up where you left off.',
       modalTagline: 'Sign in',
@@ -475,10 +475,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Ganz Berlin liegt schon auf deiner Map. Ein Booster Pack dreht dir Karten um, ohne dass du hinmusst.',
     onbFlipAria: 'Karte umdrehen',
     onbStarterKicker: 'Gratis',
-    onbStarterTitle: 'Dein Album.',
+    onbStarterTitle: 'Starter Pack.',
     onbStarterBody:
-      'Melde dich an — dann bleibt jede Karte, die du vor Ort umdrehst, in deinem Album. Kostenlos.',
-    onbStarterCta: 'Album anlegen',
+      'Melde dich an — das Starter Pack legt dir Must-Eat-Karten ins Album. Kostenlos.',
+    onbStarterCta: 'Starter Pack holen',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
     onbPacksCta: 'Booster Packs ansehen',
@@ -552,8 +552,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerPrev: 'Vorheriges Must Eat',
     pagerNext: 'Nächstes Must Eat',
     walkMinutes: 'zu Fuß',
-    starterPromoTitle: 'Dein Album',
-    starterPromoBody: 'Melde dich an — dann bleiben die Karten, die du umdrehst, bei dir.',
+    starterPromoTitle: 'Starter Pack',
+    starterPromoBody: 'Melde dich an — im Starter Pack warten Must-Eat-Karten auf dich.',
     starterPromoLogin: 'Schon dabei? Einloggen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
@@ -679,21 +679,21 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     empty: 'Auf dieser Map liegen noch keine Karten.',
     /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
        auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
-       auf der Startseite — das Album, kostenlos. */
+       auf der Startseite — das Starter Pack, kostenlos. */
     joinKicker: 'Gratis',
-    joinTitle: 'Dein Album',
+    joinTitle: 'Starter Pack',
     joinLead: '{name} sammelt schon. Fang dein eigenes Deck an\u00a0\u2014 kostenlos.',
     joinLeadAnon: 'Fang dein eigenes Deck an\u00a0\u2014 kostenlos.',
     joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     joinHint: 'Wir schicken dir einen Link zum Einloggen.',
     joinEmailLabel: 'E-Mail Adresse',
     joinEmailPlaceholder: 'deine@email.com',
-    joinCta: 'Album anlegen',
+    joinCta: 'Starter Pack holen',
     joinSending: 'Sende\u2026',
     joinSent: 'Check deine Mail',
     joinEmptyEmail: 'Bitte gib deine E-Mail ein.',
     joinInvalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
-    joinArtAlt: 'Eat This Sammelkarte, verdeckt',
+    joinArtAlt: 'Eat This Starter Pack',
     /* Der leise Weg fuer alle, die sich noch nicht anmelden wollen — statt
        einer Sackgasse. */
     browse: 'Erst mal umsehen? Zur Berlin Food Map',
@@ -803,9 +803,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       dividerOr: 'oder',
       resendBtn: 'Mail erneut senden',
       backBtn: 'Zur\u00fcck',
-      heroH1: 'Dein Album',
-      heroSub: 'Jede Karte, die du vor Ort umdrehst, bleibt drin.',
-      modalBenefitLead: 'Ein eigenes Album — und jede Karte, die du umdrehst, bleibt darin.',
+      heroH1: 'Starter Pack',
+      heroSub: 'Must-Eat-Karten fürs Album, und jede weitere drehst du vor Ort um.',
+      modalBenefitLead: 'Das Starter Pack wartet: Must-Eat-Karten für dein Album.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
       signinBoosterLead: 'Dein Album wartet. Mach da weiter, wo du aufgehört hast.',
       modalTagline: 'Anmelden',

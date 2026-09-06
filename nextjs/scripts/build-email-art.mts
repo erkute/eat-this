@@ -80,17 +80,13 @@ const ART: ArtSpec[] = [
     width: 470,
   },
   {
-    // „Starter Pack" bis zum 06.09.2026 — der Name ist mit der Spot-Staffelung
-    // gefallen, was ein Konto bringt, ist das Album. Die Zielbreite ist
-    // mitgewandert: sie steht im Verhaeltnis der Zeichenzahl (10 statt 12),
-    // sonst setzt derselbe Kasten die kuerzere Zeile groesser.
-    id: 'title-album',
-    lines: ['DEIN ALBUM'],
+    id: 'title-starter-pack',
+    lines: ['STARTER PACK'],
     color: COLOR.red,
     size: 30,
     letterSpacing: -0.5,
     align: 'center',
-    width: 175,
+    width: 210,
   },
   {
     id: 'slogan-inverse',

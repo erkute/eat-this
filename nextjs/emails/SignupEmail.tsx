@@ -1,7 +1,7 @@
 // Signup mail — first contact with an address that has no account yet.
 //
-// Carries the product where the login mail does not: the home hero, the album
-// panel in its home shape (quiet grey, yellow pill, red title), and a few
+// Carries the product where the login mail does not: the home hero, the Starter
+// Pack panel in its home shape (quiet grey, yellow pill, red title), and a few
 // composed spot cards. The link still comes first — someone who only wants in
 // never has to scroll.
 
@@ -51,7 +51,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
   return (
     <Shell
       appUrl={appUrl}
-      preview="Dein Link zum Anmelden — und dein Album liegt schon bereit."
+      preview="Dein Link zum Anmelden — und dein Starter Pack liegt schon bereit."
     >
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
@@ -109,8 +109,8 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
         />
       </Section>
 
-      {/* DEIN ALBUM — the home section, rebuilt: quiet-grey panel, card back,
-          yellow "Gratis" pill, red title. */}
+      {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
+          artwork, yellow "Gratis" pill, red title. */}
       <Section className="et-pad" style={{ backgroundColor: COLOR.paper, padding: '0 32px 36px' }}>
         <Section
           style={{
@@ -122,15 +122,10 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
         >
           <ArtImage
             art={{
-              /* Der Kartenrücken, nicht mehr der Beutel: was ein Konto bringt,
-                 ist das Album. Gerendert aus public/pics/card-back.webp auf
-                 doppelte Anzeigebreite (siehe scripts/build-email-card-back).
-                 Palette-PNG, weil ein Vollfarb-PNG dieser Zeichnung 300 KB in
-                 ein Postfach traegt. */
-              id: 'card-back',
+              id: 'booster_free',
               width: 168,
-              height: 231,
-              alt: 'Eat This Sammelkarte, verdeckt',
+              height: 260,
+              alt: 'Eat This Starter Pack',
               version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
@@ -158,7 +153,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           </Text>
 
           <ArtImage
-            art={ART.titleAlbum}
+            art={ART.titleStarterPack}
             appUrl={appUrl}
             altStyle={{ color: COLOR.red, fontSize: '22px', fontWeight: 700 }}
             style={{ margin: '0 auto 14px' }}
@@ -172,8 +167,8 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.ink,
             }}
           >
-            Ganz Berlin liegt schon auf deiner Map. Was du dir holst, sind die Karten: jede, die
-            du vor Ort umdrehst, bleibt in deinem Album. Kostenlos.
+            Ganz Berlin liegt schon auf deiner Map. Dein Starter Pack legt dir Must-Eat-Karten
+            dazu ins Album — und jede weitere drehst du vor Ort selbst um. Kostenlos.
           </Text>
         </Section>
       </Section>

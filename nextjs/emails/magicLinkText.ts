@@ -34,8 +34,8 @@ export function buildSignupText(magicLink: string): string {
     magicLink,
     '',
     'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse.',
-    'Ganz Berlin liegt danach auf deiner Map — und jede Must-Eat-Karte, die du vor Ort',
-    'umdrehst, bleibt in deinem Album.',
+    'Ganz Berlin liegt danach auf deiner Map, und dein Starter Pack legt dir',
+    'Must-Eat-Karten ins Album.',
     '',
     ...SIGN_OFF,
   ].join('\n');

@@ -14,17 +14,17 @@ const LEAVE_MS = 240;
 
 const copy = {
   de: {
-    kicker: 'Angemeldet',
-    headline: 'Dein Album ist offen',
-    body: 'Ab jetzt bleibt jede Karte, die du vor Ort aufdeckst, bei dir. Steh vor dem Laden, dreh sie um.',
-    cardAlt: 'Eat This Sammelkarte, verdeckt',
+    kicker: 'Starter Pack eingelöst',
+    headline: 'Karten liegen im Album',
+    body: 'Dein Starter Pack ist da. Jede weitere Karte drehst du vor Ort selbst um — steh vor dem Laden, tipp sie an.',
+    cardAlt: 'Eat This Starter Pack',
     action: 'Weiter zur Map',
   },
   en: {
-    kicker: 'Signed in',
-    headline: 'Your album is open',
-    body: 'From now on every card you turn over on site stays with you. Stand at the spot, flip it.',
-    cardAlt: 'Eat This collectible card, face down',
+    kicker: 'Starter Pack claimed',
+    headline: 'Cards in your album',
+    body: 'Your Starter Pack has landed. Every other card you turn over on site yourself — stand at the spot, tap it.',
+    cardAlt: 'Eat This Starter Pack',
     action: 'Back to the map',
   },
 } as const;
@@ -84,13 +84,13 @@ export default function SignInReward({ justSignedIn }: Props) {
       aria-live="polite"
     >
       <div className={`${styles.panel}${leaving ? ` ${styles.panelLeaving}` : ''}`}>
-        {/* Der Kartenrücken statt des Starter-Packs: das Objekt, um das es von
-            hier an geht. Er überlappt die Oberkante, damit das Panel wie etwas
-            aussieht, das gerade ankommt. */}
+        {/* Das Objekt, das der Leser gerade eingelöst hat — dasselbe Pack, das
+            ihm die Anmeldung angeboten hat. Es überlappt die Oberkante, damit
+            das Panel wie etwas aussieht, das gerade ankommt. */}
         <span className={styles.pack} aria-hidden="true">
           <Image
             className={styles.packImg}
-            src="/pics/card-back-sm.webp"
+            src="/pics/booster/booster_free.webp"
             alt=""
             fill
             sizes="92px"

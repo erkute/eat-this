@@ -7,7 +7,7 @@ import { isEmailish } from '@/lib/auth/emailShape';
 import styles from './StarterPackSignup.module.css';
 
 /**
- * Email capture for the free album. Previously this lived as the first
+ * Email capture for the free Starter Pack. Previously this lived as the first
  * tile inside the categories rail, where it read as one more purchasable pack
  * next to "Fine Dining Pack — Öffnen" (1 signup in 14 days). It is now its own
  * section: the offer is named, the price is stated, and the magic-link step is
@@ -23,44 +23,44 @@ interface Props {
 }
 
 /**
- * Bis zum 06.09.2026 hiess dieser Abschnitt „Starter Pack" und versprach
- * weitere Spots. Beides ist weg: die Map liegt fuer jeden ganz da, es gibt
- * keine Spots mehr zu verschenken. Was ein Konto heute wert ist, ist das
- * Album — verdeckte Karten, die man vor Ort umdreht, und die dann bleiben.
+ * Das Starter Pack heisst weiter Starter Pack — nur sein Inhalt hat sich am
+ * 06.09.2026 geaendert. Es versprach Spots, und die gibt es seither gratis;
+ * jetzt legt es Must-Eat-Karten ins Album (siehe app/api/starter-pack).
  *
- * Deshalb steht hier auch der Kartenruecken statt des Beutels: das Objekt, um
- * das es geht, ist die Karte.
+ * Die Zahl steht bewusst nicht dabei: das Produkt nennt seine Zahlen nicht
+ * (Betreiber, 06.09.2026) — dieselbe Regel, unter der die Berlin-Zahl vom
+ * Profil verschwand und die Pack-Seiten ihre Kartenzahl verschweigen.
  */
 const copy = {
   de: {
     kicker: 'Gratis',
-    title: 'Dein Album',
-    lead: 'Ganz Berlin liegt schon auf deiner Map. Melde dich an, und jede Karte, die du vor Ort umdrehst, bleibt bei dir.',
+    title: 'Starter Pack',
+    lead: 'Ganz Berlin liegt schon auf deiner Map. Das Starter Pack legt dir Must-Eat-Karten ins Album — jede weitere drehst du vor Ort selbst um.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
-    submit: 'Album anlegen',
+    submit: 'Starter Pack holen',
     sending: 'Sende…',
     sent: 'Check deine Mail',
     sentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     emptyEmail: 'Bitte gib deine E-Mail ein.',
     invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
-    imgAlt: 'Eat This Sammelkarte, verdeckt',
+    imgAlt: 'Eat This Starter Pack',
   },
   en: {
     kicker: 'Free',
-    title: 'Your album',
-    lead: 'All of Berlin is already on your map. Sign up, and every card you turn over on site stays with you.',
+    title: 'Starter Pack',
+    lead: 'All of Berlin is already on your map. The Starter Pack drops Must-Eat cards into your album — every other one you turn over on site yourself.',
     hint: 'We send you a sign-in link.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',
-    submit: 'Start your album',
+    submit: 'Get the Starter Pack',
     sending: 'Sending…',
     sent: 'Check your mail',
     sentLead: "We've sent your link. One click and you're in.",
     emptyEmail: 'Add your email first.',
     invalidEmail: 'That does not look like an email yet.',
-    imgAlt: 'Eat This collectible card, face down',
+    imgAlt: 'Eat This Starter Pack',
   },
 } as const;
 
@@ -100,7 +100,7 @@ export default function StarterPackSignup({ locale }: Props) {
       <div className={styles.inner}>
         <div className={styles.art}>
           <Image
-            src="/pics/card-back.webp"
+            src="/pics/booster/booster_free.webp"
             alt={t.imgAlt}
             fill
             sizes="(max-width: 760px) 168px, 220px"

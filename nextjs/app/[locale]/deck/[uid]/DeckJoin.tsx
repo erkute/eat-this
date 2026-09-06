@@ -9,9 +9,7 @@ import styles from '@/app/components/profile/Profile.module.css';
 import starter from '@/app/components/StarterPackSignup.module.css';
 import deck from './Deck.module.css';
 
-/* Derselbe Kartenrücken wie im Anmeldeblock der Startseite: was ein Konto
-   bringt, ist das Album, nicht ein Beutel. */
-const STARTER_ART = '/pics/card-back.webp';
+const STARTER_ART = '/pics/booster/booster_free.webp';
 
 /**
  * Der Ausgang des geteilten Decks — die einzige Handlung, die die Seite

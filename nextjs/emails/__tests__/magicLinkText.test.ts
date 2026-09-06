@@ -20,12 +20,14 @@ describe('auth mail plain-text parts', () => {
   });
 
   /* Die Anmeldemail muss sagen, was ein Konto bringt — und das sind seit dem
-     06.09.2026 die Karten, nicht mehr Spots: die Map liegt fuer jeden ganz da. */
+     06.09.2026 Karten, nicht mehr Spots: die Map liegt fuer jeden ganz da. */
   it('the signup part names what an account is actually worth', () => {
     const t = buildSignupText('https://x/verify');
-    expect(t).toContain('Album');
-    expect(t).toContain('Must-Eat-Karte');
-    expect(t).not.toContain('Starter Pack');
+    expect(t).toContain('Starter Pack');
+    expect(t).toContain('Must-Eat-Karten');
+    // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
+    expect(t).not.toContain('Spots samt');
+    expect(t).not.toContain('weitere Spots');
   });
 
   it('drops all retired onboarding-script content', () => {

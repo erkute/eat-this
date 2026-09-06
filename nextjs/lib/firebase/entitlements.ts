@@ -4,12 +4,16 @@
 import { getAdminFirestore } from './admin';
 
 export interface Entitlement {
-  type: 'category' | 'all-berlin';
+  /** 'starter' ist kein Kauf, sondern das, was eine Anmeldung mitbringt —
+   *  Karten, keine Kategorie und nicht die ganze Stadt. Es traegt seinen
+   *  Bestand allein in `mustEatIds`, die reduceEntitlements wie jeden anderen
+   *  vereinigt. Siehe app/api/starter-pack/route.ts. */
+  type: 'category' | 'all-berlin' | 'starter';
   slug: string | null;
   mustEatIds: string[];
   purchasedAt: FirebaseFirestore.Timestamp;
   stripeSessionId: string | null;
-  source: 'stripe' | 'manual';
+  source: 'stripe' | 'manual' | 'signup';
 }
 
 interface ResolvedEntitlements {

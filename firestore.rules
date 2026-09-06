@@ -29,16 +29,25 @@ service cloud.firestore {
 
     // Favorites are created/deleted only by /api/heart via the Admin SDK so
     // the per-user document and public aggregate always move together. The
-    // owner may edit only the optional profile note; all canonical restaurant
+    // owner may edit only their own two annotations — the optional note and
+    // the visited flag ("war da" / "will hin"); all canonical restaurant
     // metadata remains server-owned.
+    //
+    // Each field is checked only when the write actually carries it: an
+    // update that sets `visited` on a document without a note must not fail
+    // on a note that isn't there, and vice versa. `hasOnly` already keeps
+    // everything else out.
     match /users/{uid}/favorites/{restaurantId} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow create, delete: if false;
       allow update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['note'])
-        && request.resource.data.note is string
-        && request.resource.data.note.size() <= 180;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['note', 'visited'])
+        && (!('note' in request.resource.data)
+            || (request.resource.data.note is string
+                && request.resource.data.note.size() <= 180))
+        && (!('visited' in request.resource.data)
+            || request.resource.data.visited is bool);
     }
 
     // On-site must-eat reveals — owner-readable so the client can seed its

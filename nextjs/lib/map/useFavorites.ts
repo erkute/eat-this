@@ -12,6 +12,10 @@ interface FavoriteEntry {
   photo?: string;
   district?: string;
   note?: string;
+  /** „War da" statt „will hin" — die zweite eigene Anmerkung neben der
+   *  Notiz. Fehlt auf jedem Spot, der vor dem 06.09.2026 gespeichert wurde,
+   *  und das heisst dasselbe wie `false`: gespeichert, aber noch offen. */
+  visited?: boolean;
 }
 
 interface UseFavoritesResult {
@@ -25,6 +29,7 @@ interface UseFavoritesResult {
     district?: string;
   }) => Promise<void>;
   updateNote: (restaurantId: string, note: string) => Promise<void>;
+  setVisited: (restaurantId: string, visited: boolean) => Promise<void>;
   loading: boolean;
 }
 
@@ -47,6 +52,7 @@ function parseFavoriteEntry(value: unknown, restaurantIdOverride?: string): Favo
   for (const key of optionalKeys) {
     if (record[key] !== undefined && typeof record[key] !== 'string') return null;
   }
+  if (record.visited !== undefined && typeof record.visited !== 'boolean') return null;
 
   return {
     restaurantId,
@@ -55,6 +61,7 @@ function parseFavoriteEntry(value: unknown, restaurantIdOverride?: string): Favo
     photo: record.photo as string | undefined,
     district: record.district as string | undefined,
     note: record.note as string | undefined,
+    visited: record.visited as boolean | undefined,
   };
 }
 
@@ -269,5 +276,45 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     [uid]
   );
 
-  return { favoriteIds, favorites, toggle, updateNote, loading };
+  /* „War da" — dieselbe Mechanik wie die Notiz: ein eigenes Feld auf dem
+     eigenen Dokument, mehr laesst firestore.rules dort nicht zu.
+
+     Optimistisch, weil ein Haken, der eine halbe Sekunde ueberlegt, sich
+     anfuehlt wie ein kaputter Knopf. Scheitert der Schreibvorgang, nimmt
+     DIESE Funktion ihn zurueck und wirft weiter — der Aufrufer sagt es
+     dann. Ein optimistischer Zustand, den niemand zurueckdreht, ist eine
+     Luege, die bis zum naechsten Laden haelt. */
+  const setVisited = useCallback(
+    async (restaurantId: string, visited: boolean) => {
+      if (!uid) return;
+      const apply = (value: boolean) =>
+        setState((current) => {
+          if (current.ownerUid !== uid) return current;
+          const next = current.favorites.map((favorite) =>
+            favorite.restaurantId === restaurantId ? { ...favorite, visited: value } : favorite
+          );
+          try {
+            window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next));
+          } catch {
+            /* quota */
+          }
+          return { ...current, favorites: next };
+        });
+
+      apply(visited);
+      try {
+        const [{ doc, updateDoc }, db] = await Promise.all([
+          import('firebase/firestore'),
+          getDb(),
+        ]);
+        await updateDoc(doc(db, 'users', uid, 'favorites', restaurantId), { visited });
+      } catch (err) {
+        apply(!visited);
+        throw err;
+      }
+    },
+    [uid]
+  );
+
+  return { favoriteIds, favorites, toggle, updateNote, setVisited, loading };
 }

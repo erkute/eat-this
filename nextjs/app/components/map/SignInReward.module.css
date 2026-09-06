@@ -117,29 +117,6 @@
   text-transform: uppercase;
 }
 
-/* Die Zahl ist der Akzent — das einzige Gelb auf der Fläche, und der einzige
-   Grund, warum diese Einblendung überhaupt existiert. */
-.count {
-  display: block;
-  margin-top: 10px;
-  font-size: clamp(70px, 24vw, 104px);
-  font-weight: 700;
-  line-height: 0.86;
-  letter-spacing: -0.04em;
-  color: var(--et-home-accent, #ffc600);
-  /* Eine Ziffernbreite: die Zahl steht in einer Zeile, die sich nicht
-     verschieben darf, wenn sie zweistellig statt dreistellig ist. */
-  font-variant-numeric: tabular-nums;
-}
-.countLabel {
-  display: block;
-  margin-top: 4px;
-  font-size: 18px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-}
-
 .body {
   margin: 10px 0 0;
   font-family: var(--font, system-ui, sans-serif);
@@ -147,17 +124,6 @@
   font-size: 14.5px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.78);
-}
-
-/* Der eine Spot, um den es ging — gelb unterstrichen statt eingerahmt, wie die
-   Links auf der 404. */
-.spotLine {
-  display: inline-block;
-  margin-top: 12px;
-  padding-bottom: 2px;
-  font-size: 15px;
-  font-weight: 400;
-  box-shadow: inset 0 -3px 0 var(--et-home-accent, #ffc600);
 }
 
 .action {
@@ -207,36 +173,6 @@
   }
 }
 
-/* Der Warte-Zustand ist dasselbe Panel ohne Zahl — damit die Zahl in dieselbe
-   Fläche einschlägt, statt dass eine zweite Einblendung aufgeht. */
-.dots {
-  display: inline-flex;
-  gap: 6px;
-  margin-top: 16px;
-}
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--et-home-accent, #ffc600);
-  animation: rewardDot 900ms ease-in-out infinite;
-}
-.dot:nth-child(2) {
-  animation-delay: 150ms;
-}
-.dot:nth-child(3) {
-  animation-delay: 300ms;
-}
-@keyframes rewardDot {
-  0%,
-  100% {
-    transform: scale(0.5);
-  }
-  50% {
-    transform: scale(1);
-  }
-}
-
 /* Reduced Motion: die Meldung ist eine INFORMATION, sie darf nicht wegfallen —
    nur ihre Bewegung. Sie steht dann einfach da. Die Kippung des Packs bleibt:
    das ist Haltung, keine Bewegung. */
@@ -247,10 +183,6 @@
   .panelLeaving {
     animation: none;
     transform: none;
-  }
-  .dot {
-    animation: none;
-    transform: scale(0.8);
   }
   /* Der Countdown bleibt: er ist eine Information über Zeit, keine Zierde.
      Ohne ihn verschwindet die Meldung für diese Leser unangekündigt. */

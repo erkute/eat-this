@@ -56,7 +56,6 @@ function list(props: Partial<React.ComponentProps<typeof RestaurantList>> = {}) 
   return (
     <RestaurantList
       restaurants={spots(40)}
-      lockedIds={new Set()}
       selectedId={null}
       onSelect={vi.fn()}
       primaryMustEats={new Map()}
@@ -112,12 +111,8 @@ describe('RestaurantList windowing', () => {
     expect(container.querySelector('[class*=moreSentinel]')).toBeNull();
   });
 
-  // Gesperrte Spots stehen in derselben Liste und zählen ins selbe Budget —
-  // sie sind Zeilen wie alle anderen.
-  it('counts locked rows into the same budget', () => {
-    const all = spots(25);
-    const lockedIds = new Set(all.slice(5).map((r) => r._id));
-    render(list({ restaurants: all, lockedIds, visibleRows: 12 }));
+  it('renders no more than the budget, whatever the catalogue size', () => {
+    render(list({ restaurants: spots(25), visibleRows: 12 }));
 
     expect(rows()).toHaveLength(12);
     expect(rows().at(-1)).toBe('Spot 11');

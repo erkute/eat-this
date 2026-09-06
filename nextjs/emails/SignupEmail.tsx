@@ -51,7 +51,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
   return (
     <Shell
       appUrl={appUrl}
-      preview="Dein Link zum Anmelden — und dein Starter Pack liegt schon bereit."
+      preview="Dein Link zum Anmelden — und dein Album liegt schon bereit."
     >
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
@@ -112,6 +112,11 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
       {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
           artwork, yellow "Gratis" pill, red title. */}
       <Section className="et-pad" style={{ backgroundColor: COLOR.paper, padding: '0 32px 36px' }}>
+        {/* OFFEN (Stufe 2): Beutelbild und die Überschrift `titleStarterPack`
+            sind gerenderte PNGs und sagen beide noch „Starter Pack". Neu
+            rendern geht nur mit FF Providence lokal (`npm run sync:brand-font`,
+            dann `npm run build:email-art`) — ohne sie fällt das Skript sichtbar
+            gewarnt auf Schoolbell zurück. Der Fließtext darunter stimmt schon. */}
         <Section
           style={{
             backgroundColor: COLOR.quiet,
@@ -125,7 +130,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               id: 'booster_free',
               width: 168,
               height: 260,
-              alt: 'Eat This Starter Pack — 20 Must Eats',
+              alt: 'Eat This Starter Pack',
               version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
@@ -167,8 +172,8 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.ink,
             }}
           >
-            Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei.
-            Kostenlos.
+            Ganz Berlin liegt schon auf deiner Map. Was du dir holst, sind die Karten: jede, die
+            du vor Ort umdrehst, bleibt in deinem Album. Kostenlos.
           </Text>
         </Section>
       </Section>

@@ -6,7 +6,6 @@ import type { MapRestaurant } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
-import LockedMarker from './LockedMarker';
 import UserLocationMarker from './UserLocationMarker';
 import TransitLayer from './TransitLayer';
 
@@ -48,15 +47,8 @@ interface MapCanvasLayerProps {
   onMapClick: () => void;
   onMoveEnd: (e: ViewStateChangeEvent) => void;
   displayedRestaurants: MapRestaurant[];
-  /** Paywalled spots matching the active filter — drawn as muted dots. */
-  displayedLockedRestaurants: MapRestaurant[];
   selectedRestaurant: MapRestaurant | null;
-  /** True when the open sheet belongs to a paywalled spot. */
-  selectedIsLocked: boolean;
   onRestaurantClick: (r: MapRestaurant) => void;
-  onLockedClick: (r: MapRestaurant) => void;
-  /** Accessible name for a group of free pins, e.g. "5 Spots …". */
-  /** Accessible name for a group of locked dots. */
   /** Der Spot, um den es gerade geht — offene Detailansicht oder offenes
    *  Must Eat. Ist er gesetzt, treten alle anderen Pins zurück, damit auf der
    *  Karte sichtbar bleibt, welcher gemeint ist. `null` heißt: keine
@@ -70,11 +62,8 @@ export default function MapCanvasLayer({
   onMapClick,
   onMoveEnd,
   displayedRestaurants,
-  displayedLockedRestaurants,
   selectedRestaurant,
-  selectedIsLocked,
   onRestaurantClick,
-  onLockedClick,
   focusedRestaurantId,
   location,
 }: MapCanvasLayerProps) {
@@ -160,20 +149,9 @@ export default function MapCanvasLayer({
     [bounds]
   );
 
-  const freePins = useMemo(
-    () =>
-      displayedRestaurants.filter(
-        (r) => r._id !== (selectedIsLocked ? null : selectedId) && inView(r)
-      ),
-    [displayedRestaurants, selectedId, selectedIsLocked, inView]
-  );
-
-  const lockedPins = useMemo(
-    () =>
-      displayedLockedRestaurants.filter(
-        (r) => r._id !== (selectedIsLocked ? selectedId : null) && inView(r)
-      ),
-    [displayedLockedRestaurants, selectedId, selectedIsLocked, inView]
+  const pins = useMemo(
+    () => displayedRestaurants.filter((r) => r._id !== selectedId && inView(r)),
+    [displayedRestaurants, selectedId, inView]
   );
 
   return (
@@ -188,31 +166,8 @@ export default function MapCanvasLayer({
           das?", und ein Netz, das erst beim Auswählen erscheint, müsste bei
           jedem Auswählen neu gelesen werden. */}
       <TransitLayer />
-      {/* Locked dots first, so the free pins that follow paint on top and win
-          the tap wherever the two overlap. DOM order alone does not hold that
-          up, though — a marker appends itself to the canvas container when it
-          MOUNTS, so a dot re-created by a zoom crossing lands after pins that
-          were already there. .markerRootFree is what actually guarantees the
-          band; this order is the first-paint case of the same rule. */}
       {painted &&
-        lockedPins.map((restaurant) => (
-          <LockedMarker
-            key={restaurant._id}
-            restaurant={restaurant}
-            isDimmed={isDimmed(restaurant)}
-            onClick={onLockedClick}
-          />
-        ))}
-      {painted && selectedRestaurant && selectedIsLocked && (
-        <LockedMarker
-          key={selectedRestaurant._id}
-          restaurant={selectedRestaurant}
-          isSelected
-          onClick={onLockedClick}
-        />
-      )}
-      {painted &&
-        freePins.map((restaurant, i) => (
+        pins.map((restaurant, i) => (
           <RestaurantMarker
             key={restaurant._id}
             restaurant={restaurant}
@@ -226,7 +181,7 @@ export default function MapCanvasLayer({
           the group it came out of. It also covers the deep-link case, where
           the selection can sit outside the visible set entirely (an old share
           link) — without it the camera would visibly centre on nothing. */}
-      {painted && selectedRestaurant && !selectedIsLocked && (
+      {painted && selectedRestaurant && (
         <RestaurantMarker
           key={selectedRestaurant._id}
           restaurant={selectedRestaurant}

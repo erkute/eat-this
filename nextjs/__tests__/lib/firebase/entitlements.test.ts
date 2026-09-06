@@ -3,7 +3,7 @@ import {
   reduceEntitlements,
   isAdminEmail,
   isAdminToken,
-  isRestaurantVisible,
+  ownsCategoryOf,
   type Entitlement,
 } from '../../../lib/firebase/entitlements'
 
@@ -12,14 +12,13 @@ describe('reduceEntitlements', () => {
     const r = reduceEntitlements([])
     expect(r.hasAllBerlin).toBe(false)
     expect(r.categorySlugs.size).toBe(0)
-    expect(r.restaurantIds.size).toBe(0)
     expect(r.mustEatIds.size).toBe(0)
   })
 
   it('collects category slugs', () => {
     const docs: Entitlement[] = [
-      { type: 'category', slug: 'pizza', restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
-      { type: 'category', slug: 'breakfast', restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
+      { type: 'category', slug: 'pizza', mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
+      { type: 'category', slug: 'breakfast', mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
     ]
     const r = reduceEntitlements(docs)
     expect([...r.categorySlugs].sort()).toEqual(['breakfast', 'pizza'])
@@ -28,7 +27,7 @@ describe('reduceEntitlements', () => {
 
   it('sets hasAllBerlin when an all-berlin doc is present', () => {
     const docs: Entitlement[] = [
-      { type: 'all-berlin', slug: null, restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's3', source: 'stripe' },
+      { type: 'all-berlin', slug: null, mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's3', source: 'stripe' },
     ]
     const r = reduceEntitlements(docs)
     expect(r.hasAllBerlin).toBe(true)
@@ -36,7 +35,7 @@ describe('reduceEntitlements', () => {
 
   it('ignores category docs with no slug', () => {
     const docs: Entitlement[] = [
-      { type: 'category', slug: null, restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: null, source: 'manual' },
+      { type: 'category', slug: null, mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: null, source: 'manual' },
     ]
     const r = reduceEntitlements(docs)
     expect(r.categorySlugs.size).toBe(0)
@@ -44,33 +43,33 @@ describe('reduceEntitlements', () => {
 
   it('combines category + all-berlin into one resolved view', () => {
     const docs: Entitlement[] = [
-      { type: 'category', slug: 'pizza', restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
-      { type: 'all-berlin', slug: null, restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
+      { type: 'category', slug: 'pizza', mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
+      { type: 'all-berlin', slug: null, mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
     ]
     const r = reduceEntitlements(docs)
     expect(r.hasAllBerlin).toBe(true)
     expect([...r.categorySlugs]).toEqual(['pizza'])
-    expect(r.restaurantIds.size).toBe(0)
     expect(r.mustEatIds.size).toBe(0)
   })
 
-  it('collects restaurantIds and mustEatIds from each doc into deduped sets', () => {
+  it('collects mustEatIds from each doc into one deduped set', () => {
     const docs: Entitlement[] = [
-      { type: 'category', slug: 'pizza', restaurantIds: ['rest-A', 'rest-B'], mustEatIds: ['me-1', 'me-2'], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
-      { type: 'category', slug: 'breakfast', restaurantIds: ['rest-B', 'rest-C'], mustEatIds: ['me-2', 'me-3'], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
+      { type: 'category', slug: 'pizza', mustEatIds: ['me-1', 'me-2'], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
+      { type: 'category', slug: 'breakfast', mustEatIds: ['me-2', 'me-3'], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
     ]
     const r = reduceEntitlements(docs)
-    expect([...r.restaurantIds].sort()).toEqual(['rest-A', 'rest-B', 'rest-C'])
     expect([...r.mustEatIds].sort()).toEqual(['me-1', 'me-2', 'me-3'])
   })
 
-  it('unions referral-bonus restaurantIds into the resolved set (deduped)', () => {
+  // Eine Karte ist eine Karte, egal woher: gekauft und eingeladen landen im
+  // selben Set, sonst müsste jede Fläche zwei Quellen zusammenrechnen.
+  it('unions referral-bonus cards into the resolved set (deduped)', () => {
     const docs: Entitlement[] = [
-      { type: 'category', slug: 'pizza', restaurantIds: ['rest-A'], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
+      { type: 'category', slug: 'pizza', mustEatIds: ['me-1'], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
     ]
-    const bonuses = [{ restaurantIds: ['rest-B', 'rest-C'] }, { restaurantIds: ['rest-A'] }]
+    const bonuses = [{ mustEatIds: ['me-2', 'me-3'] }, { mustEatIds: ['me-1'] }]
     const r = reduceEntitlements(docs, bonuses)
-    expect([...r.restaurantIds].sort()).toEqual(['rest-A', 'rest-B', 'rest-C'])
+    expect([...r.mustEatIds].sort()).toEqual(['me-1', 'me-2', 'me-3'])
   })
 })
 
@@ -139,40 +138,21 @@ describe('isAdminToken', () => {
   })
 })
 
-describe('isRestaurantVisible', () => {
-  const baseEnt = {
-    isAdmin: false,
-    hasAllBerlin: false,
-    categorySlugs: new Set<string>(),
-    restaurantIds: new Set<string>(),
-    mustEatIds: new Set<string>(),
-  }
+describe('ownsCategoryOf', () => {
+  const baseEnt = { categorySlugs: new Set<string>() }
 
-  it('returns true for admin regardless of categories', () => {
-    expect(isRestaurantVisible({ _id: 'r1', categories: [] }, { ...baseEnt, isAdmin: true })).toBe(true)
-  })
-
-  it('returns true when hasAllBerlin', () => {
-    expect(isRestaurantVisible({ _id: 'r1', categories: [] }, { ...baseEnt, hasAllBerlin: true })).toBe(true)
-  })
-
-  it('returns true when restaurant id is in explicit set', () => {
-    expect(isRestaurantVisible({ _id: 'r1', categories: [] }, { ...baseEnt, restaurantIds: new Set(['r1']) })).toBe(true)
-  })
-
-  it('returns true when any category slug matches', () => {
-    expect(isRestaurantVisible(
-      { _id: 'r1', categories: [{ slug: 'pizza' }, { slug: 'dinner' }] as any },
-      { ...baseEnt, categorySlugs: new Set(['pizza']) },
+  it('returns true when any category slug matches — one shared tag is enough', () => {
+    expect(ownsCategoryOf(
+      { categories: [{ slug: 'pizza' }, { slug: 'dinner' }] },
+      { categorySlugs: new Set(['pizza']) },
     )).toBe(true)
   })
 
   it('returns false when no match', () => {
-    expect(isRestaurantVisible({ _id: 'r1', categories: [{ slug: 'pizza' }] as any }, baseEnt)).toBe(false)
+    expect(ownsCategoryOf({ categories: [{ slug: 'pizza' }] }, baseEnt)).toBe(false)
   })
 
   it('handles undefined categories array', () => {
-    expect(isRestaurantVisible({ _id: 'r1' } as any, baseEnt)).toBe(false)
+    expect(ownsCategoryOf({}, baseEnt)).toBe(false)
   })
 })
-

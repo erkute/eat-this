@@ -53,7 +53,6 @@ describe('/api/revalidate', () => {
     expect(await res.json()).toEqual(expect.objectContaining({ ok: true, type: 'restaurant', slug: 'test-spot' }))
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot')
     expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings')
     // Der Kandidatenpool des Spots des Tages haengt am blanken Tag
     // `restaurant` — ohne ihn bliebe ein frisch gesetztes `featuredOnDate`
@@ -131,14 +130,13 @@ describe('/api/revalidate', () => {
     }
   )
 
-  it('invalidates the free-surface cache and map pages for home-week changes', async () => {
+  it('invalidates the map pages for home-week changes', async () => {
     const raw = JSON.stringify({ _type: 'homeWeek' })
     const ts = Date.now()
 
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
@@ -182,7 +180,7 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/restaurant/gully-burger')
   })
 
-  it('revalidates must-eat pages when news changes the free surface', async () => {
+  it('revalidates must-eat pages when news changes', async () => {
     const raw = JSON.stringify({
       _type: 'newsArticle',
       slug: { current: 'new-guide' },
@@ -192,7 +190,6 @@ describe('/api/revalidate', () => {
     const res = await POST(mkReq(raw, signature(raw, ts)))
 
     expect(res.status).toBe(200)
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('free-surface')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
   })

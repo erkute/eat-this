@@ -11,9 +11,10 @@ import styles from './MustEatsOnboarding.module.css';
 const CARD_BACK = '/pics/card-back.webp?v=7';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new
 // spots. Which pack depends on whether the visitor has an account: the free
-// Starter Pack for guests, the paid Booster Packs once they're in.
+// Das freie Album für Gäste, die bezahlten Booster Packs, sobald sie drin sind.
 const BOOSTER_ART = '/pics/booster/booster.webp';
-const STARTER_ART = '/pics/booster/booster_free.webp';
+/* Der Kartenrücken, nicht der Beutel: was ein Konto bringt, ist das Album. */
+const STARTER_ART = '/pics/card-back.webp';
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen';
 
 // Dwell on the card back in slide 2 before it auto-flips open — the live
@@ -250,7 +251,7 @@ export default function MustEatsOnboarding({
                       data-guest-only=""
                       className={styles.packHero}
                       src={STARTER_ART}
-                      alt="Eat This Starter Pack"
+                      alt="Eat This Sammelkarte, verdeckt"
                       loading="eager"
                       decoding="sync"
                       fetchPriority="high"

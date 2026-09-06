@@ -28,16 +28,6 @@ interface ItemProps {
   /** First row only: it is visible at the sheet's resting stop, so its photo
    *  is the LCP candidate and must not be lazy. */
   priority?: boolean;
-  /** A paywalled spot, rendered as a row so a search can hand it back.
-   *
-   *  Deliberately NOT marked as locked — no badge, no grey photo, no heading
-   *  above the block (user decision, 22.08.2026: the markers read as an ad).
-   *  The row is the search result; the paywall is what the click reveals.
-   *
-   *  So this flag is purely behavioural now, and both parts must stay: no
-   *  must-eat peek and no detail prefetch, because either would ship paid
-   *  content for a spot nobody paid for. */
-  locked?: boolean;
   onClick: (r: MapRestaurant) => void;
 }
 
@@ -49,7 +39,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
 }
 
 const Item = memo(
-  function Item({ restaurant, isSelected, peek, now, priority, locked, onClick }: ItemProps) {
+  function Item({ restaurant, isSelected, peek, now, priority, onClick }: ItemProps) {
     const { t, lang } = useTranslation();
     const loc = lang === 'de' ? 'de' : 'en';
     const statusLabels = {
@@ -85,7 +75,7 @@ const Item = memo(
     const cardRef = useRef<HTMLButtonElement>(null);
     useEffect(() => {
       const el = cardRef.current;
-      if (locked || !el || typeof IntersectionObserver === 'undefined') return;
+      if (!el || typeof IntersectionObserver === 'undefined') return;
       const io = new IntersectionObserver(
         (entries) => {
           if (entries.some((e) => e.isIntersecting)) {
@@ -97,7 +87,7 @@ const Item = memo(
       );
       io.observe(el);
       return () => io.disconnect();
-    }, [restaurant.slug, locked]);
+    }, [restaurant.slug]);
 
     return (
       <button
@@ -141,7 +131,7 @@ const Item = memo(
           </span>
         )}
 
-        {!locked && peek.kind !== 'none' && (
+        {peek.kind !== 'none' && (
           <span className={styles.mustPeek}>
             <img
               src={
@@ -180,7 +170,6 @@ const Item = memo(
     prev.restaurant === next.restaurant &&
     prev.isSelected === next.isSelected &&
     prev.now === next.now &&
-    prev.locked === next.locked &&
     prev.onClick === next.onClick &&
     peekEqual(prev.peek, next.peek)
 );
@@ -197,12 +186,6 @@ interface RestaurantListProps {
   /** Die laufende Suchanfrage. Nur fuer den Leerzustand: der nennt sie beim
    *  Namen, statt pauschal „nichts gefunden" zu sagen. */
   searchQuery?: string;
-  /** Which of the rows above the paywall is holding. Nothing about the row
-   *  says so — it looks and reads like every other one, and opening it is what
-   *  brings up the offer (user decision 25.08.2026). The flag is purely
-   *  behavioural: no must-eat peek and no detail prefetch, because either would
-   *  ship paid content for a spot nobody paid for. */
-  lockedIds: Set<string>;
   /** Obergrenze der gerenderten Zeilen.
    *  Der Stand liegt bewusst im Elternteil: ein Sprung ins Detail hängt diese
    *  Liste aus, und der View-Toggle stellt beim Zurück die alte Scroll-Position
@@ -215,7 +198,6 @@ interface RestaurantListProps {
 
 export default function RestaurantList({
   restaurants,
-  lockedIds,
   selectedId,
   onSelect,
   primaryMustEats,
@@ -259,46 +241,37 @@ export default function RestaurantList({
     return () => io.disconnect();
   }, [onNeedMoreRows, hasMoreRows, budget]);
 
-  /* Nothing matched — and now that the list carries the locked spots too, that
-     means nothing in the whole catalogue. No count to name, no offer to make:
-     the filter is simply too narrow. */
+  /* Nichts gefunden — und weil die Liste den ganzen Katalog führt, heißt das
+     wirklich nichts. Keine Zahl zu nennen, kein Angebot zu machen: der Filter
+     ist schlicht zu eng. */
   if (restaurants.length === 0)
     return <MapListEmpty onReset={onResetFilters} query={searchQuery} />;
 
   return (
     <>
-      {rows.map((r, index) => {
-        const locked = lockedIds.has(r._id);
-        return (
-          /* data-list-row: how MapSection finds a row again — closing a detail
+      {rows.map((r, index) => (
+        /* data-list-row: how MapSection finds a row again — closing a detail
              scrolls the list to the spot it was showing. */
-          <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
-            <Item
-              restaurant={r}
-              isSelected={selectedId === r._id}
-              /* The first row already peeks above the fold at the sheet's
+        <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
+          <Item
+            restaurant={r}
+            isSelected={selectedId === r._id}
+            /* The first row already peeks above the fold at the sheet's
                  resting stop, so it is the map page's LCP candidate —
                  lazy-loading it made the browser discover it a round-trip
                  late. */
-              priority={index === 0}
-              now={now}
-              // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
-              // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
-              // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
-              peek={
-                locked
-                  ? { kind: 'none' }
-                  : resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)
-              }
-              locked={locked}
-              onClick={onSelect}
-            />
-          </div>
-        );
-      })}
+            priority={index === 0}
+            now={now}
+            // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
+            // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
+            // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
+            peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
+            onClick={onSelect}
+          />
+        </div>
+      ))}
       {/* Messpunkt, keine Zeile: kommt er in Sichtweite, rendert die Liste die
-          nächsten Karten. Steht hinter den gesperrten Zeilen, damit das
-          gemeinsame Budget in der sichtbaren Reihenfolge aufgefüllt wird. */}
+          nächsten Karten. */}
       {hasMoreRows && <div ref={sentinelRef} className={styles.moreSentinel} aria-hidden="true" />}
     </>
   );

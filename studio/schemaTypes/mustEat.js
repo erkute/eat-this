@@ -21,7 +21,7 @@ export default {
       title: 'Anon-Demo — offen sichtbar ohne Login',
       type: 'boolean',
       initialValue: false,
-      description: 'Anhaken bei genau ~10 Must-Eats, verteilt über die Anon-Tier-Restaurants. Diese werden auf der Map offen gezeigt für anonyme Besucher als Vorgeschmack auf das Reveal-Spiel. Pflicht: nur auf Restaurants mit tierAnon: true setzen.',
+      description: 'Das Schaufenster: rund 10 Karten liegen ohne Konto offen, damit überhaupt zu sehen ist, was eine Karte ist. Höchstens eine pro Lokal — die zweite bleibt verdeckt, sonst gibt es dort nichts mehr zu holen.',
     },
   ],
   orderings: [

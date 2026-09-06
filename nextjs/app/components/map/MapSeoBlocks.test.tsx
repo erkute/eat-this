@@ -85,7 +85,6 @@ describe('map page H1 wiring', () => {
     const withH1 = [
       'MapSectionBody.tsx',
       'RestaurantDetail.tsx',
-      'LockedDetail.tsx',
       'MustEatDetailMobile.tsx',
       'MustEatDetail.tsx',
       'MapSheetDetail.tsx',

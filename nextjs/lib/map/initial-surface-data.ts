@@ -38,24 +38,19 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
 
   return {
     ...data,
-    // Map-only, and only useful next to a locked spot — home renders none.
-    lockedRestaurants: [],
     categories: [],
     mustEats: [...faceUp, ...faceDown],
   };
 }
 
 /**
- * The public Must-Eats catalog: EVERY must-eat in the catalog, in a fixed
- * order, with only the anon face-up set carrying its dish content.
+ * The public Must-Eats catalog: EVERY must-eat in the deck, in a fixed order,
+ * with only the anon face-up set carrying its dish content.
  *
- * The map ships a must-eat only when its spot is inside the free tier, which
- * left /must-eats showing an arbitrary subset — the page whose whole job is
- * the complete deck. `catalog` is the full Sanity list; cards the anon payload
- * already carries keep their (authorized, hydrated) version, the rest join as
- * metadata-only. Nothing new is published: a covered card is id + order +
- * restaurant ref after `stripCoveredMustEats`, and the restaurant names are
- * public on the map's locked list already.
+ * This used to merge two lists, because the map shipped a must-eat only when
+ * its spot sat inside the free tier — the page whose whole job is the complete
+ * deck saw an arbitrary subset of it. Since the map is free the payload
+ * already carries every card, so all that is left here is the ordering.
  *
  * Order is the deck order, and within both bands that is the card number —
  * the figure printed bottom-right on every card, which is what a reader sorts
@@ -66,18 +61,13 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
  * says it belongs. The alphabetical spot list under that band is sorted
  * where it is rendered (MustEatsGallery), not by this order.
  */
-export function selectMustEatsCatalog(
-  data: InitialMapData,
-  catalog: MapMustEat[]
-): InitialMustEatsData {
+export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData {
   const faceUp = new Set(data.revealedMustEatIds);
-  const authorized = new Map(data.mustEats.map((m) => [m._id, m]));
-  const complete = catalog.map((m) => authorized.get(m._id) ?? m);
 
   return {
     mustEats: [
-      ...complete.filter((m) => faceUp.has(m._id)).sort(byCardNumber),
-      ...complete
+      ...data.mustEats.filter((m) => faceUp.has(m._id)).sort(byCardNumber),
+      ...data.mustEats
         .filter((m) => !faceUp.has(m._id))
         .sort(byCardNumber)
         .map(trimCoveredSpot),
@@ -87,10 +77,9 @@ export function selectMustEatsCatalog(
 }
 
 /** A covered card renders its spot's NAME and nothing else, so that is all its
- *  restaurant ref keeps here. `mapMustEatsQuery` also projects `address` and
- *  `photo`, and this page reaches spots the map leaves out entirely — without
- *  the trim, widening the catalog would publish the street address of a spot
- *  that is still behind the paywall. */
+ *  restaurant ref keeps here — `mapMustEatsQuery` also projects `address` and
+ *  `photo`, and shipping those for every covered card is payload nobody
+ *  renders. */
 function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
   const { _id, name, slug, lat, lng } = mustEat.restaurant;
   return { ...mustEat, restaurant: { _id, name, slug, lat, lng } };

@@ -43,19 +43,17 @@ export type FulfillmentResult =
       guestMagicLinkSent: boolean;
     };
 
-// For category entitlements, restaurantIds are derived from the mustEatIds'
-// parent restaurants. We query both in one Sanity round-trip to avoid two
-// cold fetches.
-async function categoryEntitlementPayload(
-  slug: string
-): Promise<{ mustEatIds: string[]; restaurantIds: string[] }> {
-  const rows = await sanity.fetch<{ _id: string; rid: string | null }[]>(
-    `*[_type == "mustEat" && defined(restaurantRef._ref) && ${liveRestaurant('restaurantRef->')} && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,
+// Der Kauf-Schnappschuss: welche Karten die Kategorie IN DIESEM MOMENT hielt.
+// Gelesen wird er nicht mehr fuer die Sichtbarkeit — composeAccountSurface
+// loest `categorySlugs` live gegen den Katalog auf, damit spaeter erscheinende
+// Karten im gekauften Pack mitkommen. Er bleibt als Beleg dessen, was verkauft
+// wurde, und er steht im Beleg auf der Erfolgsseite.
+async function categoryMustEatIds(slug: string): Promise<string[]> {
+  const rows = await sanity.fetch<{ _id: string }[]>(
+    `*[_type == "mustEat" && defined(restaurantRef._ref) && ${liveRestaurant('restaurantRef->')} && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id }`,
     { slug }
   );
-  const mustEatIds = rows.map((r) => r._id);
-  const restaurantIds = [...new Set(rows.map((r) => r.rid).filter((x): x is string => Boolean(x)))];
-  return { mustEatIds, restaurantIds };
+  return rows.map((r) => r._id);
 }
 
 export async function assembleAndWriteEntitlement({
@@ -73,18 +71,14 @@ export async function assembleAndWriteEntitlement({
   // idempotent Sanity round-trip and must not run inside Firestore's
   // transaction (which only permits Firestore reads). Doing it here also
   // keeps the transaction's read→write window tiny.
-  let restaurantIds: string[] = [];
   let mustEatIds: string[] = [];
   if (pack.type === 'category' && pack.slug) {
-    const payload = await categoryEntitlementPayload(pack.slug);
-    restaurantIds = payload.restaurantIds;
-    mustEatIds = payload.mustEatIds;
+    mustEatIds = await categoryMustEatIds(pack.slug);
   }
 
   const doc: WithFieldValue<Entitlement> = {
     type: pack.type,
     slug: pack.slug,
-    restaurantIds,
     mustEatIds,
     purchasedAt: FieldValue.serverTimestamp(),
     stripeSessionId,

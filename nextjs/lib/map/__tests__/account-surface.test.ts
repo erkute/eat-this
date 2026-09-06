@@ -8,8 +8,9 @@ vi.mock('@/lib/home/spotOfDay.server', () => ({
 }));
 
 import { composeAccountSurface } from '../visible-restaurants.server';
+import { REVEALED_TARGET } from '../revealed-must-eats';
 
-function restaurant(id: string, mustEatCount = 1): MapRestaurant {
+function restaurant(id: string, categories?: { slug: string }[]): MapRestaurant {
   return {
     _id: id,
     _createdAt: '2026-01-01',
@@ -17,10 +18,9 @@ function restaurant(id: string, mustEatCount = 1): MapRestaurant {
     slug: `spot-${id}`,
     lat: 52.5,
     lng: 13.4,
-    mustEatCount,
-    tierAnon: false,
-    tierSigned: false,
-  };
+    mustEatCount: 1,
+    ...(categories ? { categories: categories as MapRestaurant['categories'] } : {}),
+  } as MapRestaurant;
 }
 
 function mustEat(id: string, restaurantId: string): MapMustEat {
@@ -36,13 +36,17 @@ function mustEat(id: string, restaurantId: string): MapMustEat {
   };
 }
 
-const ALL = [restaurant('r1'), restaurant('r2'), restaurant('r3')];
-const ALL_MUST_EATS = [mustEat('m1', 'r1'), mustEat('m2', 'r2'), mustEat('m3', 'r3')];
+/* Zwoelf Spots mit je einer Karte: mehr als das Schaufenster (zehn) fasst,
+   damit „verdeckt" ueberhaupt ein Zustand ist, den dieser Test sehen kann. */
+const IDS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+const ALL = IDS.map((n) => restaurant(`r${n}`));
+const ALL_MUST_EATS = IDS.map((n) => mustEat(`m${n}`, `r${n}`));
+/** Die zwei, die das Schaufenster nicht mehr fasst (stabile _id-Ordnung). */
+const COVERED = ['m11', 'm12'];
 
 const EMPTY_ENT = {
   isAdmin: false,
   hasAllBerlin: false,
-  restaurantIds: new Set<string>(),
   categorySlugs: new Set<string>(),
   mustEatIds: new Set<string>(),
 };
@@ -52,8 +56,6 @@ function compose(over: Record<string, unknown> = {}) {
     all: ALL,
     allMustEats: ALL_MUST_EATS,
     ent: EMPTY_ENT,
-    uid: 'user-1',
-    freeRestaurantIds: new Set<string>(),
     unlockedIds: new Set<string>(),
     today: '2026-08-31',
     ...over,
@@ -66,13 +68,29 @@ function compose(over: Record<string, unknown> = {}) {
    das Profil desselben Kontos „24 von 24" zeigte. Kein Test hielt die beiden
    zusammen. Jetzt gibt es nur noch eine Definition, und hier steht sie fest. */
 describe('composeAccountSurface', () => {
+  /* Die eine Zeile, an der der ganze Umbau vom 06.09.2026 haengt: es gibt
+     keine gesperrten Spots mehr, fuer niemanden. */
+  it('gibt jedem den ganzen Katalog — auch ohne Konto', async () => {
+    const s = await compose();
+
+    expect(s.restaurants).toHaveLength(ALL.length);
+    expect(s.mustEats).toHaveLength(ALL_MUST_EATS.length);
+    expect(s.fullCatalog).toBe(false);
+  });
+
+  it('deckt ohne Konto genau das Schaufenster auf, nicht den Stapel', async () => {
+    const s = await compose();
+
+    expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
+    for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
+  });
+
   it('gibt dem Admin den ganzen Katalog, und zwar offen', async () => {
     const s = await compose({ ent: { ...EMPTY_ENT, isAdmin: true } });
 
     expect(s.fullCatalog).toBe(true);
-    expect(s.restaurants).toHaveLength(3);
-    expect([...s.faceUpIds].sort()).toEqual(['m1', 'm2', 'm3']);
-    expect(s.lockedRestaurants).toEqual([]);
+    expect(s.restaurants).toHaveLength(ALL.length);
+    expect(s.faceUpIds.size).toBe(ALL_MUST_EATS.length);
   });
 
   /* All-Berlin ist gekauft, nicht vergeben — muss aber dasselbe ergeben.
@@ -97,13 +115,30 @@ describe('composeAccountSurface', () => {
 
   it('vereinigt eigene Aufdeckungen und gekaufte Karten', async () => {
     const s = await compose({
-      ent: { ...EMPTY_ENT, mustEatIds: new Set(['m2']) },
-      unlockedIds: new Set(['m3']),
+      ent: { ...EMPTY_ENT, mustEatIds: new Set(['m11']) },
+      unlockedIds: new Set(['m12']),
     });
 
     expect(s.fullCatalog).toBe(false);
-    expect(s.faceUpIds.has('m2')).toBe(true); // gekauft
-    expect(s.faceUpIds.has('m3')).toBe(true); // vor Ort aufgedeckt
+    expect(s.faceUpIds.has('m11')).toBe(true); // gekauft
+    expect(s.faceUpIds.has('m12')).toBe(true); // vor Ort aufgedeckt
+  });
+
+  /* Ein Kategorie-Pack wird live gegen den Katalog aufgeloest, nicht aus dem
+     Schnappschuss im Entitlement gelesen: wer das Pizza-Pack kauft und drei
+     Wochen spaeter eine neue Pizza-Karte erscheinen sieht, hat sie mitgekauft.
+     `mustEatIds` ist hier bewusst leer — genau das ist der Fall, den ein
+     Schnappschuss nicht abdeckt. */
+  it('loest ein gekauftes Kategorie-Pack gegen den heutigen Katalog auf', async () => {
+    const all = [...ALL.slice(0, 11), restaurant('r12', [{ slug: 'pizza' }])];
+    const s = await compose({
+      all,
+      ent: { ...EMPTY_ENT, categorySlugs: new Set(['pizza']) },
+    });
+
+    expect(s.faceUpIds.has('m12')).toBe(true);
+    // Die Kategorie oeffnet NUR ihre eigenen Karten.
+    expect(s.faceUpIds.has('m11')).toBe(false);
   });
 
   it('meldet fuer ein Konto ohne alles keinen vollen Katalog', async () => {

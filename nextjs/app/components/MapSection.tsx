@@ -5,7 +5,6 @@ import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import {
   useMapData,
-  useSignupSpotClaim,
   useUserLocation,
   hasGeolocationPermission,
   useUnlockedMustEats,
@@ -41,7 +40,7 @@ import {
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 import { resolveDetailHistory } from '@/lib/map/detailHistory';
-import { searchRefitSpots, spotsCameraTarget } from '@/lib/map/cameraFit';
+import { spotsCameraTarget } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
@@ -99,12 +98,11 @@ export default function MapSection({
   const { user, loading: authLoading } = useAuth();
   const uid = user?.uid ?? null;
 
-  // Map is open access — non-authed visitors can browse all 20 trial
-  // restaurants and their must-eats. No login wall on entry.
+  // Die Karte ist offen: jeder Spot, für jeden. Ein Konto ändert nur, welche
+  // Must-Eat-Karten offen liegen.
 
   const {
     restaurants,
-    lockedRestaurants,
     mustEats,
     categories,
     revealedMustEatIds,
@@ -119,9 +117,6 @@ export default function MapSection({
     if (!initialRestaurantSlug || !initialMapData) return null;
     return (
       initialMapData.restaurants.find((restaurant) => restaurant.slug === initialRestaurantSlug) ??
-      initialMapData.lockedRestaurants.find(
-        (restaurant) => restaurant.slug === initialRestaurantSlug
-      ) ??
       null
     );
   }, [initialMapData, initialRestaurantSlug]);
@@ -170,30 +165,25 @@ export default function MapSection({
      Entitlement-Listener nie sieht — und bis Auth durch ist, ist niemand ein
      Gast (siehe resolveUserTier). */
   const userTier = useUserTier(uid, { fullCatalog, dataUid, authLoading });
-  /* A sign-up that started on a locked spot claims that spot. Google does it
-     inline in LockedDetail; the magic link can only carry the intent in its
-     continue URL, so it arrives here as `?claim=1` and is cashed in on landing.
-     The write wakes the entitlements listener below, which refetches the map —
-     the spot the link points at is then open by the time the reader looks.
-     The predicate is what tells the hook the wait is over: the claim POST
-     coming back is not the same event as the spot appearing. */
-  const isSpotOpen = useCallback(
-    (slug: string) => restaurants.some((restaurant) => restaurant.slug === slug),
-    [restaurants]
-  );
-  const { claimingSlug, outcome: claimOutcome, startClaim } = useSignupSpotClaim(uid, isSpotOpen);
 
-  /* Wie viele Spots die Karte VOR der Anmeldung zeigte. Der Belohnungs-Screen
-     rechnet "nachher minus vorher", und sein früheres Sampling beim Start des
-     Wartens war ein Wettrennen: kam der Signed-Refetch schneller, war "vorher"
-     schon die Signed-Stufe, und aus ~51 neuen Spots wurde "1 neuer Spot"
-     (User, 26.08.2026, Staging mit 464 Spots). Die letzte anonyme Payload ist
-     dagegen eindeutig — sie ändert sich nicht damit, wann welche Antwort
-     eintrifft. */
-  const [anonSpotCount, setAnonSpotCount] = useState<number | null>(null);
+  /* Eine Anmeldung, die GERADE passiert ist — nicht „ein angemeldeter Besucher
+     öffnet die Karte". Der Unterschied ist die Reihenfolge: erst muss Auth
+     durch sein und niemanden gemeldet haben, dann darf eine uid auftauchen.
+     Ohne diese Bedingung grüßt der Willkommensschirm jeden Wiederkehrer, weil
+     `uid` beim Start immer null ist, bis Firebase antwortet. */
+  const wasSignedOutRef = useRef(false);
+  const [justSignedIn, setJustSignedIn] = useState(false);
   useEffect(() => {
-    if (dataUid === null) setAnonSpotCount(restaurants.length);
-  }, [dataUid, restaurants.length]);
+    if (authLoading) return;
+    if (!uid) {
+      wasSignedOutRef.current = true;
+      return;
+    }
+    if (wasSignedOutRef.current) {
+      wasSignedOutRef.current = false;
+      setJustSignedIn(true);
+    }
+  }, [authLoading, uid]);
 
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
@@ -453,9 +443,8 @@ export default function MapSection({
     priceBucketIds,
     optionCounts,
     displayedRestaurants,
-    displayedLockedRestaurants,
     listRestaurants,
-  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location, listCenter });
+  } = useMapFilters({ restaurants, mustEats, location, listCenter });
 
   const [searchOpen, setSearchOpen] = useState(false);
   /* Die Liste, aus der ein Detail geöffnet wurde, eingefroren für den Pager.
@@ -1035,41 +1024,10 @@ export default function MapSection({
     sheetView,
   ]);
 
-  /* Ids the paywall is holding back. Locked spots open the same sheet as free
-     ones — see LockedDetail for what it shows and why it names the spot. */
-  const lockedIdSet = useMemo(
-    () => new Set(lockedRestaurants.map((r) => r._id)),
-    [lockedRestaurants]
-  );
-
-  /* The moment a sign-up opens the spot the reader is looking at: it was in the
-     locked set a render ago and is not any more, with its sheet standing open.
-     The detail that replaces LockedDetail then unrolls instead of cutting in —
-     "und dann ist der Inhalt einfach plötzlich da" (User, 2026-08-26). Cleared
-     as soon as the selection moves on, so it plays once and not again on the
-     way back. */
-  const [justUnlockedSlug, setJustUnlockedSlug] = useState<string | null>(null);
-  const previouslyLockedRef = useRef(lockedIdSet);
-  useEffect(() => {
-    const wasLocked = previouslyLockedRef.current;
-    previouslyLockedRef.current = lockedIdSet;
-    if (!selectedRestaurant) return;
-    if (wasLocked.has(selectedRestaurant._id) && !lockedIdSet.has(selectedRestaurant._id)) {
-      setJustUnlockedSlug(selectedRestaurant.slug);
-    }
-  }, [lockedIdSet, selectedRestaurant]);
-  useEffect(() => {
-    if (justUnlockedSlug && selectedRestaurant?.slug !== justUnlockedSlug) {
-      setJustUnlockedSlug(null);
-    }
-  }, [justUnlockedSlug, selectedRestaurant]);
-
-  /* A spot that unlocks while its own sheet is open — the sign-up claim, or a
-     purchase — is still held here as the object the LOCKED payload shipped,
-     and that one is stripped (stripLockedRestaurants drops priceRange). Swap
-     in the full record from the refetched set so the real detail that replaces
-     LockedDetail is complete, instead of quietly missing a row until the
-     reader closes and reopens it. */
+  /* Die offene Sheet hält ein Objekt aus der Payload, die beim Öffnen da war.
+     Kommt eine neue herein — Refetch nach der Anmeldung, geänderte Sanity-Daten
+     —, wird das Objekt ausgetauscht, statt bis zum Schließen und Wiederöffnen
+     auf dem alten Stand zu stehen. */
   useEffect(() => {
     if (!selectedRestaurant) return;
     const fresh = restaurants.find((r) => r._id === selectedRestaurant._id);
@@ -1443,13 +1401,11 @@ export default function MapSection({
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return;
-    const restaurant =
-      restaurants.find((r) => r._id === selectedMustEat.restaurant._id) ??
-      lockedRestaurants.find((r) => r._id === selectedMustEat.restaurant._id);
+    const restaurant = restaurants.find((r) => r._id === selectedMustEat.restaurant._id);
     if (!restaurant) return;
     setSelectedMustEat(null);
     handleRestaurantClick(restaurant);
-  }, [selectedMustEat, restaurants, lockedRestaurants, handleRestaurantClick]);
+  }, [selectedMustEat, restaurants, handleRestaurantClick]);
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat;
@@ -1500,22 +1456,18 @@ export default function MapSection({
      history.back() a second time on the state change we're reacting to.
      Going forward again re-opens the spot the URL names — useMapDeepLinks
      only fires once per session, so it can't do this for us. */
-  const popStateHandlersRef = useRef({ restaurants, lockedRestaurants, mustEats });
-  popStateHandlersRef.current = { restaurants, lockedRestaurants, mustEats };
+  const popStateHandlersRef = useRef({ restaurants, mustEats });
+  popStateHandlersRef.current = { restaurants, mustEats };
   const openFromUrlRef = useRef<(slug: string | null, mustEatId: string | null) => void>(() => {});
   openFromUrlRef.current = (slug, mustEatId) => {
-    const {
-      restaurants: owned,
-      lockedRestaurants: locked,
-      mustEats: mes,
-    } = popStateHandlersRef.current;
+    const { restaurants: rows, mustEats: mes } = popStateHandlersRef.current;
     if (mustEatId) {
       const target = mes.find((m) => m._id === mustEatId);
       if (target) handleMustEatClick(target);
       return;
     }
     if (!slug) return;
-    const target = owned.find((r) => r.slug === slug) ?? locked.find((r) => r.slug === slug);
+    const target = rows.find((r) => r.slug === slug);
     if (target) handleRestaurantClick(target);
   };
 
@@ -1878,8 +1830,6 @@ export default function MapSection({
      to an averaged centroid. */
   const displayedRestaurantsRef = useRef(displayedRestaurants);
   displayedRestaurantsRef.current = displayedRestaurants;
-  const displayedLockedRestaurantsRef = useRef(displayedLockedRestaurants);
-  displayedLockedRestaurantsRef.current = displayedLockedRestaurants;
   /* The filter set the camera was last fitted to. The effect also re-runs when
      a detail opens or closes (it has to, to skip the open one), and until
      03.09.2026 every CLOSE counted as a filter change: the whole catalogue was
@@ -1892,26 +1842,20 @@ export default function MapSection({
     if (selectedRestaurant || selectedMustEat) return;
     if (filterKey === lastFittedFilterKeyRef.current) return;
     lastFittedFilterKeyRef.current = filterKey;
-    const free = displayedRestaurantsRef.current;
-    fitCameraToSpots(free.length ? free : displayedLockedRestaurantsRef.current);
+    fitCameraToSpots(displayedRestaurantsRef.current);
   }, [filterKey, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
 
-  /* Search refit — the reason a query for a locked spot used to read as "not
-     found". The filter DOES match locked rows (useMapFilters runs both sets
-     through it) and the canvas DOES draw them as grey dots, but only the ones
-     near the current camera get a DOM node, and nothing ever moved the camera.
-     So searching a spot in Spandau from a Mitte camera produced an empty list,
-     an unchanged map and no visible dot anywhere — the match existed and was
-     invisible.
-
-     The fit spans EVERY match, free and locked — a query lists both as rows,
-     so framing only the free ones would show a fraction of its own result set.
+  /* Search refit — ohne ihn stand die Karte still, während die Liste schon die
+     Treffer zeigte. Einen DOM-Knoten bekommen nur Pins nahe der aktuellen
+     Kamera; wer aus einer Mitte-Ansicht einen Spot in Spandau suchte, sah eine
+     leere Karte zu einer gefüllten Liste — der Treffer existierte und war
+     unsichtbar.
 
      Dropping the query refits too, immediately: the camera is parked on
      whatever the search flew to, so without this the map keeps showing one
      corner of the city while the list is back to every spot. Same target the
-     structured filters use — the free set under the remaining filters, which
-     with nothing else active is all of Berlin.
+     structured filters use — die Treffer unter den übrigen Filtern, ohne
+     weitere Filter also ganz Berlin.
 
      Debounced on the way in, not on the way out: typing is a stream of
      intermediate states (the jitter the structured-filter effect avoids by
@@ -1931,9 +1875,7 @@ export default function MapSection({
       return;
     }
     const timer = window.setTimeout(() => {
-      fitCameraToSpots(
-        searchRefitSpots(displayedRestaurantsRef.current, displayedLockedRestaurantsRef.current)
-      );
+      fitCameraToSpots(displayedRestaurantsRef.current);
     }, SEARCH_REFIT_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [search, selectedRestaurant, selectedMustEat, fitCameraToSpots]);
@@ -1982,7 +1924,6 @@ export default function MapSection({
   useMapDeepLinks({
     mapRef,
     restaurants,
-    lockedRestaurants,
     mustEats,
     isActive,
     userInteractedRef,
@@ -1996,7 +1937,6 @@ export default function MapSection({
   useMapFilterUrl({
     isActive,
     restaurants,
-    lockedRestaurants,
     category,
     bezirk,
     price,
@@ -2025,16 +1965,8 @@ export default function MapSection({
       snap={snap}
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
-      displayedLockedRestaurants={displayedLockedRestaurants}
       listRestaurants={listRestaurants}
-      lockedIdSet={lockedIdSet}
-      claimingSlug={claimingSlug}
-      claimOutcome={claimOutcome}
-      onClaimSpot={startClaim}
-      anonSpotCount={anonSpotCount}
-      mapUid={dataUid}
-      openSpotCount={restaurants.length}
-      justUnlockedSlug={justUnlockedSlug}
+      justSignedIn={justSignedIn}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}
@@ -2053,9 +1985,7 @@ export default function MapSection({
       userTier={userTier}
       mapDataLoading={mapDataLoading}
       mapDataError={mapDataError}
-      mapDataHasContent={
-        restaurants.length > 0 || lockedRestaurants.length > 0 || mustEats.length > 0
-      }
+      mapDataHasContent={restaurants.length > 0 || mustEats.length > 0}
       categories={categories}
       category={category}
       setCategory={handleCategoryChange}

@@ -36,7 +36,6 @@ function createHarness(mapRef: RefObject<MapRef | null>) {
   const stableArgs = {
     mapRef,
     restaurants: [restaurant],
-    lockedRestaurants: [] as MapRestaurant[],
     mustEats: [mustEat],
     userInteractedRef,
     onRestaurantSlugMatch,

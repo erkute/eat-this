@@ -41,7 +41,6 @@ function serializeEnt(ent: Awaited<ReturnType<typeof resolveEntitlements>>) {
     isAdmin: ent.isAdmin,
     hasAllBerlin: ent.hasAllBerlin,
     categorySlugs: [...ent.categorySlugs],
-    restaurantIds: [...ent.restaurantIds],
     mustEatIds: [...ent.mustEatIds],
   };
 }

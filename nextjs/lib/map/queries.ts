@@ -34,9 +34,7 @@ export const mapRestaurantsQuery = `
     lng,
     openingHours,
     "photo": ${publishableRestaurantImageUrl('image', 'mapCard')},
-    "mustEatCount": count(*[_type == "mustEat" && restaurantRef._ref == ^._id]),
-    tierAnon,
-    tierSigned
+    "mustEatCount": count(*[_type == "mustEat" && restaurantRef._ref == ^._id])
   }
 `;
 

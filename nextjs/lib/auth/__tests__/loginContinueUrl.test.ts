@@ -22,11 +22,10 @@ describe('buildLoginContinueUrl', () => {
     );
   });
 
-  /* Die drei Traeger-Parameter gehoeren dem Link, nicht der Seite: geerbt
-     wuerden sie eine zweite Anmeldung, einen zweiten Gratis-Spot oder ein
-     fremdes Herz ausloesen. */
-  it('raeumt e, claim und ein geerbtes heart ab', () => {
-    expect(buildLoginContinueUrl(at('/map', '?r=vox&e=alt%40example.com&claim=1&heart=alt'))).toBe(
+  /* Die Traeger-Parameter gehoeren dem Link, nicht der Seite: geerbt wuerden
+     sie eine zweite Anmeldung oder ein fremdes Herz ausloesen. */
+  it('raeumt e und ein geerbtes heart ab', () => {
+    expect(buildLoginContinueUrl(at('/map', '?r=vox&e=alt%40example.com&heart=alt'))).toBe(
       `${origin}/map?r=vox`
     );
   });

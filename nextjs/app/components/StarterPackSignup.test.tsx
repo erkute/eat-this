@@ -41,10 +41,10 @@ describe('StarterPackSignup', () => {
 
   it('names the offer, its price and the magic-link step', () => {
     const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
-    expect(html).toContain('Starter Pack');
+    expect(html).toContain('Dein Album');
     expect(html).toContain('Gratis');
     expect(html).toContain('placeholder="deine@email.com"');
-    expect(html).toContain('Starter Pack holen');
+    expect(html).toContain('Album anlegen');
     // The mail that follows must not come as a surprise.
     expect(html).toContain('Wir schicken dir einen Link zum Einloggen.');
   });
@@ -54,22 +54,22 @@ describe('StarterPackSignup', () => {
     expect(html).toContain('data-guest-only');
   });
 
-  it('shows the pack, so the free thing is visible and not just named', () => {
+  it('shows the card back, so the thing on offer is visible and not just named', () => {
     const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
-    expect(html).toContain('booster_free.webp');
+    expect(html).toContain('card-back.webp');
   });
 
   it('keeps the submit hoverable before an email is entered', () => {
     render(<StarterPackSignup locale="de" />);
     expect(
-      screen.getByRole<HTMLButtonElement>('button', { name: 'Starter Pack holen' }).disabled
+      screen.getByRole<HTMLButtonElement>('button', { name: 'Album anlegen' }).disabled
     ).toBe(false);
   });
 
   it('shows a local error when the email is empty', () => {
     render(<StarterPackSignup locale="de" />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Starter Pack holen' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Album anlegen' }));
 
     expect(screen.getByRole('alert').textContent).toBe('Bitte gib deine E-Mail ein.');
     expect(magicLinkState.sendLink).not.toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe('StarterPackSignup', () => {
     render(<StarterPackSignup locale="de" />);
 
     fireEvent.change(screen.getByLabelText('E-Mail Adresse'), { target: { value: 'nope' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Starter Pack holen' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Album anlegen' }));
 
     expect(screen.getByRole('alert').textContent).toBe(
       'Das sieht noch nicht nach einer E-Mail aus.'
@@ -93,7 +93,7 @@ describe('StarterPackSignup', () => {
     fireEvent.change(screen.getByLabelText('E-Mail Adresse'), {
       target: { value: ' test@example.com ' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Starter Pack holen' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Album anlegen' }));
 
     expect(magicLinkState.sendLink).toHaveBeenCalledWith('test@example.com');
   });

@@ -50,9 +50,6 @@ vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
 vi.mock('@/lib/map/cached-sanity', () => ({
   getCachedMapData: async () => ({ restaurants: ALL_RESTAURANTS, mustEats: ALL_MUST_EATS }),
 }));
-vi.mock('@/lib/map/free-surface', () => ({
-  getFreeSurfaceData: async () => ({ restaurantIds: new Set<string>() }),
-}));
 vi.mock('@/lib/map/server-initial-map-data', () => ({
   getPublicMustEatIds: async () => state.publicMustEatIds,
 }));
@@ -66,7 +63,6 @@ vi.mock('@/lib/map/server-initial-map-data', () => ({
 vi.mock('@/lib/map/visible-restaurants.server', () => ({
   composeAccountSurface: async () => ({
     restaurants: state.visibleRestaurants,
-    lockedRestaurants: [],
     mustEats: state.visibleMustEats,
     faceUpIds: new Set([...state.revealed, ...state.unlocked, ...state.ent.mustEatIds]),
     fullCatalog: state.ent.isAdmin || state.ent.hasAllBerlin,

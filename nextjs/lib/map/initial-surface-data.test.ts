@@ -12,7 +12,6 @@ function mapData(): InitialMapData {
 
   return {
     restaurants: [],
-    lockedRestaurants: [],
     mustEats,
     categories: [],
     totalCount: 42,
@@ -31,7 +30,6 @@ function mapData(): InitialMapData {
 describe('initial surface data selectors', () => {
   it('keeps both face-up and face-down Must Eats for the home teaser', () => {
     const data = mapData();
-    data.lockedRestaurants = [{ _id: 'locked' }] as InitialMapData['lockedRestaurants'];
     data.categories = [{ slug: 'pizza' }] as InitialMapData['categories'];
 
     const selected = selectHomeInitialMapData(data);
@@ -45,7 +43,6 @@ describe('initial surface data selectors', () => {
       'must-eat-7',
       'must-eat-9',
     ]);
-    expect(selected.lockedRestaurants).toEqual([]);
     expect(selected.categories).toEqual([]);
     expect(selected.restaurants).toBe(data.restaurants);
     expect(selected.revealedMustEatIds).toBe(data.revealedMustEatIds);
@@ -85,33 +82,11 @@ describe('initial surface data selectors', () => {
   it('keeps only catalog fields for the Must-Eats page', () => {
     const data = mapData();
 
-    expect(selectMustEatsCatalog(data, data.mustEats).revealedMustEatIds).toBe(
-      data.revealedMustEatIds
-    );
-    expect(Object.keys(selectMustEatsCatalog(data, data.mustEats)).sort()).toEqual([
+    expect(selectMustEatsCatalog(data).revealedMustEatIds).toBe(data.revealedMustEatIds);
+    expect(Object.keys(selectMustEatsCatalog(data)).sort()).toEqual([
       'mustEats',
       'revealedMustEatIds',
     ]);
-  });
-
-  it('adds the must-eats the map hides, and keeps the authorized copy of the rest', () => {
-    const data = mapData();
-    // The map ships a must-eat only when its spot is inside the free tier —
-    // /must-eats is the complete deck, so the hidden ones have to join.
-    data.mustEats = data.mustEats.slice(0, 3).map((m) => ({ ...m, dish: `Dish ${m._id}` }));
-    const catalog = mapData().mustEats;
-
-    const selected = selectMustEatsCatalog(data, catalog);
-
-    expect(selected.mustEats).toHaveLength(9);
-    // must-eat-1..3 are face-up AND in the anon payload, so they keep `dish`.
-    expect(selected.mustEats.filter((m) => m.dish).map(({ _id }) => _id)).toEqual([
-      'must-eat-1',
-      'must-eat-2',
-      'must-eat-3',
-    ]);
-    // 4, 5, 6 and 8 are face-up too, but only the catalog carries them.
-    expect(selected.mustEats.find((m) => m._id === 'must-eat-4')?.dish).toBeUndefined();
   });
 
   it('strips a covered card down to its spot name', () => {
@@ -122,10 +97,10 @@ describe('initial surface data selectors', () => {
       restaurant: { ...m.restaurant, address: 'Testallee 1', photo: 'https://cdn/x.png' },
     }));
 
-    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog }, catalog);
+    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog });
 
     // The face-up card keeps everything; a covered one renders only its spot
-    // name, and this page reaches spots the map leaves out entirely.
+    // name — Adresse und Foto sind Nutzlast, die dort niemand rendert.
     expect(selected.mustEats[0].restaurant.address).toBe('Testallee 1');
     expect(selected.mustEats[1].restaurant.address).toBeUndefined();
     expect(selected.mustEats[1].restaurant.photo).toBeUndefined();
@@ -143,7 +118,7 @@ describe('initial surface data selectors', () => {
       restaurant: { ...m.restaurant, name: `Spot ${'ihgfedcba'[index]}` },
     }));
 
-    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog }, catalog);
+    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog });
     const ids = selected.mustEats.map(({ _id }) => _id);
 
     // Face-up first, by card number (must-eat-3 has the lower `order`).
@@ -169,7 +144,7 @@ describe('initial surface data selectors', () => {
       ...(index === 0 ? {} : { order: 3 - index }),
     }));
 
-    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog }, catalog);
+    const selected = selectMustEatsCatalog({ ...data, mustEats: catalog });
 
     expect(selected.mustEats.map(({ _id }) => _id)).toEqual([
       'must-eat-3',

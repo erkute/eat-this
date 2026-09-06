@@ -32,10 +32,6 @@ vi.mock('@/lib/firebase/entitlements', () => ({
   resolveEntitlements: vi.fn(),
 }));
 
-vi.mock('@/lib/map/free-surface', () => ({
-  getFreeSurfaceData: vi.fn(),
-}));
-
 /* `composeAccountSurface` ist seit dem 31.08.2026 die eine Stelle, an der
    „was sieht dieses Konto und was liegt offen" definiert ist — dieselbe
    Funktion benutzen /api/map-data und die oeffentliche Deck-Seite. Hier stand
@@ -53,7 +49,6 @@ import { POST } from '@/app/api/must-eat-reveal/route';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { unlockMustEat } from '@/lib/firebase/unlockedMustEats.server';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
-import { getFreeSurfaceData } from '@/lib/map/free-surface';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 
 const MUST_EAT = {
@@ -91,16 +86,10 @@ beforeEach(() => {
     isAdmin: false,
     hasAllBerlin: false,
     categorySlugs: new Set(),
-    restaurantIds: new Set(),
     mustEatIds: new Set(),
-  });
-  vi.mocked(getFreeSurfaceData).mockResolvedValue({
-    restaurantIds: new Set(),
-    newOnMap: [],
   });
   vi.mocked(composeAccountSurface).mockResolvedValue({
     restaurants: [{ _id: 'r1' }] as never[],
-    lockedRestaurants: [],
     mustEats: [MUST_EAT] as never[],
     faceUpIds: new Set(),
     fullCatalog: false,
@@ -132,19 +121,21 @@ describe('/api/must-eat-reveal', () => {
     expect(unlockMustEat).not.toHaveBeenCalled();
   });
 
-  it('403s when the must-eat belongs to a restaurant outside the user visible set', async () => {
+  /* Bis zum 06.09.2026 stand hier eine 403: der Spot musste auf der Map DIESES
+     Kontos liegen. Sie fiel mit der Staffelung — wer vor einem Laden steht,
+     deckt dessen Karte auf, egal welcher Laden. Der Fall bleibt als Test
+     stehen, weil er die Regel benennt, nicht nur ihren Wegfall. */
+  it('deckt auch an einem Spot auf, der sonst nirgends im Konto vorkommt', async () => {
     vi.mocked(composeAccountSurface).mockResolvedValueOnce({
       restaurants: [{ _id: 'other-restaurant' }] as never[],
-      lockedRestaurants: [{ _id: 'r1' }] as never[],
       mustEats: [],
       faceUpIds: new Set(),
       fullCatalog: false,
     });
 
     const res = await POST(mkReq({ mustEatId: 'm1' }));
-    expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ error: 'must-eat not available' });
-    expect(unlockMustEat).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(unlockMustEat).toHaveBeenCalledWith('test-uid', MUST_EAT);
   });
 
   it('persists the unlock and returns the full must-eat', async () => {

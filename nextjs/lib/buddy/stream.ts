@@ -39,11 +39,14 @@ type AnswerSegment = { type: 'text'; text: string } | { type: 'spot'; slug: stri
  * Zeichen, die ein Spot-Slug tragen darf — die Zeichenklasse, an der Marker,
  * Seitenkontext und der Index-Waechter alle haengen.
  *
- * Sanity erzwingt keine Kleinschreibung, und genau ein Spot im Katalog nutzt
- * das aus: `Der-weinlobbyist` (Stand 06.09.2026). Mit dem frueheren
- * `[a-z0-9-]` fiel er durch beide Raster — Remy konnte fuer ihn nie eine Karte
- * setzen, und auf seiner eigenen Seite verwarf `/api/buddy` den
- * Seitenkontext, fragte also zurueck, welches Restaurant gemeint sei.
+ * Sanity erzwingt keine Kleinschreibung, und am 06.09.2026 nutzte genau ein
+ * Spot das aus: `Der-weinlobbyist`. Mit dem frueheren `[a-z0-9-]` fiel er
+ * durch beide Raster — Remy konnte fuer ihn nie eine Karte setzen, und auf
+ * seiner eigenen Seite verwarf `/api/buddy` den Seitenkontext, fragte also
+ * zurueck, welches Restaurant gemeint sei. Der Slug ist inzwischen begradigt
+ * (Redirect in `lib/seo/legacyRedirects.ts`), die Zeichenklasse bleibt
+ * trotzdem weit: das Schema laesst den naechsten jederzeit wieder zu, und ein
+ * Slug, den Remy nicht darstellen kann, faellt sonst wieder stumm aus.
  */
 export const SPOT_SLUG_RE = /^[A-Za-z0-9-]+$/;
 

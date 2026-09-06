@@ -7,7 +7,7 @@
  * gelten, sonst steht ein geschlossener Laden in der Empfehlungsliste.
  *
  * Warum eine Funktion und keine ausgeschriebene Bedingung: bis zum 05.09.2026
- * stand `isClosed != true` nur in `app/sitemap.ts` und in Remys Abruf
+ * stand `isClosed != true` nur im Sitemap-Aufbau und in Remys Abruf
  * (`lib/buddy/retrieval.ts`), überall sonst filterte nur `isOpen != false`.
  * Beast Berlin, Crapulix und SORI Ramen standen dadurch mit
  * `isOpen: true, isClosed: true` weiter auf ihren Bezirks- und

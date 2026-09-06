@@ -30,6 +30,14 @@ const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
   'jones-ice-cream-2': 'jones-ice-cream',
   // renamed location (NORD branch closed, SÜD remains)
   'knoedelwirtschaft-nord': 'knoedelwirtschaft-sued',
+  // Grossschreibung begradigt (06.09.2026): der einzige Slug im Katalog mit
+  // einem Grossbuchstaben. Der Eintrag hier statt in `next.config.ts`, weil
+  // diese Karte erst NACH einem 404 befragt wird: solange Sanity noch den
+  // alten Slug trug, rendert die Seite normal und nichts kollidiert — ein
+  // Config-Redirect haette dagegen im Fenster vor der Sanity-Aenderung auf
+  // eine Seite gezeigt, die es noch nicht gab (und mit dem Akzent-Fallback
+  // eine Schleife gebildet).
+  'Der-weinlobbyist': 'der-weinlobbyist',
 };
 
 // Permanently closed spots — return 410 Gone so Google drops them cleanly.

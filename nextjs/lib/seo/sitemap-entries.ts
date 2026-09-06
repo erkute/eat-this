@@ -1,4 +1,3 @@
-import { MetadataRoute } from 'next';
 import { client } from '@/lib/sanity';
 import { localeUrl } from '@/lib/locale-url';
 import { routing } from '@/i18n/routing';
@@ -8,11 +7,20 @@ import { GONE_SLUGS } from '@/lib/seo/legacyRedirects';
 import { SANITY_REVALIDATE_SECONDS, TEMPLATE_REVISED } from '@/lib/constants';
 import { liveRestaurant } from '@/lib/sanity-filters';
 
-// Cache the generated sitemap for a day instead of rebuilding it (full Sanity
-// fetch of all restaurants/articles/bezirke) on every crawler hit. Content
-// changes still surface immediately: /api/revalidate calls
-// revalidatePath('/sitemap.xml') on Sanity webhooks.
-export const revalidate = 86400;
+export type ChangeFrequency = 'daily' | 'weekly' | 'monthly';
+
+/** One `<url>` block. Narrower than Next's `MetadataRoute.Sitemap`: every
+ *  entry here carries a `lastModified`, and it is always an ISO string —
+ *  app/sitemap.xml/route.ts serializes these fields verbatim. */
+export interface SitemapEntry {
+  url: string;
+  lastModified: string;
+  changeFrequency: ChangeFrequency;
+  priority: number;
+  /** hreflang siblings, keyed by locale (plus `x-default`). Absent for
+   *  DE-only pages — see `deOnly()`. */
+  alternates?: Record<string, string>;
+}
 
 // `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked
 // `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap
@@ -27,20 +35,18 @@ const STATIC_PATHS = ['', '/map', '/news', '/bezirk', '/kategorie', '/about'] as
 
 function withAlternates(
   path: string,
-  lastModified?: string,
+  lastModified: string,
   priority = 0.5,
-  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'
-): MetadataRoute.Sitemap[number] {
+  changeFrequency: ChangeFrequency = 'monthly'
+): SitemapEntry {
   return {
     url: localeUrl('de', path),
     lastModified,
     priority,
     changeFrequency,
     alternates: {
-      languages: {
-        ...Object.fromEntries(routing.locales.map((loc) => [loc, localeUrl(loc, path)])),
-        'x-default': localeUrl('de', path),
-      },
+      ...Object.fromEntries(routing.locales.map((loc) => [loc, localeUrl(loc, path)])),
+      'x-default': localeUrl('de', path),
     },
   };
 }
@@ -51,10 +57,10 @@ function withAlternates(
 // a duplicate and pick its own canonical.
 function deOnly(
   path: string,
-  lastModified?: string,
+  lastModified: string,
   priority = 0.5,
-  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'
-): MetadataRoute.Sitemap[number] {
+  changeFrequency: ChangeFrequency = 'monthly'
+): SitemapEntry {
   return {
     url: localeUrl('de', path),
     lastModified,
@@ -70,7 +76,7 @@ function laterOf(a: string, b: string): string {
   return a > b ? a : b;
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export async function sitemapEntries(): Promise<SitemapEntry[]> {
   if (isStaging) return [];
 
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
@@ -110,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         : p === '/news' || p === '/bezirk' || p === '/kategorie'
           ? 0.7
           : 0.5;
-    const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
+    const changeFrequency: ChangeFrequency =
       p === '' || p === '/map' ? 'daily' : p === '/news' ? 'weekly' : 'monthly';
     return withAlternates(p, TEMPLATE_REVISED, priority, changeFrequency);
   });

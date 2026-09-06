@@ -321,6 +321,9 @@ const en = {
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
     invitePreview: 'Preview',
+    friendsHeading: 'Your crew',
+    friendsLine: 'They started through your link. Tap a character to see their deck.',
+    friendAnonymous: 'No name',
     inviteCta: 'Share deck',
     inviteCopied: 'Link copied',
     inviteShareTitle: 'My deck on the Eat This map',
@@ -749,6 +752,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
     invitePreview: 'Ansehen',
+    /* Die Reihe unter dem Einladen-Kasten. Der Referral-Weg laeuft seit Tag
+       eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
+       nirgends. */
+    friendsHeading: 'Deine Crew',
+    friendsLine: 'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
+    friendAnonymous: 'Namenlos',
     inviteCta: 'Deck teilen',
     inviteCopied: 'Link kopiert',
     inviteShareTitle: 'Mein Deck auf der Eat This Map',

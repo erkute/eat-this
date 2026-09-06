@@ -99,7 +99,12 @@
   --album-accent: var(--profile-accent, var(--et-home-accent, #ffc600));
   --album-display: var(--et-font-display, sans-serif);
   display: grid;
-  width: clamp(132px, 15vw, 186px);
+  /* Ueber eine Variable, damit die Freundesreihe kleinere Karten stellen
+     kann, ohne von einem anderen CSS-Modul aus gegen diesen Selektor
+     anzutreten — gleicher Rang, und in Produktion gewinnt die Datei, die
+     spaeter laedt (siehe Kopf von Profile.module.css). Eine geerbte Custom
+     Property kennt diesen Streit nicht. */
+  width: var(--album-player-w, clamp(132px, 15vw, 186px));
   padding: 0;
   background: transparent;
   border: 0;

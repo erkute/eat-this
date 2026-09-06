@@ -769,6 +769,34 @@ main.page .head {
   }
 }
 
+/* ── Freunde ────────────────────────────────────────────
+   Eine Reihe Spielerkarten, jede ein Weg auf ein fremdes Deck. Steht direkt
+   unter dem Einladen-Kasten: dort wird gefragt, hier steht die Antwort.
+
+   Die Kartenbreite kommt ueber eine geerbte Variable, nicht ueber einen
+   Selektor gegen `.player` in ProfileAlbum.module.css — gleicher Rang, und
+   in Produktion gewinnt die Datei, die spaeter laedt. */
+.friends {
+  --album-player-w: clamp(96px, 10vw, 128px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(12px, 1.6vw, 20px);
+  margin: clamp(14px, 1.8vw, 20px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.friendsLine {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 400;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
 /* ── invite ─────────────────────────────────────────────── */
 
 /* The one yellow field on the page. Everything else earns attention from

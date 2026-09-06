@@ -20,6 +20,7 @@
     "import:restaurant": "tsx scripts/import-enriched.ts",
     "import:batch": "tsx scripts/import-batch.ts",
     "embed:restaurants": "tsx scripts/embed-restaurants.ts",
+    "embed:articles": "tsx scripts/embed-articles.ts",
     "content:backlog": "tsx scripts/content-backlog.ts",
     "premium:migrate": "tsx scripts/migrate-must-eats-private.ts",
     "lint": "eslint",

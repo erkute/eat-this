@@ -225,14 +225,20 @@ const en = {
     anonymous: 'this deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
+    /* Der Satz, der in WhatsApp unter der Vorschaukarte steht. Er muss die
+       Frage „warum schickt der mir das" beantworten, bevor jemand klickt. */
+    metaDescription:
+      '{done} of {total} cards flipped. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
+    metaDescriptionNamed:
+      '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
        unter dem Deck. */
     intro:
-      'Eat This is a map of Berlin spots we actually recommend. Every Must Eat is a collectible card \u2014 and it only flips on site.',
+      'The map knows over a hundred spots in Berlin. And because discovering beats searching, every Must Eat is a card \u2014 some lie face up, some face down.',
     explainKicker: 'New here?',
     explainTitle: 'What is Eat This?',
     explainLead:
-      'Some spots carry a Michelin star, some are tiny places you would never find without a tip. What they have in common: we would recommend them ourselves.',
+      'Every spot is picked on purpose. Some carry a Michelin star, others are small hidden places you would probably never have found without a recommendation. If somewhere is on the map, it is worth the trip.',
     step1Kicker: 'Must Eat',
     step1Title: 'You have to try this.',
     step1Body:
@@ -240,10 +246,11 @@ const en = {
     step2Kicker: 'How it works',
     step2Title: 'Go. Tap. Open.',
     step2Body:
-      'Some cards lie face up, some face down. A face-down one only flips on site \u2014 one tap while you stand in front of the spot.',
+      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, and now you know what to order.',
     step3Kicker: 'Your deck',
     step3Title: "And then it's yours.",
-    step3Body: 'Every card you flip joins your deck. That is how the deck above was built.',
+    step3Body:
+      'The card you flipped joins your deck and stays there. That is how the deck above was built.',
     cardsAlt: 'Two Eat This cards side by side, one face down and one face up',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
@@ -292,14 +299,17 @@ const en = {
     spotNoteLabel: 'Note on {name}',
     spotNotePlaceholder: 'Add a note …',
     spotNoteError: 'Could not save note.',
+    spotWantTo: 'Want to go',
+    spotWasThere: 'Been there',
+    spotMarkVisited: '{name}: mark as visited',
+    spotUnmarkVisited: '{name}: mark as not visited yet',
+    spotVisitedError: 'Could not be saved.',
     lockedSubhead: 'Still face-down',
     emptyMustEats:
       'Your deck is still empty. Every card sits at a spot in Berlin — stand in front of it, tap the card. Or open a Booster Pack.',
     albumHeading: 'Your deck',
-    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
-       Wer sie hier aendert, aendert sie dort mit. */
     howTo:
-      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
+      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, you know what to order, and it is yours.',
     albumCount: 'of {total} Must Eats',
     albumStamped: 'Been there',
     albumGroupProgress: '{group}: {done} of {total} revealed',
@@ -308,6 +318,14 @@ const en = {
     albumFilterMissing: 'Missing',
     albumFilterComplete: 'Nothing missing here — this part is complete.',
     albumToSpot: 'To {name}',
+    albumShare: 'Send this card',
+    albumShareCopied: 'Link copied',
+    albumShareTitle: '{dish} at {name} \u2014 you have to try this.',
+    badgesHeading: 'Badges',
+    badgeFirstCard: 'First card',
+    badgeCards: '{count} cards',
+    badgeDistrict: '{district} complete',
+    badgeAllBerlin: 'All of Berlin',
     recentHeading: 'Just revealed',
     moveLabel: 'Your next Must Eat',
     moveLocateCta: 'Share location',
@@ -323,6 +341,9 @@ const en = {
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
     invitePreview: 'Preview',
+    friendsHeading: 'Your crew',
+    friendsLine: 'They started through your link. Tap a character to see their deck.',
+    friendAnonymous: 'No name',
     inviteCta: 'Share deck',
     inviteCopied: 'Link copied',
     inviteShareTitle: 'My deck on the Eat This map',
@@ -639,6 +660,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     anonymous: 'dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
+    metaDescription:
+      '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
+    metaDescriptionNamed:
+      '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     /* Ueber dem Deck: was das hier ist, in einem Atemzug — mehr braucht es
        nicht, um die Kartenwand darunter zu verstehen. Der ausfuehrliche Teil
        steht UNTER dem Deck (Nutzer, 06.09.2026: „was ist Eat This muss unter
@@ -648,23 +673,29 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
        Beides war zu viel von einer Seite. */
     intro:
-      'Eat This ist eine Map mit Berliner Spots, die wir wirklich empfehlen. Jedes Must Eat ist eine Sammelkarte \u2014 und aufgedeckt wird sie vor Ort.',
+      'Die Map kennt \u00fcber hundert Spots in Berlin. Und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte \u2014 manche liegen offen, manche verdeckt.',
     explainKicker: 'Neu hier?',
     explainTitle: 'Was ist Eat This?',
     explainLead:
-      'Manche Spots tragen einen Michelin-Stern, manche sind kleine L\u00e4den, die man ohne Tipp nie findet. Was sie verbindet: wir w\u00fcrden sie selbst empfehlen.',
+      'Jeder Spot ist bewusst ausgew\u00e4hlt. Manche tragen einen Michelin-Stern, andere sind kleine Hidden Places, die man ohne Empfehlung vermutlich nie entdeckt h\u00e4tte. Wenn ein Ort auf der Map steht, ist er einen Besuch wert.',
     step1Kicker: 'Must Eat',
     step1Title: 'Musst du probieren.',
     step1Body:
       'Jede Karte ist ein Gericht, das wir dir ans Herz legen \u2014 unsere klare Empfehlung f\u00fcr genau dieses Restaurant.',
     step2Kicker: "So geht's",
     step2Title: 'Hin. Tap. Offen.',
+    /* Der ganze Handgriff, nicht die Kurzfassung (Nutzer, 06.09.2026: „mehr
+       Details … geh hin, oeffne die Karte, tipp sie an — und sie dreht sich
+       um, du weißt was du probieren musst und die Karte kommt in dein
+       Deck"). Kuerzer steht er im Must-Eats-Onboarding (`mustEats.onb2Body`),
+       und das darf so bleiben: dort dreht sich waehrenddessen eine echte
+       Karte, hier steht keine. */
     step2Body:
-      'Manche Karten liegen offen, manche verdeckt. Eine verdeckte drehst du nur vor Ort um \u2014 mit einem Tap, wenn du davor stehst.',
+      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, und du wei\u00dft, was du dort bestellen musst.',
     step3Kicker: 'Dein Deck',
     step3Title: 'Und sie geh\u00f6rt dir.',
     step3Body:
-      'Jede aufgedeckte Karte wandert in dein Deck. Genau so ist das Deck hier oben entstanden.',
+      'Die aufgedeckte Karte wandert in dein Deck und bleibt dort. Genau so ist das Deck hier oben entstanden.',
     cardsAlt:
       'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der R\u00fcckseite nach oben, eine aufgedeckt',
     deckHeadingNamed: '{name}s Deck',
@@ -720,14 +751,22 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotNoteLabel: 'Notiz zu {name}',
     spotNotePlaceholder: 'Notiz hinzuf\u00fcgen …',
     spotNoteError: 'Notiz konnte nicht gespeichert werden.',
+    /* Zwei Zustaende, ein Schalter: „will hin" ist der Normalfall — deshalb
+       ist der Spot ueberhaupt gespeichert —, „war da" der gedrueckte. */
+    spotWantTo: 'Will hin',
+    spotWasThere: 'War da',
+    spotMarkVisited: '{name}: als besucht markieren',
+    spotUnmarkVisited: '{name}: doch noch nicht da gewesen',
+    spotVisitedError: 'Konnte nicht gespeichert werden.',
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
       'Dein Deck ist noch leer. Jede Karte liegt bei einem Spot in Berlin \u2014 steh davor, tipp sie an. Oder hol dir ein Booster Pack.',
     albumHeading: 'Dein Deck',
-    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
-       Wer sie hier aendert, aendert sie dort mit. */
+    /* Der Handgriff in einem Satz. Bis zum 06.09.2026 hatte `deck.howTo`
+       einen Zwilling davon; auf dem geteilten Deck tragen ihn jetzt die drei
+       Schritte, hier steht er allein. */
     howTo:
-      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
+      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, du wei\u00dft, was du bestellen musst, und sie geh\u00f6rt dir.',
     albumCount: 'von {total} Must Eats',
     /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
        quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
@@ -740,6 +779,20 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumFilterMissing: 'Fehlende',
     albumFilterComplete: 'Hier fehlt nichts mehr — der Teil ist voll.',
     albumToSpot: 'Zu {name}',
+    /* Der Weg aus einer OFFENEN Karte: weitersagen. Geteilt wird die
+       Spot-Seite — sie ist oeffentlich und traegt den Must-Eat-Teaser. */
+    albumShare: 'Karte weiterschicken',
+    albumShareCopied: 'Link kopiert',
+    albumShareTitle: '{dish} bei {name} \u2014 das musst du probieren.',
+    /* Abzeichen statt Rangliste: Eat This nennt seine Spot-Zahlen bewusst
+       nicht, und bei einer Sammlung ist „du bist Letzter" die falsche
+       Nachricht. Ein Abzeichen misst gegen die Sammlung, nicht gegen
+       andere Leute. */
+    badgesHeading: 'Abzeichen',
+    badgeFirstCard: 'Erste Karte',
+    badgeCards: '{count} Karten',
+    badgeDistrict: '{district} komplett',
+    badgeAllBerlin: 'Ganz Berlin',
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chstes Must Eat',
     moveLocateCta: 'Standort freigeben',
@@ -756,6 +809,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
     invitePreview: 'Ansehen',
+    /* Die Reihe unter dem Einladen-Kasten. Der Referral-Weg laeuft seit Tag
+       eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
+       nirgends. */
+    friendsHeading: 'Deine Crew',
+    friendsLine: 'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
+    friendAnonymous: 'Namenlos',
     inviteCta: 'Deck teilen',
     inviteCopied: 'Link kopiert',
     inviteShareTitle: 'Mein Deck auf der Eat This Map',

@@ -5,6 +5,8 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getPublicDeck } from '@/lib/profile/publicDeck.server';
+import { SITE_URL } from '@/lib/constants';
+import { toOgLocale } from '@/lib/seo/metadata';
 import styles from '@/app/components/profile/Profile.module.css';
 import ProfilePlayerCard from '@/app/components/profile/ProfilePlayerCard';
 import DeckJoin from './DeckJoin';
@@ -49,16 +51,68 @@ interface PageProps {
   params: Promise<{ locale: string; uid: string }>;
 }
 
+/**
+ * Die Herkunft, auf der diese Anfrage tatsaechlich gelandet ist.
+ *
+ * Alle anderen Seiten bauen ihre OG-Bild-URL aus `SITE_URL` — richtig fuer
+ * gecachte Seiten, die einen kanonischen Host haben sollen. Diese hier nicht:
+ * sie ist `force-dynamic`, gehoert einem Konto, und auf Staging liegt dieses
+ * Konto in einem ANDEREN Firebase-Projekt. Eine Bild-URL auf die Live-Domain
+ * wuerde dort auf eine uid zeigen, die es dort nicht gibt — 404, und die
+ * Vorschau bleibt leer, genau da, wo man sie prueft.
+ */
+async function requestOrigin(): Promise<string> {
+  const h = await headers();
+  const host = h.get('x-forwarded-host') ?? h.get('host');
+  if (!host) return SITE_URL;
+  const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  return `${proto}://${host}`;
+}
+
+/**
+ * Was ein geteilter Link in WhatsApp, iMessage oder Signal hermacht.
+ *
+ * Bis zum 06.09.2026 stand hier ein Titel und sonst nichts: kein Bild, keine
+ * Beschreibung. Der Link, der der einzige Kanal ohne Werbebudget ist, sah in
+ * jedem Chat aus wie ein Versehen (Nutzer: „der Link, den man weitergibt, ist
+ * haesslich, ohne Bild").
+ *
+ * `noindex, nofollow` bleibt und widerspricht dem nicht: Suchmaschinen sollen
+ * die Seite nicht in den Index nehmen, die Vorschau-Abrufer der Messenger
+ * lesen die OG-Tags trotzdem — sie halten sich an keine Robots-Regel und
+ * sollen es hier auch nicht.
+ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, uid } = await params;
   const data = await getPublicDeck(uid);
   const t = await getTranslations({ locale, namespace: 'deck' });
+
+  const title = data?.name ? t('metaTitleNamed', { name: data.name }) : t('metaTitle');
+  /* Ohne Deck keine Karte: die Seite antwortet gleich mit 404, und ein
+     OG-Bild fuer eine uid, die es nicht gibt, waere ein zweiter 404 im
+     Vorschau-Abruf. */
+  if (!data) return { title, robots: 'noindex, nofollow' };
+
+  const description = data.name
+    ? t('metaDescriptionNamed', { name: data.name, done: data.revealed, total: data.total })
+    : t('metaDescription', { done: data.revealed, total: data.total });
+  const image = `${await requestOrigin()}/api/og/deck?uid=${encodeURIComponent(uid)}&locale=${locale === 'en' ? 'en' : 'de'}`;
+
   return {
-    title: data?.name ? t('metaTitleNamed', { name: data.name }) : t('metaTitle'),
+    title,
+    description,
     /* Ein geteiltes Deck ist die Momentaufnahme eines fremden Kontos — nichts,
        was in einem Index stehen soll. Die uid ist der einzige Weg hierher und
        nicht zu raten; erschlossen werden darf sie trotzdem nicht. */
     robots: 'noindex, nofollow',
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      type: 'website',
+      locale: toOgLocale(locale === 'en' ? 'en' : 'de'),
+    },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
   };
 }
 
@@ -126,6 +180,15 @@ export default async function DeckPage({ params }: PageProps) {
       <section
         className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}
       >
+        {/* Ganz oben, ueber der Figur und ueber die volle Breite: der eine
+            Satz, was Eat This ist. Er stand erst in der Spalte NEBEN der
+            Spielerkarte und war dort eine Bildunterschrift zum Charakter —
+            gemeint ist er als Ansage der Seite (Nutzer, 06.09.2026: „die
+            Eat-This-Info ueber dem Deck, und dann kommt der Avatar und das
+            Wording: Ersan hat 10 von 25 Karten umgedreht"). Alles Weitere
+            steht in der Tafel unter dem Deck. */}
+        <p className={deck.intro}>{t('intro')}</p>
+
         <div className={deck.masthead}>
           <ProfilePlayerCard name={data.name ?? t('anonymous')} avatarIdx={data.avatar} />
 
@@ -139,10 +202,6 @@ export default async function DeckPage({ params }: PageProps) {
             <h1 className="hv-title">
               {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
             </h1>
-            {/* Ein Satz Produkt, ein Satz Stand — mehr braucht es nicht, um
-                die Karten darunter zu verstehen. Alles Weitere steht in der
-                Tafel unter dem Deck. */}
-            <p className={deck.intro}>{t('intro')}</p>
             <p className={deck.howTo}>
               {data.name ? t('standNamed', { name: data.name, ...stand }) : t('stand', stand)}
             </p>

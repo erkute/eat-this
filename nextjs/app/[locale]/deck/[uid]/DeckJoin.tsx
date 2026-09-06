@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, type FormEvent } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
@@ -43,7 +43,6 @@ const STARTER_ART = '/pics/booster/booster_free.webp';
  */
 export default function DeckJoin({ name }: { name: string | null }) {
   const t = useTranslations('deck');
-  const locale = useLocale();
   const { user } = useAuth();
   const { sendLink, state, errorMessage, reset } = useMagicLink();
   const emailId = useId();
@@ -51,19 +50,36 @@ export default function DeckJoin({ name }: { name: string | null }) {
   const [email, setEmail] = useState('');
   const [invalid, setInvalid] = useState('');
 
+  /* Der Weg zur Map steht IMMER da, in beiden Zustaenden. Er hing zuerst nur
+     am Anmeldeblock — und damit sah ein Angemeldeter eine Seite ohne
+     Anmeldung UND ohne Ausgang zur Map (Nutzer, 06.09.2026). Fuer den
+     Angemeldeten ist er sogar der naheliegendere der beiden Wege. */
+  /* Ohne `locale`-Prop: `localePrefix` ist `as-needed`, und ein explizit
+     mitgegebenes `de` erzwingt trotzdem `/de/map` — von dort schickt die
+     Middleware mit 308 auf `/map`. Ein Umweg fuer nichts, auf dem einzigen
+     Ausgang der Seite. */
+  const toMap = (
+    <Link className={deck.browse} href="/map">
+      {t('browse')}
+    </Link>
+  );
+
   if (user) {
     return (
-      <div className={styles.invite}>
-        <div className={styles.inviteCopy}>
-          <h2 className={styles.inviteTitle}>{t('ctaHeadingIn')}</h2>
-          <p className={styles.inviteLine}>{t('ctaLineIn')}</p>
+      <>
+        <div className={styles.invite}>
+          <div className={styles.inviteCopy}>
+            <h2 className={styles.inviteTitle}>{t('ctaHeadingIn')}</h2>
+            <p className={styles.inviteLine}>{t('ctaLineIn')}</p>
+          </div>
+          <div className={styles.inviteAction}>
+            <Link href="/profile" className={styles.inviteButton}>
+              {t('ctaIn')}
+            </Link>
+          </div>
         </div>
-        <div className={styles.inviteAction}>
-          <Link href="/profile" className={styles.inviteButton}>
-            {t('ctaIn')}
-          </Link>
-        </div>
-      </div>
+        {toMap}
+      </>
     );
   }
 
@@ -143,9 +159,7 @@ export default function DeckJoin({ name }: { name: string | null }) {
 
       {/* Kein zweiter Knopf: ein gleich lauter Ausgang neben der Anmeldung
           wäre eine Abzweigung, keine Alternative. */}
-      <Link className={deck.browse} href="/map" locale={locale as 'de' | 'en'}>
-        {t('browse')}
-      </Link>
+      {toMap}
     </>
   );
 }

@@ -5,12 +5,24 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 
 vi.mock('next-intl', () => ({
+  useLocale: () => 'de',
   useTranslations: () => (key: string, vars?: Record<string, unknown>) => {
     if (key === 'albumGroupProgress')
       return `${vars?.group}: ${vars?.done} von ${vars?.total} aufgedeckt`;
     if (key === 'albumToSpot') return `Zu ${vars?.name}`;
+    if (key === 'albumShareTitle') return `${vars?.dish} bei ${vars?.name}`;
     return key;
   },
+}));
+vi.mock('@/lib/constants', () => ({ SITE_URL: 'https://www.eatthisdot.com' }));
+/* Der Teilen-Knopf hat seinen eigenen Test — hier interessiert nur, WAS das
+   Album ihm mitgibt. */
+vi.mock('@/app/components/ShareButton', () => ({
+  default: ({ url, title, label }: { url: string; title: string; label: string }) => (
+    <button type="button" data-testid="share" data-url={url} data-title={title}>
+      {label}
+    </button>
+  ),
 }));
 /* Der Zoom selbst ist hier nicht der Gegenstand — nur, WAS das Album ihm als
    Ausgang mitgibt. Der Mock rendert darum genau diesen Slot. */
@@ -134,7 +146,15 @@ describe('ProfileAlbum', () => {
      Spot traegt mehrere Karten, und wer hier steht, will wissen, wo er hin
      muss. Aufgedeckte Karten bekommen den Ausgang nicht: dort ist nichts
      mehr zu holen. */
-  it('fuehrt aus dem Zoom einer verdeckten Karte zum Spot, aus einer offenen nicht', () => {
+  /* Zwei Wege aus dem Zoom, und sie duerfen sich nicht vertauschen.
+
+     VERDECKT: zum Spot — die Karte gehoert einem noch nicht, sie
+     weiterzuschicken waere die falsche Geste.
+     OFFEN: weitersagen. Panini-Tauschen hat hier kein Gegenstueck (keine
+     Doppelten); das Aequivalent ist, jemandem die Karte zu schicken, die man
+     selbst umgedreht hat — als SPOT-SEITE, denn die ist oeffentlich und
+     traegt den Must-Eat-Teaser. */
+  it('fuehrt aus dem Zoom einer verdeckten Karte zum Spot', () => {
     const covered: MapMustEat = {
       _id: 'm3',
       order: 4,
@@ -158,19 +178,37 @@ describe('ProfileAlbum', () => {
     );
 
     fireEvent.click(screen.getByLabelText('lockedSubhead — 004'));
-    const exit = screen.getByRole('link', { name: 'Zu Atelier Dough' });
-    expect(exit.getAttribute('href')).toBe('/map?r=atelier-dough');
+    expect(screen.getByRole('link', { name: 'Zu Atelier Dough' }).getAttribute('href')).toBe(
+      '/map?r=atelier-dough'
+    );
+    expect(screen.queryByTestId('share')).toBeNull();
+  });
 
-    cleanup();
+  it('bietet aus dem Zoom einer offenen Karte das Weiterschicken an', () => {
+    const open: MapMustEat = {
+      _id: 'm4',
+      dish: 'Donut',
+      order: 17,
+      image: '/api/must-eat-image/m4',
+      restaurant: { _id: 'r4', name: 'Bubar', slug: 'bubar', lat: 0, lng: 0 },
+    };
+
     render(
       <ProfileAlbum
-        mustEats={[covered, open]}
+        mustEats={[open]}
         faceUpIds={new Set(['m4'])}
         groupOf={() => 'Mitte'}
         player={player}
       />
     );
+
     fireEvent.click(screen.getByLabelText('Donut'));
-    expect(screen.getByTestId('zoom').querySelector('a')).toBeNull();
+    const share = screen.getByTestId('share');
+    /* Die Herkunft, auf der der Nutzer steht — nicht der kanonische Host: eine
+       von Staging verschickte Karte darf nicht auf die Live-Domain zeigen. */
+    expect(share.getAttribute('data-url')).toBe(`${window.location.origin}/restaurant/bubar`);
+    // Das Gericht steht im Text der Nachricht, nicht in der URL.
+    expect(share.getAttribute('data-title')).toBe('Donut bei Bubar');
+    expect(screen.queryByRole('link')).toBeNull();
   });
 });

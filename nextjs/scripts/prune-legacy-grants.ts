@@ -15,12 +15,16 @@
  *   3. `entitlements/signup-spot` — der Gratis-Spot der Anmeldung. Der Spot ist
  *      frei, das Dokument ist wirkungslos; es steht nur noch im Weg.
  *
- * Standard ist ein Trockenlauf. Erst `--apply` löscht.
+ * Standard ist ein Trockenlauf. Erst `--apply` löscht — und schreibt vorher
+ * jedes betroffene Dokument mit vollem Pfad nach `.private/` (gitignored).
+ * Firestore kennt keinen Papierkorb; ohne diese Datei wäre der Lauf endgültig,
+ * mit ihr ist er ein `set()` pro Zeile entfernt vom Rückweg.
  *
  * Aus `nextjs/`:
  *   npx tsx scripts/prune-legacy-grants.ts
  *   npx tsx scripts/prune-legacy-grants.ts --apply
  */
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { config as loadEnv } from 'dotenv';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -40,18 +44,27 @@ const apply = process.argv.includes('--apply');
 
 /** Dokument-IDs in `entitlements`, die aus der Spot-Ära stammen. */
 const LEGACY_ENTITLEMENT_IDS = new Set(['starter', 'signup-spot']);
+/** …und ihre `type`-Werte. Beide fielen mit Stufe 1 aus der Union, `reduce-
+ *  Entitlements` ignoriert sie also ohnehin. Der Typ ist der verlässlichere
+ *  Schlüssel als die ID: am 06.09.2026 trug ein Starter-Grant die Doc-ID
+ *  `category-undefined` und wäre über die ID-Liste allein stehen geblieben. */
+const LEGACY_ENTITLEMENT_TYPES = new Set(['starter', 'spot']);
 /** Der Vermerk, mit dem der Starter-Grant seine Aufdeckungen geschrieben hat. */
 const LEGACY_UNLOCK_SOURCE = 'starter-pack';
 
 async function main() {
   const doomed: FirebaseFirestore.DocumentReference[] = [];
+  const backup: { path: string; data: FirebaseFirestore.DocumentData }[] = [];
 
   const entitlements = await db.collectionGroup('entitlements').get();
   const byPack = new Map<string, number>();
   for (const doc of entitlements.docs) {
-    if (!LEGACY_ENTITLEMENT_IDS.has(doc.id)) continue;
+    const legacy =
+      LEGACY_ENTITLEMENT_IDS.has(doc.id) || LEGACY_ENTITLEMENT_TYPES.has(doc.data().type);
+    if (!legacy) continue;
     byPack.set(doc.id, (byPack.get(doc.id) ?? 0) + 1);
     doomed.push(doc.ref);
+    backup.push({ path: doc.ref.path, data: doc.data() });
   }
 
   /* Client-seitig gefiltert, nicht per `where`: eine Collection-Group-Abfrage
@@ -63,6 +76,7 @@ async function main() {
     if (doc.data().source !== LEGACY_UNLOCK_SOURCE) continue;
     legacyUnlocks++;
     doomed.push(doc.ref);
+    backup.push({ path: doc.ref.path, data: doc.data() });
   }
 
   console.log(apply ? '— LÖSCHEN —' : '— TROCKENLAUF (nichts wird geschrieben) —');
@@ -79,6 +93,13 @@ async function main() {
     console.log('\nZum Ausführen: npx tsx scripts/prune-legacy-grants.ts --apply');
     return;
   }
+
+  /* Erst sichern, dann löschen — und synchron, damit ein Fehler beim Schreiben
+     den Lauf abbricht, bevor das erste Dokument weg ist. */
+  mkdirSync('../.private', { recursive: true });
+  const backupPath = `../.private/pruned-legacy-grants-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  writeFileSync(backupPath, JSON.stringify(backup, null, 2));
+  console.log(`gesichert: ${backup.length} Dokumente → ${backupPath}`);
 
   // 500 ist das Batch-Limit von Firestore.
   for (let i = 0; i < doomed.length; i += 500) {

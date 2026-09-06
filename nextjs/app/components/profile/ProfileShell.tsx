@@ -95,6 +95,19 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     [ownedRestaurants]
   );
 
+  /* Drei eigene Karten fuer den Einladen-Faecher. `image` traegt nur, was
+     auf der eigenen Oberflaeche offen liegt — dieselbe Bedingung, unter der
+     das Album eine Karte als aufgedeckt zeichnet. Sind es weniger als drei,
+     fuellt ProfileInvite mit Rueckseiten auf. */
+  const inviteCards = useMemo(
+    () =>
+      ownedMustEats
+        .map((m) => m.image)
+        .filter((image): image is string => Boolean(image))
+        .slice(0, 3),
+    [ownedMustEats]
+  );
+
   if (authLoading || !user || (mapDataLoading && !hasMapData)) {
     return (
       <main className={`homeV2 ${styles.page}`} data-menu>
@@ -249,7 +262,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             den gespeicherten Spots und den Packs, und war der letzte Block
             vor dem Fuss. */}
         <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfileInvite uid={user.uid} />
+          <ProfileInvite uid={user.uid} cards={inviteCards} />
         </section>
 
         <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />

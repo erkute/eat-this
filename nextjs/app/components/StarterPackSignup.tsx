@@ -3,6 +3,7 @@
 import { useId, useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import { useMagicLink } from '@/lib/auth';
+import { isEmailish } from '@/lib/auth/emailShape';
 import styles from './StarterPackSignup.module.css';
 
 /**
@@ -68,12 +69,9 @@ export default function StarterPackSignup({ locale }: Props) {
     event.preventDefault();
     if (state === 'sending') return;
     const trimmed = email.trim();
-    if (!trimmed) {
-      setValidationError(t.emptyEmail);
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setValidationError(t.invalidEmail);
+    const shape = isEmailish(trimmed);
+    if (shape !== 'ok') {
+      setValidationError(shape === 'empty' ? t.emptyEmail : t.invalidEmail);
       return;
     }
     setValidationError('');

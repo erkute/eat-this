@@ -8,6 +8,7 @@ import MapIntentLink from '@/app/components/MapIntentLink';
 import { normalizeName } from '@/lib/normalizeName';
 import type { MapMustEat } from '@/lib/types';
 import { buildAlbum } from '@/lib/profile/mustEatAlbum';
+import { computeBadges } from '@/lib/profile/badges';
 import ProfilePlayerCard from './ProfilePlayerCard';
 import styles from './ProfileAlbum.module.css';
 
@@ -88,6 +89,22 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
   };
 
   const missingTotal = allSlots.length - collected;
+
+  /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
+     aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
+     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts). */
+  const badges = useMemo(
+    () =>
+      computeBadges({
+        collected,
+        groups: groups.map((g) => ({
+          group: g.group,
+          done: g.slots.filter((s) => s.collected).length,
+          total: g.slots.length,
+        })),
+      }),
+    [collected, groups]
+  );
 
   return (
     <div className={styles.panel}>
@@ -288,6 +305,32 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Unter dem Raster, nicht darueber: ein Abzeichen ist das Ergebnis
+          der Karten, nicht ihre Ueberschrift. Leer rendert die Zeile gar
+          nichts — eine Reihe verschlossener Abzeichen waere eine Liste
+          dessen, was fehlt, und die steht auf dieser Seite schon zweimal. */}
+      {badges.length > 0 && (
+        <div className={styles.badges}>
+          <span className={styles.badgesLabel}>{t('badgesHeading')}</span>
+          <ul className={styles.badgeList}>
+            {badges.map((badge) => (
+              <li
+                className={styles.badge}
+                key={badge.kind === 'district' ? `d:${badge.value}` : badge.kind}
+              >
+                {badge.kind === 'cards'
+                  ? badge.value === 1
+                    ? t('badgeFirstCard')
+                    : t('badgeCards', { count: badge.value })
+                  : badge.kind === 'district'
+                    ? t('badgeDistrict', { district: badge.value })
+                    : t('badgeAllBerlin')}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

@@ -306,6 +306,11 @@ const en = {
     albumFilterMissing: 'Missing',
     albumFilterComplete: 'Nothing missing here — this part is complete.',
     albumToSpot: 'To {name}',
+    badgesHeading: 'Badges',
+    badgeFirstCard: 'First card',
+    badgeCards: '{count} cards',
+    badgeDistrict: '{district} complete',
+    badgeAllBerlin: 'All of Berlin',
     recentHeading: 'Just revealed',
     moveLabel: 'Your next Must Eat',
     moveLocateCta: 'Share location',
@@ -736,6 +741,15 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumFilterMissing: 'Fehlende',
     albumFilterComplete: 'Hier fehlt nichts mehr — der Teil ist voll.',
     albumToSpot: 'Zu {name}',
+    /* Abzeichen statt Rangliste: Eat This nennt seine Spot-Zahlen bewusst
+       nicht, und bei einer Sammlung ist „du bist Letzter" die falsche
+       Nachricht. Ein Abzeichen misst gegen die Sammlung, nicht gegen
+       andere Leute. */
+    badgesHeading: 'Abzeichen',
+    badgeFirstCard: 'Erste Karte',
+    badgeCards: '{count} Karten',
+    badgeDistrict: '{district} komplett',
+    badgeAllBerlin: 'Ganz Berlin',
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chstes Must Eat',
     moveLocateCta: 'Standort freigeben',

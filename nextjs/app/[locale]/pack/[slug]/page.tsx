@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { CATALOG } from '@/lib/stripe-catalog';
-import { getMustEatsByCategory, getCategoryBySlug } from '@/lib/sanity.server';
+import { getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
@@ -65,10 +65,6 @@ const copy = {
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
     payment: 'Zahlungsarten',
-    inside: 'Drin im Pack',
-    insideLead:
-      'Wo die Karten liegen, sagen wir. Was auf ihnen steht, steht auf ihnen — bis sie in deinem Album liegen.',
-    empty: 'An dieser Kategorie hängt noch keine Karte. Sie kommen.',
     soon: 'Kommt bald',
     map: '/map',
   },
@@ -80,10 +76,6 @@ const copy = {
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
     payment: 'Payment methods',
-    inside: 'Inside the pack',
-    insideLead:
-      'We tell you where the cards are. What is on them stays on them — until they are in your album.',
-    empty: 'No card on this category yet. They are coming.',
     soon: 'Coming soon',
     map: '/en/map',
   },
@@ -98,16 +90,16 @@ export default async function PackDetailPage({ params }: PageProps) {
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) notFound();
   const categorySlug = pack.slug;
-  const [category, cards] = await Promise.all([
+  const [category, packContents] = await Promise.all([
     getCategoryBySlug(categorySlug),
-    getMustEatsByCategory(categorySlug),
+    getPackContents(),
   ]);
 
   /* Ein Pack ohne Karte ist eine leere Schachtel — Fine Dining stand am
      06.09.2026 auf null. Die Seite bleibt (die Kategorie kommt ja), der
-     Kaufknopf nicht. Wie viele Karten drin sind, sagt die Seite nicht: das
-     Produkt nennt seine Zahlen nicht. */
-  const empty = cards.length === 0;
+     Kaufknopf nicht. Die Zahl selbst steht nirgends: das Produkt nennt seine
+     Zahlen nicht, sie beantwortet hier nur diese eine Ja/Nein-Frage. */
+  const empty = (packContents.byCategory[categorySlug]?.mustEats ?? 0) === 0;
   const art = categoryArt(categorySlug);
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
 
@@ -163,33 +155,6 @@ export default async function PackDetailPage({ params }: PageProps) {
                 className={styles.packArt}
               />
             </div>
-          )}
-        </section>
-
-        <section className={styles.section} aria-labelledby="pack-inside-title">
-          <div className={styles.sectionHead}>
-            <h2 id="pack-inside-title" className={styles.sectionTitle}>
-              <span className={styles.mk} aria-hidden="true" />
-              {t.inside}
-            </h2>
-            <p className={styles.sectionLead}>{cards.length > 0 ? t.insideLead : t.empty}</p>
-          </div>
-
-          {/* Jede Zeile ist eine KARTE, nicht ein Spot: die Spots liegen seit
-              dem 06.09.2026 ohnehin frei auf der Map. Die Nummer links ist die
-              gedruckte Kartennummer (`mustEat.order`) — der Schluessel, nach
-              dem ein Sammler seinen Stapel sortiert. Der Ort steht dabei, das
-              Gericht nicht: das ist das Produkt. */}
-          {cards.length > 0 && (
-            <ol className={styles.list}>
-              {cards.map((card, i) => (
-                <li key={card._id} className={styles.row}>
-                  <span className={styles.num}>{String(card.order ?? i + 1).padStart(3, '0')}</span>
-                  <span className={styles.rn}>{card.name}</span>
-                  {card.district && <span className={styles.mn}>{card.district}</span>}
-                </li>
-              ))}
-            </ol>
           )}
         </section>
 

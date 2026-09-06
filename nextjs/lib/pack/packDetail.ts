@@ -20,15 +20,6 @@ export function formatPackPrice(amountCents: number): string {
   return `${euros},${String(cents).padStart(2, '0')} €`;
 }
 
-/** Eine Karte, wie die Pack-Seite sie auflistet: Nummer und Ort, kein Gericht. */
-export interface PackCard {
-  _id: string;
-  /** Die Nummer unten rechts auf der gedruckten Karte. */
-  order?: number;
-  name: string;
-  district?: string;
-}
-
 /**
  * Spot- und Kartenzahl einer Kategorie.
  *

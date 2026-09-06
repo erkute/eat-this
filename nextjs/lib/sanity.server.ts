@@ -18,7 +18,6 @@ import {
   categoryBySlugQuery,
   emailSpotsQuery,
   packContentsQuery,
-  mustEatsByCategoryQuery,
 } from './queries';
 import type {
   Restaurant,
@@ -29,7 +28,7 @@ import type {
   RestaurantArticleCard,
 } from './types';
 import type { CategoryDef, CategoryWithStats } from './categories';
-import type { PackCard, PackContents, PackContentsIndex } from './pack/packDetail';
+import type { PackContents, PackContentsIndex } from './pack/packDetail';
 
 export async function getAllRestaurantSlugs(): Promise<string[]> {
   const results = await client.fetch<{ slug: string }[]>(
@@ -301,15 +300,6 @@ export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
 }
 
 /** Spot + Must-Eat counts for every pack, keyed by category slug. */
-/** Die Karten einer Kategorie, in Kartennummer-Reihenfolge. */
-export async function getMustEatsByCategory(categorySlug: string): Promise<PackCard[]> {
-  return client.fetch<PackCard[]>(
-    mustEatsByCategoryQuery,
-    { categorySlug },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['pack-contents', 'mustEat'] } }
-  );
-}
-
 export async function getPackContents(): Promise<PackContentsIndex> {
   const raw = await client.fetch<{
     categories: ({ slug: string } & PackContents)[];

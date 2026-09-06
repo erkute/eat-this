@@ -53,6 +53,7 @@ describe('resolveLegacyRestaurantSlug', () => {
     ['jones-ice-cream-2', 'jones-ice-cream'],
     ['knoedelwirtschaft-nord', 'knoedelwirtschaft-sued'],
     ['tribeca-ice-cream-prenzlauer-berg', 'tribeca-ice-cream'],
+    ['Der-weinlobbyist', 'der-weinlobbyist'],
   ])('explicit map: %s → %s', (oldSlug, newSlug) => {
     expect(resolveLegacyRestaurantSlug(oldSlug, RESTAURANTS)).toBe(newSlug);
   });

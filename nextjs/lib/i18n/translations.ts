@@ -245,10 +245,11 @@ const en = {
     step2Kicker: 'How it works',
     step2Title: 'Go. Tap. Open.',
     step2Body:
-      'Some cards lie face up, some face down. A face-down one only flips on site \u2014 one tap while you stand in front of the spot.',
+      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, and now you know what to order.',
     step3Kicker: 'Your deck',
     step3Title: "And then it's yours.",
-    step3Body: 'Every card you flip joins your deck. That is how the deck above was built.',
+    step3Body:
+      'The card you flipped joins your deck and stays there. That is how the deck above was built.',
     cardsAlt: 'Two Eat This cards side by side, one face down and one face up',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
@@ -306,10 +307,8 @@ const en = {
     emptyMustEats:
       'No Must Eats in your collection yet. Open a Booster Pack and reveal them on site.',
     albumHeading: 'Your deck',
-    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
-       Wer sie hier aendert, aendert sie dort mit. */
     howTo:
-      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
+      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, you know what to order, and it is yours.',
     albumCount: 'of {total} Must Eats',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
@@ -683,12 +682,18 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Jede Karte ist ein Gericht, das wir dir ans Herz legen \u2014 unsere klare Empfehlung f\u00fcr genau dieses Restaurant.',
     step2Kicker: "So geht's",
     step2Title: 'Hin. Tap. Offen.',
+    /* Der ganze Handgriff, nicht die Kurzfassung (Nutzer, 06.09.2026: „mehr
+       Details … geh hin, oeffne die Karte, tipp sie an — und sie dreht sich
+       um, du weißt was du probieren musst und die Karte kommt in dein
+       Deck"). Kuerzer steht er im Must-Eats-Onboarding (`mustEats.onb2Body`),
+       und das darf so bleiben: dort dreht sich waehrenddessen eine echte
+       Karte, hier steht keine. */
     step2Body:
-      'Manche Karten liegen offen, manche verdeckt. Eine verdeckte drehst du nur vor Ort um \u2014 mit einem Tap, wenn du davor stehst.',
+      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, und du wei\u00dft, was du dort bestellen musst.',
     step3Kicker: 'Dein Deck',
     step3Title: 'Und sie geh\u00f6rt dir.',
     step3Body:
-      'Jede aufgedeckte Karte wandert in dein Deck. Genau so ist das Deck hier oben entstanden.',
+      'Die aufgedeckte Karte wandert in dein Deck und bleibt dort. Genau so ist das Deck hier oben entstanden.',
     cardsAlt:
       'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der R\u00fcckseite nach oben, eine aufgedeckt',
     deckHeadingNamed: '{name}s Deck',
@@ -755,10 +760,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyMustEats:
       'Noch keine Must Eats in deiner Sammlung. \u00d6ffne ein Booster Pack und geh vor Ort aufdecken.',
     albumHeading: 'Dein Deck',
-    /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
-       Wer sie hier aendert, aendert sie dort mit. */
+    /* Der Handgriff in einem Satz. Bis zum 06.09.2026 hatte `deck.howTo`
+       einen Zwilling davon; auf dem geteilten Deck tragen ihn jetzt die drei
+       Schritte, hier steht er allein. */
     howTo:
-      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
+      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, du wei\u00dft, was du bestellen musst, und sie geh\u00f6rt dir.',
     albumCount: 'von {total} Must Eats',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',

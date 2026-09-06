@@ -4,13 +4,14 @@ import { notFound } from 'next/navigation';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { getPublicDeck } from '@/lib/profile/publicDeck.server';
 import styles from '@/app/components/profile/Profile.module.css';
 import ProfilePlayerCard from '@/app/components/profile/ProfilePlayerCard';
+import DeckJoin from './DeckJoin';
 import deck from './Deck.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_FRONT = '/pics/card-front.webp?v=3';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -70,6 +71,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * steht, ist in `PublicDeck` aufgezaehlt, und was dort fehlt, verlaesst den
  * Server nicht (siehe publicDeck.server.ts).
  *
+ * DREI SCHRITTE, in dieser Reihenfolge (06.09.2026):
+ *
+ *   1. Was Eat This ist. Wer diesen Link bekommt, kennt weder Marke noch
+ *      Spiel — ein Freund hat ihm etwas geschickt, mehr weiss er nicht. Bis
+ *      zum 06.09.2026 stand die Erklaerung ganz unten, hinter der Kartenwand;
+ *      oben stand nur der Handgriff. Nutzer: „man muss ja erst mal irgendwie
+ *      das Produkt kennen, und dann kommt: hey, dein Freund ist auch dabei."
+ *   2. Wer dahintersteckt und wie weit er ist — Spielerkarte, der Stand als
+ *      Satz, die Kartenwand, die Bezirke.
+ *   3. Mach mit. Die Anmeldung steht auf der Seite, nicht hinter einem Knopf,
+ *      der woandershin fuehrt.
+ *
  * Die Einladung braucht dafuer keine eigene Mechanik: der Link, den das
  * Profil teilt, traegt `?ref=<uid>`, und die Middleware nimmt den Parameter
  * auf jeder Route entgegen — sie setzt das Cookie und leitet auf die saubere
@@ -90,91 +103,116 @@ export default async function DeckPage({ params }: PageProps) {
 
   const t = await getTranslations('deck');
 
+  const steps = [
+    { kicker: t('step1Kicker'), title: t('step1Title'), body: t('step1Body') },
+    { kicker: t('step2Kicker'), title: t('step2Title'), body: t('step2Body') },
+    { kicker: t('step3Kicker'), title: t('step3Title'), body: t('step3Body') },
+  ];
+  const stand = {
+    done: data.revealed,
+    total: data.total,
+    missing: data.total - data.revealed,
+  };
+
   return (
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
-      {/* Derselbe Kopf wie im eigenen Profil: Spielerkarte neben der
-          Ueberschrift. Hier stand bis zum 04.09.2026 eine Ink-Tafel aus
-          `.bank*` und `.city*` — die Klassen sind mit dem Profil-Umbau am
-          selben Tag aus Profile.module.css verschwunden, und React rendert
-          fuer ein unbekanntes CSS-Modul-Kuerzel stumm gar kein
-          class-Attribut. Die Seite, auf der jeder geteilte Link landet, lief
-          seitdem ohne einen einzigen ihrer Stile: die Figur 250 px hoch und
-          rahmenlos, „Berlin467von 467 Spots" in einer Zeile. */}
-      <section className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}>
-        <div className={deck.masthead}>
-          <ProfilePlayerCard
-            name={data.name ?? t('anonymous')}
-            avatarIdx={data.avatar}
-            done={data.revealed}
-            total={data.total}
+      {/* ── 1. Was das hier ist ─────────────────────────────────
+          Der Kicker sagt, WESSEN Deck das ist, die Ueberschrift stellt die
+          Frage, die der Besucher wirklich hat. Beides gehoert zusammen: ohne
+          den Namen liest sich die Seite wie eine Werbeseite, die jemand
+          faelschlich geschickt hat; ohne die Frage bleibt „Ersans Deck" ein
+          Wort ohne Gegenstand. */}
+      <section
+        className={`hv-section hv-wrap ${styles.section} ${styles.firstSection} ${deck.explain}`}
+      >
+        <div className={deck.explainHead}>
+          <span className={deck.label}>
+            {data.name ? t('sharedDeckNamed', { name: data.name }) : t('sharedDeck')}
+          </span>
+          <h1 className="hv-title">{t('explainTitle')}</h1>
+          <p className={deck.explainLead}>{t('explainLead')}</p>
+        </div>
+
+        {/* Das Paar sagt den Satz, den kein Einzelbild sagen kann: manche
+            liegen offen, manche verdeckt. Dieselben zwei Karten stehen aus
+            demselben Grund auf /about. Kein `loading="lazy"`: sie stehen im
+            ersten Bildschirm und sind dort das einzige Bild. */}
+        <div className={deck.pair}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={deck.pairBack} src={CARD_BACK} alt={t('cardsAlt')} decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={deck.pairFront}
+            src={CARD_FRONT}
+            alt=""
+            aria-hidden="true"
+            decoding="async"
           />
+        </div>
+
+        {/* Die Worte kommen aus dem Must-Eats-Onboarding (mustEats.onb*) und
+            von /about — nicht eine dritte Fassung derselben Erklaerung. */}
+        <ol className={deck.steps}>
+          {steps.map((step) => (
+            <li className={deck.step} key={step.kicker}>
+              <span className={deck.label}>{step.kicker}</span>
+              <span className={deck.stepTitle}>{step.title}</span>
+              <span className={deck.stepBody}>{step.body}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ── 2. Und dein Freund ist schon dabei ──────────────────
+          Die Spielerkarte stand bis zum 06.09.2026 ganz oben, mit dem
+          Punktestand „10/25" auf der Figur. Der Stand ist jetzt ein Satz und
+          steht da, wo er hingehoert: neben der Person, um die es geht. */}
+      <section className={`hv-section hv-wrap ${styles.section}`}>
+        <div className={deck.masthead}>
+          <ProfilePlayerCard name={data.name ?? t('anonymous')} avatarIdx={data.avatar} />
 
           {/* Kein `hv-head`: das Vokabular stellt Titel und Zaehler auf die
               beiden Enden einer Zeile, und hier stuende die Ueberschrift damit
               am rechten Bildrand, der Kicker 1000 px daneben. */}
           <div className={deck.headCopy}>
-            {/* Der Name gehoert in die Ueberschrift, nicht „Ein Deck bei Eat
-                This" (Nutzer, 04.09.2026: „da muss halt der Name stehen,
-                Ersans Deck bei Eat This"). Wer einen geteilten Link oeffnet,
-                will zuerst wissen, WESSEN Deck er ansieht — die Marke sagt
-                die Zeile darunter, und das Logo steht ohnehin oben. */}
-            <h1 className="hv-title">
+            <h2 className="hv-title">
               {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
-            </h1>
-            {/* Wie das Spiel geht, in einem Satz. „Aufgedeckt wird vor Ort"
-                stand bisher nur im Werbeblock ganz unten und sagte nicht,
-                WAS man tut (Nutzer, 04.09.2026: „das ist nicht so richtig
-                ersichtlich"). Hier steht der Handgriff: hingehen, antippen,
-                umdrehen — dieselben Worte, die die Karte auf der Map selbst
-                benutzt („Jetzt aufdecken. Tipp auf die Karte."). */}
-            <p className={deck.howTo}>{t('howTo')}</p>
+            </h2>
+            <p className={deck.howTo}>
+              {data.name ? t('standNamed', { name: data.name, ...stand }) : t('stand', stand)}
+            </p>
           </div>
         </div>
 
-        {data.slots.length === 0 ? (
+        {data.cards.length === 0 ? (
           <p className={styles.emptyLine}>{t('empty')}</p>
         ) : (
           <>
-            {/* Die Karten selbst, nicht ihr Zahlenschatten (Nutzer,
-                04.09.2026: „wenn man sein Deck zeigt, dann muss man die
-                Karten zeigen"). Hier standen bis dahin nur Balken je Bezirk,
-                in der Annahme, eine Wand gleicher Ruecken zeige nichts — sie
-                zeigte dafuer gar keine Karte.
+            {/* Die Kartenwand: Vorderseiten und Rueckseiten, sonst nichts.
+                Bis zum 06.09.2026 war das ein Panini-Album — gestrichelte
+                leere Felder mit dreistelliger Nummer neben den aufgedeckten
+                Karten. Im eigenen Profil ist das genau richtig, dort SIND die
+                Luecken die Aufgabe. Beim Teilen nicht (Nutzer: „es soll nicht
+                wie ein Panini-Album sein beim Deckteilen, ohne diese Zahlen
+                drauf und ohne diese dumme Linie, sondern wirklich nur die
+                verdeckte Karte und die offenen Karten zeigen").
 
-                Drei Zustaende, dieselbe Sprache wie im eigenen Album: eine
-                Karte, die ohnehin jeder Anonyme sehen darf, liegt offen da;
-                jede andere aufgedeckte liegt als Rueckseite AUF dem Album;
-                ein fehlender Platz liegt eingelassen DARIN, mit seiner
-                Nummer. Der Unterschied ist auf einen Blick zu sehen, und
-                nichts Bezahltes verlaesst dabei den Server. */}
+                Eine Rueckseite heisst hier „nicht fuer dich sichtbar" — sie
+                deckt die noch nicht umgedrehten Karten ab UND die, die der
+                Besitzer hat, aber nicht herzeigen darf. Der Unterschied geht
+                den Besucher nichts an, und die Zeile darueber sagt ohnehin,
+                wie viele umgedreht sind. */}
             <ul className={deck.cards}>
-              {data.slots.map((slot, i) => (
-                <li
-                  className={[
-                    deck.slot,
-                    slot.collected ? deck.slotOpen : deck.slotEmpty,
-                    slot.collected && !slot.image ? deck.slotBack : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  key={slot.no ?? `slot-${i}`}
-                >
-                  {slot.image ? (
-                    /* Nur der oeffentliche Satz — die Route liefert genau
-                       diese Bilder ohne Cookie aus. */
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={slot.image} alt="" loading="lazy" decoding="async" />
-                  ) : (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={CARD_BACK} alt="" loading="lazy" decoding="async" />
-                      {!slot.collected && slot.no && (
-                        <span className={deck.slotNo} aria-hidden="true">
-                          {slot.no}
-                        </span>
-                      )}
-                    </>
-                  )}
+              {data.cards.map((image, i) => (
+                <li className={deck.card} key={i}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className={image ? undefined : deck.cardBack}
+                    src={image ?? CARD_BACK}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </li>
               ))}
             </ul>
@@ -203,22 +241,11 @@ export default async function DeckPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* Der einzige Weg von hier weiter: die eigene Map. Ohne `?ref` — wer
-          schon hier ist, hat das Cookie von der Middleware bekommen. */}
+      {/* ── 3. Mach mit ─────────────────────────────────────────
+          Ohne `?ref` — wer schon hier ist, hat das Cookie von der Middleware
+          bekommen. */}
       <section className={`hv-section hv-wrap ${styles.section}`}>
-        <div className={styles.invite}>
-          <div className={styles.inviteCopy}>
-            <h2 className={styles.inviteTitle}>{t('ctaHeading')}</h2>
-            <p className={styles.inviteLine}>
-              {data.name ? t('ctaLineNamed', { name: data.name }) : t('ctaLine')}
-            </p>
-          </div>
-          <div className={styles.inviteAction}>
-            <Link href="/" className={styles.inviteButton}>
-              {t('cta')}
-            </Link>
-          </div>
-        </div>
+        <DeckJoin name={data.name} />
       </section>
     </main>
   );

@@ -18,9 +18,7 @@ interface Props {
   mustEats: MapMustEat[];
   faceUpIds: Set<string>;
   groupOf: (m: MapMustEat) => string;
-  /** Die Spielerkarte — steht als erste Karte neben der Kopfzeile. Sie kommt
-   *  als Angaben und nicht als fertiger Knoten herein, weil sie den
-   *  Punktestand des Albums traegt: den kennt nur diese Komponente. */
+  /** Die Spielerkarte — steht als erste Karte neben der Kopfzeile. */
   player: { name: string; avatarIdx: number; onPick: () => void };
   /** Der naechste Zug, zwischen Kopfzeile und Reiterleiste. */
   nextMove?: React.ReactNode;
@@ -100,8 +98,6 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
         <ProfilePlayerCard
           name={player.name}
           avatarIdx={player.avatarIdx}
-          done={collected}
-          total={allSlots.length}
           onPick={player.onPick}
         />
 
@@ -113,10 +109,9 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
 
               Ohne Zaehler daneben (Nutzer, 04.09.2026: „macht das dort oben
               Sinn, neben dem Profil?"). Er stand am rechten Rand, zwei
-              Spalten von der Karte entfernt, und sagte dasselbe, was die
-              Reiter „Alle 26" und „Fehlende 16" darunter schon sagen. Als
-              Punktestand AUF der Spielerkarte gehoert er dagegen jemandem —
-              so wie die Zahl auf einer Sammelkarte ihrem Spieler gehoert. */}
+              Spalten von der Karte entfernt, und sagte dasselbe wie die
+              Reiter darunter. Seit dem 06.09.2026 steht er nur noch dort —
+              auf „Alle", dem Reiter, der genau diese Menge schaltet. */}
           <h1 className="hv-title">{t('albumHeading')}</h1>
           {/* Wie das Spiel geht, in einem Satz — derselbe, der seit dem
               04.09.2026 auf dem geteilten Deck steht (Nutzer, 05.09.2026:
@@ -125,16 +120,16 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
               Erklaerarbeit ab: der sagt jetzt nur noch, WO die naechste Karte
               liegt. */}
           <p className={styles.howTo}>{t('howTo')}</p>
-          {/* Der Punktestand steht sichtbar auf der Spielerkarte, und der ist
-              ein Zahlenpaar in einem Knopf, dessen Name „Charakter aendern"
-              lautet — vorgelesen wird er also nie. Hier bleibt er als Satz. */}
+          {/* Sichtbar steht der Stand auf dem „Alle"-Reiter, und der ist ein
+              Zahlenpaar in einem Knopf. Hier bleibt er als Satz — und zwar
+              auch dann, wenn die Reiterleiste gar nicht rendert (ein einziger
+              Bezirk). */}
           {allSlots.length > 0 && (
             <span className={styles.srOnly}>
               {collected} {t('albumCount', { total: allSlots.length })}
             </span>
           )}
         </div>
-
       </div>
 
       {/* Eigene Zeile ueber die volle Breite, zwischen Kopfzeile und Reitern.
@@ -163,49 +158,63 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
           ist ein Schalter und kein achter Reiter — er schneidet quer durch
           jeden Bezirk. */}
       {groups.length > 1 && (
-          <div className={styles.filters} role="group" aria-label={t('albumFilterLabel')}>
+        <div className={styles.filters} role="group" aria-label={t('albumFilterLabel')}>
+          {/* „Alle" traegt seit dem 06.09.2026 denselben Zaehler wie die
+              Bezirke daneben: aufgedeckt von wie vielen. Vorher stand dort
+              die nackte Gesamtzahl, und der Stand stand als Punktestand auf
+              der Spielerkarte — an einer Figur, die eigentlich ein Knopf zum
+              Charakterwechsel ist (Nutzer: „die Zahl 10 von 25 muss weg, das
+              koennte halt bei ‚Alle' stehen"). Hier gehoert er hin: es ist
+              der Reiter, der genau diese Menge schaltet. */}
+          <button
+            type="button"
+            className={styles.chip}
+            aria-pressed={active === ALL}
+            aria-label={t('albumGroupProgress', {
+              group: t('albumFilterAll'),
+              done: collected,
+              total: allSlots.length,
+            })}
+            onClick={() => setFilter(ALL)}
+          >
+            <span className={styles.chipName}>{t('albumFilterAll')}</span>
+            <span className={styles.chipCount} aria-hidden="true">
+              {collected}/{allSlots.length}
+            </span>
+          </button>
+          {missingTotal > 0 && (
             <button
               type="button"
-              className={styles.chip}
-              aria-pressed={active === ALL}
-              onClick={() => setFilter(ALL)}
+              className={`${styles.chip} ${styles.chipMissing}`}
+              aria-pressed={missingOnly}
+              onClick={() => setMissingOnly((v) => !v)}
             >
-              <span className={styles.chipName}>{t('albumFilterAll')}</span>
-              <span className={styles.chipCount}>{allSlots.length}</span>
+              <span className={styles.chipName}>{t('albumFilterMissing')}</span>
+              <span className={styles.chipCount}>{missingTotal}</span>
             </button>
-            {missingTotal > 0 && (
+          )}
+          {groups.map((g) => {
+            const done = g.slots.filter((s) => s.collected).length;
+            return (
               <button
+                key={g.group}
                 type="button"
-                className={`${styles.chip} ${styles.chipMissing}`}
-                aria-pressed={missingOnly}
-                onClick={() => setMissingOnly((v) => !v)}
+                className={styles.chip}
+                aria-pressed={active === g.group}
+                aria-label={t('albumGroupProgress', {
+                  group: g.group,
+                  done,
+                  total: g.slots.length,
+                })}
+                onClick={() => setFilter(g.group)}
               >
-                <span className={styles.chipName}>{t('albumFilterMissing')}</span>
-                <span className={styles.chipCount}>{missingTotal}</span>
+                <span className={styles.chipName}>{g.group}</span>
+                <span className={styles.chipCount} aria-hidden="true">
+                  {done}/{g.slots.length}
+                </span>
               </button>
-            )}
-            {groups.map((g) => {
-              const done = g.slots.filter((s) => s.collected).length;
-              return (
-                <button
-                  key={g.group}
-                  type="button"
-                  className={styles.chip}
-                  aria-pressed={active === g.group}
-                  aria-label={t('albumGroupProgress', {
-                    group: g.group,
-                    done,
-                    total: g.slots.length,
-                  })}
-                  onClick={() => setFilter(g.group)}
-                >
-                  <span className={styles.chipName}>{g.group}</span>
-                  <span className={styles.chipCount} aria-hidden="true">
-                    {done}/{g.slots.length}
-                  </span>
-                </button>
-              );
-            })}
+            );
+          })}
         </div>
       )}
 

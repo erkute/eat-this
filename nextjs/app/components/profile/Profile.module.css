@@ -789,9 +789,45 @@ main.page .head {
   gap: 12px clamp(16px, 2vw, 28px);
   align-items: center;
   justify-content: space-between;
-  padding: clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 24px);
+  /* Etwas mehr Luft als die uebrigen Leisten: seit dem 06.09.2026 liegt links
+     ein Kartenfaecher darin, und der braucht Rand, sonst stossen die
+     gedrehten Ecken an die Kanten. */
+  padding: clamp(18px, 2vw, 26px) clamp(16px, 1.8vw, 24px);
   background: var(--profile-accent);
   border-radius: var(--et-radius-photo, 10px);
+}
+
+/* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf dem Gelb.
+   Sie ueberlappen wie eine Hand, die man jemandem hinhaelt — das ist die
+   Geste, um die es in dem Kasten geht. */
+.inviteFan {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.inviteFan img {
+  position: relative;
+  display: block;
+  width: clamp(52px, 5.2vw, 68px);
+  aspect-ratio: 1539 / 2115;
+  object-fit: cover;
+  border-radius: 5px;
+  filter: drop-shadow(0 8px 14px rgba(21, 18, 14, 0.34));
+}
+
+.inviteFan img:first-child {
+  transform: rotate(-9deg);
+}
+
+.inviteFan img:nth-child(2) {
+  z-index: 1;
+  margin-left: -18px;
+}
+
+.inviteFan img:last-child {
+  margin-left: -18px;
+  transform: rotate(9deg);
 }
 
 .inviteCopy {

@@ -29,7 +29,6 @@ const COPY = {
     coveredKicker: 'Noch verdeckt',
     coveredTitle: (n: number) => `${n} warten vor Ort.`,
     coveredBody: 'Diese Karten deckst du am Spot auf. Dann gehören sie dir.',
-    coveredSpotsLabel: 'Diese Spots halten sie',
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
     closeBody:
@@ -51,7 +50,6 @@ const COPY = {
     coveredKicker: 'Still face-down',
     coveredTitle: (n: number) => `${n} are waiting on site.`,
     coveredBody: 'You flip these cards at the spot. Then they are yours.',
-    coveredSpotsLabel: 'The spots holding them',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:
@@ -142,7 +140,6 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           coveredKicker: c.coveredKicker,
           coveredTitle: c.coveredTitle(coveredCount),
           coveredBody: c.coveredBody,
-          coveredSpotsLabel: c.coveredSpotsLabel,
         }}
       />
 

@@ -17,7 +17,6 @@ export interface GalleryCopy {
   coveredKicker: string;
   coveredTitle: string;
   coveredBody: string;
-  coveredSpotsLabel: string;
 }
 
 interface Props {
@@ -68,20 +67,12 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
 
-  // The covered cards carry no dish, but their spot is public — the map's
-  // locked list already names it. Spelled out under the wall of backs, the
-  // names are the strongest piece of advertising on the page.
-  //
-  // Sorted here rather than inherited from the band: the cards run in card
-  // number order, and a run of spot names in that order reads as shuffled.
-  // A name list is scanned for one name, so it goes alphabetically.
-  const coveredSpots = useMemo(() => {
-    const names: string[] = [];
-    for (const m of covered) {
-      if (!names.includes(m.restaurant.name)) names.push(m.restaurant.name);
-    }
-    return names.sort((a, b) => a.localeCompare(b, 'de'));
-  }, [covered]);
+  /* Hier stand bis zum 06.09.2026 die Liste aller Lokale, die eine verdeckte
+     Karte halten — als „die stärkste Werbung der Seite" gedacht. Sie ist raus
+     (Betreiber): welche Spots eine Karte tragen, ist Teil der Überraschung,
+     und mit dem Kategoriefilter ließ sich daraus der Inhalt eines Packs
+     zusammensetzen, während die Pack-Seite ihn bewusst verschweigt. Die Namen
+     verlassen jetzt auch den Server nicht mehr — siehe `trimCoveredSpot`. */
 
   /* Die Slots im Raster — aus ihnen fliegt die Karte heraus und in sie fliegt
      sie zurück. */
@@ -202,12 +193,6 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
               the repetition of the card back stops reading as a rendering
               fault and starts reading as a sealed deck. */}
           <div className={styles.gridDense}>{covered.map(renderCard)}</div>
-          {coveredSpots.length > 0 && (
-            <p className={styles.spotList}>
-              <span className={styles.spotListLabel}>{copy.coveredSpotsLabel}</span>
-              {coveredSpots.join(' · ')}
-            </p>
-          )}
         </section>
       )}
 

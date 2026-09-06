@@ -76,13 +76,22 @@ export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData
   };
 }
 
-/** A covered card renders its spot's NAME and nothing else, so that is all its
- *  restaurant ref keeps here — `mapMustEatsQuery` also projects `address` and
- *  `photo`, and shipping those for every covered card is payload nobody
- *  renders. */
+/**
+ * Eine verdeckte Karte verrät ihren Spot nicht.
+ *
+ * Bis zum 06.09.2026 behielt sie den Namen — die Seite druckte darunter die
+ * Liste aller Lokale, die eine Karte halten. Die ist raus (Betreiber: „das ist
+ * doch Teil der Überraschung"), und damit hat auch die Nutzlast dort nichts
+ * mehr verloren: was im RSC-Payload steht, steht im Quelltext.
+ *
+ * Die Felder bleiben als leere Zeichenketten statt zu verschwinden, weil
+ * `MapMustEat.restaurant` sie überall sonst braucht — auf der Map und im
+ * Album, wo der Spot einer verdeckten Karte gerade die Aufgabe IST. Nur diese
+ * eine Seite kennt ihn nicht.
+ */
 function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
-  const { _id, name, slug, lat, lng } = mustEat.restaurant;
-  return { ...mustEat, restaurant: { _id, name, slug, lat, lng } };
+  const { _id } = mustEat.restaurant;
+  return { ...mustEat, restaurant: { _id, name: '', slug: '', lat: 0, lng: 0 } };
 }
 
 function byCardNumber(a: MapMustEat, b: MapMustEat): number {

@@ -89,7 +89,11 @@ describe('initial surface data selectors', () => {
     ]);
   });
 
-  it('strips a covered card down to its spot name', () => {
+  /* Welche Spots eine Karte tragen, ist Teil der Überraschung (Betreiber,
+     06.09.2026) — auf dieser Seite steht der Name deshalb nirgends, auch nicht
+     im RSC-Payload: was dort steht, steht im Quelltext. Die aufgedeckte Karte
+     behält alles, sie zeigt ihren Spot ja ohnehin. */
+  it('strips a covered card of its spot entirely', () => {
     const data = mapData();
     data.revealedMustEatIds = ['must-eat-1'];
     const catalog = data.mustEats.map((m) => ({
@@ -99,12 +103,16 @@ describe('initial surface data selectors', () => {
 
     const selected = selectMustEatsCatalog({ ...data, mustEats: catalog });
 
-    // The face-up card keeps everything; a covered one renders only its spot
-    // name — Adresse und Foto sind Nutzlast, die dort niemand rendert.
+    expect(selected.mustEats[0].restaurant.name).toBe('Spot 1');
     expect(selected.mustEats[0].restaurant.address).toBe('Testallee 1');
-    expect(selected.mustEats[1].restaurant.address).toBeUndefined();
-    expect(selected.mustEats[1].restaurant.photo).toBeUndefined();
-    expect(selected.mustEats[1].restaurant.name).toBe('Spot 2');
+
+    const covered = selected.mustEats[1].restaurant;
+    expect(covered.name).toBe('');
+    expect(covered.slug).toBe('');
+    expect(covered.address).toBeUndefined();
+    expect(covered.photo).toBeUndefined();
+    // Die id bleibt — sie ist undurchsichtig und trägt das Raster.
+    expect(covered._id).toBe('restaurant-2');
   });
 
   it('orders face-up cards first, then the covered ones — both by card number', () => {

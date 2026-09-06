@@ -126,6 +126,15 @@ export default async function DeckPage({ params }: PageProps) {
       <section
         className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}
       >
+        {/* Ganz oben, ueber der Figur und ueber die volle Breite: der eine
+            Satz, was Eat This ist. Er stand erst in der Spalte NEBEN der
+            Spielerkarte und war dort eine Bildunterschrift zum Charakter —
+            gemeint ist er als Ansage der Seite (Nutzer, 06.09.2026: „die
+            Eat-This-Info ueber dem Deck, und dann kommt der Avatar und das
+            Wording: Ersan hat 10 von 25 Karten umgedreht"). Alles Weitere
+            steht in der Tafel unter dem Deck. */}
+        <p className={deck.intro}>{t('intro')}</p>
+
         <div className={deck.masthead}>
           <ProfilePlayerCard name={data.name ?? t('anonymous')} avatarIdx={data.avatar} />
 
@@ -139,10 +148,6 @@ export default async function DeckPage({ params }: PageProps) {
             <h1 className="hv-title">
               {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
             </h1>
-            {/* Ein Satz Produkt, ein Satz Stand — mehr braucht es nicht, um
-                die Karten darunter zu verstehen. Alles Weitere steht in der
-                Tafel unter dem Deck. */}
-            <p className={deck.intro}>{t('intro')}</p>
             <p className={deck.howTo}>
               {data.name ? t('standNamed', { name: data.name, ...stand }) : t('stand', stand)}
             </p>

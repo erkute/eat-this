@@ -37,17 +37,18 @@
   justify-items: start;
 }
 
-/* Der eine Satz Produkt ueber dem Deck: was Eat This ist. Er fuehrt, der
-   Stand darunter folgt — also Papier statt Weiss-Stufe. */
+/* Der eine Satz Produkt, ganz oben ueber die volle Breite — die Ansage der
+   Seite, nicht die Bildunterschrift zur Figur. Er fuehrt, der Stand neben der
+   Karte darunter folgt: also Papier hier, Weiss-Stufe dort. */
 .intro {
-  max-width: 48ch;
+  max-width: 62ch;
   text-wrap: pretty;
-  margin: 8px 0 0;
+  margin: 0 0 clamp(20px, 2.6vw, 30px);
   color: var(--et-home-inverse-text, #fff);
   font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.3vw, 18px);
+  font-size: clamp(17px, 1.6vw, 22px);
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 /* Der Stand des Besitzers, eine Zeile unter dem Satz darueber. */

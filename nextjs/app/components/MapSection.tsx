@@ -26,7 +26,6 @@ import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { getDb } from '@/lib/firebase/config';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -191,52 +190,8 @@ export default function MapSection({
     trackEvent('map_opened', { tier: userTier });
   }, [isActive, userTier]);
 
-  // Live-refetch map data whenever the user's entitlements change (e.g. after
-  // purchase). Firestore SDK is code-split (see getDb) — loaded on demand here
-  // so it stays out of the landing first-load bundle.
-  useEffect(() => {
-    if (!uid) return;
-    let unsub = () => {};
-    let active = true;
-    void (async () => {
-      const [{ collection, onSnapshot }, db] = await Promise.all([
-        import('firebase/firestore'),
-        getDb(),
-      ]);
-      if (!active) return;
-      const ref = collection(db, 'users', uid, 'entitlements');
-      unsub = onSnapshot(ref, () => {
-        refetchMapData();
-      });
-    })();
-    return () => {
-      active = false;
-      unsub();
-    };
-  }, [uid, refetchMapData]);
-
-  // Live-refetch when a referral bonus lands — covers both the inviter
-  // (friend just signed up) and the friend (their welcome bonus was written).
-  useEffect(() => {
-    if (!uid) return;
-    let unsub = () => {};
-    let active = true;
-    void (async () => {
-      const [{ collection, onSnapshot }, db] = await Promise.all([
-        import('firebase/firestore'),
-        getDb(),
-      ]);
-      if (!active) return;
-      const ref = collection(db, 'users', uid, 'referralBonuses');
-      unsub = onSnapshot(ref, () => {
-        refetchMapData();
-      });
-    })();
-    return () => {
-      active = false;
-      unsub();
-    };
-  }, [uid, refetchMapData]);
+  /* Das Nachladen bei neuen Karten (Kauf, Starter Pack, Einladung) haengt seit
+     dem 06.09.2026 in useMapData selbst — dort bekommt es auch das Profil. */
 
   // Swipe the open detail down past peek → close it (back to the list). The
   // close logic lives in the handlers below, so route the sheet's dismiss

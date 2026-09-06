@@ -291,8 +291,6 @@ const en = {
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
     savedHeading: 'Saved Spots',
-    cityKicker: 'Berlin',
-    cityCount: 'of {total} spots on your map',
     emptySpots: 'Nothing saved yet. Tap a spot on the map and hit the heart — it lands here.',
     toMap: 'To the map',
     removeSaved: 'Remove {name} from saved',
@@ -742,8 +740,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
     savedHeading: 'Gespeicherte Spots',
-    cityKicker: 'Berlin',
-    cityCount: 'von {total} Spots auf deiner Map',
     emptySpots:
       'Noch nichts gespeichert. Tipp auf der Map einen Spot an und dr\u00fcck aufs Herz — er landet hier.',
     toMap: 'Zur Map',

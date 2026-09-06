@@ -126,10 +126,14 @@ export default function ReferralToastListener() {
             if (chg.type !== 'added' || seen.has(chg.doc.id)) return;
             seen.add(chg.doc.id);
             if (chg.doc.data().source === 'invited') {
+              /* Eine Karte, keine Spots: seit dem 06.09.2026 zahlt die
+                 Einladung in Must-Eat-Karten, die Spots liegen fuer jeden
+                 frei. NotificationToast erkennt die Zeile an „deinen Link" /
+                 „your link" und setzt Augenbraue und Titel dazu. */
               const msg =
                 langRef.current === 'en'
-                  ? 'Someone joined through your link — new spots unlocked!'
-                  : 'Jemand ist über deinen Link gestartet — neue Spots freigeschaltet!';
+                  ? 'Someone joined through your link — a new card is in your deck.'
+                  : 'Jemand ist über deinen Link gestartet — eine neue Karte liegt in deinem Deck.';
               window.showNotification?.(msg, 5000);
             }
           });

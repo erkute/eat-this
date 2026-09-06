@@ -115,18 +115,24 @@ export default function ProfileAlbum({
 
   /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
      aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
-     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts). */
+     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts).
+
+     Gezaehlt werden die STEMPEL, nicht die offenen Karten: das Starter Pack
+     legt in jedes frische Deck fuenfzehn offene Karten, ein Kauf weitere —
+     ein Abzeichen dafuer waere eine Quittung fuer die Anmeldung. Die Reiter
+     darueber zaehlen weiter offen gegen alle; das ist der Stand des Decks,
+     das hier ist, was jemand dafuer getan hat. */
   const badges = useMemo(
     () =>
       computeBadges({
-        collected,
+        stamped: allSlots.filter((slot) => slot.stamped).length,
         groups: groups.map((g) => ({
           group: g.group,
-          done: g.slots.filter((s) => s.collected).length,
+          done: g.slots.filter((s) => s.stamped).length,
           total: g.slots.length,
         })),
       }),
-    [collected, groups]
+    [allSlots, groups]
   );
 
   return (

@@ -82,6 +82,57 @@ describe('ProfileAlbum', () => {
     expect(screen.getByRole('button', { name: 'Pizza' })).toBeTruthy();
   });
 
+  /* Das Starter Pack legt in jedes frische Deck fuenfzehn offene Karten, ein
+     Kauf weitere. Ein Abzeichen zaehlt davon nichts — nur, wo jemand war.
+     Sonst traegt jedes Konto eine Minute nach der Anmeldung „10 Karten", und
+     ein gekauftes Pack macht einen Bezirk „komplett", in dem nie jemand
+     stand. */
+  it('vergibt Abzeichen fuer Stempel, nicht fuer offene Karten', () => {
+    const mustEats: MapMustEat[] = [
+      {
+        _id: 'onsite',
+        dish: 'Ramen',
+        image: '/api/must-eat-image/onsite',
+        order: 1,
+        restaurant: { _id: 'r1', name: 'A', slug: 'a', lat: 52.5, lng: 13.4 },
+      },
+      {
+        _id: 'gifted',
+        dish: 'Pizza',
+        image: '/api/must-eat-image/gifted',
+        order: 2,
+        restaurant: { _id: 'r2', name: 'B', slug: 'b', lat: 52.5, lng: 13.4 },
+      },
+    ];
+
+    /* Zwei offene Karten, keine abgestempelt: nichts verdient. */
+    const { rerender } = render(
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['onsite', 'gifted'])}
+        stampedIds={new Set()}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
+    );
+    expect(screen.queryByText('badgesHeading')).toBeNull();
+
+    /* Eine davon vor Ort umgedreht: die erste Karte — aber der Bezirk ist
+       nicht komplett, die zweite liegt nur offen. */
+    rerender(
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['onsite', 'gifted'])}
+        stampedIds={new Set(['onsite'])}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
+    );
+    expect(screen.getByText('badgesHeading')).toBeTruthy();
+    expect(screen.getByText('badgeFirstCard')).toBeTruthy();
+    expect(screen.queryByText('badgeDistrict')).toBeNull();
+  });
+
   it('loads protected Must-Eat images directly so the browser sends its capability cookie', () => {
     const mustEats: MapMustEat[] = [
       {

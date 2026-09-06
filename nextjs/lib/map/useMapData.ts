@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { auth } from '@/lib/firebase/config';
+import { auth, getDb } from '@/lib/firebase/config';
 import type { MapRestaurant, MapMustEat } from '../types';
 import type { CategoryDef } from '../categories';
 import type { InitialMapData } from './server-initial-map-data';
@@ -176,6 +176,47 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
       }
     })();
   }, [uid, authLoading, tick]);
+
+  /* Nachladen, sobald dem Konto Karten zufallen — Kauf, Starter Pack,
+     Einladungsbonus. Alle drei schreiben in eine der beiden Collections
+     unten, und der Server rechnet die Oberflaeche daraus.
+
+     Hier im Hook und nicht im Aufrufer: bis zum 06.09.2026 hingen die beiden
+     Listener in MapSection, also nur auf der Map. Das Profil holte dieselbe
+     Nutzlast ueber denselben Hook, bekam aber nichts mit — und genau dort
+     landet, wer sich ueber den Profil-Guard anmeldet. Das Starter Pack wird
+     nach der Anmeldung im Hintergrund eingeloest (ReferralToastListener),
+     waehrend der erste Fetch hier schon laeuft: ohne Listener zeigte das Deck
+     dann fuenf Karten statt fuenfundzwanzig, bis jemand neu lud, und der
+     Cache unten hielt die fuenf fest.
+
+     Firestore ist code-gesplittet (siehe getDb) und wird erst hier geladen,
+     damit es aus dem ersten Bundle der Startseite herausbleibt. */
+  useEffect(() => {
+    if (!uid) return;
+    let active = true;
+    const unsubs: (() => void)[] = [];
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ]);
+      if (!active) return;
+      for (const name of ['entitlements', 'referralBonuses'] as const) {
+        const ref = collection(db, 'users', uid, name);
+        /* Der erste Snapshot kommt sofort und loest damit einen zweiten Fetch
+           direkt nach dem ersten aus. Der ist billig, und das Gegenstueck —
+           ein Riegel, der die erste Lieferung ueberspringt — verpasst genau
+           den Fall, fuer den der Listener da ist: das Dokument, das zwischen
+           Fetch-Start und Snapshot-Anmeldung angelegt wurde. */
+        unsubs.push(onSnapshot(ref, () => refetch()));
+      }
+    })();
+    return () => {
+      active = false;
+      for (const unsub of unsubs) unsub();
+    };
+  }, [uid, refetch]);
 
   return {
     restaurants,

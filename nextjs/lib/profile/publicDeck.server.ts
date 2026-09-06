@@ -18,34 +18,6 @@ export interface PublicDeckGroup {
 }
 
 /**
- * Ein Platz im geteilten Deck — die Karte, so weit sie oeffentlich sein darf.
- *
- * Bis zum 04.09.2026 gab es diese Ebene nicht: die Seite zeigte nur Balken je
- * Bezirk, in der Annahme, eine Wand gleicher Kartenruecken zeige nichts. Sie
- * zeigte damit gar keine Karte (Nutzer: „wenn man sein Deck zeigt, dann muss
- * man die Karten zeigen").
- *
- * `image` traegt NUR Karten, die ohnehin jedem anonymen Besucher offen liegen
- * — dieselbe Menge, die `/api/must-eat-image` ohne Cookie ausliefert
- * (`getPublicMustEatIds`, der kuratierte Anon-Satz plus Spot des Tages). Jede
- * andere aufgedeckte Karte kommt hier als Rueckseite: `collected: true`, aber
- * kein Bild. Wer diese Grenze verschiebt, verschenkt den bezahlten Teil des
- * Produkts an jeden, der einen geteilten Link hat.
- *
- * Kein Gericht, kein Lokal, keine Beschreibung — die Nummer steht ohnehin auf
- * der Karte, und wer die Nummer kennt, weiss davon nichts.
- */
-export interface PublicDeckSlot {
-  /** Die Nummer unten rechts auf der Karte, dreistellig. */
-  no: string | null;
-  collected: boolean;
-  /** Vor Ort umgedreht statt gekauft. Das ist keine bezahlte Angabe, sondern
-   *  eine Leistung — und genau die, mit der ein geteiltes Deck angibt. */
-  stamped: boolean;
-  image: string | null;
-}
-
-/**
  * Was von einem Deck oeffentlich sichtbar ist.
  *
  * Die Aufzaehlung IST die Zugriffsgrenze: was hier nicht steht, verlaesst den
@@ -57,10 +29,34 @@ export interface PublicDeck {
   /** Vorname aus dem Anzeigenamen. Null, wenn das Konto keinen gepflegt hat. */
   name: string | null;
   avatar: 1 | 2 | 3;
+  /** Wie viele Karten umgedreht sind, und wie viele es ueberhaupt gibt. Der
+   *  Satz, mit dem die Seite fuer das Produkt wirbt („hat 10 von 25
+   *  umgedreht, 15 fehlen noch") — nicht mehr der Punktestand auf der
+   *  Spielerkarte, den traegt sie seit dem 06.09.2026 nirgends mehr. */
   revealed: number;
   total: number;
-  /** Alle Plaetze in Kartenreihenfolge — 001, 002, 003 …, wie im eigenen Deck. */
-  slots: PublicDeckSlot[];
+  /**
+   * Eine Karte je Platz, in Kartenreihenfolge (001, 002, 003 …, wie im
+   * eigenen Deck): die Bild-URL, wenn die Karte offen liegen darf, sonst
+   * `null` fuer die Rueckseite.
+   *
+   * Ein Bild bekommen NUR Karten, die ohnehin jedem anonymen Besucher offen
+   * liegen — dieselbe Menge, die `/api/must-eat-image` ohne Cookie
+   * ausliefert (`getPublicMustEatIds`, der kuratierte Anon-Satz plus Spot des
+   * Tages). Jede andere Karte ist hier `null`, ob aufgedeckt oder nicht. Wer
+   * diese Grenze verschiebt, verschenkt den bezahlten Teil des Produkts an
+   * jeden, der einen geteilten Link hat.
+   *
+   * Bis zum 06.09.2026 stand hier ein Objekt je Platz — Nummer, Stand, Bild.
+   * Das Raster sah damit aus wie ein Panini-Album: gestrichelte leere Felder
+   * mit Nummer neben aufgedeckten Karten. Beim Teilen ist das die falsche
+   * Form (Nutzer: „wirklich nur die verdeckte Karte und die offenen Karten
+   * zeigen") — also weiss die Seite jetzt auch nichts mehr davon. Dass eine
+   * Rueckseite „noch nicht umgedreht" oder „umgedreht, aber nicht fuer dich"
+   * heisst, ist damit von aussen nicht zu unterscheiden, und genau so ist es
+   * gemeint.
+   */
+  cards: (string | null)[];
   groups: PublicDeckGroup[];
 }
 
@@ -162,23 +158,23 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   /* Dieselbe Funktion wie im eigenen Deck, nicht eine zweite Rechnung
      daneben: Reihenfolge und Nummerierung muessen zwischen /profile und
      /deck/<uid> uebereinstimmen, sonst traegt dieselbe Karte zwei Zahlen. */
+  /* Ohne Stempel-Menge: das geteilte Deck unterscheidet bewusst NICHT, ob eine
+     Rueckseite „noch nicht umgedreht" oder „umgedreht, aber nicht fuer dich"
+     heisst (siehe PublicDeck.cards). Ein Stempel waere genau diese
+     Unterscheidung — er bleibt dem eigenen Album vorbehalten. */
   const album = buildAlbum(
     ownedMustEats,
     surface.faceUpIds,
-    unlockedIds,
+    new Set(),
     (m) => districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT
   );
 
-  const slots: PublicDeckSlot[] = album.slots.map((slot) => ({
-    no: slot.no,
-    collected: slot.collected,
-    stamped: slot.stamped,
-    /* Nur der oeffentliche Satz bekommt ein Bild — siehe PublicDeckSlot. */
-    image:
-      slot.collected && publicMustEatIds.has(slot.id)
-        ? `/api/must-eat-image/${encodeURIComponent(slot.id)}`
-        : null,
-  }));
+  /* Nur der oeffentliche Satz bekommt ein Bild — siehe PublicDeck.cards. */
+  const cards = album.slots.map((slot) =>
+    slot.collected && publicMustEatIds.has(slot.id)
+      ? `/api/must-eat-image/${encodeURIComponent(slot.id)}`
+      : null
+  );
 
   const groups = album.groups.map((g) => ({
     district: g.group,
@@ -189,9 +185,9 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   return {
     name: firstNameOf(account.displayName),
     avatar: avatarOf(profileSnap?.data()?.avatar),
-    revealed: slots.filter((s) => s.collected).length,
-    total: slots.length,
-    slots,
+    revealed: album.slots.filter((s) => s.collected).length,
+    total: album.slots.length,
+    cards,
     groups,
   };
 });

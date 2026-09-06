@@ -221,20 +221,58 @@ const en = {
     signIn: 'Sign in',
   },
   deck: {
-    kicker: 'A deck on Eat This',
-    anonymous: 'This deck',
+    anonymous: 'this deck',
     metaTitle: 'A deck on Eat This',
     metaTitleNamed: "{name}'s deck on Eat This",
-    deckHeading: 'The deck',
+    /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
+       unter dem Deck. */
+    intro:
+      'Eat This is a map of Berlin spots we actually recommend. Every Must Eat is a collectible card \u2014 and it only flips on site.',
+    explainKicker: 'New here?',
+    explainTitle: 'What is Eat This?',
+    explainLead:
+      'Some spots carry a Michelin star, some are tiny places you would never find without a tip. What they have in common: we would recommend them ourselves.',
+    step1Kicker: 'Must Eat',
+    step1Title: 'You have to try this.',
+    step1Body:
+      'Every card is a dish we swear by \u2014 our clear recommendation for that one restaurant.',
+    step2Kicker: 'How it works',
+    step2Title: 'Go. Tap. Open.',
+    step2Body:
+      'Some cards lie face up, some face down. A face-down one only flips on site \u2014 one tap while you stand in front of the spot.',
+    step3Kicker: 'Your deck',
+    step3Title: "And then it's yours.",
+    step3Body: 'Every card you flip joins your deck. That is how the deck above was built.',
+    cardsAlt: 'Two Eat This cards side by side, one face down and one face up',
     deckHeadingNamed: "{name}'s deck",
-    howTo:
-      "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
+    deckHeading: 'The deck',
+    /* Der Stand als Satz, nicht als Punktestand auf der Figur. */
+    standNamed:
+      '{name} has flipped {done} of {total} cards. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
+    stand:
+      '{done} of {total} cards are flipped. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
     empty: 'No cards on this map yet.',
-    ctaHeading: 'Open your own map',
-    stamped: 'Been there',
-    ctaLine: 'Your own cards are waiting all over Berlin.',
-    ctaLineNamed: '{name} is already collecting. Your own cards are waiting all over Berlin.',
-    cta: 'Start now',
+    /* Dieselbe Tafel wie der Album-Abschnitt der Startseite, also auch
+       dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
+       ein Freund daneben. */
+    joinKicker: 'Free',
+    joinTitle: 'Your album',
+    joinLead: '{name} is already collecting. Start your own deck\u00a0\u2014 free.',
+    joinLeadAnon: 'Start your own deck\u00a0\u2014 free.',
+    joinSentLead: "We've sent your link. One click and you're in.",
+    joinHint: 'We send you a sign-in link.',
+    joinEmailLabel: 'Email address',
+    joinEmailPlaceholder: 'your@email.com',
+    joinCta: 'Start your album',
+    joinSending: 'Sending\u2026',
+    joinSent: 'Check your mail',
+    joinEmptyEmail: 'Add your email first.',
+    joinInvalidEmail: 'That does not look like an email yet.',
+    joinArtAlt: 'Eat This collectible card, face down',
+    browse: 'Just looking? Open the Berlin Food Map',
+    ctaHeadingIn: 'Back to your own deck',
+    ctaLineIn: 'Your cards are waiting all over Berlin.',
+    ctaIn: 'Open my deck',
   },
   profile: {
     heroKicker: 'Your profile',
@@ -526,7 +564,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyTitle: 'Nichts dabei.',
     emptyKickerSearch: 'Deine Suche',
     emptyKickerFilter: 'Deine Filter',
-    emptyBodySearch: 'Zu „{query}" haben wir nichts. Probier einen Namen, eine Küche oder einen Bezirk.',
+    emptyBodySearch:
+      'Zu „{query}" haben wir nichts. Probier einen Namen, eine Küche oder einen Bezirk.',
     emptyBodyFilter: 'Zusammen lassen sie nichts übrig. Lockere einen — oder fang neu an.',
     emptyReset: 'Filter zurücksetzen',
     emptyResetSearch: 'Suche löschen',
@@ -596,24 +635,71 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     decline: 'Ablehnen',
   },
   deck: {
-    anonymous: 'Dieses Deck',
+    anonymous: 'dieses Deck',
     metaTitle: 'Ein Deck bei Eat This',
     metaTitleNamed: 'Das Deck von {name} bei Eat This',
-    deckHeading: 'Das Deck',
+    /* Ueber dem Deck: was das hier ist, in einem Atemzug — mehr braucht es
+       nicht, um die Kartenwand darunter zu verstehen. Der ausfuehrliche Teil
+       steht UNTER dem Deck (Nutzer, 06.09.2026: „was ist Eat This muss unter
+       dem Deck, oder etwas ueber und etwas unter dem Deck an Infos").
+
+       Davor stand die ganze Erklaerung ueber dem Deck und schob es aus dem
+       ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
+       Beides war zu viel von einer Seite. */
+    intro:
+      'Eat This ist eine Map mit Berliner Spots, die wir wirklich empfehlen. Jedes Must Eat ist eine Sammelkarte \u2014 und aufgedeckt wird sie vor Ort.',
+    explainKicker: 'Neu hier?',
+    explainTitle: 'Was ist Eat This?',
+    explainLead:
+      'Manche Spots tragen einen Michelin-Stern, manche sind kleine L\u00e4den, die man ohne Tipp nie findet. Was sie verbindet: wir w\u00fcrden sie selbst empfehlen.',
+    step1Kicker: 'Must Eat',
+    step1Title: 'Musst du probieren.',
+    step1Body:
+      'Jede Karte ist ein Gericht, das wir dir ans Herz legen \u2014 unsere klare Empfehlung f\u00fcr genau dieses Restaurant.',
+    step2Kicker: "So geht's",
+    step2Title: 'Hin. Tap. Offen.',
+    step2Body:
+      'Manche Karten liegen offen, manche verdeckt. Eine verdeckte drehst du nur vor Ort um \u2014 mit einem Tap, wenn du davor stehst.',
+    step3Kicker: 'Dein Deck',
+    step3Title: 'Und sie geh\u00f6rt dir.',
+    step3Body:
+      'Jede aufgedeckte Karte wandert in dein Deck. Genau so ist das Deck hier oben entstanden.',
+    cardsAlt:
+      'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der R\u00fcckseite nach oben, eine aufgedeckt',
     deckHeadingNamed: '{name}s Deck',
-    /* Der Handgriff, nicht die Regel: „Aufgedeckt wird vor Ort" sagte, DASS
-       etwas passiert, aber nicht, was man tut (Nutzer, 04.09.2026). Dieselben
-       Worte, die die Karte auf der Map selbst benutzt. */
-    howTo:
-      'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
+    deckHeading: 'Das Deck',
+    /* Der Stand als Satz. Als Zahlenpaar stand er bis zum 06.09.2026 auf der
+       Spielerkarte und sagte einem Fremden „10/25", bevor er wusste, wovon
+       (Nutzer: „das braucht es nicht"). Als Satz sagt er, was er meint — und
+       er sagt es an der Stelle, an der es um den Freund geht. */
+    standNamed:
+      '{name} hat {done} von {total} Karten umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
+    stand:
+      '{done} von {total} Karten sind umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
     empty: 'Auf dieser Map liegen noch keine Karten.',
-    ctaHeading: 'Mach deine eigene Map auf',
-    /* Nicht mehr „Jeder Spot hat sein Must Eat" — das stimmt nicht, laengst
-       nicht jeder traegt eine Karte (Nutzer, 04.09.2026). */
-    stamped: 'War da',
-    ctaLine: 'Deine eigenen Karten warten \u00fcberall in Berlin.',
-    ctaLineNamed: '{name} sammelt schon. Deine eigenen Karten warten \u00fcberall in Berlin.',
-    cta: 'Jetzt starten',
+    /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
+       auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
+       auf der Startseite — das Album, kostenlos. */
+    joinKicker: 'Gratis',
+    joinTitle: 'Dein Album',
+    joinLead: '{name} sammelt schon. Fang dein eigenes Deck an\u00a0\u2014 kostenlos.',
+    joinLeadAnon: 'Fang dein eigenes Deck an\u00a0\u2014 kostenlos.',
+    joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
+    joinHint: 'Wir schicken dir einen Link zum Einloggen.',
+    joinEmailLabel: 'E-Mail Adresse',
+    joinEmailPlaceholder: 'deine@email.com',
+    joinCta: 'Album anlegen',
+    joinSending: 'Sende\u2026',
+    joinSent: 'Check deine Mail',
+    joinEmptyEmail: 'Bitte gib deine E-Mail ein.',
+    joinInvalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
+    joinArtAlt: 'Eat This Sammelkarte, verdeckt',
+    /* Der leise Weg fuer alle, die sich noch nicht anmelden wollen — statt
+       einer Sackgasse. */
+    browse: 'Erst mal umsehen? Zur Berlin Food Map',
+    ctaHeadingIn: 'Zur\u00fcck zu deinem eigenen Deck',
+    ctaLineIn: 'Deine Karten warten \u00fcberall in Berlin.',
+    ctaIn: 'Mein Deck',
   },
   profile: {
     heroKicker: 'Dein Profil',

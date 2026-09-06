@@ -1,5 +1,5 @@
 // nextjs/lib/buddy/retrieval.test.ts
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   buildSpotsQuery,
   buildSpotsParams,
@@ -15,7 +15,17 @@ import {
   vibeTokens,
   __resetNameIndexCache,
 } from './retrieval';
+import { ARTICLE_MIN_SCORE } from './retrieval';
+import { semanticRank } from './semanticSearch';
 import type { ArticleResult } from './types';
+
+// Der echte semanticRank braucht Netz und einen Key; hier wird nur die
+// Verdrahtung geprueft. Ohne Ueberschreiben verhaelt er sich wie im Test
+// ohnehin: er gibt null zurueck, und der Aufrufer nimmt den Keyword-Weg.
+vi.mock('./semanticSearch', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./semanticSearch')>();
+  return { ...actual, semanticRank: vi.fn(actual.semanticRank) };
+});
 import { OPEN_STATUS_LABELS } from '@/lib/map/openingHours';
 
 describe('buildSpotsQuery', () => {
@@ -209,7 +219,64 @@ describe('searchSpots', () => {
 });
 
 describe('searchArticles', () => {
-  it('queries newsArticle with the wildcarded term and returns results', async () => {
+  beforeEach(() => {
+    vi.mocked(semanticRank).mockReset();
+  });
+
+  const article = (slug: string): ArticleResult => ({
+    title: slug,
+    slug,
+    excerpt: null,
+  });
+
+  it('holt die semantisch bestplatzierten Artikel und behaelt deren Rangfolge', async () => {
+    vi.mocked(semanticRank).mockResolvedValue([
+      { slug: 'beste-cafes-berlin', score: 0.67 },
+      { slug: 'kolo-coffee-berlin', score: 0.59 },
+      { slug: 'donuts-berlin', score: 0.2 }, // unter der Schwelle
+    ]);
+    const calls: Array<{ query: string; params: unknown }> = [];
+    const fakeClient = {
+      fetch: async (query: string, params: unknown) => {
+        calls.push({ query, params });
+        // GROQ liefert Dokumentreihenfolge, hier absichtlich verdreht.
+        return [article('kolo-coffee-berlin'), article('beste-cafes-berlin')];
+      },
+    };
+    const out = await searchArticles({ query: 'Was macht Berliner Kaffee besonders' }, 'de', {
+      client: fakeClient,
+    });
+    expect(out.map((a) => a.slug)).toEqual(['beste-cafes-berlin', 'kolo-coffee-berlin']);
+    expect(calls[0].params).toMatchObject({
+      slugs: ['beste-cafes-berlin', 'kolo-coffee-berlin'],
+      locale: 'de',
+    });
+    expect(calls[0].query).not.toContain('match $q');
+  });
+
+  it('liefert nichts, wenn kein Artikel die Schwelle nimmt — und fragt Sanity gar nicht erst', async () => {
+    vi.mocked(semanticRank).mockResolvedValue([
+      { slug: 'beste-burger-berlin', score: ARTICLE_MIN_SCORE - 0.01 },
+    ]);
+    let calls = 0;
+    const fakeClient = {
+      fetch: async () => {
+        calls++;
+        return [];
+      },
+    };
+    const out = await searchArticles({ query: 'Wie repariere ich mein Fahrrad' }, 'de', {
+      client: fakeClient,
+    });
+    expect(out).toEqual([]);
+    expect(calls).toBe(0);
+  });
+
+  it('faellt auf EINZELNE Wortstaemme zurueck, wenn semantisch nichts verfuegbar ist', async () => {
+    // Der alte Rueckfall suchte nach der ganzen Frage („*Was macht Berliner
+    // Kaffee besonders*") und traf damit nie. Voyage bremst im Free-Tier ab
+    // drei Anfragen pro Minute — dieser Weg ist dann der einzige.
+    vi.mocked(semanticRank).mockResolvedValue(null);
     const calls: Array<{ query: string; params: unknown }> = [];
     const fakeArticle: ArticleResult = {
       title: 'Kaffee in Berlin',
@@ -222,10 +289,33 @@ describe('searchArticles', () => {
         return [fakeArticle];
       },
     };
-    const out = await searchArticles({ query: 'Kaffee' }, 'de', { client: fakeClient });
+    const out = await searchArticles({ query: 'Was macht Berliner Kaffee besonders' }, 'de', {
+      client: fakeClient,
+    });
     expect(out).toEqual([fakeArticle]);
     expect(calls[0].query).toContain('_type == "newsArticle"');
-    expect(calls[0].params).toMatchObject({ q: '*Kaffee*', locale: 'de' });
+    // „was" faellt als Stoppwort raus, „macht" bleibt drin: die Tokenliste ist
+    // fuer die Spot-Suche gebaut und bewusst grob. Fuer einen Rueckfallweg
+    // reicht das — die tragenden Begriffe sind dabei.
+    expect(calls[0].params).toMatchObject({
+      t1: '*macht*',
+      t2: '*berliner*',
+      t3: '*kaffee*',
+      locale: 'de',
+    });
+  });
+
+  it('sucht gar nicht erst, wenn die Frage kein brauchbares Wort enthaelt', async () => {
+    vi.mocked(semanticRank).mockResolvedValue(null);
+    let calls = 0;
+    const fakeClient = {
+      fetch: async () => {
+        calls++;
+        return [];
+      },
+    };
+    expect(await searchArticles({ query: 'was und wo' }, 'de', { client: fakeClient })).toEqual([]);
+    expect(calls).toBe(0);
   });
 });
 

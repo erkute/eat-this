@@ -593,12 +593,19 @@ div.player {
   /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf
      390 px vier Zeilen Reiter ueber der ersten Karte. Die negativen Raender
      lassen sie an den Bildschirmkanten anfangen und enden, damit die Zeile
-     als Band lesbar ist und nicht als abgeschnittene Liste. */
+     als Band lesbar ist und nicht als abgeschnittene Liste.
+
+     Der Rand MUSS derselbe sein wie das Polster von `hv-wrap`, sonst haengt
+     die Zeile ueber. Hier stand `--et-gutter` — ein Token, das es nicht gibt:
+     der Rueckfall 20px zog die Zeile ueber ein 16px-Polster hinaus, und das
+     Dokument war auf 390 px vier Pixel breiter als das Fenster (gemessen
+     06.09.2026). Ein waagerechter Scrollweg auf jeder Profilseite, fuer
+     nichts. */
   .filters {
     flex-wrap: nowrap;
     overflow-x: auto;
-    margin: 0 calc(var(--et-gutter, 20px) * -1);
-    padding: 2px var(--et-gutter, 20px);
+    margin: 0 calc(var(--et-wrap-pad-mobile, 16px) * -1);
+    padding: 2px var(--et-wrap-pad-mobile, 16px);
     scrollbar-width: none;
     scroll-snap-type: x proximity;
   }

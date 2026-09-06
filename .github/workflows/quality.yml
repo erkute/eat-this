@@ -37,6 +37,20 @@ jobs:
       - run: npm run lint
       - run: npm test
 
+      # Remys Vektor-Indizes (Spots und Artikel) sind eingecheckte Moment-
+      # aufnahmen, die nichts automatisch nachziehen. Am 06.09.2026 kannte der
+      # Spot-Index 340 von 465 Spots — drei Monate lang, ohne dass etwas rot
+      # wurde: die fehlenden werden nicht gefiltert, sie ranken nur ans Ende
+      # und tauchen in Remys Antworten nicht mehr auf. Beim Artikel-Index
+      # waere es schlimmer, dort entscheidet das Ranking die Treffermenge —
+      # deshalb steht sein Budget auf 0 %.
+      #
+      # Kostet ZWEI Sanity-Anfragen, neben den 952 des Builds unten also
+      # nichts. Faellt Sanity aus, ueberspringt das Skript den Abgleich und
+      # bleibt gruen — dafuer ist der Uptime-Workflow zustaendig, nicht
+      # dieser PR.
+      - run: npm run check:embeddings
+
       # Der teuerste Schritt dieses Workflows ist nicht CPU, sondern Sanity.
       #
       # Ein kalter `next build` zieht 952 Anfragen aus dem PRODUKTIONS-Dataset

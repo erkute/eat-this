@@ -14,6 +14,10 @@ import { createClient } from '@sanity/client';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { embedBatched, VOYAGE_MODEL, VOYAGE_DIM } from '../lib/buddy/voyage';
+// Ein Filter fuer beide Seiten: was hier eingebettet wird, zaehlt
+// `npm run check:embeddings` gegen den Katalog. Zwei Kopien wuerden
+// irgendwann verschiedene Kataloge meinen und Drift melden, die keine ist.
+import { SPOT_INDEX } from './lib/embeddings-index';
 
 loadEnv({ path: '.env.local' });
 
@@ -35,7 +39,7 @@ interface Row {
   tip?: string;
 }
 
-const QUERY = `*[_type == "restaurant" && isOpen == true && isClosed != true && defined(slug.current)] | order(slug.current asc) {
+const QUERY = `*[${SPOT_INDEX.filter}] | order(slug.current asc) {
   "slug": slug.current,
   name,
   cuisineType,
@@ -82,7 +86,7 @@ async function main() {
   });
 
   const out = { model: VOYAGE_MODEL, dim: VOYAGE_DIM, count: rows.length, vectors };
-  const path = join(process.cwd(), 'lib/buddy/restaurant-embeddings.json');
+  const path = join(process.cwd(), SPOT_INDEX.path);
   writeFileSync(path, JSON.stringify(out));
   const kb = Math.round(JSON.stringify(out).length / 1024);
   console.log(`Wrote ${path} (${rows.length} vectors, ~${kb} KB)`);

@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { VOYAGE_MODEL, VOYAGE_DIM } from '../../lib/buddy/voyage';
 import {
+  ALL_INDEXES,
   checkIndexShape,
   compareToCatalog,
-  EMBEDDINGS_PATH,
   type EmbeddingsIndex,
 } from './embeddings-index';
 
@@ -51,12 +51,12 @@ describe('checkIndexShape', () => {
     expect(findings[0]).toMatch(/2 Vektoren sind null oder enthalten NaN/);
   });
 
-  it('meldet Slugs, die als [[spot:…]]-Marker nie durchkämen', () => {
+  it('meldet Slugs, die weder als Marker noch als Pfad durchkaemen', () => {
     const findings = checkIndexShape(
       ok({ vectors: { 'Zola Pizza': [1, 0], gazzo: [0, 1] } }),
       expected
     );
-    expect(findings[0]).toMatch(/Marker-Zeichenklasse/);
+    expect(findings[0]).toMatch(/Zeichenklasse \[A-Za-z0-9-\]/);
   });
 });
 
@@ -92,21 +92,42 @@ describe('compareToCatalog', () => {
 });
 
 /**
- * Der eigentliche Wächter: nicht die Logik, sondern die Datei, die ausgeliefert
- * wird. Läuft offline in jedem `npm test` mit. Den Abgleich gegen Sanity kann
- * er nicht leisten — der braucht Netz und steht in `npm run check:embeddings`.
+ * Der eigentliche Wächter: nicht die Logik, sondern die Dateien, die
+ * ausgeliefert werden. Läuft offline in jedem `npm test` mit. Den Abgleich
+ * gegen Sanity kann er nicht leisten — der braucht Netz und steht in
+ * `npm run check:embeddings`.
  */
-describe('der ausgelieferte Index', () => {
-  const file = join(dirname(fileURLToPath(import.meta.url)), '../..', EMBEDDINGS_PATH);
-  const index = JSON.parse(readFileSync(file, 'utf8')) as EmbeddingsIndex;
+describe.each(ALL_INDEXES.map((spec) => [spec.label, spec] as const))(
+  'der ausgelieferte Index: %s',
+  (_label, spec) => {
+    const file = join(dirname(fileURLToPath(import.meta.url)), '../..', spec.path);
+    const index = JSON.parse(readFileSync(file, 'utf8')) as EmbeddingsIndex;
 
-  it('passt zu dem Modell und der Dimension, mit denen zur Laufzeit gefragt wird', () => {
-    expect(checkIndexShape(index, { model: VOYAGE_MODEL, dim: VOYAGE_DIM })).toEqual([]);
+    it('passt zu dem Modell und der Dimension, mit denen zur Laufzeit gefragt wird', () => {
+      expect(checkIndexShape(index, { model: VOYAGE_MODEL, dim: VOYAGE_DIM })).toEqual([]);
+    });
+
+    it('traegt einen ernstzunehmenden Bestand — ein Rumpfindex waere schlimmer als keiner', () => {
+      // Kein Abgleich mit Sanity, nur die Untergrenze: fiele eine Datei auf
+      // eine Handvoll Eintraege zusammen, ränge Remy fast alles ans Ende.
+      // Bei den Artikeln entscheidet der Index sogar die Treffermenge.
+      const floor = spec.label === 'Spots' ? 300 : 20;
+      expect(index.count).toBeGreaterThan(floor);
+    });
+  }
+);
+
+describe('die Index-Spezifikationen', () => {
+  it('nennen jeweils einen eigenen Pfad und Wiederaufbau-Befehl', () => {
+    const paths = ALL_INDEXES.map((s) => s.path);
+    const cmds = ALL_INDEXES.map((s) => s.rebuildCommand);
+    expect(new Set(paths).size).toBe(ALL_INDEXES.length);
+    expect(new Set(cmds).size).toBe(ALL_INDEXES.length);
   });
 
-  it('trägt einen ernstzunehmenden Katalog — ein Rumpfindex wäre schlimmer als keiner', () => {
-    // Kein Abgleich mit Sanity, nur die Untergrenze: fiele die Datei auf eine
-    // Handvoll Spots zusammen, ränge Remy fast alles ans Ende.
-    expect(index.count).toBeGreaterThan(300);
+  it('fragen isOpen nie ohne isClosed ab — sonst empfiehlt Remy geschlossene Laeden', () => {
+    for (const spec of ALL_INDEXES) {
+      if (/isOpen/.test(spec.filter)) expect(spec.filter).toMatch(/isClosed/);
+    }
   });
 });

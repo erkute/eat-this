@@ -75,17 +75,22 @@ export async function embedBatched(
   opts: {
     apiKey?: string;
     pauseMs?: number;
+    /** Kleiner als MAX_BATCH, wenn die Texte lang sind. Der Free-Tier begrenzt
+     *  nicht nur Anfragen (3/min), sondern auch TOKEN pro Minute (10k) — 24
+     *  Artikeltexte in einer Anfrage reissen das, 465 kurze Spot-Zeilen nicht. */
+    batchSize?: number;
     onProgress?: (done: number, total: number) => void;
   } = {}
 ): Promise<number[][]> {
   const { apiKey = process.env.VOYAGE_API_KEY, pauseMs = 25_000, onProgress } = opts;
+  const size = Math.max(1, Math.min(opts.batchSize ?? MAX_BATCH, MAX_BATCH));
   const out: number[][] = [];
-  for (let i = 0; i < texts.length; i += MAX_BATCH) {
+  for (let i = 0; i < texts.length; i += size) {
     if (i > 0) await sleep(pauseMs);
-    const chunk = texts.slice(i, i + MAX_BATCH);
+    const chunk = texts.slice(i, i + size);
     // Build-time: tolerate the free-tier per-minute window with long backoffs.
     out.push(...(await embed(chunk, inputType, { apiKey, retries: 4, backoffMs: 30_000 })));
-    onProgress?.(Math.min(i + MAX_BATCH, texts.length), texts.length);
+    onProgress?.(Math.min(i + size, texts.length), texts.length);
   }
   return out;
 }

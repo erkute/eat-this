@@ -19,6 +19,33 @@ const GUIDE_TO_CATEGORY = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  /**
+   * Metadaten in den `<head>`, nicht in den Body.
+   *
+   * Next 15 streamt `<title>`, `<meta>` und `<link rel="canonical">` in den
+   * Body und blockt nur fuer Bots, die kein JavaScript ausfuehren. Nexts
+   * Standardliste dafuer verlangt einen Bindestrich am Google-Namen
+   * (`[\w-]+-Google|Google-[\w-]+`, siehe
+   * `next/dist/shared/lib/router/utils/html-bots.js`).
+   *
+   * Auf Firebase App Hosting kommt aber bei JEDER Anfrage der blanke
+   * User-Agent `Google` am Origin an — die Edge ersetzt den echten, bevor
+   * Cloud Run ihn sieht. Nexts Liste trifft ihn nicht, also landeten
+   * Metadaten auf `/` und `/map` grundsaetzlich im Body, hinter `</head>`
+   * (nachgemessen 06.09.2026 an den Byte-Offsets). Google ignoriert ein
+   * `rel="canonical"` im Body laut eigener Doku, und in der Seitenindexierung
+   * standen genau diese beiden Seiten mit ihren Query-Varianten unter
+   * „Duplikat – vom Nutzer nicht als kanonisch festgelegt".
+   *
+   * `Google` deckt die Standardeintraege `[\w-]+-Google`, `Google-[\w-]+`
+   * und `googleweblight` mit ab; der Rest der Liste ist Nexts Original.
+   * Weil die Edge den UA bei jedem Aufruf schickt, heisst das praktisch:
+   * blockende Metadaten fuer alle. Gemessen am Standalone-Build (je 10 Laeufe,
+   * Median): `/` 24 → 25 ms, `/map` 28 → 30 ms. Ein bis zwei Millisekunden,
+   * weil `generateMetadata` auf beiden Seiten ohne Datenabruf auskommt.
+   */
+  htmlLimitedBots:
+    /Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/i,
   // Build output dir. Defaults to `.next` (dev + Firebase App Hosting). A
   // validation/pre-push build sets NEXT_DIST_DIR=.next-verify so it can run
   // alongside a live `next dev` without clobbering the dev server's `.next`.

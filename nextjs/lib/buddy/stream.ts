@@ -35,7 +35,19 @@ export function extractFollowups(content: string): { chips: string[]; rest: stri
 
 type AnswerSegment = { type: 'text'; text: string } | { type: 'spot'; slug: string };
 
-const SPOT_MARKER = /\[\[spot:([a-z0-9-]+)\]\]/g;
+/**
+ * Zeichen, die ein Spot-Slug tragen darf — die Zeichenklasse, an der Marker,
+ * Seitenkontext und der Index-Waechter alle haengen.
+ *
+ * Sanity erzwingt keine Kleinschreibung, und genau ein Spot im Katalog nutzt
+ * das aus: `Der-weinlobbyist` (Stand 06.09.2026). Mit dem frueheren
+ * `[a-z0-9-]` fiel er durch beide Raster — Remy konnte fuer ihn nie eine Karte
+ * setzen, und auf seiner eigenen Seite verwarf `/api/buddy` den
+ * Seitenkontext, fragte also zurueck, welches Restaurant gemeint sei.
+ */
+export const SPOT_SLUG_RE = /^[A-Za-z0-9-]+$/;
+
+const SPOT_MARKER = /\[\[spot:([A-Za-z0-9-]+)\]\]/g;
 
 // Splits a (possibly mid-stream) answer into ordered text/spot segments at the
 // `[[spot:<slug>]]` markers Remy emits. Unknown or duplicate slugs are dropped

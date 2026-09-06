@@ -25,7 +25,7 @@ export const OG_CARD_VERSION = 5;
 /**
  * The day the page templates last changed in a way a crawler can see — new
  * JSON-LD, different image markup, a changed robots or title tag. Feeds
- * `lastmod` in app/sitemap.ts for every URL that has no trustworthy
+ * `lastmod` in lib/seo/sitemap-entries.ts for every URL that has no trustworthy
  * per-document date of its own.
  *
  * Bump it by hand, and only for a change that alters what Googlebot receives.

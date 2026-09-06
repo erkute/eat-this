@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({ fetch: vi.fn() }));
 
 vi.mock('@/lib/sanity', () => ({ client: { fetch: mocks.fetch } }));
 
-describe('sitemap.ts', () => {
+describe('sitemap entries', () => {
   const ORIGINAL = process.env.NEXT_PUBLIC_ENV;
 
   beforeEach(() => {
@@ -18,8 +18,8 @@ describe('sitemap.ts', () => {
   it('staging: returns empty array without hitting Sanity', async () => {
     process.env.NEXT_PUBLIC_ENV = 'staging';
     vi.resetModules();
-    const mod = await import('@/app/sitemap');
-    const result = await mod.default();
+    const { sitemapEntries } = await import('@/lib/seo/sitemap-entries');
+    const result = await sitemapEntries();
     expect(result).toEqual([]);
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
@@ -39,8 +39,8 @@ describe('sitemap.ts', () => {
       .mockResolvedValueOnce([{ slug: 'pizza' }]);
 
     vi.resetModules();
-    const mod = await import('@/app/sitemap');
-    const result = await mod.default();
+    const { sitemapEntries } = await import('@/lib/seo/sitemap-entries');
+    const result = await sitemapEntries();
 
     const urls = result.map((entry) => entry.url);
     expect(urls.some((url) => url.endsWith('/restaurant/live-spot'))).toBe(true);
@@ -53,7 +53,7 @@ describe('sitemap.ts', () => {
     const germanOnly = result.find((entry) => entry.url.endsWith('/news/nur-deutsch'));
     const translated = result.find((entry) => entry.url.endsWith('/news/translated'));
     expect(germanOnly?.alternates).toBeUndefined();
-    expect(translated?.alternates?.languages?.en).toMatch(/\/en\/news\/translated$/);
+    expect(translated?.alternates?.en).toMatch(/\/en\/news\/translated$/);
 
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isOpen != false');
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isClosed != true');
@@ -75,8 +75,8 @@ describe('sitemap.ts', () => {
 
     vi.resetModules();
     const { TEMPLATE_REVISED } = await import('@/lib/constants');
-    const mod = await import('@/app/sitemap');
-    const result = await mod.default();
+    const { sitemapEntries } = await import('@/lib/seo/sitemap-entries');
+    const result = await sitemapEntries();
 
     // A URL without lastmod is a URL Google has no reason to re-fetch.
     expect(result.filter((entry) => !entry.lastModified)).toEqual([]);
@@ -99,5 +99,66 @@ describe('sitemap.ts', () => {
     // is a rule no assertion can express; it lives in the constant's comment.
     expect(TEMPLATE_REVISED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(TEMPLATE_REVISED <= new Date().toISOString().slice(0, 10)).toBe(true);
+  });
+});
+
+describe('sitemap.xml serialization', () => {
+  const ORIGINAL = process.env.NEXT_PUBLIC_ENV;
+
+  beforeEach(() => {
+    mocks.fetch.mockReset();
+    process.env.NEXT_PUBLIC_ENV = 'production';
+    mocks.fetch
+      .mockResolvedValueOnce([{ slug: 'live-spot', descriptionEn: 'English copy' }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+  });
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_ENV = ORIGINAL;
+  });
+
+  async function body(): Promise<string> {
+    vi.resetModules();
+    const { GET } = await import('@/app/sitemap.xml/route');
+    return (await GET()).text();
+  }
+
+  it('points the browser at the stylesheet before anything else', async () => {
+    const xml = await body();
+    // Order matters: the XML declaration first, the stylesheet PI before the
+    // root element. A browser that meets `<urlset>` first never applies it.
+    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n')).toBe(true);
+    expect(xml.split('\n')[1]).toBe('<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>');
+    expect(xml.split('\n')[2]).toContain('<urlset');
+  });
+
+  it('serializes an entry with its alternates, indented', async () => {
+    const xml = await body();
+    const { TEMPLATE_REVISED } = await import('@/lib/constants');
+    expect(xml).toContain(
+      [
+        '  <url>',
+        '    <loc>https://www.eatthisdot.com/restaurant/live-spot</loc>',
+        '    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/restaurant/live-spot" />',
+        '    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/en/restaurant/live-spot" />',
+        '    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/restaurant/live-spot" />',
+        `    <lastmod>${TEMPLATE_REVISED}</lastmod>`,
+        '    <changefreq>monthly</changefreq>',
+        '    <priority>0.8</priority>',
+        '  </url>',
+      ].join('\n')
+    );
+  });
+
+  it('serves XML, and lets the Sanity webhook win over any cache', async () => {
+    vi.resetModules();
+    const { GET } = await import('@/app/sitemap.xml/route');
+    const response = await GET();
+    expect(response.headers.get('Content-Type')).toBe('application/xml; charset=utf-8');
+    // An s-maxage here would keep a stale sitemap at the edge for up to a day
+    // after /api/revalidate ran revalidatePath('/sitemap.xml').
+    expect(response.headers.get('Cache-Control')).not.toContain('s-maxage');
   });
 });

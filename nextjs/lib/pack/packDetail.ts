@@ -29,8 +29,20 @@ export interface PackCard {
   district?: string;
 }
 
-/** Spot- und Kartenzahl einer Kategorie. `spots` zaehlt nur noch mit, wie
- *  breit die Kategorie ist — verkauft werden die Karten. */
+/**
+ * Spot- und Kartenzahl einer Kategorie.
+ *
+ * Sie steht NIRGENDS in der Oberflaeche (Betreiber, 06.09.2026: „keine Anzahl
+ * bitte erwaehnen"). Das Produkt nennt seine Zahlen nicht — dieselbe Regel,
+ * unter der die Berlin-Zahl am 04.09.2026 vom Profil verschwand und unter der
+ * der Einladungsbonus seine Groesse verschweigt.
+ *
+ * Gebraucht wird sie trotzdem, und zwar an genau einer Stelle: um zu wissen,
+ * ob ein Pack ueberhaupt eine Karte traegt. Ein Pack mit null Karten ist eine
+ * leere Schachtel und darf nicht verkauft werden — siehe /packs und
+ * /api/stripe/checkout. Ohne sichtbare Zahl ist dieser Riegel das Einzige,
+ * was einen Fehlkauf noch verhindert.
+ */
 export interface PackContents {
   spots: number;
   mustEats: number;
@@ -39,28 +51,6 @@ export interface PackContents {
 export interface PackContentsIndex {
   byCategory: Record<string, PackContents>;
   allBerlin: PackContents;
-}
-
-/**
- * "22 Karten" — was ein Pack enthaelt.
- *
- * Bis zum 06.09.2026 stand hier "340 Spots · 22 Must Eats", und die
- * Kategorie-Packs nannten ihre Groesse bewusst NICHT: Dinner trug 225 von 340
- * Spots, und "225 Spots · 2,99 €" neben dem Buendel argumentierte gegen das
- * Buendel. Mit Karten ist das Gegenteil richtig — die Zahlen sind klein,
- * vergleichbar und SIND das Produkt. Ein Pack, das seine Kartenzahl
- * verschweigt, verkauft eine Katze im Sack.
- *
- * Ein Pack ohne Karte sagt das offen, statt eine Null zu drucken: der Satz
- * gehoert zu einer Ware, die es noch nicht gibt.
- */
-export function formatPackContents({ mustEats }: PackContents, locale: 'de' | 'en'): string {
-  if (locale === 'de') {
-    if (mustEats === 0) return 'Noch keine Karte drin';
-    return `${mustEats} ${mustEats === 1 ? 'Karte' : 'Karten'}`;
-  }
-  if (mustEats === 0) return 'No card in it yet';
-  return `${mustEats} ${mustEats === 1 ? 'card' : 'cards'}`;
 }
 
 /**

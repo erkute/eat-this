@@ -3,18 +3,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { CATALOG } from '@/lib/stripe-catalog';
-import { getMustEatsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
+import { getMustEatsByCategory, getCategoryBySlug } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
-import {
-  resolvePackByUrlSlug,
-  packUrlSlug,
-  formatPackPrice,
-  formatPackContents,
-} from '@/lib/pack/packDetail';
+import { resolvePackByUrlSlug, packUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
@@ -103,15 +98,15 @@ export default async function PackDetailPage({ params }: PageProps) {
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) notFound();
   const categorySlug = pack.slug;
-  const [category, cards, packContents] = await Promise.all([
+  const [category, cards] = await Promise.all([
     getCategoryBySlug(categorySlug),
     getMustEatsByCategory(categorySlug),
-    getPackContents(),
   ]);
-  const contents = packContents.byCategory[categorySlug];
+
   /* Ein Pack ohne Karte ist eine leere Schachtel — Fine Dining stand am
      06.09.2026 auf null. Die Seite bleibt (die Kategorie kommt ja), der
-     Kaufknopf nicht. */
+     Kaufknopf nicht. Wie viele Karten drin sind, sagt die Seite nicht: das
+     Produkt nennt seine Zahlen nicht. */
   const empty = cards.length === 0;
   const art = categoryArt(categorySlug);
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
@@ -128,7 +123,6 @@ export default async function PackDetailPage({ params }: PageProps) {
               {t.pack}
             </h1>
             <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
-            {contents && <p className={styles.contents}>{formatPackContents(contents, loc)}</p>}
             <p className={styles.sub}>{pack.description[loc]}</p>
 
             <div className={styles.actions}>
@@ -190,9 +184,7 @@ export default async function PackDetailPage({ params }: PageProps) {
             <ol className={styles.list}>
               {cards.map((card, i) => (
                 <li key={card._id} className={styles.row}>
-                  <span className={styles.num}>
-                    {String(card.order ?? i + 1).padStart(3, '0')}
-                  </span>
+                  <span className={styles.num}>{String(card.order ?? i + 1).padStart(3, '0')}</span>
                   <span className={styles.rn}>{card.name}</span>
                   {card.district && <span className={styles.mn}>{card.district}</span>}
                 </li>
@@ -202,12 +194,7 @@ export default async function PackDetailPage({ params }: PageProps) {
         </section>
 
         <div className={styles.upsell}>
-          <AllBerlinBoard
-            locale={loc}
-            contents={packContents.allBerlin}
-            variant="upsell"
-            headingLevel="h2"
-          />
+          <AllBerlinBoard locale={loc} variant="upsell" headingLevel="h2" />
         </div>
       </div>
     </main>

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackContents, formatPackPrice } from '@/lib/pack/packDetail';
+import { formatPackPrice } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import styles from './KategorieBoost.module.css';
 
@@ -42,7 +42,6 @@ export default async function KategorieBoost({ categorySlug, categoryName, local
         <div className={styles.kicker}>{de ? 'Der passende Booster' : 'The matching booster'}</div>
         <h2 className={styles.title}>{categoryName} Pack</h2>
         <div className={styles.spectrum}>{pack.spectrum[locale]}</div>
-        {contents && <div className={styles.contents}>{formatPackContents(contents, locale)}</div>}
         {/* Ein Ausgang, ein Knopf, Preis im Label — wie „All Berlin
             freischalten · 9,99 €" auf der All-Berlin-Tafel. Der Pfeil ist weg:
             die Fläche selbst ist die Affordanz. */}

@@ -89,16 +89,6 @@
   text-transform: uppercase;
 }
 
-/* Die Ware in einer Zeile: wie viele Karten das Pack trägt. */
-.contents {
-  margin: 8px 0 0;
-  color: var(--boost-soft);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  text-transform: uppercase;
-}
-
 /* Gelb auf Ink — Ink auf Ink verschwände. Hover: Papier. */
 .cta {
   display: inline-flex;

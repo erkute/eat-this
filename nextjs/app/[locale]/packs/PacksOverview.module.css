@@ -177,18 +177,6 @@
   line-height: 1.3;
 }
 
-/* Wie viele Karten drin sind — die Ware, in einer Zeile. Sie steht bewusst
-   VOR dem Knopf: neun Packs zu 2,99 € unterscheiden sich nur noch darin. */
-.contents {
-  display: block;
-  margin-top: 6px;
-  color: var(--packs-muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  text-transform: uppercase;
-}
-
 /* Der Platz des Kaufknopfes bei einem Pack, das noch keine Karte hat. Keine
    deaktivierte Taste: ein grauer Knopf laedt zum Draufdruecken ein und
    antwortet nicht. */

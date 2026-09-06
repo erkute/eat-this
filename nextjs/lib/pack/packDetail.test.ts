@@ -3,7 +3,6 @@ import {
   resolvePackByUrlSlug,
   packUrlSlug,
   formatPackPrice,
-  formatPackContents,
   bundleSavings,
   formatBundleSavings,
 } from './packDetail';
@@ -52,25 +51,6 @@ describe('formatPackPrice', () => {
 
   it('drops the decimals for a whole-euro price', () => {
     expect(formatPackPrice(2000)).toBe('20 €');
-  });
-});
-
-describe('formatPackContents', () => {
-  /* Die Spots zaehlen nicht mehr mit: sie liegen seit dem 06.09.2026 fuer jeden
-     frei auf der Map. Ein Pack IST seine Karten. */
-  it('names the cards, and only the cards', () => {
-    expect(formatPackContents({ spots: 52, mustEats: 6 }, 'de')).toBe('6 Karten');
-    expect(formatPackContents({ spots: 52, mustEats: 6 }, 'en')).toBe('6 cards');
-  });
-
-  it('says a pack without a card is empty rather than printing a zero', () => {
-    expect(formatPackContents({ spots: 34, mustEats: 0 }, 'de')).toBe('Noch keine Karte drin');
-    expect(formatPackContents({ spots: 34, mustEats: 0 }, 'en')).toBe('No card in it yet');
-  });
-
-  it('drops the plural s on one', () => {
-    expect(formatPackContents({ spots: 1, mustEats: 1 }, 'de')).toBe('1 Karte');
-    expect(formatPackContents({ spots: 1, mustEats: 1 }, 'en')).toBe('1 card');
   });
 });
 

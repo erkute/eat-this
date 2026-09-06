@@ -87,17 +87,6 @@
   text-transform: uppercase;
 }
 
-/* Wie viele Karten drin sind. Sie steht zwischen Editor-Zeile und Fließtext,
-   weil sie die Ware benennt: das Pack IST diese Zahl Karten. */
-.contents {
-  margin: clamp(10px, 1.2vw, 14px) 0 0;
-  color: var(--pack-muted);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  text-transform: uppercase;
-}
-
 /* „Holzofen. Pinsa. NY-Slice." — die Editor-Zeile des Packs, gelb wie die
    Kreide-Labels der Tafel. */
 .spectrum {

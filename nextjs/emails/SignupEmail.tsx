@@ -51,7 +51,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
   return (
     <Shell
       appUrl={appUrl}
-      preview="Dein Link zum Anmelden — und dein Starter Pack liegt schon bereit."
+      preview="Dein Link zum Anmelden — und zwanzig Karten liegen schon bereit."
     >
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
@@ -167,8 +167,8 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.ink,
             }}
           >
-            Ganz Berlin liegt schon auf deiner Map. Dein Starter Pack legt dir 20 Must-Eat-Karten
-            ins Album — zehn offen, zehn drehst du vor Ort selbst um. Kostenlos.
+            20 Karten, sofort. Zehn liegen in deinem Deck — zehn liegen irgendwo in Berlin und
+            warten darauf, dass du vorbeikommst. Kostenlos.
           </Text>
         </Section>
       </Section>

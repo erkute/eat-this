@@ -31,12 +31,16 @@ interface Props {
  * und ein Gratis-Angebot ohne Größe ist keins. Die gekauften Packs
  * verschweigen ihre Zahl weiterhin — dort ist die Überraschung Teil der Ware,
  * hier ist die Zahl der Grund, das Formular auszufüllen.
+ *
+ * Und sie zerfällt in zwei Hälften, weil nur eine davon ein Geschenk ist: zehn
+ * hat man, zehn liegen draußen. Der Satz muss beides tragen — das Sofortige
+ * und die Jagd —, sonst klingt er wie eine Zugabe statt wie ein Anfang.
  */
 const copy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: 'Ganz Berlin liegt schon auf deiner Map. Das Starter Pack legt dir 20 Must-Eat-Karten ins Album — zehn offen, zehn drehst du vor Ort selbst um.',
+    lead: '20 Karten, sofort. Zehn liegen in deinem Deck — zehn liegen irgendwo in Berlin und warten darauf, dass du vorbeikommst.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
@@ -51,7 +55,7 @@ const copy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: 'All of Berlin is already on your map. The Starter Pack drops 20 Must-Eat cards into your album — ten face up, ten you turn over on site yourself.',
+    lead: '20 cards, right away. Ten land in your deck — ten are out there in Berlin, waiting for you to show up.',
     hint: 'We send you a sign-in link.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',

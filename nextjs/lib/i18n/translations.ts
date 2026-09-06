@@ -63,7 +63,7 @@ const en = {
     onbStarterKicker: 'Free',
     onbStarterTitle: 'Starter Pack.',
     onbStarterBody:
-      'Sign up and the Starter Pack drops 20 Must-Eat cards into your album — ten face up, ten to turn over on site. Free.',
+      'Sign up: 20 cards. Ten land in your deck, ten are out there — one at each spot, waiting for you to show up. Free.',
     onbStarterCta: 'Get the Starter Pack',
     onbNext: 'Next',
     onbStart: "Let's go",
@@ -151,7 +151,7 @@ const en = {
     pagerNext: 'Next Must Eat',
     walkMinutes: 'on foot',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: 'Sign in — the Starter Pack has 20 Must-Eat cards waiting for you.',
+    starterPromoBody: 'Sign in — 20 cards. Ten land in your deck, ten you go and get.',
     starterPromoLogin: 'Already in? Sign in',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
@@ -258,8 +258,8 @@ const en = {
        ein Freund daneben. */
     joinKicker: 'Free',
     joinTitle: 'Starter Pack',
-    joinLead: '{name} is already collecting. 20 Must-Eat cards for a deck of your own\u00a0\u2014 free.',
-    joinLeadAnon: '20 Must-Eat cards for a deck of your own\u00a0\u2014 free.',
+    joinLead: '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there. Free.',
+    joinLeadAnon: '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there. Free.',
     joinSentLead: "We've sent your link. One click and you're in.",
     joinHint: 'We send you a sign-in link.',
     joinEmailLabel: 'Email address',
@@ -294,7 +294,7 @@ const en = {
     spotNoteError: 'Could not save note.',
     lockedSubhead: 'Still face-down',
     emptyMustEats:
-      'No Must Eats in your collection yet. Stand at a spot and turn its card over — or open a Booster Pack.',
+      'Your deck is still empty. Every card sits at a spot in Berlin — stand in front of it, tap the card. Or open a Booster Pack.',
     albumHeading: 'Your deck',
     /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
        Wer sie hier aendert, aendert sie dort mit. */
@@ -378,10 +378,10 @@ const en = {
       resendBtn: 'Resend mail',
       backBtn: 'Back',
       heroH1: 'Starter Pack',
-      heroSub: '20 Must-Eat cards for your album — ten face up, ten to turn over on site.',
-      modalBenefitLead: 'The Starter Pack is waiting: 20 Must-Eat cards for your album.',
+      heroSub: 'Ten cards in your deck. Ten out there in Berlin. Go get them.',
+      modalBenefitLead: '20 cards are waiting: ten for your deck, ten out in the city.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
-      signinBoosterLead: 'Your album is waiting. Pick up where you left off.',
+      signinBoosterLead: 'Your deck is waiting. Pick up where you left off.',
       modalTagline: 'Sign in',
       signinModalTagline: 'Sign in',
       emailLabel: 'Email',
@@ -478,7 +478,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterKicker: 'Gratis',
     onbStarterTitle: 'Starter Pack.',
     onbStarterBody:
-      'Melde dich an — das Starter Pack legt dir 20 Must-Eat-Karten ins Album: zehn offen, zehn zum Aufdecken vor Ort. Kostenlos.',
+      'Melde dich an: 20 Karten. Zehn liegen im Deck, zehn liegen draußen — je eine bei einem Spot, und sie warten. Kostenlos.',
     onbStarterCta: 'Starter Pack holen',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
@@ -554,7 +554,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerNext: 'Nächstes Must Eat',
     walkMinutes: 'zu Fuß',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: 'Melde dich an — im Starter Pack warten 20 Must-Eat-Karten auf dich.',
+    starterPromoBody: 'Melde dich an — 20 Karten. Zehn liegen im Deck, zehn holst du dir draußen.',
     starterPromoLogin: 'Schon dabei? Einloggen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
@@ -683,8 +683,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        auf der Startseite — das Starter Pack, kostenlos. */
     joinKicker: 'Gratis',
     joinTitle: 'Starter Pack',
-    joinLead: '{name} sammelt schon. 20 Must-Eat-Karten f\u00fcr dein eigenes Deck\u00a0\u2014 kostenlos.',
-    joinLeadAnon: '20 Must-Eat-Karten f\u00fcr dein eigenes Deck\u00a0\u2014 kostenlos.',
+    joinLead: '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
+    joinLeadAnon: '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
     joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     joinHint: 'Wir schicken dir einen Link zum Einloggen.',
     joinEmailLabel: 'E-Mail Adresse',
@@ -722,7 +722,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotNoteError: 'Notiz konnte nicht gespeichert werden.',
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
-      'Noch keine Must Eats in deiner Sammlung. Steh vor einem Spot und dreh seine Karte um \u2014 oder \u00f6ffne ein Booster Pack.',
+      'Dein Deck ist noch leer. Jede Karte liegt bei einem Spot in Berlin \u2014 steh davor, tipp sie an. Oder hol dir ein Booster Pack.',
     albumHeading: 'Dein Deck',
     /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
        Wer sie hier aendert, aendert sie dort mit. */
@@ -805,10 +805,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       resendBtn: 'Mail erneut senden',
       backBtn: 'Zur\u00fcck',
       heroH1: 'Starter Pack',
-      heroSub: '20 Must-Eat-Karten fürs Album — zehn offen, zehn drehst du vor Ort um.',
-      modalBenefitLead: 'Das Starter Pack wartet: 20 Must-Eat-Karten für dein Album.',
+      heroSub: 'Zehn Karten liegen im Deck. Zehn liegen in Berlin. Hol sie dir.',
+      modalBenefitLead: '20 Karten warten: zehn fürs Deck, zehn draußen in der Stadt.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
-      signinBoosterLead: 'Dein Album wartet. Mach da weiter, wo du aufgehört hast.',
+      signinBoosterLead: 'Dein Deck wartet. Mach da weiter, wo du aufgehört hast.',
       modalTagline: 'Anmelden',
       signinModalTagline: 'Einloggen',
       emailLabel: 'E-Mail',

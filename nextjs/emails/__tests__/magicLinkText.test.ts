@@ -23,8 +23,8 @@ describe('auth mail plain-text parts', () => {
      06.09.2026 Karten, nicht mehr Spots: die Map liegt fuer jeden ganz da. */
   it('the signup part names what an account is actually worth', () => {
     const t = buildSignupText('https://x/verify');
-    expect(t).toContain('Starter Pack');
-    expect(t).toContain('Must-Eat-Karten');
+    expect(t).toContain('20 Karten');
+    expect(t).toContain('Deck');
     // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
     expect(t).not.toContain('Spots samt');
     expect(t).not.toContain('weitere Spots');

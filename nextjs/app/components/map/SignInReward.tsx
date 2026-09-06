@@ -15,15 +15,15 @@ const LEAVE_MS = 240;
 const copy = {
   de: {
     kicker: 'Starter Pack eingelöst',
-    headline: 'Karten liegen im Album',
-    body: '20 Karten liegen jetzt in deinem Album — zehn offen, zehn verdeckt. Die drehst du vor Ort um: steh vor dem Laden, tipp sie an.',
+    headline: 'Zehn liegen. Zehn warten.',
+    body: 'Zehn Karten sind schon in deinem Deck. Die anderen zehn liegen draußen in Berlin — steh vor dem Laden, tipp die Karte an, und sie gehört dir.',
     cardAlt: 'Eat This Starter Pack',
     action: 'Weiter zur Map',
   },
   en: {
     kicker: 'Starter Pack claimed',
-    headline: 'Cards in your album',
-    body: '20 cards just landed in your album — ten face up, ten covered. Those you turn over on site: stand at the spot, tap the card.',
+    headline: 'Ten in. Ten out there.',
+    body: 'Ten cards are already in your deck. The other ten are out in Berlin — stand in front of the place, tap the card, and it is yours.',
     cardAlt: 'Eat This Starter Pack',
     action: 'Back to the map',
   },
@@ -43,11 +43,13 @@ interface Props {
  * fünfzig neue Punkte, dazu der eine Spot, den die Anmeldung freischaltete.
  * Das ist weg, weil die Map nicht mehr wächst — sie liegt für jeden ganz da.
  *
- * Was eine Anmeldung heute ändert, ist das Album: aufgedeckte Karten bleiben.
- * Also sagt der Schirm genau das, und er nennt dabei KEINE Zahl. Der Stand
- * gehört auf die Spielerkarte im Profil; eine Zahl hier hieße, den Fortschritt
- * an zwei Orten zu führen, und der zweite ist immer der veraltete (siehe die
- * Berlin-Zahl, die aus demselben Grund am 04.09.2026 entfiel).
+ * Was eine Anmeldung heute bringt, ist das Starter Pack: zehn Karten im Deck
+ * und zehn, die draußen liegen. Genau diese Teilung ist die Nachricht — die
+ * erste Hälfte ist das Geschenk, die zweite der Grund weiterzumachen. Ein
+ * laufender Punktestand gehört dagegen NICHT hierher, sondern auf die
+ * Spielerkarte im Profil: Fortschritt an zwei Orten geführt heißt, dass der
+ * zweite immer der veraltete ist (siehe die Berlin-Zahl, die aus demselben
+ * Grund am 04.09.2026 entfiel).
  *
  * Der Schleier fängt keine Klicks: die Karte darunter bleibt bedienbar. Das
  * ist eine Meldung, kein Dialog — der Knopf ist die Höflichkeit, sie früher

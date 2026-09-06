@@ -18,6 +18,7 @@ import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
+import ProfileFriends from './ProfileFriends';
 import AuthScreen, { AUTH_SCREEN_HOLD_MS } from '../AuthScreen';
 import AvatarPickerModal from './AvatarPickerModal';
 import SiteFooter from '../SiteFooter';
@@ -264,6 +265,11 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         <section className={`hv-section hv-wrap ${styles.section}`}>
           <ProfileInvite uid={user.uid} cards={inviteCards} />
         </section>
+
+        {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
+            dort wird gebeten, hier stehen die, die gekommen sind. Rendert
+            nichts, solange niemand da ist. */}
+        <ProfileFriends uid={user.uid} />
 
         <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
 

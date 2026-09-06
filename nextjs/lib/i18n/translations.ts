@@ -291,6 +291,11 @@ const en = {
     spotNoteLabel: 'Note on {name}',
     spotNotePlaceholder: 'Add a note …',
     spotNoteError: 'Could not save note.',
+    spotWantTo: 'Want to go',
+    spotWasThere: 'Been there',
+    spotMarkVisited: '{name}: mark as visited',
+    spotUnmarkVisited: '{name}: mark as not visited yet',
+    spotVisitedError: 'Could not be saved.',
     lockedSubhead: 'Still face-down',
     emptyMustEats:
       'No Must Eats in your collection yet. Open a Booster Pack and reveal them on site.',
@@ -306,6 +311,14 @@ const en = {
     albumFilterMissing: 'Missing',
     albumFilterComplete: 'Nothing missing here — this part is complete.',
     albumToSpot: 'To {name}',
+    albumShare: 'Send this card',
+    albumShareCopied: 'Link copied',
+    albumShareTitle: '{dish} at {name} \u2014 you have to try this.',
+    badgesHeading: 'Badges',
+    badgeFirstCard: 'First card',
+    badgeCards: '{count} cards',
+    badgeDistrict: '{district} complete',
+    badgeAllBerlin: 'All of Berlin',
     recentHeading: 'Just revealed',
     moveLabel: 'Your next Must Eat',
     moveLocateCta: 'Share location',
@@ -321,6 +334,9 @@ const en = {
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
     invitePreview: 'Preview',
+    friendsHeading: 'Your crew',
+    friendsLine: 'They started through your link. Tap a character to see their deck.',
+    friendAnonymous: 'No name',
     inviteCta: 'Share deck',
     inviteCopied: 'Link copied',
     inviteShareTitle: 'My deck on the Eat This map',
@@ -718,6 +734,13 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotNoteLabel: 'Notiz zu {name}',
     spotNotePlaceholder: 'Notiz hinzuf\u00fcgen …',
     spotNoteError: 'Notiz konnte nicht gespeichert werden.',
+    /* Zwei Zustaende, ein Schalter: „will hin" ist der Normalfall — deshalb
+       ist der Spot ueberhaupt gespeichert —, „war da" der gedrueckte. */
+    spotWantTo: 'Will hin',
+    spotWasThere: 'War da',
+    spotMarkVisited: '{name}: als besucht markieren',
+    spotUnmarkVisited: '{name}: doch noch nicht da gewesen',
+    spotVisitedError: 'Konnte nicht gespeichert werden.',
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
       'Noch keine Must Eats in deiner Sammlung. \u00d6ffne ein Booster Pack und geh vor Ort aufdecken.',
@@ -733,6 +756,20 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumFilterMissing: 'Fehlende',
     albumFilterComplete: 'Hier fehlt nichts mehr — der Teil ist voll.',
     albumToSpot: 'Zu {name}',
+    /* Der Weg aus einer OFFENEN Karte: weitersagen. Geteilt wird die
+       Spot-Seite — sie ist oeffentlich und traegt den Must-Eat-Teaser. */
+    albumShare: 'Karte weiterschicken',
+    albumShareCopied: 'Link kopiert',
+    albumShareTitle: '{dish} bei {name} \u2014 das musst du probieren.',
+    /* Abzeichen statt Rangliste: Eat This nennt seine Spot-Zahlen bewusst
+       nicht, und bei einer Sammlung ist „du bist Letzter" die falsche
+       Nachricht. Ein Abzeichen misst gegen die Sammlung, nicht gegen
+       andere Leute. */
+    badgesHeading: 'Abzeichen',
+    badgeFirstCard: 'Erste Karte',
+    badgeCards: '{count} Karten',
+    badgeDistrict: '{district} komplett',
+    badgeAllBerlin: 'Ganz Berlin',
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chstes Must Eat',
     moveLocateCta: 'Standort freigeben',
@@ -749,6 +786,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
     invitePreview: 'Ansehen',
+    /* Die Reihe unter dem Einladen-Kasten. Der Referral-Weg laeuft seit Tag
+       eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
+       nirgends. */
+    friendsHeading: 'Deine Crew',
+    friendsLine: 'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
+    friendAnonymous: 'Namenlos',
     inviteCta: 'Deck teilen',
     inviteCopied: 'Link kopiert',
     inviteShareTitle: 'Mein Deck auf der Eat This Map',

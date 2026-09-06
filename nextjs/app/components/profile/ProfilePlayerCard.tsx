@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import styles from './ProfileAlbum.module.css';
 
 interface Props {
@@ -9,6 +10,10 @@ interface Props {
   /** Fehlt auf dem geteilten Deck — dort aendert niemand etwas, und die
    *  Karte ist dann kein Knopf, sondern ein Bild. */
   onPick?: () => void;
+  /** Die Karte eines FREMDEN — in der Freundesreihe. Dann ist sie ein Weg
+   *  auf dessen Deck, kein Knopf und kein Bild. Schliesst `onPick` aus:
+   *  am eigenen Charakter aendert man nichts von einer fremden Karte aus. */
+  href?: string;
 }
 
 /**
@@ -43,7 +48,7 @@ interface Props {
  * gar nicht"). Es war die Beschriftung eines Knopfes, der schon eine Figur
  * ist; der zugaengliche Name des Knopfes sagt es weiter.
  */
-export default function ProfilePlayerCard({ name, avatarIdx, onPick }: Props) {
+export default function ProfilePlayerCard({ name, avatarIdx, onPick, href }: Props) {
   const t = useTranslations('profile');
 
   const inner = (
@@ -57,6 +62,14 @@ export default function ProfilePlayerCard({ name, avatarIdx, onPick }: Props) {
       <span className={styles.playerName}>{name}</span>
     </span>
   );
+
+  if (href) {
+    return (
+      <Link className={styles.player} href={href}>
+        {inner}
+      </Link>
+    );
+  }
 
   if (!onPick) return <div className={styles.player}>{inner}</div>;
 

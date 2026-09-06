@@ -1,13 +1,16 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox';
 import lightboxStyles from '@/app/components/map/MustEatImageLightbox.module.css';
 import MapIntentLink from '@/app/components/MapIntentLink';
+import ShareButton from '@/app/components/ShareButton';
+import { SITE_URL } from '@/lib/constants';
 import { normalizeName } from '@/lib/normalizeName';
 import type { MapMustEat } from '@/lib/types';
 import { buildAlbum } from '@/lib/profile/mustEatAlbum';
+import { computeBadges } from '@/lib/profile/badges';
 import ProfilePlayerCard from './ProfilePlayerCard';
 import styles from './ProfileAlbum.module.css';
 
@@ -45,6 +48,13 @@ interface Props {
 // der Panini-Griff — man sieht sofort, was noch aussteht.
 export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nextMove }: Props) {
   const t = useTranslations('profile');
+  const locale = useLocale();
+  /* Dieselbe Herkunft, auf der der Nutzer steht — eine von Staging aus
+     verschickte Karte soll nicht auf die Live-Domain zeigen. SSR kennt keine
+     Herkunft, der kanonische Host ist der ehrliche Rueckfall (wie in
+     ProfileInvite). */
+  const [origin, setOrigin] = useState(SITE_URL);
+  useEffect(() => setOrigin(window.location.origin), []);
   const album = useMemo(
     () => buildAlbum(mustEats, faceUpIds, groupOf),
     [mustEats, faceUpIds, groupOf]
@@ -70,9 +80,12 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
     alt: string;
     rect: DOMRect;
     id: string;
-    /* Nur bei verdeckten Plaetzen gesetzt — sie sind die einzigen, aus denen
-       der Zoom weiterfuehrt. */
+    /* Das Lokal, in dem die Karte liegt — bei offenen wie bei verdeckten
+       Plaetzen. Wohin es von hier aus weitergeht, entscheidet `open`. */
     spot: { slug: string; name: string } | null;
+    /* Offen heisst: die Karte ist umgedreht und zeigt ihr Gericht. Dann ist
+       der Weg von hier aus nicht „hingehen", sondern „weitersagen". */
+    open: boolean;
   } | null>(null);
   // Hide the origin card while its zoomed clone is on screen; reveal it again in
   // onExitComplete (same frame the fly-back clone unmounts) so there's no blink.
@@ -88,6 +101,22 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
   };
 
   const missingTotal = allSlots.length - collected;
+
+  /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
+     aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
+     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts). */
+  const badges = useMemo(
+    () =>
+      computeBadges({
+        collected,
+        groups: groups.map((g) => ({
+          group: g.group,
+          done: g.slots.filter((s) => s.collected).length,
+          total: g.slots.length,
+        })),
+      }),
+    [collected, groups]
+  );
 
   return (
     <div className={styles.panel}>
@@ -244,7 +273,8 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
                     alt,
                     rect: e.currentTarget.getBoundingClientRect(),
                     id: slot.id,
-                    spot: !open && slot.slug && where ? { slug: slot.slug, name: where } : null,
+                    spot: slot.slug && where ? { slug: slot.slug, name: where } : null,
+                    open,
                   });
                 }}
               >
@@ -291,25 +321,72 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
         </div>
       )}
 
+      {/* Unter dem Raster, nicht darueber: ein Abzeichen ist das Ergebnis
+          der Karten, nicht ihre Ueberschrift. Leer rendert die Zeile gar
+          nichts — eine Reihe verschlossener Abzeichen waere eine Liste
+          dessen, was fehlt, und die steht auf dieser Seite schon zweimal. */}
+      {badges.length > 0 && (
+        <div className={styles.badges}>
+          <span className={styles.badgesLabel}>{t('badgesHeading')}</span>
+          <ul className={styles.badgeList}>
+            {badges.map((badge) => (
+              <li
+                className={styles.badge}
+                key={badge.kind === 'district' ? `d:${badge.value}` : badge.kind}
+              >
+                {badge.kind === 'cards'
+                  ? badge.value === 1
+                    ? t('badgeFirstCard')
+                    : t('badgeCards', { count: badge.value })
+                  : badge.kind === 'district'
+                    ? t('badgeDistrict', { district: badge.value })
+                    : t('badgeAllBerlin')}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <LazyMustEatImageLightbox
         active={Boolean(expanded || hiddenId)}
         imageUrl={expanded?.imageUrl ?? null}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
-        /* Der Zoom einer verdeckten Karte war eine Sackgasse: Rueckseite
-           gross, und der einzige Weg weiter war Zumachen. Jetzt fuehrt er
-           auf den SPOT, nicht auf das Must Eat — ein Spot traegt mehrere
-           Karten, und wer hier steht, will wissen, wo er hin muss, nicht
-           welche der Karten dort als naechste faellt. */
+        /* Zwei Wege aus dem Zoom, je nachdem, was da liegt.
+ 
+           VERDECKT: auf den SPOT, nicht auf das Must Eat — ein Spot traegt
+           mehrere Karten, und wer hier steht, will wissen, wo er hin muss,
+           nicht welche der Karten dort als naechste faellt. (Vorher war der
+           Zoom hier eine Sackgasse: Rueckseite gross, und der einzige Weg
+           weiter war Zumachen.)
+
+           OFFEN: weitersagen. Panini-Tauschen hat hier kein Gegenstueck — es
+           gibt keine Doppelten —, das Aequivalent ist, jemandem die Karte zu
+           schicken, die man selbst umgedreht hat. Geteilt wird die
+           SPOT-SEITE, nicht das Bild: sie ist oeffentlich, sie zeigt das
+           Lokal, und ihr Must-Eat-Teaser ist genau die Tuer, durch die der
+           Empfaenger kommen soll. Ein Bild waere eine Sackgasse mit Foto. */
         action={
           expanded?.spot ? (
-            <MapIntentLink
-              href={`/map?r=${encodeURIComponent(expanded.spot.slug)}`}
-              rel="nofollow"
-              className={lightboxStyles.actionBtn}
-            >
-              {t('albumToSpot', { name: expanded.spot.name })}
-            </MapIntentLink>
+            expanded.open ? (
+              <ShareButton
+                className={lightboxStyles.actionBtn}
+                url={`${origin}${locale === 'en' ? '/en' : ''}/restaurant/${expanded.spot.slug}`}
+                title={t('albumShareTitle', { dish: expanded.alt, name: expanded.spot.name })}
+                slug={expanded.spot.slug}
+                contentType="must_eat_card"
+                label={t('albumShare')}
+                copiedLabel={t('albumShareCopied')}
+              />
+            ) : (
+              <MapIntentLink
+                href={`/map?r=${encodeURIComponent(expanded.spot.slug)}`}
+                rel="nofollow"
+                className={lightboxStyles.actionBtn}
+              >
+                {t('albumToSpot', { name: expanded.spot.name })}
+              </MapIntentLink>
+            )
           ) : null
         }
         onClose={() => setExpanded(null)}

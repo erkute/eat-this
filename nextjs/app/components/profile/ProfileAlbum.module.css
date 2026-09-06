@@ -99,7 +99,12 @@
   --album-accent: var(--profile-accent, var(--et-home-accent, #ffc600));
   --album-display: var(--et-font-display, sans-serif);
   display: grid;
-  width: clamp(132px, 15vw, 186px);
+  /* Ueber eine Variable, damit die Freundesreihe kleinere Karten stellen
+     kann, ohne von einem anderen CSS-Modul aus gegen diesen Selektor
+     anzutreten — gleicher Rang, und in Produktion gewinnt die Datei, die
+     spaeter laedt (siehe Kopf von Profile.module.css). Eine geerbte Custom
+     Property kennt diesen Streit nicht. */
+  width: var(--album-player-w, clamp(132px, 15vw, 186px));
   padding: 0;
   background: transparent;
   border: 0;
@@ -387,6 +392,52 @@ div.player {
 }
 
 /* ── Das Raster ───────────────────────────────────────────── */
+
+/* ── Abzeichen ──────────────────────────────────────────
+   Eine Zeile unter dem Raster. Bewusst KEINE Knoepfe: die Reiter darueber
+   sind welche, und zwei Reihen Pillen, von denen nur eine reagiert, sind
+   eine Falle. Also Ring statt Flaeche, gelb auf Ink — dieselbe Farbe wie
+   der volle Balken, und dieselbe Bedeutung. */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px clamp(12px, 1.4vw, 18px);
+  margin-top: clamp(22px, 3vw, 34px);
+}
+
+.badgesLabel {
+  flex: 0 0 auto;
+  color: var(--profile-muted, rgba(255, 255, 255, 0.76));
+  font-family: var(--et-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.badgeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.badge {
+  padding: 6px 12px 5px;
+  color: var(--album-accent, #ffc600);
+  border: 1px solid color-mix(in srgb, var(--album-accent, #ffc600) 55%, transparent);
+  border-radius: 999px;
+  font-family: var(--album-display, var(--et-font-display));
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
 
 .grid {
   display: grid;

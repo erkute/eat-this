@@ -1,17 +1,19 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import styles from './ProfileAlbum.module.css';
 
 interface Props {
   name: string;
   avatarIdx: number;
-  /** Der Punktestand auf der Karte: aufgedeckt von wie vielen. */
-  done: number;
-  total: number;
   /** Fehlt auf dem geteilten Deck — dort aendert niemand etwas, und die
    *  Karte ist dann kein Knopf, sondern ein Bild. */
   onPick?: () => void;
+  /** Die Karte eines FREMDEN — in der Freundesreihe. Dann ist sie ein Weg
+   *  auf dessen Deck, kein Knopf und kein Bild. Schliesst `onPick` aus:
+   *  am eigenen Charakter aendert man nichts von einer fremden Karte aus. */
+  href?: string;
 }
 
 /**
@@ -33,19 +35,20 @@ interface Props {
  * Gerichtnamen im Raster daneben; auf der Karte ist er das, was er ist —
  * ihre Beschriftung, wie der Spielername auf einer Sammelkarte.
  *
- * Seit dem Abend des 04.09.2026 traegt sie auch den Punktestand. Er stand
- * vorher als grosse Zahl am rechten Rand der Kopfzeile und sagte dasselbe wie
- * die Reiter darunter (Nutzer: „macht das dort oben Sinn, neben dem
- * Profil?"). Gelbe Zahl auf Ink — dieselbe Sprache wie der Belohnungs-Screen
- * nach der Anmeldung, wo sie waechst. Wer die Farbe hier aendert, loest den
- * Bezug zwischen den beiden Bildschirmen.
+ * Am 04.09.2026 bekam sie einen Punktestand („10/25", gelb auf Ink), am
+ * 06.09.2026 ist er wieder weg — auf beiden Seiten (Nutzer: „das braucht es
+ * nicht, es reicht, wenn man die Karten sieht: aufgedeckt und nicht
+ * aufgedeckt"). Er stand auf der Figur und beantwortete eine Frage, die
+ * niemand an dieser Stelle stellt. Wo der Stand jetzt steht: im eigenen
+ * Profil auf dem „Alle"-Reiter, den er ohnehin doppelte; auf dem geteilten
+ * Deck als Satz neben der Karte.
  *
  * Kein „Aendern"-Zeichen mehr unter der Karte (Nutzer, 04.09.2026: „wenn man
  * auf den Charakter klickt, kann man ihn ja waehlen — den Knopf brauchst du
  * gar nicht"). Es war die Beschriftung eines Knopfes, der schon eine Figur
  * ist; der zugaengliche Name des Knopfes sagt es weiter.
  */
-export default function ProfilePlayerCard({ name, avatarIdx, done, total, onPick }: Props) {
+export default function ProfilePlayerCard({ name, avatarIdx, onPick, href }: Props) {
   const t = useTranslations('profile');
 
   const inner = (
@@ -57,14 +60,16 @@ export default function ProfilePlayerCard({ name, avatarIdx, done, total, onPick
         <img className={styles.playerImg} src={`/pics/avatar/${avatarIdx}.webp?v=4`} alt="" />
       </span>
       <span className={styles.playerName}>{name}</span>
-      {total > 0 && (
-        <span className={styles.playerScore}>
-          <strong>{done}</strong>
-          <span className={styles.playerScoreTotal}>/{total}</span>
-        </span>
-      )}
     </span>
   );
+
+  if (href) {
+    return (
+      <Link className={styles.player} href={href}>
+        {inner}
+      </Link>
+    );
+  }
 
   if (!onPick) return <div className={styles.player}>{inner}</div>;
 

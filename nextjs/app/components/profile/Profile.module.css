@@ -636,6 +636,75 @@ main.page .head {
    Scrollbalken weg, den es damit nicht mehr braucht; die 2 px unten sind
    Platz fuer die Unterlaengen der letzten Zeile, die eine auf scrollHeight
    gesetzte Hoehe sonst knapp abschneidet. */
+/* „War da" / „will hin". Ungedrueckt ein Ring auf dem Grund, gedrueckt eine
+   gelbe Flaeche mit Haken — derselbe Unterschied wie zwischen leerem und
+   gefuelltem Album-Platz, und dieselbe Farbe wie jeder volle Balken auf
+   dieser Seite. Der Haken ist ungedrueckt blass statt weg: sonst springt die
+   Beschriftung beim Umschalten seitlich. */
+.spotVisited {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  margin-top: 10px;
+  padding: 6px 12px 5px;
+  color: var(--profile-muted);
+  background: transparent;
+  border: 1px solid var(--profile-line);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--et-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion),
+    border-color var(--profile-motion);
+}
+
+.spotVisited svg {
+  flex: 0 0 auto;
+  opacity: 0.35;
+  transition: opacity var(--profile-motion);
+}
+
+.spotVisited:disabled {
+  cursor: default;
+}
+
+.spotVisited:focus-visible {
+  color: var(--profile-fg);
+  border-color: var(--profile-ring);
+}
+
+@media (hover: hover) {
+  .spotVisited:hover:not(:disabled) {
+    color: var(--profile-fg);
+    border-color: var(--profile-ring);
+  }
+}
+
+.spotVisitedOn {
+  color: var(--profile-ink);
+  background: var(--profile-accent);
+  border-color: var(--profile-accent);
+}
+
+.spotVisitedOn svg {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .spotVisitedOn:hover:not(:disabled) {
+    color: var(--profile-ink);
+    background: var(--profile-inverse);
+    border-color: var(--profile-inverse);
+  }
+}
+
 .spotNote {
   display: block;
   width: 100%;
@@ -769,6 +838,34 @@ main.page .head {
   }
 }
 
+/* ── Freunde ────────────────────────────────────────────
+   Eine Reihe Spielerkarten, jede ein Weg auf ein fremdes Deck. Steht direkt
+   unter dem Einladen-Kasten: dort wird gefragt, hier steht die Antwort.
+
+   Die Kartenbreite kommt ueber eine geerbte Variable, nicht ueber einen
+   Selektor gegen `.player` in ProfileAlbum.module.css — gleicher Rang, und
+   in Produktion gewinnt die Datei, die spaeter laedt. */
+.friends {
+  --album-player-w: clamp(96px, 10vw, 128px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(12px, 1.6vw, 20px);
+  margin: clamp(14px, 1.8vw, 20px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.friendsLine {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--profile-muted);
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 400;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
 /* ── invite ─────────────────────────────────────────────── */
 
 /* The one yellow field on the page. Everything else earns attention from
@@ -789,9 +886,45 @@ main.page .head {
   gap: 12px clamp(16px, 2vw, 28px);
   align-items: center;
   justify-content: space-between;
-  padding: clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 24px);
+  /* Etwas mehr Luft als die uebrigen Leisten: seit dem 06.09.2026 liegt links
+     ein Kartenfaecher darin, und der braucht Rand, sonst stossen die
+     gedrehten Ecken an die Kanten. */
+  padding: clamp(18px, 2vw, 26px) clamp(16px, 1.8vw, 24px);
   background: var(--profile-accent);
   border-radius: var(--et-radius-photo, 10px);
+}
+
+/* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf dem Gelb.
+   Sie ueberlappen wie eine Hand, die man jemandem hinhaelt — das ist die
+   Geste, um die es in dem Kasten geht. */
+.inviteFan {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.inviteFan img {
+  position: relative;
+  display: block;
+  width: clamp(52px, 5.2vw, 68px);
+  aspect-ratio: 1539 / 2115;
+  object-fit: cover;
+  border-radius: 5px;
+  filter: drop-shadow(0 8px 14px rgba(21, 18, 14, 0.34));
+}
+
+.inviteFan img:first-child {
+  transform: rotate(-9deg);
+}
+
+.inviteFan img:nth-child(2) {
+  z-index: 1;
+  margin-left: -18px;
+}
+
+.inviteFan img:last-child {
+  margin-left: -18px;
+  transform: rotate(9deg);
 }
 
 .inviteCopy {

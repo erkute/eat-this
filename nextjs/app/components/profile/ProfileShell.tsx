@@ -18,6 +18,7 @@ import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
+import ProfileFriends from './ProfileFriends';
 import AuthScreen, { AUTH_SCREEN_HOLD_MS } from '../AuthScreen';
 import AvatarPickerModal from './AvatarPickerModal';
 import SiteFooter from '../SiteFooter';
@@ -93,6 +94,19 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         ownedRestaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
       ),
     [ownedRestaurants]
+  );
+
+  /* Drei eigene Karten fuer den Einladen-Faecher. `image` traegt nur, was
+     auf der eigenen Oberflaeche offen liegt — dieselbe Bedingung, unter der
+     das Album eine Karte als aufgedeckt zeichnet. Sind es weniger als drei,
+     fuellt ProfileInvite mit Rueckseiten auf. */
+  const inviteCards = useMemo(
+    () =>
+      ownedMustEats
+        .map((m) => m.image)
+        .filter((image): image is string => Boolean(image))
+        .slice(0, 3),
+    [ownedMustEats]
   );
 
   if (authLoading || !user || (mapDataLoading && !hasMapData)) {
@@ -249,8 +263,13 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             den gespeicherten Spots und den Packs, und war der letzte Block
             vor dem Fuss. */}
         <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfileInvite uid={user.uid} />
+          <ProfileInvite uid={user.uid} cards={inviteCards} />
         </section>
+
+        {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
+            dort wird gebeten, hier stehen die, die gekommen sind. Rendert
+            nichts, solange niemand da ist. */}
+        <ProfileFriends uid={user.uid} />
 
         <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
 

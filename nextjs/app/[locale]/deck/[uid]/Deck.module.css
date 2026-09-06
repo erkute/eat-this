@@ -37,9 +37,21 @@
   justify-items: start;
 }
 
-/* Wie das Spiel geht, in einem Satz unter der Ueberschrift. Kein Kicker mehr
-   darueber: dort steht jetzt der Name, und die Marke sagt das Logo in der
-   Leiste. */
+/* Der eine Satz Produkt, ganz oben ueber die volle Breite — die Ansage der
+   Seite, nicht die Bildunterschrift zur Figur. Er fuehrt, der Stand neben der
+   Karte darunter folgt: also Papier hier, Weiss-Stufe dort. */
+.intro {
+  max-width: 62ch;
+  text-wrap: pretty;
+  margin: 0 0 clamp(20px, 2.6vw, 30px);
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display);
+  font-size: clamp(17px, 1.6vw, 22px);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+/* Der Stand des Besitzers, eine Zeile unter dem Satz darueber. */
 .howTo {
   max-width: 46ch;
   /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
@@ -53,14 +65,16 @@
   line-height: 1.35;
 }
 
-/* Die Karten
-   Bis zum 04.09.2026 zeigte diese Seite nur Balken je Bezirk, in der Annahme,
-   eine Wand gleicher Kartenruecken zeige nichts. Sie zeigte damit gar keine
-   Karte, auf einer Seite, deren ganzer Zweck ist, ein Deck herzuzeigen
-   (Nutzer, 04.09.2026).
+/* Die Kartenwand: Vorderseiten und Rueckseiten, sonst nichts.
 
-   Dasselbe Raster und dieselben Zustaende wie im eigenen Album, damit
-   Besitzer und Besucher dasselbe Bild vor sich haben. */
+   Bis zum 06.09.2026 war das ein Panini-Album — gestrichelte leere Felder mit
+   dreistelliger Nummer, aufgedeckte Karten mit Schlagschatten darueber. Im
+   eigenen Profil ist das genau richtig: dort sind die Luecken die Aufgabe.
+   Beim Teilen war es die falsche Form (Nutzer, 06.09.2026: „es soll nicht wie
+   ein Panini-Album sein beim Deckteilen, ohne diese Zahlen drauf und ohne
+   diese dumme Linie"). Mit den Zustaenden sind `.slotEmpty`, `.slotBack` und
+   `.slotNo` weg — und `PublicDeckSlot` gleich mit, die Seite bekommt die
+   Angaben gar nicht mehr geliefert. */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
@@ -71,62 +85,32 @@
   list-style: none;
 }
 
-.slot {
+.card {
   position: relative;
-  display: grid;
-  place-items: center;
   aspect-ratio: 1539 / 2115;
   overflow: hidden;
   border-radius: 7px;
-}
-
-.slot img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Die gesammelte Karte liegt AUF dem Album: Schlagschatten. */
-.slotOpen {
+  /* Jede Karte liegt AUF dem Album, auch die verdeckte: es ist ein Stapel,
+     kein Album mit Loechern. */
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
-/* Eine aufgedeckte Karte, die der Besucher nicht sehen darf, liegt verdeckt
-   da — und eine Wand aus Rueckseiten in voller Leuchtkraft uebertoent die
-   Gerichte daneben, um die es geht. Ein Hauch dunkler, mehr nicht: sie bleibt
-   eine Karte, fuehrt aber nicht.
+.card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Eine Wand aus Rueckseiten in voller Leuchtkraft uebertoent die Gerichte
+   daneben, um die es geht — die Rueckseite ist knallgelb, und meistens sind
+   es die meisten. Eine Stufe dunkler, mehr nicht: sie bleibt eine Karte,
+   fuehrt aber nicht.
 
    Statisch, kein Ein-/Ausblenden — die Brand-Regel gegen Opacity-Fades
    betrifft Bewegung, nicht Faerbung. */
-.slotBack img {
-  filter: brightness(0.78) saturate(0.92);
-}
-
-/* Der leere Platz liegt IM Album: eingelassener Schatten, gestrichelte Kante,
-   die Rueckseite nur als Wasserzeichen darunter. */
-.slotEmpty {
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px dashed rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
-}
-
-.slotEmpty img {
-  position: absolute;
-  inset: 0;
-  opacity: 0.13;
-}
-
-.slotNo {
-  position: relative;
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display);
-  font-size: clamp(26px, 3vw, 38px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.72;
+.cardBack {
+  filter: brightness(0.62) saturate(0.85);
 }
 
 .groups {
@@ -187,6 +171,201 @@
   height: 100%;
   background: var(--et-home-accent, #ffc600);
   border-radius: inherit;
+}
+
+/* ── Was Eat This ist ──────────────────────────────────────
+   Die Tafel UNTER dem Deck. Ueber dem Deck steht nur der eine Satz (.intro);
+   hier steht, wie das Spiel geht. Kopf und Kartenpaar nebeneinander, die drei
+   Schritte darunter ueber die volle Breite; auf dem Telefon untereinander in
+   derselben Reihenfolge. */
+.explain {
+  display: grid;
+  gap: clamp(22px, 3vw, 36px);
+}
+
+.explainHead {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+
+/* Ein Label fuer den Abschnitt und fuer jeden Schritt — dieselbe Zeile, also
+   dieselbe Klasse. Ohne `hv-kicker`: das Haus-Vokabular faerbt seinen Kicker
+   auf Ink-Grund muted (Profile.module.css, `main.page .hv-kicker`, 0,2,1),
+   und ein Modul-Selektor daneben verliert dagegen still — in dev sichtbar
+   gleich, in Produktion nicht. Wer diesen Weg noch einmal geht, muss mit dem
+   Element qualifizieren; hier ist keiner noetig, weil nichts ueberschrieben
+   wird. */
+.label {
+  color: var(--et-home-accent, #ffc600);
+  font-family: var(--et-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.explainLead {
+  max-width: 58ch;
+  margin: 6px 0 0;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--et-font-display);
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 400;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+/* Das Paar sagt den Satz, den kein Einzelbild sagen kann: manche liegen
+   offen, manche verdeckt. Die Drehung bleibt klein und die Karten schmal —
+   gekippte Bilder blaehen auf dem Telefon das Dokument in die Breite, und
+   diese Seite hat keinen Container, der das wegklippt. */
+.pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.pair img {
+  display: block;
+  width: clamp(112px, 13vw, 168px);
+  height: auto;
+  border-radius: 8px;
+  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.5));
+}
+
+.pairBack {
+  transform: rotate(-5deg);
+}
+
+.pairFront {
+  margin-left: clamp(-26px, -2vw, -16px);
+  transform: rotate(5deg);
+}
+
+.steps {
+  display: grid;
+  gap: clamp(18px, 2.2vw, 26px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.stepTitle {
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--et-font-display);
+  font-size: clamp(18px, 1.7vw, 23px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  /* Providence haengt unter die Grundlinie: „probieren" verliert sein p,
+     sobald die Zeile enger als 1.2 steht. */
+  line-height: 1.2;
+}
+
+.stepBody {
+  max-width: 46ch;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 400;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+/* Ab Desktop steht das Paar neben dem Kopf und die drei Schritte laufen
+   darunter nebeneinander — die Reihenfolge, in der sie gelesen werden
+   sollen, ist dann auch die Richtung, in der man liest. Auf dem Telefon
+   bleibt alles untereinander: Kopf, Paar, Schritte. */
+@media (min-width: 860px) {
+  .explain {
+    grid-template-columns: minmax(0, 1fr) clamp(230px, 24vw, 310px);
+    column-gap: clamp(34px, 4.5vw, 64px);
+    align-items: center;
+  }
+
+  .explainHead {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .pair {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Drei Spalten, aber EIN Raster: die Schritte teilen sich die drei
+     Zeilen (Label, Titel, Text), statt jeder fuer sich zu wachsen. Ohne das
+     rutscht die dritte Spalte ab, sobald ihr Titel eine Zeile mehr braucht
+     oder auch nur ein „oe" enthaelt — Providence holt den Umlaut aus einer
+     anderen Datei, und die Zeile wird 7 px hoeher. Wo `subgrid` fehlt, faellt
+     die Regel weg und es steht wieder wie vorher. */
+  .steps {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto auto;
+    column-gap: clamp(24px, 3vw, 48px);
+  }
+
+  .step {
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+  }
+}
+
+/* ── Mach mit ──────────────────────────────────────────────
+   Die Tafel selbst kommt aus StarterPackSignup.module.css — es ist dasselbe
+   Objekt wie auf der Startseite, nicht ein zweites, das ihm aehnelt. Hier
+   steht nur, was diese Seite anders macht: die Tuete liegt als schlichtes
+   `img` statt als `next/image` mit `fill` (die Deck-Seite ist
+   `force-dynamic` und laedt sonst nichts ueber den Optimierer), und darunter
+   haengt der leise Weg zur Map. */
+.joinArt {
+  width: clamp(150px, 15vw, 220px);
+  margin-bottom: clamp(14px, 1.6vw, 20px);
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
+  transform: rotate(-5deg);
+}
+
+.joinArt img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Wer sich noch nicht anmelden will, soll nicht in einer Sackgasse stehen —
+   aber auch nicht zwischen zwei gleich lauten Knoepfen waehlen muessen. Eine
+   Zeile, unterstrichen, mittig unter der Tafel. */
+.browse {
+  display: block;
+  width: fit-content;
+  margin: clamp(16px, 2vw, 24px) auto 0;
+  padding-bottom: 3px;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  border-bottom: 2px solid var(--et-home-accent, #ffc600);
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+.browse:focus-visible {
+  color: var(--et-home-inverse-text, #fff);
+}
+
+@media (hover: hover) {
+  .browse:hover {
+    color: var(--et-home-inverse-text, #fff);
+  }
 }
 
 /* Wie im eigenen Deck: auf dem Telefon steht die Spielerkarte neben der

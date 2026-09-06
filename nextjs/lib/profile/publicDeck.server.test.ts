@@ -156,14 +156,16 @@ describe('getPublicDeck', () => {
 
     expect(Object.keys(deck ?? {}).sort()).toEqual([
       'avatar',
+      'cards',
       'groups',
       'name',
       'revealed',
-      'slots',
       'total',
     ]);
-    // Und pro Platz genau drei Angaben — Nummer, Stand, Bild.
-    expect(Object.keys(deck?.slots[0] ?? {}).sort()).toEqual(['collected', 'image', 'no']);
+    // Und je Karte genau eine Angabe: eine Bild-URL oder nichts. Seit dem
+    // 06.09.2026 traegt der Platz weder Nummer noch Stand — die Seite zeigt
+    // Vorderseiten und Rueckseiten, kein Panini-Album.
+    expect(deck?.cards.every((c) => c === null || typeof c === 'string')).toBe(true);
   });
 
   it('traegt weder E-Mail noch Foto-URL noch ein Gericht nach draussen', async () => {
@@ -197,10 +199,12 @@ describe('getPublicDeck', () => {
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.slots.filter((s) => s.image).length).toBe(1);
-    expect(deck?.slots.find((s) => s.image)?.image).toBe('/api/must-eat-image/m1');
-    // m2 ist aufgedeckt und bleibt trotzdem eine Rueckseite.
-    expect(deck?.slots.filter((s) => s.collected && !s.image).length).toBe(1);
+    expect(deck?.cards.filter(Boolean)).toEqual(['/api/must-eat-image/m1']);
+    // m2 ist aufgedeckt und bleibt trotzdem eine Rueckseite — von aussen
+    // nicht von einer nie umgedrehten Karte zu unterscheiden.
+    expect(deck?.cards.filter((c) => c === null).length).toBe(3);
+    // Der Zaehler weiss es trotzdem: er speist den Satz ueber der Wand.
+    expect(deck?.revealed).toBe(2);
   });
 
   /* Eine verdeckte Karte bekommt nie ein Bild, auch wenn sie im
@@ -214,22 +218,25 @@ describe('getPublicDeck', () => {
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.slots.every((s) => s.image === null)).toBe(true);
+    expect(deck?.cards.every((c) => c === null)).toBe(true);
   });
 
-  /* Die Nummer auf dem Platz ist die Nummer auf der Karte, dreistellig — und
-     sie muss dieselbe sein wie im eigenen Deck, sonst traegt eine Karte auf
-     zwei Seiten zwei Zahlen. Darum baut beides `buildAlbum`. */
-  it('nummeriert die Plaetze wie das eigene Deck und legt sie in Kartenreihenfolge', async () => {
+  /* Die Nummern stehen hier nicht mehr, die Reihenfolge schon: dieselbe wie
+     im eigenen Deck, weil beides `buildAlbum` baut. Sonst liegt dieselbe
+     Karte auf zwei Seiten an zwei Stellen. */
+  it('legt die Karten in dieselbe Reihenfolge wie das eigene Deck', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
     state.visibleMustEats = [
       { ...mustEat('m4', 'r3'), order: 12 },
       { ...mustEat('m1', 'r1'), order: 3 },
     ];
+    state.revealed = new Set(['m1', 'm4']);
+    state.publicMustEatIds = new Set(['m1', 'm4']);
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.slots.map((s) => s.no)).toEqual(['003', '012']);
+    // m1 traegt order 3, m4 die 12 — also kommt m1 zuerst.
+    expect(deck?.cards).toEqual(['/api/must-eat-image/m1', '/api/must-eat-image/m4']);
   });
 
   /* Das eigene Profil faellt fuer den Vornamen auf die E-Mail zurueck
@@ -266,6 +273,7 @@ describe('getPublicDeck', () => {
     ]);
     expect(deck?.revealed).toBe(2);
     expect(deck?.total).toBe(4);
+    expect(deck?.cards.length).toBe(4);
   });
 
   /* Ein leeres Set waere hier still falsch: `isAlbumMustEatCollected` faellt
@@ -281,9 +289,8 @@ describe('getPublicDeck', () => {
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.slots.length).toBe(4);
-    expect(deck?.revealed).toBe(4);
     expect(deck?.total).toBe(4);
+    expect(deck?.revealed).toBe(4);
   });
 
   /* Dieselbe Antwort fuer eine kaputte uid wie fuer eine, die es nicht gibt —

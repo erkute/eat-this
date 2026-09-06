@@ -79,6 +79,42 @@ describeRules('firestore.rules favorites', () => {
     expect(snapshot.data()?.name).toBe('Restaurant');
   });
 
+  /* „war da" / „will hin" — die zweite eigene Anmerkung neben der Notiz.
+     Alles andere am Dokument bleibt server-eigen. */
+  it('allows the owner to flip the visited flag, and nothing else', async () => {
+    const favoriteRef = doc(
+      testEnv.authenticatedContext('owner').firestore(),
+      'users/owner/favorites/restaurant-1',
+    );
+
+    await assertSucceeds(updateDoc(favoriteRef, {visited: true}));
+    await assertSucceeds(updateDoc(favoriteRef, {visited: false}));
+    await assertSucceeds(updateDoc(favoriteRef, {visited: true, note: 'War super'}));
+    await assertFails(updateDoc(favoriteRef, {visited: 'ja'}));
+    await assertFails(updateDoc(favoriteRef, {visited: true, heartCount: 99}));
+  });
+
+  /* Ein gespeicherter Spot ohne Notiz ist der Normalfall — der Haken darf
+     dort nicht daran scheitern, dass die Regel eine Notiz sehen will, die es
+     nie gab. */
+  it('lets the visited flag through on a favorite that has no note', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'users/owner/favorites/restaurant-3'), {
+        name: 'Ohne Notiz',
+      });
+    });
+
+    await assertSucceeds(
+      updateDoc(
+        doc(
+          testEnv.authenticatedContext('owner').firestore(),
+          'users/owner/favorites/restaurant-3',
+        ),
+        {visited: true},
+      ),
+    );
+  });
+
   it('denies premium Must-Eat reads and writes to every browser identity', async () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       await setDoc(doc(context.firestore(), 'privateMustEats/m1'), {

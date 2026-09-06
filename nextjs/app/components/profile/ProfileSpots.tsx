@@ -11,6 +11,13 @@ import styles from './Profile.module.css';
 // Saved spots (Firestore favorites) as full-image cards → tap opens the map.
 // Each card carries a remove button so spots can be un-saved here too (not
 // only via the heart toggle on the map / restaurant page).
+//
+// Seit dem 06.09.2026 hat ein gespeicherter Spot zwei Zustaende: „will hin"
+// (der Normalfall — deshalb hat man ihn gespeichert) und „war da". Bis dahin
+// war die Liste ein Stapel Absichten, der nie kleiner wurde: wer irgendwann
+// dort gegessen hatte, konnte den Spot entweder loeschen oder ihn fuer immer
+// als offen stehen lassen. Beides falsch — der Besuch ist der Punkt der
+// Liste, nicht ihr Ende.
 export default function ProfileSpots({
   uid,
   restaurantSlugs,
@@ -19,7 +26,7 @@ export default function ProfileSpots({
   restaurantSlugs: ReadonlyMap<string, string>;
 }) {
   const t = useTranslations('profile');
-  const { favorites, loading, toggle, updateNote } = useFavorites(uid);
+  const { favorites, loading, toggle, updateNote, setVisited } = useFavorites(uid);
 
   if (loading) return null;
 
@@ -81,6 +88,15 @@ export default function ProfileSpots({
                 <path d="M18 6L6 18" />
               </svg>
             </button>
+            <VisitedToggle
+              visited={f.visited === true}
+              label={t(f.visited ? 'spotWasThere' : 'spotWantTo')}
+              ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
+                name: normalizeName(f.name),
+              })}
+              saveError={t('spotVisitedError')}
+              onToggle={(next) => setVisited(f.restaurantId, next)}
+            />
             <SpotNote
               initialNote={f.note ?? ''}
               label={t('spotNoteLabel', { name: normalizeName(f.name) })}
@@ -92,6 +108,72 @@ export default function ProfileSpots({
         );
       })}
     </div>
+  );
+}
+
+/**
+ * „War da" / „will hin" — ein Schalter, zwei Zustaende.
+ *
+ * Kein Paar aus zwei Knoepfen: von zwei gleich lauten Pillen ist immer eine
+ * die falsche Antwort, und der Normalfall („will hin") braucht keinen Knopf,
+ * er ist schon dadurch gesagt, dass der Spot ueberhaupt gespeichert ist.
+ * Also ein Schalter, der seinen Zustand traegt — gedrueckt heisst „war da".
+ *
+ * `aria-pressed` sagt den Zustand, `aria-label` die Handlung: ein Knopf,
+ * dessen sichtbare Beschriftung zwischen zwei Zustaenden wechselt, ist ohne
+ * beides nicht zu bedienen.
+ *
+ * Optimistisch: der Haken faellt sofort um (siehe useFavorites.setVisited).
+ * Geht der Schreibvorgang schief, springt er zurueck und sagt es.
+ */
+function VisitedToggle({
+  visited,
+  label,
+  ariaLabel,
+  saveError,
+  onToggle,
+}: {
+  visited: boolean;
+  label: string;
+  ariaLabel: string;
+  saveError: string;
+  onToggle: (next: boolean) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <button
+      type="button"
+      className={`${styles.spotVisited} ${visited ? styles.spotVisitedOn : ''}`}
+      aria-pressed={visited}
+      aria-label={ariaLabel}
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          await onToggle(!visited);
+        } catch {
+          window.showNotification?.(saveError);
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 12.5l5.5 5.5L20 6.5" />
+      </svg>
+      {label}
+    </button>
   );
 }
 

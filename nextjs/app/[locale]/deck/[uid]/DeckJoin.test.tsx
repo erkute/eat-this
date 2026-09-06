@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const sendLink = vi.fn();
@@ -82,5 +82,18 @@ describe('DeckJoin', () => {
 
     expect(screen.getByRole('link', { name: 'ctaIn' }).getAttribute('href')).toBe('/profile');
     expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  /* Der Weg zur Map hing zuerst nur am Anmeldeblock. Ein Angemeldeter sah
+     damit eine Seite ohne Anmeldung UND ohne Ausgang zur Map — die Seite
+     endete fuer ihn bei einem einzigen Knopf. */
+  it('laesst in BEIDEN Zustaenden zur Map', () => {
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.getByRole('link', { name: 'browse' }).getAttribute('href')).toBe('/map');
+
+    cleanup();
+    authState.user = { uid: 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423' };
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.getByRole('link', { name: 'browse' }).getAttribute('href')).toBe('/map');
   });
 });

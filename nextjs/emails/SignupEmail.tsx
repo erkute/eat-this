@@ -1,7 +1,7 @@
 // Signup mail — first contact with an address that has no account yet.
 //
-// Carries the product where the login mail does not: the home hero, the Starter
-// Pack panel in its home shape (quiet grey, yellow pill, red title), and a few
+// Carries the product where the login mail does not: the home hero, the album
+// panel in its home shape (quiet grey, yellow pill, red title), and a few
 // composed spot cards. The link still comes first — someone who only wants in
 // never has to scroll.
 
@@ -109,14 +109,9 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
         />
       </Section>
 
-      {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
-          artwork, yellow "Gratis" pill, red title. */}
+      {/* DEIN ALBUM — the home section, rebuilt: quiet-grey panel, card back,
+          yellow "Gratis" pill, red title. */}
       <Section className="et-pad" style={{ backgroundColor: COLOR.paper, padding: '0 32px 36px' }}>
-        {/* OFFEN (Stufe 2): Beutelbild und die Überschrift `titleStarterPack`
-            sind gerenderte PNGs und sagen beide noch „Starter Pack". Neu
-            rendern geht nur mit FF Providence lokal (`npm run sync:brand-font`,
-            dann `npm run build:email-art`) — ohne sie fällt das Skript sichtbar
-            gewarnt auf Schoolbell zurück. Der Fließtext darunter stimmt schon. */}
         <Section
           style={{
             backgroundColor: COLOR.quiet,
@@ -127,10 +122,15 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
         >
           <ArtImage
             art={{
-              id: 'booster_free',
+              /* Der Kartenrücken, nicht mehr der Beutel: was ein Konto bringt,
+                 ist das Album. Gerendert aus public/pics/card-back.webp auf
+                 doppelte Anzeigebreite (siehe scripts/build-email-card-back).
+                 Palette-PNG, weil ein Vollfarb-PNG dieser Zeichnung 300 KB in
+                 ein Postfach traegt. */
+              id: 'card-back',
               width: 168,
-              height: 260,
-              alt: 'Eat This Starter Pack',
+              height: 231,
+              alt: 'Eat This Sammelkarte, verdeckt',
               version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
@@ -158,7 +158,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           </Text>
 
           <ArtImage
-            art={ART.titleStarterPack}
+            art={ART.titleAlbum}
             appUrl={appUrl}
             altStyle={{ color: COLOR.red, fontSize: '22px', fontWeight: 700 }}
             style={{ margin: '0 auto 14px' }}

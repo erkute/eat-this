@@ -39,6 +39,9 @@ export interface PublicDeckSlot {
   /** Die Nummer unten rechts auf der Karte, dreistellig. */
   no: string | null;
   collected: boolean;
+  /** Vor Ort umgedreht statt gekauft. Das ist keine bezahlte Angabe, sondern
+   *  eine Leistung — und genau die, mit der ein geteiltes Deck angibt. */
+  stamped: boolean;
   image: string | null;
 }
 
@@ -162,12 +165,14 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   const album = buildAlbum(
     ownedMustEats,
     surface.faceUpIds,
+    unlockedIds,
     (m) => districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT
   );
 
   const slots: PublicDeckSlot[] = album.slots.map((slot) => ({
     no: slot.no,
     collected: slot.collected,
+    stamped: slot.stamped,
     /* Nur der oeffentliche Satz bekommt ein Bild — siehe PublicDeckSlot. */
     image:
       slot.collected && publicMustEatIds.has(slot.id)

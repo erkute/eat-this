@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { CATALOG } from '@/lib/stripe-catalog';
-import { getRestaurantsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
+import { getMustEatsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
@@ -13,7 +13,7 @@ import {
   resolvePackByUrlSlug,
   packUrlSlug,
   formatPackPrice,
-  buildPackTeaser,
+  formatPackContents,
 } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
@@ -72,10 +72,9 @@ const copy = {
     payment: 'Zahlungsarten',
     inside: 'Drin im Pack',
     insideLead:
-      'Drei Spots zeigen wir. Der Rest bleibt verdeckt, bis der Pack auf deiner Map liegt.',
-    covered: 'Verdeckt',
-    more: 'Weitere Spots',
-    moreWhere: 'Auf der Live-Map',
+      'Wo die Karten liegen, sagen wir. Was auf ihnen steht, steht auf ihnen — bis sie in deinem Album liegen.',
+    empty: 'An dieser Kategorie hängt noch keine Karte. Sie kommen.',
+    soon: 'Kommt bald',
     map: '/map',
   },
   en: {
@@ -87,10 +86,10 @@ const copy = {
     error: 'Something went wrong. Please try again.',
     payment: 'Payment methods',
     inside: 'Inside the pack',
-    insideLead: 'We show three spots. The rest stays covered until the pack is on your map.',
-    covered: 'Covered',
-    more: 'More spots',
-    moreWhere: 'On the live map',
+    insideLead:
+      'We tell you where the cards are. What is on them stays on them — until they are in your album.',
+    empty: 'No card on this category yet. They are coming.',
+    soon: 'Coming soon',
     map: '/en/map',
   },
 } as const;
@@ -104,17 +103,16 @@ export default async function PackDetailPage({ params }: PageProps) {
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) notFound();
   const categorySlug = pack.slug;
-  const [category, restaurants, packContents] = await Promise.all([
+  const [category, cards, packContents] = await Promise.all([
     getCategoryBySlug(categorySlug),
-    getRestaurantsByCategory(categorySlug),
+    getMustEatsByCategory(categorySlug),
     getPackContents(),
   ]);
-  const teaser = buildPackTeaser(restaurants);
   const contents = packContents.byCategory[categorySlug];
-  // Rows the teaser names or covers; everything past them is the "more" row.
-  // It deliberately never says how many — see formatPackContents.
-  const teased = teaser.revealed.length + teaser.locked.length;
-  const more = contents ? contents.spots - teased : 0;
+  /* Ein Pack ohne Karte ist eine leere Schachtel — Fine Dining stand am
+     06.09.2026 auf null. Die Seite bleibt (die Kategorie kommt ja), der
+     Kaufknopf nicht. */
+  const empty = cards.length === 0;
   const art = categoryArt(categorySlug);
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
 
@@ -130,22 +128,27 @@ export default async function PackDetailPage({ params }: PageProps) {
               {t.pack}
             </h1>
             <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
+            {contents && <p className={styles.contents}>{formatPackContents(contents, loc)}</p>}
             <p className={styles.sub}>{pack.description[loc]}</p>
 
             <div className={styles.actions}>
-              <PackBuyButton
-                packId={pack.packId}
-                packName={pack.displayName}
-                amountCents={pack.amountCents}
-                locale={loc}
-                className={styles.cta}
-                errorClassName={styles.ctaError}
-                label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
-                pendingLabel={t.pending}
-                ownedLabel={t.owned}
-                ownedHref={t.map}
-                errorLabel={t.error}
-              />
+              {empty ? (
+                <p className={styles.soon}>{t.soon}</p>
+              ) : (
+                <PackBuyButton
+                  packId={pack.packId}
+                  packName={pack.displayName}
+                  amountCents={pack.amountCents}
+                  locale={loc}
+                  className={styles.cta}
+                  errorClassName={styles.ctaError}
+                  label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
+                  pendingLabel={t.pending}
+                  ownedLabel={t.owned}
+                  ownedHref={t.map}
+                  errorLabel={t.error}
+                />
+              )}
               <PaymentMarks
                 height={24}
                 label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
@@ -169,47 +172,34 @@ export default async function PackDetailPage({ params }: PageProps) {
           )}
         </section>
 
-        {teaser.revealed.length > 0 && (
-          <section className={styles.section} aria-labelledby="pack-inside-title">
-            <div className={styles.sectionHead}>
-              <h2 id="pack-inside-title" className={styles.sectionTitle}>
-                <span className={styles.mk} aria-hidden="true" />
-                {t.inside}
-              </h2>
-              <p className={styles.sectionLead}>{t.insideLead}</p>
-            </div>
+        <section className={styles.section} aria-labelledby="pack-inside-title">
+          <div className={styles.sectionHead}>
+            <h2 id="pack-inside-title" className={styles.sectionTitle}>
+              <span className={styles.mk} aria-hidden="true" />
+              {t.inside}
+            </h2>
+            <p className={styles.sectionLead}>{cards.length > 0 ? t.insideLead : t.empty}</p>
+          </div>
 
+          {/* Jede Zeile ist eine KARTE, nicht ein Spot: die Spots liegen seit
+              dem 06.09.2026 ohnehin frei auf der Map. Die Nummer links ist die
+              gedruckte Kartennummer (`mustEat.order`) — der Schluessel, nach
+              dem ein Sammler seinen Stapel sortiert. Der Ort steht dabei, das
+              Gericht nicht: das ist das Produkt. */}
+          {cards.length > 0 && (
             <ol className={styles.list}>
-              {teaser.revealed.map((r, i) => (
-                <li key={`r${i}`} className={styles.row}>
-                  <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
-                  <span className={styles.rn}>{r.name}</span>
-                  {r.district && <span className={styles.mn}>{r.district}</span>}
-                </li>
-              ))}
-              {teaser.locked.map((l, i) => (
-                <li key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
+              {cards.map((card, i) => (
+                <li key={card._id} className={styles.row}>
                   <span className={styles.num}>
-                    {String(teaser.revealed.length + i + 1).padStart(2, '0')}
+                    {String(card.order ?? i + 1).padStart(3, '0')}
                   </span>
-                  <span className={styles.rn}>
-                    <span className={`${styles.covered} ${i % 2 ? styles.coveredLong : ''}`}>
-                      {t.covered}
-                    </span>
-                  </span>
-                  {l.district && <span className={styles.mn}>{l.district}</span>}
+                  <span className={styles.rn}>{card.name}</span>
+                  {card.district && <span className={styles.mn}>{card.district}</span>}
                 </li>
               ))}
-              {more > 0 && (
-                <li className={`${styles.row} ${styles.rowLocked}`}>
-                  <span className={styles.num}>+</span>
-                  <span className={`${styles.rn} ${styles.rnMore}`}>{t.more}</span>
-                  <span className={styles.mn}>{t.moreWhere}</span>
-                </li>
-              )}
             </ol>
-          </section>
-        )}
+          )}
+        </section>
 
         <div className={styles.upsell}>
           <AllBerlinBoard

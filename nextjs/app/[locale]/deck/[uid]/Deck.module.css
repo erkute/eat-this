@@ -129,6 +129,26 @@
   opacity: 0.72;
 }
 
+/* Der Stempel „War da" — Ink auf Gelb, leicht schief wie ein echter. Er sagt
+   das Einzige, was ein Kauf nicht kann. */
+.stamp {
+  position: absolute;
+  right: 6%;
+  bottom: 8%;
+  z-index: 2;
+  padding: 3px 8px;
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  border-radius: 3px;
+  font-family: var(--et-font-label, sans-serif);
+  font-size: clamp(8px, 1vw, 11px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotate(-7deg);
+}
+
 .groups {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));

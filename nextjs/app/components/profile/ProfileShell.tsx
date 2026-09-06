@@ -225,6 +225,11 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
+            /* Nur die eigenen Aufdeckungen vor Ort — nicht der oeffentliche
+               Satz und nicht die gekauften Karten. Genau die drei Quellen
+               vereinigt `unlockedIds` darueber, und deshalb kann der Stempel
+               nicht daraus kommen. */
+            stampedIds={storedUnlockedIds}
             groupOf={(m) =>
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
             }

@@ -4,6 +4,7 @@ import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { getStripe } from '@/lib/stripe';
 import { resolvePriceId } from '@/lib/stripe-price';
 import { getPack } from '@/lib/stripe-catalog';
+import { getPackContents } from '@/lib/sanity.server';
 import { getAppUrl } from '@/lib/constants';
 import { reserveCheckoutAttempt, saveCheckoutAttempt } from '@/lib/stripe-checkout-attempts';
 
@@ -42,6 +43,18 @@ export async function POST(req: Request) {
   const pack = getPack(body.packId);
   if (!pack) return NextResponse.json({ error: 'unknown_packId' }, { status: 400 });
   const locale: 'de' | 'en' = body.locale === 'en' ? 'en' : 'de';
+
+  /* Ein Pack ohne Karte ist eine leere Schachtel. Seit die Packs Karten
+     verkaufen und nicht mehr Spots, kann eine Kategorie leer sein — Fine
+     Dining stand am 06.09.2026 auf null. /packs blendet den Knopf dort aus;
+     diese Pruefung ist die verbindliche, weil sie auch eine veraltete Seite
+     und einen direkten POST abfaengt. */
+  if (pack.type === 'category' && pack.slug) {
+    const contents = await getPackContents();
+    if ((contents.byCategory[pack.slug]?.mustEats ?? 0) === 0) {
+      return NextResponse.json({ error: 'empty_pack' }, { status: 409 });
+    }
+  }
 
   // Already-owned check only applies to logged-in users. Stripe collects a
   // guest's email after this request, so the webhook performs the authoritative

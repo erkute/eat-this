@@ -69,8 +69,14 @@ export const restaurantMapDetailQuery = `
   }
 `;
 
+/* Derselbe Katalogfilter wie oben. Ohne ihn hing Karte 022 (Crapulix) an einem
+   geschlossenen Lokal: die Map liess den Spot weg, schickte die Karte aber mit
+   — im Album stand ein Platz, den niemand mehr vor Ort umdrehen kann, und das
+   All-Berlin-Pack versprach 25 Karten, waehrend das Deck 26 Plaetze zeigte.
+   Solange die Karten das Produkt sind, muessen alle vier Flaechen (Map, Album,
+   geteiltes Deck, Pack-Zahl) dieselbe Menge meinen. */
 export const mapMustEatsQuery = `
-  *[_type == "mustEat"] {
+  *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] {
     _id,
     revealedForAnon,
     order,

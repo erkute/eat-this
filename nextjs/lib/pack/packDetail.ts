@@ -1,7 +1,6 @@
 // Pure helpers for the booster pack routes (/pack/[slug] and /packs).
 // Keep free of React / Sanity so they stay unit-testable.
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog';
-import type { RestaurantCard } from '@/lib/types';
 
 /** URL slug for a pack detail page: the category slug, or 'all-berlin'. */
 export function packUrlSlug(pack: PackDef): string {
@@ -21,48 +20,17 @@ export function formatPackPrice(amountCents: number): string {
   return `${euros},${String(cents).padStart(2, '0')} €`;
 }
 
-interface PackTeaserRow {
+/** Eine Karte, wie die Pack-Seite sie auflistet: Nummer und Ort, kein Gericht. */
+export interface PackCard {
+  _id: string;
+  /** Die Nummer unten rechts auf der gedruckten Karte. */
+  order?: number;
   name: string;
   district?: string;
 }
-interface PackTeaser {
-  /** First N spots shown by name + district (the hook). */
-  revealed: PackTeaserRow[];
-  /** Next M spots — district only, name stays covered until purchase. */
-  locked: { district?: string }[];
-}
 
-/**
- * Split a category's restaurants into a small revealed teaser + a couple of
- * covered rows. Names of locked rows are deliberately withheld.
- *
- * Restaurants are alphabetical, so a chain puts its branches side by side —
- * Breakfast opened on "01 AERA · Mitte / 02 AERA · Charlottenburg", which reads
- * like a thin pack rather than two genuinely different rooms. One row per name
- * in the revealed part; the branches are still in the pack and still counted.
- */
-export function buildPackTeaser(
-  restaurants: RestaurantCard[],
-  revealCount = 3,
-  lockedCount = 2
-): PackTeaser {
-  const seen = new Set<string>();
-  const distinct = restaurants.filter((r) => {
-    if (seen.has(r.name)) return false;
-    seen.add(r.name);
-    return true;
-  });
-  const revealed = distinct.slice(0, revealCount).map((r) => ({
-    name: r.name,
-    district: r.district,
-  }));
-  const locked = distinct
-    .slice(revealCount, revealCount + lockedCount)
-    .map((r) => ({ district: r.district }));
-  return { revealed, locked };
-}
-
-/** Spot + Must-Eat totals a pack puts on the map. */
+/** Spot- und Kartenzahl einer Kategorie. `spots` zaehlt nur noch mit, wie
+ *  breit die Kategorie ist — verkauft werden die Karten. */
 export interface PackContents {
   spots: number;
   mustEats: number;
@@ -74,19 +42,25 @@ export interface PackContentsIndex {
 }
 
 /**
- * "340 Spots · 22 Must Eats" — All Berlin only. Category packs deliberately
- * never state their size: Dinner carries 225 of 340 spots and Lunch 205, so
- * "225 Spots · 2,99 €" next to the bundle argues against the bundle. A category
- * pack sells on what is in it; only All Berlin sells on how much.
- * Packs without a Must Eat yet say only the spots rather than advertising zero.
+ * "22 Karten" — was ein Pack enthaelt.
+ *
+ * Bis zum 06.09.2026 stand hier "340 Spots · 22 Must Eats", und die
+ * Kategorie-Packs nannten ihre Groesse bewusst NICHT: Dinner trug 225 von 340
+ * Spots, und "225 Spots · 2,99 €" neben dem Buendel argumentierte gegen das
+ * Buendel. Mit Karten ist das Gegenteil richtig — die Zahlen sind klein,
+ * vergleichbar und SIND das Produkt. Ein Pack, das seine Kartenzahl
+ * verschweigt, verkauft eine Katze im Sack.
+ *
+ * Ein Pack ohne Karte sagt das offen, statt eine Null zu drucken: der Satz
+ * gehoert zu einer Ware, die es noch nicht gibt.
  */
-export function formatPackContents({ spots, mustEats }: PackContents, locale: 'de' | 'en'): string {
-  const spotLabel =
-    locale === 'de'
-      ? `${spots} ${spots === 1 ? 'Spot' : 'Spots'}`
-      : `${spots} ${spots === 1 ? 'spot' : 'spots'}`;
-  if (mustEats === 0) return spotLabel;
-  return `${spotLabel} · ${mustEats} ${mustEats === 1 ? 'Must Eat' : 'Must Eats'}`;
+export function formatPackContents({ mustEats }: PackContents, locale: 'de' | 'en'): string {
+  if (locale === 'de') {
+    if (mustEats === 0) return 'Noch keine Karte drin';
+    return `${mustEats} ${mustEats === 1 ? 'Karte' : 'Karten'}`;
+  }
+  if (mustEats === 0) return 'No card in it yet';
+  return `${mustEats} ${mustEats === 1 ? 'card' : 'cards'}`;
 }
 
 /**

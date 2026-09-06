@@ -50,7 +50,7 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
             ? checkout.email
               ? `Deine Zahlung ist bestätigt. Den Login-Link für dein Pack schicken wir an ${checkout.email}.`
               : 'Deine Zahlung ist bestätigt. Den Login-Link für dein Pack schicken wir dir per E-Mail.'
-            : 'Deine Zahlung ist bestätigt. Dein Pack wird jetzt auf deiner Map freigeschaltet.',
+            : 'Deine Zahlung ist bestätigt. Deine Karten liegen gleich im Album.',
         packTag: `${checkout.packLabel} Pack`,
         check:
           checkout.mode === 'guest'
@@ -64,7 +64,7 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
       return {
         eyebrow: 'Zahlung in Bearbeitung',
         headline: 'Fast geschafft.',
-        body: 'Stripe verarbeitet deine Zahlung noch. Dein Pack wird erst nach der Zahlungsbestätigung freigeschaltet.',
+        body: 'Stripe verarbeitet deine Zahlung noch. Deine Karten kommen erst nach der Zahlungsbestätigung ins Album.',
         packTag: `${checkout.packLabel} Pack`,
         check: 'Du kannst diese Seite später erneut laden.',
         backLabel: 'Zurück zur Map',
@@ -91,7 +91,7 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
           ? checkout.email
             ? `Your payment is confirmed. We will send the sign-in link for your pack to ${checkout.email}.`
             : 'Your payment is confirmed. We will send the sign-in link for your pack by email.'
-          : 'Your payment is confirmed. Your pack is now being unlocked on your map.',
+          : 'Your payment is confirmed. Your cards are landing in your album.',
       packTag: `${checkout.packLabel} pack`,
       check:
         checkout.mode === 'guest'
@@ -105,7 +105,7 @@ function getCheckoutCopy(locale: 'de' | 'en', checkout: CheckoutState): Checkout
     return {
       eyebrow: 'Payment processing',
       headline: 'Almost there.',
-      body: 'Stripe is still processing your payment. Your pack will be unlocked only after payment is confirmed.',
+      body: 'Stripe is still processing your payment. Your cards reach your album only after payment is confirmed.',
       packTag: `${checkout.packLabel} pack`,
       check: 'You can reload this page later.',
       backLabel: 'Back to the map',

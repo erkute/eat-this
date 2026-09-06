@@ -497,6 +497,28 @@ export const staticPageBySlugQuery = `
 `;
 
 /**
+ * Die Karten EINER Kategorie — das, was ihr Pack verkauft.
+ *
+ * Alles daran ist ohnehin oeffentlich: die Kartennummer und der Spot, an dem
+ * die Karte liegt, stehen genauso auf /must-eats. Was nicht herauskommt, ist
+ * das Gericht — und genau das ist das Produkt. Die Pack-Seite listet deshalb
+ * WO die Karten liegen und verschweigt WAS darauf steht.
+ *
+ * Derselbe Katalogfilter wie `packContentsQuery`, damit die Liste und die Zahl
+ * darueber nicht auseinanderlaufen koennen.
+ */
+export const mustEatsByCategoryQuery = `
+  *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}
+    && $categorySlug in restaurantRef->categories[]->slug.current
+  ] | order(coalesce(order, 9999) asc, _id asc) {
+    _id,
+    order,
+    "name": restaurantRef->name,
+    "district": coalesce(restaurantRef->bezirkRef->name, restaurantRef->district)
+  }
+`;
+
+/**
  * How much a Booster Pack actually contains, for every pack at once.
  *
  * Der Katalogfilter kommt aus `liveRestaurant()` — dieselbe Quelle wie

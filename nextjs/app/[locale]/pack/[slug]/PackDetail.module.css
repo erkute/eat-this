@@ -73,6 +73,31 @@
   text-transform: uppercase;
 }
 
+/* Der Platz des Kaufknopfes bei einem Pack ohne Karte. Keine deaktivierte
+   Taste: ein grauer Knopf lädt zum Draufdrücken ein und antwortet nicht. */
+.soon {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  margin: 0;
+  color: var(--pack-muted);
+  font-size: var(--et-type-button, 14px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  text-transform: uppercase;
+}
+
+/* Wie viele Karten drin sind. Sie steht zwischen Editor-Zeile und Fließtext,
+   weil sie die Ware benennt: das Pack IST diese Zahl Karten. */
+.contents {
+  margin: clamp(10px, 1.2vw, 14px) 0 0;
+  color: var(--pack-muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  text-transform: uppercase;
+}
+
 /* „Holzofen. Pinsa. NY-Slice." — die Editor-Zeile des Packs, gelb wie die
    Kreide-Labels der Tafel. */
 .spectrum {
@@ -284,38 +309,6 @@
   text-transform: uppercase;
 }
 
-.rowLocked .num {
-  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  color: var(--pack-dim);
-}
-
-/* Der verdeckte Name: ein Redaktionsbalken auf ruhiger Fläche, mit dem Wort
-   klein drin — liest sich wie die verdeckte Karte auf der Map, nicht wie ein
-   Platzhalter. */
-.covered {
-  display: inline-flex;
-  align-items: center;
-  min-width: 9ch;
-  height: 0.85em;
-  padding: 0 12px;
-  background: var(--pack-quiet);
-  color: var(--pack-dim);
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1;
-  text-transform: uppercase;
-  vertical-align: -0.02em;
-}
-
-.coveredLong {
-  min-width: 13ch;
-}
-
-.rnMore {
-  color: var(--pack-muted);
-}
 
 /* ── All-Berlin-Upsell ─────────────────────────────────────────────────── */
 

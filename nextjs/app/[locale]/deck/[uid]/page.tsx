@@ -175,6 +175,14 @@ export default async function DeckPage({ params }: PageProps) {
                       )}
                     </>
                   )}
+                  {/* Der Stempel ist der Punkt eines geteilten Decks: er sagt,
+                      was gelaufen ist, nicht was gekauft wurde. Er sitzt auch
+                      auf einer Rueckseite — gerade dort, denn eine verdeckt
+                      gebliebene Karte mit Stempel heisst „war da, zeig ich
+                      dir aber nicht". */}
+                  {slot.stamped && (
+                    <span className={deck.stamp}>{t('stamped')}</span>
+                  )}
                 </li>
               ))}
             </ul>

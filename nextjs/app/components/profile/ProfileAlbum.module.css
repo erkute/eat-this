@@ -410,6 +410,34 @@ div.player {
     filter 180ms ease;
 }
 
+/* Der Stempel: quer über die Ecke der Karte, leicht schief wie ein echter,
+   Ink auf Gelb. Er sagt das Einzige, was ein Kauf nicht kann — da war jemand.
+   Er sitzt AUF der Karte und nicht daneben, weil er zu ihr gehört wie der
+   Poststempel zur Marke.
+
+   `overflow: hidden` am Slot schneidet ihn an den Kanten ab; deshalb sitzt er
+   innen und nicht über der Ecke hinaus. */
+.stamp {
+  position: absolute;
+  right: 6%;
+  bottom: 8%;
+  z-index: 2;
+  padding: 3px 8px;
+  background: var(--album-accent);
+  /* NICHT --album-ink: das ist auf dieser Fläche die SCHRIFTfarbe (weiß auf
+     Ink), und weiß auf Gelb wäre unleserlich. Auf einer gelben Fläche ist die
+     Tinte die Tinte. */
+  color: var(--et-home-ink, #15120e);
+  border-radius: 3px;
+  font-family: var(--et-font-label, sans-serif);
+  font-size: clamp(8px, 1vw, 11px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotate(-7deg);
+}
+
 /* Die gesammelte Karte liegt AUF dem Album: Schlagschatten, und beim
    Anfassen hebt sie sich. */
 .filled {

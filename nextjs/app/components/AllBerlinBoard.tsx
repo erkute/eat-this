@@ -47,10 +47,10 @@ const copy = {
   de: {
     kickerHero: 'Alles auf einmal · alle Packs',
     kickerUpsell: 'Lieber alles auf einmal',
-    includes: (spots: number, mustEats: number, categories: number) => [
-      `Alle ${spots} Spots in ${categories} Kategorien`,
-      `Alle ${mustEats} Must Eats`,
-      'Alle neuen Berlin-Updates',
+    includes: (mustEats: number, categories: number) => [
+      `Alle ${mustEats} Karten aus ${categories} Kategorien`,
+      'Jede Karte, die noch dazukommt',
+      'Ohne einen Schritt vor die Tür',
     ],
     includesLabel: 'All Berlin enthält',
     cta: 'All Berlin freischalten',
@@ -63,10 +63,10 @@ const copy = {
   en: {
     kickerHero: 'Everything at once · every pack',
     kickerUpsell: 'Rather everything at once',
-    includes: (spots: number, mustEats: number, categories: number) => [
-      `All ${spots} spots across ${categories} categories`,
-      `All ${mustEats} Must Eats`,
-      'Every new Berlin update',
+    includes: (mustEats: number, categories: number) => [
+      `All ${mustEats} cards across ${categories} categories`,
+      'Every card still to come',
+      'Without a step out the door',
     ],
     includesLabel: 'All Berlin includes',
     cta: 'Unlock All Berlin',
@@ -109,7 +109,7 @@ export default function AllBerlinBoard({
           <>
             <p className={styles.lead}>{pack.description[locale]}</p>
             <ul className={styles.facts} aria-label={t.includesLabel}>
-              {t.includes(contents.spots, contents.mustEats, categoryCount).map((item) => (
+              {t.includes(contents.mustEats, categoryCount).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>

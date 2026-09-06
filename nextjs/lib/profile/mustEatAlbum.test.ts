@@ -75,4 +75,23 @@ describe('buildAlbum', () => {
     const b = buildAlbum(all, new Set(['b', 'c']));
     expect(a.slots.map((s) => s.no)).toEqual(b.slots.map((s) => s.no));
   });
+
+  /* Zwei Wege, eine Karte zu bekommen, und sie sind nicht dasselbe: kaufen
+     legt sie ins Album, hingehen stempelt sie ab. Der Stempel ist die einzige
+     Auszeichnung im Deck, die es nicht zu kaufen gibt — er darf deshalb nie
+     aus dem vereinigten Face-up-Satz kommen. */
+  it('stamps only what was turned over on site, never what was bought', () => {
+    const { slots } = buildAlbum(all, new Set(['b', 'c']), new Set(['b']));
+    expect(slots.find((s) => s.id === 'b')!.stamped).toBe(true);
+    expect(slots.find((s) => s.id === 'c')!.stamped).toBe(false);
+  });
+
+  it('never stamps a slot that is not collected at all', () => {
+    // Eine Aufdeckung, die es gab, deren Karte dem Konto aber nicht (mehr)
+    // offensteht: der Platz bleibt leer, und ein Stempel auf einem leeren
+    // Platz waere eine Behauptung ohne Karte.
+    const { slots } = buildAlbum(all, new Set(), new Set(['b']));
+    expect(slots.find((s) => s.id === 'b')!.collected).toBe(false);
+    expect(slots.find((s) => s.id === 'b')!.stamped).toBe(false);
+  });
 });

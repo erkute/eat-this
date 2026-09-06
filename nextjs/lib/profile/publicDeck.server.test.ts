@@ -158,8 +158,15 @@ describe('getPublicDeck', () => {
       'slots',
       'total',
     ]);
-    // Und pro Platz genau drei Angaben — Nummer, Stand, Bild.
-    expect(Object.keys(deck?.slots[0] ?? {}).sort()).toEqual(['collected', 'image', 'no']);
+    /* Und pro Platz genau vier Angaben — Nummer, Stand, Stempel, Bild. Der
+       Stempel („vor Ort umgedreht") ist keine bezahlte Angabe, sondern eine
+       Leistung; er darf hinaus, ein Gericht nicht. */
+    expect(Object.keys(deck?.slots[0] ?? {}).sort()).toEqual([
+      'collected',
+      'image',
+      'no',
+      'stamped',
+    ]);
   });
 
   it('traegt weder E-Mail noch Foto-URL noch ein Gericht nach draussen', async () => {

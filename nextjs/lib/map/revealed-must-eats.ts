@@ -22,11 +22,18 @@ import type { MapMustEat } from '@/lib/types';
  * jeden offen, damit überhaupt zu sehen ist, was eine Karte IST.
  *
  * Die Zahl ist eine Verkaufsentscheidung, kein technischer Wert: sie bemisst,
- * wie viel des Stapels ein Fremder gratis sieht. Bei 26 Karten sind zehn
- * reichlich (38 %); wächst der Stapel auf die geplanten 100+, wird daraus ein
- * Schaufenster von 10 %.
+ * wie viel des Stapels ein Fremder gratis sieht. Sie stand bis zum 06.09.2026
+ * auf zehn — sinnvoll, solange die Karten nur der Vorgeschmack auf eine
+ * Spot-Paywall waren. Seit sie das Produkt sind, waren zehn von 26 ein
+ * Schaufenster mit 38 % des Sortiments darin.
+ *
+ * Drei reichen für die Frage, die das Schaufenster beantwortet: was IST eine
+ * Karte. Wächst der Stapel auf die geplanten 100+, darf die Zahl mitwachsen —
+ * sie ist absolut, nicht anteilig, also verwässert sie sonst von allein.
+ *
+ * Der Spot des Tages kommt täglich als vierte dazu und ist flüchtig.
  */
-export const REVEALED_TARGET = 10;
+export const REVEALED_TARGET = 3;
 
 /**
  * Die öffentlich aufgedeckten Karten — höchstens eine pro Spot.

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { packContentsQuery, restaurantsByCategoryQuery } from '../queries';
-import { mapRestaurantsQuery } from '../map/queries';
+import { mapRestaurantsQuery, mapMustEatsQuery } from '../map/queries';
 import { ownsCategoryOf } from '../firebase/entitlements';
 
 /**
@@ -19,6 +19,15 @@ describe('packContentsQuery', () => {
 
   it('scopes Must Eats by their restaurant, which is what makes them visible', () => {
     expect(packContentsQuery).toContain('restaurantRef->isOpen != false');
+  });
+
+  /* Die Kontrollzahl: Map, Album, geteiltes Deck und Pack-Zahl muessen
+     dieselbe Kartenmenge meinen. Ohne den Filter hier hing Karte 022
+     (Crapulix) an einem geschlossenen Lokal — das Deck zeigte 26 Plaetze,
+     All Berlin versprach 25, und der Platz war vor Ort nicht einloesbar. */
+  it('drops a card whose spot is closed, exactly like the pack count does', () => {
+    expect(mapMustEatsQuery).toContain('restaurantRef->isOpen != false');
+    expect(mapMustEatsQuery).toContain('restaurantRef->isClosed != true');
   });
 
   it('matches a category against every category on the restaurant', () => {

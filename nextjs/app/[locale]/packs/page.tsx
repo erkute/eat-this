@@ -4,7 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
+import { formatPackContents, formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { routing } from '@/i18n/routing';
@@ -49,6 +49,7 @@ const copy = {
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
+    soon: 'Kommt bald',
     map: '/map',
   },
   en: {
@@ -58,6 +59,7 @@ const copy = {
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
+    soon: 'Coming soon',
     map: '/en/map',
   },
 } as const;
@@ -93,6 +95,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
             {categoryPacks.map((pack) => {
               const art = pack.slug ? categoryArt(pack.slug) : null;
               const href = `/pack/${packUrlSlug(pack)}`;
+              const contents = pack.slug ? packContents.byCategory[pack.slug] : undefined;
+              /* Ein Pack ohne Karte ist kein Produkt, sondern eine leere
+                 Schachtel — Fine Dining stand am 06.09.2026 auf null. Es bleibt
+                 sichtbar (die Kategorie kommt ja), aber es ist nicht käuflich. */
+              const empty = contents?.mustEats === 0;
 
               return (
                 <li key={pack.packId} className={styles.tile}>
@@ -111,21 +118,28 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     )}
                     <span className={styles.tileName}>{pack.displayName}</span>
                     <span className={styles.spectrum}>{pack.spectrum[loc]}</span>
+                    {contents && (
+                      <span className={styles.contents}>{formatPackContents(contents, loc)}</span>
+                    )}
                   </Link>
 
-                  <PackBuyButton
-                    packId={pack.packId}
-                    packName={pack.displayName}
-                    amountCents={pack.amountCents}
-                    locale={loc}
-                    className={styles.buy}
-                    errorClassName={styles.buyError}
-                    label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
-                    pendingLabel={t.pending}
-                    ownedLabel={t.owned}
-                    ownedHref={t.map}
-                    errorLabel={t.error}
-                  />
+                  {empty ? (
+                    <span className={styles.soon}>{t.soon}</span>
+                  ) : (
+                    <PackBuyButton
+                      packId={pack.packId}
+                      packName={pack.displayName}
+                      amountCents={pack.amountCents}
+                      locale={loc}
+                      className={styles.buy}
+                      errorClassName={styles.buyError}
+                      label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
+                      pendingLabel={t.pending}
+                      ownedLabel={t.owned}
+                      ownedHref={t.map}
+                      errorLabel={t.error}
+                    />
+                  )}
                 </li>
               );
             })}

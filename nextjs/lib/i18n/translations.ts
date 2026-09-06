@@ -231,6 +231,7 @@ const en = {
       "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
     empty: 'No cards on this map yet.',
     ctaHeading: 'Open your own map',
+    stamped: 'Been there',
     ctaLine: 'Your own cards are waiting all over Berlin.',
     ctaLineNamed: '{name} is already collecting. Your own cards are waiting all over Berlin.',
     cta: 'Start now',
@@ -254,13 +255,14 @@ const en = {
     spotNoteError: 'Could not save note.',
     lockedSubhead: 'Still face-down',
     emptyMustEats:
-      'No Must Eats in your collection yet. Open a Booster Pack and reveal them on site.',
+      'No Must Eats in your collection yet. Stand at a spot and turn its card over — or open a Booster Pack.',
     albumHeading: 'Your deck',
     /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
        Wer sie hier aendert, aendert sie dort mit. */
     howTo:
       "Every card sits at a spot in Berlin. Stand in front of it, tap the card \u2014 it flips, and it's yours.",
     albumCount: 'of {total} Must Eats',
+    albumStamped: 'Been there',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
     albumFilterAll: 'All',
@@ -608,6 +610,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     ctaHeading: 'Mach deine eigene Map auf',
     /* Nicht mehr „Jeder Spot hat sein Must Eat" — das stimmt nicht, laengst
        nicht jeder traegt eine Karte (Nutzer, 04.09.2026). */
+    stamped: 'War da',
     ctaLine: 'Deine eigenen Karten warten \u00fcberall in Berlin.',
     ctaLineNamed: '{name} sammelt schon. Deine eigenen Karten warten \u00fcberall in Berlin.',
     cta: 'Jetzt starten',
@@ -632,13 +635,18 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotNoteError: 'Notiz konnte nicht gespeichert werden.',
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
-      'Noch keine Must Eats in deiner Sammlung. \u00d6ffne ein Booster Pack und geh vor Ort aufdecken.',
+      'Noch keine Must Eats in deiner Sammlung. Steh vor einem Spot und dreh seine Karte um \u2014 oder \u00f6ffne ein Booster Pack.',
     albumHeading: 'Dein Deck',
     /* Zwilling von deck.howTo — dieselbe Erklaerung auf beiden Deck-Seiten.
        Wer sie hier aendert, aendert sie dort mit. */
     howTo:
       'Jede Karte liegt bei einem Spot in Berlin. Steh davor, tipp sie an \u2014 und sie dreht sich um und geh\u00f6rt dir.',
     albumCount: 'von {total} Must Eats',
+    /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
+       quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
+       bezeugt, keinen Zustand. Gekaufte Karten tragen ihn nicht: das ist der
+       ganze Unterschied. */
+    albumStamped: 'War da',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',
     albumFilterAll: 'Alle',

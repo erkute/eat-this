@@ -1,6 +1,12 @@
 // nextjs/lib/buddy/stream.test.ts
 import { describe, it, expect } from 'vitest';
-import { encodeBuddyEvent, sanitizeLinks, splitAnswerSegments, extractFollowups } from './stream';
+import {
+  encodeBuddyEvent,
+  sanitizeLinks,
+  splitAnswerSegments,
+  extractFollowups,
+  SPOT_SLUG_RE,
+} from './stream';
 
 describe('encodeBuddyEvent', () => {
   it('encodes one NDJSON line per event', () => {
@@ -45,6 +51,18 @@ describe('splitAnswerSegments', () => {
     expect(segments[1]).toEqual({ type: 'spot', slug: 'zola' });
     expect(segments[3]).toEqual({ type: 'spot', slug: 'oliveto' });
     expect(placedSlugs).toEqual(['zola', 'oliveto']);
+  });
+
+  it('setzt auch eine Karte fuer einen Slug mit Grossbuchstaben', () => {
+    // `Der-weinlobbyist` steht so in Sanity. Mit der frueheren Zeichenklasse
+    // [a-z0-9-] blieb der Marker als roher Text stehen und der Spot bekam nie
+    // eine Karte — der einzige Katalogeintrag, dem das passierte.
+    const { segments, placedSlugs } = splitAnswerSegments(
+      'Guter Wein.\n[[spot:Der-weinlobbyist]]',
+      new Set(['Der-weinlobbyist'])
+    );
+    expect(segments.map((s) => s.type)).toEqual(['text', 'spot']);
+    expect(placedSlugs).toEqual(['Der-weinlobbyist']);
   });
 
   it('drops markers with an unknown slug and keeps the surrounding text', () => {
@@ -95,5 +113,19 @@ describe('extractFollowups', () => {
   it('returns no chips when the marker is absent or still incomplete', () => {
     expect(extractFollowups('Nur Text').chips).toEqual([]);
     expect(extractFollowups('Text [[chips: eher veg').chips).toEqual([]);
+  });
+});
+
+describe('SPOT_SLUG_RE', () => {
+  it('nimmt die Slugs des Katalogs an, auch den einen mit Grossbuchstaben', () => {
+    expect(SPOT_SLUG_RE.test('zola')).toBe(true);
+    expect(SPOT_SLUG_RE.test('893-ryotei')).toBe(true);
+    expect(SPOT_SLUG_RE.test('Der-weinlobbyist')).toBe(true);
+  });
+
+  it('weist ab, was den Marker oder den Pfad sprengen wuerde', () => {
+    expect(SPOT_SLUG_RE.test('zola pizza')).toBe(false);
+    expect(SPOT_SLUG_RE.test('../etc/passwd')).toBe(false);
+    expect(SPOT_SLUG_RE.test('')).toBe(false);
   });
 });

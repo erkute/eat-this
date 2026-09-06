@@ -8,7 +8,7 @@ import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { searchSpots, searchArticles } from '@/lib/buddy/retrieval';
 import { clientIpFromXff } from '@/lib/clientIp';
-import { encodeBuddyEvent } from '@/lib/buddy/stream';
+import { encodeBuddyEvent, SPOT_SLUG_RE } from '@/lib/buddy/stream';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import type { BuddyPageContext, ChatMessage, Locale } from '@/lib/buddy/types';
 
@@ -72,7 +72,7 @@ function parseBody(body: unknown):
       typeof p.slug === 'string' &&
       p.slug.length > 0 &&
       p.slug.length <= 120 &&
-      /^[a-z0-9-]+$/.test(p.slug)
+      SPOT_SLUG_RE.test(p.slug)
     ) {
       pageSlug = p.slug;
     }

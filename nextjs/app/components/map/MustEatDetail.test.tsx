@@ -48,8 +48,10 @@ describe('MustEatDetail login gate', () => {
     openLoginModal.mockClear();
   });
 
-  it('opens the current shared starter login layer for an in-range guest', () => {
+  it('shows the Starter Pack layer for a guest, whose button opens the login', () => {
     const onUnlock = vi.fn().mockResolvedValue(true);
+    const showNotice = vi.fn();
+    window.showNotice = showNotice;
 
     render(
       <MustEatDetail
@@ -64,11 +66,27 @@ describe('MustEatDetail login gate', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Reveal Must Eat' }));
 
-    expect(openLoginModal).toHaveBeenCalledOnce();
-    /* Die angetippte Karte reist als Absicht mit — die Tafel verspricht
-       „diese ist dabei", und /api/starter-pack loest das ein. */
+    /* Erst die Tafel als Layer (Betreiber, 07.09.2026: „als Layer nach einem
+       Klick"), nicht sofort das Login. */
+    expect(openLoginModal).not.toHaveBeenCalled();
+    expect(showNotice).toHaveBeenCalledOnce();
+    const notice = showNotice.mock.calls[0][0];
+    expect(notice).toMatchObject({
+      layer: true,
+      duration: 0,
+      eyebrow: 'Gratis',
+      title: 'Starter Pack',
+      detail: 'Melde dich an und bekomm 20 Must Eats. Diese ist dabei.',
+    });
+    expect(notice.action.label).toBe('Starter Pack holen');
+
+    /* Der gelbe Knopf oeffnet das Login — mit der angetippten Karte als
+       Absicht: die Tafel verspricht „diese ist dabei", und
+       /api/starter-pack loest das ein. */
+    notice.action.onClick();
     expect(openLoginModal).toHaveBeenCalledWith('starter', { starterMustEatId: 'must-eat-1' });
     expect(onUnlock).not.toHaveBeenCalled();
+    delete window.showNotice;
   });
 });
 

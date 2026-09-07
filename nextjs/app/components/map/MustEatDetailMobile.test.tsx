@@ -92,49 +92,43 @@ describe('MustEatDetailMobile guest pitch', () => {
      Starter Pack, gratis, zwanzig Must Eats, diese dabei. Standort-Logik
      und Naeherungs-Hinweis haben hier nichts verloren — ein Gast hat kein
      Deck, in das die Karte koennte (Betreiber, 07.09.2026). */
-  it('sells the free sign-up instead of asking for the location', () => {
-    const onSignUp = vi.fn();
-    const onSignIn = vi.fn();
+  it('reads like any covered card, asks no location, and names the tap as the way in', () => {
+    const handleCardClick = vi.fn(async () => undefined);
     render(
+      <MustEatDetailMobile
+        mustEat={mustEat}
+        isUnlocked={false}
+        onClose={vi.fn()}
+        state={makeState({ needsLocation: true, requestLocation: vi.fn(), handleCardClick })}
+        guest
+      />
+    );
+
+    /* Die Tafel selbst ist ein Layer (starterPitch) — in der Karte steht
+       nichts davon, sie liest sich wie jede verdeckte Karte. */
+    expect(screen.getByText('Noch nicht aufgedeckt')).toBeTruthy();
+    expect(screen.queryByText('guestPitchTitle')).toBeNull();
+    expect(screen.queryByText('Standort freigeben')).toBeNull();
+
+    /* Der Kartentipp ist der Weg zur Tafel — und so heisst er auch fuers
+       Screenreader-Ohr, nicht „Standort freigeben". */
+    fireEvent.click(screen.getByRole('button', { name: 'guestPitchCta' }));
+    expect(handleCardClick).toHaveBeenCalledTimes(1);
+  });
+
+  /* Mit Konto aendert sich nichts. */
+  it('keeps the location chip for a signed-in reader', () => {
+    const { container } = render(
       <MustEatDetailMobile
         mustEat={mustEat}
         isUnlocked={false}
         onClose={vi.fn()}
         state={makeState({ needsLocation: true, requestLocation: vi.fn() })}
-        guest
-        onSignUp={onSignUp}
-        onSignIn={onSignIn}
       />
     );
 
-    expect(screen.getByText('guestPitchTitle')).toBeTruthy();
-    expect(screen.getByText('guestPitchBody')).toBeTruthy();
-    expect(screen.queryByText('Standort freigeben')).toBeNull();
-    expect(screen.queryByText(/Ein Gericht, das du probieren musst/)).toBeNull();
-
-    /* Zwei Knoepfe tragen den Namen: die Karte selbst (ihr aria-label) und
-       der gelbe Knopf der Tafel. Der Kartentipp laeuft ueber den Zustands-
-       automaten, der Knopf direkt — hier zaehlt der Knopf. */
-    const ctas = screen.getAllByRole('button', { name: 'guestPitchCta' });
-    fireEvent.click(ctas[ctas.length - 1]);
-    expect(onSignUp).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole('button', { name: 'starterPromoLogin' }));
-    expect(onSignIn).toHaveBeenCalledTimes(1);
-  });
-
-  /* Mit Konto aendert sich nichts — der Block ist ausschliesslich fuer Gaeste. */
-  it('stays out of the way for a signed-in reader', () => {
-    render(
-      <MustEatDetailMobile
-        mustEat={mustEat}
-        isUnlocked={false}
-        onClose={vi.fn()}
-        state={makeState()}
-      />
-    );
-
-    expect(screen.queryByText('guestPitchTitle')).toBeNull();
-    expect(screen.getByText('Noch nicht aufgedeckt')).toBeTruthy();
+    expect(container.querySelector('[data-location-needed]')).not.toBeNull();
+    expect(screen.queryByLabelText('guestPitchCta')).toBeNull();
   });
 });
 

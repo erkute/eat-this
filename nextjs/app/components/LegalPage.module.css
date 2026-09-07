@@ -360,4 +360,16 @@
   .page {
     padding-inline: clamp(16px, 5vw, 22px);
   }
+
+  /* „DATENSCHUTZERKLÄRUNG" und „GESCHÄFTSBEDINGUNGEN" sind je zwanzig Versalien
+     ohne Umbruchpunkt — rund 13,1em in Providence, 13,7em in der
+     Arial-Rückfallschrift. Die festen 30px brauchten dafür ~390px und liefen
+     auf jedem Telefon (337px Satzbreite bei 375px) rechts aus dem Bild; der
+     Grund clippt, also war der Titel schlicht abgeschnitten (Nutzer,
+     07.09.2026). Ab hier wächst er mit der Breite: 6,5vw sind an 90vw
+     Satzbreite genau das, was das längste Wort braucht — 24px bei 375px,
+     29px bei 440px, und mit 20px passt es noch auf 320px. */
+  .title {
+    font-size: clamp(20px, 6.5vw, 30px);
+  }
 }

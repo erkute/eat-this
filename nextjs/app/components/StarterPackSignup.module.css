@@ -167,6 +167,91 @@
   line-height: 1.4;
 }
 
+/* „oder" zwischen Mail und Google — zwei Haarlinien in Weiß-Stufe und das
+   Wort in derselben stillen Zeile wie der Hinweis darüber. So breit wie das
+   Formular, damit die Linien an dessen Kanten enden. */
+.or {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  margin-top: clamp(14px, 1.8vw, 20px);
+  color: var(--starter-quiet);
+  font-family: var(--font-providence);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.or::before,
+.or::after {
+  content: '';
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Papier auf Ink wie das Eingabefeld, das Google-G in seinen eigenen Farben
+   (GoogleMark.tsx). Dieselbe Höhe und derselbe Radius wie Feld und Knopf,
+   damit die drei als eine Reihe lesen; gelb erst beim Hover, wie „Anmelden"
+   zu Papier wird. */
+.google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  min-height: 56px;
+  margin-top: clamp(14px, 1.8vw, 20px);
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--et-radius-control);
+  color: var(--starter-ink);
+  background: var(--starter-paper);
+  font-family: var(--font-providence);
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--et-motion-fast, 140ms ease),
+    transform var(--et-motion-fast, 140ms ease);
+}
+
+.google svg {
+  flex: none;
+}
+
+.google:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.google:focus-visible {
+  outline: 2px solid var(--starter-accent);
+  outline-offset: 3px;
+}
+
+.google:focus-visible:not(:disabled) {
+  background: var(--starter-accent);
+  transform: translateY(-2px);
+}
+
+@media (hover: hover) {
+  .google:hover:not(:disabled) {
+    background: var(--starter-accent);
+    transform: translateY(-2px);
+  }
+}
+
+.google:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 /* Beide in der Markenschrift: der Hinweis stand als 9px-Mono-Fußnote da und
    war auf der Ink-Tafel die einzige fremde Schrift („andere Font"). Jetzt die
    stille Zeile wie „Einzeln 26,91 €" unter dem All-Berlin-Knopf: Providence,
@@ -237,7 +322,9 @@
     width: 150px;
   }
 
-  .form {
+  .form,
+  .or,
+  .google {
     max-width: none;
   }
 

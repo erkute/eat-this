@@ -1,9 +1,11 @@
 'use client';
 
-import { useId, useState, type FormEvent } from 'react';
+import { useCallback, useId, useState, type FormEvent } from 'react';
 import Image from 'next/image';
-import { useMagicLink } from '@/lib/auth';
+import { useGoogleSignIn, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
+import AuthScreen from './AuthScreen';
+import { GoogleMark } from './GoogleMark';
 import styles from './StarterPackSignup.module.css';
 
 /**
@@ -50,6 +52,13 @@ const copy = {
     sentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     emptyEmail: 'Bitte gib deine E-Mail ein.',
     invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
+    or: 'oder',
+    google: 'Mit Google anmelden',
+    googleCancelled: 'Abgebrochen. Versuch es nochmal oder nimm deine E-Mail.',
+    googleBlocked:
+      'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.',
+    googleFailed: 'Das hat mit Google nicht geklappt. Nimm solange deine E-Mail.',
+    signedIn: 'Du bist angemeldet',
     imgAlt: 'Eat This Starter Pack',
   },
   en: {
@@ -65,6 +74,12 @@ const copy = {
     sentLead: "We've sent your link. One click and you're in.",
     emptyEmail: 'Add your email first.',
     invalidEmail: 'That does not look like an email yet.',
+    or: 'or',
+    google: 'Sign in with Google',
+    googleCancelled: 'Cancelled. Try again, or use your email.',
+    googleBlocked: 'Your browser blocked the Google window. Allow it, or use your email.',
+    googleFailed: "Google didn't work out. Use your email for now.",
+    signedIn: "You're signed in",
     imgAlt: 'Eat This Starter Pack',
   },
 } as const;
@@ -72,12 +87,32 @@ const copy = {
 export default function StarterPackSignup({ locale }: Props) {
   const t = copy[locale];
   const { sendLink, state, errorMessage, reset } = useMagicLink();
+  /* Der Google-Weg — bis 07.09.2026 gab es ihn nur im Login-Modal, und das
+     Formular hier bot allein die Mail an („das Anmeldeformular auf der
+     Startseite hat nicht die Google-Anmeldung"). Nach der Antwort versteckt
+     `data-guest-only` diese Tafel (globals.css); der Wartescreen liegt als
+     Portal darüber und bleibt die Haltezeit stehen, dann kommt der Toast,
+     den sonst BridgeAuth nach dem Modal zeigt. */
+  const onSignedIn = useCallback(() => window.showNotification?.(t.signedIn), [t.signedIn]);
+  const google = useGoogleSignIn({ onSettled: onSignedIn });
   const emailId = useId();
   const errorId = `${emailId}-error`;
   const [email, setEmail] = useState('');
   const [validationError, setValidationError] = useState('');
-  const feedback = validationError || errorMessage;
+  const googleNote =
+    google.note === 'blocked'
+      ? t.googleBlocked
+      : google.note === 'failed'
+        ? t.googleFailed
+        : google.note === 'cancelled'
+          ? t.googleCancelled
+          : '';
   const sent = state === 'sent';
+  // Nach dem verschickten Link ist die Google-Zeile Geschichte — sie darf
+  // nicht unter „Check deine Mail" stehen bleiben.
+  const feedback = validationError || errorMessage || (sent ? '' : googleNote);
+  // Ein Abbruch ist eine Entscheidung, kein Fehler: keine Alarm-Ansage dafür.
+  const feedbackRole = feedback === googleNote && google.note === 'cancelled' ? 'status' : 'alert';
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -148,14 +183,42 @@ export default function StarterPackSignup({ locale }: Props) {
           </form>
 
           {feedback ? (
-            <span id={errorId} className={styles.error} role="alert">
+            <span id={errorId} className={styles.error} role={feedbackRole}>
               {feedback}
             </span>
           ) : (
             !sent && <span className={styles.hint}>{t.hint}</span>
           )}
+
+          {!sent && (
+            <>
+              <div className={styles.or} aria-hidden="true">
+                <span>{t.or}</span>
+              </div>
+              {/* Vorgewärmt wird erst, wenn die Hand zum Knopf geht — nicht
+                  beim Laden der Startseite. Der Cookie-Hinweis verspricht,
+                  Google Sign-In lade „nur wenn du es nutzt"; das Modal darf
+                  beim Öffnen laden, diese Tafel steht aber auf jeder
+                  Startseite. Reicht der Vorlauf am Telefon nicht, schaltet
+                  AuthContext von selbst auf den Redirect um. */}
+              <button
+                type="button"
+                className={styles.google}
+                onClick={google.start}
+                onPointerEnter={google.prepare}
+                onPointerDown={google.prepare}
+                onFocus={google.prepare}
+                disabled={google.phase === 'busy'}
+              >
+                <GoogleMark />
+                <span>{t.google}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      {google.phase !== 'idle' && <AuthScreen mode="in" leaving={google.phase === 'leaving'} />}
     </section>
   );
 }

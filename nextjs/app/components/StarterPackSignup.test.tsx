@@ -10,6 +10,14 @@ const magicLinkState = vi.hoisted(() => ({
   errorMessage: '',
 }));
 
+/** Der Google-Weg, auf das reduziert, was die Tafel davon zeigt. */
+const googleState = vi.hoisted(() => ({
+  start: vi.fn(),
+  prepare: vi.fn(),
+  phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
+  note: null as 'cancelled' | 'blocked' | 'failed' | null,
+}));
+
 vi.mock('@/lib/auth', () => ({
   useMagicLink: () => ({
     sendLink: magicLinkState.sendLink,
@@ -17,11 +25,23 @@ vi.mock('@/lib/auth', () => ({
     errorMessage: magicLinkState.errorMessage,
     reset: magicLinkState.reset,
   }),
+  useGoogleSignIn: () => ({
+    start: googleState.start,
+    prepare: googleState.prepare,
+    phase: googleState.phase,
+    note: googleState.note,
+  }),
 }));
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} />
+  ),
+}));
+/* Der Wartescreen braucht next-intl; hier zaehlt nur, ob er da ist. */
+vi.mock('./AuthScreen', () => ({
+  default: ({ leaving }: { leaving?: boolean }) => (
+    <div data-testid="auth-screen" data-leaving={leaving ? '1' : '0'} />
   ),
 }));
 
@@ -33,6 +53,10 @@ describe('StarterPackSignup', () => {
     magicLinkState.reset.mockReset();
     magicLinkState.state = 'idle';
     magicLinkState.errorMessage = '';
+    googleState.start.mockReset();
+    googleState.prepare.mockReset();
+    googleState.phase = 'idle';
+    googleState.note = null;
   });
 
   afterEach(() => {
@@ -106,5 +130,71 @@ describe('StarterPackSignup', () => {
     expect(
       screen.getByText('Wir haben dir den Link geschickt. Ein Klick und du bist drin.')
     ).toBeTruthy();
+  });
+
+  /* Der Google-Weg — bis 07.09.2026 fehlte er hier, das Login-Modal hatte
+     ihn (Nutzer: „das Anmeldeformular auf der Startseite hat nicht die
+     Google-Anmeldung"). */
+  it('offers Google next to the email, in both languages', () => {
+    const de = renderToStaticMarkup(<StarterPackSignup locale="de" />);
+    expect(de).toContain('Mit Google anmelden');
+    expect(de).toContain('>oder<');
+    const en = renderToStaticMarkup(<StarterPackSignup locale="en" />);
+    expect(en).toContain('Sign in with Google');
+  });
+
+  it('starts the Google sign-in on click and warms the popup when the hand reaches the button', () => {
+    render(<StarterPackSignup locale="de" />);
+    const button = screen.getByRole('button', { name: 'Mit Google anmelden' });
+
+    fireEvent.pointerEnter(button);
+    expect(googleState.prepare).toHaveBeenCalledTimes(1);
+    expect(googleState.start).not.toHaveBeenCalled();
+
+    fireEvent.click(button);
+    expect(googleState.start).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not warm the Google popup just because the page rendered', () => {
+    render(<StarterPackSignup locale="de" />);
+    expect(googleState.prepare).not.toHaveBeenCalled();
+  });
+
+  it('holds the button and shows the wait screen while Google is open', () => {
+    googleState.phase = 'busy';
+    render(<StarterPackSignup locale="de" />);
+
+    expect(
+      screen.getByRole<HTMLButtonElement>('button', { name: 'Mit Google anmelden' }).disabled
+    ).toBe(true);
+    expect(screen.getByTestId('auth-screen').getAttribute('data-leaving')).toBe('0');
+  });
+
+  it('tells the reader quietly when they closed the Google window themselves', () => {
+    googleState.note = 'cancelled';
+    render(<StarterPackSignup locale="de" />);
+
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByRole('status').textContent).toBe(
+      'Abgebrochen. Versuch es nochmal oder nimm deine E-Mail.'
+    );
+  });
+
+  it('raises an alert when the browser blocked the Google window', () => {
+    googleState.note = 'blocked';
+    render(<StarterPackSignup locale="de" />);
+
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.'
+    );
+  });
+
+  it('drops the Google button and its note once the mail link is out', () => {
+    magicLinkState.state = 'sent';
+    googleState.note = 'failed';
+    render(<StarterPackSignup locale="de" />);
+
+    expect(screen.queryByRole('button', { name: 'Mit Google anmelden' })).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });

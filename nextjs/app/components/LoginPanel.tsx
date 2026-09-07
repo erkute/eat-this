@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, useId, useRef } from 'react';
+import { useState, useEffect, useCallback, useId } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth, useMagicLink, useLoginModal } from '@/lib/auth';
+import { useAuth, useMagicLink, useLoginModal, useGoogleSignIn } from '@/lib/auth';
 import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
 import { routing } from '@/i18n/routing';
 import { trackEvent } from '@/lib/analytics';
 import { GoogleMark } from './GoogleMark';
 import AuthScreen from './AuthScreen';
-import { describeGoogleSignInError } from '@/lib/auth/googleSignInError';
 import styles from './LoginPanel.module.css';
 
 const SIGNIN_BOOSTER_PACKS = [
@@ -28,7 +27,7 @@ interface LoginPanelProps {
 // drifted a redesign behind the modal everyone actually sees.
 export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps) {
   const { t } = useTranslation();
-  const { user, loading, signInWithGoogle, prepareGoogleSignIn } = useAuth();
+  const { user, loading } = useAuth();
   const locale = useLocale();
   const { intent } = useLoginModal();
   const {
@@ -37,6 +36,13 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
     errorMessage: magicError,
     reset: magicReset,
   } = useMagicLink();
+  /* Phasen, Abbruch-Zeile und Ereignisse des Google-Knopfs: lib/auth/useGoogleSignIn.ts. */
+  const {
+    phase: googlePhase,
+    note: googleNote,
+    prepare: prepareGoogleSignIn,
+    start: handleGoogle,
+  } = useGoogleSignIn();
 
   /* Der Link fuehrt dorthin zurueck, wo der Login angefangen hat — nicht auf
      die Startseite. Diese Seite hier IST der Ort: das Modal liegt ueber ihr.
@@ -45,12 +51,6 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
   const continueUrl = useCallback(() => buildLoginContinueUrl(window.location, intent), [intent]);
 
   const [email, setEmail] = useState('');
-  /* Drei Phasen statt eines Schalters: 'leaving' haelt das Panel so lange,
-     wie es zum Zurueckfahren braucht. Vorher sprang es auf einen Schlag weg,
-     und ein selbst zugeklicktes Google-Fenster sah aus wie ein Aussetzer. */
-  const [googlePhase, setGooglePhase] = useState<'idle' | 'busy' | 'leaving'>('idle');
-  const [googleNote, setGoogleNote] = useState<'cancelled' | 'blocked' | 'failed' | null>(null);
-  const authMethod = useRef<'google' | null>(null);
   const emailInputId = useId();
 
   useEffect(() => {
@@ -61,41 +61,6 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
        blockt der Browser das Fenster (siehe googlePopupWarmup.ts). */
     prepareGoogleSignIn();
   }, [prepareGoogleSignIn]);
-
-  useEffect(() => {
-    if (!user || authMethod.current !== 'google') return;
-    authMethod.current = null;
-    const created = new Date(user.metadata.creationTime ?? 0).getTime();
-    const signedIn = new Date(user.metadata.lastSignInTime ?? 0).getTime();
-    const event = Math.abs(signedIn - created) < 10_000 ? 'sign_up' : 'login';
-    trackEvent(event, { method: 'google' });
-  }, [user]);
-
-  const handleGoogle = useCallback(async () => {
-    authMethod.current = 'google';
-    trackEvent('login_start', { method: 'google' });
-    setGooglePhase('busy');
-    setGoogleNote(null);
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      authMethod.current = null;
-      setGooglePhase('leaving');
-      /* Auch der Abbruch bekommt jetzt eine Zeile — nur eine ruhige. Firebase
-         meldet ein zugeklicktes Fenster und eine gescheiterte Uebergabe mit
-         demselben Code (siehe googleSignInError.ts); wer danach stumm wieder
-         vor dem Knopf stand, wusste nicht, ob er selbst schuld war. */
-      const { benign, blocked } = describeGoogleSignInError(error);
-      setGoogleNote(benign ? 'cancelled' : blocked ? 'blocked' : 'failed');
-    }
-  }, [signInWithGoogle]);
-
-  // Das Panel raeumt sich nach seiner Ausfahrt selbst ab.
-  useEffect(() => {
-    if (googlePhase !== 'leaving') return;
-    const timer = window.setTimeout(() => setGooglePhase('idle'), 260);
-    return () => window.clearTimeout(timer);
-  }, [googlePhase]);
 
   const noteKey =
     googleNote === 'blocked'

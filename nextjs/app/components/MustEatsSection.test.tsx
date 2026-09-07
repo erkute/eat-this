@@ -176,8 +176,8 @@ describe('MustEatsSection', () => {
     // Set. Der Katalog wächst aber laufend weiter, unabhängig davon, was heute
     // auf dieser Seite steht — der Abschluss ist die Stelle, an der ein
     // Besucher fragt, ob das schon alles war.
-    expect(render()).toContain('Und es kommen immer wieder neue dazu.');
-    expect(render('en')).toContain('And new ones keep coming.');
+    expect(render()).toContain('Und wir entdecken immer wieder neue.');
+    expect(render('en')).toContain('And we keep discovering new ones.');
   });
 
   it('locale-prefixes both closing links for en', () => {

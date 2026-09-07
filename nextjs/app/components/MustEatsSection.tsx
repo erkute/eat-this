@@ -18,7 +18,7 @@ const COPY = {
   de: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Unsere klare Empfehlung: die Gerichte, die du in Berlin bestellen musst. Ein Teil liegt offen. Den Rest deckst du vor Ort auf.',
+    sub: 'Unsere Auswahl der Gerichte, die du in Berlin bestellen solltest. Einige sind bereits aufgedeckt, die anderen entdeckst du direkt am Spot.',
     statCards: 'Karten',
     statOpen: 'liegen offen',
     statCovered: 'vor Ort',
@@ -40,7 +40,7 @@ const COPY = {
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Our clear picks: the dishes you have to order in Berlin. Some are face-up. You flip the rest on site.',
+    sub: 'Our pick of the dishes you should order in Berlin. Some are already face-up, the rest you discover right at the spot.',
     statCards: 'cards',
     statOpen: 'face-up',
     statCovered: 'on site',

@@ -27,8 +27,7 @@ export function buildSignupText(magicLink: string): string {
   return [
     'EAT THIS — We tell you what to eat.',
     '',
-    'Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir',
-    'gleich, was du bestellen musst.',
+    'Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.',
     '',
     'Hier anmelden und deine Map öffnen:',
     magicLink,

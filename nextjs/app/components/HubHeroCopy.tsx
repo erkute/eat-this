@@ -59,8 +59,8 @@ function HeroMark() {
 // noch draußen holt. Derselbe Ton wie im Starter Pack: das Sofortige und die
 // Jagd.
 const LEAD_AUTH = {
-  de: 'Alle Spots auf der Map — und dein Deck mit den Karten, die du dir noch holst.',
-  en: 'Every spot on the map — and your deck, with the cards you still have to go get.',
+  de: 'Alle Spots auf deiner Map — und deine gesammelten Must Eats in deinem Deck.',
+  en: 'Every spot on your map — and the Must Eats you have collected in your deck.',
 } as const;
 
 interface HeroCopyProps extends Props {

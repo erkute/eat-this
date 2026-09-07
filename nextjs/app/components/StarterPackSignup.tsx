@@ -40,7 +40,7 @@ const copy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: '20 Karten, sofort. Zehn liegen in deinem Deck — zehn liegen irgendwo in Berlin und warten darauf, dass du vorbeikommst.',
+    lead: '20 neue Must Eats warten darauf, von dir entdeckt zu werden.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
@@ -55,7 +55,7 @@ const copy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: '20 cards, right away. Ten land in your deck — ten are out there in Berlin, waiting for you to show up.',
+    lead: '20 new Must Eats, waiting for you to discover them.',
     hint: 'We send you a sign-in link.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',

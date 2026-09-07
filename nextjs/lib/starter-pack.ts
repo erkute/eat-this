@@ -66,3 +66,19 @@ export function splitStarterPack(drawn: string[]): { faceUp: string[]; covered: 
     covered: drawn.slice(STARTER_PACK_FACE_UP),
   };
 }
+
+/**
+ * Die Karte, die den Gast zur Anmeldung gebracht hat, kommt garantiert mit —
+ * und zwar offen.
+ *
+ * Die Anmelde-Tafel auf der Map sagt „20 Must Eats — diese ist dabei"
+ * (Betreiber, 07.09.2026). Ein Versprechen, das der Zufall einlösen soll,
+ * ist keins: also steht die angetippte Karte an erster Stelle der offenen
+ * Hälfte, und die Ziehung füllt den Rest auf. Liegt sie nicht im Pool (schon
+ * offen, unbekannt, gar nicht angetippt), zieht das Pack wie immer.
+ */
+export function placeWantedFirst(drawn: string[], pool: string[], wanted: string | null): string[] {
+  if (!wanted || !pool.includes(wanted)) return drawn;
+  const rest = drawn.filter((id) => id !== wanted);
+  return [wanted, ...rest].slice(0, drawn.length || 1);
+}

@@ -70,10 +70,15 @@ vi.mock('@/lib/map/visible-restaurants.server', () => ({
 import { POST } from '@/app/api/starter-pack/route';
 import { STARTER_PACK_CARDS, STARTER_PACK_FACE_UP } from '@/lib/starter-pack';
 
-function req(token: string | null = 'tok'): Request {
+function req(token: string | null = 'tok', body?: Record<string, unknown>): Request {
   const headers = new Headers();
   if (token) headers.set('authorization', `Bearer ${token}`);
-  return new Request('https://x/api/starter-pack', { method: 'POST', headers });
+  if (body) headers.set('content-type', 'application/json');
+  return new Request('https://x/api/starter-pack', {
+    method: 'POST',
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
 }
 
 beforeEach(() => {
@@ -108,6 +113,7 @@ describe('/api/starter-pack', () => {
       granted: true,
       count: STARTER_PACK_CARDS,
       faceUp: STARTER_PACK_FACE_UP,
+      wanted: false,
     });
     const doc = mocks.created[0] as {
       type: string;
@@ -121,6 +127,33 @@ describe('/api/starter-pack', () => {
     expect(doc.coveredMustEatIds).toHaveLength(STARTER_PACK_CARDS - STARTER_PACK_FACE_UP);
     const all = [...doc.mustEatIds, ...doc.coveredMustEatIds];
     expect(new Set(all).size).toBe(STARTER_PACK_CARDS);
+  });
+
+  /* Die Anmelde-Tafel auf der Map verspricht „diese ist dabei" — die Karte,
+     die der Gast angetippt hat, liegt garantiert offen im Pack, nicht
+     irgendwo und nicht per Zufall. */
+  it('puts the card the guest tapped face up, first', async () => {
+    const res = await POST(req('tok', { mustEatId: 'm27' }));
+
+    expect((await res.json()).wanted).toBe(true);
+    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
+    expect(doc.mustEatIds[0]).toBe('m27');
+    expect(doc.coveredMustEatIds).not.toContain('m27');
+    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_FACE_UP);
+    expect(new Set([...doc.mustEatIds, ...doc.coveredMustEatIds]).size).toBe(STARTER_PACK_CARDS);
+  });
+
+  /* Eine Karte, die es nicht gibt oder die schon offen liegt, bricht nichts:
+     das Pack wird gezogen wie immer, das Versprechen gilt als nicht gegeben. */
+  it('ignores a wanted card that is unknown or already face up', async () => {
+    faceUp.ids = new Set(['m01']);
+
+    const res = await POST(req('tok', { mustEatId: 'm01' }));
+
+    expect((await res.json()).wanted).toBe(false);
+    const doc = mocks.created[0] as { mustEatIds: string[] };
+    expect(doc.mustEatIds).not.toContain('m01');
+    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_FACE_UP);
   });
 
   /* Was ohnehin für jeden offen liegt, ist kein Geschenk — sonst besteht das
@@ -145,7 +178,7 @@ describe('/api/starter-pack', () => {
 
     const res = await POST(req());
 
-    expect(await res.json()).toEqual({ granted: true, count: 8, faceUp: 8 });
+    expect(await res.json()).toEqual({ granted: true, count: 8, faceUp: 8, wanted: false });
     const doc = mocks.created[0] as { coveredMustEatIds: string[] };
     expect(doc.coveredMustEatIds).toHaveLength(0);
   });

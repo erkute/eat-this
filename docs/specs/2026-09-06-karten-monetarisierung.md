@@ -32,16 +32,27 @@ aufdecken (`/api/must-eat-reveal` prüfte die Sichtbarkeit).
 Gestaffelt sind nur noch die Must-Eat-Karten — das einzige Material, das nicht
 ohnehin frei im Netz steht (Firestore und Storage hinter dem Entitlement-Gate).
 
-| Stufe      | Sieht vom Stapel                         | Davon offen                 |
-| ---------- | ---------------------------------------- | --------------------------- |
-| ohne Konto | 5 Karten (Schaufenster) + Spot des Tages | alle                        |
-| mit Konto  | + 20 Karten (Starter Pack)               | 10, die anderen 10 verdeckt |
-| gekauft    | die Karten des Packs, bzw. alles         | alles                       |
+| Stufe      | Sieht vom Stapel                          | Davon offen                       |
+| ---------- | ----------------------------------------- | --------------------------------- |
+| ohne Konto | alle Karten, als Rücken (seit 07.09.2026) | 5 (Schaufenster) + Spot des Tages |
+| mit Konto  | 5 + 20 Karten (Starter Pack)              | 5 + 10, die anderen 10 verdeckt   |
+| gekauft    | die Karten des Packs, bzw. alles          | alles                             |
 
 „Sichtbar" heißt „liegt im Stapel", nicht „liegt offen": die zehn verdeckten
 Karten des Starter Packs stehen mit Nummer und Lokal im Deck und gehen vor Ort
 auf. Sie sind der Grund hinzugehen. Was ein Konto nicht sieht, taucht auch am
-Spot nicht auf — die Map zeigt nur die Karten der eigenen Oberfläche.
+Spot nicht auf — die Map zeigt einem Konto nur die Karten der eigenen
+Oberfläche.
+
+**Gäste sehen alle Rücken** (Betreiber, 07.09.2026: „mehr Anmeldungen, nicht
+mehr Verkauf"). Jeder Rücken an einem Spot ist die Frage „was liegt
+darunter?", und die Karten-Detailansicht beantwortet sie ohne Konto mit der
+Anmelde-Tafel: gratis, 20 Must Eats, diese ist dabei. Die angetippte Karte
+reist als Absicht mit (`?starter=<id>` in der Continue-URL des Magic-Links,
+sessionStorage für Google, `lib/auth/pendingStarterCard.ts`) und landet
+garantiert in der offenen Hälfte des Starter Packs (`placeWantedFirst`).
+Derselbe Weg vom Startseiten-Teaser aus. Was ein Rücken preisgibt, ist der
+Spot; Gericht, Bild und Beschreibung bleiben auf dem Server.
 
 **Drei Wege zu einer offenen Karte:**
 

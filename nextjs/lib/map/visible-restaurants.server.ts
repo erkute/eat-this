@@ -22,6 +22,8 @@ interface ComposeAccountSurfaceArgs {
   ent: Entitlements;
   /** Aufdeckungen vor Ort aus users/{uid}/unlockedMustEats. */
   unlockedIds: ReadonlySet<string>;
+  /** Kein Konto. Ein Gast sieht den ganzen Stapel als Rücken — siehe unten. */
+  guest?: boolean;
   today?: string;
 }
 
@@ -49,6 +51,7 @@ export async function composeAccountSurface({
   allMustEats,
   ent,
   unlockedIds,
+  guest = false,
   today = new Date().toISOString().slice(0, 10),
 }: ComposeAccountSurfaceArgs): Promise<AccountSurface> {
   /* Admin und All-Berlin sehen jede Karte offen. Ein leeres Face-up-Set wäre
@@ -92,12 +95,22 @@ export async function composeAccountSurface({
      vor Ort auf.
 
      Die Spots sind davon unberührt, die liegen für jeden frei. Gestaffelt ist
-     nur, wie viel vom KARTENSTAPEL jemand überhaupt sieht. */
+     nur, wie viel vom KARTENSTAPEL jemand überhaupt sieht.
+
+     Ein GAST sieht den ganzen Stapel — als Rücken (Betreiber, 07.09.2026:
+     „mehr Anmeldungen, nicht mehr Verkauf"). Jeder Rücken an einem Spot ist
+     die Frage „was liegt darunter?", und die Antwort darauf ist die
+     Anmeldung: gratis, zwanzig Karten, diese dabei. Ein Gast, der nur fünf
+     offene Karten sah, hatte auf der Map keinen einzigen Anlass, sich ein
+     Konto zu holen. Was der Rücken preisgibt, ist der Spot — und der steht
+     ohnehin frei auf der Map. Gericht, Bild und Beschreibung bleiben auf dem
+     Server (stripCoveredMustEats). Mit Konto gilt weiter die Staffelung: das
+     Deck zeigt, was einem gehört, nicht, was es gibt. */
   const visibleIds = new Set<string>([...faceUpIds, ...ent.coveredMustEatIds]);
 
   return {
     restaurants: all,
-    mustEats: allMustEats.filter((m) => visibleIds.has(m._id)),
+    mustEats: guest ? allMustEats : allMustEats.filter((m) => visibleIds.has(m._id)),
     faceUpIds,
     fullCatalog: false,
   };

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
+import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
 
 // Einmal pro Browser-Session UND Konto — gesetzt erst, wenn der Server
 // geantwortet hat (siehe unten).
@@ -62,10 +63,19 @@ export default function ReferralToastListener() {
         const idToken = await user.getIdToken();
         if (!starter.seen) {
           /* Ein Konto bekommt sein Pack genau einmal — die Route haelt das
-             ueber die Doc-ID fest, dieser Riegel spart nur den Request. */
+             ueber die Doc-ID fest, dieser Riegel spart nur den Request.
+
+             Die Karte, die der Gast auf der Map angetippt hat, faehrt mit:
+             die Anmelde-Tafel hat „diese ist dabei" versprochen, und die
+             Route legt sie offen ins Pack (siehe pendingStarterCard). */
+          const mustEatId = takePendingStarterCard();
           const res = await fetch('/api/starter-pack', {
             method: 'POST',
-            headers: { authorization: `Bearer ${idToken}` },
+            headers: {
+              authorization: `Bearer ${idToken}`,
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(mustEatId ? { mustEatId } : {}),
           });
           if (res.ok) starter.mark();
         }

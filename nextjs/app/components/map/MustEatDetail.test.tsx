@@ -65,7 +65,9 @@ describe('MustEatDetail login gate', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reveal Must Eat' }));
 
     expect(openLoginModal).toHaveBeenCalledOnce();
-    expect(openLoginModal).toHaveBeenCalledWith('starter');
+    /* Die angetippte Karte reist als Absicht mit — die Tafel verspricht
+       „diese ist dabei", und /api/starter-pack loest das ein. */
+    expect(openLoginModal).toHaveBeenCalledWith('starter', { starterMustEatId: 'must-eat-1' });
     expect(onUnlock).not.toHaveBeenCalled();
   });
 });
@@ -80,6 +82,8 @@ describe('MustEatDetail blocked location', () => {
     const showNotice = vi.fn();
     window.showNotice = showNotice;
 
+    /* Mit Konto: ein Gast bekaeme hier die Anmeldung, nicht die
+       Standort-Meldung (useMustEatDetailState, 07.09.2026). */
     render(
       <MustEatDetail
         mustEat={mustEat}
@@ -89,7 +93,7 @@ describe('MustEatDetail blocked location', () => {
         isUnlocked={false}
         onUnlock={vi.fn()}
         onClose={vi.fn()}
-        uid={null}
+        uid="u1"
       />
     );
 

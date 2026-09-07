@@ -7,6 +7,18 @@ import { trackEvent } from '@/lib/analytics';
 
 export const UNLOCK_RADIUS_METERS = 50;
 
+/* So lang wie der Tap-Shake in MapDetails.module.css (.mustEatCardTapping,
+   520 ms): das Formular oeffnet, sobald die Karte ausgezittert hat. */
+export const GUEST_SHAKE_MS = 520;
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
 function vibrateRevealReady() {
   if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
   navigator.vibrate([55, 30, 75, 30, 95]);
@@ -133,7 +145,23 @@ export function useMustEatDetailState({
         result: 'login_required',
         distance_meters: distance === null ? -1 : Math.round(distance),
       });
-      onRequireLogin();
+      /* Erst zittert die Karte, dann geht das Formular auf (Betreiber,
+         07.09.2026: „Kann sich die Must Eat Karte nicht kurz zittern, bevor
+         Anmelden angeht"). Derselbe Shake wie der vergebliche Tipp mit Konto
+         (.mustEatCardTapping) — die Karte antwortet auf die Beruehrung, bevor
+         das Modal sie verdeckt. Ohne Bewegung (reduced motion) waere die
+         Wartezeit ein toter Moment, also oeffnet das Formular dann sofort.
+         Ein zweiter Tipp waehrend des Zitterns startet nichts doppelt. */
+      if (prefersReducedMotion()) {
+        onRequireLogin();
+        return;
+      }
+      if (tapping) return;
+      setTapping(true);
+      window.setTimeout(() => {
+        setTapping(false);
+        onRequireLogin();
+      }, GUEST_SHAKE_MS);
       return;
     }
     if (canUnlock && isAuthed) {

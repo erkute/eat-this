@@ -40,6 +40,7 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
   const {
     phase: googlePhase,
     note: googleNote,
+    noteKey,
     prepare: prepareGoogleSignIn,
     start: handleGoogle,
   } = useGoogleSignIn();
@@ -61,15 +62,6 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
        blockt der Browser das Fenster (siehe googlePopupWarmup.ts). */
     prepareGoogleSignIn();
   }, [prepareGoogleSignIn]);
-
-  const noteKey =
-    googleNote === 'blocked'
-      ? 'auth.errGooglePopupBlocked'
-      : googleNote === 'failed'
-        ? 'auth.errGooglePopup'
-        : googleNote === 'cancelled'
-          ? 'auth.googleCancelled'
-          : null;
 
   const agbHref = locale === routing.defaultLocale ? '/agb' : `/${locale}/agb`;
   const dsHref = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
@@ -272,9 +264,6 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
                 aria-live="polite"
                 aria-hidden={magicState !== 'error' && !googleNote}
               >
-                {/* Die Schluessel tragen ihr `auth.`-Praefix: ohne findet
-                    next-intl den Text nicht und schreibt dem Leser den
-                    Schluessel selbst hin (Nutzer, 28.08.2026). */}
                 {magicState === 'error' ? magicError : noteKey ? t(noteKey) : ''}
               </p>
               <button

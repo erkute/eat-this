@@ -16,6 +16,7 @@ const googleState = vi.hoisted(() => ({
   prepare: vi.fn(),
   phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
   note: null as 'cancelled' | 'blocked' | 'failed' | null,
+  noteKey: null as string | null,
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -30,7 +31,12 @@ vi.mock('@/lib/auth', () => ({
     prepare: googleState.prepare,
     phase: googleState.phase,
     note: googleState.note,
+    noteKey: googleState.noteKey,
   }),
+}));
+/* next-intl braucht einen Provider; hier reicht der Schluessel als Text. */
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => `[${key}]`,
 }));
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
@@ -57,6 +63,7 @@ describe('StarterPackSignup', () => {
     googleState.prepare.mockReset();
     googleState.phase = 'idle';
     googleState.note = null;
+    googleState.noteKey = null;
   });
 
   afterEach(() => {
@@ -172,26 +179,25 @@ describe('StarterPackSignup', () => {
 
   it('tells the reader quietly when they closed the Google window themselves', () => {
     googleState.note = 'cancelled';
+    googleState.noteKey = 'auth.googleCancelled';
     render(<StarterPackSignup locale="de" />);
 
     expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.getByRole('status').textContent).toBe(
-      'Abgebrochen. Versuch es nochmal oder nimm deine E-Mail.'
-    );
+    expect(screen.getByRole('status').textContent).toBe('[auth.googleCancelled]');
   });
 
   it('raises an alert when the browser blocked the Google window', () => {
     googleState.note = 'blocked';
+    googleState.noteKey = 'auth.errGooglePopupBlocked';
     render(<StarterPackSignup locale="de" />);
 
-    expect(screen.getByRole('alert').textContent).toBe(
-      'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.'
-    );
+    expect(screen.getByRole('alert').textContent).toBe('[auth.errGooglePopupBlocked]');
   });
 
   it('drops the Google button and its note once the mail link is out', () => {
     magicLinkState.state = 'sent';
     googleState.note = 'failed';
+    googleState.noteKey = 'auth.errGooglePopup';
     render(<StarterPackSignup locale="de" />);
 
     expect(screen.queryByRole('button', { name: 'Mit Google anmelden' })).toBeNull();

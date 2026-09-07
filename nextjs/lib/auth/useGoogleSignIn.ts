@@ -24,16 +24,29 @@ import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
  *   Haltezeit stehen (AUTH_SCREEN_HOLD_MS), sonst ist er weg, bevor man ihn
  *   gelesen hat; danach meldet sich `onSettled`.
  * - `leaving`: Abbruch oder Fehler — der Wartescreen fährt zurück und räumt
- *   sich nach der Rückfahrt selbst ab.
+ *   sich nach der Rückfahrt selbst ab. Eine eigene Phase statt eines
+ *   Schalters, weil das Panel vorher auf einen Schlag wegsprang und ein
+ *   selbst zugeklicktes Google-Fenster wie ein Aussetzer aussah.
  */
 export type GoogleSignInPhase = 'idle' | 'busy' | 'done' | 'leaving';
 export type GoogleSignInNote = 'cancelled' | 'blocked' | 'failed' | null;
 
 const LEAVE_MS = 260;
 
+/** Die Zeile zu jeder Note — Schlüssel in translations.ts, mit `auth.`-Präfix:
+ *  ohne findet next-intl den Text nicht und schreibt dem Leser den Schlüssel
+ *  selbst hin (Nutzer, 28.08.2026). Einmal hier, nicht in jedem Knopf. */
+const NOTE_KEY: Record<NonNullable<GoogleSignInNote>, string> = {
+  cancelled: 'auth.googleCancelled',
+  blocked: 'auth.errGooglePopupBlocked',
+  failed: 'auth.errGooglePopup',
+};
+
 export function useGoogleSignIn(options: { onSettled?: () => void } = {}): {
   phase: GoogleSignInPhase;
   note: GoogleSignInNote;
+  /** Übersetzungsschlüssel zur Note, für `t()` — null ohne Note. */
+  noteKey: string | null;
   /** Lädt Firebases Popup-Helfer vor — siehe googlePopupWarmup.ts. */
   prepare: () => void;
   start: () => Promise<void>;
@@ -86,5 +99,11 @@ export function useGoogleSignIn(options: { onSettled?: () => void } = {}): {
     return () => window.clearTimeout(timer);
   }, [phase]);
 
-  return { phase, note, prepare: prepareGoogleSignIn, start };
+  return {
+    phase,
+    note,
+    noteKey: note ? NOTE_KEY[note] : null,
+    prepare: prepareGoogleSignIn,
+    start,
+  };
 }

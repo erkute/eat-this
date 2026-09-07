@@ -68,6 +68,7 @@ describe('useGoogleSignIn', () => {
     });
     expect(result.current.phase).toBe('leaving');
     expect(result.current.note).toBe('cancelled');
+    expect(result.current.noteKey).toBe('auth.googleCancelled');
 
     act(() => vi.advanceTimersByTime(260));
     expect(result.current.phase).toBe('idle');
@@ -82,12 +83,21 @@ describe('useGoogleSignIn', () => {
       await result.current.start();
     });
     expect(result.current.note).toBe('blocked');
+    expect(result.current.noteKey).toBe('auth.errGooglePopupBlocked');
 
     authState.signInWithGoogle.mockRejectedValueOnce(firebaseError('auth/internal-error'));
     await act(async () => {
       await result.current.start();
     });
     expect(result.current.note).toBe('failed');
+    expect(result.current.noteKey).toBe('auth.errGooglePopup');
+
+    // Ein neuer Versuch raeumt die alte Zeile weg, bevor das Fenster aufgeht.
+    authState.signInWithGoogle.mockResolvedValueOnce(undefined);
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(result.current.noteKey).toBeNull();
   });
 
   it('counts a fresh account as sign_up and a returning one as login, only via Google', async () => {

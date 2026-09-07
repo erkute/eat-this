@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useState, type FormEvent } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useGoogleSignIn, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
 import AuthScreen from './AuthScreen';
@@ -54,10 +55,6 @@ const copy = {
     invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
     or: 'oder',
     google: 'Mit Google anmelden',
-    googleCancelled: 'Abgebrochen. Versuch es nochmal oder nimm deine E-Mail.',
-    googleBlocked:
-      'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.',
-    googleFailed: 'Das hat mit Google nicht geklappt. Nimm solange deine E-Mail.',
     signedIn: 'Du bist angemeldet',
     imgAlt: 'Eat This Starter Pack',
   },
@@ -76,9 +73,6 @@ const copy = {
     invalidEmail: 'That does not look like an email yet.',
     or: 'or',
     google: 'Sign in with Google',
-    googleCancelled: 'Cancelled. Try again, or use your email.',
-    googleBlocked: 'Your browser blocked the Google window. Allow it, or use your email.',
-    googleFailed: "Google didn't work out. Use your email for now.",
     signedIn: "You're signed in",
     imgAlt: 'Eat This Starter Pack',
   },
@@ -99,14 +93,11 @@ export default function StarterPackSignup({ locale }: Props) {
   const errorId = `${emailId}-error`;
   const [email, setEmail] = useState('');
   const [validationError, setValidationError] = useState('');
-  const googleNote =
-    google.note === 'blocked'
-      ? t.googleBlocked
-      : google.note === 'failed'
-        ? t.googleFailed
-        : google.note === 'cancelled'
-          ? t.googleCancelled
-          : '';
+  /* Die Zeilen zu Abbruch, geblocktem Fenster und Fehler teilt sich das
+     Formular mit dem Login-Modal (translations.ts, `auth.*`) — sonst
+     liefen zwei Fassungen auseinander, ohne dass ein Test es merkt. */
+  const tr = useTranslations();
+  const googleNote = google.noteKey ? tr(google.noteKey) : '';
   const sent = state === 'sent';
   // Nach dem verschickten Link ist die Google-Zeile Geschichte — sie darf
   // nicht unter „Check deine Mail" stehen bleiben.

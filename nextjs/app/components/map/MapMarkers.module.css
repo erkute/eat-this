@@ -86,16 +86,21 @@
    fast ganz zurück, damit man vor dem Klick sieht, was man trifft, und mit
    der Tastatur beim Fokussieren ganz.
 
-   Zur Abwägung, die dahinter steckt: bei 0.3 steht ein gelber Pin auf dem
+   Zur Abwägung, die dahinter steckt: bei 0.3 stand ein gelber Pin auf dem
    Ink-Grund noch bei 1,8:1, ein roter bei 1,4:1 — unter den 3:1, die WCAG
-   1.4.11 für bedeutungstragende Bedienelemente verlangt. Sie sind es hier
-   bewusst: während eine Detailansicht offen ist, sind die anderen Spots
-   Hintergrund wie die Seite hinter einem Dialog, und der eine Spot, um den es
-   geht, steht bei 11,8:1. Damit daran trotzdem niemand hängenbleibt, kommt
-   jeder Pin bei Fokus oder Hover zurück, bevor man ihn treffen muss. */
+   1.4.11 für bedeutungstragende Bedienelemente verlangt. Das war gewollt:
+   während eine Detailansicht offen ist, sind die anderen Spots Hintergrund
+   wie die Seite hinter einem Dialog, und der eine Spot, um den es geht,
+   steht bei 11,8:1. Nur war 0.3 zu wenig Hintergrund und zu viel Nichts
+   (Betreiber, 07.09.2026: „die müssen noch minimal hervorstehen, das ist mir
+   zu durchsichtig") — die Nachbarn waren als Pins nicht mehr zu erkennen,
+   nur als Flecken. Seit dem 07.09.2026 0.5 mit weniger Entsättigung: klar
+   zurück, aber noch als Spot lesbar. Damit daran trotzdem niemand
+   hängenbleibt, kommt jeder Pin bei Fokus oder Hover zurück, bevor man ihn
+   treffen muss. */
 .pinLogoDim {
-  opacity: 0.3;
-  filter: saturate(0.5);
+  opacity: 0.5;
+  filter: saturate(0.7);
 }
 
 /* Wer sich mit der Tastatur über die Karte bewegt, sieht sonst nur den

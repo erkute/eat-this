@@ -40,7 +40,7 @@ describe('/welcome mit Sign-in-Link', () => {
       ({ container } = render(<AuthActionPage />));
     });
     expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('Jetzt anmelden');
+    expect(container.textContent).toContain('Anmelden');
     // Der Klick beantwortet eine echte Frage: als WER melde ich mich an?
     expect(container.textContent).toContain('test@example.com');
     // Der Faden zum Spot reisst nicht ab.
@@ -53,7 +53,7 @@ describe('/welcome mit Sign-in-Link', () => {
       ({ container } = render(<AuthActionPage />));
     });
     const btn = [...container.querySelectorAll('button')].find((b) =>
-      b.textContent?.includes('Jetzt anmelden')
+      b.textContent?.includes('Anmelden')
     )!;
     await act(async () => {
       btn.click();
@@ -69,7 +69,7 @@ describe('/welcome mit Sign-in-Link', () => {
       ({ container } = render(<AuthActionPage />));
     });
     const btn = [...container.querySelectorAll('button')].find((b) =>
-      b.textContent?.includes('Jetzt anmelden')
+      b.textContent?.includes('Anmelden')
     )!;
     await act(async () => {
       btn.click();

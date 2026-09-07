@@ -6,7 +6,7 @@ import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useLoginModal } from '@/lib/auth';
-import { showStarterPitch } from '@/lib/auth/starterPitch';
+import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
@@ -107,10 +107,13 @@ export default function HubMustEatsTeaser() {
      die Karte, was sie im Profil ist — der Weg auf die Map, an den Spot.
 
      Die angetippte Karte reist mit (pendingStarterCard): das Starter Pack
-     legt sie garantiert offen hinein — dieselbe Zusage wie auf der Map. */
+     legt sie garantiert offen hinein — dieselbe Zusage wie auf der Map. Und
+     wie dort oeffnet der Tipp sofort das Formular, ohne Tafel dazwischen
+     (Betreiber, 07.09.2026). */
   const openStarterLogin = (mustEatId: string) => {
     trackEvent('login_start', { method: 'home_covered_card' });
-    showStarterPitch({ mustEatId, lang: lang === 'en' ? 'en' : 'de', openLoginModal });
+    rememberPendingStarterCard(mustEatId);
+    openLoginModal('starter', { starterMustEatId: mustEatId });
   };
 
   return (

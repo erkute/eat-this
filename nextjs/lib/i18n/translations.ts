@@ -63,7 +63,7 @@ const en = {
     onbStarterKicker: 'Free',
     onbStarterTitle: 'Starter Pack.',
     onbStarterBody: '10 straight into your deck. 10 more are waiting out in Berlin for you.',
-    onbStarterCta: 'Get the Starter Pack',
+    onbStarterCta: 'Sign up',
     onbNext: 'Next',
     onbStart: "Let's go",
     onbPacksCta: 'View Booster Packs',
@@ -152,12 +152,6 @@ const en = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
     starterPromoLogin: 'Already in? Sign in',
-    /* Die Anmelde-Tafel in der verdeckten Karte, ohne Konto: was unter dem
-       Ruecken liegt, gibt es fuer eine Anmeldung — und diese Karte garantiert. */
-    guestPitchKicker: 'Free',
-    guestPitchTitle: 'Starter Pack',
-    guestPitchBody: 'Sign up and get 20 Must Eats. This one is in.',
-    guestPitchCta: 'Get the Starter Pack',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
        "Reset filters" was wrong for someone who had only typed something. */
@@ -277,7 +271,7 @@ const en = {
     joinHint: 'We send you a sign-in link.',
     joinEmailLabel: 'Email address',
     joinEmailPlaceholder: 'your@email.com',
-    joinCta: 'Get the Starter Pack',
+    joinCta: 'Sign up',
     joinSending: 'Sending\u2026',
     joinSent: 'Check your mail',
     joinEmptyEmail: 'Add your email first.',
@@ -502,7 +496,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterKicker: 'Gratis',
     onbStarterTitle: 'Starter Pack.',
     onbStarterBody: '10 direkt im Deck. 10 weitere warten draußen in Berlin auf dich.',
-    onbStarterCta: 'Starter Pack holen',
+    onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
     onbPacksCta: 'Booster Packs ansehen',
@@ -550,7 +544,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     boosterTitle: 'Hunger auf mehr?',
     boosterDesc: 'Weitere Must Eats direkt mit einem Booster Pack freischalten.',
     boosterCta: 'Mehr freischalten',
-    starterCta: 'Jetzt anmelden',
+    /* Ein Wort. CTAs bleiben kurz (Betreiber, 07.09.2026: „CTA immer
+       kuerzen") — „Jetzt anmelden" und „Starter Pack holen" sagten nichts, was
+       die Tafel darueber nicht schon sagt. Dasselbe Wort traegt die verdeckte
+       Karte ohne Konto als Namen (MustEatDetailMobile). */
+    starterCta: 'Anmelden',
     searchClose: 'Suche schließen',
     viewToggleMap: 'Map',
     viewToggleList: 'Liste',
@@ -579,10 +577,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
     starterPromoLogin: 'Schon dabei? Einloggen',
-    guestPitchKicker: 'Gratis',
-    guestPitchTitle: 'Starter Pack',
-    guestPitchBody: 'Melde dich an und bekomm 20 Must Eats. Diese ist dabei.',
-    guestPitchCta: 'Starter Pack holen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
        bot „Filter zurücksetzen" auch dem an, der gar keinen Filter gesetzt,
@@ -726,7 +720,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     joinHint: 'Wir schicken dir einen Link zum Einloggen.',
     joinEmailLabel: 'E-Mail Adresse',
     joinEmailPlaceholder: 'deine@email.com',
-    joinCta: 'Starter Pack holen',
+    joinCta: 'Anmelden',
     joinSending: 'Sende\u2026',
     joinSent: 'Check deine Mail',
     joinEmptyEmail: 'Bitte gib deine E-Mail ein.',

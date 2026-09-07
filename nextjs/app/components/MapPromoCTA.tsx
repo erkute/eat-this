@@ -37,26 +37,26 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string }
     case 'restaurant':
       return de
         ? {
-            sub: `${name} ist nur einer der Pins. Auf der Map steht, wo wir selbst essen — Restaurants, Cafés und Bars in ganz Berlin. Mach sie auf und schau, was noch in der Nähe liegt.`,
+            sub: `${name} ist nur einer der Pins. Die Map zeigt dir handverlesene Restaurants, Cafés und Bars in ganz Berlin — und was du dort bestellen solltest. Mach sie auf und schau, was noch in der Nähe liegt.`,
           }
         : {
-            sub: `${name} is one pin of many. The map is where we actually eat — restaurants, cafés and bars across Berlin. Open it and see what else is close.`,
+            sub: `${name} is one pin of many. The map shows you hand-picked restaurants, cafés and bars across Berlin — and what to order there. Open it and see what else is close.`,
           };
     case 'bezirk':
       return de
         ? {
-            sub: `Die Map hört nicht an der Bezirksgrenze auf. Auf ihr steht, wo wir selbst essen — Restaurants, Cafés und Bars in ganz Berlin. Mach sie auf und schau, was in deiner Nähe gut ist.`,
+            sub: `Die Map hört nicht an der Bezirksgrenze auf. Sie zeigt dir handverlesene Restaurants, Cafés und Bars in ganz Berlin — und was du dort bestellen solltest. Mach sie auf und schau, was in deiner Nähe liegt.`,
           }
         : {
-            sub: `The map doesn't stop at the district line. It's where we actually eat — restaurants, cafés and bars across Berlin. Open it and see what's good near you.`,
+            sub: `The map doesn't stop at the district line. It shows you hand-picked restaurants, cafés and bars across Berlin — and what to order there. Open it and see what's near you.`,
           };
     case 'kategorie':
       return de
         ? {
-            sub: `Auf der Map steht nicht nur ${name}. Sie zeigt, wo wir selbst essen — Restaurants, Cafés und Bars in ganz Berlin. Mach sie auf und schau, was in deiner Nähe gut ist.`,
+            sub: `Auf der Map steht nicht nur ${name}. Sie zeigt dir handverlesene Restaurants, Cafés und Bars in ganz Berlin — und was du dort bestellen solltest. Mach sie auf und schau, was in deiner Nähe liegt.`,
           }
         : {
-            sub: `The map holds more than ${name}. It's where we actually eat — restaurants, cafés and bars across Berlin. Open it and see what's good near you.`,
+            sub: `The map holds more than ${name}. It shows you hand-picked restaurants, cafés and bars across Berlin — and what to order there. Open it and see what's near you.`,
           };
   }
 }

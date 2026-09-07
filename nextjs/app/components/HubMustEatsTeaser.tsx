@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useLoginModal } from '@/lib/auth';
 import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
+import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
@@ -94,6 +95,20 @@ export default function HubMustEatsTeaser() {
     [mustEats, faceUp]
   );
 
+  /* Der Tipp auf einen Rücken ohne Konto lässt die Karte erst zittern und
+     öffnet dann das Anmeldeformular — derselbe Griff wie im Map-Detail
+     (Betreiber, 07.09.2026: „auf der Startseite eigentlich genau das
+     Gleiche"). Der Timer wird beim Abräumen gestoppt: sonst setzte er den
+     Zustand einer Karte, die nicht mehr auf der Seite steht. */
+  const [shakingId, setShakingId] = useState<string | null>(null);
+  const shakeTimer = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (shakeTimer.current !== null) window.clearTimeout(shakeTimer.current);
+    },
+    []
+  );
+
   // Nothing face-up means six card backs and no example of what is under one —
   // a section that asks visitors to collect something it never shows.
   if (!cards.some((c) => c.faceUp)) return null;
@@ -111,9 +126,22 @@ export default function HubMustEatsTeaser() {
      wie dort oeffnet der Tipp sofort das Formular, ohne Tafel dazwischen
      (Betreiber, 07.09.2026). */
   const openStarterLogin = (mustEatId: string) => {
+    // Ein zweiter Tipp waehrend des Zitterns startet nichts doppelt.
+    if (shakeTimer.current !== null) return;
     trackEvent('login_start', { method: 'home_covered_card' });
     rememberPendingStarterCard(mustEatId);
-    openLoginModal('starter', { starterMustEatId: mustEatId });
+    const open = () => openLoginModal('starter', { starterMustEatId: mustEatId });
+    // Ohne Bewegung waere die Wartezeit ein toter Moment.
+    if (prefersReducedMotion()) {
+      open();
+      return;
+    }
+    setShakingId(mustEatId);
+    shakeTimer.current = window.setTimeout(() => {
+      shakeTimer.current = null;
+      setShakingId(null);
+      open();
+    }, GUEST_SHAKE_MS);
   };
 
   return (
@@ -155,7 +183,9 @@ export default function HubMustEatsTeaser() {
                   : `Face-down Must Eat at ${restaurant} — reveal it on the map`;
 
             const photo = (
-              <span className={styles.photo}>
+              <span
+                className={`${styles.photo}${shakingId === m._id ? ` ${styles.photoTapping}` : ''}`}
+              >
                 {/* Server-rendered with native lazy loading rather than
                     mounted by an IntersectionObserver after hydration. The
                     observer kept the images off the initial payload, which

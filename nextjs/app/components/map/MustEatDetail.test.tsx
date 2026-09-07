@@ -2,7 +2,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
-import { GUEST_SHAKE_MS, type MustEatDetailState } from './useMustEatDetailState';
+import type { MustEatDetailState } from './useMustEatDetailState';
+import { GUEST_SHAKE_MS } from '@/lib/guestCardShake';
 
 const openLoginModal = vi.fn();
 const lightboxProps = vi.fn();

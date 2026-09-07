@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { StatsSummary } from '@/lib/admin/stats.server';
+import type { Accounts, StatsSummary } from '@/lib/admin/stats.server';
+import type { SearchSummary } from '@/lib/admin/searchConsole';
 
 const state = vi.hoisted(() => ({
   user: null as { uid: string } | null,
@@ -23,16 +24,268 @@ vi.mock('@/lib/firebase/config', () => ({
 
 import StatsDashboard from './StatsDashboard';
 
+const step = (key: string, count: number, visitors = 1147) => ({
+  key,
+  count,
+  share: visitors > 0 ? count / visitors : 0,
+});
+
+function accounts(overrides: Partial<Accounts> = {}): Accounts {
+  return {
+    total: 56,
+    newInWindow: 4,
+    activeInWindow: 9,
+    active: { day: 1, week: 3, month: 7 },
+    google: 30,
+    email: 26,
+    withFavorites: 12,
+    starterPacks: { total: 5, inWindow: 3 },
+    reveals: { total: 93, inWindow: 6 },
+    referrals: { total: 2, inWindow: 1 },
+    purchases: {
+      total: 4,
+      inWindow: 1,
+      byPack: [
+        { packId: 'all-berlin', name: 'All Berlin', count: 1, revenueCents: 999 },
+        { packId: 'category-pizza', name: 'Pizza', count: 3, revenueCents: 897 },
+      ],
+    },
+    revenue: { totalCents: 1896, inWindowCents: 299 },
+    checkouts: { inWindow: 5, open: 4, completed: 1 },
+    people: { accounts: 56, withStarterPack: 5, withReveal: 9, withReferral: 2, buyers: 2 },
+    byDay: [
+      {
+        day: '2026-08-30',
+        newAccounts: 2,
+        starterPacks: 2,
+        reveals: 4,
+        referrals: 1,
+        purchases: 1,
+        revenueCents: 299,
+      },
+      {
+        day: '2026-08-31',
+        newAccounts: 1,
+        starterPacks: 1,
+        reveals: 2,
+        referrals: 0,
+        purchases: 0,
+        revenueCents: 0,
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function search(): SearchSummary {
+  return {
+    property: 'sc-domain:eatthisdot.com',
+    range: { start: '2026-08-06', end: '2026-09-02', days: 28 },
+    totals: { clicks: 303, impressions: 54472, ctr: 0.0056, position: 12.9 },
+    before: { clicks: 195, impressions: 29732, ctr: 0.0066, position: 11.7 },
+    days: [
+      { day: '2026-09-01', clicks: 24, impressions: 4242, ctr: 0.0057, position: 12.6 },
+      { day: '2026-09-02', clicks: 23, impressions: 4225, ctr: 0.0054, position: 12.5 },
+    ],
+    queries: [{ key: 'bari berlin menu', clicks: 9, impressions: 106, ctr: 0.0849, position: 5.2 }],
+    pages: [
+      { key: '/en/kategorie/lunch', clicks: 24, impressions: 2650, ctr: 0.0091, position: 10.3 },
+    ],
+    opportunities: [
+      { key: 'gemello berlin', clicks: 2, impressions: 983, ctr: 0.002, position: 6.7 },
+    ],
+    devices: [{ key: 'MOBILE', clicks: 250, impressions: 40000, ctr: 0.006, position: 12 }],
+    countries: [{ key: 'deu', clicks: 280, impressions: 50000, ctr: 0.0056, position: 12.5 }],
+    movers: {
+      rising: [
+        {
+          key: 'bari berlin menu',
+          clicks: 9,
+          clicksBefore: 2,
+          impressions: 106,
+          impressionsBefore: 40,
+          position: 5.2,
+          positionBefore: 8,
+          diff: 7,
+        },
+      ],
+      falling: [],
+    },
+    latestDay: {
+      day: '2026-09-02',
+      totals: { clicks: 23, impressions: 4225, ctr: 0.0054, position: 12.5 },
+      queries: [{ key: 'frische suche', clicks: 3, impressions: 30, ctr: 0.1, position: 4 }],
+      pages: [{ key: '/map', clicks: 5, impressions: 200, ctr: 0.025, position: 7 }],
+    },
+    previousDay: null,
+    fetchedAt: '2026-09-03T20:00:00.000Z',
+  };
+}
+
 /** Eine Auswertung in der Form, die die Route liefert. */
 function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
+  const events = new Map<string, number>([
+    ['map_opened', 1469],
+    ['must_eat_opened', 210],
+    ['must_eat_reveal_login_required', 40],
+    ['login_view', 60],
+    ['login_start', 20],
+    ['login', 7],
+    ['sign_up', 5],
+    ['starter_pack_granted', 5],
+    ['must_eat_reveal_unlocked', 3],
+    ['begin_checkout', 5],
+    ['purchase', 0],
+  ]);
+  const count = (key: string) => events.get(key) ?? 0;
+  const funnel: StatsSummary['funnel'] = {
+    stages: [
+      {
+        key: 'free',
+        title: 'Frei',
+        offer: 'Alle Spots, 5 Karten offen',
+        steps: [
+          step('visitors', 1147),
+          step('map_opened', 1469),
+          step('restaurant_opened', 0),
+          step('must_eat_opened', 210),
+        ],
+      },
+      {
+        key: 'account',
+        title: 'Konto',
+        offer: '+20 Karten, 10 davon offen',
+        steps: [
+          step('must_eat_reveal_login_required', 40),
+          step('login_view', 60),
+          step('login_start', 20),
+          step('signed_in', 12),
+          step('sign_up', 5),
+          step('starter_pack_granted', 5),
+        ],
+      },
+      {
+        key: 'onsite',
+        title: 'Vor Ort',
+        offer: 'Ein Rücken geht im 50-m-Radius auf',
+        steps: [step('must_eat_reveal_unlocked', 3), step('must_eat_reveal_too_far', 0)],
+      },
+      {
+        key: 'packs',
+        title: 'Packs',
+        offer: 'Alle Karten einer Kategorie, oder All Berlin',
+        steps: [
+          step('packs_page', 30),
+          step('view_item', 187),
+          step('begin_checkout', 5),
+          step('purchase', 0),
+        ],
+      },
+    ],
+    rates: [
+      { key: 'visit_map', from: 'visitors', to: 'map_opened', now: 1469, base: 1147, rate: 1.28 },
+      {
+        key: 'login_view_signed',
+        from: 'login_view',
+        to: 'signed_in',
+        now: 12,
+        base: 60,
+        rate: 0.2,
+      },
+      {
+        key: 'checkout_purchase',
+        from: 'begin_checkout',
+        to: 'purchase',
+        now: 0,
+        base: 5,
+        rate: 0,
+      },
+      { key: 'visit_purchase', from: 'visitors', to: 'purchase', now: 0, base: 1147, rate: 0 },
+    ],
+  };
+  const dayOf = (
+    day: string,
+    visitors: number,
+    pageviews: number
+  ): NonNullable<StatsSummary['dayDetails']['latest']> => ({
+    day,
+    visitors,
+    pageviews,
+    vsPrevDay: {
+      visitors: { now: visitors, before: 123, change: -0.26 },
+      pageviews: { now: pageviews, before: 873, change: -0.57 },
+    },
+    vsSameWeekday: {
+      visitors: { now: visitors, before: 135, change: -0.33 },
+      pageviews: { now: pageviews, before: 1232, change: -0.7 },
+    },
+    paths: [{ key: '/map', count: 40 }],
+    entryPaths: [{ key: '/', count: 20 }],
+    referrers: [{ key: 'www.google.com', count: 12 }],
+    events: [...events.entries()].map(([key, c]) => ({ key, count: c })),
+    exits: [{ key: '/map', views: 40, continued: 10, exits: 30, rate: 0.75 }],
+    hasExits: true,
+    funnel,
+    people: {
+      day,
+      newAccounts: 2,
+      starterPacks: 2,
+      reveals: 4,
+      referrals: 1,
+      purchases: 1,
+      revenueCents: 299,
+    },
+  });
+
   return {
+    range: {
+      start: '2026-08-02',
+      end: '2026-08-31',
+      days: 30,
+      today: '2026-08-31',
+      includesToday: true,
+    },
     days: [
       { day: '2026-08-30', pageviews: 372, visitors: 91 },
       { day: '2026-08-31', pageviews: 127, visitors: 19 },
     ],
+    previousDays: [
+      { day: '2026-07-31', pageviews: 300, visitors: 80 },
+      { day: '2026-08-01', pageviews: 310, visitors: 85 },
+    ],
+    eventsByDay: [
+      { day: '2026-08-30', counts: { map_opened: 1000, sign_up: 3 } },
+      { day: '2026-08-31', counts: { map_opened: 469, sign_up: 2 } },
+    ],
     totals: { pageviews: 8629, visitors: 1147, days: 11, closedDays: 10 },
-    accounts: null,
-    search: null,
+    accounts: accounts(),
+    deck: {
+      cards: 26,
+      publicCards: 5,
+      spots: 465,
+      freeCards: 5,
+      starterCards: 20,
+      starterFaceUp: 10,
+      byCategory: [
+        {
+          slug: 'lunch',
+          name: 'Lunch',
+          cards: 11,
+          spots: 194,
+          packId: 'category-lunch',
+          sellable: true,
+        },
+        {
+          slug: 'fine-dining',
+          name: 'Fine Dining',
+          cards: 0,
+          spots: 51,
+          packId: 'category-finedining',
+          sellable: false,
+        },
+      ],
+    },
+    search: { ok: true, data: search() },
     latest: {
       day: { day: '2026-08-30', pageviews: 372, visitors: 91 },
       vsPrevDay: {
@@ -58,23 +311,16 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     movers: {
       paths: [{ key: '/map', now: 492, before: 700, diff: -208 }],
       referrers: [{ key: 'chatgpt.com', now: 8, before: 0, diff: 8 }],
+      events: [{ key: 'sign_up', now: 5, before: 2, diff: 3 }],
     },
     paths: [{ key: '/map', count: 492 }],
     entryPaths: [{ key: '/', count: 96 }],
     referrers: [{ key: 'www.google.com', count: 329 }],
-    events: [{ key: 'map_opened', count: 1469 }],
+    events: [...events.entries()].map(([key, c]) => ({ key, count: c })),
     exits: [{ key: '/map', views: 492, continued: 56, exits: 436, rate: 436 / 492 }],
     exitDays: 4,
-    funnels: [
-      {
-        label: 'Kauf',
-        steps: [
-          { key: 'locked_spot_opened', count: 187 },
-          { key: 'begin_checkout', count: 5 },
-          { key: 'purchase', count: 0 },
-        ],
-      },
-    ],
+    funnel,
+    dayDetails: { today: dayOf('2026-08-31', 19, 127), latest: dayOf('2026-08-30', 91, 372) },
     consent: {
       shown: 1139,
       accepted: 57,
@@ -87,6 +333,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     },
     ...overrides,
   };
+  void count;
 }
 
 function respondWith(body: unknown, status = 200) {
@@ -97,11 +344,19 @@ function respondWith(body: unknown, status = 200) {
   });
 }
 
+/** Einen Bericht in der Seitenleiste öffnen. */
+function openReport(label: string) {
+  const nav = screen.getByRole('navigation', { name: 'Berichte' });
+  fireEvent.click(within(nav).getByRole('button', { name: new RegExp(`^${label}`) }));
+}
+
 describe('StatsDashboard', () => {
   beforeEach(() => {
     state.user = { uid: 'u1' };
     state.loading = false;
     state.getIdToken.mockReset().mockResolvedValue('token-123');
+    window.location.hash = '';
+    vi.stubGlobal('scrollTo', vi.fn());
   });
 
   afterEach(() => {
@@ -120,52 +375,21 @@ describe('StatsDashboard', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('schickt das Admin-Token mit und zeigt die Kennzahlen', async () => {
+  it('schickt das Admin-Token mit und zeigt die Kennzahlen der Übersicht', async () => {
     const fetchMock = respondWith(summary());
     vi.stubGlobal('fetch', fetchMock);
 
     render(<StatsDashboard />);
 
-    await waitFor(() => expect(screen.getByText('1.147')).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
     expect(screen.getByText('8.629')).toBeTruthy();
+    expect(
+      screen.getByText('Umsatz', { selector: 'span[class*="kpiLabel"]' }).nextElementSibling
+        ?.textContent
+    ).toBe('2,99\u00a0€');
     expect(fetchMock).toHaveBeenCalledWith('/api/admin/stats?days=30', {
-      headers: { Authorization: 'Bearer token-123' },
+      headers: { Authorization: `Bearer token-123` },
     });
-  });
-
-  it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', async () => {
-    // Der Dialog blockiert und erscheint je Besucher mehrfach (hier 3,3 Mal).
-    // Gegen die Einblendungen gerechnet stuenden hier 5,0 % statt 16,5 % —
-    // die Quote je Einblendung wird bewusst nicht mehr gezeigt.
-    vi.stubGlobal('fetch', respondWith(summary()));
-
-    render(<StatsDashboard />);
-
-    await waitFor(() => expect(screen.getByText('16,5 %')).toBeTruthy());
-    expect(screen.queryByText(/5,0 %/)).toBeNull();
-    expect(screen.getByText(/lehnen ab/)).toBeTruthy();
-  });
-
-  it('zeigt eine Trichterstufe mit dem Wert null, statt sie zu verschweigen', async () => {
-    // Der Kauftrichter endet real bei purchase=0 — genau das ist der Befund.
-    vi.stubGlobal('fetch', respondWith(summary()));
-
-    render(<StatsDashboard />);
-
-    await waitFor(() => expect(screen.getByText('Gekauft')).toBeTruthy());
-    const row = screen.getByText('Gekauft').closest('div');
-    expect(row?.textContent).toContain('0');
-  });
-
-  it('benennt die Grundlage der Ausstiegsrechnung', async () => {
-    vi.stubGlobal('fetch', respondWith(summary()));
-
-    render(<StatsDashboard />);
-
-    // „4 von 11" steht jetzt auch im Consent-Block — hier gezielt die
-    // Ausstiegs-Fussnote greifen.
-    await waitFor(() => expect(screen.getByText(/^Über /)).toBeTruthy());
-    expect(screen.getByText(/^Über /).textContent).toContain('4 von 11');
   });
 
   it('erklärt die 404 der Route als fehlenden Zugriff, nicht als Fehler', async () => {
@@ -176,276 +400,173 @@ describe('StatsDashboard', () => {
     await waitFor(() => expect(screen.getByText(/keinen Zugriff/i)).toBeTruthy());
   });
 
-  it('lädt den gewählten Zeitraum nach', async () => {
+  it('lädt den gewählten Zeitraum nach — Vorgabe und eigenes Fenster', async () => {
     const fetchMock = respondWith(summary());
     vi.stubGlobal('fetch', fetchMock);
 
     render(<StatsDashboard />);
-    await waitFor(() => expect(screen.getByText('1.147')).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
 
     fireEvent.click(screen.getByRole('button', { name: '7 Tage' }));
-
     await waitFor(() =>
       expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/stats?days=7', expect.anything())
+    );
+
+    fireEvent.change(screen.getByLabelText('Von'), { target: { value: '2026-08-01' } });
+    fireEvent.change(screen.getByLabelText('Bis'), { target: { value: '2026-08-15' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Zeitraum' }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        '/api/admin/stats?from=2026-08-01&to=2026-08-15',
+        expect.anything()
+      )
     );
   });
 
   it('stellt den letzten vollen Tag voran und markiert den laufenden getrennt', async () => {
-    // Ein laufender Tag als Hauptzahl sähe jeden Morgen wie ein Absturz aus.
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
 
     await waitFor(() => expect(screen.getByText('Sonntag, 30.08.')).toBeTruthy());
-    // Die Hauptzahl des Blocks, nicht der gleichnamige Balkenwert im Verlauf.
     const karte = screen.getByText('Sonntag, 30.08.').closest('section');
-    expect(karte?.querySelector('p')?.textContent).toBe('91');
+    expect(karte?.querySelector('p[class*="big"]')?.textContent).toContain('91');
     expect(screen.getByText(/Heute bisher 19 Besucher/)).toBeTruthy();
+    expect(screen.getByText(/zum Vortag/).closest('span')?.parentElement?.textContent).toContain(
+      '▼'
+    );
   });
 
-  it('zeigt die Richtung gegen Vortag und gegen denselben Wochentag', async () => {
+  it('breitet heute und gestern nebeneinander aus, mit der Suche des frischesten Tages', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Heute & Gestern');
 
-    await waitFor(() => expect(screen.getByText(/zum Vortag/)).toBeTruthy());
-    expect(screen.getByText(/zum selben Wochentag/)).toBeTruthy();
-    // Beide Werte fielen — der Pfeil muss nach unten zeigen. Das Label sitzt
-    // in einem Kind-span, der Pfeil im Elternteil.
-    const vortag = screen.getByText(/zum Vortag/).closest('span')?.parentElement;
-    expect(vortag?.textContent).toContain('▼');
+    const heute = await screen.findByRole('region', { name: 'Montag, 31.08.' });
+    expect(within(heute).getByText('läuft noch')).toBeTruthy();
+    expect(
+      within(heute).getAllByText('Konto angelegt')[0].previousElementSibling?.textContent
+    ).toBe('5');
+    const gestern = screen.getByRole('region', { name: 'Sonntag, 30.08.' });
+    expect(within(gestern).getByText('abgeschlossen')).toBeTruthy();
+    // Die Firestore-Zahlen des Tages haengen mit dran.
+    expect(within(gestern).getByText('Neue Konten').previousElementSibling?.textContent).toBe('2');
+    // Der frischeste Tag der Search Console mit seinen Suchbegriffen.
+    expect(screen.getByText('frische suche')).toBeTruthy();
+    expect(screen.getByText('Mittwoch, 02.09.')).toBeTruthy();
   });
 
-  it('trennt Besucher und Seitenaufrufe in zwei Verläufe', async () => {
-    // Auf gemeinsamer Skala war die Besucherreihe ein Strich am Boden.
+  it('zeigt den Trichter in vier Stufen und behält leere Stufen', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Funnel');
 
-    await waitFor(() => expect(screen.getAllByRole('heading', { level: 2 })).toBeTruthy());
-    const titel = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
-    expect(titel).toContain('Besucher');
-    expect(titel).toContain('Seitenaufrufe');
+    expect(await screen.findByText('Die Reise in vier Stufen')).toBeTruthy();
+    expect(screen.getByText('+20 Karten, 10 davon offen')).toBeTruthy();
+    // purchase=0 ist der Befund, nicht eine Luecke.
+    const row = screen.getByText('Gekauft').closest('div');
+    expect(row?.textContent).toContain('0');
+    // Personen statt Ereignisse, aus Firestore.
+    expect(screen.getByText('haben gekauft').closest('li')?.textContent).toContain('2');
   });
 
-  it('nennt Gewinner und Verlierer gegenüber der Vorperiode', async () => {
+  it('zeigt Karten, Konten und den Stapel je Kategorie', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Karten & Konten');
 
-    await waitFor(() => expect(screen.getByText('Veränderungen zur Vorperiode')).toBeTruthy());
-    expect(screen.getByText('−208')).toBeTruthy();
-    expect(screen.getByText('+8')).toBeTruthy();
+    expect(await screen.findByText('Karten je Kategorie')).toBeTruthy();
+    expect(screen.getByText('Fine Dining').closest('tr')?.textContent).toContain('leer');
+    expect(screen.getByText('Lunch').closest('tr')?.textContent).toContain('käuflich');
+    expect(screen.getByText('Aktiv 7 Tage').nextElementSibling?.textContent).toBe('3');
   });
 
-  it('lässt den Vorperiodenvergleich weg, wenn es ihn nicht gibt', async () => {
-    vi.stubGlobal('fetch', respondWith(summary({ period: null })));
+  it('rechnet den Umsatz zum Katalogpreis und zeigt ihn je Pack', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Umsatz');
 
-    await waitFor(() => expect(screen.getByText('Cookie-Dialog')).toBeTruthy());
-    expect(screen.queryByText('Veränderungen zur Vorperiode')).toBeNull();
+    expect(await screen.findByText('Umsatz insgesamt')).toBeTruthy();
+    expect(screen.getByText('Umsatz insgesamt').nextElementSibling?.textContent).toBe(
+      '18,96\u00a0€'
+    );
+    expect(screen.getByText('All Berlin').closest('tr')?.textContent).toContain('9,99');
   });
 
-  it('zeigt die Konten aus Firebase Auth mit Käufen und Checkout-Versuchen', async () => {
-    vi.stubGlobal(
-      'fetch',
-      respondWith(
-        summary({
-          accounts: {
-            total: 6,
-            newInWindow: 4,
-            activeInWindow: 2,
-            active: { day: 1, week: 2, month: 3 },
-            google: 4,
-            email: 2,
-            withFavorites: 3,
-            purchases: { total: 4, inWindow: 0 },
-            checkouts: { inWindow: 5, open: 5 },
-          },
-        })
-      )
-    );
+  it('zeigt die Google-Suche mit Anfragen, Geräten, Ländern und Bewegungen', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Google-Suche');
 
-    await waitFor(() => expect(screen.getByText('Konten')).toBeTruthy());
-    expect(screen.getByText('Konten gesamt').previousElementSibling?.textContent).toBe('6');
-    expect(screen.getByText('Aktiv im Zeitraum').previousElementSibling?.textContent).toBe('2');
-    expect(screen.getByText(/5 Stripe-Sitzungen im Zeitraum, 5 offen/)).toBeTruthy();
-  });
-
-  it('zeigt aktive Nutzer in festen Fenstern neben dem Bestand', async () => {
-    vi.stubGlobal(
-      'fetch',
-      respondWith(
-        summary({
-          accounts: {
-            total: 6,
-            newInWindow: 4,
-            activeInWindow: 2,
-            active: { day: 1, week: 2, month: 3 },
-            google: 4,
-            email: 2,
-            withFavorites: 3,
-            purchases: { total: 4, inWindow: 0 },
-            checkouts: { inWindow: 5, open: 5 },
-          },
-        })
-      )
-    );
-
-    render(<StatsDashboard />);
-
-    await waitFor(() => expect(screen.getByText('Aktive Nutzer')).toBeTruthy());
-    expect(screen.getByText('Heute').previousElementSibling?.textContent).toBe('1');
-    expect(screen.getByText('Letzte 7 Tage').previousElementSibling?.textContent).toBe('2');
-    expect(screen.getByText('Letzte 30 Tage').previousElementSibling?.textContent).toBe('3');
-  });
-
-  it('zeigt die Google-Suche mit Anfragen, Seiten und den Chancen', async () => {
-    vi.stubGlobal(
-      'fetch',
-      respondWith(
-        summary({
-          search: {
-            ok: true,
-            data: {
-              property: 'sc-domain:eatthisdot.com',
-              range: { start: '2026-08-06', end: '2026-09-02', days: 28 },
-              totals: { clicks: 303, impressions: 54472, ctr: 0.0056, position: 12.9 },
-              before: { clicks: 195, impressions: 29732, ctr: 0.0066, position: 11.7 },
-              days: [
-                { day: '2026-09-01', clicks: 24, impressions: 4242 },
-                { day: '2026-09-02', clicks: 23, impressions: 4225 },
-              ],
-              queries: [
-                { key: 'bari berlin menu', clicks: 9, impressions: 106, ctr: 0.0849, position: 5.2 },
-              ],
-              pages: [
-                { key: '/en/kategorie/lunch', clicks: 24, impressions: 2650, ctr: 0.0091, position: 10.3 },
-              ],
-              opportunities: [
-                { key: 'gemello berlin', clicks: 2, impressions: 983, ctr: 0.002, position: 6.7 },
-              ],
-              fetchedAt: '2026-09-03T20:00:00.000Z',
-            },
-          },
-        })
-      )
-    );
-
-    render(<StatsDashboard />);
-
-    await waitFor(() => expect(screen.getByText('Google-Suche')).toBeTruthy());
-    // „Klicks" steht auch als Spaltenkopf in den Tabellen — die Kachel kommt zuerst.
-    expect(screen.getAllByText('Klicks')[0].previousElementSibling?.textContent).toBe('303');
-    expect(screen.getByText('Impressionen').previousElementSibling?.textContent).toBe('54.472');
-    expect(screen.getByText('Klickrate · vorher 0,7 %').previousElementSibling?.textContent).toBe(
-      '0,6 %'
-    );
-    expect(screen.getByText('Position · vorher 11,7').previousElementSibling?.textContent).toBe(
-      '12,9'
-    );
-    expect(screen.getByText('bari berlin menu')).toBeTruthy();
-    expect(screen.getByText('/en/kategorie/lunch')).toBeTruthy();
+    expect(await screen.findByText('Welche Suche funktioniert')).toBeTruthy();
+    expect(screen.getAllByText('bari berlin menu').length).toBeGreaterThan(0);
+    expect(screen.getByText('Telefon')).toBeTruthy();
+    expect(screen.getByText('Deutschland')).toBeTruthy();
+    expect(screen.getByText('+7')).toBeTruthy();
     expect(screen.getByText('gemello berlin')).toBeTruthy();
   });
 
-  it('nennt bei fehlendem Zugang das Dienstkonto, das freizuschalten ist', async () => {
+  it('nennt bei fehlendem Zugang das freizuschaltende Dienstkonto', async () => {
     vi.stubGlobal(
       'fetch',
       respondWith(
         summary({
-          search: {
-            ok: false,
-            reason: 'no-access',
-            identity: 'firebase-app-hosting-compute@eat-this-8a13b.iam.gserviceaccount.com',
-            message: 'The caller does not have permission',
-          },
+          search: { ok: false, reason: 'no-access', identity: 'sa@eat-this.iam', message: '403' },
         })
       )
     );
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Google-Suche');
 
-    await waitFor(() => expect(screen.getByText('Google-Suche')).toBeTruthy());
+    expect(await screen.findByText('sa@eat-this.iam')).toBeTruthy();
+  });
+
+  it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
+
+    render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Cookie-Dialog');
+
+    // 57 von 346 Besuchern = 16,5 %; je Einblendung waeren es 5,0 % — die
+    // Zahl steht dabei, aber als das, was sie ist.
+    expect((await screen.findAllByText('16,5 %')).length).toBeGreaterThan(0);
     expect(
-      screen.getByText('firebase-app-hosting-compute@eat-this-8a13b.iam.gserviceaccount.com')
-    ).toBeTruthy();
-    expect(screen.queryByText('Klicks')).toBeNull();
+      screen.getByText('Zustimmungen je Einblendung').previousElementSibling?.textContent
+    ).toBe('5,0 %');
+    expect(screen.getByText(/lehnen ab/)).toBeTruthy();
   });
 
-  it('lässt die Konten-Karte weg, wenn die Route keine liefert', async () => {
-    vi.stubGlobal('fetch', respondWith(summary({ accounts: null })));
+  it('listet jedes Ereignis mit Anteil und Bewegung', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Ereignisse');
 
-    await waitFor(() => expect(screen.getByText('Die Reise')).toBeTruthy());
-    expect(screen.queryByText('Konten gesamt')).toBeNull();
+    const row = (await screen.findByText('Konto angelegt')).closest('tr');
+    expect(row?.textContent).toContain('+3');
   });
 
-  it('rechnet den Tagesschnitt ohne den laufenden Tag', async () => {
-    // 1.147 Besucher, davon 19 heute, über 10 volle Tage: 113 — nicht 104
-    // über elf, als wäre der halbe Tag ein ganzer.
+  it('öffnet den Bericht aus dem Hash', async () => {
+    window.location.hash = '#content';
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
 
-    await waitFor(() => expect(screen.getByText('Besucher je vollem Tag')).toBeTruthy());
-    expect(screen.getByText('Besucher je vollem Tag').previousElementSibling?.textContent).toBe(
-      '113'
-    );
-  });
-
-  it('setzt jede Stufe der Reise ins Verhältnis zu den Besuchern', async () => {
-    vi.stubGlobal(
-      'fetch',
-      respondWith(
-        summary({
-          // Die Ereignisliste nennt dieselben Namen — hier zaehlt nur die Reise.
-          events: [],
-          funnels: [
-            {
-              label: 'Die ganze Reise',
-              steps: [
-                { key: 'visitors', count: 1147 },
-                { key: 'map_opened', count: 1469 },
-                { key: 'view_item', count: 595 },
-                { key: 'purchase', count: 0 },
-              ],
-            },
-          ],
-        })
-      )
-    );
-
-    render(<StatsDashboard />);
-
-    await waitFor(() => expect(screen.getByText('Karte geöffnet')).toBeTruthy());
-    // 1.469 auf 1.147 Besucher: 128 je 100 — Ereignisse, keine Personen.
-    const karte = screen.getByText('Karte geöffnet').closest('div');
-    expect(karte?.textContent).toContain('128');
-    // 595 auf 1.147: 52 je 100. Keine Quote gegen die Stufe davor — /packs
-    // feuert `view_item` an jeden, der die Seite direkt oeffnet.
-    expect(screen.getByText('Pack-Angebot gesehen').closest('div')?.textContent).toContain('52');
-    // `view_item` feuert auf der Pack-Seite, nicht am Spot — so hiess es vorher.
-    expect(screen.queryByText('Spot-Detail gesehen')).toBeNull();
-  });
-
-  it('bietet an, den eigenen Browser aus den Zahlen zu nehmen', async () => {
-    vi.stubGlobal('fetch', respondWith(summary()));
-    document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
-
-    render(<StatsDashboard />);
-
-    const knopf = await screen.findByRole('button', { name: 'Nicht mitzählen' });
-    fireEvent.click(knopf);
-
-    expect(document.cookie).toContain('eatthis_nocount=1');
-    expect(screen.getByText(/wird nicht mitgezählt/)).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Wieder mitzählen' }));
-    expect(document.cookie).not.toContain('eatthis_nocount=1');
+    expect(await screen.findByText('Wo Besuche enden')).toBeTruthy();
+    expect(screen.getByText(/^Über 4 von 11 Tagen/)).toBeTruthy();
   });
 });

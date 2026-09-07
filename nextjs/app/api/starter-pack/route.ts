@@ -10,6 +10,7 @@ import { sampleN } from '@/lib/referral/pools';
 import {
   STARTER_PACK_CARDS,
   STARTER_PACK_DOC_ID,
+  placeWantedFirst,
   splitStarterPack,
   starterPackPool,
 } from '@/lib/starter-pack';
@@ -37,6 +38,12 @@ export const dynamic = 'force-dynamic';
  * Album und gehen vor Ort auf. Welche der beiden Hälften eine Karte erwischt,
  * entscheidet dieselbe Ziehung — `sampleN` mischt, der Schnitt liegt einfach
  * in der Mitte.
+ *
+ * Eine Ausnahme vom Zufall: `mustEatId` im Body. Das ist die Karte, die der
+ * Gast auf der Map angetippt hat, bevor die Anmelde-Tafel kam — sie hat ihm
+ * „diese ist dabei" versprochen, also liegt sie garantiert offen im Pack
+ * (placeWantedFirst). Unbekannte oder schon offene Karten ignoriert die Route
+ * still: das Pack wird dann eben zufällig gezogen.
  */
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization');
@@ -71,6 +78,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ granted: false, reason: 'already_claimed' });
   }
 
+  const body = await req.json().catch(() => null);
+  const wanted =
+    typeof body?.mustEatId === 'string' && body.mustEatId.length <= 120 ? body.mustEatId : null;
+
   const [{ restaurants: all, mustEats: allMustEats }, ent, unlockedIds] = await Promise.all([
     getCachedMapData(),
     resolveEntitlements(uid, identity),
@@ -86,7 +97,7 @@ export async function POST(req: Request) {
     allMustEats.map((m) => m._id),
     alreadyHas
   );
-  const drawn = sampleN(pool, STARTER_PACK_CARDS);
+  const drawn = placeWantedFirst(sampleN(pool, STARTER_PACK_CARDS), pool, wanted);
   const { faceUp: mustEatIds, covered: coveredMustEatIds } = splitStarterPack(drawn);
 
   const doc: WithFieldValue<Entitlement> = {
@@ -113,5 +124,7 @@ export async function POST(req: Request) {
     granted: true,
     count: drawn.length,
     faceUp: mustEatIds.length,
+    /* Ob das Versprechen der Anmelde-Tafel eingelöst wurde. */
+    wanted: wanted !== null && mustEatIds[0] === wanted,
   });
 }

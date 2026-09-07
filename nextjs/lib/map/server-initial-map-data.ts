@@ -38,12 +38,14 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
     getSpotOfDayId(today),
   ]);
 
-  // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL dagegen sieht ein
-  // Besucher ohne Konto nur das Schaufenster plus den Spot des Tages, und der
-  // ist flüchtig: pro Anfrage aus `today` gerechnet, morgen steht ein anderer
-  // da. Dieselbe Staffelung wie in composeAccountSurface — die SSR-Nutzlast
-  // und der spätere Fetch müssen dasselbe meinen, sonst springt die Karte beim
-  // Hydrieren.
+  // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
+  // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das Schaufenster
+  // plus den Spot des Tages, und der ist flüchtig: pro Anfrage aus `today`
+  // gerechnet, morgen steht ein anderer da. Dieselbe Regel wie der Gast-Zweig
+  // in composeAccountSurface — die SSR-Nutzlast und der spätere Fetch müssen
+  // dasselbe meinen, sonst springt die Karte beim Hydrieren. Die Rücken sind
+  // der Anlass zur Anmeldung; was darunter liegt, bleibt auf dem Server
+  // (getInitialAnonMapData strippt).
   const revealedMustEatIds = new Set([
     ...composeRevealedMustEats(allMustEats),
     ...spotOfDayMustEatIds(spotId, allMustEats),
@@ -51,7 +53,7 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
 
   return {
     restaurants: all,
-    mustEats: allMustEats.filter((m) => revealedMustEatIds.has(m._id)),
+    mustEats: allMustEats,
     categories,
     totalCount: all.length,
     revealedMustEatIds: Array.from(revealedMustEatIds),

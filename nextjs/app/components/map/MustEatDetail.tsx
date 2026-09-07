@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useLoginModal } from '@/lib/auth';
+import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
@@ -98,8 +99,16 @@ export default function MustEatDetail({
   // Keep the map in place and use the shared login layer. The previous
   // standalone route made this reveal flow leave the map entirely.
   const { open: openLoginModal } = useLoginModal();
+  /* Die angetippte Karte reist als Absicht mit: die Tafel verspricht „diese
+     ist dabei", und /api/starter-pack legt sie offen ins Pack. Zwei Traeger
+     (sessionStorage fuer Google, ?starter= in der Continue-URL fuer den
+     Magic-Link), siehe pendingStarterCard. */
   const handleRequireLogin = useCallback(() => {
-    openLoginModal('starter');
+    rememberPendingStarterCard(mustEat._id);
+    openLoginModal('starter', { starterMustEatId: mustEat._id });
+  }, [openLoginModal, mustEat._id]);
+  const handleSignIn = useCallback(() => {
+    openLoginModal('signin');
   }, [openLoginModal]);
   const state = useMustEatDetailState({
     mustEat,
@@ -170,6 +179,9 @@ export default function MustEatDetail({
         onPageNext={onPageNext}
         position={position}
         state={state}
+        guest={!uid}
+        onSignUp={handleRequireLogin}
+        onSignIn={handleSignIn}
       />
       {r && (
         <MustEatRevealOverlay

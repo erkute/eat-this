@@ -152,6 +152,12 @@ const en = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
     starterPromoLogin: 'Already in? Sign in',
+    /* Die Anmelde-Tafel in der verdeckten Karte, ohne Konto: was unter dem
+       Ruecken liegt, gibt es fuer eine Anmeldung — und diese Karte garantiert. */
+    guestPitchKicker: 'Free',
+    guestPitchTitle: 'Starter Pack',
+    guestPitchBody: 'Sign up and get 20 Must Eats. This one is in.',
+    guestPitchCta: 'Get the Starter Pack',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
        "Reset filters" was wrong for someone who had only typed something. */
@@ -573,6 +579,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
     starterPromoLogin: 'Schon dabei? Einloggen',
+    guestPitchKicker: 'Gratis',
+    guestPitchTitle: 'Starter Pack',
+    guestPitchBody: 'Melde dich an und bekomm 20 Must Eats. Diese ist dabei.',
+    guestPitchCta: 'Starter Pack holen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
        bot „Filter zurücksetzen" auch dem an, der gar keinen Filter gesetzt,

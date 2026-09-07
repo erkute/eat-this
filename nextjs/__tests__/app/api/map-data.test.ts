@@ -131,11 +131,21 @@ describe('/api/map-data — welche Karten offen liegen', () => {
 
     const json = await (await GET(mkReq(null))).json()
 
-    /* Ohne Konto IST der Stapel das Schaufenster: kein Kartenruecken, an dem
-       sich ablesen liesse, wie viel noch fehlt. Das Deck ist seit dem
-       06.09.2026 gestaffelt — 5 ohne Konto, +20 mit, der Rest gegen Geld. */
-    expect(json.mustEats).toHaveLength(REVEALED_TARGET)
+    /* Ohne Konto liegt seit dem 07.09.2026 der GANZE Stapel da — als Ruecken,
+       jeder ein Anlass zur Anmeldung. Offen ist nur das Schaufenster, und die
+       Ruecken tragen nichts Bezahltes (siehe naechster Test). */
+    expect(json.mustEats).toHaveLength(REVEALED_TARGET + 3)
     expect(json.revealedMustEatIds).toHaveLength(REVEALED_TARGET)
+    const covered = json.mustEats.filter(
+      (m: { _id: string }) => !json.revealedMustEatIds.includes(m._id),
+    )
+    expect(covered).toHaveLength(3)
+    for (const m of covered) {
+      expect(m.dish).toBeUndefined()
+      expect(m.image).toBeUndefined()
+      expect(m.description).toBeUndefined()
+      expect(m.price).toBeUndefined()
+    }
   })
 
   /* Eine verdeckte Karte gibt es seit der Deck-Staffelung nur fuer ein Konto,

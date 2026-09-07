@@ -6,6 +6,7 @@ import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useLoginModal } from '@/lib/auth';
+import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
@@ -103,10 +104,14 @@ export default function HubMustEatsTeaser() {
      ihn dort nichts aufzudecken. Der Tipp führt deshalb zur Anmeldung, und
      zwar in den Starter-Pack-Modus, weil das die Antwort auf „was ist unter
      der Karte" ist: zwanzig davon, zehn liegen dann offen. Mit Konto bleibt
-     die Karte, was sie im Profil ist — der Weg auf die Map, an den Spot. */
-  const openStarterLogin = () => {
+     die Karte, was sie im Profil ist — der Weg auf die Map, an den Spot.
+
+     Die angetippte Karte reist mit (pendingStarterCard): das Starter Pack
+     legt sie garantiert offen hinein — dieselbe Zusage wie auf der Map. */
+  const openStarterLogin = (mustEatId: string) => {
     trackEvent('login_start', { method: 'home_covered_card' });
-    openLoginModal('starter');
+    rememberPendingStarterCard(mustEatId);
+    openLoginModal('starter', { starterMustEatId: mustEatId });
   };
 
   return (
@@ -197,7 +202,7 @@ export default function HubMustEatsTeaser() {
                       type="button"
                       className={`${styles.cardLink} ${styles.cardButton}`}
                       aria-label={cardAria}
-                      onClick={openStarterLogin}
+                      onClick={() => openStarterLogin(m._id)}
                     >
                       {photo}
                     </button>

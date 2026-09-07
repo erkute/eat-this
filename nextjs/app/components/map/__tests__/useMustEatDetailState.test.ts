@@ -171,6 +171,38 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(onUnlock).not.toHaveBeenCalled();
   });
 
+  /* Ein Gast wird nicht nach seinem Standort gefragt und nicht geschuettelt:
+     der Ruecken ist fuer ihn die Frage „was liegt darunter?", und die Antwort
+     ist die Anmeldung — egal, wo er steht (Betreiber, 07.09.2026). */
+  it('routes a guest to login on tap, wherever they stand and without a fix', () => {
+    const onRequireLogin = vi.fn();
+    const onRequestLocation = vi.fn();
+    const onUnlock = vi.fn().mockResolvedValue(true);
+    const { result } = renderHook(() =>
+      useMustEatDetailState({
+        mustEat: mkMustEat(),
+        userLocation: null,
+        onUnlock,
+        isAuthed: false,
+        onRequireLogin,
+        onRequestLocation,
+      })
+    );
+
+    act(() => {
+      void result.current.handleCardClick(mkEvent());
+    });
+
+    expect(onRequireLogin).toHaveBeenCalledTimes(1);
+    expect(onRequestLocation).not.toHaveBeenCalled();
+    expect(onUnlock).not.toHaveBeenCalled();
+    expect(result.current.revealOrigin).toBeNull();
+    expect(trackEvent).toHaveBeenCalledWith(
+      'must_eat_reveal_attempt',
+      expect.objectContaining({ result: 'login_required' })
+    );
+  });
+
   it('outside the unlock radius clears the tapping state after the shake', () => {
     vi.useFakeTimers();
     try {

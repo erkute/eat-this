@@ -36,6 +36,18 @@ describe('buildLoginContinueUrl', () => {
     );
   });
 
+  /* Die angetippte Karte des Gastes: die Tafel verspricht „diese ist dabei",
+     und das Versprechen muss den Posteingang ueberleben. */
+  it('haengt die angetippte Starter-Karte an', () => {
+    expect(buildLoginContinueUrl(at('/map', '?me=me-1'), { starterMustEatId: 'me-1' })).toBe(
+      `${origin}/map?me=me-1&starter=me-1`
+    );
+  });
+
+  it('raeumt eine geerbte Starter-Karte ab', () => {
+    expect(buildLoginContinueUrl(at('/map', '?starter=alt'))).toBe(`${origin}/map`);
+  });
+
   it('behaelt den EN-Praefix der Adresse', () => {
     expect(buildLoginContinueUrl(at('/en/restaurant/vox'))).toBe(`${origin}/en/restaurant/vox`);
   });

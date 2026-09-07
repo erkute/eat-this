@@ -79,15 +79,26 @@ describe('composeAccountSurface', () => {
     expect(s.fullCatalog).toBe(false);
   });
 
-  /* Ohne Konto ist der Stapel das Schaufenster und sonst nichts — kein
-     Kartenruecken, an dem sich ablesen liesse, wie viel noch fehlt. Was es zu
-     holen gibt, sagt die Anmeldung. */
-  it('zeigt ohne Konto nur das Schaufenster, und das ganz offen', async () => {
+  /* Ein Konto ohne alles (frisch, das Starter Pack noch nicht da) sieht das
+     Schaufenster und sonst nichts — das Deck zeigt, was einem gehoert. */
+  it('zeigt einem Konto ohne alles nur das Schaufenster, und das ganz offen', async () => {
     const s = await compose();
 
     expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
     expect(s.mustEats).toHaveLength(REVEALED_TARGET);
     for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
+  });
+
+  /* Ein GAST dagegen sieht jeden Ruecken (Betreiber, 07.09.2026): jeder ist
+     die Frage „was liegt darunter?", und die Antwort ist die Anmeldung. Offen
+     bleibt trotzdem nur das Schaufenster. */
+  it('zeigt einem Gast den ganzen Stapel, offen aber nur das Schaufenster', async () => {
+    const s = await compose({ guest: true });
+
+    expect(s.mustEats).toHaveLength(ALL_MUST_EATS.length);
+    expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
+    for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
+    expect(s.fullCatalog).toBe(false);
   });
 
   /* Das Starter Pack: was es verdeckt vergibt, ist SICHTBAR (Ruecken im

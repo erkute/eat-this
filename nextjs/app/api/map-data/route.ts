@@ -44,7 +44,8 @@ export async function GET(req: Request) {
   // Welche KARTEN offen liegen, entscheidet composeAccountSurface — dieselbe
   // Ableitung, die auch die oeffentliche Deck-Seite benutzt. Die Spots selbst
   // sind fuer jeden dieselben. Diese Route formt daraus nur noch die Antwort.
-  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
+  // Ohne Konto liegt der ganze Stapel als Rücken da (siehe composeAccountSurface).
+  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds, guest: !uid });
 
   // Admin / all-berlin: full catalog, no filter, no reveal signal (signed
   // & paid users get individual reveals via Firestore unlockedMustEats).

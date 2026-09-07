@@ -215,6 +215,42 @@ export function countEvent(name: string): void {
   sendCount({ path: window.location.pathname, event: name });
 }
 
+/* Der Zaehler kennt nur Namen, keine Parameter — und genau darin lag der
+ * blinde Fleck des Trichters: `must_eat_reveal_attempt` fasste fuenf
+ * verschiedene Ausgaenge in eine Zahl (Gast ohne Konto, zu weit weg, kein
+ * Standort, aufgedeckt, gescheitert), und `login_start` sagte nicht, ob
+ * jemand Google gedrueckt oder nur eine verdeckte Karte angetippt hat. Fuer
+ * die Stufen des Produkts (5 Karten frei → Konto → vor Ort → Pack) ist aber
+ * genau dieser Unterschied die Frage.
+ *
+ * Darum faechert der Zaehler diese Ereignisse EINMAL auf: zusaetzlich zum
+ * Grundnamen geht ein zweiter Beacon mit dem qualifizierten Namen raus
+ * (`must_eat_reveal_unlocked`, `login_start_google`). Der Grundname bleibt,
+ * damit die Reihen vor dem Umbau nicht abreissen. Was zaehlbar ist, steht als
+ * Allowlist in app/api/count/route.ts — ein neuer Wert des Parameters landet
+ * erst dort, dann hier. */
+const QUALIFIED_BY: Record<string, string> = {
+  must_eat_reveal_attempt: 'result',
+  login_start: 'method',
+};
+
+export function qualifiedCountName(name: string, params?: AnalyticsParams): string | null {
+  const param = QUALIFIED_BY[name];
+  if (!param) return null;
+  const value = params?.[param];
+  if (typeof value !== 'string' || !/^[a-z_]{1,40}$/.test(value)) return null;
+  // `must_eat_reveal_attempt` + `unlocked` → `must_eat_reveal_unlocked`: das
+  // „attempt" ist mit dem Ausgang gesagt.
+  const stem = name.endsWith('_attempt') ? name.slice(0, -'_attempt'.length) : name;
+  return `${stem}_${value}`;
+}
+
+function countEventWithQualifier(name: string, params?: AnalyticsParams): void {
+  countEvent(name);
+  const qualified = qualifiedCountName(name, params);
+  if (qualified) countEvent(qualified);
+}
+
 /** Send a GA4 event only after analytics consent. Events fired shortly before
  * gtag finishes loading are queued; pre-consent behavior is never replayed.
  *
@@ -222,7 +258,7 @@ export function countEvent(name: string): void {
  * this function that must not depend on an answer. Everything below the fan-out
  * is GA and stays behind consent, unchanged. */
 export function trackEvent(name: string, params?: AnalyticsParams): void {
-  countEvent(name);
+  countEventWithQualifier(name, params);
   const w = analyticsWindow();
   if (!w || !gaEnabled()) return;
   if (w.gtag) {
@@ -270,7 +306,7 @@ function flushHandoffEvents(): void {
  * only — the exact blind spot this counter exists to close. */
 export function handoffEvent(name: string, params?: AnalyticsParams): void {
   if (typeof window === 'undefined') return;
-  countEvent(name);
+  countEventWithQualifier(name, params);
   if (!gaEnabled()) return;
   try {
     const raw = window.sessionStorage.getItem(HANDOFF_KEY);

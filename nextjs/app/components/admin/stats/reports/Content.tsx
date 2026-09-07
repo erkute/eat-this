@@ -1,0 +1,74 @@
+import type { StatsSummary } from '@/lib/admin/stats.server';
+import { BarRows, Card } from '../charts';
+import { NUMBER, percent } from '../format';
+import { MoverList } from './Acquisition';
+import styles from '../../StatsDashboard.module.css';
+
+/**
+ * Was gesehen wird und wo Besuche enden. Ausstiege rein rechnerisch —
+ * Aufrufe minus Fortsetzungen — ohne je einen Aufruf mit einer Person zu
+ * verknüpfen (lib/analytics.ts, previousInternalPath).
+ */
+export default function Content({ data }: { data: StatsSummary }) {
+  const pageviews = data.totals.pageviews;
+  const share = (count: number): string => (pageviews > 0 ? percent(count / pageviews, 0) : '');
+
+  return (
+    <>
+      <Card title="Meistgesehen" span={2} sub="Aufrufe je Seite, Anteil an allen Aufrufen.">
+        <BarRows
+          rows={data.paths.map((p) => ({ ...p, share: share(p.count) }))}
+          empty="Nichts gezählt."
+          share="Anteil an den Aufrufen"
+        />
+      </Card>
+
+      <Card title="Einstiegsseiten" sub="Der erste gezählte Aufruf eines Besuchers am Tag.">
+        <BarRows rows={data.entryPaths} empty="Noch nicht erfasst." />
+      </Card>
+
+      <Card
+        title="Wo Besuche enden"
+        span={2}
+        sub={
+          data.exits.length > 0
+            ? `Über ${NUMBER.format(data.exitDays)} von ${NUMBER.format(data.totals.days)} Tagen. Ein Reload zählt nicht als Fortsetzung — Ausstiege sind eher über- als unterschätzt.`
+            : 'Ausstiege gibt es erst für Tage ab dem 29.08.2026.'
+        }
+      >
+        {data.exits.length === 0 ? (
+          <p className={styles.empty}>Für diesen Zeitraum nicht erfasst.</p>
+        ) : (
+          <div className={styles.scroll}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th scope="col">Seite</th>
+                  <th scope="col">Aufrufe</th>
+                  <th scope="col">weiter</th>
+                  <th scope="col">Ende</th>
+                  <th scope="col">Quote</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.exits.map((row) => (
+                  <tr key={row.key}>
+                    <td className={styles.cellKey}>{row.key}</td>
+                    <td className={styles.cellNum}>{NUMBER.format(row.views)}</td>
+                    <td className={styles.cellNum}>{NUMBER.format(row.continued)}</td>
+                    <td className={styles.cellNum}>{NUMBER.format(row.exits)}</td>
+                    <td className={styles.cellNum}>{percent(row.rate)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <Card title="Bewegung: Seiten" sub="Gegen die Vorperiode, in beide Richtungen.">
+        <MoverList rows={data.movers.paths} />
+      </Card>
+    </>
+  );
+}

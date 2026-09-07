@@ -5,6 +5,7 @@ import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
 import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
+import { trackEvent } from '@/lib/analytics';
 
 // Einmal pro Browser-Session UND Konto — gesetzt erst, wenn der Server
 // geantwortet hat (siehe unten).
@@ -77,7 +78,15 @@ export default function ReferralToastListener() {
             },
             body: JSON.stringify(mustEatId ? { mustEatId } : {}),
           });
-          if (res.ok) starter.mark();
+          if (res.ok) {
+            starter.mark();
+            /* Nur die echte Vergabe zaehlt — `already_claimed` ist ein
+               Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
+               „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
+               `sign_up`, und ob das Pack ankam, wuesste niemand. */
+            const outcome = (await res.json().catch(() => null)) as { granted?: boolean } | null;
+            if (outcome?.granted) trackEvent('starter_pack_granted');
+          }
         }
         if (flag.seen) return;
         await fetch('/api/referral/confirm', {

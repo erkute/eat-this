@@ -1,269 +1,597 @@
-/* Internes Zahlenbrett. Marke nur im Kopf (Providence, Ink, Gelb) — darunter
- * zählt Lesbarkeit: Inter, viel Weiß, tabellarische Ziffern.
+/* Internes Zahlenbrett im Stil eines Analytics-Werkzeugs: Seitenleiste mit
+ * Berichten, Kopfzeile mit Zeitraum, darunter Kacheln und Karten auf einer
+ * ruhigen Fläche. Marke nur in der Leiste (Providence, Ink, Gelb) — darunter
+ * zählt Lesbarkeit: Systemschrift, viel Weiß, tabellarische Ziffern.
  * Light-only wie die ganze App, kein prefers-color-scheme. */
 
-.page {
-  max-width: 1160px;
-  margin: 0 auto;
-  padding: 28px 20px 80px;
-  color: var(--brand-ink, #15120e);
+.app {
+  --ink: #15120e;
+  --paper: #fff;
+  --ground: #f4f2ee;
+  --hair: #e6e2db;
+  --muted: #6b655d;
+  --faint: #9a938a;
+  --yellow: #ffc600;
+  --yellow-soft: #fff1b8;
+  --red: #d9382a;
+  --green: #1e7f4f;
+  --blue: #2b5fd9;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-height: 100dvh;
+  background: var(--ground);
+  color: var(--ink);
   font-family: var(--font), sans-serif;
+  font-size: 14px;
 }
 
-/* ── Kopf ─────────────────────────────────────────────────────────────── */
+/* ── Seitenleiste ─────────────────────────────────────────────────────── */
 
-.head {
-  margin-bottom: 26px;
-  padding-bottom: 18px;
-  border-bottom: 3px solid var(--brand-ink, #15120e);
+.side {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border-right: 1px solid var(--hair);
 }
 
-.title {
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.brandMark {
+  width: 10px;
+  height: 10px;
+  background: var(--yellow);
+  flex: none;
+  transform: translateY(-2px);
+}
+
+.brandName {
   margin: 0;
   font-family: var(--font-providence), var(--font), sans-serif;
-  font-size: clamp(38px, 7vw, 60px);
+  font-size: 26px;
   font-weight: 700;
   text-transform: uppercase;
   /* Großzügig, damit Providence die Unterlängen behält. */
   line-height: 1.32;
 }
 
-.sub {
-  margin: 2px 0 0;
-  font-size: 15px;
-}
-
-.ranges {
+.nav {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 10px;
+  overflow-y: auto;
 }
 
-.range,
-.rangeOn {
-  padding: 7px 15px;
-  border: 2px solid var(--brand-ink, #15120e);
-  background: #fff;
-  color: var(--brand-ink, #15120e);
+.navGroup {
+  margin: 12px 10px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.navItem,
+.navItemOn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px 8px 14px;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 0 8px 8px 0;
+  background: transparent;
+  color: var(--ink);
   font: inherit;
   font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navItemOn {
+  border-left-color: var(--yellow);
+  background: var(--yellow-soft);
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .navItem:hover {
+    background: var(--ground);
+  }
+}
+
+.navCount {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.sideFoot {
+  margin-top: auto;
+  padding: 14px 16px 18px;
+  border-top: 1px solid var(--hair);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ── Hauptfläche ──────────────────────────────────────────────────────── */
+
+.main {
+  min-width: 0;
+  padding: 18px 26px 80px;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 22px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.titleSub {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.segBtn,
+.segBtnOn {
+  padding: 7px 12px;
+  border: 0;
+  border-right: 1px solid var(--hair);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.segBtn:last-child,
+.segBtnOn:last-child {
+  border-right: 0;
+}
+
+.segBtnOn {
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .segBtn:hover {
+    background: var(--yellow-soft);
+  }
+}
+
+.dateInput {
+  padding: 6px 8px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+
+.btn,
+.btnGhost {
+  padding: 7px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
-@media (hover: hover) {
-  .range:hover {
-    background: #ffc600;
+.btnGhost {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--hair);
+}
+
+.btn:disabled,
+.btnGhost:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Raster ───────────────────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card,
+.cardSpan2,
+.cardSpan3 {
+  grid-column: span 4;
+  min-width: 0;
+  padding: 16px 18px 18px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--paper);
+}
+
+.cardSpan2 {
+  grid-column: span 8;
+}
+
+.cardSpan3 {
+  grid-column: span 12;
+}
+
+@media (max-width: 1180px) {
+  .card {
+    grid-column: span 6;
+  }
+  .cardSpan2 {
+    grid-column: span 12;
   }
 }
 
-.rangeOn {
-  background: var(--brand-ink, #15120e);
-  color: #fff;
+@media (max-width: 760px) {
+  .card {
+    grid-column: span 12;
+  }
 }
 
-/* ── Rumpf ────────────────────────────────────────────────────────────── */
-
-.body {
-  display: grid;
-  gap: 22px;
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-/* Nachladen: die alten Zahlen bleiben stehen und treten zurück, statt die
-   Seite leer zu räumen. Farbe, keine Bewegung. */
-.bodyStale {
-  display: grid;
-  gap: 22px;
-  color: #6f6a63;
+.cardTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
-.notice,
-.error {
-  padding: 14px 16px;
-  border: 2px solid var(--brand-ink, #15120e);
-  font-size: 15px;
+.cardSub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
 }
 
-.error {
-  border-color: #d9382a;
-  color: #d9382a;
+.cardTools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.select {
+  padding: 5px 8px;
+  border: 1px solid var(--hair);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
 }
 
 /* ── Kennzahlen ───────────────────────────────────────────────────────── */
 
-.tiles {
+.kpis {
+  grid-column: span 12;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
 }
 
-.tile {
-  padding: 16px 18px;
-  background: #ffc600;
-  border: 2px solid var(--brand-ink, #15120e);
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--paper);
 }
 
-.tileValue {
-  display: block;
-  font-size: 34px;
+.kpiLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpiValue {
+  font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
-.tileLabel {
-  display: block;
-  margin-top: 2px;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.kpiFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 16px;
+  font-size: 12px;
 }
 
-/* ── Karten ───────────────────────────────────────────────────────────── */
-
-.card {
-  padding: 18px 20px 20px;
-  border: 2px solid var(--brand-ink, #15120e);
-  background: #fff;
+.kpiHint {
+  color: var(--faint);
 }
 
-.cardTitle {
-  margin: 0 0 14px;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.spark {
+  width: 100%;
+  height: 28px;
+  margin-top: 4px;
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
 }
 
 .big {
   margin: 0;
-  font-size: 46px;
+  font-size: 40px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  line-height: 1.05;
+}
+
+.bigUnit {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 6px;
 }
 
 .note {
   margin: 8px 0 0;
-  max-width: 74ch;
-  font-size: 14px;
+  max-width: 78ch;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: #55504a;
+  color: var(--muted);
 }
 
-.columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 22px;
+.empty {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--faint);
 }
 
-/* ── Verlauf ──────────────────────────────────────────────────────────── */
-
-.trend {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  overflow-x: auto;
-}
-
-.trendCol {
-  flex: 1 1 0;
-  min-width: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-
-.trendBars {
-  position: relative;
-  width: 100%;
-  height: 132px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 2px;
-}
-
-.trendDay {
-  font-size: 10px;
+.deltaUp,
+.deltaDown,
+.deltaFlat {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: #55504a;
 }
 
-/* ── Trichter ─────────────────────────────────────────────────────────── */
-
-.funnels {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 22px;
+.deltaUp {
+  color: var(--green);
 }
 
-/* Eine Trichter-Spalte. Stand als `styles.funnel` im Markup, war hier aber nie
-   definiert — CSS-Module liefern dann `undefined`, und der Kasten fiel still
-   auf das Grid zurueck. `min-width: 0` ist der Grund, warum es sie braucht:
-   ohne sie sprengt eine lange Beschriftung die Spalte. */
-.funnel {
-  min-width: 0;
+.deltaDown {
+  color: var(--red);
 }
 
-.funnelTitle {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 700;
+.deltaFlat {
+  color: var(--muted);
 }
 
-.step {
-  display: grid;
-  /* Beschriftung | Balken | Zahl | je 100 Besucher */
-  grid-template-columns: 1fr 82px 52px 38px;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 0;
+.deltaLabel {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.changes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 8px;
   font-size: 13px;
 }
 
-.stepShare {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  color: #55504a;
-  white-space: nowrap;
+/* ── Diagramme ────────────────────────────────────────────────────────── */
+
+.chart {
+  width: 100%;
 }
 
-.stepLabel {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stepBarWrap,
-.rankBarWrap {
-  height: 10px;
-  background: #efece6;
-  border: 1px solid var(--brand-ink, #15120e);
-}
-
-.stepBar,
-.rankBar {
+.chartSvg {
   display: block;
-  height: 100%;
-  background: #ffc600;
+  width: 100%;
+  height: auto;
 }
 
-/* Null bleibt sichtbar null — ein leerer Balken ist der Befund, nicht ein
-   fehlender Wert. */
-.stepBarEmpty {
-  display: block;
-  height: 100%;
-  width: 0;
+.gridLine {
+  stroke: var(--hair);
+  stroke-width: 1;
 }
 
-.stepValue,
-.rankValue {
-  text-align: right;
+.axisText {
+  fill: var(--faint);
+  font-size: 10.5px;
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+}
+
+.lineNow,
+.lineSecond,
+.lineBefore {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.lineNow {
+  stroke: var(--ink);
+}
+
+.lineSecond {
+  stroke: var(--blue);
+}
+
+.lineBefore {
+  stroke: var(--faint);
+  stroke-dasharray: 4 4;
+  stroke-width: 1.5;
+}
+
+.areaNow {
+  fill: var(--yellow);
+  fill-opacity: 0.28;
+}
+
+.dotNow {
+  fill: var(--ink);
+}
+
+.dotSecond {
+  fill: var(--blue);
+}
+
+.dotBefore {
+  fill: var(--faint);
+}
+
+.dotOpen {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatchNow,
+.swatchSecond,
+.swatchBefore {
+  width: 14px;
+  height: 0;
+  border-top: 2px solid var(--ink);
+}
+
+.swatchSecond {
+  border-top-color: var(--blue);
+}
+
+.swatchBefore {
+  border-top-style: dashed;
+  border-top-color: var(--faint);
+}
+
+/* Säulen (Wochentage) */
+
+.columns {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 150px;
+}
+
+.column {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.columnValue {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.columnBarWrap {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.columnBar {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  background: var(--ink);
+  border-radius: 3px 3px 0 0;
+}
+
+.columnLabel {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 /* ── Ranglisten ───────────────────────────────────────────────────────── */
@@ -272,48 +600,78 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  display: grid;
+  gap: 5px;
 }
 
 .rankRow {
   display: grid;
-  grid-template-columns: 1fr 70px 58px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(60px, 1fr) auto auto;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
-  border-bottom: 1px solid #e7e3dc;
+  gap: 10px;
   font-size: 13px;
-}
-
-.rankRow:last-child {
-  border-bottom: 0;
-}
-
-/* Ereignisliste: zwei Spalten statt drei. */
-.rank .rankRow:has(.rankKey + .rankValue) {
-  grid-template-columns: 1fr 58px;
 }
 
 .rankKey {
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* ── Tabelle ──────────────────────────────────────────────────────────── */
+.rankBarWrap {
+  height: 8px;
+  background: var(--ground);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rankBar {
+  display: block;
+  height: 100%;
+  background: var(--yellow);
+  border-right: 2px solid var(--ink);
+  border-radius: 4px;
+  min-width: 2px;
+}
+
+.rankValue {
+  min-width: 3.5ch;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankShare {
+  min-width: 5ch;
+  text-align: right;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+/* ── Tabellen ─────────────────────────────────────────────────────────── */
+
+.scroll {
+  overflow-x: auto;
+}
 
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 .table th {
-  text-align: right;
-  padding: 4px 6px;
-  border-bottom: 2px solid var(--brand-ink, #15120e);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ink);
   font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-align: right;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .table th:first-child {
@@ -321,157 +679,388 @@
 }
 
 .table td {
-  padding: 4px 6px;
-  border-bottom: 1px solid #e7e3dc;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--hair);
+  vertical-align: top;
 }
 
 .cellKey {
-  max-width: 340px;
+  max-width: 34ch;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .cellNum {
   text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-@media (max-width: 640px) {
-  .step {
-    grid-template-columns: 1fr 48px 46px 34px;
-  }
-
-  .rankRow {
-    grid-template-columns: 1fr 52px 46px;
-  }
-}
-
-/* ── Vergleiche ───────────────────────────────────────────────────────── */
-
-.tileDelta {
-  display: block;
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.changes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  margin-top: 10px;
-}
-
-.changeUp,
-.changeDown,
-.changeFlat {
-  font-size: 14px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Gruen und Rot stehen hier fuer Richtung, nicht fuer gut und schlecht — die
-   Zahl daneben nennt immer den Bezug, damit ein Pfeil allein nichts behauptet.
-   Dieselben Toene wie die Zustands-Chips der Spot-Seite. */
-.changeUp {
-  color: #1f8f4d;
-}
-
-.changeDown {
-  color: #d9382a;
-}
-
-.changeFlat {
-  color: #55504a;
-}
-
-.changeLabel {
-  font-weight: 400;
-  color: #55504a;
-}
-
-.moverUp,
-.moverDown {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
-
-.moverUp {
-  color: #1f8f4d;
-}
-
-.moverDown {
-  color: #d9382a;
-}
-
-/* Zahl ueber dem Balken: der Verlauf soll ablesbar sein, ohne zu zielen. */
-.trendValue {
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-  color: #55504a;
   white-space: nowrap;
 }
 
-.trendBar,
-.trendBarToday {
-  width: 68%;
-  min-height: 2px;
-  border: 1px solid var(--brand-ink, #15120e);
-}
-
-.trendBar {
-  background: #ffc600;
-}
-
-/* Der laufende Tag ist unvollstaendig — schraffiert statt voll, damit er nicht
-   als Einbruch gelesen wird. */
-.trendBarToday {
-  background: repeating-linear-gradient(45deg, #ffc600 0 4px, #fff 4px 8px);
-}
-
-/* ── Eigener Browser ──────────────────────────────────────────────────── */
-
-.optOut {
-  margin: 14px 0 0;
-  font-size: 13px;
-  color: #55504a;
-}
-
-.optOutButton {
-  padding: 3px 10px;
-  border: 2px solid var(--brand-ink, #15120e);
-  background: #fff;
-  color: var(--brand-ink, #15120e);
-  font: inherit;
-  font-size: 13px;
+.cellPos {
+  color: var(--green);
+  text-align: right;
+  white-space: nowrap;
   font-weight: 600;
-  cursor: pointer;
 }
 
-@media (hover: hover) {
-  .optOutButton:hover {
-    background: #ffc600;
-  }
+.cellNeg {
+  color: var(--red);
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 600;
 }
 
-/* ── Google-Suche ─────────────────────────────────────────────────────── */
+/* ── Trichter ─────────────────────────────────────────────────────────── */
 
-/* Fuenf Spalten passen auf dem Telefon nicht nebeneinander — die Tabelle
-   scrollt in ihrem Kasten, nie die Seite. */
-.scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.stage {
+  padding: 14px 14px 12px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--ground);
+}
+
+.stageHead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.stageNo {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--yellow);
+  font-size: 12px;
+  font-weight: 700;
+  flex: none;
+}
+
+.stageTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stageOffer {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.step {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(50px, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12.5px;
+}
+
+.stepLabel {
+  /* Zwei Zeilen statt „Anmeldeform…": vier Stufen nebeneinander lassen einer
+     Beschriftung kaum 100 px, und abgeschnitten ist sie wertlos. */
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.stepBarWrap {
+  height: 7px;
+  background: var(--paper);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stepBar {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  background: var(--ink);
+  border-radius: 4px;
+}
+
+.stepBarEmpty {
+  display: block;
+  height: 100%;
+  width: 0;
+}
+
+.stepValue {
+  min-width: 3ch;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepShare {
+  min-width: 3.5ch;
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.rates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.rate {
+  padding: 10px 12px;
+  border-left: 3px solid var(--yellow);
+  background: var(--ground);
+  border-radius: 0 8px 8px 0;
+}
+
+.rateValue {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rateLabel {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+/* ── Heute & Gestern ──────────────────────────────────────────────────── */
+
+.dayCols {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.dayCol {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--paper);
+}
+
+.dayHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.dayName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dayTiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.dayTile {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--ground);
+}
+
+.dayTileValue {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.dayTileLabel {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subTitle {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* ── Pillen und Zustände ──────────────────────────────────────────────── */
+
+.pill,
+.pillYellow,
+.pillRed,
+.pillGreen {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pillYellow {
+  background: var(--yellow);
+  border-color: var(--yellow);
+}
+
+.pillRed {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.pillGreen {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+.notice,
+.error {
+  grid-column: span 12;
+  padding: 12px 16px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--paper);
+  font-size: 14px;
+}
+
+.error {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* Nachladen: die alten Zahlen bleiben stehen und treten zurück, statt die
+   Seite leer zu räumen. Farbe, keine Bewegung. */
+.stale {
+  color: var(--muted);
+}
+
+.gate {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 40px 20px;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font), sans-serif;
 }
 
 .code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--ground);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
-  padding: 1px 5px;
-  background: #f3f0ea;
-  border-radius: 4px;
-  user-select: all;
-  word-break: break-all;
+}
+
+.optOutButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* ── Schmal: Leiste wird zur Kopfzeile ────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .brand {
+    padding: 14px 16px 10px;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 10px;
+    gap: 4px;
+  }
+
+  .navGroup {
+    display: none;
+  }
+
+  .navItem,
+  .navItemOn {
+    flex: none;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 8px 8px 0 0;
+    padding: 6px 10px;
+  }
+
+  .navItemOn {
+    border-bottom-color: var(--yellow);
+    background: transparent;
+  }
+
+  .navCount {
+    display: none;
+  }
+
+  .sideFoot {
+    display: none;
+  }
+
+  .main {
+    padding: 14px 14px 60px;
+  }
+
+  .dayCols {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

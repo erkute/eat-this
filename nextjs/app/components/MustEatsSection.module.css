@@ -400,31 +400,6 @@
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
-/* The spots whose card is still face-down. Public information — the map's
-   locked list names them too — and the most persuasive copy on the page. */
-.spotList {
-  max-width: 74ch;
-  margin: clamp(20px, 2.6vw, 32px) auto 0;
-  color: var(--must-soft);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(14px, 1.1vw, 17px);
-  font-weight: 400;
-  line-height: 1.55;
-  text-align: center;
-}
-
-.spotListLabel {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--must-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
 /* --------------------------------------------------------------- close --- */
 
 /* Der Schluss ist die eine Tafel, die bleibt — dasselbe Objekt wie die

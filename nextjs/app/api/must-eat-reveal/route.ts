@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
-import { getFreeSurfaceData } from '@/lib/map/free-surface';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds, unlockMustEat } from '@/lib/firebase/unlockedMustEats.server';
 import { checkRateLimit } from '@/lib/buddy/rateLimit';
@@ -65,11 +64,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'mustEatId required' }, { status: 400 });
   }
 
-  const [{ restaurants: all, mustEats: allMustEats }, ent, freeSurface, unlockedIds] =
+  const [{ restaurants: all, mustEats: allMustEats }, ent, unlockedIds] =
     await Promise.all([
       getCachedMapData(),
       resolveEntitlements(uid, identity),
-      getFreeSurfaceData(),
       getUnlockedMustEatIds(uid),
     ]);
 
@@ -80,24 +78,14 @@ export async function POST(req: Request) {
 
   /* Dieselbe Ableitung wie /api/map-data und die oeffentliche Deck-Seite.
      Hier stand die Formel als DRITTE Kopie — mit demselben Admin-Zweig und
-     demselben Dreier-Verbund, nur um `mustEatId` erweitert. */
-  const surface = await composeAccountSurface({
-    all,
-    allMustEats,
-    ent,
-    uid,
-    freeRestaurantIds: freeSurface.restaurantIds,
-    unlockedIds,
-  });
+     demselben Dreier-Verbund, nur um `mustEatId` erweitert.
 
-  /* Wer den ganzen Katalog hat, kommt an jeden Spot; fuer alle anderen muss
-     der Spot ueberhaupt auf ihrer Map liegen, bevor sie dort aufdecken. */
-  if (!surface.fullCatalog) {
-    const visibleRestaurantIds = new Set(surface.restaurants.map((r) => r._id));
-    if (!visibleRestaurantIds.has(mustEat.restaurant._id)) {
-      return NextResponse.json({ error: 'must-eat not available' }, { status: 403 });
-    }
-  }
+     Bis zum 06.09.2026 stand hier zusaetzlich eine Sichtbarkeitspruefung: der
+     Spot musste auf der Map DIESES Kontos liegen, sonst 403. Sie fiel mit der
+     Staffelung, und zwar gern — sie sperrte den staerksten Anmeldemoment aus,
+     den das Produkt hat. Wer vor einem Laden steht, darf dessen Karte
+     aufdecken, egal welcher Laden. Was bleibt, ist das Ratenlimit oben. */
+  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
 
   /* Die gerade aufgedeckte Karte kommt dazu — im Admin-Zweig liegt sie
      ohnehin schon drin. */

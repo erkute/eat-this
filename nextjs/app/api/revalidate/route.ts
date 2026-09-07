@@ -10,15 +10,11 @@ const num = (v: string | undefined, d: number) => {
   return Number.isFinite(n) && n > 0 ? n : d;
 };
 
-function revalidateMapSurface(revalidated: string[], includeFreeSurface = false): void {
+function revalidateMapSurface(revalidated: string[]): void {
   revalidateTag('map-data');
   revalidatePath('/map');
   revalidatePath('/en/map');
   revalidated.push('tag:map-data', 'path:/map', 'path:/en/map');
-  if (includeFreeSurface) {
-    revalidateTag('free-surface');
-    revalidated.push('tag:free-surface');
-  }
 }
 
 function revalidateMustEatSurface(revalidated: string[]): void {
@@ -134,7 +130,7 @@ export async function POST(req: NextRequest) {
         revalidatePath(`/en/news/${slug}`);
         revalidated.push(`tag:article:${slug}`, `path:/news/${slug}`);
       }
-      revalidateMapSurface(revalidated, true);
+      revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);
       break;
     case 'restaurant':
@@ -166,7 +162,7 @@ export async function POST(req: NextRequest) {
         'tag:restaurant-siblings',
         'tag:restaurant'
       );
-      revalidateMapSurface(revalidated, true);
+      revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);
       revalidatePackContents(revalidated);
       break;
@@ -219,12 +215,12 @@ export async function POST(req: NextRequest) {
     case 'mustEat':
       revalidateTag('mustEat');
       revalidated.push('tag:mustEat');
-      revalidateMapSurface(revalidated, true);
+      revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);
       revalidatePackContents(revalidated);
       break;
     case 'homeWeek':
-      revalidateMapSurface(revalidated, true);
+      revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);
       break;
     case 'staticPage':

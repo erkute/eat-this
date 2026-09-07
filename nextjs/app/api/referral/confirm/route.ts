@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
-import { composeAnonRestaurants, composeSignedRestaurants } from '@/lib/map/tier-composition';
+import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
+import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { computeReferralPools, sampleN } from '@/lib/referral/pools';
 import {
   REFERRER_COOKIE,
-  REFERRAL_BONUS_SIZE,
+  REFERRAL_BONUS_CARDS,
   UID_SHAPE,
   ACCOUNT_FRESHNESS_MS,
   MAX_REFERRALS_PER_INVITER,
@@ -15,6 +16,19 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Was eine Einladung einbringt: eine Must-Eat-Karte, für beide Seiten.
+ *
+ * Bis zum 06.09.2026 waren es zehn Spots — die Währung, die es gab, solange
+ * zwei Drittel der Karte gesperrt waren. Sie ist ersatzlos weg: die Map ist
+ * frei, und das einzige, was ein Konto noch reicher macht, sind die Karten.
+ *
+ * Verschenkt wird nur, was der Beschenkte noch nicht offen hat — die
+ * öffentlichen Schaufensterkarten sind kein Geschenk, die eigenen erst recht
+ * nicht. Welche Karten das sind, entscheidet `composeAccountSurface`, dieselbe
+ * Ableitung wie auf der Map: es soll nicht zwei Meinungen darüber geben, was
+ * jemandem gehört.
+ */
 export async function POST(req: NextRequest) {
   const inviterUid = req.cookies.get(REFERRER_COOKIE)?.value ?? null;
 
@@ -79,39 +93,37 @@ export async function POST(req: NextRequest) {
     const awarded = await inviterBonuses.where('source', '==', 'invited').count().get();
     const legacyAwardedCount = awarded.data().count;
 
-    const { restaurants: all, mustEats: allMustEats } = await getCachedMapData();
-    const allIds = all.map((r) => r._id);
+    const [{ restaurants: all, mustEats: allMustEats }, inviterEnt, inviterUnlocked, friendEnt] =
+      await Promise.all([
+        getCachedMapData(),
+        resolveEntitlements(inviterUid, inviterIdentity),
+        getUnlockedMustEatIds(inviterUid),
+        resolveEntitlements(friendUid),
+      ]);
 
-    const mustEatCount = new Map<string, number>();
-    for (const m of allMustEats) {
-      const rid = m.restaurant._id;
-      mustEatCount.set(rid, (mustEatCount.get(rid) ?? 0) + 1);
-    }
-    const anonSet = composeAnonRestaurants(all, mustEatCount);
-    const anonIds = new Set(anonSet.map((r) => r._id));
-    const signedSet = composeSignedRestaurants(all, anonIds, mustEatCount);
-    const signedIds = new Set(signedSet.map((r) => r._id));
-
-    const inviterEnt = await resolveEntitlements(inviterUid, inviterIdentity);
-    const inviterEntitledIds = new Set<string>(inviterEnt.restaurantIds);
-    if (inviterEnt.isAdmin || inviterEnt.hasAllBerlin) {
-      for (const id of allIds) inviterEntitledIds.add(id);
-    } else if (inviterEnt.categorySlugs.size > 0) {
-      for (const r of all) {
-        if (r.categories?.some((c) => inviterEnt.categorySlugs.has(c.slug))) {
-          inviterEntitledIds.add(r._id);
-        }
-      }
-    }
+    const [inviterSurface, friendSurface] = await Promise.all([
+      composeAccountSurface({
+        all,
+        allMustEats,
+        ent: inviterEnt,
+        unlockedIds: inviterUnlocked,
+      }),
+      composeAccountSurface({
+        all,
+        allMustEats,
+        ent: friendEnt,
+        // Das Konto ist Minuten alt; es kann noch nichts vor Ort aufgedeckt haben.
+        unlockedIds: new Set<string>(),
+      }),
+    ]);
 
     const { inviterPool, friendPool } = computeReferralPools({
-      allIds,
-      anonIds,
-      signedIds,
-      inviterEntitledIds,
+      allMustEatIds: allMustEats.map((m) => m._id),
+      inviterFaceUpIds: inviterSurface.faceUpIds,
+      friendFaceUpIds: friendSurface.faceUpIds,
     });
-    const friendPicks = sampleN(friendPool, REFERRAL_BONUS_SIZE);
-    const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_SIZE);
+    const friendPicks = sampleN(friendPool, REFERRAL_BONUS_CARDS);
+    const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_CARDS);
 
     const friendDocRef = db
       .collection('users')
@@ -145,14 +157,14 @@ export async function POST(req: NextRequest) {
       const awardInviter = inviterPicks.length > 0 && awardedCount < MAX_REFERRALS_PER_INVITER;
 
       tx.set(friendDocRef, {
-        restaurantIds: friendPicks,
+        mustEatIds: friendPicks,
         source: 'invited-by',
         partnerUid: inviterUid,
         createdAt: FieldValue.serverTimestamp(),
       });
       if (awardInviter) {
         tx.set(inviterDocRef, {
-          restaurantIds: inviterPicks,
+          mustEatIds: inviterPicks,
           source: 'invited',
           partnerUid: friendUid,
           createdAt: FieldValue.serverTimestamp(),

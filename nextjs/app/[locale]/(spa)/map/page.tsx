@@ -112,11 +112,7 @@ export default async function MapPage({ params, searchParams }: PageProps) {
   const requestedRestaurantSlug = Array.isArray(query.r) ? query.r[0] : query.r;
   const initialRestaurantSlug = requestedRestaurantSlug
     ? (initialMapData.restaurants.find((restaurant) => restaurant.slug === requestedRestaurantSlug)
-        ?.slug ??
-      initialMapData.lockedRestaurants.find(
-        (restaurant) => restaurant.slug === requestedRestaurantSlug
-      )?.slug ??
-      null)
+        ?.slug ?? null)
     : null;
 
   const loc = locale === 'en' ? 'en' : 'de';
@@ -124,7 +120,7 @@ export default async function MapPage({ params, searchParams }: PageProps) {
   // Genau die Zeilen, die im ausgelieferten HTML stehen: dieselbe Menge und
   // dieselbe Reihenfolge, aus der `useMapFilters` ohne Standort und ohne Filter
   // startet, auf `INITIAL_LIST_ROWS` geschnitten wie RestaurantList selbst.
-  const listedRestaurants = [...initialMapData.restaurants, ...initialMapData.lockedRestaurants]
+  const listedRestaurants = [...initialMapData.restaurants]
     .sort(byMustEatsThenName)
     .slice(0, INITIAL_LIST_ROWS);
   const jsonLd = buildMapJsonLd({

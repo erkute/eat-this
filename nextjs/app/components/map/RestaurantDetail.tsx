@@ -99,9 +99,6 @@ interface RestaurantDetailProps {
   nextRestaurant?: MapRestaurant | null;
   onPagePrev?: () => void;
   onPageNext?: () => void;
-  /** This sheet just replaced LockedDetail because a sign-up opened the spot.
-   *  Plays the unroll instead of cutting in — see .detailV13Unlocked. */
-  justUnlocked?: boolean;
 }
 
 export default function RestaurantDetail({
@@ -121,7 +118,6 @@ export default function RestaurantDetail({
   nextRestaurant,
   onPagePrev,
   onPageNext,
-  justUnlocked = false,
 }: RestaurantDetailProps) {
   const { t } = useTranslation();
   const locale = useLocale();
@@ -151,10 +147,8 @@ export default function RestaurantDetail({
     // ("das Bild lässt sich nach links/rechts bewegen", User 2026-07-04). The
     // hero is the "card" that pages; the article underneath swaps in place.
     transformRef: heroRef,
-    // Der Nachbar kann ein gesperrter Spot sein — dann rendert nicht mehr diese
-    // Komponente, sondern LockedDetail, und heroRef ist im Moment der Einfahrt
-    // leer. Die einfahrende Karte wird deshalb im Dokument gesucht statt über
-    // den Ref, der sie nicht mehr kennt.
+    // Die einfahrende Karte wird im Dokument gesucht statt über den Ref: beim
+    // Blättern hängt der Ref noch an der ausfahrenden Sheet.
     entrySelector: '[data-detail-hero]',
   });
 
@@ -306,7 +300,7 @@ export default function RestaurantDetail({
 
   return (
     <div
-      className={`${styles.detailV13}${justUnlocked ? ` ${styles.detailV13Unlocked}` : ''}`}
+      className={styles.detailV13}
       data-detail-root="restaurant"
       role="dialog"
       aria-label={r.name}

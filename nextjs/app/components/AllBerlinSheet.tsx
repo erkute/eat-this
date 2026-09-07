@@ -5,13 +5,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import {
-  formatPackPrice,
-  formatPackContents,
-  formatBundleSavings,
-  packUrlSlug,
-  type PackContents,
-} from '@/lib/pack/packDetail';
+import { formatPackPrice, formatBundleSavings, packUrlSlug } from '@/lib/pack/packDetail';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import styles from './AllBerlinSheet.module.css';
 
@@ -24,7 +18,6 @@ import styles from './AllBerlinSheet.module.css';
 
 interface Props {
   locale: 'de' | 'en';
-  contents: PackContents;
 }
 
 const copy = {
@@ -57,7 +50,7 @@ const copy = {
 const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
 const allBerlin = CATALOG['all-berlin'];
 
-export default function AllBerlinSheet({ locale, contents }: Props) {
+export default function AllBerlinSheet({ locale }: Props) {
   const t = copy[locale];
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -127,7 +120,6 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
               <h2 id="all-berlin-sheet-title" className={styles.title}>
                 {t.title}
               </h2>
-              <p className={styles.contents}>{formatPackContents(contents, locale)}</p>
               <p className={styles.lead}>{t.lead}</p>
 
               <ul className={styles.grid} role="list">

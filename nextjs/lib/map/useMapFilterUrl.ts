@@ -14,11 +14,8 @@ import {
 
 interface Args extends MapFilterState {
   isActive: boolean;
-  /** Both sets feed the slug index: a district can hold only locked spots
-   *  (Friedenau for a free user), and ?bezirk= still has to resolve there —
-   *  the list then shows those spots as locked previews. */
+  /** Speist den Slug-Index, aus dem ?cat= und ?bezirk= aufgeloest werden. */
   restaurants: MapRestaurant[];
-  lockedRestaurants: MapRestaurant[];
   setCategory: (c: MapCategory) => void;
   setBezirk: (name: string | null) => void;
   setPrice: (id: string | null) => void;
@@ -49,7 +46,6 @@ interface Args extends MapFilterState {
 export function useMapFilterUrl({
   isActive,
   restaurants,
-  lockedRestaurants,
   category,
   bezirk,
   price,
@@ -63,10 +59,7 @@ export function useMapFilterUrl({
   sheetView,
   setSnap,
 }: Args) {
-  const index = useMemo(
-    () => buildMapFilterIndex([restaurants, lockedRestaurants]),
-    [restaurants, lockedRestaurants]
-  );
+  const index = useMemo(() => buildMapFilterIndex([restaurants]), [restaurants]);
 
   /* Applying a URL state is the same work at mount and on popstate, and both
      need the freshest setters — hence the ref rather than a dependency. */
@@ -95,11 +88,11 @@ export function useMapFilterUrl({
     const needsIndex = params.has('cat') || params.has('bezirk');
     // Slug resolution needs the rows; q/open don't, so a URL carrying only
     // those applies immediately instead of waiting on a fetch.
-    if (needsIndex && restaurants.length === 0 && lockedRestaurants.length === 0) return;
+    if (needsIndex && restaurants.length === 0) return;
     setHydrated(true);
     const applied = applyRef.current(window.location.search);
     if (sheetView === 'list' && !isDefaultFilterState(applied)) setSnap('mid');
-  }, [hydrated, isActive, restaurants, lockedRestaurants, index, sheetView, setSnap]);
+  }, [hydrated, isActive, restaurants, index, sheetView, setSnap]);
 
   const pushedRef = useRef(false);
   useEffect(() => {

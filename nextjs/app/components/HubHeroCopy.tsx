@@ -53,9 +53,14 @@ function HeroMark() {
 
 // Signed-in visitors get a line of their own rather than a gap where the
 // explainer sits — the hero should have the same shape either way.
+//
+// Keine „freigeschalteten Spots" mehr (bis 06.09.2026): die Spots liegen für
+// jeden frei, ein Konto hat ein Deck — und in dem liegen Karten, die man sich
+// noch draußen holt. Derselbe Ton wie im Starter Pack: das Sofortige und die
+// Jagd.
 const LEAD_AUTH = {
-  de: 'Deine freigeschalteten Spots und Must Eats warten auf der Map.',
-  en: 'Your unlocked spots and Must Eats are waiting on the map.',
+  de: 'Alle Spots auf der Map — und dein Deck mit den Karten, die du dir noch holst.',
+  en: 'Every spot on the map — and your deck, with the cards you still have to go get.',
 } as const;
 
 interface HeroCopyProps extends Props {

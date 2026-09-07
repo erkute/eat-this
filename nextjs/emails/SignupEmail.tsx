@@ -51,7 +51,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
   return (
     <Shell
       appUrl={appUrl}
-      preview="Dein Link zum Anmelden — und dein Starter Pack liegt schon bereit."
+      preview="Dein Link zum Anmelden — und zwanzig Karten liegen schon bereit."
     >
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
@@ -125,7 +125,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               id: 'booster_free',
               width: 168,
               height: 260,
-              alt: 'Eat This Starter Pack — 20 Must Eats',
+              alt: 'Eat This Starter Pack',
               version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
@@ -167,8 +167,8 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.ink,
             }}
           >
-            Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei.
-            Kostenlos.
+            20 Karten, sofort. Zehn liegen in deinem Deck — zehn liegen irgendwo in Berlin und
+            warten darauf, dass du vorbeikommst. Kostenlos.
           </Text>
         </Section>
       </Section>

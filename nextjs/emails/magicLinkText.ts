@@ -34,7 +34,8 @@ export function buildSignupText(magicLink: string): string {
     magicLink,
     '',
     'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse.',
-    'Dein Starter Pack mit 20 Must Eats liegt danach kostenlos auf deiner Map bereit.',
+    'Danach: 20 Karten. Zehn liegen in deinem Deck, zehn liegen drau\u00dfen in',
+    'Berlin \u2014 die holst du dir vor Ort.',
     '',
     ...SIGN_OFF,
   ].join('\n');

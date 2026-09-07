@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   entitlementDocs:  new Map<string, { exists: boolean }>(),
   reserveAttempt:   vi.fn(),
   saveAttempt:      vi.fn(),
+  packContents:     vi.fn(),
 }))
 
 vi.mock('../../../lib/firebase/admin', () => ({
@@ -37,6 +38,10 @@ vi.mock('../../../lib/stripe-checkout-attempts', () => ({
   saveCheckoutAttempt: mocks.saveAttempt,
 }))
 
+vi.mock('../../../lib/sanity.server', () => ({
+  getPackContents: mocks.packContents,
+}))
+
 import { POST } from '../../../app/api/stripe/checkout/route'
 import * as Sentry from '@sentry/nextjs'
 
@@ -59,6 +64,12 @@ beforeEach(() => {
   mocks.saveAttempt.mockReset()
   mocks.saveAttempt.mockResolvedValue(undefined)
   mocks.entitlementDocs.clear()
+  mocks.packContents.mockReset()
+  // Standard: jedes Kategorie-Pack traegt Karten.
+  mocks.packContents.mockResolvedValue({
+    byCategory: { pizza: { spots: 33, mustEats: 3 } },
+    allBerlin: { spots: 465, mustEats: 26 },
+  })
   process.env.NEXT_PUBLIC_APP_URL = 'https://trusted.example'
 })
 
@@ -87,6 +98,30 @@ describe('/api/stripe/checkout', () => {
     mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
     const res = await POST(makeReq({ packId: 'not-real' }, 'good'))
     expect(res.status).toBe(400)
+  })
+
+  /* Seit die Packs Karten verkaufen statt Spots, kann eine Kategorie leer
+     sein — Fine Dining stand am 06.09.2026 auf null. Die Oberflaeche blendet
+     den Knopf aus; diese Pruefung faengt die veraltete Seite und den direkten
+     POST ab, und sie ist die verbindliche. */
+  it('returns 409 for a category pack that holds no card yet', async () => {
+    mocks.packContents.mockResolvedValue({
+      byCategory: { pizza: { spots: 33, mustEats: 0 } },
+      allBerlin: { spots: 465, mustEats: 26 },
+    })
+    const res = await POST(makeReq({ packId: 'category-pizza' }, null))
+    expect(res.status).toBe(409)
+    expect(await res.json()).toEqual({ error: 'empty_pack' })
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled()
+  })
+
+  it('never blocks all-berlin on a single empty category', async () => {
+    mocks.packContents.mockResolvedValue({
+      byCategory: {},
+      allBerlin: { spots: 465, mustEats: 26 },
+    })
+    const res = await POST(makeReq({ packId: 'all-berlin' }, null))
+    expect(res.status).toBe(200)
   })
 
   it('returns 409 when entitlement already exists', async () => {

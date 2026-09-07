@@ -46,7 +46,6 @@ const covered = (id: string, name: string): MapMustEat => ({
 
 const data = (mustEats: MapMustEat[], revealedMustEatIds: string[] = []): InitialMapData => ({
   restaurants: [],
-  lockedRestaurants: [],
   mustEats,
   categories: [],
   totalCount: 0,

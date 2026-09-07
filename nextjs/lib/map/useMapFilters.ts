@@ -13,9 +13,6 @@ import { haversineDistance } from './distance';
 
 interface Args {
   restaurants: MapRestaurant[];
-  /** Paywalled spots. Run through the same filter as the free ones: they stand
-   *  in the list, they are counted by the pickers, and the map dots them in. */
-  lockedRestaurants?: MapRestaurant[];
   mustEats?: MapMustEat[];
   location: { lat: number; lng: number } | null;
   /** Where the map is looking, once the user has moved it (see listCenter.ts).
@@ -71,9 +68,8 @@ export type FilterDimension = 'category' | 'bezirk' | 'price';
  *  value the picker passes back (category slug, district name, raw cuisine);
  *  `withoutDimension` is the "Alle …" reset row for that picker.
  *
- *  Counted over the WHOLE catalogue, locked spots included — they stand in the
- *  list like any other row now, so a number that left them out would predict
- *  the wrong list. What is left of a zero is a real zero. */
+ *  Counted over the WHOLE catalogue — was uebrig bleibt, wenn eine Zahl auf
+ *  null faellt, ist eine echte Null. */
 export interface MapOptionCounts {
   byValue: Record<FilterDimension, Map<string, number>>;
   withoutDimension: Record<FilterDimension, number>;
@@ -129,7 +125,6 @@ function matchesChips(r: MapRestaurant, s: MapChipState): boolean {
 
 export function useMapFilters({
   restaurants,
-  lockedRestaurants = [],
   mustEats = [],
   location,
   listCenter = null,
@@ -140,15 +135,10 @@ export function useMapFilters({
   const [price, setPrice] = useState<string | null>(null);
   const [openOnly, setOpenOnly] = useState(false);
 
-  /* Free and paywalled spots in one pile. Everything a picker offers and
-     everything it counts comes from here: the list shows both, so the filters
-     have to describe both. Built from the two sets rather than replacing them
-     — the map still draws them differently, and only this file knows they were
-     ever apart. */
-  const catalogue = useMemo(
-    () => [...restaurants, ...lockedRestaurants],
-    [restaurants, lockedRestaurants]
-  );
+  /* Der ganze Katalog. Bis zum 06.09.2026 kamen hier zwei Mengen zusammen —
+     die freien Spots und die bezahlten —, weil die Picker beide beschreiben
+     mussten. Seit die Karte frei ist, gibt es nur noch eine. */
+  const catalogue = restaurants;
 
   /* Distinct district names across the catalogue — populates the Bezirk
      picker. Sorted alphabetically (German collation).
@@ -261,36 +251,24 @@ export function useMapFilters({
     [nearestTo, location]
   );
 
-  // Free matches. Feeds the map's own markers and the camera — the list has
-  // its own set below.
+  // Die Treffer. Sie speisen die Marker und die Kamera — die Liste hat ihre
+  // eigene Ordnung, gleich darunter.
   const displayedRestaurants = useMemo(
     () => nearestFirst(restaurants.filter(filterRestaurant)),
     [restaurants, filterRestaurant, nearestFirst]
   );
 
-  // The same filter over the paywalled spots — the map draws each one as a
-  // muted dot, so the locked catalogue is visible instead of simply absent.
-  const displayedLockedRestaurants = useMemo(
-    () => lockedRestaurants.filter(filterRestaurant),
-    [lockedRestaurants, filterRestaurant]
-  );
-
-  /* What the LIST renders: every match, locked ones among them (user decision
-     25.08.2026). A locked row looks and behaves like any other until it is
-     opened — the detail is where the paywall speaks, and it does that well.
-     Splitting them into "yours" and "not yours" up here only ever produced
-     surfaces that said 0 while the map underneath showed dots.
-
-     A place outranks everything: the two sets interleave by distance like one
-     list, which is the whole claim of a map — these are the spots around HERE.
-     "Here" is the map's centre once the user has moved the map (listCenter),
-     and the visitor's own position until then. Without either,
-     byMustEatsThenName decides. */
+  /* Was die LISTE zeigt: dieselben Treffer, anders sortiert. Ein Ort schlaegt
+     alles — das ist der ganze Anspruch einer Karte: das sind die Spots um HIER
+     herum. „Hier" ist die Kartenmitte, sobald jemand die Karte bewegt hat
+     (listCenter), und bis dahin die eigene Position. Ohne beides entscheidet
+     byMustEatsThenName. */
   const listRestaurants = useMemo(() => {
-    const all = [...displayedRestaurants, ...displayedLockedRestaurants];
     const anchor = listCenter ?? location;
-    return anchor ? nearestTo(all, anchor) : all.sort(byMustEatsThenName);
-  }, [displayedRestaurants, displayedLockedRestaurants, listCenter, location, nearestTo]);
+    return anchor
+      ? nearestTo(displayedRestaurants, anchor)
+      : [...displayedRestaurants].sort(byMustEatsThenName);
+  }, [displayedRestaurants, listCenter, location, nearestTo]);
 
   return {
     category,
@@ -307,7 +285,6 @@ export function useMapFilters({
     priceBucketIds,
     optionCounts,
     displayedRestaurants,
-    displayedLockedRestaurants,
     listRestaurants,
   };
 }

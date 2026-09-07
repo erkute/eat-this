@@ -503,9 +503,9 @@ export const staticPageBySlugQuery = `
  * `mapRestaurantsQuery`, damit die Zahl auf der Pack-Karte keine Spots
  * verspricht, die die Karte nie zeigt. (Bis zum 05.09.2026 stand hier die
  * Bitte, beide Filter von Hand gleich zu halten; genau das war schiefgegangen.)
- * Dazu `isRestaurantVisible`: ein Kategorie-Pack schaltet jedes Restaurant mit
- * dieser Kategorie frei. Must Eats erben den Zustand ihres Restaurants — sie
- * werden nur mit dem Laden sichtbar, an dem sie hängen.
+ * Dazu `ownsCategoryOf`: ein Kategorie-Pack nimmt jedes Restaurant mit dieser
+ * Kategorie mit — ein gemeinsames Tag reicht. Must Eats hängen an ihrem
+ * Restaurant, also folgen sie derselben Zuordnung.
  */
 export const packContentsQuery = `
   {

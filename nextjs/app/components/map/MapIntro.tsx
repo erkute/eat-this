@@ -26,8 +26,8 @@ interface Props {
  * String, keine Logik.
  *
  * Rendert in JEDEM Zustand, auch im Detail: die Kartenfläche bleibt ja stehen.
- * Deshalb tragen RestaurantDetail, LockedDetail und MustEatDetailMobile seit
- * demselben Tag `h2` — die URL ist /map, das Detail ist ein Panel darin.
+ * Deshalb tragen RestaurantDetail und MustEatDetailMobile seit demselben Tag
+ * `h2` — die URL ist /map, das Detail ist ein Panel darin.
  */
 export default function MapIntro({ locale }: Props) {
   const copy = getMapSeoCopy(locale);

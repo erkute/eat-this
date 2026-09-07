@@ -15,16 +15,17 @@ import { useTranslation } from '@/lib/i18n';
 // passiert: kein einziger Aufruf im Server-Log, und nichts, was darauf
 // hingewiesen haette.
 const sessionKey = (uid: string) => `referralConfirmFired:${uid}`;
+const starterKey = (uid: string) => `starterPackFired:${uid}`;
 
 /** sessionStorage kann im privaten Modus werfen; eine fehlende Notiz kostet
  *  hoechstens einen zusaetzlichen No-op-Request. */
-function sessionFlag(uid: string): { seen: boolean; mark: () => void } {
+function sessionFlag(key: string): { seen: boolean; mark: () => void } {
   try {
     return {
-      seen: sessionStorage.getItem(sessionKey(uid)) !== null,
+      seen: sessionStorage.getItem(key) !== null,
       mark: () => {
         try {
-          sessionStorage.setItem(sessionKey(uid), '1');
+          sessionStorage.setItem(key, '1');
         } catch {
           /* private mode */
         }
@@ -40,20 +41,35 @@ export default function ReferralToastListener() {
   const langRef = useRef(lang);
   langRef.current = lang;
 
-  // Confirm on authed load. The HttpOnly cookie travels automatically; the
-  // server no-ops cheaply when there's no pending referral.
+  /* Die zwei Dinge, die nach einer Anmeldung serverseitig passieren muessen:
+     die Einladung bestaetigen und das Starter Pack einloesen. Beide haengen an
+     DIESEM einen Auth-Listener und nicht an zweien — `onAuthStateChanged`
+     feuert auch bei jedem Token-Refresh, ein zweiter Listener waere also ein
+     zweiter Flug pro Refresh.
+
+     Getrennte Riegel, weil die Fristen verschieden sind: die Einladung ist an
+     ACCOUNT_FRESHNESS_MS gebunden und muss frueh gelingen, das Starter Pack
+     kennt keine Frist und darf beliebig oft nachfassen, bis es sitzt. */
   useEffect(() => {
-    // onAuthStateChanged feuert auch bei Token-Refreshes. Die Route ist zwar
-    // idempotent (deterministisches Freundes-Dokument in einer Transaktion),
-    // aber zwei gleichzeitige Fluege waeren trotzdem zwei Fluege.
     let inFlight = false;
     return onAuthStateChanged(auth, async (user) => {
       if (!user || inFlight) return;
-      const flag = sessionFlag(user.uid);
-      if (flag.seen) return;
+      const flag = sessionFlag(sessionKey(user.uid));
+      const starter = sessionFlag(starterKey(user.uid));
+      if (flag.seen && starter.seen) return;
       inFlight = true;
       try {
         const idToken = await user.getIdToken();
+        if (!starter.seen) {
+          /* Ein Konto bekommt sein Pack genau einmal — die Route haelt das
+             ueber die Doc-ID fest, dieser Riegel spart nur den Request. */
+          const res = await fetch('/api/starter-pack', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${idToken}` },
+          });
+          if (res.ok) starter.mark();
+        }
+        if (flag.seen) return;
         await fetch('/api/referral/confirm', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -110,10 +126,14 @@ export default function ReferralToastListener() {
             if (chg.type !== 'added' || seen.has(chg.doc.id)) return;
             seen.add(chg.doc.id);
             if (chg.doc.data().source === 'invited') {
+              /* Eine Karte, keine Spots: seit dem 06.09.2026 zahlt die
+                 Einladung in Must-Eat-Karten, die Spots liegen fuer jeden
+                 frei. NotificationToast erkennt die Zeile an „deinen Link" /
+                 „your link" und setzt Augenbraue und Titel dazu. */
               const msg =
                 langRef.current === 'en'
-                  ? 'Someone joined through your link — new spots unlocked!'
-                  : 'Jemand ist über deinen Link gestartet — neue Spots freigeschaltet!';
+                  ? 'Someone joined through your link — a new card is in your deck.'
+                  : 'Jemand ist über deinen Link gestartet — eine neue Karte liegt in deinem Deck.';
               window.showNotification?.(msg, 5000);
             }
           });

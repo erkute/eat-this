@@ -2,34 +2,36 @@ import { describe, it, expect } from 'vitest';
 import { computeReferralPools, sampleN } from '@/lib/referral/pools';
 
 describe('computeReferralPools', () => {
-  const allIds = ['r1', 'r2', 'r3', 'r4', 'r5'];
+  const allMustEatIds = ['m1', 'm2', 'm3', 'm4', 'm5'];
 
-  it('friendPool = all minus (anon ∪ signed)', () => {
+  /* Verschenkt wird nur, was der Beschenkte noch nicht offen hat. Eine Karte
+     aus dem öffentlichen Schaufenster ist kein Geschenk — sie liegt für jeden
+     offen, auch ohne Konto. */
+  it('leaves out what is already face up for the friend', () => {
     const { friendPool } = computeReferralPools({
-      allIds,
-      anonIds: new Set(['r1']),
-      signedIds: new Set(['r2']),
-      inviterEntitledIds: new Set(['r3']),
+      allMustEatIds,
+      inviterFaceUpIds: new Set(['m3']),
+      friendFaceUpIds: new Set(['m1', 'm2']),
     });
-    expect([...friendPool].sort()).toEqual(['r3', 'r4', 'r5']);
+    expect([...friendPool].sort()).toEqual(['m3', 'm4', 'm5']);
   });
 
-  it('inviterPool also subtracts inviter entitlements', () => {
+  it("leaves out the inviter's own cards — bought, earned or public", () => {
     const { inviterPool } = computeReferralPools({
-      allIds,
-      anonIds: new Set(['r1']),
-      signedIds: new Set(['r2']),
-      inviterEntitledIds: new Set(['r3']),
+      allMustEatIds,
+      inviterFaceUpIds: new Set(['m1', 'm2', 'm3']),
+      friendFaceUpIds: new Set(['m1']),
     });
-    expect([...inviterPool].sort()).toEqual(['r4', 'r5']);
+    expect([...inviterPool].sort()).toEqual(['m4', 'm5']);
   });
 
-  it('all-berlin inviter (sees everything) → empty inviterPool', () => {
+  // All-Berlin: jede Karte offen, also nichts mehr zu verschenken. Der
+  // Eingeladene bekommt seine trotzdem — die Route belohnt beide getrennt.
+  it('hands an all-Berlin inviter an empty pool', () => {
     const { inviterPool } = computeReferralPools({
-      allIds,
-      anonIds: new Set(),
-      signedIds: new Set(),
-      inviterEntitledIds: new Set(allIds),
+      allMustEatIds,
+      inviterFaceUpIds: new Set(allMustEatIds),
+      friendFaceUpIds: new Set(),
     });
     expect(inviterPool).toEqual([]);
   });

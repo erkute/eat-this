@@ -13,8 +13,7 @@ import { useMapFilters } from '../useMapFilters';
  * What has to hold: each row is counted against the OTHER chips, and its own
  * chip is lifted while counting — otherwise picking "Neukölln" would make
  * every district but Neukölln read 0 and the picker would be useless for
- * switching. Paywalled spots count like every other spot: they stand in the
- * list too, so a number that left them out would predict the wrong list.
+ * switching.
  */
 
 let nextId = 0;
@@ -61,9 +60,9 @@ const ROWS: MapRestaurant[] = [
   }),
 ] as MapRestaurant[];
 
-/* Behind the paywall: one more cheap spot in Wedding, two 20-€-Spots in Mitte —
-   und einer ab 100 €, eine Preisstufe, die der freie Satz gar nicht hat. */
-const LOCKED: MapRestaurant[] = [
+/* Der Rest des Katalogs: noch ein günstiger Spot in Wedding, zwei 20-€-Spots
+   in Mitte — und einer ab 100 €, der oben allein diese Preisstufe trägt. */
+const MORE_ROWS: MapRestaurant[] = [
   spot({
     bezirk: { name: 'Wedding' },
     priceRange: { currency: 'EUR', min: 5, max: 10 },
@@ -86,10 +85,10 @@ const LOCKED: MapRestaurant[] = [
   }),
 ] as MapRestaurant[];
 
+const CATALOGUE = [...ROWS, ...MORE_ROWS];
+
 function mount() {
-  return renderHook(() =>
-    useMapFilters({ restaurants: ROWS, lockedRestaurants: LOCKED, location: null })
-  );
+  return renderHook(() => useMapFilters({ restaurants: CATALOGUE, location: null }));
 }
 
 describe('useMapFilters option counts', () => {
@@ -97,7 +96,7 @@ describe('useMapFilters option counts', () => {
     const { result } = mount();
     const { byValue, withoutDimension } = result.current.optionCounts;
 
-    // 5 free + 4 locked spots, counted as one catalogue.
+    // Neun Spots, ein Katalog.
     expect(byValue.bezirk.get('Mitte')).toBe(5);
     expect(byValue.bezirk.get('Neukölln')).toBe(2);
     expect(byValue.price.get('20')).toBe(4);
@@ -175,22 +174,14 @@ describe('useMapFilters with the paywalled spots in', () => {
     expect(result.current.optionCounts.byValue.price.get('100')).toBeUndefined();
   });
 
-  it('hands the list every match and the map only the free ones', () => {
+  /* Marker und Liste zeigen dieselben Treffer — bis zum 06.09.2026 waren das
+     zwei Mengen, weil die Karte gesperrte Spots anders zeichnete. */
+  it('hands the map and the list the same matches', () => {
     const { result } = mount();
     act(() => result.current.setPrice('u10'));
 
-    // Ein freier Spot unter 10 €, einer gesperrt. Die Liste zeigt beide; der
-    // freie Satz hinter den Markern behält den einen.
-    expect(result.current.displayedRestaurants).toHaveLength(1);
-    expect(result.current.displayedLockedRestaurants).toHaveLength(1);
+    expect(result.current.displayedRestaurants).toHaveLength(2);
     expect(result.current.listRestaurants).toHaveLength(2);
-  });
-
-  it('has nothing extra to show someone who owns the whole map', () => {
-    const { result } = renderHook(() => useMapFilters({ restaurants: ROWS, location: null }));
-
-    expect(result.current.priceBucketIds).not.toContain('100');
-    expect(result.current.listRestaurants).toHaveLength(ROWS.length);
   });
 });
 
@@ -205,18 +196,16 @@ describe('useMapFilters list order', () => {
   const ROW_ZOLA = spot({ name: 'Zola', mustEatCount: 0 });
   const ROW_ADANA = spot({ name: 'Adana', mustEatCount: 0 });
   const ROW_MUSTAFA = spot({ name: 'Mustafa', mustEatCount: 2 });
-  const LOCKED_BUNKER = spot({ name: 'Bunker', mustEatCount: 3 });
+  const ROW_BUNKER = spot({ name: 'Bunker', mustEatCount: 3 });
 
   it('leads with the spots carrying Must Eats, then goes alphabetical', () => {
     const { result } = renderHook(() =>
       useMapFilters({
-        restaurants: [ROW_ZOLA, ROW_ADANA, ROW_MUSTAFA],
-        lockedRestaurants: [LOCKED_BUNKER],
+        restaurants: [ROW_ZOLA, ROW_ADANA, ROW_MUSTAFA, ROW_BUNKER],
         location: null,
       })
     );
 
-    // Bunker is paywalled and still first: one list, one rule.
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual([
       'Bunker',
       'Mustafa',
@@ -226,8 +215,8 @@ describe('useMapFilters list order', () => {
   });
 
   it('does not park an appended spot at the end', () => {
-    // applyFreeSurface appends whatever the home page teases to the visible
-    // set. That is a build step, not a ranking, and must not reach the list.
+    // Die Payload-Reihenfolge ist ein Bauschritt, kein Ranking, und darf die
+    // Liste nicht erreichen.
     const appended = spot({ name: 'Gazzo', mustEatCount: 1 });
     const { result } = renderHook(() =>
       useMapFilters({

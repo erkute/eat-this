@@ -14,6 +14,18 @@ Each entry below should have a matching `epic` issue on GitHub for tracking.
 
 ---
 
+## 🚧 Karten statt Spots — Monetarisierung und Anmeldemodell
+
+**Status:** Gebaut (PR #724 und Folgearbeit), noch nicht auf `staging`.
+Design spec: [`docs/specs/2026-09-06-karten-monetarisierung.md`](../specs/2026-09-06-karten-monetarisierung.md).
+
+Die Spot-Staffelung ist ersatzlos weg; gestaffelt sind nur noch die
+Must-Eat-Karten (5 ohne Konto, +20 mit, gekauft alles). Drei Wege zur Karte:
+verdienen (50 m), geschenkt (Spot des Tages, Starter Pack, Einladung), kaufen.
+Offen sind Betreiber-Entscheidungen (Stripe-Abgleich, Preise) — siehe Spec.
+
+---
+
 ## ✅ Hearts (loved-by-N count) — BUILT
 
 **Status:** Implemented (PR #170, branch `claude/task-review-kevr6c`).

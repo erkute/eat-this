@@ -4,8 +4,6 @@ import { useLocale } from 'next-intl';
 import type { CSSProperties, Ref, RefObject } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
-import type { ClaimOutcome } from '@/lib/map/claimSignupSpot';
-import { resolveLockedOffer } from '@/lib/map/lockedOffer';
 import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
@@ -29,7 +27,6 @@ import dynamic from 'next/dynamic';
 import RestaurantList from './RestaurantList';
 import { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from '@/lib/map/listWindow';
 import MapSheetDetail from './MapSheetDetail';
-import LockedDetail from './LockedDetail';
 import MapListHeader from './MapListHeader';
 import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
@@ -71,39 +68,11 @@ interface MapBodyState {
   dragging: boolean;
   desktopPanelHidden: boolean;
   displayedRestaurants: MapRestaurant[];
-  /** Locked preview rows — same filter pipeline as displayedRestaurants,
-   *  rendered as blurred entries below the booster banner in the list. */
-  /** Paywalled spots matching the active filter — drawn as muted dots. */
-  displayedLockedRestaurants: MapRestaurant[];
-  /** What the list renders: every match in one order, paywalled spots among
-   *  them. The two sets above stay apart only for the map, which still draws
-   *  a locked spot as a muted dot. */
+  /** Was die Liste zeigt: dieselben Treffer, nach Nähe statt nach Karte. */
   listRestaurants: MapRestaurant[];
-  /** Unfiltered catalog size for the locked sheet's all-Berlin offer. */
-  /** Every paywalled id, so the sheet knows which detail to render. */
-  lockedIdSet: Set<string>;
-  /** Slug of the spot a returning magic link is still claiming — see
-   *  useSignupSpotClaim. Keeps its sheet on the sign-up branch until the spot
-   *  actually opens. */
-  claimingSlug: string | null;
-  /** Wie der Claim ausging — entscheidet, was die Einblendung am Ende sagt. */
-  claimOutcome: ClaimOutcome | null;
-  /** Startet den Claim für einen Spot — der gemeinsame Weg für Google und
-   *  Mail, siehe useSignupSpotClaim.startClaim. */
-  onClaimSpot: (slug: string) => void;
-  /** Sichtbare Spots der letzten ANONYMEN Payload — die Vorher-Basis des
-   *  Belohnungs-Screens. Null, solange nie eine anonyme Sicht geladen war. */
-  anonSpotCount: number | null;
-  /** Für WEN die Kartendaten in der Hand geholt wurden — nicht dasselbe wie
-   *  `uid`, siehe resolveLockedOffer. */
-  mapUid: string | null;
-  /** Unfiltered number of spots this viewer can open — what the sign-in banner
-   *  counts, so the filter the reader happens to have on does not change the
-   *  number it reports. */
-  openSpotCount: number;
-  /** Slug whose sheet should unroll rather than cut in — a sign-up just opened
-   *  it while the reader was looking at it. */
-  justUnlockedSlug: string | null;
+  /** Eine Anmeldung ist gerade in dieser Sitzung durchgegangen — der
+   *  Willkommensschirm hängt daran. */
+  justSignedIn: boolean;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
   /** Row the list points at once no detail is open — the spot that was just
@@ -210,16 +179,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     snap,
     dragging,
     displayedRestaurants,
-    displayedLockedRestaurants,
     listRestaurants,
-    lockedIdSet,
-    claimingSlug,
-    claimOutcome,
-    onClaimSpot,
-    anonSpotCount,
-    mapUid,
-    openSpotCount,
-    justUnlockedSlug,
+    justSignedIn,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -312,19 +273,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
-  /* A locked dot opens the sheet like any other spot. It used to navigate
-     straight to the pack page, which threw away the map, the filter and the
-     search for what is usually a "what is this?" tap. */
-  const handleLockedClick = useCallback(
-    (r: MapRestaurant) => {
-      /* Erst oeffnen, dann zaehlen. Andersherum meldete der Trichter auch die
-         Tipps, die gar keinen Spot aufmachen — seit der erste Tipp bei offener
-         Sheet nur wegraeumt, ist das kein Randfall mehr. */
-      if (onRestaurantClick(r, 'map') === false) return;
-      trackEvent('locked_spot_opened', { restaurant_id: r._id, restaurant_slug: r.slug });
-    },
-    [onRestaurantClick]
-  );
   const rawLocationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
   /* The only non-error copy is the "searching" one, so this is exactly the
      transient state that used to flash. Errors stay immediate — they are the
@@ -607,11 +555,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onMapClick={onMapClick}
                 onMoveEnd={onMapMoveEnd}
                 displayedRestaurants={displayedRestaurants}
-                displayedLockedRestaurants={displayedLockedRestaurants}
                 selectedRestaurant={selectedRestaurant}
-                selectedIsLocked={!!selectedRestaurant && lockedIdSet.has(selectedRestaurant._id)}
                 onRestaurantClick={handleMapRestaurantClick}
-                onLockedClick={handleLockedClick}
                 /* Der Spot, um den es gerade geht. Beim Must-Eat-Detail ist
                    `selectedRestaurant` null (siehe handleMustEatClick), das
                    Gericht gehört aber zu einem Spot — auf der Karte ist das
@@ -865,25 +810,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onPagePrev={() => onPageMustEat('prev')}
                 onPageNext={() => onPageMustEat('next')}
               />
-            ) : sheetView === 'detail' &&
-              selectedRestaurant &&
-              lockedIdSet.has(selectedRestaurant._id) ? (
-              <LockedDetail
-                restaurant={selectedRestaurant}
-                offer={resolveLockedOffer({
-                  uid,
-                  mapUid,
-                  claimingSlug,
-                  slug: selectedRestaurant.slug,
-                })}
-                onClaimSpot={() => onClaimSpot(selectedRestaurant.slug)}
-                contentRef={setContentRef}
-                onClose={onRestaurantClose}
-                prevRestaurant={pagerPrev}
-                nextRestaurant={pagerNext}
-                onPagePrev={() => onPageRestaurant('prev')}
-                onPageNext={() => onPageRestaurant('next')}
-              />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail
                 kind="restaurant"
@@ -893,7 +819,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 userLocation={location}
                 unlockedIds={unlockedIds}
                 restaurant={selectedRestaurant}
-                justUnlocked={justUnlockedSlug === selectedRestaurant.slug}
                 mustEats={restaurantMustEats}
                 revealedMustEatIds={revealedMustEatIds}
                 onClose={onRestaurantClose}
@@ -935,7 +860,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
                     searchQuery={search}
-                    lockedIds={lockedIdSet}
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />
@@ -950,14 +874,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               component. */}
           <MapViewToggle sheetView={sheetView} filterKey={listFilterKey} />
 
-          {/* Sagt beim Rücksprung aus der Mail, was gerade passiert — und was
-              es wert war. Mitte statt Kante, siehe die Komponente. */}
-          <SignInReward
-            working={claimingSlug !== null}
-            outcome={claimOutcome}
-            openSpotCount={openSpotCount}
-            baselineCount={anonSpotCount}
-          />
+          {/* Sagt nach der Anmeldung, was sie wert war. Mitte statt Kante,
+              siehe die Komponente. */}
+          <SignInReward justSignedIn={justSignedIn} />
 
           <MapDataNotice
             loading={mapDataLoading}

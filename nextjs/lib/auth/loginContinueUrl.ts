@@ -9,10 +9,8 @@
  * traegt sie den offenen Spot als `?r=<slug>`, auf der SEO-Seite ist sie der
  * Spot selbst.
  *
- * Drei Parameter werden dabei abgeraeumt, bevor die Adresse in eine Mail geht:
+ * Zwei Parameter werden dabei abgeraeumt, bevor die Adresse in eine Mail geht:
  *   e      — der Adress-Traeger des vorigen Links; hat seine Arbeit getan.
- *   claim  — der Gratis-Spot einer Anmeldung; den vergibt LockedDetail mit
- *            seiner eigenen Continue-URL, nicht das allgemeine Modal.
  *   heart  — wird hier neu gesetzt (oder eben nicht), nie geerbt.
  */
 
@@ -21,7 +19,7 @@ export interface LoginIntent {
   heartRestaurantId?: string;
 }
 
-const DROPPED_PARAMS = ['e', 'claim', 'heart'] as const;
+const DROPPED_PARAMS = ['e', 'heart'] as const;
 
 /** Der Query-Parameter, der das ausstehende Herz durch den Posteingang traegt. */
 export const HEART_PARAM = 'heart';

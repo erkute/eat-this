@@ -12,7 +12,6 @@ import {
 
 const data = {
   restaurants: [],
-  lockedRestaurants: [],
   mustEats: [
     {
       _id: 'm1',
@@ -65,7 +64,7 @@ describe('map data cache premium boundary', () => {
   });
 
   it('rejects malformed current cache data before profile consumers can render it', () => {
-    const key = 'eatthis_mapdata_v3_user-1';
+    const key = 'eatthis_mapdata_v4_user-1';
     window.localStorage.setItem(
       key,
       JSON.stringify({
@@ -76,6 +75,26 @@ describe('map data cache premium boundary', () => {
 
     expect(readMapCache('user-1')).toBeNull();
     expect(window.localStorage.getItem(key)).toBeNull();
+  });
+
+  /* Ein v3-Cache besteht die Formpruefung muehelos — er hat dieselben Felder,
+     nur trug `restaurants` dort das Tier DIESES Kontos statt des ganzen
+     Katalogs. Gelesen wuerde daraus vor dem ersten Fetch ein halber Stadtplan,
+     der wie das Endergebnis aussieht. Die Versionsnummer ist der Riegel. */
+  it('liest keinen v3-Cache und raeumt ihn beim Abgleich weg', () => {
+    const legacyKey = 'eatthis_mapdata_v3_user-1';
+    window.localStorage.setItem(
+      legacyKey,
+      JSON.stringify({ ...data, lockedRestaurants: [], restaurants: [{ _id: 'r1', slug: 'r1' }] })
+    );
+    window.localStorage.setItem('eatthis_last_uid_v3', 'user-1');
+
+    expect(readMapCache('user-1')).toBeNull();
+
+    reconcileMapDataCacheIdentity('user-1');
+
+    expect(window.localStorage.getItem(legacyKey)).toBeNull();
+    expect(window.localStorage.getItem('eatthis_last_uid_v3')).toBeNull();
   });
 
   it('clears every map cache on logout', () => {

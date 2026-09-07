@@ -1,53 +1,18 @@
-import type { MapRestaurant, MapMustEat } from '@/lib/types';
-
-interface MapSlice {
-  restaurants: MapRestaurant[];
-  lockedRestaurants: MapRestaurant[];
-  mustEats: MapMustEat[];
-  revealedMustEatIds: Set<string>;
-}
+import type { MapMustEat } from '@/lib/types';
 
 /**
- * Make the Spot des Tages a free, visible gift for everyone — ephemerally.
+ * Die Karten des Spots des Tages — das tägliche Geschenk.
  *
- * Given the composed tier slice (visible + locked spots, visible must-eats,
- * revealed set), surface the spot-of-day restaurant into the visible set if it
- * was locked, pull its must-eats into the visible list, and add them to the
- * revealed set so they render face-up. Nothing is persisted: callers recompute
- * this per request from `today`, so tomorrow's spot replaces today's and the
- * previous one silently falls back to locked.
+ * Es liegt für jeden offen, auch ohne Konto, und es ist flüchtig: nichts wird
+ * gespeichert, die Aufrufer rechnen es pro Anfrage aus `today` neu. Morgen
+ * tritt der nächste Spot an die Stelle, und die Karte von heute fällt still
+ * zurück auf ihren Kartenrücken.
  *
- * `allRestaurants` / `allMustEats` are the full catalog (the map's cached data)
- * used to look the spot + its must-eats up regardless of tier.
+ * Bis zum 06.09.2026 hob diese Funktion zusätzlich den Spot selbst aus der
+ * gesperrten Liste — der Teil ist weg, weil kein Spot mehr gesperrt ist. Übrig
+ * bleibt der Teil, der immer der eigentliche war: die Karte dreht sich um.
  */
-export function applySpotOfDayReveal(
-  spotId: string | null,
-  allRestaurants: MapRestaurant[],
-  allMustEats: MapMustEat[],
-  slice: MapSlice
-): MapSlice {
-  if (!spotId) return slice;
-
-  // The spot of the day is ALWAYS surfaced (visible + openable), even if it has
-  // no must-eat — "it's shown regardless". When it does have a must-eat, that
-  // must-eat is additionally revealed face-up.
-  const spotMustEats = allMustEats.filter((m) => m.restaurant._id === spotId);
-
-  let { restaurants, lockedRestaurants } = slice;
-  if (!restaurants.some((r) => r._id === spotId)) {
-    const spot = allRestaurants.find((r) => r._id === spotId);
-    if (spot) {
-      restaurants = [spot, ...restaurants];
-      lockedRestaurants = lockedRestaurants.filter((r) => r._id !== spotId);
-    }
-  }
-
-  const haveMustEat = new Set(slice.mustEats.map((m) => m._id));
-  const missing = spotMustEats.filter((m) => !haveMustEat.has(m._id));
-  const mustEats = missing.length ? [...slice.mustEats, ...missing] : slice.mustEats;
-
-  const revealedMustEatIds = new Set(slice.revealedMustEatIds);
-  for (const m of spotMustEats) revealedMustEatIds.add(m._id);
-
-  return { restaurants, lockedRestaurants, mustEats, revealedMustEatIds };
+export function spotOfDayMustEatIds(spotId: string | null, all: MapMustEat[]): Set<string> {
+  if (!spotId) return new Set();
+  return new Set(all.filter((m) => m.restaurant._id === spotId).map((m) => m._id));
 }

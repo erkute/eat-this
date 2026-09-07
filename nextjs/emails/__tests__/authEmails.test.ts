@@ -110,6 +110,10 @@ describe('LoginEmail', () => {
 });
 
 describe('SignupEmail', () => {
+  /* Die Ueberschrift ist ein gerendertes PNG, also prueft der Alt-Text sie mit
+     — er ist das Einzige, was ein Postfach mit blockierten Bildern davon
+     sieht. Was das Pack seit dem 06.09.2026 enthaelt, sind Must-Eat-Karten
+     statt Spots; der Name ist geblieben. */
   it('shows the home hero, the CTA and the starter pack panel', async () => {
     const html = await signup();
     expect(html).toContain(magicLink);
@@ -119,6 +123,7 @@ describe('SignupEmail', () => {
     expect(html).toContain('STARTER PACK');
     expect(html).toContain('Gratis');
     expect(html).toContain('/pics/email/booster_free.png');
+    expect(html).toContain('in deinem Deck');
     expect(SIGNUP_SUBJECT).toContain('Willkommen');
   });
 

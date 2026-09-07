@@ -13,7 +13,6 @@ import MustEatsOnboarding, { ONBOARDING_SEEN_KEY } from '@/app/components/MustEa
 
 const DATA: InitialMapData = {
   restaurants: [],
-  lockedRestaurants: [],
   mustEats: [
     {
       _id: 'me-1',

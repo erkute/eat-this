@@ -3,18 +3,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { CATALOG } from '@/lib/stripe-catalog';
-import { getRestaurantsByCategory, getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
+import { getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
-import {
-  resolvePackByUrlSlug,
-  packUrlSlug,
-  formatPackPrice,
-  buildPackTeaser,
-} from '@/lib/pack/packDetail';
+import { resolvePackByUrlSlug, packUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
@@ -70,12 +65,7 @@ const copy = {
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
     payment: 'Zahlungsarten',
-    inside: 'Drin im Pack',
-    insideLead:
-      'Drei Spots zeigen wir. Der Rest bleibt verdeckt, bis der Pack auf deiner Map liegt.',
-    covered: 'Verdeckt',
-    more: 'Weitere Spots',
-    moreWhere: 'Auf der Live-Map',
+    soon: 'Kommt bald',
     map: '/map',
   },
   en: {
@@ -86,11 +76,7 @@ const copy = {
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
     payment: 'Payment methods',
-    inside: 'Inside the pack',
-    insideLead: 'We show three spots. The rest stays covered until the pack is on your map.',
-    covered: 'Covered',
-    more: 'More spots',
-    moreWhere: 'On the live map',
+    soon: 'Coming soon',
     map: '/en/map',
   },
 } as const;
@@ -104,17 +90,16 @@ export default async function PackDetailPage({ params }: PageProps) {
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) notFound();
   const categorySlug = pack.slug;
-  const [category, restaurants, packContents] = await Promise.all([
+  const [category, packContents] = await Promise.all([
     getCategoryBySlug(categorySlug),
-    getRestaurantsByCategory(categorySlug),
     getPackContents(),
   ]);
-  const teaser = buildPackTeaser(restaurants);
-  const contents = packContents.byCategory[categorySlug];
-  // Rows the teaser names or covers; everything past them is the "more" row.
-  // It deliberately never says how many — see formatPackContents.
-  const teased = teaser.revealed.length + teaser.locked.length;
-  const more = contents ? contents.spots - teased : 0;
+
+  /* Ein Pack ohne Karte ist eine leere Schachtel — Fine Dining stand am
+     06.09.2026 auf null. Die Seite bleibt (die Kategorie kommt ja), der
+     Kaufknopf nicht. Die Zahl selbst steht nirgends: das Produkt nennt seine
+     Zahlen nicht, sie beantwortet hier nur diese eine Ja/Nein-Frage. */
+  const empty = (packContents.byCategory[categorySlug]?.mustEats ?? 0) === 0;
   const art = categoryArt(categorySlug);
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
 
@@ -133,19 +118,23 @@ export default async function PackDetailPage({ params }: PageProps) {
             <p className={styles.sub}>{pack.description[loc]}</p>
 
             <div className={styles.actions}>
-              <PackBuyButton
-                packId={pack.packId}
-                packName={pack.displayName}
-                amountCents={pack.amountCents}
-                locale={loc}
-                className={styles.cta}
-                errorClassName={styles.ctaError}
-                label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
-                pendingLabel={t.pending}
-                ownedLabel={t.owned}
-                ownedHref={t.map}
-                errorLabel={t.error}
-              />
+              {empty ? (
+                <p className={styles.soon}>{t.soon}</p>
+              ) : (
+                <PackBuyButton
+                  packId={pack.packId}
+                  packName={pack.displayName}
+                  amountCents={pack.amountCents}
+                  locale={loc}
+                  className={styles.cta}
+                  errorClassName={styles.ctaError}
+                  label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
+                  pendingLabel={t.pending}
+                  ownedLabel={t.owned}
+                  ownedHref={t.map}
+                  errorLabel={t.error}
+                />
+              )}
               <PaymentMarks
                 height={24}
                 label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
@@ -169,55 +158,8 @@ export default async function PackDetailPage({ params }: PageProps) {
           )}
         </section>
 
-        {teaser.revealed.length > 0 && (
-          <section className={styles.section} aria-labelledby="pack-inside-title">
-            <div className={styles.sectionHead}>
-              <h2 id="pack-inside-title" className={styles.sectionTitle}>
-                <span className={styles.mk} aria-hidden="true" />
-                {t.inside}
-              </h2>
-              <p className={styles.sectionLead}>{t.insideLead}</p>
-            </div>
-
-            <ol className={styles.list}>
-              {teaser.revealed.map((r, i) => (
-                <li key={`r${i}`} className={styles.row}>
-                  <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
-                  <span className={styles.rn}>{r.name}</span>
-                  {r.district && <span className={styles.mn}>{r.district}</span>}
-                </li>
-              ))}
-              {teaser.locked.map((l, i) => (
-                <li key={`l${i}`} className={`${styles.row} ${styles.rowLocked}`}>
-                  <span className={styles.num}>
-                    {String(teaser.revealed.length + i + 1).padStart(2, '0')}
-                  </span>
-                  <span className={styles.rn}>
-                    <span className={`${styles.covered} ${i % 2 ? styles.coveredLong : ''}`}>
-                      {t.covered}
-                    </span>
-                  </span>
-                  {l.district && <span className={styles.mn}>{l.district}</span>}
-                </li>
-              ))}
-              {more > 0 && (
-                <li className={`${styles.row} ${styles.rowLocked}`}>
-                  <span className={styles.num}>+</span>
-                  <span className={`${styles.rn} ${styles.rnMore}`}>{t.more}</span>
-                  <span className={styles.mn}>{t.moreWhere}</span>
-                </li>
-              )}
-            </ol>
-          </section>
-        )}
-
         <div className={styles.upsell}>
-          <AllBerlinBoard
-            locale={loc}
-            contents={packContents.allBerlin}
-            variant="upsell"
-            headingLevel="h2"
-          />
+          <AllBerlinBoard locale={loc} variant="upsell" headingLevel="h2" />
         </div>
       </div>
     </main>

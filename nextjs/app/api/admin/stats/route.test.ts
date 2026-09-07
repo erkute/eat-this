@@ -3,18 +3,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   verifyIdToken: vi.fn(),
   where: vi.fn(),
+  get: vi.fn(),
   listUsers: vi.fn(),
   collectionGroup: vi.fn(),
+  mapData: vi.fn(),
 }));
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({ verifyIdToken: mocks.verifyIdToken, listUsers: mocks.listUsers }),
   getAdminFirestore: () => ({
-    collection: () => ({
-      where: (field: unknown, op: string, value: string) => ({
-        get: () => mocks.where(op, value),
-      }),
-    }),
+    collection: () => {
+      // Zwei Bereichsfilter auf der Dokument-ID, dann `get`.
+      const query = {
+        where: (field: unknown, op: string, value: string) => {
+          mocks.where(op, value);
+          return query;
+        },
+        get: () => mocks.get(),
+      };
+      return query;
+    },
     collectionGroup: (name: string) => ({
       get: () => mocks.collectionGroup(name),
       select: () => ({ get: () => mocks.collectionGroup(name) }),
@@ -31,12 +39,17 @@ vi.mock('@/lib/admin/searchConsole.server', () => ({
     Promise.resolve({ ok: false, reason: 'no-access', identity: 'sa@test', message: '403' }),
 }));
 
+vi.mock('@/lib/map/cached-sanity', () => ({
+  getCachedMapData: () => mocks.mapData(),
+}));
+
 vi.mock('@/lib/analytics/visitorHash', () => ({
   // Ohne Argument „heute"; mit Datum der Kalendertag des Datums — so liest
   // die Route auch Anlage- und Kaufzeitpunkte damit.
   berlinDay: (now?: Date) => (now ? now.toISOString().slice(0, 10) : '2026-08-31'),
 }));
 
+import { parseRange } from '@/lib/admin/stats.server';
 import { GET } from './route';
 
 function request(headers: Record<string, string> = {}, query = '') {
@@ -68,17 +81,20 @@ function ts(iso: string) {
   return { toDate: () => new Date(iso) };
 }
 
-/** Der Tag, ab dem die Route gefiltert hat. */
-function windowStart(): string {
-  return mocks.where.mock.calls.at(-1)?.[1] as string;
+/** Die Grenzen, mit denen die Route gefiltert hat. */
+function bounds(): { from: string; to: string } {
+  const calls = mocks.where.mock.calls.slice(-2);
+  return { from: calls[0]?.[1] as string, to: calls[1]?.[1] as string };
 }
 
 describe('GET /api/admin/stats', () => {
   beforeEach(() => {
     mocks.verifyIdToken.mockReset();
-    mocks.where.mockReset().mockResolvedValue(snapshot([]));
+    mocks.where.mockReset();
+    mocks.get.mockReset().mockResolvedValue(snapshot([]));
     mocks.listUsers.mockReset().mockResolvedValue({ users: [], pageToken: undefined });
     mocks.collectionGroup.mockReset().mockResolvedValue(snapshot([]));
+    mocks.mapData.mockReset().mockResolvedValue({ restaurants: [], mustEats: [], categories: [] });
     delete process.env.ADMIN_EMAILS;
   });
 
@@ -112,8 +128,6 @@ describe('GET /api/admin/stats', () => {
   });
 
   it('verweigert eine ADMIN_EMAILS-Adresse ohne verifizierte Mail', async () => {
-    // Der Kern von isAdminToken: die blanke E-Mail-Behauptung reicht nicht,
-    // sonst könnte sich ein Konto mit beliebiger Adresse hierher schreiben.
     process.env.ADMIN_EMAILS = 'chef@eatthisdot.com';
     mocks.verifyIdToken.mockResolvedValue({
       uid: 'u1',
@@ -141,7 +155,7 @@ describe('GET /api/admin/stats', () => {
 
   it('liefert dem Admin-Claim die Auswertung und cacht sie nicht', async () => {
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
-    mocks.where.mockResolvedValue(
+    mocks.get.mockResolvedValue(
       snapshot([
         { id: '2026-08-28', data: { pageviews: 50, visitors: 10, paths: { '/': 30 } } },
         { id: '2026-08-27', data: { pageviews: 100, visitors: 20, paths: { '/': 60 } } },
@@ -155,13 +169,24 @@ describe('GET /api/admin/stats', () => {
     expect(res.headers.get('cache-control')).toBe('no-store');
     expect(body.totals).toEqual({ pageviews: 150, visitors: 30, days: 2, closedDays: 2 });
     expect(body.days.map((d: { day: string }) => d.day)).toEqual(['2026-08-27', '2026-08-28']);
+    expect(body.range).toEqual({
+      start: '2026-08-02',
+      end: '2026-08-31',
+      days: 30,
+      today: '2026-08-31',
+      includesToday: false,
+    });
+    expect(body.funnel.stages.map((s: { key: string }) => s.key)).toEqual([
+      'free',
+      'account',
+      'onsite',
+      'packs',
+    ]);
   });
 
   it('nimmt den Tag aus der Dokument-ID, nicht aus dem Feld', async () => {
-    // Geschnitten wird über die ID; trüge die Beschriftung ein abweichendes
-    // Feld, liefe der Verlauf gegen sein eigenes Fenster.
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
-    mocks.where.mockResolvedValue(
+    mocks.get.mockResolvedValue(
       snapshot([{ id: '2026-08-28', data: { day: '1999-01-01', pageviews: 5 } }])
     );
 
@@ -171,20 +196,17 @@ describe('GET /api/admin/stats', () => {
   });
 
   it('holt doppelt so weit zurück wie angefragt — für den Vorperiodenvergleich', async () => {
-    // Ein `limit(N)` griffe an Tagen ohne Aufrufe weiter zurück als gedacht,
-    // weil der Zähler dann gar kein Dokument anlegt. Und die erste Hälfte des
-    // Bereichs ist die Periode, gegen die verglichen wird.
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=7'));
 
-    // 14 Tage zurück: 7 für das Fenster, 7 für den Vergleich davor.
-    expect(mocks.where).toHaveBeenLastCalledWith('>=', '2026-08-18');
+    // 14 Tage zurück: 7 für das Fenster, 7 für den Vergleich davor — bis heute.
+    expect(bounds()).toEqual({ from: '2026-08-18', to: '2026-08-31' });
   });
 
   it('teilt die Dokumente in Zeitraum und Vorperiode', async () => {
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
-    mocks.where.mockResolvedValue(
+    mocks.get.mockResolvedValue(
       snapshot([
         { id: '2026-08-20', data: { visitors: 10 } }, // vor dem Fenster
         { id: '2026-08-30', data: { visitors: 40 } }, // im Fenster (ab 25.08.)
@@ -194,7 +216,6 @@ describe('GET /api/admin/stats', () => {
     const body = await (await GET(request({ authorization: 'Bearer abc' }, '?days=7'))).json();
 
     expect(body.totals.visitors).toBe(40);
-    // Je Tag gerechnet — hier trägt jede Periode genau einen Tag.
     expect(body.period).toEqual({
       visitors: { now: 40, before: 10, change: 3 },
       pageviews: { now: 0, before: 0, change: null },
@@ -207,16 +228,33 @@ describe('GET /api/admin/stats', () => {
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=99999'));
-    expect(windowStart()).toBe('2024-09-01'); // 2 × 365 Tage
+    expect(bounds().from).toBe('2024-09-01'); // 2 × 365 Tage
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=schwurbel'));
-    expect(windowStart()).toBe('2026-07-03'); // 2 × 30 Tage
+    expect(bounds().from).toBe('2026-07-03'); // 2 × 30 Tage
   });
 
-  it('zählt Konten aus Firebase Auth — ohne das Admin-Konto, mit Käufen und Favoriten', async () => {
-    // `users/` traegt 56 Dokumente, davon die meisten Seed-Daten; Auth kennt
-    // die echten Konten. Und der Betreiber waere sonst jeden Tag das eine
-    // aktive Konto.
+  it('nimmt ein eigenes Fenster über from und to — und schneidet die Vorperiode davor', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
+    mocks.get.mockResolvedValue(
+      snapshot([
+        { id: '2026-08-10', data: { visitors: 3 } }, // Vorperiode
+        { id: '2026-08-20', data: { visitors: 7 } }, // im Fenster
+        { id: '2026-08-31', data: { visitors: 99 } }, // nach dem Fenster — kommt vom Mock, nicht von Firestore
+      ])
+    );
+
+    const body = await (
+      await GET(request({ authorization: 'Bearer abc' }, '?from=2026-08-15&to=2026-08-21'))
+    ).json();
+
+    expect(bounds()).toEqual({ from: '2026-08-08', to: '2026-08-21' });
+    expect(body.range).toMatchObject({ start: '2026-08-15', end: '2026-08-21', days: 7 });
+    expect(body.totals.visitors).toBe(106);
+    expect(body.period?.visitors.before).toBe(3);
+  });
+
+  it('zählt Konten aus Firebase Auth — ohne das Admin-Konto, mit Karten, Käufen und Favoriten', async () => {
     process.env.ADMIN_EMAILS = 'chef@eatthisdot.com';
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
     mocks.listUsers.mockResolvedValue({
@@ -228,24 +266,60 @@ describe('GET /api/admin/stats', () => {
       pageToken: undefined,
     });
     mocks.collectionGroup.mockImplementation((name: string) => {
-      if (name === 'favorites') {
-        return snapshot([{ id: 'f1', data: {}, uid: 'uid-a@example.com' }]);
-      }
+      const a = 'uid-a@example.com';
+      const b = 'uid-b@example.com';
+      if (name === 'favorites') return snapshot([{ id: 'f1', data: {}, uid: a }]);
       if (name === 'entitlements') {
         return snapshot([
-          { id: 'e1', data: { purchasedAt: ts('2026-08-30T12:00:00Z'), stripeSessionId: 'cs_1' } },
-          { id: 'e2', data: { purchasedAt: ts('2026-08-30T12:00:00Z'), source: 'signup' } },
+          {
+            id: 'category-pizza',
+            data: {
+              purchasedAt: ts('2026-08-30T12:00:00Z'),
+              stripeSessionId: 'cs_1',
+              type: 'category',
+            },
+            uid: a,
+          },
+          {
+            id: 'starter',
+            data: { purchasedAt: ts('2026-08-30T12:00:00Z'), source: 'signup', type: 'starter' },
+            uid: a,
+          },
+        ]);
+      }
+      if (name === 'unlockedMustEats') {
+        return snapshot([
+          { id: 'm1', data: { unlockedAt: ts('2026-08-30T12:00:00Z') }, uid: b },
+          { id: 'm2', data: { unlockedAt: ts('2026-07-30T12:00:00Z') }, uid: b },
+        ]);
+      }
+      if (name === 'referralBonuses') {
+        return snapshot([
+          {
+            id: 'invited-by',
+            data: { createdAt: ts('2026-08-29T12:00:00Z'), source: 'invited-by' },
+            uid: a,
+          },
+          {
+            id: 'invited-x',
+            data: { createdAt: ts('2026-08-29T12:00:00Z'), source: 'invited' },
+            uid: b,
+          },
         ]);
       }
       return snapshot([
-        { id: 'c1', data: { createdAt: ts('2026-08-30T12:00:00Z'), status: 'open' } },
+        {
+          id: 'category-pizza',
+          data: { createdAt: ts('2026-08-30T12:00:00Z'), status: 'open' },
+          uid: a,
+        },
       ]);
     });
 
     const res = await GET(request({ authorization: 'Bearer abc' }, '?days=7'));
     const body = await res.json();
 
-    expect(body.accounts).toEqual({
+    expect(body.accounts).toMatchObject({
       total: 2,
       newInWindow: 1,
       activeInWindow: 1,
@@ -253,8 +327,63 @@ describe('GET /api/admin/stats', () => {
       google: 1,
       email: 1,
       withFavorites: 1,
-      purchases: { total: 1, inWindow: 1 },
-      checkouts: { inWindow: 1, open: 1 },
+      starterPacks: { total: 1, inWindow: 1 },
+      reveals: { total: 2, inWindow: 1 },
+      referrals: { total: 1, inWindow: 1 },
+      purchases: {
+        total: 1,
+        inWindow: 1,
+        byPack: [{ packId: 'category-pizza', name: 'Pizza', count: 1, revenueCents: 299 }],
+      },
+      revenue: { totalCents: 299, inWindowCents: 299 },
+      checkouts: { inWindow: 1, open: 1, completed: 0 },
+      people: { accounts: 2, withStarterPack: 1, withReveal: 1, withReferral: 1, buyers: 1 },
     });
+  });
+
+  it('liefert den Katalog aus Sanity — und null, wenn Sanity nicht antwortet', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
+    mocks.mapData.mockResolvedValue({
+      restaurants: [{ _id: 'r1', categories: [{ slug: 'pizza', name: 'Pizza' }] }],
+      mustEats: [{ _id: 'm1', restaurant: { _id: 'r1' }, revealedForAnon: true }],
+      categories: [{ slug: 'pizza', name: 'Pizza' }],
+    });
+
+    let body = await (await GET(request({ authorization: 'Bearer abc' }))).json();
+    expect(body.deck).toMatchObject({ cards: 1, publicCards: 1, spots: 1 });
+    expect(body.deck.byCategory[0]).toMatchObject({ slug: 'pizza', cards: 1, sellable: true });
+
+    mocks.mapData.mockRejectedValue(new Error('sanity down'));
+    body = await (await GET(request({ authorization: 'Bearer abc' }))).json();
+    expect(body.deck).toBeNull();
+    expect(body.totals).toBeDefined();
+  });
+});
+
+describe('parseRange', () => {
+  const today = '2026-08-31';
+  const params = (query: string) => new URLSearchParams(query);
+
+  it('nimmt from/to, kappt die Zukunft auf heute und begrenzt auf ein Jahr', () => {
+    expect(parseRange(params('from=2026-08-01&to=2026-08-10'), today)).toEqual({
+      start: '2026-08-01',
+      end: '2026-08-10',
+      days: 10,
+    });
+    expect(parseRange(params('from=2026-08-25&to=2026-09-30'), today)).toEqual({
+      start: '2026-08-25',
+      end: '2026-08-31',
+      days: 7,
+    });
+    expect(parseRange(params('from=2020-01-01&to=2026-08-31'), today).days).toBe(365);
+  });
+
+  it('fällt bei kaputten oder verdrehten Daten auf days zurück', () => {
+    expect(parseRange(params('from=2026-08-20&to=2026-08-10&days=7'), today)).toEqual({
+      start: '2026-08-25',
+      end: '2026-08-31',
+      days: 7,
+    });
+    expect(parseRange(params('from=gestern&to=heute'), today).days).toBe(30);
   });
 });

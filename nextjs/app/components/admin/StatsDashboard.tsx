@@ -1,33 +1,106 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { auth } from '@/lib/firebase/config';
-import {
-  type Delta,
-  type Entry,
-  type ExitEntry,
-  type Funnel as FunnelData,
-  type Mover,
-  type StatsSummary,
-} from '@/lib/admin/stats.server';
-import type { SearchRow, SearchSummary } from '@/lib/admin/searchConsole';
+import type { StatsSummary } from '@/lib/admin/stats.server';
 import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
+import { NUMBER, longDay } from './stats/format';
+import Overview from './stats/reports/Overview';
+import Days from './stats/reports/Days';
+import FunnelReport from './stats/reports/FunnelReport';
+import Cards from './stats/reports/Cards';
+import Revenue from './stats/reports/Revenue';
+import Search from './stats/reports/Search';
+import Acquisition from './stats/reports/Acquisition';
+import Content from './stats/reports/Content';
+import EventsReport from './stats/reports/EventsReport';
+import ConsentReport from './stats/reports/ConsentReport';
 import styles from './StatsDashboard.module.css';
 
 /**
- * Die Leseseite des einwilligungsfreien Zählers.
+ * Die Leseseite des einwilligungsfreien Zählers — als Werkzeug mit Berichten
+ * in der Seitenleiste, Zeitraum in der Kopfzeile und dem Trichter des
+ * Produkts in der Mitte (frei → Konto → vor Ort → Pack).
  *
- * Bewusst nüchtern: das ist ein Werkzeug, keine Marketingfläche. Was es
- * beantworten muss, steht oben (wie viele Menschen, wie viele stimmen dem
- * Cookie-Dialog zu, wo bricht der Kauf ab); die Ranglisten stehen darunter.
+ * Bewusst nüchtern: das ist ein Werkzeug, keine Marketingfläche. Die Daten
+ * kommen in einem Aufruf von /api/admin/stats; die Berichte schneiden sie nur
+ * verschieden zu.
  */
 
-const RANGES = [
-  { days: 7, label: '7 Tage' },
-  { days: 30, label: '30 Tage' },
-  { days: 90, label: '90 Tage' },
-] as const;
+export type ReportKey =
+  | 'overview'
+  | 'days'
+  | 'funnel'
+  | 'cards'
+  | 'revenue'
+  | 'search'
+  | 'acquisition'
+  | 'content'
+  | 'events'
+  | 'consent';
+
+interface Report {
+  key: ReportKey;
+  label: string;
+  /** Beginnt eine neue Gruppe in der Leiste. */
+  group?: string;
+  sub: string;
+}
+
+const REPORTS: Report[] = [
+  {
+    key: 'overview',
+    label: 'Übersicht',
+    group: 'Berichte',
+    sub: 'Besucher, Konten, Karten, Umsatz auf einen Blick',
+  },
+  {
+    key: 'days',
+    label: 'Heute & Gestern',
+    sub: 'Zwei Tage, ganz ausgebreitet — mit der Suche des frischesten Tages',
+  },
+  { key: 'funnel', label: 'Funnel', sub: 'Frei → Konto (+20 Karten) → vor Ort → Pack' },
+  {
+    key: 'cards',
+    label: 'Karten & Konten',
+    sub: 'Der Stapel, wer ihn sammelt, und wer wiederkommt',
+  },
+  { key: 'revenue', label: 'Umsatz', sub: 'Packs, Käufe, Checkouts' },
+  {
+    key: 'search',
+    label: 'Google-Suche',
+    group: 'Akquisition',
+    sub: 'Search Console: Anfragen, Seiten, Geräte, Länder, Trends',
+  },
+  { key: 'acquisition', label: 'Herkunft', sub: 'Woher die Besucher kommen und wo sie einsteigen' },
+  {
+    key: 'content',
+    label: 'Inhalte',
+    group: 'Verhalten',
+    sub: 'Welche Seiten gesehen werden und wo Besuche enden',
+  },
+  {
+    key: 'events',
+    label: 'Ereignisse',
+    sub: 'Jede gezählte Handlung, je 100 Besucher, gegen die Vorperiode',
+  },
+  {
+    key: 'consent',
+    label: 'Cookie-Dialog',
+    sub: 'Wie viele Menschen zustimmen — und wie viele Google Analytics sieht',
+  },
+];
+
+const PRESETS = [7, 14, 30, 90, 365] as const;
+
+type Range = { kind: 'preset'; days: number } | { kind: 'custom'; from: string; to: string };
+
+function queryOf(range: Range): string {
+  return range.kind === 'preset'
+    ? `days=${range.days}`
+    : `from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`;
+}
 
 /**
  * Der Tag, seit dem der Bot-Filter wirklich greift. Bis dahin ersetzte die
@@ -37,84 +110,51 @@ const RANGES = [
  * User-Agent im Beacon mit (lib/analytics.ts). Muss auf den Rollout-Tag
  * zeigen, sonst luegt die Fussnote.
  */
-const BOT_FILTER_LIVE_SINCE = '02.09.2026';
+export const BOT_FILTER_LIVE_SINCE = '02.09.2026';
 
 /**
- * Der zweite Schnitt: bis hierher zaehlte die EIGENE Lighthouse-CI mit. Sie
- * laeuft bei jedem Push und PR nach main, drei Durchgaenge auf fuenf Seiten,
- * und Lighthouse 12 sendet seinen Telefon-UA ohne die Kennung
- * „Chrome-Lighthouse" — der Filter sah einen normalen Browser (belegt am
- * 03.09.2026, lib/analytics/botFilter.ts). Muss auf den Rollout-Tag des
- * Filters zeigen.
+ * Der zweite Schnitt: bis hierher zaehlte die EIGENE Lighthouse-CI mit
+ * (lib/analytics/botFilter.ts, belegt 03.09.2026). Muss auf den Rollout-Tag
+ * des Filters zeigen.
  */
-const LIGHTHOUSE_FILTER_LIVE_SINCE = '04.09.2026';
+export const LIGHTHOUSE_FILTER_LIVE_SINCE = '04.09.2026';
 
-const EVENT_LABELS: Record<string, string> = {
-  begin_checkout: 'Kauf begonnen',
-  checkout_already_owned: 'Kauf: schon im Besitz',
-  checkout_error: 'Kauf: Fehler',
-  consent_accepted: 'Cookies zugestimmt',
-  consent_declined: 'Cookies abgelehnt',
-  consent_gate_shown: 'Cookie-Dialog gezeigt',
-  locked_spot_login_start: 'Gesperrter Spot: Anmeldung begonnen',
-  locked_spot_opened: 'Gesperrter Spot geöffnet',
-  locked_spot_pack_clicked: 'Gesperrter Spot: Pack geklickt',
-  login: 'Angemeldet (bestehendes Konto)',
-  signed_in: 'Angemeldet oder Konto angelegt',
-  visitors: 'Besucher',
-  login_link_sent: 'Magic Link verschickt',
-  login_start: 'Anmeldung begonnen',
-  login_view: 'Anmeldeseite gesehen',
-  map_location_invite_accepted: 'Standort erlaubt',
-  map_location_invite_shown: 'Standort gefragt',
-  map_opened: 'Karte geöffnet',
-  map_view_toggle: 'Kartenansicht gewechselt',
-  must_eat_opened: 'Must Eat geöffnet',
-  must_eat_reveal_attempt: 'Must Eat aufdecken versucht',
-  purchase: 'Gekauft',
-  restaurant_maps_clicked: 'Route geklickt',
-  restaurant_menu_clicked: 'Speisekarte geklickt',
-  restaurant_opened: 'Spot geöffnet',
-  restaurant_reservation_clicked: 'Reservierung geklickt',
-  share: 'Geteilt',
-  sign_up: 'Konto angelegt',
-  // GA-Ecommerce-Name: feuert je Pack-Angebot, sobald es im Bild ist — auf
-  // /packs also mehrfach je Aufruf. Nicht der Spot, wie es vorher hiess.
-  view_item: 'Pack-Angebot gesehen',
-};
-
-const NUMBER = new Intl.NumberFormat('de-DE');
-
-function labelFor(key: string): string {
-  return EVENT_LABELS[key] ?? key;
-}
-
-function percent(value: number): string {
-  return `${(value * 100).toFixed(1).replace('.', ',')} %`;
-}
-
-const WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-
-/** Tagesbeschriftung „28.08." — der Verlauf braucht kein Jahr. */
-function shortDay(day: string): string {
-  const [, month, date] = day.split('-');
-  return month && date ? `${date}.${month}.` : day;
+function readHash(): ReportKey {
+  if (typeof window === 'undefined') return 'overview';
+  const key = window.location.hash.replace('#', '');
+  return REPORTS.some((r) => r.key === key) ? (key as ReportKey) : 'overview';
 }
 
 export default function StatsDashboard() {
   const { user, loading: authLoading } = useAuth();
-  const [days, setDays] = useState<number>(30);
+  const [report, setReport] = useState<ReportKey>('overview');
+  const [range, setRange] = useState<Range>({ kind: 'preset', days: 30 });
+  const [draft, setDraft] = useState<{ from: string; to: string }>({ from: '', to: '' });
   const [data, setData] = useState<StatsSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
 
-  const load = useCallback(async (range: number) => {
+  useEffect(() => {
+    setReport(readHash());
+    const onHash = () => setReport(readHash());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const open = useCallback((key: ReportKey) => {
+    setReport(key);
+    if (typeof window !== 'undefined') window.history.replaceState(null, '', `#${key}`);
+    window.scrollTo({ top: 0 });
+  }, []);
+
+  const load = useCallback(async (current: Range) => {
     if (!auth.currentUser) return;
     setLoading(true);
     setError(null);
     try {
       const token = await auth.currentUser.getIdToken();
-      const response = await fetch(`/api/admin/stats?days=${range}`, {
+      const response = await fetch(`/api/admin/stats?${queryOf(current)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.status === 404 || response.status === 401) {
@@ -126,6 +166,7 @@ export default function StatsDashboard() {
       }
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       setData((await response.json()) as StatsSummary);
+      setLoadedAt(new Date());
     } catch (cause) {
       setError(`Die Zahlen ließen sich nicht laden: ${(cause as Error).message}`);
       setData(null);
@@ -136,527 +177,210 @@ export default function StatsDashboard() {
 
   useEffect(() => {
     if (authLoading || !user) return;
-    void load(days);
-  }, [authLoading, user, days, load]);
+    void load(range);
+  }, [authLoading, user, range, load]);
+
+  const current = useMemo(() => REPORTS.find((r) => r.key === report) ?? REPORTS[0], [report]);
 
   if (authLoading) return null;
 
   if (!user) {
     return (
-      <main className={styles.page}>
+      <main className={styles.gate}>
         <p className={styles.notice}>Zum Ansehen der Zahlen bitte anmelden.</p>
       </main>
     );
   }
 
+  const applyCustom = () => {
+    if (!draft.from || !draft.to || draft.from > draft.to) return;
+    setRange({ kind: 'custom', from: draft.from, to: draft.to });
+  };
+
   return (
-    <main className={styles.page}>
-      <header className={styles.head}>
-        <h1 className={styles.title}>Zahlen</h1>
-        <p className={styles.sub}>Alle Besuche, ohne Cookie-Zustimmung.</p>
-        <div className={styles.ranges}>
-          {RANGES.map((range) => (
-            <button
-              key={range.days}
-              type="button"
-              className={range.days === days ? styles.rangeOn : styles.range}
-              aria-pressed={range.days === days}
-              onClick={() => setDays(range.days)}
-            >
-              {range.label}
-            </button>
+    <div className={styles.app}>
+      <aside className={styles.side}>
+        <div className={styles.brand}>
+          <span className={styles.brandMark} aria-hidden="true" />
+          <h1 className={styles.brandName}>Zahlen</h1>
+        </div>
+        <nav className={styles.nav} aria-label="Berichte">
+          {REPORTS.map((r) => (
+            <NavEntry key={r.key} report={r} active={r.key === report} data={data} onOpen={open} />
           ))}
+        </nav>
+        <div className={styles.sideFoot}>
+          <NoCountToggle />
         </div>
-        <NoCountToggle />
-      </header>
+      </aside>
 
-      {error && <p className={styles.error}>{error}</p>}
-      {loading && !data && <p className={styles.notice}>Wird geladen …</p>}
-
-      {data && (
-        <div className={loading ? styles.bodyStale : styles.body}>
-          <Yesterday data={data} />
-          <Headline data={data} />
-          <AccountsCard data={data} />
-          <SearchCard data={data} />
-          <Trend
-            title="Besucher"
-            points={data.days.map((d) => ({ day: d.day, value: d.visitors }))}
-            today={data.today?.day}
-          />
-          <Trend
-            title="Seitenaufrufe"
-            points={data.days.map((d) => ({ day: d.day, value: d.pageviews }))}
-            today={data.today?.day}
-          />
-          <Weekdays data={data} />
-          <Consent data={data} />
-          <Funnels data={data} />
-          <Movers data={data} />
-          <Exits data={data} />
-          <div className={styles.columns}>
-            <Ranking title="Einstiegsseiten" rows={data.entryPaths} empty="Noch nicht erfasst." />
-            <Ranking title="Meistgesehen" rows={data.paths} empty="Nichts gezählt." />
-            <Ranking title="Herkunft" rows={data.referrers} empty="Keine externen Verweise." />
+      <main className={styles.main}>
+        <header className={styles.topbar}>
+          <div>
+            <h2 className={styles.title}>{current.label}</h2>
+            <p className={styles.titleSub}>{current.sub}</p>
           </div>
-          <Events data={data} />
+          <div className={styles.controls}>
+            <div className={styles.seg} role="group" aria-label="Zeitraum">
+              {PRESETS.map((days) => {
+                const on = range.kind === 'preset' && range.days === days;
+                return (
+                  <button
+                    key={days}
+                    type="button"
+                    className={on ? styles.segBtnOn : styles.segBtn}
+                    aria-pressed={on}
+                    onClick={() => setRange({ kind: 'preset', days })}
+                  >
+                    {days === 365 ? '1 Jahr' : `${days} Tage`}
+                  </button>
+                );
+              })}
+            </div>
+            <input
+              type="date"
+              className={styles.dateInput}
+              aria-label="Von"
+              value={draft.from}
+              max={draft.to || undefined}
+              onChange={(e) => setDraft((d) => ({ ...d, from: e.target.value }))}
+            />
+            <input
+              type="date"
+              className={styles.dateInput}
+              aria-label="Bis"
+              value={draft.to}
+              min={draft.from || undefined}
+              onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
+            />
+            <button
+              type="button"
+              className={range.kind === 'custom' ? styles.btn : styles.btnGhost}
+              onClick={applyCustom}
+              disabled={!draft.from || !draft.to || draft.from > draft.to}
+            >
+              Zeitraum
+            </button>
+            <button
+              type="button"
+              className={styles.btnGhost}
+              onClick={() => void load(range)}
+              disabled={loading}
+            >
+              {loading ? 'Lädt …' : 'Aktualisieren'}
+            </button>
+          </div>
+          {data && (
+            <p className={styles.meta}>
+              {longDay(data.range.start)} – {longDay(data.range.end)} ·{' '}
+              {NUMBER.format(data.range.days)} Tage · Vergleich mit den{' '}
+              {NUMBER.format(data.range.days)} Tagen davor
+              {loadedAt && (
+                <>
+                  {' '}
+                  · Stand{' '}
+                  {loadedAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                </>
+              )}
+            </p>
+          )}
+        </header>
+
+        <div className={loading && data ? styles.stale : undefined}>
+          <div className={styles.grid}>
+            {error && <p className={styles.error}>{error}</p>}
+            {loading && !data && <p className={styles.notice}>Wird geladen …</p>}
+            {data && <ReportBody report={report} data={data} onOpen={open} />}
+          </div>
         </div>
-      )}
-    </main>
+      </main>
+    </div>
   );
 }
 
-function Headline({ data }: { data: StatsSummary }) {
-  const { totals, period } = data;
-  // Ohne den laufenden Tag: der stand morgens als ganzer Tag im Nenner und
-  // drueckte den Schnitt, ohne dass irgendwer weggeblieben waere.
-  const closedVisitors = totals.visitors - (data.today?.visitors ?? 0);
-  const perDay = totals.closedDays > 0 ? Math.round(closedVisitors / totals.closedDays) : 0;
+function ReportBody({
+  report,
+  data,
+  onOpen,
+}: {
+  report: ReportKey;
+  data: StatsSummary;
+  onOpen: (key: ReportKey) => void;
+}) {
+  switch (report) {
+    case 'days':
+      return <Days data={data} />;
+    case 'funnel':
+      return <FunnelReport data={data} />;
+    case 'cards':
+      return <Cards data={data} />;
+    case 'revenue':
+      return <Revenue data={data} />;
+    case 'search':
+      return <Search data={data} />;
+    case 'acquisition':
+      return <Acquisition data={data} />;
+    case 'content':
+      return <Content data={data} />;
+    case 'events':
+      return <EventsReport data={data} />;
+    case 'consent':
+      return <ConsentReport data={data} />;
+    default:
+      return <Overview data={data} onOpen={onOpen} />;
+  }
+}
+
+/** Die kleine Zahl rechts neben einem Bericht — das, was er beantwortet. */
+function navCount(key: ReportKey, data: StatsSummary | null): string | null {
+  if (!data) return null;
+  switch (key) {
+    case 'overview':
+      return NUMBER.format(data.totals.visitors);
+    case 'days':
+      return data.today ? NUMBER.format(data.today.visitors) : null;
+    case 'funnel': {
+      const signed = data.funnel.stages.flatMap((s) => s.steps).find((s) => s.key === 'signed_in');
+      return signed ? NUMBER.format(signed.count) : null;
+    }
+    case 'cards':
+      return data.accounts ? NUMBER.format(data.accounts.reveals.inWindow) : null;
+    case 'revenue':
+      return data.accounts ? NUMBER.format(data.accounts.purchases.inWindow) : null;
+    case 'search':
+      return data.search?.ok ? NUMBER.format(data.search.data.totals.clicks) : null;
+    case 'events':
+      return NUMBER.format(data.events.reduce((t, e) => t + e.count, 0));
+    default:
+      return null;
+  }
+}
+
+function NavEntry({
+  report,
+  active,
+  data,
+  onOpen,
+}: {
+  report: Report;
+  active: boolean;
+  data: StatsSummary | null;
+  onOpen: (key: ReportKey) => void;
+}) {
+  const count = navCount(report.key, data);
   return (
     <>
-      <section className={styles.tiles}>
-        <Tile
-          value={NUMBER.format(totals.visitors)}
-          label="Besucher"
-          delta={period?.visitors ?? null}
-        />
-        <Tile
-          value={NUMBER.format(totals.pageviews)}
-          label="Seitenaufrufe"
-          delta={period?.pageviews ?? null}
-        />
-        <Tile value={NUMBER.format(perDay)} label="Besucher je vollem Tag" />
-        <Tile value={NUMBER.format(totals.days)} label="Tage erfasst" />
-      </section>
-      {period && (
-        <p className={styles.note}>
-          Pfeile: Schnitt je vollem Tag gegen die Periode davor. Bis {BOT_FILTER_LIVE_SINCE} zählten
-          Bots mit, bis {LIGHTHOUSE_FILTER_LIVE_SINCE} die eigene Lighthouse-CI.
-        </p>
-      )}
+      {report.group && <span className={styles.navGroup}>{report.group}</span>}
+      <button
+        type="button"
+        className={active ? styles.navItemOn : styles.navItem}
+        aria-current={active ? 'page' : undefined}
+        onClick={() => onOpen(report.key)}
+      >
+        <span>{report.label}</span>
+        {count !== null && <span className={styles.navCount}>{count}</span>}
+      </button>
     </>
-  );
-}
-
-function Tile({ value, label, delta }: { value: string; label: string; delta?: Delta | null }) {
-  return (
-    <div className={styles.tile}>
-      <strong className={styles.tileValue}>{value}</strong>
-      <span className={styles.tileLabel}>{label}</span>
-      {delta && delta.change !== null && (
-        <span className={styles.tileDelta}>
-          {Math.abs(delta.change) < 0.005 ? '±' : delta.change > 0 ? '▲' : '▼'}{' '}
-          {percent(Math.abs(delta.change))}
-        </span>
-      )}
-    </div>
-  );
-}
-
-/** Eine Kennziffer im Vergleich: „▲ 12 %" mit Bezug. */
-function Change({ delta, label }: { delta: Delta; label: string }) {
-  if (delta.change === null) {
-    return (
-      <span className={styles.changeFlat}>
-        {label}: {NUMBER.format(delta.before)} → {NUMBER.format(delta.now)}
-      </span>
-    );
-  }
-  const up = delta.change > 0;
-  const flat = Math.abs(delta.change) < 0.005;
-  return (
-    <span className={flat ? styles.changeFlat : up ? styles.changeUp : styles.changeDown}>
-      {flat ? '±' : up ? '▲' : '▼'} {percent(Math.abs(delta.change))}
-      <span className={styles.changeLabel}>
-        {' '}
-        {label} ({NUMBER.format(delta.before)})
-      </span>
-    </span>
-  );
-}
-
-/** Der jüngste abgeschlossene Tag — die Zahl für den Morgenkaffee. Der
- *  laufende Tag steht bewusst nur als Randnotiz daneben: er ist unvollständig
- *  und sähe als Hauptzahl jeden Morgen wie ein Absturz aus. */
-function Yesterday({ data }: { data: StatsSummary }) {
-  const { latest, today } = data;
-  if (!latest.day) return null;
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>
-        {WEEKDAYS[new Date(`${latest.day.day}T12:00:00Z`).getUTCDay()]}, {shortDay(latest.day.day)}
-      </h2>
-      <p className={styles.big}>{NUMBER.format(latest.day.visitors)}</p>
-      <p className={styles.note}>
-        Besucher, {NUMBER.format(latest.day.pageviews)} Seitenaufrufe.
-      </p>
-      <div className={styles.changes}>
-        {latest.vsPrevDay && <Change delta={latest.vsPrevDay.visitors} label="zum Vortag" />}
-        {latest.vsSameWeekday && (
-          <Change delta={latest.vsSameWeekday.visitors} label="zum selben Wochentag" />
-        )}
-      </div>
-      {today && (
-        <p className={styles.note}>
-          Heute bisher {NUMBER.format(today.visitors)} Besucher, {NUMBER.format(today.pageviews)}{' '}
-          Aufrufe.
-        </p>
-      )}
-    </section>
-  );
-}
-
-/**
- * Ein Verlauf, eine Größe, eine Skala.
- *
- * Vorher lagen Besucher und Aufrufe in einem Diagramm auf gemeinsamer Skala —
- * bei 1.470 Aufrufen gegen 163 Besucher war die Besucherreihe ein Strich am
- * Boden, also genau die Zahl unlesbar, auf die es ankommt.
- */
-function Trend({
-  title,
-  points,
-  today,
-}: {
-  title: string;
-  points: { day: string; value: number }[];
-  today?: string;
-}) {
-  const peak = Math.max(1, ...points.map((p) => p.value));
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>{title}</h2>
-      <div className={styles.trend} role="list">
-        {points.map((point) => (
-          <div
-            key={point.day}
-            className={styles.trendCol}
-            role="listitem"
-            title={`${shortDay(point.day)} — ${NUMBER.format(point.value)}${point.day === today ? ' (läuft noch)' : ''}`}
-          >
-            <span className={styles.trendValue}>{NUMBER.format(point.value)}</span>
-            <div className={styles.trendBars}>
-              <span
-                className={point.day === today ? styles.trendBarToday : styles.trendBar}
-                style={{ height: `${(point.value / peak) * 100}%` }}
-              />
-            </div>
-            <span className={styles.trendDay}>{shortDay(point.day)}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/** Wann Menschen wirklich kommen. Beantwortet die Frage, die sonst jeden
- *  Sonntag neu gestellt wird: ist das ein Einbruch oder der Wochenrhythmus? */
-function Weekdays({ data }: { data: StatsSummary }) {
-  if (data.weekdays.length < 2) return null;
-  const avg = (w: { visitors: number; days: number }) => (w.days > 0 ? w.visitors / w.days : 0);
-  const peak = Math.max(1, ...data.weekdays.map(avg));
-  // Montag zuerst — Date zählt ab Sonntag, gelesen wird die Woche anders.
-  const ordered = [...data.weekdays].sort(
-    (a, b) => ((a.index + 6) % 7) - ((b.index + 6) % 7)
-  );
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Nach Wochentag</h2>
-      <ol className={styles.rank}>
-        {ordered.map((day) => (
-          <li key={day.index} className={styles.rankRow}>
-            <span className={styles.rankKey}>{WEEKDAYS[day.index]}</span>
-            <span className={styles.rankBarWrap}>
-              <span className={styles.rankBar} style={{ width: `${(avg(day) / peak) * 100}%` }} />
-            </span>
-            <span className={styles.rankValue}>{Math.round(avg(day))}</span>
-          </li>
-        ))}
-      </ol>
-      <p className={styles.note}>Besucher im Schnitt je Wochentag.</p>
-    </section>
-  );
-}
-
-/** Was sich gegenüber der Vorperiode bewegt hat — in beide Richtungen. Ein
- *  Wegbruch ist so interessant wie ein Anstieg, und beide gehen in reinen
- *  Bestenlisten unter. */
-function Movers({ data }: { data: StatsSummary }) {
-  const { paths, referrers } = data.movers;
-  if (!data.period || (paths.length === 0 && referrers.length === 0)) return null;
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Veränderungen zur Vorperiode</h2>
-      <div className={styles.columns}>
-        <MoverList title="Seiten" rows={paths} />
-        <MoverList title="Herkunft" rows={referrers} />
-      </div>
-    </section>
-  );
-}
-
-function MoverList({ title, rows }: { title: string; rows: Mover[] }) {
-  if (rows.length === 0) return null;
-  return (
-    <div>
-      <h3 className={styles.funnelTitle}>{title}</h3>
-      <ol className={styles.rank}>
-        {rows.map((row) => (
-          <li key={row.key} className={styles.rankRow}>
-            <span className={styles.rankKey} title={row.key}>
-              {row.key}
-            </span>
-            <span className={row.diff > 0 ? styles.moverUp : styles.moverDown}>
-              {row.diff > 0 ? '+' : '−'}
-              {NUMBER.format(Math.abs(row.diff))}
-            </span>
-            <span className={styles.rankValue}>{NUMBER.format(row.now)}</span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-function Consent({ data }: { data: StatsSummary }) {
-  const { consent } = data;
-  const silent = consent.visitors - consent.accepted - consent.declined;
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Cookie-Dialog</h2>
-      {consent.rate === null ? (
-        <p className={styles.note}>Der Dialog wurde in diesem Zeitraum nicht gezählt.</p>
-      ) : (
-        <>
-          <p className={styles.big}>{percent(consent.rate)}</p>
-          <p className={styles.note}>
-            der Besucher stimmen zu — {NUMBER.format(consent.accepted)} von{' '}
-            {NUMBER.format(consent.visitors)}, {NUMBER.format(consent.declined)} lehnen ab,{' '}
-            {NUMBER.format(Math.max(0, silent))} antworten nicht. Nur die Zustimmenden sieht Google
-            Analytics.
-          </p>
-        </>
-      )}
-    </section>
-  );
-}
-
-function Funnels({ data }: { data: StatsSummary }) {
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Die Reise</h2>
-      <div className={styles.funnels}>
-        {data.funnels.map((funnel) => (
-          <FunnelColumn key={funnel.label} funnel={funnel} visitors={data.totals.visitors} />
-        ))}
-      </div>
-      <p className={styles.note}>Ereignisse, rechte Spalte je 100 Besucher.</p>
-    </section>
-  );
-}
-
-/** Eine Trichter-Spalte. Der Balken hängt an den Besuchern, nicht an der
- *  ersten Stufe — sonst sähe „Konto" mit 100 Anmeldeseiten so voll aus wie
- *  die Reise mit 1.400 Besuchern. */
-function FunnelColumn({ funnel, visitors }: { funnel: FunnelData; visitors: number }) {
-  return (
-    <div className={styles.funnel}>
-      <h3 className={styles.funnelTitle}>{funnel.label}</h3>
-      {funnel.steps.map((step) => {
-        // Bewusst KEINE Quote gegen die Stufe davor: die Reise ist keine
-        // strenge Kette. /packs feuert `view_item` je Pack an jeden, der die
-        // Seite direkt oeffnet — gegen „Pack geklickt" gerechnet stuenden
-        // dort 4.500 %. Der einzige Nenner, der ueberall stimmt, sind die
-        // Besucher.
-        const share = visitors > 0 ? step.count / visitors : 0;
-        return (
-          <div key={step.key} className={styles.step}>
-            <span className={styles.stepLabel} title={labelFor(step.key)}>
-              {labelFor(step.key)}
-            </span>
-            <span className={styles.stepBarWrap}>
-              <span
-                className={step.count === 0 ? styles.stepBarEmpty : styles.stepBar}
-                style={{ width: `${Math.min(1, share) * 100}%` }}
-              />
-            </span>
-            <span className={styles.stepValue}>{NUMBER.format(step.count)}</span>
-            <span className={styles.stepShare} title="je 100 Besucher">
-              {step.key === 'visitors' ? '' : NUMBER.format(Math.round(share * 100))}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/**
- * Konten sind eine andere Welt als Besucher: Firebase Auth statt Zähler,
- * Personen statt Ereignisse. Deshalb eine eigene Karte mit eigener Quelle
- * statt einer Kachel zwischen den Besucherzahlen.
- */
-function AccountsCard({ data }: { data: StatsSummary }) {
-  const a = data.accounts;
-  if (!a) return null;
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Konten</h2>
-      <h3 className={styles.funnelTitle}>Aktive Nutzer</h3>
-      <section className={styles.tiles}>
-        <Tile value={NUMBER.format(a.active.day)} label="Heute" />
-        <Tile value={NUMBER.format(a.active.week)} label="Letzte 7 Tage" />
-        <Tile value={NUMBER.format(a.active.month)} label="Letzte 30 Tage" />
-      </section>
-      <h3 className={styles.funnelTitle}>Bestand</h3>
-      <section className={styles.tiles}>
-        <Tile value={NUMBER.format(a.total)} label="Konten gesamt" />
-        <Tile value={NUMBER.format(a.newInWindow)} label="Neu im Zeitraum" />
-        <Tile value={NUMBER.format(a.activeInWindow)} label="Aktiv im Zeitraum" />
-        <Tile
-          value={NUMBER.format(a.purchases.inWindow)}
-          label={`Käufe im Zeitraum · ${NUMBER.format(a.purchases.total)} insgesamt`}
-        />
-      </section>
-      <p className={styles.note}>
-        {NUMBER.format(a.google)} über Google, {NUMBER.format(a.email)} über Magic Link,{' '}
-        {NUMBER.format(a.withFavorites)} mit gespeicherten Spots. {NUMBER.format(a.checkouts.inWindow)}{' '}
-        Stripe-Sitzungen im Zeitraum, {NUMBER.format(a.checkouts.open)} offen.
-      </p>
-    </section>
-  );
-}
-
-/** Prozent mit einer Stelle, für CTR — „0,6 %" statt „0.0056". */
-function ctr(value: number): string {
-  return percent(value);
-}
-
-function position(value: number): string {
-  return value > 0 ? value.toFixed(1).replace('.', ',') : '—';
-}
-
-/**
- * Die Google-Suche. Andere Quelle, andere Menschen: die Search Console zählt
- * Suchergebnisse, nicht Besuche, und ihre Zahlen kommen zwei bis drei Tage
- * nach dem Tag. Deshalb eine eigene Karte mit eigener Beschriftung — und mit
- * einem ehrlichen Zustand, wenn der Zugang fehlt, statt einer leeren Tabelle.
- */
-function SearchCard({ data }: { data: StatsSummary }) {
-  const search = data.search;
-  if (!search) return null;
-  if (!search.ok) {
-    return (
-      <section className={styles.card}>
-        <h2 className={styles.cardTitle}>Google-Suche</h2>
-        {search.reason === 'no-access' ? (
-          <p className={styles.note}>
-            Kein Zugriff. In der Search Console unter „Nutzer und Berechtigungen“{' '}
-            <code className={styles.code}>{search.identity ?? '(unbekannt)'}</code> als Nutzer
-            eintragen.
-          </p>
-        ) : (
-          <p className={styles.note}>Search Console antwortet nicht: {search.message}</p>
-        )}
-      </section>
-    );
-  }
-  const s: SearchSummary = search.data;
-  const { totals, before } = s;
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Google-Suche</h2>
-      <section className={styles.tiles}>
-        <Tile
-          value={NUMBER.format(totals.clicks)}
-          label="Klicks"
-          delta={before ? { now: totals.clicks, before: before.clicks, change: change(totals.clicks, before.clicks) } : null}
-        />
-        <Tile
-          value={NUMBER.format(totals.impressions)}
-          label="Impressionen"
-          delta={
-            before
-              ? {
-                  now: totals.impressions,
-                  before: before.impressions,
-                  change: change(totals.impressions, before.impressions),
-                }
-              : null
-          }
-        />
-        <Tile value={ctr(totals.ctr)} label={before ? `Klickrate · vorher ${ctr(before.ctr)}` : 'Klickrate'} />
-        <Tile
-          value={position(totals.position)}
-          label={before ? `Position · vorher ${position(before.position)}` : 'Position'}
-        />
-      </section>
-      <p className={styles.note}>
-        {shortDay(s.range.start)} bis {shortDay(s.range.end)}, Pfeile gegen die{' '}
-        {NUMBER.format(s.range.days)} Tage davor. Die letzten zwei bis drei Tage liefert Google
-        nachträglich.
-      </p>
-      <Trend
-        title="Klicks aus der Suche"
-        points={s.days.map((d) => ({ day: d.day, value: d.clicks }))}
-      />
-      <div className={styles.columns}>
-        <SearchTable
-          title="Welche Suche funktioniert"
-          rows={s.queries}
-          empty="Noch keine Klicks aus der Suche."
-        />
-        <SearchTable title="Welche Seite gefunden wird" rows={s.pages} empty="Noch keine Klicks." />
-      </div>
-      <SearchTable
-        title="Fast oben — oft gezeigt, selten geklickt"
-        rows={s.opportunities}
-        empty="Nichts zwischen Position 4 und 20 mit nennenswerten Impressionen."
-      />
-      <p className={styles.note}>Position 4 bis 20, mindestens 30 Impressionen.</p>
-    </section>
-  );
-}
-
-function change(now: number, before: number): number | null {
-  return before > 0 ? (now - before) / before : null;
-}
-
-function SearchTable({ title, rows, empty }: { title: string; rows: SearchRow[]; empty: string }) {
-  return (
-    <div>
-      <h3 className={styles.funnelTitle}>{title}</h3>
-      {rows.length === 0 ? (
-        <p className={styles.note}>{empty}</p>
-      ) : (
-        <div className={styles.scroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">Suche</th>
-                <th scope="col">Klicks</th>
-                <th scope="col">Impr.</th>
-                <th scope="col">CTR</th>
-                <th scope="col">Pos.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.key}>
-                  <td className={styles.cellKey} title={row.key}>
-                    {row.key}
-                  </td>
-                  <td className={styles.cellNum}>{NUMBER.format(row.clicks)}</td>
-                  <td className={styles.cellNum}>{NUMBER.format(row.impressions)}</td>
-                  <td className={styles.cellNum}>{ctr(row.ctr)}</td>
-                  <td className={styles.cellNum}>{position(row.position)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
   );
 }
 
@@ -679,7 +403,7 @@ function NoCountToggle() {
     setOff(!off);
   };
   return (
-    <p className={styles.optOut}>
+    <p>
       {off
         ? 'Dieser Browser wird nicht mitgezählt.'
         : 'Dieser Browser zählt mit — jeder eigene Klick landet in den Zahlen.'}{' '}
@@ -687,92 +411,5 @@ function NoCountToggle() {
         {off ? 'Wieder mitzählen' : 'Nicht mitzählen'}
       </button>
     </p>
-  );
-}
-
-function Exits({ data }: { data: StatsSummary }) {
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Wo Besuche enden</h2>
-      {data.exits.length === 0 ? (
-        <p className={styles.note}>Für diesen Zeitraum nicht erfasst.</p>
-      ) : (
-        <>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">Seite</th>
-                <th scope="col">Aufrufe</th>
-                <th scope="col">weiter</th>
-                <th scope="col">Ende</th>
-                <th scope="col">Quote</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.exits.map((row: ExitEntry) => (
-                <tr key={row.key}>
-                  <td className={styles.cellKey}>{row.key}</td>
-                  <td className={styles.cellNum}>{NUMBER.format(row.views)}</td>
-                  <td className={styles.cellNum}>{NUMBER.format(row.continued)}</td>
-                  <td className={styles.cellNum}>{NUMBER.format(row.exits)}</td>
-                  <td className={styles.cellNum}>{percent(row.rate)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className={styles.note}>
-            Über {NUMBER.format(data.exitDays)} von {NUMBER.format(data.totals.days)} Tagen.
-          </p>
-        </>
-      )}
-    </section>
-  );
-}
-
-function Ranking({ title, rows, empty }: { title: string; rows: Entry[]; empty: string }) {
-  const peak = Math.max(1, ...rows.map((row) => row.count));
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>{title}</h2>
-      {rows.length === 0 ? (
-        <p className={styles.note}>{empty}</p>
-      ) : (
-        <ol className={styles.rank}>
-          {rows.map((row) => (
-            <li key={row.key} className={styles.rankRow}>
-              <span className={styles.rankKey} title={row.key}>
-                {row.key}
-              </span>
-              <span className={styles.rankBarWrap}>
-                <span className={styles.rankBar} style={{ width: `${(row.count / peak) * 100}%` }} />
-              </span>
-              <span className={styles.rankValue}>{NUMBER.format(row.count)}</span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </section>
-  );
-}
-
-function Events({ data }: { data: StatsSummary }) {
-  return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>Ereignisse</h2>
-      {data.events.length === 0 ? (
-        <p className={styles.note}>Keine Ereignisse gezählt.</p>
-      ) : (
-        <ol className={styles.rank}>
-          {data.events.map((row) => (
-            <li key={row.key} className={styles.rankRow}>
-              <span className={styles.rankKey} title={row.key}>
-                {labelFor(row.key)}
-              </span>
-              <span className={styles.rankValue}>{NUMBER.format(row.count)}</span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </section>
   );
 }

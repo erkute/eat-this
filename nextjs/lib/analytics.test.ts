@@ -11,6 +11,7 @@ import {
   isAnalyticsHost,
   loadAnalytics,
   flushAnalyticsQueue,
+  qualifiedCountName,
   resetReferrerSentForTests,
   trackEvent,
   trackEventOnce,
@@ -389,5 +390,66 @@ describe('consent-free counting', () => {
     });
 
     expect(() => countView()).not.toThrow();
+  });
+});
+
+/* Der Zaehler kennt nur Namen. Damit der Trichter die Ausgaenge einer Karte
+ * unterscheiden kann, geht fuer zwei Ereignisse ein zweiter Beacon mit dem
+ * qualifizierten Namen raus — der Grundname bleibt, sonst reissen die Reihen. */
+describe('countEvent — Auffaecherung nach Parameter', () => {
+  const beacon = vi.fn<(url: string, data: Blob) => boolean>(() => true);
+  // jsdom's Blob has no .text(), so read it the long way.
+  const sent = (index = 0) =>
+    new Promise<Record<string, string>>((resolve, reject) => {
+      const blob = beacon.mock.calls[index]?.[1] as Blob;
+      const reader = new FileReader();
+      reader.onload = () => resolve(JSON.parse(String(reader.result)) as Record<string, string>);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(blob);
+    });
+
+  beforeEach(() => {
+    beacon.mockClear();
+    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: beacon });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('bildet den qualifizierten Namen aus Ereignis und Parameter', () => {
+    expect(qualifiedCountName('must_eat_reveal_attempt', { result: 'unlocked' })).toBe(
+      'must_eat_reveal_unlocked'
+    );
+    expect(qualifiedCountName('login_start', { method: 'google' })).toBe('login_start_google');
+    expect(qualifiedCountName('map_opened', { tier: 'anon' })).toBeNull();
+    expect(qualifiedCountName('login_start')).toBeNull();
+    // Nur handzahme Werte werden zu Namen — die Route hat eine Allowlist, und
+    // ein Parameter mit Sonderzeichen soll gar nicht erst losgeschickt werden.
+    expect(qualifiedCountName('login_start', { method: 'Google Login!' })).toBeNull();
+  });
+
+  it('schickt Grundname UND qualifizierten Namen', async () => {
+    trackEvent('must_eat_reveal_attempt', {
+      must_eat_id: 'm1',
+      result: 'login_required',
+      distance_meters: -1,
+    });
+
+    expect(beacon).toHaveBeenCalledTimes(2);
+    expect((await sent(0)).event).toBe('must_eat_reveal_attempt');
+    expect((await sent(1)).event).toBe('must_eat_reveal_login_required');
+  });
+
+  it('faechert auch den Handoff auf', async () => {
+    handoffEvent('login_start', { method: 'email_link' });
+
+    expect(beacon).toHaveBeenCalledTimes(2);
+    expect((await sent(1)).event).toBe('login_start_email_link');
+  });
+
+  it('laesst Ereignisse ohne Regel bei einem Beacon', () => {
+    trackEvent('map_opened', { tier: 'anon' });
+    expect(beacon).toHaveBeenCalledTimes(1);
   });
 });

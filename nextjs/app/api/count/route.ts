@@ -44,14 +44,20 @@ const EVENTS = new Set([
   'consent_accepted',
   'consent_declined',
   'consent_gate_shown',
-  'locked_spot_login_start',
-  'locked_spot_opened',
-  'locked_spot_pack_clicked',
   // `login` kommt aus welcome/page.tsx und fiel vorher doppelt durch: die
   // Route war ungetrackt UND der Name stand nicht in dieser Liste.
   'login',
   'login_link_sent',
   'login_start',
+  // `login_start`, aufgefaechert nach `method` (lib/analytics.ts,
+  // qualifiedCountName): die beiden echten Anmeldewege …
+  'login_start_google',
+  'login_start_email_link',
+  // … und die Anlaesse, die das Anmeldeformular oeffnen — eine verdeckte
+  // Karte im Startseiten-Teaser, die Starter-Pack-Tafel im Karten-Sheet.
+  'login_start_home_covered_card',
+  'login_start_starter_pack_banner',
+  'login_start_starter_pack_existing_user',
   'login_view',
   'map_location_invite_accepted',
   'map_location_invite_shown',
@@ -59,6 +65,16 @@ const EVENTS = new Set([
   'map_view_toggle',
   'must_eat_opened',
   'must_eat_reveal_attempt',
+  // `must_eat_reveal_attempt`, aufgefaechert nach `result`
+  // (useMustEatDetailState.ts). Ohne diese Namen war der Tipp auf einen
+  // Kartenruecken eine einzige Zahl — dabei ist `login_required` der Weg ins
+  // Konto und `unlocked` die Karte, die vor Ort umgedreht wurde.
+  'must_eat_reveal_login_required',
+  'must_eat_reveal_location_requested',
+  'must_eat_reveal_location_missing',
+  'must_eat_reveal_too_far',
+  'must_eat_reveal_unlocked',
+  'must_eat_reveal_failed',
   'purchase',
   'restaurant_maps_clicked',
   'restaurant_menu_clicked',
@@ -66,6 +82,9 @@ const EVENTS = new Set([
   'restaurant_reservation_clicked',
   'share',
   'sign_up',
+  // Das Starter Pack (20 Karten) ist eingeloest — die Antwort der Route
+  // /api/starter-pack, gezaehlt im ReferralToastListener. Einmal pro Konto.
+  'starter_pack_granted',
   'view_item',
 ]);
 

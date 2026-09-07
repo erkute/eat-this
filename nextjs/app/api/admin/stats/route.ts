@@ -2,46 +2,46 @@ import type { Auth } from 'firebase-admin/auth';
 import { FieldPath, type Firestore, type Timestamp } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 import {
+  parseRange,
   sinceDay,
   summarize,
   summarizeAccounts,
+  summarizeDeck,
   type AccountRecord,
   type Accounts,
   type CheckoutRecord,
   type DailyDoc,
+  type Deck,
   type PurchaseRecord,
+  type Range,
+  type ReferralRecord,
+  type RevealRecord,
 } from '@/lib/admin/stats.server';
 import { loadSearch } from '@/lib/admin/searchConsole.server';
 import { berlinDay } from '@/lib/analytics/visitorHash';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { isAdminEmail, isAdminToken } from '@/lib/firebase/entitlements';
+import { getCachedMapData } from '@/lib/map/cached-sanity';
 
 /**
- * Die Leseseite des einwilligungsfreien Zählers (app/api/count/route.ts).
- *
- * Der Zähler schreibt seit dem 21.08.2026 ein Dokument pro Tag nach
- * `analytics_daily` und hatte bis hierher keinen einzigen Leser — an die
- * Zahlen kam nur, wer sich mit Admin-Zugangsdaten ein Skript schrieb.
+ * Die Leseseite des einwilligungsfreien Zählers (app/api/count/route.ts),
+ * plus Konten, Karten, Umsatz (Firebase Auth, Firestore), der Katalog (Sanity)
+ * und die Google-Suche (Search Console).
  *
  * Nur Admins: die Tagesdokumente tragen zwar keine personenbezogenen Daten
  * (der Besucher-Hash liegt in `analytics_seen` und wird hier nie angefasst),
  * aber Umsatz- und Trichterzahlen des ganzen Angebots gehören niemandem sonst.
+ *
+ * Zeitraum: `?days=30` (endet heute) oder `?from=2026-08-21&to=2026-09-06`.
+ * Höchstens 365 Tage; die Vorperiode ist immer gleich lang und liegt direkt
+ * davor.
  */
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const DEFAULT_DAYS = 30;
-const MAX_DAYS = 365;
 const NO_STORE = { 'Cache-Control': 'no-store' } as const;
-
-function parseDays(raw: string | null): number {
-  if (!raw) return DEFAULT_DAYS;
-  const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_DAYS;
-  return Math.min(parsed, MAX_DAYS);
-}
 
 /** Kalendertag (Berlin) eines Auth-Zeitstempels oder Firestore-Timestamps. */
 function dayOf(value: string | Timestamp | undefined | null): string | null {
@@ -50,21 +50,26 @@ function dayOf(value: string | Timestamp | undefined | null): string | null {
   return Number.isNaN(date.getTime()) ? null : berlinDay(date);
 }
 
+/** Das Konto, dem ein Dokument unter users/<uid>/… gehört. */
+function ownerOf(doc: { ref: { parent: { parent: { id: string } | null } } }): string {
+  return doc.ref.parent.parent?.id ?? '';
+}
+
 /**
- * Konten aus Firebase Auth, nicht aus `users/`: dort liegen 56 Dokumente, von
- * denen die meisten Seed-Daten vom Mai 2026 sind — Auth kennt sechs Konten
- * (Stand 02.09.2026). Admin-Konten fallen raus, sonst ist der Betreiber jeden
- * Tag das aktive Konto. Kaeufe und Checkout-Versuche kommen aus den
- * Unter-Sammlungen, ueber Collection-Group-Abfragen ohne Filter — die
- * brauchen keinen Index.
+ * Konten aus Firebase Auth, nicht aus `users/`: dort liegen Seed-Dokumente
+ * vom Mai 2026, die nie ein Konto waren. Admin-Konten fallen raus, sonst ist
+ * der Betreiber jeden Tag das aktive Konto. Alles Weitere — Starter Packs,
+ * Käufe, Aufdeckungen vor Ort, Einladungen, Checkout-Versuche — kommt aus den
+ * Unter-Sammlungen, ueber Collection-Group-Abfragen ohne Filter; die brauchen
+ * keinen Index.
  *
- * Alles hier ist klein (einstellige Kontenzahl, zweistellige Dokumente) und
+ * Alles hier ist klein (zweistellige Kontenzahl, dreistellige Dokumente) und
  * wird bei jedem Aufruf frisch gelesen; ein Cache waere mehr Code als Nutzen.
  */
 async function loadAccounts(
   auth: Auth,
   db: Firestore,
-  windowStart: string,
+  range: Range,
   today: string
 ): Promise<Accounts> {
   const accountByUid = new Map<string, AccountRecord>();
@@ -78,38 +83,81 @@ async function loadAccounts(
         lastActiveDay: dayOf(user.metadata.lastRefreshTime ?? user.metadata.lastSignInTime),
         provider: user.providerData.some((p) => p.providerId === 'google.com') ? 'google' : 'email',
         favorites: 0,
+        starterPack: false,
+        reveals: 0,
+        referrals: 0,
+        purchases: 0,
       });
     }
     pageToken = page.pageToken;
   } while (pageToken);
 
-  const [favorites, entitlements, attempts] = await Promise.all([
+  const [favorites, entitlements, attempts, unlocked, bonuses] = await Promise.all([
     db.collectionGroup('favorites').select().get(),
     db.collectionGroup('entitlements').get(),
     db.collectionGroup('stripeCheckoutAttempts').get(),
+    db.collectionGroup('unlockedMustEats').get(),
+    db.collectionGroup('referralBonuses').get(),
   ]);
 
-  // Favoriten liegen unter users/<uid>/favorites — der Grossvater ist das Konto.
   for (const doc of favorites.docs) {
-    const account = accountByUid.get(doc.ref.parent.parent?.id ?? '');
+    const account = accountByUid.get(ownerOf(doc));
     if (account) account.favorites += 1;
   }
 
   const purchases: PurchaseRecord[] = entitlements.docs.map((doc) => {
-    const data = doc.data() as { purchasedAt?: Timestamp; source?: string; stripeSessionId?: unknown };
-    return {
-      day: dayOf(data.purchasedAt) ?? '',
-      // `source` fehlte in aelteren Dokumenten; die Stripe-Sitzung ist der
-      // sichere Beleg fuer „bezahlt".
-      source: data.stripeSessionId ? 'stripe' : (data.source ?? 'manual'),
+    const data = doc.data() as {
+      purchasedAt?: Timestamp;
+      source?: string;
+      stripeSessionId?: unknown;
+      type?: string;
     };
-  });
-  const checkouts: CheckoutRecord[] = attempts.docs.map((doc) => {
-    const data = doc.data() as { createdAt?: Timestamp; status?: string };
-    return { day: dayOf(data.createdAt) ?? '', status: data.status ?? 'open' };
+    // `source` fehlte in aelteren Dokumenten; die Stripe-Sitzung ist der
+    // sichere Beleg fuer „bezahlt".
+    const source = data.stripeSessionId ? 'stripe' : (data.source ?? 'manual');
+    const account = accountByUid.get(ownerOf(doc));
+    if (account) {
+      if (data.type === 'starter') account.starterPack = true;
+      else if (source === 'stripe') account.purchases += 1;
+    }
+    return { day: dayOf(data.purchasedAt) ?? '', source, packId: doc.id };
   });
 
-  return summarizeAccounts([...accountByUid.values()], purchases, checkouts, windowStart, today);
+  const checkouts: CheckoutRecord[] = attempts.docs.map((doc) => {
+    const data = doc.data() as { createdAt?: Timestamp; status?: string };
+    return { day: dayOf(data.createdAt) ?? '', status: data.status ?? 'open', packId: doc.id };
+  });
+
+  const reveals: RevealRecord[] = unlocked.docs.map((doc) => {
+    const data = doc.data() as { unlockedAt?: Timestamp };
+    const account = accountByUid.get(ownerOf(doc));
+    if (account) account.reveals += 1;
+    return { day: dayOf(data.unlockedAt) ?? '' };
+  });
+
+  const referrals: ReferralRecord[] = bonuses.docs.map((doc) => {
+    const data = doc.data() as { createdAt?: Timestamp; source?: string };
+    const source = data.source ?? '';
+    const account = accountByUid.get(ownerOf(doc));
+    if (account && source === 'invited') account.referrals += 1;
+    return { day: dayOf(data.createdAt) ?? '', source };
+  });
+
+  return summarizeAccounts(
+    { accounts: [...accountByUid.values()], purchases, reveals, referrals, checkouts },
+    range.start,
+    range.end,
+    today
+  );
+}
+
+/** Der Katalog aus Sanity — darf fehlen, ohne das Brett zu reissen. */
+async function loadDeck(): Promise<Deck | null> {
+  try {
+    return summarizeDeck(await getCachedMapData());
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(request: Request) {
@@ -137,9 +185,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'not found' }, { status: 404, headers: NO_STORE });
   }
 
-  const days = parseDays(new URL(request.url).searchParams.get('days'));
   const today = berlinDay();
-  const windowStart = sinceDay(days, today);
+  const range = parseRange(new URL(request.url).searchParams, today);
 
   // Doppelt so weit zurück wie angefragt: die zweite Hälfte ist der gewählte
   // Zeitraum, die erste die gleich lange Periode davor, gegen die verglichen
@@ -151,17 +198,18 @@ export async function GET(request: Request) {
   // naheliegender, verlangt aber einen zusammengesetzten Index; ein reiner
   // Bereichsfilter auf `__name__` kommt ohne aus.
   //
-  // Die Search Console laeuft nebenher und darf scheitern: ihre Antwort ist
-  // entweder Zahlen oder der Grund (fehlende Freigabe des Dienstkontos), nie
-  // ein 500 fuer das ganze Brett.
+  // Search Console und Katalog laufen nebenher und dürfen scheitern: ihre
+  // Antwort ist entweder Zahlen oder der Grund, nie ein 500 fürs ganze Brett.
   const db = getAdminFirestore();
-  const [snapshot, accounts, search] = await Promise.all([
+  const [snapshot, accounts, search, deck] = await Promise.all([
     db
       .collection('analytics_daily')
-      .where(FieldPath.documentId(), '>=', sinceDay(days * 2, today))
+      .where(FieldPath.documentId(), '>=', sinceDay(range.days * 2, range.end))
+      .where(FieldPath.documentId(), '<=', range.end)
       .get(),
-    loadAccounts(getAdminAuth(), db, windowStart, today),
-    loadSearch(days, today),
+    loadAccounts(getAdminAuth(), db, range, today),
+    loadSearch(range),
+    loadDeck(),
   ]);
 
   const all: DailyDoc[] = snapshot.docs.map((doc) => ({
@@ -172,10 +220,17 @@ export async function GET(request: Request) {
     day: doc.id,
   }));
 
-  const current = all.filter((doc) => doc.day >= windowStart);
-  const previous = all.filter((doc) => doc.day < windowStart);
+  const current = all.filter((doc) => doc.day >= range.start);
+  const previous = all.filter((doc) => doc.day < range.start);
 
-  return NextResponse.json(summarize(current, previous, today, accounts, search), {
-    headers: NO_STORE,
-  });
+  return NextResponse.json(
+    summarize(current, previous, {
+      today,
+      range: { start: range.start, end: range.end },
+      accounts,
+      search,
+      deck,
+    }),
+    { headers: NO_STORE }
+  );
 }

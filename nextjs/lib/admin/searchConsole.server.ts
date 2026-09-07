@@ -27,6 +27,12 @@ const ENDPOINT = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComp
  *  Kontingent (1.200 Abfragen je Minute) soll nicht am Dashboard haengen. */
 const CACHE_MS = 60 * 60 * 1000;
 const ROW_LIMIT = 500;
+/** Für die Tages-Aufschlüsselung (`date` × `query`): mehr Zeilen, weil jede
+ *  Anfrage je Tag eine eigene ist. */
+const DAY_ROW_LIMIT = 2000;
+/** Wie viele Tage rückwärts nach dem frischesten Tag gesucht wird. Google
+ *  liefert zwei bis drei Tage nach; fünf lassen ein Wochenende Luft. */
+const FRESH_DAYS = 5;
 
 let authClient: GoogleAuth | null = null;
 
@@ -82,45 +88,80 @@ function statusOf(error: unknown): number | null {
 
 const cache = new Map<string, { at: number; result: SearchResult }>();
 
+export interface SearchRange {
+  start: string;
+  end: string;
+  days: number;
+}
+
 /**
- * @param days  Laenge des Zeitraums, endet mit `today`.
- * @param today Heutiger Kalendertag (Berlin), YYYY-MM-DD.
+ * @param range Das Fenster, YYYY-MM-DD, beide Tage einschließlich. `end` darf
+ *              heute sein — Google liefert dann eben nichts für die letzten Tage.
  */
-export async function loadSearch(days: number, today: string): Promise<SearchResult> {
-  const cacheKey = `${days}:${today}`;
+export async function loadSearch(range: SearchRange): Promise<SearchResult> {
+  const cacheKey = `${range.start}:${range.end}`;
   const cached = cache.get(cacheKey);
   if (cached && cached.at + CACHE_MS > Date.now()) return cached.result;
 
-  const result = await fetchSearch(days, today);
+  const result = await fetchSearch(range);
   // Fehler werden nicht gehalten: wer die Freigabe gerade erteilt hat, soll
   // sie beim naechsten Laden sehen, nicht in einer Stunde.
   if (result.ok) cache.set(cacheKey, { at: Date.now(), result });
   return result;
 }
 
-async function fetchSearch(days: number, today: string): Promise<SearchResult> {
+async function fetchSearch(range: SearchRange): Promise<SearchResult> {
   const auth = getAuth();
-  const start = sinceDay(days, today);
-  const beforeStart = sinceDay(days * 2, today);
-  const beforeEnd = sinceDay(days + 1, today);
+  const { start, end, days } = range;
+  const beforeStart = sinceDay(days * 2, end);
+  const beforeEnd = sinceDay(days + 1, end);
+  const freshStart = sinceDay(FRESH_DAYS, end);
   const base = { rowLimit: ROW_LIMIT, dataState: 'all' as const };
+  const now = { ...base, startDate: start, endDate: end };
+  const before = { ...base, startDate: beforeStart, endDate: beforeEnd };
+  const fresh = {
+    rowLimit: DAY_ROW_LIMIT,
+    dataState: 'all' as const,
+    startDate: freshStart,
+    endDate: end,
+  };
 
   try {
-    const [byDay, byDayBefore, byQuery, byPage] = await Promise.all([
-      query(auth, { ...base, startDate: start, endDate: today, dimensions: ['date'] }),
-      query(auth, { ...base, startDate: beforeStart, endDate: beforeEnd, dimensions: ['date'] }),
-      query(auth, { ...base, startDate: start, endDate: today, dimensions: ['query'] }),
-      query(auth, { ...base, startDate: start, endDate: today, dimensions: ['page'] }),
+    const [
+      byDay,
+      byDayBefore,
+      byQuery,
+      byQueryBefore,
+      byPage,
+      byDevice,
+      byCountry,
+      byDateQuery,
+      byDatePage,
+    ] = await Promise.all([
+      query(auth, { ...now, dimensions: ['date'] }),
+      query(auth, { ...before, dimensions: ['date'] }),
+      query(auth, { ...now, dimensions: ['query'] }),
+      query(auth, { ...before, dimensions: ['query'] }),
+      query(auth, { ...now, dimensions: ['page'] }),
+      query(auth, { ...now, dimensions: ['device'] }),
+      query(auth, { ...now, dimensions: ['country'] }),
+      query(auth, { ...fresh, dimensions: ['date', 'query'] }),
+      query(auth, { ...fresh, dimensions: ['date', 'page'] }),
     ]);
     return {
       ok: true,
       data: summarizeSearch({
         property: SEARCH_CONSOLE_PROPERTY,
-        range: { start, end: today, days },
+        range,
         byDay,
         byDayBefore,
         byQuery,
+        byQueryBefore,
         byPage,
+        byDevice,
+        byCountry,
+        byDateQuery,
+        byDatePage,
         fetchedAt: new Date().toISOString(),
       }),
     };

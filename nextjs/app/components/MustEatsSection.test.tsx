@@ -175,9 +175,12 @@ describe('MustEatsSection', () => {
     // Die Zahlen oben ("24 Karten") lesen sich sonst wie ein abgeschlossenes
     // Set. Der Katalog wächst aber laufend weiter, unabhängig davon, was heute
     // auf dieser Seite steht — der Abschluss ist die Stelle, an der ein
-    // Besucher fragt, ob das schon alles war.
-    expect(render()).toContain('Und wir entdecken immer wieder neue.');
-    expect(render('en')).toContain('And we keep discovering new ones.');
+    // Besucher fragt, ob das schon alles war. „Und wir entdecken immer wieder
+    // neue" machte dabei die Redaktion zum Sammler (Betreiber, 07.09.2026:
+    // „kann raus oder muss besser formuliert werden") — jetzt wächst der
+    // Katalog, ohne dass jemand im Satz steht.
+    expect(render()).toContain('Und es kommen laufend neue dazu.');
+    expect(render('en')).toContain('And new ones keep coming.');
   });
 
   it('locale-prefixes both closing links for en', () => {

@@ -33,8 +33,8 @@ export function buildSignupText(magicLink: string): string {
     magicLink,
     '',
     'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse.',
-    'Danach: 20 Karten. Zehn liegen in deinem Deck, zehn liegen drau\u00dfen in',
-    'Berlin \u2014 die holst du dir vor Ort.',
+    'Danach: 20 Must Eats, \u00fcberall in Berlin verteilt. Bereit, von dir entdeckt',
+    'zu werden.',
     '',
     ...SIGN_OFF,
   ].join('\n');

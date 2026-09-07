@@ -166,8 +166,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.ink,
             }}
           >
-            20 Karten, sofort. Zehn liegen in deinem Deck — zehn liegen irgendwo in Berlin und
-            warten darauf, dass du vorbeikommst. Kostenlos.
+            20 neue Must Eats warten darauf, von dir entdeckt zu werden.
           </Text>
         </Section>
       </Section>

@@ -157,8 +157,8 @@ export const CATALOG: Record<string, PackDef> = {
     displayName: 'All Berlin',
     amountCents: 999,
     description: {
-      de: 'Der ganze Stapel. Jede Must-Eat-Karte aus neun Kategorien — plus jede, die noch dazukommt.',
-      en: 'The whole deck. Every Must-Eat card across nine categories — plus every one still to come.',
+      de: 'Alle Must Eats aus neun Kategorien. Und jedes weitere, das wir noch entdecken.',
+      en: 'Every Must Eat across nine categories. And every one we still discover.',
     },
     spectrum: {
       de: 'Neun Kategorien. Plus alles was kommt.',

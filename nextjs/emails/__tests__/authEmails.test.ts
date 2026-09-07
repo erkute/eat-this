@@ -123,7 +123,7 @@ describe('SignupEmail', () => {
     expect(html).toContain('STARTER PACK');
     expect(html).toContain('Gratis');
     expect(html).toContain('/pics/email/booster_free.png');
-    expect(html).toContain('in deinem Deck');
+    expect(html).toContain('20 neue Must Eats');
     expect(SIGNUP_SUBJECT).toContain('Willkommen');
   });
 

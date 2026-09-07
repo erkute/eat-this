@@ -35,11 +35,6 @@ function computeBezirkBbox(filtered: MapRestaurant[]): Bbox | null {
 interface Args {
   mapRef: RefObject<MapRef | null>;
   restaurants: MapRestaurant[];
-  /** Visible-but-locked spots (the rest of the catalog the user doesn't own).
-   *  Deep-links must reach these too — a hub card can point at any restaurant,
-   *  not just the ones in the user's tier. The detail opens in its locked state
-   *  (covered must-eats + upsell). */
-  lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   isActive: boolean;
   userInteractedRef: RefObject<boolean>;
@@ -54,7 +49,6 @@ interface Args {
 export function useMapDeepLinks({
   mapRef,
   restaurants,
-  lockedRestaurants,
   mustEats,
   isActive,
   userInteractedRef,
@@ -75,15 +69,11 @@ export function useMapDeepLinks({
   useEffect(() => {
     if (restaurantConsumed.current) return;
     if (!isActive) return;
-    if (restaurants.length === 0 && lockedRestaurants.length === 0) return;
+    if (restaurants.length === 0) return;
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('r');
     if (!slug) return;
-    // Search owned + locked: a hub/news link can target any spot in the
-    // catalog, not just the user's tier. Locked spots open in their locked
-    // detail (covered must-eats + upsell) rather than silently no-op'ing.
-    const target =
-      restaurants.find((r) => r.slug === slug) ?? lockedRestaurants.find((r) => r.slug === slug);
+    const target = restaurants.find((r) => r.slug === slug);
     if (!target) return;
     restaurantConsumed.current = true;
     // The param deliberately STAYS in the URL: the detail-URL-sync effect in
@@ -101,7 +91,7 @@ export function useMapDeepLinks({
     // this target in state lets the bounded poll survive unrelated data
     // updates while still being cancelled on deactivation/unmount.
     setRestaurantPollTarget(target);
-  }, [isActive, restaurants, lockedRestaurants, userInteractedRef]);
+  }, [isActive, restaurants, userInteractedRef]);
 
   useEffect(() => {
     if (!isActive || !restaurantPollTarget) return;
@@ -160,29 +150,26 @@ export function useMapDeepLinks({
 
   /* ?bezirk=<slug> also moves the camera to fit that district. The filter
      itself is applied by useMapFilterUrl — this hook owns only the camera, so
-     the two never race over who writes the URL. Mirrors the ?r= polling above.
-     Owned + locked, because a district may hold ONLY locked spots (Friedenau
-     for a free user) and the camera should still go there. */
+     the two never race over who writes the URL. Mirrors the ?r= polling above. */
   const bezirkConsumed = useRef(false);
   const [bezirkBboxTarget, setBezirkBboxTarget] = useState<Bbox | null>(null);
   useEffect(() => {
     if (bezirkConsumed.current) return;
     if (!isActive) return;
-    if (restaurants.length === 0 && lockedRestaurants.length === 0) return;
+    if (restaurants.length === 0) return;
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('bezirk');
     if (!slug) return;
     const slugLower = slug.toLowerCase();
-    const all = restaurants.concat(lockedRestaurants);
-    const match = all.find((r) => (r.bezirk?.slug ?? '').toLowerCase() === slugLower);
+    const match = restaurants.find((r) => (r.bezirk?.slug ?? '').toLowerCase() === slugLower);
     bezirkConsumed.current = true;
     if (!match?.bezirk?.name) return;
     userInteractedRef.current = true;
     const bezirkName = match.bezirk.name;
-    const bbox = computeBezirkBbox(all.filter((r) => districtOf(r) === bezirkName));
+    const bbox = computeBezirkBbox(restaurants.filter((r) => districtOf(r) === bezirkName));
     if (!bbox) return;
     setBezirkBboxTarget(bbox);
-  }, [isActive, restaurants, lockedRestaurants, userInteractedRef]);
+  }, [isActive, restaurants, userInteractedRef]);
 
   useEffect(() => {
     if (!isActive || !bezirkBboxTarget) return;

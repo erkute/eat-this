@@ -18,7 +18,7 @@ const COPY = {
   de: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Unsere klare Empfehlung: die Gerichte, die du in Berlin bestellen musst. Ein Teil liegt offen. Den Rest deckst du vor Ort auf.',
+    sub: 'Unsere Auswahl der Gerichte, die du in Berlin bestellen solltest. Einige sind bereits aufgedeckt, die anderen entdeckst du direkt am Spot.',
     statCards: 'Karten',
     statOpen: 'liegen offen',
     statCovered: 'vor Ort',
@@ -29,11 +29,10 @@ const COPY = {
     coveredKicker: 'Noch verdeckt',
     coveredTitle: (n: number) => `${n} warten vor Ort.`,
     coveredBody: 'Diese Karten deckst du am Spot auf. Dann gehören sie dir.',
-    coveredSpotsLabel: 'Diese Spots halten sie',
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
     closeBody:
-      'Alle Spots und ihre Must Eats liegen auf der Map. Mit einem Booster Pack schaltest du weitere frei. Und es kommen immer wieder neue dazu.',
+      'Jedes Must Eat gehört zu einem Spot auf der Map. Einige sind schon aufgedeckt, die anderen entdeckst du vor Ort — oder du schaltest sie mit einem Booster Pack frei. Und wir entdecken immer wieder neue.',
     closeCta: 'Zur Map',
     closeSecondary: 'Booster Packs ansehen',
     headCta: 'Zur Map',
@@ -41,7 +40,7 @@ const COPY = {
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Our clear picks: the dishes you have to order in Berlin. Some are face-up. You flip the rest on site.',
+    sub: 'Our pick of the dishes you should order in Berlin. Some are already face-up, the rest you discover right at the spot.',
     statCards: 'cards',
     statOpen: 'face-up',
     statCovered: 'on site',
@@ -51,11 +50,10 @@ const COPY = {
     coveredKicker: 'Still face-down',
     coveredTitle: (n: number) => `${n} are waiting on site.`,
     coveredBody: 'You flip these cards at the spot. Then they are yours.',
-    coveredSpotsLabel: 'The spots holding them',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:
-      'Every spot and its Must Eats live on the map. A Booster Pack unlocks more. And new ones keep coming.',
+      'Every Must Eat belongs to a spot on the map. Some are already face-up, the rest you discover at the spot — or unlock them with a Booster Pack. And we keep discovering new ones.',
     closeCta: 'To the map',
     closeSecondary: 'See Booster Packs',
     headCta: 'To the map',
@@ -142,7 +140,6 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           coveredKicker: c.coveredKicker,
           coveredTitle: c.coveredTitle(coveredCount),
           coveredBody: c.coveredBody,
-          coveredSpotsLabel: c.coveredSpotsLabel,
         }}
       />
 

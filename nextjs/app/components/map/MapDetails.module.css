@@ -4518,88 +4518,6 @@
   }
 }
 
-/* ── Der Spot geht auf ───────────────────────────────────────────────────────
-   Wenn eine Anmeldung den Spot freischaltet, tauscht das Sheet unter dem
-   Finger von LockedDetail auf dieses Detail. Vorher war das ein harter
-   Schnitt: der Inhalt war "einfach plötzlich da" (User, 26.08.2026).
-
-   Gewollt ist ein Vorhang, der von oben nach unten läuft und den Artikel der
-   Reihe nach freilegt — erst der Text, dann die Fotos, dann der Tipp, dann die
-   Must Eats. Der erste Versuch deckelte den Versatz bei 170ms, wodurch fast
-   alles gleichzeitig kam: das las sich als Flackern, nicht als Bewegung (User,
-   26.08.2026). Jetzt bekommt jeder Block seinen eigenen Platz in der Reihe,
-   95ms auseinander, und weil der Versatz deutlich größer ist als früher, ist
-   die eigene Wischdauer kürzer — sonst überlappen sich zwölf Blöcke zu Brei.
-
-   Der Hero animiert bewusst NICHT. Er ist in beiden Sheets derselbe — dasselbe
-   Foto, derselbe Name, dieselben Tags — und stehenzubleiben ist genau das, was
-   den Moment zusammenhält: nicht "ein neues Sheet öffnet sich", sondern "dieses
-   hier geht weiter". Das Locked-Sheet schneidet den Text unter einer Maske ab;
-   genau dort setzt der Vorhang an.
-
-   Kein Opacity-Fade — Projektregel für Ein-/Ausblend-Bewegung auf Brand-
-   Flächen. clip-path plus ein kurzer Weg nach oben macht dieselbe Bewegung,
-   ohne dass die Marke durchscheint.
-
-   fill-mode: backwards, nicht both: ein liegengebliebenes clip-path würde nach
-   der Animation weiter clippen und dem Galerie-Lightbox und allem anderen
-   Überstehenden den Weg abschneiden. So bleibt nach dem letzten Frame nichts
-   von der Animation übrig. */
-@keyframes rdUnroll {
-  from {
-    clip-path: inset(0 0 100% 0);
-    transform: translateY(-6px);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-    transform: translateY(0);
-  }
-}
-.detailV13Unlocked .detailV13Scroll > *:not([data-detail-hero]) {
-  animation: rdUnroll 340ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(3) {
-  animation-delay: 95ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(4) {
-  animation-delay: 190ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(5) {
-  animation-delay: 285ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(6) {
-  animation-delay: 380ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(7) {
-  animation-delay: 475ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(8) {
-  animation-delay: 570ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(9) {
-  animation-delay: 665ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(10) {
-  animation-delay: 760ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(11) {
-  animation-delay: 855ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(12) {
-  animation-delay: 950ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(13) {
-  animation-delay: 1045ms;
-}
-.detailV13Unlocked .detailV13Scroll > *:nth-child(14) {
-  animation-delay: 1140ms;
-}
-@media (prefers-reduced-motion: reduce) {
-  .detailV13Unlocked .detailV13Scroll > *:not([data-detail-hero]) {
-    animation: none;
-  }
-}
-
 /* ── Restaurant-Layer, neu ───────────────────────────────────────────────────
  *
  * Vorher eine graue Panel-Kachel: Foto-Thumbnail links, Name daneben, darunter
@@ -5801,4 +5719,140 @@
   font-family: var(--font-body, var(--font), sans-serif);
   font-weight: 400;
   line-height: 1.6;
+}
+
+/* ── Anmelde-Tafel in der verdeckten Karte (Gast) ────────────────────────────
+   Ohne Konto ersetzt sie den Näherungsblock (.fdProximity): ein Gast wird
+   nicht nach seinem Standort gefragt, sein Weg zur Karte ist die Anmeldung.
+   Dieselbe Achse wie das Onboarding — Kicker, Titel, Text, Knopf mittig —
+   und dieselben Tokens wie der Rest der Tafel (--me-ink, --me-muted,
+   --me-accent), damit sie im Ink-Sheet wie im Papier-Sheet stimmt. Der
+   gelbe Knopf ist die einzige Fläche auf der Karte: sie ist der Grund, warum
+   der Gast hier ist. Darunter der leise Weg für alle, die schon ein Konto
+   haben — als Text, nicht als zweiter Knopf. */
+.detailV13MustEat .fdGuest {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: clamp(8px, 1.4svh, 14px) 0 0;
+  text-align: center;
+}
+
+.detailV13MustEat .fdGuestKicker {
+  margin: 0;
+  color: var(--me-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.detailV13MustEat .fdGuestTitle {
+  margin: 0;
+  color: var(--me-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(22px, 6.2vw, 31px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.96;
+}
+
+.detailV13MustEat .fdGuestBody {
+  margin: 0;
+  max-width: 30ch;
+  color: var(--me-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.detailV13MustEat .fdGuestCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 48px;
+  margin: 8px 0 0;
+  padding: 0 22px;
+  appearance: none;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--me-accent);
+  color: var(--et-home-ink, #15120e);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  /* 1.55 statt 1: Providence braucht Platz unter der Zeile, sonst kappt der
+     Kasten das g (siehe .fdLocationChip). */
+  line-height: 1.55;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.16s ease;
+}
+
+.detailV13MustEat .fdGuestCta:focus-visible {
+  background: var(--et-home-inverse-text, #fff);
+  outline: 2px solid var(--me-accent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .detailV13MustEat .fdGuestCta:hover {
+    background: var(--et-home-inverse-text, #fff);
+    transform: translateY(-2px);
+  }
+}
+
+.detailV13MustEat .fdGuestCta:active {
+  transform: translateY(1px);
+}
+
+.detailV13MustEat .fdGuestLogin {
+  margin: 2px 0 0;
+  padding: 6px 4px;
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--me-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.detailV13MustEat .fdGuestLogin:focus-visible {
+  color: var(--me-ink);
+  outline: 2px solid var(--me-accent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .detailV13MustEat .fdGuestLogin:hover {
+    color: var(--me-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailV13MustEat .fdGuestCta {
+    transition: none;
+  }
+
+  .detailV13MustEat .fdGuestCta:active {
+    transform: none;
+  }
+
+  @media (hover: hover) {
+    .detailV13MustEat .fdGuestCta:hover {
+      transform: none;
+    }
+  }
 }

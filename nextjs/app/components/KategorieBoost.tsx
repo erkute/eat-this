@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
 import { formatPackPrice } from '@/lib/pack/packDetail';
+import { getPackContents } from '@/lib/sanity.server';
 import styles from './KategorieBoost.module.css';
 
 interface Props {
@@ -11,10 +12,14 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-export default function KategorieBoost({ categorySlug, categoryName, locale }: Props) {
+export default async function KategorieBoost({ categorySlug, categoryName, locale }: Props) {
   const de = locale === 'de';
   const pack = Object.values(CATALOG).find((p) => p.slug === categorySlug);
   if (!pack) return null;
+  const contents = (await getPackContents()).byCategory[categorySlug];
+  /* Ein Pack ohne Karte hat hier nichts zu suchen: der Kasten wirbt sonst für
+     eine leere Schachtel, und /packs blendet ihn aus demselben Grund aus. */
+  if (contents && contents.mustEats === 0) return null;
   const image = categoryArt(categorySlug);
   const priceLabel = formatPackPrice(pack.amountCents);
 

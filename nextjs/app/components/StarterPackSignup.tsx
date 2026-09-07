@@ -22,11 +22,25 @@ interface Props {
   locale: 'de' | 'en';
 }
 
+/**
+ * Das Starter Pack heisst weiter Starter Pack — nur sein Inhalt hat sich am
+ * 06.09.2026 geaendert. Es versprach Spots, und die gibt es seither gratis;
+ * jetzt legt es Must-Eat-Karten ins Album (siehe app/api/starter-pack).
+ *
+ * Die Zwanzig steht bewusst DA (Betreiber, 06.09.2026): sie ist das Angebot,
+ * und ein Gratis-Angebot ohne Größe ist keins. Die gekauften Packs
+ * verschweigen ihre Zahl weiterhin — dort ist die Überraschung Teil der Ware,
+ * hier ist die Zahl der Grund, das Formular auszufüllen.
+ *
+ * Und sie zerfällt in zwei Hälften, weil nur eine davon ein Geschenk ist: zehn
+ * hat man, zehn liegen draußen. Der Satz muss beides tragen — das Sofortige
+ * und die Jagd —, sonst klingt er wie eine Zugabe statt wie ein Anfang.
+ */
 const copy = {
   de: {
     kicker: 'Gratis',
     title: 'Starter Pack',
-    lead: 'Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei. Kostenlos.',
+    lead: '20 neue Must Eats warten darauf, von dir entdeckt zu werden.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
     emailAria: 'E-Mail Adresse',
     emailPlaceholder: 'deine@email.com',
@@ -41,7 +55,7 @@ const copy = {
   en: {
     kicker: 'Free',
     title: 'Starter Pack',
-    lead: 'Sign up and unlock more spots and their Must Eats on your map. Free.',
+    lead: '20 new Must Eats, waiting for you to discover them.',
     hint: 'We send you a sign-in link.',
     emailAria: 'Email address',
     emailPlaceholder: 'your@email.com',

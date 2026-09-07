@@ -14,8 +14,7 @@ const restaurant = (
   name: slug,
   isOpen: true,
   featured: false,
-  tierAnon: false,
-  tierSigned: false,
+  mustEatCount: 0,
   hasImage: true,
   galleryCount: 0,
   hasGooglePlaceId: true,
@@ -42,9 +41,9 @@ describe('rankGalleryBacklog', () => {
     const result = rankGalleryBacklog([
       restaurant('ordinary'),
       restaurant('featured', { featured: true }),
-      restaurant('anon', { tierAnon: true }),
+      restaurant('carries-a-card', { mustEatCount: 1 }),
     ]);
-    expect(result.map((r) => r.slug)).toEqual(['anon', 'featured', 'ordinary']);
+    expect(result.map((r) => r.slug)).toEqual(['carries-a-card', 'featured', 'ordinary']);
   });
 });
 

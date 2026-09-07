@@ -4,41 +4,51 @@
 import { getAdminFirestore } from './admin';
 
 export interface Entitlement {
-  // 'spot' is the single restaurant an account brings along at sign-up — not a
-  // purchase, and neither a category nor the whole city. It carries its grant
-  // in restaurantIds alone, which reduceEntitlements unions like any other.
-  // See app/api/claim-spot/route.ts.
-  type: 'category' | 'all-berlin' | 'spot';
+  /** 'starter' ist kein Kauf, sondern das, was eine Anmeldung mitbringt —
+   *  Karten, keine Kategorie und nicht die ganze Stadt. Es traegt seinen
+   *  Bestand allein in `mustEatIds`, die reduceEntitlements wie jeden anderen
+   *  vereinigt. Siehe app/api/starter-pack/route.ts. */
+  type: 'category' | 'all-berlin' | 'starter';
   slug: string | null;
-  restaurantIds: string[];
+  /** Karten, die offen liegen. */
   mustEatIds: string[];
+  /** Karten, die dem Konto gehoeren, aber verdeckt bleiben — sie stehen im
+   *  Album als Ruecken und gehen vor Ort auf. Nur das Starter Pack vergibt
+   *  welche; ein Kauf legt alles offen hin. */
+  coveredMustEatIds?: string[];
   purchasedAt: FirebaseFirestore.Timestamp;
   stripeSessionId: string | null;
-  source: 'signup' | 'ensure-on-demand' | 'stripe' | 'manual';
+  source: 'stripe' | 'manual' | 'signup';
 }
 
 interface ResolvedEntitlements {
   isAdmin: boolean;
   hasAllBerlin: boolean;
+  /** Gekaufte Kategorien. Sie werden LIVE gegen den Katalog aufgeloest, damit
+   *  eine spaeter erscheinende Karte in einem gekauften Pack mitkommt — der
+   *  `mustEatIds`-Schnappschuss unten haelt nur fest, was es beim Kauf gab. */
   categorySlugs: Set<string>;
-  restaurantIds: Set<string>;
+  /** Einzelkarten: der Kauf-Schnappschuss und die Karten aus Einladungen. */
   mustEatIds: Set<string>;
+  /** Karten, die zum Konto gehoeren, aber verdeckt bleiben (Starter Pack).
+   *  Sie sind SICHTBAR — als Ruecken —, aber nicht offen. */
+  coveredMustEatIds: Set<string>;
 }
 
 const EMPTY_RESOLVED = (): ResolvedEntitlements => ({
   isAdmin: false,
   hasAllBerlin: false,
   categorySlugs: new Set(),
-  restaurantIds: new Set(),
   mustEatIds: new Set(),
+  coveredMustEatIds: new Set(),
 });
 
 // Pure reducer — exported separately so it's testable without mocking Firestore.
-// `bonuses` carries referral-bonus restaurantIds (Plan 4); they union into the
-// same restaurantIds set the map-data visible-set logic already honors.
+// `bonuses` carries the cards a referral awarded; they union into the same set
+// a purchase writes, because a card is a card wherever it came from.
 export function reduceEntitlements(
   docs: Entitlement[],
-  bonuses: { restaurantIds?: string[] }[] = []
+  bonuses: { mustEatIds?: string[] }[] = []
 ): ResolvedEntitlements {
   const out = EMPTY_RESOLVED();
   for (const data of docs) {
@@ -47,11 +57,11 @@ export function reduceEntitlements(
     } else if (data.type === 'category' && data.slug) {
       out.categorySlugs.add(data.slug);
     }
-    for (const id of data.restaurantIds) out.restaurantIds.add(id);
-    for (const id of data.mustEatIds) out.mustEatIds.add(id);
+    for (const id of data.mustEatIds ?? []) out.mustEatIds.add(id);
+    for (const id of data.coveredMustEatIds ?? []) out.coveredMustEatIds.add(id);
   }
   for (const b of bonuses) {
-    for (const id of b.restaurantIds ?? []) out.restaurantIds.add(id);
+    for (const id of b.mustEatIds ?? []) out.mustEatIds.add(id);
   }
   return out;
 }
@@ -89,7 +99,7 @@ export function isAdminToken(id: TokenIdentity): boolean {
 }
 
 // Firestore-reading wrapper. Anonymous users (uid === null) get an empty
-// resolved view — the map gate (separate plan) redirects them to /login.
+// resolved view: sie sehen die ganze Karte, nur eben keine eigenen Karten.
 export async function resolveEntitlements(
   uid: string | null,
   identity: TokenIdentity = {}
@@ -108,18 +118,26 @@ export async function resolveEntitlements(
 
   const docs = entSnap.docs.map((d) => d.data() as Entitlement);
   const bonuses = bonusSnap.docs.map((d) => ({
-    restaurantIds: (d.data().restaurantIds ?? []) as string[],
+    mustEatIds: (d.data().mustEatIds ?? []) as string[],
   }));
   return reduceEntitlements(docs, bonuses);
 }
 
-// Visibility predicates — used by /api/map-data (separate plan) to filter
-// the Sanity result set against a ResolvedEntitlements view.
-export function isRestaurantVisible(
-  r: { _id: string; categories?: { slug: string }[] },
-  ent: ResolvedEntitlements
+/**
+ * Gehoert dieses Restaurant zu einer gekauften Kategorie?
+ *
+ * EIN gemeinsames Tag reicht — ein Spot, der `lunch` UND `breakfast` traegt,
+ * kommt in beiden Packs vor. Genau dieselbe Regel zaehlt `packContentsQuery`
+ * fuer die Zahl auf der Pack-Karte; laufen die beiden auseinander, ist die
+ * Zahl eine Luege, die ein Kaeufer nachpruefen kann.
+ *
+ * Der Vorgaenger hiess `isRestaurantVisible` und entschied, ob ein Spot auf
+ * der Karte auftaucht. Das entscheidet niemand mehr — die Karte ist frei; was
+ * hier haengt, sind die KARTEN dieses Spots.
+ */
+export function ownsCategoryOf(
+  r: { categories?: { slug: string }[] },
+  ent: Pick<ResolvedEntitlements, 'categorySlugs'>
 ): boolean {
-  if (ent.isAdmin || ent.hasAllBerlin) return true;
-  if (ent.restaurantIds.has(r._id)) return true;
   return r.categories?.some((c) => ent.categorySlugs.has(c.slug)) ?? false;
 }

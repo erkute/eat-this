@@ -4,7 +4,6 @@ import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
-import { getFreeSurfaceData } from '@/lib/map/free-surface';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { UID_SHAPE } from '@/lib/referral/constants';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
@@ -129,13 +128,13 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   const [
     ent,
     unlockedIds,
-    [{ restaurants: all, mustEats: allMustEats }, freeSurface],
+    { restaurants: all, mustEats: allMustEats },
     profileSnap,
     publicMustEatIds,
   ] = await Promise.all([
     resolveEntitlements(uid, identity),
     getUnlockedMustEatIds(uid),
-    Promise.all([getCachedMapData(), getFreeSurfaceData()]),
+    getCachedMapData(),
     getAdminFirestore()
       .collection('users')
       .doc(uid)
@@ -148,14 +147,7 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
      Bis zum 31.08.2026 stand die Formel hier ein zweites Mal, und der
      Admin-Zweig fehlte: das geteilte Deck meldete „0 von 24", waehrend das
      Profil desselben Kontos „24 von 24" zeigte. */
-  const surface = await composeAccountSurface({
-    all,
-    allMustEats,
-    ent,
-    uid,
-    freeRestaurantIds: freeSurface.restaurantIds,
-    unlockedIds,
-  });
+  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
 
   const districtByRest = new Map(
     surface.restaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
@@ -166,9 +158,14 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   /* Dieselbe Funktion wie im eigenen Deck, nicht eine zweite Rechnung
      daneben: Reihenfolge und Nummerierung muessen zwischen /profile und
      /deck/<uid> uebereinstimmen, sonst traegt dieselbe Karte zwei Zahlen. */
+  /* Ohne Stempel-Menge: das geteilte Deck unterscheidet bewusst NICHT, ob eine
+     Rueckseite „noch nicht umgedreht" oder „umgedreht, aber nicht fuer dich"
+     heisst (siehe PublicDeck.cards). Ein Stempel waere genau diese
+     Unterscheidung — er bleibt dem eigenen Album vorbehalten. */
   const album = buildAlbum(
     ownedMustEats,
     surface.faceUpIds,
+    new Set(),
     (m) => districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT
   );
 

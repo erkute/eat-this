@@ -5,13 +5,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import {
-  formatPackPrice,
-  formatPackContents,
-  formatBundleSavings,
-  packUrlSlug,
-  type PackContents,
-} from '@/lib/pack/packDetail';
+import { formatPackPrice, formatBundleSavings, packUrlSlug } from '@/lib/pack/packDetail';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import styles from './AllBerlinSheet.module.css';
 
@@ -24,7 +18,6 @@ import styles from './AllBerlinSheet.module.css';
 
 interface Props {
   locale: 'de' | 'en';
-  contents: PackContents;
 }
 
 const copy = {
@@ -33,7 +26,7 @@ const copy = {
     close: 'Schließen',
     kicker: 'All Berlin',
     title: 'Neun Packs drin',
-    lead: 'Jeder Kategorie-Pack, den es gibt — und jeder, der noch kommt.',
+    lead: 'Alle neun Packs. Und jedes Must Eat, das wir noch entdecken.',
     cta: 'All Berlin freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
@@ -45,7 +38,7 @@ const copy = {
     close: 'Close',
     kicker: 'All Berlin',
     title: 'Nine packs inside',
-    lead: 'Every category pack there is — and every one still to come.',
+    lead: 'All nine packs. And every Must Eat we still discover.',
     cta: 'Unlock All Berlin',
     pending: 'Going to Stripe …',
     owned: 'Open map',
@@ -57,7 +50,7 @@ const copy = {
 const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
 const allBerlin = CATALOG['all-berlin'];
 
-export default function AllBerlinSheet({ locale, contents }: Props) {
+export default function AllBerlinSheet({ locale }: Props) {
   const t = copy[locale];
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -127,7 +120,6 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
               <h2 id="all-berlin-sheet-title" className={styles.title}>
                 {t.title}
               </h2>
-              <p className={styles.contents}>{formatPackContents(contents, locale)}</p>
               <p className={styles.lead}>{t.lead}</p>
 
               <ul className={styles.grid} role="list">

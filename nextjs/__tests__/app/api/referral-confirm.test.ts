@@ -29,11 +29,15 @@ vi.mock('@/lib/firebase/admin', () => ({
 
 vi.mock('@/lib/map/cached-sanity', () => ({ getCachedMapData: vi.fn() }))
 vi.mock('@/lib/firebase/entitlements', () => ({ resolveEntitlements: vi.fn() }))
+vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
+  getUnlockedMustEatIds: vi.fn().mockResolvedValue(new Set<string>()),
+}))
+vi.mock('@/lib/map/visible-restaurants.server', () => ({ composeAccountSurface: vi.fn() }))
 
 import { POST } from '@/app/api/referral/confirm/route'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 import { resolveEntitlements } from '@/lib/firebase/entitlements'
-import { TIER_TARGETS } from '@/lib/map/tier-composition'
+import { composeAccountSurface } from '@/lib/map/visible-restaurants.server'
 import { ACCOUNT_FRESHNESS_MS, MAX_REFERRALS_PER_INVITER } from '@/lib/referral/constants'
 
 const INVITER = 'i'.repeat(28)
@@ -49,29 +53,38 @@ function mkReq(cookieUid: string | null, idToken: string | null = 'tok'): NextRe
   })
 }
 
-// Catalog for happy-path tests: 1 anon-tier restaurant ('a-anon', tierAnon +
-// must-eat), enough plain ones to swallow both free tiers, plus 1 remainder
-// ('z-plain') that escapes them. friendPool = inviterPool = ['z-plain'].
-//
-// Sized off TIER_TARGETS rather than a literal: the referral pool is defined
-// as what the free tiers leave behind, so a catalog smaller than the ladder
-// has no pool at all and every award silently stops being written. Deriving it
-// keeps this fixture from rotting the next time the ladder moves.
-// 'z-plain' sorts after every 'b' id, so it is the one that falls out of both.
-const SIGNED_FILL_RESTAURANTS = Array.from({ length: TIER_TARGETS.SIGNED - 1 }, (_, i) => ({
-  _id: `b${String(i + 1).padStart(3, '0')}`,
-  categories: [],
-}))
+/* Der Stapel für die Happy-Path-Tests: eine Karte liegt öffentlich offen
+   ('me-public'), eine ist noch zu holen ('me-free'). Damit ist der Pool auf
+   beiden Seiten genau ['me-free'] — verschenkt wird nur, was der Beschenkte
+   noch nicht hat. */
+const HAPPY_PATH_MUST_EATS = [
+  { _id: 'me-public', dish: 'Schaufenster', restaurant: { _id: 'a1' } },
+  { _id: 'me-free', dish: 'Zu holen', restaurant: { _id: 'a2' } },
+]
 
 const HAPPY_PATH_RESTAURANTS = [
-  { _id: 'a-anon', tierAnon: true, categories: [] },
-  ...SIGNED_FILL_RESTAURANTS,
-  { _id: 'z-plain', categories: [] },
+  { _id: 'a1', categories: [] },
+  { _id: 'a2', categories: [] },
 ]
 
-const HAPPY_PATH_MUST_EATS = [
-  { _id: 'me-a', dish: 'Test dish', restaurant: { _id: 'a-anon' } },
-]
+const EMPTY_ENT = {
+  isAdmin: false,
+  hasAllBerlin: false,
+  categorySlugs: new Set<string>(),
+  mustEatIds: new Set<string>(),
+  coveredMustEatIds: new Set<string>(),
+}
+
+/** Was für dieses Konto offen liegt — die einzige Quelle, aus der die Route
+ *  den Pool ableitet. */
+function surfaceWith(faceUpIds: string[]) {
+  return {
+    restaurants: HAPPY_PATH_RESTAURANTS as any,
+    mustEats: HAPPY_PATH_MUST_EATS as any,
+    faceUpIds: new Set(faceUpIds),
+    fullCatalog: false,
+  }
+}
 
 function primeHappyPath() {
   vi.mocked(getCachedMapData).mockResolvedValue({
@@ -79,10 +92,8 @@ function primeHappyPath() {
     mustEats: HAPPY_PATH_MUST_EATS as any,
     categories: [] as any,
   })
-  vi.mocked(resolveEntitlements).mockResolvedValue({
-    isAdmin: false, hasAllBerlin: false,
-    categorySlugs: new Set(), restaurantIds: new Set(), mustEatIds: new Set(),
-  })
+  vi.mocked(resolveEntitlements).mockResolvedValue(EMPTY_ENT)
+  vi.mocked(composeAccountSurface).mockResolvedValue(surfaceWith(['me-public']) as any)
   mockVerifyIdToken.mockResolvedValue({ uid: FRIEND })
   mockGetUser.mockImplementation(async (uid: string) =>
     uid === FRIEND
@@ -171,10 +182,11 @@ describe('/api/referral/confirm', () => {
 
   it('all-berlin inviter (empty inviterPool) → only friend doc written', async () => {
     primeHappyPath()
-    vi.mocked(resolveEntitlements).mockResolvedValue({
-      isAdmin: false, hasAllBerlin: true,
-      categorySlugs: new Set(), restaurantIds: new Set(), mustEatIds: new Set(),
-    })
+    vi.mocked(resolveEntitlements).mockResolvedValue({ ...EMPTY_ENT, hasAllBerlin: true })
+    // Erster Aufruf ist der Einladende: ihm liegt schon alles offen.
+    vi.mocked(composeAccountSurface)
+      .mockResolvedValueOnce(surfaceWith(['me-public', 'me-free']) as any)
+      .mockResolvedValueOnce(surfaceWith(['me-public']) as any)
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
     expect(mockTransactionSet).toHaveBeenCalledTimes(1)
@@ -189,43 +201,24 @@ describe('/api/referral/confirm', () => {
     expect(res.cookies.get('pending_referrer')).toBeUndefined()
   })
 
-  it('friend bonus excludes anon-tier spots (pool is net-new only)', async () => {
-    // Catalog: 'a-anon' has tierAnon=true + 1 must-eat → lands in anonSet.
-    // 'b01'–'b20' are plain with no flags/must-eats → fill signedSet fallback
-    // (sorted by _id ASC, all have 0 must-eats, 20 fill the SIGNED target).
-    // 'z-plain' has no flags/must-eats and _id sorts after all b-prefixed ids →
-    // escapes both tiers → friendPool = ['z-plain'].
-    vi.mocked(getCachedMapData).mockResolvedValue({
-      restaurants: HAPPY_PATH_RESTAURANTS as any,
-      mustEats: HAPPY_PATH_MUST_EATS as any,
-      categories: [] as any,
-    })
-    vi.mocked(resolveEntitlements).mockResolvedValue({
-      isAdmin: false, hasAllBerlin: false,
-      categorySlugs: new Set(), restaurantIds: new Set(), mustEatIds: new Set(),
-    })
-    mockVerifyIdToken.mockResolvedValue({ uid: FRIEND })
-    mockGetUser.mockImplementation(async (uid: string) =>
-      uid === FRIEND
-        ? { email: 'friend@x.com', metadata: { creationTime: new Date().toISOString() } }
-        : { email: 'inviter@x.com', metadata: { creationTime: new Date().toISOString() } },
-    )
-    mockTransactionGet.mockResolvedValue({ exists: false })
-    mockRunTransaction.mockImplementation(async (fn) =>
-      fn({ get: mockTransactionGet, set: mockTransactionSet }),
-    )
+  /* Eine Einladung bringt KARTEN, nicht Spots — die Karte ist frei. Und sie
+     bringt nur, was noch nicht offen liegt: eine Schaufensterkarte zu
+     verschenken wäre ein Geschenk, das der Beschenkte längst hat. */
+  it('schenkt eine Karte, und zwar eine, die noch nicht offen liegt', async () => {
+    primeHappyPath()
 
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
     expect(mockTransactionSet).toHaveBeenCalledTimes(3)
 
     // First transaction.set call is always the friend doc (source: 'invited-by')
-    const friendDoc = mockTransactionSet.mock.calls[0][1] as { restaurantIds: string[]; source: string }
+    const friendDoc = mockTransactionSet.mock.calls[0][1] as { mustEatIds: string[]; source: string }
     expect(friendDoc.source).toBe('invited-by')
-    // friendPool must NOT contain the anon-tier restaurant
-    expect(friendDoc.restaurantIds).not.toContain('a-anon')
-    // friendPool must contain only the one remainder spot
-    expect(friendDoc.restaurantIds).toEqual(['z-plain'])
+    expect(friendDoc.mustEatIds).toEqual(['me-free'])
+
+    const inviterDoc = mockTransactionSet.mock.calls[1][1] as { mustEatIds: string[]; source: string }
+    expect(inviterDoc.source).toBe('invited')
+    expect(inviterDoc.mustEatIds).toEqual(['me-free'])
   })
 
   it('self-referral by email (different uid, same email) → no write, clears cookie', async () => {

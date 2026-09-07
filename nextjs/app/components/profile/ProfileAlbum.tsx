@@ -20,6 +20,10 @@ const ALL = '__all__';
 interface Props {
   mustEats: MapMustEat[];
   faceUpIds: Set<string>;
+  /** Die Karten, die dieses Konto VOR ORT umgedreht hat — der Stempel. Kaufen
+   *  legt eine Karte ins Album, hingehen stempelt sie ab; das ist die einzige
+   *  Auszeichnung im Deck, die es nicht zu kaufen gibt. */
+  stampedIds: ReadonlySet<string>;
   groupOf: (m: MapMustEat) => string;
   /** Die Spielerkarte — steht als erste Karte neben der Kopfzeile. */
   player: { name: string; avatarIdx: number; onPick: () => void };
@@ -46,7 +50,14 @@ interface Props {
 // nur bildlich: der leere Platz liegt IM Album (eingelassener Schatten,
 // Nummer, Ort), die gesammelte Karte liegt DARAUF (Schlagschatten). Das ist
 // der Panini-Griff — man sieht sofort, was noch aussteht.
-export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nextMove }: Props) {
+export default function ProfileAlbum({
+  mustEats,
+  faceUpIds,
+  stampedIds,
+  groupOf,
+  player,
+  nextMove,
+}: Props) {
   const t = useTranslations('profile');
   const locale = useLocale();
   /* Dieselbe Herkunft, auf der der Nutzer steht — eine von Staging aus
@@ -56,8 +67,8 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
   const [origin, setOrigin] = useState(SITE_URL);
   useEffect(() => setOrigin(window.location.origin), []);
   const album = useMemo(
-    () => buildAlbum(mustEats, faceUpIds, groupOf),
-    [mustEats, faceUpIds, groupOf]
+    () => buildAlbum(mustEats, faceUpIds, stampedIds, groupOf),
+    [mustEats, faceUpIds, stampedIds, groupOf]
   );
   const { slots: allSlots, groups } = album;
   const collected = allSlots.filter((slot) => slot.collected).length;
@@ -104,18 +115,24 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
 
   /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
      aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
-     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts). */
+     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts).
+
+     Gezaehlt werden die STEMPEL, nicht die offenen Karten: das Starter Pack
+     legt in jedes frische Deck fuenfzehn offene Karten, ein Kauf weitere —
+     ein Abzeichen dafuer waere eine Quittung fuer die Anmeldung. Die Reiter
+     darueber zaehlen weiter offen gegen alle; das ist der Stand des Decks,
+     das hier ist, was jemand dafuer getan hat. */
   const badges = useMemo(
     () =>
       computeBadges({
-        collected,
+        stamped: allSlots.filter((slot) => slot.stamped).length,
         groups: groups.map((g) => ({
           group: g.group,
-          done: g.slots.filter((s) => s.collected).length,
+          done: g.slots.filter((s) => s.stamped).length,
           total: g.slots.length,
         })),
       }),
-    [collected, groups]
+    [allSlots, groups]
   );
 
   return (
@@ -264,7 +281,13 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
               <button
                 key={slot.id}
                 type="button"
-                aria-label={open ? alt : `${t('lockedSubhead')}${slot.no ? ` — ${slot.no}` : ''}`}
+                aria-label={
+                  open
+                    ? slot.stamped
+                      ? `${alt} — ${t('albumStamped')}`
+                      : alt
+                    : `${t('lockedSubhead')}${slot.no ? ` — ${slot.no}` : ''}`
+                }
                 className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
                 style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
                 onClick={(e) => {
@@ -279,18 +302,28 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, player, nex
                 }}
               >
                 {open && slot.mustEat?.image ? (
-                  // The protected image route authorizes the browser's
-                  // HttpOnly capability cookie. next/image's internal
-                  // optimizer does not forward that cookie, so private
-                  // album art must load directly.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={slot.mustEat.image}
-                    alt=""
-                    className={styles.img}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <>
+                    {/* The protected image route authorizes the browser's
+                        HttpOnly capability cookie. next/image's internal
+                        optimizer does not forward that cookie, so private
+                        album art must load directly. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slot.mustEat.image}
+                      alt=""
+                      className={styles.img}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {/* Der Stempel. Er sitzt auf der Karte, leicht schief wie
+                        ein echter, und sagt das Einzige, was ein Kauf nicht
+                        kann: da war jemand. */}
+                    {slot.stamped && (
+                      <span className={styles.stamp} aria-hidden="true">
+                        {t('albumStamped')}
+                      </span>
+                    )}
+                  </>
                 ) : (
                   /* Der leere Platz zeigt, was dorthin gehoert: die Nummer
                      der Karte und das Lokal, in dem sie liegt. Ein Album-

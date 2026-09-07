@@ -1,12 +1,7 @@
 import Image from 'next/image';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import {
-  formatPackPrice,
-  formatPackContents,
-  formatBundleSavings,
-  type PackContents,
-} from '@/lib/pack/packDetail';
+import { formatPackPrice, formatBundleSavings } from '@/lib/pack/packDetail';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from './PaymentMarks';
 import AllBerlinSheet from './AllBerlinSheet';
@@ -35,7 +30,6 @@ const FAN: string[] = [
 
 interface Props {
   locale: 'de' | 'en';
-  contents: PackContents;
   /** `hero` trägt Lead, Inhaltsliste und Zahlungsarten; `upsell` ist die kurze Fassung. */
   variant: 'hero' | 'upsell';
   headingLevel: 'h1' | 'h2';
@@ -47,10 +41,10 @@ const copy = {
   de: {
     kickerHero: 'Alles auf einmal · alle Packs',
     kickerUpsell: 'Lieber alles auf einmal',
-    includes: (spots: number, mustEats: number, categories: number) => [
-      `Alle ${spots} Spots in ${categories} Kategorien`,
-      `Alle ${mustEats} Must Eats`,
-      'Alle neuen Berlin-Updates',
+    includes: [
+      'Jede Must-Eat-Karte, die es gibt',
+      'Und jede weitere, die wir noch entdecken',
+      'Alle sofort aufgedeckt',
     ],
     includesLabel: 'All Berlin enthält',
     cta: 'All Berlin freischalten',
@@ -63,10 +57,10 @@ const copy = {
   en: {
     kickerHero: 'Everything at once · every pack',
     kickerUpsell: 'Rather everything at once',
-    includes: (spots: number, mustEats: number, categories: number) => [
-      `All ${spots} spots across ${categories} categories`,
-      `All ${mustEats} Must Eats`,
-      'Every new Berlin update',
+    includes: [
+      'Every Must-Eat card there is',
+      'And every one we still discover',
+      'All flipped right away',
     ],
     includesLabel: 'All Berlin includes',
     cta: 'Unlock All Berlin',
@@ -78,16 +72,9 @@ const copy = {
   },
 } as const;
 
-export default function AllBerlinBoard({
-  locale,
-  contents,
-  variant,
-  headingLevel,
-  priority = false,
-}: Props) {
+export default function AllBerlinBoard({ locale, variant, headingLevel, priority = false }: Props) {
   const t = copy[locale];
   const pack = CATALOG['all-berlin'];
-  const categoryCount = Object.values(CATALOG).filter((p) => p.type === 'category').length;
   const Heading = headingLevel;
   const hero = variant === 'hero';
 
@@ -103,13 +90,12 @@ export default function AllBerlinBoard({
           <br />
           Berlin
         </Heading>
-        <p className={styles.contents}>{formatPackContents(contents, locale)}</p>
 
         {hero ? (
           <>
             <p className={styles.lead}>{pack.description[locale]}</p>
             <ul className={styles.facts} aria-label={t.includesLabel}>
-              {t.includes(contents.spots, contents.mustEats, categoryCount).map((item) => (
+              {t.includes.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
@@ -133,7 +119,7 @@ export default function AllBerlinBoard({
             errorLabel={t.error}
           />
           <p className={styles.savings}>{formatBundleSavings(locale)}</p>
-          <AllBerlinSheet locale={locale} contents={contents} />
+          <AllBerlinSheet locale={locale} />
           {hero && (
             <PaymentMarks
               height={24}

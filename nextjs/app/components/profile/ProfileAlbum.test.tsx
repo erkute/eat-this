@@ -43,6 +43,96 @@ const player = { name: 'Ersan', avatarIdx: 1, onPick: () => {} };
 afterEach(cleanup);
 
 describe('ProfileAlbum', () => {
+  /* Zwei Wege, eine Karte zu bekommen — und nur einer hinterlaesst eine Spur.
+     Der Stempel ist die einzige Auszeichnung im Deck, die es nicht zu kaufen
+     gibt; verschwindet er aus dem Markup, ist der Unterschied wieder
+     unsichtbar, so wie er es bis zum 06.09.2026 war. */
+  it('stamps a card that was turned over on site, and only that one', () => {
+    const mustEats: MapMustEat[] = [
+      {
+        _id: 'onsite',
+        dish: 'Ramen',
+        image: '/api/must-eat-image/onsite',
+        order: 1,
+        restaurant: { _id: 'r1', name: 'A', slug: 'a', lat: 52.5, lng: 13.4 },
+      },
+      {
+        _id: 'bought',
+        dish: 'Pizza',
+        image: '/api/must-eat-image/bought',
+        order: 2,
+        restaurant: { _id: 'r2', name: 'B', slug: 'b', lat: 52.5, lng: 13.4 },
+      },
+    ];
+
+    render(
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['onsite', 'bought'])}
+        stampedIds={new Set(['onsite'])}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
+    );
+
+    // Ein Stempel, nicht zwei — die gekaufte Karte traegt keinen.
+    expect(screen.getAllByText('albumStamped')).toHaveLength(1);
+    // Und er haengt an der richtigen Karte: der Knopf sagt es auch vorgelesen.
+    expect(screen.getByRole('button', { name: 'Ramen — albumStamped' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Pizza' })).toBeTruthy();
+  });
+
+  /* Das Starter Pack legt in jedes frische Deck fuenfzehn offene Karten, ein
+     Kauf weitere. Ein Abzeichen zaehlt davon nichts — nur, wo jemand war.
+     Sonst traegt jedes Konto eine Minute nach der Anmeldung „10 Karten", und
+     ein gekauftes Pack macht einen Bezirk „komplett", in dem nie jemand
+     stand. */
+  it('vergibt Abzeichen fuer Stempel, nicht fuer offene Karten', () => {
+    const mustEats: MapMustEat[] = [
+      {
+        _id: 'onsite',
+        dish: 'Ramen',
+        image: '/api/must-eat-image/onsite',
+        order: 1,
+        restaurant: { _id: 'r1', name: 'A', slug: 'a', lat: 52.5, lng: 13.4 },
+      },
+      {
+        _id: 'gifted',
+        dish: 'Pizza',
+        image: '/api/must-eat-image/gifted',
+        order: 2,
+        restaurant: { _id: 'r2', name: 'B', slug: 'b', lat: 52.5, lng: 13.4 },
+      },
+    ];
+
+    /* Zwei offene Karten, keine abgestempelt: nichts verdient. */
+    const { rerender } = render(
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['onsite', 'gifted'])}
+        stampedIds={new Set()}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
+    );
+    expect(screen.queryByText('badgesHeading')).toBeNull();
+
+    /* Eine davon vor Ort umgedreht: die erste Karte — aber der Bezirk ist
+       nicht komplett, die zweite liegt nur offen. */
+    rerender(
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['onsite', 'gifted'])}
+        stampedIds={new Set(['onsite'])}
+        groupOf={() => 'Mitte'}
+        player={player}
+      />
+    );
+    expect(screen.getByText('badgesHeading')).toBeTruthy();
+    expect(screen.getByText('badgeFirstCard')).toBeTruthy();
+    expect(screen.queryByText('badgeDistrict')).toBeNull();
+  });
+
   it('loads protected Must-Eat images directly so the browser sends its capability cookie', () => {
     const mustEats: MapMustEat[] = [
       {
@@ -63,6 +153,7 @@ describe('ProfileAlbum', () => {
       <ProfileAlbum
         mustEats={mustEats}
         faceUpIds={new Set(['m1'])}
+        stampedIds={new Set()}
         groupOf={() => 'Mitte'}
         player={player}
       />
@@ -94,6 +185,7 @@ describe('ProfileAlbum', () => {
       <ProfileAlbum
         mustEats={mustEats}
         faceUpIds={new Set(['a'])}
+        stampedIds={new Set()}
         groupOf={(m) => m.restaurant.district ?? 'Berlin'}
         player={player}
       />
@@ -129,6 +221,7 @@ describe('ProfileAlbum', () => {
       <ProfileAlbum
         mustEats={[covered]}
         faceUpIds={new Set()}
+        stampedIds={new Set()}
         groupOf={() => 'Mitte'}
         player={player}
       />
@@ -172,6 +265,7 @@ describe('ProfileAlbum', () => {
       <ProfileAlbum
         mustEats={[covered, open]}
         faceUpIds={new Set(['m4'])}
+        stampedIds={new Set()}
         groupOf={() => 'Mitte'}
         player={player}
       />
@@ -197,6 +291,7 @@ describe('ProfileAlbum', () => {
       <ProfileAlbum
         mustEats={[open]}
         faceUpIds={new Set(['m4'])}
+        stampedIds={new Set()}
         groupOf={() => 'Mitte'}
         player={player}
       />

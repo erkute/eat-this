@@ -161,12 +161,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           tags: { auth_flow: 'google_popup', auth_error_code: code, auth_fallback: 'redirect' },
           extra: { host: window.location.host },
         });
-        /* Der Redirect kehrt zur AKTUELLEN Adresse zurueck. Wer von einem
-             gesperrten Spot kommt, braucht dort `?r=<slug>&claim=1` — denselben
-             Marker, den der Magic-Link-Weg hinterlaesst und den
-             useSignupSpotClaim beim Landen einloest. Ohne ihn faende die
-             Rueckkehr zwar ein angemeldetes Konto vor, aber niemanden mehr,
-             der den Spot einloest. */
+        /* Der Redirect kehrt zur AKTUELLEN Adresse zurueck — mitsamt dem, was
+             der Aufrufer als `returnTo` mitgibt (etwa `?r=<slug>`, damit der
+             offene Spot nach der Rueckkehr wieder offen ist). */
         if (options?.returnTo) window.history.replaceState(null, '', options.returnTo);
         try {
           await signInWithRedirect(auth, googleProvider, browserPopupRedirectResolver);

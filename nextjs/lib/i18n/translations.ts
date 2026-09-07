@@ -48,21 +48,21 @@ const en = {
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eat?',
     onb1Title: 'You gotta try this.',
-    onb1Body: 'Every card is a dish we swear by — our clear pick for that exact restaurant.',
+    onb1Body: 'Lots of dishes. One reason to go. We tell you which.',
     onb2Kicker: 'How it works',
     onb2Title: 'Go. Tap. Flip.',
     onb2Body: 'Face-down card? Head to the spot and flip it right there with a tap.',
-    onb3Kicker: 'More spots',
+    onb3Kicker: 'In a hurry?',
     onb3Title: 'Booster Packs.',
     onb3Body:
-      'New spots come in Booster Packs — buy one to unlock fresh spots and Must Eats for your map.',
+      'Every spot in Berlin is already on your map. A Booster Pack turns cards over without the walk.',
     onbFlipAria: 'Flip the card',
     // Last slide, logged-out variant. Selling a paid Booster Pack to someone
     // without an account skips a rung: the free Starter Pack is the offer that
     // actually applies to them.
     onbStarterKicker: 'Free',
     onbStarterTitle: 'Starter Pack.',
-    onbStarterBody: 'Sign up and unlock more spots and their Must Eats on your map. Free.',
+    onbStarterBody: '10 straight into your deck. 10 more are waiting out in Berlin for you.',
     onbStarterCta: 'Get the Starter Pack',
     onbNext: 'Next',
     onbStart: "Let's go",
@@ -75,7 +75,7 @@ const en = {
     // the reveal itself and the profile's deck already call it. The grid below
     // shows how many are face-up, so the lead no longer counts them.
     teaserSub:
-      'Collectible cards for dishes you have to order. You flip the face-down ones on site — then they are yours.',
+      'Dishes you should order. Some we show you right away, others you flip at the spot and collect in your deck.',
     teaserCta: 'All Must Eats',
   },
   news: {},
@@ -121,7 +121,7 @@ const en = {
     unitsMin: 'min',
     unitsH: 'h',
     boosterTitle: 'Hungry for more?',
-    boosterDesc: 'More good spots. More Must Eats. Right on your map.',
+    boosterDesc: 'Unlock more Must Eats right away with a Booster Pack.',
     boosterCta: 'Unlock more',
     starterCta: 'Sign up',
     searchClose: 'Close search',
@@ -150,8 +150,14 @@ const en = {
     pagerNext: 'Next Must Eat',
     walkMinutes: 'on foot',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: 'Sign in — more spots and Must Eats are waiting for you.',
+    starterPromoBody: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
     starterPromoLogin: 'Already in? Sign in',
+    /* Die Anmelde-Tafel in der verdeckten Karte, ohne Konto: was unter dem
+       Ruecken liegt, gibt es fuer eine Anmeldung — und diese Karte garantiert. */
+    guestPitchKicker: 'Free',
+    guestPitchTitle: 'Starter Pack',
+    guestPitchBody: 'Sign up and get 20 Must Eats. This one is in.',
+    guestPitchCta: 'Get the Starter Pack',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
        "Reset filters" was wrong for someone who had only typed something. */
@@ -187,7 +193,8 @@ const en = {
     // Makes the card worth wanting instead of just explaining the rule: it names
     // the prize first ("the one dish") and puts the condition second. Echoes the
     // onboarding's "You gotta try this."
-    proximityHint: "A dish you have to try. Flip the card at the spot — then it's yours.",
+    proximityHint:
+      'What to order here, you find out right at the spot. That is where you flip the card and add it to your deck.',
     revealSaving: 'Going into your collection…',
     revealSavingHint: 'It flips in a second.',
     revealError: "That didn't work.",
@@ -233,11 +240,11 @@ const en = {
     /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
        unter dem Deck. */
     intro:
-      'The map knows over a hundred spots in Berlin. And because discovering beats searching, every Must Eat is a card \u2014 some lie face up, some face down.',
+      'Every spot on the map is hand-picked. At selected spots we also show you which dish to order. These Must Eats you can flip and collect in your deck.',
     explainKicker: 'New here?',
     explainTitle: 'What is Eat This?',
     explainLead:
-      'Every spot is picked on purpose. Some carry a Michelin star, others are small hidden places you would probably never have found without a recommendation. If somewhere is on the map, it is worth the trip.',
+      'Every spot on the map is hand-picked. From the starred restaurant to the place around the corner.',
     step1Kicker: 'Must Eat',
     step1Title: 'You have to try this.',
     step1Body:
@@ -259,13 +266,13 @@ const en = {
     stand:
       '{done} of {total} cards are flipped. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
     empty: 'No cards on this map yet.',
-    /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also
-       auch dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier
-       steht ein Freund daneben. */
+    /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
+       dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
+       ein Freund daneben. */
     joinKicker: 'Free',
     joinTitle: 'Starter Pack',
-    joinLead: '{name} is already collecting. Start your own deck\u00a0\u2014 free.',
-    joinLeadAnon: 'Start your own deck\u00a0\u2014 free.',
+    joinLead: '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there. Free.',
+    joinLeadAnon: '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there. Free.',
     joinSentLead: "We've sent your link. One click and you're in.",
     joinHint: 'We send you a sign-in link.',
     joinEmailLabel: 'Email address',
@@ -290,8 +297,6 @@ const en = {
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
     savedHeading: 'Saved Spots',
-    cityKicker: 'Berlin',
-    cityCount: 'of {total} spots on your map',
     emptySpots: 'Nothing saved yet. Tap a spot on the map and hit the heart — it lands here.',
     toMap: 'To the map',
     removeSaved: 'Remove {name} from saved',
@@ -305,11 +310,12 @@ const en = {
     spotVisitedError: 'Could not be saved.',
     lockedSubhead: 'Still face-down',
     emptyMustEats:
-      'No Must Eats in your collection yet. Open a Booster Pack and reveal them on site.',
+      'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
     albumHeading: 'Your deck',
     howTo:
-      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, you know what to order, and it is yours.',
+      'Every Must Eat you have flipped lands here. Whatever is missing is waiting out in Berlin and in the Booster Packs.',
     albumCount: 'of {total} Must Eats',
+    albumStamped: 'Been there',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
     albumFilterAll: 'All',
@@ -335,7 +341,7 @@ const en = {
     packsHeading: 'My Packs',
     packsMore: 'View Booster Packs',
     inviteHeading: 'Show your deck',
-    inviteLine: 'Send it to someone you like eating with. You both get new spots on your map.',
+    inviteLine: 'Send it to someone you like eating with. You both get a card for it.',
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
     invitePreview: 'Preview',
@@ -397,10 +403,10 @@ const en = {
       resendBtn: 'Resend mail',
       backBtn: 'Back',
       heroH1: 'Starter Pack',
-      heroSub: 'More spots, more Must Eats: on your map right after sign-in.',
-      modalBenefitLead: 'More spots and more Must Eats are waiting on your map.',
+      heroSub: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
+      modalBenefitLead: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
-      signinBoosterLead: 'New Must Eats and spots are waiting for you. Grab your pack.',
+      signinBoosterLead: 'Your deck is waiting. Pick up where you left off.',
       modalTagline: 'Sign in',
       signinModalTagline: 'Sign in',
       emailLabel: 'Email',
@@ -484,20 +490,18 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     howItWorks: "Wie funktioniert's?",
     onb1Kicker: 'Must Eat?',
     onb1Title: 'Musst du probieren.',
-    onb1Body:
-      'Jede Karte ist ein Gericht, das wir dir ans Herz legen — unsere klare Empfehlung für genau dieses Restaurant.',
+    onb1Body: 'Viele Gerichte. Ein Grund hinzugehen. Wir zeigen dir, welchen.',
     onb2Kicker: "So geht's",
     onb2Title: 'Hin. Tap. Offen.',
     onb2Body: 'Verdeckte Karte? Geh zum Spot und dreh sie vor Ort mit einem Tap um.',
-    onb3Kicker: 'Mehr Spots',
+    onb3Kicker: 'Keine Zeit?',
     onb3Title: 'Booster Packs.',
     onb3Body:
-      "Neue Spots gibt's in den Booster Packs — kauf eins und schalte frische Spots plus Must Eats für deine Map frei.",
+      'Ganz Berlin liegt schon auf deiner Map. Ein Booster Pack dreht dir Karten um, ohne dass du hinmusst.',
     onbFlipAria: 'Karte umdrehen',
     onbStarterKicker: 'Gratis',
     onbStarterTitle: 'Starter Pack.',
-    onbStarterBody:
-      'Melde dich an und schalte weitere Spots samt ihren Must Eats auf deiner Map frei. Kostenlos.',
+    onbStarterBody: '10 direkt im Deck. 10 weitere warten draußen in Berlin auf dich.',
     onbStarterCta: 'Starter Pack holen',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
@@ -505,7 +509,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
     teaserSub:
-      'Sammelkarten mit Gerichten, die du bestellen musst. Verdeckte Karten deckst du vor Ort auf — dann gehören sie dir.',
+      'Gerichte, die du bestellen solltest. Einige zeigen wir dir direkt, andere deckst du erst vor Ort auf und sammelst sie in deinem Deck.',
     teaserCta: 'Alle Must-Eats',
   },
   news: {},
@@ -544,7 +548,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     unitsMin: 'Min',
     unitsH: 'Std',
     boosterTitle: 'Hunger auf mehr?',
-    boosterDesc: 'Mehr gute Spots. Mehr Must Eats. Direkt auf deiner Map.',
+    boosterDesc: 'Weitere Must Eats direkt mit einem Booster Pack freischalten.',
     boosterCta: 'Mehr freischalten',
     starterCta: 'Jetzt anmelden',
     searchClose: 'Suche schließen',
@@ -573,8 +577,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerNext: 'Nächstes Must Eat',
     walkMinutes: 'zu Fuß',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: 'Melde dich an — weitere Spots und Must Eats warten auf dich.',
+    starterPromoBody: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
     starterPromoLogin: 'Schon dabei? Einloggen',
+    guestPitchKicker: 'Gratis',
+    guestPitchTitle: 'Starter Pack',
+    guestPitchBody: 'Melde dich an und bekomm 20 Must Eats. Diese ist dabei.',
+    guestPitchCta: 'Starter Pack holen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
        bot „Filter zurücksetzen" auch dem an, der gar keinen Filter gesetzt,
@@ -616,7 +624,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     // Textteil): eine Zeile mehr, und der verdeckte Zustand steht 14px höher
     // als die Beschreibung der Nachbarkarte.
     proximityHint:
-      'Ein Gericht, das du probieren musst. Am Spot deckst du die Karte auf — dann gehört sie dir.',
+      'Was du hier bestellen solltest, erfährst du direkt am Spot. Dort kannst du die Karte aufdecken und deinem Deck hinzufügen.',
     revealSaving: 'Kommt in deine Sammlung …',
     revealSavingHint: 'Gleich dreht sie sich um.',
     revealError: 'Hat nicht geklappt.',
@@ -671,11 +679,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
        Beides war zu viel von einer Seite. */
     intro:
-      'Die Map kennt \u00fcber hundert Spots in Berlin. Und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte \u2014 manche liegen offen, manche verdeckt.',
+      'Jeder Spot auf der Map ist handverlesen. Bei ausgew\u00e4hlten Spots zeigen wir dir au\u00dferdem, welches Gericht du dort bestellen solltest. Diese Must Eats kannst du aufdecken und in deinem Deck sammeln.',
     explainKicker: 'Neu hier?',
     explainTitle: 'Was ist Eat This?',
     explainLead:
-      'Jeder Spot ist bewusst ausgew\u00e4hlt. Manche tragen einen Michelin-Stern, andere sind kleine Hidden Places, die man ohne Empfehlung vermutlich nie entdeckt h\u00e4tte. Wenn ein Ort auf der Map steht, ist er einen Besuch wert.',
+      'Jeder Spot auf der Map ist handverlesen. Vom Sterne-Restaurant bis zum Laden um die Ecke.',
     step1Kicker: 'Must Eat',
     step1Title: 'Musst du probieren.',
     step1Body:
@@ -712,8 +720,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        auf der Startseite — das Starter Pack, kostenlos. */
     joinKicker: 'Gratis',
     joinTitle: 'Starter Pack',
-    joinLead: '{name} sammelt schon. Fang dein eigenes Deck an\u00a0\u2014 kostenlos.',
-    joinLeadAnon: 'Fang dein eigenes Deck an\u00a0\u2014 kostenlos.',
+    joinLead: '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
+    joinLeadAnon: '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
     joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     joinHint: 'Wir schicken dir einen Link zum Einloggen.',
     joinEmailLabel: 'E-Mail Adresse',
@@ -740,8 +748,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
     savedHeading: 'Gespeicherte Spots',
-    cityKicker: 'Berlin',
-    cityCount: 'von {total} Spots auf deiner Map',
     emptySpots:
       'Noch nichts gespeichert. Tipp auf der Map einen Spot an und dr\u00fcck aufs Herz — er landet hier.',
     toMap: 'Zur Map',
@@ -758,14 +764,19 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotVisitedError: 'Konnte nicht gespeichert werden.',
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
-      'Noch keine Must Eats in deiner Sammlung. \u00d6ffne ein Booster Pack und geh vor Ort aufdecken.',
+      'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
     albumHeading: 'Dein Deck',
     /* Der Handgriff in einem Satz. Bis zum 06.09.2026 hatte `deck.howTo`
        einen Zwilling davon; auf dem geteilten Deck tragen ihn jetzt die drei
        Schritte, hier steht er allein. */
     howTo:
-      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, du wei\u00dft, was du bestellen musst, und sie geh\u00f6rt dir.',
+      'Hier landen alle Must Eats, die du aufgedeckt hast. Was noch fehlt, wartet drau\u00dfen in Berlin und in den Booster Packs.',
     albumCount: 'von {total} Must Eats',
+    /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
+       quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
+       bezeugt, keinen Zustand. Gekaufte Karten tragen ihn nicht: das ist der
+       ganze Unterschied. */
+    albumStamped: 'War da',
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',
     albumFilterAll: 'Alle',
@@ -798,7 +809,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     packsMore: 'Booster Packs ansehen',
     inviteHeading: 'Zeig dein Deck',
     inviteLine:
-      'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide neue Spots auf eure Map.',
+      'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide eine Karte dafür.',
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
     invitePreview: 'Ansehen',
@@ -857,10 +868,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       resendBtn: 'Mail erneut senden',
       backBtn: 'Zur\u00fcck',
       heroH1: 'Starter Pack',
-      heroSub: 'Mehr Spots, mehr Must Eats: direkt nach der Anmeldung auf deiner Map.',
-      modalBenefitLead: 'Dich erwarten mehr Spots und mehr Must Eats auf deiner Map.',
+      heroSub: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+      modalBenefitLead: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
-      signinBoosterLead: 'Neue Must Eats und Spots warten auf dich. Hol dir dein Pack.',
+      signinBoosterLead: 'Dein Deck wartet. Mach da weiter, wo du aufgehört hast.',
       modalTagline: 'Anmelden',
       signinModalTagline: 'Einloggen',
       emailLabel: 'E-Mail',

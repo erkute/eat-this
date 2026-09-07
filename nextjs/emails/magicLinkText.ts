@@ -27,14 +27,14 @@ export function buildSignupText(magicLink: string): string {
   return [
     'EAT THIS — We tell you what to eat.',
     '',
-    'Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir',
-    'gleich, was du bestellen musst.',
+    'Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.',
     '',
     'Hier anmelden und deine Map öffnen:',
     magicLink,
     '',
     'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse.',
-    'Dein Starter Pack mit 20 Must Eats liegt danach kostenlos auf deiner Map bereit.',
+    'Danach: 20 Must Eats, \u00fcberall in Berlin verteilt. Bereit, von dir entdeckt',
+    'zu werden.',
     '',
     ...SIGN_OFF,
   ].join('\n');

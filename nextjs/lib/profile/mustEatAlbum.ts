@@ -17,6 +17,15 @@ interface AlbumSlot {
   no: string | null;
   id: string;
   collected: boolean;
+  /** Vor Ort umgedreht — der Beleg, dass man da war.
+   *
+   *  Es gibt zwei Wege, eine Karte zu bekommen, und sie sind nicht dasselbe:
+   *  kaufen (oder geschenkt bekommen) legt sie ins Album, hingehen stempelt
+   *  sie ab. Die Daten trennen das seit jeher — `entitlements.mustEatIds`
+   *  gegen `users/<uid>/unlockedMustEats`, in das nur die 50-m-Route schreibt
+   *  —, nur die Anzeige hat beides zu einem Zustand verschmolzen. Damit war
+   *  die einzige Auszeichnung, die man sich nicht kaufen kann, unsichtbar. */
+  stamped: boolean;
   mustEat: MapMustEat | null;
   /** Das Lokal, in dem diese Karte liegt — auch bei verdeckten Plaetzen.
    *  `mustEat` ist dort bewusst null (kein Gericht, kein Bild), aber Name
@@ -57,6 +66,7 @@ export function isAlbumMustEatCollected(
 export function buildAlbum(
   all: MapMustEat[],
   faceUpIds: Set<string>,
+  stampedIds: ReadonlySet<string> = new Set(),
   groupOf: (m: MapMustEat) => string = defaultGroupOf
 ): Album {
   /* Nach der Kartennummer, nicht nach Bezirk. Solange die Bezirke eigene
@@ -75,6 +85,7 @@ export function buildAlbum(
       no: m.order == null ? null : String(m.order).padStart(3, '0'),
       id: m._id,
       collected,
+      stamped: collected && stampedIds.has(m._id),
       mustEat: collected ? m : null,
       where: m.restaurant?.name ?? null,
       slug: m.restaurant?.slug ?? null,

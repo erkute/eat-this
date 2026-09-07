@@ -36,7 +36,6 @@ function list() {
   return (
     <RestaurantList
       restaurants={[restaurant]}
-      lockedIds={new Set()}
       selectedId={null}
       onSelect={vi.fn()}
       primaryMustEats={new Map()}

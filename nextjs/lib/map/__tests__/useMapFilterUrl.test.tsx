@@ -31,7 +31,6 @@ function renderSync(initialUrl: string, restaurants = rows) {
     useMapFilterUrl({
       isActive: true,
       restaurants,
-      lockedRestaurants: [],
       ...state,
       setCategory: (c) => (state = { ...state, category: c }),
       setBezirk: (b) => (state = { ...state, bezirk: b }),
@@ -119,7 +118,6 @@ describe('useMapFilterUrl', () => {
       useMapFilterUrl({
         isActive: true,
         restaurants,
-        lockedRestaurants: [],
         ...state,
         setCategory: (c) => (state = { ...state, category: c }),
         setBezirk: (b) => (state = { ...state, bezirk: b }),

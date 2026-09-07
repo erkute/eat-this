@@ -22,11 +22,10 @@ describe('buildLoginContinueUrl', () => {
     );
   });
 
-  /* Die drei Traeger-Parameter gehoeren dem Link, nicht der Seite: geerbt
-     wuerden sie eine zweite Anmeldung, einen zweiten Gratis-Spot oder ein
-     fremdes Herz ausloesen. */
-  it('raeumt e, claim und ein geerbtes heart ab', () => {
-    expect(buildLoginContinueUrl(at('/map', '?r=vox&e=alt%40example.com&claim=1&heart=alt'))).toBe(
+  /* Die Traeger-Parameter gehoeren dem Link, nicht der Seite: geerbt wuerden
+     sie eine zweite Anmeldung oder ein fremdes Herz ausloesen. */
+  it('raeumt e und ein geerbtes heart ab', () => {
+    expect(buildLoginContinueUrl(at('/map', '?r=vox&e=alt%40example.com&heart=alt'))).toBe(
       `${origin}/map?r=vox`
     );
   });
@@ -35,6 +34,18 @@ describe('buildLoginContinueUrl', () => {
     expect(buildLoginContinueUrl(at('/map', '?heart=alt'), { heartRestaurantId: 'rest-2' })).toBe(
       `${origin}/map?heart=rest-2`
     );
+  });
+
+  /* Die angetippte Karte des Gastes: die Tafel verspricht „diese ist dabei",
+     und das Versprechen muss den Posteingang ueberleben. */
+  it('haengt die angetippte Starter-Karte an', () => {
+    expect(buildLoginContinueUrl(at('/map', '?me=me-1'), { starterMustEatId: 'me-1' })).toBe(
+      `${origin}/map?me=me-1&starter=me-1`
+    );
+  });
+
+  it('raeumt eine geerbte Starter-Karte ab', () => {
+    expect(buildLoginContinueUrl(at('/map', '?starter=alt'))).toBe(`${origin}/map`);
   });
 
   it('behaelt den EN-Praefix der Adresse', () => {

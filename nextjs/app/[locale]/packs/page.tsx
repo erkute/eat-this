@@ -49,6 +49,7 @@ const copy = {
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
+    soon: 'Kommt bald',
     map: '/map',
   },
   en: {
@@ -58,6 +59,7 @@ const copy = {
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
+    soon: 'Coming soon',
     map: '/en/map',
   },
 } as const;
@@ -72,13 +74,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
   return (
     <main className={styles.page}>
       <div className={styles.wrap}>
-        <AllBerlinBoard
-          locale={loc}
-          contents={packContents.allBerlin}
-          variant="hero"
-          headingLevel="h1"
-          priority
-        />
+        <AllBerlinBoard locale={loc} variant="hero" headingLevel="h1" priority />
 
         <section className={styles.catalog} aria-labelledby="packs-catalog-title">
           <div className={styles.catalogHead}>
@@ -93,6 +89,13 @@ export default async function PacksOverviewPage({ params }: PageProps) {
             {categoryPacks.map((pack) => {
               const art = pack.slug ? categoryArt(pack.slug) : null;
               const href = `/pack/${packUrlSlug(pack)}`;
+              /* Ein Pack ohne Karte ist kein Produkt, sondern eine leere
+                 Schachtel — Fine Dining stand am 06.09.2026 auf null. Es bleibt
+                 sichtbar (die Kategorie kommt ja), aber es ist nicht käuflich.
+                 Wie viele Karten drin sind, steht nirgends: das Produkt nennt
+                 seine Zahlen nicht. Umso mehr haengt der Fehlkauf an diesem
+                 Riegel — er ist das Einzige, was ihn noch verhindert. */
+              const empty = (pack.slug ? packContents.byCategory[pack.slug]?.mustEats : 1) === 0;
 
               return (
                 <li key={pack.packId} className={styles.tile}>
@@ -113,19 +116,23 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                     <span className={styles.spectrum}>{pack.spectrum[loc]}</span>
                   </Link>
 
-                  <PackBuyButton
-                    packId={pack.packId}
-                    packName={pack.displayName}
-                    amountCents={pack.amountCents}
-                    locale={loc}
-                    className={styles.buy}
-                    errorClassName={styles.buyError}
-                    label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
-                    pendingLabel={t.pending}
-                    ownedLabel={t.owned}
-                    ownedHref={t.map}
-                    errorLabel={t.error}
-                  />
+                  {empty ? (
+                    <span className={styles.soon}>{t.soon}</span>
+                  ) : (
+                    <PackBuyButton
+                      packId={pack.packId}
+                      packName={pack.displayName}
+                      amountCents={pack.amountCents}
+                      locale={loc}
+                      className={styles.buy}
+                      errorClassName={styles.buyError}
+                      label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
+                      pendingLabel={t.pending}
+                      ownedLabel={t.owned}
+                      ownedHref={t.map}
+                      errorLabel={t.error}
+                    />
+                  )}
                 </li>
               );
             })}

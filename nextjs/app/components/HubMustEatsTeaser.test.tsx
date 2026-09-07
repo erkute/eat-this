@@ -11,9 +11,12 @@ import { translations } from '@/lib/i18n/translations';
 // so the component renders in its pre-mount state (initialMapData, all
 // face-down) — the data partitioning is covered by the gallery helper tests
 // tests, this test targets the section shell (title + CTA href).
+const openLoginModal = vi.fn();
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, loading: false }),
+  useLoginModal: () => ({ open: openLoginModal }),
 }));
+vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 vi.mock('@/lib/map', async () => {
   const actual = await vi.importActual<typeof import('@/lib/map/unlockedMustEats')>(
     '@/lib/map/unlockedMustEats'
@@ -46,7 +49,6 @@ const covered = (id: string, name: string): MapMustEat => ({
 
 const data = (mustEats: MapMustEat[], revealedMustEatIds: string[] = []): InitialMapData => ({
   restaurants: [],
-  lockedRestaurants: [],
   mustEats,
   categories: [],
   totalCount: 0,
@@ -171,11 +173,33 @@ describe('HubMustEatsTeaser', () => {
     expect(html).not.toContain('Dish m2');
   });
 
-  it('sets a covered card up as a reveal, not as a dish', () => {
+  /* Ohne Konto kommen die Ruecken aus dem ganzen Stapel, nicht aus einem
+     Deck — auf der Map gaebe es fuer den Besucher dort nichts aufzudecken.
+     Der Tipp fuehrt deshalb zur Anmeldung (Betreiber, 07.09.2026: „da muss
+     man aber dann zur Anmeldung kommen, wenn man eine verdeckte Karte
+     anklickt"). Die offene Karte daneben bleibt der Weg auf die Map. */
+  it('leads a covered card to the sign-in, not to the map, while signed out', () => {
     const html = render(data([me(), covered('m2', 'Ora')], ['m1']));
 
-    expect(html).toContain('href="/map?me=m2"');
-    expect(html).toContain('Verdecktes Must Eat bei Ora');
+    expect(html).not.toContain('href="/map?me=m2"');
+    expect(html).toContain('href="/map?me=m1"');
+    expect(html).toContain('<button type="button"');
+    expect(html).toContain('Verdecktes Must Eat — anmelden und aufdecken');
+  });
+
+  /* Eine Karte aus dem Stapel verraet ihren Spot nicht (trimCoveredSpot) —
+     welches Lokal sie haelt, ist Teil der Ueberraschung. Die Zeile unter der
+     Karte bleibt dann leer statt einen leeren Link zu tragen. */
+  it('shows no restaurant line for a covered card that carries no spot', () => {
+    const fromDeck: MapMustEat = {
+      _id: 'm2',
+      restaurant: { _id: 'r-m2', name: '', slug: '', lat: 0, lng: 0 },
+    };
+    const html = render(data([me(), fromDeck], ['m1']));
+
+    expect(html).toContain('/pics/card-back.webp');
+    expect(html).toContain(translations.de.mustEats.covered);
+    expect(html).not.toContain('href="/restaurant/"');
   });
 
   it('opens the row with a covered card so the face-up one answers it', () => {

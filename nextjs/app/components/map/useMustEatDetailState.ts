@@ -120,6 +120,22 @@ export function useMustEatDetailState({
       setRevealOrigin(e.currentTarget.getBoundingClientRect());
       return;
     }
+    /* Ohne Konto ist der Tipp auf einen Ruecken die Frage „was liegt
+       darunter?" — und die Antwort ist die Anmeldung, nicht der Standort.
+       Bis zum 07.09.2026 fragte die Karte einen Gast erst nach seiner
+       Position und schickte ihn nur im 50-m-Radius zum Login; die Ruecken
+       liegen fuer Gaeste aber seither ueberall auf der Map, als Anlass, sich
+       ein Konto zu holen (siehe composeAccountSurface, `guest`). */
+    if (!isAuthed && onRequireLogin) {
+      trackEvent('must_eat_reveal_attempt', {
+        must_eat_id: mustEat._id,
+        restaurant_id: mustEat.restaurant._id,
+        result: 'login_required',
+        distance_meters: distance === null ? -1 : Math.round(distance),
+      });
+      onRequireLogin();
+      return;
+    }
     if (canUnlock && isAuthed) {
       if (unlockingRef.current) return;
       unlockingRef.current = true;
@@ -154,18 +170,6 @@ export function useMustEatDetailState({
         unlockingRef.current = false;
         setUnlockingId((activeId) => (activeId === mustEatId ? null : activeId));
       }
-      return;
-    }
-    // In range but not signed in: the reveal is earned — route to login so it
-    // can land in the user's deck.
-    if (canUnlock && !isAuthed && onRequireLogin) {
-      trackEvent('must_eat_reveal_attempt', {
-        must_eat_id: mustEat._id,
-        restaurant_id: mustEat.restaurant._id,
-        result: 'login_required',
-        distance_meters: distance === null ? -1 : Math.round(distance),
-      });
-      onRequireLogin();
       return;
     }
     if (canRequestLocation) {

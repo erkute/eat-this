@@ -2,10 +2,8 @@ import { NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
-import { getFreeSurfaceData } from '@/lib/map/free-surface';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { stripCoveredMustEats } from '@/lib/map/stripCoveredMustEats';
-import { stripLockedRestaurants } from '@/lib/map/stripLockedRestaurant';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
 import { clearPremiumAccessCookie, setPremiumAccessCookie } from '@/lib/must-eat/premium-access';
@@ -35,25 +33,19 @@ export async function GET(req: Request) {
     }
   }
 
-  const [ent, unlockedIds, [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface]] =
+  const [ent, unlockedIds, { restaurants: all, mustEats: allMustEats, categories }] =
     await Promise.all([
       resolveEntitlements(uid, identity),
       // On-site reveals — they keep their must-eats face-up in the payload.
       uid ? getUnlockedMustEatIds(uid) : Promise.resolve(new Set<string>()),
-      Promise.all([getCachedMapData(), getFreeSurfaceData()]),
+      getCachedMapData(),
     ]);
 
-  // Wer was sieht, entscheidet composeAccountSurface — dieselbe Ableitung, die
-  // auch die oeffentliche Deck-Seite benutzt. Diese Route formt daraus nur noch
-  // die Antwort.
-  const surface = await composeAccountSurface({
-    all,
-    allMustEats,
-    ent,
-    uid,
-    freeRestaurantIds: freeSurface.restaurantIds,
-    unlockedIds,
-  });
+  // Welche KARTEN offen liegen, entscheidet composeAccountSurface — dieselbe
+  // Ableitung, die auch die oeffentliche Deck-Seite benutzt. Die Spots selbst
+  // sind fuer jeden dieselben. Diese Route formt daraus nur noch die Antwort.
+  // Ohne Konto liegt der ganze Stapel als Rücken da (siehe composeAccountSurface).
+  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds, guest: !uid });
 
   // Admin / all-berlin: full catalog, no filter, no reveal signal (signed
   // & paid users get individual reveals via Firestore unlockedMustEats).
@@ -67,7 +59,6 @@ export async function GET(req: Request) {
       mustEats: hydratedMustEats,
       categories,
       totalCount: all.length,
-      lockedRestaurants: [],
       revealedMustEatIds: Array.from(surface.faceUpIds),
       // Der Client kann das nicht selbst entscheiden. Der Admin-Zugang haengt
       // an ADMIN_EMAILS plus verifizierter Adresse (isAdminToken) — beides
@@ -94,7 +85,6 @@ export async function GET(req: Request) {
     mustEats: stripCoveredMustEats(hydratedMustEats, surface.faceUpIds),
     categories,
     totalCount: all.length,
-    lockedRestaurants: stripLockedRestaurants(surface.lockedRestaurants),
     // Client face-up state must be identical to the IDs hydrated above.
     // Otherwise purchased content reaches the browser but still renders as a
     // covered card because entitlements are not duplicated into reveal docs.

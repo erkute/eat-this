@@ -10,17 +10,19 @@
   will-change: transform;
 }
 
-/* Three stacking bands, because MapLibre sets no inline z-index and orders
-   markers purely by the DOM — and that order is NOT the React tree's. Each
-   marker appends itself to the canvas container when it mounts, so a locked
-   dot mounted by a later filter change lands after the free pins that were
-   already there and paints over them. Rendering the dots first only holds for
-   the very first paint.
+/* Zwei Stapelbänder, weil MapLibre keinen Inline-z-index setzt und die Marker
+   rein nach dem DOM ordnet — und diese Reihenfolge ist NICHT die des
+   React-Baums. Jeder Marker hängt sich beim Mounten an den Canvas-Container,
+   ein durch einen Filterwechsel neu erzeugter landet also hinter denen, die
+   schon da waren.
 
-   z-index must sit on the marker ROOT — the inner .pinLogoActive z-index only
-   orders within this marker's own box, not against sibling markers.
+   Der z-index gehört an die Marker-WURZEL — der innere .pinLogoActive-z-index
+   ordnet nur innerhalb dieses Markers, nicht gegen seine Geschwister.
 
-   default (locked dots) < .markerRootFree < .markerRootActive */
+   .markerRootFree < .markerRootActive. Das dritte Band darunter trugen bis
+   zum 06.09.2026 die gesperrten Punkte; seit die Karte frei ist, gibt es
+   nur noch eine Sorte Pin — .markerRootFree hebt sie gemeinsam über alles,
+   was sonst im Container hängt. */
 .markerRootFree:global(.maplibregl-marker) {
   z-index: 5;
 }
@@ -84,16 +86,21 @@
    fast ganz zurück, damit man vor dem Klick sieht, was man trifft, und mit
    der Tastatur beim Fokussieren ganz.
 
-   Zur Abwägung, die dahinter steckt: bei 0.3 steht ein gelber Pin auf dem
+   Zur Abwägung, die dahinter steckt: bei 0.3 stand ein gelber Pin auf dem
    Ink-Grund noch bei 1,8:1, ein roter bei 1,4:1 — unter den 3:1, die WCAG
-   1.4.11 für bedeutungstragende Bedienelemente verlangt. Sie sind es hier
-   bewusst: während eine Detailansicht offen ist, sind die anderen Spots
-   Hintergrund wie die Seite hinter einem Dialog, und der eine Spot, um den es
-   geht, steht bei 11,8:1. Damit daran trotzdem niemand hängenbleibt, kommt
-   jeder Pin bei Fokus oder Hover zurück, bevor man ihn treffen muss. */
+   1.4.11 für bedeutungstragende Bedienelemente verlangt. Das war gewollt:
+   während eine Detailansicht offen ist, sind die anderen Spots Hintergrund
+   wie die Seite hinter einem Dialog, und der eine Spot, um den es geht,
+   steht bei 11,8:1. Nur war 0.3 zu wenig Hintergrund und zu viel Nichts
+   (Betreiber, 07.09.2026: „die müssen noch minimal hervorstehen, das ist mir
+   zu durchsichtig") — die Nachbarn waren als Pins nicht mehr zu erkennen,
+   nur als Flecken. Seit dem 07.09.2026 0.5 mit weniger Entsättigung: klar
+   zurück, aber noch als Spot lesbar. Damit daran trotzdem niemand
+   hängenbleibt, kommt jeder Pin bei Fokus oder Hover zurück, bevor man ihn
+   treffen muss. */
 .pinLogoDim {
-  opacity: 0.3;
-  filter: saturate(0.5);
+  opacity: 0.5;
+  filter: saturate(0.7);
 }
 
 /* Wer sich mit der Tastatur über die Karte bewegt, sieht sonst nur den
@@ -187,62 +194,6 @@
   object-fit: contain;
   pointer-events: none;
 }
-
-/* Der gesperrte Pin: dieselbe Form, dieselbe Größe, nur rot (User,
-   2026-09-04). Vorher gedeckt-warmes Grau #b5b1a9 — das war für die alte
-   helle Grundkarte (CartoDB Positron) gewählt, in der ein kaltes Grau
-   verschwommen wäre. Auf dem dunklen Grund kippte dasselbe Grau ins
-   Gegenteil: es war die HELLSTE Fläche der Karte und zog mehr Blick als die
-   gelben Pins, die den Inhalt tragen.
-   Rot ist der dritte Ton der Marke und auf Ink als FLÄCHE unbedenklich — die
-   2,9:1, an denen Rot site-weit als Schriftfarbe gescheitert ist, gelten für
-   Text, nicht für einen gefüllten Pin.
-   Das Logo darin bleibt unangetastet — siehe den Block weiter unten. */
-.pinLogoLocked .pinLogoShape {
-  background: var(--et-home-red, #d9382a);
-}
-
-/* Die Hälfte der Größe des gelben Pins. Bei gleicher Größe
-   standen an der Standardkamera auf einem 390px-Fenster 238 graue gegen 40
-   gelbe im Bild — die Marker überdeckten die Karte, und das Gewicht lag bei
-   den gesperrten statt bei den offenen Spots.
-   Verkleinert wird die ZEICHNUNG, nicht der Knopf: die 44px-Trefferfläche von
-   .pinLogo bleibt stehen, sonst wäre der Spot auf dem Telefon kaum noch zu
-   treffen. Ursprung unten mittig, also an der Spitze — der Pin zeigt weiter
-   genau auf seine Koordinate.
-   Der ausgewählte Pin ist ausgenommen: dessen Sheet steht offen, er darf in
-   voller Größe zeigen, wo man gerade ist. Zur alten Regel „der offene Spot
-   bleibt ein Punkt, ein Pin würde dort ‚dieser ist frei' heißen": das galt,
-   solange die FORM den Unterschied trug. Jetzt trägt ihn die Farbe — der
-   ausgewählte gesperrte Pin wächst, bleibt aber rot — .pinLogoActive ändert
-   nur Größe und Schatten, nie die Füllung.
-
-   Von 0.6 auf 0.5 (User, 04.09.2026). Seit die gesperrten Pins rot statt grau
-   sind, tragen sie weiter als vorher, und auf rund vier verdeckte kommt ein
-   freier — das Gewicht des Bildes lag damit bei dem, was man NICHT hat.
-   Gemessen an der Standardkamera auf 1280px: rote Fläche zu gelber war 0,74,
-   bei 0.5 ist sie 0,56. Nach unten ist 0.42 die Grenze (0,41) — dort zerfällt
-   das Logo im roten Pin zu Brei und die Marker lesen sich als anonyme Punkte.
-   Die Farbe blieb dabei unangetastet: der leisere Hebel ist die Größe. */
-.pinLogoLocked:not(.pinLogoActive) .pinLogoShape {
-  transform: scale(0.5);
-  transform-origin: 50% 100%;
-}
-
-/* Gar kein Filter: der gesperrte Pin traegt DASSELBE Logo wie der freie, nur
-   auf rotem statt gelbem Grund (User, 04.09.2026: „das iDIS-Logo ist nicht das
-   aus den gelben Icons").
-
-   Zwei Fassungen davor waren falsch, beide aus derselben Fehlannahme, das Logo
-   haenge farblich am Pin. Tut es nicht: die Datei ist schwarze Zeichnung auf
-   einem hellen Feld (gemessen an eat-this-square-sm.webp — 47 % Creme, 33 %
-   Schwarz, Rest Transparenz). Sie bringt ihren eigenen Kontrast mit und liest
-   sich auf Rot genauso wie auf Gelb.
-   - `grayscale(1)` (bis 03.09.2026) entsaettigte nur, liess die Buchstaben
-     aber stehen — war auf Grau stimmig, auf Rot nur blass.
-   - `brightness(0) invert(1)` machte JEDEN deckenden Pixel weiss, also auch
-     die schwarze Zeichnung. Uebrig blieb eine weisse Silhouette ohne
-     Buchstaben. */
 
 @media (hover: hover) {
   .pinLogo:hover {

@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { auth } from '@/lib/firebase/config';
+import { auth, getDb } from '@/lib/firebase/config';
 import type { MapRestaurant, MapMustEat } from '../types';
 import type { CategoryDef } from '../categories';
 import type { InitialMapData } from './server-initial-map-data';
@@ -17,18 +17,12 @@ interface UseMapDataArgs {
   /** Optional SSR-supplied initial state. When set, the hook hydrates with
    *  this data instead of empty arrays + loading: true. Anon visitors then
    *  skip the initial fetch entirely; signed-in users still refetch on mount
-   *  to pull their +20 signed tier + entitlement-based catalog union. */
+   *  to pull the cards their account has face up. */
   initialMapData?: InitialMapData;
 }
 
 interface MapData {
   restaurants: MapRestaurant[];
-  /** The paywalled part of the catalogue — every spot this viewer cannot open,
-   *  uncapped. Drawn on the map as grey dots, and run through the same filter
-   *  as the free set, so a search matches them too and lists them as rows.
-   *  Opening one — dot or row — shows LockedDetail: the spot named, with the
-   *  packs that unlock it. Not a blurred teaser; the name is public anyway. */
-  lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   categories: CategoryDef[];
   /** Total restaurant count in Sanity — independent of trial cap / entitlements.
@@ -39,19 +33,18 @@ interface MapData {
    *  Admin-Zugang haengt an ADMIN_EMAILS plus verifizierter Adresse, und das
    *  Konto, das ihn nutzt, hat weder Claim noch Entitlement-Dokument. */
   fullCatalog: boolean;
-  /** Must-eat IDs that are pre-revealed for anonymous visitors (face-up card).
-   *  All other must-eats on visible restaurants render as coveredAnon (blurred,
-   *  non-interactive). Empty for signed-in users — their entitlements drive
-   *  the unlocked/locked split instead. */
+  /** Die Karten, die fuer diesen Betrachter offen liegen — das oeffentliche
+   *  Schaufenster plus Spot des Tages, und bei einem Konto obendrein alles,
+   *  was es vor Ort aufgedeckt, geschenkt bekommen oder gekauft hat. Alle
+   *  uebrigen Karten rendern als Kartenruecken. */
   revealedMustEatIds: Set<string>;
   loading: boolean;
   /** The uid the payload currently in hand was fetched FOR — null while it is
    *  the anonymous view. It exists so a sheet can tell "this viewer is signed
    *  in" apart from "the map already knows that", which are not the same
    *  moment: auth resolves in a few hundred ms, the refetch behind it takes
-   *  longer, and in between every locked spot still looks locked to code that
-   *  only checks the uid. Selling a pack in that window means selling it on a
-   *  spot the very next payload may open (user report, 2026-08-26). */
+   *  longer, and in between every card the account owns still renders as a
+   *  card back to code that only checks the uid. */
   dataUid: string | null;
   error: string | null;
   refetch: () => void;
@@ -77,9 +70,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   // /api/map-data fetch reconciles afterwards.
   const [restaurants, setRestaurants] = useState<MapRestaurant[]>(
     initialMapData?.restaurants ?? []
-  );
-  const [lockedRestaurants, setLockedRestaurants] = useState<MapRestaurant[]>(
-    initialMapData?.lockedRestaurants ?? []
   );
   const [mustEats, setMustEats] = useState<MapMustEat[]>(initialMapData?.mustEats ?? []);
   const [categories, setCategories] = useState<CategoryDef[]>(initialMapData?.categories ?? []);
@@ -117,7 +107,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     const cached = readMapCache(uid ?? seedUidBeforeAuth());
     if (!cached) return;
     setRestaurants(cached.restaurants);
-    setLockedRestaurants(cached.lockedRestaurants);
     setMustEats(cached.mustEats);
     setCategories(cached.categories);
     setTotalCount(cached.totalCount);
@@ -164,7 +153,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         if (latestReqRef.current !== reqId) return; // stale — newer fetch in flight
         const next: CachedMapData = {
           restaurants: json.restaurants ?? [],
-          lockedRestaurants: json.lockedRestaurants ?? [],
           mustEats: json.mustEats ?? [],
           categories: json.categories ?? [],
           totalCount: json.totalCount ?? 0,
@@ -172,14 +160,13 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
           fullCatalog: json.fullCatalog === true,
         };
         setRestaurants(next.restaurants);
-        setLockedRestaurants(next.lockedRestaurants);
         setMustEats(next.mustEats);
         setCategories(next.categories);
         setTotalCount(next.totalCount);
         setFullCatalog(next.fullCatalog === true);
         setRevealedMustEatIds(new Set<string>(next.revealedMustEatIds));
         setDataUid(uid);
-        // Cache the signed-in payload so the next visit / reload paints this tier instantly.
+        // Cache the signed-in payload so the next visit / reload paints instantly.
         if (uid) writeMapCache(uid, next);
       } catch (e) {
         if (latestReqRef.current !== reqId) return;
@@ -190,9 +177,49 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     })();
   }, [uid, authLoading, tick]);
 
+  /* Nachladen, sobald dem Konto Karten zufallen — Kauf, Starter Pack,
+     Einladungsbonus. Alle drei schreiben in eine der beiden Collections
+     unten, und der Server rechnet die Oberflaeche daraus.
+
+     Hier im Hook und nicht im Aufrufer: bis zum 06.09.2026 hingen die beiden
+     Listener in MapSection, also nur auf der Map. Das Profil holte dieselbe
+     Nutzlast ueber denselben Hook, bekam aber nichts mit — und genau dort
+     landet, wer sich ueber den Profil-Guard anmeldet. Das Starter Pack wird
+     nach der Anmeldung im Hintergrund eingeloest (ReferralToastListener),
+     waehrend der erste Fetch hier schon laeuft: ohne Listener zeigte das Deck
+     dann fuenf Karten statt fuenfundzwanzig, bis jemand neu lud, und der
+     Cache unten hielt die fuenf fest.
+
+     Firestore ist code-gesplittet (siehe getDb) und wird erst hier geladen,
+     damit es aus dem ersten Bundle der Startseite herausbleibt. */
+  useEffect(() => {
+    if (!uid) return;
+    let active = true;
+    const unsubs: (() => void)[] = [];
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ]);
+      if (!active) return;
+      for (const name of ['entitlements', 'referralBonuses'] as const) {
+        const ref = collection(db, 'users', uid, name);
+        /* Der erste Snapshot kommt sofort und loest damit einen zweiten Fetch
+           direkt nach dem ersten aus. Der ist billig, und das Gegenstueck —
+           ein Riegel, der die erste Lieferung ueberspringt — verpasst genau
+           den Fall, fuer den der Listener da ist: das Dokument, das zwischen
+           Fetch-Start und Snapshot-Anmeldung angelegt wurde. */
+        unsubs.push(onSnapshot(ref, () => refetch()));
+      }
+    })();
+    return () => {
+      active = false;
+      for (const unsub of unsubs) unsub();
+    };
+  }, [uid, refetch]);
+
   return {
     restaurants,
-    lockedRestaurants,
     mustEats,
     categories,
     totalCount,

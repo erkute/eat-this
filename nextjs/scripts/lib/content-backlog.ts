@@ -5,8 +5,9 @@ export interface ContentRestaurant {
   cuisineType?: string;
   isOpen: boolean;
   featured: boolean;
-  tierAnon: boolean;
-  tierSigned: boolean;
+  /** Karten an diesem Spot. Sie sind das Produkt: ein Lokal mit Karte ist die
+   *  Fläche, auf der schwacher Content am teuersten ist. */
+  mustEatCount: number;
   hasImage: boolean;
   galleryCount: number;
   hasGooglePlaceId: boolean;
@@ -29,13 +30,9 @@ const byScoreThenName = (a: BacklogItem, b: BacklogItem) =>
 function surfaceScore(r: ContentRestaurant): { score: number; reasons: string[] } {
   let score = 0;
   const reasons: string[] = [];
-  if (r.tierAnon) {
+  if (r.mustEatCount > 0) {
     score += 100;
-    reasons.push('Anon-Tier');
-  }
-  if (r.tierSigned) {
-    score += 80;
-    reasons.push('Signed-Tier');
+    reasons.push(r.mustEatCount === 1 ? 'Must-Eat-Karte' : `${r.mustEatCount} Must-Eat-Karten`);
   }
   if (r.featured) {
     score += 50;

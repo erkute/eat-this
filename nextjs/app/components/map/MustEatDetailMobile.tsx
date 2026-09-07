@@ -40,6 +40,11 @@ interface Props {
   /** Stand im Stapel, 1-basiert — steht hinter dem Kicker („3 / 25"). */
   position?: { index: number; count: number };
   state: MustEatDetailState;
+  /** Kein Konto: statt Standort-Logik zeigt die verdeckte Karte die
+   *  Anmelde-Tafel — gratis, 20 Must Eats, diese dabei (siehe .fdGuest). */
+  guest?: boolean;
+  onSignUp?: () => void;
+  onSignIn?: () => void;
 }
 
 // Poster sheet: card hero → huge dish name → prose → spot action. Horizontal
@@ -58,6 +63,9 @@ export default function MustEatDetailMobile({
   onPageNext,
   position,
   state,
+  guest = false,
+  onSignUp,
+  onSignIn,
 }: Props) {
   const { t, lang } = useTranslation();
   // Legacy t() can't interpolate ICU values — parametrized keys go through next-intl directly.
@@ -264,7 +272,10 @@ export default function MustEatDetailMobile({
         : needsLocation && !locationDenied
           ? null
           : tMap('proximityHint');
-  const showLocationChip = needsLocation && !locationDenied && !unlocking && !unlockError;
+  /* Ein Gast wird nicht nach seinem Standort gefragt — sein Weg zur Karte
+     ist die Anmeldung, nicht die Naehe (siehe .fdGuest). */
+  const showLocationChip = !guest && needsLocation && !locationDenied && !unlocking && !unlockError;
+  const guestPitch = guest && !open;
   const kicker = mustEat.restaurant.district
     ? `Must Eat · ${mustEat.restaurant.district}`
     : 'Must Eat';
@@ -422,15 +433,17 @@ export default function MustEatDetailMobile({
                      thing a screen reader gets, since the tap now opens the
                      permission prompt rather than revealing anything. */
                   aria-label={
-                    unlocking
-                      ? t('map.revealSaving')
-                      : canUnlock
-                        ? t('map.revealHere')
-                        : needsLocation
-                          ? locationDenied
-                            ? tMap('locationBlocked')
-                            : tMap('locationAllow')
-                          : t('map.tooFarToReveal')
+                    guestPitch
+                      ? tMap('guestPitchCta')
+                      : unlocking
+                        ? t('map.revealSaving')
+                        : canUnlock
+                          ? t('map.revealHere')
+                          : needsLocation
+                            ? locationDenied
+                              ? tMap('locationBlocked')
+                              : tMap('locationAllow')
+                            : t('map.tooFarToReveal')
                   }
                   /* Auch die verdeckte Karte verschwindet während des Zooms:
                      der Zoom blättert inzwischen weiter, und landet er auf einer
@@ -513,8 +526,29 @@ export default function MustEatDetailMobile({
             </p>
           )}
 
+          {/* Ohne Konto: die Anmelde-Tafel statt der Naeherungs-Logik. Der
+              Ruecken ist fuer einen Gast keine Aufgabe (er hat kein Deck, in
+              das die Karte koennte), sondern die Frage „was liegt darunter?"
+              — und die Antwort ist das Starter Pack: gratis, zwanzig Must
+              Eats, und diese eine garantiert dabei (Betreiber, 07.09.2026:
+              „Anmeldung verkaufen, nicht Packs"). Der Kartentipp darueber
+              fuehrt auf denselben Weg (useMustEatDetailState). */}
+          {guestPitch && (
+            <div className={styles.fdGuest} role="status" aria-live="polite">
+              <p className={styles.fdGuestKicker}>{tMap('guestPitchKicker')}</p>
+              <p className={styles.fdGuestTitle}>{tMap('guestPitchTitle')}</p>
+              <p className={styles.fdGuestBody}>{tMap('guestPitchBody')}</p>
+              <button type="button" className={styles.fdGuestCta} onClick={onSignUp}>
+                {tMap('guestPitchCta')}
+              </button>
+              <button type="button" className={styles.fdGuestLogin} onClick={onSignIn}>
+                {tMap('starterPromoLogin')}
+              </button>
+            </div>
+          )}
+
           {/* Locked: Näherungs-Hinweis statt Beschreibung. */}
-          {!open && (
+          {!open && !guestPitch && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
               role={unlockError ? 'alert' : 'status'}

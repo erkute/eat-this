@@ -5,7 +5,6 @@ import type { MapMustEat, MapRestaurant } from '@/lib/types';
 
 export interface CachedMapData {
   restaurants: MapRestaurant[];
-  lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   categories: CategoryDef[];
   totalCount: number;
@@ -16,10 +15,21 @@ export interface CachedMapData {
   fullCatalog?: boolean;
 }
 
-const CURRENT_CACHE_PREFIX = 'eatthis_mapdata_v3_';
-const CURRENT_LAST_UID_KEY = 'eatthis_last_uid_v3';
+/* v4, weil sich die Nutzlast am 06.09.2026 in ihrer Bedeutung geaendert hat:
+   `restaurants` war das Tier DIESES Kontos, jetzt ist es der ganze Katalog.
+   Ein v3-Cache besteht die Formpruefung muehelos und wuerde vor dem ersten
+   Fetch 150 Spots malen statt 465 — ein halber Stadtplan, der wie das
+   Endergebnis aussieht. Die Versionsnummer ist der Riegel: v3-Schluessel
+   fallen unter LEGACY_CACHE_PREFIX und werden beim naechsten Abgleich
+   geloescht. */
+const CURRENT_CACHE_PREFIX = 'eatthis_mapdata_v4_';
+const CURRENT_LAST_UID_KEY = 'eatthis_last_uid_v4';
 const LEGACY_CACHE_PREFIX = 'eatthis_mapdata_';
-const LEGACY_LAST_UID_KEYS = ['eatthis_last_uid', 'eatthis_last_uid_v2'] as const;
+const LEGACY_LAST_UID_KEYS = [
+  'eatthis_last_uid',
+  'eatthis_last_uid_v2',
+  'eatthis_last_uid_v3',
+] as const;
 
 const cacheKey = (uid: string) => `${CURRENT_CACHE_PREFIX}${uid}`;
 
@@ -49,11 +59,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isCachedMapData(value: unknown): value is CachedMapData {
   if (!isRecord(value)) return false;
-  const { restaurants, lockedRestaurants, mustEats, categories, totalCount, revealedMustEatIds } =
-    value;
+  const { restaurants, mustEats, categories, totalCount, revealedMustEatIds } = value;
   if (
     !Array.isArray(restaurants) ||
-    !Array.isArray(lockedRestaurants) ||
     !Array.isArray(mustEats) ||
     !Array.isArray(categories) ||
     typeof totalCount !== 'number' ||
@@ -72,11 +80,7 @@ function isCachedMapData(value: unknown): value is CachedMapData {
     isRecord(mustEat.restaurant) &&
     typeof mustEat.restaurant._id === 'string';
 
-  return (
-    restaurants.every(validRestaurant) &&
-    lockedRestaurants.every(validRestaurant) &&
-    mustEats.every(validMustEat)
-  );
+  return restaurants.every(validRestaurant) && mustEats.every(validMustEat);
 }
 
 export function readMapCache(uid: string | null): CachedMapData | null {

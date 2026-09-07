@@ -110,15 +110,20 @@ describe('LoginEmail', () => {
 });
 
 describe('SignupEmail', () => {
+  /* Die Ueberschrift ist ein gerendertes PNG, also prueft der Alt-Text sie mit
+     — er ist das Einzige, was ein Postfach mit blockierten Bildern davon
+     sieht. Was das Pack seit dem 06.09.2026 enthaelt, sind Must-Eat-Karten
+     statt Spots; der Name ist geblieben. */
   it('shows the home hero, the CTA and the starter pack panel', async () => {
     const html = await signup();
     expect(html).toContain(magicLink);
     expect(html).toContain('Anmelden und Map öffnen');
     expect(html).toContain('WE TELL YOU WHAT TO EAT');
-    expect(html).toContain('besten Orte Berlins auf einer Map');
+    expect(html).toContain('Gute Spots findest du überall.');
     expect(html).toContain('STARTER PACK');
     expect(html).toContain('Gratis');
     expect(html).toContain('/pics/email/booster_free.png');
+    expect(html).toContain('20 neue Must Eats');
     expect(SIGNUP_SUBJECT).toContain('Willkommen');
   });
 

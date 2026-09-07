@@ -68,7 +68,7 @@ beforeEach(() => {
 })
 
 describe('assembleAndWriteEntitlement', () => {
-  it('writes a category entitlement with mustEatIds + dedup\'d restaurantIds from Sanity', async () => {
+  it('writes a category entitlement with the cards the category held at purchase time', async () => {
     const result = await assembleAndWriteEntitlement({
       uid: 'u1', packId: 'category-pizza', stripeSessionId: 'cs_test_123',
     })
@@ -80,7 +80,11 @@ describe('assembleAndWriteEntitlement', () => {
     expect(written.type).toBe('category')
     expect(written.slug).toBe('pizza')
     expect(written.mustEatIds).toEqual(['mustEat-1', 'mustEat-2', 'mustEat-3'])
-    expect(written.restaurantIds).toEqual(['rest-A', 'rest-B'])
+    /* Der Schnappschuss ist ein Beleg, keine Zugriffsliste: was das Pack
+       oeffnet, loest composeAccountSurface live aus `categorySlugs` auf. Ein
+       `restaurantIds` stand hier bis zum 06.09.2026 daneben und entschied die
+       Sichtbarkeit von SPOTS — die ist frei, also ist das Feld weg. */
+    expect('restaurantIds' in written).toBe(false)
     expect(written.stripeSessionId).toBe('cs_test_123')
     expect(written.source).toBe('stripe')
   })
@@ -93,7 +97,6 @@ describe('assembleAndWriteEntitlement', () => {
     const written = setFn.mock.calls[0][0]
     expect(written.type).toBe('all-berlin')
     expect(written.slug).toBeNull()
-    expect(written.restaurantIds).toEqual([])
     expect(written.mustEatIds).toEqual([])
   })
 

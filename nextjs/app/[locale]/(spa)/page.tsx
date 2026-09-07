@@ -7,8 +7,7 @@ import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates } from '@/lib/seo/metadata';
 import HubSection from '@/app/components/HubSection';
 import { getHomeData } from '@/lib/home/getHomeData';
-import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
-import { selectHomeInitialMapData } from '@/lib/map/initial-surface-data';
+import { getHomeInitialMapData } from '@/lib/map/server-initial-map-data';
 import { buildHomeJsonLd } from '@/lib/json-ld';
 import { getLandingFaqs } from '@/lib/landing/faqs';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
@@ -72,13 +71,14 @@ export default async function HomePage({ params }: PageProps) {
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  // The hub's client islands (HubNearby) reuse the map's anon dataset, so SSR
-  // both in parallel and hand initialMapData down through HubSection.
-  const [initialData, fullInitialMapData] = await Promise.all([
+  // The hub's client islands (HubNearby, the Must-Eats teaser) reuse the map's
+  // anon dataset — plus a few covered cards from the full deck, see
+  // getHomeInitialMapData — so SSR both in parallel and hand initialMapData
+  // down through HubSection.
+  const [initialData, initialMapData] = await Promise.all([
     getHomeData(locale as 'de' | 'en'),
-    getInitialAnonMapData(),
+    getHomeInitialMapData(),
   ]);
-  const initialMapData = selectHomeInitialMapData(fullInitialMapData);
 
   // WebPage (representative image) + FAQPage graph — the FAQ entries mirror what
   // the hub renders (HubFaq uses the same getLandingFaqs source). Organization/

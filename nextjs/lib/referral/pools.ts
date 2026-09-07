@@ -1,24 +1,24 @@
 // Pure pool math for referral bonuses. No I/O — fully unit-tested.
 
 interface PoolInput {
-  allIds: string[];
-  anonIds: Set<string>;
-  signedIds: Set<string>;
-  inviterEntitledIds: Set<string>;
+  /** Der ganze Stapel. */
+  allMustEatIds: string[];
+  /** Karten, die für den Einladenden schon offen liegen — gekauft, verdient
+   *  oder ohnehin öffentlich. Ein Geschenk, das man schon hat, ist keins. */
+  inviterFaceUpIds: ReadonlySet<string>;
+  /** Dasselbe für den Eingeladenen. Sein Konto ist Minuten alt, das ist also
+   *  in aller Regel nur das öffentliche Schaufenster. */
+  friendFaceUpIds: ReadonlySet<string>;
 }
 
-// inviterPool = all \ (anon ∪ signed ∪ inviterEntitled)
-// friendPool  = all \ (anon ∪ signed)
 export function computeReferralPools(input: PoolInput): {
   inviterPool: string[];
   friendPool: string[];
 } {
-  const { allIds, anonIds, signedIds, inviterEntitledIds } = input;
-  const friendVisible = new Set<string>([...anonIds, ...signedIds]);
-  const inviterVisible = new Set<string>([...friendVisible, ...inviterEntitledIds]);
+  const { allMustEatIds, inviterFaceUpIds, friendFaceUpIds } = input;
   return {
-    inviterPool: allIds.filter((id) => !inviterVisible.has(id)),
-    friendPool: allIds.filter((id) => !friendVisible.has(id)),
+    inviterPool: allMustEatIds.filter((id) => !inviterFaceUpIds.has(id)),
+    friendPool: allMustEatIds.filter((id) => !friendFaceUpIds.has(id)),
   };
 }
 

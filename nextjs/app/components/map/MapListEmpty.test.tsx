@@ -31,7 +31,6 @@ function list(props: Partial<React.ComponentProps<typeof RestaurantList>> = {}) 
   return (
     <RestaurantList
       restaurants={[]}
-      lockedIds={new Set()}
       selectedId={null}
       onSelect={vi.fn()}
       primaryMustEats={new Map()}
@@ -85,48 +84,38 @@ describe('MapListEmpty', () => {
   });
 });
 
-describe('RestaurantList with locked spots in it', () => {
+describe('RestaurantList rows', () => {
   it('renders the empty state only when the whole catalogue misses', () => {
     render(list());
     expect(screen.getByRole('status').textContent).toContain('map.emptyTitle');
   });
 
-  it('lists a locked spot like any other row', () => {
-    // No badge, no grey photo, no "locked" anywhere: the row names the spot,
-    // and opening it is what brings up the offer.
-    render(list({ restaurants: [spot('l1', 'Geheime Ramen Bar')], lockedIds: new Set(['l1']) }));
-
-    expect(screen.getByRole('heading', { name: 'Geheime Ramen Bar' })).toBeTruthy();
-    expect(screen.queryByRole('status')).toBeNull();
-  });
-
-  it('opens a locked row like its grey dot — same handler, same spot', () => {
+  it('opens a row — same handler, same spot as its pin', () => {
     const onSelect = vi.fn();
-    const locked = spot('l1', 'Geheime Ramen Bar');
-    render(list({ restaurants: [locked], lockedIds: new Set(['l1']), onSelect }));
+    const target = spot('l1', 'Geheime Ramen Bar');
+    render(list({ restaurants: [target], onSelect }));
 
     screen.getByRole('button', { name: /Geheime Ramen Bar/ }).click();
 
-    expect(onSelect).toHaveBeenCalledWith(locked);
+    expect(onSelect).toHaveBeenCalledWith(target);
   });
 
   it('keeps the order it was handed — the list decides it, not this component', () => {
     render(
       list({
         restaurants: [spot('l1', 'Geheime Ramen Bar'), spot('f1', 'Freies Lokal')],
-        lockedIds: new Set(['l1']),
       })
     );
 
-    // The All-Berlin banner carries a heading too, so this is about order,
-    // not about the list containing exactly two.
     const names = screen.getAllByRole('heading').map((h) => h.textContent);
     expect(names.indexOf('Geheime Ramen Bar')).toBeLessThan(names.indexOf('Freies Lokal'));
   });
 
-  // /api/restaurant-detail serves the paid fields. A locked row must never
-  // warm it — the row exists to name the spot, not to fetch what was not paid for.
-  it('never prefetches the paid detail payload for a locked row', () => {
+  /* Jede Zeile wärmt ihr Detail vor, sobald sie in Sichtweite kommt — bis zum
+     06.09.2026 war das für gesperrte Zeilen ausgenommen, weil /api/restaurant-
+     detail die bezahlten Felder auslieferte. Bezahlt wird dort nichts mehr:
+     die Story steht ohnehin indexiert auf der Spot-Seite. */
+  it('warms the detail payload for every row that comes into view', () => {
     const observed: Element[] = [];
     vi.stubGlobal(
       'IntersectionObserver',
@@ -144,13 +133,13 @@ describe('RestaurantList with locked spots in it', () => {
     render(
       list({
         restaurants: [spot('f1', 'Freies Lokal'), spot('l1', 'Geheime Ramen Bar')],
-        lockedIds: new Set(['l1']),
       })
     );
 
-    expect(observed.length).toBe(1);
-    expect(prefetchRestaurantDetail).toHaveBeenCalledTimes(1);
+    expect(observed.length).toBe(2);
+    expect(prefetchRestaurantDetail).toHaveBeenCalledTimes(2);
     expect(prefetchRestaurantDetail).toHaveBeenCalledWith('f1');
+    expect(prefetchRestaurantDetail).toHaveBeenCalledWith('l1');
     vi.unstubAllGlobals();
   });
 });

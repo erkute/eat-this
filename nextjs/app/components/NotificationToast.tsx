@@ -7,7 +7,7 @@ import { useTranslation } from '@/lib/i18n';
  * Die eine Infoflaeche der App.
  *
  * Jede kleine Rueckmeldung laeuft hier durch — Spot gespeichert, Spot
- * entfernt, Standort nicht gefunden, angemeldet, freigeschaltet. Sie steht
+ * entfernt, Standort nicht gefunden, angemeldet, Einladung gezogen. Sie steht
  * mittig und im Zuschnitt des Onboarding-Panels (Styles in globals.css);
  * vorher lagen zwei getrennte Leisten am unteren Rand, und auf dem Handy
  * verschwanden beide unter dem Sheet.
@@ -211,19 +211,22 @@ function buildToastCopy(message: string, lang: string): Notice {
         };
   }
 
-  if (lower.includes('freigeschaltet') || lower.includes('unlocked')) {
+  /* Die Einladung hat gezogen (ReferralToastListener). Bis zum 06.09.2026
+     hiess die Karte hier „Neue Spots sind bereit" — seither zahlt eine
+     Einladung in Must-Eat-Karten, die Spots liegen fuer jeden frei. */
+  if (lower.includes('your link') || lower.includes('deinen link')) {
     return english
       ? {
           tone: 'success',
-          eyebrow: 'Unlocked',
-          title: 'New spots are ready',
+          eyebrow: 'Invite',
+          title: 'A new card in your deck',
           detail: text,
           icon: 'spark',
         }
       : {
           tone: 'success',
-          eyebrow: 'Freigeschaltet',
-          title: 'Neue Spots sind bereit',
+          eyebrow: 'Einladung',
+          title: 'Eine neue Karte im Deck',
           detail: text,
           icon: 'spark',
         };

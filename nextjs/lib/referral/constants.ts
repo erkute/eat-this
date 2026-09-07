@@ -3,9 +3,14 @@
 
 export const REFERRER_COOKIE = 'pending_referrer';
 
-// Bonus size per successful referral (inviter AND friend). Internal only —
-// NEVER surface this number in UI copy (see no-spot-counts rule).
-export const REFERRAL_BONUS_SIZE = 10;
+// Karten pro erfolgreicher Einladung — für beide Seiten, eine.
+//
+// Bis zum 06.09.2026 waren es zehn SPOTS. Die gibt es nicht mehr zu verschenken:
+// die Karte ist frei, gestaffelt sind nur noch die Must-Eat-Karten, und von
+// denen ist eine ein Geschenk und zehn ein halbes Album. Der Stapel wächst auf
+// die geplanten 100+, aber er wächst langsam — diese Zahl muss gegen die
+// KLEINSTE Stapelgröße stimmen, nicht gegen die größte.
+export const REFERRAL_BONUS_CARDS = 1;
 
 // Cookie Max-Age: 30 days, in seconds.
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -26,15 +31,14 @@ export const UID_SHAPE = /^[a-zA-Z0-9]{20,40}$/;
 // eine Stunde genauso eindeutig wie zehn Minuten.
 export const ACCOUNT_FRESHNESS_MS = 60 * 60 * 1000;
 
-// Anti-farming cap: max successful referrals an inviter is REWARDED for. Each
-// awarded referral grants real map entitlements and the inviter's bonus pool
-// shrinks toward the full paid catalog, so without a ceiling a single inviter
-// could unlock all of Berlin via throwaway signups. Past the cap the friend
-// still gets their own welcome bonus — only the inviter-side reward stops.
+// Anti-farming cap: max successful referrals an inviter is REWARDED for. Past
+// the cap the friend still gets their own welcome card — only the
+// inviter-side reward stops.
 //
-// The cap has to be read against the paid remainder, not on its own: it only
-// bites while REFERRAL_BONUS_SIZE × cap stays under the number of spots the
-// signed tier leaves behind. Raising the free tiers to 100/150 (2026-08-23)
-// cut that remainder to 194, which 25 × 10 would have cleared outright — the
-// whole map for 20 throwaway signups. 15 keeps the ceiling below it again.
+// Die Obergrenze ist gegen den STAPEL zu lesen, nicht für sich: 15 Karten sind
+// bei 26 im Stapel über die Hälfte, bei den geplanten 100+ ein Siebtel. Sie
+// bleibt bewusst so hoch: fünfzehn echte Einladungen sind mehr wert als
+// fünfzehn Karten, und wer sie fälscht, muss dafür fünfzehn frische Konten mit
+// verschiedenen Adressen anlegen. Wenn der Stapel wider Erwarten klein bleibt,
+// ist DIESE Zahl die Stellschraube — nicht die Belohnung selbst.
 export const MAX_REFERRALS_PER_INVITER = 15;

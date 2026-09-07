@@ -1,18 +1,20 @@
-// Server-only: build the anon-tier map data at request time so the SPA
-// renders WITH spots already in the HTML, avoiding the "0 spots" flash.
+// Server-only: build the public map data at request time so the SPA renders
+// WITH spots already in the HTML, avoiding the "0 spots" flash.
 //
 // Used by app/[locale]/(spa)/[...slug]/page.tsx for /map.
 // Anon visitors are served entirely from here — they never fetch /api/map-data
 // — so anything the anon map needs has to be in this payload. Signed-in users
-// still refetch on mount for their signed tier + entitlement-based unions.
+// still refetch on mount for their own face-up cards.
 
 import { getCachedMapData } from './cached-sanity';
-import { composeAnonRestaurants, composeRevealedMustEats } from './tier-composition';
-import { applySpotOfDayReveal } from './spotOfDayReveal';
-import { getFreeSurfaceData, applyFreeSurface } from './free-surface';
+import { composeRevealedMustEats } from './revealed-must-eats';
+import { spotOfDayMustEatIds } from './spotOfDayReveal';
 import { stripCoveredMustEats } from './stripCoveredMustEats';
-import { selectMustEatsCatalog, type InitialMustEatsData } from './initial-surface-data';
-import { stripLockedRestaurants } from './stripLockedRestaurant';
+import {
+  selectHomeInitialMapData,
+  selectMustEatsCatalog,
+  type InitialMustEatsData,
+} from './initial-surface-data';
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server';
 import { unstable_cache } from 'next/cache';
 import { hydrateAuthorizedMustEats, readPrivateMustEatContent } from '@/lib/must-eat/private-store';
@@ -21,64 +23,46 @@ import type { CategoryDef } from '@/lib/categories';
 
 export interface InitialMapData {
   restaurants: MapRestaurant[];
-  lockedRestaurants: MapRestaurant[];
   mustEats: MapMustEat[];
   categories: CategoryDef[];
   totalCount: number;
   // Serialisable: array form so the RSC → client boundary doesn't break.
   // Client converts to Set on hydration.
   revealedMustEatIds: string[];
-  /** Locked spots an account alone would open. Drives which of the two offers
-   *  a locked sheet shows — sign-in for these, a pack for the rest. Ships in
-   *  the anonymous payload because these spots' names are public anyway (the
-   *  locked list already renders them). */
 }
 
 async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
   const today = new Date().toISOString().slice(0, 10);
-  const [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface, spotId] =
-    await Promise.all([getCachedMapData(), getFreeSurfaceData(), getSpotOfDayId(today)]);
+  const [{ restaurants: all, mustEats: allMustEats, categories }, spotId] = await Promise.all([
+    getCachedMapData(),
+    getSpotOfDayId(today),
+  ]);
 
-  const mustEatCountByRestaurant = new Map<string, number>();
-  for (const m of allMustEats) {
-    const rid = m.restaurant._id;
-    mustEatCountByRestaurant.set(rid, (mustEatCountByRestaurant.get(rid) ?? 0) + 1);
-  }
-
-  const anonSet = composeAnonRestaurants(all, mustEatCountByRestaurant);
-  const anonIds = new Set(anonSet.map((r) => r._id));
-  // Face-up-Set bleibt auf dem kuratierten Anon-Tier — Free-Surface-Spots
-  // liefern nur Card-Backs (siehe Spec).
-  const revealedSet = composeRevealedMustEats(allMustEats, anonIds);
-
-  const visibleRestaurants = applyFreeSurface(anonSet, all, freeSurface.restaurantIds);
-  const visibleIdSet = new Set(visibleRestaurants.map((r) => r._id));
-  const visibleMustEats = allMustEats.filter((m) => visibleIdSet.has(m.restaurant._id));
-  const lockedRestaurants = all.filter((r) => !visibleIdSet.has(r._id));
-
-  // Spot des Tages — a free, daily-rotating gift for everyone. Surface today's
-  // spot + reveal its must-eat (ephemeral: recomputed per request from the
-  // date, so tomorrow's replaces it and the previous one falls back to locked).
-  const gifted = applySpotOfDayReveal(spotId, all, allMustEats, {
-    restaurants: visibleRestaurants,
-    lockedRestaurants,
-    mustEats: visibleMustEats,
-    revealedMustEatIds: revealedSet,
-  });
+  // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
+  // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das Schaufenster
+  // plus den Spot des Tages, und der ist flüchtig: pro Anfrage aus `today`
+  // gerechnet, morgen steht ein anderer da. Dieselbe Regel wie der Gast-Zweig
+  // in composeAccountSurface — die SSR-Nutzlast und der spätere Fetch müssen
+  // dasselbe meinen, sonst springt die Karte beim Hydrieren. Die Rücken sind
+  // der Anlass zur Anmeldung; was darunter liegt, bleibt auf dem Server
+  // (getInitialAnonMapData strippt).
+  const revealedMustEatIds = new Set([
+    ...composeRevealedMustEats(allMustEats),
+    ...spotOfDayMustEatIds(spotId, allMustEats),
+  ]);
 
   return {
-    restaurants: gifted.restaurants,
-    lockedRestaurants: stripLockedRestaurants(gifted.lockedRestaurants),
-    mustEats: gifted.mustEats,
+    restaurants: all,
+    mustEats: allMustEats,
     categories,
     totalCount: all.length,
-    revealedMustEatIds: Array.from(gifted.revealedMustEatIds),
+    revealedMustEatIds: Array.from(revealedMustEatIds),
   };
 }
 
 /**
- * The face-up set below is the anon tier plus the spot-of-day gift — the same
- * cards for every visitor, and the same cards whose premium fields already ship
+ * The face-up set below is the curated shop window plus the spot-of-day gift —
+ * the same cards for every visitor, and the same cards whose premium fields ship
  * in the anonymous HTML. So this read has no per-viewer component and caching
  * it publishes nothing that isn't published already. The per-viewer path
  * (/api/map-data, entitlements + on-site unlocks + purchases) keeps the
@@ -105,29 +89,63 @@ export async function getPublicMustEatIds(): Promise<Set<string>> {
 }
 
 /**
- * Payload for the public /must-eats catalog — the complete deck.
+ * Payload für den öffentlichen /must-eats-Katalog — der GANZE Stapel.
  *
- * `getInitialAnonMapData()` decides which cards are face-up (curated anon set
- * + spot-of-day gift) and hydrates only those; the raw Sanity list supplies the
- * rest, which the map drops because their spot sits outside the free tier. The
- * merge lives in `selectMustEatsCatalog` so the authorization decision stays
- * where it is — here — and only the ordering is pure.
+ * Bewusst ungestaffelt, als einzige Fläche. Die Map und das Album zeigen, was
+ * jemandem gehört; diese Seite zeigt, was es GIBT — eine Wand aus
+ * Kartenrücken, aus der ein paar Motive herausstechen. Gestaffelt wäre sie
+ * für einen Fremden fünf Karten und sonst nichts, und damit hätte die Seite,
+ * die für den Stapel wirbt, den Stapel nicht mehr.
+ *
+ * Verraten wird dabei nichts: eine verdeckte Karte trägt hier weder Gericht
+ * noch Bild (stripCoveredMustEats) noch ihren Spot (trimCoveredSpot). Was
+ * bleibt, ist ihre Nummer — und die steht ohnehin auf jeder Karte.
+ *
+ * `getInitialAnonMapData()` entscheidet, welche Karten offen liegen, und
+ * hydriert nur die; der Rest kommt als bloße Metadaten aus dem Katalog dazu.
  */
 export async function getMustEatsCatalogData(): Promise<InitialMustEatsData> {
   const [anon, { mustEats: catalog }] = await Promise.all([
     getInitialAnonMapData(),
     getCachedMapData(),
   ]);
-  const merged = selectMustEatsCatalog(anon, catalog);
+  return composeMustEatsCatalog(anon, catalog);
+}
+
+function composeMustEatsCatalog(anon: InitialMapData, catalog: MapMustEat[]): InitialMustEatsData {
+  const faceUp = new Set(anon.revealedMustEatIds);
+  const hydrated = new Map(anon.mustEats.map((m) => [m._id, m]));
+  const complete = catalog.map((m) => hydrated.get(m._id) ?? m);
+  const ordered = selectMustEatsCatalog({ ...anon, mustEats: complete });
 
   return {
-    ...merged,
-    // The cards joining from `catalog` never passed the anon strip. They carry
-    // no paid fields today (mapMustEatsQuery does not select them), but the
-    // guard is what makes that a property of this function rather than of a
-    // query somewhere else.
-    mustEats: stripCoveredMustEats(merged.mustEats, new Set(anon.revealedMustEatIds)),
+    ...ordered,
+    // The strip is what makes "covered cards carry no paid fields" a property
+    // of this function rather than of a query somewhere else.
+    mustEats: stripCoveredMustEats(ordered.mustEats, faceUp),
   };
+}
+
+/**
+ * Nutzlast für die Startseite: die Spots der anonymen Map, dazu für den
+ * Must-Eats-Teaser das Schaufenster UND ein paar Rücken aus dem ganzen Stapel.
+ *
+ * Die anonyme Map-Nutzlast trägt seit dem 06.09.2026 nur noch die offenen
+ * Karten — was ein Konto nicht sieht, taucht am Spot nicht auf. Für die
+ * Startseite ist das die falsche Menge: der Teaser lebt vom Kontrast zwischen
+ * Rücken und Motiv, und ohne Rücken zeigte er sechs gerahmte Fotos und kein
+ * Spiel (Betreiber, 07.09.2026: „kannst du ruhig wieder die verdeckten
+ * dazupacken"). Also kommen die Rücken aus demselben Katalog wie auf
+ * /must-eats, in derselben Fassung: ohne Gericht, ohne Bild, ohne Spot.
+ * Wer ohne Konto auf einen tippt, landet bei der Anmeldung (HubMustEatsTeaser).
+ */
+export async function getHomeInitialMapData(): Promise<InitialMapData> {
+  const [anon, { mustEats: catalog }] = await Promise.all([
+    getInitialAnonMapData(),
+    getCachedMapData(),
+  ]);
+  const { mustEats } = composeMustEatsCatalog(anon, catalog);
+  return selectHomeInitialMapData({ ...anon, mustEats });
 }
 
 export async function getInitialAnonMapData(): Promise<InitialMapData> {

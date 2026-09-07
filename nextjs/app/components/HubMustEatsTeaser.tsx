@@ -6,7 +6,7 @@ import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useLoginModal } from '@/lib/auth';
-import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
+import { showStarterPitch } from '@/lib/auth/starterPitch';
 import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
@@ -110,8 +110,7 @@ export default function HubMustEatsTeaser() {
      legt sie garantiert offen hinein — dieselbe Zusage wie auf der Map. */
   const openStarterLogin = (mustEatId: string) => {
     trackEvent('login_start', { method: 'home_covered_card' });
-    rememberPendingStarterCard(mustEatId);
-    openLoginModal('starter', { starterMustEatId: mustEatId });
+    showStarterPitch({ mustEatId, lang: lang === 'en' ? 'en' : 'de', openLoginModal });
   };
 
   return (

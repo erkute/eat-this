@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react';
 
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 
-import { useMustEatDetailState } from '../useMustEatDetailState';
+import { GUEST_SHAKE_MS, useMustEatDetailState } from '../useMustEatDetailState';
 import { trackEvent } from '@/lib/analytics';
 import type { MapMustEat } from '@/lib/types';
 
@@ -171,36 +171,93 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(onUnlock).not.toHaveBeenCalled();
   });
 
-  /* Ein Gast wird nicht nach seinem Standort gefragt und nicht geschuettelt:
-     der Ruecken ist fuer ihn die Frage „was liegt darunter?", und die Antwort
-     ist die Anmeldung — egal, wo er steht (Betreiber, 07.09.2026). */
-  it('routes a guest to login on tap, wherever they stand and without a fix', () => {
-    const onRequireLogin = vi.fn();
-    const onRequestLocation = vi.fn();
-    const onUnlock = vi.fn().mockResolvedValue(true);
-    const { result } = renderHook(() =>
-      useMustEatDetailState({
-        mustEat: mkMustEat(),
-        userLocation: null,
-        onUnlock,
-        isAuthed: false,
-        onRequireLogin,
-        onRequestLocation,
-      })
-    );
+  /* Ein Gast wird nicht nach seinem Standort gefragt: der Ruecken ist fuer
+     ihn die Frage „was liegt darunter?", und die Antwort ist die Anmeldung —
+     egal, wo er steht (Betreiber, 07.09.2026). Die Karte zittert erst kurz
+     und gibt dann das Formular frei („bevor Anmelden angeht"). */
+  it('shakes the card for a guest, then routes to login — wherever they stand', () => {
+    vi.useFakeTimers();
+    try {
+      const onRequireLogin = vi.fn();
+      const onRequestLocation = vi.fn();
+      const onUnlock = vi.fn().mockResolvedValue(true);
+      const { result } = renderHook(() =>
+        useMustEatDetailState({
+          mustEat: mkMustEat(),
+          userLocation: null,
+          onUnlock,
+          isAuthed: false,
+          onRequireLogin,
+          onRequestLocation,
+        })
+      );
 
-    act(() => {
-      void result.current.handleCardClick(mkEvent());
+      act(() => {
+        void result.current.handleCardClick(mkEvent());
+      });
+
+      expect(result.current.tapping).toBe(true);
+      expect(onRequireLogin).not.toHaveBeenCalled();
+      expect(trackEvent).toHaveBeenCalledWith(
+        'must_eat_reveal_attempt',
+        expect.objectContaining({ result: 'login_required' })
+      );
+
+      /* Ein zweiter Tipp waehrend des Zitterns oeffnet das Formular nicht
+         zweimal. */
+      act(() => {
+        void result.current.handleCardClick(mkEvent());
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(GUEST_SHAKE_MS);
+      });
+
+      expect(result.current.tapping).toBe(false);
+      expect(onRequireLogin).toHaveBeenCalledTimes(1);
+      expect(onRequestLocation).not.toHaveBeenCalled();
+      expect(onUnlock).not.toHaveBeenCalled();
+      expect(result.current.revealOrigin).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  /* Ohne Bewegung ist das Warten ein toter Moment — dann sofort. */
+  it('skips the shake and opens the login at once under reduced motion', () => {
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: (query: string) => ({ matches: query.includes('reduce') }),
     });
+    try {
+      const onRequireLogin = vi.fn();
+      const { result } = renderHook(() =>
+        useMustEatDetailState({
+          mustEat: mkMustEat(),
+          userLocation: null,
+          onUnlock: vi.fn().mockResolvedValue(true),
+          isAuthed: false,
+          onRequireLogin,
+        })
+      );
 
-    expect(onRequireLogin).toHaveBeenCalledTimes(1);
-    expect(onRequestLocation).not.toHaveBeenCalled();
-    expect(onUnlock).not.toHaveBeenCalled();
-    expect(result.current.revealOrigin).toBeNull();
-    expect(trackEvent).toHaveBeenCalledWith(
-      'must_eat_reveal_attempt',
-      expect.objectContaining({ result: 'login_required' })
-    );
+      act(() => {
+        void result.current.handleCardClick(mkEvent());
+      });
+
+      expect(onRequireLogin).toHaveBeenCalledTimes(1);
+      expect(result.current.tapping).toBe(false);
+    } finally {
+      if (originalMatchMedia) {
+        Object.defineProperty(window, 'matchMedia', {
+          configurable: true,
+          value: originalMatchMedia,
+        });
+      } else {
+        Reflect.deleteProperty(window, 'matchMedia');
+      }
+    }
   });
 
   it('outside the unlock radius clears the tapping state after the shake', () => {

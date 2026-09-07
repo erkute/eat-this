@@ -41,7 +41,7 @@ interface Props {
   position?: { index: number; count: number };
   state: MustEatDetailState;
   /** Kein Konto: die verdeckte Karte fragt nicht nach dem Standort — der Tipp
-   *  auf den Ruecken oeffnet die Starter-Pack-Tafel (starterPitch). */
+   *  auf den Ruecken oeffnet sofort das Anmeldeformular (MustEatDetail). */
   guest?: boolean;
 }
 
@@ -269,7 +269,7 @@ export default function MustEatDetailMobile({
           ? null
           : tMap('proximityHint');
   /* Ein Gast wird nicht nach seinem Standort gefragt — sein Weg zur Karte
-     ist die Anmeldung, nicht die Naehe (siehe starterPitch). */
+     ist die Anmeldung, nicht die Naehe (siehe MustEatDetail). */
   const showLocationChip = !guest && needsLocation && !locationDenied && !unlocking && !unlockError;
   const guestPitch = guest && !open;
   const kicker = mustEat.restaurant.district
@@ -429,8 +429,11 @@ export default function MustEatDetailMobile({
                      thing a screen reader gets, since the tap now opens the
                      permission prompt rather than revealing anything. */
                   aria-label={
+                    /* Ohne Konto oeffnet der Tipp das Anmeldeformular — und
+                       so heisst die Karte auch, mit demselben kurzen Wort wie
+                       der Knopf im Spot-Sheet. */
                     guestPitch
-                      ? tMap('guestPitchCta')
+                      ? tMap('starterCta')
                       : unlocking
                         ? t('map.revealSaving')
                         : canUnlock
@@ -523,11 +526,11 @@ export default function MustEatDetailMobile({
           )}
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. Ohne Konto liest
-              sich die Karte genauso — erst der Tipp auf den Ruecken sagt als
-              Layer, wie man an sie kommt (starterPitch). Ein Block in der
-              Karte stand hier kurz und wurde als Fremdkoerper abgelehnt
-              (Betreiber, 07.09.2026: „sollte als Layer nach einem Klick
-              kommen"). */}
+              sich die Karte genauso — der Tipp auf den Ruecken oeffnet dann
+              sofort das Anmeldeformular (MustEatDetail). Ein Anmelde-Block in
+              der Karte stand hier kurz und wurde als Fremdkoerper abgelehnt,
+              eine Tafel als Layer danach als Klick zu viel (Betreiber,
+              07.09.2026). */}
           {!open && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}

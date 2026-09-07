@@ -104,15 +104,15 @@ describe('MustEatDetailMobile guest pitch', () => {
       />
     );
 
-    /* Die Tafel selbst ist ein Layer (starterPitch) — in der Karte steht
-       nichts davon, sie liest sich wie jede verdeckte Karte. */
+    /* In der Karte steht nichts vom Anmelden — sie liest sich wie jede
+       verdeckte Karte; das Formular oeffnet erst der Tipp (MustEatDetail). */
     expect(screen.getByText('Noch nicht aufgedeckt')).toBeTruthy();
-    expect(screen.queryByText('guestPitchTitle')).toBeNull();
     expect(screen.queryByText('Standort freigeben')).toBeNull();
 
-    /* Der Kartentipp ist der Weg zur Tafel — und so heisst er auch fuers
-       Screenreader-Ohr, nicht „Standort freigeben". */
-    fireEvent.click(screen.getByRole('button', { name: 'guestPitchCta' }));
+    /* Der Kartentipp ist der Weg zum Formular — und so heisst er auch fuers
+       Screenreader-Ohr („Anmelden", map.starterCta), nicht „Standort
+       freigeben". */
+    fireEvent.click(screen.getByRole('button', { name: 'starterCta' }));
     expect(handleCardClick).toHaveBeenCalledTimes(1);
   });
 
@@ -128,7 +128,7 @@ describe('MustEatDetailMobile guest pitch', () => {
     );
 
     expect(container.querySelector('[data-location-needed]')).not.toBeNull();
-    expect(screen.queryByLabelText('guestPitchCta')).toBeNull();
+    expect(screen.queryByLabelText('starterCta')).toBeNull();
   });
 });
 

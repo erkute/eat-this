@@ -417,7 +417,7 @@ function ConfirmSignIn({
         Du meldest dich an als <strong>{email}</strong>.{claimingSpot && ' Dein Spot wartet schon.'}
       </p>
       <button type="button" className={styles.cta} onClick={submit}>
-        <span>Jetzt anmelden</span>
+        <span>Anmelden</span>
         <svg
           viewBox="0 0 24 24"
           width={16}

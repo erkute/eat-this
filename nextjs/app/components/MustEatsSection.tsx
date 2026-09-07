@@ -32,7 +32,7 @@ const COPY = {
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
     closeBody:
-      'Jedes Must Eat gehört zu einem Spot auf der Map. Einige sind schon aufgedeckt, die anderen entdeckst du vor Ort — oder du schaltest sie mit einem Booster Pack frei. Und wir entdecken immer wieder neue.',
+      'Jedes Must Eat gehört zu einem Spot auf der Map. Einige sind schon aufgedeckt, die anderen entdeckst du vor Ort — oder du schaltest sie mit einem Booster Pack frei. Und es kommen laufend neue dazu.',
     closeCta: 'Zur Map',
     closeSecondary: 'Booster Packs ansehen',
     headCta: 'Zur Map',
@@ -53,7 +53,7 @@ const COPY = {
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:
-      'Every Must Eat belongs to a spot on the map. Some are already face-up, the rest you discover at the spot — or unlock them with a Booster Pack. And we keep discovering new ones.',
+      'Every Must Eat belongs to a spot on the map. Some are already face-up, the rest you discover at the spot — or unlock them with a Booster Pack. And new ones keep coming.',
     closeCta: 'To the map',
     closeSecondary: 'See Booster Packs',
     headCta: 'To the map',

@@ -2116,7 +2116,7 @@
 @media (min-width: 1024px) {
   /* Am Fenster gemessen, nicht fix: 360px waren hier hart gesetzt und haben die
      dvh-Regel der Basis überstimmt. Auf einem 1512×780-Fenster (MacBook mit
-     Browser-Chrome) schob das den „Starter Pack holen"-Knopf 11px unter die
+     Browser-Chrome) schob das den Anmelde-Knopf der Pack-Tafel 11px unter die
      Kante — das Angebot war genau auf dem Gerät nur nach Scrollen zu sehen, auf
      dem die meisten sitzen. Der Deckel hält den großen Anschnitt auf hohen
      Fenstern, der Boden verhindert ein Briefmarken-Foto auf flachen. */

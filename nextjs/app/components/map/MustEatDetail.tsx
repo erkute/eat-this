@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useLoginModal } from '@/lib/auth';
-import { showStarterPitch } from '@/lib/auth/starterPitch';
+import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
@@ -99,16 +99,17 @@ export default function MustEatDetail({
   // Keep the map in place and use the shared login layer. The previous
   // standalone route made this reveal flow leave the map entirely.
   const { open: openLoginModal } = useLoginModal();
-  /* Ein Gast tippt auf den Ruecken: erst die Starter-Pack-Tafel als Layer
-     (Gratis, 20 Must Eats, diese dabei), deren Knopf dann das Login oeffnet.
-     Die angetippte Karte reist als Absicht mit — siehe starterPitch. */
+  /* Ein Gast tippt auf den Ruecken: sofort das Anmeldeformular, im
+     Starter-Pack-Modus. Dazwischen stand am 07.09.2026 fuer ein paar Stunden
+     eine Tafel als Layer („Gratis · Starter Pack · Starter Pack holen"), die
+     erst per Knopf zum Formular fuehrte — ein Klick zu viel (Betreiber,
+     07.09.2026: „soll sofort das Anmeldeformular oeffnen"). Die angetippte
+     Karte reist als Absicht mit (pendingStarterCard), damit das Pack sie
+     garantiert offen enthaelt. */
   const handleRequireLogin = useCallback(() => {
-    showStarterPitch({
-      mustEatId: mustEat._id,
-      lang: locale === 'en' ? 'en' : 'de',
-      openLoginModal,
-    });
-  }, [openLoginModal, mustEat._id, locale]);
+    rememberPendingStarterCard(mustEat._id);
+    openLoginModal('starter', { starterMustEatId: mustEat._id });
+  }, [openLoginModal, mustEat._id]);
   const state = useMustEatDetailState({
     mustEat,
     userLocation,

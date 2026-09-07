@@ -663,6 +663,13 @@ div.page {
   line-height: 1.15;
 }
 
+/* Der Knopf am rechten Rand — erst ab Desktop, siehe unten. Auf dem Telefon
+   füllt der Text die Breite, dort wäre er ein drittes Element in einer
+   Zeile, die schon voll ist. */
+.hubLinkCta {
+  display: none;
+}
+
 @media (hover: hover) {
   .hubLink:hover {
     transform: translateY(-2px);
@@ -901,6 +908,60 @@ div.page {
   .content > h2,
   .content > h3 {
     max-width: min(24ch, var(--article-measure));
+  }
+
+  /* Der Katalog-Ausgang als Tafel, nicht als Zeile. Auf 660px Lesebreite
+     trug er ein 72px-Pack und zwei kurze Zeilen — die rechte Hälfte blieb
+     leer (Betreiber, 07.09.2026: „sehr viel Leerfläche"). Jetzt drei
+     Spalten: das Pack größer, das Label in Überschriftengröße, rechts ein
+     gelber Knopf als Kante. Auf dem Telefon bleibt alles, wie es war. */
+  .hubLink {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 26px;
+    padding: 24px 28px;
+  }
+
+  .hubLinkPack {
+    width: 96px;
+  }
+
+  .hubLinkKicker {
+    font-size: 14px;
+  }
+
+  .hubLinkLabel {
+    font-size: clamp(1.5rem, 2.2vw, 1.9rem);
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .hubLinkCta {
+    display: inline-flex;
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-items: center;
+    align-self: center;
+    min-height: 48px;
+    padding: 0 22px;
+    border-radius: var(--et-radius-control, 7px);
+    background: var(--et-home-accent, #ffc600);
+    color: var(--et-home-ink, #15120e);
+    font-family: var(--et-font-display, var(--font-providence), sans-serif);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background 180ms ease;
+  }
+
+  .hubLink:focus-visible .hubLinkCta {
+    background: var(--et-home-inverse-text, #fff);
+  }
+
+  @media (hover: hover) {
+    .hubLink:hover .hubLinkCta {
+      background: var(--et-home-inverse-text, #fff);
+    }
   }
 
   /* The pull quote hangs in the margin next to the text. */

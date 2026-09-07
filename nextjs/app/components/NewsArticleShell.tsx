@@ -431,6 +431,15 @@ export default function NewsArticleShell({
                   <span className={styles.hubLinkLabel}>
                     {articleHubLabel(hubLink, de ? 'de' : 'en')}
                   </span>
+                  {/* Nur auf Desktop (CSS): dort ist der Kasten 660px breit,
+                      und mit einem 72px-Pack und zwei kurzen Zeilen blieb die
+                      rechte Hälfte leer (Betreiber, 07.09.2026). Der Knopf
+                      gibt der Fläche eine rechte Kante; auf dem Telefon füllt
+                      der Text die Breite ohnehin. Für Screenreader trägt der
+                      Link seinen Namen schon in Kicker und Label. */}
+                  <span className={styles.hubLinkCta} aria-hidden="true">
+                    {de ? 'Ansehen' : 'View'}
+                  </span>
                 </Link>
               )}
             </div>

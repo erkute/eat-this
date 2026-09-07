@@ -46,9 +46,9 @@ Oberfläche.
 
 **Gäste sehen alle Rücken** (Betreiber, 07.09.2026: „mehr Anmeldungen, nicht
 mehr Verkauf"). Jeder Rücken an einem Spot ist die Frage „was liegt
-darunter?", und die Karten-Detailansicht beantwortet sie ohne Konto mit der
-Anmelde-Tafel: gratis, 20 Must Eats, diese ist dabei. Die angetippte Karte
-reist als Absicht mit (`?starter=<id>` in der Continue-URL des Magic-Links,
+darunter?", und der Tipp auf den Rücken öffnet ohne Konto sofort das
+Anmeldeformular im Starter-Pack-Modus — keine Tafel, kein zweiter Klick
+(Betreiber, 07.09.2026). Die angetippte Karte reist als Absicht mit (`?starter=<id>` in der Continue-URL des Magic-Links,
 sessionStorage für Google, `lib/auth/pendingStarterCard.ts`) und landet
 garantiert in der offenen Hälfte des Starter Packs (`placeWantedFirst`).
 Derselbe Weg vom Startseiten-Teaser aus. Was ein Rücken preisgibt, ist der

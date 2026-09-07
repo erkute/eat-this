@@ -15,11 +15,17 @@ node_modules/
 #
 # Shared, because it is project knowledge rather than machine state:
 #   launch.json          — how to run this app
+#   settings.json        — the permission allowlist (tests, lint, typecheck,
+#                          build, push, PR tools), so a fresh remote session
+#                          stops asking for every one of them (Betreiber,
+#                          07.09.2026). Merging stays a prompt on purpose.
+#                          Machine-specific overrides go to settings.local.json.
 #   skills/deploy-verify — how to tell a finished App Hosting rollout from the
 #                          CDN edge cache lying about it
-# Still local: settings.json, hooks/, agents/, worktrees/, .DS_Store.
+# Still local: settings.local.json, hooks/, agents/, worktrees/, .DS_Store.
 .claude/*
 !.claude/launch.json
+!.claude/settings.json
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/deploy-verify/

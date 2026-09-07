@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test *)",
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run build:css)",
+      "Bash(npm run build:isolated)",
+      "Bash(npm ci *)",
+      "Bash(npm ci)",
+      "Bash(npx vitest run *)",
+      "Bash(npx prettier --check *)",
+      "Bash(npx prettier --write *)",
+      "Bash(git fetch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "mcp__github__pull_request_read",
+      "mcp__github__get_file_contents",
+      "mcp__github__list_commits",
+      "mcp__github__get_commit",
+      "mcp__github__list_pull_requests",
+      "mcp__github__create_pull_request",
+      "mcp__github__update_pull_request",
+      "mcp__Claude_Code_Remote__subscribe_pr_activity",
+      "mcp__Claude_Code_Remote__unsubscribe_pr_activity",
+      "mcp__Claude_Code_Remote__send_later",
+      "mcp__Claude_Code_Remote__list_triggers",
+      "mcp__Claude_Code_Remote__delete_trigger"
+    ]
+  }
+}

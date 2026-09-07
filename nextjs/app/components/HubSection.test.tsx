@@ -11,6 +11,18 @@ vi.mock('./HubFragRemy', () => ({ default: () => '<div data-testid="remy"></div>
 vi.mock('./HubFaq', () => ({ default: () => '<div data-testid="faq"></div>' }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
+/* Das Starter-Pack-Formular bietet seit 07.09.2026 auch Google an und liest
+   dafuer den Auth-Kontext; die Seite hier rendert ohne AuthProvider. Der
+   Mail-Weg bleibt echt — er kommt ohne Provider aus. */
+vi.mock('@/lib/auth/AuthContext', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/auth/AuthContext')>()),
+  useAuth: () => ({
+    user: null,
+    loading: false,
+    signInWithGoogle: async () => {},
+    prepareGoogleSignIn: () => {},
+  }),
+}));
 vi.mock('./HubHeroCopy', () => ({
   default: () => (
     <div>
@@ -122,7 +134,7 @@ describe('HubSection home', () => {
     expect(html).toMatch(/<time[^>]+datetime="\d{4}-\d{2}-\d{2}"/i);
   });
 
-  it('keeps the pick\'s name off the photo, where a bright image swallows it', () => {
+  it("keeps the pick's name off the photo, where a bright image swallows it", () => {
     const html = renderHome();
     const photo = html.indexOf('hv-photo');
     const name = html.indexOf('Gazzo');
@@ -135,7 +147,7 @@ describe('HubSection home', () => {
     expect(html).toContain('Sauerteigpizza, die den Vergleich nicht scheut.');
   });
 
-  it('opens the day\'s pick on the map', () => {
+  it("opens the day's pick on the map", () => {
     const html = renderHome();
     expect(html).toContain('/map?r=gazzo');
   });

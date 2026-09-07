@@ -5,6 +5,8 @@ import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
+import { useLoginModal } from '@/lib/auth';
+import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
@@ -40,6 +42,7 @@ function cardSrcSet(url: string): string {
 export default function HubMustEatsTeaser() {
   const { initialMapData, live, uid } = useHomeMapData();
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
+  const { open: openLoginModal } = useLoginModal();
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
@@ -94,6 +97,18 @@ export default function HubMustEatsTeaser() {
   // a section that asks visitors to collect something it never shows.
   if (!cards.some((c) => c.faceUp)) return null;
 
+  /* Ohne Konto ist eine verdeckte Karte hier keine Aufgabe, sondern das
+     Angebot: die Rücken kommen aus dem ganzen Stapel (getHomeInitialMapData),
+     nicht aus einem Deck, das der Besucher hätte — auf der Map gäbe es für
+     ihn dort nichts aufzudecken. Der Tipp führt deshalb zur Anmeldung, und
+     zwar in den Starter-Pack-Modus, weil das die Antwort auf „was ist unter
+     der Karte" ist: zwanzig davon, zehn liegen dann offen. Mit Konto bleibt
+     die Karte, was sie im Profil ist — der Weg auf die Map, an den Spot. */
+  const openStarterLogin = () => {
+    trackEvent('login_start', { method: 'home_covered_card' });
+    openLoginModal('starter');
+  };
+
   return (
     <section className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
       {/* Eine Ink-Tafel wie die Kartenbänder auf /must-eats: die Karten liegen
@@ -114,65 +129,89 @@ export default function HubMustEatsTeaser() {
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
             const restaurant = normalizeName(m.restaurant.name);
             const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
+            // Eine verdeckte Karte aus dem Stapel kennt ihren Spot nicht
+            // (trimCoveredSpot): welches Lokal die Karte hält, ist Teil der
+            // Überraschung. Eine aus dem eigenen Deck kennt ihn — dort ist der
+            // Spot die Aufgabe, und die Zeile darunter führt hin.
+            const hasSpot = m.restaurant.name !== '' && m.restaurant.slug !== '';
+            const needsAccount = !isFaceUp && effUid === null;
             // A covered card carries no dish name — the server strips it (see
             // stripCoveredMustEats), and naming it would give away the reveal.
-            // Its restaurant is the hook: it says where the secret is.
             const cardAria = isFaceUp
               ? `${dish} ${mustEatAria}`
-              : lang === 'de'
-                ? `Verdecktes Must Eat bei ${restaurant} — auf der Map aufdecken`
-                : `Face-down Must Eat at ${restaurant} — reveal it on the map`;
+              : needsAccount
+                ? lang === 'de'
+                  ? 'Verdecktes Must Eat — anmelden und aufdecken'
+                  : 'Face-down Must Eat — sign in to reveal it'
+                : lang === 'de'
+                  ? `Verdecktes Must Eat bei ${restaurant} — auf der Map aufdecken`
+                  : `Face-down Must Eat at ${restaurant} — reveal it on the map`;
+
+            const photo = (
+              <span className={styles.photo}>
+                {/* Server-rendered with native lazy loading rather than
+                    mounted by an IntersectionObserver after hydration. The
+                    observer kept the images off the initial payload, which
+                    `loading="lazy"` does by itself — but it also made every
+                    card wait for the JS bundle and hydration first, on the
+                    section furthest down the page. */}
+                {isFaceUp && m.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.card}
+                    src={`${m.image}?w=360&auto=format&q=80`}
+                    srcSet={cardSrcSet(m.image)}
+                    // The card is capped at 178px (see .card in the CSS
+                    // module). Below the cap it fills its grid column:
+                    // the viewport minus the 16px wrap padding and two 8px
+                    // gutters, over three columns — ~109px on a 375px
+                    // phone. The two meet at 582px.
+                    sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"
+                    alt={dish}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  // One shared asset across every face-down tile, so the
+                  // row costs a single request. Same 760×1044 aspect as the
+                  // card art, which keeps the tiles the same height.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.card}
+                    src={CARD_BACK}
+                    alt=""
+                    width={760}
+                    height={1044}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </span>
+            );
 
             return (
               <li key={m._id} className={styles.item}>
                 <article className={styles.cardShell}>
-                  {/* Deep-link into the map: ?me= opens the must-eat detail —
-                    face-up as the card, face-down with the reveal affordance. */}
-                  <MapIntentLink
-                    href={`/map?me=${m._id}`}
-                    className={styles.cardLink}
-                    aria-label={cardAria}
-                  >
-                    <span className={styles.photo}>
-                      {/* Server-rendered with native lazy loading rather than
-                      mounted by an IntersectionObserver after hydration. The
-                      observer kept the images off the initial payload, which
-                      `loading="lazy"` does by itself — but it also made every
-                      card wait for the JS bundle and hydration first, on the
-                      section furthest down the page. */}
-                      {isFaceUp && m.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          className={styles.card}
-                          src={`${m.image}?w=360&auto=format&q=80`}
-                          srcSet={cardSrcSet(m.image)}
-                          // The card is capped at 178px (see .card in the CSS
-                          // module). Below the cap it fills its grid column:
-                          // the viewport minus the 16px wrap padding and two 8px
-                          // gutters, over three columns — ~109px on a 375px
-                          // phone. The two meet at 582px.
-                          sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"
-                          alt={dish}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ) : (
-                        // One shared asset across every face-down tile, so the
-                        // row costs a single request. Same 760×1044 aspect as the
-                        // card art, which keeps the tiles the same height.
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          className={styles.card}
-                          src={CARD_BACK}
-                          alt=""
-                          width={760}
-                          height={1044}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
-                    </span>
-                  </MapIntentLink>
+                  {needsAccount ? (
+                    <button
+                      type="button"
+                      className={`${styles.cardLink} ${styles.cardButton}`}
+                      aria-label={cardAria}
+                      onClick={openStarterLogin}
+                    >
+                      {photo}
+                    </button>
+                  ) : (
+                    /* Deep-link into the map: ?me= opens the must-eat detail —
+                       face-up as the card, face-down with the reveal affordance. */
+                    <MapIntentLink
+                      href={`/map?me=${m._id}`}
+                      className={styles.cardLink}
+                      aria-label={cardAria}
+                    >
+                      {photo}
+                    </MapIntentLink>
+                  )}
                   <span className={styles.meta}>
                     {isFaceUp ? (
                       <MapIntentLink
@@ -187,13 +226,15 @@ export default function HubMustEatsTeaser() {
                         {t('mustEats.covered')}
                       </span>
                     )}
-                    <Link
-                      href={`/restaurant/${m.restaurant.slug}`}
-                      className={styles.restaurantLink}
-                      aria-label={`${restaurant} ${restaurantAria}`}
-                    >
-                      <span className="hv-sub">{restaurant}</span>
-                    </Link>
+                    {hasSpot && (
+                      <Link
+                        href={`/restaurant/${m.restaurant.slug}`}
+                        className={styles.restaurantLink}
+                        aria-label={`${restaurant} ${restaurantAria}`}
+                      >
+                        <span className="hv-sub">{restaurant}</span>
+                      </Link>
+                    )}
                   </span>
                 </article>
               </li>

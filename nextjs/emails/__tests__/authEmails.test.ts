@@ -119,7 +119,7 @@ describe('SignupEmail', () => {
     expect(html).toContain(magicLink);
     expect(html).toContain('Anmelden und Map öffnen');
     expect(html).toContain('WE TELL YOU WHAT TO EAT');
-    expect(html).toContain('besten Orte Berlins auf einer Map');
+    expect(html).toContain('Gute Spots findest du überall.');
     expect(html).toContain('STARTER PACK');
     expect(html).toContain('Gratis');
     expect(html).toContain('/pics/email/booster_free.png');

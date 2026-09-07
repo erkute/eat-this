@@ -15,15 +15,15 @@ const LEAVE_MS = 240;
 const copy = {
   de: {
     kicker: 'Starter Pack eingelöst',
-    headline: 'Zehn liegen. Zehn warten.',
-    body: 'Zehn Karten sind schon in deinem Deck. Die anderen zehn liegen draußen in Berlin — steh vor dem Laden, tipp die Karte an, und sie gehört dir.',
+    headline: '10 direkt im Deck. 10 weitere warten draußen in Berlin auf dich.',
+    body: 'Zehn landen direkt in deinem Deck. Die anderen deckst du direkt am Spot auf.',
     cardAlt: 'Eat This Starter Pack',
     action: 'Weiter zur Map',
   },
   en: {
     kicker: 'Starter Pack claimed',
-    headline: 'Ten in. Ten out there.',
-    body: 'Ten cards are already in your deck. The other ten are out in Berlin — stand in front of the place, tap the card, and it is yours.',
+    headline: '10 straight into your deck. 10 more are waiting out in Berlin for you.',
+    body: 'Ten land straight in your deck. The others you flip right at the spot.',
     cardAlt: 'Eat This Starter Pack',
     action: 'Back to the map',
   },

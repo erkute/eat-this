@@ -99,6 +99,20 @@
   text-decoration: none;
 }
 
+/* Ohne Konto ist die verdeckte Karte ein Knopf zur Anmeldung, kein Link auf
+   die Map — derselbe Auftritt wie der Link, nur das Element ist ein <button>,
+   und dem nimmt das hier die Browser-Kleidung. */
+.cardButton {
+  appearance: none;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
 .photo {
   min-height: clamp(170px, 22vw, 240px);
   display: grid;

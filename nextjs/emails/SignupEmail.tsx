@@ -51,7 +51,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
   return (
     <Shell
       appUrl={appUrl}
-      preview="Dein Link zum Anmelden — und zwanzig Karten liegen schon bereit."
+      preview="Ein Klick und du siehst, was Berlin zu bieten hat."
     >
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
@@ -71,8 +71,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
         />
 
         <Lead style={{ marginBottom: '28px' }}>
-          Die besten Orte Berlins auf einer Map — und für ausgewählte Spots sagen wir dir gleich,
-          was du bestellen musst.
+          Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.
         </Lead>
 
         <CtaButton href={magicLink} label="Anmelden und Map öffnen" />
@@ -180,11 +179,10 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           position/transform/filter/box-shadow und lädt nie Webfonts. */}
       {spots.length > 0 && (
         <Paper padding="0 32px 40px">
+          {/* Ohne Zwischenzeile (Betreiber, 07.09.2026): die Überschrift und
+              die drei Karten sagen alles, der Satz dazwischen erklärte nur
+              den Klick. */}
           <SectionHead art={ART.titleSpots} appUrl={appUrl} />
-
-          <Lead style={{ marginBottom: '20px', fontSize: '15px' }}>
-            Drei von vielen. Tipp drauf, dann öffnet sich der Spot auf der Map.
-          </Lead>
 
           {spots.map((s) => (
             <Link

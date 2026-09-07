@@ -62,14 +62,14 @@ describe('MustEatsSection', () => {
 
   it('renders the explanatory sub copy (de)', () => {
     const html = render();
-    expect(html).toContain('Unsere klare Empfehlung: die Gerichte');
-    expect(html).toContain('Den Rest deckst du vor Ort auf.');
+    expect(html).toContain('Unsere Auswahl der Gerichte');
+    expect(html).toContain('die anderen entdeckst du direkt am Spot.');
   });
 
   it('renders the explanatory sub copy (en)', () => {
     const html = render('en');
-    expect(html).toContain('Our clear picks: the dishes');
-    expect(html).toContain('You flip the rest on site.');
+    expect(html).toContain('Our pick of the dishes');
+    expect(html).toContain('the rest you discover right at the spot.');
   });
 
   it('never states a Must Eat in the singular per spot', () => {

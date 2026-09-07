@@ -1,3 +1,13 @@
+/* Der Schleier hinter dem Login-Modal — Ink, wie hinter jedem anderen Layer
+   der Seite (Onboarding, All-Berlin-Sheet, Abmelde-Screen: alle
+   rgba(21, 18, 14, 0.72)).
+
+   Bis zum 07.09.2026 war er auf Desktop milchig-weiß (rgba(255,255,255,0.58)
+   plus Blur) und nur auf dem Telefon dunkel. Das Modal selbst ist Ink; auf
+   Desktop stand es damit als schwarzer Block in einem hellen Nebel, und der
+   Rand las sich wie ein Fremdkörper (Betreiber: „so ein hässlicher heller
+   Hintergrund"). Jetzt ein Schleier für beide Breiten, nur das Polster
+   unterscheidet sich. */
 .overlay {
   position: fixed;
   inset: 0;
@@ -5,9 +15,9 @@
   display: grid;
   place-items: center;
   padding: 18px;
-  background: rgba(255, 255, 255, 0.58);
-  -webkit-backdrop-filter: blur(14px) saturate(0.95);
-  backdrop-filter: blur(14px) saturate(0.95);
+  background: rgba(21, 18, 14, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(0.9) brightness(0.55);
+  backdrop-filter: blur(14px) saturate(0.9) brightness(0.55);
 }
 
 :global(body[data-env='staging']) .overlay {
@@ -17,8 +27,5 @@
 @media (max-width: 1023.98px) {
   .overlay {
     padding: 10px;
-    background: rgba(21, 18, 14, 0.72);
-    -webkit-backdrop-filter: blur(14px) saturate(0.9) brightness(0.55);
-    backdrop-filter: blur(14px) saturate(0.9) brightness(0.55);
   }
 }

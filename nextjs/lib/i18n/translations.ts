@@ -150,7 +150,7 @@ const en = {
     pagerNext: 'Next Must Eat',
     walkMinutes: 'on foot',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: 'Sign in — 20 cards. Ten land in your deck, ten you go and get.',
+    starterPromoBody: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
     starterPromoLogin: 'Already in? Sign in',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
@@ -571,7 +571,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerNext: 'Nächstes Must Eat',
     walkMinutes: 'zu Fuß',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: 'Melde dich an — 20 Karten. Zehn liegen im Deck, zehn holst du dir draußen.',
+    starterPromoBody: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
     starterPromoLogin: 'Schon dabei? Einloggen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf

@@ -43,8 +43,8 @@ const copy = {
     kickerUpsell: 'Lieber alles auf einmal',
     includes: [
       'Jede Must-Eat-Karte, die es gibt',
-      'Und jede, die noch dazukommt',
-      'Ohne einen Schritt vor die Tür',
+      'Und jede weitere, die wir noch entdecken',
+      'Alle sofort aufgedeckt',
     ],
     includesLabel: 'All Berlin enthält',
     cta: 'All Berlin freischalten',
@@ -59,8 +59,8 @@ const copy = {
     kickerUpsell: 'Rather everything at once',
     includes: [
       'Every Must-Eat card there is',
-      'And every one still to come',
-      'Without a step out the door',
+      'And every one we still discover',
+      'All flipped right away',
     ],
     includesLabel: 'All Berlin includes',
     cta: 'Unlock All Berlin',

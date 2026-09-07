@@ -34,13 +34,20 @@
 }
 
 /* Some spots carry their tagline in the name field ("der Weinlobbyist -
-   Restaurant&Weinbar"). Cap it at two lines so one long record cannot push
-   the card's meta row around. */
+   Restaurant&Weinbar"). Cap it so one long record cannot push the card's
+   meta row around.
+
+   Drei Zeilen, nicht zwei (Betreiber, 07.09.2026): „GASTRONOMIE & DESIGN
+   ATELIER KUMAMI" braucht auf der Kachel drei, und bei zwei zeigte das
+   Unterlängen-Polster unten (siehe .hv-cap weiter unten) den oberen Rand
+   der dritten Zeile — ein abgeschnittener Streifen, der sich nicht lesen
+   ließ. Bei drei Zeilen passt jeder Name des Katalogs bis auf einen
+   (68 Zeichen, siehe Sanity); der ist ein Datenfall, keine Layoutfrage. */
 :global(.homeV2) .card :global(.hv-cap) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
 }
 

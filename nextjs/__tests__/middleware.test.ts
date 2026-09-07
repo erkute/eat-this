@@ -108,6 +108,29 @@ describe('middleware: Basic Auth + X-Robots-Tag', () => {
     const { config } = await import('@/middleware')
     expect(config.matcher[0]).not.toContain('?!api|')
   })
+
+  /* Die eine Ausnahme, und sie ist genau eine: `api/og`. App Hosting streicht
+     auf jedem gematchten Pfad `s-maxage` — die OG-Karten hatten damit keinen
+     CDN-Cache, obwohl ihr Publikum ausschliesslich aus fremden Maschinen
+     besteht. Der Test haelt beide Haelften fest: dass die Bilder draussen
+     sind, und dass sonst nichts mitgerutscht ist. */
+  it('nimmt genau die OG-Bilder aus dem Matcher, sonst keine API', async () => {
+    process.env.NEXT_PUBLIC_ENV = 'staging'
+    vi.resetModules()
+    const { config } = await import('@/middleware')
+    const matches = (path: string) => new RegExp(`^${config.matcher[0]}$`).test(path)
+
+    expect(matches('/api/og/deck')).toBe(false)
+    expect(matches('/api/og/restaurant')).toBe(false)
+    expect(matches('/api/og/badge')).toBe(false)
+
+    // Alles andere bleibt hinter dem Staging-Tor.
+    expect(matches('/api/friends')).toBe(true)
+    expect(matches('/api/map-data')).toBe(true)
+    expect(matches('/api/must-eat-image/abc')).toBe(true)
+    expect(matches('/deck/' + 'a'.repeat(28))).toBe(true)
+    expect(matches('/')).toBe(true)
+  })
 })
 
 describe('middleware: referral ?ref capture', () => {

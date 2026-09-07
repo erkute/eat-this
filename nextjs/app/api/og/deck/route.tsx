@@ -259,9 +259,10 @@ export async function GET(request: Request) {
          dieser Karte ändert sich, sobald der Besitzer eine Karte umdreht.
          Eine Stunde alt darf sie sein, ein Tag nicht.
 
-         Wobei: App Hosting streicht `public`/`s-maxage` auf jedem Pfad, den
-         die Middleware matcht, und hängt `private` an (gemessen auf prod,
-         25.08.2026). Für Crawler ist ohnehin jeder Abruf neu. */
+         Dass `s-maxage` überhaupt ankommt, hängt daran, dass `api/og` seit
+         dem 07.09.2026 aus dem Middleware-Matcher heraus ist — App Hosting
+         streicht die Direktive sonst und hängt `private` an. Wer den Pfad
+         dort wieder aufnimmt, macht aus dieser Zeile eine Lüge. */
       'Cache-Control': 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400',
     },
   });

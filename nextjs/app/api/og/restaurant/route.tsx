@@ -192,12 +192,15 @@ export async function GET(request: Request) {
     headers: {
       'Content-Type': 'image/jpeg',
       // Long CDN cache — the card only changes when Sanity content does.
-      // Except there is no CDN cache: App Hosting strips `public`/`s-maxage`
-      // from every middleware-matched path and appends `private` (measured on
-      // prod 25.08.2026). That bites hardest here — OG cards are fetched by
-      // crawlers and social platforms, so every client is new and a browser
-      // cache never applies. Getting it back means taking this path out of the
-      // middleware matcher, which also drops staging's Basic Auth for it.
+      // Der Cache greift seit dem 07.09.2026 auch wirklich: bis dahin strich
+      // App Hosting `public`/`s-maxage` auf jedem middleware-gematchten Pfad
+      // und haengte `private` an (gemessen auf prod, 25.08.2026), und diese
+      // Karte rechnete bei jedem Abruf neu — 1 bis 2 s. Das traf ausgerechnet
+      // Endpunkte, deren Publikum ausschliesslich aus fremden Maschinen
+      // besteht, fuer die ein Browser-Cache wertlos ist. `api/og` steht
+      // deshalb jetzt in der Ausnahmeliste des Matchers (siehe middleware.ts);
+      // der Preis ist, dass die drei Bilder auf Staging ohne Basic Auth
+      // offenliegen.
       'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
     },
   });

@@ -4,20 +4,9 @@ import { haversineDistance, type UserLocation } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import type { MapMustEat } from '@/lib/types';
 import { trackEvent } from '@/lib/analytics';
+import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 
 export const UNLOCK_RADIUS_METERS = 50;
-
-/* So lang wie der Tap-Shake in MapDetails.module.css (.mustEatCardTapping,
-   520 ms): das Formular oeffnet, sobald die Karte ausgezittert hat. */
-export const GUEST_SHAKE_MS = 520;
-
-function prefersReducedMotion() {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
 
 function vibrateRevealReady() {
   if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;

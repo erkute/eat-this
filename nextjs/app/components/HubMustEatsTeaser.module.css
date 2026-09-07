@@ -120,6 +120,51 @@
   padding: 0;
 }
 
+/* Tipp auf einen Rücken ohne Konto: die Karte zittert einmal, dann geht das
+   Anmeldeformular auf (Betreiber, 07.09.2026: „auf der Startseite eigentlich
+   genau das Gleiche"). Gleiche Dauer und gleicher Rhythmus wie der Tap-Shake
+   im Map-Detail (.mustEatCardTapping in MapDetails.module.css) — die Dauer
+   hält lib/guestCardShake.ts mit dem Timer zusammen.
+
+   Zwei Unterschiede, beide notwendig: Die Keyframes liegen doppelt vor, weil
+   CSS-Module Keyframe-Namen eigen vergeben — eine geteilte Animation gibt es
+   nicht. Und geschüttelt wird die HÜLLE, nicht das Bild: die Karte trägt ihre
+   Kippung (rotate) selbst, ein Shake auf ihr würde sie beim Start auf 0
+   reißen. So legen sich Zittern und Kippung übereinander.
+
+   Die Wege sind Prozent der Kachel, nicht Pixel: eine Teaser-Karte ist am
+   Telefon ~114px breit, die 14px des Map-Details wären hier ein Wurf. */
+.photoTapping {
+  animation: teaserTapShake 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
+}
+
+@keyframes teaserTapShake {
+  0% {
+    transform: translate(0, 0) rotate(0);
+  }
+  10% {
+    transform: translate(-6%, 1.7%) rotate(-8deg);
+  }
+  25% {
+    transform: translate(5.6%, -1.3%) rotate(7deg);
+  }
+  40% {
+    transform: translate(-4.8%, 2.1%) rotate(-6deg);
+  }
+  55% {
+    transform: translate(4.3%, -1.3%) rotate(5deg);
+  }
+  70% {
+    transform: translate(-3%, 1.3%) rotate(-4deg);
+  }
+  85% {
+    transform: translate(2.2%, -0.4%) rotate(2deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+}
+
 /* These are collectible cards, so they should read as physical objects: the
    Must-Eat-sheet shadow that lifts them off the ink and a small alternating
    tilt, as if a hand had laid them down. Straightening on hover is the reward. */
@@ -173,6 +218,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Ohne Bewegung kein Zittern — und der Tipp öffnet das Formular sofort,
+     statt auf eine Animation zu warten, die nicht läuft (HubMustEatsTeaser). */
+  .photoTapping {
+    animation: none;
+  }
+
   .card,
   .item:nth-child(even) .card,
   .item:nth-child(3n) .card {

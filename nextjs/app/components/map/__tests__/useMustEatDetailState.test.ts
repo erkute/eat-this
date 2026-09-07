@@ -4,7 +4,8 @@ import { renderHook, act } from '@testing-library/react';
 
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 
-import { GUEST_SHAKE_MS, useMustEatDetailState } from '../useMustEatDetailState';
+import { useMustEatDetailState } from '../useMustEatDetailState';
+import { GUEST_SHAKE_MS } from '@/lib/guestCardShake';
 import { trackEvent } from '@/lib/analytics';
 import type { MapMustEat } from '@/lib/types';
 

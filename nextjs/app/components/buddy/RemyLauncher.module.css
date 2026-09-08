@@ -1,0 +1,84 @@
+/* nextjs/app/components/buddy/RemyLauncher.module.css
+   Der eine dauerhafte Weg zu Remy. Bis zum 09.09.2026 gab es ihn nur auf der
+   Startseite (die Bühne, weit unten) und auf Restaurantseiten — auf /kategorie,
+   /bezirk, /packs, /news, /profile und in den Guides führte KEIN Weg zu ihm.
+   Gelb, unten rechts: so steht es in der Design-Sprache der Startseite. */
+.launcher {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  /* Unter dem Panel (10001) und unter dem Vorhang (10000): solange der Chat
+     offen ist, deckt ihn der Vorhang mit ab. */
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--et-home-accent, #ffc600);
+  border: none;
+  border-radius: var(--et-radius-photo, 10px);
+  cursor: pointer;
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+  transition:
+    transform var(--et-motion-base, 160ms ease),
+    background var(--et-motion-base, 160ms ease);
+}
+
+/* Sein Kopf füllt die Kachel wie ein Passfoto — gerechnet, nicht geraten.
+   Die Vorlage ist 791×876 und zeigt Kopf UND nackten Oberkörper; der Kopf
+   endet bei y≈500. `cover` allein bringt in der 58er-Kachel den ganzen
+   Ausschnitt bis y=791: der Kopf wäre klein und die Brust mit im Bild.
+   Der Zoom über `cover` hinaus beträgt 58/520 ÷ 58/791 ≈ 1,52 für einen
+   Schnitt exakt am Kinn — 1,45 lässt Hals und einen Anflug Schulter stehen.
+   Die 15 % aus BuddyAvatar passen hier nicht: dort steht der Kasten auf
+   `overflow: visible` und der Kopf ragt bewusst hinaus, hier klippt die
+   Kachel. */
+.face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0%;
+  transform: scale(1.45);
+  transform-origin: 50% 0%;
+}
+
+@media (hover: hover) {
+  .launcher:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.launcher:focus-visible {
+  outline: 3px solid var(--et-home-ink, #15120e);
+  outline-offset: 3px;
+}
+
+/* Solange der Chat offen ist, ist der Knopf nichts weiter als Ballast unter
+   dem Vorhang — BuddyWidget setzt die Marke am <html>. */
+:global(html[data-buddy-open]) .launcher {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher {
+    transition: none;
+  }
+
+  @media (hover: hover) {
+    .launcher:hover {
+      transform: none;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .launcher {
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    width: 52px;
+    height: 52px;
+  }
+}

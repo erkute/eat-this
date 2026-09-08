@@ -8,7 +8,7 @@ import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
-import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy';
+import RemyDock from '@/app/components/buddy/RemyDock';
 import BridgeAuth from './BridgeAuth';
 
 const SITE_URL = 'https://www.eatthisdot.com';
@@ -82,7 +82,7 @@ export default async function SPALayout({
               <span id="main-content" tabIndex={-1} />
               {children}
             </div>
-            <BuddyWidget />
+            <RemyDock />
           </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>

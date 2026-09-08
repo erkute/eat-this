@@ -595,6 +595,9 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   // Lock background scroll while the panel is open so the page doesn't scroll
   // behind the chat. Desktop scrolls an inner `.app-pages` container; mobile
   // scrolls the document — lock both and restore on close.
+  //
+  // Dieselbe Stelle setzt die Marke am <html>, an der der Anlege-Knopf
+  // erkennt, dass er gerade nichts zu suchen hat (RemyLauncher.module.css).
   useEffect(() => {
     if (!open) return;
     const ap = document.querySelector('.app-pages') as HTMLElement | null;
@@ -602,9 +605,11 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     const prevBody = document.body.style.overflow;
     if (ap) ap.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
+    document.documentElement.dataset.buddyOpen = '';
     return () => {
       if (ap) ap.style.overflow = prevAp;
       document.body.style.overflow = prevBody;
+      delete document.documentElement.dataset.buddyOpen;
     };
   }, [open]);
 

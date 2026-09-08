@@ -8,6 +8,7 @@ import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
+import RemyDock from '@/app/components/buddy/RemyDock';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default async function ProfileLayout({
             <BurgerDrawer />
             <span id="main-content" tabIndex={-1} />
             {children}
+            <RemyDock />
           </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>

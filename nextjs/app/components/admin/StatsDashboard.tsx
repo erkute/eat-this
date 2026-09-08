@@ -94,9 +94,9 @@ const REPORTS: Report[] = [
 
 const PRESETS = [7, 14, 30, 90, 365] as const;
 
-type Range = { kind: 'preset'; days: number } | { kind: 'custom'; from: string; to: string };
+type RangeChoice = { kind: 'preset'; days: number } | { kind: 'custom'; from: string; to: string };
 
-function queryOf(range: Range): string {
+function queryOf(range: RangeChoice): string {
   return range.kind === 'preset'
     ? `days=${range.days}`
     : `from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`;
@@ -128,7 +128,7 @@ function readHash(): ReportKey {
 export default function StatsDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [report, setReport] = useState<ReportKey>('overview');
-  const [range, setRange] = useState<Range>({ kind: 'preset', days: 30 });
+  const [range, setRangeChoice] = useState<RangeChoice>({ kind: 'preset', days: 30 });
   const [draft, setDraft] = useState<{ from: string; to: string }>({ from: '', to: '' });
   const [data, setData] = useState<StatsSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +148,7 @@ export default function StatsDashboard() {
     window.scrollTo({ top: 0 });
   }, []);
 
-  const load = useCallback(async (current: Range) => {
+  const load = useCallback(async (current: RangeChoice) => {
     if (!auth.currentUser) return;
     setLoading(true);
     setError(null);
@@ -194,7 +194,7 @@ export default function StatsDashboard() {
 
   const applyCustom = () => {
     if (!draft.from || !draft.to || draft.from > draft.to) return;
-    setRange({ kind: 'custom', from: draft.from, to: draft.to });
+    setRangeChoice({ kind: 'custom', from: draft.from, to: draft.to });
   };
 
   return (
@@ -230,7 +230,7 @@ export default function StatsDashboard() {
                     type="button"
                     className={on ? styles.segBtnOn : styles.segBtn}
                     aria-pressed={on}
-                    onClick={() => setRange({ kind: 'preset', days })}
+                    onClick={() => setRangeChoice({ kind: 'preset', days })}
                   >
                     {days === 365 ? '1 Jahr' : `${days} Tage`}
                   </button>

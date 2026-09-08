@@ -1,5 +1,5 @@
-import type { Mover, StatsSummary } from '@/lib/admin/stats.server';
-import { BarRows, Card } from '../charts';
+import type { StatsSummary } from '@/lib/admin/stats.server';
+import { BarRows, Card, MoverList } from '../charts';
 import { NUMBER, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
@@ -72,7 +72,7 @@ export default function Acquisition({ data }: { data: StatsSummary }) {
       </Card>
 
       <Card title="Bewegung: Herkunft" sub="Gegen die Vorperiode, in beide Richtungen.">
-        <MoverList rows={data.movers.referrers} />
+        <MoverList rows={data.movers.referrers} head="Quelle" />
       </Card>
 
       <Card
@@ -80,41 +80,8 @@ export default function Acquisition({ data }: { data: StatsSummary }) {
         span={2}
         sub="Welche Seiten gegenüber der Vorperiode gewonnen und verloren haben."
       >
-        <MoverList rows={data.movers.paths} />
+        <MoverList rows={data.movers.paths} head="Seite" />
       </Card>
     </>
-  );
-}
-
-export function MoverList({ rows }: { rows: Mover[] }) {
-  if (rows.length === 0) return <p className={styles.empty}>Keine Vorperiode im Zeitraum.</p>;
-  return (
-    <div className={styles.scroll}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th scope="col">Quelle</th>
-            <th scope="col">Vorher</th>
-            <th scope="col">Jetzt</th>
-            <th scope="col">Differenz</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((m) => (
-            <tr key={m.key}>
-              <td className={styles.cellKey} title={m.key}>
-                {m.key}
-              </td>
-              <td className={styles.cellNum}>{NUMBER.format(m.before)}</td>
-              <td className={styles.cellNum}>{NUMBER.format(m.now)}</td>
-              <td className={m.diff > 0 ? styles.cellPos : styles.cellNeg}>
-                {m.diff > 0 ? '+' : '−'}
-                {NUMBER.format(Math.abs(m.diff))}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }

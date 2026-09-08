@@ -165,6 +165,9 @@ export interface PurchaseRecord {
   day: string;
   /** stripe = bezahlt; signup = Starter Pack; manual = von Hand. */
   source: string;
+  /** Das Starter Pack der Anmeldung (`type: 'starter'` am Entitlement) —
+   *  die Route entscheidet das, hier wird es nur gelesen. */
+  starter: boolean;
   /** Die Doc-ID des Entitlements — `category-pizza`, `all-berlin`, `starter`. */
   packId: string;
 }
@@ -531,7 +534,9 @@ function num(value: unknown): number {
 }
 
 /** Relative Veraenderung gegen die Vorperiode. `change` bleibt null, wenn es
- *  vorher nichts gab — 0 auf 5 ist kein "+500 %", sondern ein Neuanfang. */
+ *  vorher nichts gab — 0 auf 5 ist kein "+500 %", sondern ein Neuanfang.
+ *  Auch die Berichte rechnen damit (Search Console gegen die Vorperiode);
+ *  diese Datei ist frei von Firestore und darf in den Client. */
 export function delta(now: number, before: number): Delta {
   return { now, before, change: before > 0 ? (now - before) / before : null };
 }
@@ -700,13 +705,10 @@ export function buildFunnel(
         count('must_eat_reveal_login_required')
       ),
       rate('login_view_signed', 'login_view', count('login_view'), 'signed_in', signedIn),
-      rate(
-        'signed_starter',
-        'sign_up',
-        count('sign_up'),
-        'starter_pack_granted',
-        count('starter_pack_granted')
-      ),
+      // Keine Quote sign_up → starter_pack_granted: das Pack bekommt auch
+      // jedes Konto von vor dem 06.09.2026 bei seiner naechsten Anmeldung
+      // (ReferralToastListener), also mehr Vergaben als Neuanmeldungen —
+      // die Quote stuende ueber 100 %, bis alle Altkonten einmal da waren.
       rate('pack_checkout', 'pack_page', packPage, 'begin_checkout', count('begin_checkout')),
       rate(
         'checkout_purchase',
@@ -998,7 +1000,7 @@ export function summarizeAccounts(
   const inWindow = (day: string): boolean => day >= windowStart && day <= windowEnd;
 
   const paid = purchases.filter((p) => p.source === 'stripe');
-  const starters = purchases.filter((p) => p.packId === 'starter');
+  const starters = purchases.filter((p) => p.starter);
   const invited = referrals.filter((r) => r.source === 'invited-by');
   const checkoutsInWindow = checkouts.filter((c) => inWindow(c.day));
   const activeSince = (since: string): number =>

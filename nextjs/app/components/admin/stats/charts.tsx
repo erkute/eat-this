@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react';
-import type { Delta } from '@/lib/admin/stats.server';
+import type { Delta, ExitEntry, Mover } from '@/lib/admin/stats.server';
 import { NUMBER, direction, percent, shortDay } from './format';
 import styles from '../StatsDashboard.module.css';
 
 /**
- * Die Diagramme des Zahlenbretts — reines SVG, keine Bibliothek. Das Brett
- * hat einen Leser; eine Chart-Abhängigkeit im Bundle wäre mehr Gewicht als
- * die drei Formen, die es braucht: Linie, Balken, Funke.
+ * Die Diagramme und Bausteine des Zahlenbretts — reines SVG, keine
+ * Bibliothek. Das Brett hat einen Leser; eine Chart-Abhängigkeit im Bundle
+ * wäre mehr Gewicht als die drei Formen, die es braucht: Linie, Balken,
+ * Funke. Dazu die Tabellen und Kacheln, die mehrere Berichte teilen — damit
+ * „Differenz" überall gleich aussieht und gleich gerechnet wird.
  */
 
 export interface Series {
@@ -19,6 +21,12 @@ export interface Series {
 interface LineChartProps {
   /** Beschriftung der x-Achse (YYYY-MM-DD), gehört zur ersten Reihe. */
   days: string[];
+  /**
+   * Alle Reihen teilen EINE Skala. Darum nur zusammenlegen, was in derselben
+   * Größenordnung liegt: Besucher und Aufrufe in einem Diagramm machten bei
+   * 1.470 Aufrufen gegen 163 Besucher die Besucherreihe zum Strich am Boden —
+   * genau die Zahl unlesbar, auf die es ankommt.
+   */
   series: Series[];
   height?: number;
   /** Index des laufenden Tages — wird hohl gezeichnet, weil unvollständig. */
@@ -298,5 +306,97 @@ export function Card({
       </header>
       {children}
     </section>
+  );
+}
+
+/** Eine kleine Kachel: Wert oben, Beschriftung darunter. */
+export function Tile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.dayTile}>
+      <span className={styles.dayTileValue}>{value}</span>
+      <span className={styles.dayTileLabel}>{label}</span>
+    </div>
+  );
+}
+
+/** Eine Differenz als Tabellenzelle: „+12" grün, „−3" rot, leer ohne Wert. */
+export function DiffCell({ diff }: { diff: number | null }) {
+  if (diff === null) return <td className={styles.cellNum} />;
+  return (
+    <td className={diff > 0 ? styles.cellPos : styles.cellNeg}>
+      {diff > 0 ? '+' : '−'}
+      {NUMBER.format(Math.abs(diff))}
+    </td>
+  );
+}
+
+/** Was gegen die Vorperiode gewonnen und verloren hat — Seiten, Hosts,
+ *  Ereignisse. `label` übersetzt den Schlüssel, wo es eine Übersetzung gibt. */
+export function MoverList({
+  rows,
+  head,
+  label,
+}: {
+  rows: Mover[];
+  head: string;
+  label?: (key: string) => string;
+}) {
+  if (rows.length === 0) return <p className={styles.empty}>Keine Vorperiode im Zeitraum.</p>;
+  return (
+    <div className={styles.scroll}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th scope="col">{head}</th>
+            <th scope="col">Vorher</th>
+            <th scope="col">Jetzt</th>
+            <th scope="col">Differenz</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((m) => (
+            <tr key={m.key}>
+              <td className={styles.cellKey} title={m.key}>
+                {label ? label(m.key) : m.key}
+              </td>
+              <td className={styles.cellNum}>{NUMBER.format(m.before)}</td>
+              <td className={styles.cellNum}>{NUMBER.format(m.now)}</td>
+              <DiffCell diff={m.diff} />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Wo Besuche enden. `compact` lässt die Spalte „weiter" weg und rundet die
+ *  Quote — für die schmale Tagesspalte. */
+export function ExitTable({ rows, compact = false }: { rows: ExitEntry[]; compact?: boolean }) {
+  return (
+    <div className={styles.scroll}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th scope="col">Seite</th>
+            <th scope="col">Aufrufe</th>
+            {!compact && <th scope="col">weiter</th>}
+            <th scope="col">Ende</th>
+            <th scope="col">Quote</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key}>
+              <td className={styles.cellKey}>{row.key}</td>
+              <td className={styles.cellNum}>{NUMBER.format(row.views)}</td>
+              {!compact && <td className={styles.cellNum}>{NUMBER.format(row.continued)}</td>}
+              <td className={styles.cellNum}>{NUMBER.format(row.exits)}</td>
+              <td className={styles.cellNum}>{percent(row.rate, compact ? 0 : 1)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

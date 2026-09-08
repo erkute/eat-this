@@ -1,5 +1,5 @@
 import type { FunnelStage, PeopleFunnel, StatsSummary } from '@/lib/admin/stats.server';
-import { BarRows, Card } from '../charts';
+import { BarRows, Card, MoverList } from '../charts';
 import { NUMBER, labelFor, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
@@ -69,35 +69,7 @@ export default function FunnelReport({ data }: { data: StatsSummary }) {
         span={3}
         sub="Welche Ereignisse gegenüber der gleich langen Periode davor am stärksten zu- oder abgenommen haben."
       >
-        {data.movers.events.length === 0 ? (
-          <p className={styles.empty}>Keine Vorperiode im Zeitraum.</p>
-        ) : (
-          <div className={styles.scroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th scope="col">Ereignis</th>
-                  <th scope="col">Vorher</th>
-                  <th scope="col">Jetzt</th>
-                  <th scope="col">Differenz</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.movers.events.map((m) => (
-                  <tr key={m.key}>
-                    <td className={styles.cellKey}>{labelFor(m.key)}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(m.before)}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(m.now)}</td>
-                    <td className={m.diff > 0 ? styles.cellPos : styles.cellNeg}>
-                      {m.diff > 0 ? '+' : '−'}
-                      {NUMBER.format(Math.abs(m.diff))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <MoverList rows={data.movers.events} head="Ereignis" label={labelFor} />
       </Card>
     </>
   );

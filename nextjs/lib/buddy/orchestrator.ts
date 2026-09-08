@@ -23,6 +23,33 @@ export interface OwnedPacks {
 }
 
 /**
+ * Zwei Empfänger, zwei Zuschnitte.
+ *
+ * Der Client braucht `_id` (Herzen), `image` (Kartenfoto) und `mapsUrl`. Das
+ * Modell braucht nichts davon — und bekam es trotzdem: bei einer breiten Frage
+ * (30 Treffer) waren das 5.555 von 10.564 Token der Trefferliste, also gut die
+ * Hälfte, davon 4.721 reine URLs. Ausgerechnet URLs, die der Prompt ihm im
+ * selben Atemzug verbietet auszugeben.
+ *
+ * `categorySlugs` fällt für beide weg: die Kategorie-Refs entscheiden
+ * server-intern über den Pack-Teaser.
+ */
+function forClient(spot: SpotCandidate): SpotCandidate {
+  const lean = { ...spot };
+  delete lean.categorySlugs;
+  return lean;
+}
+
+function forModel(spot: SpotCandidate): Omit<SpotCandidate, '_id' | 'image' | 'mapsUrl'> {
+  const { _id, image, mapsUrl, categorySlugs, ...rest } = spot;
+  void _id;
+  void image;
+  void mapsUrl;
+  void categorySlugs;
+  return rest;
+}
+
+/**
  * Das Widget filterte bis zum 02.09.2026 selbst, über den Entitlement-Listener
  * — und der kennt den Admin-Zugang nicht (ADMIN_EMAILS plus verifizierte
  * Adresse, server-only, null Dokumente unter users/<uid>/entitlements). Remy
@@ -143,13 +170,7 @@ export async function* runBuddyTurn(
           input.locale
         );
         throwIfAborted(options.signal);
-        // categorySlugs only feed the pack vote — strip them before the spots
-        // reach the client or go back to the LLM as tool result.
-        const spots = rawSpots.map((s) => {
-          const lean = { ...s };
-          delete lean.categorySlugs;
-          return lean;
-        });
+        const spots = rawSpots.map(forClient);
         yield { type: 'spots', value: spots };
         // Teaser only when the user explicitly named a dish/cuisine (the LLM
         // sets `cuisine` exactly then) AND that term or the results pin down
@@ -169,24 +190,18 @@ export async function* runBuddyTurn(
         toolResults.push({
           type: 'tool_result',
           tool_use_id: tu.id,
-          content: JSON.stringify(spots),
+          content: JSON.stringify(rawSpots.map(forModel)),
         });
       } else if (tu.name === 'list_saved_spots' && deps.listSavedSpots) {
         const saved = await deps.listSavedSpots(input.locale);
         throwIfAborted(options.signal);
-        // Wie bei search_spots: die Kategorie-Refs sind server-intern.
-        const spots = saved.map((s) => {
-          const lean = { ...s };
-          delete lean.categorySlugs;
-          return lean;
-        });
-        yield { type: 'spots', value: spots };
+        yield { type: 'spots', value: saved.map(forClient) };
         // Kein Pack-Teaser auf die eigene Merkliste: dort verkauft man dem
         // Nutzer seine eigene Auswahl zurück.
         toolResults.push({
           type: 'tool_result',
           tool_use_id: tu.id,
-          content: JSON.stringify(spots),
+          content: JSON.stringify(saved.map(forModel)),
         });
       } else if (tu.name === 'search_articles') {
         const articles = await deps.searchArticles(

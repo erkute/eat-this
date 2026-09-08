@@ -65,7 +65,10 @@ describe('list_saved_spots', () => {
 
     const events = await collect(
       runBuddyTurn(
-        { messages: [{ role: 'user', content: 'Was von meiner Map hat jetzt auf?' }], locale: 'de' },
+        {
+          messages: [{ role: 'user', content: 'Was von meiner Map hat jetzt auf?' }],
+          locale: 'de',
+        },
         { llm, ...deps(listSavedSpots) }
       )
     );
@@ -73,10 +76,13 @@ describe('list_saved_spots', () => {
     expect(listSavedSpots).toHaveBeenCalledWith('de');
     const spots = events.find((e) => e.type === 'spots');
     expect(spots).toBeDefined();
+    const card = (spots as { value: SpotCandidate[] }).value[0];
     // Die Kategorie-Refs sind server-intern (Pack-Wahl) und dürfen den Client
     // so wenig erreichen wie bei search_spots.
-    expect((spots as { value: SpotCandidate[] }).value[0]).not.toHaveProperty('categorySlugs');
-    expect((spots as { value: SpotCandidate[] }).value[0].name).toBe('Bar Basta');
+    expect(card).not.toHaveProperty('categorySlugs');
+    expect(card.name).toBe('Bar Basta');
+    // Der Client braucht die Kennung fürs Herzen — das Modell nicht.
+    expect(card._id).toBe('r9');
     // Kein Pack-Teaser auf die eigene Merkliste — das verkauft dem Nutzer
     // seine eigene Auswahl zurück.
     expect(events.some((e) => e.type === 'pack')).toBe(false);

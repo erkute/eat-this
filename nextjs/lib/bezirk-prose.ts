@@ -1,5 +1,6 @@
 import type { BezirkDoc, RestaurantCard } from './types';
 import { localizedCategoryName } from './categories';
+import { pickShelf, pickShowcase } from './curated-ranking';
 import type { FAQEntry } from './restaurant-prose';
 
 type Loc = 'de' | 'en';
@@ -16,6 +17,39 @@ interface BezirkContext {
   bezirk: Pick<BezirkDoc, 'name'>;
   restaurants: RestaurantCard[];
   locale: Loc;
+  /**
+   * Die kuratierte Bestenliste der Seite, bereits aufgelöst und sortiert
+   * (`rankCurated().top`). Leer/undefined für Bezirke ohne gepflegte
+   * `topSpots`.
+   *
+   * Bewusst die fertigen Karten statt der Slugs: so kann die FAQ gar nicht
+   * andere Namen nennen als die Bestenliste, die darüber steht. Gleiche
+   * Mechanik wie auf der Kategorieseite — siehe `kategorie-prose.ts`.
+   */
+  curated?: RestaurantCard[];
+}
+
+/**
+ * Die Namen für eine Aufzählung, in dieser Reihenfolge: kuratierte Spots, die
+ * zur Teilliste gehören, danach mit der Vorzeigbarkeits-Heuristik aufgefüllt.
+ *
+ * Vorher stand hier überall ein blankes `slice()` auf der alphabetischen
+ * GROQ-Liste. Mitte antwortete damit auf „Was sind bekannte Restaurants" mit
+ * „136 Berlin Restaurant, AERA Mitte, …", Schöneberg begann mit „963" — und
+ * das ging als FAQPage-Schema an Google.
+ */
+function showcaseNames(
+  pool: RestaurantCard[],
+  curated: RestaurantCard[] | undefined,
+  limit: number
+): string {
+  const inPool = new Set(pool.map((r) => r.slug));
+  const picks = pickShelf(
+    curated?.filter((r) => inPool.has(r.slug)),
+    pickShowcase(pool, limit),
+    limit
+  );
+  return picks.map((r) => r.name).join(', ');
 }
 
 /** H2 über der kuratierten Bestenliste (`bezirk.topSpots`). */
@@ -52,7 +86,12 @@ function categoryBreakdown(
 }
 
 /** FAQ entries derived from the bezirk's restaurant list. */
-export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkContext): FAQEntry[] {
+export function buildBezirkFAQEntries({
+  bezirk,
+  restaurants,
+  locale,
+  curated,
+}: BezirkContext): FAQEntry[] {
   const de = locale === 'de';
   const entries: FAQEntry[] = [];
   const name = bezirk.name;
@@ -90,14 +129,13 @@ export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkCon
   // Top-Kategorie + bis zu drei Spots, die dieser Kategorie angehören.
   const topCat = cats[0];
   if (topCat) {
-    const inCat = restaurants
-      .filter((r) =>
-        (r.categories ?? []).some((c) => localizedCategoryName(c, locale) === topCat.label)
-      )
-      .slice(0, 3)
-      .map((r) => r.name);
+    const inCat = restaurants.filter((r) =>
+      (r.categories ?? []).some((c) => localizedCategoryName(c, locale) === topCat.label)
+    );
     if (inCat.length > 0) {
-      const list = inCat.join(', ');
+      // „die besten" ist eine Rangbehauptung — die Redaktion schlägt hier die
+      // Heuristik, und die Heuristik schlägt das Alphabet.
+      const list = showcaseNames(inCat, curated, 3);
       // "die besten {Kategorie}-Spots" statt "die beste {Kategorie}" — vermeidet
       // den Genus-Bruch ("die beste Café"/"die beste Frühstück" wären falsch) und
       // bleibt brand-konform (das Team sagt durchgängig "Spots").
@@ -115,9 +153,13 @@ export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkCon
     }
   }
 
-  // 3. Highlights (top 5 by name order — alpha)
+  // 3. Highlights
   if (restaurants.length >= 3) {
-    const highlights = restaurants
+    // Gibt es eine redaktionelle Bestenliste, ist sie die ehrliche Antwort auf
+    // „bekannte Restaurants" — und identisch mit dem, was oben auf der Seite
+    // steht. Sonst greift die Heuristik.
+    const picks = curated?.length ? curated : pickShowcase(restaurants);
+    const highlights = picks
       .slice(0, 5)
       .map((r) => r.name)
       .join(', ');
@@ -135,11 +177,11 @@ export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkCon
   }
 
   // 4. Budget spots (max <= 20)
-  const budget = restaurants
-    .filter((r) => typeof r.priceRange?.max === 'number' && r.priceRange.max! <= 20)
-    .slice(0, 5);
+  const budget = restaurants.filter(
+    (r) => typeof r.priceRange?.max === 'number' && r.priceRange.max! <= 20
+  );
   if (budget.length > 0) {
-    const list = budget.map((r) => r.name).join(', ');
+    const list = showcaseNames(budget, curated, 5);
     entries.push(
       de
         ? {
@@ -154,11 +196,11 @@ export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkCon
   }
 
   // 5. Higher-end spots (min >= 40)
-  const fineDining = restaurants
-    .filter((r) => typeof r.priceRange?.min === 'number' && r.priceRange.min! >= 40)
-    .slice(0, 5);
+  const fineDining = restaurants.filter(
+    (r) => typeof r.priceRange?.min === 'number' && r.priceRange.min! >= 40
+  );
   if (fineDining.length > 0) {
-    const list = fineDining.map((r) => r.name).join(', ');
+    const list = showcaseNames(fineDining, curated, 5);
     entries.push(
       de
         ? {

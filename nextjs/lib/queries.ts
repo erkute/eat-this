@@ -71,6 +71,10 @@ const RESTAURANT_DETAIL_FIELDS = `
     }
 `;
 
+// katalog-ausnahme: Das ist generateStaticParams für /restaurant/[slug]. Ein
+// geschlossener Laden behält seine Detailseite — sie sagt, dass er zu hat, und
+// steht auf `noindex,follow` (restaurantRobots). Fiele er hier raus, liefe die
+// Seite in notFound() und der Besucher bekäme statt der Auskunft einen 404.
 export const allRestaurantSlugsQuery = `
   *[_type == "restaurant" && defined(slug.current)] {
     "slug": slug.current
@@ -270,6 +274,9 @@ const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && defined
       "alt": coalesce(image.alt, alt)
     }`;
 
+// katalog-ausnahme: Die Detailseite eines einzelnen Spots, per Slug geholt.
+// Sie muss auch geschlossene Läden laden — siehe allRestaurantSlugsQuery.
+// Der Katalogfilter gehört in die LISTEN, die hierher verlinken.
 export const restaurantPageQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {${RESTAURANT_DETAIL_FIELDS},
     "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id] | order(order asc) {

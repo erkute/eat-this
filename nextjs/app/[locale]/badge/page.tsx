@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { client } from '@/lib/sanity';
 import { SANITY_REVALIDATE_SECONDS, SITE_URL } from '@/lib/constants';
+import { liveRestaurant } from '@/lib/sanity-filters';
 import BadgeGenerator from './BadgeGenerator';
 
 interface PageProps {
@@ -36,7 +37,9 @@ export default async function BadgePage({ params }: PageProps) {
   setRequestLocale(locale);
 
   const restaurants = await client.fetch<RestaurantOption[]>(
-    `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current } | order(name asc)`,
+    // Nur der lebende Katalog: ein Badge ist eine Empfehlung, und ein
+    // geschlossener Laden bekommt keine.
+    `*[_type == "restaurant" && ${liveRestaurant()} && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current } | order(name asc)`,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['badge-restaurants'] } }
   );

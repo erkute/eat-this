@@ -19,6 +19,7 @@ import { createClient } from '@sanity/client';
 import { randomUUID } from 'node:crypto';
 import { isOwnerPhoto, PLACES_PHOTO_MAX_WIDTH_PX } from './lib/photo-curation';
 import { filterBySlugs } from './lib/content-backlog';
+import { liveRestaurant } from '../lib/sanity-filters';
 
 loadEnv({ path: '.env.local' });
 
@@ -128,7 +129,7 @@ async function main() {
   }
 
   let targets = await sanity.fetch<Target[]>(
-    `*[_type == "restaurant" && isOpen != false && defined(googlePlaceId) && !(_id in path("drafts.**"))
+    `*[_type == "restaurant" && ${liveRestaurant()} && defined(googlePlaceId) && !(_id in path("drafts.**"))
       && (
         !defined(image.asset)
         || !(

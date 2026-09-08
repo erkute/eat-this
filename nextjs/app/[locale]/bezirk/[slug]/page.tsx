@@ -212,7 +212,18 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   // Nur der erste Satz auf der Kopf-Tafel („zu viel Info"): der ganze
   // Absatz steht auf dem Bezirks-Index, hier trägt ein Satz die Ansage.
   const heroLede = bezirkDescription ? firstSentence(bezirkDescription) : '';
-  const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc });
+  // Kuratierte Bestenliste aus dem Studio; ohne Pflege (oder unter
+  // MIN_CURATED) fällt `top` leer aus und die Seite bleibt rein alphabetisch.
+  // Steht vor der FAQ, weil die sie als Antwortquelle bekommt.
+  const { top, rest } = rankCurated(restaurants, b.topSpots);
+  // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
+  // Bestenliste, die auf derselben Seite darüber steht.
+  const faqEntries = buildBezirkFAQEntries({
+    bezirk: b,
+    restaurants,
+    locale: loc,
+    curated: top,
+  });
   // Only the district's own picture. Falling back to a restaurant photo put a
   // spot in the banner that the grid below lists again — and captioned it,
   // so the banner read as a recommendation of its own.
@@ -228,9 +239,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
     .map((x) => ({ slug: x.slug, label: x.name }));
 
-  // Kuratierte Bestenliste aus dem Studio; ohne Pflege (oder unter
-  // MIN_CURATED) fällt `top` leer aus und die Seite bleibt rein alphabetisch.
-  const { top, rest } = rankCurated(restaurants, b.topSpots);
   // Ohne Limit: die Chip-Leiste braucht *jede* vertretene Kategorie, sonst
   // wären Karten hinter keinem Chip erreichbar. Die Statuszeilen entstehen
   // hier, weil nur die Seite weiß, wie der Satz herum läuft — „Kaffee in

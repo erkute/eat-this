@@ -1,6 +1,7 @@
 import type { RestaurantCard } from './types';
 import type { FAQEntry } from './restaurant-prose';
 import { categorySearchTerm } from './seo/categoryMeta';
+import { pickShowcase } from './curated-ranking';
 
 type Loc = 'de' | 'en';
 
@@ -47,41 +48,6 @@ function districtBreakdown(
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
-}
-
-/**
- * Wie „vorzeigbar“ ein Name in einer Aufzählung ist.
- *
- * Die Liste kommt alphabetisch aus Sanity (`order(name asc)`), also lieferte
- * ein blankes `slice(0, 5)` als „bekannte Adressen“ Antworten wie „136 Berlin
- * Restaurant, 1811, 3 Minutes sur Mer, 893 Ryōtei, 963“ — und das ging als
- * FAQPage-Schema an Google. Namen, die mit einem Buchstaben beginnen, kommen
- * zuerst; danach entscheidet gepflegter Redaktions-Content.
- */
-function showcaseRank(r: RestaurantCard): [number, number] {
-  const startsWithLetter = /^\p{L}/u.test(r.name) ? 1 : 0;
-  let content = 0;
-  if (r.tip || r.tipEn) content += 2;
-  if (r.shortDescription || r.shortDescriptionEn) content += 2;
-  if (r.photo) content += 1;
-  return [startsWithLetter, content];
-}
-
-/**
- * Deterministische Auswahl der Namen, die in Fließtext-Aufzählungen landen.
- * Stabil sortiert (Alphabet als Tie-Break), damit SSG-Output nicht zwischen
- * Builds springt.
- *
- * Ziffern-Namen fallen ganz raus, solange genug echte Namen übrig bleiben —
- * eine kurze Aufzählung ist besser als eine, die mit „963“ aufgefüllt wird.
- */
-function pickShowcase(restaurants: RestaurantCard[], limit = 5): RestaurantCard[] {
-  const ranked = restaurants
-    .map((r, i) => ({ r, i, rank: showcaseRank(r) }))
-    .sort((a, b) => b.rank[0] - a.rank[0] || b.rank[1] - a.rank[1] || a.i - b.i);
-  const named = ranked.filter((x) => x.rank[0] === 1);
-  const pool = named.length >= Math.min(3, ranked.length) ? named : ranked;
-  return pool.slice(0, limit).map((x) => x.r);
 }
 
 /** FAQ entries derived from the category's restaurant list. */

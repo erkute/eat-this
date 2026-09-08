@@ -40,6 +40,10 @@ export const mapRestaurantsQuery = `
 
 // On-demand detail fields for the map detail sheet — fetched by slug when a
 // spot is opened. Mirrors the fields RestaurantDetail renders below the hero.
+// katalog-ausnahme: Nachlade-Abfrage für das geöffnete Detail-Sheet, per Slug.
+// Wer hier ankommt, hat auf einen Pin geklickt — und die Pin-Liste darüber
+// (mapRestaurantsQuery) filtert bereits. Ein zweiter Filter könnte das Sheet
+// nur leer laufen lassen, wenn ein Spot zwischen Liste und Klick zumacht.
 export const restaurantMapDetailQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {
     address,

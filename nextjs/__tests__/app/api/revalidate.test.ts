@@ -180,6 +180,34 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/restaurant/gully-burger')
   })
 
+  it('frischt die Listen ueber ALLE Restaurants mit auf', async () => {
+    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) und
+    // `badge-restaurants` hingen an eigenen Tags, die niemand invalidierte:
+    // ein umgezogener Slug lief bis zu 24 Stunden ins 404 statt in seinen
+    // Redirect.
+    const raw = JSON.stringify({ _type: 'restaurant', slug: 'umbenannt' })
+    const ts = Date.now()
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurants-lite')
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('badge-restaurants')
+  })
+
+  it('rendert die Sitemap auch bei Kategorie-Aenderungen neu', async () => {
+    // Jede Kategorie hat eine eigene Sitemap-URL. Die Daten wurden ueber
+    // `category-list` schon aufgefrischt — die gerenderte Route nicht.
+    const raw = JSON.stringify({ _type: 'category', slug: 'pizza' })
+    const ts = Date.now()
+
+    const res = await POST(mkReq(raw, signature(raw, ts)))
+
+    expect(res.status).toBe(200)
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/sitemap.xml')
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/kategorie/pizza')
+  })
+
   it('revalidates must-eat pages when news changes', async () => {
     const raw = JSON.stringify({
       _type: 'newsArticle',

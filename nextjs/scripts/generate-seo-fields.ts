@@ -14,6 +14,10 @@
  * Required env (in nextjs/.env.local):
  *   ANTHROPIC_API_KEY
  *   SANITY_API_WRITE_TOKEN  (Editor role)
+ *
+ * katalog-ausnahme: wie generate-de-descriptions.ts — Entwürfe für den ganzen
+ * Bestand, inklusive frisch importierter Spots, die noch keinen Katalogstatus
+ * haben. Veröffentlicht wird davon nichts ohne Redaktion.
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';

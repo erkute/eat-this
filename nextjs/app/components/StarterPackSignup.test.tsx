@@ -126,7 +126,12 @@ describe('StarterPackSignup', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
 
-    expect(magicLinkState.sendLink).toHaveBeenCalledWith('test@example.com');
+    /* Mit Rueckweg auf DIESE Seite: ohne ihn nimmt die Route ihren Fallback
+       und schickt den englischen Besucher auf die deutsche Startseite. */
+    expect(magicLinkState.sendLink).toHaveBeenCalledWith(
+      'test@example.com',
+      `${window.location.origin}${window.location.pathname}`
+    );
   });
 
   it('confirms in place once the link is sent', () => {

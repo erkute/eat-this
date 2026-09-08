@@ -23,11 +23,16 @@ export const dynamic = 'force-dynamic';
  * zwei Drittel der Karte gesperrt waren. Sie ist ersatzlos weg: die Map ist
  * frei, und das einzige, was ein Konto noch reicher macht, sind die Karten.
  *
- * Verschenkt wird nur, was der Beschenkte noch nicht offen hat — die
- * öffentlichen Schaufensterkarten sind kein Geschenk, die eigenen erst recht
- * nicht. Welche Karten das sind, entscheidet `composeAccountSurface`, dieselbe
- * Ableitung wie auf der Map: es soll nicht zwei Meinungen darüber geben, was
- * jemandem gehört.
+ * Verschenkt wird nur, was der Beschenkte noch gar nicht im Deck hat — offen
+ * wie verdeckt. Die öffentlichen Schaufensterkarten sind kein Geschenk, die
+ * eigenen erst recht nicht, und eine verdeckte Starter-Karte umzudrehen macht
+ * das Album nicht größer (siehe `computeReferralPools`). Was offen liegt,
+ * entscheidet `composeAccountSurface`, dieselbe Ableitung wie auf der Map; was
+ * verdeckt im Deck liegt, steht im Entitlement.
+ *
+ * Auf dem heutigen Stapel bleibt danach oft nichts übrig. Dann wird auch
+ * nichts vergeben: der Einladende bekommt kein Bonus-Dokument, also auch
+ * keinen Toast, der eine Karte verspricht, die es nicht gibt.
  */
 export async function POST(req: NextRequest) {
   const inviterUid = req.cookies.get(REFERRER_COOKIE)?.value ?? null;
@@ -119,8 +124,14 @@ export async function POST(req: NextRequest) {
 
     const { inviterPool, friendPool } = computeReferralPools({
       allMustEatIds: allMustEats.map((m) => m._id),
-      inviterFaceUpIds: inviterSurface.faceUpIds,
-      friendFaceUpIds: friendSurface.faceUpIds,
+      inviter: {
+        faceUpIds: inviterSurface.faceUpIds,
+        coveredIds: inviterEnt.coveredMustEatIds,
+      },
+      friend: {
+        faceUpIds: friendSurface.faceUpIds,
+        coveredIds: friendEnt.coveredMustEatIds,
+      },
     });
     const friendPicks = sampleN(friendPool, REFERRAL_BONUS_CARDS);
     const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_CARDS);

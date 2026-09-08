@@ -95,6 +95,18 @@ const PATH = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/?){0,4}$/;
 /** Interne Werkzeuge zaehlen nicht: /admin/stats stand mit 67 Aufrufen in der
  *  eigenen Ausstiegstabelle — das Zahlenbrett zaehlte seinen einzigen Leser. */
 const INTERNAL_PATH = /^(?:\/[a-z]{2})?\/admin(?:\/|$)/;
+/** Das geteilte Deck traegt eine Firebase-UID im Pfad (`/deck/Z2IJ8CJsAbCd…`),
+ *  und die ist gemischt gross und klein geschrieben — sie fiel damit durch
+ *  PATH, und `pathKey` gab `null`. Das verwarf die Anfrage KOMPLETT, also auch
+ *  jedes dort gefeuerte Ereignis: der Einladungsweg hatte null Seitenaufrufe,
+ *  null Einstiege, null Referrer und kein `starter_pack_granted`. Der Trichter
+ *  war nicht leer, er war unsichtbar.
+ *
+ *  Gezaehlt wird die Seite, nicht die Person: der Pfad wird auf `/deck`
+ *  gekuerzt. Die UID selbst darf nie ein Schluessel im Tagesdokument werden —
+ *  die Schluessel dort sind unbegrenzt, und eine fremde Kennung gehoert
+ *  ohnehin nicht hinein. */
+const DECK_PATH = /^(\/[a-z]{2})?\/deck\/[A-Za-z0-9_-]{1,128}$/;
 const MAX_BODY = 1024;
 /** Laenger ist kein Browser. */
 const UA_MAX = 300;
@@ -139,6 +151,8 @@ function referrerHost(raw: unknown): string | null {
 function pathKey(raw: unknown): string | null {
   if (typeof raw !== 'string' || !raw.startsWith('/') || raw.length > 120) return null;
   const path = raw.length > 1 ? raw.replace(/\/+$/, '') : '/';
+  const deck = DECK_PATH.exec(path);
+  if (deck) return `${deck[1] ?? ''}/deck`;
   if (!PATH.test(path) || INTERNAL_PATH.test(path)) return null;
   return path.replace(/\./g, '_');
 }

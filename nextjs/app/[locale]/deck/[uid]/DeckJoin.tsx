@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
+import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
 import styles from '@/app/components/profile/Profile.module.css';
 import starter from '@/app/components/StarterPackSignup.module.css';
 import deck from './Deck.module.css';
@@ -26,9 +27,15 @@ const STARTER_ART = '/pics/booster/booster_free.webp';
  * Startseite (deren Stile diese Datei mitliest, damit es EIN Objekt bleibt
  * und nicht zwei, die sich ähneln), ein Feld, ein Knopf, Magic Link.
  *
- * Kein `continueUrl`: `/welcome` schickt ohne ihn auf die Startseite, und das
- * ist hier das richtige Ziel. Wer sich vom Deck eines Freundes aus anmeldet,
- * will danach seine eigene Map sehen — nicht wieder dessen Deck.
+ * Mit `continueUrl` zurueck auf genau diese Seite. Sie stand hier zuerst
+ * bewusst NICHT — die Annahme war, wer sich vom Deck eines Freundes aus
+ * anmeldet, wolle danach seine eigene Map sehen. Ohne sie nimmt die Route
+ * ihren Fallback (die Startseite), und damit landet der einzige Kanal, ueber
+ * den ohne Werbebudget jemand herkommt, in einer Seite, die von vorn anfaengt:
+ * das Deck, das den Besuch ausgeloest hat, ist weg und ueber die Startseite
+ * nicht wiederzufinden. Angemeldet zeigt dieselbe Seite die Tafel „dein Deck
+ * ist offen" und den Weg zur Map — der Ausgang bleibt also da, nur eben mit
+ * dem Zusammenhang, in dem der Besuch angefangen hat.
  *
  * Darunter der leise Weg für alle, die noch nicht so weit sind: zur Map. Ohne
  * ihn endet die Seite für sie in einer Sackgasse, und der geteilte Link ist
@@ -96,7 +103,7 @@ export default function DeckJoin({ name }: { name: string | null }) {
       return;
     }
     setInvalid('');
-    void sendLink(trimmed);
+    void sendLink(trimmed, buildLoginContinueUrl(window.location));
   };
 
   return (

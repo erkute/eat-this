@@ -67,6 +67,22 @@ async function synchronizePremiumAccess(user: User | null): Promise<void> {
   if (!response.ok) throw new Error('Failed to synchronize premium access');
 }
 
+/* Ein Versuch reicht nicht. Der Aufruf faellt typischerweise genau dann aus,
+   wenn er am wichtigsten ist: direkt nach dem Magic-Link-Redirect, waehrend
+   das Netz der Mail-App noch auf das neue Dokument umschaltet. Ein einzelner
+   Aussetzer darf keine Anmeldung kosten. */
+const SYNC_RETRY_DELAY_MS = 600;
+
+async function synchronizePremiumAccessWithRetry(user: User | null): Promise<void> {
+  try {
+    await synchronizePremiumAccess(user);
+    return;
+  } catch {
+    await new Promise((resolve) => setTimeout(resolve, SYNC_RETRY_DELAY_MS));
+  }
+  await synchronizePremiumAccess(user);
+}
+
 // ─── Provider ──────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -83,18 +99,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentGeneration = ++generation;
       setLoading(true);
       reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
-      void synchronizePremiumAccess(firebaseUser)
-        .then(() => {
+      void synchronizePremiumAccessWithRetry(firebaseUser)
+        .catch(async (error: unknown) => {
+          /* Die Bild-Sitzung ist ein Nebenaufruf. Faellt sie aus, fehlen
+             signierte Bilder — die Anmeldung selbst haelt Firebase, und genau
+             die hat der Code hier bisher weggeworfen: ein einziger
+             Fehlschlag zeigte „nicht angemeldet", bis eine Stunde spaeter das
+             Token rotierte. Also: melden statt schlucken, und den angemeldeten
+             Zustand behalten. */
+          Sentry.captureException(error, {
+            level: 'error',
+            tags: {
+              auth_flow: 'premium_access_sync',
+              auth_sync_target: firebaseUser ? 'signed_in' : 'signed_out',
+            },
+          });
+          console.warn('[auth] premium access sync failed:', error);
+          // Die Sitzung des vorigen Kontos darf trotzdem nicht stehen bleiben.
+          await clearPremiumAccess().catch(() => undefined);
+        })
+        .finally(() => {
           if (!active || currentGeneration !== generation) return;
           setUser(firebaseUser);
-          setLoading(false);
-        })
-        .catch(async () => {
-          // Best-effort second clear. If synchronization is unavailable, keep
-          // the UI anonymous so a new identity never inherits old content.
-          await clearPremiumAccess().catch(() => undefined);
-          if (!active || currentGeneration !== generation) return;
-          setUser(null);
           setLoading(false);
         });
     });

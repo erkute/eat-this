@@ -269,6 +269,10 @@ describe('GET /api/admin/stats', () => {
       const a = 'uid-a@example.com';
       const b = 'uid-b@example.com';
       if (name === 'favorites') return snapshot([{ id: 'f1', data: {}, uid: a }]);
+      // Der Betreiber und ein Seed-Dokument ohne Konto: beide stehen in den
+      // Unter-Sammlungen, keins darf in Umsatz, Karten oder Einladungen.
+      const chef = 'uid-chef@eatthisdot.com';
+      const orphan = 'uid-seed-2026-05';
       if (name === 'entitlements') {
         return snapshot([
           {
@@ -285,12 +289,27 @@ describe('GET /api/admin/stats', () => {
             data: { purchasedAt: ts('2026-08-30T12:00:00Z'), source: 'signup', type: 'starter' },
             uid: a,
           },
+          {
+            id: 'all-berlin',
+            data: {
+              purchasedAt: ts('2026-08-30T12:00:00Z'),
+              stripeSessionId: 'cs_test',
+              type: 'all',
+            },
+            uid: chef,
+          },
+          {
+            id: 'starter',
+            data: { purchasedAt: ts('2026-08-30T12:00:00Z'), source: 'signup', type: 'starter' },
+            uid: orphan,
+          },
         ]);
       }
       if (name === 'unlockedMustEats') {
         return snapshot([
           { id: 'm1', data: { unlockedAt: ts('2026-08-30T12:00:00Z') }, uid: b },
           { id: 'm2', data: { unlockedAt: ts('2026-07-30T12:00:00Z') }, uid: b },
+          { id: 'm3', data: { unlockedAt: ts('2026-08-30T12:00:00Z') }, uid: chef },
         ]);
       }
       if (name === 'referralBonuses') {
@@ -305,6 +324,11 @@ describe('GET /api/admin/stats', () => {
             data: { createdAt: ts('2026-08-29T12:00:00Z'), source: 'invited' },
             uid: b,
           },
+          {
+            id: 'invited-by',
+            data: { createdAt: ts('2026-08-29T12:00:00Z'), source: 'invited-by' },
+            uid: orphan,
+          },
         ]);
       }
       return snapshot([
@@ -312,6 +336,11 @@ describe('GET /api/admin/stats', () => {
           id: 'category-pizza',
           data: { createdAt: ts('2026-08-30T12:00:00Z'), status: 'open' },
           uid: a,
+        },
+        {
+          id: 'all-berlin',
+          data: { createdAt: ts('2026-08-30T12:00:00Z'), status: 'completed' },
+          uid: chef,
         },
       ]);
     });

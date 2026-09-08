@@ -1,18 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { StatsSummary } from '@/lib/admin/stats.server';
+import { delta, type StatsSummary } from '@/lib/admin/stats.server';
 import type { ReportKey } from '../../StatsDashboard';
 import { BOT_FILTER_LIVE_SINCE, LIGHTHOUSE_FILTER_LIVE_SINCE } from '../../StatsDashboard';
-import { BarRows, Card, Change, Columns, Kpi, LineChart } from '../charts';
-import {
-  NUMBER,
-  WEEKDAYS_SHORT,
-  change,
-  dayTitle,
-  decimal,
-  euro,
-  labelFor,
-  percent,
-} from '../format';
+import { BarRows, Card, Change, Columns, Kpi, LineChart, type Series } from '../charts';
+import { NUMBER, WEEKDAYS_SHORT, dayTitle, decimal, euro, labelFor, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 type Metric = 'visitors' | 'pageviews' | 'search_clicks' | 'search_impressions' | `event:${string}`;
@@ -69,7 +60,6 @@ export default function Overview({
         now: data.days.map((d) => d[metric]),
         before: data.previousDays.map((d) => d[metric]),
         label: METRIC_LABELS[metric],
-        format: undefined,
       };
     }
     if (metric === 'search_clicks' || metric === 'search_impressions') {
@@ -79,7 +69,6 @@ export default function Overview({
         now: search?.days.map((d) => d[field]) ?? [],
         before: [],
         label: METRIC_LABELS[metric],
-        format: undefined,
       };
     }
     const key = metric.slice('event:'.length);
@@ -88,14 +77,13 @@ export default function Overview({
       now: data.eventsByDay.map((d) => d.counts[key] ?? 0),
       before: [],
       label: labelFor(key),
-      format: undefined,
     };
   }, [metric, data, search]);
 
   const openIndex = data.today ? chart.days.indexOf(data.today.day) : -1;
-  const series = [{ label: chart.label, values: chart.now }];
+  const series: Series[] = [{ label: chart.label, values: chart.now }];
   if (compare && chart.before.length > 0) {
-    series.push({ label: 'Vorperiode', values: chart.before, dashed: true } as (typeof series)[0]);
+    series.push({ label: 'Vorperiode', values: chart.before, dashed: true });
   }
 
   const revealShare = data.funnel.rates.find((r) => r.key === 'login_view_signed');
@@ -150,7 +138,7 @@ export default function Overview({
           <Kpi
             label="Google-Klicks"
             value={NUMBER.format(search.totals.clicks)}
-            delta={search.before ? change(search.totals.clicks, search.before.clicks) : null}
+            delta={search.before ? delta(search.totals.clicks, search.before.clicks) : null}
             hint={`${NUMBER.format(search.totals.impressions)} Impressionen`}
             spark={search.days.map((d) => d.clicks)}
           />
@@ -205,7 +193,6 @@ export default function Overview({
           days={chart.days}
           series={series}
           openIndex={openIndex >= 0 ? openIndex : null}
-          format={chart.format}
         />
       </Card>
 
@@ -264,6 +251,7 @@ export default function Overview({
           <p className={styles.empty}>Noch zu wenige Tage.</p>
         ) : (
           <Columns
+            // Montag zuerst — Date zählt ab Sonntag, gelesen wird die Woche anders.
             rows={[...data.weekdays]
               .sort((a, b) => ((a.index + 6) % 7) - ((b.index + 6) % 7))
               .map((w) => ({

@@ -1,5 +1,5 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
-import { BarRows, Card, Kpi, LineChart } from '../charts';
+import { BarRows, Card, Kpi, LineChart, Tile } from '../charts';
 import { NUMBER, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
@@ -51,6 +51,8 @@ export default function Cards({ data }: { data: StatsSummary }) {
         span={2}
         sub="Neue Konten, eingelöste Starter Packs und vor Ort aufgedeckte Karten — aus Firestore, je Kalendertag."
       >
+        {/* Zwei Reihen auf einer Skala: beides einstellige Tageszahlen, das
+            passt. Umsatz oder Aufrufe gehören hier NICHT dazu (siehe LineChart). */}
         <LineChart
           days={days}
           series={[
@@ -152,14 +154,5 @@ export default function Cards({ data }: { data: StatsSummary }) {
         <p className={styles.notice}>Der Katalog aus Sanity ließ sich nicht laden.</p>
       )}
     </>
-  );
-}
-
-function Tile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className={styles.dayTile}>
-      <span className={styles.dayTileValue}>{value}</span>
-      <span className={styles.dayTileLabel}>{label}</span>
-    </div>
   );
 }

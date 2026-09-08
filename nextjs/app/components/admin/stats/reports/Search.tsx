@@ -1,7 +1,7 @@
-import type { StatsSummary } from '@/lib/admin/stats.server';
+import { delta, type StatsSummary } from '@/lib/admin/stats.server';
 import type { SearchMover } from '@/lib/admin/searchConsole';
-import { BarRows, Card, Kpi, LineChart } from '../charts';
-import { DEVICE_LABELS, NUMBER, change, countryName, percent, position, shortDay } from '../format';
+import { BarRows, Card, DiffCell, Kpi, LineChart } from '../charts';
+import { DEVICE_LABELS, NUMBER, countryName, percent, position, shortDay } from '../format';
 import { SearchRows } from './Days';
 import styles from '../../StatsDashboard.module.css';
 
@@ -41,25 +41,25 @@ export default function Search({ data }: { data: StatsSummary }) {
         <Kpi
           label="Klicks"
           value={NUMBER.format(totals.clicks)}
-          delta={before ? change(totals.clicks, before.clicks) : null}
+          delta={before ? delta(totals.clicks, before.clicks) : null}
           spark={s.days.map((d) => d.clicks)}
         />
         <Kpi
           label="Impressionen"
           value={NUMBER.format(totals.impressions)}
-          delta={before ? change(totals.impressions, before.impressions) : null}
+          delta={before ? delta(totals.impressions, before.impressions) : null}
           spark={s.days.map((d) => d.impressions)}
         />
         <Kpi
           label="Klickrate"
           value={percent(totals.ctr)}
-          delta={before ? change(totals.ctr, before.ctr) : null}
+          delta={before ? delta(totals.ctr, before.ctr) : null}
           hint={before ? `vorher ${percent(before.ctr)}` : undefined}
         />
         <Kpi
           label="Position"
           value={position(totals.position)}
-          delta={before ? change(totals.position, before.position) : null}
+          delta={before ? delta(totals.position, before.position) : null}
           invert
           hint={before ? `vorher ${position(before.position)}` : undefined}
         />
@@ -195,10 +195,7 @@ function MoverTable({ rows, empty }: { rows: SearchMover[]; empty: string }) {
               </td>
               <td className={styles.cellNum}>{NUMBER.format(m.clicks)}</td>
               <td className={styles.cellNum}>{NUMBER.format(m.clicksBefore)}</td>
-              <td className={m.diff > 0 ? styles.cellPos : styles.cellNeg}>
-                {m.diff > 0 ? '+' : '−'}
-                {NUMBER.format(Math.abs(m.diff))}
-              </td>
+              <DiffCell diff={m.diff} />
               <td className={styles.cellNum}>
                 {NUMBER.format(m.impressions)}
                 <span className={styles.muted}> / {NUMBER.format(m.impressionsBefore)}</span>

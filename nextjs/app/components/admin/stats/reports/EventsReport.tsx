@@ -1,6 +1,6 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
-import { Card } from '../charts';
-import { NUMBER, labelFor } from '../format';
+import { Card, DiffCell } from '../charts';
+import { NUMBER, decimal, labelFor, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -37,6 +37,9 @@ export default function EventsReport({ data }: { data: StatsSummary }) {
             <tbody>
               {data.events.map((e) => {
                 const mover = beforeByKey.get(e.key);
+                // Je 100 Besucher: unter 1 mit einer Stelle, sonst gerundet —
+                // „0,3" sagt mehr als „0".
+                const perHundred = (e.count / visitors) * 100;
                 return (
                   <tr key={e.key}>
                     <td className={styles.cellKey}>{labelFor(e.key)}</td>
@@ -46,25 +49,13 @@ export default function EventsReport({ data }: { data: StatsSummary }) {
                     <td className={styles.cellNum}>{NUMBER.format(e.count)}</td>
                     <td className={styles.cellNum}>
                       {visitors > 0
-                        ? (e.count / visitors) * 100 < 1 && e.count > 0
-                          ? ((e.count / visitors) * 100).toFixed(1).replace('.', ',')
-                          : NUMBER.format(Math.round((e.count / visitors) * 100))
+                        ? perHundred < 1 && e.count > 0
+                          ? decimal(perHundred)
+                          : NUMBER.format(Math.round(perHundred))
                         : '—'}
                     </td>
-                    <td className={styles.cellNum}>
-                      {total > 0
-                        ? `${((e.count / total) * 100).toFixed(1).replace('.', ',')} %`
-                        : '—'}
-                    </td>
-                    <td
-                      className={
-                        mover ? (mover.diff > 0 ? styles.cellPos : styles.cellNeg) : styles.cellNum
-                      }
-                    >
-                      {mover
-                        ? `${mover.diff > 0 ? '+' : '−'}${NUMBER.format(Math.abs(mover.diff))}`
-                        : ''}
-                    </td>
+                    <td className={styles.cellNum}>{total > 0 ? percent(e.count / total) : '—'}</td>
+                    <DiffCell diff={mover ? mover.diff : null} />
                   </tr>
                 );
               })}

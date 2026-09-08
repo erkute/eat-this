@@ -221,7 +221,10 @@ describe('buildFunnel — die vier Stufen des Produkts', () => {
       rate: 0.5,
     });
     expect(rate('checkout_purchase')?.rate).toBe(0.25);
-    expect(rate('signed_starter')?.rate).toBe(1);
+    // Keine Quote auf starter_pack_granted: das Pack geht auch an Altkonten
+    // bei ihrer naechsten Anmeldung, sign_up ist nicht seine Basis.
+    expect(funnel.rates.map((r) => r.key)).not.toContain('signed_starter');
+    expect(funnel.rates.some((r) => r.to === 'starter_pack_granted')).toBe(false);
     expect(buildFunnel(new Map(), new Map(), 0).rates.every((r) => r.rate === null)).toBe(true);
   });
 
@@ -468,7 +471,9 @@ describe('summarize — heute und gestern ausgebreitet', () => {
     const accounts = summarizeAccounts(
       {
         accounts: [],
-        purchases: [{ day: '2026-08-30', source: 'stripe', packId: 'category-pizza' }],
+        purchases: [
+          { day: '2026-08-30', source: 'stripe', starter: false, packId: 'category-pizza' },
+        ],
         reveals: [{ day: '2026-08-30' }, { day: '2026-08-30' }],
         referrals: [],
         checkouts: [],
@@ -578,10 +583,10 @@ describe('summarizeAccounts', () => {
       {
         ...empty(),
         purchases: [
-          { day: '2026-05-13', source: 'stripe', packId: 'all-berlin' },
-          { day: '2026-08-30', source: 'stripe', packId: 'category-pizza' },
-          { day: '2026-08-30', source: 'signup', packId: 'starter' },
-          { day: '2026-08-30', source: 'manual', packId: 'category-lunch' },
+          { day: '2026-05-13', source: 'stripe', starter: false, packId: 'all-berlin' },
+          { day: '2026-08-30', source: 'stripe', starter: false, packId: 'category-pizza' },
+          { day: '2026-08-30', source: 'signup', starter: true, packId: 'starter' },
+          { day: '2026-08-30', source: 'manual', starter: false, packId: 'category-lunch' },
         ],
         checkouts: [
           { day: '2026-08-30', status: 'open', packId: 'category-pizza' },
@@ -656,7 +661,9 @@ describe('summarizeAccounts', () => {
       {
         ...empty(),
         accounts: [konto({ createdDay: '2026-08-29' })],
-        purchases: [{ day: '2026-08-30', source: 'stripe', packId: 'category-pizza' }],
+        purchases: [
+          { day: '2026-08-30', source: 'stripe', starter: false, packId: 'category-pizza' },
+        ],
       },
       '2026-08-28',
       '2026-08-30',

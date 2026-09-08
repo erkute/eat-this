@@ -242,6 +242,59 @@ describe('POST /api/count', () => {
     }
   );
 
+  /* Das geteilte Deck traegt eine Firebase-UID im Pfad, und die ist gemischt
+   * gross und klein geschrieben. Sie fiel damit durch die Pfadpruefung — und
+   * ein verworfener Pfad verwarf bis zum 08.09.2026 die ganze Anfrage, VOR der
+   * Ereignis-Auswertung. Der Einladungsweg hatte deshalb null Aufrufe, null
+   * Einstiege, null Referrer und kein einziges `starter_pack_granted`. */
+  describe('Pfade mit einer Kennung darin', () => {
+    const UID = 'Z2IJ8CJsAbCdEfGhIjKlMnOpQr01';
+
+    it('zaehlt das geteilte Deck, ohne die fremde UID zu speichern', async () => {
+      const res = await POST(request({ path: `/deck/${UID}` }));
+
+      expect(res.status).toBe(204);
+      const write = dayWrite();
+      expect(write?.paths).toEqual({ '/deck': { __inc: 1 } });
+      expect(write?.entryPaths, 'der geteilte Link IST der Einstieg').toEqual({
+        '/deck': { __inc: 1 },
+      });
+      // Die Schluessel im Tagesdokument sind unbegrenzt; eine fremde Kennung
+      // gehoert dort weder als Schluessel noch als Wert hinein.
+      expect(JSON.stringify(mocks.set.mock.calls)).not.toContain(UID);
+    });
+
+    it('behaelt die Sprache: /en/deck/<uid> wird /en/deck', async () => {
+      await POST(request({ path: `/en/deck/${UID}` }));
+      expect(dayWrite()?.paths).toEqual({ '/en/deck': { __inc: 1 } });
+    });
+
+    it('zaehlt das Ereignis, das auf dem geteilten Deck feuert', async () => {
+      await POST(request({ path: `/deck/${UID}`, event: 'starter_pack_granted' }));
+      expect(dayWrite()?.events).toEqual({ starter_pack_granted: { __inc: 1 } });
+    });
+
+    it('kuerzt auch den Vorgaenger — die Fortsetzung vom Deck aus', async () => {
+      await POST(request({ path: '/map', from: `/deck/${UID}` }));
+      expect(dayWrite()?.continuations).toEqual({ '/deck': { __inc: 1 } });
+    });
+
+    it('verwirft ein Deck ohne Kennung nicht — /deck bleibt /deck', async () => {
+      await POST(request({ path: '/deck' }));
+      expect(dayWrite()?.paths).toEqual({ '/deck': { __inc: 1 } });
+    });
+  });
+
+  /* Ein verworfener Pfad nimmt sein Ereignis mit. Fuer /admin ist das gewollt —
+   * das Zahlenbrett soll seinen einzigen Leser nicht zaehlen —, und dieser Test
+   * haelt fest, dass es eine Entscheidung ist und kein Zufall. */
+  it('verwirft mit dem internen Pfad auch sein Ereignis', async () => {
+    const res = await POST(request({ path: '/admin', event: 'login' }));
+
+    expect(res.status).toBe(204);
+    expect(mocks.set).not.toHaveBeenCalled();
+  });
+
   it('respektiert das Opt-out-Cookie des Betreibers wie GPC', async () => {
     const res = await POST(request({ path: '/' }, { cookie: 'cookieConsent=x; eatthis_nocount=1' }));
 

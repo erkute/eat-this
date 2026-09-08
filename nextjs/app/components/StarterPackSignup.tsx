@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useGoogleSignIn, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
+import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
 import AuthScreen from './AuthScreen';
 import { GoogleMark } from './GoogleMark';
 import styles from './StarterPackSignup.module.css';
@@ -115,7 +116,11 @@ export default function StarterPackSignup({ locale }: Props) {
       return;
     }
     setValidationError('');
-    void sendLink(trimmed);
+    /* Zurueck auf DIESE Seite, nicht auf den Fallback der Route (die
+       Startseite): auf `/en/` ist das der Unterschied zwischen der
+       englischen und der deutschen Fassung, und ein Aufruf aus dem
+       Must-Eats-Onboarding kommt mit Query im Gepaeck. */
+    void sendLink(trimmed, buildLoginContinueUrl(window.location));
   };
 
   return (

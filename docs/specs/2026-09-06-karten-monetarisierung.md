@@ -107,10 +107,16 @@ beim nächsten Anmelden.
 
 - **Spot des Tages bleibt mit Konto liegen.** Ließe den Stapel in ~26 Tagen
   gratis zusammenlaufen; konkurriert mit den Packs und mit dem Hingehen.
-- **Referral-Karte nur aus dem Unsichtbaren.** Auf dem heutigen Stapel (5 +
-  20 = 25) wäre der Pool leer. Die Einladung zieht deshalb aus allem, was noch
-  nicht offen liegt — auf einem kleinen Stapel dreht sie damit eine verdeckte
-  Starter-Karte um. Mit wachsendem Stapel löst sich das von allein.
+- **~~Referral-Karte nur aus dem Unsichtbaren.~~** Zurückgenommen am
+  08.09.2026. Die Einladung zog aus allem, was noch nicht OFFEN lag — auf dem
+  heutigen Stapel (5 + 20 = 25) also fast nur aus den eigenen verdeckten
+  Starter-Karten des Beschenkten. Das Album wurde davon nicht größer (Total ist
+  offen ∪ verdeckt), es drehte sich still eine Karte um, und genau der Anlass,
+  dort hinzugehen, fiel weg; beim Einladenden versprach der Toast zusätzlich
+  eine Karte, die er längst hatte. Sie zieht jetzt nur aus dem, was gar nicht
+  im Deck liegt (`computeReferralPools`). Auf einem kleinen Stapel bleibt der
+  Pool damit oft leer — dann wird nichts vergeben und nichts versprochen. Mit
+  wachsendem Stapel löst sich das von allein.
 
 ## 6. Offen — Betreiber
 

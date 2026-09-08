@@ -63,6 +63,17 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
     geoRef.current = g;
   }, []);
 
+  /* Abbruch der laufenden Antwort. Remy schreibt bis zu 2048 Token; wer nach
+     dem zweiten Satz merkt, dass er die falsche Frage gestellt hat, musste
+     vorher zusehen. Der Abbruch beendet den Lesestrom, das bereits Gesagte
+     bleibt stehen — die Route bricht ihrerseits den Anthropic-Stream ab
+     (cancel() im ReadableStream), es laeuft also nichts weiter. */
+  const abortRef = useRef<AbortController | null>(null);
+  const stop = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+  }, []);
+
   const send = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
@@ -82,6 +93,9 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
           return next;
         });
 
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       try {
         /* Das Token sagt der Route, was dieses Konto schon hat — sie schickt
            dann kein Pack, das ihm offensteht. Ohne Konto fragt ein Gast. */
@@ -92,6 +106,7 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         const res = await fetch('/api/buddy', {
           method: 'POST',
           headers,
+          signal: controller.signal,
           body: JSON.stringify({
             sessionId: getSessionId(),
             locale,
@@ -150,7 +165,10 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
             }
           });
         }
-      } catch {
+      } catch (error) {
+        // Ein Abbruch ist kein Fehler: das bereits Gesagte bleibt stehen,
+        // ohne die Entschuldigung darüber zu schreiben.
+        if ((error as Error)?.name === 'AbortError') return;
         updateAssistant((m) => {
           m.content =
             locale === 'en'
@@ -158,11 +176,12 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
               : 'Sorry — da ist was schiefgelaufen. Nochmal?';
         });
       } finally {
+        if (abortRef.current === controller) abortRef.current = null;
         setIsStreaming(false);
       }
     },
     [messages, isStreaming, locale, pageSlug]
   );
 
-  return { messages, isStreaming, send, setGeo };
+  return { messages, isStreaming, send, stop, setGeo };
 }

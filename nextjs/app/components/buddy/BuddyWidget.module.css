@@ -1,22 +1,41 @@
-/* nextjs/app/components/buddy/BuddyWidget.module.css */
+/* nextjs/app/components/buddy/BuddyWidget.module.css
+   Remys Chat spricht dieselbe Ink-Tafel wie der Rest der Seite: Ink-Grund,
+   weisse Providence-Versalien, gelber Akzent, die leise Weiss-Stufe fuer alles,
+   was ein eigenes Objekt ist (Karten, Angebote). Bis zum 08.09.2026 war das
+   Panel mintgruen (#eaf2ed) — dieselbe Farbe, die die Remy-Buehne auf der
+   Startseite und der Remy-Block der Spot-Seite am 03.09.2026 abgelegt haben.
+   Damit oeffnete ein Tap auf einer Ink-Tafel eine mintgruene Flaeche; der Chat
+   war die letzte Stelle der Site ausserhalb von Weiss, Ink, Gelb und Rot.
+
+   Rot bleibt hier draussen: auf Ink ist Rot Typo-Farbe, kein Knopf (siehe
+   /packs und die Must-Eat-Tafeln — der eine gefuellte Knopf ist gelb). */
 .scrim {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgba(21, 18, 14, 0.28);
-  backdrop-filter: blur(4px);
+  /* Der eine Vorhang der Site — dieselben Tokens wie hinter jedem Zoom. */
+  background: var(--et-zoom-scrim, rgba(20, 19, 17, 0.62));
+  -webkit-backdrop-filter: var(--et-zoom-scrim-blur, blur(12px) saturate(1));
+  backdrop-filter: var(--et-zoom-scrim-blur, blur(12px) saturate(1));
 }
 
 .panel {
-  --buddy-ink: #151b16;
-  --buddy-paper: #fff;
-  --buddy-surface: #eaf2ed;
-  --buddy-field: #dfeae3;
-  --buddy-muted: #55635d;
-  --buddy-red: #d9382a;
-  --buddy-yellow: #ffd84d;
-  --buddy-display: var(--font-providence);
-  --buddy-copy: var(--font-providence);
+  --buddy-ink: var(--et-home-ink, #15120e);
+  --buddy-paper: var(--et-home-inverse-text, #fff);
+  --buddy-accent: var(--et-home-accent, #ffc600);
+  --buddy-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --buddy-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --buddy-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  --buddy-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  /* Die leise Stufe: alles, was ein eigenes OBJEKT ist (Spot, Artikel, Pack),
+     steht eine Spur heller als der Grund. Fliesstext steht auf dem Grund. */
+  --buddy-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --buddy-quiet-hi: rgba(255, 255, 255, 0.1);
+  /* #137b3f aus der hellen Fassung kam auf Ink auf 1.9:1. Dieses Gruen misst
+     9.6:1 auf #15120e. */
+  --buddy-open: #6fcf8b;
+  --buddy-display: var(--et-font-display, var(--font-providence), sans-serif);
+  --buddy-copy: var(--et-font-display, var(--font-providence), sans-serif);
   position: fixed;
   right: 28px;
   bottom: 28px;
@@ -27,13 +46,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: var(--buddy-ink);
-  background: var(--buddy-surface);
+  color: var(--buddy-paper);
+  background: var(--buddy-ink);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--et-radius-photo, 10px);
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.24),
-    0 8px 28px rgba(21, 18, 14, 0.12);
+    0 30px 90px rgba(0, 0, 0, 0.44),
+    var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
   animation: buddyPanelIn 0.22s cubic-bezier(0.2, 0.92, 0.22, 1);
 }
 
@@ -52,10 +71,10 @@
   align-items: center;
   gap: 12px;
   min-height: 86px;
-  padding: 14px 16px 10px 18px;
-  color: var(--buddy-ink);
-  background: var(--buddy-surface);
-  border-bottom: none;
+  padding: 14px 16px 12px 18px;
+  color: var(--buddy-paper);
+  background: var(--buddy-ink);
+  border-bottom: 1px solid var(--buddy-line);
 }
 
 .avatarFrame {
@@ -67,7 +86,7 @@
   overflow: hidden;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--et-radius-photo, 10px);
   box-shadow: none;
 }
 
@@ -77,27 +96,21 @@
   line-height: 1;
 }
 
+/* Weiss, nicht rot: auf Ink sind die Versalien Papier — wie jede Tafel-
+   Ueberschrift der Site. */
 .headerTitle strong {
-  color: var(--buddy-red);
+  color: var(--buddy-paper);
   font-family: var(--buddy-display);
   font-size: 2.95rem;
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: var(--et-tracking-title, -0.02em);
   line-height: 0.82;
   text-transform: uppercase;
 }
 
-.headerTitle span {
-  display: none;
-  color: var(--buddy-ink);
-  font-family: var(--menu-mono, ui-monospace, monospace);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
+/* Ring in Weiss 28 %, gelb bei Hover — dieselbe Taste wie der Standort-Chip
+   im Must-Eat-Sheet und der Kauf-Knopf auf /packs. Vorher ein schwarzer
+   Kasten mit dem Buchstaben „X" darin. */
 .close {
   display: inline-grid;
   place-items: center;
@@ -106,45 +119,48 @@
   flex: 0 0 auto;
   margin-left: auto;
   padding: 0;
-  color: #fff;
-  background: var(--buddy-ink);
-  border: none;
-  border-radius: 8px;
+  color: var(--buddy-paper);
+  background: transparent;
+  border: 2px solid var(--buddy-ring);
+  border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 900;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
   font-family: var(--buddy-display);
   transition:
-    transform 0.12s ease,
-    background 0.12s ease,
-    color 0.12s ease;
+    border-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
 }
 
 @media (hover: hover) {
   .close:hover {
-    color: #fff;
-    background: var(--buddy-red);
-    transform: translateY(-1px);
+    color: var(--buddy-accent);
+    border-color: var(--buddy-accent);
   }
 }
 
 .close:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.54);
+  outline: 2px solid var(--buddy-accent);
+  outline-offset: 2px;
 }
 
 .log {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Das Mitlaufen setzt scrollTop direkt. Global steht `scroll-behavior:
+     smooth` — damit haette jeder Token eine eigene Animation angestossen und
+     der Log waere dem Strom hinterhergeruckelt. */
+  scroll-behavior: auto;
   padding: 18px;
-  color: var(--buddy-ink);
-  background: var(--buddy-surface);
+  color: var(--buddy-paper);
+  background: var(--buddy-ink);
   font-family: var(--buddy-copy);
-  font-size: 1rem;
+  font-size: var(--et-type-body, 16px);
 }
 
 .log::-webkit-scrollbar {
@@ -152,43 +168,41 @@
 }
 
 .log::-webkit-scrollbar-thumb {
-  background: var(--buddy-muted);
-  border-radius: 999px;
+  background: var(--buddy-ring);
+  border-radius: var(--et-radius-pill, 999px);
 }
 
 .intro {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
-.msgUser,
-.msgBot {
-  max-width: 90%;
-  border: none;
-  border-radius: 8px;
-  line-height: 1.42;
-}
-
+/* Was der Nutzer schreibt, steht auf Papier — dieselbe Flaeche wie das Feld,
+   aus dem es kommt. Remy spricht direkt auf der Tafel. */
 .msgUser {
   align-self: flex-end;
-  padding: 12px 14px 13px;
-  color: #fff;
-  background: var(--buddy-ink);
+  max-width: 86%;
+  padding: 11px 14px 12px;
+  color: var(--buddy-ink);
+  background: var(--buddy-paper);
+  border: none;
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--buddy-display);
   font-weight: 700;
+  line-height: 1.34;
   white-space: pre-wrap;
-  box-shadow: 0 10px 24px rgba(21, 27, 22, 0.18);
 }
 
 .msgBot {
   position: relative;
-  align-self: flex-start;
-  padding: 14px 15px 15px;
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
-  box-shadow: 0 10px 24px rgba(21, 18, 14, 0.08);
-  font-weight: 680;
+  align-self: stretch;
+  max-width: 100%;
+  color: var(--buddy-paper);
+  background: transparent;
+  border: none;
+  font-weight: 700;
+  line-height: var(--et-leading-copy, 1.55);
 }
 
 .botP {
@@ -208,7 +222,11 @@
 }
 
 .botList li {
-  line-height: 1.4;
+  line-height: var(--et-leading-copy, 1.55);
+}
+
+.botList li::marker {
+  color: var(--buddy-accent);
 }
 
 .chips {
@@ -219,110 +237,106 @@
 
 .chip,
 .chipNear {
-  border: none;
-  border-radius: 8px;
+  border: 2px solid var(--buddy-ring);
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--buddy-display);
   font-size: 0.86rem;
   font-weight: 700;
   line-height: 1.18;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(21, 18, 14, 0.1);
+  box-shadow: none;
   transition:
-    transform 0.12s ease,
-    background 0.12s ease,
-    color 0.12s ease,
-    box-shadow 0.12s ease;
+    border-color var(--et-motion-fast, 140ms ease),
+    background var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
 }
 
+/* Ring auf Ink — wie die Antwort-Chips der Remy-Buehne. */
 .chip {
   padding: 9px 12px;
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
+  color: var(--buddy-paper);
+  background: transparent;
   text-align: left;
 }
 
 .chip:focus-visible {
-  color: #fff;
-  background: var(--buddy-red);
-  box-shadow: 0 0 0 rgba(21, 18, 14, 0);
-  transform: translate(2px, 2px);
+  outline: none;
+  color: var(--buddy-accent);
+  border-color: var(--buddy-accent);
 }
 
 @media (hover: hover) {
   .chip:hover {
-    color: #fff;
-    background: var(--buddy-red);
-    box-shadow: 0 0 0 rgba(21, 18, 14, 0);
-    transform: translate(2px, 2px);
+    color: var(--buddy-accent);
+    border-color: var(--buddy-accent);
   }
 }
 
+/* Der eine gefuellte Knopf der Chip-Reihe: „In meiner Nähe" ist die Aktion,
+   die etwas kostet (Standortfreigabe). */
 .chipNear {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 9px 12px;
   color: var(--buddy-ink);
-  background: var(--buddy-yellow);
+  background: var(--buddy-accent);
+  border-color: var(--buddy-accent);
 }
 
 .chipNear:focus-visible {
-  color: #fff;
-  background: var(--buddy-red);
-  box-shadow: 0 0 0 rgba(21, 18, 14, 0);
-  transform: translate(2px, 2px);
+  outline: none;
+  color: var(--buddy-ink);
+  background: var(--buddy-paper);
+  border-color: var(--buddy-paper);
 }
 
 @media (hover: hover) {
   .chipNear:hover {
-    color: #fff;
-    background: var(--buddy-red);
-    box-shadow: 0 0 0 rgba(21, 18, 14, 0);
-    transform: translate(2px, 2px);
+    color: var(--buddy-ink);
+    background: var(--buddy-paper);
+    border-color: var(--buddy-paper);
   }
 }
 
 .chipNear:disabled {
-  color: rgba(21, 18, 14, 0.5);
-  background: rgba(21, 18, 14, 0.1);
+  color: var(--buddy-dim);
+  background: transparent;
+  border-color: var(--buddy-line);
   cursor: default;
 }
 
 .spots {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  margin: 12px 0;
+  gap: 10px;
+  margin: 14px 0;
 }
 
+/* ── Karten: die leise Stufe, ein Ausgang ─────────────────────────────────
+   Die Flaeche selbst ist der Knopf. Pfeil, Verb und Ring sind an dieser Stelle
+   der Site dreimal abgelehnt worden (Must-Eat-Sheet, 02.09.2026) — und vier
+   schwarze „Auf der Map ansehen"-Balken unter einer Antwort waren genau das:
+   vier Verben unter vier Flaechen, die schon Knoepfe sind. */
 .spotCard,
 .articleCard,
 .packCard {
   position: relative;
   display: flex;
-  flex-direction: row;
-  gap: 11px;
-  align-items: flex-start;
-  color: var(--buddy-ink);
-  background: rgba(255, 255, 255, 0.92);
+  flex-direction: column;
+  min-width: 0;
+  color: var(--buddy-paper);
+  background: var(--buddy-quiet);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--et-radius-photo, 10px);
   text-decoration: none;
-  box-shadow: 0 10px 24px rgba(21, 18, 14, 0.08);
-  transition:
-    transform 0.12s ease,
-    background 0.12s ease,
-    box-shadow 0.12s ease;
+  box-shadow: none;
+  transition: background var(--et-motion-card, 180ms ease);
 }
 
 .spotCard {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  padding: 0;
   overflow: hidden;
-  color: var(--buddy-ink);
-  background: #fff;
+  padding: 0;
 }
 
 .spotCardLink {
@@ -334,213 +348,120 @@
 }
 
 .articleCard {
-  padding: 11px;
+  padding: 12px 14px 14px;
 }
 
 .packCard {
-  padding: 10px 11px 10px 9px;
-  background: var(--buddy-paper);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px 16px 14px;
 }
 
 @media (hover: hover) {
   .spotCard:hover,
   .articleCard:hover,
   .packCard:hover {
-    background: #fff;
-    box-shadow: 0 0 0 rgba(21, 18, 14, 0);
-    transform: translate(2px, 2px);
+    background: var(--buddy-quiet-hi);
   }
 }
 
-@media (hover: hover) {
-  .spotCard:hover {
-    background: #fff;
-  }
+/* Der Fokusring sitzt auf der KARTE, nicht auf dem Link darin: die Karte
+   klippt (`overflow: hidden`), ein Ring am Link wäre halb abgeschnitten.
+   `:has(:focus-visible)` statt `:focus-within` — sonst zöge jeder Mausklick
+   den Ring mit. */
+.spotCard:has(:focus-visible),
+.articleCard:focus-visible,
+.packCard:focus-visible {
+  outline: 2px solid var(--buddy-accent);
+  outline-offset: 2px;
 }
 
+/* Blank auf dem Foto, rot wenn geherzt — derselbe Knopf wie im Karten-Detail.
+   Vorher eine weisse Pille mit dem Wort „Merken" darin. */
 .spotSave {
   position: absolute;
-  top: 7px;
-  right: 7px;
+  top: 10px;
+  left: 10px;
   z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 26px;
-  padding: 0 9px 0 7px;
-  color: var(--buddy-ink);
-  background: #fff;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--buddy-paper);
+  background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
-  font-family: var(--buddy-display);
-  font-size: 0.74em;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
 }
 
 .spotSave svg {
-  width: 13px;
-  height: 13px;
-  flex: 0 0 13px;
+  width: 18px;
+  height: 18px;
   color: currentColor;
+  stroke: currentColor;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
 }
 
 @media (hover: hover) {
   .spotSave:hover {
-    color: var(--buddy-red);
-    background: rgba(217, 56, 42, 0.1);
+    color: var(--buddy-accent);
   }
 }
 
 .spotSave[data-saved='true'] {
-  color: var(--buddy-red);
+  color: var(--et-home-red, #d9382a);
 }
 
 .spotSave:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.54);
+  outline: 2px solid var(--buddy-accent);
+  outline-offset: 2px;
 }
 
 .spotImg {
-  width: 62px;
-  height: 62px;
-  flex-shrink: 0;
-  object-fit: cover;
-  background: var(--buddy-red);
-  border: none;
-  border-radius: 6px;
-}
-
-.spotCard .spotImg {
   display: block;
   position: relative;
   width: 100%;
-  height: clamp(144px, 36vw, 172px);
-  filter: none;
-  border-radius: 8px 8px 0 0;
-  transform: none;
-}
-
-.spotCard::after {
-  content: none;
+  height: clamp(140px, 34vw, 168px);
+  flex-shrink: 0;
+  object-fit: cover;
+  /* Ruhefarbe statt des roten Blocks, den ein fehlendes Foto vorher zeigte. */
+  background: var(--buddy-quiet-hi);
+  border: none;
+  border-radius: var(--et-radius-photo, 10px) var(--et-radius-photo, 10px) 0 0;
 }
 
 .spotBody {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
+  padding: 11px 14px 13px;
 }
 
-.spotCard .spotBody {
-  position: relative;
-  z-index: 1;
-  gap: 5px;
-  padding: 10px 12px 12px;
-  color: var(--buddy-ink);
+.articleCard .spotBody,
+.packCard .spotBody {
+  padding: 0;
 }
 
 .spotName {
-  color: var(--buddy-ink);
+  color: var(--buddy-paper);
   font-family: var(--buddy-display);
   font-weight: 700;
-  font-size: 1.05em;
-  line-height: 1.05;
-  text-transform: uppercase;
-}
-
-.spotCard .spotName {
-  max-width: 92%;
-  color: var(--buddy-ink);
-  font-family: var(--buddy-display);
-  font-size: 1.12rem;
-  font-weight: 700;
+  font-size: 1.18rem;
   line-height: 1.02;
-  text-shadow: none;
-}
-
-.spotMeta {
-  color: var(--buddy-muted);
-  font-family: var(--buddy-copy);
-  font-size: 0.72em;
-  font-weight: 900;
-  letter-spacing: 0;
+  letter-spacing: var(--et-tracking-title, -0.02em);
   text-transform: uppercase;
-}
-
-.spotCard .spotMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  max-width: 100%;
-  color: #6f665d;
-  font-size: 0.67rem;
-  line-height: 1.15;
-  text-shadow: none;
-}
-
-.spotDesc,
-.packDesc {
-  color: #49443e;
-  font-size: 0.9em;
-  line-height: 1.35;
-}
-
-.spotDesc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.spotCard .spotDesc {
-  max-width: 92%;
-  color: #49443e;
-  font-size: 0.88em;
-  line-height: 1.28;
-}
-
-.spotCta {
-  width: fit-content;
-  margin-top: 2px;
-  padding-bottom: 1px;
-  color: var(--buddy-red);
-  font-family: var(--buddy-display);
-  font-size: 0.82em;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.spotCard .spotCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  margin-top: 7px;
-  padding: 0 12px;
-  color: var(--buddy-paper);
-  background: var(--buddy-ink);
-  border-radius: 7px;
-  line-height: 1;
-  transition:
-    color 0.12s ease,
-    background 0.12s ease,
-    transform 0.12s ease;
-}
-
-.spotCardLink:focus-visible .spotCta {
-  color: var(--buddy-paper);
-  background: var(--buddy-red);
-  transform: translateY(-1px);
+  transition: color var(--et-motion-fast, 140ms ease);
 }
 
 @media (hover: hover) {
-  .spotCardLink:hover .spotCta {
-    color: var(--buddy-paper);
-    background: var(--buddy-red);
-    transform: translateY(-1px);
+  .spotCardLink:hover .spotName,
+  .articleCard:hover .spotName,
+  .packCard:hover .spotName {
+    color: var(--buddy-accent);
   }
 }
 
@@ -548,99 +469,177 @@
   outline: none;
 }
 
-.spotCardLink:focus-visible .spotCta {
-  outline: 3px solid var(--buddy-yellow);
-  outline-offset: 2px;
+.spotCardLink:focus-visible .spotName {
+  color: var(--buddy-accent);
+}
+
+/* Die Fakten-Zeile: Kueche · Bezirk · Preis, in Weiss 55 %. Die Entfernung
+   steht gelb daneben — sie ist die einzige Angabe, die vom Nutzer selbst
+   abhaengt. */
+.spotMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 7px;
+  min-width: 0;
+  color: var(--buddy-dim);
+  font-family: var(--buddy-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.spotDist {
+  color: var(--buddy-accent);
+}
+
+.spotDesc,
+.packDesc {
+  color: var(--buddy-soft);
+  font-size: 0.88em;
+  line-height: 1.35;
+}
+
+/* Nur in der Sammelausgabe am Ende einer Antwort, in der Remy ueber die Spots
+   nicht geschrieben hat. Unter seinem Absatz stand hier vorher dieselbe
+   Beschreibung ein zweites Mal — er formuliert sie ja aus genau diesem Feld. */
+.spotDesc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .spotStatus {
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  font-size: 0.76em;
-  font-weight: 800;
+  font-family: var(--buddy-display);
+  font-size: 0.78em;
+  font-weight: 700;
 }
 
 .spotStatus[data-open='true'] {
-  color: #137b3f;
+  color: var(--buddy-open);
 }
 
 .spotStatus[data-open='false'] {
-  color: #7a7066;
+  color: var(--buddy-dim);
 }
 
-.spotCard .spotStatus[data-open='true'],
-.spotCard .spotStatus[data-open='false'] {
-  color: #7a7066;
-}
-
-.spotCard .spotStatus[data-open='true'] {
-  color: #137b3f;
-}
-
+/* ── Booster-Pack-Teaser ──────────────────────────────────────────────────
+   Wie eine Kachel auf /packs: die Karte steht frei mit dem Sheet-Schatten,
+   der Pack-Name ist die Ueberschrift, die Spectrum-Zeile die Unterzeile.
+   Vorher stand das Spectrum als Name da und der echte Name nur klein im
+   Kicker — die Hierarchie war vertauscht. */
 .packBlock {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin: 12px 0;
+  gap: 9px;
+  margin: 14px 0;
 }
 
 .packIntro {
-  margin: 0 2px;
-  color: var(--buddy-ink);
+  margin: 0;
+  color: var(--buddy-paper);
   font-size: 0.96em;
-  font-style: normal;
-  font-weight: 680;
-  line-height: 1.4;
+  font-weight: 700;
+  line-height: var(--et-leading-copy, 1.55);
 }
 
 .packArt {
-  width: 54px;
-  height: 72px;
+  width: 78px;
+  height: auto;
   flex-shrink: 0;
   object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+  transform: rotate(-3deg);
+  transition: transform var(--et-motion-card, 180ms ease);
 }
 
-.articleKicker {
-  color: var(--buddy-red);
-  font-family: var(--buddy-copy);
-  font-size: 0.68em;
-  font-weight: 900;
-  letter-spacing: 0;
+@media (hover: hover) {
+  .packCard:hover .packArt {
+    transform: translateY(-4px) rotate(-5deg) scale(1.03);
+  }
+}
+
+.packCard:focus-visible .packArt {
+  transform: translateY(-4px) rotate(-5deg) scale(1.03);
+}
+
+.packName {
+  font-size: 1.62rem;
+}
+
+.packSpectrum {
+  color: var(--buddy-soft);
+  font-family: var(--buddy-display);
+  font-size: 0.95em;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.packDesc {
+  color: var(--buddy-dim);
+}
+
+/* Das gelbe 9px-Quadrat der Kicker — dasselbe Zeichen wie `hv-mk` auf der
+   Startseite und vor jedem Insider-Tipp. */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--buddy-accent);
+  font-family: var(--buddy-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1;
   text-transform: uppercase;
+}
+
+.mk {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  background: var(--buddy-accent);
 }
 
 .form {
   display: flex;
   gap: 10px;
   padding: 12px;
-  background: var(--buddy-surface);
-  border-top: none;
-  box-shadow: 0 -12px 28px rgba(21, 18, 14, 0.05);
+  background: var(--buddy-ink);
+  border-top: 1px solid var(--buddy-line);
+  box-shadow: none;
 }
 
+/* Papier auf Ink, gelber Knopf daneben — Zeile fuer Zeile die Eingabe der
+   Remy-Buehne auf der Startseite. */
 .input {
   flex: 1;
   min-width: 0;
   min-height: 52px;
   padding: 12px 15px;
   color: var(--buddy-ink);
-  background: var(--buddy-field);
+  background: var(--buddy-paper);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--et-radius-control, 7px);
   font-family: var(--buddy-copy);
   font-size: 1rem;
   font-weight: 700;
 }
 
 .input::placeholder {
-  color: #66736d;
+  color: rgba(21, 18, 14, 0.55);
 }
 
 .input:focus-visible {
-  outline: none;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.5);
+  outline: 2px solid var(--buddy-accent);
+  outline-offset: 2px;
 }
 
 .send {
@@ -650,45 +649,55 @@
   min-height: 52px;
   flex: 0 0 auto;
   padding: 0 16px;
-  color: #fff;
-  background: var(--buddy-red);
-  border: none;
-  border-radius: 8px;
+  color: var(--buddy-ink);
+  background: var(--buddy-accent);
+  border: 2px solid var(--buddy-accent);
+  border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
   font-family: var(--buddy-display);
   font-size: 0.9rem;
   font-weight: 700;
-  box-shadow: 0 10px 22px rgba(217, 56, 42, 0.22);
+  box-shadow: none;
   transition:
-    transform 0.1s ease,
-    background 0.1s ease,
-    color 0.1s ease,
-    box-shadow 0.1s ease;
+    background var(--et-motion-fast, 140ms ease),
+    border-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
 }
 
 @media (hover: hover) {
   .send:hover:not(:disabled) {
-    color: #fff;
-    background: var(--buddy-ink);
-    box-shadow: 0 0 0 var(--buddy-ink);
-    transform: translate(3px, 3px);
+    color: var(--buddy-ink);
+    background: var(--buddy-paper);
+    border-color: var(--buddy-paper);
   }
 }
 
-.send:active:not(:disabled) {
-  background: #070707;
-}
-
 .send:disabled {
-  color: rgba(21, 18, 14, 0.46);
-  background: rgba(21, 18, 14, 0.12);
-  box-shadow: none;
+  color: var(--buddy-dim);
+  background: transparent;
+  border-color: var(--buddy-line);
   cursor: default;
 }
 
 .send:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(255, 216, 77, 0.54);
+  outline: 2px solid var(--buddy-accent);
+  outline-offset: 2px;
+}
+
+/* Waehrend Remy schreibt, ist derselbe Knopf der Abbruch — ein Ring, kein
+   zweiter gefuellter Knopf daneben. */
+.stop {
+  color: var(--buddy-paper);
+  background: transparent;
+  border-color: var(--buddy-ring);
+}
+
+@media (hover: hover) {
+  .stop:hover:not(:disabled) {
+    color: var(--buddy-accent);
+    background: transparent;
+    border-color: var(--buddy-accent);
+  }
 }
 
 .panel:focus {
@@ -702,12 +711,63 @@
 .typing {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
   padding: 4px 0;
-  color: var(--buddy-muted);
+  color: var(--buddy-accent);
   font-family: var(--buddy-display);
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
   text-transform: uppercase;
+}
+
+.typingDots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* Bewegung ueber translate, nicht ueber Opacity — die Regel gilt auf allen
+   Marken-Flaechen. */
+.typingDots i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  background: var(--buddy-accent);
+  border-radius: var(--et-radius-pill, 999px);
+  animation: buddyDot 0.9s ease-in-out infinite;
+}
+
+.typingDots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typingDots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes buddyDot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Nur fuers Vorlese-Ohr: die fertige Antwort einmal, statt jedes Tokens. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -719,27 +779,33 @@
   .chip,
   .chipNear,
   .spotCard,
-  .spotCta,
+  .spotName,
   .articleCard,
   .packCard,
+  .packArt,
   .send {
     transition: none;
   }
 
-  .spotCardLink:focus-visible .spotCta {
-    transform: none;
+  .typingDots i {
+    animation: none;
   }
 
   @media (hover: hover) {
-    .spotCardLink:hover .spotCta {
-      transform: none;
+    .packCard:hover .packArt {
+      transform: rotate(-3deg);
     }
+  }
+
+  .packCard:focus-visible .packArt {
+    transform: rotate(-3deg);
   }
 }
 
 @media (max-width: 480px) {
   .scrim {
-    background: rgba(21, 18, 14, 0.32);
+    background: var(--et-zoom-scrim, rgba(20, 19, 17, 0.62));
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
@@ -752,7 +818,7 @@
     max-width: none;
     height: auto;
     max-height: none;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
   }
 
   .header {
@@ -782,9 +848,16 @@
     padding: 13px 12px;
   }
 
-  .msgUser,
-  .msgBot {
+  .msgUser {
     max-width: 94%;
+  }
+
+  .packArt {
+    width: 66px;
+  }
+
+  .packName {
+    font-size: 1.44rem;
   }
 
   .form {

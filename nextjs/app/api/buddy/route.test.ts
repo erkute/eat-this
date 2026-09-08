@@ -9,8 +9,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@sentry/nextjs', () => ({
   captureException: mocks.captureException,
 }));
-vi.mock('@/lib/buddy/rateLimit', () => ({
-  checkRateLimit: vi.fn(),
+vi.mock('@/lib/rateLimitWindow', () => ({
+  checkWindowedRateLimit: vi.fn(),
   sessionLimitsFromEnv: () => ({ perMinute: 10, perDay: 100 }),
   ipLimitsFromEnv: () => ({ perMinute: 30, perDay: 400 }),
 }));
@@ -39,7 +39,7 @@ vi.mock('@/lib/map/cached-sanity', () => ({
 
 import { POST } from './route';
 import { clientIpFromXff } from '@/lib/clientIp';
-import { checkRateLimit } from '@/lib/buddy/rateLimit';
+import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 
 function req(body: unknown): Request {
   return new Request('http://localhost/api/buddy', {
@@ -66,7 +66,7 @@ describe('POST /api/buddy', () => {
   });
 
   it('429s when rate limited', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: false,
       reason: 'per_minute',
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
@@ -92,7 +92,7 @@ describe('POST /api/buddy', () => {
   });
 
   it('streams NDJSON when allowed', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
@@ -106,7 +106,7 @@ describe('POST /api/buddy', () => {
   });
 
   it('resolves a known page slug into trusted context (name from catalog, not client)', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
@@ -129,7 +129,7 @@ describe('POST /api/buddy', () => {
   });
 
   it('derives owned packs from a verified token and passes none for guests', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
@@ -194,7 +194,7 @@ describe('POST /api/buddy', () => {
   });
 
   it('drops page context for unknown or malformed slugs without failing the request', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
@@ -224,7 +224,7 @@ describe('POST /api/buddy', () => {
     mocks.runBuddyTurn.mockImplementation(async function* () {
       throw failure;
     });
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
@@ -276,13 +276,13 @@ describe('POST /api/buddy', () => {
   }
 
   it('applies a per-IP limit (hashed) before the session limit', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
     // <real client>, <App Hosting ingress>, <GFE> — the real client is 3rd-from-right
     await POST(ipReq('203.0.113.7, 35.219.200.29, 66.102.6.195'));
-    const keys = vi.mocked(checkRateLimit).mock.calls.map((c) => c[0]);
+    const keys = vi.mocked(checkWindowedRateLimit).mock.calls.map((c) => c[0]);
     // first call is the IP bucket (hashed, never the raw IP), then the session
     expect(keys[0]).toMatch(/^ip:[a-f0-9]{40}$/);
     expect(keys[0]).not.toContain('203.0.113.7');
@@ -290,7 +290,7 @@ describe('POST /api/buddy', () => {
   });
 
   it('buckets by the real client IP, ignoring spoofed leftmost values and rotating GFE hop', async () => {
-    vi.mocked(checkRateLimit).mockResolvedValue({
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
       allowed: true,
       state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
     });
@@ -299,7 +299,7 @@ describe('POST /api/buddy', () => {
     await POST(ipReq('1.1.1.1, 203.0.113.7, 35.219.200.29, 66.102.6.195'));
     await POST(ipReq('9.9.9.9, 203.0.113.7, 35.219.200.29, 74.125.212.169'));
     const ipKeys = vi
-      .mocked(checkRateLimit)
+      .mocked(checkWindowedRateLimit)
       .mock.calls.map((c) => c[0])
       .filter((k) => k.startsWith('ip:'));
     expect(ipKeys[0]).toBe(ipKeys[1]);

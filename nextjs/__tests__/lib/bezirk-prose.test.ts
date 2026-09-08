@@ -57,6 +57,65 @@ describe('buildBezirkFAQEntries', () => {
     expect(entries.map(e => e.question)).not.toContain('Wo isst man in Mitte gehoben?')
   })
 
+  it('keeps numeric names out of the "bekannte Restaurants" answer', () => {
+    // Sanity liefert alphabetisch: ein blankes slice(0,5) machte aus
+    // „136 Berlin Restaurant, 1811, 963" die bekanntesten Restaurants —
+    // sichtbar auf der Seite UND im FAQPage-Schema.
+    const mixed = [
+      r('136 Berlin Restaurant'),
+      r('1811'),
+      r('963'),
+      r('Bari', { tip: 'Handgemachte Pasta' }),
+      r('Gemello', { shortDescription: 'Vegane Pizza' }),
+      r('Kuréme', { photo: 'https://cdn.example/x.webp' }),
+    ]
+    const entries = buildBezirkFAQEntries({ bezirk: mitte, restaurants: mixed, locale: 'de' })
+    const highlights = entries.find(e => e.question.includes('bekannte Restaurants'))!
+    expect(highlights.answer).toContain('Bari')
+    expect(highlights.answer).toContain('Gemello')
+    expect(highlights.answer).not.toContain('1811')
+    expect(highlights.answer).not.toContain('963')
+  })
+
+  it('answers "bekannte Restaurants" from the curated list when there is one', () => {
+    const curated = [r('Sofi'), r('Barra'), r('Nobelhart & Schmutzig')]
+    const entries = buildBezirkFAQEntries({
+      bezirk: mitte,
+      restaurants,
+      locale: 'de',
+      curated,
+    })
+    const highlights = entries.find(e => e.question.includes('bekannte Restaurants'))!
+    expect(highlights.answer).toContain('Sofi, Barra, Nobelhart & Schmutzig')
+    // Die alphabetische Heuristik darf nicht mehr durchschlagen.
+    expect(highlights.answer).not.toContain('Atelier')
+  })
+
+  it('leads every enumeration with curated spots that belong in it', () => {
+    // Die Bestenliste ist eine Rangaussage — sie schlaegt in JEDER
+    // Aufzaehlung die Heuristik, solange der Spot zur Teilliste passt.
+    const cheap = { min: 1, max: 10, currency: 'EUR' as const }
+    const list = [
+      r('Alpha', { categories: [cafe], priceRange: cheap }),
+      r('Beta', { categories: [cafe], priceRange: cheap }),
+      r('Zeta', { categories: [cafe], priceRange: cheap }),
+      r('Teuer', { categories: [cafe], priceRange: { min: 60, max: 90, currency: 'EUR' } }),
+    ]
+    const entries = buildBezirkFAQEntries({
+      bezirk: mitte,
+      restaurants: list,
+      locale: 'de',
+      // „Teuer" gehoert nicht ins Budget-Segment und darf dort nicht
+      // vorgezogen werden, nur weil er kuratiert ist.
+      curated: [r('Zeta', { priceRange: cheap }), r('Teuer')],
+    })
+    const topCat = entries.find(e => e.question.startsWith('Wo gibt es die besten'))!
+    expect(topCat.answer).toMatch(/: Zeta/)
+    const budget = entries.find(e => e.question.includes('günstig'))!
+    expect(budget.answer).toMatch(/: Zeta/)
+    expect(budget.answer).not.toContain('Teuer')
+  })
+
   it('interpolates restaurant names per bezirk so answers stay unique', () => {
     const a = buildBezirkFAQEntries({ bezirk: { name: 'Mitte' }, restaurants, locale: 'de' })
     const b = buildBezirkFAQEntries({

@@ -22,6 +22,13 @@ vi.mock('@/lib/firebase/admin', () => ({
 const { readPremiumSessionUid } = vi.hoisted(() => ({
   readPremiumSessionUid: vi.fn(),
 }))
+
+const { checkWindowedRateLimit } = vi.hoisted(() => ({
+  checkWindowedRateLimit: vi.fn(),
+}))
+vi.mock('@/lib/rateLimitWindow', () => ({
+  checkWindowedRateLimit: (...args: unknown[]) => checkWindowedRateLimit(...args),
+}))
 vi.mock('@/lib/must-eat/premium-session', () => ({
   premiumSessionCookieName: () => 'premium_session',
   readPremiumSessionUid: () => readPremiumSessionUid(),
@@ -36,9 +43,14 @@ import {
 const PUBLIC_CACHE = 'public, max-age=300, stale-while-revalidate=3600'
 const PRIVATE_CACHE = 'private, no-store'
 
+/* Drei Hops: App Hosting haengt Ingress + GFE hinter den echten Aufrufer, also
+ * nimmt clientIpFromXff den drittletzten. Ohne Adresse kein Ratenlimit. */
 function request(cookie?: string, query = ''): NextRequest {
   return new NextRequest(`https://example.com/api/must-eat-image/m1${query}`, {
-    headers: cookie ? { cookie } : undefined,
+    headers: {
+      'x-forwarded-for': '84.13.22.9, 10.0.0.1, 10.0.0.2',
+      ...(cookie ? { cookie } : {}),
+    },
   })
 }
 
@@ -55,6 +67,8 @@ async function pngFixture(): Promise<Buffer> {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.stubEnv('PREMIUM_ACCESS_SIGNING_KEY', 'test-signing-key-with-enough-entropy')
+  vi.stubEnv('COUNT_SALT', 'test-salt')
+  checkWindowedRateLimit.mockResolvedValue({ allowed: true })
   getPublicMustEatIds.mockResolvedValue(new Set())
   readPremiumSessionUid.mockResolvedValue(null)
   getPrivateMustEatContent.mockResolvedValue({
@@ -201,6 +215,61 @@ describe('/api/must-eat-image/[id]', () => {
     })
     expect(Buffer.from(await huge.arrayBuffer()).byteLength).toBe(original.byteLength)
     expect(huge.headers.get('content-type')).toBe('image/png')
+  })
+
+  /* `q` rastete nicht: `Math.min(90, Math.max(40, …))` sind 51 Stufen, und `q`
+     steht in Cache-Variante und ETag. 51 Stufen mal sechs Breiten sind ueber
+     600 Cache-Fehlschlaege je Bild, jeder mit Bucket-Download plus sharp-Lauf —
+     genau der Verstaerker, wegen dem die Breite schon eine Leiter hat. */
+  it('snaps the quality to two rungs', async () => {
+    const original = await pngFixture()
+    download.mockResolvedValue([original])
+    getMetadata.mockResolvedValue([{ contentType: 'image/png', etag: 'etag-1' }])
+    getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+
+    const etagFor = async (q: string) =>
+      (
+        await GET(request(undefined, `?w=180&auto=format&q=${q}`), {
+          params: Promise.resolve({ id: 'm1' }),
+        })
+      ).headers.get('etag')
+
+    expect(await etagFor('41')).toBe('"etag-1-w180-q60-webp"')
+    expect(await etagFor('60')).toBe('"etag-1-w180-q60-webp"')
+    expect(await etagFor('61')).toBe('"etag-1-w180-q80-webp"')
+    expect(await etagFor('80')).toBe('"etag-1-w180-q80-webp"')
+    // Ueber der Leiter und Unsinn landen beide auf der Vorgabe.
+    expect(await etagFor('90')).toBe('"etag-1-w180-q80-webp"')
+    expect(await etagFor('abc')).toBe('"etag-1-w180-q80-webp"')
+  })
+
+  /* Die einzige der vier Routen ohne Riegel — dabei kostet ein Treffer hier
+     einen GCS-Download plus einen sharp-Lauf. */
+  describe('Ratenlimit', () => {
+    it('sperrt, bevor irgendetwas aus dem Bucket geholt wird', async () => {
+      getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+      checkWindowedRateLimit.mockResolvedValue({ allowed: false, reason: 'per_minute' })
+
+      const response = await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
+
+      expect(response.status).toBe(429)
+      expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
+      expect(getPublicMustEatIds).not.toHaveBeenCalled()
+      expect(file).not.toHaveBeenCalled()
+    })
+
+    /* `deny`: kostet die Aktion Geld, ist ein ausgefallener Riegel kein Grund
+       weiterzumachen — dieselbe Abwaegung wie `checkRateLimitFailClosed`. */
+    it('bestellt den Riegel fail-closed und ohne rohe Adresse', async () => {
+      getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+
+      await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
+
+      const [key, , policy] = checkWindowedRateLimit.mock.calls[0]
+      expect(policy).toBe('deny')
+      expect(key).toMatch(/^img:/)
+      expect(key).not.toContain('84.13.22.9')
+    })
   })
 
   it('serves the original when the bytes are something sharp cannot read', async () => {

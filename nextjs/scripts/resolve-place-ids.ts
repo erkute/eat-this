@@ -13,6 +13,10 @@
  *   npx tsx scripts/resolve-place-ids.ts               # write confident matches
  *
  * Required env (nextjs/.env.local): SANITY_API_WRITE_TOKEN, GOOGLE_API_KEY
+ *
+ * katalog-ausnahme: Füllt ein technisches Feld (`googlePlaceId`) im ganzen
+ * Bestand. Es entscheidet nur, ob spätere Läufe Fotos holen können — nichts
+ * davon wird ohne Redaktion sichtbar.
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';

@@ -12,6 +12,10 @@ const ERROR_KEYS: Record<string, string> = {
   'send-failed': 'errSendFailed',
   'link-generation-failed': 'errGeneric',
   'email-misconfigured': 'errService',
+  /* Die Route sperrt nach drei Mails pro Adresse und Stunde (429). Ohne
+     eigenen Schluessel stand hier „Bitte versuch es nochmal." — eine
+     Einladung, sofort wieder in dieselbe Sperre zu laufen. */
+  'rate-limited': 'errRateLimited',
   network: 'errNetwork',
 };
 

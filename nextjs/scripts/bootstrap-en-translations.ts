@@ -11,6 +11,10 @@
  * Required env (in nextjs/.env.local):
  *   ANTHROPIC_API_KEY
  *   SANITY_API_WRITE_TOKEN  (Editor role, sanity.io/manage → API → Tokens)
+ *
+ * katalog-ausnahme: Übersetzt den ganzen Bestand in Entwürfe. Was davon je
+ * öffentlich wird, entscheidet die Redaktion beim Publizieren — nicht dieser
+ * Lauf, und schon gar nicht der Katalogschnitt zum Zeitpunkt des Laufs.
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';

@@ -65,8 +65,14 @@ function takeFromUrl(): string | null {
   return id;
 }
 
-/** Holt die gemerkte Karte ab und räumt beide Träger. Null, wenn keine da ist. */
+/** Holt die gemerkte Karte ab und räumt beide Träger. Null, wenn keine da ist.
+ *
+ *  Beide werden gelesen, auch wenn schon der erste trägt: sonst bliebe im
+ *  Normalfall (gleicher Browser, beide Träger gesetzt) ein Rest im
+ *  sessionStorage liegen, den ein späterer Aufruf noch einmal einlöst. */
 export function takePendingStarterCard(): string | null {
   if (typeof window === 'undefined') return null;
-  return takeFromUrl() ?? takeFromStorage();
+  const fromUrl = takeFromUrl();
+  const fromStorage = takeFromStorage();
+  return fromUrl ?? fromStorage;
 }

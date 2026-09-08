@@ -44,6 +44,9 @@ export async function getAllRestaurantSlugs(): Promise<string[]> {
 export async function getAllRestaurantsLite(): Promise<
   { name: string; slug: string; bezirk: string | null }[]
 > {
+  // katalog-ausnahme: Das ist die Umleitungstabelle, keine Empfehlungsliste.
+  // Ein alter Link auf einen inzwischen geschlossenen Laden soll auf dessen
+  // Seite zeigen (die sagt, dass er zu hat), nicht ins Leere.
   return client.fetch(
     `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current, "bezirk": bezirkRef->slug.current }`,
     {},

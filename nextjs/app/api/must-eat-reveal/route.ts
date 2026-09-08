@@ -4,7 +4,7 @@ import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds, unlockMustEat } from '@/lib/firebase/unlockedMustEats.server';
-import { checkRateLimit } from '@/lib/buddy/rateLimit';
+import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 import { hydrateAuthorizedMustEats } from '@/lib/must-eat/private-store';
 import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access';
 
@@ -50,10 +50,17 @@ export async function POST(req: Request) {
   // per hour; only a scraper loops over the whole catalog. Doesn't close the
   // documented "signed-in user claims to stand at the spot" gate, but turns
   // a 2-minute bulk harvest into days across many accounts.
-  const limit = await checkRateLimit(`reveal:${uid}`, {
-    perMinute: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_MIN, 10),
-    perDay: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 80),
-  });
+  // `deny`: hier geht bezahlter Inhalt raus. Ohne zaehlbaren Riegel lieber
+  // gar nicht — das ist dieselbe Abwaegung wie `checkRateLimitFailClosed`
+  // in lib/rateLimit.ts.
+  const limit = await checkWindowedRateLimit(
+    `reveal:${uid}`,
+    {
+      perMinute: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_MIN, 10),
+      perDay: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 80),
+    },
+    'deny'
+  );
   if (!limit.allowed) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }
@@ -64,12 +71,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'mustEatId required' }, { status: 400 });
   }
 
-  const [{ restaurants: all, mustEats: allMustEats }, ent, unlockedIds] =
-    await Promise.all([
-      getCachedMapData(),
-      resolveEntitlements(uid, identity),
-      getUnlockedMustEatIds(uid),
-    ]);
+  const [{ restaurants: all, mustEats: allMustEats }, ent, unlockedIds] = await Promise.all([
+    getCachedMapData(),
+    resolveEntitlements(uid, identity),
+    getUnlockedMustEatIds(uid),
+  ]);
 
   const mustEat = allMustEats.find((m) => m._id === mustEatId);
   if (!mustEat) {

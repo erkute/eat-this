@@ -74,7 +74,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.
         </Lead>
 
-        <CtaButton href={magicLink} label="Anmelden und Map öffnen" />
+        <CtaButton href={magicLink} label="Anmelden" />
 
         <Fineprint>
           Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:{' '}

@@ -8,6 +8,10 @@
  * die würden den ganzen Request hochstufen.
  *
  * Run from `nextjs/`:  npx tsx scripts/audit-coordinates.ts
+ *
+ * katalog-ausnahme: Ein Audit über den ganzen Bestand. Eine falsche Koordinate
+ * ist auch dann ein Datenfehler, wenn der Laden gerade zu hat — und der Bericht
+ * geht an die Redaktion, nicht an Besucher.
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';

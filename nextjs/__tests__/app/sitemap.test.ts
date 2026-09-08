@@ -59,6 +59,27 @@ describe('sitemap entries', () => {
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isClosed != true');
   });
 
+  it('laesst redaktionell auf noindex gesetzte Dokumente aus der Sitemap', async () => {
+    // `seo.noIndex` setzt die Seite auf `noindex,nofollow`. Stuende sie
+    // trotzdem in der Sitemap, widersprächen sich zwei Signale — dieselbe
+    // Falle wie bei den geschlossenen Spots. Kategorien haben kein
+    // seo-Objekt im Schema, deshalb dort kein Filter.
+    process.env.NEXT_PUBLIC_ENV = 'production';
+    mocks.fetch.mockResolvedValue([]);
+
+    vi.resetModules();
+    const { sitemapEntries } = await import('@/lib/seo/sitemap-entries');
+    await sitemapEntries();
+
+    const [restaurants, articles, bezirke, categories] = mocks.fetch.mock.calls.map(
+      (call) => call[0] as string
+    );
+    expect(restaurants).toContain('seo.noIndex != true');
+    expect(articles).toContain('seo.noIndex != true');
+    expect(bezirke).toContain('seo.noIndex != true');
+    expect(categories).not.toContain('seo.noIndex');
+  });
+
   it('dates every URL, and lets a fresher article beat the template date', async () => {
     process.env.NEXT_PUBLIC_ENV = 'production';
     mocks.fetch

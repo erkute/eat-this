@@ -2,7 +2,11 @@
 import { createHash } from 'node:crypto';
 import * as Sentry from '@sentry/nextjs';
 import { NextResponse } from 'next/server';
-import { checkRateLimit, sessionLimitsFromEnv, ipLimitsFromEnv } from '@/lib/buddy/rateLimit';
+import {
+  checkWindowedRateLimit,
+  sessionLimitsFromEnv,
+  ipLimitsFromEnv,
+} from '@/lib/rateLimitWindow';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
@@ -155,12 +159,17 @@ export async function POST(request: Request) {
   // then the per-session limit. Either tripping returns 429 before any LLM work.
   const ipHash = clientIpHash(request);
   if (ipHash) {
-    const ipLimit = await checkRateLimit(`ip:${ipHash}`, ipLimitsFromEnv());
+    // `deny`: jede durchgelassene Anfrage kostet Anthropic-Tokens.
+    const ipLimit = await checkWindowedRateLimit(`ip:${ipHash}`, ipLimitsFromEnv(), 'deny');
     if (!ipLimit.allowed) {
       return NextResponse.json({ error: 'rate_limited', reason: ipLimit.reason }, { status: 429 });
     }
   }
-  const limit = await checkRateLimit(`s:${parsed.sessionId}`, sessionLimitsFromEnv());
+  const limit = await checkWindowedRateLimit(
+    `s:${parsed.sessionId}`,
+    sessionLimitsFromEnv(),
+    'deny'
+  );
   if (!limit.allowed) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }

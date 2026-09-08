@@ -41,7 +41,23 @@ describe('DeckJoin', () => {
     fireEvent.change(screen.getByRole('textbox'), { target: { value: ' hallo@example.com ' } });
     fireEvent.click(screen.getByRole('button', { name: 'joinCta' }));
 
-    expect(sendLink).toHaveBeenCalledWith('hallo@example.com');
+    expect(sendLink).toHaveBeenCalledWith('hallo@example.com', expect.any(String));
+  });
+
+  /* Ohne Continue-URL nimmt die Route ihren Fallback, die Startseite — und
+     das Deck, das den Besuch ausgeloest hat, ist nach der Anmeldung weg und
+     ueber die Startseite nicht wiederzufinden. */
+  it('nimmt den Rueckweg zu diesem Deck mit', () => {
+    window.history.replaceState({}, '', '/deck/Z2IJ8CJsAbCdEfGhIjKlMnOpQr01?ref=abc');
+    render(<DeckJoin name="Ersan" />);
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'hallo@example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'joinCta' }));
+
+    expect(sendLink).toHaveBeenCalledWith(
+      'hallo@example.com',
+      `${window.location.origin}/deck/Z2IJ8CJsAbCdEfGhIjKlMnOpQr01?ref=abc`
+    );
   });
 
   /* Eine Adresse ohne @ wuerde als Mail rausgehen und nie ankommen — der

@@ -334,6 +334,25 @@
   transition: background var(--et-motion-card, 180ms ease);
 }
 
+/* Karten schnappen nicht ein, sie wischen auf — dieselbe Geste wie der Toast
+   in globals.css (`clip-path: inset(50% 0 50% 0)` → `inset(0)`), also kein
+   Opacity-Fade. Der Kasten steht sofort in voller Höhe, es wackelt nichts
+   nach: geklippt wird nur die Malerei. */
+.spotCard,
+.articleCard,
+.packCard {
+  animation: buddyCardIn 0.26s cubic-bezier(0.2, 0.92, 0.22, 1) both;
+}
+
+@keyframes buddyCardIn {
+  from {
+    clip-path: inset(50% 0 50% 0 round var(--et-radius-photo, 10px));
+  }
+  to {
+    clip-path: inset(0 0 0 0 round var(--et-radius-photo, 10px));
+  }
+}
+
 .spotCard {
   overflow: hidden;
   padding: 0;
@@ -771,7 +790,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel {
+  .panel,
+  .spotCard,
+  .articleCard,
+  .packCard {
     animation: none;
   }
 

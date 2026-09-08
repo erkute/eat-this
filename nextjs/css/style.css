@@ -584,7 +584,6 @@ body {
 .homeV2 .hv-btn:active{transform:translateY(1px)}
 .homeV2 .hv-chip{transition:transform var(--et-motion-fast),background-color var(--et-motion-fast)}
 .homeV2 .hv-chip:active{transform:translateY(1px)}
-.homeV2 .hv-link-underline{font-weight:700;font-size:var(--et-type-button);color:var(--et-home-ink);border-bottom:2px solid var(--et-home-accent);padding-bottom:2px}
 .homeV2 .hv-chip{font-family:var(--et-font-display);font-weight:700;font-size:var(--et-type-chip);padding:9px 15px;border-radius:var(--et-radius-control);background:var(--et-home-quiet);color:var(--et-home-ink);border:none;cursor:pointer}
 @media (max-width:760px){
   .homeV2 .hv-wrap{padding:0 var(--et-wrap-pad-mobile)}

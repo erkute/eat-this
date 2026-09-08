@@ -52,10 +52,6 @@ main.page :global(.hv-sub) {
   color: var(--profile-muted);
 }
 
-main.page :global(.hv-link-underline) {
-  color: var(--profile-fg);
-}
-
 main.page :global(.hv-btn) {
   background: var(--profile-accent);
   color: var(--profile-ink);

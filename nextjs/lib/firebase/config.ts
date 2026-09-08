@@ -182,10 +182,3 @@ export function getDb(): Promise<Firestore> {
   }
   return _dbPromise;
 }
-
-// Dev-only debug hook so the entitlements smoke test in
-// /api/_debug/whoami can be exercised from the browser console:
-//   await window.__auth.currentUser.getIdToken()
-if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
-  (window as unknown as { __auth: typeof auth }).__auth = auth;
-}

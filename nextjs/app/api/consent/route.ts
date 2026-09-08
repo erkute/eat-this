@@ -3,7 +3,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
-import { checkRateLimit } from '@/lib/buddy/rateLimit';
+import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 import { parseConsentBody } from '@/lib/consentRecord';
 
 /**
@@ -62,21 +62,22 @@ export async function POST(request: Request) {
   );
   if (ip) {
     const hash = visitorHash(ip, request.headers.get('user-agent') ?? '', berlinDay(), countSalt());
-    const limit = await checkRateLimit(`cs:${hash}`, RATE_LIMITS);
+    // `allow`: ein Einwilligungsnachweis ist ein Rechtsdokument. Wenn der
+    // Riegel nicht antwortet, darf er nicht derjenige sein, der ihn verhindert
+    // — scheitert danach der Schreibvorgang selbst, meldet die Route das ehrlich.
+    const limit = await checkWindowedRateLimit(`cs:${hash}`, RATE_LIMITS, 'allow');
     if (!limit.allowed) return new NextResponse(null, { status: 429 });
   }
 
-  await getAdminFirestore()
-    .collection('consent_records')
-    .add({
-      consentId: record.id,
-      value: record.value,
-      version: record.version,
-      locale: record.locale,
-      // Server clock, not the browser's: a timestamp the visitor could set is
-      // not evidence of anything.
-      createdAt: FieldValue.serverTimestamp(),
-    });
+  await getAdminFirestore().collection('consent_records').add({
+    consentId: record.id,
+    value: record.value,
+    version: record.version,
+    locale: record.locale,
+    // Server clock, not the browser's: a timestamp the visitor could set is
+    // not evidence of anything.
+    createdAt: FieldValue.serverTimestamp(),
+  });
 
   return new NextResponse(null, { status: 204 });
 }

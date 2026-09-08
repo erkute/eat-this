@@ -4,10 +4,11 @@ const mocks = vi.hoisted(() => ({
   checkRateLimit: vi.fn(),
   create: vi.fn(),
   set: vi.fn(),
+  get: vi.fn(),
 }));
 
-vi.mock('@/lib/buddy/rateLimit', () => ({
-  checkRateLimit: mocks.checkRateLimit,
+vi.mock('@/lib/rateLimitWindow', () => ({
+  checkWindowedRateLimit: mocks.checkRateLimit,
 }));
 
 vi.mock('@/lib/firebase/admin', () => ({
@@ -16,6 +17,7 @@ vi.mock('@/lib/firebase/admin', () => ({
       doc: (id: string) => ({
         create: (data: unknown) => mocks.create(name, id, data),
         set: (data: unknown, opts: unknown) => mocks.set(name, id, data, opts),
+        get: async () => ({ data: () => mocks.get(name, id) }),
       }),
     }),
   }),
@@ -27,6 +29,7 @@ vi.mock('firebase-admin/firestore', () => ({
 }));
 
 import { POST } from './route';
+import { MAP_KEY_BUDGET, resetDayKeysCache } from '@/lib/analytics/dayKeyBudget';
 
 const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
@@ -56,6 +59,9 @@ describe('POST /api/count', () => {
     mocks.checkRateLimit.mockReset().mockResolvedValue({ allowed: true });
     mocks.create.mockReset().mockResolvedValue(undefined);
     mocks.set.mockReset().mockResolvedValue(undefined);
+    // Ein leeres Tagesdokument: jeder Schluessel ist neu und passt ins Budget.
+    mocks.get.mockReset().mockReturnValue(undefined);
+    resetDayKeysCache();
     process.env.COUNT_SALT = 'test-salt';
     // The route refuses to write outside production on purpose (see below);
     // every counting assertion here is about the production path.
@@ -296,7 +302,9 @@ describe('POST /api/count', () => {
   });
 
   it('respektiert das Opt-out-Cookie des Betreibers wie GPC', async () => {
-    const res = await POST(request({ path: '/' }, { cookie: 'cookieConsent=x; eatthis_nocount=1' }));
+    const res = await POST(
+      request({ path: '/' }, { cookie: 'cookieConsent=x; eatthis_nocount=1' })
+    );
 
     expect(res.status).toBe(204);
     expect(mocks.set).not.toHaveBeenCalled();
@@ -340,6 +348,98 @@ describe('POST /api/count', () => {
     const res = await POST(request(JSON.stringify({ path: '/', referrer: 'x'.repeat(2000) })));
     expect(res.status).toBe(413);
     expect(mocks.set).not.toHaveBeenCalled();
+  });
+
+  /* Der Riegel am Besucher-Hash war umgehbar: in den Hash geht `body.ua` ein,
+   * und den bestimmt der Aufrufer. Ein neuer UA-String je Anfrage hiess ein
+   * frischer Schluessel — und damit je Anfrage ein Dokument in
+   * `analytics_seen` und ein beliebig aufblasbarer `visitors`-Stand. */
+  describe('Riegel an der Adresse', () => {
+    it('haengt nicht am User-Agent, den der Aufrufer schickt', async () => {
+      await POST(request({ path: '/', ua: 'Mozilla/5.0 (iPhone) Safari' }));
+      await POST(request({ path: '/', ua: 'Mozilla/5.0 (Macintosh) Chrome' }));
+
+      const ipKeys = mocks.checkRateLimit.mock.calls
+        .map(([key]) => key as string)
+        .filter((key) => key.startsWith('an-ip:'));
+
+      expect(ipKeys).toHaveLength(2);
+      expect(ipKeys[0], 'derselbe Schluessel trotz zweier UA-Strings').toBe(ipKeys[1]);
+    });
+
+    it('sperrt, bevor der Riegel am Besucher ueberhaupt gefragt wird', async () => {
+      mocks.checkRateLimit.mockResolvedValueOnce({ allowed: false, reason: 'per_minute' });
+
+      const res = await POST(request({ path: '/' }));
+
+      expect(res.status).toBe(429);
+      expect(mocks.checkRateLimit).toHaveBeenCalledTimes(1);
+      expect(mocks.set).not.toHaveBeenCalled();
+    });
+
+    /* Ein Beacon ist kein Grund, aus einer Firestore-Stoerung einen Vorfall zu
+       machen — die Politik steht am Aufruf, nicht im Begrenzer. */
+    it('bestellt beide Riegel mit der Fehlerpolitik `allow`', async () => {
+      await POST(request({ path: '/' }));
+
+      const policies = mocks.checkRateLimit.mock.calls.map(([, , policy]) => policy);
+      expect(policies).toEqual(['allow', 'allow']);
+    });
+  });
+
+  /* `paths`, `entryPaths`, `continuations` und `referrers` waren freie
+   * Map-Schluessel in EINEM Dokument. Firestore deckelt es bei 1 MB und 20.000
+   * Indexeintraegen — ist die Grenze gerissen, schlagen ALLE Schreibvorgaenge
+   * des Tages fehl, nicht nur der, der sie gerissen hat. */
+  describe('Schluesselbudget des Tagesdokuments', () => {
+    function fullMap(prefix: string) {
+      return Object.fromEntries(
+        Array.from({ length: MAP_KEY_BUDGET }, (_, i) => [`${prefix}${i}`, 1])
+      );
+    }
+
+    it('sammelt einen neuen Pfad ein, sobald das Budget voll ist', async () => {
+      mocks.get.mockReturnValue({ paths: fullMap('/restaurant/spot-') });
+
+      await POST(request({ path: '/restaurant/ganz-neu' }));
+
+      expect(dayWrite()?.paths).toEqual({ '/other': { __inc: 1 } });
+    });
+
+    it('zaehlt einen Pfad weiter, der schon im Dokument steht', async () => {
+      mocks.get.mockReturnValue({ paths: { ...fullMap('/restaurant/spot-'), '/map': 3 } });
+
+      await POST(request({ path: '/map' }));
+
+      expect(dayWrite()?.paths).toEqual({ '/map': { __inc: 1 } });
+    });
+
+    it('sammelt auch einen neuen Verweis-Host ein', async () => {
+      mocks.get.mockReturnValue({ referrers: fullMap('host_') });
+
+      await POST(request({ path: '/', referrer: 'https://news.example.org/foo' }));
+
+      expect(dayWrite()?.referrers).toEqual({ other: { __inc: 1 } });
+    });
+
+    it('liest das Tagesdokument fuer ein Ereignis gar nicht', async () => {
+      await POST(request({ path: '/map', event: 'map_opened' }));
+
+      // `events` steht auf einer Allowlist — dort gibt es nichts zu deckeln.
+      expect(mocks.get).not.toHaveBeenCalled();
+    });
+  });
+
+  /* Ein Beacon ist ein Aufruf, den niemand wiederholen kann und dessen
+   * Ergebnis niemand liest. Ein 500 daraus landet ueber `onRequestError` als
+   * Vorfall in Sentry, ohne dass irgendjemandem geholfen waere. */
+  it('antwortet 204, wenn der Schreibvorgang scheitert', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.set.mockRejectedValue(new Error('UNAVAILABLE'));
+
+    const res = await POST(request({ path: '/' }));
+
+    expect(res.status).toBe(204);
   });
 
   /* The visitor hash may be stored; the raw IP may never be. */

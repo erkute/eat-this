@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+import { clientIpFromXff } from '@/lib/clientIp';
+import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
 import { getAdminStorage } from '@/lib/firebase/admin';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
 import { getPrivateMustEatContent } from '@/lib/must-eat/private-store';
 import { premiumAccessCookieName, readPremiumAccessToken } from '@/lib/must-eat/premium-access';
 import { premiumSessionCookieName, readPremiumSessionUid } from '@/lib/must-eat/premium-session';
+import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -39,16 +42,53 @@ function pickWidth(raw: string | null): number | null {
   return ALLOWED_WIDTHS.find((w) => w >= n) ?? null;
 }
 
+// Dieselbe Begruendung wie bei der Breitenleiter, und sie fehlte hier: `q`
+// ging als `Math.min(90, Math.max(40, …))` durch — 51 Stufen, jede ein eigener
+// sharp-Lauf und, weil `q` in Cache-Variante und ETag steht, eine eigene
+// Cache-Zeile. 51 Stufen mal sechs Breiten sind ueber 600 Fehlschlaege je Bild,
+// jeder mit Bucket-Download davor. Also zwei Sprossen: die Vorgabe und eine
+// sparsame darunter. Neue nur mit demselben Vorsatz wie eine neue Breite.
+const ALLOWED_QUALITIES = [60, 80] as const;
+const DEFAULT_QUALITY = 80;
+
 function pickQuality(raw: string | null): number {
   const n = Number(raw);
-  if (!Number.isFinite(n)) return 80;
-  return Math.min(90, Math.max(40, Math.round(n)));
+  if (!Number.isFinite(n)) return DEFAULT_QUALITY;
+  return ALLOWED_QUALITIES.find((q) => q >= n) ?? DEFAULT_QUALITY;
 }
+
+// Der einzige Server-Riegel vor bezahlten Bytes, der bisher fehlte: die drei
+// anderen Routen dieser Familie haben einen, diese nicht — dabei kostet ein
+// Treffer hier einen GCS-Download plus einen sharp-Lauf. Grosszuegig, weil
+// eine Startseite sechs Karten auf einmal holt und hinter einer NAT mehrere
+// Leute sitzen.
+const IMAGE_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!SAFE_ID.test(id)) {
     return NextResponse.json({ error: 'not found' }, { status: 404 });
+  }
+
+  // Vor jeder Arbeit: der Riegel soll den Bucket-Download und den sharp-Lauf
+  // verhindern, nicht sie begleiten. `deny`, wenn Firestore nicht antwortet —
+  // dieselbe Abwaegung wie `checkRateLimitFailClosed` in lib/rateLimit.ts:
+  // kostet die Aktion Geld, ist kein Riegel ein Grund weiterzumachen.
+  const ip = clientIpFromXff(
+    request.headers.get('x-forwarded-for'),
+    request.headers.get('x-real-ip')
+  );
+  if (ip) {
+    const key = visitorHash(ip, '', berlinDay(), countSalt());
+    const limit = await checkWindowedRateLimit(`img:${key}`, IMAGE_RATE_LIMITS, 'deny');
+    if (!limit.allowed) {
+      const response = NextResponse.json(
+        { error: 'rate_limited', reason: limit.reason },
+        { status: 429 }
+      );
+      response.headers.set('Cache-Control', PRIVATE_CACHE_CONTROL);
+      return response;
+    }
   }
 
   // Öffentlich zuerst, Cookie danach — und diese Reihenfolge ist nicht kosmetisch.

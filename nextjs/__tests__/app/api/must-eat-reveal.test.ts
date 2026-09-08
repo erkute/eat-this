@@ -41,8 +41,8 @@ vi.mock('@/lib/map/visible-restaurants.server', () => ({
 }));
 
 const checkRateLimit = vi.fn();
-vi.mock('@/lib/buddy/rateLimit', () => ({
-  checkRateLimit: (...args: unknown[]) => checkRateLimit(...args),
+vi.mock('@/lib/rateLimitWindow', () => ({
+  checkWindowedRateLimit: (...args: unknown[]) => checkRateLimit(...args),
 }));
 
 import { POST } from '@/app/api/must-eat-reveal/route';
@@ -165,7 +165,10 @@ describe('/api/must-eat-reveal', () => {
     await POST(mkReq({ mustEatId: 'm1' }));
     expect(checkRateLimit).toHaveBeenCalledWith(
       'reveal:test-uid',
-      expect.objectContaining({ perMinute: expect.any(Number), perDay: expect.any(Number) })
+      expect.objectContaining({ perMinute: expect.any(Number), perDay: expect.any(Number) }),
+      // `deny`: hier geht bezahlter Inhalt raus — ein ausgefallener Riegel ist
+      // kein Grund weiterzumachen.
+      'deny'
     );
   });
 });

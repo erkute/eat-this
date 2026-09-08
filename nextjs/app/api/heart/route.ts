@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
-import { checkRateLimit } from '@/lib/buddy/rateLimit';
+import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
 
 export const dynamic = 'force-dynamic';
@@ -46,10 +46,16 @@ export async function POST(req: Request) {
 
   // Per-uid rate limit: a normal user hearts a handful of spots; only a script
   // loops. Generous so it never bites real use.
-  const limit = await checkRateLimit(`heart:${uid}`, {
-    perMinute: num(process.env.HEART_LIMIT_PER_MIN, 30),
-    perDay: num(process.env.HEART_LIMIT_PER_DAY, 300),
-  });
+  // `allow`: ein Herz ist eine Geste, keine Ausgabe — eine Firestore-Stoerung
+  // laesst den Schreibvorgang darunter ohnehin scheitern.
+  const limit = await checkWindowedRateLimit(
+    `heart:${uid}`,
+    {
+      perMinute: num(process.env.HEART_LIMIT_PER_MIN, 30),
+      perDay: num(process.env.HEART_LIMIT_PER_DAY, 300),
+    },
+    'allow'
+  );
   if (!limit.allowed) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }

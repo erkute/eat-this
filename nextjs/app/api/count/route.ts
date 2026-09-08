@@ -5,7 +5,14 @@ import { clientIpFromXff } from '@/lib/clientIp';
 import { isAutomated } from '@/lib/analytics/botFilter';
 import { hasNoCountCookie } from '@/lib/analytics/noCount';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
-import { checkRateLimit } from '@/lib/buddy/rateLimit';
+import { pathKey } from '@/lib/analytics/pathKey';
+import {
+  dayKeys,
+  keyWithinBudget,
+  OVERFLOW_HOST,
+  OVERFLOW_PATH,
+} from '@/lib/analytics/dayKeyBudget';
+import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
 
 /**
  * Consent-free measurement.
@@ -31,7 +38,12 @@ export const dynamic = 'force-dynamic';
 
 /** Events worth a counter. An unknown name is dropped, not stored: this endpoint
  *  is unauthenticated, and without an allowlist anyone could grow the day
- *  document one invented key at a time. */
+ *  document one invented key at a time.
+ *
+ *  Dieselbe Gefahr galt fuer `paths`, `entryPaths`, `continuations` und
+ *  `referrers` — die nahmen bis 08.09.2026 jeden Schluessel an. Sie haben jetzt
+ *  ihren eigenen Riegel: lib/analytics/pathKey.ts laesst nur echte Routen
+ *  durch, lib/analytics/dayKeyBudget.ts deckelt, wie viele es werden. */
 const EVENTS = new Set([
   'begin_checkout',
   'checkout_already_owned',
@@ -88,25 +100,6 @@ const EVENTS = new Set([
   'view_item',
 ]);
 
-/** Route shapes this site actually serves. Anything else is a scanner probing
- *  for /wp-admin and friends - in the edge logs those arrive with a perfectly
- *  ordinary browser UA, so the UA filter never sees them. */
-const PATH = /^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/?){0,4}$/;
-/** Interne Werkzeuge zaehlen nicht: /admin/stats stand mit 67 Aufrufen in der
- *  eigenen Ausstiegstabelle — das Zahlenbrett zaehlte seinen einzigen Leser. */
-const INTERNAL_PATH = /^(?:\/[a-z]{2})?\/admin(?:\/|$)/;
-/** Das geteilte Deck traegt eine Firebase-UID im Pfad (`/deck/Z2IJ8CJsAbCd…`),
- *  und die ist gemischt gross und klein geschrieben — sie fiel damit durch
- *  PATH, und `pathKey` gab `null`. Das verwarf die Anfrage KOMPLETT, also auch
- *  jedes dort gefeuerte Ereignis: der Einladungsweg hatte null Seitenaufrufe,
- *  null Einstiege, null Referrer und kein `starter_pack_granted`. Der Trichter
- *  war nicht leer, er war unsichtbar.
- *
- *  Gezaehlt wird die Seite, nicht die Person: der Pfad wird auf `/deck`
- *  gekuerzt. Die UID selbst darf nie ein Schluessel im Tagesdokument werden —
- *  die Schluessel dort sind unbegrenzt, und eine fremde Kennung gehoert
- *  ohnehin nicht hinein. */
-const DECK_PATH = /^(\/[a-z]{2})?\/deck\/[A-Za-z0-9_-]{1,128}$/;
 const MAX_BODY = 1024;
 /** Laenger ist kein Browser. */
 const UA_MAX = 300;
@@ -116,7 +109,17 @@ const DAY_MS = 86_400_000;
  *  the same person a minute later, and TTL deletion is best-effort anyway. */
 const SEEN_TTL_MS = 2 * DAY_MS;
 
+/** Je Besucher — Zweck ist Fairness zwischen Geraeten hinter einer Adresse. */
 const RATE_LIMITS = { perMinute: 90, perDay: 3000 };
+/** Je Adresse, ohne User-Agent. Der Riegel darueber haengt am Besucher-Hash,
+ *  und in den geht `body.ua` ein: ein Angreifer musste nur bei jeder Anfrage
+ *  einen neuen UA-String schicken und bekam einen frischen Schluessel. Damit
+ *  war er wirkungslos — je Anfrage ein Dokument in `analytics_seen`, und
+ *  `visitors` beliebig aufblasbar. Dieser hier kennt den UA nicht.
+ *
+ *  Grosszuegig, weil hinter einer Carrier-NAT viele echte Leute sitzen: 6000
+ *  Aufrufe am Tag von EINER Adresse hat diese Seite nie gesehen. */
+const IP_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
 
 type Body = { path?: unknown; referrer?: unknown; event?: unknown; from?: unknown; ua?: unknown };
 
@@ -146,15 +149,6 @@ function referrerHost(raw: unknown): string | null {
   if (!host || host.endsWith('eatthisdot.com') || host.startsWith('localhost')) return null;
   // Firestore map keys cannot contain dots.
   return host.replace(/\./g, '_').slice(0, 80);
-}
-
-function pathKey(raw: unknown): string | null {
-  if (typeof raw !== 'string' || !raw.startsWith('/') || raw.length > 120) return null;
-  const path = raw.length > 1 ? raw.replace(/\/+$/, '') : '/';
-  const deck = DECK_PATH.exec(path);
-  if (deck) return `${deck[1] ?? ''}/deck`;
-  if (!PATH.test(path) || INTERNAL_PATH.test(path)) return null;
-  return path.replace(/\./g, '_');
 }
 
 export async function POST(request: Request) {
@@ -203,18 +197,38 @@ export async function POST(request: Request) {
   const day = berlinDay();
   const hash = visitorHash(ip, userAgent ?? '', day, countSalt());
 
-  // The endpoint is unauthenticated, so the abuse guard is the same one the
-  // buddy uses - a Firestore-backed window keyed by the hash, never a raw IP.
-  const limit = await checkRateLimit(`an:${hash}`, RATE_LIMITS);
+  // Zwei Riegel, und die Reihenfolge ist die Aussagekraft: der an der Adresse
+  // ist der einzige, den der Aufrufer nicht selbst verstellen kann.
+  //
+  // Fehlerpolitik `allow`: ein Beacon ist kein Grund, aus einer
+  // Firestore-Stoerung einen Vorfall zu machen. Die Schreibvorgaenge unten
+  // fangen ihr eigenes Scheitern ab — der Aufrufer bekommt in jedem Fall 204.
+  const ipLimit = await checkWindowedRateLimit(
+    `an-ip:${visitorHash(ip, '', day, countSalt())}`,
+    IP_RATE_LIMITS,
+    'allow'
+  );
+  if (!ipLimit.allowed) return new NextResponse(null, { status: 429 });
+  const limit = await checkWindowedRateLimit(`an:${hash}`, RATE_LIMITS, 'allow');
   if (!limit.allowed) return new NextResponse(null, { status: 429 });
 
   const db = getAdminFirestore();
+  const dayRef = db.collection('analytics_daily').doc(day);
   const inc = FieldValue.increment(1);
   const update: Record<string, unknown> = { day };
 
   if (event) {
     update.events = { [event]: inc };
   } else {
+    // Die Schluessel, die heute schon im Dokument stehen — hoechstens einmal je
+    // Minute und Instanz gelesen. Ohne diese Sicht kann der Zaehler nicht
+    // wissen, ob ein Pfad neu ist, und damit auch nicht, wann Schluss ist.
+    // Nur dieser Zweig braucht sie: `events` steht auf einer Allowlist und
+    // kennt keine freien Schluessel.
+    const known = await dayKeys(day, async () => (await dayRef.get()).data());
+    const budgeted = (map: 'paths' | 'entryPaths' | 'continuations', key: string) =>
+      keyWithinBudget(known, map, key, OVERFLOW_PATH);
+
     // `create` throws when the doc exists, which is exactly the question being
     // asked: is this the first time today? Cheaper than a read plus a write, and
     // atomic across instances.
@@ -233,7 +247,7 @@ export async function POST(request: Request) {
     }
 
     update.pageviews = inc;
-    update.paths = { [path]: inc };
+    update.paths = { [budgeted('paths', path)]: inc };
     if (firstToday) {
       update.visitors = inc;
       // Die Einstiegsseite — der erste gezaehlte Aufruf eines Besuchers an
@@ -241,7 +255,7 @@ export async function POST(request: Request) {
       // nicht, auf denen die Suche landet; `paths` allein kann Einstieg und
       // Durchklick nicht trennen. Erst hiermit ist "wo kommen die Leute rein"
       // fuer ALLE Besucher beantwortbar statt nur fuer die Zustimmenden.
-      update.entryPaths = { [path]: inc };
+      update.entryPaths = { [budgeted('entryPaths', path)]: inc };
     }
     // Die Seite, von der dieser Aufruf kam. Daraus ergibt sich die
     // Ausstiegsseite rein rechnerisch — Ausstiege(P) = paths[P] -
@@ -254,12 +268,25 @@ export async function POST(request: Request) {
     // frischen. Ausstiege werden dadurch eher ueberschaetzt. Fuer "welche Seite
     // verliert Leute" reicht das; als absolute Zahl nicht zitieren.
     const from = pathKey(body.from);
-    if (from) update.continuations = { [from]: inc };
+    if (from) update.continuations = { [budgeted('continuations', from)]: inc };
 
     const host = referrerHost(body.referrer);
-    if (host) update.referrers = { [host]: inc };
+    if (host) {
+      update.referrers = { [keyWithinBudget(known, 'referrers', host, OVERFLOW_HOST)]: inc };
+    }
   }
 
-  await db.collection('analytics_daily').doc(day).set(update, { merge: true });
+  // Ein Beacon darf nicht 500 antworten. Ohne dieses Netz wurde aus jeder
+  // Firestore-Stoerung ein Fehler in `onRequestError` und damit ein Vorfall in
+  // Sentry — fuer einen Aufruf, den niemand wiederholen kann und dessen
+  // Ergebnis niemand liest.
+  try {
+    await dayRef.set(update, { merge: true });
+  } catch (error) {
+    console.error(
+      '[count] day document write failed',
+      error instanceof Error ? error.name : 'UnknownError'
+    );
+  }
   return new NextResponse(null, { status: 204 });
 }

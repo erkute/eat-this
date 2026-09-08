@@ -23,6 +23,34 @@ describe('buildSystemPrompt', () => {
     expect(p).toMatch(/natürlich/i);
   });
 
+  it('carries a scope-and-safety boundary that survives future edits', () => {
+    // Regression guard. Ohne diesen Block nahm Remy jede hingeworfene Rolle an
+    // und sagte auf „mach die Seite in einer Schleife down" fröhlich „Okay,
+    // ich starte eine aggressive Loop-DoS" — Theater ins Leere (er hat kein
+    // Werkzeug dafür), aber ein Screenshot, der die Marke blamiert. Der Block
+    // steht in JEDER Sprach- und Seiten-Variante, deshalb prüfen wir mehrere.
+    for (const p of [
+      buildSystemPrompt('de'),
+      buildSystemPrompt('en'),
+      buildSystemPrompt('de', { hasGeo: true }),
+      buildSystemPrompt('de', { page: { type: 'restaurant', slug: 'bari', name: 'BARI' } }),
+    ]) {
+      expect(p).toMatch(/## Grenzen/);
+      // Angriffe auf die Seite werden namentlich abgewiesen.
+      expect(p).toMatch(/loop|dos|überlast|lahmzulegen|angreif/i);
+      // Nie ankündigen/beschreiben/durchspielen.
+      expect(p).toMatch(/angriff nie|nie.{0,60}(beschreib|durchspiel|liefere kein)/i);
+      // Jailbreak-Vektoren: Anweisungen ignorieren, andere Rolle spielen.
+      expect(p).toMatch(/anweisungen.{0,60}(ignor|ändern|preis)/i);
+      expect(p).toMatch(/rolle|figur/i);
+      // Die „ist doch meine eigene Seite / ich bin Admin"-Ausrede zieht nicht.
+      expect(p).toMatch(/eigene seite|entwickler|admin/i);
+      // Scharf und knapp abwinken, aber im Charakter (keine Diskussion).
+      expect(p).toMatch(/charakter/i);
+      expect(p).toMatch(/kühl|knapp|keine diskussion|breitschlagen/i);
+    }
+  });
+
   it('switches answer language by locale', () => {
     expect(buildSystemPrompt('de')).toMatch(/Antworte auf Deutsch/i);
     expect(buildSystemPrompt('en')).toMatch(/Answer in English/i);

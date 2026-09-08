@@ -15,6 +15,10 @@
  *
  * Required env (nextjs/.env.local):
  *   SANITY_API_WRITE_TOKEN, GOOGLE_API_KEY, ANTHROPIC_API_KEY
+ *
+ * katalog-ausnahme: Bestandspflege, nicht Empfehlung. Die Galerie hängt an der
+ * Detailseite, die ein geschlossener Spot behält (noindex,follow) — und ein Lauf
+ * wird ohnehin über --slug/--limit gesteuert, nicht über den Katalogschnitt.
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';

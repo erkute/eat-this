@@ -156,11 +156,20 @@ export async function POST(req: NextRequest) {
       // `featuredOnDate` bis zu einen Tag lang wirkungslos geblieben — der
       // Spot des Tages ist genau die Fläche, für die Redaktion kuratiert.
       revalidateTag('restaurant');
+      // Zwei Listen über ALLE Restaurants, die an eigenen Tags hängen und
+      // bisher an keiner Stelle invalidiert wurden: die Slug-Tabelle des
+      // Legacy-Redirects (getAllRestaurantsLite) und die Auswahl der
+      // Badge-Seite. Beide standen damit bis zu 24 Stunden auf altem Stand —
+      // ein umbenannter Slug lief so lange ins 404 statt in seinen Redirect.
+      revalidateTag('restaurants-lite');
+      revalidateTag('badge-restaurants');
       revalidated.push(
         'tag:bezirk',
         'tag:category-list',
         'tag:restaurant-siblings',
-        'tag:restaurant'
+        'tag:restaurant',
+        'tag:restaurants-lite',
+        'tag:badge-restaurants'
       );
       revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);
@@ -196,12 +205,18 @@ export async function POST(req: NextRequest) {
       revalidatePath('/en');
       revalidatePath('/kategorie');
       revalidatePath('/en/kategorie');
+      // Die Sitemap listet jede Kategorie mit eigener URL. `category-list`
+      // oben frischt zwar die Daten auf, aber die gerenderte Route bleibt
+      // stehen, bis sie selbst revalidiert wird — bei 'newsArticle', 'bezirk'
+      // und 'restaurant' steht diese Zeile deshalb schon, hier fehlte sie.
+      revalidatePath('/sitemap.xml');
       revalidated.push(
         'tag:category',
         'tag:category-list',
         'tag:restaurant-siblings',
         'path:/',
-        'path:/kategorie'
+        'path:/kategorie',
+        'path:/sitemap.xml'
       );
       if (slug) {
         revalidateTag(`category:${slug}`);

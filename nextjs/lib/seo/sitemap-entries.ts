@@ -81,23 +81,31 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
 
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
-      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()}] { "slug": slug.current, descriptionEn }`,
+      // `seo.noIndex` ist der Schalter, mit dem die Redaktion eine Seite aus
+      // dem Index nimmt (restaurantRobots setzt daraufhin `noindex,nofollow`).
+      // Stünde sie trotzdem in der Sitemap, widersprächen sich zwei Signale —
+      // dieselbe Falle wie bei den geschlossenen Spots. Heute trifft es null
+      // Dokumente; die Regel steht hier, bevor es das erste tut.
+      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()} && seo.noIndex != true] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
     client.fetch<{ slug: string; updatedAt: string; hasEnContent: boolean }[]>(
-      `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt, "hasEnContent": defined(title) && count(content) > 0 }`,
+      `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true] { "slug": slug.current, "updatedAt": _updatedAt, "hasEnContent": defined(title) && count(content) > 0 }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-articles'] } }
     ),
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
       // Districts without open spots 404 (bezirk/[slug]/page.tsx) — keep them
       // out of the sitemap too.
-      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] { "slug": slug.current, descriptionEn }`,
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-bezirke'] } }
     ),
     client.fetch<{ slug: string }[]>(
+      // Kein `seo.noIndex` wie oben: das Kategorie-Schema (studio/schemaTypes/
+      // category.js) hat kein seo-Objekt. Kommt eins dazu, gehört der Filter
+      // auch hierher.
       `*[_type == "category" && defined(slug.current)] { "slug": slug.current }`,
       {},
       {

@@ -14,6 +14,10 @@
  *   ANTHROPIC_API_KEY
  *   SANITY_API_WRITE_TOKEN  (Editor role)
  *   GOOGLE_API_KEY          (Places API v1 enabled)
+ *
+ * katalog-ausnahme: Schreibt Entwürfe für den ganzen Bestand, inklusive noch
+ * nicht freigeschalteter Importe (`isOpen` ist dort oft noch nicht gesetzt).
+ * Ein Katalogfilter würde genau die Spots überspringen, für die der Generator da ist.
  */
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';

@@ -16,7 +16,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
-import { HeartIcon } from '@/app/components/map/icons';
+import { HeartIcon, PinIcon } from '@/app/components/map/icons';
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from './BuddyWidget.module.css';
@@ -233,6 +233,9 @@ const T = {
     stop: 'Stopp',
     reset: 'Neu',
     resetAria: 'Gespräch neu anfangen',
+    geoOff: 'Standort teilen — dann sortiert Remy nach Entfernung',
+    geoOn: 'Remy kennt deinen Standort',
+    geoBusy: 'Standort wird ermittelt …',
     answered: 'Remy hat geantwortet.',
   },
   en: {
@@ -244,6 +247,9 @@ const T = {
     stop: 'Stop',
     reset: 'New',
     resetAria: 'Start a new conversation',
+    geoOff: 'Share your location — then Remy sorts by distance',
+    geoOn: 'Remy knows where you are',
+    geoBusy: 'Getting your location …',
     answered: 'Remy has answered.',
   },
 } satisfies Record<Locale, Record<string, string>>;
@@ -675,6 +681,20 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     void sendWithLocationIfNeeded(q);
   };
 
+  /* Standort aus der Eingabezeile heraus freigeben. „In meiner Nähe" stand nur
+     im leeren Chat: ab der ersten Frage kam man an die Freigabe nicht mehr
+     heran, und wer sie nicht erteilt hat, bekam stillschweigend stadtweite
+     Antworten, ohne zu sehen, woran es lag. */
+  const toggleGeo = useCallback(async () => {
+    if (location || locating) return;
+    const loc = await requestLocation();
+    if (!loc) {
+      notifyLocationFailure();
+      return;
+    }
+    setGeo(loc);
+  }, [location, locating, requestLocation, notifyLocationFailure, setGeo]);
+
   const title = 'Remy';
 
   // Expression policy: the mouth flap only runs once answer text is actually
@@ -807,6 +827,21 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
               )}
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
+              {/* Zustand UND Schalter in einem: erloschen heißt „er weiß nicht,
+                  wo du bist", gelb heißt „er sortiert nach Entfernung". */}
+              <button
+                type="button"
+                className={styles.geo}
+                data-on={location ? 'true' : 'false'}
+                aria-pressed={!!location}
+                disabled={!!location || locating}
+                aria-busy={locating}
+                aria-label={locating ? t.geoBusy : location ? t.geoOn : t.geoOff}
+                title={locating ? t.geoBusy : location ? t.geoOn : t.geoOff}
+                onClick={() => void toggleGeo()}
+              >
+                <PinIcon />
+              </button>
               {/* Das Feld bleibt schreibbar, solange Remy antwortet — vorher
                   war es gesperrt, der Fokus sprang heraus und die nächste
                   Frage musste warten, bis er fertig war. */}

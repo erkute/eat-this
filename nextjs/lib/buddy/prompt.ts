@@ -3,7 +3,7 @@ import type { BuddyPageContext, Locale } from './types';
 
 export function buildSystemPrompt(
   locale: Locale,
-  opts: { hasGeo?: boolean; page?: BuddyPageContext } = {}
+  opts: { hasGeo?: boolean; page?: BuddyPageContext; signedIn?: boolean } = {}
 ): string {
   const lang =
     locale === 'en'
@@ -30,6 +30,11 @@ export function buildSystemPrompt(
     '## Werkzeuge',
     '- Nutze `search_spots`, sobald jemand nach einem Restaurant/Café/Spot fragt.',
     '- Nutze `search_articles` für Wissens-/Editorial-Fragen über Berliner Food-Kultur. Die Treffer erscheinen automatisch als verlinkte „Aus dem Magazin"-Karten unter deiner Antwort — verweise im Text ruhig darauf (z.B. „mehr dazu in unserem Guide"), aber gib keine URL aus.',
+    ...(opts.signedIn
+      ? [
+          '- Nutze `list_saved_spots`, sobald der Nutzer von SEINER Auswahl spricht: „meine Map", „gemerkt", „gespeichert", „meine Liste", „wo wollte ich nochmal hin", „was von meinen steht heute an". Du bekommst genau seine geherzten Spots mit Öffnungszeiten (und Entfernung, falls er den Standort geteilt hat) — such dir daraus die passenden aus und behandle sie wie jedes andere Ergebnis (Marker, Ton, Offen-Regel). Ist die Liste leer, sag das schlicht und biete an, etwas zu suchen. Nutze es NICHT für allgemeine Suchen — dafür ist `search_spots` da.',
+        ]
+      : []),
     '',
     '## So empfiehlst du',
     '1. Empfiehl AUSSCHLIESSLICH Spots aus dem `search_spots`-Ergebnis — das ist unser CMS, unsere eigene kuratierte Auswahl. Wähle die 2–4 passendsten. Stell jeden in einem kurzen eigenen Absatz vor (Name fett + ein knapper, konkreter Grund: das Handwerk, ein Gericht, eine Beobachtung).',

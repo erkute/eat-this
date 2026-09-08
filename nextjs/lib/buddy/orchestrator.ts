@@ -8,7 +8,7 @@ import type {
   ArticleResult,
   BuddyPageContext,
 } from './types';
-import { BUDDY_TOOLS } from './tools';
+import { buddyTools } from './tools';
 import { buildSystemPrompt } from './prompt';
 import { pickPackForSpots, buildPackTeaser } from './packTeaser';
 import type { PackDef } from '@/lib/stripe-catalog';
@@ -59,6 +59,9 @@ interface OrchestratorDeps {
   llm: LlmClient;
   searchSpots: (filters: SpotFilters, locale: Locale) => Promise<SpotCandidate[]>;
   searchArticles: (input: ArticleQuery, locale: Locale) => Promise<ArticleResult[]>;
+  /** Die geherzten Spots des angemeldeten Kontos. Fehlt für Gäste — dann
+   *  bietet der Werkzeugkasten `list_saved_spots` gar nicht erst an. */
+  listSavedSpots?: (locale: Locale) => Promise<SpotCandidate[]>;
 }
 
 const MAX_TOOL_ROUNDS = 4;
@@ -85,7 +88,11 @@ export async function* runBuddyTurn(
   const system: Anthropic.TextBlockParam[] = [
     {
       type: 'text',
-      text: buildSystemPrompt(input.locale, { hasGeo: !!input.geo, page: input.page }),
+      text: buildSystemPrompt(input.locale, {
+        hasGeo: !!input.geo,
+        page: input.page,
+        signedIn: !!deps.listSavedSpots,
+      }),
       cache_control: { type: 'ephemeral' },
     },
   ];
@@ -93,6 +100,7 @@ export async function* runBuddyTurn(
     role: m.role,
     content: m.content,
   }));
+  const tools = buddyTools({ signedIn: !!deps.listSavedSpots });
 
   // At most ONE pack teaser per request — repeated cards would be exactly the
   // pushy selling the prompt forbids Remy himself.
@@ -103,7 +111,7 @@ export async function* runBuddyTurn(
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     throwIfAborted(options.signal);
-    const turn = deps.llm.runTurn({ system, tools: BUDDY_TOOLS, messages, signal: options.signal });
+    const turn = deps.llm.runTurn({ system, tools, messages, signal: options.signal });
 
     for await (const chunk of turn.text()) {
       throwIfAborted(options.signal);
@@ -158,6 +166,23 @@ export async function* runBuddyTurn(
             yield { type: 'pack', value: buildPackTeaser(pack, input.locale) };
           }
         }
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: tu.id,
+          content: JSON.stringify(spots),
+        });
+      } else if (tu.name === 'list_saved_spots' && deps.listSavedSpots) {
+        const saved = await deps.listSavedSpots(input.locale);
+        throwIfAborted(options.signal);
+        // Wie bei search_spots: die Kategorie-Refs sind server-intern.
+        const spots = saved.map((s) => {
+          const lean = { ...s };
+          delete lean.categorySlugs;
+          return lean;
+        });
+        yield { type: 'spots', value: spots };
+        // Kein Pack-Teaser auf die eigene Merkliste: dort verkauft man dem
+        // Nutzer seine eigene Auswahl zurück.
         toolResults.push({
           type: 'tool_result',
           tool_use_id: tu.id,

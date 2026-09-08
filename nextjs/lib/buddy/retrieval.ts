@@ -314,6 +314,82 @@ export function shouldUseSemanticRank(args: {
   );
 }
 
+/**
+ * Rohzeilen aus Sanity in Karten-fertige Spots: Preis als Label, Offen-Status
+ * in Berliner Zeit, Entfernung zum Nutzer. `openingHours`, die Koordinaten und
+ * das rohe Preis-Objekt fallen dabei weg — der gestreamte Spot bleibt schlank.
+ */
+function hydrateSpots(
+  rows: RawSpotRow[] | null | undefined,
+  locale: Locale,
+  userGeo: LatLng | undefined,
+  now?: Date
+): (SpotCandidate & { _km: number | null })[] {
+  const berlin = berlinNow(now ?? new Date());
+  const labels = { ...OPEN_STATUS_LABELS[locale], days: DAY_LABELS[locale] };
+  return (rows ?? []).map(({ openingHours, priceRange: rawPrice, lat, lng, ...rest }) => {
+    // priceRange is a {min,max,currency} object in Sanity — format it to the
+    // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
+    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined }, locale);
+    // Compute "open now" (Berlin time) so Remy can prioritise open spots and
+    // the card can show a status badge. Null when there's no hours data.
+    const hours = openingHours ?? [];
+    const status = hours.length > 0 ? getOpenStatus(hours, berlin, labels) : null;
+    // Distance from the user, when they shared their location.
+    const km =
+      userGeo && typeof lat === 'number' && typeof lng === 'number'
+        ? distanceKm(userGeo, { lat, lng })
+        : null;
+    return {
+      ...rest,
+      priceRange,
+      openNow: status ? status.isOpen : null,
+      openLabel: status ? status.label : null,
+      distanceLabel: km !== null ? distanceLabel(km, locale) : null,
+      _km: km,
+    };
+  });
+}
+
+/** Die geherzten Spots eines Kontos, in der Reihenfolge der übergebenen Slugs. */
+export const SAVED_SPOTS_LIMIT = 24;
+
+export function buildSavedSpotsQuery(): string {
+  return `*[
+    _type == "restaurant"
+    && isOpen == true && isClosed != true
+    && slug.current in $slugs
+  ] ${SPOTS_PROJECTION}`;
+}
+
+/**
+ * Spots zu einer Slug-Liste — die Grundlage für „was steht auf meiner Map?".
+ * Dauerhaft geschlossene Läden fallen raus (`isClosed`), auch wenn sie noch
+ * geherzt sind: ein Tipp auf einen Laden, den es nicht mehr gibt, ist keiner.
+ */
+export async function spotsBySlugs(
+  slugs: string[],
+  locale: Locale,
+  userGeo?: LatLng,
+  deps: RetrievalDeps = {}
+): Promise<SpotCandidate[]> {
+  const wanted = slugs
+    .filter((s) => typeof s === 'string' && s.length > 0)
+    .slice(0, SAVED_SPOTS_LIMIT);
+  if (wanted.length === 0) return [];
+  const client = deps.client ?? (sanityClient as unknown as SanityLike);
+  const rows = (await client.fetch(buildSavedSpotsQuery(), {
+    slugs: wanted,
+    locale,
+  })) as RawSpotRow[];
+  const hydrated = hydrateSpots(rows, locale, userGeo, deps.now);
+  if (userGeo) hydrated.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity));
+  return hydrated.map(({ _km, ...spot }) => {
+    void _km;
+    return spot;
+  });
+}
+
 export async function searchSpots(
   filters: SpotFilters,
   locale: Locale,
@@ -334,33 +410,8 @@ export async function searchSpots(
   }
   const params = buildSpotsParams(filters, locale, resolvedSlug);
   const rows = (await client.fetch(query, params)) as RawSpotRow[];
-  const now = berlinNow(deps.now ?? new Date());
-  const labels = { ...OPEN_STATUS_LABELS[locale], days: DAY_LABELS[locale] };
   const userGeo = filters.userGeo;
-  // Drop openingHours/coords + the raw price object from the payload; keep only
-  // the derived label/status so the streamed spots stay lean.
-  const mapped = (rows ?? []).map(({ openingHours, priceRange: rawPrice, lat, lng, ...rest }) => {
-    // priceRange is a {min,max,currency} object in Sanity — format it to the
-    // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
-    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined }, locale);
-    // Compute "open now" (Berlin time) so Remy can prioritise open spots and
-    // the card can show a status badge. Null when there's no hours data.
-    const hours = openingHours ?? [];
-    const status = hours.length > 0 ? getOpenStatus(hours, now, labels) : null;
-    // Distance from the user, when they shared their location.
-    const km =
-      userGeo && typeof lat === 'number' && typeof lng === 'number'
-        ? distanceKm(userGeo, { lat, lng })
-        : null;
-    return {
-      ...rest,
-      priceRange,
-      openNow: status ? status.isOpen : null,
-      openLabel: status ? status.label : null,
-      distanceLabel: km !== null ? distanceLabel(km, locale) : null,
-      _km: km,
-    };
-  });
+  const mapped = hydrateSpots(rows, locale, userGeo, deps.now);
   // Nearest first when we know where the user is.
   if (userGeo) mapped.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity));
 

@@ -650,6 +650,61 @@
   box-shadow: none;
 }
 
+/* Der Standort-Schalter links im Feld-Riegel: Ring wie jeder Chip, gelb
+   gefüllt sobald Remy weiß, wo du bist. Er ist Zustand und Schalter zugleich —
+   vorher gab es die Freigabe nur als Chip im leeren Chat, ab der ersten Frage
+   kam man nicht mehr heran. */
+.geo {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  min-height: 52px;
+  flex: 0 0 auto;
+  padding: 0;
+  color: var(--buddy-paper);
+  background: transparent;
+  border: 2px solid var(--buddy-ring);
+  border-radius: var(--et-radius-control, 7px);
+  cursor: pointer;
+  transition:
+    color var(--et-motion-fast, 140ms ease),
+    background var(--et-motion-fast, 140ms ease),
+    border-color var(--et-motion-fast, 140ms ease);
+}
+
+.geo svg {
+  width: 19px;
+  height: 19px;
+  color: currentColor;
+}
+
+@media (hover: hover) {
+  .geo:not(:disabled):hover {
+    color: var(--buddy-accent);
+    border-color: var(--buddy-accent);
+  }
+}
+
+.geo:focus-visible {
+  outline: 2px solid var(--buddy-accent);
+  outline-offset: 2px;
+}
+
+.geo[data-on='true'] {
+  color: var(--buddy-ink);
+  background: var(--buddy-accent);
+  border-color: var(--buddy-accent);
+  /* Er hat seinen Zweck erfüllt, aber er verschwindet nicht: die gelbe Nadel
+     ist die Antwort auf „weiß er, wo ich bin?". */
+  cursor: default;
+}
+
+.geo[data-on='false']:disabled {
+  color: var(--buddy-dim);
+  border-color: var(--buddy-line);
+  cursor: wait;
+}
+
 /* Papier auf Ink, gelber Knopf daneben — Zeile fuer Zeile die Eingabe der
    Remy-Buehne auf der Startseite. */
 .input {
@@ -812,6 +867,7 @@
   }
 
   .close,
+  .geo,
   .chip,
   .chipNear,
   .spotCard,
@@ -897,6 +953,18 @@
   }
 
   .form {
+    gap: 8px;
     padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* 359px Panel − 20 Innenrand − 2×8 Luft − 40 Nadel − 74 Senden = 201px für
+     das Feld. Darunter passt „Schreib Remy…" nicht mehr in eine Zeile. */
+  .geo {
+    width: 40px;
+  }
+
+  .send {
+    min-width: 74px;
+    padding: 0 12px;
   }
 }

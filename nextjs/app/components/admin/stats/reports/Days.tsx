@@ -1,7 +1,7 @@
-import type { DaySummary, StatsSummary } from '@/lib/admin/stats.server';
+import { dayBefore, type DaySummary, type StatsSummary } from '@/lib/admin/stats.server';
 import type { SearchDayDetail, SearchRow } from '@/lib/admin/searchConsole';
-import { BarRows, Card, Change } from '../charts';
-import { NUMBER, dayTitle, euro, labelFor, longDay, percent, position } from '../format';
+import { BarRows, Card, Change, ExitTable, Tile } from '../charts';
+import { NUMBER, dayTitle, decimal, euro, labelFor, longDay, percent, position } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -13,6 +13,10 @@ import styles from '../../StatsDashboard.module.css';
 export default function Days({ data }: { data: StatsSummary }) {
   const { today, latest } = data.dayDetails;
   const search = data.search?.ok ? data.search.data : null;
+  // „Gestern" heisst der Bericht; der juengste abgeschlossene Tag ist es nur,
+  // wenn gestern ein Dokument hat. Sonst steht dran, was wirklich gezeigt wird.
+  const yesterday = data.range.today ? dayBefore(data.range.today) : null;
+  const latestIsNotYesterday = Boolean(latest && yesterday && latest.day !== yesterday);
 
   return (
     <>
@@ -25,6 +29,12 @@ export default function Days({ data }: { data: StatsSummary }) {
         <p className={styles.notice}>
           Der Zeitraum endet am {longDay(data.range.end)} — „heute“ liegt außerhalb. Gezeigt wird
           der letzte Tag des Zeitraums.
+        </p>
+      )}
+      {latestIsNotYesterday && data.range.includesToday && latest && (
+        <p className={styles.notice}>
+          Für gestern liegen keine Zahlen vor — gezeigt wird der jüngste abgeschlossene Tag,{' '}
+          {longDay(latest.day)}.
         </p>
       )}
 
@@ -48,18 +58,26 @@ export default function Days({ data }: { data: StatsSummary }) {
   );
 }
 
-function tile(label: string, value: string) {
-  return (
-    <div key={label} className={styles.dayTile}>
-      <span className={styles.dayTileValue}>{value}</span>
-      <span className={styles.dayTileLabel}>{label}</span>
-    </div>
-  );
-}
+/** Die Kacheln unter „Der Weg" — eine Auswahl aus dem Trichter des Tages, in
+ *  seiner Reihenfolge. Die Zahlen kommen aus `day.funnel`, nicht aus einer
+ *  zweiten Rechnung; `signed_in` etwa gibt es nur dort. */
+const DAY_STEPS = [
+  'map_opened',
+  'restaurant_opened',
+  'must_eat_opened',
+  'must_eat_reveal_login_required',
+  'login_view',
+  'signed_in',
+  'sign_up',
+  'starter_pack_granted',
+  'must_eat_reveal_unlocked',
+  'must_eat_reveal_too_far',
+  'begin_checkout',
+  'purchase',
+];
 
 function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
-  const count = (key: string): number => day.events.find((e) => e.key === key)?.count ?? 0;
-  const signedIn = count('login') + count('sign_up');
+  const steps = new Map(day.funnel.stages.flatMap((s) => s.steps).map((s) => [s.key, s.count]));
   return (
     <section className={styles.dayCol} aria-label={dayTitle(day.day)}>
       <header className={styles.dayHead}>
@@ -76,9 +94,7 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
         </p>
         <p className={styles.note}>
           {NUMBER.format(day.pageviews)} Seitenaufrufe
-          {day.visitors > 0 &&
-            `, ${(day.pageviews / day.visitors).toFixed(1).replace('.', ',')} je Besucher`}
-          .
+          {day.visitors > 0 && `, ${decimal(day.pageviews / day.visitors)} je Besucher`}.
         </p>
         <div className={styles.changes}>
           {day.vsPrevDay && <Change delta={day.vsPrevDay.visitors} label="zum Vortag" />}
@@ -96,21 +112,9 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       <div>
         <h3 className={styles.subTitle}>Der Weg</h3>
         <div className={styles.dayTiles}>
-          {tile('Karte geöffnet', NUMBER.format(count('map_opened')))}
-          {tile('Spot geöffnet', NUMBER.format(count('restaurant_opened')))}
-          {tile('Karte (Must Eat) geöffnet', NUMBER.format(count('must_eat_opened')))}
-          {tile(
-            'Rücken getippt ohne Konto',
-            NUMBER.format(count('must_eat_reveal_login_required'))
-          )}
-          {tile('Anmeldeformular', NUMBER.format(count('login_view')))}
-          {tile('Angemeldet', NUMBER.format(signedIn))}
-          {tile('Konto angelegt', NUMBER.format(count('sign_up')))}
-          {tile('Starter Pack', NUMBER.format(count('starter_pack_granted')))}
-          {tile('Vor Ort aufgedeckt', NUMBER.format(count('must_eat_reveal_unlocked')))}
-          {tile('Zu weit weg', NUMBER.format(count('must_eat_reveal_too_far')))}
-          {tile('Kauf begonnen', NUMBER.format(count('begin_checkout')))}
-          {tile('Gekauft', NUMBER.format(count('purchase')))}
+          {DAY_STEPS.map((key) => (
+            <Tile key={key} label={labelFor(key)} value={NUMBER.format(steps.get(key) ?? 0)} />
+          ))}
         </div>
       </div>
 
@@ -118,12 +122,12 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
         <div>
           <h3 className={styles.subTitle}>Aus Firestore</h3>
           <div className={styles.dayTiles}>
-            {tile('Neue Konten', NUMBER.format(day.people.newAccounts))}
-            {tile('Starter Packs', NUMBER.format(day.people.starterPacks))}
-            {tile('Karten aufgedeckt', NUMBER.format(day.people.reveals))}
-            {tile('Einladungen', NUMBER.format(day.people.referrals))}
-            {tile('Käufe', NUMBER.format(day.people.purchases))}
-            {tile('Umsatz', euro(day.people.revenueCents))}
+            <Tile label="Neue Konten" value={NUMBER.format(day.people.newAccounts)} />
+            <Tile label="Starter Packs" value={NUMBER.format(day.people.starterPacks)} />
+            <Tile label="Karten aufgedeckt" value={NUMBER.format(day.people.reveals)} />
+            <Tile label="Einladungen" value={NUMBER.format(day.people.referrals)} />
+            <Tile label="Käufe" value={NUMBER.format(day.people.purchases)} />
+            <Tile label="Umsatz" value={euro(day.people.revenueCents)} />
           </div>
         </div>
       )}
@@ -146,28 +150,7 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       <div>
         <h3 className={styles.subTitle}>Wo Besuche enden</h3>
         {day.hasExits ? (
-          <div className={styles.scroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th scope="col">Seite</th>
-                  <th scope="col">Aufrufe</th>
-                  <th scope="col">Ende</th>
-                  <th scope="col">Quote</th>
-                </tr>
-              </thead>
-              <tbody>
-                {day.exits.map((row) => (
-                  <tr key={row.key}>
-                    <td className={styles.cellKey}>{row.key}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(row.views)}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(row.exits)}</td>
-                    <td className={styles.cellNum}>{percent(row.rate, 0)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ExitTable rows={day.exits} compact />
         ) : (
           <p className={styles.empty}>Für diesen Tag nicht erfasst.</p>
         )}
@@ -190,10 +173,10 @@ function SearchDay({ detail }: { detail: SearchDayDetail }) {
       <div>
         <h3 className={styles.subTitle}>{dayTitle(detail.day)}</h3>
         <div className={styles.dayTiles}>
-          {tile('Klicks', NUMBER.format(detail.totals.clicks))}
-          {tile('Impressionen', NUMBER.format(detail.totals.impressions))}
-          {tile('Klickrate', percent(detail.totals.ctr))}
-          {tile('Position', position(detail.totals.position))}
+          <Tile label="Klicks" value={NUMBER.format(detail.totals.clicks)} />
+          <Tile label="Impressionen" value={NUMBER.format(detail.totals.impressions)} />
+          <Tile label="Klickrate" value={percent(detail.totals.ctr)} />
+          <Tile label="Position" value={position(detail.totals.position)} />
         </div>
       </div>
       <div>

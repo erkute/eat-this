@@ -58,7 +58,8 @@ function ownerOf(doc: { ref: { parent: { parent: { id: string } | null } } }): s
 /**
  * Konten aus Firebase Auth, nicht aus `users/`: dort liegen Seed-Dokumente
  * vom Mai 2026, die nie ein Konto waren. Admin-Konten fallen raus, sonst ist
- * der Betreiber jeden Tag das aktive Konto. Alles Weitere — Starter Packs,
+ * der Betreiber jeden Tag das aktive Konto — und seine Testkaeufe waeren
+ * Umsatz. Alles Weitere — Starter Packs,
  * Käufe, Aufdeckungen vor Ort, Einladungen, Checkout-Versuche — kommt aus den
  * Unter-Sammlungen, ueber Collection-Group-Abfragen ohne Filter; die brauchen
  * keinen Index.
@@ -100,12 +101,20 @@ async function loadAccounts(
     db.collectionGroup('referralBonuses').get(),
   ]);
 
-  for (const doc of favorites.docs) {
-    const account = accountByUid.get(ownerOf(doc));
-    if (account) account.favorites += 1;
-  }
+  // Nur Dokumente, deren Konto oben steht, zaehlen — auch fuer die Summen.
+  // Sonst stehen die Testkaeufe und Aufdeckungen des Betreibers im Umsatz,
+  // und die Seed-Dokumente unter users/ ohne Konto in den Karten.
+  const owned = <T extends { ref: { parent: { parent: { id: string } | null } } }>(
+    docs: T[]
+  ): { doc: T; account: AccountRecord }[] =>
+    docs.flatMap((doc) => {
+      const account = accountByUid.get(ownerOf(doc));
+      return account ? [{ doc, account }] : [];
+    });
 
-  const purchases: PurchaseRecord[] = entitlements.docs.map((doc) => {
+  for (const { account } of owned(favorites.docs)) account.favorites += 1;
+
+  const purchases: PurchaseRecord[] = owned(entitlements.docs).map(({ doc, account }) => {
     const data = doc.data() as {
       purchasedAt?: Timestamp;
       source?: string;
@@ -115,31 +124,27 @@ async function loadAccounts(
     // `source` fehlte in aelteren Dokumenten; die Stripe-Sitzung ist der
     // sichere Beleg fuer „bezahlt".
     const source = data.stripeSessionId ? 'stripe' : (data.source ?? 'manual');
-    const account = accountByUid.get(ownerOf(doc));
-    if (account) {
-      if (data.type === 'starter') account.starterPack = true;
-      else if (source === 'stripe') account.purchases += 1;
-    }
-    return { day: dayOf(data.purchasedAt) ?? '', source, packId: doc.id };
+    const starter = data.type === 'starter';
+    if (starter) account.starterPack = true;
+    else if (source === 'stripe') account.purchases += 1;
+    return { day: dayOf(data.purchasedAt) ?? '', source, starter, packId: doc.id };
   });
 
-  const checkouts: CheckoutRecord[] = attempts.docs.map((doc) => {
+  const checkouts: CheckoutRecord[] = owned(attempts.docs).map(({ doc }) => {
     const data = doc.data() as { createdAt?: Timestamp; status?: string };
     return { day: dayOf(data.createdAt) ?? '', status: data.status ?? 'open', packId: doc.id };
   });
 
-  const reveals: RevealRecord[] = unlocked.docs.map((doc) => {
+  const reveals: RevealRecord[] = owned(unlocked.docs).map(({ doc, account }) => {
     const data = doc.data() as { unlockedAt?: Timestamp };
-    const account = accountByUid.get(ownerOf(doc));
-    if (account) account.reveals += 1;
+    account.reveals += 1;
     return { day: dayOf(data.unlockedAt) ?? '' };
   });
 
-  const referrals: ReferralRecord[] = bonuses.docs.map((doc) => {
+  const referrals: ReferralRecord[] = owned(bonuses.docs).map(({ doc, account }) => {
     const data = doc.data() as { createdAt?: Timestamp; source?: string };
     const source = data.source ?? '';
-    const account = accountByUid.get(ownerOf(doc));
-    if (account && source === 'invited') account.referrals += 1;
+    if (source === 'invited') account.referrals += 1;
     return { day: dayOf(data.createdAt) ?? '', source };
   });
 

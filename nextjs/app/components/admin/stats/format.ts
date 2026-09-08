@@ -64,10 +64,6 @@ export function direction(delta: Delta | null | undefined): 'up' | 'down' | 'fla
   return delta.change > 0 ? 'up' : 'down';
 }
 
-export function change(now: number, before: number): Delta {
-  return { now, before, change: before > 0 ? (now - before) / before : null };
-}
-
 export const EVENT_LABELS: Record<string, string> = {
   visitors: 'Besucher',
   map_opened: 'Karte geöffnet',

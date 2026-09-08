@@ -1,7 +1,6 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
-import { BarRows, Card } from '../charts';
+import { BarRows, Card, ExitTable, MoverList } from '../charts';
 import { NUMBER, percent } from '../format';
-import { MoverList } from './Acquisition';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -39,35 +38,12 @@ export default function Content({ data }: { data: StatsSummary }) {
         {data.exits.length === 0 ? (
           <p className={styles.empty}>Für diesen Zeitraum nicht erfasst.</p>
         ) : (
-          <div className={styles.scroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th scope="col">Seite</th>
-                  <th scope="col">Aufrufe</th>
-                  <th scope="col">weiter</th>
-                  <th scope="col">Ende</th>
-                  <th scope="col">Quote</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.exits.map((row) => (
-                  <tr key={row.key}>
-                    <td className={styles.cellKey}>{row.key}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(row.views)}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(row.continued)}</td>
-                    <td className={styles.cellNum}>{NUMBER.format(row.exits)}</td>
-                    <td className={styles.cellNum}>{percent(row.rate)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ExitTable rows={data.exits} />
         )}
       </Card>
 
       <Card title="Bewegung: Seiten" sub="Gegen die Vorperiode, in beide Richtungen.">
-        <MoverList rows={data.movers.paths} />
+        <MoverList rows={data.movers.paths} head="Seite" />
       </Card>
     </>
   );

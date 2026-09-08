@@ -456,6 +456,28 @@ describe('StatsDashboard', () => {
     // Der frischeste Tag der Search Console mit seinen Suchbegriffen.
     expect(screen.getByText('frische suche')).toBeTruthy();
     expect(screen.getByText('Mittwoch, 02.09.')).toBeTruthy();
+    // Der 30.08. IST gestern — kein Hinweis.
+    expect(screen.queryByText(/Für gestern liegen keine Zahlen vor/)).toBeNull();
+  });
+
+  it('sagt es, wenn der jüngste abgeschlossene Tag nicht gestern ist', async () => {
+    // Der Bericht heisst „Gestern"; fehlt das Dokument von gestern, rutscht
+    // ein aelterer Tag nach — das muss dranstehen, nicht nur im Datum.
+    const base = summary();
+    const latest = { ...base.dayDetails.latest!, day: '2026-08-28' };
+    vi.stubGlobal(
+      'fetch',
+      respondWith(summary({ dayDetails: { today: base.dayDetails.today, latest } }))
+    );
+
+    render(<StatsDashboard />);
+    await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
+    openReport('Heute & Gestern');
+
+    expect(await screen.findByRole('region', { name: 'Freitag, 28.08.' })).toBeTruthy();
+    expect(screen.getByText(/Für gestern liegen keine Zahlen vor/).textContent).toContain(
+      '28.08.2026'
+    );
   });
 
   it('zeigt den Trichter in vier Stufen und behält leere Stufen', async () => {

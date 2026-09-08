@@ -1,5 +1,5 @@
 import { GoogleAuth } from 'google-auth-library';
-import { sinceDay } from '@/lib/admin/stats.server';
+import { sinceDay, type Range } from '@/lib/admin/stats.server';
 import { summarizeSearch, type ApiRow, type SearchResult } from '@/lib/admin/searchConsole';
 
 /**
@@ -88,11 +88,8 @@ function statusOf(error: unknown): number | null {
 
 const cache = new Map<string, { at: number; result: SearchResult }>();
 
-export interface SearchRange {
-  start: string;
-  end: string;
-  days: number;
-}
+/** Dasselbe Fenster wie das des Zaehlers — `parseRange` liefert es. */
+export type SearchRange = Range;
 
 /**
  * @param range Das Fenster, YYYY-MM-DD, beide Tage einschließlich. `end` darf

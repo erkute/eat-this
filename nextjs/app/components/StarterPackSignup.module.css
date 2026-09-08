@@ -167,17 +167,12 @@
   line-height: 1.4;
 }
 
-/* „oder" zwischen Mail und Google — zwei Haarlinien in Weiß-Stufe und das
-   Wort in derselben stillen Zeile wie der Hinweis darüber. So breit wie das
-   Formular, damit die Linien an dessen Kanten enden. */
+/* „oder" zwischen Mail und Google — das nackte Wort in derselben stillen
+   Zeile wie der Hinweis darüber, genau wie im Login-Modal (`.frameModal .or`).
+   Die zwei Haarlinien davor machten aus der Zeile eine Trennung und aus dem
+   Google-Knopf darunter einen zweiten Block. */
 .or {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  max-width: 480px;
-  margin-top: clamp(14px, 1.8vw, 20px);
+  margin-top: 12px;
   color: var(--starter-quiet);
   font-family: var(--font-providence);
   font-size: 13px;
@@ -187,16 +182,12 @@
   text-transform: uppercase;
 }
 
-.or::before,
-.or::after {
-  content: '';
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-/* Papier auf Ink wie das Eingabefeld, das Google-G in seinen eigenen Farben
-   (GoogleMark.tsx). Dieselbe Höhe und derselbe Radius wie Feld und Knopf,
-   damit die drei als eine Reihe lesen; gelb erst beim Hover, wie „Anmelden"
-   zu Papier wird. */
+/* Dieselbe Optik wie `.frameModal .ctaGoogle` im Login-Modal: Weiß auf
+   zehn Prozent Weiß, 50px hoch, Gelb erst beim Hover. Bis 08.09.2026 stand
+   er hier als Papier-Balken in Feldhöhe — ein zweiter weißer Block unter dem
+   Formular, der die Tafel auf Desktop über den Viewport hinaus streckte
+   („viel zu groß … wegen dem Google-Button, der nicht mal dunkel ist wie im
+   Anmelde-Layer"). Als Nebenweg ist er Ink auf Ink und tritt zurück. */
 .google {
   display: inline-flex;
   align-items: center;
@@ -204,13 +195,13 @@
   gap: 10px;
   width: 100%;
   max-width: 480px;
-  min-height: 56px;
-  margin-top: clamp(14px, 1.8vw, 20px);
-  padding: 0 20px;
+  min-height: 50px;
+  margin-top: 12px;
+  padding: 0 18px;
   border: 0;
   border-radius: var(--et-radius-control);
-  color: var(--starter-ink);
-  background: var(--starter-paper);
+  color: var(--starter-paper);
+  background: rgba(255, 255, 255, 0.1);
   font-family: var(--font-providence);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
@@ -219,6 +210,7 @@
   cursor: pointer;
   transition:
     background-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease),
     transform var(--et-motion-fast, 140ms ease);
 }
 
@@ -237,12 +229,14 @@
 }
 
 .google:focus-visible:not(:disabled) {
+  color: var(--starter-ink);
   background: var(--starter-accent);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .google:hover:not(:disabled) {
+    color: var(--starter-ink);
     background: var(--starter-accent);
     transform: translateY(-2px);
   }

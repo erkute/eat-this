@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { checkRateLimit, clientIp } from '@/lib/rateLimit';
+import { rateLimitKey } from '@/lib/rateLimitKey';
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink';
 import { isStaging } from '@/lib/env';
 import { REFERRER_COOKIE, UID_SHAPE } from '@/lib/referral/constants';
@@ -101,10 +102,15 @@ export async function POST(request: Request) {
 
   // Abuse guard — this endpoint is unauthenticated and sends real email via
   // Resend. Matches the per-email + per-IP limits the Cloud Functions use.
+  //
+  // Beide Schluessel sind gehasht. Bis zum 08.09.2026 standen hier die rohe
+  // Mailadresse und die rohe IP als Dokument-ID in `_rateLimits` — also genau
+  // die zwei Angaben, die der Rest der Seite bewusst nicht ablegt. Am Deckel
+  // aendert das nichts: der Hash trennt zwei Adressen genauso zuverlaessig.
   const ip = clientIp(request);
   const [emailOk, ipOk] = await Promise.all([
-    checkRateLimit(`magic-link:email:${email}`, 3, 60 * 60 * 1000),
-    checkRateLimit(`magic-link:ip:${ip}`, 10, 60 * 60 * 1000),
+    checkRateLimit(rateLimitKey('magic-link:email', email), 3, 60 * 60 * 1000),
+    checkRateLimit(rateLimitKey('magic-link:ip', ip), 10, 60 * 60 * 1000),
   ]);
   if (!emailOk || !ipOk) {
     return NextResponse.json({ error: 'rate-limited' }, { status: 429 });

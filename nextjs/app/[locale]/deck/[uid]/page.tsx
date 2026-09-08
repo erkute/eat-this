@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { clientIpFromXff } from '@/lib/clientIp';
+import { rateLimitKey } from '@/lib/rateLimitKey';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getPublicDeck } from '@/lib/profile/publicDeck.server';
 import { SITE_URL } from '@/lib/constants';
@@ -35,6 +36,10 @@ const DECK_VIEWS_PER_MINUTE = 30;
  * XFF-Headers ist dagegen der echte Aufrufer — dieselbe Ableitung, die der
  * einwilligungsfreie Zaehler benutzt.
  *
+ * Sie geht gehasht in den Schluessel, nicht roh: der Schluessel ist die
+ * Dokument-ID in `_rateLimits`, und eine rohe IP hat dort nichts verloren
+ * (siehe `rateLimitKey`).
+ *
  * Fail-OPEN, nicht fail-closed: faellt Firestore aus, faellt auch
  * `getPublicDeck` aus (es liest Entitlements von dort). Ein geschlossenes Tor
  * wuerde also nichts schuetzen, was nicht ohnehin schon kaputt waere, dafuer
@@ -44,7 +49,7 @@ async function tooManyViews(): Promise<boolean> {
   const h = await headers();
   const ip = clientIpFromXff(h.get('x-forwarded-for'), h.get('x-real-ip'));
   if (!ip) return false;
-  return !(await checkRateLimit(`deck:${ip}`, DECK_VIEWS_PER_MINUTE, 60_000));
+  return !(await checkRateLimit(rateLimitKey('deck', ip), DECK_VIEWS_PER_MINUTE, 60_000));
 }
 
 interface PageProps {

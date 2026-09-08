@@ -11,6 +11,7 @@ import type {
 } from '@/lib/buddy/types';
 import { sanitizeLinks } from '@/lib/buddy/stream';
 import { revealStep, prefersReducedMotion } from '@/lib/buddy/reveal';
+import { loadThread, saveThread, clearThread } from '@/lib/buddy/thread';
 import { auth } from '@/lib/firebase/config';
 
 export function parseNdjsonLines(buffer: string, onEvent: (e: BuddyStreamEvent) => void): string {
@@ -54,7 +55,11 @@ export interface BuddyChatOptions {
 export function useBuddyChat(options: BuddyChatOptions = {}) {
   const { pageSlug } = options;
   const locale = useLocale() as Locale;
-  const [messages, setMessages] = useState<BuddyDisplayMessage[]>([]);
+  /* Der Faden dieses Besuchs, aus dem sessionStorage. Der Lazy-Initializer
+     ist hier sicher: das Widget kommt über `dynamic(..., { ssr: false })`,
+     rendert also nie auf dem Server — es gibt kein Markup, zu dem das
+     abweichen könnte. */
+  const [messages, setMessages] = useState<BuddyDisplayMessage[]>(loadThread);
   const [isStreaming, setIsStreaming] = useState(false);
   const allowedSlugs = useRef<Set<string>>(new Set());
   // User location (once granted) — sent with each request so spots can be
@@ -73,6 +78,24 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
   const stop = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
+  }, []);
+
+  /* Faden sichern — aber NICHT während des Streams: der Aufdeck-Takt ändert
+     `messages` sechzigmal pro Sekunde, das wäre sechzigmal JSON.stringify über
+     die ganze Unterhaltung pro Sekunde. Am Ende jeder Antwort reicht; bricht
+     der Tab vorher weg, fehlt genau die eine halbe Antwort. */
+  useEffect(() => {
+    if (isStreaming) return;
+    saveThread(messages);
+  }, [messages, isStreaming]);
+
+  /** Neu anfangen — Faden im Speicher und auf dem Schirm weg. */
+  const reset = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    allowedSlugs.current = new Set();
+    clearThread();
+    setMessages([]);
   }, []);
 
   // Laufender Aufdeck-Takt (siehe lib/buddy/reveal.ts). Beim Abräumen des
@@ -242,5 +265,5 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
     [messages, isStreaming, locale, pageSlug]
   );
 
-  return { messages, isStreaming, send, stop, setGeo };
+  return { messages, isStreaming, send, stop, reset, setGeo };
 }

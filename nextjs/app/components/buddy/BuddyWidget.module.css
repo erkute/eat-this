@@ -93,6 +93,7 @@
 .headerTitle {
   display: grid;
   min-width: 0;
+  margin-right: auto;
   line-height: 1;
 }
 
@@ -111,13 +112,13 @@
 /* Ring in Weiss 28 %, gelb bei Hover — dieselbe Taste wie der Standort-Chip
    im Must-Eat-Sheet und der Kauf-Knopf auf /packs. Vorher ein schwarzer
    Kasten mit dem Buchstaben „X" darin. */
-.close {
+.close,
+.reset {
   display: inline-grid;
   place-items: center;
   min-width: 42px;
   height: 42px;
   flex: 0 0 auto;
-  margin-left: auto;
   padding: 0;
   color: var(--buddy-paper);
   background: transparent;
@@ -134,15 +135,28 @@
 }
 
 @media (hover: hover) {
-  .close:hover {
+  .close:hover,
+  .reset:hover {
     color: var(--buddy-accent);
     border-color: var(--buddy-accent);
   }
 }
 
-.close:focus-visible {
+.close:focus-visible,
+.reset:focus-visible {
   outline: 2px solid var(--buddy-accent);
   outline-offset: 2px;
+}
+
+/* „Neu" steht links neben dem X; die beiden bilden die Werkzeuggruppe am
+   rechten Rand. Nach rechts geschoben werden sie vom Titel (margin-right:
+   auto) — nicht von einem `margin-left: auto` an einem der Knöpfe, das je
+   nachdem, ob „Neu" gerade da ist, am falschen säße. */
+.reset {
+  padding: 0 12px;
+  font-size: 0.82rem;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  text-transform: uppercase;
 }
 
 .log {

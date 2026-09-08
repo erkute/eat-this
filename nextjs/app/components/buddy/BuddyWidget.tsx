@@ -231,6 +231,8 @@ const T = {
     placeholder: 'Schreib Remy…',
     send: 'Senden',
     stop: 'Stopp',
+    reset: 'Neu',
+    resetAria: 'Gespräch neu anfangen',
     answered: 'Remy hat geantwortet.',
   },
   en: {
@@ -240,6 +242,8 @@ const T = {
     placeholder: 'Message Remy…',
     send: 'Send',
     stop: 'Stop',
+    reset: 'New',
+    resetAria: 'Start a new conversation',
     answered: 'Remy has answered.',
   },
 } satisfies Record<Locale, Record<string, string>>;
@@ -411,7 +415,7 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   const t = T[locale];
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
-  const { messages, isStreaming, send, stop, setGeo } = useBuddyChat({ pageSlug });
+  const { messages, isStreaming, send, stop, reset, setGeo } = useBuddyChat({ pageSlug });
   const { location, loading: locating, request: requestLocation } = useUserLocationContext();
   const panelRef = useRef<HTMLDivElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -710,6 +714,20 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
               <span className={styles.headerTitle}>
                 <strong>{title}</strong>
               </span>
+              {/* Der Faden überlebt den Seitenwechsel (lib/buddy/thread.ts) —
+                  also braucht es einen Weg, ihn beiseitezulegen. Erst sichtbar,
+                  wenn etwas dasteht, das man wegräumen könnte. */}
+              {messages.length > 0 && (
+                <button
+                  className={styles.reset}
+                  type="button"
+                  aria-label={t.resetAria}
+                  title={t.resetAria}
+                  onClick={reset}
+                >
+                  <span aria-hidden="true">{t.reset}</span>
+                </button>
+              )}
               <button
                 className={styles.close}
                 type="button"

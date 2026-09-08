@@ -20,13 +20,13 @@ vi.mock('@/i18n/navigation', () => ({
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }));
 
-const { stop } = vi.hoisted(() => ({ stop: vi.fn() }));
+const { stop, reset } = vi.hoisted(() => ({ stop: vi.fn(), reset: vi.fn() }));
 const chat: { messages: BuddyDisplayMessage[]; isStreaming: boolean } = {
   messages: [],
   isStreaming: false,
 };
 vi.mock('./useBuddyChat', () => ({
-  useBuddyChat: () => ({ ...chat, send: vi.fn(), stop, setGeo: vi.fn() }),
+  useBuddyChat: () => ({ ...chat, send: vi.fn(), stop, reset, setGeo: vi.fn() }),
 }));
 
 import BuddyWidget from './BuddyWidget';
@@ -34,6 +34,7 @@ import BuddyWidget from './BuddyWidget';
 afterEach(() => {
   cleanup();
   stop.mockClear();
+  reset.mockClear();
   chat.messages = [];
   chat.isStreaming = false;
 });
@@ -82,6 +83,29 @@ describe('BuddyWidget compose row', () => {
 
     fireEvent.click(button!);
     expect(stop).toHaveBeenCalledTimes(1);
+  });
+
+  /* Der Faden überlebt jetzt den Seitenwechsel (lib/buddy/thread.ts) — also
+     braucht es einen Weg, ihn beiseitezulegen. Auf dem leeren Chat wäre der
+     Knopf nur Möblierung. */
+  it('offers a reset only once something has been said', () => {
+    renderOpenWidget();
+    expect(
+      document.querySelector('#buddy-panel button[aria-label="Gespräch neu anfangen"]')
+    ).toBeNull();
+
+    cleanup();
+    chat.messages = [
+      { role: 'user', content: 'pizza?' },
+      { role: 'assistant', content: 'Da hab ich was.' },
+    ];
+    renderOpenWidget();
+    const button = document.querySelector<HTMLButtonElement>(
+      '#buddy-panel button[aria-label="Gespräch neu anfangen"]'
+    );
+    expect(button).not.toBeNull();
+    fireEvent.click(button!);
+    expect(reset).toHaveBeenCalledTimes(1);
   });
 
   it('gives focus back to whatever opened it', () => {

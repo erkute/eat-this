@@ -117,7 +117,7 @@ describe('SignupEmail', () => {
   it('shows the home hero, the CTA and the starter pack panel', async () => {
     const html = await signup();
     expect(html).toContain(magicLink);
-    expect(html).toContain('Anmelden und Map öffnen');
+    expect(html).toContain('>Anmelden<');
     expect(html).toContain('WE TELL YOU WHAT TO EAT');
     expect(html).toContain('Gute Spots findest du überall.');
     expect(html).toContain('STARTER PACK');
@@ -169,7 +169,7 @@ describe('SignupEmail', () => {
   it('drops the spot section entirely when there is no content', async () => {
     const html = await render(SignupEmail({ magicLink, appUrl, spots: [] }));
     expect(html).not.toContain('/pics/email/spots/');
-    expect(html).toContain('Anmelden und Map öffnen');
+    expect(html).toContain('>Anmelden<');
   });
 
   it('ships a real rendered card for every spot in the generated manifest', async () => {

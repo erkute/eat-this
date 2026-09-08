@@ -127,7 +127,12 @@ function AuthActionInner() {
         setState({ kind: 'expired' });
         return;
       }
-      const email = localStorage.getItem('emailForSignIn') || emailFromContinueUrl(params);
+      /* Der Link kennt seine Adresse selbst — er hat Vorrang vor dem, was
+         zuletzt im localStorage lag. Andersherum gewann eine alte gemerkte
+         Adresse: wer zwei Links an verschiedene Adressen anfordert und den
+         aelteren oeffnet, meldete sich als die falsche Person an und bekam
+         „Dieser Link geht nicht mehr". */
+      const email = emailFromContinueUrl(params) || localStorage.getItem('emailForSignIn') || '';
       if (!email) {
         // Legacy links without the `e` param, opened in a foreign browser.
         setState({ kind: 'needs-email', href: url });
@@ -236,7 +241,7 @@ function AuthActionInner() {
               von der Startseite.
             </p>
             <Link href="/" className={styles.cta}>
-              Zur Startseite
+              Startseite
             </Link>
           </>
         )}
@@ -246,7 +251,7 @@ function AuthActionInner() {
             <h1 className={styles.title}>{state.title}</h1>
             <p className={styles.sub}>{state.sub}</p>
             <Link href="/" className={styles.cta}>
-              Zur Startseite
+              Startseite
             </Link>
           </>
         )}

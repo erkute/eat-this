@@ -367,6 +367,7 @@ const en = {
     signingOutTitle: 'Signing you out',
     errService: 'Service error — please try again later.',
     errNetwork: 'Network error — please try again.',
+    errRateLimited: 'Too many attempts. Check your inbox — or try again in an hour.',
   },
   cookie: {
     title: 'Cookies',
@@ -394,7 +395,7 @@ const en = {
       heroHeadline: 'Sign in',
       signinHeroHeadline: 'Sign in',
       dividerOr: 'or',
-      resendBtn: 'Resend mail',
+      resendBtn: 'Resend',
       backBtn: 'Back',
       heroH1: 'Starter Pack',
       heroSub: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
@@ -413,7 +414,7 @@ const en = {
         'Click the link in the mail and you’re on your map. It’s valid 15 minutes and only on this device.',
       spamHint:
         'Nothing in your inbox? Check the spam folder — first contact sometimes lands there.',
-      otherEmail: 'Use a different email',
+      otherEmail: 'Different email',
     },
   },
 };
@@ -839,6 +840,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     signingOutTitle: 'Du wirst abgemeldet',
     errService: 'Service-Fehler \u2013 bitte sp\u00e4ter nochmal versuchen.',
     errNetwork: 'Netzwerkfehler \u2013 bitte erneut versuchen.',
+    errRateLimited:
+      'Zu viele Versuche. Schau ins Postfach \u2013 oder probier es in einer Stunde nochmal.',
   },
   modals: {
     datenschutz: {
@@ -859,7 +862,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       heroHeadline: 'Anmelden',
       signinHeroHeadline: 'Einloggen',
       dividerOr: 'oder',
-      resendBtn: 'Mail erneut senden',
+      resendBtn: 'Nochmal',
       backBtn: 'Zur\u00fcck',
       heroH1: 'Starter Pack',
       heroSub: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
@@ -878,7 +881,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
         'Klick den Link in der Mail und du bist auf deiner Map. Er gilt 15 Minuten und nur auf diesem Ger\u00e4t.',
       spamHint:
         'Nichts in der Inbox? Wirf einen Blick in den Spam-Ordner \u2014 Erstkontakt landet manchmal da.',
-      otherEmail: 'Andere E-Mail nehmen',
+      otherEmail: 'Andere Adresse',
     },
   },
 };

@@ -64,12 +64,12 @@
    Daumen (das Trefferfeld wird über ::before auf 34px aufgezogen). */
 .dismiss {
   position: absolute;
-  top: -7px;
-  right: -7px;
+  top: -6px;
+  right: -6px;
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   color: var(--et-home-inverse-text, #fff);
   background: var(--et-home-ink, #15120e);
@@ -82,12 +82,12 @@
 .dismiss::before {
   content: '';
   position: absolute;
-  inset: -6px;
+  inset: -8px;
 }
 
 .dismiss svg {
-  width: 11px;
-  height: 11px;
+  width: 9px;
+  height: 9px;
   color: currentColor;
 }
 

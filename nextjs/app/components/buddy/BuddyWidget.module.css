@@ -337,7 +337,30 @@
   flex-direction: column;
   /* Der Stapel der Sammelausgabe ist eine Liste — der bleibt eng. */
   gap: 10px;
-  margin: 0 0 30px;
+  /* 30px waren zu wenig (09.09.2026, nach dem Prod-Test: „nicht zu erkennen,
+     wo das erste Restaurant endet und das zweite beginnt"). Der Schnitt muss
+     deutlich größer sein als jeder Abstand INNERHALB einer Empfehlung — der
+     Absatz hält 10px zu seinem Folgeabsatz und 6px zu seiner Karte, hier
+     stehen 48px: rund das Achtfache, das liest sich als neue Einheit. */
+  margin: 0 0 48px;
+}
+
+/* Der Absatz, unter dem seine Karte steht, rückt an sie heran: 6px statt der
+   10px zwischen zwei Absätzen. Text und Karte sind EINE Empfehlung, und der
+   engste Abstand der ganzen Antwort ist der zwischen den beiden. */
+.botP:has(+ .spots) {
+  margin-bottom: 6px;
+}
+
+/* Und der Absatz DAVOR — der Einleiter („Kreuzberg hat da echt Auswahl …") —
+   bekommt zur ersten Empfehlung denselben Schnitt wie die Empfehlungen
+   untereinander. Mit den 10px eines normalen Absatzwechsels klebte der
+   Einleiter an der ersten Empfehlung und sah aus, als gehörte er zu ihr
+   (Ansage 09.09.2026). Getroffen wird genau der Absatz, auf den ein
+   Absatz-plus-Karte-Paar folgt; ein Einleiter aus zwei Absätzen behält
+   zwischen seinen beiden Sätzen die 10px. */
+.botP:has(+ .botP + .spots) {
+  margin-bottom: 48px;
 }
 
 /* Am Ende der Antwort schneidet nichts mehr — dort folgt der Pack-Block oder

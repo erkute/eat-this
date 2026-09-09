@@ -1,6 +1,22 @@
 // nextjs/lib/buddy/tools.ts
 import type Anthropic from '@anthropic-ai/sdk';
 
+/**
+ * `list_saved_spots` steht nur angemeldeten Konten zur Verfügung — ohne Konto
+ * gibt es keine geherzten Spots, und ein Werkzeug, das immer leer antwortet,
+ * lädt nur zu Fragen ein, die niemand beantworten kann.
+ */
+const SAVED_SPOTS_TOOL: Anthropic.Tool = {
+  name: 'list_saved_spots',
+  description:
+    'Die Spots, die DIESER Nutzer selbst geherzt hat („meine Map", „gemerkt", „gespeichert", „meine Liste", „wo wollte ich nochmal hin"). Kein Suchwerkzeug: es nimmt keine Filter und gibt genau seine Merkliste zurück, mit Öffnungszeiten und — wenn er den Standort geteilt hat — Entfernung. Danach selbst auswählen, was zur Frage passt (z.B. nur die, die jetzt offen sind).',
+  input_schema: { type: 'object', properties: {} },
+};
+
+export function buddyTools({ signedIn }: { signedIn: boolean }): Anthropic.Tool[] {
+  return signedIn ? [...BUDDY_TOOLS, SAVED_SPOTS_TOOL] : BUDDY_TOOLS;
+}
+
 export const BUDDY_TOOLS: Anthropic.Tool[] = [
   {
     name: 'search_spots',

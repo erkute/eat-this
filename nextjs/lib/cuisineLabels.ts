@@ -3,7 +3,10 @@
 // kurz genug fürs 62-Zeichen-Title-Budget. Unbekannte Werte fallen auf den
 // Rohwert zurück.
 //
-// Die Tabelle deckt den Bestand vollständig ab (Stand 24.08.2026). Kommt in
+// Die Tabelle deckt den Bestand vollständig ab (Stand 09.09.2026 nachgezogen:
+// sechs Werte waren seit dem letzten Abgleich dazugekommen und standen auf 13
+// Spots englisch auf den deutschen Seiten — aufgefallen in Remys Chat, wo
+// „ITALIAN / PIZZA" neben „ITALIENISCH" in derselben Antwort stand). Kommt in
 // Sanity ein neuer cuisineType dazu, steht er auf den deutschen Seiten roh und
 // damit englisch da — dann gehört hier eine Zeile nach.
 export const CUISINE_LABELS_DE: Record<string, string> = {
@@ -14,6 +17,7 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   Burgers: 'Burger',
   Café: 'Café',
   Chinese: 'Chinesisch',
+  Desserts: 'Desserts',
   Coffee: 'Kaffee',
   European: 'Europäisch',
   'Fine Dining': 'Fine Dining',
@@ -26,18 +30,25 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   Indonesian: 'Indonesisch',
   Israeli: 'Israelisch',
   Italian: 'Italienisch',
+  // Zusammengesetzte Werte laufen wie „German / Fast Food" auf EIN Nomen
+  // hinaus — die Zeile ist ein Tag, kein Verzeichniseintrag.
+  'Italian / Pizza': 'Pizza',
   Japanese: 'Japanisch',
+  'Japanese / Ramen': 'Ramen',
   Korean: 'Koreanisch',
   Mediterranean: 'Mediterran',
   Mexican: 'Mexikanisch',
   'Middle Eastern': 'Orientalisch',
   Peruvian: 'Peruanisch',
+  Sandwiches: 'Sandwiches',
   Seafood: 'Seafood',
+  Spanish: 'Spanisch',
   'Sri Lankan': 'Sri-lankisch',
   Steakhouse: 'Steakhouse',
   Thai: 'Thai',
   Turkish: 'Türkisch',
   Vegan: 'Vegan',
+  Vegetarian: 'Vegetarisch',
   Vietnamese: 'Vietnamesisch',
   'Wine Bar': 'Weinbar',
 };

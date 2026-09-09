@@ -8,7 +8,7 @@ import type {
   ArticleResult,
   BuddyPageContext,
 } from './types';
-import { BUDDY_TOOLS } from './tools';
+import { buddyTools } from './tools';
 import { buildSystemPrompt } from './prompt';
 import { pickPackForSpots, buildPackTeaser } from './packTeaser';
 import type { PackDef } from '@/lib/stripe-catalog';
@@ -20,6 +20,33 @@ export interface OwnedPacks {
   /** Admin oder All-Berlin — dem Konto steht der ganze Katalog offen. */
   fullCatalog: boolean;
   categorySlugs: ReadonlySet<string>;
+}
+
+/**
+ * Zwei Empfänger, zwei Zuschnitte.
+ *
+ * Der Client braucht `_id` (Herzen), `image` (Kartenfoto) und `mapsUrl`. Das
+ * Modell braucht nichts davon — und bekam es trotzdem: bei einer breiten Frage
+ * (30 Treffer) waren das 5.555 von 10.564 Token der Trefferliste, also gut die
+ * Hälfte, davon 4.721 reine URLs. Ausgerechnet URLs, die der Prompt ihm im
+ * selben Atemzug verbietet auszugeben.
+ *
+ * `categorySlugs` fällt für beide weg: die Kategorie-Refs entscheiden
+ * server-intern über den Pack-Teaser.
+ */
+function forClient(spot: SpotCandidate): SpotCandidate {
+  const lean = { ...spot };
+  delete lean.categorySlugs;
+  return lean;
+}
+
+function forModel(spot: SpotCandidate): Omit<SpotCandidate, '_id' | 'image' | 'mapsUrl'> {
+  const { _id, image, mapsUrl, categorySlugs, ...rest } = spot;
+  void _id;
+  void image;
+  void mapsUrl;
+  void categorySlugs;
+  return rest;
 }
 
 /**
@@ -59,11 +86,20 @@ interface OrchestratorDeps {
   llm: LlmClient;
   searchSpots: (filters: SpotFilters, locale: Locale) => Promise<SpotCandidate[]>;
   searchArticles: (input: ArticleQuery, locale: Locale) => Promise<ArticleResult[]>;
+  /** Die geherzten Spots des angemeldeten Kontos. Fehlt für Gäste — dann
+   *  bietet der Werkzeugkasten `list_saved_spots` gar nicht erst an. */
+  listSavedSpots?: (locale: Locale) => Promise<SpotCandidate[]>;
 }
 
 const MAX_TOOL_ROUNDS = 4;
 const MAX_TOKENS = 2048;
-const MODEL = process.env.BUDDY_MODEL ?? 'claude-haiku-4-5';
+/* Seit 09.09.2026 Sonnet statt Haiku. Grund ist die Sprache, nicht das
+   Denken: Haiku schrieb regelmäßig schiefes Deutsch („bestell du irgendetwas
+   Verrücktes", „zwischen Massenmark und Milchschaum-Theater"), und auf einer
+   Seite, deren Produkt die Stimme ist, ist das der teuerste Fehler. Gemessen
+   kostet der Wechsel ~0,7 → ~1,4 Cent pro Antwort (siehe die Token-Messung im
+   Commit zum Zuschnitt der Trefferliste). */
+const MODEL = process.env.BUDDY_MODEL ?? 'claude-sonnet-5';
 
 function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) throw new DOMException('Buddy request aborted', 'AbortError');
@@ -85,7 +121,11 @@ export async function* runBuddyTurn(
   const system: Anthropic.TextBlockParam[] = [
     {
       type: 'text',
-      text: buildSystemPrompt(input.locale, { hasGeo: !!input.geo, page: input.page }),
+      text: buildSystemPrompt(input.locale, {
+        hasGeo: !!input.geo,
+        page: input.page,
+        signedIn: !!deps.listSavedSpots,
+      }),
       cache_control: { type: 'ephemeral' },
     },
   ];
@@ -93,6 +133,7 @@ export async function* runBuddyTurn(
     role: m.role,
     content: m.content,
   }));
+  const tools = buddyTools({ signedIn: !!deps.listSavedSpots });
 
   // At most ONE pack teaser per request — repeated cards would be exactly the
   // pushy selling the prompt forbids Remy himself.
@@ -103,7 +144,7 @@ export async function* runBuddyTurn(
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     throwIfAborted(options.signal);
-    const turn = deps.llm.runTurn({ system, tools: BUDDY_TOOLS, messages, signal: options.signal });
+    const turn = deps.llm.runTurn({ system, tools, messages, signal: options.signal });
 
     for await (const chunk of turn.text()) {
       throwIfAborted(options.signal);
@@ -135,13 +176,7 @@ export async function* runBuddyTurn(
           input.locale
         );
         throwIfAborted(options.signal);
-        // categorySlugs only feed the pack vote — strip them before the spots
-        // reach the client or go back to the LLM as tool result.
-        const spots = rawSpots.map((s) => {
-          const lean = { ...s };
-          delete lean.categorySlugs;
-          return lean;
-        });
+        const spots = rawSpots.map(forClient);
         yield { type: 'spots', value: spots };
         // Teaser only when the user explicitly named a dish/cuisine (the LLM
         // sets `cuisine` exactly then) AND that term or the results pin down
@@ -161,7 +196,18 @@ export async function* runBuddyTurn(
         toolResults.push({
           type: 'tool_result',
           tool_use_id: tu.id,
-          content: JSON.stringify(spots),
+          content: JSON.stringify(rawSpots.map(forModel)),
+        });
+      } else if (tu.name === 'list_saved_spots' && deps.listSavedSpots) {
+        const saved = await deps.listSavedSpots(input.locale);
+        throwIfAborted(options.signal);
+        yield { type: 'spots', value: saved.map(forClient) };
+        // Kein Pack-Teaser auf die eigene Merkliste: dort verkauft man dem
+        // Nutzer seine eigene Auswahl zurück.
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: tu.id,
+          content: JSON.stringify(saved.map(forModel)),
         });
       } else if (tu.name === 'search_articles') {
         const articles = await deps.searchArticles(
@@ -198,6 +244,13 @@ export function createAnthropicLlmClient(client: Anthropic = new Anthropic()): L
         {
           model: MODEL,
           max_tokens: MAX_TOKENS,
+          /* Ausdrücklich AUS. Auf Sonnet 5 heißt ein fehlendes `thinking`
+             nicht „kein Denken" (wie auf Haiku 4.5), sondern adaptives Denken —
+             das hätte zwei Dinge gebrochen, die hier zählen: die Denk-Token
+             gehen von denselben 2048 ab und hätten lange Antworten abgeschnitten,
+             und vor dem ersten sichtbaren Zeichen stünde eine Pause. Remy
+             sucht und erzählt, er löst keine Rätsel. */
+          thinking: { type: 'disabled' },
           system,
           tools,
           messages,

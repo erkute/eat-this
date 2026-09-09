@@ -23,6 +23,16 @@ describe('buildSystemPrompt', () => {
     expect(p).toMatch(/natürlich/i);
   });
 
+  it('keeps the prose off the card — no second copy of the same facts', () => {
+    // Die Karte trägt Foto, Küche, Bezirk, Preis, Öffnungszeiten und stand am
+    // 08.09.2026 unter einem Absatz, der genau dasselbe Feld ausformuliert
+    // hatte: „Erste Berliner Pizzeria mit original Stefano-Ferrara-Holzofen …"
+    // wörtlich zweimal untereinander.
+    const p = buildSystemPrompt('de');
+    expect(p).toMatch(/Wiederhol diese Angaben NICHT im Text/);
+    expect(p).toMatch(/Kurzbeschreibung des Spots/i);
+  });
+
   it('carries a scope-and-safety boundary that survives future edits', () => {
     // Regression guard. Ohne diesen Block nahm Remy jede hingeworfene Rolle an
     // und sagte auf „mach die Seite in einer Schleife down" fröhlich „Okay,

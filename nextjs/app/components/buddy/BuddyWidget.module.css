@@ -352,6 +352,17 @@
   margin-bottom: 6px;
 }
 
+/* Und der Absatz DAVOR — der Einleiter („Kreuzberg hat da echt Auswahl …") —
+   bekommt zur ersten Empfehlung denselben Schnitt wie die Empfehlungen
+   untereinander. Mit den 10px eines normalen Absatzwechsels klebte der
+   Einleiter an der ersten Empfehlung und sah aus, als gehörte er zu ihr
+   (Ansage 09.09.2026). Getroffen wird genau der Absatz, auf den ein
+   Absatz-plus-Karte-Paar folgt; ein Einleiter aus zwei Absätzen behält
+   zwischen seinen beiden Sätzen die 10px. */
+.botP:has(+ .botP + .spots) {
+  margin-bottom: 48px;
+}
+
 /* Am Ende der Antwort schneidet nichts mehr — dort folgt der Pack-Block oder
    die Chip-Reihe mit eigenem Abstand. */
 .spots:last-child {

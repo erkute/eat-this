@@ -10,7 +10,7 @@ import type {
   Locale,
 } from '@/lib/buddy/types';
 import { sanitizeLinks } from '@/lib/buddy/stream';
-import { revealStep, prefersReducedMotion } from '@/lib/buddy/reveal';
+import { revealStep, prefersReducedMotion, FRAME_MS } from '@/lib/buddy/reveal';
 import { loadThread, saveThread, clearThread } from '@/lib/buddy/thread';
 import { auth } from '@/lib/firebase/config';
 
@@ -149,9 +149,18 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         updateAssistant((m) => {
           m.content = sanitizeLinks(raw.slice(0, revealed), allowedSlugs.current);
         });
-      const tick = () => {
+      /* `lastTs` ist die Uhr des Takts. Der Schritt hängt an der verstrichenen
+         Zeit (lib/buddy/reveal.ts), damit ein Gerät mit 20 fps genauso schnell
+         aufdeckt wie eines mit 60. Beim (Neu-)Start des Takts steht sie auf 0
+         und der erste Schritt zählt als ein Bild — sonst würde nach einer
+         Pause zwischen zwei Schüben der ganze neue Schub auf einmal erscheinen,
+         weil „seit dem letzten Takt" dann Sekunden wären. */
+      let lastTs = 0;
+      const tick = (ts: number) => {
         rafRef.current = 0;
-        const step = revealStep(raw.length - revealed, instant || flush);
+        const dt = lastTs > 0 ? ts - lastTs : FRAME_MS;
+        lastTs = ts;
+        const step = revealStep(raw.length - revealed, dt, instant || flush);
         if (step > 0) {
           revealed += step;
           paint();
@@ -163,7 +172,9 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         rafRef.current = requestAnimationFrame(tick);
       };
       const nudge = () => {
-        if (!rafRef.current) rafRef.current = requestAnimationFrame(tick);
+        if (rafRef.current) return;
+        lastTs = 0;
+        rafRef.current = requestAnimationFrame(tick);
       };
       const endReveal = () => {
         ended = true;

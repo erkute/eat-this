@@ -8,9 +8,14 @@ import {
   ipLimitsFromEnv,
 } from '@/lib/rateLimitWindow';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
-import { getAdminAuth } from '@/lib/firebase/admin';
+import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
-import { searchSpots, searchArticles } from '@/lib/buddy/retrieval';
+import {
+  searchSpots,
+  searchArticles,
+  spotsBySlugs,
+  SAVED_SPOTS_LIMIT,
+} from '@/lib/buddy/retrieval';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { encodeBuddyEvent, SPOT_SLUG_RE } from '@/lib/buddy/stream';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
@@ -101,11 +106,14 @@ async function resolvePageContext(
   }
 }
 
-// Was das Konto schon besitzt, damit Remy es nicht anbietet. Dieselbe
-// Ableitung wie /api/map-data: verifiziertes Token → resolveEntitlements, und
-// nur dort ist der Admin-Zugang sichtbar. Ohne Token oder mit ungültigem Token
-// fragt ein Gast — jedes Pack darf, der Chat bleibt in jedem Fall erreichbar.
-async function resolveOwnedPacks(request: Request): Promise<OwnedPacks | undefined> {
+// Wer fragt: die uid für die Merkliste und, was das Konto schon besitzt, damit
+// Remy es nicht anbietet. Dieselbe Ableitung wie /api/map-data: verifiziertes
+// Token → resolveEntitlements, und nur dort ist der Admin-Zugang sichtbar. Ohne
+// Token oder mit ungültigem Token fragt ein Gast — jedes Pack darf, es gibt
+// keine Merkliste, und der Chat bleibt in jedem Fall erreichbar.
+async function resolveViewer(
+  request: Request
+): Promise<{ uid: string; owned: OwnedPacks } | undefined> {
   const header = request.headers.get('authorization');
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return undefined;
@@ -116,10 +124,39 @@ async function resolveOwnedPacks(request: Request): Promise<OwnedPacks | undefin
       emailVerified: decoded.email_verified === true,
       admin: decoded.admin === true,
     });
-    return { fullCatalog: ent.isAdmin || ent.hasAllBerlin, categorySlugs: ent.categorySlugs };
+    return {
+      uid: decoded.uid,
+      owned: { fullCatalog: ent.isAdmin || ent.hasAllBerlin, categorySlugs: ent.categorySlugs },
+    };
   } catch (error) {
-    Sentry.captureException(error, { tags: { source: 'buddy-owned-packs' } });
+    Sentry.captureException(error, { tags: { source: 'buddy-viewer' } });
     return undefined;
+  }
+}
+
+/**
+ * Die geherzten Spots eines Kontos, als Slug-Liste. `users/{uid}/favorites` ist
+ * die Quelle (dieselbe wie die Karte), gelesen mit dem Admin-SDK — die uid
+ * stammt aus dem verifizierten Token, nie aus dem Body.
+ *
+ * Ältere Einträge tragen keinen `slug` (das Feld kam später dazu): die fallen
+ * still raus, statt die Liste zu kippen. Ein Fehler beim Lesen heißt „keine
+ * Merkliste", nicht „Chat kaputt".
+ */
+async function savedSpotSlugs(uid: string): Promise<string[]> {
+  try {
+    const snap = await getAdminFirestore()
+      .collection('users')
+      .doc(uid)
+      .collection('favorites')
+      .limit(SAVED_SPOTS_LIMIT)
+      .get();
+    return snap.docs
+      .map((d) => d.get('slug'))
+      .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0);
+  } catch (error) {
+    Sentry.captureException(error, { tags: { source: 'buddy-saved-spots' } });
+    return [];
   }
 }
 
@@ -174,10 +211,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
   }
 
-  const [page, owned] = await Promise.all([
+  const [page, viewer] = await Promise.all([
     resolvePageContext(parsed.pageSlug),
-    resolveOwnedPacks(request),
+    resolveViewer(request),
   ]);
+  const owned = viewer?.owned;
+  /* Nur für angemeldete Konten: ohne Konto gibt es keine Merkliste, und ein
+     Werkzeug, das immer leer antwortet, lädt nur zu Fragen ein, die niemand
+     beantworten kann. Die Slugs werden erst geholt, wenn Remy das Werkzeug
+     tatsächlich ruft — die meisten Fragen brauchen es nie. */
+  const listSavedSpots = viewer
+    ? async (locale: Locale) => spotsBySlugs(await savedSpotSlugs(viewer.uid), locale, parsed.geo)
+    : undefined;
   const llm = createAnthropicLlmClient();
   const encoder = new TextEncoder();
   const abortController = new AbortController();
@@ -189,7 +234,7 @@ export async function POST(request: Request) {
       try {
         for await (const event of runBuddyTurn(
           { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo, page, owned },
-          { llm, searchSpots, searchArticles },
+          { llm, searchSpots, searchArticles, listSavedSpots },
           { signal: abortController.signal }
         )) {
           if (abortController.signal.aborted) return;

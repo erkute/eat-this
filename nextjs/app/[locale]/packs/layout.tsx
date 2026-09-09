@@ -8,6 +8,7 @@ import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import SiteFooter from '@/app/components/SiteFooter';
+import RemyDock from '@/app/components/buddy/RemyDock';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 
 export default async function PacksLayout({
@@ -36,6 +37,7 @@ export default async function PacksLayout({
           <span id="main-content" tabIndex={-1} />
           {children}
           <SiteFooter />
+          <RemyDock />
         </UserLocationProvider>
       </LoginModalProvider>
     </AuthProvider>

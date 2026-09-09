@@ -29,11 +29,13 @@ function renderDock(pageSlug?: string) {
 }
 
 const launcher = () => document.querySelector('[data-buddy-launcher]');
+const dismiss = () => document.querySelector<HTMLButtonElement>('[data-buddy-launcher-dismiss]');
 
 afterEach(() => {
   cleanup();
   widgetProps.last = null;
   route.pathname = '/kategorie/pizza';
+  window.sessionStorage.clear();
 });
 
 describe('RemyDock', () => {
@@ -55,6 +57,25 @@ describe('RemyDock', () => {
   it('opens the chat from the launcher', () => {
     const { queryByTestId } = renderDock();
     fireEvent.click(launcher()!);
+    expect(queryByTestId('buddy-widget')).not.toBeNull();
+  });
+
+  /* Wer ihn nicht will, tippt ihn weg — für diesen Besuch. Nicht für immer:
+     ein dauerhaft weggeklickter Remy wäre nicht mehr auffindbar. */
+  it('lets the visitor put the launcher away for this visit', () => {
+    renderDock();
+    expect(launcher()).not.toBeNull();
+
+    fireEvent.click(dismiss()!);
+    expect(launcher()).toBeNull();
+
+    // Auch nach dem Seitenwechsel bleibt er weg — und der Chat selbst bleibt
+    // trotzdem erreichbar (Bühne der Startseite, Block der Spot-Seite).
+    cleanup();
+    const { queryByTestId } = renderDock();
+    expect(launcher()).toBeNull();
+
+    fireEvent(window, new CustomEvent(BUDDY_ASK_EVENT, { detail: {} }));
     expect(queryByTestId('buddy-widget')).not.toBeNull();
   });
 

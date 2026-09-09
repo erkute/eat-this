@@ -148,6 +148,12 @@
   outline-offset: 2px;
 }
 
+.close svg {
+  width: 17px;
+  height: 17px;
+  color: currentColor;
+}
+
 /* „Neu" steht links neben dem X; die beiden bilden die Werkzeuggruppe am
    rechten Rand. Nach rechts geschoben werden sie vom Titel (margin-right:
    auto) — nicht von einem `margin-left: auto` an einem der Knöpfe, das je
@@ -320,11 +326,24 @@
   cursor: default;
 }
 
+/* Ein empfohlener Spot ist ZWEI Dinge: Remys Absatz und die Karte darunter.
+   Mit gleichem Abstand oben wie unten (14px) lief die Antwort als ein Band
+   durch — man sah nicht, welcher Absatz zu welcher Karte gehört, und die
+   Empfehlungen klebten aneinander. Die Karte gehört zum Text ÜBER ihr: oben
+   kein eigener Rand (die 10px des Absatzes reichen und fassen beide
+   zusammen), unten die doppelte Luft als Schnitt zur nächsten Empfehlung. */
 .spots {
   display: flex;
   flex-direction: column;
+  /* Der Stapel der Sammelausgabe ist eine Liste — der bleibt eng. */
   gap: 10px;
-  margin: 14px 0;
+  margin: 0 0 30px;
+}
+
+/* Am Ende der Antwort schneidet nichts mehr — dort folgt der Pack-Block oder
+   die Chip-Reihe mit eigenem Abstand. */
+.spots:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Karten: die leise Stufe, ein Ausgang ─────────────────────────────────

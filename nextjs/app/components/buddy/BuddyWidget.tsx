@@ -16,7 +16,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
-import { HeartIcon, PinIcon } from '@/app/components/map/icons';
+import { CloseIcon, HeartIcon, PinIcon } from '@/app/components/map/icons';
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from './BuddyWidget.module.css';
@@ -754,7 +754,10 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
                 aria-label={t.close}
                 onClick={closePanel}
               >
-                <span aria-hidden="true">✕</span>
+                {/* Das Zeichen der Site, nicht das Schriftzeichen ✕: Providence
+                    hat keine eigene Glyphe dafür und fiel auf eine Fremdschrift
+                    zurück. */}
+                <CloseIcon />
               </button>
             </div>
             {/* Kein `aria-live` auf dem ganzen Log: der Vorleser hätte bei

@@ -93,7 +93,13 @@ interface OrchestratorDeps {
 
 const MAX_TOOL_ROUNDS = 4;
 const MAX_TOKENS = 2048;
-const MODEL = process.env.BUDDY_MODEL ?? 'claude-haiku-4-5';
+/* Seit 09.09.2026 Sonnet statt Haiku. Grund ist die Sprache, nicht das
+   Denken: Haiku schrieb regelmäßig schiefes Deutsch („bestell du irgendetwas
+   Verrücktes", „zwischen Massenmark und Milchschaum-Theater"), und auf einer
+   Seite, deren Produkt die Stimme ist, ist das der teuerste Fehler. Gemessen
+   kostet der Wechsel ~0,7 → ~1,4 Cent pro Antwort (siehe die Token-Messung im
+   Commit zum Zuschnitt der Trefferliste). */
+const MODEL = process.env.BUDDY_MODEL ?? 'claude-sonnet-5';
 
 function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) throw new DOMException('Buddy request aborted', 'AbortError');
@@ -238,6 +244,13 @@ export function createAnthropicLlmClient(client: Anthropic = new Anthropic()): L
         {
           model: MODEL,
           max_tokens: MAX_TOKENS,
+          /* Ausdrücklich AUS. Auf Sonnet 5 heißt ein fehlendes `thinking`
+             nicht „kein Denken" (wie auf Haiku 4.5), sondern adaptives Denken —
+             das hätte zwei Dinge gebrochen, die hier zählen: die Denk-Token
+             gehen von denselben 2048 ab und hätten lange Antworten abgeschnitten,
+             und vor dem ersten sichtbaren Zeichen stünde eine Pause. Remy
+             sucht und erzählt, er löst keine Rätsel. */
+          thinking: { type: 'disabled' },
           system,
           tools,
           messages,

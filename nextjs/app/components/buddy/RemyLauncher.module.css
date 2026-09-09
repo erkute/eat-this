@@ -3,13 +3,16 @@
    Startseite (die Bühne, weit unten) und auf Restaurantseiten — auf /kategorie,
    /bezirk, /packs, /news, /profile und in den Guides führte KEIN Weg zu ihm.
    Gelb, unten rechts: so steht es in der Design-Sprache der Startseite. */
-.launcher {
+.dock {
   position: fixed;
   right: 20px;
   bottom: 20px;
   /* Unter dem Panel (10001) und unter dem Vorhang (10000): solange der Chat
      offen ist, deckt ihn der Vorhang mit ab. */
   z-index: 9998;
+}
+
+.launcher {
   display: grid;
   place-items: center;
   width: 58px;
@@ -56,9 +59,52 @@
   outline-offset: 3px;
 }
 
-/* Solange der Chat offen ist, ist der Knopf nichts weiter als Ballast unter
-   dem Vorhang — BuddyWidget setzt die Marke am <html>. */
-:global(html[data-buddy-open]) .launcher {
+/* Das ✕ zum Wegtippen sitzt als Abzeichen in der Ecke der Kachel, wie an einem
+   App-Icon: klein genug, um die Kachel nicht zu dominieren, groß genug für den
+   Daumen (das Trefferfeld wird über ::before auf 34px aufgezogen). */
+.dismiss {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-home-ink, #15120e);
+  border: 2px solid var(--et-home-accent, #ffc600);
+  border-radius: var(--et-radius-pill, 999px);
+  cursor: pointer;
+  transition: background var(--et-motion-fast, 140ms ease);
+}
+
+.dismiss::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.dismiss svg {
+  width: 11px;
+  height: 11px;
+  color: currentColor;
+}
+
+@media (hover: hover) {
+  .dismiss:hover {
+    background: var(--et-home-red, #d9382a);
+  }
+}
+
+.dismiss:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 2px;
+}
+
+/* Solange der Chat offen ist, ist die Anlegestelle nichts weiter als Ballast
+   unter dem Vorhang — BuddyWidget setzt die Marke am <html>. */
+:global(html[data-buddy-open]) .dock {
   visibility: hidden;
 }
 
@@ -72,12 +118,19 @@
       transform: none;
     }
   }
+
+  .dismiss {
+    transition: none;
+  }
 }
 
 @media (max-width: 480px) {
-  .launcher {
+  .dock {
     right: 14px;
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .launcher {
     width: 52px;
     height: 52px;
   }

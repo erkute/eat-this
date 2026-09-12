@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { normalizeName } from '@/lib/normalizeName';
+import { whenImageReady } from '@/lib/dom/imageReady';
 import styles from './MapDetails.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
@@ -187,6 +188,14 @@ export default function MustEatDetailMobile({
   };
   const swipeHint = (!!prevMustEat || !!nextMustEat) && !canUnlock && !hasSwiped;
 
+  /* Das Bild der Karte, auf die geblättert wird — der Tausch wartet darauf.
+     Eine verdeckte Nachbarkarte zeigt den Rücken, der liegt ohnehin im Cache. */
+  const neighbourFace = (dir: 'prev' | 'next') => {
+    const neighbour = dir === 'prev' ? prevMustEat : nextMustEat;
+    const unlocked = dir === 'prev' ? prevUnlocked : nextUnlocked;
+    return (unlocked && neighbour?.image) || CARD_BACK;
+  };
+
   useSwipePager(rootRef, {
     onPrev:
       onPagePrev &&
@@ -204,6 +213,10 @@ export default function MustEatDetailMobile({
     hasNext: !!nextMustEat,
     transformRef: topCardRef,
     flushPage: true,
+    /* Der Wisch tauscht erst, wenn das neue Bild zeichenbar ist — sonst
+       wischt man die alte Karte heraus und dieselbe wieder herein (siehe
+       whenImageReady). */
+    prepare: (dir) => whenImageReady(neighbourFace(dir)),
   });
 
   const pageWithCard = (dir: 'prev' | 'next') => {
@@ -214,6 +227,11 @@ export default function MustEatDetailMobile({
       page?.();
       return;
     }
+    /* Das Bild der nächsten Karte lädt WÄHREND die alte hinausfliegt: der
+       Abgang dauert 300ms, die Deckelung wartet höchstens bis IMAGE_READY_CAP_MS.
+       Kommt das Bild nicht rechtzeitig, blättert die Karte trotzdem weiter und
+       füllt sich unterwegs — eine falsche zeigt sie nie (whenImageReady). */
+    const ready = whenImageReady(neighbourFace(dir));
     const outX = dir === 'next' ? -root.clientWidth : root.clientWidth;
     target.style.setProperty(
       'transition',
@@ -221,10 +239,11 @@ export default function MustEatDetailMobile({
       'important'
     );
     target.style.setProperty('transform', `translateX(${outX}px)`, 'important');
-    window.setTimeout(() => {
+    const flown = new Promise<void>((resolve) => window.setTimeout(resolve, 300));
+    void Promise.all([ready, flown]).then(() => {
       cardEnterDirRef.current = dir;
       flushSync(() => page());
-    }, 300);
+    });
   };
 
   /* Die Kopfzeile des verdeckten Zustands sitzt IM Namens-Track, nicht darunter.
@@ -410,7 +429,12 @@ export default function MustEatDetailMobile({
                     Karte doppelt da — Zoom-Klon + statische Slot-Karte. */
                   style={state.zoomActive ? { visibility: 'hidden' } : undefined}
                 >
+                  {/* Pro Bild ein eigenes <img>: ein wiederverwendetes Element
+                      zeigt nach einem `src`-Wechsel weiter das ALTE Bild, bis
+                      das neue dekodiert ist — beim Blättern kam die nächste
+                      Karte dadurch mit dem Bild der vorigen herein. */}
                   <img
+                    key={mustEat.image || CARD_BACK}
                     src={mustEat.image || CARD_BACK}
                     alt={mustEat.image ? (mustEat.dish ?? '') : t('mustEats.covered')}
                   />

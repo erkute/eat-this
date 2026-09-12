@@ -9,6 +9,7 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion';
+import { whenImageReady } from '@/lib/dom/imageReady';
 import styles from './MustEatImageLightbox.module.css';
 
 export interface MustEatImageLightboxProps {
@@ -263,20 +264,35 @@ const Inner = memo(function Inner({
   const reducedMotion = useReducedMotion();
   useEffect(() => {
     if (pageKey === shown.key) return;
-    if (reducedMotion) {
-      setShown({ imageUrl, alt, key: pageKey });
-      dealControls.set({ x: 0, rotateZ: 0, scale: 1 });
-      return;
-    }
     let cancelled = false;
+    if (reducedMotion) {
+      /* Ohne Flug wechselt die Karte einfach — aber erst, wenn das neue Bild
+         zeichenbar ist, sonst steht dort weiter das alte (whenImageReady). */
+      void whenImageReady(imageUrl).then(() => {
+        if (cancelled) return;
+        setShown({ imageUrl, alt, key: pageKey });
+        dealControls.set({ x: 0, rotateZ: 0, scale: 1 });
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
     const dir = dirRef.current;
     void (async () => {
-      await dealControls.start({
-        x: dir >= 0 ? '-62%' : '62%',
-        rotateZ: dir >= 0 ? -9 : 9,
-        scale: 0.86,
-        transition: { duration: 0.19, ease: [0.4, 0, 1, 1] },
-      });
+      /* Das neue Bild lädt, WÄHREND die alte Karte weggezogen wird. Ohne das
+         Warten trägt die hereinfliegende Karte weiter das alte Bild: ein <img>
+         behält seinen alten Rahmen, bis der neue `src` dekodiert ist (siehe
+         lib/dom/imageReady). */
+      const ready = whenImageReady(imageUrl);
+      await Promise.all([
+        dealControls.start({
+          x: dir >= 0 ? '-62%' : '62%',
+          rotateZ: dir >= 0 ? -9 : 9,
+          scale: 0.86,
+          transition: { duration: 0.19, ease: [0.4, 0, 1, 1] },
+        }),
+        ready,
+      ]);
       if (cancelled) return;
       setShown({ imageUrl, alt, key: pageKey });
       dealControls.set({
@@ -380,7 +396,9 @@ const Inner = memo(function Inner({
             the card's rounded shape — without it the sheen leaks past
             the right edge at strong rotateY tilts. */}
         <motion.div className={styles.clip} style={{ width: overlayW }} animate={dealControls}>
-          <img src={shown.imageUrl} alt={shown.alt} className={styles.image} />
+          {/* Ein eigenes <img> pro Karte — ein wiederverwendetes zeigt nach dem
+              `src`-Wechsel weiter das alte Bild. */}
+          <img key={shown.key} src={shown.imageUrl} alt={shown.alt} className={styles.image} />
           <motion.div className={styles.sheen} style={{ x: sheenX }} aria-hidden="true" />
         </motion.div>
       </motion.div>

@@ -21,6 +21,12 @@ interface SwipePagerOptions {
   entrySelector?: string;
   /** Force the page state swap before the entry transform is applied. */
   flushPage?: boolean;
+  /** Was erledigt sein muss, BEVOR getauscht wird — beim Must Eat das Bild der
+   *  Nachbarkarte. Ein <img> behält nach einem `src`-Wechsel das alte Bild, bis
+   *  das neue dekodiert ist: ohne dieses Warten wischt man dieselbe Karte
+   *  heraus und wieder herein (siehe lib/dom/imageReady). Die Zusage kommt
+   *  gedeckelt zurück, die Geste kann daran also nicht hängenbleiben. */
+  prepare?: (dir: 'next' | 'prev') => Promise<unknown>;
 }
 
 /* Horizontal swipe paging for the detail sheets (restaurant + must-eat).
@@ -121,7 +127,10 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         const outX = dir === 'next' ? -w : w;
         setTransition(target, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)');
         setTransform(target, `translateX(${outX}px)`);
-        window.setTimeout(() => {
+        /* Das neue Bild lädt, während die alte Karte hinausfliegt. */
+        const prepared = optsRef.current.prepare?.(dir) ?? Promise.resolve();
+        const flown = new Promise<void>((resolve) => window.setTimeout(resolve, 300));
+        void Promise.all([prepared, flown]).then(() => {
           const page = () => {
             if (dir === 'next') optsRef.current.onNext?.();
             else optsRef.current.onPrev?.();
@@ -143,7 +152,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
               clearMotion(nextTarget);
             }, 360);
           });
-        }, 300);
+        });
       } else {
         settle();
       }

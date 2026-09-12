@@ -129,6 +129,18 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
     [cardFace]
   );
   const expandedIndex = expanded ? visible.findIndex((m) => m._id === expanded.id) : -1;
+  /* Die Nachbarn des Zooms vorladen, wie es das Map-Detail tut: der Tausch
+     wartet auf das neue Bild (siehe lib/dom/imageReady), und ein Bild, das
+     schon da ist, lässt ihn gar nicht erst warten. Ohne das Vorladen zieht der
+     Zoom hier jede Karte erst beim Blättern — die Karten der Kacheln darunter
+     laden `lazy`, weiter unten im Raster ist also noch nichts im Cache. */
+  const zoomNeighbours =
+    expandedIndex >= 0
+      ? [visible[expandedIndex - 1], visible[expandedIndex + 1]]
+          .filter((m): m is MapMustEat => Boolean(m))
+          .map((m) => cardFace(m).imageUrl)
+          .filter((url) => url !== CARD_BACK)
+      : [];
   const handleExitComplete = () => {
     // If another card was opened mid fly-back, its origin must stay hidden.
     if (!expandedRef.current) setHiddenId(null);
@@ -195,6 +207,11 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
           <div className={styles.gridDense}>{covered.map(renderCard)}</div>
         </section>
       )}
+
+      {/* React hoisted die link-Tags in den <head>. */}
+      {zoomNeighbours.map((url) => (
+        <link key={url} rel="preload" as="image" href={url} />
+      ))}
 
       <LazyMustEatImageLightbox
         active={Boolean(expanded || hiddenId)}

@@ -4,7 +4,11 @@ import { clientIpFromXff } from '@/lib/clientIp';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
 import { renderPrivateMustEatImage, type ImageVariant } from '@/lib/must-eat/private-image';
-import { premiumAccessCookieName, readPremiumAccessToken } from '@/lib/must-eat/premium-access';
+import {
+  PREMIUM_ACCESS_TTL_SECONDS,
+  premiumAccessCookieName,
+  readPremiumAccessToken,
+} from '@/lib/must-eat/premium-access';
 import { premiumSessionCookieName, readPremiumSessionUid } from '@/lib/must-eat/premium-session';
 import { coalesceRateLimit } from '@/lib/rateLimitCoalesce';
 import { checkWindowedRateLimitBatch } from '@/lib/rateLimitWindow';
@@ -14,13 +18,22 @@ export const revalidate = 0;
 
 const SAFE_ID = /^[A-Za-z0-9._-]{1,128}$/;
 
-// Zwei Antworten, zwei Regeln. Ein aufgedecktes Must-Eat geht ohnehin an jeden
+// Zwei Bilder, zwei Regeln. Ein aufgedecktes Must-Eat geht ohnehin an jeden
 // anonymen Besucher — daran ist nichts zu schützen, und ohne Cache holte jeder
 // Startseiten-Aufruf sechs Originale aus dem Bucket und rechnete sharp neu.
 // Preis, bewusst abgenommen: eine wieder verdeckte Karte kommt bis zu max-age
 // noch aus Caches, Zurücknehmen wirkt also nicht sofort.
 const PUBLIC_CACHE_CONTROL = 'public, max-age=300, stale-while-revalidate=3600';
-const PRIVATE_CACHE_CONTROL = 'private, no-store';
+// Verdeckt: nur der eigene Browser, und der genau so lange, wie die Capability
+// gilt, die das Bild freigab — nie ein geteilter Cache. Bis zum 16.09.2026 war
+// das `no-store`: jedes Zurückblättern auf dieselbe Karte holte sie neu, und
+// ein Bild, das der Server gerade erst ausgeliefert hatte, musste er noch
+// einmal ausliefern (Betreiber, 16.09.2026: „no-store auf private max-age
+// umstellen"). Was `no-store` versprach — nach dem Logout keine Premium-Bytes
+// im geteilten Browser — hielt es ohnehin nur halb: die Karte stand derweil
+// als Pixel auf dem Schirm. Fehlerantworten bleiben ohne Cache.
+const COVERED_CACHE_CONTROL = `private, max-age=${PREMIUM_ACCESS_TTL_SECONDS}`;
+const NO_STORE = 'private, no-store';
 
 // Aufrufer hängen über `sanityImageLoader` ein Sanity-artiges `?w=…&auto=format&q=…`
 // an — die Route lieferte davon unbeeindruckt die Originaldatei aus dem Bucket.
@@ -126,7 +139,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
   if (!allowed) {
     const response = NextResponse.json({ error: 'forbidden' }, { status: 403 });
-    response.headers.set('Cache-Control', PRIVATE_CACHE_CONTROL);
+    response.headers.set('Cache-Control', NO_STORE);
     return response;
   }
 
@@ -142,10 +155,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
     return new NextResponse(new Uint8Array(image.body), {
       headers: {
-        // Verdeckt: ein geteilter Browser darf keine Premium-Bytes nach dem
-        // Logout behalten, und die kurzlebige HttpOnly-Capability wird bei
-        // jedem Bild-Request neu geprüft. Aufgedeckt: nichts zu schützen.
-        'Cache-Control': isPublic ? PUBLIC_CACHE_CONTROL : PRIVATE_CACHE_CONTROL,
+        'Cache-Control': isPublic ? PUBLIC_CACHE_CONTROL : COVERED_CACHE_CONTROL,
         'Content-Type': image.contentType,
         'Content-Disposition': 'inline',
         'X-Content-Type-Options': 'nosniff',
@@ -158,7 +168,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         { error: 'rate_limited', reason: error.reason },
         { status: 429 }
       );
-      response.headers.set('Cache-Control', PRIVATE_CACHE_CONTROL);
+      response.headers.set('Cache-Control', NO_STORE);
       return response;
     }
     console.error(
@@ -166,7 +176,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       error instanceof Error ? error.name : 'UnknownError'
     );
     const response = NextResponse.json({ error: 'asset unavailable' }, { status: 503 });
-    response.headers.set('Cache-Control', PRIVATE_CACHE_CONTROL);
+    response.headers.set('Cache-Control', NO_STORE);
     return response;
   }
 }

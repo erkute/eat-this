@@ -5,7 +5,9 @@ import type { NextResponse } from 'next/server';
 
 const PRODUCTION_COOKIE = '__Host-eatthis_premium_access';
 const DEVELOPMENT_COOKIE = 'eatthis_premium_access';
-const DEFAULT_TTL_SECONDS = 30 * 60;
+/** Laufzeit der Capability — und damit auch die laengste Zeit, die ein Browser
+ *  ein verdecktes Bild behalten darf (siehe app/api/must-eat-image). */
+export const PREMIUM_ACCESS_TTL_SECONDS = 30 * 60;
 
 interface PremiumAccessPayload {
   v: 1;
@@ -40,7 +42,7 @@ export function createPremiumAccessToken(
   options: { nowMs?: number; ttlSeconds?: number } = {}
 ): string {
   const nowMs = options.nowMs ?? Date.now();
-  const ttlSeconds = options.ttlSeconds ?? DEFAULT_TTL_SECONDS;
+  const ttlSeconds = options.ttlSeconds ?? PREMIUM_ACCESS_TTL_SECONDS;
   const payload: PremiumAccessPayload = {
     v: 1,
     exp: Math.floor(nowMs / 1000) + ttlSeconds,
@@ -88,7 +90,7 @@ export function setPremiumAccessCookie(
 ): void {
   response.cookies.set(premiumAccessCookieName(), createPremiumAccessToken(ids, subject), {
     path: '/',
-    maxAge: DEFAULT_TTL_SECONDS,
+    maxAge: PREMIUM_ACCESS_TTL_SECONDS,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

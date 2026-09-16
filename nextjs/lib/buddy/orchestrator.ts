@@ -92,6 +92,21 @@ interface OrchestratorDeps {
 }
 
 const MAX_TOOL_ROUNDS = 4;
+/* Deckel für `search_spots` pro Runde. Ohne ihn entscheidet das Modell allein,
+   wie viele Suchen eine Antwort kostet — und am 08.09.2026 feuerte es in EINER
+   Runde 20 parallele Suchen ab (Sentry JAVASCRIPT-9V, belegt über 20
+   Sanity-Abfragen in 1,5 s zwischen zwei Modell-Aufrufen). Jede Trefferliste
+   ging damals mit ~10.500 Token ans Modell, zusammen 220.301 Token und damit
+   über Haikus 200k-Fenster. Voyage lehnte dabei 17 der 20 Embeddings mit 429
+   ab, die Suchen liefen also auch noch ohne semantische Sortierung.
+
+   Drei reichen für jede echte Frage: „Pizza oder Burger", „Kreuzberg gegen
+   Neukölln", dazu ein Name. Mehr sind ein Modell, das sich eine Suche pro
+   Bezirk zurechtlegt. Überzählige Aufrufe laufen nicht, bekommen aber ein
+   `is_error`-Ergebnis — die API verlangt auf JEDEN tool_use eine Antwort, und
+   die Meldung sagt dem Modell, wie es weitermacht. Über alle Runden bleibt es
+   bei höchstens MAX_TOOL_ROUNDS × 3 Suchen pro Antwort. */
+const MAX_SPOT_SEARCHES_PER_ROUND = 3;
 const MAX_TOKENS = 2048;
 /* Seit 09.09.2026 Sonnet statt Haiku. Grund ist die Sprache, nicht das
    Denken: Haiku schrieb regelmäßig schiefes Deutsch („bestell du irgendetwas
@@ -161,9 +176,20 @@ export async function* runBuddyTurn(
     if (final.stopReason !== 'tool_use' || final.toolUses.length === 0) break;
 
     const toolResults: Anthropic.ToolResultBlockParam[] = [];
+    let spotSearches = 0;
     for (const tu of final.toolUses) {
       throwIfAborted(options.signal);
+      if (tu.name === 'search_spots' && spotSearches >= MAX_SPOT_SEARCHES_PER_ROUND) {
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: tu.id,
+          content: `Nicht ausgeführt: höchstens ${MAX_SPOT_SEARCHES_PER_ROUND} Suchen auf einmal. Antworte mit den Treffern, die du hast, oder fasse die Suche enger.`,
+          is_error: true,
+        });
+        continue;
+      }
       if (tu.name === 'search_spots') {
+        spotSearches++;
         const rawSpots = await deps.searchSpots(
           {
             cuisine: tu.input.cuisine as string | undefined,

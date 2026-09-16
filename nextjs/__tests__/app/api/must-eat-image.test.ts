@@ -43,7 +43,9 @@ import {
 } from '@/lib/must-eat/premium-access'
 
 const PUBLIC_CACHE = 'public, max-age=300, stale-while-revalidate=3600'
-const PRIVATE_CACHE = 'private, no-store'
+const NO_STORE = 'private, no-store'
+// So lange wie die Capability, die das Bild freigab — und nur im eigenen Browser.
+const COVERED_CACHE = 'private, max-age=1800'
 
 /* Drei Hops: App Hosting haengt Ingress + GFE hinter den echten Aufrufer, also
  * nimmt clientIpFromXff den drittletzten. Ohne Adresse kein Ratenlimit. */
@@ -109,7 +111,7 @@ describe('/api/must-eat-image/[id]', () => {
     expect(Buffer.from(await response.arrayBuffer()).toString()).toBe('private-image')
   })
 
-  it('keeps a covered image out of every cache', async () => {
+  it('lets only the own browser keep a covered image, for the lifetime of the capability', async () => {
     readPremiumSessionUid.mockResolvedValue('user-1')
     const token = createPremiumAccessToken(['m1'], 'user-1')
     const response = await GET(request(`${premiumAccessCookieName()}=${token}`), {
@@ -117,7 +119,7 @@ describe('/api/must-eat-image/[id]', () => {
     })
 
     expect(response.status).toBe(200)
-    expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
+    expect(response.headers.get('cache-control')).toBe(COVERED_CACHE)
   })
 
   /* Die Reihenfolge, für die es diesen Test gibt: eine Karte, die zugleich
@@ -157,7 +159,7 @@ describe('/api/must-eat-image/[id]', () => {
     const response = await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
 
     expect(response.status).toBe(503)
-    expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
+    expect(response.headers.get('cache-control')).toBe(NO_STORE)
   })
 
   it('accepts a valid HttpOnly capability and rejects a tampered one', async () => {
@@ -257,7 +259,7 @@ describe('/api/must-eat-image/[id]', () => {
       const response = await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
 
       expect(response.status).toBe(429)
-      expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
+      expect(response.headers.get('cache-control')).toBe(NO_STORE)
       expect(download).not.toHaveBeenCalled()
     })
 

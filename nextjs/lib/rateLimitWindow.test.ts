@@ -19,6 +19,14 @@ import { checkWindowedRateLimit, evaluateRateLimit } from './rateLimitWindow';
 const LIMITS = { perMinute: 10, perDay: 100 };
 
 describe('evaluateRateLimit', () => {
+  it('zaehlt einen Stapel auf einmal und entscheidet fuer alle zusammen', () => {
+    const prev = { minuteStart: 0, minuteCount: 8, dayStart: 0, dayCount: 8 };
+    expect(evaluateRateLimit(30_000, prev, LIMITS, 2).allowed).toBe(true);
+    const r = evaluateRateLimit(30_000, prev, LIMITS, 3);
+    expect(r.allowed).toBe(false);
+    expect(r.state.minuteCount).toBe(11);
+  });
+
   it('allows and increments a fresh session', () => {
     const r = evaluateRateLimit(1_000_000, null, LIMITS);
     expect(r.allowed).toBe(true);

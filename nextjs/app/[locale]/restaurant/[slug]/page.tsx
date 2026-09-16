@@ -21,6 +21,7 @@ import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import { shouldSkipDropCap } from '@/lib/dropCap';
 import { buildHreflangAlternates, restaurantRobots, toOgLocale } from '@/lib/seo/metadata';
+import { metadataSource } from '@/lib/seo/metadataSource';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
@@ -144,7 +145,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Dieselbe Query wie im Seitenrumpf, damit Next die beiden Aufrufe zu EINER
   // Anfrage dedupliziert. Weicht eine der beiden Stellen ab, kostet die Seite
   // sofort zwei Anfragen statt einer.
-  const page = await getRestaurantPageData(slug);
+  const page = await metadataSource(() => getRestaurantPageData(slug));
   if (!page) return {};
   const r = page.restaurant;
   const loc = locale === 'de' ? 'de' : 'en';

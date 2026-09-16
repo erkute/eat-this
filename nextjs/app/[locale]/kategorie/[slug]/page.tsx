@@ -26,6 +26,7 @@ import { schemaImageUrl } from '@/lib/sanity-image-presets';
 import { OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
+import { metadataSource } from '@/lib/seo/metadataSource';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
 import { pickLocale } from '@/lib/i18n/pickLocale';
@@ -171,10 +172,13 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const [c, restaurants] = await Promise.all([
-    getCategoryBySlug(slug),
-    getRestaurantsByCategory(slug),
-  ]);
+  // Beide Lesevorgänge zusammen absichern: die Beschreibung zählt die Spots,
+  // eine halbe Antwort wäre eine falsche Zahl statt einer fehlenden.
+  const data = await metadataSource(() =>
+    Promise.all([getCategoryBySlug(slug), getRestaurantsByCategory(slug)])
+  );
+  if (!data) return {};
+  const [c, restaurants] = data;
   if (!c) return {};
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';

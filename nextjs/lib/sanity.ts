@@ -36,6 +36,21 @@ export const client = createClient({
   // emptied it in three days. The real driver was never the traffic — it was
   // ~50 CI builds a day at 952 requests each, see .github/workflows/quality.yml.
   useCdn: process.env.SANITY_USE_CDN !== 'false',
+  // Without these two the client waits FIVE MINUTES for a socket that has gone
+  // quiet (@sanity/client's default) — far past anything a render can use, and
+  // the request occupies the instance the whole time. Real queries against the
+  // CDN measure 0,12–0,31 s (16.09.2026, restaurant page + all-slugs, three
+  // runs each), so 10 s is ~30x the slowest observed response and only fires
+  // when the connection is actually dead, not when Sanity is merely slow.
+  //
+  // The failures this bounds are transport-level, not Sanity being down: a TLS
+  // handshake that dies 20 s into a cold start, or a kept-alive socket the far
+  // side already closed (Sentry JAVASCRIPT-5/2E/6J and siblings). Retries for
+  // those already exist — get-it retries idempotent GETs on network errors —
+  // so the retry count is a ceiling, not a new safety net: 4 attempts × 10 s
+  // plus backoff stays under a minute instead of piling up to 5 minutes each.
+  timeout: 10_000,
+  maxRetries: 3,
   perspective: 'published',
   token: process.env.SANITY_API_READ_TOKEN,
 });

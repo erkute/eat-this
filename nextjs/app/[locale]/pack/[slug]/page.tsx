@@ -7,6 +7,7 @@ import { getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
+import { metadataSource } from '@/lib/seo/metadataSource';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
 import { resolvePackByUrlSlug, packUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
@@ -40,7 +41,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) return {};
   const de = locale === 'de';
-  const category = await getCategoryBySlug(pack.slug);
+  // Eigene Konstante: in der Closure fällt die Einschränkung von `pack.slug`
+  // auf einen echten String wieder weg.
+  const packSlug = pack.slug;
+  const category = await metadataSource(() => getCategoryBySlug(packSlug));
   const packTitleName = category
     ? localizedCategoryName(category, de ? 'de' : 'en')
     : pack.displayName;

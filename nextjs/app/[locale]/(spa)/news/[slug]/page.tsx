@@ -6,6 +6,7 @@ import { serializeJsonLd, buildArticleSpotsItemList } from '@/lib/json-ld';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { INDEXABLE_ROBOTS, toOgLocale } from '@/lib/seo/metadata';
+import { metadataSource } from '@/lib/seo/metadataSource';
 import { routing } from '@/i18n/routing';
 import { getLocalizedNewsMetadata } from '@/lib/news-metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
@@ -28,7 +29,7 @@ export const revalidate = 86400;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const a = await getArticleBySlug(slug);
+  const a = await metadataSource(() => getArticleBySlug(slug));
   if (!a) return {};
 
   const de = locale === 'de';

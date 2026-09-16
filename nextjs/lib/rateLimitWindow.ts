@@ -23,7 +23,7 @@ interface RateLimits {
   perMinute: number;
   perDay: number;
 }
-interface RateLimitDecision {
+export interface RateLimitDecision {
   allowed: boolean;
   reason?: 'per_minute' | 'per_day' | 'unavailable';
   state: RateLimitState;
@@ -49,15 +49,16 @@ const DAY = 86_400_000;
 export function evaluateRateLimit(
   now: number,
   prev: RateLimitState | null,
-  limits: RateLimits
+  limits: RateLimits,
+  count = 1
 ): RateLimitDecision {
   const minuteFresh = !prev || now - prev.minuteStart >= MINUTE;
   const dayFresh = !prev || now - prev.dayStart >= DAY;
 
   const minuteStart = minuteFresh ? now : prev!.minuteStart;
-  const minuteCount = (minuteFresh ? 0 : prev!.minuteCount) + 1;
+  const minuteCount = (minuteFresh ? 0 : prev!.minuteCount) + count;
   const dayStart = dayFresh ? now : prev!.dayStart;
-  const dayCount = (dayFresh ? 0 : prev!.dayCount) + 1;
+  const dayCount = (dayFresh ? 0 : prev!.dayCount) + count;
 
   const state: RateLimitState = { minuteStart, minuteCount, dayStart, dayCount };
 
@@ -98,13 +99,30 @@ export async function checkWindowedRateLimit(
   onError: RateLimitFailurePolicy,
   now: number = Date.now()
 ): Promise<RateLimitDecision> {
+  return checkWindowedRateLimitBatch(key, limits, onError, 1, now);
+}
+
+/**
+ * Dasselbe fuer `count` Anfragen auf einmal — EINE Transaktion, eine
+ * Entscheidung fuer alle. Fuer Aufrufer, die gleichzeitige Anfragen desselben
+ * Schluessels zusammenlegen (lib/rateLimitCoalesce.ts): sechs Bilder eines
+ * Schwungs stritten sich sonst in sechs Transaktionen um ein Dokument und
+ * warteten in Retries aufeinander.
+ */
+export async function checkWindowedRateLimitBatch(
+  key: string,
+  limits: RateLimits,
+  onError: RateLimitFailurePolicy,
+  count: number,
+  now: number = Date.now()
+): Promise<RateLimitDecision> {
   try {
     const db = getAdminFirestore();
     const ref = db.collection('buddyRateLimits').doc(key);
     return await db.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       const prev = (snap.exists ? (snap.data() as RateLimitState) : null) ?? null;
-      const decision = evaluateRateLimit(now, prev, limits);
+      const decision = evaluateRateLimit(now, prev, limits, count);
       // `expiresAt` is a real Firestore Timestamp so the native TTL policy
       // (firestore.indexes.json → buddyRateLimits.expiresAt) garbage-collects
       // stale per-session/per-IP/per-uid docs. Without it this collection grew

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
 
 import { clientIpFromXff } from '@/lib/clientIp';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
-import { getAdminStorage } from '@/lib/firebase/admin';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
-import { getPrivateMustEatContent } from '@/lib/must-eat/private-store';
+import { renderPrivateMustEatImage, type ImageVariant } from '@/lib/must-eat/private-image';
 import { premiumAccessCookieName, readPremiumAccessToken } from '@/lib/must-eat/premium-access';
 import { premiumSessionCookieName, readPremiumSessionUid } from '@/lib/must-eat/premium-session';
-import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import { coalesceRateLimit } from '@/lib/rateLimitCoalesce';
+import { checkWindowedRateLimitBatch } from '@/lib/rateLimitWindow';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -29,8 +28,7 @@ const PRIVATE_CACHE_CONTROL = 'private, no-store';
 //
 // Die Breite rastet auf eine feste Leiter ein, statt jede Zahl zu akzeptieren:
 // ein beliebiges `?w=` wäre ein CPU-Verstärker — jede neue Zahl ein neuer
-// sharp-Lauf, den im verdeckten Zweig (`no-store`) kein Cache abfängt, und im
-// öffentlichen Zweig zersplittert jede Zahl zusätzlich den Cache.
+// sharp-Lauf und ein eigener Eintrag im Prozess-Cache (lib/must-eat/private-image).
 // 440 is the home teaser's 2x rung (208 px slot on a phone): without it that
 // case fell through to 720 and downloaded 63 kB for a 208 px card instead of
 // 28 kB. Add rungs deliberately — every new number is another sharp run.
@@ -57,38 +55,50 @@ function pickQuality(raw: string | null): number {
   return ALLOWED_QUALITIES.find((q) => q >= n) ?? DEFAULT_QUALITY;
 }
 
-// Der einzige Server-Riegel vor bezahlten Bytes, der bisher fehlte: die drei
-// anderen Routen dieser Familie haben einen, diese nicht — dabei kostet ein
-// Treffer hier einen GCS-Download plus einen sharp-Lauf. Grosszuegig, weil
-// eine Startseite sechs Karten auf einmal holt und hinter einer NAT mehrere
-// Leute sitzen.
+// Der Server-Riegel vor bezahlten Bytes: ein Treffer kostet einen GCS-Download
+// plus einen sharp-Lauf. Grosszuegig, weil eine Startseite sechs Karten auf
+// einmal holt und hinter einer NAT mehrere Leute sitzen.
+//
+// Er steht seit dem 16.09.2026 NUR noch vor dieser Arbeit, nicht vor jeder
+// Anfrage. Bis dahin lief er als Firestore-Transaktion auf EIN Dokument je IP
+// vor jedem Bild — sechs gleichzeitig ladende Karten stritten sich um dieses
+// Dokument und warteten in Retries: im Produktions-Log kamen die ersten zwei
+// Bilder eines Schwungs nach 460 und 607 ms, die vier danach nach 1,5 bis
+// 2,2 s. Was aus dem Prozess-Cache kommt, hat den Bucket nie beruehrt und
+// braucht keinen Riegel; der Verweigerungs-Zweig (403) kostet nichts.
 const IMAGE_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
+
+// Gleichzeitige Anfragen derselben IP teilen sich eine Transaktion — der Rest
+// der Riegel-Geschichte steht in lib/rateLimitCoalesce.ts.
+const limitImageWork = coalesceRateLimit((key, count) =>
+  checkWindowedRateLimitBatch(key, IMAGE_RATE_LIMITS, 'deny', count)
+);
+
+class ImageRateLimited extends Error {
+  constructor(readonly reason: string | undefined) {
+    super('rate limited');
+    this.name = 'ImageRateLimited';
+  }
+}
+
+async function refuseWhenRateLimited(request: NextRequest): Promise<void> {
+  const ip = clientIpFromXff(
+    request.headers.get('x-forwarded-for'),
+    request.headers.get('x-real-ip')
+  );
+  if (!ip) return;
+  // `deny`, wenn Firestore nicht antwortet — dieselbe Abwaegung wie
+  // `checkRateLimitFailClosed` in lib/rateLimit.ts: kostet die Aktion Geld,
+  // ist kein Riegel ein Grund weiterzumachen.
+  const key = visitorHash(ip, '', berlinDay(), countSalt());
+  const limit = await limitImageWork(`img:${key}`);
+  if (!limit.allowed) throw new ImageRateLimited(limit.reason);
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!SAFE_ID.test(id)) {
     return NextResponse.json({ error: 'not found' }, { status: 404 });
-  }
-
-  // Vor jeder Arbeit: der Riegel soll den Bucket-Download und den sharp-Lauf
-  // verhindern, nicht sie begleiten. `deny`, wenn Firestore nicht antwortet —
-  // dieselbe Abwaegung wie `checkRateLimitFailClosed` in lib/rateLimit.ts:
-  // kostet die Aktion Geld, ist kein Riegel ein Grund weiterzumachen.
-  const ip = clientIpFromXff(
-    request.headers.get('x-forwarded-for'),
-    request.headers.get('x-real-ip')
-  );
-  if (ip) {
-    const key = visitorHash(ip, '', berlinDay(), countSalt());
-    const limit = await checkWindowedRateLimit(`img:${key}`, IMAGE_RATE_LIMITS, 'deny');
-    if (!limit.allowed) {
-      const response = NextResponse.json(
-        { error: 'rate_limited', reason: limit.reason },
-        { status: 429 }
-      );
-      response.headers.set('Cache-Control', PRIVATE_CACHE_CONTROL);
-      return response;
-    }
   }
 
   // Öffentlich zuerst, Cookie danach — und diese Reihenfolge ist nicht kosmetisch.
@@ -120,56 +130,37 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return response;
   }
 
+  const query = request.nextUrl.searchParams;
+  const width = pickWidth(query.get('w'));
+  const variant: ImageVariant | null = width
+    ? { width, quality: pickQuality(query.get('q')), webp: query.get('auto') === 'format' }
+    : null;
+
   try {
-    const content = await getPrivateMustEatContent(id);
-    const file = getAdminStorage().bucket().file(content.imageObjectPath);
-    const [[buffer], [metadata]] = await Promise.all([file.download(), file.getMetadata()]);
-    const contentType = metadata.contentType ?? content.imageContentType;
-    if (!contentType.startsWith('image/')) {
-      throw new Error('Private Must-Eat object is not an image');
-    }
-
-    const params = request.nextUrl.searchParams;
-    const width = pickWidth(params.get('w'));
-    const wantsWebp = params.get('auto') === 'format';
-    let body = buffer;
-    let outputType = contentType;
-    let variant = '';
-
-    if (width) {
-      const quality = pickQuality(params.get('q'));
-      try {
-        // `withoutEnlargement`: ein kleineres Original bleibt, wie es ist —
-        // Hochskalieren kostet Bytes und bringt kein Pixel dazu.
-        const pipeline = sharp(buffer).rotate().resize({ width, withoutEnlargement: true });
-        body = wantsWebp ? await pipeline.webp({ quality }).toBuffer() : await pipeline.toBuffer();
-        outputType = wantsWebp ? 'image/webp' : contentType;
-        variant = `-w${width}-q${quality}${wantsWebp ? '-webp' : ''}`;
-      } catch (error) {
-        // Ein Format, das sharp nicht anfasst (SVG, animiertes GIF), ist kein
-        // Grund, gar kein Bild zu liefern — dann eben das Original.
-        console.error(
-          '[must-eat-image] resize failed, serving original',
-          error instanceof Error ? error.name : 'UnknownError'
-        );
-      }
-    }
-
-    return new NextResponse(new Uint8Array(body), {
+    const image = await renderPrivateMustEatImage(id, variant, () =>
+      refuseWhenRateLimited(request)
+    );
+    return new NextResponse(new Uint8Array(image.body), {
       headers: {
         // Verdeckt: ein geteilter Browser darf keine Premium-Bytes nach dem
         // Logout behalten, und die kurzlebige HttpOnly-Capability wird bei
         // jedem Bild-Request neu geprüft. Aufgedeckt: nichts zu schützen.
         'Cache-Control': isPublic ? PUBLIC_CACHE_CONTROL : PRIVATE_CACHE_CONTROL,
-        'Content-Type': outputType,
+        'Content-Type': image.contentType,
         'Content-Disposition': 'inline',
         'X-Content-Type-Options': 'nosniff',
-        // Das ETag des Buckets beschreibt das Original — eine skalierte
-        // Variante braucht ihr eigenes, sonst gilt ein 304 für die falschen Bytes.
-        ...(metadata.etag ? { ETag: `"${metadata.etag.replaceAll('"', '')}${variant}"` } : {}),
+        ...(image.etag ? { ETag: image.etag } : {}),
       },
     });
   } catch (error) {
+    if (error instanceof ImageRateLimited) {
+      const response = NextResponse.json(
+        { error: 'rate_limited', reason: error.reason },
+        { status: 429 }
+      );
+      response.headers.set('Cache-Control', PRIVATE_CACHE_CONTROL);
+      return response;
+    }
     console.error(
       '[must-eat-image] private asset unavailable',
       error instanceof Error ? error.name : 'UnknownError'

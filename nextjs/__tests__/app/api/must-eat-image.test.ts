@@ -28,6 +28,7 @@ const { checkWindowedRateLimit } = vi.hoisted(() => ({
 }))
 vi.mock('@/lib/rateLimitWindow', () => ({
   checkWindowedRateLimit: (...args: unknown[]) => checkWindowedRateLimit(...args),
+  checkWindowedRateLimitBatch: (...args: unknown[]) => checkWindowedRateLimit(...args),
 }))
 vi.mock('@/lib/must-eat/premium-session', () => ({
   premiumSessionCookieName: () => 'premium_session',
@@ -35,6 +36,7 @@ vi.mock('@/lib/must-eat/premium-session', () => ({
 }))
 
 import { GET } from '@/app/api/must-eat-image/[id]/route'
+import { resetPrivateMustEatImageCache } from '@/lib/must-eat/private-image'
 import {
   createPremiumAccessToken,
   premiumAccessCookieName,
@@ -66,6 +68,8 @@ async function pngFixture(): Promise<Buffer> {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // Der Prozess-Cache der Route ueberlebt sonst jeden Testfall.
+  resetPrivateMustEatImageCache()
   vi.stubEnv('PREMIUM_ACCESS_SIGNING_KEY', 'test-signing-key-with-enough-entropy')
   vi.stubEnv('COUNT_SALT', 'test-salt')
   checkWindowedRateLimit.mockResolvedValue({ allowed: true })
@@ -243,8 +247,8 @@ describe('/api/must-eat-image/[id]', () => {
     expect(await etagFor('abc')).toBe('"etag-1-w180-q80-webp"')
   })
 
-  /* Die einzige der vier Routen ohne Riegel — dabei kostet ein Treffer hier
-     einen GCS-Download plus einen sharp-Lauf. */
+  /* Der Riegel steht vor der bezahlten Arbeit — GCS-Download plus sharp-Lauf —
+     und nur davor: was aus dem Prozess-Cache kommt, fragt ihn nicht mehr. */
   describe('Ratenlimit', () => {
     it('sperrt, bevor irgendetwas aus dem Bucket geholt wird', async () => {
       getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
@@ -254,8 +258,23 @@ describe('/api/must-eat-image/[id]', () => {
 
       expect(response.status).toBe(429)
       expect(response.headers.get('cache-control')).toBe(PRIVATE_CACHE)
-      expect(getPublicMustEatIds).not.toHaveBeenCalled()
-      expect(file).not.toHaveBeenCalled()
+      expect(download).not.toHaveBeenCalled()
+    })
+
+    it('fragt den Riegel nicht fuer ein Bild, das schon im Speicher liegt', async () => {
+      getPublicMustEatIds.mockResolvedValue(new Set(['m1']))
+
+      const first = await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
+      const second = await GET(request(), { params: Promise.resolve({ id: 'm1' }) })
+
+      expect(first.status).toBe(200)
+      expect(second.status).toBe(200)
+      expect(Buffer.from(await second.arrayBuffer()).toString()).toBe('private-image')
+      expect(download).toHaveBeenCalledTimes(1)
+      expect(getPrivateMustEatContent).toHaveBeenCalledTimes(1)
+      expect(checkWindowedRateLimit).toHaveBeenCalledTimes(1)
+      // Der Stapel-Aufruf zaehlt die Anfragen, die er buendelt — hier eine.
+      expect(checkWindowedRateLimit.mock.calls[0][3]).toBe(1)
     })
 
     /* `deny`: kostet die Aktion Geld, ist ein ausgefallener Riegel kein Grund

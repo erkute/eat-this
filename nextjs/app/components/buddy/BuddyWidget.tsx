@@ -1,11 +1,11 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar';
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat';
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream';
-import { followStep, prefersReducedMotion, FRAME_MS } from '@/lib/buddy/reveal';
+import { stickStep, prefersReducedMotion, FRAME_MS } from '@/lib/buddy/reveal';
 import { greetingFor } from '@/lib/buddy/greeting';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { isNearbyIntent } from '@/lib/buddy/nearbyIntent';
@@ -25,18 +25,39 @@ import styles from './BuddyWidget.module.css';
 /* Inline-Markdown, wie Claude es tatsächlich setzt: `**fett**` und `*kursiv*`.
    Kursiv fehlte — er betont damit gern ein einzelnes Wort („eigentlich *die*
    Pizza-Referenz"), und die Sternchen standen roh im Text. */
-function inlineMarkup(text: string): React.ReactNode[] {
+function inlineMarkup(text: string, animate = false): React.ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/g).map((part, i) => {
-    if (/^\*\*[^*]+\*\*$/.test(part)) return <strong key={i}>{part.slice(2, -2)}</strong>;
-    if (/^\*[^*\n]+\*$/.test(part)) return <em key={i}>{part.slice(1, -1)}</em>;
-    return part;
+    if (/^\*\*[^*]+\*\*$/.test(part))
+      return <strong key={i}>{words(part.slice(2, -2), animate)}</strong>;
+    if (/^\*[^*\n]+\*$/.test(part)) return <em key={i}>{words(part.slice(1, -1), animate)}</em>;
+    return <React.Fragment key={i}>{words(part, animate)}</React.Fragment>;
   });
+}
+
+/* Das Einblenden, wie es Chat-Oberflächen machen (Streamdown / Vercel AI
+   Elements: `fadeIn`, 150 ms, `ease`, pro Wort): jedes Wort sitzt in einer
+   eigenen Spanne, und nur eine NEU eingehängte Spanne spielt ihre Animation —
+   der Text wächst hinten an, die Schlüssel davor bleiben, React lässt die
+   alten Wörter also in Ruhe. Ohne das ploppt jedes Wort hart auf den Schirm;
+   bei 25 Wörtern pro Sekunde ist das ein Flimmern, das sich wie Ruckeln liest
+   (Ansage 18.09.2026). Ist die Antwort fertig, fällt die Hülle wieder weg. */
+function words(text: string, animate: boolean): React.ReactNode {
+  if (!animate) return text;
+  return text.split(/(\s+)/).map((w, i) =>
+    w.trim() ? (
+      <span key={i} className={styles.word}>
+        {w}
+      </span>
+    ) : (
+      w
+    )
+  );
 }
 
 // Render Claude's plain-text answer as light markdown: paragraphs, bullet
 // lists, bold and italic — so it doesn't read as one flat wall with raw
 // ** and * markers.
-function FormattedText({ text }: { text: string }) {
+function FormattedText({ text, animate = false }: { text: string; animate?: boolean }) {
   const blocks: React.ReactNode[] = [];
   let bullets: string[] = [];
   let key = 0;
@@ -46,7 +67,7 @@ function FormattedText({ text }: { text: string }) {
       blocks.push(
         <ul key={`ul${key++}`} className={styles.botList}>
           {items.map((b, i) => (
-            <li key={i}>{inlineMarkup(b)}</li>
+            <li key={i}>{inlineMarkup(b, animate)}</li>
           ))}
         </ul>
       );
@@ -65,7 +86,11 @@ function FormattedText({ text }: { text: string }) {
     const heading = line.match(/^#{1,4}\s+(.*)/);
     blocks.push(
       <p key={`p${key++}`} className={styles.botP}>
-        {heading ? <strong>{inlineMarkup(heading[1])}</strong> : inlineMarkup(line)}
+        {heading ? (
+          <strong>{inlineMarkup(heading[1], animate)}</strong>
+        ) : (
+          inlineMarkup(line, animate)
+        )}
       </p>
     );
   }
@@ -111,6 +136,9 @@ function Kicker({ children }: { children: React.ReactNode }) {
  * abgelehnt worden, und vier schwarze Balken unter einer Antwort waren vier
  * Verben unter vier Flächen, die schon Knöpfe sind.
  */
+const SPOT_IMG_SIZES = '(max-width: 480px) calc(94vw - 48px), 360px';
+const spotSrcSet = (image: string) => sanitySrcSet(image, [320, 480, 640, 800], 82);
+
 function SpotCard({
   spot,
   locale,
@@ -133,6 +161,13 @@ function SpotCard({
     spot.priceRange,
   ].filter(Boolean) as string[];
   const openLabel = locale === 'en' ? `Show ${spot.name} on the map` : `${spot.name} auf der Map`;
+  /* Das Foto blendet ein, sobald es da ist, statt in die stehende Karte zu
+     ploppen. Meist ist es das schon: der Chat lädt die Fotos vor, sobald die
+     Kandidaten eintreffen (siehe BuddyWidget). */
+  const [imgReady, setImgReady] = useState(false);
+  const imgRef = useCallback((el: HTMLImageElement | null) => {
+    if (el?.complete) setImgReady(true);
+  }, []);
   return (
     <article className={styles.spotCard}>
       <Link
@@ -147,12 +182,16 @@ function SpotCard({
           <img
             className={styles.spotImg}
             src={spot.image}
-            srcSet={sanitySrcSet(spot.image, [320, 480, 640, 800], 82)}
-            sizes="(max-width: 480px) calc(94vw - 48px), 360px"
+            srcSet={spotSrcSet(spot.image)}
+            sizes={SPOT_IMG_SIZES}
             alt=""
             width={640}
             height={400}
-            loading="lazy"
+            decoding="async"
+            ref={imgRef}
+            data-ready={imgReady ? 'true' : 'false'}
+            onLoad={() => setImgReady(true)}
+            onError={() => setImgReady(true)}
           />
         )}
         <span className={styles.spotBody}>
@@ -361,7 +400,7 @@ function BotMessage({
     <>
       {segments.map((seg, si) =>
         seg.type === 'text' ? (
-          <FormattedText key={si} text={seg.text} />
+          <FormattedText key={si} text={seg.text} animate={streaming} />
         ) : bySlug.has(seg.slug) ? (
           <div key={si} className={styles.spots}>
             <SpotCard
@@ -423,9 +462,38 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const { messages, isStreaming, send, stop, reset, setGeo } = useBuddyChat({ pageSlug });
+  /* Die zuletzt gestellte Frage — aber nur eine aus dieser Sitzung: was beim
+     Laden schon im Faden stand, wird nicht verankert (siehe das Scrollen
+     unten). `null` heißt: nichts zu verankern. */
+  const [restoredCount, setRestoredCount] = useState(() => messages.length);
+  const startOver = useCallback(() => {
+    setRestoredCount(0);
+    reset();
+  }, [reset]);
+  let anchorIdx: number | null = null;
+  for (let i = messages.length - 1; i >= restoredCount; i--) {
+    if (messages[i].role === 'user') {
+      anchorIdx = i;
+      break;
+    }
+  }
+  /* Fotos der Kandidaten vorladen, sobald sie eintreffen — das ist Sekunden,
+     bevor Remy den ersten Spot nennt. Gleiches `srcset`/`sizes` wie die Karte,
+     der Browser wählt also dieselbe Datei, und die Karte erscheint mit Foto. */
+  const lastSpots = messages[messages.length - 1]?.spots;
+  useEffect(() => {
+    for (const s of (lastSpots ?? []).slice(0, 6)) {
+      if (!s.image) continue;
+      const im = new Image();
+      im.sizes = SPOT_IMG_SIZES;
+      im.srcset = spotSrcSet(s.image) ?? '';
+      im.src = s.image;
+    }
+  }, [lastSpots]);
   const { location, loading: locating, request: requestLocation } = useUserLocationContext();
   const panelRef = useRef<HTMLDivElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
+  const logContentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   // Wohin der Fokus zurückgeht, wenn das Panel schließt — sonst landet er beim
   // <body> und die nächste Tab-Taste beginnt oben auf der Seite.
@@ -547,64 +615,106 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     return () => clearTimeout(t);
   }, [open, messages.length]);
 
-  /* Der Log läuft mit, solange der Nutzer unten steht. Ohne das blieb die
-     Ansicht beim ersten Satz stehen und Remy schrieb unsichtbar weiter — man
-     musste zu jeder Antwort selbst hinterherscrollen. Wer nach oben gescrollt
-     hat, um etwas nachzulesen, wird nicht wieder heruntergerissen: erst wenn
-     er sich wieder in die unteren 80px begibt, klebt die Ansicht erneut. */
-  const stickRef = useRef(true);
+  /* Die Frage nach oben, die Antwort darunter — und dann STEHT die Ansicht.
+
+     Bis 18.09.2026 fuhr der Log dem Text hinterher. Eine Spot-Antwort ist aber
+     ~1700px lang, das Fenster zeigt ~540: 3,2 Fenster. Remy schreibt mit
+     100 Zeichen/s, gelesen wird mit 25 — die Ansicht fuhr einem unter den
+     Augen weg, und am Ende stand man bei Pack und Chips, die erste Empfehlung
+     1000px weiter oben. Man scrollte jede Antwort wieder hoch.
+
+     Noch früher blieb die Ansicht einfach stehen, wo sie war — die Frage unten
+     am Rand, Remy schrieb unsichtbar unter der Kante weiter. Deshalb jetzt
+     beides: die eben gestellte Frage gleitet an den OBEREN Rand (die Feder aus
+     `stickStep`), die Antwort füllt das Fenster darunter, und gescrollt wird
+     von da an nur noch vom Leser. Damit die Frage auch bei einer kurzen
+     Antwort oben stehen kann, hält die Antwort darunter eine Mindesthöhe
+     (`--buddy-anchor-min`). Beim Öffnen steht ein wiedergefundener Faden wie
+     bisher am Ende. */
   const lastTopRef = useRef(0);
   const glideRef = useRef(0);
+  const userScrolledRef = useRef(false);
+  const goToQuestionRef = useRef<(() => void) | null>(null);
   const onLogScroll = useCallback(() => {
     const el = logRef.current;
     if (!el) return;
-    /* Das Gleiten unten bewegt den Log selbst — und ist nach einer Karte
-       kurz weiter als 80px vom Ende weg. Loslassen darf deshalb nur, wer
-       wirklich nach OBEN scrollt; das Gleiten kennt nur eine Richtung. */
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) stickRef.current = true;
-    else if (el.scrollTop < lastTopRef.current - 2) stickRef.current = false;
+    // Wer während des Gleitens selbst hochscrollt, behält das Steuer.
+    if (el.scrollTop < lastTopRef.current - 2) userScrolledRef.current = true;
     lastTopRef.current = el.scrollTop;
   }, []);
-  /* Nachrücken statt springen (lib/buddy/reveal.ts, `followStep`). Ein
-     laufendes Gleiten liest sein Ziel in jedem Bild neu, neuer Text stößt also
-     kein zweites an. Beim Öffnen und bei reduzierter Bewegung steht die
-     Ansicht sofort unten — ein wiedergefundener Faden soll nicht abrollen. */
-  const wasOpen = useRef(false);
   useEffect(() => {
-    const justOpened = open && !wasOpen.current;
-    wasOpen.current = open;
+    if (!open) return;
     const el = logRef.current;
-    if (!el || !stickRef.current) return;
-    if (justOpened || prefersReducedMotion()) {
-      el.scrollTop = el.scrollHeight;
-      lastTopRef.current = el.scrollTop;
-      return;
-    }
-    if (glideRef.current) return;
+    const content = logContentRef.current;
+    if (!el || !content) return;
+    const question = () => content.querySelector<HTMLElement>('[data-buddy-anchor]');
+    const padding = () => {
+      const cs = getComputedStyle(el);
+      return { top: parseFloat(cs.paddingTop) || 0, bottom: parseFloat(cs.paddingBottom) || 0 };
+    };
+    const measure = () => {
+      const q = question();
+      const pad = padding();
+      const gap = parseFloat(getComputedStyle(content).rowGap) || 0;
+      const room = q ? el.clientHeight - pad.top - pad.bottom - q.offsetHeight - gap : 0;
+      content.style.setProperty('--buddy-anchor-min', `${Math.max(0, Math.floor(room))}px`);
+    };
+    const goal = () => {
+      const q = question();
+      const max = el.scrollHeight - el.clientHeight;
+      if (!q) return max;
+      const top = el.scrollTop + q.getBoundingClientRect().top - el.getBoundingClientRect().top;
+      return Math.max(0, Math.min(max, top - padding().top));
+    };
     let last = 0;
-    let pos = el.scrollTop;
+    let velocity = 0;
+    let pos = 0;
     const tick = (ts: number) => {
       glideRef.current = 0;
-      const node = logRef.current;
-      if (!node || !stickRef.current) return;
+      if (userScrolledRef.current) return;
       const dt = last > 0 ? ts - last : FRAME_MS;
       last = ts;
-      const target = node.scrollHeight - node.clientHeight;
-      // Wer selbst nach unten scrollt, ist weiter als wir — nie zurücksetzen.
-      pos = Math.max(pos, node.scrollTop);
-      pos += followStep(target - pos, dt);
-      node.scrollTop = pos;
-      lastTopRef.current = node.scrollTop;
-      if (target - pos > 0.5) glideRef.current = requestAnimationFrame(tick);
+      const distance = goal() - pos;
+      if (distance <= 0.5) return;
+      const step = stickStep(velocity, distance, dt);
+      velocity = step.velocity;
+      pos += step.move;
+      el.scrollTop = pos;
+      lastTopRef.current = el.scrollTop;
+      glideRef.current = requestAnimationFrame(tick);
     };
-    glideRef.current = requestAnimationFrame(tick);
-  }, [messages, isStreaming, open]);
-  useEffect(
-    () => () => {
+    goToQuestionRef.current = () => {
+      measure();
+      userScrolledRef.current = false;
+      if (prefersReducedMotion()) {
+        el.scrollTop = goal();
+        lastTopRef.current = el.scrollTop;
+        return;
+      }
+      if (glideRef.current) return;
+      last = 0;
+      velocity = 0;
+      pos = el.scrollTop;
+      glideRef.current = requestAnimationFrame(tick);
+    };
+    // Öffnen: der Faden steht am Ende, ohne Abrollen.
+    measure();
+    el.scrollTop = el.scrollHeight;
+    lastTopRef.current = el.scrollTop;
+    // Die Mindesthöhe hängt an der Fensterhöhe — Tastatur des Telefons, Drehen.
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(el);
+    return () => {
+      observer?.disconnect();
+      goToQuestionRef.current = null;
       if (glideRef.current) cancelAnimationFrame(glideRef.current);
-    },
-    []
-  );
+      glideRef.current = 0;
+    };
+  }, [open]);
+  // Eine neue Frage in dieser Sitzung: an den oberen Rand mit ihr.
+  useEffect(() => {
+    if (anchorIdx !== null) goToQuestionRef.current?.();
+  }, [anchorIdx]);
 
   // Move focus into the dialog when it opens (keyboard/screen-reader users),
   // and hand it back to whatever opened it on close.
@@ -613,7 +723,6 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     const opener = document.activeElement;
     returnFocusRef.current = opener instanceof HTMLElement ? opener : null;
     // Das Feld, nicht die Hülle: wer Remy öffnet, will schreiben.
-    stickRef.current = true;
     (inputRef.current ?? panelRef.current)?.focus();
     return () => {
       const back = returnFocusRef.current;
@@ -786,7 +895,7 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
                   type="button"
                   aria-label={t.resetAria}
                   title={t.resetAria}
-                  onClick={reset}
+                  onClick={startOver}
                 >
                   <span aria-hidden="true">{t.reset}</span>
                 </button>
@@ -808,69 +917,82 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
                 fertige Antwort steht einmal in der Statuszeile unter dem
                 Formular. */}
             <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
-              {messages.length === 0 &&
-                (() => {
-                  // Time-of-day opener + starter chips (computed client-side; the
-                  // intro only renders after the user opens the panel).
-                  const intro = greetingFor(new Date().getHours(), locale);
-                  return (
-                    <div className={styles.intro}>
-                      <div className={styles.msgBot}>
-                        <FormattedText text={intro.greeting} />
-                      </div>
-                      <div className={styles.chips}>
-                        <button
-                          type="button"
-                          className={styles.chipNear}
-                          onClick={askNearby}
-                          disabled={locating}
-                          aria-busy={locating}
-                        >
-                          {locating
-                            ? locale === 'en'
-                              ? 'Locating…'
-                              : 'Standort…'
-                            : locale === 'en'
-                              ? 'Near me'
-                              : 'In meiner Nähe'}
-                        </button>
-                        {intro.suggestions.map((s) => (
+              <div className={styles.logContent} ref={logContentRef}>
+                {messages.length === 0 &&
+                  (() => {
+                    // Time-of-day opener + starter chips (computed client-side; the
+                    // intro only renders after the user opens the panel).
+                    const intro = greetingFor(new Date().getHours(), locale);
+                    return (
+                      <div className={styles.intro}>
+                        <div className={styles.msgBot}>
+                          <FormattedText text={intro.greeting} />
+                        </div>
+                        <div className={styles.chips}>
                           <button
-                            key={s}
                             type="button"
-                            className={styles.chip}
-                            onClick={() => ask(s)}
+                            className={styles.chipNear}
+                            onClick={askNearby}
+                            disabled={locating}
+                            aria-busy={locating}
                           >
-                            {s}
+                            {locating
+                              ? locale === 'en'
+                                ? 'Locating…'
+                                : 'Standort…'
+                              : locale === 'en'
+                                ? 'Near me'
+                                : 'In meiner Nähe'}
                           </button>
-                        ))}
+                          {intro.suggestions.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              className={styles.chip}
+                              onClick={() => ask(s)}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
                       </div>
+                    );
+                  })()}
+                {messages.map((m, i) =>
+                  m.role === 'user' ? (
+                    <div
+                      key={i}
+                      className={styles.msgUser}
+                      data-buddy-anchor={i === anchorIdx ? '' : undefined}
+                    >
+                      {m.content}
                     </div>
-                  );
-                })()}
-              {messages.map((m, i) =>
-                m.role === 'user' ? (
-                  <div key={i} className={styles.msgUser}>
-                    {m.content}
-                  </div>
-                ) : (
-                  <div key={i} className={styles.msgBot}>
-                    <BotMessage
-                      m={m}
-                      locale={locale}
-                      streaming={isStreaming && i === messages.length - 1}
-                      isLast={i === messages.length - 1}
-                      onSpotSelect={() => setOpen(false)}
-                      onFollowup={ask}
-                      savedIds={favoriteIds}
-                      onSaveSpot={onSaveSpot}
-                      thinkingLabel={t.thinking}
-                      pack={i === firstPackIdx ? m.pack : undefined}
-                      pageSlug={pageSlug}
-                    />
-                  </div>
-                )
-              )}
+                  ) : (
+                    <div
+                      key={i}
+                      className={
+                        anchorIdx !== null && i === anchorIdx + 1
+                          ? `${styles.msgBot} ${styles.msgBotAnchored}`
+                          : styles.msgBot
+                      }
+                    >
+                      <BotMessage
+                        m={m}
+                        locale={locale}
+                        streaming={isStreaming && i === messages.length - 1}
+                        isLast={i === messages.length - 1}
+                        onSpotSelect={() => setOpen(false)}
+                        onFollowup={ask}
+                        savedIds={favoriteIds}
+                        onSaveSpot={onSaveSpot}
+                        thinkingLabel={t.thinking}
+                        pack={i === firstPackIdx ? m.pack : undefined}
+                        pageSlug={pageSlug}
+                      />
+                    </div>
+                  )
+                )}
+              </div>
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
               {/* Zustand UND Schalter in einem: erloschen heißt „er weiß nicht,

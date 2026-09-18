@@ -34,12 +34,28 @@
  *   ändert das Tempo damit nur noch sacht, der Text fährt an und bremst, statt
  *   zu springen. Am selben Strom: Schwankung 0,26, Spitzen 12, ein Stillstand.
  * - Boden: 25 Zeichen/s, damit der letzte Rest nicht asymptotisch kriecht.
- * - Ist der Strom zu (`ended`), gilt τ = 160 ms und das Tempo darf springen:
- *   der Rest steht in ~0,3 s da, Chips und Karten warten nicht auf ihn.
+ * - Ist der Strom zu (`ended`), gilt τ = 160 ms und der höhere Deckel: der
+ *   Rest kommt zügig, aber als Fluss — kein Absatz, der auf einen Schlag
+ *   dasteht.
  *
  * Ein langer Takt (Tab war im Hintergrund, 2 fps) holt in einem Schritt alles
  * nach — der Schritt ist auf den Rückstand gedeckelt, nicht auf die Zeit.
+ *
+ * DECKEL (18.09.2026, „ist zu schnell"): der Strom kommt mit ~160 Zeichen/s,
+ * das sind 25 Wörter pro Sekunde — sechsmal schneller, als man liest, und mit
+ * dem Einblenden pro Wort ein Geflimmer. Im Fluss gilt jetzt höchstens
+ * 100 Zeichen/s (~16 Wörter/s), nach Stromende 140 — mehr las sich im Test
+ * als „jetzt rennt er plötzlich". Remy läuft damit dem Netz
+ * hinterher; damit daraus kein langer Nachlauf wird, hebt jeder Rückstand
+ * über 300 Zeichen den Deckel wieder an (0,5 Zeichen/s je Zeichen). Bei einer
+ * üblichen Antwort (1300–1700 Zeichen) pendelt sich der Rückstand bei ~400
+ * ein und ist 2–3 s nach Stromende aufgeholt; die Werkzeugpause mitten in der
+ * Antwort leert ihn ohnehin. Ein 4000-Zeichen-Schub fährt mit ~2000 los.
  */
+export const REVEAL_MAX_CPS = 100;
+export const REVEAL_END_MAX_CPS = 140;
+export const REVEAL_RELIEF_FROM = 300;
+export const REVEAL_RELIEF_CPS_PER_CHAR = 0.5;
 export const REVEAL_TAU_MS = 400;
 export const REVEAL_PACE_TAU_MS = 200;
 export const REVEAL_END_TAU_MS = 160;
@@ -83,9 +99,11 @@ export function revealStep(
     return Math.max(0, pending);
   }
   const tau = mode === 'ended' ? REVEAL_END_TAU_MS : REVEAL_TAU_MS;
-  const target = Math.max(pending / (tau / 1000), REVEAL_FLOOR_CPS);
+  const cap =
+    (mode === 'ended' ? REVEAL_END_MAX_CPS : REVEAL_MAX_CPS) +
+    Math.max(0, pending - REVEAL_RELIEF_FROM) * REVEAL_RELIEF_CPS_PER_CHAR;
+  const target = Math.min(Math.max(pending / (tau / 1000), REVEAL_FLOOR_CPS), cap);
   pace.v += (target - pace.v) * (1 - Math.exp(-dt / REVEAL_PACE_TAU_MS));
-  if (mode === 'ended') pace.v = Math.max(pace.v, target);
   const exact = (pace.v * dt) / 1000 + pace.carry;
   const step = Math.min(pending, Math.floor(exact + 1e-9));
   pace.carry = step >= pending ? 0 : exact - step;
@@ -174,25 +192,33 @@ export function closeOpenEmphasis(text: string): string {
 }
 
 /**
- * Wie weit der Log in diesem Takt nachrückt, in Pixeln.
+ * Wie weit der Log in diesem Takt nachrückt — die Feder aus
+ * `use-stick-to-bottom` (StackBlitz; bolt.new, Vercel AI Elements), dem
+ * De-facto-Standard fürs Mitscrollen in Chat-Oberflächen. Werte und Formel
+ * sind übernommen, nicht nachempfunden:
  *
- * Das Mitlaufen setzte `scrollTop` hart ans Ende. Bei einer neuen Textzeile
- * sind das 24 px, bei einer Spot-Karte aber ~260 px und am Ende der Antwort
- * (Artikel, Pack, Chips) ~310 px in EINEM Bild — der ganze Text sprang unter
- * dem Auge weg (gemessen 18.09.2026). Jetzt gleitet die Ansicht hinterher:
- * derselbe Bau wie `revealStep`, Abklingen nach verstrichener Zeit plus ein
- * Boden, damit die letzten Pixel nicht asymptotisch kriechen. τ = 110 ms: eine
- * Zeile ist in ~0,1 s nachgezogen, eine Karte in ~0,4 s.
+ *   velocity = (damping · velocity + stiffness · distance) / mass
+ *   scrollTop += velocity · (dt / 16,67 ms)
+ *
+ * Der Unterschied zur Fassung davor (Abklingen mit τ = 110 ms): die Feder
+ * STARTET MIT TEMPO NULL und nimmt Fahrt auf. Das Abklingen fuhr im ersten
+ * Bild mit vollem Tempo los — bei einer Spot-Karte (250 px) über 2000 px/s aus
+ * dem Stand, und genau das las sich als „kommt so plötzlich" (18.09.2026).
+ * Eingeschwungen legt sie ~9 % des Abstands pro 60-fps-Bild zurück; weil der
+ * Weg an der verstrichenen Zeit hängt, gilt das bei jeder Framerate.
  */
-export const FOLLOW_TAU_MS = 110;
-export const FOLLOW_FLOOR_PPS = 180;
+export const STICK_SPRING = { damping: 0.7, stiffness: 0.05, mass: 1.25 } as const;
 
-export function followStep(distance: number, dtMs: number = FRAME_MS): number {
-  if (distance <= 0.5) return distance;
+export function stickStep(
+  velocity: number,
+  distance: number,
+  dtMs: number = FRAME_MS
+): { velocity: number; move: number } {
   const dt = Number.isFinite(dtMs) && dtMs > 0 ? dtMs : FRAME_MS;
-  const decay = distance * (1 - Math.exp(-dt / FOLLOW_TAU_MS));
-  const floor = (FOLLOW_FLOOR_PPS * dt) / 1000;
-  return Math.min(distance, Math.max(decay, floor));
+  const v = (STICK_SPRING.damping * velocity + STICK_SPRING.stiffness * distance) / STICK_SPRING.mass;
+  // Nie übers Ziel: ein langer Takt (2 fps, Hintergrund-Tab) landet genau unten.
+  const move = distance > 0 ? Math.min(distance, (v * dt) / FRAME_MS) : distance;
+  return { velocity: v, move };
 }
 
 /** `prefers-reduced-motion: reduce` — dann wird nicht getaktet. */

@@ -23,6 +23,17 @@ describe('buildSystemPrompt', () => {
     expect(p).toMatch(/natürlich/i);
   });
 
+  it('puts the card first and keeps the prose short — the chat window shows ~540px', () => {
+    // 18.09.2026: Absatz-dann-Karte brauchte 8–9 s bis zur ersten Karte, und
+    // Fünf-Zeilen-Absätze machten eine Antwort drei Fenster lang.
+    const p = buildSystemPrompt('de');
+    expect(p).toMatch(/Marker `\[\[spot:<slug>\]\]` VOR jeden Mini-Absatz/);
+    // Das Beispiel zeigt die Reihenfolge: Marker, dann Text.
+    expect(p.indexOf('[[spot:zola]]')).toBeLessThan(p.indexOf('**ZOLA**'));
+    expect(p).toMatch(/160 Zeichen/);
+    expect(p).toMatch(/150 Zeichen/);
+  });
+
   it('keeps the prose off the card — no second copy of the same facts', () => {
     // Die Karte trägt Foto, Küche, Bezirk, Preis, Öffnungszeiten und stand am
     // 08.09.2026 unter einem Absatz, der genau dasselbe Feld ausformuliert

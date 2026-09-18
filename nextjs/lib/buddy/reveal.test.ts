@@ -6,7 +6,7 @@ import {
   skipMarker,
   snapToWord,
   closeOpenEmphasis,
-  followStep,
+  stickStep,
   FRAME_MS,
 } from './reveal';
 
@@ -58,14 +58,31 @@ describe('revealStep', () => {
   });
 
   it('läuft bei gleichmäßigem Strom gleichmäßig — Häppchen schlagen nicht durch', () => {
-    // 160 Zeichen/s in Häppchen alle 45 ms: das gemessene Profil vom 18.09.2026.
-    const w = flowWindows(160, 45);
+    // 80 Zeichen/s in Häppchen alle 45 ms — unter dem Deckel, kommt also durch.
+    const w = flowWindows(80, 45);
     const mean = w.reduce((a, b) => a + b, 0) / w.length;
-    expect(mean).toBeGreaterThan(7.5);
-    expect(mean).toBeLessThan(8.5);
-    // 8 je Fenster; ±3 ist die Fensterkante (mal drei, mal vier Bilder).
-    expect(Math.max(...w)).toBeLessThanOrEqual(11);
-    expect(Math.min(...w)).toBeGreaterThanOrEqual(5);
+    expect(mean).toBeGreaterThan(3.5);
+    expect(mean).toBeLessThan(4.5);
+    // 4 je Fenster; ±2 ist die Fensterkante (mal drei, mal vier Bilder).
+    expect(Math.max(...w)).toBeLessThanOrEqual(6);
+    expect(Math.min(...w)).toBeGreaterThanOrEqual(2);
+  });
+
+  it('läuft dem Netz nicht hinterher, sondern im Lesetempo: höchstens ~100 Zeichen/s', () => {
+    // Das gemessene Profil vom 18.09.2026: 160 Zeichen/s = 25 Wörter/s, „zu
+    // schnell und blinkend". Fenster 1,5–6 s: der Rückstand liegt noch unter
+    // der Entlastungsschwelle, es gilt der nackte Deckel.
+    const w = flowWindows(160, 45);
+    expect(Math.max(...w)).toBeLessThanOrEqual(7);
+    const mean = w.reduce((a, b) => a + b, 0) / w.length;
+    expect(mean).toBeLessThan(5.5);
+  });
+
+  it('hebt den Deckel an, wenn der Rückstand wächst — kein endloser Nachlauf', () => {
+    const calm = revealStep(200, 1000, { v: 100, carry: 0 });
+    const behind = revealStep(1500, 1000, { v: 100, carry: 0 });
+    expect(calm).toBeLessThanOrEqual(100);
+    expect(behind).toBeGreaterThan(400);
   });
 
   it('überbrückt einen Aussetzer von 300 ms ohne Stillstand', () => {
@@ -94,9 +111,9 @@ describe('revealStep', () => {
   });
 
   it('räumt nach dem Ende des Stroms zügig ab', () => {
-    // Der übliche Rest (~60 Zeichen Puffer) steht in einer halben Sekunde da —
-    // Chips und Pack-Karte hängen an diesem Moment.
-    expect(drainMs(60, FRAME_MS)).toBeLessThan(600);
+    // Ein kleiner Rest (~60 Zeichen) steht in unter einer Sekunde da — Chips
+    // und Pack-Karte hängen an diesem Moment.
+    expect(drainMs(60, FRAME_MS)).toBeLessThan(900);
     // Im Fluss dagegen dürfte derselbe Rest sich Zeit lassen.
     expect(drainMs(60, FRAME_MS, 'flow')).toBeGreaterThan(drainMs(60, FRAME_MS));
   });
@@ -109,11 +126,12 @@ describe('revealStep', () => {
     const at60 = drainMs(4000, FRAME_MS);
     const at20 = drainMs(4000, 50);
     const at2 = drainMs(4000, 500);
-    expect(at60).toBeLessThan(1500);
-    expect(at20).toBeLessThan(1500);
-    expect(at2).toBeLessThanOrEqual(1500);
-    // Bei 2 fps ist die Auflösung ein halbes Bild grob — ein Takt Spiel.
-    expect(at2 - at60).toBeLessThanOrEqual(500);
+    // Eine ganze Antwort auf einen Schlag: dank Entlastung in Sekunden da,
+    // nicht in den 20 s, die der nackte Deckel bräuchte.
+    expect(at60).toBeLessThan(9000);
+    expect(Math.abs(at20 - at60)).toBeLessThan(500);
+    // Bei 2 fps ist die Auflösung ein halbes Bild grob — zwei Takte Spiel.
+    expect(Math.abs(at2 - at60)).toBeLessThanOrEqual(1000);
   });
 
   it('holt nach einem langen Takt (Hintergrund-Tab) in einem Schritt auf', () => {
@@ -198,23 +216,44 @@ describe('closeOpenEmphasis', () => {
   });
 });
 
-describe('followStep', () => {
-  it('zieht eine Karte (260 px) in unter einer halben Sekunde nach, ohne Sprung', () => {
-    let d = 260;
+describe('stickStep', () => {
+  /** Fährt `px` Abstand ab; liefert Dauer und die Schritte. */
+  function glide(px: number, dtMs = FRAME_MS) {
+    let d = px;
+    let v = 0;
     let ms = 0;
-    let biggest = 0;
+    const moves: number[] = [];
     while (d > 0.5 && ms < 5000) {
-      const s = followStep(d, FRAME_MS);
-      biggest = Math.max(biggest, s);
-      d -= s;
-      ms += FRAME_MS;
+      const s = stickStep(v, d, dtMs);
+      v = s.velocity;
+      d -= s.move;
+      moves.push(s.move);
+      ms += dtMs;
     }
-    expect(ms).toBeLessThan(500);
-    expect(biggest).toBeLessThan(40);
+    return { ms, moves };
+  }
+
+  it('startet aus dem Stand sacht und nimmt Fahrt auf', () => {
+    const { moves } = glide(250);
+    // Die Fassung davor fuhr im ersten Bild mit ~35 px los.
+    expect(moves[0]).toBeLessThanOrEqual(10);
+    expect(moves[1]).toBeGreaterThan(moves[0]);
+    expect(Math.max(...moves)).toBeLessThan(25);
   });
 
-  it('schießt nie über das Ziel und korrigiert einen Überstand in einem Schritt', () => {
-    expect(followStep(3, 1000)).toBe(3);
-    expect(followStep(-34, FRAME_MS)).toBe(-34);
+  it('zieht eine Karte in rund einer Sekunde nach, eine Zeile in einer halben', () => {
+    expect(glide(250).ms).toBeLessThan(1300);
+    expect(glide(24).ms).toBeLessThan(700);
+  });
+
+  it('braucht bei 60 und 120 fps etwa gleich lang', () => {
+    const at60 = glide(250).ms;
+    const at120 = glide(250, FRAME_MS / 2).ms;
+    expect(Math.abs(at60 - at120)).toBeLessThan(200);
+  });
+
+  it('schießt nie übers Ziel und korrigiert einen Überstand in einem Schritt', () => {
+    expect(stickStep(0, 100, 30000).move).toBe(100);
+    expect(stickStep(0, -34).move).toBe(-34);
   });
 });

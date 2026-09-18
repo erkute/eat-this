@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar';
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat';
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream';
+import { followStep, prefersReducedMotion, FRAME_MS } from '@/lib/buddy/reveal';
 import { greetingFor } from '@/lib/buddy/greeting';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { isNearbyIntent } from '@/lib/buddy/nearbyIntent';
@@ -552,16 +553,58 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
      hat, um etwas nachzulesen, wird nicht wieder heruntergerissen: erst wenn
      er sich wieder in die unteren 80px begibt, klebt die Ansicht erneut. */
   const stickRef = useRef(true);
+  const lastTopRef = useRef(0);
+  const glideRef = useRef(0);
   const onLogScroll = useCallback(() => {
     const el = logRef.current;
     if (!el) return;
-    stickRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    /* Das Gleiten unten bewegt den Log selbst — und ist nach einer Karte
+       kurz weiter als 80px vom Ende weg. Loslassen darf deshalb nur, wer
+       wirklich nach OBEN scrollt; das Gleiten kennt nur eine Richtung. */
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) stickRef.current = true;
+    else if (el.scrollTop < lastTopRef.current - 2) stickRef.current = false;
+    lastTopRef.current = el.scrollTop;
   }, []);
+  /* Nachrücken statt springen (lib/buddy/reveal.ts, `followStep`). Ein
+     laufendes Gleiten liest sein Ziel in jedem Bild neu, neuer Text stößt also
+     kein zweites an. Beim Öffnen und bei reduzierter Bewegung steht die
+     Ansicht sofort unten — ein wiedergefundener Faden soll nicht abrollen. */
+  const wasOpen = useRef(false);
   useEffect(() => {
+    const justOpened = open && !wasOpen.current;
+    wasOpen.current = open;
     const el = logRef.current;
     if (!el || !stickRef.current) return;
-    el.scrollTop = el.scrollHeight;
+    if (justOpened || prefersReducedMotion()) {
+      el.scrollTop = el.scrollHeight;
+      lastTopRef.current = el.scrollTop;
+      return;
+    }
+    if (glideRef.current) return;
+    let last = 0;
+    let pos = el.scrollTop;
+    const tick = (ts: number) => {
+      glideRef.current = 0;
+      const node = logRef.current;
+      if (!node || !stickRef.current) return;
+      const dt = last > 0 ? ts - last : FRAME_MS;
+      last = ts;
+      const target = node.scrollHeight - node.clientHeight;
+      // Wer selbst nach unten scrollt, ist weiter als wir — nie zurücksetzen.
+      pos = Math.max(pos, node.scrollTop);
+      pos += followStep(target - pos, dt);
+      node.scrollTop = pos;
+      lastTopRef.current = node.scrollTop;
+      if (target - pos > 0.5) glideRef.current = requestAnimationFrame(tick);
+    };
+    glideRef.current = requestAnimationFrame(tick);
   }, [messages, isStreaming, open]);
+  useEffect(
+    () => () => {
+      if (glideRef.current) cancelAnimationFrame(glideRef.current);
+    },
+    []
+  );
 
   // Move focus into the dialog when it opens (keyboard/screen-reader users),
   // and hand it back to whatever opened it on close.

@@ -10,7 +10,15 @@ import type {
   Locale,
 } from '@/lib/buddy/types';
 import { sanitizeLinks } from '@/lib/buddy/stream';
-import { revealStep, prefersReducedMotion, FRAME_MS } from '@/lib/buddy/reveal';
+import {
+  revealStep,
+  newRevealPace,
+  skipMarker,
+  snapToWord,
+  closeOpenEmphasis,
+  prefersReducedMotion,
+  FRAME_MS,
+} from '@/lib/buddy/reveal';
 import { loadThread, saveThread, clearThread } from '@/lib/buddy/thread';
 import { auth } from '@/lib/firebase/config';
 
@@ -130,15 +138,18 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      /* Der Aufdecker. `raw` ist alles, was angekommen ist, `revealed` wie
-         viel davon schon dasteht; ein rAF-Takt schiebt die Grenze gleichmäßig
-         nach (lib/buddy/reveal.ts). `drained` hält das Ende des Sendens auf,
+      /* Der Aufdecker. `raw` ist alles, was angekommen ist, `revealed` die
+         Grenze, die ein rAF-Takt gleichmäßig nachschiebt (lib/buddy/reveal.ts),
+         `shown` wie viel davon wirklich dasteht: die Grenze, auf das letzte
+         ganze Wort zurückgezogen. Marker kosten keine Tippzeit — die Grenze
+         springt über sie hinweg. `drained` hält das Ende des Sendens auf,
          bis der Puffer leer ist — sonst erschienen Folge-Chips, Pack-Karte und
          Sammelausgabe (alle an `!streaming` gebunden) über einem Text, der
          noch tippt. */
       const instant = prefersReducedMotion();
       let raw = '';
       let revealed = 0;
+      let shown = 0;
       let ended = false;
       let flush = false;
       let settle: () => void = () => {};
@@ -147,8 +158,20 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
       });
       const paint = () =>
         updateAssistant((m) => {
-          m.content = sanitizeLinks(raw.slice(0, revealed), allowedSlugs.current);
+          const visible = raw.slice(0, shown);
+          // Am Ziel steht der Text, wie er kam; unterwegs wird eine offene
+          // Hervorhebung geschlossen, damit keine Sternchen roh dastehen.
+          m.content = sanitizeLinks(
+            shown < raw.length ? closeOpenEmphasis(visible) : visible,
+            allowedSlugs.current
+          );
         });
+      /** Für alles, was nicht getippt wird: Hinweis, Fehler. */
+      const showAll = (text: string) => {
+        raw = text;
+        revealed = shown = raw.length;
+        paint();
+      };
       /* `lastTs` ist die Uhr des Takts. Der Schritt hängt an der verstrichenen
          Zeit (lib/buddy/reveal.ts), damit ein Gerät mit 20 fps genauso schnell
          aufdeckt wie eines mit 60. Beim (Neu-)Start des Takts steht sie auf 0
@@ -156,16 +179,29 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
          Pause zwischen zwei Schüben der ganze neue Schub auf einmal erscheinen,
          weil „seit dem letzten Takt" dann Sekunden wären. */
       let lastTs = 0;
+      const pace = newRevealPace();
       const tick = (ts: number) => {
         rafRef.current = 0;
         const dt = lastTs > 0 ? ts - lastTs : FRAME_MS;
         lastTs = ts;
-        const step = revealStep(raw.length - revealed, dt, instant || flush);
-        if (step > 0) {
-          revealed += step;
-          paint();
+        const step = revealStep(
+          raw.length - revealed,
+          dt,
+          pace,
+          instant || flush ? 'instant' : ended ? 'ended' : 'flow'
+        );
+        // `|| ended`: das letzte Wort galt bis eben als unfertig — ist der
+        // Strom zu, kommt es auch ohne neuen Schritt noch auf den Schirm.
+        if (step > 0 || ended) {
+          revealed = skipMarker(raw, revealed + step, ended);
+          const next = Math.max(shown, snapToWord(raw, revealed, ended));
+          // Nur malen, wenn ein Wort dazukam — nicht bei jedem Zeichen.
+          if (next !== shown) {
+            shown = next;
+            paint();
+          }
         }
-        if (ended && revealed >= raw.length) {
+        if (ended && shown >= raw.length) {
           settle();
           return;
         }
@@ -179,7 +215,7 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
       const endReveal = () => {
         ended = true;
         if (rafRef.current) return; // der laufende Takt räumt selbst ab
-        if (revealed >= raw.length) settle();
+        if (shown >= raw.length) settle();
         else nudge();
       };
 
@@ -204,12 +240,11 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         });
         if (res.status === 429) {
           // Ein Hinweis, kein Vortrag: der steht sofort da, nicht getippt.
-          raw =
+          showAll(
             locale === 'en'
               ? 'Easy 😅 give me a moment and ask again.'
-              : 'Sachte 😅 gib mir kurz und frag gleich nochmal.';
-          revealed = raw.length;
-          paint();
+              : 'Sachte 😅 gib mir kurz und frag gleich nochmal.'
+          );
           return;
         }
         if (!res.ok || !res.body) throw new Error('request_failed');
@@ -243,12 +278,11 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
                 m.pack = e.value;
               });
             } else if (e.type === 'error') {
-              raw =
+              showAll(
                 locale === 'en'
                   ? 'Sorry — something went wrong. Try again?'
-                  : 'Sorry — da ist was schiefgelaufen. Nochmal?';
-              revealed = raw.length;
-              paint();
+                  : 'Sorry — da ist was schiefgelaufen. Nochmal?'
+              );
             }
           });
         }
@@ -260,12 +294,11 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
           flush = true;
           return;
         }
-        raw =
+        showAll(
           locale === 'en'
             ? 'Sorry — something went wrong. Try again?'
-            : 'Sorry — da ist was schiefgelaufen. Nochmal?';
-        revealed = raw.length;
-        paint();
+            : 'Sorry — da ist was schiefgelaufen. Nochmal?'
+        );
       } finally {
         if (abortRef.current === controller) abortRef.current = null;
         endReveal();

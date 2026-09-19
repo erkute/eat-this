@@ -82,8 +82,11 @@
    Anmeldezustand steht, rendert React neu und schreibt `className` frisch —
    eine imperativ gesetzte Klasse ist in dem Moment weg, und dann stehen zwei
    Wortmarken gleichzeitig auf der Seite. Genau das war der Fehler.
-   `visibility` statt `display`, damit die Spalte ihre Höhe behält. */
-:global(html[data-hero-flight='on']) .heroMark {
+   `visibility` statt `display`, damit die Spalte ihre Höhe behält.
+   Ganz oben (`data-hero-rest`) bleibt das Original stehen und der Flieger
+   wartet unsichtbar: nur das Original federt mit, wenn jemand die Seite auf
+   dem iPhone über den Anschlag zieht. */
+:global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark {
   visibility: hidden;
 }
 

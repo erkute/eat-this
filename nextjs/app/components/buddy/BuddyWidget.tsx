@@ -136,8 +136,10 @@ function Kicker({ children }: { children: React.ReactNode }) {
  * abgelehnt worden, und vier schwarze Balken unter einer Antwort waren vier
  * Verben unter vier Flächen, die schon Knöpfe sind.
  */
-const SPOT_IMG_SIZES = '(max-width: 480px) calc(94vw - 48px), 360px';
-const spotSrcSet = (image: string) => sanitySrcSet(image, [320, 480, 640, 800], 82);
+// Das Foto steht 108px breit links in der Karte.
+const SPOT_IMG_SIZES = '108px';
+// 108px mal Pixeldichte: 2x braucht 216, 3x braucht 324.
+const spotSrcSet = (image: string) => sanitySrcSet(image, [240, 360, 480], 82);
 
 function SpotCard({
   spot,
@@ -178,21 +180,23 @@ function SpotCard({
         onClick={onSelect}
       >
         {spot.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            className={styles.spotImg}
-            src={spot.image}
-            srcSet={spotSrcSet(spot.image)}
-            sizes={SPOT_IMG_SIZES}
-            alt=""
-            width={640}
-            height={400}
-            decoding="async"
-            ref={imgRef}
-            data-ready={imgReady ? 'true' : 'false'}
-            onLoad={() => setImgReady(true)}
-            onError={() => setImgReady(true)}
-          />
+          <span className={styles.spotThumb}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.spotImg}
+              src={spot.image}
+              srcSet={spotSrcSet(spot.image)}
+              sizes={SPOT_IMG_SIZES}
+              alt=""
+              width={640}
+              height={400}
+              decoding="async"
+              ref={imgRef}
+              data-ready={imgReady ? 'true' : 'false'}
+              onLoad={() => setImgReady(true)}
+              onError={() => setImgReady(true)}
+            />
+          </span>
         )}
         <span className={styles.spotBody}>
           <span className={styles.spotName}>{spot.name}</span>

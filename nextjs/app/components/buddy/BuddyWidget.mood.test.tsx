@@ -241,7 +241,9 @@ describe('BuddyWidget expression policy', () => {
     renderOpenWidget();
 
     const img = document.querySelector('img[src*="cdn.sanity.io"]');
-    expect(img?.getAttribute('srcset')).toContain('w=800');
-    expect(img?.getAttribute('sizes')).toContain('360px');
+    // Das Foto steht 108px breit in der kompakten Karte — scharf heißt dort:
+    // ein Kandidat für 3x-Displays (324px), nicht die 800er der hohen Karte.
+    expect(img?.getAttribute('srcset')).toContain('w=360');
+    expect(img?.getAttribute('sizes')).toBe('108px');
   });
 });

@@ -34,6 +34,20 @@
   /* #137b3f aus der hellen Fassung kam auf Ink auf 1.9:1. Dieses Gruen misst
      9.6:1 auf #15120e. */
   --buddy-open: #6fcf8b;
+  /* Das Abstandsraster einer Antwort (19.09.2026). Vorher standen sieben
+     Einzelwerte im Stylesheet, und der Pack-Hinweis hing mit 14px an der
+     letzten Empfehlung — kaum mehr als ein Absatzwechsel, er las sich als
+     deren Fortsetzung.
+     - tight: was zusammengehört (Karte + ihr Satz, Pack-Satz + Pack-Karte)
+     - text:  Absatz zu Absatz
+     - cut:   eine neue Einheit beginnt — vor jeder Karte, vor dem Pack-Block
+     - close: vor den Chips, dem Abschluss der Antwort
+     - turn:  zwischen einer Antwort und der nächsten Frage */
+  --buddy-gap-tight: 8px;
+  --buddy-gap-text: 10px;
+  --buddy-gap-cut: 36px;
+  --buddy-gap-close: 20px;
+  --buddy-gap-turn: 28px;
   --buddy-display: var(--et-font-display, var(--font-providence), sans-serif);
   --buddy-copy: var(--et-font-display, var(--font-providence), sans-serif);
   position: fixed;
@@ -239,7 +253,7 @@
 }
 
 .botP {
-  margin: 0 0 10px;
+  margin: 0 0 var(--buddy-gap-text);
 }
 
 /* ── Einblenden, der Standard ─────────────────────────────────────────────
@@ -375,17 +389,19 @@
   flex-direction: column;
   /* Der Stapel der Sammelausgabe ist eine Liste — der bleibt eng. */
   gap: 10px;
-  margin: 0 0 8px;
+  margin: 0 0 var(--buddy-gap-tight);
 }
 
 /* Der Schnitt sitzt VOR der Karte: der Absatz, auf den eine Karte folgt, ist
-   das Ende der vorigen Empfehlung (oder der Einleiter). 48px — rund das
-   Sechsfache des Abstands innerhalb einer Empfehlung, das liest sich als neue
-   Einheit (30px waren zu wenig, Prod-Test 09.09.2026). Die Regel greift in dem
+   das Ende der vorigen Empfehlung (oder der Einleiter). `cut` ist gut das
+   Vierfache des Abstands innerhalb einer Empfehlung. (30px waren am
+   09.09.2026 zu wenig — damals stand der Absatz VOR der hohen Karte, und wo
+   eine Empfehlung anfing, war nur am Abstand zu erkennen. Jetzt beginnt jede
+   mit der Karte, einer gefüllten Fläche; die trägt den Schnitt mit.) Die Regel greift in dem
    Moment, in dem die Karte eingehängt wird; verschoben wird dabei nichts, was
    schon dasteht — die Karte erscheint einfach 48px tiefer. */
 .botP:has(+ .spots) {
-  margin-bottom: 48px;
+  margin-bottom: var(--buddy-gap-cut);
 }
 
 /* Am Ende der Antwort schneidet nichts mehr — dort folgt der Pack-Block oder
@@ -441,10 +457,17 @@
   padding: 0;
 }
 
+/* Kompakt: Foto links, Angaben rechts (19.09.2026). Die hohe Karte (Foto
+   168px über voller Breite, 253px gesamt) ließ genau EINE Empfehlung ins
+   Chatfenster (~540px); eine Antwort mit vier Spots war drei Fenster lang.
+   So ist die Karte ~100px hoch, und wer „Lust auf Pizza" sagt, sieht alle
+   Läden auf einen Blick. Das große Foto gibt es einen Tipp weiter, auf der
+   Map. */
 .spotCardLink {
   display: flex;
   min-width: 0;
-  flex-direction: column;
+  min-height: 100px;
+  align-items: stretch;
   color: inherit;
   text-decoration: none;
 }
@@ -484,8 +507,9 @@
    Vorher eine weisse Pille mit dem Wort „Merken" darin. */
 .spotSave {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
   z-index: 3;
   display: inline-grid;
   place-items: center;
@@ -504,7 +528,6 @@
   height: 18px;
   color: currentColor;
   stroke: currentColor;
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
 }
 
 @media (hover: hover) {
@@ -522,17 +545,28 @@
   outline-offset: 2px;
 }
 
-.spotImg {
-  display: block;
+/* Der Rahmen gibt dem Foto die Breite, die KARTE gibt ihm die Höhe: das Bild
+   liegt absolut darin. Als Flex-Kind mit `height: auto` drückte ein
+   Hochformat-Foto die Karte auf 143px auf — die `width`/`height`-Attribute
+   gelten nur, bis die Datei ihr echtes Seitenverhältnis mitbringt. */
+.spotThumb {
   position: relative;
-  width: 100%;
-  height: clamp(140px, 34vw, 168px);
+  width: 108px;
   flex-shrink: 0;
-  object-fit: cover;
   /* Ruhefarbe statt des roten Blocks, den ein fehlendes Foto vorher zeigte. */
   background: var(--buddy-quiet-hi);
+  border-radius: var(--et-radius-photo, 10px) 0 0 var(--et-radius-photo, 10px);
+  overflow: hidden;
+}
+
+.spotImg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border: none;
-  border-radius: var(--et-radius-photo, 10px) var(--et-radius-photo, 10px) 0 0;
   /* Blendet ein, sobald geladen — kein Plopp in die stehende Karte. */
   transition: opacity 0.3s ease;
 }
@@ -543,10 +577,17 @@
 
 .spotBody {
   display: flex;
+  flex: 1;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
   min-width: 0;
   padding: 11px 14px 13px;
+}
+
+/* Rechts sitzt das Herz — der Text hält ihm den Platz frei. */
+.spotCardLink .spotBody {
+  padding-right: 48px;
 }
 
 .articleCard .spotBody,
@@ -642,11 +683,26 @@
    der Pack-Name ist die Ueberschrift, die Spectrum-Zeile die Unterzeile.
    Vorher stand das Spectrum als Name da und der echte Name nur klein im
    Kicker — die Hierarchie war vertauscht. */
+/* Der Pack-Hinweis ist eine eigene Einheit, keine Fortsetzung der letzten
+   Empfehlung: derselbe Schnitt wie vor einer Karte. */
 .packBlock {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  margin: 14px 0;
+  gap: var(--buddy-gap-tight);
+  margin: var(--buddy-gap-cut) 0 0;
+}
+
+/* Die Chips schließen die Antwort ab — Luft nach oben, egal ob ein Satz, eine
+   Karte oder der Pack-Block davorsteht (die Ränder fallen zusammen, der
+   größere gewinnt). */
+.msgBot > .chips {
+  margin-top: var(--buddy-gap-close);
+}
+
+/* Ein neuer Wortwechsel: die nächste Frage rückt von der Antwort davor ab.
+   Der Log hält 16px zwischen allen Nachrichten; hier kommt der Rest dazu. */
+.msgBot + .msgUser {
+  margin-top: calc(var(--buddy-gap-turn) - 16px);
 }
 
 .packIntro {
@@ -706,6 +762,14 @@
   letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1;
   text-transform: uppercase;
+}
+
+/* Über einem Kartentitel braucht der Kicker Luft: die 5px Zeilenabstand der
+   Karte reichen zwischen zwei Textzeilen, aber der Titel darunter ist groß
+   (Pack: 1.62rem) und eng gesetzt (line-height 1.02) — der Kicker klebte an
+   seinen Versalien (Ansage 19.09.2026). Zusammen 11px. */
+.spotBody > .kicker {
+  margin-bottom: 6px;
 }
 
 .mk {

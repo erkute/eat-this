@@ -127,7 +127,13 @@ describe('AuthContext — Sync der Bild-Sitzung', () => {
     const [, options] = mocks.captureException.mock.calls[0];
     expect(options.tags.auth_flow).toBe('premium_access_sync');
     expect(options.tags.auth_sync_target).toBe('signed_in');
-    expect(result.current.user).toBe(signedIn);
+    /* Die Meldung geht raus, BEVOR der Nutzer gesetzt wird — dazwischen liegen
+       das Aufräum-DELETE, der Render und der passive Effekt, in dem renderHook
+       `result.current` erst schreibt. Der Retry (600 ms) wird zudem im selben
+       Takt fällig wie der zwölfte 50-ms-Tick von waitFor: landen beide in einer
+       Timer-Phase, kehrt waitFor zurück, ehe der Effekt gelaufen ist. Also auf
+       den Nutzer warten, nicht ihn ablesen. */
+    await waitFor(() => expect(result.current.user).toBe(signedIn));
   });
 
   it('bleibt abgemeldet, wenn das Abmelden selbst den Sync verliert', async () => {

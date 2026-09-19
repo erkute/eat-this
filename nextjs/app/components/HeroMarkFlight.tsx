@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { flightKeyframes, flightTransform, type FlightGeo } from '@/lib/home/heroMarkFlight';
 import styles from './HeroMarkFlight.module.css';
 
 /**
@@ -23,6 +24,17 @@ import styles from './HeroMarkFlight.module.css';
  * Desktop ist die Marke gut doppelt so gross und braucht entsprechend mehr
  * Weg, sonst ist der Flug vorbei, bevor das Auge ihn aufnimmt. Der Landepunkt
  * bleibt exakt der Logoplatz des Headers.
+ *
+ * Zwei Antriebe, eine Bahn (`lib/home/heroMarkFlight.ts`). Wo das Fenster
+ * scrollt und der Browser Scroll-Timelines kann, fliegt die Marke als native
+ * `animation-timeline: scroll()` — die läuft seit Safari 26.4 im selben
+ * Prozess wie das Scrollen. Der JS-Weg hat auf dem iPhone sichtbar geruckelt
+ * (19.09.2026): iOS scrollt ausserhalb des Hauptthreads, `scroll`-Ereignis
+ * und rAF kommen ein bis zwei Frames später und nur mit 60 Hz an, während die
+ * Seite mit 120 Hz läuft. Ein fixiertes Element, das per JS so tun soll, als
+ * scrolle es mit der Seite, zittert deshalb gegen die Headline daneben — am
+ * stärksten am Anfang des Flugs, wo es der Seite noch fast 1:1 folgen muss.
+ * JS bleibt für `.app-pages` (Desktop) und für Browser ohne Scroll-Timeline.
  */
 const TRAVEL_MOBILE = 240;
 const TRAVEL_DESKTOP = 420;
@@ -31,12 +43,9 @@ const TRAVEL_DESKTOP = 420;
    Marke gerade angekommen und würde im selben Moment mit weggeschoben. */
 const NAV_HOLD_EXTRA = 360;
 
-/* Sanft an beiden Enden. easeOutCubic war zu kopflastig: bei halbem Scrollweg
-   stand die Marke schon zu 87 % oben und der Rest der Strecke passierte
-   sichtbar nichts mehr. */
-function ease(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
+/* CSS-Module vergeben eigene Keyframe-Namen; die Regel hier entsteht aber zur
+   Laufzeit aus den gemessenen Koordinaten und braucht einen festen. */
+const KEYFRAMES_NAME = 'et-hero-mark-flight';
 
 export default function HeroMarkFlight() {
   useEffect(() => {
@@ -58,17 +67,17 @@ export default function HeroMarkFlight() {
     const travel = () => (mobile.matches ? TRAVEL_MOBILE : TRAVEL_DESKTOP);
 
     let flyer: HTMLImageElement | null = null;
+    let keyframes: HTMLStyleElement | null = null;
     let ticking = false;
-    /** Ist die Marke im Header angekommen? Dann übernimmt dort das echte Bild. */
-    let landed = false;
-    let geo: {
-      startX: number;
-      startY: number;
-      endX: number;
-      endY: number;
-      startW: number;
-      scale: number;
-    } | null = null;
+    /** Fliegt die Marke über die native Scroll-Timeline statt aus JS? */
+    let native = false;
+    /** Ist die Marke im Header angekommen? Dann übernimmt dort das echte Bild.
+        `null` heisst: noch nie geschrieben — der erste `draw` setzt in jedem
+        Fall. */
+    let landed: boolean | null = null;
+    /** Steht die Seite ganz oben? Dann zeigt der Aufmacher sein Original. */
+    let resting: boolean | null = null;
+    let geo: FlightGeo | null = null;
 
     const heroMark = () => document.querySelector<HTMLImageElement>('[data-hero-mark]');
     const navLogo = () => document.querySelector<HTMLElement>('[data-nav-logo]');
@@ -77,9 +86,14 @@ export default function HeroMarkFlight() {
     const teardown = () => {
       flyer?.remove();
       flyer = null;
+      keyframes?.remove();
+      keyframes = null;
       geo = null;
-      landed = false;
+      native = false;
+      landed = null;
+      resting = null;
       document.documentElement.removeAttribute('data-hero-flight');
+      document.documentElement.removeAttribute('data-hero-rest');
       document.documentElement.removeAttribute('data-hero-landed');
       document.documentElement.removeAttribute('data-nav-hold');
     };
@@ -109,43 +123,54 @@ export default function HeroMarkFlight() {
       };
     };
 
+    /** Schreibt die Bahn: nativ als Keyframes, sonst für die aktuelle Position. */
+    const place = (y: number) => {
+      if (!geo || !flyer) return;
+      if (native) {
+        if (!keyframes) {
+          keyframes = document.createElement('style');
+          document.head.appendChild(keyframes);
+        }
+        // Nur bei neuer Geometrie anfassen: iOS feuert `resize`, wenn die
+        // Safari-Leiste einklappt — mitten im Flug und ohne dass sich an der
+        // Bahn etwas ändert.
+        const css = `@keyframes ${KEYFRAMES_NAME}{${flightKeyframes(geo, travel())}}`;
+        if (keyframes.textContent !== css) keyframes.textContent = css;
+        return;
+      }
+      flyer.style.transform = flightTransform(geo, Math.min(1, y / travel()), travel());
+    };
+
     const draw = () => {
       ticking = false;
       if (!geo || !flyer) return;
 
       const y = Math.max(0, scrollTop());
       const p = Math.min(1, y / travel());
-      const e = ease(p);
 
-      // Blendet von „scrollt mit der Seite" nach „klebt im Header".
-      const liveY = geo.startY - y;
-      const x = geo.startX + (geo.endX - geo.startX) * e;
-      const ty = liveY + (geo.endY - liveY) * e;
-      const s = 1 + (geo.scale - 1) * e;
+      if (!native) place(y);
 
-      flyer.style.width = `${geo.startW}px`;
-      flyer.style.transform = `translate3d(${x}px, ${ty}px, 0) scale(${s})`;
-
+      // Ganz oben steht das Original im Aufmacher, nicht der Flieger: zieht
+      // jemand die Seite über den Anschlag, federt es mit ihr — der fixierte
+      // Flieger bliebe stehen, während die Headline darunter wegrutscht.
+      //
       // Ankunft: ab hier übernimmt wieder das eingebaute Header-Bild, und der
       // Flieger tritt ab. Sonst bliebe er als `position: fixed`-Element am body
       // im Logoplatz kleben, während der Header beim Weiterscrollen nach oben
       // wegklappt — die Marke stünde dann allein über der Seite. Beide zeigen
       // dieselbe Datei in derselben gemessenen Größe an derselben Stelle, der
-      // Tausch ist im selben Frame also nicht zu sehen. Scrollt jemand wieder
-      // hoch, geht der Platz genauso zurück an den Flieger.
-      if (p >= 1 !== landed) {
+      // Tausch ist also nicht zu sehen. Scrollt jemand wieder hoch, geht der
+      // Platz genauso zurück an den Flieger.
+      if (p <= 0 !== resting || p >= 1 !== landed) {
+        resting = p <= 0;
         landed = p >= 1;
-        flyer.style.visibility = landed ? 'hidden' : '';
-        if (landed) document.documentElement.setAttribute('data-hero-landed', 'on');
-        else document.documentElement.removeAttribute('data-hero-landed');
+        flyer.style.visibility = resting || landed ? 'hidden' : '';
+        document.documentElement.toggleAttribute('data-hero-rest', resting);
+        document.documentElement.toggleAttribute('data-hero-landed', landed);
       }
 
       // Der Header darf erst danach wegklappen. SiteNav liest das Attribut.
-      if (y > travel() + NAV_HOLD_EXTRA) {
-        document.documentElement.removeAttribute('data-nav-hold');
-      } else {
-        document.documentElement.setAttribute('data-nav-hold', 'on');
-      }
+      document.documentElement.toggleAttribute('data-nav-hold', y <= travel() + NAV_HOLD_EXTRA);
     };
 
     const onScroll = () => {
@@ -173,6 +198,24 @@ export default function HeroMarkFlight() {
         teardown();
         return;
       }
+      flyer.style.width = `${geo.startW}px`;
+
+      // Nativ nur, wo das Fenster scrollt: der Flieger hängt am body und
+      // erreicht `.app-pages` mit `scroll()` nicht.
+      // Beide Eigenschaften prüfen: griffe die Timeline, der Bereich aber nicht,
+      // flöge die Marke über die ganze Seitenlänge statt über den Scrollweg.
+      native =
+        !scroller() &&
+        CSS.supports('animation-timeline: scroll()') &&
+        CSS.supports('animation-range: 0px 1px');
+      if (native) {
+        place(0);
+        // Die Kurzform setzt `animation-timeline` zurück — sie muss zuerst.
+        flyer.style.animation = `${KEYFRAMES_NAME} linear both`;
+        flyer.style.setProperty('animation-timeline', 'scroll(root block)');
+        flyer.style.setProperty('animation-range', `0px ${travel()}px`);
+      }
+
       // Das Original tritt zurück, sobald das Attribut steht — die Regel dazu
       // steht in HubSection.module.css. Bewusst nicht über eine Klasse an
       // diesem Element: HubHeroCopy rendert neu, wenn `useAuth` fertig ist,
@@ -195,6 +238,8 @@ export default function HeroMarkFlight() {
     const remeasure = () => {
       if (!flyer) return;
       geo = measure();
+      if (geo) flyer.style.width = `${geo.startW}px`;
+      place(Math.max(0, scrollTop()));
       draw();
     };
 

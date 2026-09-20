@@ -56,7 +56,9 @@
   position: relative;
   width: min(430px, 100%);
   padding: 26px 26px 24px;
-  background: var(--et-home-ink, #15120e);
+  /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
+  background: var(--et-ink-raised, #25231f);
+  box-shadow: var(--et-ink-raised-edge, inset 0 0 0 1px rgba(255, 255, 255, 0.14));
   color: var(--et-home-inverse-text, #fff);
   border-radius: var(--et-radius-panel, 10px);
   text-align: center;

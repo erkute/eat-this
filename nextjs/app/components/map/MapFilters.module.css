@@ -498,7 +498,10 @@
   inset: 0;
   /* Die Navbar liegt auf z-index 9999; Modals müssen darüber, um sie zu decken. */
   z-index: 11000;
-  background: rgba(21, 18, 14, 0.16);
+  /* Schwarz, nicht Ink: der Vorhang liegt auf einer Ink-Seite, und
+     rgba(21,18,14,…) IST diese Seite — jede Deckkraft aendert dort exakt
+     nichts. Siehe --et-scrim in globals.css. */
+  background: rgba(0, 0, 0, 0.16);
   animation: pickerBackdropIn 0.18s ease-out;
 }
 

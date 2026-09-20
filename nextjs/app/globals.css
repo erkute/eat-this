@@ -290,7 +290,14 @@
      weil die beiden Lightboxen genau hier auseinandergelaufen waren — 0.22
      gegen 0.44 — und der Nutzer die Regel als EINE gemeint hat: „wenn ich
      was zoome, muss der Hintergrund verdeckt sein" (30.08.2026). */
-  --et-zoom-scrim: rgba(20, 19, 17, 0.62);
+  /* Der Vorhang hinter einem Fenster. Er MUSS schwarz sein, nicht Ink: seit
+     alle Seiten auf Ink stehen, war `rgba(21,18,14,…)` exakt die Farbe der
+     Seite darunter — dieselbe Farbe ueber sich selbst ist bei jeder Deckkraft
+     unsichtbar, der Vorhang verdunkelte also nichts und die Seite trat nie
+     zurueck. Schwarz auf Ink dunkelt sichtbar ab (#15120e → #080705 bei
+     62 %). Die Deckkraft bleibt je Ebene, wie sie war — sie ist ausgemessen. */
+  --et-scrim: rgba(0, 0, 0, 0.62);
+  --et-zoom-scrim: var(--et-scrim);
   --et-zoom-scrim-blur: blur(12px) saturate(1);
 
   --et-radius-photo: 10px;
@@ -791,13 +798,13 @@ html[data-auth='1'] [data-guest-only] {
 .notification-scrim {
   position: absolute;
   inset: 0;
-  background-color: rgba(21, 18, 14, 0);
+  background-color: rgba(0, 0, 0, 0);
   /* Kein Scrollen der Seite durch den Scrim hindurch (iOS Safari). */
   touch-action: none;
   transition: background-color 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .notification-layer.show[data-layer] .notification-scrim {
-  background-color: rgba(21, 18, 14, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 .notification {
   --toast-surface: var(--et-ink-raised, #25231f);
@@ -1030,14 +1037,14 @@ html[data-auth='1'] [data-guest-only] {
 .cookie-scrim {
   position: absolute;
   inset: 0;
-  background-color: rgba(21, 18, 14, 0);
+  background-color: rgba(0, 0, 0, 0);
   /* Stops iOS Safari scrolling the page underneath; the overflow lock behind
      [data-consent-gate='open'] covers every other browser. */
   touch-action: none;
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-gate.show .cookie-scrim {
-  background-color: rgba(21, 18, 14, 0.62);
+  background-color: var(--et-scrim, rgba(0, 0, 0, 0.62));
 }
 .cookie-consent {
   position: relative;

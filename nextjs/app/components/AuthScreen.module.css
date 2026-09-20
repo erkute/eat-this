@@ -14,7 +14,10 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(21, 18, 14, 0.72);
+  /* Schwarz, nicht Ink: der Vorhang liegt auf einer Ink-Seite, und
+     rgba(21,18,14,…) IST diese Seite — jede Deckkraft aendert dort exakt
+     nichts. Siehe --et-scrim in globals.css. */
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(3px);
 }
 

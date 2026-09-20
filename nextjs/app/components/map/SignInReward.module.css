@@ -25,7 +25,10 @@
   /* Der Schleier fängt Blicke, keine Klicks — die Karte darunter bleibt
      bedienbar. Das hier ist eine Meldung, kein Dialog. */
   pointer-events: none;
-  background: rgba(21, 18, 14, 0.58);
+  /* Schwarz, nicht Ink: der Vorhang liegt auf einer Ink-Seite, und
+     rgba(21,18,14,…) IST diese Seite — jede Deckkraft aendert dort exakt
+     nichts. Siehe --et-scrim in globals.css. */
+  background: rgba(0, 0, 0, 0.58);
   animation: rewardVeil 260ms ease-out both;
 }
 .layerLeaving {

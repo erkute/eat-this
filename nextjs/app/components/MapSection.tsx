@@ -39,7 +39,7 @@ import {
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 import { resolveDetailHistory } from '@/lib/map/detailHistory';
-import { spotsCameraTarget, hasRoomToFit } from '@/lib/map/cameraFit';
+import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
@@ -1752,27 +1752,12 @@ export default function MapSection({
       const target = spotsCameraTarget(list);
       if (!target) return;
       const padding = getFlyPaddingRef.current();
-      /* Bleibt hinter den Rändern kaum Karte übrig, bleibt die Kamera stehen.
-         Einpassen hätte dort bestenfalls auf Kontinent-Zoom gesprungen und bei
-         genau 0 px die Karte in die Fehlerseite gerissen (siehe hasRoomToFit).
-
-         Achtung beim Lesen der Zahl: MapLibre zieht nicht nur `padding` ab,
-         sondern zusätzlich `map.getPadding()` — den Rand, den die LETZTE
-         Kamerafahrt dauerhaft gesetzt hat. Diese Datei setzt ihn nirgends
-         zurück, auf dem Telefon zählt er darum oft doppelt. Der Check bildet
-         MapLibres Rechnung genau nach, er verschweigt das nicht, er behebt es
-         aber auch nicht. */
-      const container = map.getContainer();
-      if (
-        !hasRoomToFit(
-          { width: container.clientWidth, height: container.clientHeight },
-          padding,
-          map.getPadding()
-        )
-      ) {
-        return;
-      }
       if (target.kind === 'point') {
+        /* Ein einzelner Treffer braucht keine Einpassung: der Zoom steht fest,
+           und `flyTo` zieht den Rand genau einmal ab — es setzt ihn als neuen
+           `map.getPadding()` und rückt die Mitte beim Zeichnen entsprechend.
+           Hier gibt es also weder die Doppelrechnung unten noch die Division,
+           aus der der NaN-Wurf kam. */
         map.flyTo({
           center: [target.lng, target.lat],
           zoom: 14,
@@ -1781,8 +1766,29 @@ export default function MapSection({
         });
         return;
       }
+      /* MapLibre zieht beim Einpassen den Rand des Aufrufs UND den ab, den die
+         Karte von der letzten `flyTo`-Fahrt noch hält. Der Ausgleich (siehe
+         fitPadding) macht aus beiden zusammen wieder genau `padding`. Ohne ihn
+         zoomte jede Einpassung nach einem geöffneten Detail zu weit raus — und
+         sobald die doppelte Summe die Leinwand überstieg, unterband der Check
+         unten die Kamerafahrt ganz. */
+      const mapPadding = map.getPadding();
+      const boundsPadding = fitPadding(padding, mapPadding);
+      /* Bleibt hinter den Rändern kaum Karte übrig, bleibt die Kamera stehen.
+         Einpassen hätte dort bestenfalls auf Kontinent-Zoom gesprungen und bei
+         genau 0 px die Karte in die Fehlerseite gerissen (siehe hasRoomToFit). */
+      const container = map.getContainer();
+      if (
+        !hasRoomToFit(
+          { width: container.clientWidth, height: container.clientHeight },
+          boundsPadding,
+          mapPadding
+        )
+      ) {
+        return;
+      }
       map.fitBounds([target.sw, target.ne], {
-        padding,
+        padding: boundsPadding,
         duration: 500,
         maxZoom: 14,
       });

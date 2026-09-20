@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { spotsCameraTarget, hasRoomToFit, MIN_FIT_SPACE_PX, type Insets } from '../cameraFit';
+import {
+  spotsCameraTarget,
+  hasRoomToFit,
+  fitPadding,
+  MIN_FIT_SPACE_PX,
+  type Insets,
+} from '../cameraFit';
 import type { MapRestaurant } from '@/lib/types';
 
 const NONE: Insets = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -77,6 +83,93 @@ describe('Wächter: MapLibre wirft bei 0 px, der Check fängt genau das ab', () 
     const padding = phonePadding(700 - 96 - MIN_FIT_SPACE_PX);
     expect(hasRoomToFit({ width: 390, height: 700 }, padding, NONE)).toBe(true);
     expect(Number.isFinite(fit(700, padding)?.zoom)).toBe(true);
+  });
+
+  /* Derselbe Aufbau, aber mit einem Rand, den die Karte schon hält — genau der
+     Zustand nach einer geöffneten und wieder geschlossenen Spot-Karte. */
+  const fitHeld = (held: Insets, call: Insets) =>
+    helper.cameraForBoxAndBearing({ padding: call, offset: [0, 0], maxZoom: 14 }, call, bounds, 0, {
+      padding: held,
+      width: 390,
+      height: 844,
+      scale,
+      worldSize: 512 * scale,
+    });
+
+  const desired: Insets = { top: 115, bottom: 320, left: 34, right: 34 };
+  /* Der Rand der Detail-Fahrt (phoneDetailFlyPadding) bleibt nach dem
+     Schliessen auf der Karte stehen. */
+  const held: Insets = { top: 84, bottom: 0, left: 20, right: 20 };
+
+  it('zoomt ohne Ausgleich zu weit raus — der Befund aus PR #773', () => {
+    const ohne = fitHeld(held, desired)!.zoom;
+    const soll = fitHeld(NONE, desired)!.zoom;
+    expect(ohne).toBeLessThan(soll);
+    expect(soll - ohne).toBeGreaterThan(0.15);
+  });
+
+  it('mit Ausgleich steht die Kamera exakt wie auf einer frischen Karte', () => {
+    const mit = fitHeld(held, fitPadding(desired, held))!;
+    const soll = fitHeld(NONE, desired)!;
+    expect(mit.zoom).toBeCloseTo(soll.zoom, 10);
+  });
+
+  it('auch wenn die Karte MEHR Rand hält als gewünscht', () => {
+    const viel: Insets = { top: 130, bottom: 420, left: 40, right: 40 };
+    const mit = fitHeld(viel, fitPadding(desired, viel))!;
+    const soll = fitHeld(NONE, desired)!;
+    expect(mit.zoom).toBeCloseTo(soll.zoom, 10);
+  });
+
+  it('bei 0 geklemmt stimmt der Zoom NICHT — deshalb darf der Ausgleich negativ werden', () => {
+    const viel: Insets = { top: 130, bottom: 420, left: 40, right: 40 };
+    const roh = fitPadding(desired, viel);
+    const geklemmt: Insets = {
+      top: Math.max(0, roh.top),
+      bottom: Math.max(0, roh.bottom),
+      left: Math.max(0, roh.left),
+      right: Math.max(0, roh.right),
+    };
+    expect(fitHeld(viel, geklemmt)!.zoom).not.toBeCloseTo(fitHeld(NONE, desired)!.zoom, 3);
+  });
+});
+
+describe('fitPadding', () => {
+  const desired: Insets = { top: 115, bottom: 320, left: 34, right: 34 };
+
+  it('lässt den Rand in Ruhe, solange die Karte keinen hält', () => {
+    expect(fitPadding(desired, NONE)).toEqual(desired);
+  });
+
+  it('zieht den ab, den die Karte noch hält', () => {
+    expect(fitPadding(desired, { top: 84, bottom: 0, left: 20, right: 20 })).toEqual({
+      top: 31,
+      bottom: 320,
+      left: 14,
+      right: 14,
+    });
+  });
+
+  it('darf ins Minus gehen — geklemmt landet der Ausschnitt daneben', () => {
+    expect(fitPadding(desired, { top: 130, bottom: 420, left: 40, right: 40 })).toEqual({
+      top: -15,
+      bottom: -100,
+      left: -6,
+      right: -6,
+    });
+  });
+
+  it('behandelt weggelassene Seiten wie 0 — MapLibres PaddingOptions erlaubt das', () => {
+    expect(fitPadding(desired, { bottom: 20 })).toEqual({ ...desired, bottom: 300 });
+  });
+
+  it('macht aus beiden Rändern zusammen wieder genau den gewünschten', () => {
+    const held: Insets = { top: 84, bottom: 0, left: 20, right: 20 };
+    const fit = fitPadding(desired, held);
+    expect(fit.top + held.top).toBe(desired.top);
+    expect(fit.bottom + held.bottom).toBe(desired.bottom);
+    expect(fit.left + held.left).toBe(desired.left);
+    expect(fit.right + held.right).toBe(desired.right);
   });
 });
 

@@ -48,7 +48,10 @@ export const MIN_FIT_SPACE_PX = 150;
  * Bleibt nach Abzug aller Ränder genug Karte, um Treffer einzupassen?
  *
  * Zählt BEIDE Ränder, die MapLibre abzieht: den des Aufrufs und den, den die
- * Karte von einer früheren Kamerafahrt noch hält (`map.getPadding()`).
+ * Karte von einer früheren Kamerafahrt noch hält (`map.getPadding()`). Seit
+ * der Aufruf über `fitPadding` läuft, ergibt die Summe genau den gewünschten
+ * Rand — der Check rechnet trotzdem beide, weil er MapLibres Formel nachbildet
+ * und nicht das, was der Aufrufer gemeint hat.
  *
  * Der Grund, warum das mehr ist als Kosmetik: bei GENAU 0 px verfügbarer Höhe
  * wirft MapLibre `Invalid LngLat object: (NaN, -90)` (Sentry JAVASCRIPT-9B).
@@ -70,4 +73,37 @@ export function hasRoomToFit(
   const width =
     canvas.width - sum(padding.left, padding.right, mapPadding.left, mapPadding.right);
   return height >= MIN_FIT_SPACE_PX && width >= MIN_FIT_SPACE_PX;
+}
+
+/**
+ * Der Rand, den `fitBounds` bekommen muss, damit MapLibre am Ende genau
+ * `desired` abzieht.
+ *
+ * MapLibre zieht beim Einpassen ZWEI Ränder ab (`camera_helper.ts`):
+ *
+ *     availableHeight = tr.height - (edgePadding.top + edgePadding.bottom
+ *                                    + padding.top + padding.bottom)
+ *
+ * `padding` ist der des Aufrufs, `edgePadding` ist `map.getPadding()` — der
+ * Rand, den die letzte `flyTo`-Kamerafahrt dauerhaft gesetzt hat. `fitBounds`
+ * selbst lässt ihn stehen (`_fitInternal` löscht `options.padding`, bevor es
+ * fliegt), er überlebt also jede Einpassung. Wer beide Male den vollen Rand
+ * schickt, bekommt ihn doppelt abgezogen: gemessen zoomte die Karte einen
+ * halben Schritt zu weit raus, und sobald die Summe die Leinwand überstieg,
+ * passte `hasRoomToFit` gar nicht mehr ein.
+ *
+ * Die Differenz darf negativ werden und MUSS es dürfen. Hält die Karte mehr
+ * Rand, als der Aufruf will, ist das Minus der einzige Weg zurück auf den
+ * Ausschnitt, den eine frische Karte zeigen würde; bei 0 geklemmt landet er
+ * sichtbar daneben (20.09.2026 gegen MapLibres eigene Rechnung gemessen:
+ * geklemmt 164 px Luft oben statt der gewünschten 202). MapLibre prüft
+ * Ränder nicht auf ihr Vorzeichen, negative Werte gehen glatt durch.
+ */
+export function fitPadding(desired: Insets, mapPadding: Partial<Insets>): Insets {
+  return {
+    top: desired.top - (mapPadding.top ?? 0),
+    bottom: desired.bottom - (mapPadding.bottom ?? 0),
+    left: desired.left - (mapPadding.left ?? 0),
+    right: desired.right - (mapPadding.right ?? 0),
+  };
 }

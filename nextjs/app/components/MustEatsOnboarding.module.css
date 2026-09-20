@@ -117,7 +117,9 @@
   overflow-y: auto;
   display: grid;
   gap: clamp(20px, 3vw, 36px);
-  background: var(--et-home-ink, #15120e);
+  /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
+  background: var(--et-ink-raised, #25231f);
+  box-shadow: var(--et-ink-raised-edge, inset 0 0 0 1px rgba(255, 255, 255, 0.14));
   border: 0;
   border-radius: 10px;
   padding: clamp(26px, 4vw, 44px);

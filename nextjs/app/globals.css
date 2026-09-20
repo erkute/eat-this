@@ -233,6 +233,19 @@
   --et-ink-line: rgba(255, 255, 255, 0.14);
   --et-ink-quiet: rgba(255, 255, 255, 0.055);
   --et-ink-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+  /* Die schwebende Flaeche: alles, was sich UEBER der Seite oeffnet
+     (Info-Karte, Cookie-Dialog, Login, Onboarding, Sheets, Remys Chat).
+     Seit die Seiten selbst auf Ink stehen, lag jedes dieser Fenster Ink auf
+     Ink — der Schleier dunkelt Ink nicht ab, und ein schwarzer Schatten ist
+     auf Schwarz unsichtbar. Deshalb eine Stufe heller als der Grund (Weiss
+     7 %, deckend — ein Fenster darf nicht durchscheinen) plus eine Haarlinie
+     als Kante, dieselbe wie am Filter-Sheet der Karte. `--et-ink-quiet`
+     (5,5 %) legt sich darauf weiter als leise Stufe ab.
+     Fest als Hex, nicht als color-mix: faellt color-mix aus, ist die ganze
+     Deklaration ungueltig und das Fenster haette GAR keine Flaeche. #25231f
+     ist exakt `color-mix(in srgb, #fff 7%, #15120e)`. */
+  --et-ink-raised: #25231f;
+  --et-ink-raised-edge: inset 0 0 0 1px var(--et-ink-line);
 
   --et-font-display: var(--font-providence);
   --et-font-label: var(--font-providence);
@@ -787,7 +800,7 @@ html[data-auth='1'] [data-guest-only] {
   background-color: rgba(21, 18, 14, 0.5);
 }
 .notification {
-  --toast-surface: var(--et-home-ink, #15120e);
+  --toast-surface: var(--et-ink-raised, #25231f);
   --toast-ink: var(--et-home-inverse-text, #fff);
   --toast-muted: rgba(255, 255, 255, 0.76);
   --toast-accent: var(--et-home-accent, #ffc600);
@@ -803,7 +816,8 @@ html[data-auth='1'] [data-guest-only] {
   background: var(--toast-surface);
   border: 0;
   border-radius: var(--et-radius-photo, 10px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  /* Nur die Kante: clip-path (unten) schneidet jeden aeusseren Schatten weg. */
+  box-shadow: var(--et-ink-raised-edge);
   pointer-events: none;
   transform: scale(0.94);
   clip-path: inset(50% 0 50% 0 round var(--et-radius-photo, 10px));
@@ -1034,10 +1048,12 @@ html[data-auth='1'] [data-guest-only] {
   -webkit-overflow-scrolling: touch;
   padding: clamp(22px, 3vw, 34px);
   color: var(--et-home-paper, #fff);
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink-raised, #25231f);
   border: 0;
   border-radius: var(--et-radius-photo, 10px);
-  box-shadow: 0 30px 70px rgba(21, 18, 14, 0.45);
+  box-shadow:
+    var(--et-ink-raised-edge),
+    0 30px 70px rgba(21, 18, 14, 0.45);
   transform: translateY(22px) scale(0.97);
   transition:
     transform 0.46s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1305,15 +1321,14 @@ html[data-auth='1'] [data-guest-only] {
      mask the `scroll` layers once an end is reached, so the hint appears only
      where there is actually more to see. No JS, no listener. */
   background:
-    linear-gradient(var(--et-home-ink, #15120e) 30%, rgba(21, 18, 14, 0)) top / 100% 22px no-repeat
+    linear-gradient(var(--et-ink-raised, #25231f) 30%, transparent) top / 100% 22px no-repeat local,
+    linear-gradient(transparent, var(--et-ink-raised, #25231f) 72%) bottom / 100% 26px no-repeat
       local,
-    linear-gradient(rgba(21, 18, 14, 0), var(--et-home-ink, #15120e) 72%) bottom / 100% 26px
-      no-repeat local,
     radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)) top /
       100% 11px no-repeat scroll,
     radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
       bottom / 100% 13px no-repeat scroll;
-  background-color: var(--et-home-ink, #15120e);
+  background-color: var(--et-ink-raised, #25231f);
 }
 /* Each section sits in its own card inside .cookie-info-body — give them
    strong separation so heading↔text grouping is obvious. */

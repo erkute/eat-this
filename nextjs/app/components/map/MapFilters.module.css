@@ -514,7 +514,9 @@
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
   padding: 8px;
-  background: var(--et-home-ink, #15120e);
+  /* Eine Stufe ueber dem Grund (--et-ink-raised in globals.css): das Sheet
+     oeffnet auf der Karte, und die ist genauso dunkel. */
+  background: var(--et-ink-raised, #25231f);
   color: var(--et-home-paper, #fff);
   border: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
   border-radius: var(--et-radius-control, 7px);
@@ -531,9 +533,9 @@
   left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px));
   width: 14px;
   height: 14px;
-  background: var(--et-home-ink, #15120e);
-  border-left: 1px solid rgba(21, 18, 14, 0.14);
-  border-top: 1px solid rgba(21, 18, 14, 0.14);
+  background: var(--et-ink-raised, #25231f);
+  border-left: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
   transform: rotate(45deg);
 }
 

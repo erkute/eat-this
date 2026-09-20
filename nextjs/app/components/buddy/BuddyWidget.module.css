@@ -21,6 +21,10 @@
 
 .panel {
   --buddy-ink: var(--et-home-ink, #15120e);
+  /* Die Flaeche des Panels: eine Stufe ueber dem Grund (--et-ink-raised in
+     globals.css) — auf den Ink-Seiten hatte der Chat sonst keine Kante.
+     --buddy-ink bleibt die Schriftfarbe auf Gelb und Papier. */
+  --buddy-surface: var(--et-ink-raised, #25231f);
   --buddy-paper: var(--et-home-inverse-text, #fff);
   --buddy-accent: var(--et-home-accent, #ffc600);
   --buddy-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
@@ -61,9 +65,13 @@
   flex-direction: column;
   overflow: hidden;
   color: var(--buddy-paper);
-  background: var(--buddy-ink);
+  background: var(--buddy-surface);
   border: none;
   border-radius: var(--et-radius-photo, 10px);
+  /* Die Kante als Outline statt als inset-Schatten: die Kinder tragen eigene
+     Flaechen und Bilder bis an den Rand und wuerden einen Schatten ueberdecken. */
+  outline: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  outline-offset: -1px;
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.44),
     var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
@@ -87,7 +95,7 @@
   min-height: 86px;
   padding: 14px 16px 12px 18px;
   color: var(--buddy-paper);
-  background: var(--buddy-ink);
+  background: var(--buddy-surface);
   border-bottom: 1px solid var(--buddy-line);
 }
 
@@ -189,7 +197,7 @@
   scroll-behavior: auto;
   padding: 18px;
   color: var(--buddy-paper);
-  background: var(--buddy-ink);
+  background: var(--buddy-surface);
   font-family: var(--buddy-copy);
   font-size: var(--et-type-body, 16px);
 }
@@ -784,7 +792,7 @@
   display: flex;
   gap: 10px;
   padding: 12px;
-  background: var(--buddy-ink);
+  background: var(--buddy-surface);
   border-top: 1px solid var(--buddy-line);
   box-shadow: none;
 }

@@ -548,7 +548,10 @@
 } /* Burger-menu aligned modal: one ink sheet, one product image, one yellow action. */
 
 .frameModal {
-  --login-paper: var(--home-ink, #15120e);
+  /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. Der
+     Schleier dahinter ist Ink auf einer Ink-Seite; mit dem Ink-Grund selbst
+     hatte das Modal keine Kante. */
+  --login-paper: var(--et-ink-raised, #25231f);
   --login-ink: #fff;
   --login-accent: var(--home-accent, #ffc600);
   --login-muted: rgba(255, 255, 255, 0.7);
@@ -560,6 +563,10 @@
   background: var(--login-paper);
   border: 0;
   border-radius: 0;
+  /* Die Kante als Outline statt als inset-Schatten: die Kinder tragen eigene
+     Flaechen und Bilder bis an den Rand und wuerden einen Schatten ueberdecken. */
+  outline: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  outline-offset: -1px;
   box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
 }
 
@@ -596,7 +603,8 @@
   grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr);
   min-height: min(520px, calc(100svh - 28px));
   color: #fff;
-  background: var(--home-ink, #15120e);
+  /* Der Rahmen (.frameModal) traegt die angehobene Flaeche und die Kante. */
+  background: transparent;
 }
 
 .modalBenefits {
@@ -1022,8 +1030,10 @@
   padding: 0;
   overflow: hidden;
   color: #fff;
-  background: var(--home-ink, #15120e);
+  background: var(--et-ink-raised, #25231f);
   border: 0;
+  outline: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  outline-offset: -1px;
   box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
   text-align: left;
 }

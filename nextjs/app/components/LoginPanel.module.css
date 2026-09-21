@@ -447,14 +447,12 @@
 
 .frameModal .input {
   padding: 0 15px;
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: 16px;
-  font-weight: 650;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 17px;
+  font-weight: 400;
 }
 
-/* Der Platzhalter spricht die Schrift des Modals; was man dann TIPPT, bleibt
-   im Fliesstext — eine echte Adresse in Providence waere schwerer zu
-   kontrollieren (Nutzer, 30.08.2026). */
+/* Platzhalter und eingegebene Adresse tragen dieselbe Hausschrift. */
 .frameModal .input::placeholder {
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 17px;
@@ -506,9 +504,9 @@
 
 .frameModal .legal {
   margin: 0;
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: 11px;
-  font-weight: 650;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 12px;
+  font-weight: 400;
   letter-spacing: 0;
   line-height: 1.28;
   text-align: center;
@@ -541,11 +539,7 @@
   }
 }
 
-@media (max-width: 380px), (max-height: 680px) {
-  .frameModal .legal {
-    font-size: 10px;
-  }
-} /* Burger-menu aligned modal: one ink sheet, one product image, one yellow action. */
+/* Burger-menu aligned modal: one ink sheet, one product image, one yellow action. */
 
 .frameModal {
   /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. Der
@@ -571,31 +565,30 @@
 }
 
 .frameModal .close {
-  top: 14px;
-  right: 14px;
-  width: 40px;
-  height: 40px;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border: 0;
-  border-radius: 50%;
+  border-radius: 0;
   font-family: var(--menu-condensed, Impact, sans-serif);
   font-size: 30px;
 }
 
 .frameModal .close:focus-visible {
-  color: var(--home-ink, #15120e);
-  background: var(--login-accent);
-  outline: 0;
-  transform: translateY(-1px);
+  color: var(--login-accent);
+  background: transparent;
+  outline: 2px solid currentColor;
+  transform: none;
 }
 
 @media (hover: hover) {
   .frameModal .close:hover {
-    color: var(--home-ink, #15120e);
-    background: var(--login-accent);
-    outline: 0;
-    transform: translateY(-1px);
+    color: var(--login-accent);
+    background: transparent;
+    transform: none;
   }
 }
 
@@ -853,6 +846,9 @@
 }
 
 .frameModal .modalSimpleSignin {
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   grid-template-columns: minmax(220px, 0.82fr) minmax(320px, 1fr);
   align-items: stretch;
 }
@@ -951,7 +947,7 @@
   transform: translate(-15%, -48%) rotate(15deg);
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 820px) {
   .frameModal .modalSimpleSignin {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
@@ -993,11 +989,9 @@
   }
 }
 
-@media (max-width: 767.98px) and (max-height: 680px) {
-  .frameModal .modalSimpleSignin {
-    overflow-y: hidden;
-  }
-
+/* Compact artwork before the stacked sign-in content exceeds the viewport.
+   Keep scrolling only as a fallback for keyboards, zoom and very short screens. */
+@media (max-width: 820px) and (max-height: 780px) {
   .modalSigninBoosters {
     min-height: 250px;
     height: 250px;

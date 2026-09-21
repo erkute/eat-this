@@ -266,10 +266,8 @@ const en = {
        ein Freund daneben. */
     joinKicker: 'Free',
     joinTitle: 'Starter Pack',
-    joinLead:
-      '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there. Free.',
-    joinLeadAnon:
-      '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there. Free.',
+    joinLead: '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there. Free.',
+    joinLeadAnon: '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there. Free.',
     joinSentLead: "We've sent your link. One click and you're in.",
     joinHint: 'We send you a sign-in link.',
     joinEmailLabel: 'Email address',
@@ -579,8 +577,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerNext: 'Nächstes Must Eat',
     walkMinutes: 'zu Fuß',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody:
-      '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+    starterPromoBody: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
     starterPromoLogin: 'Schon dabei? Einloggen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
@@ -720,10 +717,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        auf der Startseite — das Starter Pack, kostenlos. */
     joinKicker: 'Gratis',
     joinTitle: 'Starter Pack',
-    joinLead:
-      '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
-    joinLeadAnon:
-      '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
+    joinLead: '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
+    joinLeadAnon: '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
     joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     joinHint: 'Wir schicken dir einen Link zum Einloggen.',
     joinEmailLabel: 'E-Mail Adresse',
@@ -819,8 +814,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
        nirgends. */
     friendsHeading: 'Deine Crew',
-    friendsLine:
-      'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
+    friendsLine: 'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
     friendAnonymous: 'Namenlos',
     inviteCta: 'Deck teilen',
     inviteCopied: 'Link kopiert',
@@ -874,8 +868,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       backBtn: 'Zur\u00fcck',
       heroH1: 'Starter Pack',
       heroSub: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
-      modalBenefitLead:
-        '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+      modalBenefitLead: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
       signinBoosterLead: 'Dein Deck wartet. Mach da weiter, wo du aufgehört hast.',
       modalTagline: 'Anmelden',

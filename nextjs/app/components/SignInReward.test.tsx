@@ -2,9 +2,23 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
-/* Die Einblendung selbst ist Bild + drei Zeilen; interessant ist allein, WANN
-   sie kommt. next-intl und next/image stehen dem im Weg, also raus damit. */
+/* Exercise the real arrival event and the user-controlled introduction. */
 vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({
+    children,
+    href,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    onClick: () => void;
+  }) => (
+    <a href={href} onClick={onClick}>
+      {children}
+    </a>
+  ),
+}));
 vi.mock('next/image', () => ({
   default: () => null,
 }));
@@ -40,7 +54,7 @@ afterEach(() => {
 describe('Ankunft nach der Anmeldung', () => {
   it('erscheint, wenn das Starter Pack vergeben wurde — ohne Zustandswechsel im Dokument', () => {
     render(<SignInReward />);
-    expect(screen.queryByText(/Starter Pack eingelöst/)).toBeNull();
+    expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
 
     /* Genau das, was nach einem Magic-Link passiert: frisch geladene Seite,
        niemand war hier je abgemeldet, die Vergabe meldet sich. */
@@ -49,7 +63,7 @@ describe('Ankunft nach der Anmeldung', () => {
       finishStarterPackCheck(true);
     });
 
-    expect(screen.getByText(/Starter Pack eingelöst/)).toBeTruthy();
+    expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
   });
 
   it('bleibt bei einem Wiederkehrer aus — `already_claimed` ist keine Ankunft', () => {
@@ -58,17 +72,45 @@ describe('Ankunft nach der Anmeldung', () => {
       startStarterPackCheck();
       finishStarterPackCheck(false);
     });
-    expect(screen.queryByText(/Starter Pack eingelöst/)).toBeNull();
+    expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
   });
 
-  it('geht nach fünf Sekunden von allein', () => {
+  it('bleibt sichtbar, bis der Nutzer selbst weitergeht', () => {
     render(<SignInReward />);
     act(() => finishStarterPackCheck(true));
-    expect(screen.getByText(/Starter Pack eingelöst/)).toBeTruthy();
+    act(() => void vi.advanceTimersByTime(60000));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
+  });
 
-    act(() => void vi.advanceTimersByTime(5000));
-    act(() => void vi.advanceTimersByTime(240));
-    expect(screen.queryByText(/Starter Pack eingelöst/)).toBeNull();
+  it('öffnet zuerst das Pack, führt dann durch die Funktionen und endet an zwei Türen', () => {
+    render(<SignInReward />);
+    act(() => finishStarterPackCheck(true));
+    expect(document.body.style.overflow).toBe('hidden');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    expect((screen.getByRole('button', { name: 'Öffnet …' }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
+    act(() => void vi.advanceTimersByTime(1900));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten Karten.');
+    expect(screen.getByText('10 verdeckt')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByRole('heading').textContent).toBe('Wissen, was du bestellst.');
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
+    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
+    for (let step = 0; step < 3; step++)
+      fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+
+    expect(screen.getByRole('heading').textContent).toBe('Wohin zuerst?');
+    expect(screen.queryByRole('button', { name: 'Weiter' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Deck' }).getAttribute('href')).toBe('/profile');
+    fireEvent.click(screen.getByRole('link', { name: 'Map' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.body.style.overflow).not.toBe('hidden');
   });
 
   it('startet nicht unter dem Wartescreen — der ist fast deckend', () => {
@@ -76,20 +118,19 @@ describe('Ankunft nach der Anmeldung', () => {
     render(<SignInReward />);
     act(() => finishStarterPackCheck(true));
 
-    /* Das Pack ist da, aber der Schleier liegt darueber: die fuenf Sekunden
-       duerfen noch nicht laufen. */
-    expect(screen.queryByText(/Starter Pack eingelöst/)).toBeNull();
+    /* The tour must wait until the sign-in screen is gone. */
+    expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
 
     act(() => screenView.unmount());
-    expect(screen.getByText(/Starter Pack eingelöst/)).toBeTruthy();
+    expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
   });
 
   it('laesst sich vorher wegklicken', () => {
     render(<SignInReward />);
     act(() => finishStarterPackCheck(true));
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Überspringen' }));
     act(() => void vi.advanceTimersByTime(240));
-    expect(screen.queryByText(/Starter Pack eingelöst/)).toBeNull();
+    expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
   });
 });
 

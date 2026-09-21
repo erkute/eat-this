@@ -66,7 +66,7 @@ const en = {
     onbStarterCta: 'Sign up',
     onbNext: 'Next',
     onbStart: "Let's go",
-    onbPacksCta: 'View Booster Packs',
+    onbPacksCta: 'Packs',
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
     // The home teaser's lead. Three beats: what is on a card, how a face-down
@@ -501,7 +501,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
-    onbPacksCta: 'Booster Packs ansehen',
+    onbPacksCta: 'Packs',
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
     teaserSub:

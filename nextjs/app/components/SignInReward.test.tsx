@@ -28,7 +28,6 @@ vi.mock('@/lib/i18n', () => ({
 }));
 
 import SignInReward from './SignInReward';
-import { openOnboarding } from '@/lib/onboarding';
 import AuthScreen from './AuthScreen';
 import {
   announceSignIn,
@@ -112,30 +111,6 @@ describe('Ankunft nach der Anmeldung', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Map' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).not.toBe('hidden');
-  });
-
-  it('lässt sich wiederholen, ohne erneut ein Pack zu behaupten', () => {
-    render(<SignInReward />);
-    act(() => openOnboarding());
-    expect(screen.getByText('So geht’s')).toBeTruthy();
-    // Kein Pack: die Wiederholung beginnt bei der Map.
-    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
-    expect(screen.queryByRole('button', { name: 'Öffnen' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByRole('dialog')).toBeNull();
-    act(() => openOnboarding());
-    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
-  });
-
-  it('gibt den Fokus an den Knopf zurück, der sie geöffnet hat', () => {
-    const trigger = document.createElement('button');
-    document.body.appendChild(trigger);
-    render(<SignInReward />);
-    act(() => openOnboarding(trigger));
-    fireEvent.click(screen.getByRole('button', { name: 'Überspringen' }));
-    expect(document.activeElement).toBe(trigger);
-    trigger.remove();
   });
 
   it('startet nicht unter dem Wartescreen — der ist fast deckend', () => {

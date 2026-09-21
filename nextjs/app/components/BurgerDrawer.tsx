@@ -6,7 +6,6 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
-import { openOnboarding } from '@/lib/onboarding';
 
 /* Ein Menü-Link, der erst auf Absicht lädt.
  *
@@ -252,19 +251,6 @@ export default function BurgerDrawer() {
             <DrawerLink href="/packs" className="bd-nav-item">
               {t('burger.boosterPacks')}
             </DrawerLink>
-            <button
-              type="button"
-              className="bd-nav-item"
-              onClick={() => {
-                closeBurger(true);
-                /* Der Burger-Knopf bleibt sichtbar, der Menüpunkt nicht — dorthin
-                   kehrt der Fokus zurück, wenn die Tour schließt. */
-                const trigger = document.getElementById('burgerBtn');
-                window.requestAnimationFrame(() => openOnboarding(trigger));
-              }}
-            >
-              {t('burger.howItWorks')}
-            </button>
             <DrawerLink href="/about" className="bd-nav-item">
               {t('burger.about')}
             </DrawerLink>

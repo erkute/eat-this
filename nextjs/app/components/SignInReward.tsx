@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useDialogFocus } from '@/lib/useDialogFocus';
-import { OPEN_ONBOARDING_EVENT } from '@/lib/onboarding';
 import { subscribeStarterPackGranted } from '@/lib/auth/signInArrival';
 import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './SignInReward.module.css';
@@ -18,7 +17,6 @@ const copy = {
   de: {
     label: 'Dein Einstieg in Eat This',
     welcome: 'Willkommen bei Eat This',
-    intro: 'So geht’s',
     skip: 'Überspringen',
     close: 'Schließen',
     back: 'Zurück',
@@ -76,7 +74,6 @@ const copy = {
   en: {
     label: 'Your introduction to Eat This',
     welcome: 'Welcome to Eat This',
-    intro: 'How it works',
     skip: 'Skip',
     close: 'Close',
     back: 'Back',
@@ -149,7 +146,6 @@ const DECK_CARDS = [
  * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival).
  * Wer gerade sein Pack bekommen hat, öffnet es zuerst; danach drei Seiten,
  * was man damit macht, und am Ende die zwei Orte, an denen es weitergeht.
- * Aus dem Menü („So geht’s“) läuft dieselbe Tour ohne das Pack.
  *
  * Alles passt ohne Scrollen in den Viewport: die Bildfläche ist der einzige
  * Teil, der schrumpft, Texte und Knöpfe behalten ihre Größe.
@@ -159,43 +155,39 @@ export default function SignInReward() {
   const t = copy[locale === 'en' ? 'en' : 'de'];
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
-  const [welcome, setWelcome] = useState(false);
   const [pack, setPack] = useState<PackPhase>('sealed');
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  /* Die Tour öffnet sich von selbst, es gibt keinen Auslöser, an den der
+     Fokus zurück könnte — useDialogFocus fällt dann auf das zuvor fokussierte
+     Element zurück. */
   const triggerRef = useRef<HTMLElement | null>(null);
   useDialogFocus(open, panelRef, triggerRef);
 
   useEffect(() => {
     let stopWaiting: (() => void) | undefined;
-    const show = (isWelcome: boolean, trigger: HTMLElement | null = null) => {
-      triggerRef.current = trigger;
+    const show = () => {
       setStep(0);
       setPack('sealed');
-      setWelcome(isWelcome);
       setOpen(true);
     };
     const unsubscribe = subscribeStarterPackGranted(() => {
-      if (!authScreenActive()) return show(true);
+      if (!authScreenActive()) return show();
       stopWaiting?.();
       stopWaiting = subscribeAuthScreen((active) => {
         if (active) return;
         stopWaiting?.();
         stopWaiting = undefined;
-        show(true);
+        show();
       });
     });
     if (process.env.NODE_ENV === 'development') {
       const preview = new URLSearchParams(window.location.search).get('preview');
-      if (preview === 'intro' || preview === 'welcome') show(preview === 'welcome');
+      if (preview === 'welcome') show();
     }
-    const replay = (event: Event) =>
-      show(false, event instanceof CustomEvent ? (event.detail as HTMLElement | null) : null);
-    window.addEventListener(OPEN_ONBOARDING_EVENT, replay);
     return () => {
       unsubscribe();
       stopWaiting?.();
-      window.removeEventListener(OPEN_ONBOARDING_EVENT, replay);
     };
   }, []);
 
@@ -226,7 +218,7 @@ export default function SignInReward() {
 
   if (!open) return null;
 
-  const pages = [...(welcome ? (['pack'] as const) : []), 0, 1, 2, 'go'] as const;
+  const pages = ['pack', 0, 1, 2, 'go'] as const;
   const page = pages[step];
   const last = step === pages.length - 1;
   const close = () => setOpen(false);
@@ -388,7 +380,7 @@ export default function SignInReward() {
         tabIndex={-1}
       >
         <header className={styles.header}>
-          <span>{welcome ? t.welcome : t.intro}</span>
+          <span>{t.welcome}</span>
           <button type="button" className={styles.quiet} onClick={close}>
             {last ? t.close : t.skip}
           </button>

@@ -429,8 +429,8 @@
       'art copy'
       'art footer';
     column-gap: 48px;
-    width: min(1000px, 100%);
-    height: min(660px, calc(100dvh - 48px));
+    width: min(900px, 100%);
+    height: min(580px, calc(100dvh - 48px));
     padding-bottom: 32px;
   }
   .header {
@@ -456,7 +456,10 @@
     margin: 0;
   }
   .packStage {
-    --card-width: min(44cqw, 40cqh, 180px);
+    /* So gross, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so
+       hoch steht wie das Pack-Bild auf der Sammlungs-Seite — vorher sprang
+       dasselbe Pack zwischen Seite 1 und 5 um ein Drittel. */
+    --card-width: min(44cqw, 46cqh, 200px);
   }
   .panelGo {
     grid-template-areas:

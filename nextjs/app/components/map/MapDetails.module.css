@@ -1867,23 +1867,16 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-/* Keep both controls legible on light and busy photos, like the counter. */
+/* Freie Symbole auf dem Foto, mit grosser unsichtbarer Trefferflaeche. */
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle,
 .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass {
   background: transparent;
   border-radius: 0;
   clip-path: none;
   isolation: isolate;
-}
-.detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle::before,
-.detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  z-index: -1;
-  border-radius: 9px;
-  background: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle {
   left: 12px;
@@ -1903,9 +1896,9 @@
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle svg,
 .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass svg {
-  width: 14px;
-  height: 14px;
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggleOn svg {
   color: var(--brand-action, #d9382a);
@@ -1913,6 +1906,7 @@
 }
 .detailV13:not(.detailV13MustEat) .rdHeartToggleCount {
   color: currentColor;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 12px;
   font-weight: 800;
@@ -4511,7 +4505,7 @@
      Text sprang gegenüber allem anderen um zwei Pixel ein. */
   margin: 30px 14px 32px;
   padding: 24px 18px 26px;
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink-raised, #25231f);
   border: 0;
   border-radius: var(--et-radius-photo, 10px);
   color: var(--et-home-paper, #fff);
@@ -4611,6 +4605,7 @@
   display: grid;
   gap: 10px;
   padding: 18px 18px 20px;
+  background: var(--et-ink-raised, #25231f);
   border-radius: var(--et-radius-photo, 10px);
 }
 
@@ -5308,20 +5303,23 @@
    02.09.2026 eigenstaendig ink und hat seine eigenen --me-*-Tokens.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Aktions-Knoepfe: waren Papier mit Ink-Ring. Auf Ink ist das die hellste
-   Flaeche im Sheet — also die Fassung, die die Site seit dem 03.09.2026
-   ueberall benutzt: Ring in Weiss 28 %, Fuellung leer, Hover gelb. */
+/* Ruhige Aktionsflaechen auf Ink: gleiche Ausrichtung fuer Icon und Label,
+   ohne umlaufende Ringe. Maps bleibt die hervorgehobene Hauptaktion. */
 .detailV13:not(.detailV13MustEat) .rdActBtn {
-  background: transparent;
+  min-height: 52px;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.065);
   color: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 2px var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  box-shadow: none;
 }
 
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
-    background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+    background: rgba(255, 255, 255, 0.11);
     color: var(--et-home-accent, #ffc600);
-    box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+    box-shadow: none;
   }
 }
 
@@ -5341,13 +5339,41 @@
   }
 }
 
-/* Bezirks- und Kuechen-Plakette: gefuellte Papierpillen -> Ringe, dieselbe
-   Fassung wie die Filter-Chips daneben. */
+@media (max-width: 359.98px) {
+  .detailV13:not(.detailV13MustEat) .rdActBtn {
+    gap: 7px;
+    padding: 0 10px;
+  }
+}
+
+/* Kompakte Fakten auf dem Foto, mit derselben weichen Kante wie die Aktionen. */
 .detailV13:not(.detailV13MustEat) .rdTag,
 .detailV13:not(.detailV13MustEat) .rdTagAlt {
-  background: transparent;
+  padding: 4px 9px;
+  background: rgba(21, 18, 14, 0.72);
   color: var(--et-home-paper, #fff);
-  border: 1px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  line-height: 1.55;
+}
+
+.detailV13:not(.detailV13MustEat) .rdTagOpen,
+.detailV13:not(.detailV13MustEat) .rdTagClosed {
+  gap: 6px;
+}
+
+.detailV13:not(.detailV13MustEat) .rdTagOpen::before,
+.detailV13:not(.detailV13MustEat) .rdTagClosed::before {
+  content: '';
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.detailV13:not(.detailV13MustEat) .rdTagOpen::before {
+  background: #79d69b;
 }
 
 /* Der Blaetterbalken unter dem Kopf trug eine eigene Papierflaeche. Auf dem
@@ -5427,19 +5453,25 @@
   color: var(--et-home-paper, #fff);
 }
 
-/* Der Blaettern-Knopf war Ink auf Papier. Auf Ink faellt die Fuellung weg und
-   der Ring traegt ihn — dieselbe Fassung wie die Aktionsknoepfe darunter. */
+/* Restaurantwechsel und Aktionen teilen Flaeche, Kante und Hover. */
 .detailV13:not(.detailV13MustEat) .rdPagerBtn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.065);
   color: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 2px var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  border-radius: var(--et-radius-control, 7px);
+  box-shadow: none;
 }
 
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .rdPagerBtn:hover {
+    background: rgba(255, 255, 255, 0.11);
     color: var(--et-home-accent, #ffc600);
-    box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+    box-shadow: none;
   }
+}
+
+.detailV13:not(.detailV13MustEat) .rdPagerBtn:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 2px;
 }
 
 /* Die letzten drei roten Hover-Zustaende. Rot bleibt der Marke als Flaeche,
@@ -5547,9 +5579,10 @@
   transform: translateX(-50%);
   z-index: 3;
   padding: 4px 9px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.55);
+  border-radius: 0;
+  background: transparent;
   color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 12px;
   font-weight: 700;

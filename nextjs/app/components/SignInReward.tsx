@@ -72,7 +72,6 @@ const copy = {
       body: 'Im Deck liegen deine Karten. Auf der Map findest du die Spots dazu.',
       deck: 'Deck',
       map: 'Map',
-      alt: 'Vier Must-Eat-Karten, zwei offen und zwei verdeckt',
     },
   },
   en: {
@@ -132,7 +131,6 @@ const copy = {
       body: 'Your cards live in your deck. The map shows you the spots.',
       deck: 'Deck',
       map: 'Map',
-      alt: 'Four Must Eat cards, two revealed and two face down',
     },
   },
 } as const;
@@ -140,13 +138,6 @@ const copy = {
 type PackPhase = 'sealed' | 'opening' | 'open';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
-/* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
-const DECK_CARDS = [
-  CARD_BACK,
-  CARD_BACK,
-  '/pics/card-front.webp?v=3',
-  '/pics/card-front-sabich.webp',
-] as const;
 
 /**
  * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
@@ -316,13 +307,15 @@ export default function SignInReward() {
   } else if (page === 'go') {
     content = (
       <div className={styles.content}>
-        <div className={styles.art} role="img" aria-label={t.go.alt}>
-          {/* Zwei offen, zwei verdeckt — so sieht ein Deck nach dem Pack aus. */}
-          {/* eslint-disable @next/next/no-img-element */}
-          {DECK_CARDS.map((src, index) => (
-            <img key={index} className={styles.deckCard} src={src} alt="" />
-          ))}
-          {/* eslint-enable @next/next/no-img-element */}
+        <div className={styles.art}>
+          <Image
+            src="/pics/home-phones/phone-map-ink-480.webp"
+            alt={t.slides[0].alt}
+            fill
+            sizes="(max-width: 600px) 220px, 300px"
+            loading="eager"
+            className={styles.image}
+          />
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.go.tag}</p>

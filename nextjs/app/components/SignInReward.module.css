@@ -309,38 +309,7 @@
   color: #ffffffa6;
 }
 
-/* ── Letzte Seite: das Deck, zwei Wege ───────────────────────────────── */
-.deckCard {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  /* Vier Karten, je 55 % versetzt: 2,65 Kartenbreiten nebeneinander. */
-  height: min(84cqh, 49cqw);
-  aspect-ratio: 1 / 1.375;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 14px #0006);
-  transform: translate(var(--x), var(--y)) rotate(var(--r));
-}
-.deckCard:nth-child(1) {
-  --x: -132.5%;
-  --y: -46%;
-  --r: -10deg;
-}
-.deckCard:nth-child(2) {
-  --x: -77.5%;
-  --y: -52%;
-  --r: -3deg;
-}
-.deckCard:nth-child(3) {
-  --x: -22.5%;
-  --y: -52%;
-  --r: 3deg;
-}
-.deckCard:nth-child(4) {
-  --x: 32.5%;
-  --y: -46%;
-  --r: 10deg;
-}
+/* ── Letzte Seite: zwei Wege ─────────────────────────────────────────── */
 .actionGroup {
   display: flex;
   gap: 10px;

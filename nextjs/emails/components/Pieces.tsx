@@ -19,8 +19,8 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
       className="et-cta"
       style={{
         display: 'block',
-        backgroundColor: COLOR.ink,
-        color: COLOR.inverse,
+        backgroundColor: COLOR.accent,
+        color: COLOR.onAccent,
         borderRadius: `${LAYOUT.radiusControl}px`,
         fontSize: '17px',
         fontWeight: 700,
@@ -72,7 +72,7 @@ export function SectionHead({
         <ArtImage
           art={art}
           appUrl={appUrl}
-          altStyle={{ color: COLOR.red, fontSize: '20px', fontWeight: 700 }}
+          altStyle={{ color: COLOR.text, fontSize: '20px', fontWeight: 700 }}
         />
       </Column>
     </Row>
@@ -153,7 +153,7 @@ export function Paper({
   padding?: string;
 }) {
   return (
-    <Section className="et-pad" style={{ backgroundColor: COLOR.paper, padding }}>
+    <Section className="et-pad" style={{ backgroundColor: COLOR.surface, padding }}>
       {children}
     </Section>
   );

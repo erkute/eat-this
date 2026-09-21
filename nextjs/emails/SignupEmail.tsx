@@ -7,14 +7,7 @@
 
 import { Link, Section, Text } from '@react-email/components';
 import { Shell } from './components/Shell';
-import {
-  ArtImage,
-  CtaButton,
-  Fineprint,
-  Lead,
-  Paper,
-  SectionHead,
-} from './components/Pieces';
+import { ArtImage, CtaButton, Fineprint, Lead, Paper, SectionHead } from './components/Pieces';
 import { ART } from './art.generated';
 import { PHONES_ART } from './phones.generated';
 import {
@@ -49,24 +42,26 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
   const spots = (override ?? EMAIL_SPOTS).slice(0, MAX_SPOTS);
 
   return (
-    <Shell
-      appUrl={appUrl}
-      preview="Ein Klick und du siehst, was Berlin zu bieten hat."
-    >
+    <Shell appUrl={appUrl} preview="Ein Klick und du siehst, was Berlin zu bieten hat.">
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
       <Paper padding="40px 32px 36px">
         <ArtImage
           art={ART.kickerSignup}
           appUrl={appUrl}
-          altStyle={{ color: COLOR.ink, fontSize: '11px', fontWeight: 700, letterSpacing: '0.16em' }}
+          altStyle={{
+            color: COLOR.accent,
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+          }}
           style={{ margin: '0 0 14px' }}
         />
 
         <ArtImage
           art={ART.headlineSignup}
           appUrl={appUrl}
-          altStyle={{ color: COLOR.red, fontSize: '30px', fontWeight: 700 }}
+          altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
           style={{ margin: '0 0 22px' }}
         />
 
@@ -78,7 +73,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
 
         <Fineprint>
           Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:{' '}
-          <Link href={magicLink} style={{ color: COLOR.ink, textDecoration: 'underline' }}>
+          <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'underline' }}>
             hier ist er als normaler Link
           </Link>
           .
@@ -90,7 +85,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           nur ein Darunter; und `transform` entfernt Gmail ohnehin. Deshalb
           liegt das Paar als EIN vorkomponiertes Bild bei
           (npm run build:email-phones), Kippung und Schatten eingebacken. */}
-      <Section style={{ backgroundColor: COLOR.paper, padding: '0 0 8px', textAlign: 'center' }}>
+      <Section style={{ backgroundColor: COLOR.surface, padding: '0 0 8px', textAlign: 'center' }}>
         <img
           src={`${appUrl}/pics/email/${PHONES_ART.id}.jpg?v=${PHONES_ART.version}`}
           alt={PHONES_ART.alt}
@@ -101,7 +96,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
             margin: '0 auto',
             height: 'auto',
             maxWidth: '100%',
-            color: COLOR.ink,
+            color: COLOR.text,
             fontSize: '13px',
             fontWeight: 700,
           }}
@@ -110,10 +105,13 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
 
       {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
           artwork, yellow "Gratis" pill, red title. */}
-      <Section className="et-pad" style={{ backgroundColor: COLOR.paper, padding: '0 32px 36px' }}>
+      <Section
+        className="et-pad"
+        style={{ backgroundColor: COLOR.surface, padding: '0 32px 36px' }}
+      >
         <Section
           style={{
-            backgroundColor: COLOR.quiet,
+            backgroundColor: COLOR.raised,
             borderRadius: `${LAYOUT.radiusPhoto}px`,
             padding: '30px 24px 32px',
             textAlign: 'center',
@@ -128,7 +126,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
-            altStyle={{ color: COLOR.ink, fontSize: '14px', fontWeight: 700 }}
+            altStyle={{ color: COLOR.text, fontSize: '14px', fontWeight: 700 }}
             style={{ margin: '0 auto 16px' }}
           />
 
@@ -140,7 +138,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               margin: '0 0 12px',
               display: 'inline-block',
               backgroundColor: COLOR.accent,
-              color: COLOR.red,
+              color: COLOR.onAccent,
               borderRadius: '999px',
               padding: '5px 14px',
               fontSize: '12px',
@@ -154,7 +152,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           <ArtImage
             art={ART.titleStarterPack}
             appUrl={appUrl}
-            altStyle={{ color: COLOR.red, fontSize: '22px', fontWeight: 700 }}
+            altStyle={{ color: COLOR.text, fontSize: '22px', fontWeight: 700 }}
             style={{ margin: '0 auto 14px' }}
           />
 
@@ -163,7 +161,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               margin: 0,
               fontSize: '15px',
               lineHeight: 1.6,
-              color: COLOR.ink,
+              color: COLOR.text,
             }}
           >
             20 neue Must Eats warten darauf, von dir entdeckt zu werden.
@@ -203,6 +201,13 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
                   height: 'auto',
                   border: 0,
                   borderRadius: `${LAYOUT.radiusPhoto}px`,
+                  /* Auch die Foto-Karten brauchen eine eigene Alt-Farbe: sie
+                     stecken in einem <Link>, und ein blockiertes Bild erbt
+                     dessen Standard-Blau. Auf weissem Papier ging das gerade
+                     noch durch, auf Ink ist es unlesbar. */
+                  color: COLOR.text,
+                  fontSize: '13px',
+                  fontWeight: 700,
                 }}
               />
             </Link>

@@ -46,7 +46,10 @@ const CANVAS_W = DISPLAY_WIDTH * SCALE;
 const CANVAS_H = Math.round(CANVAS_W / ASPECT);
 
 /** Papierweiß — die Telefone stehen in der Mail direkt darauf. */
-const PAPER = { r: 255, g: 255, b: 255, alpha: 1 };
+/* Der Grund, auf dem die Telefone komponiert werden — seit dem
+   20.09.2026 Ink wie die Mail selbst (--et-home-ink). Stand hier Weiss,
+   lag das flache JPEG als helles Rechteck auf der dunklen Flaeche. */
+const GROUND = { r: 21, g: 18, b: 14, alpha: 1 };
 
 interface Phone {
   file: string;
@@ -106,7 +109,12 @@ async function renderPhone(p: Phone) {
 async function renderShadow(body: Buffer, left: number, top: number, p: Phone) {
   const sigma = p.shadow.blur * SCALE * 0.5;
   const mask = await sharp({
-    create: { width: CANVAS_W, height: CANVAS_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+    create: {
+      width: CANVAS_W,
+      height: CANVAS_H,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
   })
     .composite([{ input: body, left, top: top + p.shadow.dy * SCALE }])
     .png()
@@ -142,10 +150,10 @@ for (const p of PHONES) {
 }
 
 const jpeg = await sharp({
-  create: { width: CANVAS_W, height: CANVAS_H, channels: 4, background: PAPER },
+  create: { width: CANVAS_W, height: CANVAS_H, channels: 4, background: GROUND },
 })
   .composite(layers)
-  .flatten({ background: PAPER })
+  .flatten({ background: GROUND })
   .jpeg({ quality: 82, chromaSubsampling: '4:4:4' })
   .toBuffer();
 
@@ -171,6 +179,8 @@ const manifest = [
 ].join('\n');
 await writeFile(join(process.cwd(), 'emails', 'phones.generated.ts'), manifest, 'utf8');
 
-console.log(`  phones.jpg  ${CANVAS_W}×${CANVAS_H}  ${Math.round(jpeg.length / 1024)} kB  v=${version}`);
+console.log(
+  `  phones.jpg  ${CANVAS_W}×${CANVAS_H}  ${Math.round(jpeg.length / 1024)} kB  v=${version}`
+);
 console.log(`  Anzeige: ${DISPLAY_WIDTH}×${Math.round(CANVAS_H / SCALE)}`);
 console.log('\nManifest: emails/phones.generated.ts');

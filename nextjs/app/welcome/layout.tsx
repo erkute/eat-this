@@ -43,7 +43,15 @@ export default function AuthActionLayout({ children }: { children: React.ReactNo
           crossOrigin="anonymous"
         />
       </head>
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#fff' }}>
+      {/* Der Grund liegt HIER, nicht im CSS-Modul: globals.css zwingt jedes
+          `main` auf `background-color: transparent` (Selektor
+          `html:not([data-active-page='map']) main` und sein Gegenstueck fuer
+          die Map) — mit hoeherer Spezifitaet als eine Modul-Klasse. `.page`
+          und `.splashPage` konnten ihren Hintergrund deshalb nie setzen, und
+          weil hier `#fff` stand, stand der Splash mit weisser Schrift auf
+          Weiss. Inline, weil dieser Zweig seinen eigenen <html> hat und sonst
+          am `body`-Grund aus globals.css haengt. */}
+      <body style={{ margin: 0, padding: 0, backgroundColor: '#15120e' }}>
         {/* /welcome lag ausserhalb von [locale] und wurde deshalb gar nicht
             gezaehlt — ausgerechnet die Landeseite des Magic-Links, also der
             Moment, in dem aus einem Besucher ein Konto wird. Passend dazu:

@@ -66,9 +66,9 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
         style={{
           margin: 0,
           padding: 0,
-          backgroundColor: COLOR.quiet,
+          backgroundColor: COLOR.surface,
           fontFamily: BODY_FONT,
-          color: COLOR.ink,
+          color: COLOR.text,
           WebkitTextSizeAdjust: '100%',
         }}
       >
@@ -77,14 +77,16 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
             margin: '0 auto',
             padding: 0,
             maxWidth: `${LAYOUT.width}px`,
-            backgroundColor: COLOR.paper,
+            backgroundColor: COLOR.surface,
           }}
         >
           {/* MASTHEAD — the site's black bar. The wordmark PNG is cream with an
               ink outline, so it reads on ink exactly as it does in the header.
               PNG, not WebP: Gmail's proxy flattens WebP alpha and Outlook
               can't decode it at all. */}
-          <Section style={{ backgroundColor: COLOR.ink, padding: '18px 0', textAlign: 'center' }}>
+          <Section
+            style={{ backgroundColor: COLOR.surface, padding: '18px 0', textAlign: 'center' }}
+          >
             <Link href={appUrl}>
               <Img
                 src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
@@ -97,7 +99,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                   border: 0,
                   // Alt-Text erbt Farbe und Schnitt vom img. Ohne das steht er
                   // bei blockierten Bildern schwarz auf der Ink-Fläche.
-                  color: COLOR.inverse,
+                  color: COLOR.text,
                   fontSize: '20px',
                   fontWeight: 700,
                 }}
@@ -110,7 +112,11 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
           {/* FOOTER — ink block, cream wordmark, one yellow accent. Same shape
               as SiteFooter on every route since 21.08.2026. */}
           <Section
-            style={{ backgroundColor: COLOR.ink, padding: '34px 24px 30px', textAlign: 'center' }}
+            style={{
+              backgroundColor: COLOR.surface,
+              padding: '34px 24px 30px',
+              textAlign: 'center',
+            }}
           >
             <Img
               src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
@@ -121,7 +127,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                 margin: '0 auto 12px',
                 height: 'auto',
                 border: 0,
-                color: COLOR.inverse,
+                color: COLOR.text,
                 fontSize: '22px',
                 fontWeight: 700,
               }}
@@ -135,7 +141,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                 margin: '0 auto 26px',
                 height: 'auto',
                 border: 0,
-                color: COLOR.inverse,
+                color: COLOR.text,
                 fontSize: '11px',
                 letterSpacing: '0.16em',
               }}
@@ -148,7 +154,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                 fontWeight: 700,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: COLOR.inverse,
+                color: COLOR.text,
               }}
             >
               {FOOTER_LINKS.map((l, i) => (
@@ -156,7 +162,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                   {i > 0 && <span style={{ color: FOOTER_MUTED }}>{'  ·  '}</span>}
                   <Link
                     href={l.url ?? `${appUrl}${l.path}`}
-                    style={{ color: COLOR.inverse, textDecoration: 'none' }}
+                    style={{ color: COLOR.text, textDecoration: 'none' }}
                   >
                     {l.label}
                   </Link>

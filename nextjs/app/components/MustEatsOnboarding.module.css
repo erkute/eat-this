@@ -102,7 +102,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  height: min(100cqh, 137cqw);
+  height: min(88cqh, 120cqw);
   aspect-ratio: 1539 / 2115;
   transform: translate(-50%, -50%);
   perspective: 900px;

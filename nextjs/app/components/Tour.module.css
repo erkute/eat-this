@@ -177,9 +177,9 @@ a.action {
 /* Ein schlichtes <img> fuellt die Bildflaeche wie ein next/image mit `fill`. */
 .artImg {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: 6%;
+  width: 88%;
+  height: 88%;
   object-fit: contain;
   filter: drop-shadow(0 14px 18px #0005);
 }

@@ -159,16 +159,6 @@ export default function LoginPanel({ onBack, mode = 'starter' }: LoginPanelProps
                   onClick={() => sendLink(email, continueUrl())}
                 >
                   <span>{t('modals.login.resendBtn')}</span>
-                  <svg
-                    viewBox="0 0 24 24"
-                    width={16}
-                    height={16}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.6}
-                  >
-                    <path d="M5 12h14M13 5l7 7-7 7" />
-                  </svg>
                 </button>
                 <button
                   type="button"

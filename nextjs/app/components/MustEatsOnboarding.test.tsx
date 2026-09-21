@@ -31,14 +31,10 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
-/** All three slides are always mounted — they share one grid cell so the panel
- *  keeps one size across every "weiter" — so a title being *present* proves
- *  nothing. Only the active one carries `slideOn`. The last step has two active
- *  blocks (guest / signed-in) and CSS picks one, hence a list. */
+/** Only the current step is rendered. The last step has two blocks (guest /
+ *  signed-in) and CSS picks one, hence a list. */
 const activeTitles = () =>
-  [...screen.getByRole('dialog').querySelectorAll('h2')]
-    .filter((h) => h.parentElement!.className.includes('slideOn'))
-    .map((h) => h.textContent);
+  [...screen.getByRole('dialog').querySelectorAll('h2')].map((h) => h.textContent);
 
 describe('MustEatsOnboarding', () => {
   it('opens on first visit (no localStorage flag)', () => {
@@ -54,9 +50,9 @@ describe('MustEatsOnboarding', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('close button dismisses and sets the flag', () => {
+  it('skip dismisses and sets the flag', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
-    fireEvent.click(screen.getByLabelText('mustEats.onbClose'));
+    fireEvent.click(screen.getByRole('button', { name: 'Überspringen' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
   });
@@ -109,37 +105,37 @@ describe('MustEatsOnboarding', () => {
     fireEvent.click(screen.getByText('mustEats.onbNext'));
 
     const guest = row('guest');
-    // The free offer must not sit below "no thanks".
-    expect(guest.firstElementChild?.textContent).toBe('mustEats.onbStarterCta');
+    // The free offer takes the yellow slot; "no thanks" is the outlined one.
+    const primary = [...guest.children].find((el) => !el.className.includes('actionGhost'));
+    expect(primary?.textContent).toBe('mustEats.onbStarterCta');
     fireEvent.click(
       screen.getByText('mustEats.onbStart', { selector: '[data-guest-only] button' })
     );
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('steps back and forth by clicking the numbered rail', () => {
+  it('steps back with Zurück', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
+    expect((screen.getByRole('button', { name: 'Zurück' }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     expect(activeTitles()).toEqual(['mustEats.onb3Title', 'mustEats.onbStarterTitle']);
-
-    // Was decorative, so the only way back used to be closing and reopening.
-    fireEvent.click(screen.getByLabelText('Zu Schritt 1 von 3'));
-    expect(activeTitles()).toEqual(['mustEats.onb1Title']);
-
-    fireEvent.click(screen.getByLabelText('Zu Schritt 2 von 3'));
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
     expect(activeTitles()).toEqual(['mustEats.onb2Title']);
   });
 
-  it('marks the current step on the rail', () => {
+  it('names the current step', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
-    expect(screen.getByLabelText('Zu Schritt 1 von 3').getAttribute('aria-current')).toBe('step');
-    expect(screen.getByLabelText('Zu Schritt 2 von 3').getAttribute('aria-current')).toBeNull();
+    expect(screen.getByLabelText('Schritt 1 von 3')).toBeTruthy();
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    expect(screen.getByLabelText('Schritt 2 von 3')).toBeTruthy();
   });
 
-  it('backdrop click closes the overlay', () => {
+  it('Escape closes the overlay and sets the flag', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
-    fireEvent.click(screen.getByRole('dialog').parentElement!);
+    fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
   });

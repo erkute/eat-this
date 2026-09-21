@@ -408,18 +408,6 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.cta} disabled={busy || !name.trim()}>
           <span>{busy ? 'Speichern …' : 'Weiter'}</span>
-          {!busy && (
-            <svg
-              viewBox="0 0 24 24"
-              width={16}
-              height={16}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.6}
-            >
-              <path d="M5 12h14M13 5l7 7-7 7" />
-            </svg>
-          )}
         </button>
       </form>
     </>
@@ -493,16 +481,6 @@ function ConfirmSignIn({
       {claimingCard && <p className={styles.confirmNote}>Deine Karte ist im Pack dabei.</p>}
       <button type="button" className={styles.cta} onClick={submit}>
         <span>Anmelden</span>
-        <svg
-          viewBox="0 0 24 24"
-          width={16}
-          height={16}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.6}
-        >
-          <path d="M5 12h14M13 5l7 7-7 7" />
-        </svg>
       </button>
     </>
   );
@@ -562,18 +540,6 @@ function NeedsEmailForm({ href, setState }: { href: string; setState: (s: State)
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.cta} disabled={busy || !email}>
           <span>{busy ? 'Anmelden …' : 'Weiter'}</span>
-          {!busy && (
-            <svg
-              viewBox="0 0 24 24"
-              width={16}
-              height={16}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.6}
-            >
-              <path d="M5 12h14M13 5l7 7-7 7" />
-            </svg>
-          )}
         </button>
       </form>
     </>

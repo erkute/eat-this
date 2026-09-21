@@ -1,3 +1,6 @@
+/* Die Huelle aller Einfuehrungs-Layer: die Tour nach der Anmeldung
+   (SignInReward) und die Must-Eats-Erklaerung (MustEatsOnboarding) sehen
+   gleich aus — ein Modul, damit sie nicht auseinanderlaufen. */
 /* Die Tour scrollt nie: das Panel hat eine feste Hoehe, und die Bildflaeche
    (Zeile bzw. Spalte `minmax(0, 1fr)`) ist das Einzige, was nachgibt. */
 .layer {
@@ -149,6 +152,36 @@
 }
 .action:disabled {
   cursor: default;
+}
+a.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+/* Zwei Knoepfe am Ende (Must-Eats-Erklaerung): der zweite umrandet. */
+.actionGroup {
+  display: flex;
+  gap: 10px;
+}
+.actionGroup .action {
+  min-width: 0;
+  padding-inline: 22px;
+  white-space: nowrap;
+}
+.actionGhost {
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 0 0 1.5px #ffffff59;
+}
+/* Ein schlichtes <img> fuellt die Bildflaeche wie ein next/image mit `fill`. */
+.artImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 18px #0005);
 }
 .action:focus-visible,
 .quiet:focus-visible {
@@ -478,6 +511,17 @@
 
 /* ── Telefon: Bild oben, Text darunter ────────────────────────────────── */
 @media (max-width: 600px) {
+  /* Zurueck plus zwei Knoepfe muessen auch auf 320 px in eine Zeile. */
+  .actions:has(.actionGroup) {
+    gap: 12px;
+  }
+  .actionGroup {
+    gap: 8px;
+  }
+  .actionGroup .action {
+    padding-inline: 14px;
+    font-size: 15px;
+  }
   /* Auf dem Telefon untereinander: nebeneinander blieben Telefon und
      Karten zu klein. Jedes Feld ist breit und flach, das Bild bekommt die
      Hoehe, das Wort steht darunter. */
@@ -551,6 +595,17 @@
   }
   .action {
     min-width: 150px;
+  }
+}
+
+/* Unter 360 px reicht die Zeile nicht fuer Zurueck und zwei Knoepfe: dann
+   faellt Zurueck, die zwei Wege zaehlen mehr. */
+@media (max-width: 360px) {
+  .actions:has(.actionGroup) {
+    justify-content: flex-end;
+  }
+  .actions:has(.actionGroup) .quiet {
+    display: none;
   }
 }
 

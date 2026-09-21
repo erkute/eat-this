@@ -8,7 +8,7 @@ import { Link } from '@/i18n/navigation';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { subscribeStarterPackGranted } from '@/lib/auth/signInArrival';
 import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
-import styles from './SignInReward.module.css';
+import styles from './Tour.module.css';
 
 /** Muss zur Laenge der Keyframes in SignInReward.module.css passen. */
 const PACK_OPEN_MS = 1900;

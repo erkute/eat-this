@@ -117,7 +117,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
             <a href={mapHref} className={styles.headCta}>
               {c.headCta}
             </a>
-            <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
+            <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
           </div>
         </div>
 

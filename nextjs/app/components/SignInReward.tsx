@@ -336,6 +336,7 @@ export default function SignInReward() {
                 alt=""
                 fill
                 sizes="(max-width: 600px) 45vw, 260px"
+                loading="eager"
                 className={styles.image}
               />
             </span>

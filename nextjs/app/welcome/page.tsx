@@ -13,6 +13,7 @@ import {
 import { auth, getDb } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
 import { postSignInTarget } from '@/lib/auth/postSignInTarget';
+import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { handoffEvent } from '@/lib/analytics';
 import styles from './auth-action.module.css';
 
@@ -54,20 +55,27 @@ function emailFromContinueUrl(params: URLSearchParams): string {
 }
 
 /**
- * Ob dieser Login aus einem gesperrten Spot heraus gestartet wurde.
+ * Ob dieser Login aus einer angetippten Must-Eat-Karte heraus gestartet wurde.
  *
  * Ein neues Konto muss vor der Weiterleitung noch durch Name und Avatar, und
- * genau dort brach der Faden: der Leser wollte EINEN Spot, hat dafür seine
+ * genau dort brach der Faden: der Leser wollte EINE Karte, hat dafür seine
  * Mail dagelassen, und steht plötzlich in einem Formular, das mit keinem Wort
- * erwähnt, worauf das hinausläuft (User, 26.08.2026). Der Claim-Marker aus der
+ * erwähnt, worauf das hinausläuft (User, 26.08.2026). Der Marker aus der
  * Continue-URL ist das Einzige, was diesen Zusammenhang über den Posteingang
  * gerettet hat — er trägt ihn hier eine Stufe weiter.
+ *
+ * Gelesen wird `starter` — derselbe Parameter, den `buildLoginContinueUrl`
+ * setzt und den `/api/starter-pack` einlöst. Bis zum 20.09.2026 stand hier
+ * `claim=1`: der Marker des Gratis-Spot-Wegs, den der 06.09.2026 abgeschafft
+ * hat. Seither schrieb ihn niemand mehr, also waren beide Zeilen unten tot —
+ * und der Test hatte es nicht gemerkt, weil er seine Adresse selbst baute
+ * statt sie bauen zu lassen.
  */
-function hasPendingSpotClaim(params: URLSearchParams): boolean {
+function hasPendingStarterCard(params: URLSearchParams): boolean {
   const cu = params.get('continueUrl');
   if (!cu) return false;
   try {
-    return new URL(cu).searchParams.get('claim') === '1';
+    return Boolean(new URL(cu).searchParams.get(STARTER_PARAM));
   } catch {
     return false;
   }
@@ -85,21 +93,21 @@ const AVATARS: { id: AvatarChoice; label: string }[] = [
 
 type State =
   | { kind: 'processing' }
-  | { kind: 'confirm'; email: string; href: string; claimingSpot: boolean }
+  | { kind: 'confirm'; email: string; href: string; claimingCard: boolean }
   | { kind: 'success'; title: string; sub: string }
   | { kind: 'needs-email'; href: string }
-  | { kind: 'needs-identity'; user: User; claimingSpot: boolean }
+  | { kind: 'needs-identity'; user: User; claimingCard: boolean }
   | { kind: 'expired' }
   | { kind: 'error'; title: string; sub: string };
 
 // First sign-in ever (no display name yet) → identity onboarding before the
 // redirect; returning users go straight home. Shared by the silent path and
 // the needs-email fallback.
-function finishSignIn(user: User, setState: (s: State) => void, claimingSpot = false) {
+function finishSignIn(user: User, setState: (s: State) => void, claimingCard = false) {
   localStorage.removeItem('emailForSignIn');
   handoffEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
   if (!user.displayName) {
-    setState({ kind: 'needs-identity', user, claimingSpot });
+    setState({ kind: 'needs-identity', user, claimingCard });
     return;
   }
   hardRedirectAfterSignIn();
@@ -147,7 +155,12 @@ function AuthActionInner() {
          die Grenze, die ein Scanner nicht überschreitet; der Mensch zahlt
          dafür einen Tap. Das needs-email-Formular hatte diese Grenze immer
          schon, jetzt hat der Normalfall sie auch. */
-      setState({ kind: 'confirm', email, href: url, claimingSpot: hasPendingSpotClaim(params) });
+      setState({
+        kind: 'confirm',
+        email,
+        href: url,
+        claimingCard: hasPendingStarterCard(params),
+      });
       return;
     }
 
@@ -221,7 +234,7 @@ function AuthActionInner() {
           <ConfirmSignIn
             email={state.email}
             href={state.href}
-            claimingSpot={state.claimingSpot}
+            claimingCard={state.claimingCard}
             setState={setState}
           />
         )}
@@ -229,7 +242,7 @@ function AuthActionInner() {
         {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
 
         {state.kind === 'needs-identity' && (
-          <IdentityForm user={state.user} claimingSpot={state.claimingSpot} />
+          <IdentityForm user={state.user} claimingCard={state.claimingCard} />
         )}
 
         {state.kind === 'expired' && (
@@ -262,7 +275,7 @@ function AuthActionInner() {
 
 // First-sign-in onboarding: pick name + avatar once, then land on Home.
 // Shown to every new account (the sign-in itself already happened).
-function IdentityForm({ user, claimingSpot }: { user: User; claimingSpot: boolean }) {
+function IdentityForm({ user, claimingCard }: { user: User; claimingCard: boolean }) {
   const [name, setName] = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
   const [error, setError] = useState('');
@@ -305,14 +318,22 @@ function IdentityForm({ user, claimingSpot }: { user: User; claimingSpot: boolea
         <br />
         auf der Map?
       </h1>
+      {/* Was hier gewählt wird, steht auf der Spielerkarte — und die ist
+          öffentlich, sobald jemand sein Deck teilt (lib/profile/publicDeck).
+          „Siehst nur du" stand hier bis zum 20.09.2026 und stimmte nicht; der
+          Nachsatz „später nicht mehr änderbar" galt außerdem nur für den
+          Namen, den Avatar tauscht das Profil (AvatarPickerModal). */}
       <p className={styles.sub}>
-        Such dir Name und Avatar — beides siehst nur du im Profil, später nicht mehr änderbar.
+        Beides steht auf deiner Spielerkarte — auch, wenn du dein Deck teilst. Den Avatar kannst du
+        später tauschen, den Namen nicht.
       </p>
-      {/* Der Faden zurück zu dem einen Spot, für den das hier alles passiert.
+      {/* Der Faden zurück zu der einen Karte, für die das hier alles passiert.
           Ohne ihn ist dieses Formular eine Unterbrechung ohne erkennbaren
           Grund. */}
-      {claimingSpot && (
-        <p className={styles.sub}>Danach geht’s zurück auf deine Map — mit deinem Spot offen.</p>
+      {claimingCard && (
+        <p className={styles.sub}>
+          Danach geht’s zurück, wo du warst — deine Karte liegt dann offen im Pack.
+        </p>
       )}
 
       <form onSubmit={submit} className={styles.form}>
@@ -392,18 +413,18 @@ function IdentityForm({ user, claimingSpot }: { user: User; claimingSpot: boolea
 function ConfirmSignIn({
   email,
   href,
-  claimingSpot,
+  claimingCard,
   setState,
 }: {
   email: string;
   href: string;
-  claimingSpot: boolean;
+  claimingCard: boolean;
   setState: (s: State) => void;
 }) {
   const submit = () => {
     setState({ kind: 'processing' });
     signInWithEmailLink(auth, email, href)
-      .then((result) => finishSignIn(result.user, setState, claimingSpot))
+      .then((result) => finishSignIn(result.user, setState, claimingCard))
       .catch((err) => {
         console.warn('[welcome] signInWithEmailLink failed:', err);
         setState({ kind: 'expired' });
@@ -419,7 +440,8 @@ function ConfirmSignIn({
         Map auf
       </h1>
       <p className={styles.sub}>
-        Du meldest dich an als <strong>{email}</strong>.{claimingSpot && ' Dein Spot wartet schon.'}
+        Du meldest dich an als <strong>{email}</strong>.
+        {claimingCard && ' Deine Karte ist im Pack dabei.'}
       </p>
       <button type="button" className={styles.cta} onClick={submit}>
         <span>Anmelden</span>

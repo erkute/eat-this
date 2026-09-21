@@ -54,7 +54,10 @@ export function useTranslation(): I18nContextValue {
       try {
         localStorage.setItem('lang', newLang);
       } catch {}
-      router.replace(pathname, { locale: newLang });
+      router.replace(`${pathname}${window.location.search}${window.location.hash}`, {
+        locale: newLang,
+        scroll: false,
+      });
     },
     [lang, pathname, router]
   );

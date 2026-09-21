@@ -24,6 +24,23 @@ const nav = vi.hoisted(() => ({ params: new URLSearchParams('') }));
 vi.mock('next/navigation', () => ({ useSearchParams: () => nav.params }));
 
 import AuthActionPage from './page';
+import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
+
+/**
+ * Die Continue-URL wird GEBAUT, nicht getippt.
+ *
+ * Bis zum 20.09.2026 schrieb dieser Test `claim=1` von Hand in die Adresse —
+ * einen Marker, den seit dem 06.09.2026 niemand mehr setzt. Die Seite las ihn,
+ * der Test bestaetigte das Lesen, und in Produktion rannte der Faden ins
+ * Leere, ohne dass irgendwo etwas rot wurde. Wer beide Seiten prueft, muss die
+ * Adresse von der Stelle bauen lassen, die sie auch in echt baut.
+ */
+function continueUrlFromTappedCard(mustEatId: string) {
+  return buildLoginContinueUrl(
+    { origin: 'https://staging.example', pathname: '/map', search: '?r=spot' },
+    { starterMustEatId: mustEatId }
+  );
+}
 
 /** Baut die Adresse, mit der der Magic-Link auf /welcome landet. */
 function arriveWithLink(continueUrl: string) {
@@ -51,7 +68,9 @@ beforeEach(() => {
   fb.updateProfile.mockResolvedValue(undefined);
   store.setDoc.mockResolvedValue(undefined);
   localStorage.clear();
-  arriveWithLink('https://staging.example/map?r=spot&claim=1&e=test%40example.com');
+  const fromCard = new URL(continueUrlFromTappedCard('must-eat-1'));
+  fromCard.searchParams.set('e', 'test@example.com');
+  arriveWithLink(fromCard.toString());
 });
 
 describe('/welcome mit Sign-in-Link', () => {
@@ -65,8 +84,8 @@ describe('/welcome mit Sign-in-Link', () => {
     expect(container.textContent).toContain('Anmelden');
     // Der Klick beantwortet eine echte Frage: als WER melde ich mich an?
     expect(container.textContent).toContain('test@example.com');
-    // Der Faden zum Spot reisst nicht ab.
-    expect(container.textContent).toContain('Dein Spot wartet schon.');
+    // Der Faden zu der angetippten Karte reisst nicht ab.
+    expect(container.textContent).toContain('Deine Karte ist im Pack dabei.');
   });
 
   it('meldet erst nach dem Klick an', async () => {
@@ -187,8 +206,8 @@ describe('/welcome — needs-identity', () => {
     });
     expect(container.textContent).toContain('Wer bist du');
     expect(container.textContent).toContain('Dein Name');
-    // Der Faden zurück zu dem einen Spot, für den das hier alles passiert.
-    expect(container.textContent).toContain('Danach geht’s zurück auf deine Map');
+    // Der Faden zurück zu der einen Karte, für die das hier alles passiert.
+    expect(container.textContent).toContain('deine Karte liegt dann offen im Pack');
     expect(analytics.handoffEvent).toHaveBeenCalledWith('sign_up', { method: 'email_link' });
   });
 

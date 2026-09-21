@@ -32,7 +32,6 @@ import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
-import SignInReward from './SignInReward';
 import MapViewToggle from './MapViewToggle';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
@@ -70,9 +69,6 @@ interface MapBodyState {
   displayedRestaurants: MapRestaurant[];
   /** Was die Liste zeigt: dieselben Treffer, nach Nähe statt nach Karte. */
   listRestaurants: MapRestaurant[];
-  /** Eine Anmeldung ist gerade in dieser Sitzung durchgegangen — der
-   *  Willkommensschirm hängt daran. */
-  justSignedIn: boolean;
   restaurantMustEats: MapMustEat[];
   selectedRestaurant: MapRestaurant | null;
   /** Row the list points at once no detail is open — the spot that was just
@@ -180,7 +176,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     dragging,
     displayedRestaurants,
     listRestaurants,
-    justSignedIn,
     restaurantMustEats,
     pagerPrev,
     pagerNext,
@@ -873,10 +868,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               remembers survives a trip into a detail and back — see the
               component. */}
           <MapViewToggle sheetView={sheetView} filterKey={listFilterKey} />
-
-          {/* Sagt nach der Anmeldung, was sie wert war. Mitte statt Kante,
-              siehe die Komponente. */}
-          <SignInReward justSignedIn={justSignedIn} />
 
           <MapDataNotice
             loading={mapDataLoading}

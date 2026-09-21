@@ -23,6 +23,34 @@ const CARD_FRONT = '/pics/card-front.webp?v=3';
  */
 export const AUTH_SCREEN_HOLD_MS = 2200;
 
+/**
+ * Ob gerade ein Wartescreen über der Seite liegt.
+ *
+ * Der Schleier ist zu 72 % deckend und liegt auf z-index 10030, also über
+ * allem anderen. Die Ankunfts-Einblendung (SignInReward, 10005) startete
+ * darunter ihre fünf Sekunden und war die ersten 2200 davon nicht zu lesen —
+ * sie wartet jetzt, bis hier wieder Sicht ist.
+ */
+let liveScreens = 0;
+const screenWatchers = new Set<(active: boolean) => void>();
+
+export function authScreenActive(): boolean {
+  return liveScreens > 0;
+}
+
+export function subscribeAuthScreen(watcher: (active: boolean) => void): () => void {
+  screenWatchers.add(watcher);
+  return () => {
+    screenWatchers.delete(watcher);
+  };
+}
+
+function countScreen(delta: 1 | -1): void {
+  liveScreens += delta;
+  const active = liveScreens > 0;
+  for (const watcher of screenWatchers) watcher(active);
+}
+
 interface Props {
   /** 'in' meldet an, 'out' meldet ab — Kicker, Zeile und Fächerrichtung folgen. */
   mode: 'in' | 'out';
@@ -49,6 +77,14 @@ export default function AuthScreen({ mode, leaving = false }: Props) {
   // Kein Portal im Server-Render — sonst Hydration-Mismatch.
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
+  /* Gezählt wird der gerenderte Screen, nicht der abfahrende: `leaving` ist
+     der Rückwärtsgang nach einem Abbruch, und danach steht nichts mehr im
+     Weg. */
+  useEffect(() => {
+    if (leaving) return;
+    countScreen(1);
+    return () => countScreen(-1);
+  }, [leaving]);
   if (!ready) return null;
 
   const arriving = mode === 'in';

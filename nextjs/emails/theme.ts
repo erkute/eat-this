@@ -2,28 +2,34 @@
 // `app/globals.css` (search `--et-home-`) — home stays the visual source of
 // truth, this file is its email projection.
 //
-// Two deliberate deviations, both forced by email clients:
-//   * `muted` is a solid hex, not the site's rgba(21,18,14,.64) — Outlook's
-//     Word engine drops rgba() colours entirely and renders black.
-//   * `rule` sits on white only; there are no translucent hairlines.
+// Ink seit dem 20.09.2026. Bis dahin stand die Mail auf weissem Papier mit
+// roten Headlines — die Gestaltung, die die Seite selbst laengst abgelegt
+// hat. Wer den Link anklickte, kam aus einer hellen Mail auf eine dunkle
+// Seite. Die Schluessel heissen deshalb jetzt nach ihrer ROLLE, nicht nach
+// ihrer Farbe: `surface` ist die Flaeche, `text` die Schrift darauf. Ein
+// `paper`, das dunkel ist, haette den naechsten Leser in die Irre gefuehrt.
+//
+// Zwei bewusste Abweichungen, beide von den Clients erzwungen:
+//   * `muted` und `rule` sind flach gerechnete Hex-Werte, keine rgba() —
+//     Outlooks Word-Engine verwirft rgba() und rendert stattdessen schwarz,
+//     was auf Ink unlesbar waere.
+//   * Es gibt keine durchscheinenden Haarlinien; `rule` ist eine feste Farbe.
 
 export const COLOR = {
-  /** --et-home-paper */
-  paper: '#ffffff',
-  /** --et-home-ink */
-  ink: '#15120e',
-  /** --et-home-accent — the single accent, used as marker squares and pills. */
+  /** --et-home-ink — die Flaeche, auf der die Mail steht. */
+  surface: '#15120e',
+  /** --et-ink-raised — eine Stufe darueber: die Starter-Pack-Tafel. */
+  raised: '#25231f',
+  /** --et-home-inverse-text — Schrift auf der Flaeche. */
+  text: '#ffffff',
+  /** Fliesstext: rgba(255,255,255,.76) flach ueber `surface` gerechnet. */
+  muted: '#c7c6c5',
+  /** --et-home-accent — der eine Akzent: Kicker, Marker, Knopf. */
   accent: '#ffc600',
-  /** --et-home-red — headlines and section titles, exactly as on home. */
-  red: '#d9382a',
-  /** --et-home-quiet — the panel grey behind Starter Pack on home. */
-  quiet: '#f2f1ef',
-  /** --et-home-rule */
-  rule: '#e4e1dc',
-  /** Flattened --et-home-muted: rgba(21,18,14,.64) over white. */
-  muted: '#5a5550',
-  /** --et-home-inverse-text */
-  inverse: '#ffffff',
+  /** --et-home-ink — Schrift AUF dem gelben Knopf. */
+  onAccent: '#15120e',
+  /** Haarlinie: rgba(255,255,255,.14) flach ueber `surface` gerechnet. */
+  rule: '#363330',
 } as const;
 
 // Body copy only. Every brand-font surface is a pre-rendered image (see

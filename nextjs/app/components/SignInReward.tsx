@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
+import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
+import { subscribeStarterPackGranted } from '@/lib/auth/signInArrival';
 import styles from './SignInReward.module.css';
 
 /** How long the message stays before it slides back out. The countdown bar in
@@ -16,25 +18,18 @@ const copy = {
   de: {
     kicker: 'Starter Pack eingelöst',
     headline: '10 direkt im Deck. 10 weitere warten draußen in Berlin auf dich.',
-    body: 'Zehn landen direkt in deinem Deck. Die anderen deckst du direkt am Spot auf.',
+    body: 'Die zehn draußen deckst du vor Ort auf — im Album stehen sie schon mit Nummer und Lokal.',
     cardAlt: 'Eat This Starter Pack',
-    action: 'Weiter zur Map',
+    action: "Los geht's",
   },
   en: {
     kicker: 'Starter Pack claimed',
     headline: '10 straight into your deck. 10 more are waiting out in Berlin for you.',
-    body: 'Ten land straight in your deck. The others you flip right at the spot.',
+    body: 'You flip those ten at the spot — the album already lists them by number and place.',
     cardAlt: 'Eat This Starter Pack',
-    action: 'Back to the map',
+    action: "Let's go",
   },
 } as const;
-
-interface Props {
-  /** Eine Anmeldung ist gerade in DIESER Sitzung durchgegangen. Nicht „ein
-   *  angemeldeter Besucher öffnet die Karte" — das ist kein Ereignis und
-   *  bekommt keine Einblendung. */
-  justSignedIn: boolean;
-}
 
 /**
  * Was die Anmeldung wert war, gesagt, wo es nicht zu übersehen ist.
@@ -51,19 +46,52 @@ interface Props {
  * zweite immer der veraltete ist (siehe die Berlin-Zahl, die aus demselben
  * Grund am 04.09.2026 entfiel).
  *
- * Der Schleier fängt keine Klicks: die Karte darunter bleibt bedienbar. Das
+ * Hängt an der Vergabe, nicht am Anmeldevorgang (siehe lib/auth/signInArrival):
+ * damit erscheint die Einblendung auf JEDEM Weg — Magic-Link, Google-Popup,
+ * Google-Redirect — und nur bei einem Konto, das sein Pack wirklich gerade
+ * bekommen hat. Bis zum 20.09.2026 hing sie an einem Zustandswechsel im
+ * selben Dokument und blieb deshalb auf allen Wegen außer dem Desktop-Popup
+ * aus, während sie Wiederkehrern ein Pack meldete, das sie längst hatten.
+ *
+ * Steht darum auch nicht mehr in der Karte, sondern im Locale-Layout: die
+ * Anmeldung endet dort, wo sie angefangen hat (Continue-URL), und das ist
+ * routinemäßig die Startseite oder eine Spot-Seite, nicht /map.
+ *
+ * Der Schleier fängt keine Klicks: die Seite darunter bleibt bedienbar. Das
  * ist eine Meldung, kein Dialog — der Knopf ist die Höflichkeit, sie früher
  * wegzuräumen, keine Schranke.
  */
-export default function SignInReward({ justSignedIn }: Props) {
+export default function SignInReward() {
   const locale = useLocale();
   const t = copy[locale === routing.defaultLocale ? 'de' : 'en'];
 
   const [phase, setPhase] = useState<'idle' | 'done' | 'leaving'>('idle');
 
+  /* Die Meldung wird EINMAL verbraucht, nicht als Zustand gehalten: der Abgang
+     endet wieder auf `idle`, und ein „liegt ein Pack vor?"-Effekt würde die
+     Einblendung von dort aus endlos neu starten.
+
+     Sie wartet ausserdem, falls ein Wartescreen über der Seite liegt — der ist
+     fast deckend, die fünf Sekunden liefen sonst darunter ab. */
   useEffect(() => {
-    if (justSignedIn) setPhase('done');
-  }, [justSignedIn]);
+    let stopWaiting: (() => void) | undefined;
+    const unsubscribe = subscribeStarterPackGranted(() => {
+      if (!authScreenActive()) {
+        setPhase('done');
+        return;
+      }
+      stopWaiting = subscribeAuthScreen((active) => {
+        if (active) return;
+        stopWaiting?.();
+        stopWaiting = undefined;
+        setPhase('done');
+      });
+    });
+    return () => {
+      unsubscribe();
+      stopWaiting?.();
+    };
+  }, []);
 
   useEffect(() => {
     if (phase === 'done') {

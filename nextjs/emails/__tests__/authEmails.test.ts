@@ -56,15 +56,19 @@ describe('shared shell', () => {
     // Alt text inherits the img's own colour — without an explicit one, the
     // wordmark on the ink masthead and footer renders black on black, and the
     // headline degrades to small body text.
+    //
+    // Seit die Mail auf Ink steht, ist die Liste zugleich eine Kontrastprobe:
+    // erlaubt sind nur Weiss und Gelb. Ein Alt-Text in `surface` oder
+    // `onAccent` (#15120e) waere auf dieser Flaeche exakt der Fehler, den
+    // dieser Test verhindern soll — unsichtbar statt bloss unschoen.
     for (const html of [await signup(), await login()]) {
       for (const img of html.match(/<img[^>]*>/g) ?? []) {
         const alt = /alt="([^"]*)"/.exec(img)?.[1] ?? '';
         expect(alt.trim()).not.toBe('');
-        // Spot photos carry their type inside the bitmap; the brand art and the
-        // wordmark are type, and must survive as styled text.
-        if (!img.includes('/spots/')) {
-          expect(img).toMatch(/color:#(?:15120e|d9382a|ffffff)/i);
-        }
+        // Ohne Ausnahme: auch die Spot-Fotos. Ihr Name steckt zwar im Bitmap,
+        // aber bei blockierten Bildern bleibt nur der Alt-Text — und der
+        // steckt in einem <Link>, erbt also sonst dessen Blau.
+        expect(img).toMatch(/color:#(?:ffffff|ffc600)/i);
       }
     }
   });

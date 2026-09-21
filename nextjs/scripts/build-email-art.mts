@@ -62,7 +62,7 @@ const ART: ArtSpec[] = [
   {
     id: 'headline-signup',
     lines: ['WE TELL YOU', 'WHAT TO EAT'],
-    color: COLOR.red,
+    color: COLOR.text,
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
@@ -72,7 +72,7 @@ const ART: ArtSpec[] = [
   {
     id: 'headline-login',
     lines: ['WILLKOMMEN', 'ZURÜCK'],
-    color: COLOR.red,
+    color: COLOR.text,
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
@@ -82,7 +82,7 @@ const ART: ArtSpec[] = [
   {
     id: 'title-starter-pack',
     lines: ['STARTER PACK'],
-    color: COLOR.red,
+    color: COLOR.text,
     size: 30,
     letterSpacing: -0.5,
     align: 'center',
@@ -91,8 +91,8 @@ const ART: ArtSpec[] = [
   {
     id: 'slogan-inverse',
     lines: ['WE TELL YOU WHAT TO EAT'],
-    color: COLOR.inverse,
-    bg: COLOR.ink,
+    color: COLOR.text,
+    bg: COLOR.surface,
     size: 12,
     letterSpacing: 2,
     align: 'center',
@@ -106,8 +106,8 @@ const ART: ArtSpec[] = [
   {
     id: 'kicker-signup',
     lines: ['WAS DU ESSEN SOLLTEST'],
-    color: COLOR.ink,
-    bg: COLOR.paper,
+    color: COLOR.accent,
+    bg: COLOR.surface,
     size: 14,
     letterSpacing: 1.2,
     align: 'left',
@@ -116,8 +116,8 @@ const ART: ArtSpec[] = [
   {
     id: 'kicker-login',
     lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
-    color: COLOR.ink,
-    bg: COLOR.paper,
+    color: COLOR.accent,
+    bg: COLOR.surface,
     size: 14,
     letterSpacing: 1.2,
     align: 'left',
@@ -126,7 +126,7 @@ const ART: ArtSpec[] = [
   {
     id: 'title-spots',
     lines: ['SCHON MAL REINSCHAUEN'],
-    color: COLOR.red,
+    color: COLOR.text,
     size: 26,
     letterSpacing: -0.5,
     align: 'left',
@@ -177,7 +177,9 @@ async function rasterise(
 
   // trim() drops the transparent surplus so the template positions the art on
   // its real ink extents instead of on padding it can't see.
-  return sharp(Buffer.from(await png.arrayBuffer())).trim({ threshold: 0 }).toBuffer();
+  return sharp(Buffer.from(await png.arrayBuffer()))
+    .trim({ threshold: 0 })
+    .toBuffer();
 }
 
 async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBrandFont>>['faces']) {
@@ -236,7 +238,8 @@ if (!isBrandFace) {
 }
 
 await mkdir(OUT_DIR, { recursive: true });
-const manifest: Record<string, { width: number; height: number; alt: string; version: string }> = {};
+const manifest: Record<string, { width: number; height: number; alt: string; version: string }> =
+  {};
 for (const spec of ART) {
   manifest[spec.id] = await renderOne(spec, faces);
   const { width, height } = manifest[spec.id];

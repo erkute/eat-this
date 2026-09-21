@@ -120,6 +120,13 @@ export default async function PackDetailPage({ params }: PageProps) {
             </h1>
             <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
             <p className={styles.sub}>{pack.description[loc]}</p>
+            {!empty && (
+              <p className={styles.sub}>
+                {loc === 'de'
+                  ? 'Einmal zahlen, kein Abo: Die Must Eats dieses Packs werden nach dem Kauf sofort aufgedeckt. Die Map bleibt kostenlos. Must Eats in deinem Deck kannst du auch kostenlos vor Ort aufdecken.'
+                  : 'One-time payment, no subscription: the Must Eats in this pack are revealed immediately after purchase. The map stays free. You can also reveal Must Eats in your deck for free on site.'}
+              </p>
+            )}
 
             <div className={styles.actions}>
               {empty ? (
@@ -163,7 +170,7 @@ export default async function PackDetailPage({ params }: PageProps) {
         </section>
 
         <div className={styles.upsell}>
-          <AllBerlinBoard locale={loc} variant="upsell" headingLevel="h2" />
+          <AllBerlinBoard contents={packContents} locale={loc} variant="upsell" headingLevel="h2" />
         </div>
       </div>
     </main>

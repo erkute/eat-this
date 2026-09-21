@@ -116,15 +116,15 @@ describe('HubSection home', () => {
     expect(head).toBeLessThan(html.indexOf('Gazzo'));
   });
 
-  it('runs what is around you first, then the pick, the magazine, the signup', () => {
+  it('runs nearby, the pick, the magazine, then Must Eats before signup', () => {
     const html = renderHome();
     // What's nearby costs the visitor one tap and answers with their own
     // street, so it leads; the pick is the editorial answer to the same
     // question. (The HubNearby mock returns a string, so it lands escaped.)
     expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Spot des Tages'));
     expect(html.indexOf('Spot des Tages')).toBeLessThan(html.indexOf('Auf dem Teller'));
-    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('data-hub-starter'));
-    expect(html.indexOf('data-hub-starter')).toBeLessThan(html.indexOf('musteats'));
+    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('musteats'));
+    expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
   });
 
   it("dates the pick, so 'des Tages' is something the visitor can see", () => {

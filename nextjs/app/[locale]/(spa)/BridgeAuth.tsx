@@ -33,6 +33,7 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
+import { announceSignIn } from '@/lib/auth/signInArrival';
 import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 
 const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
@@ -68,9 +69,15 @@ export default function BridgeAuth() {
       closeLogin();
       /* Wartete hier ein Herz, sagt dessen eigene Bestaetigung ("Spot
          gespeichert", siehe pendingHeart) mehr als "Du bist angemeldet" —
-         und zwei Meldungen hintereinander wuerden einander wegdruecken. */
+         und zwei Meldungen hintereinander wuerden einander wegdruecken.
+         Aus demselben Grund geht die Zeile durch `announceSignIn`: ein neues
+         Konto bekommt die Starter-Pack-Einblendung, und die sagt alles, was
+         diese Zeile sagen wuerde, und mehr. Sie faellt also aus, sobald ein
+         Pack unterwegs ist — und kommt, wenn keins kommt (Wiederkehrer). */
       if (!heartPending) {
-        window.showNotification?.(locale === 'de' ? 'Du bist angemeldet' : "You're signed in");
+        announceSignIn(() =>
+          window.showNotification?.(locale === 'de' ? 'Du bist angemeldet' : "You're signed in")
+        );
       }
     }, AUTH_SCREEN_HOLD_MS);
     return () => window.clearTimeout(timer);

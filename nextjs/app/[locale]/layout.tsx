@@ -4,6 +4,7 @@ import { setRequestLocale, getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
+import SignInReward from '@/app/components/SignInReward';
 import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
@@ -98,6 +99,11 @@ export default async function LocaleLayout({
         />
         <ClientIntlProvider locale={locale} messages={messages}>
           <ReferralToastListener />
+          {/* Sagt nach der Anmeldung, was sie wert war. Hier und nicht in der
+              Karte: eine Anmeldung kommt dort heraus, wo sie angefangen hat —
+              Startseite, Spot-Seite, geteiltes Deck —, und der Schirm ist eine
+              Fläche über der Seite, keine Kartenbeigabe. */}
+          <SignInReward />
           {/* Global toast (window.showNotification) — mounted here, not in the
               SPA layout, so /profile and /login get feedback too. Styled in
               globals.css (those routes don't load the SPA stylesheet). */}

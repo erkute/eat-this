@@ -30,14 +30,19 @@ export default function LoginEmail({ magicLink, appUrl }: LoginEmailProps) {
         <ArtImage
           art={ART.kickerLogin}
           appUrl={appUrl}
-          altStyle={{ color: COLOR.ink, fontSize: '11px', fontWeight: 700, letterSpacing: '0.16em' }}
+          altStyle={{
+            color: COLOR.accent,
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+          }}
           style={{ margin: '0 0 14px' }}
         />
 
         <ArtImage
           art={ART.headlineLogin}
           appUrl={appUrl}
-          altStyle={{ color: COLOR.red, fontSize: '30px', fontWeight: 700 }}
+          altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
           style={{ margin: '0 0 20px' }}
         />
 
@@ -51,7 +56,7 @@ export default function LoginEmail({ magicLink, appUrl }: LoginEmailProps) {
           Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:{' '}
           {/* Second target for clients that mangle the styled anchor — the same
               href, as plain underlined text. */}
-          <Link href={magicLink} style={{ color: COLOR.ink, textDecoration: 'underline' }}>
+          <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'underline' }}>
             hier ist er als normaler Link
           </Link>
           .

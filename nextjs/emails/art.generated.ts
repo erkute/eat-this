@@ -23,21 +23,21 @@ export const ART = {
     "width": 470,
     "height": 114,
     "alt": "WE TELL YOU WHAT TO EAT",
-    "version": "86e76b14"
+    "version": "f6603545"
   },
   "headlineLogin": {
     "id": "headline-login",
     "width": 470,
     "height": 113,
     "alt": "WILLKOMMEN ZURÜCK",
-    "version": "6408414f"
+    "version": "c7e0360b"
   },
   "titleStarterPack": {
     "id": "title-starter-pack",
     "width": 210,
     "height": 23,
     "alt": "STARTER PACK",
-    "version": "fd7fe63e"
+    "version": "72748eec"
   },
   "sloganInverse": {
     "id": "slogan-inverse",
@@ -51,20 +51,20 @@ export const ART = {
     "width": 220,
     "height": 23,
     "alt": "WAS DU ESSEN SOLLTEST",
-    "version": "d7007115"
+    "version": "491f6c57"
   },
   "kickerLogin": {
     "id": "kicker-login",
     "width": 296,
     "height": 27,
     "alt": "SCHÖN, DASS DU WIEDER DA BIST",
-    "version": "5d46d3ec"
+    "version": "78794ace"
   },
   "titleSpots": {
     "id": "title-spots",
     "width": 290,
     "height": 17,
     "alt": "SCHON MAL REINSCHAUEN",
-    "version": "03b6c846"
+    "version": "abf1d1c9"
   }
 } as const satisfies Record<string, ArtAsset>;

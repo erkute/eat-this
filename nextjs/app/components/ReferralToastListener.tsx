@@ -5,6 +5,7 @@ import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
 import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
+import { finishStarterPackCheck, startStarterPackCheck } from '@/lib/auth/signInArrival';
 import { trackEvent } from '@/lib/analytics';
 
 // Einmal pro Browser-Session UND Konto — gesetzt erst, wenn der Server
@@ -70,22 +71,35 @@ export default function ReferralToastListener() {
              die Anmelde-Tafel hat „diese ist dabei" versprochen, und die
              Route legt sie offen ins Pack (siehe pendingStarterCard). */
           const mustEatId = takePendingStarterCard();
-          const res = await fetch('/api/starter-pack', {
-            method: 'POST',
-            headers: {
-              authorization: `Bearer ${idToken}`,
-              'content-type': 'application/json',
-            },
-            body: JSON.stringify(mustEatId ? { mustEatId } : {}),
-          });
-          if (res.ok) {
-            starter.mark();
-            /* Nur die echte Vergabe zaehlt — `already_claimed` ist ein
-               Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
-               „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
-               `sign_up`, und ob das Pack ankam, wuesste niemand. */
-            const outcome = (await res.json().catch(() => null)) as { granted?: boolean } | null;
-            if (outcome?.granted) trackEvent('starter_pack_granted');
+          /* Diese Antwort entscheidet, was der Leser von seiner Anmeldung zu
+             sehen bekommt: `granted` heisst Einblendung, alles andere heisst
+             Toast. Deshalb wird die Abfrage angemeldet, BEVOR sie laeuft —
+             sonst redet der Toast dazwischen (siehe signInArrival). */
+          startStarterPackCheck();
+          let granted = false;
+          try {
+            const res = await fetch('/api/starter-pack', {
+              method: 'POST',
+              headers: {
+                authorization: `Bearer ${idToken}`,
+                'content-type': 'application/json',
+              },
+              body: JSON.stringify(mustEatId ? { mustEatId } : {}),
+            });
+            if (res.ok) {
+              starter.mark();
+              /* Nur die echte Vergabe zaehlt — `already_claimed` ist ein
+                 Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
+                 „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
+                 `sign_up`, und ob das Pack ankam, wuesste niemand. */
+              const outcome = (await res.json().catch(() => null)) as { granted?: boolean } | null;
+              granted = outcome?.granted === true;
+              if (granted) trackEvent('starter_pack_granted');
+            }
+          } finally {
+            /* Auch nach einem Netzwerkfehler: sonst wartet die
+               zurueckgestellte Anmelde-Zeile fuer immer auf eine Antwort. */
+            finishStarterPackCheck(granted);
           }
         }
         if (flag.seen) return;

@@ -22,8 +22,8 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
       a: 'Aktuell liegt der Fokus auf Berlin. Weitere Städte sind bereits geplant.',
     },
     {
-      q: 'Warum kostet das was?',
-      a: 'Weil wir keine Werbung schalten und nicht von Restaurants bezahlt werden. Unsere Unabhängigkeit ist dein Filter für gutes Essen.',
+      q: 'Ist Eat This kostenlos?',
+      a: 'Die Map ist kostenlos. Mit dem kostenlosen Starter Pack kannst du Must Eats sammeln und vor Ort aufdecken. Optional kannst du mit einem Booster Pack die enthaltenen Must Eats sofort freischalten: einmal zahlen, kein Abo. Damit unterstützt du unsere unabhängige Auswahl ohne bezahlte Restaurantplatzierungen.',
     },
   ],
   en: [
@@ -44,8 +44,8 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
       a: 'Right now we focus on Berlin. More cities are already planned.',
     },
     {
-      q: 'Why does it cost anything?',
-      a: "Because we don't run ads and don't get paid by restaurants. Our independence is your filter for good food.",
+      q: 'Is Eat This free?',
+      a: 'The map is free. With the free Starter Pack, you can collect Must Eats and reveal them on site. Optional Booster Packs unlock their Must Eats immediately with a one-time payment and no subscription. Purchases support our independent selection without paid restaurant placements.',
     },
   ],
 };

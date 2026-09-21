@@ -165,25 +165,6 @@ export default function MapSection({
      Gast (siehe resolveUserTier). */
   const userTier = useUserTier(uid, { fullCatalog, dataUid, authLoading });
 
-  /* Eine Anmeldung, die GERADE passiert ist — nicht „ein angemeldeter Besucher
-     öffnet die Karte". Der Unterschied ist die Reihenfolge: erst muss Auth
-     durch sein und niemanden gemeldet haben, dann darf eine uid auftauchen.
-     Ohne diese Bedingung grüßt der Willkommensschirm jeden Wiederkehrer, weil
-     `uid` beim Start immer null ist, bis Firebase antwortet. */
-  const wasSignedOutRef = useRef(false);
-  const [justSignedIn, setJustSignedIn] = useState(false);
-  useEffect(() => {
-    if (authLoading) return;
-    if (!uid) {
-      wasSignedOutRef.current = true;
-      return;
-    }
-    if (wasSignedOutRef.current) {
-      wasSignedOutRef.current = false;
-      setJustSignedIn(true);
-    }
-  }, [authLoading, uid]);
-
   useEffect(() => {
     if (!isActive || mapTrackedRef.current) return;
     mapTrackedRef.current = true;
@@ -1948,7 +1929,6 @@ export default function MapSection({
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
       listRestaurants={listRestaurants}
-      justSignedIn={justSignedIn}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}

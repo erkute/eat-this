@@ -1,11 +1,17 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useDialogFocus } from '@/lib/useDialogFocus';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackPrice, formatBundleSavings, packUrlSlug } from '@/lib/pack/packDetail';
+import {
+  type PackContentsIndex,
+  formatPackPrice,
+  formatBundleSavings,
+  packUrlSlug,
+} from '@/lib/pack/packDetail';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import styles from './AllBerlinSheet.module.css';
 
@@ -18,6 +24,7 @@ import styles from './AllBerlinSheet.module.css';
 
 interface Props {
   locale: 'de' | 'en';
+  contents: PackContentsIndex;
 }
 
 const copy = {
@@ -25,8 +32,8 @@ const copy = {
     trigger: 'Was drin ist',
     close: 'Schließen',
     kicker: 'All Berlin',
-    title: 'Neun Packs drin',
-    lead: 'Alle neun Packs. Und jedes Must Eat, das wir noch entdecken.',
+    title: 'Diese Packs sind dabei',
+    lead: 'Alle verfügbaren Packs sofort. Kommende Packs und neue Must Eats sind bei Veröffentlichung ebenfalls enthalten.',
     cta: 'All Berlin freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
@@ -37,8 +44,8 @@ const copy = {
     trigger: "What's inside",
     close: 'Close',
     kicker: 'All Berlin',
-    title: 'Nine packs inside',
-    lead: 'All nine packs. And every Must Eat we still discover.',
+    title: 'Included packs',
+    lead: 'All available packs right away. Upcoming packs and new Must Eats are included when published.',
     cta: 'Unlock All Berlin',
     pending: 'Going to Stripe …',
     owned: 'Open map',
@@ -50,15 +57,15 @@ const copy = {
 const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
 const allBerlin = CATALOG['all-berlin'];
 
-export default function AllBerlinSheet({ locale }: Props) {
+export default function AllBerlinSheet({ locale, contents }: Props) {
   const t = copy[locale];
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(open, panelRef, triggerRef);
 
   const close = useCallback(() => {
     setOpen(false);
-    triggerRef.current?.focus();
   }, []);
 
   // Body scroll lock while open (same pattern as MustEatsOnboarding).
@@ -68,7 +75,6 @@ export default function AllBerlinSheet({ locale }: Props) {
     const prevTouchAction = document.body.style.touchAction;
     document.body.style.overflow = 'hidden';
     document.body.style.touchAction = 'none';
-    panelRef.current?.focus();
     return () => {
       document.body.style.overflow = prevOverflow;
       document.body.style.touchAction = prevTouchAction;
@@ -142,7 +148,12 @@ export default function AllBerlinSheet({ locale }: Props) {
                             className={styles.art}
                           />
                         )}
-                        <span className={styles.name}>{pack.displayName}</span>
+                        <span className={styles.name}>
+                          {pack.displayName}
+                          {(contents.byCategory[pack.slug ?? '']?.mustEats ?? 0) === 0 && (
+                            <small> · {locale === 'de' ? 'Kommt bald' : 'Coming soon'}</small>
+                          )}
+                        </span>
                       </Link>
                     </li>
                   );
@@ -163,7 +174,14 @@ export default function AllBerlinSheet({ locale }: Props) {
                   ownedHref={t.map}
                   errorLabel={t.error}
                 />
-                <p className={styles.savings}>{formatBundleSavings(locale)}</p>
+                <p className={styles.savings}>
+                  {locale === 'de'
+                    ? 'Einmal zahlen · kein Abo'
+                    : 'One-time payment · no subscription'}
+                </p>
+                {formatBundleSavings(locale, contents) && (
+                  <p className={styles.savings}>{formatBundleSavings(locale, contents)}</p>
+                )}
               </div>
             </div>
           </div>,

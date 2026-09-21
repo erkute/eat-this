@@ -166,6 +166,7 @@ const en = {
     // locked variant of its own — every match is a row, and this is the one
     // place that names the state.
     lockedDetailKicker: 'Still face down',
+    hiddenMustEatAria: 'Hidden Must-Eat',
     mustEatAtAria: 'Must Eat at {name}',
     // The covered card carries two lines: state on top, action below — and no
     // number at all. First "8.2 km to go" and "get within 50 m" stood on top of
@@ -411,7 +412,7 @@ const en = {
       sentH1: 'Mail’s out',
       sentToLabel: 'Sent to',
       sentSub:
-        'Click the link in the mail and you’re on your map. It’s valid 15 minutes and only on this device.',
+        'Click the link in the mail and you’re on your map. It’s valid an hour and only for your address.',
       spamHint:
         'Nothing in your inbox? Check the spam folder — first contact sometimes lands there.',
       otherEmail: 'Different email',
@@ -593,6 +594,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyReset: 'Filter zurücksetzen',
     emptyResetSearch: 'Suche löschen',
     lockedDetailKicker: 'Noch verdeckt',
+    hiddenMustEatAria: 'Verdecktes Must-Eat',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
     // Handlung — und gar keine Zahl mehr. Erst standen „Noch 8,2 km" und
@@ -878,7 +880,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       sentH1: 'Mail ist raus',
       sentToLabel: 'Gesendet an',
       sentSub:
-        'Klick den Link in der Mail und du bist auf deiner Map. Er gilt 15 Minuten und nur auf diesem Ger\u00e4t.',
+        'Klick den Link in der Mail und du bist auf deiner Map. Er gilt eine Stunde und nur f\u00fcr deine Adresse.',
       spamHint:
         'Nichts in der Inbox? Wirf einen Blick in den Spam-Ordner \u2014 Erstkontakt landet manchmal da.',
       otherEmail: 'Andere Adresse',

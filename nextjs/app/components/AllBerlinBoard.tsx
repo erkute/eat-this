@@ -133,8 +133,8 @@ export default function AllBerlinBoard({
             ownedHref={t.map}
             errorLabel={t.error}
           />
-          <p className={styles.savings}>
-            {locale === 'de' ? 'Einmal zahlen · kein Abo' : 'One-time payment · no subscription'}
+          <p className={styles.paymentNote}>
+            {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
           </p>
           {formatBundleSavings(locale, contents) && (
             <p className={styles.savings}>{formatBundleSavings(locale, contents)}</p>

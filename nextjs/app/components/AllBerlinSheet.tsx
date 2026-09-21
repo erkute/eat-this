@@ -174,10 +174,10 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
                   ownedHref={t.map}
                   errorLabel={t.error}
                 />
-                <p className={styles.savings}>
+                <p className={styles.paymentNote}>
                   {locale === 'de'
-                    ? 'Einmal zahlen · kein Abo'
-                    : 'One-time payment · no subscription'}
+                    ? 'Einmalzahlung, kein Abo'
+                    : 'One-time payment, no subscription'}
                 </p>
                 {formatBundleSavings(locale, contents) && (
                   <p className={styles.savings}>{formatBundleSavings(locale, contents)}</p>

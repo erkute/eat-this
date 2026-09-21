@@ -2,6 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useDialogFocus } from '@/lib/useDialogFocus';
 import { useTranslation } from '@/lib/i18n';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
@@ -56,6 +57,9 @@ export default function MustEatsOnboarding({
   const { lang, t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(open, panelRef, triggerRef);
 
   // Same anon face-up set the gallery shows — the demo card is one the
   // visitor can actually see face-up in the grid below.
@@ -195,6 +199,9 @@ export default function MustEatsOnboarding({
     <>
       <button
         type="button"
+        ref={triggerRef}
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className={tone === 'ink' ? `${styles.how} ${styles.howInk}` : styles.how}
         onClick={reopen}
       >
@@ -208,6 +215,8 @@ export default function MustEatsOnboarding({
         createPortal(
           <div className={styles.backdrop} onClick={close}>
             <div
+              ref={panelRef}
+              tabIndex={-1}
               className={styles.panel}
               role="dialog"
               aria-modal="true"

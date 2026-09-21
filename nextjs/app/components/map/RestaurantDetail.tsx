@@ -50,6 +50,7 @@ function MustEatMiniCard({
   unlocked: boolean;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
   const dish = mustEat.dish ?? 'Must Eat';
 
   return (
@@ -58,7 +59,7 @@ function MustEatMiniCard({
         type="button"
         className={styles.medish}
         onClick={onClick}
-        aria-label={unlocked ? dish : 'Locked Must Eat'}
+        aria-label={unlocked ? dish : t('map.hiddenMustEatAria')}
       >
         <div className={styles.medishPh}>
           <img

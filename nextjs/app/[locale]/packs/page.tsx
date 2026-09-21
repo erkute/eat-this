@@ -74,7 +74,13 @@ export default async function PacksOverviewPage({ params }: PageProps) {
   return (
     <main className={styles.page}>
       <div className={styles.wrap}>
-        <AllBerlinBoard locale={loc} variant="hero" headingLevel="h1" priority />
+        <AllBerlinBoard
+          contents={packContents}
+          locale={loc}
+          variant="hero"
+          headingLevel="h1"
+          priority
+        />
 
         <section className={styles.catalog} aria-labelledby="packs-catalog-title">
           <div className={styles.catalogHead}>
@@ -95,7 +101,8 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                  Wie viele Karten drin sind, steht nirgends: das Produkt nennt
                  seine Zahlen nicht. Umso mehr haengt der Fehlkauf an diesem
                  Riegel — er ist das Einzige, was ihn noch verhindert. */
-              const empty = (pack.slug ? packContents.byCategory[pack.slug]?.mustEats : 1) === 0;
+              const empty =
+                (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
 
               return (
                 <li key={pack.packId} className={styles.tile}>

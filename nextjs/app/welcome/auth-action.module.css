@@ -84,13 +84,27 @@
   animation: cardShuffle 2200ms ease-in-out infinite;
 }
 
-.loadingCards img:nth-child(1) { --card-angle: -18deg; --card-x: -24px; }
-.loadingCards img:nth-child(2) { --card-angle: 16deg; --card-x: 24px; }
-.loadingCards img:nth-child(3) { --card-angle: -3deg; --card-x: 0px; }
+.loadingCards img:nth-child(1) {
+  --card-angle: -18deg;
+  --card-x: -24px;
+}
+.loadingCards img:nth-child(2) {
+  --card-angle: 16deg;
+  --card-x: 24px;
+}
+.loadingCards img:nth-child(3) {
+  --card-angle: -3deg;
+  --card-x: 0px;
+}
 
 @keyframes cardShuffle {
-  0%, 100% { transform: translateX(var(--card-x)) rotate(var(--card-angle)); }
-  50% { transform: translateY(-8px) rotate(0deg); }
+  0%,
+  100% {
+    transform: translateX(var(--card-x)) rotate(var(--card-angle));
+  }
+  50% {
+    transform: translateY(-8px) rotate(0deg);
+  }
 }
 
 .splashTitle {
@@ -465,9 +479,19 @@
   text-align: center;
 }
 
-.frame .logoMark { margin-inline: auto; width: 112px; }
-.frame .kicker { font-size: 14px; font-weight: 400; letter-spacing: 0; text-transform: none; }
-.frame .sub { font-size: 15px; }
+.frame .logoMark {
+  margin-inline: auto;
+  width: 112px;
+}
+.frame .kicker {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.frame .sub {
+  font-size: 15px;
+}
 
 /* Die Bestätigung bekommt einen eigenen Auftritt innerhalb desselben Layers. */
 .confirmFrame {
@@ -484,8 +508,13 @@
   margin: 0 0 26px;
 }
 .confirmFrame .confirmHeading .kicker,
-.confirmFrame .confirmHeading .title { text-align: center; }
-.confirmFrame .confirmHeading .kicker { margin-bottom: 12px; font-size: 13px; }
+.confirmFrame .confirmHeading .title {
+  text-align: center;
+}
+.confirmFrame .confirmHeading .kicker {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
 .confirmFrame .confirmHeading .title {
   margin: 0;
   font-size: clamp(32px, 7.5vw, 48px);
@@ -509,130 +538,92 @@
   border-radius: var(--et-radius-control, 7px);
   text-align: center;
 }
-.confirmIdentity span { font-size: 12px; color: var(--w-muted); }
-.confirmIdentity strong { font-size: 17px; font-weight: 400; overflow-wrap: anywhere; }
-.confirmNote { margin: 0 0 18px; text-align: center; font-size: 13px; color: var(--w-muted); }
-.confirmFrame .cta { min-height: 54px; }
+.confirmIdentity span {
+  font-size: 12px;
+  color: var(--w-muted);
+}
+.confirmIdentity strong {
+  font-size: 17px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.confirmNote {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--w-muted);
+}
+.confirmFrame .cta {
+  min-height: 54px;
+}
 @media (max-width: 380px) {
-  .confirmFrame { padding: 26px 20px; }
-  .confirmFrame .confirmHeading .title { font-size: 29px; }
+  .confirmFrame {
+    padding: 26px 20px;
+  }
+  .confirmFrame .confirmHeading .title {
+    font-size: 29px;
+  }
 }
 @media (max-width: 600px) {
-  .confirmFrame .confirmHeading .title { font-size: clamp(25px, 6.7vw, 36px); }
+  .confirmFrame .confirmHeading .title {
+    font-size: clamp(25px, 6.7vw, 36px);
+  }
 }
 
-.confirmFrame .logoWrap { margin-bottom: 26px; }
-.confirmFrame .logoMark { width: 100px; }
+.confirmFrame .logoWrap {
+  margin-bottom: 26px;
+}
+.confirmFrame .logoMark {
+  width: 100px;
+}
 
 /* Auf kurzen Displays bleibt die Anmeldung ohne Scrollen erreichbar. */
 @media (max-height: 780px) {
-  .confirmFrame { padding: 20px; }
-  .confirmFrame .logoWrap { margin-bottom: 18px; }
-  .confirmHero { gap: 14px; margin-bottom: 20px; }
-  .confirmPack { width: 112px; height: clamp(120px, 25dvh, 160px); }
-  .confirmIdentity { padding-block: 14px; margin-bottom: 14px; }
+  .confirmFrame {
+    padding: 20px;
+  }
+  .confirmFrame .logoWrap {
+    margin-bottom: 18px;
+  }
+  .confirmHero {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .confirmPack {
+    width: 112px;
+    height: clamp(120px, 25dvh, 160px);
+  }
+  .confirmIdentity {
+    padding-block: 14px;
+    margin-bottom: 14px;
+  }
 }
 
 /* Mehr Platz fuer die Figuren, weniger Formulartext. */
-.identityFrame .logoWrap { margin-bottom: 24px; }
-.identityFrame .sub { margin-bottom: 24px; }
-
-.identityFrame .avatars { gap: 9px; margin: 8px 0 4px; }
-.identityFrame .avatar { padding: 18px 5px 14px; gap: 12px; }
-.identityFrame .avatarPh { width: clamp(58px, 19vw, 90px); }
-.identityFrame .avatarName { font-weight: 400; }
-.identityFrame .avatarActive { background: rgba(255, 198, 0, 0.08); }
-.identityFrame .avatarActive::after { content: none; }
-
-.packStage {
-  position: relative;
-  --card-width: clamp(109.12px, 30.8vw, 149.6px);
-  --pack-width: calc(var(--card-width) * 1.3);
-  height: clamp(280px, 39dvh, 340px);
-  margin: 12px 0;
-  isolation: isolate;
-  overflow: hidden;
+.identityFrame .logoWrap {
+  margin-bottom: 24px;
 }
-.packWrapper {
-  position: absolute;
-  width: var(--pack-width);
-  height: calc(var(--pack-width) * 1.47);
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
-.packBody, .packSeal {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.packBody { filter: drop-shadow(0 12px 15px #0005); }
-.packSeal { clip-path: inset(0 0 92% 0); transform-origin: 85% 8%; }
-.revealCard {
-  position: absolute;
-  width: var(--card-width);
-  height: calc(var(--card-width) * 1.375);
-  object-fit: contain;
-  top: 55%;
-  left: 50%;
-  filter: drop-shadow(0 8px 12px #0005);
-  visibility: hidden;
-  transform-origin: 50% 65%;
-}
-.revealFront { --fan: -58%; --turn: -4deg; z-index: 1; }
-.revealBack { --fan: 58%; --turn: 4deg; }
-.packStage[data-phase='opening'] .packBody {
-  animation: wrapperDrop 1900ms linear both;
-}
-.packStage[data-phase='opening'] .packSeal { animation: tearSeal 1900ms linear both; }
-.packStage[data-phase='opening'] .revealCard {
-  visibility: visible;
-  animation: cardsEmerge 1900ms linear both;
-}
-.packStage[data-phase='open'] .revealCard {
-  visibility: visible;
-  transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn));
-}
-/* Erst die Naht lösen; die Hülle bleibt davor geschlossen. */
-@keyframes tearSeal {
-  0%, 5% { transform: translate(0, 0) rotate(0); animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
-  20% { transform: translate(16px, -16px) rotate(9deg); animation-timing-function: cubic-bezier(.4, 0, 1, 1); }
-  42%, 100% { transform: translate(200px, -85px) rotate(28deg); }
-}
-/* Die Hülle verdeckt die Karten, bis diese durch die obere Öffnung gleiten.
-   Erst nach dem sichtbaren Herausziehen fällt sie nach unten weg. */
-@keyframes wrapperDrop {
-  0%, 5% { clip-path: inset(0); transform: translateY(0); }
-  6%, 28% { clip-path: inset(7.5% 0 0 0); transform: translateY(0); animation-timing-function: cubic-bezier(.42, 0, .58, 1); }
-  48% { clip-path: inset(7.5% 0 0 0); transform: translateY(18px); animation-timing-function: cubic-bezier(.55, 0, .85, .5); }
-  74%, 100% { clip-path: inset(7.5% 0 0 0); transform: translateY(340px) rotate(3deg); }
-}
-/* Beide Karten sind bis 70% ein schmaler Stapel in der Pack-Mitte.
-   Kein seitlicher Weg durch die Verpackung: erst hoch, dann auseinander. */
-@keyframes cardsEmerge {
-  0%, 22% { transform: translate(-50%, -40%); animation-timing-function: cubic-bezier(.25, .1, .25, 1); }
-  48% { transform: translate(-50%, -76%); animation-timing-function: cubic-bezier(.2, .6, .3, 1); }
-  70% { transform: translate(-50%, -84%); animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
-  100% { transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn)); }
-}
-.packExplanation { min-height: 72px; margin-bottom: 18px; display: grid; align-items: center; }
-.packExplanation .sub { margin: 0; }
-.packFacts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; text-align: center; }
-.packFacts p { display: grid; gap: 6px; margin: 0; }
-.packFacts strong { font-size: 18px; font-weight: 400; color: var(--w-accent); }
-.packFacts span { font-size: 12px; color: var(--w-muted); }
-@media (prefers-reduced-motion: reduce) {
-  .packStage[data-phase='opening'] .packBody,
-  .packStage[data-phase='opening'] .packSeal,
-  .packStage[data-phase='opening'] .revealCard { animation: none; }
+.identityFrame .sub {
+  margin-bottom: 24px;
 }
 
-/* Die Karten enden oberhalb der Animationsbühne: Beschriftungen direkt darunter. */
-.packExplanationOpen {
-  position: relative;
-  margin-top: -64px;
-  margin-bottom: 82px;
+.identityFrame .avatars {
+  gap: 9px;
+  margin: 8px 0 4px;
+}
+.identityFrame .avatar {
+  padding: 18px 5px 14px;
+  gap: 12px;
+}
+.identityFrame .avatarPh {
+  width: clamp(58px, 19vw, 90px);
+}
+.identityFrame .avatarName {
+  font-weight: 400;
+}
+.identityFrame .avatarActive {
+  background: rgba(255, 198, 0, 0.08);
+}
+.identityFrame .avatarActive::after {
+  content: none;
 }

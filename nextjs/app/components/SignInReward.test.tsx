@@ -5,7 +5,19 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 /* Exercise the real arrival event and the user-controlled introduction. */
 vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
 vi.mock('@/i18n/navigation', () => ({
-  Link: ({ children, href, onClick }: { children: React.ReactNode; href: string; onClick: () => void }) => <a href={href} onClick={onClick}>{children}</a>,
+  Link: ({
+    children,
+    href,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    onClick: () => void;
+  }) => (
+    <a href={href} onClick={onClick}>
+      {children}
+    </a>
+  ),
 }));
 vi.mock('next/image', () => ({
   default: () => null,
@@ -69,21 +81,35 @@ describe('Ankunft nach der Anmeldung', () => {
     act(() => finishStarterPackCheck(true));
     act(() => void vi.advanceTimersByTime(60000));
     expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
+    expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
   });
 
-  it('führt vorwärts und zurück durch alle Funktionen und endet bewusst', () => {
+  it('öffnet zuerst das Pack, führt dann durch die Funktionen und endet an zwei Türen', () => {
     render(<SignInReward />);
     act(() => finishStarterPackCheck(true));
     expect(document.body.style.overflow).toBe('hidden');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    expect((screen.getByRole('button', { name: 'Öffnet …' }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
+    act(() => void vi.advanceTimersByTime(1900));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten Karten.');
+    expect(screen.getByText('10 verdeckt')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     expect(screen.getByRole('heading').textContent).toBe('Wissen, was du bestellst.');
     fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
     expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
-    for (let step = 0; step < 3; step++) fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
-    expect(screen.getByRole('heading').textContent).toBe('Alles Gute bleibt bei dir.');
-    expect(screen.getByRole('link', { name: 'Zur Map' }).getAttribute('href')).toBe('/map');
-    fireEvent.click(screen.getByRole('button', { name: 'Los geht’s' }));
+    for (let step = 0; step < 3; step++)
+      fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+
+    expect(screen.getByRole('heading').textContent).toBe('Wohin zuerst?');
+    expect(screen.queryByRole('button', { name: 'Weiter' })).toBeNull();
+    expect(screen.getByRole('link', { name: /Deck/ }).getAttribute('href')).toBe('/profile');
+    fireEvent.click(screen.getByRole('link', { name: /Map/ }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).not.toBe('hidden');
   });
@@ -92,12 +118,24 @@ describe('Ankunft nach der Anmeldung', () => {
     render(<SignInReward />);
     act(() => openOnboarding());
     expect(screen.getByText('So geht’s')).toBeTruthy();
-    expect(screen.queryByText(/Dein Starter Pack ist da/)).toBeNull();
+    // Kein Pack: die Wiederholung beginnt bei der Map.
+    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
+    expect(screen.queryByRole('button', { name: 'Öffnen' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
     act(() => openOnboarding());
     expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
+  });
+
+  it('gibt den Fokus an den Knopf zurück, der sie geöffnet hat', () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    render(<SignInReward />);
+    act(() => openOnboarding(trigger));
+    fireEvent.click(screen.getByRole('button', { name: 'Überspringen' }));
+    expect(document.activeElement).toBe(trigger);
+    trigger.remove();
   });
 
   it('startet nicht unter dem Wartescreen — der ist fast deckend', () => {

@@ -257,10 +257,13 @@ export default function BurgerDrawer() {
               className="bd-nav-item"
               onClick={() => {
                 closeBurger(true);
-                window.requestAnimationFrame(openOnboarding);
+                /* Der Burger-Knopf bleibt sichtbar, der Menüpunkt nicht — dorthin
+                   kehrt der Fokus zurück, wenn die Tour schließt. */
+                const trigger = document.getElementById('burgerBtn');
+                window.requestAnimationFrame(() => openOnboarding(trigger));
               }}
             >
-              {lang === 'de' ? 'So geht’s' : 'How it works'}
+              {t('burger.howItWorks')}
             </button>
             <DrawerLink href="/about" className="bd-nav-item">
               {t('burger.about')}

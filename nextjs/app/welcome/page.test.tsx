@@ -284,7 +284,6 @@ describe('/welcome ohne brauchbaren Link', () => {
   });
 });
 
-
 afterEach(() => vi.unstubAllEnvs());
 
 describe('local identity preview', () => {
@@ -294,30 +293,18 @@ describe('local identity preview', () => {
     const container = await mount();
     expect(container.textContent).toContain('Wer bist du?');
     fireEvent.change(container.querySelector('#ob-name')!, { target: { value: 'Testname' } });
-    fireEvent.submit(container.querySelector('form')!);
-    expect(container.textContent).toContain('Starter Pack.');
-    expect(buttonWith(container, 'Öffnen')).toBeTruthy();
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    try {
+      fireEvent.submit(container.querySelector('form')!);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    // Weiter in die Tour-Vorschau — dort liegt die Pack-Animation.
+    expect(assign).toHaveBeenCalledWith('/?preview=welcome');
     expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
     expect(fb.updateProfile).not.toHaveBeenCalled();
     expect(store.setDoc).not.toHaveBeenCalled();
-  });
-
-  it('opens the preview pack before offering the introduction without account writes', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
-    nav.params = new URLSearchParams('preview=welcome');
-    vi.useFakeTimers();
-    try {
-      const container = await mount();
-      expect(container.querySelector('a[href*="preview=intro"]')).toBeNull();
-      fireEvent.click(buttonWith(container, 'Öffnen'));
-      expect(buttonWith(container, 'Öffnet').disabled).toBe(true);
-      await act(async () => { vi.advanceTimersByTime(1900); });
-      expect(container.textContent).toContain('Deine erstenKarten.');
-      expect(container.textContent).toContain('10 verdeckt');
-      expect(container.querySelector('a[href*="preview=intro"]')?.textContent).toBe('So funktioniert’s');
-      expect(fb.updateProfile).not.toHaveBeenCalled();
-      expect(store.setDoc).not.toHaveBeenCalled();
-    } finally { vi.useRealTimers(); }
   });
 
   it('previews the confirmation and moves to identity without consuming a link', async () => {
@@ -331,11 +318,14 @@ describe('local identity preview', () => {
     expect(fb.updateProfile).not.toHaveBeenCalled();
   });
 
-  it.each(['identity', 'loading', 'confirm', 'welcome'])('does not enable %s preview in production', async (preview) => {
-    vi.stubEnv('NODE_ENV', 'production');
-    nav.params = new URLSearchParams({ preview });
-    const container = await mount();
-    expect(container.textContent).toContain('Dieser Link geht nicht mehr');
-    expect(container.querySelector('#ob-name')).toBeNull();
-  });
+  it.each(['identity', 'loading', 'confirm'])(
+    'does not enable %s preview in production',
+    async (preview) => {
+      vi.stubEnv('NODE_ENV', 'production');
+      nav.params = new URLSearchParams({ preview });
+      const container = await mount();
+      expect(container.textContent).toContain('Dieser Link geht nicht mehr');
+      expect(container.querySelector('#ob-name')).toBeNull();
+    }
+  );
 });

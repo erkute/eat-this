@@ -11,76 +11,160 @@ import { subscribeStarterPackGranted } from '@/lib/auth/signInArrival';
 import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './SignInReward.module.css';
 
+/** Muss zur Laenge der Keyframes in SignInReward.module.css passen. */
+const PACK_OPEN_MS = 1900;
+
 const copy = {
   de: {
-    label: 'Dein Einstieg in Eat This', welcome: 'Willkommen bei Eat This',
-    intro: 'So geht’s', skip: 'Überspringen', back: 'Zurück', next: 'Weiter',
-    finish: 'Los geht’s', map: 'Zur Map', step: 'Schritt', of: 'von',
-    reward: 'Dein Starter Pack ist da: 10 Karten offen, 10 weitere zum Aufdecken vor Ort.',
-    replay: 'Du findest diese Einführung jederzeit im Menü unter „So geht’s“.',
+    label: 'Dein Einstieg in Eat This',
+    welcome: 'Willkommen bei Eat This',
+    intro: 'So geht’s',
+    skip: 'Überspringen',
+    close: 'Schließen',
+    back: 'Zurück',
+    next: 'Weiter',
+    step: 'Schritt',
+    of: 'von',
+    pack: {
+      tag: 'Starter Pack',
+      sealed: 'Öffne dein Starter Pack.',
+      opened: 'Deine ersten Karten.',
+      lead: '20 Must-Eat-Karten für deinen Start.',
+      open: 'Öffnen',
+      opening: 'Öffnet …',
+      packAlt: 'Eat This Starter Pack',
+      frontAlt: 'Eine offene Must-Eat-Karte',
+      backAlt: 'Eine noch verdeckte Must-Eat-Karte',
+      facts: [
+        { value: '10 offen', label: 'Direkt entdecken' },
+        { value: '10 verdeckt', label: 'Vor Ort aufdecken' },
+      ],
+    },
     slides: [
-      { tag: 'Die Map', title: 'Die Berlin Food Map.',
+      {
+        tag: 'Die Map',
+        title: 'Die Berlin Food Map.',
         body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
         hint: '',
-        image: '/pics/home-phones/phone-map-ink-480.webp', alt: 'Die Eat-This-Map mit Berliner Spots' },
-      { tag: 'Must Eats', title: 'Wissen, was du bestellst.',
+        image: '/pics/home-phones/phone-map-ink-480.webp',
+        alt: 'Die Eat-This-Map mit Berliner Spots',
+      },
+      {
+        tag: 'Must Eats',
+        title: 'Wissen, was du bestellst.',
         body: 'Must Eats sind unsere Tipps für konkrete Gerichte. Jede Karte zeigt dir, was du bei einem Spot probieren solltest.',
         hint: 'Offene Karten kannst du direkt ansehen. Verdeckte Karten entdeckst du am Spot.',
-        image: '/pics/card-front.webp?v=3', alt: 'Eine Must-Eat-Sammelkarte' },
-      { tag: 'Deine Sammlung', title: 'Hingehen. Aufdecken. Sammeln.',
+        image: '/pics/card-front.webp?v=3',
+        alt: 'Eine Must-Eat-Sammelkarte',
+      },
+      {
+        tag: 'Deine Sammlung',
+        title: 'Hingehen. Aufdecken. Sammeln.',
         body: 'Besuche die Spots und decke vor Ort neue Karten auf. Jede aufgedeckte Karte landet in deinem Deck.',
         hint: 'In deinem Deck siehst du auch, wo du die noch verdeckten Karten findest.',
-        image: '/pics/booster/booster_free.webp', alt: 'Das kostenlose Starter Pack mit 20 Must Eats' },
-      { tag: 'Dein Profil', title: 'Alles Gute bleibt bei dir.',
-        body: 'Tippe bei einem Spot auf das Herz, um ihn zu speichern. Im Profil findest du deine gespeicherten Spots und dein Deck.',
-        hint: 'Noch keine Idee? Frag Remy auf der Startseite nach einem passenden Food-Tipp.',
-        image: '/pics/avatar/2.webp?v=4', alt: 'Deine Spielerfigur bei Eat This' },
+        image: '/pics/booster/booster_free.webp',
+        alt: 'Das kostenlose Starter Pack mit 20 Must Eats',
+      },
     ],
+    go: {
+      tag: 'Los',
+      title: 'Wohin zuerst?',
+      deck: { label: 'Deck', line: 'Deine Karten' },
+      map: { label: 'Map', line: 'In deiner Nähe' },
+      replay: 'Diese Tour findest du im Menü unter „So geht’s“.',
+    },
   },
   en: {
-    label: 'Your introduction to Eat This', welcome: 'Welcome to Eat This',
-    intro: 'How it works', skip: 'Skip', back: 'Back', next: 'Next',
-    finish: "Let’s go", map: 'Open map', step: 'Step', of: 'of',
-    reward: 'Your Starter Pack is here: 10 cards revealed, 10 more to uncover at the spots.',
-    replay: 'You can find this introduction in the menu under “How it works”.',
+    label: 'Your introduction to Eat This',
+    welcome: 'Welcome to Eat This',
+    intro: 'How it works',
+    skip: 'Skip',
+    close: 'Close',
+    back: 'Back',
+    next: 'Next',
+    step: 'Step',
+    of: 'of',
+    pack: {
+      tag: 'Starter Pack',
+      sealed: 'Open your Starter Pack.',
+      opened: 'Your first cards.',
+      lead: '20 Must Eat cards to get you started.',
+      open: 'Open',
+      opening: 'Opening …',
+      packAlt: 'Eat This Starter Pack',
+      frontAlt: 'A revealed Must Eat card',
+      backAlt: 'A Must Eat card still face down',
+      facts: [
+        { value: '10 revealed', label: 'Ready to explore' },
+        { value: '10 face down', label: 'Reveal them at the spot' },
+      ],
+    },
     slides: [
-      { tag: 'The map', title: 'Find your next great spot.',
+      {
+        tag: 'The map',
+        title: 'Find your next great spot.',
         body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
         hint: '',
-        image: '/pics/home-phones/phone-map-ink-480.webp', alt: 'The Eat This map with Berlin food spots' },
-      { tag: 'Must Eats', title: 'Know what to order.',
+        image: '/pics/home-phones/phone-map-ink-480.webp',
+        alt: 'The Eat This map with Berlin food spots',
+      },
+      {
+        tag: 'Must Eats',
+        title: 'Know what to order.',
         body: 'Must Eats are our picks for specific dishes. Each card shows you what to try at a spot.',
         hint: 'Open cards are ready to view. Discover covered cards at the spot.',
-        image: '/pics/card-front.webp?v=3', alt: 'A Must Eat collectible card' },
-      { tag: 'Your collection', title: 'Visit. Reveal. Collect.',
+        image: '/pics/card-front.webp?v=3',
+        alt: 'A Must Eat collectible card',
+      },
+      {
+        tag: 'Your collection',
+        title: 'Visit. Reveal. Collect.',
         body: 'Visit the spots and uncover new cards on location. Every card you reveal joins your deck.',
         hint: 'Your deck also shows you where to find the cards still waiting to be revealed.',
-        image: '/pics/booster/booster_free.webp', alt: 'The free Starter Pack with 20 Must Eats' },
-      { tag: 'Your profile', title: 'Keep the good stuff.',
-        body: 'Tap the heart on a spot to save it. Your profile holds your saved spots and your deck.',
-        hint: 'Need an idea? Ask Remy on the home page for a food recommendation.',
-        image: '/pics/avatar/2.webp?v=4', alt: 'Your Eat This player avatar' },
+        image: '/pics/booster/booster_free.webp',
+        alt: 'The free Starter Pack with 20 Must Eats',
+      },
     ],
+    go: {
+      tag: 'Go',
+      title: 'Where to first?',
+      deck: { label: 'Deck', line: 'Your cards' },
+      map: { label: 'Map', line: 'Near you' },
+      replay: 'You’ll find this tour in the menu under “How it works”.',
+    },
   },
 } as const;
 
-/** The first pack grant starts the tour once per account, on every sign-in path.
- * Returning users can reopen it explicitly from the menu. */
+type PackPhase = 'sealed' | 'opening' | 'open';
+
+/**
+ * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
+ * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival).
+ * Wer gerade sein Pack bekommen hat, öffnet es zuerst; danach drei Seiten,
+ * was man damit macht, und am Ende die zwei Orte, an denen es weitergeht.
+ * Aus dem Menü („So geht’s“) läuft dieselbe Tour ohne das Pack.
+ *
+ * Alles passt ohne Scrollen in den Viewport: die Bildfläche ist der einzige
+ * Teil, der schrumpft, Texte und Knöpfe behalten ihre Größe.
+ */
 export default function SignInReward() {
   const locale = useLocale();
   const t = copy[locale === 'en' ? 'en' : 'de'];
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [welcome, setWelcome] = useState(false);
+  const [pack, setPack] = useState<PackPhase>('sealed');
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const triggerRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   useDialogFocus(open, panelRef, triggerRef);
 
   useEffect(() => {
     let stopWaiting: (() => void) | undefined;
-    const show = (isWelcome: boolean) => {
+    const show = (isWelcome: boolean, trigger: HTMLElement | null = null) => {
+      triggerRef.current = trigger;
       setStep(0);
+      setPack('sealed');
       setWelcome(isWelcome);
       setOpen(true);
     };
@@ -94,8 +178,12 @@ export default function SignInReward() {
         show(true);
       });
     });
-    if (process.env.NODE_ENV === 'development' && new URLSearchParams(window.location.search).get('preview') === 'intro') show(false);
-    const replay = () => show(false);
+    if (process.env.NODE_ENV === 'development') {
+      const preview = new URLSearchParams(window.location.search).get('preview');
+      if (preview === 'intro' || preview === 'welcome') show(preview === 'welcome');
+    }
+    const replay = (event: Event) =>
+      show(false, event instanceof CustomEvent ? (event.detail as HTMLElement | null) : null);
     window.addEventListener(OPEN_ONBOARDING_EVENT, replay);
     return () => {
       unsubscribe();
@@ -119,46 +207,225 @@ export default function SignInReward() {
   }, [open]);
 
   useEffect(() => {
+    if (pack !== 'opening') return;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const timer = window.setTimeout(() => setPack('open'), reduced ? 0 : PACK_OPEN_MS);
+    return () => window.clearTimeout(timer);
+  }, [pack]);
+
+  useEffect(() => {
     if (open) titleRef.current?.focus({ preventScroll: true });
-  }, [open, step]);
+  }, [open, step, pack === 'open']); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
-  const slide = t.slides[step];
-  const last = step === t.slides.length - 1;
+
+  const pages = [...(welcome ? (['pack'] as const) : []), 0, 1, 2, 'go'] as const;
+  const page = pages[step];
+  const last = step === pages.length - 1;
+  const close = () => setOpen(false);
+
+  let content: React.ReactNode;
+  let primary: React.ReactNode = (
+    <button type="button" className={styles.action} onClick={() => setStep(step + 1)}>
+      {t.next}
+    </button>
+  );
+
+  if (page === 'pack') {
+    const opened = pack === 'open';
+    content = (
+      <div className={styles.content}>
+        <div className={styles.art}>
+          <div className={styles.packStage} data-phase={pack}>
+            {/* Alle Bilder liegen schon vor dem Klick im DOM — die Animation
+                wartet nie auf ein Bild. */}
+            {/* eslint-disable @next/next/no-img-element */}
+            <img
+              className={`${styles.revealCard} ${styles.revealFront}`}
+              src="/pics/card-front.webp?v=3"
+              alt={opened ? t.pack.frontAlt : ''}
+              aria-hidden={!opened}
+            />
+            <img
+              className={`${styles.revealCard} ${styles.revealBack}`}
+              src="/pics/card-back.webp?v=7"
+              alt={opened ? t.pack.backAlt : ''}
+              aria-hidden={!opened}
+            />
+            {!opened && (
+              <div className={styles.packWrapper}>
+                <img
+                  className={styles.packBody}
+                  src="/pics/booster/booster_free.webp"
+                  alt={t.pack.packAlt}
+                />
+                <img
+                  className={styles.packSeal}
+                  src="/pics/booster/booster_free.webp"
+                  alt=""
+                  aria-hidden="true"
+                />
+              </div>
+            )}
+            {/* eslint-enable @next/next/no-img-element */}
+          </div>
+        </div>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>{t.pack.tag}</p>
+          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
+            {opened ? t.pack.opened : t.pack.sealed}
+          </h2>
+          {opened ? (
+            <div className={styles.facts}>
+              {t.pack.facts.map((fact) => (
+                <p key={fact.value}>
+                  <strong>{fact.value}</strong>
+                  <span>{fact.label}</span>
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.body}>{t.pack.lead}</p>
+          )}
+        </div>
+      </div>
+    );
+    if (!opened) {
+      primary = (
+        <button
+          type="button"
+          className={styles.action}
+          disabled={pack === 'opening'}
+          onClick={() => setPack('opening')}
+        >
+          {pack === 'opening' ? t.pack.opening : t.pack.open}
+        </button>
+      );
+    }
+  } else if (page === 'go') {
+    content = (
+      <div className={styles.goContent}>
+        <div className={styles.goHead}>
+          <p className={styles.kicker}>{t.go.tag}</p>
+          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
+            {t.go.title}
+          </h2>
+        </div>
+        <div className={styles.doors}>
+          <Link href="/profile" className={styles.door} onClick={close}>
+            <span className={styles.doorArt} aria-hidden="true">
+              {/* eslint-disable @next/next/no-img-element */}
+              <img className={styles.doorCardBack} src="/pics/card-back.webp?v=7" alt="" />
+              <img className={styles.doorCardFront} src="/pics/card-front.webp?v=3" alt="" />
+              {/* eslint-enable @next/next/no-img-element */}
+            </span>
+            <span className={styles.doorText}>
+              <span className={styles.doorLabel}>
+                {t.go.deck.label}
+                <span className={styles.doorArrow} aria-hidden="true">
+                  →
+                </span>
+              </span>
+              <span className={styles.doorLine}>{t.go.deck.line}</span>
+            </span>
+          </Link>
+          <Link href="/map" className={styles.door} onClick={close}>
+            <span className={styles.doorArt} aria-hidden="true">
+              <Image
+                src="/pics/home-phones/phone-map-ink-480.webp"
+                alt=""
+                fill
+                sizes="(max-width: 600px) 45vw, 260px"
+                className={styles.image}
+              />
+            </span>
+            <span className={styles.doorText}>
+              <span className={styles.doorLabel}>
+                {t.go.map.label}
+                <span className={styles.doorArrow} aria-hidden="true">
+                  →
+                </span>
+              </span>
+              <span className={styles.doorLine}>{t.go.map.line}</span>
+            </span>
+          </Link>
+        </div>
+        {welcome && <p className={styles.note}>{t.go.replay}</p>}
+      </div>
+    );
+    primary = null;
+  } else {
+    const slide = t.slides[page];
+    content = (
+      <div className={styles.content}>
+        <div className={styles.art}>
+          <Image
+            key={slide.image}
+            src={slide.image}
+            alt={slide.alt}
+            fill
+            sizes="(max-width: 600px) 220px, 300px"
+            className={styles.image}
+            priority
+          />
+        </div>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>{slide.tag}</p>
+          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
+            {slide.title}
+          </h2>
+          <p className={styles.body}>{slide.body}</p>
+          {slide.hint && <p className={styles.hint}>{slide.hint}</p>}
+        </div>
+      </div>
+    );
+  }
 
   return createPortal(
     <div className={styles.layer}>
-      <div ref={panelRef} className={styles.panel} role="dialog" aria-modal="true" aria-label={t.label} tabIndex={-1}>
+      <div
+        ref={panelRef}
+        className={styles.panel}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t.label}
+        tabIndex={-1}
+      >
         <header className={styles.header}>
           <span>{welcome ? t.welcome : t.intro}</span>
-          <button type="button" className={styles.quiet} onClick={() => setOpen(false)}>{t.skip}</button>
+          <button type="button" className={styles.quiet} onClick={close}>
+            {last ? t.close : t.skip}
+          </button>
         </header>
-        <div className={styles.content}>
-          <div className={styles.art}>
-            <Image key={slide.image} src={slide.image} alt={slide.alt} fill sizes="(max-width: 600px) 220px, 300px" className={styles.image} priority />
-          </div>
-          <div className={styles.copy}>
-            <p className={styles.kicker}>{slide.tag}</p>
-            <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>{slide.title}</h2>
-            <p className={styles.body}>{slide.body}</p>
-            {slide.hint && <p className={styles.hint}>{slide.hint}</p>}
-            <p className={styles.note}>{last ? t.replay : welcome && step === 0 ? t.reward : '\u00a0'}</p>
-          </div>
-        </div>
+        {content}
         <footer className={styles.footer}>
-          <div className={styles.progress} aria-label={`${t.step} ${step + 1} ${t.of} ${t.slides.length}`}>
-            <span>{step + 1} / {t.slides.length}</span>
+          <div
+            className={styles.progress}
+            aria-label={`${t.step} ${step + 1} ${t.of} ${pages.length}`}
+          >
+            <span>
+              {step + 1} / {pages.length}
+            </span>
             <div className={styles.segments} aria-hidden="true">
-              {t.slides.map((item, index) => <span key={item.tag} className={index <= step ? styles.active : undefined} />)}
+              {pages.map((item, index) => (
+                <span key={item} className={index <= step ? styles.active : undefined} />
+              ))}
             </div>
           </div>
           <div className={styles.actions}>
-            <button type="button" className={styles.quiet} disabled={step === 0} onClick={() => setStep(step - 1)}>{t.back}</button>
-            {last ? <button type="button" className={styles.action} onClick={() => setOpen(false)}>{t.finish}</button> : <button type="button" className={styles.action} onClick={() => setStep(step + 1)}>{t.next}</button>}
+            <button
+              type="button"
+              className={styles.quiet}
+              disabled={step === 0}
+              onClick={() => setStep(step - 1)}
+            >
+              {t.back}
+            </button>
+            {primary}
           </div>
-          {last && <Link className={styles.mapLink} href="/map" onClick={() => setOpen(false)}>{t.map}</Link>}
         </footer>
       </div>
-    </div>, document.body
+    </div>,
+    document.body
   );
 }

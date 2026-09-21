@@ -329,6 +329,47 @@ a.action {
   box-shadow: inset 0 0 0 1.5px #ffffff59;
 }
 
+/* ── Desktop: Bild als halbe Tafel, Text und Fuss rechts ──────────────── */
+/* Das Bild nimmt die ganze linke Haelfte ueber volle Hoehe; Text und Fuss
+   stehen zusammen rechts. Vorher lag der Fuss mittig unter beiden Spalten,
+   und das Bild blieb in einer schmalen Spalte klein. */
+@media (min-width: 601px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'header header'
+      'art copy'
+      'art footer';
+    column-gap: 48px;
+    width: min(1000px, 100%);
+    height: min(660px, calc(100dvh - 48px));
+    padding-bottom: 32px;
+  }
+  .header {
+    grid-area: header;
+  }
+  .content {
+    display: contents;
+  }
+  .art {
+    grid-area: art;
+    height: 100%;
+  }
+  .copy {
+    grid-area: copy;
+    align-self: center;
+  }
+  .footer {
+    grid-area: footer;
+    width: 100%;
+    margin: 0;
+  }
+  .packStage {
+    --card-width: min(44cqw, 40cqh, 230px);
+  }
+}
+
 /* ── Telefon: Bild oben, Text darunter ────────────────────────────────── */
 @media (max-width: 600px) {
   .layer {

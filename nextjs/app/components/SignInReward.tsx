@@ -312,7 +312,7 @@ export default function SignInReward() {
             src="/pics/home-phones/phone-map-ink-480.webp"
             alt={t.slides[0].alt}
             fill
-            sizes="(max-width: 600px) 220px, 300px"
+            sizes="(max-width: 600px) 220px, 480px"
             loading="eager"
             className={styles.image}
           />
@@ -346,7 +346,7 @@ export default function SignInReward() {
             src={slide.image}
             alt={slide.alt}
             fill
-            sizes="(max-width: 600px) 220px, 300px"
+            sizes="(max-width: 600px) 220px, 480px"
             className={styles.image}
             priority
           />

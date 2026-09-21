@@ -278,6 +278,9 @@ const en = {
     joinEmptyEmail: 'Add your email first.',
     joinInvalidEmail: 'That does not look like an email yet.',
     joinArtAlt: 'Eat This Starter Pack',
+    joinOr: 'or',
+    joinGoogle: 'Sign in with Google',
+    joinSignedIn: "You're signed in",
     browse: 'Just looking? Open the Berlin Food Map',
     ctaHeadingIn: 'Back to your own deck',
     ctaLineIn: 'Your cards are waiting all over Berlin.',
@@ -729,6 +732,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     joinEmptyEmail: 'Bitte gib deine E-Mail ein.',
     joinInvalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
     joinArtAlt: 'Eat This Starter Pack',
+    joinOr: 'oder',
+    joinGoogle: 'Mit Google anmelden',
+    joinSignedIn: 'Du bist angemeldet',
     /* Der leise Weg fuer alle, die sich noch nicht anmelden wollen — statt
        einer Sackgasse. */
     browse: 'Erst mal umsehen? Zur Berlin Food Map',

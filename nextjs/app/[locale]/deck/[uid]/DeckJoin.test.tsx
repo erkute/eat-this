@@ -5,10 +5,30 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const sendLink = vi.fn();
 const authState = { user: null as { uid: string } | null };
 const magicState = { state: 'idle' as string, errorMessage: '' };
+const googleState = vi.hoisted(() => ({
+  start: vi.fn(),
+  prepare: vi.fn(),
+  phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
+  note: null as 'cancelled' | 'blocked' | 'failed' | null,
+  noteKey: null as string | null,
+  onSettled: undefined as (() => void) | undefined,
+}));
+const announceSignIn = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/auth', () => ({
   useAuth: () => authState,
   useMagicLink: () => ({ sendLink, reset: vi.fn(), ...magicState }),
+  useGoogleSignIn: (options: { onSettled?: () => void } = {}) => {
+    googleState.onSettled = options.onSettled;
+    return googleState;
+  },
+}));
+vi.mock('@/lib/auth/signInArrival', () => ({ announceSignIn }));
+/* Der Wartescreen braucht next-intl; hier zaehlt nur, ob er da ist. */
+vi.mock('@/app/components/AuthScreen', () => ({
+  default: ({ leaving }: { leaving?: boolean }) => (
+    <div data-testid="auth-screen" data-leaving={leaving ? '1' : '0'} />
+  ),
 }));
 vi.mock('next-intl', () => ({
   useLocale: () => 'de',
@@ -33,6 +53,12 @@ describe('DeckJoin', () => {
     authState.user = null;
     magicState.state = 'idle';
     magicState.errorMessage = '';
+    googleState.start.mockReset();
+    googleState.prepare.mockReset();
+    googleState.phase = 'idle';
+    googleState.note = null;
+    googleState.noteKey = null;
+    announceSignIn.mockReset();
   });
 
   it('schickt den Magic Link von der Seite aus, ohne Umweg', () => {
@@ -111,5 +137,73 @@ describe('DeckJoin', () => {
     authState.user = { uid: 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423' };
     render(<DeckJoin name="Ersan" />);
     expect(screen.getByRole('link', { name: 'browse' }).getAttribute('href')).toBe('/map');
+  });
+
+  /* Bis 21.09.2026 bot die Tafel nur die Mail an, die Startseite seit
+     07.09. auch Google. Wer ueber ein geteiltes Deck kommt, ist der Gast,
+     den ein zweiter Weg am ehesten haelt. */
+  it('bietet Google neben der Mail an und waermt erst an, wenn die Hand hingeht', () => {
+    render(<DeckJoin name="Ersan" />);
+    expect(googleState.prepare).not.toHaveBeenCalled();
+
+    const button = screen.getByRole('button', { name: 'joinGoogle' });
+    fireEvent.pointerEnter(button);
+    expect(googleState.prepare).toHaveBeenCalledTimes(1);
+    expect(googleState.start).not.toHaveBeenCalled();
+
+    fireEvent.click(button);
+    expect(googleState.start).toHaveBeenCalledTimes(1);
+  });
+
+  it('nimmt den Google-Knopf weg, sobald der Link verschickt ist', () => {
+    magicState.state = 'sent';
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.queryByRole('button', { name: 'joinGoogle' })).toBeNull();
+  });
+
+  /* Firebase meldet den Nutzer, waehrend die Haltezeit noch laeuft — die
+     Komponente springt in den Angemeldet-Zweig. Stuende der Wartescreen nur
+     im Gast-Zweig, waere er in diesem Moment schlagartig weg. */
+  it('haelt den Wartescreen auch nach dem Sprung in den Angemeldet-Zweig', () => {
+    googleState.phase = 'busy';
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.getByTestId('auth-screen')).toBeTruthy();
+    expect(
+      screen.getByRole<HTMLButtonElement>('button', { name: 'joinGoogle' }).disabled
+    ).toBe(true);
+
+    cleanup();
+    googleState.phase = 'done';
+    authState.user = { uid: 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423' };
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.getByTestId('auth-screen')).toBeTruthy();
+  });
+
+  /* Nie Toast UND Pack-Einblendung: was gesagt wird, entscheidet
+     signInArrival, nicht diese Tafel. */
+  it('meldet die Anmeldung ueber announceSignIn, nicht direkt als Toast', () => {
+    const showNotification = vi.fn();
+    window.showNotification = showNotification;
+    render(<DeckJoin name="Ersan" />);
+
+    googleState.onSettled?.();
+    expect(announceSignIn).toHaveBeenCalledTimes(1);
+    expect(showNotification).not.toHaveBeenCalled();
+
+    announceSignIn.mock.calls[0][0]();
+    expect(showNotification).toHaveBeenCalledWith('joinSignedIn');
+  });
+
+  it('sagt ein selbst zugeklicktes Google-Fenster leise an, ein geblocktes laut', () => {
+    googleState.note = 'cancelled';
+    googleState.noteKey = 'auth.googleCancelled';
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.getByRole('status').textContent).toBe('auth.googleCancelled');
+
+    cleanup();
+    googleState.note = 'blocked';
+    googleState.noteKey = 'auth.errGooglePopupBlocked';
+    render(<DeckJoin name="Ersan" />);
+    expect(screen.getByRole('alert').textContent).toBe('auth.errGooglePopupBlocked');
   });
 });

@@ -1,0 +1,644 @@
+/* Die Huelle aller Einfuehrungs-Layer: die Tour nach der Anmeldung
+   (SignInReward) und die Must-Eats-Erklaerung (MustEatsOnboarding) sehen
+   gleich aus — ein Modul, damit sie nicht auseinanderlaufen. */
+/* Die Tour scrollt nie: das Panel hat eine feste Hoehe, und die Bildflaeche
+   (Zeile bzw. Spalte `minmax(0, 1fr)`) ist das Einzige, was nachgibt. */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 10025;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.88);
+  overscroll-behavior: contain;
+}
+.panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(860px, 100%);
+  height: min(600px, calc(100dvh - 48px));
+  overflow: hidden;
+  padding: 18px 34px 24px;
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--et-ink-raised, #25231f);
+  color: #fff;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  box-shadow: 0 24px 80px #0008;
+  animation: arrive 260ms ease-out;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  color: #ffffffa6;
+}
+.quiet {
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.quiet:disabled {
+  visibility: hidden;
+}
+
+/* ── Seiten mit Bild und Text ─────────────────────────────────────────── */
+.content {
+  display: grid;
+  grid-template-columns: 0.85fr 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  gap: 42px;
+  min-height: 0;
+  padding: 8px 0 16px;
+}
+.art {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  /* Motive rechnen aus der Flaeche, nicht aus dem Viewport (cqw/cqh). */
+  container-type: size;
+}
+.image {
+  object-fit: contain;
+  filter: drop-shadow(0 14px 18px #0005);
+}
+.copy {
+  min-width: 0;
+}
+.kicker {
+  margin: 0 0 12px;
+  color: var(--et-home-accent, #ffc600);
+  font-size: 13px;
+}
+.headline {
+  margin: 0;
+  font: inherit;
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 700;
+  line-height: 1.08;
+  text-transform: uppercase;
+  outline: none;
+}
+/* Die Ueberschrift bekommt den Fokus nur, damit Screenreader den neuen Schritt
+   ansagen — sie ist kein Bedienelement. Die globale :focus-visible-Regel
+   (style.css laedt nach den Modulen) haengte ihr sonst einen roten Rahmen um. */
+.headline:focus-visible {
+  outline: none;
+}
+.body {
+  margin: 18px 0 0;
+  font-size: 17px;
+  line-height: 1.45;
+}
+.hint {
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #ffffffb8;
+}
+
+/* ── Fuss ─────────────────────────────────────────────────────────────── */
+.footer {
+  width: min(440px, 100%);
+  margin: 0 auto;
+}
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 13px;
+}
+.segments {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+}
+.segments span {
+  height: 3px;
+  flex: 1;
+  border-radius: 3px;
+  background: #ffffff30;
+}
+.segments .active {
+  background: var(--et-home-accent, #ffc600);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 48px;
+  margin-top: 14px;
+}
+.action {
+  min-height: 48px;
+  min-width: 160px;
+  padding: 12px 26px;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--et-home-accent, #ffc600);
+  color: var(--et-home-ink, #15120e);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.action:disabled {
+  cursor: default;
+}
+a.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+/* Die zweite Aktion am Ende steht als leiser Link dort, wo sonst Zurueck
+   steht — der Hauptknopf bleibt so auf jeder Seite an seinem Platz. */
+a.quiet {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+/* Ein schlichtes <img> fuellt die Bildflaeche wie ein next/image mit `fill`. */
+.artImg {
+  position: absolute;
+  inset: 6%;
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 18px #0005);
+}
+.action:focus-visible,
+.quiet:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 4px;
+}
+
+/* ── Starter Pack oeffnen ─────────────────────────────────────────────── */
+.packStage {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  isolation: isolate;
+  overflow: hidden;
+  /* Aus der Buehne gerechnet, nicht aus dem Viewport: das Pack (1,91 × Karte
+     hoch) und der aufgefaecherte Stapel (2,16 × Karte breit) passen so in
+     jede Flaeche, die die Tour uebrig laesst. */
+  --card-width: min(44cqw, 40cqh, 150px);
+  --pack-width: calc(var(--card-width) * 1.3);
+}
+.packWrapper {
+  position: absolute;
+  width: var(--pack-width);
+  height: calc(var(--pack-width) * 1.47);
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+.packBody,
+.packSeal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.packBody {
+  filter: drop-shadow(0 12px 15px #0005);
+}
+.packSeal {
+  clip-path: inset(0 0 92% 0);
+  transform-origin: 85% 8%;
+}
+.revealCard {
+  position: absolute;
+  width: var(--card-width);
+  height: calc(var(--card-width) * 1.375);
+  object-fit: contain;
+  top: 55%;
+  left: 50%;
+  filter: drop-shadow(0 8px 12px #0005);
+  visibility: hidden;
+  transform-origin: 50% 65%;
+}
+.revealFront {
+  --fan: -58%;
+  --turn: -4deg;
+  z-index: 1;
+}
+.revealBack {
+  --fan: 58%;
+  --turn: 4deg;
+}
+.packStage[data-phase='opening'] .packBody {
+  animation: wrapperDrop 1900ms linear both;
+}
+.packStage[data-phase='opening'] .packSeal {
+  animation: tearSeal 1900ms linear both;
+}
+.packStage[data-phase='opening'] .revealCard {
+  visibility: visible;
+  animation: cardsEmerge 1900ms linear both;
+}
+.packStage[data-phase='open'] .revealCard {
+  visibility: visible;
+  transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn));
+}
+/* Erst die Naht loesen; die Huelle bleibt davor geschlossen. */
+@keyframes tearSeal {
+  0%,
+  5% {
+    transform: translate(0, 0) rotate(0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  20% {
+    transform: translate(16px, -16px) rotate(9deg);
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  42%,
+  100% {
+    transform: translate(200px, -85px) rotate(28deg);
+  }
+}
+/* Die Huelle verdeckt die Karten, bis diese durch die obere Oeffnung gleiten.
+   Erst nach dem sichtbaren Herausziehen faellt sie nach unten weg. */
+@keyframes wrapperDrop {
+  0%,
+  5% {
+    clip-path: inset(0);
+    transform: translateY(0);
+  }
+  6%,
+  28% {
+    clip-path: inset(7.5% 0 0 0);
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  48% {
+    clip-path: inset(7.5% 0 0 0);
+    transform: translateY(18px);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.5);
+  }
+  74%,
+  100% {
+    clip-path: inset(7.5% 0 0 0);
+    transform: translateY(340px) rotate(3deg);
+  }
+}
+/* Beide Karten sind bis 70 % ein schmaler Stapel in der Pack-Mitte.
+   Kein seitlicher Weg durch die Verpackung: erst hoch, dann auseinander. */
+@keyframes cardsEmerge {
+  0%,
+  22% {
+    transform: translate(-50%, -40%);
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  48% {
+    transform: translate(-50%, -76%);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
+  }
+  70% {
+    transform: translate(-50%, -84%);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn));
+  }
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 22px;
+}
+.facts p {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.facts strong {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--et-home-accent, #ffc600);
+}
+.facts span {
+  font-size: 13px;
+  color: #ffffffa6;
+}
+
+/* ── Letzte Seite: der Layer zweigeteilt, links Map, rechts Deck ──────── */
+.goContent {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 18px;
+  min-height: 0;
+  padding: 8px 0 16px;
+}
+.goHead {
+  text-align: center;
+}
+.halves {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+/* Jede Haelfte ist ein dunkles Feld (Ink-Grund, eine Stufe unter dem
+   Panel) — keine Linien, keine Rahmen (Nutzer, 21.09.2026). */
+.half {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 14px;
+  min-height: 0;
+  padding: 20px 16px 18px;
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--et-home-ink, #15120e);
+  color: #fff;
+  text-decoration: none;
+}
+.halfArt {
+  position: relative;
+  min-height: 0;
+  container-type: size;
+  transition: transform 200ms ease;
+}
+.halfLabel {
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+@media (hover: hover) {
+  .half:hover .halfArt {
+    transform: translateY(-4px);
+  }
+  .half:hover .halfLabel {
+    color: var(--et-home-accent, #ffc600);
+  }
+}
+.half:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: -2px;
+}
+.half:focus-visible .halfLabel {
+  color: var(--et-home-accent, #ffc600);
+}
+/* Telefon und Deck wiegen gleich: das Telefon ist rund 1,3 Kartenhoehen
+   hoch. Die Karten liegen je 35 % versetzt, also 2,05 Kartenbreiten
+   nebeneinander — genug, dass beide offenen Gerichte zu sehen sind. */
+.phone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(94cqh, 100cqw);
+  aspect-ratio: 480 / 975;
+  transform: translate(-50%, -50%);
+}
+.deckCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(76cqh, 60cqw);
+  aspect-ratio: 1 / 1.375;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 14px #0006);
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+}
+.deckCard:nth-child(1) {
+  --x: -102.5%;
+  --y: -46%;
+  --r: -9deg;
+}
+.deckCard:nth-child(2) {
+  --x: -67.5%;
+  --y: -52%;
+  --r: -3deg;
+}
+.deckCard:nth-child(3) {
+  --x: -32.5%;
+  --y: -52%;
+  --r: 3deg;
+}
+.deckCard:nth-child(4) {
+  --x: 2.5%;
+  --y: -46%;
+  --r: 9deg;
+}
+
+.footerGo {
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Desktop: Bild als halbe Tafel, Text und Fuss rechts ──────────────── */
+/* Das Bild nimmt die ganze linke Haelfte ueber volle Hoehe; Text und Fuss
+   stehen zusammen rechts. Vorher lag der Fuss mittig unter beiden Spalten,
+   und das Bild blieb in einer schmalen Spalte klein. */
+@media (min-width: 601px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    /* Der Fuss sitzt fest unten rechts — der Hauptknopf steht auf jeder
+       Seite an derselben Stelle (Nutzer, 21.09.2026). Nur der Text
+       schwebt mittig darueber. */
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'header header'
+      'art copy'
+      'art footer';
+    column-gap: 40px;
+    /* Kompakt: groesser liess rechts und unten viel Leerraum (Nutzer,
+       21.09.2026). */
+    width: min(800px, 100%);
+    height: min(500px, calc(100dvh - 48px));
+    padding-bottom: 28px;
+  }
+  .header {
+    grid-area: header;
+  }
+  .content {
+    display: contents;
+  }
+  /* Das Bild fuellt seine Spalte fast ganz — das Fenster selbst ist klein
+     genug, dass Telefon, Karte und Pack nicht zu gross werden. */
+  .art {
+    grid-area: art;
+    align-self: center;
+    height: 92%;
+  }
+  .copy {
+    grid-area: copy;
+    align-self: center;
+  }
+  .footer {
+    grid-area: footer;
+    width: 100%;
+    margin: 0;
+    padding-top: 28px;
+  }
+  .packStage {
+    /* So gross, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so
+       hoch steht wie das Pack-Bild auf der Sammlungs-Seite — vorher sprang
+       dasselbe Pack zwischen Seite 1 und 5 um ein Drittel. */
+    --card-width: min(44cqw, 46cqh, 200px);
+  }
+  .panelGo {
+    grid-template-areas:
+      'header header'
+      'go go'
+      'footer footer';
+  }
+  .goContent {
+    grid-area: go;
+  }
+  .panelGo .footer {
+    width: min(440px, 100%);
+    margin: 0 auto;
+    padding-top: 4px;
+  }
+  .panelGo .goContent {
+    gap: 12px;
+    padding: 0 0 4px;
+  }
+  .panelGo .half {
+    padding: 14px 12px 12px;
+    gap: 10px;
+  }
+}
+
+/* ── Telefon: Bild oben, Text darunter ────────────────────────────────── */
+@media (max-width: 600px) {
+  /* Auf dem Telefon untereinander: nebeneinander blieben Telefon und
+     Karten zu klein. Jedes Feld ist breit und flach, das Bild bekommt die
+     Hoehe, das Wort steht darunter. */
+  .halves {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .half {
+    padding: 12px 12px 10px;
+    gap: 8px;
+  }
+  .halfLabel {
+    font-size: 22px;
+  }
+  .phone {
+    height: min(96cqh, 100cqw);
+  }
+  .deckCard {
+    height: min(84cqh, 60cqw);
+  }
+  .layer {
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
+  .panel {
+    height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    max-height: 720px;
+    padding: 6px 20px 18px;
+  }
+  .header {
+    font-size: 11px;
+    gap: 8px;
+  }
+  .content {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 16px;
+    padding: 4px 0 12px;
+  }
+  .copy {
+    text-align: center;
+  }
+  .kicker {
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .headline {
+    font-size: 26px;
+  }
+  .body {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+  .hint {
+    margin-top: 8px;
+    font-size: 13px;
+  }
+  .facts {
+    margin-top: 14px;
+    gap: 12px;
+  }
+  .facts strong {
+    font-size: 18px;
+  }
+  .facts span {
+    font-size: 12px;
+  }
+  .actions {
+    margin-top: 10px;
+  }
+  .action {
+    min-width: 150px;
+  }
+}
+
+/* Sehr kurze Flaechen (kleine Telefone, Querformat): der Nebensatz faellt,
+   bevor die Bildflaeche unter ihre Lesbarkeit schrumpft. */
+@media (max-height: 620px) {
+  .hint {
+    display: none;
+  }
+  .body {
+    font-size: 14px;
+  }
+}
+@media (max-height: 460px) {
+  .panel {
+    height: calc(100dvh - 24px);
+    padding-top: 4px;
+  }
+  .layer {
+    padding: 12px;
+  }
+  .headline {
+    font-size: 22px;
+  }
+  .body {
+    margin-top: 8px;
+  }
+}
+
+@keyframes arrive {
+  from {
+    transform: translateY(14px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+  .halfArt,
+  .halfLabel {
+    transition: none;
+  }
+  .packStage[data-phase='opening'] .packBody,
+  .packStage[data-phase='opening'] .packSeal,
+  .packStage[data-phase='opening'] .revealCard {
+    animation: none;
+  }
+}

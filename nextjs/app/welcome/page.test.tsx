@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, act, fireEvent } from '@testing-library/react';
 
 const fb = vi.hoisted(() => ({
@@ -282,4 +282,50 @@ describe('/welcome ohne brauchbaren Link', () => {
     expect(container.textContent).toContain('Startseite');
     expect(container.textContent).not.toContain('Zur Startseite');
   });
+});
+
+afterEach(() => vi.unstubAllEnvs());
+
+describe('local identity preview', () => {
+  it('allows reviewing name and character without signing in or saving', async () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    nav.params = new URLSearchParams('preview=identity');
+    const container = await mount();
+    expect(container.textContent).toContain('Wer bist du?');
+    fireEvent.change(container.querySelector('#ob-name')!, { target: { value: 'Testname' } });
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    try {
+      fireEvent.submit(container.querySelector('form')!);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    // Weiter in die Tour-Vorschau — dort liegt die Pack-Animation.
+    expect(assign).toHaveBeenCalledWith('/?preview=welcome');
+    expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
+    expect(fb.updateProfile).not.toHaveBeenCalled();
+    expect(store.setDoc).not.toHaveBeenCalled();
+  });
+
+  it('previews the confirmation and moves to identity without consuming a link', async () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    nav.params = new URLSearchParams('preview=confirm');
+    const container = await mount();
+    expect(container.textContent).toContain('du@beispiel.de');
+    fireEvent.click(buttonWith(container, 'Anmelden'));
+    expect(container.querySelector('#ob-name')).not.toBeNull();
+    expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
+    expect(fb.updateProfile).not.toHaveBeenCalled();
+  });
+
+  it.each(['identity', 'loading', 'confirm'])(
+    'does not enable %s preview in production',
+    async (preview) => {
+      vi.stubEnv('NODE_ENV', 'production');
+      nav.params = new URLSearchParams({ preview });
+      const container = await mount();
+      expect(container.textContent).toContain('Dieser Link geht nicht mehr');
+      expect(container.querySelector('#ob-name')).toBeNull();
+    }
+  );
 });

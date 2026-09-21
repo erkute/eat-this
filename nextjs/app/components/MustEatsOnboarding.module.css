@@ -1,10 +1,8 @@
-/* MustEatsOnboarding — the three-slide explainer and its trigger.
+/* MustEatsOnboarding — der Ausloeser und die Karte zum Umdrehen.
 
-   The panel is chrome, not content, so it takes the chrome palette the
-   masthead, burger and footer already share: ink ground, white type, yellow as
-   the single accent. It used to be a white box with a black hairline on a
-   dimmed white page, which gave the card art (warm beige on white) almost no
-   separation and read as a stock tutorial modal rather than as this product. */
+   Die Huelle (Vorhang, Panel, Kopf, Text, Fortschritt, Knoepfe) kommt aus
+   Tour.module.css, damit die Erklaerung genauso aussieht wie die Tour nach
+   der Anmeldung. Hier steht nur, was es nur hier gibt. */
 
 .how {
   display: inline-flex;
@@ -97,111 +95,17 @@
   line-height: 1;
 }
 
-/* ── Overlay ───────────────────────────────────────────────────────────────── */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 10020; /* above the fixed navbar (9999) — same tier as the lightbox */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Schwarz, nicht Ink: der Vorhang liegt auf einer Ink-Seite, und
-     rgba(21,18,14,…) IST diese Seite — jede Deckkraft aendert dort exakt
-     nichts. Siehe --et-scrim in globals.css. */
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(3px);
-  padding: 16px;
-}
-
-.panel {
-  position: relative;
-  width: min(94vw, 760px);
-  max-height: calc(100dvh - 32px);
-  overflow-y: auto;
-  display: grid;
-  gap: clamp(20px, 3vw, 36px);
-  /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
-  background: var(--et-ink-raised, #25231f);
-  box-shadow: var(--et-ink-raised-edge, inset 0 0 0 1px rgba(255, 255, 255, 0.14));
-  border: 0;
-  border-radius: 10px;
-  padding: clamp(26px, 4vw, 44px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  text-align: center;
-  animation: onbRise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Movement, never an opacity fade — brand rule for show/hide on brand surfaces. */
-@keyframes onbRise {
-  from {
-    transform: translateY(28px) scale(0.97);
-  }
-  to {
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* From tablet up the card sits beside the copy instead of on top of it: the
-   card is the subject, and stacked it pushed the headline and the button below
-   the fold on short laptop windows. */
-@media (min-width: 720px) {
-  .panel {
-    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
-  }
-}
-
-.x {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: grid;
-  place-items: center;
-  width: 44px; /* full tap target — it used to be a 26px glyph with 4px padding */
-  height: 44px;
-  background: none;
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  color: var(--et-home-inverse-text, #fff);
-  cursor: pointer;
-  transition: color 0.16s ease;
-}
-.x svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  fill: none;
-}
-.x:focus-visible {
-  color: var(--et-home-accent, #ffc600);
-}
-@media (hover: hover) {
-  .x:hover {
-    color: var(--et-home-accent, #ffc600);
-  }
-}
-
-/* ── Demo card ─────────────────────────────────────────────────────────────── */
-/* Fixed aspect so the media column is exactly as tall on all three slides —
-   the pack art is a different shape from the card and used to resize the whole
-   panel under the visitor as they stepped through. */
+/* ── Die Karte ───────────────────────────────────────────────────────────── */
+/* Aus der Bildflaeche der Huelle gerechnet (sie ist ein Size-Container): so
+   hoch wie moeglich, ohne breiter als die Flaeche zu werden. */
 .cardBox {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: min(52vw, 230px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(88cqh, 120cqw);
   aspect-ratio: 1539 / 2115;
-  margin: 0 auto;
+  transform: translate(-50%, -50%);
   perspective: 900px;
-}
-
-@media (min-width: 720px) {
-  .cardBox {
-    width: 100%;
-    margin: 0;
-    align-self: center;
-  }
 }
 
 .flipTap {
@@ -220,20 +124,6 @@
   .flipTap:hover {
     transform: translateY(-4px) scale(1.02);
   }
-}
-
-/* Booster pack as the hero of slide 3 — replaces the demo card. Same box, so
-   it keeps the vertical rhythm; tilted a touch for that sticker-pack energy. */
-.packHero {
-  display: block;
-  width: 86%;
-  max-height: 100%;
-  height: auto;
-  object-fit: contain;
-  margin: 0 auto;
-  transform: rotate(-4deg);
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-  pointer-events: none;
 }
 
 .flipper {
@@ -266,288 +156,25 @@
   transform: rotateY(180deg);
 }
 
-/* ── Slide copy ────────────────────────────────────────────────────────────── */
-/* `.steps` takes the slack (margin-top:auto below), so the step rail and the
-   actions sit at the bottom of the column whatever the slide's copy length. */
-.copy {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* All three slides share one grid cell, so the stack is always as tall as the
-   tallest of them and the panel keeps one size across every "weiter". This
-   replaced a pair of hand-measured min-heights (17em here, 3em on `.text`)
-   that only ever held for one copy length at one column width — at 375px the
-   panel still stepped 35px between slide 1 and slide 2. */
-.slideStack {
-  display: grid;
-  width: 100%;
-  /* The gap to the rail lives here, not as a bottom margin on `.text`: inside
-     the slide it would sit in the centred box and pull the copy off-centre. */
-  margin-bottom: 22px;
-}
-
-.slideCopy {
-  grid-area: 1 / 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* The cell is as tall as the longest slide, so the shorter ones sit centred
-     in it rather than leaving their slack as one hole above the step rail. */
-  justify-content: center;
-  /* visibility, not opacity: it also takes the inactive slides out of the
-     a11y tree and out of the tab order. */
-  visibility: hidden;
-}
-
-.slideOn {
-  visibility: visible;
-}
-
-.kicker {
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--et-home-accent, #ffc600);
-  margin: 0 0 10px;
-}
-
-.title {
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(32px, 7vw, 46px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 0.92;
-  text-transform: uppercase;
-  color: var(--et-home-inverse-text, #fff);
-  margin: 0 0 14px;
-}
-
-.text {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(16px, 4.3vw, 18px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.76);
-  margin: 0;
-}
-
-/* ── Step rail ─────────────────────────────────────────────────────────────── */
-/* margin-top:auto pools every slide's slack here, in one gap above the rail,
-   instead of scattering it between the headline and the body. */
-.steps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin: auto 0 20px;
-  padding: 0;
-  list-style: none;
-}
-
-.steps li {
-  display: flex;
-}
-
-/* Each segment jumps to its slide. They were decorative, which left closing
-   and reopening the whole dialog as the only way back to a previous step.
-   The button is the tap target; ::before draws the bar, so the target can be
-   comfortably tall without a fat rule on screen. */
-.step {
-  position: relative;
-  display: block;
-  width: 30px;
-  height: 26px;
-  padding: 0;
-  background: none;
-  border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  cursor: pointer;
-  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.step::before {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 50%;
-  height: 3px;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.24);
-  border-radius: 2px;
-  transition: background-color 0.2s ease;
-}
-
-@media (hover: hover) {
-  .step:hover::before {
-    background: rgba(255, 255, 255, 0.55);
-  }
-}
-
-.step:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
-  outline-offset: 2px;
-}
-
-/* The active segment widens — progress, not just position. */
-.stepOn {
-  width: 46px;
-}
-
-.stepOn::before {
-  background: var(--et-home-accent, #ffc600);
-}
-
-@media (hover: hover) {
-  .stepOn:hover::before {
-    background: var(--et-home-accent, #ffc600);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .step {
-    transition: none;
-  }
-}
-
-/* ── Actions ───────────────────────────────────────────────────────────────── */
-/* Same one-cell stack as the slides: the last slide carries two buttons where
-   the others carry one, and on a narrow column that row wraps — a height
-   difference that would otherwise land on the visitor at the last "weiter". */
-.actionStack {
-  display: grid;
-  width: 100%;
-}
-
-.actionRow {
-  grid-area: 1 / 1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  visibility: hidden;
-}
-
-.actionRowOn {
-  visibility: visible;
-}
-
-/* Yellow is the accent and this is the one thing to press, so it finally does
-   the job it exists for. Ink-on-ink would have needed a border to be visible.
-   Rendered as a <button> on most slides and as an <a> in the guest offer, so it
-   has to carry the link resets too. */
-.next {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border: 2px solid var(--et-home-accent, #ffc600);
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-decoration: none;
-  padding: 13px 24px 14px;
-  cursor: pointer;
-  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.packLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 13px 18px 14px;
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.28);
-  border-radius: var(--et-radius-control, 7px);
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.16s ease;
-}
-
-.next:focus-visible,
-.packLink:focus-visible {
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .next:hover,
-  .packLink:hover {
-    transform: translateY(-2px);
-  }
-}
-.packLink:focus-visible {
-  border-color: var(--et-home-accent, #ffc600);
-}
-@media (hover: hover) {
-  .packLink:hover {
-    border-color: var(--et-home-accent, #ffc600);
-  }
-}
-
-.packLink:active,
-.next:active {
-  transform: translateY(1px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .panel {
-    animation: none;
-  }
   .flipper {
     transition: none;
   }
   .how,
-  .flipTap,
-  .next,
-  .packLink {
+  .flipTap {
     transition:
       background-color 0.16s ease,
       border-color 0.16s ease,
       color 0.16s ease;
   }
   .how:active,
-  .flipTap:focus-visible,
-  .next:focus-visible,
-  .next:active,
-  .packLink:focus-visible,
-  .packLink:active {
+  .flipTap:focus-visible {
     transform: none;
   }
   @media (hover: hover) {
     .how:hover,
-    .flipTap:hover,
-    .next:hover,
-    .packLink:hover {
+    .flipTap:hover {
       transform: none;
-    }
-  }
-}
-
-/* Touch WebKit fallback: avoid rectangular compositing shadows on transparent
-   WebP pack art while Safari is animating/translating the onboarding panel. */
-@supports (-webkit-touch-callout: none) {
-  @media (pointer: coarse) {
-    .packHero {
-      filter: none;
     }
   }
 }

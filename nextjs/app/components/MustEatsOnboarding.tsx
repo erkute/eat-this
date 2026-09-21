@@ -1,13 +1,15 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { useTranslation } from '@/lib/i18n';
+import { useLoginModal } from '@/lib/auth';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import styles from './MustEatsOnboarding.module.css';
+import tour from './Tour.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new
@@ -55,11 +57,24 @@ export default function MustEatsOnboarding({
   tone = 'paper',
 }: Props) {
   const { lang, t } = useTranslation();
+  const { open: openLogin } = useLoginModal();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
   useDialogFocus(open, panelRef, triggerRef);
+
+  // Der Fokus folgt der Überschrift des Schritts, damit Screenreader ihn
+  // ansagen. Auf der letzten Seite stehen zwei Fassungen im DOM, CSS zeigt
+  // eine — fokussiert wird die sichtbare.
+  useEffect(() => {
+    if (!open) return;
+    const heading = [...(copyRef.current?.querySelectorAll('h2') ?? [])].find(
+      (h) => h.getClientRects().length > 0
+    );
+    heading?.focus({ preventScroll: true });
+  }, [open, step]);
 
   // Same anon face-up set the gallery shows — the demo card is one the
   // visitor can actually see face-up in the grid below.
@@ -174,14 +189,7 @@ export default function MustEatsOnboarding({
 
   const last = step === SLIDES.length - 1;
   const packsHref = lang === 'en' ? '/en/packs' : '/packs';
-  // The home's Starter-Pack section carries this id; same-page it scrolls, from
-  // /must-eats it navigates home and HubHashScroll settles the position.
-  const starterHref = lang === 'en' ? '/en#hub-starter' : '/#hub-starter';
-
-  const slideClass = (i: number) =>
-    i === step ? `${styles.slideCopy} ${styles.slideOn}` : styles.slideCopy;
-  const rowClass = (on: boolean) =>
-    on ? `${styles.actionRow} ${styles.actionRowOn}` : styles.actionRow;
+  const de = lang === 'de';
 
   const flipper = (
     <div
@@ -193,6 +201,16 @@ export default function MustEatsOnboarding({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
     </div>
+  );
+
+  const copy = (kicker: string, title: string, body: string) => (
+    <>
+      <p className={tour.kicker}>{t(kicker)}</p>
+      <h2 tabIndex={-1} className={tour.headline}>
+        {t(title)}
+      </h2>
+      <p className={tour.body}>{t(body)}</p>
+    </>
   );
 
   return (
@@ -213,177 +231,159 @@ export default function MustEatsOnboarding({
 
       {open &&
         createPortal(
-          <div className={styles.backdrop} onClick={close}>
+          /* Dieselbe Hülle wie die Tour nach der Anmeldung (Tour.module.css):
+             Kopfzeile, Bild und Text, Fortschritt, Zurück und Weiter. */
+          <div className={tour.layer}>
             <div
               ref={panelRef}
               tabIndex={-1}
-              className={styles.panel}
+              className={tour.panel}
               role="dialog"
               aria-modal="true"
-              // Names the dialog, not the current slide. The last slide has two
-              // headings (guest / signed-in) and CSS picks one, so pointing
-              // aria-labelledby at a heading would sometimes point at a
-              // display:none element and leave the dialog unnamed.
               aria-label={t('mustEats.howItWorks')}
-              onClick={(e) => e.stopPropagation()}
             >
-              <button
-                type="button"
-                className={styles.x}
-                aria-label={t('mustEats.onbClose')}
-                onClick={close}
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                </svg>
-              </button>
+              <header className={tour.header}>
+                <span>{t('mustEats.howItWorks')}</span>
+                <button type="button" className={tour.quiet} onClick={close}>
+                  {last ? t('mustEats.onbClose') : de ? 'Überspringen' : 'Skip'}
+                </button>
+              </header>
 
-              <div className={styles.cardBox}>
-                {last ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      data-testid="onb-pack"
-                      data-auth-only=""
-                      className={styles.packHero}
-                      src={BOOSTER_ART}
-                      alt="Booster Pack"
-                      loading="eager"
-                      decoding="sync"
-                      fetchPriority="high"
-                    />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      data-testid="onb-starter-pack"
-                      data-guest-only=""
-                      className={styles.packHero}
-                      src={STARTER_ART}
-                      alt="Eat This Starter Pack"
-                      loading="eager"
-                      decoding="sync"
-                      fetchPriority="high"
-                    />
-                  </>
-                ) : step === 1 ? (
-                  <button
-                    type="button"
-                    className={styles.flipTap}
-                    onClick={handleFlipTap}
-                    aria-label={t('mustEats.onbFlipAria')}
-                  >
-                    {flipper}
-                  </button>
-                ) : (
-                  flipper
-                )}
-              </div>
-
-              <div className={styles.copy}>
-                {/* Every slide is in the DOM at once, stacked into one grid
-                    cell, with the inactive ones held at visibility:hidden. The
-                    cell is therefore always as tall as the tallest slide, so
-                    the panel keeps one size from the first "weiter" to the
-                    last — without a min-height guessed against one particular
-                    copy length, language or column width, which is what used
-                    to let the panel resize under the visitor. visibility also
-                    keeps the inactive slides out of the a11y tree and out of
-                    the tab order, unlike a plain opacity hold. */}
-                <div className={styles.slideStack}>
-                  {SLIDES.map((s, i) =>
-                    i === SLIDES.length - 1 ? (
-                      <Fragment key={s.title}>
-                        <div className={slideClass(i)} data-auth-only="">
-                          <p className={styles.kicker}>{t('mustEats.onb3Kicker')}</p>
-                          <h2 className={styles.title}>{t('mustEats.onb3Title')}</h2>
-                          <p className={styles.text}>{t('mustEats.onb3Body')}</p>
-                        </div>
-                        <div className={slideClass(i)} data-guest-only="">
-                          <p className={styles.kicker}>{t('mustEats.onbStarterKicker')}</p>
-                          <h2 className={styles.title}>{t('mustEats.onbStarterTitle')}</h2>
-                          <p className={styles.text}>{t('mustEats.onbStarterBody')}</p>
-                        </div>
-                      </Fragment>
-                    ) : (
-                      <div key={s.title} className={slideClass(i)}>
-                        <p className={styles.kicker}>{t(s.kicker)}</p>
-                        <h2 className={styles.title}>{t(s.title)}</h2>
-                        <p className={styles.text}>{t(s.body)}</p>
-                      </div>
-                    )
+              <div className={tour.content}>
+                <div className={tour.art}>
+                  {last ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        data-testid="onb-pack"
+                        data-auth-only=""
+                        className={tour.artImg}
+                        src={BOOSTER_ART}
+                        alt="Booster Pack"
+                        loading="eager"
+                        decoding="sync"
+                        fetchPriority="high"
+                      />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        data-testid="onb-starter-pack"
+                        data-guest-only=""
+                        className={tour.artImg}
+                        src={STARTER_ART}
+                        alt="Eat This Starter Pack"
+                        loading="eager"
+                        decoding="sync"
+                        fetchPriority="high"
+                      />
+                    </>
+                  ) : (
+                    <div className={styles.cardBox}>
+                      {step === 1 ? (
+                        <button
+                          type="button"
+                          className={styles.flipTap}
+                          onClick={handleFlipTap}
+                          aria-label={t('mustEats.onbFlipAria')}
+                        >
+                          {flipper}
+                        </button>
+                      ) : (
+                        flipper
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {/* A segmented bar rather than carousel dots: the active
-                    segment widens, so it shows progress instead of just saying
-                    "there is more". Each segment jumps to its slide, so the
-                    only way back is no longer closing and starting over. The
-                    name lives in aria-label — the bar carries no type, which
-                    is the point: numerals here sat in whichever font and read
-                    as a foreign object next to the display copy. */}
-                <ol className={styles.steps}>
-                  {SLIDES.map((s, i) => (
-                    <li key={s.title}>
-                      <button
-                        type="button"
-                        className={i === step ? `${styles.step} ${styles.stepOn}` : styles.step}
-                        onClick={() => setStep(i)}
-                        aria-current={i === step ? 'step' : undefined}
-                        // Built inline rather than from a keyed string with a
-                        // {n} placeholder: next-intl answers an unformatted ICU
-                        // placeholder with the key path instead of throwing, so
-                        // the shared t()'s raw fallback never fires and the
-                        // label came out as "mustEats.onbStepAria".
-                        aria-label={
-                          lang === 'de' ? `Zu Schritt ${i + 1} von 3` : `Go to step ${i + 1} of 3`
-                        }
-                      />
-                    </li>
-                  ))}
-                </ol>
+                <div className={tour.copy} ref={copyRef}>
+                  {last ? (
+                    <>
+                      {/* Welche Fassung steht, entscheidet das Auth-Flag vor dem
+                          ersten Paint (globals.css) — kein Flackern. */}
+                      <div data-auth-only="">
+                        {copy('mustEats.onb3Kicker', 'mustEats.onb3Title', 'mustEats.onb3Body')}
+                      </div>
+                      <div data-guest-only="">
+                        {copy(
+                          'mustEats.onbStarterKicker',
+                          'mustEats.onbStarterTitle',
+                          'mustEats.onbStarterBody'
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    copy(SLIDES[step].kicker, SLIDES[step].title, SLIDES[step].body)
+                  )}
+                </div>
+              </div>
 
-                {/* The actions stack for the same reason: the last slide
-                    carries two buttons where the others carry one, and on a
-                    narrow column that row wraps — a height difference that
-                    would land on the visitor exactly at the last "weiter". */}
-                <div className={styles.actionStack}>
-                  <div className={rowClass(!last)}>
+              <footer className={tour.footer}>
+                <div
+                  className={tour.progress}
+                  aria-label={de ? `Schritt ${step + 1} von 3` : `Step ${step + 1} of 3`}
+                >
+                  <span>{step + 1} / 3</span>
+                  <div className={tour.segments} aria-hidden="true">
+                    {SLIDES.map((s, i) => (
+                      <span key={s.title} className={i <= step ? tour.active : undefined} />
+                    ))}
+                  </div>
+                </div>
+                {/* Der gelbe Knopf steht auf jeder Seite an derselben Stelle.
+                    Am Ende nimmt die zweite Aktion den Platz von Zurück ein. */}
+                {!last ? (
+                  <div className={tour.actions}>
                     <button
                       type="button"
-                      className={styles.next}
-                      // Clamped because the row is only hidden, not unmounted:
-                      // nothing in the UI can reach it on the last slide, but a
-                      // step past the end would blank every slide in the stack.
+                      className={tour.quiet}
+                      disabled={step === 0}
+                      onClick={() => setStep((s) => Math.max(s - 1, 0))}
+                    >
+                      {de ? 'Zurück' : 'Back'}
+                    </button>
+                    <button
+                      type="button"
+                      className={tour.action}
                       onClick={() => setStep((s) => Math.min(s + 1, SLIDES.length - 1))}
                     >
                       {t('mustEats.onbNext')}
                     </button>
                   </div>
-                  <div className={rowClass(last)} data-testid="onb-actions-auth" data-auth-only="">
-                    <button type="button" className={styles.next} onClick={close}>
-                      {t('mustEats.onbStart')}
-                    </button>
-                    <a className={styles.packLink} href={packsHref} onClick={close}>
-                      {t('mustEats.onbPacksCta')}
-                    </a>
-                  </div>
-                  {/* For a guest the free pack outranks dismissing, so it takes
-                      the primary slot — the paid Booster Packs are a rung up
-                      that only makes sense once there is an account. */}
-                  <div
-                    className={rowClass(last)}
-                    data-testid="onb-actions-guest"
-                    data-guest-only=""
-                  >
-                    <a className={styles.next} href={starterHref} onClick={close}>
-                      {t('mustEats.onbStarterCta')}
-                    </a>
-                    <button type="button" className={styles.packLink} onClick={close}>
-                      {t('mustEats.onbStart')}
-                    </button>
-                  </div>
-                </div>
-              </div>
+                ) : (
+                  <>
+                    <div className={tour.actions} data-testid="onb-actions-auth" data-auth-only="">
+                      <a className={tour.quiet} href={packsHref} onClick={close}>
+                        {t('mustEats.onbPacksCta')}
+                      </a>
+                      <button type="button" className={tour.action} onClick={close}>
+                        {t('mustEats.onbStart')}
+                      </button>
+                    </div>
+                    {/* Für einen Gast zählt das Gratis-Pack mehr als das
+                        Schließen — es nimmt den gelben Platz. */}
+                    <div
+                      className={tour.actions}
+                      data-testid="onb-actions-guest"
+                      data-guest-only=""
+                    >
+                      <button type="button" className={tour.quiet} onClick={close}>
+                        {t('mustEats.onbStart')}
+                      </button>
+                      {/* Öffnet das Anmelde-Fenster direkt (Starter-Modus), statt
+                          erst zur Startseite zu springen. */}
+                      <button
+                        type="button"
+                        className={tour.action}
+                        onClick={() => {
+                          close();
+                          openLogin('starter');
+                        }}
+                      >
+                        {t('mustEats.onbStarterCta')}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </footer>
             </div>
           </div>,
           document.body

@@ -36,75 +36,93 @@
    SPLASH — Ink-Fläche wie die Chrome der Site
    ============================================ */
 
-/* Den Grund setzt der <body> im Layout — ein `background` stuende hier
-   wirkungslos (siehe dort). */
-.splashPage {
+.loadingLayer {
+  position: fixed;
+  inset: 0;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.88);
 }
 
 .splash {
   display: grid;
   justify-items: center;
-  gap: 26px;
+  gap: 34px;
+  width: min(480px, 100%);
+  box-sizing: border-box;
+  padding: clamp(28px, 6vw, 44px) 24px;
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--w-quiet);
+  box-shadow: 0 24px 80px #0008;
+  font-family: var(--w-display);
   text-align: center;
+  animation: panelIn 300ms ease-out both;
 }
 
 .splashLogo {
-  width: clamp(190px, 46vw, 280px);
+  width: 112px;
   height: auto;
 }
 
-/* Drei Marker-Quadrate wie `.hv-mk` vor jedem Section-Titel — sie pulsieren
-   nacheinander in der Grösse. Liest schneller als ein Spinner und bleibt im
-   Vokabular der Startseite. */
-.marks {
-  display: flex;
-  gap: 10px;
+.loadingCards {
+  position: relative;
+  width: 132px;
+  aspect-ratio: 1539 / 2115;
+  margin: 10px 0;
 }
 
-.mark {
-  width: 11px;
-  height: 11px;
-  background: var(--w-accent);
-  transform: scale(0.5);
-  animation: markPulse 1.05s ease-in-out infinite;
+.loadingCards img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 14px #0005);
+  transform-origin: 50% 85%;
+  animation: cardShuffle 2200ms ease-in-out infinite;
 }
 
-.mark:nth-child(2) {
-  animation-delay: 0.14s;
+.loadingCards img:nth-child(1) {
+  --card-angle: -18deg;
+  --card-x: -24px;
 }
-.mark:nth-child(3) {
-  animation-delay: 0.28s;
+.loadingCards img:nth-child(2) {
+  --card-angle: 16deg;
+  --card-x: 24px;
+}
+.loadingCards img:nth-child(3) {
+  --card-angle: -3deg;
+  --card-x: 0px;
 }
 
-@keyframes markPulse {
+@keyframes cardShuffle {
   0%,
   100% {
-    transform: scale(0.5);
+    transform: translateX(var(--card-x)) rotate(var(--card-angle));
   }
-  45% {
-    transform: scale(1);
+  50% {
+    transform: translateY(-8px) rotate(0deg);
   }
 }
 
 .splashTitle {
-  margin: 0 0 6px;
+  margin: 0 0 12px;
   font-family: var(--w-display);
   font-weight: 700;
-  font-size: clamp(21px, 4.6vw, 27px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-size: clamp(27px, 6vw, 36px);
+  line-height: 1.1;
   text-transform: uppercase;
   color: var(--w-paper);
 }
 
 .splashCopy p {
   margin: 0;
-  font-size: 14px;
+  font-family: var(--w-display);
+  font-size: 15px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--w-muted);
 }
 
 /* ============================================
@@ -383,7 +401,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .frame,
-  .mark,
+  .splash,
+  .loadingCards img,
   .avatarActive::after {
     animation: none;
   }
@@ -391,7 +410,220 @@
   .cta {
     transition: none;
   }
-  .mark {
-    transform: scale(1);
+  .loadingCards img {
+    transform: translateX(var(--card-x)) rotate(var(--card-angle));
   }
+}
+
+/* Die Namens- und Charakterwahl spricht durchgehend in der Hausschrift. */
+.identityFrame {
+  --w-body: var(--w-display);
+  font-family: var(--w-display);
+}
+
+.identityFrame .logoWrap,
+.identityFrame .kicker,
+.identityFrame .title,
+.identityFrame .sub {
+  text-align: center;
+}
+
+.identityFrame .logoMark {
+  margin-inline: auto;
+}
+
+.identityFrame .kicker {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.identityFrame .nameLabel {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.identityFrame .sub {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Ein gemeinsamer Layer fuer alle Schritte nach dem E-Mail-Link. */
+.page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  pointer-events: none;
+}
+
+.frame {
+  position: relative;
+  --w-body: var(--w-display);
+  width: min(480px, 100%);
+  box-sizing: border-box;
+  padding: clamp(28px, 6vw, 44px) 24px;
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--w-quiet);
+  box-shadow: 0 24px 80px #0008;
+  font-family: var(--w-display);
+}
+
+.frame .logoWrap,
+.frame .kicker,
+.frame .title,
+.frame .sub {
+  text-align: center;
+}
+
+.frame .logoMark {
+  margin-inline: auto;
+  width: 112px;
+}
+.frame .kicker {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.frame .sub {
+  font-size: 15px;
+}
+
+/* Die Bestätigung bekommt einen eigenen Auftritt innerhalb desselben Layers. */
+.confirmFrame {
+  width: min(560px, 100%);
+  padding: 30px;
+}
+
+.confirmHero {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+  gap: 22px;
+  margin: 0 0 26px;
+}
+.confirmFrame .confirmHeading .kicker,
+.confirmFrame .confirmHeading .title {
+  text-align: center;
+}
+.confirmFrame .confirmHeading .kicker {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.confirmFrame .confirmHeading .title {
+  margin: 0;
+  font-size: clamp(32px, 7.5vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.confirmPack {
+  grid-row: 1;
+  display: block;
+  width: 140px;
+  height: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 15px #0005);
+}
+.confirmIdentity {
+  display: grid;
+  gap: 7px;
+  padding: 18px 14px;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, 0.055);
+  border-radius: var(--et-radius-control, 7px);
+  text-align: center;
+}
+.confirmIdentity span {
+  font-size: 12px;
+  color: var(--w-muted);
+}
+.confirmIdentity strong {
+  font-size: 17px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.confirmNote {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--w-muted);
+}
+.confirmFrame .cta {
+  min-height: 54px;
+}
+@media (max-width: 380px) {
+  .confirmFrame {
+    padding: 26px 20px;
+  }
+  .confirmFrame .confirmHeading .title {
+    font-size: 29px;
+  }
+}
+@media (max-width: 600px) {
+  .confirmFrame .confirmHeading .title {
+    font-size: clamp(25px, 6.7vw, 36px);
+  }
+}
+
+.confirmFrame .logoWrap {
+  margin-bottom: 26px;
+}
+.confirmFrame .logoMark {
+  width: 100px;
+}
+
+/* Auf kurzen Displays bleibt die Anmeldung ohne Scrollen erreichbar. */
+@media (max-height: 780px) {
+  .confirmFrame {
+    padding: 20px;
+  }
+  .confirmFrame .logoWrap {
+    margin-bottom: 18px;
+  }
+  .confirmHero {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .confirmPack {
+    width: 112px;
+    height: clamp(120px, 25dvh, 160px);
+  }
+  .confirmIdentity {
+    padding-block: 14px;
+    margin-bottom: 14px;
+  }
+}
+
+/* Mehr Platz fuer die Figuren, weniger Formulartext. */
+.identityFrame .logoWrap {
+  margin-bottom: 24px;
+}
+.identityFrame .sub {
+  margin-bottom: 24px;
+}
+
+.identityFrame .avatars {
+  gap: 9px;
+  margin: 8px 0 4px;
+}
+.identityFrame .avatar {
+  padding: 18px 5px 14px;
+  gap: 12px;
+}
+.identityFrame .avatarPh {
+  width: clamp(58px, 19vw, 90px);
+}
+.identityFrame .avatarName {
+  font-weight: 400;
+}
+.identityFrame .avatarActive {
+  background: rgba(255, 198, 0, 0.08);
+}
+.identityFrame .avatarActive::after {
+  content: none;
 }

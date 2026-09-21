@@ -348,15 +348,43 @@ const Inner = memo(function Inner({
       aria-label={alt || 'Must Eat'}
       tabIndex={-1}
       onKeyDown={(event) => {
-        // The viewer has no separate controls; keep keyboard focus inside the
-        // modal until Escape/click closes it.
-        if (event.key === 'Tab') {
+        if (event.key !== 'Tab') return;
+        const focusable = Array.from(
+          dialogRef.current?.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+          ) ?? []
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (document.activeElement === dialogRef.current) {
           event.preventDefault();
-          dialogRef.current?.focus({ preventScroll: true });
+          (event.shiftKey ? last : first).focus();
+        } else if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
         }
       }}
     >
       <div className={styles.backdrop} aria-hidden="true" />
+      <button
+        type="button"
+        className={styles.close}
+        aria-label="Großansicht schließen"
+        onPointerDown={(event) => event.stopPropagation()}
+        onPointerUp={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation();
+          handleClose();
+        }}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
       <motion.div
         ref={cardRef}
         className={styles.card}

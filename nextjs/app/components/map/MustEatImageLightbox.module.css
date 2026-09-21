@@ -32,6 +32,42 @@
   backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
 }
 
+.close {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top, 0px));
+  right: max(14px, env(safe-area-inset-right, 0px));
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--et-home-paper, #fff);
+  box-shadow: none;
+  cursor: pointer;
+}
+.close:focus-visible {
+  color: var(--et-home-accent, #ffc600);
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .close:hover {
+    color: var(--et-home-accent, #ffc600);
+  }
+}
+.close svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
 .card {
   position: relative;
   z-index: 1;
@@ -98,7 +134,9 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
+  padding: 4px;
+  color: var(--et-home-paper, #fff);
   transform: translateX(-50%);
   cursor: default;
 }
@@ -111,10 +149,10 @@
   height: 44px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
   cursor: pointer;
 }
 
@@ -126,16 +164,22 @@
 .navBtn:disabled {
   /* Am Anfang und am Ende bleibt der Knopf stehen und wird still — sonst
      rutscht der Zählstand aus der Mitte. */
-  background: rgba(255, 255, 255, 0.45);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.28);
   box-shadow: none;
   cursor: default;
 }
 
 @media (hover: hover) {
   .navBtn:hover:not(:disabled) {
-    background: #d9382a;
-    color: #fff;
+    color: var(--et-home-accent, #ffc600);
   }
+}
+
+.navBtn:focus-visible {
+  color: var(--et-home-accent, #ffc600);
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
 .counter {
@@ -144,9 +188,9 @@
   min-width: 68px;
   height: 44px;
   padding: 0 16px;
-  border-radius: 999px;
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 16px;
   font-weight: 700;

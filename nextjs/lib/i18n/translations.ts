@@ -411,7 +411,7 @@ const en = {
       sentH1: 'Mail’s out',
       sentToLabel: 'Sent to',
       sentSub:
-        'Click the link in the mail and you’re on your map. It’s valid 15 minutes and only on this device.',
+        'Click the link in the mail and you’re on your map. It’s valid an hour and only for your address.',
       spamHint:
         'Nothing in your inbox? Check the spam folder — first contact sometimes lands there.',
       otherEmail: 'Different email',
@@ -878,7 +878,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       sentH1: 'Mail ist raus',
       sentToLabel: 'Gesendet an',
       sentSub:
-        'Klick den Link in der Mail und du bist auf deiner Map. Er gilt 15 Minuten und nur auf diesem Ger\u00e4t.',
+        'Klick den Link in der Mail und du bist auf deiner Map. Er gilt eine Stunde und nur f\u00fcr deine Adresse.',
       spamHint:
         'Nichts in der Inbox? Wirf einen Blick in den Spam-Ordner \u2014 Erstkontakt landet manchmal da.',
       otherEmail: 'Andere Adresse',

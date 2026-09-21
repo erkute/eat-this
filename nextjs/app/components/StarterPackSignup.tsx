@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useGoogleSignIn, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
 import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
+import { announceSignIn } from '@/lib/auth/signInArrival';
 import AuthScreen from './AuthScreen';
 import { GoogleMark } from './GoogleMark';
 import styles from './StarterPackSignup.module.css';
@@ -87,8 +88,12 @@ export default function StarterPackSignup({ locale }: Props) {
      Startseite hat nicht die Google-Anmeldung"). Nach der Antwort versteckt
      `data-guest-only` diese Tafel (globals.css); der Wartescreen liegt als
      Portal darüber und bleibt die Haltezeit stehen, dann kommt der Toast,
-     den sonst BridgeAuth nach dem Modal zeigt. */
-  const onSignedIn = useCallback(() => window.showNotification?.(t.signedIn), [t.signedIn]);
+     den sonst BridgeAuth nach dem Modal zeigt — es sei denn, ein Starter Pack
+     ist unterwegs, dann spricht dessen Einblendung (siehe signInArrival). */
+  const onSignedIn = useCallback(
+    () => announceSignIn(() => window.showNotification?.(t.signedIn)),
+    [t.signedIn]
+  );
   const google = useGoogleSignIn({ onSettled: onSignedIn });
   const emailId = useId();
   const errorId = `${emailId}-error`;

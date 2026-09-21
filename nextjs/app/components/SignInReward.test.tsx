@@ -108,8 +108,8 @@ describe('Ankunft nach der Anmeldung', () => {
 
     expect(screen.getByRole('heading').textContent).toBe('Wohin zuerst?');
     expect(screen.queryByRole('button', { name: 'Weiter' })).toBeNull();
-    expect(screen.getByRole('link', { name: /Deck/ }).getAttribute('href')).toBe('/profile');
-    fireEvent.click(screen.getByRole('link', { name: /Map/ }));
+    expect(screen.getByRole('link', { name: 'Deck' }).getAttribute('href')).toBe('/profile');
+    fireEvent.click(screen.getByRole('link', { name: 'Map' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).not.toBe('hidden');
   });

@@ -69,9 +69,10 @@ const copy = {
     go: {
       tag: 'Los',
       title: 'Wohin zuerst?',
-      deck: { label: 'Deck', line: 'Deine Karten' },
-      map: { label: 'Map', line: 'In deiner Nähe' },
-      replay: 'Diese Tour findest du im Menü unter „So geht’s“.',
+      body: 'Im Deck liegen deine Karten. Auf der Map findest du die Spots dazu.',
+      deck: 'Deck',
+      map: 'Map',
+      alt: 'Vier Must-Eat-Karten, zwei offen und zwei verdeckt',
     },
   },
   en: {
@@ -128,14 +129,24 @@ const copy = {
     go: {
       tag: 'Go',
       title: 'Where to first?',
-      deck: { label: 'Deck', line: 'Your cards' },
-      map: { label: 'Map', line: 'Near you' },
-      replay: 'You’ll find this tour in the menu under “How it works”.',
+      body: 'Your cards live in your deck. The map shows you the spots.',
+      deck: 'Deck',
+      map: 'Map',
+      alt: 'Four Must Eat cards, two revealed and two face down',
     },
   },
 } as const;
 
 type PackPhase = 'sealed' | 'opening' | 'open';
+
+const CARD_BACK = '/pics/card-back.webp?v=7';
+/* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
+const DECK_CARDS = [
+  CARD_BACK,
+  CARD_BACK,
+  '/pics/card-front.webp?v=3',
+  '/pics/card-front-sabich.webp',
+] as const;
 
 /**
  * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
@@ -248,7 +259,7 @@ export default function SignInReward() {
             />
             <img
               className={`${styles.revealCard} ${styles.revealBack}`}
-              src="/pics/card-back.webp?v=7"
+              src={CARD_BACK}
               alt={opened ? t.pack.backAlt : ''}
               aria-hidden={!opened}
             />
@@ -304,57 +315,34 @@ export default function SignInReward() {
     }
   } else if (page === 'go') {
     content = (
-      <div className={styles.goContent}>
-        <div className={styles.goHead}>
+      <div className={styles.content}>
+        <div className={styles.art} role="img" aria-label={t.go.alt}>
+          {/* Zwei offen, zwei verdeckt — so sieht ein Deck nach dem Pack aus. */}
+          {/* eslint-disable @next/next/no-img-element */}
+          {DECK_CARDS.map((src, index) => (
+            <img key={index} className={styles.deckCard} src={src} alt="" />
+          ))}
+          {/* eslint-enable @next/next/no-img-element */}
+        </div>
+        <div className={styles.copy}>
           <p className={styles.kicker}>{t.go.tag}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.go.title}
           </h2>
+          <p className={styles.body}>{t.go.body}</p>
         </div>
-        <div className={styles.doors}>
-          <Link href="/profile" className={styles.door} onClick={close}>
-            <span className={styles.doorArt} aria-hidden="true">
-              {/* eslint-disable @next/next/no-img-element */}
-              <img className={styles.doorCardBack} src="/pics/card-back.webp?v=7" alt="" />
-              <img className={styles.doorCardFront} src="/pics/card-front.webp?v=3" alt="" />
-              {/* eslint-enable @next/next/no-img-element */}
-            </span>
-            <span className={styles.doorText}>
-              <span className={styles.doorLabel}>
-                {t.go.deck.label}
-                <span className={styles.doorArrow} aria-hidden="true">
-                  →
-                </span>
-              </span>
-              <span className={styles.doorLine}>{t.go.deck.line}</span>
-            </span>
-          </Link>
-          <Link href="/map" className={styles.door} onClick={close}>
-            <span className={styles.doorArt} aria-hidden="true">
-              <Image
-                src="/pics/home-phones/phone-map-ink-480.webp"
-                alt=""
-                fill
-                sizes="(max-width: 600px) 45vw, 260px"
-                loading="eager"
-                className={styles.image}
-              />
-            </span>
-            <span className={styles.doorText}>
-              <span className={styles.doorLabel}>
-                {t.go.map.label}
-                <span className={styles.doorArrow} aria-hidden="true">
-                  →
-                </span>
-              </span>
-              <span className={styles.doorLine}>{t.go.map.line}</span>
-            </span>
-          </Link>
-        </div>
-        {welcome && <p className={styles.note}>{t.go.replay}</p>}
       </div>
     );
-    primary = null;
+    primary = (
+      <div className={styles.actionGroup}>
+        <Link href="/profile" className={`${styles.action} ${styles.actionGhost}`} onClick={close}>
+          {t.go.deck}
+        </Link>
+        <Link href="/map" className={styles.action} onClick={close}>
+          {t.go.map}
+        </Link>
+      </div>
+    );
   } else {
     const slide = t.slides[page];
     content = (

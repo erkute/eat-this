@@ -9,6 +9,9 @@ vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ lang: 'de', t: (k: string) => k, setLang: () => {} }),
 }));
 
+const openLogin = vi.fn();
+vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: openLogin }) }));
+
 import MustEatsOnboarding, { ONBOARDING_SEEN_KEY } from '@/app/components/MustEatsOnboarding';
 
 const DATA: InitialMapData = {
@@ -90,13 +93,17 @@ describe('MustEatsOnboarding', () => {
     // free pack — a paid Booster Pack is a rung that needs an account first.
     const guest = row('guest');
     expect(guest.textContent).toContain('mustEats.onbStarterCta');
-    expect(guest.querySelector('a')?.getAttribute('href')).toBe('/#hub-starter');
     expect(screen.getByTestId('onb-starter-pack').getAttribute('src')).toContain(
       '/pics/booster/booster_free.webp'
     );
 
     // …and the paid one stays for signed-in visitors.
     expect(row('auth').textContent).toContain('mustEats.onbPacksCta');
+
+    // „Anmelden" öffnet das Anmelde-Fenster im Starter-Modus und schließt die Erklärung.
+    fireEvent.click(screen.getByText('mustEats.onbStarterCta'));
+    expect(openLogin).toHaveBeenCalledWith('starter');
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('gives the guest offer the primary slot and dismissing the secondary one', () => {

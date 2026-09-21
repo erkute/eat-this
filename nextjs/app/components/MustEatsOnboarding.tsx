@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { useTranslation } from '@/lib/i18n';
+import { useLoginModal } from '@/lib/auth';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
@@ -56,6 +57,7 @@ export default function MustEatsOnboarding({
   tone = 'paper',
 }: Props) {
   const { lang, t } = useTranslation();
+  const { open: openLogin } = useLoginModal();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -187,9 +189,6 @@ export default function MustEatsOnboarding({
 
   const last = step === SLIDES.length - 1;
   const packsHref = lang === 'en' ? '/en/packs' : '/packs';
-  // The home's Starter-Pack section carries this id; same-page it scrolls, from
-  // /must-eats it navigates home and HubHashScroll settles the position.
-  const starterHref = lang === 'en' ? '/en#hub-starter' : '/#hub-starter';
   const de = lang === 'de';
 
   const flipper = (
@@ -369,9 +368,18 @@ export default function MustEatsOnboarding({
                       <button type="button" className={tour.quiet} onClick={close}>
                         {t('mustEats.onbStart')}
                       </button>
-                      <a className={tour.action} href={starterHref} onClick={close}>
+                      {/* Öffnet das Anmelde-Fenster direkt (Starter-Modus), statt
+                          erst zur Startseite zu springen. */}
+                      <button
+                        type="button"
+                        className={tour.action}
+                        onClick={() => {
+                          close();
+                          openLogin('starter');
+                        }}
+                      >
                         {t('mustEats.onbStarterCta')}
-                      </a>
+                      </button>
                     </div>
                   </>
                 )}

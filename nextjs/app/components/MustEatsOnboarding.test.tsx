@@ -105,8 +105,8 @@ describe('MustEatsOnboarding', () => {
     fireEvent.click(screen.getByText('mustEats.onbNext'));
 
     const guest = row('guest');
-    // The free offer takes the yellow slot; "no thanks" is the outlined one.
-    const primary = [...guest.children].find((el) => !el.className.includes('actionGhost'));
+    // The free offer takes the yellow slot; "no thanks" is the quiet one.
+    const primary = [...guest.children].find((el) => !el.className.includes('quiet'));
     expect(primary?.textContent).toBe('mustEats.onbStarterCta');
     fireEvent.click(
       screen.getByText('mustEats.onbStart', { selector: '[data-guest-only] button' })
@@ -120,10 +120,9 @@ describe('MustEatsOnboarding', () => {
       true
     );
     fireEvent.click(screen.getByText('mustEats.onbNext'));
-    fireEvent.click(screen.getByText('mustEats.onbNext'));
-    expect(activeTitles()).toEqual(['mustEats.onb3Title', 'mustEats.onbStarterTitle']);
-    fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
     expect(activeTitles()).toEqual(['mustEats.onb2Title']);
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
+    expect(activeTitles()).toEqual(['mustEats.onb1Title']);
   });
 
   it('names the current step', () => {

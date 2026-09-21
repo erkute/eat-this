@@ -329,16 +329,18 @@ export default function MustEatsOnboarding({
                     ))}
                   </div>
                 </div>
-                <div className={tour.actions}>
-                  <button
-                    type="button"
-                    className={tour.quiet}
-                    disabled={step === 0}
-                    onClick={() => setStep((s) => Math.max(s - 1, 0))}
-                  >
-                    {de ? 'Zurück' : 'Back'}
-                  </button>
-                  {!last && (
+                {/* Der gelbe Knopf steht auf jeder Seite an derselben Stelle.
+                    Am Ende nimmt die zweite Aktion den Platz von Zurück ein. */}
+                {!last ? (
+                  <div className={tour.actions}>
+                    <button
+                      type="button"
+                      className={tour.quiet}
+                      disabled={step === 0}
+                      onClick={() => setStep((s) => Math.max(s - 1, 0))}
+                    >
+                      {de ? 'Zurück' : 'Back'}
+                    </button>
                     <button
                       type="button"
                       className={tour.action}
@@ -346,46 +348,33 @@ export default function MustEatsOnboarding({
                     >
                       {t('mustEats.onbNext')}
                     </button>
-                  )}
-                  {last && (
-                    <>
-                      <div
-                        className={tour.actionGroup}
-                        data-testid="onb-actions-auth"
-                        data-auth-only=""
-                      >
-                        <a
-                          className={`${tour.action} ${tour.actionGhost}`}
-                          href={packsHref}
-                          onClick={close}
-                        >
-                          {t('mustEats.onbPacksCta')}
-                        </a>
-                        <button type="button" className={tour.action} onClick={close}>
-                          {t('mustEats.onbStart')}
-                        </button>
-                      </div>
-                      {/* Für einen Gast zählt das Gratis-Pack mehr als das
-                          Schließen — es nimmt den gelben Platz. */}
-                      <div
-                        className={tour.actionGroup}
-                        data-testid="onb-actions-guest"
-                        data-guest-only=""
-                      >
-                        <button
-                          type="button"
-                          className={`${tour.action} ${tour.actionGhost}`}
-                          onClick={close}
-                        >
-                          {t('mustEats.onbStart')}
-                        </button>
-                        <a className={tour.action} href={starterHref} onClick={close}>
-                          {t('mustEats.onbStarterCta')}
-                        </a>
-                      </div>
-                    </>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className={tour.actions} data-testid="onb-actions-auth" data-auth-only="">
+                      <a className={tour.quiet} href={packsHref} onClick={close}>
+                        {t('mustEats.onbPacksCta')}
+                      </a>
+                      <button type="button" className={tour.action} onClick={close}>
+                        {t('mustEats.onbStart')}
+                      </button>
+                    </div>
+                    {/* Für einen Gast zählt das Gratis-Pack mehr als das
+                        Schließen — es nimmt den gelben Platz. */}
+                    <div
+                      className={tour.actions}
+                      data-testid="onb-actions-guest"
+                      data-guest-only=""
+                    >
+                      <button type="button" className={tour.quiet} onClick={close}>
+                        {t('mustEats.onbStart')}
+                      </button>
+                      <a className={tour.action} href={starterHref} onClick={close}>
+                        {t('mustEats.onbStarterCta')}
+                      </a>
+                    </div>
+                  </>
+                )}
               </footer>
             </div>
           </div>,

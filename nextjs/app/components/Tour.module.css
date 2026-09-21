@@ -159,20 +159,12 @@ a.action {
   justify-content: center;
   text-decoration: none;
 }
-/* Zwei Knoepfe am Ende (Must-Eats-Erklaerung): der zweite umrandet. */
-.actionGroup {
-  display: flex;
-  gap: 10px;
-}
-.actionGroup .action {
-  min-width: 0;
-  padding-inline: 22px;
-  white-space: nowrap;
-}
-.actionGhost {
-  background: transparent;
-  color: #fff;
-  box-shadow: inset 0 0 0 1.5px #ffffff59;
+/* Die zweite Aktion am Ende steht als leiser Link dort, wo sonst Zurueck
+   steht — der Hauptknopf bleibt so auf jeder Seite an seinem Platz. */
+a.quiet {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 /* Ein schlichtes <img> fuellt die Bildflaeche wie ein next/image mit `fill`. */
 .artImg {
@@ -409,7 +401,7 @@ a.action {
   position: absolute;
   top: 50%;
   left: 50%;
-  height: min(80cqh, 100cqw);
+  height: min(94cqh, 100cqw);
   aspect-ratio: 480 / 975;
   transform: translate(-50%, -50%);
 }
@@ -417,7 +409,7 @@ a.action {
   position: absolute;
   top: 50%;
   left: 50%;
-  height: min(62cqh, 60cqw);
+  height: min(76cqh, 60cqw);
   aspect-ratio: 1 / 1.375;
   object-fit: contain;
   filter: drop-shadow(0 10px 14px #0006);
@@ -456,15 +448,20 @@ a.action {
 @media (min-width: 601px) {
   .panel {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    /* Der Fuss sitzt fest unten rechts — der Hauptknopf steht auf jeder
+       Seite an derselben Stelle (Nutzer, 21.09.2026). Nur der Text
+       schwebt mittig darueber. */
     grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas:
       'header header'
       'art copy'
       'art footer';
-    column-gap: 48px;
-    width: min(900px, 100%);
-    height: min(580px, calc(100dvh - 48px));
-    padding-bottom: 32px;
+    column-gap: 40px;
+    /* Kompakt: groesser liess rechts und unten viel Leerraum (Nutzer,
+       21.09.2026). */
+    width: min(800px, 100%);
+    height: min(500px, calc(100dvh - 48px));
+    padding-bottom: 28px;
   }
   .header {
     grid-area: header;
@@ -472,12 +469,12 @@ a.action {
   .content {
     display: contents;
   }
-  /* Nicht die volle Spaltenhoehe: randvoll wirkten Telefon, Karte und Pack
-     zu gross (Nutzer, 21.09.2026). */
+  /* Das Bild fuellt seine Spalte fast ganz — das Fenster selbst ist klein
+     genug, dass Telefon, Karte und Pack nicht zu gross werden. */
   .art {
     grid-area: art;
     align-self: center;
-    height: 74%;
+    height: 92%;
   }
   .copy {
     grid-area: copy;
@@ -487,6 +484,7 @@ a.action {
     grid-area: footer;
     width: 100%;
     margin: 0;
+    padding-top: 28px;
   }
   .packStage {
     /* So gross, dass das versiegelte Pack (1,91 Kartenbreiten hoch) etwa so
@@ -506,22 +504,20 @@ a.action {
   .panelGo .footer {
     width: min(440px, 100%);
     margin: 0 auto;
+    padding-top: 4px;
+  }
+  .panelGo .goContent {
+    gap: 12px;
+    padding: 0 0 4px;
+  }
+  .panelGo .half {
+    padding: 14px 12px 12px;
+    gap: 10px;
   }
 }
 
 /* ── Telefon: Bild oben, Text darunter ────────────────────────────────── */
 @media (max-width: 600px) {
-  /* Zurueck plus zwei Knoepfe muessen auch auf 320 px in eine Zeile. */
-  .actions:has(.actionGroup) {
-    gap: 12px;
-  }
-  .actionGroup {
-    gap: 8px;
-  }
-  .actionGroup .action {
-    padding-inline: 14px;
-    font-size: 15px;
-  }
   /* Auf dem Telefon untereinander: nebeneinander blieben Telefon und
      Karten zu klein. Jedes Feld ist breit und flach, das Bild bekommt die
      Hoehe, das Wort steht darunter. */
@@ -595,17 +591,6 @@ a.action {
   }
   .action {
     min-width: 150px;
-  }
-}
-
-/* Unter 360 px reicht die Zeile nicht fuer Zurueck und zwei Knoepfe: dann
-   faellt Zurueck, die zwei Wege zaehlen mehr. */
-@media (max-width: 360px) {
-  .actions:has(.actionGroup) {
-    justify-content: flex-end;
-  }
-  .actions:has(.actionGroup) .quiet {
-    display: none;
   }
 }
 

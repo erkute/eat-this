@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { Fragment, useMemo, useRef } from 'react';
+import { Fragment, useMemo } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -35,7 +35,6 @@ import { normalizeName } from '@/lib/normalizeName';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
-import { useSwipePager } from './useSwipePager';
 import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
@@ -124,8 +123,6 @@ export default function RestaurantDetail({
   const locale = useLocale();
   const { open: openLoginModal } = useLoginModal();
   const { count: heartCount } = useHeartCount(restaurant._id);
-  const scrollWrapRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
 
   // The map list payload is now trimmed to hero/list fields; the editorial +
   // contact fields (address, phone, tip, description, …) load on demand when
@@ -136,22 +133,6 @@ export default function RestaurantDetail({
     () => (detail ? { ...restaurant, ...detail } : restaurant),
     [restaurant, detail]
   );
-
-  useSwipePager(scrollWrapRef, {
-    onPrev: onPagePrev,
-    onNext: onPageNext,
-    hasPrev: !!prevRestaurant,
-    hasNext: !!nextRestaurant,
-    // Preview + page-animate ONLY the hero (like the must-eat card), not the
-    // whole scroll container. Without this the entire article slid sideways on
-    // a horizontal swipe — title/tags clipped, page-bg gap on the far edge
-    // ("das Bild lässt sich nach links/rechts bewegen", User 2026-07-04). The
-    // hero is the "card" that pages; the article underneath swaps in place.
-    transformRef: heroRef,
-    // Die einfahrende Karte wird im Dokument gesucht statt über den Ref: beim
-    // Blättern hängt der Ref noch an der ausfahrenden Sheet.
-    entrySelector: '[data-detail-hero]',
-  });
 
   // Gleiche Kurzform wie der Zustands-Chip der Spot-Seite. Vorher stand hier
   // ein getOpenStatus-Aufruf mit sechs übersetzten Labels, dessen Ergebnis nur
@@ -306,9 +287,10 @@ export default function RestaurantDetail({
       role="dialog"
       aria-label={r.name}
     >
-      <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
+      <div className={styles.detailV13Scroll} data-detail-scroll>
         {/* HERO — full-bleed photo, save bookmark, name. */}
-        <header className={styles.rdHero} data-detail-hero style={heroStyle} ref={heroRef}>
+        <header className={styles.rdHero} data-detail-hero style={heroStyle}>
+          <RestaurantGallery key={r._id} images={galleryImages} restaurantName={displayName} />
           <button
             type="button"
             className={styles.rdCloseGlass}
@@ -465,11 +447,6 @@ export default function RestaurantDetail({
             <span />
           </div>
         ) : null}
-
-        {/* GALLERY — curated Places photos, after the description and before the insider tip. */}
-        {galleryImages.length > 0 && (
-          <RestaurantGallery images={galleryImages} restaurantName={displayName} />
-        )}
 
         {/* INSIDER TIPP */}
         {hasTipp && (

@@ -411,6 +411,11 @@
   --r: 9deg;
 }
 
+.footerGo {
+  display: flex;
+  justify-content: center;
+}
+
 /* ── Desktop: Bild als halbe Tafel, Text und Fuss rechts ──────────────── */
 /* Das Bild nimmt die ganze linke Haelfte ueber volle Hoehe; Text und Fuss
    stehen zusammen rechts. Vorher lag der Fuss mittig unter beiden Spalten,

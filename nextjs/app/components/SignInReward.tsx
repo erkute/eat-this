@@ -350,7 +350,6 @@ export default function SignInReward() {
         </div>
       </div>
     );
-    primary = null;
   } else {
     const slide = t.slides[page];
     content = (
@@ -395,32 +394,42 @@ export default function SignInReward() {
           </button>
         </header>
         {content}
-        <footer className={styles.footer}>
-          <div
-            className={styles.progress}
-            aria-label={`${t.step} ${step + 1} ${t.of} ${pages.length}`}
-          >
-            <span>
-              {step + 1} / {pages.length}
-            </span>
-            <div className={styles.segments} aria-hidden="true">
-              {pages.map((item, index) => (
-                <span key={item} className={index <= step ? styles.active : undefined} />
-              ))}
-            </div>
-          </div>
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.quiet}
-              disabled={step === 0}
-              onClick={() => setStep(step - 1)}
-            >
+        {page === 'go' ? (
+          /* Am Ende keine Leiste mehr — die zwei Felder sind der Abschluss.
+             Nur der Weg zurück bleibt, mittig und leise. */
+          <footer className={`${styles.footer} ${styles.footerGo}`}>
+            <button type="button" className={styles.quiet} onClick={() => setStep(step - 1)}>
               {t.back}
             </button>
-            {primary}
-          </div>
-        </footer>
+          </footer>
+        ) : (
+          <footer className={styles.footer}>
+            <div
+              className={styles.progress}
+              aria-label={`${t.step} ${step + 1} ${t.of} ${pages.length}`}
+            >
+              <span>
+                {step + 1} / {pages.length}
+              </span>
+              <div className={styles.segments} aria-hidden="true">
+                {pages.map((item, index) => (
+                  <span key={item} className={index <= step ? styles.active : undefined} />
+                ))}
+              </div>
+            </div>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.quiet}
+                disabled={step === 0}
+                onClick={() => setStep(step - 1)}
+              >
+                {t.back}
+              </button>
+              {primary}
+            </div>
+          </footer>
+        )}
       </div>
     </div>,
     document.body

@@ -350,3 +350,11 @@
     }
   }
 }
+
+.paymentNote {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+}

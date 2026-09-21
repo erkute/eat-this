@@ -69,7 +69,6 @@ const copy = {
     go: {
       tag: 'Los',
       title: 'Wohin zuerst?',
-      body: 'Im Deck liegen deine Karten. Auf der Map findest du die Spots dazu.',
       deck: 'Deck',
       map: 'Map',
     },
@@ -128,7 +127,6 @@ const copy = {
     go: {
       tag: 'Go',
       title: 'Where to first?',
-      body: 'Your cards live in your deck. The map shows you the spots.',
       deck: 'Deck',
       map: 'Map',
     },
@@ -138,6 +136,13 @@ const copy = {
 type PackPhase = 'sealed' | 'opening' | 'open';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
+/* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
+const DECK_CARDS = [
+  CARD_BACK,
+  CARD_BACK,
+  '/pics/card-front.webp?v=3',
+  '/pics/card-front-sabich.webp',
+] as const;
 
 /**
  * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
@@ -305,37 +310,47 @@ export default function SignInReward() {
       );
     }
   } else if (page === 'go') {
+    /* Zwei Haelften, jede ist selbst der Weg: links die Map, rechts das Deck.
+       Kein Knopf darunter — das Bild ist die Affordanz. */
     content = (
-      <div className={styles.content}>
-        <div className={styles.art}>
-          <Image
-            src="/pics/home-phones/phone-map-ink-480.webp"
-            alt={t.slides[0].alt}
-            fill
-            sizes="(max-width: 600px) 220px, 480px"
-            loading="eager"
-            className={styles.image}
-          />
-        </div>
-        <div className={styles.copy}>
+      <div className={styles.goContent}>
+        <div className={styles.goHead}>
           <p className={styles.kicker}>{t.go.tag}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.go.title}
           </h2>
-          <p className={styles.body}>{t.go.body}</p>
+        </div>
+        <div className={styles.halves}>
+          <Link href="/map" className={styles.half} onClick={close}>
+            <span className={styles.halfArt}>
+              <span className={styles.phone}>
+                <Image
+                  src="/pics/home-phones/phone-map-ink-480.webp"
+                  alt=""
+                  fill
+                  sizes="(max-width: 600px) 30vw, 220px"
+                  loading="eager"
+                  className={styles.image}
+                />
+              </span>
+            </span>
+            <span className={styles.halfLabel}>{t.go.map}</span>
+          </Link>
+          <Link href="/profile" className={styles.half} onClick={close}>
+            <span className={styles.halfArt}>
+              {/* Zwei offen, zwei verdeckt — so sieht ein Deck nach dem Pack aus. */}
+              {/* eslint-disable @next/next/no-img-element */}
+              {DECK_CARDS.map((src, index) => (
+                <img key={index} className={styles.deckCard} src={src} alt="" />
+              ))}
+              {/* eslint-enable @next/next/no-img-element */}
+            </span>
+            <span className={styles.halfLabel}>{t.go.deck}</span>
+          </Link>
         </div>
       </div>
     );
-    primary = (
-      <div className={styles.actionGroup}>
-        <Link href="/profile" className={`${styles.action} ${styles.actionGhost}`} onClick={close}>
-          {t.go.deck}
-        </Link>
-        <Link href="/map" className={styles.action} onClick={close}>
-          {t.go.map}
-        </Link>
-      </div>
-    );
+    primary = null;
   } else {
     const slide = t.slides[page];
     content = (
@@ -367,7 +382,7 @@ export default function SignInReward() {
     <div className={styles.layer}>
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={page === 'go' ? `${styles.panel} ${styles.panelGo}` : styles.panel}
         role="dialog"
         aria-modal="true"
         aria-label={t.label}

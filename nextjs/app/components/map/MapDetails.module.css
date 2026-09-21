@@ -94,8 +94,7 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  /* Vertical scroll stays native; horizontal swipes are delivered to JS for
-     the restaurant pager (see RestaurantDetail swipe handler). */
+  /* Vertical content scrolling; the nested photo rail owns horizontal gestures. */
   touch-action: pan-y;
 }
 .detailV13Scroll::-webkit-scrollbar {
@@ -780,37 +779,6 @@
 .rdSecH {
   color: var(--map-collage-red);
 }
-.rdGalleryThumb:nth-child(odd) {
-  transform: rotate(-1deg);
-}
-.rdGalleryThumb:nth-child(even) {
-  transform: rotate(1deg);
-}
-/* ---- Restaurant detail gallery strip ---- */
-.rdGallery {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  /* The detail sheet (.detailV13Scroll) sets touch-action: pan-y, which would
-     otherwise block horizontal touch-panning of this carousel. Reclaim pan-x
-     here — same axis split the filter-chip rail uses inside the sheet. */
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
-}
-.rdGallery::-webkit-scrollbar {
-  display: none;
-}
-.rdGalleryThumb {
-  position: relative;
-  flex: 0 0 auto;
-  cursor: pointer;
-  scroll-snap-align: start;
-}
-.rdGalleryThumb img {
-  display: block;
-}
 .rdHeartToggle,
 .rdCloseGlass {
   -webkit-backdrop-filter: none;
@@ -820,24 +788,6 @@
 .rdCloseGlass:active {
   transform: translate(2px, 2px);
   box-shadow: none;
-}
-/* Map restaurant photo gallery — tabletop print stack */
-.rdGalleryThumb {
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease;
-}
-.rdGalleryThumb:nth-child(3n + 1) {
-  transform: rotate(-2deg);
-}
-.rdGalleryThumb:nth-child(3n + 2) {
-  transform: rotate(1.4deg);
-}
-.rdGalleryThumb:nth-child(3n) {
-  transform: rotate(-0.5deg);
-}
-.rdGalleryThumb img {
-  position: absolute;
 }
 /* Home-collage map icons — independent paper cut-outs with varied shapes. */
 .rdHeartToggle,
@@ -1160,12 +1110,6 @@
 .rdTagOpen {
   border-color: #fff;
 }
-.rdGalleryThumb {
-  border-bottom-width: 16px;
-}
-.rdGalleryThumb img {
-  inset: 0;
-}
 .rdBody p {
   margin-bottom: 14px;
 }
@@ -1316,15 +1260,6 @@
 .rdPagerArrow {
   width: 19px;
   height: 19px;
-}
-.rdGalleryThumb,
-.rdGalleryThumb:first-child {
-  overflow: hidden;
-}
-.rdGalleryThumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 .rdBody {
   padding: 18px 18px 6px;
@@ -1598,26 +1533,6 @@
 .rdPagerBtnRight .rdPagerName {
   text-align: right;
 }
-.rdGallery {
-  gap: 8px;
-  padding: 0 14px 14px;
-}
-.rdGalleryThumb,
-.rdGalleryThumb:first-child {
-  width: 118px;
-  height: 152px;
-  aspect-ratio: auto;
-  border: 0;
-  border-radius: 6px;
-  background: #fff;
-  box-shadow: none;
-  transform: none;
-  padding: 7px 7px 24px;
-}
-.rdGalleryThumb:first-child {
-  width: 118px;
-  height: 152px;
-}
 .rdRow,
 .rdRowHours {
   grid-template-columns: minmax(102px, 32%) minmax(0, 1fr);
@@ -1669,13 +1584,6 @@
   object-fit: contain;
 }
 @media (max-width: 420px) {
-  .rdGalleryThumb,
-  .rdGalleryThumb:first-child {
-    width: 112px;
-    height: 144px;
-    padding: 7px 7px 23px;
-  }
-
   .rdRow,
   .rdRowHours {
     grid-template-columns: 108px minmax(0, 1fr);
@@ -1697,8 +1605,6 @@
 .rdTag,
 .rdTagAlt,
 .rdPagerBtn,
-.rdGalleryThumb,
-.rdGalleryThumb img,
 .rdTipp,
 .rdFacts,
 .rdMustSection,
@@ -1832,7 +1738,6 @@
 .rdHero,
 .fdHero,
 .fdStackCard,
-.rdGalleryThumb,
 .medish {
   border-radius: var(--et-radius-photo);
   box-shadow: none;
@@ -1962,6 +1867,24 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+/* Keep both controls legible on light and busy photos, like the counter. */
+.detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle,
+.detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass {
+  background: transparent;
+  border-radius: 0;
+  clip-path: none;
+  isolation: isolate;
+}
+.detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle::before,
+.detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  z-index: -1;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle {
   left: 12px;
   width: auto;
@@ -1980,6 +1903,8 @@
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggle svg,
 .detailV13:not(.detailV13MustEat) .rdHero .rdCloseGlass svg {
+  width: 14px;
+  height: 14px;
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggleOn svg {
@@ -2959,56 +2884,6 @@
     .detailV13Scroll:has(> .packPromo:last-child) {
     padding-bottom: 28px;
   }
-}
-/* Map gallery: hero photo as the first Polaroid preview; zoom stays centered. */
-.detailV13:not(.detailV13MustEat) .rdGallery {
-  width: max-content;
-  max-width: 100%;
-  margin: 0;
-  padding: 6px 18px 22px;
-  gap: 16px;
-  justify-content: flex-start;
-}
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb,
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb:first-child {
-  display: block;
-  flex: 0 0 auto;
-  width: clamp(174px, 58vw, 226px);
-  height: auto;
-  padding: 8px 8px 34px;
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-  background: #fff;
-  box-shadow: 0 14px 24px rgba(21, 18, 14, 0.18);
-}
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb:nth-child(3n + 1) {
-  transform: rotate(-1.6deg);
-}
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb:nth-child(3n + 2) {
-  transform: rotate(1.2deg);
-}
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb:nth-child(3n) {
-  transform: rotate(-0.4deg);
-}
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb img {
-  position: static;
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 0;
-}
-@media (hover: hover) {
-  .detailV13:not(.detailV13MustEat) .rdGalleryThumb:hover {
-    transform: translateY(-2px) rotate(0deg) scale(1.01);
-    box-shadow: 0 14px 24px rgba(21, 18, 14, 0.18);
-  }
-}
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb:focus-visible {
-  outline: 3px solid var(--brand-action, #ef3108);
-  outline-offset: 4px;
 }
 /* Map filter picker: editorial popover instead of a plain system list. */
 @media (min-width: 1024px) {
@@ -4020,71 +3895,6 @@
   .detailV13:not(.detailV13MustEat) .linkPromo:hover {
     color: var(--et-home-red, #d9382a);
   }
-}
-
-/* ============ Gallery strip ============
-   Curated Places photos, shown as a row of prints. The strip used to begin
-   mid-sheet with no label, so it read as pictures that fell into the page;
-   it is now a titled section like Must Eats, with the sheet's own gutter, and
-   the white band under each photo — previously empty — carries the print
-   number so the tilted stack looks deliberate. */
-.detailV13:not(.detailV13MustEat) .rdGalleryBlock {
-  display: block;
-  margin: 30px 0 4px;
-  padding: 0;
-}
-
-.rdGalleryHead {
-  padding: 0 14px 12px;
-}
-
-/* .rdSecH carries a rule and its own margins for the standalone case; inside a
-   section head the wrapper owns the spacing — same as .rdMustHead .rdSecH, so
-   "Fotos" and "Must Eats" line up on the same left edge. */
-.rdGalleryHead .rdSecH {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.detailV13:not(.detailV13MustEat) .rdGallery {
-  /* Same 14px gutter as the Must-Eats grid below, and the vertical padding is
-     the room the tilt and the drop shadow need — without it the prints clip
-     against the section edges. */
-  width: max-content;
-  max-width: 100%;
-  padding: 10px 14px 26px;
-  gap: 15px;
-  scroll-padding-inline: 14px;
-}
-
-/* Die Zaehlung steht auf dem weissen Polaroid-Fuss — und trug bis zum
-   04.09.2026 noch die Werte von VOR dem Ink-Umbau: 0,42 und 0,28 Ink auf
-   Weiss sind 2,76:1 und 1,88:1. Auf der kurz dunklen Fassung des Abzugs war
-   das kein Problem; mit dem weissen Rand kamen die alten Zahlen zurueck und
-   der Nenner war praktisch weg. Jetzt 0,78/0,58 — nachgemessen 9,38:1 und
-   4,56:1, beide ueber AA fuer 12px, und der Abstand zwischen Zaehler und
-   Nenner bleibt erhalten.
-
-   NICHT auf --et-home-muted umstellen: MapLayout dreht dieses Token auf der
-   Map auf die Ink-Seite (weiss 76 %), und das waere hier Weiss auf Weiss.
-   Auf einer Papierflaeche innerhalb der Map muss die Ink-Farbe ausgeschrieben
-   dastehen. */
-.rdGalleryNum {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  color: rgba(21, 18, 14, 0.78);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-
-.rdGalleryNumTotal {
-  color: rgba(21, 18, 14, 0.58);
-  font-style: normal;
 }
 
 /* ── Must-Eat-Detail: elastisch statt fest verplant ─────────────────────────
@@ -5557,7 +5367,6 @@
 }
 
 .detailV13:not(.detailV13MustEat) .rdSecH,
-.detailV13:not(.detailV13MustEat) .rdGalleryHead .rdSecH,
 .detailV13:not(.detailV13MustEat) .rdMustHead .rdSecH {
   color: var(--et-home-accent, #ffc600);
 }
@@ -5633,23 +5442,6 @@
   }
 }
 
-/* Die Galerie-Polaroids tragen wieder einen WEISSEN Rand (User, 04.09.2026:
-   „wie ein Polaroid"). Beim Ink-Umbau standen sie hier auf der leisen Stufe
-   (Weiss 5,5 %), mit der Begruendung, ein weisser Rand waere die hellste
-   Flaeche der Seite und zoege mehr Blick als die Fotos darin. Auf dem dunklen
-   Grund war das Ergebnis aber ein SCHWARZER Rahmen — und ein Polaroid ohne
-   weissen Rand ist keins mehr. Der Einwand von damals bleibt richtig und ist
-   jetzt der Preis: die Abzuege sind die hellsten Flaechen im Detail. Genau so
-   bestellt.
-
-   Die Geometrie war immer schon Polaroid und bleibt, wie sie ist: 8px rundum,
-   34px unten (auf schmalen Telefonen 7/23) — der breite Fuss ist das, was den
-   Abzug als Abzug lesbar macht. Das Foto selbst bleibt unangetastet. */
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb,
-.detailV13:not(.detailV13MustEat) .rdGalleryThumb:first-child {
-  background: var(--et-home-paper, #fff);
-}
-
 /* Die letzten drei roten Hover-Zustaende. Rot bleibt der Marke als Flaeche,
    aber nicht dort, wo im selben Moment Schrift darauf steht. */
 @media (hover: hover) {
@@ -5690,15 +5482,6 @@
   color: var(--et-home-paper, #fff);
 }
 
-/* Der Galerie-Abzug steht hier bewusst NICHT mehr: seit sein Rand wieder
-   weiss ist (siehe weiter unten), waere weisse Schrift darauf unsichtbar.
-   Genau das ist passiert — die Zaehlung „01/02" stand auf Weiss 55 % und kam
-   auf Kontrast 1,0 heraus, sichtbar blieb nur der Nenner, weil der schon
-   immer Ink war. Der Abzug faellt damit auf seine Grundregeln zurueck: Ink
-   42 % fuer den Zaehler, Ink 28 % fuer den Nenner.
-   Merksatz aus derselben Sache beim Kartentitel: Flaeche und Schrift muessen
-   ZUSAMMEN kippen, sonst steht eine von beiden auf sich selbst. */
-
 /* Der Fliesstext liest sich wie die Bezirks-Beschreibung (User, 04.09.2026:
    „die liest sich am besten"). Uebernommen werden Schrift und STAERKE, nicht
    die Groesse:
@@ -5719,4 +5502,63 @@
   font-family: var(--font-body, var(--font), sans-serif);
   font-weight: 400;
   line-height: 1.6;
+}
+
+/* Full-size photo rail; title and restaurant controls stay in place. */
+.rdHeroPhotos {
+  touch-action: pan-y;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.rdHeroPhotos::-webkit-scrollbar {
+  display: none;
+}
+.rdHeroPhoto {
+  flex: 0 0 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.rdHeroPhoto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rdHeroPhoto:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: -5px;
+}
+.rdHeroPhotoCount {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 4px 9px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.detailV13:not(.detailV13MustEat) .rdHero::after,
+.detailV13:not(.detailV13MustEat) .rdOverlay {
+  pointer-events: none;
 }

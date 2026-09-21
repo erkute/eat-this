@@ -19,7 +19,7 @@
   cursor: pointer;
 }
 .galleryLbArrow:disabled {
-  opacity: 0.3;
+  opacity: 1;
   cursor: default;
 }
 .galleryLbArrow svg {
@@ -59,9 +59,8 @@
   border-radius: 999px;
 }
 @media (hover: hover) {
-  .galleryLbArrow:hover {
-    background: #d9382a;
-    color: #fff;
+  .galleryLbArrow:hover:not(:disabled) {
+    color: var(--et-home-accent, #ffc600);
   }
 }
 .galleryLbCredit {
@@ -115,21 +114,21 @@
   display: grid;
   place-items: center;
   padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0;
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   box-shadow: none;
   cursor: pointer;
 }
 .galleryLbClose:focus-visible {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-home-accent, #ffc600);
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 @media (hover: hover) {
   .galleryLbClose:hover {
-    color: var(--et-home-red, #d9382a);
+    color: var(--et-home-accent, #ffc600);
     outline: 2px solid currentColor;
     outline-offset: 2px;
   }
@@ -242,7 +241,11 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: var(--et-home-ink, #15120e);
+  color: var(--et-home-paper, #fff);
   transform: translateX(-50%);
   cursor: default;
 }
@@ -252,16 +255,17 @@
   height: 44px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
 }
 
 .galleryLbArrow:disabled {
   /* Am Anfang und am Ende bleibt der Knopf stehen und wird still — er
      verschwindet nicht, sonst springt der Zählstand aus der Mitte. */
-  background: rgba(255, 255, 255, 0.45);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.28);
   box-shadow: none;
 }
 
@@ -271,13 +275,19 @@
   min-width: 68px;
   height: 44px;
   padding: 0 16px;
-  border-radius: 999px;
-  background: #fff;
-  color: var(--et-home-ink, #15120e);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.4;
   white-space: nowrap;
+}
+
+.galleryLbArrow:focus-visible {
+  color: var(--et-home-accent, #ffc600);
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }

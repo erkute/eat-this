@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -93,6 +93,9 @@ const AVATARS: { id: AvatarChoice; label: string }[] = [
 
 type State =
   | { kind: 'processing' }
+  | { kind: 'identity-preview' }
+  | { kind: 'confirm-preview' }
+  | { kind: 'welcome-preview' }
   | { kind: 'confirm'; email: string; href: string; claimingCard: boolean }
   | { kind: 'success'; title: string; sub: string }
   | { kind: 'needs-email'; href: string }
@@ -126,6 +129,23 @@ function AuthActionInner() {
   const [state, setState] = useState<State>({ kind: 'processing' });
 
   useEffect(() => {
+    // Local design review only: never signs in or writes an account.
+    if (process.env.NODE_ENV === 'development' && params.get('preview') === 'loading') {
+      setState({ kind: 'processing' });
+      return;
+    }
+    if (process.env.NODE_ENV === 'development' && params.get('preview') === 'identity') {
+      setState({ kind: 'identity-preview' });
+      return;
+    }
+    if (process.env.NODE_ENV === 'development' && params.get('preview') === 'confirm') {
+      setState({ kind: 'confirm-preview' });
+      return;
+    }
+    if (process.env.NODE_ENV === 'development' && params.get('preview') === 'welcome') {
+      setState({ kind: 'welcome-preview' });
+      return;
+    }
     const mode = params.get('mode');
     const oobCode = params.get('oobCode');
     const url = window.location.href;
@@ -183,22 +203,25 @@ function AuthActionInner() {
     setState({ kind: 'expired' });
   }, [params]);
 
-  // The processing state is a quick splash — go full brand: big yellow wordmark,
-  // a fast sweeping bar (reads quicker than a slow circular spinner), one line.
+  // The link check uses the same panel language as the onboarding.
   if (state.kind === 'processing') {
     return (
       <main className={styles.splashPage}>
-        <div className={styles.splash} role="status" aria-live="polite">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.splashLogo} />
-          <div className={styles.marks} aria-hidden>
-            <span className={styles.mark} />
-            <span className={styles.mark} />
-            <span className={styles.mark} />
-          </div>
-          <div className={styles.splashCopy}>
-            <h1 className={styles.splashTitle}>Wir schliessen auf</h1>
-            <p>Dein Link wird geprüft — gleich ist deine Map offen.</p>
+        <div className={styles.loadingLayer}>
+          <div className={styles.splash} role="status" aria-live="polite" aria-busy="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.splashLogo} />
+            <div className={styles.loadingCards} aria-hidden="true">
+              {/* eslint-disable @next/next/no-img-element */}
+              <img src="/pics/card-back.webp?v=7" alt="" />
+              <img src="/pics/card-back.webp?v=7" alt="" />
+              <img src="/pics/card-front.webp?v=3" alt="" />
+              {/* eslint-enable @next/next/no-img-element */}
+            </div>
+            <div className={styles.splashCopy}>
+              <h1 className={styles.splashTitle}>Gleich geht’s los.</h1>
+              <p>Deine Anmeldung wird vorbereitet.</p>
+            </div>
           </div>
         </div>
       </main>
@@ -207,7 +230,7 @@ function AuthActionInner() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.frame}>
+      <div className={`${styles.frame}${state.kind === 'confirm' || state.kind === 'confirm-preview' ? ` ${styles.confirmFrame}` : ''}${state.kind === 'needs-identity' || state.kind === 'identity-preview' ? ` ${styles.identityFrame}` : ''}`}>
         <div className={styles.logoWrap}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.logoMark} />
@@ -230,6 +253,10 @@ function AuthActionInner() {
           </>
         )}
 
+        {state.kind === 'confirm-preview' && (
+          <ConfirmSignIn email="du@beispiel.de" href="" claimingCard={false} setState={setState} preview />
+        )}
+
         {state.kind === 'confirm' && (
           <ConfirmSignIn
             email={state.email}
@@ -240,6 +267,10 @@ function AuthActionInner() {
         )}
 
         {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
+
+        {state.kind === 'welcome-preview' && <WelcomePreview />}
+
+        {state.kind === 'identity-preview' && <IdentityForm preview claimingCard={false} />}
 
         {state.kind === 'needs-identity' && (
           <IdentityForm user={state.user} claimingCard={state.claimingCard} />
@@ -273,17 +304,73 @@ function AuthActionInner() {
   );
 }
 
+/** Review-only welcome step; receiving a pack still requires the real grant. */
+function WelcomePreview() {
+  const [phase, setPhase] = useState<'sealed' | 'opening' | 'open'>('sealed');
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (phase !== 'opening') return;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const timer = window.setTimeout(() => setPhase('open'), reduced ? 0 : 1900);
+    return () => window.clearTimeout(timer);
+  }, [phase]);
+  useEffect(() => {
+    if (phase === 'open') titleRef.current?.focus({ preventScroll: true });
+  }, [phase]);
+  const opened = phase === 'open';
+
+  return (
+    <>
+      <h1 ref={titleRef} tabIndex={-1} className={styles.title}>
+        {opened ? <>Deine ersten<br />Karten.</> : <>Öffne dein<br />Starter Pack.</>}
+      </h1>
+      <div className={styles.packStage} data-phase={phase}>
+        {/* All artwork loads before the click, so the reveal never waits for images. */}
+        {/* eslint-disable @next/next/no-img-element */}
+        <img className={`${styles.revealCard} ${styles.revealFront}`} src="/pics/card-front.webp?v=3" alt={opened ? 'Beispiel einer offenen Must-Eat-Karte: Biang Biang Lamb' : ''} aria-hidden={!opened} />
+        <img className={`${styles.revealCard} ${styles.revealBack}`} src="/pics/card-back.webp?v=7" alt={opened ? 'Rückseite einer noch verdeckten Must-Eat-Karte' : ''} aria-hidden={!opened} />
+        {!opened && <div className={styles.packWrapper}>
+          <img className={styles.packBody} src="/pics/booster/booster_free.webp" alt="Eat This Starter Pack" />
+          <img className={styles.packSeal} src="/pics/booster/booster_free.webp" alt="" aria-hidden="true" />
+        </div>}
+        {/* eslint-enable @next/next/no-img-element */}
+      </div>
+      <div className={`${styles.packExplanation}${opened ? ` ${styles.packExplanationOpen}` : ''}`}>
+        {opened ? <div className={styles.packFacts}>
+          <p><strong>10 offen</strong><span>Direkt entdecken</span></p>
+          <p><strong>10 verdeckt</strong><span>Vor Ort aufdecken</span></p>
+        </div> : <p className={styles.sub}>20 Must-Eat-Karten für deinen Start.<br />10 sind offen. 10 entdeckst du vor Ort.</p>}
+      </div>
+      {opened ? <Link href="/must-eats?preview=intro" className={styles.cta}>So funktioniert’s</Link> :
+        <button type="button" className={styles.cta} disabled={phase === 'opening'} onClick={() => setPhase('opening')}>
+          {phase === 'opening' ? 'Öffnet …' : 'Öffnen'}
+        </button>}
+    </>
+  );
+}
+
 // First-sign-in onboarding: pick name + avatar once, then land on Home.
 // Shown to every new account (the sign-in itself already happened).
-function IdentityForm({ user, claimingCard }: { user: User; claimingCard: boolean }) {
+type IdentityProps = { claimingCard: boolean } & (
+  | { preview: true; user?: never }
+  | { preview?: false; user: User }
+);
+
+function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
   const [name, setName] = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
+  const [previewComplete, setPreviewComplete] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    if (preview && process.env.NODE_ENV === 'development') {
+      setPreviewComplete(true);
+      return;
+    }
+    if (!user) return;
     setBusy(true);
     setError('');
     try {
@@ -310,22 +397,18 @@ function IdentityForm({ user, claimingCard }: { user: User; claimingCard: boolea
     }
   };
 
+  if (previewComplete) {
+    return <WelcomePreview />;
+  }
+
   return (
     <>
-      <p className={styles.kicker}>Fast fertig</p>
+      <p className={styles.kicker}>Willkommen bei Eat This</p>
       <h1 className={styles.title}>
-        Wer bist du
-        <br />
-        auf der Map?
+        Wer bist du?
       </h1>
-      {/* Was hier gewählt wird, steht auf der Spielerkarte — und die ist
-          öffentlich, sobald jemand sein Deck teilt (lib/profile/publicDeck).
-          „Siehst nur du" stand hier bis zum 20.09.2026 und stimmte nicht; der
-          Nachsatz „später nicht mehr änderbar" galt außerdem nur für den
-          Namen, den Avatar tauscht das Profil (AvatarPickerModal). */}
       <p className={styles.sub}>
-        Beides steht auf deiner Spielerkarte — auch, wenn du dein Deck teilst. Den Avatar kannst du
-        später tauschen, den Namen nicht.
+        Wähle deinen Charakter.
       </p>
       {/* Der Faden zurück zu der einen Karte, für die das hier alles passiert.
           Ohne ihn ist dieses Formular eine Unterbrechung ohne erkennbaren
@@ -345,7 +428,7 @@ function IdentityForm({ user, claimingCard }: { user: User; claimingCard: boolea
             id="ob-name"
             type="text"
             autoComplete="given-name"
-            placeholder="z. B. Lukas"
+            placeholder="Dein Name oder Spitzname"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -415,13 +498,19 @@ function ConfirmSignIn({
   href,
   claimingCard,
   setState,
+  preview = false,
 }: {
+  preview?: boolean;
   email: string;
   href: string;
   claimingCard: boolean;
   setState: (s: State) => void;
 }) {
   const submit = () => {
+    if (preview && process.env.NODE_ENV === 'development') {
+      setState({ kind: 'identity-preview' });
+      return;
+    }
     setState({ kind: 'processing' });
     signInWithEmailLink(auth, email, href)
       .then((result) => finishSignIn(result.user, setState, claimingCard))
@@ -433,16 +522,19 @@ function ConfirmSignIn({
 
   return (
     <>
-      <p className={styles.kicker}>Ein Klick noch</p>
-      <h1 className={styles.title}>
-        Mach deine
-        <br />
-        Map auf
-      </h1>
-      <p className={styles.sub}>
-        Du meldest dich an als <strong>{email}</strong>.
-        {claimingCard && ' Deine Karte ist im Pack dabei.'}
-      </p>
+      <div className={styles.confirmHero}>
+        <div className={styles.confirmHeading}>
+          <p className={styles.kicker}>Ein Klick noch</p>
+          <h1 className={styles.title}>Deine Map.<br />Deine Sammlung.</h1>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className={styles.confirmPack} src="/pics/booster/booster_free.webp" alt="Eat This Starter Pack" />
+      </div>
+      <div className={styles.confirmIdentity}>
+        <span>Anmelden als</span>
+        <strong>{email}</strong>
+      </div>
+      {claimingCard && <p className={styles.confirmNote}>Deine Karte ist im Pack dabei.</p>}
       <button type="button" className={styles.cta} onClick={submit}>
         <span>Anmelden</span>
         <svg

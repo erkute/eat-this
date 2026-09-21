@@ -198,12 +198,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
 
         {/* Order follows what a first-time visitor needs, in that order: what is
           this (hero) → what is around you → the day's pick → proof we know the
-          city (magazine) → the free offer → the thing nobody else has (must
-          eats) → navigation → Remy and FAQ. Selling packs moved off the home
+          city (magazine) → Must-Eat examples and explanation → the free offer
+          → navigation → Remy and FAQ. Selling packs moved off the home
           page. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
-        <StarterPackSignup locale={locale} />
         <HubMustEatsTeaser />
+        <StarterPackSignup locale={locale} />
       </HomeMapDataProvider>
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />

@@ -45,37 +45,38 @@ export interface PackContentsIndex {
 }
 
 /**
- * What the nine category packs cost bought one at a time, against All Berlin.
- * Derived from CATALOG rather than written down, so adding a tenth pack or
- * moving a price cannot leave a stale claim on the page.
+ * Compare only category packs with currently available Must Eats to All Berlin.
+ * Prices come from CATALOG; empty or missing categories cannot inflate savings.
  */
-export function bundleSavings(): {
+export function bundleSavings(contents: PackContentsIndex): {
   singleTotalCents: number;
   savedCents: number;
   /** Floored: a discount may read smaller than it is, never larger. */
   percent: number;
 } {
   const singleTotalCents = Object.values(CATALOG)
-    .filter((p) => p.type === 'category')
+    .filter(
+      (p) => p.type === 'category' && p.slug && (contents.byCategory[p.slug]?.mustEats ?? 0) > 0
+    )
     .reduce((sum, p) => sum + p.amountCents, 0);
-  const savedCents = singleTotalCents - CATALOG['all-berlin'].amountCents;
+  const savedCents = Math.max(0, singleTotalCents - CATALOG['all-berlin'].amountCents);
   return {
     singleTotalCents,
     savedCents,
-    percent: Math.floor((savedCents / singleTotalCents) * 100),
+    percent: singleTotalCents > 0 ? Math.floor((savedCents / singleTotalCents) * 100) : 0,
   };
 }
 
 /**
- * "Einzeln 26,91 € · du sparst 6,91 € (25 %)" — the line that was missing next
- * to every All-Berlin CTA. The euro figure is exact; only the percentage is
- * rounded, and downwards.
+ * The euro figure is exact; the percentage is rounded downwards.
+ * Hide the comparison when the available individual packs cost less.
  */
-export function formatBundleSavings(locale: 'de' | 'en'): string {
-  const { singleTotalCents, savedCents, percent } = bundleSavings();
+export function formatBundleSavings(locale: 'de' | 'en', contents: PackContentsIndex): string {
+  const { singleTotalCents, savedCents, percent } = bundleSavings(contents);
+  if (savedCents === 0) return '';
   const single = formatPackPrice(singleTotalCents);
   const saved = formatPackPrice(savedCents);
   return locale === 'de'
-    ? `Einzeln ${single} · du sparst ${saved} (${percent} %)`
-    : `${single} separately · you save ${saved} (${percent}%)`;
+    ? `Verfügbare Packs einzeln ${single} · du sparst ${saved} (${percent} %)`
+    : `Available packs: ${single} separately · you save ${saved} (${percent}%)`;
 }

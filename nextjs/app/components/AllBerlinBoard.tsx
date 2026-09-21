@@ -1,7 +1,11 @@
 import Image from 'next/image';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackPrice, formatBundleSavings } from '@/lib/pack/packDetail';
+import {
+  type PackContentsIndex,
+  formatPackPrice,
+  formatBundleSavings,
+} from '@/lib/pack/packDetail';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from './PaymentMarks';
 import AllBerlinSheet from './AllBerlinSheet';
@@ -30,6 +34,7 @@ const FAN: string[] = [
 
 interface Props {
   locale: 'de' | 'en';
+  contents: PackContentsIndex;
   /** `hero` trägt Lead, Inhaltsliste und Zahlungsarten; `upsell` ist die kurze Fassung. */
   variant: 'hero' | 'upsell';
   headingLevel: 'h1' | 'h2';
@@ -72,7 +77,13 @@ const copy = {
   },
 } as const;
 
-export default function AllBerlinBoard({ locale, variant, headingLevel, priority = false }: Props) {
+export default function AllBerlinBoard({
+  locale,
+  contents,
+  variant,
+  headingLevel,
+  priority = false,
+}: Props) {
   const t = copy[locale];
   const pack = CATALOG['all-berlin'];
   const Heading = headingLevel;
@@ -93,7 +104,11 @@ export default function AllBerlinBoard({ locale, variant, headingLevel, priority
 
         {hero ? (
           <>
-            <p className={styles.lead}>{pack.description[locale]}</p>
+            <p className={styles.lead}>
+              {locale === 'de'
+                ? 'Alle verfügbaren Must Eats sofort freischalten. Neue Empfehlungen kommen ohne weiteren Kauf dazu.'
+                : 'Unlock all available Must Eats right away. New recommendations are included without another purchase.'}
+            </p>
             <ul className={styles.facts} aria-label={t.includesLabel}>
               {t.includes.map((item) => (
                 <li key={item}>{item}</li>
@@ -118,8 +133,13 @@ export default function AllBerlinBoard({ locale, variant, headingLevel, priority
             ownedHref={t.map}
             errorLabel={t.error}
           />
-          <p className={styles.savings}>{formatBundleSavings(locale)}</p>
-          <AllBerlinSheet locale={locale} />
+          <p className={styles.savings}>
+            {locale === 'de' ? 'Einmal zahlen · kein Abo' : 'One-time payment · no subscription'}
+          </p>
+          {formatBundleSavings(locale, contents) && (
+            <p className={styles.savings}>{formatBundleSavings(locale, contents)}</p>
+          )}
+          <AllBerlinSheet locale={locale} contents={contents} />
           {hero && (
             <PaymentMarks
               height={24}

@@ -284,7 +284,8 @@ a.quiet {
   visibility: visible;
   transform: translate(calc(-50% + var(--side) * var(--card-width) * 0.58), 0);
 }
-/* Erst die Naht loesen; die Huelle bleibt davor geschlossen. */
+/* Erst die Naht loesen; die Huelle bleibt davor geschlossen. Die Lasche
+   fliegt danach aus dem Bildschirm. */
 @keyframes tearSeal {
   0%,
   5% {
@@ -295,9 +296,16 @@ a.quiet {
     transform: translate(16px, -16px) rotate(9deg);
     animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
   }
-  42%,
+  42% {
+    transform: translate(120px, -70px) rotate(24deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  /* Dann fliegt sie aus dem Bild, schraeg nach oben rechts — vorher blieb
+     sie neben dem Pack liegen und war weg, sobald das Pack abgeraeumt
+     wurde (Nutzer, 22.09.2026). */
+  75%,
   100% {
-    transform: translate(200px, -85px) rotate(28deg);
+    transform: translate(calc(50vw + 100%), calc(-50vh - 200%)) rotate(75deg);
   }
 }
 /* Die Huelle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 2,1 s),

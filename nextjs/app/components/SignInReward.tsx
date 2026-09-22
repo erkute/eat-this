@@ -43,7 +43,7 @@ const copy = {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
       opened: 'Deine ersten 20 Karten.',
-      lead: '20 Must-Eat-Karten für deinen Start.',
+      lead: '20 Must Eat Karten für deinen Start.',
       explain:
         'Jede Karte steht für ein Must Eat – unsere Empfehlung, was du am Spot bestellen solltest. Manche liegen schon offen in deinem Deck. Die anderen deckst du erst vor Ort auf.',
       openStack: '10 offen',
@@ -57,7 +57,7 @@ const copy = {
       title: 'Antippen. Aufdecken.',
       body: 'Bist du am Spot, tippst du die verdeckte Karte an. Dann weißt du, was du bestellen musst, und die Karte landet in deinem Deck.',
       flip: 'Karte umdrehen',
-      alt: 'Eine aufgedeckte Must-Eat-Karte',
+      alt: 'Eine aufgedeckte Must Eat Karte',
     },
     map: {
       tag: 'Die Map',

@@ -71,7 +71,7 @@ describe('shared shell', () => {
     // `onAccent` (#15120e) waere auf dieser Flaeche exakt der Fehler, den
     // dieser Test verhindern soll — unsichtbar statt bloss unschoen.
     for (const html of [await signup(), await login()]) {
-      const onYellow = cta(html).match(/<img[^>]*>/g) ?? [];
+      const onYellow: string[] = cta(html).match(/<img[^>]*>/g) ?? [];
       for (const img of html.match(/<img[^>]*>/g) ?? []) {
         const alt = /alt="([^"]*)"/.exec(img)?.[1] ?? '';
         expect(alt.trim()).not.toBe('');

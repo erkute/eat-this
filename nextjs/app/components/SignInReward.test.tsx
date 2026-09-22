@@ -119,9 +119,11 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('false');
 
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
     fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+    expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
 
@@ -154,6 +156,24 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(sources.filter((src) => src?.startsWith('/pics/card-back'))).toHaveLength(10);
   });
 
+  it('fuehrt nach den Stapeln das Aufdecken vor: verdeckt, dann umgedreht, antippbar', async () => {
+    render(<SignInReward />);
+    await arrive();
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    act(() => void vi.advanceTimersByTime(3600));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+
+    expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
+    const flipper = screen.getByTestId('tour-flipper');
+    expect(flipper.className).toContain('flipped');
+    act(() => void vi.advanceTimersByTime(800));
+    expect(flipper.className).not.toContain('flipped');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
+    expect(flipper.className).toContain('flipped');
+  });
+
   it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {
     const screenView = render(<AuthScreen mode="in" />);
     render(<SignInReward />);
@@ -182,7 +202,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     await arrive();
 
     expect(screen.getByRole('heading').textContent).toBe('Wer bist du?');
-    expect(screen.getByText('1 / 5')).toBeTruthy();
+    expect(screen.getByText('1 / 6')).toBeTruthy();
     const name = screen.getByLabelText('Dein Name') as HTMLInputElement;
     expect(name.value).toBe('Alex');
 
@@ -195,7 +215,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
 
     expect(identityStep.saveIdentity).toHaveBeenCalledWith('Alexa', 3);
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('2 / 5')).toBeTruthy();
+    expect(screen.getByText('2 / 6')).toBeTruthy();
   });
 
   it('laesst ohne Namen nicht weiter', async () => {
@@ -223,7 +243,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     render(<SignInReward />);
     await arrive();
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('1 / 4')).toBeTruthy();
+    expect(screen.getByText('1 / 5')).toBeTruthy();
   });
 });
 

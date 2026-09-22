@@ -49,6 +49,13 @@ const copy = {
       opening: 'Öffnet …',
       packAlt: 'Eat This Starter Pack',
     },
+    reveal: {
+      tag: 'Am Spot',
+      title: 'Antippen. Aufdecken.',
+      body: 'Bist du am Spot, tippst du die verdeckte Karte an. Sie dreht sich um. Dann weißt du, was du bestellen musst.',
+      flip: 'Karte umdrehen',
+      alt: 'Eine aufgedeckte Must-Eat-Karte',
+    },
     map: {
       tag: 'Die Map',
       title: 'Die Berlin Food Map.',
@@ -95,6 +102,13 @@ const copy = {
       opening: 'Opening …',
       packAlt: 'Eat This Starter Pack',
     },
+    reveal: {
+      tag: 'At the spot',
+      title: 'Tap. Reveal.',
+      body: 'At the spot, tap the covered card. It flips over. Now you know what to order.',
+      flip: 'Flip the card',
+      alt: 'A revealed Must Eat card',
+    },
     map: {
       tag: 'The map',
       title: 'Find your next great spot.',
@@ -129,8 +143,8 @@ const IDENTITY_FORM = 'tour-identity';
  *  Charakter hat. */
 function pages(identity: Identity | null) {
   return identity
-    ? (['identity', 'pack', 'cards', 'map', 'go'] as const)
-    : (['pack', 'cards', 'map', 'go'] as const);
+    ? (['identity', 'pack', 'cards', 'reveal', 'map', 'go'] as const)
+    : (['pack', 'cards', 'reveal', 'map', 'go'] as const);
 }
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
@@ -138,6 +152,10 @@ const CARD_FRONT = '/pics/card-front.webp?v=3';
 
 /** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
  *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
+/** So lange liegt die Karte auf dem Aufdeck-Schritt verdeckt, bevor sie sich
+ *  von selbst umdreht — wie in der Must-Eats-Erklaerung. */
+const FLIP_DELAY_MS = 800;
+
 const mustEatCard = (id: string) =>
   `/api/must-eat-image/${encodeURIComponent(id)}?w=440&auto=format&q=80`;
 
@@ -203,6 +221,27 @@ export default function SignInReward() {
      ersten Mal (lokal um 1 s) — eine Karte, deren Bild noch fehlt, flog
      unsichtbar mit. Bis ihr Bild da ist, steht die Beispielkarte. */
   const [loadedFaces, setLoadedFaces] = useState<ReadonlySet<string>>(new Set());
+  /* Der Aufdeck-Schritt fuehrt vor, was am Spot passiert: verdeckt rein,
+     nach kurzem Moment dreht sich die Karte. Antippen dreht sie selbst —
+     und nimmt der Automatik die Karte ab. */
+  const [cardDown, setCardDown] = useState(false);
+  const flipTimer = useRef<number | null>(null);
+  const flipping = open && pages(identity)[step] === 'reveal';
+  useEffect(() => {
+    if (!flipping) {
+      setCardDown(false);
+      return;
+    }
+    setCardDown(true);
+    flipTimer.current = window.setTimeout(() => {
+      flipTimer.current = null;
+      setCardDown(false);
+    }, FLIP_DELAY_MS);
+    return () => {
+      if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
+      flipTimer.current = null;
+    };
+  }, [flipping]);
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   /* Die Tour öffnet sich von selbst, es gibt keinen Auslöser, an den der
@@ -548,6 +587,55 @@ export default function SignInReward() {
             </span>
             <span className={styles.halfLabel}>{t.go.deck}</span>
           </Link>
+        </div>
+      </div>
+    );
+  } else if (page === 'reveal') {
+    /* Vorne liegt eine der eigenen offenen Karten, sobald ihr Bild da ist —
+       sonst die Beispielkarte. */
+    const shown = faceUpIds.find((id) => loadedFaces.has(id));
+    const flipTap = () => {
+      if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
+      flipTimer.current = null;
+      setCardDown((down) => !down);
+    };
+    content = (
+      <div className={styles.content}>
+        <div className={styles.art}>
+          <div className={styles.cardBox}>
+            <button
+              type="button"
+              className={styles.flipTap}
+              onClick={flipTap}
+              aria-label={t.reveal.flip}
+            >
+              <div
+                data-testid="tour-flipper"
+                className={cardDown ? `${styles.flipper} ${styles.flipped}` : styles.flipper}
+              >
+                {/* eslint-disable @next/next/no-img-element */}
+                <img
+                  className={styles.face}
+                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp'}
+                  alt={t.reveal.alt}
+                />
+                <img
+                  className={`${styles.face} ${styles.back}`}
+                  src={CARD_BACK}
+                  alt=""
+                  aria-hidden="true"
+                />
+                {/* eslint-enable @next/next/no-img-element */}
+              </div>
+            </button>
+          </div>
+        </div>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>{t.reveal.tag}</p>
+          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
+            {t.reveal.title}
+          </h2>
+          <p className={styles.body}>{t.reveal.body}</p>
         </div>
       </div>
     );

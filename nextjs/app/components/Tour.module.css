@@ -383,8 +383,8 @@ a.quiet {
 }
 
 /* ── Die Karte, die sich umdreht ───────────────────────────────────────── */
-/* Die Must-Eats-Erklaerung fuehrt damit das Aufdecken vor: verdeckt, dann
-   aufgedeckt. Sie liegt hier, weil diese Huelle ihr Layout ist. */
+/* Die Must-Eats-Erklaerung und die Tour (Schritt „Antippen. Aufdecken.")
+   zeigen dieselbe Vorfuehrung: verdeckt, dann aufgedeckt. */
 /* Aus der Bildflaeche der Huelle gerechnet (sie ist ein Size-Container): so
    hoch wie moeglich, ohne breiter als die Flaeche zu werden. */
 .cardBox {

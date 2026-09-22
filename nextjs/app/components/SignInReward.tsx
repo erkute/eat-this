@@ -41,7 +41,8 @@ const copy = {
       sealed: 'Öffne dein Starter Pack.',
       opened: 'Deine ersten 20 Karten.',
       lead: '20 Must-Eat-Karten für deinen Start.',
-      explain: 'Offene Karten kannst du direkt ansehen. Verdeckte Karten entdeckst du am Spot.',
+      explain:
+        'Die offenen liegen schon in deinem Deck. Die verdeckten deckst du am Spot auf. Dann weißt du, was du dort bestellen musst.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -106,7 +107,8 @@ const copy = {
       sealed: 'Open your Starter Pack.',
       opened: 'Your first 20 cards.',
       lead: '20 Must Eat cards to get you started.',
-      explain: 'Open cards are ready to view. Discover covered cards at the spot.',
+      explain:
+        'The open ones are already in your deck. You reveal the covered ones at the spot. Then you know what to order there.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',

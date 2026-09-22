@@ -107,7 +107,7 @@ describe('Ankunft nach der Anmeldung', () => {
     expect((screen.getByRole('button', { name: 'Öffnet …' }) as HTMLButtonElement).disabled).toBe(
       true
     );
-    act(() => void vi.advanceTimersByTime(2900));
+    act(() => void vi.advanceTimersByTime(3600));
     /* Der Text wartet auf den Klick — erst der naechste Schritt erklaert die
        zwei Stapel. */
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
@@ -139,7 +139,7 @@ describe('Ankunft nach der Anmeldung', () => {
     render(<SignInReward />);
     await arrive();
     fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
-    act(() => void vi.advanceTimersByTime(2900));
+    act(() => void vi.advanceTimersByTime(3600));
     for (let step = 0; step < 4; step++)
       fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
 

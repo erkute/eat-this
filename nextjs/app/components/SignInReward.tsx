@@ -14,7 +14,7 @@ import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
 
 /** Muss zur Laenge der Keyframes in SignInReward.module.css passen. */
-const PACK_OPEN_MS = 2900;
+const PACK_OPEN_MS = 3600;
 
 const copy = {
   de: {

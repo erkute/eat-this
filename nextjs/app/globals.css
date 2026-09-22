@@ -727,8 +727,14 @@ html[data-auth='1'] [data-guest-only] {
    beide waren halb verdeckt, und beide sagten dasselbe auf zwei Arten. Jetzt
    gibt es eine Flaeche, und sie steht da, wo hingeschaut wird.
 
-   Bewegung ohne Opacity (Brand-Regel): clip-path oeffnet die Karte aus ihrer
-   Mitte, ein kurzer Scale traegt die Bewegung. Die Karte selbst nimmt keine
+   Bewegung ohne Opacity (Brand-Regel), und dieselbe wie im Onboarding: die
+   Karte steigt von unten auf. Weil ohne Scrim nichts sie verdecken kann,
+   kommt sie aus einem Schlitz an ihrer eigenen Unterkante — sie faehrt um
+   ihre Hoehe nach oben, und der clip-path gibt genau so viel frei, wie sie
+   schon heraus ist. Beim Gehen sinkt sie in denselben Schlitz zurueck. Bis
+   22.09.2026 klappte sie stattdessen aus einem waagerechten Strich in ihrer
+   Mitte auf und schrumpfte beim Gehen dorthin zurueck — wie ein
+   Roehrenfernseher, der ausgeht (Betreiber: „zu digital"). Die Karte selbst nimmt keine
    Klicks (pointer-events: none) — nur ihre Knoepfe holen sie sich zurueck,
    sonst laege sie als unsichtbare Platte ueber der Karte. */
 /* Die Huelle zentriert die Karte im Viewport. Ohne `data-layer` ist sie
@@ -825,27 +831,31 @@ html[data-auth='1'] [data-guest-only] {
   /* Nur die Kante: clip-path (unten) schneidet jeden aeusseren Schatten weg. */
   box-shadow: var(--et-ink-raised-edge);
   pointer-events: none;
-  transform: scale(0.94);
-  clip-path: inset(50% 0 50% 0 round var(--et-radius-photo, 10px));
+  /* Beide Werte in Prozent der Kartenhoehe und gleich gross: dann steht die
+     Schnittkante im Viewport still, und die Karte gleitet durch sie hindurch
+     statt mitzuwandern. Kein `round` im clip-path — die Ecken rundet der
+     border-radius, eine gerundete Schnittkante saehe wie ein Pillenboden aus. */
+  transform: translateY(100%);
+  clip-path: inset(0 0 100% 0);
   transition:
-    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
-    clip-path 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    clip-path 0.38s cubic-bezier(0.22, 1, 0.36, 1);
 }
 /* Offen faengt die Karte selbst jeden Tipp — vorher lief nur die Knopfzeile
    auf pointer-events:auto, und ein Tipp auf die Kartenflaeche landete auf dem
    Hero-Knopf dahinter. */
 .notification.show {
   pointer-events: auto;
-  transform: scale(1);
-  clip-path: inset(0 0 0 0 round var(--et-radius-photo, 10px));
+  transform: translateY(0);
+  clip-path: inset(0 0 0 0);
 }
 /* Der Ausgangszustand des Aufziehens: die Huelle kommt aus display: none,
    also gibt es keinen gerenderten Vorher-Wert, von dem der Uebergang starten
    koennte. */
 @starting-style {
   .notification.show {
-    transform: scale(0.94);
-    clip-path: inset(50% 0 50% 0 round var(--et-radius-photo, 10px));
+    transform: translateY(100%);
+    clip-path: inset(0 0 100% 0);
   }
 }
 /* Rot ist im Brand die Farbe fuer "kaputt" und sonst nichts — Warnungen

@@ -62,7 +62,7 @@ declare global {
 }
 
 const DEFAULT_DURATION_MS = 3000;
-/* Laenger als der 340-ms-Uebergang der Karte (globals.css). */
+/* Laenger als der 380-ms-Uebergang der Karte (globals.css). */
 const LAYER_RELEASE_MS = 400;
 
 // sessionStorage handoff: a message stored under this key (e.g. by the

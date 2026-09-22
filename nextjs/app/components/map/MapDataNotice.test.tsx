@@ -6,8 +6,6 @@ const copy: Record<string, string> = {
   dataEyebrow: 'Map',
   dataLoadingTitle: 'Loading',
   dataLoadingDetail: 'Spots on their way',
-  dataRefreshingTitle: 'Updating',
-  dataRefreshingDetail: 'Fetching the latest',
   dataErrorTitle: 'Not loaded',
   dataErrorDetail: 'Check your connection',
   dataStaleTitle: 'Update failed',
@@ -55,6 +53,12 @@ describe('MapDataNotice', () => {
     render(<MapDataNotice loading={false} error="HTTP 500" hasData={false} onRetry={vi.fn()} />);
 
     expect(showNotice).toHaveBeenCalledWith(expect.objectContaining({ title: 'Not loaded' }));
+  });
+
+  it('stays quiet while cached rows refresh in the background', () => {
+    render(<MapDataNotice loading error={null} hasData onRetry={vi.fn()} />);
+
+    expect(showNotice).not.toHaveBeenCalled();
   });
 
   it('stays quiet while the payload is current', () => {

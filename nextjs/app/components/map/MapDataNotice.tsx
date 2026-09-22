@@ -13,6 +13,7 @@ interface Props {
 /**
  * Persistent map-payload status. Cached/SSR rows remain usable on refresh
  * failures, but are explicitly labelled as stale instead of looking current.
+ * A successful background refresh stays silent.
  *
  * Die Meldung hat keine eigene Fläche: sie läuft durch die zentrale Info-Karte
  * (NotificationToast, mittig im Onboarding-Zuschnitt), wie die Standort-Meldung
@@ -23,14 +24,17 @@ interface Props {
  */
 export default function MapDataNotice({ loading, error, hasData, onRetry }: Props) {
   const t = useTranslations('map');
-  const state = error ? (hasData ? 'stale' : 'error') : loading ? (hasData ? 'refreshing' : 'loading') : null;
+  /* Kein Zustand fuer „aktualisiert im Hintergrund": die Daten stehen dann
+     schon da, und die Meldung sagte nur, dass gleich dasselbe noch einmal
+     kommt. Sie sprang bei jedem Besuch von Deck und Map auf und gleich wieder
+     zu (bis 22.09.2026). Geht die Aktualisierung schief, meldet sich `stale`. */
+  const state = error ? (hasData ? 'stale' : 'error') : loading && !hasData ? 'loading' : null;
 
   useEffect(() => {
     if (!state) return;
     const isError = state === 'error' || state === 'stale';
     const key = {
       loading: 'dataLoading',
-      refreshing: 'dataRefreshing',
       error: 'dataError',
       stale: 'dataStale',
     }[state];

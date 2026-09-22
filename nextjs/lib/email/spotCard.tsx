@@ -44,9 +44,13 @@ export interface SpotCardData {
   card: string;
 }
 
-/** Höhe der Must-Eat-Karte im Bild; die Breite folgt ihrem Format (720×989). */
-const CARD_HEIGHT = 620;
-const CARD_WIDTH = Math.round((CARD_HEIGHT * 720) / 989);
+/** Die Must-Eat-Karte oben rechts, wie `.mustPeek` auf der Restaurantliste
+ *  (dort 54–68 px auf rund 360 px Kartenbreite, 5° gekippt) — hier etwas
+ *  grösser, 120 px auf 536 px Anzeigebreite. Grösser deckte sie das Foto zu
+ *  (Betreiber, 22.09.2026). Breite im 2x-Bitmap; die Höhe folgt dem Format
+ *  der Karte (720×989). */
+const CARD_WIDTH = 240;
+const CARD_HEIGHT = Math.round((CARD_WIDTH * 989) / 720);
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
@@ -89,9 +93,8 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         }}
       />
 
-      {/* die Must-Eat-Karte — rechts, leicht gekippt, wie sie auf der Map
-          neben dem Spot liegt. Gmail entfernt `transform`, hier ist sie
-          eingebacken. */}
+      {/* die Must-Eat-Karte — oben rechts, gekippt wie auf der Restaurantliste.
+          Gmail entfernt `transform`, hier ist sie eingebacken. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={spot.card}
@@ -100,9 +103,9 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         height={CARD_HEIGHT}
         style={{
           position: 'absolute',
-          right: 56,
-          top: (SPOT_CARD_HEIGHT - CARD_HEIGHT) / 2,
-          transform: 'rotate(3deg)',
+          right: 36,
+          top: 36,
+          transform: 'rotate(5deg)',
         }}
       />
 
@@ -112,7 +115,7 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
           position: 'absolute',
           left: 48,
           bottom: 44,
-          width: SPOT_CARD_WIDTH - 96 - CARD_WIDTH - 40,
+          width: SPOT_CARD_WIDTH - 96,
           display: 'flex',
           flexDirection: 'column',
         }}

@@ -18,7 +18,12 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
       href={href}
       className="et-cta"
       style={{
-        display: 'block',
+        /* So breit wie sein Wort plus Luft, nicht die ganze Spalte — ein
+           Balken über 536 px war zu viel (Betreiber, 22.09.2026). Mittig
+           steht er, weil der Block drumherum mittig gesetzt ist. */
+        display: 'inline-block',
+        minWidth: '200px',
+        boxSizing: 'border-box',
         backgroundColor: COLOR.accent,
         color: COLOR.onAccent,
         borderRadius: `${LAYOUT.radiusControl}px`,
@@ -27,7 +32,7 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
         letterSpacing: '0.01em',
         textAlign: 'center',
         textDecoration: 'none',
-        padding: '17px 24px',
+        padding: '16px 40px',
       }}
     >
       {label}

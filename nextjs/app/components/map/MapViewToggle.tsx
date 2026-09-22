@@ -9,14 +9,12 @@ import {
 } from '@/lib/map/phoneSheetSnaps';
 import type { SheetView } from '@/lib/map';
 import { trackEvent } from '@/lib/analytics';
+import { slideSheetTo } from '@/lib/map/sheetSlide';
 import styles from './MapViewToggle.module.css';
 
 const PHONE_MAX = 767.98;
 /* Close enough to the destination to call a programmatic scroll finished. */
 const ARRIVAL_PX = 8;
-/* Smooth scrolling has no completion event. If the target turns out to be
-   unreachable (the document shrank under us) the lock releases anyway. */
-const SETTLE_TIMEOUT_MS = 1200;
 /* How long without a scroll event before the list counts as standing still and
    the pill comes back.
 
@@ -44,7 +42,9 @@ interface Props {
  *
  * On phones the list is a window-scrolled document with the map as a sticky
  * layer behind it (see phoneSheetSnaps.ts), so both directions are nothing but
- * a scroll: the map never unmounts and the camera never moves. The pill only
+ * a scroll: the map never unmounts and the camera never moves. The scroll is
+ * hidden behind a slide, though — the list drops out and rises back in at its
+ * new stop instead of racing past (see sheetSlide.ts). The pill only
  * remembers where you left the list, which is what makes it a toggle rather
  * than a one-way scroll-to-top.
  *
@@ -68,6 +68,10 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
      would take the focus ring with it and leave focus on an inert, invisible
      element. While it is focused it stays put, moving or not. */
   const [focused, setFocused] = useState(false);
+  /* The sheet is mid-slide (see sheetSlide.ts). No scroll events fire while it
+     drops out, so `scrolling` alone would leave the pill standing on a list
+     that is leaving the screen. */
+  const [sliding, setSliding] = useState(false);
   const idleTimer = useRef<number | null>(null);
   /* Where the list was when the map was last requested. null = nothing to go
      back to, which is also what hides the 'toList' direction. */
@@ -75,7 +79,6 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
   /* Destination of a scroll we started ourselves. While set, the scroll
      handler leaves `mode` alone so the label cannot flicker mid-flight. */
   const pending = useRef<{ target: number; mode: ToggleMode } | null>(null);
-  const settleTimer = useRef<number | null>(null);
 
   const sheetViewRef = useRef(sheetView);
   sheetViewRef.current = sheetView;
@@ -162,30 +165,37 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
 
   useEffect(
     () => () => {
-      if (settleTimer.current) window.clearTimeout(settleTimer.current);
       if (idleTimer.current) window.clearTimeout(idleTimer.current);
     },
     []
   );
 
-  const scrollTo = useCallback(
-    (target: number, nextMode: ToggleMode) => {
-      pending.current = { target, mode: nextMode };
-      setMode(nextMode);
-      if (settleTimer.current) window.clearTimeout(settleTimer.current);
-      settleTimer.current = window.setTimeout(() => {
-        pending.current = null;
-        evaluateRef.current(true);
-      }, SETTLE_TIMEOUT_MS);
-      window.scrollTo({
-        top: target,
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          ? 'auto'
-          : 'smooth',
-      });
-    },
-    []
-  );
+  const scrollTo = useCallback((target: number, nextMode: ToggleMode) => {
+    pending.current = { target, mode: nextMode };
+    setMode(nextMode);
+    const settle = () => {
+      pending.current = null;
+      evaluateRef.current(true);
+    };
+    const sheet = document.querySelector<HTMLElement>('[data-map-sheet]');
+    /* Reduced motion, or no Web Animations: straight to the stop. The global
+       `scroll-behavior: smooth` is switched off under reduced motion, so
+       'instant' matches what that rule asks for either way. */
+    if (
+      !sheet ||
+      typeof sheet.animate !== 'function' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      window.scrollTo({ top: target, behavior: 'instant' });
+      settle();
+      return;
+    }
+    setSliding(true);
+    void slideSheetTo(sheet, target).finally(() => {
+      setSliding(false);
+      settle();
+    });
+  }, []);
 
   const handleClick = useCallback(() => {
     const stops = measure();
@@ -206,7 +216,7 @@ export default function MapViewToggle({ sheetView, filterKey }: Props) {
 
   const toMap = mode === 'toMap';
   const label = toMap ? t('map.viewToggleMap') : t('map.viewToggleList');
-  const visible = Boolean(mode) && (!scrolling || focused);
+  const visible = Boolean(mode) && !sliding && (!scrolling || focused);
 
   return (
     <button

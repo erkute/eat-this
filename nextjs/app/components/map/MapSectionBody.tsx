@@ -20,6 +20,7 @@ import {
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
+import { SHEET_SETTLED_EVENT } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -468,11 +469,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     measure();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
+    /* Der Karte-/Liste-Knopf schiebt die Liste, statt zu scrollen — dabei
+       kommt kein Scroll-Ereignis, und der Knopf bliebe dort stehen, wo die
+       Liste vor der Fahrt war. Steht sie, einmal neu messen. */
+    const onSettled = () => {
+      lastTop = null;
+      measure();
+    };
+    window.addEventListener(SHEET_SETTLED_EVENT, onSettled);
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.clearTimeout(settle);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
+      window.removeEventListener(SHEET_SETTLED_EVENT, onSettled);
     };
   }, [sheetView, snap]);
 

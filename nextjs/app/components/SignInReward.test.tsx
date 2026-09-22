@@ -153,6 +153,27 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(flipper.className).toContain('flipped');
   });
 
+  it('legt die gezogenen offenen Karten ins Pack — dieselben, die im Deck offen liegen', async () => {
+    /* jsdom laedt keine Bilder — dieses Image meldet sich sofort als geladen. */
+    class LoadingImage {
+      onload: (() => void) | null = null;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    vi.stubGlobal('Image', LoadingImage);
+    render(<SignInReward />);
+    const faceUp = Array.from({ length: 10 }, (_, i) => `me-${i}`);
+    await act(async () => finishStarterPackCheck(true, faceUp));
+    await act(async () => {});
+    vi.unstubAllGlobals();
+
+    const sources = [...document.querySelectorAll('img')].map((img) => img.getAttribute('src'));
+    for (const id of faceUp)
+      expect(sources).toContain(`/api/must-eat-image/${id}?w=440&auto=format&q=80`);
+    expect(sources.filter((src) => src?.startsWith('/pics/card-back'))).toHaveLength(10);
+  });
+
   it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {
     const screenView = render(<AuthScreen mode="in" />);
     render(<SignInReward />);
@@ -275,6 +296,14 @@ describe('Einblendung und Toast schliessen einander aus', () => {
     const seen = vi.fn();
     arrival.subscribeStarterPackGranted(seen);
     expect(seen).toHaveBeenCalledTimes(1);
+  });
+
+  it('reicht die offenen Karten auch an einen spaeten Zuhoerer weiter', async () => {
+    const arrival = await freshModule();
+    arrival.finishStarterPackCheck(true, ['a', 'b']);
+    const seen = vi.fn();
+    arrival.subscribeStarterPackGranted(seen);
+    expect(seen).toHaveBeenCalledWith(['a', 'b']);
   });
 });
 

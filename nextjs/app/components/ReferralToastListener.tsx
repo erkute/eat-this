@@ -77,6 +77,7 @@ export default function ReferralToastListener() {
              sonst redet der Toast dazwischen (siehe signInArrival). */
           startStarterPackCheck();
           let granted = false;
+          let faceUpIds: string[] = [];
           try {
             const res = await fetch('/api/starter-pack', {
               method: 'POST',
@@ -92,14 +93,20 @@ export default function ReferralToastListener() {
                  Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
                  „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
                  `sign_up`, und ob das Pack ankam, wuesste niemand. */
-              const outcome = (await res.json().catch(() => null)) as { granted?: boolean } | null;
+              const outcome = (await res.json().catch(() => null)) as {
+                granted?: boolean;
+                faceUpIds?: unknown;
+              } | null;
               granted = outcome?.granted === true;
+              if (Array.isArray(outcome?.faceUpIds)) {
+                faceUpIds = outcome.faceUpIds.filter((id): id is string => typeof id === 'string');
+              }
               if (granted) trackEvent('starter_pack_granted');
             }
           } finally {
             /* Auch nach einem Netzwerkfehler: sonst wartet die
                zurueckgestellte Anmelde-Zeile fuer immer auf eine Antwort. */
-            finishStarterPackCheck(granted);
+            finishStarterPackCheck(granted, faceUpIds);
           }
         }
         if (flag.seen) return;

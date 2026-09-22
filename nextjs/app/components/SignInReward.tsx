@@ -178,6 +178,11 @@ const FLIP_DELAY_MS = 800;
 const CARD_BACK = '/pics/card-back.webp?v=7';
 const CARD_FRONT = '/pics/card-front.webp?v=3';
 
+/** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
+ *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
+const mustEatCard = (id: string) =>
+  `/api/must-eat-image/${encodeURIComponent(id)}?w=440&auto=format&q=80`;
+
 /* Die 20 Karten des Starter Packs, in der Reihenfolge, in der sie aus dem Pack
    kommen: abwechselnd auf den offenen (links) und den verdeckten Stapel
    (rechts), damit beide gleichzeitig wachsen. `level` ist die Hoehe im Stapel,
@@ -235,6 +240,13 @@ export default function SignInReward() {
      Automatik die Karte ab. */
   const [cardDown, setCardDown] = useState(false);
   const flipTimer = useRef<number | null>(null);
+  /* Die offenen Karten des Packs, wie /api/starter-pack sie gezogen hat —
+     dieselben zehn, die danach im Deck offen liegen. */
+  const [faceUpIds, setFaceUpIds] = useState<string[]>([]);
+  /* Welche davon schon geladen sind. Die Bild-Route rechnet ein Bild beim
+     ersten Mal (lokal um 1 s) — eine Karte, deren Bild noch fehlt, flog
+     unsichtbar mit. Bis ihr Bild da ist, steht die Beispielkarte. */
+  const [loadedFaces, setLoadedFaces] = useState<ReadonlySet<string>>(new Set());
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   /* Die Tour öffnet sich von selbst, es gibt keinen Auslöser, an den der
@@ -246,8 +258,9 @@ export default function SignInReward() {
   useEffect(() => {
     let stopWaiting: (() => void) | undefined;
     let alive = true;
-    const reveal = (prefill: { name: string; preview?: boolean } | null) => {
+    const reveal = (prefill: { name: string; preview?: boolean } | null, cards: string[] = []) => {
       if (!alive) return;
+      setFaceUpIds(cards);
       setIdentity(
         prefill
           ? { name: prefill.name, avatar: 2, busy: false, error: false, preview: prefill.preview }
@@ -260,23 +273,29 @@ export default function SignInReward() {
     /* Erst wissen, ob gefragt werden muss, dann aufgehen — sonst schoebe
        sich die Seite nachtraeglich vor das Pack. Scheitert die Abfrage,
        bleibt es beim Google-Namen und die Tour laeuft ohne sie. */
-    const show = () => {
-      identityStepPrefill().then(reveal, () => reveal(null));
+    const show = (cards: string[]) => {
+      identityStepPrefill().then(
+        (prefill) => reveal(prefill, cards),
+        () => reveal(null, cards)
+      );
     };
-    const unsubscribe = subscribeStarterPackGranted(() => {
-      if (!authScreenActive()) return show();
+    const unsubscribe = subscribeStarterPackGranted((cards) => {
+      if (!authScreenActive()) return show(cards);
       stopWaiting?.();
       stopWaiting = subscribeAuthScreen((active) => {
         if (active) return;
         stopWaiting?.();
         stopWaiting = undefined;
-        show();
+        show(cards);
       });
     });
     if (process.env.NODE_ENV === 'development') {
-      const preview = new URLSearchParams(window.location.search).get('preview');
-      if (preview === 'welcome') reveal(null);
-      if (preview === 'welcome-google') reveal({ name: 'Alex', preview: true });
+      const query = new URLSearchParams(window.location.search);
+      const preview = query.get('preview');
+      /* `&cards=<id>,<id>` legt oeffentliche Must Eats ins Vorschau-Pack. */
+      const cards = query.get('cards')?.split(',').filter(Boolean) ?? [];
+      if (preview === 'welcome') reveal(null, cards);
+      if (preview === 'welcome-google') reveal({ name: 'Alex', preview: true }, cards);
     }
     return () => {
       alive = false;
@@ -284,6 +303,21 @@ export default function SignInReward() {
       stopWaiting?.();
     };
   }, []);
+
+  useEffect(() => {
+    let alive = true;
+    setLoadedFaces(new Set());
+    for (const id of faceUpIds) {
+      const image = new window.Image();
+      image.onload = () => {
+        if (alive) setLoadedFaces((done) => new Set(done).add(id));
+      };
+      image.src = mustEatCard(id);
+    }
+    return () => {
+      alive = false;
+    };
+  }, [faceUpIds]);
 
   useEffect(() => {
     if (!open) return;
@@ -439,7 +473,13 @@ export default function SignInReward() {
               <img
                 key={card.order}
                 className={styles.revealCard}
-                src={card.covered ? CARD_BACK : CARD_FRONT}
+                src={
+                  card.covered
+                    ? CARD_BACK
+                    : loadedFaces.has(faceUpIds[card.level] ?? '')
+                      ? mustEatCard(faceUpIds[card.level]!)
+                      : CARD_FRONT
+                }
                 alt=""
                 aria-hidden="true"
                 style={

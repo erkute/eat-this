@@ -38,6 +38,8 @@ interface LineChartProps {
 
 /** Breite, solange noch nicht gemessen ist (erster Render, jsdom). */
 const FALLBACK_W = 720;
+/** Mindestabstand zur letzten Datumsmarke: sie steht rechtsbündig (~34px nach links), die davor mittig (~17px nach rechts), dazu Luft. */
+const LABEL_GAP = 60;
 const PAD = { top: 12, right: 12, bottom: 26, left: 44 };
 
 /**
@@ -136,7 +138,10 @@ export function LineChart({
           // Der letzte Tag steht immer da; ein regulärer Strich zu dicht davor
           // fällt weg, sonst liefen „21.09.22.09." ineinander.
           const last = i === n - 1;
-          const regular = i % labelEvery === 0 && (last || n - 1 - i > labelEvery / 2);
+          // In Pixeln gemessen, nicht in Tagen: bei 30 Tagen und jeder dritten
+          // Marke standen „20.09." und „22.09." zwei Tage, aber nur ~35px
+          // auseinander und liefen ineinander.
+          const regular = i % labelEvery === 0 && (last || x(n - 1) - x(i) >= LABEL_GAP);
           if (!regular && !last) return null;
           return (
             <text

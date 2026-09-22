@@ -7,18 +7,15 @@ import {
   isSignInWithEmailLink,
   signInWithEmailLink,
   applyActionCode,
-  updateProfile,
   type User,
 } from 'firebase/auth';
-import { auth, getDb } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
 import { postSignInTarget } from '@/lib/auth/postSignInTarget';
 import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { handoffEvent } from '@/lib/analytics';
 import { welcomeLocale, type WelcomeLocale } from '@/lib/auth/welcomeLocale';
-import { WELCOME_COPY, type WelcomeCopy } from './copy';
-import { AVATAR_CHOICES, avatarSrc } from '@/app/components/avatarChoices';
-import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
+import { WELCOME_COPY } from './copy';
 import styles from './auth-action.module.css';
 
 // /welcome lives under its own root layout (separate <html> tree); the
@@ -50,19 +47,13 @@ function emailFromContinueUrl(params: URLSearchParams): string {
 /**
  * Ob dieser Login aus einer angetippten Must-Eat-Karte heraus gestartet wurde.
  *
- * Ein neues Konto muss vor der Weiterleitung noch durch Name und Avatar, und
- * genau dort brach der Faden: der Leser wollte EINE Karte, hat dafür seine
- * Mail dagelassen, und steht plötzlich in einem Formular, das mit keinem Wort
- * erwähnt, worauf das hinausläuft (User, 26.08.2026). Der Marker aus der
+ * Der Leser wollte EINE Karte und hat dafür seine Mail dagelassen — der
+ * Bestätigungs-Screen sagt ihm, dass sie im Pack dabei ist. Der Marker aus der
  * Continue-URL ist das Einzige, was diesen Zusammenhang über den Posteingang
- * gerettet hat — er trägt ihn hier eine Stufe weiter.
+ * gerettet hat.
  *
  * Gelesen wird `starter` — derselbe Parameter, den `buildLoginContinueUrl`
- * setzt und den `/api/starter-pack` einlöst. Bis zum 20.09.2026 stand hier
- * `claim=1`: der Marker des Gratis-Spot-Wegs, den der 06.09.2026 abgeschafft
- * hat. Seither schrieb ihn niemand mehr, also waren beide Zeilen unten tot —
- * und der Test hatte es nicht gemerkt, weil er seine Adresse selbst baute
- * statt sie bauen zu lassen.
+ * setzt und den `/api/starter-pack` einlöst.
  */
 function hasPendingStarterCard(params: URLSearchParams): boolean {
   const cu = params.get('continueUrl');
@@ -76,29 +67,24 @@ function hasPendingStarterCard(params: URLSearchParams): boolean {
 
 type State =
   | { kind: 'processing' }
-  | { kind: 'identity-preview' }
   | { kind: 'confirm-preview' }
   | { kind: 'confirm'; email: string; href: string; claimingCard: boolean }
   | { kind: 'success' }
   | { kind: 'needs-email'; href: string }
-  | { kind: 'needs-identity'; user: User; claimingCard: boolean }
   | { kind: 'expired' };
 
-// First sign-in ever (no display name yet) → identity onboarding before the
-// redirect; returning users go straight home. Shared by the silent path and
-// the needs-email fallback.
-function finishSignIn(
-  user: User,
-  setState: (s: State) => void,
-  locale: WelcomeLocale,
-  claimingCard = false
-) {
+/**
+ * Nach dem Einlösen des Links geht es sofort zurück, woher der Login kam.
+ *
+ * Name und Charakter fragt hier niemand mehr ab: das tut die Tour auf ihrer
+ * ersten Seite (SignInReward, identityStep) — für E-Mail und Google gleich,
+ * weil sie an der Pack-Vergabe hängt und nicht am Anmeldeweg. Bis 22.09.2026
+ * hatte /welcome dafür ein eigenes Formular; der Magic-Link lief damit durch
+ * ein anderes Onboarding als Google.
+ */
+function finishSignIn(user: User, locale: WelcomeLocale) {
   localStorage.removeItem('emailForSignIn');
   handoffEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
-  if (!user.displayName) {
-    setState({ kind: 'needs-identity', user, claimingCard });
-    return;
-  }
   hardRedirectAfterSignIn(locale);
 }
 
@@ -130,10 +116,6 @@ function AuthActionInner() {
     // Local design review only: never signs in or writes an account.
     if (process.env.NODE_ENV === 'development' && params.get('preview') === 'loading') {
       setState({ kind: 'processing' });
-      return;
-    }
-    if (process.env.NODE_ENV === 'development' && params.get('preview') === 'identity') {
-      setState({ kind: 'identity-preview' });
       return;
     }
     if (process.env.NODE_ENV === 'development' && params.get('preview') === 'confirm') {
@@ -221,7 +203,7 @@ function AuthActionInner() {
   return (
     <main className={styles.page}>
       <div
-        className={`${styles.frame}${state.kind === 'confirm' || state.kind === 'confirm-preview' ? ` ${styles.confirmFrame}` : ''}${state.kind === 'needs-identity' || state.kind === 'identity-preview' ? ` ${styles.identityFrame}` : ''}`}
+        className={`${styles.frame}${state.kind === 'confirm' || state.kind === 'confirm-preview' ? ` ${styles.confirmFrame}` : ''}`}
       >
         <div className={styles.logoWrap}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -270,14 +252,6 @@ function AuthActionInner() {
           <NeedsEmailForm href={state.href} setState={setState} locale={locale} />
         )}
 
-        {state.kind === 'identity-preview' && (
-          <IdentityForm preview claimingCard={false} locale={locale} />
-        )}
-
-        {state.kind === 'needs-identity' && (
-          <IdentityForm user={state.user} claimingCard={state.claimingCard} locale={locale} />
-        )}
-
         {state.kind === 'expired' && (
           <>
             <p className={styles.kicker}>{t.expiredKicker}</p>
@@ -290,112 +264,6 @@ function AuthActionInner() {
         )}
       </div>
     </main>
-  );
-}
-
-// First-sign-in onboarding: pick name + avatar once, then land on Home.
-// Shown to every new account (the sign-in itself already happened).
-type IdentityProps = { claimingCard: boolean; locale: WelcomeLocale } & (
-  | { preview: true; user?: never }
-  | { preview?: false; user: User }
-);
-
-function IdentityForm({ user, claimingCard, locale, preview = false }: IdentityProps) {
-  const t: WelcomeCopy = WELCOME_COPY[locale];
-  const [name, setName] = useState('');
-  const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    if (preview && process.env.NODE_ENV === 'development') {
-      // Weiter wie nach einer echten Anmeldung: die Tour mit dem Pack.
-      window.location.assign(`${locale === 'en' ? '/en' : '/'}?preview=welcome`);
-      return;
-    }
-    if (!user) return;
-    setBusy(true);
-    setError('');
-    try {
-      // Save display name + avatar so the profile renders with the user's
-      // chosen identity right after sign-in.
-      await updateProfile(user, { displayName: name.trim() });
-      const [{ doc, setDoc }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
-      await setDoc(doc(db, 'users', user.uid), { avatar: avatarPick }, { merge: true });
-      try {
-        localStorage.setItem(`eatthis_avatar_${user.uid}`, String(avatarPick));
-        localStorage.setItem(
-          '_authHint',
-          JSON.stringify({
-            n: name.trim().split(' ')[0] || name.trim(),
-            a: avatarPick,
-            u: user.uid,
-          })
-        );
-      } catch {}
-      hardRedirectAfterSignIn(locale);
-    } catch {
-      setBusy(false);
-      setError(t.genericError);
-    }
-  };
-
-  return (
-    <>
-      <p className={styles.kicker}>{t.identityKicker}</p>
-      <h1 className={styles.title}>{t.identityTitle}</h1>
-      <p className={styles.sub}>{t.identitySub}</p>
-      {/* Der Faden zurück zu der einen Karte, für die das hier alles passiert.
-          Ohne ihn ist dieses Formular eine Unterbrechung ohne erkennbaren
-          Grund. */}
-      {claimingCard && <p className={styles.sub}>{t.identityCardNote}</p>}
-
-      <form onSubmit={submit} className={styles.form}>
-        <div>
-          <label className={styles.nameLabel} htmlFor="ob-name">
-            {t.nameLabel}
-          </label>
-          <input
-            id="ob-name"
-            type="text"
-            autoComplete="given-name"
-            placeholder={t.namePlaceholder}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            maxLength={40}
-            className={styles.input}
-          />
-        </div>
-
-        <div className={styles.avatars} role="radiogroup" aria-label={t.avatarGroup}>
-          {AVATAR_CHOICES.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              role="radio"
-              aria-checked={id === avatarPick}
-              aria-label={label}
-              className={`${styles.avatar}${id === avatarPick ? ` ${styles.avatarActive}` : ''}`}
-              onClick={() => setAvatarPick(id)}
-            >
-              <span className={styles.avatarPh}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={avatarSrc(id)} alt="" />
-              </span>
-              <span className={styles.avatarName}>{label}</span>
-            </button>
-          ))}
-        </div>
-
-        {error && <p className={styles.error}>{error}</p>}
-        <button type="submit" className={styles.cta} disabled={busy || !name.trim()}>
-          <span>{busy ? t.saving : t.next}</span>
-        </button>
-      </form>
-    </>
   );
 }
 
@@ -432,12 +300,13 @@ function ConfirmSignIn({
   const t = WELCOME_COPY[locale];
   const submit = () => {
     if (preview && process.env.NODE_ENV === 'development') {
-      setState({ kind: 'identity-preview' });
+      // Weiter wie nach einer echten Anmeldung: die Tour, mit Namensseite.
+      window.location.assign(`${locale === 'en' ? '/en' : '/'}?preview=welcome`);
       return;
     }
     setState({ kind: 'processing' });
     signInWithEmailLink(auth, email, href)
-      .then((result) => finishSignIn(result.user, setState, locale, claimingCard))
+      .then((result) => finishSignIn(result.user, locale))
       .catch((err) => {
         console.warn('[welcome] signInWithEmailLink failed:', err);
         setState({ kind: 'expired' });
@@ -476,8 +345,7 @@ function ConfirmSignIn({
 
 // Fallback for legacy links without the `e` carrier param that were opened
 // in a different browser than where they were requested (localStorage empty).
-// Firebase needs the address to complete the sign-in; identity onboarding
-// follows separately via finishSignIn.
+// Firebase needs the address to complete the sign-in.
 function NeedsEmailForm({
   href,
   setState,
@@ -499,7 +367,7 @@ function NeedsEmailForm({
     setError('');
     try {
       const result = await signInWithEmailLink(auth, email.trim(), href);
-      finishSignIn(result.user, setState, locale);
+      finishSignIn(result.user, locale);
     } catch (err: unknown) {
       setBusy(false);
       const code = (err as { code?: string }).code ?? '';

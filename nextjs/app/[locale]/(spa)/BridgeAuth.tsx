@@ -96,7 +96,12 @@ export default function BridgeAuth() {
     const loginSpan = loginBtn?.querySelector('span');
 
     if (user) {
-      const firstName = (user.displayName ?? user.email ?? '').split(' ')[0] || t('footer.signIn');
+      /* Ein Magic-Link-Konto hat bis zur Namensseite der Tour keinen Namen —
+         dann der Teil vor dem @, nie die ganze Adresse (wie HubHeroCopy). */
+      const firstName =
+        (user.displayName ?? '').trim().split(/\s+/)[0] ||
+        (user.email ?? '').split('@')[0] ||
+        t('footer.signIn');
       loginBtn?.classList.add('logged-in');
       if (loginSpan) loginSpan.textContent = t('burger.profile');
       // Keep the pre-paint flag accurate once auth actually resolves (the

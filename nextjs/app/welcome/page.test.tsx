@@ -191,23 +191,29 @@ describe('/welcome — needs-email', () => {
   });
 });
 
-/* Ein neues Konto hat noch keinen Namen. Statt weiterzuleiten fragt die Seite
-   einmal nach Name und Avatar — und sagt dabei, dass es danach zurück auf die
-   Map geht, sonst ist das Formular eine Unterbrechung ohne erkennbaren Grund. */
-describe('/welcome — needs-identity', () => {
+/* Name und Charakter fragt /welcome nicht mehr ab — das macht die Tour auf
+   ihrer ersten Seite, für Magic-Link und Google gleich (SignInReward,
+   identityStep). Bis 22.09.2026 hatte /welcome dafür ein eigenes Formular,
+   der Magic-Link lief damit durch ein anderes Onboarding als Google. */
+describe('/welcome — nach dem Einlösen', () => {
+  let assign: ReturnType<typeof vi.fn>;
   beforeEach(() => {
-    fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u-1', displayName: null } });
+    assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, href: window.location.href, assign });
   });
+  afterEach(() => vi.unstubAllGlobals());
 
-  it('fragt nach Name und Avatar, statt weiterzuleiten', async () => {
+  it('leitet ein neues Konto sofort weiter, ohne eigenes Namensformular', async () => {
+    fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u-1', displayName: null } });
     const container = await mount();
     await act(async () => {
       buttonWith(container, 'Anmelden').click();
     });
-    expect(container.textContent).toContain('Wer bist du');
-    expect(container.textContent).toContain('Dein Name');
-    // Der Faden zurück zu der einen Karte, für die das hier alles passiert.
-    expect(container.textContent).toContain('deine Karte liegt dann offen im Pack');
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(container.textContent).not.toContain('Wer bist du');
+    expect(container.querySelector('input')).toBeNull();
+    expect(fb.updateProfile).not.toHaveBeenCalled();
+    expect(store.setDoc).not.toHaveBeenCalled();
     expect(analytics.handoffEvent).toHaveBeenCalledWith('sign_up', { method: 'email_link' });
   });
 
@@ -218,58 +224,7 @@ describe('/welcome — needs-identity', () => {
       buttonWith(container, 'Anmelden').click();
     });
     expect(analytics.handoffEvent).toHaveBeenCalledWith('login', { method: 'email_link' });
-    expect(container.textContent).not.toContain('Wer bist du');
-  });
-
-  it('lässt sich ohne Namen nicht absenden', async () => {
-    const container = await mount();
-    await act(async () => {
-      buttonWith(container, 'Anmelden').click();
-    });
-    expect(buttonWith(container, 'Weiter').disabled).toBe(true);
-  });
-
-  it('speichert Name und Avatar und merkt sich beides lokal', async () => {
-    const container = await mount();
-    await act(async () => {
-      buttonWith(container, 'Anmelden').click();
-    });
-
-    const nameInput = container.querySelector('#ob-name') as HTMLInputElement;
-    await act(async () => {
-      fireEvent.change(nameInput, { target: { value: '  Lukas  ' } });
-    });
-    // Avatar 3 statt der Vorauswahl 2.
-    const avatars = [...container.querySelectorAll('[role="radio"]')] as HTMLButtonElement[];
-    await act(async () => {
-      avatars[2].click();
-    });
-    await act(async () => {
-      fireEvent.submit(container.querySelector('form')!);
-    });
-
-    expect(fb.updateProfile).toHaveBeenCalledWith(expect.anything(), { displayName: 'Lukas' });
-    expect(store.setDoc).toHaveBeenCalledWith('doc-ref', { avatar: 3 }, { merge: true });
-    expect(localStorage.getItem('eatthis_avatar_u-1')).toBe('3');
-    // Der Hinweis, aus dem die Seite vor der Hydration Name und Avatar zeigt.
-    expect(JSON.parse(localStorage.getItem('_authHint')!)).toEqual({ n: 'Lukas', a: 3, u: 'u-1' });
-  });
-
-  it('bleibt im Formular, wenn das Speichern scheitert', async () => {
-    fb.updateProfile.mockRejectedValue(new Error('offline'));
-    const container = await mount();
-    await act(async () => {
-      buttonWith(container, 'Anmelden').click();
-    });
-    const nameInput = container.querySelector('#ob-name') as HTMLInputElement;
-    await act(async () => {
-      fireEvent.change(nameInput, { target: { value: 'Lukas' } });
-    });
-    await act(async () => {
-      fireEvent.submit(container.querySelector('form')!);
-    });
-    expect(container.textContent).toContain('Etwas ist schiefgelaufen.');
-    expect(buttonWith(container, 'Weiter').disabled).toBe(false);
+    expect(assign).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -286,48 +241,30 @@ describe('/welcome ohne brauchbaren Link', () => {
 
 afterEach(() => vi.unstubAllEnvs());
 
-describe('local identity preview', () => {
-  it('allows reviewing name and character without signing in or saving', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
-    nav.params = new URLSearchParams('preview=identity');
-    const container = await mount();
-    expect(container.textContent).toContain('Wer bist du?');
-    fireEvent.change(container.querySelector('#ob-name')!, { target: { value: 'Testname' } });
-    const assign = vi.fn();
-    vi.stubGlobal('location', { ...window.location, assign });
-    try {
-      fireEvent.submit(container.querySelector('form')!);
-    } finally {
-      vi.unstubAllGlobals();
-    }
-    // Weiter in die Tour-Vorschau — dort liegt die Pack-Animation.
-    expect(assign).toHaveBeenCalledWith('/?preview=welcome');
-    expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
-    expect(fb.updateProfile).not.toHaveBeenCalled();
-    expect(store.setDoc).not.toHaveBeenCalled();
-  });
-
-  it('previews the confirmation and moves to identity without consuming a link', async () => {
+describe('lokale Vorschau', () => {
+  it('zeigt die Bestätigung und geht in die Tour-Vorschau, ohne einen Link einzulösen', async () => {
     vi.stubEnv('NODE_ENV', 'development');
     nav.params = new URLSearchParams('preview=confirm');
     const container = await mount();
     expect(container.textContent).toContain('du@beispiel.de');
-    fireEvent.click(buttonWith(container, 'Anmelden'));
-    expect(container.querySelector('#ob-name')).not.toBeNull();
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    try {
+      fireEvent.click(buttonWith(container, 'Anmelden'));
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    // Weiter wie nach einer echten Anmeldung: die Tour, mit Namensseite.
+    expect(assign).toHaveBeenCalledWith('/?preview=welcome');
     expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
-    expect(fb.updateProfile).not.toHaveBeenCalled();
   });
 
-  it.each(['identity', 'loading', 'confirm'])(
-    'does not enable %s preview in production',
-    async (preview) => {
-      vi.stubEnv('NODE_ENV', 'production');
-      nav.params = new URLSearchParams({ preview });
-      const container = await mount();
-      expect(container.textContent).toContain('Dieser Link geht nicht mehr');
-      expect(container.querySelector('#ob-name')).toBeNull();
-    }
-  );
+  it.each(['loading', 'confirm'])('does not enable %s preview in production', async (preview) => {
+    vi.stubEnv('NODE_ENV', 'production');
+    nav.params = new URLSearchParams({ preview });
+    const container = await mount();
+    expect(container.textContent).toContain('Dieser Link geht nicht mehr');
+  });
 });
 
 /* EN seit 21.09.2026: bis dahin sprach /welcome nur Deutsch, auch mit einem
@@ -353,18 +290,6 @@ describe('/welcome auf Englisch', () => {
     expect(document.documentElement.lang).toBe('en');
   });
 
-  it('fragt nach Name und Avatar auf Englisch', async () => {
-    arriveInEnglish();
-    fb.signInWithEmailLink.mockResolvedValue({ user: { displayName: null } });
-    const container = await mount();
-    await act(async () => {
-      buttonWith(container, 'Sign in').click();
-    });
-    expect(container.textContent).toContain('Who are you?');
-    expect(container.textContent).toContain('Spot Scout');
-    expect(container.textContent).not.toMatch(/Wer bist du|Weiter|Schnüffler/);
-  });
-
   it('zeigt die Sackgasse auf Englisch, mit dem Weg nach /en', async () => {
     arriveInEnglish();
     fb.isSignInWithEmailLink.mockReturnValue(false);
@@ -377,7 +302,9 @@ describe('/welcome auf Englisch', () => {
 describe('/welcome Tab-Titel', () => {
   it('kommt serverseitig in der Sprache des Links', async () => {
     vi.resetModules();
-    vi.doMock('next/headers', () => ({ cookies: async () => ({ toString: () => 'NEXT_LOCALE=de' }) }));
+    vi.doMock('next/headers', () => ({
+      cookies: async () => ({ toString: () => 'NEXT_LOCALE=de' }),
+    }));
     const { generateMetadata } = await import('./page');
     const cu = 'https://x.test/en?e=a%40b.c&lang=en';
     const en = await generateMetadata({

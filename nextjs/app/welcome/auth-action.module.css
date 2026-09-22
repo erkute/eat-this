@@ -1,11 +1,11 @@
-/* /welcome — Splash beim Linkcheck und die einmalige Identitäts-Wahl.
+/* /welcome — Splash beim Linkcheck und der eine Klick zur Anmeldung.
 
    Ink-Grund wie der Rest der Seite: gelber Kicker, weisse Versalien, weiches
-   Weiss im Fliesstext, weisses Eingabefeld, ein gelber Knopf. Dasselbe
-   Vokabular wie das Login-Modal (.frameModal) und die Starter-Tafel — die
-   Anmeldung ist EIN Weg, und der wechselte bis zum 20.09.2026 dreimal die
-   Grundfarbe: Modal dunkel, diese Panels weiss, der Splash dazwischen wieder
-   dunkel. Das Papier war ein Rest der alten hellen Gestaltung.
+   Weiss im Fliesstext, weisses Eingabefeld (nur im Fremd-Browser), ein
+   gelber Knopf. Dasselbe Vokabular wie das Login-Modal (.frameModal) und die
+   Starter-Tafel — die Anmeldung ist EIN Weg, und der wechselte bis zum
+   20.09.2026 dreimal die Grundfarbe: Modal dunkel, diese Panels weiss, der
+   Splash dazwischen wieder dunkel. Das Papier war ein Rest der alten hellen Gestaltung.
 
    Rot trägt hier keine Headline mehr: auf Ink sind Display-Zeilen weiss (Hero,
    Modal, Ankunfts-Einblendung), --w-red bleibt für Fehler.
@@ -200,16 +200,6 @@
   gap: 18px;
 }
 
-.nameLabel {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--w-muted);
-}
-
 .input {
   width: 100%;
   box-sizing: border-box;
@@ -232,90 +222,6 @@
 
 .input:focus-visible {
   box-shadow: inset 0 0 0 2px var(--w-accent);
-}
-
-/* ============================================
-   AVATARE — Kartenauswahl im Must-Eat-Idiom
-   ============================================ */
-
-.avatars {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.avatar {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding: 14px 8px 12px;
-  background: var(--w-quiet);
-  border: 2px solid var(--w-line);
-  border-radius: var(--et-radius-photo, 10px);
-  cursor: pointer;
-  transition:
-    transform 180ms ease,
-    border-color 140ms ease,
-    background-color 140ms ease;
-}
-
-@media (hover: hover) {
-  .avatar:hover {
-    transform: translateY(-3px);
-  }
-}
-
-/* Die gewählte Karte hebt sich an und bekommt den gelben Rahmen — Bewegung
-   und Rahmen tragen die Auswahl, nicht Farbe allein. Auf Papier war das der
-   Ink-Rahmen; auf Ink ist Gelb die einzige Farbe, die eine Kante setzt. */
-.avatarActive {
-  border-color: var(--w-accent);
-  transform: translateY(-5px);
-}
-
-/* Gelber Balken, der unter der aktiven Karte aufzieht. Skaliert von der
-   Mitte, kein Fade. */
-.avatarActive::after {
-  content: '';
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: -2px;
-  height: 3px;
-  background: var(--w-accent);
-  transform-origin: 50% 50%;
-  animation: barIn 220ms ease both;
-}
-
-@keyframes barIn {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-.avatarPh {
-  display: block;
-  width: clamp(52px, 14vw, 70px);
-  aspect-ratio: 1;
-}
-
-.avatarPh img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.avatarName {
-  font-family: var(--w-display);
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 1.15;
-  text-align: center;
-  color: var(--w-paper);
 }
 
 /* ============================================
@@ -380,75 +286,18 @@
   stroke-linejoin: round;
 }
 
-/* ============================================
-   ÜBERGANG ZUR MAP — gelber Vorhang
-   ============================================ */
-
-/* Läuft, kurz bevor /welcome hart auf die Home-Route wechselt: eine gelbe
-   Fläche zieht von unten über den Bildschirm. Deckt die harte Navigation
-   zwischen zwei Root-Layouts ab, die sonst als Weissblitz sichtbar wäre. */
-@media (max-width: 420px) {
-  .avatars {
-    gap: 7px;
-  }
-  .avatar {
-    padding: 11px 5px 10px;
-  }
-  .avatarName {
-    font-size: 11px;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .frame,
   .splash,
-  .loadingCards img,
-  .avatarActive::after {
+  .loadingCards img {
     animation: none;
   }
-  .avatar,
   .cta {
     transition: none;
   }
   .loadingCards img {
     transform: translateX(var(--card-x)) rotate(var(--card-angle));
   }
-}
-
-/* Die Namens- und Charakterwahl spricht durchgehend in der Hausschrift. */
-.identityFrame {
-  --w-body: var(--w-display);
-  font-family: var(--w-display);
-}
-
-.identityFrame .logoWrap,
-.identityFrame .kicker,
-.identityFrame .title,
-.identityFrame .sub {
-  text-align: center;
-}
-
-.identityFrame .logoMark {
-  margin-inline: auto;
-}
-
-.identityFrame .kicker {
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.identityFrame .nameLabel {
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.identityFrame .sub {
-  font-size: 15px;
-  line-height: 1.5;
 }
 
 /* Ein gemeinsamer Layer fuer alle Schritte nach dem E-Mail-Link. */
@@ -597,33 +446,4 @@
     padding-block: 14px;
     margin-bottom: 14px;
   }
-}
-
-/* Mehr Platz fuer die Figuren, weniger Formulartext. */
-.identityFrame .logoWrap {
-  margin-bottom: 24px;
-}
-.identityFrame .sub {
-  margin-bottom: 24px;
-}
-
-.identityFrame .avatars {
-  gap: 9px;
-  margin: 8px 0 4px;
-}
-.identityFrame .avatar {
-  padding: 18px 5px 14px;
-  gap: 12px;
-}
-.identityFrame .avatarPh {
-  width: clamp(58px, 19vw, 90px);
-}
-.identityFrame .avatarName {
-  font-weight: 400;
-}
-.identityFrame .avatarActive {
-  background: rgba(255, 198, 0, 0.08);
-}
-.identityFrame .avatarActive::after {
-  content: none;
 }

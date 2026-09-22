@@ -234,12 +234,12 @@ a.quiet {
   --stack: translate(calc(-50% + var(--side) * 58%), calc(-50% - var(--level) * 1.6px))
     rotate(calc(var(--side) * 4deg + var(--tilt)));
 }
-/* Eine nach der anderen: 40 ms Abstand, 350 ms nach dem Riss. Die letzte
-   (Nr. 19) landet nach 350 + 760 + 850 = 1960 ms — PACK_OPEN_MS ist 2100. */
+/* Eine nach der anderen: 30 ms Abstand, 350 ms nach dem Riss. Die letzte
+   (Nr. 19) landet nach 350 + 570 + 1150 = 2070 ms — PACK_OPEN_MS ist 2100. */
 .packStage[data-phase='opening'] .revealCard {
   visibility: visible;
-  animation: cardOut 850ms linear both;
-  animation-delay: calc(350ms + var(--order) * 40ms);
+  animation: cardOut 1150ms linear both;
+  animation-delay: calc(350ms + var(--order) * 30ms);
 }
 .packStage[data-phase='open'] .revealCard {
   visibility: visible;
@@ -288,8 +288,9 @@ a.quiet {
     transform: translate(200px, -85px) rotate(28deg);
   }
 }
-/* Die Huelle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 1,5 s),
-   erst dann faellt sie nach unten weg. */
+/* Die Huelle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 1,1 s),
+   erst dann faellt sie nach unten weg — die fliegenden Karten sind dann
+   schon vor ihr. */
 @keyframes wrapperDrop {
   0%,
   5% {
@@ -297,38 +298,45 @@ a.quiet {
     transform: translateY(0);
   }
   6%,
-  70% {
+  54% {
     clip-path: inset(7.5% 0 0 0);
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
   }
-  78% {
+  62% {
     clip-path: inset(7.5% 0 0 0);
     transform: translateY(18px);
     animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.5);
   }
-  96%,
+  82%,
   100% {
     clip-path: inset(7.5% 0 0 0);
     transform: translateY(340px) rotate(3deg);
   }
 }
-/* Jede Karte: im Pack (hinter der Huelle), durch die Oeffnung nach oben,
-   dann nach vorn und auf ihren Stapel. */
+/* Jede Karte: im Pack (hinter der Huelle), schiesst oben heraus, fliegt
+   gedreht an ihren eigenen Punkt der Buehne und segelt von dort auf ihren
+   Stapel. */
 @keyframes cardOut {
   0% {
     z-index: 1;
     transform: translate(-50%, -40%);
-    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.6, 1);
   }
-  45% {
+  16% {
     z-index: 1;
-    transform: translate(-50%, -84%);
+    transform: translate(-50%, -95%) rotate(calc(var(--fly-spin) * 0.15));
   }
-  46% {
+  17% {
     z-index: 5;
-    transform: translate(-50%, -84%);
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translate(-50%, -95%) rotate(calc(var(--fly-spin) * 0.15));
+    animation-timing-function: cubic-bezier(0.15, 0.7, 0.3, 1);
+  }
+  55% {
+    z-index: 5;
+    transform: translate(calc(-50% + var(--fly-x)), calc(-50% + var(--fly-y)))
+      rotate(var(--fly-spin));
+    animation-timing-function: cubic-bezier(0.55, 0, 0.25, 1);
   }
   100% {
     z-index: 5;

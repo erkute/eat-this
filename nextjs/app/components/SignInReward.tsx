@@ -183,10 +183,25 @@ const CARD_FRONT = '/pics/card-front.webp?v=3';
    (rechts), damit beide gleichzeitig wachsen. `level` ist die Hoehe im Stapel,
    `tilt` ein kleiner Versatz, damit der Stapel nach Karten aussieht. */
 const TILTS = [-1.5, 0.8, -0.4, 1.2, -1, 0.3, 1.5, -0.7, 0.6, -1.2];
+/* Unterwegs fliegt jede Karte zuerst an einen eigenen Punkt der Buehne —
+   im goldenen Winkel verteilt, damit die Wolke gleichmaessig und nie gleich
+   wirkt — und dreht sich dabei; erst von dort geht es auf den Stapel. Die
+   Punkte sind in cqw/cqh der Buehne, so bleibt die Wolke auf jedem Schirm
+   innerhalb der Bildflaeche. */
 const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
   const covered = order % 2 === 1;
   const level = Math.floor(order / 2);
-  return { order, covered, level, tilt: TILTS[level] ?? 0 };
+  const angle = (order * 137.5 * Math.PI) / 180;
+  const reach = 0.55 + (0.45 * ((order * 7) % 10)) / 10;
+  return {
+    order,
+    covered,
+    level,
+    tilt: TILTS[level] ?? 0,
+    flyX: Math.round(Math.cos(angle) * reach * 26),
+    flyY: Math.round(Math.sin(angle) * reach * 12 - 4),
+    flySpin: (order % 2 ? 1 : -1) * (25 + ((order * 13) % 40)),
+  };
 });
 /* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
 const DECK_CARDS = [
@@ -432,6 +447,9 @@ export default function SignInReward() {
                     '--order': card.order,
                     '--level': card.level,
                     '--tilt': `${card.tilt}deg`,
+                    '--fly-x': `${card.flyX}cqw`,
+                    '--fly-y': `${card.flyY}cqh`,
+                    '--fly-spin': `${card.flySpin}deg`,
                   } as React.CSSProperties
                 }
               />

@@ -2,9 +2,9 @@
 // handful of constructs every email client renders the same way: tables,
 // inline styles, flat colour.
 
-import { Button, Column, Img, Row, Section, Text } from '@react-email/components';
+import { Button, Img, Section, Text } from '@react-email/components';
 import type { ArtAsset } from '../art.generated';
-import { COLOR, LAYOUT, MARKER_SIZE } from '../theme';
+import { COLOR, LAYOUT } from '../theme';
 
 /**
  * The ink CTA — `.hv-btn`. Live text, never an image: Outlook and a large
@@ -32,46 +32,6 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
     >
       {label}
     </Button>
-  );
-}
-
-/**
- * `.hv-head` — the yellow `.hv-mk` square followed by a red section title, on
- * one line. Two table cells rather than an inline-block: the 9px square must
- * not collapse, and a table cell is the one box model no client second-guesses.
- */
-export function SectionHead({
-  art,
-  appUrl,
-  style,
-}: {
-  art: ArtAsset;
-  appUrl: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <Row style={{ marginBottom: '10px', ...style }}>
-      <Column width={MARKER_SIZE + 11} style={{ verticalAlign: 'bottom' }}>
-        <div
-          style={{
-            width: `${MARKER_SIZE}px`,
-            height: `${MARKER_SIZE}px`,
-            backgroundColor: COLOR.accent,
-            fontSize: '1px',
-            lineHeight: '1px',
-          }}
-        >
-          &nbsp;
-        </div>
-      </Column>
-      <Column style={{ verticalAlign: 'bottom' }}>
-        <ArtImage
-          art={art}
-          appUrl={appUrl}
-          altStyle={{ color: COLOR.text, fontSize: '20px', fontWeight: 700 }}
-        />
-      </Column>
-    </Row>
   );
 }
 
@@ -119,13 +79,21 @@ export function ArtImage({
 /** The fine print directly under the CTA. */
 export function Fineprint({ children }: { children: React.ReactNode }) {
   return (
-    <Text style={{ margin: '14px 0 0', fontSize: '13px', lineHeight: 1.55, color: COLOR.muted }}>
+    <Text
+      style={{
+        margin: '14px 0 0',
+        fontSize: '13px',
+        lineHeight: 1.55,
+        color: COLOR.muted,
+        textAlign: 'center',
+      }}
+    >
       {children}
     </Text>
   );
 }
 
-/** White page block with the card's horizontal rhythm. */
+/** Ein Block auf der Ink-Fläche, mittig gesetzt wie die ganze Mail. */
 export function Paper({
   children,
   padding = '38px 32px',
@@ -134,7 +102,10 @@ export function Paper({
   padding?: string;
 }) {
   return (
-    <Section className="et-pad" style={{ backgroundColor: COLOR.surface, padding }}>
+    <Section
+      className="et-pad"
+      style={{ backgroundColor: COLOR.surface, padding, textAlign: 'center' }}
+    >
       {children}
     </Section>
   );

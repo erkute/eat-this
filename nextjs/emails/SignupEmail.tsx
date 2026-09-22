@@ -6,7 +6,7 @@
 
 import { Link, Section } from '@react-email/components';
 import { Shell } from './components/Shell';
-import { ArtImage, CtaButton, Fineprint, Paper, SectionHead } from './components/Pieces';
+import { ArtImage, CtaButton, Fineprint, Paper } from './components/Pieces';
 import { ART } from './art.generated';
 import { EMAIL_SPOTS, SPOT_DISPLAY_WIDTH, type EmailSpot } from './spots.generated';
 import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from './theme';
@@ -50,7 +50,6 @@ const COPY = {
     starterKicker: ART.kickerStarter,
     starterTitle: ART.titleStarter,
     starterBody: ART.bodyStarter,
-    spotsTitle: ART.titleSpots,
   },
   en: {
     preview: '20 Must Eats in Berlin. Free to start.',
@@ -63,7 +62,6 @@ const COPY = {
     starterKicker: ART.kickerStarterEn,
     starterTitle: ART.titleStarterEn,
     starterBody: ART.bodyStarterEn,
-    spotsTitle: ART.titleSpotsEn,
   },
 } as const;
 
@@ -94,21 +92,21 @@ export default function SignupEmail({
             fontWeight: 700,
             letterSpacing: '0.16em',
           }}
-          style={{ margin: '0 0 14px' }}
+          style={{ margin: '0 auto 14px' }}
         />
 
         <ArtImage
           art={ART.headlineSignup}
           appUrl={appUrl}
           altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
-          style={{ margin: '0 0 18px' }}
+          style={{ margin: '0 auto 18px' }}
         />
 
         <ArtImage
           art={copy.lead}
           appUrl={appUrl}
           altStyle={{ color: COLOR.text, fontSize: '16px' }}
-          style={{ margin: '0 0 26px' }}
+          style={{ margin: '0 auto 26px' }}
         />
 
         <CtaButton href={magicLink} label={copy.cta} />
@@ -173,16 +171,16 @@ export default function SignupEmail({
 
       {/* SPOTS — jede Karte ist EIN lokal vorgerendertes Bild (Foto + Scrim +
           Name in der Markenschrift, siehe scripts/build-email-spots.mts),
-          verpackt in einen /map?r=-Deeplink. Ein flaches Bild ist die einzige
+          verpackt in einen /map?r=-Deeplink. Die Must-Eat-Karte ist mit
+          eingebacken, nur Karten aus dem öffentlichen Schaufenster. Ein flaches Bild ist die einzige
           Komposition, die kein Mail-Client zerlegen kann: Gmail entfernt
           position/transform/filter/box-shadow und lädt nie Webfonts. */}
       {spots.length > 0 && (
         <Paper padding="0 32px 40px">
-          {/* Ohne Zwischenzeile (Betreiber, 07.09.2026): die Überschrift und
-              die drei Karten sagen alles, der Satz dazwischen erklärte nur
-              den Klick. */}
-          <SectionHead art={copy.spotsTitle} appUrl={appUrl} />
-
+          {/* Ohne Überschrift (Betreiber, 22.09.2026): es sind Beispiele,
+              keine „ersten Spots". Jede Karte zeigt den Spot mit seiner
+              offenen Must-Eat-Karte daneben — dass beides zusammengehört,
+              soll man sehen, nicht lesen. */}
           {spots.map((s) => (
             <Link
               key={s.slug}

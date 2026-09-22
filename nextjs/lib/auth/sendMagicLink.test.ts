@@ -4,7 +4,6 @@ const mocks = vi.hoisted(() => ({
   send: vi.fn(),
   generateLink: vi.fn(),
   getUserByEmail: vi.fn(),
-  getEmailSpots: vi.fn(),
 }));
 
 vi.mock('resend', () => ({
@@ -20,7 +19,6 @@ vi.mock('@/lib/firebase/admin', () => ({
     getUserByEmail: mocks.getUserByEmail,
   }),
 }));
-vi.mock('@/lib/sanity.server', () => ({ getEmailSpots: mocks.getEmailSpots }));
 vi.mock('@/emails/SignupEmail', () => ({
   default: () => null,
   SIGNUP_SUBJECT: { de: 'signup', en: 'signup-en' },
@@ -43,8 +41,6 @@ beforeEach(() => {
   mocks.generateLink.mockResolvedValue('https://firebase.test/link');
   mocks.getUserByEmail.mockReset();
   mocks.getUserByEmail.mockResolvedValue({ uid: 'user-1' });
-  mocks.getEmailSpots.mockReset();
-  mocks.getEmailSpots.mockResolvedValue([]);
   vi.stubEnv('RESEND_API_KEY', 're_test');
 });
 
@@ -70,7 +66,6 @@ describe('sendMagicLinkEmail idempotency', () => {
       expect.objectContaining({ to: 'delivered@resend.dev' }),
       undefined
     );
-    expect(mocks.getEmailSpots).not.toHaveBeenCalled();
   });
 
   it('forwards a stable provider idempotency key', async () => {

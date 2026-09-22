@@ -1,6 +1,6 @@
 // Server-composed email spot card — the JSX tree Satori (next/og ImageResponse)
 // renders into one flat 1072×804 image: restaurant photo, bottom scrim, name and
-// meta in the brand font.
+// district in the brand font, and the spot's open Must Eat card beside it.
 //
 // It is the `.hv-photo` card from home, flattened. Composing server-side is the
 // only way this survives email clients: Gmail strips position/transform/filter/
@@ -31,14 +31,22 @@ export function spotPhotoUrl(photo: string): string {
   return `${photo.split('?')[0]}?w=${SPOT_CARD_WIDTH}&h=${SPOT_CARD_HEIGHT}&fit=crop&fm=jpg&q=80`;
 }
 
-/** Was eine Karte zum Zeichnen braucht — genau die Felder aus emailSpotsQuery. */
+/** Was eine Karte zum Zeichnen braucht. */
 export interface SpotCardData {
   name: string;
   /** Bezirk, z. B. „Mitte". */
   area: string;
   /** Roh-URL aus dem Sanity-CDN, Query-String optional. */
   photo: string;
+  /** Die offene Must-Eat-Karte des Spots als PNG-Data-URI (Satori liest
+   *  kein WebP). Sie steht rechts neben dem Namen: die Mail soll zeigen,
+   *  dass zu jedem Spot eine Karte gehört (Betreiber, 22.09.2026). */
+  card: string;
 }
+
+/** Höhe der Must-Eat-Karte im Bild; die Breite folgt ihrem Format (720×989). */
+const CARD_HEIGHT = 620;
+const CARD_WIDTH = Math.round((CARD_HEIGHT * 720) / 989);
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
@@ -81,13 +89,30 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         }}
       />
 
-      {/* name + meta — bottom left, exactly as on the home rail */}
+      {/* die Must-Eat-Karte — rechts, leicht gekippt, wie sie auf der Map
+          neben dem Spot liegt. Gmail entfernt `transform`, hier ist sie
+          eingebacken. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={spot.card}
+        alt=""
+        width={CARD_WIDTH}
+        height={CARD_HEIGHT}
+        style={{
+          position: 'absolute',
+          right: 56,
+          top: (SPOT_CARD_HEIGHT - CARD_HEIGHT) / 2,
+          transform: 'rotate(3deg)',
+        }}
+      />
+
+      {/* name + district — bottom left, exactly as on the home rail */}
       <div
         style={{
           position: 'absolute',
           left: 48,
           bottom: 44,
-          width: SPOT_CARD_WIDTH - 96,
+          width: SPOT_CARD_WIDTH - 96 - CARD_WIDTH - 40,
           display: 'flex',
           flexDirection: 'column',
         }}

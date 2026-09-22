@@ -65,21 +65,21 @@ export default function LoginEmail({ magicLink, appUrl, locale }: LoginEmailProp
             fontWeight: 700,
             letterSpacing: '0.16em',
           }}
-          style={{ margin: '0 0 14px' }}
+          style={{ margin: '0 auto 14px' }}
         />
 
         <ArtImage
           art={copy.headline}
           appUrl={appUrl}
           altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
-          style={{ margin: '0 0 20px' }}
+          style={{ margin: '0 auto 20px' }}
         />
 
         <ArtImage
           art={copy.lead}
           appUrl={appUrl}
           altStyle={{ color: COLOR.text, fontSize: '16px' }}
-          style={{ margin: '0 0 26px' }}
+          style={{ margin: '0 auto 26px' }}
         />
 
         <CtaButton href={magicLink} label={copy.cta} />

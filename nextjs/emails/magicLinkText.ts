@@ -11,10 +11,10 @@ const TEXT = {
     validity: 'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse.',
     loginIntro: 'Willkommen zurück. Hier ist dein Anmeldelink:',
     signupLead:
-      'Wir empfehlen dir gute Spots in Berlin – und mit unseren Must Eats die Gerichte, für die sich der Besuch lohnt.',
+      'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
     signupIntro: 'Bei Eat This anmelden:',
     signupAfter: [
-      'Dein Starter Pack: 20 Must Eats. Geht auf uns. Jede Karte verrät dir, was du',
+      'Dein Starter Pack: 20 Must Eats, kostenlos zum Start. Jede Karte verrät dir, was du',
       'an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du',
       'erst vor Ort auf.',
     ],
@@ -24,10 +24,10 @@ const TEXT = {
     validity: 'Your sign-in link is valid for one hour and only works for your email address.',
     loginIntro: 'Welcome back. Here’s your sign-in link:',
     signupLead:
-      'We point you to great spots in Berlin – and with our Must Eats, to the dishes that make the visit worth it.',
+      'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
     signupIntro: 'Sign up for Eat This:',
     signupAfter: [
-      'Your Starter Pack: 20 Must Eats. On us. Every card tells you what to order at',
+      'Your Starter Pack: 20 Must Eats, free to start. Every card tells you what to order at',
       'a spot. Some are already open, others you reveal on site.',
     ],
   },

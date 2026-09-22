@@ -36,6 +36,7 @@ describe('SpotCardImage', () => {
     name: 'Sofi',
     area: 'Mitte',
     photo: 'https://cdn.sanity.io/images/x/y/a.png',
+    card: 'data:image/png;base64,AAAA',
   };
 
   function flatten(node: unknown): string {
@@ -50,6 +51,12 @@ describe('SpotCardImage', () => {
     expect(tree).not.toContain(' · '); // no cuisine — the photo shows it
     expect(tree).not.toContain('rotate(14deg)');
     expect(tree).not.toContain('fm=png');
+  });
+
+  /* Zu jedem Spot seine Must-Eat-Karte, damit man sieht, dass beides
+     zusammengehoert (Betreiber, 22.09.2026). */
+  it('legt die Must-Eat-Karte neben den Spot', () => {
+    expect(flatten(SpotCardImage({ spot }))).toContain('data:image/png;base64,AAAA');
   });
 
   it('sets every type layer in the brand face, never a system font', () => {

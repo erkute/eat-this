@@ -207,10 +207,10 @@ export default function EmailLinkSignIn() {
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.kicker}</p>
-          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
-            {t.title[0]}
-            <br />
-            {t.title[1]}
+          {/* Zwei Sätze, zwei Zeilen — nie umgebrochen (Betreiber, 22.09.2026). */}
+          <h2 ref={titleRef} tabIndex={-1} className={`${styles.headline} ${styles.headlineLines}`}>
+            <span>{t.title[0]}</span>
+            <span>{t.title[1]}</span>
           </h2>
           <p className={styles.signInLabel}>{t.as}</p>
           <p className={styles.signInAs}>{state.email}</p>

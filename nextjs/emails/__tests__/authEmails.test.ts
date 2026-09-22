@@ -134,10 +134,11 @@ describe('SignupEmail', () => {
     expect(html).toContain('DEIN ZUGANG ZU EAT THIS');
     expect(html).toContain('WE TELL YOU WHAT TO EAT.');
     // Nicht nur wohin, sondern was bestellen (Betreiber, 22.09.2026).
-    expect(html).toContain('die Gerichte, für die sich der Besuch lohnt');
+    expect(html).toContain('unsere Must Eat Gerichte, für die sich der Besuch lohnt');
     expect(html).not.toContain('Gute Spots findest du überall');
     expect(html).toContain('DEIN STARTER PACK');
-    expect(html).toContain('20 MUST EATS. GEHT AUF UNS.');
+    expect(html).toContain('20 MUST EATS. KOSTENLOS ZUM START.');
+    expect(html).not.toContain('GEHT AUF UNS');
     expect(html).toContain('/pics/email/booster_free.png');
     expect(html).toContain('Anmeldelink öffnen');
     expect(SIGNUP_SUBJECT.de).toBe('Dein Anmeldelink für Eat This');
@@ -147,6 +148,14 @@ describe('SignupEmail', () => {
      ein Stapel Anhaenge — die Telefone sind raus (Betreiber, 22.09.2026). */
   it('zeigt die Telefone nicht mehr', async () => {
     expect(await signup()).not.toContain('/pics/email/phones');
+  });
+
+  /* Die Spots sind Beispiele, keine „ersten Spots" — ohne Überschrift
+     (Betreiber, 22.09.2026). */
+  it('setzt keine Überschrift über die Spots', async () => {
+    const html = await signup();
+    expect(html).not.toContain('DEINE ERSTEN SPOTS');
+    expect(html).not.toContain('title-spots');
   });
 
   it('spots are pre-rendered static cards that deep-link onto the map', async () => {
@@ -233,8 +242,7 @@ describe('EN-Fassung', () => {
     'Anmelden',
     'Einloggen',
     'Anmeldelink',
-    'GEHT AUF UNS',
-    'DEINE ERSTEN',
+    'KOSTENLOS',
     'Stunde',
     'Gratis',
     'WILLKOMMEN',
@@ -261,10 +269,9 @@ describe('EN-Fassung', () => {
   it('Anmelde-Mail: ein Wort im Knopf, Starter-Pack-Satz der Seite, EN-Grafiken', async () => {
     const html = await signupEn();
     expect(html).toContain('>Sign up<');
-    expect(html).toContain('20 MUST EATS. ON US.');
+    expect(html).toContain('20 MUST EATS. FREE TO START.');
     expect(html).toContain('/pics/email/kicker-signup-en.png');
     expect(html).toContain('/pics/email/body-starter-en.png');
-    expect(html).toContain('/pics/email/title-spots-en.png');
     expect(html).toContain('/en/map?r=sofi');
     expect(SIGNUP_SUBJECT.en).toBe('Your Eat This sign-in link');
   });

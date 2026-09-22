@@ -71,7 +71,8 @@ interface ArtSpec {
 }
 
 // Headlines mirror home: uppercase, tight leading, slight negative tracking
-// (--et-tracking-title). Section titles are the same voice one step smaller.
+// (--et-tracking-title). Seit 22.09.2026 steht die Mail mittig (Betreiber),
+// also sind auch die Grafiken mittig gesetzt.
 //
 // Seit 22.09.2026 steht ALLES Gestaltete der Mail in der Markenschrift, auch
 // Fliesstext und Footer — die Seite setzt beides in Providence, und die Mail
@@ -107,7 +108,7 @@ const ART: ArtSpec[] = [
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
-    align: 'left',
+    align: 'center',
     width: 470,
   },
   {
@@ -117,26 +118,32 @@ const ART: ArtSpec[] = [
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
-    align: 'left',
+    align: 'center',
     width: 470,
   },
-  { id: 'kicker-signup', lines: ['DEIN ZUGANG ZU EAT THIS'], ...KICKER, align: 'left', width: 220 },
+  {
+    id: 'kicker-signup',
+    lines: ['DEIN ZUGANG ZU EAT THIS'],
+    ...KICKER,
+    align: 'center',
+    width: 220,
+  },
   {
     id: 'kicker-login',
     lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
     ...KICKER,
-    align: 'left',
+    align: 'center',
     width: 276,
   },
   {
     id: 'lead-signup',
     lines: [
-      'Wir empfehlen dir gute Spots in Berlin – und mit unseren Must Eats die Gerichte, für die sich der Besuch lohnt.',
+      'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
     ],
     ...PARAGRAPH,
     color: COLOR.muted,
     bg: COLOR.surface,
-    align: 'left',
+    align: 'center',
   },
   {
     id: 'lead-login',
@@ -144,7 +151,7 @@ const ART: ArtSpec[] = [
     ...PARAGRAPH,
     color: COLOR.muted,
     bg: COLOR.surface,
-    align: 'left',
+    align: 'center',
   },
   {
     id: 'kicker-starter',
@@ -157,14 +164,14 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'title-starter',
-    lines: ['20 MUST EATS.', 'GEHT AUF UNS.'],
+    lines: ['20 MUST EATS.', 'KOSTENLOS ZUM START.'],
     color: COLOR.text,
     bg: COLOR.raised,
     size: 30,
     lineHeight: 1,
     letterSpacing: -0.5,
     align: 'center',
-    width: 250,
+    width: 330,
   },
   {
     id: 'body-starter',
@@ -176,15 +183,7 @@ const ART: ArtSpec[] = [
     bg: COLOR.raised,
     align: 'center',
   },
-  {
-    id: 'title-spots',
-    lines: ['DEINE ERSTEN SPOTS'],
-    color: COLOR.text,
-    size: 26,
-    letterSpacing: -0.5,
-    align: 'left',
-    width: 260,
-  },
+
   {
     id: 'slogan-inverse',
     lines: ['WE TELL YOU WHAT TO EAT'],
@@ -228,7 +227,7 @@ const ART: ArtSpec[] = [
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
-    align: 'left',
+    align: 'center',
     width: 470,
     sameSizeAs: 'headline-login',
   },
@@ -236,7 +235,7 @@ const ART: ArtSpec[] = [
     id: 'kicker-signup-en',
     lines: ['YOUR ACCESS TO EAT THIS'],
     ...KICKER,
-    align: 'left',
+    align: 'center',
     width: 220,
     sameSizeAs: 'kicker-signup',
   },
@@ -244,19 +243,19 @@ const ART: ArtSpec[] = [
     id: 'kicker-login-en',
     lines: ['GOOD TO SEE YOU AGAIN'],
     ...KICKER,
-    align: 'left',
+    align: 'center',
     width: 276,
     sameSizeAs: 'kicker-login',
   },
   {
     id: 'lead-signup-en',
     lines: [
-      'We point you to great spots in Berlin – and with our Must Eats, to the dishes that make the visit worth it.',
+      'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
     ],
     ...PARAGRAPH,
     color: COLOR.muted,
     bg: COLOR.surface,
-    align: 'left',
+    align: 'center',
   },
   {
     id: 'lead-login-en',
@@ -264,7 +263,7 @@ const ART: ArtSpec[] = [
     ...PARAGRAPH,
     color: COLOR.muted,
     bg: COLOR.surface,
-    align: 'left',
+    align: 'center',
   },
   {
     id: 'kicker-starter-en',
@@ -277,7 +276,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'title-starter-en',
-    lines: ['20 MUST EATS.', 'ON US.'],
+    lines: ['20 MUST EATS.', 'FREE TO START.'],
     color: COLOR.text,
     bg: COLOR.raised,
     size: 30,
@@ -297,16 +296,7 @@ const ART: ArtSpec[] = [
     bg: COLOR.raised,
     align: 'center',
   },
-  {
-    id: 'title-spots-en',
-    lines: ['YOUR FIRST SPOTS'],
-    color: COLOR.text,
-    size: 26,
-    letterSpacing: -0.5,
-    align: 'left',
-    width: 260,
-    sameSizeAs: 'title-spots',
-  },
+
   { id: 'footer-follow-en', lines: ['FOLLOW'], ...FOOTER_LINK, color: COLOR.accent },
   { id: 'footer-about-en', lines: ['ABOUT'], ...FOOTER_LINK },
   { id: 'footer-contact-en', lines: ['CONTACT'], ...FOOTER_LINK },

@@ -99,6 +99,16 @@
 .headline:focus-visible {
   outline: none;
 }
+/* Eine Ueberschrift aus Saetzen, die je eine Zeile sind („Deine Map. /
+   Deine Sammlung."): jeder Satz bricht nie um. Die Groesse ist so gewaehlt,
+   dass die laengere Zeile in die Textspalte passt. */
+.headlineLines {
+  font-size: clamp(24px, 2.7vw, 34px);
+}
+.headlineLines span {
+  display: block;
+  white-space: nowrap;
+}
 .body {
   margin: 18px 0 0;
   font-size: 17px;

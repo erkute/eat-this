@@ -88,6 +88,27 @@ export const ART = {
     alt: 'WE TELL YOU WHAT TO EAT',
     version: '5808536e',
   },
+  ctaAnmelden: {
+    id: 'cta-anmelden',
+    width: 98,
+    height: 34,
+    alt: 'Anmelden',
+    version: '4afa1368',
+  },
+  ctaSignUp: {
+    id: 'cta-sign-up',
+    width: 79,
+    height: 34,
+    alt: 'Sign up',
+    version: '08ced7cd',
+  },
+  ctaSignIn: {
+    id: 'cta-sign-in',
+    width: 76,
+    height: 34,
+    alt: 'Sign in',
+    version: 'd31d96bc',
+  },
   footerFollow: {
     id: 'footer-follow',
     width: 73,

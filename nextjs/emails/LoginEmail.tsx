@@ -31,7 +31,7 @@ const COPY = {
     kicker: ART.kickerLogin,
     headline: ART.headlineLogin,
     lead: ART.leadLogin,
-    cta: 'Anmelden',
+    cta: ART.ctaAnmelden,
     fineprint:
       'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse. Der Button funktioniert nicht?',
     plainLink: 'Anmeldelink öffnen',
@@ -41,7 +41,7 @@ const COPY = {
     kicker: ART.kickerLoginEn,
     headline: ART.headlineLoginEn,
     lead: ART.leadLoginEn,
-    cta: 'Sign in',
+    cta: ART.ctaSignIn,
     fineprint:
       'Your sign-in link is valid for one hour and only works for your email address. Button not working?',
     plainLink: 'Open sign-in link',
@@ -82,7 +82,7 @@ export default function LoginEmail({ magicLink, appUrl, locale }: LoginEmailProp
           style={{ margin: '0 auto 26px' }}
         />
 
-        <CtaButton href={magicLink} label={copy.cta} />
+        <CtaButton href={magicLink} art={copy.cta} appUrl={appUrl} />
 
         <Fineprint>
           {copy.fineprint}{' '}

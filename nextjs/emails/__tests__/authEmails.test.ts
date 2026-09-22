@@ -11,6 +11,13 @@ const spots = [
 const magicLink = 'https://x/verify?abc=1';
 const appUrl = 'https://www.eatthisdot.com';
 
+/** Der gelbe Knopf: der Link mit Gelb als Fläche. */
+function cta(html: string): string {
+  const anchor = html.match(/<a[^>]*background-color:#ffc600[^>]*>[\s\S]*?<\/a>/i)?.[0];
+  if (!anchor) throw new Error('kein gelber Knopf in der Mail');
+  return anchor;
+}
+
 const signup = () => render(SignupEmail({ magicLink, appUrl, locale: 'de', spots }));
 const login = () => render(LoginEmail({ magicLink, appUrl, locale: 'de' }));
 const signupEn = () => render(SignupEmail({ magicLink, appUrl, locale: 'en', spots }));
@@ -64,9 +71,16 @@ describe('shared shell', () => {
     // `onAccent` (#15120e) waere auf dieser Flaeche exakt der Fehler, den
     // dieser Test verhindern soll — unsichtbar statt bloss unschoen.
     for (const html of [await signup(), await login()]) {
+      const onYellow = cta(html).match(/<img[^>]*>/g) ?? [];
       for (const img of html.match(/<img[^>]*>/g) ?? []) {
         const alt = /alt="([^"]*)"/.exec(img)?.[1] ?? '';
         expect(alt.trim()).not.toBe('');
+        // Die eine Ausnahme ist das Knopf-Wort: es steht auf Gelb, sein
+        // Alt-Text also in Ink.
+        if (onYellow.includes(img)) {
+          expect(img).toMatch(/color:#15120e/i);
+          continue;
+        }
         // Ohne Ausnahme: auch die Spot-Fotos. Ihr Name steckt zwar im Bitmap,
         // aber bei blockierten Bildern bleibt nur der Alt-Text — und der
         // steckt in einem <Link>, erbt also sonst dessen Blau.
@@ -93,10 +107,16 @@ describe('shared shell', () => {
   });
 
   it('never hides the call to action behind an image', async () => {
-    // An image button is invisible wherever images are blocked (Outlook, many
-    // Gmail accounts) — in a login mail that is a dead end.
+    // Ein Knopf, der NUR ein Bild ist, ist bei blockierten Bildern unsichtbar
+    // (Outlook, viele Gmail-Konten) — in einer Login-Mail eine Sackgasse.
+    // Seit 22.09.2026 ist das Wort ein Bild in der Markenschrift, der Knopf
+    // aber weiter ein echter Link mit gelber Fläche, und das Wort steht als
+    // Alt-Text darauf. Dazu der Ersatz-Link als echter Text.
     for (const html of [await signup(), await login()]) {
-      expect(html).not.toContain('cta-anmelden.png');
+      const button = cta(html);
+      expect(button).toContain('href="' + magicLink + '"');
+      expect(button).toMatch(/alt="Anmelden"/);
+      expect(html).toContain('Anmeldelink öffnen</a>');
     }
   });
 });
@@ -106,7 +126,7 @@ describe('LoginEmail', () => {
     const html = await login();
     expect(html).toContain(magicLink);
     // Ein Wort im Knopf, dasselbe wie überall in der App (CLAUDE.md).
-    expect(html).toContain('>Anmelden<');
+    expect(cta(html)).toContain('alt="Anmelden"');
     expect(html).not.toContain('Einloggen');
     expect(html).toContain('WILLKOMMEN');
     expect(html).toContain('eine Stunde gültig');
@@ -130,7 +150,7 @@ describe('SignupEmail', () => {
   it('shows the claim, the CTA and the starter pack panel', async () => {
     const html = await signup();
     expect(html).toContain(magicLink);
-    expect(html).toContain('>Anmelden<');
+    expect(cta(html)).toContain('alt="Anmelden"');
     expect(html).toContain('DEIN ZUGANG ZU EAT THIS');
     expect(html).toContain('WE TELL YOU WHAT TO EAT.');
     // Nicht nur wohin, sondern was bestellen (Betreiber, 22.09.2026).
@@ -201,7 +221,7 @@ describe('SignupEmail', () => {
   it('drops the spot section entirely when there is no content', async () => {
     const html = await render(SignupEmail({ magicLink, appUrl, locale: 'de', spots: [] }));
     expect(html).not.toContain('/pics/email/spots/');
-    expect(html).toContain('>Anmelden<');
+    expect(cta(html)).toContain('alt="Anmelden"');
   });
 
   it('ships a real rendered card for every spot in the generated manifest', async () => {
@@ -268,7 +288,7 @@ describe('EN-Fassung', () => {
 
   it('Anmelde-Mail: ein Wort im Knopf, Starter-Pack-Satz der Seite, EN-Grafiken', async () => {
     const html = await signupEn();
-    expect(html).toContain('>Sign up<');
+    expect(cta(html)).toContain('alt="Sign up"');
     expect(html).toContain('20 MUST EATS. TO GET YOU STARTED.');
     expect(html).toContain('/pics/email/kicker-signup-en.png');
     expect(html).toContain('/pics/email/body-starter-en.png');
@@ -278,7 +298,7 @@ describe('EN-Fassung', () => {
 
   it('Login-Mail: Sign in, WELCOME BACK', async () => {
     const html = await loginEn();
-    expect(html).toContain('>Sign in<');
+    expect(cta(html)).toContain('alt="Sign in"');
     expect(html).toContain('WELCOME BACK');
     expect(html).toContain('/pics/email/headline-login-en.png');
     expect(LOGIN_SUBJECT.en).toBe('Your Eat This sign-in link');

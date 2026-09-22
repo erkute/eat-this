@@ -68,6 +68,11 @@ interface ArtSpec {
    * die Obergrenze — die Grafik ist so breit, wie der Text laeuft.
    */
   wrap?: number;
+  /**
+   * Feste Zeilenhoehe in CSS-Pixeln statt eng beschnitten — fuer Grafiken, die
+   * in verschiedenen Fassungen gleich hoch sein muessen (Knopf-Wort).
+   */
+  lineBox?: number;
 }
 
 // Headlines mirror home: uppercase, tight leading, slight negative tracking
@@ -86,6 +91,17 @@ const KICKER = { color: COLOR.accent, bg: COLOR.surface, size: 14, letterSpacing
  *  Spaltenbreite, weil ein Bild auf dem Telefon mitschrumpft — so bleibt die
  *  Schrift dort bei ihrer Groesse, statt auf 11 px zu fallen. */
 const PARAGRAPH = { weight: 400, size: 17, lineHeight: 1.45, wrap: 340, width: 340 } as const;
+
+/** Knopf-Wort wie `.action` in der Tour: Providence fett, Ink auf Gelb. */
+const CTA_LABEL = {
+  color: COLOR.onAccent,
+  bg: COLOR.accent,
+  size: 17,
+  align: 'center',
+  wrap: 300,
+  width: 300,
+  lineBox: 22,
+} as const;
 
 /** Footer-Zeilen wie im SiteFooter: Versalien, fett, leicht gesperrt. */
 const FOOTER_LINK = {
@@ -194,6 +210,13 @@ const ART: ArtSpec[] = [
     align: 'center',
     width: 172,
   },
+  // Die Beschriftung des Knopfs. Der Knopf selbst bleibt ein echter Link mit
+  // gelber Flaeche; nur das Wort ist Bild, damit es in der Markenschrift steht
+  // wie jeder Knopf der Seite (Betreiber, 22.09.2026). Bei blockierten Bildern
+  // steht der Alt-Text auf dem Gelb — der Knopf ist nie leer.
+  { id: 'cta-anmelden', lines: ['Anmelden'], ...CTA_LABEL },
+  { id: 'cta-sign-up', lines: ['Sign up'], ...CTA_LABEL },
+  { id: 'cta-sign-in', lines: ['Sign in'], ...CTA_LABEL },
   // FOOTER — dieselben Zeilen wie SiteFooter, in derselben Schrift.
   { id: 'footer-follow', lines: ['FOLGEN'], ...FOOTER_LINK, color: COLOR.accent },
   {
@@ -370,9 +393,24 @@ async function rasterise(
 
   // trim() drops the transparent surplus so the template positions the art on
   // its real ink extents instead of on padding it can't see.
-  return sharp(Buffer.from(await png.arrayBuffer()))
-    .trim({ threshold: 0 })
-    .toBuffer();
+  const raw = Buffer.from(await png.arrayBuffer());
+  if (spec.lineBox) {
+    // Nur seitlich eng: senkrecht bleibt eine feste Zeilenbox um die
+    // Canvas-Mitte stehen (der Text sitzt dort, justifyContent: center). So
+    // haben „Anmelden" und „Sign up" dieselbe Hoehe und dieselbe Grundlinie,
+    // obwohl nur eins eine Unterlaenge hat.
+    const { info } = await sharp(raw).trim({ threshold: 0 }).toBuffer({ resolveWithObject: true });
+    const box = Math.round(spec.lineBox * SCALE);
+    return sharp(raw)
+      .extract({
+        left: -(info.trimOffsetLeft ?? 0),
+        width: info.width,
+        top: Math.round(canvasH / 2 - box / 2),
+        height: box,
+      })
+      .toBuffer();
+  }
+  return sharp(raw).trim({ threshold: 0 }).toBuffer();
 }
 
 /** Endgültige Schriftgröße je Grafik — Quelle für `sameSizeAs`. */

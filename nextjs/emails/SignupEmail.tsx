@@ -43,7 +43,7 @@ const COPY = {
     preview: '20 Must Eats für deinen Start in Berlin.',
     kicker: ART.kickerSignup,
     lead: ART.leadSignup,
-    cta: 'Anmelden',
+    cta: ART.ctaAnmelden,
     fineprint:
       'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse. Der Button funktioniert nicht?',
     plainLink: 'Anmeldelink öffnen',
@@ -55,7 +55,7 @@ const COPY = {
     preview: '20 Must Eats to get you started in Berlin.',
     kicker: ART.kickerSignupEn,
     lead: ART.leadSignupEn,
-    cta: 'Sign up',
+    cta: ART.ctaSignUp,
     fineprint:
       'Your sign-in link is valid for one hour and only works for your email address. Button not working?',
     plainLink: 'Open sign-in link',
@@ -109,7 +109,7 @@ export default function SignupEmail({
           style={{ margin: '0 auto 26px' }}
         />
 
-        <CtaButton href={magicLink} label={copy.cta} />
+        <CtaButton href={magicLink} art={copy.cta} appUrl={appUrl} />
 
         <Fineprint>
           {copy.fineprint}{' '}

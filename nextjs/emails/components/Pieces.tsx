@@ -7,12 +7,18 @@ import type { ArtAsset } from '../art.generated';
 import { COLOR, LAYOUT } from '../theme';
 
 /**
- * The ink CTA — `.hv-btn`. Live text, never an image: Outlook and a large
- * share of Gmail accounts block images by default, and an invisible button in
- * a login mail is a dead end. react-email's Button carries the mso padding
- * hack so the ink slab keeps its height in Outlook's Word engine.
+ * Der gelbe Knopf — `.action` aus der Tour.
+ *
+ * Der Knopf selbst ist ein echter Link mit gelber Fläche; nur sein Wort ist ein
+ * Bild in der Markenschrift (`art`), wie jede andere Zeile der Mail. Blockiert
+ * ein Client Bilder (Outlook, viele Gmail-Konten), steht der Alt-Text in Ink
+ * auf dem Gelb: der Knopf ist dann in Systemschrift beschriftet, aber nie
+ * leer — und der Ersatz-Link darunter ist ohnehin echter Text.
+ *
+ * react-email's Button carries the mso padding hack so the slab keeps its
+ * height in Outlook's Word engine.
  */
-export function CtaButton({ href, label }: { href: string; label: string }) {
+export function CtaButton({ href, art, appUrl }: { href: string; art: ArtAsset; appUrl: string }) {
   return (
     <Button
       href={href}
@@ -27,15 +33,25 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
         backgroundColor: COLOR.accent,
         color: COLOR.onAccent,
         borderRadius: `${LAYOUT.radiusControl}px`,
-        fontSize: '17px',
-        fontWeight: 700,
-        letterSpacing: '0.01em',
         textAlign: 'center',
         textDecoration: 'none',
-        padding: '16px 40px',
+        padding: '10px 40px',
       }}
     >
-      {label}
+      <Img
+        src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`}
+        alt={art.alt}
+        width={art.width}
+        style={{
+          display: 'inline-block',
+          verticalAlign: 'middle',
+          border: 0,
+          height: 'auto',
+          color: COLOR.onAccent,
+          fontSize: '17px',
+          fontWeight: 700,
+        }}
+      />
     </Button>
   );
 }

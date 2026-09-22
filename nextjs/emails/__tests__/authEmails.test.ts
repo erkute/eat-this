@@ -75,12 +75,17 @@ describe('shared shell', () => {
 
   it('reserves no empty box for art that failed to load', async () => {
     // A height attribute holds the full image box open even when nothing
-    // arrives, leaving a conspicuous hole above the copy.
-    for (const html of [await signup(), await login()]) {
+    // arrives, leaving a conspicuous hole above the copy. Ohne Ausnahme: die
+    // drei Spot-Karten waren ausgenommen und liessen im Blockiert-Zustand je
+    // eine ~400 px hohe leere Box zwischen Alt-Text und Footer.
+    const signupHtml = await signup();
+    expect(signupHtml).toContain('/pics/email/spots/');
+    for (const html of [signupHtml, await login()]) {
       for (const img of html.match(/<img[^>]*>/g) ?? []) {
-        if (img.includes('/pics/email/') && !img.includes('/spots/')) {
-          expect(img).not.toMatch(/\sheight="/);
-        }
+        expect(img).not.toMatch(/\sheight="/);
+        // Die Breite muss als Attribut stehen: Outlooks Word-Engine ignoriert
+        // CSS-Breiten und zeigt das 2x-JPEG sonst in voller Pixelgroesse.
+        expect(img).toMatch(/\swidth="\d+"/);
       }
     }
   });

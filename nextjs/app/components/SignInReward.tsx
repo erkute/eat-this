@@ -73,8 +73,9 @@ const copy = {
         title: 'Hingehen. Aufdecken. Sammeln.',
         body: 'Besuche die Spots und decke vor Ort neue Karten auf. Jede aufgedeckte Karte landet in deinem Deck.',
         hint: 'In deinem Deck siehst du auch, wo du die noch verdeckten Karten findest.',
-        image: '/pics/booster/booster_free.webp',
-        alt: 'Das kostenlose Starter Pack mit 20 Must Eats',
+        image: '/pics/card-front-sabich.webp',
+        alt: 'Eine aufgedeckte Must-Eat-Karte',
+        flip: 'Karte umdrehen',
       },
     ],
     go: {
@@ -140,8 +141,9 @@ const copy = {
         title: 'Visit. Reveal. Collect.',
         body: 'Visit the spots and uncover new cards on location. Every card you reveal joins your deck.',
         hint: 'Your deck also shows you where to find the cards still waiting to be revealed.',
-        image: '/pics/booster/booster_free.webp',
-        alt: 'The free Starter Pack with 20 Must Eats',
+        image: '/pics/card-front-sabich.webp',
+        alt: 'A revealed Must Eat card',
+        flip: 'Flip the card',
       },
     ],
     go: {
@@ -166,6 +168,18 @@ type Identity = {
 };
 
 const IDENTITY_FORM = 'tour-identity';
+
+/** Die Seiten der Tour — mit Namensseite vorn, wenn das Konto noch keinen
+ *  Charakter hat. */
+function pages(identity: Identity | null) {
+  return identity
+    ? (['identity', 'pack', 0, 1, 2, 'go'] as const)
+    : (['pack', 0, 1, 2, 'go'] as const);
+}
+
+/** So lange liegt die Karte auf der Sammel-Seite verdeckt, bevor sie sich von
+ *  selbst umdreht — wie in der Must-Eats-Erklaerung. */
+const FLIP_DELAY_MS = 800;
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 /* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
@@ -194,6 +208,11 @@ export default function SignInReward() {
   /* Gesetzt, wenn das Konto noch keinen Charakter hat (Google — der
      Magic-Link fragt auf /welcome). Dann ist sie die erste Seite. */
   const [identity, setIdentity] = useState<Identity | null>(null);
+  /* Die Sammel-Seite fuehrt das Aufdecken vor: verdeckt rein, nach kurzem
+     Moment dreht sich die Karte. Antippen dreht sie selbst — und nimmt der
+     Automatik die Karte ab. */
+  const [cardDown, setCardDown] = useState(false);
+  const flipTimer = useRef<number | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   /* Die Tour öffnet sich von selbst, es gibt keinen Auslöser, an den der
@@ -258,6 +277,23 @@ export default function SignInReward() {
     };
   }, [open]);
 
+  const flipping = open && pages(identity)[step] === 2;
+  useEffect(() => {
+    if (!flipping) {
+      setCardDown(false);
+      return;
+    }
+    setCardDown(true);
+    flipTimer.current = window.setTimeout(() => {
+      flipTimer.current = null;
+      setCardDown(false);
+    }, FLIP_DELAY_MS);
+    return () => {
+      if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
+      flipTimer.current = null;
+    };
+  }, [flipping]);
+
   useEffect(() => {
     if (pack !== 'opening') return;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -271,11 +307,9 @@ export default function SignInReward() {
 
   if (!open) return null;
 
-  const pages = identity
-    ? (['identity', 'pack', 0, 1, 2, 'go'] as const)
-    : (['pack', 0, 1, 2, 'go'] as const);
-  const page = pages[step];
-  const last = step === pages.length - 1;
+  const steps = pages(identity);
+  const page = steps[step];
+  const last = step === steps.length - 1;
   const close = () => setOpen(false);
 
   let content: React.ReactNode;
@@ -487,18 +521,49 @@ export default function SignInReward() {
     );
   } else {
     const slide = t.slides[page];
+    const flipTap = () => {
+      if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
+      flipTimer.current = null;
+      setCardDown((down) => !down);
+    };
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          <Image
-            key={slide.image}
-            src={slide.image}
-            alt={slide.alt}
-            fill
-            sizes="(max-width: 600px) 220px, 480px"
-            className={styles.image}
-            priority
-          />
+          {'flip' in slide ? (
+            <div className={styles.cardBox}>
+              <button
+                type="button"
+                className={styles.flipTap}
+                onClick={flipTap}
+                aria-label={slide.flip}
+              >
+                <div
+                  data-testid="tour-flipper"
+                  className={cardDown ? `${styles.flipper} ${styles.flipped}` : styles.flipper}
+                >
+                  {/* eslint-disable @next/next/no-img-element */}
+                  <img className={styles.face} src={slide.image} alt={slide.alt} />
+                  <img
+                    className={`${styles.face} ${styles.back}`}
+                    src={CARD_BACK}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  {/* eslint-enable @next/next/no-img-element */}
+                </div>
+              </button>
+            </div>
+          ) : (
+            <Image
+              key={slide.image}
+              src={slide.image}
+              alt={slide.alt}
+              fill
+              sizes="(max-width: 600px) 220px, 480px"
+              className={styles.image}
+              priority
+            />
+          )}
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{slide.tag}</p>
@@ -541,13 +606,13 @@ export default function SignInReward() {
           <footer className={styles.footer}>
             <div
               className={styles.progress}
-              aria-label={`${t.step} ${step + 1} ${t.of} ${pages.length}`}
+              aria-label={`${t.step} ${step + 1} ${t.of} ${steps.length}`}
             >
               <span>
-                {step + 1} / {pages.length}
+                {step + 1} / {steps.length}
               </span>
               <div className={styles.segments} aria-hidden="true">
-                {pages.map((item, index) => (
+                {steps.map((item, index) => (
                   <span key={item} className={index <= step ? styles.active : undefined} />
                 ))}
               </div>

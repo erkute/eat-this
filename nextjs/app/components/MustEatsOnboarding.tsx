@@ -194,12 +194,12 @@ export default function MustEatsOnboarding({
   const flipper = (
     <div
       data-testid="onb-flipper"
-      className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}
+      className={showBack ? `${tour.flipper} ${tour.flipped}` : tour.flipper}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
+      <img className={tour.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
+      <img className={`${tour.face} ${tour.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
     </div>
   );
 
@@ -277,11 +277,11 @@ export default function MustEatsOnboarding({
                       />
                     </>
                   ) : (
-                    <div className={styles.cardBox}>
+                    <div className={tour.cardBox}>
                       {step === 1 ? (
                         <button
                           type="button"
-                          className={styles.flipTap}
+                          className={tour.flipTap}
                           onClick={handleFlipTap}
                           aria-label={t('mustEats.onbFlipAria')}
                         >

@@ -128,6 +128,24 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(document.body.style.overflow).not.toBe('hidden');
   });
 
+  it('fuehrt auf der Sammel-Seite das Aufdecken vor: verdeckt, dann umgedreht, antippbar', async () => {
+    render(<SignInReward />);
+    await arrive();
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    act(() => void vi.advanceTimersByTime(1900));
+    for (let step = 0; step < 3; step++)
+      fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+
+    expect(screen.getByRole('heading').textContent).toBe('Hingehen. Aufdecken. Sammeln.');
+    const flipper = screen.getByTestId('tour-flipper');
+    expect(flipper.className).toContain('flipped');
+    act(() => void vi.advanceTimersByTime(800));
+    expect(flipper.className).not.toContain('flipped');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
+    expect(flipper.className).toContain('flipped');
+  });
+
   it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {
     const screenView = render(<AuthScreen mode="in" />);
     render(<SignInReward />);

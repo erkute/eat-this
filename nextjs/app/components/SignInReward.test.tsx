@@ -120,12 +120,10 @@ describe('Ankunft nach der Anmeldung', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
-    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
-    expect(screen.getByRole('heading').textContent).toBe('Wissen, was du bestellst.');
     fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
-    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
-    for (let step = 0; step < 3; step++)
-      fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
 
     expect(screen.getByRole('heading').textContent).toBe('Wohin zuerst?');
     expect(screen.queryByRole('button', { name: 'Weiter' })).toBeNull();
@@ -133,24 +131,6 @@ describe('Ankunft nach der Anmeldung', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Map' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).not.toBe('hidden');
-  });
-
-  it('fuehrt auf der Sammel-Seite das Aufdecken vor: verdeckt, dann umgedreht, antippbar', async () => {
-    render(<SignInReward />);
-    await arrive();
-    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
-    act(() => void vi.advanceTimersByTime(3600));
-    for (let step = 0; step < 4; step++)
-      fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
-
-    expect(screen.getByRole('heading').textContent).toBe('Hingehen. Aufdecken. Sammeln.');
-    const flipper = screen.getByTestId('tour-flipper');
-    expect(flipper.className).toContain('flipped');
-    act(() => void vi.advanceTimersByTime(800));
-    expect(flipper.className).not.toContain('flipped');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
-    expect(flipper.className).toContain('flipped');
   });
 
   it('legt die gezogenen offenen Karten ins Pack — dieselben, die im Deck offen liegen', async () => {
@@ -202,7 +182,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     await arrive();
 
     expect(screen.getByRole('heading').textContent).toBe('Wer bist du?');
-    expect(screen.getByText('1 / 7')).toBeTruthy();
+    expect(screen.getByText('1 / 5')).toBeTruthy();
     const name = screen.getByLabelText('Dein Name') as HTMLInputElement;
     expect(name.value).toBe('Alex');
 
@@ -215,7 +195,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
 
     expect(identityStep.saveIdentity).toHaveBeenCalledWith('Alexa', 3);
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('2 / 7')).toBeTruthy();
+    expect(screen.getByText('2 / 5')).toBeTruthy();
   });
 
   it('laesst ohne Namen nicht weiter', async () => {
@@ -243,7 +223,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     render(<SignInReward />);
     await arrive();
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('1 / 6')).toBeTruthy();
+    expect(screen.getByText('1 / 4')).toBeTruthy();
   });
 });
 

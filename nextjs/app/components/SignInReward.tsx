@@ -49,33 +49,13 @@ const copy = {
       opening: 'Öffnet …',
       packAlt: 'Eat This Starter Pack',
     },
-    slides: [
-      {
-        tag: 'Die Map',
-        title: 'Die Berlin Food Map.',
-        body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
-        hint: '',
-        image: '/pics/home-phones/phone-map-ink-480.webp',
-        alt: 'Die Eat-This-Map mit Berliner Spots',
-      },
-      {
-        tag: 'Must Eats',
-        title: 'Wissen, was du bestellst.',
-        body: 'Must Eats sind unsere Tipps für konkrete Gerichte. Jede Karte zeigt dir, was du bei einem Spot probieren solltest.',
-        hint: '',
-        image: '/pics/card-front.webp?v=3',
-        alt: 'Eine Must-Eat-Sammelkarte',
-      },
-      {
-        tag: 'Deine Sammlung',
-        title: 'Hingehen. Aufdecken. Sammeln.',
-        body: 'Besuche die Spots und decke vor Ort neue Karten auf. Jede aufgedeckte Karte landet in deinem Deck.',
-        hint: 'In deinem Deck siehst du auch, wo du die noch verdeckten Karten findest.',
-        image: '/pics/card-front-sabich.webp',
-        alt: 'Eine aufgedeckte Must-Eat-Karte',
-        flip: 'Karte umdrehen',
-      },
-    ],
+    map: {
+      tag: 'Die Map',
+      title: 'Die Berlin Food Map.',
+      body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
+      image: '/pics/home-phones/phone-map-ink-480.webp',
+      alt: 'Die Eat-This-Map mit Berliner Spots',
+    },
     go: {
       tag: 'Los',
       title: 'Wohin zuerst?',
@@ -115,33 +95,13 @@ const copy = {
       opening: 'Opening …',
       packAlt: 'Eat This Starter Pack',
     },
-    slides: [
-      {
-        tag: 'The map',
-        title: 'Find your next great spot.',
-        body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
-        hint: '',
-        image: '/pics/home-phones/phone-map-ink-480.webp',
-        alt: 'The Eat This map with Berlin food spots',
-      },
-      {
-        tag: 'Must Eats',
-        title: 'Know what to order.',
-        body: 'Must Eats are our picks for specific dishes. Each card shows you what to try at a spot.',
-        hint: '',
-        image: '/pics/card-front.webp?v=3',
-        alt: 'A Must Eat collectible card',
-      },
-      {
-        tag: 'Your collection',
-        title: 'Visit. Reveal. Collect.',
-        body: 'Visit the spots and uncover new cards on location. Every card you reveal joins your deck.',
-        hint: 'Your deck also shows you where to find the cards still waiting to be revealed.',
-        image: '/pics/card-front-sabich.webp',
-        alt: 'A revealed Must Eat card',
-        flip: 'Flip the card',
-      },
-    ],
+    map: {
+      tag: 'The map',
+      title: 'Find your next great spot.',
+      body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
+      image: '/pics/home-phones/phone-map-ink-480.webp',
+      alt: 'The Eat This map with Berlin food spots',
+    },
     go: {
       tag: 'Go',
       title: 'Where to first?',
@@ -169,13 +129,9 @@ const IDENTITY_FORM = 'tour-identity';
  *  Charakter hat. */
 function pages(identity: Identity | null) {
   return identity
-    ? (['identity', 'pack', 'cards', 0, 1, 2, 'go'] as const)
-    : (['pack', 'cards', 0, 1, 2, 'go'] as const);
+    ? (['identity', 'pack', 'cards', 'map', 'go'] as const)
+    : (['pack', 'cards', 'map', 'go'] as const);
 }
-
-/** So lange liegt die Karte auf der Sammel-Seite verdeckt, bevor sie sich von
- *  selbst umdreht — wie in der Must-Eats-Erklaerung. */
-const FLIP_DELAY_MS = 800;
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 const CARD_FRONT = '/pics/card-front.webp?v=3';
@@ -222,8 +178,11 @@ const DECK_CARDS = [
 /**
  * Die Tour nach der ersten Pack-Vergabe — auf JEDEM Anmeldeweg, weil sie an
  * `/api/starter-pack` hängt und nicht an einer Seite (siehe signInArrival).
- * Wer gerade sein Pack bekommen hat, öffnet es zuerst; danach drei Seiten,
- * was man damit macht, und am Ende die zwei Orte, an denen es weitergeht.
+ * Wer gerade sein Pack bekommen hat, öffnet es zuerst und sieht, was drin
+ * ist; dann die Map, zu der die Karten fuehren, und am Ende die zwei Orte,
+ * an denen es weitergeht. Bis 22.09.2026 kamen danach noch „Must Eats" und
+ * „Hingehen. Aufdecken. Sammeln." — beide sagten, was der Stapel-Schritt
+ * schon gesagt hatte (Nutzer, 22.09.2026).
  *
  * Alles passt ohne Scrollen in den Viewport: die Bildfläche ist der einzige
  * Teil, der schrumpft, Texte und Knöpfe behalten ihre Größe.
@@ -237,11 +196,6 @@ export default function SignInReward() {
   /* Gesetzt, wenn das Konto noch keinen Charakter hat (Google — der
      Magic-Link fragt auf /welcome). Dann ist sie die erste Seite. */
   const [identity, setIdentity] = useState<Identity | null>(null);
-  /* Die Sammel-Seite fuehrt das Aufdecken vor: verdeckt rein, nach kurzem
-     Moment dreht sich die Karte. Antippen dreht sie selbst — und nimmt der
-     Automatik die Karte ab. */
-  const [cardDown, setCardDown] = useState(false);
-  const flipTimer = useRef<number | null>(null);
   /* Die offenen Karten des Packs, wie /api/starter-pack sie gezogen hat —
      dieselben zehn, die danach im Deck offen liegen. */
   const [faceUpIds, setFaceUpIds] = useState<string[]>([]);
@@ -350,23 +304,6 @@ export default function SignInReward() {
       document.removeEventListener('keydown', escape);
     };
   }, [open]);
-
-  const flipping = open && pages(identity)[step] === 2;
-  useEffect(() => {
-    if (!flipping) {
-      setCardDown(false);
-      return;
-    }
-    setCardDown(true);
-    flipTimer.current = window.setTimeout(() => {
-      flipTimer.current = null;
-      setCardDown(false);
-    }, FLIP_DELAY_MS);
-    return () => {
-      if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
-      flipTimer.current = null;
-    };
-  }, [flipping]);
 
   useEffect(() => {
     if (pack !== 'opening') return;
@@ -516,20 +453,18 @@ export default function SignInReward() {
               />
             ))}
             {pack !== 'open' && (
-              <div className={styles.packClip}>
-                <div className={styles.packWrapper}>
-                  <img
-                    className={styles.packBody}
-                    src="/pics/booster/booster_free.webp"
-                    alt={t.pack.packAlt}
-                  />
-                  <img
-                    className={styles.packSeal}
-                    src="/pics/booster/booster_free.webp"
-                    alt=""
-                    aria-hidden="true"
-                  />
-                </div>
+              <div className={styles.packWrapper}>
+                <img
+                  className={styles.packBody}
+                  src="/pics/booster/booster_free.webp"
+                  alt={t.pack.packAlt}
+                />
+                <img
+                  className={styles.packSeal}
+                  src="/pics/booster/booster_free.webp"
+                  alt=""
+                  aria-hidden="true"
+                />
               </div>
             )}
             {/* eslint-enable @next/next/no-img-element */}
@@ -617,50 +552,18 @@ export default function SignInReward() {
       </div>
     );
   } else {
-    const slide = t.slides[page];
-    const flipTap = () => {
-      if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
-      flipTimer.current = null;
-      setCardDown((down) => !down);
-    };
+    const slide = t.map;
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          {'flip' in slide ? (
-            <div className={styles.cardBox}>
-              <button
-                type="button"
-                className={styles.flipTap}
-                onClick={flipTap}
-                aria-label={slide.flip}
-              >
-                <div
-                  data-testid="tour-flipper"
-                  className={cardDown ? `${styles.flipper} ${styles.flipped}` : styles.flipper}
-                >
-                  {/* eslint-disable @next/next/no-img-element */}
-                  <img className={styles.face} src={slide.image} alt={slide.alt} />
-                  <img
-                    className={`${styles.face} ${styles.back}`}
-                    src={CARD_BACK}
-                    alt=""
-                    aria-hidden="true"
-                  />
-                  {/* eslint-enable @next/next/no-img-element */}
-                </div>
-              </button>
-            </div>
-          ) : (
-            <Image
-              key={slide.image}
-              src={slide.image}
-              alt={slide.alt}
-              fill
-              sizes="(max-width: 600px) 220px, 480px"
-              className={styles.image}
-              priority
-            />
-          )}
+          <Image
+            src={slide.image}
+            alt={slide.alt}
+            fill
+            sizes="(max-width: 600px) 220px, 480px"
+            className={styles.image}
+            priority
+          />
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{slide.tag}</p>
@@ -668,7 +571,6 @@ export default function SignInReward() {
             {slide.title}
           </h2>
           <p className={styles.body}>{slide.body}</p>
-          {slide.hint && <p className={styles.hint}>{slide.hint}</p>}
         </div>
       </div>
     );

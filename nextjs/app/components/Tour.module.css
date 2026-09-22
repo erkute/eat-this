@@ -200,16 +200,6 @@ a.quiet {
   --card-width: min(44cqw, 40cqh, 150px);
   --pack-width: calc(var(--card-width) * 1.3);
 }
-/* Nur das Pack wird beschnitten — es faellt am Ende nach unten weg und darf
-   dabei nicht ueber den Text rutschen. Die Karten liegen ausserhalb dieses
-   Rahmens und fliegen frei, bis aus dem Bildschirm. */
-.packClip {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  overflow: hidden;
-  pointer-events: none;
-}
 .packWrapper {
   position: absolute;
   width: var(--pack-width);
@@ -311,7 +301,9 @@ a.quiet {
   }
 }
 /* Die Huelle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 2,1 s),
-   erst dann faellt sie nach unten weg. */
+   erst dann faellt sie nach unten aus dem Bildschirm — nicht nur bis zur
+   Buehnenkante: dort wurde sie abgeschnitten und verschwand am Ende aus dem
+   Nichts (Nutzer, 22.09.2026). */
 @keyframes wrapperDrop {
   0%,
   5% {
@@ -332,7 +324,7 @@ a.quiet {
   78%,
   100% {
     clip-path: inset(7.5% 0 0 0);
-    transform: translateY(340px) rotate(3deg);
+    transform: translateY(calc(100vh + 100%)) rotate(3deg);
   }
 }
 /* Jede Karte: im Pack (hinter der Huelle), schiesst nach oben aus dem
@@ -391,8 +383,8 @@ a.quiet {
 }
 
 /* ── Die Karte, die sich umdreht ───────────────────────────────────────── */
-/* Die Must-Eats-Erklaerung und die Tour (Seite „Hingehen. Aufdecken.
-   Sammeln.") zeigen dieselbe Vorfuehrung: verdeckt, dann aufgedeckt. */
+/* Die Must-Eats-Erklaerung fuehrt damit das Aufdecken vor: verdeckt, dann
+   aufgedeckt. Sie liegt hier, weil diese Huelle ihr Layout ist. */
 /* Aus der Bildflaeche der Huelle gerechnet (sie ist ein Size-Container): so
    hoch wie moeglich, ohne breiter als die Flaeche zu werden. */
 .cardBox {

@@ -981,31 +981,45 @@
   }
 }
 
-/* Der Standort-Knopf reitet auf der Oberkante der Liste: kommt sie hoch,
-   wandert er mit, statt sich darunter zu verstecken oder auf ihr zu liegen.
-   Den Wert rechnet MapSectionBody pro Frame (die Kante haengt auf Telefonen an
-   der Scrollposition, davon weiss CSS nichts) und legt ihn als
-   `--locate-bottom` an den Karten-Koerper. Die Transition ist der Unterschied
-   zwischen Mitwandern und Kleben: der Wert springt pro Frame, der Knopf zieht
-   weich hinterher. Steht am Dateiende, weil `bottom` fuer `.fab` weiter oben
-   mehrfach gesetzt wird und hier die Reihenfolge entscheidet. */
-@media (max-width: 1023.98px) {
+/* Tablets: der Standort-Knopf reitet auf der Oberkante des Drag-Sheets. Den
+   Wert rechnet MapSectionBody (`--locate-bottom`), weil die Kante dort an
+   einem transformierten Sheet haengt, von dem CSS nichts weiss. Steht am
+   Dateiende, weil `bottom` fuer `.fab` weiter oben mehrfach gesetzt wird und
+   hier die Reihenfolge entscheidet. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
   .fab {
     bottom: var(--locate-bottom, calc(var(--phone-list-sheet-visible, 28dvh) + 14px));
     /* KEINE Transition auf `bottom`: der Knopf soll exakt so schnell laufen wie
-       die Liste, an deren Kante er sitzt. Eine weiche Nachführung sah aus, als
-       würde er der Liste hinterherhinken — jeder Frame setzt den Wert neu, und
-       genau dieser Wert soll auch gelten. Das `transform` behält seine
-       Transition: das ist der Abgang, keine Fahrt. */
+       die Kante, an der er sitzt. Das `transform` behaelt seine Transition:
+       das ist der Abgang, keine Fahrt. */
     transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   /* Ganz oben ist Schluss: kurz bevor der Knopf den Burger erreicht, gleitet
-     er seitlich raus — dieselbe Geste, mit der er beim Wechsel in die
-     Detailansicht geht. Beim Herunterziehen der Liste kommt er auf demselben
-     Weg zurück. */
+     er seitlich raus. */
   :global([data-map-body][data-locate-gone='true']) .fab {
     transform: translateX(calc(100% + 18px));
     pointer-events: none;
+  }
+}
+
+/* Telefon: der Knopf steht STILL (User, 22.09.2026: „das darf nicht so hin-
+   und herschieben"). Bis dahin ritt er auf der Oberkante der Liste — der Wert
+   kam pro Frame aus JS, und auf iOS kommt die Scrollposition dort ein, zwei
+   Frames zu spaet an: er zitterte gegen die Liste und flog bei jedem schnellen
+   Wisch seitlich raus und wieder rein.
+
+   Jetzt steht er ueber der Ruhekante der Liste und liegt UNTER ihr (die Liste
+   hat z-index 4): kommt sie hoch, schiebt sie sich einfach ueber ihn, zieht
+   man sie runter, ist er wieder da. Kein Rechnen, keine Bewegung. Im
+   Restaurant-Detail steht die Kante tiefer im Bild, am Kartenstreifen. */
+@media (max-width: 767.98px) {
+  .fab {
+    bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
+    z-index: 3;
+  }
+
+  :global([data-map-body][data-map-view='detail']) .fab {
+    bottom: calc(100dvh - var(--detail-map-peek, 50dvh) + 14px);
   }
 }

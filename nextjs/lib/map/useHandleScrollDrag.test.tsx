@@ -90,6 +90,18 @@ describe('pulling the list off the map', () => {
     expect(sheet().style.clipPath).toBe('');
   });
 
+  it('never takes the bar below its resting line over the map', () => {
+    /* Past that line the sticky bar would reach the bottom edge, and iOS
+       Safari tints its URL bar after it — black, and it stays black. */
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100, 0));
+    handle.dispatchEvent(pointer('pointermove', 1500, 40));
+
+    expect(sheet().style.transform).toBe(`translateY(${SHEET_DOC_TOP}px)`);
+    handle.dispatchEvent(pointer('pointerup', 1500, 80));
+  });
+
   it('springs back on a short, slow pull — the list stays where it was', async () => {
     window.scrollY = DEEP;
     drag(30, { steps: 6, msPerStep: 80 });

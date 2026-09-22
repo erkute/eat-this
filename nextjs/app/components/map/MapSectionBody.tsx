@@ -20,7 +20,6 @@ import {
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
-import { SHEET_SETTLED_EVENT } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -406,19 +405,18 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
      Runs in BOTH views. It used to be list-only, so search and burger left the
      screen at a different scroll position in the detail than in the list. */
-  /* Der Standort-Knopf reitet auf der Oberkante der Liste — er wandert mit,
-     wenn sie hochkommt, statt sich darunter zu verstecken (das tat er, solange
-     er im isolierten Kartenfenster hing) oder auf ihr zu liegen.
-
-     Gerechnet wird hier, nicht in CSS: auf Telefonen liegt die Liste im Fluss,
-     ihre Oberkante hängt an der Scrollposition, und davon weiß ein Stylesheet
+  /* Tablets: der Standort-Knopf reitet auf der Oberkante des Drag-Sheets —
+     er wandert mit, wenn es hochkommt. Gerechnet wird hier, nicht in CSS: die
+     Kante hängt an einem transformierten Sheet, davon weiß ein Stylesheet
      nichts. Nach oben gedeckelt, damit er nicht in Lupe und Burger läuft.
-     Dass er nicht KLEBT, macht der Nachlauf in der CSS-Transition: der Wert
-     springt pro Frame, der Knopf zieht weich hinterher. */
+
+     Telefone rechnen nichts: dort steht der Knopf still und die Liste schiebt
+     sich über ihn (MapControls.module.css). Pro Frame nachgeführt zitterte er
+     auf iOS gegen die Liste und flog bei jedem schnellen Wisch raus und rein. */
   const [locateBottom, setLocateBottom] = useState<number | null>(null);
   const [locateGone, setLocateGone] = useState(false);
   useEffect(() => {
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) {
+    if (!window.matchMedia('(min-width: 768px) and (max-width: 1023.98px)').matches) {
       setLocateBottom(null);
       setLocateGone(false);
       return;
@@ -467,20 +465,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     measure();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
-    /* Der Karte-/Liste-Knopf schiebt die Liste, statt zu scrollen — dabei
-       kommt kein Scroll-Ereignis, und der Knopf bliebe dort stehen, wo die
-       Liste vor der Fahrt war. Steht sie, einmal neu messen. */
-    const onSettled = () => {
-      lastTop = null;
-      measure();
-    };
-    window.addEventListener(SHEET_SETTLED_EVENT, onSettled);
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.clearTimeout(settle);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
-      window.removeEventListener(SHEET_SETTLED_EVENT, onSettled);
     };
   }, [sheetView, snap]);
 

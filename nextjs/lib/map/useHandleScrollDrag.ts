@@ -3,14 +3,13 @@ import { useEffect, type RefObject } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { measureSheetTop, resolveSnap, snapOffsets } from './phoneSheetSnaps';
 import {
-  dropToMap,
   forgetListPosition,
   grabFromList,
   grabFromMap,
   holdSheetAt,
   raiseToList,
   rememberedListPosition,
-  sinkBackToMap,
+  settleOnMap,
 } from './sheetSlide';
 
 const PHONE_MAX = 767.98;
@@ -40,6 +39,11 @@ type Drag =
       startY: number;
       base: number;
       offset: number;
+      /* Where the bar rests over the map, in slab offset. The finger cannot
+         take it lower: past that line the sticky bar would reach the bottom
+         edge, and iOS Safari tints its URL bar after it (see sheetSlide.ts). */
+      restLine: number;
+      mapY: number;
       lastY: number;
       lastT: number;
       v: number;
@@ -99,8 +103,12 @@ export function useHandleScrollDrag(
       e.preventDefault();
 
       const sheet = sheetEl();
-      const offsets = stops();
+      const sheetTop = measureSheetTop();
+      const offsets = snapOffsets(view, window.innerHeight, sheetTop);
       const sheetStop = offsets[offsets.length - 1];
+      const mapY = offsets[0];
+      /* The sheet's top edge on screen at the map stop. */
+      const restLine = Math.max(0, (sheetTop ?? 0) - mapY);
       const slab = (from: 'list' | 'map', base: number): Drag => ({
         kind: 'slab',
         from,
@@ -108,6 +116,8 @@ export function useHandleScrollDrag(
         startY: e.clientY,
         base,
         offset: base,
+        restLine,
+        mapY,
         lastY: e.clientY,
         lastT: e.timeStamp,
         v: 0,
@@ -118,12 +128,9 @@ export function useHandleScrollDrag(
           drag = slab('list', grabFromList(sheet));
           return;
         }
-        if (window.scrollY < sheetStop - AT_STOP_PX) {
-          const base = grabFromMap(sheet);
-          if (base !== null) {
-            drag = slab('map', base);
-            return;
-          }
+        if (window.scrollY < sheetStop - AT_STOP_PX && grabFromMap(sheet, restLine)) {
+          drag = slab('map', restLine);
+          return;
         }
       }
       drag = {
@@ -139,10 +146,7 @@ export function useHandleScrollDrag(
       if (drag.kind === 'slab') {
         const sheet = sheetEl();
         if (!sheet) return;
-        drag.offset = Math.min(
-          window.innerHeight,
-          Math.max(0, drag.base + (e.clientY - drag.startY))
-        );
+        drag.offset = Math.min(drag.restLine, Math.max(0, drag.base + (e.clientY - drag.startY)));
         const dt = e.timeStamp - drag.lastT;
         if (dt > 0) drag.v = (e.clientY - drag.lastY) / dt;
         drag.lastY = e.clientY;
@@ -173,19 +177,20 @@ export function useHandleScrollDrag(
         if (!sheet) return;
         const moved = d.offset - d.base;
         const tap = Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup';
-        const mapY = stops()[0];
         busy = true;
         let done: Promise<void>;
         if (d.from === 'list') {
           const toMap = tap || moved > INTENT_PX || d.v > FLICK_PX_PER_MS;
           if (toMap) trackEvent('map_view_toggle', { direction: 'to_map' });
-          done = toMap ? dropToMap(sheet, d.offset, mapY) : raiseToList(sheet, d.offset);
+          done = toMap
+            ? settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: true })
+            : raiseToList(sheet, d.offset);
         } else {
           const toList = tap || moved < -INTENT_PX || d.v < -FLICK_PX_PER_MS;
           if (toList) trackEvent('map_view_toggle', { direction: 'to_list' });
           done = toList
             ? raiseToList(sheet, d.offset)
-            : sinkBackToMap(sheet, d.offset, d.base, mapY);
+            : settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: false });
         }
         void done.finally(() => {
           busy = false;

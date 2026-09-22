@@ -5,16 +5,22 @@
  * The phone list is a window-scrolled document with the map as a sticky layer
  * behind it (see phoneSheetSnaps.ts). Deep in the list, the way back to the map
  * is the grabber in the sticky filter bar: pull it down and the list follows
- * the finger off the screen, let go and it drops away; the map is what stays.
+ * the finger, let go and it glides down to its resting place above the map.
  * Pull the bar up from the map again and the list comes back exactly where you
  * left it.
  *
  * Under the hood the list never scrolls through its rows on the way. The slab
- * on screen is moved by a transform, and the scroll position changes only
- * while none of the list is visible. Going back to the top by scrolling was
- * the old route, and iOS Safari runs a programmatic smooth scroll in a fixed
- * short time whatever the distance — from three thousand pixels down it read
- * as a jump.
+ * on screen is moved by a transform, and the scroll position changes only at
+ * the resting line, where the bar sits in the same place before and after.
+ * Going back to the top by scrolling was the old route, and iOS Safari runs a
+ * programmatic smooth scroll in a fixed short time whatever the distance —
+ * from three thousand pixels down it read as a jump.
+ *
+ * The bar never travels below its resting line. The first version let the
+ * slab drop out through the bottom of the screen, and on the way the sticky
+ * filter bar crossed the bottom edge: iOS Safari tints its URL bar after a
+ * sticky container at that edge and keeps the colour afterwards, so the
+ * translucent bar turned black (user, 22.09.2026).
  *
  * The document itself is never frozen, fixed or overflow-locked: it stays the
  * window-scrolled page it always was, which keeps it flowing behind Safari's
@@ -22,19 +28,9 @@
  * length of a gesture only.
  */
 
-/* Out: accelerates away, like a sheet let go of. */
-const EXIT_MS = 300;
-const EXIT_EASING = 'cubic-bezier(0.45, 0, 0.8, 0.4)';
-/* In / back: decelerates into its stop. */
+/* Decelerates into its stop. */
 const SETTLE_MS = 360;
 const SETTLE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
-
-/**
- * Fired on window once the sheet rests again after a gesture. The sheet moves
- * without a single scroll event, so anything that tracks its edge from scroll
- * events (the locate button) re-measures on this instead.
- */
-export const SHEET_SETTLED_EVENT = 'et:map-sheet-settled';
 
 /* Where the list was when it was pulled off the map; null = nothing to return
    to. Module state, because there is one map page and the filter effect in
@@ -78,23 +74,16 @@ export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
 function release(sheet: HTMLElement) {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
-  window.dispatchEvent(new Event(SHEET_SETTLED_EVENT));
 }
 
-function animate(
-  sheet: HTMLElement,
-  fromPx: number,
-  toPx: number,
-  duration: number,
-  easing: string
-): Promise<void> {
+function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> {
   holdSheetAt(sheet, toPx);
   if (reducedMotion() || typeof sheet.animate !== 'function' || fromPx === toPx) {
     return Promise.resolve();
   }
   const anim = sheet.animate(
     [{ transform: `translateY(${fromPx}px)` }, { transform: `translateY(${toPx}px)` }],
-    { duration, easing }
+    { duration: SETTLE_MS, easing: SETTLE_EASING }
   );
   return anim.finished.then(
     () => undefined,
@@ -113,53 +102,43 @@ export function grabFromList(sheet: HTMLElement): number {
 
 /**
  * Grab the resting sheet on the map while a list position is remembered: the
- * page jumps to that position with the slab held down where the sheet's top
- * edge was, so the pull brings up the rows you left, not the list top.
- * Returns the offset the drag starts from, or null with nothing to return to.
+ * page jumps to that position with the slab held down at the resting line, so
+ * the pull brings up the rows you left, not the list top. The bar itself does
+ * not move — it is at the top of the slab either way.
  */
-export function grabFromMap(sheet: HTMLElement): number | null {
+export function grabFromMap(sheet: HTMLElement, restLinePx: number): boolean {
   const back = rememberedListY;
-  if (back == null) return null;
-  const edge = Math.max(0, sheet.getBoundingClientRect().top);
+  if (back == null) return false;
   /* The document can be shorter than when we left — clamp inside it. */
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   window.scrollTo({ top: Math.min(back, maxY), behavior: 'instant' });
-  holdSheetAt(sheet, edge);
+  holdSheetAt(sheet, restLinePx);
   clipAbove(sheet);
-  return edge;
+  return true;
 }
 
-/** Let go towards the map: the slab drops out, and the sheet rises back in
- *  from below at the map stop. */
-export async function dropToMap(sheet: HTMLElement, fromPx: number, mapY: number): Promise<void> {
-  rememberedListY = window.scrollY;
-  await animate(sheet, fromPx, window.innerHeight, EXIT_MS, EXIT_EASING);
-  /* `instant`, not `auto`: html carries scroll-behavior: smooth. The hold
-     below runs in the same task as the jump, so no frame shows the sheet
-     unmoved at its new stop. */
+/**
+ * Let go towards the map: the slab glides down to the resting line, and the
+ * page returns to the map stop underneath it — the bar stands in the same place
+ * before and after, only the rows below it change back to the list top.
+ */
+export async function settleOnMap(
+  sheet: HTMLElement,
+  fromPx: number,
+  restLinePx: number,
+  mapY: number,
+  { remember }: { remember: boolean }
+): Promise<void> {
+  if (remember) rememberedListY = window.scrollY;
+  await glide(sheet, fromPx, restLinePx);
+  /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
+     runs in the same task as the jump, so no frame shows the sheet twice. */
   window.scrollTo({ top: mapY, behavior: 'instant' });
-  holdSheetAt(sheet, 0);
-  clipAbove(sheet);
-  const top = Math.max(0, sheet.getBoundingClientRect().top);
-  await animate(sheet, window.innerHeight - top, 0, SETTLE_MS, SETTLE_EASING);
   release(sheet);
 }
 
 /** Let go towards the list: the slab rises until it covers the map. */
 export async function raiseToList(sheet: HTMLElement, fromPx: number): Promise<void> {
-  await animate(sheet, fromPx, 0, SETTLE_MS, SETTLE_EASING);
-  release(sheet);
-}
-
-/** A pull from the map that was not meant: the slab sinks back to where the
- *  sheet's edge was, and the page returns to the map stop underneath it. */
-export async function sinkBackToMap(
-  sheet: HTMLElement,
-  fromPx: number,
-  restPx: number,
-  mapY: number
-): Promise<void> {
-  await animate(sheet, fromPx, restPx, SETTLE_MS, SETTLE_EASING);
-  window.scrollTo({ top: mapY, behavior: 'instant' });
+  await glide(sheet, fromPx, 0);
   release(sheet);
 }

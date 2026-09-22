@@ -33,6 +33,7 @@ async function triggerGuestMagicLink(email: string, locale: 'de' | 'en', stripeS
     email,
     continueUrl,
     appUrl: origin,
+    locale,
     idempotencyKey: `stripe-guest-magic-link/${stripeSessionId}`,
   });
   if (!result.ok) {

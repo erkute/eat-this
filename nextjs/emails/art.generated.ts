@@ -66,5 +66,33 @@ export const ART = {
     "height": 17,
     "alt": "SCHON MAL REINSCHAUEN",
     "version": "abf1d1c9"
+  },
+  "headlineLoginEn": {
+    "id": "headline-login-en",
+    "width": 326,
+    "height": 113,
+    "alt": "WELCOME BACK",
+    "version": "dffe6405"
+  },
+  "kickerSignupEn": {
+    "id": "kicker-signup-en",
+    "width": 186,
+    "height": 23,
+    "alt": "BERLIN'S MUST EATS",
+    "version": "5e861d95"
+  },
+  "kickerLoginEn": {
+    "id": "kicker-login-en",
+    "width": 227,
+    "height": 23,
+    "alt": "GOOD TO SEE YOU AGAIN",
+    "version": "38d73f8a"
+  },
+  "titleSpotsEn": {
+    "id": "title-spots-en",
+    "width": 142,
+    "height": 17,
+    "alt": "TAKE A PEEK",
+    "version": "58a7d00f"
   }
 } as const satisfies Record<string, ArtAsset>;

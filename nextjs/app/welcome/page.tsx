@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -15,30 +15,21 @@ import { routing } from '@/i18n/routing';
 import { postSignInTarget } from '@/lib/auth/postSignInTarget';
 import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { handoffEvent } from '@/lib/analytics';
+import { welcomeLocale, type WelcomeLocale } from '@/lib/auth/welcomeLocale';
+import { WELCOME_COPY, type WelcomeCopy } from './copy';
 import styles from './auth-action.module.css';
 
 // /welcome lives under its own root layout (separate <html> tree); the
 // post-sign-in landing pages live under [locale]/. Crossing root layouts
 // with router.replace can silently no-op, so we hard-navigate via
 // window.location.assign to guarantee the page actually changes.
-function hardRedirectAfterSignIn() {
-  const locale = detectLocale();
+function hardRedirectAfterSignIn(locale: WelcomeLocale) {
   const home = locale === routing.defaultLocale ? '/' : `/${locale}`;
   // Kein Übergangseffekt: hier wartet jemand darauf, dass der Login endlich
   // durch ist. Ein gelber Vorhang stand hier mal, um den weissen Blitz beim
   // Wechsel der Root-Layouts zu verdecken — er navigierte aber 40ms vor Ende
   // seiner eigenen Animation, deckte also nie, und kostete 380ms Wartezeit.
   window.location.assign(postSignInTarget(window.location.search, window.location.origin, home));
-}
-
-// /welcome lives outside [locale], so there is no NextIntlClientProvider.
-// Read the locale from the cookie next-intl writes on every visit, fall back
-// to default. Used only for the post-login redirect URL.
-function detectLocale(): string {
-  if (typeof document === 'undefined') return routing.defaultLocale;
-  const m = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
-  const v = m ? decodeURIComponent(m[1]) : '';
-  return (routing.locales as readonly string[]).includes(v) ? v : routing.defaultLocale;
 }
 
 // The magic link carries the address as `e` inside its continueUrl (set by
@@ -85,10 +76,13 @@ type AvatarChoice = 1 | 2 | 3;
 
 // Named avatar tiles (mockup screen 14). The stored value is the number;
 // the label is just the picker caption.
+// Dieselben Namen wie im Avatar-Fenster der Seite (avatarChoice1–3 in
+// lib/i18n/translations.ts), in beiden Sprachen gleich. Bis zum 21.09.2026
+// hiessen sie nur hier anders.
 const AVATARS: { id: AvatarChoice; label: string }[] = [
-  { id: 1, label: 'Schnüffler' },
-  { id: 2, label: 'Nachtschwärmerin' },
-  { id: 3, label: 'Pizza-Pate' },
+  { id: 1, label: 'Spot Scout' },
+  { id: 2, label: 'Spice Diva' },
+  { id: 3, label: 'Chef Slice' },
 ];
 
 type State =
@@ -96,23 +90,27 @@ type State =
   | { kind: 'identity-preview' }
   | { kind: 'confirm-preview' }
   | { kind: 'confirm'; email: string; href: string; claimingCard: boolean }
-  | { kind: 'success'; title: string; sub: string }
+  | { kind: 'success' }
   | { kind: 'needs-email'; href: string }
   | { kind: 'needs-identity'; user: User; claimingCard: boolean }
-  | { kind: 'expired' }
-  | { kind: 'error'; title: string; sub: string };
+  | { kind: 'expired' };
 
 // First sign-in ever (no display name yet) → identity onboarding before the
 // redirect; returning users go straight home. Shared by the silent path and
 // the needs-email fallback.
-function finishSignIn(user: User, setState: (s: State) => void, claimingCard = false) {
+function finishSignIn(
+  user: User,
+  setState: (s: State) => void,
+  locale: WelcomeLocale,
+  claimingCard = false
+) {
   localStorage.removeItem('emailForSignIn');
   handoffEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
   if (!user.displayName) {
     setState({ kind: 'needs-identity', user, claimingCard });
     return;
   }
-  hardRedirectAfterSignIn();
+  hardRedirectAfterSignIn(locale);
 }
 
 export default function AuthActionPage() {
@@ -126,6 +124,19 @@ export default function AuthActionPage() {
 function AuthActionInner() {
   const params = useSearchParams();
   const [state, setState] = useState<State>({ kind: 'processing' });
+  const locale = useMemo(
+    () => welcomeLocale(params.toString(), typeof document === 'undefined' ? '' : document.cookie),
+    [params]
+  );
+  const t = WELCOME_COPY[locale];
+
+  // layout.tsx setzt lang="de" und den Titel statisch — die Sprache steht erst
+  // hier fest, im Client.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    // Nur den Seitennamen tauschen, das Marken-Suffix des Titel-Templates bleibt.
+    document.title = document.title.replace(/^[^|]*?(?=\s*\||$)/, t.docTitle);
+  }, [locale, t]);
 
   useEffect(() => {
     // Local design review only: never signs in or writes an account.
@@ -182,12 +193,8 @@ function AuthActionInner() {
     if (mode === 'verifyEmail' && oobCode) {
       applyActionCode(auth, oobCode)
         .then(() => {
-          setState({
-            kind: 'success',
-            title: 'Bestätigt.',
-            sub: 'Du wirst weitergeleitet …',
-          });
-          setTimeout(() => window.location.assign('/'), 1800);
+          setState({ kind: 'success' });
+          setTimeout(() => window.location.assign(locale === 'en' ? '/en' : '/'), 1800);
         })
         .catch(() => {
           setState({ kind: 'expired' });
@@ -196,7 +203,7 @@ function AuthActionInner() {
     }
 
     setState({ kind: 'expired' });
-  }, [params]);
+  }, [params, locale]);
 
   // The link check uses the same panel language as the onboarding.
   if (state.kind === 'processing') {
@@ -214,8 +221,8 @@ function AuthActionInner() {
               {/* eslint-enable @next/next/no-img-element */}
             </div>
             <div className={styles.splashCopy}>
-              <h1 className={styles.splashTitle}>Gleich geht’s los.</h1>
-              <p>Deine Anmeldung wird vorbereitet.</p>
+              <h1 className={styles.splashTitle}>{t.splashTitle}</h1>
+              <p>{t.splashSub}</p>
             </div>
           </div>
         </div>
@@ -245,17 +252,18 @@ function AuthActionInner() {
                 <polyline points="5 13 9 17 19 7" />
               </svg>
             </div>
-            <h1 className={styles.title}>{state.title}</h1>
-            <p className={styles.sub}>{state.sub}</p>
+            <h1 className={styles.title}>{t.verifiedTitle}</h1>
+            <p className={styles.sub}>{t.verifiedSub}</p>
           </>
         )}
 
         {state.kind === 'confirm-preview' && (
           <ConfirmSignIn
-            email="du@beispiel.de"
+            email={t.previewEmail}
             href=""
             claimingCard={false}
             setState={setState}
+            locale={locale}
             preview
           />
         )}
@@ -266,37 +274,29 @@ function AuthActionInner() {
             href={state.href}
             claimingCard={state.claimingCard}
             setState={setState}
+            locale={locale}
           />
         )}
 
-        {state.kind === 'needs-email' && <NeedsEmailForm href={state.href} setState={setState} />}
+        {state.kind === 'needs-email' && (
+          <NeedsEmailForm href={state.href} setState={setState} locale={locale} />
+        )}
 
-        {state.kind === 'identity-preview' && <IdentityForm preview claimingCard={false} />}
+        {state.kind === 'identity-preview' && (
+          <IdentityForm preview claimingCard={false} locale={locale} />
+        )}
 
         {state.kind === 'needs-identity' && (
-          <IdentityForm user={state.user} claimingCard={state.claimingCard} />
+          <IdentityForm user={state.user} claimingCard={state.claimingCard} locale={locale} />
         )}
 
         {state.kind === 'expired' && (
           <>
-            <p className={styles.kicker}>Sackgasse</p>
-            <h1 className={styles.title}>Dieser Link geht nicht mehr</h1>
-            <p className={styles.sub}>
-              Er ist abgelaufen oder wurde bereits verwendet. Starte den Login einfach noch einmal
-              von der Startseite.
-            </p>
-            <Link href="/" className={styles.cta}>
-              Startseite
-            </Link>
-          </>
-        )}
-
-        {state.kind === 'error' && (
-          <>
-            <h1 className={styles.title}>{state.title}</h1>
-            <p className={styles.sub}>{state.sub}</p>
-            <Link href="/" className={styles.cta}>
-              Startseite
+            <p className={styles.kicker}>{t.expiredKicker}</p>
+            <h1 className={styles.title}>{t.expiredTitle}</h1>
+            <p className={styles.sub}>{t.expiredSub}</p>
+            <Link href={locale === 'en' ? '/en' : '/'} className={styles.cta}>
+              {t.home}
             </Link>
           </>
         )}
@@ -307,12 +307,13 @@ function AuthActionInner() {
 
 // First-sign-in onboarding: pick name + avatar once, then land on Home.
 // Shown to every new account (the sign-in itself already happened).
-type IdentityProps = { claimingCard: boolean } & (
+type IdentityProps = { claimingCard: boolean; locale: WelcomeLocale } & (
   | { preview: true; user?: never }
   | { preview?: false; user: User }
 );
 
-function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
+function IdentityForm({ user, claimingCard, locale, preview = false }: IdentityProps) {
+  const t: WelcomeCopy = WELCOME_COPY[locale];
   const [name, setName] = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
   const [error, setError] = useState('');
@@ -323,7 +324,7 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
     if (!name.trim()) return;
     if (preview && process.env.NODE_ENV === 'development') {
       // Weiter wie nach einer echten Anmeldung: die Tour mit dem Pack.
-      window.location.assign('/?preview=welcome');
+      window.location.assign(`${locale === 'en' ? '/en' : '/'}?preview=welcome`);
       return;
     }
     if (!user) return;
@@ -346,37 +347,35 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
           })
         );
       } catch {}
-      hardRedirectAfterSignIn();
+      hardRedirectAfterSignIn(locale);
     } catch {
       setBusy(false);
-      setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
+      setError(t.genericError);
     }
   };
 
   return (
     <>
-      <p className={styles.kicker}>Willkommen bei Eat This</p>
-      <h1 className={styles.title}>Wer bist du?</h1>
-      <p className={styles.sub}>Wähle deinen Charakter.</p>
+      <p className={styles.kicker}>{t.identityKicker}</p>
+      <h1 className={styles.title}>{t.identityTitle}</h1>
+      <p className={styles.sub}>{t.identitySub}</p>
       {/* Der Faden zurück zu der einen Karte, für die das hier alles passiert.
           Ohne ihn ist dieses Formular eine Unterbrechung ohne erkennbaren
           Grund. */}
       {claimingCard && (
-        <p className={styles.sub}>
-          Danach geht’s zurück, wo du warst — deine Karte liegt dann offen im Pack.
-        </p>
+        <p className={styles.sub}>{t.identityCardNote}</p>
       )}
 
       <form onSubmit={submit} className={styles.form}>
         <div>
           <label className={styles.nameLabel} htmlFor="ob-name">
-            Dein Name
+            {t.nameLabel}
           </label>
           <input
             id="ob-name"
             type="text"
             autoComplete="given-name"
-            placeholder="Dein Name oder Spitzname"
+            placeholder={t.namePlaceholder}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -385,7 +384,7 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
           />
         </div>
 
-        <div className={styles.avatars} role="radiogroup" aria-label="Avatar auswählen">
+        <div className={styles.avatars} role="radiogroup" aria-label={t.avatarGroup}>
           {AVATARS.map(({ id, label }) => (
             <button
               key={id}
@@ -407,7 +406,7 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
 
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.cta} disabled={busy || !name.trim()}>
-          <span>{busy ? 'Speichern …' : 'Weiter'}</span>
+          <span>{busy ? t.saving : t.next}</span>
         </button>
       </form>
     </>
@@ -434,6 +433,7 @@ function ConfirmSignIn({
   href,
   claimingCard,
   setState,
+  locale,
   preview = false,
 }: {
   preview?: boolean;
@@ -441,7 +441,9 @@ function ConfirmSignIn({
   href: string;
   claimingCard: boolean;
   setState: (s: State) => void;
+  locale: WelcomeLocale;
 }) {
+  const t = WELCOME_COPY[locale];
   const submit = () => {
     if (preview && process.env.NODE_ENV === 'development') {
       setState({ kind: 'identity-preview' });
@@ -449,7 +451,7 @@ function ConfirmSignIn({
     }
     setState({ kind: 'processing' });
     signInWithEmailLink(auth, email, href)
-      .then((result) => finishSignIn(result.user, setState, claimingCard))
+      .then((result) => finishSignIn(result.user, setState, locale, claimingCard))
       .catch((err) => {
         console.warn('[welcome] signInWithEmailLink failed:', err);
         setState({ kind: 'expired' });
@@ -460,11 +462,11 @@ function ConfirmSignIn({
     <>
       <div className={styles.confirmHero}>
         <div className={styles.confirmHeading}>
-          <p className={styles.kicker}>Ein Klick noch</p>
+          <p className={styles.kicker}>{t.confirmKicker}</p>
           <h1 className={styles.title}>
-            Deine Map.
+            {t.confirmTitle[0]}
             <br />
-            Deine Sammlung.
+            {t.confirmTitle[1]}
           </h1>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -475,12 +477,12 @@ function ConfirmSignIn({
         />
       </div>
       <div className={styles.confirmIdentity}>
-        <span>Anmelden als</span>
+        <span>{t.confirmAs}</span>
         <strong>{email}</strong>
       </div>
-      {claimingCard && <p className={styles.confirmNote}>Deine Karte ist im Pack dabei.</p>}
+      {claimingCard && <p className={styles.confirmNote}>{t.confirmCardNote}</p>}
       <button type="button" className={styles.cta} onClick={submit}>
-        <span>Anmelden</span>
+        <span>{t.confirmCta}</span>
       </button>
     </>
   );
@@ -490,7 +492,16 @@ function ConfirmSignIn({
 // in a different browser than where they were requested (localStorage empty).
 // Firebase needs the address to complete the sign-in; identity onboarding
 // follows separately via finishSignIn.
-function NeedsEmailForm({ href, setState }: { href: string; setState: (s: State) => void }) {
+function NeedsEmailForm({
+  href,
+  setState,
+  locale,
+}: {
+  href: string;
+  setState: (s: State) => void;
+  locale: WelcomeLocale;
+}) {
+  const t = WELCOME_COPY[locale];
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -502,35 +513,32 @@ function NeedsEmailForm({ href, setState }: { href: string; setState: (s: State)
     setError('');
     try {
       const result = await signInWithEmailLink(auth, email.trim(), href);
-      finishSignIn(result.user, setState);
+      finishSignIn(result.user, setState, locale);
     } catch (err: unknown) {
       setBusy(false);
       const code = (err as { code?: string }).code ?? '';
       if (code === 'auth/invalid-email') {
-        setError('Bitte gib eine gültige E-Mail-Adresse ein.');
+        setError(t.emailInvalid);
       } else if (code === 'auth/expired-action-code' || code === 'auth/invalid-action-code') {
         setState({ kind: 'expired' });
       } else {
-        setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
+        setError(t.genericError);
       }
     }
   };
 
   return (
     <>
-      <p className={styles.kicker}>Noch ein Schritt</p>
-      <h1 className={styles.title}>Fast drin</h1>
-      <p className={styles.sub}>
-        Du hast den Link in einem anderen Browser geöffnet. Bestätige kurz die E-Mail-Adresse, an
-        die er geschickt wurde.
-      </p>
+      <p className={styles.kicker}>{t.emailKicker}</p>
+      <h1 className={styles.title}>{t.emailTitle}</h1>
+      <p className={styles.sub}>{t.emailSub}</p>
 
       <form onSubmit={submit} className={styles.form}>
         <input
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder="deine@email.com"
+          placeholder={t.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -539,7 +547,7 @@ function NeedsEmailForm({ href, setState }: { href: string; setState: (s: State)
 
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.cta} disabled={busy || !email}>
-          <span>{busy ? 'Anmelden …' : 'Weiter'}</span>
+          <span>{busy ? t.signingIn : t.next}</span>
         </button>
       </form>
     </>

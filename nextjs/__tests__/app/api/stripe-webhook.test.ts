@@ -278,6 +278,7 @@ describe('/api/stripe/webhook', () => {
       email: 'guest@example.com',
       continueUrl: 'https://trusted.example/en/profile',
       appUrl: 'https://trusted.example',
+      locale: 'en',
       idempotencyKey: 'stripe-guest-magic-link/cs_guest',
     })
     expect(mocks.markGuestMagicLinkSent).toHaveBeenCalledWith({

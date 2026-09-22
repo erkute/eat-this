@@ -21,8 +21,14 @@ vi.mock('@/lib/firebase/admin', () => ({
   }),
 }));
 vi.mock('@/lib/sanity.server', () => ({ getEmailSpots: mocks.getEmailSpots }));
-vi.mock('@/emails/SignupEmail', () => ({ default: () => null, SIGNUP_SUBJECT: 'signup' }));
-vi.mock('@/emails/LoginEmail', () => ({ default: () => null, LOGIN_SUBJECT: 'login' }));
+vi.mock('@/emails/SignupEmail', () => ({
+  default: () => null,
+  SIGNUP_SUBJECT: { de: 'signup', en: 'signup-en' },
+}));
+vi.mock('@/emails/LoginEmail', () => ({
+  default: () => null,
+  LOGIN_SUBJECT: { de: 'login', en: 'login-en' },
+}));
 vi.mock('@/emails/magicLinkText', () => ({
   buildLoginText: () => 'text',
   buildSignupText: () => 'text',
@@ -56,6 +62,7 @@ describe('sendMagicLinkEmail idempotency', () => {
         email: 'guest@example.com',
         continueUrl: 'https://staging.example.com/welcome',
         appUrl: 'https://staging.example.com',
+        locale: 'de',
       })
     ).resolves.toEqual({ ok: true });
 
@@ -72,6 +79,7 @@ describe('sendMagicLinkEmail idempotency', () => {
         email: 'guest@example.com',
         continueUrl: 'https://eatthis.test/profile',
         appUrl: 'https://eatthis.test',
+        locale: 'de',
         idempotencyKey: 'stripe-guest-magic-link/cs_test',
       })
     ).resolves.toEqual({ ok: true });
@@ -96,9 +104,46 @@ describe('sendMagicLinkEmail idempotency', () => {
         email: 'guest@example.com',
         continueUrl: 'https://eatthis.test/profile',
         appUrl: 'https://eatthis.test',
+        locale: 'de',
         idempotencyKey: 'stripe-guest-magic-link/cs_test',
       })
     ).resolves.toEqual({ ok: true });
+  });
+});
+
+describe('sendMagicLinkEmail Sprache', () => {
+  /* /welcome liegt ausserhalb von [locale]; die Sprache muss den Posteingang
+     ueberleben wie die Adresse — in der Continue-URL. */
+  it('legt lang in die Continue-URL und waehlt den EN-Betreff', async () => {
+    await sendMagicLinkEmail({
+      email: 'guest@example.com',
+      continueUrl: 'https://eatthis.test/en/map?r=x',
+      appUrl: 'https://eatthis.test',
+      locale: 'en',
+    });
+    const url = new URL(mocks.generateLink.mock.calls[0][1].url);
+    expect(url.searchParams.get('lang')).toBe('en');
+    expect(url.searchParams.get('e')).toBe('guest@example.com');
+    expect(mocks.send).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: 'login-en' }),
+      undefined
+    );
+  });
+
+  it('setzt auch lang=de — ein alter EN-Cookie soll nicht gewinnen', async () => {
+    mocks.getUserByEmail.mockRejectedValueOnce(new Error('auth/user-not-found'));
+    await sendMagicLinkEmail({
+      email: 'guest@example.com',
+      continueUrl: 'https://eatthis.test/map?lang=en',
+      appUrl: 'https://eatthis.test',
+      locale: 'de',
+    });
+    const url = new URL(mocks.generateLink.mock.calls[0][1].url);
+    expect(url.searchParams.get('lang')).toBe('de');
+    expect(mocks.send).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: 'signup' }),
+      undefined
+    );
   });
 });
 

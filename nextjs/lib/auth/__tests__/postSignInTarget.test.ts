@@ -27,6 +27,11 @@ describe('postSignInTarget', () => {
     expect(target(`?continueUrl=${cu}`)).toBe('/map?r=vox');
   });
 
+  it('drops the language carrier too — the middleware would 308 on ?lang=', () => {
+    const cu = encodeURIComponent(`${ORIGIN}/en/map?r=vox&e=a%40b.c&lang=en`);
+    expect(target(`?continueUrl=${cu}`)).toBe('/en/map?r=vox');
+  });
+
   it('keeps the referrer the mail carried, unlike the email carrier', () => {
     // Gegenstueck zu `e`: der Einladende MUSS die Landung ueberleben. Auf
     // `/?ref=<uid>` setzt die Middleware den pending_referrer-Cookie ein

@@ -11,8 +11,10 @@ const spots = [
 const magicLink = 'https://x/verify?abc=1';
 const appUrl = 'https://www.eatthisdot.com';
 
-const signup = () => render(SignupEmail({ magicLink, appUrl, spots }));
-const login = () => render(LoginEmail({ magicLink, appUrl }));
+const signup = () => render(SignupEmail({ magicLink, appUrl, locale: 'de', spots }));
+const login = () => render(LoginEmail({ magicLink, appUrl, locale: 'de' }));
+const signupEn = () => render(SignupEmail({ magicLink, appUrl, locale: 'en', spots }));
+const loginEn = () => render(LoginEmail({ magicLink, appUrl, locale: 'en' }));
 
 describe('shared shell', () => {
   it('opens on the ink masthead and closes on the ink footer with the wordmark', async () => {
@@ -101,7 +103,7 @@ describe('LoginEmail', () => {
     expect(html).toContain('Einloggen');
     expect(html).toContain('WILLKOMMEN');
     expect(html).toContain('1 Stunde');
-    expect(LOGIN_SUBJECT).toContain('Login-Link');
+    expect(LOGIN_SUBJECT.de).toContain('Login-Link');
   });
 
   it('carries no product pitch and no artwork to fetch', async () => {
@@ -127,8 +129,8 @@ describe('SignupEmail', () => {
     expect(html).toContain('STARTER PACK');
     expect(html).toContain('Gratis');
     expect(html).toContain('/pics/email/booster_free.png');
-    expect(html).toContain('20 neue Must Eats');
-    expect(SIGNUP_SUBJECT).toContain('Willkommen');
+    expect(html).toContain('20 Must Eats, überall in Berlin verteilt.');
+    expect(SIGNUP_SUBJECT.de).toContain('Willkommen');
   });
 
   it('spots are pre-rendered static cards that deep-link onto the map', async () => {
@@ -166,12 +168,12 @@ describe('SignupEmail', () => {
 
   it('caps the spot rail at three so the mail stays short', async () => {
     const many = [...spots, { ...spots[0], slug: 'c' }, { ...spots[0], slug: 'd' }];
-    const html = await render(SignupEmail({ magicLink, appUrl, spots: many }));
+    const html = await render(SignupEmail({ magicLink, appUrl, locale: 'de', spots: many }));
     expect(html.match(/\/pics\/email\/spots\//g)?.length).toBe(3);
   });
 
   it('drops the spot section entirely when there is no content', async () => {
-    const html = await render(SignupEmail({ magicLink, appUrl, spots: [] }));
+    const html = await render(SignupEmail({ magicLink, appUrl, locale: 'de', spots: [] }));
     expect(html).not.toContain('/pics/email/spots/');
     expect(html).toContain('>Anmelden<');
   });
@@ -204,5 +206,54 @@ describe('SignupEmail', () => {
     ]) {
       expect(html).not.toContain(s);
     }
+  });
+});
+
+/* EN seit 21.09.2026: vorher bekam /en dieselbe deutsche Mail. Gleiche
+   Struktur, eigene Texte und eigene Grafiken — alles Deutsche muss raus. */
+describe('EN-Fassung', () => {
+  const GERMAN = [
+    'Anmelden',
+    'Einloggen',
+    'Stunde',
+    'Gratis',
+    'WILLKOMMEN',
+    'SCHÖN, DASS',
+    'WAS DU ESSEN',
+    'SCHON MAL',
+    'Datenschutz',
+    'AGB',
+    'Du bekommst',
+    'Alle Rechte',
+    'Die Eat-This-App',
+  ];
+
+  it('spricht in beiden Mails kein Wort Deutsch', async () => {
+    for (const html of [await signupEn(), await loginEn()]) {
+      expect(html).toContain('lang="en"');
+      for (const word of GERMAN) expect(html).not.toContain(word);
+      expect(html).toContain('1 hour');
+      expect(html).toContain('All rights reserved.');
+      expect(html).toContain('/en/datenschutz');
+    }
+  });
+
+  it('Anmelde-Mail: ein Wort im Knopf, Starter-Pack-Satz der Seite, EN-Grafiken', async () => {
+    const html = await signupEn();
+    expect(html).toContain('>Sign up<');
+    expect(html).toContain('20 Must Eats, spread all over Berlin.');
+    expect(html).toContain('>Free<');
+    expect(html).toContain('/pics/email/kicker-signup-en.png');
+    expect(html).toContain('/pics/email/title-spots-en.png');
+    expect(html).toContain('/en/map?r=sofi');
+    expect(SIGNUP_SUBJECT.en).toBe('Welcome to Eat This — your sign-up link');
+  });
+
+  it('Login-Mail: Sign in, WELCOME BACK', async () => {
+    const html = await loginEn();
+    expect(html).toContain('>Sign in<');
+    expect(html).toContain('WELCOME BACK');
+    expect(html).toContain('/pics/email/headline-login-en.png');
+    expect(LOGIN_SUBJECT.en).toBe('Your Eat This sign-in link');
   });
 });

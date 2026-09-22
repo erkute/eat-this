@@ -42,7 +42,7 @@ const copy = {
       opened: 'Deine ersten 20 Karten.',
       lead: '20 Must-Eat-Karten für deinen Start.',
       explain:
-        'Auf jeder Karte steht ein Gericht. Die offenen siehst du schon in deinem Deck. Die verdeckten gehen erst am Spot auf.',
+        'Auf jeder Karte steht ein Gericht. Die offenen siehst du schon in deinem Deck. Die verdeckten deckst du erst am Spot auf.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -52,7 +52,7 @@ const copy = {
     reveal: {
       tag: 'Am Spot',
       title: 'Antippen. Aufdecken.',
-      body: 'Bist du am Spot, tippst du die verdeckte Karte an. Sie dreht sich um. Dann weißt du, was du bestellen musst.',
+      body: 'Bist du am Spot, tippst du die verdeckte Karte an. Dann weißt du, was du bestellen musst, und die Karte landet in deinem Deck.',
       flip: 'Karte umdrehen',
       alt: 'Eine aufgedeckte Must-Eat-Karte',
     },
@@ -95,7 +95,7 @@ const copy = {
       opened: 'Your first 20 cards.',
       lead: '20 Must Eat cards to get you started.',
       explain:
-        'Every card is a dish. The open ones are already in your deck. The covered ones open at the spot.',
+        'Every card is a dish. The open ones are already in your deck. You reveal the covered ones at the spot.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',
@@ -105,7 +105,7 @@ const copy = {
     reveal: {
       tag: 'At the spot',
       title: 'Tap. Reveal.',
-      body: 'At the spot, tap the covered card. It flips over. Now you know what to order.',
+      body: 'At the spot, tap the covered card. Now you know what to order, and the card joins your deck.',
       flip: 'Flip the card',
       alt: 'A revealed Must Eat card',
     },

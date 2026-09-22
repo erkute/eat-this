@@ -1,11 +1,14 @@
 'use client';
 
-import { useId, useState, type FormEvent } from 'react';
+import { useCallback, useId, useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { useAuth, useMagicLink } from '@/lib/auth';
+import { useAuth, useGoogleSignIn, useMagicLink } from '@/lib/auth';
 import { isEmailish } from '@/lib/auth/emailShape';
 import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
+import { announceSignIn } from '@/lib/auth/signInArrival';
+import AuthScreen from '@/app/components/AuthScreen';
+import { GoogleMark } from '@/app/components/GoogleMark';
 import styles from '@/app/components/profile/Profile.module.css';
 import starter from '@/app/components/StarterPackSignup.module.css';
 import deck from './Deck.module.css';
@@ -43,7 +46,12 @@ const STARTER_ART = '/pics/booster/booster_free.webp';
  *
  * Das Werben braucht dafür keine eigene Mechanik: der geteilte Link trägt
  * `?ref=<uid>`, die Middleware hat das Cookie längst gesetzt (siehe
- * page.tsx). Wer sich von hier aus anmeldet, ist geworben.
+ * page.tsx). Wer sich von hier aus anmeldet, ist geworben — per Mail wie per
+ * Google. Der Google-Weg bleibt im selben Browser (Popup auf dieser Seite,
+ * Redirect zurück auf diese Adresse), dort liegt das Cookie, und der
+ * ReferralToastListener im Layout bestätigt am Auth-Wechsel, egal welcher Weg
+ * ihn ausgelöst hat. Nur die Mail braucht `ref` in der continueUrl, weil sie
+ * auf einem anderen Gerät geöffnet werden kann (send-magic-link).
  *
  * Angemeldet gibt es nichts anzumelden — dann führt dieselbe Fläche zum
  * eigenen Deck.
@@ -52,6 +60,26 @@ export default function DeckJoin({ name }: { name: string | null }) {
   const t = useTranslations('deck');
   const { user } = useAuth();
   const { sendLink, state, errorMessage, reset } = useMagicLink();
+  /* Der Google-Weg, wie im Starter-Pack-Formular der Startseite (seit
+     07.09.2026 dort, hier bis 21.09. nur die Mail). Nach der Haltezeit des
+     Wartescreens kommt der Toast — es sei denn, ein Starter Pack wird
+     vergeben, dann spricht dessen Einblendung (siehe signInArrival). */
+  const signedInLine = t('joinSignedIn');
+  const onSignedIn = useCallback(
+    () => announceSignIn(() => window.showNotification?.(signedInLine)),
+    [signedInLine]
+  );
+  const google = useGoogleSignIn({ onSettled: onSignedIn });
+  const tr = useTranslations();
+  const googleNote = google.noteKey ? tr(google.noteKey) : '';
+  /* Der Wartescreen steht in BEIDEN Zweigen: sobald Firebase den Nutzer
+     meldet, springt diese Komponente in den Angemeldet-Zweig, noch während
+     die Haltezeit läuft. Auf der Startseite bleibt die Tafel per
+     `data-guest-only` nur versteckt gemountet — hier wäre der Screen mit dem
+     Gast-Zweig schlagartig weg. */
+  const authScreen = google.phase !== 'idle' && (
+    <AuthScreen mode="in" leaving={google.phase === 'leaving'} />
+  );
   const emailId = useId();
   const errorId = `${emailId}-error`;
   const [email, setEmail] = useState('');
@@ -86,12 +114,16 @@ export default function DeckJoin({ name }: { name: string | null }) {
           </div>
         </div>
         {toMap}
+        {authScreen}
       </>
     );
   }
 
   const sent = state === 'sent';
-  const feedback = invalid || errorMessage;
+  // Nach dem verschickten Link ist die Google-Zeile Geschichte.
+  const feedback = invalid || errorMessage || (sent ? '' : googleNote);
+  // Ein Abbruch ist eine Entscheidung, kein Fehler: keine Alarm-Ansage dafür.
+  const feedbackRole = feedback === googleNote && google.note === 'cancelled' ? 'status' : 'alert';
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -155,14 +187,39 @@ export default function DeckJoin({ name }: { name: string | null }) {
           </form>
 
           {feedback ? (
-            <span id={errorId} className={starter.error} role="alert">
+            <span id={errorId} className={starter.error} role={feedbackRole}>
               {feedback}
             </span>
           ) : (
             !sent && <span className={starter.hint}>{t('joinHint')}</span>
           )}
+
+          {!sent && (
+            <>
+              <div className={starter.or} aria-hidden="true">
+                <span>{t('joinOr')}</span>
+              </div>
+              {/* Vorgewärmt erst, wenn die Hand zum Knopf geht — der
+                  Cookie-Hinweis verspricht, Google Sign-In lade nur bei
+                  Nutzung (siehe StarterPackSignup). */}
+              <button
+                type="button"
+                className={starter.google}
+                onClick={google.start}
+                onPointerEnter={google.prepare}
+                onPointerDown={google.prepare}
+                onFocus={google.prepare}
+                disabled={google.phase === 'busy'}
+              >
+                <GoogleMark />
+                <span>{t('joinGoogle')}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      {authScreen}
 
       {/* Kein zweiter Knopf: ein gleich lauter Ausgang neben der Anmeldung
           wäre eine Abzweigung, keine Alternative. */}

@@ -6,6 +6,7 @@ import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server';
 import { resolveEntitlements, type Entitlement } from '@/lib/firebase/entitlements';
+import { setPremiumAccessCookie } from '@/lib/must-eat/premium-access';
 import { sampleN } from '@/lib/referral/pools';
 import {
   STARTER_PACK_CARDS,
@@ -120,11 +121,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'write_failed' }, { status: 500 });
   }
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     granted: true,
     count: drawn.length,
     faceUp: mustEatIds.length,
+    /* Die offenen Karten selbst: die Tour zeigt beim Öffnen genau die, die
+       danach im Deck offen liegen — nicht irgendein Beispielgericht. */
+    faceUpIds: mustEatIds,
     /* Ob das Versprechen der Anmelde-Tafel eingelöst wurde. */
     wanted: wanted !== null && mustEatIds[0] === wanted,
   });
+  res.headers.set('Cache-Control', 'private, no-store');
+  /* Ihre Bilder sind nicht öffentlich — die Bild-Route liefert sie nur mit
+     der Capability. Dieselbe Menge, die /api/map-data jetzt setzen würde:
+     alles bisher Offene plus das Pack. */
+  try {
+    setPremiumAccessCookie(res, [...surface.faceUpIds, ...mustEatIds], uid);
+  } catch (err) {
+    /* Das Pack liegt schon — ohne Cookie zeigt die Tour Beispielkarten, und
+       /api/map-data setzt die Capability beim naechsten Laden. Kein 500er
+       fuer ein vergebenes Pack. */
+    Sentry.captureException(err, { extra: { uid, source: 'starter-pack-capability' } });
+  }
+  return res;
 }

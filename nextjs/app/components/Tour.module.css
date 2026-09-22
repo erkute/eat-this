@@ -12,6 +12,9 @@
   padding: 24px;
   background: rgba(0, 0, 0, 0.88);
   overscroll-behavior: contain;
+  /* Die Karten des Packs fliegen ueber das Fenster hinaus — abgeschnitten
+     wird erst am Bildschirmrand, nie gescrollt. */
+  overflow: hidden;
 }
 .panel {
   display: grid;
@@ -26,6 +29,10 @@
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   box-shadow: 0 24px 80px #0008;
   animation: arrive 260ms ease-out;
+}
+/* Waehrend das Pack aufgeht, schneidet das Fenster nichts ab. */
+.panel[data-flying] {
+  overflow: visible;
 }
 .header {
   display: flex;
@@ -187,7 +194,6 @@ a.quiet {
   inset: 0;
   container-type: size;
   isolation: isolate;
-  overflow: hidden;
   /* Aus der Buehne gerechnet, nicht aus dem Viewport: das Pack (1,91 × Karte
      hoch) und der aufgefaecherte Stapel (2,16 × Karte breit) passen so in
      jede Flaeche, die die Tour uebrig laesst. */
@@ -218,41 +224,68 @@ a.quiet {
   clip-path: inset(0 0 92% 0);
   transform-origin: 85% 8%;
 }
+/* Jede der 20 Karten traegt ihre Rolle als Variablen (SignInReward):
+   --side -1 = offener Stapel links, 1 = verdeckter rechts; --order ist die
+   Reihenfolge aus dem Pack, --level die Hoehe im Stapel, --tilt der Versatz. */
 .revealCard {
   position: absolute;
   width: var(--card-width);
   height: calc(var(--card-width) * 1.375);
   object-fit: contain;
-  top: 55%;
+  top: 50%;
   left: 50%;
-  filter: drop-shadow(0 8px 12px #0005);
+  filter: drop-shadow(0 3px 5px #0004);
   visibility: hidden;
   transform-origin: 50% 65%;
-}
-.revealFront {
-  --fan: -58%;
-  --turn: -4deg;
-  z-index: 1;
-}
-.revealBack {
-  --fan: 58%;
-  --turn: 4deg;
+  --stack: translate(calc(-50% + var(--side) * 58%), calc(-50% - var(--level) * 1.6px))
+    rotate(calc(var(--side) * 4deg + var(--tilt)));
 }
 .packStage[data-phase='opening'] .packBody {
-  animation: wrapperDrop 1900ms linear both;
+  animation: wrapperDrop 3600ms linear both;
 }
 .packStage[data-phase='opening'] .packSeal {
-  animation: tearSeal 1900ms linear both;
+  animation: tearSeal 2100ms linear both;
 }
+/* Eine nach der anderen: 75 ms Abstand, 350 ms nach dem Riss. Die letzte
+   (Nr. 19) landet nach 350 + 1425 + 1800 = 3575 ms — PACK_OPEN_MS ist 3600. */
 .packStage[data-phase='opening'] .revealCard {
   visibility: visible;
-  animation: cardsEmerge 1900ms linear both;
+  animation: cardOut 1800ms linear both;
+  animation-delay: calc(350ms + var(--order) * 75ms);
 }
 .packStage[data-phase='open'] .revealCard {
   visibility: visible;
-  transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn));
+  transform: var(--stack);
 }
-/* Erst die Naht loesen; die Huelle bleibt davor geschlossen. */
+/* Die Stapel-Namen stehen nur auf dem Erklaer-Schritt — erst dann weiss man,
+   wozu die zwei Stapel da sind. Sie schieben sich von unten herein. */
+.stackLabel {
+  position: absolute;
+  top: calc(50% + var(--card-width) * 0.72 + 10px);
+  left: 50%;
+  width: calc(var(--card-width) * 1.1);
+  margin: 0;
+  color: var(--et-home-accent, #ffc600);
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  visibility: hidden;
+  transform: translate(calc(-50% + var(--side) * var(--card-width) * 0.58), 8px);
+  transition: transform 220ms ease-out;
+}
+.stackLabel[data-side='open'] {
+  --side: -1;
+}
+.stackLabel[data-side='covered'] {
+  --side: 1;
+}
+.packStage[data-labelled] .stackLabel {
+  visibility: visible;
+  transform: translate(calc(-50% + var(--side) * var(--card-width) * 0.58), 0);
+}
+/* Erst die Naht loesen; die Huelle bleibt davor geschlossen. Die Lasche
+   fliegt danach aus dem Bildschirm. */
 @keyframes tearSeal {
   0%,
   5% {
@@ -263,13 +296,22 @@ a.quiet {
     transform: translate(16px, -16px) rotate(9deg);
     animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
   }
-  42%,
+  42% {
+    transform: translate(120px, -70px) rotate(24deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  /* Dann fliegt sie aus dem Bild, schraeg nach oben rechts — vorher blieb
+     sie neben dem Pack liegen und war weg, sobald das Pack abgeraeumt
+     wurde (Nutzer, 22.09.2026). */
+  75%,
   100% {
-    transform: translate(200px, -85px) rotate(28deg);
+    transform: translate(calc(50vw + 100%), calc(-50vh - 200%)) rotate(75deg);
   }
 }
-/* Die Huelle verdeckt die Karten, bis diese durch die obere Oeffnung gleiten.
-   Erst nach dem sichtbaren Herausziehen faellt sie nach unten weg. */
+/* Die Huelle bleibt stehen, bis die letzte Karte oben heraus ist (≈ 2,1 s),
+   erst dann faellt sie nach unten aus dem Bildschirm — nicht nur bis zur
+   Buehnenkante: dort wurde sie abgeschnitten und verschwand am Ende aus dem
+   Nichts (Nutzer, 22.09.2026). */
 @keyframes wrapperDrop {
   0%,
   5% {
@@ -277,61 +319,230 @@ a.quiet {
     transform: translateY(0);
   }
   6%,
-  28% {
+  58% {
     clip-path: inset(7.5% 0 0 0);
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
   }
-  48% {
+  64% {
     clip-path: inset(7.5% 0 0 0);
     transform: translateY(18px);
     animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.5);
   }
-  74%,
+  78%,
   100% {
     clip-path: inset(7.5% 0 0 0);
-    transform: translateY(340px) rotate(3deg);
+    transform: translateY(calc(100vh + 100%)) rotate(3deg);
   }
 }
-/* Beide Karten sind bis 70 % ein schmaler Stapel in der Pack-Mitte.
-   Kein seitlicher Weg durch die Verpackung: erst hoch, dann auseinander. */
-@keyframes cardsEmerge {
-  0%,
-  22% {
+/* Jede Karte: im Pack (hinter der Huelle), schiesst nach oben aus dem
+   Bildschirm, wartet draussen, springt unsichtbar an ihre Rueckkehr-Seite
+   und fliegt von dort auf ihren Stapel. Die Wege rechnen in vw/vh — sie
+   fuehren ueber den Rand des Fensters hinaus (Nutzer, 22.09.2026).
+   --in-x/--in-y sind cos/sin der Rueckkehr-Richtung. */
+@keyframes cardOut {
+  /* Hinter dem Pack durch die Oeffnung nach oben — erst wenn die Karte ganz
+     ueber der Huelle steht (Unterkante ueber dem Pack-Rand, ≈ -175 %), kommt
+     sie nach vorn und schiesst davon. Vorher lag sie schon nach 5 % vor dem
+     Pack (Nutzer, 22.09.2026). */
+  0% {
+    z-index: 1;
     transform: translate(-50%, -40%);
-    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.75, 0.6);
   }
-  48% {
-    transform: translate(-50%, -76%);
-    animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
+  15% {
+    z-index: 1;
+    transform: translate(-50%, -178%);
   }
-  70% {
-    transform: translate(-50%, -84%);
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  15.1% {
+    z-index: 5;
+    transform: translate(-50%, -178%);
+    animation-timing-function: cubic-bezier(0.35, 0.3, 0.75, 1);
+  }
+  40% {
+    z-index: 5;
+    transform: translate(calc(-50% + var(--out-x)), calc(-100% - 100vh)) rotate(var(--out-spin));
+    animation-timing-function: steps(1, end);
+  }
+  62% {
+    z-index: 5;
+    transform: translate(
+        calc(-50% + var(--in-x) * (100vw + 100%)),
+        calc(-50% + var(--in-y) * (100vh + 100%))
+      )
+      rotate(var(--in-spin));
+    animation-timing-function: cubic-bezier(0.15, 0.7, 0.25, 1);
   }
   100% {
-    transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn));
+    z-index: 5;
+    transform: var(--stack);
   }
 }
-.facts {
+/* Zwei Texte uebereinander in einer Zelle: die Spalte ist so hoch wie der
+   groessere, nichts rutscht beim Weiterklicken. */
+.copyStack {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  margin-top: 22px;
 }
-.facts p {
+.copyStack > * {
+  grid-area: 1 / 1;
+}
+.copyHidden {
+  visibility: hidden;
+}
+
+/* ── Die Karte, die sich umdreht ───────────────────────────────────────── */
+/* Die Must-Eats-Erklaerung und die Tour (Schritt „Antippen. Aufdecken.")
+   zeigen dieselbe Vorfuehrung: verdeckt, dann aufgedeckt. */
+/* Aus der Bildflaeche der Huelle gerechnet (sie ist ein Size-Container): so
+   hoch wie moeglich, ohne breiter als die Flaeche zu werden. */
+.cardBox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(88cqh, 120cqw);
+  aspect-ratio: 1539 / 2115;
+  transform: translate(-50%, -50%);
+  perspective: 900px;
+}
+
+.flipTap {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flipTap:focus-visible {
+  transform: translateY(-4px) scale(1.02);
+}
+@media (hover: hover) {
+  .flipTap:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+}
+
+.flipper {
+  position: relative;
+  width: 100%;
+  /* Same aspect as the freigestellt card art (1539×2115) */
+  aspect-ratio: 1539 / 2115;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.flipped {
+  transform: rotateY(180deg);
+}
+/* The lift sits on the faces as a box-shadow, deliberately NOT as a
+   `filter: drop-shadow` on the flipper or any ancestor: a filter makes that
+   element a grouping element, which forces `transform-style: flat` on it. That
+   kills `backface-visibility` below, and the flipped card then shows its own
+   front mirrored instead of the card back. */
+.face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+  backface-visibility: hidden;
+}
+.back {
+  transform: rotateY(180deg);
+}
+
+/* ── Wer bist du? (Google-Konten, erste Seite) ─────────────────────────── */
+/* Die drei Charaktere stehen in der Bildflaeche und rechnen wie das Pack aus
+   ihr (cqw/cqh) — Name und Knopf behalten ihre Groesse. */
+.avatars {
+  position: absolute;
+  inset: 0;
   display: grid;
-  gap: 6px;
-  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: center;
+  gap: min(3cqw, 14px);
 }
-.facts strong {
-  font-size: 20px;
-  font-weight: 400;
-  color: var(--et-home-accent, #ffc600);
+.avatar {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: min(4cqh, 16px) 6px min(3cqh, 12px);
+  border: 2px solid transparent;
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--et-home-ink, #15120e);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 140ms ease;
 }
-.facts span {
+/* Gewaehlt: gelbe Kante und angehoben — nicht Farbe allein. */
+.avatarActive {
+  border-color: var(--et-home-accent, #ffc600);
+  transform: translateY(-4px);
+}
+@media (hover: hover) {
+  .avatar:hover {
+    transform: translateY(-3px);
+  }
+  .avatarActive:hover {
+    transform: translateY(-4px);
+  }
+}
+.avatar:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 3px;
+}
+.avatarImg {
+  width: min(100%, 44cqh, 120px);
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+.avatarName {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  hyphens: manual;
+}
+.nameLabel {
+  display: block;
+  margin: 22px 0 8px;
   font-size: 13px;
   color: #ffffffa6;
+}
+/* Papier auf Ink liest sich von allein als Feld — wie auf /welcome. */
+.nameInput {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  font-family:
+    var(--font-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 16px;
+  outline: none;
+}
+.nameInput::placeholder {
+  color: rgba(21, 18, 14, 0.48);
+}
+.nameInput:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+}
+.nameError {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--et-home-accent, #ffc600);
 }
 
 /* ── Letzte Seite: der Layer zweigeteilt, links Map, rechts Deck ──────── */
@@ -576,21 +787,18 @@ a.quiet {
     margin-top: 8px;
     font-size: 13px;
   }
-  .facts {
-    margin-top: 14px;
-    gap: 12px;
-  }
-  .facts strong {
-    font-size: 18px;
-  }
-  .facts span {
-    font-size: 12px;
-  }
   .actions {
     margin-top: 10px;
   }
   .action {
     min-width: 150px;
+  }
+  .nameLabel {
+    margin-top: 14px;
+    text-align: left;
+  }
+  .avatarName {
+    font-size: 12px;
   }
 }
 
@@ -633,8 +841,22 @@ a.quiet {
     animation: none;
   }
   .halfArt,
-  .halfLabel {
+  .halfLabel,
+  .avatar {
     transition: none;
+  }
+  .flipper {
+    transition: none;
+  }
+  .flipTap,
+  .flipTap:focus-visible {
+    transition: none;
+    transform: none;
+  }
+  @media (hover: hover) {
+    .flipTap:hover {
+      transform: none;
+    }
   }
   .packStage[data-phase='opening'] .packBody,
   .packStage[data-phase='opening'] .packSeal,

@@ -11,6 +11,7 @@
  *
  * Zwei Parameter werden dabei abgeraeumt, bevor die Adresse in eine Mail geht:
  *   e      — der Adress-Traeger des vorigen Links; hat seine Arbeit getan.
+ *   lang   — ebenso der Sprach-Traeger; die Route setzt ihn neu.
  *   heart  — wird hier neu gesetzt (oder eben nicht), nie geerbt.
  */
 
@@ -22,7 +23,7 @@ export interface LoginIntent {
   starterMustEatId?: string;
 }
 
-const DROPPED_PARAMS = ['e', 'heart', 'starter'] as const;
+const DROPPED_PARAMS = ['e', 'lang', 'heart', 'starter'] as const;
 
 /** Der Query-Parameter, der das ausstehende Herz durch den Posteingang traegt. */
 export const HEART_PARAM = 'heart';

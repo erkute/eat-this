@@ -166,7 +166,7 @@ const en = {
     // locked variant of its own — every match is a row, and this is the one
     // place that names the state.
     lockedDetailKicker: 'Still face down',
-    hiddenMustEatAria: 'Hidden Must-Eat',
+    hiddenMustEatAria: 'Hidden Must Eat',
     mustEatAtAria: 'Must Eat at {name}',
     // The covered card carries two lines: state on top, action below — and no
     // number at all. First "8.2 km to go" and "get within 50 m" stood on top of
@@ -506,7 +506,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     teaserTitle: 'Must Eats',
     teaserSub:
       'Gerichte, die du bestellen solltest. Einige zeigen wir dir direkt, andere deckst du erst vor Ort auf und sammelst sie in deinem Deck.',
-    teaserCta: 'Alle Must-Eats',
+    teaserCta: 'Alle Must Eats',
   },
   news: {},
   map: {
@@ -594,7 +594,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyReset: 'Filter zurücksetzen',
     emptyResetSearch: 'Suche löschen',
     lockedDetailKicker: 'Noch verdeckt',
-    hiddenMustEatAria: 'Verdecktes Must-Eat',
+    hiddenMustEatAria: 'Verdecktes Must Eat',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
     // Handlung — und gar keine Zahl mehr. Erst standen „Noch 8,2 km" und

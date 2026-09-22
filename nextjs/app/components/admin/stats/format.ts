@@ -74,7 +74,7 @@ export const EVENT_LABELS: Record<string, string> = {
   restaurant_maps_clicked: 'Route geklickt',
   restaurant_menu_clicked: 'Speisekarte geklickt',
   restaurant_reservation_clicked: 'Reservierung geklickt',
-  must_eat_opened: 'Must-Eat-Karte geöffnet',
+  must_eat_opened: 'Must Eat Karte geöffnet',
   must_eat_reveal_attempt: 'Karte angetippt (alle Ausgänge)',
   must_eat_reveal_login_required: 'Rücken getippt ohne Konto',
   must_eat_reveal_location_requested: 'Standort angefragt',

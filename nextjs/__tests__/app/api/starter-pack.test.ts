@@ -67,6 +67,11 @@ vi.mock('@/lib/map/visible-restaurants.server', () => ({
   }),
 }));
 
+const capability = vi.hoisted(() => ({ set: vi.fn() }));
+vi.mock('@/lib/must-eat/premium-access', () => ({
+  setPremiumAccessCookie: capability.set,
+}));
+
 import { POST } from '@/app/api/starter-pack/route';
 import { STARTER_PACK_CARDS, STARTER_PACK_FACE_UP } from '@/lib/starter-pack';
 
@@ -88,6 +93,7 @@ beforeEach(() => {
   mocks.created = [];
   mocks.createThrows = null;
   faceUp.ids = new Set<string>();
+  capability.set.mockReset();
 });
 
 describe('/api/starter-pack', () => {
@@ -109,18 +115,20 @@ describe('/api/starter-pack', () => {
     const res = await POST(req());
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      granted: true,
-      count: STARTER_PACK_CARDS,
-      faceUp: STARTER_PACK_FACE_UP,
-      wanted: false,
-    });
+    const body = await res.json();
     const doc = mocks.created[0] as {
       type: string;
       source: string;
       mustEatIds: string[];
       coveredMustEatIds: string[];
     };
+    expect(body).toEqual({
+      granted: true,
+      count: STARTER_PACK_CARDS,
+      faceUp: STARTER_PACK_FACE_UP,
+      faceUpIds: doc.mustEatIds,
+      wanted: false,
+    });
     expect(doc.type).toBe('starter');
     expect(doc.source).toBe('signup');
     expect(doc.mustEatIds).toHaveLength(STARTER_PACK_FACE_UP);
@@ -178,9 +186,40 @@ describe('/api/starter-pack', () => {
 
     const res = await POST(req());
 
-    expect(await res.json()).toEqual({ granted: true, count: 8, faceUp: 8, wanted: false });
-    const doc = mocks.created[0] as { coveredMustEatIds: string[] };
+    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
+    expect(await res.json()).toEqual({
+      granted: true,
+      count: 8,
+      faceUp: 8,
+      faceUpIds: doc.mustEatIds,
+      wanted: false,
+    });
     expect(doc.coveredMustEatIds).toHaveLength(0);
+  });
+
+  /* Die Tour zeigt beim Oeffnen die echten offenen Karten — deren Bilder
+     liefert die Bild-Route nur mit der Capability. Sie deckt das bisher
+     Offene UND das Pack, sonst verloere die Map ihre Bilder. */
+  it('frees the images of the new face-up cards along with everything already open', async () => {
+    faceUp.ids = new Set(['m01']);
+
+    await POST(req());
+
+    const doc = mocks.created[0] as { mustEatIds: string[] };
+    const [, ids, subject] = capability.set.mock.calls[0];
+    expect(subject).toBe('u1');
+    expect(new Set(ids)).toEqual(new Set(['m01', ...doc.mustEatIds]));
+  });
+
+  it('still answers "granted" when the capability cannot be signed', async () => {
+    capability.set.mockImplementation(() => {
+      throw new Error('PREMIUM_ACCESS_SIGNING_KEY is not configured');
+    });
+
+    const res = await POST(req());
+
+    expect(res.status).toBe(200);
+    expect((await res.json()).granted).toBe(true);
   });
 
   it('says "already claimed" instead of granting a second pack', async () => {

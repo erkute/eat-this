@@ -65,6 +65,7 @@ describe('/api/auth/send-magic-link referrer carrier', () => {
       email: 'friend@example.com',
       continueUrl: 'https://staging.example.com/',
       appUrl: 'https://staging.example.com',
+      locale: 'de',
     })
   })
 
@@ -110,6 +111,35 @@ describe('/api/auth/send-magic-link staging boundary', () => {
       email: 'guest@example.com',
       continueUrl: 'https://staging.example.com/',
       appUrl: 'https://staging.example.com',
+      locale: 'de',
     })
+  })
+})
+
+/* EN seit 21.09.2026: die Route benutzte das mitgeschickte `locale` nie, und
+   ohne eigene Continue-URL landete auch EN auf `/` — und `/` ist immer
+   Deutsch (localeDetection: false). */
+describe('/api/auth/send-magic-link Sprache', () => {
+  async function post(body: Record<string, unknown>) {
+    const { POST } = await import('@/app/api/auth/send-magic-link/route')
+    return POST(new Request('https://staging.example.com/api/auth/send-magic-link', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }))
+  }
+
+  it('gibt EN an die Mail weiter und faellt auf /en zurueck', async () => {
+    await post({ email: 'friend@example.com', locale: 'en' })
+    expect(mocks.sendMagicLinkEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: 'en', continueUrl: 'https://staging.example.com/en' }),
+    )
+  })
+
+  it('macht aus allem Unbekannten Deutsch', async () => {
+    await post({ email: 'friend@example.com', locale: 'fr' })
+    expect(mocks.sendMagicLinkEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: 'de', continueUrl: 'https://staging.example.com/' }),
+    )
   })
 })

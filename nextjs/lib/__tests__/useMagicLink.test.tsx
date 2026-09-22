@@ -57,7 +57,8 @@ describe('useMagicLink', () => {
       '/api/auth/send-magic-link',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ email: 'test@example.com' }),
+        // Die Sprache faehrt mit: die Route waehlt damit Mail und /welcome.
+        body: JSON.stringify({ email: 'test@example.com', locale: 'de' }),
       })
     );
   });

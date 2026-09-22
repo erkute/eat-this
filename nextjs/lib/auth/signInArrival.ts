@@ -25,14 +25,16 @@
  */
 
 type Listener = () => void;
+/** Bekommt die offenen Karten des frisch vergebenen Packs (Must-Eat-IDs). */
+type GrantedListener = (faceUpIds: string[]) => void;
 
 /** Eine Pack-Abfrage läuft: der Toast wartet ihre Antwort ab. */
 let checkPending = false;
 /** In diesem Seitenleben wurde ein Pack gemeldet — dann schweigt der Toast. */
 let packAnnounced = false;
 /** Die Meldung kam, bevor jemand zuhörte; der erste Abonnent bekommt sie. */
-let grantedLatched = false;
-const listeners = new Set<Listener>();
+let grantedLatched: string[] | null = null;
+const listeners = new Set<GrantedListener>();
 /** Der Toast, den `announceSignIn` zurückgestellt hat, bis die Abfrage steht. */
 let heldFallback: Listener | null = null;
 
@@ -43,16 +45,16 @@ export function startStarterPackCheck(): void {
 
 /** Nach der Antwort — auch nach einem Netzwerkfehler, sonst wartet der
  *  zurückgestellte Toast für immer. */
-export function finishStarterPackCheck(granted: boolean): void {
+export function finishStarterPackCheck(granted: boolean, faceUpIds: string[] = []): void {
   checkPending = false;
   if (granted) {
     packAnnounced = true;
     heldFallback = null;
     if (listeners.size === 0) {
-      grantedLatched = true;
+      grantedLatched = faceUpIds;
       return;
     }
-    for (const listener of listeners) listener();
+    for (const listener of listeners) listener(faceUpIds);
     return;
   }
   const fallback = heldFallback;
@@ -73,11 +75,12 @@ export function announceSignIn(fallback: Listener): void {
   fallback();
 }
 
-export function subscribeStarterPackGranted(listener: Listener): () => void {
+export function subscribeStarterPackGranted(listener: GrantedListener): () => void {
   listeners.add(listener);
   if (grantedLatched) {
-    grantedLatched = false;
-    listener();
+    const faceUpIds = grantedLatched;
+    grantedLatched = null;
+    listener(faceUpIds);
   }
   return () => {
     listeners.delete(listener);

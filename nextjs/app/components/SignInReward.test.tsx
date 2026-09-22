@@ -27,6 +27,13 @@ vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ lang: 'de', t: (key: string) => key }),
 }));
 
+/* Ob die Identitaetsseite kommt, fragt die Tour bei Firebase — hier gesteuert. */
+const identityStep = vi.hoisted(() => ({
+  identityStepPrefill: vi.fn(),
+  saveIdentity: vi.fn(),
+}));
+vi.mock('@/lib/auth/identityStep', () => identityStep);
+
 import SignInReward from './SignInReward';
 import AuthScreen from './AuthScreen';
 import {
@@ -44,7 +51,15 @@ async function freshModule() {
 
 beforeEach(() => {
   vi.useFakeTimers();
+  identityStep.identityStepPrefill.mockReset().mockResolvedValue(null);
+  identityStep.saveIdentity.mockReset().mockResolvedValue(undefined);
 });
+
+/* Die Tour geht erst auf, wenn feststeht, ob sie nach Name und Charakter
+   fragt — das ist ein Promise, also asynchron warten. */
+async function arrive() {
+  await act(async () => finishStarterPackCheck(true));
+}
 
 afterEach(() => {
   cleanup();
@@ -52,13 +67,13 @@ afterEach(() => {
 });
 
 describe('Ankunft nach der Anmeldung', () => {
-  it('erscheint, wenn das Starter Pack vergeben wurde — ohne Zustandswechsel im Dokument', () => {
+  it('erscheint, wenn das Starter Pack vergeben wurde — ohne Zustandswechsel im Dokument', async () => {
     render(<SignInReward />);
     expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
 
     /* Genau das, was nach einem Magic-Link passiert: frisch geladene Seite,
        niemand war hier je abgemeldet, die Vergabe meldet sich. */
-    act(() => {
+    await act(async () => {
       startStarterPackCheck();
       finishStarterPackCheck(true);
     });
@@ -75,35 +90,42 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
   });
 
-  it('bleibt sichtbar, bis der Nutzer selbst weitergeht', () => {
+  it('bleibt sichtbar, bis der Nutzer selbst weitergeht', async () => {
     render(<SignInReward />);
-    act(() => finishStarterPackCheck(true));
+    await arrive();
     act(() => void vi.advanceTimersByTime(60000));
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
   });
 
-  it('öffnet zuerst das Pack, führt dann durch die Funktionen und endet an zwei Türen', () => {
+  it('öffnet zuerst das Pack, führt dann durch die Funktionen und endet an zwei Türen', async () => {
     render(<SignInReward />);
-    act(() => finishStarterPackCheck(true));
+    await arrive();
     expect(document.body.style.overflow).toBe('hidden');
 
     fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
     expect((screen.getByRole('button', { name: 'Öffnet …' }) as HTMLButtonElement).disabled).toBe(
       true
     );
-    act(() => void vi.advanceTimersByTime(1900));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten Karten.');
-    expect(screen.getByText('10 verdeckt')).toBeTruthy();
+    /* Waehrend die Karten fliegen, bleibt der Text stehen ... */
+    act(() => void vi.advanceTimersByTime(3600));
+    expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
+    expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('true');
+
+    /* ... und kurz nachdem die Stapel liegen, kommt die Erklaerung von selbst. */
+    act(() => void vi.advanceTimersByTime(700));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+    expect(screen.getByText('10 offen').getAttribute('aria-hidden')).toBe('false');
+    expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('false');
 
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
-    expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
+    expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
-    expect(screen.getByRole('heading').textContent).toBe('Wissen, was du bestellst.');
-    fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
     expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
-    for (let step = 0; step < 3; step++)
-      fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
+    expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
 
     expect(screen.getByRole('heading').textContent).toBe('Wohin zuerst?');
     expect(screen.queryByRole('button', { name: 'Weiter' })).toBeNull();
@@ -113,24 +135,125 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(document.body.style.overflow).not.toBe('hidden');
   });
 
-  it('startet nicht unter dem Wartescreen — der ist fast deckend', () => {
+  it('legt die gezogenen offenen Karten ins Pack — dieselben, die im Deck offen liegen', async () => {
+    /* jsdom laedt keine Bilder — dieses Image meldet sich sofort als geladen. */
+    class LoadingImage {
+      onload: (() => void) | null = null;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    vi.stubGlobal('Image', LoadingImage);
+    render(<SignInReward />);
+    const faceUp = Array.from({ length: 10 }, (_, i) => `me-${i}`);
+    await act(async () => finishStarterPackCheck(true, faceUp));
+    await act(async () => {});
+    vi.unstubAllGlobals();
+
+    const sources = [...document.querySelectorAll('img')].map((img) => img.getAttribute('src'));
+    for (const id of faceUp)
+      expect(sources).toContain(`/api/must-eat-image/${id}?w=440&auto=format&q=80`);
+    expect(sources.filter((src) => src?.startsWith('/pics/card-back'))).toHaveLength(10);
+  });
+
+  it('fuehrt nach den Stapeln das Aufdecken vor: verdeckt, dann umgedreht, antippbar', async () => {
+    render(<SignInReward />);
+    await arrive();
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    act(() => void vi.advanceTimersByTime(3600));
+    act(() => void vi.advanceTimersByTime(700));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+
+    expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
+    const flipper = screen.getByTestId('tour-flipper');
+    expect(flipper.className).toContain('flipped');
+    act(() => void vi.advanceTimersByTime(800));
+    expect(flipper.className).not.toContain('flipped');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
+    expect(flipper.className).toContain('flipped');
+  });
+
+  it('ueberspringt nichts, wenn jemand vor der Automatik selbst weiterklickt', async () => {
+    render(<SignInReward />);
+    await arrive();
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    act(() => void vi.advanceTimersByTime(3600));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    act(() => void vi.advanceTimersByTime(700));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+  });
+
+  it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {
     const screenView = render(<AuthScreen mode="in" />);
     render(<SignInReward />);
-    act(() => finishStarterPackCheck(true));
+    await arrive();
 
     /* The tour must wait until the sign-in screen is gone. */
     expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
 
-    act(() => screenView.unmount());
+    await act(async () => screenView.unmount());
     expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
   });
 
-  it('laesst sich vorher wegklicken', () => {
+  it('laesst sich vorher wegklicken', async () => {
     render(<SignInReward />);
-    act(() => finishStarterPackCheck(true));
+    await arrive();
     fireEvent.click(screen.getByRole('button', { name: 'Überspringen' }));
     act(() => void vi.advanceTimersByTime(240));
     expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
+  });
+});
+
+describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
+  it('fragt zuerst nach Name und Charakter, speichert und oeffnet dann das Pack', async () => {
+    identityStep.identityStepPrefill.mockResolvedValue({ name: 'Alex' });
+    render(<SignInReward />);
+    await arrive();
+
+    expect(screen.getByRole('heading').textContent).toBe('Wer bist du?');
+    expect(screen.getByText('1 / 6')).toBeTruthy();
+    const name = screen.getByLabelText('Dein Name') as HTMLInputElement;
+    expect(name.value).toBe('Alex');
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Chef Slice' }));
+    expect(screen.getByRole('radio', { name: 'Chef Slice' }).getAttribute('aria-checked')).toBe(
+      'true'
+    );
+    fireEvent.change(name, { target: { value: '  Alexa ' } });
+    await act(async () => void fireEvent.click(screen.getByRole('button', { name: 'Weiter' })));
+
+    expect(identityStep.saveIdentity).toHaveBeenCalledWith('Alexa', 3);
+    expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
+    expect(screen.getByText('2 / 6')).toBeTruthy();
+  });
+
+  it('laesst ohne Namen nicht weiter', async () => {
+    identityStep.identityStepPrefill.mockResolvedValue({ name: '' });
+    render(<SignInReward />);
+    await arrive();
+    expect((screen.getByRole('button', { name: 'Weiter' }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
+  });
+
+  it('bleibt auf der Seite und sagt es, wenn das Speichern scheitert', async () => {
+    identityStep.identityStepPrefill.mockResolvedValue({ name: 'Alex' });
+    identityStep.saveIdentity.mockRejectedValue(new Error('offline'));
+    render(<SignInReward />);
+    await arrive();
+    await act(async () => void fireEvent.click(screen.getByRole('button', { name: 'Weiter' })));
+
+    expect(screen.getByRole('heading').textContent).toBe('Wer bist du?');
+    expect(screen.getByRole('alert').textContent).toMatch(/schiefgelaufen/);
+  });
+
+  it('laeuft ohne die Seite, wenn die Abfrage scheitert', async () => {
+    identityStep.identityStepPrefill.mockRejectedValue(new Error('offline'));
+    render(<SignInReward />);
+    await arrive();
+    expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
+    expect(screen.getByText('1 / 5')).toBeTruthy();
   });
 });
 
@@ -183,6 +306,14 @@ describe('Einblendung und Toast schliessen einander aus', () => {
     const seen = vi.fn();
     arrival.subscribeStarterPackGranted(seen);
     expect(seen).toHaveBeenCalledTimes(1);
+  });
+
+  it('reicht die offenen Karten auch an einen spaeten Zuhoerer weiter', async () => {
+    const arrival = await freshModule();
+    arrival.finishStarterPackCheck(true, ['a', 'b']);
+    const seen = vi.fn();
+    arrival.subscribeStarterPackGranted(seen);
+    expect(seen).toHaveBeenCalledWith(['a', 'b']);
   });
 });
 

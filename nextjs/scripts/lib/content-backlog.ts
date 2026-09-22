@@ -32,7 +32,7 @@ function surfaceScore(r: ContentRestaurant): { score: number; reasons: string[] 
   const reasons: string[] = [];
   if (r.mustEatCount > 0) {
     score += 100;
-    reasons.push(r.mustEatCount === 1 ? 'Must-Eat-Karte' : `${r.mustEatCount} Must-Eat-Karten`);
+    reasons.push(r.mustEatCount === 1 ? 'Must Eat Karte' : `${r.mustEatCount} Must Eat Karten`);
   }
   if (r.featured) {
     score += 50;

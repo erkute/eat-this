@@ -3,8 +3,9 @@ import '../globals.css';
 import { sans } from '@/app/fonts';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 
+// Kein `title` hier: der haengt an der Sprache des Links und steht deshalb
+// in page.tsx (generateMetadata).
 export const metadata: Metadata = {
-  title: 'Anmeldung',
   robots: { index: false, follow: false },
 };
 

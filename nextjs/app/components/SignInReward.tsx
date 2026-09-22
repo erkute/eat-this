@@ -14,7 +14,7 @@ import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
 
 /** Muss zur Laenge der Keyframes in SignInReward.module.css passen. */
-const PACK_OPEN_MS = 2100;
+const PACK_OPEN_MS = 2900;
 
 const copy = {
   de: {
@@ -183,24 +183,25 @@ const CARD_FRONT = '/pics/card-front.webp?v=3';
    (rechts), damit beide gleichzeitig wachsen. `level` ist die Hoehe im Stapel,
    `tilt` ein kleiner Versatz, damit der Stapel nach Karten aussieht. */
 const TILTS = [-1.5, 0.8, -0.4, 1.2, -1, 0.3, 1.5, -0.7, 0.6, -1.2];
-/* Unterwegs fliegt jede Karte zuerst an einen eigenen Punkt der Buehne —
-   im goldenen Winkel verteilt, damit die Wolke gleichmaessig und nie gleich
-   wirkt — und dreht sich dabei; erst von dort geht es auf den Stapel. Die
-   Punkte sind in cqw/cqh der Buehne, so bleibt die Wolke auf jedem Schirm
-   innerhalb der Bildflaeche. */
+/* Jede Karte schiesst oben aus dem Pack und aus dem Bild — jede etwas anders
+   gekippt — und kommt kurz darauf von einer anderen Seite zurueck auf ihren
+   Stapel. Die Rueckkehr-Richtungen sind im goldenen Winkel verteilt: links,
+   rechts, oben, unten, schraeg, nie zweimal gleich. */
 const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
   const covered = order % 2 === 1;
   const level = Math.floor(order / 2);
   const angle = (order * 137.5 * Math.PI) / 180;
-  const reach = 0.55 + (0.45 * ((order * 7) % 10)) / 10;
+  const round = (n: number) => Math.round(n * 100) / 100;
   return {
     order,
     covered,
     level,
     tilt: TILTS[level] ?? 0,
-    flyX: Math.round(Math.cos(angle) * reach * 26),
-    flyY: Math.round(Math.sin(angle) * reach * 12 - 4),
-    flySpin: (order % 2 ? 1 : -1) * (25 + ((order * 13) % 40)),
+    outX: ((order * 7) % 11) * 6 - 30,
+    outSpin: (order % 2 ? 1 : -1) * (20 + ((order * 13) % 50)),
+    inX: round(Math.cos(angle)),
+    inY: round(Math.sin(angle)),
+    inSpin: (order % 3 === 0 ? 1 : -1) * (90 + ((order * 29) % 120)),
   };
 });
 /* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
@@ -447,26 +448,30 @@ export default function SignInReward() {
                     '--order': card.order,
                     '--level': card.level,
                     '--tilt': `${card.tilt}deg`,
-                    '--fly-x': `${card.flyX}cqw`,
-                    '--fly-y': `${card.flyY}cqh`,
-                    '--fly-spin': `${card.flySpin}deg`,
+                    '--out-x': `${card.outX}cqw`,
+                    '--out-spin': `${card.outSpin}deg`,
+                    '--in-x': card.inX,
+                    '--in-y': card.inY,
+                    '--in-spin': `${card.inSpin}deg`,
                   } as React.CSSProperties
                 }
               />
             ))}
             {pack !== 'open' && (
-              <div className={styles.packWrapper}>
-                <img
-                  className={styles.packBody}
-                  src="/pics/booster/booster_free.webp"
-                  alt={t.pack.packAlt}
-                />
-                <img
-                  className={styles.packSeal}
-                  src="/pics/booster/booster_free.webp"
-                  alt=""
-                  aria-hidden="true"
-                />
+              <div className={styles.packClip}>
+                <div className={styles.packWrapper}>
+                  <img
+                    className={styles.packBody}
+                    src="/pics/booster/booster_free.webp"
+                    alt={t.pack.packAlt}
+                  />
+                  <img
+                    className={styles.packSeal}
+                    src="/pics/booster/booster_free.webp"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </div>
               </div>
             )}
             {/* eslint-enable @next/next/no-img-element */}
@@ -616,6 +621,7 @@ export default function SignInReward() {
       <div
         ref={panelRef}
         className={page === 'go' ? `${styles.panel} ${styles.panelGo}` : styles.panel}
+        data-flying={pack === 'opening' ? '' : undefined}
         role="dialog"
         aria-modal="true"
         aria-label={t.label}

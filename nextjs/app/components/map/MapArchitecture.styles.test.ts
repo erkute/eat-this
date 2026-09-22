@@ -112,6 +112,7 @@ describe('Map CSS architecture', () => {
       'markerRoot',
       'markerRootActive',
       'markerRootFree',
+      'pinCount',
       'pinLogo',
       'pinLogoActive',
       'pinLogoDim',

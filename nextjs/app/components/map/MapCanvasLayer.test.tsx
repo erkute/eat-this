@@ -29,6 +29,10 @@ vi.mock('./MapCanvas', () => {
   }
   return { default: MapCanvasStub };
 });
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: { count?: number }) =>
+    key === 'clusterLabel' ? `${values?.count} Spots` : key,
+}));
 vi.mock('./UserLocationMarker', () => ({ default: () => <div data-user-marker /> }));
 /* Die Bahnhofs-Ebene wird im Canvas gezeichnet, nicht im DOM — hier steht sie
    nur im Weg, weil sie MapLibre-Kontext braucht, den der Stub oben nicht hat. */
@@ -79,8 +83,17 @@ function layer(
 /* A map ref whose bounds cover Berlin-Mitte only, so the culling window can be
    exercised. `moveend` is registered but never fired — the initial read is
    what the assertions below depend on. */
-function mapRefWithBounds(west: number, south: number, east: number, north: number) {
+function mapRefWithBounds(
+  west: number,
+  south: number,
+  east: number,
+  north: number,
+  zoom = 12,
+  easeTo: (opts: unknown) => void = () => {}
+) {
   const map = {
+    getZoom: () => zoom,
+    easeTo,
     getBounds: () => ({
       getWest: () => west,
       getSouth: () => south,
@@ -207,5 +220,49 @@ describe('MapCanvasLayer dims everything but the open spot', () => {
 
     expect(dimmed()).toHaveLength(1);
     expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoDim/);
+  });
+});
+
+describe('MapCanvasLayer grouping when zoomed out', () => {
+  /* Two spots a street apart (~14px at z11) and one across town. */
+  const pair = () => [
+    spot('a', { lat: 52.52, lng: 13.405 }),
+    spot('b', { lat: 52.5215, lng: 13.405, mustEatCount: 1 }),
+  ];
+  const far = () => spot('far', { lat: 52.47, lng: 13.3 });
+  const berlin = [13.1, 52.35, 13.7, 52.7] as const;
+
+  it('leaves every pin on its own at the default zoom', async () => {
+    render(layerWithRef([...pair(), far()], mapRefWithBounds(...berlin, 12)));
+    await waitFor(() => expect(screen.getByLabelText('a')).toBeTruthy());
+
+    expect(screen.getByLabelText('b')).toBeTruthy();
+    expect(screen.queryByLabelText('2 Spots')).toBeNull();
+  });
+
+  it('merges neighbours into one pin with their count once zoomed out', async () => {
+    const { container } = render(layerWithRef([...pair(), far()], mapRefWithBounds(...berlin, 11)));
+    await waitFor(() => expect(screen.getByLabelText('2 Spots')).toBeTruthy());
+
+    expect(screen.queryByLabelText('a')).toBeNull();
+    expect(screen.queryByLabelText('b')).toBeNull();
+    // A lone spot stays a normal, openable pin.
+    expect(screen.getByLabelText('far')).toBeTruthy();
+    // The count is on the pin, and the Must Eat badge survives grouping.
+    const group = screen.getByLabelText('2 Spots');
+    expect(group.textContent).toBe('2');
+    expect(group.className).toMatch(/pinLogoHasMust/);
+    expect(container.querySelectorAll('[data-marker]')).toHaveLength(2);
+  });
+
+  it('zooms in until the group falls apart when tapped', async () => {
+    const easeTo = vi.fn();
+    render(layerWithRef(pair(), mapRefWithBounds(...berlin, 11, easeTo)));
+    const group = await screen.findByLabelText('2 Spots');
+
+    group.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+    expect(easeTo).toHaveBeenCalledTimes(1);
+    expect(easeTo.mock.calls[0][0]).toMatchObject({ zoom: 12 });
   });
 });

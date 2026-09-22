@@ -15,43 +15,45 @@ import SignupEmail, { SIGNUP_SUBJECT } from '@/emails/SignupEmail';
 import LoginEmail, { LOGIN_SUBJECT } from '@/emails/LoginEmail';
 import { buildLoginText, buildSignupText } from '@/emails/magicLinkText';
 import type { MailLocale } from '@/emails/locale';
-import { LANG_PARAM } from '@/lib/auth/welcomeLocale';
+import { EMAIL_LINK_EMAIL_PARAM, EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 
 type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
 /**
- * Rewrite the generated sign-in link so it lands on OUR /welcome — regardless
- * of what the Firebase project's action URL says.
+ * Der Link aus der Mail landet direkt auf der Seite, auf der die Anmeldung
+ * begann — mit dem Code im Gepäck. Dort geht die Bestätigungs-Tafel auf
+ * (EmailLinkSignIn), ein Klick, und die Tour läuft wie nach Google.
  *
- * The generated link is nothing but `<callbackUri>?<oobCode etc.>`, and
- * /welcome validates the QUERY (isSignInWithEmailLink checks mode + oobCode),
- * never the host. So the host is ours to choose — and it has to be, because
- * the project setting cannot be relied on: staging's sat on the Firebase
- * default (`…firebaseapp.com/__/auth/action`), whose handler silently
- * forwards to the continue URL without ever signing anyone in — "ich komme
- * auf die Staging-Seite, aber werde nicht eingeloggt" (user, 2026-08-26).
- * Fixing the setting is closed off too: both the console and the admin API
- * refuse with EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED, an anti-phishing restriction
- * on the project. So the server owns the link now; the console setting is
- * decoration. On production, whose callbackUri already points at
- * www.eatthisdot.com/welcome, this rewrite is a no-op by construction.
+ * Firebase erzeugt `<Action-Handler>?mode=…&oobCode=…&apiKey=…&continueUrl=…`.
+ * Übernommen werden nur die drei Parameter, die `signInWithEmailLink` liest;
+ * `continueUrl` ist die Zielseite selbst, und Firebases `lang` würde die
+ * Middleware als alten Sprachschalter lesen und mit 308 beantworten. Dazu
+ * kommt `e`, die Adresse: der Link öffnet routinemäßig in einem anderen
+ * Browser als dem, der ihn angefordert hat (Gmail-App → Chrome), und Firebase
+ * braucht sie zum Einlösen.
  *
- * The target origin comes from the continue URL — already validated against
- * the own-origin allow-list by every caller — so the link always lands on the
- * same deployment that asked for it.
+ * Der Host kommt aus der Continue-URL, nie aus der Projekt-Einstellung:
+ * Staging stand auf dem Firebase-Default-Handler, der stumm weiterleitet, ohne
+ * je jemanden anzumelden (26.08.2026), und umstellen lässt sich die
+ * Einstellung nicht (EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED). Bis 22.09.2026 ging
+ * der Link auf eine eigene Seite /welcome, die nach dem Klick hart auf die
+ * Zielseite weiterleitete.
  */
-export function rehostMagicLink(generated: string, continueUrl: string): string {
+export function landingLink(generated: string, continueUrl: string, email: string): string {
   try {
     const link = new URL(generated);
     const target = new URL(continueUrl);
-    link.protocol = target.protocol;
-    link.host = target.host;
-    link.pathname = '/welcome';
-    return link.toString();
+    for (const name of EMAIL_LINK_PARAMS) {
+      target.searchParams.delete(name);
+      if (name === EMAIL_LINK_EMAIL_PARAM) continue;
+      const value = link.searchParams.get(name);
+      if (value) target.searchParams.set(name, value);
+    }
+    target.searchParams.set(EMAIL_LINK_EMAIL_PARAM, email);
+    return target.toString();
   } catch {
-    // Non-absolute continueUrl — the same legacy fallback the `e`-param code
-    // above tolerates. A mail with Firebase's default handler still beats no
-    // mail at all.
+    // Keine absolute Continue-URL (rufen alle Aufrufer so nicht): lieber der
+    // unveränderte Firebase-Link als gar keine Mail.
     return generated;
   }
 }
@@ -64,42 +66,22 @@ export async function sendMagicLinkEmail(params: {
   continueUrl: string;
   /** Public base URL for email artwork. */
   appUrl: string;
-  /** Sprache der Mail und des /welcome-Screens, auf dem der Link landet. */
+  /** Sprache der Mail. Die Seite, auf der der Link landet, hat ihre eigene. */
   locale: MailLocale;
   /** Stable logical-send key for retry-safe trusted callers. */
   idempotencyKey?: string;
 }): Promise<SendMagicLinkResult> {
   const { email, continueUrl, appUrl, locale, idempotencyKey } = params;
 
-  // The continue URL doubles as the cross-browser email carrier: /welcome
-  // reads `e` to complete the sign-in when the link opens in a browser that
-  // never stored emailForSignIn (e.g. Gmail app handing off to Chrome while
-  // the link was requested in Safari). Trade-off: the address is visible in
-  // the link URL — acceptable, the link already sits in that very inbox.
-  let linkUrl = continueUrl;
-  try {
-    const u = new URL(continueUrl);
-    u.searchParams.set('e', email);
-    // /welcome liegt ausserhalb von [locale] und kennt die Sprache sonst nur
-    // aus dem NEXT_LOCALE-Cookie — den der fremde Browser (Gmail-App → Chrome)
-    // nicht hat. Derselbe Traeger wie `e`, aus demselben Grund.
-    // Auch `de` wird gesetzt: sonst sprache ein alter NEXT_LOCALE=en-Cookie
-    // fuer jemanden, der gerade von der deutschen Seite kommt.
-    u.searchParams.set(LANG_PARAM, locale);
-    linkUrl = u.toString();
-  } catch {
-    // Non-absolute continueUrl (shouldn't happen — callers build absolute
-    // URLs): fall back to the raw value, /welcome then asks for the email.
-  }
-
   let magicLink: string;
   try {
-    magicLink = rehostMagicLink(
+    magicLink = landingLink(
       await getAdminAuth().generateSignInWithEmailLink(email, {
-        url: linkUrl,
+        url: continueUrl,
         handleCodeInApp: true,
       }),
-      continueUrl
+      continueUrl,
+      email
     );
   } catch (err) {
     console.error('[sendMagicLink] generateSignInWithEmailLink failed:', err);

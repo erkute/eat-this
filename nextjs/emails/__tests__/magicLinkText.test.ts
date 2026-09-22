@@ -8,7 +8,7 @@ describe('auth mail plain-text parts', () => {
       buildSignupText('https://x/verify?z=1', 'de'),
     ]) {
       expect(t).toContain('https://x/verify?z=1');
-      expect(t).toContain('1 Stunde');
+      expect(t).toContain('eine Stunde gültig');
     }
   });
 
@@ -24,7 +24,9 @@ describe('auth mail plain-text parts', () => {
   it('the signup part names what an account is actually worth', () => {
     const t = buildSignupText('https://x/verify', 'de');
     expect(t).toContain('20 Must Eats');
-    expect(t).toContain('entdeckt');
+    // Nicht nur wohin, sondern was bestellen — das Versprechen seit 22.09.2026.
+    expect(t).toContain('was du');
+    expect(t).not.toContain('Gute Spots findest du überall');
     // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
     expect(t).not.toContain('Spots samt');
     expect(t).not.toContain('weitere Spots');
@@ -48,11 +50,11 @@ describe('auth mail plain-text parts', () => {
     const login = buildLoginText('https://x/v', 'en');
     const signup = buildSignupText('https://x/v', 'en');
     expect(login).toContain('Welcome back.');
-    expect(signup).toContain('20 Must Eats, spread all over Berlin.');
+    expect(signup).toContain('20 Must Eats to get you started.');
     for (const t of [login, signup]) {
       expect(t).toContain('https://x/v');
-      expect(t).toContain('1 hour');
-      expect(t).not.toMatch(/[äöüß]|Stunde|Link gilt|Adresse/);
+      expect(t).toContain('one hour');
+      expect(t).not.toMatch(/[äöüß]|Stunde|Anmeldelink|Adresse/);
     }
   });
 });

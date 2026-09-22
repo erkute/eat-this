@@ -23,7 +23,6 @@ describe('critical auth bootstrap', () => {
   it.each([
     'app/[locale]/layout.tsx',
     'app/not-found.tsx',
-    'app/welcome/layout.tsx',
   ])('links no third-party stylesheet from %s', (file) => {
     const source = readFileSync(join(process.cwd(), file), 'utf8')
     const sheets = source.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []

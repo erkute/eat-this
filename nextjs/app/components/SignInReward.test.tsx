@@ -205,7 +205,7 @@ describe('Ankunft nach der Anmeldung', () => {
   });
 });
 
-describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
+describe('Wer bist du? — fuer jedes Konto ohne Charakter, Magic-Link wie Google', () => {
   it('fragt zuerst nach Name und Charakter, speichert und oeffnet dann das Pack', async () => {
     identityStep.identityStepPrefill.mockResolvedValue({ name: 'Alex' });
     render(<SignInReward />);
@@ -228,7 +228,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     expect(screen.getByText('2 / 6')).toBeTruthy();
   });
 
-  it('laesst ohne Namen nicht weiter', async () => {
+  it('startet beim Magic-Link leer und laesst ohne Namen nicht weiter', async () => {
     identityStep.identityStepPrefill.mockResolvedValue({ name: '' });
     render(<SignInReward />);
     await arrive();

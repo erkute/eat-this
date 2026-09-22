@@ -56,8 +56,8 @@ const EVENTS = new Set([
   'consent_accepted',
   'consent_declined',
   'consent_gate_shown',
-  // `login` kommt aus welcome/page.tsx und fiel vorher doppelt durch: die
-  // Route war ungetrackt UND der Name stand nicht in dieser Liste.
+  // `login` kommt aus EmailLinkSignIn (Magic-Link) und stand bis 28.08.2026
+  // nicht in dieser Liste.
   'login',
   'login_link_sent',
   'login_start',

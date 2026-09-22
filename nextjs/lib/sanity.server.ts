@@ -16,7 +16,6 @@ import {
   allCategoriesQuery,
   allCategoriesWithStatsQuery,
   categoryBySlugQuery,
-  emailSpotsQuery,
   packContentsQuery,
 } from './queries';
 import type {
@@ -153,13 +152,7 @@ export async function getRestaurantPageData(slug: string): Promise<RestaurantPag
         // `newsArticle`, weil ein neuer oder umgeschriebener Artikel den
         // „Wir waren da"-Block auf JEDER darin verlinkten Restaurant-Seite
         // ändert — ohne den Tag bliebe er bis zum Revalidate-Intervall leer.
-        tags: [
-          `restaurant:${slug}`,
-          'restaurant',
-          'mustEat',
-          'newsArticle',
-          'restaurant-siblings',
-        ],
+        tags: [`restaurant:${slug}`, 'restaurant', 'mustEat', 'newsArticle', 'restaurant-siblings'],
       },
     }
   );
@@ -282,23 +275,6 @@ export async function getGuideTeaser(
     guideTeaserBySlugQuery,
     { slug, locale },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`article:${slug}`] } }
-  );
-}
-
-type EmailSpot = {
-  name: string;
-  slug: string;
-  area: string;
-  cuisine?: string;
-  photo: string;
-};
-
-// Curated spots for the magic-link email — public restaurant data only.
-export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
-  return client.fetch<EmailSpot[]>(
-    emailSpotsQuery,
-    { limit },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurant'] } }
   );
 }
 

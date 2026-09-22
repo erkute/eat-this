@@ -60,7 +60,7 @@ const en = {
     // Last slide, logged-out variant. Selling a paid Booster Pack to someone
     // without an account skips a rung: the free Starter Pack is the offer that
     // actually applies to them.
-    onbStarterKicker: 'Free',
+    onbStarterKicker: '20 Must Eats',
     onbStarterTitle: 'Starter Pack.',
     onbStarterBody: '10 straight into your deck. 10 more are waiting out in Berlin for you.',
     onbStarterCta: 'Sign up',
@@ -264,10 +264,11 @@ const en = {
     /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
        dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
        ein Freund daneben. */
-    joinKicker: 'Free',
     joinTitle: 'Starter Pack',
-    joinLead: '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there. Free.',
-    joinLeadAnon: '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there. Free.',
+    joinLead:
+      '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there.',
+    joinLeadAnon:
+      '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there.',
     joinSentLead: "We've sent your link. One click and you're in.",
     joinHint: 'We send you a sign-in link.',
     joinEmailLabel: 'Email address',
@@ -498,7 +499,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onb3Body:
       'Ganz Berlin liegt schon auf deiner Map. Ein Booster Pack dreht dir Karten um, ohne dass du hinmusst.',
     onbFlipAria: 'Karte umdrehen',
-    onbStarterKicker: 'Gratis',
+    onbStarterKicker: '20 Must Eats',
     onbStarterTitle: 'Starter Pack.',
     onbStarterBody: '10 direkt im Deck. 10 weitere warten draußen in Berlin auf dich.',
     onbStarterCta: 'Anmelden',
@@ -580,7 +581,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     pagerNext: 'Nächstes Must Eat',
     walkMinutes: 'zu Fuß',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+    starterPromoBody:
+      '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
     starterPromoLogin: 'Schon dabei? Einloggen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
@@ -717,11 +719,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     empty: 'Auf dieser Map liegen noch keine Karten.',
     /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
        auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
-       auf der Startseite — das Starter Pack, kostenlos. */
-    joinKicker: 'Gratis',
+       auf der Startseite — das Starter Pack. */
     joinTitle: 'Starter Pack',
-    joinLead: '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
-    joinLeadAnon: '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen. Kostenlos.',
+    joinLead:
+      '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
+    joinLeadAnon:
+      '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
     joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
     joinHint: 'Wir schicken dir einen Link zum Einloggen.',
     joinEmailLabel: 'E-Mail Adresse',
@@ -820,7 +823,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
        nirgends. */
     friendsHeading: 'Deine Crew',
-    friendsLine: 'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
+    friendsLine:
+      'Sie sind \u00fcber deinen Link gestartet. Tipp auf eine Figur und sieh dir ihr Deck an.',
     friendAnonymous: 'Namenlos',
     inviteCta: 'Deck teilen',
     inviteCopied: 'Link kopiert',
@@ -874,7 +878,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       backBtn: 'Zur\u00fcck',
       heroH1: 'Starter Pack',
       heroSub: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
-      modalBenefitLead: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+      modalBenefitLead:
+        '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
       signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
       signinBoosterLead: 'Dein Deck wartet. Mach da weiter, wo du aufgehört hast.',
       modalTagline: 'Anmelden',

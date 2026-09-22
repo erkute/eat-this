@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
 import SignInReward from '@/app/components/SignInReward';
+import EmailLinkSignIn from '@/app/components/EmailLinkSignIn';
 import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
@@ -104,6 +105,10 @@ export default async function LocaleLayout({
               Startseite, Spot-Seite, geteiltes Deck —, und der Schirm ist eine
               Fläche über der Seite, keine Kartenbeigabe. */}
           <SignInReward />
+          {/* Der Link aus der Anmelde-Mail landet auf der Seite, auf der die
+              Anmeldung begann — hier geht die Bestätigung auf. Vor
+              AnalyticsPageViews: sie räumt Code und Adresse aus der URL. */}
+          <EmailLinkSignIn />
           {/* Global toast (window.showNotification) — mounted here, not in the
               SPA layout, so /profile and /login get feedback too. Styled in
               globals.css (those routes don't load the SPA stylesheet). */}

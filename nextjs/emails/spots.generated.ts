@@ -6,7 +6,7 @@ export interface EmailSpot {
   slug: string;
   /** Nur für den Alt-Text; im Bild steht der Name bereits gesetzt. */
   name: string;
-  /** „Bezirk · Küche" für den Alt-Text. */
+  /** Der Bezirk, für den Alt-Text. */
   meta: string;
   /** Inhalts-Hash; haengt als ?v= an der Bild-URL, sonst cacht Gmail ewig. */
   version: string;
@@ -17,21 +17,21 @@ export const SPOT_DISPLAY_WIDTH = 536;
 
 export const EMAIL_SPOTS: readonly EmailSpot[] = [
   {
-    "slug": "sofi",
-    "name": "SOFI",
-    "meta": "Mitte · Bakery",
-    "version": "49c80c79"
+    slug: 'jones-ice-cream',
+    name: 'Jones Ice Cream',
+    meta: 'Schöneberg',
+    version: '10087d1c',
   },
   {
-    "slug": "gemello",
-    "name": "GEMELLO",
-    "meta": "Prenzlauer Berg · Italian",
-    "version": "fe38e423"
+    slug: 'hasir',
+    name: 'Hasir',
+    meta: 'Schöneberg',
+    version: 'b150eb6b',
   },
   {
-    "slug": "kitten-deli",
-    "name": "Kitten Deli",
-    "meta": "Neukölln · Bakery",
-    "version": "f045da60"
-  }
+    slug: 'schuesseldienst',
+    name: 'Schüsseldienst',
+    meta: 'Schöneberg',
+    version: '0fb4acdc',
+  },
 ];

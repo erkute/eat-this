@@ -60,20 +60,71 @@ interface ArtSpec {
    * das Original. `width` ist dann nur der Startwert für den Canvas.
    */
   sameSizeAs?: string;
+  /** Schriftschnitt; Default 700 (Headlines). Fliesstext steht in 400. */
+  weight?: 400 | 700;
+  /**
+   * Fliesstext statt Zeile: feste Schriftgroesse (`size`), Umbruch bei dieser
+   * Breite in CSS-Pixeln. `width` wird dann nicht angefahren, sondern ist nur
+   * die Obergrenze — die Grafik ist so breit, wie der Text laeuft.
+   */
+  wrap?: number;
+  /**
+   * Feste Zeilenhoehe in CSS-Pixeln statt eng beschnitten — fuer Grafiken, die
+   * in verschiedenen Fassungen gleich hoch sein muessen (Knopf-Wort).
+   */
+  lineBox?: number;
 }
 
-// Headlines mirror home: red, uppercase, tight leading, slight negative
-// tracking (--et-tracking-title). Section titles are the same voice one step
-// smaller, exactly like `.hv-title` next to its yellow marker square.
+// Headlines mirror home: uppercase, tight leading, slight negative tracking
+// (--et-tracking-title). Seit 22.09.2026 steht die Mail mittig (Betreiber),
+// also sind auch die Grafiken mittig gesetzt.
+//
+// Seit 22.09.2026 steht ALLES Gestaltete der Mail in der Markenschrift, auch
+// Fliesstext und Footer — die Seite setzt beides in Providence, und die Mail
+// wirkte daneben wie ein Fremdkoerper (Betreiber: "da wird nicht ueberall
+// meine Font benutzt"). Live-Text bleiben nur der Knopf, der Ersatz-Link
+// darunter und der Satz, warum die Mail kommt: ohne Bilder muss sich die Mail
+// noch bedienen lassen, und Spamfilter misstrauen Mails ohne echten Text.
+const KICKER = { color: COLOR.accent, bg: COLOR.surface, size: 14, letterSpacing: 1.2 } as const;
+
+/** Fliesstext: feste Groesse, Umbruch bei `wrap`. 340 px statt der vollen
+ *  Spaltenbreite, weil ein Bild auf dem Telefon mitschrumpft — so bleibt die
+ *  Schrift dort bei ihrer Groesse, statt auf 11 px zu fallen. */
+const PARAGRAPH = { weight: 400, size: 17, lineHeight: 1.45, wrap: 340, width: 340 } as const;
+
+/** Knopf-Wort wie `.action` in der Tour: Providence fett, Ink auf Gelb. */
+const CTA_LABEL = {
+  color: COLOR.onAccent,
+  bg: COLOR.accent,
+  size: 17,
+  align: 'center',
+  wrap: 300,
+  width: 300,
+  lineBox: 22,
+} as const;
+
+/** Footer-Zeilen wie im SiteFooter: Versalien, fett, leicht gesperrt. */
+const FOOTER_LINK = {
+  color: COLOR.text,
+  bg: COLOR.surface,
+  size: 13,
+  letterSpacing: 0.5,
+  // Mittig: dann hat jede Grafik links und rechts dieselbe Luft, und die
+  // Punkte zwischen den Links sitzen in der Mitte.
+  align: 'center',
+  wrap: 600,
+  width: 600,
+} as const;
+
 const ART: ArtSpec[] = [
   {
     id: 'headline-signup',
-    lines: ['WE TELL YOU', 'WHAT TO EAT'],
+    lines: ['WE TELL YOU', 'WHAT TO EAT.'],
     color: COLOR.text,
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
-    align: 'left',
+    align: 'center',
     width: 470,
   },
   {
@@ -83,18 +134,72 @@ const ART: ArtSpec[] = [
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
-    align: 'left',
+    align: 'center',
     width: 470,
   },
   {
-    id: 'title-starter-pack',
-    lines: ['STARTER PACK'],
+    id: 'kicker-signup',
+    lines: ['DEIN ZUGANG ZU EAT THIS'],
+    ...KICKER,
+    align: 'center',
+    width: 220,
+  },
+  {
+    id: 'kicker-login',
+    lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
+    ...KICKER,
+    align: 'center',
+    width: 276,
+  },
+  {
+    id: 'lead-signup',
+    lines: [
+      'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'center',
+  },
+  {
+    id: 'lead-login',
+    lines: ['Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.'],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'center',
+  },
+  {
+    id: 'kicker-starter',
+    lines: ['DEIN STARTER PACK'],
+    ...KICKER,
+    bg: COLOR.raised,
+    align: 'center',
+    width: 170,
+    sameSizeAs: 'kicker-signup',
+  },
+  {
+    id: 'title-starter',
+    lines: ['20 MUST EATS.', 'FÜR DEINEN START.'],
     color: COLOR.text,
+    bg: COLOR.raised,
     size: 30,
+    lineHeight: 1,
     letterSpacing: -0.5,
     align: 'center',
-    width: 210,
+    width: 330,
   },
+  {
+    id: 'body-starter',
+    lines: [
+      'Starte mit 20 Must Eat Empfehlungen in Berlin. Jede Karte verrät dir, was du an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du erst vor Ort auf.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.text,
+    bg: COLOR.raised,
+    align: 'center',
+  },
+
   {
     id: 'slogan-inverse',
     lines: ['WE TELL YOU WHAT TO EAT'],
@@ -105,43 +210,39 @@ const ART: ArtSpec[] = [
     align: 'center',
     width: 172,
   },
-  // Kicker — auf home ist die Zeile ueber der Hero-Headline `--et-font-label`,
-  // also ebenfalls Providence. Als Live-Text konnte sie das nie sein; hier
-  // traegt sie dieselbe Schrift wie alles andere Markige in der Mail.
-  // Die Zielbreiten stehen im Verhaeltnis der Zeichenzahl (21 vs. 29), damit
-  // beide Kicker optisch gleich gross wirken.
+  // Die Beschriftung des Knopfs. Der Knopf selbst bleibt ein echter Link mit
+  // gelber Flaeche; nur das Wort ist Bild, damit es in der Markenschrift steht
+  // wie jeder Knopf der Seite (Betreiber, 22.09.2026). Bei blockierten Bildern
+  // steht der Alt-Text auf dem Gelb — der Knopf ist nie leer.
+  { id: 'cta-anmelden', lines: ['Anmelden'], ...CTA_LABEL },
+  { id: 'cta-sign-up', lines: ['Sign up'], ...CTA_LABEL },
+  { id: 'cta-sign-in', lines: ['Sign in'], ...CTA_LABEL },
+  // FOOTER — dieselben Zeilen wie SiteFooter, in derselben Schrift.
+  { id: 'footer-follow', lines: ['FOLGEN'], ...FOOTER_LINK, color: COLOR.accent },
   {
-    id: 'kicker-signup',
-    lines: ['WAS DU ESSEN SOLLTEST'],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
-    align: 'left',
-    width: 200,
+    id: 'footer-instagram',
+    lines: ['INSTAGRAM'],
+    ...FOOTER_LINK,
+    weight: 400,
+    size: 30,
+    letterSpacing: 0,
   },
+  { id: 'footer-about', lines: ['ÜBER UNS'], ...FOOTER_LINK },
+  { id: 'footer-contact', lines: ['KONTAKT'], ...FOOTER_LINK },
+  { id: 'footer-impressum', lines: ['IMPRESSUM'], ...FOOTER_LINK },
+  { id: 'footer-datenschutz', lines: ['DATENSCHUTZ'], ...FOOTER_LINK },
+  { id: 'footer-agb', lines: ['AGB'], ...FOOTER_LINK },
   {
-    id: 'kicker-login',
-    lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
-    align: 'left',
-    width: 276,
+    id: 'footer-copyright',
+    lines: ['© 2026 EAT THIS. ALLE RECHTE VORBEHALTEN.'],
+    ...FOOTER_LINK,
+    size: 11,
+    letterSpacing: 0.66,
   },
-  {
-    id: 'title-spots',
-    lines: ['SCHON MAL REINSCHAUEN'],
-    color: COLOR.text,
-    size: 26,
-    letterSpacing: -0.5,
-    align: 'left',
-    width: 290,
-  },
-  // EN-Fassungen (21.09.2026). Gleiche Schriftgröße wie die DE-Grafik, die
-  // Breite ergibt sich aus dem Text. Alles Englische, das schon englisch war
-  // (Headline Anmeldung, Starter Pack, Slogan), wird in beiden Sprachen geteilt.
+
+  // EN-Fassungen. Gleiche Schriftgröße wie die DE-Grafik, die Breite ergibt
+  // sich aus dem Text. Was in beiden Sprachen gleich lautet (Headline der
+  // Anmeldung, Slogan, Impressum), gibt es nur einmal.
   {
     id: 'headline-login-en',
     lines: ['WELCOME', 'BACK'],
@@ -149,41 +250,87 @@ const ART: ArtSpec[] = [
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
-    align: 'left',
+    align: 'center',
     width: 470,
     sameSizeAs: 'headline-login',
   },
   {
     id: 'kicker-signup-en',
-    lines: ["BERLIN'S MUST EATS"],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
-    align: 'left',
-    width: 200,
+    lines: ['YOUR ACCESS TO EAT THIS'],
+    ...KICKER,
+    align: 'center',
+    width: 220,
     sameSizeAs: 'kicker-signup',
   },
   {
     id: 'kicker-login-en',
     lines: ['GOOD TO SEE YOU AGAIN'],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
-    align: 'left',
+    ...KICKER,
+    align: 'center',
     width: 276,
     sameSizeAs: 'kicker-login',
   },
   {
-    id: 'title-spots-en',
-    lines: ['TAKE A PEEK'],
+    id: 'lead-signup-en',
+    lines: [
+      'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'center',
+  },
+  {
+    id: 'lead-login-en',
+    lines: ['One click and your map is open, with everything you’ve already unlocked.'],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'center',
+  },
+  {
+    id: 'kicker-starter-en',
+    lines: ['YOUR STARTER PACK'],
+    ...KICKER,
+    bg: COLOR.raised,
+    align: 'center',
+    width: 170,
+    sameSizeAs: 'kicker-signup',
+  },
+  {
+    id: 'title-starter-en',
+    lines: ['20 MUST EATS.', 'TO GET YOU STARTED.'],
     color: COLOR.text,
-    size: 26,
+    bg: COLOR.raised,
+    size: 30,
+    lineHeight: 1,
     letterSpacing: -0.5,
-    align: 'left',
-    width: 290,
-    sameSizeAs: 'title-spots',
+    align: 'center',
+    width: 250,
+    sameSizeAs: 'title-starter',
+  },
+  {
+    id: 'body-starter-en',
+    lines: [
+      'Start with 20 Must Eat picks in Berlin. Every card tells you what to order at a spot. Some are already open, others you reveal on site.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.text,
+    bg: COLOR.raised,
+    align: 'center',
+  },
+
+  { id: 'footer-follow-en', lines: ['FOLLOW'], ...FOOTER_LINK, color: COLOR.accent },
+  { id: 'footer-about-en', lines: ['ABOUT'], ...FOOTER_LINK },
+  { id: 'footer-contact-en', lines: ['CONTACT'], ...FOOTER_LINK },
+  { id: 'footer-datenschutz-en', lines: ['PRIVACY'], ...FOOTER_LINK },
+  { id: 'footer-agb-en', lines: ['TERMS'], ...FOOTER_LINK },
+  {
+    id: 'footer-copyright-en',
+    lines: ['© 2026 EAT THIS. ALL RIGHTS RESERVED.'],
+    ...FOOTER_LINK,
+    size: 11,
+    letterSpacing: 0.66,
   },
 ];
 
@@ -198,8 +345,10 @@ async function rasterise(
   const size = fontSize1x * SCALE;
   // Generous canvas — the transparent surplus is trimmed off afterwards, so an
   // oversized canvas costs nothing but guarantees nothing is clipped.
-  const canvasW = Math.round(spec.width * SCALE * 3);
-  const canvasH = Math.round(size * spec.lines.length * (spec.lineHeight ?? 1.1) * 1.8) + 80;
+  const canvasW = spec.wrap ? spec.wrap * SCALE + 80 : Math.round(spec.width * SCALE * 3);
+  // Fliesstext bricht um: genug Hoehe fuer zehn Zeilen, der Rest wird getrimmt.
+  const rows = spec.wrap ? 10 : spec.lines.length;
+  const canvasH = Math.round(size * rows * (spec.lineHeight ?? 1.1) * 1.8) + 80;
 
   const png = new ImageResponse(
     React.createElement(
@@ -214,7 +363,7 @@ async function rasterise(
           alignItems: spec.align === 'center' ? 'center' : 'flex-start',
           padding: 40,
           fontFamily: BRAND_FONT_NAME,
-          fontWeight: 700,
+          fontWeight: spec.weight ?? 700,
           color: spec.color,
           fontSize: size,
           lineHeight: spec.lineHeight ?? 1.1,
@@ -222,7 +371,21 @@ async function rasterise(
         },
       },
       ...spec.lines.map((line, i) =>
-        React.createElement('div', { key: i, style: { display: 'flex' } }, line)
+        React.createElement(
+          'div',
+          {
+            key: i,
+            style: spec.wrap
+              ? {
+                  display: 'flex',
+                  width: spec.wrap * SCALE,
+                  justifyContent: spec.align === 'center' ? 'center' : 'flex-start',
+                  textAlign: spec.align ?? 'left',
+                }
+              : { display: 'flex' },
+          },
+          line
+        )
       )
     ),
     { width: canvasW, height: canvasH, fonts: faces }
@@ -230,9 +393,24 @@ async function rasterise(
 
   // trim() drops the transparent surplus so the template positions the art on
   // its real ink extents instead of on padding it can't see.
-  return sharp(Buffer.from(await png.arrayBuffer()))
-    .trim({ threshold: 0 })
-    .toBuffer();
+  const raw = Buffer.from(await png.arrayBuffer());
+  if (spec.lineBox) {
+    // Nur seitlich eng: senkrecht bleibt eine feste Zeilenbox um die
+    // Canvas-Mitte stehen (der Text sitzt dort, justifyContent: center). So
+    // haben „Anmelden" und „Sign up" dieselbe Hoehe und dieselbe Grundlinie,
+    // obwohl nur eins eine Unterlaenge hat.
+    const { info } = await sharp(raw).trim({ threshold: 0 }).toBuffer({ resolveWithObject: true });
+    const box = Math.round(spec.lineBox * SCALE);
+    return sharp(raw)
+      .extract({
+        left: -(info.trimOffsetLeft ?? 0),
+        width: info.width,
+        top: Math.round(canvasH / 2 - box / 2),
+        height: box,
+      })
+      .toBuffer();
+  }
+  return sharp(raw).trim({ threshold: 0 }).toBuffer();
 }
 
 /** Endgültige Schriftgröße je Grafik — Quelle für `sameSizeAs`. */
@@ -241,7 +419,11 @@ const renderedSize = new Map<string, number>();
 async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBrandFont>>['faces']) {
   let art: Buffer;
   let sized: sharp.Sharp;
-  if (spec.sameSizeAs) {
+  if (spec.wrap) {
+    renderedSize.set(spec.id, spec.size);
+    art = await rasterise(spec, spec.size, faces);
+    sized = sharp(art);
+  } else if (spec.sameSizeAs) {
     const size = renderedSize.get(spec.sameSizeAs);
     if (size === undefined) throw new Error(`${spec.id}: ${spec.sameSizeAs} muss vorher stehen`);
     renderedSize.set(spec.id, size);
@@ -265,7 +447,10 @@ async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBra
     ? sized.extend({
         top: 6 * SCALE,
         bottom: 6 * SCALE,
-        left: 10 * SCALE,
+        // Linksbuendige Grafiken bekommen links keine Flaeche: sonst stuende
+        // der Kicker 10 px rechts der Headline, und ein negativer Rand zum
+        // Ausgleich ueberlebt Gmail nicht.
+        left: (spec.align === 'center' ? 10 : 0) * SCALE,
         right: 10 * SCALE,
         background: spec.bg,
       })

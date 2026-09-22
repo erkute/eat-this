@@ -43,7 +43,6 @@ interface Props {
  */
 const copy = {
   de: {
-    kicker: 'Gratis',
     title: 'Starter Pack',
     lead: '20 neue Must Eats warten darauf, von dir entdeckt zu werden.',
     hint: 'Wir schicken dir einen Link zum Einloggen.',
@@ -61,7 +60,6 @@ const copy = {
     imgAlt: 'Eat This Starter Pack',
   },
   en: {
-    kicker: 'Free',
     title: 'Starter Pack',
     lead: '20 new Must Eats, waiting for you to discover them.',
     hint: 'We send you a sign-in link.',
@@ -150,7 +148,6 @@ export default function StarterPackSignup({ locale }: Props) {
         </div>
 
         <div className={styles.head}>
-          <span className={`hv-cap ${styles.kicker}`}>{t.kicker}</span>
           <h2 className={`hv-title ${styles.title}`}>{t.title}</h2>
         </div>
 

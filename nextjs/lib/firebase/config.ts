@@ -137,7 +137,7 @@ assertFirebaseProjectBoundary({
  *
  * initializeAuth keeps the resolver out; the one flow that needs it passes
  * browserPopupRedirectResolver explicitly (lib/auth/AuthContext.tsx). Email
- * -link sign-in (/welcome) never needed it.
+ * -link sign-in (EmailLinkSignIn) never needed it.
  *
  * Persistence has to be spelled out here: initializeAuth defaults to in-memory,
  * which would sign everyone out on reload. These two are exactly what getAuth()

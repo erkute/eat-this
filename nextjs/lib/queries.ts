@@ -289,20 +289,22 @@ export const restaurantPageQuery = `
   }
 `;
 
-// Curated spots for the magic-link email: restaurant information only. Login
-// emails are not an entitlement boundary and therefore never embed premium
-// Must-Eat text or images.
-export const emailSpotsQuery = `
-  *[_type == "restaurant" && ${liveRestaurant()}
-    && defined(slug.current) && defined(image.asset) && (${publishableRestaurantImageCondition('image')})
-    && count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) > 0]
-    | order(coalesce(featured, false) desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
-    [0...$limit] {
-    name,
-    "slug": slug.current,
-    "area": coalesce(bezirkRef->name, district),
-    "cuisine": cuisineType,
-    "photo": ${publishableRestaurantImageUrl('image', 'card')}
+// Die Beispiel-Spots der Anmelde-Mail: jeder mit seiner Must-Eat-Karte.
+// Gelesen wird der ganze Stapel, damit scripts/build-email-spots.mts daraus
+// dasselbe Schaufenster rechnen kann wie die Seite (composeRevealedMustEats) —
+// in die Mail kommen nur Karten, die ohnehin jeder ohne Konto offen sieht, nie
+// eine verdeckte. Kein $limit: die Auswahl passiert erst nach dem Schaufenster.
+export const emailMustEatsQuery = `
+  *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(_id asc) {
+    _id,
+    revealedForAnon,
+    "restaurant": restaurantRef-> {
+      _id,
+      name,
+      "slug": slug.current,
+      "area": coalesce(bezirkRef->name, district),
+      "photo": ${publishableRestaurantImageUrl('image', 'card')}
+    }
   }
 `;
 

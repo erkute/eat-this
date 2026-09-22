@@ -217,8 +217,9 @@ export default function SignInReward() {
   /* Die aktuelle Seite fuer Timer, die nach dem Rendern feuern. */
   const pageRef = useRef<string | number>('');
   const justOpened = useRef(false);
-  /* Gesetzt, wenn das Konto noch keinen Charakter hat (Google — der
-     Magic-Link fragt auf /welcome). Dann ist sie die erste Seite. */
+  /* Gesetzt, wenn das Konto noch keinen Charakter hat — nach der ersten
+     Anmeldung also immer, per Magic-Link wie per Google. Dann ist sie die
+     erste Seite. */
   const [identity, setIdentity] = useState<Identity | null>(null);
   /* Die offenen Karten des Packs, wie /api/starter-pack sie gezogen hat —
      dieselben zehn, die danach im Deck offen liegen. */
@@ -273,7 +274,7 @@ export default function SignInReward() {
     };
     /* Erst wissen, ob gefragt werden muss, dann aufgehen — sonst schoebe
        sich die Seite nachtraeglich vor das Pack. Scheitert die Abfrage,
-       bleibt es beim Google-Namen und die Tour laeuft ohne sie. */
+       bleibt es beim Namen, den das Konto hat, und die Tour laeuft ohne sie. */
     const show = (cards: string[]) => {
       identityStepPrefill().then(
         (prefill) => reveal(prefill, cards),
@@ -306,8 +307,18 @@ export default function SignInReward() {
         const ids = data.revealedMustEatIds ?? [];
         return ids.length ? Array.from({ length: 10 }, (_, i) => ids[i % ids.length]!) : [];
       };
-      if (preview === 'welcome' || preview === 'welcome-google') {
-        const prefill = preview === 'welcome-google' ? { name: 'Alex', preview: true } : null;
+      /* `welcome` zeigt die Tour wie nach einem Magic-Link (leeres Namensfeld),
+         `welcome-google` mit vorbelegtem Vornamen, `welcome-returning` ohne
+         Namensseite — ein Konto, das seinen Charakter schon hat. */
+      if (
+        preview === 'welcome' ||
+        preview === 'welcome-google' ||
+        preview === 'welcome-returning'
+      ) {
+        const prefill =
+          preview === 'welcome-returning'
+            ? null
+            : { name: preview === 'welcome-google' ? 'Alex' : '', preview: true };
         previewCards().then(
           (cards) => reveal(prefill, cards),
           () => reveal(prefill)

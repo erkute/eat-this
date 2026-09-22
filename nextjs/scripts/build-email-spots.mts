@@ -7,6 +7,10 @@
 // fertige Bilder ins Repo. Nebeneffekt: auf Staging waren die Karten hinter der
 // Basic Auth nicht abrufbar, statische Bilder unter /pics sind es.
 //
+// Jeder Spot kommt mit seiner offenen Must-Eat-Karte: gewaehlt wird aus dem
+// oeffentlichen Schaufenster (composeRevealedMustEats), die Karte kommt von der
+// Produktion und muss dort ohne Konto abrufbar sein.
+//
 // Der Preis: die kuratierten Spots rotieren nicht mehr von selbst aus Sanity.
 // Wenn sich die Auswahl ändern soll, dieses Skript neu laufen lassen.
 //
@@ -30,9 +34,11 @@ import {
   SPOT_CARD_WIDTH,
   SPOT_CARD_HEIGHT,
   isValidSlug,
+  type SpotCardData,
 } from '../lib/email/spotCard.tsx';
 import { loadBrandFont } from '../lib/email/brandFont.ts';
-import { emailSpotsQuery } from '../lib/queries.ts';
+import { emailMustEatsQuery } from '../lib/queries.ts';
+import { composeRevealedMustEats } from '../lib/map/revealed-must-eats.ts';
 
 /** Muss zu MAX_SPOTS in emails/SignupEmail.tsx passen. */
 const DEFAULT_LIMIT = 3;
@@ -60,18 +66,52 @@ const client = createClient({
   perspective: 'published',
 });
 
-interface SanitySpot {
-  name: string;
-  slug: string;
-  area: string;
-  cuisine?: string;
-  photo: string;
+interface SanityMustEat {
+  _id: string;
+  revealedForAnon?: boolean;
+  restaurant: { _id: string; name: string; slug: string; area: string; photo: string | null };
 }
 
-const spots = await client.fetch<SanitySpot[]>(emailSpotsQuery, { limit });
+/* Die Karten kommen von der Produktion, ueber dieselbe Route wie auf der
+   Seite, ohne Konto. Die liefert nur, was ohnehin offen liegt — eine verdeckte
+   Karte antwortet 403. Genau das ist die Probe: was hier ankommt, sieht jeder
+   Fremde auf der Seite auch. (Der Cache-Header taugt dafuer nicht, die
+   Middleware haengt an jede Antwort `private`.) */
+const CARD_HOST = process.env.EMAIL_CARD_HOST ?? 'https://www.eatthisdot.com';
+
+async function publicCardPng(mustEatId: string): Promise<string | null> {
+  const res = await fetch(`${CARD_HOST}/api/must-eat-image/${encodeURIComponent(mustEatId)}?w=720`);
+  if (!res.ok) return null;
+  const png = await sharp(Buffer.from(await res.arrayBuffer()))
+    .png()
+    .toBuffer();
+  return `data:image/png;base64,${png.toString('base64')}`;
+}
+
+const all = await client.fetch<SanityMustEat[]>(emailMustEatsQuery);
+/* Dasselbe Schaufenster wie die Seite, OHNE den Spot des Tages: der ist nur
+   heute offen, eine Mail liegt aber wochenlang im Postfach. */
+const showcase = composeRevealedMustEats(
+  all as unknown as Parameters<typeof composeRevealedMustEats>[0]
+);
+const candidates = all.filter(
+  (m) => showcase.has(m._id) && m.restaurant.photo && isValidSlug(m.restaurant.slug)
+);
+
+const spots: (SpotCardData & { slug: string })[] = [];
+for (const m of candidates) {
+  if (spots.length >= limit) break;
+  const card = await publicCardPng(m._id);
+  if (!card) {
+    console.warn(`  übersprungen (Karte nicht öffentlich): ${m._id} — ${m.restaurant.name}`);
+    continue;
+  }
+  const { name, slug, area, photo } = m.restaurant;
+  spots.push({ name, slug, area, photo: photo!, card });
+}
 
 if (spots.length === 0) {
-  console.error('❌ Sanity liefert keine Spots — Auswahl unverändert gelassen.');
+  console.error('❌ Keine Spots mit offener Karte — Auswahl unverändert gelassen.');
   process.exit(1);
 }
 
@@ -111,8 +151,8 @@ for (const spot of spots) {
 
   await writeFile(join(OUT_DIR, `${spot.slug}.jpg`), jpeg);
 
-  const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ');
-  // Inhalts-Hash fuer die URL — siehe build-email-phones.mts.
+  const meta = spot.area;
+  // Inhalts-Hash fuer die URL — ohne ihn cacht Gmails Bild-Proxy ewig.
   const version = createHash('sha1').update(jpeg).digest('hex').slice(0, 8);
   rendered.push({ slug: spot.slug, name: spot.name, meta, version });
   console.log(`  ${spot.slug}.jpg  ${Math.round(jpeg.length / 1024)} kB  —  ${spot.name}`);
@@ -144,7 +184,7 @@ await writeFile(
     '  slug: string;',
     '  /** Nur für den Alt-Text; im Bild steht der Name bereits gesetzt. */',
     '  name: string;',
-    '  /** „Bezirk · Küche" für den Alt-Text. */',
+    '  /** Der Bezirk, für den Alt-Text. */',
     '  meta: string;',
     '  /** Inhalts-Hash; haengt als ?v= an der Bild-URL, sonst cacht Gmail ewig. */',
     '  version: string;',

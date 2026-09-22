@@ -18,81 +18,249 @@ export interface ArtAsset {
 }
 
 export const ART = {
-  "headlineSignup": {
-    "id": "headline-signup",
-    "width": 470,
-    "height": 114,
-    "alt": "WE TELL YOU WHAT TO EAT",
-    "version": "f6603545"
+  headlineSignup: {
+    id: 'headline-signup',
+    width: 470,
+    height: 112,
+    alt: 'WE TELL YOU WHAT TO EAT.',
+    version: 'e9789d86',
   },
-  "headlineLogin": {
-    "id": "headline-login",
-    "width": 470,
-    "height": 113,
-    "alt": "WILLKOMMEN ZURÜCK",
-    "version": "c7e0360b"
+  headlineLogin: {
+    id: 'headline-login',
+    width: 470,
+    height: 113,
+    alt: 'WILLKOMMEN ZURÜCK',
+    version: '85ae6e5a',
   },
-  "titleStarterPack": {
-    "id": "title-starter-pack",
-    "width": 210,
-    "height": 23,
-    "alt": "STARTER PACK",
-    "version": "72748eec"
+  kickerSignup: {
+    id: 'kicker-signup',
+    width: 240,
+    height: 23,
+    alt: 'DEIN ZUGANG ZU EAT THIS',
+    version: '6c9e661b',
   },
-  "sloganInverse": {
-    "id": "slogan-inverse",
-    "width": 192,
-    "height": 20,
-    "alt": "WE TELL YOU WHAT TO EAT",
-    "version": "5808536e"
+  kickerLogin: {
+    id: 'kicker-login',
+    width: 296,
+    height: 27,
+    alt: 'SCHÖN, DASS DU WIEDER DA BIST',
+    version: '78794ace',
   },
-  "kickerSignup": {
-    "id": "kicker-signup",
-    "width": 220,
-    "height": 23,
-    "alt": "WAS DU ESSEN SOLLTEST",
-    "version": "491f6c57"
+  leadSignup: {
+    id: 'lead-signup',
+    width: 333,
+    height: 74,
+    alt: 'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
+    version: '837ad147',
   },
-  "kickerLogin": {
-    "id": "kicker-login",
-    "width": 296,
-    "height": 27,
-    "alt": "SCHÖN, DASS DU WIEDER DA BIST",
-    "version": "78794ace"
+  leadLogin: {
+    id: 'lead-login',
+    width: 349,
+    height: 57,
+    alt: 'Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.',
+    version: '9cd65b41',
   },
-  "titleSpots": {
-    "id": "title-spots",
-    "width": 290,
-    "height": 17,
-    "alt": "SCHON MAL REINSCHAUEN",
-    "version": "abf1d1c9"
+  kickerStarter: {
+    id: 'kicker-starter',
+    width: 183,
+    height: 23,
+    alt: 'DEIN STARTER PACK',
+    version: 'b3e7b8b5',
   },
-  "headlineLoginEn": {
-    "id": "headline-login-en",
-    "width": 326,
-    "height": 113,
-    "alt": "WELCOME BACK",
-    "version": "dffe6405"
+  titleStarter: {
+    id: 'title-starter',
+    width: 350,
+    height: 72,
+    alt: '20 MUST EATS. FÜR DEINEN START.',
+    version: 'bb269448',
   },
-  "kickerSignupEn": {
-    "id": "kicker-signup-en",
-    "width": 186,
-    "height": 23,
-    "alt": "BERLIN'S MUST EATS",
-    "version": "5e861d95"
+  bodyStarter: {
+    id: 'body-starter',
+    width: 346,
+    height: 123,
+    alt: 'Starte mit 20 Must Eat Empfehlungen in Berlin. Jede Karte verrät dir, was du an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du erst vor Ort auf.',
+    version: 'f2f3d478',
   },
-  "kickerLoginEn": {
-    "id": "kicker-login-en",
-    "width": 227,
-    "height": 23,
-    "alt": "GOOD TO SEE YOU AGAIN",
-    "version": "38d73f8a"
+  sloganInverse: {
+    id: 'slogan-inverse',
+    width: 192,
+    height: 20,
+    alt: 'WE TELL YOU WHAT TO EAT',
+    version: '5808536e',
   },
-  "titleSpotsEn": {
-    "id": "title-spots-en",
-    "width": 142,
-    "height": 17,
-    "alt": "TAKE A PEEK",
-    "version": "58a7d00f"
-  }
+  ctaAnmelden: {
+    id: 'cta-anmelden',
+    width: 98,
+    height: 34,
+    alt: 'Anmelden',
+    version: '4afa1368',
+  },
+  ctaSignUp: {
+    id: 'cta-sign-up',
+    width: 79,
+    height: 34,
+    alt: 'Sign up',
+    version: '08ced7cd',
+  },
+  ctaSignIn: {
+    id: 'cta-sign-in',
+    width: 76,
+    height: 34,
+    alt: 'Sign in',
+    version: 'd31d96bc',
+  },
+  footerFollow: {
+    id: 'footer-follow',
+    width: 73,
+    height: 22,
+    alt: 'FOLGEN',
+    version: 'cc4e79ec',
+  },
+  footerInstagram: {
+    id: 'footer-instagram',
+    width: 194,
+    height: 35,
+    alt: 'INSTAGRAM',
+    version: '9ab626cd',
+  },
+  footerAbout: {
+    id: 'footer-about',
+    width: 87,
+    height: 24,
+    alt: 'ÜBER UNS',
+    version: '35d4bde4',
+  },
+  footerContact: {
+    id: 'footer-contact',
+    width: 87,
+    height: 22,
+    alt: 'KONTAKT',
+    version: 'fc0d9025',
+  },
+  footerImpressum: {
+    id: 'footer-impressum',
+    width: 101,
+    height: 22,
+    alt: 'IMPRESSUM',
+    version: 'ec18883d',
+  },
+  footerDatenschutz: {
+    id: 'footer-datenschutz',
+    width: 120,
+    height: 22,
+    alt: 'DATENSCHUTZ',
+    version: 'c4f9a3a2',
+  },
+  footerAgb: {
+    id: 'footer-agb',
+    width: 46,
+    height: 22,
+    alt: 'AGB',
+    version: '8fd8d21a',
+  },
+  footerCopyright: {
+    id: 'footer-copyright',
+    width: 315,
+    height: 21,
+    alt: '© 2026 EAT THIS. ALLE RECHTE VORBEHALTEN.',
+    version: 'e3cf4d9f',
+  },
+  headlineLoginEn: {
+    id: 'headline-login-en',
+    width: 326,
+    height: 113,
+    alt: 'WELCOME BACK',
+    version: '353e143b',
+  },
+  kickerSignupEn: {
+    id: 'kicker-signup-en',
+    width: 237,
+    height: 23,
+    alt: 'YOUR ACCESS TO EAT THIS',
+    version: '76367fa3',
+  },
+  kickerLoginEn: {
+    id: 'kicker-login-en',
+    width: 227,
+    height: 23,
+    alt: 'GOOD TO SEE YOU AGAIN',
+    version: '38d73f8a',
+  },
+  leadSignupEn: {
+    id: 'lead-signup-en',
+    width: 346,
+    height: 74,
+    alt: 'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
+    version: '3b3ba1d7',
+  },
+  leadLoginEn: {
+    id: 'lead-login-en',
+    width: 317,
+    height: 57,
+    alt: 'One click and your map is open, with everything you’ve already unlocked.',
+    version: 'f9a91844',
+  },
+  kickerStarterEn: {
+    id: 'kicker-starter-en',
+    width: 186,
+    height: 23,
+    alt: 'YOUR STARTER PACK',
+    version: '7215b230',
+  },
+  titleStarterEn: {
+    id: 'title-starter-en',
+    width: 396,
+    height: 72,
+    alt: '20 MUST EATS. TO GET YOU STARTED.',
+    version: '9c1bffef',
+  },
+  bodyStarterEn: {
+    id: 'body-starter-en',
+    width: 340,
+    height: 99,
+    alt: 'Start with 20 Must Eat picks in Berlin. Every card tells you what to order at a spot. Some are already open, others you reveal on site.',
+    version: '10429f4f',
+  },
+  footerFollowEn: {
+    id: 'footer-follow-en',
+    width: 75,
+    height: 21,
+    alt: 'FOLLOW',
+    version: 'caad09b9',
+  },
+  footerAboutEn: {
+    id: 'footer-about-en',
+    width: 66,
+    height: 22,
+    alt: 'ABOUT',
+    version: 'e0f1d8f8',
+  },
+  footerContactEn: {
+    id: 'footer-contact-en',
+    width: 84,
+    height: 22,
+    alt: 'CONTACT',
+    version: 'cc4f356f',
+  },
+  footerDatenschutzEn: {
+    id: 'footer-datenschutz-en',
+    width: 78,
+    height: 22,
+    alt: 'PRIVACY',
+    version: 'd6546aef',
+  },
+  footerAgbEn: {
+    id: 'footer-agb-en',
+    width: 66,
+    height: 22,
+    alt: 'TERMS',
+    version: '9b07460c',
+  },
+  footerCopyrightEn: {
+    id: 'footer-copyright-en',
+    width: 278,
+    height: 21,
+    alt: '© 2026 EAT THIS. ALL RIGHTS RESERVED.',
+    version: '39b1d975',
+  },
 } as const satisfies Record<string, ArtAsset>;

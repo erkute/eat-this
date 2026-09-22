@@ -5554,6 +5554,11 @@
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
+  /* Blickdicht, Streifen wie Fotos: `.rdHero` trägt das erste Foto als
+     Hintergrund, damit es schon vor der Galerie steht. Durch durchsichtige
+     Flächen schien es beim Wischen durch — solange das nächste Foto lud und
+     im Gummiband am ersten und letzten Foto. */
+  background: var(--et-home-ink, #15120e);
 }
 .rdHeroPhotos::-webkit-scrollbar {
   display: none;
@@ -5564,7 +5569,7 @@
   min-width: 0;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--et-home-ink, #15120e);
   cursor: zoom-in;
   scroll-snap-align: start;
   scroll-snap-stop: always;

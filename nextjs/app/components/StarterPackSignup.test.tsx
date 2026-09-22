@@ -70,10 +70,11 @@ describe('StarterPackSignup', () => {
     cleanup();
   });
 
-  it('names the offer, its price and the magic-link step', () => {
+  it('names the offer and the magic-link step', () => {
     const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
     expect(html).toContain('Starter Pack');
-    expect(html).toContain('Gratis');
+    // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
+    expect(html).not.toContain('Gratis');
     expect(html).toContain('placeholder="deine@email.com"');
     expect(html).toContain('Anmelden');
     // The mail that follows must not come as a surprise.

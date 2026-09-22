@@ -50,7 +50,7 @@ describe('auth mail plain-text parts', () => {
     const login = buildLoginText('https://x/v', 'en');
     const signup = buildSignupText('https://x/v', 'en');
     expect(login).toContain('Welcome back.');
-    expect(signup).toContain('20 Must Eats, free to start.');
+    expect(signup).toContain('20 Must Eats to get you started.');
     for (const t of [login, signup]) {
       expect(t).toContain('https://x/v');
       expect(t).toContain('one hour');

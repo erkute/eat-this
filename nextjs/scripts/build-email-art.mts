@@ -164,7 +164,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'title-starter',
-    lines: ['20 MUST EATS.', 'KOSTENLOS ZUM START.'],
+    lines: ['20 MUST EATS.', 'FÜR DEINEN START.'],
     color: COLOR.text,
     bg: COLOR.raised,
     size: 30,
@@ -276,7 +276,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'title-starter-en',
-    lines: ['20 MUST EATS.', 'FREE TO START.'],
+    lines: ['20 MUST EATS.', 'TO GET YOU STARTED.'],
     color: COLOR.text,
     bg: COLOR.raised,
     size: 30,

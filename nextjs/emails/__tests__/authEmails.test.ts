@@ -137,7 +137,7 @@ describe('SignupEmail', () => {
     expect(html).toContain('unsere Must Eat Gerichte, für die sich der Besuch lohnt');
     expect(html).not.toContain('Gute Spots findest du überall');
     expect(html).toContain('DEIN STARTER PACK');
-    expect(html).toContain('20 MUST EATS. KOSTENLOS ZUM START.');
+    expect(html).toContain('20 MUST EATS. FÜR DEINEN START.');
     expect(html).not.toContain('GEHT AUF UNS');
     expect(html).toContain('/pics/email/booster_free.png');
     expect(html).toContain('Anmeldelink öffnen');
@@ -242,7 +242,7 @@ describe('EN-Fassung', () => {
     'Anmelden',
     'Einloggen',
     'Anmeldelink',
-    'KOSTENLOS',
+    'FÜR DEINEN',
     'Stunde',
     'Gratis',
     'WILLKOMMEN',
@@ -269,7 +269,7 @@ describe('EN-Fassung', () => {
   it('Anmelde-Mail: ein Wort im Knopf, Starter-Pack-Satz der Seite, EN-Grafiken', async () => {
     const html = await signupEn();
     expect(html).toContain('>Sign up<');
-    expect(html).toContain('20 MUST EATS. FREE TO START.');
+    expect(html).toContain('20 MUST EATS. TO GET YOU STARTED.');
     expect(html).toContain('/pics/email/kicker-signup-en.png');
     expect(html).toContain('/pics/email/body-starter-en.png');
     expect(html).toContain('/en/map?r=sofi');
@@ -282,5 +282,23 @@ describe('EN-Fassung', () => {
     expect(html).toContain('WELCOME BACK');
     expect(html).toContain('/pics/email/headline-login-en.png');
     expect(LOGIN_SUBJECT.en).toBe('Your Eat This sign-in link');
+  });
+});
+
+/* Kein Geschenk-Wording, nirgends in den Mails: „kostenlos", „gratis",
+   „geht auf uns" hat der Betreiber am 22.09.2026 dreimal abgelehnt. */
+describe('kein Gratis-Wording', () => {
+  it('sagt in keiner Fassung, dass etwas geschenkt ist', async () => {
+    const texts = [
+      await signup(),
+      await login(),
+      await signupEn(),
+      await loginEn(),
+      SIGNUP_SUBJECT.de,
+      SIGNUP_SUBJECT.en,
+    ];
+    for (const text of texts) {
+      expect(text).not.toMatch(/kostenlos|gratis|geschenk|umsonst|auf uns|\bfree\b|on us/i);
+    }
   });
 });

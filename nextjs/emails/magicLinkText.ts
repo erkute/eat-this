@@ -14,7 +14,7 @@ const TEXT = {
       'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
     signupIntro: 'Bei Eat This anmelden:',
     signupAfter: [
-      'Dein Starter Pack: 20 Must Eats, kostenlos zum Start. Jede Karte verrät dir, was du',
+      'Dein Starter Pack: 20 Must Eats für deinen Start. Jede Karte verrät dir, was du',
       'an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du',
       'erst vor Ort auf.',
     ],
@@ -27,7 +27,7 @@ const TEXT = {
       'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
     signupIntro: 'Sign up for Eat This:',
     signupAfter: [
-      'Your Starter Pack: 20 Must Eats, free to start. Every card tells you what to order at',
+      'Your Starter Pack: 20 Must Eats to get you started. Every card tells you what to order at',
       'a spot. Some are already open, others you reveal on site.',
     ],
   },

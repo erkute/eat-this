@@ -40,7 +40,7 @@ export const SIGNUP_SUBJECT: Record<MailLocale, string> = {
    sind (scripts/build-email-art.mts); hier liegt nur, was echter Text bleibt. */
 const COPY = {
   de: {
-    preview: '20 Must Eats in Berlin. Kostenlos zum Start.',
+    preview: '20 Must Eats für deinen Start in Berlin.',
     kicker: ART.kickerSignup,
     lead: ART.leadSignup,
     cta: 'Anmelden',
@@ -52,7 +52,7 @@ const COPY = {
     starterBody: ART.bodyStarter,
   },
   en: {
-    preview: '20 Must Eats in Berlin. Free to start.',
+    preview: '20 Must Eats to get you started in Berlin.',
     kicker: ART.kickerSignupEn,
     lead: ART.leadSignupEn,
     cta: 'Sign up',

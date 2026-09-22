@@ -70,9 +70,9 @@ export const ART = {
   titleStarter: {
     id: 'title-starter',
     width: 350,
-    height: 61,
-    alt: '20 MUST EATS. KOSTENLOS ZUM START.',
-    version: '79542be3',
+    height: 72,
+    alt: '20 MUST EATS. FÜR DEINEN START.',
+    version: 'bb269448',
   },
   bodyStarter: {
     id: 'body-starter',
@@ -188,10 +188,10 @@ export const ART = {
   },
   titleStarterEn: {
     id: 'title-starter-en',
-    width: 233,
-    height: 61,
-    alt: '20 MUST EATS. FREE TO START.',
-    version: 'ddaf8c02',
+    width: 396,
+    height: 72,
+    alt: '20 MUST EATS. TO GET YOU STARTED.',
+    version: '9c1bffef',
   },
   bodyStarterEn: {
     id: 'body-starter-en',

@@ -431,7 +431,7 @@ export default function SignInReward() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className={styles.avatarImg} src={avatarSrc(choice.id)} alt="" />
-                  <span className={styles.avatarName}>{choice[locale === 'en' ? 'en' : 'de']}</span>
+                  <span className={styles.avatarName}>{choice.label}</span>
                 </button>
               );
             })}

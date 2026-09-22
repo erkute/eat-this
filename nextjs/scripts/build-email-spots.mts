@@ -152,7 +152,6 @@ await writeFile(
     '',
     `/** Anzeigebreite in CSS-Pixeln; die JPEGs sind ${SPOT_CARD_WIDTH}×${SPOT_CARD_HEIGHT} (2x). */`,
     `export const SPOT_DISPLAY_WIDTH = ${DISPLAY_WIDTH};`,
-    `export const SPOT_DISPLAY_HEIGHT = ${Math.round((DISPLAY_WIDTH * SPOT_CARD_HEIGHT) / SPOT_CARD_WIDTH)};`,
     '',
     `export const EMAIL_SPOTS: readonly EmailSpot[] = ${JSON.stringify(rendered, null, 2)};`,
     '',

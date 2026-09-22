@@ -15,11 +15,13 @@ import {
 } from '@react-email/components';
 import { ART } from '../art.generated';
 import { BODY_FONT, COLOR, LAYOUT, EMAIL_ASSET_VERSION } from '../theme';
+import type { MailLocale } from '../locale';
 
 interface ShellProps {
   /** Inbox preview line — the sentence under the subject. */
   preview: string;
   appUrl: string;
+  locale: MailLocale;
   children: React.ReactNode;
 }
 
@@ -30,16 +32,40 @@ const FOOTER_MUTED = '#a6a09a';
 // in einer Mail ueberhaupt funktioniert: "Frag Remy" ist ein Anker auf die
 // Startseite, die Cookie-Einstellungen sind ein JS-Button. Beide bleiben
 // draussen, dieser eine gehoert rein.
-const FOOTER_LINKS: { label: string; path?: string; url?: string }[] = [
-  { label: 'Instagram', url: 'https://www.instagram.com/eatthisdotcom/' },
-  { label: 'Impressum', path: '/impressum' },
-  { label: 'Datenschutz', path: '/datenschutz' },
-  { label: 'AGB', path: '/agb' },
-];
+// Die EN-Beschriftung folgt dem EN-Footer der Seite (footer.* in
+// lib/i18n/translations.ts): „Impressum" bleibt dort Impressum.
+const FOOTER_LINKS: Record<MailLocale, { label: string; path?: string; url?: string }[]> = {
+  de: [
+    { label: 'Instagram', url: 'https://www.instagram.com/eatthisdotcom/' },
+    { label: 'Impressum', path: '/impressum' },
+    { label: 'Datenschutz', path: '/datenschutz' },
+    { label: 'AGB', path: '/agb' },
+  ],
+  en: [
+    { label: 'Instagram', url: 'https://www.instagram.com/eatthisdotcom/' },
+    { label: 'Impressum', path: '/en/impressum' },
+    { label: 'Privacy', path: '/en/datenschutz' },
+    { label: 'Terms', path: '/en/agb' },
+  ],
+};
 
-export function Shell({ preview, appUrl, children }: ShellProps) {
+const FOOTER_COPY = {
+  de: {
+    reasonBefore: 'Du bekommst diese E-Mail, weil sich jemand mit dieser Adresse bei',
+    reasonAfter: 'angemeldet hat. Warst du das nicht, ignoriere sie einfach.',
+    copyright: '© 2026 Eat This. Alle Rechte vorbehalten.',
+  },
+  en: {
+    reasonBefore: 'You’re getting this email because someone signed in to',
+    reasonAfter: 'with this address. If that wasn’t you, just ignore it.',
+    copyright: '© 2026 Eat This. All rights reserved.',
+  },
+} as const;
+
+export function Shell({ preview, appUrl, locale, children }: ShellProps) {
+  const footer = FOOTER_COPY[locale];
   return (
-    <Html lang="de">
+    <Html lang={locale}>
       <Head>
         {/* The app is light-only (CLAUDE.md). Without these, Apple Mail and
             Outlook auto-invert the palette and the yellow accent turns muddy. */}
@@ -157,7 +183,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                 color: COLOR.text,
               }}
             >
-              {FOOTER_LINKS.map((l, i) => (
+              {FOOTER_LINKS[locale].map((l, i) => (
                 <span key={l.label}>
                   {i > 0 && <span style={{ color: FOOTER_MUTED }}>{'  ·  '}</span>}
                   <Link
@@ -173,11 +199,11 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
             <Text
               style={{ margin: '0 0 6px', fontSize: '12px', lineHeight: 1.6, color: FOOTER_MUTED }}
             >
-              Du bekommst diese E-Mail, weil sich jemand mit dieser Adresse bei{' '}
+              {footer.reasonBefore}{' '}
               <Link href={appUrl} style={{ color: COLOR.accent, textDecoration: 'none' }}>
                 eatthisdot.com
               </Link>{' '}
-              angemeldet hat. Warst du das nicht, ignoriere sie einfach.
+              {footer.reasonAfter}
             </Text>
             <Text
               style={{
@@ -188,7 +214,7 @@ export function Shell({ preview, appUrl, children }: ShellProps) {
                 color: FOOTER_MUTED,
               }}
             >
-              © 2026 Eat This. Alle Rechte vorbehalten.
+              {footer.copyright}
             </Text>
           </Section>
         </Container>

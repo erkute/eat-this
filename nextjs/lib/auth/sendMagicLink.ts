@@ -14,6 +14,8 @@ import { getAdminAuth } from '@/lib/firebase/admin';
 import SignupEmail, { SIGNUP_SUBJECT } from '@/emails/SignupEmail';
 import LoginEmail, { LOGIN_SUBJECT } from '@/emails/LoginEmail';
 import { buildLoginText, buildSignupText } from '@/emails/magicLinkText';
+import type { MailLocale } from '@/emails/locale';
+import { LANG_PARAM } from '@/lib/auth/welcomeLocale';
 
 type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
@@ -62,10 +64,12 @@ export async function sendMagicLinkEmail(params: {
   continueUrl: string;
   /** Public base URL for email artwork. */
   appUrl: string;
+  /** Sprache der Mail und des /welcome-Screens, auf dem der Link landet. */
+  locale: MailLocale;
   /** Stable logical-send key for retry-safe trusted callers. */
   idempotencyKey?: string;
 }): Promise<SendMagicLinkResult> {
-  const { email, continueUrl, appUrl, idempotencyKey } = params;
+  const { email, continueUrl, appUrl, locale, idempotencyKey } = params;
 
   // The continue URL doubles as the cross-browser email carrier: /welcome
   // reads `e` to complete the sign-in when the link opens in a browser that
@@ -76,6 +80,12 @@ export async function sendMagicLinkEmail(params: {
   try {
     const u = new URL(continueUrl);
     u.searchParams.set('e', email);
+    // /welcome liegt ausserhalb von [locale] und kennt die Sprache sonst nur
+    // aus dem NEXT_LOCALE-Cookie — den der fremde Browser (Gmail-App → Chrome)
+    // nicht hat. Derselbe Traeger wie `e`, aus demselben Grund.
+    // Auch `de` wird gesetzt: sonst sprache ein alter NEXT_LOCALE=en-Cookie
+    // fuer jemanden, der gerade von der deutschen Seite kommt.
+    u.searchParams.set(LANG_PARAM, locale);
     linkUrl = u.toString();
   } catch {
     // Non-absolute continueUrl (shouldn't happen — callers build absolute
@@ -128,10 +138,10 @@ export async function sendMagicLinkEmail(params: {
   const recipient = process.env.NEXT_PUBLIC_ENV === 'staging' ? stagingRecipient! : email;
 
   const html = returning
-    ? await renderEmail(LoginEmail({ magicLink, appUrl }))
-    : await renderEmail(SignupEmail({ magicLink, appUrl }));
-  const text = returning ? buildLoginText(magicLink) : buildSignupText(magicLink);
-  const subject = returning ? LOGIN_SUBJECT : SIGNUP_SUBJECT;
+    ? await renderEmail(LoginEmail({ magicLink, appUrl, locale }))
+    : await renderEmail(SignupEmail({ magicLink, appUrl, locale }));
+  const text = returning ? buildLoginText(magicLink, locale) : buildSignupText(magicLink, locale);
+  const subject = returning ? LOGIN_SUBJECT[locale] : SIGNUP_SUBJECT[locale];
 
   try {
     const resend = new Resend(resendKey);

@@ -20,9 +20,12 @@ export function postSignInTarget(search: string, origin: string, home: string): 
     if (!raw) return home;
     const url = new URL(raw, origin);
     if (url.origin !== origin) return home;
-    // `e` is the email carrier the mail added — it has done its job by now and
-    // has no business in the address bar of the page we land on.
+    // `e` and `lang` are the carriers the mail added — they have done their job
+    // by now and have no business in the address bar of the page we land on.
+    // `lang` especially: the middleware reads it as the legacy ?lang= switch
+    // and would answer with a 308.
     url.searchParams.delete('e');
+    url.searchParams.delete('lang');
     const target = `${url.pathname}${url.search}`;
     // A continue URL pointing back at the sign-in handler would bounce the
     // user through it a second time, with a code that is already spent.

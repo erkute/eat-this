@@ -216,8 +216,8 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     const name = screen.getByLabelText('Dein Name') as HTMLInputElement;
     expect(name.value).toBe('Alex');
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Pizza-Pate' }));
-    expect(screen.getByRole('radio', { name: 'Pizza-Pate' }).getAttribute('aria-checked')).toBe(
+    fireEvent.click(screen.getByRole('radio', { name: 'Chef Slice' }));
+    expect(screen.getByRole('radio', { name: 'Chef Slice' }).getAttribute('aria-checked')).toBe(
       'true'
     );
     fireEvent.change(name, { target: { value: '  Alexa ' } });

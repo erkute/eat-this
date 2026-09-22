@@ -14,7 +14,6 @@ export interface EmailSpot {
 
 /** Anzeigebreite in CSS-Pixeln; die JPEGs sind 1072×804 (2x). */
 export const SPOT_DISPLAY_WIDTH = 536;
-export const SPOT_DISPLAY_HEIGHT = 402;
 
 export const EMAIL_SPOTS: readonly EmailSpot[] = [
   {

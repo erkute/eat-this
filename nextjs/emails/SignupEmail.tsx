@@ -10,12 +10,7 @@ import { Shell } from './components/Shell';
 import { ArtImage, CtaButton, Fineprint, Lead, Paper, SectionHead } from './components/Pieces';
 import { ART } from './art.generated';
 import { PHONES_ART } from './phones.generated';
-import {
-  EMAIL_SPOTS,
-  SPOT_DISPLAY_HEIGHT,
-  SPOT_DISPLAY_WIDTH,
-  type EmailSpot,
-} from './spots.generated';
+import { EMAIL_SPOTS, SPOT_DISPLAY_WIDTH, type EmailSpot } from './spots.generated';
 import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from './theme';
 import type { MailLocale } from './locale';
 
@@ -229,12 +224,15 @@ export default function SignupEmail({
               style={{ display: 'block', margin: '0 0 14px' }}
             >
               {/* next/image has no meaning in an inbox — the markup leaves this
-                  process as an HTML string, and there is no runtime to optimise. */}
+                  process as an HTML string, and there is no runtime to optimise.
+                  Nur `width`, kein `height`: bei blockierten Bildern hielt das
+                  height-Attribut drei leere ~400-px-Boxen offen. Die Höhe folgt
+                  geladen aus dem Seitenverhältnis — auch in Outlooks Word-Engine,
+                  die CSS-Breiten ignoriert, aber das width-Attribut skaliert. */}
               <img
                 src={`${appUrl}/pics/email/spots/${s.slug}.jpg?v=${s.version}`}
                 alt={`${s.name} — ${s.meta}`}
                 width={SPOT_DISPLAY_WIDTH}
-                height={SPOT_DISPLAY_HEIGHT}
                 style={{
                   display: 'block',
                   width: '100%',
